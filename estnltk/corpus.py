@@ -117,7 +117,7 @@ class PlaintextCorpusImporter(object):
         return [documents]
             
             
-
+'''
 importer = PlainTextDocumentImporter()
 corpus = importer(u'See on esimene lõik. Esimese lõigu sisu\n  See on teine lõik.')
 
@@ -127,7 +127,7 @@ analyzer = PyVabamorfAnalyzer()
 corpus = analyzer(corpus)
 
 pprint(corpus)
-
+'''
 
 
             
