@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 from setuptools import setup
 
@@ -11,9 +12,10 @@ setup(
     author_email = "tpetmanson@gmail.com",
     description = ("API for performing natural language processing tasks in Estonian."),
     license = "BSD",
-    keywords = "example documentation tutorial",
+    keywords = "naturale language processing, machine learning",
     url = "http://packages.python.org/an_example_pypi_project",
     packages=['an_example_pypi_project', 'tests'],
     long_description=read('README'),
     classifiers=[],
 )
+
