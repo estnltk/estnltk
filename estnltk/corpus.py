@@ -114,9 +114,8 @@ class PlaintextCorpusImporter(object):
             document['filename'] = fnm
             document['abs_path'] = abs_path
             documents.append(document)
-        return [documents]
-            
-            
+        return documents
+
 '''
 importer = PlainTextDocumentImporter()
 corpus = importer(u'See on esimene lõik. Esimese lõigu sisu\n  See on teine lõik.')
@@ -128,10 +127,13 @@ corpus = analyzer(corpus)
 
 pprint(corpus)
 '''
-
-
+'''
+analyzer = PyVabamorfAnalyzer()
             
-#importer = PlaintextCorpusImporter(PMNEWS_PATH, suffix='.txt')
-#pprint(importer.read())
+importer = PlaintextCorpusImporter(PMNEWS_PATH, suffix='.txt')
+corpus = importer.read()
+corpus[0] = analyzer(corpus[0])
+pprint(corpus)
+'''
 
 
