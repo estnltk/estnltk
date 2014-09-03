@@ -6,6 +6,8 @@ Defines functionality common to all modules.
 
 import os
 
+from jsonpath_rw import parse
+
 # setup some paths
 
 PACKAGE_PATH = os.path.dirname(__file__)
@@ -28,3 +30,7 @@ def get_filenames(root, prefix=u'', suffix=u''):
     '''
     return [fnm for fnm in os.listdir(root) if fnm.startswith(prefix) and fnm.endswith(suffix)]
 
+
+class JsonPaths(object):
+    '''Class for defining common jsonpath_rw expresssions.'''
+    words = parse('[*]..words')
