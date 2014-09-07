@@ -4,7 +4,7 @@ from eurown import Parser
 
 
 _DATA_DIR = "data"
-_LIT_POS_FILE = "lit-pos-synidx2.txt"
+_LIT_POS_FILE = "lit-pos-synidx.txt"
 _SOI = "kb69a-utf8.soi"
 _WN_FILE = "kb69a-utf8.txt"
 _SENSE_FILE = "sense.txt"

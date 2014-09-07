@@ -1,6 +1,6 @@
 # TODO fix parsing
 
-import re
+import re, codecs
 from sys import argv
 from pyvabamorf import analyze_sentence
 
@@ -9,7 +9,7 @@ pos_regexp = re.compile("\s+1\s+PART_OF_SPEECH\s+\"(\w+)\"")
 literal_regexp = re.compile("\s+2\s+LITERAL\s\"(.+)\"")
 sense_regexp = re.compile("\s+3\s+SENSE\s+(\d+)")
 
-with open('%s'%argv[1],'r') as fin, open('%s'%argv[2],'w') as fout:
+with codecs.open('%s'%argv[1],'r',encoding='utf-8') as fin, codecs.open("../synset_to_lemma.txt",'w',encoding='utf-8') as fout:
 	for line in fin:
 		result = syn_idx_regexp.match(line)
 		if result:
@@ -34,4 +34,5 @@ with open('%s'%argv[1],'r') as fin, open('%s'%argv[2],'w') as fout:
 				form = candidate['form']
 				lemma = candidate['lemma']
 				cand_pos = candidate['partofspeech']
+				
 				fout.write("%s@%s:%s:%02d@%s:%s:%s\n"%(syn_idx,pos,literal,int(sense),lemma,form,cand_pos))
