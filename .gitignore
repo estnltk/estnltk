@@ -1,0 +1,2 @@
+wordnet/data/*
+!wordnet/data/scripts
