@@ -76,7 +76,7 @@ class PlainTextDocumentImporter(object):
         for para in paras:
             sentences = apply_tokenizer(para['text'], self._sentence_tokenizer, para['start'])
             for sent in sentences:
-                sent['words'] = words = apply_tokenizer(sent['text'], self._word_tokenizer, sent['start'])
+                sent['words'] = apply_tokenizer(sent['text'], self._word_tokenizer, sent['start'])
             para['sentences'] = sentences
         return {'text': text,
                 'paragraphs': paras,
