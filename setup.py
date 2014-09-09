@@ -11,7 +11,8 @@ setup(
         'estnltk': ['corpora/pm_news/*.txt']
     },
     
-    install_requires = ['pyvabamorf>=1.3', 'jsonpath-rw>=1.3.0'],
+    install_requires = ['pyvabamorf>=1.3',
+                        'jsonpath-rw>=1.3.0'],
     
     author       = "Timo Petmanson, Aleksandr Tkachenko, Siim Orasmaa, Raul Sirel, Karl-Oskar Masing, Tanel Pärnamaa, Dage Särg, Sven Laur, Tarmo Vaino, Heiki-Jaan Kaalep",
     author_email = "tpetmanson@gmail.com",
