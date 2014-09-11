@@ -26,6 +26,7 @@ javabridge_support.initializeJVM(javaResourcesDir)
 from clause_segmenter import ClauseSegmenter
 segmenter = ClauseSegmenter()
 
+#sentence = analyze_sentence( u'Mees, keda seal kohtasime, oli tuttav ja teretas meid.'.split() )
 sentence = analyze_sentence( u'Homme hommikul palun tulge ikka kohale, et saaksime asjaga alustada! (muidu kisub jamaks)'.split() )
 #sentence = analyze_sentence( 'Näiteks tudengite küsimustele vastamise korral (olenemata asjaolust, et mitu tudengit esitab sama küsimust, usun, et see ei ole pedagoogiliselt õige)'.decode(sys.stdin.encoding).split() )
 
