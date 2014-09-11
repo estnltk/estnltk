@@ -11,6 +11,9 @@ from jsonpath_rw import parse
 # setup some paths
 
 PACKAGE_PATH = os.path.dirname(__file__)
+JAVARES_PATH = os.path.join(PACKAGE_PATH, 'java-res')
+
+# corpora
 CORPORA_PATH = os.path.join(PACKAGE_PATH, 'corpora')
 PMNEWS_PATH = os.path.join(CORPORA_PATH, 'pm_news')
 
