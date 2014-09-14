@@ -1,0 +1,1023 @@
+offset= 111
+0 @1@ WORD_MEANING
+offset= 130
+1 PART_OF_SPEECH "v"
+offset= 153
+1 VARIANTS
+offset= 166
+2 LITERAL "korraldama"
+offset= 193
+3 SENSE 7
+offset= 209
+3 DEFINITION "midagi sobivasse korda või süsteemi viima"
+offset= 274
+3 EXAMPLES
+offset= 291
+4 EXAMPLE "Korraldas pabereid oma kirjutuslaual."
+offset= 349
+3 EXTERNAL_INFO
+offset= 371
+4 SOURCE_ID 1
+offset= 393
+5 TEXT_KEY "1"
+offset= 418
+4 SOURCE_ID 1
+offset= 440
+5 TEXT_KEY "1"
+offset= 465
+4 SOURCE_ID 1
+offset= 487
+5 TEXT_KEY "1"
+offset= 512
+4 SOURCE_ID 1
+offset= 534
+5 TEXT_KEY "1"
+offset= 559
+4 SOURCE_ID 1
+offset= 581
+5 TEXT_KEY "1"
+offset= 606
+4 SOURCE_ID 1
+offset= 628
+5 TEXT_KEY "1"
+offset= 653
+4 SOURCE_ID 1
+offset= 675
+5 TEXT_KEY "1"
+offset= 700
+4 SOURCE_ID 1
+offset= 722
+5 TEXT_KEY "1"
+offset= 747
+4 SOURCE_ID 1
+offset= 769
+5 TEXT_KEY "1"
+offset= 794
+4 SOURCE_ID 1
+offset= 816
+5 TEXT_KEY "1"
+offset= 841
+4 SOURCE_ID 1
+offset= 863
+5 TEXT_KEY "1"
+offset= 888
+4 SOURCE_ID 1
+offset= 910
+5 TEXT_KEY "1"
+offset= 935
+4 SOURCE_ID 1
+offset= 957
+5 TEXT_KEY "1"
+offset= 982
+4 SOURCE_ID 3
+offset= 1004
+4 SOURCE_ID 2
+offset= 1026
+5 TEXT_KEY "1"
+offset= 1051
+2 LITERAL "korda seadma"
+offset= 1080
+3 SENSE 3
+offset= 1096
+3 EXTERNAL_INFO
+offset= 1118
+4 SOURCE_ID 3
+offset= 1140
+2 LITERAL "korrastama"
+offset= 1167
+3 SENSE 5
+offset= 1183
+2 LITERAL "korda tegema"
+offset= 1212
+3 SENSE 3
+offset= 1228
+1 INTERNAL_LINKS
+offset= 1247
+2 RELATION "near_synonym"
+offset= 1277
+3 TARGET_CONCEPT
+offset= 1300
+4 PART_OF_SPEECH "v"
+offset= 1329
+4 LITERAL "seadma"
+offset= 1356
+5 SENSE 2
+offset= 1376
+3 SOURCE_ID 1016
+offset= 1399
+2 RELATION "has_hyperonym"
+offset= 1430
+3 TARGET_CONCEPT
+offset= 1453
+4 PART_OF_SPEECH "v"
+offset= 1482
+4 LITERAL "parandama"
+offset= 1512
+5 SENSE 2
+offset= 1532
+3 SOURCE_ID 1003
+offset= 1555
+2 RELATION "has_hyponym"
+offset= 1584
+3 TARGET_CONCEPT
+offset= 1607
+4 PART_OF_SPEECH "v"
+offset= 1636
+4 LITERAL "süstematiseerima"
+offset= 1674
+5 SENSE 1
+offset= 1694
+3 SOURCE_ID 1003
+offset= 1717
+2 RELATION "has_hyponym"
+offset= 1746
+3 TARGET_CONCEPT
+offset= 1769
+4 PART_OF_SPEECH "v"
+offset= 1798
+4 LITERAL "arveldama"
+offset= 1828
+5 SENSE 1
+offset= 1848
+3 SOURCE_ID 1003
+offset= 1871
+2 RELATION "has_xpos_hyponym"
+offset= 1905
+3 TARGET_CONCEPT
+offset= 1928
+4 PART_OF_SPEECH "n"
+offset= 1957
+4 LITERAL "korraldumine"
+offset= 1990
+5 SENSE 1
+offset= 2010
+2 RELATION "has_xpos_hyponym"
+offset= 2044
+3 TARGET_CONCEPT
+offset= 2067
+4 PART_OF_SPEECH "n"
+offset= 2096
+4 LITERAL "süstematiseerimine"
+offset= 2136
+5 SENSE 1
+offset= 2156
+2 RELATION "involved_agent"
+offset= 2188
+3 TARGET_CONCEPT
+offset= 2211
+4 PART_OF_SPEECH "n"
+offset= 2240
+4 LITERAL "korraldaja"
+offset= 2271
+5 SENSE 3
+offset= 2291
+3 FEATURES
+offset= 2308
+4 REVERSED
+offset= 2327
+1 EQ_LINKS
+offset= 2340
+2 EQ_RELATION "eq_synonym"
+offset= 2371
+3 TARGET_ILI
+offset= 2390
+4 PART_OF_SPEECH "v"
+offset= 2419
+4 WORDNET_OFFSET 416049
+offset= 2451
+2 EQ_RELATION "eq_generalization"
+offset= 2489
+3 TARGET_ILI
+offset= 2508
+4 PART_OF_SPEECH "v"
+offset= 2537
+4 ADD_ON_ID 5101
+offset= 2562
+2 EQ_RELATION "eq_generalization"
+offset= 2600
+3 TARGET_ILI
+offset= 2619
+4 PART_OF_SPEECH "v"
+offset= 2648
+4 ADD_ON_ID 6298
+offset= 2673
+
+offset= 3801
+0 @3@ WORD_MEANING
+offset= 3820
+1 PART_OF_SPEECH "v"
+offset= 3843
+1 VARIANTS
+offset= 3856
+2 LITERAL "küsima"
+offset= 3880
+3 SENSE 2
+offset= 3896
+3 DEFINITION "kelleltki midagi tahtma, soovima või taotlema"
+offset= 3964
+3 EXAMPLES
+offset= 3981
+4 EXAMPLE "Ta küsis temalt laenuks raha."
+offset= 4032
+3 EXTERNAL_INFO
+offset= 4054
+4 SOURCE_ID 1
+offset= 4076
+5 TEXT_KEY "3"
+offset= 4101
+4 SOURCE_ID 1
+offset= 4123
+5 TEXT_KEY "3"
+offset= 4148
+4 SOURCE_ID 1
+offset= 4170
+5 TEXT_KEY "3"
+offset= 4195
+4 SOURCE_ID 1
+offset= 4217
+5 TEXT_KEY "3"
+offset= 4242
+4 SOURCE_ID 1
+offset= 4264
+5 TEXT_KEY "3"
+offset= 4289
+4 SOURCE_ID 1
+offset= 4311
+5 TEXT_KEY "3"
+offset= 4336
+4 SOURCE_ID 1
+offset= 4358
+5 TEXT_KEY "3"
+offset= 4383
+4 SOURCE_ID 1
+offset= 4405
+5 TEXT_KEY "2"
+offset= 4430
+4 SOURCE_ID 1
+offset= 4452
+5 TEXT_KEY "2"
+offset= 4477
+4 SOURCE_ID 1
+offset= 4499
+5 TEXT_KEY "2"
+offset= 4524
+4 SOURCE_ID 1
+offset= 4546
+5 TEXT_KEY "2"
+offset= 4571
+4 SOURCE_ID 1
+offset= 4593
+5 TEXT_KEY "2"
+offset= 4618
+4 SOURCE_ID 1
+offset= 4640
+5 TEXT_KEY "2"
+offset= 4665
+4 SOURCE_ID 3
+offset= 4687
+4 SOURCE_ID 2
+offset= 4709
+5 TEXT_KEY "2"
+offset= 4734
+2 LITERAL "paluma"
+offset= 4757
+3 SENSE 2
+offset= 4773
+3 EXTERNAL_INFO
+offset= 4795
+4 SOURCE_ID 3
+offset= 4817
+2 LITERAL "nõutama"
+offset= 4842
+3 SENSE 2
+offset= 4858
+3 EXTERNAL_INFO
+offset= 4880
+4 SOURCE_ID 3
+offset= 4902
+1 INTERNAL_LINKS
+offset= 4921
+2 RELATION "has_hyperonym"
+offset= 4952
+3 TARGET_CONCEPT
+offset= 4975
+4 PART_OF_SPEECH "v"
+offset= 5004
+4 LITERAL "edasi andma"
+offset= 5036
+5 SENSE 1
+offset= 5056
+2 RELATION "has_hyponym"
+offset= 5085
+3 TARGET_CONCEPT
+offset= 5108
+4 PART_OF_SPEECH "v"
+offset= 5137
+4 LITERAL "noolima"
+offset= 5165
+5 SENSE 1
+offset= 5185
+3 SOURCE_ID 1007
+offset= 5208
+2 RELATION "has_xpos_hyponym"
+offset= 5242
+3 TARGET_CONCEPT
+offset= 5265
+4 PART_OF_SPEECH "n"
+offset= 5294
+4 LITERAL "taotlemine"
+offset= 5325
+5 SENSE 1
+offset= 5345
+2 RELATION "has_xpos_hyponym"
+offset= 5379
+3 TARGET_CONCEPT
+offset= 5402
+4 PART_OF_SPEECH "n"
+offset= 5431
+4 LITERAL "noolimine"
+offset= 5461
+5 SENSE 1
+offset= 5481
+2 RELATION "involved_agent"
+offset= 5513
+3 TARGET_CONCEPT
+offset= 5536
+4 PART_OF_SPEECH "n"
+offset= 5565
+4 LITERAL "küsija"
+offset= 5593
+5 SENSE 1
+offset= 5613
+3 FEATURES
+offset= 5630
+4 REVERSED
+offset= 5649
+1 EQ_LINKS
+offset= 5662
+2 EQ_RELATION "eq_synonym"
+offset= 5693
+3 TARGET_ILI
+offset= 5712
+4 PART_OF_SPEECH "v"
+offset= 5741
+4 WORDNET_OFFSET 422854
+offset= 5773
+2 EQ_RELATION "eq_generalization"
+offset= 5811
+3 TARGET_ILI
+offset= 5830
+4 PART_OF_SPEECH "v"
+offset= 5859
+4 ADD_ON_ID 2040
+offset= 5884
+
+offset= 16983
+0 @6@ WORD_MEANING
+offset= 17002
+1 PART_OF_SPEECH "n"
+offset= 17025
+1 VARIANTS
+offset= 17038
+2 LITERAL "mõjutamine"
+offset= 17066
+3 SENSE 2
+offset= 17082
+3 STATUS autogenerated with derive.py
+offset= 17126
+3 EXTERNAL_INFO
+offset= 17148
+4 SOURCE_ID 1
+offset= 17170
+5 TEXT_KEY "6"
+offset= 17195
+4 SOURCE_ID 1
+offset= 17217
+5 TEXT_KEY "6"
+offset= 17242
+4 SOURCE_ID 1
+offset= 17264
+5 TEXT_KEY "6"
+offset= 17289
+4 SOURCE_ID 1
+offset= 17311
+5 TEXT_KEY "6"
+offset= 17336
+4 SOURCE_ID 1
+offset= 17358
+5 TEXT_KEY "6"
+offset= 17383
+4 SOURCE_ID 1
+offset= 17405
+5 TEXT_KEY "6"
+offset= 17430
+4 SOURCE_ID 1
+offset= 17452
+5 TEXT_KEY "6"
+offset= 17477
+4 SOURCE_ID 1
+offset= 17499
+5 TEXT_KEY "6"
+offset= 17524
+4 SOURCE_ID 1
+offset= 17546
+5 TEXT_KEY "6"
+offset= 17571
+4 SOURCE_ID 1
+offset= 17593
+5 TEXT_KEY "6"
+offset= 17618
+4 SOURCE_ID 1005
+offset= 17643
+2 LITERAL "kallutamine"
+offset= 17671
+3 SENSE 1
+offset= 17687
+3 STATUS autogenerated with derive.py
+offset= 17731
+3 EXTERNAL_INFO
+offset= 17753
+4 SOURCE_ID 1005
+offset= 17778
+2 LITERAL "mõjustamine"
+offset= 17807
+3 SENSE 1
+offset= 17823
+3 STATUS autogenerated with derive.py
+offset= 17867
+3 EXTERNAL_INFO
+offset= 17889
+4 SOURCE_ID 1005
+offset= 17914
+2 LITERAL "mõjutus"
+offset= 17939
+3 SENSE 2
+offset= 17955
+2 LITERAL "mõju"
+offset= 17977
+3 SENSE 4
+offset= 17993
+1 INTERNAL_LINKS
+offset= 18012
+2 RELATION "has_hyperonym"
+offset= 18043
+3 TARGET_CONCEPT
+offset= 18066
+4 PART_OF_SPEECH "n"
+offset= 18095
+4 LITERAL "tegemine"
+offset= 18124
+5 SENSE 4
+offset= 18144
+3 SOURCE_ID 1016
+offset= 18167
+2 RELATION "has_xpos_hyperonym"
+offset= 18203
+3 TARGET_CONCEPT
+offset= 18226
+4 PART_OF_SPEECH "v"
+offset= 18255
+4 LITERAL "tegema"
+offset= 18282
+5 SENSE 6
+offset= 18302
+2 RELATION "has_hyponym"
+offset= 18331
+3 TARGET_CONCEPT
+offset= 18354
+4 PART_OF_SPEECH "n"
+offset= 18383
+4 LITERAL "viimine"
+offset= 18411
+5 SENSE 2
+offset= 18431
+3 SOURCE_ID 1007
+offset= 18454
+2 RELATION "has_hyponym"
+offset= 18483
+3 TARGET_CONCEPT
+offset= 18506
+4 PART_OF_SPEECH "n"
+offset= 18535
+4 LITERAL "ahvatlemine"
+offset= 18567
+5 SENSE 1
+offset= 18587
+3 SOURCE_ID 1016
+offset= 18610
+2 RELATION "has_hyponym"
+offset= 18639
+3 TARGET_CONCEPT
+offset= 18662
+4 PART_OF_SPEECH "n"
+offset= 18691
+4 LITERAL "kontrollimine"
+offset= 18725
+5 SENSE 3
+offset= 18745
+3 SOURCE_ID 1007
+offset= 18768
+2 RELATION "has_hyponym"
+offset= 18797
+3 TARGET_CONCEPT
+offset= 18820
+4 PART_OF_SPEECH "n"
+offset= 18849
+4 LITERAL "kõrvaldamine"
+offset= 18883
+5 SENSE 3
+offset= 18903
+3 SOURCE_ID 1016
+offset= 18926
+2 RELATION "has_hyponym"
+offset= 18955
+3 TARGET_CONCEPT
+offset= 18978
+4 PART_OF_SPEECH "n"
+offset= 19007
+4 LITERAL "veenmine"
+offset= 19036
+5 SENSE 3
+offset= 19056
+3 SOURCE_ID 1007
+offset= 19079
+2 RELATION "has_hyponym"
+offset= 19108
+3 TARGET_CONCEPT
+offset= 19131
+4 PART_OF_SPEECH "n"
+offset= 19160
+4 LITERAL "liigutamine"
+offset= 19192
+5 SENSE 6
+offset= 19212
+3 SOURCE_ID 1003
+offset= 19235
+2 RELATION "has_hyponym"
+offset= 19264
+3 TARGET_CONCEPT
+offset= 19287
+4 PART_OF_SPEECH "n"
+offset= 19316
+4 LITERAL "liitmine"
+offset= 19345
+5 SENSE 2
+offset= 19365
+3 SOURCE_ID 1016
+offset= 19388
+2 RELATION "has_hyponym"
+offset= 19417
+3 TARGET_CONCEPT
+offset= 19440
+4 PART_OF_SPEECH "n"
+offset= 19469
+4 LITERAL "hukutamine"
+offset= 19500
+5 SENSE 1
+offset= 19520
+3 SOURCE_ID 1003
+offset= 19543
+2 RELATION "has_hyponym"
+offset= 19572
+3 TARGET_CONCEPT
+offset= 19595
+4 PART_OF_SPEECH "n"
+offset= 19624
+4 LITERAL "kõrvaldamine"
+offset= 19658
+5 SENSE 4
+offset= 19678
+3 SOURCE_ID 1016
+offset= 19701
+2 RELATION "has_hyponym"
+offset= 19730
+3 TARGET_CONCEPT
+offset= 19753
+4 PART_OF_SPEECH "n"
+offset= 19782
+4 LITERAL "purustamine"
+offset= 19814
+5 SENSE 6
+offset= 19834
+3 SOURCE_ID 1016
+offset= 19857
+2 RELATION "has_hyponym"
+offset= 19886
+3 TARGET_CONCEPT
+offset= 19909
+4 PART_OF_SPEECH "n"
+offset= 19938
+4 LITERAL "sundimine"
+offset= 19968
+5 SENSE 2
+offset= 19988
+3 SOURCE_ID 1003
+offset= 20011
+2 RELATION "has_hyponym"
+offset= 20040
+3 TARGET_CONCEPT
+offset= 20063
+4 PART_OF_SPEECH "n"
+offset= 20092
+4 LITERAL "sisendus"
+offset= 20121
+5 SENSE 1
+offset= 20141
+3 SOURCE_ID 1003
+offset= 20164
+2 RELATION "has_hyponym"
+offset= 20193
+3 TARGET_CONCEPT
+offset= 20216
+4 PART_OF_SPEECH "n"
+offset= 20245
+4 LITERAL "vabastamine"
+offset= 20277
+5 SENSE 6
+offset= 20297
+3 SOURCE_ID 1016
+offset= 20320
+1 EQ_LINKS
+offset= 20333
+2 EQ_RELATION "eq_has_hyperonym"
+offset= 20370
+3 TARGET_ILI
+offset= 20389
+4 PART_OF_SPEECH "n"
+offset= 20418
+4 WORDNET_OFFSET 88700
+offset= 20449
+3 SOURCE_ID 1016
+offset= 20472
+
+offset= 20473
+0 @7@ WORD_MEANING
+offset= 20492
+1 PART_OF_SPEECH "v"
+offset= 20515
+1 VARIANTS
+offset= 20528
+2 LITERAL "lubama"
+offset= 20551
+3 SENSE 1
+offset= 20567
+3 DEFINITION "millegi tegemist v. toimumist heaks kiitma, selleks luba andma, sellega nõustuma, seda mitte takistama"
+offset= 20692
+3 EXAMPLES
+offset= 20709
+4 EXAMPLE "Ta ei lase end petta."
+offset= 20751
+3 EXTERNAL_INFO
+offset= 20773
+4 SOURCE_ID 1
+offset= 20795
+5 TEXT_KEY "7"
+offset= 20820
+4 SOURCE_ID 1
+offset= 20842
+5 TEXT_KEY "7"
+offset= 20867
+4 SOURCE_ID 1
+offset= 20889
+5 TEXT_KEY "7"
+offset= 20914
+4 SOURCE_ID 1
+offset= 20936
+5 TEXT_KEY "7"
+offset= 20961
+4 SOURCE_ID 1
+offset= 20983
+5 TEXT_KEY "7"
+offset= 21008
+4 SOURCE_ID 1
+offset= 21030
+5 TEXT_KEY "7"
+offset= 21055
+4 SOURCE_ID 1
+offset= 21077
+5 TEXT_KEY "7"
+offset= 21102
+4 SOURCE_ID 1
+offset= 21124
+5 TEXT_KEY "4"
+offset= 21149
+4 SOURCE_ID 1
+offset= 21171
+5 TEXT_KEY "4"
+offset= 21196
+4 SOURCE_ID 1
+offset= 21218
+5 TEXT_KEY "4"
+offset= 21243
+4 SOURCE_ID 1
+offset= 21265
+5 TEXT_KEY "4"
+offset= 21290
+4 SOURCE_ID 1
+offset= 21312
+5 TEXT_KEY "4"
+offset= 21337
+4 SOURCE_ID 1
+offset= 21359
+5 TEXT_KEY "4"
+offset= 21384
+4 SOURCE_ID 3
+offset= 21406
+4 SOURCE_ID 2
+offset= 21428
+5 TEXT_KEY "4"
+offset= 21453
+2 LITERAL "laskma"
+offset= 21476
+3 SENSE 4
+offset= 21492
+2 LITERAL "võimaldama"
+offset= 21520
+3 SENSE 1
+offset= 21536
+2 LITERAL "luba andma"
+offset= 21563
+3 SENSE 1
+offset= 21579
+1 INTERNAL_LINKS
+offset= 21598
+2 RELATION "near_synonym"
+offset= 21628
+3 TARGET_CONCEPT
+offset= 21651
+4 PART_OF_SPEECH "v"
+offset= 21680
+4 LITERAL "soostuma"
+offset= 21709
+5 SENSE 1
+offset= 21729
+3 SOURCE_ID 1003
+offset= 21752
+2 RELATION "fuzzynym"
+offset= 21778
+3 TARGET_CONCEPT
+offset= 21801
+4 PART_OF_SPEECH "v"
+offset= 21830
+4 LITERAL "soosima"
+offset= 21858
+5 SENSE 1
+offset= 21878
+3 SOURCE_ID 1016
+offset= 21901
+2 RELATION "has_hyperonym"
+offset= 21932
+3 TARGET_CONCEPT
+offset= 21955
+4 PART_OF_SPEECH "v"
+offset= 21984
+4 LITERAL "suhtlema"
+offset= 22013
+5 SENSE 1
+offset= 22033
+3 SOURCE_ID 1003
+offset= 22056
+2 RELATION "has_hyponym"
+offset= 22085
+3 TARGET_CONCEPT
+offset= 22108
+4 PART_OF_SPEECH "v"
+offset= 22137
+4 LITERAL "sallima"
+offset= 22165
+5 SENSE 1
+offset= 22185
+2 RELATION "has_hyponym"
+offset= 22214
+3 TARGET_CONCEPT
+offset= 22237
+4 PART_OF_SPEECH "v"
+offset= 22266
+4 LITERAL "kinnitama"
+offset= 22296
+5 SENSE 2
+offset= 22316
+2 RELATION "has_hyponym"
+offset= 22345
+3 TARGET_CONCEPT
+offset= 22368
+4 PART_OF_SPEECH "v"
+offset= 22397
+4 LITERAL "volitama"
+offset= 22426
+5 SENSE 1
+offset= 22446
+2 RELATION "has_hyponym"
+offset= 22475
+3 TARGET_CONCEPT
+offset= 22498
+4 PART_OF_SPEECH "v"
+offset= 22527
+4 LITERAL "autoriseerima"
+offset= 22561
+5 SENSE 1
+offset= 22581
+3 SOURCE_ID 1007
+offset= 22604
+2 RELATION "has_hyponym"
+offset= 22633
+3 TARGET_CONCEPT
+offset= 22656
+4 PART_OF_SPEECH "v"
+offset= 22685
+4 LITERAL "emiteerima"
+offset= 22716
+5 SENSE 1
+offset= 22736
+3 SOURCE_ID 1007
+offset= 22759
+2 RELATION "has_hyponym"
+offset= 22788
+3 TARGET_CONCEPT
+offset= 22811
+4 PART_OF_SPEECH "v"
+offset= 22840
+4 LITERAL "vastu võtma"
+offset= 22873
+5 SENSE 4
+offset= 22893
+3 SOURCE_ID 1007
+offset= 22916
+2 RELATION "has_hyponym"
+offset= 22945
+3 TARGET_CONCEPT
+offset= 22968
+4 PART_OF_SPEECH "v"
+offset= 22997
+4 LITERAL "volitama"
+offset= 23026
+5 SENSE 3
+offset= 23046
+3 SOURCE_ID 1016
+offset= 23069
+2 RELATION "has_xpos_hyponym"
+offset= 23103
+3 TARGET_CONCEPT
+offset= 23126
+4 PART_OF_SPEECH "n"
+offset= 23155
+4 LITERAL "sallimine"
+offset= 23185
+5 SENSE 1
+offset= 23205
+2 RELATION "has_xpos_hyponym"
+offset= 23239
+3 TARGET_CONCEPT
+offset= 23262
+4 PART_OF_SPEECH "n"
+offset= 23291
+4 LITERAL "kinnitamine"
+offset= 23323
+5 SENSE 5
+offset= 23343
+2 RELATION "has_xpos_hyponym"
+offset= 23377
+3 TARGET_CONCEPT
+offset= 23400
+4 PART_OF_SPEECH "n"
+offset= 23429
+4 LITERAL "volitamine"
+offset= 23460
+5 SENSE 1
+offset= 23480
+2 RELATION "has_xpos_hyponym"
+offset= 23514
+3 TARGET_CONCEPT
+offset= 23537
+4 PART_OF_SPEECH "n"
+offset= 23566
+4 LITERAL "soosimine"
+offset= 23596
+5 SENSE 1
+offset= 23616
+2 RELATION "has_xpos_hyponym"
+offset= 23650
+3 TARGET_CONCEPT
+offset= 23673
+4 PART_OF_SPEECH "n"
+offset= 23702
+4 LITERAL "hoidmine"
+offset= 23731
+5 SENSE 9
+offset= 23751
+2 RELATION "has_xpos_hyponym"
+offset= 23785
+3 TARGET_CONCEPT
+offset= 23808
+4 PART_OF_SPEECH "n"
+offset= 23837
+4 LITERAL "autoriseerimine"
+offset= 23873
+5 SENSE 1
+offset= 23893
+2 RELATION "has_xpos_hyponym"
+offset= 23927
+3 TARGET_CONCEPT
+offset= 23950
+4 PART_OF_SPEECH "n"
+offset= 23979
+4 LITERAL "emiteerimine"
+offset= 24012
+5 SENSE 1
+offset= 24032
+2 RELATION "involved_agent"
+offset= 24064
+3 TARGET_CONCEPT
+offset= 24087
+4 PART_OF_SPEECH "n"
+offset= 24116
+4 LITERAL "lubaja"
+offset= 24143
+5 SENSE 3
+offset= 24163
+3 FEATURES
+offset= 24180
+4 REVERSED
+offset= 24199
+2 RELATION "involved_instrument"
+offset= 24236
+3 TARGET_CONCEPT
+offset= 24259
+4 PART_OF_SPEECH "n"
+offset= 24288
+4 LITERAL "õigus"
+offset= 24315
+5 SENSE 1
+offset= 24335
+3 FEATURES
+offset= 24352
+4 REVERSED
+offset= 24371
+2 RELATION "causes"
+offset= 24395
+3 TARGET_CONCEPT
+offset= 24418
+4 PART_OF_SPEECH "n"
+offset= 24447
+4 LITERAL "võimalus"
+offset= 24477
+5 SENSE 3
+offset= 24497
+3 FEATURES
+offset= 24514
+4 REVERSED
+offset= 24533
+2 RELATION "causes"
+offset= 24557
+3 TARGET_CONCEPT
+offset= 24580
+4 PART_OF_SPEECH "n"
+offset= 24609
+4 LITERAL "luba"
+offset= 24634
+5 SENSE 1
+offset= 24654
+3 FEATURES
+offset= 24671
+4 REVERSED
+offset= 24690
+2 RELATION "antonym"
+offset= 24715
+3 TARGET_CONCEPT
+offset= 24738
+4 PART_OF_SPEECH "v"
+offset= 24767
+4 LITERAL "keelama"
+offset= 24795
+5 SENSE 1
+offset= 24815
+3 FEATURES
+offset= 24832
+4 VARIANT_TO_VARIANT
+offset= 24861
+5 SOURCE_VARIANT "lubama"
+offset= 24897
+5 TARGET_VARIANT "keelama"
+offset= 24934
+3 SOURCE_ID 1001
+offset= 24957
+1 EQ_LINKS
+offset= 24970
+2 EQ_RELATION "eq_synonym"
+offset= 25001
+3 TARGET_ILI
+offset= 25020
+4 PART_OF_SPEECH "v"
+offset= 25049
+4 WORDNET_OFFSET 451248
+offset= 25081
+2 EQ_RELATION "eq_generalization"
+offset= 25119
+3 TARGET_ILI
+offset= 25138
+4 PART_OF_SPEECH "v"
+offset= 25167
+4 ADD_ON_ID 5863
+offset= 25192
+
+Synset('')

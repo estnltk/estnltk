@@ -7,7 +7,7 @@ if len(argv) < 2:
 	print "Usage: python lit-pos-synidx_parser.py wordnet_file"
 
 TMP_FILE = "../lit_pos_synidx_unordered.txt"
-OUTPUT = "../lit_pos_synindx.txt"
+OUTPUT = "../lit_pos_synidx.txt"
 
 synset_idx_regexp = re.compile("0\s+@(\d+)@\s+WORD_MEANING") 
 pos_regexp = re.compile("\s+1\s+PART_OF_SPEECH\s+\"(.+)\"")

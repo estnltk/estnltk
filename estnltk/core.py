@@ -37,3 +37,4 @@ def get_filenames(root, prefix=u'', suffix=u''):
 class JsonPaths(object):
     '''Class for defining common jsonpath_rw expresssions.'''
     words = parse('[*]..words')
+    analysis = parse('[*]..analysis')
