@@ -12,6 +12,9 @@ class ApplyTokenizerTest(unittest.TestCase):
         result = apply_tokenizer(self.text(), self.tokenizer(), 1000)
         self.assertListEqual(result, self.result())
     
+    def test_bad_tokenizer_fails(self):
+        self.assertRaises(AssertionError, apply_tokenizer, self.text(), self.bad_tokenizer(), 1000)
+    
     def text(self):
         return u'  see on \n\r\n  \r\n\r \n \t text  '
     
@@ -37,6 +40,9 @@ class ApplyTokenizerTest(unittest.TestCase):
     
     def tokenizer(self):
         return RegexpTokenizer('\s+', gaps=True, discard_empty=True)
+
+    def bad_tokenizer(self):
+        return RegexpTokenizer('\s*', gaps=True, discard_empty=True)
 
         
 class PlainTextDocumentImporterTest(unittest.TestCase):
