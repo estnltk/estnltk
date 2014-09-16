@@ -11,7 +11,8 @@ setup(
         'estnltk': ['corpora/pm_news/*.txt']
     },
     
-    install_requires = ['pyvabamorf>=1.3',
+    install_requires = ['nltk>=3.0.0',
+                        'pyvabamorf>=1.3',
                         'jsonpath-rw>=1.3.0',
                         'javabridge>=1.0.7'],
     

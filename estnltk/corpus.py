@@ -40,6 +40,7 @@ def apply_tokenizer(text, tokenizer, start=0):
              'end': start + tokend,
              'rel_start': tokstart,
              'rel_end': tokend}
+        assert text[d['rel_start']:d['rel_end']] == d['text']
         results.append(d)
     return results
 

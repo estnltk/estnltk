@@ -39,3 +39,8 @@ class EncodingTest(unittest.TestCase):
     def test_noise(self):
         det = EncodingDetector()
         self.assertRaises(ValueError, det.decode, noise())
+
+        
+        
+if __name__ == '__main__':
+    unittest.main()
