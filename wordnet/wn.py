@@ -41,11 +41,18 @@ def _getSynsets(synset_offsets):
 
 	parser = Parser("%s/%s"%(_WN_FILE))
 	for offset in synset_offsets:
-		raw_synset = parser.parse_synset(offset,debug=True)
+		raw_synset = parser.parse_synset(offset)
 		synset = Synset(raw_synset)
 		synsets.append(synset)
 
 	return synsets
+
+def _get_key_from_raw_synset(raw_synset):
+        pos = raw_synset.pos
+        literal = raw_synset.variants[0].literal
+        sense = str(raw_synset.variants[0].sense)
+        sense = '0' + sense if len(sense) == 1 else sense
+        return '.'.join([literal,pos,sense]).encode('utf8')
 
 def synset(name):
 	
@@ -64,8 +71,8 @@ def synset(name):
 		return None
 
 	synset_idx = _getSynsetIdx(name)
-	synset_offsets = _getSynsetOffsets(synset_idx)
-	synset = _getSynsets(synset_offsets)
+	synset_offset = _getSynsetOffsets([synset_idx])
+	synset = _getSynsets([synset_offset])
 
 	return synset[0]
 
@@ -132,93 +139,50 @@ class Synset:
 	lemmas = [None]	
 
 	def __init__(self,raw_synset,name = ""):
-		self.name = name
+		self.name = name or _get_key_from_raw_synset(raw_synset)
 		self._raw_synset = raw_synset
-		self.definition = raw_synset.definition
+		self.definition = raw_synset.definition or ""
 		self._dict_ = {}
+		self.id = raw_synset.number or -1
 
-	def hypernyms(self):
-		hypernyms = []
+	def __eq__(self, other):
+                return self._raw_synset.number == other._raw_synset.number
 
-		for relation in self._raw_synset.internalLinks:
+        def __hash__(self):
+                return hash(str(self))
 
-    			if relation.name() == "has_hyperonym":
-                                pos = relation.target_concept.pos
-                                literal = relation.target_concept.variants[0].literal
-                                sense = relation.target_concept.variants[0].sense
-                                relation.target_concept = Synset(synset('.'.join([literal,pos,sense])[0]))._raw_synset
-                                hypernyms.append(Synset(relation.target_concept))
+        def __repr__(self):
+                return ("Synset('%s')"%self.name)
 
-		return hypernyms
+	def _recursive_hypernyms(self, hypernyms):
+                hypernyms |= set(self.hypernyms())
 
+                for synset in self.hypernyms():
+                        hypernyms |= synset._recursive_hypernyms(hypernyms)
+                return hypernyms
 
+	def _min_depth(self):
+                if "min_depth" in self._dict_:
+                        return self._dict_["min_depth"]
 
-	def hyponyms(self):
-		hyponyms = []
+                min_depth = 0
+                hypernyms = self.hypernyms()
+                if hypernyms:
+                    min_depth = 1 + min(h._min_depth() for h in hypernyms)
+                self._dict_["min_depth"] = min_depth
 
-                for relation in self._raw_synset.internalLinks:
+                return min_depth
 
-                        if relation.name() == "has_hyponym":
-                                pos = relation.target_concept.pos
-                                literal = relation.target_concept.variants[0].literal
-                                sense = relation.target_concept.variants[0].sense
-                                relation.target_concept = Synset(synset('.'.join([literal,pos,sense])[0]))._raw_synset
-                                hyponyms.append(Synset(relation.target_concept))
-
-                return hyponyms
-
-
-
-	def holoynms(self):
-		holonyms = []
-
-                for relation in self._raw_synset.internalLinks:
-
-                        if relation.name() == "has_holonym":
-                                pos = relation.target_concept.pos
-                                literal = relation.target_concept.variants[0].literal
-                                sense = relation.target_concept.variants[0].sense
-                                relation.target_concept = Synset(synset('.'.join([literal,pos,sense])[0]))._raw_synset
-                                holonyms.append(Synset(relation.target_concept))
-
-                return holonyms
-
-
-
-	def meronyms(self):
-		meronyms = []
-
-                for relation in self._raw_synset.internalLinks:
-
-                        if relation.name() == "has_meronym":
-                                pos = relation.target_concept.pos
-                                literal = relation.target_concept.variants[0].literal
-                                sense = relation.target_concept.variants[0].sense
-                                relation.target_concept = Synset(synset('.'.join([literal,pos,sense])[0]))._raw_synset
-                                meronyms.append(Synset(relation.target_concept))
-
-                return meronyms
-
-	def member_holonyms(self):
-		pass
-
-	def root_hypernyms(self):
-		pass
-
-	def frame_ids(self):
-		pass
-
-	def _shortest_path_distance(target_synset):
+	def _shortest_path_distance(self, target_synset):
 		if "distances" not in self._dict_:
 			self._dict_["distances"] = {}
 
 		if "distances" not in target_synset._dict_:
 			target_synset._dict_["distances"] = {}
 
-		if target_synset._raw_synset.number in self._dict_["distances"]:
-			return self._dict_["distances"][target_synset._raw_synset.number]
+		if target_synset in self._dict_["distances"]:
+			return self._dict_["distances"][target_synset]
 
-		target_number = target_synset._raw_synset.number
 		distance = 0
 		visited = set()
 		neighbor_synsets = set([self])
@@ -227,24 +191,66 @@ class Synset:
 			neighbor_synsets_next_level = set()
 			
 			for synset in neighbor_synsets:
-				if synset._raw_synset.number in visited:
+				if synset in visited:
 					continue
 				
-				if synset._raw_synset.number == target_number:
-					self._dict_["distances"][target_synset._raw_synset.number] = distance
-					target_synset._dict_["distances"][self._raw_synset.number] = distance
+				if synset == target_synset:
+					self._dict_["distances"][target_synset] = distance
+					target_synset._dict_["distances"][self] = distance
 					return distance
 				
 				neighbor_synsets_next_level |= set(synset.hypernyms())
 				neighbor_synsets_next_level |= set(synset.hyponyms())
-				visited.add(synset._raw_synset.number)
+				visited.add(synset)
 			distance += 1
 			neighbor_synsets = set(neighbor_synsets_next_level)
 
-		self._dict_["distances"][target_synset._raw_synset.number] = -1
-		target_synset._dict_["distances"][self._raw_synset.number] = -1
-		return -1
+		self._dict_["distances"][target_synset] = -1
+		target_synset._dict_["distances"][self] = -1
+		return -1			
 
+	def get_by_relation(self,sought_relation):
+		results = []
+
+		for relation_candidate in self._raw_synset.internalLinks:
+
+			if relation.name() == sought_relation:
+				linked_synset = synset(_get_key_from_raw_synset(relation.target_concept))
+                                relation.target_concept = linked_synset._raw_synset
+                                results.append(linked_synset)
+		return results
+
+	def hypernyms(self):
+		return get_by_relation("has_hyperonym")
+
+	def hyponyms(self):
+		return get_by_relation("has_hyponym")
+
+	def holoynms(self):
+		return get_by_relation("has_holonym")
+
+	def meronyms(self):
+		return get_by_relation("has_meronym")
+
+	def member_holonyms(self):
+		return get_by_relation("has_member_holo")
+
+	def root_hypernyms(self):
+		visited = set()
+		hypernyms_next_level = set(self.hypernyms())
+		current_hypernyms = set(hypernyms_next_level)
+
+		while len(hypernyms_next_level) > 0:
+			current_hypernyms = set(hypernyms_next_level)
+			hypernyms_next_level = set()
+			
+			for synset in current_hypernyms:
+				if synset in visited:
+					continue
+				visited.add(synset)
+				hypernyms_next_level |= set(synset.hypernyms())
+
+		return list(current_hypernyms)
 
 	def path_similarity(synset):
 		distance = self._shortest_path_distance(synset)
@@ -253,7 +259,7 @@ class Synset:
 		else: 
 			return None
 
-	def lch_similarity(synset):
+	def lch_similarity(self, synset):
 		# TODO error handling
 
 		if self._raw_synset.pos != synset._raw_synset.pos:
@@ -269,41 +275,17 @@ class Synset:
 		else: 
 			return None
 
-	def _recursive_hypernyms(self, hypernyms):
-		hypernyms |= set(self.hypernyms())
-
-		for synset in self.hypernyms():
-			hypernyms = synset._recursive_hypernyms(hypernyms)
-		return hypernyms 
-
-	def _min_depth(self):
-		if "min_depth" in self._dict_:
-			return self._dict_["min_depth"]
-
-		min_depth = 0
-		hypernyms = self.hypernyms()
-		
-		min_depth = 1 + min(h._min_depth() for h in hypernyms) 
-		self._dict_["min_depth"] = min_depth
-
-  		return min_depth
-
-	def wup_similarity(synset):
+	def wup_similarity(self, synset):
 		self_hypernyms = self._recursive_hypernyms(set())
 		other_hypernyms = synset._recursive_hypernyms(set())
 		common_hypernyms = self_hypernyms.intersection(other_hypernyms)
-
-		lcs_depth = max(s._min_depth for synset in common_hypernyms)
+		lcs_depth = max(s._min_depth() for s in common_hypernyms)
 		self_depth = self._min_depth() 
-		other_depth = synset._min_depth 
-
+		other_depth = synset._min_depth()
 		if lcs_depth is None or self_depth is None or other_depth is None: 
 			return None 
 
 		return (2.0 * lcs_depth) / (self_depth + other_depth)
-
-	def __repr__(self):
-		return "Synset('%s')"%self.name # TODO derive from first lemma
 
 class Lemma:
 
