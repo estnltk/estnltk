@@ -6,7 +6,7 @@ morphological analysis, named entity recognition etc for Estonian language.
 
 # License
 
-Estnltk is licensed under LGPL. See LICENSE for details.
+Estnltk is licensed under GPLv2. See LICENSE for details.
 
 # Installation
 
