@@ -3,12 +3,13 @@ from estnltk.core import JAVARES_PATH
 import subprocess
 import os
 
+
 class JavaProcess(object):
     '''Base class for Java-based extension.
     Allows processing data line by line.'''
 
-    def __init__(self, runnable_jar):
-        self._process = subprocess.Popen(['java', '-jar', os.path.join(JAVARES_PATH, runnable_jar)],
+    def __init__(self, runnable_jar, args=[]):
+        self._process = subprocess.Popen(['java', '-jar', os.path.join(JAVARES_PATH, runnable_jar)] + args,
                                          stdin=subprocess.PIPE,
                                          stdout=subprocess.PIPE,
                                          stderr=subprocess.PIPE)
