@@ -144,6 +144,7 @@ class Synset:
 		self.definition = raw_synset.definition or ""
 		self._dict_ = {}
 		self.id = raw_synset.number or -1
+		self.pos = raw_synset.pos
 
 	def __eq__(self, other):
                 return self._raw_synset.number == other._raw_synset.number
@@ -286,6 +287,9 @@ class Synset:
 			return None 
 
 		return (2.0 * lcs_depth) / (self_depth + other_depth)
+	
+	def get_variants(self):
+		return _raw_synset.variants
 
 class Lemma:
 
