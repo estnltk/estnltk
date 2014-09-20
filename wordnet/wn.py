@@ -20,7 +20,24 @@ ADV = 'b'
 MAX_TAXONOMY_DEPTHS = {'n':1, 'v':1, 'a':1, 'b':1} # TODO calculate real values
 
 def _getSynsetOffsets(synset_idxes):
-
+  """Returs pointer offset in the WordNet file for every synset index.  
+  
+  Notes
+  -----
+    Internal function. Do not call direectly.
+  
+  Parameters
+  ----------
+    synset_idxes : list of ints
+      Lists synset IDs, which need offset.
+      
+  Returns
+  -------
+    list of ints
+      Lists pointer offsets in Wordnet file.
+  
+  
+  """
 	offsets = []
 	current_seeked_offset_idx = 0
 
@@ -36,7 +53,23 @@ def _getSynsetOffsets(synset_idxes):
 	return offsets
 
 def _getSynsets(synset_offsets):
+  """Given synset offset in the WordNet file, parses synset object for every offset.
+  
+  Notes
+  -----
+    Internal function. Do not call directly.
 
+  Parameters
+  ----------
+    synset_offsets : list of ints
+      Lists pointer offsets from which synset objects will be parsed.
+      
+  Returns
+  -------
+    list of Synsets
+      Lists synset objects which synset_offsets point to.
+  
+  """
 	synsets = []
 
 	parser = Parser("%s/%s"%(_WN_FILE))
@@ -48,38 +81,78 @@ def _getSynsets(synset_offsets):
 	return synsets
 
 def _get_key_from_raw_synset(raw_synset):
+  """Derives synset key in the form of `lemma.pos.sense_no` from provided eurown.py Synset class,
+  
+  Notes
+  -----
+    Internal function. Do not call directly.
+  
+  
+  Parameters
+  ----------
+    raw_synset : eurown.Synset
+    
+  Returns
+  -------
+    string
+      Key of the synset in the form of `lemma.pos.sense_no`.
+      
+  """
+  
         pos = raw_synset.pos
         literal = raw_synset.variants[0].literal
         sense = str(raw_synset.variants[0].sense)
         sense = '0' + sense if len(sense) == 1 else sense
         return '.'.join([literal,pos,sense]).encode('utf8')
 
-def synset(name):
-	
-	"""
-	name in the form word.pos.nn,
-	
-	where nn is the sense number
-	"""
+def synset(synset_key):
+  """Returns synset object with the provided key.
+  
+  Parameters
+  ----------
+    synset_key : string
+      Unique synset identifier in the form of `lemma.pos.sense_no`.
+      
+  Returns
+  -------
+    Synset
+      Synset with key `synset_key`.
+  
+  """
 
-	def _getSynsetIdx(name):
+	def _getSynsetIdx(synset_key):
 		with open("%s/%s"%(_SENSE_FILE),'r') as fin:
 			for line in fin:
 				split_line = line.split(':')
-				if split_line[0] == name:
+				if split_line[0] == synset_key:
 					return split_line[1].strip()
 		return None
 
-	synset_idx = _getSynsetIdx(name)
+	synset_idx = _getSynsetIdx(synset_key)
 	synset_offset = _getSynsetOffsets([synset_idx])
 	synset = _getSynsets([synset_offset])
 
 	return synset[0]
 
-def synsets(name,pos=None):
+def synsets(lemma,pos=None):
+  """Returns all synset objects which have lemma as one of the variant literals and fixed pos, if provided.
+  
+  Parameters
+  ----------
+    lemma : str
+      Lemma of the synset.
+    pos : str, optional
+      Part-of-speech of the searched synsets, defaults to None
+  
+  Returns
+  -------
+    list of Synsets
+      Synsets which contain `lemma` and of which part-of-speech is `pos`, if specified.
+  
+  """
 
-	def _getSynsetIdxes(name,pos):
-		line_prefix_regexp = "%s:%s:(.*)"%(name,pos if pos else "\w+") 
+	def _getSynsetIdxes(lemma,pos):
+		line_prefix_regexp = "%s:%s:(.*)"%(lemma,pos if pos else "\w+") 
 		line_prefix = re.compile(line_prefix_regexp)
 		
 		idxes = []
@@ -92,7 +165,7 @@ def synsets(name,pos=None):
 		print sorted(idxes)
 		return sorted(idxes)
 
-	synset_idxes = _getSynsetIdxes(name,pos)
+	synset_idxes = _getSynsetIdxes(lemma,pos)
 
 	if len(synset_idxes) == 0:
 		return []
@@ -103,7 +176,19 @@ def synsets(name,pos=None):
 	return synsets
 
 def all_synsets(pos):
-
+  """Return all the synsets which have the provided pos.
+  
+  Parameters
+  ----------
+    pos : str
+      Part-of-speech of the sought synsets.
+      
+  Returns
+  -------
+    list of Synsets
+      Lists the Synsets which have `pos` as part-of-speech.
+  
+  """
 	def _getSynsetIdxes(pos):
                 line_prefix_regexp = "\w+:%s:(.*)"%pos
                 line_prefix = re.compile(line_prefix_regexp)
@@ -129,19 +214,33 @@ def all_synsets(pos):
 
 	return synsets
 
-def lemma_from_key(key):
-	pass
-
 class Synset:
-
-	definition = ""
-	exmples = [None]
-	lemmas = [None]	
-
-	def __init__(self,raw_synset,name = ""):
-		self.name = name or _get_key_from_raw_synset(raw_synset)
+  """Represents a WordNet synset.
+  
+  Attributes
+  ----------
+    name : str
+      Synset  string identifier in the form `lemma.pos.sense_id`.
+    id : int
+      Synset integer identifier.
+    pos : str
+      Synset's part-of-speech.
+    _raw_synset: eurown.Synset
+      Underlying Synset object. Not intended to access directly.
+    _dict_ : dict
+      XXXXXXXXXXXXXXXXXXXx
+      
+  """
+	def __init__(self,raw_synset):
+	  """
+	  Parameters
+	  ----------
+	    raw_synset : eurown.Synset
+	      Underlying Synset.
+	    
+	  """
+		self.name = _get_key_from_raw_synset(raw_synset)
 		self._raw_synset = raw_synset
-		self.definition = raw_synset.definition or ""
 		self._dict_ = {}
 		self.id = raw_synset.number or -1
 		self.pos = raw_synset.pos
@@ -155,7 +254,25 @@ class Synset:
         def __repr__(self):
                 return ("Synset('%s')"%self.name)
 
-	def _recursive_hypernyms(self, hypernyms):
+	def _recursive_hypernyms(self, hypernyms):   
+    """Finds all the hypernyms of the synset transitively.
+  
+    Notes
+    -----
+      Internal method. Do not call directly.
+  
+    Parameters
+    ----------
+      hypernyms : set of Synsets
+	An set of hypernyms met so far.
+  
+    Returns
+    -------
+      set of Synsets
+	Returns the input set.
+  
+    """
+
                 hypernyms |= set(self.hypernyms())
 
                 for synset in self.hypernyms():
@@ -163,6 +280,18 @@ class Synset:
                 return hypernyms
 
 	def _min_depth(self):
+    """Finds minimum path length from the root.
+  
+    Notes
+    -----
+      Internal method. Do not call directly.
+  
+    Returns
+    -------
+      int
+	Minimum path length from the root.
+	
+    """
                 if "min_depth" in self._dict_:
                         return self._dict_["min_depth"]
 
@@ -175,6 +304,23 @@ class Synset:
                 return min_depth
 
 	def _shortest_path_distance(self, target_synset):
+    """Finds minimum path length from the target synset.
+  
+    Notes
+    -----
+      Internal method. Do not call directly.
+  
+    Parameters
+    ----------
+      target_synset : Synset
+	Synset from where the shortest path length is calculated.
+  
+    Returns
+    -------
+      int
+	shortest path distance from `target_synset`.
+	
+    """
 		if "distances" not in self._dict_:
 			self._dict_["distances"] = {}
 
@@ -211,6 +357,19 @@ class Synset:
 		return -1			
 
 	def get_by_relation(self,sought_relation):
+    """Retrieves all the synsets which are related by given relation.
+    
+    Parameters
+    ----------
+      sought_relation : str
+	Name of the relation via which the sought synsets are linked.
+    
+    Returns
+    -------
+      list of Synsets
+	Synsets which are related via sought_relation.
+    
+    """
 		results = []
 
 		for relation_candidate in self._raw_synset.internalLinks:
@@ -222,21 +381,69 @@ class Synset:
 		return results
 
 	def hypernyms(self):
+    """Retrieves all the hypernyms.
+    
+    Returns
+    -------
+      list of Synsets
+	Synsets which are hypernyms.
+    
+    """
 		return get_by_relation("has_hyperonym")
 
 	def hyponyms(self):
+    """Retrieves all the hyponyms.
+    
+    Returns
+    -------
+      list of Synsets
+	Synsets which are hyponyms.
+	
+    """
 		return get_by_relation("has_hyponym")
 
 	def holoynms(self):
+    """Retrieves all the holonyms.
+    
+    Returns
+    -------
+      list of Synsets
+	Synsets which are holonyms.
+    
+    """
 		return get_by_relation("has_holonym")
 
 	def meronyms(self):
+    """Retrieves all the meronyms.
+    
+    Returns
+    -------
+      list of Synsets
+	Synsets which are meronyms.
+    
+    """
 		return get_by_relation("has_meronym")
 
 	def member_holonyms(self):
+    """Retrieves all the member holoynms.
+    
+    Returns
+    -------
+      list of Synsets
+	Synsets which are member_holonyms. TODO OOOOOOOOOOOO
+    
+    """
 		return get_by_relation("has_member_holo")
 
 	def root_hypernyms(self):
+    """Retrieves all the root hypernyms.
+    
+    Returns
+    -------
+      list of Synsets
+	Synsets which are root_hypernyms.
+    
+    """
 		visited = set()
 		hypernyms_next_level = set(self.hypernyms())
 		current_hypernyms = set(hypernyms_next_level)
@@ -253,7 +460,21 @@ class Synset:
 
 		return list(current_hypernyms)
 
-	def path_similarity(synset):
+	def path_similarity(self, synset):
+    """Calculates path similarity between the two synsets.
+    
+    Parameters
+    ----------
+      synset : Synset
+	Synset from which the distance is calculated.
+    
+    Returns
+    -------
+      float
+	Path similarity from `synset`.
+	TODO details
+    
+    """
 		distance = self._shortest_path_distance(synset)
 		if distance >= 0: 
 			return 1.0 / (distance + 1) 
@@ -261,6 +482,20 @@ class Synset:
 			return None
 
 	def lch_similarity(self, synset):
+    """Calculates lch similarity between the two synsets.
+
+    Parameters
+    ----------
+      synset : Synset
+	Synset from which the similarity is calculated.    
+
+    Returns
+    -------
+      float
+	LCH similarity from `synset`.
+	TODO details
+    
+    """
 		# TODO error handling
 
 		if self._raw_synset.pos != synset._raw_synset.pos:
@@ -277,6 +512,19 @@ class Synset:
 			return None
 
 	def wup_similarity(self, synset):
+    """Calculates wup similarity between the two synsets.
+    
+        Parameters
+    ----------
+      synset : Synset
+	Synset from which the similarity is calculated.
+    
+    Returns
+    -------
+      float
+	WUP similarity from `synset`.
+    
+    """
 		self_hypernyms = self._recursive_hypernyms(set())
 		other_hypernyms = synset._recursive_hypernyms(set())
 		common_hypernyms = self_hypernyms.intersection(other_hypernyms)
@@ -289,33 +537,12 @@ class Synset:
 		return (2.0 * lcs_depth) / (self_depth + other_depth)
 	
 	def get_variants(self):
+    """Returns variants.
+    
+    Returns
+    -------
+      list of eurown.Variants
+	Lemmas/variants of the synset.
+    
+    """
 		return _raw_synset.variants
-
-class Lemma:
-
-	def __init__(self,name,synset):
-		self.name = name
-		self.synset = synset
-		self.key = None
-
-	def antonyms(self):
-		pass
-
-	def derivationally_related_forms(self):
-		pass
-
-	def pertainyms(self):
-		pass
-
-	def count(self):
-		pass
-
-	def frame_ids(self):
-		pass
-
-	def frame_strings(self):
-		pass
-
-	def __repr__(self):
-		return "Lemma('%s.%s')"%(self.synset.name,self.name)
-
