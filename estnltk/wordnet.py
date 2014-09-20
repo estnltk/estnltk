@@ -1,5 +1,13 @@
 # -*- coding: utf-8 -*-
 
+"""Module which holds Wordnet class for annotating corpus.
+
+Notes
+-----
+  The module is for import only.
+
+"""
+
 import os, sys
 from core import JsonPaths
 
@@ -10,11 +18,49 @@ sys.path.insert(1,'../wordnet')
 import wn
 
 class Wordnet(object):
+  """Annotates `analysis` entries in corpus with queried Estonian WordNet data.
+  
+  Example
+  -------
+    wn = Wordnet()
     
-  def __init__(self):
-    pass
-    
+    wn(corpus,variants=True, var_literal=True) # annotates 'analysis' entries with all the variants and their literals for every synset    
+  """
+  
   def __call__(self, corpus, **kwargs):
+    """Annotates `analysis` entries in `corpus` with a list of lemmas` synsets and queried WordNet data in a 'wordnet' entry.
+        
+    Parameters
+    ----------
+    corpus : dict
+      Representation of a corpus in a disassembled form for automatic text analysis with word-level `analysis` entry.
+      E.g. corpus disassembled into paragraphs, sentences, words ({'paragraphs':[{'sentences':[{'words':[{'analysis':{...}},..]},..]},..]}).
+    pos : boolean, optional
+      If True, annotates each synset with a correspnding `pos` (part-of-speech) tag.
+    variants : boolean, optional
+      If True, annotates each synset with a list of all its variants' (lemmas') literals.
+    var_sense : boolean, optional
+      If True and `variants` is True, annotates each variant/lemma with its sense number.
+    var_definition : boolean, optional
+      If True and `variants` is True, annotates each variant/lemma with its definition. Definitions often missing in WordNet.
+    var_examples : boolean, optional
+      If True and `variants` is True, annotates each variant/lemma with a list of its examples. Examples often missing in WordNet.
+    relations : list of str, optional
+      Holds interested relations. Legal relations are as follows:
+	`antonym`, `be_in_state`, `belongs_to_class`, `causes`, `fuzzynym`, `has_holo_location`, `has_holo_madeof`, `has_holo_member`,
+	`has_holo_part`, `has_holo_portion`, `has_holonym`, `has_hyperonym`, `has_hyponym`, `has_instance`, `has_mero_location`,
+	`has_mero_madeof`, `has_mero_member`, `has_mero_part`, `has_mero_portion`, `has_meronym`, `has_subevent`, `has_xpos_hyperonym`,
+	`has_xpos_hyponym`, `involved`, `involved_agent`, `involved_instrument`, `involved_location`, `involved_patient`,
+	`involved_target_direction`, `is_caused_by`, `is_subevent_of`, `near_antonym`, `near_synonym`, `role`, `role_agent`, `role_instrument`,
+	`role_location`, `role_patient`, `role_target_direction`, `state_of`, `xpos_fuzzynym`, `xpos_near_antonym`, `xpos_near_synonym`.
+      Annotates each synset with related synsets' indices with respect to queried relations.
+    
+    Returns
+    -------
+    None
+      Alterates given `corpus` in-place.
+    
+    """
     
     analysis_matches = JsonPaths.analysis.find(corpus)
 
@@ -35,13 +81,10 @@ class Wordnet(object):
 	
 	  if 'variants' in kwargs:
 	    if kwargs['variants']:
-	      variants = [({},variant) for variant in synset.get_variants()]
+	      variants = [({'literal':variant.literal},variant) for variant in synset.get_variants()]
 	      
 	      for variant_dict,variant in variants:
-		if 'var_literal' in kwargs:
-		  if kwargs['var_literal']:
-		    variant_dict['literal'] = variant.literal
-		    
+		
 		if 'var_sense' in kwargs:
 		  if kwargs['var_sense']:
 		    variant_dict['sense'] = variant.sense
@@ -76,8 +119,11 @@ class Wordnet(object):
 	
     
   def annotate_synsets(self, corpus):
-    analysis_matches = JsonPaths.analysis.find(corpus)
+    """Annotates `analysis` entries in `corpus` with a list of lemmas` synsets in a 'wordnet' entry.
     
-    for analysis in analysis_matches:
-      for candidate in analysis:
-	candidate['wordnet'] = {'synsets':[synset.id for synset in wn.synsets(candidate['lemma'],pos=candidate['partofspeech'])]}
+    Note
+    ----
+      Equivalent to self(corpus)
+    
+    """
+    return self(corpus)
