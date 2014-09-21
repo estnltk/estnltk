@@ -17,7 +17,7 @@ NOUN = 'n'
 ADJ = 'a'
 ADV = 'b'
 
-MAX_TAXONOMY_DEPTHS = {'n':1, 'v':1, 'a':1, 'b':1} # TODO calculate real values
+MAX_TAXONOMY_DEPTHS = {NOUN:1, VERB:1, ADJ:1, ADV:1} # TODO calculate real values
 
 def _getSynsetOffsets(synset_idxes):
   """Returs pointer offset in the WordNet file for every synset index.  

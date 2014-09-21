@@ -17,6 +17,8 @@ sys.path.insert(1,'../wordnet')
 
 import wn
 
+PYVABAMORF_TO_WORDNET_POS_MAP = {'A': wn.ADJ,'S': wn.NOUN, 'V': wn.VERB, 'D': wn.ADV}
+
 class Wordnet(object):
   """Annotates `analysis` entries in corpus with queried Estonian WordNet data.
   
@@ -66,10 +68,12 @@ class Wordnet(object):
 
     for analysis in analysis_matches:
       for candidate in analysis:
+
+	if candidate['partofspeech'] not in PYVABAMORF_TO_WORDNET_POS_MAP:
+	  # Wordnet does't contain any data about the given lemma and pos combination - won't annotate.
+	  continue
 	
 	wordnet_obj = {}
-	
-	#TODO MAP TIMO POS TO KOM POS
 	
 	candidate_synsets = [({'id':synset.id},synset) for synset in wn.synsets(candidate['lemma'],pos=candidate['partofspeech'])]
 	
