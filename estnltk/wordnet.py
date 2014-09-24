@@ -37,6 +37,9 @@ class Wordnet(object):
     corpus : dict
       Representation of a corpus in a disassembled form for automatic text analysis with word-level `analysis` entry.
       E.g. corpus disassembled into paragraphs, sentences, words ({'paragraphs':[{'sentences':[{'words':[{'analysis':{...}},..]},..]},..]}).
+    
+    Keyword parameters    
+    ------------------  
     pos : boolean, optional
       If True, annotates each synset with a correspnding `pos` (part-of-speech) tag.
     variants : boolean, optional
