@@ -134,12 +134,12 @@ def synset(synset_key):
       for line in fin:
 	split_line = line.split(':')
 	if split_line[0] == synset_key:
-	  return split_line[1].strip()
+	  return int(split_line[1].strip())
     return None
 
   synset_idx = _get_synset_idx(synset_key)
   synset_offset = _get_synset_offsets([synset_idx])
-  synset = _get_synsets([synset_offset])
+  synset = _get_synsets(synset_offset)
 
   return synset[0]
 
@@ -171,7 +171,6 @@ def synsets(lemma,pos=None):
 	result = line_prefix.match(line)
 	if result:
 	  idxes.extend([int(x) for x in result.group(1).split(' ')])				
-    print sorted(idxes)
     return sorted(idxes)
 
   synset_idxes = _get_synset_idxes(lemma,pos)
