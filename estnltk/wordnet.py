@@ -118,8 +118,6 @@ class Wordnet(object):
 	      
 	      relations_dict[relation_str] = [synset_dict for synset_dict,_ in related_synsets]
 	 
-	      #TODO satisfy timo via additional relation_synset annotations
-	 
 	  wordnet_obj['relations'] = relations_dict
 	 
 	candidate['wordnet'] = wordnet_obj

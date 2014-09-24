@@ -20,9 +20,9 @@ ADV = 'b'
 MAX_TAXONOMY_DEPTHS = {NOUN:1, VERB:1, ADJ:1, ADV:1} # TODO calculate real values
 
 def _get_synset_offsets(synset_idxes):
-  """Returs pointer offset in the WordNet file for every synset index.  
+  """Returs pointer offset in the WordNet file for every synset index. Preserves order.
   
-  Notes
+  NotesTrue
   -----
     Internal function. Do not call directly.
   
@@ -38,19 +38,23 @@ def _get_synset_offsets(synset_idxes):
   
   
   """
-  offsets = []
+  offsets = {}
   current_seeked_offset_idx = 0
+
+  ordered_synset_idxes = sorted(synset_idxes)
 
   with open(_SOI,'r') as fin:
     for line in fin:
       split_line = line.split(':')
-      while current_seeked_offset_idx < len(synset_idxes) and split_line[0] == str(synset_idxes[current_seeked_offset_idx]):
-	offsets.append(int(split_line[1]))
+      
+      while current_seeked_offset_idx < len(ordered_synset_idxes) and split_line[0] == str(ordered_synset_idxes[current_seeked_offset_idx]):
+	# Looping on single line entries in case synset_indexes contains duplicates.
+	offsets[synset_idxes[current_seeked_offset_idx]] = int(split_line[1])
 	current_seeked_offset_idx += 1
       if current_seeked_offset_idx >= len(synset_idxes):
 	break
 
-  return offsets
+  return [offsets[synset_idx] for synset_idx in synset_idxes]
 
 def _get_synsets(synset_offsets):
   """Given synset offset in the WordNet file, parses synset object for every offset.
@@ -81,7 +85,7 @@ def _get_synsets(synset_offsets):
   return synsets
 
 def _get_key_from_raw_synset(raw_synset):
-  """Derives synset key in the form of `lemma.pos.sense_no` from provided eurown.py Synset class,
+  """Derives synset key in the form of `lemma.pos.sense_no` from the provided eurown.py Synset class,
   
   Notes
   -----
