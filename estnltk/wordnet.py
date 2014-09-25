@@ -114,12 +114,24 @@ class Wordnet(object):
 	    relations_dict = {}
 	    
 	    for relation_str in kwargs['relations']:
-	      related_synsets = [({'id':synset.id},synset) for synset in synset.get_by_relation(relation_str)]
+	      related_synsets = [{'id':synset.id} for synset in synset.get_by_relation(relation_str)]
 	      
 	      relations_dict[relation_str] = [synset_dict for synset_dict,_ in related_synsets]
 	 
-	  wordnet_obj['relations'] = relations_dict
-	 
+	    wordnet_obj['relations'] = relations_dict
+	
+	if 'ancestors_by' in kwargs:
+	  if len(kwargs['ancestors_by']):
+	    
+	    ancestors_dict = {}
+	    
+	    for ancestor_str in kwargs['ancestors_by']:
+	      ancestors = [{'id':synset.id} for synset in synset.get_ancestors(relation_str)]
+	      
+	      ancestors_dict[relation_str] = ancestors
+	      
+	    wordnet_obj['ancestors_by'] = ancestors_dict
+	
 	candidate['wordnet'] = wordnet_obj
 	
     

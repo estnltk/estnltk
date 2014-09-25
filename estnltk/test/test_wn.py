@@ -79,5 +79,13 @@ class SynsetsQuery(unittest.TestCase):
 
     self.assertTrue(all(synset.id in synset_ids for synset in wn.synsets(literal)))
 
+class AllSynsetsQuery(unittest.TestCase):
+  
+  def test_all_adverbs_query(self):
+    pass
+    #self.assertEqual(len(wn.all_synsets('n')),3076)
+
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -197,7 +197,7 @@ def all_synsets(pos):
       Lists the Synsets which have `pos` as part-of-speech.
   
   """
-  def _get_synset_idxes(pos):
+  def _get_unique_synset_idxes(pos):
     line_prefix_regexp = "\w+:%s:(.*)"%pos
     line_prefix = re.compile(line_prefix_regexp)
 
@@ -208,11 +208,15 @@ def all_synsets(pos):
 	result = line_prefix.match(line)
 	if result:
 	  idxes.extend([int(x) for x in result.group(1).split(' ')])
-    return sorted(idxes)
+	  #if line.split(':')[0] == 'aina':
+	     #print [int(x) for x in result.group(1).split(' ')]
+    
+    idxes.sort()
+    return list(set(idxes))
 
 
   
-  synset_idxes = _get_synset_idxes(pos)
+  synset_idxes = _get_unique_synset_idxes(pos)
 
   if len(synset_idxes) == 0:
     return []
@@ -386,6 +390,31 @@ class Synset:
 	relation.target_concept = linked_synset._raw_synset
 	results.append(linked_synset)
     return results
+
+  def get_ancestors(self, relation):   
+    """Finds all the ancestors of the synset using provided relation.
+  
+    Parameters
+    ----------
+      relation : str
+	Name of the relation which is recursively used to fetch the ancestors.
+  
+    Returns
+    -------
+      list of Synsets
+	Returns the ancestors of the synset via given relations.
+  
+    """
+    
+    ancestors = []
+    unvisited_ancestors = self.get_by_relation(relation)
+    
+    while len(unvisited_ancestors) > 0:
+      ancestor = unvisited_ancestors.pop()
+      unvisited_ancestors.extend(ancestor.get_by_relation(relation))
+      ancestors.append(ancestor)
+
+    return list(set(ancestors))
 
   def hypernyms(self):
     """Retrieves all the hypernyms.
