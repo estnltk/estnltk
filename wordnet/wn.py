@@ -329,7 +329,8 @@ class Synset:
     Returns
     -------
       int
-	shortest path distance from `target_synset`.
+	Shortest path distance from `target_synset`. Distance to the synset itself is 0, -1 if no path exists between the two synsets,
+	>0 otherwise.
 	
     """
     if "distances" not in self._dict_:
@@ -385,9 +386,9 @@ class Synset:
 
     for relation_candidate in self._raw_synset.internalLinks:
 
-      if relation.name() == sought_relation:
-	linked_synset = synset(_get_key_from_raw_synset(relation.target_concept))
-	relation.target_concept = linked_synset._raw_synset
+      if relation_candidate.name == sought_relation:
+	linked_synset = synset(_get_key_from_raw_synset(relation_candidate.target_concept))
+	relation_candidate.target_concept = linked_synset._raw_synset
 	results.append(linked_synset)
     return results
 
@@ -425,7 +426,7 @@ class Synset:
 	Synsets which are hypernyms.
     
     """
-    return get_by_relation("has_hyperonym")
+    return self.get_by_relation("has_hyperonym")
 
   def hyponyms(self):
     """Retrieves all the hyponyms.
@@ -436,7 +437,7 @@ class Synset:
 	Synsets which are hyponyms.
 	
     """
-    return get_by_relation("has_hyponym")
+    return self.get_by_relation("has_hyponym")
 
   def holoynms(self):
     """Retrieves all the holonyms.
@@ -447,7 +448,7 @@ class Synset:
 	Synsets which are holonyms.
     
     """
-    return get_by_relation("has_holonym")
+    return self.get_by_relation("has_holonym")
 
   def meronyms(self):
     """Retrieves all the meronyms.
@@ -458,7 +459,7 @@ class Synset:
 	Synsets which are meronyms.
     
     """
-    return get_by_relation("has_meronym")
+    return self.get_by_relation("has_meronym")
 
   def member_holonyms(self):
     """Retrieves all the member holoynms.
@@ -469,7 +470,7 @@ class Synset:
 	Synsets which are member_holonyms. TODO OOOOOOOOOOOO
     
     """
-    return get_by_relation("has_member_holo")
+    return self.get_by_relation("has_member_holo")
 
   def root_hypernyms(self):
     """Retrieves all the root hypernyms.
@@ -496,22 +497,22 @@ class Synset:
 
     return list(current_hypernyms)
 
-  def path_similarity(self, synset):
+  def path_similarity(self, target_synset):
     """Calculates path similarity between the two synsets.
     
     Parameters
     ----------
-      synset : Synset
+      target_synset : Synset
 	Synset from which the distance is calculated.
     
     Returns
     -------
       float
-	Path similarity from `synset`.
-	TODO details
+	Path similarity from `target_synset`. Similarity with the synset itself is 1,
+	similarity with ureachable synset is None, 1/(shortest_path_distance + 1) otherwise.
     
     """
-    distance = self._shortest_path_distance(synset)
+    distance = self._shortest_path_distance(target_synset)
     if distance >= 0: 
       return 1.0 / (distance + 1) 
     else: 

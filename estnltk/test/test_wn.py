@@ -85,7 +85,64 @@ class AllSynsetsQuery(unittest.TestCase):
     pass
     #self.assertEqual(len(wn.all_synsets('n')),3076)
 
+class Synset(unittest.TestCase):
+  
+  def test_get_by_relation(self):
+    ahel_synset = wn.synset("ahel.n.02")
+    
+    hyperonyms = ahel_synset.get_by_relation('has_hyperonym')
+    self.assertEqual(hyperonyms[0].name,'rida.n.01')
+    
+    hyponyms = ahel_synset.get_by_relation('has_hyponym')
+    self.assertEqual(hyponyms[0].name,'põhjusahel.n.01')
+    self.assertEqual(hyponyms[1].name,'mäeahelik.n.01')
 
+  def test_get_ancestors(self):
+    real_ancestor_hyperonyms = [(293,'vahend.n.02'),(248,'asi.n.04'),(693,'objekt.n.01'),(8787,'olev.n.02')]
+    real_ancestor_ids = [id_name[0] for id_name in real_ancestor_hyperonyms]
+    
+    hoob_synset = wn.synset("hoob.n.01")
+    ancestor_hyperonyms = hoob_synset.get_ancestors('has_hyperonym')
+    
+    self.assertEqual(len(ancestor_hyperonyms),len(real_ancestor_hyperonyms))
+    self.assertTrue(all(ancestor.id in real_ancestor_ids for ancestor in ancestor_hyperonyms))
+    
+  def test_shortest_path_distance_to_itself(self):
+    source_synset = wn.synset('hulkuma.v.01')
+    target_synset = wn.synset('hulkuma.v.01')
+
+    self.assertEqual(source_synset._shortest_path_distance(target_synset),0)
+
+  def test_shortest_path_distance_to_parent(self):
+    source_synset = wn.synset('hiphop.n.01')
+    target_synset = wn.synset('tantsustiil.n.01')
+
+    self.assertEqual(source_synset._shortest_path_distance(target_synset),1)
+
+  def test_shortest_path_distance_to_sibling(self):
+    source_synset = wn.synset('hobu.n.01')
+    target_synset = wn.synset('eesel.n.01')
+    
+    self.assertEqual(source_synset._shortest_path_distance(target_synset),2)
+
+  def test_shortest_path_distance_to_unconnected(self):
+    pass # would take too much time
+  
+  def test_path_similarity_with_itself(self):
+    source_synset = wn.synset('ilming.n.02')
+    target_synset = wn.synset('fenomen.n.01')
+
+    self.assertEqual(source_synset.path_similarity(target_synset),1)
+
+  def test_path_similarity_with_unconnected(self):
+    pass # would take too much time
+  
+  def test_path_similarity_with_sibling(self):
+    source_synset = wn.synset('kaarhall.n.01')
+    target_synset = wn.synset('näitusehall.n.01')
+    
+    self.assertEqual(source_synset.path_similarity(target_synset),1.0/3)
+  
 
 if __name__ == '__main__':
     unittest.main()
