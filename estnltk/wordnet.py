@@ -13,7 +13,7 @@ from core import JsonPaths
 
 _MY_DIR = os.path.dirname(__file__)
 
-sys.path.insert(1,'../wordnet')
+sys.path.insert(1,os.path.join(_MY_DIR,'..','wordnet'))
 
 import wn
 
@@ -31,7 +31,11 @@ class Wordnet(object):
   
   def __call__(self, corpus, **kwargs):
     """Annotates `analysis` entries in `corpus` with a list of lemmas` synsets and queried WordNet data in a 'wordnet' entry.
-        
+    
+    Note
+    ----
+      Annotates every `analysis` entry with a `wordnet`:{`synsets`:[..]}.
+    
     Parameters
     ----------
     corpus : dict
@@ -62,23 +66,25 @@ class Wordnet(object):
     
     Returns
     -------
-    None
-      Alterates given `corpus` in-place.
+    dict
+      In-place annotated `corpus`.
     
     """
     
     analysis_matches = JsonPaths.analysis.find(corpus)
 
-    for analysis in analysis_matches:
-      for candidate in analysis:
+
+    for analysis_match in analysis_matches:
+      
+      for candidate in analysis_match.value:
 
 	if candidate['partofspeech'] not in PYVABAMORF_TO_WORDNET_POS_MAP:
 	  # Wordnet does't contain any data about the given lemma and pos combination - won't annotate.
 	  continue
 	
 	wordnet_obj = {}
-	
-	candidate_synsets = [({'id':synset.id},synset) for synset in wn.synsets(candidate['lemma'],pos=candidate['partofspeech'])]
+
+	candidate_synsets = [({'id':synset.id},synset) for synset in wn.synsets(candidate['lemma'],pos=PYVABAMORF_TO_WORDNET_POS_MAP[candidate['partofspeech']])]
 	
 	for synset_dict,synset in candidate_synsets:
 	  
@@ -105,9 +111,9 @@ class Wordnet(object):
 		    variant_dict['examples'] = variant.examples
 	      
 	      synset_dict['variants'] = [variant_dict for variant_dict,_ in variants]
-	 
+	  
 	wordnet_obj['synsets'] = [synset_dict for synset_dict,_ in candidate_synsets]
-	 
+	  
 	if 'relations' in kwargs:
 	  if len(kwargs['relations']):
 	    
@@ -117,7 +123,7 @@ class Wordnet(object):
 	      related_synsets = [{'id':synset.id} for synset in synset.get_by_relation(relation_str)]
 	      
 	      relations_dict[relation_str] = [synset_dict for synset_dict,_ in related_synsets]
-	 
+	  
 	    wordnet_obj['relations'] = relations_dict
 	
 	if 'ancestors_by' in kwargs:
@@ -133,6 +139,8 @@ class Wordnet(object):
 	    wordnet_obj['ancestors_by'] = ancestors_dict
 	
 	candidate['wordnet'] = wordnet_obj
+      
+    return corpus
 	
     
   def annotate_synsets(self, corpus):

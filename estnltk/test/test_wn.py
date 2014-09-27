@@ -10,7 +10,9 @@
 import unittest
 import sys
 
-sys.path.insert(1,'../../wordnet/')
+_MY_DIR = os.path.dirname(__file__)
+
+sys.path.insert(1,os.path.join(_MY_DIR,'..','..','wordnet'))
 
 import wn
 import eurown

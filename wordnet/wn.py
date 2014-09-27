@@ -253,7 +253,6 @@ class Synset:
     """
     self.name = _get_key_from_raw_synset(raw_synset)
     self._raw_synset = raw_synset
-    self._dict_ = {}
     self.id = raw_synset.number or -1
     self.pos = raw_synset.pos
 
@@ -303,16 +302,44 @@ class Synset:
 	Minimum path length from the root.
 	
     """
-    if "min_depth" in self._dict_:
-      return self._dict_["min_depth"]
+    if "min_depth" in self.__dict__:
+      return self.__dict__["min_depth"]
 
     min_depth = 0
     hypernyms = self.hypernyms()
     if hypernyms:
       min_depth = 1 + min(h._min_depth() for h in hypernyms)
-    self._dict_["min_depth"] = min_depth
+    self.__dict__["min_depth"] = min_depth
 
     return min_depth
+
+  def _max_depth(self):
+    """Finds maximum path length from the root
+    
+    Notes
+    -----
+      Internal method. Do not call directly.
+      
+    Returns
+    -------
+      int
+	Maximum path length from the root.
+    
+    """
+    if 'max_depth' in self.__dict__:
+      return self.__dict__['max_depth']
+
+    max_depth = 0
+    hypernyms = [(0,hypernym) for hypernym in self.hypernyms()]
+    
+    while len(hypernyms) > 0:
+      hypernym = hypernyms.pop()
+      hypernym_hypernyms = hypernym[1].hypernyms()
+      if len(hypernym_hypernyms) == 0:
+	max_depth = hypernym[0] if hypernym[0] > max_depth else max_depth
+      else:
+	hypernyms.extend([(hypernym[0]+1,hyp_hyp) for hyp_hyp in hypernym_hypernyms])
+    return max_depth
 
   def _shortest_path_distance(self, target_synset):
     """Finds minimum path length from the target synset.
@@ -333,14 +360,14 @@ class Synset:
 	>0 otherwise.
 	
     """
-    if "distances" not in self._dict_:
-      self._dict_["distances"] = {}
+    if "distances" not in self.__dict__:
+      self.__dict__["distances"] = {}
 
     if "distances" not in target_synset._dict_:
       target_synset._dict_["distances"] = {}
 
-    if target_synset in self._dict_["distances"]:
-      return self._dict_["distances"][target_synset]
+    if target_synset in self.__dict__["distances"]:
+      return self.__dict__["distances"][target_synset]
 
     distance = 0
     visited = set()
@@ -354,7 +381,7 @@ class Synset:
 	  continue
 	
 	if synset == target_synset:
-	  self._dict_["distances"][target_synset] = distance
+	  self.__dict__["distances"][target_synset] = distance
 	  target_synset._dict_["distances"][self] = distance
 	  return distance
 	
@@ -364,7 +391,7 @@ class Synset:
       distance += 1
       neighbor_synsets = set(neighbor_synsets_next_level)
 
-    self._dict_["distances"][target_synset] = -1
+    self.__dict__["distances"][target_synset] = -1
     target_synset._dict_["distances"][self] = -1
     return -1			
 
