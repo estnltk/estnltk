@@ -8,7 +8,7 @@
 """
 
 import unittest
-import sys
+import sys, os
 
 _MY_DIR = os.path.dirname(__file__)
 
@@ -84,8 +84,16 @@ class SynsetsQuery(unittest.TestCase):
 class AllSynsetsQuery(unittest.TestCase):
   
   def test_all_adverbs_query(self):
-    pass
-    #self.assertEqual(len(wn.all_synsets('n')),3076)
+    self.assertEqual(len(wn.all_synsets('b')),2244)
+
+  def test_all_adjectives_query(self):
+    self.assertEqual(len(wn.all_synsets('a')),3076)
+
+  def test_all_verbs_query(self):
+    self.assertEqual(len(wn.all_synsets('v')),5748)
+
+  def test_all_nouns_query(self):
+    self.assertEqual(len(wn.all_synsets('n')),54449)
 
 class Synset(unittest.TestCase):
   

@@ -198,21 +198,17 @@ def all_synsets(pos):
   
   """
   def _get_unique_synset_idxes(pos):
-    line_prefix_regexp = "\w+:%s:(.*)"%pos
-    line_prefix = re.compile(line_prefix_regexp)
-
     idxes = []
-
+    
     with open(_LIT_POS_FILE,'r') as fin:
       for line in fin:
-	result = line_prefix.match(line)
-	if result:
-	  idxes.extend([int(x) for x in result.group(1).split(' ')])
-	  #if line.split(':')[0] == 'aina':
-	     #print [int(x) for x in result.group(1).split(' ')]
-    
+	split_line = line.strip().split(':')
+	if split_line[1] == pos:
+	    idxes.extend([int(x) for x in split_line[2].split()])
+
+    idxes = list(set(idxes))
     idxes.sort()
-    return list(set(idxes))
+    return idxes
 
 
   
@@ -363,8 +359,8 @@ class Synset:
     if "distances" not in self.__dict__:
       self.__dict__["distances"] = {}
 
-    if "distances" not in target_synset._dict_:
-      target_synset._dict_["distances"] = {}
+    if "distances" not in target_synset.__dict__:
+      target_synset.__dict__["distances"] = {}
 
     if target_synset in self.__dict__["distances"]:
       return self.__dict__["distances"][target_synset]
@@ -382,7 +378,7 @@ class Synset:
 	
 	if synset == target_synset:
 	  self.__dict__["distances"][target_synset] = distance
-	  target_synset._dict_["distances"][self] = distance
+	  target_synset.__dict__["distances"][self] = distance
 	  return distance
 	
 	neighbor_synsets_next_level |= set(synset.hypernyms())
@@ -392,7 +388,7 @@ class Synset:
       neighbor_synsets = set(neighbor_synsets_next_level)
 
     self.__dict__["distances"][target_synset] = -1
-    target_synset._dict_["distances"][self] = -1
+    target_synset.__dict__["distances"][self] = -1
     return -1			
 
   def get_by_relation(self,sought_relation):

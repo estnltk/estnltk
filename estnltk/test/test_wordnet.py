@@ -8,8 +8,6 @@ _MY_DIR = os.path.dirname(__file__)
 sys.path.insert(1,os.path.join(_MY_DIR,'..'))
 from wordnet import Wordnet
 
-#from estnltk.wordnet import Wordnet as wn
-
 class AnnotationTest(unittest.TestCase):
   
   def test_annotation(self):
