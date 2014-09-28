@@ -11,13 +11,21 @@ _LIT_POS_FILE = os.path.join(_DATA_DIR, "lit_pos_synidx.txt")
 _SOI = os.path.join(_DATA_DIR, "kb69a-utf8.soi")
 _WN_FILE = os.path.join(_DATA_DIR, "kb69a-utf8.txt")
 _SENSE_FILE = os.path.join(_DATA_DIR, "sense.txt")
+_MAX_TAX_FILE = os.path.join(_DATA_DIR, "max_tax_depths.cnf")
 
 VERB = 'v'
 NOUN = 'n'
 ADJ = 'a'
 ADV = 'b'
 
-MAX_TAXONOMY_DEPTHS = {NOUN:1, VERB:1, ADJ:1, ADV:1} # TODO calculate real values
+MAX_TAXONOMY_DEPTHS = {}
+
+with open(_MAX_TAX_FILE,'r') as fin:
+  for line in fin:
+    pos,max_depth = line.strip().split(':')
+    MAX_TAXONOMY_DEPTHS[pos] = int(max_depth)
+
+SYNSETS_DICT = {}
 
 def _get_synset_offsets(synset_idxes):
   """Returs pointer offset in the WordNet file for every synset index. Preserves order.
@@ -80,6 +88,10 @@ def _get_synsets(synset_offsets):
   for offset in synset_offsets:
     raw_synset = parser.parse_synset(offset)
     synset = Synset(raw_synset)
+    
+    SYNSETS_DICT[_get_key_from_raw_synset(raw_synset)] = synset
+    SYNSETS_DICT[synset.id] = synset
+    
     synsets.append(synset)
 
   return synsets
@@ -121,6 +133,9 @@ def synset(synset_key):
       Synset with key `synset_key`.
   
   """
+
+  if synset_key in SYNSETS_DICT:
+    return SYNSETS_DICT[synset_key]
 
   def _get_synset_idx(synset_key):
     """Returns synset index for the provided key.
@@ -177,11 +192,17 @@ def synsets(lemma,pos=None):
 
   if len(synset_idxes) == 0:
     return []
+  
+  stored_synsets = []
+  
+  for i in range(len(synset_idxes)):
+    if synset_idxes[i] in SYNSETS_DICT:
+      stored_synsets.append(SYNSETS_DICT[synset_idxes.pop(i)])
 
   synset_offsets = _get_synset_offsets(synset_idxes)
   synsets = _get_synsets(synset_offsets)
   
-  return synsets
+  return stored_synsets + synsets
 
 def all_synsets(pos):
   """Return all the synsets which have the provided pos.
@@ -308,6 +329,21 @@ class Synset:
     self.__dict__["min_depth"] = min_depth
 
     return min_depth
+
+    #if 'min_depth' in self.__dict__:
+      #return self.__dict__['min_depth']
+
+    #min_depth = 0
+    #hypernyms = [(0,hypernym) for hypernym in self.hypernyms()]
+    
+    #while len(hypernyms) > 0:
+      #hypernym = hypernyms.pop()
+      #hypernym_hypernyms = hypernym[1].hypernyms()
+      #if len(hypernym_hypernyms) == 0:
+	#min_depth = hypernym[0] if hypernym[0] < min_depth else min_depth
+      #else:
+	#hypernyms.extend([(hypernym[0]+1,hyp_hyp) for hyp_hyp in hypernym_hypernyms])
+    #return min_depth
 
   def _max_depth(self):
     """Finds maximum path length from the root
