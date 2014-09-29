@@ -98,13 +98,13 @@ class AllSynsetsQuery(unittest.TestCase):
 
 class Synset(unittest.TestCase):
   
-  def test_get_by_relation(self):
+  def test_get_related_synsets(self):
     ahel_synset = wn.synset("ahel.n.02")
     
-    hyperonyms = ahel_synset.get_by_relation('has_hyperonym')
+    hyperonyms = ahel_synset.get_related_synsets('has_hyperonym')
     self.assertEqual(hyperonyms[0].name,'rida.n.01')
     
-    hyponyms = ahel_synset.get_by_relation('has_hyponym')
+    hyponyms = ahel_synset.get_related_synsets('has_hyponym')
     self.assertEqual(hyponyms[0].name,'põhjusahel.n.01')
     self.assertEqual(hyponyms[1].name,'mäeahelik.n.01')
 
@@ -137,7 +137,10 @@ class Synset(unittest.TestCase):
     self.assertEqual(source_synset._shortest_path_distance(target_synset),2)
 
   def test_shortest_path_distance_to_unconnected(self):
-    pass # would take too much time
+    source_synset = wn.synset('hobune.n.01')
+    target_synset = wn.synset('kass.n.01')
+    
+    self.assertEqual(source_synset._shortest_path_distance(target_synset),7)
   
   def test_path_similarity_with_itself(self):
     source_synset = wn.synset('ilming.n.02')

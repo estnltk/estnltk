@@ -120,7 +120,7 @@ class Wordnet(object):
 	    relations_dict = {}
 	    
 	    for relation_str in kwargs['relations']:
-	      related_synsets = [{'id':synset.id} for synset in synset.get_by_relation(relation_str)]
+	      related_synsets = [{'id':synset.id} for synset in synset.get_related_synsets(relation_str)]
 	      
 	      relations_dict[relation_str] = [synset_dict for synset_dict,_ in related_synsets]
 	  

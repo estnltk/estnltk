@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-import sys
+import sys, os
 
 _MY_DIR = os.path.dirname(__file__)
 

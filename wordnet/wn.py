@@ -427,25 +427,25 @@ class Synset:
     target_synset.__dict__["distances"][self] = -1
     return -1			
 
-  def get_by_relation(self,sought_relation):
+  def get_related_synsets(self,relation):
     """Retrieves all the synsets which are related by given relation.
     
     Parameters
     ----------
-      sought_relation : str
+      relation : str
 	Name of the relation via which the sought synsets are linked.
     
     Returns
     -------
       list of Synsets
-	Synsets which are related via sought_relation.
+	Synsets which are related via `relation`.
     
     """
     results = []
 
     for relation_candidate in self._raw_synset.internalLinks:
 
-      if relation_candidate.name == sought_relation:
+      if relation_candidate.name == relation:
 	linked_synset = synset(_get_key_from_raw_synset(relation_candidate.target_concept))
 	relation_candidate.target_concept = linked_synset._raw_synset
 	results.append(linked_synset)
@@ -467,11 +467,11 @@ class Synset:
     """
     
     ancestors = []
-    unvisited_ancestors = self.get_by_relation(relation)
+    unvisited_ancestors = self.get_related_synsets(relation)
     
     while len(unvisited_ancestors) > 0:
       ancestor = unvisited_ancestors.pop()
-      unvisited_ancestors.extend(ancestor.get_by_relation(relation))
+      unvisited_ancestors.extend(ancestor.get_related_synsets(relation))
       ancestors.append(ancestor)
 
     return list(set(ancestors))
@@ -485,7 +485,7 @@ class Synset:
 	Synsets which are hypernyms.
     
     """
-    return self.get_by_relation("has_hyperonym")
+    return self.get_related_synsets("has_hyperonym")
 
   def hyponyms(self):
     """Retrieves all the hyponyms.
@@ -496,7 +496,7 @@ class Synset:
 	Synsets which are hyponyms.
 	
     """
-    return self.get_by_relation("has_hyponym")
+    return self.get_related_synsets("has_hyponym")
 
   def holoynms(self):
     """Retrieves all the holonyms.
@@ -507,7 +507,7 @@ class Synset:
 	Synsets which are holonyms.
     
     """
-    return self.get_by_relation("has_holonym")
+    return self.get_related_synsets("has_holonym")
 
   def meronyms(self):
     """Retrieves all the meronyms.
@@ -518,7 +518,7 @@ class Synset:
 	Synsets which are meronyms.
     
     """
-    return self.get_by_relation("has_meronym")
+    return self.get_related_synsets("has_meronym")
 
   def member_holonyms(self):
     """Retrieves all the member holoynms.
@@ -529,7 +529,7 @@ class Synset:
 	Synsets which are member_holonyms. TODO OOOOOOOOOOOO
     
     """
-    return self.get_by_relation("has_member_holo")
+    return self.get_related_synsets("has_member_holo")
 
   def root_hypernyms(self):
     """Retrieves all the root hypernyms.
