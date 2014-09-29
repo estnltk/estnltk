@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+
+"""Mid-level module for interacting with Estonian WordNet. Uses Neeme Kahusk's eurown module to parse WordNet file.
+"""
+
 import os
 import re
 import math
@@ -18,21 +23,22 @@ NOUN = 'n'
 ADJ = 'a'
 ADV = 'b'
 
-MAX_TAXONOMY_DEPTHS = {}
+MAX_TAXONOMY_DEPTHS = {} # necessary for Leacock & Chodorow similarity measure
 
 with open(_MAX_TAX_FILE,'r') as fin:
   for line in fin:
     pos,max_depth = line.strip().split(':')
     MAX_TAXONOMY_DEPTHS[pos] = int(max_depth)
 
-SYNSETS_DICT = {}
+SYNSETS_DICT = {} # global dictionary which stores initialized synsets
 
 def _get_synset_offsets(synset_idxes):
-  """Returs pointer offset in the WordNet file for every synset index. Preserves order.
+  """Returs pointer offset in the WordNet file for every synset index.
   
-  NotesTrue
+  Notes
   -----
     Internal function. Do not call directly.
+    Preserves order -- for [x,y,z] returns [offset(x),offset(y),offset(z)].
   
   Parameters
   ----------
@@ -65,11 +71,13 @@ def _get_synset_offsets(synset_idxes):
   return [offsets[synset_idx] for synset_idx in synset_idxes]
 
 def _get_synsets(synset_offsets):
-  """Given synset offset in the WordNet file, parses synset object for every offset.
+  """Given synset offsets in the WordNet file, parses synset object for every offset.
   
   Notes
   -----
     Internal function. Do not call directly.
+    Stores every parsed synset into global synset dictionary under two keys:
+      synset's name lemma.pos.sense_no and synset's id (unique integer).
 
   Parameters
   ----------
@@ -107,6 +115,7 @@ def _get_key_from_raw_synset(raw_synset):
   Parameters
   ----------
     raw_synset : eurown.Synset
+      Synset representation from which lemma, part-of-speech and sense is derived.
     
   Returns
   -------
@@ -122,6 +131,10 @@ def _get_key_from_raw_synset(raw_synset):
 def synset(synset_key):
   """Returns synset object with the provided key.
   
+  Notes
+  -----
+    Uses lazy initialization - synsets will be fetched from a dictionary after the first request.
+  
   Parameters
   ----------
     synset_key : string
@@ -131,6 +144,7 @@ def synset(synset_key):
   -------
     Synset
       Synset with key `synset_key`.
+      None, if no match was found.
   
   """
 
@@ -153,6 +167,10 @@ def synset(synset_key):
     return None
 
   synset_idx = _get_synset_idx(synset_key)
+  
+  if synset_idx == None:
+    return None
+  
   synset_offset = _get_synset_offsets([synset_idx])
   synset = _get_synsets(synset_offset)
 
@@ -160,6 +178,10 @@ def synset(synset_key):
 
 def synsets(lemma,pos=None):
   """Returns all synset objects which have lemma as one of the variant literals and fixed pos, if provided.
+  
+  Notes
+  -----
+    Uses lazy initialization - parses only those synsets which are not yet initialized, others are fetched from a dictionary.
   
   Parameters
   ----------
@@ -172,6 +194,7 @@ def synsets(lemma,pos=None):
   -------
     list of Synsets
       Synsets which contain `lemma` and of which part-of-speech is `pos`, if specified.
+      Empty list, if no match was found.
   
   """
 
@@ -207,24 +230,36 @@ def synsets(lemma,pos=None):
 def all_synsets(pos):
   """Return all the synsets which have the provided pos.
   
+  Notes
+  -----
+    Returns thousands or tens of thousands of synsets - first time will take significant time.
+    Useful for initializing synsets as each returned synset is also stored in a global dictionary for fast retrieval the next time.
+  
   Parameters
   ----------
     pos : str
-      Part-of-speech of the sought synsets.
+      Part-of-speech of the sought synsets. Sensible alternatives are wn.ADJ, wn.ADV, wn.VERB, wn.NOUN and `*`.
+      If pos == `*`, all the synsets are retrieved and initialized for fast retrieval the next time.
       
   Returns
   -------
     list of Synsets
       Lists the Synsets which have `pos` as part-of-speech.
+      Empty list, if `pos` not in [wn.ADJ, wn.ADV, wn.VERB, wn.NOUN, `*`].
   
   """
   def _get_unique_synset_idxes(pos):
     idxes = []
     
     with open(_LIT_POS_FILE,'r') as fin:
-      for line in fin:
-	split_line = line.strip().split(':')
-	if split_line[1] == pos:
+      if pos == '*':
+	for line in fin:
+	  split_line = line.strip().split(':')
+	  idxes.extend([int(x) for x in split_line[2].split()])
+      else:
+	for line in fin:
+	  split_line = line.strip().split(':')
+	  if split_line[1] == pos:
 	    idxes.extend([int(x) for x in split_line[2].split()])
 
     idxes = list(set(idxes))
@@ -237,11 +272,17 @@ def all_synsets(pos):
 
   if len(synset_idxes) == 0:
     return []
+  
+  stored_synsets = []
+  
+  for i in range(len(synset_idxes)):
+    if synset_idxes[i] in SYNSETS_DICT:
+      stored_synsets.append(SYNSETS_DICT[synset_idxes.pop(i)])
 
   synset_offsets = _get_synset_offsets(synset_idxes)
   synsets = _get_synsets(synset_offsets)
 
-  return synsets
+  return stored_synsets + synsets
 
 class Synset:
   """Represents a WordNet synset.
@@ -256,8 +297,6 @@ class Synset:
       Synset's part-of-speech.
     _raw_synset: eurown.Synset
       Underlying Synset object. Not intended to access directly.
-    _dict_ : dict
-      XXXXXXXXXXXXXXXXXXXx
       
   """
   def __init__(self,raw_synset):
@@ -344,34 +383,6 @@ class Synset:
       #else:
 	#hypernyms.extend([(hypernym[0]+1,hyp_hyp) for hyp_hyp in hypernym_hypernyms])
     #return min_depth
-
-  def _max_depth(self):
-    """Finds maximum path length from the root
-    
-    Notes
-    -----
-      Internal method. Do not call directly.
-      
-    Returns
-    -------
-      int
-	Maximum path length from the root.
-    
-    """
-    if 'max_depth' in self.__dict__:
-      return self.__dict__['max_depth']
-
-    max_depth = 0
-    hypernyms = [(0,hypernym) for hypernym in self.hypernyms()]
-    
-    while len(hypernyms) > 0:
-      hypernym = hypernyms.pop()
-      hypernym_hypernyms = hypernym[1].hypernyms()
-      if len(hypernym_hypernyms) == 0:
-	max_depth = hypernym[0] if hypernym[0] > max_depth else max_depth
-      else:
-	hypernyms.extend([(hypernym[0]+1,hyp_hyp) for hyp_hyp in hypernym_hypernyms])
-    return max_depth
 
   def _shortest_path_distance(self, target_synset):
     """Finds minimum path length from the target synset.
@@ -482,7 +493,7 @@ class Synset:
     Returns
     -------
       list of Synsets
-	Synsets which are hypernyms.
+	Synsets which are linked via hypernymy relation.
     
     """
     return self.get_related_synsets("has_hyperonym")
@@ -493,7 +504,7 @@ class Synset:
     Returns
     -------
       list of Synsets
-	Synsets which are hyponyms.
+	Synsets which are linked via hyponymy relation.
 	
     """
     return self.get_related_synsets("has_hyponym")
@@ -504,7 +515,7 @@ class Synset:
     Returns
     -------
       list of Synsets
-	Synsets which are holonyms.
+	Synsets which are linked via holonymy relation.
     
     """
     return self.get_related_synsets("has_holonym")
@@ -515,7 +526,7 @@ class Synset:
     Returns
     -------
       list of Synsets
-	Synsets which are meronyms.
+	Synsets which are linked via meronymy relation.
     
     """
     return self.get_related_synsets("has_meronym")
@@ -526,7 +537,7 @@ class Synset:
     Returns
     -------
       list of Synsets
-	Synsets which are member_holonyms. TODO OOOOOOOOOOOO
+	Synsets which are "wholes" of what the synset represents.
     
     """
     return self.get_related_synsets("has_member_holo")
@@ -537,7 +548,7 @@ class Synset:
     Returns
     -------
       list of Synsets
-	Synsets which are root_hypernyms.
+	Roots via hypernymy relation.
     
     """
     visited = set()
@@ -578,7 +589,11 @@ class Synset:
       return None
 
   def lch_similarity(self, synset):
-    """Calculates lch similarity between the two synsets.
+    """Calculates Leacock and Chodorow’s similarity between the two synsets.
+
+    Notes
+    -----
+      Similarity is calculated using the formula -log( (dist(synset1,synset2)+1) / (2*maximum taxonomy depth) ).
 
     Parameters
     ----------
@@ -588,14 +603,12 @@ class Synset:
     Returns
     -------
       float
-	LCH similarity from `synset`.
-	TODO details
+	Leacock and Chodorow’s from `synset`.
+	None, if synsets are not connected via hypernymy/hyponymy relations. Obvious, if part-of-speeches don't match.
     
     """
-    # TODO error handling
 
     if self._raw_synset.pos != synset._raw_synset.pos:
-      print 'Computing the lch similarity requires synsets to have the same part of speech.'
       return None
 
     depth = MAX_TAXONOMY_DEPTHS[self._raw_synset.pos] 
@@ -608,9 +621,13 @@ class Synset:
       return None
 
   def wup_similarity(self, synset):
-    """Calculates wup similarity between the two synsets.
+    """Calculates Wu and Palmer’s similarity between the two synsets.
     
-        Parameters
+    Notes
+    -----
+      Similarity is calculated using the formula ( 2*depth(least_common_subsumer(synset1,synset2)) ) / ( depth(synset1) + depth(synset2) )
+    
+    Parameters
     ----------
       synset : Synset
 	Synset from which the similarity is calculated.
@@ -618,7 +635,7 @@ class Synset:
     Returns
     -------
       float
-	WUP similarity from `synset`.
+	Wu and Palmer’s similarity from `synset`.
     
     """
     self_hypernyms = self._recursive_hypernyms(set())
@@ -633,7 +650,7 @@ class Synset:
     return (2.0 * lcs_depth) / (self_depth + other_depth)
 	
   def get_variants(self):
-    """Returns variants.
+    """Returns variants/lemmas of the synset.
     
     Returns
     -------

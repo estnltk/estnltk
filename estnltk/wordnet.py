@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
 
 """Module which holds Wordnet class for annotating corpus.
-
-Notes
------
-  The module is for import only.
-
 """
 
 import os, sys
