@@ -6,7 +6,9 @@
 import os
 import re
 import math
+from StringIO import StringIO
 from eurown import Parser
+from pyvabamorf import analyze_sentence
 
 _MY_DIR = os.path.dirname(__file__)
 
@@ -31,6 +33,7 @@ with open(_MAX_TAX_FILE,'r') as fin:
     MAX_TAXONOMY_DEPTHS[pos] = int(max_depth)
 
 SYNSETS_DICT = {} # global dictionary which stores initialized synsets
+LEMMAS_DICT = {}
 
 def _get_synset_offsets(synset_idxes):
   """Returs pointer offset in the WordNet file for every synset index.
@@ -284,6 +287,77 @@ def all_synsets(pos):
 
   return stored_synsets + synsets
 
+def lemma(lemma_key):
+  """Returns the Lemma object with the given key.
+  
+  Parameters
+  ----------
+    lemma_key : str
+      Key of the returned lemma.
+  
+  Returns
+  -------
+    Lemma
+      Lemma matching the `lemma_key`.
+  
+  """
+  if lemma_key in LEMMAS_DICT:
+    return LEMMAS_DICT[lemma_key]
+  split_lemma_key = lemma_key.split('.')
+  
+  synset_key = '.'.join(split_lemma_key[:3])
+  lemma_literal = split_lemma_key[3]
+  
+  lemma_obj = Lemma(synset_key,lemma_literal)
+  LEMMAS_DICT[lemma_key] = lemma_obj
+  return lemma_obj
+
+def lemma_from_key(lemma_key):
+  """Just for comformance with the NLTK WordNet API. No necessary lexical information.
+  """
+  return None
+
+def lemmas(lemma,pos=None):
+  """Returns all the Lemma objects of which name is `lemma` and which have `pos` as part
+  of speech.
+  
+  Parameters
+  ----------
+    lemma : str
+      Literal of the sought Lemma objects.
+    pos : str, optional
+      Part of speech of the sought Lemma objects. If None, matches any part of speech.
+      Defaults to None
+      
+  Returns
+  -------
+    list of Lemmas
+      Lists all the matched Lemmas.
+  """
+  lemma = lemma.lower()
+  return [lemma_obj
+	  for synset in synsets(lemma,pos)
+	  for lemma_obj in synset.lemmas()
+	  if lemma_obj.name.lower() == lemma]
+  
+
+def morphy(word):
+  """Performs morphological analysis on the `word`.
+  
+  Parameters
+  ----------
+    word : str
+      Word to be lemmatized.
+
+  Returns
+  -------
+    str
+      Lemma of the `word`.
+  
+  """
+  analyzed = analyze_sentence([word])
+  return analyzed[-1]['analysis'][0]['lemma'] if len(analyzed) else None
+
 class Synset:
   """Represents a WordNet synset.
   
@@ -462,7 +536,7 @@ class Synset:
 	results.append(linked_synset)
     return results
 
-  def get_ancestors(self, relation):   
+  def closure(self, relation, depth=float('inf')):   
     """Finds all the ancestors of the synset using provided relation.
   
     Parameters
@@ -478,12 +552,14 @@ class Synset:
     """
     
     ancestors = []
-    unvisited_ancestors = self.get_related_synsets(relation)
+    unvisited_ancestors = [(synset,1) for synset in self.get_related_synsets(relation)]
     
     while len(unvisited_ancestors) > 0:
-      ancestor = unvisited_ancestors.pop()
-      unvisited_ancestors.extend(ancestor.get_related_synsets(relation))
-      ancestors.append(ancestor)
+      ancestor_depth = unvisited_ancestors.pop()
+      if ancestor_depth[1] > depth:
+	continue    
+      unvisited_ancestors.extend([(synset,ancestor_depth[1]+1) for synset in ancestor_depth[0].get_related_synsets(relation)])
+      ancestors.append(ancestor_depth[0])
 
     return list(set(ancestors))
 
@@ -638,10 +714,8 @@ class Synset:
 	Wu and Palmer’s similarity from `synset`.
     
     """
-    self_hypernyms = self._recursive_hypernyms(set())
-    other_hypernyms = synset._recursive_hypernyms(set())
-    common_hypernyms = self_hypernyms.intersection(other_hypernyms)
-    lcs_depth = max(s._min_depth() for s in common_hypernyms)
+    lchs = self.lowest_common_hypernyms()
+    lcs_depth = lchs[0]._min_depth() if lchs and len(lchs) else None
     self_depth = self._min_depth() 
     other_depth = synset._min_depth()
     if lcs_depth is None or self_depth is None or other_depth is None: 
@@ -659,3 +733,113 @@ class Synset:
     
     """
     return _raw_synset.variants
+  
+  def definition(self):
+    """Returns the definition of the synset.
+    
+    Returns
+    -------
+      str
+	Definition of the synset as a new-line separated concatenated string from all its variants' definitions.
+    
+    """
+    return '\n'.join([variant.definition for variant in self._raw_synset.variants if variant.definition])
+  
+  def examples(self):
+    """Returns the examples of the synset.
+    
+    Returns
+    -------
+      list of str
+	List of its variants' examples.
+    
+    """
+    return [[example for example in variant.examples] for variant in self._raw_synset.variants if len(variant.examples)]
+  
+  def lemmas(self):
+    """Returns the synset's lemmas/variants' literal represantions.
+    
+    Returns
+    -------
+      list of Lemmas
+	List of its variations' literals as Lemma objects.
+    
+    """
+    return [lemma("%s.%s"%(self.name,variant.literal)) for variant in self._raw_synset.variants]
+  
+  def lowest_common_hypernyms(self,target_synset):
+    """Returns the common hypernyms of the synset and the target synset, which are furthest from the closest roots.
+    
+    Parameters
+    ----------
+      target_synset : Synset
+	Synset with which the common hypernyms are sought.
+    
+    Returns
+    -------
+      list of Synsets
+	Common synsets which are the furthest from the closest roots.
+    
+    """
+    
+    self_hypernyms = self._recursive_hypernyms(set())
+    other_hypernyms = synset._recursive_hypernyms(set())
+    common_hypernyms = self_hypernyms.intersection(other_hypernyms)
+    
+    annot_common_hypernyms = [(hypernym, hypernym._min_depth()) for hypernym in common_hypernyms]
+   
+    annot_common_hypernyms.sort(key = lambda annot_hypernym: annot_hypernym[1],reverse=True)
+    
+    max_depth = annot_common_hypernyms[0] if len(annot_common_hypernyms) > 0 else None
+    
+    if max_depth != None:
+      return [annot_common_hypernym[0] for annot_common_hypernym in annot_common_hypernyms if annot_common_hypernym[1] == max_depth]
+    else:
+      return None
+        
+class Lemma:
+  """Represents a lemma.
+  
+  Attributes
+  ----------
+    synset_literal : str
+      Literal part of the synset's key (literal.pos.sense).
+    synset_pos : str
+      Pos part of the synset's key (literal.pos.sense).
+    synset_sense : str
+      Sense part of the synset's key (literal.pos.sense).
+    name : str
+      Literal/Name of the lemma.
+      
+  """
+  
+  def __init__(self,key,literal):
+    self.synset_literal,self.synset_pos,self.synset_sense = key.split('.')
+    self.name = literal 
+  
+  def derivationally_related_forms(self):
+    """Just for comformance with the NLTK WordNet API. No relations between lemmas in Estonian WordNet.
+    """
+    return []
+  
+  def pertainyms(self):
+    """Just for comformance with the NLTK WordNet API. No relations between lemmas in Estonian WordNet.
+    """
+    return []
+  
+  def antonyms(self):
+    """Just for comformance with the NLTK WordNet API. No relations between lemmas in Estonian WordNet.
+    """
+    return []
+  
+  def synset(self):
+    """Returns synset into which the given lemma belongs to.
+    
+    Returns
+    -------
+      Synset
+	Synset into which the given lemma belongs to.
+    
+    """    
+    return synset('%s.%s.%s.%s'%(self.synset_literal,self.synset_pos,self.synset_sense,self.literal))
+

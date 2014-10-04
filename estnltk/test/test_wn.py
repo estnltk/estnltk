@@ -96,6 +96,24 @@ class AllSynsetsQuery(unittest.TestCase):
   #def test_all_nouns_query(self):
     #self.assertEqual(len(wn.all_synsets('n')),54449)
 
+class LemmaQuery(unittest.TestCase):
+  
+  def test_lemma_query(self):
+    lemma_key = "kolask.n.01.elevant"
+    self.assertTrue(wn.lemma(lemma_key).name,"elevant")
+
+class AllLemmasQuery(unittest.TestCase):
+  
+  def test_all_lemmas_query(self):
+    result = wn.lemmas("kiiresti")
+    self.assertTrue(len(result),1)
+    self.assertTrue(result[0].name,"kiiresti")
+
+class MorphyTest(unittest.TestCase):
+  
+  def test_morphy(self):
+    self.assertTrue(wn.morphy("karud"),"karu")
+
 class Synset(unittest.TestCase):
   
   def test_get_related_synsets(self):
@@ -108,16 +126,26 @@ class Synset(unittest.TestCase):
     self.assertEqual(hyponyms[0].name,'põhjusahel.n.01')
     self.assertEqual(hyponyms[1].name,'mäeahelik.n.01')
 
-  def test_get_ancestors(self):
+  def test_closure(self):
     real_ancestor_hyperonyms = [(293,'vahend.n.02'),(248,'asi.n.04'),(693,'objekt.n.01'),(8787,'olev.n.02')]
     real_ancestor_ids = [id_name[0] for id_name in real_ancestor_hyperonyms]
     
     hoob_synset = wn.synset("hoob.n.01")
-    ancestor_hyperonyms = hoob_synset.get_ancestors('has_hyperonym')
+    ancestor_hyperonyms = hoob_synset.closure('has_hyperonym')
     
     self.assertEqual(len(ancestor_hyperonyms),len(real_ancestor_hyperonyms))
     self.assertTrue(all(ancestor.id in real_ancestor_ids for ancestor in ancestor_hyperonyms))
+  
+  def test_closure_with_custom_depth(self):
+    real_ancestor_hyperonyms = [(293,'vahend.n.02')]
+    real_ancestor_ids = [id_name[0] for id_name in real_ancestor_hyperonyms]
     
+    hoob_synset = wn.synset("hoob.n.01")
+    ancestor_hyperonyms = hoob_synset.closure('has_hyperonym',depth=1)
+    
+    self.assertEqual(len(ancestor_hyperonyms),len(real_ancestor_hyperonyms))
+    self.assertTrue(all(ancestor.id in real_ancestor_ids for ancestor in ancestor_hyperonyms))
+  
   def test_shortest_path_distance_to_itself(self):
     source_synset = wn.synset('hulkuma.v.01')
     target_synset = wn.synset('hulkuma.v.01')
