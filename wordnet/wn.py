@@ -230,7 +230,7 @@ def synsets(lemma,pos=None):
   
   return stored_synsets + synsets
 
-def all_synsets(pos):
+def all_synsets(pos=None):
   """Return all the synsets which have the provided pos.
   
   Notes
@@ -255,7 +255,7 @@ def all_synsets(pos):
     idxes = []
     
     with open(_LIT_POS_FILE,'r') as fin:
-      if pos == '*':
+      if pos == None:
 	for line in fin:
 	  split_line = line.strip().split(':')
 	  idxes.extend([int(x) for x in split_line[2].split()])
