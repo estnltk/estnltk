@@ -585,7 +585,7 @@ class Synset:
     """
     return self.get_related_synsets("has_hyponym")
 
-  def holoynms(self):
+  def holonyms(self):
     """Retrieves all the holonyms.
     
     Returns
@@ -696,7 +696,7 @@ class Synset:
     else: 
       return None
 
-  def wup_similarity(self, synset):
+  def wup_similarity(self, target_synset):
     """Calculates Wu and Palmer’s similarity between the two synsets.
     
     Notes
@@ -714,10 +714,10 @@ class Synset:
 	Wu and Palmer’s similarity from `synset`.
     
     """
-    lchs = self.lowest_common_hypernyms()
+    lchs = self.lowest_common_hypernyms(target_synset)
     lcs_depth = lchs[0]._min_depth() if lchs and len(lchs) else None
     self_depth = self._min_depth() 
-    other_depth = synset._min_depth()
+    other_depth = target_synset._min_depth()
     if lcs_depth is None or self_depth is None or other_depth is None: 
 	    return None 
 
@@ -743,7 +743,7 @@ class Synset:
 	Definition of the synset as a new-line separated concatenated string from all its variants' definitions.
     
     """
-    return '\n'.join([variant.definition for variant in self._raw_synset.variants if variant.definition])
+    return '\n'.join([variant.gloss for variant in self._raw_synset.variants if variant.gloss])
   
   def examples(self):
     """Returns the examples of the synset.
@@ -753,8 +753,11 @@ class Synset:
       list of str
 	List of its variants' examples.
     
-    """
-    return [[example for example in variant.examples] for variant in self._raw_synset.variants if len(variant.examples)]
+    """ 
+    examples = []
+    for example in [variant.examples for variant in self._raw_synset.variants if len(variant.examples)]:
+      examples.extend(example)
+    return examples
   
   def lemmas(self):
     """Returns the synset's lemmas/variants' literal represantions.
@@ -780,17 +783,16 @@ class Synset:
       list of Synsets
 	Common synsets which are the furthest from the closest roots.
     
-    """
-    
+    """ 
     self_hypernyms = self._recursive_hypernyms(set())
-    other_hypernyms = synset._recursive_hypernyms(set())
+    other_hypernyms = target_synset._recursive_hypernyms(set())
     common_hypernyms = self_hypernyms.intersection(other_hypernyms)
     
     annot_common_hypernyms = [(hypernym, hypernym._min_depth()) for hypernym in common_hypernyms]
    
     annot_common_hypernyms.sort(key = lambda annot_hypernym: annot_hypernym[1],reverse=True)
-    
-    max_depth = annot_common_hypernyms[0] if len(annot_common_hypernyms) > 0 else None
+   
+    max_depth = annot_common_hypernyms[0][1] if len(annot_common_hypernyms) > 0 else None
     
     if max_depth != None:
       return [annot_common_hypernym[0] for annot_common_hypernym in annot_common_hypernyms if annot_common_hypernym[1] == max_depth]
