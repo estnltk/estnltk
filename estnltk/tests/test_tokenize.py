@@ -1,22 +1,27 @@
 # -*- coding: utf-8 -*-
-
+from __future__ import unicode_literals, print_function
 import unittest
 
-from estnltk.corpus import apply_tokenizer, PlainTextDocumentImporter
+from estnltk.tokenize import tokenize, Tokenizer
 from nltk.tokenize import RegexpTokenizer
 from pprint import pprint
 
-class ApplyTokenizerTest(unittest.TestCase):
+class TokenizeTest(unittest.TestCase):
+    '''Test the estnltk.tokenize.tokenize function.'''
     
-    def test_apply_tokenizer(self):
-        result = apply_tokenizer(self.text(), self.tokenizer(), 1000)
+    def test_tokenizer(self):
+        result = tokenize(self.text(), self.tokenizer(), 1000)
         self.assertListEqual(result, self.result())
     
-    def test_bad_tokenizer_fails(self):
-        self.assertRaises(AssertionError, apply_tokenizer, self.text(), self.bad_tokenizer(), 1000)
+    def test_tokenize_fails(self):
+        '''Some tokenizers cannot be reasonably applied on texts.
+        One example is RegexpTokenizer with \s*. The problem is
+        that is can match zero characters and thus span_tokenize
+        yields wrong results.'''
+        self.assertRaises(AssertionError, tokenize, self.text(), self.bad_tokenizer(), 1000)
     
     def text(self):
-        return u'  see on \n\r\n  \r\n\r \n \t text  '
+        return '  see on \n\r\n  \r\n\r \n \t text  '
     
     def result(self):
         return [{'text': u'see',
@@ -45,17 +50,18 @@ class ApplyTokenizerTest(unittest.TestCase):
         return RegexpTokenizer('\s*', gaps=True, discard_empty=True)
 
         
-class PlainTextDocumentImporterTest(unittest.TestCase):
+class TokenizerTest(unittest.TestCase):
+    '''Test the estnltk.tokenize.Tokenizer class.'''
     
-    def test_import_empty(self):
-        importer = PlainTextDocumentImporter()
-        imported = importer(self.empty_document())
-        self.assertDictEqual(imported, self.empty_imported())
+    def test_tokenize_empty(self):
+        tokenizer = Tokenizer()
+        tokenized = tokenizer(self.empty_document())
+        self.assertDictEqual(tokenized, self.empty_tokenized())
     
     def empty_document(self):
-        return u''
+        return ''
     
-    def empty_imported(self):
+    def empty_tokenized(self):
         return {'text': u'',
                 'start': 0,
                 'rel_start': 0,
@@ -64,14 +70,14 @@ class PlainTextDocumentImporterTest(unittest.TestCase):
                 'paragraphs': []}
 
     def test_simple(self):
-        importer = PlainTextDocumentImporter()
-        imported = importer(self.simple_document())
-        self.assertDictEqual(imported, self.simple_imported())
-                
-    def simple_document(self):
-        return u'Esimene lõik.\nTeine'
+        tokenizer = Tokenizer()
+        tokenized = tokenizer.tokenize(self.simple_document())
+        self.assertDictEqual(tokenized, self.simple_tokenized())
     
-    def simple_imported(self):
+    def simple_document(self):
+        return 'Esimene lõik.\nTeine'
+    
+    def simple_tokenized(self):
         return {'end': 19,
                 'paragraphs': [{'end': 13,
                                 'rel_end': 13,
@@ -112,7 +118,6 @@ class PlainTextDocumentImporterTest(unittest.TestCase):
                 'rel_start': 0,
                 'start': 0,
                 'text': u'Esimene l\xf5ik.\nTeine'}
-
+                
 if __name__ == '__main__':
     unittest.main()
-    

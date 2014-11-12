@@ -44,19 +44,13 @@ class TextDiagnostics(object):
         context_size: int
             How many characters to return as the context.
 
-        Returns
-        -------
-        dict of (char -> list of tuple (index, context))
-            Returns a dictionary, where keys are invalid characters.
-            Values are lists containign tuples with character indices
-                and context strings.
         '''
         result = defaultdict(list)
         for idx, char in enumerate(text):
             if char not in self._alpha:
                 start = max(0, idx-context_size)
                 end   = min(len(text), idx+context_size)
-                result[char].append((idx, text[start:end]))
+                result[char].append(text[start:end])
         return result
 
     def compute_report(self, texts, context_size=10):
@@ -110,7 +104,7 @@ class TextDiagnostics(object):
         for c, examples in result:
             s += 'For character "{0}", found {1} occurrences.\nExamples:\n'.format(c, len(examples))
             examples = sample(examples, min(len(examples), n_examples))
-            for ex_idx, (idx, example) in enumerate(examples):
-                s += 'example {0}: {1}\n'.format(ex_idx+1, example)
+            for idx, example in enumerate(examples):
+                s += 'example {0}: {1}\n'.format(idx+1, example)
             s += '\n'
         f.write(s)
