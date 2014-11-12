@@ -17,55 +17,23 @@ CORPORA_PATH = os.path.join(PACKAGE_PATH, 'corpora')
 PMNEWS_PATH = os.path.join(CORPORA_PATH, 'pm_news')
 
 def as_unicode(s, encoding='utf-8'):
-    '''Convert the string to unicode.
-    
-    Parameters
-    ----------
-    s: str or unicode or bytes
-        Input string.
-    encoding: str
-        If the given string is binary, then assumes this encoding (default: utf-8).
-        
-    Returns
-    -------
-    unicode
-        In case of Python2
-    str
-        In case of Python3
-    '''
-    if six.PY2:
-        if isinstance(s, str):
-            return s.decode(encoding)
-        else:
-            return unicode(s)
-    else: # ==> Py3
-        if isinstance(s, bytes):
-            return s.decode(encoding)
-        else:
-            return str(s)
+    '''Convert the string to unicode.'''
+    if isinstance(s, six.text_type):
+        return s
+    elif isinstance(s, six.binary_type):
+        return s.decode(encoding)
+    else:
+        raise ValueError('Can only convert types {0} and {1}'.format(six.text_type, six.binary_type))
     
 def as_binary(s, encoding='utf-8'):
-    '''Convert the given string to binary.
-    
-    Parameters
-    ----------
-    s: unicode or str
-        Input string.
-    encoding: str
-        The encoding for binary data (default: utf-8)
-    
-    Returns
-    -------
-    str
-        In case of Python2
-    bytes
-        In case of Python3
-    '''
-    if six.PY2 and isinstance(word, unicode):
+    '''Convert the string to binary'''
+    if isinstance(s, six.text_type):
         return s.encode(encoding)
-    elif six.PY3 and isinstance(word, str):
-        return s.encode(encoding) # bytes must be in utf8
-    return s.decode(encoding).encode(encoding)
+    elif isinstance(s, six.binary_type):
+        # make sure the binary is in required encoding
+        return s.decode(encoding).encode(encoding)
+    else:
+        raise ValueError('Can only convert types {0} and {1}'.format(six.text_type, six.binary_type))
 
 
 def get_filenames(root, prefix=u'', suffix=u''):
