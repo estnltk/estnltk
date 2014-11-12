@@ -12,7 +12,8 @@ setup(
     
     install_requires = ['nltk>=3.0.0',
                         'pyvabamorf>=1.5',
-                        'jsonpath-rw>=1.3.0'],
+                        'jsonpath-rw>=1.3.0',
+                        'six>=1.7.3'],
     
     author       = "Timo Petmanson, Aleksandr Tkachenko, Siim Orasmaa, Raul Sirel, Karl-Oskar Masing, Tanel Pärnamaa, Dage Särg, Sven Laur, Tarmo Vaino, Heiki-Jaan Kaalep",
     author_email = "tpetmanson@gmail.com",

@@ -1,50 +1,18 @@
 # -*- coding: utf-8 -*-
 '''
-Module containing functionality to perform basic tokenization.
+Module containing functionality to perform basic tokenization
+of plaintext data.
 '''
 from __future__ import unicode_literals, print_function
 
 import nltk.data
 
+from estnltk.core import as_unicode
 from nltk.corpus.reader import CorpusReader
 from nltk.tokenize import RegexpTokenizer
 from nltk.tokenize.punkt import PunktWordTokenizer
 
 from itertools import izip
-
-def tokenize(text, tokenizer, start=0):
-    '''Function that tokenizes given text with given tokenizer
-    and returns JSON-style output.
-    
-    Parameters
-    ----------
-    
-    text: str
-        The text to be tokenized.
-    tokenizer: http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.api.StringTokenizer
-        The tokenizer to use.
-    start: int
-        the absolute start position of the given text. Only required when this text is a substring
-        of a larger text. Such as a sentence in a paragraph.
-        
-    Returns
-    -------
-    list of dict
-        List of tokens, described by "text", "start", "end", "rel_start", "rel_end" elements.
-    '''
-    end = start + len(text)
-    toks = tokenizer.tokenize(text)
-    spans = tokenizer.span_tokenize(text)
-    results = []
-    for tok, (tokstart, tokend) in izip(toks, spans):
-        d = {'text': tok,
-             'start': start + tokstart,
-             'end': start + tokend,
-             'rel_start': tokstart,
-             'rel_end': tokend}
-        assert text[d['rel_start']:d['rel_end']] == d['text']
-        results.append(d)
-    return results
 
 
 class Tokenizer(object):
@@ -109,6 +77,7 @@ class Tokenizer(object):
                 ]
             }
         '''
+        text = as_unicode(text)
         paras = tokenize(text, self._paragraph_tokenizer)
         for para in paras:
             sentences = tokenize(para['text'], self._sentence_tokenizer, para['start'])
@@ -125,3 +94,38 @@ class Tokenizer(object):
     def __call__(self, text):
         '''Tokenize the text into paragraphs, sentences and words.'''
         return self.tokenize(text)
+
+
+def tokenize(text, tokenizer, start=0):
+    '''Function that tokenizes given text with given tokenizer
+    and returns JSON-style output.
+    
+    Parameters
+    ----------
+    
+    text: str
+        The text to be tokenized.
+    tokenizer: http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.api.StringTokenizer
+        The tokenizer to use.
+    start: int
+        the absolute start position of the given text. Only required when this text is a substring
+        of a larger text. Such as a sentence in a paragraph.
+        
+    Returns
+    -------
+    list of dict
+        List of tokens, described by "text", "start", "end", "rel_start", "rel_end" elements.
+    '''
+    end = start + len(text)
+    toks = tokenizer.tokenize(text)
+    spans = tokenizer.span_tokenize(text)
+    results = []
+    for tok, (tokstart, tokend) in izip(toks, spans):
+        d = {'text': tok,
+             'start': start + tokstart,
+             'end': start + tokend,
+             'rel_start': tokstart,
+             'rel_end': tokend}
+        assert text[d['rel_start']:d['rel_end']] == d['text']
+        results.append(d)
+    return results
