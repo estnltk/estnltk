@@ -52,4 +52,3 @@ class JavaProcess(object):
         except Exception:
             self._process.terminate()
             raise
-            

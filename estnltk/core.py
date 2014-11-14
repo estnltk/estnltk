@@ -16,6 +16,7 @@ JAVARES_PATH = os.path.join(PACKAGE_PATH, 'java-res')
 CORPORA_PATH = os.path.join(PACKAGE_PATH, 'corpora')
 PMNEWS_PATH = os.path.join(CORPORA_PATH, 'pm_news')
 
+
 def as_unicode(s, encoding='utf-8'):
     '''Convert the string to unicode.'''
     if isinstance(s, six.text_type):
@@ -24,6 +25,7 @@ def as_unicode(s, encoding='utf-8'):
         return s.decode(encoding)
     else:
         raise ValueError('Can only convert types {0} and {1}'.format(six.text_type, six.binary_type))
+   
     
 def as_binary(s, encoding='utf-8'):
     '''Convert the string to binary'''

@@ -8,7 +8,6 @@ from __future__ import unicode_literals, print_function
 import nltk.data
 
 from estnltk.core import as_unicode
-from nltk.corpus.reader import CorpusReader
 from nltk.tokenize import RegexpTokenizer
 from nltk.tokenize.punkt import PunktWordTokenizer
 

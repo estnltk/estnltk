@@ -1,10 +1,21 @@
 # -*- coding: utf-8 -*-
 
-class NamedEntityRecognition(object):
-    
-    def __call__(self, corpus):
-        '''Apply NER annotations to given corpus'''
-        for words in JsonPaths.words.find(corpus):
-            for word in words.value:
-                word['ne'] = u'PER'
-        return corpus
+from __future__ import unicode_literals, print_function
+
+from estnltk import Tokenizer
+from estnltk import PyVabamorfAnalyzer
+from pprint import pprint
+
+from estnltk.estner.settings import Settings
+from estnltk.estner.featureextraction import FeatureExtractor
+
+settings = Settings()
+pprint(settings)
+
+
+fe = FeatureExtractor(settings)
+
+tokenizer = Tokenizer()
+analyzer = PyVabamorfAnalyzer()
+
+vabadata = analyzer(tokenizer('Mees nimega Andrus Ansip käis Brüsselis Euroopa Liidu nõupidamisel. Seal sai selgeks et NATO on siin.'))

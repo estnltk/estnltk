@@ -14,9 +14,19 @@ from pprint import pprint
 
 '''
 
-
-
+class Corpus(dict):
     
+    def __init__(self, *args, **kwargs):
+        dict.__init__(*args, **kwargs)
+    
+    def words(self):
+        pass
+    
+    def sentences(self):
+        pass
+        
+    def paragraphs(self):
+        pass
 
             
 
