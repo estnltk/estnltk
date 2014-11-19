@@ -15,6 +15,10 @@ JAVARES_PATH = os.path.join(PACKAGE_PATH, 'java-res')
 # corpora
 CORPORA_PATH = os.path.join(PACKAGE_PATH, 'corpora')
 PMNEWS_PATH = os.path.join(CORPORA_PATH, 'pm_news')
+DEFAULT_NER_DATASET = os.path.join(CORPORA_PATH, 'estner.json.bz2')
+
+# default NER model path
+DEFAULT_NER_MODEL = os.path.join(PACKAGE_PATH, 'estner', 'models', 'default.bin')
 
 
 def as_unicode(s, encoding='utf-8'):

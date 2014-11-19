@@ -2,6 +2,12 @@
 '''
 Module containing functionality to perform basic tokenization
 of plaintext data.
+
+Attributes
+----------
+
+tokenizer: Tokenizer
+    Tokenizer instance with default parameters.
 '''
 from __future__ import unicode_literals, print_function
 
@@ -94,6 +100,7 @@ class Tokenizer(object):
         '''Tokenize the text into paragraphs, sentences and words.'''
         return self.tokenize(text)
 
+tokenizer = Tokenizer()
 
 def tokenize(text, tokenizer, start=0):
     '''Function that tokenizes given text with given tokenizer

@@ -1,21 +1,28 @@
 # -*- coding: utf-8 -*-
 '''
 Module containing functionality for training and using NER models.
+
+Attributes
+----------
+tagger: NerTagger
+    Ner tagger with default model and parameters.
+
 '''
 
 from __future__ import unicode_literals, print_function
 
 from estnltk import Tokenizer
 from estnltk import PyVabamorfAnalyzer
+from estnltk.estner.settings import Settings, DEFAULT_SETTINGS_MODULE
+from estnltk.core import DEFAULT_NER_DATASET, DEFAULT_NER_MODEL
+from estnltk.estner.crfsuiteutil import Trainer, Tagger
+
 from pprint import pprint
 from base64 import b64encode, b64decode
-
+import bz2
 import tempdir
 import os
 import json
-
-from estnltk.estner.settings import Settings, DEFAULT_SETTINGS_MODULE
-from estnltk.estner.crfsuiteutil import Trainer, Tagger
 
 
 class NerModel(object):
@@ -31,7 +38,7 @@ class NerModel(object):
         model: binary
             The serialized trained model used by crfsuite library.
         '''
-        self.settings_module_contents = settings_module_text
+        self.settings_module_contents = settings_module_contents
         self.model = model
         
     def serialize(self):
@@ -44,7 +51,7 @@ class NerModel(object):
         '''
         return json.dumps(
             {'settings_module_contents': b64encode(self.settings_module_contents),
-             'model': b64encode(self.model)})
+             'model': b64encode(bz2.compress(self.model))})
         
     def serialize_to_file(self, filename):
         '''Serialize the NerModel to a file.
@@ -58,7 +65,7 @@ class NerModel(object):
             f.write(self.serialize())
         
     @staticmethod
-    def deserialize(self, serialized):
+    def deserialize(serialized):
         '''Deserialize a NerModel.
         
         Parameters
@@ -72,11 +79,11 @@ class NerModel(object):
             The NerModel instance.
         '''
         data = json.loads(serialized)
-        return NerModel(b64decode(data['settings_module_contents'),
-                        b64decode(data['model']))
+        return NerModel(b64decode(data['settings_module_contents']),
+                        bz2.decompress(b64decode(data['model'])))
         
     @staticmethod
-    def deserialize_from_file(self, filename):
+    def deserialize_from_file(filename):
         '''deserialize a NerModel from file.
         
         Parameters
@@ -101,7 +108,7 @@ class NerTrainer(object):
         Parameters
         ----------
         settings_module: str
-            The path to the settings
+            The path to the settings.
         '''
         with open(settings_module, 'rb') as f:
             self.settings_module_contents = f.read()
@@ -131,14 +138,17 @@ class NerTrainer(object):
 class NerTagger(object):
     '''The class for tagging named entities.'''
     
-    def __init__(self, nermodel):
+    def __init__(self, nermodel=None):
         '''Initialize a new NerTagger instance.
         
         Parameters
         ----------
         nermodel: NerModel
             A Previously trained NER model to be used with this tagger.
+            If None, then loads and uses the default model.
         '''
+        if nermodel is None:
+            nermodel = NerModel.deserialize_from_file(DEFAULT_NER_MODEL)
         assert isinstance(nermodel, NerModel)
         with tempdir.TempDir() as t:
             settings_path = os.path.join(t, 'ner_settings.py')
@@ -166,3 +176,22 @@ class NerTagger(object):
             tags.
         '''
         return self.tagger.tag(docs)
+
+tagger = NerTagger()
+
+def train_default_model():
+    '''Function for training the default NER model.
+    
+    NB! It overwrites the default model, so do not use it unless
+    you know what are you doing.
+    
+    The training data is in file estnltk/corpora/estner.json.bz2 .
+    The resulting model will be saved to estnltk/estner/models/default.bin
+    '''
+    with open(DEFAULT_NER_DATASET) as f:
+        nerdata = json.loads(bz2.decompress(f.read()))
+        documents = nerdata['documents']
+        trainer = NerTrainer()
+        model = trainer.train(documents)
+        model.serialize_to_file(DEFAULT_NER_MODEL)
+

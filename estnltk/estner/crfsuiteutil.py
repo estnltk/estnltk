@@ -8,8 +8,8 @@ import pycrfsuite
 import tempdir
 import os
 
-from estner.featureextraction import FeatureExtractor
-from estner import nlputil
+from estnltk.estner.featureextraction import FeatureExtractor
+from estnltk.estner import nlputil
 from pprint import pprint
 
 
