@@ -10,6 +10,7 @@ import os
 
 from estner.featureextraction import FeatureExtractor
 from estner import nlputil
+from pprint import pprint
 
 
 class Trainer(object):
@@ -46,7 +47,7 @@ class Trainer(object):
         for doc in nerdocs:
             for snt in doc.snts:
                 xseq = [t.feature_list() for t in snt]
-                yseq = [t.label for t in snt]  
+                yseq = [t.label for t in snt]
                 trainer.append(xseq, yseq)
         
         trainer.select('l2sgd', 'crf1d')
@@ -94,12 +95,28 @@ class Tagger(object):
         self.fex = FeatureExtractor(self.settings)
 
     def extract_features(self, docs):
+        '''Extract features on given docs.'''
         nerdocs = nlputil.prepare_documents(docs)
         self.fex.prepare(nerdocs)
         self.fex.process(nerdocs)
         return nerdocs
 
     def tag(self, docs):
+        '''Tag the given documents.
+        
+        Parameters
+        ----------
+        docs: list of JSON-style documents/corpora.
+            The documents to be tagged.
+            
+        The tagger requires a list of document as the NER tagging
+        system uses global features that use documents
+        as contexts.
+        
+        Returns
+        -------
+        list of JSON-style documents/corpora.
+        '''
         nerdocs = self.extract_features(docs)
         for nerdoc, vabadoc in izip(nerdocs, docs):
             vabadoc = self._tag_doc(nerdoc, vabadoc)

@@ -7,7 +7,15 @@ from estnltk import PyVabamorfAnalyzer
 from pprint import pprint
 
 from estnltk.estner.settings import Settings
-from estnltk.estner.featureextraction import FeatureExtractor
+from estnltk.estner.crfsuiteutil import Trainer, Tagger
+
+class NerTagger(object):
+    
+    def __call__(self, corpus):
+        pass
+    
+    def tag(self, corpus):
+        pass
 
 settings = Settings()
 tokenizer = Tokenizer()
@@ -19,14 +27,13 @@ import json
 #vabadata['documents'] = vabadata['documents']
 #print ('Loaded')
 
-documents = vabadata['documents']
+#documents = vabadata['documents']
 
-from estnltk.estner.crfsuiteutil import Trainer, Tagger
+
 
 #trainer = Trainer(settings)
 #print ('Training the model')
 #model = trainer.train(documents, 'test.bin')
-
 
 testdocs = analyzer(tokenizer('Maali sõitis Tartust Tallinnasse EL-i nõupidamisele.'))
 tagger = Tagger(settings, filename='test.bin')

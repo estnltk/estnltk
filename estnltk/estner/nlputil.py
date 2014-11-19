@@ -35,8 +35,8 @@ def vabamorf_token_to_estner_token(vabamorf_token, label='label'):
         morph = '_%s_' % anal['partofspeech']
         if anal['form']:
             morph += ' ' + anal['form']
-        if 'label' in anal:
-            label = anal['label']
+        if 'label' in vabamorf_token:
+            label = vabamorf_token['label']
     token.word = word
     token.lemma = lemma
     token.morph = morph
