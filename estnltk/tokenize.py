@@ -128,3 +128,4 @@ def tokenize(text, tokenizer, start=0):
         assert text[d['rel_start']:d['rel_end']] == d['text']
         results.append(d)
     return results
+

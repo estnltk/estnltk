@@ -537,7 +537,7 @@ class FeatureExtractor(object):
         # apply the feature templates.
         for doc in docs:
             for snt in doc.snts:
-                apply_templates(snt, self.templates)
+                apply_templates(snt, self.settings.templates)
             
     
     @staticmethod

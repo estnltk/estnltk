@@ -1,87 +1,114 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals, print_function
+
 from itertools import izip
 import sys
 
 import pycrfsuite
+import tempdir
+import os
 
 from estner.featureextraction import FeatureExtractor
-from estner import settings, nlputil
+from estner import nlputil
 
 
-class CrfsuiteTagger(object):
+class Trainer(object):
+    '''Class for training CRF models.'''
     
-    def __init__(self, model_file):
+    def __init__(self, settings):
+        self.settings = settings
+    
+    def extract_features(self, docs):
+        '''Extract the features on selected docs.'''
+        fex = FeatureExtractor(self.settings)
+        nerdocs = nlputil.prepare_documents(docs)
+        fex.prepare(nerdocs)
+        fex.process(nerdocs)
+        return nerdocs
+    
+    def train(self, docs, filename=None):
+        '''Train a CRF model on given documents.
+        
+        Parameters
+        ----------
+        docs: list of JSON-style documents.
+            The documents used for training the CRF model.
+        filename: str
+            The fielname to save the serialized model.
+        
+        Returns
+        -------
+        binary
+            The serialized binary of the model.
+        '''
+        nerdocs = self.extract_features(docs)
+        trainer = pycrfsuite.Trainer()
+        for doc in nerdocs:
+            for snt in doc.snts:
+                xseq = [t.feature_list() for t in snt]
+                yseq = [t.label for t in snt]  
+                trainer.append(xseq, yseq)
+        
+        trainer.select('l2sgd', 'crf1d')
+        trainer.set('c2', '0.001')
+        
+        with tempdir.TempDir() as t:
+            if filename is None:
+                filename = os.path.join(t, 'model.bin')
+            trainer.train(filename)
+            # get the binary model and return it
+            with open(filename, 'rb') as f:
+                return f.read()
+
+
+class Tagger(object):
+    '''Class for named entity tagging.'''
+    
+    def __init__(self, settings, filename=None, model=None):
+        '''Initialize the tagger.
+        
+        Parameters
+        ----------
+        settings: estnltk.estner.settings.Settings
+            The settings used for feature extraction.
+        filename: str
+            The filename pointing to the path of the model that
+            should be loaded.
+        model: binary
+            The serialized binary representation of the model.
+        
+        If both the `model` and `filename` are given, then it ignores
+        the filename.
+        '''
+        assert model is not None or filename is not None
+        
+        self.settings = settings
         self.tagger = pycrfsuite.Tagger()
-        self.tagger.open(model_file)
-        self.fex = FeatureExtractor(settings.FEATURE_EXTRACTORS,
-                                    settings.TEMPLATES, settings.PATH)
-    
-    def process(self, text):
-        doc = nlputil.lemmatise(text)
-        nlputil.set_token_positions(doc.tokens, text)
-        self.fex.process([doc])
-        self.tag_document(doc)
-        nes = nlputil.collect_person_names_in_doc(doc)
-        output = nlputil.annotate_person_names_in_text(text, nes)
-        return output, doc, nes
-    
-    def annotate_text(self, text):
-        annotated_text, doc, nes = self.process(text)
-        return annotated_text
-    
-    def tag_document(self, doc):
-        for snt in doc.snts:
-            xseq = [t.feature_list() for t in snt]
-            ys = self.tagger.tag(xseq)
-            for token, y in izip(snt, ys):
-                token.predicted_label = y
+        # initialize the tagger and load the model
+        with tempdir.TempDir() as t:
+            if model is not None:
+                filename = os.path.join(t, 'model.bin')
+                with open(filename, 'wb') as f:
+                    f.write(model)
+            self.tagger.open(filename)
+        self.fex = FeatureExtractor(self.settings)
 
+    def extract_features(self, docs):
+        nerdocs = nlputil.prepare_documents(docs)
+        self.fex.prepare(nerdocs)
+        self.fex.process(nerdocs)
+        return nerdocs
 
-def train(docs, model_file):
-    print 'Extracting features...'
-    fex = FeatureExtractor(settings.FEATURE_EXTRACTORS,
-                           settings.TEMPLATES, settings.PATH)
-    fex.prepare(docs)
-    fex.process(docs)
-    
-    trainer = pycrfsuite.Trainer()
-    for doc in docs:
-        for snt in doc.snts:
-            xseq = [t.feature_list() for t in snt]
-            yseq = [t.label for t in snt]  
-            trainer.append(xseq, yseq)
-    
-    trainer.select('l2sgd', 'crf1d')
-#    trainer.select('lbfgs', 'crf1d')
-    for name in trainer.params():
-        print name, trainer.get(name), trainer.help(name)
-    trainer.set('c2', '0.001')
-#    trainer.set('feature.minfreq', 3)
-    trainer.train(model_file)
+    def tag(self, docs):
+        nerdocs = self.extract_features(docs)
+        for nerdoc, vabadoc in izip(nerdocs, docs):
+            vabadoc = self._tag_doc(nerdoc, vabadoc)
+        return docs
 
-    print "Done! Saved model to '%s'" % model_file
-    
-def tag(docs, model_file):
-    '''
-    Sets token's 'predicted_label' attribute. For convenience, 
-    returns a list of predicted labels for each token.
-    '''
-    fex = FeatureExtractor(settings.FEATURE_EXTRACTORS,
-                           settings.TEMPLATES, settings.PATH)
-    
-    fex.process(docs)
-    
-    tagger = pycrfsuite.Tagger()
-    tagger.open(model_file)
-#    tagger.dump(model_file+'.dump')
-    
-    predicted_labels = []
-    
-    for doc in docs:
-        for snt in doc.snts:
+    def _tag_doc(self, nerdoc, vabadoc):
+        labels = []
+        for snt in nerdoc.snts:
             xseq = [t.feature_list() for t in snt]
-            ys = tagger.tag(xseq)
-            for token, y in izip(snt, ys):
-                token.predicted_label = y
-            predicted_labels.extend(ys)
-    return predicted_labels
-    
+            labels.append(self.tagger.tag(xseq))
+        print (labels)
+        return nlputil.assign_labels(vabadoc, labels)

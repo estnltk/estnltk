@@ -1,24 +1,48 @@
 # -*- encoding: utf8 -*-
 from __future__ import unicode_literals, print_function
 
-from ner import Token, Sentence, Document
+from estnltk.core import JsonPaths
+from estnltk.estner.ner import Token, Sentence, Document
 
-def vabamorf_token_to_estner_token(vabamorf_token):
-    word = vabamorf_token['text']
-    anal = vabamorf_token['analysis'][0]
-    ending = anal['ending']
-    lemma = '_'.join(anal['root_tokens']) + ('+' + ending if ending else '')
-    if not lemma:
-        lemma = word
-    morph = '_%s_' % anal['partofspeech']
-    if anal['form']:
-        morph += ' ' + anal['form'] 
+from itertools import izip
+
+
+def vabamorf_token_to_estner_token(vabamorf_token, label='label'):
+    '''Convert a JSON-style word token to estner token.
     
+    Parameters
+    ----------
+    vabamorf_token: dict
+        Vabamorf token representing a single word.
+    label: str
+        The label string.
+    
+    Returns
+    -------
+    estnltk.estner.ner.Token
+    '''
     token = Token()
+    word = vabamorf_token['text']
+    lemma = word
+    morph = ''
+    label = 'O'
+    if len(vabamorf_token['analysis']) > 0:
+        anal = vabamorf_token['analysis'][0]
+        ending = anal['ending']
+        lemma = '_'.join(anal['root_tokens']) + ('+' + ending if ending else '')
+        if not lemma:
+            lemma = word
+        morph = '_%s_' % anal['partofspeech']
+        if anal['form']:
+            morph += ' ' + anal['form']
+        if 'label' in anal:
+            label = anal['label']
     token.word = word
     token.lemma = lemma
     token.morph = morph
+    token.label = label
     return token
+
 
 def prepare_document(corpus):
     '''Prepare a document for estner feature extraction.
@@ -45,4 +69,47 @@ def prepare_document(corpus):
                 snt[i-1].next = snt[i]
                 snt[i].prew = snt[i-1]
             document.snts.append(snt)
+    return document
+
+
+def prepare_documents(documents):
+    '''Prepare a list of estnltk documents.
+    
+    Parameters
+    ----------
+    documents: list of dict
+        List of estnltk JSON-style corpora. Each element denotes
+        a document.
+    
+    Returns
+    -------
+    list of estnltk.estner.ner.Document
+        List of prepared documents.
+    '''
+    prepared = []
+    for document in documents:
+        prepared.append(prepare_document(document))
+    return prepared
+
+
+def assign_labels(document, labels):
+    '''Assign labels to given documents.
+    
+    Parameters
+    ----------
+    document: JSON-style estnltk document.
+        The document to be assigned labels to.
+    labels: list of list of str
+        Each sublist denotes the labels for one sentence.
+    
+    Returns
+    -------
+    JSON-style estnltk document.
+        The same document as argument.
+    '''
+    for ptr, snt_labels in izip(JsonPaths.words.find(document), labels):
+        words = ptr.value
+        assert len(words) == len(snt_labels)
+        for word, label in izip(words, snt_labels):
+            word['label'] = label
     return document

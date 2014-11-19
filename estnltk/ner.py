@@ -10,12 +10,26 @@ from estnltk.estner.settings import Settings
 from estnltk.estner.featureextraction import FeatureExtractor
 
 settings = Settings()
-pprint(settings)
-
-
-fe = FeatureExtractor(settings)
-
 tokenizer = Tokenizer()
 analyzer = PyVabamorfAnalyzer()
 
-vabadata = analyzer(tokenizer('Mees nimega Andrus Ansip käis Brüsselis Euroopa Liidu nõupidamisel. Seal sai selgeks et NATO on siin.'))
+print ('Loading vabadata')
+import json
+#vabadata = json.loads(open('estnltk/corpora/estner.json').read())
+#vabadata['documents'] = vabadata['documents']
+#print ('Loaded')
+
+documents = vabadata['documents']
+
+from estnltk.estner.crfsuiteutil import Trainer, Tagger
+
+#trainer = Trainer(settings)
+#print ('Training the model')
+#model = trainer.train(documents, 'test.bin')
+
+
+testdocs = analyzer(tokenizer('Maali sõitis Tartust Tallinnasse EL-i nõupidamisele.'))
+tagger = Tagger(settings, filename='test.bin')
+tagger.tag([testdocs])
+
+pprint (testdocs)

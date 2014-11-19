@@ -8,7 +8,7 @@ from __future__ import unicode_literals, print_function
 from estnltk.core import JsonPaths
 from pyvabamorf import analyze
 from itertools import izip
-
+from pprint import pprint
 
 class PyVabamorfAnalyzer(object):
     
@@ -37,7 +37,7 @@ class PyVabamorfAnalyzer(object):
             The inputted dictionary, but with additional annotations.
         '''
         for words in JsonPaths.words.find(corpus):
-            words_texts = [word['text'] for word in words.value]
-            for idx, analysis in enumerate(analyze(words_texts)):
-                words.value[idx]['analysis'] = analysis['analysis']
+            for idx in range(len(words.value)):
+                analysis = analyze(words.value[idx]['text'])[0]['analysis']
+                words.value[idx]['analysis'] = analysis
         return corpus
