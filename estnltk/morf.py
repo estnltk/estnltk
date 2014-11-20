@@ -45,7 +45,7 @@ class PyVabamorfAnalyzer(object):
         '''
         for words in JsonPaths.words.find(corpus):
             for idx in range(len(words.value)):
-                analysis = analyze(words.value[idx]['text'])[0]['analysis']
+                analysis = analyze(words.value[idx]['text'], phonetic=phonetic, compound=compound)[0]['analysis']
                 words.value[idx]['analysis'] = analysis
         return corpus
 

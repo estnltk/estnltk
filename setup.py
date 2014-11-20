@@ -7,7 +7,8 @@ setup(
     version = "1.0",
     packages = find_packages(),
     package_data = {
-        'estnltk': ['corpora/pm_news/*.txt']
+        'estnltk': ['corpora/*.json.bz2', 'java-res/*'],
+        'estnltk.estner': ['models/*.bin', 'gazetteer/*.txt']
     },
     
     install_requires = ['nltk>=3.0.0',
@@ -19,16 +20,14 @@ setup(
     
     author       = "Timo Petmanson, Aleksandr Tkachenko, Siim Orasmaa, Raul Sirel, Karl-Oskar Masing, Tanel Pärnamaa, Dage Särg, Neeme Kahusk, Sven Laur, Tarmo Vaino, Heiki-Jaan Kaalep",
     author_email = "tpetmanson@gmail.com",
-    description  = "API for performing natural language processing tasks in Estonian.",
+    description  = "API for performing common natural language processing tasks in Estonian.",
     license      = "GPL",
     url          = "https://github.com/tpetmanson/estnltk",
-    
     
     classifiers = ['Intended Audience :: Developers',
                    'Intended Audience :: Education',
                    'Intended Audience :: Science/Research',
                    'Intended Audience :: Information Technology',
-                   'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
                    'Operating System :: OS Independent',
                    'Programming Language :: Python :: 2.7',
                    'Programming Language :: Python :: 3.4',

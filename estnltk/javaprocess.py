@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals, print_function
+
 from estnltk.core import JAVARES_PATH
 import subprocess
 import os
@@ -47,7 +49,7 @@ class JavaProcess(object):
             result = self._process.stdout.readline()
             if result == '':
                 stderr = self._process.stderr.read()
-                raise Exception('EOF encountered while reading stream. Stderr is {0}.'.format(repr(stderr)))
+                raise Exception('EOF encountered while reading stream. Stderr is {0}.'.format(stderr))
             return result
         except Exception:
             self._process.terminate()
