@@ -46,6 +46,7 @@ class JavaProcess(object):
             self._process.stdin.write(line)
             self._process.stdin.write('\n')
             self._process.stdin.flush()
+            print (line)
             result = self._process.stdout.readline()
             if result == '':
                 stderr = self._process.stderr.read()
