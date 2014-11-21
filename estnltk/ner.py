@@ -176,9 +176,8 @@ class NerTagger(object):
             tags.
         '''
         return self.tagger.tag(docs)
-
-tagger = NerTagger()
-
+        
+        
 def train_default_model():
     '''Function for training the default NER model.
     

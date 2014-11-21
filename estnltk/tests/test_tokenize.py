@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function
-import unittest
 
-from estnltk.tokenize import tokenize, Tokenizer
+from estnltk.names import *
+from estnltk.tokenize import Tokenizer, tokenize
+
 from nltk.tokenize import RegexpTokenizer
-from pprint import pprint
 
+from pprint import pprint
+import unittest
 
 class TokenizerTest(unittest.TestCase):
     '''Test the estnltk.tokenize.Tokenizer class.'''
@@ -19,12 +21,12 @@ class TokenizerTest(unittest.TestCase):
         return ''
     
     def empty_tokenized(self):
-        return {'text': '',
-                'start': 0,
-                'rel_start': 0,
-                'end': 0,
-                'rel_end': 0,
-                'paragraphs': []}
+        return {TEXT: '',
+                START: 0,
+                REL_START: 0,
+                END: 0,
+                REL_END: 0,
+                PARAGRAPHS: []}
 
     def test_simple(self):
         tokenizer = Tokenizer()
@@ -35,46 +37,46 @@ class TokenizerTest(unittest.TestCase):
         return 'Esimene lõik.\nTeine'
     
     def simple_tokenized(self):
-        return {'end': 19,
-                'paragraphs': [{'end': 13,
-                                'rel_end': 13,
-                                'rel_start': 0,
-                                'sentences': [{'end': 13,
-                                                'rel_end': 13,
-                                                'rel_start': 0,
-                                                'start': 0,
-                                                'text': 'Esimene l\xf5ik.',
-                                                'words': [{'end': 7,
-                                                        'rel_end': 7,
-                                                        'rel_start': 0,
-                                                        'start': 0,
-                                                        'text': 'Esimene'},
-                                                        {'end': 13,
-                                                        'rel_end': 13,
-                                                        'rel_start': 8,
-                                                        'start': 8,
-                                                        'text': 'l\xf5ik.'}]}],
-                                'start': 0,
-                                'text': 'Esimene l\xf5ik.'},
-                                {'end': 19,
-                                'rel_end': 19,
-                                'rel_start': 14,
-                                'sentences': [{'end': 19,
-                                                'rel_end': 5,
-                                                'rel_start': 0,
-                                                'start': 14,
-                                                'text': 'Teine',
-                                                'words': [{'end': 19,
-                                                        'rel_end': 5,
-                                                        'rel_start': 0,
-                                                        'start': 14,
-                                                        'text': 'Teine'}]}],
-                                'start': 14,
-                                'text': 'Teine'}],
-                'rel_end': 19,
-                'rel_start': 0,
-                'start': 0,
-                'text': 'Esimene l\xf5ik.\nTeine'}
+        return {END: 19,
+                PARAGRAPHS: [{END: 13,
+                                REL_END: 13,
+                                REL_START: 0,
+                                SENTENCES: [{END: 13,
+                                                REL_END: 13,
+                                                REL_START: 0,
+                                                START: 0,
+                                                TEXT: 'Esimene l\xf5ik.',
+                                                WORDS: [{END: 7,
+                                                        REL_END: 7,
+                                                        REL_START: 0,
+                                                        START: 0,
+                                                        TEXT: 'Esimene'},
+                                                        {END: 13,
+                                                        REL_END: 13,
+                                                        REL_START: 8,
+                                                        START: 8,
+                                                        TEXT: 'l\xf5ik.'}]}],
+                                START: 0,
+                                TEXT: 'Esimene l\xf5ik.'},
+                                {END: 19,
+                                REL_END: 19,
+                                REL_START: 14,
+                                SENTENCES: [{END: 19,
+                                                REL_END: 5,
+                                                REL_START: 0,
+                                                START: 14,
+                                                TEXT: 'Teine',
+                                                WORDS: [{END: 19,
+                                                        REL_END: 5,
+                                                        REL_START: 0,
+                                                        START: 14,
+                                                        TEXT: 'Teine'}]}],
+                                START: 14,
+                                TEXT: 'Teine'}],
+                REL_END: 19,
+                REL_START: 0,
+                START: 0,
+                TEXT: 'Esimene l\xf5ik.\nTeine'}
                 
 
 class TokenizeTest(unittest.TestCase):
@@ -95,23 +97,23 @@ class TokenizeTest(unittest.TestCase):
         return '  see on \n\r\n  \r\n\r \n \t text  '
     
     def result(self):
-        return [{'text': 'see',
-                 'start': 1002,
-                 'rel_start': 2,
-                 'end': 1005,
-                 'rel_end': 5
+        return [{TEXT: 'see',
+                 START: 1002,
+                 REL_START: 2,
+                 END: 1005,
+                 REL_END: 5
                  },
-                 {'text': 'on',
-                 'start': 1006,
-                 'rel_start': 6,
-                 'end': 1008,
-                 'rel_end': 8
+                 {TEXT: 'on',
+                 START: 1006,
+                 REL_START: 6,
+                 END: 1008,
+                 REL_END: 8
                  },
-                 {'text': 'text',
-                 'start': 1022,
-                 'rel_start': 22,
-                 'end': 1026,
-                 'rel_end': 26
+                 {TEXT: TEXT,
+                 START: 1022,
+                 REL_START: 22,
+                 END: 1026,
+                 REL_END: 26
                  }]
     
     def tokenizer(self):

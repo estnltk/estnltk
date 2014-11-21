@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-'''
-Module containing functionality for adding morphological analysis
+'''Module containing functionality for adding morphological analysis
 information to corpora.
 
 Attributes
@@ -49,4 +48,3 @@ class PyVabamorfAnalyzer(object):
                 words.value[idx]['analysis'] = analysis
         return corpus
 
-analyzer = PyVabamorfAnalyzer()

@@ -1,21 +1,15 @@
 # -*- coding: utf-8 -*-
-'''
-Module containing functionality to perform basic tokenization
+'''Module containing functionality to perform basic tokenization
 of plaintext data.
-
-Attributes
-----------
-
-tokenizer: Tokenizer
-    Tokenizer instance with default parameters.
 '''
 from __future__ import unicode_literals, print_function
 
-import nltk.data
-
 from estnltk.core import as_unicode
+from estnltk.names import *
+
 from nltk.tokenize import RegexpTokenizer
 from nltk.tokenize.punkt import PunktWordTokenizer
+import nltk.data
 
 from itertools import izip
 
@@ -34,8 +28,7 @@ class Tokenizer(object):
         sentence_tokenizer: http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.api.StringTokenizer
             Default sentence tokenizer is NLTK default PunktSentenceTokenizer for Estonian.
         word_tokenizer: http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.api.StringTokenizer
-            Default is NLTK PunktWordTokenizer
-
+            Default is NLTK PunktWordTokenizer.
         '''
         self._paragraph_tokenizer = kwargs.get('paragraph_tokenizer',
             RegexpTokenizer('\s*\n\s*', gaps=True, discard_empty=True))
@@ -85,22 +78,21 @@ class Tokenizer(object):
         text = as_unicode(text)
         paras = tokenize(text, self._paragraph_tokenizer)
         for para in paras:
-            sentences = tokenize(para['text'], self._sentence_tokenizer, para['start'])
+            sentences = tokenize(para[TEXT], self._sentence_tokenizer, para[START])
             for sent in sentences:
-                sent['words'] = tokenize(sent['text'], self._word_tokenizer, sent['start'])
-            para['sentences'] = sentences
-        return {'text': text,
-                'paragraphs': paras,
-                'start': 0,
-                'rel_start': 0,
-                'end': len(text),
-                'rel_end': len(text)}
+                sent[WORDS] = tokenize(sent[TEXT], self._word_tokenizer, sent[START])
+            para[SENTENCES] = sentences
+        return {TEXT: text,
+                PARAGRAPHS: paras,
+                START: 0,
+                REL_START: 0,
+                END: len(text),
+                REL_END: len(text)}
 
     def __call__(self, text):
         '''Tokenize the text into paragraphs, sentences and words.'''
         return self.tokenize(text)
 
-tokenizer = Tokenizer()
 
 def tokenize(text, tokenizer, start=0):
     '''Function that tokenizes given text with given tokenizer
@@ -127,12 +119,11 @@ def tokenize(text, tokenizer, start=0):
     spans = tokenizer.span_tokenize(text)
     results = []
     for tok, (tokstart, tokend) in izip(toks, spans):
-        d = {'text': tok,
-             'start': start + tokstart,
-             'end': start + tokend,
-             'rel_start': tokstart,
-             'rel_end': tokend}
-        assert text[d['rel_start']:d['rel_end']] == d['text']
+        d = {TEXT: tok,
+             START: start + tokstart,
+             END: start + tokend,
+             REL_START: tokstart,
+             REL_END: tokend}
+        assert text[d[REL_START]:d[REL_END]] == d[TEXT]
         results.append(d)
     return results
-
