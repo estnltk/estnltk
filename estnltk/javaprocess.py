@@ -7,10 +7,34 @@ import os
 
 
 class JavaProcess(object):
-    '''Base class for Java-based extension.
-    Allows processing data line by line.'''
+    '''Base class for Java-based components.
+    
+    It opens a pipe to a Java VM running the component and interacts with
+    it using standard input and standard output.
+    
+    The data is encoded as a single line and then flushed down the pipe.
+    The Java component receives the input, processes it and writes the
+    output also encoded on a single line and flushes it.
+    
+    This line-based approach is easy to implement and debug.
+    
+    To implement a Java component, inherit from this class and use
+    `process_line` method to interact with the process.
+    
+    It deals with input/output and errors.
+    '''
 
     def __init__(self, runnable_jar, args=[]):
+        '''Initialize a Java VM.
+        
+        Parameters
+        ----------
+        runnable_jar: str
+            Path of the JAR file to be run. The java program is expected
+            to reside in `java-res` folder of the estnltk project.
+        args: list of str
+            The list of arguments given to the Java program.
+        '''
         self._process = subprocess.Popen(['java', '-jar', os.path.join(JAVARES_PATH, runnable_jar)] + args,
                                          stdin=subprocess.PIPE,
                                          stdout=subprocess.PIPE,
@@ -18,7 +42,7 @@ class JavaProcess(object):
     def __del__(self):
         self._process.terminate()
                                          
-    def _process_line(self, line):
+    def process_line(self, line):
         '''Process a line of data.
         
         Sends the data through the pipe to the process and flush it. Reads a resulting line
