@@ -96,7 +96,14 @@ class Element(dict):
         
 
 class Word(Element):
-    '''Word element of Estnltk corpora.'''
+    '''Word element of Estnltk corpora.
+    
+    Word element can contain vast amount of different information
+    starting from morphological analysis results to named entity
+    labels.
+    
+    This is one of the central elements of the Estnltk corpora.
+    '''
     
     def __init__(self, data=None, **kwargs):
         super(Word, self).__init__(data, **kwargs)
@@ -130,6 +137,14 @@ class Word(Element):
         return most_frequent(self.forms)
     
     @property
+    def endings(self):
+        return [a[ENDING] for a in self.analysis]
+    
+    @property
+    def ending(self):
+        return most_frequent(self.endings)
+    
+    @property
     def label(self):
         return self.get(LABEL, None)
         
@@ -151,7 +166,8 @@ class Word(Element):
         
     @property
     def root_tokens(self):
-        return [a[ROOT_TOKENS] for a in self.analysis]
+        tokens = [tuple(a[ROOT_TOKENS]) for a in self.analysis]
+        return list(most_frequent(tokens))
 
 
 def most_frequent(elements):
@@ -172,8 +188,11 @@ def most_frequent(elements):
     '''
     if len(elements) == 0:
         return
+    elif len(elements) == 1:
+        return elements[0]
+        
     cntr = Counter()
-    hest_count = 0
+    best_count = 0
     best = []
     for e in elements:
         cntr[e] += 1
