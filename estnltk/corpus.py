@@ -49,6 +49,7 @@ class Element(dict):
         self.assert_valid()
 
     def force_cast(self):
+        '''Cast the necessary attributes to correct types.'''
         self[TEXT] = as_unicode(self.text)
         self[START] = int(self.start)
         self[END] = int(self.end)
@@ -56,6 +57,8 @@ class Element(dict):
         self[REL_END] = int(self.rel_end)
 
     def assert_valid(self):
+        '''Perform assertions to ensure sanity checks on the
+        attribute values.'''
         assert self.start >= 0
         assert self.rel_start >= 0
         assert self.start <= self.end
