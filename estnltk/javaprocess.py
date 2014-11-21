@@ -1,9 +1,18 @@
 # -*- coding: utf-8 -*-
+'''Functionality for using Java-based components.
+
+Attributes
+----------
+JAVARES_PATH: str
+    The root path for Java components of Estnltk library.
+'''
 from __future__ import unicode_literals, print_function
 
-from estnltk.core import JAVARES_PATH
+from estnltk.core import PACKAGE_PATH
 import subprocess
 import os
+
+JAVARES_PATH = os.path.join(PACKAGE_PATH, 'java-res')
 
 
 class JavaProcess(object):
