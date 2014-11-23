@@ -207,26 +207,91 @@ def most_frequent(elements):
 
 
 class Sentence(Element):
-    '''Sentence element of Estnltk corpora.'''
+    '''Sentence element of Estnltk corpora.
+    
+    Sentence uses WORDS attribute to list its words.
+    '''
     
     def __init__(self, data=None, **kwargs):
-        super(Element, self).__init__(data, **kwargs)
+        super(Sentence, self).__init__(data, **kwargs)
+    
+    @overrides(Element)
+    def force_cast(self):
+        super(Sentence, self).force_cast()
+        
+        def cast(w):
+            if not isinstance(w, Word):
+                return Word(w)
+            return w
+            
+        self[WORDS] = [cast(w) for w in self[WORDS]]
+            
     
     @overrides(Element)
     def assert_valid(self):
-        super(Sentence, self).is_valid()
+        super(Sentence, self).assert_valid()
         assert WORDS in self
         self.assert_consequent_words()
         self.assert_word_splices()
             
     def assert_consequent_words(self):
+        '''Check the START and END positions of consequent words.'''
         for p, n in izip(self[WORDS], self[WORDS][1:]):
             assert p.end <= n.start
 
     def assert_word_splices(self):
+        '''Check that the word texts match the sentence texts.'''
         for word in self[WORDS]:
             assert word.text == self.text[word.rel_start:word.rel_end]
-            
+    
+    @property
+    def words(self):
+        return self[WORDS]
+        
+    @property
+    def spans(self):
+        return [w.span for w in self.words]
+        
+    @property
+    def rel_spans(self):
+        return [w.rel_span for w in self.words]
+    
+    @property
+    def lemmas(self):
+        return [w.lemma for w in self.words]
+        
+    @property
+    def roots(self):
+        return [w.root for w in self.words]
+        
+    @property
+    def postags(self):
+        return [w.postag for w in self.words]
+        
+    @property
+    def labels(self):
+        return [w.label for w in self.words]
+        
+    @property
+    def texts(self):
+        return [w.text for w in self.words]
+        
+    @property
+    def forms(self):
+        return [w.form for w in self.words]
+        
+    @property
+    def endings(self):
+        return [w.ending for w in self.words]
+        
+    @property
+    def clitics(self):
+        return [w.clitic for w in self.words]
+        
+    @property
+    def root_tokens(self):
+        return [w.root_tokens for w in self.words]
+
 
 class Document(dict):
     '''Estnltk Document object.

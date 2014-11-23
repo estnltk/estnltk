@@ -9,6 +9,7 @@ from nltk.tokenize import RegexpTokenizer
 from pprint import pprint
 import unittest
 
+
 class TokenizerTest(unittest.TestCase):
     '''Test the estnltk.tokenize.Tokenizer class.'''
     

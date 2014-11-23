@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function
 
-from estnltk.corpus import Element, Word, most_frequent
+from estnltk.corpus import Element, Word, most_frequent, Sentence
 from estnltk.names import *
 
 from nltk.tokenize import RegexpTokenizer
 
 from pprint import pprint
+from copy import deepcopy
 import unittest
 
 
@@ -165,6 +166,105 @@ class MostFrequentTest(unittest.TestCase):
     
     def test_multiple_comparison(self):
         self.assertEqual(most_frequent([0,9,1,8,8,2,7,3,6,4,8,5,1,1,0,9,9]), 1)
+
+
+class SentenceTest(unittest.TestCase):
+    
+    def test_initialization(self):
+        sentence = Sentence(self.data())
+        # invalid sentence
+        data = self.data()
+        del data[TEXT]
+        self.assertRaises(KeyError, Sentence, data)
+        
+    def test_queries(self):
+        sentence = Sentence(self.data())
+        # word related queries
+        self.assertListEqual(sentence.texts, ['Pane', 'moos', 'purki', 'tagasi'])
+        self.assertListEqual(sentence.lemmas, ['pan', 'moos', 'purk', 'tagasi'])
+        self.assertListEqual(sentence.postags, ['S', 'S', 'S', 'D'])
+        self.assertListEqual(sentence.forms, ['o', 'sg n', 'adt', ''])
+        self.assertListEqual(sentence.roots, ['pan', 'moos', 'purk', 'tagasi'])
+        self.assertListEqual(sentence.root_tokens, [['pan'], ['moos'], ['purk'], ['tagasi']])
+        self.assertListEqual(sentence.spans, [(0, 4), (5, 9), (10, 15), (16, 22)])
+        self.assertListEqual(sentence.rel_spans, [(0, 4), (5, 9), (10, 15), (16, 22)])
+    
+    def data(self):
+        return   {END: 22,
+                  REL_END: 22,
+                  REL_START: 0,
+                  START: 0,
+                  TEXT: 'Pane moos purki tagasi',
+                  WORDS: [{ANALYSIS: [{CLITIC: '',
+                                             ENDING: 'e',
+                                             FORM: 'pl p',
+                                             LEMMA: 'pan',
+                                             POSTAG: 'S',
+                                             ROOT: 'pan',
+                                             ROOT_TOKENS: ['pan']},
+                                            {CLITIC: '',
+                                             ENDING: '0',
+                                             FORM: 'o',
+                                             LEMMA: 'panema',
+                                             POSTAG: 'V',
+                                             ROOT: 'pane',
+                                             ROOT_TOKENS: ['pane']}],
+                              END: 4,
+                              REL_END: 4,
+                              REL_START: 0,
+                              START: 0,
+                              TEXT: 'Pane'},
+                             {ANALYSIS: [{CLITIC: '',
+                                             ENDING: '0',
+                                             FORM: 'sg n',
+                                             LEMMA: 'moos',
+                                             POSTAG: 'S',
+                                             ROOT: 'moos',
+                                             ROOT_TOKENS: ['moos']}],
+                              END: 9,
+                              REL_END: 9,
+                              REL_START: 5,
+                              START: 5,
+                              TEXT: 'moos'},
+                             {ANALYSIS: [{CLITIC: '',
+                                             ENDING: '0',
+                                             FORM: 'adt',
+                                             LEMMA: 'purk',
+                                             POSTAG: 'S',
+                                             ROOT: 'purk',
+                                             ROOT_TOKENS: ['purk']},
+                                            {CLITIC: '',
+                                             ENDING: '0',
+                                             FORM: 'sg p',
+                                             LEMMA: 'purk',
+                                             POSTAG: 'S',
+                                             ROOT: 'purk',
+                                             ROOT_TOKENS: ['purk']}],
+                              END: 15,
+                              REL_END: 15,
+                              REL_START: 10,
+                              START: 10,
+                              TEXT: 'purki'},
+                             {ANALYSIS: [{CLITIC: '',
+                                             ENDING: '0',
+                                             FORM: '',
+                                             LEMMA: 'tagasi',
+                                             POSTAG: 'D',
+                                             ROOT: 'tagasi',
+                                             ROOT_TOKENS: ['tagasi']},
+                                            {CLITIC: '',
+                                             ENDING: '0',
+                                             FORM: '',
+                                             LEMMA: 'tagasi',
+                                             POSTAG: 'K',
+                                             ROOT: 'tagasi',
+                                             ROOT_TOKENS: ['tagasi']}],
+                              END: 22,
+                              REL_END: 22,
+                              REL_START: 16,
+                              START: 16,
+                              TEXT: 'tagasi'}]}
+
 
 if __name__ == '__main__':
     unittest.main()
