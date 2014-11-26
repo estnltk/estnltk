@@ -188,6 +188,7 @@ class SentenceTest(unittest.TestCase):
         self.assertListEqual(sentence.root_tokens, [['pan'], ['moos'], ['purk'], ['tagasi']])
         self.assertListEqual(sentence.spans, [(0, 4), (5, 9), (10, 15), (16, 22)])
         self.assertListEqual(sentence.rel_spans, [(0, 4), (5, 9), (10, 15), (16, 22)])
+        self.assertListEqual(sentence.labels, ['O','O','O','O'])
     
     def data(self):
         return   {END: 22,
@@ -213,6 +214,7 @@ class SentenceTest(unittest.TestCase):
                               REL_END: 4,
                               REL_START: 0,
                               START: 0,
+                              LABEL: 'O',
                               TEXT: 'Pane'},
                              {ANALYSIS: [{CLITIC: '',
                                              ENDING: '0',
@@ -225,6 +227,7 @@ class SentenceTest(unittest.TestCase):
                               REL_END: 9,
                               REL_START: 5,
                               START: 5,
+                              LABEL: 'O',
                               TEXT: 'moos'},
                              {ANALYSIS: [{CLITIC: '',
                                              ENDING: '0',
@@ -232,6 +235,7 @@ class SentenceTest(unittest.TestCase):
                                              LEMMA: 'purk',
                                              POSTAG: 'S',
                                              ROOT: 'purk',
+                                             LABEL: 'O',
                                              ROOT_TOKENS: ['purk']},
                                             {CLITIC: '',
                                              ENDING: '0',
@@ -244,6 +248,7 @@ class SentenceTest(unittest.TestCase):
                               REL_END: 15,
                               REL_START: 10,
                               START: 10,
+                              LABEL: 'O',
                               TEXT: 'purki'},
                              {ANALYSIS: [{CLITIC: '',
                                              ENDING: '0',
@@ -263,6 +268,7 @@ class SentenceTest(unittest.TestCase):
                               REL_END: 22,
                               REL_START: 16,
                               START: 16,
+                              LABEL: 'O',
                               TEXT: 'tagasi'}]}
 
 

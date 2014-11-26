@@ -15,6 +15,7 @@ TEXT = 'text'
 WORDS = 'words'
 SENTENCES = 'sentences'
 PARAGRAPHS = 'paragraphs'
+DOCUMENTS = 'documents'
 
 # word attributes
 ANALYSIS = 'analysis'

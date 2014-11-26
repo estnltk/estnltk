@@ -5,7 +5,8 @@ from estnltk.core import as_unicode
 from estnltk.names import *
 
 from collections import Counter
-from itertools import izip
+from itertools import izip, chain
+from pprint import pprint
 
 def overrides(interface_class):
     def overrider(method):
@@ -14,7 +15,96 @@ def overrides(interface_class):
     return overrider
     
 
-class Element(dict):
+class Corpus(object):
+    
+    def __init__(self, *args, **kwargs):
+        pass
+
+    @staticmethod
+    def construct(data):
+        return construct_corpus(data)
+
+    # Methods for returning raw texts
+    def texts(self, what):
+        raise NotImplementedError()
+
+    def word_texts(self):
+        return self.texts(WORDS)
+        
+    def sentence_texts(self):
+        return self.texts(SENTENCES)
+    
+    def paragraph_texts(self):
+        return self.texts(PARAGRAPHS)
+    
+    def document_texts(self):
+        return self.texts(DOCUMENTS)
+        
+    # Methods for returning corpus elements
+    def elements(self, what):
+        raise NotImplementedError()
+        
+    def words(self):
+        return self.elements(WORDS)
+        
+    def sentences(self):
+        return self.elements(SENTENCES)
+        
+    def paragraphs(self):
+        return self.elements(PARAGRAPHS)
+        
+    def documents(self):
+        return self.elements(DOCUMENTS)
+        
+    def __repr__(self):
+        return repr('Corpus')
+
+
+class List(list, Corpus):
+    
+    @overrides(Corpus)
+    def texts(self, what):
+        texts = []
+        for e in self:
+            if isinstance(e, Corpus):
+                texts.extend(e.texts(what))
+        return texts
+    
+    @overrides(Corpus)
+    def elements(self, what):
+        elements = []
+        for e in self:
+            if isinstance(e, Corpus):
+                elements.extend(e.elements(what))
+        return elements
+        
+    def __repr__(self):
+        return repr('List')
+
+
+class Dictionary(dict, Corpus):
+
+    @overrides(Corpus)
+    def texts(self, what):
+        texts = []
+        for k, v in self.items():
+            if isinstance(v, Corpus):
+                texts.extend(v.texts(what))
+        return texts
+        
+    @overrides(Corpus)
+    def elements(self, what):
+        elements = []
+        for k, v in self.items():
+            if isinstance(v, Corpus):
+                elements.extend(v.elements(what))
+        return elements
+        
+    def __repr__(self):
+        return repr('Dictionary')
+
+
+class Element(Dictionary):
     '''Element is a basic composition object of Estnltk corpora.
     It must have TEXT, START, END, REL_START and REL_END attributes.
     '''
@@ -95,6 +185,138 @@ class Element(dict):
         return self[TEXT]
         
 
+class Document(Element):
+    '''Estnltk Document object.
+
+    A document must have consistent indices throughout its structure.
+    All absoulte indices and text splices must match top-level texts.
+    '''
+    
+    def __init__(self, data=None, **kwargs):
+        super(Document, self).__init__(data, **kwargs)
+    
+    
+    @overrides(Element)
+    def force_cast(self):
+        super(Document, self).force_cast()
+        
+        def cast(w, cast_type):
+            if not isinstance(w, cast_type):
+                return cast_type(w)
+            return w
+        if SENTENCES in self:
+            self[SENTENCES] = List([cast(w, Sentence) for w in self[SENTENCES]])
+        if PARAGRAPHS in self:
+            self[PARAGRAPHS] = List([cast(w, Paragraph) for w in self[PARAGRAPHS]])
+            
+    @overrides(Corpus)
+    def texts(self, what):
+        if what == DOCUMENTS:
+            return [self.text]
+        return super(Document, self).texts(what)
+        
+    @overrides(Corpus)
+    def elements(self, what):
+        if what == DOCUMENTS:
+            return [self]
+        return super(Document, self).elements(what)
+        
+    def __repr__(self):
+        return repr('Document({0})'.format(self.text[:24] + '...'))
+
+
+class Paragraph(Element):
+    '''Paragraph object.'''
+    
+    def __init__(self, data=None, **kwargs):
+        super(Paragraph, self).__init__(data, **kwargs)
+        
+    @overrides(Element)
+    def force_cast(self):
+        super(Paragraph, self).force_cast()
+        
+        def cast(s):
+            if not isinstance(s, Sentence):
+                return Sentence(s)
+            return w
+            
+        self[SENTENCES] = List([cast(s) for s in self[SENTENCES]])
+        
+    @overrides(Element)
+    def assert_valid(self):
+        super(Paragraph, self).assert_valid()
+        assert SENTENCES in self
+        
+    @overrides(Corpus)
+    def texts(self, what):
+        if what == PARAGRAPHS:
+            return [self.text]
+        return super(Paragraph, self).texts(what)
+    
+    @overrides(Corpus)
+    def elements(self, what):
+        if what == PARAGRAPHS:
+            return [self]
+        return super(Paragraph, self).elements(what)
+        
+    def __repr__(self):
+        return repr('Paragraph({0})'.format(self.text[:24] + '...'))
+
+
+class Sentence(Element):
+    '''Sentence element of Estnltk corpora.
+    
+    Sentence uses WORDS attribute to list its words.
+    '''
+    
+    def __init__(self, data=None, **kwargs):
+        super(Sentence, self).__init__(data, **kwargs)
+    
+    @overrides(Element)
+    def force_cast(self):
+        super(Sentence, self).force_cast()
+        
+        def cast(w):
+            if not isinstance(w, Word):
+                return Word(w)
+            return w
+            
+        self[WORDS] = List([cast(w) for w in self[WORDS]])
+            
+    
+    @overrides(Element)
+    def assert_valid(self):
+        super(Sentence, self).assert_valid()
+        assert WORDS in self
+        self.assert_consequent_words()
+        self.assert_word_splices()
+            
+    def assert_consequent_words(self):
+        '''Check the START and END positions of consequent words.'''
+        for p, n in izip(self[WORDS], self[WORDS][1:]):
+            assert p.end <= n.start
+
+    def assert_word_splices(self):
+        '''Check that the word texts match the sentence texts.'''
+        for word in self[WORDS]:
+            assert word.text == self.text[word.rel_start:word.rel_end]
+    
+    @overrides(Corpus)
+    def texts(self, what):
+        if what == SENTENCES:
+            return [self.text]
+        return super(Sentence, self).texts(what)
+        
+    @overrides(Corpus)
+    def elements(self, what):
+        if what == SENTENCES:
+            return [self]
+        return super(Sentence, self).elements(what)
+        
+    def __repr__(self):
+        return repr('Sentence({0})'.format(self.text[:24] + '...'))
+        
+
 class Word(Element):
     '''Word element of Estnltk corpora.
     
@@ -107,6 +329,20 @@ class Word(Element):
     
     def __init__(self, data=None, **kwargs):
         super(Word, self).__init__(data, **kwargs)
+    
+    @overrides(Element)
+    def texts(self, what):
+        if what == WORDS:
+            return [self.text]
+    
+    @overrides(Element)
+    def elements(self, what):
+        if what == WORDS:
+            return [self]
+    
+    def __repr__(self):
+        return repr('Word({0})'.format(self.text))
+    
     
     @property
     def analysis(self):
@@ -206,101 +442,61 @@ def most_frequent(elements):
     return best[0]
 
 
-class Sentence(Element):
-    '''Sentence element of Estnltk corpora.
+
+
+
+
     
-    Sentence uses WORDS attribute to list its words.
+
+
+
+
+def construct_corpus(data):
+    if is_root_element(data):
+        data = parse_root_element(data)
+    elif isinstance(data, dict):
+        return Dictionary(construct_corpus(v) for k, v in data.items())
+    elif isinstance(data, list):
+        return List(construct_corpus(e) for e in data)
+    else:
+        raise ValueError()
+    return data
+
+
+def is_root_element(data):
+    '''Does the given element satisfy root element requirements:
+    Contains all TEXT, START, END, REL_START, REL_END attributes.
+    START = REL_START = 0
+    END = REL_END     = len(TEXT)
+    
+    Parameters
+    ----------
+    data: dict
+        The potential root element.
+    
+    Returns
+    -------
+    True
+        If element satisfies root element requirements.
+    False
+        otherwise.
     '''
-    
-    def __init__(self, data=None, **kwargs):
-        super(Sentence, self).__init__(data, **kwargs)
-    
-    @overrides(Element)
-    def force_cast(self):
-        super(Sentence, self).force_cast()
-        
-        def cast(w):
-            if not isinstance(w, Word):
-                return Word(w)
-            return w
-            
-        self[WORDS] = [cast(w) for w in self[WORDS]]
-            
-    
-    @overrides(Element)
-    def assert_valid(self):
-        super(Sentence, self).assert_valid()
-        assert WORDS in self
-        self.assert_consequent_words()
-        self.assert_word_splices()
-            
-    def assert_consequent_words(self):
-        '''Check the START and END positions of consequent words.'''
-        for p, n in izip(self[WORDS], self[WORDS][1:]):
-            assert p.end <= n.start
-
-    def assert_word_splices(self):
-        '''Check that the word texts match the sentence texts.'''
-        for word in self[WORDS]:
-            assert word.text == self.text[word.rel_start:word.rel_end]
-    
-    @property
-    def words(self):
-        return self[WORDS]
-        
-    @property
-    def spans(self):
-        return [w.span for w in self.words]
-        
-    @property
-    def rel_spans(self):
-        return [w.rel_span for w in self.words]
-    
-    @property
-    def lemmas(self):
-        return [w.lemma for w in self.words]
-        
-    @property
-    def roots(self):
-        return [w.root for w in self.words]
-        
-    @property
-    def postags(self):
-        return [w.postag for w in self.words]
-        
-    @property
-    def labels(self):
-        return [w.label for w in self.words]
-        
-    @property
-    def texts(self):
-        return [w.text for w in self.words]
-        
-    @property
-    def forms(self):
-        return [w.form for w in self.words]
-        
-    @property
-    def endings(self):
-        return [w.ending for w in self.words]
-        
-    @property
-    def clitics(self):
-        return [w.clitic for w in self.words]
-        
-    @property
-    def root_tokens(self):
-        return [w.root_tokens for w in self.words]
+    return isinstance(data, dict) and \
+           START in data and \
+           END in data and \
+           REL_START in data and \
+           REL_END in data and \
+           TEXT in data and \
+           data[START] == 0 and \
+           data[REL_START] == 0 and \
+           data[END] == len(data[TEXT]) and \
+           data[REL_END] == data[END]
 
 
-class Document(dict):
-    '''Estnltk Document object.
-
-    A document must have consistent indices throughout its structure.
-    All absoulte indices and text splices must match top-level texts.
-    '''
-    
-    def __init__(self, *args, **kwargs):
-        dict.__init__(*args, **kwargs)
-
-
+def parse_root_element(data):
+    if PARAGRAPHS in data:
+        return Document(data)
+    elif SENTENCES in data:
+        return Paragraphs(data)
+    elif WORDS in data:
+        return Sentence(data)
