@@ -55,7 +55,17 @@ class Corpus(object):
         
     def documents(self):
         return self.elements(DOCUMENTS)
+    
+    # methods for returning word specific data
+    
+    # methods for returning sentence specific data
+    
+    def clauses(self):
+        pass
         
+    def verb_phrases(self):
+        pass
+    
     def __repr__(self):
         return repr('Corpus')
 
@@ -104,7 +114,7 @@ class Dictionary(dict, Corpus):
         return repr('Dictionary')
 
 
-class Element(Dictionary):
+class ElementMixin(Dictionary):
     '''Element is a basic composition object of Estnltk corpora.
     It must have TEXT, START, END, REL_START and REL_END attributes.
     '''
@@ -134,7 +144,7 @@ class Element(Dictionary):
         '''
         if data is None:
             data = kwargs
-        super(Element, self).__init__(data)
+        super(ElementMixin, self).__init__(data)
         self.force_cast()
         self.assert_valid()
 
@@ -185,7 +195,7 @@ class Element(Dictionary):
         return self[TEXT]
         
 
-class Document(Element):
+class Document(ElementMixin, Dictionary):
     '''Estnltk Document object.
 
     A document must have consistent indices throughout its structure.
@@ -196,7 +206,7 @@ class Document(Element):
         super(Document, self).__init__(data, **kwargs)
     
     
-    @overrides(Element)
+    @overrides(ElementMixin)
     def force_cast(self):
         super(Document, self).force_cast()
         
@@ -225,13 +235,13 @@ class Document(Element):
         return repr('Document({0})'.format(self.text[:24] + '...'))
 
 
-class Paragraph(Element):
+class Paragraph(ElementMixin, Dictionary):
     '''Paragraph object.'''
     
     def __init__(self, data=None, **kwargs):
         super(Paragraph, self).__init__(data, **kwargs)
         
-    @overrides(Element)
+    @overrides(ElementMixin)
     def force_cast(self):
         super(Paragraph, self).force_cast()
         
@@ -242,7 +252,7 @@ class Paragraph(Element):
             
         self[SENTENCES] = List([cast(s) for s in self[SENTENCES]])
         
-    @overrides(Element)
+    @overrides(ElementMixin)
     def assert_valid(self):
         super(Paragraph, self).assert_valid()
         assert SENTENCES in self
@@ -263,7 +273,7 @@ class Paragraph(Element):
         return repr('Paragraph({0})'.format(self.text[:24] + '...'))
 
 
-class Sentence(Element):
+class Sentence(ElementMixin, Dictionary):
     '''Sentence element of Estnltk corpora.
     
     Sentence uses WORDS attribute to list its words.
@@ -272,7 +282,7 @@ class Sentence(Element):
     def __init__(self, data=None, **kwargs):
         super(Sentence, self).__init__(data, **kwargs)
     
-    @overrides(Element)
+    @overrides(ElementMixin)
     def force_cast(self):
         super(Sentence, self).force_cast()
         
@@ -284,7 +294,7 @@ class Sentence(Element):
         self[WORDS] = List([cast(w) for w in self[WORDS]])
             
     
-    @overrides(Element)
+    @overrides(ElementMixin)
     def assert_valid(self):
         super(Sentence, self).assert_valid()
         assert WORDS in self
@@ -317,7 +327,7 @@ class Sentence(Element):
         return repr('Sentence({0})'.format(self.text[:24] + '...'))
         
 
-class Word(Element):
+class Word(ElementMixin, Dictionary):
     '''Word element of Estnltk corpora.
     
     Word element can contain vast amount of different information
@@ -330,12 +340,12 @@ class Word(Element):
     def __init__(self, data=None, **kwargs):
         super(Word, self).__init__(data, **kwargs)
     
-    @overrides(Element)
+    @overrides(ElementMixin)
     def texts(self, what):
         if what == WORDS:
             return [self.text]
     
-    @overrides(Element)
+    @overrides(ElementMixin)
     def elements(self, what):
         if what == WORDS:
             return [self]
