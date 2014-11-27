@@ -16,6 +16,7 @@ WORDS = 'words'
 SENTENCES = 'sentences'
 PARAGRAPHS = 'paragraphs'
 DOCUMENTS = 'documents'
+FILE = 'file' # the file path of the source corpus
 
 # word attributes
 ANALYSIS = 'analysis'

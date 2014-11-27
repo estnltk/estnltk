@@ -13,8 +13,15 @@ from estnltk.corpus import *
 from pprint import pprint
 
 import os
+import json
 
 corp_path = os.path.join(AA_PATH, 'tea_AA_03_1.tasak.xml')
 
-corp = Corpus.construct(parse_tei_corpus(corp_path))
-pprint (corp.documents())
+corp = parse_tei_corpus(corp_path)
+
+from estnltk.morf import PyVabamorfAnalyzer
+analyzer = PyVabamorfAnalyzer()
+
+corp = analyzer.process(corp, inplace=False)
+
+pprint (zip(corp.lemmas, corp.postags))

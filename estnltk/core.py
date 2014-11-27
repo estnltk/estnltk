@@ -20,6 +20,11 @@ DEFAULT_NER_DATASET = os.path.join(CORPORA_PATH, 'estner.json.bz2')
 # default NER model path
 DEFAULT_NER_MODEL = os.path.join(PACKAGE_PATH, 'estner', 'models', 'default.bin')
 
+def overrides(interface_class):
+    def overrider(method):
+        assert(method.__name__ in dir(interface_class))
+        return method
+    return overrider
 
 def as_unicode(s, encoding='utf-8'):
     '''Convert the string to unicode.'''

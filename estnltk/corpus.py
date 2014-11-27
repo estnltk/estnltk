@@ -1,84 +1,115 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function
 
-from estnltk.core import as_unicode
+from estnltk.core import as_unicode, overrides
 from estnltk.names import *
 
 from collections import Counter
 from itertools import izip, chain
 from pprint import pprint
 
-def overrides(interface_class):
-    def overrider(method):
-        assert(method.__name__ in dir(interface_class))
-        return method
-    return overrider
+
     
 
 class Corpus(object):
     
-    def __init__(self, *args, **kwargs):
-        pass
-
     @staticmethod
     def construct(data):
         return construct_corpus(data)
-
-    # Methods for returning raw texts
-    def texts(self, what):
-        raise NotImplementedError()
-
-    def word_texts(self):
-        return self.texts(WORDS)
-        
-    def sentence_texts(self):
-        return self.texts(SENTENCES)
-    
-    def paragraph_texts(self):
-        return self.texts(PARAGRAPHS)
-    
-    def document_texts(self):
-        return self.texts(DOCUMENTS)
         
     # Methods for returning corpus elements
     def elements(self, what):
         raise NotImplementedError()
-        
+    
+    @property
     def words(self):
         return self.elements(WORDS)
-        
+    
+    @property
     def sentences(self):
         return self.elements(SENTENCES)
-        
+    
+    @property
     def paragraphs(self):
         return self.elements(PARAGRAPHS)
-        
+    
+    @property
     def documents(self):
         return self.elements(DOCUMENTS)
+        
+    # Methods for returning raw texts
+    def texts(self, what):
+        return [e.text for e in self.elements(what)]
+
+    @property
+    def word_texts(self):
+        return self.texts(WORDS)
     
+    @property    
+    def sentence_texts(self):
+        return self.texts(SENTENCES)
+    
+    @property
+    def paragraph_texts(self):
+        return self.texts(PARAGRAPHS)
+    
+    @property
+    def document_texts(self):
+        return self.texts(DOCUMENTS)
+        
     # methods for returning word specific data
+    @property
+    def lemmas(self):
+        return [w.lemma for w in self.words]
+        
+    @property
+    def postags(self):
+        return [w.postag for w in self.words]
+        
+    @property
+    def forms(self):
+        return [w.form for w in self.words]
+    
+    @property
+    def endings(self):
+        return [w.ending for w in self.words]
+    
+    @property
+    def labels(self):
+        return [w.label for w in self.words]
+        
+    @property
+    def roots(self):
+        return [w.root for w in self.words]
+        
+    @property
+    def clitics(self):
+        return [w.clitic for w in self.words]
+    
+    @property
+    def root_tokens(self):
+        return [w.root_tokens for w in self.words]
     
     # methods for returning sentence specific data
     
+    @property
     def clauses(self):
-        pass
-        
+        raise NotImplementedError()
+    
+    @property
     def verb_phrases(self):
-        pass
+        raise NotImplementedError()
     
     def __repr__(self):
         return repr('Corpus')
+        
+    # methods for applying different processors
+    
+    def apply(self, processor):
+        processor
 
 
 class List(list, Corpus):
-    
-    @overrides(Corpus)
-    def texts(self, what):
-        texts = []
-        for e in self:
-            if isinstance(e, Corpus):
-                texts.extend(e.texts(what))
-        return texts
     
     @overrides(Corpus)
     def elements(self, what):
@@ -95,14 +126,6 @@ class List(list, Corpus):
 class Dictionary(dict, Corpus):
 
     @overrides(Corpus)
-    def texts(self, what):
-        texts = []
-        for k, v in self.items():
-            if isinstance(v, Corpus):
-                texts.extend(v.texts(what))
-        return texts
-        
-    @overrides(Corpus)
     def elements(self, what):
         elements = []
         for k, v in self.items():
@@ -114,7 +137,7 @@ class Dictionary(dict, Corpus):
         return repr('Dictionary')
 
 
-class ElementMixin(Dictionary):
+class ElementMixin(dict):
     '''Element is a basic composition object of Estnltk corpora.
     It must have TEXT, START, END, REL_START and REL_END attributes.
     '''
@@ -220,12 +243,6 @@ class Document(ElementMixin, Dictionary):
             self[PARAGRAPHS] = List([cast(w, Paragraph) for w in self[PARAGRAPHS]])
             
     @overrides(Corpus)
-    def texts(self, what):
-        if what == DOCUMENTS:
-            return [self.text]
-        return super(Document, self).texts(what)
-        
-    @overrides(Corpus)
     def elements(self, what):
         if what == DOCUMENTS:
             return [self]
@@ -257,12 +274,6 @@ class Paragraph(ElementMixin, Dictionary):
         super(Paragraph, self).assert_valid()
         assert SENTENCES in self
         
-    @overrides(Corpus)
-    def texts(self, what):
-        if what == PARAGRAPHS:
-            return [self.text]
-        return super(Paragraph, self).texts(what)
-    
     @overrides(Corpus)
     def elements(self, what):
         if what == PARAGRAPHS:
@@ -312,12 +323,6 @@ class Sentence(ElementMixin, Dictionary):
             assert word.text == self.text[word.rel_start:word.rel_end]
     
     @overrides(Corpus)
-    def texts(self, what):
-        if what == SENTENCES:
-            return [self.text]
-        return super(Sentence, self).texts(what)
-        
-    @overrides(Corpus)
     def elements(self, what):
         if what == SENTENCES:
             return [self]
@@ -340,12 +345,7 @@ class Word(ElementMixin, Dictionary):
     def __init__(self, data=None, **kwargs):
         super(Word, self).__init__(data, **kwargs)
     
-    @overrides(ElementMixin)
-    def texts(self, what):
-        if what == WORDS:
-            return [self.text]
-    
-    @overrides(ElementMixin)
+    @overrides(Corpus)
     def elements(self, what):
         if what == WORDS:
             return [self]
@@ -453,16 +453,10 @@ def most_frequent(elements):
 
 
 
-
-
-
-    
-
-
-
-
 def construct_corpus(data):
-    if is_root_element(data):
+    if isinstance(data, Corpus):
+        return data
+    elif is_root_element(data):
         data = parse_root_element(data)
     elif isinstance(data, dict):
         return Dictionary(construct_corpus(v) for k, v in data.items())

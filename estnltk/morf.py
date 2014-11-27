@@ -10,26 +10,32 @@ analyer: PyVabamorfAnalyzer
 '''
 from __future__ import unicode_literals, print_function
 
-from estnltk.core import JsonPaths
+from estnltk.core import JsonPaths, overrides
+from estnltk.names import *
+from estnltk.textprocessor import TextProcessor
+from estnltk.corpus import List
+
 from pyvabamorf import analyze
 from itertools import izip
 from pprint import pprint
 
 
-class PyVabamorfAnalyzer(object):
+class PyVabamorfAnalyzer(TextProcessor):
     
-    def __call__(self, *args, **kwargs):
-        return self.analyze(*args, **kwargs)
+    @overrides(TextProcessor)
+    def process_json(self, corpus, **kwargs):
+        for words in JsonPaths.words.find(corpus):
+            words.value = self.analyze(words.value, **kwargs)
+        return corpus
     
-    def analyze(self, corpus, phonetic=False, compound=True):
-        '''Annotate a JSON-style corpus with morphological information
-        from vabamorf.
-        
-        Parameters
-        ----------
-        corpus: dict or list
-            The tokenized corpus.
-            
+    @overrides(TextProcessor)    
+    def process_corpus(self, corpus, **kwargs):
+        for sentence in corpus.sentences:
+            sentence[WORDS] = List(self.analyze(sentence.words, **kwargs))
+        return corpus
+    
+    def analyze(self, wordlist, **kwargs):
+        '''
         Keyword parameters
         ------------------
         phonetic: boolean
@@ -37,14 +43,7 @@ class PyVabamorfAnalyzer(object):
         compound: boolean
             If true, add compound word markup to root elements (default: True)
             
-        Returns
-        -------
-        dict or list
-            The inputted dictionary, but with additional annotations.
         '''
-        for words in JsonPaths.words.find(corpus):
-            for idx in range(len(words.value)):
-                analysis = analyze(words.value[idx]['text'], phonetic=phonetic, compound=compound)[0]['analysis']
-                words.value[idx]['analysis'] = analysis
-        return corpus
-
+        for word in wordlist:
+            word[ANALYSIS] = analyze(word.text, **kwargs)[0][ANALYSIS]
+        return wordlist
