@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Module containing functionality for adding morphological analysis
 information to corpora.
-
-Attributes
-----------
-
-analyer: PyVabamorfAnalyzer
-    Analyzer with default parameters.
 '''
 from __future__ import unicode_literals, print_function
 
@@ -16,7 +10,6 @@ from estnltk.textprocessor import TextProcessor
 from estnltk.corpus import List
 
 from pyvabamorf import analyze
-from itertools import izip
 from pprint import pprint
 
 
@@ -45,5 +38,5 @@ class PyVabamorfAnalyzer(TextProcessor):
             
         '''
         for word in wordlist:
-            word[ANALYSIS] = analyze(word.text, **kwargs)[0][ANALYSIS]
+            word[ANALYSIS] = analyze(word[TEXT], **kwargs)[0][ANALYSIS]
         return wordlist

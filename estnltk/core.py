@@ -76,5 +76,6 @@ class JsonPaths(object):
     analysis: jsonpath_rw.jsonpath.Descendants
         Expression for exracting analysis results from corpus structures.
     '''
+    documents = parse('[*]..documents')
     words = parse('[*]..words')
     analysis = parse('[*]..analysis')

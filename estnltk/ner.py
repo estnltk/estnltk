@@ -14,7 +14,9 @@ from __future__ import unicode_literals, print_function
 from estnltk import Tokenizer
 from estnltk import PyVabamorfAnalyzer
 from estnltk.estner.settings import Settings, DEFAULT_SETTINGS_MODULE
-from estnltk.core import DEFAULT_NER_DATASET, DEFAULT_NER_MODEL
+from estnltk.core import DEFAULT_NER_DATASET, DEFAULT_NER_MODEL, overrides, JsonPaths
+from estnltk.textprocessor import TextProcessor
+from estnltk.corpus import Corpus
 from estnltk.estner.crfsuiteutil import Trainer, Tagger
 
 from pprint import pprint
@@ -135,7 +137,7 @@ class NerTrainer(object):
         return NerModel(self.settings_module_contents, model)
         
 
-class NerTagger(object):
+class NerTagger(TextProcessor):
     '''The class for tagging named entities.'''
     
     def __init__(self, nermodel=None):
@@ -156,11 +158,8 @@ class NerTagger(object):
                 f.write(nermodel.settings_module_contents)
             self.settings = Settings(settings_path)
         self.tagger = Tagger(self.settings, model=nermodel.model)
-    
-    def __call__(self, docs):
-        return self.tag(docs)
-    
-    def tag(self, docs):
+        
+    def process_json(self, corpus, **kwargs):
         '''Tag the given documents with named entities. The tags
         will be stored in "label" attribute of the words.
         
@@ -175,7 +174,20 @@ class NerTagger(object):
             The documents given as the argument, but with added
             tags.
         '''
-        return self.tagger.tag(docs)
+        # todo: fix the problem here
+        # the problem is how to detect the documents in corpora
+        # options:
+        # - perform root element extraction as done when construcing estnltk.corpus.Corpus objects (expected behaviour)
+        # - require that there is {documents=[]} thing in JSON
+        # - accept custom Jsonpath_rw query
+        # - assume the top level element is list and interpret them as documents (current behaviour)
+        # current behaviour breaks when top level is not list or it does
+        # not contain documents
+        return self.tagger.tag(corpus)
+        
+    def process_corpus(self, corpus, **kwargs):
+        self.tagger.tag(corpus.documents)
+        return corpus
         
         
 def train_default_model():

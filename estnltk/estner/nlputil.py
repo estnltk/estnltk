@@ -2,9 +2,11 @@
 from __future__ import unicode_literals, print_function
 
 from estnltk.core import JsonPaths
+from estnltk.names import *
 from estnltk.estner.ner import Token, Sentence, Document
 
 from itertools import izip
+from pprint import pprint
 
 
 def vabamorf_token_to_estner_token(vabamorf_token, label='label'):
@@ -22,21 +24,21 @@ def vabamorf_token_to_estner_token(vabamorf_token, label='label'):
     estnltk.estner.ner.Token
     '''
     token = Token()
-    word = vabamorf_token['text']
+    word = vabamorf_token[TEXT]
     lemma = word
     morph = ''
     label = 'O'
-    if len(vabamorf_token['analysis']) > 0:
-        anal = vabamorf_token['analysis'][0]
-        ending = anal['ending']
-        lemma = '_'.join(anal['root_tokens']) + ('+' + ending if ending else '')
+    if len(vabamorf_token[ANALYSIS]) > 0:
+        anal = vabamorf_token[ANALYSIS][0]
+        ending = anal[ENDING]
+        lemma = '_'.join(anal[ROOT_TOKENS]) + ('+' + ending if ending else '')
         if not lemma:
             lemma = word
-        morph = '_%s_' % anal['partofspeech']
-        if anal['form']:
-            morph += ' ' + anal['form']
-        if 'label' in vabamorf_token:
-            label = vabamorf_token['label']
+        morph = '_%s_' % anal[POSTAG]
+        if anal[FORM]:
+            morph += ' ' + anal[FORM]
+        if LABEL in vabamorf_token:
+            label = vabamorf_token[LABEL]
     token.word = word
     token.lemma = lemma
     token.morph = morph
@@ -111,5 +113,5 @@ def assign_labels(document, labels):
         words = ptr.value
         assert len(words) == len(snt_labels)
         for word, label in izip(words, snt_labels):
-            word['label'] = label
+            word[LABEL] = label
     return document

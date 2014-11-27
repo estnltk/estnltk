@@ -127,5 +127,4 @@ class Tagger(object):
         for snt in nerdoc.snts:
             xseq = [t.feature_list() for t in snt]
             labels.append(self.tagger.tag(xseq))
-        print (labels)
         return nlputil.assign_labels(vabadoc, labels)

@@ -8,7 +8,7 @@ from collections import Counter
 from itertools import izip, chain
 from pprint import pprint
 
-
+import json
     
 
 class Corpus(object):
@@ -16,6 +16,13 @@ class Corpus(object):
     @staticmethod
     def construct(data):
         return construct_corpus(data)
+    
+    @staticmethod
+    def from_json(data):
+        return construct_corpus(data)
+        
+    def to_json(self):
+        raise NotImplementedError()
         
     # Methods for returning corpus elements
     def elements(self, what):
@@ -100,13 +107,14 @@ class Corpus(object):
     def verb_phrases(self):
         raise NotImplementedError()
     
+    # other methods
+    
     def __repr__(self):
         return repr('Corpus')
-        
-    # methods for applying different processors
     
-    def apply(self, processor):
-        processor
+    def apply(self, processor, **kwargs):
+        '''Apply a textprocessor.TextProcessor instance on this corpus.'''
+        return processor.process_corpus(self, inplace=True, **kwargs)
 
 
 class List(list, Corpus):
@@ -135,7 +143,7 @@ class Dictionary(dict, Corpus):
         
     def __repr__(self):
         return repr('Dictionary')
-
+    
 
 class ElementMixin(dict):
     '''Element is a basic composition object of Estnltk corpora.
