@@ -1,0 +1,429 @@
+<teiCorpus xmlns:xi="http://www.w3.org/2001/XInclude" xmlns="http://www.tei-c.org/ns/1.0"> 
+<xi:include href="../../bin/koondkorpus_main_header.xml" /> 
+<teiCorpus> 
+<xi:include href="../bin/header_tea_arvutitehnika_ja_andmet66tlus.xml" /> 
+	<TEI> 
+		<teiHeader xmlns="http://www.tei-c.org/ns/1.0" xml:lang="et" xml:id="koondkorpus_local_header" n="$Id:$"> 
+			<fileDesc> 
+				<titleStmt> 
+					<title> Arvutustehnika ja andmetöötlus 03_4 </title> 
+  				</titleStmt> 
+				<publicationStmt> 
+  					<p> Vt publitseerimisandmeid failist 
+						<ref target="#publicationStmt-main">koondkorpus_main_header.xml</ref> 
+					</p> 
+  				</publicationStmt> 
+				<sourceDesc> 
+					<p> Vt allkorpuse päis 
+						<ref target="#header_tea_arvutitehnika_ja_andmet66tlus">header_tea_arvutitehnika_ja_andmet66tlus.xml</ref> 
+					</p> 
+  				</sourceDesc> 
+  			</fileDesc> 
+		</teiHeader>
+  <text>
+    <body>
+      <div1 type="ajakirjanumber">
+        <head> Arvutustehnika ja andmetöötlus 03_4 </head>
+        <div2 type="artikkel"><head> A &amp; A - Quo vadis , Eesti teabeorganisatsioon ? </head>
+<p> <bibl> <author> <s> Raoul Üksvärav </s> </author> </bibl> </p>
+<p> <s> <gap rend="joonis"/> <hi rend="kaldkiri"> Raoul Üksvärav - sündinud 21. aprillil 1928 Tallinnas . </hi> </s> <hi rend="kaldkiri"> <s> Lõpetanud kiitusega Tallinna Polütehnilise Instituudi tööstusökonoomika erialal aastal 1952. </s> <s> Kaitsnud 1956. aastal Läti Riiklikus Ülikoolis majandusteaduste kandidaadi kraadi turbatööstuse valdkonnas ja 1967. aastal Eesti Teaduste Akadeemias majandusteaduste doktori kraadi USA majandusorganisatsioonide juhtimise alal . </s> <s> Töötanud aastail 1958-1989 Tallinna Polütehnilises Instituudis vanemõpetajana , dotsendina , kateedrijuhatajana , dekaanina ja prorektorina . </s> <s> Täiendanud end 1963/1964 . õppeaastal California Ülikoolis ( Berkeley ) ja Massachusettsi Tehnikaülikoolis . </s> <s> Riigikogu VII ja VIII koosseisu liige . </s> </hi> </p>
+<p> <s> Tallinna Tehnikaülikooli emeriitprofessor . </s> </p>
+<p> <s> Vajalik teave , selle omamine , õigeaegne saamine või edastamine jmt on tänapäeval muutunud eduka tegutsemise ja heade tulemuste üheks võtmeküsimuseks . </s> <s> Käibele on tulnud mõisted teabeorganisatsioon ( knowledge organization ) ja teabejuhtimine ( knowledge management ) . </s> <s> Esimese all ei mõisteta üksnes tarkvaraga tegelevaid organisatsioone , vaid ka konsultatsiooni- , audiitor- jmt firmasid , teise all mitte ainult teabe oskuslikku käsitlemist , vaid ka teabeorganisatsioonide tegevuse korraldamist . </s> </p>
+<p> <s> Antud valdkondade tähtsuse ja mõju tõttu on organisatsiooni ja juhtimist puudutavais uurimise ja õpetamisega seotud kirjutisis teabetemaatika osa viimase kümmekonna aasta jooksul järjekindlalt suurenenud . </s> <s> Huvipunktis on nii see , missugune on või peaks olema teabeorganisatsiooni siseehitus , kui ka see , kuidas teda juhitakse või peaks juhtima . </s> <s> Esile on toodud teabeorganisatsioonide eripärane isikkoosseis , neile omased tegutsemistingimused ja -nõuded , mis iseloomustavad nende tegevuse eripära ja probleeme , millele püütakse leida lahendust . </s> </p>
+<p> <s> Probleemiks on , et tavapärane organisatsiooni siseehitus oma üksikasjaliku tööjaotuse , rangete alluvussuhete ja võimuhierarhiaga , kindlaksmääratud suhtlemisteede ning muu seesugusega ei vasta teabeorganisatsioonis tehtava töö ja selle tegijate iseloomule ning siit tulenevatele nõuetele ja vajadustele . </s> <s> Teabeorganisatsiooni selgroo moodustavad kõrgesti kvalifitseeritud , loomingulise lähenemise ja iseseisva tegevusega harjunud inimesed , kes on enam altid uuendustele ja koostööle kui rutiinset rada käimisele ja käsu korras tegutsemisele . </s> </p>
+<p> <s> Tavapärane püramiidikujuline ja mitmete juhtimistasanditega vorm ei ole seetõttu teabeorganisatsiooni jaoks parim lahendus . </s> <s> Sobivamaks on osutunud põõsa- või lainekujuline vorm , mis põhineb mitmesugustel alustel moodustatud meeskondadest . </s> <s> Need on oma tegevuses suuresti iseseisvad , valides inimesi , korraldades tööd ja suheldes teiste meeskondadega oma parema äranägemise , otstarbekuse ja vajaduse järgi . </s> <s> Suureks eeliseks on sealjuures muutustele kiire reageerimise võime ja tegutsemise paindlikkus . </s> </p>
+<p> <s> Raskuseks on teabeorganisatsiooni terviklik juhtimine , st tippjuhtimine . </s> <s> Mitte ainult sinna koondunud inimeste eripäraste isikuomaduste tõttu , vaid ka töö iseloomust tulenevalt . </s> <s> Kuigi headest tippjuhtidest on alati puudus , ei soodusta teabeorganisatsioon oma tegutsemislaadi , arusaamade , sisekliima jms tõttu ei tippjuhtide esilekerkimist ja selleks olemist ega ka nende ettevalmistamist ja kasvamist . </s> <s> Ollakse rohkem huvitatud erialasest asjatundlikkusest ja selle tunnustamisest kui tippjuhi tööst ning sellega kaasnevatest raskustest . </s> <s> Võimalik suurem hüvitus ja kõrgem seisund ei pruugi eksperdi maine kadumist korvata . </s> </p>
+<p> <s> Eespool esitatud põhitõed on selgunud suurte teabeorganisatsioonide kogemustest eeskätt Ameerika Ühendriikides . </s> <s> Kui välja arvata mõned ülikoolid ning rahvusvahelised konsultatsiooni- ja audiitorfirmad , siis suured teabeorganisatsioonid Eestis puuduvad . </s> <s> Eesti statistika aastaraamatu järgi ( lk. 271 ) oli 86,6 protsenti Eestis 2002. aastal registreeritud äriettevõtteist väikesed , kuni 10 töötajaga üritused . </s> <s> Nende ettevõtete ( kuhu kuuluvad ka väikesed teadmusfirmad ) organisatsioonilised ja juhtimisprobleemid on varem kirjeldatuiga võrreldes hoopis teiselaadilised . </s> <s> Nimetamata ühemeheüritusi kui omaette kategooriat , on meie teabeorganisatsioonide iseloomulikuks jooneks partnerlussuhted ja spetsialisti-tehnilise täitja töövahekorrad . </s> <s> Teatud määral kattuvalt on esimesel juhul tegemist mõne kokkuleppelise juhiga , teisel juhul aga pigem teadmistel ja oskustel põhineva kui ülemuse-alluva võimutasemeid rõhutava omavahelise seostekompleksiga . </s> </p>
+<p> <s> Need asjaolud tingivad meie teabeorganisatsioonide lihtsa , reeglina ainult ühe juhtimistasandiga sisesehituse , mille üldnimeks võiks samahästi olla meeskond . </s> <s> Juhtimine neis omandab rohkem töö korraldamise ja juhendamise kui korralduste andmise ja nende täitmist kontrolliva ilme . </s> <s> Kuid head koostöösuhted on ka väikestes majapidamistes üks edu saavutamiste pante . </s> <s> Juhiks saamine või olemine on eelkõige ettevõtjahinge ja eestvedamisvõime ning -oskuse olemasolu küsimus . </s> </p>
+<p> <s> Äsja välja toodud mõtted ei esinda enamat kui noppeid meie teabeorganisatsioonide tegevuspraktikast . </s> <s> Ametlikud avaldatud statistikakogumid teabeorganisatsioone eraldi välja ei too ( välja arvatud tehnilise teenindamise ettevõtted ) , mistõttu koondpilti nende jaotumise , suuruse , tegevuse iseloomu jms kohta on ilma eriuuringuta raske saada . </s> <s> Teabeasutuste organisatsioonilist külge ja juhtimist , aga ka mitmeid muid tegevuslikke tahke puudutavaid küsimusi ja probleeme ei ole samuti lähemalt uuritud . </s> <s> Missugused on need mõjurid , mis määravad meie teabeorganisatsioonide eksisteerimise , juhtimise arendamise , konkurentsivõime , head majandustulemused jne ? </s> </p>
+<p> <s> Et edukalt edasi minna , on ülim aeg see lünk kõrvaldada , uurida ja üldistada nii seniseid saavutusi ja puudujääke kui ka meile eriomaseid tugevusi ja nõrkusi . </s> <s> Sealjuures silmast laskmata vajadust ja võimalusi meie teabeorganisatsioonide omavaheliseks tihedamaks koostööks , ka mitmesuguses vormis jõudude ühendamiseks millegi tõhusamaks väljatöötamiseks ja kuskil läbilöömiseks . </s> <s> Omaette nokitsemine ei kao kuhugi , kuid suurema ettevõtmise sünergeetiline toime on suurem . </s> </p>
+<p> <s> Kasutatud kirjandus </s> </p>
+<p> <s> Certo , S. C. <hi rend="kaldkiri"> Modern Management </hi> . </s> <s> Prentice Hall . </s> <s> Upper Saddle River , New Jersey , 2000. </s> </p>
+<p> <s> Drucker , P. F <hi rend="kaldkiri"> . </hi> </s> <s> <hi rend="kaldkiri"> Managing for the Future </hi> . </s> <s> Truman Talley Books , New York , 1992. </s> </p>
+<p> <s> <hi rend="kaldkiri"> Eesti statistika aastaraamat </hi> <hi rend="kaldkiri"> 2003 </hi> . </s> <s> Tallinn , 2003. </s> </p>
+<p> <s> Nurmi , R. <hi rend="kaldkiri"> Johtavatko johtajat </hi> ? </s> <s> Mermerus , 2000 </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Teenuste sisseostust </head>
+<p> <s> Tarkvaraarendusega pole tänapäeval võimalik kõiki firma ees seisvaid probleeme lahendada : esiteks on sageli otstarbekas toetuda teiste juba omandatud ja tarkvaratootesse akumuleeritud kogemusele , teiseks pole enamasti võimalik hoida palgalehel kõikide lahenduste isetegemiseks vajalikku programmeerijate armeed ja kolmandaks - lahendusi/neil põhinevaid tooteid on dünaamilise turu tõttu ( eriti Eestis ! ) vaja saada kiiresti . </s> <s> Seega on vaja tarkvara ( IT teenuseid üldse ) osta . </s> <s> Ostmine pole aga lihtne : lähedasi tooteid pakkuvaid firmasid on palju , nende tooted erinevad nii hinna kui ka funktsionaalsuse , evitamiseks vajalike ressursside ning ka ülalhoiuks ja edasiseks arendamiseks vajalike ressurside poolest . </s> <s> Tähtsuseta pole siin ka korruptiivsete lepingute vältimine - miljoneid maksva toote puhul pole võimatu firma ja isiku huvide konflikt . </s> <s> On ilmne , et ükski firma pole kohe võimeline looma ja järgima protseduure , mis tagaksid optimaalse tarkvara ostu . </s> <s> Paratamatud möödalaskmised on aga väga kallid : ainult evitamise protsess kestab aasta või kauemgi , vaja on koolitada personali , ümber korraldada äriprotsesse . </s> <s> Suuremate tarkvarasüsteemide hange on firmale enamasti mittepööratav ja eksimine on saatuslik . </s> </p>
+<p> <s> Sisseostu peamiseks põhjuseks on kulude kokkuhoid ja põhitegevusele kontsentreerumine : firma kulutab liiga palju tehnoloogiale , firma IT pole piisaval tasemel , firma soovib omandada partneri tehnoloogiat/kogemust/oskusteavet . </s> </p>
+<p> <s> Traditsioonilised sisseostu valdkonnad on : </s> </p>
+<p> <s> Toitlustamine </s> </p>
+<p> <s> Puhastus/koristus </s> </p>
+<p> <s> Avalikud suhted </s> </p>
+<p> <s> Infosüsteemid </s> </p>
+<p> <s> Infosüsteemi ostmisel tuleb silmas pidada , et süsteemi spetsifikatsiooni ja arhitektuuri kontseptsiooni vajatakse enne hanget . </s> <s> Tõepoolest , spetsifikatsioon on vajalik nii lepingu sõlmimiseks kui ka süsteemi COTS ( <hi rend="kaldkiri"> commercial off-the-shelf </hi> ) sobivuse määramiseks . </s> <s> Märgime , et süsteemi ostmine on ( peaaegu ) alati odavam uue süsteemi loomisest <hi rend="kaldkiri"> tühjalt lehelt </hi> ( <hi rend="kaldkiri"> from scratch </hi> ) - Eesti ( Balti ) tingimustes ei pruugi see muus maailmas 100-protsendiliselt kehtiv tees ei pruugi siiski õige olla , kuna meie programmeerijate palk on vähemalt 10 korda madalam kui nn. arenenud riikides . </s> <s> Seetõttu polegi mõistetav , miks me oma suhteliselt head tarkvaraarendust nii vähe oleme välja müünud . </s> <s> Erandeid on , näiteks Cell Networks , Profit Software ( paneme tähele , et need on välismaa firmade tütarettevõtted ) . </s> <s> Põhjuseid on vähemalt kaks : esiteks on Eesti firmad liiga väikesed suurtele projektidele konkureerimiseks ja teiseks pole neil rahvusvaheliselt tunnustatud kvaliteeditagatisi , näiteks CMMi sertifikaati , mis on India tarkvaraarendajate edu pandiks . </s> </p>
+<p> <s> Meie kiiresti muutuvas maailmas võib probleemi “ kas osta või teha ” käsitlemisel silmas pidada lihtsat teesi : <hi rend="kaldkiri"> osta võrdsuse tagamiseks , arenda ise konkurentsieelise saamiseks . </hi> Tõepoolest , raske on uskuda , et ostes süsteemi COTS , mida ka konkurent teha võib , saab konkurentsieelist saavutada . </s> <s> Tuues aga kiiresti turule originaalseid lahendusi on see aga võimalik . </s> </p>
+<p> <s> Süsteemi COTS puhul on paljud arendajad nõus oma toodet partneri vajaduste järgi kohandama . </s> <s> Nii pole haruldane , kus IT-meeskond oma mugava äripoole survel laseb arendajal toodet vastavalt firma äriprotsessidele modifitseerida . </s> <s> Hirmuunenäod on mõnus närvikõdi selle kõrval , mida niisuguse protsessi puhul peagi märgata võib : “ oma - COTS-süsteem ” pole arendaja järgnevate versioonidega kas üldse ühildatav või toimub niisuguse “ väheolulise versiooni ” uuendamine viimases järjekorras ja enamasti hooletult ( vigadega ) . </s> <s> Seepärast soovitame kõigile , kes teravaid elamusi hädavajalikuks ei pea , modifitseerida oma äriprotsesse vastavalt süsteemile COTS kokkuvõttes säästate palju raha , aega ja kannatusi . </s> </p>
+<p> <s> Sisseostu planeerimisel ja teostamisel tuleb lahendada hulgaliselt olulisi probleeme , loetleme neis mõningaid : </s> </p>
+<p> <s> alghind ja ülalhoiu kulud aastas </s> </p>
+<p> <s> missugust süsteemivara ( serverid , opsüsteem , andmebaasihaldesüsteem , muud süsteemid ) on vaja </s> </p>
+<p> <s> kuidas on süsteem modifitseeritav/täiendatav </s> </p>
+<p> <s> kuidas on süsteem dokumenteeritud </s> </p>
+<p> <s> kas on abiliin , tugi Eestis </s> </p>
+<p> <s> missugust kvalifikatsiooni nõutakse lõppkasutajalt </s> </p>
+<p> <s> kas arendaja tagab lõppkasutajate väljaõppe , mis on selle hind </s> </p>
+<p> <s> kas arendaja on “ elujõuline ” - kasvõime kindlad olla , et ta eksisteerib veel x aasta pärast </s> </p>
+<p> <s> kas süsteemi reaalne jõudlus , reaktsiooniaeg , ressursivajadus vastavad lubatule </s> </p>
+<p> <s> kas on selle süsteemi kasutajagruppe </s> </p>
+<p> <s> kuidas on süsteem seiratav , kas võib tulla raskusi audiitoritega </s> </p>
+<p> <s> Täielik lahendamist vajavate probleemide loetlelu ületaks kaugelt kõigi A &amp; A aastakäikude mahu , siin “ proovimise ja eksimise ” meetodi kasutamine arusaadavalt kõne alla ei tule . </s> <s> Oma ostustrateegia kujundamisel , ostuprotseduuride väljatöötamisel ja nende parendamisel on mõistlik arvestada standardites akumuleeritud kogemust . </s> <s> On olemas mitmeid standardeid , mis sisseostu käsitlevad , näiteks SA-CMM ( <hi rend="kaldkiri"> Software Acquisition Capability Maturity Model </hi> ) , mis analoogselt teiste CMMi standarditega määrab organisatsiooni viis küpsusastet tarkvara ostuprotsessis . </s> <s> Firmades , mis ostavad suuri ( loe : kalleid ) infosüsteeme , tasuks neid standardeid kogemuste-heade mõtete saamiseks vähemalt lehitseda . </s> <s> Sama kehtib ka välisturule pürgijate kohta . </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Maa Simulaator </head>
+<p> <bibl> <author> <s> Hannes Ling , AS Eesti Raudtee projektijuht , arvuti- ja süsteemitehnika magistrant </s> </author> </bibl> </p>
+<p rend="rasvane"> <s> SISSEJUHATUS </s> </p>
+<p> <s> Inimeste arv planeedil Maa järjest suureneb . </s> <s> See on üheaegselt nii üldtuntud teadmine kui ka paratamatus . </s> <s> Seetõttu kerkivad üha teravamalt üles küsimused , mis on seotud vajadusega ( või püüdlusega ) tagada kõikidele inimestele inimväärne elukeskkond , seda nii praegu kui ka tulevikus . </s> <s> Sisuliselt tähendab see , et samaaegselt keskkonnasäästlike tehnoloogiate kasutamisega tuleb suurendada ka tööstuste tootmisvõimsusi . </s> <s> Kuid igasugune tootmine , nii keskkonnasäästlik kui tahes , saastab paratamatult elukeskkonda ( õhku , vett ) . </s> <s> See on probleem , mida täielikult lahendada ehk ei õnnestugi . </s> <s> Kindlasti saab aga uurida igasuguse saaste keskkonnamõjusid ning ennetada vastavaid arenguid . </s> <s> Nimetatud küsimustega tegelevad tänapäeval maailma paljudes asutustes arvukad teadlased , kelle jõupingutusi on tänaseks päevaks saatnud märkimisväärne edu . </s> </p>
+<p> <s> Üks eluvaldkondi , kuhu on suunatud üsna suured jõupingutused , on seotud planeedi Maa kõikvõimalike arenguprotsesside uurimise ja simuleerimisega . </s> <s> Oleks ju väga kasulik , kui spetsialistid suudaksid simuleerida mingi inimtegevuse tagajärgi maakerale näiteks 1 , 5 , 10 või 100 aastat ette ja sellele toetudes juba praegu õigemaid otsuseid vastu võtta . </s> <s> Arvestades arvutustehnika väga kiiret arengut , peitub just siin üks võimalus , kuidas arvutustehnikat edukalt inimkonna üldiseks hüvanguks ära kasutada . </s> </p>
+<p> <s> Eelkõige tuleb silmas pidada kõrgjõudlusega arvutisüsteeme , nn. superarvuteid . </s> <s> Käesolevas artiklis ongi püütud anda ülevaade ühest hetkel ehk maailma kõige suurema jõudlusega jaapani superarvutist ning selle ehitamisega seotud projektist koodnimega “ Maa Simulaator ” ( <hi rend="kaldkiri"> Earth Simulator </hi> ) . </s> <s> Loodetavasti pakub see silmaringi laiendamise mõttes huvi mitte ainult eriala spetsialistidele , vaid ka laiemale lugejaskonnale . </s> </p>
+<p> <s> <hi rend="rasvane"> SUPERARVUTI </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> MAA SIMULAATOR </hi> </hi> <hi rend="rasvane"> LOOMISE PÕHJUSTEST </hi> </s> </p>
+<p> <s> Nagu juba mainitud , on tänapäeval tehtud mitmel pool maailmas suuri jõupingutusi eesmärgiga uurida inimtegevuse mõju planeedile . </s> <s> Suvaliste sellist tüüpi väga laiaulatuslike ülesannete lahendamine pole võimalik ilma vastavate teoreetiliste mudelite olemasoluta . </s> <s> Nii ka antud juhul . </s> <s> Maailmas on loodud mitmeid üldist atmosfääriringlust käsitlevaid teoreetilisi mudeleid , mis võimaldavad hõlpsamini aru saada kogu ülesannete kompleksist . </s> <s> Neile mudelitele toetuvad ka kõik kasutatavad konkreetsed rakendused . </s> </p>
+<p> <s> Üks tänapäeval väga laialdaselt kasutatavaid mudeleid on nn AGCM <hi rend="ülaindeks"> 1 </hi> . </s> <s> See mudel eeldab , et kogu maakera ( või lihtsamal juhul mingi osa sellest ) on kaetud koordinaatvõrgustikuga , mis võimaldab igas sellise võrgustiku “ silmas ” , toetudes üldistele seaduspärasustele , vaatlustulemusi uurida , neid töödelda ning protsesside kulgu ennustada . </s> </p>
+<p> <s> 1990. aastatel oli sellele mudelile toetudes ehitatud juba mitmeid arvutisüsteeme . </s> <s> Kõik mudeli realisatsioonid ka töötasid ning andsid uurijatele äärmiselt väärtuslikku informatsiooni kliimamuutuste jm. kohta . </s> <s> Siinkohal tuleks tähelepanu pöörata asjaolule , et põhimõtteliselt on võimalik mingi lõpliku “ tihedusega “ koordinaadistikku kasutades saada mingi määratud täpsusega andmeid . </s> <s> Neile andmetele toetudes on võimalik ennustada protsesside käiku ainult selle täpsuse ulatuses . </s> <s> See tähendab , et kuskil eksisteerib piir , mida ületades ühinemisel kaotab lõppresultaat usaldusväärsuse . </s> <s> Teisest küljest võib öelda , et kuna maakera arenguprotsesside kohta saadava teabe hulk oli ja on ka praegu pidevalt kasvav , siis on nende andmete efektiivseks töötlemiseks vaja küllalt suurt arvutusvõimsust . </s> <s> Lisaks tuleks meeles pidada asjaolu , et üldiselt on ikkagi kõikide sellesuunaliste tegevuste eesmärgiks võimalikult täpselt reaalsust jäljendavate tulemuste saamine . </s> <s> Viimati mainitud eesmärgi saavutamiseks tuleks suurendada eespool mainitud AGCM-mudeli aluseks oleva koordinaatvõrgustiku “ tihedust ” , seda kas või juba sellepärast , et mitmel pool maailmas tekkis uurijatel soov ning isegi vajadus saada endisest täpsemaid tulemusi . </s> <s> Iseenesest poleks kuigi keeruline olemasoleva mudeli aluseks olevat koordinaadistikku sobival määral “ tihendada ” . </s> <s> Probleem tekib aga sellest , et siis oleks omakorda vaja ka hüppeliselt suurema jõudlusega arvutisüsteemi , mis suudaks selle infomahuga mõistlikult toime tulla . </s> <s> Mainitud probleemi lahendamisega hakkasidki 1990-ndatel aastatel mitmel pool maailmas vaeva nägema teaduskeskused ning suured kompaniid . </s> <s> ( Ääremärkusena võib mainida , et kuigi maailmas on loodud väga suure jõudlusega arvutisüsteeme , on need suures osas kasutusel salastatud sõjalistel eesmärkidel . ) </s> </p>
+<p> <s> Siinkohal on huvitav märkida , et kirjanduses avaldatud andmetel [ 1 , lk. 2 ] oli näiteks 1996. aastal kasutada olnud arvutisüsteemide ning AGCM-iga üldjuhul võimalik reaalsuses saavutada klimatoloogiliste ning maakoore liikumisega seotud muutuste ennustamise niisugust täpsust , nagu toodud tabelis 1. </s> </p>
+<p rend="loendi_element"> <s> Tabel 1 </s> </p>
+<p rend="keskel"> <s> <hi rend="rasvane"> AGCM-iga saavutatud simulatsioonide keskmine täpsus aastal 1996 </hi> </s> </p>
+<p> <s> Globaalsed Lokaalsed </s> </p>
+<p> <s> mudelid mudelid </s> </p>
+<p> <s> Simulatsiooni </s> </p>
+<p> <s> täpsus ( km ) 50 ... </s> <s> 100 20 ... </s> <s> 30 </s> </p>
+<p> <s> Sellise täpsusega tulemuste saamiseks peab koordinaadistiku “ sõlmpunkte ” olema laiuskraadil 4000 ja pikkuskraadil 2000. </s> </p>
+<p> <s> Eelnevale toetudes tulid jaapanlased 1997. aastal rahvusvahelise üldsuse ette äärmiselt ambitsioonika plaaniga luua selline arvutisüsteem , mis realiseeriks nimetatud mudeli globaalselt täpsusega 10 km . </s> <s> Tabelis esitatud andmetele toetudes on näha , et see on kuni 10 korda suurema täpsusega , kui sel ajal olemas olnud süsteemid seda võimaldasid ! </s> <s> Sisuliselt tähendas see , et jaapani uurijate sooviks oli “ tihendada ” simuleerimise aluseks olevat koordinaatteljestikku ligi 10 korda . </s> <s> Samas tähendanuks see ka seda , et tulemused oleksid ajaliselt oluliselt sujuvamad , mis omakorda võimaldaks täpsemalt kopeerida maakera kui sellist . </s> </p>
+<p> <s> Et 1990. aastate esimesel poolel ( aastani 1996 ) kasutada olnud atmosfäärisimulatsioonidega tegelevate arvutisüsteemide pidevjõudlus oli piirides 4 ... </s> <s> 6 Gflops , siis tähendas 10-km täpsuse saavutamine ka vajadust luua 1000 korda suurema pidevjõudlusega ( 5 Tflops ) arvutisüsteem [ 1 ] . </s> <s> Siit peaks iga inimene saama ettekujutuse , millist kvalitatiivset hüpet see tähendanuks arvutisüsteemide jõudluse kasvu silmas pidades . </s> <s> Illustratsiooniks on joonisel 1 toodud kõigi tuntumate superarvutite võrdlus jõudluse järgi reastatuna . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 1. </s> <s> Superarvutite jõudlus läbi aegade </s> </p>
+<p> <s> Nagu juba mainitud , tulid sellise arvutisüsteemi konstrueerimise plaaniga üldsuse ette jaapanlased , kuigi ka teiste maade spetsialistidel liikusid mõtted mingi uue , senistest võimsama arvutisüsteemi ehitamise suunas . </s> <s> Eelkõige pean siinkohal silmas USA vastavaid ringkondi , sest ka selles riigis on olemas superarvutite konstrueerimiseks soodus pinnas nii ajaloolise kogemuse kui ka vajaliku oskusteabe ja finantside poolest . </s> <s> Tegelikult ongi ju maailmas välja kujunenud kaks suurt “ keskust ” , kus superarvuteid ehitatakse - USA ning Jaapan . </s> </p>
+<p> <s> Põhiliste eesmärkidena nähti seega sellise arvutisüsteemi loomist , mis võimaldanuks senisest täpsemini </s> </p>
+<p> <s> ennustada kõikvõimalikke meteoroloogilisi katastroofe ( üleujutused , orkaanid jms. ) kogu maakeral ning üksikutes regioonides </s> </p>
+<p> <s> uurida globaalse soojenemise mõjusid ning arenguid </s> </p>
+<p> <s> jälgida ning ennustada Maa seismoloogilist aktiivsust </s> </p>
+<p> <s> uurida/ennustada maakoore liikumisi . </s> </p>
+<p> <s> Tekkinud olukorda arvestades otsustas Jaapan 1997. aastal mitme ettevõtte ja organisatsiooni ühisel kokkuleppel alustada projektiga , mille eesmärgiks oligi kõrgjõudlusega simulatsioone võimaldava arvutisüsteemi ehitamine . </s> <s> Projekti koondnimetuseks sai <hi rend="kaldkiri"> Earth Simulator </hi> ( Maa Simulaator ) . </s> <s> Organisatsioonideks , kes olid projekti initsiaatoriteks ning nõus oma ressursse selle küllalt ambitsioonika eesmärgi saavutamiseks koondama , olid : </s> </p>
+<p> <s> Jaapani Rahvuslik Kosmoseuuringute Agentuur NASDA </s> </p>
+<p> <s> Jaapani Aatomienergia Uurimise Instituut JAERI </s> </p>
+<p> <s> Jaapani Mereteaduse ja -tehnoloogia Keskus JAMSTEC . </s> </p>
+<p rend="rasvane"> <s> SUPERARVUTI KONTSEPTUAALSEST ÜLESEHITUSEST </s> </p>
+<p> <s> Umbes samal ajal , kui jaapanlased oma projektiga alustasid , hakkas ka USA kui superarvutite tootmise turuliider konstrueerima senisest veelgi suurema jõudlusega arvutisüsteemi . </s> <s> Selle arvuti tootjaks oli IBM ning arvuti sai nimeks RS/6000 SP ehk <hi rend="kaldkiri"> ASCI White </hi> tippjõudlusega 12,3 Tflops ( pidevjõudlusega 7,23 Tflops ) [ 2 ] . </s> <s> Huvipakkuv oleks siinjuures ehk märkida , et sellise jõudluse saavutamiseks kasutati ei rohkem ega vähem kui 8192 protsessorit ( IBM standardset POWER3 [ 3 ] ) . </s> </p>
+<p> <s> See on iseenesest küllalt märkimisväärne tulemus , kuid soovides jõudlust veelgi suurendada ( jaapanlaste siht oli seatud ligi 40 Tflops jõudluspiiri saavutamisele ) , saadi ühtlasi aru , et protsessorite arv hakkaks sellisel juhul plahvatuslikult kasvama . </s> <s> See tekitaks probleeme juba kas või efektiivse jahutussüsteemi konstrueerimist silmas pidades . </s> </p>
+<p> <s> Lähtudes eeltoodust said jaapanlased väga hästi aru , et neil tuleb soovitud jõudluspiiri saavutamise nimel püstitatud ülesanne lahendada kuidagi teisiti . </s> <s> Kõrvalepõikena märkigem , et igasuguste arvutisüsteemide konstrueerimisel on sisuliselt võimalik valida kahe võimaluse vahel : </s> </p>
+<p> <s> kasutada skalaarprotsessoreid </s> </p>
+<p> <s> kasutada vektorprotsessoreid . </s> </p>
+<p> <s> Nende kahe lähenemise erinevusi siinkohal täpsemalt ei käsitleks . </s> <s> Kel huvi , võib selle kohta ise lugeda [ 4 ] . </s> </p>
+<p> <s> Seega tuli lahendada üks loodavat arvutit kõige sisulisemalt puudutav küsimus : millist varianti kasutada ? </s> <s> Lähtudes eelnevate uuringute tulemustest selgitati välja järgmist . </s> </p>
+<p> <s> 1. Kui hinnata arvutisüsteemi pidevjõudlust mingi rakendusprogrammi käitamise jõudluse suhtes süsteemi tippjõudlusesse , siis kirjandusallikate [ 1 ] väitel on vektorprotsessoreid kasutades võimalik saavutada 30 ... </s> <s> 40 % efektiivsuse tase , samal ajal kui vahemäluga skalaarprotsessorite puhul on see arv vaid ligi 10% . </s> <s> Sellele toetudes oleks vahemäluga protsessoreid kasutades vaja keskmise jõudluse 5 Tflops saavutamiseks konstrueerida süsteem , mille tippjõudlus oleks piirides 50 ... </s> <s> 100 Tflops . </s> <s> Samal ajal aga piisaks vektor- protsessorite puhul sama keskmise jõudluse saavutamiseks tippjõudlusest 32 Tflops . </s> </p>
+<p> <s> 2. Protsessorite hulk arvutisüsteemis ( ligi 10 000 ) . </s> <s> Eelnevate superarvutite puhul oli protsessorite arvus saavutatud mingi piir , millest edasi polnud enam kuigi mõistlik minna . </s> </p>
+<p> <s> Jaapanlased uskusid suutvat nende ees seisva ülesande lahendada , kasutades järgmisi põhimõtteid : </s> </p>
+<p> <s> mõnesaja megahertsise taktsagedusega vektorprotsessorite ja paralleeltöötluse konveierite ( tippjõudlusega kuni 10 Gflops ) kasutamine </s> </p>
+<p> <s> vektorprotsessorite realiseerimine võimaluse korral füüsiliselt ühe mikroskeemina - kas või selleks , et vähendada ruumala ja pindala , mida selline arvutisüsteem tervikuna enda alla võtaks </s> </p>
+<p> <s> kõige ajakohasemate mikrolülituste ühele kristallile pakkimise tehnoloogiate kasutamine </s> </p>
+<p> <s> hajusmälu-arhitektuuri ( <hi rend="kaldkiri"> distributed memory </hi> ) kasutamine . </s> <s> Täpsemalt saab selle arhitektuuri kohta lugeda vastavast kirjandusest [ 4 ] </s> </p>
+<p> <s> üheastmelise andmeedastusvõrgu ( <hi rend="kaldkiri"> single-stage crossbar network ) </hi> kasutamine väga kiirete protsessori ja mälu vaheliste andmevahetuskanalite rakendamiseks . </s> </p>
+<p> <s> Projekti Maa Simulaator ajakava pandi selles osalejate poolt paika ligikaudu sellisena : </s> </p>
+<p> <s> 1997 - arvutisüsteemi kontseptuaalse ülesehituse kindlaksmääramine ja fikseerimine </s> </p>
+<p> <s> 1998 - arhitektuuri täpsustamine ja süsteemi spetsiaaltarkvara väljatöötluse alustamine </s> </p>
+<p> <s> 1999 - arhitektuuri lõplik väljatöötamine , tarkvara väljatöötamine ning süsteemi mahutamiseks vajalike hoonete ehituse alustamine </s> </p>
+<p> <s> 2000 - arvutisüsteemi riistvara tootmine , tarkvara testimine ja arendus ning hoonete ehitustööde lõpetamine </s> </p>
+<p> <s> 2001 - arvutisüsteemi installeerimine ning tarkvara lõplik silumine </s> </p>
+<p> <s> 2002 - kogu kompleksi töölelülitamine . </s> </p>
+<p> <s> Siit on näha , et kogu projekti kestuseks planeeriti 6 aastat , alates idee tekkimisest kuni kogu kompleksi valmimiseni . </s> <s> Et see projekt oli üldse väga ambitsioonikas ning sisuliselt alustati kogu süsteemi ülesehitamist nö nullist , siis oli vaja mõelda ka kogu kompleksi asukoha peale . </s> <s> Pärast mitmete variantide kaalumist jõuti kokkuleppele , et tulevase super-arvutuskompleksi asukohaks saab Yokohama tööstuspiirkond , kuhu ehitati selleks otstarbeks eraldi hooned koos kõigi vajalike kommunikatsioonidega ( vt. joonis 2 ) . </s> </p>
+<p> <s> Arvestades seda , et superarvuti ise paikneb kolmekorruselises hoones , on sellelt pildilt võimalik saada mingisugune ettekujutus ka kogu kompleksi mõõtmetest . </s> <s> Täpsema ettekujutuse saamiseks oleks ehk sobiv siinkohal lisada arvutit ennast sisaldava hoone ristlõikejoonis ( vt. joonis 3 ) , nagu see kirjanduses on esitatud . </s> <s> Jooniselt on näha eelkõige seda , et kõikvõimalike ühenduskaablite pikkuse optimeerimise nimel on kõik seadmekapid paigutatud justkui kontsentriliselt ruumi keskpunkti ümber . </s> <s> Esmapilgul võiks tunduda , et see ei annagi ehk erilist efekti , kuid arvestades kaablite kogupikkust ( u. 2900 km ) , paistab see olevat täiesti mõttekas . </s> </p>
+<p> <s> Et igal lugejal oleks lihtsam ise neid mastaape ette kujutada , siis toon siinkohal ära ka hoone mõõtmed : 50 x 65 x 12 m. </s> </p>
+<p> <s> Huvitava faktina võib ehk märkida veel seda , et kuna tegemist on siiski Jaapaniga , mis asub teatavasti seismoloogiliselt aktiivses piirkonnas , siis on kogu hoone paigutatud kõikvõimalikke maakoore võnkumisi summutavatele puhvritele . </s> </p>
+<p> <s> 1997. aastal valisid projekti eestvedajad uue loodava superarvuti põhimõttelise kontseptsiooni väljatöötajaks ning süsteemi tarnijaks jaapani firma NEC . </s> <s> See oli ka üsna loogiline valik , sest kõnealune firma on juba pikemat aega olnud ülemaailmselt tuntud SX-perekonda kuuluvate vektortehnoloogiat kasutavate kõrgjõudlusega arvutisüsteemide tarnijana ( vt. joonis 1 ) . </s> </p>
+<p> <s> Vaadeldava projekti raames tegid NECi spetsialistid panuse samale vektortehnoloogiale , mida kasutatakse praegu ka selle SX-perekonna uusimas liikmes SX-6 . </s> <s> ( SX-perekond sai alguse juba aastal 1985 , kui valmis maailma esimene 1 Gflops jõudluspiiri ületav arvuti SX-2 . ) </s> </p>
+<p> <s> SX-6 kohta võiks lühidalt märkida niipalju , et tegu on superarvutiga , mille protsessor on valmistatud 0,15 ìm CMOS-i tehnoloogiaga , kusjuures arvuti südameks olev vektorprotsessor on füüsiliselt paigaldatud ühtoe mikroskeemi . </s> <s> SX-6 võib koosneda 2 ... </s> <s> 8 vektorprotsessorist ( igaüks jõudlusega 8 Gflops ) ning 16 ... </s> <s> 64 GB mahuga ühiskasutusmälust [ 5 ] . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 2. </s> <s> Maa simulaatori kompleksi välisvaade </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 3. </s> <s> Superarvuti hoone läbilõikes </s> </p>
+<p> <s> Kõnealune vektorprotsessoreid kasutav arvuti kuulub sisuliselt NUMA <hi rend="ülaindeks"> 2 </hi> mäluarhitektuuriga multiprotsessorsüsteemide hulka . </s> <s> NUMA [ 6 ] aluseks on fakt , et suvaline protsessor on suuteline pöörduma kiiremini oma lokaalse kui üldise mälu poole . </s> <s> Üldise mälu all mõistetakse siinkohal mälu , mis on kas lokaalne mõne teise samasse süsteemi kuuluva protsessori jaoks või mis on jagatud kasutamiseks erinevate protsessorite vahel ( nn. ühiskasutusmälu ) . </s> </p>
+<p rend="rasvane"> <s> SUPERARVUTIST TÄPSEMALT </s> </p>
+<p> <s> Superarvuti põhimõtteline ülesehitus on kujutatud joonisel 4. </s> <s> See koosneb kokku 5120 vektorprotsessorist , mis on jagatud omavahel rühmadesse , nagu joonisel näidatud ( kokku 640 rühma ) . </s> <s> Iga selline rühm kujutab endast hajusmäluga arvutisüsteemi , mis koosneb 8 vektorprotsessorist ning 16 GB mahuga ühiskasutusmälust ( sisuliselt on iga sellise rühma puhul tegemist omaette SX-6 superarvutiga ) . </s> <s> Selle ühiskasutusmälu puhul on tegemist mäludega , mille tsükli kestuseks on 24 nanosekundit . </s> <s> Üksiku arvutisüsteemi täpsemat ülesehitust on kujutatud joonisel 5. </s> <s> Sealt on näha , et lisaks eelnimetatud mälule ja protsessoritele sisaldab iga rühm ka sisend/väljund-protsessorit ja lülitust , mille kaudu on võimalik kogu rühma tööd kontrollida ning juhtida ( RCU ehk <hi rend="kaldkiri"> remote access control unit </hi> ) . </s> </p>
+<p> <s> Et iga üksiku vektorprotsessori jõudluseks on juba mainitud 8 Gflops ning iga rühma kasutuses olev ühiskasutusmälu on mahuga 16 GB , siis saavutatakse teoreetiliseks tippjõudluseks ligi 40 Tflops ja mälu kogumahuks 10 TB . </s> <s> Vektorprotsessorite füüsiliste mõõtmete iseloomustamiseks on kirjanduses toodud järgmised andmed : </s> </p>
+<p> <s> mõõtmed 2 cm x 2 cm . </s> <s> Siinkohal pakub ehk huvi , et koos kõigi lisalülitustega on iga vektorprotsessori plaadi füüsilised mõõtmed 115 mm x 139 mm </s> </p>
+<p> <s> taktsagedus 500 MHz ( osaliselt 1 GHz ) . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 4. </s> <s> Maa Simulaatori superarvuti põhimõtteline ülesehitus </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 5. </s> <s> Protsessorirühma ülesehitus </s> </p>
+<p> <s> Igas vektorprotsessoris on kasutusel kuus erinevat konveierit andmete kiire töötlemise tagamiseks . </s> <s> Need konveierid hoolitsevad andmete </s> </p>
+<p> <s> liitmise </s> </p>
+<p> <s> nihutamise </s> </p>
+<p> <s> korrutamise </s> </p>
+<p> <s> jagamise </s> </p>
+<p> <s> loogiliste tehete teostamise ning </s> </p>
+<p> <s> laadimise/salvestamise eest . </s> </p>
+<p> <s> Põhimõtteliselt töötavad kõik nimetatud konveierid paralleelselt ühe käsu jooksul . </s> <s> Andmete salvestamiseks on kasutusel kokku 72 registrit , mis koosnevad 256 mälupesast . </s> <s> Igal vektorprotsessoril on lisaks ka 64 KB suurusega käsu-vahemälu ning andmete vahemälu . </s> <s> Et maksimaalselt kasutada kõiki paralleeltöötluse poolt pakutavaid võimalusi , kasutatakse SX-6 perekonna arvutite vektorprotsessorites ka programsete hargnemiste ennustamist ( <hi rend="kaldkiri"> branch prediction </hi> ) ning andmete eelnevat laadimist ( <hi rend="kaldkiri"> data prefetching </hi> ) . </s> </p>
+<p> <s> Iga kirjeldatud protsessorirühm on ühendatud teiste mäludega sisemise väga kiire andme- vahetusvõrgu ( <hi rend="kaldkiri"> crossbar network </hi> ) abil . </s> <s> Siin tulebki välja kõnealuse arvutisüsteemi ülesehituse erinevus võrreldes eelnevate superarvutitega . </s> <s> Nimelt on asi selles , et varasemad superarvutid olid üles ehitatud kiiretel protsessoritel . </s> <s> Seetõttu polnud otsest vajadust ülikiirete sidekanalite järele . </s> <s> Et aga käsitletava superarvuti ehitamiseks otsustati kasutada hajusmälu-arhitektuuri , siis tuli soovitud jõudluse saavutamiseks ette näha võimalus piisavalt kiireks andmevahetuseks erinevate moodulite vahel . </s> <s> Ette rutates võib mainida , et selline natuke erinev lähenemine täitis ka talle pandud lootused ning lahendus osutus piisavalt elujõuliseks . </s> </p>
+<p> <s> Mis puudutab ülikiireid andmevahetusliine , siis füüsiliselt on tegu kõige tavalisemate vaskkaablitega , mille kogupikkus on tõeliselt suursugune . </s> <s> Lihtne arvutus näitab , et kuna iga protsessorirühm on seotud kõigi teiste sarnaste rühmadega individuaalsete kaablitega , siis oli üleüldse kõikideks ühendusteks vaja ei vähem ega rohkem kui 83 200 eraldi kaablit . </s> <s> Kaablite kogupikkuseks on kirjanduses avaldatud andmetel 2900 km ning nad kaaluvad kokku 220 tonni . </s> </p>
+<p rend="rasvane"> <s> ARVUTISÜSTEEMI TARKVARALISEST HALDAMISEST </s> </p>
+<p> <s> Selleks et oleks võimalik mingit arvutisüsteemi efektiivselt kasutada , on lisaks riistvarale tarvis kahtlemata tarkvaralist tuge . </s> <s> Nii on see ka kõrgjõudlusega süsteemide puhul . </s> </p>
+<p> <s> Et käesolevas artiklis vaadeldavat arvutisüsteemi hakati ehitama täiesti algusest , siis toimus süsteemi tarkvara ( operatsioonisüsteemi , süsteemi programmeerimise vahendite ja rakendustarkvara ) väljatöötamine paralleelselt riistvara projekteerimisega . </s> <s> See võimaldas süsteemi kohe pärast riistvara valmimist ka aktiivselt kasutama hakata . </s> </p>
+<p> <s> Maa Simulaatori tarkvaralise juhtimissüsteemi ülesehitust on kujutatud joonisel 6. </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 6. </s> <s> Maa Simulaatori tarkvaraline ülesehitus </s> </p>
+<p> <s> Sisuliselt on kogu juhtimissüsteem hierarhilise ülesehitusega . </s> <s> Järgnevalt püüangi mõne sõnaga selgitada selle süsteemi olemust . </s> </p>
+<p> <s> Kõik eespool mainitud protsessorirühmad on jagatud “ kobaratesse ” ( <hi rend="kaldkiri"> cluster </hi> ) , kusjuures iga kobar koosneb 16 nimetatud protsessorirühmast ( seega on igas kobaras 16 x 8 = 128 protsessorit ) . </s> <s> Nagu jooniselt näha , on selliseid kobaraid kokku 40. </s> <s> Iga kobar sisaldab ka omaette “ kobara juhtimispunkti ” ( <hi rend="kaldkiri"> CCS </hi> <hi rend="kaldkiri"> Cluster Control Station </hi> ) , mille otseseks ülesandeks on töö jagamine kobarasse kuuluvate protsessorirühmade vahel ning näiteks ka elektrivoolu olemasolu jälgimine . </s> <s> Lisaks sellele on olemas ka kõikide kobarate omavahelist tööd organiseeriv keskus <hi rend="kaldkiri"> SCCS </hi> ( <hi rend="kaldkiri"> Super CCS </hi> ) . </s> <s> Selline hierarhiline ülesehitus tagab kokkuvõttes kogu süsteemi ressursi paindliku kasutamise . </s> <s> Pole ju mingit mõtet mingi suhteliselt väiksemahulise ülesande lahendamiseks hõivata kogu suure kompleksi ressursse . </s> <s> Igati mõistlik on rakendada niisuguse ülesande täitmisse ainult näiteks ühe protsessorirühma ressursid , jättes muu ressursi vabaks teiste ülesannete lahendamiseks . </s> <s> Mingi suuremamahulise ülesande puhul on aga võimalik rakendada ülesande lahendamisse korraga mitu protsessorirühma ( või kobarat ) . </s> </p>
+<p> <s> Süsteemi haldamiseks kasutatav tarkvara baseerub standardsel UNIX-i platvormil . </s> <s> See juba iseenesest võimaldab hõlpsamalt korraldada rakendusprogrammide paralleelset tööd . </s> <s> Lisaks tavalisele UNIX-i platvormile kasutatakse aga jõudluse tagamiseks ka väga kiiret mäluohje- süsteemi ning paindlikku failisüsteemi . </s> <s> See kasutatav failisüsteem võimaldab mitut suuremahulist , mitmes füüsiliselt erinevas asukohas ( erinevas kobaras ) olevat faili käsitada ühe loogilise failina . </s> </p>
+<p> <s> Üldiselt on igasuguse failitöötluse aluseks selles süsteemis järjekordade loomine . </s> <s> See tähendab , et süsteemi kogu ressursi haldamiseks on olemas programm , mis organiseerib nii erinevate tööde ajalist jaotust kui ka süsteemiressursside paralleelset jaotust erinevate ülesannete vahel . </s> <s> See nn. “ ülevaataja ” asub eelnimetatud SCCS-s . </s> </p>
+<p rend="rasvane"> <s> KOKKUVÕTTEKS </s> </p>
+<p> <s> Kirjanduses avaldatud andmetele toetudes võib väita , et artiklis kajastamist leidnud Maa Simulaator on hetkel maailmas väidetavalt kõige kõrgema jõudlusega arvutisüsteem . </s> <s> ( Sõltumatud testitulemused annavad süsteemi tippjõudluseks 35,86 Tflops ning pidevjõudluseks 26,58 Tflops [ 7 ] . ) </s> <s> Nii või teisiti , igatahes on tegemist kõige suurema jõudlusega avaliku arvutisüsteemiga , mida võivad kasutada teadusasutused üle kogu maailma . </s> <s> Selles mõttes ehk ongi tegemist mõningal määral esimese katsega , sest varasematel aegadel konstrueeritud kõrgjõudlusega arvutisüsteemide kasutajatena on ette nähtud kas mingi konkreetse tegevusala või regiooni uurimisasutusi . </s> <s> ( Näiteks artiklis mainitud superarvutit <hi rend="kaldkiri"> ASCI White </hi> kasutab kitsalt USA Energiaagentuur ( <hi rend="kaldkiri"> Department of Energy </hi> ) tuumakatsetuste simuleerimiseks [ 3 ] . ) </s> </p>
+<p> <s> Nagu juba mainitud , on vaadeldav superarvuti põhimõtteliselt avatud kõigile teaduslikele uurimisorganisatsioonidele üle maailma . </s> <s> See tähendab , et vastava koostöölepingu sõlmimisel on võimalik kasutada selle superarvutiga saadud rikkalikke andmepanku kõikjal maailmas . </s> <s> Käesoleva seisuga peaksidki juba kolm uurimisasutust olema lepingu sõlminud [ 8 ] . </s> <s> Kahjuks tuleb aga märkida , et rohkem sellise koostöö kohta informatsiooni pole . </s> <s> Hetkel puuduvad täpsemad andmed ka superarvutiga saadud simulatsioonide täpsuse kohta . </s> <s> Samas tuleb muidugi endale aru anda , et kogu kompleksi käivitamisest on möödas alles võrdlemisi vähe aega . </s> </p>
+<p> <s> Sellele vaatamata tekib siinkohal küsimus , milline oleks järgmine samm . </s> <s> Kui kaugele on võimalik superarvutite ehitamises ning suuremate jõudluste poole püüeldes veel minna ? </s> <s> Tõenäoliselt on maailmas suhteliselt vähe inimesi , kes nendele küsimustele päris adekvaatselt vastata oskaksid . </s> <s> Huvipakkuva faktina võib mainida , et näiteks USA arvutiehitusega tegelevad ringkonnad üritavad lähiajal valmis saada arvutiga , mille jõudlus oleks ligi 57 Tflops ... </s> <s> Pidades silmas tänapäeval toimuvat väga tormilist arvutitehnika arengut üleüldse , on tõesti äärmiselt raske vastata tulevikku puudutavatele küsimustele . </s> <s> Kindel võib aga olla selles , et arvutitehnika areng ei peatu ning juba lähimas tulevikus on ehk võimalik lugeda veelgi suurema jõudlusega ja järjest kiirematest arvutitest . </s> </p>
+<p> <s> <gap rend="viited"/> </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Projektijuhtimise tarkvara </head>
+<p> <bibl> <author> <s> <hi rend="kaldkiri"> Martin Sillaots </hi> , Audentes Mainor Ülikooli IT-teaduskonna prodekaan </s> </author> </bibl> </p>
+<p> <s> Enamik projektijuhtimise meetodeid on tekkinud 20. sajandi teisel poolel . </s> <s> Nende väljatöötamisel on olnud väga oluline roll suurorganisatsioonidel ja sõjatööstusel . </s> <s> Samadest meetoditest on huvitatud ka ettevõtted , kes soovivad arendada uusi tooteid ja teenuseid ning tulla nendega turule konkurentidest varem . </s> <s> Tänu personaalarvutite levikule on rasketööstuse ja riigikaitse jaoks loodud vahendeid võimalik kasutada ka väikeettevõtetes ja kodumajapidamises . </s> </p>
+<p> <s> Millised on need programmid , mida ettevõtted ja eraisikud saavad oma tööde planeerimisel kasutada ? </s> <s> Käesoleva artikli eesmärk on luua ülevaade tarkvarast , mida saab kasutada projektide juhtimiseks . </s> </p>
+<p> <s> Artiklis antakse ülevaade projekti üldistest etappidest , süstematiseeritakse projektijuhtimise tarkvara ja esitatakse allikaid programmide hankimiseks . </s> <s> Artikli teine pool sisaldab konkreetsete programmide võrdlust . </s> <s> Eraldi võrreldakse suurte projektide juhtimiseks loodud programme ja väikeste projektide tarkvara . </s> <s> Ühtlasi leitakse vastus küsimusele , kas MS Project on parim projektijuhtimise tarkvara . </s> <s> Suurte projektide jaoks mõeldud tarkvara ( ka MS Project ) on kallis ja sisaldab väga palju vahendeid , mida väiksemate projektide puhul vaja ei lähe . </s> <s> Eesmärk on selgitada , kas leidub tarkvara , mis on võimalikult odav ( ehk isegi tasuta ) , sisaldab piisava hulga töövahendeid ja mida on mugav kasutada . </s> </p>
+<p rend="rasvane"> <s> 1. PROJEKTI ETAPID </s> </p>
+<p> <s> Enne konkreetse tarkvara valimist tuleks analüüsida , milliseid ülesandeid tahetakse projektiga lahendada . </s> <s> Allolev loetelu annab ülevaate projekti üldistest etappidest . </s> <s> Kõik projektid võib jagada neljaks põhifaasiks , mis omakorda sisaldavad alametappe . </s> <s> Mõne töölõigu lihtsustamiseks saab kasutada arvutiprogrammide abi . </s> <s> Näiteks allolevas loetelus on sulgudes märgitud töövahendid , mida MS Project pakub vastavate etappide teostamiseks . </s> </p>
+<p> <s> 1. Projekti algatamine - projektieelne periood </s> </p>
+<p> <s> 1.1. Probleemi analüüs </s> </p>
+<p> <s> 1.2. Eelinformatsiooni kogumine </s> </p>
+<p> <s> 1.3. Eesmärkide püstitamine </s> </p>
+<p> <s> 1.4. Lahenduskäikude uurimine </s> </p>
+<p> <s> 1.5. Riskide analüüs </s> </p>
+<p> <s> 1.6. Projekti tasuvuse hindamine </s> </p>
+<p> <s> 1.7. Projekti ligikaudse maksumuse ja kestuse arvutamine </s> </p>
+<p> <s> 1.8. Projekti alustamise otsus </s> </p>
+<p> <s> 1.9. Meeskonna moodustamine . </s> </p>
+<p> <s> 2. Projekti planeerimine </s> </p>
+<p> <s> 2.1. Projekti plaani koostamine ( ajatabel ja Gantti diagramm ) </s> </p>
+<p> <s> 2.2. Kriitilise tee esiletoomine ( sõlmdiagramm ) </s> </p>
+<p> <s> 2.3. Ülesannete ja ressursside sidumine ( töögraafik ja kalendrid ) </s> </p>
+<p> <s> 2.4. Eelarvete ja maksegraafikute koostamine ( maksete ajastamine ) </s> </p>
+<p> <s> 2.5. Kvaliteedikontrolli planeerimine </s> </p>
+<p> <s> 2.6. Riskijuhtimise planeerimine </s> </p>
+<p> <s> 2.7. Infovahetuse planeerimine ( meililistid või MS Project Central ) . </s> </p>
+<p> <s> 3. Projekti läbiviimine </s> </p>
+<p> <s> 3.1. Ressursside ja protsessi juhtimine ( plaani ja tegeliku olukorra võrdlus ) </s> </p>
+<p> <s> 3.2. Kulude kontroll ( eelarve ja kulude võrdlus ning teenitud väärtuse arvutamine ) </s> </p>
+<p> <s> 3.3. Riskijuhtimine </s> </p>
+<p> <s> 3.4. Kvaliteedikontroll . </s> </p>
+<p> <s> 4. Projekti lõpetamine - projektijärgne periood </s> </p>
+<p> <s> 4.1. Lõpetamisega seotud ülesanded </s> </p>
+<p> <s> 4.2. Projekti tulemuse üleandmine </s> </p>
+<p> <s> 4.3. Lõpparuande koostamine </s> </p>
+<p> <s> 4.4. Arhiveerimine . </s> </p>
+<p> <s> Loetelust selgub , et MS Projectist on abi projekti plaani koostamisel ja käivitunud projekti juhtimisel , kuid projektieelse ja -järgse perioodi juhtimiseks seda programmi kasutada ei saa . </s> <s> Ka on MS Project üpris abitu riskide ja kvaliteedi juhtimises . </s> <s> Etteruttavalt võib öelda , et see kehtib ka teiste programmide kohta ( väheste eranditega ) . </s> </p>
+<p> <s> Eelnev projekti liigendus alamosadeks ei ole kindlasti täielik ega lõplik . </s> <s> Põhi- ja alamosade hulk ning nimetused võivad varieeruda sõltuvalt autoritest . </s> <s> Näiteks käsiraamatus <hi rend="kaldkiri"> PMBOK Guide ( A Guide to the </hi> <hi rend="kaldkiri"> Project Management Body of Knowledge </hi> ) on projekti juhtimine jagatud viieks protsessiks ja üheksaks valdkonnaks . </s> </p>
+<p> <s> Protsessid : </s> </p>
+<p> <s> 1 ) algatamine ( <hi rend="kaldkiri"> initiating </hi> ) </s> </p>
+<p> <s> 2 ) planeerimine ( <hi rend="kaldkiri"> planning </hi> ) </s> </p>
+<p> <s> 3 ) täideviimine ( <hi rend="kaldkiri"> executing </hi> ) </s> </p>
+<p> <s> 4 ) kontrollimine ( <hi rend="kaldkiri"> controlling </hi> ) </s> </p>
+<p> <s> 5 ) lõpetamine ( <hi rend="kaldkiri"> closing </hi> ) . </s> </p>
+<p> <s> Valdkonnad : </s> </p>
+<p> <s> 1 ) integratsiooni juhtimine ( <hi rend="kaldkiri"> integration </hi> ) </s> </p>
+<p> <s> 2 ) eesmärgi juhtimine ( <hi rend="kaldkiri"> scope management </hi> ) </s> </p>
+<p> <s> 3 ) aja juhtimine ( <hi rend="kaldkiri"> time management </hi> ) </s> </p>
+<p> <s> 4 ) kvaliteedi juhtimine ( <hi rend="kaldkiri"> quality management </hi> ) </s> </p>
+<p> <s> 5 ) kulude juhtimine ( <hi rend="kaldkiri"> cost management </hi> ) </s> </p>
+<p> <s> 6 ) inimressursside juhtimine ( <hi rend="kaldkiri"> human resources </hi> ) </s> </p>
+<p> <s> 7 ) infovahetuse juhtimine ( <hi rend="kaldkiri"> communication </hi> ) </s> </p>
+<p> <s> 8 ) riskijuhtimine ( <hi rend="kaldkiri"> risk management </hi> ) </s> </p>
+<p> <s> 9 ) allhangete juhtimine ( <hi rend="kaldkiri"> procurement </hi> ) . </s> </p>
+<p> <s> Neid protsesse ja valdkondi kombineerides tekib omapärane maatriks , mis annab hea ülevaate projektijuhtimisega seotud üldistest ülesannetest . </s> </p>
+<p rend="loendi_element"> <s> Tabel 1 </s> </p>
+<p rend="keskel"> <s> <hi rend="rasvane"> Projekti juhtimisprotsesside ja -valdkondade maatriks ( allikas PMBOK Guide ) </hi> </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p rend="rasvane"> <s> 2. PROJEKTIJUHTIMISE TARKVARA LIIGITUS </s> </p>
+<p> <s> Projektijuhtimise tarkvara kuulub majandustarkvara kategooriasse ja juhtimistarkvara alamkategooriasse . </s> <s> Vastavaid programme on väga palju ( umbes 200 ) . </s> <s> Nende hulgast sobiva valimisel võib lähtuda : </s> </p>
+<p> <s> 1 ) programmis sisalduvate töövahendite hulgast </s> </p>
+<p> <s> 2 ) hinnast </s> </p>
+<p> <s> 3 ) projekti sisust </s> </p>
+<p> <s> 4 ) töökeskkonnast . </s> </p>
+<p> <s> Tarkvara ei muuda projektijuhti võimekamaks . </s> <s> See on lihtsalt üks abivahendeid . </s> <s> Programm ei õpeta , kuidas määrata eesmärke , suhelda tellijatega või motiveerida töötajaid . </s> <s> See lihtsalt aitab neid ja teisi projektijuhtimise ülesandeid kergemini lahendada . </s> </p>
+<p> <s> Projektijuhtimise tarkvara liigitamiseks on mitu võimalust . </s> <s> Lihtsaim võimalus on seda liigitada litsentsitingimuste järgi . </s> </p>
+<p rend="rasvane"> <s> 2.1. TARKVARA LIIGITUS LITSENTSI JÄRGI : </s> </p>
+<p> <s> 1 ) vabavara </s> </p>
+<p> <s> 2 ) jaosvara </s> </p>
+<p> <s> 3 ) ärivara . </s> </p>
+<p rend="rasvane"> <s> VABAVARA </s> </p>
+<p> <s> Artikli kirjutamise käigus õnnestus leida ainult üks vabavara - Project Planner PE ( aadressil <gap rend="hüperlink"/> ) . </s> <s> Tegemist on süsteemi klient-server kliendipoolse osaga . </s> <s> Seetõttu ei õnnestunud luua oma projekti , sai vaid vaadata näitefaile . </s> <s> Siit võib järeldada , et funktsioneeriv projektijuhtimise vabavara puudub . </s> </p>
+<p rend="rasvane"> <s> JAOSVARA </s> </p>
+<p> <s> Interneti vahendusel on võimalik hankida päris korralikku jaosvara , nt. Turbo Project LT ( aadressil <gap rend="hüperlink"/> ) . </s> <s> Need sobivad väiksemate projektiplaanide koostamiseks . </s> <s> Puuduvad võimalused käivitunud projekti kontrollida . </s> <s> Enamasti on jaosvara programmid 20- kuni 30-päevase kasutamispiiranguga . </s> <s> Edaspidiseks kasutamiseks tuleb tasuda 30 kuni 100 dollarit . </s> </p>
+<p rend="rasvane"> <s> ÄRIVARA </s> </p>
+<p> <s> Suurem osa projektijuhtimise programmidest kuulub äritarkvara kategooriasse . </s> <s> Hinnad jäävad vahemikku 100 kuni 20 000 dollarit . </s> <s> Ka ärivara on võimalik enne raha maksmist katsetada . </s> <s> Ilmselt on põhjuseks erinevate projektijuhtimise programmide suur hulk ja uute kasutajate võitmise soov . </s> <s> Näiteks MS Project 2002 on saadaval aadressilt <gap rend="hüperlink"/> </s> </p>
+<p> <s> MS Project saadetakse kasutajale CD-l . </s> <s> Tasuda tuleb postikulud . </s> <s> Programmi katsetamiseks on aega 60 päeva . </s> <s> Kahjuks on kasutamispiirangutele lisandunud Põhja-Ameerikas asumise nõue . </s> </p>
+<p> <s> Ärivara võib Interneti vahendusel ka tasuta hankida . </s> <s> Näiteks Primavera SureTrak asub aadressil <gap rend="hüperlink"/> </s> </p>
+<p> <s> Enim on levinud tarkvara liigitamine projekti suuruse või valdkonna järgi . </s> </p>
+<p rend="rasvane"> <s> 2.2. PROJEKTIDE LIIGITUS TÖÖ MAHU JÄRGI : </s> </p>
+<p> <s> 1 ) ühte valdkonda hõlmavad väiksemad projektid </s> </p>
+<p> <s> 2 ) mitmeid valdkondi hõlmavad mahukad projektid </s> </p>
+<p> <s> 3 ) mitme projekti samaaegne juhtimine . </s> </p>
+<p rend="rasvane"> <s> VÄIKESED PROJEKTID </s> </p>
+<p> <s> Väikesed on projektid , mis sisaldavad kuni 1000 ülesannet ja 150 ressurssi . </s> <s> Projektijuhi ülesandeks on projekti kestuse , harvemini tööhulga ja ressursside vajaduse arvutamine . </s> <s> Ülesannete algus- ja lõppkuupäevi võib sisestada käsitsi . </s> <s> Eelarvet ei kasutata töö käigu kontrollimiseks . </s> <s> Vajalike töövahendite hulk on väike . </s> <s> Need on enamasti olemas kõikides programmides . </s> <s> Sel juhul on soovitatav osta lihtne programm , mitte kulutada raha vahenditele , mida kunagi ei kasutata . </s> <s> Probleemid tekivad siis , kui soovitakse teostada keerukamat projekti . </s> <s> Samuti on projektijuhi areng piiratud . </s> <s> Eeliseks on see , et programmi hind on väike - enamasti alla $100 . </s> </p>
+<p> <s> Lihtsamaid vahendeid pakuvad : </s> </p>
+<p> <s> 1 ) Turbo Project LT ( <gap rend="hüperlink"/> ) </s> </p>
+<p> <s> 2 ) Project KickStart 3.1 ( <gap rend="hüperlink"/> ) </s> </p>
+<p> <s> 3 ) Minute Man ( <gap rend="hüperlink"/> ) </s> </p>
+<p> <s> 4 ) PlanBee ( <gap rend="hüperlink"/> ) . </s> </p>
+<p> <s> Neid programme võrreldakse omavahel allpool põhjalikumalt . </s> </p>
+<p rend="rasvane"> <s> SUURED PROJEKTID </s> </p>
+<p> <s> Suuremaid projekte on raske vaid inimjõudu kasutades kontrollida . </s> <s> Programm peaks võimaldama projekti simuleerida , tööplaani dünaamiliselt muuta ja optimeerida . </s> <s> Eelarvel on oluline osa töö käigu planeerimisel ja kontrollimisel . </s> <s> Tööde alguskuupäevad sõltuvad ülesannetevahelistest seostest , mitte käsitsi sisestatud kuupäevadest . </s> <s> Tarkvara peaks võimaldama planeerida ka ettevõtteväliste ekspertide tööd ning arvestada seadmete ja transpordi kulusid . </s> <s> See võiks sisaldada ka teenitud väärtuse , nihke ja viivituste aruandeid , kriitilise tee näitamise ning ressursside ülekoormuse kaotamise võimalusi . </s> <s> Hinnaklass 300 kuni 600 dollarit . </s> </p>
+<p> <s> Sobivad tooted : </s> </p>
+<p> <s> 1 ) Microsoft Project ( <gap rend="hüperlink"/> ) </s> </p>
+<p> <s> 2 ) Primavera SureTrak ( <gap rend="hüperlink"/> ) </s> </p>
+<p> <s> 3 ) PlaNet 5.01 ( <gap rend="hüperlink"/> ) </s> </p>
+<p> <s> 4 ) Milestone Professional ( kidasa.com ) . </s> </p>
+<p> <s> Ka neid programme tutvustatakse edaspidi põhjalikumalt . </s> </p>
+<p rend="rasvane"> <s> MITU PROJEKTI </s> </p>
+<p> <s> Tarkvara , mis on mõeldud mitme ( suure ) projekti samaaegseks juhtimiseks , peab lihtsustama ettevõtte juhtkonna tööd . </s> <s> Ülesannete planeerimise asemel keskendutakse lõpptulemusele . </s> <s> Leitakse lahendusi , kuidas jagada piiratud ressursse mitme erineva projekti vahel , millised ülesanded või projektid on ettevõtte seisukohast olulisemad . </s> <s> On vaja luua detailseid eelarveid . </s> <s> Selliseid tingimusi rahuldav süsteem on väga sarnane ettevõtte raamatupidamissüsteemiga . </s> <s> Vahe on vaid selles , et andmeid vajatakse enne protsessi algust , finantsarvestuse tarkvara pakub neid alles pärast tehingu kajastamist . </s> <s> Vajatakse ka riskide kindlakstegemise ja töö käigu jälgimise vahendeid . </s> </p>
+<p> <s> Selliseid võimalusi pakuvad : </s> </p>
+<p> <s> 1 ) Microsoft Project Central </s> </p>
+<p> <s> 2 ) Primavera Enterprise </s> </p>
+<p> <s> 3 ) Open Plan </s> </p>
+<p> <s> 4 ) Cobra </s> </p>
+<p> <s> 5 ) Enterprise PM </s> </p>
+<p> <s> 6 ) Micro Planner X-Pert </s> </p>
+<p> <s> 7 ) PlanView . </s> </p>
+<p> <s> Selle rühma jaoks on väga palju erinevaid süsteeme . </s> <s> Hinnaklass on 400 kuni 20 000 dollarit . </s> <s> Käesolevas artiklis ei ole uuritud korporatiivseid projektijuhtimise infosüsteeme . </s> </p>
+<p> <s> Antud kirjatöös ei vaadelda ka projektijuhtimise tarkvara liigitust valdkonna sisu järgi . </s> <s> Eesmärk on uurida programme , mis sobivad võrdselt kõigi eri liiki projektide juhtimiseks , näiteks MS Project . </s> </p>
+<p rend="rasvane"> <s> 3. PROGRAMMID SUURTE PROJEKTIDE JUHTIMISEKS </s> </p>
+<p rend="loendi_element"> <s> Tabel 2 </s> </p>
+<p rend="keskel"> <s> <hi rend="rasvane"> Võrdluseks valitud programmide üldandmed </hi> </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p> <s> Kõik programmid on ärivara litsentsiga . </s> </p>
+<p> <s> Üldandmete põhjal tundub kõige mõistlikum kasutada programmi Primavera SureTrak . </s> <s> See on Interneti vahendusel vabalt kättesaadav . </s> <s> Katsetamist ei piirata ajaliselt . </s> <s> Kõik programmi funktsioonid töötasid kitsendusteta . </s> <s> Kõige vähem pakub huvi soomlaste loodud PlaNet . </s> <s> Põhjuseks kõrge hind ja soomekeelne töökeskkond . </s> </p>
+<p> <s> Üldandmetest olulisemad on töövahendid , mida programm pakub . </s> <s> Teine oluline aspekt on programmi kasutamislihtsus , töö- ja veakindlus ning üleüldine mulje . </s> <s> See osa hinnangust on kahjuks paratamatult mõjutatud hindaja subjektiivsest arvamusest . </s> </p>
+<p rend="rasvane"> <s> 3.1. FUNKTSIONAALSUSE KOONDVÕRDLUS </s> </p>
+<p> <s> Kriteeriumid , mille põhjal programme hinnati : </s> </p>
+<p rend="rasvane"> <s> Kood Põhikriteeriumid Hinnatavate aspektide hulk </s> </p>
+<p> <s> 1. Projekti kavandamine 10 </s> </p>
+<p> <s> 2.1 Projekti plaani koostamine 17 </s> </p>
+<p> <s> 2.2 Ressursside plaanimine 8 </s> </p>
+<p> <s> 2.3 Kulude , kvaliteedi ja riskide vältimise plaanimine 10 </s> </p>
+<p> <s> 3.1 Ressursside ja protsessi juhtimine 7 </s> </p>
+<p> <s> 3.2 Kulude , riskide ja kvaliteedi kontroll 4 </s> </p>
+<p> <s> 4. Projekti lõpetamine 4 </s> </p>
+<p> <s> Lisaks funktsionaalsusele hinnati programmide kasutamismugavust ( Help'i ja tarkvara kasutamislihtsus ) ning ajakava koostamisel loogikavigade vältimist ( tsüklite lubamist ja koondülesande ühendamist tema alamülesandega ) . </s> <s> Kokku 64 erinevat punkti . </s> </p>
+<p> <s> Tabelis 3 on lühikokkuvõte hinnatavate programmide funktsioonidest . </s> <s> Koodid tabeli päises vastavad ülaltoodud loetelu punktidele . </s> <s> Arvud konkreetse programmi nime taga kirjeldavad vastava projektietapi teostamiseks vajalike vahendite olemasolu . </s> </p>
+<p rend="loendi_element"> <s> Tabel 3 </s> </p>
+<p rend="keskel"> <s> <hi rend="rasvane"> Suurte projektide juhtimiseks mõeldud programmide koondtabel </hi> </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p> <s> Tabelist 3 järeldub , et kõige enam funktsioone sisaldab Primavera SureTrak . </s> <s> Kas see programm on ka kõige mugavam kasutada , selgub edaspidises . </s> </p>
+<p rend="rasvane"> <s> 3.2. PROJEKTIEELNE PERIOOD </s> </p>
+<p> <s> Tabelis 4 on loetletud ülesandeid , mida on tarvis täita projekti kavandamise perioodil . </s> <s> Ühtlasi kirjeldatakse nende funktsioonide olemasolu võrdlusalustes programmides . </s> </p>
+<p> <s> Üldiselt projektijuhtimise tarkvara ei toeta projekti kavandamist . </s> <s> Selle etapi läbimisel võib kasutada tavalise tekstiredaktori või tabelarvutusprogrammi abi . </s> <s> Erandiks on Primavera SureTrak . </s> <s> Projektifaili loomisel võib kasutada Project KickStart nõustaja abi . </s> <s> See küsib infot projekti eesmärkide , riskide , ressursside ja projekti etappide kohta , aitab planeerida täiendavaid ülesandeid riskide vältimiseks ja eesmärkide saavutamiseks . </s> <s> Sobib inimestele , kes pole varem projektijuhtimisega kokku puutunud . </s> <s> Teised programmid sellist tuge ei pakkunud . </s> </p>
+<p rend="loendi_element"> <s> Tabel 4 </s> </p>
+<p rend="keskel"> <s> <hi rend="rasvane"> Projektieelse perioodi ülesannete teostatavus suurprojektide programmide lõikes </hi> </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p rend="rasvane"> <s> 3.3. PROJEKTI PLAANI KOOSTAMINE </s> </p>
+<p> <s> Ajagraafikute koostamine on projektijuhtimise tarkvara põhiline funktsioon . </s> <s> Tabelist 5 selgub , et töövahendid plaani koostamiseks on enamikus programmides võrdselt hästi esindatud . </s> <s> Erandiks on Milestone Professional . </s> </p>
+<p> <s> Hoolimata programmidele antud sarnasest hinnangust , on eespool mainitud töövahendite kasutatavus erinev . </s> </p>
+<p> <s> <hi rend="rasvane"> MS Project </hi> on väga hea Gantti diagrammi loomiseks . </s> <s> Andmeid on mugav sisestada . </s> <s> Ülesannete- vahelisi seoseid saab luua otse graafikul . </s> <s> Puuduseks see , et kriitiline tee ja ülesannetega seotud ajavaru ei ole avagraafikul kohe näha . </s> <s> Selle esitamiseks tuleb vahetada ekraanivormi . </s> </p>
+<p> <s> <hi rend="rasvane"> Primavera SureTrak </hi> ei jää millegi poolest MS Projectist maha . </s> <s> Paremini on lahendatud kriitilise tee esitus . </s> <s> See on kohe Gantti diagrammil näha . </s> <s> Eraldi tasub mainida head WBS-i . </s> <s> On võimalus luua oma kodeerimissüsteem . </s> <s> Erinevaid ülesannete tasemeid saab värvidega eristada ( värv muutub automaatselt , kui ülesande taset vahetada ) . </s> <s> Puuduseks tülikas kuupäevaliste piirangute sisestamine . </s> <s> Teisalt on see ka eelis . </s> <s> Näiteks planeerimise algfaasis on soovitav fikseeritud ülesannete alg- ja lõppkuupäevadest hoiduda . </s> <s> Plaan peaks muutuma paindlikult ( näiteks MS Projectis on liiga lihtne kuupäevi fikseerida ) . </s> <s> Ebamugav on ka sõlmdiagrammi keskkonnas plaani koostada . </s> <s> Tuleb kasutada sisestusblanketti . </s> <s> Kõige enam tekitab segadust tööriistaribal nupupaar + ja -. </s> <s> SureTrakis tähendab + ülesande lisamist ja - kustutamist . </s> <s> Teistes projektijuhtimise programmides tähendab - alamülesannete varjamist ja + taasesitamist . </s> </p>
+<p rend="loendi_element"> <s> Tabel 5 </s> </p>
+<p rend="keskel"> <s> <hi rend="rasvane"> Projekti plaani koostamise vahendite esindatus </hi> </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 1. </s> <s> MS Project , Gantti diagramm . </s> <s> Mustad rombid esitavad tähtaegu </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 2. </s> <s> MS Projecti sõlmdiagramm . </s> <s> Kriitiline tee on esitatud jämedamate piirjoontega </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 3. </s> <s> Primavera SureTrak , Gantti diagramm . </s> <s> Summaarsed ülesanded on peenikesed tumedad ( sinised ) jooned , kriitilise tee ülesanded punased </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 4. </s> <s> Primavera SureTrak sõlmdiagramm . </s> <s> Rist ülesande peal tähistab selle täidetust </s> </p>
+<p> <s> PlaNet näitab kriitilist teed kohe diagrammil . </s> <s> Ka on näha ülesannetega seotud ajavaru . </s> <s> Üpris mugav on orienteeruda erinevate ekraanivormide ja tabelite vahel . </s> <s> MS Projectis on see pisut kohmakas . </s> <s> Näiteks akna üldsisu tuleb valida vasakpoolsest ikooniveerust , konkreetsem sisu View-menüüst . </s> <s> Ka PlaNetil on ekraani vasakus servas ikooniveerg , aga konkreetsel nupul klikkides avatakse menüü ekraanivormi täpsustamiseks . </s> <s> Puuduseks on üpris tülikas ülesannete- vaheliste seoste loomise viis . </s> <s> See käib läbi sisestusakna . </s> <s> Väga suur puudus on see , et kahe ülesande vahel saab olla mitu erinevat linki ( vt. joonis 5 ) ning vanad ühendused tuleb ise kustutada . </s> <s> Teistes programmides sellist viga teha ei saa . </s> <s> Sõlmdiagrammi ülesehitus jätab soovida . </s> <s> Normaalse pildi saamiseks tuleb ülesanded ise sobivasse kohta sikutada . </s> <s> Häirib ka see , et tähtaegasid - 0-kestusega ülesandeid - Gantti diagrammil ei näidata . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 5. </s> <s> PlaNet võimaldab kahte ülesannet siduda mitme erineva lingiga . </s> <s> See omakorda teeb kava segaseks ( vigaseks ) </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 6. </s> <s> PlaNet , Gantti diagramm </s> </p>
+<p> <s> Joonisel 6 esitatud diagrammil on näha plaani ja aruandmishetke ( 02.12.02 ) võrdlus . </s> <s> Sakiline must joon kirjeldab mahajäämust . </s> <s> Kriitilist teed esitavad jämedad ( punased ) nooled ülesannete vahel . </s> <s> Tühjad ribad täidetud ( siniste ) ribade järel kirjeldavad ülesannetega seotud ajavaru . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 7. </s> <s> PlaNeti sõlmdiagramm </s> </p>
+<p> <s> <hi rend="rasvane"> Milestones Professional </hi> oli vaadeldud programmidest kõige kesisem . </s> <s> Tundub , et tarkvara põhieesmärk on luua efektne ja erinevaid kujunduselemente sisaldav ajagraafik . </s> <s> Alustada tuleb graafiliste tööriistade valikust ja ülesanded ajateljele joonistada . </s> <s> Graafikut seotakse tabelis asuvate andmetega , kuid siiski on vajalike töövahendite otsimine tülikas ja projekti plaani loomine vaevarikas . </s> <s> Puudub sõlmdiagrammi loomise võimalus . </s> <s> Ülesandeid on võimalik omavahel siduda , kuid prooviversioonis ühendusi ekraanil ei näidata . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 8. </s> <s> Milestone , Gantti diagramm </s> </p>
+<p> <s> Milestone'is esitatakse Gantti diagrammil koondülesanded peenikese joonena , alamülesanded värviliste ribadena . </s> <s> Rõhutatud on ülesannete ja projekti algus- ning lõpptähtaegu . </s> </p>
+<p rend="rasvane"> <s> 3.4. RESSURSSIDE PLANEERIMINE </s> </p>
+<p> <s> Teine oluline osa projekti planeerimisest on töötajate määramine , materjalide valimine ja ruumide broneerimine . </s> </p>
+<p rend="loendi_element"> <s> Tabel 6 </s> </p>
+<p rend="keskel"> <s> <hi rend="rasvane"> Ressursside planeerimise vahendid </hi> </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p> <s> Võrdlusest selgus , et <hi rend="rasvane"> MS Projectile </hi> ei ole ressursside planeerimise osas vastast . </s> <s> Väga mugav on luua ressursside loetelu , siduda ülesanded ressurssidega , vaadata ja kaotada ülekoormust . </s> <s> Tulemuseks on reaalne töögraafik , mille järgi projekti juhtida ja kontrollida . </s> <s> Projektijuhi ainus ülesanne on hinnata , kui suures mahus on inimene ülesandega hõivatud . </s> <s> Ülejäänu teeb arvuti . </s> </p>
+<p> <s> <hi rend="rasvane"> SureTrak </hi> sai pisut madalama tulemuse vaid seetõttu , et puudus kalender eraldi ekraanivormina . <hi rend="rasvane"> PlaNetil </hi> ei õnnestunud leida kohta töötajate ülekoormuse vaatamiseks . <hi rend="rasvane"> Milestone'i </hi> programmis ei saanud ressursse määrata . </s> </p>
+<p rend="rasvane"> <s> 3.5. KULUDE , KVALITEEDI , INFO- JA RISKIJUHTIMISE PLANEERIMINE </s> </p>
+<p> <s> <hi rend="rasvane"> MS Project </hi> ja <hi rend="rasvane"> SureTrak </hi> said enam-vähem võrdse tulemuse . </s> <s> Üldiselt ei olnud vaadeldavates programmides eriti võimalusi projekti kvaliteedi ja riskide juhtimiseks . </s> <s> Paremini on esindatud kulude planeerimise pool . </s> <s> Ressurssidele saab määrata hindu . </s> <s> Tööjõudu või vahendeid ülesannetega sidudes on võimalik arvutada üksikülesande ja kogu projekti maksumust . </s> <s> Kirjeldatud meetod on siiski pisut kohmakas . </s> <s> Parem on kulusid planeerida ja arvestada näiteks tabelarvutuskeskkonnas . </s> </p>
+<p> <s> Esile võiks tuua <hi rend="rasvane"> Primavera SureTraki </hi> , sest selles programmis on osaliselt täidetud riskijuhtimise funktsioon . </s> <s> Vähemalt plaani loomise alguses küsitakse ettevõtmisega seotud riske ja nende vältimiseks sooritatavaid ülesandeid . </s> </p>
+<p> <s> Kõige madalama tulemuse sai <hi rend="rasvane"> Milestone </hi> , sest kulude , kvaliteedi ja riski kontrollimise võimalused puudusid . </s> </p>
+<p rend="loendi_element"> <s> Tabel 7 </s> </p>
+<p rend="keskel"> <s> <hi rend="rasvane"> Täiendavad planeerimisvahendid suurprojektide erinevates programmides </hi> </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p rend="rasvane"> <s> 3.6. PROTSESSI JUHTIMINE </s> </p>
+<p> <s> Selle klassi projektijuhtimise tarkvara eripäraks on see , et lisaks plaani koostamisele saab tarkvara kasutada ka käivitunud projekti juhtimiseks ja kontrollimiseks . </s> </p>
+<p rend="loendi_element"> <s> Tabel 8 </s> </p>
+<p rend="keskel"> <s> <hi rend="rasvane"> Projekti täitmise kontrollimise vahendid erinevates programmides </hi> </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p> <s> Enamik programme ( erandiks Milestone ) on saanud võrdselt hea tulemuse . </s> <s> Projekti faili sisse saab salvestada esialgse plaani . </s> <s> Tegeliku olukorra kohta sisestatavad andmed mõjutavad koopiat . </s> <s> Esialgset plaani ja tegelikku seisu on võimalik omavahel võrrelda ja teha parandusi . </s> <s> Enamasti puudusid vahendid meeskonna liikmeid muudatustest teavitada . </s> </p>
+<p> <s> Halva üllatuse valmistas <hi rend="rasvane"> Milestone </hi> . </s> <s> Ülesannete täidetust oli võimalik määrata teatud kuupäeva seisuga . </s> <s> Võrdlust esialgse plaaniga ei tekkinud . </s> </p>
+<p rend="rasvane"> <s> 3.7. KULUDE JUHTIMINE </s> </p>
+<p> <s> Projektijuhtimise tarkvara saab kasutada ka juba käivitunud projekti kulude kontrollimiseks . </s> <s> Üldiselt piirdub see tegelikkuses tehtud kulude sisestamisega ( PlaNet ) või tegelikkuses tehtud töö maksumuse hindamises esialgu planeeritud hindades . </s> <s> Seda nimetatakse teenitud väärtuse arvutamiseks ( <hi rend="kaldkiri"> Earned Value </hi> ) . </s> <s> Antud meetod on kasutusel nii MS Projectis kui ka Primavera SureTrakis . </s> </p>
+<p rend="rasvane"> <s> 3.8. PROJEKTI LÕPETAMINE </s> </p>
+<p> <s> Nii nagu projektieelsel perioodil ei paku projektijuhtimise tarkvara vahendeid ka projektijärgse perioodi lihtsustamiseks . </s> <s> Üks hädavajalik funktsioon oleks näiteks faili salvestamine projektide võrdlust võimaldavasse arhiivi . </s> <s> Kõikides programmides on võimalik tagantjärele plaani lisada lõpetamisega seotud ülesandeid . </s> </p>
+<p rend="rasvane"> <s> 3.9. KOKKUVÕTE </s> </p>
+<p> <s> <hi rend="rasvane"> MS Projecti </hi> on lihtne kasutada inimesel , kes on harjunud näiteks Exceli või Wordi menüüde ja nupuribadega . </s> <s> Suurimaks puuduseks võib pidada erinevate ekraanivormide suurt arvu ja raskusi nende valimisel . </s> <s> Eeliseks on põhjalik Help . </s> <s> MS Project on lollikindel . </s> <s> Algaja seisukohast on see hea , professionaalile tundub ahistav . </s> </p>
+<p> <s> <hi rend="rasvane"> Primavera SureTrak </hi> on hea programm ega jää millegi poolest maha MS Projectist . </s> <s> Et demoverisooni kasutamine ei sisaldanud piiranguid ning projekti loomisel on võimalik kasutada KickStart-nõustajat , siis sobib see programm väga hästi algajale projektijuhile . </s> <s> Ka MS Projecti kasutajal ei ole raske ümber õppida . </s> <s> Puuduseks võib pidada kummalist failihaldust , sest SureTraki üks projekt koosneb 30 erinevast failist . </s> </p>
+<p> <s> <hi rend="rasvane"> PlaNeti </hi> eeliseks on erinevate ekraanivormide parem navigeeritavus . </s> <s> Artikli autori seisukohast on suurimaks puuduseks soomekeelne kasutuskeskkond . </s> <s> See võib olla põhjuseks , miks mõni funktsioon jääb avastamata . </s> <s> Ka programmi Help ei andnud vastuseid tekkinud küsimustele . </s> </p>
+<p> <s> <hi rend="rasvane"> Milestone Professionali </hi> eeliseks on atraktiivsete graafikute loomine . </s> <s> Paraku on see ainus pluss . </s> <s> Üldiselt on programm kohmakas ja suurprojektide jaoks sobimatu . </s> <s> Hoolimata hinnaklassist ja töövahendite hulgast sobib see programm pigem väikeste projektide juhtimiseks . </s> </p>
+<p rend="rasvane"> <s> 4. PROGRAMMID VÄIKESTE PROJEKTIDE JUHTIMISEKS </s> </p>
+<p rend="loendi_element"> <s> Tabel 9 </s> </p>
+<p rend="keskel"> <s> <hi rend="rasvane"> Tarkvara üldandmed </hi> </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p> <s> Kõik need programmid on jaosvara litsentsiga . </s> </p>
+<p rend="rasvane"> <s> 4.1. FUNKTSIONAALSUSE KOONDVÕRDLUS </s> </p>
+<p> <s> Väikeste projektide juhtimiseks mõeldud tarkvara hinnati samade kriteeriumite põhjal , mida kasutati suurprojektide tarkvara analüüsimisel . </s> <s> Koondtulemused on tabelis 10. </s> </p>
+<p rend="loendi_element"> <s> Tabel 10 </s> </p>
+<p rend="keskel"> <s> <hi rend="rasvane"> Väikeprojektide tarkvara töövahendite võrdluse koondtabel </hi> </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p> <s> Funktsioonide arvu poolest on saanud kõige parema tulemuse Turbo Project ja Minute Man . </s> <s> Esimest neist oli ka väga mugav kasutada . </s> <s> Kõigest põhjalikumalt allpool . </s> </p>
+<p rend="rasvane"> <s> 4.2. PROJEKTIEELNE JA -JÄRGNE PERIOOD </s> </p>
+<p> <s> Enamik projektijuhtimise programme ei paku vahendeid projektieelse ja -järgse perioodi läbiviimiseks . </s> <s> Seetõttu on üllatav , et Project KickStart sisaldab nii palju vahendeid projekti kavandamise lihtsustamiseks . </s> <s> Project KiskStartist sai räägitud eespool , sest see programm on integreeritud Primavera toodetesse . </s> </p>
+<p rend="rasvane"> <s> 4.3. PROJEKTI PLAANI KOOSTAMINE </s> </p>
+<p rend="loendi_element"> <s> Tabel 11 </s> </p>
+<p rend="keskel"> <s> <hi rend="rasvane"> Planeerimisvahendid väikeprojektide juhtimiseks mõeldud programmides </hi> </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p> <s> See on väikeprojektide juhtimiseks mõeldud tarkvara põhifunktsioon . </s> <s> Võimaluste poolest on kõik programmid enam-vähem võrdsed . </s> <s> Teistest pisut parema tulemuse sai <hi rend="rasvane"> Turbo Project </hi> . </s> <s> Selle eelisteks on mugav andmesisestus andmetabeli kaudu , ülesannete sidumise võimalus graafikul ja kriitilise tee kohene esitus . </s> <s> Eripäraks on see , et projekti nimi on tabelis esimese taseme ülesanne . </s> <s> Miinuseks sõlmdiagrammi puudumine . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 9. </s> <s> Turbo Project LT , Gantti diagramm </s> </p>
+<p> <s> Turbo Projectis Gantti diagrammil ülesande kestust kirjeldava riba kohal olev hele ( roheline ) joon esitab ülesande asukohta kontrollplaani järgi , alumine tume ( sinine ) joon tähistab ajavaru . </s> <s> Alumises aknas esitatakse töökoormus ( joonisel 9 on näha ülekoormus ) . </s> </p>
+<p> <s> <hi rend="rasvane"> Project KickStarti </hi> eeliseks on hea viisard . </s> <s> Selle tulemusel koostatud plaan on aga üpris algeline . </s> <s> Näiteks ei saa ülesandeid omavahel siduda . </s> <s> Ainus võimalus ülesandeid ajatelje suhtes nihutada on sisestada ülesannetele fikseeritud alguskuupäevi . </s> <s> Sõlmdiagramm puudub . </s> </p>
+<p> <s> <hi rend="rasvane"> Minute Mani </hi> suureks puuduseks on andmete sisestamine läbi sisestusblanketi . </s> <s> Eeliseks on see , et ülesannetevahelisi seoseid saab luua otse graafikul . </s> <s> Ka on olemas sõlmdiagrammi vaade . </s> <s> Lisaks Gantti diagrammile ja võrkgraafikule sisaldab Minute Man ainulaadset <hi rend="kaldkiri">outline</hi>-vaadet . </s> <s> Seda oli harjumatu , kuid mugav kasutada . </s> <s> Tundus , et see ongi programmi põhiline töökeskkond . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 10. </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 11. </s> <s> Minute Mani <hi rend="kaldkiri">outline</hi>-diagramm . </s> <s> Ühe grupi alamülesanded esitatakse samal real </s> </p>
+<p> <s> <hi rend="rasvane"> PlanBee </hi> funktsioonide hulk on piisav , kuid programmi on natuke ebamugav kasutada . </s> <s> Andmete sisestamine käib läbi sisestusblanketi . </s> <s> Ülesandeid saab siduda ainult spetsiaalse tabeli kaudu . </s> <s> Seoseid Gantti diagrammil ei näidata , võrkgraafikul näidatakse . </s> <s> Tööaknad on väga väikesed ja nende suurust muuta ei saa . </s> <s> Jääb mulje , et programm on kujundatud 640480 suuruse ekraanipildi jaoks . </s> <s> Eripäraks on veel see , et koondülesandeid nimetatakse pealkirjadeks ja neid linkida ei saa . </s> <s> See on lihtne viis loogikavigu vältida . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 12. </s> <s> PlanBee ajatabel . </s> <s> Ülemises aknas on ülesannete loetelu , alumises osas ülesande parameetrid </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 13. </s> <s> PlanBee , Gantti diagramm </s> </p>
+<p> <s> PlanBee's ei esitata Gantti diagrammil ülesannetevahelisi seoseid , kuid rõhutatakse ülesannetega seotud ajavaru . </s> <s> Ülesandeid tähistavad heledad ( kollased ) ja ajavaru tumedad ( rohelised ) ribad . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 14. </s> <s> PlanBee sõlmdiagramm </s> </p>
+<p rend="rasvane"> <s> 4.4. RESSURSSIDE PLANEERIMINE </s> </p>
+<p> <s> Väikeste projektide puhul piisab , kui programm võimaldab ülesande taha kirjutada inimese nime , kes selle töö eest vastutab . </s> <s> Ülekoormuse otsimine ja kaotamine ei ole oluline . </s> <s> Enamik uuritud programmidest sisaldabki ressursside kirjeldamiseks minimaalseid vahendeid . </s> <s> Saab koostada ressursside loetelu ja neid ülesannetega siduda . </s> <s> Erandiks on Turbo Project . </s> <s> Lisaks mugavale ressursside planeerimisele pakutakse võimalust töökoormuse arvutamiseks . </s> <s> Ülekoormuse kaotamiseks vahendid siiski puuduvad . </s> <s> Ressursside planeerimise töövahendite esindatust programmides kirjeldatakse tabelis 12. </s> </p>
+<p rend="loendi_element"> <s> Tabel 12 </s> </p>
+<p rend="keskel"> <s> <hi rend="rasvane"> Ressursside planeerimise vahendid väikeprojektide juhtimise programmides </hi> </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p rend="rasvane"> <s> 4.5. KULUDE JA KVALITEEDI PLANEERIMINE </s> </p>
+<p> <s> Väikese projekti juhtimiseks mõeldud tarkvara ei pea võimaldama kulusid ja kvaliteeti planeerida . </s> <s> Minute Man sisaldas siiski võimalusi läbi ressursside hinna määramise arvutada ka kogu projekti maksumust . </s> <s> Need andmed on vaadatavad erinevate aruannete vahendusel . </s> </p>
+<p rend="rasvane"> <s> 4.6. KÄIVITUNUD PROJEKTI JUHTIMINE </s> </p>
+<p> <s> Käivitunud projekti kontrollimine ei ole väikeprojektide juhtimiseks kasutatava programmi oluline funktsioon . </s> <s> Uuritud programmides on vastavad võimalused kesiselt esindatud . </s> <s> Enamikus neist saab kirjeldada ülesande täidetuse astet , kuid puudub võimalus võrrelda esialgset plaani tegeliku olukorraga . </s> <s> Eraldi võiks mainida programmi Minute Man , mis sisaldab teenitud väärtuse aruannet . </s> </p>
+<p rend="rasvane"> <s> 4.7. KOKKUVÕTE </s> </p>
+<p> <s> <hi rend="rasvane"> Turbo Project </hi> on kõige mugavam kasutada . </s> <s> Võimalusi on kahjuks vähe , aga need toimivad laitmatult . </s> </p>
+<p> <s> <hi rend="rasvane"> Project KickStarti </hi> on juba kiidetud hea alustusnõustaja poolest . </s> <s> Valminud plaani on aga pisut raske muuta . </s> </p>
+<p> <s> <hi rend="rasvane"> Minute Man </hi> on eriline oma <hi rend="kaldkiri">outline</hi>-töökeskkonna poolest . </s> <s> Ekraanil on hea vihjeriba , mis selgitab , mida teha kursori alla jääva ikooni või aknaga . </s> </p>
+<p> <s> <hi rend="rasvane">PlanBee</hi>l on väga hea Help . </s> <s> Keskkond ise on pisut ebamugav kasutada . </s> <s> Tabelid on liiga väikesed ja sisestusblanketid tülikad . </s> </p>
+<p> <s> Kõike eespool mainitut kokku võttes arvan , et uuritud programmidest on kõige parem kasutada Turbo Projecti : erinevaid töövahendeid on vähe ; programmi on kerge kasutada ; katsetamisaega ei piirata aja ja funktsioonide puudumisega . </s> </p>
+<p rend="rasvane"> <s> 5. ALLIKAD </s> </p>
+<p> <s> Lisaks siin esitatud viidetele võib lugeja tarkvara otsida Interneti vahendusel . </s> <s> Parimad kohad tarkvara valimiseks on : </s> </p>
+<p> <s> 1. The Project Management Center - Directory of Project Management Software aadressil <gap rend="hüperlink"/> </s> </p>
+<p> <s> 2. Tarkvaraserver TuCows aadressil tucows.ibs.ee. </s> </p>
+<p> <s> Esimene neist on väga pikk ja põhjalik projektijuhtimise programmide ja veebipõhiste keskkondade loetelu . </s> <s> Erinevaid nimetusi on kokku umbes 200. </s> <s> Puuduseks on see , et lehelt viidatakse edasi toodet pakkuva ettevõtte kodulehele ja pole sugugi kindel , kas konkreetne programm on allalaaditav . </s> <s> Hoolimata linkide suurest hulgast ei ole loetelu täielik . </s> </p>
+<p> <s> Tarkvaraserver TuCows on hea koht projektijuhtimise jaosvara allalaadimiseks . </s> <s> 2002. aasta lõpus sai Business-kategooria alamkategooriast Project umbes 20 erinevat nimetust , tänaseks on see arv vähenenud . </s> <s> Näiteks aastal 2001 oli projektijuhtimise programmide hulk umbes 40. </s> <s> Ilmselt on enamik projektijuhtimise programme muutunud ärivaraks või konkurentide poolt üles ostetud . </s> <s> Näiteks Project KickStart on saanud osaks programmist Primavera SureTrak . </s> </p>
+<p> <s> Et erinevaid projektijuhtimise programme on väga palju , siis on üpris raske otsustada , millist tarkvara üldse katsetama hakata . </s> <s> Loodetavast on valiku tegemisel abi käesolevast artiklist . </s> <s> Teine võimalus on uurida projektijuhtimisega tegelevate organisatsioonide arvamust . </s> <s> PMI ( Project Management Institute ) ei tõsta esile ühtegi tarkvara , aga näiteks projektijuhtimise koolitust pakkuv ettevõte 4PM.com jagab omapoolseid soovitusi aadressil <gap rend="hüperlink"/> </s> </p></div2>
+      </div1>
+    </body>
+  </text>
+</TEI>
+</teiCorpus>
+</teiCorpus>

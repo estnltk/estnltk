@@ -1,0 +1,1017 @@
+<teiCorpus xmlns:xi="http://www.w3.org/2001/XInclude" xmlns="http://www.tei-c.org/ns/1.0"> 
+<xi:include href="../../bin/koondkorpus_main_header.xml" /> 
+<teiCorpus> 
+<xi:include href="../bin/header_tea_arvutitehnika_ja_andmet66tlus.xml" /> 
+	<TEI> 
+		<teiHeader xmlns="http://www.tei-c.org/ns/1.0" xml:lang="et" xml:id="koondkorpus_local_header" n="$Id:$"> 
+			<fileDesc> 
+				<titleStmt> 
+					<title> Arvutustehnika ja andmetöötlus 05_4 </title> 
+  				</titleStmt> 
+				<publicationStmt> 
+  					<p> Vt publitseerimisandmeid failist 
+						<ref target="#publicationStmt-main">koondkorpus_main_header.xml</ref> 
+					</p> 
+  				</publicationStmt> 
+				<sourceDesc> 
+					<p> Vt allkorpuse päis 
+						<ref target="#header_tea_arvutitehnika_ja_andmet66tlus">header_tea_arvutitehnika_ja_andmet66tlus.xml</ref> 
+					</p> 
+  				</sourceDesc> 
+  			</fileDesc> 
+		</teiHeader>
+  <text>
+    <body>
+      <div1 type="ajakirjanumber">
+        <head> Arvutustehnika ja andmetöötlus 05_4 </head>
+        <div2 type="artikkel"><head> A &amp; A - UML 2.0 </head>
+<p> <bibl> <author> <s> TOIMETAJALT 4-05 </s> </author> </bibl> </p>
+<p> <s> UML - <hi rend="kaldkiri"> Unified Modeling Language </hi> on kavandatud üldotstarbelise modelleerimiskeelena ja nagu nimigi ütleb , peaks UML unifitseerima erinevaid keeli ja probleemvaldkondi tarkvara elutsükli jooksul . </s> <s> UML loomisel oli/on dilemmaks : ühelt poolt peaks UML olema võimalikult lihtne üldotstarbeline modelleerimiskeel , kuid teiselt poolt on vaja katta tohutu hulk erinevaid probleemvaldkondi , mis toob paratamatult sisse keerukuse . </s> <s> Asi pole küll nii hull nagu rohuteaduses : kui miski rohi ravib kõiki “ haigusi ” , siis ei ravi õieti midagi - aga modelleerimis- keele universaalsust ( sobivust paljudele valdkondadele ) ja lihtsust pole kerge saavutada . </s> </p>
+<p> <s> Pisut UML 2.0 tekkeloost . </s> <s> 1980ndatel aastatel tuli tarkvaraarendusse objektorienteeritud programmeerimine , seejärel ka objektorienteeritud analüüs ja disain ( kavandamine ) . “ Meetodite sõja ” võitjaks osutus unifitseeritud meetod ( <hi rend="kaldkiri"> Unified Method </hi> ) , mille üheks oluliseks komponendiks oli UML . </s> <s> UML sai üldtunnustatuks ja 1997. aastal kinnitas OMG ( <hi rend="kaldkiri"> Object Management Group </hi> ) UML 1.1 standardiks . </s> <s> UMLi täiendati : 1998 - UML 1.3 , 2001 - UML 1.4 , 2003 - UML 1.5. </s> <s> Lisaks UMLile arendas OMG ka teisi modelleerimisvahendeid ( -keeli ) : <hi rend="kaldkiri"> Meta-Object Facility </hi> ( MOF ) , <hi rend="kaldkiri"> Extensible Markup Language </hi> ( XML ) , <hi rend="kaldkiri"> Common Warehouse Meta-model </hi> ( CWM ) ja <hi rend="kaldkiri"> System Modeling Language </hi> ( SysML ) . </s> <s> Samal ajal intensiivistas OMG töid MDA ( <hi rend="kaldkiri"> Model Driven Architecture </hi> ) väljatöötamisel . </s> <s> MDAst pidi saama “ järgmine samm süsteemide integreerimise ja elutsükli käsitlemisel ” . </s> <s> UMLs modelleerimine oli seejuures üks MDA nurgakividest - MDA vajadused tõid aga UMLi puudused ilmekalt esile . </s> <s> Eelnevate pisitäiendustega võrreldes oli vaja UMLi tõsisemat kohendamist . </s> <s> Eeldused UML 2.0 loomiseks olid olemas , OMG avaldas UML 2.0 2004. aasta lõpus . </s> </p>
+<p> <s> Siinkohal ei püüa me anda UML 2.0 iseloomustust , jätame selle edaspidiseks . </s> <s> Mainime vaid , et senise 9 vaate ( diagrammi tüübi ) asemel on UML 2.0s 13 vaadet - UML 2.0 võtmesõnadeks on modelleerimise täpsus ja väljendusrikkus , mis on võrreldav <hi rend="kaldkiri"> Specification and Description L </hi> <hi rend="kaldkiri"> anguage </hi> ( SDL ) ja <hi rend="kaldkiri"> Real-time Object-oriented Modeling </hi> ( ROOM ) vahenditega . </s> <s> Modelleerimise täpsus ja väljendusrikkus saavutati järgmiste täiendustega . </s> </p>
+<p> <s> 1. Oluliselt tõhusam komponendipõhise arenduse tugi ( <hi rend="kaldkiri"> UML Composite structure </hi> ) </s> </p>
+<p> <s> 2. Hierarhiline dekompositsioon ja struktuuri ning käitumise integratsioon </s> </p>
+<p> <s> 3. Käitusaja ( <hi rend="kaldkiri"> runtime </hi> ) arhitektuuri modelleerimine </s> </p>
+<p> <s> 4. Toimingute semantika ( <hi rend="kaldkiri"> action semantics </hi> ) integreerimine käitumist kirjeldavate konstrukt- sioonidega ( <hi rend="kaldkiri"> behavior constructs </hi> ) </s> </p>
+<p> <s> 5. Kihilise arhitektuuri tugi </s> </p>
+<p> <s> 6. Käitumise modelleerimine äritasemel ( <hi rend="kaldkiri"> business level </hi> ) , kasutuskaasuste ( <hi rend="kaldkiri"> use case </hi> ) tasemel ja oluliselt täiendatud toimingudiagrammide ( <hi rend="kaldkiri"> activity diagram </hi> ) tasemel . </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Infotehnoloogia võidukäik ja kirjaoskus </head>
+<p> <bibl> <author> <s> Priit Raspel </s> </author> </bibl> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p> <s> <hi rend="kaldkiri"> Priit Raspel - sündinud 15. oktoobril 1960 Tallinnas . </hi> </s> <s> <hi rend="kaldkiri"> Lõpetanud 1984 Tallinna Polütehnilise Instituudi majandusteaduskonna informatsiooni mehhaniseeritud töötlemise erialal . </hi> </s> <hi rend="kaldkiri"> <s> 1984-1992 Tallinna Tehnikaülikooli vanemõpetaja , 1992-1994 AS Tarkvara tarkvara arendusjuht , 1994-1996 Innovatsioonipanga IT juht , 1996 Tööstuspanga IT arendusjuht , 1996-1998 AS Eesti Kindlustus IT arendusjuht , alates aastast 1998 SEB Eesti Ühispanga tarkvaraarendusdivisjoni IT arendusjuht . </s> <s> Aastast 2002 tehnikateaduste magister . </s> </hi> <s> <hi rend="kaldkiri"> 1998-2002 Mainori Ülikooli lektor , 2002-2005 Audentese Ülikooli lektor , aastast 2000 IT Kolle </hi> <hi rend="kaldkiri"> dþi </hi> <hi rend="kaldkiri"> lektor , aastast 2001 EBS lektor , aastast 2005 Mainori Kõrgkooli lektor </hi> </s> </p>
+<p> <s> Oli eelmise sajandi 80ndate aastate keskpaik , kui tollases Nõukogude Liidus kuulutati välja “ kogu maa arvutiseerimine ” ja kommunism sai lisaks nõukogude võimule ja kogu maa elektrifitseerimisele uue , kolmanda komponendi . </s> <s> Sellest hetkest sai ka tollases ENSVs arvutihariduse areng olulise tõuke . </s> <s> Asja ametlikuks formaalseks algatajaks oli NSVLi akadeemik Andrei Jerðov oma mõtteavaldustega “ teisest kirjaoskusest ” , mille all ta pidas silmas arvutiõpetuse kiiret viimist koolide õppeprogrammidesse ja arvutioskuse kõikehõlmavat levitamist “ laiadesse massidesse ” . </s> <s> Loomulikult oli selline kampaanialik käitumine iseloomulik tollasele nõukogude ühiskonnale , kuid samas olukorras oli ka tegelikult lääne ühiskond . </s> <s> Vaatamata lääne ühiskonna tunduvalt kõrgemale elatus- ja arengutasemele , ei olnud ka seal “ igaühe arvutioskus ” oluliselt paremal tasemel . </s> <s> Seda selle pärast , et personaalarvuti oli just äsja turul levima hakanud ja paljud polnud sellega veel kokku puutunud - nendega tegelesid vaid friigid . </s> </p>
+<p> <s> Kuigi esialgu saavutas lääs , võrreldes nende piirkondadega , kus meie elame , olulise edumaa , siis tänaseks on see vahemaa valdavalt kadunud , paljude piirkondadega võrreldes muutunud suisa edumaaks ja alla jääme ainult vähestele . </s> <s> Vähemalt me ise arvame nii . </s> </p>
+<p> <s> Igatahes oleme sellises olukorras , kus arvutustehnika on tunginud meie igapäevase elu , varasemast vaatevinklist vaadatuna , kõige kummalisematesse valdkondadesse , ja tahame või ei taha , arvuti kasutamine on paljudel juhtudel lausa paratamatus . </s> <s> Eriti agaralt tegelevad sellega noored , kes on leidnud arvutustehnikas ja kõiges sellega kaasnevas endale huvitava mänguasja , mis aitab sisustada aega , kuid ühtlasi ka arendab . </s> <s> Kasvavat noorust vaadates on kõhkluseta selge , et nad on omandanud midagi , mida meie selles vanuses veel omandanud polnud . </s> <s> On see nüüd too “ teine kirjaoskus ” või midagi muud vajalikku või mittevajalikku , pole päris selge , aga midagi seal on . </s> <s> On see parem või halvem kui eelmistel põlvkondadel ? </s> <s> Kas on ainult midagi lisandunud või vahest on ka midagi olulist kaotsi läinud ? </s> <s> Katsume selle üle natuke arutleda ja asjas veidike selgust saada . </s> </p>
+<p> <s> Tõuke selle artikli kirjutamiseks andis kaks kokkulangevust . </s> <s> Esiteks loomulikult see , et mul paluti kirjutada . </s> <s> Kuid just samal päeval juhtusin lugema järjekordset ühes ministeeriumis noorte spetsialistide poolt üllitatud dokumenti , milles esmapilgul hariliku harimatuse kõrval torkas tugevasti silma ka tohutu kirjaoskamatus . </s> <s> Lugesin seda dokumenti mitu korda ja sain aru , et tegelikult ei olnud selle kirjutaja üldse harimatu inimene , küll aga oskas ta oma haridust oskuslikult varjata kirjaoskamatuse taha . </s> <s> Siis tekkiski minus , mitte küll esimest korda , aga seekord veidi tugevamalt , küsimus : miks ei suuda noored ennast selgelt väljendada ? </s> <s> Neid ju õpetatakse koolis selleks samamoodi nagu meid omal ajal. </s> <s> Meetodid on ju samad . </s> <s> Või vahest selles ongi viga ? </s> </p>
+<p rend="rasvane"> <s> KIRJAOSKUS </s> </p>
+<p> <s> Kirjaoskuse andmine õpilastele on kooli kõige vanem eesmärk - kõigepealt hakati õpetama lugemist ja kirjutamist , siis mingil hetkel tulid juurde arvutamine ning loodusteadused ja nii see asi kasvas . </s> <s> Kogu koolis õppimine baseerub endiselt siiski lugemis- ja kirjutamisoskusel - ilma nende oskusteta tänapäevane haridussüsteem ei toimiks . </s> <s> Teiselt poolt annavad kõik teised õppeained omakorda tagasisidet ka kirjaoskusest . </s> <s> Lõplik kirjaoskus kujuneb välja kogu õpitu kogusummana ja on üldjuhul seda parem , mida laiem on inimese silmaring . </s> </p>
+<p> <s> Viimaste kümnendite jooksul on Eestis mitmeid kordi muudetud emakeele õpetamise metoodikaid , kuid põhijoontes õpetatakse minu lastele emakeelt samuti kui 30 aastat tagasi minu põlvkonnale - grammatikareeglid , etteütlused , kirjandid , esseed , kohustuslik kirjandus jms. </s> <s> Seega peaks ju asi toimima , kuna aastakümnete jooksul on meie koolidest tulnud hulgaliselt kirjaoskajaid inimesi . </s> <s> Ja inimesed ju kogu aeg lõpetavad koole - seega on nad õppimisega hakkama saanud . </s> <s> Kuna õppimine baseerub kirjaoskusel , siis peaksid nad kirjaoskajad olema . </s> </p>
+<p> <s> Kirjaoskusel on lisaks õpetamise toetamisele ka teine ülesanne . </s> <s> Kirjaoskuse omandanud inimene peaks oskama oma teadmisi ja mõtteid väljendada ja kirjalikult talletada . </s> <s> Seejuures on oluline , et teised kirjutatut ka mõistaksid . </s> <s> Ja leidub ka selliseid , kes sellega hakkama saavad . </s> </p>
+<p> <s> Kogu aeg on olnud nii , et lugema-kirjutama õpivad kõik , aga oma mõtteid huvitavalt paberile panema ainult vähesed . </s> <s> Sinna kahe taseme vahele jääb suurem osa inimesi , kes oskavad vajalikke tekste vajalikul tasemel kirjutada - just sellisel tasemel , nagu nõuab nende hobi või amet . </s> <s> See osa moodustabki kirjaoskajate enamiku . </s> <s> Vähemalt siiani moodustas . </s> <s> Nüüd aga , jälgides tudengite kontrolltöid , kursusetöid , lõputöid jms , võib täheldada olulist muutust , võrreldes varasemaga - nende inimeste hulk , kes oma mõtteid arusaadavalt paberile oskavad panna , väheneb kogu aeg . </s> <s> Sama probleem on jõudnud värskete koolilõpetajate kaudu ka juba toimivatesse firmadesse ja riigiasutustesse . </s> </p>
+<p> <s> Võiks arvata , et aastatepikkune kogemus koolis lugemist-kirjutamist õpetada peaks aja jooksul metoodikaid paremaks muutes andma koolidele võime järjest paremaid kirjaoskajaid välja lasta . </s> <s> Siiski võib näha , et tegelikult on asjad teisiti . </s> <s> Miski on senise süsteemi pea peale pööranud , kuna tulemused on eeldatavale vastupidised . </s> <s> On selleks äkki kogu maailma mõjutanud arvutustehnika aktiivne kasutuselevõtt ja “ teise kirjaoskuse ” tulek ? </s> <s> Katsume jõuda asja tuumani ja arutleme edasi . </s> </p>
+<p rend="rasvane"> <s> “ TEINE KIRJAOSKUS ” </s> </p>
+<p> <s> Oleks liiga triviaalne mõelda “ teise kirjaoskuse ” all lihtsalt arvutiga kirjatükkide kirjutamise ja nende lugemise oskust . </s> <s> See ei mõjutaks oluliselt kuidagi kirjaoskuse õpetamist . </s> <s> Isegi kui lisame siia joonistamise ja piltide vaatamise oskused või laiendame “ kirjaoskust ” kuni kogu multimeedia loomise ja nautlemiseni , ei hõlma me ikkagi piisavalt suurt osa sellest mõistest . </s> <s> Kujundlikust seisukohast on see väga hea termin , kuid tegelikult juhib meie mõtted oma liigse tähenduslikkusega valesse suunda . </s> <s> Seepärast , et mitte lasta kasutataval mõistel juhtida mõtteid valele teele , peab võtma kasutusele mingi muu mõiste . “ Arvuti kasutamise oskus ” ei kõlba , kuna on tegelikult sama vale kui nimetada kirjutamist “ pliiatsi kasutamise oskuseks ” . </s> <s> See rõhutab oskust kasutada mingit konkreetset tehnilist vahendit sellele konkreetset sisu andmata . </s> <s> Seda enam , et kirjutada võib osata ka ilma pliiatsi kasutamise oskuseta ja kirjutamise oskus eksisteeris palju aega enne pliiatsi leiutamist . </s> <s> Pliiatsi leiutamise järel lihtsalt muutus selle tegevuse tehniline baas - kirjutamine muutus lihtsamaks ja kättesaadavamaks rohkematele inimestele . </s> <s> Kirjutajaid tekkis rohkem ja see tingis ka lugemisoskuse levimise massidesse , sest oli , mida lugeda . </s> </p>
+<p> <s> Sama on toimunud ka selle tegevusega , mida me praegu teeme arvutite abil . </s> <s> See tegevus ei tekkinud täna , vaid on arenenud erinevate tehniliste vahendite arengu ja kasutajagruppide laienemise kaudu . </s> <s> Selle tegevuse nimeks on “ informatsiooni käsitlemine ” . </s> <s> Arvutite tekkimine , nende kasutajaliidese igale inimesele jõukohaseks muutumine , hinna sobivale tasemele langemine ja eriti veel nende arvutite võrku ühendamine viis informatsiooni käsitlemise täiesti uuele tasemele . </s> <s> See muutis “ informatsiooni käsitlemise ” tähenduse laiemaks ja tegi selle erinevatel keerukuse tasemetel kättesaadavaks väga erinevatele inimrühmadele . </s> </p>
+<p rend="rasvane"> <s> NOORED JA ARVUTID </s> </p>
+<p> <s> Ilmselt ei ole vaja hakata põhjendama või tõestama , et noortel on parem õppimisvõime kui vanadel . </s> <s> See on üldteada fakt . </s> <s> Miks ma seda mainin ? </s> <s> Sest nooruses , vaatamata koolis rakendatavale sunnile ja süsteemsusele , omandatakse suur osa teadmisi kogemuslikult , intuitiivselt . </s> <s> Lihtsalt kõrvutades saadud kogemusi ja valides sarnastes situatsioonides toimunud sündmustest ja käitumismudelitest välja need , mis samasuguses situatsioonis tulevikus suurema tõenäosusega annavad soovitud tulemuse . </s> <s> Seda protsessi korratakse korduvalt , kuni kogemuste baasil lihvitakse välja optimaalseim käitumismall või tegelikkust paremini kirjeldav teadmine . </s> </p>
+<p> <s> Sel viisil omandavad tänapäeva noored , kes kasvavad arvuti kõrval , ka arvuti kasutamise oskused . </s> <s> Keegi näitab neile , kuidas arvutit käima panna , kus on klaviatuur ja kus hiir ja mis nendega teha saab , ja sellega tavaliselt “ sissejuhatus andmetöötlusesse ” piirdubki . </s> <s> Tegelikult ei ole isegi see vajalik , kuna “ esivanemate ja vanemate kolleegide ” käitumist jälgides saavad nad isegi aru , mida teha ja kuidas mingit seadet käsitseda . </s> </p>
+<p> <s> See on täiesti hämmastav , kuidas intuitiivselt õpitakse kasutama erinevaid programme , liikuma ringi Internetis , otsima muusikapalu ja mänge ( sellest asi tavaliselt algab ) , häälestama arvutit jne. </s> <s> Kõigest sellest enda lõbustamiseks tehtavatest tegevustest areneb välja selline oskuste komplekt , mida meie põlvkonna esindajatel pole mingit lootust üle lüüa . </s> <s> See on muidugi loomulik , sest kui järgmine põlvkond ei omandaks eelmise põlvkonna poolt loodud vahendite kasutamist paremini kui nende loojad , siis toimuks ju taandareng . </s> <s> Kõik tundubki korras olevat , aga päriselt nii see pole . </s> </p>
+<p> <s> <hi rend="rasvane"> KIRJAOSKUS </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> VERSUS </hi> </hi> <hi rend="rasvane"> KIRJAOSKUS </hi> </s> </p>
+<p> <s> Tavaliselt juhtub see esimese põlvkonnaga , kes mingit uut tehnoloogilist vahendit kasutab . </s> <s> Juhtub see , et innustutakse liialt mingi vahvast tehnoloogiast , andutakse täielikult selle kasutamisele ja “ kantakse maha ” sellesama tehnoloogia eelmine tase . </s> <s> Nii juhtus see kirjutusvahendite arengu aktiivsel perioodil , kui suures kirjutamise-lugemise tuhinas unustati ära lugude-muinaslugude-seikluste jutustamine ja kuulamine . </s> <s> Üksteisega rääkimine taastus mingil määral alles telefoni leiutamise ja kasutusele võtmise järel . </s> <s> Nii on juhtunud ka praegu - suures arvutite kasutamise tuhinas on unustatud ära kaks asja - lugemine ja kirjutamine . </s> <s> Seda küll mitte päriselt , sest kirjutatakse ju üksteisele läbi interneti , ja kui kirjutatakse , siis oletatavasti keegi ka loeb midagi . </s> <s> Aga see ei ole endine kirjutamine ja lugemine , vaid on lihtsalt kirjalikuks tekstiks muutunud kõne . </s> <s> Aga mis on siis nende kahe erineva kirjutamise-lugemise , vana ja uue vahe ? </s> </p>
+<p> <s> Vaatame kõigepealt seda “ vanemat kirjaoskust ” . </s> <s> Mingi kirjatüki kirjutaja teadis kirjutamise ajal ja võttis igati arvesse seda , et kui keegi seda kirjatükki loeb , siis teda ennast kohal ei ole . </s> <s> See tähendab , et kogu informatsioon ja emotsioon peab sisalduma tervikuna selles kirjatükis , sest mingeid täiendavaid selgitusi ta selle lugemise hetkel enam lugejale anda ei saa . </s> <s> See omakorda eeldab teksti loogilist ülesehitust , teksti erinevate osade omavahelist seotust , mõistete ammendavaid definitsioone , objektide oluliste osade piisavalt täpseid kirjeldusi ja palju muud sellist . </s> </p>
+<p> <s> “ Uuem kirjaoskus ” on hoopis teise iseloomuga . </s> <s> Siin kasutatakse kirja tegelikult vestlemiseks . </s> <s> Kuna kirjutamine on tunduvalt aeglasem info edastamise viis , kui seda on rääkimine , siis üritatakse kirjutada võimalikult lühikeste fraasidega ja kirjeldada omi mõtteid minimaalselt vajalikus mahus ja isegi vähem - on ju vestluskaaslasel vestluse käigus võimalik küsida täpsustusi . </s> <s> Kõrvalharuna toimub muutus ka kasutatavates sõnades enestes . </s> <s> Et hoida kokku tähemärkide arvu ja suurendada seega kirjutamise kiirust , on tekkinud paljudele sõnadele nn e-suhtluse kirjapilt ja kujunenud välja vaikimisi kasutatavad reeglid lühema kirjapildi saavutamiseks . </s> <s> Nii näiteks kasutatakse tähekombinatsiooni “ ks ” asemel tähte “ x ” ja sageli kasutatavate sõnade puhul jäetakse ära täishäälikuid ( nii näiteks võib sõna “ näiteks ” kirjutada e-suhtluses “ ntx ” ) . </s> <s> Selliseid lühendeid sisaldava teksti lugemiseks peab muidugi teadma reeglistikku ja omama piisavat kogemust , kuna sama lühend võib tähistada sõltuvalt kirjutatu kontekstist hoopis teist sõna . </s> <s> Aga see pole üldsegi nii oluline , sest nagu eespool mainitud , on sisu tähtsam kui vorm. Pealegi on sõnad ja lauseehituski eesti keele arengu jooksul väga palju muutunud . </s> <s> Kui vaadata üle-eelmisel sajandil kirjutatud tekste , siis praegusest vaatevinklist lähtudes tunduvad need kohati halenaljakad . </s> <s> Probleemsemana võib tunduda see , et kirjapilt ei lange enam kokku hääldusega . </s> <s> Aga ka see on ju lõppude lõpuks ainult meie enda kokkuleppe küsimus - maailmas on palju keeli , mille hääldus ja kirjapilt on meie kogemuse seisukohalt vaadates täiesti erinevad . </s> </p>
+<p> <s> Sellisel kirjateel mõtetevahetamisel on vähemalt üks hea külg ja ka vähemalt üks halb külg . </s> <s> Hea on see , et inimene õpib oma suuremaid mõtteid kontsentreerima võimalikult lakooniliselt väljendatud mõttekatketena . </s> <s> Halb on aga see , et mõtete kontsentreerimise käigus kaob oskus väljendada sidusaid terviklikke mõtteid , mis ühe korraga mõistetavana välja öeldakse . </s> <s> Mul on olnud võimalik jälgida tudengite kirjatükkide stiili ja sidususe muutusi alates eelmise sajandi 80ndate aastate keskpaigast . </s> <s> Enamik töid , mis hindamiseks esitatakse , kannavad juba mitmete aastate jooksul sama pitserit - töö struktuur on kehv , mõtted on katkendlikud , laused on konarlikud , slängi kasutamisega on ilmselt üle pingutatud ja kokkuvõttes ei ole tööd loetavad . </s> <s> Kui ka töö pealkiri on ebaõnnestunult välja mõeldud , siis vahel ei saagi aru , mis selle töö eesmärk on . </s> </p>
+<p> <s> Samas esitatakse , kuigi vähe , ka üllatavalt häid töid , kus pea kõik eelmised puudused on olemata või ilmnevad väga nõrgalt . </s> <s> Kuidas osa inimesi suudab ja oskab , osa aga mitte ? </s> <s> See hakkas mind huvitama ja ma küsitlesin oma tudengeid . </s> <s> Ilmnenu ei tohiks olla kellelegi üllatuseks - need tudengid , kelle tööd on paremad , lihtsalt loevad raamatuid . </s> <s> Mida “ hullem bibliomaan ” konkreetne isik on , seda parema stiiliga on üldjuhul ka tema enda kirjutatud tööd . </s> <s> Kui nüüd panna kokku eespool kirjeldatud intuitiivne teadmiste omandamine ja raamatute lugemine , siis on täiesti selge , mis on allikaks ja kuidas kujuneb välja oskus väljendada arusaadavalt oma mõtteid - see põhineb teiste inimeste oskuste üldistamisel ja selle baasil oma maailmatunnetuse ning mõtlemisoskuse kujundamisel . </s> <s> Pole üldistusbaasi , pole oskusi . </s> </p>
+<p rend="rasvane"> <s> KAS KIRJAOSKUSE “ LÕPP ” ? </s> </p>
+<p> <s> Seda kindlasti mitte . </s> <s> Ilmselt on praegu lihtsalt mõõn ja kord oleme jälle laine harjal - areng on kord juba tsükliline . </s> <s> Kahte mõõna põhjust ma juba mainisin . </s> <s> Esiteks põhjustab mõõna kindlasti see , et vahendid on uued , nende kasutamise kogemus ka aktiivsel põlvkonnal alles liiga värske ja puuduvad üldistused , mille alusel järgmisi põlvkondi uuel tasemel õpetada . </s> <s> Puuduvad ka õpetajad , kes seda oskaksid , sest nemadki on vana koolitusega . </s> <s> Teiseks põhjuseks on kindlasti noore põlvkonna aktiivsus uute vahendite kasutamisel , mis jätab traditsiooniliste oskuste õppimise tagaplaanile . </s> <s> Aga see pole kõik . </s> </p>
+<p> <s> Kindlasti on üheks oluliseks mõõna põhjuseks ka see , et uus keskkond on küll tehniliselt “ üpris valmis ” , kuid loogiliselt ( sisu poolest ) üsna puudulik . </s> <s> See tähendab , et keskkond on olemas , aga sisu veel pole . </s> <s> Kuigi tehnilisi materjale ja entsüklopeedilisi katalooge on piisavalt , puudub seal pea tervikuna kogu ilukirjanduslik osa ja kogu inimkonna kultuuriline pärand . </s> <s> Samas on seal jälle suur hulk visuaalseid ja audioteoseid , mis kuidagi ei arenda kirjaoskust . </s> <s> Proportsioonid on paigast ära . </s> <s> Võiks öelda nii - õppija kolis “ uude keskkonda ” , aga õppematerjalid jäid “ vanasse keskkonda ” . </s> <s> Edukamad on need , kes suudavad opereerida mõlemas keskkonnas . </s> <s> See , et enamik seda ei suuda või ei taha , ongi kirjaoskuse mõõna peamine põhjus . </s> </p>
+<p> <s> Seega on meil vaja aega , et ladestuks Interneti “ kultuurikiht ” ja et olulisim osa “ vanast kultuurikihist ” jõutaks adopteerida uude keskkonda . </s> <s> Tuleb oodata , kuni tehniliselt valmis keskkond saaks funktsionaalselt valmis sellisel tasemel , et ta oleks suuteline asendama seni kasutatut . </s> <s> Sõna “ ootamine ” on siin küll tinglik - tegelikult peame me kõik , kes selleks suutelised , andma oma panuse sellesse arengusse . </s> </p>
+<p> <s> Ilmselt ei ole karta , et kirjaoskus kui selline kusagile kaoks , tõenäoliselt muudab vaid mingil määral oma vormi - lõppkokkuvõttes on tal liiga oluline koht kogu ühiskonna arengus . </s> <s> Iseasi on , kas säilib eestikeelne kirjaoskus . </s> <s> Järjest rohkem avaldatakse survet hariduse rahvusvaheliseks muutmiseks ja üha tugevamini pressib peale inglise keel . </s> <s> Praegu räägitakse doktoriõppe täielikult ingliskeelseks muutumisest . </s> <s> See toodab meile õppejõude , kes on ilmselt valmis muutma magistriõppe ingliskeelseks , seejärel võib-olla ka keskkooli jne. </s> <s> Sest haridussüsteem lihtsalt ei tooda enam eestikeelset kirjaoskust valdavaid spetsialiste . </s> <s> Kaob eestikeelne erialane terminoloogia ... </s> <s> Kaob võimalus õpetada erinevaid teadusi eesti keeles . </s> </p>
+<p> <s> Selle kõige suunamine on meie kätes . </s> <s> Jääb ainult valida õiged eesmärgid ja teha nende saavutamiseks õigeid otsuseid . </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Cal-Techist Pocketronicuni </head>
+<p> <bibl> <author> <s> Arvo Toomsalu , TTÜ arvutitehnika instituut </s> </author> </bibl> </p>
+<p> <s> Möödunud sajandi kuuekümnendate aastate keskpaigaks oli integraallülituste valmistamise tehnoloogia saavutanud juba sellise taseme , et võidi hakata tegelema keerukate , kõrge integratsioonitasemega lausintegraallülituste valmistamise probleemidega . </s> </p>
+<p> <s> Neist uuringuist ei jäänud kõrvale ka USA firma <hi rend="kaldkiri"> Texas Instruments </hi> <hi rend="kaldkiri"> , </hi> <hi rend="kaldkiri"> Inc </hi> <hi rend="kaldkiri"> . </hi> ( TI ) , mis oli 1965. aastaks tõusnud üheks juhtivaks keskuseks integraallülituste väljatöötamise ja tootmise vallas . </s> <s> Tollal valmistati TIs peamiselt laias valikus erinevaid madala integratsioonitasemega digitaallülitusi , mille põhitarbijaskonnaks olid arvuteid ja juhtimissüsteeme tootvad ettevõtted . </s> <s> Soovides tarbijaskonda laiendada , jõuti firmas plaanini , milles nähti ette uute , kõrgema integratsioonitasemega mikrolülituste ( lausintegraallülituste ) väljatöötamine , mis sobiksid just laiatarbe-elektroonikatoodete valmistamiseks . </s> <s> Üheks põhjuseks , miks selline plaan sündis , oli asjaolu , et enam-vähem sarnaste projektidega olid hakanud tegelema TI peamised konkurendid <hi rend="kaldkiri"> Fairchild , </hi> <hi rend="kaldkiri"> Rockwell </hi> , <hi rend="kaldkiri"> Hitachi </hi> jt. </s> </p>
+<p> <s> Nii näiteks valmis <hi rend="kaldkiri"> Rockwelli </hi> ja <hi rend="kaldkiri"> Sharpi </hi> ühistööna lausintegraallülitus , mida hakati kasutama elektroonilises võrgutoitelises lauakalkulaatoris <hi rend="kaldkiri"> Sharp QT-8D </hi> ( 1968 ) . <hi rend="kaldkiri"> Rockwelli </hi> lausintegraal- lülitusi kasutati patareitoitelistes kalkulaatorites <hi rend="kaldkiri"> Sharp EL-8 </hi> ( 1970 ) . </s> </p>
+<p> <s> Kirjeldades arvutitehnika arengut möödunud sajandi 60.- 70. aastatel , rõhutatakse tavapäraselt eriti arvutite muutumist massilise tarbimise objektiks . </s> <s> Neil aastatel toimus märkimisväärne kvalitatiivne hüpe elektrooniliste laiatarbekalkulaatorite arendamises ja tootmises . </s> <s> Muidugi ei tekkinud uued elektroonilised , integraallülitustele tuginevad kalkulaatorid tühjale kohale , vaid nad said võimalikuks tänu kiiretele edusammudele pooljuhtlülituste valmistamise tehnoloogias . </s> <s> Et paremini mõista , kuivõrd kiire areng neil aastatel toimus , olgu meenutatud kahte sündmust . </s> </p>
+<p> <s> 1963. aastal valmistasid Suurbritannia firmade <hi rend="kaldkiri"> Bell Punch Co. LTD </hi> ja <hi rend="kaldkiri"> Sumlock-Comptometer LTD </hi> esimese elektroonilise lauaarvuti <hi rend="kaldkiri"> Anita </hi> . </s> <s> Selles arvutis kasutati üksnes elektronlampe , mille arv piirdus kõigest kolmekümne kolmega . </s> </p>
+<p> <s> 1964. aastal valmistati aga Jaapani firmas <hi rend="kaldkiri"> Sony Corporation </hi> maailma esimene lauaarvuti <hi rend="kaldkiri"> MD-5 </hi> , milles kasutati juba ainult transistore . </s> </p>
+<p> <s> Kirjeldatud sündmused eelnesid vahetult 1965. aastal TIs käivitatud projektile . </s> <s> Ettepanek laiatarbe-lausintegraallülituste väljatöötamiseks pärines tollaselt TI presidendilt Patric Eugene Haggertylt . </s> <s> Kui algselt kavandati laiahaardelist , väga erinevatesse laiatarberakendustesse sobivate lausintegraallülituste väljatöötamist , siis peagi otsustati piirduda konkreetsema eesmärgiga - luua spetsiaalsed lausintegraallülitused kalkulaatori tarvis . </s> </p>
+<p> <s> Firmas käivitatigi projekt tingnimetusega <hi rend="kaldkiri"> Cal-Tech </hi> ning selle juhtimine usaldati Jack Kilbyle , spetsialistile , kellel olid vaieldamatult kõige suuremad kogemused ja kompetents integraallülituste vallas<hi rend="ülaindeks">1</hi> . </s> </p>
+<p> <s> Peagi liitusid J. Kilby juhitava projektiga Jerry D. Merryman , kogenud spetsialist integraallülituste projekteerimise alal , ja James H. Van Tassel . </s> <s> Lisaks suurtele kogemustele tootmise korraldamise vallas oli Tassel väga kompetentne nii materjaliteaduse , mehaanika kui ka elektroonika küsimustes . </s> </p>
+<p> <s> Kui J. Merrymani ülesandeks oli tulevase kalkulaatori loogikalise struktuuri projekteerimine , siis J. Van Tassel keskendus selle riistvara küsimuste lahendamisele . </s> <s> Lisaks neile kaasati <hi rend="kaldkiri"> Cal-T </hi> <hi rend="kaldkiri">ech</hi>i projekti veel rida teisi TI spetsialiste . </s> </p>
+<p> <s> Projekteerimistööd käivitati 1965. aasta oktoobris . </s> <s> Neid tehti suure saladuskatte all , ainult väga piiratud arv inimesi teadis täpselt , mis oli <hi rend="kaldkiri"> Cal </hi> <hi rend="kaldkiri">-Tech</hi>i põhieesmärk . </s> </p>
+<p> <s> Hoolimata töö pingelisusest ja keerukusest , tegid kõik osalised seda suure innuga . </s> </p>
+<p> <s> Sel ajal , kui J. Merryman tegeles kalkulaatori loogikalise struktuuri sünteesiga , keskendus J. H. Van Tassel selle tarvis sobiva väikese ja töökindla klaviatuuri väljatöötamisele . </s> <s> Kumbki ülesanne polnud lihtsate killast ja kuna puudusid ka kogemused taoliste ülesannete lahendamiseks , siis oli raske vältida ekslikke lahendusi . </s> </p>
+<p> <s> Näiteks pärast kalkulaatori loogikalise struktuuri valmimist otsustas J. Merryman loobuda välja- töötatud lahenduse testimisest kalkulaatori prototüübil ja asus kohe valmistama kolmest integraallülitusest koosnevat kiibikomplekti . </s> <s> Igati julge otsus , eriti kui arvestada seda , et seni polnud nii kõrge integratsioonitasemega mikrolülitusi firmas üldsegi valmistatud . </s> <s> Kuni selle ajani oli TI valmistanud madala integratsioonitasemega integraallülitusi , kus kiipides ei olnud üle paarikümne lihtsa loogikalüli . </s> <s> Nüüd tuli hakata valmistama lausintegraallülitusi , kus kiipidesse oli vaja mahutada kuni 150 loogikalüli . </s> <s> Keerukate kalkulaatorkiipide valmistamisel rakendati tollal moodsaimat , TIs alles äsja kasutusele võetud MOS-tehnoloogiat . </s> </p>
+<p> <s> Kui aga esimesed kiibid valmis said , siis ei hakanud neist ükski tööle . </s> <s> Kiirustamine ja põhjen- damatu ootus , et keerukates loogikalülitustes ei saa esineda loogika- , topoloogia- või tehnoloogilisi vigu , maksis väga valusalt kätte . </s> <s> Sellised vead , millest suuremat osa oleks hõlpsasti saanud avastada juba kalkulaatori prototüübil läbiviidavate testimiste käigus , olid lipsanud valminud kiipidesse . </s> <s> Kasutades tavalisi standardseid madala integratsioonitasemega integraallülitusi , tuli nüüd kiipides erinevate vigade avastamiseks kiirkorras valmistada lausintegraallülituste funktsionaalsed analoogid ( mudelid ) . </s> <s> Pärast mudelite igakülgset testimist ja neis vigaste kohtade tuvastamist tehti kalkulaatorkiipides vajalikud parandused , nii et lõppude lõpuks hakkasidki need korrektselt funktsioneerima . </s> </p>
+<p> <s> Kui J. Merrymanil tuli heidelda kapriissete lausintegraallülitustega , siis ega lihtsamad polnud probleemid , mida pidi lahendama J. Van Tassel . </s> </p>
+<p> <s> Üheks pähkliks kujunes küsimus , kuidas korraldada kalkulaatorist arvutustulemite väljastamist . </s> <s> Tollal laialdaselt kasutatud gaaslahenduskuvaseadmed vajasid talitlemiseks kõrgeid pingeid . </s> <s> Tänapäeval nii tavalisena tunduvad indikaatorelemendid valgusdioodidel olid aga alles laborikatsete staadiumis . </s> <s> Et ükski standardne kuvaseade ei sobinud portatiivsele autonoomse elektritoitega kalkulaatorile , siis otsustati kuvapaneelist üldse loobuda ning asendada see miniatuurse printeriga . </s> <s> See , et kalkulaator väljastab informatsiooni ainult printväljastisena , ei olnud sel ajal midagi erakordset . </s> <s> Kuid TI lahenduse innovaatilisus seisnes selles , et kohmakate ja suurte elektromehaaniliste prindiseadmete asemel võeti kasutusele ökonoomne , väikese energiatarbe ja müratasemega , portatiivne termoprinter . </s> <s> Valik langes firma enda poolt loodud printseadmele . </s> <s> Kuid hoolimata isegi valitud prindiseadme ökonoomsusest , osutus see kalkulaatoris ikkagi üheks suurima võimsusega energiatarvitiks . </s> </p>
+<p> <s> Küllaltki tõsiseid raskusi tekkis kalkulaatori energiavarustuse korraldamisel . </s> <s> Juba projekt- ülesandes oli püstitatud nõue , et kalkulaatorit tuleb varustada elektrienergiaga autonoomsest toiteallikast , seega oli esmaseks ülesandeks leida selleks sobiv toiteelement või -elemendid . </s> <s> Algul kaaluti , kas mitte rakendada toitesüsteemis korduvkasutatavaid Ag-Zn-toiteelemente , kuid peagi loobuti sellest variandist ning otsustati ökonoomsemate Ni-Cd-toiteelementide kasuks . </s> <s> Kokku vajas kalkulaatori , <hi rend="kaldkiri">Cal-Tech</hi>iks , akumulaatori nimetatud energiatoitesüsteem ühtteist Ni-Cd-elementi . </s> <s> Just need elemendid moodustasid lõviosa kalkulaatori massist . </s> </p>
+<p> <s> 1966. aasta lõpuks sai kalkulaator <hi rend="kaldkiri"> Cal-Tech </hi> valmis , seadme töötava mudeli demonstratsioon osutus igati edukaks . <hi rend="kaldkiri"> Cal-Tech </hi> kujutas oma aja kontekstis tõelist taskukalkulaatorit . </s> <s> Võrdlemisi lihtsa väliskujundusega <gap rend="joonis"/> -tollise alumiiniumkorpusega lausintegraallülitustel kalkulaator kaalus “ kõigest ” 3,5 naela<hi rend="ülaindeks">2</hi> . </s> <s> Kalkulaator opereeris 12-järguliste kümnendsüsteemis esitatavate operandidega , sooritades liitmis- , lahutamis- , korrutamis- ja jagamisoperatsioone . </s> </p>
+<p> <s> 1967. aastal esitasid J. Kilby , J. Merryman ja J. Van Tassel , tuginedes <hi rend="kaldkiri"> C </hi> <hi rend="kaldkiri">al-Tech</hi>ile , patenditaotluse ( <hi rend="kaldkiri"> Miniature Electronic Calculator </hi> ) , mille peale 1974. aastal andis USA patendiameti neile välja patendi nr 3 819 921. </s> </p>
+<p> <s> Kuigi lausintegraallülitusi sisaldava kalkulaatori projekt osutus igati edukas , ei hakatud TIs kalkulaatorit siiski tootma . </s> <s> Vastavalt firma tulevikuvisioonile nähti ette orienteerumist ikkagi integraallülituste valmistamisele , mitte aga konkreetsete laiatarbekaupade tootmisele . </s> <s> Küll aga koguti <hi rend="kaldkiri">Cal-Tech</hi>i projekti käigus väärtuslikke teadmisi ja kogemusi , kuidas otstarbekalt korraldada keerukate lausintegraallülituste projekteerimist ja valmistamist . </s> <s> Tänu sellele projektile mindi <hi rend="kaldkiri"> Texas Instruments </hi> is integraallülituste valmistamisel üle uuele , kvalitatiivselt märksa kõrgemale tehnoloogilisele tasemele . </s> </p>
+<p> <s> Erinevalt aga paljudest teistest analoogilistest projektidest ei jäänud kalkulaator <hi rend="kaldkiri"> Cal-Tech </hi> vaid üheks järjekordseks huvitavaks , kuid unustusehõlma vajunud väljatöötluseks , vaid see seade jõudis siiski ka masstootmisse . </s> <s> Seda tänu TI ja kalkulaatoreid tootva tuntud Jaapani firma <hi rend="kaldkiri"> Canon </hi> <hi rend="kaldkiri"> Incorporated </hi> viljakale koostööle . </s> <s> Tõsi , turule jõudnud kalkulaator ei kandnud enam nime <hi rend="kaldkiri"> Cal-Tech </hi> <hi rend="kaldkiri"> , </hi> vaid <hi rend="kaldkiri"> Pocketronic </hi> . </s> <s> Muutunud polnud mitte üksnes kalkulaatori nimi , vaid seadme konkurentsivõime tõstmiseks oli tehtud täiustusi ka selle disainis . </s> </p>
+<p> <s> <hi rend="kaldkiri">Pocketronic</hi>u kohandamisega vastavaks tollastele turunõuetele ja selle tootmisega tegeles <hi rend="kaldkiri"> Canon </hi> , TI ülesandeks jäi tootja varustamine kalkulaatori elektrooniliste tuumlülitustega , st kiibikomplektiga 173x . </s> </p>
+<p> <s> Esimesed <hi rend="kaldkiri">Pocketronic</hi>ud jõudsid Jaapanis müüki 1970. aastal , USAs aga 1971. aasta algul . </s> <s> Nagu oma prototüübis <hi rend="kaldkiri">Cal-Tech</hi>is kasutati ka <hi rend="kaldkiri">Pocketronic</hi>us 12-järgulisi kümnendarve ( 8 kohta enne koma ja 4 kohta pärast koma ) , millega sooritati nelja põhilist aritmeetikatehet . </s> <s> Kalkulaatori juhtimiseks ( andmete sisestamiseks ) oli seade varustatud tavalise kümnendsõrmistikuga , mida täiendasid seitse funktsioonisõrmist [ + ] , [ </s> - <s> ] , [ x ] , [ ÷ ] , [ C ] , [ Cl ] , [ ? ] ning neile lisanduv toitelüliti . </s> <s> Erinevalt enamikust kaasaegsetest taskukalkulaatoritest oli <hi rend="kaldkiri"> Pocketronic </hi> varustatud juhtsõrmisega [ ? ] , mille aktiveerimisel sooritati sisestatud arvandmetega ettenähtud aritmeetiline tehe ning saadud tulem prinditi välja . </s> <s> Et kasutajail oleks kergem jälgida nii sisestatavaid andmeid , siis sarnaselt <hi rend="kaldkiri">Cal-Tech</hi>iga puudus ka <hi rend="kaldkiri">Pocketronic</hi>ul kuvapaneel , samuti oli kerge kalkulaatoril sõrmistiku kohal läbipaistva suurendava plastkattega aknakeselt näha tulemit . </s> <s> Aknakese alt liikus läbi termoprinteri pabeririba , kuhu prinditi nii algandmed kui ka tulem . </s> </p>
+<p> <s> Võrreldes aga prototüübiga , tegi <hi rend="kaldkiri"> Canon </hi> <hi rend="kaldkiri">Pocketronic</hi>us veel ühe olulise täienduse . </s> <s> Kasutusele võeti spetsiaalne kergesti vahetatav kassett termopaberlindi tarvis . </s> </p>
+<p> <s> 60 grammi kaaluv kassett mahutas ligikaudu 80 meetrit 6 mm laiust termopaberlinti , millest piisas umbes 3000 arvutuse sooritamiseks . </s> <s> Väljastatavaid sümboleid sünteesiti 5 x 7-punktilises rastris ning nende suurus oli vaid 2,5 × 2 mm . </s> <s> Võrdluseks olgu mainitud , et <hi rend="kaldkiri">Cal-Tech</hi>i termoprinter sünteesis sümboleid rastris 3x5 punkti , mistõttu selle printeri poolt väljastatud sümbolite kujutise kvaliteet jättis paljugi soovida . </s> </p>
+<p> <s> Konstruktiivselt olid <hi rend="kaldkiri">Pocketronic</hi>u elektroonikalülitused jaotatud kolmele väikesele trükiplaadile , mis omavahel ühendati kaablitega . </s> <s> Ühel trükiplaatidest asusid diskreetsetest raadiokomponentidest koostatud taktigeneraator , ajastuslülitus , termoprinteri ja toitesüsteemi liidestuslülitused . </s> <s> Teisel , kõige väiksemal trükiplaadil , paiknesid samuti diskreetsetest komponentidest moodustatud võimenduslülitused . </s> <s> Kolmas trükiplaat oli ette nähtud lausintegraallülituste monteerimiseks . </s> <s> Nendeks olid 40-viigulistes korpustes mikrolülitused <hi rend="kaldkiri"> TMC1731BM </hi> <hi rend="kaldkiri"> C </hi> , <hi rend="kaldkiri"> TMC1732AN </hi> <hi rend="kaldkiri"> C </hi> ja 28-viigulises korpuses <hi rend="kaldkiri"> TMC1730BJC </hi> . </s> </p>
+<p> <s> Kalkulaatori korpuses asusid veel termoprinteri mehhanism ja korduvkasutatavad Ni-Cd-toite- elemendid . </s> <s> Kalkulaatori elektroonikasõlmedes kasutati toitepingeid + 7,2 V ja - 8,4 V , keskmine võimsustarve ei ületanud 1 W. Värskelt laetud toiteelementide komplekt tagas kalkulaatori pideva talitluse umbes kolmeks tunniks . </s> <s> Taskukalkulaatori <hi rend="kaldkiri"> Pocketronic </hi> mõõtmed olid 101 x 208 x 49 millimeetrit , seadme mass koos toiteelementidega ei ületanud 820 grammi<hi rend="ülaindeks">3</hi> . </s> <s> Kalkulaatori müügihind oli 1971. aastal 395 dollarit . </s> </p>
+<p> <s> Kuigi tänapäeval võib <hi rend="kaldkiri">Pocketronic</hi>ut leida veel vahest arvutitehnika muuseumidest , jääb see kalkulaator kindlasti püsima arvutitehnika ajalukku kui esimene laiale kasutajaskonnale määratud lausintegraallülitusi sisaldav (tasku)kalkulaator . </s> </p>
+<p> <s> 1 </s> </p>
+<p> <s> Jack St. Claire Kilby ( snd 8.11.1923 Jeffersonis , USA ) töötas firmas <hi rend="kaldkiri"> Texas Instruments , Inc. </hi> aastatel 1958 kuni 1970. </s> <s> 12. septembril 1958 demonstreeris Jack Kilby maailma esimest töötavat integraallülitust . </s> <s> Selleks oli 7/16 × 1/16-tollisel germaaniumplaadikesel asuv generaatorlülitus . </s> <s> J. Kilby leiutis pani aluse pooljuhtlülituste valmistamise uudsele tehnoloogiale , mis tagas järgnevatel aastatel arvutitehnika tohutu kiire arengu . </s> </p>
+<p> <s> 2000. aastal andis Rootsi Kuninglik TA Jack St. Claire Kilbyle Nobeli füüsikaauhinna , märkides ära tema väljapaistvaid saavutusi integraallülituste väljatöötamisel ja integraaltehnoloogia arendamisel . </s> </p>
+<p> <s> 2 </s> </p>
+<p> <s> Kuidas nägi välja <hi rend="kaldkiri">Cal-Tech</hi>i konstruktsioon , seda võib näha näiteks võrguleheküljel </s> </p>
+<p> <s> <gap rend="hüperlink"/> avaldatud fotodelt </s> </p>
+<p> <s> 3 </s> </p>
+<p> <s> Võrgulehekülgedel <gap rend="hüperlink"/> ja <gap rend="hüperlink"/> avaldatud fotod annavad võrdlemisi hea ülevaate kalkulaatori <hi rend="kaldkiri">Pocketronic</hi>u sõlmede konstruktiivsest lahendusest . </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Monomikroprotsessorite arhitektuuri põhilisi arengusuundi ( 2 ) </head>
+<p> <bibl> <author> <s> Arvo Toomsalu , TTÜ arvutitehnika instituut </s> </author> </bibl> </p>
+<p rend="rasvane"> <s> PROGRAMSETE HARGNEMISTE TÖÖTLUSE KORRALDAMINE </s> </p>
+<p> <s> Täiendatud arhitektuuriga superskalaarsete protsessorite jõudlus sõltub oluliselt sellestki , kuivõrd kiiresti ja korrektselt õnnestub läbi viia programsete hargnemiste korral hargnemissuundade prognoosimine . </s> <s> Kuna protsessorite käsukonveierites on astmete arv pidevalt suurenenud , siis vääralt prognoositud hargnemised põhjustavad konveierite ümberlaadimisel märkimisväärseid info ja ajakadusid . </s> </p>
+<p> <s> Protsessorites , kus käske töödeldakse käsujärjekorraväliselt , jaotavad programmis esinevad hargnemised käsuakna üksikuiks jadamisi töödeldavaiks käsusegmentideks , mis sisuliselt tähendab käsutasemelise rööpsuse astme vähenemist . <hi rend="ülaindeks"> 1 </hi> On avaldatud isegi sellist arvamust , et aastal 2010 on programsete hargnemiste prognoosi korrektsus protsessori jõudluspiirangute seisukohalt suurema tähtsusega kui jõudluspiirangud , mis tulenevad mikroprotsessorsüsteemi mälusüsteemi ebapiisavast läbilaskevõimest . </s> <s> Hargnemissuuna prognoosi võib läbi viia mitmeti - kas staatiliselt , dünaamiliselt või kombineerituna . </s> </p>
+<p> <s> Hargnemissuuna staatilisel prognoosimisel lähtutakse põhimõttest , et hargnemisel jätkub programmi edasine töötlus alati samast harust mis eelnevatelgi kordadel ( seda kogu antud programmi töötluse kestel ) . </s> <s> Staatilise prognoosi võib läbi viia kas riistvaralisel ( kasutades erilülitusi ) või tarkvaralisel ( kompilaatori poolt ) tasemel . </s> <s> Prognoosimisel võetakse aluseks üks kahest võimalikust sündmusest : </s> </p>
+<p> <s> 1. Hargnemine toimub alati . </s> </p>
+<p> <s> 2. Hargnemist ei toimu kunagi . </s> </p>
+<p> <s> Hõlbustamaks hargnemise prognoosimist lisatakse enamasti hargnemiskäskude käsukoodi täiendav bitt , mille väärtust kasutatakse hargnemise suuna ennustamisel . </s> </p>
+<p> <s> Hargnemissuuna dünaamiline prognoosimine toimub operatiivselt programmi töötlemise käigus . </s> <s> Prognoosiülesande lahendamisega tegeleb protsessori juhtüksuses eririistvara , mis prognoosimisel tugineb töödeldava programmi varasemale käitumusele . </s> <s> Kuna vahetult pärast programmi käivitamist puudub prognoosiüksusel teave programmi varasema käitumise kohta , sest seda pole veel kogunenud , on dünaamilise prognoosi usaldatavus esialgu siiski madal . </s> <s> Sedamööda , kuidas koguneb teavet programmi käitumuse kohta , tõuseb ka prognooside usaldatavus . </s> <s> Üldjuhul vastavad dünaamilise prognoosi tulemused tegelikkusele siiski paremini kui staatilise prognoosi omad . </s> <s> Meetodi puuduseks võib pidada aga vajatava riistvara keerukust ja maksumust . </s> </p>
+<p> <s> Lülitusi , milles otseselt viiakse läbi hargnemiste prognoosi , nimetatakse ennustiteks . </s> <s> Lihtsates ennustilülitustes kasutatakse prognoosimisel vaid üht prognoosibitti . </s> <s> Prognoosibiti väärtus näitab , kas eeldatav hargnemine leiab aset või mitte . </s> <s> Lihtsamate programsete silmuste puhul tagab selline algoritm küllaltki häid prognoositulemusi , kuid pesastatud silmuste korral jääb prognoosi usaldatavus madalaks . </s> </p>
+<p> <s> Prognoosi usaldatavust ( täpsust ) saab tõsta , kui kasutada kahte või enamat prognoosibitti . </s> <s> Enamasti piirdutaksegi ennusti tööalgoritmis kahe prognoosibitiga . </s> <s> Kahte prognoosibitti kasutav prognoosimeetod annab häid tulemusi programmide korral , mis sisaldavad palju sageli korduvaid silmusjuhitavaid hargnemisi ( näiteks ujupunktöötlusele orienteeritud programmid ) . </s> <s> Problemaatiliseks muutub prognoosi usaldatavus aga juhtudel , kui tegemist on omavahel sõltuvate ( korreleeruvate ) hargnemistega ( esineb tihti püsipunkttöötlusele orienteeritud programmides ) . </s> <s> Et kahebitist prognoosialgoritmi kasutav ennusti lähtub hargnemissuuna prognoosimisel ainult viimati toimunud hargnemise suunast , siis sõltuvused varasematest hargnemistest kajastuvad prognoosis nõrgalt . </s> </p>
+<p> <s> Joonisel 3 on esitatud ühe- ( a ) ja kahebitise ( b ) ennusti talitlusalgoritmid , viimases võib kasutada kaht erinevat siseolekute vahetumise järjestust ( b1 ja b2 ) . </s> <s> Kahebitise ennusti talitlus variandis b2 toimub hüstereesialgoritmi kohaselt . </s> </p>
+<p> <s> Siirdekäskude tarvis säilitatakse nendele vastavate prognoosibittide väärtusi siirdeaadresside puhvris tabelina . </s> <s> BTB-tabeli ( joonis 4 ) igas reas säilitatakse eraldi väljades siirdekäsu aadressi , antud siirdekäsule vastavat hargnemise siirdeaadressi ning sellega seotud prognoosibittide väärtusi . </s> <s> Käskude töötlemisel suunatakse iga käsu aadress nii käsuvahemällu kui ka BTBsse . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 3. </s> <s> Ühe- ja kahebitise ennusti talitlusalgoritm : T - hargnemine prognoositud suunas toimus ; ET - hargnemine prognoositud suunas ei toimunud . </s> <s> Sulgudes on näidatud prognoosibiti ( -bittide ) väärtus ( olekukood ) </s> </p>
+<p> <s> Aadresside võrdluslülitus võrdleb käsu aadressi BTB-tabelis säilitatavate aadressidega ja kui võrreldavad aadressikoodid langevad kokku , siis väljastatakse BTBst hargnemise sihtaadressi väärtus . </s> <s> Sellelt aadressilt jätkubki programmi edasine töötlemine . </s> <s> Et tulevikus vältida hargnemissuuna väärprognoosi , toimub vajaduse korral hargnemiskäsu töötluse lõppedes selle sihtaadressi väärtuse korrigeerimine . </s> <s> Ühtlasi korrigeeritakse BTB-tabelis hargnemiskäsuga seotud juht- informatsiooni väärtust . <hi rend="ülaindeks"> 2 </hi> </s> </p>
+<p> <s> Mõnedes protsessorites ei säilitata BTBs prognoosibitte . </s> <s> Sellisel juhul kasutab ennusti informatsiooni , mida säilitatakse hargnemiste eelloo tabelis ehk BHTs ( <hi rend="kaldkiri"> Branch History Table </hi> ) . </s> <s> Järjest sagedamini võib protsessoreis kohata hargnemiste sihtaadresside vahemälu ehk BTACi ( <hi rend="kaldkiri"> Branch-Target Address Cache </hi> ) . </s> <s> Erinevalt BTBst säilitatakse BTACs iga hargnemise tarvis veel lisaks üht või kaht käsku hargnemise sihtaadressilt . </s> </p>
+<p> <s> Kui programmi käitumust soovitakse aga rohkem arvesse võtta , siis tuleks appi võtta ennusti , kus prognoosimine tugineb korrelatsioonipõhisele prognoosialgoritmile . </s> <s> Näiteks ( m , n ) -korre- latsioonipõhises ennustis lähtutakse hargnemissuuna prognoosimisel viimasest m hargnemisest . </s> <s> Kõigist võimalikest ( 2<hi rend="ülaindeks">m</hi> ) hargnemisest , kus igaühes kasutatakse seesmiselt n-bitist prognoosialgoritmi , valitakse välja üks konkreetne hargnemissuund . </s> <s> Seega tugineb ( m , n ) -ennusti talitlus hargnemiste globaalsele eelloole . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 4. </s> <s> Siirdeaadresside puhvri ( BTB ) korraldus </s> </p>
+<p> <s> Veelgi keerukamates prognoosiüksustes leiavad hargnemissuundade ennustamisel kasutamist hübriidennustid ( <hi rend="kaldkiri"> hybrid predictor </hi> ) . </s> <s> Üheks põhjuseks , miks täiustatud arhitektuuriga superskalaarprotsessoreis võib tihti kohata hübriidennusteid , on see , et prognoosi meetodid ja prognoosi- lülitused , mida kasutati skalaarseis protsessoreis , ei sobi superskalaarprotsessoreile . </s> <s> Tavaliselt on hübriidennustite prognoosi usaldatavus parem kui eelkirjeldatuil . </s> <s> Hübriidennustites ühendatakse kaks või enam sõltumatut ennustit , igaüks neist tegeleb mingi kindlat liiki hargnemise hargnemissuuna prognoosiga . </s> <s> Üksikute spetsialiseeritud ennustite optimaalne riistvara ja efektiivne talitlusalgoritm tagavadki hübriidennusti kiire ja kvaliteetse prognoosi ka suure arvu käskude rööpsel töötlemisel . </s> <s> Hübriidennustite arengus on jõutud multihübriidennustite ( <hi rend="kaldkiri"> multi-hybrid </hi> <hi rend="kaldkiri"> predictor </hi> ) loomiseni . </s> <s> Väidetavalt ulatub multihübriidennustite prognoosi usaldatavus ( <hi rend="kaldkiri"> confidence of </hi> <hi rend="kaldkiri"> prediction </hi> ) kuni 95%-ni . </s> </p>
+<p> <s> Üheks võtteks hargnemiste paremaks töötlemiseks on programmis sisalduvate käskude predikaatimine . </s> <s> Predikaaditud käskude puhul töödeldakse käske hargnemise mõlemas suunas rööpselt seni , kuni selgub lõplikult programmi edasine kulgemine . </s> </p>
+<p> <s> Ilmselt hakatakse tulevikus programsete hargnemiste ohjel veelgi laialdasemalt rakendama hübriidseid prognoosimeetodeid . </s> <s> Eriti suurt efekti annab see töötlusviis madala usaldatavusega hargnemiste korral<hi rend="ülaindeks">3</hi> . </s> <s> Kuna superskalaarprotsessoreis tuleb igal taktil tegeleda hargnemissuundade hulgiprognoosiga ( samaaegselt prognoosida hargnemisi mitmetes käsulõimedes ) , siis on vaja täiustada ennustilülitusi , mis rakendavad prognoosil korrelatsioonimeetodit . </s> <s> Korrelatsioonimeetodi kasuks räägib seegi , et see võimaldab hargnemissuundi prognoosida isegi neil juhtudel , kui hargnemiskäsu aadress pole veel täpselt teada . </s> </p>
+<p rend="rasvane"> <s> JÄLJEVAHEMÄLU </s> </p>
+<p> <s> Jäljevahemälu on käsuvahemälu eriliik , kuhu programmi töötlemise käigus talletatakse dünaamilisi käsujärgnevusi ( käsujadasid ) . </s> </p>
+<p> <s> Jäljevahemälu igas kandes ( mälureas ) säilitatakse käsujälge , mis võib sisaldada üht või mitut hargnemiskäsku . </s> <s> Sisuliselt on käsujälg käskude dünaamiline jada , mis omakorda võib koosneda mitmest käskude põhiplokist . </s> <s> Käskude põhiploki võtt toimub ühe protsessoritakti jooksul . </s> <s> Käsujäljed moodustatakse programmi töötluse käigus , st nad sisaldavad vaid neid käske , mida protsessoris programmi töötlemisel tegelikult kasutati . </s> </p>
+<p> <s> Käsujälgede salvestamine jäljevahemälus erineb käskude salvestamisest käsuvahemällu selle poolest , et jäljevahemälus paiknevad käsujäljed alati järjestikku , samas kui käsuvahemälus võivad käsud paikneda suvalises järjestuses . </s> </p>
+<p> <s> Jäljevahemälus säilitatavate käsujälgede töötlemise järjestuse määramisel arvestatakse mitte üksnes igas käsujäljes endas säilitatava järgmise jälje aadressi , vaid arvesse võetakse ka hargnemiste prognoosiüksusest saadavat informatsiooni . </s> </p>
+<p> <s> Üksikasjalisemalt on jäljevahemälu ehitust ja tööpõhimõtet kirjeldatud artiklis “ Jäljevahemälu ” [ 11 ] . </s> </p>
+<p rend="rasvane"> <s> ANDMEVAHEMÄLU KORRALDUS JA OPERANDIDE VÄÄRTUSTE PROGNOOSIMINE </s> </p>
+<p> <s> Kui protsessoris suunatakse üheaegselt töötlusesse mitukümmend käsku , siis enamasti tähendab see , et sama palju andmeid ( operande ) on vaja õigeaegselt edastada protsessori töötlusüksustesse . </s> <s> Et protsessorite andmevahemälude infomahutavus ja toimekiirus vastaks püstitatud nõuetele , ehitatakse nad üles hierarhilise struktuurina . </s> <s> Kiire suure infomahutavusega mälukeskkonna kujundamisel jaotatakse andmevahemälud väiksemateks väga kiiret andmevahetust tagavaiks mälusegmentideks . </s> <s> Informatsiooni läbilaskevõime suurendamiseks andmevahemälusüsteemis ei piirduta vaid riistvaralis-struktuursete võtetega , järjest sagedamini rakendatakse ka andmete spekulatiivset ettelaadimist töötlusüksustesse . </s> </p>
+<p> <s> Analoogiliselt juhtinformatsiooni ( käskude ) töötluse kiirendamiseks kasutatavate prognoosi- mehhanismidega viiakse täiendatud arhitektuuriga superskalaarprotsessoreis läbi andmete ( operandide väärtuste ) prognoosimist . </s> <s> Protsessori jõudluse seisukohalt on äärmiselt tähtis , et ajaks , kui üks või teine käsk jõuab töötluse faasi , oleksid neis kasutatavad andmed kasutuskõlblikud ja -valmid . </s> <s> Seega on paratamatu , et kõrvuti käsuaadresside prognoosimisega tuleb prognoosida andmete aadresse ( andmeaadresse ) . </s> <s> Võrreldes käskude prognoosimisega , on andmete prognoosimine aga veelgi komplitseeritum . </s> <s> Andmete prognoosimisel peab arvestama käskudevaheliste andmesõltuvuste tekke võimalust ja vajadust tekkivaid probleeme operatiivselt lahendada . </s> </p>
+<p> <s> Andmete , käskudes kasutatavate operandide ja eeldatavate töötlustulemuste ( tulemite ) väärtuste prognoosil lähtutakse programmide lokaalsusprintsiibist . </s> <s> Programmi töötlemise käigus on eristatavad kaks andmeväärtuste ajalise moodustumise järgnevust , mida nimetatakse vastavalt lokaalseks väärtuste tekkelooks ( <hi rend="kaldkiri"> history </hi> ) ja globaalne väärtuste tekkelugu . </s> <s> Käskude eeldatavate töötlustulemuste ( andmete ) prognoosimisel kasutataksegi neid tekkelugusid . </s> </p>
+<p> <s> Lokaalsete väärtuste tekkelugu kirjeldab andmeväärtuste jada , mis on formeerunud konkreetse käsu eelnevate töötluste käigus . </s> <s> Globaalsete väärtuste tekkelugu moodustub aga kõigi töödeldud käskude eelneva töötluse alusel . </s> <s> Kui globaalsete väärtuste kogum on moodustatud programmi piisavalt pikaajalise talitluse tulemusena , siis hakkab see hõlmama ka lokaalsete väärtuste tekkelugu . </s> </p>
+<p> <s> Andmeväärtuste jadade moodustamisel võib lähtuda kahest mudelist - arvutuslikust või kontekstipõhisest mudelist . </s> </p>
+<p> <s> Protsessorites talitlevais väärtuseennusteis ( <hi rend="kaldkiri"> value predictor </hi> ) ehk andmeennusteis toimub lokaalsete väärtuste prognoosimine kas ainult ühe mudeli baasil , näiteks juurdekasvuennustid ( <hi rend="kaldkiri"> stride predictor </hi> ) , või tuginetakse mõlemale mudelile ( hübriidennustid ) . </s> </p>
+<p> <s> Andmete lokaalväärtuste prognoosi täpsus tõuseb , kui prognoosimisel võetakse arvesse programmi käitumise üldisi seaduspärasusi . </s> <s> Eriti häid tulemusi saavutavad andmete lokaalväärtuste ennustid siis , kui prognoositava käsu olemasolevate väärtuste jadas on täheldatav perioodilisus või selles esineb konstantne juurdekasv . </s> </p>
+<p> <s> Kuna hübriidennustites on ühendatud arvutuslik ja kontekstipõhine prognoosimeetod , siis suudavad nad paremini prognoosida tulevikus formeeruvate andmete ( tulemite ) väärtusi . </s> </p>
+<p> <s> Andmeväärtuste ennustamisel rakendatavate prognoosialgoritmide repertuaar on mitmekesine . </s> <s> Ennustid võivad töötada kas viimase väärtuse ehk LV- ( <hi rend="kaldkiri"> Last </hi> <hi rend="kaldkiri"> Value </hi> ) , juurdekasvu ehk STR- ( STR<hi rend="kaldkiri">ide</hi> ) , kontekstipõhise ehk FCM- ( <hi rend="kaldkiri"> Finite Context </hi> <hi rend="kaldkiri"> Method </hi> ) või ka hübriidalgoritmi alusel . </s> </p>
+<p> <s> Kui väga lihtsustatult kirjeldada nimetatud prognoosialgoritme , siis : </s> </p>
+<p> <s> 1. LV-algoritmi alusel talitlev ennusti lähtub eeldusest , et käsus kasutatava operandi väärtus on sama , mis see oli sellesama käsu eelneva kasutamise korral . </s> </p>
+<p> <s> 2. STR-algoritmi rakendavas ennustis moodustatakse operandi tulevane väärtus sel teel , et operandi eelnevale väärtusele liidetakse teatav konstant ( juurdekasv , inkrement ) . </s> <s> Juurdekasv ei ole muud kui kahe järjestikuse andmeväärtuse vahe . </s> <s> Juurdekasvu väärtus kuulub aga korrigeerimisele juhul , kui seni kasutatud juurdekasvu väärtus erineb jada tegelikust juurdekasvust vähemalt kahel korral . </s> </p>
+<p> <s> 3. FCM-algoritmi puhul eeldatakse , et operandide väärtused esinevad teatava korduva jadana . </s> <s> Operandi uue väärtuse prognoosil lähtutakse tema eelnevast väärtusest . </s> </p>
+<p> <s> 4. Hübriidalgoritmis ühendatakse STR- ja FCM-algoritmid ühtseks , prognoosi täpsust tõstvaks tervikuks . </s> </p>
+<p> <s> 5. Kasutamist leiab samuti käsujäljepõhine prognoosialgoritm , kus käsku , mille tarvis andmete väärtust prognoositakse , vaadeldakse vastava käsujälje kontekstis . </s> </p>
+<p> <s> Andmeväärtuste prognoosi , eriti aga prognoositud andmete kasutamise seisukohalt on oluline selline näitaja nagu väärtuse viide ( <hi rend="kaldkiri"> value delay </hi> ) . </s> <s> Andmeväärtuse viite läbi saab takistatud prognoositud andmeid kasutavate käskude töötlemine . </s> <s> Andmeväärtuse viide tekib juhul , kui andmeennustile ei ole mingil põhjusel prognoosiks vajalikud eelnevad andmeväärtused kättesaadavad , näiteks käsukonveieri enda sisemiste viidete tõttu . </s> </p>
+<p> <s> Üheks võtteks , mis vähendab andmeväärtuste formeerimise viiteid , on protsessoreis käsujärjekorravälist töötlust toetavate käsukonveierite rakendamine , mis andmetöötlusel kasutavad spekulatiivseid andmeväärtusi . </s> <s> Neis konveiereis pole vaja ootama jääda töötluse tegelikke tulemeid , vaid erustatakse vastavalt töödeldava programmi ettenähtud kulule . </s> </p>
+<p> <s> Käsujärjekorravälise töötlusega käsukonveieri korral tuleb aga meeles pidada , et selle töötlusviisi puhul moodustuv andmete globaalsete väärtuste jada on järjekorravälise iseloomuga . </s> <s> Taoline globaalsete väärtuste jada on tundlik informatsiooni töötluse käigus tekkivaile muutustele , mis on põhjustatud kas möödalaskudest vahemälus või siis vääralt prognoositud hargnemistest . </s> </p>
+<p> <s> Programsete hargnemiste prognoosimine on tihedalt seotud töödeldavate andmetega . </s> <s> Tavaliselt sõltub hargnemise suund just käskudes töödeldavate andmete väärtusest . </s> </p>
+<p> <s> Üks tüüplahendusi , kuidas moodsais protsessoreis ühendatakse käsuvoos esinevate hargnemiste prognoos andmeväärtuste prognoosiga , on toodud joonisel 5. </s> </p>
+<p> <s> Esitatud süsteemi kuulub andmeennusti , mille ülesandeks on prognoosida operandide väärtusi , mida vajatakse hargnemisennustis hargnemissuuna määramisel . </s> <s> Kuna klassikalised hargnemis- ennustid suudavad küllaltki hästi prognoosida hargnemisi , siis valikulülituse ülesandeks on otsustada , kas hargnemissuuna prognoosimisel piirduda üksnes klassikalise hargnemisennusti poolt pakutava hargnemissuunaga või arvestada hargnemissuuna määramisel ka prognoositud andmeväärtusi . </s> </p>
+<p rend="rasvane"> <s> KÄSUTÖÖTLUSE KIIRENDAMINE TÖÖTLUSÜKSUSTES </s> </p>
+<p> <s> Täiustatud arhitektuuriga superskalaarne protsessor suudab ühel taktil töödelda 16 kuni 32 käsku . </s> <s> Et vähendada riskinähtusi , mis võivad tekkida rööpselt talitlevates töötlusüksustes esinevate käsu- ja andmesõltuvuste tõttu , rakendatakse protsessoreis registrikogumite ohjel registrite loogilist ümbernimetamist ja käskude järjekorravälist töötlust . </s> <s> Kuna protsessorites on arvukalt erinevaid töötlusüksusi , alates 24st kuni 48ni , siis rööptöötluse häireteta läbiviimiseks säilitatakse töötlust ohjavaid käske spetsiaalsetes ootepuhvrites . </s> <s> Töötlusprotsessi korralduse keerukusest annab tunnistust seegi , et protsessori ootepuhvrites võib samaaegselt sisalduda 2000 või enam käsku . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 5. </s> <s> Hargnemiste prognoosiüksuse põhimõtteline lahendus </s> </p>
+<p> <s> Infoliikluse kiirendamiseks ( signaalide levikuaja vähendamiseks ) töötlusüksuste vahel moodustatakse neist sageli kolme- kuni viieüksuselised klastrid ( kobarad ) . </s> <s> Iga klaster varustatakse individuaalse registrikogumiga , iga töötlusüksus aga individuaalse ootepuhveriga . </s> <s> Klastrite vahel ja klastrite sees asuvad spetsiaalsed lülitused ( nn otseedastusteed ) , mis oluliselt kiirendavad infoedastusi . </s> <s> Kui klastri piires suudetakse andmeid edastada vaid taktiga , siis klastritevaheliseks edastuseks kulub juba mitu takti . </s> </p>
+<p> <s> Seoses üleminekuga käskude rööptöötlusele on protsessoreis tekkinud vajadus veel täiendavate spetsiifiliste juhtlülituste - äratuslülituste ( <hi rend="kaldkiri"> wake-up logic </hi> ) järele . </s> </p>
+<p> <s> Äratuslülitused kuuluvad käskude väljutamise üksuse koosseisu , nad vastutavad selle eest , et nn uinuvad käsud saaksid õigeaegselt aktiveeritud . </s> <s> Uinuvateks käskudeks loetakse käsuaknas neid käske , mida ei saa töötlema hakata , sest käskudele vajalikud andmed ( operandid ) pole veel käideldavad . </s> <s> Äratuslülituste talitlusel lähtutakse operandidele lisatud tunnusbittidest ehk sildikoodi ( <hi rend="kaldkiri"> tag </hi> ) väärtusest , mille alusel otsustatakse , kas üks või teine operand on antud hetkel käideldav või mitte . </s> <s> Kui käsk väljastatakse käsuaknast töötlusesse , siis käsu tulemile omistatud sildikood teadustatakse ka kõigile teistele antud hetkel käsuaknas olevaile käskudele . </s> <s> Iga käsuaknas olev käsk võrdleb seda sildikoodi nende sildikoodidega , mis on omistatud tema poolt kasutatavaile operandidele . </s> <s> Juhul kui käsus kasutatava operandi sildikood ühtib töötlusesse suunatud käsu tulemi sildikoodiga , siis loetakse käsus vastav operand käideldavaks . </s> <s> Äratusoperatsiooni võib vaadelda ka toiminguna , mille eesmärgiks on tuvastada käskudevahelisi andmesõltuvusi . </s> <s> Eriti oluline on andmesõltuvuste õigeaegne tuvastamine käsujärjekorraväliselt töödeldavate käskude vahel . </s> </p>
+<p> <s> Kokkuvõttes võib öelda , et neis superskalaarprotsessoreis , kus käsuvoo töötluseks ettevalmistamisel kasutatakse käskude dünaamilist järjestamist ja käske töödeldakse käsukonveieris , on tarvilik , et protsessori juhtüksuses oleksid lülitused , mis sooritaksid registrite ümbernimetamist ja uinunud käskude äratamist . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 6. </s> <s> Ootepuhvreid ( RS ) sisaldava 7-astmelise käsukonveieri struktuur </s> </p>
+<p> <s> Kuidas sellises protsessoris võib olla käsukonveieri talitlus korraldatud , on näidatud joonisel 6. </s> <s> Kujutatud seitsmeastmelises konveieris salvestatakse töödeldav käsk konveieri astmete 3 ja 4 vahel ootepuhvrisse ( RS ) , kus ta viibib seni ( uinunud olekus ) , kuni talle vajalikud andmed ( operandid ) muutuvad käideldavaiks ja/või vabaneb talle vajalik töötlusüksus . </s> </p>
+<p> <s> Kui operandid on muutunud käideldavaiks ja vastav töötlusüksus on valmis käsku töötlema , siis uinunud käsk “ äratatakse üles ” ning suunatakse töötlusüksusesse . </s> <s> Pärast käsus ettenähtud infoteisenduste sooritamist võidakse käsk taas suunata ootepuhvrisse ( kui tegemist oli käsujärjekorraväliselt töödeldud käsuga ) ja hoida seda seal seni , kuni kõik algses käsuvoos talle eelnenud käsud on töödeldud . </s> <s> Pärast seda äratatakse käsk taas üles ja suunatakse käsukonveieri käskude erustamist toimetavasse erustamisastmesse . </s> </p>
+<p> <s> Ootepuhvreis paiknevad käsud kannete kaupa , igat ootepuhvri kannet teenindab individuaalne äratuslülitus . </s> <s> Äratuslülituste taoline korraldus on vajalik selleks , et rööpselt võiks toimuda ootepuhvris sisalduvate käskude äratamine ja ettevalmistamine edasiseks töötlemiseks . </s> <s> Otseselt tegeleb töötlusüksustesse töötlusvalmide käskude käsupandamist ühe kindla käsu väljavalimisega ja selle vastavasse töötlusüksusesse suunamisega valikuloogikalülitus . </s> </p>
+<p rend="rasvane"> <s> SUPERSPEKULATIIVSE PROTSESSORI ARHITEKTUUR </s> </p>
+<p> <s> Informatsiooni superspekulatiivtöötluse lähtekohaks on tähelepanek , et programmides saab olenevalt neis esinevaist käskudest ja käsujadadest küllaltki suure usaldatavusega prognoosida eeldatavaid töötlustulemusi . </s> <s> Praktika kinnitab , et sageli on edukalt võimalik prognoosida käskudes kasutatavate operandide väärtusi ning alustada käsuvoos antud käsule järgnevate käskude töötlemist veel enne , kui neile eelnevate käskude tulemid on moodustunud . </s> <s> Käskude töötluse ennetav alustamine aitab lühendada programmide töötluseks kuluvat aega , st protsessori jõudlus tõuseb . </s> <s> Sellise töötlusviisi abil ületatakse protsessoreis klassikalistele protsessorarhitektuuridele iseloomulikku jõudluspiirangut , mille kohaselt ei saa programmi töödelda kiiremini , kui selles kestab pikima käsuharu töötlus , arvestades ka andmesõltuvuste olemasolu . </s> </p>
+<p> <s> Klassikalistes superskalaarprotsessoreis tuginetakse programmi töötluse korraldamisel nn tugeva käsusõltuvuse mudelile ( <hi rend="kaldkiri"> strong-dependence model </hi> ) , mille kohaselt kehtib nõue , et jadamisi täidetavas programmis tuleb käsud täielikult ( täpselt ) järjestada . </s> <s> Selle mudeli kohaselt võivad kaks käsku olla teineteisest kas sõltuvad või mittesõltuvad . </s> <s> Tavaliselt aga eeldatakse , et käskude vahel eksisteerib sõltuvus . </s> <s> Käskude töötlemise ajal on keelatud neid sõltuvusi eirata või muuta . </s> <s> On ilmne , et taoline töötlusviis , kuigi lihtne ja läbipaistev , ei soosi just programmides sisalduva rööpsuse ärakasutamist nende töötluskiiruse tõstmiseks . </s> </p>
+<p> <s> Kui informatsiooni töötluse korraldamisel protsessoris lähtuda aga nõrga käsusõltuvuse ( <hi rend="kaldkiri"> weak-dependence model </hi> ) mudelist , nii nagu see toimub superspekulatiivse arhitektuuriga protsessoreis , siis aitab programmides sisalduva rööpsuse oskuslik ärakasutamine märgatavalt tõsta nende jõudlust . </s> <s> Nõrga käsusõltuvusega töötlusmudelis eeldatakse , et käskude töötlemisel on ajutiselt lubatav eirata nendevahelisi sõltuvusi , kuid tingimusel , et enne käskude töötluse lõpptulemite formeerumist saab taastada käskudevahelised tegelikud sõltuvused.Käskude spekulatiivtöötluse rakendamisel kasutatakse võtet , kus ühed käsud - produtseerivad käsud ( <hi rend="kaldkiri"> producer instruction </hi> ) - genereerivad tõepäraseid tulemeid , mida saab kasutada teiste käskude - tarbivate käskude ( <hi rend="kaldkiri"> consumer instruction </hi> ) - operandide väärtustena . </s> <s> Kusjuures tarbivate käskude töötlust võib alustada veel enne , kui produtseerivad käsud on jõudnud neile edastada operandide väärtused . </s> </p>
+<p> <s> Kui lähtuda nõrga käsusõltuvuse mudelist , siis saab protsessoris käske töödelda , ilma et kogu programmi käitumus oleks täielikult determineeritud . </s> <s> Sel juhul on protsessoreis võimalik kasutada käskude väga agressiivset spekulatiivtöötlust kas ajutiselt eirates käskudevahelisi sõltuvusi või muutes neid sõltuvusi seniks , kuni selguvad tegelikud andmeväärtused , mille alusel saab hiljem kõrvaldada käskude spekulatiivtöötlusel saadud väärtulemid . </s> </p>
+<p> <s> Juhul kui protsessor õnnestub tööle panna nii , et enamik spekulatiivtöötluse tulemeist on tõesed ( korrektsed ) , siis võib niiviisi talitlev protsessor arendada palju suuremat jõudlust kui protsessor , mis kasutab jäika käsusõltuvuste mudelit . </s> </p>
+<p> <s> Analoogiliselt käskude üldise spekulatiivtöötluse põhimõtte rakendamisega võib korraldada ka programsete hargnemiste spekulatiivset töötlust . </s> </p>
+<p> <s> Superspekulatiivseis protsessoreis kasutatakse sellel eesmärgi kahte omavahel ühendatud seadet või nagu neid enamasti kutsutakse - masinat . </s> <s> Esiplaanimasina ( <hi rend="kaldkiri"> front-end engine </hi> ) talitlus on korraldatud nõrga käsusõltuvuse mudeli kohaselt , kus massiliselt rakendatakse käskude spekulatiivtöötlust , prognoosides käskude võimalikku tulevast käitumust lähtuvalt nende käitumusest minevikus . </s> <s> Juhul kui selliselt töödeldud käskude prognoositud käitumus osutub tõeseks , siis aitab see võte vähendada käskude täitmiseks kulutavate etappide koguarvu . </s> <s> Seevastu tagaplaanimasin ( <hi rend="kaldkiri"> back-end engine </hi> ) talitleb jäiga käsusõltuvusega mudeli alusel . </s> <s> Selle abil kontrollitakse esiplaanimasina poolt saadud spekulatiivsete tulemite õigsust ja kui neis esineb väärtulemus , siis need kõrvaldatakse ( parandatakse ) . </s> <s> Lisaks talletab tagaplaanimasin programmi kulgemise ajaloo ( käitumuse ) , edastades selle ühtlasi esiplaanimasinale , et viimases saaks spekulatiivtöötlust tulemuslikumalt korraldada . </s> </p>
+<p> <s> Kokkuvõtlikult võib märkida , et superspekulatiivse mikroarhitektuuriga protsessoris püütakse maksimeerida kolme näitajat . </s> </p>
+<p> <s> 1. Käsuvoo läbilaset ( st kiirust , millega toimub käsuvoogu kuuluvate käskude käsuvõtt , dekodeerimine ja suunamine töötlusüksustesse ) . </s> </p>
+<p> <s> 2. Registrite andmevoo läbilaset ( kiirust , millega toimub töötlustulemite moodustamine ning registritesse talletatava informatsiooni kättesaadavaks tegemine käskudele ) . </s> </p>
+<p> <s> 3. Mälu andmevoo läbilaset ( kiirust , millega toimub informatsiooni salvestamine või lugemine mälust ) . </s> </p>
+<p> <s> Kõik nimetatud infovood on tihedalt seotud vastavate käskudega : käsuvoog hargnemisi töötlevate käskudega , andmevoog aritmeetika-loogikakäskudega ja mälu andmevood laade-salvestuskäskudega . </s> <s> Protsessori mikroarhitektuurse lahenduse valikul pööratakse eriti suurt tähelepanu just nimetatud käskude töötluse korraldamisele . </s> <s> Eksperimendid on näidanud , et superspekulatiivtöötlust rakendav protsessor võib saavutada jõudluse 10 käsku taktis , ilma et selleks peaks eelnevalt kasutama keerukaid ja kalleid erikompilaatoreid . </s> </p>
+<p> <s> Joonisel 7 on esitatud klassikaks muutunud superspekulatiivse protsessori mudel , mille esitasid Lipasti ja Shen 1997. aastal [ 6 ] ja mida autorid ise nimetasid supervoo- ( <hi rend="kaldkiri"> superflow </hi> ) arhitektuuriga protsessoriks . </s> </p>
+<p> <s> Vaadeldavas protsessoris rakendatakse jõudluse suurendamiseks erinevaid spekulatiivtöötluse võtteid . </s> </p>
+<p> <s> Käsuvoo töötlemisel püütakse protsessoris igal taktil töötlusesse suunata nii mitu käsku , kui palju on vabu töötlusressursse . </s> <s> Käsuvoo töötluse korraldamisel tuleb pidevalt tegeleda kolme keskse ülesandega . </s> </p>
+<p> <s> 1. Kuidas suurendada tingimuslike siirdekäskude läbilaset ? </s> </p>
+<p> <s> 2. Kuidas suurendada asetleidnud hargnemiste töötluse kiirust ? </s> </p>
+<p> <s> 3. Kuidas minimeerida viiteid , mis tekivad hargnemiste väärprognoosil ? </s> </p>
+<p> <s> Esimese ülesande edukaks lahendamiseks peab protsessor ühe takti jooksul suutma edukalt prognoosida mitme hargnemiskäsu käitumust . </s> <s> Selleks viiakse superspekulatiivseis protsessoreis prognoos läbi mitmes etapis , arvestades seejuures nii lokaalsete kui ka globaalsete hargnemiste eellugusid . </s> </p>
+<p> <s> Kui esimesel etapil , mis algab käskude käsuvõtufaasiga , selgub , et eksisteerib vajadus prognoosida mitme hargnemise edasist kulgu , st moodustada järgmise käsuvõtufaasi tarvis käitlemisele tulevate käskude aadresse , siis tuginetakse prognoosi läbiviimisel vastavate hargnemiskäskude globaalsele eelloole . </s> </p>
+<p> <s> Prognoosi teisel etapil , käskude käsukoodi dekodeerimise ajal , kontrollitakse ja hinnatakse eelnevaid prognoose spetsiaalses ennustuslülituses , võttes arvesse hargnemiste globaalseid ja lokaalseid eellugusid . </s> <s> Teises etapis püütakse avastada ja kõrvaldada esimeses etapis tehtud vigu ning formeeritakse lõplik prognoos hargnemissuundade suhtes . </s> </p>
+<p> <s> Teise ülesande puhul tuleb arvesse võtta nõuet , et superspekulatiivses protsessoris peab käsuvõtuga tegelev üksus ühe takti jooksul suutma korraldada rohkem kui ühe hargnemisega seotud käsu võtu ja õigete hargnemissuundade prognoosi . </s> <s> Kuid lisaks eelnevale kuulub üksuse ülesannete hulka samuti selle jälgimine , et korrektselt toimuks ka hargnemistega seotud käskude käsuvõtt , mestimine ja joondamine . </s> <s> Et toime tulla nii keerukate tegevustega , lülitatakse protsessori mikroarhitektuuri spetsiaalne käsujälgede vahemälu ( jäljevahemälu ) . </s> </p>
+<p> <s> Kuna jäljevahemälus säilitatavad käsujäljed võivad sisaldada mitmete juba varem aset leidnud hargnemiste kirjeldusi , siis vabaneb protsessor vajadusest tegeleda korduvalt samasisuliste prognoosiülesannetega ja tugineda vahetult jäljevahemälus olevale informatsioonile . </s> </p>
+<p> <s> Kolmanda ülesande edukas lahendamine pole vähem tähtis kui kahe eelmisega toimetulemine . </s> <s> Hargnemiste väärprognoosimine põhjustab käsukonveieris mullistumisi ( tühitakte ) , mille tagajärjel võib protsessori jõudlus märgatavalt väheneda . </s> <s> Mullistustest hoidumiseks töödeldakse protsessori töötlusüksustes hargnemisi n-ö teatava ennetusega . </s> <s> See võimaldab piisavalt varakult avastada ja kõrvaldada käskudevahelisi sõltuvusi . </s> <s> Üldiselt on enamikus programmides käskudevahelised sõltuvused küllaltki hästi prognoositavad , seega suhteliselt kergesti ka kõrvaldatavad . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 7. </s> <s> Superspekulatiivse arhitektuuriga protsessori mudel . </s> <s> FÜ - funktsionaalne üksus </s> </p>
+<p> <s> Hargnemiste väärprognoosidest põhjustatud ajakadude kompenseerimiseks rakendatakse superspekulatiivseis protsessoreis laialdaselt andmete spekulatiivtöötlust . </s> <s> Näiteks registrites liikuva andmevoo spekulatiivsel töötlusel ühendatakse operandide väärtuste prognoos nende väärtussammu ( <hi rend="kaldkiri"> value stride </hi> ) prognoosiga . </s> <s> Väärtussammu prognoosil võetakse aluseks see , et püsivalt toimub operandide väärtuste sammhaavaline kasv . </s> <s> Spetsiaalne riistvaraline lülitus analüüsib operandide väärtusi , tuvastades konstante ja juurdekasve operandide väärtustes , et nende alusel prognoosida operandide tulevasi eeldatavaid väärtusi . </s> <s> Juhul kui käsu olemasoleva eelloo põhjal ilmneb , et operandide tulevasi väärtusi ei saa usaldatavalt prognoosida , siis prognoosi eesmärgil alustatakse üleüldist käskudevaheliste sõltuvuste analüüsi . </s> </p>
+<p> <s> Keerukamate , suurema astmete arvuga käsukonveierite kasutuselevõtmine põhjustab tihti vajaduse andmesõltuvuste tuvastamiseks juba mitmes konveieri astmes . </s> </p>
+<p> <s> Superskalaarprotsessorites pööratakse suurt tähelepanu andmevoogude korraldamisele nii andmevahemälu- kui ka põhimälusüsteemis . </s> <s> Reaktsiooniaja lühendamiseks mälusüsteemis on nii kasutatavate operandide prognoosimine , adresseerimine kui ka nende joondamine viidud vahetult töötlusüksustesse . </s> <s> Tavaliselt põhjustavad mälupöördustel täiendavaid ajakadusid mitmed tegurid . </s> </p>
+<p> <s> 1. Aadresside genereerimisel tekkivad tupikolukorrad , mis pikendavad mälust loetavate käskude käsuvõtuaega , sest vajalikud käskude aadressid ei moodustu õigeaegselt . </s> </p>
+<p> <s> 2. Mälusüsteemis esinevad siseviited , mis sõltuvad nii mälulülituste sisestruktuuri keerukusest kui ka nende valmistamisel kasutatud tehnoloogiast . </s> </p>
+<p> <s> 3. Viited , mis tekivad mälupöörduste jadastamisest . </s> <s> Mälupöördustel võib paratamatult tekkida mälusüsteemi üksikute siseressurssidevaheline ' ” võistlus ” ning nende reguleerimine nõuab lisaajakulu . </s> </p>
+<p> <s> Aadresside genereerimise tupikseisudest põhjustatud viiteid aitab vähendada aadresside spekulatiivne genereerimine . </s> <s> Analoogiliselt operandide väärtuste prognoosile võib ka mäluaadresside moodustamisel kasutada indeksisammu meetodit . </s> </p>
+<p> <s> Kui sellele lisandub veel prognoositud operandide ettelaadimine , siis saab märgatavalt kiirendada informatsiooni liikumist mälusüsteemi ja protsessori või selle üksuste vahel . </s> </p>
+<p> <s> Analüüsides mälu andmevoogu , saab prognoosida ettelaetavate operandide väärtusi . </s> <s> Laadekäskude tulemusena mälust allalaetavate operandide väärtuste prognoosil tuginetakse afiinsusele laadekäskude aadresside ning laetavate andmete väärtuse vahel . </s> <s> Laadeväärtuste prognoosi viiakse läbi spetsiaalses prognoosiüksuses . </s> <s> Andmete laadevoog jaotatakse omakorda veel mitmeks eraldiseisvaks allvooks , mis protsessoris suunatakse rööpselt juba vastavatesse töötlusüksustesse . </s> <s> Seeläbi tagatakse põhimälusüsteemis piisavalt kõrge informatsiooni läbilase ning protsessorlülituses võib loobuda tsentraalsest suuremahulisest ja mitme pordiga andmevahemälust . </s> </p>
+<p rend="rasvane"> <s> JÄLJEPROTSESSORI ARHITEKTUUR </s> </p>
+<p> <s> Kuna programmides esinevad paratamatult käskudevahelised sõltuvused , siis käskude rööptöötluse läbiviimiseks tuleb operatiivselt analüüsida ja vajadusel ka ümber järjestada suurt hulka käsuvoo käske . </s> <s> Traditsioonilise superskalaarse arhitektuuriga protsessorid ei suuda jadatöötlusele orienteeritud programmides just kõige paremini leida rööptöötluseks sobivaid käsujärgnevusi . </s> <s> Palju paremini tulevad selle ülesandega toime jäljeprotsessorid . </s> </p>
+<p> <s> Jäljeprotsessori arhitektuuris on kesksel kohal programsed käsujäljed , mis sisuliselt kujutavad staatilise multiskalaarse tegumi dünaamilist varianti . </s> <s> Jäljeprotsessoris töödeldavat programmi võib aga vaadelda kui teatavat käsujälgede kogumit , mida rööpselt töödeldakse vastavais töötluselementides . </s> </p>
+<p> <s> Superskalaarsetes protsessorites on üheks keerukamaks ülesandeks sobivate käsukogumite ( käsuakende ) moodustamine ja aknas asuvate käskude töötluse korraldamine . </s> <s> Jäljeprotsessoris kasutatavaid käsujälgi võib samuti vaadelda kui omalaadseid käsuaknaid . </s> </p>
+<p> <s> Harilikult sisaldab üks käsujälg 16 kuni 32 käsku , nende seas võivad olla ka käsud , mille abil toimuvad programsed siirded . </s> <s> Opereerides protsessoris mitte üksikute käskudega , vaid käsujälgedega , saab märksa efektiivsemalt korraldada selle siseressursside optimaalset jaotamist ja koormamist , mille tulemusena tõuseb protsessorlülituse tootlikkus . </s> <s> Eriti märgatavalt kiireneb programsete hargnemiste töötlus . </s> <s> Kui eelnevalt vaadeldud protsessorarhitektuurides toimus hargnemiskäskude käitlemine teistest käskudest suhteliselt eraldatuna , siis jäljeprotsessoris vaadeldakse neid käsujälje kontekstis . </s> </p>
+<p> <s> Jäljeprotsessori talitlus nii käsuvoogude ( juhtimise ) kui andmevoogude töötlusel on korraldatud mitmetasemelisena . </s> <s> Mis puutub protsessori juhtimisse , siis selles saab eristada juhtimist programmi ( käsujälgede kogumi ) tasemel ja juhtimist käsujälgede ( käsujälge moodustavate käskude ) tasemel . </s> <s> Hierarhilisuse printsiibist lähtutakse samuti andmevoogude töötlemisel , eristades globaalseid andmeid ( andmed , mida kasutatakse erinevate käsujälgede ulatuses ) ja lokaalseid andmeid ( andmed , mida kasutatakse ainult konkreetse käsujälje piires ) . </s> </p>
+<p> <s> Joonisel 8 toodud jäljeprotsessori lihtsustatud mudelis on näidatud protsessori põhilised funktsionaalsed üksused ning üksustevahelised sidemed . </s> </p>
+<p> <s> Jäljeprotsessori mikroarhitektuuris on kesksel kohal jäljevahemälu koos seda toetavate juhtlülitustega ning kogumik universaalseid rööpselt talitlevaid töötluselemente ehk PEsid ( <hi rend="kaldkiri"> Processing Element </hi> ) . </s> <s> Iga töötluselement on nagu pisike superskalaarprotsessor , mille käskude puhvris säilitatakse üht ( töödeldavat ) käsujälge . </s> <s> Lisaks asuvad töötluselementides eraldi registrikogumid lokaal- ja globaalmuutujate ( operandide ) tarvis ning otseselt infotöötlusega tegelevad funktsionaalsed üksused . </s> <s> Iga funktsionaalne üksus on varustatud individuaalse puhverlülitusega , kuhu suunatakse infotöötlusel saadud tulemid . </s> <s> Informatsiooni sisestamine töötluselementidesse ja selle töötlemine PEdes toimub rööpselt . </s> <s> Jäljeprotsessori kõrge jõudluse allikas peitubki selles , et temas kasutatakse ära nii üksikus käsujäljes sisalduv seesmine kui ka käsujälgede vahel eksisteeriv rööpsus . </s> </p>
+<p> <s> Jäljeprotsessori käsuvõtuüksus sooritab käsuvõtte käsuvahemälust ning formeerib saadud käskudest 8st kuni 32st käsust koosnevaid käsujälgi . </s> <s> Moodustatud käsujäljed salvestatakse jäljevahemällu , kus vajaduse korral programmi töötluse käigus saab neid ka modifitseerida . </s> <s> Jäljeprotsessori talitluse käigus tegeleb dünaamiliste käsujälgede moodustamisega käsujälgede moodustamise üksus ( dünaamilised käsujäljed on niisugused , milles arvestatakse juba programmi reaalset kulgemist ) . </s> <s> Formeeritud käsujäljed salvestatakse jäljevahemällu . </s> <s> Käsujäljed ( mõnes allikas nimetatakse neid käsuplokkideks ) läbivad enne jäljevahemällu salvestamist käskude ( käsujälje ) eeltöötluse üksuse . </s> <s> Käskude eeltöötluse üksuse ülesandeks on moodustada käsujäljed , mille töötlus PEdes kulgeks takistusteta . </s> <s> Selles üksuses toimub ühtlasi käskudevaheliste andmesõltuvuste analüüs . </s> <s> Vajaduse korral püütakse käske käsujäljes ümber järjestada nii , et kõrvalduksid või neutraliseeruksid andme- ja ressursisõltuvused . </s> <s> Samuti märgistatakse käsujälge kuuluvate käskude operandid ja tuvastatakse , kas tegemist on globaalsete või lokaalsete andmetega . </s> <s> Lokaalsed andmed seotakse PE lokaalregistrikogumis konkreetsete registritega , st viiakse läbi nende eelümbernimetamine ( <hi rend="kaldkiri"> pre-renaming </hi> ) . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 8. </s> <s> Jäljeprotsessori mudel . </s> <s> PE - töötluselement </s> </p>
+<p> <s> Et katkestuste töötluse korral oleks võimalik taastada töödeldava programmi katkestuse-eelset olekut , säilitatakse iga käsujälje tarvis veel täiendavat informatsiooni , mis kirjeldab käskude algset järjestust käsujäljes . </s> </p>
+<p> <s> Jäljemälus asuvate käskude võttu sooritab spetsiaalne käsujäljevõtuüksus . </s> <s> Juhul kui pöördusel jäljevahemällu esineb möödalask , siis käivitub skalaar- ja superskalaarprotsessoreist rakendatav käsujada moodustamise skeem , mille korral toimub programmi edasine täitmine vastavalt käsuvahemälus sisalduvaile käskudele , hargnemiskäskude korral aga prognoositud hargnemissuundadest . </s> </p>
+<p> <s> Sõltuvalt jäljevahemälu assotsiatiivsuse astmest väljastatakse käsuvõtul sellest rööpselt üks või enam käsujälge<hi rend="ülaindeks">4</hi> . </s> <s> Käsujälgede töötluse korraldamisel täidab keskset ülesannet lülitus , mida nimetatakse käsujälgede dispetšeriks ehk lühemalt jäljedispetšeriks ( <hi rend="kaldkiri"> trace dispatcher </hi> ) . </s> <s> Nii tegeleb jäljedispetšer käsujälgedes lokaalseid lähteandmeid ja tulemeid sisaldavate registrite sidumisega globaalseid andmeid säilitavate globaalsete registritega . </s> <s> On oluline , et registrite vastendamisel ei ole tarvidust kontrollida , kas käsujäljes esineb seesmisi andmesõltuvusi , sest need olid tuvastatud juba eelneva töötluse käigus käskude eeltöötluse üksuses . </s> <s> Seega , erinevalt klassikalisest superskalaarprotsessorist on jäljeprotsessoris käskudevaheliste sõltuvuste tuvastamine kandunud käskude käsuaknast väljastamise etapist käsujälje moodustamise etappi . </s> <s> Järelikult pole jäljeprotsessoreis , erinevalt superskalaarprotsessoreist , vaja käsuaknast käskude väljutamisega tegelevat üksust varustada täiendavate keerukate lülitustega , mis kontrollivad käskudevahelisi sõltuvusi . </s> </p>
+<p> <s> Jäljedispetšeri põhiliseks ülesandeks on siiski käsujälgede jaotamine töötluselementide vahel ning käsujälgede rööpne laadimine PEde käsupuhvreisse . </s> <s> Muidugi ei tohi laetava käsujälje pikkus ületada käsupuhvri mahtu ( käsuregistrite arvu puhvris ) . </s> </p>
+<p> <s> Jäljevõttude korraldamisel etendab olulist rolli järgmise käsujälje ennusti . </s> <s> Viimane peab olema suuteline igal protsessoritaktil prognoosima mitme järgnevalt jäljevahemälust võetava käsujälje aadressid . </s> </p>
+<p> <s> Jäljeprotsessoris ei prognoosita mitte üksnes programmides esinevaid hargnemissuundi ja käsujälgi , vaid samuti käsujälgede käskudes kasutatavate andmete ( operandide ) väärtusi . </s> <s> Selleks on protsessoris eraldi andmeennusti üksus , mis tegeleb käsujälje lähteandmete väärtuste prognoosiga . </s> <s> Andmeennusti tööd koordineeritakse järgmise käsujälje ennusti talitlusega . </s> <s> Andmeennusti poolt väljastatud informatsiooni kasutab järgmise käsujälje ennusti programsete siirete sihtaadresside prognoosil ning sobivate käsujälgede aadresside moodustamiseks . </s> <s> Põhiliseks probleemiks , mis raskendab andmeväärtuste prognoosi , on käsujälgede omavahelised sõltuvused . </s> </p>
+<p> <s> Vahetult toimuvad töödeldava informatsiooni teisendused töötluselementides . </s> <s> Iga PE sooritab infoteisendusi vastavalt temale eraldatud käsujälje käskudele . </s> <s> Kõik protsessoris sisalduvad töötluselemendid talitlevad autonoomselt ja rööpselt . </s> <s> Arvestades töötluselementide ja neis sisalduvate registrikogumite suurt arvu , on andmeedastuse korraldamisel jäljeprotsessoris , nii PEde sees kui ka nende vahel , lähtutud hajusalt paiknevate registerstruktuuride ohjel rakendatavaist põhimõtetest . </s> <s> Piisavalt kiire andmeliikluse tagamiseks ei kasutata PEdes eriti mahukaid lokaal- ja globaalregistrite kogumeid . </s> <s> Lisaks kasutatakse andmeedastuste kiirendamiseks laialdaselt täiendavaid lülitusi - andmete otseedastusteid . </s> <s> Tänu sellele kulub töötluselementides andmesiirdele vaid üks protsessoritakt . </s> <s> Andmevahetus PEde vahel läbi globaaltulemite siini on siiski mõnevõrra aeglasem . </s> </p>
+<p> <s> Harilikult vajab jäljeprotsessor toetust suure informatsiooni läbilaskevõimega mälusüsteemilt , mis suudaks operatiivselt varustada protsessoris kõiki töötluselemente vajaliku informatsiooniga . </s> <s> Tüüpiliselt varustatakse jäljeprotsessorid mitme kiire multiport-hajuskasutusega vahemäludega . </s> <s> Protsessori normaalse talitluse tagamiseks pööratakse erilist tähelepanu informatsiooni koherentsuse tagamisele vahemälusüsteemis . </s> <s> Samas võib leida jäljeprotsessorite lahendusi , kus kasutatakse vaid üht suuremahulist hajapöörduse põhimõttel talitlevat vahemälu . </s> <s> Kuigi taolist vahemälu on lihtsam ohjata , jätavad soovida mälu kiiruslikud näitajad . </s> </p>
+<p> <s> Jäljeprotsessori mälusüsteemi talitlust komplitseerib asjaolu , et iga protsessorisse kuuluv töötluselement väljastab teistest sõltumatult mälusüsteemi individuaalse asünkroonse laade-salvestusoperatsioonide nõudlustevoo . </s> <s> Kuna mälupöörduste läbiviimisel vajatavad mäluaadressid moodustatakse sageli spekulatiivselt ja käsujärjekorraväliselt , siis tuleb mäluohjega seotud üksustel tegeleda täiendavalt ka aadressivoogude analüüsi ja mälupöörduste järjestamise ülesannetega . </s> <s> Et vältida mäluaadressidevahelisi konflikte , kasutatakse spetsiaalset arbiiterlülitust ehk ARB-lülitust ( <hi rend="kaldkiri"> Address Resolution Buffer </hi> ) . </s> <s> ARB-lülituse põhiülesandeks on spekulatiivsete mäluoperatsioonide käigus tekkivate pöörduskonfliktide vältimine , vajadusel võib ta isegi blokeerida mälu talitlust häirivaid käske . </s> <s> Siiski mitte alati ei pruugi hajuskasutusega vahemälusüsteemis ARB-lülituse kasutamine anda parimaid tulemusi . </s> <s> Et kõik mäluohjega seotud tegevused peavad toimuma väga operatiivselt , siis viiakse need läbi riistvaralisel tasemel . </s> </p>
+<p> <s> Kui lühidalt kokku võtta jäljeprotsessori olulisemad arhitektuursed tunnused , siis tuleks esile tõsta järgmisi : </s> </p>
+<p> <s> 1. Jäljeprotsessor on superskalaarse protsessori edasiarendus . </s> <s> Erinevate jäljeprotsessorite vahel on lihtne tagada programset , masinakoodi tasemel ühilduvust . </s> <s> Selle omaduse poolest erinevad jäljeprotsessorid oluliselt praegu ülipopulaarsetest ülipika käsusõnaga ( VLIW-arhitektuuriga ) protsessoreist . </s> </p>
+<p> <s> 2. Vaatamata kõrgele jõudlusele , kasutatakse jäljeprotsessoris ainult üht juhtinformatsiooni voogu . </s> <s> Suure arvu käskude rööpne käsuvõtt aitab lihtsustada käskudevaheliste sõltuvuste tuvastamist ning paremini ette valmistada ( järjestada ) rööpselt töötlussesse suunatavaid käske ( käsujälgi ) . </s> <s> Võrreldes eelnimetatud VLIW-arhitektuuriga protsessoritega , pole jäljeprotsessorite korral vaja omada keerukaid ja võimsaid erikompilaatoreid . </s> </p>
+<p> <s> 3. Võrreldes klassikaliste superskalaarsete protsessoritega , õnnestub jäljeprotsessoris jõudluse piisavalt kõrge tase saavutada lihtsamate vahenditega . </s> <s> Protsessoreis on paremini tagatud töötlusressursside optimaalne ( ühtlane ja pidev ) koormatus . </s> </p>
+<p> <s> 4. Jäljeprotsessori mikroarhitektuur on orienteeritud informatsiooni agressiivsele spekulatiivtöötlusele nagu superspekulatiivprotsessoreiski . </s> </p>
+<p rend="rasvane"> <s> KOKKUVÕTTEKS </s> </p>
+<p> <s> Moodsad superskalaarsed mikroprotsessorid suudavad igal protsessoritaktil suunata töötlusesse kuni kuus käsku . </s> <s> Perspektiivsed , täiustatud arhitektuuriga protsessorid peaksid suutma igal taktil töödelda aga juba 8 kuni 32 käsku . </s> <s> Protsessorite jõudluse kasvu üheks reserviks on uute protsessorarhitektuuride väljatöötamine , kus paremini kasutatakse ära informatsiooni jadatööt- lusele orienteeritud programmides sisalduv käsutasemeline rööpsus . </s> <s> Siiski mitte selles ei seisne põhisuund , millest lähtuda protsessorarhitektuuride edasisel arendamisel . </s> <s> Kahjuks on programmides sisalduv käsutasemeline rööpsus liialt piiratud , eriti püsipunkttöötlusele orien- teeritud programmide korral . </s> </p>
+<p> <s> Mikroprotsessorite jõudluse radikaalseks tõstmiseks tuleb otsustavalt lahti öelda tuginemisest ainult peenekoelisele rööpsusele ja üle minna jämedakoelisele rööpsusele , nii nagu see on toimunud kiipmultiprotsessorites ( <hi rend="kaldkiri"> chip multiprocessor </hi> ) ja simultaanse hargtöötlusega protsessorites ( <hi rend="kaldkiri"> simultaneous multithreaded processor </hi> ) . </s> <s> Vaatamata sellele , et neis protsessoreis rakendatakse multiprogramset talitlusviisi , toimub üksikute protsesside või käsulõimede töötlemine ikkagi jadaprintsiibil . </s> </p>
+<p> <s> Veelgi kõrgema rööpsusastmega töötlusvõimalusi pakuvad PIM-arhitektuuriga ja rekonfigureeritava arhitektuuriga protsessorstruktuurid . </s> <s> Ühendades ühel kristallil uudsete arhitektuursete lahendustega ülikõrge jõudlusega protsessorlülitusi ülikiirete ja suuremahuliste mälulülitustega , on võimalik lahendada praegustes mikroprotsessorsüsteemides eksisteerivat “ mälumüüri probleemi ” . </s> <s> Vaadeldud täiustatud superskalaar- , superspekulatiiv- ja jäljeprotsessori arhitektuurid esin- davad mikroprotsessorite järgmist põlvkonda . </s> <s> Neis protsessorarhitektuurides informatsiooni töötlusel massiliselt rakendatav spekulatiivtöötlus peab kaasa aitama klassikaliste CISC-arhitektuuriga protsessorite jõudluspiirangute ületamisele . </s> </p>
+<p> <s> Kirjeldatud perspektiivsed protsessorarhitektuurid on samas vaheetapiks üleminekul informatsiooni peenekoeliselt rööptöötluselt jämedakoelisele . </s> <s> Tulevaste mikroprotsessorlülituste arhitektuuri märksõnadeks saavad informatsiooni rööptöötlus ja superskalaarsus , mis tugineb informatsiooni massilisele spekulatiivtöötlusele ning opereerimisele käsujälgedega . </s> </p>
+<p> <s> Millised vaadeldud protsessorarhitektuuridest hakkavad aga kõige rohkem mõjutama kõrg- jõudlusega mikroprotsessorlülituste edasist arengut , seda näitab juba lähitulevik . </s> </p>
+<p> <s> <gap rend="viited"/> </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Agiilse projektijuhtimise karkass </head>
+<p> <bibl> <author> <s> Paul Leis </s> </author> </bibl> </p>
+<p rend="rasvane"> <s> 1. SISSEJUHATUSE JÄRG </s> </p>
+<p> <s> Sissejuhatuse alustuseks sobib A &amp; A käesoleva aasta teise numbri toimetajaveerg . </s> <s> Siinkohal jätkamegi sealtoodut . </s> <s> Meie kirjelduse aluseks on Alistair Cockburni , Jim Highsmithi , Craig Larmani , David J. Andersoni , Eli Schragenheimi ja Sanjiv Augustine'i tööd . <hi rend="ülaindeks"> 1 </hi> <hi rend="ülaindeks"> , </hi> <hi rend="ülaindeks"> 2 </hi> <hi rend="ülaindeks"> , </hi> <hi rend="ülaindeks"> 3 </hi> <hi rend="ülaindeks"> , </hi> <hi rend="ülaindeks"> 4 </hi> <hi rend="ülaindeks"> , </hi> <hi rend="ülaindeks"> 5 </hi> <hi rend="ülaindeks"> , </hi> <hi rend="ülaindeks"> 6 </hi> </s> </p>
+<p> <s> Agiilne projektijuhtimise metoodika pole hõbekuul , mis sobib kõikjal ja kõikidele projektidele . </s> <s> Agiilne projektijuhtimine sobib nendes valdkondades ja nendes projektides ( agiilprojektides ) , mille lähtetingimused on ähmased ( <hi rend="kaldkiri"> fuzzy </hi> ) , mille eesmärkide saavutamiseks on vajalik innovatsioon , millegi avastamine , st uurimuslik tarkvaraarendus . </s> <s> Agiilprojektide puhul pole traditsioonilise projektijuhtimise metoodika rakendamise eeldused ( nt täpselt määratletud toote spetsifikatsioon ) rahuldatud - järelikult pole see metoodika agiilprojektide puhul rakendatav . </s> </p>
+<p> <s> Agiilse projektijuhtimise tüüpilised valdkonnad on : </s> </p>
+<p> <s> tarkvaratooted ( operatsioonisüsteemid , vahevaratooted , äriintellektitehnika rakendused jmt ) ; </s> </p>
+<p> <s> sardtarkvara tooted ( nt autodes olev tarkvara ) ; </s> </p>
+<p> <s> ettevõtte sisemised IT rakendused . </s> <s> Märgime , et IT rakenduse “ isetegemine ” on vajalik konkurentsieelise saamiseks - turult võivad IT toote osta ka konkurendid . </s> </p>
+<p> <s> Uurimusliku tarkvara loomise protsessi eesmärkideks on : </s> </p>
+<p> <s> 1 ) pidev innovatsioon - luua toode , mis rahuldab kasutaja käesolevaid nõudeid ; </s> </p>
+<p> <s> 2 ) toote adaptiivsus - saab lisada kasutaja tulevikunõudeid rahuldavaid funktsioone ; </s> </p>
+<p> <s> 3 ) lühendatud toote valmistamise/üleandmise aeg - kiiresti turule on üks põhinõudeid järjest ägeneva konkurentsi tingimustes ; </s> </p>
+<p> <s> 4 ) inimeste ja protsesside adaptiivsus - vaja on kiiresti reageerida toote ja äri muudatustele ; </s> </p>
+<p> <s> 5 ) usaldatavad tulemused - kvaliteet ei tohi kannatada . </s> </p>
+<p rend="rasvane"> <s> 2. VÄÄRTUSED </s> </p>
+<p> <s> Metoodikate ülesehituse loogika on järgmine . </s> <s> Lähtutakse põhiväärtustest , mida metoodika rakendamisega tahetakse saavutada . </s> <s> Praktikad on tegevused/toimingud , mis võimaldavad neid väärtusi saavutada . </s> <s> Agiilseid praktikaid on palju , nende kirjeldused on detailsed<hi rend="ülaindeks">4</hi> - on mõistetav , et artikli piiratud mahu tõttu me neid siinkohal ei käsitle . </s> <s> Printsiibid tuletatakse põhiväärtustest ( mitte küll nii nagu teoreemid matemaatikas ) , sellest tulenevalt määratlevad printsiibid , kuidas/mis tingimustel praktikaid rakendada . </s> <s> Selle artikli teemaks ongi “ filosofeerimine agiilse projekti- juhtimise printsiipide üle ” . </s> </p>
+<p> <s> Alustame loomulikult agiilse projektijuhtimise väärtustest . </s> <s> Pole üllatav , et agiilse projektijuhtimise põhiväärtusteks on samad väärtused , mis on kirja pandud agiilmanifestis “ <hi rend="kaldkiri"> Manifesto for Agile Software Development ” . </hi> </s> </p>
+<p> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> Me </hi> </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> tahame luua uusi , paremaid tarkvara arendusmetoodikaid . </hi> </hi> </s> </p>
+<p> <s> Me hindame : </s> </p>
+<p rend="kaldkiri"> <s> <hi rend="rasvane"> enam inimesi ja nendevahelisi suhteid kui protsesse ja arendusvahendeid ; </hi> </s> </p>
+<p> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> enam töötavat tarkvara kui täielikku dokumentatsiooni </hi> </hi> <hi rend="rasvane"> ; </hi> </s> </p>
+<p rend="kaldkiri"> <s> <hi rend="rasvane"> enam kliendi osalust arenduses kui lepingute koostamist ; </hi> </s> </p>
+<p rend="kaldkiri"> <s> <hi rend="rasvane"> enam muudatustele reageerimist kui plaani järgimist . </hi> </s> </p>
+<p> <s> Mõned kommentaarid . </s> <s> Agiilsus : </s> </p>
+<p> <s> <hi rend="kaldkiri"> planeerimisele - plaani täitmisele </hi> vastandab <hi rend="kaldkiri"> visiooni loomise - uuringu ; </hi> </s> </p>
+<p> <s> <hi rend="kaldkiri"> ettemääratusele </hi> vastandab <hi rend="kaldkiri"> adaptiivsuse . </hi> </s> </p>
+<p> <s> Agiilprojekti puhul on meil nii tuntud kui ka tundmatuid tegureid ja nõudeid ning seetõttu on iga agiilprojekti puhul vaja leida tasakaal planeerimise ja muudatuste sisseviimise vahel . </s> <s> Muutuda võib nii projekti skoop , kasutatav tehnoloogia kui ka toote funktsionaalsus - ainult toote visioon on stabiilne . </s> </p>
+<p> <s> Projektid , mille puhul kulutatakse kuid/aastaid detailsele nõuete dokumenteerimisele , enamasti ebaõnnestuvad . </s> <s> Miks ? </s> <s> Tiim toimib lineaarselt nõuetelt tootele , tiimil võib olla häid ideid , mida ei saa evitada/kontrollida . </s> <s> Ja veel , traditsiooniline projektijuhtimise metoodika on “ dokumendilembeline ” <hi rend="ülaindeks"> 7 </hi> , kuid dokumendid ei lahenda äriprobleeme , neid lahendab töötav tarkvara . </s> <s> Ka ei asenda dokumentatsioon vahetuid suhteid ei arendajate endi ega ka kasutajate ja arendajate vahel . </s> </p>
+<p rend="rasvane"> <s> 3. PÕHIPRINTSIIBID </s> </p>
+<p> <s> Agiilset projektijuhtimist tüürivad kuus põhiprintsiipi , mis on tuletatud Agiilmanifesti põhi- väärtustest : </s> </p>
+<p rend="kaldkiri"> <s> Luua innovatiivsete toodetega väärtus kasutajale : </s> </p>
+<p> <s> luua väärtus kasutajale ; </s> </p>
+<p> <s> rakendada iteratiivset , funktsioonipõhist kasutajale üleandmist ; </s> </p>
+<p> <s> tagada tehniline täiuslikkus . </s> </p>
+<p rend="kaldkiri"> <s> Liidrirollil ja koostööl põhinev juhtimisstiil : </s> </p>
+<p> <s> soodusta uuringuid ; </s> </p>
+<p> <s> loo adaptiivne ( iseorganiseeruv , enesedistsipliiniga ) tiim ; </s> </p>
+<p> <s> lihtsusta . </s> </p>
+<p> <s> Kasutajale väärtuse loomisel tuleb arvestada , et vaja on luua toode , millel on väärtus kasutajale nii täna kui ka homme - homse arvestamine nõuab aga adaptiivsust , toote/rakenduse kohen- datavust vastavalt uutele tingimustele . </s> </p>
+<p> <s> Traditsioonilises arendusprojektis loetakse plaanid õigeteks/ ” viimase instantsi tõdedeks ” . </s> <s> Projekti verstapostides kontrollitakse tehtu vastavust plaanile ja määratakse korrigeerivad tegevused , kui ilmnevad kõrvalekalded plaanist . </s> <s> Agiilprojektide verstapostides on põhirõhk senitehtust õppimisel , projekti adapteerimisel vastavalt tehtud avastustele/uurimisele , vastavalt sellele , kuidas on tiim projekti käigus targemaks saanud . </s> </p>
+<p> <s> Järgnevalt esitame mõned kommentaarid agiilse projektijuhtimise printsiipidele . </s> </p>
+<p> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> 3.1. </hi> </hi> </s> <hi rend="kaldkiri"> <hi rend="rasvane"> <s> KOMMENTAAR : USALDATAV , MITTE KORRATAV PROTSESS </s> </hi> </hi> </p>
+<p> <s> Alustame protsesside korratavusest . </s> <s> Traditsiooniline tarkvaraarendus hindab arendus- protsesside korratavust : näiteks CMMi teise taseme ühesõnaline määratlus ongi <hi rend="kaldkiri"> “ korratav ” . </hi> Agiilsõnavaras aga “ korratav ” puudub . </s> </p>
+<p> <s> Korratavus tähendab teha sama asja samal viisil samade tulemuste saamiseks . </s> <s> Korratav protsess eeldab samalaadseid sisendeid , mille alusel luuakse määratletud väljundid . </s> <s> Korratavus tähendab , et sisendite alusel väljundite saamise protsessi saab väikeste muudatustega korrata . </s> <s> See aga tähendab , et meil on alguses kogu vajalik informatsioon olemas - ainult sel juhul saame täpselt protsessi väljundit määratleda . </s> </p>
+<p> <s> Agiilprotsess on <hi rend="kaldkiri"> “ usaldatav ” </hi> : projekti eesmärgid , visioon saavutatakse ebamäärasu- sele/takistustele vaatamata . </s> <s> Usaldatav protsess lähtub aga väljunditest , mitte sisenditest : kuigi sisendid võivad protsessi käigus muutuda , tuleb leida teed/viisi vajaliku lõpptulemuse saamiseks . </s> <s> Kuna me ei saa erinevate protsesside puhul eeldada samu sisendeid , siis pole mõistlik kasutada ka kõikide projektide puhul samu protsesse ja samu praktikaid . </s> <s> Parimal juhul saab korratava protsessiga saavutada neid tulemusi , mida osati määratleda projekti alguses . </s> <s> Usaldatava protsessiga võib aga saavutada paremaid tulemusi ( isegi ootamatuid , üllatavaid ) , kui algul keegi arvata oskas . </s> </p>
+<p> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> 3.2. </hi> </hi> </s> <hi rend="kaldkiri"> <hi rend="rasvane"> <s> KOMMENTAAR : TÜÜRIMINE , MITTE ADMINISTREERIMINE </s> </hi> </hi> </p>
+<p> <s> Enamik projekte on üleadministreeritud ja allatüüritud . </s> </p>
+<p> <s> Põhiline erinevus on selles , et administreerimine tegeleb projekti keerukusega , projekti tüürija/liider aga muudatustega . </s> <s> Ilma piisava administreerimiseta liiguvad keerulised projektid kiiresti kaose suunas . </s> <s> Plaanid , kontrollid , eelarved ja protsessid aitavad projekti administraatoreid hakkama saada projekti keerukusega . </s> <s> Kuid projektides , kus prevaleerivad määramatus/hägusus , risk ja muudatused , pole need praktikad piisavad . </s> <s> Projektijuhid peavad olema nii administraatorid kui ka liidrid/tüürijad , kusjuures liidrirolli tähtsus kasvab märgatavalt , kui suureneb projekti uurimuslik iseloom . </s> <s> Liider ollakse mitte sellepärast , mida tehakse , vaid sellepärast , kes ollakse . </s> <s> Erinevalt administraatoritest ergutavad/julgustavad liidrid projekti muudatusi - ainult nii saab luua innovatiivset toodet/rakendust . </s> <s> Samal ajal vajavad nii projektid kui ka organisatsioonid nii administraatoreid kui ka liidreid . </s> <s> Liider olla tähendab tunnetada piiri selle vahel , mida me tegime eile ja mida me vajame homme . </s> <s> Administraatorid teavad eesmärki , liidrid mõistavad suunda . </s> <s> Kahjuks kalduvad administraatorid sageli projektide mikrojuhtimisse : detailsed plaanid ja nende täitmise kontroll . </s> <s> Kahjuks ( ? ) pole agiilprojektide puhul detail- planeerimine võimalik - mida võiks tähendada määramatuse detailiseerimine ? </s> </p>
+<p> <s> Muudatused on rasked , tülikad , paljudele vastumeelsed<hi rend="ülaindeks">8</hi> . </s> <s> Ka uurimuslikkus on raske , tülikas , paljusid isegi hirmutav . </s> <s> Kuid innovatsiooni saab saavutada vaid uurimuslike projektidega , determineeritud protsessiga seda saavutada pole võimalik : innovatsiooniks on vaja teha midagi teisiti kui varem . </s> <s> Sealjuures on kõigile teada , et konkurentsieelise saavutamise eeltingimuseks on innovaatilisus , järelikult saab konkurentsieelist saavutada vaid agiilprojektidega . </s> </p>
+<p> <s> Adaptiivsed , iseorganiseeruvad tiimid on agiilse projektijuhtimise nurgakiviks . </s> <s> Iseorganiseeruvaid tiime ei iseloomusta mitte juhtimise puudumine , vaid juhtimise stiil : tüürimine , mitte administreerimine . </s> <s> Ja veel : inimesed loovad uusi väärtusi , mitte struktuurid . </s> </p>
+<p> <s> Projektijuhi ülesandeks on tagada , et kõik tiimi liikmed mõistaksid projekti visiooni ja enda rolli selle saavutamisel . </s> <s> Projekti visioon sisaldab ka piirangute mõistmist . </s> <s> Informatsioon projekti visioonist ja täitmisest on oluline tiimiliikmetele . </s> <s> Projektijuht tagab eelkõige tiimiliikmete interaktsiooni/suht- lemise ja kordineerimise , alles seejärel dokumentatsiooni . </s> <s> Eesmärgiks on mõistmine/ arusaamine , mitte dokumentatsioon . </s> </p>
+<p> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> 3.3. </hi> </hi> </s> <hi rend="kaldkiri"> <hi rend="rasvane"> <s> KOMMENTAAR : ISEORGANISEERUVUS JA ENESEDISTSIPLIIN </s> </hi> </hi> </p>
+<p> <s> Paljude organisatsioonide tööd halvab “ hajutatud vastutus ” ( loe : vastutamatus ) . </s> <s> Otsuseid teevad komiteed , kel pole asjadest aimu , neid täide peavad viima aga need , kel pole otsustamise õigust . </s> <s> Võib ka öelda : ühed teevad ( mitte parimaid ) otsuseid , teised peavad ( teataval määral ) nende otsuste täitmise eest vastutama . </s> </p>
+<p> <s> Iseorganiseeruva tiimi vajalikuks tingimuseks on õigus teha otsuseid ja nende eest ka vastutada ning tulemustest aru anda . </s> <s> Rõhutame : vastutus pole mõeldav õiguseta teha olulisi otsuseid - kuigi pole haruldane , et praktikas püütakse seda ( vaieldamatut ) teesi ümber lükata . </s> <s> Iseorganiseeruvale tiimile antakse õigusi nii palju kui on mõistlik tõhusa ja jälgitava töö tagamiseks . </s> <s> Seejuures : iga funktsiooni arendaja võtab vastutuse selle funktsiooni eest , tiim võtab vastutuse iteratsioonil loodavate funktsioonide eest , samuti verstapostis ettenähtud funktsionaalsuse saavutamise eest . </s> <s> Niisuguse tiimi tüürimine pole mikrojuhtimine , kus juht seirab detailselt määratletud ülesannete täitmist : detailselt püstitatud ülesannete puhul pole isik ise teinud olulisi otsuseid , mille täitmist ta aga peab tagama . </s> <s> Samal ajal ei välista tüürimisprintsiip projektijuhi ainuisikuliste otsuste tegemist , kuid reeglina delegeerib projektijuht otsustamise tiimile . </s> </p>
+<p> <s> Distsipliin seisneb selles , et tehakse , mida ütled , ja öeldakse , mida tehakse . </s> <s> Selle ilusa printsiibi rakendamiseks on paljudel ettevõtetel hulgaliselt protsesse , protseduure , vorme , juhiseid ja muid dokumente , mida järjekindlalt ignoreeritakse . </s> <s> Agiilorganisatsioonidel on “ kõike seda ” vähe , aga sellest , mis on , peetakse kinni . </s> <s> Seega on : agiilorganisatsioonid distsiplineeritumad kui traditsioonilised . </s> <s> Agiilorganisatsioonidel pole ülevalt kehtestatud kord , vaid <hi rend="kaldkiri"> enesedistsipliin </hi> . </s> </p>
+<p> <s> Kui tiimi liikmetele anda enam autonoomiat , õigust teha olulisi otsuseid , siis on vajalik tiimi ensedistsipliin . </s> <s> Kui juht saavutab distsipliini ülesannete detailiseerimisega - “ tee seda ja seejärel toda ” , siis ta halvab initsiatiivi ja enesedistsipliini . </s> <s> Agiilsuse saavutamiseks peavad toimimisreeglid olema lihtsad . </s> <s> Lihtsad reeglid võimaldavad väledat , kiiret tarkvara arendust . </s> <s> Seejuures pole väledus lihtsuse tagajärg , kuid lihtsus teeb võimalikuks väleduse saavutamise . </s> </p>
+<p> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> 3.4. </hi> </hi> </s> <hi rend="kaldkiri"> <hi rend="rasvane"> <s> KOMMENTAAR : ÜLDISED REEGLID </s> </hi> </hi> </p>
+<p> <s> <hi rend="rasvane"> Reegel nr. 1. </hi> Ole nutikas igas olukorras . </s> <s> Teisi reegleid pole . </s> <s> ( <hi rend="kaldkiri"> Use your good judgment in all situations . </hi> </s> <s> <hi rend="kaldkiri"> There will be no additional rules </hi> ) . <hi rend="ülaindeks"> 9 </hi> </s> </p>
+<p> <s> Edukas projektijuhtimine saavutab tasakaalu kaose ja korra vahel , seega on meil vaja pisut enam reegleid , et ka teatavat korda tagada . </s> <s> Kuid iga reegli lisamine võib pärssida tiimi innovaatilisust ja võimet võtta vastutust - seega tuleb reeglile nr. 1 uute reeglite lisamisel olla ettevaatlik , mida illustreerib ka järgnev näide . </s> </p>
+<p> <s> Kindlaim viis keeruline/uurimuslik projekt põhja lasta on “ teha täpselt , mida kästakse ” . </s> <s> Täpselt saab täita ainult detailseid reegleid . </s> <s> Oma raamatus <hi rend="kaldkiri"> Artful Making </hi> <hi rend="ülaindeks"> 10 </hi> kirjeldavad Rob Austin ( <hi rend="kaldkiri"> Harvard Business School </hi> i professor ) ja Lee Devin 125 miljoni dollarilise IT-projekti krahhi . </s> <s> Projekti läbiviimise “ kuldprintsiibiks ” oli : “ Plaani tööd ja tööta plaani järgi ” ( <hi rend="kaldkiri"> “ Plan the work and work the plan ” </hi> ) . </s> <s> Austin ja Devin nimetavad niisugust lähenemist uurimuslikule projektile destruktiivseks . </s> </p>
+<p> <s> Detailsed reeglid - neid peab ka palju olema ( mida võiks tähendada <hi rend="kaldkiri"> “ 7 detailset projekteerimisreeglit ” </hi> ? ) - teevad innnovaatilisuse mõeldamatuks : looming pole võimalik käsku täites . </s> <s> Agiilsus tagab loomingu : printsiibid ei määratle toiminguid , mida arendajad peavad tegema . </s> <s> Agiilprintsiibid määratlevad minimaalse hulga toiminguid , mis tagavad tiimi kollektiivse intellekti . </s> </p>
+<p> <s> Märgime , et reeglite üleküllus vabastab tiimi liikmed vajadusest mõelda , mis enamasti pole tiimi soovitav seisund . </s> </p>
+<p> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> 3.5. </hi> </hi> </s> <hi rend="kaldkiri"> <hi rend="rasvane"> <s> KOMMENTAAR : NAPILT PIISAV METOODIKA </s> </hi> </hi> </p>
+<p> <s> Agiilprojektide metoodika puhul kehtib : “ pisut vähem kui parasjagu ” . </s> <s> Ja veel : “ ole väle , aga ära kiirusta ” . </s> </p>
+<p> <s> Näiteks , kui arendaja ei testi oma funktsioone piisavalt , kiirustab testimisel , siis ta tegelikult aeglustab projekti - hilisem vigade parandus võtab oluliselt enam aega . </s> </p>
+<p> <s> Määratledes toimingud , mis on hädavajalikud , ja tehes neid hästi , saavutame projekti läbiviimise kiiruse/väleduse . </s> <s> Nagu näeme , pole meil miskit tartlaste mõiste “ väledus ” vastu , ainult kasutama peab seda õiges kontekstis<hi rend="ülaindeks">11</hi> . </s> <s> Ja loomulikult pole väledus agiilsus . </s> </p>
+<p> <s> Veel märgime , et enesedistsipliinita tiimidel muutub väledus kiirustamiseks ( <hi rend="kaldkiri"> they confuse quickness with hurrying </hi> ) . </s> <s> Siikohal võiks meenutada ka legendaarset korvpallitreenerit John Woodenit , kes oma tiimile ütles : <hi rend="kaldkiri"> “ Be quick , but don't hurry . ” </hi> </s> </p>
+<p rend="rasvane"> <s> 4. PRINTSIIPIDELT PRAKTIKATELE </s> </p>
+<p> <s> Printsiibid on juhised , praktikate järgi korraldatakse tegelik töö . </s> </p>
+<p> <s> Printsiibid aitavad adapteerida praktikaid vastavalt konkreetsetele olukordadele . </s> </p>
+<p> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> 4.1. </hi> </hi> </s> <hi rend="kaldkiri"> <hi rend="rasvane"> <s> AGIILSE PROTSESSI KARKASS </s> </hi> </hi> </p>
+<p> <s> Kuigi inimesed on olulisemad kui protsessid , pole protsessid väheolulised . “ Head ” protsessid vastavad ärieesmärkidele . </s> <s> Näiteks , kui ärieesmärk on mingi “ asja ” korduv , pidev tootmine , siis on ettemääratav , täielikult determineeritud protsess õigustatud , mõistlik . </s> <s> Kui aga ärieesmärgiks on <hi rend="kaldkiri"> usaldatav innovatsioon , </hi> siis on vajalik protsessikarkass , mis on paindlik , hõlpsasti adapteeritav . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p> <s> Agiilprojekteerimise faasid on : </s> </p>
+<p> <s> visiooni loomine , </s> </p>
+<p> <s> prognoosimine , </s> </p>
+<p> <s> uurimine , </s> </p>
+<p> <s> adapteerimine , </s> </p>
+<p> <s> lõpetamine . </s> </p>
+<p> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> 4.2. </hi> </hi> </s> <hi rend="kaldkiri"> <hi rend="rasvane"> <s> FAAS : VISIOONI LOOMINE </s> </hi> </hi> </p>
+<p> <s> Projekti visiooni loomisel määratletakse <hi rend="kaldkiri"> <hi rend="rasvane"> mida </hi> </hi> <hi rend="kaldkiri"> , </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> kes </hi> </hi> ja <hi rend="kaldkiri"> <hi rend="rasvane"> kuidas </hi> </hi> . </s> </p>
+<p> <s> Esiteks määratleb visioon rakendust/toodet üldiselt : </s> </p>
+<p> <s> eesmärk , </s> </p>
+<p> <s> rakenduse põhiomadused , </s> </p>
+<p> <s> skoop , </s> </p>
+<p> <s> piirangud , </s> </p>
+<p> <s> aeg , </s> </p>
+<p> <s> maksumus , </s> </p>
+<p> <s> kvaliteet , </s> </p>
+<p> <s> kuidas toimub projekti lõpetamine/tulemuste üleandmine . </s> </p>
+<p> <s> Teiseks , kes moodustab projekti huvigrupi : </s> </p>
+<p> <s> kasutajad , </s> </p>
+<p> <s> arendajad - keda võtta projekti tiimi ( kelle osalemine on kriitiline , kellel soovitatav , keda on parem mitte kaasata ) , </s> </p>
+<p> <s> projekti- ja tootejuhid , </s> </p>
+<p> <s> sponsor jt. </s> </p>
+<p> <s> Kolmandaks , kuidas projekti läbi viia : </s> </p>
+<p> <s> metoodika , </s> </p>
+<p> <s> protsessid , </s> </p>
+<p> <s> riskid ja nende leevendamine . </s> </p>
+<p> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> 4.3. </hi> </hi> </s> <hi rend="kaldkiri"> <hi rend="rasvane"> <s> FAAS : PROGNOOSIMINE </s> </hi> </hi> </p>
+<p> <s> Agiilprojekteerimine on mittetäieliku informatsiooni alusel hüpoteeside loomine , nende verifitseerimine ja valideerimine , ning lõpuks realiseerimine ja evitamine . </s> <s> Sel põhjusel ei harrastata agiilprojektide puhul sõna “ plaanimine ” , mida traditsiooniliselt seostatakse ettemääratusega . </s> <s> Sobivam sõna on “ prognoosimine ” . </s> </p>
+<p> <s> Olulised toimingud prognoosimise faasis : </s> </p>
+<p> <s> algne nõuete määratlemine ; </s> </p>
+<p> <s> olulisemate funktsioonide ( <hi rend="kaldkiri"> features </hi> ) , kasutuskaasuste ( <hi rend="kaldkiri"> use cases </hi> ) või kasutajalugude ( <hi rend="kaldkiri"> user stories </hi> ) määratlemine - olenevalt nõuete määratlemise ideoloogiast ; </s> </p>
+<p> <s> väljalaskeplaan ( väljalase , verstapostid , iteratsioonid ) , mis sisaldab ajakava ja ressursside määratluse ; </s> </p>
+<p> <s> riskide identifitseerimise ja leevendamise plaan ; </s> </p>
+<p> <s> projekti maksumuse hindamine ning nõutava administratiivse ja finantsdokumentatsiooni loomine . </s> </p>
+<p> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> 4.4. </hi> </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> FAAS : UURIMINE </hi> </hi> </s> </p>
+<p> <s> Uurimisfaasis realiseeritakse tarkvararakenduse funktsioonid . </s> <s> Olulisemad toimingud : </s> </p>
+<p> <s> 1 ) ressursside ja tehnikate haldus , riskide leevendamine ; </s> </p>
+<p> <s> 2 ) tiimi koostöö ja iseorganiseerumise tagamine ; </s> </p>
+<p> <s> 3 ) koostöö korraldamine tiimis , kasutajate , sponsorite ja huvigrupiga . </s> </p>
+<p> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> 4.5. </hi> </hi> </s> <hi rend="kaldkiri"> <hi rend="rasvane"> <s> FAAS : ADAPTEERIMINE </s> </hi> </hi> </p>
+<p> <s> Tulemuste analüüs/võrdlemine plaaniga . </s> <s> Korrigeerivad tegevused ( nõudeid/plaani pole vaja muuta ) või nõuete adapteerimine/kohandamine ( uurimisfaasi tulemusel vajab esialgu kavandatu muutmist ) . </s> <s> Pärast visiooni loomist on arendustsükkel tavaliselt <hi rend="kaldkiri"> prognoosimine- uurimine- </hi> <hi rend="kaldkiri"> adapteerimine , </hi> uue informatsiooni lisandumisel võib olla vaja ka visiooni muuta . </s> </p>
+<p> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> 4.6. </hi> </hi> </s> <hi rend="kaldkiri"> <hi rend="rasvane"> <s> FAAS : LÕPETAMINE </s> </hi> </hi> </p>
+<p> <s> Traditsiooniliselt on projekti lõpetamisel vajalikud järgmised toimingud : </s> </p>
+<p> <s> 1 ) projekti üleandmine ( vastuvõtutestid , dokumentatsioon jmt ) ; </s> </p>
+<p> <s> 2 ) projekti analüüs ( mis hästi tehtud , mis halvasti , mida järgmistes projektides paremini teha ) . </s> </p>
+<p> <s> Agiilprojekti puhul lisandub siia veel projekti innovaatilisuse analüüs , kas ja kuidas saab edaspidi kasutada antud projekti tulemusi ja/või viise/metoodikat nende saamiseks . </s> </p>
+<p> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> 5. </hi> </hi> </s> <hi rend="kaldkiri"> <hi rend="rasvane"> <s> KOKKUVÕTE </s> </hi> </hi> </p>
+<p> <s> Tarkvaraarenduse agiilmetoodikatest on meil mitmel pool kirjutatud , ka antakse ülikoolide tarkvaratehnika kursustes ülevaade olulisematest agiilmetoodikatest . </s> <s> Siinkohal tahtsime juhtida tähelepanu agiilprojektide läbiviimise erisustele traditsiooniliste arendusprojektidega võrreldes . </s> <s> Nende erisuste eiramine vähendab agiilmetoodikate praktilise rakendamise tõhusust . </s> </p>
+<p> <s> 1 </s> </p>
+<p> <s> Alistair Cockburn , <hi rend="kaldkiri"> Agile Software Development </hi> , ISBN 0-201-69969-9. </s> </p>
+<p> <s> 2 </s> </p>
+<p> <s> Jim Highsmith , <hi rend="kaldkiri"> Agile Software Development Ecosystems </hi> , ISBN 0-201-76043-6. </s> </p>
+<p> <s> 3 </s> </p>
+<p> <s> Craig Larman , <hi rend="kaldkiri"> Agile and Iterative Development : A Manager's Guide </hi> , ISBN 0-131-11155-8. </s> </p>
+<p> <s> 4 </s> </p>
+<p> <s> Jim Highsmith , <hi rend="kaldkiri"> Agile Project Management : Creating Innovative Products </hi> , ISBN 0-321-21977-5. </s> </p>
+<p> <s> 5 </s> </p>
+<p> <s> David J. Anderson , Eli Schragenheim , <hi rend="kaldkiri"> Agile Management for Software Engineering : Applying the Theory of Constraints for Business Results , </hi> ISBN : 0-13-142460-2. </s> </p>
+<p> <s> 6 </s> </p>
+<p> <s> Sanjiv Augustine , <hi rend="kaldkiri"> Managing Agile Projects </hi> <hi rend="rasvane"> , </hi> ISBN : 0-13-124071-4 <hi rend="rasvane"> . </hi> </s> </p>
+<p> <s> 7 </s> </p>
+<p> <s> Vt <gap rend="hüperlink"/> , <hi rend="kaldkiri"> The </hi> <hi rend="kaldkiri"> Project </hi> <hi rend="kaldkiri"> Management Institute's Project Management Body of Knowledge </hi> ( PMBOK ) . </s> </p>
+<p> <s> 8 </s> </p>
+<p> <s> Meenutame Mark Twaini : <hi rend="kaldkiri"> Ainult märgades mähkmetes imik tervitab muudatusi . </hi> </s> </p>
+<p> <s> 9 </s> </p>
+<p> <s> James C. Collins and Jerry I. Porras . <hi rend="kaldkiri"> Built to Last : Successful Habits of Visionary Companies </hi> . </s> <s> New York : HarperBusiness , 1994. </s> </p>
+<p> <s> 10 </s> </p>
+<p> <s> Rob Austin , and Lee Devin . <hi rend="kaldkiri"> Artful Making : What Managers Need to Know About How Artists Work </hi> . </s> <s> Upper Saddle River , NJ : Financial Times Prentice Hall , 2003. </s> </p>
+<p> <s> 11 </s> </p>
+<p> <s> P. Leis , <hi rend="kaldkiri"> Toimetajaveerg : agiilne projektijuhtimine </hi> , A &amp; A , Nr . 2'2005 . </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Sharc-arhitektuuriga signaaliprotsessorite rakendamine infohankesüsteemides </head>
+<p> <bibl> <author> <s> Ivo Müürsepp , TTÜ raadio- ja sidetehnika instituudi doktorant </s> </author> </bibl> </p>
+<p rend="rasvane"> <s> SISSEJUHATUS </s> </p>
+<p> <s> Tänapäeva infohankesüsteemide ehitamisel kasutatakse aina rohkem digitaaltehnikat . </s> <s> Võib väita , et modernsed sonar- ja radarsüsteemid liiguvad digitaalraadio kontseptsiooni suunas , kus analoogtehnikas on realiseeritud ainult saate- ja vastuvõtuvõimendid ning kogu ülejäänud signaalitöötlus toimub juba digitaalsel kujul . </s> <s> Digitaalsete infohankesüsteemide eeliseks on lihtsam häälestamine , suurem töökindlus ja täpsus , samuti vähenevad kulud riistvarale , sest uue rakenduse tarvis pole ilmtingimata vaja vahetada välja kogu riistvara , piisab ainult seadme tarkvara muutmisest . </s> <s> Kõige olulisem on aga asjaolu , et digitaaltehnika võimaldab täiesti uusi põhimõttelisi signaalitöötluse lahendusi , millel “ analoogmaailmas ” vasted puuduvad . </s> <s> Näiteks digitaalradari loomiseks vajalikud suured arvutusvõimsused on tänapäeval digitaalsete signaaliprotsessorite näol juba olemas . </s> <s> Järgnevalt vaatleme lühidalt digitaalsete signaaliprotsessorite rakendamist infohankesüsteemides . </s> </p>
+<p rend="rasvane"> <s> PROTSESSORARHITEKTUURI ARENGUST </s> </p>
+<p> <s> Aastast 1944 pärineb esimene reprogrammeeritava arvuti kontseptsioon , kus nii andmeid kui ka programmi hoiti samas mälus , mis on tuntud <hi rend="kaldkiri"> von Neumanni </hi> arhitektuuri nime all . </s> <s> Taolise esmase lahenduse puuduseks on asjaolu , et nii käske kui ka andmeid tuleb lugeda järjestikku . </s> <s> Seetõttu kulub näiteks liitmiskäsu sooritamiseks kolm järjestikust lugemistakti : kõigepealt loetakse käsk ise , seejärel esimene liidetav ja siis teine liidetav . </s> </p>
+<p> <s> <hi rend="kaldkiri"> Harvardi </hi> arhitektuuri kasutavas arvutis on programmi ning andmete jaoks eraldi mälud ning ühendussiinid , võimaldades samaaegselt lugeda mälust käsku ning operandi . </s> <s> Eeltoodud liitmise näite korral loetaks samaaegselt liitmiskäsk ning esimene liidetav , järgmisel taktil loetaks sisse teine liidetav ning viimasega samaaegselt juba järgnev käsk . </s> <s> Nagu näha , saavutame riistvaralise keerukuse kasvuga tunduvalt suurema töökiiruse . </s> </p>
+<p> <s> Tänapäevased protsessorrakendused nõuavad aga aina suuremat jõudlus ning seetõttu on järgmise loogilise sammuna <hi rend="kaldkiri"> Analog Device' </hi> i poolt paljudes digitaalsetes signaaliprotsessorites ( DSP ) kasutusele võetud nn <hi rend="kaldkiri"> Harvardi </hi> superarhitektuur ( <hi rend="kaldkiri"> Super Harvard ARChitecture - </hi> SHARC ) . <hi rend="kaldkiri">SHARC</hi>-arhitektuuri korral on tegemist <hi rend="kaldkiri"> Harvardi </hi> arhitektuuri edasiarendusega läbilaskevõime suurendamiseks . </s> <s> Andmete lugemiseks ja salvestamiseks on kasutusel kaks või enam siini ning iseseisvat mäluosa , mis võimaldab ühe operatsiooni jaoks vajalikud andmed mälust lugeda samaaegselt operatsioonikäsuga . </s> <s> Tulles tagasi liitmise näite juurde , loeks <hi rend="kaldkiri">SHARC</hi>-protsessor liitmiskäsu ning mõlemad liidetavad mälust üheainsa takti jooksul . </s> <s> Järgnevalt kirjeldamegi <hi rend="kaldkiri">SHARC</hi>-arhitektuuri võimalusi <hi rend="kaldkiri"> Analog Device' </hi> i digitaalse signaaliprotsessori <hi rend="kaldkiri"> TS101S TigerSHARC </hi> <hi rend="ülaindeks"> <hi rend="kaldkiri"> ® </hi> </hi> näitel . </s> </p>
+<p rend="rasvane"> <s> DIGITAALSE SIGNAALIPROTSESSORI TS101S EHITUS </s> </p>
+<p> <s> <hi rend="kaldkiri"> Analog Device' </hi> i <hi rend="kaldkiri"> DSP TS101S TigerSHARC </hi> <hi rend="ülaindeks"> <hi rend="kaldkiri"> ® </hi> </hi> sobib hästi <hi rend="kaldkiri">SHARC</hi>-arhitektuuri omapärade demonstreerimiseks . </s> <s> Protsessori lihtsustatud struktuuriskeem on kujutatud joonisel 1. </s> <s> Prot- sessori taktsagedus on 300 MHz ( vanemal versioonil 250 MHz ) . </s> </p>
+<p> <s> Esimesena silmatorkavaks asjaoluks on kolme 128 biti laiuse andmesiini olemasolu . </s> <s> Iga andmesiini adresseerimiseks on protsessoris kolm 32 biti laiust aadress-siini . </s> <s> Protsessori sisemälu kogumahuks on 6 Mbit , mis on jagatud kolmeks 128 biti laiuseks mäluplokiks . </s> <s> Igaüks kolmest mäluplokist on ühendatud ühega kolmest andmesiinist . </s> <s> Taolise ülesehituse tõttu on igal töötaktil võimalik mälust lugeda või sinna kirjutada kokku 384 bitti , mis protsessori 3,3 ns töötakti kestuse juures annab teoreetiliseks protsessorisiseseks andmeülekandekiiruseks 115,2 Gbit/s . </s> <s> Ühte kolmest mäluplokist kasutatakse programmimäluna ning viimasega ühendatud siini käskude edastamiseks mälust juhtplokile . </s> <s> Andmete edastamiseks jäänud kaks 128 biti laiust siini võimaldavad seega ühe takti jooksul mälust lugeda või sinna kirjutada kuni kaheksa 32 biti pikkust ujukomaarvu või kuni kolmkümmend kaks kaheksabitist täisarvu . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 1. </s> <s> Digitaalse signaaliprotsessori TS101S lihtsustatud struktuur </s> </p>
+<p> <s> <hi rend="kaldkiri"> TS101S </hi> protsessori nn superskalaarne ehitus võimaldab tööd <hi rend="kaldkiri">SIMD</hi>- ( <hi rend="kaldkiri"> Single Instruc </hi> <hi rend="kaldkiri"> tion Multiple Data ) </hi> režiimis , mis tähendab , et protsessor võib ühe töötakti jooksul täita kuni neli samaaegset instruktsiooni . </s> <s> Samaaegselt sooritatavad instruktsioonid ei saa siiski olla suvalised , vaid arvestada tuleb protsessori ressurssidega . </s> <s> Näiteks tänu kolme mäluploki olemasolule saab samaaegselt sooritada mitu mälust lugemise/kirjutamise operatsiooni , kuid samaaegselt ei saa lugeda/kirjutada ühte ja samasse mäluplokki . </s> </p>
+<p> <s> Ka kogu ülejäänud protsessori struktuur toetab tööd <hi rend="kaldkiri">SIMD</hi>-režiimis , selleks on protsessoris kaks identset aritmeetika-loogikaplokki , vastavalt siis <hi rend="kaldkiri"> X ALU </hi> ja <hi rend="kaldkiri"> Y ALU </hi> ( vt joon 1 ) . </s> <s> Kumbki <hi rend="kaldkiri"> ALU </hi> võimaldab samaaegselt sooritada ühte korrutus- , ühte aritmeetika- ja ühte nihutusoperatsiooni töötakti jooksul , seega kokku kuni kuus operatsiooni töötakti korral . </s> <s> Viimane arv kehtib ujukomaoperatsioonide puhul , baidi pikkuste täisarvude korral võimaldab näiteks ühe <hi rend="kaldkiri"> ALU </hi> aritmeetikaplokk kuni kaheksa arvu samaaegset liitmist ühe takti jooksul . </s> <s> Operatsioonikonveieri pikkus on <hi rend="kaldkiri">ALU</hi>del kaks takti , mis tähendab , et operatsiooni tulemus on kasutatav ülejärgmisel taktil pärast operatsiooni sooritamist . </s> <s> Juhul kui programm küsib tulemust juba varem , genereeritakse ootetakt . </s> <s> Vältimaks ootetaktidest põhjustatud ajakulu , tuleks programm koostada viimaseid võimaluse korral vältides . </s> </p>
+<p> <s> Analoogiliselt sisaldab aadressigeneraator kahte täisarvulise aritmeetika plokki <hi rend="kaldkiri"> IALU </hi> . </s> <s> Viimased võimaldavad sooritada erinevaid aritmeetika- ja loogikatehteid täisarvudega . <hi rend="kaldkiri">IALU</hi>de peamiseks ülesandeks on operatsioonid aadresside ja viitadega ning trummelnihutite realiseerimine , kuid samuti on võimalik neid rakendada muude täisarvudega sooritatavate operatsioonide realiseerimiseks . </s> </p>
+<p> <s> Protsessori suurt töökiirust ja läbilaskevõimet toetavad ka sisend-väljundlülitused . </s> <s> Punktistpunkti ühendust toetavad neli ühebaidist kiiret ühendusporti andmeedastuskiirusega 300 MB/s , andes seega nelja pordi peale kokku kuni 1,2 GB/s . </s> <s> Välise siiniga andmevahetuse tarbeks on signaaliprotsessoril siiniliides , mis võimaldab andmeedastuskiirust kuni 800 MB/s . </s> <s> Protsessori südamikust sõltumatu kiire andmeülekande protsessori mälu ja välisseadmete vahel tagab sisseehitatud neljateistkümne virtuaalse kanaliga <hi rend="kaldkiri"> DMA </hi> kontroller . </s> </p>
+<p> <s> Lisaks eespool mainitule sisaldab protsessor <hi rend="kaldkiri"> TS101S </hi> veel muid väikemaid funktsionaalseid sõlmi , nagu näiteks <hi rend="kaldkiri"> SDRAM </hi> kontroller jms , kuid käesoleva artikli mahu juures ei ole viimased piisavalt olulised ning seega siin käsitlemist ei leia . </s> </p>
+<p rend="rasvane"> <s> TS101S KÄSUREA SÜNTAKS JA STRUKTUUR </s> </p>
+<p> <s> Nagu juba eespool mainitud , on <hi rend="kaldkiri"> TigerSHARC </hi> <hi rend="ülaindeks"> <hi rend="kaldkiri"> ® </hi> </hi> <hi rend="kaldkiri"> TS101S </hi> protsessori näol tegemist nn superskalaarse arhitektuuriga protsessoriga , mis võimaldab täita üks kuni neli 32-bitist käsku ühe käsurea jooksul . </s> <s> Käsurea assemblerkeelne süntaks on järgnev : </s> </p>
+<p> <s> <hi rend="kaldkiri"> 1_käsk ; 2_ käsk ; 3_ käsk ; 4_ käsk ;; </hi> . </s> </p>
+<p> <s> Iga käsurida koosneb ühest kuni neljast käsust , mis on omavahel semikoolonitega eraldatud , käsurida ise lõpeb kahe semikooloniga . </s> <s> Käsk on 32 biti pikkune sõna , mis aktiveerib ühe või mitu protsessori täitevsõlmedest mingi konkreetse operatsiooni läbiviimise eesmärgil . </s> <s> Kõik ühel käsureal olevad käsud loetakse mälust korraga ning samuti täidetakse ühe töötsükli jooksul samaaegselt . </s> <s> Osa käske koosneb kahest 32 biti pikkusest operatsioonikoodist ning võtab seega käsureal kahe käsu jagu ruumi , samuti peab osa käske alati paiknema kindlal käsurea positsioonil . </s> </p>
+<p rend="rasvane"> <s> OPTIMAALSE VASTUVÕTJA REALISEERIMINE </s> </p>
+<p> <s> Demonstreerimaks <hi rend="kaldkiri"> TigerSHARC </hi> <hi rend="ülaindeks"> <hi rend="kaldkiri"> ® </hi> </hi> <hi rend="kaldkiri"> TS101S </hi> digitaalse signaaliprotsessori jõudlust , toome järgnevalt lihtsa näite , kus mainitud protsessori baasil on realiseeritud <hi rend="kaldkiri"> Barkeri </hi> koodiga manipuleeritud sondeeriva signaali optimaalne vastuvõtja . </s> <s> Keeruliste koodidega manipuleeritud signaalide kasutamine on tänapäeva radar- ja sonartehnikas levinud suund , samuti kasutatakse signaalide kodeerimist paljudes teistes tänapäeva telekommunikatsioonitehnika harudes . </s> <s> Lühidalt seisneb näiteülesanne detekteeritud ja diskreeditud sisendrealisatsiooni filtreerimises konkreetse signaali jaoks sobiva filtriga . </s> <s> Joonisel 2<hi rend="kaldkiri">a</hi> kujutatud sisendrealisatsiooni töötlemisel saame joonisel 2<hi rend="kaldkiri">b</hi> kujutatud väljundsignaali . </s> <s> Väljundsignaali maksimumi olemasolu ( kriipsjoonega tähistatud läve ületus ) teavitab objekti olemasolust , tipu asukoht aga annab ajalise viite ning seega ka kauguse objektini . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 2. </s> <s> Näiteülesande lähteandmed ( a ) ja tulem ( b ) </s> </p>
+<p> <s> Seitsmeelemendilise <hi rend="kaldkiri"> Barkeri </hi> koodi elementide väärtused on ] 1 ; 1 ; 1 ; -1 ; -1 ; 1 ; -1 } ning diskreeti- missagedus on selline , et iga koodielement koosneb kaheksast diskreedist , seega on kogu signaali pikkus 56 diskreeti . </s> <s> Eeldame , et diskreeditud sisendrealisatsioon on salvestatud protsessori sisemälu teise mälublokki algaadressiga 0 x 8 0000 , kõik arvutused toimuvad 32-bitiste ujukomaarvudega . </s> <s> Sisendsignaali ehitust arvestades oleks ilmset mõistlik signaali töötlus jaotada kahte etappi , esimesena <hi rend="kaldkiri"> Barkeri </hi> koodi filtreerimine ning teiseks koodielemendi filtreerimine . </s> <s> Joonisel 3 on kujutatud <hi rend="kaldkiri"> Barkeri </hi> koodi filtri struktuuriskeem . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p> <s> <hi rend="rasvane"> Joonis 3. </hi> </s> <s> <hi rend="rasvane"> Seitsmeelemendilise </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> Barkeri </hi> </hi> <hi rend="rasvane"> koodi filtri struktuuriskeem </hi> </s> </p>
+<p> <s> Nagu jooniselt näha , saame väljundsignaali seitsme filtri koefitsientidega läbikorrutatud sisenddiskreedi summeerimisel . </s> <s> Et filtri koefitsientideks on ainult <gap rend="võõrkeelne_tekst"/> 1 , siis reaalselt korrutamise järgi vajadus puudub , koefitsiendi -1 korral tuleb lihtsalt vastav element summeerimise asemel lahutada . <hi rend="kaldkiri"> Barkeri </hi> koodi filtri esmane versioon on järgnev : </s> </p>
+<p rend="kaldkiri"> <s> xr0 = [ j4 + = 8 ] ;; </s> </p>
+<p rend="kaldkiri"> <s> xr1 = [ j4 + = 8 ] ;; </s> </p>
+<p rend="kaldkiri"> <s> xr2 = [ j4 + = 8 ] ;; </s> </p>
+<p rend="kaldkiri"> <s> xr3 = [ j4 + = 8 ] ; xfr10 = r0 + r1 ;; </s> </p>
+<p rend="kaldkiri"> <s> xr4 = [ j4 + = 8 ] ;; </s> </p>
+<p rend="kaldkiri"> <s> xr5 = [ j4 + = 8 ] ; xfr11 = r2 - r3 ;; </s> </p>
+<p rend="kaldkiri"> <s> xr6 = [ j4 + = - 47 ] ; xfr10 = r10 - r4 ;; </s> </p>
+<p rend="kaldkiri"> <s> xfr11 = r11 + r5 ;; </s> </p>
+<p rend="kaldkiri"> <s> xfr10 = r10 - r6 ;; </s> </p>
+<p rend="kaldkiri"> <s> xfr12 = r10 + r11 ;; </s> </p>
+<p rend="kaldkiri"> <s> [ k5 + = 1 ] = xr12 ;; </s> </p>
+<p> <s> Käsuga <hi rend="kaldkiri"> xr0 = [ j4 + = 8 ] </hi> loetakse <hi rend="kaldkiri"> X ALU </hi> registrisse <hi rend="kaldkiri"> xr0 </hi> viidaga <hi rend="kaldkiri"> j4 </hi> määratud aadressilt 32-bitine sõna ning samaaegselt suurendatakse viida väärtust kaheksa võrra , nii et viit näitab juba järgmise loetava mälupesa aadressi . </s> <s> Taoliselt loetakse mälust seitse sienddiskreeti ning viiakse viit lõpuks algsest ühe võrra suurema järjenumbriga mälupesale , kus paikneb juba järgmise väljunddiskreedi leidmiseks vajaliku seitsmiku esimene element . </s> </p>
+<p> <s> Neljandal real liidetakse käsuga <hi rend="kaldkiri"> xfr10 = r0 + r1 </hi> kokku kaks esimest elementi ( joonisel 3 kaks vasakpoolset ) , <hi rend="kaldkiri"> x </hi> registri numbri ees tähistab , et operatsioon sooritatakse ainult <hi rend="kaldkiri"> X ALU </hi> s , <hi rend="kaldkiri"> f </hi> näitab , et tegemist on ujukomaoperatsiooniga . </s> <s> Operatsiooni tulem salvestatakse registrisse <hi rend="kaldkiri"> xr10 </hi> ning operandid võetakse sama <hi rend="kaldkiri"> ALU </hi> registritest <hi rend="kaldkiri"> xr0 </hi> ja <hi rend="kaldkiri"> xr1 </hi> . </s> <s> Nagu juba eespool mainitud , on operatsioonikonveier <hi rend="kaldkiri">ALU</hi>s kahe takti pikkune , mistõttu on registri <hi rend="kaldkiri"> xr1 </hi> sisu kasutatav alles neljandal real , mitte kohe pärast mälust lugemist kolmandal real . </s> <s> Seetõttu toimubki esimene summeerimisoperatsioon alles programmi neljandal real . </s> <s> Käsukonveieri pikkust on arvestatud ka kogu ülejäänud filtriosa koostamisel . </s> <s> Ainsana ei õnnestu ootetakti genereerimist vältida üheksanda ja kümnenda rea vahel , kus registri <hi rend="kaldkiri"> xr12 </hi> sisu arvutamisel kasutatakse eelmisel real leitud registri <hi rend="kaldkiri"> xr10 </hi> sisu . </s> </p>
+<p> <s> Kõige viimasel real kirjutatakse leitud väljunddiskreet mällu viidaga <hi rend="kaldkiri"> k5 </hi> määratud aadressile ning viida väärtust suurendatakse ühe võrra , nihutades seda kohale , kuhu salvestatakse järgmine väljunddiskreet . </s> <s> Näeme , et esialgsel juhul kulub ühe väljunddiskreedi leidmiseks 12 töötakti , kogu väljundrealisatsiooni leidmiseks tuleb antud protseduuri korrata nii mitu korda , kui palju väljunddiskreete on vaja leida . </s> </p>
+<p> <s> Toodud näites kasutasime ainult ühte arvutusplokki , kuigi on teada , et <hi rend="kaldkiri"> TS101S </hi> sisaldab kahte identset <hi rend="kaldkiri"> ALU </hi> , seega saame töökiirust kahekordistada , kui salvestame sisendrealisatsiooni esimese poole ühte mäluplokki ning teise poole teise mäluplokki ja kasutame kummaski plokis olevate andmete samaaegseks töötlemiseks eraldi <hi rend="kaldkiri"> ALU </hi> . </s> </p>
+<p rend="kaldkiri"> <s> xr0 = [ j4+=8 ] ; yr0 = [ k4+=8 ] ;; </s> </p>
+<p rend="kaldkiri"> <s> xr1 = [ j4+=8 ] ; yr1 = [ k4+=8 ] ;; </s> </p>
+<p rend="kaldkiri"> <s> xr2 = [ j4+=8 ] ; yr2 = [ k4+=8 ] ;; </s> </p>
+<p rend="kaldkiri"> <s> xr3 = [ j4+=8 ] ; yr3 = [ k4+=8 ] ; fr10 = r0 + r1 ;; </s> </p>
+<p rend="kaldkiri"> <s> xr4 = [ j4+=8 ] ; yr4 = [ k4+=8 ] ;; </s> </p>
+<p rend="kaldkiri"> <s> xr5 = [ j4+=8 ] ; yr5 = [ k4+=8 ] ; fr11 = r2 - r3 ;; </s> </p>
+<p rend="kaldkiri"> <s> xr6 = [ j4+=-47 ] ; yr6 = [ k4+=-47 ] ; fr10 = r10 - r4 ;; </s> </p>
+<p rend="kaldkiri"> <s> fr11 = r11 + r5 ;; </s> </p>
+<p rend="kaldkiri"> <s> fr10 = r10 - r6 ;; </s> </p>
+<p rend="kaldkiri"> <s> fr12 = r10 + r11 ;; </s> </p>
+<p> <s> <hi rend="kaldkiri"> [ k5+=1 ] = xr12 ; [ j5+=1 ] = yr12 </hi> ;; </s> </p>
+<p> <s> Näeme , et nüüd loetakse samaaegselt esimesest mäluplokist andmeid <hi rend="kaldkiri"> X ALU </hi> registritesse ja teisest mäluplokist <hi rend="kaldkiri"> Y ALU </hi> omadesse . </s> <s> Arvutusoperatsioonide sihtregistri ees puudub täht <hi rend="kaldkiri"> x </hi> <hi rend="kaldkiri"> , </hi> sel juhul sooritatakse sama operatsioon mõlemas mäluplokis korraga . </s> <s> Käsk <hi rend="kaldkiri"> fr10 = r0 + r1 ;; </hi> on samane käsureaga x <hi rend="kaldkiri"> fr10 = r0 + r1 ; yfr10 = r0 + r1 ;; </hi> . </s> <s> Seega toimub neljandal real kahe 32-bitise muutuja lugemine mälust , kaks täisarvulist viida suurendamise operatsiooni <hi rend="kaldkiri"> I ALU </hi> des , kaks summeerimisoperatsiooni <hi rend="kaldkiri"> X </hi> ja <hi rend="kaldkiri"> Y ALU </hi> des ning lisaks järgmise rea operatsioonikoodi lugemine programmimälust . </s> <s> Samaaegselt loetakse kolmest mäluplokist andmeid ning sooritatakse nelja summeerimisoperatsiooni ning sellest hoolimata kasutatakse hetkel ainult kolmandikku maksimaalsest võimalikust mälu- ja kahte kolmandikku arvutusressursist . </s> </p>
+<p> <s> Siiamaani on mäluoperatsioonid toimunud 32 biti kaupa , kuid teatavasti on andmesiinid 128 biti laiused ning võimaldavad seega suuremat andmeedastusmahtu . </s> <s> Sisendandmeid antud juhul neliksõnade kaupa arvutusplokkidesse lugeda ei saa , sest kasutatavad sisenddiskreedid ei paikne mälus kõrvuti . </s> <s> Kuid me võime järjest arvutada neli väljunddiskreeti , salvestada need järjestikku paiknevatesse registritesse ning seejärel korraga neliksõna kaupa salvestada . </s> <s> Sel juhul näeks filtri algoritmi viimane rida välja järgnev : <hi rend="kaldkiri"> Q[k5+=4 ] =xr15 : 12 ; Q[j5+=4 ] =yr15 : 12 ;; </hi> . </s> <s> Täht <hi rend="kaldkiri"> Q </hi> näitab , et mällu kirjutamine toimub neliksõna kaupa , seetõttu suurendatakse ka viida sisu nelja võrra , ning mällu kirjutatakse korraga registrite <hi rend="kaldkiri"> xr12-xr15 </hi> ja <hi rend="kaldkiri"> yr12 - yr15 </hi> sisu . </s> <s> Tulemeid neljakaupa mällu kirjutades väheneb ajakulu umbes 10% . </s> </p>
+<p> <s> Kuna ühes filtreerimistsüklis arvutame neli tulemit järjest , siis avaneb ka siin võimalus käsuridade optimaalsemaks kasutamiseks , nimelt samaaegselt eelmise tulemi arvutamisega saame juba lugeda mälust andmeid järgmise väljunddiskreedi arvutamiseks . </s> </p>
+<p> <s> Taoliselt modifitseeritud algoritmi korral toimub andmete lugemine mälust pidevalt : </s> </p>
+<p> <s> xr0 = [ j4+=8 ] ; yr0 = [ k4+=8 ] ;; </s> </p>
+<p> <s> xr1 = [ j4+=8 ] ; yr1 = [ k4+=8 ] ;; </s> </p>
+<p> <s> xr2 = [ j4+=8 ] ; yr2 = [ k4+=8 ] ;; </s> </p>
+<p> <s> xr3 = [ j4+=8 ] ; yr3 = [ k4+=8 ] ; fr10 = r0 + r1 ;; </s> </p>
+<p> <s> xr4 = [ j4+=8 ] ; yr4 = [ k4+=8 ] ;; </s> </p>
+<p> <s> xr5 = [ j4+=8 ] ; yr5 = [ k4+=8 ] ; fr11 = r2 - r3 ;; </s> </p>
+<p> <s> xr6 = [ j4+=-47 ] ; yr6 = [ k4+=-47 ] ; fr10 = r10 - r4 ;; </s> </p>
+<p> <s> xr0 = [ j4+=8 ] ; yr0 = [ k4+=8 ] ; fr11 = r11 + r5 ;; </s> </p>
+<p> <s> xr1 = [ j4+=8 ] ; yr1 = [ k4+=8 ] ; fr10 = r10 - r6 ;; </s> </p>
+<p> <s> xr2 = [ j4+=8 ] ; yr2 = [ k4+=8 ] ;; </s> </p>
+<p> <s> xr3 = [ j4+=8 ] ; yr3 = [ k4+=8 ] ; fr12 = r10 + r11 ;; </s> </p>
+<p> <s> xr4 = [ j4+=8 ] ; yr4 = [ k4+=8 ] ; fr10 = r0 + r1 ;; </s> </p>
+<p> <s> ... </s> </p>
+<p> <s> Enamik käsupesadest sisaldab juba kolme käsku , olles seega otstarbekamalt kasutuses , samuti õnnestus kaotada ootetakt , asetades registri <hi rend="kaldkiri"> r10 </hi> sisu leidmise ja kasutamise vahele takti andmete lugemiseks registritesse <hi rend="kaldkiri"> r2 </hi> . </s> <s> Et filtri korral on tegemist tsüklilise algoritmiga , siis saab juba neljanda elemendi leidmise ajal lugeda sisendandmeid järgmise tsükli esimese elemendi jaoks ehk siduda viimase ja esimese elemendi arvutamine analoogiliselt ülejäänud elementide leidmisega . </s> <s> Sellisel juhul on ühe väljunddiskreedi leidmiseks kuluv ajahulk ainult 28% esialgse variandi puhul kuluvast ajast ehk alla 12 ns . </s> </p>
+<p> <s> Järgnevalt vaatleme koodielemendi filtreerimise probleemi . </s> <s> Joonisel 4 on kujutatud kaheksast diskreedist koosneva koodielemendi filtri struktuuriskeem . </s> <s> Nagu näha , seisneb elemendi filtreerimine kaheksa järjestikuse diskreedi summeerimises : </s> </p>
+<p> <s> <gap rend="joonis"/> , ( 1 ) </s> </p>
+<p> <s> millest saame , et </s> </p>
+<p> <s> <gap rend="joonis"/> ( 2 ) </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 4. </s> <s> Koodielemendi filtri struktuuriskeem </s> </p>
+<p> <s> Avaldisest ( 2 ) näeme , et kaks järjestikust elemendi filtri väljunddiskreeti erinevad teineteisest ainult kahe elemendi võrra , seega saab optimaalse filtri koostada ka joonisel 5 toodud kujul - nn libiseva keskmise algoritmina . </s> <s> Kusjuures näeme , et vajalik arvutusmaht ei sõltu üldse filtreeritava elemendi pikkusest , iga väljundelemendi leidmiseks on vaja sooritada kaks mälust lugemise operatsiooni , üks liitmine ja üks lahutamine . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 5. </s> <s> Libiseva keskmise algoritm </s> </p>
+<p> <s> Libiseva keskmise algoritmi esialgne assemblerkeelne versioon <hi rend="kaldkiri"> TS101S </hi> jaoks võiks välja näha järgnevalt : </s> </p>
+<p rend="kaldkiri"> <s> xr0 = [ j6+=8 ] ; yr0 = [ k6+=8 ] ;; </s> </p>
+<p rend="kaldkiri"> <s> xr1 = [ j6+=-7 ] ; yr1 = [ k6+=-7 ] ;; </s> </p>
+<p rend="kaldkiri"> <s> fr10 = r10 - r0 ;; </s> </p>
+<p rend="kaldkiri"> <s> fr10 = r10 + r1 ;; </s> </p>
+<p rend="kaldkiri"> <s> [ k7+=1 ] = xr10 ; [ j7+=1 ] = yr10 ;; </s> </p>
+<p> <s> Kõigepealt loetakse mälust lahutatav element , seejärel liidetav , sooritatakse vajalikud operatsioonid ning salvestatakse tulem mällu . </s> <s> Filtri väljundsignaal jääb mällu kahe ploki vahele jagatuna , kuna viimase kirjutamisel <hi rend="kaldkiri"> DMA </hi> kaudu välismällu ei ole erilist vahet , kas lähteandmed paikneva tervikuna koos või tuleb sooritada kaks lühema kestusega <hi rend="kaldkiri"> DMA </hi> ülekannet erinevatelt algaadressidelt . </s> <s> Juhul kui väljundsignaal peab siiski olema ühes massiivis , peab viit <hi rend="kaldkiri"> j7 </hi> viitama samale mäluosale kui <hi rend="kaldkiri"> k7 </hi> , kuid poole väljundrealisatsiooni pikkuse suuruse erinevusega . </s> <s> Samuti pikeneb siis töötlusaeg ühe takti võrra , sest samaaegselt ühte mällu korraga kirjutada ei saa . </s> </p>
+<p> <s> Analoogiliselt <hi rend="kaldkiri"> Barkeri </hi> koodi filtriga saab ka siin liita erinevate väljunddiskreetide leidmiseks kasutatavaid käske samadele käsuridadele , suurendades seega veelgi töötluskiirust , viies elemendi filtri väljunddiskreedi leidmiseks kuluva aja 8 nanosekundini . </s> <s> Et tegemist on rekurrentse algoritmiga , siis ei osutu antud juhul nelja diskreedi leidmine ja siis korraga mällu kirjutamine otstarbekaks , sest viimase peale kulub rohkem aega kui tulemite ükshaaval salvestamisel . </s> </p>
+<p> <s> Liites nüüd mõlema operatsiooni sooritamiseks kuluva aja , näeme , et ühe väljunddiskreedi leidmiseks kulub umbes 20 nanosekundit , mis arvestades <hi rend="kaldkiri"> Nyquisti </hi> kriteeriumit , tähendab , et üks protsessor suudaks probleemideta reaalajas töödelda kuni 25-MHz sagedusega sisendsignaali . </s> <s> Sonartehnika puhul ei ületa tavaliselt kasutatavad sagedused paarisaja kilohertsi piire . </s> <s> Radari korral tuleb vastuvõetud signaal siiski enne vahesagedusele viia ning alles siis saab seda näites kujutatud filtriga töödelda . </s> </p>
+<p rend="rasvane"> <s> KOKKUVÕTE </s> </p>
+<p> <s> Protsessorite areng on jõudnud ülisuure jõudlusega digitaalsete signaaliprotsessoriteni , mille baasil on võimalik realiseerida kiireid töötlusalgoritme , mis ületavad oma võimalustelt analoogtehnikat mäekõrguselt . </s> <s> Siiski näeme , et reaalsel juhul ei ole alati konkreetse ülesande lahendamisel võimalik protsessori kogu maksimaalset ressursi ära kasutada , kuna algoritmide koostamisel on siiski esmatähtis nõutud sõlme realiseerimine , mitte protsessori jõudluse maksimaalne kasutamine . </s> <s> Siiski saab siinkohal töötlusalgoritmi otstarbekal koostamisel viimast nõuet võimaluste piires protsessori võimalustega sobitada , saavutades algoritmi täitmise jõudluse märkimisväärse kasvu . </s> </p>
+<p> <s> Lõpetuseks peab mainima , et signaaliprotsessor <hi rend="kaldkiri"> TS101S </hi> ei ole enam signaalitöötlustehnika kõige viimane sõna , vaid uued <hi rend="kaldkiri"> TS201S </hi> ja <hi rend="kaldkiri"> BlackFin </hi> seeria <hi rend="kaldkiri">DSP</hi>d on palju suurema jõudlusega ning veelgi uuemate protsessorite väljatöötamine on pidevalt toimuv katkematu protsess . </s> </p>
+<p> <s> <gap rend="viited"/> </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Õpitehnoloogia standardid ja õpiobjektide metaandmed </head>
+<p> <bibl> <author> <s> <hi rend="kaldkiri"> Martin Sillaots </hi> , Audentese Mainori Ülikooli IT-teaduskonna prodekaan </s> </author> </bibl> </p>
+<p rend="rasvane"> <s> SISSEJUHATUS </s> </p>
+<p> <s> Käesoleva artikli autor on tegelenud õpetamisega 10 aastat . </s> <s> Selle aja jooksul on erinevatele sihtgruppidele loodud erinevaid IT- ja juhtimisalaseid kursuseid ( nende hulgas ka projekti- juhtimise kursus , seepärast tuuakse teema käsitlemisel näiteid just sellest valdkonnast ) . </s> </p>
+<p> <s> Kursuse lahutamatu osa on õppejõu poolt loodav õppematerjal . </s> <s> Enamasti luuakse need paralleelselt esimese kursuse õppeajaga . </s> <s> Peatükid valmivad nädal või paar enne loenguid . </s> <s> Et materjali loomisel arvestatakse konkreetse kursuse vajadusi , on kursuslased rahul ja ka õppejõud õnnelik õpieesmärkide täidetuse tõttu . </s> <s> Järgmistele kursustele sama õppematerjal enam nii hästi ei sobi . </s> </p>
+<p> <s> Põhjused , miks õppematerjal teistkordsel kasutamisel ei sobi , on järgmised . </s> </p>
+<p> <s> 1. Sihtgrupid muutuvad . </s> <s> Näiteks projektijuhtimist võib õpetada gümnaasiumi , ülikooli või täienduskoolituse tasemel . </s> <s> Kursuse raskusaste muutub . </s> <s> Igas aines on teemasid , mida võib õpetada sihtgrupist sõltumata ( projektijuhtimises näiteks ajakava koostamise reeglid ) või mis on arusaadavad kursuslaste varasemate kogemuste tõttu ( näiteks projektijuhtimine ehitusorganisatsioonis ) . </s> </p>
+<p> <s> 2. Kursuslaste huvi muutub . </s> <s> Lisada tuleb uusi teemasid ja mõnedest tuleb loobuda . </s> </p>
+<p> <s> 3. Kursuse läbimiseks mõeldud aeg on erinev . </s> <s> Näiteks ühes kõrgkoolis on trimestrid ( 11 nädalat ) , teises semestrid ( 16 nädalat ) . </s> <s> Et aine proportsionaalselt etteantud ajavahemikku ära mahuks , tuleb mõnedest teemadest loobuda . </s> </p>
+<p> <s> Et kursuse eesmärgid saavutada , tuleb kava ja õppematerjalid ringi teha . </s> <s> Probleem seisneb selles , et esimese kursuse jaoks loodud materjalid on tavaliselt jäiga ülesehitusega . </s> <s> Näiteks projektijuhtimise majanduslikud aspektid on esitatud ühes HTML-failis . </s> <s> Järgmisel kursusel tuntakse huvi vaid ühe aspekti - projekti tasuvuse hindamise vastu . </s> <s> Üpris tülikas on õppematerjale tagantjärele lammutada . </s> <s> Seda enam , et tükeldamist tuleb teha uuesti iga kursuse alguses . </s> <s> Kui õppejõul on paralleelselt käimas mitu kursust , siis on konspektide ringitegemine peaaegu võimatu . </s> <s> Selleks lihtsalt ei ole aega . </s> </p>
+<p> <s> Eespool mainitud probleemi ennetamiseks on soovitatav õppematerjal kohe selle loomise käigus jagada sobiva sisu ja suurusega mooduliteks - õpiobjektideks . </s> <s> Õpiobjektiks võib olla näiteks tekst , ülesanne , õppejõu märkmed , fotod , helilõigud , rühmatööjuhendid - ühesõnaga kõik , mida õppetöös kasutatakse . </s> <s> Iga objekt varustatakse seda iseloomustava informatsiooniga - metaandmetega . </s> <s> Näiteks milline on õpiobjekti koht kavas , raskusaste , läbimiseks kuluv aeg jne. </s> <s> Selline liigendamine eeldab põhjalikku planeerimist , kuid struktureeritud õppematerjal aitab säästa aega järgmise kursuse jaoks sobiva õppekava ja konspekti kokkupanekul . </s> </p>
+<p> <s> Käesoleva artikli eesmärk on tutvustada maailmas ühte enim levinud meetodit õpiobjektide kirjeldamiseks - IMS LOM-i ( <hi rend="kaldkiri"> Instructional Management Systems Learning Object Metadata </hi> ) spetsifikatsiooni . </s> </p>
+<p> <s> Tutvustuse raames antakse lühiülevaade õpitehnoloogia standarditest ja õppematerjali jagamisest õpiobjektideks . </s> <s> Põhjalikumalt vaadeldakse IMS metaandmemudelit ja soovitusi väärtuste valikul . </s> <s> Viimases , suuremas osas on toodud näide projektijuhtimise konspekti metaandmetest XML formaadis . </s> <s> Lõpetuseks mainitakse ka alternatiivseid võimalusi metaandmete esitamiseks . </s> </p>
+<p rend="rasvane"> <s> ÕPITEHNOLOOGIA STANDARDID </s> </p>
+<p> <s> Õpitehnoloogia standardite eesmärk on tagada erinevate õpisüsteemide koostöövõime : </s> </p>
+<p> <s> 1 ) kursuste ülekandmine ühest süsteemist teise ; </s> </p>
+<p> <s> 2 ) õpiobjektide korduv ja ristkasutamine ; </s> </p>
+<p> <s> 3 ) õpiobjektide säilitamine ja sorteerimine andmebaasides . </s> </p>
+<p> <s> Tegemist on spetsifikatsioonide , mitte standarditega . </s> <s> Need on alles kujunemisjärgus , täienevad ja muutuvad pidevalt ning pole üldist heakskiitu leidnud . </s> </p>
+<p> <s> Õpitehnoloogia standardeid koostavad näiteks järgmised organisatsioonid : </s> </p>
+<p> <s> 1. EduCom <hi rend="rasvane"> IMS </hi> ( Instructional Management Systems ) <gap rend="hüperlink"/> ; </s> </p>
+<p> <s> 2. IEEE LSTC <hi rend="rasvane"> LOM </hi> ( Institute of Electrical and Electronic Engineering Learning System Technology Committee Learning Object Metadata ) ltsc.ieee.org ; </s> </p>
+<p> <s> 3. USA DoD ADLNet <hi rend="rasvane"> SCORM </hi> ( Department of Defence Advanced Distributed Learning Network Sharable Content Object Reference Model ) <gap rend="hüperlink"/> </s> </p>
+<p> <s> Õpitehnoloogia standardeid võib liigitada järgnevalt : </s> </p>
+<p> <s> 1. <hi rend="rasvane"> Metaandmed </hi> - andmed õpiobjektide kirjeldamiseks . </s> <s> Võimaldavad õppesisu indekseerida , ladustada , leida ja taasesitada . </s> <s> Erinevate spetsifikatsioonide aluseks on enamasti IEEE LSTC LOM . </s> </p>
+<p> <s> 2. <hi rend="rasvane"> Sisupakendus </hi> - võimaldab eksportida kursusi või selle osi ühest õpisüsteemist teise . </s> <s> Maailmas kasutatakse enim IMS Content Packaging spetsifikatsiooni . </s> </p>
+<p> <s> 3. <hi rend="rasvane"> Õppija </hi> <hi rend="rasvane"> profiil </hi> - reeglid õppija isikuandmete jagamiseks . </s> </p>
+<p> <s> 4. <hi rend="rasvane"> Õppijate register </hi> - reeglid kursustele registreerunute info vahetamiseks . </s> </p>
+<p> <s> 5. <hi rend="rasvane"> Testid ja küsimused </hi> [ 1 ] . </s> </p>
+<p> <s> Näiteks IMS-i veebilehel aadressil <gap rend="hüperlink"/> on loetelu 16 erinevast spetsifikatsioonist . </s> </p>
+<p rend="rasvane"> <s> ÕPITEGEVUSTE HIERARHIA </s> </p>
+<p> <s> Ükski eespool mainitud standard ei jaga juhiseid , kuidas õppematerjal alamosadeks jagada . </s> <s> Mõnes spetsifikatsioonis ( näiteks <hi rend="kaldkiri"> Simple Sequencing </hi> ) viidatakse , et kogu arenduse aluseks on õpitegevuste hierarhia ( <hi rend="kaldkiri"> Activity Tree </hi> ) . </s> <s> [ 2 ] </s> </p>
+<p> <s> Õpitegevused on tegevused , mis on seotud õpetamisega või õppematerjalidega . </s> <s> Õpitegevus võib olla ka tegevuste grupp . </s> <s> Õpitegevused esitatakse hierarhilise struktuurina . </s> <s> Järgnevuse andmed määravad tegevuse või alamtegevuse teostamise nii , et saavutataks planeeritud õpieesmärgid . </s> </p>
+<p> <s> Õpitegevuste määratlemine on osa kursuse planeerimisest . </s> <s> Lihtsustatult koosneb kursuse loomine järgmistest osadest . </s> </p>
+<p> <s> 1. Analüüsimine : </s> </p>
+<p> <s> 1.1. probleemi analüüs </s> </p>
+<p> <s> 1.2. sihtrühma analüüs </s> </p>
+<p> <s> 1.3. ainevaldkonna analüüs </s> </p>
+<p> <s> 1.4. eesmärgi püstitamine </s> </p>
+<p> <s> 2. Planeerimine : </s> </p>
+<p> <s> 2.1. sisu valimine </s> </p>
+<p> <s> 2.2. meetodite valimine </s> </p>
+<p> <s> 2.3. hindamisreeglite määramine </s> </p>
+<p> <s> 3. Arendamine : </s> </p>
+<p> <s> 3.1. ajakava </s> </p>
+<p> <s> 3.2. õppematerjalid </s> </p>
+<p> <s> 3.3. administreerimisvahendid </s> </p>
+<p> <s> 4. Rakendamine - proovitunni läbiviimine </s> </p>
+<p> <s> 5. Hindamine - õppetöö efektiivsuse mõõtmine </s> </p>
+<p> <s> Kursuse sisu piiritlemise aluseks on eelnevalt püstitatud õpieesmärgid . </s> <s> Kursuse lõppedes peab sellel osaleja olema : </s> </p>
+<p> <s> 1 ) jätnud meelde <hi rend="rasvane"> faktid , </hi> </s> </p>
+<p> <s> 2 ) saanud aru <hi rend="rasvane"> mõistetest , </hi> </s> </p>
+<p> <s> 3 ) tutvunud <hi rend="rasvane"> reeglitega </hi> , </s> </p>
+<p> <s> 4 ) oskama sooritada iseseisvalt <hi rend="rasvane"> tegevusi . </hi> </s> </p>
+<p> <s> Kõigepealt tuleb määratleda tegevused , sest nendest sõltub ka õppetöö sisu . </s> <s> Kursusel käsitletavad faktid , mõisted ja reeglid peavad toetama omandatavaid tegevusi . </s> <s> Näiteks projektijuhtimise kursuse eesmärgiks on projekti planeerimise ja rühmatöö oskus . </s> </p>
+<p> <s> Enamasti on tegevus ( vilumus ) raskesti määratletav . </s> <s> Defineerimise lihtsustamiseks tuleb mahukam ja abstraktsem oskuste kogum jagada väiksemateks , hoomatavateks osadeks . </s> </p>
+<p> <s> 1. Töö jagatakse ülesanneteks . </s> </p>
+<p> <s> 2. Ülesanded jagatakse tegevusteks . </s> </p>
+<p> <s> 3. Tegevused jagatakse operatsioonideks [ 3 ] . </s> </p>
+<p> <s> Milliste terminitega teatud taseme tegevusi tähistatakse , pole oluline . </s> <s> Tähtis on mõista , et igal tegevusel on alamtegevused . </s> </p>
+<p> <s> Näiteks projekti planeerimise tegevused on : </s> </p>
+<p> <s> 1 ) eesmärgi ( ulatuse ) planeerimine ; </s> </p>
+<p> <s> 2 ) kvaliteedi planeerimine ; </s> </p>
+<p> <s> 3 ) ajaplaneerimine : </s> </p>
+<p> <s> 3.1. ülesannete loetelu loomine ; </s> </p>
+<p> <s> 3.2. ülesannete kestuse ennustamine ; </s> </p>
+<p> <s> 3.3. ülesannete järjekorra määramine ; </s> </p>
+<p> <s> 3.4. ajakava lühendamine ; </s> </p>
+<p> <s> 4 ) maksumuse planeerimine ; </s> </p>
+<p> <s> 5 ) organisatsiooni planeerimine ; </s> </p>
+<p> <s> 6 ) infovahetuse planeerimine ; </s> </p>
+<p> <s> 7 ) ressursside planeerimine ; </s> </p>
+<p> <s> 8 ) alltöö planeerimine ; </s> </p>
+<p> <s> 9 ) riskide planeerimine ; </s> </p>
+<p> <s> 10 ) plaani ja projekti erinevate osade integreerimine . </s> </p>
+<p> <s> Näite lühendamise eesmärgil on detailsemalt lahti kirjutatud vaid ajaplaneerimise tegevus . </s> <s> Tulemuseks on tegevuste hierarhia . </s> <s> Hetkel veel peetakse silmas tegevusi , mida kursuslane peab valdama aine lõppedes . </s> <s> Õpitegevused ja eesmärgiks olevad tegevused võivad osaliselt kattuda , kuid kindlasti ei ole üksüheselt samad . </s> </p>
+<p> <s> Tegevuste hierarhia loomisele järgneb tegevusahelate koostamine . </s> <s> Enamasti on ühe tulemuse saamiseks võimalik läbida erinevaid tegevuste ahelaid . </s> <s> Sõltuvalt olukorrast võivad mõned tegevused vahele jääda . </s> <s> Näiteks väiksema projekti korral ei rakendata alltööd . </s> </p>
+<p> <s> Kui omandatavad tegevused on paigas , täpsustatakse faktid , mõisted ja reeglid , mida on tarvis teada , et tegevusi edukalt sooritada . </s> </p>
+<p> <s> Selliselt määratletakse õppesisu . </s> <s> Järgnevalt tuleb täpsustada õpetamise strateegiad ( näiteks isetegemine või ettenäitamine ) ja õpitegevused . </s> <s> Õpiobjektiks ei ole ainult õppematerjalid , vaid ka kursuse või tunni kulgu toetavad tegevused . </s> <s> Tunnis võivad toimuda näiteks järgmised tegevused : </s> </p>
+<p> <s> 1 ) kursuslaste tähelepanu köitmine ; </s> </p>
+<p> <s> 2 ) õpieesmärkide teadvustamine ; </s> </p>
+<p> <s> 3 ) varemõpitust vajaminevate osade meeldetuletamine ; </s> </p>
+<p> <s> 4 ) uue osa esitamine ; </s> </p>
+<p> <s> 5 ) kursuslaste iseseisva töö juhendamine ; </s> </p>
+<p> <s> 6 ) õpitu rakendamine ; </s> </p>
+<p> <s> 7 ) tagasiside ; </s> </p>
+<p> <s> 8 ) hindamine ; </s> </p>
+<p> <s> 9 ) õpitu kinnistamine ja rakendamine teistes kontekstides . </s> </p>
+<p> <s> Enne , pärast ja osaliselt ka tunni ajal toimub õppetöö haldamine ( ruumid , tehnilised vahendid , ... ) . </s> </p>
+<p> <s> Põhiliselt uue osa esitamiseks ja õpitu kinnistamiseks kasutatakse järgmisi tegevusi : </s> </p>
+<p> <s> 1 ) presentatsioon ( õppejõud tahvli ees ) ; </s> </p>
+<p> <s> 2 ) iseseisev töö materjaliga ; </s> </p>
+<p> <s> 3 ) nõustamine ; </s> </p>
+<p> <s> 4 ) rühmaarutelu ; </s> </p>
+<p> <s> 5 ) iseseisvad ülesanded ja harjutused ; </s> </p>
+<p> <s> 6 ) rühmaülesanded . </s> </p>
+<p> <s> Kõigi eespool loetletud tegevuste läbiviimiseks võib luua õpiobjekte - näiteks õppematerjale või abistavaid juhendeid protsessi juhtimiseks . </s> <s> [ 3 ] </s> </p>
+<p rend="rasvane"> <s> IMS LOM </s> </p>
+<p> <s> Järgnevalt tutvume põhjalikumalt IMS LOM-i spetsifikatsiooniga , mis esitab reeglid , kuidas kirjeldada õpiobjekte . </s> </p>
+<p> <s> IMS-i iga spetsifikatsioon sisaldab kolm suuremat dokumenti : </s> </p>
+<p> <s> 1 ) <hi rend="rasvane"> Information Model </hi> - andmemudeli üldine kirjeldus ; </s> </p>
+<p> <s> 2 ) <hi rend="rasvane"> XML Binding </hi> - juhised spetsifikatsiooni loomiseks XML-formaadis ; </s> </p>
+<p> <s> 3 ) <hi rend="rasvane"> Best Practice </hi> - head tavad , rakendusnäited ja soovitused [ 4 ] . </s> </p>
+<p> <s> IMS LOM-i andmemudel koosneb kahest osast . </s> <s> Esimeses osas tutvustatakse andmeid , mis on kooskõlas IEEE LOM-i standardi projektiga . </s> <s> Teises osas kirjeldatakse IMS-i metaandmete modifikatsioone . </s> <s> Käesolevas artiklis piirdume IMS-i ja IEEE ühisosa tutvustamisega . </s> </p>
+<p rend="rasvane"> <s> LOM-i ANDMEMUDEL </s> </p>
+<p> <s> Andmemudel esitab metaandmed hierarhilise tabelina . </s> <s> Elemendid on jagatud üheksasse põhigruppi . </s> <s> Andmemudeliga võib põhjalikumalt tutvuda Internetis aadressil </s> </p>
+<p> <s> <gap rend="hüperlink"/> </s> </p>
+<p> <s> Alljärgnevalt on esitatud metaandmete tabeli lühikokkuvõte : </s> </p>
+<p> <s> 1. <hi rend="kaldkiri"> <hi rend="rasvane"> general </hi> </hi> - õpiobjekti kui tervikut kirjeldav info </s> </p>
+<p> <s> 1.1. <hi rend="kaldkiri"> identifier </hi> - unikaalne identifikaator </s> </p>
+<p> <s> 1.2. <hi rend="kaldkiri"> title </hi> - õpiobjekti nimi </s> </p>
+<p> <s> 1.3. <hi rend="kaldkiri"> catalogentry </hi> - ressursside asukoht </s> </p>
+<p> <s> 1.3.1. <hi rend="kaldkiri"> catalog </hi> </s> </p>
+<p> <s> 1.3.2. <hi rend="kaldkiri"> entry </hi> </s> </p>
+<p> <s> 1.4. <hi rend="kaldkiri"> language </hi> - õpiobjekti keel </s> </p>
+<p> <s> 1.5. <hi rend="kaldkiri"> description </hi> - õpiobjekti sisukirjeldus </s> </p>
+<p> <s> 1.6. <hi rend="kaldkiri"> keyword </hi> - ressursi võtmesõnad </s> </p>
+<p> <s> 1.7. <hi rend="kaldkiri"> coverage </hi> - õpiobjekti teemade järjekord </s> </p>
+<p> <s> 1.8. <hi rend="kaldkiri"> structure - </hi> struktuuri iseloom ( näiteks <hi rend="kaldkiri"> hierarchical </hi> ) </s> </p>
+<p> <s> <hi rend="kaldkiri"> 1.9. aggregationlevel - </hi> kogumiku tase ( näiteks 1 - üksik html leht , 2 - illustreeritud html , 3 html lehed + sisukord , 4 - kursus ) </s> </p>
+<p> <s> 2. <hi rend="kaldkiri"> <hi rend="rasvane"> lifecycle </hi> </hi> - õpiobjekti ajalugu ja hetkeseis </s> </p>
+<p> <s> 2.1. <hi rend="kaldkiri"> version </hi> - versiooni number </s> </p>
+<p> <s> 2.2. <hi rend="kaldkiri"> status </hi> - hetkeseis ( näiteks <hi rend="kaldkiri"> draft </hi> , <hi rend="kaldkiri"> final </hi> , ... ) </s> </p>
+<p> <s> 2.3. <hi rend="kaldkiri"> contribute </hi> - toetajad ja kaasautorid </s> </p>
+<p> <s> 2.3.1. <hi rend="kaldkiri"> role </hi> - toetuse tüüp ( näiteks <hi rend="kaldkiri"> author , script writer </hi> , ... ) </s> </p>
+<p> <s> 2.3.2. <hi rend="kaldkiri"> centity </hi> - toetaja nimi või loetelu ( tähtsaim esimesena , kui autor , siis ainult 1 ) </s> </p>
+<p> <s> 2.3.3. <hi rend="kaldkiri"> date </hi> - avaldamise kuupäev </s> </p>
+<p> <s> 3. <hi rend="kaldkiri"> <hi rend="rasvane"> metametadata </hi> </hi> - õpiobjekti kirjeldust kirjeldavad andmed </s> </p>
+<p> <s> 3.1. <hi rend="kaldkiri"> identifier </hi> </s> </p>
+<p> <s> 3.2. <hi rend="kaldkiri"> catalogentry </hi> </s> </p>
+<p> <s> 3.2.1. <hi rend="kaldkiri"> catalog </hi> </s> </p>
+<p> <s> 3.2.2. <hi rend="kaldkiri"> entry </hi> </s> </p>
+<p> <s> 3.3. <hi rend="kaldkiri"> contribute </hi> </s> </p>
+<p> <s> 3.3.1. <hi rend="kaldkiri"> role </hi> </s> </p>
+<p> <s> 3.3.2. <hi rend="kaldkiri"> entity </hi> </s> </p>
+<p> <s> 3.3.3. <hi rend="kaldkiri"> date </hi> </s> </p>
+<p> <s> 3.4. <hi rend="kaldkiri"> metadatascheme </hi> </s> </p>
+<p> <s> 3.5. <hi rend="kaldkiri"> language </hi> </s> </p>
+<p> <s> 4. <hi rend="kaldkiri"> <hi rend="rasvane"> technical </hi> </hi> - õpiobjekti tehnilised iseloomujooned </s> </p>
+<p> <s> 4.1. <hi rend="kaldkiri"> format </hi> - ressursi andmetüüp ( näiteks video/mpeg , text/html , ... ) </s> </p>
+<p> <s> 4.2. <hi rend="kaldkiri"> size </hi> - ressursi maht baitides </s> </p>
+<p> <s> 4.3. <hi rend="kaldkiri"> location </hi> - url </s> </p>
+<p> <s> 4.4. <hi rend="kaldkiri"> requirement </hi> - ressursile ligipääsemise tingimused </s> </p>
+<p> <s> 4.4.1. <hi rend="kaldkiri"> type </hi> - tingimuse tüüp ( näiteks <hi rend="kaldkiri"> operating system , browser </hi> ) </s> </p>
+<p> <s> 4.4.2. <hi rend="kaldkiri"> name </hi> - nõutud vahendi nimi ( näiteks <hi rend="kaldkiri"> any , microsoft internet explore </hi> r , ... ) </s> </p>
+<p> <s> 4.4.3. <hi rend="kaldkiri"> minimumversion </hi> - nõutud vahendi min versiooni number </s> </p>
+<p> <s> 4.4.4. <hi rend="kaldkiri"> maximumversion </hi> - nõutud vahendi max versiooni number </s> </p>
+<p> <s> 4.5. <hi rend="kaldkiri"> installationremarks </hi> - märkused ressursi installeerimiseks </s> </p>
+<p> <s> 4.6. <hi rend="kaldkiri"> otherplatformrequirements </hi> -muu info riist- ja tarkvaraliste nõuete kohta ( näiteks <hi rend="kaldkiri"> soundcard </hi> ) </s> </p>
+<p> <s> 4.7. <hi rend="kaldkiri"> duration </hi> - õpiobjekti mahamängimise aeg sekundites </s> </p>
+<p> <s> 5. <hi rend="kaldkiri"> <hi rend="rasvane"> educational </hi> </hi> - õpitööga seotud parameetrid </s> </p>
+<p> <s> 5.1. <hi rend="kaldkiri"> interactivitytype </hi> - interaktiivsuse tüüp ( näiteks active , expositive , ... ) </s> </p>
+<p> <s> 5.2. <hi rend="kaldkiri"> learningresourcetype </hi> - õpiobjekti tüüp ( näiteks <hi rend="kaldkiri"> exercise , simulation , diagram , figure , table , narrative text , exam , experiment , problem statement , self assessment ) </hi> . </s> </p>
+<p> <s> 5.3. <hi rend="kaldkiri"> interactivitylevel </hi> - interaktiivsuse tase ( näiteks <hi rend="kaldkiri"> very low , ... very high </hi> ) </s> </p>
+<p> <s> 5.4. <hi rend="kaldkiri"> semanticdensity </hi> --subjektiivne hinnang õpiobjekti kasulikkusele , võrreldes selle mahuga </s> </p>
+<p> <s> 5.5. <hi rend="kaldkiri"> intendedenduserrole </hi> - õpiobjekti sihtgrupp ( näiteks <hi rend="kaldkiri"> teacher , leaner , author , .. </hi> . ) </s> </p>
+<p> <s> 5.6. <hi rend="kaldkiri"> context </hi> -- keskkond , kus objekti kasutatakse ( näiteks <hi rend="kaldkiri"> higher education , university first cycle , .. </hi> . ) </s> </p>
+<p> <s> 5.7. <hi rend="kaldkiri"> typicalagerange </hi> - kasutajate vanusevahemik ( vabas vormis ) </s> </p>
+<p> <s> 5.8. <hi rend="kaldkiri"> dificulty </hi> - raskustase põhisihtgrupile ( <hi rend="kaldkiri"> very easy , ... very difficult </hi> ) </s> </p>
+<p> <s> 5.9. <hi rend="kaldkiri"> typicallearningtime </hi> - õpiobjekti läbimise kestus ( näiteks 01 : 30 : 00 ) </s> </p>
+<p> <s> 5.10. <hi rend="kaldkiri"> description </hi> - selgitus , kuidas õpiobjekti kasutada </s> </p>
+<p> <s> 5.11. <hi rend="kaldkiri"> language </hi> - kasutuskeel </s> </p>
+<p> <s> 6. <hi rend="kaldkiri"> <hi rend="rasvane"> rights </hi> </hi> - ressursi kasutamise tingimused </s> </p>
+<p> <s> 6.1. cost - kas ressursi kasutamine on tasuline ( näiteks yes , no ) </s> </p>
+<p> <s> 6.2. copyrightandotherrestrictions - kas ressursil on autorikaitse ( yes , no ) </s> </p>
+<p> <s> 6.3. description - kasutamisõiguste täiendavad kommentaarid </s> </p>
+<p> <s> 7. <hi rend="kaldkiri"> <hi rend="rasvane"> relation </hi> </hi> - õpiobjekti seosed teiste õpiobjektidega </s> </p>
+<p> <s> 7.1. <hi rend="kaldkiri"> kind </hi> - seose liik ( näiteks <hi rend="kaldkiri"> ispartof , haspart </hi> , ... ) </s> </p>
+<p> <s> 7.2. <hi rend="kaldkiri"> resource </hi> - viide seotud ressursile </s> </p>
+<p> <s> 7.2.1. <hi rend="kaldkiri"> identifier </hi> - teise ressursi identifikaator </s> </p>
+<p> <s> 7.2.2. description - teise ressursi lühikirjeldus </s> </p>
+<p> <s> 7.2.3. catalogentry - teise ressursi asukoht </s> </p>
+<p> <s> 7.2.3.1. <hi rend="kaldkiri"> catalog </hi> </s> </p>
+<p> <s> 7.2.3.2. <hi rend="kaldkiri"> entry </hi> </s> </p>
+<p> <s> 8. <hi rend="kaldkiri"> <hi rend="rasvane"> annotation </hi> </hi> - õpiobjekti kommentaarid </s> </p>
+<p> <s> 8.1. <hi rend="kaldkiri"> person </hi> - kommenteerija nimi </s> </p>
+<p> <s> 8.2. <hi rend="kaldkiri"> date </hi> - kommenteerimise kuupäev </s> </p>
+<p> <s> 8.3. <hi rend="kaldkiri"> description </hi> - kommentaar </s> </p>
+<p> <s> 9. <hi rend="kaldkiri"> <hi rend="rasvane"> classification </hi> </hi> - õpieesmärkide klassifikatsioon </s> </p>
+<p> <s> 9.1. <hi rend="kaldkiri"> purpose </hi> - klassifikatsiooni ülesanne ( näiteks <hi rend="kaldkiri"> discipline , skill level , </hi> ... ) </s> </p>
+<p> <s> 9.2. <hi rend="kaldkiri"> taxonpath </hi> - klassifikatsiooni erinevad järjekorrad </s> </p>
+<p> <s> 9.2.1. <hi rend="kaldkiri"> source </hi> - klassifikatsiooni nimi ( näiteks , ametlik , kasutajasõbralik , ... ) </s> </p>
+<p> <s> 9.2.2. <hi rend="kaldkiri"> taxon </hi> - klassifikatsiooni punktide pingerida üldiselt üksikule ( kuni 9 taset ) </s> </p>
+<p> <s> 9.2.2.1. <hi rend="kaldkiri"> id </hi> - punkti identifikaator </s> </p>
+<p> <s> 9.2.2.2. <hi rend="kaldkiri"> entry </hi> - punkti nimi </s> </p>
+<p> <s> 9.2.2.3. <hi rend="kaldkiri"> description </hi> - punkti lühikirjeldus </s> </p>
+<p> <s> 9.2.2.4. <hi rend="kaldkiri"> keyword </hi> - võtmesõnad </s> </p>
+<p> <s> [ 5 ] </s> </p>
+<p rend="rasvane"> <s> IMS-i SOOVITUSED </s> </p>
+<p> <s> Milliseid metaandmeid õpiobjektide iseloomustamiseks kasutada , otsustab disainer . </s> <s> IMS soovitab kasutada järgmisi elemente : </s> </p>
+<p> <s> 1. <hi rend="rasvane"> general.language </hi> - õppematerjali keel ; </s> </p>
+<p> <s> 2. <hi rend="rasvane"> general.aggregationlevel </hi> - õpiobjekti keerukuse tase ( 1=puhas tekst , 2=illustreeritud tekst , ... ) ; </s> </p>
+<p> <s> 3. <hi rend="rasvane"> technical.format </hi> - õpiobjekti andmetüüp ( mpg , txt , ... ) ; </s> </p>
+<p> <s> 4. <hi rend="rasvane"> technical.requirement.name </hi> - õpiobjekti vaatamiseks vajaliku vahendi nimi ( IE , ... ) ; </s> </p>
+<p> <s> 5. <hi rend="rasvane"> educational.learningresourcetype </hi> - õpiobjekti tüüp ( <hi rend="kaldkiri"> Narrative Text , Exercise </hi> , ... ) ; </s> </p>
+<p> <s> 6. <hi rend="rasvane"> educational.context </hi> - õpiobjekti kasutuskeskkond ( <hi rend="kaldkiri"> Higher Education </hi> , ... ) ; </s> </p>
+<p> <s> 7. <hi rend="rasvane"> educational.interactivitytype </hi> - ( <hi rend="kaldkiri"> Active , Expositive , Mixed , Undefined </hi> ) ; </s> </p>
+<p> <s> 8. <hi rend="rasvane"> educational.interactivitylevel </hi> - ( <hi rend="kaldkiri"> very low , ... very high </hi> ) ; </s> </p>
+<p> <s> 9. <hi rend="rasvane"> educational.intendedenduserrole </hi> - kasutajate sihtgrupp ( <hi rend="kaldkiri"> Teacher , Leaner , Author </hi> , ... ) ; </s> </p>
+<p> <s> 10. <hi rend="rasvane"> educational.difficulty </hi> - õppematerjali raskusaste ( <hi rend="kaldkiri"> very easy , ... very difficult ) </hi> ; </s> </p>
+<p> <s> 11. <hi rend="rasvane"> educational.typicallearningtime </hi> - õppematerjali läbimiseks kuluv aeg ( 01 : 30 : 00 ) ; </s> </p>
+<p> <s> 12. <hi rend="rasvane"> classification.purpose [ discipline ] - liigitus valdkonna järgi ; </hi> </s> </p>
+<p> <s> 13. <hi rend="rasvane"> classification.purpose [ Educational Objectives ] </hi> - liigitus õpieesmärkide järgi . </s> </p>
+<p> <s> Soovitused tuginevad IMS-i uurimustel ja kogemustel . </s> <s> Eespool loetletud õpiobjektide metaandmete esitamist peetakse heaks tavaks . </s> <s> Need peaksid võrdselt hästi sobima , sõltumata sellest , mis valdkonna õpiobjektidega on tegemist . </s> <s> Soovituste eesmärk on juurutada metaandmete sarnast kasutamist erinevates organisatsioonides . </s> <s> Üritatakse vältida “ kodukootud ” liigituste loomist [ 6 ] . </s> </p>
+<p> <s> IMS-i metaandmeid on ka kritiseeritud , sest elementide kirjeldamiseks mõeldud valikud on piiratud . </s> <s> Näiteks on mõnede arvates interaktiivsuse tüüpe liiga vähe . </s> <s> Käesoleva artikli autori arvates on ka õpiobjekti tüüpe vähe . </s> <s> Näiteks tekkis vajadus õpiobjekti tüüp “ Näide ” järele , kuid seda etteantud sõnastikus pole . </s> <s> Kindlasti võib tekkida erinevatel kasutajatel teisigi probleeme . </s> </p>
+<p> <s> Metaandmete esitamine </s> </p>
+<p> <s> IMS on valinud metaandmete kirjapanemiseks XML-keele , kuid vahendid , milles neid üles märkida ja taasesitada , on jäetud lahtiseks . </s> </p>
+<p> <s> On võimalik valida teiste organisatsioonide poolt arendatud metaandmete redaktorite hulgast : </s> </p>
+<p> <s> 1. <hi rend="rasvane"> Aloha </hi> aloha.netera.ca/index.php ; </s> </p>
+<p> <s> 2. <hi rend="rasvane"> DC-dot </hi> <gap rend="hüperlink"/> - veebipõhine DublinCore LOM editor ; </s> </p>
+<p> <s> 3. <hi rend="rasvane"> IMSE/VIMSE </hi> kmr.nada.kth.se/imsevimse/ ; </s> </p>
+<p> <s> 4. <hi rend="rasvane"> LOM editor </hi> <gap rend="hüperlink"/> ; </s> </p>
+<p> <s> 5. <hi rend="rasvane"> Microsoft LRN </hi> ( Learning Rosource iNterchange ) <gap rend="hüperlink"/> ; </s> </p>
+<p> <s> 6. <hi rend="rasvane"> Splash </hi> <gap rend="hüperlink"/> ; </s> </p>
+<p> <s> 7. <hi rend="rasvane"> Sun Microsystems Developers Toolkit </hi> <gap rend="hüperlink"/> [ 7 ] . </s> </p>
+<p> <s> Enamasti on editorid Java-põhised ja vajavad Java Run Time Engine olemasolu . </s> <s> Seepärast kaustas autor XML-i kirjutamisel Notepad'i abi . </s> </p>
+<p> <s> Metaandmete lugemiseks sobivad eespool kirjeldatud metaandmete redaktrorid . </s> <s> XML-koodi esitamiseks võib kasutada Interneti brausereid [ 8 ] . </s> </p>
+<p rend="rasvane"> <s> METAANDMETE NÄIDE </s> </p>
+<p> <s> Järgnevalt on toodud artikli autori poolt valitud metaandmed ja nende esitus XML-formaadis . </s> </p>
+<p> <s> Tabel 1 </s> </p>
+<p rend="keskel"> <s> Ajaplaneerimises kasutatava nooldiagrammi animeeritud näite metaandmed </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p rend="rasvane"> <s> Nr </s> </p>
+<p rend="rasvane"> <s> Elemendi nimi </s> </p>
+<p rend="rasvane"> <s> Elemendi väärtus </s> </p>
+<p rend="rasvane"> <s> Märkused </s> </p>
+<p> <s> 1 </s> </p>
+<p> <s> general </s> </p>
+<p> <s> 1.1 </s> </p>
+<p> <s> identifier </s> </p>
+<p> <s> 2033521 </s> </p>
+<p> <s> Vabalt valitav identifikaator </s> </p>
+<p> <s> 1.2 </s> </p>
+<p> <s> title </s> </p>
+<p> <s> Nooldiagrammi animatsioon </s> </p>
+<p> <s> 1.4 </s> </p>
+<p> <s> language </s> </p>
+<p> <s> ee </s> </p>
+<p> <s> 1.6 </s> </p>
+<p> <s> keyword </s> </p>
+<p> <s> nool </s> </p>
+<p> <s> nooldiagramm </s> </p>
+<p> <s> projekti kestus </s> </p>
+<p> <s> sündmuste hiliseim toimumisaeg </s> </p>
+<p> <s> kriitiline tee </s> </p>
+<p> <s> 2 </s> </p>
+<p> <s> lifecycle </s> </p>
+<p> <s> 2.3 </s> </p>
+<p> <s> contribute </s> </p>
+<p> <s> 2.3.1 </s> </p>
+<p> <s> role </s> </p>
+<p> <s> Author </s> </p>
+<p> <s> 2.3.2 </s> </p>
+<p> <s> centity </s> </p>
+<p> <s> Martin Sillaots </s> </p>
+<p> <s> 2.3.3 </s> </p>
+<p> <s> date </s> </p>
+<p> <s> 2002-01-01 </s> </p>
+<p> <s> 5 </s> </p>
+<p> <s> educational </s> </p>
+<p> <s> 5.1 </s> </p>
+<p> <s> interactivitytype </s> </p>
+<p> <s> Expositive </s> </p>
+<p> <s> Passiivne </s> </p>
+<p> <s> 5.2 </s> </p>
+<p> <s> learningresourcetype </s> </p>
+<p> <s> Simulation </s> </p>
+<p> <s> Animatsiooni tüüp puudub lubatud sõnastikus </s> </p>
+<p> <s> 5.6 </s> </p>
+<p> <s> context </s> </p>
+<p> <s> University First Cycle </s> </p>
+<p> <s> Ülikooli 1. kursus </s> </p>
+<p> <s> 5.8 </s> </p>
+<p> <s> difficulty </s> </p>
+<p> <s> Medium </s> </p>
+<p> <s> Keskmine raskusaste </s> </p>
+<p> <s> 7 </s> </p>
+<p> <s> relation </s> </p>
+<p> <s> 7.1 </s> </p>
+<p> <s> kind </s> </p>
+<p> <s> IsPartOf </s> </p>
+<p> <s> 7.2 </s> </p>
+<p> <s> resource </s> </p>
+<p> <s> 7.2.1 </s> </p>
+<p> <s> identifier </s> </p>
+<p> <s> 2033520 </s> </p>
+<p> <s> Kirjeldab , millise õpiobjekti alla käesolev objekt kuulub </s> </p>
+<p> <s> 9 </s> </p>
+<p> <s> classification </s> </p>
+<p> <s> 9.1 </s> </p>
+<p> <s> purpose </s> </p>
+<p> <s> Educational Objective </s> </p>
+<p> <s> 9.2 </s> </p>
+<p> <s> taxonpath </s> </p>
+<p> <s> 9.2.1 </s> </p>
+<p> <s> source </s> </p>
+<p> <s> Projektifaas </s> </p>
+<p> <s> 9.2.2 </s> </p>
+<p> <s> taxon </s> </p>
+<p> <s> 9.2.2.2 </s> </p>
+<p> <s> entry </s> </p>
+<p> <s> Planeerimine </s> </p>
+<p> <s> Objekti 1. liigitus - projektifaaside järgi liigitades on tegemist planeerimise teemaga </s> </p>
+<p> <s> 9 </s> </p>
+<p> <s> classification </s> </p>
+<p> <s> 9.1 </s> </p>
+<p> <s> purpose </s> </p>
+<p> <s> Educational Objective </s> </p>
+<p> <s> 9.2 </s> </p>
+<p> <s> taxonpath </s> </p>
+<p> <s> 9.2.1 </s> </p>
+<p> <s> source </s> </p>
+<p> <s> Projektijuhtimise valdkond </s> </p>
+<p> <s> 9.2.2 </s> </p>
+<p> <s> taxon </s> </p>
+<p> <s> 9.2.2.2 </s> </p>
+<p> <s> entry </s> </p>
+<p> <s> Ajajuhtimine </s> </p>
+<p> <s> 2. liigitus - juhtimisvaldkondade järgi liigitades on tegemist ajajuhtimise teemaga . </s> <s> Liigitusi võib lisada veel </s> </p>
+<p rend="rasvane"> <s> SAMAD ANDMED XML-FORMAADIS </s> </p>
+<p> <s> &lt; ? xml version= " 1.0 " encoding= " UTF-8 " ? &gt; </s> </p>
+<p> <s> &lt; lom xmlns= " <gap rend="hüperlink"/> " &gt; </s> </p>
+<p> <s> &lt; ! <gap rend="võõrkeelne_tekst"/> lom - element , mis esitab opiobjekti kui terviku <gap rend="võõrkeelne_tekst"/> &gt; </s> </p>
+<p> <s> &lt; ! <gap rend="võõrkeelne_tekst"/> xmlns - viide IMS xml objektide nimedele <gap rend="võõrkeelne_tekst"/> &gt; </s> </p>
+<p> <s> &lt; general &gt; </s> </p>
+<p> <s> &lt; ! <gap rend="võõrkeelne_tekst"/> general - opiobjekti yldandmed <gap rend="võõrkeelne_tekst"/> &gt; </s> </p>
+<p> <s> &lt; identifier &gt; 2033521 &lt; /identifier &gt; </s> </p>
+<p> <s> &lt; title &gt; &lt; langstring xml : lang= " ee " &gt; Nooldiagrammi animatsioon &lt; /langstring &gt; &lt; /title &gt; </s> </p>
+<p> <s> &lt; ! <gap rend="võõrkeelne_tekst"/> langstring - tekstparameetri keel tuleb eelnevalt tapsustada <gap rend="võõrkeelne_tekst"/> &gt; </s> </p>
+<p> <s> &lt; language &gt; ee &lt; /language &gt; </s> </p>
+<p> <s> &lt; keyword &gt; &lt; langstring xml : lang= " ee " &gt; nool &lt; /langstring &gt; &lt; /keyword &gt; </s> </p>
+<p> <s> &lt; keyword &gt; &lt; langstring xml : lang= " ee " &gt; nooldiagramm &lt; /langstring &gt; &lt; /keyword &gt; </s> </p>
+<p> <s> &lt; keyword &gt; &lt; langstring xml : lang= " ee " &gt; projekti kestus &lt; /langstring &gt; &lt; /keyword &gt; </s> </p>
+<p> <s> &lt; keyword &gt; &lt; langstring xml : lang= " ee " &gt; hiliseim toimumisaeg &lt; /langstring &gt; &lt; /keyword &gt; </s> </p>
+<p> <s> &lt; keyword &gt; &lt; langstring xml : lang= " ee " &gt; kriitiline tee &lt; /langstring &gt; &lt; /keyword &gt; </s> </p>
+<p> <s> &lt; /general &gt; </s> </p>
+<p> <s> &lt; lifecycle &gt; </s> </p>
+<p> <s> &lt; contribute &gt; </s> </p>
+<p> <s> &lt; role &gt; </s> </p>
+<p> <s> &lt; source &gt; &lt; langstring xml : lang= " x-none " &gt; LOMv1.0 &gt; /langstring &gt; &lt; /source &gt; </s> </p>
+<p> <s> &lt; value &gt; &lt; langstring xml : lang= " x-none " &gt; Author &lt; /langstring &gt; &lt; /value &gt; </s> </p>
+<p> <s> &lt; ! <gap rend="võõrkeelne_tekst"/> source - kirjeldab , millisel allikal jargnev vaartus tugineb <gap rend="võõrkeelne_tekst"/> &gt; </s> </p>
+<p> <s> &lt; ! <gap rend="võõrkeelne_tekst"/> Author on IMS LOM sonastikus fikseeritud <gap rend="võõrkeelne_tekst"/> &gt; </s> </p>
+<p> <s> &lt; /role &gt; </s> </p>
+<p> <s> &lt; centity &gt; </s> </p>
+<p> <s> &lt; vcard &gt; </s> </p>
+<p> <s> begin : vcard </s> </p>
+<p> <s> fn : Martin Sillaots </s> </p>
+<p> <s> end : vcard </s> </p>
+<p> <s> &lt; /vcard &gt; </s> </p>
+<p> <s> &lt; ! <gap rend="võõrkeelne_tekst"/> vcard - virtuaalne visiitkaart <gap rend="võõrkeelne_tekst"/> &gt; </s> </p>
+<p> <s> &lt; ! <gap rend="võõrkeelne_tekst"/> fn - full formated name <gap rend="võõrkeelne_tekst"/> &gt; </s> </p>
+<p> <s> &lt; /centity &gt; </s> </p>
+<p> <s> &lt; date &gt; &lt; datetime &gt; 2002-01-01 &lt; /datetime &gt; &lt; /date &gt; </s> </p>
+<p> <s> &lt; /contribute &gt; </s> </p>
+<p> <s> &lt; /lifecycle &gt; </s> </p>
+<p> <s> &lt; educational &gt; </s> </p>
+<p> <s> &lt; interactivitytype &gt; </s> </p>
+<p> <s> &lt; source &gt; &lt; langstring xml : lang= " x-none " &gt; LOMv1.0 &gt; /langstring &gt; &lt; /source &gt; </s> </p>
+<p> <s> &lt; value &gt; &lt; langstring xml : lang= " x-none " &gt; Expositive &lt; /langstring &gt; &lt; /value &gt; </s> </p>
+<p> <s> &lt; /interactivitytype &gt; </s> </p>
+<p> <s> &lt; learningresourcetype &gt; </s> </p>
+<p> <s> &lt; source &gt; &lt; langstring xml : lang= " x-none " &gt; LOMv1.0 &lt; /langstring &gt; &lt; /source &gt; </s> </p>
+<p> <s> &lt; value &gt; &lt; langstring xml : lang= " x-none " &gt; Simulation &lt; /langstring &gt; &lt; /value &gt; </s> </p>
+<p> <s> &lt; /learningresourcetype &gt; </s> </p>
+<p> <s> &lt; context &gt; </s> </p>
+<p> <s> &lt; source &gt; &lt; langstring xml : lang= " x-none " &gt; LOMv1.0 &lt; /langstring &gt; &lt; /source &gt; </s> </p>
+<p> <s> &lt; value &gt; &lt; langstring xml : lang= " x-none " &gt; University First Cycle &lt; /langstring &gt; &lt; /value &gt; </s> </p>
+<p> <s> &lt; /context &gt; </s> </p>
+<p> <s> &lt; difficulty &gt; </s> </p>
+<p> <s> &lt; source &gt; &lt; langstring xml : lang= " x-none " &gt; LOMv1.0 &lt; /langstring &gt; &lt; /source &gt; </s> </p>
+<p> <s> &lt; value &gt; &lt; langstring xml : lang= " x-none " &gt; medium &lt; /langstring &gt; &lt; /value &gt; </s> </p>
+<p> <s> &lt; /difficulty &gt; </s> </p>
+<p> <s> &lt; /educational &gt; </s> </p>
+<p> <s> &lt; relation &gt; </s> </p>
+<p> <s> &lt; kind &gt; </s> </p>
+<p> <s> &lt; source &gt; &lt; langstring xml : lang= " x-none " &gt; LOMv1.0 &lt; /langstring &gt; &lt; /source &gt; </s> </p>
+<p> <s> &lt; value &gt; &lt; langstring xml : lang= " x-none " &gt; IsPartOf &lt; /langstring &gt; &lt; /value &gt; </s> </p>
+<p> <s> &lt; /kind &gt; </s> </p>
+<p> <s> &lt; resource &gt; </s> </p>
+<p> <s> &lt; identifier &gt; 2033520 &lt; /identifier &gt; </s> </p>
+<p> <s> &lt; /resource &gt; </s> </p>
+<p> <s> &lt; /relation &gt; </s> </p>
+<p> <s> &lt; classification &gt; </s> </p>
+<p> <s> &lt; purpose &gt; </s> </p>
+<p> <s> &lt; source &gt; &lt; langstring xml : lang= " x-none " &gt; LOMv1.0 &lt; /langstring &gt; &lt; /source &gt; </s> </p>
+<p> <s> &lt; value &gt; &lt; langstring xml : lang= " x-none " &gt; Educational Objective &lt; /langstring &gt; &lt; /value &gt; </s> </p>
+<p> <s> &lt; /purpose &gt; </s> </p>
+<p> <s> &lt; taxonpath &gt; </s> </p>
+<p> <s> &lt; source &gt; &lt; langstring xml : lang= " ee " &gt; Projektifaas &lt; /langstring &gt; &lt; /source &gt; </s> </p>
+<p> <s> &lt; taxon &gt; </s> </p>
+<p> <s> &lt; entry &gt; &lt; langstring xml : lang= " ee " &gt; Planeerimine &lt; /langstring &gt; &lt; /entry &gt; </s> </p>
+<p> <s> &lt; /taxon &gt; </s> </p>
+<p> <s> &lt; /taxonpath &gt; </s> </p>
+<p> <s> &lt; /classification &gt; </s> </p>
+<p> <s> &lt; classification &gt; </s> </p>
+<p> <s> &lt; purpose &gt; </s> </p>
+<p> <s> &lt; source &gt; &lt; langstring xml : lang= " x-none " &gt; LOMv1.0 &lt; /langstring &gt; &lt; /source &gt; </s> </p>
+<p> <s> &lt; value &gt; &lt; langstring xml : lang= " x-none " &gt; Educational Objective &lt; /langstring &gt; &lt; /value &gt; </s> </p>
+<p> <s> &lt; /purpose &gt; </s> </p>
+<p> <s> &lt; taxonpath &gt; </s> </p>
+<p> <s> &lt; source &gt; &lt; langstring xml : lang= " ee " &gt; Projektijuhtimise valdkond &lt; /langstring &gt; &lt; /source &gt; </s> </p>
+<p> <s> &lt; taxon &gt; </s> </p>
+<p> <s> &lt; entry &gt; &lt; langstring xml : lang= " ee " &gt; Ajajuhtimine &lt; /langstring &gt; &lt; /entry &gt; </s> </p>
+<p> <s> &lt; /taxon &gt; </s> </p>
+<p> <s> &lt; /taxonpath &gt; </s> </p>
+<p> <s> &lt; /classification &gt; </s> </p>
+<p> <s> &lt; ! <gap rend="võõrkeelne_tekst"/> kaks erinevat , mitte eriti sygavale minevat klassifikatsiooni <gap rend="võõrkeelne_tekst"/> &gt; </s> </p>
+<p> <s> &lt; /lom &gt; </s> </p>
+<p rend="rasvane"> <s> ALTERNATIIV 1 </s> </p>
+<p> <s> Üks täiendav võimalus kirjeldada õpiobjekti metaandmeid on rakendada IMS sisupakenduse ( <hi rend="kaldkiri"> Content Packaging </hi> ) spetsifikatsiooni . </s> </p>
+<p> <s> Sisupakendamise eesmärgid on : </s> </p>
+<p> <s> 1 ) õpiobjektide koostamise lihtsustamine ; </s> </p>
+<p> <s> 2 ) objektide säilitamine andmevaramus ; </s> </p>
+<p> <s> 3 ) objektide taaskasutamine ; </s> </p>
+<p> <s> 4 ) kapseldamine - kõik vajalikud detailid ühes koos . </s> </p>
+<p> <s> Sisupakenduse tulemuseks on zip-fail , mille sees on : </s> </p>
+<p> <s> 1 ) imsmanifest.xml ( kohustuslik nimi ) - info õpiobjekti kohta ; </s> </p>
+<p> <s> 2 ) õpiobjektid - tekstid või muud õpimaterjalid , mille struktuuri manifest kirjeldab . </s> </p>
+<p> <s> Manifesti osad on : </s> </p>
+<p> <s> 1. <hi rend="rasvane"> Metadata </hi> - andmed manifesti kirjeldamiseks ; </s> </p>
+<p> <s> 2. <hi rend="rasvane"> Organizations </hi> - õpiobjekti struktuur(id) ; </s> </p>
+<p> <s> 3. <hi rend="rasvane"> Resources </hi> - viited õpiobjekti failidele ; </s> </p>
+<p> <s> 4. <hi rend="rasvane"> Manifest </hi> - alammanifestid . </s> </p>
+<p> <s> Õpiobjekti metaandmeid võib esitada manifesti ressursside osas [ 9 ] . </s> </p>
+<p rend="rasvane"> <s> Näiteks projektijuhtimise vahendi - nooldiagrammi metaandmed manifesti sees . </s> </p>
+<p> <s> &lt; ? xml version= " 1.0 " encoding= " UTF-8 " ? &gt; </s> </p>
+<p> <s> &lt; ! <gap rend="võõrkeelne_tekst"/> xml versioon ja kooditabel <gap rend="võõrkeelne_tekst"/> &gt; </s> </p>
+<p> <s> &lt; manifest identifier= " MANIFEST " </s> </p>
+<p> <s> xmlns= " <gap rend="hüperlink"/> " </s> </p>
+<p> <s> xmlns : imsmd= " <gap rend="hüperlink"/> " &gt; </s> </p>
+<p> <s> &lt; ! <gap rend="võõrkeelne_tekst"/> manifesti avataag ja viide xml ja metadata reeglistikele <gap rend="võõrkeelne_tekst"/> &gt; </s> </p>
+<p> <s> &lt; metadata &gt; </s> </p>
+<p> <s> &lt; ! <gap rend="võõrkeelne_tekst"/> manifesti kirjeldavad andmed <gap rend="võõrkeelne_tekst"/> &gt; </s> </p>
+<p> <s> &lt; schema &gt; IMS Content &lt; /schema &gt; </s> </p>
+<p> <s> &lt; schemaversion &gt; 1.1.3 &lt; /schemaversion &gt; </s> </p>
+<p> <s> &lt; imsmd : lom &gt; </s> </p>
+<p> <s> &lt; imsmd : general &gt; </s> </p>
+<p> <s> &lt; imsmd : title &gt; </s> </p>
+<p> <s> &lt; imsmd : langstring xml : lang= " ee " &gt; Nooldiagrammi animatsioon &lt; /imsmd : langstring &gt; </s> </p>
+<p> <s> &lt; /imsmd : title &gt; </s> </p>
+<p> <s> &lt; /imsmd : general &gt; </s> </p>
+<p> <s> &lt; /imsmd : lom &gt; </s> </p>
+<p> <s> &lt; /metadata &gt; </s> </p>
+<p> <s> &lt; organizations default= " 1 " &gt; </s> </p>
+<p> <s> &lt; ! <gap rend="võõrkeelne_tekst"/> opiobjekti struktuur(id) <gap rend="võõrkeelne_tekst"/> &gt; </s> </p>
+<p> <s> &lt; organization identifier= " 1 " structure= " simple " &gt; </s> </p>
+<p> <s> &lt; title &gt; motetu struktuur &lt; /title &gt; </s> </p>
+<p> <s> &lt; item identifier= " ITEM2033521 " identifierref= " RESOURCE2033521 " &gt; </s> </p>
+<p> <s> &lt; title &gt; Projekti algatamine &lt; /title &gt; </s> </p>
+<p> <s> &lt; /item &gt; </s> </p>
+<p> <s> &lt; /organization &gt; </s> </p>
+<p> <s> &lt; /organizations &gt; </s> </p>
+<p> <s> &lt; resources &gt; </s> </p>
+<p> <s> &lt; ! <gap rend="võõrkeelne_tekst"/> viide konkreetsele failile ja objekti kirjeldavad metaandmed <gap rend="võõrkeelne_tekst"/> &gt; </s> </p>
+<p> <s> &lt; resource identifier= " RESOURCE2033521 " type= " webcontent " href= " 2plan/203aeg/2033yljar/2033521noolanim/nooldiagramm.html " &gt; </s> </p>
+<p> <s> &lt; metadata &gt; </s> </p>
+<p> <s> &lt; imsmd : lom &gt; </s> </p>
+<p> <s> &lt; imsmd : educational &gt; </s> </p>
+<p> <s> &lt; imsmd : interactivitytype &gt; expositive &lt; /imsmd : interactivitytype &gt; </s> </p>
+<p> <s> &lt; imsmd : learningresourcetype &gt; simulation &lt; /imsmd : learningresourcetype &gt; </s> </p>
+<p> <s> &lt; imsmd : context &gt; university First Cycle &lt; /imsmd : context &gt; </s> </p>
+<p> <s> &lt; imsmd : dificulty &gt; medium &lt; /imsmd : dificulty &gt; </s> </p>
+<p> <s> &lt; /imsmd : educational &gt; </s> </p>
+<p> <s> &lt; /imsmd : lom &gt; </s> </p>
+<p> <s> &lt; /metadata &gt; </s> </p>
+<p> <s> &lt; file href= " nooldiagramm.html " / &gt; </s> </p>
+<p> <s> &lt; /resource &gt; </s> </p>
+<p> <s> &lt; /resources &gt; </s> </p>
+<p> <s> &lt; /manifest &gt; </s> </p>
+<p rend="rasvane"> <s> ALTERNATIIV 2 </s> </p>
+<p> <s> Teine võimalus on luua õpiobjektidest <hi rend="rasvane"> andmebaas </hi> . </s> <s> Iga kirje selles baasis esitab õppematerjali tükki . </s> <s> Näiteks peatüki sissejuhatus , teema ülevaatlik käsitlus , alamteema detailne esitus jne. </s> <s> Vajalikud metaandmed on salvestatud eraldi väljades . </s> <s> Metaandmete põhjal koostatud päringute abil saab luua õppekavasid ja materjale vastavalt sihtgrupi vajadustele . </s> <s> Baas aitab täpsustada ka õpiobjektide sisu , et need oleks korratavad konspekti erinevates kohtades ja loetavad eri järjekorras . </s> </p>
+<p> <s> Projektijuhtimise metaandmebaasiga võib tutvuda aadressil </s> </p>
+<p> <s> <gap rend="hüperlink"/> </s> </p>
+<p rend="rasvane"> <s> LÕPETUS </s> </p>
+<p> <s> Õpiobjekti metaandmeid on soovitatav kirja panna ka siis , kui tegemist on mitteelektrooniliste õppematerjalidega . </s> <s> Metaandmed aitavad täpsustada materjalide sisu ja lihtsustavad uue kursuse teemade valikut . </s> </p>
+<p rend="rasvane"> <s> ALLIKAD </s> </p>
+<p> <s> 1. Laanpere , M. Kikkas , K. A &amp; A nr 6. 2002 </s> </p>
+<p> <s> 2. IMS Simple Sequencing Specification </s> </p>
+<p> <s> [ <gap rend="hüperlink"/> ] </s> </p>
+<p> <s> 3. Mart Laanpere informaatika didaktika kursuse konspekt </s> </p>
+<p> <s> 4. IMS Learning Resource Meta-data Specification [ <gap rend="hüperlink"/> ] </s> </p>
+<p> <s> 5. IMS Learning Resource Meta-Data Information Model </s> </p>
+<p> <s> [ <gap rend="hüperlink"/> ] </s> </p>
+<p> <s> 6. IMS Learning Resource Meta-Data Best Practice and Implementation Guide </s> </p>
+<p> <s> [ <gap rend="hüperlink"/> ] </s> </p>
+<p> <s> 7. Antoinette J. Muntjewerff [ <gap rend="hüperlink"/> ] </s> </p>
+<p> <s> 8. IMS Learning Resource Meta-Data XML Binding </s> </p>
+<p> <s> [ <gap rend="hüperlink"/> ] </s> </p>
+<p> <s> 9. IMS Content Packaging Information Model </s> </p>
+<p> <s> [ <gap rend="hüperlink"/> ] </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Uudised </head>
+<p> <bibl> <author> <s> <hi rend="kaldkiri"> Uudised kogus Uuno Vallner </hi> , Majandus- ja Kommunikatsiooniministeeriumi IT arhitektuuri talituse juhataja </s> </author> </bibl> </p>
+<p rend="rasvane"> <s> RIIK ARENDAB E-TEENUSEID </s> </p>
+<p> <s> Koostöös Euroopa Regionaalarengu Fondiga panustab riik järgmise kolme aasta jooksul e-teenustesse 123 miljonit krooni . </s> <s> Käivitunud on esimesed suuremad projektid . </s> </p>
+<p> <s> Digitaalne terviselugu saab 24 955 400 , pereregistri loomine 24 776 725 , rahvastikuregistri tarkvara 11 450 000 ning politseiameti infosüsteemid ja e-teenused 9 330 000 krooni . </s> </p>
+<p> <s> Siseministeerium kavatseb kulutada 25 miljonit pereregistri projektile , mis tähendab , et sündidest ja surmadest saab varsti teatada kodunt lahkumata , esitades Internetis elektroonilise avalduse . </s> <s> Inimene päris oma andmeid muuta ei saa , aga ta saab esitada avalduse ja jälgida selle menetlemise käiku . </s> <s> Kuna pereregistri projekti all on plaanis ka kogu rahvastikuregister digitaliseerida , hakkab inimese jaoks vähenema paberite pakk , millega näiteks toetust taotlema minna . </s> </p>
+<p> <s> Politseiamet plaanib digitaliseerimisele kulutada 9,3 miljonit krooni , millest 2,4 miljonit läheb kodanikele erinevate e-teenuste pakkumiseks . </s> <s> Kaugema plaanina on politseiametil tulevikus kavas varustada ka politseinikud sülearvutitega , et kannatanu saaks avalduse kuriteo sündmuspaigal digitaalselt esitada . </s> </p>
+<p> <s> Sotsiaalministeerium plaanib 2008. aastaks digitaalse haigusloo projekti valmis saada 25 miljoni eest . </s> <s> Digilugu tähendab , et kogu info , mille arst haigusjuhtumi kohta kirja paneb , on kõigile haiglatele digitaalselt kättesaadav . </s> </p>
+<p rend="rasvane"> <s> MICROSOFTI UUS OPERATSIOONISÜSTEEM WINDOWS VISTA JÕUDIS TESTIMISJÄRKU </s> </p>
+<p> <s> Juuli lõpus hakkas Microsoft jagama järgmise Windowsi versiooni nimega Vista prooviversioone . </s> <s> Tööversioonis nime Longhorn kandnud Windows Vista nimi on Microsofti teatel inspireeritud maailmast , milles on üha enam infot ja võimalusi , uue operatsioonisüsteemi üheks põhitugevuseks nimetatakse turvalisust . </s> <s> Windows Vista esimene beetaversioon on mõeldud eelkõige arendajatele ja IT-professionaalidele . </s> <s> Microsofti sõnul lisatakse enamik lõppkasutajatele mõeldud funktsionaalsusest teise testversiooni . </s> <s> Microsoft plaanib tuua Windows Vista turule 2006. aastal . </s> </p>
+<p rend="rasvane"> <s> ID-KAARDI AEGUNUD SERTIFIKAATE SAAB UUENDADA TASUTA </s> </p>
+<p> <s> ID-kaardi elektrooniliseks kasutamiseks mõeldud turvasertifikaadi on aasta algusest alates lasknud uuendada pisut üle 1400 inimese . </s> <s> Aegunud sertifikaatidega isikutunnistusi veidi üle 38 000. </s> <s> Aasta jooksul aeguvad sertifikaadid kokku ligi 118 000 isikutunnistusel . </s> <s> Interneti kaudu hääletada võimaldavate ehk kehtivate sertifikaatidega isikutunnistuste omanikke on praegu 720 000 ehk ligi 53 protsenti Eesti elanikkonnast , nende hulgas on ka elamisluba omavad välismaalased . </s> <s> Aegunud või vähem kui 105 päeva jooksul aeguvate sertifikaatide uuendamine on tasuta . </s> <s> Siseministeerium ja sertifitseerimiskeskus sõlmisid detsembris lepingu , mille alusel tasutakse ID-kaartide turvasertifikaatide uuendamise eest riigieelarvest . </s> <s> Vastavalt leppele hakati jaanuaris inimestele tasuta uuendama neid sertifikaate , mille kehtivusaja lõpuni jäi alla 105 päeva , samuti saab sertifikaate uuendada pärast nende kehtivusaja lõppemist . </s> <s> Uuendatud sertifikaadid kehtivad kolm aastat . </s> <s> Ühe turvasertifikaadi uuendamine maksab riigile klienditeeninduspunktis 60 krooni . </s> <s> Kümneaastase kehtivusajaga isikutunnistusel on kaks sertifikaati , mida kasutatakse elektrooniliseks tuvastamiseks ja digitaalse allkirja andmiseks . </s> <s> Kehtetute sertifikaatidega dokument pole elektrooniliselt kasutatav , seda saab pruukida vaid isikut tõendava dokumendina . </s> </p>
+<p rend="rasvane"> <s> MICROLINK JA HEWLETT-PACKARD TEEVAD BALTIMAADES KOOSTÖÖD </s> </p>
+<p> <s> Microlink sõlmis infotehnoloogiafirmaga Hewlett-Packard ( HP ) lepingu koostöö laiendamiseks Baltimaades . </s> <s> Lepinguga sai Microlink Lietuva HP uueks partneriks süsteemiintegratsiooni alal , samuti tihendavad ettevõtted koostööd teistes Balti riikides . </s> <s> Koostöö tulemusel saab Microlink pakkuda lahendusi , kus infotehnoloogiasüsteemidesse on integreeritud HP serverid , salvestusseadmed , tööjaamad ja lauaarvutid . </s> <s> MicroLinki 2004/2005 . majandusaasta konsolideeritud käive oli 819 miljonit ja puhaskasum 349 miljonit krooni , firmas töötab 567 inimest . </s> <s> HP on globaalne lõppkasutajatele mõeldud infotehnoloogialahenduste pakkuja . </s> </p>
+<p rend="rasvane"> <s> PREFEKTUURID SAID INFOTEHNOLOOGIAKURITEGUSID MENETLEVAD ÜKSUSED </s> </p>
+<p> <s> Lõpule jõudmas on keskkriminaalpolitsei ( KKP ) projekt , mille abil loodi kõigisse Eesti prefektuuridesse infotehnoloogiakuritegusid menetlevad üksused . </s> <s> Eesti politsei , Suurbritannia ja Phare koostööprojekti raames soetati KKP IT-kuritegude talitusele , politseiprefektuuridele ja kohtuekspertiisi ja kriminalistikakeskuse ekspertidele kokku 1,6 miljoni krooni väärtuses kuritegude lahendamiseks mõeldud tark- ja riistvara . </s> <s> Politseiasutuste uurijad , spetsialistid ja eksperdid said erialast koolitust nii Eestis kui ka Inglismaal . </s> <s> Toimusid õppevisiidid Rootsi , Soome ja Hollandi kolleegide juurde . </s> <s> Kokku sai koolituse ligi 200 politseiametnikku , prokuröri ja piirivalvurit . </s> <s> Välja anti ka taskuraamatud sündmuskohal IT-seadmetega ümberkäimise kohta , töötati välja IT-kuritegude menetlemise käsiraamat ja pandi kokku koolituspakett Sisekaitseakadeemia Politseikooli õppekavade täiendamiseks . </s> <s> Viimase suurima IT-alase kuriteo avastas KKP käesoleva aasta märtsis , kui koostöös pankade ja teiste riikide uurimisasutustega tuvastati Tallinnast Koplist juhitud ulatuslik rünne kümnete tuhandete Baltimaade ja teiste riikide arvutitele , mille eesmärgiks oli hankida neist pangaandmeid ja muud informatsiooni . </s> </p>
+<p rend="rasvane"> <s> ANDMEKAITSESEADUS LÄHEB UUENDAMISELE </s> </p>
+<p> <s> Justiitsministeerium alustas andmekaitsega seotud seaduste muutmise ja uuendamise ettevalmistamist . </s> <s> Töörühm peab üle vaatama riigisaladuse , isikuandmete kaitse ja avaliku teabe seadused ning kaasajastama kaitstava ja piiratud ligipääsuga ning avaliku informatsiooni mõisted ja regulatsiooni . </s> <s> Esialgse plaani järgi on kavas avaliku teabe seadust osaliselt muuta , isikuandmete kaitse seadust ja riigisaladuse seadust aga uuendada täies mahus . </s> <s> Uute seadustekstide loomisel võetakse arvesse ka infotehnoloogia arengut , mis ühelt poolt muudab elu mugavamaks , teisalt aga kätkeb isikuandmete kaitsega seotud ohtusid . </s> <s> Töörühm jaguneb kolmeks alatöörühmaks , mis tegelevad igaüks ühe seadusega . </s> <s> Neljaliikmelistesse rühmadesse kuuluvad kaitsepolitseiameti , kaitseministeeriumi , riigikogu põhiseaduskomisjoni ja justiits- ministeeriumi esindajad , samuti andmekaitseinspektsiooni peadirektor ning õiguskantsleri nõunik . </s> </p>
+<p rend="rasvane"> <s> INTERNETTI KASUTAB NÜÜD 55 PROTSENTI EESTI ELANIKEST </s> </p>
+<p> <s> TNS Emori uuringu andmetel kasutab Eesti 15-74-aastastest elanikest Internetti 55 protsenti ehk ligi 575 000 inimest , aastaga on nende arv kasvanud 79 000 võrra . </s> <s> Iga neljas 15-74-aastane Eesti elanik kasutab uuringu andmetel Internetti iga päev . </s> <s> Kõige rohkem on Interneti-kasutajaid lisandunud 20-29- ja 40-49-aastaste , madalama sissetulekuga ja suuremate linnade elanike seast . </s> </p>
+<p rend="rasvane"> <s> RIIGIKONTROLL AUDITEERIS IT KOORDINEERIMIST RIIGIS </s> </p>
+<p> <s> Puudulik IT-valdkonna koordineerimine pidurdab riigikontrolli hinnangul Eestis infoühiskonna arengut ning kui olukorra parandamiseks ei võeta kiiresti vastu asjakohaseid otsuseid , võib Eesti arenenud riikide tasemest pöördumatult maha jääda . </s> <s> Riigikontrolli audit , mis käsitleb riigi IT-valdkonna juhtimist ja arendusprojektide tulemuslikkust , tuvastas , et praegu ei toimu laiemat infoühiskonna terviklikku arendamist kogu riigis ega ka avaliku sektori IT-valdkonna ühtset koordineeritud juhtimist riigiasutuste tasemel . </s> <s> Riigieelarve koostamisel puudub mehhanism , mis tagaks avaliku sektori infotehnoloogilise infrastruktuuri tasakaalustatud ja jätkusuutliku rahastamise ning infoühiskonna arendamise tervikliku käsitluse . </s> </p>
+<p> <s> Infotehnoloogia rakendamine ja infosüsteemide arendamine avalikus halduses vajab stabiilset finantseerimist . </s> <s> Paljude riikide kogemuse põhjal võib väita , et minimaalselt vajalik IT rahastamine on üks protsent jooksva aasta riigieelarve kulust . </s> <s> Riigi infosüsteemide jätkusuutlikuks toimimiseks soovitas riigikontroll fikseerida see riigi eelarvestrateegias . </s> </p>
+<p> <s> Riigikontrolli hinnangul pidurdavad rahandusministeeriumi ning majandus- ja kommunikatsiooni- ministeeriumi senised erimeelsused riigi IT-valdkonna arendamise koordineerimise meetodite ja rahastamise korraldamise osas infoühiskonna arendamise sihtprogrammide kavandamist ja rahastamist ning sellesse valdkonda tehtavate kulutuste ja nende tulemuslikkuse hindamist . </s> <s> Riigikontroll leidis auditi aruandes , et riigil puudub ülevaade tegelikest IT-kulutustest , samuti pole kindel , et IT-valdkonnale eraldatud raha kasutatakse parimal viisil . </s> <s> Riigikontrolli hinnangul pole praegu avalikus sektoris IT-valdkonna arendamisel peamine probleem mitte rahanappus , vaid raha kasutamise otstarbekus . </s> <s> Riigikontrollil puudub veendumus , et infosüsteemide jaoks kavandatud riigieelarve raha kasutatakse sihtotstarbeliselt , säästlikult ja parimal võimalikul viisil . </s> <s> Riigikontroll märkis auditis ka , et infosüsteemide arendamist ei peeta ministeeriumiüleseks tegevuseks ning infosüsteemi kui terviku arendamisele ja jätkusuutlikule toimimisele pööratakse vähe tähelepanu . </s> </p>
+<p> <s> Auditi terviktekst on aadressil </s> </p>
+<p> <s> <gap rend="hüperlink"/> </s> </p>
+<p rend="rasvane"> <s> KAS TIPPDOMEEN . </s> <s> EE KASUTAMINE JA HALDAMINE VAJAB ÜMBERKORRALDAMIST ? </s> </p>
+<p> <s> Jaanus-Janari Kogerman tegi otsedemokraatiaportaalis TOM ettepaneku muuta tippdomeeni.ee kasutamise ja alamdomeenide väljaandmise kord läbipaistvamaks . </s> <s> Kogerman leiab , et domeeninimede andmine ei peaks kuuluma Haridus- ja Teadusministeeriumi valitsemisalasse , vaid pigem Majandus- ja Kommunikatsiooniministeeriumi alluvusse . </s> <s> Majandus- ja Kommunikatsiooniministeeriumi seisukohta selles küsimuses loe aadressilt </s> </p>
+<p> <s> <gap rend="hüperlink"/> </s> </p>
+<p rend="rasvane"> <s> SKYPE AADRESS KÕIGILE EESTI RIIGIASUTUSTELE ? </s> </p>
+<p> <s> Andrus Kallastu esitas otsedemokraatiportaali ettepaneku varustada kõik klientidega telefonitsi suhtlevad riigiasutused ja -ametnikud Skype aadressiga . </s> <s> RISO seisukohta selles küsimuses loe aadressil <gap rend="hüperlink"/> </s> </p>
+<p rend="rasvane"> <s> EESTI ARVUTIKEEL VAJAB RIIGI TOETUST </s> </p>
+<p> <s> Arvo Mägi Delfis : Eesti riigi põhiülesandeks on eesti rahvuse ja eesti keele kaitse . </s> <s> Mis rahvusesse puutub , siis R. Taagepera ( EPL , 30.08 ) kutsub üles nägema , et rahvusena seisame surmaga silmitsi ja käitume nii , nagu surmasuus viibijal käituda ei tuleks . </s> <s> M. Berg ( EPL , 8.09 ) kirjutab , et koos rahvaarvu vähenemisega hääbub teaduskeel , kaovad omakeelsed õpetajad ja võime eestlastega Eesti riiki valitseda . </s> <s> Teaduskeele tähtis osa on arvutite tarkvaras kasutatav keel ehk arvutikeel . </s> <s> Suures osas on see ingliskeelne ja paljud leiavad , et nii ongi normaalne . </s> <s> Milleks teha kulutusi tõlketööle ? </s> <s> Aga milleks siis üldse teha kulutusi eestluse säilimisele ? </s> </p>
+<p rend="rasvane"> <s> ZONE MEDIA ON AMETLIK EUROOPA LIIDU ÜLEMDOMEENI EU REGISTRIPIDAJA </s> </p>
+<p> <s> Esimese Eesti ettevõttena sai Zone Media 9. septembril ametliku Euroopa Liidu ülemdomeeni EU registripidaja staatuse . </s> <s> Akrediteeritud registripidajana on Zone Medial õigus registreerida oma klientide kasutusse Euroopa Liidu tunnusega domeene . </s> </p>
+<p> <s> Ülemdomeeni EU eesmärk on Internetis identifitseerida Euroopa Liidus tegutsevaid ettevõtteid , organisatsioone , riigiasutusi ja füüsilisi isikuid . </s> <s> Ülemdomeeni haldajaks on EURid ( <hi rend="kaldkiri"> European Registry for Internet Domains - </hi> - <gap rend="hüperlink"/> ) . </s> </p>
+<p> <s> EU domeeninimede registreerimine ei ole veel alanud . </s> <s> EURidi esialgse kava kohaselt algab see käesoleva aasta neljandas kvartalis . </s> <s> Domeeninimesid on võimalik registreerida vaid akrediteeritud registripidaja vahendusel . </s> </p>
+<p> <s> Zone Media avas ühtlasi domeeniga EU seotud teabelehekülje , mille aadressiks on <gap rend="hüperlink"/> Leheküljel on võimalik tutvuda esialgse informatsiooniga ülemdomeeni EU kohta ning registreeruda vastavateemalise uudiskirja saajaks . </s> </p></div2>
+      </div1>
+    </body>
+  </text>
+</TEI>
+</teiCorpus>
+</teiCorpus>

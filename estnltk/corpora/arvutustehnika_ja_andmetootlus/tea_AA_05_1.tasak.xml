@@ -1,0 +1,742 @@
+<teiCorpus xmlns:xi="http://www.w3.org/2001/XInclude" xmlns="http://www.tei-c.org/ns/1.0"> 
+<xi:include href="../../bin/koondkorpus_main_header.xml" /> 
+<teiCorpus> 
+<xi:include href="../bin/header_tea_arvutitehnika_ja_andmet66tlus.xml" /> 
+	<TEI> 
+		<teiHeader xmlns="http://www.tei-c.org/ns/1.0" xml:lang="et" xml:id="koondkorpus_local_header" n="$Id:$"> 
+			<fileDesc> 
+				<titleStmt> 
+					<title> Arvutustehnika ja andmetöötlus 05_1 </title> 
+  				</titleStmt> 
+				<publicationStmt> 
+  					<p> Vt publitseerimisandmeid failist 
+						<ref target="#publicationStmt-main">koondkorpus_main_header.xml</ref> 
+					</p> 
+  				</publicationStmt> 
+				<sourceDesc> 
+					<p> Vt allkorpuse päis 
+						<ref target="#header_tea_arvutitehnika_ja_andmet66tlus">header_tea_arvutitehnika_ja_andmet66tlus.xml</ref> 
+					</p> 
+  				</sourceDesc> 
+  			</fileDesc> 
+		</teiHeader>
+  <text>
+    <body>
+      <div1 type="ajakirjanumber">
+        <head> Arvutustehnika ja andmetöötlus 05_01 </head>
+        <div2 type="artikkel"><head> A &amp; A - Hitachi Application Optimized Storage Solutions </head>
+<p> <bibl> <author> <s> TOIMETAJALT1-05 &lt; </s> </author> </bibl> </p>
+<p> <s> Kettamälust rääkides oleme sujuvalt läinud megabaitidelt üle gigabaitidele , ka pole terabaidised ( 1 TB = 1024 GB = 2<hi rend="ülaindeks">40</hi> baiti ) kettamasiivid uudiseks . </s> <s> Kettamälu vajadused ärirakendustes kasvavad järjest marulisemas tempos . </s> <s> Kui 2002. aastal oli see maailmas alla 100 petabaidi ( PB , 1 PB = 1024 TB = 2<hi rend="ülaindeks">50</hi> baiti ) salvestatud andmeid , siis 2006. aastaks ennustatakse vajadust salvestada enam kui 1600 PB . </s> <s> Muutunud on ka salvestatava informatsiooni olemus : kui veel lähiminevikus piirduti tehinguandmebaaside andmetega , siis nüüd on vaja salvestada ja arhiveerida e-posti kirju koos manustega , ettevõtted on kohustatud säilitama kõiki digiallkirjastatud dokumente , kliendikesksed ärirakendused vajavad reaalajas kõiki kliendiga seotud andmeid ( <hi rend="kaldkiri"> Real-time Operational CRM ( Customer Relationship Management ) , Real-time Analytical CRM </hi> ) jne. </s> </p>
+<p> <s> On mõistetav , et senised andmesalvestustehnoloogiad pole piisavad uute probleemide lahendamiseks , vaja on lahendusi , mis võimaldavad reaalajas juurdepääsu tohututele andmemassiividele . </s> <s> Andmete kriitilisuse tõttu on vaja tagada andmete turvalisus ( käideldavus , terviklikkus ja konfidentsiaalsus ) , süsteemide jõudlus peab oluliselt kasvama . </s> <s> Kui relatsioonandmebaaside tehnoloogia oli sobiv kõikidele tehingupõhistele rakendustele ja andmehoidlatehnoloogiad rahuldasid paljude rakendussüsteemide vajadusi , siis nüüd on tekkinud vajadus rakendustele spetsialiseeritud lahenduste järele , näiteks salvestussüsteemid , mis on optimeeritud e-posti rakendustele . </s> <s> Suured andmemahud ja vajadus nende töötlemist optimeerida tingivadki vajaduse erisüsteemide järele . </s> <s> Tõepoolest , mida võiks tähendada “ universaalne , kõikide rakenduste vajadusi optimaalselt lahendav süsteem ” ? </s> <s> Optimaalsust ja universaalsust samal ajal saavutada pole võimalik - või siiski : süsteemide loomise karkass ( <hi rend="kaldkiri"> Framework </hi> ) , mille häälestamine ( programmeerimine , tehisintellekti meetodid jne ) võimaldab luua erisüsteeme agiilselt ( paindlikult , kiiresti ) . </s> </p>
+<p> <s> Niisuguses , võib öelda et revolutsioonilises situatsioonis on loodud eeldused “ uute tegijate ” areenile ilmumiseks : “ vanadel tegijatel ” on innovatiivsete tehnoloogiate loomine ja evitamine tülikas , kuna nad peavad oma olemasolevatele klientidele tagama vanade ja uute süsteemide ühildatavuse . </s> <s> Kuna “ loodus tühja kohta ei salli ” , siis pole üllatav ka Hitachi edu . </s> </p>
+<p> <s> Hitachi kõrgtaseme kettasüsteemid on oluliselt muutnud pilti selles valdkonnas : Gartneri maagilises kvadrandis ( <hi rend="kaldkiri"> Gartner's Magic Quadrant </hi> ) on Hitachi Data Systems ( HDS ) liider kõrg- ja kesktaseme kettamassiivide turul . </s> <s> On märkimisväärne , et HDS edestab konkurente <hi rend="kaldkiri"> visiooni dimensioonis </hi> <hi rend="kaldkiri"> . </hi> Kui arvesse võtta Hitachi majanduslik võimsus : HDS-l on müükide suurendamiseks 2,900 töötajat 60 riigis , HDS on loonud partnersuhted Hewlett-Packardi ja Suniga , Hitachi kettasüsteeme on müüdud 170 riigis , Hitachi klientideks on enam kui pooled Fortune 100 firmast . </s> <s> HDSi <hi rend="kaldkiri"> Universal Storage Platform </hi> ( USP ) on <hi rend="kaldkiri"> Lightning 9900 V </hi> seeria ja <hi rend="kaldkiri"> Thunder 9500 V </hi> seeriaga ja haldustarkvaraga <hi rend="kaldkiri"> HiCommand Storage Area Management </hi> parimaks tooteks kõrg- ja kesktaseme kettamassiivide turul . </s> <s> Septembris 2004 tõi HDS turule kõrgtaseme salvestussüsteemi <hi rend="kaldkiri"> TagmaStore USP </hi> <hi rend="kaldkiri"> , </hi> mille uudne arhitektuur võimaldab saavutada andmeedastuskiirust 68 GB/s . </s> </p>
+<p> <s> Gartneri hinnangud HDS perspektiivide suhtes : </s> </p>
+<p> <s> Tehnoloogia - “ tugev positiivne ” ( ” <hi rend="kaldkiri"> Strong Positive ” </hi> ) : HDSi tehnoloogia ületab konkurentide tehnoloogiat </s> </p>
+<p> <s> <hi rend="kaldkiri"> TagmaStore Universal Storage Platform </hi> - “ tugev positiivne ” </s> </p>
+<p> <s> <hi rend="kaldkiri"> Thunder 9500 V </hi> seeria - “ positiivne ” </s> </p>
+<p> <s> Üldhinnang haldustarkvarale - “ positiivne ” </s> </p>
+<p> <s> Teenused - “ lubav ” ( <hi rend="kaldkiri"> “ Promising ” </hi> ) </s> </p>
+<p> <s> Hind - “ ettevaatust ” ( ” <hi rend="kaldkiri"> Caution ” </hi> ) : 2001 kuni 2003 HDS-I kõrgtaseme süsteemid maksid enam kui konkurentidel EMC , IBM ja StorageTek . </s> <s> Nüüdseks on HDS hinnapoliitikat muutnud ja pakub konkurentidest odavamaid lahendusi . </s> </p>
+<p> <s> Lõpetuseks märgime , et Eestis on HDS toodete müügipartneriks AS Microlink Eesti . </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Teadmistepõhine majandus - müüt või tegelikkus ? </head>
+<p> <bibl> <author> <s> Peep Sürje </s> </author> </bibl> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p> <s> <hi rend="kaldkiri"> Peep Sürje - sündinud 19. aprillil 1945 Rakveres . </hi> </s> <s> <hi rend="kaldkiri"> Lõpetanud 1973 </hi> cum laude <hi rend="kaldkiri"> ehitusinsenerina teetehnika erialal Tallinna Polütehnilise Instituudi ja 1984 samal erialal tehnikakandidaadina SOJUZDORNII ( Moskva ) . </hi> </s> <s> <hi rend="kaldkiri"> Täiendanud end 1986 Moskva Autode ja Teedeinstituudis MADI , 1990 Soome Riiklikus Tehnikauuringute Keskuses VTT , 1994 Belgia Riiklikus Teedeuuringute Keskuses ja 1996 USA Riiklikus Teedeinstituudis . </hi> </s> <s> <hi rend="kaldkiri"> Aastatel 1973-76 RPI “ Eesti Tööstusprojekt ” vaneminsener , grupijuht ja brigaadi juhataja , 1976-84 TPI autoteede kateedri vanemõpetaja ja vanemteadur , 1984-86 Autotranspordi Ministeeriumi Teedeehituse </hi> <hi rend="kaldkiri"> Kesklaboratooriumi juhataja asetäitja , 19 </hi> <hi rend="kaldkiri"> 86-1990 TPI autoteede kateedri dotsent , 1990 Soome Riikliku Tehnikauuringute Keskuse VTT vanemteadur , 1991-92 TPI autoteede kateedri juhataja , 1992-2000 TTÜ ehitusteaduskonna prodekaan , teedeinstituudi direktor ja teetehnika professor . </hi> </s> <hi rend="kaldkiri"> <s> Alates aastast 2000 TTÜ teadus- ja arendusprorektor ja 2004. aastast Eesti Teadlaste Liidu kaasesimees . </s> <s> Aastast 1998 volitatud insener ja 1999 EUR ING . </s> </hi> </p>
+<p> <s> Käesolev kirjatöö on jaanuaris Eesti Päevalehes ilmunud artikli “ Väsinud IT-tiiger ” algversioon , mida kirjatsurad pole veel oma soovide ja nõuete kohaselt silunud . </s> <s> Vahest pakub asjaomastele mõningast huvi autori ehe nägemus pealkirjas sõnastatud probleemist ? </s> </p>
+<p> <s> Eesti vastuvõtmine NATOsse ja Euroopa Liitu tagas riigi turvalisuse suurenemise , misjärel muutub üha olulisemaks inimeste elukvaliteedi tõstmine , ja seda olukorras , kus valmisolek kartulikoorte söömiseks on kauge möödanik ja ELi palganumbrite edetabelis on Eesti päralt üks viimastest kohtadest . </s> <s> Kätt südamele pannes : kes ei tahaks elada jõukalt ja majanduslikult kind- lustatult kui mitte veel täna , siis vähemati homme ? </s> <s> Samas ei saa me piiratud inim- ja loodusvarude tõttu lõputult viljelda ressursimahukat tootmist ega loota ka madalate tootmiskulude kaudu saavutatavale konkurentsieelisele . </s> <s> Edasiminekuks on tegelikult vaid üks tee - püüelda teadmistel põhineva lisandväärtuse loomise poole , pöörates üha suuremat tähelepanu haridusele , teadus- ja arendustegevusele ning tehnosiirdele . </s> <s> Võtmeküsimuseks on seejuures tootlikkuse ja ekspordipotentsiaali kasv , sest vastasel korral jäämegi Euroopa vaeseks ääremaaks . </s> </p>
+<p> <s> Taasiseseisvumise esimestel aastatel põhines Eesti areng kohalike võimaluste ekspluateerimisel ja üliliberaalsel majanduspoliitikal , kus turunõudlus oli peamiseks regulaatoriks . </s> <s> See mudel koos õigetel ajahetkedel tehtud ebapopulaarsete otsustega andis majandusele hea stardikiirenduse . </s> <s> Kuid juba hingavad kuklasse meie Balti naabrid , keda Euroopa Liitu jõudmisel pidime pika puuga edestama , ja oh häbi - meie väsivast IT-tiigrist ollakse massiliselt mööda punumas ! </s> <s> Mis kõige hullem , seni valdav allhanketööstus on Narva Kreenholmi näitel juba otsimas idast odavamat tööjõuturgu . </s> </p>
+<p> <s> Eesti on jõudnud oma arengus investeeringute faasi , kus majandusse toodav lisaraha peab looma eeldused üleminekuks innovatsioonifaasi , milles peamiseks eesmärgiks on uute ja turusuutlike tehnoloogiate ning toodete evitamine . </s> <s> See esitab kõrgeid nõudeid spetsialistide kvalifikatsioonile , süvendab ettevõtete omavahelist koostööd ning koostööd ülikoolidega , millega 1997. aastal liideti enamik endisi Teaduste Akadeemia instituute ja harukondlikke uurimisasutusi . </s> <s> Samas tuleb rõhutada , et nii teadlastel kui riigil on innovatsioonis põhiliselt toetav roll - vabaturu tingimustes on tegelikuks innovatsioonimootoriks kasumit taotlev ettevõtlus ! </s> </p>
+<p> <s> Paraku näitavad uuringud , et meie tööstuse uus struktuur on küll välja kujunenud , kuid selle peamiseks suundumuseks ei ole teadmistepõhise majanduse arendamine . </s> <s> Tootlikkuse ning ekspordi tase ei ole piisav , sest kaubad on valdavalt lihtsad ja odavad ning madala konkurentsivõimega . </s> <s> Väheneb spetsialiseerumine tehnoloogilise arengu võtmesuundadele , ei jätku spetsialiste ega oskustöölisi . </s> <s> Selle taha , et oskustöölisi ja spetsialiste ei piisa , on juba jäänud mitmed olulised investeeringud - pole spetsialiste ega investeeringuid , pole ka raha , mida ümber jagada , millest maksta toetusi ja rajada uusi kultuuriehitisi . </s> </p>
+<p> <s> Kuidas oleme jõudnud sellise paradoksaalse olukorrani , kus napilt 1,4 miljoni elaniku kohta on nelikümmend seitse üli- ja kõrgkooli ? </s> <s> Mõningatel andmetel isegi seitsekümmend üheksa kõrgharidust tõendavaid diplomeid väljastavat haridusasutust ? </s> <s> On aeg lõpetada genofondi arutu raiskamine ning tõdeda , et üliliberaalne hariduspoliitika on meid viinud tupikusse : koolitame massiliselt kahtlase kõrgharidusega töötuid olukorras , kus napib kvalifitseeritud töökäsi . </s> </p>
+<p> <s> Sama temaatikaga haakub riiklik koolitustellimus ülikoolidele , mis baseerub suuresti seisukohal , et tähtis polevat , mis erialal noori inimesi koolitatakse , vaid see , kui hea hariduse nad saavad . </s> <s> Kui kõik tõesti nii lihtne oleks , võiksime piirduda vaid mõne populaarse eriala õpetamisega meie rahvusülikoolis . </s> <s> Seepeale oleks vägagi huvitav jälgida , kuidas näiteks hästi koolitatud humanitaarid ja kõrgelt tasustatud juristid käitavad kõrgtehnoloogilisi tootmisliine ning tagavad soojuse ja valguse vastvalminud kodudes ja tootmishoonetes . </s> <s> Kuuldavasti on see väga lihtne : sooja annab radiaator , elekter tuleb seinakontaktist ja vesi voolab kraanist ! </s> </p>
+<p> <s> Innovaatiline areng nõuab koostööd ja süvenevat vastastikust usaldust ettevõtete ja ülikoolide vahel . </s> <s> See on paraku järgmine pudelikael , sest ettevõtted pole väidetavalt valmis teadmismahukaks tootmiseks ning enamik teadlasi eelistab praktiliste probleemide lahendamise asemel tegelda vaimse eneserahuldamisega - elatakse eri maailmades , kus üks osapool ei tea ega soovigi teada , mida teine teeb . </s> <s> Tulemuseks on pidevad kraaklemised ja vastastikused süüdistused teadusringkondades , sest 0,8% vägagi tagasihoidlikust siseriiklikust koguproduktist ( Rootsis 4,2% , Soomes 3,8% , ELi keskmine 2,0% ) teadus- ja arendustegevuse ( T &amp; A ) rahastamiseks on viimas meid olukorrani , kus Eesti teadlaskond tuleb väljasureva liigina kanda Punasesse Raamatusse . </s> </p>
+<p> <s> Samas on arenenud riikide kõrge T &amp; A rahastamise protsent suuresti mitte riigi- , vaid ettevõtete- poolse panustamise tulemus . </s> <s> Ent võib mõista ka Eesti ettevõtete vähest toetust , sest teaduse praktiline väljund on enam kui kesine . </s> <s> Eurostati andmetel kulub teadmistepõhise majandusega riikides uute toodete ja tehnoloogiate väljatöötamisele ehk tehnoloogilisele arendustegevusele umbes kaks kolmandikku T &amp; A kogumahust - meil napp kümnendik . </s> <s> Kui arenenud riikides on alus- ja rakendusuuringute ning arendustegevuse proportsioonid 1 : 3 : 6 , siis Eestis 4 : 3 : 2. Mul on ehitusinsenerina eelöelduga seonduvalt tekkinud kuvand majast , mille ehitamisel läheb põhiline aur ja vile vundamendile , seinad ei taha aga kuidagi kerkida ning sarikapeost pole mõtet unistadagi . </s> <s> Sel foonil tundub suisa kohatuna osa teadusringkondade pidev hala sellest , kuidas meil alusuuringuid ahistatakse . </s> </p>
+<p> <s> Teaduspublikatsioonide arvukusega ja tsiteeritavuse indeksiga manipuleerimise asemel tuleks pöörata suuremat tähelepanu uurimistulemuste rakendamisele . </s> <s> Teisisõnu , lisaks bibliomeetriale on terve rida kvaliteedikriteeriume , mida annab erinevate teadusvaldkondade spetsiifikat arvestavalt rakendada . </s> <s> USAs ongi T &amp; A tulemuslikkuse kriteeriumina bibliomeetriat välja vahetamas konkurentsipõhine raha - vabaturu tingimustes pole oluline , kas maksjaks on riik või ettevõtlussektor . </s> <s> Kui on vaid , mille eest maksta ! </s> </p>
+<p> <s> Samas on selge , et nii riigi kui tema ettevõtete arengutase piirab T &amp; Asse kaasatava raha hulka . </s> <s> Seetõttu on paljudes edumeelsetes postsotsialistlikes riikides ( Sloveenia , Tšehhi , Ungari jt ) suunatud eelarvelisi vahendeid eelistatult nendesse T &amp; A valdkondadesse , kus nad võimalikult kiirelt riigi üldist jõukust kasvatavad . </s> <s> Näiteks kulub eelnimetatud riikides tehnikavaldkonna rahastamisele umbes 30% kogu riiklikust teadusrahast Eesti 18% vastu . </s> <s> On mille üle mõelda ja mille järgi atra seada ! </s> </p>
+<p> <s> On ka teada , et nii Teise maailmasõja peksupoiste Jaapani ja Saksamaa kui ka paljude edukate väikeriikide teadmistepõhine majandus on saanud jalad alla tänu rahvusvahelisele tehnosiirdele . </s> <s> Neid , kes arvavad , et pidevad ponnistused oma jalgratta leiutamisel on edu ainsaks eelduseks , tuleks korraks saata Hannoveri messile . </s> <s> Kümnete hektarite kaupa kõrgtehnoloogiast pungil näitusehallide nägemine peaks lõpetama tehnosiirde kontekstis ilkumise <hi rend="kaldkiri"> á </hi> <hi rend="kaldkiri"> la </hi> jänesena innovatsioonirongil sõitmisest ja tõstatama küsimuse nähtut evitada suutvate kõrgtasemel spetsialistide olemasolust . </s> </p>
+<p> <s> Selleks et teadmistepõhine majandus Eestis saaks skolastilisest targutamisest tegelikkuseks , tuleb tõhustada rahvusvahelistele nõuetele vastavate inseneride ja muude ettevõtlusega seotud spetsialistide koolitamist , tõsta seda protsessi tagava infrastruktuuri taset ja uuringute rahastamise mahtu . </s> <s> Samuti tuleb luua vajalikud eeldused uute kõrgtehnoloogiliste , nimetamisväärse ekspordimahuga Eesti ettevõtete tekkimiseks . </s> <s> Kuid vaid sellele ei saa loota , sest ka Soome edu taga ei ole mitte ainult kõrgtehnoloogiaettevõtted , sh Nokia , vaid traditsioonilistes majandussektorites saavutatud uus innovaatiline tase . </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Altair 8800 - personaalarvutite ajastu esiklaps </head>
+<p> <bibl> <author> <s> <hi rend="kaldkiri"> Arvo Toomsalu </hi> , <hi rend="kaldkiri"> TTÜ arvutitehnika instituut </hi> </s> </author> </bibl> </p>
+<p rend="loendi_element"> <s> <hi rend="kaldkiri"> Personaalarvuti põhieesmärk - informatsiooni </hi> </s> </p>
+<p rend="kaldkiri"> <s> juhtimine mõttetöö toetamiseks . </s> </p>
+<p rend="kaldkiri"> <s> Bill Gates </s> </p>
+<p> <s> Pea kolmkümmend aastat tagasi leidsid aset sündmused , mis avaldasid mõju mitte ainult arvutitehnika , vaid ka kogu inimühiskonna edasisele arengule . </s> </p>
+<p> <s> Kahekümnenda sajandi seitsmekümnendate lõpu- ja kaheksakümnendate algusaastate tormilised muudatused arvutitehnikas peegeldusid nii majanduse , kultuuri kui ka sotsiaalse keskkonna sfäärides . </s> <s> Ilmselt oli see üheks põhjuseks , miks 1982. aastal valis rahvusvahelise mainega ajakiri Time aasta tegelaseks mitte mõne kuulsa poliitiku , teadlase , ärimehe või kunstiinimese , vaid ARVUTI . </s> </p>
+<p> <s> Neil aastail võeti arvutitehnikas kasutusele lausintegraallülitused , ilmusid mikroprotsessorid ja suure mahuga kiired pooljuhtmälud . </s> <s> Loodi uudne tehnoloogiline baas , mis võimaldas hakata massiliselt valmistama odavaid , piisava jõudlusega kvaliteetseid personaalarvuteid . </s> <s> Personaal- arvutite ootamatult kiire ja laialdane levik andis tunnistust infoühiskonna tekkest . </s> <s> See oli aeg , kui toimus elektronarvutite “ demüstifitseerimine ” , s.t arvutid muutusid “ imeasjadest ” inimeste tavapärasteks töövahenditeks . </s> </p>
+<p> <s> Seda , et selliseid arvuteid vajati ning oldi valmis neid kasutusele võtma , kinnitavad muudatused maailma arvutiturul . </s> <s> Kui aastal 1975 müüdi maailmas ligikaudu 2000 personaalarvutit , siis aastaks 1985 kasvas müüdud arvutite kogus 7,56 miljonini , 1995. aastaks 50 miljonini ning 2002. aastal ületas müüdud personaalarvutite hulk juba 132 miljoni piiri . </s> <s> International Data Corporation'i analüütikute hinnangul müüdi ainuüksi aastatel 1981- 2000 kogu maailmas umbes 835 miljonit personaalarvutit ( 7 ) . </s> <s> Euroopa Liidu riikides oli 1999. aasta lõpus kasutusel ümmarguselt 120,6 miljonit personaalarvutit . </s> <s> Kui aastatel 1997 - 1998 kasvas Euroopa Liidus personaalarvutite arv aastas keskmiselt 13% võrra , siis aastatel 1998 - 1999 suurenes juurdekasv juba 15%-ni , kusjuures ligikaudu 47% vastselt kasutusele võetud arvuteist leidsid rakenduse koduarvutitena . </s> </p>
+<p> <s> Muidugi erinesid esimesed personaalarvutid oma tänapäevastest järglastest samavõrra kui omaaegne Henry Fordi rahvaauto Ford T moodsast Ford Focus WRCst . </s> <s> Mida aga kujutasid endast tänapäevaste personaalarvutite “ esiisad ” , seda teavad võrdlemisi ähmaselt isegi paljud nooremapoolsed arvutiinsenerid . </s> <s> Järgnevalt tutvuks lähemalt neist ühe huvitavamaga - arvutiga <hi rend="rasvane"> Altair 8800 </hi> , mida sageli peetaksegi esimeseks personaalarvutiks . </s> </p>
+<p> <s> Mida olulist toimus siis kolmkümmend aastat tagasi ? </s> </p>
+<p> <s> Väga tabavalt on 1974. aastal toimunud sündmusi iseloomustanud tuntud arvutiajaloo uurija Paul E. Ceruzzi . </s> <s> Oma raamatus “ A History of Modern Computing ” nimetab ta seda aastat väga poeetiliselt - <hi rend="kaldkiri"> annus mirabilis </hi> . </s> <s> Tõepoolest , kui lähtuda arvutitehnika arenguloo vaatevinklist , siis toimus sellel aastal rida olulise tähtsusega sündmusi . </s> </p>
+<p> <s> Aasta algul , jaanuaris , tutvustas firma Hewlett-Packard oma esimest programmeeritavat teaduskalkulaatorit HP-65 , suvel ilmusid turule Intel Corporation'i 8bitised mikroprotsessorkiibid 8080 , ajakirja Radio-Electronics Magazine juulinumbris kirjeldati üksikasjaliselt Inteli mikroprotsessorile 8008 tuginevat iseehitatavat lihtsat arvutit Mark-8 . </s> <s> Juba artikli pealkiri oli väga kõnekas - “ Build the Mark-8 : Your Personal Minicomputer ” . </s> </p>
+<p> <s> Kui loetelusse lisada veel Edward H. Roberts - või nagu teda enamasti tavatsetakse nimetada Ed Roberts - , siis ongi vahest nimetatud olulisemad “ eeldused ” , mis aitasid kaasa personaalarvutite ajastu esiklapse Altair 8800 sünnile . </s> </p>
+<p rend="rasvane"> <s> KUIDAS VALMIS ALTAIR ? </s> </p>
+<p> <s> 1968. aastal oli USA õhujõudude endine ohvitser Ed Roberts asutanud Albuquerque'is ( New Mexico ) väikese elektroonikafirma MITS ( Micro Instrumentation Telemetry Systems ) , mis tegeles põhiliselt raadio teel juhitavate mudellennukite raadioaparatuuri postimüügiga . </s> </p>
+<p> <s> Seitsmekümnendate aastate alguses hakkas MITS müüma , esialgu võrdlemisi edukalt , kokkupandavate kalkulaatorite komplekte . </s> <s> Kuid juba 1973. aastal vähenes nõudlus nende järele märgatavalt , sest kui konkurendid müüsid valmiskalkulaatoreid hinnaga 50 dollarit , siis MITSi kokkupandav komplekt maksis ligi 100 dollarit . </s> <s> Firmal tekkisid tõsised majandusraskused , võlg pangale oli ligi veerand miljonit dollarit , ja et firmat elus hoida , tuli leida kiiresti mingi hea äriidee . </s> </p>
+<p> <s> 1974. aasta aprillis oli Intelis tootmisesse jõudnud uudse arhitektuurse lahendusega kiire ( taktsagedus 2 MHz ) mikroprotsessorkiip 8080. </s> <s> Ligikaudu 4500 transistorit sisaldavat mikrolülitust valmistati eesrindlikus 6mikronilises nMOS-tehnoloogias . </s> <s> Mikroprotsessori käsustik oli oma võimalustelt lähedane tolleaegsetele miniarvutitele . </s> </p>
+<p> <s> Vastilmunud mikroprotsessor ja Radio-Electronics Magazine'is avaldatud Mark-8 kirjeldus viisid Ed Robertsi mõttele hakata valmistama ja müüma lihtsaid odavaid arvutikomplekte . </s> <s> Kuna MITSil oli kogemusi kauplemisel kokkupandavate kalkulaatorite komplektidega , siis aitasid need kaasa uue äriidee elluviimisele . </s> </p>
+<p> <s> Plaan oli seda ahvatlevam , et Intel oli nõus müüma Ed Robertsile protsessorkiipe mitte nende tavahinnaga , 360 dollarit tükk , vaid palju odavamalt , kõigest 75 dollari eest . </s> <s> Seda fakti püüti hiljem mõnede MITSi konkurentide poolt ära kasutada , süüdistades Ed Robertsit selles , nagu ta oleks MITSi arvutikomplektides kasutanud mittekvaliteetseid protsessorkiipe . </s> <s> Kõik taolised süüdistused lükkas Ed Roberts aga kategooriliselt tagasi . </s> <s> Põhjus , miks tal õnnestus mikroprotsessoreid nii odavalt saada , oli lihtne - nimelt kasutati arvutikomplektides n.-ö kosmeetiliste defektidega mikrolülitusi . </s> <s> Protsessorkiipidel esines mitteolulisi väliseid defekte , mis vähimalgi määral ei avaldanud mõju nende talitlusele . </s> </p>
+<p> <s> 1974. aasta augustiks oli MITSis Ed Robertsi juhtimisel ja koostöös William Yates'i ja Jim Bybee'ga , valminud arvutikomplekti esmamudel . </s> <s> Et kindlustada uuele tootele küllaldast ostjaskonda , oli seda vaja eelnevalt reklaamida ja siin tuli Robertsile appi ajakiri Popular Electronics . </s> </p>
+<p> <s> Nimelt oli ajakiri Radio-Elecronics Magazine 1974. aasta suvel avaldanud artikli , kus kirjeldati Jonathan Tituse lihtsat arvutikomplekti Mark-8 . </s> <s> Selles kasutati Inteli varasemat , 1972. aastal valminud 8bitist mikroprotsessorit 8008 , mille arhitektuurses lahenduses järgiti 4bitistes mikroprotsessorites 4004 ja 4040 rakendatud põhimõtteid . </s> <s> Soovida jättis mikroprotsessori 8008 töökiirus ( talitles taktsagedusel 200 kHz ) ja käsustiku koosseis . </s> <s> Et mitte alla jääda Radio-Electronics Magazine'le , otsustas Popular Electronics'i tehniline toimetaja Leslie ( Les ) Solomon avaldada oma ajakirjas parema , kiirema ja võimsama iseehitatava arvuti kirjelduse . </s> </p>
+<p> <s> Seetõttu oli Ed Robertsi ettepanek tutvustada ajakirjas äsjavalminud originaalse lahendusega lihtsat ja odavat , mitteprofessionaalsele kasutajaskonnale orienteeritud iseehitatavat arvutikomplekti igati teretulnud . </s> <s> Les Solomon aitas igati kaasa , et arvuti kirjeldus saaks võimalikult ruttu avaldatud . </s> <s> Muidugi ei unustatud seejuures ära ka ajakirja huve . </s> <s> Materjali ettevalmistamisel pöörati erilist tähelepanu sellele , kuidas veenda lugejaid uue arvuti paremuses , võrreldes Mark-8ga . </s> <s> Seda polnud just eriti raske teha , sest esitletavas “ miniarvutis ” , nagu seadet esialgu nimetati , kasutati moodsamat ja täiuslikumat mikroprotsessorit 8080 ning arvuti struktuuris oli rakendatud efektiivset universaalset 100-liinilist süsteemisiini . </s> <s> Esialgu nimetati süsteemisiini lihtsalt “ Altairi siiniks ” , kuid hiljem võeti kasutusele nimetus siin S-100 . </s> </p>
+<p> <s> Miks arvutit nimetati aga “ miniarvutiks ” , saab selgeks , kui tuletame meelde , et tollal kasutati tavaliselt 8- ja 16bitise sõnapikkusega arvutite kohta üldist nimetust “ miniarvuti ” . </s> <s> Tänapäevases kontekstis oli Ed Robertsi arvuti ikkagi klassikaline “ mikroarvuti ” . </s> <s> Samas polnud väär nimetada arvutit ka miniarvutiks , sest Robertsi arvuti suutis täita enam-vähem kõiki neid põhiülesandeid , mida tollased lihtsamad miniarvutidki . </s> <s> 1975. aastal toimunud reklaamikampaania käigus pakkus Ed Roberts uue arvutiklassi tarvis välja nime “ personaalarvuti ” ( <hi rend="kaldkiri"> personal computer </hi> ) . </s> </p>
+<p> <s> Arvuti mugavamaks reklaamimiseks oli sellele vaja leida lihtne , kuid hästi meeldejääv nimi . </s> <s> Algselt oli MITSis arvutit nimetatud lihtsalt PE-8 ( <hi rend="kaldkiri"> Popular Electronics 8-bit </hi> ) , vähemalt nii väidab oma mälestustes Les Solomon . </s> <s> Nimekuju “ Altair ” olevat välja pakkunud Les Solomoni tütar , suur “ Star Treki ” fänn , numbrikombinatsiooni “ 8800 ” lisas nimesse aga Ed Roberts , pidades silmas vajadust eristada üksteisest arvuti tulevasi variante . </s> <s> Nii moodustuski lõpptulemusena üldtuntud arvutinimi Altair 8800. </s> </p>
+<p> <s> Arvuti Altair 8800 ainus töötav eksemplar otsustati saata ajakirja Popular Electronics toimetusse . </s> <s> Kuid et firmas Railway Express , mis pidi näidise New Yorki toimetama , toimus samal ajal streik , siis läks Altair selles segaduses teepeal kaduma . </s> <s> Vaatamata Altairi kaotsiminekule , jätkas Les Solomon , tuginedes vaid Ed Robertsi käsikirjale , artikli avaldamise ettevalmistamistöid . </s> </p>
+<p> <s> Kohe , kui MITSis saadi teada arvuti kaotsiminekust , valmistati kiiresti uus , täielikult komplekteeritud esipaneeliga arvutikorpus , et ajakiri saaks vähemalt sellegi pildi avaldada . </s> <s> Kuid juba 1974. aasta 19. detsembriks valmis MITSis Altairi teine täiustatud ja töötav komplekt . </s> </p>
+<p> <s> Ajakirja Popular Electronics 1975. aasta jaanuari avanumbri esikaant ehtis Altairi pilt ja pilkupüüdva kujundusega tekst : </s> </p>
+<p> <s> World's First Minicomputer Kit to Rival Commercial Models ... ” ALTAIR 8800 ” SAVE OVER $ 1000. </s> </p>
+<p> <s> Artiklis<hi rend="ülaindeks">1</hi> anti põhjalik ülevaade arvutikomplektist , nii riist- ja tarkvarast kui ka konstruktsioonist . </s> <s> Lugejaile anti teada , et peagi hakkab MITS arvuteid müügiks valmistama , ostja poolt kokkupandava arvutikomplekti müügihind saab olema 397 dollarit , valmisarvutil 439 dollarit . </s> </p>
+<p> <s> Kirjelduses rõhutati , et arvutis kasutatakse mikroprotsessorit 8080 , mida toetab 256baidine pooljuhtmuutmälu . </s> <s> Arvuti programmeerimine toimus aga masinakoodis . </s> <s> Avaldati andmeid isegi eeldatava tootmismahu kohta , nimelt kavatses MITS valmistada aastas umbes 200 arvutikomplekti . </s> </p>
+<p> <s> Suureks ootamatuseks kõigile asjaosalistele oli aga lugejate tohutu huvi Altairi vastu . </s> <s> Kui esialgu oli firmas planeeritud ja ette valmistatud müüa aastas mitte üle paarisaja arvutikomplekti , siis esines päevi , kus ette müüdi ära kogu aastaks kavandatud arvutite kogus . </s> <s> Inimesed olid valmis maksma arvuti eest ette , isegi seda nägemata . </s> <s> Kui seni esines MITSil raskusi oma toodete müügiga , siis nüüd muutus olukord vastupidiseks - firma ei suutnud arvuteid nii palju toota , kui neid nõuti . </s> </p>
+<p> <s> Esimene müügiks valmistatud Altair 8800 komplekt valmis 1975. aasta aprillis . </s> <s> Arvutikomplekti , mis oli varustatud 1kilobaidise mäluga , müüdi 375 dollari eest . </s> </p>
+<p> <s> Ed Roberts on hiljem meenutanud , et Altairi tollane ostjaskond oli väga kirev . </s> <s> Nii oli üheks esimeseks tellijaks Chicagos elav hambaarst , kes vajas arvutit oma mudelraudtee juhtimiseks . </s> <s> Suurt huvi arvutikomplektide vastu ilmutasid ka isikud , kes töötasid sellistes USA riigiasutustes nagu FBI ja CIA . </s> </p>
+<p> <s> Tiivustatuna müügiedust , asus Ed Roberts Altairi kohe täiustama , luues mitmeid uusi , erineva konfiguratsiooniga arvutimudeleid . </s> </p>
+<p> <s> Altairi üheks oluliseks puuduseks oli tarkvaralise külje nõrk lahendus . </s> <s> Arvuti programmeerimine toimus masinakeeles , informatsiooni ( käske , andmeid ) sisestati arvutisse kahendkoodis , samas koodis väljastati ka töötlusel saadud tulemid . </s> <s> Õige pea selgus , et taoline keeruline , aeglane ja kergesti vigu tekitav suhtlusvorm ei sobinud enamikule arvutikasutajatele . </s> <s> Arvuti vajas hädasti lihtsamat , universaalsemat ja kasutajasõbralikumat suhtlusvahendit - kõrgema taseme programmeerimiskeelt . </s> </p>
+<p> <s> Ajal , kui Ed Roberts tegeles Altairi täiustamisega , sai ta Seattle'st kirja , kus tehti ettepanek võtta arvuti programmeerimisel kasutusele keel Basic . </s> <s> Kirja autoriteks olid tollal veel kaks tundmatut noort inimest Paul Allen ja Bill Gates . </s> <s> Kuna ettepanek oli asjalik , siis leppis Ed Roberts kirja autoritega kokku , et nad töötavad Altairi tarvis välja lihtsa Basic-keele interpretaatori . </s> </p>
+<p> <s> Lisaks interpretaatorile koostasid P. Allen ja B. Gates veel ka programmid , mis võimaldasid mikroprotsessoris töödelda ujukomavormingus esitatud informatsiooni . </s> <s> Et lihtsustada Basic-programmide sisestamist arvutisse , koostas P. Allen eriprogrammi , mille abil sai programme sisestada perfolindiriiderilt . </s> </p>
+<p> <s> Basic-interpretaatori esimene variant valmis 1975. aasta veebruaris . </s> <s> Sama aasta juulis saadi töökorda interpretaatori teise versiooni programmid , mis olid ette nähtud salvestamiseks statsionaarselt juba arvuti püsimällu ( 4kilobaidise ja 8kilobaidise interpretaatori variandid ) . </s> </p>
+<p> <s> Taas ilmnes uus ebameeldiv tõsiasi : et toime tulla keerukamate ülesannetega , oli vaja suurendada arvuti mälumahtu . </s> <s> Kiiresti töötati MITSis välja uued , erineva infomahutavusega mälukaartide variandid , mida sai ühendada Altairi süsteemisiini standardseisse laienduspesadesse . </s> <s> Lisaks täiustati arvuti sisend-väljundlülitusi , kasutusele võeti jada- ja rööpportide moodulid ( laienduskaardid ) . </s> </p>
+<p> <s> Erilist tähelepanu pöörati sellele , kuidas muuta inimese suhtlus arvutiga lihtsamaks ja töökindlamaks . </s> <s> Malli võeti tolleaegsetelt miniarvutitelt , mis enamasti kasutasid sisend-väljundseadmena teletaipi ASR 33. </s> <s> Teletaip võimaldas informatsiooni sisestada kirjutusmasina klaviatuuriga sarnaselt sõrmistikult ja väljastada tulemeid prindituna rullpaberile . </s> <s> Teletaipide ASR 33 laialdasemat kasutamist piiras seadmete kõrge hind , mis ületas tunduvalt Altair 8800 komplekti maksumuse . </s> <s> Hiljem loodi veel ka spetsiaalne terminalseade , kuid siiski kõige populaarseimaks osutusid laiatarbe-kassettmagnetofonile tuginevad välissalvestid . </s> </p>
+<p> <s> Innustatuna MITSi kiirest edust personaalarvutite turul , hakkasid peagi nii mitmedki teised firmad valmistama analoogilisi arvuteid ( arvutikomplekte ) . </s> <s> Tõsisemat konkurentsi pakkusid MITSile firmad IMS Associates Inc. personaalarvutiga IMSAI 8080 ( 1975 ) ja PolyMorphic Systems arvutiga , mida esialgu nimetati Micro Altairiks , kuid peagi asendati see nimega Poly-88 ( 1976 ) . </s> <s> Viimase oluliseks uuenduseks , võrreldes Altairiga , oli spetsiaalse klaviatuuri- ja videofunktsioone juhtiva kaardi kasutamine . </s> </p>
+<p> <s> Mis puutub personaalarvutisse IMSAI 8080 , siis selles rakendati mikroprotsessori 8080 modifitseeritud varianti 8080A . </s> <s> Arvuti oli varustatud 4kilobaidise mäluga . </s> <s> Informatsiooni sisestamine ja väljastamine toimus nagu Altair 8800 puhulgi arvuti esipaneelil paiknevate lülitite ja valgusdioodindikaatorite abil . </s> <s> Selleski arvutis kasutati süsteemisiini S-100 , soovi korral võis aga arvuti riistvaralisi ressursse laiendada ( süsteemisiinil olid laienduspesad 22 laienduskaardi tarvis ) . </s> <s> Erinevalt Altair 8800st valmistati IMSAI 8080-t ainult valmisarvuteina . </s> </p>
+<p> <s> Järjest teravnev konkurents personaalarvutite turul sundis MITSi pidevalt tegelema arvutite arendamisega . </s> <s> Lisaks Intel-protsessori põhistele komplektidele töötati välja arvutikomplektid , kus kasutati firma Motorola Inc. mikroprotsessorit M6800 . </s> <s> Esimeseks Motorola mikroprotsessoriga Altairiks oli 1975. aasta oktoobris välja töötatud <hi rend="kaldkiri"> Altair 680 </hi> . </s> <s> Selle protsessoriga arvutikomplekti hind ( 293 dollarit ) oli veidi madalam kui Altair 8800-l . </s> <s> 1976. aasta jaanuaris valmis teinegi M6800-põhine personaalarvuti variant <hi rend="kaldkiri"> Altair 680b . </hi> </s> </p>
+<p> <s> Hoolimata uue arvutikomplekti valmimisest , oli 1976. aasta MITSile ebasoodne . </s> <s> Firma positsioon personaalarvutite turul halvenes märgatavalt , turuliidri koht tuli loovutada . </s> <s> Siiski ei tähendanud see veel seda , et turul oleks lakanud nõudlus Altairide järele . </s> <s> Kui 1975. aasta detsembri lõpuks oli MITS müünud ligikaudu 2000 Altair 8800 komplekti , siis järgmise aasta detsembriks kasvas nende arv 10 000ni . </s> </p>
+<p> <s> Järgnevatel aastatel hakkas firma majandustegevus pikkamisi , kuid järjekindlalt allamäge veerema . </s> <s> 1978. aasta juunis lõpetati Altairide tootmine ning järgmisel , 1979. aastal , kuulutati välja MITSi pankrot . </s> </p>
+<p rend="rasvane"> <s> PERSONAALARVUTI ALTAIR 8800 KONSTRUKTIIVSEST LAHENDUSEST </s> </p>
+<p> <s> Altairi esimeses variandis koosnes arvuti neljast moodulist . </s> <s> Konstruktiivselt kujutasid moodulid standardsete mõõtmetega trükiplaate ( arvutikaarte ) , kuhu monteeriti integraallülitused ja diskreetsed raadiokomponendid . </s> <s> Üksikud moodulid olid omavahel ühendatud traatmontaažiga . </s> <s> Alates Altairi teisest mudelist loobuti kohmakatest traatühendustest ning võeti kasutusele universaalne arvutikaarte ühendav süsteemisiini S-100 liine kandev krossmontaaži- ehk nn ühendusplaat . </s> <s> Arvutikaardid ühendati ühendusplaadil paiknevaisse pistikupesadesse analoogiliselt sellega , kuidas tänapäevastes personaalarvutites ühendatakse laienduskaarte emaplaadil olevatesse laienduspiludesse . </s> </p>
+<p> <s> Altairi süsteemisiini S-100 omapäraks võib pidada seda , et kasutati kahte ühesuunalist 8bitist andmesiini ja üht kahesuunalist 16bitist aadressisiini . </s> <s> Algselt oli ühendusplaat varustatud vaid nelja pistikupesaga , kuigi Altairi korpus oli piisavalt suur , et sellesse võinuks mahutada kuni 16 arvutikaarti ( moodulit ) . </s> <s> Altairide hilisemates variantides oligi ühendusplaadil 18 pistikupesa . </s> <s> Arvuti süsteemisiini tehniline lahendus osutus sedavõrd õnnestunuks , et see võeti <hi rend="kaldkiri"> de facto </hi> standardina kasutusele mitmete teiste firmade ( IMSAI , Dynabyte , Cromemco Inc. , Vector Graphic jt ) personaalarvuteis . </s> </p>
+<p> <s> Arvuti keskseks mooduliks oli protsessormoodul , mille põhilülituseks oli Inteli mikroprotsessorkiip 8080. </s> <s> Omaette moodulina valmistati samuti arvuti mälu . </s> <s> Esialgses variandis kasutati 256baidist staatilist muutmälu ( RAM ) , kuid peagi veenduti , et isegi lihtsa arvuti tarvis osutus mälumaht ebapiisavaks . </s> <s> Õnneks oli arvuti mälusüsteem projekteeritud piisavalt paindlikuna ja nii ei tekkinud raskusi mälumahu suurendamisel 2kilobaidini . </s> <s> Hiljem kasvasid Altair-arvutite mälumahud veelgi , muutmäludes hakati kasutama energiasäästlikumaid dünaamilisi mälukiipe . </s> </p>
+<p> <s> Arvuti muutmälu toetas püsimälu ( ROM ) , kus kasutati Inteli 256baidise infomahutavusega mälulülitusi 1702. </s> <s> Püsimälus säilitati lihtsat väikesemahulist alglaadurit , mille abil laeti perfolindilt arvutisse erinevaid tööprogramme . </s> <s> Kui arvutite programmeerimisel võeti kasutusele Basic-keel , siis hakati püsimälus säilitama selle talitlemiseks vajalikku translaatorit ( interpretaatorit ) . </s> <s> Sedamööda kuidas täiustati interpretaatorit , suurenes ka vajatava püsimälu infomahutavus . </s> <s> Algselt oli interpretaatori maht 4 kilobaiti , kuid õige ruttu asendati see 8kilobaidise variandiga . </s> </p>
+<p> <s> Hilisemad Altairi variandid varustati välismäluga , esialgu kasutati mäluseadmena tavalist kassettmagnetofoni . </s> <s> Odavate kettaseadmete ilmumisel vahetati kassettmagnetofon välja esmalt 8- ja seejärel 5,25 tollise disketiseadme vastu . </s> <s> Välise disketiseadme ühendamiseks arvutiga töötati välja spetsiaalne kontrollerlülitus , mis mahutati kahele arvutikaardile . </s> <s> Andmevahetus välismäluga toimus kiirusega 250 000 bitti sekundis , disketiseadmena kasutati Pertec FD 400. </s> <s> Laiendatud võimalustega Basic-interpretaatorit ( 12kilobaidist Extended BASICut ) ei salvestatud enam mitte arvuti püsimällu , vaid seda säilitati disketil . </s> </p>
+<p> <s> Esimestes Altairides suheldi arvutiga esipaneelil asunud juhtpuldi vahendusel . </s> <s> Kogu informatsioon ( programm , andmed ) sisestati arvutisse kahendkoodis juhtpuldi tumblerlüliteilt . </s> <s> Töötlusel saadud tulemused väljastati samuti kahendkoodis valgusdioodindikaatoreile . </s> <s> Kui hinnata Altair 8800 juhtpuldi disaini , siis torkab silma , et see meenutab firma Data General arvuti Nova 2 oma , nii juhtorganite ( tumblerlülitite ) kui ka indikatsioonielementide ( valgusdioodide ) paigutuse poolest . </s> </p>
+<p> <s> Arvuti küllaltki askeetlikul , kuid ergonoomiliselt korrektselt kujundatud , juhtpaneelil oli 26 tumblerlülitit ja 34 valgusdioodindikaatorit ( vt lisatud fotot ) . </s> <s> Hea ruumilis-dünaamilise pildi Altair 8800 väliskujundusest leiab võrguleheküljelt : <gap rend="hüperlink"/> </s> </p>
+<p> <s> Muidugi oli selline suhtlusviis arvutikasutajaile ebamugav , sageli esines eksimusi nii informatsiooni sisestamisel kui ka tulemuste interpreteerimisel . </s> <s> Vähetähtis polnud seegi , et suurem osa tollaseid arvutihuvilisi ei omanud piisavaid teadmisi ega oskusi arvutitehnika vallas , raskusi oli kahend- ja kuueteistkümnendkoodide kasutamisega . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Arvuti Altair 8800 üldvaade ( vaade esipaneelile ) </s> </p>
+<p> <s> Esimeseks sammuks arvuti kasutajasõbralikkuse tõstmisel oli masinakeele hülgamine ja üleminek lihtsamale , loomulikule keelele lähedasemale suhtluskeelele Basic . </s> </p>
+<p> <s> Analoogiliselt tollaste mini- ja suurarvutitega hakati Altairides kasutama spetsiaalseid sisend-väljundseadmeid . </s> <s> Neist esimeseks oli eelnevalt juba mainitud , firmas Teletype Corporationi 1967. aastal välja töötatud populaarne teletaip ASR 33. </s> <s> Teletaip tagas andmeedastuskiiruseks 110 bitti sekundis ehk umbes 10 sümbolit sekundis . </s> <s> Siiski polnud teletaip sobiv kõigile arvutikasutajaile , sest seade oli suhteliselt kallis . </s> <s> Uus teletaip maksis keskmiselt 2000 dollarit , kasutatud oli aga 1200 kuni 1500 dollarit . </s> </p>
+<p> <s> Välisseadmetest kasutati Altairides veel arvutiterminali Comter II , reaprinterit Altair 110 Line Printer ja püsimälukiipide programmaatorit . </s> </p>
+<p> <s> Terminal Comter II oli varustatud ASCII koodi kasutava sõrmistiku ja 32 sümbolit kuvava üherealise kuvapaneeliga . </s> <s> Kuvapaneelile väljastatava informatsiooni ajutiseks säilitamiseks oli terminalis spetsiaalne 256-baidise infomahutavusega puhvermälu . </s> <s> Kuigi terminali abil oli arvutiga suhelda palju mugavam , piiras nendegi laiemat levikut seadmete kõrge hind ( 760 dollarit ) . </s> </p>
+<p> <s> Reaprinter Altair 110 Line Printer printis ritta kuni 80 tähemärki , maksimaalne prindikiirus küündis 70 reani minutis . </s> <s> Printer kasutas 110 erinevat tähemärki , mida esitati rastris 5 x 7 punkti . </s> <s> Lisaks originaaldokumendile võis samaaegselt printida veel kolm koopiat . </s> </p>
+<p> <s> Arvutil oli küllaltki võimas elektritoitesüsteem , mis tagas seadme normaalse talitluse ka täiendavate lisamoodulite olemasolul . </s> <s> Arvuti toiteplokk väljastas pingeid +8V ja -18V , üksikuis mooduleis formeeriti neist juba konkreetsed toitepinged nii integraallülituste kui ka standardliideste ( näiteks RS-232C ) tarvis . </s> </p>
+<p> <s> Altair 8800 korpus mõõtmetega 17 x 18 x 7 tolli ( laius x sügavus x kõrgus ) koosnes kahest osast . </s> <s> Põhielemendiks oli alusplaat , mis ühtlasi täitis arvuti esipaneeli ülesannet . </s> <s> Alusele kinnitati arvuti mooduleid ühendav ühendusplaat , aga samuti elektritoitesüsteemi komponendid . </s> <s> Ühendusplaadil paiknesid standardsed pistikupesad arvuti põhi- ja laiendusmoodulite tarvis . </s> <s> Alust kattis ülalt ja külgedelt Ð-kujuline kattepaneel . </s> </p>
+<p> <s> Arvuti Altair 8800 397 dollarit maksvasse kokkupandavasse komplekti kuulusid põhimoodulid ( kaardid ) , toiteplokk , abikomponendid ( valgusdioodid , tumblerlülitid ja teised vajalikud raadiokomponendid ) , korpus ja juhend arvuti kokkupanekuks , häälestamiseks ning kasutamiseks . </s> <s> Firma pakkus samuti juba eelnevalt kokkumonteeritud ja häälestatud arvuteid , kuid nende hind oli veidi kõrgem - 498 dollarit . </s> </p>
+<p> <s> Kokkupandava arvutikomplekti tellija pidi aga arvestama , et arvuti töökorda viimiseks pidi ta selle ise kõigepealt kokku panema ja häälestama . </s> <s> Seega oli vajalik , et arvutihuviline omaks vähemalt minimaalseid teadmisi ja oskusi elektroonikaseadmete montaaži ja häälestamise vallas . </s> </p>
+<p> <s> Kuna standardsete arvutikomplektide üheks suurimaks miinuseks oli äärmiselt piiratud mälumaht , siis esmajärjekorras püüti seda korvata täiendavate mälukaartide lisamisega arvutisse . </s> <s> Need polnud aga mitte eriti odavad . </s> <s> Näiteks 4-kilobaidine mälumoodul , mis sõltuvalt sellest , kas tegemist oli eelnevalt kokkumonteeritud häälestatud mäluga või ostjale anti vaid trükiplaat ja elektroonikakomponendid , maksis vastavalt kas 338 või 264 dollarit . </s> <s> Mälumahu suurendamine oli vältimatu , kui arvutis taheti käitada Basic-programme . </s> </p>
+<p> <s> Odavad polnud teisedki lisamoodulid . </s> <s> Nii maksis jadaliidese moodul kas 119 dollarit , kui osteti kokkumonteerimata detailide komplekt , või 138 dollarit , kui tegemist oli valmismooduliga ; rööpliidese moodulite hinnad olid vastavalt 92 dollarit ja 114 dollarit . </s> </p>
+<p rend="rasvane"> <s> ALTAIR-ARVUTITE ERINEVAID VARIANTE </s> </p>
+<p> <s> Altair-arvuteid valmistati mitmes variandis - Altair 8800 , Altair 8800a , Altair 8800b , Altair 680 , Altair 680b . </s> <s> Arvutid Altair 8800b ja Altair 680b ei olnud mitte arvutikomplektid , vaid valmisarvutid . </s> </p>
+<p> <s> Arhitektuurselt ja konstruktiivselt lahenduselt olid Altairide variandid enam-vähem ühesugused , suuremaid erinevusi esines arvutite struktuursetes lahendustes ja väliskujunduses . </s> <s> Huvipakkuvamateks neist on vahest Altair 8800b ja Altair 680 erinevad versioonid . </s> </p>
+<p> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> Altair 8800b </hi> </hi> </s> </p>
+<p> <s> Personaalarvuti Altair 8800b ( valmis 1976. aasta augustis ) esindas Altairide teist põlvkonda . </s> <s> Arvutis kasutati Inteli mikroprotsessorit 8080A , kuid ülejäänud osas järgiti prototüübis ( Altair 8800 ) rakendatud põhimõtteid . </s> <s> Nii riist- kui ka tarkvaraliselt ühildus Altair 8800b oma eelkäijaga . </s> <s> Mõnevõrra parandati arvuti laiendamise võimalusi : ühendusplaadil suurendati pistikupesade ( laienduspilude ) arvu kaheksateistkümneni , ühtlasi suurendati toiteploki väljundvõimsust . </s> <s> Skeemitehnilises lahenduses hakati kasutama Inteli mikroprotsessorkomplekti MCS-8sse kuuluvat taktigeneraatorit ( kiip 8224 ) ja siinivõimendeid ( 8216 ) . </s> </p>
+<p> <s> Altair 8800b baasil loodi personaalarvuti Altair 8800bt ( Altair 8800b Turnkey ) , mida tutvustati 1977. aasta oktoobris . </s> <s> Tehnilistelt näitajatelt ( mikroprotsessor 8080A , põhikonfiguratsioonis üks kilobait muut- ja üks kilobait püsimälu , jada- ning rööppordi kaardid ( moodulid ) , süsteemisiin S-100 , residentne assembler ) ei erinenud see prototüübist . </s> <s> Põhiliseks ja silmatorkavaks erinevuseks oli Altair 8800le iseloomuliku juhtpaneeli puudumine . </s> <s> Arvuti Altair 8800bt pingestamisel anti juhtimine automaatselt üle disketiseadmes paiknevale juhtprogrammile , mis korraldas arvuti edasist tööd . </s> </p>
+<p> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> Altair 680 </hi> </hi> </s> </p>
+<p> <s> 1975. aasta novembris tõi MITS avalikkuse ette firma Motorola 8bitisel mikroprotsessoril M6800 põhineva personaalarvuti Altair 680. </s> <s> Arvutite tootmine algas siiski alles järgmisel aastal . </s> <s> Sedagi arvutit valmistati kahes versioonis - kokkupandava komplektina ( hinnaga 293 dollarit ) ja valmisarvutina ( hinnaga 420 dollarit ) . </s> </p>
+<p> <s> Altair 680s kasutatava mikroprotsessori taktsagedus oli madalam ( 500 kHz ) kui Intel-protsessoriga arvuteis . </s> <s> Arvuti mälusüsteemi struktuur järgis varasemaid lahendusi , põhivariandis 1 kilobait RAMi ja 1 kilobait ROMi . </s> <s> Suhtlus arvuti ja väliskeskkonna vahel toimus jadaliidese RS-232C abil . </s> <s> Altair 680s kasutati 8kilobaidist Basic-interpretaatorit . </s> <s> Arvuti väliskujundus järgis traditsioonilist lahendust , kuid selle korpus oli veidi väiksem : 11 x 11 x 4,75 tolli . </s> </p>
+<p> <s> Ka Altair 680le töötati välja lihtsustatud juhtpaneeliga variant Altair 680b ( 1976 ) . </s> <s> Juhtpaneelil piirduti vaid paari tumblerlüliti ja mõne valgusdioodindikaatoriga . </s> <s> Põhivariandis varustati arvuti <hi rend="kaldkiri"> Altair 680b </hi> 1kilobaidise RAMiga ja 256baidise ROMiga , viimast võis laiendada kuni ühe kilobaidini . </s> <s> Suhtlus väliskeskkonnaga toimus jadaliidese abil , mis võis talitleda kas RS-232C tüüpi liidesena või teletaibiliidesena . </s> <s> Arvuti süsteemisiinil olid laienduspesad kuni kolme lisamooduli tarvis . </s> <s> Mälumahu suurendamiseks töötati välja spetsiaalne 16kilobaidine mälumoodul . </s> </p>
+<p> <s> Mis puutub Altair-arvutite tarkvarasse , siis see oli tolle aja kohta küllaltki mitmekesine . </s> <s> Pakuti erineva keerukusastmega süsteemseid ja rakendusprogramme , alates lihtsatest alglaaduritest kuni keerukate interpretaatoriteni . </s> <s> Kui suurte mälumahtudega opereeris seitsmekümnendate aastate personaalarvutite tarkvara , võib küllaltki tõepäraselt hinnata Altairi näite varal : </s> </p>
+<p> <s> 1 ) süsteemimonitor - 2 , 5 kB , </s> </p>
+<p> <s> 2 ) tekstiredaktor - 2 kB , </s> </p>
+<p> <s> 3 ) assembler - 3 kB , </s> </p>
+<p> <s> 4 ) silur - 2 kB , </s> </p>
+<p> <s> 5 ) Altair Basic - 5,9 kB , </s> </p>
+<p> <s> 6 ) Altair Extended Basic - 10,2 kB , </s> </p>
+<p> <s> 7 ) Altair Disk Extended Basic - 16 kB , </s> </p>
+<p> <s> 8 ) Altair DOS - 12 kB . </s> </p>
+<p> <s> Nii tagasihoidliku mahuga tarkvara puhul võis arvutite mälusüsteemides piirduda tõesti vaid paari- kuni paarikümnekilobaidiste mälumahtudega . </s> <s> Ei pea olema mingi asjatundja , et aduda , kuivõrd piiratud olid tollaste personaalarvutite võimalused , võrreldes kaasaegsetega . </s> </p>
+<p rend="rasvane"> <s> KAS ALTAIR 8800 OLI ESIMENE PERSONAALARVUTI ? </s> </p>
+<p> <s> Personaalarvutite arengut käsitletavates materjalides võib tihti kohata väidet , et esimeseks personaalarvutiks oli Altair 8800. </s> <s> Kui väga Altairide tulihingelised fännid seda seisukohta ka ei püüaks kaitsta , räägivad faktid siiski midagi muud . </s> </p>
+<p> <s> Ammu enne seda , kui ilmus Edward Robertsi artikkel Popular Electronicsis , oli trükis avaldatud mitmeid materjale ja ehitatud töötavaid arvuteid , mida võib lugeda kuuluvaiks personaalarvutite klassi . </s> </p>
+<p> <s> “ Džinni päästis pudelist välja ” Edmund C. Berkeley , kes oma 1947. aastal ilmunud raamatus “ Gigant Brains , or Machines That Think ” kirjeldas ülilihtsat releearvutit Simon . </s> <s> See arvuti , kasutades vaid nelja arvu ( 0 , 1 , 2 ja 3 ) , suutis sooritada liitmist , loogikalist inversiooni , selekteerimist ja teha kindlaks , kumb kahest operandidest on suurema väärtusega . </s> <s> Aastatel 1950 - 1951 avaldati ajakirjas Radio Electronics Magazine Simoni kohta tervelt 15 artiklit . </s> </p>
+<p> <s> Kuna Simon esindas siiski pigem personaalarvuti kontseptsiooni kui reaalset arvutit , mistõttu võib selle pretendentide nimistust välja jätta , siis jääb ikka terve rida arvuteid , mis loodi enne kui Altair 8800. </s> </p>
+<p> <s> Üheks tuntumaks neist oli <hi rend="kaldkiri"> <hi rend="rasvane"> Kenbak-1 </hi> </hi> , mida tutvustati ajakirja Scientific American 1971. aasta septembrinumbris . </s> <s> Tegemist oli firmas Kenbak Corporation<hi rend="ülaindeks">2</hi> välja töötatud arvutiga Kenbak-1 , mida müüdi hinnaga 750 dollarit . </s> </p>
+<p> <s> Kenbak-1s , projekteerija John V. Blankenbaker , ei talitlenud muidugi veel mitte mikroprotsessor , vaid arvuti moodustati trükiplaadile monteeritud TTL-loogika integraallülitustest . </s> <s> 8bitise sõnapikkusega Kenbak-1 iseärasuseks oli informatsiooni jadatöötluse rakendamine . </s> <s> See võimaldas küll minimeerida arvutis lülituste arvu , kuid samas muutis selle talitluse väga aeglaseks . </s> <s> Nii kulutati Kenbak-1s kahe 8bitise arvu liitmiseks ligi paar millisekundit . </s> <s> Arvuti arhitektuuri omapäraks on seegi , et mäluna kasutati kaht 1000bitist nihkeregistrit . </s> <s> Arvuti protsessor ei sisaldanud registreid , mälu baasil oli korraldatud nii tööregistrite A ja B kui ka indeksregistri , sisend-väljundregistri ning käsuloenduri töö . <hi rend="ülaindeks"> 3 </hi> </s> </p>
+<p> <s> Arvuti käsustik nägi ette küll nelja erinevat adresseerimise viisi , samas puudus aga toetus katkestustele . </s> <s> Informatsioon sisestati arvutisse kahendkoodis , kasutades arvuti esipaneelil olevat klaviatuuri , tulemused väljastati kahendkoodis indikaatorelementidele . </s> <s> Arvatakse , et arvuteid Kenbak-1 valmistati umbes 40 eksemplari , põhiliselt kasutati neid õppearvutitena koolides ja kolledžites . </s> </p>
+<p> <s> Vähem teatud-tuntud on 1972. aastal Intelis ehitatud lihtne mikroarvuti <hi rend="kaldkiri"> <hi rend="rasvane"> SIM4-01 </hi> </hi> <hi rend="kaldkiri"> , </hi> mida aga siiski ei loeta personaalarvutite klassi kuuluvaks . </s> <s> Tegemist oli üheplaadiarvutiga , kus kasutati Inteli esimest , 1971. aastal turule ilmunud 4bitist mikroprotsessorit 4004. </s> </p>
+<p> <s> 1975. aastal kasutas Compu-Sultants , Inc. täiustatud Inteli 4-bitist mikroprotsessorit 4040 oma arvutikomplektis <hi rend="kaldkiri"> <hi rend="rasvane"> Micro 440 </hi> </hi> . </s> <s> Mikroarvuti oli varustatud väikese 256baidise mäluga . </s> <s> Laiemat levikut ei saavutanud seegi arvutikomplekt . </s> </p>
+<p> <s> Oluliselt kaalukamat rolli personaalarvutite arenguloos etendas arvuti <hi rend="kaldkiri"> <hi rend="rasvane"> Micral </hi> </hi> . </s> </p>
+<p> <s> Arvuti ehitati 1973. aastal Prantsusmaal firmas Realisations Etudes Electroniques S. A. ( REE ) ehk R2Es . </s> <s> Micrali väljatöötamist juhtis François Gernelle , kes kasutas arvutis mikroprotsessorkiipi 8008. </s> <s> Tegemist polnud mitte arvutikomplekti , vaid valmisarvutiga , mida müüdi hinnaga 1750 dollarit ( teistel andmetel 1900 dollarit ) . </s> <s> Arvutis kasutati 2kilobaidist muutmälu , programmeerimine toimus masinakoodis . </s> <s> Hiljem , 1974. aastal , loodi Micralile assembler , kuid hoolimata täiustustest , jäi arvuti levik piiratuks . </s> </p>
+<p> <s> Samal aastal tutvustati firmas Xerox välja töötatud arvutit <hi rend="kaldkiri"> <hi rend="rasvane"> Alto . </hi> </hi> Arvuti projekteerimist juhtis Charles P. Thacker . </s> <s> Mitte just eriti kompaktne Alto koosnes neljast seadmest : protsessorist , kettaseadmest , graafilisest kuvarist ja klaviatuurist koos hiirega . </s> <s> Protsessorina kasutati spetsiaalset 16bitist tellimuskiipi . </s> <s> Alto tugevaks küljeks oli hea graafikaliides . </s> <s> Arvutil oli individuaalne operatsioonisüsteem ning soovi korral võis arvuteid ühendada arvutivõrguks . </s> <s> Võrreldes konkurentidega , oli Alto oma arhitektuurilt , seadmete koosseisult ja programsetelt võimalustelt märksa lähemal kaasaegseile personaalarvuteile kui mis tahes teine tollane arvuti . </s> <s> Kuid Altol oli väga oluline puudus , mis takistas tal saamast sama populaarseks kui Altairid - selleks oli personaalarvutile lubamatult kõrge hind ( 20 000 kuni 32 000 dollarit ) . </s> <s> Ilmselt peitus kõrges hinnas üks põhjusi , miks Alto ei jõudnud kunagi tootmisse . </s> </p>
+<p> <s> Esimeste personaalarvutite hulgast ei tohi välja jätta 1974. aastal firmas Scelbi Computer Consulting , Inc. Nat Wadsworthi ja Robert Findley poolt välja töötatud arvutit <hi rend="kaldkiri"> <hi rend="rasvane"> Scelbi-8H </hi> </hi> . </s> <s> Arvutis kasutati Inteli mikroprotsessorit 8008 , mida toetas 1kilobaidine mälu . </s> <s> Scelbi-8H toodeti nii kokkupandava komplektina ( hinnaga 499 dollarit ) kui ka valmisarvutina . </s> <s> Kuigi aasta hiljem ilmus isegi Scelbi täiustatud variant Scelbi-8B , lõpetas firma õige pea arvutite valmistamise . </s> </p>
+<p> <s> Mis puutub juba nimetatud arvutisse <hi rend="kaldkiri"> <hi rend="rasvane"> Mark-8 </hi> </hi> , siis erinevalt mitmetest teistest varasematest personaalarvuteist saavutas J. Tituse arvuti kiiresti suure populaarsuse arvutite iseehitajate seas . </s> <s> On avaldatud arvamust , et arvutihuviliste poolt ehitatud Mark-8te arv võib ulatuda kuni sajani . </s> <s> Mark-8 menust annab tunnistust fakt , et neil aastatel tekkisid isegi vastavad klubid , kuhu koondusid arvutihuvilised , kes soovisid ise endale arvutit ( personaalarvutit ) ehitada . </s> </p>
+<p> <s> Varsti pärast Mark-8 kirjelduse avaldamist Radio-Electronics Magazine'is , alustas isegi üks firma spetsiaalselt Mark-8 tarvis trükiplaatide komplekti valmistamist ja müüki . </s> <s> Eriti populaarne oli trükiplaatide komplekt väheste kogemustega arvutiehitajate seas . </s> </p>
+<p> <s> Kõrvuti Intel-põhiste protsessoritega töötati välja arvutikomplekte , milles kasutati Motorola mikroprotsessorit M6800 . </s> <s> Neist tuntuimaks on vast Mike Wise poolt firmas Sphere Corporation loodud <hi rend="kaldkiri"> <hi rend="rasvane"> Sphere 1 </hi> </hi> . </s> <s> Arvutikomplekt sisaldas 4kilobaidist muutmälu ja maksis 860 dollarit . </s> <s> 1975. aastal valmis firmas Southwest Technical Products ( SWTPC ) arvutikomplekt <hi rend="kaldkiri"> <hi rend="rasvane"> SWTPC 6800 </hi> </hi> . </s> <s> Selle arvuti omapäraks oli püsimällu talletatud laadurprogrammi ja spetsiaalse minioperatsioonisüsteemi olemasolu . </s> </p>
+<p rend="rasvane"> <s> LÕPETUSEKS </s> </p>
+<p> <s> Kui hinnata Altairi kohta personaalarvutite arenguloos tänapäevasest vaatevinklist , siis võib nentida , et : </s> </p>
+<p> <s> 1. Kuigi Altair 8800 ei olnud küll esimene personaalarvuti , oli ta siiski esimeseks majanduslikult õnnestunud arvutiks , mis pani aluse personaalarvutite tööstuslikule tootmisele . </s> </p>
+<p> <s> Altairi näol õnnestus Edward Robertsil luua piisavalt lihtne , odav ja universaalne arvutimudel , mille ehitamine ja kasutamine oli jõukohane isegi väheste oskustega huvilistele . </s> <s> Teisalt innustas MITSi ootamatu majanduslik edukus aktiivsemalt tegutsema teisi firmasid ning sisenema uude tulutoovasse arvutituru segmenti . </s> <s> Altairid käivitasid möödunud sajandi seitsmekümnendatel aastatel permanentse “ personaalarvutite revolutsiooni ” , mille vilju naudime tänini . </s> </p>
+<p> <s> 2. Altair-arvutite edukusele aitas oluliselt kaasa see , et asudes uue arvuti väljatöötamisele , võttis Edward Roberts eesmärgiks luua mitte mingi järjekordne “ mänguasi ” , vaid korralikult töötav täisväärtuslik arvuti , mis suudaks täita samu funktsioone kui tolleaegsed miniarvutid . </s> <s> Lähtudes püstitatud eesmärgist , ehitati Altair üles avatud arhitektuuri printsiibil , tagades seeläbi arvuti edasise laiendatavuse ja struktuurse arendatavuse . </s> <s> Põhimõttelise tähtsusega oli efektiivse ja paindliku süsteemisiini S-100 rakendamine . </s> </p>
+<p> <s> 3. On oluline , et suhtlusel arvutiga loobuti ebamugavast masinakeelest ning hakati kasutama kergesti õpitavat ja loomulikule keelele lähedasemat programmeerimiskeelt Basic . </s> <s> Kuna enamiku personaalarvutite kasutajate oskused ja teadmised programmeerimises olid tollal tagasihoidlikud , siis lõi see soodsa pinnase arvutitehnika uue haru - tarkvaratööstuse tekkeks . </s> <s> Järgnevail aastail kujunes tarkvaratööstusest arvutitehnika kõige kiiremini arenev ja tulutoovaim haru . </s> </p>
+<p> <s> Seitsmekümnendate aastate lõpul kaotasid universaalarvutid palju oma müstilisest imidžist . </s> <s> Tänu personaalarvuteile muutusid arvutid inimeste igapäevaelu lahutamatuteks kaaslasteks . </s> <s> Hinnates Altair 8800 kohta arvutiajaloos , on Bill Gates tabavalt märkinud , et “ ... Altair 8800 oli tänapäevase personaalarvuti esiisa ” ( 3 , lk.120 ) . </s> </p>
+<p> <s> <gap rend="viited"/> </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Altera Niose ja Xilinx MicroBlaze'i võrdlus </head>
+<p> <bibl> <author> <s> <hi rend="kaldkiri"> Mihkel Tagel </hi> , TTÜ arvuti- ja süsteemitehnika magistrant </s> </author> </bibl> </p>
+<p rend="rasvane"> <s> SISSEJUHATUS </s> </p>
+<p> <s> Väliprogrammeeritavate loogikamaatriksite ( FPGA ) kasutusala on viimaste aastate jooksul tublisti kasvanud . </s> <s> Suurimad FPGAde tootjad , nagu Xilinx ja Altera , pakuvad võimaluse osta täislahenduse , n-ö arenduskomplekti , mis sisaldab prototüüpimisplatvormi kõrval ka kogu vajaminevat arendustarkvara ( kiibi projekteerimisest kuni binaarse laademooduli loomiseni välja ) . </s> <s> Prototüüpimisplatvorm sisaldab tavaliselt kõrgjõudlusega FPGAd , millega on kaasas kas pehme või kõva protsessortuum . </s> <s> Realisatsioonide jaoks on kasutusel mõisted “ süsteem programmeeritaval kiibil ” ( <hi rend="kaldkiri"> System on a Programmable Chip </hi> <hi rend="kaldkiri"> - </hi> <hi rend="kaldkiri"> SoPC </hi> ) või selle sünonüüm “ süsteem ümberprogrammeeritaval kiibil ” ( <hi rend="kaldkiri"> System on a Reprogrammable Chip </hi> <hi rend="kaldkiri"> - </hi> <hi rend="kaldkiri"> SoRP </hi> ) . </s> </p>
+<p> <s> FPGAde dünaamiline ümberkonfigureerimine on muutnud nende kasutusala veelgi paindlikumaks ja atraktiivsemaks . </s> <s> Dünaamiline ümberkonfigureerimine võimaldab suurema skeemi , mis tervikuna FPGAsse ei mahu , tükeldada järjestikuliselt täidetavateks sammudeks . </s> <s> Sammude vahepeal toimub signaalide puhverdamine ning FPGA ümberkonfigureerimine . </s> <s> Disainerid saavad kasutada dünaamilist ressursside jaotamist ning kiirendada sünteesiprotsessi ( sest sünteesida pole vaja tervet skeemi , vaid muudatusi ) . </s> </p>
+<p> <s> Artikli põhieesmärk on tutvustada konkureerivate tootjate Xilinxi ja Altera pehmet protsessortuuma , mis on arenduskomplektide üheks huvipakkuvamaks osaks . </s> <s> Alustuseks toon välja lühidalt ASIC- ( rakendusspetsiifilise kiibi ) ja FPGA-tehnoloogia erinevused , et anda aimu FPGA ja protsessortuumade vajalikkusest . </s> </p>
+<p> <s> <hi rend="rasvane"> ASIC </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> versus </hi> </hi> <hi rend="rasvane"> FPGA </hi> </s> </p>
+<p> <s> Valdav enamik masstoodangu jaoks sobivad kiipe , sh protsessorid , valmistatakse tänapäeval endiselt ASIC-tehnoloogias . </s> <s> ASICute kasuks räägib FPGAdega võrreldes suurem töökiirus , väiksem kiibi pindala , madalam voolutarve ning odavam tooteühiku hind masstootmisel . </s> <s> Samas süsteemide keerukamaks muutumisel ( suurem pindala , jõudlus ) tõusevad oluliselt ASICute projekteerimiskulud ning -aeg . </s> <s> Need kaks olulist parameetrit on olnud tõukeks ümberkonfigureeritava loogika osatähtsuse tõusmisel . </s> <s> FPGA ei ole mitte ainult prototüüpimis- , vaid ka otstarbekas realiseerimisplatvorm , lüües ASICut lühema projekteerimisajaga ning seeriatoodangus madalama lõpphinnaga , olles eriti sobiv sardsüsteemide valmistamiseks . </s> <s> Tüüpiline sardsüsteem sisaldab ühte või mitut protsessortuuma , kiibisisest mälu , perifeerseadmeid ning süsteemisiini ja seob kõik need seadmed tervikuks . </s> <s> Sardsüsteemide projekteerimiseks ning prototüüpimiseks sobivate toodete valmistajatena tuntakse eelkõige Xilinxit ja Alterat . </s> </p>
+<p> <s> FPGA-de kasutamine toimub kaasajal platvormdisaini paradigmat järgides . </s> <s> See tähendab virtuaalse liidesega intellektuaalomand-plokkide ( IP ) kasutamist , mis teeb kiibi projekteerimise “ löö-ja-laula ” ( PnP - <hi rend="kaldkiri"> Plug in and Play </hi> ) lähenemise sarnaseks . </s> <s> IP on kellegi looming - looja omab intellektuaalset omandit ( <hi rend="kaldkiri"> Intellectual Property </hi> <hi rend="kaldkiri"> - </hi> <hi rend="kaldkiri"> IP </hi> ) . </s> <s> Kõik IP-plokid omavad standardiseeritud liidest ning nende kiibile integreerimine tähendab ainult IP-vaheliste ühenduste trasseerimist . </s> <s> IPd võivad olla signaaliprotsessorid , mälud jms. </s> <s> Viimastel aastatel on FPGA tootjad täiendanud oma tooteid ühe või rohkema sisseehitatud protsessortuumaga , riistvaraliste kiirete korrutitega ( oluline signaaliprotsessoritele ) , faasihõivesüsteemiga ( PLL ) , programmeeritava sisend/väljund-süsteemiga ning FPGA dünaamilise ümberkonfigureerimisega . </s> <s> FPGAde jõudluse tõus ja lisakomponendid on muutnud nende kasutusala veelgi laiemaks ja paindlikumaks . </s> </p>
+<p rend="rasvane"> <s> PEHMED PROTSESSORTUUMAD </s> </p>
+<p> <s> Pehme protsessortuum on parametriseeritav IP-komponent , mis on realiseeritud sünteesitaval kujul riistvara kirjelduskeeles või ahelanimistu ( <hi rend="kaldkiri"> netlist </hi> ) formaadis . </s> </p>
+<p> <s> Milleks kasutada pehmeid protsessortuumi ? </s> <s> Peaaegu iga rakenduse võib realiseerida rakendus- spetsiifilise kiibina ( ASIC ) . </s> <s> Valmis ASICu funktsionaalsuse muutmine on võimatu , kui selle integreeritud komponendina ei kasutata muudetava programmimäluga protsessortuuma või -tuumasid . </s> </p>
+<p> <s> Protsessortuumade kasutamise eelised : </s> </p>
+<p> <s> kui osa süsteemi funktsionaalsusest on tarkvaraline , lihtsustub süsteemi arendamine ja lühenevad projekteerimisajad ; </s> </p>
+<p> <s> tarkvara muudatuste , versiooniuuenduste sisseviimine on muudetava programmimälu korral lihtne . </s> </p>
+<p> <s> Pehme protsessortuum lisab veel ühe eelise : </s> </p>
+<p> <s> parametriseeritavus - vastavalt süsteemi ( rakenduse ) iseloomule saab seadme projekteerimisel paika panna sobivaima protsessortuuma seadistuse ( vastavalt kiibi pindala piirangutele , jõudluse ja funktsionaalsuse nõuetele ) . </s> </p>
+<p> <s> <hi rend="rasvane"> MICROBLAZE </hi> <hi rend="rasvane"> 'I </hi> <hi rend="rasvane"> PEHME PROTSESSORTUUM </hi> </s> </p>
+<p> <s> MicroBlaze'i 32bitine pehme protsessortuum on standardne RISC-käsustikuga protsessor . </s> <s> See sisaldab kolmeastmelist konveierit eraldi andme- ja käsusiiniga ( Harvardi arhitektuur ) , toetab nii kiibisisest kui ka kiibivälist mälu . </s> <s> Protsessori lisajõudlus saavutatakse Virtex-II FPGA kiirete riistvaraliste korrutite kasutamisega . </s> </p>
+<p> <s> Omadused : </s> </p>
+<p> <s> 32 32bitist registrit , </s> </p>
+<p> <s> kasutaja poolt muudetav käsu- ja andmevahemälu suurus , </s> </p>
+<p> <s> 300 MB/s otseliides ( FSL ) kasutajaloogikaga , </s> </p>
+<p> <s> 32 sisend/väljundit FSLi , </s> </p>
+<p> <s> kiire riistvaraline korrutamine ja jagamine , </s> </p>
+<p> <s> trummelnihuti , </s> </p>
+<p> <s> väike pindalanõudlus FPGAl ( ~950 loogikarakku Virtex-II FPGAl ) , </s> </p>
+<p> <s> ühilduvus Xilinx Virtex ja Spartan FPGA peredega , </s> </p>
+<p> <s> jõudlus - ~125 Dhrystone MIPS 1 MicroBlaze'i protsessori kohta . </s> </p>
+<p> <s> <hi rend="rasvane"> ALTERA NIOS </hi> <hi rend="rasvane"> E </hi> <hi rend="rasvane"> PROTSESSORTUUM </hi> </s> </p>
+<p> <s> Altera Nios II protsessoripere koosneb kolmest protsessortuumast : </s> </p>
+<p> <s> Nios II/f - f tähistab inglise keeles kiiret ( <hi rend="kaldkiri"> fast </hi> ) ehk tegu on kiirusele optimeeritud tuumaga . </s> <s> Omab seetõttu ka kõige rohkem seadistamisvõimalusi . </s> </p>
+<p> <s> Nios II/s - tegu on standardse Nios II protsessortuumaga . </s> </p>
+<p> <s> Nios II/e - “ economy ” klassi kuuluv tuum . </s> <s> Väike pindalanõudlus , limiteeritud käsustik . </s> <s> Käsu ja andmevahemälu puudub . </s> </p>
+<p> <s> Nios II/s tuuma omadused : </s> </p>
+<p> <s> muudetav käsuvahemälu suurus , </s> </p>
+<p> <s> kuni 2GB väline aadressiruum , </s> </p>
+<p> <s> 5-astmeline konveier , </s> </p>
+<p> <s> staatiline hargnemiste ennustamine , </s> </p>
+<p> <s> kuni 256 “ kasutaja ” käsku , </s> </p>
+<p> <s> jõudlus ~120 Dhrystone MIPSi , </s> </p>
+<p> <s> pindala ~1300 loogikaelementi , ühilduv teiste Altera FPGAdega , </s> </p>
+<p> <s> JTAG silumismoodul . </s> </p>
+<p> <s> <hi rend="rasvane"> XILINX MICROBLAZE </hi> <hi rend="rasvane"> 'I </hi> <hi rend="rasvane"> ARENDUSKOMPLEKT ( </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> MDK ) </hi> </hi> </s> </p>
+<p> <s> Xilinx MicroBlaze'i arenduskomplekt sisaldab arendusplaati Xilinx Virtex-II FPGAga ning MicroBlaze'i arendusvahendeid . </s> <s> MicroBlaze'i arendusvahendite komplekt ( MDK ) on kärbitud versioon Xilinxi täisversioonist EDKst ( <hi rend="kaldkiri"> Embedded Development Kit </hi> ) . </s> <s> MDK sisaldab EDK vanemat versiooni ning väiksemat arvu perifeerseadmeid , mida annab MDK abil kasutada . </s> </p>
+<p> <s> MDK sisaldab tarkvara loomiseks Xilinx-tarkvara IDE ja GNU tarkvaralisi vahendeid C lähtekoodi kompileerimiseks - mb-gcc programm , mis kutsub välja kompilaatori , mb-as assembleri , mb-ld linkuri/laaduri . </s> <s> Riistvara sünteesiks on kasutada Xilinx IDE vahendeid . </s> </p>
+<p> <s> Joonisel 1 on esitatud tüüpiline MDK arendusvoog terve MicroBlaze-süsteemi loomiseks . </s> </p>
+<p> <s> MicroBlaze-süsteem koosneb järgmistest komponentidest : </s> </p>
+<p> <s> MicroBlaze'i pehme protsessortuum , </s> </p>
+<p> <s> kiibisisene RAM ( <hi rend="kaldkiri"> On-chip block RAM </hi> ) , </s> </p>
+<p> <s> siiniliidestus , </s> </p>
+<p> <s> OPB perifeerseadmed ( <hi rend="kaldkiri"> On-Chip Peripheral Bus peripherals </hi> ) . </s> </p>
+<p> <s> OPB on MicroBlaze-süsteemi põhisiiniks , kasutades IBMi poolt välja töötatud CoreConnect standardit . </s> <s> MicroBlaze'i protsessortuum on <hi rend="kaldkiri"> master </hi> perifeerseade OPB siinil . </s> </p>
+<p> <s> MicroBlaze-süsteemi projekteerimisvoo põhisammud : </s> </p>
+<p> <s> 1. Defineerida MicroBlaze'i riist- ja tarkvarasüsteem , kasutades MHS ( <hi rend="kaldkiri"> Microprocessor Hardware Specificatio </hi> n ) ja MSS ( <hi rend="kaldkiri"> Microprocessor Software Specification </hi> ) konfiguratsioonifaile . </s> </p>
+<p> <s> Riistvarasüsteemi kirjeldusfail sisaldab infot järgmiste riistvara komponentide kohta : </s> </p>
+<p> <s> kasutatavad perifeerseadmed , </s> </p>
+<p> <s> protsessortuum - kõva/pehme protsessortuuma valik , </s> </p>
+<p> <s> ühte kuuest MicroBlaze'i siini konfiguratsioonist , </s> </p>
+<p> <s> üldine süsteemiliidestus , </s> </p>
+<p> <s> aadressruum . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 1. </s> <s> Xilinx MicroBlaze-süsteemi projekteerimisvoog </s> </p>
+<p> <s> Toimub pehme protsessortuuma parametriseerimine . </s> </p>
+<p> <s> 2. Tarkvaravoo esimese sammu jooksul loeb teegigeneraator riistvara konfiguratsiooni ja loob vastavad C teegid ja draiverid . </s> <s> Pärast seda toimub tarkvara kodeerimine ning lähtekoodi kompileerimine mb-gcc kompilaatoriga . </s> <s> Võimalus on kirjutada programm ka MicroBlaze-assembleris . </s> </p>
+<p> <s> 3. Pärast riistvarasüsteemi konfiguratsioonifaili loomist ning tarkvara kompileerimist toimub riistvara ja tarkvara disainivoogude ühendamine . </s> <s> Platvormi generaator ( <hi rend="kaldkiri"> Platform Generator </hi> ) kasutab MHS konfiguratsioonifaili , et luua järgnevad riistvarafailid MicroBlaze-süsteemi jaoks : </s> </p>
+<p> <s> IP ja MicroBlaze'i ahelanimistu , </s> </p>
+<p> <s> BlockRAM mälude konfiguratsioon ( programm ) , </s> </p>
+<p> <s> sünteesifailid , </s> </p>
+<p> <s> HDL simulatsioonifailid . </s> </p>
+<p> <s> Platvormi generaator seob tarkvara-riistvara süsteemi , luues ühetasemelise ahelanimistu , või kasutades VHDL <hi rend="kaldkiri"> wrapper </hi> faile hierarhilise ahelanimistu . </s> </p>
+<p> <s> 4. Viimasteks sammudeks on binaarse laademooduli loomine Xilinx FPGA IDE vahenditega ja FPGA konfigureerimine . </s> <s> Xilinx FPGA IDE on eraldi keskkond , mis ei ole integreeritud MDK või EDKga . </s> </p>
+<p> <s> Silumiseks on kasutada GNU tarkvaraline silur . </s> <s> See võimaldab siluda nii riistvara kui ka käitatavat tarkvara . </s> <s> Simuleerimine toimub ModelTech'i ModelSim-simulaatoriga . </s> </p>
+<p rend="rasvane"> <s> ALTERA NIOS II ARENDUSKOMPLEKT </s> </p>
+<p> <s> Altera Nios II arenduskomplekt sisaldab Stratix EP1S10F780 FPGAd , Nios II pehmet protsessortuuma , Nios II integreeritud arenduskeskkonda ning Altera Quartus II disainitarkvara . </s> <s> Altera Quartus II on täislahendus SoPC disainiks . </s> <s> See sisaldab vajaminevaid arendusvahendeid skeemi tükeldamisest kuni binaarse laademooduli loomiseni välja . </s> </p>
+<p> <s> MicroBlaze'i arenduskeskkonnaga on võrreldav Nios II integreeritud arenduskeskkond , mis on mõeldud rakendustarkvara arenduseks , kasutades Niose pehmet protsessortuuma ja Niose arenduskomplekti . </s> <s> Joonisel 2 on näha Niose protsessorsüsteemi riist- ja tarkvara arendusvoog . </s> </p>
+<p> <s> Sarnaselt MicroBlaze-protsessorsüsteemi arendusvooga tuleb Niose puhul läbida kindlad projekteerimissammud : </s> </p>
+<p> <s> 1 ) eeldisain ( jõudlusanalüüs ) - süsteemi läbilaskevõime , arvutuslik jõudlus ; </s> </p>
+<p> <s> 2 ) pärast eeldisaini võivad tarkvaraarendajad alustada C/C++ funktsioonide kirjutamist ning riistvaradisainerid Niose riistvarasüsteemi kirjeldamist , kasutades <hi rend="kaldkiri"> SoPC Builderit </hi> ; </s> </p>
+<p> <s> 3 ) SoPC Builder loob n-ö tarkvararaamistiku SDK ( <hi rend="kaldkiri"> Software Development Kit </hi> ) , mis on aluseks tarkvaraarenduse voole ; </s> </p>
+<p> <s> 4 ) SDK alusel saab alustada tarkvara kirjutamist , mis suhtleb riistvara komponentidega . </s> <s> SDK defineerib programmisti mudeli , andmetüübid , andmestruktuurid ning funktsioonid standardperifeerseadmetega ( UART , PIO , DMA kontroller ) suhtlemiseks ; </s> </p>
+<p> <s> 5 ) GNUPro tööriistade abil toimub C/C++ funktsioonide ja SDK lähtekoodi kompileerimine ning linkimine ; </s> </p>
+<p> <s> 6 ) pärast Niose protsessortuuma prototüüpimist Niose arendusplaadil saab sellel prototüüpida riist- ja tarkvara koostööd ; </s> </p>
+<p> <s> 7 ) vajadusel saab sisse viia muudatused ning uuesti prototüüpida . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 2. </s> <s> Niose protsessorsüsteemi riist- ja tarkvara arendusvoog </s> </p>
+<p> <s> <hi rend="rasvane"> NIOS </hi> <hi rend="rasvane"> E </hi> <hi rend="rasvane"> JA MICROBLAZE </hi> <hi rend="rasvane"> 'I </hi> <hi rend="rasvane"> PROTSESSORTUUMA VÕRDLUS </hi> </s> </p>
+<p> <s> Nii MicroBlaze kui ka Nios on 32bitised RISC-käsustikuga protsessortuumad . </s> <s> Mõlemal on 32bitine andmesiin ja 32 üldkasutatavat registrit . </s> <s> Kasutaja saab muuta käsu- ja andmevahemälu suurusi . </s> <s> MicroBlaze'i protsessortuum sisaldab 3-astmelist , Nios sõltuvalt tuumast 5-6-astmelist konveierit . </s> <s> Jõudluse ja pindala suhe on enam-vähem võrdne ( vt tabel 1 ) . </s> </p>
+<p> <s> Tabel 1 </s> </p>
+<p> <s> MicroBlaze'i ja Niose pehmete protsessortuumade parameetrid </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p rend="rasvane"> <s> MicroBlaze </s> </p>
+<p rend="rasvane"> <s> Nios </s> </p>
+<p rend="rasvane"> <s> Pindala FPGA-l </s> </p>
+<p> <s> ~900 LUT-i , 110 Virtex-II CLB-d </s> </p>
+<p> <s> ~1300 loogikaelementi </s> </p>
+<p rend="rasvane"> <s> Jõudlus </s> </p>
+<p> <s> 125 Dhrystone MIPS </s> </p>
+<p> <s> 120 Dhrystone MIPS </s> </p>
+<p rend="rasvane"> <s> Käsu konveier </s> </p>
+<p> <s> 3-astmeline </s> </p>
+<p> <s> 5-6-astmeline </s> </p>
+<p rend="rasvane"> <s> Kasutajakäsud </s> </p>
+<p> <s> - </s> </p>
+<p> <s> kuni 256 </s> </p>
+<p> <s> <hi rend="rasvane"> Muudetav käsu </hi> <hi rend="rasvane"> - </hi> <hi rend="rasvane"> ja andmevahemälu suurus </hi> </s> </p>
+<p> <s> jah </s> </p>
+<p> <s> jah </s> </p>
+<p rend="rasvane"> <s> JTAG silumismoodul </s> </p>
+<p> <s> jah </s> </p>
+<p> <s> jah </s> </p>
+<p rend="rasvane"> <s> R iistvaralised korrutid </s> </p>
+<p> <s> jah </s> </p>
+<p> <s> jah </s> </p>
+<p> <s> Kõik MicroBlaze'i protsessorkäsud täidetakse 1taktiga , välja arvatud <hi rend="kaldkiri"> load/store </hi> , korrutamis- ja hargnemiskäsud . </s> <s> Niose puhul on võimalik <hi rend="kaldkiri">load/store</hi>-käskude täitmine 1taktiga , kasutades spetsiaalmälu . </s> </p>
+<p> <s> Silumiseks on mõlemal protsessortuumal olemas JTAG liides ning vastav PC rakendustarkvara . </s> <s> Niose arhitektuuris on silumiseks , lisaks programmi sammhaaval käitusele , võimalus seada ka riistvaralisi katkestuspunkte , analüüsida registrite ja mälu sisu ning koguda reaalajas programmi käitusandmeid . </s> </p>
+<p> <s> Erinevalt MicroBlaze'i protsessortuumast saab Niose protsessortuumale lisada ka “ kasutaja ” käske ( operatsioone ) . </s> <s> Vastav loogika on otse ühendatud ALUga - “ kasutaja ” -käskude täitmine toimub samamoodi kui tavakäskude puhul . </s> <s> Osas Niose protsessortuumades on võimalus emuleerida korrutamise ja jagamise käske tarkvaras . </s> <s> See vähendab vajaminevat FPGA pindala . </s> </p>
+<p> <s> <hi rend="rasvane"> ALTERA NIOS </hi> <hi rend="rasvane"> E </hi> <hi rend="rasvane"> JA XILINX MICROBLAZE </hi> <hi rend="rasvane"> 'I </hi> <hi rend="rasvane"> ARENDUSKOMPLEKTI </hi> <hi rend="rasvane"> DE </hi> <hi rend="rasvane"> VÕRDLUS </hi> </s> </p>
+<p> <s> Niose arenduskomplekt sisaldab graafilisi arendusvahendeid terve Niose protsessorsüsteemi loomiseks . </s> <s> MicroBlaze'i arenduskomplekti puhul tuleb riistvarasüsteemi kirjeldusfail luua tekstifailina käsitsi . </s> <s> Vastav graafiline vahend on Xilinxi täisversioonis EDK . </s> </p>
+<p> <s> IBM CoreConnect siini kasutamine muudab MicroBlaze'i protsessorsüsteemi vähem paindlikumaks , sest siinikonfiguratsioon on fikseeritud ( valitakse protsessorsüsteemi loomise esimeses etapis ) . </s> </p>
+<p> <s> Materjalide kättesaadavus on Altera Niose arenduskomplekti puhul tunduvalt parem kui Xilinx MicroBlaze'i arenduskomplekti puhul . </s> <s> Näiteks Xilinxi veebileht ei anna mingit infot , millise arendusvahendite komplektiga Virtex-II arenduskomplekt saadetakse ( MDK või EDK ) . </s> <s> MicroBlaze'i protsessortuuma kohta leidub vähe avalikult kättesaadavat infot . </s> <s> Niose protsessortuuma kohta on käsustiku , programmistimudeli jne dokumentatsioon allalaaditav otse Altera koduleheküljelt . </s> </p>
+<p rend="rasvane"> <s> KOKKUVÕTE </s> </p>
+<p> <s> Altera ja Xilinxi arenduskomplektid on piisavalt võimsad ja paindlikud nii ASICute arendamisel prototüüpimisplatvormina kui ka sardsüsteemi loomisel . </s> <s> Altera Niose ja Xilinx MicroBlaze'i arenduskomplektid on võrreldavad tooted . </s> <s> Altera Niose kasuks räägib parem tehnilise info kättesaadavus ning integreeritum arenduskeskkond . </s> </p>
+<p> <s> Protsessortuumadega prototüüpimisplatvormide lülitamine riist- ja tarkvara koosdisaini või kiipsüsteemi ainetesse annab tudengitele võimaluse õpitud meetodeid ka praktikas rakendada . </s> <s> MicroBlaze'i või Niose arenduskomplekt toetab erineva keerukusega ja sisult erinevate koosdisaini ülesannete lahendamist . </s> <s> Tarkvaraarenduse meetodite sissetoomine rõõmustab kindlasti tudengeid , kes pole VHDL riistvarakirjelduskeele ja riistvaradisainiga varem süvendatult kokku puutunud . </s> </p>
+<p> <s> <gap rend="viited"/> </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Protsessorite multimeediakäsustikud </head>
+<p> <bibl> <author> <s> <hi rend="kaldkiri"> Indrek Kruusa </hi> , Mainori Kõrgkooli kolmanda kursuse infotehnoloogia üliõpilane </s> </author> </bibl> </p>
+<p rend="rasvane"> <s> SISSEJUHATUS </s> </p>
+<p> <s> Juba pikemat aega on kõigis levinumates protsessorites kasutusel spetsiaalne nn multimeediakäsustik . </s> <s> Nagu nimigi ütleb , on need lisakäsud mõeldud just multimeedia töötlemiseks või suvaliste spetsiaalsete arvutusmahukate ülesannete lahendamiseks . </s> <s> Tõuke sellise käsustiku kasutuselevõtuks andis fakt , et järjest enam muutus tavalise lauaarvuti põhikoormuseks just graafika , video ja muusika töötlemine ning oli selge , et olemasolevate üldotstarbeliste protsessorite arhitektuur ei pakkunud selleks efektiivset moodust . </s> <s> Võrdlusmomendiks olid siin kindlasti juba ammu turul eksisteerinud signaaliprotsessorid , mis olid ja on spetsiaalselt mõeldud digitaalsignaali töötlemiseks . </s> <s> Need sisaldavad teatud mikroarhitektuuri laiendusi [ 1 ] ning üheks selliseks on võime teostada mingit kindlat tehet mitme sõltumatu operandipaariga ühe käsutakti jooksul ehk tegelikult tehakse mitut ühesugust tehet paralleelselt . </s> <s> See muudab ka programmeerimistehnika komplitseeritumaks ning vastavad programmid ühe kindla platvormiga rohkem seotuks , kuid arvutusvõimsus kasvab kordades ning efektiivsus avaldub enim just digitaliseeritud meedia töötlemisel . </s> </p>
+<p> <s> Sellise kontseptsiooni - üks käsk , mitu tehet - valis ka Intel , kes esimesena töötas välja ja lisas oma Pentium-protsessoritele MMX-käsud . </s> <s> Nende abil on võimalik pakkida mitu täisarvu ühte protsessori registrisse ning teostada seejärel ühe käsuga tehe - näiteks liitmine - teises registris sarnaselt pakitud arvudega ning tulemuseks on mitu resultaati üheaegselt . </s> <s> Tulemus tuleb veel loomulikult spetsiaalsete käskudega registrist lahti pakkida , kuid vaatamata vajalikele lisatoimingutele , võib saavutatav jõudluse kasv olla kuni neljakordne . </s> </p>
+<p> <s> Protsessoritootjad on usinalt taolisi käsustikke kasutusele võtnud ning edasi arendanud ( Inteli SSE , SSE2 , SSE3 ) , kuid nende abil tavaprogrammide optimeerimine on läinud visalt . </s> <s> Põhjuseks on siin seotus protsessoriga : näiteks Pentium 4 protessori jaoks optimeeritud programm ei pruugi enam töötada Pentium 3-ga , kuid viimaseid on veel väga palju kasutuses . </s> <s> Samas võib selguda , et olemasolevate programmide andmestruktuurid ning programmi ülesehitus on niivõrd ebasobivad uute käskude rakendamiseks , et targem oleks uus programm kirjutada , kuid see võib olla majanduslikult ebasobiv . </s> <s> Teisest küljest võib öelda , et tegemist on siiski uue tehnoloogiaga ning selle rakendamine on esialgu kulukas ja aeganõudev , sest programmeerijad vajavad väljaõpet ning uusi töövahendeid . </s> </p>
+<p rend="rasvane"> <s> 1. MULTIMEEDIAKÄSUSTIKUD </s> </p>
+<p rend="rasvane"> <s> 1.1. MMX-LAIENDUS </s> </p>
+<p> <s> MMX on esimene üldotstarbelisele protsessorile lisatud spetsiaalsete käskude kogumik , mis on mõeldud multimeedia efektiivsemaks töötlemiseks . </s> <s> Uuenduse turuletoojaks oli loomulikult Intel , kes pakkus MMX-laiendusega Pentium-protsessoreid ning seda reklaamiti kui revolutsioonilist pööret . </s> </p>
+<p> <s> MMX-laiendus tõi kaasa järgmised uuendused : </s> </p>
+<p> <s> kaheksa uut virtuaalset 64-bitist MMX-registrit , mis baseeruvad ujukomaprotsessori ( x87 FPU ) registritel , </s> </p>
+<p> <s> kolm uut 64-bitist MMX-andmetüüpi , </s> </p>
+<p> <s> 47 uut spetsiaalset käsku nende registrite ja andmetüüpidega opereerimiseks : </s> </p>
+<p> <s> andmete kopeerimine , </s> </p>
+<p> <s> aritmeetikafunktsioonid , </s> </p>
+<p> <s> võrdlemine , </s> </p>
+<p> <s> andmetüüpide teisendamine , </s> </p>
+<p> <s> loogikaoperatsioonid , </s> </p>
+<p> <s> MMX-andmetüüpide loomise ( pakkimise ) ja lahtipakkimise käsud . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 1. </s> <s> MMX 64-bitised pakitud andmetüübid </s> </p>
+<p> <s> MMX-käsud hõlmavad baasfunktsioone , mida multimeedia töötlemisel kõige tihedamini kasutatakse . </s> <s> Põhinemine ainult täisarvarvutustel on samuti seletatav reaalse olukorraga - pildi , video ja muusika digitaliseerimisel on tulemus peaaegu alati esitatud täisarvude abil . </s> <s> Just selliste täisarvuliste andmemassiivide töötlemisel tuleb esile MMX-laienduse põhiomadus - võimalus pakkida näiteks kaheksa pikseli 8-bitist heledusinfot ühte registrisse ning ühe liitmistehtega muuta kõigi kaheksa väärtust üheaegselt ! </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 2. </s> <s> MMX liitmistehe kahte registrisse pakitud andmetega </s> </p>
+<p> <s> <hi rend="kaldkiri"> Single Instruction Multiple Data </hi> ( SIMD ) - üks käsk , mitu tehet - ongi MMXi põhiidee ning just sellepärast nimetatakse seda laiendust ka DSP-laienduseks või DSP-funktsiooniks , sest neis on kasutusel just samasugune võte arvutusvõimsuse tõstmiseks . </s> </p>
+<p> <s> MMX-laiendus on ligipääsetav kõigis IA-32 arhitektuuri töörežiimides ( <hi rend="kaldkiri"> protected mode , real address mode , virtual 8086 </hi> ) ning sellega ei lisandunud ühtegi uut töörežiimi . </s> <s> Inteli soov oli ka säilitada maksimaalne ühilduvus operatsioonisüsteemidega ning see saavutati , kuid paratamatult pidi see tähendama mingi olemasoleva protsessoriressursi maskeerimist MMX-laienduse osaks , mida tuli edaspidi jagada kahe funktsionaalsuse vahel . </s> <s> Intel valis külg-külje kõrvale pakitud andmetega opereerimiseks ujukomaprotsessori “ pikad ” ujukomaoperatsioonideks mõeldud registrid . </s> <s> Kuigi Intel leidis hea lahenduse , kuidas kõige valutumalt protsessori arhitektuuri uute võimalustega laiendada , kaasnesid sellega mitmed ja väga olulised takistused , mis piiravad MMX-käsustiku kasutamist . </s> <s> Intel defineeris MMX- laienduse kasutamise järgmiselt : </s> </p>
+<p> <s> kasututatakse uusi MMX-registreid <hi rend="kaldkiri"> mm0-mm7 </hi> , mis tegelikkuses on ujukomaprotsessori registrid ; </s> </p>
+<p> <s> kuna toimub taoline ressursi ( ka staatuse ning kontrollregistrite ) jagamine , siis ei tohi kasutada MMX-käske ja ujukomaprotsessori käske ( ehk teisisõnu tehteid ujukoma- arvudega ) programmi koodis vahetult järjestikku - tekivad ennustamatud vead ning olukorrad ehk teisisõnu - programm võib kinni joosta ; </s> </p>
+<p> <s> MMX-laienduse hulka kuulub ka spetsiaalne assembleri käsk <hi rend="kaldkiri"> EMMS </hi> , mis tuleb alati käivitada pärast MMX-koodi täitmist - see seab ujukomaprotsessori jälle normaalsesse töökorda . </s> </p>
+<p> <s> MMX-koodi kasutamise esimeseks märgatavaks kitsenduseks oli fakt , et pärast selle kasutamist võib ujukomaprotsessori seisundi taastamine võtta aega kuni 50 takti [ 5 , ptk. 4.2.3 ] ( NB ! olukord on teine AMD Athlon ja P4 puhul ) . </s> <s> Seega , kui selgub , et mingi koodi asendamisel MMX-käskudega võidetakse täitmiskiiruses 50 takti ja kui pärast seda tuleb arv pkorrutada 0,5 -ga , siis suundumine MMX® ujukomaarvutusele nullib ära kogu saavutatud ajavõidu . </s> </p>
+<p> <s> Kõigi kaasaegsete MMX-laiendust toetavate protsessorite programmeerimisel tuleb lähtuda järgmistest soovitustest [ 2 , vol. 2 ] : </s> </p>
+<p> <s> kui ujukomaarvutustele järgneb MMX-kood , siis : </s> </p>
+<p> <s> ujukomaprotsessori staatuse , andmete- ja kontrollregistrite sisu , mida võidakse kasutada peale MMX-koodi kasutamist , tuleb eelnevalt salvestada FSAVE- või FXSAVE-käskudega ; </s> </p>
+<p> <s> kui MMX koodile järgnevad ujukomaarvutused , siis : </s> </p>
+<p> <s> salvestada FSAVE- või FXSAVE-käskudega MMX-registrite sisu ( kui seda läheb edaspidi vaja ) ; </s> </p>
+<p> <s> käivitada EMMS-käsk , mis puhastab ujukomaprotsessori MMX staatusest . </s> </p>
+<p> <s> Järgmisena selgitatakse joondatud andmete ( <hi rend="kaldkiri"> aligned data </hi> ) [ 2 , vol. 1 ] mõistet - selle olulisust on raske üle hinnata : suvalise protsessori SIMD-laienduse kasutamise puhul on andmete joondamine kriitilise tähtsusega . </s> </p>
+<p rend="rasvane"> <s> 1.1.1. Andmete joondamine </s> </p>
+<p> <s> IA-32 arhitektuuriga protsessorid adresseerivad füüsilist mälu kui järjestikku asetsevaid baite [ 2 , vol. 1 ] , s.t igal üksikul baidil on oma aadress . </s> <s> Kuna protsessori arhitektuur on tegelikkuses vähemalt 32-bitine , siis kõik andmete lugemised toimuvad samuti vähemalt 32 biti kaupa ( võib öelda , et selline ongi mälupesade tegelik suurus ) . </s> <s> Sellest asjaolust johtuvalt on mõistlik paigutada andmed mälus nii , et igas mälulugemis oleks võimalikult palju meid huvitavat infot . </s> <s> Paigutus mälus sõltub aadressist ning selliste sobilike mäluaadresside arvutamist andmete jaoks nimetatakse <hi rend="kaldkiri"> andmete joondamiseks </hi> ( ingl. <hi rend="kaldkiri"> data alignment </hi> ) . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 3. </s> <s> Info paiknemine 32-bitistes mälupesades </s> </p>
+<p> <s> Joondamata andmete puhul on üsna tõenäoline , et protsessor peab nende kättesaamiseks tegema ( see toimub kasutajale nähtamatult ) mitu mälust lugemise operatsiooni - andmed on jaotatud mitme füüsilise mälupesa vahel . </s> <s> Kui nüüd selliseid andmeid on palju ning neid tarvitatakse tihti , siis on selge , et tänu mälu kallal tehtavale topelttööle on nii kirjutatud või kompileeritud programmi jõudlus kesine . </s> <s> Tänapäeva protsessorites on kasutusel andmetüübid , mille pikkus on kuni 128 bitti ning on iseenesestmõistetav , et nende puhul on andmete paigutamine mälus veel tähtsam . </s> </p>
+<p> <s> Kõrgkeelte kasutamisel peab selle töö ära tegema tavaliselt kompilaator kas automaatselt või eelnevalt määratud spetsiaalsete kompileerimistingimuste järgi . </s> <s> Seda tuleb alati kompilaatori dokumentatsioonist kontrollida . </s> <s> On olemas ka mooduseid , kuidas kõrgkeeles saab defineerida sobilikku andmete joondamist [ 5 , ptk 4.2.6 ] . </s> </p>
+<p> <s> Muutuja aadressi käsitsi määramisel on soovitatav parima tulemuse saavutamiseks järgida sellist reeglit : <hi rend="rasvane"> muutuja aadress mälus peab olema paarisarvuline ning täpselt jaguma tema andmetüübi suurusega </hi> - sellisel juhul tunnistab protsessor andmed joondatuks ning need saadakse mälust kätte minimaalse hulga lugemisoperatsioonidega . </s> <s> Niisiis , et erinevad andmetüübid oleksid joondatud , peavad need asuma paarisarvulistel aadressidel ning : </s> </p>
+<p> <s> <hi rend="kaldkiri"> sõna </hi> ( 16 bitti , C-keeles <hi rend="kaldkiri"> short int </hi> ) aadress peab täpselt jaguma 2-ga ( olema lihtsalt paarisarvuline ) . </s> <s> Kui seda tüüpi muutuja asub paarituarvulisel aadressil , kuid jääb ühe mälupesa piiridesse , siis loetakse see joondatuks ; </s> </p>
+<p> <s> <hi rend="kaldkiri"> topeltsõna </hi> ( 32bitti , C-keeles <hi rend="kaldkiri"> int </hi> ) aadress peab täpselt jaguma 4-ga ; </s> </p>
+<p> <s> <hi rend="kaldkiri"> neliksõna </hi> ( 64bitti , C-keeles <hi rend="kaldkiri"> long long int </hi> ) aadress peab täpselt jaguma 8-ga ; </s> </p>
+<p> <s> <hi rend="kaldkiri"> topelt neliksõna </hi> ( 128bitti , C-keeles __m128 ) aadress peab täpselt jaguma 16-ga . </s> </p>
+<p rend="rasvane"> <s> 1.1.2. Andmete struktuurid </s> </p>
+<p> <s> Iga protsessoriga käivad peaaegu alati kaasas ka valmistajafirma poolt antud juhised efektiivse programmikoodi kirjutamise kohta . </s> <s> Nende abil on võimalik tagada protsessori maksimaalne jõudlus programmi täitmisel . </s> <s> Seoses SIMD-laiendustega tõusis eriti teravalt päevakorda nn mälusõbralik kood . </s> <s> Järgnevalt on seda selgitatud C-keelse näite põhjal [ 5 , ptk 4.2.7 ] . </s> </p>
+<p> <s> Punktide massiivi , mis sisaldab asukoha infot 3D objekti kohta , saab säilitada mitmeti . </s> <s> Klassikaline moodus selleks on järgmine : </s> </p>
+<p> <s> /** Defineeritakse ühe punkti struktuur , mis võib </s> </p>
+<p> <s> sisaldada lihtsalt x , y , z koordinaatide infot . </s> </p>
+<p> <s> Tähelepanu tuleb pöörata muutujale <hi rend="kaldkiri"> junk . </hi> </s> </p>
+<p> <s> See kindlustab , et struktuuri tervikuna on võimalik </s> </p>
+<p> <s> mälus joondada , sest tema suurus ( 6 asemel 8 baiti ) </s> </p>
+<p> <s> ning arvutatav aadress on siis 4-ga jaguv **/ </s> </p>
+<p> <s> typedef struct ] short x , y , z ; short junk ; } Point ; </s> </p>
+<p> <s> /** Seejärel luuakse taolistest punktidest N-elemendiline </s> </p>
+<p> <s> massiiv , mida saab kasutada mingi 3D objekti </s> </p>
+<p> <s> asukoha kirjeldamiseks . </s> </p>
+<p> <s> Sellist konstruktsiooni nimetatakse Array of Structures </s> </p>
+<p> <s> ( AoS ) **/ </s> </p>
+<p> <s> Point pt[N ] ; </s> </p>
+<p> <s> /** Ütleme , et meil on massiivis mingi objekti andmed ning </s> </p>
+<p> <s> nüüd on vaja terve objekt nihutada kolme pikseli võrra </s> </p>
+<p> <s> ekraanil ülessepoole . </s> <s> Selleks peame iga punkti y koordinaati </s> </p>
+<p> <s> kasvatama 3 võrra **/ </s> </p>
+<p> <s> for ( i=0 ; i &lt; N ; i++ ) pt[i ] . y += 3 ; </s> </p>
+<p> <s> Tulenevalt sellest , et punktide Y väärtused ei asu mälus järjestikku ( vaid parimal juhul x , y , z , x , y , z ... ) ning protsessor küsib alati kõigepealt vahemälust vajalikke andmeid , tekib suure tõenäosusega vahemälu viga ning edasi küsitakse andmeid põhimälust . </s> <s> Kuna koordinaadid on defineeritud lühikese täisarvtüüpi muutujatena ( 16bitti ) , siis tegelikult võib neid ühte 32-bitisesse mälupessa paigutada topelt , aga see on praeguses situatsioonis vähetõenäoline ning igat väärtust tuleb mälust lugeda eraldi . </s> <s> Nagu näha , ei ole me eriti “ mälusõbralikud ” ning programmi kiirus kannatab selle all tugevasti . </s> </p>
+<p> <s> Et olukorda parandada , tuleb andmete säilitamiseks kasutada teistsugust moodust . </s> </p>
+<p> <s> /** Luuakse punkti struktuur , milles iga koordinaadi jaoks </s> </p>
+<p> <s> on eraldi massiiv . </s> </p>
+<p> <s> Sellist konstruktsiooni nimetatakse Structure of Arrays </s> </p>
+<p> <s> ( SoA ) **/ </s> </p>
+<p> <s> typedef struct ] </s> </p>
+<p> <s> short ptx[N ] , </s> </p>
+<p> <s> short pty[N ] , </s> </p>
+<p> <s> short ptz[N ] ; </s> </p>
+<p> <s> } Points ; </s> </p>
+<p> <s> /** Aktiveerime struktuuri **/ </s> </p>
+<p> <s> Points pt ; </s> </p>
+<p> <s> /** Suurendame kõigi punktide y-koordinaati 3 võrra **/ </s> </p>
+<p> <s> for ( i=0 ; i &lt; N ; i++ ) pt.pty[i ] += 3 ; </s> </p>
+<p> <s> Nüüd võime suure tõenäosusega oletada , et iga koordinaadi massiiv asub mälus järjestikku , mälupöörduste arv on minimaalne ning vahemälu kasutamine on maksimaalselt efektiivne . </s> </p>
+<p rend="rasvane"> <s> 1. 2. 3DNow ! laiendus </s> </p>
+<p> <s> See oli esimene 80 × 86 arhitektuuri laiendus , mis lubas kasutada ujukoma SIMD operatsioone . </s> <s> Tähelepanuväärne on see , et selle loojaks ei olnud mitte Intel , vaid tema rivaal Advanced Micro Devices . </s> <s> AMD litsentseeris Inteli käest MMX-tehnoloogia ning laiendas seda omaltpoolt ujukomakäskudega , andes sellele koondnimetuse 3DNow ! </s> <s> Lõpptulemus nägi lühidalt välja selline : </s> </p>
+<p> <s> loodi 19 uut SIMD-ujukomakäsku ; </s> </p>
+<p> <s> MMX-reþiimis olid nüüd saadaval ka ujukoma operatsioonid - MMX-laienduse rakendamise kriteeriumid olid tänu sellele tunduvalt leebemad kui Inteli protsessorite puhul ; </s> </p>
+<p> <s> lisati käsud vahemälu tarkvaraliseks kontrollimiseks ning parandati ujukomaprotsessori ja MMX-vaheliste lülituste mehhanisme - ühest käsustikust teise siirdumine ei võtnud nii kaua aega kui Intelil ning see parandas tunduvalt võimalusi SIMD-tehete kasutamiseks ; </s> </p>
+<p> <s> 64biti suurusesse registrisse mahtus kuni 2 tavatäpsusega ujukomaarvu ; </s> </p>
+<p> <s> AMD täiustatud arhitektuur võimaldas täita kuni 2 MMX/3DNow ! operatsiooni ühe käsutsükli jooksul , mis andis arvutusvõimsuseks kuni 4 ujukomatehet takti jooksul [ 8 , lk.11 ] . </s> <s> Originaal-Inteli MMX piirdus 2 tehtega . </s> </p>
+<p> <s> Kuigi 3DNow ! oli tähelepanuväärne areng protsessorite arhitektuuris , hakkab selle kasutamine siiski taanduma , sest kõik uuemad 64-bitised AMD-protsessorid toetavad uusi Inteli SSE ja SSE2 laiendusi [ 6 ] ning nende kasutamine on palju efektiivsem . </s> <s> Seda soovitab arvestada ka AMD [ 7 , lk. 65 ] . </s> </p>
+<p rend="rasvane"> <s> 1.3. SSE-LAIENDUS </s> </p>
+<p> <s> Kui MMX võimaldas teostada operatsioone pakitud täisarvudega 64-bitistes registrites , siis SSE laiendas SIMD-arhitektuuri veelgi ning lisas võimaluse opereerida ujukomaarvudega nii pakitud kui pakkimata kujul , mis asuvad 128-bitistes registrites või põhimälus [ 2 ] . </s> <s> Esimesena ilmus see laiendus Pentium 3 protsessorites ning sisaldas järgmisi uuendusi ja täiendusi : </s> </p>
+<p> <s> 8 uut 128-bitist füüsilist registrit , nimetusega XMM-registrid ; </s> </p>
+<p> <s> 32-bitine MXCSR register , mis sisaldab XMM-registritega seotud operatsioonide staatust ning kontrollinfot ; </s> </p>
+<p> <s> uus 128-bitine andmetüüp : pakitud tavatäpsusega ujukomaarv ; </s> </p>
+<p> <s> eriolukordade tekitamine vigade puhul ( v.a. pakitud täisarvude operatsioonid ) ; </s> </p>
+<p> <s> uued käsud : </s> </p>
+<p> <s> 128-bitine pakitud ja pakkimata ujukomaarvudega ( mis asuvad uutes XMM- registrites ) opereerimise käsud [ 2 , vol.1 ] ; </s> </p>
+<p> <s> andmete kopeerimine ; </s> </p>
+<p> <s> aritmeetikakäsud ; </s> </p>
+<p> <s> loogikaoperatsionid ; </s> </p>
+<p> <s> võrdlusfunktsioonid ; </s> </p>
+<p> <s> käsud pakitud andmete ümberkujundamiseks ( <hi rend="kaldkiri"> shuffle </hi> ) ; </s> </p>
+<p> <s> andmetüüpide teisendamine ; </s> </p>
+<p> <s> mõned käsud oskavad opereerida ainult XMM-registri madalamas osas asuvate operandidega - sellisel juhul on tegemist tavalise e. pakkimata ujukomaarvuga ja käsu kohta öeldakse , et see on <hi rend="kaldkiri"> skalaarkäsk </hi> ( ingl. <hi rend="kaldkiri"> scalar instruction </hi> ) [ 3 , 5-3 ] ; </s> </p>
+<p> <s> 64-bitised SIMD-käsud , mis täiendavad võimalusi opereerida MMX- registrites asuvate täisarvuliste muutujatega ; </s> </p>
+<p> <s> käsud MXCSR-registri oleku salvestamiseks ja taastamiseks ; </s> </p>
+<p> <s> käsud , mille abil optimeerida mälupöördumisi ning tõsta vahemälu efektiivsust ( eelvõtt ja <hi rend="kaldkiri"> streaming store </hi> - andmevoo talletamine ) ja kontrollida andmetalletusoperatsioonide järjestamist . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 4. </s> <s> SSE : uus 128-bitine SIMD andmetüüp </s> </p>
+<p> <s> Viimati nimetatud käskudega saab programmeerija näiteks tarkvaraliselt kontrollida , millise taseme vahemällu andmeid laadida enne , kui neid tarvitama hakatakse . </s> <s> Selline vahemälu käsitsi juhtimine võimaldab märgatavalt tõsta andmete töötlemise kiirust . </s> </p>
+<p> <s> SSE-laiendusega protsessor on täielikult ühilduv eksisteerivate operatsioonisüsteemidega , mis laiendust ei kasuta , kuid erinevalt MMX-laiendusest tuleb SSE kasutamiseks teha spetsiaalseid muudatusi operatsioonisüsteemis . </s> <s> See tähendab , et operatsioonisüsteem peab [ 2 , vol.3 ] : </s> </p>
+<p> <s> oskama protsessorit nii initsialiseerida , et laiendus oleks kasutatav , </s> </p>
+<p> <s> kasutama FXSAVE- ja FXRSTOR-käske SSEx oleku salvestamiseks ja taastamiseks , </s> </p>
+<p> <s> oskama käsitleda SIMD-ujukomatehete veateateid . </s> </p>
+<p> <s> SSE on kasutatav kõigis IA-32 töörežiimides - <hi rend="kaldkiri"> protected mode , real address mode </hi> ja <hi rend="kaldkiri"> virtual-8086 - </hi> ning seda võib kasutada vabalt koos x86/x87 FPU/MMX-arvutustega , sest kasutatakse eraldi registreid . </s> <s> Lisaks pakitud andmetega opereerimisele saab kasutada SSE-laiendust ka tavalisteks ujukomaarvutusteks - sel juhul asuvad XMM-registrites pakkimata tavatäpsusega ujukomaarvud ning sellisel moel teostatud arvutused omavad teatavaid eeliseid tavalise ujukomaprotsessori ees [ 3 , 5-3 ] : </s> </p>
+<p> <s> kuna SIMD-käsud kasutavad lihtsat XMM-registrimudelit ( ujukomaprotsessori registrid moodustavad nn <hi rend="kaldkiri"> stacki </hi> ) , siis ei pea kasutama <hi rend="kaldkiri">fxch</hi>-käsku , mille täitmine Pentium 4 protessori puhul on aeglane ; </s> </p>
+<p> <s> saab kasutada vabalt MMX-koodi ; </s> </p>
+<p> <s> nn <hi rend="kaldkiri"> Flush-to-zero mode </hi> , mille puhul ebapiisava täpsusega ujukomaarv taandatakse nulliks ; </s> </p>
+<p> <s> kiirem käskude täitmine kui ujukomaprotsessori puhul . </s> </p>
+<p> <s> Väga tähtis on tähelepanu pöörata andmete joondamisele mälus ( vt ptk 1.1.1. </s> <s> Andmete joondamine ) - paljud SSE-käsud annavad veateate , kui neile antakse ette operande , mis pole mälus joondatud . </s> </p>
+<p rend="rasvane"> <s> 1.4. SSE2-LAIENDUS </s> </p>
+<p> <s> SSE2 ilmus koos Pentium 4 protsessoritega . </s> <s> Tänu SSE-le olid operatsioonisüsteemid juba läbinud vajaliku uuenduskuuri ning edasiarendus SSE2 näol võeti tunduvalt sujuvamalt kasutusse . </s> <s> Uuendused olid järgmised [ 2 , vol.1 ] : </s> </p>
+<p> <s> lisati tugi pakitud ning pakkimata topelttäpsusega ujukomaarvudele ; , </s> </p>
+<p> <s> loodi 128-bitised SIMD-versioonid kõigist täisarvarvutuse käskudest , mis olid eksisteerinud MMX- ja SSE-laiendustes ; </s> </p>
+<p> <s> defineeriti 5 uut 128-bitist andmetüüpi ; </s> </p>
+<p> <s> eriolukordade tekitamine vigade puhul , v.a. pakitud täisarvude operatsioonid ; </s> </p>
+<p> <s> lisati uued käsud uute andmetüüpidega opereerimiseks ning laiendati manipuleerimisvõimalusi olemasolevate andmetüüpidega : </s> </p>
+<p> <s> käsud pakitud ja pakkimata topelttäpsusega ujukoma-operatsioonideks ; </s> </p>
+<p> <s> uued käsud 64- ja 128-bitiste pakitud täisarvudega opereerimiseks ; </s> </p>
+<p> <s> täiendati tarkvaralist vahemälu kontrolli ning käskude järjestamise võimalusi . </s> </p>
+<p> <s> SSE2 üheks tähtsaks võimaluseks , millele tuleks tähelepanu pöörata , on asjaolu , et kõik SIMD täisarvarvutuse käsud on nüüd olemas ka XMM-registrite jaoks ning <hi rend="rasvane"> kogu senine MMX-kood on võimalik kirjutada ümber SSE2-koodiks </hi> . </s> <s> Enamgi veel : programmikoodi osad , kus ei olnud MMX-käskude kasutamine optimaalne seoses vajadusega kasutada ka ujukomaarvutusi , võib nüüd SSE2-te kasutades ära optimeerida . </s> </p>
+<p rend="rasvane"> <s> 1.5. SSE3-LAIENDUS </s> </p>
+<p> <s> Koos <hi rend="kaldkiri"> HyperThreading </hi> ( lõimtöötluse ) tehnoloogiaga lisas Intel oma Pentium 4 protsessorile veel 13 uut käsku , nimetades seda SSE3-laienduseks [ 2 , vol.1 ] . </s> <s> Kümme käsku nendest 13-st on mõeldud SIMD-tüüpi operatsioonideks , üks käsk pakub kiiret andmetüübi konverteerimist ning kaks ( MONITOR ja MWAIT ) aitavad kiirendada programmilõimede sünkroniseerimist . </s> </p>
+<p> <s> Veel lisandusid uued moodused , kuidas SIMD-tehete puhul algandmeid käsitletakse ning kuidas resultaat moodustatakse . </s> <s> SSE/SSE2 puhul on tegemist peamiselt nn. Vertikaalsete operat- sioonidega ( Z0 = X0 + Y0 ) , kuid SSE3 mõnede käskude puhul ei lange resultaadi positsioon registris kokku argumentide positsiooniga : Z1 = X0 + X1 . </s> <s> Toimub <hi rend="kaldkiri"> horisontaalne ümberpaigutus </hi> . </s> <s> Samuti võib ühe käsu jooksul realiseeruda mitu erinevat tehet - toimub <hi rend="kaldkiri"> asümmeetriline andmetöötlus </hi> , nt ADDSUBPD-käsu puhul ühed argumendid liidetakse ning teised lahutatakse . </s> </p>
+<p> <s> Lõimtöötluse tõhusam raudvaraline toetus <hi rend="kaldkiri">Hyperthreading</hi>-tehnoloogia ning SSE3 koosseisu kuuluva kahe käsu näol on tegemist uue ning jätkuva arengusuunaga protsessoritööstuses - megahertside suurendamise asemel suurendatakse lõimtöötluse paralleelsust [ 10 ; 11 ] . </s> <s> Selline arvutusvõimsuse tõstmise tehnoloogia annab suurepärase tulemuse minimaalse tootmiskulude kasvu juures [ 12 ] . </s> <s> Lähtudes arvamusest , mille järgi ollakse nimetatud tehnoloogia puhul alles esimese verstaposti juures [ 10 ] , võib eeldada , et ka Inteli järgmiste käsulaiendite hulka kuulub mitmeid lõimtöötlusega seotud uusi käske . </s> </p>
+<p rend="rasvane"> <s> 1.6. ALTIVEC-LAIENDUS </s> </p>
+<p> <s> Lisaks 80 × 86 käsustikuga protsessorite valmistajatele on ka konkureeriva arhitektuuriga protsessorite tootjad võtnud kasutusele SIMD-laiendusi . </s> <s> Üheks selliseks on AltiVec-nimeline laiendus , mis töötati välja IBM-i ja Motorola poolt [ 9 ] . </s> <s> Esimesena hakkas seda kasutama Motorola oma laialt tuntud PowerPC G4 protsessorites , IBM seevastu lisas selle alles üsna hiljuti oma uuele 64-bitisele protsessorile PowerPC 970. </s> <s> Nimetatud protsessori SIMD-arvutusvõimsus ujukomaarvudega on kuni 14.4 GFLOPS @ 1.8 GHz [ 9 ] . </s> </p>
+<p> <s> Lühidalt AltiVec'i iseloomustus [ 4 , ptk 1.1 , 1.2.6 , 1.2.7 ] : </s> </p>
+<p> <s> selle kasutamiseks ei pea protsessor tööreþiimi vahetama ; </s> </p>
+<p> <s> SIMD käskude töötlemiseks lisati eraldiseisev 128-bitine konveier , mis töötab paralleelselt täisarv- ja ujukomakonveieritega ; </s> </p>
+<p> <s> kasutusel on 32 eraldiseisvad 128-bitist registrit ( 4 korda rohkem kui Intelil ) ; </s> </p>
+<p> <s> 128-bitisesse registrisse võib olla pakitud bait , sõna ning topeltsõna ; </s> </p>
+<p> <s> ujukomaarvutustes toetatakse ainult tavatäpsusega arve ; </s> </p>
+<p> <s> kõik andmed peavad olema mälus joondatud ; </s> </p>
+<p> <s> vahemälu tööd saab tarkvaraliselt juhtida ; </s> </p>
+<p> <s> vea puhul on resultaadiks vaikeväärtus : erandolukordi ei tekitata ; </s> </p>
+<p> <s> PowerPC-mäluhalduse mooduseid ei muudetud ega täiendatud ; </s> </p>
+<p> <s> register VSCR AltiVec-operatsioonide staatuste säilitamiseks ; </s> </p>
+<p> <s> käsk VRSAVE AltiVec-hetkeseisundi salvestamiseks . </s> </p>
+<p> <s> Nagu näha , on AltiVec üldjoontes sarnane Inteli SSEx-laiendustega , kuid pakitud andmetega opereerimise võimalused on siiski erinevad . </s> </p>
+<p rend="rasvane"> <s> 2. NÄIDISPROGRAMM </s> </p>
+<p> <s> Multimeedialaiendused on tarkvaramaailmas siiski veel uudne teema ning näiteks avatud lähtekoodiga GNU C ( <hi rend="kaldkiri"> gcc </hi> ) kompilaatorisse jõudis nende uute käskude tugi alles mõni aasta tagasi . </s> <s> Automaatset programmide optimeerimist laienduste abil sellegipoolest ei toimu - ainus , mida automaatselt tehakse , on lihtsalt ujukomaprotsessori käskude asendamine SSEx-skalaarkäskudega ehk teisisõnu tehakse tavalisi ujukomaarvutusi võimalikult palju XMM-registrites pakkimata kujul . </s> <s> Peagi ilmuv GCC versioon 4.0 on aga suur samm edasi - kui kasutaja soovib , siis analüüsib kompilaator kõiki programmikoodis esinevaid tehteid massiividega , milliseid täidetakse tsüklites ( <hi rend="kaldkiri"> for , while </hi> ) , ning võimaluse korral kasutab paralleelset töötlust lubavaid käsustikke ( sõltuvalt määratud protsessorist ) . </s> <s> Järgnev programm illustreerib moodust , kuidas tuleb defineerida muutujad , et nendega saaks efektiivselt uute käskude abil opereerida . </s> <s> Programm kasutab Inteli defineeritud <hi rend="kaldkiri"> intrinsics </hi> makrosid ning on mõeldud Linux-platvormi jaoks , millel on vähemalt gcc versioon 3.3. </s> </p>
+<p> <s> #include &lt; stdio.h &gt; </s> </p>
+<p> <s> #include &lt; xmmintrin.h &gt; </s> </p>
+<p> <s> /* Kompileerimine : </s> </p>
+<p> <s> * </s> </p>
+<p> <s> * gcc -O3 -march=pentium3 -mfpmath=sse -o proge_nimi proge_nimi.c </s> </p>
+<p> <s> * </s> </p>
+<p> <s> */ </s> </p>
+<p> <s> // __m128 : see on spetsiaalne 128-bitine andmetüüp </s> </p>
+<p> <s> __m128 a , b , c ; </s> </p>
+<p> <s> // Joondatud muutujate defineerimine </s> </p>
+<p> <s> float inp_sse1[4 ] __attribute__ ( ( aligned ( 16 ) ) ) = ] 1.2 , 3.5 , 1.7 , 2.8 } ; </s> </p>
+<p> <s> float inp_sse2[4 ] __attribute__ ( ( aligned ( 16 ) ) ) = ] -0.7 , 2.6 , 3.3 , -4.0 } ; </s> </p>
+<p> <s> float out_sse[4 ] __attribute__ ( ( aligned ( 16 ) ) ) ; </s> </p>
+<p> <s> int main(void) ] </s> </p>
+<p> <s> int i ; </s> </p>
+<p> <s> // esimese pakitud operandi laadimine mälust xmm registrisse </s> </p>
+<p> <s> a = _mm_load_ps ( inp_sse1 ) ; </s> </p>
+<p> <s> // teise pakitud operandi laadimine mälust xmm registrisse </s> </p>
+<p> <s> b = _mm_load_ps ( inp_sse2 ) ; </s> </p>
+<p> <s> // pakitud operandide liitmine ühe tehtega </s> </p>
+<p> <s> c = _mm_add_ps ( a , b ) ; </s> </p>
+<p> <s> // pakitud tulemuse salvestamine registrist mällu </s> </p>
+<p> <s> _mm_store_ps ( out_sse , c ) ; </s> </p>
+<p> <s> // üksikute tulemuste väljaprint </s> </p>
+<p> <s> for ( i = 0 ; i &lt; 4 ; i++ ) ] </s> </p>
+<p> <s> printf ( “ Result %d : %.2f ” , i , out_sse[i ] ) ; </s> </p>
+<p> <s> } </s> </p>
+<p> <s> return 0 ; </s> </p>
+<p> <s> } </s> </p>
+<p rend="rasvane"> <s> KOKKUVÕTE </s> </p>
+<p> <s> Protsessoritootjad on lisaks taktsageduse pidevale kasvatamisele loonud ka uusi mooduseid , kuidas tõsta digitaliseeritud meedia töötlemise jõudlust . </s> <s> Iga selline moodus seab ka hulga piiranguid , kuidas peab olema programm kirjutatud , et uutest võimalustest kasu saada . </s> <s> Eelkõige peab programmeerija hoolitsema andmestruktuuride ülesehituse eest , sest nagu eelnevast nähtus , nendest vanamoodi mõtlemine ei sobi . </s> <s> Samuti peavad just kompilaatorid olema vastavalt häälestatud , et operandide mäluaadressid oleksid täpselt arvutatud andmete joondamise saavutamiseks . </s> </p>
+<p> <s> Üldiselt võib öelda , et programmide optimeerimine uute laienduste abil on ja jääb suuresti käsitööks , sest kompilaatoril on automaagiliselt seda raske teostada . </s> <s> Enne multimeedia laienduste kasutamist soovitatakse läbida järgmised sammud : </s> </p>
+<p> <s> selgitada programmis välja tõenäoline koht , mis vajab optimeerimist , s.t koht , kuhu langeb suur osa andmete töötlemise võimsusest ; </s> </p>
+<p> <s> uurida , kas vaatlusalune programmilõik sisaldab tsüklilisi operatsioone massiividega ; </s> </p>
+<p> <s> kas olemasolevaid andmestruktuure on võimalik vähese ajakuluga muuta SIMD töötlusele sobivaks . </s> </p>
+<p> <s> SIMD-käskude mõte on lihtsalt pakkuda võimalust andmeid paralleelselt töödelda . </s> <s> Kui programm tegeleb operatsioonidega või andmetega , mis oma iseloomult ei ole järjestikulised ning neid ei saa massiivina kirjeldada , siis pole võimalik SIMD-käskude abil jõudlust tõsta . </s> <s> Eksisteerivate programmide lihtsalt uuesti kompileerimisest SIMD-optimeerimist toetava kompilaatoriga võib küll mingit kasu tulla , kuid mitmekordset kiirusekasvu ei tasu oodata . </s> <s> Vastavalt optimeerimata programmidele ei “ näe ” protsessori multimeedialaiendusi ning viimaste olemasolu ei anna kiiruse mõttes vähimatki efekti , kuid uute arvutusmahukate rakenduste väljatöötamisel on soovitatav arvestada kõiki võimalusi , mida protsessorid tänapäeval pakuvad . </s> </p>
+<p> <s> KASUTATUD KIRJANDUS </s> </p>
+<p> <s> [ 1 ] Choosing a DSP Processor . </s> <s> Berkeley Design Technology , 2000. </s> </p>
+<p> <s> <gap rend="hüperlink"/> </s> </p>
+<p> <s> [ 2 ] IA-32 Intel Architecture Software Developer's Manual . </s> <s> Volume 1-3. </s> </p>
+<p> <s> <gap rend="hüperlink"/> </s> </p>
+<p> <s> [ 3 ] Intel ® Pentium ® 4 and Intel ® Xeon <gap rend="võõrkeelne_tekst"/> Processor Optimization : Reference Manual . </s> <s> Order </s> </p>
+<p> <s> Number : 248966-05. </s> </p>
+<p> <s> <gap rend="hüperlink"/> </s> </p>
+<p> <s> [ 4 ] PowerPC Microprocessor Family : AltiVec Technology Programming Environments Manual . </s> <s> July 10 , 2003. </s> </p>
+<p> <s> <gap rend="hüperlink"/> </s> </p>
+<p> <s> [ 5 ] Intel Architecture Optimization Manual . </s> <s> Order Number 242816-003 , issue date : 1997. </s> </p>
+<p> <s> <gap rend="hüperlink"/> </s> </p>
+<p> <s> [ 6 ] AMD Athlon <gap rend="võõrkeelne_tekst"/> 64 Processor Data Sheet . </s> <s> 23932 Rev 3.00 April 2003. </s> </p>
+<p> <s> <gap rend="hüperlink"/> </s> </p>
+<p> <s> [ 7 ] Software Optimization Guide for AMD Athlon <gap rend="võõrkeelne_tekst"/> 64and AMD Opteron <gap rend="võõrkeelne_tekst"/> Processors . </s> <s> Publication : 25112. Revision : 3.03 , September 2003. </s> </p>
+<p> <s> <gap rend="hüperlink"/> </s> </p>
+<p> <s> [ 8 ] 3DNow ! </s> <s> Technology Manual . </s> <s> 21928G/0 <gap rend="võõrkeelne_tekst"/> March 2000. </s> </p>
+<p> <s> <gap rend="hüperlink"/> </s> </p>
+<p> <s> [ 9 ] IBM trims Power4 , adds AltiVec . </s> <s> Tom R. Halfhill . //Microprocessor report 28/10/2002 . <gap rend="hüperlink"/> </s> </p>
+<p> <s> [ 10 ] UltraSPARC IV Processor : Datasheet . </s> </p>
+<p> <s> <gap rend="hüperlink"/> </s> </p>
+<p> <s> [ 11 ] MIPS® MT ASE : the multithreading extension . </s> </p>
+<p> <s> <gap rend="hüperlink"/> </s> </p>
+<p> <s> [ 12 ] A multithreaded PowerPC processor for commercial servers . </s> <s> // IBM Journal of Research and Development 44 ( 2000 ) 6 , p. 885. </s> </p>
+<p> <s> <gap rend="hüperlink"/> </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - UMTS raadioliides </head>
+<p> <bibl> <author> <s> <hi rend="kaldkiri"> Andres Laidvee </hi> , <hi rend="kaldkiri"> Tallinna Tehnikaülikooli raadio- ja sidetehnika instituudi doktorant </hi> </s> </author> </bibl> </p>
+<p rend="rasvane"> <s> SISSEJUHATUS </s> </p>
+<p> <s> Üks viimaste aastate telekommunikatsioonisektori jututeema on UMTS ehk kolmanda põlvkonna mobiilsidesüsteem ( nn 3G ) . </s> <s> Küll peetakse seda ajast ees olevaks ( tehnika ei suuda veel tagada süsteemi korrektset funktsioneerimist ) , küll loetakse ta ajale jalgu jäänuks ( teised andmeside tehnoloogiad pakuvad paremat tulemust ) . </s> <s> Kuid arvestades kulutatud aega , pingutusi ja mis seal salata - ka raha , võib arvata , et küll see UMTS ka tuleb ! </s> <s> Heidame põgusa pilgu ühele 3G olulisele osale : selle raadioliidesele . </s> <s> Käesolev artikkel baseerub autori poolt esitatud ettekandel Eesti Elektroonikaühingu korraldatavas Sideklubis . </s> </p>
+<p> <s> Kui NMT ja GSM on siiski kõneedastusele orienteeritud süsteemid ja andmesideteenused tulid hiljem juurde , milleks paljuski mugandati olemasolevat süsteemi , siis UMTSis on kõne pigem üks andmeside rakendus . </s> <s> Seoses sellega räägitakse UMTSi kontekstis teenusekandjatest , mille parameetrid ( hilistused , andmesidekiirused jms ) sõltuvad teenuse iseloomust ja teenuse toimimiseks peavad kõik süsteemi osad need parameetrid tagama . </s> <s> Süsteemi “ pudelikaelaks ” on raadioliides ( ehk teisisõnu , süsteemi osa , mis hoolitseb kasutajaseadme ja võrguvahelise raadiolainetega sidepidamise tõrgeteta toimimise eest ) oma piiratud sagedusressursi , kasutajasignaalide interferentsi , väga kõikuvate parameetritega levikeskkonna ning liikuva kasutajaseadme tõttu . </s> <s> Kõik see on tinginud raadioliidesele väga kõrgete nõudmiste esitamise . </s> </p>
+<p> <s> Mida peab siis üks korralik raadioliides tegema ? </s> </p>
+<p> <s> Edastama kasutajasignaali kvaliteetselt ( piisav signaalitugevus , aktsepteeritav hilistus , tajutavate sidekatkestuste puudumine ) </s> </p>
+<p> <s> Võimaldama kasutajal sidet , sõltumata tema asukohast ( parima teenindava tugijaama valik , aktiivse sideseansi tugijaamalt tugijaamale edastamine ilma tajutavate sidekatkestusteta ) </s> </p>
+<p> <s> Minimeerima kasutajate üksteise häirimise </s> </p>
+<p> <s> Tagama kasutajale piisava informatsiooni süsteemi sisenemiseks ( s.t telefoni sisselülitamisel vajalike võrguparameetrite edastamine ja nn registreerimisprotseduur ) ja ooterežiimis kärje valiku </s> </p>
+<p> <s> Võimaldama võrgul ooterežiimis oleva kasutajaseadme leidmise võrgu poolt side alustamiseks ( nn <hi rend="kaldkiri"> paging </hi> ) ning kasutaja poolt side alustamise </s> </p>
+<p> <s> Mitte häirima teisi raadiotehnilisi süsteeme </s> </p>
+<p> <s> Tarbima vähe energiat ( eriti kasutajaseadmed ) . </s> </p>
+<p> <s> UMTSi tehniliste tingimuste ( sealhulgas ka raadioliidese ) väljatöötamise koordineerimisega tegeleb initsiatiivgrupp 3GPP ( <hi rend="kaldkiri"> 3. </hi> </s> <s> <hi rend="kaldkiri"> Generation Partnership Project </hi> ) , mis ühendab erinevate riikide ja piirkondade sidesüsteemide standardiseerimisega tegelevaid organisatsioone , seadmete tootjaid , sideoperaatoreid ja sideregulaatoreid . </s> <s> UMTSi raadioliidese üldnimetuseks on UTRAN : “ <hi rend="kaldkiri"> UMTS Terrestial Radio Access Network ” </hi> . </s> <s> UTRANisse on koondatud kõik sõlmed ja funktsioonid , mis tagavad kasutajaseadme ja teenindava võrgu vahelise ühenduse loomise ning püsimise . </s> <s> UTRANi nurgakiviks on kasutatav ühenduse meetod WCDMA - lairibaline kooditihendusega juurdepääs . </s> </p>
+<p> <s> Võrdleme seda tehnikat esimese ja teise põlvkonna mobiilsidesüsteemide sagedusressursi kasutusega . </s> </p>
+<p> <s> Esimene põlvkond : NMT , AMPS , TACS : </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 1. </s> <s> Sagedustihedus </s> </p>
+<p> <s> Kasutatakse sagedustihendust ( FDMA - <hi rend="kaldkiri"> Frequency Division Multiple Access </hi> ) . </s> <s> Iga aktiivne kasutaja saab endale lõigukese kasutatavast sagedusspektrist . </s> </p>
+<p> <s> Teine põlvkond . </s> <s> GSM , PDC , D-AMPS : </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 2. </s> <s> Aegtihedus </s> </p>
+<p> <s> Kasutatakse aegtihendust ( TDMA - <hi rend="kaldkiri"> Time Division Multiple Access </hi> ) . </s> <s> Kasutajad jagavad sama sagedusressurssi , kasutades seda kordamööda . </s> <s> Täpsustuseks tuleb siiski märkida , et näiteks meil kasutatavas GSMis mahutatakse ühele sagedusele maksimaalset 8 kasutajat , mis on ilmselt ebapiisav , seetõttu on ka siin süsteemile eraldatud sagedusspekter jagatud 200 kHz laiusteks kanaliteks , millest igaühele saab paigutada kuni 8 erinevat kasutajat . </s> </p>
+<p> <s> Kolmas põlvkond : WCDMA , CDMA-2000 , IS-95 : </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 3. </s> <s> Koodtihedus </s> </p>
+<p> <s> Kasutatakse kooditihendust ( CDMA - <hi rend="kaldkiri"> Code Division Multiple Access </hi> ) . </s> <s> Kõik kasutajad paiknevad samas sagedusribas ja töötavad üheaegselt , nende eristamine toimub ortogonaalsete koodide kasutamisega või ortogonaalse sagedushüplemise kasutamisega . </s> <s> UTRAN kasutab ortogonaalseid koode . </s> <s> Nimetuses WCDMA sisaldub omadus “ <hi rend="kaldkiri"> wideband </hi> ” - laiaribaline . </s> <s> Määratlus tuleneb sellest , et kasutatava signaali spektri laius on suhteliselt suur : 5MHz . </s> <s> Laia sagedusriba kasutamine annab parema kaitse segavate signaalide suhtes , kuna viimased on üldjuhul kitsaribalised , samuti signaali levimisel peegelduvas keskkonnas ( näiteks majad ) mitmeteelisusest põhjustatud signaali nõrgenemise vastu erinevates ruumipunktides . </s> </p>
+<p> <s> Joonisel 4 on toodud punase joonega kanali kvaliteedi sõltuvus sagedusest , tulpadega on esitatud erinevatel sagedustel asuvad kasutajasignaalid . </s> </p>
+<p> <s> Kitsaribalise signaali </s> </p>
+<p> <s> juhtum : </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p> <s> Laiaribalise signaali </s> </p>
+<p> <s> juhtum : </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 4. </s> <s> Signaali ribalaiuse ja kanali kvaliteedi vastastikune mõju </s> </p>
+<p> <s> Tulpade pindala iseloomustab ülekantava signaali energiat , seega on näha , et kanali kvaliteedi sõltumine sagedusest avaldab laiaribalise signaali energiale oluliselt vähem mõju . </s> </p>
+<p rend="rasvane"> <s> LÜHIDALT : WCDMA TEHNOLOOGIAL RAADIOLIIDESE EELISED JA PUUDUSED </s> </p>
+<p rend="rasvane"> <s> Eelised </s> </p>
+<p> <s> 1. Väike tundlikkus kitsaribalise häire suhtes . </s> <s> Enamiku häireallikate signaali energia on kitsaribaline . </s> <s> Lähtudes WCDMA tehnoloogias kasutatava võimsuse hajutamise ja koondamise põhimõttest korreleerivate koodide abil , ilmneb , et nendega mittekorreleeruvate signaalide energia “ hajub ” ribalaiuse mõttes vastuvõtjal laiali ja selle võimsuse spektraaltihedus langeb , mis omakorda vähendab interferentsi korreleeruvate signaalidega . </s> </p>
+<p> <s> 2. Väike võimsustihedus . </s> <s> Osaliselt seotud p.1-ga. </s> <s> Et signaali energia on raadioeetris laia sagedusvahemiku peale “ laiali määritud ” , siis mingi kitsa sagedusvahemiku kaotsiminek ei mõjuta summaarset energiat oluliselt . </s> </p>
+<p> <s> 3. Lihtne sagedusplaneering . </s> <s> Et WCDMAs kasutatakse kärgede koodidega eraldamist , siis sagedusplaneering võib lihtsamal juhul üldse puududa , s.t kõik tugijaamad kasutavad sama sagedust . </s> <s> ( Võrgu poolt teenindavate klientide arvu suurendamiseks kasutatakse siiski mitut sagedust . ) </s> </p>
+<p> <s> 4. Efektiivne sagedusspektri kasutus . </s> <s> Puuduvad sellised mõisted nagu naaberkanal ning selle kasutuse piirang , sest kanaleid eraldatakse koodidega ja raadioliidese seadmetele on esitatud väga kõrged nõudmised lineaarsuse suhtes , mis vähendab oluliselt signaali sagedusspektri laie- nemist naaberkanalite sagedustele . </s> </p>
+<p> <s> 5. Süsteemi mahu jäiga piiri puudumine . </s> <s> Kuna kasutaja kanalite eraldamiseks kasutatavaid koode on miljoneid ( 2<hi rend="ülaindeks">24</hi> ) , siis ühe kärje poolt teenindatavate kasutajate arv on piiratud tugijaama poolt vastuvõetava signaali ja segaja võimsuste suhtega , mis väheneb kasutajate arvu kasvades sujuvalt . </s> </p>
+<p> <s> 6. Pehme kärjevahetuse võimalus . </s> <s> Et WCDMA võrku saab ehitada ühel sagedusel , siis on võimalik kasutaja signaali vastuvõtmine mitme tugijaama poolt korraga ja seega puudub järsk kärjevahetus . </s> </p>
+<p rend="rasvane"> <s> Puudused </s> </p>
+<p> <s> 1. Võrdse infoedastuskiirusega kasutajate signaalide võimsused tugijaama sisendil peavad olema võrdsed . </s> <s> Kuna kasutajad jagavad sama võimsusspektrit , siis vältimaks seda , et üks kasutaja “ karjuks ” teised üle , peavad kõikide kasutajate signaalid tugijaama sisendil olema võrdsed . </s> </p>
+<p> <s> 2. “ Pehme ” kärjevahetus võib võrgu mahtu vähendada , sest üks kasutaja hõivab korraga mitme tugijaama ressurssi . </s> </p>
+<p rend="rasvane"> <s> WCDMA KANDJA SIGNAALI KIRJELDUS </s> </p>
+<p> <s> Joonisel on esitatud sagedusalad , mida kasutatakse WCDMAs . </s> </p>
+<p> <s> TDD - Time Divided Multiplexing </s> </p>
+<p> <s> FDD - Frequency Divided Multiple Access </s> </p>
+<p> <s> TDD - Time Divided Multiple Access </s> </p>
+<p> <s> UL - Uplink ( suund kasutaja terminalist tugijaama poole ) </s> </p>
+<p> <s> DL - Downlink ( suund tugijaamast kasutaja terminali poole ) </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 5. </s> <s> UMTS-süsteemile eraldatud sagedusribad </s> </p>
+<p> <s> FDD kasutuseks antud sagedusalade paar täpsemalt : </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 6. </s> <s> FDD duplekssagedused </s> </p>
+<p> <s> FDD korral on kasutusel kaks duplekssagedusriba ribalaiusega 5 MHz , dupleksvahemik on 190 Mhz . </s> </p>
+<p> <s> TDD korral on vaid üks 5 MHz sagedusriba , mida kasutatakse vaheldumisi UL ja DL suunas . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 7. </s> <s> UMTS-signaali lubatud spekter </s> </p>
+<p> <s> 5 MHz riba sees on spektrilaiused defineeritud järgnevalt : signaalile jääb 3,84 MHz , mõlemasse äärde on jäetud 0,58 MHz nn ohutusribad , et oleks võimalik kasutada sageduse kõrvalkanaleid . </s> </p>
+<p> <s> TDD : </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 8. </s> <s> TDD , UL ja DL ajalise jaotuse näide </s> </p>
+<p> <s> TDD korral toimub saade ja vastuvõtt samal sagedusel , simpleksside põhimõttel , s.t vaheldumisi , kusjuures ULi ja DLi kestused võivad vastavalt vajadusele varieeruda . </s> </p>
+<p rend="rasvane"> <s> SIGNAALI HAJUTAMINE </s> </p>
+<p> <s> Hajutamise selgituseks mõningad punktid : </s> </p>
+<p> <s> 1 bitt infot = “ 1 ” või “ 0 ” , “ 1 ” või “ -1 ” ( energeetilises plaanis on viimast parem kasutada ) </s> </p>
+<p> <s> Kasutajainfo bitt hajutatakse hajutamiskoodiga korrutades mitme nn killu peale ( Kild - <hi rend="kaldkiri"> chip </hi> <hi rend="kaldkiri"> ) </hi> </s> </p>
+<p> <s> Hajutustegur on killukiiruse ja bitikiiruse suhe ( SF - <hi rend="kaldkiri"> Spreading Factor </hi> <hi rend="kaldkiri"> ) </hi> </s> </p>
+<p> <s> Killukiirus on 3,84 Mchip/s </s> </p>
+<p> <s> Info koondamiseks kasutatakse korrutamist sama koodiga , millega hajutati . </s> </p>
+<p> <s> Kasutajainfo bitikiirus sõltub info tüübist : nt tavalise kõne edastuskiirus on väiksem kui HIFI tasemel helil jms. </s> <s> Samas , WCDMA jagatud ressurss on võimsus . </s> <s> Erineva hulga bittide ülekandmiseks kulub erinev hulk võimsust , järelikult peab kuidagi need erinevad hulgad raadioliidesel võimsuse suhtes võrdsustama . </s> <s> Selleks kasutatakse kasutajainfo bitijada korrutamist erinevate hajutamiskoodidega , mille tulemusena raadiosagedusel ülekantav bitikiirus on sõltumata teenusest konstantne . </s> </p>
+<p> <s> Tabel 1 </s> </p>
+<p> <s> Kasutaja bitikiiruse ja hajutamisteguri seos </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p> <s> Kasutaja bitikiirus ( kbit/s ) </s> </p>
+<p> <s> Hajutamistegur </s> </p>
+<p> <s> Killu kiirus ( Mbit/s ) </s> </p>
+<p> <s> 15 </s> </p>
+<p> <s> 256 </s> </p>
+<p> <s> 3,84 </s> </p>
+<p> <s> 30 </s> </p>
+<p> <s> 128 </s> </p>
+<p> <s> 3,84 </s> </p>
+<p> <s> ... </s> </p>
+<p> <s> ... </s> </p>
+<p> <s> ... </s> </p>
+<p> <s> 480 </s> </p>
+<p> <s> 8 </s> </p>
+<p> <s> 3,84 </s> </p>
+<p> <s> 960 </s> </p>
+<p> <s> 4 </s> </p>
+<p> <s> 3,84 </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 9. </s> <s> Signaali hajutamine ja koondamine </s> </p>
+<p rend="rasvane"> <s> HAJUTAMISKOODIDE GRUPID </s> </p>
+<p> <s> Kanalikoodid </s> </p>
+<p> <s> Pseudomürakoodid </s> </p>
+<p> <s> <hi rend="rasvane"> Kanalikoode </hi> ( ka Ortogonaalsed Muutuva Hajutamisteguriga Koodid - OVSF ) kasutatakse kasutajate eristamiseks samal tugijaamal ja ka teenuste eristamiseks samal terminalil . </s> <s> Kanalikoodid on üksteise suhtes ortogonaalsed , et minimeerida omavahelist interferentsi ( sellised koodid on näiteks Walshi koodid ) . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 10. </s> <s> Koodipuu </s> </p>
+<p> <s> Kanalikoodide valiku aluseks on koodipuu : </s> </p>
+<p> <s> Koodipuu on koostatud nii , et igal järgmisel hargnemisel on ühes harus eelnev kood 2 korda järjest , teises harus aga lisatakse eelneva koodi osale selle inversne kujutis . </s> <s> Konkreetse koodi valik sõltub vajalikust hajutamistegurist , mis omakorda sõltub kasutatava teenuse bitikiirusest , teenuse bitijada ja hajutamiskoodi korrutis peab andma bitikiiruse 3,84 Mb/s . </s> <s> Koodide ortogonaalsuse nõudest lähtuvalt saab kasutada vaid selliste harude koode , millel pole koodi hierarhias all- ega ülasuunas ühtegi koodi kasutatud . </s> <s> Siit lähtudes on erinevate bitikiirustega teenuste samaaegsete kasutajate arv tugijaama piires erinev , s.t väikese hajutusteguriga teenus blokeerib kogu temast hargneva koodipuu osa . </s> <s> Näiteks SF = 2 kasutav teenus blokeerib pool koodipuust ; kui samas tugijaamas on veel teine SF = 2 nõudva teenuse kasutaja , siis on kogu koodipuu blokeeritud ja rohkem kasutajaid ei ole võimalik tugijaamas teenindada . </s> <s> Samas , SF = 8 kasutajaid mahub juba 4 tugijaama piiresse jne.Teisiti , mida väiksema bitikiirusega teenuse kasutajad on , seda rohkem neid ühe tugijaama piiresse mahub . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 11. </s> <s> Erinevate hajutamisteguritega koodide kasutus </s> </p>
+<p> <s> Ortogonaalsete koodide kasutamisel tuleb tagada vastuvõtja kanalikoodi sünkroonsus saatja kanalikoodiga , sest ajaline nihe nende vahel võib anda vastuvõtjas signaali koondamisel prognoosimatu tulemuse . </s> </p>
+<p rend="rasvane"> <s> Pseudomürakoodid </s> </p>
+<p> <s> Peale kanalite eristamist kanalikoodidega korrutatakse signaal läbi spetsiaalse binaarkoodiga , mis võimaldab identifitseerida tugijaamu ja terminale . </s> <s> Selliseid koode nim pseudomürakoodideks ( Kasai koodid , Gold'i koodid jne ) . </s> <s> Neil on tugev autokorrelatsioon ja nõrk ristkorrelatsioon . </s> <s> Samas pole ristkorrelatsioon päris null , seega tekitavad erinevad koodid omavahel korrutudes siiski nullist erineva väljundsignaali , mis avaldub mürana vastuvõtjal . </s> <s> Siit kerkib üles WCDMA süsteemide puhul vajadus koodi planeerimise järele . </s> <s> Suunal terminal ą tugijaam on kasutusel 2<hi rend="ülaindeks">24</hi> erinevat koodi , suunal tugijaam ą terminal aga 512 , sest terminali sisselülitamisel peab terminal leidma tugijaama poolt kasutatava koodi , et oleks võimalik ühenduse loomist algatada ja suure arvu koodide kasutamisel võib õige koodi otsimine palju aega võtta . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 12. </s> <s> Signaali korrutamine kanali- ja pseudomürakoodidega </s> </p>
+<p> <s> Hajutatud spektri ja jagatud võimsuse kasutamine : </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 13. </s> <s> Hajutatud spektri kasutamine </s> </p>
+<p rend="rasvane"> <s> MODULATSIOON </s> </p>
+<p> <s> WCDMA raadioliideses kasutatakse QPSK modulatsiooni ( QPSK - <hi rend="kaldkiri"> Quadrature Phase Shift Keying </hi> ) . </s> <s> Et QPSKs kirjeldavad nelja 90kraadise sammuga kandesignaali faasi väärtust kaks järjestikuse sisendbiti väärtust ( joonisel toodud teljestikul ) , siis jagatakse sisendbittide jada kaheks ( X(t) ja Y(t) ) . </s> <s> Nende jadadega juhitakse faasimodulaatoreid , mille tugisignaalid on üksteise suhtes 90 <gap rend="võõrkeelne_tekst"/> faasinihkega . </s> <s> Liites selliste modulaatorite väljundsignaalid , saadaksegi QPSK moduleeritud signaal . </s> <s> Hajutamine toimub WCDMAs pärast sisendbiti jada kaheks jagamist . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p> <hi rend="rasvane"> <s> Joonis 14. </s> </hi> <s> <hi rend="rasvane"> QPSK modulaator : </hi> fc - tugisignaali allikas , hübriid - seade , mille väljunditevaheline faasinihe on 90 kraadi , SUM - liitmisseade </s> </p>
+<p rend="rasvane"> <s> KÄRJEVAHETUS UMTSs </s> </p>
+<p> <s> UMTS kasutab sarnaselt teiste mobiilsidesüsteemidega leviala tekitamiseks kärgstruktuuri , kus levi tekitatakse paljude tugijaamade süsteemiga , milles iga tugijaam vastutab mingi väiksema ala piisava signaaliga varustamise eest . </s> </p>
+<p> <s> Kui kaetav maa-ala oleks ideaalselt sile , kasutajad paikneksid sellel ühtlaselt , tugijaamade vahekaugused oleksid konstantsed ning kõikide tugijaamade saatevõimsused oleksid võrdsed ja nende saateantennide suunadiagrammid ringikujulised , tekiks naabertugijaamade võrdsete signaalitugevuste punktidesse tõmmatavatest joontest kärjekujuline joonis . </s> <s> Reaalses elus kujuneb joonis sellest küll tunduvalt erinevaks , kuid siiski saab välja joonistada igale tugijaamale tema poolt teenindatava ala , mida siis kärjeks kutsutakse . </s> <s> Joonisel on tugijaamad paigutatud kärje keskele , praktikas on otstarbekam paigutada tugijaam kolme kärje lõikumispunkti ja formeerida kärjed sama tugijaama aparatuuri abil kolme erineva antenni abil . </s> <s> Sel juhul kutsutakse kärge ka tugijaama sektoriks . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 15. </s> <s> Kärgstruktuur </s> </p>
+<p> <s> Kärjevahetuse ehk <hi rend="kaldkiri"> handoveri </hi> eesmärgiks on tagada terminalide liikuvus süsteemi levialas . </s> <s> Ideaalse <hi rend="kaldkiri"> handoveri </hi> korral jääb kasutajale selle toimumine märkamatuks . </s> <s> UMTSs on kaks peamist kärjevahetuse tüüpi : <hi rend="kaldkiri"> handover </hi> samal sagedusel töötavate kärgede vahel ja eri sagedustel töötavate kärgede vahel . </s> <s> Samal sagedusel töötavate kärgede vaheline <hi rend="kaldkiri"> handover </hi> jaguneb omakorda “ pehmeks ” ja “ pehmemaks ” : </s> </p>
+<p> <s> “ Pehme ” <hi rend="kaldkiri"> handoveri </hi> korral toimub ühenduse üleandmine erinevates tugijaamades asuvate sektorite vahel . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 16. “ Pehme ” kärjevahtus </s> </p>
+<p> <s> “ Pehmema ” <hi rend="kaldkiri"> handoveri </hi> korral toimub ühenduse liikumine sama tugijaama erinevate sektorite vahel . </s> <s> Sel juhul võib kasutada ühenduse kvaliteedi parandamiseks mitme sektori signaali terminali vastuvõtjas . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 17. “ Pehmem ” handover </s> </p>
+<p> <s> Jäik kärjevahetus : </s> </p>
+<p> <s> 1. Liikumine erineva sagedusega kärgede vahel . </s> </p>
+<p> <s> 2. “ Jäik ” <hi rend="kaldkiri"> handover </hi> . </s> <s> Liikumine erinevate RNC-teenindusalades olevate kärgede vahel , kui RNCde vahel puudub Iur-liides , mille kaudu kontrollerid saavad üksteisele edastada UE kasutuses oleva kanali parameetreid . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 18. “ Jäik ” handover </s> </p>
+<p> <s> Eraldi võib vaadelda veel ka süsteemidevahelist <hi rend="kaldkiri"> handoverit </hi> WCDMA ą GSM , GSMą WCDMA . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 19. </s> <s> Süsteemidevaheline handover </s> </p>
+<p rend="rasvane"> <s> RAKE VASTUVÕTJA </s> </p>
+<p> <s> Mobiilsidesüsteemide signaali levikeskkond on komplitseeritud tänu peegeldustele , mis võivad põhjustada signaali mitmekordse saabumise vastuvõtjale ja sõltuvalt eri teed saabunud signaalide omavahelisest faasist signaali liitumise või lahutumise vastuvõtjal . </s> <s> WCDMA terminali vastuvõtjas on kasutusel mitu paralleelset haru , kus sisendsignaal korrutatakse erinevate viidetega PN-koodiga . </s> <s> Kui koodi hilistus võrdub signaali hilistumisega , tekib sõrme väljundisse tugev signaal . </s> <s> Liites tugeva väljundsignaaliga sõrmede väljundid , saavutatakse vastuvõetud signaali kvaliteedi paranemine . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 20. </s> <s> Signaali multiteeline levi ja RAKE vastuvõtja </s> </p>
+<p> <s> Lisaks sellele saab vastuvõtja “ sõrmi ” kasutada näiteks naabertugijaamade skaneerimiseks , et tagada parima signaaliga tugijaama valik . </s> </p>
+<p rend="rasvane"> <s> VÕIMSUSE KONTROLLIMINE </s> </p>
+<p> <s> Et WCDMA jagatud ressurss on võimsus , peab ta omama mehhanismi selle ressursi haldamiseks , sest : </s> </p>
+<p> <s> Terminalid saadavad signaale samaaegselt </s> </p>
+<p> <s> Kasutatakse sama sagedust </s> </p>
+<p> <s> Liiga tugev signaal tugijaama sisendil “ varjab ” kõik teised signaalid ära </s> </p>
+<p> <s> Võimsuse kontrollimisel on sõltuvalt ühenduse faasist kasutusel järgnevad algoritmid : </s> </p>
+<p rend="kaldkiri"> <s> Open-loop </s> </p>
+<p> <s> Kasutatakse ühenduse algfaasis : </s> </p>
+<p> <s> 1. UE mõõdab vastuvõetud signaali võimsuse . </s> </p>
+<p> <s> 2. UE loeb tugijaama <hi rend="kaldkiri">broadcast</hi>-kanalilt tugijaama saatevõimsuse väärtuse . </s> </p>
+<p> <s> 3. UE arvutab p. 1 ja 2 saadud tulemuste järgi levikao tugijaamalt terminalile ja oma vajaliku saatevõimsuse ning saadab ühenduse loomise soovi tugijaamale . </s> </p>
+<p> <s> 4. Kui tugijaamalt vastust ei saabu , suurendab UE saatevõimsust 1 dB võrra ja saadab uuesti ühenduse loomise soovi . </s> </p>
+<p rend="kaldkiri"> <s> Inner-loop </s> </p>
+<p> <s> Toimub ühenduse jooksul : </s> </p>
+<p> <s> ( SIR - <hi rend="kaldkiri"> Symbol-to-Interfere </hi> <hi rend="kaldkiri"> nce Ratio </hi> <hi rend="kaldkiri"> - </hi> Interferents-sümboli ja häire võimsuste suhe ) </s> </p>
+<p> <s> 1.Tugijaam võrdleb UElt vastuvõetud signaali võimsust ja nõutava SIRi väärtust . </s> </p>
+<p> <s> Kui vastuvõetud võimsus ei vasta soovitud SIR väärtusele , saadab tugijaam UEle käsu muuta saatevõimsust 1 dB ( s.t kui võimsus vastab väiksemale SIRile kui nõutav , siis +1 dB , kui suuremale , siis - 1 dB ) . </s> </p>
+<p> <s> 2. Reguleerimine toimub 1500 korda sekundis . </s> </p>
+<p rend="kaldkiri"> <s> Outer-loop </s> </p>
+<p> <s> Soovitud SIRi väärtuse määramine : </s> </p>
+<p> <s> ( FER - <hi rend="kaldkiri"> Frame Error Rate </hi> - vigaste kaadrite määr ) </s> </p>
+<p> <s> 1. Tugijaam mõõdab FERi . </s> </p>
+<p> <s> Kui FER on alla lubatud väärtuse , vähendatakse SIRi väärtust . </s> </p>
+<p> <s> Kui FER on lubatud väärtusest suurem , suurendatakse SIRi väärtust . </s> </p>
+<p> <s> Reguleerimine toimub 1 kord sekundis . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 21. </s> <s> Saatevõimsuse reguleerimine ( UE - User Equipment - kasutaja terminal ) </s> </p>
+<p rend="rasvane"> <s> KÄRJE “ HINGAMINE ” </s> </p>
+<p> <s> Võimsuse reguleerimise aluseks olev SIRi väärtus sõltub tugijaama sisendil olevast müravõimsusest ja segavate signaalide võimsusest . </s> <s> Segavate signaalide ehk interferentsi võimsus sõltub tugijaama poolt teenindatavate terminalide arvust ( iga terminali P-kood põhjustab interferentsi ) . </s> <s> Seega , terminalide arvu suurenedes tuleb suurendada nende väljundvõimsust , et saavutada nõutud SIRi väärtust , sellega kaasneb aga kaugemate terminalide reguleerimine maksimumvõimsusele ja edaspidisel interferentsi suurenemisel ei suuda nad enam piisavalt tugevat signaali saata ning “ mattuvad ” teiste terminalide signaalide alla , seega , kärje teenindusala justkui hingaks vastavalt terminalide arvule . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 22. </s> <s> Kärje “ hingamine ” </s> </p>
+<p rend="rasvane"> <s> UTRANI LOOGILINE STRUKTUUR </s> </p>
+<p> <s> Tugijaamad ( Node B ) </s> </p>
+<p> <s> Tugijaama lisad ( antennid , toiteseadmed ) </s> </p>
+<p> <s> Raadiovõrgu kontrollerid ( RNC ) </s> </p>
+<p> <s> WCDMA RAN funktsioonid ( NodeB ja RNC tarkvara ) </s> </p>
+<p> <s> RAN funktsioneerimise tugisüsteem RANOS </s> </p>
+<p> <s> Raadiovõrgu manageerimise vahendid TRAN . </s> </p>
+<p> <s> Erinevad süsteemi osad on ühendatud liidestega Iub , Iu ja Iur . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 23. </s> <s> UTRANi struktuur </s> </p>
+<p> <s> Signaali kodeerimine , võimsuse reguleerimine toimub tugijaamas , RNC vastutab <hi rend="kaldkiri">handover</hi>ite ja tugijaamade ressursi haldamise eest , tuumikvõrk teostab kasutajalt-kasutajale ühendused ning kasutaja ja välisvõrgu vahelised ühendused ja vastutab arveldusandmete kogumise ja haldamise eest . </s> <s> RANOS koondab tarkvara , mis on vajalik tugijaamade ja kontrollerite installeerimiseks ja haldamiseks . </s> <s> TRAM koondab tarkvara võrgu planeerimiseks ( näiteks tugijaamade paiknemine , koodid , sektorite arv jms simulatsioonid ) , raadiovõrgu töö monitoorimiseks ( kõnede katkemine , kvaliteet , <hi rend="kaldkiri">handover</hi>ite arv ja suunad , tugijaamade ressursi piisavus ) ja kvaliteedi haldamiseks ( koodide ümberjagamine , võimsuse reguleerimine vastavalt reaalsele situatsioonile , <hi rend="kaldkiri">handover</hi>ite ülekülluse vähendamine ) . </s> </p>
+<p rend="rasvane"> <s> KOKKUVÕTE </s> </p>
+<p> <s> Toodud UTRANi omadused ja võimalused on vaid väike osa UTRANi osistest . </s> <s> Lisaks on veel kanalite loogiline jaotus , kärjevaliku otsustamise algoritmid , ühenduse loomise ja lõpetamise tingimused ja algoritmid , <hi rend="kaldkiri"> diversit </hi> <hi rend="kaldkiri">y</hi>-probleemid , kärgedevahelise interferentsi ohjeshoidmine , vigade korrigeerimise meetodid jpm. </s> </p>
+<p> <s> Omaette huvitav teema on veel UTRANi tehnoloogiad , mis pole veel rakendusse jõudnud , nt asümmeetriline TDD , mis annaks andmesidekiiruseks kuni 2 Mb/s praeguse FDD 384 kb/s asemel , UMTS HSDPA , mis annaks DL suunas kiiruseks juba kuni 10 Mb/s , ning muidugi kõikvõimalikud kombineeritud süsteemide kasutused : UMTS+WLAN , UMTSW+DVB-T jne. </s> </p>
+<p> <s> <gap rend="viited"/> </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Uudised </head>
+<p> <bibl> <author> <s> <hi rend="kaldkiri"> Uuno Vallner </hi> , <hi rend="kaldkiri"> Majandus- ja kommunikatsiooniministeerium </hi> <hi rend="kaldkiri"> i </hi> , <hi rend="kaldkiri"> riigi infosüsteemide osakonna arendustalituse juhataja </hi> </s> </author> </bibl> </p>
+<p rend="rasvane"> <s> KAIDO KIKKASELT ILMUS “ PINGVIINIAABITS ” </s> </p>
+<p> <s> Õpiku alapealkiri on “ Linux töölauaarvutis ( Fedora Core 2 näitel ) ” . </s> <s> Õpiku sihtrühmaks võiks autori hinnangul olla inimesed , keda huvitab Linux kui võimalik alternatiiv kallitele kommertssüsteemidele , kuid kes kogemuste puudumise tõttu ei ole seni söandanud nii riskantset sammu astuda . </s> <s> Kui paljud peavad Linuxit eeskätt serveritele mõeldud süsteemiks , siis see raamat keskendub just töölauarakendustele , Windows + MS Office + Internet Explorer + ... edukale asendajale . </s> <s> Võib tekkida küsimus : milleks üldse Linux , kui on olemas Windows ? </s> <s> Ehkki kirjutamise hetkel on jäme ots endiselt tarkvaramaastikul Windowsi käes , on alternatiivid hakanud üha enam pead tõstma . </s> <s> Raamatu autor toob välja mõned põhjused , mis seda tingivad . </s> </p>
+<p> <s> Paljud tarbijad ei soovi olla seotud ühe firma toodanguga ja ühe kindla riistvaraplatvor- miga , mis annab tootjale liiga suured võimalused olukorda kontrollida . </s> </p>
+<p> <s> Tarkvara patenteerimise buum lääneriikides ( eriti USAs ) on kõige rängemalt tabanud just Windowsi , olles oluliseks piduriks uute lahenduste väljatöötamisel . </s> <s> Lugeja võiks korraks ette kujutada , milline oleks praegune Interneti olukord , kui veebi looja sir Tim Berners-Lee oleks 1991. aastal oma loomingu patenteerinud - väga tõenäoliselt ei oleks meil praegu ei veebipõhist ajakirjandust , kaubandust , pangandust ega koolitust , vähemalt mitte tänasel massilisel moel . </s> <s> Viimased arengud patentide vallas aga ähvardavad pea sarnaste stsenaariumidega . </s> <s> Tegelikult on patenteeritud ka näiteks hiire topeltklõps ... </s> </p>
+<p> <s> Viiruste ja muu kahjuliku tarkvara levik on kohati väljunud kontrolli alt - tegemist on praktiliselt 99% osas vaid Windowsi puudutava probleemiga . </s> <s> SecurityFocuse spetsialist Scott Granneman väitis 2004. aasta augustis The Register'is , et paigaldatud ja uuendamata Windows XP-ga arvuti “ kaaperdatakse ” 20 minuti jooksul pärast võrku ühendamist ( kusjuures 20 minutit ei ole piisav aeg uuenduste ja turvatarkvara paigaldamiseks - ainus võimalus on lisada need enne võrku ühendamist CD-lt või muult kohalikult andmekandjalt ) ... </s> <s> Vabalt levivad viirused Linuxis praktiliselt puuduvad ( tõsi , oma e-posti tuleb siiski kontrollida , et mitte saadud Windowsi viirusi kogemata edasi saata ) . </s> </p>
+<p> <s> Windowsi ja sealse tarkvara hinnad on endiselt küllalt kõrged , samal ajal on ebaseaduslik kasutamine ( “ tarkvarapiraatlus ” ) muutunud mõnevõrra raskemaks - lõhkise küna ette satuvad eelkõige vaesemad riigid ning paljudes kohtades haridus- ja mittetulundussfäär . </s> <s> Linux võimaldab arvutioskuste andmist ka vaesemates piirkondades - pole juhus , et suur osa Lõuna-Ameerika riikidest eelistab riikliku poliitikana vabatarkvara , sealhulgas Linuxit . </s> </p>
+<p> <s> Microsofti stiilis “ tarkvara tükikaupa müümise ” kõrval on eluõigust võitmas mitmed alternatiivsed tarkvaraäri viisid - enamik Linuxiga tegelevaid firmasid müüb vabalt levivale tarkvarale tasulisi täiendteenuseid ( tootetoetus ja garantii ) . </s> </p>
+<p rend="rasvane"> <s> RAHVUSARHIIV VEEBIS </s> </p>
+<p> <s> Eelmise aasta lõpus avatud arhiivi elektrooniline infosüsteem ( AIS ) sai juba esimestel päevadel kokku sama palju päringuid kui tavaliselt aasta jooksul rahvusarhiivi külastatakse - veebikasutajad sisestasid AISi ligi 20 000 märksõna . </s> <s> Rahvusarhiiv on riigi arhiivide süsteem , millesse kuuluvad riigi- , ajaloo- ja filmiarhiiv , samuti maa-arhiivid . </s> <s> Mõningaid fakte AISist : </s> </p>
+<p> <s> AIS hõlmab rahvusarhiivi ligi 8 miljonist arhivaalist 3 miljoni andmed . </s> </p>
+<p> <s> Mass-sisestamise viis läbi 85 inimest 2003. aasta riigieelarvest eraldatud ligi miljoni krooni eest . </s> </p>
+<p> <s> Tänaseks sisaldab AIS eelkõige andmeid enimkasutatavate arhivaalide , sh kiriku- ja personaalraamatute , hingeloendite , kohtutoimikute , elanike nimekirjade kohta . </s> </p>
+<p> <s> Ülejäänud arhivaalide andmete sisestamine jätkub vastavalt riigieelarvest selleks eraldatavate summade suurusele . </s> </p>
+<p> <s> Andmebaasi aadress on / . </s> </p>
+<p rend="rasvane"> <s> LENOVO OMANDAS IBM PC ARVUTITE TOOTMISE </s> </p>
+<p> <s> Arvutimüügi kasv hakkab tasapisi vähenema . </s> <s> 2004. aasta edukaim arvutimüüja oli Dell , kes suutis müüa 31 miljonit raali . </s> <s> HP tulemus oli tervelt 3,5 miljoni võrra kehvem . </s> <s> Järgnesid IBM , Fujitsu-Siemens ja Acer . </s> <s> Edukuselt kolmas arvutitootja IBM otsustas hiljuti personaalarvutite tootmisest loobuda ning müüs oma sülearvutiseeria ThinkPad ja lauaarvutiseeria ThinkCentre tootmise Hiina valitsuse osalusega firmale Lenovo . </s> <s> IBM müüs neljandas kvartalis 2,9 miljonit arvutit . </s> <s> Ka Dell ja HP arvutite enamik toodetakse Hiinas . </s> </p>
+<p> <s> USA Kongressi vabariiklastest liikmed on väljendanud kartust , et IBMi kavandatav personaalarvutitootmise müük Hiina Lenovole ohustab riigi julgeolekut , ja on kutsunud Kongressi üles seda tehingut põhjalikult läbi vaatama . </s> <s> Nad hoiatavad , et see võib soodustada USA sõjalise tehnoloogia sattumist Pekingi kätte . </s> </p>
+<p rend="rasvane"> <s> KEELEVEEBI TAASSÜND </s> </p>
+<p> <s> 1998. aastal Avatud Eesti Fondi toel avatud mitmekülgne keeleandmebaas KeeleWeb suleti aasta algusest rahapuuduse tõttu . </s> <s> Tasu eest saab Internetis erinevaid sõnastikke kasutada . </s> <s> Keelevara Entusiastid avasid aasta alguses suletud keeleveebi asemel uue tasuta sõnastikke pakkuva Internetikeskkonna aadressil <gap rend="hüperlink"/> , kus pakutakse kümmekonda eesti keele sõnastikku , lisaks veel eri keelte tõlkesõnastikke , võõrkeelseid sõnastikke ning mitmesugust eesti keele alast tarkvara . </s> <s> Eesti keele sõnastikest on uues keeleveebis praegu väljas sünonüüme ja antonüüme sisaldav tesaurus , sünonüümisõnastik , eesti vanasõnade andmebaas , kõnekäändude ja fraseologismide andmebaas ja muud . </s> <s> Sõnastikesse saab teha ka ristpäringuid , näiteks uurida ühe sõna kohta kas või kõigist erinevatest sõnastikest korraga . </s> <s> Uue tasuta sõnastikulehe tegijad rõhuvad rohkem spetsialiseeritud ja terminoloogiasõnastikele , viimaseid on Eestis välja antud paarsada . </s> </p>
+<p rend="rasvane"> <s> INFOÜHISKONNA ARENDAMISSE SUUNATI 130 MILJONIT KROONI </s> </p>
+<p> <s> Valitsus otsustas 20.01.2005 kinnitada “ Eesti riikliku arengukava Euroopa Liidu struktuurifondide kasutuselevõtuks - ühtse programmdokumendi 2004-2006 ” meetme 4.5 “ Infoühiskonna arendamine ” investeeringuteks ette nähtud toetuse kasutamise kava põhi- ja lisanimekirja . </s> <s> Põhinimekirja koostamisel on lähtutud meetme eelarvest ja esitatud objektide hindamise tulemusena saadud paremusjärjestusest , järgides projektide tervikuna rahastamise printsiipi . </s> <s> Põhinimekirja kohaselt kinnitatava toetuse kasutamise kava rahalised vahendid on 122 539360 krooni ega välju meetme eelarvest , mis on 130 277 000 krooni . </s> <s> Projektid , mis ei mahu põhinimekirja meetme eelarve tõttu , on kantud lisanimekirja . </s> <s> Kui põhinimekirjast jääb rahalisi vahendeid üle , mis selgub pärast riigihangete läbiviimist , on võimalus toetada lisanimekirjas olevaid projekte vastavalt lisanimekirja pingereale . </s> <s> Vt . täpsemalt <gap rend="hüperlink"/> </s> </p>
+<p rend="rasvane"> <s> VALITSUS JÄTKAB KOOSTÖÖD MICROSOFTIGA </s> </p>
+<p> <s> 23. detsembril 2004 toimunud valitsuskabineti nõupidamisel arutas Vabariigi Valitsus Eesti riigi ja Microsofti vahelist koostööd , kuid ei võtnud vastu lõplikku otsust raamlepingu sõlmimiseks . </s> <s> Valitsus tutvus raamlepingu uue versiooniga ning jätkab arutelu jaanuaris . </s> </p>
+<p> <s> Raamlepingu sõlmimise tulemusena planeeritakse 2005. aasta kevadel tuua turule Interneti- ja tarkvaralahendused , mis võimaldavad kodukasutajal maksta igakuist renti tarkvara ja Internetiühenduse kasutamise eest . </s> <s> Riik on ja jääb seejuures avatuks - leping oleks avasamm rendimudeli rakendamiseks ka teiste tarkvaratootjatega . </s> </p>
+<p> <s> Koostöölepingu raames on Eesti riigil võimalus liituda ka Microsofti valitsuse turvalisuse programmiga . </s> <s> Turvaprogrammi peamiseks eeliseks on ligipääs Microsofti operatsioonisüsteemide lähtekoodile , mistõttu riik saab luua turvalisi ja oma vajadustele vastavaid tarkvaralahendusi . </s> <s> Koostöölepingu projekt on kättesaadav aadressil <gap rend="hüperlink"/> . </s> </p>
+<p rend="rasvane"> <s> TERVISHOIU INFOSÜSTEEM KÄIVITUB </s> </p>
+<p> <s> Tervishoiu infosüsteemi loomise eesmärk on elektrooniliste tervisekaartide ja retseptide ühtse andmebaasi kujundamine , kogudes selleks andmeid erinevatest tervishoiuasutustest . </s> <s> Loodav süsteem võimaldab edastada tervishoiuasutuste andmed elektrooniliste tervisekaartide ja digitaalsete retseptide näol ühisesse infoserverisse . </s> <s> Ühtne süsteem vähendab seni käsitsi tehtud tööd erinevate statistiliste aruannete koostamisel ja töötlemisel ning võimaldab saada kvaliteetset ja kiiret tervishoiustatistikat . </s> <s> Samuti tagab tervishoiu infosüsteemi käivitumine tervishoidu puudutavate andmete kiire kättesaadavuse , mõistetavuse ja usaldusväärsuse . </s> </p>
+<p> <s> Vt : <gap rend="hüperlink"/> </s> </p>
+<p rend="rasvane"> <s> TASUTA KÄSIRAAMAT ABIKS LINUXILE KOLIMISEL </s> </p>
+<p> <s> IBM andis välja abistava raamatu neile , kes soovivad Microsofti Windowsi kasutamisest loobuda ning selle asemel Linuxile üle kolida . </s> <s> Linux on viimaste aastatega küpsenud tasemeni , mis lubab probleemide käes vaevleva Windowsi ka tööjaamades avatud lähtekoodiga ja vabavaraliste lahenduste vastu välja vahetada . </s> <s> Juhendis käsitletakse põhjalikult võimalikke probleeme ja küsimusi , mis võivad tekkida Linuxi-arvutite lisamisel olemasolevasse Windowsi-põhisesse arvutisüsteemi . </s> <s> Raamatus toodud stsenaariumid võimaldavad otsustada , kui palju võiks operatsioonisüsteemi vahetus maksma minna ja milliseid sääste see ettevõttele pakub . </s> <s> Raamatus on toodud mitmeid praktilisi näiteid , kuidas häälestada Linuxi tööjaamad ja serverid nii , et need kasutusele jäävate Windowsi-arvutitega probleemideta koos töötaksid . </s> <s> Ingliskeelne raamat on tasuta allalaetav aadressil : <gap rend="hüperlink"/> </s> </p></div2>
+      </div1>
+    </body>
+  </text>
+</TEI>
+</teiCorpus>
+</teiCorpus>

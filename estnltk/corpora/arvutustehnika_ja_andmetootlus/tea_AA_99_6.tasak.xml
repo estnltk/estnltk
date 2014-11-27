@@ -1,0 +1,73 @@
+<teiCorpus xmlns:xi="http://www.w3.org/2001/XInclude" xmlns="http://www.tei-c.org/ns/1.0"> 
+<xi:include href="../../bin/koondkorpus_main_header.xml" /> 
+<teiCorpus> 
+<xi:include href="../bin/header_tea_arvutitehnika_ja_andmet66tlus.xml" /> 
+	<TEI> 
+		<teiHeader xmlns="http://www.tei-c.org/ns/1.0" xml:lang="et" xml:id="koondkorpus_local_header" n="$Id:$"> 
+			<fileDesc> 
+				<titleStmt> 
+					<title> Arvutustehnika ja andmetöötlus 99_6 </title> 
+  				</titleStmt> 
+				<publicationStmt> 
+  					<p> Vt publitseerimisandmeid failist 
+						<ref target="#publicationStmt-main">koondkorpus_main_header.xml</ref> 
+					</p> 
+  				</publicationStmt> 
+				<sourceDesc> 
+					<p> Vt allkorpuse päis 
+						<ref target="#header_tea_arvutitehnika_ja_andmet66tlus">header_tea_arvutitehnika_ja_andmet66tlus.xml</ref> 
+					</p> 
+  				</sourceDesc> 
+  			</fileDesc> 
+		</teiHeader>
+  <text>
+    <body>
+      <div1 type="ajakirjanumber">
+        <head> Arvutustehnika ja andmetöötlus 99_6 </head>
+        <div2 type="artikkel"><head> A &amp; A - Pingviiniprotsessor </head>
+<p> <bibl> <author> <s> <hi rend="kaldkiri"> Kalle Tammemäe , tehnikadoktor </hi> , TTÜ arvutitehnika instituut </s> </author> </bibl> </p>
+<p rend="rasvane"> <s> Pingviiniprotsessor </s> </p>
+<p> <s> Antud artikkel on kirjutatud osaliselt enne ja osaliselt pärast pöördepunkti - 1999. a. </s> <s> Comdexi messi , s.o. “ kuulujuttude ” ja avaldunud tegelikkuse põhjal . </s> </p>
+<p rend="rasvane"> <s> ENNE COMDEXI MESSI </s> </p>
+<p> <s> Tegelikult ei sobiks teadusorientatsiooniga ajakirjas kirjutada kuulujuttudest , aga ka hägusa info akumuleerumisel ületatakse ükskord usaldusväärsuse künnis ja tuleb mõtlema hakata , mida mõni terendav nähtus või asi endaga kaasa võib tuua . </s> <s> Antud juhul on kuulujuttude allikaks Linux-operatsioonisüsteemi looja Linus Torvaldsi tööleminek 1998. a. algusest firmasse Transmeta . </s> <s> Lugejal ei soovitaks kiirustada vastava internetilehe poole pöördumisega , sest info sellel on kaherealine : </s> </p>
+<p rend="rasvane"> <s> This web page is not here yet ! </s> </p>
+<p rend="rasvane"> <s> ... but it is Y2K compliant . </s> </p>
+<p> <s> Kusjuures algul oli lehel vaid esimene rida - ju siis ühildatavus uue millenniumiga oli tähtsuselt teine asi , mida maailmale kuulutada . </s> </p>
+<p> <s> Ka veebilehe <hi rend="kaldkiri">html</hi>-lähteteksti uurimine ei paljastanud midagi enamat , ilmselt on tegemist käsitsi kirjutatud koodilõiguga . </s> <s> Järeldada võib seda , et Transmeta tegeleb kas eriti salajaste tellimustega või millegi uue väljatöötamisega , mille avalikustamine ei ole käesoleval hetkel ei vajalik ega oluline . </s> <s> Maa peal on raske tegelda millegagi üldse endast midagi avaldamata ja kuigi Eesti kaugusest on raske midagi välja peilida , siis uudishimulike jaoks San Franciscos üht-teist ikka pudeneb . </s> <s> Oma esinemisel Helsingi ülikoolis ( sept. 1999 ) lubas Linus Torvalds , et hiljemalt 15.- 19. novembril Las Vegases toimuval Comdexi messil avaldab Transmeta oma töö või vähemalt teatab , millal see avalikustamine toimub . </s> </p>
+<p> <s> Transmeta Corporation'i lõi 1996 Microsofti kaasasutaja Paul Alleen , millest võib oletada konkurentsivalmidust tarkvaramonopoliga . </s> <s> See omakorda teeb mõistetavaks vabavara operatsioonisüsteemi looja osaluse projektis . </s> </p>
+<p> <s> Usaldusväärsuse künnise ületav teave väidab , et Transmetas tegeldakse uue protsessori loomisega . </s> <s> See ei tundu eriti toitev äriidee olevat , sest praktiliselt monopoolses seisundis oleva Intel x86 arhitektuuriga julgeb võistelda veel ainult AMD ( Advanced Microdevices ) . </s> <s> Omal ajal küllalt silmapaistvad Cyrix ja WinChip on vahetanud omanikke ning taandunud vähestele kõrvalistele jahimaadele . </s> <s> Maha kanda ei maksa siiski midagi , sest akumuleerunud intellektuaalne omand on mahukas ja väärtuslik ning uus kasutusnišš või tehnoloogia võib pilti muuta . </s> </p>
+<p> <s> Mis siis põhjendaks uue protsessori silmapaistvust protsessoriturul : </s> </p>
+<p> <s> Transmeta kiip sisaldab integreeritud põhjasilda ( tavaliselt eraldi kiip lauaarvutite emaplaadil , mis kuulub kiibikomplekti ( <hi rend="kaldkiri"> chipset </hi> ) . </s> <s> See tähendab , et kiip ühendub otse PCI-siinile . </s> </p>
+<p> <s> Valmistatakse IBM ränitehases . </s> </p>
+<p> <s> Disain nõuab 16 MB erimälu ja lisaks veel flash-mälu . </s> </p>
+<p> <s> Protsessor on tarkvaraliselt värskendatav või rekonfigureeritav , s.t. kuigi esialgu pole plaanis toetada 3DNow ! või SSE käsustikke , on võimalik neid lisada hiljem . </s> <s> See kõlab tõesti paljulubavalt - ei enam arvuti tühjaksrookimist ja uue sisuga täitmisi kui uus <hi rend="kaldkiri"> cool </hi> mäng ei jookse - aitab protsessori ülespoputamisest . </s> </p>
+<p> <s> Kiip on mõeldud mobiilseadmete turule , tarbides 500-MHz töösageduse juures vaid 4W energiat . </s> </p>
+<p> <s> Siiski , sama töösageduse juures on Transmeta kiip aeglasem kui Inteli/AMD vastavad protsessorid , sest Transmetas toimub käsustiku täiendav transleerimine . </s> </p>
+<p> <s> Kiibi pindala on neljandik Intel PIII pindalast , mis tähendab esmalt vähesemat tootmishinda ja teeb kiibi huvipakkuvaks masstoodangus . </s> </p>
+<p> <s> Kui Transmeta koduleht on tühi - millest siis sellised järeldused ? </s> </p>
+<p> <s> Transmeta nimel on IBM juures registreeritud kümneid patente , mis puudutavad vahemälu- , virtuaalmälu- , multiprotsessortehnikat ja muud arvutiarhitektuuridega seonduvat . </s> <s> Teadupärast teeb just vahemälude kasutamine võimalikuks töötlusseadme kiire varustamise andmetega sellest olulisemalt aeglasemast andmemahutist ( dünaamilise mälu pöördusaeg jääb endiselt poolesaja nanosekundi piiresse , kusjuures 500 MHz töötav protsessor on suuteline tipphetkedel tarbima andmeid paari nanosekundilise diskreetsusega ) . </s> </p>
+<p> <s> Vihje protsessori tuuma ümberprogrammeeritavusele teeb Transmeta kiibist tõelise polügloti , mis peaks olema suuteline emuleerima reaalajas suvalisi teisi protsessoreid . </s> <s> Emuleerimise idees pole midagi uut , aga kui seda tehakse vaid assembleri tasemel , tähendab see mitmekordset kiiruslangust originaalprotsessoriga võrreldes . </s> </p>
+<p> <s> Transmeta kiibi tuumaks on kiirusoptimeeritud VLIW - ( <hi rend="kaldkiri"> Very Long Instruction Word </hi> ) protsessor , mille käsustikku emuleeritava protsessori ( x86 , Java ) käsustik siis jooksvalt transleeritakse . </s> <s> Uudne lahendus on konverteeritud koodi säilitamine vahemälus , mis koodi lokaalsust ära kasutades tähendab oluliselt väiksemat transleerimise koormust . </s> <s> Meeldetuletuseks niipalju , et ka Pentium- ja AMD-protsessorid varjavad oma CISC-välimuse taga RISC-tuuma koos riistvaralise kooditranslaatoriga , aga nende puhul transleeritut ei säilitata . </s> </p>
+<p> <s> Mitmeid artikleid ja spekulatsioone Transmeta ümber leiab <hi rend="kaldkiri"> The Register'i </hi> uudisteveergudelt . </s> <s> Üks nendest vaeb Amiga plaani kasutada Transmeta kiipi oma tulevastes toodetes . </s> <s> Väide põhineb Amiga presidendi Jim Collase k. a. juulikuisel avaldusel , ent sel ajal oli Transmeta veel suurem saladus kui täna . </s> <s> Samas leidub viiteid , et Transmeta kiibi arendamise juures töötavad mõned IBM disainerid , kes olid seotud PowerPC kiibiga 615 - seda protsessorit arendasid IBM ja Motorola täiesti tõsiselt , projekti oli haaratud 250 projekteerijat ning jõuti ka ränifaasini , aga Microsofti järsk äraütlemine 615 arhitektuuri toetamisest viis projekti sulgemiseni . </s> <s> Kiip oli tähelepanuväärne , sulandades x 86 ja 32/64-bitiseid PowerPC arhitektuure , kusjuures ümberlülitumine ühelt režiimilt teisele toimunuks vaid viie taktiga ! </s> </p>
+<p> <s> Milleks ikkagi Linus Torvalds ? </s> <s> Paraku pole võimalik luua uut protsessorit ilma tarkvara-riistvara liideseta , milleks on käsustikuarhitektuur <hi rend="kaldkiri"> ( instruction set architecture </hi> ) . </s> <s> Käsustik omakorda tuleneb operatsioonisüsteemist , utiliitidest ja rakendustarkvarast . </s> <s> Kõik see moodustab terviku , milles turukõlbliku optimumi leidmiseks tuleb teha loendamatuid eksperimente ning mõõdetut analüüsida . </s> <s> Selles valguses on Linux-operatsioonisüsteemi tuuma loonud ja igat selle üksikosa valdava isiku toomine Transmeta projekti juurde enam kui põhjendatud . </s> <s> Perspektiiv on ehmatav - <hi rend="kaldkiri"> no Intel , no Microsoft </hi> ... </s> <s> Uue tarkvara väljatöötamine , mis paigutub protsessori ja operatsioonisüsteemi vahele ja teostab käsustiku transleerimist , on antud projekti üks kesksemaid ülesandeid . </s> <s> Protsessori endaga , s.o. riistvara poolega , on raskused silmanähtavad : nimelt polevat räni-prototüübid soovitud taktisagedusteni jõudnudki . </s> <s> Kogemused ei tule õhust ning alles käivituv firma peab paratamatult alla neelama nii mõne mõru pilli ja ka oma vigadest õppima . </s> </p>
+<p> <s> Hugo de Man Leuveni Katoliklikust Ülikoolist Belgias [ 1 ] prognoosib , et tulevased ühekiibisüsteemid sisaldavad kuni sadu suhteliselt madala sagedusega ( kuni 300 MHz ) protsessorite tuumasid . </s> <s> See võimaldab küsida , kas mitte Intel , AMD ja mõned teised GHz-piirkonna hiiud ei kipu minema dinosauruste teed ? </s> <s> On vägagi võimalik , et madalama sagedusega , odavam ja töökindel paralleelsus lööb pikemas perspektiivis gigahertside sagedusalas rabelevaid energiaaplaid ja kallist tehnoloogiast sõltuvaid üksikprotsessoreid . </s> <s> Mida kujutab endast üks protsessori tuum e vastav intellektuaalne omand ( IP -- <hi rend="kaldkiri"> intellectual property </hi> ) ? </s> <s> MIPS Technologies pakub sünteesitavaid 64-bitise RISC-arhitektuuriga MIPS-tuumasid , mis võtavad 0,15 mm tehnoloogias vaid 2 ruutmillimeetrit kristalli pinda . </s> <s> Võrdluseks : 1997. a. </s> <s> Valmistatud protsessori Pentium II pindala on 202 mm . </s> <s> Sajakordne pinnavahe pole siiski niivõrd katastroofiline , kui arvestada seda , et enamik kiibi pinnast läheb nüüdisajal mälustruktuuride alla , aga see näitab siiski nihet paradigmas . </s> <s> Kui varem räägiti , et me võime panna protsessori igasse ruumipunkti , et vähendada selle entroopiat , siis nüüd on õigem öelda , et võime selsamal eesmärgil panna protsessori igasse kiibipunkti . </s> </p>
+<p> <s> Transmeta protsessori lubatud energiatarve 4 W 500-MHz taktisageduse juures on tähelepanuväärne , aga loomulikult allpool Hugo de Mani defineeritud vajalikku piiri - 10 gigaoperatsiooni vati kohta ( GOPS/W ) . </s> <s> See energiapiir tuleneb tulevaste - PC koos MPEG 4-7 kompresseerimistehnikaga digitaaltelevisioon - ühekiibisüsteemide vajadusi arvestades , mis nõuaks tootlikkust 100-700 GOPSi sekundis . </s> <s> Oletades superskalaarset konveierarhitektuuri , võib lubada kaks operatsiooni takti kohta , mis annaks pingviiniprotsessorile vaid tagasihoidlikud 250 MOPS/W . </s> </p>
+<p> <s> Linus Torvaldsist ja Transmetast kirjutab ka “ Time ” [ 2 ] oma eriväljaandes “ Time Digital ” . </s> <s> Põhirõhk on loomulikult Linuxil endal , aga kuulujutu tasemel räägitakse ka uuest superkiibist , mis peaks Inteli turu ära võtma . </s> <s> Tulevikusuund ( kas Torvaldsi sõnastuses ? ) on järgmine : “ Linux lööb Windowsi . </s> <s> Transmeta trumpab üle Inteli . </s> <s> Linus Torvalds valitakse maailma kuningaks . </s> <s> Sead lendavad . ” </s> </p>
+<p rend="rasvane"> <s> COMDEX , </s> <s> 15. NOVEMBER </s> </p>
+<p> <s> Linus tegi Comdexi messil pika ettekande , mis oli/on jälgitav reaalaudio vahendusel , kuid ei paljastanud Transmeta saladusi . </s> <s> Loomulikult on riistvara ja tarkvara projekteerimisel suured erinevused , mistõttu võiski temalt oodata põhiliselt Linuxi ja vabavara teemalist arutelu . </s> <s> Innustunud kuulajaid ja elavat huvi oli tohutult ja et Torvaldsil on muudki teha kui meedias esineda , siis vähesed silmast-silma kohtumised Linuxi jüngritega kasutati viimaste poolt sajaprotsendiliselt ära . </s> </p>
+<p rend="rasvane"> <s> PÄRAST COMDEXI MESSI </s> </p>
+<p> <s> Sait on avatud , aga ainult avaleht - ei ühtegi viidet edasiseks häkkimiseks . </s> <s> Tulevane protsessor kannab vapra merehädalise nime : “ Crusoe ” . </s> </p>
+<p> <s> See astub avalikkuse ette lubatult 19. jaanuaril 2000. </s> <s> Intel ja Microsoft , värisege - Crusoe järel tuleb Reede , kes on juba tõeline inimsööja ! </s> </p>
+<p rend="rasvane"> <s> KOKKUVÕTTEKS </s> </p>
+<p> <s> Kas haarata Transmeta aktsiate järele ? </s> <s> Infot on nad igatahes nii hästi hoida osanud , et vaatamata verivärskele veebilehele turuprognoosi teha ei julge . </s> <s> Väidetavalt kulutab Transmeta miljon dollarit kuus , järelikult on rahakaid sponsoreid ja ka tulemusi , mis planeeritud arengut kinnitavad . </s> <s> Mitte kõik ei ole suutnud Transmetaga lõpuni kaasas käia , on lahkujaid nii väljatöötajate kui ka sponsorite hulgas . </s> <s> Ootused on igatahes kõrgele kruvitud . </s> </p>
+<p> <s> Sooviks küll , et ülelahemehel , kelle koduriigiga meil sama hümn , ikka hästi läheks . </s> </p>
+<p> <s> Seni olgem kannatlikud ja laskem inimestel töötada . </s> </p>
+<p rend="rasvane"> <s> VIITEID </s> </p>
+<p> <s> 1. Hugo de Man , “ System-on-Chip Design : Impact on Education and Research ” // IEEE Design &amp; Test of Computers , ( 1999 ) July-September . </s> </p>
+<p> <s> 2. “ The Most Important People Shaping Technology Today ” . </s> <s> // Time ( 1999 ) Nov. 15. </s> </p></div2>
+      </div1>
+    </body>
+  </text>
+</TEI>
+</teiCorpus>
+</teiCorpus>

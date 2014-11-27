@@ -1,0 +1,692 @@
+<teiCorpus xmlns:xi="http://www.w3.org/2001/XInclude" xmlns="http://www.tei-c.org/ns/1.0"> 
+<xi:include href="../../bin/koondkorpus_main_header.xml" /> 
+<teiCorpus> 
+<xi:include href="../bin/header_tea_arvutitehnika_ja_andmet66tlus.xml" /> 
+	<TEI> 
+		<teiHeader xmlns="http://www.tei-c.org/ns/1.0" xml:lang="et" xml:id="koondkorpus_local_header" n="$Id:$"> 
+			<fileDesc> 
+				<titleStmt> 
+					<title> Arvutustehnika ja andmetöötlus 04_6 </title> 
+  				</titleStmt> 
+				<publicationStmt> 
+  					<p> Vt publitseerimisandmeid failist 
+						<ref target="#publicationStmt-main">koondkorpus_main_header.xml</ref> 
+					</p> 
+  				</publicationStmt> 
+				<sourceDesc> 
+					<p> Vt allkorpuse päis 
+						<ref target="#header_tea_arvutitehnika_ja_andmet66tlus">header_tea_arvutitehnika_ja_andmet66tlus.xml</ref> 
+					</p> 
+  				</sourceDesc> 
+  			</fileDesc> 
+		</teiHeader>
+  <text>
+    <body>
+      <div1 type="ajakirjanumber">
+        <head> Arvutustehnika ja andmetöötlus 04_6 </head>
+        <div2 type="artikkel"><head> A &amp; A - Gartner IT tulevikust </head>
+<p> <bibl> <author> <s> TOIMETAJALT 6-04 </s> </author> </bibl> </p>
+<p> <s> Iga-aastane Gartneri sümpoosion ITXPO toimus 31. oktoobrist 4. novembrini 2004 Cannes'is . </s> <s> Nagu ikka , andsid ettekandjad ülevaate infotehnoloogia olulisematest arengusuundadest ja prognoosisid tulevikku . </s> </p>
+<p> <s> Infotehnoloogia kui tööstusharu muutub järgneva <hi rend="rasvane"> viie </hi> aastaga oluliselt , mis annab ettevõtete IT- osakondadele/divisjonidele palju uusi võimalusi , kuid loob ka uusi ohte . </s> <s> Tehnoloogia edusammud võimaldavad viia ettevõtte IT uuele tasemele , kuid tee punktist <hi rend="kaldkiri"> A </hi> ( kus oleme praegu ) punkti <hi rend="kaldkiri"> B </hi> ( kuhu tehnoloogia võimaldab meil saada ) on okkaline . </s> <s> Vaja on toetada olemasolevat , vana tehnoloogiat , IT-arhitektuuri ja oskusi ning samal ajal evitada uut tehnoloogiat , IT-arhitektuuri ja arendada IT-meeskonna uusi oskusi . </s> <s> Järjest pingelisemas IT-kulude minimeerimise olukorras esitab see IT-meeskondadele tõsise väljakutse . </s> </p>
+<p> <s> Järgneval viisaastakul on olulisimaks tehnoloogiaks <hi rend="kaldkiri"> traadita kommunikatsioonitehnoloogia </hi> ( <hi rend="kaldkiri"> wireless </hi> <hi rend="kaldkiri"> technology </hi> ) . “ <hi rend="kaldkiri"> Alati ühendatud </hi> <hi rend="kaldkiri"> maailm </hi> <hi rend="kaldkiri"> ” </hi> ( <hi rend="kaldkiri"> always connected </hi> <hi rend="kaldkiri"> world </hi> ) pakub palju uusi võimalusi ja väljakutseid , näiteks asukoha- ja huvide/soovidepõhine infovajaduste rahuldamine . </s> <s> Paljud tavaseadmed on varustatud kiipidega , mis võimaldavad neil olla pidevas ühenduses digitaalse maailmaga , saada ja edastada infot . </s> <s> Inimestel on võimalik juhtida/kasutada neile olulisi seadmeid suvalises kohas ja suvalisel ajal. </s> <s> Lisavõimalusi ( informatsioon ? mehaaniline liikumine ) annab veel mikro-elektromehaaniliste süsteemide ( <hi rend="kaldkiri"> micro-electromechanical systems </hi> , MEMS ) evitamine . </s> <s> Täienevad ( või muutuvad ? ) info sisestamise/väljastamise võimalused , näiteks digitaaltindi kasutusele võtmine . </s> <s> Valdavaks kujuneb teenustepõhine IT-rakenduste arhitektuur , mille üheks oluliseks väljundiks on personaalsete , isikupõhiste rakenduste , “ mina-rakenduste “ loomine ja evitamine . </s> <s> Gartner nimetab uut IT infrastruktuuri <hi rend="kaldkiri"> reaalaja infrastruktuuriks </hi> ( <hi rend="kaldkiri"> realtime infrastructure </hi> , RTI ) . </s> <s> Reaalaja infrastruktuur on hajussüsteem , mis </s> </p>
+<p> <s> ühendab kasutajaid , äriüksusi , rakendusi </s> </p>
+<p> <s> optimeerub dünaamiliselt vastavalt äripoliitikatele ja teenustaseme lepingutele ( <hi rend="kaldkiri"> service-level agreements , </hi> SLA ) </s> </p>
+<p> <s> tagab IT-teenuste kõrge agiilsuse ja kvaliteedi madala hinna juures . </s> </p>
+<p> <s> Niisuguses komplitseeritud maailmas omab senisest veelgi olulisemat kohta IT-juht.Tuleviku IT- juht peab olema mitte korraldaja ( <hi rend="kaldkiri"> manager </hi> ) vaid eestvedaja/liider ( <hi rend="kaldkiri"> leader </hi> ) . </s> <s> Eestvedaja oluliseimaks omaduseks on usaldusväärsus ( <hi rend="kaldkiri"> credibility </hi> ) . </s> <s> Usaldusväärsus on positiivse tagasisidega protsessi tulem : õnnestumised suurendavad usaldusväärsust , ebaõnnestumised vähendavad seda . </s> <s> IT-juht eestvedajana edendab arengut , muudatusi . </s> <s> Võtmesõnaks on siin kommunikatsioon , nii meeskonnasisene kui ka IT-väliste partneritega . </s> <s> Ei piisa , kui IT-juht on ise muudatuste eestvedaja , ta peab looma tingimused kogu IT-meeskonna innovatiivseks toimimiseks . </s> <s> Sealjuures peab innovatiivsus haarama mitte ainult tehnilisi muudatusi , vaid ka mõttemalle , harjumusi , IT struktuuri , poliitikaid , planeerimist , juhtimist , analüüsi . </s> </p>
+<p> <s> Gartner toob IT-juhi liidrirolli kujundamisel välja järgmised põhipunktid : </s> </p>
+<p> <s> 1 ) analüüsi IT-keskkonda </s> </p>
+<p> <s> 2 ) loo visioon </s> </p>
+<p> <s> 3 ) kujunda ootused </s> </p>
+<p> <s> 4 ) loo IT juhtimise põhimõtted </s> </p>
+<p> <s> 5 ) põimi äri ja IT strateegiad </s> </p>
+<p> <s> 6 ) loo uut tüüpi IT organisatsioon </s> </p>
+<p> <s> 7 ) juhi riske </s> </p>
+<p> <s> Mida võiks sellest järeldada ? </s> <s> Järeldus on ilmne : juba praegu tuleks alustada kõrgkoolide IT õppekavade ülevaatamise ja modifitseerimisega . </s> <s> 2009. aasta , millal ettevõtete IT reformimine peaks lõppenud olema , polegi nii kaugel . </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Küberruum ja muutuv maailm </head>
+<p> <bibl> <author> <s> Ants Kukrus </s> </author> </bibl> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="kaldkiri"> <s> Ants Kukrus - sündinud 20. oktoobril 1940 Valgas . </s> <s> Lõpetanud Tallinna Polütehnilise Instituudi ( TTÜ ) 1966 , Moskva Kesk-Patendiinstituudi 1971 , õigusteaduse kandidaat 1976 , Ph.D. 1967. aastast töötab Tallinna Tehnikaülikoolis . </s> <s> 1967-1982 vaneminsener , vanemteadur , teadusliku uurimise sektori osakonnajuhataja , 1982-1992 vanemõpetaja , dotsent , ohutuse ja õiguse kateedri juhataja , 1992-2002 territoriaalmajanduse instituudi direktor , majandusõiguse õppetooli juhataja , professor . </s> <s> Alates 2002. aastast avaliku sektori majanduse instituudi majandusõiguse õppetooli juhataja , professor . </s> <s> Alates 1997. aastast Tartu Ülikooli Õigusinstituudi külalisprofessor . </s> <s> Aastatel 1980-1991 Rahvusvahelise Tööstusomandi Kaitse Assotsatsiooni ( International Association for the Protection of Industrial Property , AIPPI ) Nõukogude Grupi liige . </s> <s> 1992. aastast Rahvusvahelise Intellektuaalomandi Kaitse Assotsiatsiooni ( International Association for the Protection of Intellectual Property , AIPPI ) Eesti Töörühma liige . </s> <s> 1995. aastast kuulub Korp ! </s> <s> Leolasse . </s> <s> Uurimistemaatika : teaduse juhtimise õiguslikud probleemid . </s> <s> Teaduse ja tehnika progressi majandusõiguslikud probleemid . </s> <s> Intellektuaalomandi õiguskaitse küsimused . </s> </p>
+<p> <s> Mida kujutab endast küberruum , millest nii palju räägitakse igapäevaelus ja kirjutatakse massimeedias ? “ Ta on koht kohtade vahel , ” nagu on tabavalt väljendanud Marije T. Britz raamatus “ Computer Crime and Forensies ” ( 2004 ) . </s> <s> 21. sajandit nimetatakse infoühiskonna ajastuks , kus võtmesõnadeks on üleilmastumine ( globaliseerumine ) , integratsioon ( lõimumine ) , digitaliseerimine , Interneti- ja teadmistepõhine majandus . </s> <s> Kaasaja infoühiskonnas mängivad tähtsat osa infotehnoloogilised uuendused , eeskätt Internet . </s> </p>
+<p> <s> Küberruumi ( <hi rend="kaldkiri"> cyberspace </hi> ) moodustavad miljonid inimesed , kes suhtlevad üksteisega arvutite abil , ja kogu maailmas miljonites arvutites salvestatud info , mis on kättesaadav kommunikatsioonikanalite kaudu . </s> <s> Oluline areng küberruumi olemuses on Internet . </s> <s> Internet on uus tasand kommunikatsioonis , mis ühendab posti , telefoni ja massimeedia . </s> <s> See võimaldab juurdepääsu igat laadi infole ja on muutunud küberruumi sünonüümiks . </s> </p>
+<p> <s> Termin Internet on lühend ingliskeelsetest sõnadest <hi rend="kaldkiri"> International Network </hi> , mis eesti keeles tähendab rahvusvahelist arvutivõrku . </s> <s> Eestis on Internet defineeritud Vabariigi valitsuse 4. detsembri 2000. aasta määruses nr 398. “ Üldkasutatava telekommunikatsioonivõrgu opereerimise ja üldkasutatava telekommunikatsiooniteenuse osutamise nõuded ” , mille kohaselt “ Internet on telekommunikatsioonivõrgu kaudu loodud andmeside , mis võimaldab infovahetust vastavate tehniliste seadmete ja andmeside protokollide vahendusel ” . </s> <s> See määratlus ei ava Interneti tegelikku olemust , kuigi tehniliselt on Internet erinevate serverite vahendusel loodud andmeside . </s> <s> Kuna Internet on seotud serveritega , siis ei eksisteeri pidevalt mingit ruumi , vaid on hetkeks tekkinud andmeside erinevate arvutite vahel . </s> <s> Interneti ruumilisus on pigem kujutlus , kuna tegemist on globaalse andmesidega ja sellel puuduvad füüsilised geograafilised piirid . </s> <s> Interneti näol on tegemist ruumiga , millele on kerge juurdepääs , siin puudub info leviku ja sisu üle kontroll ning see tagab anonüümsuse . </s> <s> Internetile on omane füüsiliste geograafiliste piiride puudumine , mis õiguslikust aspektist lähtudes põhjustab probleeme jurisdiktsiooni , sealhulgas kohaldatava õiguse ja kohtualluvuse määramisel . </s> </p>
+<p> <s> Eestlastest kasutab Internetti vastavate uuringute kohaselt umbes kolmandik , kusjuures arvuti on hinnanguliselt 40 protsendil peredest . </s> <s> Meil on e-valitsus ja tulevikus tahame läbi viia e-valimisi . </s> <s> On hakatud realiseerima e-Eesti ideed , mille alusel käivituks rahvuslik infoühiskonna sihtprogramm . </s> <s> Käesoleva aasta jaanuaris toimus Slovakkias Bratislavas Ida-Euroopa riikide ja Microsofti esindajate ümarlaud , millest võttis osa kaheksa Ida-Euroopa riiki , sealhulgas Eesti ja Microsofti esindajad eesotsas Bill Gatesiga . </s> <s> Antud kohtumisel otsis Eesti Microsoftilt toetust programmile “ Kogu maa internetiseerimine ” , mille kohaselt kaetakse kogu riik Internetiga . </s> <s> Seoses Internetikasutajate arvu hüppelise suurenemisega on vaja koos tarkvaratootjatega leida lahendus tarkvarapiraatluse vähendamiseks ( Eestis oli 2003. aastal tarkvarapiraatluse osakaal 54% ) ja pakkuda tarkvara taskukohase hinnaga . </s> <s> Teatavasti peetakse üheks tarkvarapiraatluse põhjuseks tarkvaralitsentside liiga kõrget hinda . </s> <s> Bratislava kohtumisel pakkus Eesti Majandus- ja Kommunikatsiooniministeerium välja idee , mille kohaselt Eesti riik ostaks Microsoftilt ühe “ hiigellitsentsi ” ja müüks seda arvutikasutajatele üksiklitsentsi hinnast madalama hinnaga edasi . </s> <s> Reeglina pole tavalisele arvutikasutajale ainuüksi tarkvara rentimine mõttekas , sest nad on nõus maksma teenuse , mitte tarkvara eest . </s> </p>
+<p> <s> Koos Internetiga on sündinud uus õigusvaldkond , mis kannab nimetust küberõigus ( küberruumiõigus ) , IT-õigus , Internetiõigus , e-õigus jms ( ingl <hi rend="kaldkiri"> cyberspace law </hi> , <hi rend="kaldkiri"> Internet law </hi> , ld <hi rend="kaldkiri"> lex electronica </hi> ) . </s> <s> Küberõiguse ( <hi rend="kaldkiri"> lex electronica </hi> ) näol pole tegemist iseseisva õigusharu ega ka õigusinstituudiga , vaid koondnimetusega , mis tähistab üht spetsiifilist valdkonda reguleerivate õigusnormide kogumist . </s> <s> Teisisõnu nimetatakse küberõiguseks õiguse valdkonda , mis reguleerib elektroonilisel andmesidevahetusel tekkivaid õigussuhteid . </s> </p>
+<p> <s> Seoses maailma internetiseerumisega , mis toob meile maailmas toimuva koju kätte , tekivad uued probleemid . </s> <s> Internet kaotab riikidevahelised piirid ja on seotud teedrajavate tehniliste lahenduste levikuga , mis tingib uue seadusandluse väljatöötamist ning kehtivate õigusnormide kaasajastamist . </s> <s> Tänapäeva intellektuaalomandi õigus on tihedalt seotud paljude tegevusvaldkondade eetiliste põhimõtetega . </s> <s> Õigus ei tohiks jääda jalgu inimühiskonna arengule . </s> <s> Intellektuaalomandi kaitset võib vaadelda kahest vaatevinklist : ühelt poolt võib intellektuaalomandit vaadata kui ühiskonna progressi mootorit ja teiselt poolt selle looja stimulaatorit , saada majanduslikku kasu ning moraalset tunnustust oma loomingu ( ka tehnilise loometöö ) kasutamise eest inimühiskonna poolt . </s> <s> Skeptikud peavad leiutise patenti teaduse ja tehnika progressi piduriks , sest see annab omanikule teatavaks ajaks ( reeglina 14-20 aastaks ) monopoli e ainuõiguse . </s> <s> Teatavasti efektiivne intellektuaalomandi õiguskaitsesüsteem stimuleerib teaduse ja tehnika progressi . </s> <s> Samuti tekivad eetilised probleemid ja arusaamad erinevates kultuurides ehk teisisõnu : see moraalikoodeks , mis sobib USAle , ei sobi Hiinale või Iraagile . </s> <s> Küll aga püütakse praegu kogu maailma mastaabis intellektuaalomandi õiguskaitset unifitseerida . </s> </p>
+<p> <s> Tänapäeva muutuvas maailmas räägitakse ja kirjutatakse palju “ vabast Internetist ” . </s> <s> Selge on see , et Internet ei sa muutuda täiesti vabaks keskkonnaks , kus iga isik võib teha , mida soovib . </s> <s> Igasuguse kontrolli ja sanktsiooni rakendamise võimaluse puudumine viib anarhiani . </s> <s> Arusaadavalt ei tule Internetti suukorvistada , kuid efektiivse kontrolli mehhanismi kehtestamine Interneti kasutajate ja info liikumise üle on vajalik , et piirata üha levivat küberkuritegevust ( arvutikuritegevust ) . </s> <s> Juba Winston Churchill märkis , et demokraatlikul riigikorral on terve rida puudusi , kuid kahjuks pole siiani keegi midagi paremat suutnud välja pakkuda . </s> <s> Küberkuritegevus on uus kuriteoliik , mis tekkis Internetiajastul ja eeldab uut lähenemist selle avastamise ning uurimismeetodite väljatöötamisel . </s> <s> Küberkuritegude üks iseloomulikke jooni on ka see , et aeg nende toimepanemisest kuni uurimisorganiteni jõudmiseni on lühike . </s> <s> Viimane nõuab aga küberpolitsei ja Internetiteenuse pakkujate head koostööd . </s> <s> Praegu on Internet muutunud intellektuaalomandi piraatide paradiisiks , sest digitaalsel kujul esinevat infot on suhteliselt kerge kopeerida ja levitada . </s> <s> Üldlevinud on arusaam , et kõik , mis on Internretis , on vaba ja kõigi poolt oma äranägemise järgi kasutatav . </s> <s> Internetti on ümber kolinud traditsioonilised intellektuaalomandi õiguste rikkumise skeemid , nagu võltsitud kaupade ja piraatkaupade müük . </s> <s> Internet on tekitanud ka uued intellektuaalomandi õigusrikkumiste vormid , nagu domeeninimed , antidomeenid , oskusteabe ( <hi rend="kaldkiri"> know-how </hi> ) avaldamise , metasümbolite kuritarvitamine , kadreerimine , hüperlinkide kasutamine jne. </s> </p>
+<p> <s> Käesoleva aasta juunis võeti Riigikogu poolt vastu “ Eesti Vabariigi julgeolekupoliitika alused ( 2004 ) ” , milles muude ohtude kõrval esitatakse ka <hi rend="kaldkiri"> infotehnoloogilised ohud </hi> , mille alahindamisel võib arvutikuritegevus kujuneda relva- ja narkokaubandusega võrdselt ohtlikuks organiseeritud kuritegevuse liigiks . </s> </p>
+<p> <s> Küberkuritegevuse ohjamiseks on vaja tõhustada riikidevahelist koostööd . </s> <s> Rahvusvahelise koostöö üldpõhimõtted on sätestatud arvutikuritegevusevastases konventsioonis , mille Riigikogu ratifitseeris 2003. aastal . </s> <s> Konventsiooni ratifitseerinud riigid on kohustatud viima riigisisese õiguse vastavusse nimetatud konventsiooni sätetega . </s> <s> Ka Euroopa Liit on moodustanud Euroopa Arvutivõrkude ja Informatsiooni Turvalisuse Agentuuri ( <hi rend="kaldkiri"> The European Network of Information Security Agency , ENISA </hi> ) , mis hakkab koordineerima küberkuritegevusevastast võitlust kogu Euroopas ja loob vastavad võimalused küberkuritegevuse vastu võitlemiseks . </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Dünaamiliselt rekonfigureeritava struktuuriga mikroprotsessor </head>
+<p> <bibl> <author> <s> <hi rend="kaldkiri"> Arvo Toomsalu </hi> , <hi rend="kaldkiri"> TTÜ arvutitehnika instituut </hi> </s> </author> </bibl> </p>
+<p> <s> Jaapani firmade <hi rend="kaldkiri"> Fujitsu Limited ja IPFlex Inc. </hi> <hi rend="ülaindeks"> 1 </hi> koostööna on valminud dünaamiliselt rekonfigureeritava struktuuriga mikroprotsessorkiibi <hi rend="kaldkiri"> <hi rend="rasvane"> DAP/DNA-HP </hi> </hi> <hi rend="kaldkiri"> ( DAP/DNA - Digital Application Processor/Distributed Network Architecture ) </hi> täiustatud variant <hi rend="kaldkiri"> <hi rend="rasvane"> DAP/DNA-2 </hi> </hi> . </s> </p>
+<p> <s> Traditsiooniliselt ühendatakse rekonfigureeritava struktuuriga protsessoreis programselt rekonfigureeritava riistvaraga kiire ja paindlik töötlusüksus ning programselt juhitav universaalne protsessor või protsessortuum . </s> <s> Tuginedes rekonfigureeritavale töötlusüksusele , saab sellist protsessorit kergesti kohandada kõige erinevamate rakenduste tarvis . </s> </p>
+<p> <s> DAP/DNA-arhitektuuriga protsessorid esindavad rekonfigureeritava struktuuriga protsessorite uuemat põlvkonda . </s> <s> Erinevalt kiiretoimelistest , kuid piiratud kasutusalaga ja suhteliselt rigiidsetest ASIC- ( <hi rend="kaldkiri"> Application Specific Integral Circuit </hi> ) ning ASSP- <hi rend="kaldkiri"> ( Application Specific Standard Product </hi> ) lülitustest , aga samuti paindlikest , kuid suhteliselt kallitest ja jõudluspiirangutega FPGAdest ( <hi rend="kaldkiri"> Field-Programmable Gate Array </hi> ) , iseloomustab DAP/DNA-arhitektuuriga protsessoreid suur jõudlus ja võime operatiivselt kohaneda rakenduskeskkonnas toimuvate muudatustega . </s> </p>
+<p> <s> Kui ASIC-lülitused on optimeeritud talitlema vaid ühes kindlas rakenduses , siis DAP/DNA-lülituse riistvara struktuuri on võimalik seadme talitluse käigus operatiivselt ümber korraldada nii , et tekkiv protsessori loogikaline struktuur vastaks kõige paremini hetke vajadustele . </s> </p>
+<p> <s> Alljärgnevalt on võetud vaatluse alla <hi rend="kaldkiri"> DAP/ </hi> <hi rend="kaldkiri"> D </hi> <hi rend="kaldkiri"> NA-2 </hi> mikroprotsessori arhitektuuri mõningad huvitavamad iseärasused ning taoliste protsessorite tüüpilisemad rakendused . </s> </p>
+<p rend="rasvane"> <s> DAP/DNA-ARHITEKTUURIGA PROTSESSORI STRUKTUUR </s> </p>
+<p> <s> Dünaamiliselt rekonfigureeritava struktuuriga DAP/DNA-protsessorlülitus sarnaneb paljuski rekonfigureeritava struktuuriga arvutisüsteemide maailmas tuntud kiipsüsteemi <hi rend="kaldkiri"> MorphoSys </hi> arhitektuurse mudeli . </s> <s> Analoogiliselt <hi rend="kaldkiri">MorphoSys</hi>-ga on ka DAP/DNA-protsessoris orgaaniliselt ühendatud kaks protsessortuuma : </s> </p>
+<p> <s> 1 ) universaalne RISC-arhitektuuriga DAP-protsessor ( <hi rend="kaldkiri"> Digital Application Proces </hi> <hi rend="kaldkiri"> s </hi> <hi rend="kaldkiri"> or </hi> ) ; </s> </p>
+<p> <s> 2 ) DNA- ( <hi rend="kaldkiri"> Distributed Network Architecture </hi> ) maatriks , mis moodustab suurest arvust protsessorelementidest ( PE ) koosneva dünaamiliselt rekonfigureeritava struktuuriga kiirenduslülituse . </s> </p>
+<p> <s> Kui DAP-protsessori põhiülesandeks on DAP/DNA-protsessorkiibi talitluse üldine juhtimine , siis DNA-maatriks ning seda toetavad lülitused tegelevad otseselt , konkreetses rakenduses , infotöötluse võimalikult efektiivse korraldamisega . </s> </p>
+<p> <s> Millistest põhiplokkidest koosneb DAP/DNA-arhitektuuriga protsessor ja kuidas need plokid on omavahel sidestatud , on näha jooniselt 1. </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 1. </s> <s> DAP/DNA-protsessori plokkskeem </s> </p>
+<p> <s> DAP-protsessorina kasutatakse firmas IPFlex välja töötatud 32-bitise sõnapikkusega skalaarset RISC-protsessortuuma , mis suudab igal taktil täita ühe käsu . </s> <s> Kui lülituse algses variandis ( <hi rend="kaldkiri"> DAP/DNA-HP </hi> ) talitles protsessortuum sagedusel 100 MHz , siis (mikro)protsessoris <hi rend="kaldkiri"> DAP/DNAR-2 </hi> on taktsagedus tõstetud 166 MHz-ni . </s> <s> RISC-protsessortuuma toetavad kiire 8-kilobaidine käsu- ja sama suure infomahutavusega andmevahemälu . </s> </p>
+<p> <s> Märksa huvitavam kui DAP-protsessori klassikalise RISC-arhitektuuriga protsessortuum on selle DNA-maatriksi korraldus . </s> </p>
+<p> <s> Protsessori DNA-maatriksis on 376 protsessorelementi - teatavasti sisaldas protsessori <hi rend="kaldkiri"> DAP/DNA-HP </hi> DNA-maatriks vaid 144 protsessorelementi - , mis talitlevad samuti taktsagedusel 166 MHz<hi rend="ülaindeks">2</hi> . </s> <s> Protsessorelementides töödeldakse 32bitiseid andmeid . </s> <s> Nii protsessorelementide omavahelisi ühendusi kui ka nende poolt täidetavaid funktsioone saab <hi rend="kaldkiri"> DAP/DNA-2 </hi> kiibi talitluse käigus operatiivselt muuta . </s> <s> Seejuures on oluline , et DNA-maatriksi struktuuri restruktueerimiseks kulub vaid üks protsessoritakt - iseärasus , mis eristab DAP/DNA-protsessorit teistest konkureerivaist programmeeritava struktuuriga mikroprotsessor- ja mikrokontrollerlülitustest . </s> </p>
+<p> <s> DNA-maatriksi PE-de omavaheliste ühenduste paindlik korraldus võimaldab läbi viia SIMD põhimõttel ( <hi rend="kaldkiri"> SIMD - Single Instruction Multiple Data </hi> ) toimuvat informatsiooni rööptöötlust , aga samuti moodustada efektiivselt toimivaid käsukonveiereid . </s> </p>
+<p> <s> Protsessorelementide omavahelisi ühendusi kirjeldavat teavet säilitatakse spetsiaalses konfiguratsioonimälus . </s> <s> 576kilobaidise infomahutavusega konfiguratsioonimälu on jaotatud neljaks mälusegmendiks , neist üks ( aktiivne ) töötab n-ö esiplaanisegmendina , ülejäänud kolm moodustavad tagaplaanisegmendid . </s> <s> Konfiguratsioonimälu selline sisekorraldus teenib üht eesmärki - maksimaalselt kiirendada konteksti vahetumist DNA-maatriksi topoloogilis-funktsionaalse ümberkorraldamise teel . </s> </p>
+<p> <s> Lisaks rekonfiguratsioonimälule on DNA-maatriksi käsutuses individuaalne vahemälu ( DNA-vahemälu ) operatiivselt töödeldava informatsiooni säilitamiseks . </s> </p>
+<p> <s> Kui esineb vajadus ümber korraldada DNA-maatriksi PE-de vahelisi ühendusi ja üksikuis PE-des täidetavaid funktsioone , siis laetakse selleks vajalik informatsioon protsessorisse kiibivälisest mälust . </s> <s> Kuna DNA-maatriksi ohjeks vajatav infokogus on küllaltki mahukas ning enamasti rakendatakse infotöötluse käigus protsessoris mitmeid erinevaid konfiguratsioone , siis on paratamatu , et lisaks kiibisisesele konfiguratsioonimälule tuleb kasutada suuremahulist kiibivälist mälulülitust . </s> <s> Minimeerimaks infovahetusel kiibivälise mäluga esinevaid ajakadusid on protsessori struktuuri lisatud kiiretoimeline siinikontroller , mis ohjab suure infoläbilaskevõimega sisesiini . </s> </p>
+<p> <s> <hi rend="rasvane"> INTEGREERITUD ARENDUSKESKKOND </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> DAP/DNA-FW II </hi> </hi> </s> </p>
+<p> <s> DAP/DNA-arhitektuuriga protsessori riistvara tulemuslikku kasutamist aitab tagada spetsiaalne integreeritud arenduskeskkond <hi rend="kaldkiri"> <hi rend="rasvane"> DAP/DNA-FW II </hi> </hi> <hi rend="kaldkiri"> ( DAP/DNA-Framework </hi> ) . </s> <s> Selle abil toimub riistvara rekonfigureerimiseks vajaliku informatsiooni ettevalmistamine . </s> <s> Arenduskeskkonnas on erivahendid , mille abil saab kõrgkeeles - kasutatakse keeli C ja MATLAB/Simulink - kirjeldatud probleemidele ( spetsifikatsioonidele ) leida protsessorlülituses sobivaim töökeskkond ( DNA struktuur ) . </s> </p>
+<p> <s> <hi rend="kaldkiri"> DAP/DNA-FW II </hi> koosseisu kuuluvaist programsetest moodulitest on olulisemad : </s> </p>
+<p> <s> 1 ) projektihaldur ( <hi rend="kaldkiri"> Project Manager </hi> ) , </s> </p>
+<p> <s> 2 ) lähteteksti redaktor , </s> </p>
+<p> <s> 3 ) jõudlusanalüsaator , </s> </p>
+<p> <s> 4 ) DNA-projekteerija , </s> </p>
+<p> <s> 5 ) DNA protsessorelementide teek ( <hi rend="kaldkiri"> DNA Blockset </hi> ) , </s> </p>
+<p> <s> 6 ) DNA-teek ( <hi rend="kaldkiri"> DNA Library </hi> ) [ sisaldab kirjeldusi DNA struktuuri sagedamini kasutatavate operatsioonide tarvis ] , </s> </p>
+<p> <s> 7 ) DNA-kompilaator , </s> </p>
+<p> <s> 8 ) DAP-kompilaator [ C-keele kompilaator ] , </s> </p>
+<p> <s> 9 ) DAP/DNA ühitatud simulaator/emulaator , </s> </p>
+<p> <s> 10 ) DAP/DNA-silur . </s> </p>
+<p> <s> <hi rend="kaldkiri"> DAP/DNA-FW II </hi> arenduskeskkonna kasutamisel võib selles läbiviidavaid toiminguid jaotada kahte suuremasse etappi . </s> <s> Neist esimene on seotud DAP-protsessori talitluse ja üldise jõudlusanalüüsiga , teine aga DNA-maatriksi struktuuri väljatöötamisega , s.t selle topoloogilis-funktsionaalsete kirjelduste koostamisega . </s> <s> Kuidas toimub DAP/DNA-protsessori struktuuri väljatöötamine <hi rend="kaldkiri"> DAP/DNA-FW II </hi> abil , millistest etappidest arendusprotsess koosneb ning millised on üksikuis etappides lahendatavad põhiküsimused , seda on lihtsustatult kujutatud joonisel 2. </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 2. </s> <s> DAP/DNA-protsessori struktuuri projekteerimise etapid arenduskeskkonnas DAP/DNA-FW II </s> </p>
+<p> <s> Kõrgkeelte kasutamine lahendatavate probleemide kirjeldamisel mitte üksnes ei kergenda projekteerijate tööd , vaid aitab oluliselt lühendada kogu projekteerimisperioodi kestust . </s> <s> Kogu projekteerimistsükkel , alates spetsifikatsioonide koostamisest kuni valmistoote ( süsteemi ) lõpliku silumiseni , toimub ühes ja samas töökeskkonnas . </s> </p>
+<p> <s> Arenduskeskkonnas <hi rend="kaldkiri"> DAP/DNA-FW II </hi> on kesksel kohal DNA-arhitektuuri projekteerimine ja saadud lahenduste kontroll . </s> <s> Et neid töid lihtsustada , varustati DNA-projekteerija moodul kasutajasõbraliku graafilise liidesega . </s> <s> Projekteerijate käsutuses on mitmekesine repertuaar arenduskeskkonna töövahendeid - nn vaatureid ( <hi rend="kaldkiri"> viewer ) </hi> mälusisude , signaalikujude , signaalide ajastuse ja energiatarbe jälgimiseks , mida toetavad ressursiohjur ja mitmed teised tööriistad . </s> <s> Nende abil saab kergesti korrigeerida ja vajadusel ka modifitseerida kasutatavaid spetsifikatsioone . </s> </p>
+<p> <s> Integreeritud arenduskeskkond <hi rend="kaldkiri"> DAP/DNA-FW II </hi> on käitatav operatsioonisüsteemis Microsoft Windows 2000/XP . </s> </p>
+<p rend="rasvane"> <s> DAP/DNA-PROTSESSORITE RAKENDUSI </s> </p>
+<p> <s> <hi rend="kaldkiri"> DAP/DNA-2 </hi> protsessorid on esimesteks laia kasutusvaldkonnaga dünaamiliselt rekonfigureeritava struktuuriga mikroprotsessorlülitusteks , mida toodetakse kommertseesmärkidel . </s> <s> Olles piisavalt kiiretoimelised , peaksid nad edukalt suutma asendada praegu väga laialdaselt levinud ASIC- ja ASSP-tüüpi eriintegraallülitusi . </s> </p>
+<p> <s> DAP/DNA-protsessorite eeliseks on nende paindlikkus - neil on kiire ja lihtne programselt ohjatav kohandatavus erinevate rakenduste vajadustega . </s> <s> Tänu sellele lüheneb märkimisväärselt uute mikroprotsessorsüsteemide väljatöötamisele kulutatav aeg ja vähenevad selleks tehtavad rahalised kulutused . </s> </p>
+<p> <s> Protsessori riistvaraliste ressursside maht on piisav , et samaaegselt käitada mitut keerukat protsessi . </s> <s> Kuigi mikroprotsessorlülitusi saab <hi rend="kaldkiri"> DAP/DNA-2 </hi> kasutada väga erinevates rakendustes , on nende põhilisemaiks kasutusvaldkondadeks siiski olmeelektroonikaseadmed , tööstusseadmeis toimuv pilditöötlus , infotöötlust kiirendavad seadmed ( kiirendid ) , erinevad võrguseadmed , turvaseadmed jms. </s> </p>
+<p> <s> Firmade <hi rend="kaldkiri"> Fujitsu Limited </hi> ja <hi rend="kaldkiri"> IPFlex Inc </hi> jätkuv koostöö on suunatud sellele , et tõsta DAP/DNA-arhitektuuriga mikroprotsessorkiipide jõudlust ja laiendada nende funktsionaalsust . </s> <s> Lähiperspektiivis kavatseb Fujitsu hakata DAP/DNA-protsessoreid kasutama võimsate kiipsüseemide loomiseks , mida vajatakse kaasaegsete arukate seadmete juhtimiseks . </s> <s> Kaugema eesmärgina nähakse automatiseeritud töökeskkonna loomist , mis aitaks kasutajail endil genereerida oma rakenduste tarvis optimaalse struktuuriga dünaamiliselt rekonfigureeritavaid riistvaralisi infotöötluskeskkondi . </s> </p>
+<p> <s> Positiivseks tendentsiks , mis peaks tagama dünaamiliselt rekonfigureeritava struktuuriga mikroprotsessorlülituste edasise arengu , on järjest uute firmade lisandumine rekonfigureeritava struktuuriga protsessorlülituste turule . </s> </p>
+<p> <s> Nii näiteks on <hi rend="kaldkiri"> Nippon </hi> <hi rend="kaldkiri"> Electric Company' </hi> <hi rend="kaldkiri"> ( NEC ) </hi> välja töötanud DAP/DNA-2 protsessoriga enam-vähem analoogilise mikroprotsessori <hi rend="kaldkiri"> <hi rend="rasvane"> DPR-1 </hi> </hi> ( <hi rend="kaldkiri"> Dynamically Reconfigurable Processor </hi> ) . </s> <s> Selle mikrolülituse dünaamiliselt rekonfigureeritava struktuuriga protsessorelementide kogum koosneb kaheksast nn klotsist ( <hi rend="kaldkiri"> tile </hi> ) , igaühes 8 x 8 protsessorelementi . </s> <s> Seega on <hi rend="kaldkiri"> DPR-1 </hi> <hi rend="kaldkiri">-</hi>s veelgi suuremate võimalustega programmeeritava struktuuriga töötlusüksus , kui seda omab <hi rend="kaldkiri"> DAP/DNA-2 . </hi> </s> </p>
+<p> <s> Analoogiliste mikroprotsessorstruktuuride uurimise ja nende tootmiseks valmistumisega tegeletakse veel mitmes teiseski firmas . </s> </p>
+<p> <s> <gap rend="viited"/> </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - ACE -- raamprogramm hajussüsteemide valmistamiseks </head>
+<p> <bibl> <author> <s> <hi rend="kaldkiri"> Taivo Lints </hi> , TTÜ magistrant </s> </author> </bibl> </p>
+<p rend="rasvane"> <s> 1. SISSEJUHATUS </s> </p>
+<p> <s> Paralleel- ja hajussüsteemide valmistamine nii “ tavalistest ” arvutitest kui ka kõikvõimalikust spetsiifilisemast riistvarast ( sh sardsüsteemidest ( <hi rend="kaldkiri"> embedded systems </hi> ) ) on hoolimata infotehnoloogia kiirest arengust ikkagi üsna keeruline . </s> <s> Lihtsama arvutiklastri saab tekitada küll vähese vaevaga - piisab , kui võrku ühendatud arvutid käivitada vabalt kättesaadava klastritarkvaraga ( nt <hi rend="kaldkiri"> Bootable Cluster CD </hi> [ 1 ] ) - , kuid kasutajarakenduste programmeerimine sellele klastrile on sellegipoolest vaevanõudev . </s> <s> Käesolevas artiklis vaadeldakse mõningaid võimalusi hajustarkvara arendamisele kuluva aja ja vaeva vähendamiseks : mustreid <hi rend="kaldkiri"> ( patterns ) </hi> , raamprogramme <hi rend="kaldkiri"> ( frameworks ) </hi> , vahetarkvara <hi rend="kaldkiri"> ( middleware ) </hi> ja konkreetset objektorienteeritud programmeerimisvahendit <hi rend="kaldkiri"> ACE </hi> <hi rend="kaldkiri"> ( The Adaptive Communication Environment ) </hi> , mis neil võimalustel põhineb . </s> </p>
+<p rend="rasvane"> <s> 2. MUSTRID , RAAMPROGRAMMID , VAHETARKVARA </s> </p>
+<p rend="rasvane"> <s> 2.1. PROBLEEMID TARKVARA LOOMISEL </s> </p>
+<p> <s> Tarkvaraarendus on alati raske olnud , kuid varasematel aegadel on siiski olnud võimalik enamik programme valmis kirjutada n-ö nullist alustades - põhinedes ainult konkreetsete programmeerijate isiklikel kogemustel . </s> <s> Arvutimaailm aga muutub üha keerukamaks ning nõudmised suuremaks : soovitakse saada ennustatava käitumisega , usaldatavat , skaleeruvat , turvalist tarkvara , mis oleks võimeline töötama paljudel erinevatel riistvaraplatvormidel ja operatsioonisüsteemidel ning mitmesugustes arvutivõrkudes [ 2 ] . </s> <s> Veelgi enam , selliseid süsteeme tuleb luua üha kasvava globaalse konkurentsi tingimustes , kus toodete valmimise aeg , aga ka eelarve on üha rohkem piiratud . </s> <s> Eriti suur on huvi ja nõudluse kasv just hajussüsteemide valdkonnas , põhjuseks hajussüsteemide arvukad positiivsed omadused : koostöö lihtsustumine üle suurte vahemaade , jõudluse kasv tänu paralleeltöötlusele , töökindlus tänu ressursside liiasusele , skaleeritavus tänu modulaarsusele , dünaamilise (re)konfigureerimise võimalused ning tasuvus tänu ressursside jagamisele ja avatud süsteemide ideoloogiale [ 3 ] . </s> <s> Samas on hajussüsteemid üks kõige keerulisemaid arvutisüsteemide liike üldse [ 4 ] . </s> </p>
+<p> <s> Hajustarkvara kirjutamisel tekitavad probleeme mitmed asjaolud [ 3 ] . </s> </p>
+<p> <s> Esiteks on vaja lahendada keerukaid ülesandeid , mis on hajussüsteemidele <hi rend="allajoonitud"> olemuslikud </hi> , näiteks võrgus ja arvutites tekkivate vigade avastamine ning nendest taastumine , infovahetuse viidete mõju minimeerimine , optimaalse tarkvarakomponentide ja töökoormuse jaotuse leidmine . </s> </p>
+<p> <s> Teine probleemide allikas on tarkvaraarenduse <hi rend="allajoonitud"> tööriistade ning tehnikate piiratus </hi> . </s> <s> Näiteks paljude standarsete võrgumehhanismide ( nt <hi rend="kaldkiri"> sockets </hi> ja <hi rend="kaldkiri"> TLI </hi> ( <hi rend="kaldkiri"> Transport Layer Interface </hi> ) ) ja taaskasutatavate teekide ( nt <hi rend="kaldkiri"> X windows </hi> ja <hi rend="kaldkiri"> Sun RPC </hi> ) rakendusliidesed <hi rend="kaldkiri"> ( APIs ) </hi> on problemaatilised : osaliselt või täielikult puuduvad muutujate tüübikontrollid , porditavus , taassisenetavus <hi rend="kaldkiri"> ( re-entrance ) </hi> , laiendatavus . </s> </p>
+<p> <s> Kolmas raskuste põhjustaja on <hi rend="allajoonitud"> algoritmilise dekompositsiooni </hi> kasutamine , mille tulemuseks on mittelaiendatavad ja taaskasutamiseks kõlbmatud tarkvarasüsteemid . </s> </p>
+<p> <s> Nendest raskustest jagusaamiseks - kvaliteetse tarkvara loomiseks mõistliku ressursikuluga - on vaja edukate mudelite , disainide ja teostuste <hi rend="allajoonitud"> süstemaatilist taaskasutust </hi> [ 2 ] . </s> <s> Kui süsteemipäratu-oportunistliku taaskasutuse korral arendajad lihtsalt kopeerivad olemasolevatest programmidest koodilõike uutesse süsteemidesse , siis süstemaatiline taaskasutus on tahtlik ja organiseeritud jõupingutus taaskasutatavate tarkvarakomponentide loomiseks ning kasutamiseks . </s> <s> Edukalt toimiva taaskasutuse korral kasutab iga uus projekt ära varasemaid edukaks osutunud disaine ja teostusi , lisades ainult spetsiifilist , konkreetse rakenduse jaoks vajalikku koodi . </s> <s> Olemasolevaid tarkvaraarhitektuure ning disaine muudetakse sel juhul ümber vaid siis , kui nad ei vasta enam muutunud nõuetele . </s> <s> Süstemaatiline taaskasutus võimaldab ära jätta tüüpiliste tarkvarakomponentide kuluka ning vigaderohke taasavastamise-leiutamise ning taastestimise . </s> </p>
+<p> <s> Süstemaatilise taaskasutuse näideteks on mustrid ja raamprogrammid ning vahetarkvara , mis ( soovitatavalt ) põhineb nendel kahel . </s> </p>
+<p> <s> <hi rend="rasvane"> 2.2. </hi> <hi rend="rasvane"> MUSTRID </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> ( PATTERNS ) </hi> </hi> </s> </p>
+<p> <s> Paljud probleemid , mis tarkvara loomise käigus esile kerkivad ( näiteks teenuste initsialiseerimine , ühenduste haldamine , vigadele reageerimine , usaldatavus ) , korduvad rakendusest rakendusse , valdkonnast valdkonda . </s> <s> Nende lahendamiseks vajalikud teadmised eksisteerisid kuni 1990ndate keskpaigani peamiselt programmeerimisfolklooris , ekspertide ja arendajate peades või maetuna sügavale keerukasse lähtekoodi [ 2 ] . </s> <s> Need asukohad aga ei ole head , sest : </s> </p>
+<p> <s> Mustrite <hi rend="allajoonitud"> leidmine lähtekoodist on kallis ja aeganõudev </hi> , kuna on raske eristada disaini olemust teostusest tulenevatest detailidest . </s> </p>
+<p> <s> Kui projekteerijate kogemused jäävad <hi rend="allajoonitud"> dokumenteerimata </hi> , siis <hi rend="allajoonitud"> lähevad </hi> need aja jooksul <hi rend="allajoonitud"> kaduma </hi> ja seega ei osale hilisemas tarkvaraevolutsioonis . </s> </p>
+<p> <s> Viimase kümnendi jooksul on kogenud tarkvaraarendajad ja -arhitektid aidanud neid probleeme lahendada , dokumenteerides taaskasutatavat teadmist järgmistel viisidel : </s> </p>
+<p> <s> <hi rend="allajoonitud"> Disainimustrid </hi> , mis kirjeldavad programmikomponentide sellist struktuuri ning omavahelisi suhteid , et saab lahendada mõne konkreetse levinud disainiprobleemi . </s> </p>
+<p> <s> <hi rend="allajoonitud"> Arhitektuurimustrid </hi> , mis kirjeldavad tarkvarasüsteemi tervikstruktuuri ja pakuvad välja juhiseid selle terviku jaotamisel alamsüsteemideks . </s> </p>
+<p> <s> <hi rend="allajoonitud"> Mustrikeeled </hi> , mis toovad kokku hulga omavahel seotud mustreid , defineerides tarkvaraprobleemidest rääkimiseks sobiva sõnavara ja pakkudes välja protsessi nende probleemide lahendamiseks ( näide mustrikeelest joonisel 1 ) . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 1. </s> <s> Mustrikeel hajusprogrammeerimise jaoks [ 2 ] . </s> <s> Siinkohal on muidugi toodud vaid keele illustratsioon . </s> <s> Keel ise kirjeldab põhjalikult kõiki mustreid ja seoseid </s> </p>
+<p> <s> <hi rend="rasvane"> 2.3. </hi> <hi rend="rasvane"> RAAMPROGRAMMID </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> ( FRAMEWORKS ) </hi> </hi> </s> </p>
+<p> <s> Raamprogramm on grupi omavahel seotud mustrite konkreetne realisatsioon [ 5 ] . </s> <s> Joonisel 2 on kujutatud raamprogrammi olemust : </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 2. </s> <s> Raamprogrammi komponentide omavahelised suhted [ 2 ] </s> </p>
+<p> <s> Sellisel raamprogrammil on järgmised omadused [ 2 ] . </s> </p>
+<p> <s> <hi rend="allajoonitud"> “ Juhtimise inversioon ” </hi> <hi rend="kaldkiri"> ( inversion of control ) </hi> programmi töö ajal. </s> <s> See tähendab , et peaprogrammiks on raamprogramm , mis teatavate sündmuste avastamise korral ( näiteks hiireklikk või andmete saabumine võrgust ) kutsub välja eelnevalt registreeritud rakendusspetsiifilisi komponente ( vastupidiselt tavalisele teekide kasutamisele , kus kasutaja poolt kirjutatud rakendus kutsub välja taaskasutatavaid teegifunktsioone ) . </s> </p>
+<p> <s> <hi rend="allajoonitud"> Ühtseks integreeritud valdkonnaspetsiifilised struktuurid ja funktsionaalsus . </hi> Raamprogrammi taaskasutatavus sõltub suurel määral sellest , kui hästi ta modelleerib konkreetse valdkonna ühtsust ning muutlikkust , s.t kas ta pakub lahendust sageli esinevatele probleemidele ning samal ajal ei takista rakendusspetsiifiliste omaduste realiseerimist . </s> </p>
+<p> <s> Seega , raamprogramm on <hi rend="allajoonitud"> poolvalmis rakendus </hi> , mida programmeerijad saavad kohandada oma vajadustele sobivaks . </s> </p>
+<p> <s> Raamprogrammid pärinevad peamiselt graafiliste kasutajaliideste valdkonnast , kus neid on juba pikaajaliselt kasutatud ( näiteks <hi rend="kaldkiri"> MacApp , X-windows , Interviews , Java Swing , Microsoft Foundation Classes </hi> ) . </s> <s> Viimasel ajal on aga sama ideoloogiat rakendatud ka paljudes teistes valdkondades . </s> <s> Näiteks <hi rend="kaldkiri"> ACE </hi> ja <hi rend="kaldkiri"> TAO </hi> , millest tuleb juttu edaspidi , on raamprogrammid hajussüsteemide vahetarkvara teatud kihtidele , <hi rend="kaldkiri"> JBoss </hi> ja <hi rend="kaldkiri"> BEA's Weblogic Server </hi> rakendusserveritele , <hi rend="kaldkiri"> Open Grid Services Infrastructure </hi> ja paljud teised keskenduvad veebiteenustele . </s> <s> On ka märksa spetsiifilisemaid raamprogramme , näiteks s<hi rend="kaldkiri">yngo</hi> meditsiiniliste läbivalgustusaparaatide tarvis . </s> </p>
+<p rend="rasvane"> <s> 2.4. VAHETARKVARA </s> </p>
+<p> <s> Vahetarkvara ülesandeks on kaitsta programmeerijat hajussüsteemi madalama taseme probleemide eest , võimaldades enamiku ressurssidest kulutada konkreetse rakenduse spetsiifilistele probleemidele . </s> <s> See määratlus sarnaneb teataval määral raamprogrammide iseloomustusega ning tõepoolest - vahetarkvara ongi võimalik realiseerida raamprogrammi(de)na , saavutamaks eelnevates alampeatükkides nimetatud positiivseid omadusi . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 3. </s> <s> Hajussüsteem , jaotatuna kihtideks [ 2 ] </s> </p>
+<p> <s> Vahetarkvara võib parema ülevaate ning mõistlikuma realiseerimise huvides jagada mitmeks kihiks ( 4 keskmist kihti joonisel 3 ) [ 2 ] . </s> </p>
+<p> <s> <hi rend="allajoonitud"> Arvuti infrastruktuuri vahetarkvara </hi> kapseldab ja parendab baasoperatsioonisüsteemi mehhanisme , pakkudes näiteks taaskasutatavaid sündmuste demultipleksimise , protsessidevahelise suhtlemise , paralleelsuse-konkurentsuse ja sünkroniseerimisega tegelevaid klasse . </s> <s> Kapseldades konkreetsete operatsioonisüsteemide iseärasused , aitavad need klassid oluliselt vähendada tüütut ja vigadealdist madaltaseme programmeerimist ning suurendavad porditavust . </s> <s> Tuntud infrastruktuuri vahetarkvarad on näiteks <hi rend="kaldkiri"> Sun Java Virtual Machine </hi> ja <hi rend="kaldkiri"> Microsoft's Common Language Runtime </hi> . </s> <s> Sellesse kihti kuulub ka <hi rend="kaldkiri"> The Adaptive Communication Environment ( ACE ) </hi> . </s> </p>
+<p> <s> <hi rend="allajoonitud"> Hajususega tegelev vahetarkvara </hi> , mis võimaldab programmeerijal vaadelda süsteemi kui tervikut ning vabastab vajadusest eelnevalt teada objektide täpseid füüsilisi asukohti ja nende baasarvutite operatsioonisüsteeme , suhtlusprotokolle ja võrgutehnoloogiaid ning riistvara . </s> <s> Sellesse kihti kuuluvad eelkõige päringuvahendajad <hi rend="kaldkiri"> ( request brokers ) , </hi> nagu näiteks <hi rend="kaldkiri"> OMG's Common Object Request Broker Architecture ( CORBA ) , </hi> <hi rend="kaldkiri"> Sun's Java Remote Method Invocation ( RMI ) </hi> ja <hi rend="kaldkiri"> Simple Object Access Protocol ( SOAP ) </hi> , aga ka <hi rend="kaldkiri"> The ACE ORB ( TAO ) </hi> , mis on <hi rend="kaldkiri"> The Adaptive Communication Environment </hi> i baasil valmistatud avatud lähtekoodiga reaalaja <hi rend="kaldkiri"> CORBA ORB </hi> [ 5 ] . </s> </p>
+<p> <s> <hi rend="allajoonitud"> Üldised vahetarkvara </hi> <hi rend="allajoonitud"> teenused </hi> täiendavad hajutamisega tegelevat vahetarkvarakihti , pakkudes valdkonnast sõltumatuid kõrgema taseme taaskasutatavaid teenuseid . </s> <s> Näitena võib tuua <hi rend="kaldkiri"> OMG's CORBA Common Object Services </hi> : sündmustest teavitamine , logimine , multimeedia striimimine , turvalisus , globaalaeg , veakindlus , transaktsioonid jms. </s> <s> Analoogiliselt võimaldavad ka <hi rend="kaldkiri"> Sun's Enterprise Java Beans </hi> ning <hi rend="kaldkiri"> Microsoft's </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> . </hi> </hi> <hi rend="kaldkiri"> NET </hi> valmistada hajussüsteeme olemasolevate teenusekomponentide kokkulinkimise teel . </s> </p>
+<p> <s> <hi rend="allajoonitud"> Valdk </hi> <hi rend="allajoonitud"> onnaspetsiifilised vahetarkvara </hi> <hi rend="allajoonitud"> teenused </hi> , mis vastavad konkreetsete valdkondade nõudmistele ja soovidele , näiteks <hi rend="kaldkiri">ACE+TAO</hi>-l põhinevad <hi rend="kaldkiri"> Siemens syngo </hi> ( platvorm kõikvõimalike meditsiiniliste läbivalgustusmasinate integreerimiseks ühtsesse arstidele mugavasse süsteemi [ 6 ] ) ja <hi rend="kaldkiri"> Boeing Bold Stroke </hi> ( lennuki pardaarvutussüsteemi arhitektuur , mis ühendab navigatsiooniseadmed , piloodi näidikud ja ekraanid , sensorid ning relvade sihtimis- ja tulistamismehhanismid [ 5 ] ) . </s> </p>
+<p rend="rasvane"> <s> 3. THE ADAPTIVE COMMUNICATION ENVIRONMENT </s> </p>
+<p> <s> ( Peatükk põhineb allikal [ 7 ] ) </s> </p>
+<p> <s> <hi rend="rasvane"> 3.1. </hi> <hi rend="rasvane"> MIS ON </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> ACE </hi> </hi> <hi rend="rasvane"> ? </hi> </s> </p>
+<p> <s> <hi rend="kaldkiri"> ACE </hi> on objektorienteeritud raamprogramm , mis realiseerib olulisemad paralleelsuse ja hajutamisega seotud mustrid . </s> <s> Joonisel 3 toodud jaotuses asub see arvuti infrastruktuuri vahetarkvarakihis . </s> </p>
+<p> <s> <hi rend="kaldkiri"> ACE </hi> sisaldab suure hulga taaskasutatavaid C++ “ ümbriseid ” <hi rend="kaldkiri"> ( wrappers ) </hi> ja raamprogrammi komponente , mis on suunatud suure jõudlusega reaalajarakenduste arendajatele . </s> <s> Need komponendid pakuvad järgmisi kommunitseeruvale tarkvarale iseloomulike ülesannete taaskasutatavaid realisatsioone : </s> </p>
+<p> <s> ühenduste loomine ja teenuste initsialiseerimine , </s> </p>
+<p> <s> sündmuste demultipleksimine ja edastamine vastavate sündmuste teenindajatele , </s> </p>
+<p> <s> protsessidevaheline suhtlemine ja ühismälu <hi rend="kaldkiri"> ( shared memory ) </hi> haldamine , </s> </p>
+<p> <s> kommunikatsiooniteenuste staatiline ja dünaamiline seadistamine , </s> </p>
+<p> <s> hajutatud kommunikatsiooniteenused , näiteks arvutite “ nimedega ” tegelemine , sündmuste marsruutimine , logimine , aja sünkroniseerimine ja lukustamine üle võrgu . </s> </p>
+<p> <s> Lisaks on olemas <hi rend="kaldkiri"> ACE </hi> -l põhinevaid kõrgema taseme vahetarkvarasid-komponente , nagu objektipäringuvahendajad <hi rend="kaldkiri"> ( Object Request Brokers ) </hi> ja veebiserverid . </s> </p>
+<p> <s> <hi rend="kaldkiri"> ACE </hi> on avatud lähtekoodiga ning töötab paljudel erinevatel operatsioonisüsteemidel ( tabel 1 ) . </s> <s> Olemas on ka <hi rend="kaldkiri"> Java </hi> versioon <hi rend="kaldkiri">ACE</hi>st. </s> </p>
+<p rend="loendi_element"> <s> Tabel 1 </s> </p>
+<p rend="keskel"> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> ACE </hi> </hi> <hi rend="rasvane"> arendusgrupid ja paltvormid [ 13 ] </hi> </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p rend="rasvane"> <s> Grupp </s> </p>
+<p rend="rasvane"> <s> Platvormid </s> </p>
+<p rend="kaldkiri"> <s> DOC Group </s> </p>
+<p> <s> Igapäevaselt testitakse ja kasutatakse järgnevatel platvormidel : <hi rend="kaldkiri"> Solaris 2.6 </hi> , <hi rend="kaldkiri"> 7 </hi> ja <hi rend="kaldkiri"> 8 </hi> ( paljud kompilaatorid , v.a <hi rend="kaldkiri"> SunC++ 4.x </hi> ) , <hi rend="kaldkiri"> Windows NT 4.0 , 2000 , XP </hi> <hi rend="kaldkiri"> ( MSVC++ 6.x , 7.x , Borland C++ Builder 5.0 ) , Linux/Intel </hi> ( paljud kompilaatorid ) <hi rend="kaldkiri"> , Linux/IA64 ( GCC ) . </hi> </s> </p>
+<p rend="kaldkiri"> <s> Riverace </s> </p>
+<p> <s> Pakub tuge mitmesugustele platvormidele , sh eelnimetatud , <hi rend="kaldkiri"> HP-UX , AIX , </hi> ja <hi rend="kaldkiri"> Windows CE </hi> . </s> </p>
+<p> <s> 477 <hi rend="kaldkiri"> OCI </hi> </s> </p>
+<p> <s> Mõningad platvormid , mida neil parajasti oma <hi rend="kaldkiri"> TAO </hi> tarkvara ja teenuste pakkumiseks vaja on . </s> </p>
+<p rend="kaldkiri"> <s> Remedy IT </s> </p>
+<p> <s> Lisaks <hi rend="kaldkiri"> DOC Group </hi> -i poolt toetatavatele veel : <hi rend="kaldkiri"> Borland C++ Builder 6 , CBuilderX 1.0 , VxWorks 5.5 , OpenVMS 7.3-2 , Linux 64bit Alpha </hi> ja <hi rend="kaldkiri"> Tru64 </hi> . </s> </p>
+<p> <s> <hi rend="kaldkiri"> ACE </hi> kasutajaskond </s> </p>
+<p> <s> Kõikvõimalikud platvormid , mida eeltoodud grupid ei arenda , näiteks : <hi rend="kaldkiri"> Windows 95/98 ( Borland C++ Builder 4.0 </hi> ja hilisemad <hi rend="kaldkiri"> , GNU g++ ( MinGW , Cygwin ) ) ; Digital UNIX ( Compaq Tru64 ) 4.0 </hi> ja <hi rend="kaldkiri"> 5.0 ; IRIX 6.x ; UnixWare 7.1.0 ; SunOS 4.x </hi> ja <hi rend="kaldkiri"> Solaris ( SunC++ 4.x ) ; Linux on Alpha and PPC ; OpenMVS ; Tandem ; SCO ; FreeBSD ; NetBSD ; OpenBSD ; Chorus ; OS/9 ; PharLap TNT Embedded ToolSuite 9.1 ; QNX RTP </hi> ja <hi rend="kaldkiri"> Neutrino 2.0 ; VxWorks ; LynxOS ; RTEMS </hi> . </s> </p>
+<p> <s> <hi rend="kaldkiri"> ACE </hi> kasutajaskond on väga lai ning isegi sponsorite nimekiri on üsna aukartustäratav [ 14 ] : <hi rend="kaldkiri"> ATD , BBN , Boeing , CDI/GDIS , Cisco , Comverse , DARPA , Ericsson , Experian , Global MAINTECH , Hughes Network Systems , Kodak , Krones , Lockheed Martin , Lucent , Microsoft , Mitre , Motorola CGISS , Motorola Iridium , OCI , Oresis , OTI , Nokia , Nortel , NSF , QNX , Raytheon , Riverace , SAIC , Siemens ATD , Siemens MED , Siemens SCR , Siemens ZT , Sprint , Telcordia , USENIX </hi> . </s> </p>
+<p> <s> <hi rend="rasvane"> 3.2 </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> . </hi> </hi> </s> <s> <hi rend="kaldkiri"> <hi rend="rasvane"> ACE </hi> </hi> <hi rend="rasvane"> STRUKTUUR JA FUNKTSIONAALSUS </hi> </s> </p>
+<p> <s> <hi rend="kaldkiri"> AC </hi> <hi rend="kaldkiri"> E </hi> raamprogramm sisaldab ~150 000 rida <hi rend="kaldkiri"> C++ </hi> koodi jagatuna ~450 klassiks . </s> <s> Erinevate probleemide üksteisest eraldamiseks ning keerukuse vähendamiseks on kasutatud kihilist arhitektuuri ( joonis 4 ) . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 4. </s> <s> ACE kihiline arhitektuur(all) ja lisakomponendid ( üleval ) [ 7 ] </s> </p>
+<p rend="rasvane"> <s> 3.2.1. Operatsioonisüsteemide “ adapterkiht ” </s> </p>
+<p> <s> Moodustab umbes 13% kogu <hi rend="kaldkiri"> ACE </hi> koodist . </s> <s> Kaitseb ülejäänud komponente platvormispetsiifilisuse eest , mis on seotud järgmiste operatsioonisüsteemi teenustega : </s> </p>
+<p> <s> hargtöötlus <hi rend="kaldkiri"> ( multi-threading ) </hi> , multitöötlus <hi rend="kaldkiri"> ( multi-processing ) </hi> ja sünkroniseerimine , </s> </p>
+<p> <s> protsessidevaheline kohalik ja kaugsuhtlus , ühismälu , </s> </p>
+<p> <s> sünkroonne ja asünkroonne sisendil/väljundil , taimeritel , signaalidel ja sünkronisatsioonil põhinevate sündmuste demultipleksimine , </s> </p>
+<p> <s> dünaamiline linkimine , </s> </p>
+<p> <s> failide ja kataloogidega manipuleerimine . </s> </p>
+<p> <s> Tänu OS adapteri poolt pakutavale abstraktsioonile on olnud võimalik <hi rend="kaldkiri"> ACE </hi> üles ehitada ühtse süsteemina ilma iga platvormi jaoks eraldi versiooni loomata . </s> <s> Selline disain tõstab oluliselt <hi rend="kaldkiri"> ACE </hi> porditavust ja hooldatavust . </s> </p>
+<p> <s> <hi rend="rasvane"> 3.2.2. </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> C++ </hi> </hi> <hi rend="rasvane"> ümbrised </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> ( wrappers ) </hi> </hi> </s> </p>
+<p> <s> Põhimõtteliselt on võimalik kirjutada kergesti porditavaid rakendusi ka otse OS adapteri peale , aga enamik arendajaid eelistab siiski kasutada <hi rend="kaldkiri"> C++ </hi> ümbriseid või veel kõrgemaid <hi rend="kaldkiri"> ACE </hi> kihte . <hi rend="kaldkiri"> C++ </hi> ümbrised struktureerivad klassideks muidu eraldiseisvad <hi rend="kaldkiri"> C </hi> funktsioonid , pakuvad tugevat muutujate tüübikontrolli ( kuid võimaldavad vajadusel ka sellest möödapääsemist ) , lihtsustavad mitmete funktsioonide kasutamist ( nt võimaldades programmeerijal mitte iga kord ette anda selliseid argumente , mille väärtused rakenduse töö käigus ei muutu ) ja kõrvaldavad veaohtlikke olukordi ( nt sooritades klassi konstruktoris kõik vajalikud tegevused , mis tihti ununema kipuvad ( nt mõne olulise muutuja nullimine ) ) [ 8 ] . </s> <s> Vältimaks ümbriste kasutamisest tulenevat programmide jõudluskadu , on kasutatud mitmesuguseid optimeerimistehnikaid , näiteks <hi rend="kaldkiri">inlining</hi>ut ( väikeste funktsioonide koodi kirjutamine otse kasutuskohta , vältimaks funktsiooni väljakutsest tulenevat lisakoormust ) . </s> </p>
+<p> <s> <hi rend="kaldkiri"> C++ </hi> ümbrised moodustavad ~50% <hi rend="kaldkiri"> ACE </hi> koodist . </s> <s> Rakendused võivad neid klasse kasutada pärimise ja agregeerimise teel või neist lihtsalt objekte tekitada . </s> </p>
+<p rend="rasvane"> <s> 3.2.3. Raamprogrammi komponendid </s> </p>
+<p> <s> Moodustavad ülejäänud ~40% <hi rend="kaldkiri"> ACE </hi> koodist , integreerides ja täiendades <hi rend="kaldkiri"> C++ </hi> ümbriseid . </s> <s> Raamprogrammi komponentideks on : </s> </p>
+<p> <s> <hi rend="allajoonitud"> <hi rend="kaldkiri"> Reactor </hi> </hi> <hi rend="allajoonitud"> ja </hi> <hi rend="allajoonitud"> <hi rend="kaldkiri"> Proactor - </hi> </hi> laiendatavad objektorienteeritud demultiplekserid , mis reageerivad mitmesugustele sisendil/väljundil , taimeritel , signaalidel ja sünkronisatsioonil põhinevatele sündmustele vastavate rakendusspetsiifiliste komponentide väljakutsumisega ; </s> </p>
+<p> <s> <hi rend="allajoonitud"> <hi rend="kaldkiri"> Connector </hi> </hi> <hi rend="allajoonitud"> ja </hi> <hi rend="allajoonitud"> <hi rend="kaldkiri"> Acceptor </hi> </hi> eraldavad vastavalt aktiivse ja passiivse ühenduse initsialiseerimise rakendusspetsiifilistest ülesannetest , mida täidetakse pärast ühenduse loomist ; </s> </p>
+<p> <s> <hi rend="allajoonitud"> <hi rend="kaldkiri"> Service Configurator </hi> </hi> toetab rakenduste loomist , mille teenuseid saab dünaamiliselt lisada ja eemaldada installeerimise ja/või töö käigus ; </s> </p>
+<p> <s> <hi rend="allajoonitud"> <hi rend="kaldkiri"> Streams components </hi> </hi> : lihtsustavad hierarhiliste-kihiliste teenuste ( nt protokollikihtide <hi rend="kaldkiri"> ( protocol stack ) </hi> ) realiseerimist . </s> </p>
+<p> <s> <hi rend="allajoonitud"> <hi rend="kaldkiri"> ORB </hi> </hi> <hi rend="allajoonitud"> <hi rend="kaldkiri"> adapter components </hi> </hi> võimaldavad <hi rend="kaldkiri"> ACE i </hi> ntegreerida <hi rend="kaldkiri"> CORBA </hi> süsteemidesse . </s> </p>
+<p> <s> <hi rend="rasvane"> 3.2.4. </hi> </s> <s> <hi rend="rasvane"> Iseseisvad </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> ( self-contained ) </hi> </hi> <hi rend="rasvane"> hajusteenuste komponendid </hi> </s> </p>
+<p> <s> Need komponendid ei kuulu rangelt võttes <hi rend="kaldkiri">ACE</hi>i raamprogrammi , kuid sellegipoolest on neil kaks olulist rolli : </s> </p>
+<p> <s> <hi rend="allajoonitud"> taaskasutatavad realisatsioonid </hi> tihti esinevate ülesannete täitmiseks : arvutite “ nimedega ” tegelemine , sündmuste marsruutimine , logimine , aja sünkroniseerimine ja lukustamine üle võrgu ; </s> </p>
+<p> <s> <hi rend="allajoonitud"> <hi rend="kaldkiri"> AC </hi> </hi> <hi rend="allajoonitud"> <hi rend="kaldkiri"> E </hi> </hi> <hi rend="allajoonitud"> komponentide kasutamise demonstreerimine </hi> <hi rend="allajoonitud"> <hi rend="kaldkiri"> . </hi> </hi> </s> </p>
+<p rend="rasvane"> <s> 3.2.5. Kõrgema taseme vahetarkvara ja rakendused </s> </p>
+<p> <s> <hi rend="kaldkiri">ACE</hi>ga üheskoos arendatavad süsteemid on : </s> </p>
+<p> <s> <hi rend="allajoonitud"> <hi rend="kaldkiri"> The ACE ORB ( TAO ) </hi> </hi> : standardse <hi rend="kaldkiri"> OMG CORBA </hi> mudeli realisatsioon koos täiustustega , mis erinevalt enamikust tavalistest <hi rend="kaldkiri">ORB</hi>idest võimaldab <hi rend="kaldkiri">TAO</hi>d kasutada ka suure jõudlusega ja reaalajarakendustes ( joonis 5 ) . </s> <s> Joonisel 3 asub <hi rend="kaldkiri"> TAO </hi> hajususega tegeleva vahetarkvara kihis . </s> </p>
+<p> <s> <hi rend="allajoonitud"> <hi rend="kaldkiri"> JAWS </hi> </hi> : suure jõudlusega adaptiivne veebiserver , mis on struktureeritud kui raamprogrammidest koosnev raamprogramm ( joonis 6 ) . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 5. </s> <s> TAO komponendid [ 7 ] </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 6. </s> <s> Raamprogrammi JAWS arhitektuur [ 7 ] </s> </p>
+<p> <s> <hi rend="rasvane"> 3.3. </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> ACE JA </hi> </hi> <hi rend="kaldkiri"> <hi rend="rasvane"> TAO </hi> </hi> <hi rend="rasvane"> JÕUDLUS NING “ JALAJÄLG ” </hi> </s> </p>
+<p> <s> <hi rend="kaldkiri"> ACE </hi> loomisel on suurt tähelepanu pööratud sellele , et jõudluskadu , võrreldes madaltaseme programmeerimisega , oleks minimaalne . </s> <s> See on suures osas ka saavutatud ( nt kasutades punktis <hi rend="kaldkiri"> 3.2.2. “ C++ ümbrised ” </hi> nimetatud <hi rend="kaldkiri">inlining</hi>ut ) , millest annavad tunnistust nii jõudlustestid ( joonis 7 ) kui märkimisväärselt laialdane kasutajaskond , sealhulgas äärmiselt nõudlikes valdkondades , nagu lennundus ja sõjandus . </s> <s> Mõned näited <hi rend="kaldkiri"> ( Boeing , Siemens ) </hi> leidusid juba eelnevas tekstis . </s> <s> Siia võiks lisada veel Türgi mereväe poolt loodava lahinguhaldussüsteemi vahetarkvara , mille autorid vähemalt aastal 2000 kirjutasid , et esmane planeeritav samm süsteemi jõudluse tõstmiseks on selle portimine <hi rend="kaldkiri"> The ACE ORB </hi> ile [ 9 ] . </s> <s> Samuti on positiivseks näiteks süsteemi <hi rend="kaldkiri"> DOTS </hi> ( <hi rend="kaldkiri"> The Distributed Object-Oriented Threads System </hi> , programmeerimisvahend ebaregulaarsete ja tugevalt andmetest sõltuvate algoritmide paralleliseerimiseks ) kirjutamine <hi rend="kaldkiri">ACE</hi>le , samas kui tema eelkäija <hi rend="kaldkiri"> DTS </hi> töötas <hi rend="kaldkiri">PVM</hi>il <hi rend="kaldkiri"> ( Parallel Virtual Machine ) </hi> [ 10 ] . </s> <s> Üleminek <hi rend="kaldkiri">ACE</hi>le andis järgmised eelised : </s> </p>
+<p> <s> <hi rend="kaldkiri">ACE</hi>i <hi rend="allajoonitud"> teegid on lingitud </hi> , aga <hi rend="kaldkiri"> PVM </hi> käivitub tervikuna eraldi . </s> <s> Seega , <hi rend="kaldkiri"> ACE </hi> kasutades jääb mittevajatav funktsionaalsus välja ; </s> </p>
+<p> <s> <hi rend="kaldkiri"> ACE </hi> on <hi rend="allajoonitud"> porditav </hi> väga paljudele platvormidele ; </s> </p>
+<p> <s> <hi rend="allajoonitud"> kõrgem abstraktsioonitase </hi> , mis samas ei kahjusta oluliselt jõudlust ; </s> </p>
+<p> <s> <hi rend="allajoonitud"> tugevam muutujate tüübikontroll </hi> vähendab töö käigus tekkivate vigade arvu ( s.t paljud vead leitakse juba kompileerimisel ) ning tõstab seega tarkvara kvaliteeti . </s> </p>
+<p> <s> Kuigi <hi rend="kaldkiri">ACE</hi>d ja <hi rend="kaldkiri">TAO</hi>d kasutatakse edukalt ka paljudes sardsüsteemides , võivad need ( eriti <hi rend="kaldkiri"> TAO </hi> ) mõningatel juhtudel siiski ebasobivaks osutuda . </s> <s> Nimelt , olles küllaltki universaalsed , omab neid kasutav programm hoolimata <hi rend="kaldkiri">ACE</hi>i lingitud iseloomust ( mis võimaldab üleliigse funktsionaalsuse lõpp-programmist välja jätta ) siiski suhteliselt suurt mahtu - “ jalajälge ” . </s> <s> Eriti nõudlike ja piiratud ressurssidega sardsüsteemide korral võib see osutuda tõsiseks probleemiks , muutes seal <hi rend="kaldkiri"> ACE </hi> ja <hi rend="kaldkiri"> TAO </hi> kasutamise ( vähemalt normaalkujul , ilma oluliste modifikatsioonideta ) võimatuks [ 11 , 12 ] . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> Joonis 7. </s> <s> C , ACE ja kahe CORBA versiooni - Orbix ja ORBeline võrdlus 155 Mbps ATM võrgus ja 10 Mbps Ethernet võrgus aastal ~1995 . </s> <s> Täpsem info testi kohta on kättesaadav allikast [ 8 ] . </s> <s> NB ! </s> <s> Testitud on ACEd ( konkreetsemalt C++ ümbriseid ) , mitte TAOd ( sest seda ei olnud testi ajal veel valmis ) , ja lisaks võivad vaadeldud ORBid vahepeal edasi arenenud olla , seega on mõttekam peatähelepanu pöörata võrdlusele ACE vs . </s> <s> C. </s> </p>
+<p rend="rasvane"> <s> 4. KOKKUVÕTE </s> </p>
+<p> <s> Mustrite , raamprogrammide ja nendel põhineva vahetarkvara kasutamine võib muuta tarkvara- arendust oluliselt lihtsamaks , kiiremaks ja odavamaks . </s> <s> Käesolevas artiklis vaadeldud <hi rend="kaldkiri"> The Adaptive Communication Environment ( ACE ) </hi> ja sellel põhinevad <hi rend="kaldkiri"> The ACE ORB ( TAO ) </hi> ning <hi rend="kaldkiri"> JAWS </hi> kinnitavad selle väite paikapidavust , lihtsustades oluliselt mitmesuguste hajussüsteemide valmistamist . </s> <s> Olles lisaks veel avatud lähtekoodiga ja tasuta kättesaadavad , on <hi rend="kaldkiri"> ACE </hi> ning <hi rend="kaldkiri"> TAO </hi> kogunud üsna suure kasutajaskonna üle kogu maailma . </s> <s> Täpsemat infot <hi rend="kaldkiri"> ACE </hi> kohta on huvilistel võimalik leida Internetiaadressilt <gap rend="hüperlink"/> </s> </p>
+<p> <s> <gap rend="viited"/> </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Tarkvara õiguskaitse aktuaalseid probleeme digitaalses maailmas </head>
+<p> <bibl> <author> <s> <hi rend="kaldkiri"> Ants Kukrus </hi> , TTÜ professor </s> </author> </bibl> </p>
+<p> <s> Tarkvara õiguskaitse probleemid<hi rend="ülaindeks">1</hi> on eriti akuutsed tänapäeva pidevalt muutuvas ja arenevas infoühiskonnas . </s> <s> Arvutid ja tarkavara on muutunud asendamatuks töövahendiks meie igapäevaelus , võimaldades kiiret infovahetust . </s> <s> Tulenevalt tarkvara kui intellektuaalomandi objekti spetsiifilisusest ja komponendirohkest olemusest on õiguskaitseküsimused selles valdkonnas väga keerukad . </s> <s> Hoolimata sellest , et tarkvara on võimalik kaitsta mitmete erinevate kaitsevormidega , on tarkvara õiguskaitse probleem endiselt väga aktuaalne , kuna puudub ühtne terviklik õiguskaitse . </s> </p>
+<p> <s> Tarkvara õiguskaitse probleemid on tingitud järgnevatest asjaoludest : tarkvara </s> </p>
+<p> <s> immateriaalne vorm , </s> </p>
+<p> <s> komponentide paljusus , </s> </p>
+<p> <s> piraatlust soosivate tegurite paljusus ( Internet , avalikud <hi rend="kaldkiri">FTP</hi>-serverid , suure mahutavusega andmekandjad ) , </s> </p>
+<p> <s> lihtne kopeeritavus . </s> </p>
+<p> <s> Arvutitarkvara on koondmõiste , mis koosneb paljudest erinevatest komponentidest . </s> <s> Eeskätt kuuluvad siia arvutiprogrammid , programmi kirjeldused , programmi kasutusjuhendid , dokumentatsioon ja erinevad andmekandjad . </s> <s> Arvutitarkvaral puudub kindel juriidiline määratlus , mis on tingitud tarkvara ja tehnoloogia kiirest arengust . </s> <s> Üldiselt mõistetakse tarkvara all kõike , mis aitab kaasa arvutiprogrammi toimimisele , välja arvatud riistvara . </s> </p>
+<p> <s> Märkigem , et teatud tarkvara on inkorporeeritud riistvarasse , kuid nende puhul on tegemist puhtalt riistvara teenindavate käskudega , mida eraldiseisvaks tarkvaraks lugeda ei saa . </s> </p>
+<p> <s> Tarkvara komponentideks on<hi rend="ülaindeks">2</hi> : </s> </p>
+<p> <s> 1 ) esialgsed visuaalsed elemendid , ka nende ettevalmistustööd , nende spetsifikatsioonid , diagrammid , analüüsid , </s> </p>
+<p> <s> 2 ) arvutiprogramm . </s> </p>
+<p> <s> Arvutiprogramm võib eksisteerida nii lähte- kui ka objektikoodina . </s> <s> Lähtekood ( e programmikood ) on programmi algkood mõnes programmeerimiskeeles vastavalt sellele , kuidas programmeerija ( autor ) selle on kirjutanud . </s> <s> Selleks et programm töötaks , tuleb lähtekood teisendada objektikoodiks . </s> <s> Objektikood kujutab endast programmi tegelikus masinakeeles , mida arvuti on võimeline käivitama . </s> <s> Objektikood on saadud programmeerimiskeele abil , programmeerija abiga ja kasutades vahendeid , mis on tuntud kui <hi rend="kaldkiri"> assembler </hi> , kompilaator või interpretaator . </s> <s> Seda “ ümberkirjutamise ” või “ tõlkimise ” protsessi nimetatakse transleerimiseks ehk kompileerimiseks . </s> </p>
+<p> <s> 3 ) tarkvara arendusvahendid , nagu erinevad relatsioonilised andmebaasisüsteemid , kompilaatorid , erinevad programmeerimiskeeled jne. </s> </p>
+<p> <s> 4 ) andmebaasid </s> </p>
+<p> <s> 5 ) erinevad visuaalsed ekraanivaated </s> </p>
+<p> <s> 6 ) kasutusjuhendid , abimaterjalid </s> </p>
+<p> <s> 7 ) programmeerimiskeeled ja muud arendusvahendid </s> </p>
+<p> <s> 8 ) erinevad heliklipid , disainikavandid , kirjandus . </s> </p>
+<p> <s> Kõige tähtsam arvutitarkvara komponent on aga arvutiprogramm ise . </s> <s> Arvutiprogrammi võib defineerida järgnevalt : “ Arvutiprogramm on kogum käske ja juhiseid , mille abil arvuti otseselt või kaudselt toob esile mingeid kindlaid tulemusi . ” </s> </p>
+<p> <s> Intellektuaalomandi õiguste kaubandusaspektide lepingu ( TRIPS leping ) <hi rend="ülaindeks"> 3 </hi> artikli 10 kohaselt kasutatakse arvutiprogramme - kas lähtetekstina või objektikoodi kujul - nagu kirjandusteoseid vastavalt Berni kirjandus- ja kunstiteoste kaitse konventsioonile . <hi rend="ülaindeks"> 4 </hi> </s> </p>
+<p> <s> Arvutitarkvara jaotatakse vastavalt selle eesmärgile ja kasutuslitsentsi tüübile erinevatesse liikidesse . </s> <s> Tavaliselt määratakse tarkvara liik kindlaks litsentsilepingus , millega tarkvara kasutajale üle antakse . </s> </p>
+<p> <s> Maailmapraktikas on välja kujunenud järgnev tarkvara liigitus : </s> </p>
+<p> <s> 1 ) äritarkvara ( <hi rend="kaldkiri"> commercialware </hi> ) , </s> </p>
+<p> <s> 2 ) jaosvara ( <hi rend="kaldkiri"> shareware </hi> ) , </s> </p>
+<p> <s> 3 ) proovivara ( <hi rend="kaldkiri"> trialware </hi> ) , </s> </p>
+<p> <s> 4 ) vabavara ( <hi rend="kaldkiri"> freeware </hi> ) , </s> </p>
+<p> <s> 5 ) vaba tarkvara ( <hi rend="kaldkiri"> free software </hi> ) , </s> </p>
+<p> <s> 6 ) avalik tarkvara ( <hi rend="kaldkiri"> public domain software </hi> ) . </s> </p>
+<p> <s> <hi rend="rasvane"> Ärivara </hi> on peamine arvutitarkvara liik , mida levitatakse tavaliselt infotehnoloogiafirmade , arvutikaupluste ja riistvara kaudu kommertseesmärkidel . </s> <s> Enamik suurte arvutitootjate tarkvarapakettidest on just ärivara . </s> <s> Siinkohal võib näiteks tuua <hi rend="kaldkiri"> Microsoft Office </hi> 'i tarkvara . </s> <s> Ärivara kasutamine on lubatud alles pärast litsentsitasu maksmist . </s> <s> Vaatamata sellele , et tootjate lõikes võivad litsentsilepingu tingimused erineda , jäävad üldpõhimõtted samaks : </s> </p>
+<p> <s> arvutiprogramm on kaitstud autoriõigusega ( EV autoriõiguse seadus , <hi rend="ülaindeks"> 5 </hi> AutÕS § 4 lg 3 p.3 ) , </s> </p>
+<p> <s> arvutiprogrammi õiguspärasel kasutajal on õigus teha programmist varukoopia , mida ta võib kasutada üksnes juhul , kui tarkvarapaketi originaal on muutunud kasutuskõlbma- tuks , kadunud või hävinud ( AutÕS § 24 lg 2 ) , </s> </p>
+<p> <s> programmi modifitseerimine ei ole lubatud , </s> </p>
+<p> <s> arvutiprogrammi alusel uue programmi arendamine ( nn tuletatud programm ) ilma programmi õiguste omaja nõusolekuta ei ole lubatud . </s> </p>
+<p> <s> <hi rend="rasvane"> Jaosvara </hi> on ärivara eriliik , mida võib kindlaks määratud perioodi jooksul tasuta kasutada ( reeglina 14-90 päeva ) . </s> <s> Selle ajavahemiku lõppedes tuleb tarkvara kasutajal kas kasutamine lõpetada või soetada tasuline kasutamisõigus . </s> <s> Erinevalt ärivarast võib jaosvara levitada igal moel ( v.a kommertseesmärkidel ) . </s> <s> Jaosvara erinevus ärivarast seisneb selles , et tegemist on tarkvaraga , mille võimalused ja funktsioonid on reeglina piiratud või lakkavad mingi tähtaja möödudes funktsioneerimast . </s> <s> Ka jaosvara suhtes kehtivad samad tingimused , mis ärivara suhteski , arvestades eespool toodud erinevusi . </s> <s> Seega , jaosvara üldreeglina ei erine oma kvaliteedilt ärivarast , vaid lihtsalt selle programmi kasutamisvõimalused on kitsamad , kandes eneses toote tutvustamise eesmärki . </s> <s> Näiteks sobib siis <hi rend="kaldkiri"> WinZip </hi> tarkvara . </s> </p>
+<p> <s> Interneti üha laienev levik on järsult tõstnud jaosvarameetodi populaarsust tarkvaratootjate hulgas : iga soovija võib programmipaketi endale tootjafirma serverilt alla laadida , oma arvutisse installeerida ning juhul , kui paketi omadused ja hind osutuvad rahuldavaks , osta litsents . </s> <s> Seega on tegemist tarkvaraga , mille selge eelis ärivara ees seisneb selles , et tarkvara kasutajatel võimaldatakse tasuta proovida erinevaid tooteid ja selgitada toodete vastavust omapoolsetele nõudmistele . </s> </p>
+<p> <s> Jaosvara liigid on järgmised : </s> </p>
+<p> <s> a ) <hi rend="rasvane"> Aegvara </hi> ( <hi rend="kaldkiri"> timeware </hi> ) </s> </p>
+<p> <s> Aegvara on kõige levinum jaosvara liik . </s> <s> Aegvara puhul on programmi tasuta kasutamine ajaliselt piiratud ( reeglina 14-90 ) päeva . </s> <s> Pärast lubatud kasutusperioodi lõppu tuleb kas programmi kasutamine lõpetada või maksta litsentsitasu ja omandada tähtajatu kasutusõigus . </s> <s> Reeglina pärast kasutamisperioodi lõppu programm lihtsalt lakkab töötamast ( küsib parooli ) . </s> </p>
+<p> <s> b ) <hi rend="rasvane"> Santvara </hi> ( <hi rend="kaldkiri"> crippleware </hi> ) </s> </p>
+<p> <s> Santvara on programmi versioon , mille juures on mingid olulised funktsioonid kärbitud ( näiteks ei saa kasutaja loodud <hi rend="kaldkiri"> faile </hi> salvestada ) . </s> </p>
+<p> <s> c ) <hi rend="rasvane"> Etteheitevara </hi> ( <hi rend="kaldkiri"> nagware </hi> ) </s> </p>
+<p> <s> Etteheitevara on küll täisfunktsionaalne , aga tuletab kasutajale igal võimalikul juhul meelde , et too ei ole programmi eest maksnud . </s> <s> Sellega jätab tarkvaratootja kasutamisperioodi määramata ja laseb kasutajal enesel otsustada , millal ta programmi eest maksab ( see peaks juhtuma siis , kui kasutaja ei suuda etteheiteid enam taluda ) . </s> </p>
+<p> <s> d ) <hi rend="rasvane"> Reklaamvara </hi> ( <hi rend="kaldkiri"> adware </hi> ) </s> </p>
+<p> <s> Reklaamvaraga tuleb kaasa suurel hulgal reklaami . </s> <s> Reklaamist saab lahti täisversiooni ostmisel . </s> </p>
+<p> <s> <hi rend="rasvane"> Proovivara </hi> on jaosvara eriliik , mis erineb viimasest üldjuhul selle poolest , et seda ei tohi kolmandatele isikutele omavoliliselt üle anda . </s> <s> Proovivara ideeks on anda potentsiaalsele tarkvaraostjale toode tutvumiseks . </s> <s> Erinevalt jaosvarast ei levitata proovivara massiliselt , vaid kasutatakse tavaliselt spetsiaaltarkvara tutvustamiseks . </s> <s> Sarnaselt jaosvaraga on ka proovivaral kindel ajavahemik , mille jooksul võib seda tasuta kasutada . </s> </p>
+<p> <s> Vabavara on mõeldud üldsusele tasuta kasutamiseks . </s> <s> Tavaliselt kasutatakse sellist tarkvara väljatöötamisel vabavaralisi arendusvahendeid . </s> <s> Näiteks võib siin tuua <hi rend="kaldkiri"> Star </hi> <hi rend="kaldkiri">Office</hi>'i tarkvara , mis on loodud otseseks konkurendiks <hi rend="kaldkiri"> MS Office </hi> 'i tarkvarale . </s> <s> Selle tarkvaraliigi abil püüavad tarkvaratootjad ennast teiste tootjate kõrval esile tõsta , et mitte konkurentsis alla jääda . </s> <s> Kasulik on see eelkõige vähetuntud tarkvaratootjatele , kuna paljudel juhtudel valitakse tarkvara ( nagu ka muud kaupa ) tootja nime järgi . </s> </p>
+<p> <s> <hi rend="rasvane"> Vabavara </hi> ( e priivara ) kohta sätestatud tingimused on otse vastupidised ärivara kohta sätestatutele ning sisaldavad üldjuhul järgnevaid põhimõtteid : </s> </p>
+<p> <s> vabavara on kaitstud autoriõigusega , </s> </p>
+<p> <s> programmist võib teha koopiaid ja neid levitada ( v.a kommertseesmärkidel ) , </s> </p>
+<p> <s> vabavara alusel uue programmi arendamine ( nn tuletatud programm ) on lubatud vaid tingimusel , et uus programm oleks samuti loodud vabavaraks . </s> </p>
+<p> <s> <hi rend="rasvane"> Vaba tarkvara </hi> puhul on kasutajale antud kõige rohkem õigusi , võrreldes teiste eespool toodud tarkvaraliikidega . </s> <s> Vaba tarkvara kasutajal on üldjuhul võimalik omada järgnevaid õigusi : </s> </p>
+<p> <s> õigus käivitada programmi suvalisel eesmärgil , </s> </p>
+<p> <s> õigus uurida , kuidas programm töötab , ja seda vastavalt oma vajadustele modifitseerida , </s> </p>
+<p> <s> õigus programmi koopiat vabalt levitada , </s> </p>
+<p> <s> õigus programmi muuta või parandada ja tulemust levitada . </s> </p>
+<p> <s> Oluline on mõista , et vaba tarkvara puhul tähendab vabadus just nelja ülalnimetatud aspekti ja mitte tingimata seda , et tarkvara kasutusõigust on võimalik omandada ilma selle eest maksmata . </s> <s> Vaba tarkvara puhul on programmi lähtetekstid alati kättesaadavad . </s> <s> Vabavara on näiteks mailiprogramm <hi rend="kaldkiri"> Pegasus Mail </hi> . </s> </p>
+<p> <s> <hi rend="rasvane"> Postkaartvara </hi> ( <hi rend="kaldkiri"> postcardware </hi> ) on omapärane vabavara alaliik , mille puhul tarkvara autor soovib , et programmi kasutaja talle postkaardi saadaks . </s> <s> Postkaartide järgi saab autor ülevaate sellest , millistes riikides tema tarkvara kasutatakse . </s> </p>
+<p> <s> <hi rend="rasvane"> Avalikuks </hi> loetakse <hi rend="rasvane"> tarkvara </hi> , mille puhul on programmi autor selgesõnaliselt loobunud kõigist varalistest õigustest , mis tulenevad programmi loomisest . </s> </p>
+<p> <s> Avaliku tarkvara suhtes kehtivad järgnevad üldpõhimõtted : </s> </p>
+<p> <s> autori varalistest õigustest programmi suhtes on loobutud , </s> </p>
+<p> <s> programmist võib teha arhiivikoopiaid ning samuti ka koopiaid levitamise eesmärgil ilma igasuguste piiranguteta , </s> </p>
+<p> <s> muudatuste tegemine programmis on lubatud , </s> </p>
+<p> <s> arvutiprogrammi dekompileerimine ( näiteks pöördprojekteerimine ) on lubatud , </s> </p>
+<p> <s> avaliku tarkvara alusel uue programmi arendamine ( nn tuletatud programm ) on lubatud ilma tingimusteta . </s> </p>
+<p> <s> Mõnikord on autori tingimuseks see , et lähtetekstide kasutamisel tuleb ära näidata nende autor ( <hi rend="kaldkiri"> copyleft </hi> ) . </s> </p>
+<p> <s> Avaliku tarkvara alaliigiks on <hi rend="rasvane"> vanavara </hi> ( <hi rend="kaldkiri"> abandonware </hi> ) . </s> <s> Selle alla kuulub tarkvara ( põhiliselt arvutimängud ) , mida varem müüdi , praegu aga levitatakse tasuta , sest nende turuväärtus on muutunud väga väikeseks . </s> <s> Vanavara näiteks võib tuua õigekirjakontrolliga tekstiredaktori <hi rend="kaldkiri"> Eedi </hi> . </s> <s> Algul levitati <hi rend="kaldkiri"> Eedit </hi> disketil ( <hi rend="kaldkiri"> ca </hi> 300 krooni ) , praegu võib seda saada <hi rend="kaldkiri"> Filosofti </hi> veebilehelt tasuta . </s> </p>
+<p> <s> Teatavas mõttes on tarkvara spetsiifiline õiguskaitse objekt , sest õiguskaitseks on võimalik rakendada nii autoriõiguse kui ka tööstusomandi põhimõtteid . </s> </p>
+<p> <s> Ameerika Ühendriikides kaitstakse arvutiprogrammides ja internetilahendustes olevaid uudseid tehnilisi lahendusi võrdväärselt teiste valdkondade leiutistega . </s> <s> Euroopa patendikonventsiooni ( <hi rend="kaldkiri"> European Patent Convention , EPC </hi> ) <hi rend="ülaindeks"> 6 </hi> artikli 52 lõike 2 punkt c ) alusel ei peeta leiutiseks eelkõige majandus- ja mõttetegevuse ning mängude plaane , reegleid ja meetodeid , samuti arvutiprogramme . </s> <s> EPC artikli 52 lõikes 3 sätestatakse , et lõige 2 välistab selles nimetatud objektide ja tegevuse patentsuse üksnes sel määral , mil Euroopa patenditaotlus või Euroopa patent on seotud nende objektide või tegevuse kui niisugusega . </s> <s> Euroopa patendiga saab arvutiprogramme kaitsta kaudselt siis , kui arvutiprogrammid on seotud leiutise objektiks oleva seadme , tootmisprotsessi või mõne patenditava menetluse kontrolliprotsessiga . </s> <s> Taolisel juhul tuleb kindlaks määrata , kas on tegemist matemaatilise meetodi algoritmiga või tehnilise protsessiga . </s> <s> Euroopa Patendiameti Apellatsiooninõukogu on oma kaasustes T1137/97 ja T935/97 neid küsimusi vaadelnud , rõhutades , et arvutiprogrammid ja ärimeetodid pole <hi rend="kaldkiri"> per se </hi> patenditavad , aga kui neis peitub uus tehniline lahendus , ei pruugi nad olla hõlmatud EPC artikkel 52 ( 2 ) ja ( 3 ) keelega . <hi rend="ülaindeks"> 7 </hi> </s> </p>
+<p> <s> Patendiõigust kasutatakse üha laialdasemalt tarkvara kaitsel ja see toob kaasa üha enam vaidlusi . </s> </p>
+<p> <s> Euroopa Parlament ja Nõukogu esitasid 2004. aasta kevadel direktiivi eelnõu arvutil põhinevate leiutiste patentsuse kohta . <hi rend="ülaindeks"> 8 </hi> Direktiivi eelnõu koostajad rõhutavad vajadust antud valdkonna reguleerimise järele ja põhjendavad seda järgmiste argumentidega : </s> </p>
+<p> <s> arvutil põhinevate leiutiste kaitsmisel esineb erinevusi liikmesriikide haldustavades ja kohtupraktikas . </s> <s> Niisugused erinevused võivad põhjustada kaubandustõkkeid ja seega takistada siseturu nõuetekohast toimimist ; </s> </p>
+<p> <s> niisugused erinevused on tekkinud ja võivad suureneda , kui liikmesriigid võtavad vastu uusi ja erinevaid haldustavasid või kui olemasolevaid õigusakte tõlgendav siseriiklik kohtupraktika areneb erinevalt ; </s> </p>
+<p> <s> arvutiprogrammide leviku ja kasutamise pidev kasv kõigis tehnikavaldkondades ja nende kasvav ülemaailmne levitamine Interneti kaudu on tehnoloogiliste uuenduste puhul otsustavaks teguriks . </s> <s> Seetõttu on vaja tagada optimaalne keskkond arvutiprogrammide arendajatele ja kasutajatele ühenduses ; </s> </p>
+<p> <s> seetõttu tuleks ühtlustada arvutil põhinevate leiutiste patentsust reguleerivad õigusnormid , tagamaks , et nendest tulenev õiguskindlus ja patentsuseks vajalike nõuete tase võimaldaksid uuenduslikel ettevõtetel saada maksimaalset kasu oma leiutusprotsessist ning ergutaksid investeeringuid ja innovatsiooni . </s> <s> Käesoleva direktiivi tõlgendamisel tekkivate kahtluste korral tagatakse õiguskindlus ka sellega , et liikmesriikide kohtud võivad taotleda ja liikmesriikide viimase astme kohtud peavad taotlema otsust Euroopa Kohtult . </s> </p>
+<p> <s> Direktiivi eelnõus viidetakse Intellektuaalomandi õiguste kaubandusaspektide lepingule ( lühendatult TRIPS-leping ) , kus artikli 27 lõikes 1 sätestatakse , et patentida võib iga leiutist , nii toodet kui ka meetodeid , kõigist tehnikavaldkondadest tingimusel , et see on uus ning omab leiutustaset ja on tööstuslikult kasutatav . </s> <s> Intellektuaalomandi õiguste kaubandusaspektide lepingu kohaselt peab patendiõigusi olema võimalik taotleda ja kasutada tehnikavaldkonnast sõltumata . </s> <s> Neid põhimõtteid tuleks seega kohaldada ka arvutil põhinevate leiutiste suhtes , kusjuures direktiivi eelnõu eesmärk on vältida Euroopa patendikonventsiooni patentsuse piiranguid käsitletavate sätete erinevat tõlgendamist . </s> <s> Direktiivi eelnõu punktis 17 rõhutatakse , et sellega ei püüta arvutil põhinevate leiutiste patentsuse osas tuua liikmesriikide õigussüsteemi sisse uut iseseisvat õigusinstituuti , vaid selgitada praegust õiguslikku seisundit eesmärgiga kindlustada patendiõiguse õiguskindlus . </s> </p>
+<p> <s> Direktiivi eelnõu hõlmab järgmisi mõisteid : </s> </p>
+<p> <s> <hi rend="kaldkiri"> arvutil põhinev leiutis </hi> - igasugune leiutis , mille töö hõlmab arvuti , arvutivõrgu või muu programmeeritava seadme kasutamist , kusjuures leiutisel on üks või mitu tunnust , mida kasutatakse täielikult või osaliselt arvutiprogrammi või arvutiprogrammide abil ; </s> </p>
+<p> <s> <hi rend="kaldkiri"> tehniline panus </hi> <hi rend="kaldkiri"> - </hi> tehnikavaldkonna tehnika tasemesse antav panus , mis on uus ega ole vastava ala asjatundja jaoks endastmõistetav . </s> <s> Tehnilist panust hinnatakse , kaaludes erinevust tehnika taseme ja patendinõudluse tervikliku ulatuse vahel , kusjuures patendinõudlus peab sisaldama tehnilisi tunnuseid , olenemata sellest , kas nendega kaasneb mittetehnilisi tunnuseid või mitte . </s> </p>
+<p> <s> Et arvutil põhinev leiutis oleks patentne , peab see olema tööstuslikult kasutatav ja uus ning omama leiutustaset . </s> <s> Et arvutil põhinev leiutis omaks leiutustaset , peab see andma tehnilise panuse ( direktiivi eelnõu artikkel 3 ) . </s> <s> Direktiivi eelnõu artikkel 4 sätestab , et arvutiprogramm iseenesest ei kujuta endast patentset leiutist . </s> <s> Et leiutise tegemisel on kasutatud arvutit , arvutivõrku või teisi programmeeritavaid seadmeid , ei muuda leiutist veel tehniliseks leiutiseks . </s> <s> Seetõttu ei loeta patentseteks selliseid arvutiprogramme hõlmavaid leiutisi , väljendatuna kas lähtekoodi , objektikoodi või muus vormis , mis rakendavad äri- , matemaatilisi või teisi meetodeid ega anna tehnilist tulemust väljaspool tavapärast füüsilist suhtlemist programmi ja arvuti , arvutivõrgu või teiste programmeeritavate seadmete vahel , milles see töötab . </s> </p>
+<p> <s> Direktiivi eelnõu artikkel 5 sätestab patendinõudluse vormi . </s> <s> Teatavasti lõpeb patendikirjeldus patendinõudlusega , mis on kirjelduse tähtsaim osa . </s> <s> Patendinõudlus kujutab endast leiutise tunnuste sõnalist väljendust , mis on koostatud formaalse loogika reeglite järgi . </s> <s> See on juriidiliselt aspektist lähtudes leiduri õiguste mõõdupuu ja selle järgi määratakse kindlaks patendiõiguste rikkumise fakt . </s> <s> Direktiivi eelnõu järgi tagavad liikmesriigid , et arvutil põhineva leiutise kohta saab esitada nõudluse sellise leiutise tootena ( s.t programmeeritava arvutina , programmeeritava arvutivõrguna või muu programmeeritava seadmena ) või sellise arvuti , arvutivõrgu või seadme poolt tarkvara täitmise abil läbiviidava protsessina tunnistamise kohta . </s> <s> Arvutil põhinevate leiutiste puhul peaks patendinõudlus sisaldama vähemalt viidet kas tootele , nagu programmeeritud seade , või sellises seadmes läbiviidavale protsessile . </s> <s> Seega , kui kasutatakse tarkvara üksikuid elemente kontekstis , mis ei hõlma ühegi nõuetekohase patendinõudlusega hõlmatud toote või protsessi tarvitamist , ei loeta sellist kasutamist patendi rikkumiseks . </s> </p>
+<p> <s> Põhiliseks probleemiks , millele kaasaegsel õigusel tuleb lahendus leida , on tarkvarapiraatlus , s.t tarkvara ebaseaduslik reprodutseerimine ja levitamine . </s> <s> Äritarkvara Liidu ( <hi rend="kaldkiri"> Business Software Alliance </hi> , BSA ) Eesti Komitee andmetel oli 2003. aastal piraattarkvara osakaal Eestis 54% , see tähendab , et iga teine arvutikasutaja Eestis kasutab piraattarkvara . </s> <s> Aastal 2003 oli piraattarkvara osakaal Euroopa Liidus keskmiselt 37% , seevastu Venemaal 87% . </s> <s> Suurimad piraattarkvara kasutajad on eraettevõtted . </s> </p>
+<p> <s> Tänapäeval on Internetil põhinev piraatlus kõige kiiremini arenev ja enim kahju toov tarkvarapiraatluse vorm. Tegemist on tarkvara ebaseadusliku massilise levitamisega , mis tekitab tarkvaratootjatele ja edasimüüjatele suurt majanduslikku kahju . </s> <s> Kui varem levitati piraattarkvara palju kodulehtede vahendusel , siis praegu kasutatakse uusi kanaleid , näiteks <hi rend="kaldkiri"> ftp </hi> ja <hi rend="kaldkiri"> P2P </hi> failivahetuskeskkondi . </s> </p>
+<p> <s> EV Riigikogu võttis 14. aprillil 2004 vastu infoühiskonna teenuse seaduse<hi rend="ülaindeks">9</hi> , mis jõustus 1. mail 2004 ja reguleerib otseselt Internetiteenuse pakkujate vastutust . </s> <s> Teatavasti koosneb võrgustik grupist arvutitest , mis on ühendatud modemi kaudu baasarvutisse , mida käitab süsteemioperaator . </s> <s> Süsteemioperaatorit nimetatakse Internetiteenuse pakkujaks ( <hi rend="kaldkiri"> Internet Service Provider , ISP </hi> ) ja nad rendivad teistele isikutele Interneti kasutamise võimalust üle kogu maailma . <hi rend="kaldkiri">ISP</hi>d võimaldavad tehnilist platvormi , mille kaudu saab infot vahetada , ilma et see mõjutaks edastavate materjalide sisu . </s> <s> Märkigem , et ebaseaduslikud on materjalid , mitte nende edastamine . </s> <s> Euroopa Liidu raames reguleeritakse Internetiteenuse operaatorite vastutust Euroopa Parlamendi ja Euroopa Nõukogu 2000. aasta 8. juuni direktiiviga 2000/31/EÜ infoühiskonna teenuste , eriti siseturu elektroonilise kaubanduse teatavate õiguslike aspektide kohta ( e-kaubanduse direktiiv ) <hi rend="ülaindeks"> 10 </hi> , millega <hi rend="kaldkiri">ISP</hi>d vabastati vastutusest kolmandate isikute poolt edastatud materjalide eest . </s> <s> Infoühiskonna teenuse seadus on ühtlustatud e-kaubanduse direktiiviga . </s> </p>
+<p> <s> Infoühiskonna teenuse seaduse § 8 kohaselt on <hi rend="kaldkiri">ISP</hi>de vastutuse piirang üksnes teabe edastamise ja üldkasutatavale andmesidevõrgule juurdepääsu pakkumise korral . </s> <s> Kui osutatakse teenust , mis seisneb üksnes teenuse kasutaja pakutava teabe edastamises üldkasutatava andmesidevõrgu kaudu või üldkasutatavale andmesidevõrgule juurdepääsu pakkumises , ei vastuta teenuse osutaja edastatava teabe sisu eest tingimusel , et ta : 1 ) ei algata edastust ; 2 ) ei vali edastuse vastuvõtjat ; 3 ) ei vali ega muuda edastuses sisalduvat teavet . </s> <s> Edastamise ja juurdepääsu pakkumisega seotud toimingud sisaldavad edastatava teabe automaatset , vahepealset ja ajutist talletamist niivõrd , kuivõrd selle ainus eesmärk on edastamise sooritus üldkasutatava andmesidevõrgu kaudu , ja eeldusel , et teavet ei talletata pikema ajavahemiku vältel , kui see on edastamiseks põhjendatult vajalik . </s> <s> Seaduse § 9 sisaldub vastutuse piirang andmete vahemällu salvestamise korral . </s> <s> Teenuse osutaja ei vastuta teenuse selle teabe automaatse , vahepealse ja ajutise talletamise puhul teabe sisu eest tingimusel , et ta : </s> </p>
+<p> <s> 1 ) ei muuda antud teavet , </s> </p>
+<p> <s> 2 ) järgib teabele juurdepääsu tingimusi , </s> </p>
+<p> <s> 3 ) järgib teabe ajakohastamise kohta vastavas majandusharus laialdaselt tunnustatud ja kasutatud nõudeid , </s> </p>
+<p> <s> 4 ) ei takista vastavas majandusharus laialdaselt tunnustatud ja kasutatud tehnoloogia seaduslikku kasutamist , et saada andmeid teabe kasutamise kohta , </s> </p>
+<p> <s> 5 ) saades teada , et teave on edastuse algpunktis võrgust eemaldatud või juurdepääs sellele tõkestatud või et kohus , politsei või riiklik järelevalveasutus on andnud korralduse see kõrvaldada , kõrvaldab kohe vastava talletatud teabe või tõkestab sellele juurdepääsu . </s> </p>
+<p> <s> Põhimõtteliselt on § 9 lg 1 p 4 arvestatav stiimul teenusepakkujale , et vältida tehnilise meetme kasutamise takistamist , mida õiguste valdajad on lisanud oma õiguste objektile . </s> <s> Infoühiskonna teenuse seaduse § 10 lõike 1 kohaselt ei vastuta teenuse osutaja teenuse kasutaja taotluse põhjal talletatava teabe sisu eest järgmistel tingimustel : 1 ) teenuse osutaja ei tea teabe sisu ega ole kahjutasu nõude puhul teadlik faktidest või asjaoludest , millest ilmneb ebaseaduslik tegevus või teave ; 2 ) käesoleva lõike punktis 1 nimetatud asjaoludest teadlikuks saades kõrvaldab teenuse osutaja kohe vastava teabe või tõkestab sellele juurdepääsu . </s> <s> Kuid teenuse osutajal ei ole kohustust jälgida teavet , mida ta vaid edastab või millele juurdepääsu pakub , mida ta edastamise eesmärgil ajutiselt vahemällu salvestab või teenuste kasutaja jaoks talletab , samuti ei ole tal kohustust otsida ebaseaduslikku tegevust näitavaid fakte ja asjaolusid ( § 11 ) . </s> <s> Seega ei oleks <hi rend="kaldkiri">FTP</hi>-serverites toimuvat võimalik eraõiguslikel piraatlusevastastel organisatsioonidel oma esin- datavate huvisid kaitsta muul viisil kui koostöölepingute alusel . </s> <s> Nimetatud säte ei piira järelevalvaja õigust nõuda teenuse osutajalt infot teabe kohta . </s> <s> Seaduse § 11 lg 3 tuleneb teenusepakkuja kohustus olla võimeline identifitseerima teenuse kasutajaid nimetatud järelevalve korraldamise eesmärgil . </s> </p>
+<p> <s> 20. mail 2004 allkirjastati koostööleping<hi rend="ülaindeks">11</hi> <hi rend="kaldkiri"> FTP </hi> ( <hi rend="kaldkiri"> Fail Transfer Protocol </hi> ) <hi rend="ülaindeks"> 12 </hi> - serveritest toimuvate autoriõiguste rikkumise piiramiseks , mille tulemusena Eestis rakendub range kontroll FTP-serverites toimuva infovahetuse üle . </s> <s> Serveritest kustutatakse või seal blokeeritakse need failid , mille puhul ollakse kindlad , et sellega rikutakse riigi õigusi . </s> <s> Lisaks täpsustub ka piraatluse tõkestamine e-kauplustes , portaalides ja Internetilehekülgedel . </s> <s> Koostöölepingule kirjutasid alla ühelt poolt <hi rend="kaldkiri"> BSA </hi> Eesti Komitee , Eesti Autorite Ühing , Eesti Fonogrammitootjate Ühing ja Eesti Autoriõiguste Kaitse Organisatsioon ( EAKO ) ning teiselt poolt Eesti suurimad Internetiteenuse pakkujad , nagu Elion , Tele2 , Starman , Data Telecom , Zone Media ja lisaks ka Microlink Eesti . </s> <s> 2001. aasta aprillist sõlmisid <hi rend="kaldkiri"> BSA </hi> Eesti Komitee , Eesti Autorite Ühing , Eesti Autoriõiguste Kaitse Organisatsioon ja Eesti Fonogrammitootjate Ühing Interneti-teenuste pakkujatega koostöölepingu , mis keskendus piraatluse leviku piiramisele kodulehekülgedel , kuid ei käsitlenud FTP-serverites toimuvaid autoriõiguse rikkumisi . </s> </p>
+<p> <s> 1 </s> </p>
+<p> <s> Tarkvara õiguskaitse vormide kohta vt lähemalt : <hi rend="kaldkiri"> Ants Kukrus </hi> . </s> <s> Tarkvara õiguskaitse küsimusi tänapäeva infoühiskonnas . </s> <s> A &amp; A ( 2002 ) 1 , lk 28-42. </s> </p>
+<p> <s> 2 </s> </p>
+<p> <s> <hi rend="kaldkiri"> D. Bainbridge . </hi> Software Copyright Law . </s> <s> Butterworth : London , Edinburgh , Dublin , 1997 , p. 1. </s> </p>
+<p> <s> 3 </s> </p>
+<p> <s> RT II 1999 , 123. Eesti Vabariik ühines 13.11.1999. </s> </p>
+<p> <s> 4 </s> </p>
+<p> <s> RT II 1994 , 16/17 , 49. </s> </p>
+<p> <s> 5 </s> </p>
+<p> <s> RT 1992 , 49 , 615 ; RT I 2000 , 16 , 109 ; 78 , 497 ; 2001 , 50 , 289 ; 56 , 335 ; 2002 , 53 , 336 ; 63 , 387 ; 90 , 521 ; 92 , 527 ; 2004 , 18 , 131 ; 30 , 208 ; 71 , 500. </s> </p>
+<p> <s> 6 </s> </p>
+<p> <s> RT II 2002 , 10 , 40. Eesti on EPC liikmesriik 1. juulist 2002. a. </s> </p>
+<p> <s> 7 </s> </p>
+<p> <s> Case Law of the Boards of Appeal of the European Patent Office . </s> <s> European Patent Office 2002 , p5 . </s> <s> Arvutivõrgus kättesaadav : <gap rend="hüperlink"/> </s> </p>
+<p> <s> 8 </s> </p>
+<p> <s> Proposal for a Directive on the patentability of computer-implemented inventions . </s> <s> Arvutivõrgus kättesaadav : <gap rend="hüperlink"/> , 26. oktoober 2004. </s> </p>
+<p> <s> 9 </s> </p>
+<p> <s> RT I 2004 , 29,191 . </s> </p>
+<p> <s> 10 </s> </p>
+<p> <s> ELT L , 178 , 17.7. 2000 , lk 1. </s> </p>
+<p> <s> 11 </s> </p>
+<p> <s> <hi rend="kaldkiri">FTP</hi>-serverites toimuvate autoriõiguse rikkumiste piiramiseks allkirjastati koostööleping . </s> <s> Pressiteade . </s> <s> Arvutivõrgus kättesaadav : <gap rend="hüperlink"/> </s> </p>
+<p> <s> 12 </s> </p>
+<p> <s> <hi rend="kaldkiri"> Fail Transfer protocol </hi> ( <hi rend="kaldkiri"> FTP </hi> ) . </s> <s> Siin on tegemist eraldi kataloogidega , mis on peidetud mõne suurema serveri sügavustesse , sisaldades hulgaliselt piraatkoopiaid . </s> <s> Ka Eestis on mitmete asutuste servereis avastatud Interneti kasutajatele väljapandud piraatkoopiaid . </s> <s> Sellist piraatkoopiate levitamist ei saa siiski seostada serveri omanike tegevusega , sest reeglina on see eraisikute vaheline illegaalne tegevus , kes kasutavad ajutiselt teiste firmade legaalseid servereid mitmesuguste arvutiprogrammide vahendamiseks . </s> <s> Tihti levib sellealane info ka teistele Interneti kasutajatele ning legaalne server võib osutuda äärmiselt populaarseks piraatkoopiate levitamise kohaks . </s> <s> Sellised kohad eksisteerivad reeglina väga lühikest aega , sest info jõuab ka serveri ametlike pidajate kõrvu , misjärel need kohad kustutatakse . </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Keerdülesannetest kehtestatavuseni </head>
+<p> <bibl> <author> <s> <hi rend="kaldkiri"> Leo Võhandu </hi> , Tallinna Tehnikaülikooli emeriitprofessor </s> </author> </bibl> </p>
+<p> <s> Nii koolilaste kui ka teadlaste põhitööks on ülesannete või üldisemalt öeldes probleemide lahendamine . </s> <s> Milles ülesande ja probleemi erinevus ? </s> </p>
+<p> <s> <hi rend="rasvane"> Ülesande </hi> all mõistame ainult kõigi parajasti vajalike andmetega probleemi . </s> <s> Lahendaja peab otsima sobiva lahendamismeetodi ise üles või kasutama mõnda koolis/ülikoolis õpitud võttestikku . </s> </p>
+<p> <s> <hi rend="rasvane"> Probleemil </hi> on tegelikult mõni vajalik lisatingimus sageli puudu ( vaikimisi eeldatavad ) või on tingimustes palju ülearust . </s> <s> Probleem täpsustub talle tõsisemalt otsavaatamise käigus samm-sammult seni , kuni omandab piisavalt huvitava ja rikkaliku sisu . </s> <s> Eks meie elu ju igasuguste probleemide lahendamisest koosnegi , ainult et probleemid ei ole enamasti matemaatilised . </s> <s> Siinkohal peab küll poolhooplevalt viitama , et tuntud ameerika matemaatik Thomas Saaty väitis kord , et kui on tegu kahe antud probleemi mittetundva inimesega ja üks neist on matemaatik , siis enamasti leiab matemaatik parema lahenduse . </s> </p>
+<p> <s> Miks me peaksime just Saaty arvamust uskuma ? </s> <s> Mõne teise eriala inimene võiks ju oma eriala kasuks samasuguse väitega lagedale tulla . </s> <s> Asi on lihtsalt selles , et Saaty't võib pidada täiesti uue teadusala - <hi rend="kaldkiri"> subjektiivsete hinnangute objektiviseerimise </hi> isaks . </s> <s> Saaty loodud nn analüütiliste hierarhiate teooria on praegu tõsiste otsustusprobleemide lahendamisel üks peamisi meetodeid . </s> <s> Just oskus suurepäraselt hakkama saada nii kõva kui ka ähmase informatsiooniga teebki Saaty väite usutavaks . </s> </p>
+<p> <s> Muide , USA valitsus kasutab Saaty meetodeid tihti . </s> <s> Küllap tuleneb sellest ka nende läbirääkimisjõu tunduvalt suurem tõhusus , võrreldes Euroopa Liidu suhteliselt kõhkleva edasi-tagasi rähklemisega . </s> </p>
+<p rend="rasvane"> <s> PROBLEEMIDE KIRJELDAMISEST </s> </p>
+<p> <s> Igasuguste probleemide lahendamine algab nende kirjeldamisest . </s> <s> Mida formaalsemalt oskame kirjeldust luua , seda paremini saame probleemi olemusest aru ning oskame selle esitajale igasuguseid täpsustavaid lisaküsimusi esitada . </s> <s> Taolisest metoodikast veidi parema ülevaate saamiseks , vaatleme siinkohal kõigepealt ühte lihtsat probleemi , et selle najal jõuda vajalike üldistusteni . </s> <s> Loo lõpus näeme , et suhteliselt kergetelt ja mängulistelt probleemidelt jõuame üsna pea nüüdisaja teaduse kõige raskema temaatika - NP-keerukuse juurde . </s> </p>
+<p rend="rasvane"> <s> RATSUMANÖÖVER </s> </p>
+<p> <s> Tegemist on 3 x 3 väljaga , mille kummaski otsas paikneb 2 valget ja 2 musta maleratsut . </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p rend="keskel"> <s> V </s> </p>
+<p rend="keskel"> <s> V </s> </p>
+<p rend="keskel"> <s> M </s> </p>
+<p rend="keskel"> <s> M </s> </p>
+<p> <s> Tähistame väljad numbritega </s> </p>
+<p> <s> 1 2 3 </s> </p>
+<p> <s> 4 5 6 </s> </p>
+<p> <s> 7 8 9 </s> </p>
+<p> <s> Meie ülesandeks on malemängust tuttava ratsusammuga nende ratsude asukohtade vahetamine , s.o mustad valgetega ja vastupidi . </s> <s> Teeme kõigepealt niisama proovi . </s> <s> Kas saame selle ülesandega kergesti hakkama ? </s> <s> Valge ratsu läheb väljalt 1 väljale 6 ( paneme selle lühidalt kirja nii 1-6 ) . </s> <s> Teeme ka järgmised käigud sümmeetriliselt 9-4 , 3-8 ja 7-2. </s> <s> Edasi käime 6-7 , 8-1 , 2-9 , 4-3. </s> <s> Tekib seis </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p rend="keskel"> <s> V </s> </p>
+<p rend="keskel"> <s> M </s> </p>
+<p rend="keskel"> <s> V </s> </p>
+<p rend="keskel"> <s> M </s> </p>
+<p> <s> Näeme , et pool pööret on juba tehtud . </s> <s> Jätkame nüüd käikudega 1-6 , 9-4 , 3-8 , 7-2. </s> </p>
+<p> <s> Ja lõpuks annavadki käigud 6-7 , 8-1 , 2-9 , 4-3 soovitud seisu </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p rend="keskel"> <s> M </s> </p>
+<p rend="keskel"> <s> M </s> </p>
+<p rend="keskel"> <s> V </s> </p>
+<p rend="keskel"> <s> V </s> </p>
+<p> <s> Kokku kulus neli vahetusrida , igas neli käiku , nii et saime hakkama 16 käiguga . </s> <s> Kas ei saa seda tööd kuidagi kiiremini teha ? </s> <s> Käsitsi katsetamine pole kuigi mugav ega anna pealegi lõplikku vastust . </s> <s> Üritamegi järgmise sammuna minna ülesande algesituselt uuele ja mugavamale pildile , mis viimastele küsimustele ka vastused annab . </s> </p>
+<p> <s> Seda üleminekut ei ole kuigi raske teha . </s> <s> Algseisus näeme , et väljalt 1 saab ratsusammuga minna kahele väljale 6 ja 8. </s> <s> Paneme selle väite kirja seotud ahelana </s> </p>
+<p> <s> 8 <gap rend="võõrkeelne_tekst"/> 1 <gap rend="võõrkeelne_tekst"/> 6 </s> </p>
+<p> <s> Väljalt 6 aga pääseb väljadele 1 ja 7. </s> <s> Et 6-1 on juba ahelas , siis jääb üle lisada vaid 6-7 </s> </p>
+<p> <s> 8 <gap rend="võõrkeelne_tekst"/> 1 <gap rend="võõrkeelne_tekst"/> 6 <gap rend="võõrkeelne_tekst"/> 7 </s> </p>
+<p> <s> Nüüd on seostusskeem lihtsalt jätkatav </s> </p>
+<p> <s> 8 <gap rend="võõrkeelne_tekst"/> 1 <gap rend="võõrkeelne_tekst"/> 6 <gap rend="võõrkeelne_tekst"/> 7 <gap rend="võõrkeelne_tekst"/> 2 <gap rend="võõrkeelne_tekst"/> 9 <gap rend="võõrkeelne_tekst"/> 4 <gap rend="võõrkeelne_tekst"/> 3 <gap rend="võõrkeelne_tekst"/> 8 </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p> <s> Näeme , et oleme jõudnud kinnise ahelani . </s> <s> Ratsud lihtsalt peavad piki seda ahelat liikuma , kuhugi kõrvale neil astuda pole võimalik ja teistest ratsudest selles ahelas üle hüpata ei saa , sest see tähendaks topeltkäiku juba üle hõivatud välja . </s> </p>
+<p> <s> Siit näemegi , et algses probleemis oli tegelikult sees vaikiv eeldus , mille kohaselt kaks ratsut ühel väljal paikneda ei saa . </s> <s> Kui me seda lubaks , siis oleks ülesande lahendus triviaalne . </s> <s> Kummalgi mustal ratsul kuluks vaid kaks sammu lõppväljadele jõudmiseks ja valgetel samuti , kokku seega 8 sammu . </s> <s> Siit on ka selge , et probleemide sõnastamisega peab olema üsna hoolas , muidu tekib lahendamisel asjatuid vaidlusi . </s> <s> Kas need aga nii asjatud ongi . </s> <s> Taoline lahendustingimuste ümber kauplemine avab ülesande sisu sageli hoopis sügavamalt ja viib vahel probleemi täiesti uute ja põnevate püstitusteni . </s> </p>
+<p> <s> Meie algprobleemis on valged ratsud väljadel 1 ja 3 ning mustad ratsud väljadel 7 ja 9. </s> <s> Et ringjoont pidi liikumine on võimalik mõlemas suunas , nii päri- kui vastupäeva , siis on ülesandel ilmselt kaks lahendit . </s> <s> Iga ratsu peab tegema ühtses liikumissuunas neli sammu ja ongi lahend käes . </s> </p>
+<p rend="rasvane"> <s> NUPUTAMISEKS </s> </p>
+<p> <s> 1. Olgu meie kaks valget ratsut tähistatud tähtedega A ja B. Leia liikumiste skeem , mis võimaldaks omavahel vahetada ratsude A ja B asukohad . </s> <s> Mustade ratsude lõppseis on sama mis alguses . </s> </p>
+<p> <s> Kui sa ise vastust ei leia , siis loe seda artikli lõpust . </s> </p>
+<p> <s> 2. On antud mänguväli 5 rea ja 3 veeruga . </s> <s> Neli ratsut paiknevad endiselt otsaridade nurkades ( valged üleval ja mustad all ) . </s> <s> Leia vähim käikude arv mustade ja valgete ratsude asukohtade vahetamiseks . </s> </p>
+<p rend="rasvane"> <s> KUUE RATSU PROBLEEM </s> </p>
+<p> <s> Eelmise suhteliselt lihtsa probleemi esmaavaldajaks peetakse itaalia matemaatikut César Burali-Forti't ( 1861- 1931 ) . </s> <s> See on muide üsna haruldane juhtum , kus taolise keerdülesande esma- avaldaja on selgelt teada . </s> <s> Enamasti kuuluvad sellised ülesanded folkloori hulka , s.t et ei ole teada autor ega esmaavaldaja . </s> <s> Näiteks järgmine ülesanne on ilmunud nii paljudes ajalehesabades ja nuputamisülesannete kogudes , et algautorit on üsna raske või võimatu leida . </s> <s> Ülesanne ise on eelmise probleemi loomulik üldistus . </s> </p>
+<p> <s> Neli korda kolm laual on ühes otsas kolm valget ratsut ja teises otsas kolm musta ratsut . </s> <s> Vahetada mustade ja valgete ratsude asukohad vähima arvu sammudega . </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p rend="keskel"> <s> V </s> </p>
+<p rend="keskel"> <s> V </s> </p>
+<p rend="keskel"> <s> V </s> </p>
+<p rend="keskel"> <s> M </s> </p>
+<p rend="keskel"> <s> M </s> </p>
+<p rend="keskel"> <s> M </s> </p>
+<p> <s> Kõigepealt katsume jälle niisama ilma graafmudelit appi võtmata ülesandega hakkama saada . </s> <s> Nagu probleemide lahendamisel tavaline , püüame ülesannet mõnele juba varem tuttavale taandada . </s> <s> Kui meil keskmisi nuppe ei oleks , siis oleks tegu eelmise probleemi veidi pikema mängulauaga . </s> <s> Teeme kohe proovi . </s> <s> Ratsude 2 ja 11 vahetamiseks kulub 2x3 sammu . </s> <s> Eelmise ülesande eeskujul ratsusid liigutades kulub igal ratsul laua teise otsa liikumiseks 5 sammu ( veenduge ! ) , kokku seega 4x5+6=26 sammu . </s> <s> Ülesanne ongi lahendatud ! </s> <s> Kas aga kõige paremini ? </s> <s> Täiesti loomulik on küsida , kui suur on vähim vajalik vahetussammude arv ? </s> </p>
+<p> <s> Et keerulistest manöövritest paremat ülevaadet saada , koostame jälle graafilise pildi . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p> <s> See pilt on heaks abimeheks meie probleemile parima lahendi otsimisel . </s> <s> ( V tähistab valget ratsut , M musta . ) </s> <s> Graafi selged liikumisrajad näitavad lubatud teid üpris hästi ja üsna pea on käes ka vähim vahetuste skeem . </s> <s> Tehke proovi , kui hästi see teil õnnestub . </s> </p>
+<p> <s> Kui proov on tehtud , siis võrrelge seda järgmise optimaalse lahendusega : </s> </p>
+<p> <s> V - 1 - 6 - 7 </s> </p>
+<p> <s> M - 11 - 6 - 1 </s> </p>
+<p> <s> V - 3 - 4 - 11 </s> </p>
+<p> <s> M - 10 - 9 - 4 - 3 </s> </p>
+<p> <s> V - 2 - 9 - 10 </s> </p>
+<p> <s> V - 7 - 6 </s> </p>
+<p> <s> M - 12 - 7 - 2 </s> </p>
+<p> <s> V - 6 - 7 - 12 </s> </p>
+<p> <s> Kui kõik tehtud sammud kokku lugeda , saab ainult 16 sammu . </s> <s> Näeme , et esialgu appi võetud varasemale ülesandele taandamise meetodist saime hoopis parema tulemuse ( 26 asemel 16 sammu ) . </s> <s> Eriti tahaksin lugeja tähelepanu juhtida kavalale manöövrile viimases kolmes reas . </s> </p>
+<p rend="rasvane"> <s> VEIDI VAHEMORAALI </s> </p>
+<p> <s> Mida senisest tegevusest võib järeldada ? </s> <s> Kõigepealt ilmnes , et probleemide lahendamiseks tuleb otsida selline ( formaalne ) esitusviis , mis ülesande loomusega loomulikul viisil seostub . </s> <s> Meie vahetusülesande ( liikumised ! ) puhul oli selliseks mõnusaks abipildiks graaf . </s> <s> Kui me 2x2 hobuse puhul graafi välja joonistasime , oli kohe selge , et kohavahetuse lahenduse otsimiseks tuleb lihtsalt hobuste asukohti nihutada päri- või vastupäeva . </s> <s> Ühtlasi nägime ka seda , et sama graaf võimaldab selgelt tõestada , et iga ülesanne ei ole lahenduv ( nuputamiseks antud kahe valge ratsu asukoha vahetamine . ) </s> </p>
+<p rend="rasvane"> <s> NATUKE ÜLDISEMALT KEERDÜLESANNETEST </s> </p>
+<p> <s> Eestis on aastaid olnud keerdülesannete suur sõber Tartu Ülikooli professor Ülo Kaasik , kes sel teemal on ka õige mitu raamatut avaldanud [ 1,2 , 3,4 ] . </s> </p>
+<p> <s> 2001. aastal ilmunud raamatus ” Keerdülesanded , mis veidi seotud matemaatikaga ” ütleb ta ilusasti : <hi rend="kaldkiri"> Kuigi keerdülesanded on mõeldud eeskätt ajaviiteks , pole nende lahendamiseks vajalik nuputamine siiski täiesti kasutu . </hi> </s> <hi rend="kaldkiri"> <s> Koos keerulise ülesande lahendamisel saadava rahuldustundega on lahendaja enamasti alati ka midagi õppinud . </s> <s> Esmajärjekorras aitab niisuguste ülesannete lahendamine harjutada ranget järjekindlust mõtlemisel , annab vilumust keerulises olukorras orienteerumiseks , varustab kogemustega asjade omavaheliste seoste leidmisel ja ... lühidalt , õpetab loogiliselt mõtlema . </s> </hi> </p>
+<p rend="kaldkiri"> <s> Keerdülesannete lahendamine õpetab seega meile mõndagi , kuid nende ülesannete lahendamist ennast ei õpetata kuskil ega saagi õpetada . </s> <s> Nimelt pole üldisi reegleid , mille abil võiks kohe lahendada iga keerdülesande . </s> <s> Neid ülesandeid iseloomustabki just see , et puuduvad üldised lahendusreeglid ja enamasti pole lahendamiseks vaja ka muid erilisi teadmisi . </s> <s> Veidi järele mõeldes näeme , et selliste reeglite puudumine polegi nii halb ! </s> <s> Tõepoolest , kui iga keerdülesande lahendamiseks tarvitseks vaid vastav reegel meelde tuletada ( või käsiraamatust järele vaadata ) , siis oleks nende lahendamine juba töö ja mitte enam huvitav ajaviide . </s> </p>
+<p> <s> Pikavõitu see tsitaat oli , aga küllap õpetlik . </s> <s> Nendel , kes Ü. Kaasiku raamatuid pole näinud , soovitan need raamatupoest või raamatukogust üles otsida ja sealt paras peotäis maiuspalasid välja noppida . </s> </p>
+<p> <s> Tõepoolest , keerdülesannetega on nagu eluliste probleemidega ikka , keegi ei ütle ette , kuidas neid lahendada . </s> <s> Me toome paar suhteliselt üldist käsitlusviisi ja näitame ka seda , kuidas taolisi ülesandeid ise koostada . </s> </p>
+<p> <s> Erinevalt Ü. Kaasiku puhtmatemaatiku seisukohalt antud hinnangust arvab siinkirjutaja kõigepealt seda , et ega ÜK seda väidet ise ka vist eriti tõsiselt ei mõelnud . </s> <s> Vastupidi , selle väite põhjal saab mõneti arusaadavaks , miks ta selle temaatikaga mitme aastakümne jooksul maadles . </s> <s> Tegelikult usun ma hoopis seda , et ÜK lihtsalt armastab neid ülesandeid , sest iga taolise ülesande lahendamine lisab paraja adrenaliinisärtsu lahendaja verre ja kutsub esile rõõmsa ahhaa-elamuse , mis lustlikuks eluks ja arenguks on vägagi oluline . </s> </p>
+<p> <s> Teiseks üritame loo lõpupoole näidata , kuidas keerdülesannete teatud tüüpide lahendamine viib nüüdisaegse matemaatika ja informaatika kõige tulisema temaatika juurde . </s> <s> Nii et kasutusest rääkida on ehk ilmne ülepingutus . </s> </p>
+<p> <s> Asume siis asja juurde ! </s> </p>
+<p rend="rasvane"> <s> KEERDÜLESANNETE KOOSTAMISE TEHNIKA ALGED </s> </p>
+<p> <s> Kui end matemaatiku moodi väljendada , siis keerdülesanne loob sageli üksühese vastavuse kahe hulga elementide vahel . </s> <s> Näiteks kas või hulkade ] A , B , C } ja ] 1,2 , 3 } vahel . </s> <s> Ülesanne peab seostama iga tähe üheselt üheainsa numbriga . </s> <s> Toome paar skeemi , kuidas seda vastavust kujutada . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p> <s> Graafi asemel on vastavust sageli lihtsam ja otstarbekam näidata tabeli abil . </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p rend="keskel"> <s> 1 </s> </p>
+<p rend="keskel"> <s> 2 </s> </p>
+<p rend="keskel"> <s> 3 </s> </p>
+<p rend="keskel"> <s> A </s> </p>
+<p rend="keskel"> <s> 1 </s> </p>
+<p rend="keskel"> <s> B </s> </p>
+<p rend="keskel"> <s> 1 </s> </p>
+<p rend="keskel"> <s> C </s> </p>
+<p rend="keskel"> <s> 1 </s> </p>
+<p> <s> Igas reas ja veerus peab parajasti olema üks 1 ! </s> </p>
+<p> <s> Ülesande tekstis peavad leiduma negatiivsed teabetükid , mis lubavad üheselt fikseerida ühtede paiknemise tabelis . </s> <s> Uurime veidi , kui palju peab tabelis olema antud nulle ( eitusi ) , et ühtede asukoht oleks täpselt määratav . </s> </p>
+<p> <s> Kirjutame kõigepealt C-ritta kaks nulli . </s> <s> Sellega on kolmas element 1 paigal . </s> <s> Edasi kirjutame B-ritta teise veergu nulli . </s> <s> Vaatame korraks sellele vahetabelile otsa . </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p rend="keskel"> <s> 1 </s> </p>
+<p rend="keskel"> <s> 2 </s> </p>
+<p rend="keskel"> <s> 3 </s> </p>
+<p rend="keskel"> <s> A </s> </p>
+<p rend="keskel"> <s> B </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> C </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p> <s> Nüüd peaks selge olema , et kolmanda rea viimane element peab olema 1 , teise veeru esimese rea element peab samuti olema 1. </s> <s> Sellega jääb B jaoks vabaks tõepoolest esimene veerg . </s> <s> Täidetud tabel on selline . </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p rend="keskel"> <s> 1 </s> </p>
+<p rend="keskel"> <s> 2 </s> </p>
+<p rend="keskel"> <s> 3 </s> </p>
+<p rend="keskel"> <s> A </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> 1 </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> B </s> </p>
+<p rend="keskel"> <s> 1 </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> C </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> 1 </s> </p>
+<p> <s> Vahetades saadud tabeli esimese ja teise rea , näeme pilti , mis annabki eeskirja taoliste vastavuste korraldamiseks tabelite abil . </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p rend="keskel"> <s> 1 </s> </p>
+<p rend="keskel"> <s> 2 </s> </p>
+<p rend="keskel"> <s> 3 </s> </p>
+<p rend="keskel"> <s> B </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> A </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> C </s> </p>
+<p> <s> Näeme , et täpse üksühese vastavuse korraldamiseks peab tingimuste tabelis peadiagonaalist ülalpool olev osa olema täidetud nullidega ( eitustega ) , siis saab kõik ühed tabelis üheselt paika panna . </s> </p>
+<p> <s> Teeme proovi , andes ette üsna igapäevase pildi veeremänguklubist . </s> <s> Albert , Boris ja Carl käisid veeremängu mängimas . </s> <s> Teada on , et Boris pakkus teiseks ja kolmandaks jäänutele jõujooki . </s> <s> Albert on kolmandaks jäänu vanaisa . </s> <s> Millise koha sai igaüks ? </s> </p>
+<p> <s> See miniülesanne ei nõuaks isegi tabeli koostamist , aga metoodika mõttes teeme seda siiski . </s> <s> Kõigepealt näeme , et eituste kasutamine võib kulgeda vägagi positiivsete lausete abil . </s> <s> Esimene lause ütleb , et Boris ei olnud teine ega kolmas . </s> <s> Täpselt nagu meie eelmises tabelis . </s> <s> Teine lause ütleb , et Albert ei olnud kolmas . </s> <s> Seega oleme saanud just meie viimase tabeli seisu ja ühed on täpselt paigas . </s> <s> Boris on esimene , Albert teine ja Carl kolmas . </s> </p>
+<p> <s> Võtame nüüd ette ühe tõsisema ülesande , kus on tegu juba viie muutujaga . </s> <s> Konstrueerime 5x5 tabeli , mille ülemine pool on täidetud nullidega ( eitused ) . </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p rend="keskel"> <s> a </s> </p>
+<p rend="keskel"> <s> b </s> </p>
+<p rend="keskel"> <s> c </s> </p>
+<p rend="keskel"> <s> d </s> </p>
+<p rend="keskel"> <s> e </s> </p>
+<p rend="keskel"> <s> A </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> B </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> C </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> D </s> </p>
+<p rend="keskel"> <s> 0 </s> </p>
+<p rend="keskel"> <s> E </s> </p>
+<p> <s> Nüüd tuleks meil vastavuse korraldamiseks kümme eitustingimust välja kirjutada . </s> <s> Et kirjutamise mahtu vähendada ja ülesande algpilti lahendajale segasemaks teha , jaotame need 10 eitust ühe- , kahe- ja kolmekaupa alamrühmadesse . </s> <s> Näiteks nii : </s> </p>
+<p> <s> <gap rend="tabel"/> </s> </p>
+<p rend="keskel"> <s> a </s> </p>
+<p rend="keskel"> <s> b </s> </p>
+<p rend="keskel"> <s> c </s> </p>
+<p rend="keskel"> <s> d </s> </p>
+<p rend="keskel"> <s> e </s> </p>
+<p rend="keskel"> <s> A </s> </p>
+<p rend="keskel"> <s> 1 </s> </p>
+<p rend="keskel"> <s> 1 </s> </p>
+<p rend="keskel"> <s> 2 </s> </p>
+<p rend="keskel"> <s> 6 </s> </p>
+<p rend="keskel"> <s> B </s> </p>
+<p rend="keskel"> <s> 4 </s> </p>
+<p rend="keskel"> <s> 2 </s> </p>
+<p rend="keskel"> <s> 3 </s> </p>
+<p rend="keskel"> <s> C </s> </p>
+<p rend="keskel"> <s> 5 </s> </p>
+<p rend="keskel"> <s> 3 </s> </p>
+<p rend="keskel"> <s> D </s> </p>
+<p rend="keskel"> <s> 3 </s> </p>
+<p rend="keskel"> <s> E </s> </p>
+<p> <s> Selline tükeldamine on meelevaldne , aga oluline on siiski teada , et iga eituste rühma jaoks saame ka ühe tingimuslause . </s> </p>
+<p> <s> Meie tabelile vastavad siis 6 lauset . </s> </p>
+<p> <s> 1. A ei ole b ega c </s> </p>
+<p> <s> 2. d ei ole A ega B </s> </p>
+<p> <s> 3. e ei ole B , C ega D </s> </p>
+<p> <s> 4. B ei ole c </s> </p>
+<p> <s> 5. C ei ole d </s> </p>
+<p> <s> 6. A ei ole e </s> </p>
+<p> <s> Sellega on tabeli tingimuslaused formaalselt paigas ja meil jääb üle vaid mingi tegelik olukord nende tingimustega siduda . </s> <s> Sobiva teksti loomine polegi nii lihtne ja nõuab koostajalt parajalt fantaasiat , et mitte ülesandest ülesandesse samu olukordi korrata . </s> <s> Aga siin ei maksa väga muretseda , maailmas on tohutult palju objekte ja nende omadusi , puudust ei tohiks küll tulla . </s> </p>
+<p> <s> Proovime meiegi jõudu seda tüüpi ülesannete meelisteema kallal . </s> </p>
+<p rend="rasvane"> <s> KES ON KES ? </s> </p>
+<p> <s> Olgu tegu viie mehega , kelleks on Ants , Bill , Carl , Danny ja Enn , ning nende suvalises järjekorras esitatud ametid olgu autojuht , baarimees , curlinguproff , doktor ja elektrik . </s> </p>
+<p> <s> Ülalpool väljakirjutatud 6 lauset saavad nüüd uue kuue : </s> </p>
+<p> <s> 1. Ants ei ole baarimees ega curlinguproff </s> </p>
+<p> <s> 2. Doktor ei ole Ants ega Bill </s> </p>
+<p> <s> 3. Elektrik ei ole Bill , Carl ega Danny </s> </p>
+<p> <s> 4. Bill ei ole curlinguproff </s> </p>
+<p> <s> 5. Carl ei ole doktor </s> </p>
+<p> <s> 6. Ants ei ole elektrik </s> </p>
+<p> <s> Sellega on laused paigas , aga mõistatuseks nad muidugi veel ei kõlba , sest on liiga selged ja üheselt paigas . </s> <s> Teeme veel ühe ümberkirjutuse , kus osa eitusi asendatakse näiliste jaatustega . </s> </p>
+<p rend="kaldkiri"> <s> 1. Ants kuulub samasse klubisse baarimehe ja curlinguprofiga </s> </p>
+<p rend="kaldkiri"> <s> 2. Doktor elab samal tänaval Antsu ja Billiga </s> </p>
+<p> <s> <hi rend="kaldkiri"> 3. </hi> <hi rend="kaldkiri"> Elektrik mängib sageli bridž </hi> <hi rend="kaldkiri"> i Billi , Carli ja Dannyga </hi> </s> </p>
+<p rend="kaldkiri"> <s> 4. Bill ei salli curlingumängu </s> </p>
+<p rend="kaldkiri"> <s> 5. Carl ja doktor käisid eile õhtul õlut joomas </s> </p>
+<p> <s> <hi rend="kaldkiri"> 6. </hi> <hi rend="kaldkiri"> Ants ja elektrik armastavad kasiinos </hi> <hi rend="kaldkiri"> käia </hi> </s> </p>
+<p rend="kaldkiri"> <s> Kes millist ametit peab ? </s> </p>
+<p> <s> Näeme , et pärast mitmekordset ümberkirjutamist omandasid ülesande teabetükid päris normaalsete lausete kuju . </s> <s> Seda varianti võib juba lahendajatelegi välja pakkuda . </s> </p>
+<p> <s> Muidugi on ülesande keerulisustamiseks veel üht-teist võimalik ära teha . </s> <s> Praegu olid ametid rumalasti valitud . </s> <s> Igal mehel on tegelikult amet , mis algab sama tähega kui ta eesnimi . </s> <s> Seega tuleks valida teised ametinimed ja ka küsimused tuleksid juhuslikku järjekorda panna . </s> </p>
+<p> <s> Mõni kavalpea võib märgata , et ametite ja nimede esitähed on samad ning püstitada tegelikult ( praegu ! ) õige vastavushüpoteesi . </s> <s> Selle vastu tuleb end muidugi kaitsta . </s> </p>
+<p> <s> <hi rend="rasvane"> Vahenuputamine </hi> . </s> <s> Et lihtne vastavusloogika pole alati õige , selle näiteks üks väike probleem , millega mul on nii koolmeistreid kui magistrante parasjagu ehmatada õnnestunud . </s> </p>
+<p> <s> Toa laes on kolm rida lampe . </s> <s> Toa ukse taga koridoris on kolm lülitit , iga rea jaoks üks . </s> <s> Teie ülesandeks on kinnise ukse taga lüliteid lülitades kindlaks teha , milline lambirida vastab millisele lülitile . </s> </p>
+<p> <s> Ust võite avada ainult üks kord . </s> <s> Kui sisenete , ütlete pärast väikest nuputamist , milline lüliti millisele reale vastab . </s> </p>
+<p> <s> Üks noorik ütles kohe et , oh , see on ju nii lihtne . </s> <s> Keskmine lüliti vastab ilmselt keskmisele reale . </s> <s> Vajutan ühe äärmise rea põlema ja ongi asi selge . </s> </p>
+<p> <s> Lubasin neiukesel proovida . </s> <s> Keskmine lüliti pani põlema hoopis ühe äärmise rea . </s> <s> Noorik nurises küll , et kuidas need elektrikud nii ebaloogiliselt töötavad , aga ei aidanud enam miski . </s> </p>
+<p> <s> Proovige nüüd teiegi selle mõnusat ahhaa-elamust andva probleemi kallal jõudu ! </s> </p>
+<p> <s> <hi rend="rasvane"> KEERDÜL </hi> <hi rend="rasvane"> ESANNETE ÜLDISTAMISEST KEERUKA </hi> <hi rend="rasvane"> TE SEOSESTRUKTUURIDE KAUDU </hi> </s> </p>
+<p> <s> Keerdülesannete üldistamine võib kulgeda mitmes suunas . </s> <s> Esimene neist on mitme erineva hulga elementide vaheliste suhete kirjeldamine vähima arvu väidete abil , nii et oleks võimalik tuletada ka arvulisi vahekordi elementide vahel . </s> <s> See suund viiks meid Venni diagrammi , Karnaugh kaardi ja taoliste skeemide poole . </s> <s> Jätame praegu selle suuna rahule ja läheme hoopis teise suunda , rohkem loogika poole . </s> </p>
+<p rend="rasvane"> <s> SÜLLOGISMID </s> </p>
+<p> <s> Süllogismid on lihtsalt rida väiteid . </s> </p>
+<p rend="kaldkiri"> <s> Pardid ei tantsi valssi . </s> </p>
+<p rend="kaldkiri"> <s> Kogu mu linnufarm koosneb partidest . </s> </p>
+<p rend="kaldkiri"> <s> Ükski ohvitser ei keeldu valssi tantsimast . </s> </p>
+<p> <s> Seda tüüpi väidete kogumite puhul on pilt üsna ühesugune . </s> <s> Nimelt on antud tõesus või väärsus liitväite “ p1 ja p2 ja p3 ” jaoks , kusjuures p1 , p2 ja p3 on lihtlaused , nagu meie näiteski . </s> <s> Küsitakse : </s> </p>
+<p> <s> 1 ) millised p1 , p2 , p3 tõesus- , väärsuskombinatsioonid teevad süllogismi tõeseks ? </s> </p>
+<p> <s> 2 ) milliseid tõeseid järeldusi saab veel teha ? </s> </p>
+<p> <s> Eriti osav mees taoliste süllogismide loomisel oli Lewis Carroll , kelle fantaasiarikkust tuleb lihtsalt imetleda . </s> <s> Carrolli vaimusähvatustest annab raamatu “ Alice imedemaal ” kõrval ilusa ülevaate aastal 1991 vene keelde tõlgitud raamat “ Loogiline mäng ” ( Logitšeskaja igra ) , mida peaks meie raamatukogudes veel saada olema . </s> </p>
+<p> <s> Meid ei huvita taoliste süllogismide uurimisel mitte sedavõrd üksikute järeldusmeetodite uurimine ja kasutamine ( nagu seda klassikalises loogikakursuses tehakse ) , vaid hoopis süllogismide seos keerdülesannetega . </s> </p>
+<p> <s> Asja tuumani jõudmiseks lahkame need kolm lauset lihtlauseteks : </s> </p>
+<p> <s> A : on hani </s> </p>
+<p> <s> B : on üks mu lindudest </s> </p>
+<p> <s> C : on ohvitser </s> </p>
+<p> <s> D : tantsib valssi </s> </p>
+<p> <s> Kasutades seda tähistust , saame kolm alglauset ümber kirjutada : </s> </p>
+<p> <s> A järeldub mitte D </s> </p>
+<p> <s> B järeldub A </s> </p>
+<p> <s> C järeldub D </s> </p>
+<p> <s> Tegelikult peaks siin pruukima verbi implitseerib või panema lause alusele käändelõpu -st järeldub . </s> <s> Et asja lihtsamalt kirja panna , kasutame operaatorit <hi rend="kaldkiri"> imp . </hi> </s> </p>
+<p> <s> Edasi kasutame veel tuttavaid loogikaoperaatoreid <hi rend="kaldkiri"> and , or , not </hi> ja J-keelest juba tuttavat tähistusviisi defineerimiseks  </s> = <s> <hi rend="kaldkiri"> . </hi> ( on ) . </s> </p>
+<p> <s> Nende operaatorite abil saame kõik kolm lauset kokku võtta ühte lausesse </s> </p>
+<p rend="rasvane"> <s> s= . </s> <s> ( A imp ( not D ) ) and ( B imp A ) and ( C imp D ) </s> </p>
+<p> <s> Nii oleme jõudnud loogikalauseni s , mille kohta üritame vastata eespool viidatud küsimusele : “ Millised A , B , C , D tõesus-/väärsuskombinatsioonid teevad lause s tõeseks ? ” </s> </p>
+<p> <s> Meil on tegemist nelja muutujaga A , B , C , D ja mingite nendega tehtavate loogiliste operatsioonidega . </s> <s> Et kontrollida , millised A ; B ; C ; D väärtused annavad meile tõesed tulemused , lähtume lihtsalt J-keele suurest arvutusvõimsusest ja mõnusast tähistusviisist . </s> </p>
+<p> <s> Nelja muutuja puhul on võimalikke väärtuste kombinatsioone parajasti 2[4= 16. </s> </p>
+<p> <s> Vastav tabel ise on selline : </s> </p>
+<p> <s> 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 </s> </p>
+<p> <s> 0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1 </s> </p>
+<p> <s> 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 </s> </p>
+<p> <s> 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 </s> </p>
+<p> <s> Milline J-programm meile selle tabeli genereerib ? </s> </p>
+<p rend="rasvane"> <s> b4= . | : @ </s> # <s> : @i . @ ( 2 &amp; [ ) 4 </s> </p>
+<p> <s> ( Seda programmi paremalt vasemale lugedes on tegu esimese 16 arvu ( s.o 0-15 ) kahendesitu sega . </s> <s> Arvu 0 esitus on tabeli b4 esimeses veerus ja 15 esitus viimases veerus , s.t tegemist on algtabeli transponeeritud esitusega ) . </s> </p>
+<p> <s> Muutujate väärtuste valimine sellest tabelist käib lihtsalt : </s> </p>
+<p> <s> <hi rend="rasvane"> A= . 0 &amp; ] </hi> ( NB ! vali tabeli esimene rida indeksiga null ) </s> </p>
+<p> <s> <hi rend="rasvane"> B= . 1 &amp; ] </hi> ( NB ! vali tabeli teine rida indeksiga 1 ) </s> </p>
+<p> <s> <hi rend="rasvane"> C= . 2 &amp; ] </hi> ( NB ! vali tabeli kolmas rida indeksiga 2 ) </s> </p>
+<p> <s> <hi rend="rasvane"> D= . 3 &amp; ] </hi> ( NB ! vali tabeli neljas rida indeksiga 3 ) </s> </p>
+<p> <s> Et leida , millised A , B , C , D väärtused annavad loogilisele avaldisele s tõeväärtuse 1 , arvutame lihtsalt programmiga <hi rend="rasvane"> ( , s ) b4 </hi> muutujate kõikide väärtuskombinatsioonide jaoks tõeväärtused . </s> <s> Enne tuleb muidugi veel defineerida J-keeles vajalikud loogikaoperaatorid : </s> </p>
+<p rend="rasvane"> <s> imp= . </s> <s> 13 b . </s> </p>
+<p rend="rasvane"> <s> and= . </s> <s> 1 b . </s> </p>
+<p rend="rasvane"> <s> or= . </s> <s> 7 b . </s> </p>
+<p rend="rasvane"> <s> not= . </s> <s> [ : -. ] </s> </p>
+<p rend="rasvane"> <s> ( , s ) b4 </s> </p>
+<p> <s> 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 </s> </p>
+<p> <s> 0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1 </s> </p>
+<p> <s> 0 0 1 1 0 0 1 1 0 0 1 1 0 0 1 1 </s> </p>
+<p> <s> 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 </s> </p>
+<p> <s> 1 1 0 1 0 0 0 0 1 0 0 0 1 0 0 0 </s> </p>
+<p> <s> Selles tabelis neli esimest rida on A , B , C , D väärtused ja viies rida on iga veeru neljale väärtusele vastav loogilise lause s väärtus . </s> <s> Näeme , et 16 võimaliku väärtuse hulgas on päris mitu kombinatsiooni , mis annavad tõeväärtuse 1. </s> <s> Kuna väärtuskombinatsioonide arv kasvab kiiresti ( näiteks 10 muutuja puhul on tabelil juba 1024 veergu ) , siis on mõistlik nende hulgast alles jätta ainult sellised veerud , mille viimane element on 1. </s> <s> Seda puhastamist teeb lihtne programm </s> </p>
+<p rend="rasvane"> <s> true= . </s> <s> 1 : '# " 1~x . </s> ' </p>
+<p> <s> ja vajalikuks koondvastuseks saame programmiga </s> </p>
+<p rend="rasvane"> <s> s true b4 </s> </p>
+<p> <s> 0 0 0 1 1 </s> </p>
+<p> <s> 0 0 0 0 1 </s> </p>
+<p> <s> 0 0 1 0 0 </s> </p>
+<p> <s> 0 1 1 0 0 </s> </p>
+<p> <s> Niisugust tulemust on juba lihtne analüüsida . </s> <s> Kirjutame tabelist paremale endi algsed lihtlaused , siis on kerge asjast aru saada . </s> </p>
+<p> <s> 0 0 0 1 1 on hani </s> </p>
+<p> <s> 0 0 0 0 1 on üks lindudest </s> </p>
+<p> <s> 0 0 1 0 0 on ohvitser </s> </p>
+<p> <s> 0 1 1 0 0 tantsib valssi </s> </p>
+<p> <s> Veergudest 4 ja 5 on näha , et lause on tõene , kui haned ei ole ohvitserid ega tantsi . </s> <s> Linnufarmi lindude hulgas tervikuna ega ka hanede hulgas pole ühtegi valsitantsijat ( veerud 2 ja 3 ) . </s> </p>
+<p rend="rasvane"> <s> KEHTESTATAVUS </s> </p>
+<p> <s> Esimesel hetkel võib näida , et kogu see mäng hanede , ohvitseride ja tantsimisega on mõttetu jama , millega ühelgi mõistlikul inimesel midagi tõsist peale pole hakata . </s> <s> Oh ei ! </s> <s> Selline arvamus on tõest nii kaugel , kui vähegi olla saab . </s> </p>
+<p> <s> Nimelt kuulub see ülesanne praegu ühe kõige tulisema uurimispiirkonna nn <hi rend="kaldkiri"> k-sat </hi> ehk <hi rend="kaldkiri"> k-kehtestatavuse </hi> probleemistu hulka . </s> <s> Selle probleemi olemus on põhimõtteliselt lihtne : tuleb leida muutujate väärtuskombinatsioone , mis rahuldavad teatud kitsenduste süsteeme . </s> <s> Kui see probleem loogikasse üle kanda , siis on vaja leida loogiliste muutujate ( s.o kahendmuutujate ) väärtuskombinatsioone , mis teevad etteantud tingimuste kogumi tõeseks . </s> <s> Need tingimused on alati esitatavad konjunktiivsel normaalkujul , s.o on esitatavad väidetena , mida omavahel seob <hi rend="kaldkiri"> and </hi> ja kus väite sees on lubatud vaid <hi rend="kaldkiri"> or </hi> ja <hi rend="kaldkiri"> not </hi> operaatorid . </s> </p>
+<p> <s> Näiteks nelja muutuja korral ( n=4 ) oleks selline lause </s> </p>
+<p rend="rasvane"> <s> S0= . </s> <s> ( A or ( not C ) ) and ( A or B ) and ( A or D ) </s> </p>
+<p> <s> Selles lauses on m=3 liiget või termi ja keerukusparameetriks on k=2 , sest igas termis on kaks muutujat . </s> <s> Kasutades meie varasema hanede-ohvitseride näite jaoks kirja pandud programmifragmente , võime leida tõesuspildi programmiga </s> </p>
+<p rend="rasvane"> <s> S0 true b4 </s> </p>
+<p> <s> Kõik muutujate väärtuskombinatsioonid , mis teevad lause S0 tõeseks , paiknevad järgmise maatriksi veergudes . </s> </p>
+<p> <s> 0 1 1 1 1 1 1 1 1 A </s> </p>
+<p> <s> 1 0 0 0 0 1 1 1 1 B </s> </p>
+<p> <s> 0 0 0 1 1 0 0 1 1 C </s> </p>
+<p> <s> 1 0 1 0 1 0 1 0 1 D </s> </p>
+<p> <s> Näeme , et uuritaval lausel on üpris palju sobivaid variante . </s> <s> Võib tunduda , et mis selles kehtestatavusprobleemis siis nii iseäralist on , et näiteks igal aastal õige mitu üleilmset konverentsi korraldatakse . </s> <s> On ikka . </s> </p>
+<p> <s> Juba paarikümne muutuja korral on maatriksi b20 veergude arv 2[20 = 1 048 576 , kolmekümne muutuja korral aga on maatriksil b30 veerge 2[30=1 073 741 824. </s> <s> Mis siis veel teha , kui muutujate arv sadadesse või tuhandetesse ulatub , nagu see on elektroonikaseadmete projekteerimisel tavaline ? </s> </p>
+<p> <s> Muide , seesama kehtestatavusprobleem oligi 1971. aastal esimeseks , mille korral Cook tõestas , et probleemi lahendamiseks ei leidu üldjuhul polünoomajas töötavat algoritmi . </s> </p>
+<p rend="rasvane"> <s> NUPUTAMISEKS </s> </p>
+<p> <s> Teil on vaja valida ekspeditsiooni liikmed . </s> <s> Neid peab olema vähemalt kaks . </s> <s> On teada , et preili Ada ja härra Cii ei räägi omavahel üldse ega sobi seega kokku . </s> <s> Härra Cii tõotas , et ta ei lähe iialgi ekspeditsioonile proua Basicuga , samuti ei lähe ta siis , kui doktor Delfi ja preili Ada kuuluvad kampa , sest need kaks teevad kõiki asju alati koos . </s> </p>
+<p> <s> Leidke kõik võimalikud omavahel sobivad ekspeditsiooni koosseisud . </s> </p>
+<p> <s> ( Lahendus on artikli lõpus . ) </s> </p>
+<p rend="rasvane"> <s> MIS EDASI SAAB ? </s> </p>
+<p> <s> Vaatlesime praegu J-keele kasutamist nelja muutujaga loogiliste probleemide korral . </s> <s> Üsna kerge on põhioperaatoreid modifitseerida . </s> <s> Muutujate arvuga seostub muidugi kõigi väärtuskombinatsioonide kogum . </s> <s> Seda saab laiendada , tuues mängu b4 asemel b5 , b6 jne. </s> <s> Vastavalt tuleb laiendada muidugi ka muutujate hulka : A , B , C , D asemel tuleb lisaks uusi muutujaid juurde võtta ja analoogiline reaeraldusoperaator defineerida , nagu see varasemate muutujate puhul oli . </s> <s> Usun , et 15-18 muutujani võib siin lookeses toodud programmifragmentidega rahulikult kogu vajaliku töö ära teha . </s> <s> Vastava loogilise lause paikapanek ja vigadeta arvutisse saamine on muidugi omaette töö . </s> </p>
+<p> <s> Eestis tegeleb kehtestatavuse probleemidega Tartu Ülikoolis prof Mati Tombaku juhendamisel väike töögrupp , kes on inglise keeles avaldanud sel teemal mitu artiklit . </s> <s> Tallinna Tehnikaülikoolis on analoogilised NP-keerulised probleemid käsitlusel informaatikainstituudis prof Rein Kuusiku ja allakirjutanu juhendamisel . </s> <s> Põhimõtteliselt on eksponentsiaalse keerukusega probleemide lahendamiseks leitud mitu päris kavalat meetodit , mis praegu hoogsalt rahvusvahelisele areenile tungivad . </s> </p>
+<p rend="rasvane"> <s> LAHENDUSED </s> </p>
+<p> <s> 1. Kahe valge ratsu asukoha vahetus ei õnnestu , sest lubatud liikumised ei võimalda ühel ratsul teisest üle hüpata . </s> </p>
+<p> <s> 2. Ekspeditsiooni jaoks sobivad vaid variandid AB või ABD . </s> </p>
+<p> <s> <gap rend="viited"/> </s> </p></div2>
+        <div2 type="artikkel"><head> A &amp; A - Uudised </head>
+<p> <bibl> <author> <s> <hi rend="kaldkiri"> Uudised kogus Uuno Vallner </hi> , <hi rend="kaldkiri"> Majandus- ja kommunikatsiooniministeeriumi </hi> , <hi rend="kaldkiri"> riigi infosüsteemide osakonna arendustalituse juhataja </hi> </s> </author> </bibl> </p>
+<p rend="rasvane"> <s> EESTISSE E-RAHA ? </s> </p>
+<p> <s> Riigikogus menetletav e-raha asutuste seadus avab ka eestlastele peagi võimaluse kasutada kioskist ajalehti ostes või ühistranspordis pileti eest tasumisel peenraha asemel plastkaarti . </s> <s> E-raha kasutatakse peamiselt igapäevaste väiksemate maksete tasumiseks , nagu bussipiletite , parkimistasu , ajalehtede , sigarettide ja muu sellise soetamisel . </s> <s> Nii deebet- kui ka krediitkaartidest , samuti Internetipangast erineb e-raha selle poolest , et ei ole seotud pangakontoga või krediidilimiidiga . </s> <s> Selle kasutamiseks ei pea müüjal olema <hi rend="kaldkiri">online-</hi>ühendusega terminali . </s> </p>
+<p> <s> Väliselt sarnaneb e-raha telefoni- või pangakaardiga . </s> <s> E-raha plastkaardil saab endale soetada kas selle eest sularahas makstes või laadides e-raha kaarti pangaautomaadis , tehes selleks rahaülekande oma pangakontolt . </s> <s> Mõlemal juhul , nii sularaha kui ka kontoraha vahetamisel e-raha vastu , usaldab tarbija oma raha e-raha väljastanud ettevõttele samamoodi nagu siis , kui ta paneb raha panka . </s> </p>
+<p> <s> Eesti pole praegu ühtegi e-raha väljastajat ega ka kohta , kus seda kasutada saaks . </s> <s> Euroopas on e-raha kasutamine viimase viie aastaga neljakordistunud ning seda kasutatakse tänavu ligi 10 miljardi krooni eest . </s> <s> Siiski on see kõigest mõni protsent kogu ELis kasutatavast paberrahast ja müntidest . </s> </p>
+<p> <s> <hi rend="allajoonitud"> <hi rend="rasvane"> <gap rend="hüperlink"/> </hi> </hi> </s> </p>
+<p> <s> Keelevara on selle autorite sõnul Eesti esimene professionaalsete ja usaldusväärsete sõnastike ja leksikonide kogum Internetis . </s> <s> Alates 20. oktoobrist on Keelevara keskkond avatud avalikuks tasuta proovimiseks . </s> </p>
+<p> <s> OÜ Keelevara asutati 2004. aasta aprillis Eesti Keele Sihtasutuse , kirjastuse TEA , Linnar Viigi , arvutuslingvisti Indrek Heina ning informaatika spetsialisti Jaak Vilo poolt selleks , et aidata kaasa keele ja keeleoskuse arengule Eestis . </s> <s> Eesmärk püütakse realiseerida tänase päeva vajadustest lähtuva tervikliku keelekeskkonnaga Keelevara , mis pakub Interneti vahendusel lihtsat ja mugavat juurdepääsu erinevatele professionaalsetele sõnastikele ja leksikonidele . </s> </p>
+<p> <s> Keeleveeb koosneb 25 sõnaraamatust , sõnastike arv kasvab pidevalt . </s> </p>
+<p> <s> Lähiajal muutub keeleveeb tasuliseks ning valida saab kuue paketi vahel . </s> </p>
+<p> <s> Pakettide hind on 200-2000 krooni aastas , päevapileti hind 10-25 krooni . </s> </p>
+<p> <s> Hetkel on enamik Keelevara tooteid saadaval ka tasuta nn KeeleWebi keskkonnas aadressil ee. <gap rend="hüperlink"/> </s> <s> Keelevara omanikud plaanivad KeeleWebi lähiajal sulgeda . </s> </p>
+<p rend="rasvane"> <s> ANDMEKAITSE INSPEKTSIOON EI OLE NÕUS ISIKUKOODI AVALIKUSTAMISEGA </s> </p>
+<p> <s> Andmekaitse inspektsioon ( AKI ) ei ole nõus olukorraga , kus isikutunnistuse ( ID-kaardi ) omaniku nimega koos avalikustatakse ka isikukood avalikul veebilehel , ja vaidlustas selle Siseministeeriumis . </s> <s> Praeguse korra järgi on ID-kaardi sertifikaadi kasutamise tingimustes kirjas , et kaardi hankinud inimene nõustub ka oma nime ja isikukoodi avaldamisega sertifitseerimiskeskuse kodulehel . </s> <s> Inspektsiooni arvates on praegune olukord vastuolus isikuandmete kaitse seadusega . </s> </p>
+<p rend="rasvane"> <s> EESTI ON KESK-EUROOPA LIIDER E-VALITSUSE ARENDAMISEL </s> </p>
+<p> <s> Majandusajakirja The Economist gruppi kuuluv Economist Intelligence Unit'i uuringu andmetel on Eesti ja talle järgnevate Tšehhi ning Sloveenia e-valitsemise areng võrreldav Euroopa Liidu vanade liikmesriikidega . </s> <s> Kesk-Euroopa e-valitsuse liidreid eristavad teistest regiooni riikidest nende ühtsed strateegiad , täpsed tegevuskavad , selge ja tsentraliseeritud vastutus poliitika elluviimise eest ning valdkondlik seadusandlus . </s> <s> Riikide hindamisel lähtuti seitsmest üksteisega tihedalt seotud kriteeriumist ning ühtekokku 35 kvalitatiivsest ning kvantitatiivsest näitajast nagu Interneti-ühendus ja tehnoloogiline infrastruktuur ; e-kaubanduseks ning elektrooniliste teenuste pakkumiseks vajalik õiguslik raamistik ning ärikeskkond ; hariduse ja oskuste tase ; valitsuse poliitika ja tulevikuvisioonid ; e-demokraatia ning elektroonsete teenuste arendamine kodanikele ja ettevõtetele . </s> </p>
+<p> <s> Kümne punkti skaalal saavutas Eesti kokkuvõttes esikoha 5,78 punktiga . </s> </p>
+<p> <s> Uuring on kättesaadav Internetis : <gap rend="hüperlink"/> </s> </p>
+<p> <s> Aruande tekst tekitab küsitavusi : nii öeldakse uuringus , et eestlastest kasutavad Internetti ainult üksikud , tsiteerin “ But still only ten percent of the population has effective access to the Internet , which means that unless the base is broadened , Estonia's online forums will remain a communication medium for the enfranchised elite - exactly the opposite of the stated e-democracy objectives . ” Kui uuringus oleks kasutatud 10% asemel 53% , oleks vist Eesti edu veel veenvam . </s> </p>
+<p> <s> <gap rend="joonis"/> </s> </p>
+<p rend="rasvane"> <s> INTERNETI-ÜHENDUSTE ARVU POOLEST ON MAAILMAS ESIMESEL KOHAL HIINA </s> </p>
+<p> <s> Interneti-ühenduste arvu poolest on maailmas esimesel kohal Hiina . </s> <s> Ühe aastaga kahekordistus Hiinas ühenduste arv , jõudes 13 miljonini . </s> <s> Samas moodustab see vaid protsendi Hiina rahvaarvust . </s> <s> Hiinas toimunud tohutu kasvu taga on eelkõige ametivõimude surve kasutada hariduses Interneti võimalusi . </s> </p>
+<p> <s> Interneti-ühenduste arvult telefoniliinide kohta on Eesti tõusnud maailmas 15. riigiks , parandades aastaga oma positsiooni ühe koha võrra . </s> </p>
+<p> <s> Eesti möödus Interneti-ühenduste arvuga Saksamaast , Kanadast , Rootsist ja Šveitsist . </s> <s> Eestist möödusid aga Holland , Prantsusmaa ja Portugal . </s> <s> Kõige suurema tõusu on internetiseerituse osas teinud esikümnes Island , tõustes seitsmendalt kohalt neljandale . </s> <s> Soome on aastaga ühe koha kaotanud , olles 12. kohal . </s> <s> Interneti-ühenduste esikolmikus püsivad endiselt Lõuna-Korea , Taiwan ja Hongkong . </s> </p>
+<p> <s> 2004. aasta juuni lõpuks oli maailmas kokku 78 miljonit Interneti-ühendust , kusjuures ühe aastaga lisandus 30 miljonit uut ühendust . </s> </p>
+<p rend="rasvane"> <s> 94 PROTSENTI ETTEVÕTTEID KASUTAB ARVUTEID , 90 PROTSENDIL ON INTERNETI-ÜHENDUS </s> </p>
+<p> <s> Statistikaameti andmeil kasutas 2003. aastal oma töös arvutit 94 protsenti ettevõtteid , 90 protsendil oli olemas Interneti-ühendus . </s> <s> Ühes Eesti ettevõttes oli keskmiselt 12 arvutit , neist 11 Interneti-ühendusega . </s> <s> Kõige rohkem arvuteid oli tegevusaladel , kus domineerivad suurettevõtted ehk postiside ja telekommunikatsioon ( keskmiselt 202 arvutit ettevõttes ) ning elektrienergia- , gaasi- ja veevarustus ( keskmiselt 36 arvutit ettevõttes ) . </s> <s> Tegevusala eripärast tulenevalt on kõrge arvutite kontsentratsioon ka arvutiteeninduse tegevusalal , keskmiselt 42 arvutit ettevõttes . </s> <s> Ligi kahel kolmandikul ettevõtetest oli Interneti püsiühendus , 16 protsenti kasutas nii sissehelistamisteenust kui ka püsiühendust tavalise telefoniliini kaudu . </s> <s> Juhtmeta Interneti-ühendust ning püsiühendust kaabeltelevisiooni kaudu kasutas viis protsenti ettevõtetest . </s> <s> Enamik ettevõtteid kasutas Internetti informatsiooni otsimiseks ning pangateenuste kasutamiseks . </s> <s> Veerand ettevõtteid kasutas Internetti digitaaltoodete ehk muusika , mängude ja vabavara vastuvõtmiseks ning koolituse saamise või andmise eesmärgil . </s> </p>
+<p> <s> Ettevõtted kasutasid Internetti aktiivselt ka avaliku sektoriga suhtlemiseks - 87 protsenti ettevõtteid info ja 81 protsenti blankettide saamiseks ning 64 protsenti elektrooniliseks asjaajamiseks . </s> <s> Eelmisel aastal soetas Interneti vahendusel tooteid või kasutas selle teenuseid 34 protsenti ettevõtetest . </s> <s> Interneti vahendusel võttis tellimusi vastu 10 protsenti firmadest . </s> </p>
+<p rend="rasvane"> <s> IT GRUPP AS OMANDAS PRIVADOR AS-i TURVATOODETE ÄRISUUNA </s> </p>
+<p> <s> Infotehnoloogiaettevõtted IT Grupp AS ja Privador AS kirjutasid alla lepingule , millega IT Grupp omandas Privadorilt turvatoodete ärisuuna koos kõigi turvatoodete , kliendilepingute ning spetsialistidega . </s> <s> Kaks tähtsamat toodet , mille IT Grupp omandas , on VPN lahendus , mis võimaldab kasutada avalikku Internetti turvaliselt missioonikriitilise äriinfo edastamiseks , ja Barricade 2 tulemüür . </s> <s> Barricade 2 eraldab ettevõtte sisevõrgu avalikust välisvõrgust ning kaitseb ettevõtte infosüsteemi Interneti-rünnakute eest . </s> <s> Privadori turvalahenduste suurimateks klientideks on välisministeerium , piirivalveamet ja justiitsministeerium . </s> <s> Kokku on turvalahenduste kliente umbes 200. </s> <s> Privador jätkab koostöös Cyberneticaga väljatöötatud patentide haldamist ning lõpetab koduturul turvalahenduste teenuste osutamise . </s> </p>
+<p> <s> IT Grupp on Eesti kapitalil põhinev infotehnoloogilisi lahendusi pakkuv ettevõte , mille eelmise aasta käive oli 75 miljonit krooni . </s> <s> Privador on peamiselt Eesti kapitalil põhinev infoturbe toodete arendus- ja turundusettevõte . </s> <s> Kuni 10 protsenti Privadori käibest moodustab eksport Prantsusmaale , firma mullune käive oli 5,6 miljonit krooni . </s> </p>
+<p rend="rasvane"> <s> ÄRIPÄEV SOOVITAB RISKI VÄHENDAMISEKS LOOBUDA AUKLIKU INTERNET EXPLORERI KASUTAMISEST NING ASENDADA SEE MOZILLA FIREFOXIGA </s> </p>
+<p> <s> Microsofti veebibrauseri Internet Explorer arvukad turvaprobleemid on muutnud selle arvutikurjategijate lemmikvahendiks . </s> <s> Veebibrauser pakub häkkeritele valmislahendusi arvutisüsteemidesse sissetungimiseks . </s> <s> Neil pole vaja teha rohkemat kui veenda kasutajat külastama pahavaraga varustatud lehekülge . </s> <s> Suurimaks ohuks on veebipõhised e-posti keskkonnad , kus toimub kümme protsenti kõigist veebilehe kaudu toimuvatest rünnakutest . </s> <s> Äripäev soovitab riski vähendamiseks loobuda aukliku Internet Exploreri kasutamisest ning asendada see Mozilla Firefoxiga , kiiresti populaarsust koguva vabavaralise brauseriga . </s> <s> Peale oluliselt suurema turvalisuse saab Firefoxi võimalusi moodulite abil hästi laiendada . </s> </p></div2>
+      </div1>
+    </body>
+  </text>
+</TEI>
+</teiCorpus>
+</teiCorpus>
