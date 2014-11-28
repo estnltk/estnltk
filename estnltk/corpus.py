@@ -5,7 +5,6 @@ from estnltk.core import as_unicode, overrides
 from estnltk.names import *
 
 from collections import Counter
-from itertools import izip, chain
 from pprint import pprint
 
 import json
@@ -63,6 +62,31 @@ class Corpus(object):
     @property
     def document_texts(self):
         return self.texts(DOCUMENTS)
+    
+    # methods for returning spans    
+    @property
+    def word_spans(self):
+        return [w.span for w in self.words]
+        
+    @property
+    def sentence_spans(self):
+        return [s.span for s in self.sentences]
+        
+    @property
+    def paragraph_spans(self):
+        return [p.span for p in self.paragraphs]
+    
+    @property
+    def word_rel_spans(self):
+        return [w.rel_span for w in self.words]
+        
+    @property
+    def sentence_rel_spans(self):
+        return [s.rel_span for s in self.sentences]
+        
+    @property
+    def paragraph_rel_spans(self):
+        return [p.rel_span for p in self.paragraphs]
         
     # methods for returning word specific data
     @property
@@ -322,7 +346,7 @@ class Sentence(ElementMixin, Dictionary):
             
     def assert_consequent_words(self):
         '''Check the START and END positions of consequent words.'''
-        for p, n in izip(self[WORDS], self[WORDS][1:]):
+        for p, n in zip(self[WORDS], self[WORDS][1:]):
             assert p.end <= n.start
 
     def assert_word_splices(self):

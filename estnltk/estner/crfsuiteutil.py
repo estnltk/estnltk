@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function
 
-from itertools import izip
 import sys
 
 import pycrfsuite
@@ -118,7 +117,7 @@ class Tagger(object):
         list of JSON-style documents/corpora.
         '''
         nerdocs = self.extract_features(docs)
-        for nerdoc, vabadoc in izip(nerdocs, docs):
+        for nerdoc, vabadoc in zip(nerdocs, docs):
             vabadoc = self._tag_doc(nerdoc, vabadoc)
         return docs
 

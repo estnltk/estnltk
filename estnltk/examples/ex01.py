@@ -1,33 +1,29 @@
-'''
-Read in a A&A TEI corpus and perform some operations:
+# -*- coding: utf-8 -*-
+'''Tokenization example.'''
+from __future__ import unicode_literals, print_function
 
-1. show top word counts
-2. show top lemma counts
-3. show top lemma counts after removing stopwords
-4. show top lemma counts for adjectives
+# Let's define a sample document
+text = '''Keeletehnoloogia on arvutilingvistika praktiline pool.
+Keeletehnoloogid kasutavad arvutilingvistikas välja töötatud 
+teooriaid, et luua rakendusi (nt arvutiprogramme), 
+mis võimaldavad inimkeelt arvuti abil töödelda ja mõista. 
+
+Tänapäeval on keeletehnoloogia tuntumateks valdkondadeks 
+masintõlge, arvutileksikoloogia, dialoogisüsteemid, 
+kõneanalüüs ja kõnesüntees.
 '''
 
-from estnltk.core import AA_PATH
-from estnltk.teicorpus import parse_tei_corpora, parse_tei_corpus
-from estnltk.corpus import *
+# tokenize it using default tokenizer
+from estnltk import Tokenizer
+tokenizer = Tokenizer()
+document = tokenizer.tokenize(text)
+
+# tokenized results
+print (document.word_texts)
+print (document.sentence_texts)
+print (document.paragraph_texts)
+print (document.text)
+
+# start and end positions of words, sentences and paragraphs
 from pprint import pprint
-
-import os
-import json
-
-corp_path = os.path.join(AA_PATH, 'tea_AA_03_1.tasak.xml')
-
-corp = json.loads(json.dumps(parse_tei_corpus(corp_path)))
-
-from estnltk.corpus import Corpus
-from estnltk.morf import PyVabamorfAnalyzer
-from estnltk.ner import NerTagger
-
-analyzer = PyVabamorfAnalyzer()
-tagger = NerTagger()
-
-analyzer(corp, inplace=True)
-corp = tagger(corp, inplace=False)
-
-corp = Corpus.construct(corp)
-pprint (zip(corp.lemmas, corp.labels))
+pprint (list(zip(document.word_texts, document.word_spans)))

@@ -8,7 +8,6 @@ from __future__ import unicode_literals, print_function
 import os
 import codecs
 from collections import defaultdict
-from itertools import izip
 
 import re
 

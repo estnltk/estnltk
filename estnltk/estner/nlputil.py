@@ -5,7 +5,6 @@ from estnltk.core import JsonPaths
 from estnltk.names import *
 from estnltk.estner.ner import Token, Sentence, Document
 
-from itertools import izip
 from pprint import pprint
 
 
@@ -109,7 +108,7 @@ def assign_labels(document, labels):
     JSON-style estnltk document.
         The same document as argument.
     '''
-    for ptr, snt_labels in izip(JsonPaths.words.find(document), labels):
+    for ptr, snt_labels in zip(JsonPaths.words.find(document), labels):
         words = ptr.value
         assert len(words) == len(snt_labels)
         for word, label in izip(words, snt_labels):

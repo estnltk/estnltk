@@ -6,12 +6,11 @@ from __future__ import unicode_literals, print_function
 
 from estnltk.core import as_unicode
 from estnltk.names import *
+from estnltk.corpus import Corpus
 
 from nltk.tokenize import RegexpTokenizer
 from nltk.tokenize.punkt import PunktWordTokenizer
 import nltk.data
-
-from itertools import izip
 
 
 class Tokenizer(object):
@@ -31,7 +30,7 @@ class Tokenizer(object):
             Default is NLTK PunktWordTokenizer.
         '''
         self._paragraph_tokenizer = kwargs.get('paragraph_tokenizer',
-            RegexpTokenizer('\s*\n\s*', gaps=True, discard_empty=True))
+            RegexpTokenizer('\s*\n\n\s*', gaps=True, discard_empty=True))
         self._sentence_tokenizer = kwargs.get('sentence_tokenizer',
             nltk.data.load('tokenizers/punkt/estonian.pickle'))
         self._word_tokenizer = kwargs.get('word_tokenizer',
@@ -82,12 +81,13 @@ class Tokenizer(object):
             for sent in sentences:
                 sent[WORDS] = tokenize(sent[TEXT], self._word_tokenizer, sent[START])
             para[SENTENCES] = sentences
-        return {TEXT: text,
-                PARAGRAPHS: paras,
-                START: 0,
-                REL_START: 0,
-                END: len(text),
-                REL_END: len(text)}
+        document = {TEXT: text,
+                    PARAGRAPHS: paras,
+                    START: 0,
+                    REL_START: 0,
+                    END: len(text),
+                    REL_END: len(text)}
+        return Corpus.construct(document)
 
     def __call__(self, text):
         '''Tokenize the text into paragraphs, sentences and words.'''
@@ -118,7 +118,7 @@ def tokenize(text, tokenizer, start=0):
     toks = tokenizer.tokenize(text)
     spans = tokenizer.span_tokenize(text)
     results = []
-    for tok, (tokstart, tokend) in izip(toks, spans):
+    for tok, (tokstart, tokend) in zip(toks, spans):
         d = {TEXT: tok,
              START: start + tokstart,
              END: start + tokend,
