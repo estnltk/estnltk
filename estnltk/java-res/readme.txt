@@ -24,13 +24,13 @@
      java -jar Osalau.jar -pyvabamorf
 
    Note that the minimum JSON structure each line should have is:
-     [{"words": [ {"analysis": [ ... ],
+     {"words": [ {"analysis": [ ... ],
                    "text": "word1"},
                   {"analysis": [ ... ],
                    "text": "word2"},
                    ...
                   {"analysis": [ ... ],
-                   "text": "wordN"} ]}]
+                   "text": "wordN"} ]}
 
    That is, an object with key "words" must be present, indicating an analyzable
   sentence.
@@ -56,7 +56,7 @@
        "Mees, keda seal kohtasime, oli tuttav ja teretas meid."
 
     will obtain following clause annotations:
-        [{"words": [ {"analysis": [ ... ],
+        {"words": [ {"analysis": [ ... ],
                       "text": "Mees,"},
                      {"analysis": [ ... ],
                       "clauseAnnotation": ["KIILU_ALGUS"],
@@ -76,7 +76,7 @@
                      {"analysis": [ ... ],
                       "text": "teretas"},
                      {"analysis": [ ... ],
-                      "text": "meid."} ]}]
+                      "text": "meid."} ]}
 
     which should be interpreted as:
           "keda" (KIILU_ALGUS) -- an embedded clause begins before "keda";
@@ -122,26 +122,26 @@
   specify the location of the rules file.
 
    Note that the minimum JSON structure each input line should have is:
-     [{"words": [ {"analysis": [ ... ],
+     {"words": [ {"analysis": [ ... ],
                    "text": "word1"},
                   {"analysis": [ ... ],
                    "text": "word2"},
                    ...
                   {"analysis": [ ... ],
-                   "text": "wordN"} ]}]
+                   "text": "wordN"} ]}
 
    That is, an object with key "words" must be present, indicating an analyzable
   sentence.
    Optionally, an ISO format document creation time ("dct") can also be specified 
   in the input as a key-value pair:
-        [{ "dct": "yyyy-mm-ddThh:MM",
+        { "dct": "yyyy-mm-ddThh:MM",
            "words": [ {"analysis": [ ... ],
                       "text": "word1"},
                      {"analysis": [ ... ],
                       "text": "word2"},
                       ...
                      {"analysis": [ ... ],
-                      "text": "wordN"} ]}]
+                      "text": "wordN"} ]}
 
    (If left unspecified, execution time of the program is taken as a document
     creation time by default);
@@ -206,7 +206,7 @@
       (created at 2014-10-06)
     
     will obtain following temporal expression annotations:
-       [{
+       {
             "words":[  { "analysis":[ ... ],
                          "text":"Potsataja"
                        },
@@ -263,7 +263,7 @@
                          "text":"üle"
                        }
                     ]
-        }]
+        }
 
     which should be interpreted as:
        "eile," -- is a single-word temporal expression, which is from type "DATE",
