@@ -107,27 +107,47 @@ details on initializing JVM with necessary JAR files;</p>
 <dl class="class">
 <dt id="estnltk.clausesegmenter.ClauseSegmenter">
 <em class="property">class </em><code class="descclassname">estnltk.clausesegmenter.</code><code class="descname">ClauseSegmenter</code><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#estnltk.javaprocess.JavaProcess" title="estnltk.javaprocess.JavaProcess"><code class="xref py py-class docutils literal"><span class="pre">estnltk.javaprocess.JavaProcess</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.javaprocess.JavaProcess" title="estnltk.javaprocess.JavaProcess"><code class="xref py py-class docutils literal"><span class="pre">estnltk.javaprocess.JavaProcess</span></code></a>, <a class="reference internal" href="#estnltk.textprocessor.TextProcessor" title="estnltk.textprocessor.TextProcessor"><code class="xref py py-class docutils literal"><span class="pre">estnltk.textprocessor.TextProcessor</span></code></a></p>
 <p>Wrapper class around Java-based clause segmenter (Osalausestaja). 
 Allows to process results sentence by sentence.</p>
 <p class="rubric">Methods</p>
 <dl class="method">
-<dt id="estnltk.clausesegmenter.ClauseSegmenter.detect_clause_boundaries">
-<code class="descname">detect_clause_boundaries</code><span class="sig-paren">(</span><em>sentence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter.detect_clause_boundaries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.detect_clause_boundaries" title="Permalink to this definition">¶</a></dt>
-<dd><p>Detects clause boundaries from given sentence. Assumes that the input
-sentence has been analyzed with pyvabamorf.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="estnltk.clausesegmenter.ClauseSegmenter.index_clauses">
-<code class="descname">index_clauses</code><span class="sig-paren">(</span><em>sentence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter.index_clauses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.index_clauses" title="Permalink to this definition">¶</a></dt>
+<dt id="estnltk.clausesegmenter.ClauseSegmenter.annotate_indices">
+<code class="descname">annotate_indices</code><span class="sig-paren">(</span><em>sentence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter.annotate_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.annotate_indices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add clause indexes to already annotated sentence.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="estnltk.clausesegmenter.ClauseSegmenter.detect_annotations">
+<code class="descname">detect_annotations</code><span class="sig-paren">(</span><em>sentence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter.detect_annotations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.detect_annotations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.clausesegmenter.ClauseSegmenter.mark_annotations">
+<code class="descname">mark_annotations</code><span class="sig-paren">(</span><em>sentence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter.mark_annotations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.mark_annotations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="estnltk.clausesegmenter.ClauseSegmenter.prepare_sentence">
 <code class="descname">prepare_sentence</code><span class="sig-paren">(</span><em>sentence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter.prepare_sentence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.prepare_sentence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare the sentence for segment detection.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.clausesegmenter.ClauseSegmenter.process_corpus">
+<code class="descname">process_corpus</code><span class="sig-paren">(</span><em>corpus</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter.process_corpus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.process_corpus" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.clausesegmenter.ClauseSegmenter.process_json">
+<code class="descname">process_json</code><span class="sig-paren">(</span><em>corpus</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter.process_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.process_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.clausesegmenter.ClauseSegmenter.rename_annotations">
+<code class="descname">rename_annotations</code><span class="sig-paren">(</span><em>sentence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter.rename_annotations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.rename_annotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that renames and restructures clause information.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -158,17 +178,17 @@ Defines common functionality for all modules.</p>
 </table>
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.analysis">
-<code class="descname">analysis</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b63ed3f7f60&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.analysis" title="Permalink to this definition">¶</a></dt>
+<code class="descname">analysis</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b5cab353da0&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.analysis" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.documents">
-<code class="descname">documents</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b63ede5f748&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.documents" title="Permalink to this definition">¶</a></dt>
+<code class="descname">documents</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b5cabdfc5c0&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.documents" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.words">
-<code class="descname">words</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b63ed3eb208&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.words" title="Permalink to this definition">¶</a></dt>
+<code class="descname">words</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b5cab356048&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.words" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -222,6 +242,54 @@ Defines common functionality for all modules.</p>
 <div class="section" id="module-estnltk.corpus">
 <span id="estnltk-corpus-module"></span><h2>estnltk.corpus module<a class="headerlink" href="#module-estnltk.corpus" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
+<dt id="estnltk.corpus.Clause">
+<em class="property">class </em><code class="descclassname">estnltk.corpus.</code><code class="descname">Clause</code><span class="sig-paren">(</span><em>sentence</em>, <em>indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/corpus.html#Clause"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Clause" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Attributes</p>
+<dl class="attribute">
+<dt id="estnltk.corpus.Clause.clause_index">
+<code class="descname">clause_index</code><a class="headerlink" href="#estnltk.corpus.Clause.clause_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Clause.sentence">
+<code class="descname">sentence</code><a class="headerlink" href="#estnltk.corpus.Clause.sentence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Clause.text">
+<code class="descname">text</code><a class="headerlink" href="#estnltk.corpus.Clause.text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Clause.text_groups">
+<code class="descname">text_groups</code><a class="headerlink" href="#estnltk.corpus.Clause.text_groups" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Clause.word_group_spans">
+<code class="descname">word_group_spans</code><a class="headerlink" href="#estnltk.corpus.Clause.word_group_spans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of consequent index spans.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Clause.word_groups">
+<code class="descname">word_groups</code><a class="headerlink" href="#estnltk.corpus.Clause.word_groups" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Clause.word_indices">
+<code class="descname">word_indices</code><a class="headerlink" href="#estnltk.corpus.Clause.word_indices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Clause.words">
+<code class="descname">words</code><a class="headerlink" href="#estnltk.corpus.Clause.words" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="estnltk.corpus.Corpus">
 <em class="property">class </em><code class="descclassname">estnltk.corpus.</code><code class="descname">Corpus</code><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
@@ -232,6 +300,16 @@ Defines common functionality for all modules.</p>
 <code class="descname">apply</code><span class="sig-paren">(</span><em>processor</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.apply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply a textprocessor.TextProcessor instance on this corpus.</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.clause_annotations">
+<code class="descname">clause_annotations</code><a class="headerlink" href="#estnltk.corpus.Corpus.clause_annotations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.clause_indices">
+<code class="descname">clause_indices</code><a class="headerlink" href="#estnltk.corpus.Corpus.clause_indices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.corpus.Corpus.clauses">
@@ -702,6 +780,11 @@ the words of a named entity in the sentence.</p>
 <dd><p>Check that the word texts match the sentence texts.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="estnltk.corpus.Sentence.clauses">
+<code class="descname">clauses</code><a class="headerlink" href="#estnltk.corpus.Sentence.clauses" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="estnltk.corpus.Sentence.elements">
 <code class="descname">elements</code><span class="sig-paren">(</span><em>what</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/corpus.html#Sentence.elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Sentence.elements" title="Permalink to this definition">¶</a></dt>
@@ -733,6 +816,16 @@ labels.</p>
 <dl class="attribute">
 <dt id="estnltk.corpus.Word.analysis">
 <code class="descname">analysis</code><a class="headerlink" href="#estnltk.corpus.Word.analysis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.clause_annotation">
+<code class="descname">clause_annotation</code><a class="headerlink" href="#estnltk.corpus.Word.clause_annotation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.clause_index">
+<code class="descname">clause_index</code><a class="headerlink" href="#estnltk.corpus.Word.clause_index" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">

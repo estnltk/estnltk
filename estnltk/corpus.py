@@ -576,11 +576,11 @@ class Clause(object):
                 groups.append((start_idx, last_idx+1))
                 start_idx = i
             last_idx = i
-        groups.append((start_idx, last_idx))
+        groups.append((start_idx, last_idx+1))
         return groups
         
     def __repr__(self):
-        return repr('Clause[{0}]({1})'.format(self.clause_index, self.text))
+        return repr('Clause({0} [clause_index={1}])'.format(self.text, self.clause_index))
         
         
 class Word(ElementMixin, Dictionary):
@@ -668,11 +668,11 @@ class Word(ElementMixin, Dictionary):
         
     @property
     def clause_index(self):
-        return self[CLAUSE_IDX]
+        return self.get(CLAUSE_IDX, None)
     
     @property
     def clause_annotation(self):
-        return self[CLAUSE_ANNOTATION]
+        return self.get(CLAUSE_ANNOTATION, None)
 
 
 def most_frequent(elements):

@@ -12,5 +12,16 @@ segmenter = ClauseSegmenter()
 text = '''Mees, keda seal kohtasime, oli tuttav ja teretas meid.'''
 
 segmented = segmenter(analyzer(tokenizer(text)))
+
+# Clause indices
+pprint(list(zip(segmented.words, segmented.clause_indices, segmented.clause_annotations)))
+
+# The clauses themselves
 pprint(segmented.clauses)
+
+# Words grouped by clauses
+for clause in segmented.clauses:
+    pprint(clause.words)
+    
+
 

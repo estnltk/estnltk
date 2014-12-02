@@ -379,7 +379,60 @@ See `documentation`_ for possible parameters.
 Clause detection
 ================
 
-TODO
+There are three types of sentences.
+A simple sentence, also called an independent clause, contains a subject and a verb, and it expresses a complete thought.
+A compound sentence contains two independent clauses joined by a coordinator
+A complex sentence has an independent clause joined by one or more dependent clauses.
+
+Clause detection makes it possible to extract these clauses and treat them independently::
+
+    from estnltk import Tokenizer, PyVabamorfAnalyzer, ClauseSegmenter
+    from pprint import pprint
+
+    tokenizer = Tokenizer()
+    analyzer = PyVabamorfAnalyzer()
+    segmenter = ClauseSegmenter()
+
+    text = '''Mees, keda seal kohtasime, oli tuttav ja teretas meid.'''
+
+    segmented = segmenter(analyzer(tokenizer(text)))
+
+Each word in the sentence is annotated with a clause index.
+Also a word can have a clause annotation specifying clause boundaries and embedded clauses::
+
+    # Clause indices and annotations
+    pprint(list(zip(segmented.words, segmented.clause_indices, segmented.clause_annotations)))
+
+    [('Word(Mees)', 0, None),
+     ('Word(,)', 1, 'embedded_clause_start'),
+     ('Word(keda)', 1, None),
+     ('Word(seal)', 1, None),
+     ('Word(kohtasime)', 1, None),
+     ('Word(,)', 1, 'embedded_clause_end'),
+     ('Word(oli)', 0, None),
+     ('Word(tuttav)', 0, None),
+     ('Word(ja)', 0, 'clause_boundary'),
+     ('Word(teretas)', 2, None),
+     ('Word(meid.)', 2, None)]
+
+There is also a  :class:`estnltk.corpus.Clause` type, that can be queries from the corpus::
+
+    # The clauses themselves
+    pprint(segmented.clauses)
+    
+    ['Clause(Mees oli tuttav ja [clause_index=0])',
+     'Clause(, keda seal kohtasime , [clause_index=1])',
+     'Clause(teretas meid. [clause_index=2])']
+
+Here is also an example of how to group words by clauses::
+
+    # Words grouped by clauses
+    for clause in segmented.clauses:
+        pprint(clause.words)
+        
+    ['Word(Mees)', 'Word(oli)', 'Word(tuttav)', 'Word(ja)']
+    ['Word(,)', 'Word(keda)', 'Word(seal)', 'Word(kohtasime)', 'Word(,)']
+    ['Word(teretas)', 'Word(meid.)']
 
 
 Named entity recognition
