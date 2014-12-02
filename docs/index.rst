@@ -416,9 +416,7 @@ A quick example, how to do it::
 
     # print the words and their explicit labels in BIO notation
     pprint(list(zip(ner_tagged.word_texts, ner_tagged.labels)))
-
-    # print words grouped as named entities
-    pprint (ner_tagged.named_entities)
+    
 
 As a result, we see the list of words with annotated labels::
 

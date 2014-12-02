@@ -8,7 +8,7 @@ JAVARES_PATH: str
 '''
 from __future__ import unicode_literals, print_function
 
-from estnltk.core import PACKAGE_PATH
+from estnltk.core import PACKAGE_PATH, as_unicode, as_binary
 import subprocess
 import os
 
@@ -76,13 +76,12 @@ class JavaProcess(object):
         '''
         assert isinstance(line, str)
         try:
-            self._process.stdin.write(line)
-            self._process.stdin.write('\n')
+            self._process.stdin.write(as_binary(line))
+            self._process.stdin.write(as_binary('\n'))
             self._process.stdin.flush()
-            print (line)
-            result = self._process.stdout.readline()
+            result = as_unicode(self._process.stdout.readline())
             if result == '':
-                stderr = self._process.stderr.read()
+                stderr = as_unicode(self._process.stderr.read())
                 raise Exception('EOF encountered while reading stream. Stderr is {0}.'.format(stderr))
             return result
         except Exception:

@@ -12,58 +12,64 @@ More on JNI notation:
 '''
 from __future__ import unicode_literals, print_function
 
+from estnltk.core import JsonPaths
+from estnltk.names import *
+from estnltk.javaprocess import JavaProcess
+from estnltk.textprocessor import TextProcessor
+
+from copy import deepcopy
+from pprint import pprint
+
 import json
 import os.path
 import re
 
-from estnltk.core import JsonPaths
-from estnltk.javaprocess import JavaProcess
-from copy import deepcopy
-
 CLAUSE_ANNOT = 'clauseAnnotation'
-CLAUSE_IDX = 'clause'
 
-
-class ClauseSegmenter(JavaProcess):
+class ClauseSegmenter(JavaProcess, TextProcessor):
     ''' Wrapper class around Java-based clause segmenter (Osalausestaja). 
         Allows to process results sentence by sentence. 
         ''' 
     
     def __init__(self):
         JavaProcess.__init__(self, 'Osalau.jar', ['-pyvabamorf'])
-    
-    def __call__(self, corpus):
+        
+    def process_corpus(self, corpus, **kwargs):
+        for sentence in corpus.sentences:
+            self.mark_annotations(sentence)
+        return corpus
+        
+    def process_json(self, corpus, **kwargs):
         for sentence in JsonPaths.words.find(corpus):
-            sentence.value = self.detect_clause_boundaries(sentence.value)
+            sentence.value = self.mark_annotations(sentence.value)
         return corpus
     
+    def detect_annotations(self, sentence):
+        prep_sentence = self.prepare_sentence(sentence)
+        result = json.loads(self.process_line(prep_sentence))
+        words = self.annotate_indices(result[WORDS])
+        return self.rename_annotations(words)
+    
+    def mark_annotations(self, sentence):
+        annotations = self.detect_annotations(sentence)
+        assert len(sentence[WORDS]) == len(annotations)
+        for w, a in zip(sentence[WORDS], annotations):
+            for k, v in a.items():
+                w[k] = v
+        return sentence
+    
     def prepare_sentence(self, sentence):
-        # Remove phonetic markings from the root
-        for word in sentence:
-            if 'analysis' in word:
-                for analysis in word['analysis']:
-                    if 'root' in analysis:
-                        analysis['root'] = analysis['root'].replace("~", "")
-                        analysis['root'] = re.sub('[?<\]]([aioueöäõü])', '\\1', analysis['root'])
-        # Add "words" key (because segmenter looks for it)
-        sentence = { "words": sentence }
-        # convert from json to string
+        '''Prepare the sentence for segment detection.'''
+        # depending on how the morphological analysis was added, there may be
+        # phonetic markup. Remove it, if it exists.
+        for word in sentence[WORDS]:
+            for analysis in word[ANALYSIS]:
+                analysis[ROOT] = analysis[ROOT].replace('~', '')
+                analysis[ROOT] = re.sub('[?<\]]([aioueöäõü])', '\\1', analysis[ROOT])
         return json.dumps(sentence)
     
-    def detect_clause_boundaries(self, sentence):
-        ''' Detects clause boundaries from given sentence. Assumes that the input
-           sentence has been analyzed with pyvabamorf. '''
-        sentence_json = self.prepare_sentence(deepcopy(sentence))
-        result = self._process_line(sentence_json)
-        # fetch the result and take the clause annotation tag where present
-        result = json.loads(result)["words"]
-        result = self.index_clauses(result)
-        assert len(result) == len(sentence)
-        for idx in range(len(sentence)):
-            sentence[idx][CLAUSE_IDX] = result[idx][CLAUSE_IDX]
-        return sentence
         
-    def index_clauses(self, sentence):
+    def annotate_indices(self, sentence):
         '''Add clause indexes to already annotated sentence.'''
         max_index = 0
         max_depth = 1
@@ -91,3 +97,18 @@ class ClauseSegmenter(JavaProcess):
                         # Taandume sügavusest, sulgeme ühe kiilu
                         stack_of_indexes.pop()
         return sentence
+        
+    def rename_annotations(self, sentence):
+        '''Function that renames and restructures clause information.'''
+        annotations = []
+        for token in sentence:
+            data = {CLAUSE_IDX: token[CLAUSE_IDX]}
+            if CLAUSE_ANNOT in token:
+                if 'KINDEL_PIIR' in token[CLAUSE_ANNOT]:
+                    data[CLAUSE_ANNOTATION] = CLAUSE_BOUNDARY
+                elif 'KIILU_ALGUS' in token[CLAUSE_ANNOT]:
+                    data[CLAUSE_ANNOTATION] = EMBEDDED_CLAUSE_START
+                elif 'KIILU_LOPP' in token[CLAUSE_ANNOT]:
+                    data[CLAUSE_ANNOTATION] = EMBEDDED_CLAUSE_END
+            annotations.append(data)
+        return annotations

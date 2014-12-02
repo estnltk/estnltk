@@ -17,7 +17,10 @@ SENTENCES = 'sentences'
 PARAGRAPHS = 'paragraphs'
 DOCUMENTS = 'documents'
 FILE = 'file' # the file path of the source corpus
+
+# sentence level attributes
 NAMED_ENTITIES = 'named_entities'
+CLAUSES = 'clauses'
 
 # word attributes
 ANALYSIS = 'analysis'
@@ -33,3 +36,10 @@ FORM = 'form'
 # named entity attributes
 WORD_START = 'word_start'
 WORD_END = 'word_end'
+
+# clause segmenter related
+CLAUSE_ANNOTATION = 'clause_annotation'
+CLAUSE_IDX = 'clause_index'
+CLAUSE_BOUNDARY = 'clause_boundary'
+EMBEDDED_CLAUSE_START = 'embedded_clause_start'
+EMBEDDED_CLAUSE_END = 'embedded_clause_end'

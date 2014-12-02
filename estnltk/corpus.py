@@ -124,8 +124,16 @@ class Corpus(object):
     # methods for returning sentence specific data
     
     @property
+    def clause_indices(self):
+        return [w.clause_index for w in self.words]
+    
+    @property
+    def clause_annotations(self):
+        return [w.clause_annotation for w in self.words]
+    
+    @property
     def clauses(self):
-        raise NotImplementedError()
+        return self.elements(CLAUSES)
     
     @property
     def verb_phrases(self):
@@ -361,6 +369,8 @@ class Sentence(ElementMixin, Dictionary):
             return [self]
         elif what == NAMED_ENTITIES:
             return self.named_entities
+        elif what == CLAUSES:
+            return self.clauses
         return super(Sentence, self).elements(what)
         
     @property
@@ -379,6 +389,17 @@ class Sentence(ElementMixin, Dictionary):
                 else:
                     word_start = -1
         return nes
+        
+    @property
+    @overrides(Corpus)
+    def clauses(self):
+        clauses = {}
+        for i, w in enumerate(self.words):
+            idx = w.clause_index
+            clause = clauses.get(idx, [])
+            clause.append(i)
+            clauses[idx] = clause
+        return [Clause(self, clauses[k]) for k in sorted(clauses.keys())]
         
     def __repr__(self):
         return repr('Sentence({0})'.format(self.text[:24] + '...'))
@@ -507,7 +528,61 @@ class NamedEntity(ElementMixin):
     def __repr__(self):
         return repr('NamedEntity({0}, {1})'.format(self.lemma, self.label))
         
+        
+class Clause(object):
     
+    def __init__(self, sentence, indices):
+        assert len(indices) > 0
+        self._sentence = sentence
+        self._word_indices = indices
+        self._clause_index = sentence[WORDS][indices[0]].clause_index
+    
+    @property
+    def sentence(self):
+        return self._sentence
+    
+    @property
+    def clause_index(self):
+        return self._clause_index
+    
+    @property
+    def text(self):
+        return ' '.join(self.text_groups)
+    
+    @property
+    def text_groups(self):
+        return [self.sentence.text[self.sentence[WORDS][start].rel_start:self.sentence[WORDS][end-1].rel_end] for start, end in self.word_group_spans]
+    
+    @property
+    def words(self):
+        return [self.sentence[WORDS][i] for i in self.word_indices]
+        
+    @property
+    def word_indices(self):
+        return self._word_indices
+    
+    @property
+    def word_groups(self):
+        return [[w for w in self.sentence[WORDS][start:end]] for (start, end) in self.group_word_spans]
+    
+    @property
+    def word_group_spans(self):
+        '''Return list of consequent index spans.'''
+        start_idx = self.word_indices[0]
+        last_idx = start_idx
+        groups = []
+        for i in self.word_indices[1:]:
+            if i > start_idx + 1:
+                groups.append((start_idx, last_idx+1))
+                start_idx = i
+            last_idx = i
+        groups.append((start_idx, last_idx))
+        return groups
+        
+    def __repr__(self):
+        return repr('Clause[{0}]({1})'.format(self.clause_index, self.text))
+        
+        
 class Word(ElementMixin, Dictionary):
     '''Word element of Estnltk corpora.
     
@@ -590,6 +665,14 @@ class Word(ElementMixin, Dictionary):
     def root_tokens(self):
         tokens = [tuple(a[ROOT_TOKENS]) for a in self.analysis]
         return list(most_frequent(tokens))
+        
+    @property
+    def clause_index(self):
+        return self[CLAUSE_IDX]
+    
+    @property
+    def clause_annotation(self):
+        return self[CLAUSE_ANNOTATION]
 
 
 def most_frequent(elements):
