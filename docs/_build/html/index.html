@@ -166,14 +166,21 @@ In the next example, we define some text, then import and initialize a <a class=
 </pre></div>
 </div>
 <p>and tokenized sentences:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;Keeletehnoloogia on arvutilingvistika praktiline pool.&#39;</span><span class="p">,</span>
-<span class="s">&#39;Keeletehnoloogid kasutavad arvutilingvistikas välja töötatud </span><span class="se">\n</span><span class="s">teooriaid, et luua rakendusi (nt arvutiprogramme), </span><span class="se">\n</span><span class="s">mis võimaldavad inimkeelt arvuti abil töödelda ja mõista. &#39;</span><span class="p">,</span>
-<span class="s">&#39;Tänapäeval on keeletehnoloogia tuntumateks valdkondadeks </span><span class="se">\n</span><span class="s">masintõlge, arvutileksikoloogia, dialoogisüsteemid, </span><span class="se">\n</span><span class="s">kõneanalüüs ja kõnesüntees.</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">]</span>
+<div class="highlight-python"><div class="highlight"><pre>[&#39;Keeletehnoloogia on arvutilingvistika praktiline pool.&#39;,
+ &#39;Keeletehnoloogid kasutavad arvutilingvistikas välja töötatud \nteooriaid,
+    et luua rakendusi (nt arvutiprogramme), \nmis võimaldavad inimkeelt
+    arvuti abil töödelda ja mõista. &#39;,
+ &#39;Tänapäeval on keeletehnoloogia tuntumateks valdkondadeks \nmasintõlge,
+    arvutileksikoloogia, dialoogisüsteemid, \nkõneanalüüs ja kõnesüntees.\n&#39;]
 </pre></div>
 </div>
 <p>and tokenized paragraphs:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;Keeletehnoloogia on arvutilingvistika praktiline pool.</span><span class="se">\n</span><span class="s">Keeletehnoloogid kasutavad arvutilingvistikas välja töötatud </span><span class="se">\n</span><span class="s">teooriaid, et luua rakendusi (nt arvutiprogramme), </span><span class="se">\n</span><span class="s">mis võimaldavad inimkeelt arvuti abil töödelda ja mõista.&#39;</span><span class="p">,</span>
-<span class="s">&#39;Tänapäeval on keeletehnoloogia tuntumateks valdkondadeks </span><span class="se">\n</span><span class="s">masintõlge, arvutileksikoloogia, dialoogisüsteemid, </span><span class="se">\n</span><span class="s">kõneanalüüs ja kõnesüntees.</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">]</span>
+<div class="highlight-python"><div class="highlight"><pre>[&#39;Keeletehnoloogia on arvutilingvistika praktiline pool.\nKeeletehnoloogid
+    kasutavad arvutilingvistikas välja töötatud \nteooriaid, et luua
+    rakendusi (nt arvutiprogramme), \nmis võimaldavad inimkeelt arvuti
+    abil töödelda ja mõista.&#39;,
+ &#39;Tänapäeval on keeletehnoloogia tuntumateks valdkondadeks \nmasintõlge,
+    arvutileksikoloogia, dialoogisüsteemid, \nkõneanalüüs ja kõnesüntees.\n&#39;]
 </pre></div>
 </div>
 <p>and also the original full text can be accessed using <code class="docutils literal"><span class="pre">text</span></code> property of <a class="reference internal" href="estnltk.html#estnltk.corpus.Document" title="estnltk.corpus.Document"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code></a>.
@@ -295,11 +302,18 @@ To do that, one needs to use <a class="reference internal" href="estnltk.html#es
 </pre></div>
 </div>
 <p>The lemmas:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;keeletehnoloogia&#39;</span><span class="p">,</span> <span class="s">&#39;olema&#39;</span><span class="p">,</span> <span class="s">&#39;arvutilingvistika&#39;</span><span class="p">,</span> <span class="s">&#39;praktiline&#39;</span><span class="p">,</span> <span class="s">&#39;pool&#39;</span><span class="p">,</span> <span class="s">&#39;keeletehnoloog&#39;</span><span class="p">,</span> <span class="s">&#39;kasutama&#39;</span><span class="p">,</span> <span class="s">&#39;arvutilingvistika&#39;</span><span class="p">,</span> <span class="s">&#39;väli&#39;</span><span class="p">,</span> <span class="s">&#39;töötatud&#39;</span><span class="p">,</span> <span class="s">&#39;teooria&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;et&#39;</span><span class="p">,</span> <span class="s">&#39;looma&#39;</span><span class="p">,</span> <span class="s">&#39;rakendus&#39;</span><span class="p">,</span> <span class="s">&#39;(&#39;</span><span class="p">,</span> <span class="s">&#39;nt&#39;</span><span class="p">,</span> <span class="s">&#39;arvutiprogramm&#39;</span><span class="p">,</span> <span class="s">&#39;)&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;mis&#39;</span><span class="p">,</span> <span class="s">&#39;võimaldama&#39;</span><span class="p">,</span> <span class="s">&#39;inimkeel&#39;</span><span class="p">,</span> <span class="s">&#39;arvuti&#39;</span><span class="p">,</span> <span class="s">&#39;abi&#39;</span><span class="p">,</span> <span class="s">&#39;töötlema&#39;</span><span class="p">,</span> <span class="s">&#39;ja&#39;</span><span class="p">,</span> <span class="s">&#39;mõistma&#39;</span><span class="p">,</span> <span class="s">&#39;tänapäev&#39;</span><span class="p">,</span> <span class="s">&#39;olema&#39;</span><span class="p">,</span> <span class="s">&#39;keeletehnoloogia&#39;</span><span class="p">,</span> <span class="s">&#39;tuntum&#39;</span><span class="p">,</span> <span class="s">&#39;valdkond&#39;</span><span class="p">,</span> <span class="s">&#39;masintõlge&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;arvutileksikoloogia&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;dialoogisüsteem&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;kõneanalüüs&#39;</span><span class="p">,</span> <span class="s">&#39;ja&#39;</span><span class="p">,</span> <span class="s">&#39;kõnesüntees&#39;</span><span class="p">]</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;keeletehnoloogia&#39;</span><span class="p">,</span> <span class="s">&#39;olema&#39;</span><span class="p">,</span> <span class="s">&#39;arvutilingvistika&#39;</span><span class="p">,</span> <span class="s">&#39;praktiline&#39;</span><span class="p">,</span> <span class="s">&#39;pool&#39;</span><span class="p">,</span> <span class="s">&#39;keeletehnoloog&#39;</span><span class="p">,</span>
+<span class="s">&#39;kasutama&#39;</span><span class="p">,</span> <span class="s">&#39;arvutilingvistika&#39;</span><span class="p">,</span> <span class="s">&#39;väli&#39;</span><span class="p">,</span> <span class="s">&#39;töötatud&#39;</span><span class="p">,</span> <span class="s">&#39;teooria&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;et&#39;</span><span class="p">,</span> <span class="s">&#39;looma&#39;</span><span class="p">,</span>
+<span class="s">&#39;rakendus&#39;</span><span class="p">,</span> <span class="s">&#39;(&#39;</span><span class="p">,</span> <span class="s">&#39;nt&#39;</span><span class="p">,</span> <span class="s">&#39;arvutiprogramm&#39;</span><span class="p">,</span> <span class="s">&#39;)&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;mis&#39;</span><span class="p">,</span> <span class="s">&#39;võimaldama&#39;</span><span class="p">,</span> <span class="s">&#39;inimkeel&#39;</span><span class="p">,</span>
+<span class="s">&#39;arvuti&#39;</span><span class="p">,</span> <span class="s">&#39;abi&#39;</span><span class="p">,</span> <span class="s">&#39;töötlema&#39;</span><span class="p">,</span> <span class="s">&#39;ja&#39;</span><span class="p">,</span> <span class="s">&#39;mõistma&#39;</span><span class="p">,</span> <span class="s">&#39;tänapäev&#39;</span><span class="p">,</span> <span class="s">&#39;olema&#39;</span><span class="p">,</span> <span class="s">&#39;keeletehnoloogia&#39;</span><span class="p">,</span>
+<span class="s">&#39;tuntum&#39;</span><span class="p">,</span> <span class="s">&#39;valdkond&#39;</span><span class="p">,</span> <span class="s">&#39;masintõlge&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;arvutileksikoloogia&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;dialoogisüsteem&#39;</span><span class="p">,</span>
+<span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;kõneanalüüs&#39;</span><span class="p">,</span> <span class="s">&#39;ja&#39;</span><span class="p">,</span> <span class="s">&#39;kõnesüntees&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>The pos tags:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;Y&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;P&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;K&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;C&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">]</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;Y&#39;</span><span class="p">,</span>
+<span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;P&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;K&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;C&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span>
+<span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>More information put together:</p>
@@ -378,8 +392,9 @@ First thing is to build the named entity model as it is too large to include in 
 <div class="highlight-python"><div class="highlight"><pre>python -m estnltk.ner train_default_model
 </pre></div>
 </div>
-<p>Estnltk comes with default named entity recognition tuned for news articles.
-A quick example, how to use it:</p>
+<p>This will build the default model tuned for named entity recognition in news articles.
+In order to use named entity tagging, you also need to perform morphological analysis first.
+A quick example, how to do it:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span><span class="p">,</span> <span class="n">PyVabamorfAnalyzer</span><span class="p">,</span> <span class="n">NerTagger</span>
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 
@@ -388,17 +403,22 @@ A quick example, how to use it:</p>
 <span class="n">tagger</span> <span class="o">=</span> <span class="n">NerTagger</span><span class="p">()</span>
 
 <span class="n">text</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;Eesti Vabariik on riik Põhja-Euroopas.</span>
-<span class="s">Eesti piirneb põhjas üle Soome lahe Soome Vabariigiga,</span>
-<span class="s">läänes üle Läänemere Rootsi Kuningriigiga,</span>
-<span class="s">lõunas Läti Vabariigiga ja idas Venemaa Föderatsiooniga.</span>
+<span class="s">Eesti piirneb põhjas üle Soome lahe Soome Vabariigiga.</span>
+
+<span class="s">Riigikogu on Eesti Vabariigi parlament. Riigikogule kuulub Eestis seadusandlik võim.</span>
 
 <span class="s">2005. aastal sai peaministriks Andrus Ansip, kes püsis sellel kohal 2014. aastani.</span>
 <span class="s">2006. aastal valiti presidendiks Toomas Hendrik Ilves.</span>
 <span class="s">&#39;&#39;&#39;</span>
 
+<span class="c"># tag the documents</span>
 <span class="n">ner_tagged</span> <span class="o">=</span> <span class="n">tagger</span><span class="p">(</span><span class="n">analyzer</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">)))</span>
 
+<span class="c"># print the words and their explicit labels in BIO notation</span>
 <span class="n">pprint</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ner_tagged</span><span class="o">.</span><span class="n">word_texts</span><span class="p">,</span> <span class="n">ner_tagged</span><span class="o">.</span><span class="n">labels</span><span class="p">)))</span>
+
+<span class="c"># print words grouped as named entities</span>
+<span class="n">pprint</span> <span class="p">(</span><span class="n">ner_tagged</span><span class="o">.</span><span class="n">named_entities</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>As a result, we see the list of words with annotated labels:</p>
@@ -414,21 +434,17 @@ A quick example, how to use it:</p>
  <span class="p">(</span><span class="s">&#39;Soome&#39;</span><span class="p">,</span> <span class="s">&#39;B-LOC&#39;</span><span class="p">),</span>
  <span class="p">(</span><span class="s">&#39;lahe&#39;</span><span class="p">,</span> <span class="s">&#39;I-LOC&#39;</span><span class="p">),</span>
  <span class="p">(</span><span class="s">&#39;Soome&#39;</span><span class="p">,</span> <span class="s">&#39;B-LOC&#39;</span><span class="p">),</span>
- <span class="p">(</span><span class="s">&#39;Vabariigiga&#39;</span><span class="p">,</span> <span class="s">&#39;I-LOC&#39;</span><span class="p">),</span>
- <span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
- <span class="p">(</span><span class="s">&#39;läänes&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
- <span class="p">(</span><span class="s">&#39;üle&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
- <span class="p">(</span><span class="s">&#39;Läänemere&#39;</span><span class="p">,</span> <span class="s">&#39;B-LOC&#39;</span><span class="p">),</span>
- <span class="p">(</span><span class="s">&#39;Rootsi&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
- <span class="p">(</span><span class="s">&#39;Kuningriigiga&#39;</span><span class="p">,</span> <span class="s">&#39;B-LOC&#39;</span><span class="p">),</span>
- <span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
- <span class="p">(</span><span class="s">&#39;lõunas&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
- <span class="p">(</span><span class="s">&#39;Läti&#39;</span><span class="p">,</span> <span class="s">&#39;B-LOC&#39;</span><span class="p">),</span>
- <span class="p">(</span><span class="s">&#39;Vabariigiga&#39;</span><span class="p">,</span> <span class="s">&#39;I-LOC&#39;</span><span class="p">),</span>
- <span class="p">(</span><span class="s">&#39;ja&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
- <span class="p">(</span><span class="s">&#39;idas&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
- <span class="p">(</span><span class="s">&#39;Venemaa&#39;</span><span class="p">,</span> <span class="s">&#39;B-LOC&#39;</span><span class="p">),</span>
- <span class="p">(</span><span class="s">&#39;Föderatsiooniga.&#39;</span><span class="p">,</span> <span class="s">&#39;I-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Vabariigiga.&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Riigikogu&#39;</span><span class="p">,</span> <span class="s">&#39;B-ORG&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;on&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Eesti&#39;</span><span class="p">,</span> <span class="s">&#39;B-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Vabariigi&#39;</span><span class="p">,</span> <span class="s">&#39;I-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;parlament.&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Riigikogule&#39;</span><span class="p">,</span> <span class="s">&#39;B-ORG&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;kuulub&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Eestis&#39;</span><span class="p">,</span> <span class="s">&#39;B-LOC&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;seadusandlik&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;võim.&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
  <span class="p">(</span><span class="s">&#39;2005.&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
  <span class="p">(</span><span class="s">&#39;aastal&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
  <span class="p">(</span><span class="s">&#39;sai&#39;</span><span class="p">,</span> <span class="s">&#39;O&#39;</span><span class="p">),</span>
@@ -458,20 +474,20 @@ This can be used to detect entities that consist of more than a single word as c
 This makes it easy to see all words that are grouped into a named entity:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">pprint</span> <span class="p">(</span><span class="n">ner_tagged</span><span class="o">.</span><span class="n">named_entities</span><span class="p">)</span>
 
-<span class="p">[</span><span class="s">&#39;NamedEntity(Eesti Vabariik, LOC)&#39;</span><span class="p">,</span>
- <span class="s">&#39;NamedEntity(Põhja-Euroopas., LOC)&#39;</span><span class="p">,</span>
- <span class="s">&#39;NamedEntity(Eesti, LOC)&#39;</span><span class="p">,</span>
- <span class="s">&#39;NamedEntity(Soome lahe, LOC)&#39;</span><span class="p">,</span>
- <span class="s">&#39;NamedEntity(Soome Vabariigiga, LOC)&#39;</span><span class="p">,</span>
- <span class="s">&#39;NamedEntity(Läänemere, LOC)&#39;</span><span class="p">,</span>
- <span class="s">&#39;NamedEntity(Kuningriigiga, LOC)&#39;</span><span class="p">,</span>
- <span class="s">&#39;NamedEntity(Läti Vabariigiga, LOC)&#39;</span><span class="p">,</span>
- <span class="s">&#39;NamedEntity(Venemaa Föderatsiooniga., LOC)&#39;</span><span class="p">,</span>
- <span class="s">&#39;NamedEntity(Andrus Ansip, PER)&#39;</span><span class="p">,</span>
- <span class="s">&#39;NamedEntity(Toomas Hendrik Ilves., PER)&#39;</span><span class="p">]</span>
+<span class="p">[</span><span class="s">&#39;NamedEntity(eesti vabariik, LOC)&#39;</span><span class="p">,</span>
+ <span class="s">&#39;NamedEntity(põhja-euroopa, LOC)&#39;</span><span class="p">,</span>
+ <span class="s">&#39;NamedEntity(eesti, LOC)&#39;</span><span class="p">,</span>
+ <span class="s">&#39;NamedEntity(soome lahe, LOC)&#39;</span><span class="p">,</span>
+ <span class="s">&#39;NamedEntity(soome, LOC)&#39;</span><span class="p">,</span>
+ <span class="s">&#39;NamedEntity(riigikogu, ORG)&#39;</span><span class="p">,</span>
+ <span class="s">&#39;NamedEntity(eesti vabariik, LOC)&#39;</span><span class="p">,</span>
+ <span class="s">&#39;NamedEntity(riigikogu, ORG)&#39;</span><span class="p">,</span>
+ <span class="s">&#39;NamedEntity(eesti, LOC)&#39;</span><span class="p">,</span>
+ <span class="s">&#39;NamedEntity(andrus ansip, PER)&#39;</span><span class="p">,</span>
+ <span class="s">&#39;NamedEntity(toomas hendrik ilves, PER)&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>See <a class="reference internal" href="estnltk.html#estnltk.corpus.NamedEntity" title="estnltk.corpus.NamedEntity"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.NamedEntity</span></code></a> documentation to see properties available for them.</p>
+<p>See <a class="reference internal" href="estnltk.html#estnltk.corpus.NamedEntity" title="estnltk.corpus.NamedEntity"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.NamedEntity</span></code></a> documentation for information on available properties.</p>
 </div>
 </div>
 <div class="section" id="indices-and-tables">

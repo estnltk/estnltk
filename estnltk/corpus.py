@@ -385,21 +385,23 @@ class Sentence(ElementMixin, Dictionary):
         
 
 class NamedEntity(ElementMixin):
+    '''Named entities have to be constructed from sentences containing
+    the labelled words. Named entity represents a group of words
+    making up the named entity, such as *Toomas Hendrik Ilves*.
+    
+    Parameters
+    ----------
+    sentence: :class:estnltk.corpus.Sentence
+        The sentence, where the named entity is found.
+    word_start: int
+        The index of the word in the sentence, where the named
+        entity starts.
+    word_end: int
+        The index of the word in the sentence, where the named
+        entity ends.
+    '''
     
     def __init__(self, sentence, word_start, word_end):
-        '''Initialize a named entity.
-        
-        Parameters
-        ----------
-        sentence: :class:estnltk.corpus.Sentence
-            The sentence, where the named entity is found.
-        word_start: int
-            The index of the word in the sentence, where the named
-            entity starts.
-        word_end: int
-            The index of the word in the sentence, where the named
-            entity ends.
-        '''
         start_word = sentence[WORDS][word_start]
         end_word = sentence[WORDS][word_end-1]
         rel_start = start_word.rel_start
@@ -434,30 +436,76 @@ class NamedEntity(ElementMixin):
     
     @property
     def label(self):
+        '''The labels of named entity words have either prefixes
+        **B-** or **I-**, denoting *beginning* and *inside* respectively.
+        However, the real label is stored as a suffix, which can be
+        retrieved using this property.
+        
+        Returns
+        -------
+        str
+            The label of the named entity.
+        '''
         return self[LABEL]
+        
+    @property
+    def lemma(self):
+        '''Returns
+        --------
+        str
+            The named entity lemma ie the word lemmas separated by space.
+        '''
+        return ' '.join([w.lemma for w in self.words]).lower()
     
     @property
     def word_start(self):
+        '''Returns
+        --------
+        int
+            The start position of the first named entity word in the sentence.
+        '''
         return self[WORD_START]
     
     @property
     def word_end(self):
+        '''Returns
+        --------
+        int
+            The position after the last entity word in the sentence.
+            Therefore you can use `words[word_start:word_end]` to obtain
+            the words of a named entity in the sentence.
+        '''
         return self[WORD_END]
     
     @property
     def word_span(self):
+        '''Returns
+        -------
+        (int, int)
+            The start and end positions of the named entity words.
+        '''
         return (self.word_start, self.word_end)
     
     @property
     def word_indices(self):
+        '''Returns
+        -------
+        list of int
+            The indices of words in the sentence.
+        '''
         return list(range(self.word_start, self.word_end))
         
     @property
     def words(self):
+        '''Returns
+        -------
+        list of :class:`estnltk.corpus.Word'
+            words of the named entity.
+        '''
         return [self.sentence[WORDS][i] for i in self.word_indices]
         
     def __repr__(self):
-        return repr('NamedEntity({0}, {1})'.format(self.text, self.label))
+        return repr('NamedEntity({0}, {1})'.format(self.lemma, self.label))
         
     
 class Word(ElementMixin, Dictionary):

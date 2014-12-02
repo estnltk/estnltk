@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Morphological analysis example.'''
+'''Morphological analysis/synthesis example.'''
 from __future__ import unicode_literals, print_function
 
 from estnltk import analyze

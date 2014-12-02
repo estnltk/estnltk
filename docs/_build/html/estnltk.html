@@ -158,17 +158,17 @@ Defines common functionality for all modules.</p>
 </table>
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.analysis">
-<code class="descname">analysis</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b31d67b32e8&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.analysis" title="Permalink to this definition">¶</a></dt>
+<code class="descname">analysis</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b63ed3f7f60&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.analysis" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.documents">
-<code class="descname">documents</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b31d723f860&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.documents" title="Permalink to this definition">¶</a></dt>
+<code class="descname">documents</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b63ede5f748&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.documents" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.words">
-<code class="descname">words</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b31d723fb00&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.words" title="Permalink to this definition">¶</a></dt>
+<code class="descname">words</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b63ed3eb208&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.words" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -494,6 +494,31 @@ attribute values.</p>
 <dt id="estnltk.corpus.NamedEntity">
 <em class="property">class </em><code class="descclassname">estnltk.corpus.</code><code class="descname">NamedEntity</code><span class="sig-paren">(</span><em>sentence</em>, <em>word_start</em>, <em>word_end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/corpus.html#NamedEntity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.NamedEntity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#estnltk.corpus.ElementMixin" title="estnltk.corpus.ElementMixin"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.ElementMixin</span></code></a></p>
+<p>Named entities have to be constructed from sentences containing
+the labelled words. Named entity represents a group of words
+making up the named entity, such as <em>Toomas Hendrik Ilves</em>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sentence: :class:estnltk.corpus.Sentence</strong></p>
+<blockquote>
+<div><p>The sentence, where the named entity is found.</p>
+</div></blockquote>
+<p><strong>word_start: int</strong></p>
+<blockquote>
+<div><p>The index of the word in the sentence, where the named
+entity starts.</p>
+</div></blockquote>
+<p><strong>word_end: int</strong></p>
+<blockquote class="last">
+<div><p>The index of the word in the sentence, where the named
+entity ends.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Attributes</p>
 <p class="rubric">Methods</p>
 <dl class="method">
@@ -504,32 +529,127 @@ attribute values.</p>
 <dl class="attribute">
 <dt id="estnltk.corpus.NamedEntity.label">
 <code class="descname">label</code><a class="headerlink" href="#estnltk.corpus.NamedEntity.label" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The labels of named entity words have either prefixes
+<strong>B-</strong> or <strong>I-</strong>, denoting <em>beginning</em> and <em>inside</em> respectively.
+However, the real label is stored as a suffix, which can be
+retrieved using this property.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>The label of the named entity.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.NamedEntity.lemma">
+<code class="descname">lemma</code><a class="headerlink" href="#estnltk.corpus.NamedEntity.lemma" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>The named entity lemma ie the word lemmas separated by space.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.corpus.NamedEntity.word_end">
 <code class="descname">word_end</code><a class="headerlink" href="#estnltk.corpus.NamedEntity.word_end" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">int</p>
+<blockquote class="last">
+<div><p>The position after the last entity word in the sentence.
+Therefore you can use <cite>words[word_start:word_end]</cite> to obtain
+the words of a named entity in the sentence.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.corpus.NamedEntity.word_indices">
 <code class="descname">word_indices</code><a class="headerlink" href="#estnltk.corpus.NamedEntity.word_indices" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of int</p>
+<blockquote class="last">
+<div><p>The indices of words in the sentence.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.corpus.NamedEntity.word_span">
 <code class="descname">word_span</code><a class="headerlink" href="#estnltk.corpus.NamedEntity.word_span" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">(int, int)</p>
+<blockquote class="last">
+<div><p>The start and end positions of the named entity words.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.corpus.NamedEntity.word_start">
 <code class="descname">word_start</code><a class="headerlink" href="#estnltk.corpus.NamedEntity.word_start" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">int</p>
+<blockquote class="last">
+<div><p>The start position of the first named entity word in the sentence.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.corpus.NamedEntity.words">
 <code class="descname">words</code><a class="headerlink" href="#estnltk.corpus.NamedEntity.words" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of :class:<a href="#id1"><span class="problematic" id="id2">`</span></a>estnltk.corpus.Word&#8217;</p>
+<blockquote class="last">
+<div><p>words of the named entity.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -936,8 +1056,8 @@ and in corpora.</p>
 <div class="section" id="module-estnltk.ner">
 <span id="estnltk-ner-module"></span><h2>estnltk.ner module<a class="headerlink" href="#module-estnltk.ner" title="Permalink to this headline">¶</a></h2>
 <p>Module containing functionality for training and using NER models.</p>
-<div class="section" id="id1">
-<h3>Attributes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h3>Attributes<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <dl class="docutils">
 <dt>tagger: NerTagger</dt>
 <dd>Ner tagger with default model and parameters.</dd>
@@ -1575,7 +1695,7 @@ of a larger text. Such as a sentence in a paragraph.</p>
 <li><a class="reference internal" href="#module-estnltk.morf">estnltk.morf module</a></li>
 <li><a class="reference internal" href="#module-estnltk.names">estnltk.names module</a></li>
 <li><a class="reference internal" href="#module-estnltk.ner">estnltk.ner module</a><ul>
-<li><a class="reference internal" href="#id1">Attributes</a></li>
+<li><a class="reference internal" href="#id3">Attributes</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-estnltk.teicorpus">estnltk.teicorpus module</a></li>

@@ -154,16 +154,23 @@ This will print out the tokenized words::
 and tokenized sentences::
 
     ['Keeletehnoloogia on arvutilingvistika praktiline pool.', 
-    'Keeletehnoloogid kasutavad arvutilingvistikas välja töötatud \nteooriaid, et luua rakendusi (nt arvutiprogramme), \nmis võimaldavad inimkeelt arvuti abil töödelda ja mõista. ', 
-    'Tänapäeval on keeletehnoloogia tuntumateks valdkondadeks \nmasintõlge, arvutileksikoloogia, dialoogisüsteemid, \nkõneanalüüs ja kõnesüntees.\n']
+     'Keeletehnoloogid kasutavad arvutilingvistikas välja töötatud \nteooriaid, 
+        et luua rakendusi (nt arvutiprogramme), \nmis võimaldavad inimkeelt 
+        arvuti abil töödelda ja mõista. ', 
+     'Tänapäeval on keeletehnoloogia tuntumateks valdkondadeks \nmasintõlge, 
+        arvutileksikoloogia, dialoogisüsteemid, \nkõneanalüüs ja kõnesüntees.\n']
 
 and tokenized paragraphs::
 
-    ['Keeletehnoloogia on arvutilingvistika praktiline pool.\nKeeletehnoloogid kasutavad arvutilingvistikas välja töötatud \nteooriaid, et luua rakendusi (nt arvutiprogramme), \nmis võimaldavad inimkeelt arvuti abil töödelda ja mõista.',
-    'Tänapäeval on keeletehnoloogia tuntumateks valdkondadeks \nmasintõlge, arvutileksikoloogia, dialoogisüsteemid, \nkõneanalüüs ja kõnesüntees.\n']
+    ['Keeletehnoloogia on arvutilingvistika praktiline pool.\nKeeletehnoloogid 
+        kasutavad arvutilingvistikas välja töötatud \nteooriaid, et luua 
+        rakendusi (nt arvutiprogramme), \nmis võimaldavad inimkeelt arvuti 
+        abil töödelda ja mõista.',
+     'Tänapäeval on keeletehnoloogia tuntumateks valdkondadeks \nmasintõlge, 
+        arvutileksikoloogia, dialoogisüsteemid, \nkõneanalüüs ja kõnesüntees.\n']
 
 and also the original full text can be accessed using ``text`` property of :class:`estnltk.corpus.Document`.
-In case you get an error, something like::
+In case you get an error during tokenization, something like::
 
     LookupError: 
     **********************************************************************
@@ -291,11 +298,18 @@ To do that, one needs to use :class:`estnltk.morf.PyVabamorfAnalyzer` class::
 
 The lemmas::
     
-    ['keeletehnoloogia', 'olema', 'arvutilingvistika', 'praktiline', 'pool', 'keeletehnoloog', 'kasutama', 'arvutilingvistika', 'väli', 'töötatud', 'teooria', ',', 'et', 'looma', 'rakendus', '(', 'nt', 'arvutiprogramm', ')', ',', 'mis', 'võimaldama', 'inimkeel', 'arvuti', 'abi', 'töötlema', 'ja', 'mõistma', 'tänapäev', 'olema', 'keeletehnoloogia', 'tuntum', 'valdkond', 'masintõlge', ',', 'arvutileksikoloogia', ',', 'dialoogisüsteem', ',', 'kõneanalüüs', 'ja', 'kõnesüntees']
+    ['keeletehnoloogia', 'olema', 'arvutilingvistika', 'praktiline', 'pool', 'keeletehnoloog', 
+    'kasutama', 'arvutilingvistika', 'väli', 'töötatud', 'teooria', ',', 'et', 'looma', 
+    'rakendus', '(', 'nt', 'arvutiprogramm', ')', ',', 'mis', 'võimaldama', 'inimkeel', 
+    'arvuti', 'abi', 'töötlema', 'ja', 'mõistma', 'tänapäev', 'olema', 'keeletehnoloogia', 
+    'tuntum', 'valdkond', 'masintõlge', ',', 'arvutileksikoloogia', ',', 'dialoogisüsteem', 
+    ',', 'kõneanalüüs', 'ja', 'kõnesüntees']
 
 The pos tags::
 
-    ['S', 'V', 'S', 'A', 'S', 'S', 'A', 'S', 'S', 'A', 'S', 'Z', 'J', 'S', 'S', 'Z', 'Y', 'S', 'Z', 'Z', 'P', 'A', 'S', 'S', 'K', 'V', 'J', 'V', 'S', 'V', 'S', 'C', 'S', 'S', 'Z', 'S', 'Z', 'S', 'Z', 'S', 'J', 'S']
+    ['S', 'V', 'S', 'A', 'S', 'S', 'A', 'S', 'S', 'A', 'S', 'Z', 'J', 'S', 'S', 'Z', 'Y', 
+    'S', 'Z', 'Z', 'P', 'A', 'S', 'S', 'K', 'V', 'J', 'V', 'S', 'V', 'S', 'C', 'S', 'S', 
+    'Z', 'S', 'Z', 'S', 'Z', 'S', 'J', 'S']
 
 More information put together::
 
@@ -377,8 +391,9 @@ First thing is to build the named entity model as it is too large to include in 
 
     python -m estnltk.ner train_default_model
 
-Estnltk comes with default named entity recognition tuned for news articles.
-A quick example, how to use it::
+This will build the default model tuned for named entity recognition in news articles.
+In order to use named entity tagging, you also need to perform morphological analysis first.
+A quick example, how to do it::
 
     from estnltk import Tokenizer, PyVabamorfAnalyzer, NerTagger
     from pprint import pprint
@@ -388,17 +403,22 @@ A quick example, how to use it::
     tagger = NerTagger()
 
     text = '''Eesti Vabariik on riik Põhja-Euroopas. 
-    Eesti piirneb põhjas üle Soome lahe Soome Vabariigiga, 
-    läänes üle Läänemere Rootsi Kuningriigiga, 
-    lõunas Läti Vabariigiga ja idas Venemaa Föderatsiooniga.
+    Eesti piirneb põhjas üle Soome lahe Soome Vabariigiga.
+
+    Riigikogu on Eesti Vabariigi parlament. Riigikogule kuulub Eestis seadusandlik võim.
 
     2005. aastal sai peaministriks Andrus Ansip, kes püsis sellel kohal 2014. aastani.
     2006. aastal valiti presidendiks Toomas Hendrik Ilves.
     '''
 
+    # tag the documents
     ner_tagged = tagger(analyzer(tokenizer(text)))
 
+    # print the words and their explicit labels in BIO notation
     pprint(list(zip(ner_tagged.word_texts, ner_tagged.labels)))
+
+    # print words grouped as named entities
+    pprint (ner_tagged.named_entities)
 
 As a result, we see the list of words with annotated labels::
 
@@ -414,21 +434,17 @@ As a result, we see the list of words with annotated labels::
      ('Soome', 'B-LOC'),
      ('lahe', 'I-LOC'),
      ('Soome', 'B-LOC'),
-     ('Vabariigiga', 'I-LOC'),
-     (',', 'O'),
-     ('läänes', 'O'),
-     ('üle', 'O'),
-     ('Läänemere', 'B-LOC'),
-     ('Rootsi', 'O'),
-     ('Kuningriigiga', 'B-LOC'),
-     (',', 'O'),
-     ('lõunas', 'O'),
-     ('Läti', 'B-LOC'),
-     ('Vabariigiga', 'I-LOC'),
-     ('ja', 'O'),
-     ('idas', 'O'),
-     ('Venemaa', 'B-LOC'),
-     ('Föderatsiooniga.', 'I-LOC'),
+     ('Vabariigiga.', 'O'),
+     ('Riigikogu', 'B-ORG'),
+     ('on', 'O'),
+     ('Eesti', 'B-LOC'),
+     ('Vabariigi', 'I-LOC'),
+     ('parlament.', 'O'),
+     ('Riigikogule', 'B-ORG'),
+     ('kuulub', 'O'),
+     ('Eestis', 'B-LOC'),
+     ('seadusandlik', 'O'),
+     ('võim.', 'O'),
      ('2005.', 'O'),
      ('aastal', 'O'),
      ('sai', 'O'),
@@ -459,19 +475,19 @@ This makes it easy to see all words that are grouped into a named entity::
 
     pprint (ner_tagged.named_entities)
     
-    ['NamedEntity(Eesti Vabariik, LOC)',
-     'NamedEntity(Põhja-Euroopas., LOC)',
-     'NamedEntity(Eesti, LOC)',
-     'NamedEntity(Soome lahe, LOC)',
-     'NamedEntity(Soome Vabariigiga, LOC)',
-     'NamedEntity(Läänemere, LOC)',
-     'NamedEntity(Kuningriigiga, LOC)',
-     'NamedEntity(Läti Vabariigiga, LOC)',
-     'NamedEntity(Venemaa Föderatsiooniga., LOC)',
-     'NamedEntity(Andrus Ansip, PER)',
-     'NamedEntity(Toomas Hendrik Ilves., PER)']
+    ['NamedEntity(eesti vabariik, LOC)',
+     'NamedEntity(põhja-euroopa, LOC)',
+     'NamedEntity(eesti, LOC)',
+     'NamedEntity(soome lahe, LOC)',
+     'NamedEntity(soome, LOC)',
+     'NamedEntity(riigikogu, ORG)',
+     'NamedEntity(eesti vabariik, LOC)',
+     'NamedEntity(riigikogu, ORG)',
+     'NamedEntity(eesti, LOC)',
+     'NamedEntity(andrus ansip, PER)',
+     'NamedEntity(toomas hendrik ilves, PER)']
 
-See :class:`estnltk.corpus.NamedEntity` documentation to see properties available for them.
+See :class:`estnltk.corpus.NamedEntity` documentation for information on available properties.
 
 ==================
 Indices and tables
