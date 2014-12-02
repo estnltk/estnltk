@@ -70,6 +70,26 @@
 <li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.examples.html">estnltk.examples package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.examples.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.examples.html#module-estnltk.examples.ex01">estnltk.examples.ex01 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.examples.html#module-estnltk.examples.ex02">estnltk.examples.ex02 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.examples.html#module-estnltk.examples">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.tests.html">estnltk.tests package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.tests.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.tests.html#module-estnltk.tests.test_clausesegmenter">estnltk.tests.test_clausesegmenter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.tests.html#module-estnltk.tests.test_core">estnltk.tests.test_core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.tests.html#estnltk-tests-test-corpus-module">estnltk.tests.test_corpus module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.tests.html#estnltk-tests-test-encoding-module">estnltk.tests.test_encoding module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.tests.html#module-estnltk.tests.test_morph">estnltk.tests.test_morph module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.tests.html#module-estnltk.tests.test_tokenize">estnltk.tests.test_tokenize module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.tests.html#estnltk-tests-test-wn-module">estnltk.tests.test_wn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.tests.html#estnltk-tests-test-wordnet-module">estnltk.tests.test_wordnet module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.tests.html#module-estnltk.tests">Module contents</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -138,17 +158,17 @@ Defines common functionality for all modules.</p>
 </table>
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.analysis">
-<code class="descname">analysis</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2acfad5272e8&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.analysis" title="Permalink to this definition">¶</a></dt>
+<code class="descname">analysis</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b8e0f1de2e8&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.analysis" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.documents">
-<code class="descname">documents</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2acfad51eb00&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.documents" title="Permalink to this definition">¶</a></dt>
+<code class="descname">documents</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b8e0fc6b358&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.documents" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.words">
-<code class="descname">words</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2acfad24e940&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.words" title="Permalink to this definition">¶</a></dt>
+<code class="descname">words</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b8e0fc6b5f8&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.words" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -753,6 +773,7 @@ information to corpora.</p>
 <dt id="estnltk.morf.PyVabamorfAnalyzer">
 <em class="property">class </em><code class="descclassname">estnltk.morf.</code><code class="descname">PyVabamorfAnalyzer</code><a class="reference internal" href="_modules/estnltk/morf.html#PyVabamorfAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.morf.PyVabamorfAnalyzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#estnltk.textprocessor.TextProcessor" title="estnltk.textprocessor.TextProcessor"><code class="xref py py-class docutils literal"><span class="pre">estnltk.textprocessor.TextProcessor</span></code></a></p>
+<p>Class using vabamorf library for morphological analysis.</p>
 <p class="rubric">Methods</p>
 <dl class="method">
 <dt id="estnltk.morf.PyVabamorfAnalyzer.analyze">
@@ -769,6 +790,88 @@ information to corpora.</p>
 <code class="descname">process_json</code><span class="sig-paren">(</span><em>corpus</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/morf.html#PyVabamorfAnalyzer.process_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.morf.PyVabamorfAnalyzer.process_json" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.morf.analyze">
+<code class="descclassname">estnltk.morf.</code><code class="descname">analyze</code><span class="sig-paren">(</span><em>text</em>, <em>guess=True</em>, <em>phonetic=False</em>, <em>compound=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/morf.html#analyze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.morf.analyze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform morphological analysis on input.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>words: list of str or str</strong></p>
+<blockquote>
+<div><p>Either a list of pretokenized words or a string. In case of a string, it will be splitted using
+default behaviour of string.split() function.</p>
+</div></blockquote>
+<p><strong>guess: boolean, optional</strong></p>
+<blockquote>
+<div><p>If True, then use guessing, when analyzing unknown words (default: True)</p>
+</div></blockquote>
+<p><strong>phonetic: boolean, optional</strong></p>
+<blockquote>
+<div><p>If True, add phonetic information to the root forms (default: False).</p>
+</div></blockquote>
+<p><strong>compound: boolean, optional</strong></p>
+<blockquote>
+<div><p>if True, add compound word markers to root forms (default: True)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of (list of dict)</p>
+<blockquote class="last">
+<div><p>List of analysis for each word in input. One word usually contains more than one analysis as the
+analyser does not perform disambiguation.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.morf.synthesize">
+<code class="descclassname">estnltk.morf.</code><code class="descname">synthesize</code><span class="sig-paren">(</span><em>lemma</em>, <em>guess=True</em>, <em>phonetic=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/morf.html#synthesize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.morf.synthesize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given lemma, pos tag and a form, synthesize the word.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lemma: str</strong></p>
+<blockquote>
+<div><p>The lemma of the word to be synthesized.</p>
+</div></blockquote>
+<p><strong>partofspeech: str, optional</strong></p>
+<blockquote>
+<div><p>The POS tag of the word to be synthesized.</p>
+</div></blockquote>
+<p><strong>form: str, optional</strong></p>
+<blockquote>
+<div><p>The form of the word to be synthesized.</p>
+</div></blockquote>
+<p><strong>hint: str, optional</strong></p>
+<blockquote>
+<div><p>The hint used by vabamorf to synthesize the word.</p>
+</div></blockquote>
+<p><strong>guess: bool, optional</strong></p>
+<blockquote>
+<div><p>If True, use guessing for unknown words (default: True)</p>
+</div></blockquote>
+<p><strong>phonetic: bool, optional</strong></p>
+<blockquote>
+<div><p>If True, add phonetic markers to synthesized words (default: True).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of str</p>
+<blockquote class="last">
+<div><p>The list of synthesized words.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -1298,13 +1401,39 @@ a copy first when applying modifications.</p>
 </div>
 <div class="section" id="module-estnltk.tokenize">
 <span id="estnltk-tokenize-module"></span><h2>estnltk.tokenize module<a class="headerlink" href="#module-estnltk.tokenize" title="Permalink to this headline">¶</a></h2>
-<p>Module containing functionality to perform basic tokenization
-of plaintext data.</p>
+<p>Whenever you need to work with new plaintext data, you typically first need
+to separate it into sentences/words or any other meaningful structure
+for the task at hand.</p>
 <dl class="class">
 <dt id="estnltk.tokenize.Tokenizer">
 <em class="property">class </em><code class="descclassname">estnltk.tokenize.</code><code class="descname">Tokenizer</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/tokenize.html#Tokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.tokenize.Tokenizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Class for performing basic tokenization on plain text.</p>
+<p>Class for performing tokenization of plain text.</p>
+<p>First, it creates paragraph, then tokenizes each paragraph to sentences
+and then tokenizes the words of each sentence.
+How the tokenization will happen, can be specified by the user
+by supplying <code class="xref py py-class docutils literal"><span class="pre">ntlk.tokenize.api.StringTokenizer</span></code> instance
+for a particular tokenizer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>paragraph_tokenizer</strong> : <code class="xref py py-class docutils literal"><span class="pre">ntlk.tokenize.api.StringTokenizer</span></code>, optional</p>
+<blockquote>
+<div><p>Default paragraph tokenizer uses newlines to separate paragraphs.</p>
+</div></blockquote>
+<p><strong>sentence_tokenizer</strong> : <code class="xref py py-class docutils literal"><span class="pre">ntlk.tokenize.api.StringTokenizer</span></code>, optional</p>
+<blockquote>
+<div><p>Default sentence tokenizer is NLTK default PunktSentenceTokenizer for Estonian.</p>
+</div></blockquote>
+<p><strong>word_tokenizer</strong> : <code class="xref py py-class docutils literal"><span class="pre">ntlk.tokenize.api.StringTokenizer</span></code>, optional</p>
+<blockquote class="last">
+<div><p>Default is NLTK PunktWordTokenizer.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Methods</p>
 <dl class="method">
 <dt id="estnltk.tokenize.Tokenizer.tokenize">
@@ -1314,52 +1443,13 @@ of plaintext data.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>text: str</strong></p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>text</strong> : str</p>
 <blockquote>
 <div><p>The text to be tokenized.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dict</p>
-<blockquote class="last">
-<div><p>Dictionary of tokenized paragraphs, sentences and words
-with following structure:
-{</p>
-<blockquote>
-<div><p>text, start, end, rel_start, rel_end
-paragraphs:
-[</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>{</dt>
-<dd><p class="first">text, start, end, rel_start, rel_end
-sentences:
-[</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>{</dt>
-<dd><p class="first">text, start, end, rel_start, rel_end
-words:
-[</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>{</dt>
-<dd><p class="first last">text, start, end, rel_start, rel_end</p>
-</dd>
-</dl>
-</div></blockquote>
-<p class="last">]</p>
-</dd>
-</dl>
-</div></blockquote>
-<p class="last">]</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>}</p>
-</div></blockquote>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#estnltk.corpus.Document" title="estnltk.corpus.Document"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code></a></p>
 </td>
 </tr>
 </tbody>
@@ -1381,7 +1471,7 @@ and returns JSON-style output.</p>
 <blockquote>
 <div><p>The text to be tokenized.</p>
 </div></blockquote>
-<p><strong>tokenizer: http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.api.StringTokenizer</strong></p>
+<p><strong>tokenizer: :class:`ntlk.tokenize.api.StringTokenizer`</strong></p>
 <blockquote>
 <div><p>The tokenizer to use.</p>
 </div></blockquote>

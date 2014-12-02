@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-'''Module containing functionality to perform basic tokenization
-of plaintext data.
+'''Whenever you need to work with new plaintext data, you typically first need
+to separate it into sentences/words or any other meaningful structure
+for the task at hand.
 '''
 from __future__ import unicode_literals, print_function
 
@@ -14,21 +15,27 @@ import nltk.data
 
 
 class Tokenizer(object):
-    '''Class for performing basic tokenization on plain text.'''
+    '''Class for performing tokenization of plain text.
+    
+    First, it creates paragraph, then tokenizes each paragraph to sentences
+    and then tokenizes the words of each sentence.
+    How the tokenization will happen, can be specified by the user
+    by supplying :class:`ntlk.tokenize.api.StringTokenizer` instance
+    for a particular tokenizer.
+    
+    Parameters
+    ----------
+    
+    paragraph_tokenizer : :class:`ntlk.tokenize.api.StringTokenizer`, optional
+        Default paragraph tokenizer uses newlines to separate paragraphs.
+    sentence_tokenizer : :class:`ntlk.tokenize.api.StringTokenizer`, optional
+        Default sentence tokenizer is NLTK default PunktSentenceTokenizer for Estonian.
+    word_tokenizer : :class:`ntlk.tokenize.api.StringTokenizer`, optional
+        Default is NLTK PunktWordTokenizer.
+    '''
+        
     
     def __init__(self, **kwargs):
-        '''Initialize the tokenizer.
-        
-        Keyword parameters
-        ------------------
-        
-        paragraph_tokenizer: http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.api.StringTokenizer
-            Default paragraph tokenizer uses newlines to separate paragraphs.
-        sentence_tokenizer: http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.api.StringTokenizer
-            Default sentence tokenizer is NLTK default PunktSentenceTokenizer for Estonian.
-        word_tokenizer: http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.api.StringTokenizer
-            Default is NLTK PunktWordTokenizer.
-        '''
         self._paragraph_tokenizer = kwargs.get('paragraph_tokenizer',
             RegexpTokenizer('\s*\n\n\s*', gaps=True, discard_empty=True))
         self._sentence_tokenizer = kwargs.get('sentence_tokenizer',
@@ -41,38 +48,12 @@ class Tokenizer(object):
         
         Parameters
         ----------
-        text: str
+        text : str
             The text to be tokenized.
             
         Returns
         -------
-        dict
-            Dictionary of tokenized paragraphs, sentences and words
-            with following structure:
-            {
-                text, start, end, rel_start, rel_end
-                paragraphs:
-                [
-                    {
-                        text, start, end, rel_start, rel_end
-                        sentences:
-                        [
-                            {
-                                text, start, end, rel_start, rel_end
-                                words:
-                                [
-                                    {
-                                        text, start, end, rel_start, rel_end
-                                    },
-                                    ...
-                                ]
-                            },
-                            ...
-                        ]
-                    },
-                    ...
-                ]
-            }
+        :class:`estnltk.corpus.Document`
         '''
         text = as_unicode(text)
         paras = tokenize(text, self._paragraph_tokenizer)
@@ -90,7 +71,7 @@ class Tokenizer(object):
         return Corpus.construct(document)
 
     def __call__(self, text):
-        '''Tokenize the text into paragraphs, sentences and words.'''
+        '''Shorthand function for :method:`estnltk.tokenize.Tokenizer.tokenize` '''
         return self.tokenize(text)
 
 
@@ -103,7 +84,7 @@ def tokenize(text, tokenizer, start=0):
     
     text: str
         The text to be tokenized.
-    tokenizer: http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.api.StringTokenizer
+    tokenizer: :class:`ntlk.tokenize.api.StringTokenizer`
         The tokenizer to use.
     start: int
         the absolute start position of the given text. Only required when this text is a substring

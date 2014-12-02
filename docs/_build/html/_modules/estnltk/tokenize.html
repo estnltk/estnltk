@@ -49,8 +49,9 @@
             
   <h1>Source code for estnltk.tokenize</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39;Module containing functionality to perform basic tokenization</span>
-<span class="sd">of plaintext data.</span>
+<span class="sd">&#39;&#39;&#39;Whenever you need to work with new plaintext data, you typically first need</span>
+<span class="sd">to separate it into sentences/words or any other meaningful structure</span>
+<span class="sd">for the task at hand.</span>
 <span class="sd">&#39;&#39;&#39;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
 
@@ -64,21 +65,27 @@
 
 
 <div class="viewcode-block" id="Tokenizer"><a class="viewcode-back" href="../../estnltk.html#estnltk.tokenize.Tokenizer">[docs]</a><span class="k">class</span> <span class="nc">Tokenizer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Class for performing basic tokenization on plain text.&#39;&#39;&#39;</span>
+    <span class="sd">&#39;&#39;&#39;Class for performing tokenization of plain text.</span>
+<span class="sd">    </span>
+<span class="sd">    First, it creates paragraph, then tokenizes each paragraph to sentences</span>
+<span class="sd">    and then tokenizes the words of each sentence.</span>
+<span class="sd">    How the tokenization will happen, can be specified by the user</span>
+<span class="sd">    by supplying :class:`ntlk.tokenize.api.StringTokenizer` instance</span>
+<span class="sd">    for a particular tokenizer.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    </span>
+<span class="sd">    paragraph_tokenizer : :class:`ntlk.tokenize.api.StringTokenizer`, optional</span>
+<span class="sd">        Default paragraph tokenizer uses newlines to separate paragraphs.</span>
+<span class="sd">    sentence_tokenizer : :class:`ntlk.tokenize.api.StringTokenizer`, optional</span>
+<span class="sd">        Default sentence tokenizer is NLTK default PunktSentenceTokenizer for Estonian.</span>
+<span class="sd">    word_tokenizer : :class:`ntlk.tokenize.api.StringTokenizer`, optional</span>
+<span class="sd">        Default is NLTK PunktWordTokenizer.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+        
     
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Initialize the tokenizer.</span>
-<span class="sd">        </span>
-<span class="sd">        Keyword parameters</span>
-<span class="sd">        ------------------</span>
-<span class="sd">        </span>
-<span class="sd">        paragraph_tokenizer: http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.api.StringTokenizer</span>
-<span class="sd">            Default paragraph tokenizer uses newlines to separate paragraphs.</span>
-<span class="sd">        sentence_tokenizer: http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.api.StringTokenizer</span>
-<span class="sd">            Default sentence tokenizer is NLTK default PunktSentenceTokenizer for Estonian.</span>
-<span class="sd">        word_tokenizer: http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.api.StringTokenizer</span>
-<span class="sd">            Default is NLTK PunktWordTokenizer.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_paragraph_tokenizer</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;paragraph_tokenizer&#39;</span><span class="p">,</span>
             <span class="n">RegexpTokenizer</span><span class="p">(</span><span class="s">&#39;\s*</span><span class="se">\n\n</span><span class="s">\s*&#39;</span><span class="p">,</span> <span class="n">gaps</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">discard_empty</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sentence_tokenizer</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;sentence_tokenizer&#39;</span><span class="p">,</span>
@@ -91,38 +98,12 @@
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        text: str</span>
+<span class="sd">        text : str</span>
 <span class="sd">            The text to be tokenized.</span>
 <span class="sd">            </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        dict</span>
-<span class="sd">            Dictionary of tokenized paragraphs, sentences and words</span>
-<span class="sd">            with following structure:</span>
-<span class="sd">            {</span>
-<span class="sd">                text, start, end, rel_start, rel_end</span>
-<span class="sd">                paragraphs:</span>
-<span class="sd">                [</span>
-<span class="sd">                    {</span>
-<span class="sd">                        text, start, end, rel_start, rel_end</span>
-<span class="sd">                        sentences:</span>
-<span class="sd">                        [</span>
-<span class="sd">                            {</span>
-<span class="sd">                                text, start, end, rel_start, rel_end</span>
-<span class="sd">                                words:</span>
-<span class="sd">                                [</span>
-<span class="sd">                                    {</span>
-<span class="sd">                                        text, start, end, rel_start, rel_end</span>
-<span class="sd">                                    },</span>
-<span class="sd">                                    ...</span>
-<span class="sd">                                ]</span>
-<span class="sd">                            },</span>
-<span class="sd">                            ...</span>
-<span class="sd">                        ]</span>
-<span class="sd">                    },</span>
-<span class="sd">                    ...</span>
-<span class="sd">                ]</span>
-<span class="sd">            }</span>
+<span class="sd">        :class:`estnltk.corpus.Document`</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">as_unicode</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
         <span class="n">paras</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paragraph_tokenizer</span><span class="p">)</span>
@@ -140,7 +121,7 @@
         <span class="k">return</span> <span class="n">Corpus</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span><span class="n">document</span><span class="p">)</span>
 </div>
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Tokenize the text into paragraphs, sentences and words.&#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39;Shorthand function for :method:`estnltk.tokenize.Tokenizer.tokenize` &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 
 </div>
@@ -153,7 +134,7 @@
 <span class="sd">    </span>
 <span class="sd">    text: str</span>
 <span class="sd">        The text to be tokenized.</span>
-<span class="sd">    tokenizer: http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.api.StringTokenizer</span>
+<span class="sd">    tokenizer: :class:`ntlk.tokenize.api.StringTokenizer`</span>
 <span class="sd">        The tokenizer to use.</span>
 <span class="sd">    start: int</span>
 <span class="sd">        the absolute start position of the given text. Only required when this text is a substring</span>

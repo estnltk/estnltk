@@ -21,7 +21,7 @@ class Corpus(object):
         return construct_corpus(data)
         
     def to_json(self):
-        raise NotImplementedError()
+        return json.loads(json.dumps(self))
         
     # Methods for returning corpus elements
     def elements(self, what):

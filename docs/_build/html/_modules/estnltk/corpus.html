@@ -71,7 +71,7 @@
         <span class="k">return</span> <span class="n">construct_corpus</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         </div>
 <div class="viewcode-block" id="Corpus.to_json"><a class="viewcode-back" href="../../estnltk.html#estnltk.corpus.Corpus.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
         
     <span class="c"># Methods for returning corpus elements</span></div>
 <div class="viewcode-block" id="Corpus.elements"><a class="viewcode-back" href="../../estnltk.html#estnltk.corpus.Corpus.elements">[docs]</a>    <span class="k">def</span> <span class="nf">elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">what</span><span class="p">):</span>

@@ -114,12 +114,12 @@ Then run the tests and see if they all pass (NB! Do not run them from same direc
 <p>As they say, it is best to learn by example.
 In this section, we cover all basic use cases of the library.
 We recommend that the user would read the tutorial and try out the examples themselves to become comfortable with the library.
-The source code for the examples can also be found in <cite>estnltk/examples</cite> directory of the source code.</p>
+The source code for the examples can also be found in <cite>estnltk/examples</cite> directory of the package.</p>
 <div class="section" id="paragraph-sentence-and-word-tokenization">
 <h2>Paragraph, sentence and word tokenization<a class="headerlink" href="#paragraph-sentence-and-word-tokenization" title="Permalink to this headline">¶</a></h2>
 <p>The first step in most text processing tasks is to tokenize the input into smaller pieces, typically paragraphs, sentences and words.
-Estnltk provides the <code class="docutils literal"><span class="pre">Tokenizer</span></code> class that does this.
-In the next example, we define some text, then import and initialize a <code class="docutils literal"><span class="pre">Tokenizer</span></code> instance and use to create a <code class="docutils literal"><span class="pre">Document</span></code> instance:</p>
+Estnltk provides the <a class="reference internal" href="estnltk.html#estnltk.tokenize.Tokenizer" title="estnltk.tokenize.Tokenizer"><code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code></a> class that does this.
+In the next example, we define some text, then import and initialize a <a class="reference internal" href="estnltk.html#estnltk.tokenize.Tokenizer" title="estnltk.tokenize.Tokenizer"><code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code></a> instance and use to create a <a class="reference internal" href="estnltk.html#estnltk.corpus.Document" title="estnltk.corpus.Document"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code></a> instance:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Let&#39;s define a sample document</span>
 <span class="n">text</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;Keeletehnoloogia on arvutilingvistika praktiline pool.</span>
 <span class="s">Keeletehnoloogid kasutavad arvutilingvistikas välja töötatud</span>
@@ -163,7 +163,10 @@ In the next example, we define some text, then import and initialize a <code cla
 <span class="s">&#39;Tänapäeval on keeletehnoloogia tuntumateks valdkondadeks </span><span class="se">\n</span><span class="s">masintõlge, arvutileksikoloogia, dialoogisüsteemid, </span><span class="se">\n</span><span class="s">kõneanalüüs ja kõnesüntees.</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>and also the original full text can be accessed using <code class="docutils literal"><span class="pre">text</span></code> property of <code class="docutils literal"><span class="pre">Document</span></code>:</p>
+<p>and also the original full text can be accessed using <code class="docutils literal"><span class="pre">text</span></code> property of <a class="reference internal" href="estnltk.html#estnltk.corpus.Document" title="estnltk.corpus.Document"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code></a>:</p>
+</div>
+<div class="section" id="token-spans-start-and-end-positions">
+<h2>Token spans &#8211; start and end positions<a class="headerlink" href="#token-spans-start-and-end-positions" title="Permalink to this headline">¶</a></h2>
 <p>In addition to tokenization, it is often necessary to know where the tokens reside in the original document.
 For example, you might want to inspect the context of a particular word.
 For this purpose, estnltk provide <code class="docutils literal"><span class="pre">word_spans</span></code>, <code class="docutils literal"><span class="pre">sentence_spans</span></code> and <code class="docutils literal"><span class="pre">paragraph_spans</span></code> methods.
@@ -183,6 +186,148 @@ containing the start and end positions:</p>
  <span class="p">(</span><span class="s">&#39;kõneanalüüs&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">340</span><span class="p">,</span> <span class="mi">351</span><span class="p">)),</span>
  <span class="p">(</span><span class="s">&#39;ja&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">352</span><span class="p">,</span> <span class="mi">354</span><span class="p">)),</span>
  <span class="p">(</span><span class="s">&#39;kõnesüntees.&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">355</span><span class="p">,</span> <span class="mi">367</span><span class="p">))]</span>
+</pre></div>
+</div>
+<p>For other possible options, please check <a class="reference internal" href="estnltk.html#estnltk.corpus.Corpus" title="estnltk.corpus.Corpus"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus</span></code></a>, <a class="reference internal" href="estnltk.html#estnltk.corpus.Document" title="estnltk.corpus.Document"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code></a>, <a class="reference internal" href="estnltk.html#estnltk.corpus.Paragraph" title="estnltk.corpus.Paragraph"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Paragraph</span></code></a>, <a class="reference internal" href="estnltk.html#estnltk.corpus.Sentence" title="estnltk.corpus.Sentence"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Sentence</span></code></a> and <a class="reference internal" href="estnltk.html#estnltk.corpus.Word" title="estnltk.corpus.Word"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Word</span></code></a> classes.</p>
+</div>
+<div class="section" id="morphological-analysis">
+<h2>Morphological analysis<a class="headerlink" href="#morphological-analysis" title="Permalink to this headline">¶</a></h2>
+<p>Estnltk contains <a class="reference internal" href="estnltk.html#estnltk.morf.analyze" title="estnltk.morf.analyze"><code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.analyze</span></code></a> function for performing morphological analysis:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">analyze</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="n">pprint</span><span class="p">(</span><span class="n">analyze</span><span class="p">(</span><span class="s">&#39;Tüünete öötööde allmaaraudteejaam&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The result will be JSON-style data:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[{</span><span class="s">&#39;analysis&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;clitic&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+                <span class="s">&#39;ending&#39;</span><span class="p">:</span> <span class="s">&#39;te&#39;</span><span class="p">,</span>
+                <span class="s">&#39;form&#39;</span><span class="p">:</span> <span class="s">&#39;pl g&#39;</span><span class="p">,</span>
+                <span class="s">&#39;lemma&#39;</span><span class="p">:</span> <span class="s">&#39;tüüne&#39;</span><span class="p">,</span>
+                <span class="s">&#39;partofspeech&#39;</span><span class="p">:</span> <span class="s">&#39;A&#39;</span><span class="p">,</span>
+                <span class="s">&#39;root&#39;</span><span class="p">:</span> <span class="s">&#39;tüüne&#39;</span><span class="p">,</span>
+                <span class="s">&#39;root_tokens&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;tüüne&#39;</span><span class="p">]}],</span>
+  <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;Tüünete&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;analysis&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;clitic&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+                <span class="s">&#39;ending&#39;</span><span class="p">:</span> <span class="s">&#39;de&#39;</span><span class="p">,</span>
+                <span class="s">&#39;form&#39;</span><span class="p">:</span> <span class="s">&#39;pl g&#39;</span><span class="p">,</span>
+                <span class="s">&#39;lemma&#39;</span><span class="p">:</span> <span class="s">&#39;öötöö&#39;</span><span class="p">,</span>
+                <span class="s">&#39;partofspeech&#39;</span><span class="p">:</span> <span class="s">&#39;S&#39;</span><span class="p">,</span>
+                <span class="s">&#39;root&#39;</span><span class="p">:</span> <span class="s">&#39;öö_töö&#39;</span><span class="p">,</span>
+                <span class="s">&#39;root_tokens&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;öö&#39;</span><span class="p">,</span> <span class="s">&#39;töö&#39;</span><span class="p">]}],</span>
+  <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;öötööde&#39;</span><span class="p">},</span>
+ <span class="p">{</span><span class="s">&#39;analysis&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;clitic&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+                <span class="s">&#39;ending&#39;</span><span class="p">:</span> <span class="s">&#39;0&#39;</span><span class="p">,</span>
+                <span class="s">&#39;form&#39;</span><span class="p">:</span> <span class="s">&#39;sg n&#39;</span><span class="p">,</span>
+                <span class="s">&#39;lemma&#39;</span><span class="p">:</span> <span class="s">&#39;allmaaraudteejaam&#39;</span><span class="p">,</span>
+                <span class="s">&#39;partofspeech&#39;</span><span class="p">:</span> <span class="s">&#39;S&#39;</span><span class="p">,</span>
+                <span class="s">&#39;root&#39;</span><span class="p">:</span> <span class="s">&#39;all_maa_raud_tee_jaam&#39;</span><span class="p">,</span>
+                <span class="s">&#39;root_tokens&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;all&#39;</span><span class="p">,</span> <span class="s">&#39;maa&#39;</span><span class="p">,</span> <span class="s">&#39;raud&#39;</span><span class="p">,</span> <span class="s">&#39;tee&#39;</span><span class="p">,</span> <span class="s">&#39;jaam&#39;</span><span class="p">]}],</span>
+  <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;allmaaraudteejaam&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+<p>Note that the underlying <a class="reference external" href="https://github.com/Filosoft/vabamorf/">vabamorf</a> library does not yet include disambiguation, so all possible analysis will be returned.
+The tags are documented in vabamorf tagset <a class="reference external" href="https://github.com/Filosoft/vabamorf/blob/master/doc/tagset.html">documentation</a>.</p>
+<blockquote>
+<div></div></blockquote>
+<p>The morphological analysis can also be applied on pretokenized data, so it will be possible to more easily list all lemmas, pos tags etc.
+To do that, one needs to use <a class="reference internal" href="estnltk.html#estnltk.morf.PyVabamorfAnalyzer" title="estnltk.morf.PyVabamorfAnalyzer"><code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></code></a> class:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">PyVabamorfAnalyzer</span>
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">Tokenizer</span><span class="p">()</span>
+<span class="n">analyzer</span> <span class="o">=</span> <span class="n">PyVabamorfAnalyzer</span><span class="p">()</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;Keeletehnoloogia on arvutilingvistika praktiline pool.</span>
+<span class="s">Keeletehnoloogid kasutavad arvutilingvistikas välja töötatud</span>
+<span class="s">teooriaid, et luua rakendusi (nt arvutiprogramme),</span>
+<span class="s">mis võimaldavad inimkeelt arvuti abil töödelda ja mõista.</span>
+
+<span class="s">Tänapäeval on keeletehnoloogia tuntumateks valdkondadeks</span>
+<span class="s">masintõlge, arvutileksikoloogia, dialoogisüsteemid,</span>
+<span class="s">kõneanalüüs ja kõnesüntees.</span>
+<span class="s">&#39;&#39;&#39;</span>
+
+<span class="c"># first tokenize and then morphologically analyze</span>
+<span class="n">morf_analyzed</span> <span class="o">=</span> <span class="n">analyzer</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+
+<span class="c"># print some results</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">morf_analyzed</span><span class="o">.</span><span class="n">lemmas</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">morf_analyzed</span><span class="o">.</span><span class="n">postags</span><span class="p">)</span>
+
+<span class="c"># print more information together</span>
+<span class="n">pprint</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">morf_analyzed</span><span class="o">.</span><span class="n">word_texts</span><span class="p">,</span>
+                 <span class="n">morf_analyzed</span><span class="o">.</span><span class="n">lemmas</span><span class="p">,</span>
+                 <span class="n">morf_analyzed</span><span class="o">.</span><span class="n">forms</span><span class="p">,</span>
+                 <span class="n">morf_analyzed</span><span class="o">.</span><span class="n">postags</span><span class="p">)))</span>
+</pre></div>
+</div>
+<p>The lemmas:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;keeletehnoloogia&#39;</span><span class="p">,</span> <span class="s">&#39;olema&#39;</span><span class="p">,</span> <span class="s">&#39;arvutilingvistika&#39;</span><span class="p">,</span> <span class="s">&#39;praktiline&#39;</span><span class="p">,</span> <span class="s">&#39;pool&#39;</span><span class="p">,</span> <span class="s">&#39;keeletehnoloog&#39;</span><span class="p">,</span> <span class="s">&#39;kasutama&#39;</span><span class="p">,</span> <span class="s">&#39;arvutilingvistika&#39;</span><span class="p">,</span> <span class="s">&#39;väli&#39;</span><span class="p">,</span> <span class="s">&#39;töötatud&#39;</span><span class="p">,</span> <span class="s">&#39;teooria&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;et&#39;</span><span class="p">,</span> <span class="s">&#39;looma&#39;</span><span class="p">,</span> <span class="s">&#39;rakendus&#39;</span><span class="p">,</span> <span class="s">&#39;(&#39;</span><span class="p">,</span> <span class="s">&#39;nt&#39;</span><span class="p">,</span> <span class="s">&#39;arvutiprogramm&#39;</span><span class="p">,</span> <span class="s">&#39;)&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;mis&#39;</span><span class="p">,</span> <span class="s">&#39;võimaldama&#39;</span><span class="p">,</span> <span class="s">&#39;inimkeel&#39;</span><span class="p">,</span> <span class="s">&#39;arvuti&#39;</span><span class="p">,</span> <span class="s">&#39;abi&#39;</span><span class="p">,</span> <span class="s">&#39;töötlema&#39;</span><span class="p">,</span> <span class="s">&#39;ja&#39;</span><span class="p">,</span> <span class="s">&#39;mõistma&#39;</span><span class="p">,</span> <span class="s">&#39;tänapäev&#39;</span><span class="p">,</span> <span class="s">&#39;olema&#39;</span><span class="p">,</span> <span class="s">&#39;keeletehnoloogia&#39;</span><span class="p">,</span> <span class="s">&#39;tuntum&#39;</span><span class="p">,</span> <span class="s">&#39;valdkond&#39;</span><span class="p">,</span> <span class="s">&#39;masintõlge&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;arvutileksikoloogia&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;dialoogisüsteem&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;kõneanalüüs&#39;</span><span class="p">,</span> <span class="s">&#39;ja&#39;</span><span class="p">,</span> <span class="s">&#39;kõnesüntees&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The pos tags:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;Y&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;P&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;K&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;C&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>More information put together:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[(</span><span class="s">&#39;Keeletehnoloogia&#39;</span><span class="p">,</span> <span class="s">&#39;keeletehnoloogia&#39;</span><span class="p">,</span> <span class="s">&#39;sg g&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;on&#39;</span><span class="p">,</span> <span class="s">&#39;olema&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;arvutilingvistika&#39;</span><span class="p">,</span> <span class="s">&#39;arvutilingvistika&#39;</span><span class="p">,</span> <span class="s">&#39;sg g&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;praktiline&#39;</span><span class="p">,</span> <span class="s">&#39;praktiline&#39;</span><span class="p">,</span> <span class="s">&#39;sg n&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;pool.&#39;</span><span class="p">,</span> <span class="s">&#39;pool&#39;</span><span class="p">,</span> <span class="s">&#39;sg n&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Keeletehnoloogid&#39;</span><span class="p">,</span> <span class="s">&#39;keeletehnoloog&#39;</span><span class="p">,</span> <span class="s">&#39;pl n&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;kasutavad&#39;</span><span class="p">,</span> <span class="s">&#39;kasutama&#39;</span><span class="p">,</span> <span class="s">&#39;pl n&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;arvutilingvistikas&#39;</span><span class="p">,</span> <span class="s">&#39;arvutilingvistika&#39;</span><span class="p">,</span> <span class="s">&#39;sg in&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;välja&#39;</span><span class="p">,</span> <span class="s">&#39;väli&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;töötatud&#39;</span><span class="p">,</span> <span class="s">&#39;töötatud&#39;</span><span class="p">,</span> <span class="s">&#39;pl n&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;teooriaid&#39;</span><span class="p">,</span> <span class="s">&#39;teooria&#39;</span><span class="p">,</span> <span class="s">&#39;pl p&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;et&#39;</span><span class="p">,</span> <span class="s">&#39;et&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;luua&#39;</span><span class="p">,</span> <span class="s">&#39;looma&#39;</span><span class="p">,</span> <span class="s">&#39;da&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;rakendusi&#39;</span><span class="p">,</span> <span class="s">&#39;rakendus&#39;</span><span class="p">,</span> <span class="s">&#39;pl p&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;(&#39;</span><span class="p">,</span> <span class="s">&#39;(&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;nt&#39;</span><span class="p">,</span> <span class="s">&#39;nt&#39;</span><span class="p">,</span> <span class="s">&#39;?&#39;</span><span class="p">,</span> <span class="s">&#39;Y&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;arvutiprogramme&#39;</span><span class="p">,</span> <span class="s">&#39;arvutiprogramm&#39;</span><span class="p">,</span> <span class="s">&#39;pl p&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;)&#39;</span><span class="p">,</span> <span class="s">&#39;)&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;mis&#39;</span><span class="p">,</span> <span class="s">&#39;mis&#39;</span><span class="p">,</span> <span class="s">&#39;pl n&#39;</span><span class="p">,</span> <span class="s">&#39;P&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;võimaldavad&#39;</span><span class="p">,</span> <span class="s">&#39;võimaldama&#39;</span><span class="p">,</span> <span class="s">&#39;pl n&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;inimkeelt&#39;</span><span class="p">,</span> <span class="s">&#39;inimkeel&#39;</span><span class="p">,</span> <span class="s">&#39;sg p&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;arvuti&#39;</span><span class="p">,</span> <span class="s">&#39;arvuti&#39;</span><span class="p">,</span> <span class="s">&#39;sg g&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;abil&#39;</span><span class="p">,</span> <span class="s">&#39;abi&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;K&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;töödelda&#39;</span><span class="p">,</span> <span class="s">&#39;töötlema&#39;</span><span class="p">,</span> <span class="s">&#39;da&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;ja&#39;</span><span class="p">,</span> <span class="s">&#39;ja&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;mõista.&#39;</span><span class="p">,</span> <span class="s">&#39;mõistma&#39;</span><span class="p">,</span> <span class="s">&#39;da&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Tänapäeval&#39;</span><span class="p">,</span> <span class="s">&#39;tänapäev&#39;</span><span class="p">,</span> <span class="s">&#39;sg ad&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;on&#39;</span><span class="p">,</span> <span class="s">&#39;olema&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;keeletehnoloogia&#39;</span><span class="p">,</span> <span class="s">&#39;keeletehnoloogia&#39;</span><span class="p">,</span> <span class="s">&#39;sg g&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;tuntumateks&#39;</span><span class="p">,</span> <span class="s">&#39;tuntum&#39;</span><span class="p">,</span> <span class="s">&#39;pl tr&#39;</span><span class="p">,</span> <span class="s">&#39;C&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;valdkondadeks&#39;</span><span class="p">,</span> <span class="s">&#39;valdkond&#39;</span><span class="p">,</span> <span class="s">&#39;pl tr&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;masintõlge&#39;</span><span class="p">,</span> <span class="s">&#39;masintõlge&#39;</span><span class="p">,</span> <span class="s">&#39;sg n&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;arvutileksikoloogia&#39;</span><span class="p">,</span> <span class="s">&#39;arvutileksikoloogia&#39;</span><span class="p">,</span> <span class="s">&#39;sg g&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;dialoogisüsteemid&#39;</span><span class="p">,</span> <span class="s">&#39;dialoogisüsteem&#39;</span><span class="p">,</span> <span class="s">&#39;pl n&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;kõneanalüüs&#39;</span><span class="p">,</span> <span class="s">&#39;kõneanalüüs&#39;</span><span class="p">,</span> <span class="s">&#39;sg n&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;ja&#39;</span><span class="p">,</span> <span class="s">&#39;ja&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;kõnesüntees.&#39;</span><span class="p">,</span> <span class="s">&#39;kõnesüntees&#39;</span><span class="p">,</span> <span class="s">&#39;sg n&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="morphological-synthesis">
+<h2>Morphological synthesis<a class="headerlink" href="#morphological-synthesis" title="Permalink to this headline">¶</a></h2>
+<p>Estnltk can also do morphological synthesis using <a class="reference internal" href="estnltk.html#estnltk.morf.synthesize" title="estnltk.morf.synthesize"><code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.synthesize</span></code></a> function:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">synthesize</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">synthesize</span><span class="p">(</span><span class="s">&#39;pood&#39;</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="s">&#39;pl p&#39;</span><span class="p">,</span> <span class="n">partofspeech</span><span class="o">=</span><span class="s">&#39;S&#39;</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">synthesize</span><span class="p">(</span><span class="s">&#39;palk&#39;</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="s">&#39;sg kom&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>That will print:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;poode&#39;</span><span class="p">,</span> <span class="s">&#39;poodisid&#39;</span><span class="p">]</span>
+<span class="p">[</span><span class="s">&#39;palgaga&#39;</span><span class="p">,</span> <span class="s">&#39;palgiga&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>Contents:</p>
@@ -219,6 +364,9 @@ containing the start and end positions:</p>
 </li>
 <li><a class="reference internal" href="#tutorial">Tutorial</a><ul>
 <li><a class="reference internal" href="#paragraph-sentence-and-word-tokenization">Paragraph, sentence and word tokenization</a></li>
+<li><a class="reference internal" href="#token-spans-start-and-end-positions">Token spans &#8211; start and end positions</a></li>
+<li><a class="reference internal" href="#morphological-analysis">Morphological analysis</a></li>
+<li><a class="reference internal" href="#morphological-synthesis">Morphological synthesis</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>

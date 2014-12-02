@@ -59,11 +59,63 @@
 <span class="kn">from</span> <span class="nn">estnltk.textprocessor</span> <span class="kn">import</span> <span class="n">TextProcessor</span>
 <span class="kn">from</span> <span class="nn">estnltk.corpus</span> <span class="kn">import</span> <span class="n">List</span>
 
-<span class="kn">from</span> <span class="nn">pyvabamorf</span> <span class="kn">import</span> <span class="n">analyze</span>
+<span class="kn">import</span> <span class="nn">pyvabamorf</span>
+
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 
 
+<div class="viewcode-block" id="analyze"><a class="viewcode-back" href="../../estnltk.html#estnltk.morf.analyze">[docs]</a><span class="k">def</span> <span class="nf">analyze</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">phonetic</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">compound</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Perform morphological analysis on input.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    words: list of str or str</span>
+<span class="sd">        Either a list of pretokenized words or a string. In case of a string, it will be splitted using</span>
+<span class="sd">        default behaviour of string.split() function.</span>
+<span class="sd">    guess: boolean, optional</span>
+<span class="sd">        If True, then use guessing, when analyzing unknown words (default: True)</span>
+<span class="sd">    phonetic: boolean, optional</span>
+<span class="sd">        If True, add phonetic information to the root forms (default: False).</span>
+<span class="sd">    compound: boolean, optional</span>
+<span class="sd">        if True, add compound word markers to root forms (default: True)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of (list of dict)</span>
+<span class="sd">        List of analysis for each word in input. One word usually contains more than one analysis as the</span>
+<span class="sd">        analyser does not perform disambiguation. </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">pyvabamorf</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="n">guess</span><span class="p">,</span> <span class="n">phonetic</span><span class="o">=</span><span class="n">phonetic</span><span class="p">,</span> <span class="n">compound</span><span class="o">=</span><span class="n">compound</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="synthesize"><a class="viewcode-back" href="../../estnltk.html#estnltk.morf.synthesize">[docs]</a><span class="k">def</span> <span class="nf">synthesize</span><span class="p">(</span><span class="n">lemma</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">phonetic</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Given lemma, pos tag and a form, synthesize the word.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lemma: str</span>
+<span class="sd">        The lemma of the word to be synthesized.</span>
+<span class="sd">    partofspeech: str, optional</span>
+<span class="sd">        The POS tag of the word to be synthesized.</span>
+<span class="sd">    form: str, optional</span>
+<span class="sd">        The form of the word to be synthesized.</span>
+<span class="sd">    hint: str, optional</span>
+<span class="sd">        The hint used by vabamorf to synthesize the word.</span>
+<span class="sd">    guess: bool, optional</span>
+<span class="sd">        If True, use guessing for unknown words (default: True)</span>
+<span class="sd">    phonetic: bool, optional</span>
+<span class="sd">        If True, add phonetic markers to synthesized words (default: True).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of str</span>
+<span class="sd">        The list of synthesized words.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">pyvabamorf</span><span class="o">.</span><span class="n">synthesize</span><span class="p">(</span><span class="n">lemma</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="n">guess</span><span class="p">,</span> <span class="n">phonetic</span><span class="o">=</span><span class="n">phonetic</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+</div>
 <div class="viewcode-block" id="PyVabamorfAnalyzer"><a class="viewcode-back" href="../../estnltk.html#estnltk.morf.PyVabamorfAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">PyVabamorfAnalyzer</span><span class="p">(</span><span class="n">TextProcessor</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Class using vabamorf library for morphological analysis.&#39;&#39;&#39;</span>
     
     <span class="nd">@overrides</span><span class="p">(</span><span class="n">TextProcessor</span><span class="p">)</span>
 <div class="viewcode-block" id="PyVabamorfAnalyzer.process_json"><a class="viewcode-back" href="../../estnltk.html#estnltk.morf.PyVabamorfAnalyzer.process_json">[docs]</a>    <span class="k">def</span> <span class="nf">process_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">corpus</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -78,17 +130,8 @@
         <span class="k">return</span> <span class="n">corpus</span>
     </div>
 <div class="viewcode-block" id="PyVabamorfAnalyzer.analyze"><a class="viewcode-back" href="../../estnltk.html#estnltk.morf.PyVabamorfAnalyzer.analyze">[docs]</a>    <span class="k">def</span> <span class="nf">analyze</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wordlist</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Keyword parameters</span>
-<span class="sd">        ------------------</span>
-<span class="sd">        phonetic: boolean</span>
-<span class="sd">            If true, add phonetic markup to root elements (default: False)</span>
-<span class="sd">        compound: boolean</span>
-<span class="sd">            If true, add compound word markup to root elements (default: True)</span>
-<span class="sd">            </span>
-<span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">wordlist</span><span class="p">:</span>
-            <span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]</span> <span class="o">=</span> <span class="n">analyze</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="n">TEXT</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="n">ANALYSIS</span><span class="p">]</span>
+            <span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]</span> <span class="o">=</span> <span class="n">pyvabamorf</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="n">TEXT</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="n">ANALYSIS</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">wordlist</span></div></div>
 </pre></div>
 
