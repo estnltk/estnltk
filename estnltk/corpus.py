@@ -130,6 +130,10 @@ class Corpus(object):
     @property
     def verb_phrases(self):
         raise NotImplementedError()
+        
+    @property
+    def named_entities(self):
+        return self.elements(NAMED_ENTITIES)
     
     # other methods
     
@@ -179,13 +183,10 @@ class ElementMixin(dict):
         
         Parameters
         ----------
-        data: dict
+        data : dict
             The dictionary containing TEXT, START, END, REL_START and REL_END
             attributes. If not given, these attributes must be
             given as keyword arguments.
-        
-        Keyword parameters
-        ------------------
         start: int
             The START attribute
         end: int
@@ -358,12 +359,107 @@ class Sentence(ElementMixin, Dictionary):
     def elements(self, what):
         if what == SENTENCES:
             return [self]
+        elif what == NAMED_ENTITIES:
+            return self.named_entities
         return super(Sentence, self).elements(what)
+        
+    @property
+    @overrides(Corpus)
+    def named_entities(self):
+        nes = []
+        word_start = -1
+        labels = self.labels + ['O'] # last is sentinel
+        for i, l in enumerate(labels):
+            if l.startswith('B-') or l == 'O':
+                if word_start != -1:
+                    ne = NamedEntity(self, word_start, i)
+                    nes.append(ne)
+                if l.startswith('B-'):
+                    word_start = i
+                else:
+                    word_start = -1
+        return nes
         
     def __repr__(self):
         return repr('Sentence({0})'.format(self.text[:24] + '...'))
         
 
+class NamedEntity(ElementMixin):
+    
+    def __init__(self, sentence, word_start, word_end):
+        '''Initialize a named entity.
+        
+        Parameters
+        ----------
+        sentence: :class:estnltk.corpus.Sentence
+            The sentence, where the named entity is found.
+        word_start: int
+            The index of the word in the sentence, where the named
+            entity starts.
+        word_end: int
+            The index of the word in the sentence, where the named
+            entity ends.
+        '''
+        start_word = sentence[WORDS][word_start]
+        end_word = sentence[WORDS][word_end-1]
+        rel_start = start_word.rel_start
+        rel_end = end_word.rel_end
+        text = sentence.text[rel_start:rel_end]
+        label = start_word.label[2:]
+        data = {
+            START: start_word.start,
+            END: end_word.end,
+            REL_START: rel_start,
+            REL_END: rel_end,
+            WORD_START: word_start,
+            WORD_END: word_end,
+            TEXT: text,
+            LABEL: label
+        }
+        self.sentence = sentence
+        super(NamedEntity, self).__init__(data)
+    
+    @overrides(ElementMixin)
+    def assert_valid(self):
+        super(NamedEntity, self).assert_valid()
+        assert WORD_START in self
+        assert WORD_END in self
+        assert LABEL in self
+        assert self[LABEL] != 'O'
+        for i, w in enumerate(self.words):
+            if i == 0:
+                assert w.label == 'B-' + self.label
+            else:
+                assert w.label == 'I-' + self.label
+    
+    @property
+    def label(self):
+        return self[LABEL]
+    
+    @property
+    def word_start(self):
+        return self[WORD_START]
+    
+    @property
+    def word_end(self):
+        return self[WORD_END]
+    
+    @property
+    def word_span(self):
+        return (self.word_start, self.word_end)
+    
+    @property
+    def word_indices(self):
+        return list(range(self.word_start, self.word_end))
+        
+    @property
+    def words(self):
+        return [self.sentence[WORDS][i] for i in self.word_indices]
+        
+    def __repr__(self):
+        return repr('NamedEntity({0}, {1})'.format(self.text, self.label))
+        
+    
 class Word(ElementMixin, Dictionary):
     '''Word element of Estnltk corpora.
     

@@ -14,6 +14,7 @@ from __future__ import unicode_literals, print_function
 from estnltk import Tokenizer
 from estnltk import PyVabamorfAnalyzer
 from estnltk.estner.settings import Settings, DEFAULT_SETTINGS_MODULE
+from estnltk.core import as_unicode, as_binary
 from estnltk.core import DEFAULT_NER_DATASET, DEFAULT_NER_MODEL, overrides, JsonPaths
 from estnltk.textprocessor import TextProcessor
 from estnltk.corpus import Corpus
@@ -25,7 +26,8 @@ import bz2
 import tempdir
 import os
 import json
-
+import codecs
+import sys
 
 class NerModel(object):
     '''Class containing the settings and the model for the NER system.'''
@@ -52,8 +54,8 @@ class NerModel(object):
         and the model, both base64 encoded.
         '''
         return json.dumps(
-            {'settings_module_contents': b64encode(self.settings_module_contents),
-             'model': b64encode(bz2.compress(self.model))})
+            {'settings_module_contents': as_unicode(b64encode(self.settings_module_contents)),
+             'model': as_unicode(b64encode(bz2.compress(self.model)))})
         
     def serialize_to_file(self, filename):
         '''Serialize the NerModel to a file.
@@ -64,7 +66,7 @@ class NerModel(object):
             The path where the serialized data will be saved to.
         '''
         with open(filename, 'wb') as f:
-            f.write(self.serialize())
+            f.write(as_binary(self.serialize()))
         
     @staticmethod
     def deserialize(serialized):
@@ -80,9 +82,9 @@ class NerModel(object):
         NerModel
             The NerModel instance.
         '''
-        data = json.loads(serialized)
-        return NerModel(b64decode(data['settings_module_contents']),
-                        bz2.decompress(b64decode(data['model'])))
+        data = json.loads(as_unicode(serialized))
+        return NerModel(b64decode(as_binary(data['settings_module_contents'])),
+                        bz2.decompress(b64decode(as_binary(data['model']))))
         
     @staticmethod
     def deserialize_from_file(filename):
@@ -180,7 +182,7 @@ class NerTagger(TextProcessor):
         # - perform root element extraction as done when construcing estnltk.corpus.Corpus objects (expected behaviour)
         # - require that there is {documents=[]} thing in JSON
         # - accept custom Jsonpath_rw query
-        # - assume the top level element is list and interpret them as documents (current behaviour)
+        # - assume the top level element is list and interpret the elements as documents (current behaviour)
         # current behaviour breaks when top level is not list or it does
         # not contain documents
         return self.tagger.tag(corpus)
@@ -199,10 +201,19 @@ def train_default_model():
     The training data is in file estnltk/corpora/estner.json.bz2 .
     The resulting model will be saved to estnltk/estner/models/default.bin
     '''
-    with open(DEFAULT_NER_DATASET) as f:
-        nerdata = json.loads(bz2.decompress(f.read()))
+    with codecs.open(DEFAULT_NER_DATASET, 'rb') as f:
+        nerdata = f.read()
+        nerdata = bz2.decompress(nerdata)
+        nerdata = json.loads(nerdata.decode('utf-8'))
         documents = nerdata['documents']
         trainer = NerTrainer()
         model = trainer.train(documents)
         model.serialize_to_file(DEFAULT_NER_MODEL)
 
+if __name__ == '__main__':
+    # todo: make this script capable of training and annotating corpora
+    # from command line. for now, programmatic approach is good enough
+    args = sys.argv[1:]
+    
+    if len(args) == 1 and args[0] == 'train_default_model':
+        train_default_model()

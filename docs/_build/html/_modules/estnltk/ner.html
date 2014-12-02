@@ -64,6 +64,7 @@
 <span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span>
 <span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">PyVabamorfAnalyzer</span>
 <span class="kn">from</span> <span class="nn">estnltk.estner.settings</span> <span class="kn">import</span> <span class="n">Settings</span><span class="p">,</span> <span class="n">DEFAULT_SETTINGS_MODULE</span>
+<span class="kn">from</span> <span class="nn">estnltk.core</span> <span class="kn">import</span> <span class="n">as_unicode</span><span class="p">,</span> <span class="n">as_binary</span>
 <span class="kn">from</span> <span class="nn">estnltk.core</span> <span class="kn">import</span> <span class="n">DEFAULT_NER_DATASET</span><span class="p">,</span> <span class="n">DEFAULT_NER_MODEL</span><span class="p">,</span> <span class="n">overrides</span><span class="p">,</span> <span class="n">JsonPaths</span>
 <span class="kn">from</span> <span class="nn">estnltk.textprocessor</span> <span class="kn">import</span> <span class="n">TextProcessor</span>
 <span class="kn">from</span> <span class="nn">estnltk.corpus</span> <span class="kn">import</span> <span class="n">Corpus</span>
@@ -75,7 +76,8 @@
 <span class="kn">import</span> <span class="nn">tempdir</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">json</span>
-
+<span class="kn">import</span> <span class="nn">codecs</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 
 <div class="viewcode-block" id="NerModel"><a class="viewcode-back" href="../../estnltk.html#estnltk.ner.NerModel">[docs]</a><span class="k">class</span> <span class="nc">NerModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Class containing the settings and the model for the NER system.&#39;&#39;&#39;</span>
@@ -102,8 +104,8 @@
 <span class="sd">        and the model, both base64 encoded.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
-            <span class="p">{</span><span class="s">&#39;settings_module_contents&#39;</span><span class="p">:</span> <span class="n">b64encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings_module_contents</span><span class="p">),</span>
-             <span class="s">&#39;model&#39;</span><span class="p">:</span> <span class="n">b64encode</span><span class="p">(</span><span class="n">bz2</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">))})</span>
+            <span class="p">{</span><span class="s">&#39;settings_module_contents&#39;</span><span class="p">:</span> <span class="n">as_unicode</span><span class="p">(</span><span class="n">b64encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings_module_contents</span><span class="p">)),</span>
+             <span class="s">&#39;model&#39;</span><span class="p">:</span> <span class="n">as_unicode</span><span class="p">(</span><span class="n">b64encode</span><span class="p">(</span><span class="n">bz2</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)))})</span>
         </div>
 <div class="viewcode-block" id="NerModel.serialize_to_file"><a class="viewcode-back" href="../../estnltk.html#estnltk.ner.NerModel.serialize_to_file">[docs]</a>    <span class="k">def</span> <span class="nf">serialize_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Serialize the NerModel to a file.</span>
@@ -114,7 +116,7 @@
 <span class="sd">            The path where the serialized data will be saved to.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serialize</span><span class="p">())</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">as_binary</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serialize</span><span class="p">()))</span>
         </div>
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="NerModel.deserialize"><a class="viewcode-back" href="../../estnltk.html#estnltk.ner.NerModel.deserialize">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="n">serialized</span><span class="p">):</span>
@@ -130,9 +132,9 @@
 <span class="sd">        NerModel</span>
 <span class="sd">            The NerModel instance.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">serialized</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">NerModel</span><span class="p">(</span><span class="n">b64decode</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;settings_module_contents&#39;</span><span class="p">]),</span>
-                        <span class="n">bz2</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">b64decode</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;model&#39;</span><span class="p">])))</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">as_unicode</span><span class="p">(</span><span class="n">serialized</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">NerModel</span><span class="p">(</span><span class="n">b64decode</span><span class="p">(</span><span class="n">as_binary</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;settings_module_contents&#39;</span><span class="p">])),</span>
+                        <span class="n">bz2</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">b64decode</span><span class="p">(</span><span class="n">as_binary</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;model&#39;</span><span class="p">]))))</span>
         </div>
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="NerModel.deserialize_from_file"><a class="viewcode-back" href="../../estnltk.html#estnltk.ner.NerModel.deserialize_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize_from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
@@ -230,7 +232,7 @@
         <span class="c"># - perform root element extraction as done when construcing estnltk.corpus.Corpus objects (expected behaviour)</span>
         <span class="c"># - require that there is {documents=[]} thing in JSON</span>
         <span class="c"># - accept custom Jsonpath_rw query</span>
-        <span class="c"># - assume the top level element is list and interpret them as documents (current behaviour)</span>
+        <span class="c"># - assume the top level element is list and interpret the elements as documents (current behaviour)</span>
         <span class="c"># current behaviour breaks when top level is not list or it does</span>
         <span class="c"># not contain documents</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagger</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
@@ -249,13 +251,23 @@
 <span class="sd">    The training data is in file estnltk/corpora/estner.json.bz2 .</span>
 <span class="sd">    The resulting model will be saved to estnltk/estner/models/default.bin</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">DEFAULT_NER_DATASET</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">nerdata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">bz2</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
+    <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">DEFAULT_NER_DATASET</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">nerdata</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">nerdata</span> <span class="o">=</span> <span class="n">bz2</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">nerdata</span><span class="p">)</span>
+        <span class="n">nerdata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">nerdata</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
         <span class="n">documents</span> <span class="o">=</span> <span class="n">nerdata</span><span class="p">[</span><span class="s">&#39;documents&#39;</span><span class="p">]</span>
         <span class="n">trainer</span> <span class="o">=</span> <span class="n">NerTrainer</span><span class="p">()</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">documents</span><span class="p">)</span>
         <span class="n">model</span><span class="o">.</span><span class="n">serialize_to_file</span><span class="p">(</span><span class="n">DEFAULT_NER_MODEL</span><span class="p">)</span>
-</pre></div></div>
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c"># todo: make this script capable of training and annotating corpora</span>
+    <span class="c"># from command line. for now, programmatic approach is good enough</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;train_default_model&#39;</span><span class="p">:</span>
+        <span class="n">train_default_model</span><span class="p">()</span>
+</pre></div>
 
           </div>
         </div>

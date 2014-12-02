@@ -1,7 +1,7 @@
 # -*- encoding: utf8 -*-
 from __future__ import unicode_literals, print_function
 
-from estnltk.core import JsonPaths
+from estnltk.core import JsonPaths, as_unicode
 from estnltk.names import *
 from estnltk.estner.ner import Token, Sentence, Document
 
@@ -111,6 +111,6 @@ def assign_labels(document, labels):
     for ptr, snt_labels in zip(JsonPaths.words.find(document), labels):
         words = ptr.value
         assert len(words) == len(snt_labels)
-        for word, label in izip(words, snt_labels):
-            word[LABEL] = label
+        for word, label in zip(words, snt_labels):
+            word[LABEL] = as_unicode(label)
     return document

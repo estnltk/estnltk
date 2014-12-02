@@ -51,7 +51,7 @@
 <span class="c"># -*- encoding: utf8 -*-</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
 
-<span class="kn">from</span> <span class="nn">estnltk.core</span> <span class="kn">import</span> <span class="n">JsonPaths</span>
+<span class="kn">from</span> <span class="nn">estnltk.core</span> <span class="kn">import</span> <span class="n">JsonPaths</span><span class="p">,</span> <span class="n">as_unicode</span>
 <span class="kn">from</span> <span class="nn">estnltk.names</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">estnltk.estner.ner</span> <span class="kn">import</span> <span class="n">Token</span><span class="p">,</span> <span class="n">Sentence</span><span class="p">,</span> <span class="n">Document</span>
 
@@ -161,8 +161,8 @@
     <span class="k">for</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">snt_labels</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">JsonPaths</span><span class="o">.</span><span class="n">words</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">document</span><span class="p">),</span> <span class="n">labels</span><span class="p">):</span>
         <span class="n">words</span> <span class="o">=</span> <span class="n">ptr</span><span class="o">.</span><span class="n">value</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">snt_labels</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">izip</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">snt_labels</span><span class="p">):</span>
-            <span class="n">word</span><span class="p">[</span><span class="n">LABEL</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
+        <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">snt_labels</span><span class="p">):</span>
+            <span class="n">word</span><span class="p">[</span><span class="n">LABEL</span><span class="p">]</span> <span class="o">=</span> <span class="n">as_unicode</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">document</span></div>
 </pre></div>
 

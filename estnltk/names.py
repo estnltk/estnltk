@@ -17,6 +17,7 @@ SENTENCES = 'sentences'
 PARAGRAPHS = 'paragraphs'
 DOCUMENTS = 'documents'
 FILE = 'file' # the file path of the source corpus
+NAMED_ENTITIES = 'named_entities'
 
 # word attributes
 ANALYSIS = 'analysis'
@@ -28,3 +29,7 @@ CLITIC = 'clitic'
 LABEL = 'label' # named entity
 ENDING = 'ending'
 FORM = 'form'
+
+# named entity attributes
+WORD_START = 'word_start'
+WORD_END = 'word_end'

@@ -180,6 +180,10 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">verb_phrases</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">named_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">(</span><span class="n">NAMED_ENTITIES</span><span class="p">)</span>
     
     <span class="c"># other methods</span>
     
@@ -229,13 +233,10 @@
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        data: dict</span>
+<span class="sd">        data : dict</span>
 <span class="sd">            The dictionary containing TEXT, START, END, REL_START and REL_END</span>
 <span class="sd">            attributes. If not given, these attributes must be</span>
 <span class="sd">            given as keyword arguments.</span>
-<span class="sd">        </span>
-<span class="sd">        Keyword parameters</span>
-<span class="sd">        ------------------</span>
 <span class="sd">        start: int</span>
 <span class="sd">            The START attribute</span>
 <span class="sd">        end: int</span>
@@ -408,12 +409,107 @@
 <div class="viewcode-block" id="Sentence.elements"><a class="viewcode-back" href="../../estnltk.html#estnltk.corpus.Sentence.elements">[docs]</a>    <span class="k">def</span> <span class="nf">elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">what</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">what</span> <span class="o">==</span> <span class="n">SENTENCES</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">what</span> <span class="o">==</span> <span class="n">NAMED_ENTITIES</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">named_entities</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Sentence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">elements</span><span class="p">(</span><span class="n">what</span><span class="p">)</span>
         </div>
+    <span class="nd">@property</span>
+    <span class="nd">@overrides</span><span class="p">(</span><span class="n">Corpus</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">named_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">nes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">word_start</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">+</span> <span class="p">[</span><span class="s">&#39;O&#39;</span><span class="p">]</span> <span class="c"># last is sentinel</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;B-&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">l</span> <span class="o">==</span> <span class="s">&#39;O&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">word_start</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">ne</span> <span class="o">=</span> <span class="n">NamedEntity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word_start</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                    <span class="n">nes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ne</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;B-&#39;</span><span class="p">):</span>
+                    <span class="n">word_start</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">word_start</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="n">nes</span>
+        
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="s">&#39;Sentence({0})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[:</span><span class="mi">24</span><span class="p">]</span> <span class="o">+</span> <span class="s">&#39;...&#39;</span><span class="p">))</span>
         
 </div>
+<div class="viewcode-block" id="NamedEntity"><a class="viewcode-back" href="../../estnltk.html#estnltk.corpus.NamedEntity">[docs]</a><span class="k">class</span> <span class="nc">NamedEntity</span><span class="p">(</span><span class="n">ElementMixin</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">,</span> <span class="n">word_start</span><span class="p">,</span> <span class="n">word_end</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Initialize a named entity.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sentence: :class:estnltk.corpus.Sentence</span>
+<span class="sd">            The sentence, where the named entity is found.</span>
+<span class="sd">        word_start: int</span>
+<span class="sd">            The index of the word in the sentence, where the named</span>
+<span class="sd">            entity starts.</span>
+<span class="sd">        word_end: int</span>
+<span class="sd">            The index of the word in the sentence, where the named</span>
+<span class="sd">            entity ends.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">start_word</span> <span class="o">=</span> <span class="n">sentence</span><span class="p">[</span><span class="n">WORDS</span><span class="p">][</span><span class="n">word_start</span><span class="p">]</span>
+        <span class="n">end_word</span> <span class="o">=</span> <span class="n">sentence</span><span class="p">[</span><span class="n">WORDS</span><span class="p">][</span><span class="n">word_end</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">rel_start</span> <span class="o">=</span> <span class="n">start_word</span><span class="o">.</span><span class="n">rel_start</span>
+        <span class="n">rel_end</span> <span class="o">=</span> <span class="n">end_word</span><span class="o">.</span><span class="n">rel_end</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">sentence</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="n">rel_start</span><span class="p">:</span><span class="n">rel_end</span><span class="p">]</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">start_word</span><span class="o">.</span><span class="n">label</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">START</span><span class="p">:</span> <span class="n">start_word</span><span class="o">.</span><span class="n">start</span><span class="p">,</span>
+            <span class="n">END</span><span class="p">:</span> <span class="n">end_word</span><span class="o">.</span><span class="n">end</span><span class="p">,</span>
+            <span class="n">REL_START</span><span class="p">:</span> <span class="n">rel_start</span><span class="p">,</span>
+            <span class="n">REL_END</span><span class="p">:</span> <span class="n">rel_end</span><span class="p">,</span>
+            <span class="n">WORD_START</span><span class="p">:</span> <span class="n">word_start</span><span class="p">,</span>
+            <span class="n">WORD_END</span><span class="p">:</span> <span class="n">word_end</span><span class="p">,</span>
+            <span class="n">TEXT</span><span class="p">:</span> <span class="n">text</span><span class="p">,</span>
+            <span class="n">LABEL</span><span class="p">:</span> <span class="n">label</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sentence</span> <span class="o">=</span> <span class="n">sentence</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">NamedEntity</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    
+    <span class="nd">@overrides</span><span class="p">(</span><span class="n">ElementMixin</span><span class="p">)</span>
+<div class="viewcode-block" id="NamedEntity.assert_valid"><a class="viewcode-back" href="../../estnltk.html#estnltk.corpus.NamedEntity.assert_valid">[docs]</a>    <span class="k">def</span> <span class="nf">assert_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">NamedEntity</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">assert_valid</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">WORD_START</span> <span class="ow">in</span> <span class="bp">self</span>
+        <span class="k">assert</span> <span class="n">WORD_END</span> <span class="ow">in</span> <span class="bp">self</span>
+        <span class="k">assert</span> <span class="n">LABEL</span> <span class="ow">in</span> <span class="bp">self</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="p">[</span><span class="n">LABEL</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;O&#39;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">words</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">w</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="s">&#39;B-&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">w</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="s">&#39;I-&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
+    </div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">LABEL</span><span class="p">]</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">word_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">WORD_START</span><span class="p">]</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">word_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">WORD_END</span><span class="p">]</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">word_span</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">word_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">word_end</span><span class="p">)</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">word_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">word_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">word_end</span><span class="p">))</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">words</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sentence</span><span class="p">[</span><span class="n">WORDS</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">word_indices</span><span class="p">]</span>
+        
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="s">&#39;NamedEntity({0}, {1})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
+        
+    </div>
 <div class="viewcode-block" id="Word"><a class="viewcode-back" href="../../estnltk.html#estnltk.corpus.Word">[docs]</a><span class="k">class</span> <span class="nc">Word</span><span class="p">(</span><span class="n">ElementMixin</span><span class="p">,</span> <span class="n">Dictionary</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Word element of Estnltk corpora.</span>
 <span class="sd">    </span>

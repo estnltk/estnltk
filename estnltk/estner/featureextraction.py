@@ -8,6 +8,7 @@ from __future__ import unicode_literals, print_function
 import os
 import codecs
 from collections import defaultdict
+from functools import reduce
 
 import re
 
@@ -229,9 +230,9 @@ class GazeteerFeatureExtractor(BaseFeatureExtractor):
     def process(self, doc):
         tokens = doc.tokens
         look_ahead = self.look_ahead
-        for i in xrange(len(tokens)):
+        for i in range(len(tokens)):
             if "iu" in tokens[i]: # Only capitalised strings
-                for j in xrange(i + 1, i + look_ahead):
+                for j in range(i + 1, i + look_ahead):
                     phrase = " ".join(token["lem"] for token in tokens[i:j])
                     if phrase in self.data:
                         labels = self.data[phrase]

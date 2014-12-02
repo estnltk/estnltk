@@ -158,17 +158,17 @@ Defines common functionality for all modules.</p>
 </table>
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.analysis">
-<code class="descname">analysis</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b8e0f1de2e8&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.analysis" title="Permalink to this definition">¶</a></dt>
+<code class="descname">analysis</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b31d67b32e8&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.analysis" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.documents">
-<code class="descname">documents</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b8e0fc6b358&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.documents" title="Permalink to this definition">¶</a></dt>
+<code class="descname">documents</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b31d723f860&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.documents" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.words">
-<code class="descname">words</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b8e0fc6b5f8&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.words" title="Permalink to this definition">¶</a></dt>
+<code class="descname">words</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b31d723fb00&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.words" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -286,6 +286,11 @@ Defines common functionality for all modules.</p>
 <dl class="attribute">
 <dt id="estnltk.corpus.Corpus.lemmas">
 <code class="descname">lemmas</code><a class="headerlink" href="#estnltk.corpus.Corpus.lemmas" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.named_entities">
+<code class="descname">named_entities</code><a class="headerlink" href="#estnltk.corpus.Corpus.named_entities" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -486,6 +491,49 @@ attribute values.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="estnltk.corpus.NamedEntity">
+<em class="property">class </em><code class="descclassname">estnltk.corpus.</code><code class="descname">NamedEntity</code><span class="sig-paren">(</span><em>sentence</em>, <em>word_start</em>, <em>word_end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/corpus.html#NamedEntity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.NamedEntity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.corpus.ElementMixin" title="estnltk.corpus.ElementMixin"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.ElementMixin</span></code></a></p>
+<p class="rubric">Attributes</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="estnltk.corpus.NamedEntity.assert_valid">
+<code class="descname">assert_valid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/corpus.html#NamedEntity.assert_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.NamedEntity.assert_valid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.NamedEntity.label">
+<code class="descname">label</code><a class="headerlink" href="#estnltk.corpus.NamedEntity.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.NamedEntity.word_end">
+<code class="descname">word_end</code><a class="headerlink" href="#estnltk.corpus.NamedEntity.word_end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.NamedEntity.word_indices">
+<code class="descname">word_indices</code><a class="headerlink" href="#estnltk.corpus.NamedEntity.word_indices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.NamedEntity.word_span">
+<code class="descname">word_span</code><a class="headerlink" href="#estnltk.corpus.NamedEntity.word_span" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.NamedEntity.word_start">
+<code class="descname">word_start</code><a class="headerlink" href="#estnltk.corpus.NamedEntity.word_start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.NamedEntity.words">
+<code class="descname">words</code><a class="headerlink" href="#estnltk.corpus.NamedEntity.words" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="estnltk.corpus.Paragraph">
 <em class="property">class </em><code class="descclassname">estnltk.corpus.</code><code class="descname">Paragraph</code><span class="sig-paren">(</span><em>data=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/corpus.html#Paragraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Paragraph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#estnltk.corpus.ElementMixin" title="estnltk.corpus.ElementMixin"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.ElementMixin</span></code></a>, <a class="reference internal" href="#estnltk.corpus.Dictionary" title="estnltk.corpus.Dictionary"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Dictionary</span></code></a></p>
@@ -542,6 +590,11 @@ attribute values.</p>
 <dl class="method">
 <dt id="estnltk.corpus.Sentence.force_cast">
 <code class="descname">force_cast</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/corpus.html#Sentence.force_cast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Sentence.force_cast" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Sentence.named_entities">
+<code class="descname">named_entities</code><a class="headerlink" href="#estnltk.corpus.Sentence.named_entities" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

@@ -53,7 +53,6 @@ TODO: try to put them all in a single installer
 * nltk
 * whatever else
 
-Next step is to download nltk data.
 
 Building from source
 --------------------
@@ -87,6 +86,16 @@ sudo python setup.py install
 Then run the tests and see if they all pass (NB! Do not run them from same directory you have cloned the source distribution):
 
 
+Post-installation steps
+-----------------------
+
+Downloading NLTK tokenizers for Estonian::
+
+    python -m nltk.downloader punkt
+
+Building default named entity tagger for Estonian::
+
+    python -m estnltk.ner train_default_model
 
 ========
 Tutorial
@@ -102,6 +111,11 @@ Paragraph, sentence and word tokenization
 =========================================
 
 The first step in most text processing tasks is to tokenize the input into smaller pieces, typically paragraphs, sentences and words.
+In lexical analysis, tokenization is the process of breaking a stream of text up into words, phrases, symbols, or other meaningful elements called tokens.
+The list of tokens becomes input for further processing such as parsing or text mining.
+Tokenization is useful both in linguistics (where it is a form of text segmentation), and in computer science, where it forms part of lexical analysis.
+
+
 Estnltk provides the :class:`estnltk.tokenize.Tokenizer` class that does this.
 In the next example, we define some text, then import and initialize a :class:`estnltk.tokenize.Tokenizer` instance and use to create a :class:`estnltk.corpus.Document` instance::
 
@@ -148,10 +162,21 @@ and tokenized paragraphs::
     ['Keeletehnoloogia on arvutilingvistika praktiline pool.\nKeeletehnoloogid kasutavad arvutilingvistikas välja töötatud \nteooriaid, et luua rakendusi (nt arvutiprogramme), \nmis võimaldavad inimkeelt arvuti abil töödelda ja mõista.',
     'Tänapäeval on keeletehnoloogia tuntumateks valdkondadeks \nmasintõlge, arvutileksikoloogia, dialoogisüsteemid, \nkõneanalüüs ja kõnesüntees.\n']
 
-and also the original full text can be accessed using ``text`` property of :class:`estnltk.corpus.Document`::
+and also the original full text can be accessed using ``text`` property of :class:`estnltk.corpus.Document`.
+In case you get an error, something like::
+
+    LookupError: 
+    **********************************************************************
+      Resource u'tokenizers/punkt/estonian.pickle' not found.  Please
+      use the NLTK Downloader to obtain the resource:  >>>
+      nltk.download()
+
+Then you have forgot post-installation step of downloading NLTK tokenizers. This can be done by invoking command::
+
+    python -m nltk.downloader punkt
 
 Token spans -- start and end positions
-======================================
+--------------------------------------
 
 In addition to tokenization, it is often necessary to know where the tokens reside in the original document.
 For example, you might want to inspect the context of a particular word.
@@ -179,6 +204,16 @@ For other possible options, please check :class:`estnltk.corpus.Corpus`, :class:
 
 Morphological analysis
 ======================
+
+In linguistics, morphology is the identification, analysis, and description of the structure of a given language's morphemes and other linguistic units,
+such as root words, lemmas, affixes/endings, parts of speech.
+
+In morphology and lexicography, a lemma (plural lemmas or lemmata) is the canonical form, dictionary form, or citation form of a set of words (headword).
+In grammar, a part of speech (also a word class, a lexical class, or a lexical category) is a linguistic category of words (or more precisely lexical items),
+which is generally defined by the syntactic or morphological behaviour of the lexical item in question.
+Common linguistic categories include noun and verb, among others.
+Word forms define additional grammatical information such as cases, plurality etc.
+
 
 Estnltk contains :class:`estnltk.morf.analyze` function for performing morphological analysis::
 
@@ -323,12 +358,120 @@ That will print::
     ['poode', 'poodisid']
     ['palgaga', 'palgiga']
 
-Contents:
+See `documentation`_ for possible parameters.
 
-.. toctree::
-   :maxdepth: 2
+    .. _documentation: https://github.com/Filosoft/vabamorf/blob/master/doc/tagset.html
 
-.. automodule:: estnltk
+Clause detection
+================
+
+TODO
+
+
+Named entity recognition
+========================
+
+Named-entity recognition (NER) (also known as entity identification, entity chunking and entity extraction) is a subtask of information extraction that seeks to locate
+and classify elements in text into pre-defined categories such as the names of persons, organizations, locations.
+First thing is to build the named entity model as it is too large to include in the package itself. Do it by invoking command::
+
+    python -m estnltk.ner train_default_model
+
+Estnltk comes with default named entity recognition tuned for news articles.
+A quick example, how to use it::
+
+    from estnltk import Tokenizer, PyVabamorfAnalyzer, NerTagger
+    from pprint import pprint
+
+    tokenizer = Tokenizer()
+    analyzer = PyVabamorfAnalyzer()
+    tagger = NerTagger()
+
+    text = '''Eesti Vabariik on riik Põhja-Euroopas. 
+    Eesti piirneb põhjas üle Soome lahe Soome Vabariigiga, 
+    läänes üle Läänemere Rootsi Kuningriigiga, 
+    lõunas Läti Vabariigiga ja idas Venemaa Föderatsiooniga.
+
+    2005. aastal sai peaministriks Andrus Ansip, kes püsis sellel kohal 2014. aastani.
+    2006. aastal valiti presidendiks Toomas Hendrik Ilves.
+    '''
+
+    ner_tagged = tagger(analyzer(tokenizer(text)))
+
+    pprint(list(zip(ner_tagged.word_texts, ner_tagged.labels)))
+
+As a result, we see the list of words with annotated labels::
+
+    [('Eesti', 'B-LOC'),
+     ('Vabariik', 'I-LOC'),
+     ('on', 'O'),
+     ('riik', 'O'),
+     ('Põhja-Euroopas.', 'B-LOC'),
+     ('Eesti', 'B-LOC'),
+     ('piirneb', 'O'),
+     ('põhjas', 'O'),
+     ('üle', 'O'),
+     ('Soome', 'B-LOC'),
+     ('lahe', 'I-LOC'),
+     ('Soome', 'B-LOC'),
+     ('Vabariigiga', 'I-LOC'),
+     (',', 'O'),
+     ('läänes', 'O'),
+     ('üle', 'O'),
+     ('Läänemere', 'B-LOC'),
+     ('Rootsi', 'O'),
+     ('Kuningriigiga', 'B-LOC'),
+     (',', 'O'),
+     ('lõunas', 'O'),
+     ('Läti', 'B-LOC'),
+     ('Vabariigiga', 'I-LOC'),
+     ('ja', 'O'),
+     ('idas', 'O'),
+     ('Venemaa', 'B-LOC'),
+     ('Föderatsiooniga.', 'I-LOC'),
+     ('2005.', 'O'),
+     ('aastal', 'O'),
+     ('sai', 'O'),
+     ('peaministriks', 'O'),
+     ('Andrus', 'B-PER'),
+     ('Ansip', 'I-PER'),
+     (',', 'O'),
+     ('kes', 'O'),
+     ('püsis', 'O'),
+     ('sellel', 'O'),
+     ('kohal', 'O'),
+     ('2014.', 'O'),
+     ('aastani.', 'O'),
+     ('2006.', 'O'),
+     ('aastal', 'O'),
+     ('valiti', 'O'),
+     ('presidendiks', 'O'),
+     ('Toomas', 'B-PER'),
+     ('Hendrik', 'I-PER'),
+     ('Ilves.', 'I-PER')]
+
+Named entity tags are encoded using a widely accepted BIO annotation scheme, where each label is prefixed with B or I, or the entire label is given as O.
+**B** denotes the *beginning* and **I** *inside* of an entity, while **O** means *omitted*.
+This can be used to detect entities that consist of more than a single word as can be seen in above example.
+
+It is also possible to query directly :class:`estnltk.corpus.NamedEntity` objects from tagged corpora.
+This makes it easy to see all words that are grouped into a named entity::
+
+    pprint (ner_tagged.named_entities)
+    
+    ['NamedEntity(Eesti Vabariik, LOC)',
+     'NamedEntity(Põhja-Euroopas., LOC)',
+     'NamedEntity(Eesti, LOC)',
+     'NamedEntity(Soome lahe, LOC)',
+     'NamedEntity(Soome Vabariigiga, LOC)',
+     'NamedEntity(Läänemere, LOC)',
+     'NamedEntity(Kuningriigiga, LOC)',
+     'NamedEntity(Läti Vabariigiga, LOC)',
+     'NamedEntity(Venemaa Föderatsiooniga., LOC)',
+     'NamedEntity(Andrus Ansip, PER)',
+     'NamedEntity(Toomas Hendrik Ilves., PER)']
+
+See :class:`estnltk.corpus.NamedEntity` documentation to see properties available for them.
 
 ==================
 Indices and tables

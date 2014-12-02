@@ -32,7 +32,7 @@ class Settings(dict):
         super(Settings, self).__init__()
         module = load_from_source(settings_module_path)
         
-        for prop, value in module.__dict__.iteritems():
+        for prop, value in module.__dict__.items():
             if prop.lower() in Settings.keys:
                 self[prop.lower()] = value
         
