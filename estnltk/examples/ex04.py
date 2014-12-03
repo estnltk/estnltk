@@ -10,6 +10,8 @@ analyzer = PyVabamorfAnalyzer()
 segmenter = ClauseSegmenter()
 
 text = '''Mees, keda seal kohtasime, oli tuttav ja teretas meid.'''
+# täpitähed:
+#text = '''Mees, kes on Ärma talu juhataja, oli äärmiselt tuttav ja üllatavalt teretas meid.'''
 
 segmented = segmenter(analyzer(tokenizer(text)))
 

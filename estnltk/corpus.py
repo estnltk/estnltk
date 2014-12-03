@@ -142,6 +142,10 @@ class Corpus(object):
     @property
     def named_entities(self):
         return self.elements(NAMED_ENTITIES)
+        
+    @property
+    def timexes(self):
+        return self.elements(TIMEXES)
     
     # other methods
     
@@ -371,6 +375,8 @@ class Sentence(ElementMixin, Dictionary):
             return self.named_entities
         elif what == CLAUSES:
             return self.clauses
+        elif what == TIMEXES:
+            return self.timexes
         return super(Sentence, self).elements(what)
         
     @property
@@ -400,10 +406,59 @@ class Sentence(ElementMixin, Dictionary):
             clause.append(i)
             clauses[idx] = clause
         return [Clause(self, clauses[k]) for k in sorted(clauses.keys())]
-        
+    
+    @property
+    @overrides(Corpus)
+    def timexes(self):
+        timex_data = {}
+        for i, w in enumerate(self.words):
+            if TIMEXES in w:
+                for timex in w[TIMEXES]:
+                    pass
+    
     def __repr__(self):
         return repr('Sentence({0})'.format(self.text[:24] + '...'))
         
+
+class ConsequentSentenceElement(ElementMixin):
+    '''Some elements such as named entities and timexes may consist
+    of more than a single word. This class encapsulates functionality
+    to work with them.
+    The word indices define a range [word_start, word_end)
+    
+    Parameters
+    ----------
+    sentence: :class:`estnltk.corpus.Sentence`
+        The sentence containing the consequent elements.
+    word_start: int
+        The start index of the word (including)
+    word_end: int
+        The end index of the word (excluding)
+        
+    Attributes
+    ----------
+    sentence: :class:`estnltk.corpus.Sentence`
+        The sentence containing the consequent elements.
+    '''
+    
+    def __init__(self, sentence, word_start, word_end):
+        start_word = sentence[WORDS][word_start]
+        end_word = sentence[WORDS][word_end-1]
+        rel_start = start_word.rel_start
+        rel_end = end_word.rel_end
+        text = sentence.text[rel_start:rel_end]
+        data = {
+            START: start_word.start,
+            END: end_word.end,
+            REL_START: rel_start,
+            REL_END: rel_end,
+            WORD_START: word_start,
+            WORD_END: word_end,
+            TEXT: text,
+            LABEL: label
+        }
+        self.sentence = sentence
+
 
 class NamedEntity(ElementMixin):
     '''Named entities have to be constructed from sentences containing
@@ -582,7 +637,13 @@ class Clause(object):
     def __repr__(self):
         return repr('Clause({0} [clause_index={1}])'.format(self.text, self.clause_index))
         
-        
+
+class Timex(ElementMixin):
+    
+    def __init__(self, sentence, word_start, word_end):
+        pass
+
+
 class Word(ElementMixin, Dictionary):
     '''Word element of Estnltk corpora.
     
@@ -673,6 +734,17 @@ class Word(ElementMixin, Dictionary):
     @property
     def clause_annotation(self):
         return self.get(CLAUSE_ANNOTATION, None)
+        
+    @property
+    def timex_data(self):
+        '''Returns
+        --------
+        list of str
+            List of dictionaries containing TIMEX data (TMX_ID, TMX_TYPE, TMX_VALUE) etc.
+            Note that for disambiguated morphological data, there can be more
+            timexes.
+        '''
+        return self.get(TIMEXES, [])
 
 
 def most_frequent(elements):

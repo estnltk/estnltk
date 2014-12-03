@@ -15,7 +15,7 @@ from estnltk import Tokenizer
 from estnltk import PyVabamorfAnalyzer
 from estnltk.estner.settings import Settings, DEFAULT_SETTINGS_MODULE
 from estnltk.core import as_unicode, as_binary
-from estnltk.core import DEFAULT_NER_DATASET, DEFAULT_NER_MODEL, overrides, JsonPaths
+from estnltk.core import DEFAULT_NER_DATASET, DEFAULT_PY2_NER_MODEL, DEFAULT_PY3_NER_MODEL, overrides, JsonPaths
 from estnltk.textprocessor import TextProcessor
 from estnltk.corpus import Corpus
 from estnltk.estner.crfsuiteutil import Trainer, Tagger
@@ -28,6 +28,13 @@ import os
 import json
 import codecs
 import sys
+import six
+
+# depending on Python version, use different NER models
+DEFAULT_NER_MODEL = DEFAULT_PY2_NER_MODEL
+if six.PY3:
+    DEFAULT_NER_MODEL = DEFAULT_PY3_NER_MODEL
+
 
 class NerModel(object):
     '''Class containing the settings and the model for the NER system.'''

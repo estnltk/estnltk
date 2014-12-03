@@ -296,7 +296,7 @@ To do that, one needs to use :class:`estnltk.morf.PyVabamorfAnalyzer` class::
                      morf_analyzed.postags)))
 
 
-The lemmas::
+The lemmas / stemmed words::
     
     ['keeletehnoloogia', 'olema', 'arvutilingvistika', 'praktiline', 'pool', 'keeletehnoloog', 
     'kasutama', 'arvutilingvistika', 'väli', 'töötatud', 'teooria', ',', 'et', 'looma', 
@@ -415,7 +415,7 @@ Also a word can have a clause annotation specifying clause boundaries and embedd
      ('Word(teretas)', 2, None),
      ('Word(meid.)', 2, None)]
 
-There is also a  :class:`estnltk.corpus.Clause` type, that can be queries from the corpus::
+There is also a  :class:`estnltk.corpus.Clause` type, that can be queried from the corpus::
 
     # The clauses themselves
     pprint(segmented.clauses)

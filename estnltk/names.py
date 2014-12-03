@@ -21,6 +21,7 @@ FILE = 'file' # the file path of the source corpus
 # sentence level attributes
 NAMED_ENTITIES = 'named_entities'
 CLAUSES = 'clauses'
+TIMEXES = 'timexes'
 
 # word attributes
 ANALYSIS = 'analysis'
@@ -43,3 +44,15 @@ CLAUSE_IDX = 'clause_index'
 CLAUSE_BOUNDARY = 'clause_boundary'
 EMBEDDED_CLAUSE_START = 'embedded_clause_start'
 EMBEDDED_CLAUSE_END = 'embedded_clause_end'
+
+# timex related
+TMX_TEMP_FUNCTION = 'temporal_function'
+TMX_ID = 'tid'
+TMX_TYPE = 'type'
+TMX_VALUE = 'value'
+TMX_MOD = 'mod'
+TMX_ANCHOR = 'anchor_time_id'
+TMX_BEGINPOINT = 'begin_point'
+TMX_ENDPOINT = 'end_point'
+TMX_QUANT = 'quant'
+TMX_FREQ = 'freq"'

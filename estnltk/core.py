@@ -18,7 +18,8 @@ AA_PATH = os.path.join(CORPORA_PATH, 'arvutustehnika_ja_andmetootlus')
 DEFAULT_NER_DATASET = os.path.join(CORPORA_PATH, 'estner.json.bz2')
 
 # default NER model path
-DEFAULT_NER_MODEL = os.path.join(PACKAGE_PATH, 'estner', 'models', 'default.bin')
+DEFAULT_PY2_NER_MODEL = os.path.join(PACKAGE_PATH, 'estner', 'models', 'py2_default.bin')
+DEFAULT_PY3_NER_MODEL = os.path.join(PACKAGE_PATH, 'estner', 'models', 'py3_default.bin')
 
 def overrides(interface_class):
     def overrider(method):

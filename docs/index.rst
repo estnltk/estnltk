@@ -23,7 +23,7 @@ The aim of the project is to tie together a number of open source components so 
 * Morphological analysis and generation
 * Lemmatization / stemming
 * Clause detection
-* Time expression detection
+* Temporal expression tagger
 * Named entity recognition
 * Estonian Wordnet integration.
 
@@ -296,7 +296,7 @@ To do that, one needs to use :class:`estnltk.morf.PyVabamorfAnalyzer` class::
                      morf_analyzed.postags)))
 
 
-The lemmas::
+The lemmas / stemmed words::
     
     ['keeletehnoloogia', 'olema', 'arvutilingvistika', 'praktiline', 'pool', 'keeletehnoloog', 
     'kasutama', 'arvutilingvistika', 'väli', 'töötatud', 'teooria', ',', 'et', 'looma', 
@@ -415,7 +415,7 @@ Also a word can have a clause annotation specifying clause boundaries and embedd
      ('Word(teretas)', 2, None),
      ('Word(meid.)', 2, None)]
 
-There is also a  :class:`estnltk.corpus.Clause` type, that can be queries from the corpus::
+There is also a  :class:`estnltk.corpus.Clause` type, that can be queried from the corpus::
 
     # The clauses themselves
     pprint(segmented.clauses)
@@ -539,6 +539,14 @@ This makes it easy to see all words that are grouped into a named entity::
      'NamedEntity(toomas hendrik ilves, PER)']
 
 See :class:`estnltk.corpus.NamedEntity` documentation for information on available properties.
+
+
+Temporal expression (TIMEX) tagging
+===================================
+
+Temporal Expressions Tagger of Estnltk identifies temporal expression phrases in text and normalizes these expressions in a format similar to TimeML's TIMEX3.
+
+
 
 ==================
 Indices and tables
