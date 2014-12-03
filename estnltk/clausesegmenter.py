@@ -3,12 +3,6 @@
 '''
 Wrapper class around Java-based clause segmenter (Osalausestaja). 
 Allows to process results sentence by sentence. 
-
-Requires javabridge, see module "javabridge_support.py" for more 
-details on initializing JVM with necessary JAR files;
-
-More on JNI notation:
-** http://docs.oracle.com/javase/1.5.0/docs/guide/jni/spec/types.html
 '''
 from __future__ import unicode_literals, print_function
 
