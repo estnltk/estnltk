@@ -14,4 +14,12 @@ tagger = TimexTagger()
 text = ''''Potsataja ütles eile, et vaatavad nüüd Genaga viie aasta plaanid uuesti üle.'''
 tagged = tagger(analyzer(tokenizer(text)))
 
+# print timex objects
+pprint(tagged.timexes)
+
+
+# retag with a new creation date
+import datetime
+
+tagged = tagger(tagged, creation_date=datetime.datetime(1995, 6, 10))
 pprint(tagged.timexes)

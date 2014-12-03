@@ -112,7 +112,7 @@ Then run the tests and see if they all pass (NB! Do not run them from same direc
 <div class="highlight-python"><div class="highlight"><pre>python -m nltk.downloader punkt
 </pre></div>
 </div>
-<p>Building default named entity tagger for Estonian:</p>
+<p>Building default named entity tagger for Estonian (optional, installation should already come with a pre-trained model):</p>
 <div class="highlight-python"><div class="highlight"><pre>python -m estnltk.ner train_default_model
 </pre></div>
 </div>
@@ -559,12 +559,46 @@ This makes it easy to see all words that are grouped into a named entity:</p>
 </pre></div>
 </div>
 <p>This prints found timex expressions:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;Timex(eile, DATE, [timex_id=1])&#39;</span><span class="p">,</span>
- <span class="s">&#39;Timex(nüüd, DATE, [timex_id=2])&#39;</span><span class="p">,</span>
- <span class="s">&#39;Timex(viie aasta, DURATION, [timex_id=3])&#39;</span><span class="p">]</span>
+<div class="highlight-python"><div class="highlight"><pre>[[&#39;Timex(eile, DATE, 2014-12-02, [timex_id=1])&#39;,
+ &#39;Timex(nüüd, DATE, PRESENT_REF, [timex_id=2])&#39;,
+ &#39;Timex(viie aasta, DURATION, P5Y, [timex_id=3])&#39;]
+</pre></div>
+</div>
+<p>Code of this example was run un Dec 3 2014, so words like <em>eile</em> will assigned value relative to the run date.
+This behaviour can be changed by supplying <cite>creation_date</cite> argument to the tagger.
+For example, let&#8217;s tag the text given date June 10 1995:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># retag with a new creation date</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="n">tagged</span> <span class="o">=</span> <span class="n">tagger</span><span class="p">(</span><span class="n">tagged</span><span class="p">,</span> <span class="n">creation_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1995</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">tagged</span><span class="o">.</span><span class="n">timexes</span><span class="p">)</span>
+
+<span class="p">[</span><span class="s">&#39;Timex(eile, DATE, 1995-06-09, [timex_id=1])&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Timex(nüüd, DATE, PRESENT_REF, [timex_id=2])&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Timex(viie aasta, DURATION, P5Y, [timex_id=3])&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>See <a class="reference internal" href="estnltk.html#estnltk.corpus.Timex" title="estnltk.corpus.Timex"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Timex</span></code></a> documentation for available attributes.</p>
+</div>
+<div class="section" id="verb-phrase-tagging">
+<h2>Verb phrase tagging<a class="headerlink" href="#verb-phrase-tagging" title="Permalink to this headline">¶</a></h2>
+<p>In linguistics, a verb phrase or VP is a syntactic unit composed of at least one verb and its dependents—objects, complements and other modifiers—but not always including the subject.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre>todo example.
+</pre></div>
+</div>
+</div>
+<div class="section" id="understanding-json-notation-and-estnltk-corpora">
+<h2>Understanding JSON notation and Estnltk corpora<a class="headerlink" href="#understanding-json-notation-and-estnltk-corpora" title="Permalink to this headline">¶</a></h2>
+<p>Here is a detailed description of the JSON structure and how it relates to Corpus objects in Estnltk.</p>
+<div class="section" id="reading-tei-corpora-koondkorpus-tasakaalustatud-korpus">
+<h3>Reading TEI corpora (koondkorpus, tasakaalustatud korpus)<a class="headerlink" href="#reading-tei-corpora-koondkorpus-tasakaalustatud-korpus" title="Permalink to this headline">¶</a></h3>
+<p>Example, how to read files of koondkorpus and tasakaalustatud korpus with Estnltk.</p>
+</div>
+<div class="section" id="using-python-nltk-corpus-readers-with-estnltk">
+<h3>Using Python NLTK corpus readers with Estnltk<a class="headerlink" href="#using-python-nltk-corpus-readers-with-estnltk" title="Permalink to this headline">¶</a></h3>
+<p>Guidelines for using NLTK corpus readers with Estnltk.</p>
+</div>
 </div>
 </div>
 <div class="section" id="indices-and-tables">
@@ -603,6 +637,12 @@ This makes it easy to see all words that are grouped into a named entity:</p>
 <li><a class="reference internal" href="#clause-detection">Clause detection</a></li>
 <li><a class="reference internal" href="#named-entity-recognition">Named entity recognition</a></li>
 <li><a class="reference internal" href="#temporal-expression-timex-tagging">Temporal expression (TIMEX) tagging</a></li>
+<li><a class="reference internal" href="#verb-phrase-tagging">Verb phrase tagging</a></li>
+<li><a class="reference internal" href="#understanding-json-notation-and-estnltk-corpora">Understanding JSON notation and Estnltk corpora</a><ul>
+<li><a class="reference internal" href="#reading-tei-corpora-koondkorpus-tasakaalustatud-korpus">Reading TEI corpora (koondkorpus, tasakaalustatud korpus)</a></li>
+<li><a class="reference internal" href="#using-python-nltk-corpus-readers-with-estnltk">Using Python NLTK corpus readers with Estnltk</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>

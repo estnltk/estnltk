@@ -25,5 +25,3 @@ pprint(segmented.clauses)
 for clause in segmented.clauses:
     pprint(clause.words)
     
-
-

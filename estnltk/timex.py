@@ -10,6 +10,7 @@ from pprint import pprint
 
 import os
 import json
+import datetime
 
 
 RENAMING_MAP = {
@@ -26,16 +27,21 @@ class TimexTagger(JavaProcess, TextProcessor):
 
     def process_json(self, corpus, **kwargs):
         for sentence_ptr in JsonPaths.words.find(corpus):
-            self.process_words(sentence_ptr.value)
+            self.process_words(sentence_ptr.value, **kwargs)
         return corpus
 
     def process_corpus(self, corpus, **kwargs):
         for sentence in corpus.sentences:
-            self.process_words(sentence[WORDS])
+            self.process_words(sentence[WORDS], **kwargs)
         return corpus
     
-    def process_words(self, words):
-        sentence = {WORDS: words}
+    def process_words(self, words, **kwargs):
+        creation_date = kwargs.get('creation_date', datetime.datetime.now())
+        creation_date = creation_date.strftime('%Y-%m-%dT%H:%M')
+        sentence = {
+            'dct': creation_date,
+            WORDS: words
+            }
         processed_words = self.rename_attributes(json.loads(self.process_line(json.dumps(sentence)))[WORDS])
         for w, p in zip(words, processed_words):
             if TIMEXES in p:

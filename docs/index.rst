@@ -93,7 +93,7 @@ Downloading NLTK tokenizers for Estonian::
 
     python -m nltk.downloader punkt
 
-Building default named entity tagger for Estonian::
+Building default named entity tagger for Estonian (optional, installation should already come with a pre-trained model)::
 
     python -m estnltk.ner train_default_model
 
@@ -564,11 +564,53 @@ Example::
 
 This prints found timex expressions::
 
-    ['Timex(eile, DATE, [timex_id=1])',
-     'Timex(nüüd, DATE, [timex_id=2])',
-     'Timex(viie aasta, DURATION, [timex_id=3])']
+    [['Timex(eile, DATE, 2014-12-02, [timex_id=1])',
+     'Timex(nüüd, DATE, PRESENT_REF, [timex_id=2])',
+     'Timex(viie aasta, DURATION, P5Y, [timex_id=3])']
+
+Code of this example was run un Dec 3 2014, so words like *eile* will assigned value relative to the run date.
+This behaviour can be changed by supplying `creation_date` argument to the tagger.
+For example, let's tag the text given date June 10 1995::
+
+    # retag with a new creation date
+    import datetime
+
+    tagged = tagger(tagged, creation_date=datetime.datetime(1995, 6, 10))
+    pprint(tagged.timexes)
+    
+    ['Timex(eile, DATE, 1995-06-09, [timex_id=1])',
+     'Timex(nüüd, DATE, PRESENT_REF, [timex_id=2])',
+     'Timex(viie aasta, DURATION, P5Y, [timex_id=3])']
 
 See :class:`estnltk.corpus.Timex` documentation for available attributes.
+
+
+Verb phrase tagging
+===================
+
+In linguistics, a verb phrase or VP is a syntactic unit composed of at least one verb and its dependents—objects, complements and other modifiers—but not always including the subject.
+
+Example::
+
+    todo example.
+    
+
+Understanding JSON notation and Estnltk corpora
+===============================================
+
+Here is a detailed description of the JSON structure and how it relates to Corpus objects in Estnltk.
+
+
+Reading TEI corpora (koondkorpus, tasakaalustatud korpus)
+---------------------------------------------------------
+
+Example, how to read files of koondkorpus and tasakaalustatud korpus with Estnltk.
+
+
+Using Python NLTK corpus readers with Estnltk
+----------------------------------------------
+
+Guidelines for using NLTK corpus readers with Estnltk.
 
 ==================
 Indices and tables

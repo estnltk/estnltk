@@ -706,7 +706,7 @@ class Timex(ConsequentSentenceElement):
         return self.get(TMX_FREQ, None)
     
     def __repr__(self):
-        return repr('Timex({0}, {1}, [timex_id={2}])'.format(self.text, self.type, self.id))
+        return repr('Timex({0}, {1}, {2}, [timex_id={3}])'.format(self.text, self.type, self.value, self.id))
 
 
 class Clause(object):
