@@ -6,29 +6,31 @@
 #
 
 from __future__ import unicode_literals
+
+from estnltk.names import *
 import re
 
 # ================================================================
-#    Indexing word tokens: add 'wordID' to each word 
+#    Indexing word tokens: add WORD_ID to each word 
 #    (unique within the sentence)
 # ================================================================
 def addWordIDs(jsonSent):
     for i in range(len(jsonSent)):
-        if 'wordID' in jsonSent[i]:
-            assert jsonSent[i]['wordID'] == i, ' Unexpected existing wordID: '+str(jsonSent[i]['wordID'])
-        jsonSent[i]['wordID'] = i
+        if WORD_ID in jsonSent[i]:
+            assert jsonSent[i][WORD_ID] == i, ' Unexpected existing wordID: '+str(jsonSent[i][WORD_ID])
+        jsonSent[i][WORD_ID] = i
     return jsonSent
 
 def removeWordIDs(jsonSent):
     for i in range(len(jsonSent)):
-        del jsonSent[i]['wordID']
+        del jsonSent[i][WORD_ID]
     return jsonSent
 
 def getWordIDrange(a, b, jsonSent):
     tokens = []
     for i in range(len(jsonSent)):
-        assert 'wordID' in jsonSent[i], "Missing wordID in "+str(jsonSent[i])
-        if a <= jsonSent[i]['wordID'] and jsonSent[i]['wordID'] < b:
+        assert WORD_ID in jsonSent[i], "Missing wordID in "+str(jsonSent[i])
+        if a <= jsonSent[i][WORD_ID] and jsonSent[i][WORD_ID] < b:
             tokens.append( jsonSent[i] )
     return tokens
 
@@ -40,11 +42,11 @@ def getWordIDrange(a, b, jsonSent):
 def getClausesByClauseIDs(jsonSent):
     clauses   = dict()
     for tokenStruct in jsonSent:
-        assert 'clauseID' in tokenStruct, ' clauseID not found in: '+str(tokenStruct)
-    clauseIDs = [tokenStruct["clauseID"] for tokenStruct in jsonSent]
+        assert CLAUSE_IDX in tokenStruct, ' clauseID not found in: '+str(tokenStruct)
+    clauseIDs = [tokenStruct[CLAUSE_IDX] for tokenStruct in jsonSent]
     for i in range(len(jsonSent)):
         tokenJson = jsonSent[i]
-        clauseId  = tokenJson["clauseID"]
+        clauseId  = tokenJson[CLAUSE_IDX]
         if clauseId not in clauses:
             clauses[clauseId] = []
         clauses[clauseId].append( tokenJson )
@@ -64,7 +66,7 @@ class WordTemplate:
         It is required that the input word token has been morphologically analysed by 
         pyvabamorf, and is in corresponding JSON-style data structure, which contains 
         morphological analyses of the word and its surface textual information:
-            {'analysis': [{'clitic': ...,
+            {ANALYSIS: [{'clitic': ...,
                            'ending': ...,
                            'form':   ...,
                            'lemma':  ...,
@@ -81,7 +83,7 @@ class WordTemplate:
         
     '''
     analysisRules  = None
-    analysisFields = ["root", "partofspeech", "ending", "form", "clitic", "lemma"]
+    analysisFields = [ROOT, POSTAG, ENDING, FORM, CLITIC, LEMMA]
     otherRules     = None
     def __init__(self, newRules):
         '''A template for filtering word tokens based on morphological and other constraints.
@@ -124,8 +126,8 @@ class WordTemplate:
     
     def matches(self, tokenJson):
         '''Determines whether given token (tokenJson) satisfies all the rules listed 
-           in the WordTemplate. If the rules describe tokenJson["analysis"], it is 
-           required that at least one item in the list tokenJson["analysis"] satisfies 
+           in the WordTemplate. If the rules describe tokenJson[ANALYSIS], it is 
+           required that at least one item in the list tokenJson[ANALYSIS] satisfies 
            all the rules (but it is not required that all the items should satisfy). 
            Returns a boolean value.
         
@@ -143,9 +145,9 @@ class WordTemplate:
             elif self.analysisRules == None and all(otherMatches):
                 return True
         if self.analysisRules != None:
-            assert "analysis" in tokenJson, "No 'analysis' found within token: "+str(tokenJson)
+            assert ANALYSIS in tokenJson, "No ANALYSIS found within token: "+str(tokenJson)
             totalMatches = []
-            for analysis in tokenJson["analysis"]:
+            for analysis in tokenJson[ANALYSIS]:
                 # Check whether this analysis satisfies all the rules 
                 # (if not, discard the analysis)
                 matches = []
@@ -164,9 +166,9 @@ class WordTemplate:
     def matchingAnalyses(self, tokenJson):
         '''Determines whether given token (tokenJson) satisfies all the rules listed 
            in the WordTemplate and returns a list of analyses (elements of 
-           tokenJson["analysis"]) that are matching all the rules. An empty list is 
+           tokenJson[ANALYSIS]) that are matching all the rules. An empty list is 
            returned if none of the analyses match (all the rules), or (!) if none of 
-           the rules are describing the "analysis" part of the token;
+           the rules are describing the ANALYSIS part of the token;
         
            Parameters
            ----------
@@ -181,8 +183,8 @@ class WordTemplate:
             if not otherMatches or not all(otherMatches):
                 return matchingResults
         if self.analysisRules != None:
-            assert "analysis" in tokenJson, "No 'analysis' found within token: "+str(tokenJson)
-            for analysis in tokenJson["analysis"]:
+            assert ANALYSIS in tokenJson, "No ANALYSIS found within token: "+str(tokenJson)
+            for analysis in tokenJson[ANALYSIS]:
                 # Check whether this analysis satisfies all the rules 
                 # (if not, discard the analysis)
                 matches = []
@@ -200,9 +202,9 @@ class WordTemplate:
     def matchingAnalyseIndexes(self, tokenJson):
         '''Determines whether given token (tokenJson) satisfies all the rules listed 
            in the WordTemplate and returns a list of analyse indexes that correspond 
-           to tokenJson["analysis"] elements that are matching all the rules. 
+           to tokenJson[ANALYSIS] elements that are matching all the rules. 
            An empty list is returned if none of the analyses match (all the rules), 
-           or (!) if none of the rules are describing the "analysis" part of the 
+           or (!) if none of the rules are describing the ANALYSIS part of the 
            token;
 
            Parameters
@@ -211,7 +213,7 @@ class WordTemplate:
         '''
         matchingResults = self.matchingAnalyses(tokenJson)
         if matchingResults:
-            indexes = [ tokenJson["analysis"].index(analysis) for analysis in matchingResults ]
+            indexes = [ tokenJson[ANALYSIS].index(analysis) for analysis in matchingResults ]
             return indexes
         return matchingResults
 

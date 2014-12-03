@@ -21,6 +21,9 @@ DEFAULT_NER_DATASET = os.path.join(CORPORA_PATH, 'estner.json.bz2')
 DEFAULT_PY2_NER_MODEL = os.path.join(PACKAGE_PATH, 'estner', 'models', 'py2_default.bin')
 DEFAULT_PY3_NER_MODEL = os.path.join(PACKAGE_PATH, 'estner', 'models', 'py3_default.bin')
 
+# verb chain detection resources
+VERB_CHAIN_RES_PATH = os.path.join(PACKAGE_PATH, 'mw_verbs', 'res')
+
 def overrides(interface_class):
     def overrider(method):
         assert(method.__name__ in dir(interface_class))

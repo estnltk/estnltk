@@ -19,17 +19,18 @@
 from __future__ import unicode_literals
 import re, codecs
 
-from .utils import WordTemplate
-from .utils import addWordIDs
+from estnltk.names import *
+from estnltk.mw_verbs.utils import WordTemplate
+from estnltk.mw_verbs.utils import addWordIDs
 #from .debug_print import _debugPrint
 
 # ================================================================
 #    Detecting potential clause breakers, separators, endings
 # ================================================================
-_breakerJaNingEgaVoi = WordTemplate({'root':'^(ja|ning|ega|v[\u014D\u00F5]i)$','partofspeech':'[DJ]'})
-_breakerAgaKuidVaid  = WordTemplate({'root':'^(aga|kuid|vaid)$','partofspeech':'[DJ]'})
-_breakerKomaLopus    = WordTemplate({'text':'^.*,$'})
-_breakerPunktuats    = WordTemplate({'text':'^(\.\.\.|:|;|-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015)+$'})
+_breakerJaNingEgaVoi = WordTemplate({ROOT:'^(ja|ning|ega|v[\u014D\u00F5]i)$',POSTAG:'[DJ]'})
+_breakerAgaKuidVaid  = WordTemplate({ROOT:'^(aga|kuid|vaid)$',POSTAG:'[DJ]'})
+_breakerKomaLopus    = WordTemplate({TEXT:'^.*,$'})
+_breakerPunktuats    = WordTemplate({TEXT:'^(\.\.\.|:|;|-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015)+$'})
 
 def _isSeparatedByPossibleClauseBreakers( tokens, wordID1, wordID2, onlyPunctForbidden = False ):
     '''
@@ -44,9 +45,9 @@ def _isSeparatedByPossibleClauseBreakers( tokens, wordID1, wordID2, onlyPunctFor
     insideCheckArea = False
     for i in range(len(tokens)):
         token = tokens[i]
-        if token["wordID"] >= minWID:
+        if token[WORD_ID] >= minWID:
             insideCheckArea = True
-        if token["wordID"] >= maxWID:
+        if token[WORD_ID] >= maxWID:
             insideCheckArea = False
         if insideCheckArea:
             if onlyPunctForbidden and (_breakerKomaLopus.matches(token) or \
@@ -65,11 +66,11 @@ def _isClauseFinal( wordID, clauseTokens ):
           -- s6nale j2rgnevad vaid punktuatsioonim2rgid ja/v6i sidendid JA/NING/EGA/VÕI;
         Tagastab True, kui eeltoodud tingimused on t2idetud, vastasel juhul False;
     '''
-    jaNingEgaVoi  = WordTemplate({'root':'^(ja|ning|ega|v[\u014D\u00F5]i)$','partofspeech':'[DJ]'})
-    punktuatsioon = WordTemplate({'partofspeech':'Z'})
+    jaNingEgaVoi  = WordTemplate({ROOT:'^(ja|ning|ega|v[\u014D\u00F5]i)$',POSTAG:'[DJ]'})
+    punktuatsioon = WordTemplate({POSTAG:'Z'})
     for i in range(len(clauseTokens)):
         token = clauseTokens[i]
-        if token['wordID'] == wordID:
+        if token[WORD_ID] == wordID:
             if i+1 == len(clauseTokens):
                 return True
             else:
@@ -85,11 +86,11 @@ def _isFollowedByComma( wordID, clauseTokens ):
         Teeb kindlaks, ka etteantud ID-ga s6nale j2rgneb vahetult koma;
         Tagastab True, kui eeltoodud tingimus on t2idetud, vastasel juhul False;
     '''
-    koma = WordTemplate({'root':'^,+$', 'partofspeech':'Z'})
+    koma = WordTemplate({ROOT:'^,+$', POSTAG:'Z'})
     for i in range(len(clauseTokens)):
         token = clauseTokens[i]
-        if token['wordID'] == wordID:
-            if re.match('^.*,$', token['text']):
+        if token[WORD_ID] == wordID:
+            if re.match('^.*,$', token[TEXT]):
                 return True
             elif i+1 < len(clauseTokens) and koma.matches(clauseTokens[i+1]):
                 return True
@@ -99,20 +100,20 @@ def _isFollowedByComma( wordID, clauseTokens ):
 
 _verbAraAgreements = [ \
        #   ära_neg.o   + V_o
-       WordTemplate({'root':'^ära$','form':'neg o','partofspeech':'V'}), \
-       WordTemplate({'partofspeech':'V','form':'o'}), \
+       WordTemplate({ROOT:'^ära$',FORM:'neg o',POSTAG:'V'}), \
+       WordTemplate({POSTAG:'V',FORM:'o'}), \
        #   ära_neg.gu  + V_gu;    ära_neg.gu  + V_tagu
-       WordTemplate({'root':'^ära$','form':'neg gu','partofspeech':'V'}), \
-       WordTemplate({'partofspeech':'V','form':'^(gu|tagu)$'}), \
+       WordTemplate({ROOT:'^ära$',FORM:'neg gu',POSTAG:'V'}), \
+       WordTemplate({POSTAG:'V',FORM:'^(gu|tagu)$'}), \
        #   ära_neg.me  + V_me;    ära_neg.me  + V_o
-       WordTemplate({'root':'^ära$','form':'neg me','partofspeech':'V'}), \
-       WordTemplate({'partofspeech':'V','form':'^(o|me)$'}), \
+       WordTemplate({ROOT:'^ära$',FORM:'neg me',POSTAG:'V'}), \
+       WordTemplate({POSTAG:'V',FORM:'^(o|me)$'}), \
        #   ära_neg.gem + V_gem
-       WordTemplate({'root':'^ära$','form':'neg gem','partofspeech':'V'}), \
-       WordTemplate({'partofspeech':'V','form':'gem'}), \
+       WordTemplate({ROOT:'^ära$',FORM:'neg gem',POSTAG:'V'}), \
+       WordTemplate({POSTAG:'V',FORM:'gem'}), \
        #   ära_neg.ge  + V_ge
-       WordTemplate({'root':'^ära$','form':'neg ge','partofspeech':'V'}), \
-       WordTemplate({'partofspeech':'V','form':'ge'})\
+       WordTemplate({ROOT:'^ära$',FORM:'neg ge',POSTAG:'V'}), \
+       WordTemplate({POSTAG:'V',FORM:'ge'})\
 ]
 def _canFormAraPhrase( araVerb, otherVerb ):
     '''  Teeb kindlaks, kas etteantud 'ära' verb (araVerb) yhildub teise verbiga; 
@@ -161,13 +162,13 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
         Sisend 'clauseTokens' on list, mis sisaldab yhe osalause k6iki s6nu (pyvabamorfi poolt tehtud
         s6na-analyyse);
         Tagastab listi tuvastatud fraasidest, kus iga liige (dict) on kujul:
-           { 'phrase': list,    -- tuvastatud fraasi positsioon lauses ('wordID' indeksid);
-             'pattern': list,   -- yldine muster, mille alusel tuvastamine toimus;
-             'pol': str,        -- polaarsus ('NEG', 'POS', '??')
-             'otherVerbs': bool -- kas kontekstis on veel verbe, mida v6iks potentsiaalselt
+           { PHRASE: list,    -- tuvastatud fraasi positsioon lauses (WORD_ID indeksid);
+             PATTERN: list,   -- yldine muster, mille alusel tuvastamine toimus;
+             POLARITY: str,        -- polaarsus ('NEG', 'POS', '??')
+             OTHER_VERBS: bool -- kas kontekstis on veel verbe, mida v6iks potentsiaalselt
                                    s6naga liita?
            }
-        Eraldatakse järgmised üldised mustrid ('pattern' j2rjendid):
+        Eraldatakse järgmised üldised mustrid (PATTERN j2rjendid):
             verb 
             ole
             ei+V
@@ -185,23 +186,23 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
         siis m22ratakse mustris otherVerbs = True;
     '''
     # Verbieituse indikaatorid
-    verbEi   = WordTemplate({'root':'^ei$','form':'neg','partofspeech':'V'})
-    verbEi2  = WordTemplate({'root':'^ei$','partofspeech':'D'})  # juhuks, kui morf yhestamises valitakse vale analyys
-    verbAra  = WordTemplate({'root':'^ära$','form':'neg.*','partofspeech':'V'})
-    verbPole = WordTemplate({'root':'^ole$','form':'neg.*','partofspeech':'V'})
+    verbEi   = WordTemplate({ROOT:'^ei$',FORM:'neg',POSTAG:'V'})
+    verbEi2  = WordTemplate({ROOT:'^ei$',POSTAG:'D'})  # juhuks, kui morf yhestamises valitakse vale analyys
+    verbAra  = WordTemplate({ROOT:'^ära$',FORM:'neg.*',POSTAG:'V'})
+    verbPole = WordTemplate({ROOT:'^ole$',FORM:'neg.*',POSTAG:'V'})
     # Eituse sisuverbi osad
-    verbEiJarel   = WordTemplate({'partofspeech':'V','form':'o|nud|tud|nuks|nuvat|vat|ks|ta|taks|tavat$'})
-    verbEiJarel2  = WordTemplate({'partofspeech':'V','form':'neg o$'})
+    verbEiJarel   = WordTemplate({POSTAG:'V',FORM:'o|nud|tud|nuks|nuvat|vat|ks|ta|taks|tavat$'})
+    verbEiJarel2  = WordTemplate({POSTAG:'V',FORM:'neg o$'})
     # Infiniitverb, olema ja verbid, mis v6ivad olema-le j2rgneda
-    verbInf = WordTemplate({'partofspeech':'V', 'form':'^(da|des|ma|maks|mas|mast|nud|tud|v|mata)$'})
-    verbOle = WordTemplate({'root':'^ole$','partofspeech':'V'})
-    verbOleJarel = WordTemplate({'partofspeech':'V','form':'nud$'})
-    verbOleJarelHeur1 = WordTemplate({'partofspeech':'V','form':'^(tud|da|mas)$'})
-    verbOleJarelHeur2 = WordTemplate({'partofspeech':'V','form':'^(tud|mas)$'})
+    verbInf = WordTemplate({POSTAG:'V', FORM:'^(da|des|ma|maks|mas|mast|nud|tud|v|mata)$'})
+    verbOle = WordTemplate({ROOT:'^ole$',POSTAG:'V'})
+    verbOleJarel = WordTemplate({POSTAG:'V',FORM:'nud$'})
+    verbOleJarelHeur1 = WordTemplate({POSTAG:'V',FORM:'^(tud|da|mas)$'})
+    verbOleJarelHeur2 = WordTemplate({POSTAG:'V',FORM:'^(tud|mas)$'})
     # Muud
-    verb    = WordTemplate({'partofspeech':'V'})
+    verb    = WordTemplate({POSTAG:'V'})
     verbid  = verb.matchingPositions( clauseTokens )
-    sonaEga = WordTemplate({'root':'^ega$','partofspeech':'[DJ]'})
+    sonaEga = WordTemplate({ROOT:'^ega$',POSTAG:'[DJ]'})
     # Eraldamise tulemused: eraldatud (verbi)fraasid ja kasutatud reeglid
     foundMatches  = []
     negPhraseWIDs = []
@@ -220,17 +221,17 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
             if i+1 < len(clauseTokens):
                 tokenJson2 = clauseTokens[i+1]
                 if verbEiJarel.matches(tokenJson2):
-                    wid1 = tokenJson["wordID"]
-                    wid2 = tokenJson2["wordID"]
-                    matchobj = { 'phrase': [wid1, wid2], 'pattern': ["ei", "verb"] }
-                    matchobj['clauseID'] = clauseID
+                    wid1 = tokenJson[WORD_ID]
+                    wid2 = tokenJson2[WORD_ID]
+                    matchobj = { PHRASE: [wid1, wid2], PATTERN: ["ei", "verb"] }
+                    matchobj[CLAUSE_IDX] = clauseID
                     if verbOle.matches(tokenJson2):
-                        matchobj['pattern'][1] = 'ole'
-                    matchobj['otherVerbs'] = (len(verbid) > 2)
-                    matchobj['pol'] = 'NEG'
-                    matchobj['analysisIDs'] = []
-                    matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson, [verbEi, verbEi2] ) )
-                    matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson2, verbEiJarel ) )
+                        matchobj[PATTERN][1] = 'ole'
+                    matchobj[OTHER_VERBS] = (len(verbid) > 2)
+                    matchobj[POLARITY] = 'NEG'
+                    matchobj[ANALYSIS_IDS] = []
+                    matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, [verbEi, verbEi2] ) )
+                    matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson2, verbEiJarel ) )
                     foundMatches.append( matchobj )
                     negPhraseWIDs.extend( [wid1, wid2] )
                     matchFound = True
@@ -240,15 +241,15 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                 #               ("mine") ei lange kokku eituse vormiga;
                 #
                 if not matchFound and verbEiJarel2.matches(tokenJson2):
-                    wid1 = tokenJson["wordID"]
-                    wid2 = tokenJson2["wordID"]
-                    matchobj = { 'phrase': [wid1, wid2], 'pattern': ["ei", "verb"] }
-                    matchobj['clauseID'] = clauseID
-                    matchobj['otherVerbs'] = (len(verbid) > 2)
-                    matchobj['pol'] = 'NEG'
-                    matchobj['analysisIDs'] = []
-                    matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson, [verbEi, verbEi2] ) )
-                    matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson2, verbEiJarel2 ) )
+                    wid1 = tokenJson[WORD_ID]
+                    wid2 = tokenJson2[WORD_ID]
+                    matchobj = { PHRASE: [wid1, wid2], PATTERN: ["ei", "verb"] }
+                    matchobj[CLAUSE_IDX] = clauseID
+                    matchobj[OTHER_VERBS] = (len(verbid) > 2)
+                    matchobj[POLARITY] = 'NEG'
+                    matchobj[ANALYSIS_IDS] = []
+                    matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, [verbEi, verbEi2] ) )
+                    matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson2, verbEiJarel2 ) )
                     foundMatches.append( matchobj )
                     negPhraseWIDs.extend( [wid1, wid2] )
                     matchFound = True
@@ -266,19 +267,19 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                 #      ** teine verb on osalause l6pus;
                 if len(verbid)==2 and verbid[0]==i:
                     if verbEiJarel.matches(clauseTokens[verbid[1]]):
-                        if not _isFollowedByComma( tokenJson["wordID"], clauseTokens ) and \
-                               _isClauseFinal( clauseTokens[verbid[1]]["wordID"], clauseTokens ):
-                            wid1 = tokenJson["wordID"]
-                            wid2 = clauseTokens[verbid[1]]["wordID"]
-                            matchobj = { 'phrase': [wid1, wid2], 'pattern': ["ei", "verb"] }
-                            matchobj['clauseID'] = clauseID
+                        if not _isFollowedByComma( tokenJson[WORD_ID], clauseTokens ) and \
+                               _isClauseFinal( clauseTokens[verbid[1]][WORD_ID], clauseTokens ):
+                            wid1 = tokenJson[WORD_ID]
+                            wid2 = clauseTokens[verbid[1]][WORD_ID]
+                            matchobj = { PHRASE: [wid1, wid2], PATTERN: ["ei", "verb"] }
+                            matchobj[CLAUSE_IDX] = clauseID
                             if verbOle.matches(clauseTokens[verbid[1]]):
-                                matchobj['pattern'][1] = 'ole'
-                            matchobj['otherVerbs'] = False
-                            matchobj['pol'] = 'NEG'
-                            matchobj['analysisIDs'] = []
-                            matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson, verbEi ) )
-                            matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( clauseTokens[verbid[1]], verbEiJarel ) )
+                                matchobj[PATTERN][1] = 'ole'
+                            matchobj[OTHER_VERBS] = False
+                            matchobj[POLARITY] = 'NEG'
+                            matchobj[ANALYSIS_IDS] = []
+                            matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verbEi ) )
+                            matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( clauseTokens[verbid[1]], verbEiJarel ) )
                             foundMatches.append( matchobj )
                             negPhraseWIDs.extend( [wid1, wid2] )
                             matchFound = True
@@ -287,15 +288,15 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
             #        vaid hoopis nimis6nafraasi vms).
             #
             if not matchFound:
-                wid1 = tokenJson["wordID"]
-                matchobj = { 'phrase': [wid1], 'pattern': ["ei"] }
-                matchobj['clauseID'] = clauseID
+                wid1 = tokenJson[WORD_ID]
+                matchobj = { PHRASE: [wid1], PATTERN: ["ei"] }
+                matchobj[CLAUSE_IDX] = clauseID
                 # Leiame, kas j2rgneb s6nu, millega potentsiaalselt saaks eituse moodustada
-                matchobj['otherVerbs'] = \
+                matchobj[OTHER_VERBS] = \
                     any([ verbEiJarel.matches(clauseTokens[j]) for j in range(i+1, len(clauseTokens)) ])
-                matchobj['pol'] = 'NEG'
-                matchobj['analysisIDs'] = []
-                matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson, [verbEi, verbEi2] ) )
+                matchobj[POLARITY] = 'NEG'
+                matchobj[ANALYSIS_IDS] = []
+                matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, [verbEi, verbEi2] ) )
                 foundMatches.append( matchobj )
                 negPhraseWIDs.extend( [wid1] )
                 matchFound = True
@@ -312,21 +313,21 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
             if i+1 < len(clauseTokens) and len(verbid) >= 2:
                 for verbIndex in verbid:
                     tokenJson2 = clauseTokens[ verbIndex ]
-                    if tokenJson['wordID'] < tokenJson2['wordID']:
+                    if tokenJson[WORD_ID] < tokenJson2[WORD_ID]:
                         # Teeme kindlaks, kas järgnev verb võib ühilduda 'ära'-ga:
                         analyses = _canFormAraPhrase( tokenJson, tokenJson2 )
                         if analyses:
-                            wid1 = tokenJson["wordID"]
-                            wid2 = tokenJson2["wordID"]
-                            matchobj = { 'phrase': [wid1, wid2], 'pattern': ["ära", "verb"] }
-                            matchobj['clauseID'] = clauseID
+                            wid1 = tokenJson[WORD_ID]
+                            wid2 = tokenJson2[WORD_ID]
+                            matchobj = { PHRASE: [wid1, wid2], PATTERN: ["ära", "verb"] }
+                            matchobj[CLAUSE_IDX] = clauseID
                             if verbOle.matches(tokenJson2):
-                                matchobj['pattern'][1] = 'ole'
-                            matchobj['otherVerbs'] = (len(verbid) > 2)
-                            matchobj['pol'] = 'NEG'
-                            matchobj['analysisIDs'] = []
-                            matchobj['analysisIDs'].append( analyses[0] )
-                            matchobj['analysisIDs'].append( analyses[1] )
+                                matchobj[PATTERN][1] = 'ole'
+                            matchobj[OTHER_VERBS] = (len(verbid) > 2)
+                            matchobj[POLARITY] = 'NEG'
+                            matchobj[ANALYSIS_IDS] = []
+                            matchobj[ANALYSIS_IDS].append( analyses[0] )
+                            matchobj[ANALYSIS_IDS].append( analyses[1] )
                             foundMatches.append( matchobj )
                             negPhraseWIDs.extend( [wid1, wid2] )
                             matchFound = True
@@ -340,15 +341,15 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
             #   2.X. Ei oska "ära" predikaadikonteksti m22rata ...
             #
             if not matchFound:
-                wid1 = tokenJson["wordID"]
-                matchobj = { 'phrase': [wid1], 'pattern': ["ära"] }
-                matchobj['clauseID'] = clauseID
-                matchobj['otherVerbs'] = (len(verbid) > 1)
+                wid1 = tokenJson[WORD_ID]
+                matchobj = { PHRASE: [wid1], PATTERN: ["ära"] }
+                matchobj[CLAUSE_IDX] = clauseID
+                matchobj[OTHER_VERBS] = (len(verbid) > 1)
                 #  Kui kontekstis on ka teisi verbe, võib ära täita hoopis määrsõna rolli, ja
                 # kuna eitusmustrid on välistatud, pole enam kindel, et tegu on eitusega;
-                matchobj['pol'] = '??'
-                matchobj['analysisIDs'] = []
-                matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson, verbAra ) )
+                matchobj[POLARITY] = '??'
+                matchobj[ANALYSIS_IDS] = []
+                matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verbAra ) )
                 foundMatches.append( matchobj )
                 negPhraseWIDs.extend( [wid1] )
                 matchFound = True
@@ -359,17 +360,17 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
             if i+1 < len(clauseTokens):
                 tokenJson2 = clauseTokens[i+1]
                 if verbOleJarel.matches(tokenJson2):
-                    wid1 = tokenJson["wordID"]
-                    wid2 = tokenJson2["wordID"]
-                    matchobj = { 'phrase': [wid1, wid2], 'pattern': ["pole", "verb"] }
-                    matchobj['clauseID'] = clauseID
+                    wid1 = tokenJson[WORD_ID]
+                    wid2 = tokenJson2[WORD_ID]
+                    matchobj = { PHRASE: [wid1, wid2], PATTERN: ["pole", "verb"] }
+                    matchobj[CLAUSE_IDX] = clauseID
                     if verbOle.matches(tokenJson2):
-                        matchobj['pattern'][1] = 'ole'
-                    matchobj['otherVerbs'] = (len(verbid) > 2)
-                    matchobj['pol'] = 'NEG'
-                    matchobj['analysisIDs'] = []
-                    matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson, verbPole ) )
-                    matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson2, verbOleJarel ) )
+                        matchobj[PATTERN][1] = 'ole'
+                    matchobj[OTHER_VERBS] = (len(verbid) > 2)
+                    matchobj[POLARITY] = 'NEG'
+                    matchobj[ANALYSIS_IDS] = []
+                    matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verbPole ) )
+                    matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson2, verbOleJarel ) )
                     foundMatches.append( matchobj )
                     negPhraseWIDs.extend( [wid1, wid2] )
                     matchFound = True
@@ -385,18 +386,18 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                 #               ... kas ehk kedagi liikumas_0 pole_0 , keda võiks asjasse pühendada ...
                 #
                 if len(verbid)==2 and verbOleJarelHeur2.matches(tokenJson2) and \
-                   _isClauseFinal( tokenJson2["wordID"], clauseTokens ):
-                    wid1 = tokenJson["wordID"]
-                    wid2 = tokenJson2["wordID"]
-                    matchobj = { 'phrase': [wid1, wid2], 'pattern': ["pole", "verb"] }
-                    matchobj['clauseID'] = clauseID
+                   _isClauseFinal( tokenJson2[WORD_ID], clauseTokens ):
+                    wid1 = tokenJson[WORD_ID]
+                    wid2 = tokenJson2[WORD_ID]
+                    matchobj = { PHRASE: [wid1, wid2], PATTERN: ["pole", "verb"] }
+                    matchobj[CLAUSE_IDX] = clauseID
                     if verbOle.matches(tokenJson2):
-                        matchobj['pattern'][1] = 'ole'
-                    matchobj['otherVerbs'] = False
-                    matchobj['pol'] = 'NEG'
-                    matchobj['analysisIDs'] = []
-                    matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson, verbPole ) )
-                    matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson2, verbOleJarelHeur2 ) )
+                        matchobj[PATTERN][1] = 'ole'
+                    matchobj[OTHER_VERBS] = False
+                    matchobj[POLARITY] = 'NEG'
+                    matchobj[ANALYSIS_IDS] = []
+                    matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verbPole ) )
+                    matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson2, verbOleJarelHeur2 ) )
                     foundMatches.append( matchobj )
                     negPhraseWIDs.extend( [wid1, wid2] )
                     matchFound = True
@@ -410,22 +411,22 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                 #
                 if not matchFound and len(verbid)==2 and verbid[0] == i:
                     if verbOleJarel.matches( clauseTokens[verbid[1]] ) and \
-                       _isClauseFinal( clauseTokens[verbid[1]]["wordID"], clauseTokens ):
-                        wid1 = tokenJson["wordID"]
-                        wid2 = clauseTokens[verbid[1]]["wordID"]
-                        matchobj = { 'phrase': [wid1, wid2], 'pattern': ["pole", "verb"] }
-                        matchobj['clauseID'] = clauseID
-                        matchobj['otherVerbs'] = False
+                       _isClauseFinal( clauseTokens[verbid[1]][WORD_ID], clauseTokens ):
+                        wid1 = tokenJson[WORD_ID]
+                        wid2 = clauseTokens[verbid[1]][WORD_ID]
+                        matchobj = { PHRASE: [wid1, wid2], PATTERN: ["pole", "verb"] }
+                        matchobj[CLAUSE_IDX] = clauseID
+                        matchobj[OTHER_VERBS] = False
                         if verbOle.matches( clauseTokens[verbid[1]] ):
-                            matchobj['pattern'][1] = 'ole'
-                        matchobj['pol'] = 'NEG'
-                        matchobj['analysisIDs'] = []
-                        matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson, verbPole ) )
-                        matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( clauseTokens[verbid[1]], verbOleJarel ) )
+                            matchobj[PATTERN][1] = 'ole'
+                        matchobj[POLARITY] = 'NEG'
+                        matchobj[ANALYSIS_IDS] = []
+                        matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verbPole ) )
+                        matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( clauseTokens[verbid[1]], verbOleJarel ) )
                         foundMatches.append( matchobj )
                         negPhraseWIDs.extend( [wid1, wid2] )
                         matchFound = True
-            if not matchFound and _isClauseFinal( tokenJson["wordID"], clauseTokens ):
+            if not matchFound and _isClauseFinal( tokenJson[WORD_ID], clauseTokens ):
                 #
                 #   3.4. Heuristik: Kui "pole" on osalause l6pus, ning sellele eelneb vahetult
                 #        "nud", v6i eelneb vahetult tud/da/mas ning osalauses pole teisi verbe,
@@ -438,17 +439,17 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                     tokenJson2 = clauseTokens[i-1]
                     if verbOleJarel.matches(tokenJson2) or (len(verbid)==2 and \
                        verbOleJarelHeur2.matches(tokenJson2)):
-                        wid1 = tokenJson["wordID"]
-                        wid2 = tokenJson2["wordID"]
-                        matchobj = { 'phrase': [wid1, wid2], 'pattern': ["pole", "verb"] }
-                        matchobj['clauseID'] = clauseID
-                        matchobj['otherVerbs'] = (len(verbid) > 2)
+                        wid1 = tokenJson[WORD_ID]
+                        wid2 = tokenJson2[WORD_ID]
+                        matchobj = { PHRASE: [wid1, wid2], PATTERN: ["pole", "verb"] }
+                        matchobj[CLAUSE_IDX] = clauseID
+                        matchobj[OTHER_VERBS] = (len(verbid) > 2)
                         if verbOle.matches( tokenJson2 ):
-                            matchobj['pattern'][1] = 'ole'
-                        matchobj['pol'] = 'NEG'
-                        matchobj['analysisIDs'] = []
-                        matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson, verbPole ) )
-                        matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson2, [verbOleJarel, verbOleJarelHeur2] ) )
+                            matchobj[PATTERN][1] = 'ole'
+                        matchobj[POLARITY] = 'NEG'
+                        matchobj[ANALYSIS_IDS] = []
+                        matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verbPole ) )
+                        matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson2, [verbOleJarel, verbOleJarelHeur2] ) )
                         foundMatches.append( matchobj )
                         negPhraseWIDs.extend( [wid1, wid2] )
                         matchFound = True
@@ -456,30 +457,30 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
             #   3.X. Ei oska "pole" predikaadikonteksti m22rata ...
             #
             if not matchFound:
-                wid1 = tokenJson["wordID"]
-                matchobj = { 'phrase': [wid1], 'pol': 'NEG', 'pattern': ["pole"] }
-                matchobj['clauseID']   = clauseID
-                matchobj['otherVerbs'] = (len(verbid) > 1)
-                matchobj['analysisIDs'] = []
-                matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson, verbPole ) )
+                wid1 = tokenJson[WORD_ID]
+                matchobj = { PHRASE: [wid1], POLARITY: 'NEG', PATTERN: ["pole"] }
+                matchobj[CLAUSE_IDX]   = clauseID
+                matchobj[OTHER_VERBS] = (len(verbid) > 1)
+                matchobj[ANALYSIS_IDS] = []
+                matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verbPole ) )
                 foundMatches.append( matchobj )
                 negPhraseWIDs.extend( [wid1] )
                 matchFound = True
         # ===================================================================
         #      V e r b i   j a a t u s
         # ===================================================================
-        elif tokenJson["wordID"] not in negPhraseWIDs and verb.matches(tokenJson) and \
+        elif tokenJson[WORD_ID] not in negPhraseWIDs and verb.matches(tokenJson) and \
              not verbInf.matches(tokenJson):
             #
             #  Tavaline verb ( mitte olema-verb )
             #
             if not verbOle.matches( tokenJson ):
-                wid1 = tokenJson["wordID"]
-                matchobj = { 'phrase': [wid1], 'pol': 'POS', 'pattern': ["verb"] }
-                matchobj['clauseID']   = clauseID
-                matchobj['otherVerbs'] = (len(verbid) > 1)
-                matchobj['analysisIDs'] = []
-                matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson, verb, discardAnalyses = verbInf ) )
+                wid1 = tokenJson[WORD_ID]
+                matchobj = { PHRASE: [wid1], POLARITY: 'POS', PATTERN: ["verb"] }
+                matchobj[CLAUSE_IDX]   = clauseID
+                matchobj[OTHER_VERBS] = (len(verbid) > 1)
+                matchobj[ANALYSIS_IDS] = []
+                matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verb, discardAnalyses = verbInf ) )
                 foundMatches.append( matchobj )
                 posPhraseWIDs.extend( [wid1] )
                 matchFound = True
@@ -489,12 +490,12 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
             else:
                 if (len(verbid) == 1):
                     #  Yksik olema-verb
-                    wid1 = tokenJson["wordID"]
-                    matchobj = { 'phrase': [wid1], 'pol': 'POS', 'pattern': ["ole"] }
-                    matchobj['clauseID']   = clauseID
-                    matchobj['otherVerbs'] = False
-                    matchobj['analysisIDs'] = []
-                    matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson, verbOle, discardAnalyses = verbInf ) )
+                    wid1 = tokenJson[WORD_ID]
+                    matchobj = { PHRASE: [wid1], POLARITY: 'POS', PATTERN: ["ole"] }
+                    matchobj[CLAUSE_IDX]   = clauseID
+                    matchobj[OTHER_VERBS] = False
+                    matchobj[ANALYSIS_IDS] = []
+                    matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verbOle, discardAnalyses = verbInf ) )
                     foundMatches.append( matchobj )
                     posPhraseWIDs.extend( [wid1] )
                     matchFound = True
@@ -504,7 +505,7 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                     #
                     if i+1 < len(clauseTokens):
                         if verbOleJarel.matches(clauseTokens[i+1]) and \
-                           clauseTokens[i+1]["wordID"] not in negPhraseWIDs:
+                           clauseTokens[i+1][WORD_ID] not in negPhraseWIDs:
                             #
                             #   Vahetult j2rgnev '-nud':
                             #       Ta ise on_0 kasutanud_0 mitme turvafima teenuseid .
@@ -512,18 +513,18 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                             #       Õhtul oli_0 olnud_0 org , aga hommikul järv .
                             #
                             tokenJson2 = clauseTokens[i+1]
-                            wid1 = tokenJson["wordID"]
-                            wid2 = tokenJson2["wordID"]
-                            matchobj = { 'phrase': [wid1, wid2], 'pattern': ["ole", "verb"] }
-                            matchobj['clauseID'] = clauseID
+                            wid1 = tokenJson[WORD_ID]
+                            wid2 = tokenJson2[WORD_ID]
+                            matchobj = { PHRASE: [wid1, wid2], PATTERN: ["ole", "verb"] }
+                            matchobj[CLAUSE_IDX] = clauseID
                             if verbOle.matches(tokenJson2):
-                                matchobj['pattern'][1] = 'ole'
-                            matchobj['otherVerbs'] = (len(verbid) > 2)
-                            matchobj['pol'] = 'POS'
-                            matchobj['analysisIDs'] = []
-                            matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson, verbOle, discardAnalyses = verbInf ) )
-                            matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson2, verbOleJarel ) )
-                            #matchobj['pattern'][1] += '??'
+                                matchobj[PATTERN][1] = 'ole'
+                            matchobj[OTHER_VERBS] = (len(verbid) > 2)
+                            matchobj[POLARITY] = 'POS'
+                            matchobj[ANALYSIS_IDS] = []
+                            matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verbOle, discardAnalyses = verbInf ) )
+                            matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson2, verbOleJarel ) )
+                            #matchobj[PATTERN][1] += '??'
                             foundMatches.append( matchobj )
                             posPhraseWIDs.extend( [wid1, wid2] )
                             matchFound = True
@@ -545,10 +546,10 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                             #        Etnofuturismi esivanemaid on_0 veel vähe uuritud_0 .
                             #
                             if (verbOleJarel.matches(otherVerb) or verbOleJarelHeur2.matches(otherVerb)) and \
-                               _isClauseFinal( otherVerb["wordID"], clauseTokens ) and \
-                               otherVerb["wordID"] not in negPhraseWIDs:
-                                wid1 = tokenJson["wordID"]
-                                wid2 = otherVerb["wordID"]
+                               _isClauseFinal( otherVerb[WORD_ID], clauseTokens ) and \
+                               otherVerb[WORD_ID] not in negPhraseWIDs:
+                                wid1 = tokenJson[WORD_ID]
+                                wid2 = otherVerb[WORD_ID]
                                 #
                                 #   Siin v6ib tekkida vigu/kaheldavaid kohti, kui kahe s6na vahel on 
                                 #   sides6nu/punktuatsiooni/teatud_adverbe, n2iteks:
@@ -557,21 +558,21 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                                 #        Mina olen_0 päritolult põhjaeestlane , 50 aastat Põhja-Eestis elanud_0 .
                                 #   J2tame sellistel puhkudel yhtse verbifraasina eraldamata ...
                                 #
-                                if not _isSeparatedByPossibleClauseBreakers( clauseTokens, tokenJson["wordID"], otherVerb["wordID"]):
-                                    matchobj = { 'phrase': [wid1, wid2], 'pattern': ["ole", "verb"] }
-                                    matchobj['clauseID'] = clauseID
+                                if not _isSeparatedByPossibleClauseBreakers( clauseTokens, tokenJson[WORD_ID], otherVerb[WORD_ID]):
+                                    matchobj = { PHRASE: [wid1, wid2], PATTERN: ["ole", "verb"] }
+                                    matchobj[CLAUSE_IDX] = clauseID
                                     if verbOle.matches(otherVerb):
-                                        matchobj['pattern'][1] = 'ole'
-                                    matchobj['otherVerbs'] = (len(verbid) > 2)
-                                    matchobj['pol'] = 'POS'
-                                    matchobj['analysisIDs'] = []
-                                    matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson, verbOle, discardAnalyses = verbInf ) )
-                                    matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( otherVerb, [verbOleJarel, verbOleJarelHeur2] ) )
+                                        matchobj[PATTERN][1] = 'ole'
+                                    matchobj[OTHER_VERBS] = (len(verbid) > 2)
+                                    matchobj[POLARITY] = 'POS'
+                                    matchobj[ANALYSIS_IDS] = []
+                                    matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verbOle, discardAnalyses = verbInf ) )
+                                    matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( otherVerb, [verbOleJarel, verbOleJarelHeur2] ) )
                                     foundMatches.append( matchobj )
                                     posPhraseWIDs.extend( [wid1, wid2] )
                                     matchFound = True
                             elif (verbOleJarel.matches(otherVerb) or verbOleJarelHeur2.matches(otherVerb)) and \
-                                  otherVerb["wordID"] not in negPhraseWIDs and \
+                                  otherVerb[WORD_ID] not in negPhraseWIDs and \
                                   i+1 == otherVerbIndex:
                                   #
                                   #   Osalauses ongi vaid kaks verbi ning 'nud/tud/mas' j2rgneb vahetult
@@ -581,17 +582,17 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                                   #        Graafikud on_0 tehtud_0 programmis Exel 2003 .
                                   #   Üsna sagedane just teadustekstides;
                                   #
-                                    wid1 = tokenJson["wordID"]
-                                    wid2 = otherVerb["wordID"]
-                                    matchobj = { 'phrase': [wid1, wid2], 'pattern': ["ole", "verb"] }
-                                    matchobj['clauseID'] = clauseID
+                                    wid1 = tokenJson[WORD_ID]
+                                    wid2 = otherVerb[WORD_ID]
+                                    matchobj = { PHRASE: [wid1, wid2], PATTERN: ["ole", "verb"] }
+                                    matchobj[CLAUSE_IDX] = clauseID
                                     if verbOle.matches(otherVerb):
-                                        matchobj['pattern'][1] = 'ole'
-                                    matchobj['otherVerbs'] = (len(verbid) > 2)
-                                    matchobj['pol'] = 'POS'
-                                    matchobj['analysisIDs'] = []
-                                    matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson, verbOle, discardAnalyses = verbInf ) )
-                                    matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( otherVerb, [verbOleJarel, verbOleJarelHeur2] ) )
+                                        matchobj[PATTERN][1] = 'ole'
+                                    matchobj[OTHER_VERBS] = (len(verbid) > 2)
+                                    matchobj[POLARITY] = 'POS'
+                                    matchobj[ANALYSIS_IDS] = []
+                                    matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verbOle, discardAnalyses = verbInf ) )
+                                    matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( otherVerb, [verbOleJarel, verbOleJarelHeur2] ) )
                                     foundMatches.append( matchobj )
                                     posPhraseWIDs.extend( [wid1, wid2] )
                                     matchFound = True
@@ -603,11 +604,11 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                                     #      Lõpetuseks on_0 grillitud_0 mereandide valik .
                                     #
                     if i-1 > -1 and not matchFound:
-                        if _isClauseFinal( tokenJson["wordID"], clauseTokens ) and \
-                           clauseTokens[i-1]["wordID"] not in negPhraseWIDs and \
+                        if _isClauseFinal( tokenJson[WORD_ID], clauseTokens ) and \
+                           clauseTokens[i-1][WORD_ID] not in negPhraseWIDs and \
                            (verbOleJarel.matches(clauseTokens[i-1]) or (len(verbid)==2 and \
                            verbOleJarelHeur2.matches(clauseTokens[i-1]))) and \
-                           clauseTokens[i-1]["wordID"] not in negPhraseWIDs:
+                           clauseTokens[i-1][WORD_ID] not in negPhraseWIDs:
                             #
                             #   Vahetult eelnev '-nud':
                             #       Ma õpetan õievalemeid , mida ma ise viiendas klassis vihanud_0 olin_0 .
@@ -616,18 +617,18 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                             #       Ja sellepärast jäigi kõik nii , nagu kirjutatud_0 oli_0 .
                             #
                             tokenJson2 = clauseTokens[i-1]
-                            wid1 = tokenJson["wordID"]
-                            wid2 = tokenJson2["wordID"]
-                            matchobj = { 'phrase': [wid1, wid2], 'pattern': ["ole", "verb"] }
-                            matchobj['clauseID'] = clauseID
+                            wid1 = tokenJson[WORD_ID]
+                            wid2 = tokenJson2[WORD_ID]
+                            matchobj = { PHRASE: [wid1, wid2], PATTERN: ["ole", "verb"] }
+                            matchobj[CLAUSE_IDX] = clauseID
                             if verbOle.matches(tokenJson2):
-                                matchobj['pattern'][1] = 'ole'
-                            matchobj['otherVerbs'] = (len(verbid) > 2)
-                            matchobj['pol'] = 'POS'
-                            matchobj['analysisIDs'] = []
-                            matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson, verbOle, discardAnalyses = verbInf ) )
-                            matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson2, [verbOleJarel, verbOleJarelHeur2] ) )
-                            #matchobj['pattern'][1] += '??'
+                                matchobj[PATTERN][1] = 'ole'
+                            matchobj[OTHER_VERBS] = (len(verbid) > 2)
+                            matchobj[POLARITY] = 'POS'
+                            matchobj[ANALYSIS_IDS] = []
+                            matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verbOle, discardAnalyses = verbInf ) )
+                            matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson2, [verbOleJarel, verbOleJarelHeur2] ) )
+                            #matchobj[PATTERN][1] += '??'
                             foundMatches.append( matchobj )
                             posPhraseWIDs.extend( [wid1, wid2] )
                             matchFound = True
@@ -635,13 +636,13 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                         #
                         #    Ei oska m22rata, millega t2pselt "olema" verb seotud on ...
                         #
-                        wid1 = tokenJson["wordID"]
-                        matchobj = { 'phrase': [wid1], 'pol': 'POS', 'pattern': ["ole"] }
-                        matchobj['clauseID']   = clauseID
-                        matchobj['otherVerbs'] = True
-                        matchobj['analysisIDs'] = []
-                        matchobj['analysisIDs'].append( _getMatchingAnalysisIDs( tokenJson, verbOle, discardAnalyses = verbInf ) )
-                        #matchobj['pattern'][0]+='??'
+                        wid1 = tokenJson[WORD_ID]
+                        matchobj = { PHRASE: [wid1], POLARITY: 'POS', PATTERN: ["ole"] }
+                        matchobj[CLAUSE_IDX]   = clauseID
+                        matchobj[OTHER_VERBS] = True
+                        matchobj[ANALYSIS_IDS] = []
+                        matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verbOle, discardAnalyses = verbInf ) )
+                        #matchobj[PATTERN][0]+='??'
                         foundMatches.append( matchobj )
                         posPhraseWIDs.extend( [wid1] )
                         matchFound = True
@@ -655,31 +656,31 @@ def _expandOlemaVerbChains( clauseTokens, clauseID, foundChains ):
             "on olnud" + "tehtud", "ei olnud" + "tehtud", "ei oleks" + "arvatud";
         Vastavalt leitud laiendustele t2iendab andmeid sisendlistis foundChains;
     '''
-    verbOle       = WordTemplate({'root':'^ole$','partofspeech':'V'})
-    verbOleJarel1 = WordTemplate({'partofspeech':'V','form':'(nud)$'})
-    verbOleJarel2 = WordTemplate({'partofspeech':'V','form':'^(mas|tud)$'})
-    verbMata      = WordTemplate({'partofspeech':'V','form':'^(mata)$'})
-    verbMaDa      = WordTemplate({'partofspeech':'V','form':'^(da|ma)$'})
+    verbOle       = WordTemplate({ROOT:'^ole$',POSTAG:'V'})
+    verbOleJarel1 = WordTemplate({POSTAG:'V',FORM:'(nud)$'})
+    verbOleJarel2 = WordTemplate({POSTAG:'V',FORM:'^(mas|tud)$'})
+    verbMata      = WordTemplate({POSTAG:'V',FORM:'^(mata)$'})
+    verbMaDa      = WordTemplate({POSTAG:'V',FORM:'^(da|ma)$'})
     # J22dvustame s6nad, mis kuuluvad juba mingi tuvastatud verbifraasi koosseisu
     annotatedWords = []
     for verbObj in foundChains:
-        if verbObj['clauseID'] != clauseID:
+        if verbObj[CLAUSE_IDX] != clauseID:
             continue
-        if (len(verbObj['pattern'])==1 and re.match('^(ei|ära|ega)$', verbObj['pattern'][0])):
+        if (len(verbObj[PATTERN])==1 and re.match('^(ei|ära|ega)$', verbObj[PATTERN][0])):
             # V2lja j22vad yksikuna esinevad ei/ära/ega, kuna need tõenäoliselt ei sega
             continue
-        annotatedWords.extend( verbObj['phrase'] )
+        annotatedWords.extend( verbObj[PHRASE] )
     for verbObj in foundChains:
-        if verbObj['clauseID'] != clauseID:
+        if verbObj[CLAUSE_IDX] != clauseID:
             continue
-        if verbObj['pattern'][-1] == 'ole' and verbObj['otherVerbs']:
+        if verbObj[PATTERN][-1] == 'ole' and verbObj[OTHER_VERBS]:
             #
             #  Kui on tegemist 'olema' l6pulise verbiahelaga, mille kontekstis on teisi verbe,
             #  st saab veel laiendada ...
             #
-            eiOlePattern = (len(verbObj['pattern'])==2 and verbObj['pattern'][0] == 'ei')
-            lastVerbWID = verbObj['phrase'][-1]
-            lastTokIndex = [i for i in range(len(clauseTokens)) if clauseTokens[i]['wordID'] == lastVerbWID]
+            eiOlePattern = (len(verbObj[PATTERN])==2 and verbObj[PATTERN][0] == 'ei')
+            lastVerbWID = verbObj[PHRASE][-1]
+            lastTokIndex = [i for i in range(len(clauseTokens)) if clauseTokens[i][WORD_ID] == lastVerbWID]
             lastTokIndex = lastTokIndex[0]
             expansion   = None
             appliedRule = 0
@@ -688,7 +689,7 @@ def _expandOlemaVerbChains( clauseTokens, clauseID, foundChains ):
                 oleInfFollowing  = 0
                 for i in range(lastTokIndex + 1, len(clauseTokens)):
                     token = clauseTokens[i]
-                    tokenWID = token['wordID']
+                    tokenWID = token[WORD_ID]
                     if tokenWID in annotatedWords:
                         break
                     if verbMaDa.matches(token):
@@ -705,7 +706,7 @@ def _expandOlemaVerbChains( clauseTokens, clauseID, foundChains ):
                         #           Esiteks ei_0 olnud_0 vajalikul ajal tavaliselt bussi tulemas_0
                         #
                         if _isClauseFinal(tokenWID, clauseTokens ) and \
-                           not _isSeparatedByPossibleClauseBreakers( clauseTokens, verbObj['phrase'][-1], \
+                           not _isSeparatedByPossibleClauseBreakers( clauseTokens, verbObj[PHRASE][-1], \
                            tokenWID, False):
                            expansion = token
                            #   Veakoht: kui -mas j2rel on da/ma, pole kindel, et tegu otsese rektsiooniseosega:
@@ -732,7 +733,7 @@ def _expandOlemaVerbChains( clauseTokens, clauseID, foundChains ):
                         #           linnaarhitekti koht oli_0 aasta aega täitmata_0
                         #
                         if _isClauseFinal(tokenWID, clauseTokens ) and \
-                           not _isSeparatedByPossibleClauseBreakers( clauseTokens, verbObj['phrase'][-1], \
+                           not _isSeparatedByPossibleClauseBreakers( clauseTokens, verbObj[PHRASE][-1], \
                            tokenWID, False):
                             expansion = token
                             break
@@ -750,11 +751,11 @@ def _expandOlemaVerbChains( clauseTokens, clauseID, foundChains ):
                 #                milleks looja ta maailma loonud_0 on_0 , nimelt soo jätkamiseks .
                 #
                 if oleInfFollowing == 0 and not expansion:
-                    minWID = min( verbObj['phrase'] )
-                    lastTokIndex = [i for i in range(len(clauseTokens)) if clauseTokens[i]['wordID'] == minWID]
+                    minWID = min( verbObj[PHRASE] )
+                    lastTokIndex = [i for i in range(len(clauseTokens)) if clauseTokens[i][WORD_ID] == minWID]
                     lastTokIndex = lastTokIndex[0]
                     token = clauseTokens[lastTokIndex-1]
-                    if lastTokIndex-1 > -1 and token['wordID'] not in annotatedWords:
+                    if lastTokIndex-1 > -1 and token[WORD_ID] not in annotatedWords:
                         if (verbOleJarel1.matches(token) or verbOleJarel2.matches(token)):
                             expansion = token
                             appliedRule = 1
@@ -772,11 +773,11 @@ def _expandOlemaVerbChains( clauseTokens, clauseID, foundChains ):
                 #
                 #   Leiame ahela alguspunkti (minimaalse ID-ga verbi)
                 #
-                minWID = min( verbObj['phrase'] )
-                lastTokIndex = [i for i in range(len(clauseTokens)) if clauseTokens[i]['wordID'] == minWID]
+                minWID = min( verbObj[PHRASE] )
+                lastTokIndex = [i for i in range(len(clauseTokens)) if clauseTokens[i][WORD_ID] == minWID]
                 if lastTokIndex:
                     lastTokIndex = lastTokIndex[0]
-                    if lastTokIndex-1 > -1 and clauseTokens[lastTokIndex-1]['wordID'] not in annotatedWords:
+                    if lastTokIndex-1 > -1 and clauseTokens[lastTokIndex-1][WORD_ID] not in annotatedWords:
                         #
                         #    Heuristik:
                         #   Kui "olema"-l6puline ahel on osalause l6pus, ning vahetult eelneb nud/tud/mas,
@@ -790,13 +791,13 @@ def _expandOlemaVerbChains( clauseTokens, clauseID, foundChains ):
                         if (verbOleJarel1.matches(token) or verbOleJarel2.matches(token)):
                             expansion = token
             if expansion:
-                tokenWID = expansion['wordID']
-                verbObj['phrase'].append( tokenWID )
-                verbObj['analysisIDs'].append( _getMatchingAnalysisIDs( expansion, [verbOleJarel1, verbOleJarel2, verbMata] ) )
+                tokenWID = expansion[WORD_ID]
+                verbObj[PHRASE].append( tokenWID )
+                verbObj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( expansion, [verbOleJarel1, verbOleJarel2, verbMata] ) )
                 if verbOle.matches(expansion):
-                    verbObj['pattern'].append('ole')
+                    verbObj[PATTERN].append('ole')
                 else:
-                    verbObj['pattern'].append('verb')
+                    verbObj[PATTERN].append('verb')
                 annotatedWords.append( tokenWID )
 
 
@@ -823,7 +824,7 @@ def _loadVerbSubcatRelations(infile):
     in_f.close()
     return relations
 
-_verbInfNonExpansible = WordTemplate({'partofspeech':'V', 'form':'^(maks|mas|mast|mata)$'})
+_verbInfNonExpansible = WordTemplate({POSTAG:'V', FORM:'^(maks|mas|mast|mata)$'})
 
 def _isVerbExpansible( verbObj, clauseTokens, clauseID ):
     '''
@@ -837,10 +838,10 @@ def _isVerbExpansible( verbObj, clauseTokens, clauseID ):
     '''
     global _verbInfNonExpansible
     # Leiame, kas fraas kuulub antud osalausesse ning on laiendatav
-    if verbObj['otherVerbs'] and verbObj['clauseID'] == clauseID and \
-       re.match('^(verb)$', verbObj['pattern'][-1], re.I):
+    if verbObj[OTHER_VERBS] and verbObj[CLAUSE_IDX] == clauseID and \
+       re.match('^(verb)$', verbObj[PATTERN][-1], re.I):
         # Leiame viimasele s6nale vastava token'i
-        lastToken = [token for token in clauseTokens if token['wordID'] == verbObj['phrase'][-1]]
+        lastToken = [token for token in clauseTokens if token[WORD_ID] == verbObj[PHRASE][-1]]
         if not lastToken:
             raise Exception(' Last token not found for '+str(verbObj)+' in '+str( getJsonAsTextString(clauseTokens) ))
         lastToken = lastToken[0]
@@ -851,7 +852,7 @@ def _isVerbExpansible( verbObj, clauseTokens, clauseID ):
         if not _verbInfNonExpansible.matches(lastToken):
            #   Kontrollime, et fraasi l6pus poleks ja/ning/ega/v6i fraasi:
            #  kui on, siis esialgu targu seda fraasi laiendama ei hakka:
-           if len(verbObj['pattern']) >=3 and verbObj['pattern'][-2] == '&':
+           if len(verbObj[PATTERN]) >=3 and verbObj[PATTERN][-2] == '&':
                 return False
            return True
            #
@@ -899,18 +900,18 @@ def _expandSaamaWithTud( clauseTokens, clauseID, foundChains ):
         (nt. sai tehtud, sai käidud ujumas);
          Vastavalt leitud laiendustele t2iendab andmeid sisendlistis foundChains;
     '''
-    verbTud   = WordTemplate({'partofspeech':'V', 'form':'^(tud|dud)$'})
-    verb      = WordTemplate({'partofspeech':'V'})
-    verbOlema = WordTemplate({'partofspeech':'V', 'root':'^(ole)$'})
+    verbTud   = WordTemplate({POSTAG:'V', FORM:'^(tud|dud)$'})
+    verb      = WordTemplate({POSTAG:'V'})
+    verbOlema = WordTemplate({POSTAG:'V', ROOT:'^(ole)$'})
     for verbObj in foundChains:
         # Leiame, kas fraas kuulub antud osalausesse ning on laiendatav
         if _isVerbExpansible(verbObj, clauseTokens, clauseID):
-            lastVerbWID = verbObj['phrase'][-1]
-            lastToken = [token for token in clauseTokens if token['wordID'] == lastVerbWID]
-            lastIndex = [i for i in range(len(clauseTokens)) if clauseTokens[i]['wordID'] == lastVerbWID]
+            lastVerbWID = verbObj[PHRASE][-1]
+            lastToken = [token for token in clauseTokens if token[WORD_ID] == lastVerbWID]
+            lastIndex = [i for i in range(len(clauseTokens)) if clauseTokens[i][WORD_ID] == lastVerbWID]
             lastToken = lastToken[0]
             lastIndex = lastIndex[0]
-            mainVerb  = [analysis['root'] for analysis in verb.matchingAnalyses(lastToken)]
+            mainVerb  = [analysis[ROOT] for analysis in verb.matchingAnalyses(lastToken)]
             mainVerbLemma = mainVerb[0]
             # Leiame, kas tegemist on 'saama' verbiga
             if mainVerbLemma == 'saa':
@@ -925,22 +926,22 @@ def _expandSaamaWithTud( clauseTokens, clauseID, foundChains ):
                 if not _isClauseFinal(lastVerbWID, clauseTokens ):
                     for i in range(lastIndex + 1, len(clauseTokens)):
                         token = clauseTokens[i]
-                        tokenWID = token['wordID']
+                        tokenWID = token[WORD_ID]
                         if verbTud.matches(token) and _isClauseFinal(tokenWID, clauseTokens ) and \
-                           not _isSeparatedByPossibleClauseBreakers( clauseTokens, verbObj['phrase'][-1], tokenWID, True):
+                           not _isSeparatedByPossibleClauseBreakers( clauseTokens, verbObj[PHRASE][-1], tokenWID, True):
                             expansion = token
                             break
                 elif lastIndex-1 > -1:
                     if verbTud.matches(clauseTokens[lastIndex-1]):
                         expansion = clauseTokens[lastIndex-1]
                 if expansion:
-                    tokenWID = expansion['wordID']
-                    verbObj['phrase'].append( tokenWID )
-                    verbObj['analysisIDs'].append( _getMatchingAnalysisIDs( expansion, verbTud ) )
+                    tokenWID = expansion[WORD_ID]
+                    verbObj[PHRASE].append( tokenWID )
+                    verbObj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( expansion, verbTud ) )
                     if verbOlema.matches(expansion):
-                        verbObj['pattern'].append('ole')
+                        verbObj[PATTERN].append('ole')
                     else:
-                        verbObj['pattern'].append('verb')
+                        verbObj[PATTERN].append('verb')
 
 
 
@@ -960,32 +961,32 @@ def _expandVerbChainsBySubcat( clauseTokens, clauseID, foundChains, verbSubcat, 
         olevaid verbiga lõppevaid fraase, millal võimalik;
     '''
     global _breakerJaNingEgaVoi, _breakerKomaLopus, _breakerPunktuats
-    verb      = WordTemplate({'partofspeech':'V'})
-    verbInf1  = WordTemplate({'partofspeech':'V', 'form':'^(da|ma|maks|mas|mast|mata)$'})
-    verbOlema = WordTemplate({'partofspeech':'V', 'root':'^(ole)$'})
-    sonaMitte = WordTemplate({'root':'^mitte$','partofspeech':'D'})
+    verb      = WordTemplate({POSTAG:'V'})
+    verbInf1  = WordTemplate({POSTAG:'V', FORM:'^(da|ma|maks|mas|mast|mata)$'})
+    verbOlema = WordTemplate({POSTAG:'V', ROOT:'^(ole)$'})
+    sonaMitte = WordTemplate({ROOT:'^mitte$',POSTAG:'D'})
     # J22dvustame s6nad, mis kuuluvad juba mingi tuvastatud verbifraasi koosseisu
     annotatedWords = []
     for verbObj in foundChains:
-        if (len(verbObj['pattern'])==1 and re.match('^(ei|ära|ega)$', verbObj['pattern'][0])):
+        if (len(verbObj[PATTERN])==1 and re.match('^(ei|ära|ega)$', verbObj[PATTERN][0])):
             # V2lja j22vad yksikuna esinevad ei/ära/ega, kuna need tõenäoliselt ei sega
             continue
-        annotatedWords.extend( verbObj['phrase'] )
+        annotatedWords.extend( verbObj[PHRASE] )
     # Leiame, millised verbid on veel vabad (st v6ivad potentsiaalselt liituda)
-    freeVerbsWIDs = [t['wordID'] for t in clauseTokens if verbInf1.matches(t) and t['wordID'] not in annotatedWords]
+    freeVerbsWIDs = [t[WORD_ID] for t in clauseTokens if verbInf1.matches(t) and t[WORD_ID] not in annotatedWords]
     for verbObj in foundChains:
         # Leiame, kas fraas kuulub antud osalausesse ning on laiendatav
         if _isVerbExpansible(verbObj, clauseTokens, clauseID):
             # Leiame viimasele s6nale vastava token'i, selle lemma ja vormitunnuse
-            lastToken = [token for token in clauseTokens if token['wordID'] == verbObj['phrase'][-1]]
-            lastIndex = [i for i in range(len(clauseTokens)) if clauseTokens[i]['wordID'] == verbObj['phrase'][-1]]
+            lastToken = [token for token in clauseTokens if token[WORD_ID] == verbObj[PHRASE][-1]]
+            lastIndex = [i for i in range(len(clauseTokens)) if clauseTokens[i][WORD_ID] == verbObj[PHRASE][-1]]
             lastToken = lastToken[0]
             lastIndex = lastIndex[0]
-            mainVerb  = [(analysis['root'], analysis['form']) for analysis in verb.matchingAnalyses(lastToken)]
+            mainVerb  = [(analysis[ROOT], analysis[FORM]) for analysis in verb.matchingAnalyses(lastToken)]
             mainVerbLemma = mainVerb[0][0]
             mainVerbForm  = mainVerb[0][1]
-            positivePhrase = (verbObj['pol'] == 'POS')
-            egaPhrase      = (verbObj['pattern'][0] == 'ega')
+            positivePhrase = (verbObj[POLARITY] == 'POS')
+            egaPhrase      = (verbObj[PATTERN][0] == 'ega')
             #  Teeme kindlaks, kas verbi lemma on ylesm2rgitud rektsiooniseoste leksikoni
             if mainVerbLemma in verbSubcat:
                 subcatForms = verbSubcat[ mainVerbLemma ]
@@ -1005,7 +1006,7 @@ def _expandVerbChainsBySubcat( clauseTokens, clauseID, foundChains, verbSubcat, 
                     j = lastIndex + 1
                     while (j < len(clauseTokens)):
                         token = clauseTokens[j]
-                        tokenWID = token['wordID']
+                        tokenWID = token[WORD_ID]
                         #  Katkestame kui:
                         #  *) satume juba m2rgendatud s6nale;
                         #  *) satume punktuatsioonile;
@@ -1019,7 +1020,7 @@ def _expandVerbChainsBySubcat( clauseTokens, clauseID, foundChains, verbSubcat, 
                         if _breakerJaNingEgaVoi.matches(token):
                             foundSubcatChain.append(('&', token))
                         if verb.matches(token):
-                            tokenForms = [analysis['form'] for analysis in verb.matchingAnalyses(token)]
+                            tokenForms = [analysis[FORM] for analysis in verb.matchingAnalyses(token)]
                             if subcatForm in tokenForms:
                                 foundSubcatChain.append( (subcatForm, token) )
                         #  Katkestame kui:
@@ -1039,20 +1040,20 @@ def _expandVerbChainsBySubcat( clauseTokens, clauseID, foundChains, verbSubcat, 
                     #       'ega'-st ettepoole );
                     #
                     if not _suitableVerbExpansion( foundSubcatChain ) and not egaPhrase:
-                        minWid = min( verbObj['phrase'] )
+                        minWid = min( verbObj[PHRASE] )
                         j = lastIndex - 1
                         while (j > -1):
                             token = clauseTokens[j]
-                            tokenWID = token['wordID']
+                            tokenWID = token[WORD_ID]
                             #  Katkestame kui:
                             #  *) satume juba m2rgendatud s6nale (mis pole sellest fraasist);
                             #  *) satume komale v6i muule punktuatsioonile;
                             #  *) satume s6nale, mis on k6ige esimesest fraasiliikmest tagapool kui 2 s6na;
-                            if tokenWID in annotatedWords and tokenWID not in verbObj['phrase']:
+                            if tokenWID in annotatedWords and tokenWID not in verbObj[PHRASE]:
                                 break
                             if _breakerKomaLopus.matches(token) or _breakerPunktuats.matches(token):
                                 break
-                            if token['wordID']+1 < minWid:
+                            if token[WORD_ID]+1 < minWid:
                                 break
                             #  Lisame kui:
                             #  *) satume konjunktsioonile;
@@ -1060,7 +1061,7 @@ def _expandVerbChainsBySubcat( clauseTokens, clauseID, foundChains, verbSubcat, 
                             if _breakerJaNingEgaVoi.matches(token):
                                 foundSubcatChain.append(('&', token))
                             if verb.matches(token):
-                                tokenForms = [analysis['form'] for analysis in verb.matchingAnalyses(token)]
+                                tokenForms = [analysis[FORM] for analysis in verb.matchingAnalyses(token)]
                                 if subcatForm in tokenForms:
                                     foundSubcatChain.append( (subcatForm, token) )
                             j -= 1
@@ -1070,24 +1071,24 @@ def _expandVerbChainsBySubcat( clauseTokens, clauseID, foundChains, verbSubcat, 
                         #   Kui sobiv fraasikandidaat leidus, teostamine liitmise
                         #
                         for token in suitablePhrase:
-                            tokenWID = token['wordID']
-                            verbObj['phrase'].append( tokenWID )
+                            tokenWID = token[WORD_ID]
+                            verbObj[PHRASE].append( tokenWID )
                             annotatedWords.append( tokenWID )
                             if _breakerJaNingEgaVoi.matches(token):
-                                verbObj['pattern'].append('&')
-                                verbObj['analysisIDs'].append( _getMatchingAnalysisIDs( token, _breakerJaNingEgaVoi ) )
+                                verbObj[PATTERN].append('&')
+                                verbObj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( token, _breakerJaNingEgaVoi ) )
                             elif len(suitablePhrase) == 1 and verbOlema.matches(token):
-                                verbObj['pattern'].append('ole')
-                                verbObj['analysisIDs'].append( _getMatchingAnalysisIDs( token, verbOlema ) )
+                                verbObj[PATTERN].append('ole')
+                                verbObj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( token, verbOlema ) )
                                 freeVerbsWIDs.remove( tokenWID )
                             else:
-                                verbObj['pattern'].append('verb')
-                                analysisIDs = [i for i in range(len(token['analysis'])) if subcatForm == token['analysis'][i]['form']]
+                                verbObj[PATTERN].append('verb')
+                                analysisIDs = [i for i in range(len(token[ANALYSIS])) if subcatForm == token[ANALYSIS][i][FORM]]
                                 assert len(analysisIDs) > 0
-                                verbObj['analysisIDs'].append( analysisIDs )
+                                verbObj[ANALYSIS_IDS].append( analysisIDs )
                                 freeVerbsWIDs.remove( tokenWID )
                         if not freeVerbsWIDs:
-                            verbObj['otherVerbs'] = False
+                            verbObj[OTHER_VERBS] = False
                         addingCompleted = True
                     if addingCompleted:
                         break
@@ -1162,24 +1163,24 @@ def _extractEgaNegFromSent( sentTokens, clausesDict, foundChains ):
            korraga mitut k6rvutiolevat osalauset; k2esolevalt lihtsustame ja vaatame tervet 
            lauset.
     '''
-    sonaEga     = WordTemplate({'root':'^ega$','partofspeech':'[DJ]'})
-    verbEiJarel = WordTemplate({'partofspeech':'V','form':'(o|nud|tud|nuks|nuvat|vat|ks|ta|taks|tavat)$'})
-    verbTud     = WordTemplate({'partofspeech':'V','form':'(tud)$'})
-    verb        = WordTemplate({'partofspeech':'V'})
-    verbOlema   = WordTemplate({'partofspeech':'V', 'root':'^(ole)$'})
+    sonaEga     = WordTemplate({ROOT:'^ega$',POSTAG:'[DJ]'})
+    verbEiJarel = WordTemplate({POSTAG:'V',FORM:'(o|nud|tud|nuks|nuvat|vat|ks|ta|taks|tavat)$'})
+    verbTud     = WordTemplate({POSTAG:'V',FORM:'(tud)$'})
+    verb        = WordTemplate({POSTAG:'V'})
+    verbOlema   = WordTemplate({POSTAG:'V', ROOT:'^(ole)$'})
     # J22dvustame s6nad, mis kuuluvad juba mingi tuvastatud verbifraasi koosseisu
     annotatedWords = []
     for verbObj in foundChains:
-        if (len(verbObj['pattern'])==1 and re.match('^(ei|ära|ega)$', verbObj['pattern'][0])):
+        if (len(verbObj[PATTERN])==1 and re.match('^(ei|ära|ega)$', verbObj[PATTERN][0])):
             # V2lja j22vad yksikuna esinevad ei/ära/ega, kuna need tõenäoliselt ei sega
             continue
-        annotatedWords.extend( verbObj['phrase'] )
+        annotatedWords.extend( verbObj[PHRASE] )
     expandableEgaFound = False
     for i in range(len(sentTokens)):
         token = sentTokens[i]
-        if sonaEga.matches(token) and token['wordID'] not in annotatedWords:
+        if sonaEga.matches(token) and token[WORD_ID] not in annotatedWords:
             matchFound = False
-            if i+1 < len(sentTokens) and sentTokens[i+1]['wordID'] in annotatedWords:
+            if i+1 < len(sentTokens) and sentTokens[i+1][WORD_ID] in annotatedWords:
                 #
                 #    K6ige lihtsam juht: eelnevalt on verbifraas juba tuvastatud (ja 
                 #   eeldatavasti maksimaalses pikkuses), seega pole teha muud, kui sellele
@@ -1194,17 +1195,17 @@ def _extractEgaNegFromSent( sentTokens, clausesDict, foundChains ):
                 #       nt morf yhestamisel);
                 #
                 for verbObj in foundChains:
-                    if sentTokens[i+1]['wordID'] in verbObj['phrase'] and verbObj['pol'] != 'NEG' and \
+                    if sentTokens[i+1][WORD_ID] in verbObj[PHRASE] and verbObj[POLARITY] != 'NEG' and \
                        verbEiJarel.matches( sentTokens[i+1] ):
-                            verbObj['phrase'].insert(0, token['wordID'])
-                            verbObj['pattern'].insert(0, 'ega')
-                            verbObj['pol'] = 'NEG'
-                            verbObj['analysisIDs'].insert(0, _getMatchingAnalysisIDs( token, sonaEga ) )
-                            annotatedWords.append( token['wordID'] )
+                            verbObj[PHRASE].insert(0, token[WORD_ID])
+                            verbObj[PATTERN].insert(0, 'ega')
+                            verbObj[POLARITY] = 'NEG'
+                            verbObj[ANALYSIS_IDS].insert(0, _getMatchingAnalysisIDs( token, sonaEga ) )
+                            annotatedWords.append( token[WORD_ID] )
                             matchFound = True
                             break
             elif i+1 < len(sentTokens) and verbEiJarel.matches( sentTokens[i+1] ) and \
-             sentTokens[i+1]['wordID'] not in annotatedWords:
+             sentTokens[i+1][WORD_ID] not in annotatedWords:
                 #
                 #    Heuristik:
                 #      kui 'ega'-le j2rgneb vahetult 'ei'-ga sobiv verb (peaks olema
@@ -1217,26 +1218,26 @@ def _extractEgaNegFromSent( sentTokens, clausesDict, foundChains ):
                 # >> clauseID-iks saab j2rgneva verbi ID, kuna 'ega' j2relt l2heb sageli
                 #    osalausepiir ning ega-le eelnevad verbid kindlasti sellega seotud olla 
                 #    ei saa.
-                clauseID = sentTokens[i+1]['clauseID']
-                wid1 = sentTokens[i]['wordID']
-                wid2 = sentTokens[i+1]['wordID']
-                verbObj = { 'phrase': [wid1, wid2], 'pattern': ["ega", "verb"] }
-                verbObj['clauseID'] = clauseID
+                clauseID = sentTokens[i+1][CLAUSE_IDX]
+                wid1 = sentTokens[i][WORD_ID]
+                wid2 = sentTokens[i+1][WORD_ID]
+                verbObj = { PHRASE: [wid1, wid2], PATTERN: ["ega", "verb"] }
+                verbObj[CLAUSE_IDX] = clauseID
                 if verbOlema.matches(sentTokens[i+1]):
-                    verbObj['pattern'][1] = 'ole'
-                verbObj['pol'] = 'NEG'
-                verbObj['analysisIDs'] = []
-                verbObj['analysisIDs'].append( _getMatchingAnalysisIDs( sentTokens[i], sonaEga ) )
-                verbObj['analysisIDs'].append( _getMatchingAnalysisIDs( sentTokens[i+1], verbEiJarel ) )
+                    verbObj[PATTERN][1] = 'ole'
+                verbObj[POLARITY] = 'NEG'
+                verbObj[ANALYSIS_IDS] = []
+                verbObj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( sentTokens[i], sonaEga ) )
+                verbObj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( sentTokens[i+1], verbEiJarel ) )
                 # Teeme kindlaks, kas j2rgneb veel verbe, mis v6iksid potentsiaalselt liituda
-                verbObj['otherVerbs'] = False
+                verbObj[OTHER_VERBS] = False
                 if i+2 < len(sentTokens):
                     for j in range(i+2, len(sentTokens)):
                         token2 = sentTokens[j]
-                        if token2['clauseID'] == clauseID and verb.matches(token2):
-                            verbObj['otherVerbs'] = True
+                        if token2[CLAUSE_IDX] == clauseID and verb.matches(token2):
+                            verbObj[OTHER_VERBS] = True
                             break
-                if verbObj['otherVerbs']:
+                if verbObj[OTHER_VERBS]:
                     expandableEgaFound = True
                 else:
                     #
@@ -1251,13 +1252,13 @@ def _extractEgaNegFromSent( sentTokens, clausesDict, foundChains ):
                     #
                     for j in range(i-1, -1, -1):
                         token2 = sentTokens[j]
-                        if token2['clauseID'] == clauseID:
+                        if token2[CLAUSE_IDX] == clauseID:
                             for verbObj2 in foundChains:
-                                if token2['wordID'] in verbObj2['phrase'] and verbObj2['pol'] != 'POS':
-                                    verbObj['otherVerbs'] = True
+                                if token2[WORD_ID] in verbObj2[PHRASE] and verbObj2[POLARITY] != 'POS':
+                                    verbObj[OTHER_VERBS] = True
                                     break
                 foundChains.append( verbObj )
-                annotatedWords.extend( verbObj['phrase'] )
+                annotatedWords.extend( verbObj[PHRASE] )
                 matchFound = True
             if not matchFound:
                 #
@@ -1273,19 +1274,19 @@ def _extractEgaNegFromSent( sentTokens, clausesDict, foundChains ):
                 #          suulise k6ne l2hedases keelekasutuses, harvem ajakirjanduses ning
                 #          veel v2hem kasutusel teaduskirjanduses;
                 #
-                egaClauseID = sentTokens[i]['clauseID']
+                egaClauseID = sentTokens[i][CLAUSE_IDX]
                 precedingNeg = False
                 followingNeg = False
                 followingPos = None
                 for verbObj1 in foundChains:
-                    if verbObj1['clauseID'] == egaClauseID:
-                        if verbObj1['pol'] != 'POS':
-                            if any([ wid < sentTokens[i]['wordID'] for wid in verbObj1['phrase'] ]):
+                    if verbObj1[CLAUSE_IDX] == egaClauseID:
+                        if verbObj1[POLARITY] != 'POS':
+                            if any([ wid < sentTokens[i][WORD_ID] for wid in verbObj1[PHRASE] ]):
                                 precedingNeg = True
-                            if any([ wid > sentTokens[i]['wordID'] for wid in verbObj1['phrase'] ]):
+                            if any([ wid > sentTokens[i][WORD_ID] for wid in verbObj1[PHRASE] ]):
                                 followingNeg = True
-                        elif verbObj1['pol'] == 'POS' and \
-                             all([wid > sentTokens[i]['wordID'] for wid in verbObj1['phrase']]):
+                        elif verbObj1[POLARITY] == 'POS' and \
+                             all([wid > sentTokens[i][WORD_ID] for wid in verbObj1[PHRASE]]):
                             followingPos = verbObj1
                 if not precedingNeg and not followingNeg:
                     if followingPos:
@@ -1299,15 +1300,15 @@ def _extractEgaNegFromSent( sentTokens, clausesDict, foundChains ):
                         #        Ega_0 70 eluaastat ole_0 naljaasi !
                         #        Ega_0 sa puusärgis paugutama_0 hakka_0 . "
                         #
-                        minWID = min(followingPos['phrase'])
-                        phraseTokens = [t for t in sentTokens if t['wordID'] in followingPos['phrase']]
+                        minWID = min(followingPos[PHRASE])
+                        phraseTokens = [t for t in sentTokens if t[WORD_ID] in followingPos[PHRASE]]
                         if any( [verbEiJarel.matches( t ) for t in phraseTokens] ) and \
-                           not _isSeparatedByPossibleClauseBreakers( sentTokens, token['wordID'], minWID, True):
-                            followingPos['phrase'].insert(0, token['wordID'])
-                            followingPos['pattern'].insert(0, 'ega')
-                            followingPos['pol'] = 'NEG'
-                            followingPos['analysisIDs'].insert(0, _getMatchingAnalysisIDs( token, sonaEga ) )
-                            annotatedWords.append( token['wordID'] )
+                           not _isSeparatedByPossibleClauseBreakers( sentTokens, token[WORD_ID], minWID, True):
+                            followingPos[PHRASE].insert(0, token[WORD_ID])
+                            followingPos[PATTERN].insert(0, 'ega')
+                            followingPos[POLARITY] = 'NEG'
+                            followingPos[ANALYSIS_IDS].insert(0, _getMatchingAnalysisIDs( token, sonaEga ) )
+                            annotatedWords.append( token[WORD_ID] )
                             matchFound = True
                             #
                             #   Veakoht - vahel on 'kui':
@@ -1329,33 +1330,33 @@ def _extractEgaNegFromSent( sentTokens, clausesDict, foundChains ):
                         #
                         for j in range(i+1, len(sentTokens)):
                             token2 = sentTokens[j]
-                            if token2['clauseID'] == egaClauseID and verbEiJarel.matches(token2) and \
-                               not verbTud.matches(token2) and token2['wordID'] not in annotatedWords and \
-                               (_isClauseFinal( token2['wordID'], clausesDict[token2['clauseID']] ) or \
+                            if token2[CLAUSE_IDX] == egaClauseID and verbEiJarel.matches(token2) and \
+                               not verbTud.matches(token2) and token2[WORD_ID] not in annotatedWords and \
+                               (_isClauseFinal( token2[WORD_ID], clausesDict[token2[CLAUSE_IDX]] ) or \
                                j-i <= 2):
-                                    wid1 = sentTokens[i]['wordID']
-                                    wid2 = token2['wordID']
-                                    verbObj = { 'phrase': [wid1, wid2], 'pattern': ["ega", "verb"] }
-                                    verbObj['clauseID'] = token2['clauseID']
+                                    wid1 = sentTokens[i][WORD_ID]
+                                    wid2 = token2[WORD_ID]
+                                    verbObj = { PHRASE: [wid1, wid2], PATTERN: ["ega", "verb"] }
+                                    verbObj[CLAUSE_IDX] = token2[CLAUSE_IDX]
                                     if verbOlema.matches(token2):
-                                        verbObj['pattern'][1] = 'ole'
-                                    verbObj['pol'] = 'NEG'
-                                    verbObj['analysisIDs'] = []
-                                    verbObj['analysisIDs'].append( _getMatchingAnalysisIDs( sentTokens[i], sonaEga ) )
-                                    verbObj['analysisIDs'].append( _getMatchingAnalysisIDs( token2, verbEiJarel ) )
+                                        verbObj[PATTERN][1] = 'ole'
+                                    verbObj[POLARITY] = 'NEG'
+                                    verbObj[ANALYSIS_IDS] = []
+                                    verbObj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( sentTokens[i], sonaEga ) )
+                                    verbObj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( token2, verbEiJarel ) )
                                     # Teeme kindlaks, kas osalauses on veel verbe, mis v6iksid potentsiaalselt liituda
-                                    verbObj['otherVerbs'] = False
+                                    verbObj[OTHER_VERBS] = False
                                     if i+2 < len(sentTokens):
                                         for j in range(i+2, len(sentTokens)):
                                             token3 = sentTokens[j]
-                                            if token3['clauseID'] == verbObj['clauseID'] and \
+                                            if token3[CLAUSE_IDX] == verbObj[CLAUSE_IDX] and \
                                                token2 != token3 and verb.matches(token3):
-                                                    verbObj['otherVerbs'] = True
+                                                    verbObj[OTHER_VERBS] = True
                                                     break
-                                    if verbObj['otherVerbs']:
+                                    if verbObj[OTHER_VERBS]:
                                         expandableEgaFound = True
                                     foundChains.append( verbObj )
-                                    annotatedWords.extend( verbObj['phrase'] )
+                                    annotatedWords.extend( verbObj[PHRASE] )
                                     matchFound = True
                                     break
     return expandableEgaFound
@@ -1365,30 +1366,30 @@ def _determineVerbChainContextualAmbiguity( clauseTokens, clauseID, foundChains 
     '''
          Meetod, mis püüab otsustada iga leitud verbiahela (foundChains liikme) puhul, kas 
         osalauses leidub veel vabu verbe, millega verbiahelat oleks võimalik täiendada;
-         Kui vabu verbe ei leidu, muudab verbiahela 'otherVerbs' väärtuse negatiivseks, vastasel 
+         Kui vabu verbe ei leidu, muudab verbiahela OTHER_VERBS väärtuse negatiivseks, vastasel 
         juhul ei tee midagi.
          Sisend 'clauseTokens' on list, mis sisaldab yhe osalause k6iki s6nu (pyvabamorfi poolt
         tehtud s6na-analyyse), clauseID on vastava osalause indentifikaator; 
     '''
-    verb      = WordTemplate({'partofspeech':'V'})
-    verbOlema = WordTemplate({'partofspeech':'V', 'root':'^(ole)$'})
-    verbSaama = WordTemplate({'partofspeech':'V', 'root':'^(saa)$'})
-    verbEiAra = WordTemplate({'root':'^(ära|ei)$','form':'neg.*','partofspeech':'V'})
-    verbInf        = WordTemplate({'partofspeech':'V', 'form':'^(da|des|ma|maks|mas|mast|nud|tud|v|mata)$'})
-    regularVerbInf = WordTemplate({'partofspeech':'V', 'form':'^(da|ma|maks|mas|mast|mata)$'})
-    olemaVerbInf   = WordTemplate({'partofspeech':'V', 'form':'^(nud|tud|da|ma|mas|mata)$'})
-    saamaVerbInf   = WordTemplate({'partofspeech':'V', 'form':'^(tud|da|ma)$'})
-    sonaMitte = WordTemplate({'root':'^mitte$','partofspeech':'D'})
+    verb      = WordTemplate({POSTAG:'V'})
+    verbOlema = WordTemplate({POSTAG:'V', ROOT:'^(ole)$'})
+    verbSaama = WordTemplate({POSTAG:'V', ROOT:'^(saa)$'})
+    verbEiAra = WordTemplate({ROOT:'^(ära|ei)$',FORM:'neg.*',POSTAG:'V'})
+    verbInf        = WordTemplate({POSTAG:'V', FORM:'^(da|des|ma|maks|mas|mast|nud|tud|v|mata)$'})
+    regularVerbInf = WordTemplate({POSTAG:'V', FORM:'^(da|ma|maks|mas|mast|mata)$'})
+    olemaVerbInf   = WordTemplate({POSTAG:'V', FORM:'^(nud|tud|da|ma|mas|mata)$'})
+    saamaVerbInf   = WordTemplate({POSTAG:'V', FORM:'^(tud|da|ma)$'})
+    sonaMitte = WordTemplate({ROOT:'^mitte$',POSTAG:'D'})
     # J22dvustame s6nad, mis kuuluvad juba mingi tuvastatud verbifraasi koosseisu
     annotatedWords = []
     for verbObj in foundChains:
-        if (len(verbObj['pattern'])==1 and re.match('^(ei|ära|ega)$', verbObj['pattern'][0])):
+        if (len(verbObj[PATTERN])==1 and re.match('^(ei|ära|ega)$', verbObj[PATTERN][0])):
             # V2lja j22vad yksikuna esinevad ei/ära/ega, kuna need tõenäoliselt ei sega
             continue
-        annotatedWords.extend( verbObj['phrase'] )
+        annotatedWords.extend( verbObj[PHRASE] )
     finVerbs      = [t for t in clauseTokens if verb.matches(t) and not verbInf.matches(t) ]
     negFinVerbs   = [t for t in finVerbs if verbEiAra.matches(t)]
-    looseNegVerbs = [t for t in negFinVerbs if t['wordID'] not in annotatedWords]
+    looseNegVerbs = [t for t in negFinVerbs if t[WORD_ID] not in annotatedWords]
     #
     #  Kontrollime, milline on osalause finiitverbiline kontekst. Kui seal on mingi potentsiaalne
     # segadus, jätamegi küsimärgid alles / kustutamata.
@@ -1420,15 +1421,15 @@ def _determineVerbChainContextualAmbiguity( clauseTokens, clauseID, foundChains 
         #         1920 vastu võetud Tallinna tehnikumi põhikiri kaotas_0 kehtivuse .
         #         kuid häirest haaratud õunad nakatuvad_0 kiiresti mädanikesse ,
         #
-        if verbObj['clauseID'] == clauseID and verbObj['otherVerbs']:
+        if verbObj[CLAUSE_IDX] == clauseID and verbObj[OTHER_VERBS]:
             contextClear = False
             #
             #   Leiame viimasele s6nale vastava token'i, selle lemma ja vormitunnuse
             #
-            lastToken = [ token for token in clauseTokens if token['wordID'] == verbObj['phrase'][-1] ]
+            lastToken = [ token for token in clauseTokens if token[WORD_ID] == verbObj[PHRASE][-1] ]
             lastToken = lastToken[0]
-            analyses  = [ lastToken['analysis'][j] for j in range(len(lastToken['analysis'])) if j in verbObj['analysisIDs'][-1] ]
-            mainVerb  = [ analysis['root'] for analysis in analyses ]
+            analyses  = [ lastToken[ANALYSIS][j] for j in range(len(lastToken[ANALYSIS])) if j in verbObj[ANALYSIS_IDS][-1] ]
+            mainVerb  = [ analysis[ROOT] for analysis in analyses ]
             mainVerbLemma = mainVerb[0]
             #
             #   Leiame, millised verbid on veel vabad (st v6ivad potentsiaalselt rektsiooni-
@@ -1437,24 +1438,24 @@ def _determineVerbChainContextualAmbiguity( clauseTokens, clauseID, foundChains 
             #
             if 'saa' == mainVerbLemma:
                 if saamaFreeVerbs == None:
-                    saamaFreeVerbs = [t['wordID'] for t in clauseTokens if saamaVerbInf.matches(t) and t['wordID'] not in annotatedWords]
+                    saamaFreeVerbs = [t[WORD_ID] for t in clauseTokens if saamaVerbInf.matches(t) and t[WORD_ID] not in annotatedWords]
                 if not saamaFreeVerbs:
                     contextClear = True
             elif 'ole' == mainVerbLemma:
                 if olemaFreeVerbs == None:
-                    olemaFreeVerbs = [t['wordID'] for t in clauseTokens if olemaVerbInf.matches(t) and t['wordID'] not in annotatedWords]
+                    olemaFreeVerbs = [t[WORD_ID] for t in clauseTokens if olemaVerbInf.matches(t) and t[WORD_ID] not in annotatedWords]
                 if not olemaFreeVerbs:
                     contextClear = True
             else:
                 if rVerbFreeVerbs == None:
-                    rVerbFreeVerbs = [t['wordID'] for t in clauseTokens if regularVerbInf.matches(t) and t['wordID'] not in annotatedWords]
+                    rVerbFreeVerbs = [t[WORD_ID] for t in clauseTokens if regularVerbInf.matches(t) and t[WORD_ID] not in annotatedWords]
                 if not rVerbFreeVerbs:
                     contextClear = True
             #
             #   Kui yhtegi vaba verbi ei leidunud, märgime konteksti puhtaks
             #
             if contextClear:
-                verbObj['otherVerbs'] = False
+                verbObj[OTHER_VERBS] = False
         #
         #  NB! Kui kontekstis on rohkem kui yks finiitverb, siis on v6imalik, et tegu
         #      veaga morf yhestamises, lausestamises, osalausestamises; J2tame sellised
@@ -1496,13 +1497,13 @@ def _getMatchingAnalysisIDs( tokenJson, requiredWordTemplate, discardAnalyses = 
 
 
 def _getJsonAsTextString(sentence, markTokens = None):
-    textTokens = [tokenStruct["text"] for tokenStruct in sentence]
+    textTokens = [tokenStruct[TEXT] for tokenStruct in sentence]
     if markTokens != None:
         for i in range(len(markTokens)):
             wordIDlist = markTokens[i]
             for wordID in wordIDlist:
                 for j in range(len(sentence)):
-                    if sentence[j]['wordID'] == wordID:
+                    if sentence[j][WORD_ID] == wordID:
                         textTokens[j] = textTokens[j]+"_"+str(i)
                         break
     return " ".join(textTokens)

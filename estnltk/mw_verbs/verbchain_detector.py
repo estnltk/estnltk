@@ -7,24 +7,26 @@
 #      * morphologically analyzed;
 #      * morphologically disambiguated (if not, the accuracy likely suffers);
 #      * sentences are split into clauses; 
-#        ('clauseID' must be marked to each token)
+#        (CLAUSE_IDX must be marked to each token)
 #
 
 from __future__ import unicode_literals
 import re
 
-from .utils import WordTemplate
-from .utils import addWordIDs
-from .utils import getClausesByClauseIDs
+from estnltk.names import *
 
-from .basic_verbchain_detection import _extractBasicPredicateFromClause
-from .basic_verbchain_detection import _expandSaamaWithTud
-from .basic_verbchain_detection import _expandOlemaVerbChains
-from .basic_verbchain_detection import _loadVerbSubcatRelations
-from .basic_verbchain_detection import _expandVerbChainsBySubcat
-from .basic_verbchain_detection import _determineVerbChainContextualAmbiguity
-from .basic_verbchain_detection import _extractEgaNegFromSent
-from .basic_verbchain_detection import _getJsonAsTextString
+from estnltk.mw_verbs.utils import WordTemplate
+from estnltk.mw_verbs.utils import addWordIDs
+from estnltk.mw_verbs.utils import getClausesByClauseIDs
+
+from estnltk.mw_verbs.basic_verbchain_detection import _extractBasicPredicateFromClause
+from estnltk.mw_verbs.basic_verbchain_detection import _expandSaamaWithTud
+from estnltk.mw_verbs.basic_verbchain_detection import _expandOlemaVerbChains
+from estnltk.mw_verbs.basic_verbchain_detection import _loadVerbSubcatRelations
+from estnltk.mw_verbs.basic_verbchain_detection import _expandVerbChainsBySubcat
+from estnltk.mw_verbs.basic_verbchain_detection import _determineVerbChainContextualAmbiguity
+from estnltk.mw_verbs.basic_verbchain_detection import _extractEgaNegFromSent
+from estnltk.mw_verbs.basic_verbchain_detection import _getJsonAsTextString
 
 from .verbchain_nom_vinf_extender import VerbChainNomVInfExtender
 
@@ -43,7 +45,7 @@ def removeRedundantVerbChains( foundChains, removeOverlapping = True, removeSing
         finiitverbi analyysid (v6i analyysid on j22nud mitmesteks) ja seega tuvastatakse 
         osalausest rohkem finiitverbe, kui oleks vaja.
          Heuristik: kahe ylekattuva puhul j2tame alles fraasi, mis algab eespool ning 
-        m2rgime sellel 'otherVerbs' v22rtuseks True, mis m2rgib, et kontekstis on mingi
+        m2rgime sellel OTHER_VERBS v22rtuseks True, mis m2rgib, et kontekstis on mingi
         segadus teiste verbidega.
     '''
     toDelete = []
@@ -52,9 +54,9 @@ def removeRedundantVerbChains( foundChains, removeOverlapping = True, removeSing
         if removeOverlapping:
             for j in range(i+1, len(foundChains)):
                 matchObj2 = foundChains[j]
-                if matchObj1 != matchObj2 and matchObj1['clauseID'] == matchObj2['clauseID']:
-                    phrase1 = set(matchObj1['phrase'])
-                    phrase2 = set(matchObj2['phrase'])
+                if matchObj1 != matchObj2 and matchObj1[CLAUSE_IDX] == matchObj2[CLAUSE_IDX]:
+                    phrase1 = set(matchObj1[PHRASE])
+                    phrase2 = set(matchObj2[PHRASE])
                     intersect = phrase1.intersection(phrase2)
                     if len(intersect) > 0:
                         #  Yldiselt on nii, et ylekattuvaid ei tohiks olla, kuna fraaside laiendamisel
@@ -64,16 +66,16 @@ def removeRedundantVerbChains( foundChains, removeOverlapping = True, removeSing
                         # seega tuvastatakse osalausest rohkem finiitverbe, kui oleks vaja.
                         #  Heuristik: j2tame alles fraasi, mis algab eespool ning lisame selle otsa
                         # kysim2rgi (kuna pole kindel, et asjad on korras)
-                        minWid1 = min(matchObj1['phrase'])
-                        minWid2 = min(matchObj2['phrase'])
+                        minWid1 = min(matchObj1[PHRASE])
+                        minWid2 = min(matchObj2[PHRASE])
                         if minWid1 < minWid2:
-                            matchObj1['otherVerbs'] = True
+                            matchObj1[OTHER_VERBS] = True
                             toDelete.append(j)
                         else:
-                            matchObj2['otherVerbs'] = True
+                            matchObj2[OTHER_VERBS] = True
                             toDelete.append(i)
         if removeSingleAraAndEi:
-            if ( len(matchObj1['pattern'])==1 and re.match('^(ei|ära)$', matchObj1['pattern'][0]) ):
+            if ( len(matchObj1[PATTERN])==1 and re.match('^(ei|ära)$', matchObj1[PATTERN][0]) ):
                 toDelete.append(i)
     if toDelete:
         if len(set(toDelete)) != len(toDelete):
@@ -84,40 +86,40 @@ def removeRedundantVerbChains( foundChains, removeOverlapping = True, removeSing
 
 
 def addGrammaticalFeatsAndRoots( sentence, foundChains ):
-    ''' Täiendab leitud verbiahelaid, lisades iga ahela kylge selle s6nade lemmad ('root' 
-        v2ljad morf analyysist) ning morfoloogilised tunnused ('partofspeech'+'form': eraldajaks 
+    ''' Täiendab leitud verbiahelaid, lisades iga ahela kylge selle s6nade lemmad (ROOT 
+        v2ljad morf analyysist) ning morfoloogilised tunnused (POSTAG+FORM: eraldajaks 
         '_' ning kui on mitu varianti, siis tuuakse k6ik variandid, eraldajaks '/');
-        Iga verbiahela kylge pannakse atribuudid 'roots' ja 'morph', mis sisaldavad tunnuste
+        Iga verbiahela kylge pannakse atribuudid ROOTS ja MORPH, mis sisaldavad tunnuste
         loetelusid (iga ahela liikme jaoks yks tunnus);
          Nt.  
-           ** 'püüab kodeerida' puhul tuleb 'morph' väärtuseks ['V_b', 'V_da'] ning
-              'roots' väärtuseks ['püüd', 'kodeeri'];
-           ** 'on tulnud' puhul tuleb 'morph' väärtuseks ['V_vad/b', 'V_nud'] ning
-              'roots' väärtuseks ['ole', 'tule'];
+           ** 'püüab kodeerida' puhul tuleb MORPH väärtuseks ['V_b', 'V_da'] ning
+              ROOTS väärtuseks ['püüd', 'kodeeri'];
+           ** 'on tulnud' puhul tuleb MORPH väärtuseks ['V_vad/b', 'V_nud'] ning
+              ROOTS väärtuseks ['ole', 'tule'];
     '''
     for i in range(len(foundChains)):
         matchObj1 = foundChains[i]
         roots = []
         grammFeats = []
-        for j in range(len( matchObj1['phrase'] )):
-            wid = matchObj1['phrase'][j]
-            token = [token for token in sentence if token['wordID']==wid][0]
-            analysisIDs = matchObj1['analysisIDs'][j]
-            analyses = [ token['analysis'][k] for k in range(len( token['analysis'] )) if k in analysisIDs ]
-            pos  = set( [a['partofspeech'] for a in analyses] )
-            form = set( [a['form'] for a in analyses] )
-            root = [a['root'] for a in analyses][0]
+        for j in range(len( matchObj1[PHRASE] )):
+            wid = matchObj1[PHRASE][j]
+            token = [token for token in sentence if token[WORD_ID]==wid][0]
+            analysisIDs = matchObj1[ANALYSIS_IDS][j]
+            analyses = [ token[ANALYSIS][k] for k in range(len( token[ANALYSIS] )) if k in analysisIDs ]
+            pos  = set( [a[POSTAG] for a in analyses] )
+            form = set( [a[FORM] for a in analyses] )
+            root = [a[ROOT] for a in analyses][0]
             grammatical = ("/".join(list(pos))) + '_' + ("/".join(list(form)))
             #  Yhtlustame m6ningaid mustreid (st kohendame nende morf analyysi selliseks, nagu
             # mustri poolt on eeldatud) ...
-            if root == 'ei' and len(matchObj1['phrase'])>1:
+            if root == 'ei' and len(matchObj1[PHRASE])>1:
                 grammatical = 'V_neg'
-            if matchObj1['pattern'][j] == '&':
+            if matchObj1[PATTERN][j] == '&':
                 grammatical = 'J_'
             roots.append( root )
             grammFeats.append( grammatical )
-        matchObj1['roots'] = roots
-        matchObj1['morph'] = grammFeats
+        matchObj1[ROOTS] = roots
+        matchObj1[MORPH] = grammFeats
 
 # ================================================================
 #    VerbChainDetector -- The Main Class
@@ -173,7 +175,7 @@ class VerbChainDetector:
         ----------
         sentence:  list of dict
             A list of sentence words, each word in form of a dictionary containing 
-            morphological analysis and clause boundary annotations (must have 'clauseID');
+            morphological analysis and clause boundary annotations (must have CLAUSE_IDX);
         
         Keyword parameters
         ------------------
@@ -191,24 +193,24 @@ class VerbChainDetector:
         -------
         list of dict
             List of detected verb chains, each verb chain has following attributes (keys):
-             'phrase'      -- list of int : indexes pointing to elements in sentence that belong 
+             PHRASE      -- list of int : indexes pointing to elements in sentence that belong 
                                             to the chain;
-             'pattern'     -- list of str : for each word in phrase, marks whether it is 'ega', 'ei', 
+             PATTERN     -- list of str : for each word in phrase, marks whether it is 'ega', 'ei', 
                                             'ära', 'pole', 'ole', '&' (conjunction: ja/ning/ega/või) 
                                             'verb' (verb different than 'ole') or 'nom/adv';
-             'analysisIDs' -- list of (list of int) : for each word in phrase, points to index(es) of 
+             ANALYSIS_IDS -- list of (list of int) : for each word in phrase, points to index(es) of 
                                                       morphological analyses that correspond to words
                                                       in the verb chains;
-             'roots'       -- list of str : for each word in phrase, lists its corresponding 'root' 
+             ROOTS       -- list of str : for each word in phrase, lists its corresponding ROOT 
                                             value from the morphological analysis; e.g. for the verb
-                                            chain 'püüab kodeerida', the 'root' will be ['püüd', 
+                                            chain 'püüab kodeerida', the ROOT will be ['püüd', 
                                             'kodeeri'];
-             'morph'       -- list of str : for each word in phrase, lists its part-of-speech value 
+             MORPH       -- list of str : for each word in phrase, lists its part-of-speech value 
                                             and morphological form (in one string, separated by '_',
                                             and multiple variants of the pos/form separated by '/'); 
-                                            e.g. for the verb chain 'on tulnud', the 'morph' value 
+                                            e.g. for the verb chain 'on tulnud', the MORPH value 
                                             will be ['V_vad/b', 'V_nud'];
-             'otherVerbs'  -- bool : whether there are other verbs in the context, potentially being 
+             OTHER_VERBS  -- bool : whether there are other verbs in the context, potentially being 
                                      part of the verb chain; if this is True, it is uncertain whether 
                                      the chain is complete or not;
              'pol'         -- 'POS', 'NEG' or '??' : grammatical polarity of the verb chain; Negative
@@ -271,7 +273,7 @@ class VerbChainDetector:
                 # 3.1) Expand non-olema 'ega' verb chains inside the clause, if possible;
                 _expandVerbChainsBySubcat( clause, clauseID, allDetectedVerbChains, self.verbInfSubcatLexicon, False)
             
-            #_debugPrint(' | '+getJsonAsTextString(sentence, markTokens = [ verbObj['phrase'] for verbObj in allDetectedVerbChains ]))
+            #_debugPrint(' | '+getJsonAsTextString(sentence, markTokens = [ verbObj[PHRASE] for verbObj in allDetectedVerbChains ]))
 
         # 4) Extend chains with nom/adv + Vinf relations
         if self.verbNomAdvVinfExtender:

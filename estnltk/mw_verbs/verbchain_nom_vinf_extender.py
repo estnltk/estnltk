@@ -14,11 +14,12 @@
 from __future__ import unicode_literals
 import re, codecs
 
-from .utils import WordTemplate
-from .utils import getClausesByClauseIDs
-from .basic_verbchain_detection import _getJsonAsTextString
-from .basic_verbchain_detection import _getMatchingAnalysisIDs
-from .basic_verbchain_detection import _isFollowedByComma
+from estnltk.names import *
+from estnltk.mw_verbs.utils import WordTemplate
+from estnltk.mw_verbs.utils import getClausesByClauseIDs
+from estnltk.mw_verbs.basic_verbchain_detection import _getJsonAsTextString
+from estnltk.mw_verbs.basic_verbchain_detection import _getMatchingAnalysisIDs
+from estnltk.mw_verbs.basic_verbchain_detection import _isFollowedByComma
 #from .debug_print import _debugPrint
 
 class VerbChainNomVInfExtender:
@@ -28,13 +29,13 @@ class VerbChainNomVInfExtender:
     verbRules = None
     verbToVinf = None
     
-    wtNom = WordTemplate({'partofspeech':'[SACP]'})
-    wtNomSemCase = WordTemplate({'form':'^((sg|pl)\s(ab|abl|ad|all|el|es|ill|in|kom|ter|tr)|adt)$'})
+    wtNom = WordTemplate({POSTAG:'[SACP]'})
+    wtNomSemCase = WordTemplate({FORM:'^((sg|pl)\s(ab|abl|ad|all|el|es|ill|in|kom|ter|tr)|adt)$'})
     wtNotSyntAttrib = \
-        WordTemplate({'root':'^(ka|samuti|aga|et|nüüd|praegu|varsti|siis(ki)?|ju|just|siin|kohe|veel|'+\
+        WordTemplate({ROOT:'^(ka|samuti|aga|et|nüüd|praegu|varsti|siis(ki)?|ju|just|siin|kohe|veel|'+\
                                'seni|küll|hiljem|varem|ikka(gi)?|jälle(gi)?|vist|juba|isegi|seal|sageli|'+\
                                'mõnikord|muidu|(tavalise|loomuliku|lihtsa|ilmse)lt|taas|harva|eile|ammu|'+\
-                               'ainult|kindlasti|kindlalt)$', 'partofspeech':'[DJ]'})
+                               'ainult|kindlasti|kindlalt)$', POSTAG:'[DJ]'})
 
 
     def __init__( self, **kwargs):
@@ -88,9 +89,9 @@ class VerbChainNomVInfExtender:
                         (root,pos,form) = nounAdv.split(';')
                         if not root.startswith('^') and not root.endswith('$'):
                             root = '^'+root+'$'
-                        constraints = {'root':root, 'partofspeech':pos}
+                        constraints = {ROOT:root, POSTAG:pos}
                         if form:
-                            constraints['form'] = form
+                            constraints[FORM] = form
                         self.nomAdvWordTemplates[nounAdv] = WordTemplate(constraints)
                     if verb not in self.verbRules:
                         self.verbRules[verb] = []
@@ -187,8 +188,8 @@ class VerbChainNomVInfExtender:
                         #
                         analyses1 = self.wtNomSemCase.matchingAnalyses(prevToken)
                         analyses2 = self.wtNomSemCase.matchingAnalyses(nomAdvToken)
-                        forms1 = set([a['form'] for a in analyses1])
-                        forms2 = set([a['form'] for a in analyses2])
+                        forms1 = set([a[FORM] for a in analyses1])
+                        forms2 = set([a[FORM] for a in analyses2])
                         if len(forms1.intersection(forms2))==0:
                             return True
         elif not isNom and headVerbRoot.startswith('ole '):
@@ -245,14 +246,14 @@ class VerbChainNomVInfExtender:
         # J22dvustame s6nad, mis kuuluvad juba mingi tuvastatud verbifraasi koosseisu
         annotatedWords = []
         for verbObj in foundChains:
-            if clauseID == verbObj['clauseID'] and (len(verbObj['pattern'])==1 and \
-               re.match('^(ei|ära|ega)$', verbObj['pattern'][0])):
+            if clauseID == verbObj[CLAUSE_IDX] and (len(verbObj[PATTERN])==1 and \
+               re.match('^(ei|ära|ega)$', verbObj[PATTERN][0])):
                 # V2lja j22vad yksikuna esinevad ei/ära/ega, kuna need tõenäoliselt ei sega
                 continue
-            annotatedWords.extend( verbObj['phrase'] )
-        widToToken = { token['wordID'] : token for token in clause }
-        verbDaMa   = WordTemplate({'partofspeech':'V', 'form':'^(da|ma)$'})
-        verbOle    = WordTemplate({'root':'^ole$','partofspeech':'V'})
+            annotatedWords.extend( verbObj[PHRASE] )
+        widToToken = { token[WORD_ID] : token for token in clause }
+        verbDaMa   = WordTemplate({POSTAG:'V', FORM:'^(da|ma)$'})
+        verbOle    = WordTemplate({ROOT:'^ole$',POSTAG:'V'})
         #
         #   1) Yritame leida, millised juba tuvastatud verbiahelatest on sellised, kust on
         #      vahelt puudu nom/adv s6na, nt:
@@ -261,26 +262,26 @@ class VerbChainNomVInfExtender:
         #      Kui leiame ahelast puuduoleva s6na ja lisame selle ahelasse ...
         #
         for verbObj in foundChains:
-            if clauseID == verbObj['clauseID']:
+            if clauseID == verbObj[CLAUSE_IDX]:
                 headVerb      = ''
                 headVerbWID   = -1
                 dependentVerb = ''
                 dependentVerbWIDs = []
                 firstDependentVerbID = -1
                 #  Leiame ahela l6pust ylemus-verbi ja sellele alluva verbi
-                if len(verbObj['pattern']) > 3 and verbObj['pattern'][-2] == '&':
-                    headVerb = verbObj['roots'][-4]+" "+verbObj['pol']
-                    dependentVerb = verbObj['morph'][-3]
-                    headVerbWID = verbObj['phrase'][-4]
-                    dependentVerbWIDs.append( verbObj['phrase'][-3] )
-                    dependentVerbWIDs.append( verbObj['phrase'][-1] )
-                    firstDependentVerbID = len(verbObj['phrase'])-3
-                elif len(verbObj['pattern']) > 1 and verbObj['pattern'][-2]=='verb':
-                    headVerb = verbObj['roots'][-2]+" "+verbObj['pol']
-                    dependentVerb = verbObj['morph'][-1]
-                    headVerbWID = verbObj['phrase'][-2]
-                    dependentVerbWIDs.append(verbObj['phrase'][-1])
-                    firstDependentVerbID = len(verbObj['phrase'])-1
+                if len(verbObj[PATTERN]) > 3 and verbObj[PATTERN][-2] == '&':
+                    headVerb = verbObj[ROOTS][-4]+" "+verbObj[POLARITY]
+                    dependentVerb = verbObj[MORPH][-3]
+                    headVerbWID = verbObj[PHRASE][-4]
+                    dependentVerbWIDs.append( verbObj[PHRASE][-3] )
+                    dependentVerbWIDs.append( verbObj[PHRASE][-1] )
+                    firstDependentVerbID = len(verbObj[PHRASE])-3
+                elif len(verbObj[PATTERN]) > 1 and verbObj[PATTERN][-2]=='verb':
+                    headVerb = verbObj[ROOTS][-2]+" "+verbObj[POLARITY]
+                    dependentVerb = verbObj[MORPH][-1]
+                    headVerbWID = verbObj[PHRASE][-2]
+                    dependentVerbWIDs.append(verbObj[PHRASE][-1])
+                    firstDependentVerbID = len(verbObj[PHRASE])-1
                 # Kontrollime, kas ylemusverb ja sellele alluv verb v6iksid olla yhendatud
                 # mingi nom/adv s6na kaudu
                 if headVerb in self.verbRules and headVerb in self.verbToVinf and \
@@ -296,19 +297,19 @@ class VerbChainNomVInfExtender:
                                 if matchingAnalyses:
                                     #   Kontrollime, kas vaheletorgatav sõna paikneb nii, et see on suure
                                     #  tõenäosusega üksiksõna, mitte fraas.
-                                    if self._isLikelyNotPhrase( headVerb, headVerbWID, token['wordID'], widToToken ):
+                                    if self._isLikelyNotPhrase( headVerb, headVerbWID, token[WORD_ID], widToToken ):
                                         # Torkame nimis6na/adverbi vahele
-                                        verbObj['phrase'].insert( firstDependentVerbID, token['wordID'] )
-                                        verbObj['pattern'].insert( firstDependentVerbID, 'nom/adv' )
-                                        verbObj['analysisIDs'].insert( firstDependentVerbID, matchingAnalyses )
-                                        annotatedWords.append( token['wordID'] )
+                                        verbObj[PHRASE].insert( firstDependentVerbID, token[WORD_ID] )
+                                        verbObj[PATTERN].insert( firstDependentVerbID, 'nom/adv' )
+                                        verbObj[ANALYSIS_IDS].insert( firstDependentVerbID, matchingAnalyses )
+                                        annotatedWords.append( token[WORD_ID] )
                                         expansionPerformed = True
                                     else:
                                         # Kui me ei saa olla kindlad, et vaheletorgatav sõna pole fraas, paneme
                                         # küsimärgi, näitamaks, et verbiahelast on suure tõenäosusega midagi
                                         # puudu ...
-                                        verbObj['otherVerbs'] = True
-                                        #_debugPrint( ' '+('+'.join(verbObj['pattern']))+' | '+_getJsonAsTextString(clause, markTokens = [ verbObj['phrase'] ] ))
+                                        verbObj[OTHER_VERBS] = True
+                                        #_debugPrint( ' '+('+'.join(verbObj[PATTERN]))+' | '+_getJsonAsTextString(clause, markTokens = [ verbObj[PHRASE] ] ))
 
         #
         #   2) Yritame luua uusi ahelaid, laiendades verbe olemasolevate ahelate l6pus:
@@ -319,16 +320,16 @@ class VerbChainNomVInfExtender:
         #
         clauseMaxWID = max( list(widToToken.keys()) )
         for verbObj in foundChains:
-            if clauseID == verbObj['clauseID'] and verbObj['otherVerbs']:
-                if (len(verbObj['pattern'])==1 or (len(verbObj['pattern'])>1 and \
-                   verbObj['pattern'][-2] != '&')):
-                    headVerb = verbObj['roots'][-1]+" "+verbObj['pol']
-                    headVerbWID = verbObj['phrase'][-1]
+            if clauseID == verbObj[CLAUSE_IDX] and verbObj[OTHER_VERBS]:
+                if (len(verbObj[PATTERN])==1 or (len(verbObj[PATTERN])>1 and \
+                   verbObj[PATTERN][-2] != '&')):
+                    headVerb = verbObj[ROOTS][-1]+" "+verbObj[POLARITY]
+                    headVerbWID = verbObj[PHRASE][-1]
                     #
                     #   2.1) Esimeses l2henduses vaatame tavalisi verbe (mitte-olema);
                     #
                     if headVerb in self.verbRules and not headVerb.startswith('ole '):
-                        minInd = headVerbWID-1 if verbObj['pattern'][0]!='ega' else headVerbWID
+                        minInd = headVerbWID-1 if verbObj[PATTERN][0]!='ega' else headVerbWID
                         suitableNomAdvExpansions = []
                         expansionVerbs = []
                         for i in range(minInd, clauseMaxWID):
@@ -341,7 +342,7 @@ class VerbChainNomVInfExtender:
                                     break
                                 if verbDaMa.matches( token ):
                                     analysisIDs = _getMatchingAnalysisIDs( token, verbDaMa )
-                                    form = token['analysis'][analysisIDs[0]]['form']
+                                    form = token[ANALYSIS][analysisIDs[0]][FORM]
                                     expansionVerbs.append( [i, token, "V_"+form ] )
                                 else:
                                     for (nounAdv, vinf1) in self.verbRules[headVerb]:
@@ -361,19 +362,19 @@ class VerbChainNomVInfExtender:
                                     suitableNomAdvExpansions[0][3] ), \
                                     _getMatchingAnalysisIDs( suitableExpansionVerb[1], verbDaMa ) ]
                             # Lisame ahelale pikendused
-                            verbObj['phrase'].extend( phraseExt )
-                            verbObj['pattern'].extend( patternExt )
-                            verbObj['analysisIDs'].extend( analysisIDsExt )
+                            verbObj[PHRASE].extend( phraseExt )
+                            verbObj[PATTERN].extend( patternExt )
+                            verbObj[ANALYSIS_IDS].extend( analysisIDsExt )
                             annotatedWords.extend( phraseExt )
                             expansionPerformed = True
                             #if headVerb.startswith('and '):
-                            #    _debugPrint( ('+'.join(verbObj['pattern']))+' | '+getJsonAsTextString(clause, markTokens = [ verbObj['phrase'] ] ))
-                            #_debugPrint( ('+'.join(verbObj['pattern']))+' | '+getJsonAsTextString(clause, markTokens = [ verbObj['phrase'] ] ))
+                            #    _debugPrint( ('+'.join(verbObj[PATTERN]))+' | '+getJsonAsTextString(clause, markTokens = [ verbObj[PHRASE] ] ))
+                            #_debugPrint( ('+'.join(verbObj[PATTERN]))+' | '+getJsonAsTextString(clause, markTokens = [ verbObj[PHRASE] ] ))
                     elif headVerb in self.verbRules and headVerb.startswith('ole '):
                     #
                     #   2.2) Vaatame olema-verbi rektsiooniseoseid;
                     #
-                        minInd = headVerbWID-1 if verbObj['pattern'][0]!='ega' else headVerbWID
+                        minInd = headVerbWID-1 if verbObj[PATTERN][0]!='ega' else headVerbWID
                         suitableNomAdvExpansions = []
                         expansionVerbs = []
                         for i in range(minInd, clauseMaxWID):
@@ -381,7 +382,7 @@ class VerbChainNomVInfExtender:
                                 token = widToToken[i]
                                 if verbDaMa.matches( token ):
                                     analysisIDs = _getMatchingAnalysisIDs( token, verbDaMa )
-                                    form = token['analysis'][analysisIDs[0]]['form']
+                                    form = token[ANALYSIS][analysisIDs[0]][FORM]
                                     expansionVerbs.append( [i, token, "V_"+form ] )
                                 else:
                                     for (nounAdv, vinf1) in self.verbRules[headVerb]:
@@ -406,14 +407,14 @@ class VerbChainNomVInfExtender:
                                 suitableNomAdvExpansions[0][3] ), \
                                 _getMatchingAnalysisIDs( suitableExpansionVerb[1], verbDaMa ) ]
                             # Lisame ahelale pikendused
-                            verbObj['phrase'].extend( phraseExt )
-                            verbObj['pattern'].extend( patternExt )
-                            verbObj['analysisIDs'].extend( analysisIDsExt )
+                            verbObj[PHRASE].extend( phraseExt )
+                            verbObj[PATTERN].extend( patternExt )
+                            verbObj[ANALYSIS_IDS].extend( analysisIDsExt )
                             annotatedWords.extend( phraseExt )
                             expansionPerformed = True
-                            #_debugPrint( ('+'.join(verbObj['pattern']))+' | '+getJsonAsTextString(clause, markTokens = [ verbObj['phrase'] ] ))
+                            #_debugPrint( ('+'.join(verbObj[PATTERN]))+' | '+getJsonAsTextString(clause, markTokens = [ verbObj[PHRASE] ] ))
                             #if suitableNomAdvExpansions[0][4].startswith('aeg;'):
-                            #    _debugPrint( ('+'.join(verbObj['pattern']))+' | '+_getJsonAsTextString(clause, markTokens = [ verbObj['phrase'] ] ))
+                            #    _debugPrint( ('+'.join(verbObj[PATTERN]))+' | '+_getJsonAsTextString(clause, markTokens = [ verbObj[PHRASE] ] ))
         return expansionPerformed
         #
         #      Probleemsed kohad:

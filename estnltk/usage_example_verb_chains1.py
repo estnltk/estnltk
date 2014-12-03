@@ -4,9 +4,12 @@
 #
 
 from __future__ import unicode_literals, print_function
-import json, os.path
 
-from mw_verbs.verbchain_detector import VerbChainDetector
+from estnltk.names import *
+from estnltk.core import VERB_CHAIN_RES_PATH
+from estnltk.mw_verbs.verbchain_detector import VerbChainDetector
+
+import json, os.path
 
 # Example sentence
 inputSentenceJson = '''
@@ -16,33 +19,32 @@ sentence = json.loads( inputSentenceJson )
 sentenceText = [ token['text'] for token in sentence ]
 print ( ' '.join(sentenceText) )
 
-resourcesDir = os.path.join('mw_verbs', 'res')   # This should point to the directory  'mw_verbs\res'
-detector  = VerbChainDetector( resourcesPath = resourcesDir )
+detector  = VerbChainDetector( resourcesPath = VERB_CHAIN_RES_PATH)
 allChains = detector.detectVerbChainsFromSent( sentence )
 for verbChain in allChains:
     #  list of str : A general pattern describing words in the verb chain;
     #  For each word in chain, indicates whether it is 'ei','ega','pole','ära',
     #  'ole', '&' (conjunction: ja/ning/ega/või), 'verb' (verb different than 
     #  'ole') or 'nom/adv';
-    print(' pattern:  ', verbChain['pattern'])
+    print(' pattern:  ', verbChain[PATTERN])
     
     #  list of int : IDs of the word tokens that belong to the chain
     #  (detectVerbChainsFromSent() assigns 'wordID' to each word token)
-    print(' word_IDs: ', verbChain['phrase'])
+    print(' word_IDs: ', verbChain[PHRASE])
     
     #  list of str : morphological analysis root values for each word in the chain
-    print(' roots:  ', verbChain['roots'])
+    print(' roots:  ', verbChain[ROOTS])
     
     #  list of str : partofspeech_form for each word in the chain
-    print(' morph:  ', verbChain['morph'])
+    print(' morph:  ', verbChain[MORPH])
     
     #  str : grammatical polarity ('POS', 'NEG', '??') -- 'NEG' means that the chain
     #  begins with 'ei/ega/pole/ära';
-    print(' polarity: ', verbChain['pol'])
+    print(' polarity: ', verbChain[POLARITY])
     
     #  bool : Whether there are other verbs in the clause context?
     #  (if there are, it is uncertain whether the chain is complete or not)
-    print(' is_context_ambiguous?: ', verbChain['otherVerbs'])
+    print(' is_context_ambiguous?: ', verbChain[OTHER_VERBS])
     
     print()
 

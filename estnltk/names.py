@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Module that defines the attribute names used through the library
+'''Module that defines the attribute names and constants used througout the library
 and in corpora.'''
 
 from __future__ import unicode_literals, print_function
@@ -56,3 +56,12 @@ TMX_BEGINPOINT = 'begin_point'
 TMX_ENDPOINT = 'end_point'
 TMX_QUANT = 'quant'
 TMX_FREQ = 'freq"'
+
+# verb chain related
+PATTERN = 'pattern'
+PHRASE = 'phrase'
+ROOTS = 'roots'
+MORPH = 'morph'
+POLARITY = 'pol'
+OTHER_VERBS = 'otherVerbs'
+WORD_ID = 'wordID'
