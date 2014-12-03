@@ -22,9 +22,10 @@ The aim of the project is to tie together a number of open source components so 
 * Word and sentence tokenization
 * Morphological analysis and generation
 * Lemmatization / stemming
-* Clause detection
+* Clause segmenter
 * Temporal expression tagger
 * Named entity recognition
+* Verb chain detector
 * Estonian Wordnet integration.
 
 The above list is actually only a modest fraction of different tools available, but is large enough to cover most basic uses cases.
@@ -376,7 +377,7 @@ See `documentation`_ for possible parameters.
 
     .. _documentation: https://github.com/Filosoft/vabamorf/blob/master/doc/tagset.html
 
-Clause detection
+Clause segmenter
 ================
 
 There are three types of sentences.
@@ -384,7 +385,7 @@ A simple sentence, also called an independent clause, contains a subject and a v
 A compound sentence contains two independent clauses joined by a coordinator
 A complex sentence has an independent clause joined by one or more dependent clauses.
 
-Clause detection makes it possible to extract these clauses and treat them independently::
+Clause segmenter makes it possible to extract these clauses and treat them independently::
 
     from estnltk import Tokenizer, PyVabamorfAnalyzer, ClauseSegmenter
     from pprint import pprint
@@ -585,8 +586,8 @@ For example, let's tag the text given date June 10 1995::
 See :class:`estnltk.corpus.Timex` documentation for available attributes.
 
 
-Verb phrase tagging
-===================
+Verb chain detection
+====================
 
 In linguistics, a verb phrase or VP is a syntactic unit composed of at least one verb and its dependents—objects, complements and other modifiers—but not always including the subject.
 
