@@ -65,7 +65,7 @@
 <span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">PyVabamorfAnalyzer</span>
 <span class="kn">from</span> <span class="nn">estnltk.estner.settings</span> <span class="kn">import</span> <span class="n">Settings</span><span class="p">,</span> <span class="n">DEFAULT_SETTINGS_MODULE</span>
 <span class="kn">from</span> <span class="nn">estnltk.core</span> <span class="kn">import</span> <span class="n">as_unicode</span><span class="p">,</span> <span class="n">as_binary</span>
-<span class="kn">from</span> <span class="nn">estnltk.core</span> <span class="kn">import</span> <span class="n">DEFAULT_NER_DATASET</span><span class="p">,</span> <span class="n">DEFAULT_NER_MODEL</span><span class="p">,</span> <span class="n">overrides</span><span class="p">,</span> <span class="n">JsonPaths</span>
+<span class="kn">from</span> <span class="nn">estnltk.core</span> <span class="kn">import</span> <span class="n">DEFAULT_NER_DATASET</span><span class="p">,</span> <span class="n">DEFAULT_PY2_NER_MODEL</span><span class="p">,</span> <span class="n">DEFAULT_PY3_NER_MODEL</span><span class="p">,</span> <span class="n">overrides</span><span class="p">,</span> <span class="n">JsonPaths</span>
 <span class="kn">from</span> <span class="nn">estnltk.textprocessor</span> <span class="kn">import</span> <span class="n">TextProcessor</span>
 <span class="kn">from</span> <span class="nn">estnltk.corpus</span> <span class="kn">import</span> <span class="n">Corpus</span>
 <span class="kn">from</span> <span class="nn">estnltk.estner.crfsuiteutil</span> <span class="kn">import</span> <span class="n">Trainer</span><span class="p">,</span> <span class="n">Tagger</span>
@@ -78,6 +78,13 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">codecs</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">six</span>
+
+<span class="c"># depending on Python version, use different NER models</span>
+<span class="n">DEFAULT_NER_MODEL</span> <span class="o">=</span> <span class="n">DEFAULT_PY2_NER_MODEL</span>
+<span class="k">if</span> <span class="n">six</span><span class="o">.</span><span class="n">PY3</span><span class="p">:</span>
+    <span class="n">DEFAULT_NER_MODEL</span> <span class="o">=</span> <span class="n">DEFAULT_PY3_NER_MODEL</span>
+
 
 <div class="viewcode-block" id="NerModel"><a class="viewcode-back" href="../../estnltk.html#estnltk.ner.NerModel">[docs]</a><span class="k">class</span> <span class="nc">NerModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Class containing the settings and the model for the NER system.&#39;&#39;&#39;</span>

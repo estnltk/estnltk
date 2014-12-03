@@ -131,7 +131,7 @@
     </div>
 <div class="viewcode-block" id="PyVabamorfAnalyzer.analyze"><a class="viewcode-back" href="../../estnltk.html#estnltk.morf.PyVabamorfAnalyzer.analyze">[docs]</a>    <span class="k">def</span> <span class="nf">analyze</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wordlist</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">wordlist</span><span class="p">:</span>
-            <span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]</span> <span class="o">=</span> <span class="n">pyvabamorf</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="n">TEXT</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="n">ANALYSIS</span><span class="p">]</span>
+            <span class="n">word</span><span class="p">[</span><span class="n">ANALYSIS</span><span class="p">]</span> <span class="o">=</span> <span class="n">analyze</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="n">TEXT</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="n">ANALYSIS</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">wordlist</span></div></div>
 </pre></div>
 

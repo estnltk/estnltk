@@ -19,24 +19,28 @@ RENAMING_MAP = {
     'endPoint': TMX_ENDPOINT,
 }
 
-class TimexDetector(JavaProcess, TextProcessor):
+class TimexTagger(JavaProcess, TextProcessor):
     
     def __init__(self):
         JavaProcess.__init__(self, 'Ajavt.jar', ['-pyvabamorf', '-r', os.path.join(JAVARES_PATH, 'reeglid.xml')])
 
     def process_json(self, corpus, **kwargs):
         for sentence_ptr in JsonPaths.words.find(corpus):
-            sentence_ptr.value = self.process_words(sentence_ptr.value)
+            self.process_words(sentence_ptr.value)
         return corpus
 
     def process_corpus(self, corpus, **kwargs):
         for sentence in corpus.sentences:
-            sentence[WORDS] = self.process_words(sentence[WORDS])
+            self.process_words(sentence[WORDS])
         return corpus
     
     def process_words(self, words):
         sentence = {WORDS: words}
-        return self.rename_attributes(json.loads(self.process_line(json.dumps(sentence)))[WORDS])
+        processed_words = self.rename_attributes(json.loads(self.process_line(json.dumps(sentence)))[WORDS])
+        for w, p in zip(words, processed_words):
+            if TIMEXES in p:
+                w[TIMEXES] = p[TIMEXES]
+        return words
     
     def rename_attributes(self, sentence):
         for word in sentence:
@@ -48,17 +52,8 @@ class TimexDetector(JavaProcess, TextProcessor):
                             timex[RENAMING_MAP[k]] = v
                             del timex[k]
                         # trim "t" from id and anchor time
-                        if k in [TMX_ID, TMX_ANCHOR] and v.startswith('t'):
+                        if k in [TMX_ID, TMX_ANCHOR] and isinstance(v, str) and v.startswith('t'):
                             timex[k] = int(v[1:])
         return sentence
             
-from estnltk import Tokenizer
-from estnltk import PyVabamorfAnalyzer
-
-tokenizer = Tokenizer()
-analyzer = PyVabamorfAnalyzer()
-
-t = analyzer(tokenizer('Potsataja ütles eile, et vaatavad nüüd Genaga viie aasta plaanid uuesti üle.'), phonetic=False)
-det = TimexDetector()
-pprint(det(t).to_json())
 

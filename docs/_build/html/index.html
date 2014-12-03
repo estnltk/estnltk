@@ -58,7 +58,7 @@ The aim of the project is to tie together a number of open source components so 
 <li>Morphological analysis and generation</li>
 <li>Lemmatization / stemming</li>
 <li>Clause detection</li>
-<li>Time expression detection</li>
+<li>Temporal expression tagger</li>
 <li>Named entity recognition</li>
 <li>Estonian Wordnet integration.</li>
 </ul>
@@ -518,7 +518,7 @@ A quick example, how to do it:</p>
 </pre></div>
 </div>
 <p>Named entity tags are encoded using a widely accepted BIO annotation scheme, where each label is prefixed with B or I, or the entire label is given as O.
-<strong>B</strong> denotes the <em>beginning</em> and <strong>I</strong> <em>inside</em> of an entity, while <strong>O</strong> means <em>omitted</em>.
+<strong>B-</strong> denotes the <em>beginning</em> and <strong>I-</strong> <em>inside</em> of an entity, while <strong>O</strong> means <em>omitted</em>.
 This can be used to detect entities that consist of more than a single word as can be seen in above example.</p>
 <p>It is also possible to query directly <a class="reference internal" href="estnltk.html#estnltk.corpus.NamedEntity" title="estnltk.corpus.NamedEntity"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.NamedEntity</span></code></a> objects from tagged corpora.
 This makes it easy to see all words that are grouped into a named entity:</p>
@@ -538,6 +538,33 @@ This makes it easy to see all words that are grouped into a named entity:</p>
 </pre></div>
 </div>
 <p>See <a class="reference internal" href="estnltk.html#estnltk.corpus.NamedEntity" title="estnltk.corpus.NamedEntity"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.NamedEntity</span></code></a> documentation for information on available properties.</p>
+</div>
+<div class="section" id="temporal-expression-timex-tagging">
+<h2>Temporal expression (TIMEX) tagging<a class="headerlink" href="#temporal-expression-timex-tagging" title="Permalink to this headline">¶</a></h2>
+<p>Temporal Expressions Tagger of Estnltk identifies temporal expression phrases in text and normalizes these expressions in a format similar to TimeML&#8217;s TIMEX3.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">PyVabamorfAnalyzer</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">TimexTagger</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">Tokenizer</span><span class="p">()</span>
+<span class="n">analyzer</span> <span class="o">=</span> <span class="n">PyVabamorfAnalyzer</span><span class="p">()</span>
+<span class="n">tagger</span> <span class="o">=</span> <span class="n">TimexTagger</span><span class="p">()</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;&#39;Potsataja ütles eile, et vaatavad nüüd Genaga viie aasta plaanid uuesti üle.&#39;&#39;&#39;</span>
+<span class="n">tagged</span> <span class="o">=</span> <span class="n">tagger</span><span class="p">(</span><span class="n">analyzer</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">)))</span>
+
+<span class="n">pprint</span><span class="p">(</span><span class="n">tagged</span><span class="o">.</span><span class="n">timexes</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This prints found timex expressions:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;Timex(eile, DATE, [timex_id=1])&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Timex(nüüd, DATE, [timex_id=2])&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Timex(viie aasta, DURATION, [timex_id=3])&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="estnltk.html#estnltk.corpus.Timex" title="estnltk.corpus.Timex"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Timex</span></code></a> documentation for available attributes.</p>
 </div>
 </div>
 <div class="section" id="indices-and-tables">
@@ -575,6 +602,7 @@ This makes it easy to see all words that are grouped into a named entity:</p>
 <li><a class="reference internal" href="#morphological-synthesis">Morphological synthesis</a></li>
 <li><a class="reference internal" href="#clause-detection">Clause detection</a></li>
 <li><a class="reference internal" href="#named-entity-recognition">Named entity recognition</a></li>
+<li><a class="reference internal" href="#temporal-expression-timex-tagging">Temporal expression (TIMEX) tagging</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>

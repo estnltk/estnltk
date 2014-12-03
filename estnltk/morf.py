@@ -81,5 +81,5 @@ class PyVabamorfAnalyzer(TextProcessor):
     
     def analyze(self, wordlist, **kwargs):
         for word in wordlist:
-            word[ANALYSIS] = pyvabamorf.analyze(word[TEXT], **kwargs)[0][ANALYSIS]
+            word[ANALYSIS] = analyze(word[TEXT], **kwargs)[0][ANALYSIS]
         return wordlist

@@ -123,6 +123,8 @@ class Corpus(object):
     
     # methods for returning sentence specific data
     
+    # clause specific
+    
     @property
     def clause_indices(self):
         return [w.clause_index for w in self.words]
@@ -146,7 +148,8 @@ class Corpus(object):
     @property
     def timexes(self):
         return self.elements(TIMEXES)
-    
+
+        
     # other methods
     
     def __repr__(self):
@@ -371,6 +374,8 @@ class Sentence(ElementMixin, Dictionary):
     def elements(self, what):
         if what == SENTENCES:
             return [self]
+        elif what == WORDS:
+            return [w for w in self[WORDS]]
         elif what == NAMED_ENTITIES:
             return self.named_entities
         elif what == CLAUSES:
@@ -400,7 +405,7 @@ class Sentence(ElementMixin, Dictionary):
     @overrides(Corpus)
     def clauses(self):
         clauses = {}
-        for i, w in enumerate(self.words):
+        for i, w in enumerate(self[WORDS]):
             idx = w.clause_index
             clause = clauses.get(idx, [])
             clause.append(i)
@@ -411,10 +416,20 @@ class Sentence(ElementMixin, Dictionary):
     @overrides(Corpus)
     def timexes(self):
         timex_data = {}
-        for i, w in enumerate(self.words):
+        for i, w in enumerate(self[WORDS]):
             if TIMEXES in w:
                 for timex in w[TIMEXES]:
-                    pass
+                    data = timex_data.get(timex[TMX_ID], [])
+                    data.append((i, timex))
+                    timex_data[timex[TMX_ID]] = data
+        timex_objects = []
+        for k, timexes in timex_data.items():
+            for (i, t1), (j, t2) in zip(timexes, timexes[1:]):
+                assert i == j-1 # assert that timexes are consequent
+            start_word = timexes[0][0]
+            end_word = timexes[-1][0] + 1
+            timex_objects.append(Timex(self, start_word, end_word, timexes[0][1]))
+        return timex_objects
     
     def __repr__(self):
         return repr('Sentence({0})'.format(self.text[:24] + '...'))
@@ -454,85 +469,17 @@ class ConsequentSentenceElement(ElementMixin):
             REL_END: rel_end,
             WORD_START: word_start,
             WORD_END: word_end,
-            TEXT: text,
-            LABEL: label
+            TEXT: text
         }
         self.sentence = sentence
-
-
-class NamedEntity(ElementMixin):
-    '''Named entities have to be constructed from sentences containing
-    the labelled words. Named entity represents a group of words
-    making up the named entity, such as *Toomas Hendrik Ilves*.
-    
-    Parameters
-    ----------
-    sentence: :class:estnltk.corpus.Sentence
-        The sentence, where the named entity is found.
-    word_start: int
-        The index of the word in the sentence, where the named
-        entity starts.
-    word_end: int
-        The index of the word in the sentence, where the named
-        entity ends.
-    '''
-    
-    def __init__(self, sentence, word_start, word_end):
-        start_word = sentence[WORDS][word_start]
-        end_word = sentence[WORDS][word_end-1]
-        rel_start = start_word.rel_start
-        rel_end = end_word.rel_end
-        text = sentence.text[rel_start:rel_end]
-        label = start_word.label[2:]
-        data = {
-            START: start_word.start,
-            END: end_word.end,
-            REL_START: rel_start,
-            REL_END: rel_end,
-            WORD_START: word_start,
-            WORD_END: word_end,
-            TEXT: text,
-            LABEL: label
-        }
-        self.sentence = sentence
-        super(NamedEntity, self).__init__(data)
-    
+        super(ConsequentSentenceElement, self).__init__(data)
+        
     @overrides(ElementMixin)
     def assert_valid(self):
-        super(NamedEntity, self).assert_valid()
+        super(ConsequentSentenceElement, self).assert_valid()
         assert WORD_START in self
         assert WORD_END in self
-        assert LABEL in self
-        assert self[LABEL] != 'O'
-        for i, w in enumerate(self.words):
-            if i == 0:
-                assert w.label == 'B-' + self.label
-            else:
-                assert w.label == 'I-' + self.label
-    
-    @property
-    def label(self):
-        '''The labels of named entity words have either prefixes
-        **B-** or **I-**, denoting *beginning* and *inside* respectively.
-        However, the real label is stored as a suffix, which can be
-        retrieved using this property.
         
-        Returns
-        -------
-        str
-            The label of the named entity.
-        '''
-        return self[LABEL]
-        
-    @property
-    def lemma(self):
-        '''Returns
-        --------
-        str
-            The named entity lemma ie the word lemmas separated by space.
-        '''
-        return ' '.join([w.lemma for w in self.words]).lower()
-    
     @property
     def word_start(self):
         '''Returns
@@ -579,11 +526,189 @@ class NamedEntity(ElementMixin):
             words of the named entity.
         '''
         return [self.sentence[WORDS][i] for i in self.word_indices]
+
+
+class NamedEntity(ConsequentSentenceElement):
+    '''Named entities have to be constructed from sentences containing
+    the labelled words. Named entity represents a group of words
+    making up the named entity, such as *Toomas Hendrik Ilves*.
+    
+    Parameters
+    ----------
+    sentence: :class:estnltk.corpus.Sentence
+        The sentence, where the named entity is found.
+    word_start: int
+        The index of the word in the sentence, where the named
+        entity starts.
+    word_end: int
+        The index of the word in the sentence, where the named
+        entity ends.
+    '''
+    
+    def __init__(self, sentence, word_start, word_end):
+        self[LABEL] = sentence[WORDS][word_start].label[2:]
+        super(NamedEntity, self).__init__(sentence, word_start, word_end)
         
+    
+    @overrides(ConsequentSentenceElement)
+    def assert_valid(self):
+        super(NamedEntity, self).assert_valid()
+        assert LABEL in self
+        assert self[LABEL] != 'O'
+        for i, w in enumerate(self.words):
+            if i == 0:
+                assert w.label == 'B-' + self.label
+            else:
+                assert w.label == 'I-' + self.label
+    
+    @property
+    def label(self):
+        '''The labels of named entity words have either prefixes
+        **B-** or **I-**, denoting *beginning* and *inside* respectively.
+        However, the real label is stored as a suffix, which can be
+        retrieved using this property.
+        
+        Returns
+        -------
+        str
+            The label of the named entity.
+        '''
+        return self[LABEL]
+        
+    @property
+    def lemma(self):
+        '''Returns
+        --------
+        str
+            The named entity lemma ie the word lemmas separated by space.
+        '''
+        return ' '.join([w.lemma for w in self.words]).lower()
+    
     def __repr__(self):
         return repr('NamedEntity({0}, {1})'.format(self.lemma, self.label))
         
+
+class Timex(ConsequentSentenceElement):
+    '''Temporal Expressions Tagger identifies temporal expression phrases in text and
+    normalizes these expressions in a format similar to TimeML's TIMEX3.
+    '''
+    
+    def __init__(self, sentence, word_start, word_end, data):
+        for k, v in data.items():
+            self[k] = v
+        super(Timex, self).__init__(sentence, word_start, word_end)
         
+        
+    @overrides(ConsequentSentenceElement)
+    def assert_valid(self):
+        super(Timex, self).assert_valid()
+        assert TMX_ID in self
+        assert TMX_TYPE in self
+        assert TMX_VALUE in self
+
+    @property
+    def id(self):
+        '''Returns
+        --------
+        int
+            The timex identificator.'''
+        return self[TMX_ID]
+    
+    @property
+    def type(self):
+        '''Returns
+        --------
+        str
+            One of the following: "DATE", "TIME", "DURATION", "SET"
+        '''
+        return self[TMX_TYPE]
+    
+    @property
+    def value(self):
+        '''Returns
+        --------
+        str
+            calendrical value (largely follows TimeML TIMEX3 value format)
+        '''
+        return self[TMX_VALUE]
+        
+    @property
+    def temporal_function(self):
+        '''Returns
+        --------
+        str
+            whether the "value" was found by heuristics/calculations (thus can be wrong): "true", "false"
+        '''
+        return self.get(TMX_TEMP_FUNCTION, None)
+    
+    @property
+    def mod(self):
+        '''Returns
+        --------
+        str
+            Largely follows TimeML TIMEX3 mod format, with two additional values
+            used to mark first/second half of the date/time (e.g. "in the first 
+            half of the month"):  FIRST_HALF, SECOND_HALF;
+        '''
+        return self.get(TMX_MOD, None)
+    
+    @property
+    def anchor_id(self):
+        '''Returns
+        --------
+        int
+            points to the temporal expression (by identifier) that this expression 
+            has been anchored to while calculating or determining the value;
+            0 -- means that the expression is anchored to document creation 
+            time;
+        '''
+        return self.get(TMX_ANCHOR, None)
+    
+    @property
+    def begin_point(self):
+        '''Returns
+        --------
+        str
+            in case of DURATION: points to the temporal expression (by identifier)
+            that serves as a beginning point of this duration;
+            "?" -- indicates problems on finding the beginning point;
+        '''
+        return self.get(TMX_BEGINPOINT, None)
+    
+    @property
+    def end_point(self):
+        '''Returns
+        --------
+        str
+            in case of DURATION: points to the temporal expression (by identifier)
+            that serves as an ending point of this duration;
+            "?" -- indicates problems on finding the ending point;
+        '''
+        return self.get(TMX_ENDPOINT, None)
+    
+    @property
+    def quant(self):
+        '''Returns
+        --------
+        str
+            Quantifier; Used only in some SET expressions, e.g. quant="EVERY"
+        '''
+        return self.get(TMX_QUANT, None)
+    
+    @property
+    def freq(self):
+        '''Returns
+        --------
+        str
+            Used in some SET expressions, marks frequency of repetition, e.g.
+            "three days in each month" will be have freq="3D"
+        '''
+        return self.get(TMX_FREQ, None)
+    
+    def __repr__(self):
+        return repr('Timex({0}, {1}, [timex_id={2}])'.format(self.text, self.type, self.id))
+
+
 class Clause(object):
     
     def __init__(self, sentence, indices):
@@ -637,11 +762,6 @@ class Clause(object):
     def __repr__(self):
         return repr('Clause({0} [clause_index={1}])'.format(self.text, self.clause_index))
         
-
-class Timex(ElementMixin):
-    
-    def __init__(self, sentence, word_start, word_end):
-        pass
 
 
 class Word(ElementMixin, Dictionary):

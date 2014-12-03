@@ -518,7 +518,7 @@ As a result, we see the list of words with annotated labels::
      ('Ilves.', 'I-PER')]
 
 Named entity tags are encoded using a widely accepted BIO annotation scheme, where each label is prefixed with B or I, or the entire label is given as O.
-**B** denotes the *beginning* and **I** *inside* of an entity, while **O** means *omitted*.
+**B-** denotes the *beginning* and **I-** *inside* of an entity, while **O** means *omitted*.
 This can be used to detect entities that consist of more than a single word as can be seen in above example.
 
 It is also possible to query directly :class:`estnltk.corpus.NamedEntity` objects from tagged corpora.
@@ -546,7 +546,29 @@ Temporal expression (TIMEX) tagging
 
 Temporal Expressions Tagger of Estnltk identifies temporal expression phrases in text and normalizes these expressions in a format similar to TimeML's TIMEX3.
 
+Example::
 
+    from estnltk import Tokenizer
+    from estnltk import PyVabamorfAnalyzer
+    from estnltk import TimexTagger
+    from pprint import pprint
+
+    tokenizer = Tokenizer()
+    analyzer = PyVabamorfAnalyzer()
+    tagger = TimexTagger()
+
+    text = ''''Potsataja ütles eile, et vaatavad nüüd Genaga viie aasta plaanid uuesti üle.'''
+    tagged = tagger(analyzer(tokenizer(text)))
+
+    pprint(tagged.timexes)
+
+This prints found timex expressions::
+
+    ['Timex(eile, DATE, [timex_id=1])',
+     'Timex(nüüd, DATE, [timex_id=2])',
+     'Timex(viie aasta, DURATION, [timex_id=3])']
+
+See :class:`estnltk.corpus.Timex` documentation for available attributes.
 
 ==================
 Indices and tables
