@@ -200,6 +200,12 @@ kasuta NEG	võimalus;S;sg (p)	da
 loo POS	võimalus;S;(sg|pl) (n|p|g)	da
 loo NEG	võimalus;S;(sg|pl) (p)	da
 mine POS	kord;S;sg p	da
+näge POS	võimalus;S;(sg|pl) p	da
+näge NEG	võimalus;S;(sg|pl) p	da
+näge POS	põhjus;S;(sg|pl) p	da
+näge NEG	põhjus;S;(sg|pl) p	da
+näge POS	vajadus;S;(sg|pl) p	da
+näge NEG	vajadus;S;(sg|pl) p	da
 otsi POS	võimalus;S;(sg|pl) (n|p|g)	da
 otsi NEG	võimalus;S;(sg|pl) (p)	da
 osutu POS	võimalik;A;sg tr	da
