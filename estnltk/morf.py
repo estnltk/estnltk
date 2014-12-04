@@ -10,6 +10,7 @@ from estnltk.textprocessor import TextProcessor
 from estnltk.corpus import List
 from estnltk.pyvabamorf import analyze, synthesize
 
+
 class PyVabamorfAnalyzer(TextProcessor):
     '''Class using vabamorf library for morphological analysis.'''
     

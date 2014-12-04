@@ -37,7 +37,9 @@ setup(
     package_data = {
         'estnltk': ['corpora/*.json.bz2', 'java-res/*'],
         'estnltk.estner': ['models/*.bin', 'gazetteer/*.txt'],
-        'estnltk.pyvabamorf': ['dct/*.dct']
+        'esnltk.mw_verbs': 
+        'estnltk.pyvabamorf': ['dct/*.dct'],
+        'estnltk.textclassifier.tests': ['*.def', '*.xlsx', '*.csv', '*.txt']
     },
     
     install_requires = ['nltk>=3.0.0',
@@ -46,7 +48,20 @@ setup(
                         'six>=1.7.3',
                         'tempdir>=0.6',
                         'xmltodict>=0.9.0',
-                        'beautifulsoup4>=4.3.2'],
+                        'beautifulsoup4>=4.3.2',
+                        
+                        'pandas>=0.14.1', # text classifier related + some needed in future
+                        'scikit-learn>=0.15.1',
+                        'xlrd>=0.9.2',
+                        'xlsxwriter>=0.5.7',
+                        'numpy>=1.8.2',
+                        'scipy>=0.11.0',
+                        'pytz>=2014.4',
+                        'python-dateutil>=2.2',
+                        'nose>=1.3.3',
+                        'pyparsing>=2.0.2',
+                        'matplotlib>=1.2.1',
+                        'xlwt-future>=0.7.5'],
     
     author       = "Timo Petmanson, Aleksandr Tkachenko, Siim Orasmaa, Raul Sirel, Karl-Oskar Masing, Tanel Pärnamaa, Dage Särg, Neeme Kahusk, Sven Laur, Tarmo Vaino, Heiki-Jaan Kaalep",
     author_email = "tpetmanson@gmail.com",
