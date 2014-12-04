@@ -8,6 +8,7 @@ from __future__ import unicode_literals, print_function
 from estnltk.names import *
 from estnltk.core import VERB_CHAIN_RES_PATH
 from estnltk.mw_verbs.verbchain_detector import VerbChainDetector
+from pprint import pprint
 
 import json, os.path
 
@@ -46,9 +47,4 @@ for verbChain in allChains:
     #  (if there are, it is uncertain whether the chain is complete or not)
     print(' is_context_ambiguous?: ', verbChain[OTHER_VERBS])
     
-    print()
-
-
-    
-    
-
+    pprint(verbChain)

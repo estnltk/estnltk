@@ -1,32 +1,20 @@
-'''
-Read in a A&A TEI corpus and perform some operations:
+# -*- coding: utf-8 -*-
+'''Temporal expression tagger.'''
+from __future__ import unicode_literals, print_function
 
-1. show top word counts
-2. show top lemma counts
-3. show top lemma counts after removing stopwords
-4. show top lemma counts for adjectives
-'''
-
-from estnltk.core import AA_PATH
-from estnltk.teicorpus import parse_tei_corpora, parse_tei_corpus
-from estnltk.corpus import *
+from estnltk import Tokenizer
+from estnltk import PyVabamorfAnalyzer
+from estnltk import ClauseSegmenter
+from estnltk import VerbChainDetector
 from pprint import pprint
 
-import os
-import json
-
-corp_path = os.path.join(AA_PATH, 'tea_AA_03_1.tasak.xml')
-
-corp = parse_tei_corpus(corp_path)
-
-from estnltk.corpus import Corpus
-from estnltk.morf import PyVabamorfAnalyzer
-from estnltk.ner import NerTagger
-
+tokenizer = Tokenizer()
 analyzer = PyVabamorfAnalyzer()
-tagger = NerTagger()
+segmenter = ClauseSegmenter()
+detector = VerbChainDetector()
 
-analyzer(corp, inplace=True)
-tagger(corp, inplace=True)
+text = ''''Mis puutub eelolevasse nädalasse, siis neljapäeval ja reedel ei tohiks Sa oma tervist proovile panna.'''
+processed = detector(segmenter(analyzer(tokenizer(text))))
 
-pprint (zip(corp.lemmas, corp.labels))
+# print timex objects
+pprint(processed.verb_chains)

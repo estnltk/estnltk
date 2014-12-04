@@ -57,9 +57,10 @@ The aim of the project is to tie together a number of open source components so 
 <li>Word and sentence tokenization</li>
 <li>Morphological analysis and generation</li>
 <li>Lemmatization / stemming</li>
-<li>Clause detection</li>
+<li>Clause segmenter</li>
 <li>Temporal expression tagger</li>
 <li>Named entity recognition</li>
+<li>Verb chain detector</li>
 <li>Estonian Wordnet integration.</li>
 </ul>
 <p>The above list is actually only a modest fraction of different tools available, but is large enough to cover most basic uses cases.
@@ -380,13 +381,13 @@ To do that, one needs to use <a class="reference internal" href="estnltk.html#es
 <blockquote>
 <div></div></blockquote>
 </div>
-<div class="section" id="clause-detection">
-<h2>Clause detection<a class="headerlink" href="#clause-detection" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="clause-segmenter">
+<h2>Clause segmenter<a class="headerlink" href="#clause-segmenter" title="Permalink to this headline">¶</a></h2>
 <p>There are three types of sentences.
 A simple sentence, also called an independent clause, contains a subject and a verb, and it expresses a complete thought.
 A compound sentence contains two independent clauses joined by a coordinator
 A complex sentence has an independent clause joined by one or more dependent clauses.</p>
-<p>Clause detection makes it possible to extract these clauses and treat them independently:</p>
+<p>Clause segmenter makes it possible to extract these clauses and treat them independently:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span><span class="p">,</span> <span class="n">PyVabamorfAnalyzer</span><span class="p">,</span> <span class="n">ClauseSegmenter</span>
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 
@@ -580,13 +581,36 @@ For example, let&#8217;s tag the text given date June 10 1995:</p>
 </div>
 <p>See <a class="reference internal" href="estnltk.html#estnltk.corpus.Timex" title="estnltk.corpus.Timex"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Timex</span></code></a> documentation for available attributes.</p>
 </div>
-<div class="section" id="verb-phrase-tagging">
-<h2>Verb phrase tagging<a class="headerlink" href="#verb-phrase-tagging" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="verb-chain-detection">
+<h2>Verb chain detection<a class="headerlink" href="#verb-chain-detection" title="Permalink to this headline">¶</a></h2>
 <p>In linguistics, a verb phrase or VP is a syntactic unit composed of at least one verb and its dependents—objects, complements and other modifiers—but not always including the subject.</p>
 <p>Example:</p>
-<div class="highlight-python"><div class="highlight"><pre>todo example.
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">PyVabamorfAnalyzer</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">ClauseSegmenter</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">VerbChainDetector</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">Tokenizer</span><span class="p">()</span>
+<span class="n">analyzer</span> <span class="o">=</span> <span class="n">PyVabamorfAnalyzer</span><span class="p">()</span>
+<span class="n">segmenter</span> <span class="o">=</span> <span class="n">ClauseSegmenter</span><span class="p">()</span>
+<span class="n">detector</span> <span class="o">=</span> <span class="n">VerbChainDetector</span><span class="p">()</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;&#39;Mis puutub eelolevasse nädalasse, siis neljapäeval ja reedel ei tohiks Sa oma tervist proovile panna.&#39;&#39;&#39;</span>
+<span class="n">processed</span> <span class="o">=</span> <span class="n">detector</span><span class="p">(</span><span class="n">segmenter</span><span class="p">(</span><span class="n">analyzer</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">))))</span>
+
+<span class="c"># print timex objects</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">processed</span><span class="o">.</span><span class="n">verb_chains</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>This will print out the descriptions of found verb chains:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">u&#39;VerbChain(puutub, verb, puutu, POS)&#39;</span><span class="p">,</span>
+ <span class="s">u&#39;VerbChain(ei tohiks, ei+verb, ei_tohti, NEG)&#39;</span><span class="p">,</span>
+ <span class="s">u&#39;VerbChain(oma, verb, oma, POS)&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Verb chain detection requires segmented clauses in input corpus, therefore we must use :class:.`estnltk.clausesegmenter.ClauseSegmenter` class to analyze the data.
+Property <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus.verb_chain</span></code> lists all found <a class="reference internal" href="estnltk.html#estnltk.corpus.VerbChain" title="estnltk.corpus.VerbChain"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.VerbChain</span></code></a> objects.</p>
 </div>
 <div class="section" id="understanding-json-notation-and-estnltk-corpora">
 <h2>Understanding JSON notation and Estnltk corpora<a class="headerlink" href="#understanding-json-notation-and-estnltk-corpora" title="Permalink to this headline">¶</a></h2>
@@ -634,10 +658,10 @@ For example, let&#8217;s tag the text given date June 10 1995:</p>
 </li>
 <li><a class="reference internal" href="#morphological-analysis">Morphological analysis</a></li>
 <li><a class="reference internal" href="#morphological-synthesis">Morphological synthesis</a></li>
-<li><a class="reference internal" href="#clause-detection">Clause detection</a></li>
+<li><a class="reference internal" href="#clause-segmenter">Clause segmenter</a></li>
 <li><a class="reference internal" href="#named-entity-recognition">Named entity recognition</a></li>
 <li><a class="reference internal" href="#temporal-expression-timex-tagging">Temporal expression (TIMEX) tagging</a></li>
-<li><a class="reference internal" href="#verb-phrase-tagging">Verb phrase tagging</a></li>
+<li><a class="reference internal" href="#verb-chain-detection">Verb chain detection</a></li>
 <li><a class="reference internal" href="#understanding-json-notation-and-estnltk-corpora">Understanding JSON notation and Estnltk corpora</a><ul>
 <li><a class="reference internal" href="#reading-tei-corpora-koondkorpus-tasakaalustatud-korpus">Reading TEI corpora (koondkorpus, tasakaalustatud korpus)</a></li>
 <li><a class="reference internal" href="#using-python-nltk-corpus-readers-with-estnltk">Using Python NLTK corpus readers with Estnltk</a></li>

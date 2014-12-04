@@ -174,17 +174,17 @@ Defines common functionality for all modules.</p>
 </table>
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.analysis">
-<code class="descname">analysis</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b6b8945afd0&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.analysis" title="Permalink to this definition">¶</a></dt>
+<code class="descname">analysis</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b640d6f10b8&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.analysis" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.documents">
-<code class="descname">documents</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b6b89eed8d0&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.documents" title="Permalink to this definition">¶</a></dt>
+<code class="descname">documents</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b640cc17630&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.documents" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.words">
-<code class="descname">words</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b6b8943b0b8&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.words" title="Permalink to this definition">¶</a></dt>
+<code class="descname">words</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b640cc33f28&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.words" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -240,47 +240,11 @@ Defines common functionality for all modules.</p>
 <dl class="class">
 <dt id="estnltk.corpus.Clause">
 <em class="property">class </em><code class="descclassname">estnltk.corpus.</code><code class="descname">Clause</code><span class="sig-paren">(</span><em>sentence</em>, <em>indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/corpus.html#Clause"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Clause" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.corpus.SparseSentenceElement" title="estnltk.corpus.SparseSentenceElement"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.SparseSentenceElement</span></code></a></p>
 <p class="rubric">Attributes</p>
 <dl class="attribute">
 <dt id="estnltk.corpus.Clause.clause_index">
 <code class="descname">clause_index</code><a class="headerlink" href="#estnltk.corpus.Clause.clause_index" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.corpus.Clause.sentence">
-<code class="descname">sentence</code><a class="headerlink" href="#estnltk.corpus.Clause.sentence" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.corpus.Clause.text">
-<code class="descname">text</code><a class="headerlink" href="#estnltk.corpus.Clause.text" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.corpus.Clause.text_groups">
-<code class="descname">text_groups</code><a class="headerlink" href="#estnltk.corpus.Clause.text_groups" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.corpus.Clause.word_group_spans">
-<code class="descname">word_group_spans</code><a class="headerlink" href="#estnltk.corpus.Clause.word_group_spans" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return list of consequent index spans.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.corpus.Clause.word_groups">
-<code class="descname">word_groups</code><a class="headerlink" href="#estnltk.corpus.Clause.word_groups" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.corpus.Clause.word_indices">
-<code class="descname">word_indices</code><a class="headerlink" href="#estnltk.corpus.Clause.word_indices" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.corpus.Clause.words">
-<code class="descname">words</code><a class="headerlink" href="#estnltk.corpus.Clause.words" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -573,8 +537,8 @@ the words of a named entity in the sentence.</p>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="estnltk.corpus.Corpus.verb_phrases">
-<code class="descname">verb_phrases</code><a class="headerlink" href="#estnltk.corpus.Corpus.verb_phrases" title="Permalink to this definition">¶</a></dt>
+<dt id="estnltk.corpus.Corpus.verb_chains">
+<code class="descname">verb_chains</code><a class="headerlink" href="#estnltk.corpus.Corpus.verb_chains" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -854,6 +818,57 @@ retrieved using this property.</p>
 <code class="descname">timexes</code><a class="headerlink" href="#estnltk.corpus.Sentence.timexes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="estnltk.corpus.Sentence.verb_chains">
+<code class="descname">verb_chains</code><a class="headerlink" href="#estnltk.corpus.Sentence.verb_chains" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.corpus.SparseSentenceElement">
+<em class="property">class </em><code class="descclassname">estnltk.corpus.</code><code class="descname">SparseSentenceElement</code><span class="sig-paren">(</span><em>sentence</em>, <em>indices</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/corpus.html#SparseSentenceElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.SparseSentenceElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Sentence elements like clauses and verb chains usually span
+more than a single word and there can be gaps between the indices.
+SparseSentenceElement class contains common functinality for these elements.</p>
+<p class="rubric">Attributes</p>
+<dl class="attribute">
+<dt id="estnltk.corpus.SparseSentenceElement.sentence">
+<code class="descname">sentence</code><a class="headerlink" href="#estnltk.corpus.SparseSentenceElement.sentence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.SparseSentenceElement.text">
+<code class="descname">text</code><a class="headerlink" href="#estnltk.corpus.SparseSentenceElement.text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.SparseSentenceElement.text_groups">
+<code class="descname">text_groups</code><a class="headerlink" href="#estnltk.corpus.SparseSentenceElement.text_groups" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.SparseSentenceElement.word_group_spans">
+<code class="descname">word_group_spans</code><a class="headerlink" href="#estnltk.corpus.SparseSentenceElement.word_group_spans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of consequent index spans.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.SparseSentenceElement.word_groups">
+<code class="descname">word_groups</code><a class="headerlink" href="#estnltk.corpus.SparseSentenceElement.word_groups" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.SparseSentenceElement.word_indices">
+<code class="descname">word_indices</code><a class="headerlink" href="#estnltk.corpus.SparseSentenceElement.word_indices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.SparseSentenceElement.words">
+<code class="descname">words</code><a class="headerlink" href="#estnltk.corpus.SparseSentenceElement.words" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -1048,6 +1063,64 @@ half of the month&#8221;):  FIRST_HALF, SECOND_HALF;</p>
 </tbody>
 </table>
 </dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.corpus.VerbChain">
+<em class="property">class </em><code class="descclassname">estnltk.corpus.</code><code class="descname">VerbChain</code><span class="sig-paren">(</span><em>sentence</em>, <em>indices</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/corpus.html#VerbChain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.VerbChain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.corpus.SparseSentenceElement" title="estnltk.corpus.SparseSentenceElement"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.SparseSentenceElement</span></code></a></p>
+<p class="rubric">Attributes</p>
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.analysis_ids">
+<code class="descname">analysis_ids</code><a class="headerlink" href="#estnltk.corpus.VerbChain.analysis_ids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.clause_index">
+<code class="descname">clause_index</code><a class="headerlink" href="#estnltk.corpus.VerbChain.clause_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.data">
+<code class="descname">data</code><a class="headerlink" href="#estnltk.corpus.VerbChain.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.lemma">
+<code class="descname">lemma</code><a class="headerlink" href="#estnltk.corpus.VerbChain.lemma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verb chain lemma. A unique identificator for the chain.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.morph">
+<code class="descname">morph</code><a class="headerlink" href="#estnltk.corpus.VerbChain.morph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.other_verbs">
+<code class="descname">other_verbs</code><a class="headerlink" href="#estnltk.corpus.VerbChain.other_verbs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.pattern">
+<code class="descname">pattern</code><a class="headerlink" href="#estnltk.corpus.VerbChain.pattern" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.pattern_tokens">
+<code class="descname">pattern_tokens</code><a class="headerlink" href="#estnltk.corpus.VerbChain.pattern_tokens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.polarity">
+<code class="descname">polarity</code><a class="headerlink" href="#estnltk.corpus.VerbChain.polarity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.roots">
+<code class="descname">roots</code><a class="headerlink" href="#estnltk.corpus.VerbChain.roots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -1411,7 +1484,7 @@ analyser does not perform disambiguation.</p>
 </div>
 <div class="section" id="module-estnltk.names">
 <span id="estnltk-names-module"></span><h2>estnltk.names module<a class="headerlink" href="#module-estnltk.names" title="Permalink to this headline">¶</a></h2>
-<p>Module that defines the attribute names used through the library
+<p>Module that defines the attribute names and constants used througout the library
 and in corpora.</p>
 </div>
 <div class="section" id="module-estnltk.ner">

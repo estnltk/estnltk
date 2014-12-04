@@ -138,8 +138,8 @@ class Corpus(object):
         return self.elements(CLAUSES)
     
     @property
-    def verb_phrases(self):
-        raise NotImplementedError()
+    def verb_chains(self):
+        return self.elements(VERB_CHAINS)
         
     @property
     def named_entities(self):
@@ -372,6 +372,7 @@ class Sentence(ElementMixin, Dictionary):
     
     @overrides(Corpus)
     def elements(self, what):
+        
         if what == SENTENCES:
             return [self]
         elif what == WORDS:
@@ -382,6 +383,8 @@ class Sentence(ElementMixin, Dictionary):
             return self.clauses
         elif what == TIMEXES:
             return self.timexes
+        elif what == VERB_CHAINS:
+            return self.verb_chains
         return super(Sentence, self).elements(what)
         
     @property
@@ -430,6 +433,13 @@ class Sentence(ElementMixin, Dictionary):
             end_word = timexes[-1][0] + 1
             timex_objects.append(Timex(self, start_word, end_word, timexes[0][1]))
         return timex_objects
+    
+    @property
+    @overrides(Corpus)
+    def verb_chains(self):
+        if VERB_CHAINS in self:
+            return [VerbChain(self, chain[PHRASE], chain) for chain in self[VERB_CHAINS]]
+        return []
     
     def __repr__(self):
         return repr('Sentence({0})'.format(self.text[:24] + '...'))
@@ -709,22 +719,21 @@ class Timex(ConsequentSentenceElement):
         return repr('Timex({0}, {1}, {2}, [timex_id={3}])'.format(self.text, self.type, self.value, self.id))
 
 
-class Clause(object):
+class SparseSentenceElement(object):
+    '''Sentence elements like clauses and verb chains usually span
+    more than a single word and there can be gaps between the indices.
+    SparseSentenceElement class contains common functinality for these elements.
+    '''
     
     def __init__(self, sentence, indices):
         assert len(indices) > 0
         self._sentence = sentence
         self._word_indices = indices
-        self._clause_index = sentence[WORDS][indices[0]].clause_index
-    
+        
     @property
     def sentence(self):
         return self._sentence
-    
-    @property
-    def clause_index(self):
-        return self._clause_index
-    
+        
     @property
     def text(self):
         return ' '.join(self.text_groups)
@@ -758,10 +767,71 @@ class Clause(object):
             last_idx = i
         groups.append((start_idx, last_idx+1))
         return groups
-        
+
+
+class Clause(SparseSentenceElement):
+    
+    def __init__(self, sentence, indices):
+        super(Clause, self).__init__(sentence, indices)
+        self._clause_index = sentence[WORDS][indices[0]].clause_index
+    
+    @property
+    def clause_index(self):
+        return self._clause_index
+     
     def __repr__(self):
         return repr('Clause({0} [clause_index={1}])'.format(self.text, self.clause_index))
         
+
+class VerbChain(SparseSentenceElement):
+    
+    def __init__(self, sentence, indices, data):
+        super(VerbChain, self).__init__(sentence, indices)
+        self._data = data
+    
+    @property
+    def data(self):
+        return self._data
+ 
+    @property
+    def polarity(self):
+        return self._data[POLARITY]
+        
+    @property
+    def roots(self):
+        return self._data[ROOTS]
+        
+    @property
+    def lemma(self):
+        '''Verb chain lemma. A unique identificator for the chain.'''
+        return '_'.join(self.roots)
+    
+    @property
+    def pattern(self):
+        return '+'.join(self._data[PATTERN])
+        
+    @property
+    def pattern_tokens(self):
+        return self._data[PATTERN]
+        
+    @property
+    def other_verbs(self):
+        return self._data[OTHER_VERBS]
+        
+    @property
+    def analysis_ids(self):
+        return self._data[ANALYSIS_IDS]
+        
+    @property
+    def morph(self):
+        return self._data[MORPH]
+        
+    @property
+    def clause_index(self):
+        return self._data[CLAUSE_IDX]
+    
+    def __repr__(self):
+        return repr('VerbChain({0}, {1}, {2}, {3})'.format(self.text, self.pattern, self.lemma, self.polarity))
 
 
 class Word(ElementMixin, Dictionary):

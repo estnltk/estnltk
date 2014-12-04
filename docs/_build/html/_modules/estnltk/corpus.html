@@ -188,8 +188,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">(</span><span class="n">CLAUSES</span><span class="p">)</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">verb_phrases</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">verb_chains</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">(</span><span class="n">VERB_CHAINS</span><span class="p">)</span>
         
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">named_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -422,6 +422,7 @@
     </div>
     <span class="nd">@overrides</span><span class="p">(</span><span class="n">Corpus</span><span class="p">)</span>
 <div class="viewcode-block" id="Sentence.elements"><a class="viewcode-back" href="../../estnltk.html#estnltk.corpus.Sentence.elements">[docs]</a>    <span class="k">def</span> <span class="nf">elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">what</span><span class="p">):</span>
+        
         <span class="k">if</span> <span class="n">what</span> <span class="o">==</span> <span class="n">SENTENCES</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">what</span> <span class="o">==</span> <span class="n">WORDS</span><span class="p">:</span>
@@ -432,6 +433,8 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clauses</span>
         <span class="k">elif</span> <span class="n">what</span> <span class="o">==</span> <span class="n">TIMEXES</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">timexes</span>
+        <span class="k">elif</span> <span class="n">what</span> <span class="o">==</span> <span class="n">VERB_CHAINS</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">verb_chains</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Sentence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">elements</span><span class="p">(</span><span class="n">what</span><span class="p">)</span>
         </div>
     <span class="nd">@property</span>
@@ -480,6 +483,13 @@
             <span class="n">end_word</span> <span class="o">=</span> <span class="n">timexes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="n">timex_objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Timex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_word</span><span class="p">,</span> <span class="n">end_word</span><span class="p">,</span> <span class="n">timexes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
         <span class="k">return</span> <span class="n">timex_objects</span>
+    
+    <span class="nd">@property</span>
+    <span class="nd">@overrides</span><span class="p">(</span><span class="n">Corpus</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">verb_chains</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">VERB_CHAINS</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">VerbChain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain</span><span class="p">[</span><span class="n">PHRASE</span><span class="p">],</span> <span class="n">chain</span><span class="p">)</span> <span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">VERB_CHAINS</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="p">[]</span>
     
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="s">&#39;Sentence({0})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[:</span><span class="mi">24</span><span class="p">]</span> <span class="o">+</span> <span class="s">&#39;...&#39;</span><span class="p">))</span>
@@ -759,22 +769,21 @@
         <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="s">&#39;Timex({0}, {1}, {2}, [timex_id={3}])&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
 
 </div>
-<div class="viewcode-block" id="Clause"><a class="viewcode-back" href="../../estnltk.html#estnltk.corpus.Clause">[docs]</a><span class="k">class</span> <span class="nc">Clause</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="SparseSentenceElement"><a class="viewcode-back" href="../../estnltk.html#estnltk.corpus.SparseSentenceElement">[docs]</a><span class="k">class</span> <span class="nc">SparseSentenceElement</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Sentence elements like clauses and verb chains usually span</span>
+<span class="sd">    more than a single word and there can be gaps between the indices.</span>
+<span class="sd">    SparseSentenceElement class contains common functinality for these elements.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sentence</span> <span class="o">=</span> <span class="n">sentence</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_word_indices</span> <span class="o">=</span> <span class="n">indices</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_clause_index</span> <span class="o">=</span> <span class="n">sentence</span><span class="p">[</span><span class="n">WORDS</span><span class="p">][</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">clause_index</span>
-    
+        
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">sentence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sentence</span>
-    
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">clause_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clause_index</span>
-    
+        
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text_groups</span><span class="p">)</span>
@@ -808,10 +817,71 @@
             <span class="n">last_idx</span> <span class="o">=</span> <span class="n">i</span>
         <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">start_idx</span><span class="p">,</span> <span class="n">last_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">groups</span>
-        
+
+</div>
+<div class="viewcode-block" id="Clause"><a class="viewcode-back" href="../../estnltk.html#estnltk.corpus.Clause">[docs]</a><span class="k">class</span> <span class="nc">Clause</span><span class="p">(</span><span class="n">SparseSentenceElement</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Clause</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clause_index</span> <span class="o">=</span> <span class="n">sentence</span><span class="p">[</span><span class="n">WORDS</span><span class="p">][</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">clause_index</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">clause_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clause_index</span>
+     
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="s">&#39;Clause({0} [clause_index={1}])&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clause_index</span><span class="p">))</span>
         
+</div>
+<div class="viewcode-block" id="VerbChain"><a class="viewcode-back" href="../../estnltk.html#estnltk.corpus.VerbChain">[docs]</a><span class="k">class</span> <span class="nc">VerbChain</span><span class="p">(</span><span class="n">SparseSentenceElement</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">VerbChain</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
+ 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">polarity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">POLARITY</span><span class="p">]</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">roots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">ROOTS</span><span class="p">]</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lemma</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Verb chain lemma. A unique identificator for the chain.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="s">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roots</span><span class="p">)</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;+&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">PATTERN</span><span class="p">])</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pattern_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">PATTERN</span><span class="p">]</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">other_verbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">OTHER_VERBS</span><span class="p">]</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">analysis_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">ANALYSIS_IDS</span><span class="p">]</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">morph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">MORPH</span><span class="p">]</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">clause_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">CLAUSE_IDX</span><span class="p">]</span>
+    
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="s">&#39;VerbChain({0}, {1}, {2}, {3})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lemma</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">polarity</span><span class="p">))</span>
 
 </div>
 <div class="viewcode-block" id="Word"><a class="viewcode-back" href="../../estnltk.html#estnltk.corpus.Word">[docs]</a><span class="k">class</span> <span class="nc">Word</span><span class="p">(</span><span class="n">ElementMixin</span><span class="p">,</span> <span class="n">Dictionary</span><span class="p">):</span>

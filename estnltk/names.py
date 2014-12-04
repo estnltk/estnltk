@@ -22,6 +22,7 @@ FILE = 'file' # the file path of the source corpus
 NAMED_ENTITIES = 'named_entities'
 CLAUSES = 'clauses'
 TIMEXES = 'timexes'
+VERB_CHAINS = 'verb_chains'
 
 # word attributes
 ANALYSIS = 'analysis'
@@ -34,7 +35,7 @@ LABEL = 'label' # named entity
 ENDING = 'ending'
 FORM = 'form'
 
-# named entity attributes
+# named entity related
 WORD_START = 'word_start'
 WORD_END = 'word_end'
 

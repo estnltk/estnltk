@@ -593,8 +593,31 @@ In linguistics, a verb phrase or VP is a syntactic unit composed of at least one
 
 Example::
 
-    todo example.
-    
+    from estnltk import Tokenizer
+    from estnltk import PyVabamorfAnalyzer
+    from estnltk import ClauseSegmenter
+    from estnltk import VerbChainDetector
+    from pprint import pprint
+
+    tokenizer = Tokenizer()
+    analyzer = PyVabamorfAnalyzer()
+    segmenter = ClauseSegmenter()
+    detector = VerbChainDetector()
+
+    text = ''''Mis puutub eelolevasse nädalasse, siis neljapäeval ja reedel ei tohiks Sa oma tervist proovile panna.'''
+    processed = detector(segmenter(analyzer(tokenizer(text))))
+
+    # print timex objects
+    pprint(processed.verb_chains)
+
+This will print out the descriptions of found verb chains::
+
+    [u'VerbChain(puutub, verb, puutu, POS)',
+     u'VerbChain(ei tohiks, ei+verb, ei_tohti, NEG)',
+     u'VerbChain(oma, verb, oma, POS)']
+
+Verb chain detection requires segmented clauses in input corpus, therefore we must use :class:.`estnltk.clausesegmenter.ClauseSegmenter` class to analyze the data.
+Property :class:`estnltk.corpus.Corpus.verb_chain` lists all found :class:`estnltk.corpus.VerbChain` objects.
 
 Understanding JSON notation and Estnltk corpora
 ===============================================
