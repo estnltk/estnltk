@@ -1,0 +1,7 @@
+#if !defined _PTTYPE_H_
+#define _PTTYPE_H_
+
+enum { SPL_NOERROR, SPL_INVALIDWORD, SPL_REPWORD, SPL_CHANGEONCE, SPL_CHANGEALWAYS, SPL_EXCLUDE };
+typedef long SPLRESULT;
+
+#endif

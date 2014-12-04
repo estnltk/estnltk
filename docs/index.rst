@@ -619,6 +619,12 @@ This will print out the descriptions of found verb chains::
 Verb chain detection requires segmented clauses in input corpus, therefore we must use :class:.`estnltk.clausesegmenter.ClauseSegmenter` class to analyze the data.
 Property :class:`estnltk.corpus.Corpus.verb_chain` lists all found :class:`estnltk.corpus.VerbChain` objects.
 
+
+Estonian Wordnet
+================
+
+TODO: Add KOM documentation here.
+
 Understanding JSON notation and Estnltk corpora
 ===============================================
 
@@ -635,6 +641,12 @@ Using Python NLTK corpus readers with Estnltk
 ----------------------------------------------
 
 Guidelines for using NLTK corpus readers with Estnltk.
+
+
+Text classifier tool
+====================
+
+TODO: add text classifier tool documentation here.
 
 ==================
 Indices and tables
