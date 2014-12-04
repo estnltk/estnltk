@@ -20,7 +20,7 @@ def get_stopwords():
     return frozenset(stopwords.split())
 
 
-class EKTAnalyzer(object):
+class SimpleTextAnalyzer(object):
     '''Analyzer for preprocessing Estonian texts.
     
     Performs stopword removal, lemmatization and synonym unification

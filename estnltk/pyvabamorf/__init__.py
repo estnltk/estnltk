@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-import estnltk.pyvabamorf.vabamorf as vm
+from __future__ import absolute_import
+
+from . import vabamorf as vm
 import atexit
 
 if not vm.FSCInit():
@@ -8,6 +10,3 @@ if not vm.FSCInit():
 @atexit.register
 def terminate():
     vm.FSCTerminate()
-
-from morf import analyze, synthesize
-from morf import PyVabamorf

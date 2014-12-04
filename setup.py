@@ -22,13 +22,13 @@ include_dirs = [os.path.join('include', d) for d in dirs]
 
 # define the vabamorf SWIG wrapper generator interface file
 swig_interface = os.path.join('estnltk', 'pyvabamorf', 'vabamorf.i')
-swig_opts = ['-c++', '-modern']
+swig_opts = []
 
 # Python 3 specific configuration
 extra = {}
 if sys.version_info[0] == 3: 
     swig_opts.append('-py3')
-    
+swig_opts.append('-c++')
 
 setup(
     name = "estnltk",
@@ -37,7 +37,7 @@ setup(
     package_data = {
         'estnltk': ['corpora/*.json.bz2', 'java-res/*'],
         'estnltk.estner': ['models/*.bin', 'gazetteer/*.txt'],
-        'esnltk.mw_verbs': 
+        'estnltk.mw_verbs': ['res/*.txt'],
         'estnltk.pyvabamorf': ['dct/*.dct'],
         'estnltk.textclassifier.tests': ['*.def', '*.xlsx', '*.csv', '*.txt']
     },
@@ -65,11 +65,9 @@ setup(
     
     author       = "Timo Petmanson, Aleksandr Tkachenko, Siim Orasmaa, Raul Sirel, Karl-Oskar Masing, Tanel Pärnamaa, Dage Särg, Neeme Kahusk, Sven Laur, Tarmo Vaino, Heiki-Jaan Kaalep",
     author_email = "tpetmanson@gmail.com",
-    description  = "API for performing common natural language processing tasks in Estonian.",
+    description  = "Open source tools for Estonian natural language processing",
     license      = "GPL",
     url          = "https://github.com/tpetmanson/estnltk",
-    
-    use_2to3=True,
     
     ext_modules = [
         Extension('estnltk.pyvabamorf._vabamorf',

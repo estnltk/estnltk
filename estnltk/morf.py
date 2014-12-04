@@ -8,7 +8,7 @@ from estnltk.core import JsonPaths, overrides
 from estnltk.names import *
 from estnltk.textprocessor import TextProcessor
 from estnltk.corpus import List
-from estnltk.pyvabamorf import analyze, synthesize
+from estnltk.pyvabamorf.morf import analyze, synthesize
 
 
 class PyVabamorfAnalyzer(TextProcessor):

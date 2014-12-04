@@ -3,7 +3,7 @@
 from __future__ import unicode_literals, print_function
 
 from estnltk.textclassifier.settings import Settings, NUM_CORES
-from estnltk.textclassifier.analyzer import EKTAnalyzer
+from estnltk.textclassifier.analyzer import SimpleTextAnalyzer
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.pipeline import FeatureUnion
@@ -56,7 +56,7 @@ class FeatureExtractor(object):
         if vectorizer is None:
             self._vectorizer = FeatureUnion([
                 ('lemma', CountVectorizer(
-                    analyzer=EKTAnalyzer(settings.unifier),
+                    analyzer=SimpleTextAnalyzer(settings.unifier),
                     binary=True,
                     min_df=5)),
                 ('word', TfidfVectorizer(analyzer='word',

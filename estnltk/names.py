@@ -56,7 +56,7 @@ TMX_ANCHOR = 'anchor_time_id'
 TMX_BEGINPOINT = 'begin_point'
 TMX_ENDPOINT = 'end_point'
 TMX_QUANT = 'quant'
-TMX_FREQ = 'freq"'
+TMX_FREQ = 'freq'
 
 # verb chain related
 PATTERN = 'pattern'

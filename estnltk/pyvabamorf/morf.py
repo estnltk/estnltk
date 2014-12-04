@@ -18,9 +18,9 @@ phonetic_regex: regex
 compound_regex: regex
     Regular expression matching any compound marker.
 '''
-from __future__ import unicode_literals, print_function
+from __future__ import unicode_literals, print_function, absolute_import
 
-import estnltk.pyvabamorf.vabamorf as vm
+from . import vabamorf as vm
 import os
 import six
 import re

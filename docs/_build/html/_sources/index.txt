@@ -648,11 +648,23 @@ Text classifier tool
 
 TODO: add text classifier tool documentation here.
 
-==================
+Contents
+=========
+
+.. toctree::
+   :maxdepth: 2
+
+   estnltk.rst
+   modules.rst
+   estnltk.textclassifier.rst
+   estnltk.estner.rst
+   
+
 Indices and tables
 ==================
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
 
