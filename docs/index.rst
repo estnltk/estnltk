@@ -379,13 +379,11 @@ See `documentation`_ for possible parameters.
 
 Clause segmenter
 ================
+A simple sentence, also called an independent clause, typically contains a finite verb, and expresses a complete thought.
+However, in many cases, natural language sentences are long and complex, consisting of two or more clauses joined together.
+The clause structure can be made even more complex by embedded clauses, which are inserted into other clauses, and divide their parents into two halves.
 
-There are three types of sentences.
-A simple sentence, also called an independent clause, contains a subject and a verb, and it expresses a complete thought.
-A compound sentence contains two independent clauses joined by a coordinator
-A complex sentence has an independent clause joined by one or more dependent clauses.
-
-Clause segmenter makes it possible to extract these clauses and treat them independently::
+Clause segmenter makes it possible to extract clauses from a complex sentence and treat them independently::
 
     from estnltk import Tokenizer, PyVabamorfAnalyzer, ClauseSegmenter
     from pprint import pprint
@@ -398,8 +396,10 @@ Clause segmenter makes it possible to extract these clauses and treat them indep
 
     segmented = segmenter(analyzer(tokenizer(text)))
 
-Each word in the sentence is annotated with a clause index.
-Also a word can have a clause annotation specifying clause boundaries and embedded clauses::
+Clause segmenter requires that the input text has been tokenized (split into sentences and words) and morphologically analyzed (and also disambiguated, if possible).
+The segmenter annotates clause boundaries between words, and start and end locations of embedded clauses. 
+Based on the annotation, each word in the sentence is associated with a clause index. 
+Following is an example on how to access both the initial clause annotations, and also clause indexes of the words::
 
     # Clause indices and annotations
     pprint(list(zip(segmented.words, segmented.clause_indices, segmented.clause_annotations)))
@@ -434,7 +434,6 @@ Here is also an example of how to group words by clauses::
     ['Word(Mees)', 'Word(oli)', 'Word(tuttav)', 'Word(ja)']
     ['Word(,)', 'Word(keda)', 'Word(seal)', 'Word(kohtasime)', 'Word(,)']
     ['Word(teretas)', 'Word(meid.)']
-
 
 Named entity recognition
 ========================
@@ -545,7 +544,16 @@ See :class:`estnltk.corpus.NamedEntity` documentation for information on availab
 Temporal expression (TIMEX) tagging
 ===================================
 
-Temporal Expressions Tagger of Estnltk identifies temporal expression phrases in text and normalizes these expressions in a format similar to TimeML's TIMEX3.
+Temporal Expressions Tagger identifies temporal expressions (timexes) in text and normalizes these expressions (that is, finds calendaric dates and times corresponding to the expressions). The program outputs an annotation in a format similar to TimeML's TIMEX3 (see TODO for more details). 
+
+According to TimeML, four types of temporal expressions are distinguished: 
+
+* DATE expressions, e.g. *järgmisel kolmapäeval* (*on next Wednesday*)
+* TIME expressions, e.g. *kell 18.00* (*at 18.00 o’clock*)
+* DURATIONs, e.g. *viis päeva* (*five days*)
+* SETs of times, e.g. *igal aastal* (*on every year*)
+
+Temporal Expressions Tagger requires that the input text has been tokenized (split into sentences and words), and morphologically analyzed (and also disambiguated, if possible).
 
 Example::
 
@@ -563,13 +571,13 @@ Example::
 
     pprint(tagged.timexes)
 
-This prints found timex expressions::
+This prints found temporal expressions::
 
     [['Timex(eile, DATE, 2014-12-02, [timex_id=1])',
      'Timex(nüüd, DATE, PRESENT_REF, [timex_id=2])',
      'Timex(viie aasta, DURATION, P5Y, [timex_id=3])']
 
-Code of this example was run un Dec 3 2014, so words like *eile* will assigned value relative to the run date.
+Note that the relative temporal expressions (such as *eile* (*yesterday*)) are normalized according to the date when the program was run (in the previous example: December 3, 2014). 
 This behaviour can be changed by supplying `creation_date` argument to the tagger.
 For example, let's tag the text given date June 10 1995::
 
