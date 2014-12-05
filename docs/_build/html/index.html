@@ -600,7 +600,7 @@ For example, let&#8217;s tag the text given date June 10 1995:</p>
 <span class="n">segmenter</span> <span class="o">=</span> <span class="n">ClauseSegmenter</span><span class="p">()</span>
 <span class="n">detector</span> <span class="o">=</span> <span class="n">VerbChainDetector</span><span class="p">()</span>
 
-<span class="n">text</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;&#39;Mis puutub eelolevasse nädalasse, siis neljapäeval ja reedel ei tohiks Sa oma tervist proovile panna.&#39;&#39;&#39;</span>
+<span class="n">text</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;&#39;Samas on selge, et senine korraldus jätkuda ei saa.&#39;&#39;&#39;</span>
 <span class="n">processed</span> <span class="o">=</span> <span class="n">detector</span><span class="p">(</span><span class="n">segmenter</span><span class="p">(</span><span class="n">analyzer</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">))))</span>
 
 <span class="c"># print timex objects</span>
@@ -608,12 +608,12 @@ For example, let&#8217;s tag the text given date June 10 1995:</p>
 </pre></div>
 </div>
 <p>This will print out the descriptions of found verb chains:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">u&#39;VerbChain(puutub, verb, puutu, POS)&#39;</span><span class="p">,</span>
- <span class="s">u&#39;VerbChain(ei tohiks, ei+verb, ei_tohti, NEG)&#39;</span><span class="p">,</span>
- <span class="s">u&#39;VerbChain(oma, verb, oma, POS)&#39;</span><span class="p">]</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;VerbChain(on, ole, ole, POS)&#39;</span><span class="p">,</span>
+ <span class="s">&#39;VerbChain(korraldus, verb, korraldu, POS)&#39;</span><span class="p">,</span>
+ <span class="s">&#39;VerbChain(jätkuda ei saa., ei+verb+verb, ei_saa_jätku, NEG)&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>Verb chain detection requires segmented clauses in input corpus, therefore we must use :class:.`estnltk.clausesegmenter.ClauseSegmenter` class to analyze the data.
+<p>Verb chain detection requires segmented clauses in input corpus, therefore we must use <a class="reference internal" href="estnltk.html#estnltk.clausesegmenter.ClauseSegmenter" title="estnltk.clausesegmenter.ClauseSegmenter"><code class="xref py py-class docutils literal"><span class="pre">estnltk.clausesegmenter.ClauseSegmenter</span></code></a> class to analyze the data.
 Property <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus.verb_chain</span></code> lists all found <a class="reference internal" href="estnltk.html#estnltk.corpus.VerbChain" title="estnltk.corpus.VerbChain"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.VerbChain</span></code></a> objects.</p>
 </div>
 <div class="section" id="estonian-wordnet">

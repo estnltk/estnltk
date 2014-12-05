@@ -13,7 +13,7 @@ analyzer = PyVabamorfAnalyzer()
 segmenter = ClauseSegmenter()
 detector = VerbChainDetector()
 
-text = ''''Mis puutub eelolevasse nädalasse, siis neljapäeval ja reedel ei tohiks Sa oma tervist proovile panna.'''
+text = ''''Samas on selge, et senine korraldus jätkuda ei saa.'''
 processed = detector(segmenter(analyzer(tokenizer(text))))
 
 # print timex objects

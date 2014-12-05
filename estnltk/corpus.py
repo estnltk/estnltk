@@ -829,6 +829,16 @@ class VerbChain(SparseSentenceElement):
     @property
     def clause_index(self):
         return self._data[CLAUSE_IDX]
+        
+    @property
+    def word_indices(self):
+        '''Consequent word indices.'''
+        return list(sorted(self._word_indices))
+        
+    @property
+    def word_indices_chain(self):
+        '''The real order of word indices making up a chain.'''
+        return self._word_indices
     
     def __repr__(self):
         return repr('VerbChain({0}, {1}, {2}, {3})'.format(self.text, self.pattern, self.lemma, self.polarity))

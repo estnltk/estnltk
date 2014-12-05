@@ -604,7 +604,7 @@ Example::
     segmenter = ClauseSegmenter()
     detector = VerbChainDetector()
 
-    text = ''''Mis puutub eelolevasse nädalasse, siis neljapäeval ja reedel ei tohiks Sa oma tervist proovile panna.'''
+    text = ''''Samas on selge, et senine korraldus jätkuda ei saa.'''
     processed = detector(segmenter(analyzer(tokenizer(text))))
 
     # print timex objects
@@ -612,11 +612,11 @@ Example::
 
 This will print out the descriptions of found verb chains::
 
-    [u'VerbChain(puutub, verb, puutu, POS)',
-     u'VerbChain(ei tohiks, ei+verb, ei_tohti, NEG)',
-     u'VerbChain(oma, verb, oma, POS)']
+    ['VerbChain(on, ole, ole, POS)',
+     'VerbChain(korraldus, verb, korraldu, POS)',
+     'VerbChain(jätkuda ei saa., ei+verb+verb, ei_saa_jätku, NEG)']
 
-Verb chain detection requires segmented clauses in input corpus, therefore we must use :class:.`estnltk.clausesegmenter.ClauseSegmenter` class to analyze the data.
+Verb chain detection requires segmented clauses in input corpus, therefore we must use :class:`estnltk.clausesegmenter.ClauseSegmenter` class to analyze the data.
 Property :class:`estnltk.corpus.Corpus.verb_chain` lists all found :class:`estnltk.corpus.VerbChain` objects.
 
 
