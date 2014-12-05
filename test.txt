@@ -1,3 +1,0 @@
-This file is testing to push to both estnltk.cs.ut.ee
-and github repositories.
-
