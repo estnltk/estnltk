@@ -35,6 +35,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="estnltk.html" title="estnltk package"
              accesskey="N">next</a> |</li>
         <li><a href="#">estnltk 1.0 documentation</a> &raquo;</li> 
@@ -133,8 +136,8 @@ The source code for the examples can also be found in <cite>estnltk/examples</ci
 In lexical analysis, tokenization is the process of breaking a stream of text up into words, phrases, symbols, or other meaningful elements called tokens.
 The list of tokens becomes input for further processing such as parsing or text mining.
 Tokenization is useful both in linguistics (where it is a form of text segmentation), and in computer science, where it forms part of lexical analysis.</p>
-<p>Estnltk provides the <code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code> class that does this.
-In the next example, we define some text, then import and initialize a <code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code> instance and use to create a <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code> instance:</p>
+<p>Estnltk provides the <a class="reference internal" href="estnltk.html#estnltk.tokenize.Tokenizer" title="estnltk.tokenize.Tokenizer"><code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code></a> class that does this.
+In the next example, we define some text, then import and initialize a <a class="reference internal" href="estnltk.html#estnltk.tokenize.Tokenizer" title="estnltk.tokenize.Tokenizer"><code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code></a> instance and use to create a <a class="reference internal" href="estnltk.html#estnltk.corpus.Document" title="estnltk.corpus.Document"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code></a> instance:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Let&#39;s define a sample document</span>
 <span class="n">text</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;Keeletehnoloogia on arvutilingvistika praktiline pool.</span>
 <span class="s">Keeletehnoloogid kasutavad arvutilingvistikas välja töötatud</span>
@@ -185,7 +188,7 @@ In the next example, we define some text, then import and initialize a <code cla
     arvutileksikoloogia, dialoogisüsteemid, \nkõneanalüüs ja kõnesüntees.\n&#39;]
 </pre></div>
 </div>
-<p>and also the original full text can be accessed using <code class="docutils literal"><span class="pre">text</span></code> property of <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code>.
+<p>and also the original full text can be accessed using <code class="docutils literal"><span class="pre">text</span></code> property of <a class="reference internal" href="estnltk.html#estnltk.corpus.Document" title="estnltk.corpus.Document"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code></a>.
 In case you get an error during tokenization, something like:</p>
 <div class="highlight-python"><div class="highlight"><pre>LookupError:
 **********************************************************************
@@ -221,7 +224,7 @@ containing the start and end positions:</p>
  <span class="p">(</span><span class="s">&#39;kõnesüntees.&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">355</span><span class="p">,</span> <span class="mi">367</span><span class="p">))]</span>
 </pre></div>
 </div>
-<p>For other possible options, please check <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus</span></code>, <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code>, <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Paragraph</span></code>, <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Sentence</span></code> and <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Word</span></code> classes.</p>
+<p>For other possible options, please check <a class="reference internal" href="estnltk.html#estnltk.corpus.Corpus" title="estnltk.corpus.Corpus"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus</span></code></a>, <a class="reference internal" href="estnltk.html#estnltk.corpus.Document" title="estnltk.corpus.Document"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code></a>, <a class="reference internal" href="estnltk.html#estnltk.corpus.Paragraph" title="estnltk.corpus.Paragraph"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Paragraph</span></code></a>, <a class="reference internal" href="estnltk.html#estnltk.corpus.Sentence" title="estnltk.corpus.Sentence"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Sentence</span></code></a> and <a class="reference internal" href="estnltk.html#estnltk.corpus.Word" title="estnltk.corpus.Word"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Word</span></code></a> classes.</p>
 </div>
 </div>
 <div class="section" id="morphological-analysis">
@@ -272,7 +275,7 @@ The tags are documented in vabamorf tagset <a class="reference external" href="h
 <blockquote>
 <div></div></blockquote>
 <p>The morphological analysis can also be applied on pretokenized data, so it will be possible to more easily list all lemmas, pos tags etc.
-To do that, one needs to use <code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></code> class:</p>
+To do that, one needs to use <a class="reference internal" href="estnltk.html#estnltk.morf.PyVabamorfAnalyzer" title="estnltk.morf.PyVabamorfAnalyzer"><code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></code></a> class:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span>
 <span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">PyVabamorfAnalyzer</span>
 
@@ -419,7 +422,7 @@ Also a word can have a clause annotation specifying clause boundaries and embedd
  <span class="p">(</span><span class="s">&#39;Word(meid.)&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">None</span><span class="p">)]</span>
 </pre></div>
 </div>
-<p>There is also a  <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Clause</span></code> type, that can be queried from the corpus:</p>
+<p>There is also a  <a class="reference internal" href="estnltk.html#estnltk.corpus.Clause" title="estnltk.corpus.Clause"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Clause</span></code></a> type, that can be queried from the corpus:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># The clauses themselves</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">segmented</span><span class="o">.</span><span class="n">clauses</span><span class="p">)</span>
 
@@ -522,7 +525,7 @@ A quick example, how to do it:</p>
 <p>Named entity tags are encoded using a widely accepted BIO annotation scheme, where each label is prefixed with B or I, or the entire label is given as O.
 <strong>B-</strong> denotes the <em>beginning</em> and <strong>I-</strong> <em>inside</em> of an entity, while <strong>O</strong> means <em>omitted</em>.
 This can be used to detect entities that consist of more than a single word as can be seen in above example.</p>
-<p>It is also possible to query directly <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.NamedEntity</span></code> objects from tagged corpora.
+<p>It is also possible to query directly <a class="reference internal" href="estnltk.html#estnltk.corpus.NamedEntity" title="estnltk.corpus.NamedEntity"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.NamedEntity</span></code></a> objects from tagged corpora.
 This makes it easy to see all words that are grouped into a named entity:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">pprint</span> <span class="p">(</span><span class="n">ner_tagged</span><span class="o">.</span><span class="n">named_entities</span><span class="p">)</span>
 
@@ -539,7 +542,7 @@ This makes it easy to see all words that are grouped into a named entity:</p>
  <span class="s">&#39;NamedEntity(toomas hendrik ilves, PER)&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>See <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.NamedEntity</span></code> documentation for information on available properties.</p>
+<p>See <a class="reference internal" href="estnltk.html#estnltk.corpus.NamedEntity" title="estnltk.corpus.NamedEntity"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.NamedEntity</span></code></a> documentation for information on available properties.</p>
 </div>
 <div class="section" id="temporal-expression-timex-tagging">
 <h2>Temporal expression (TIMEX) tagging<a class="headerlink" href="#temporal-expression-timex-tagging" title="Permalink to this headline">¶</a></h2>
@@ -580,7 +583,7 @@ For example, let&#8217;s tag the text given date June 10 1995:</p>
  <span class="s">&#39;Timex(viie aasta, DURATION, P5Y, [timex_id=3])&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>See <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Timex</span></code> documentation for available attributes.</p>
+<p>See <a class="reference internal" href="estnltk.html#estnltk.corpus.Timex" title="estnltk.corpus.Timex"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Timex</span></code></a> documentation for available attributes.</p>
 </div>
 <div class="section" id="verb-chain-detection">
 <h2>Verb chain detection<a class="headerlink" href="#verb-chain-detection" title="Permalink to this headline">¶</a></h2>
@@ -611,7 +614,7 @@ For example, let&#8217;s tag the text given date June 10 1995:</p>
 </pre></div>
 </div>
 <p>Verb chain detection requires segmented clauses in input corpus, therefore we must use :class:.`estnltk.clausesegmenter.ClauseSegmenter` class to analyze the data.
-Property <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus.verb_chain</span></code> lists all found <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.VerbChain</span></code> objects.</p>
+Property <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus.verb_chain</span></code> lists all found <a class="reference internal" href="estnltk.html#estnltk.corpus.VerbChain" title="estnltk.corpus.VerbChain"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.VerbChain</span></code></a> objects.</p>
 </div>
 <div class="section" id="estonian-wordnet">
 <h2>Estonian Wordnet<a class="headerlink" href="#estonian-wordnet" title="Permalink to this headline">¶</a></h2>
@@ -640,55 +643,66 @@ Property <code class="xref py py-class docutils literal"><span class="pre">estnl
 <li class="toctree-l1"><a class="reference internal" href="estnltk.html">estnltk package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="estnltk.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="estnltk.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-clausesegmenter-module">estnltk.clausesegmenter module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-core-module">estnltk.core module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-corpus-module">estnltk.corpus module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-javaprocess-module">estnltk.javaprocess module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-morf-module">estnltk.morf module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-names-module">estnltk.names module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-ner-module">estnltk.ner module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-teicorpus-module">estnltk.teicorpus module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-textdiagnostics-module">estnltk.textdiagnostics module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-textprocessor-module">estnltk.textprocessor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-timex-module">estnltk.timex module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-tokenize-module">estnltk.tokenize module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.clausesegmenter">estnltk.clausesegmenter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.core">estnltk.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.corpus">estnltk.corpus module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.javaprocess">estnltk.javaprocess module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.morf">estnltk.morf module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.names">estnltk.names module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.ner">estnltk.ner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.teicorpus">estnltk.teicorpus module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.textdiagnostics">estnltk.textdiagnostics module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.textprocessor">estnltk.textprocessor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.timex">estnltk.timex module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.tokenize">estnltk.tokenize module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-wordnet-module">estnltk.wordnet module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">estnltk</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="estnltk.html">estnltk package</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html">estnltk.textclassifier package</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html">Estnltk text classifier</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#step-1-defining-the-classification-task">Step 1. Defining the classification task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#step-2-building-the-classification-model">Step 2. Building the classification model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#step-3-using-the-model-to-categorize-data">Step 3. Using the model to categorize data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#debugging-the-classifier">Debugging the classifier</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#classification-report">Classification report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#confidence-cutoff-vs-f1-curve">Confidence cutoff vs F1 curve</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#coverage-vs-f1-curve">Coverage vs F1 curve</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#significant-features-by-labels">Significant features by labels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#misclassified-examples">Misclassified examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-analyzer-module">estnltk.textclassifier.analyzer module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-classifier-module">estnltk.textclassifier.classifier module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-classify-module">estnltk.textclassifier.classify module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-clfbase-module">estnltk.textclassifier.clfbase module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-featureextractor-module">estnltk.textclassifier.featureextractor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-merge-module">estnltk.textclassifier.merge module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-paths-module">estnltk.textclassifier.paths module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-reportgenerator-module">estnltk.textclassifier.reportgenerator module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-retrain-module">estnltk.textclassifier.retrain module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-settings-module">estnltk.textclassifier.settings module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-synunifier-module">estnltk.textclassifier.synunifier module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-test-module">estnltk.textclassifier.test module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-train-module">estnltk.textclassifier.train module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-utils-module">estnltk.textclassifier.utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.analyzer">estnltk.textclassifier.analyzer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.classifier">estnltk.textclassifier.classifier module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.classify">estnltk.textclassifier.classify module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.clfbase">estnltk.textclassifier.clfbase module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.featureextractor">estnltk.textclassifier.featureextractor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.merge">estnltk.textclassifier.merge module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.paths">estnltk.textclassifier.paths module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.reportgenerator">estnltk.textclassifier.reportgenerator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.retrain">estnltk.textclassifier.retrain module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.settings">estnltk.textclassifier.settings module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.synunifier">estnltk.textclassifier.synunifier module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.test">estnltk.textclassifier.test module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.train">estnltk.textclassifier.train module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.utils">estnltk.textclassifier.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="estnltk.estner.html">estnltk.estner package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#estnltk-estner-crfsuiteutil-module">estnltk.estner.crfsuiteutil module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#estnltk-estner-featureextraction-module">estnltk.estner.featureextraction module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#estnltk-estner-ner-module">estnltk.estner.ner module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#estnltk-estner-nlputil-module">estnltk.estner.nlputil module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#estnltk-estner-settings-module">estnltk.estner.settings module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.crfsuiteutil">estnltk.estner.crfsuiteutil module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.featureextraction">estnltk.estner.featureextraction module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.ner">estnltk.estner.ner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.nlputil">estnltk.estner.nlputil module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.settings">estnltk.estner.settings module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -778,6 +792,9 @@ Property <code class="xref py py-class docutils literal"><span class="pre">estnl
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="estnltk.html" title="estnltk package"
              >next</a> |</li>
