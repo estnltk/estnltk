@@ -10,12 +10,7 @@
 import unittest
 import sys, os
 
-_MY_DIR = os.path.dirname(__file__)
-
-sys.path.insert(1,os.path.join(_MY_DIR,'..','..','wordnet'))
-
-import wn
-import eurown
+from estnltk.wordnet import wn, eurown
 
 class InternalSynsetOffsetQueryTest(unittest.TestCase):
  

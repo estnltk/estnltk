@@ -39,7 +39,8 @@ setup(
         'estnltk.estner': ['models/*.bin', 'gazetteer/*.txt'],
         'estnltk.mw_verbs': ['res/*.txt'],
         'estnltk.pyvabamorf': ['dct/*.dct'],
-        'estnltk.textclassifier.tests': ['*.def', '*.xlsx', '*.csv', '*.txt']
+        'estnltk.wordnet': ['*.cnf', 'data/*.cnf', 'data/*.soi', 'data/*.txt', 'data/scripts/*.py'],
+        'estnltk.textclassifier.tests': ['*.def', '*.xlsx', '*.csv', '*.txt'],
     },
     
     install_requires = ['nltk>=3.0.0',
