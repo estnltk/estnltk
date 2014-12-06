@@ -544,16 +544,16 @@ See :class:`estnltk.corpus.NamedEntity` documentation for information on availab
 Temporal expression (TIMEX) tagging
 ===================================
 
-Temporal Expressions Tagger identifies temporal expressions (timexes) in text and normalizes these expressions (that is, finds calendaric dates and times corresponding to the expressions). The program outputs an annotation in a format similar to TimeML's TIMEX3 (see TODO for more details). 
-
-According to TimeML, four types of temporal expressions are distinguished: 
+Temporal expressions tagger identifies temporal expressions (timexes) in text and normalizes these expressions, providing corresponding calendrical dates and times. 
+The program outputs an annotation in a format similar to TimeML's TIMEX3 (see TODO for more details). 
+According to TimeML, four types of temporal expressions are distinguished:
 
 * DATE expressions, e.g. *järgmisel kolmapäeval* (*on next Wednesday*)
 * TIME expressions, e.g. *kell 18.00* (*at 18.00 o’clock*)
 * DURATIONs, e.g. *viis päeva* (*five days*)
 * SETs of times, e.g. *igal aastal* (*on every year*)
 
-Temporal Expressions Tagger requires that the input text has been tokenized (split into sentences and words), and morphologically analyzed (and also disambiguated, if possible).
+Temporal expressions tagger requires that the input text has been tokenized (split into sentences and words), and morphologically analyzed (and also disambiguated, if possible).
 
 Example::
 
@@ -591,8 +591,38 @@ For example, let's tag the text given date June 10 1995::
      'Timex(nüüd, DATE, PRESENT_REF, [timex_id=2])',
      'Timex(viie aasta, DURATION, P5Y, [timex_id=3])']
 
-See :class:`estnltk.corpus.Timex` documentation for available attributes.
+By default, the tagger processes all the sentences independently, which is a relatively fast and not too memory demanding way of processing. 
+However, this way of processing also has some limitations. 
+Firstly, timex identifiers (timex_ids) are unique only within a sentence, and not within a document, as it is expected in TimeML. 
+And secondly, some anaphoric temporal expressions (expressions that are referring to other temporal expressions) may be inaccurately normalized, as normalization may require considering a wider context than a single sentece. 
+To overcome these limitations, argument `process_as_whole` can be used to process the input text as a whole (opposed to sentence-by-sentence processing)::
 
+    text = ''''3. detsembril 2014 oli näiteks ilus ilm. Aga kaks päeva varem jälle ei olnud.'''
+    tagged = tagger(analyzer(tokenizer(text)), process_as_whole = True)
+
+    pprint(tagged.timexes)
+    
+    ['Timex(3. detsembril 2014, DATE, 2014-12-03, [timex_id=t1])',
+     'Timex(kaks päeva varem, DATE, 2014-12-01, [timex_id=t2])']
+
+Note that the default string representation of the timex only contains four fields: the temporal expression phrase, type (DATE, TIME, DURATION or SET), TimeML-based value and timex_id. 
+Depending on (the semantics of) the temporal expression, there can also be additional attributes supplied in the timex object. 
+For example, if the timex value has been calculated with respect to some other timex ("anchored" to other timex), the attribute `anchor_id` refers to the identifier of the corresponding timex::
+
+    text = ''''3. detsembril 2014 oli näiteks ilus ilm. Aga kaks päeva varem jälle ei olnud.'''
+    tagged = tagger(analyzer(tokenizer(text)), process_as_whole = True)
+
+    for timex in tagged.timexes:
+        print(timex, ' is anchored to timex:', timex.anchor_id )
+
+outputs::
+        
+    'Timex(3. detsembril 2014, DATE, 2014-12-03, [timex_id=1])'  is anchored to timex: None
+    'Timex(kaks päeva varem, DATE, 2014-12-01, [timex_id=2])'  is anchored to timex: 1
+
+If the timex is calculated with respect to document creation time, `anchor_id` value will be 0.
+
+For more information about available attributes, see the documentation of :class:`estnltk.corpus.Timex`.
 
 Verb chain detection
 ====================
