@@ -380,8 +380,8 @@ See `documentation`_ for possible parameters.
 Clause segmenter
 ================
 A simple sentence, also called an independent clause, typically contains a finite verb, and expresses a complete thought.
-However, in many cases, natural language sentences are long and complex, consisting of two or more clauses joined together.
-The clause structure can be made even more complex by embedded clauses, which are inserted into other clauses, and divide their parents into two halves.
+However, natural language sentences can also be long and complex, consisting of two or more clauses joined together.
+The clause structure can be made even more complex by embedded clauses, which divide their parent clauses into two halves.
 
 Clause segmenter makes it possible to extract clauses from a complex sentence and treat them independently::
 
@@ -396,7 +396,8 @@ Clause segmenter makes it possible to extract clauses from a complex sentence an
 
     segmented = segmenter(analyzer(tokenizer(text)))
 
-Clause segmenter requires that the input text has been tokenized (split into sentences and words) and morphologically analyzed (and also disambiguated, if possible).
+Clause segmenter requires that the input text has been tokenized (split into sentences and words) and morphologically analyzed and disambiguated (the program also works on morphologically ambiguous text, but the quality of the analysis is expected to be worse than on morphologically disambiguated text).
+
 The segmenter annotates clause boundaries between words, and start and end locations of embedded clauses. 
 Based on the annotation, each word in the sentence is associated with a clause index. 
 Following is an example on how to access both the initial clause annotations, and also clause indexes of the words::
@@ -553,7 +554,7 @@ According to TimeML, four types of temporal expressions are distinguished:
 * DURATIONs, e.g. *viis päeva* (*five days*)
 * SETs of times, e.g. *igal aastal* (*on every year*)
 
-Temporal expressions tagger requires that the input text has been tokenized (split into sentences and words), and morphologically analyzed (and also disambiguated, if possible).
+Temporal expressions tagger requires that the input text has been tokenized (split into sentences and words), morphologically analyzed and disambiguated (the program also works on morphologically ambiguous text, but the quality of the analysis is expected to be worse than on morphologically disambiguated text).
 
 Example::
 
@@ -579,7 +580,7 @@ This prints found temporal expressions::
 
 Note that the relative temporal expressions (such as *eile* (*yesterday*)) are normalized according to the date when the program was run (in the previous example: December 3, 2014). 
 This behaviour can be changed by supplying `creation_date` argument to the tagger.
-For example, let's tag the text given date June 10 1995::
+For example, let's tag the text given date June 10, 1995::
 
     # retag with a new creation date
     import datetime
@@ -594,7 +595,7 @@ For example, let's tag the text given date June 10 1995::
 By default, the tagger processes all the sentences independently, which is a relatively fast and not too memory demanding way of processing. 
 However, this way of processing also has some limitations. 
 Firstly, timex identifiers (timex_ids) are unique only within a sentence, and not within a document, as it is expected in TimeML. 
-And secondly, some anaphoric temporal expressions (expressions that are referring to other temporal expressions) may be inaccurately normalized, as normalization may require considering a wider context than a single sentece. 
+And secondly, some anaphoric temporal expressions (expressions that are referring to other temporal expressions) may be inaccurately normalized, as normalization may require considering a wider context than a single sentence. 
 To overcome these limitations, argument `process_as_whole` can be used to process the input text as a whole (opposed to sentence-by-sentence processing)::
 
     text = ''''3. detsembril 2014 oli näiteks ilus ilm. Aga kaks päeva varem jälle ei olnud.'''
@@ -620,14 +621,30 @@ outputs::
     'Timex(3. detsembril 2014, DATE, 2014-12-03, [timex_id=1])'  is anchored to timex: None
     'Timex(kaks päeva varem, DATE, 2014-12-01, [timex_id=2])'  is anchored to timex: 1
 
-If the timex is calculated with respect to document creation time, `anchor_id` value will be 0.
+.. If the timex is calculated with respect to document creation time, `anchor_id` value will be 0.
 
 For more information about available attributes, see the documentation of :class:`estnltk.corpus.Timex`.
 
 Verb chain detection
 ====================
 
-In linguistics, a verb phrase or VP is a syntactic unit composed of at least one verb and its dependents—objects, complements and other modifiers—but not always including the subject.
+Verb chain detector identifies multiword verb units from text. 
+The current version of the program aims to detect following verb chain constructions:
+
+* basic main verbs:
+
+  * negated main verbs: *ei/ära/pole/ega* + verb;
+  * (affirmative) single *olema* main verbs and *olema* verb chains: *olema* + verb;
+  * (affirmative) single non-*olema* main verbs;
+
+* verb chain extensions:
+
+  * verb + verb : the chain is extended with an infinite verb if the last verb of the chain subcategorizes for it, e.g. the verb *kutsuma* is extended with *ma*-verb arguments (for example: Kevadpäike **kutsub** mind **suusatama**) and the verb *püüdma* is extended with *da*-verb arguments (Aita **ei püüdnudki** Leenat **mõista**);
+      
+  * verb + nom/adv + verb : the last verb of the chain is extended with nominal/adverb arguments which subcategorize for an infinite verb, e.g. the verb *otsima* forms a multiword unit with the nominal *võimalust* which, in turn, takes infinite *da*-verb as an argument (for example: Seepärast **otsisimegi võimalust** kusagilt mõned ilvesed **hankida**);
+
+Verb chain detector requires that the input text has been tokenized (split into sentences and words), morphologically analyzed, morphologically disambiguated, and segmented into clauses. 
+Recall that the text can be segmented into clauses with :class:`estnltk.clausesegmenter.ClauseSegmenter`.
 
 Example::
 
@@ -648,14 +665,16 @@ Example::
     # print timex objects
     pprint(processed.verb_chains)
 
+Property :class:`estnltk.corpus.Corpus.verb_chain` lists all found :class:`estnltk.corpus.VerbChain` objects.
 This will print out the descriptions of found verb chains::
 
     ['VerbChain(on, ole, ole, POS)',
      'VerbChain(korraldus, verb, korraldu, POS)',
      'VerbChain(jätkuda ei saa., ei+verb+verb, ei_saa_jätku, NEG)']
 
-Verb chain detection requires segmented clauses in input corpus, therefore we must use :class:`estnltk.clausesegmenter.ClauseSegmenter` class to analyze the data.
-Property :class:`estnltk.corpus.Corpus.verb_chain` lists all found :class:`estnltk.corpus.VerbChain` objects.
+Note that because the program was ran on morphologically ambiguous text, the word *korraldus* was mistakenly detected as a main verb (past form of the verb *korralduma*).
+In general, morphological disambiguation of the input is an important requirement for verb chain detector, and the quality of the analysis suffers quite much without it.
+
 
 
 Estonian Wordnet
