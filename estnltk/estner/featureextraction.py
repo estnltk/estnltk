@@ -470,10 +470,15 @@ def apply_templates(toks, templates):
     the template extracts a feature value. Generated features are stored
     in the 'F' field of each item in the sequence.
     
-    @type X: list of mapping objects
-    @param X: The item sequence.
-    @type template: tuple of (str, int)
-    @param template: The feature template.
+    Parameters
+    ----------
+    toks: list of tokens
+        A list of processed toknes.
+    
+    templates: list of template tuples (str, int)
+        A feature template consists of a tuple of (name, offset) pairs,
+        where name and offset specify a field name and offset from which
+        the template extracts a feature value.
     """
     def product(values_list):
         res = []
