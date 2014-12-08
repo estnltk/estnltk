@@ -430,7 +430,7 @@ class LocalFeatureExtractor(BaseFeatureExtractor):
         CDS = "cds"
         CDT = "cdt"
         
-        # Contains a uppercase letter.
+        # Contains an uppercase letter.
         t[CU] = b(contains_upper(t[W]))
         # Contains a lowercase letter.
         t[CL] = b(contains_lower(t[W]))
