@@ -199,7 +199,8 @@ class BaseFeatureExtractor(object):
 
 
 class MorphFeatureExtractor(BaseFeatureExtractor):
-
+    '''Extracts features provided by the morphological analyser pyvabamorf. '''
+    
     def _process(self, t):
         LEM  = "lem"
         POS  = "pos"
@@ -219,8 +220,27 @@ class MorphFeatureExtractor(BaseFeatureExtractor):
 
 
 class GazeteerFeatureExtractor(BaseFeatureExtractor):
-
+    '''Generates features indicating whether the token is present in a precompiled 
+    list of organisations, geographical locations or person names. For instance, 
+    if a token t occurs both in the list of person names (PER) and organisations (ORG), 
+    assign t['gaz'] = ['PER', 'ORG']. With the parameter look_ahead, it is possible to 
+    compose multi-token phrases for dictionary lookup. When look_ahead=N, phrases 
+    (t[i], ..., t[i+N]) will be composed. If the phrase matches the dictionary, each
+    token will be assigned the corresponding value. 
+    '''
+    
     def __init__(self, settings, look_ahead=3):
+        '''Loads a gazeteer file. May take some time!
+        
+        Parameteres
+        -----------
+        
+        settings: dict
+            Global configuration dictionary.
+        look_ahead: int
+            A number of tokens to check to compose phrases.
+        
+        '''
         self.look_ahead = look_ahead
         self.data = defaultdict(set)
         for ln in codecs.open(settings.gazetteer_file, 'rb', encoding="utf8"):
@@ -232,7 +252,7 @@ class GazeteerFeatureExtractor(BaseFeatureExtractor):
         look_ahead = self.look_ahead
         for i in range(len(tokens)):
             if "iu" in tokens[i]: # Only capitalised strings
-                for j in range(i + 1, i + look_ahead):
+                for j in range(i + 1, i + 1 + look_ahead):
                     phrase = " ".join(token["lem"] for token in tokens[i:j])
                     if phrase in self.data:
                         labels = self.data[phrase]
