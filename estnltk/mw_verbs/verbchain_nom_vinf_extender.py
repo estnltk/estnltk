@@ -332,7 +332,7 @@ class VerbChainNomVInfExtender:
                         minInd = headVerbWID-1 if verbObj[PATTERN][0]!='ega' else headVerbWID
                         suitableNomAdvExpansions = []
                         expansionVerbs = []
-                        for i in range(minInd, clauseMaxWID):
+                        for i in range(minInd, clauseMaxWID+1):
                             if i in widToToken and i not in annotatedWords:
                                 token = widToToken[i]
                                 if _isFollowedByComma( i, clause ):
@@ -377,7 +377,7 @@ class VerbChainNomVInfExtender:
                         minInd = headVerbWID-1 if verbObj[PATTERN][0]!='ega' else headVerbWID
                         suitableNomAdvExpansions = []
                         expansionVerbs = []
-                        for i in range(minInd, clauseMaxWID):
+                        for i in range(minInd, clauseMaxWID+1):
                             if i in widToToken and i not in annotatedWords:
                                 token = widToToken[i]
                                 if verbDaMa.matches( token ):
