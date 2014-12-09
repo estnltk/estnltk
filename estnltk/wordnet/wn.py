@@ -8,8 +8,13 @@ import os
 import re
 import math
 import codecs
-from StringIO import StringIO
-from eurown import Parser
+
+try:
+    from StringIO import StringIO
+except ImportError: # Py3
+    from io import StringIO
+    
+from estnltk.wordnet.eurown import Parser
 from estnltk import analyze
 from estnltk.core import PACKAGE_PATH
 from estnltk.core import as_unicode

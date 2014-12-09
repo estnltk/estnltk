@@ -44,11 +44,11 @@ EXTERNAL_RELATION_FILE = os.path.join(os.path.dirname(__file__ ), 'eqsemrel.cnf'
 
 
 f = open(INTERNAL_RELATION_FILE,'r')
-INTERNAL_RELATION_NAMES = map(lambda x: x.strip(),f.readlines())
+INTERNAL_RELATION_NAMES = list(map(lambda x: x.strip(),f.readlines()))
 f.close()
 
 f = open(EXTERNAL_RELATION_FILE,'r')
-EQ_RELATION_NAMES = map(lambda x: x.strip(),f.readlines())
+EQ_RELATION_NAMES = list(map(lambda x: x.strip(),f.readlines())
 f.close()
 
 
