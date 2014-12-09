@@ -31,14 +31,14 @@ class TokenizerTest(unittest.TestCase):
 
     def test_simple(self):
         tokenizer = Tokenizer()
-        tokenized = tokenizer.tokenize(self.simple_document())
+        tokenized = tokenizer.tokenize(self.simple_document()).to_json()
         self.assertDictEqual(tokenized, self.simple_tokenized())
     
     def simple_document(self):
-        return 'Esimene lõik.\nTeine'
+        return 'Esimene lõik.\n\nTeine'
     
     def simple_tokenized(self):
-        return {END: 19,
+        return {END: 20,
                 PARAGRAPHS: [{END: 13,
                                 REL_END: 13,
                                 REL_START: 0,
@@ -59,25 +59,25 @@ class TokenizerTest(unittest.TestCase):
                                                         TEXT: 'l\xf5ik.'}]}],
                                 START: 0,
                                 TEXT: 'Esimene l\xf5ik.'},
-                                {END: 19,
-                                REL_END: 19,
-                                REL_START: 14,
-                                SENTENCES: [{END: 19,
+                                {END: 20,
+                                REL_END: 20,
+                                REL_START: 15,
+                                SENTENCES: [{END: 20,
                                                 REL_END: 5,
                                                 REL_START: 0,
-                                                START: 14,
+                                                START: 15,
                                                 TEXT: 'Teine',
-                                                WORDS: [{END: 19,
+                                                WORDS: [{END: 20,
                                                         REL_END: 5,
                                                         REL_START: 0,
-                                                        START: 14,
+                                                        START: 15,
                                                         TEXT: 'Teine'}]}],
-                                START: 14,
+                                START: 15,
                                 TEXT: 'Teine'}],
-                REL_END: 19,
+                REL_END: 20,
                 REL_START: 0,
                 START: 0,
-                TEXT: 'Esimene l\xf5ik.\nTeine'}
+                TEXT: 'Esimene l\xf5ik.\n\nTeine'}
                 
 
 class TokenizeTest(unittest.TestCase):
