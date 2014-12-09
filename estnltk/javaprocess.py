@@ -48,8 +48,6 @@ class JavaProcess(object):
                                          stdin=subprocess.PIPE,
                                          stdout=subprocess.PIPE,
                                          stderr=subprocess.PIPE)
-    def __del__(self):
-        self._process.terminate()
                                          
     def process_line(self, line):
         '''Process a line of data.

@@ -5,7 +5,7 @@ Module containing functionality for processing Estonian.
 from __future__ import unicode_literals, print_function
 
 from estnltk.textclassifier.synunifier import SynUnifier
-from pyvabamorf import analyze
+from estnltk import analyze
 import re
 
 def get_stopwords():

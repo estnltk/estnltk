@@ -35,7 +35,7 @@ class ClauseSegmenter(JavaProcess, TextProcessor):
         
     def process_json(self, corpus, **kwargs):
         for sentence in JsonPaths.words.find(corpus):
-            sentence.value = self.mark_annotations(sentence.value)
+            sentence.value = self.mark_annotations({WORDS: sentence.value})[WORDS]
         return corpus
     
     def detect_annotations(self, sentence):

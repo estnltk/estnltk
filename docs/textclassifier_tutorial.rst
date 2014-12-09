@@ -47,7 +47,7 @@ Step 2. Building the classification model
 In this example, we use the command line training program to build a model for Hinnavaatlus.ee user review classification.
 We can see the possible parameters by issuing command::
 
-    python3 -m Estnltk.train -h
+    python3 -m estnltk.testclassifier.train -h
     
 That will output::
 
@@ -90,7 +90,7 @@ The report can be used to improve the categories of the data, to increase the te
 
 However, we currently ignore this extra functionality and just train the classifier by issuing command::
 
-    python3 -m Estnltk.train definitions/hinnavaatlus.def data/hinnavaatlus.csv models/hinnavaatlus.bin
+    python3 -m estnltk.testclassifier.train definitions/hinnavaatlus.def data/hinnavaatlus.csv models/hinnavaatlus.bin
 
 Often the log outputs warnings related to ``numpy``, ``sckikit-learn`` and other dependencies, but these can be ingored until no specific errors are generated.
 The reason is that the dependencies are constantly being developed and upgraded and most warnings are related to their development::
@@ -117,8 +117,8 @@ Step 3. Using the model to categorize data
 
 The classification command line program accepts following arguments::
 
-    $ python3 -m Estnltk.classify -h
-    usage: Estnltk.classify [-h] [--insheet INSHEET] [--insep INSEP]
+    $ python3 -m estnltk.testclassifier.classify -h
+    usage: estnltk.testclassifier.classify [-h] [--insheet INSHEET] [--insep INSEP]
                              [--outsheet OUTSHEET] [--outsep OUTSEP]
                              indata outdata model
 

@@ -48,7 +48,7 @@ INTERNAL_RELATION_NAMES = list(map(lambda x: x.strip(),f.readlines()))
 f.close()
 
 f = open(EXTERNAL_RELATION_FILE,'r')
-EQ_RELATION_NAMES = list(map(lambda x: x.strip(),f.readlines())
+EQ_RELATION_NAMES = list(map(lambda x: x.strip(),f.readlines()))
 f.close()
 
 

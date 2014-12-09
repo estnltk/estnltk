@@ -3,6 +3,7 @@
 import unittest
 import sys, os
 
+'''
 _MY_DIR = os.path.dirname(__file__)
 
 sys.path.insert(1,os.path.join(_MY_DIR,'..'))
@@ -105,6 +106,6 @@ class AnnotationTest(unittest.TestCase):
 			    'partofspeech': u'V',
 			    'root': u'jaluta'}],
 	      'text': u'jalutas'}]}
-	    
+	    '''
 if __name__ == '__main__':
     unittest.main()
