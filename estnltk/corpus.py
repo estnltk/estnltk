@@ -629,7 +629,7 @@ class Timex(ConsequentSentenceElement):
         str
             One of the following: "DATE", "TIME", "DURATION", "SET"
         '''
-        return self[TMX_TYPE]
+        return self.get(TMX_TYPE, None)
     
     @property
     def value(self):
@@ -638,7 +638,7 @@ class Timex(ConsequentSentenceElement):
         str
             calendrical value (largely follows TimeML TIMEX3 value format)
         '''
-        return self[TMX_VALUE]
+        return self.get(TMX_VALUE, None)
         
     @property
     def temporal_function(self):

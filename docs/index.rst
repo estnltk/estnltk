@@ -621,9 +621,11 @@ outputs::
     'Timex(3. detsembril 2014, DATE, 2014-12-03, [timex_id=1])'  is anchored to timex: None
     'Timex(kaks päeva varem, DATE, 2014-12-01, [timex_id=2])'  is anchored to timex: 1
 
-.. If the timex is calculated with respect to document creation time, `anchor_id` value will be 0.
-
 For more information about available attributes, see the documentation of :class:`estnltk.corpus.Timex`.
+
+Temporal expressions tagger also identifies some temporal expressions that are difficult to normalize, and thus no *type/value* will assigned to those expressions. 
+By default, timexes without *type/value* will be removed from the output; however, this behaviour can be changed by executing the tagger with an argument `remove_unnormalized_timexes=False`.
+
 
 Verb chain detection
 ====================
