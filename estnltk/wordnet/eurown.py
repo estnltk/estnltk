@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals, print_function
+
 """
 Module for manipulating EuroWordNet data.
 
@@ -1199,7 +1201,7 @@ class Parser(object):
                 elif self.targetType == 'pv':
                     self.synset.propertyValues[-1].value = self.target_synset
                 else:
-                    print 'BOOOOOOOOO!!' # Error TODO
+                    print ('BOOOOOOOOO!!') # Error TODO
 
             def _gloss():
                 self.synset.variants[-1].gloss = self.fieldValue
@@ -1315,7 +1317,7 @@ class Parser(object):
                     self.synset.eqLinks.append(EqLink())
                     self.synset.eqLinks[-1].name = self.fieldValue
                 else:
-                    print 'BOOOOOOOOO!!' # Error TODO
+                    print ('BOOOOOOOOO!!') # Error TODO
 
             def _features():
                 if self.targetType == 'internal':
@@ -1448,12 +1450,12 @@ class Parser(object):
 
                 offset = self.file.tell()
                 if debug:
-                    print 'offset=',offset
+                    print ('offset=',offset)
                 self.file.seek(offset,0)
 
                 line = self.file.readline().decode(self.encoding).strip()
                 if debug:
-                    print line.encode('utf-8')
+                    print (line.encode('utf-8'))
 
 
                 self.parse_line(line)
@@ -1465,7 +1467,7 @@ class Parser(object):
                     rulez[select]()
                 else:
                     if line:
-                        print self.synset.polarisText
+                        print (self.synset.polarisText)
                         raise ParseError("No parsing rule for '%s'" % line)
         return self.synset
 
@@ -1477,7 +1479,7 @@ class Parser(object):
         self.milestone = 0 # to start from beginning of file
         while self.milestone < os.path.getsize(self.fileName) - 5:
             if debug:
-                print 'self.milestone', self.milestone
+                print ('self.milestone', self.milestone)
             a = self.parse_synset(offset=self.milestone)
             synList.append(a)
             self.milestone = self.file.tell()
@@ -1838,7 +1840,7 @@ class Synset(object):
             if value in POSES:
                 self._pos = value
             else:
-                print value
+                print (value)
                 raiseTypeError(self.__class__.__name__, 
                                'pos',
                                'one of ' + str(POSES))

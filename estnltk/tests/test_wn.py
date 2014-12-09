@@ -65,8 +65,8 @@ class SynsetQuery(unittest.TestCase):
     
     synset = wn.synset(synset_key)
     
-    self.assertEqual(synset.id,synset_id)
-    self.assertEqual(synset.name,synset_key)
+    self.assertEqual(synset.id, synset_id)
+    self.assertEqual(synset.name, synset_key)
 
 class SynsetsQuery(unittest.TestCase):
   
