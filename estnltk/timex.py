@@ -53,6 +53,7 @@ class TimexTagger(JavaProcess, TextProcessor):
             WORDS: words
             }
         processed_words = self.rename_attributes(json.loads(self.process_line(json.dumps(sentence)))[WORDS])
+        processed_words = self.remove_timexes_with_no_value_type(processed_words)
         for w, p in zip(words, processed_words):
             if TIMEXES in p:
                 w[TIMEXES] = p[TIMEXES]
@@ -71,6 +72,7 @@ class TimexTagger(JavaProcess, TextProcessor):
         processed_sentences = json.loads(self.process_line(json.dumps(document)))[SENTENCES]
         for input_sentence, processed_sentence in zip(document[SENTENCES], processed_sentences):
             processed_sentence = self.rename_attributes( processed_sentence[WORDS] )
+            processed_sentence = self.remove_timexes_with_no_value_type(processed_sentence)
             for i in range(len( input_sentence[WORDS] )):
                 input_word = input_sentence[WORDS][i]
                 processed_word = processed_sentence[i]
@@ -94,5 +96,26 @@ class TimexTagger(JavaProcess, TextProcessor):
                         if k in [TMX_ID, TMX_ANCHOR] and isinstance(v, str) and v.startswith('t'):
                             timex[k] = int(v[1:])
         return sentence
-            
 
+    # Removes timexes that have no value or type specified
+    # ( e.g. anaphoric references 'samal ajal', 'tol ajal' etc. that were left unsolved )
+    def remove_timexes_with_no_value_type(self, sentence):
+        seenTimexes     = dict()
+        timexesToRemove = dict()
+        for word in sentence:
+            if TIMEXES in word:
+                newTimexes = []
+                for timex in word[TIMEXES]:
+                    if timex[TMX_ID] not in seenTimexes:
+                        seenTimexes[timex[TMX_ID]] = 1
+                        if TMX_TYPE not in timex or TMX_VALUE not in timex:
+                            timexesToRemove[timex[TMX_ID]] = 1
+                        else:
+                            newTimexes.append( timex )
+                    elif timex[TMX_ID] in seenTimexes and timex[TMX_ID] not in timexesToRemove:
+                        newTimexes.append( timex )
+                if newTimexes:
+                    word[TIMEXES] = newTimexes
+                else:
+                    del word[TIMEXES]
+        return sentence
