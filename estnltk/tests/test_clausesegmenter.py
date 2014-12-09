@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals, print_function
+
 import unittest
 from estnltk import Corpus, Tokenizer, PyVabamorfAnalyzer, ClauseSegmenter
 from pprint import pprint
