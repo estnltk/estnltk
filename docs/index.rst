@@ -379,13 +379,11 @@ See `documentation`_ for possible parameters.
 
 Clause segmenter
 ================
+A simple sentence, also called an independent clause, typically contains a finite verb, and expresses a complete thought.
+However, natural language sentences can also be long and complex, consisting of two or more clauses joined together.
+The clause structure can be made even more complex by embedded clauses, which divide their parent clauses into two halves.
 
-There are three types of sentences.
-A simple sentence, also called an independent clause, contains a subject and a verb, and it expresses a complete thought.
-A compound sentence contains two independent clauses joined by a coordinator
-A complex sentence has an independent clause joined by one or more dependent clauses.
-
-Clause segmenter makes it possible to extract these clauses and treat them independently::
+Clause segmenter makes it possible to extract clauses from a complex sentence and treat them independently::
 
     from estnltk import Tokenizer, PyVabamorfAnalyzer, ClauseSegmenter
     from pprint import pprint
@@ -398,8 +396,11 @@ Clause segmenter makes it possible to extract these clauses and treat them indep
 
     segmented = segmenter(analyzer(tokenizer(text)))
 
-Each word in the sentence is annotated with a clause index.
-Also a word can have a clause annotation specifying clause boundaries and embedded clauses::
+Clause segmenter requires that the input text has been tokenized (split into sentences and words) and morphologically analyzed and disambiguated (the program also works on morphologically ambiguous text, but the quality of the analysis is expected to be lower than on morphologically disambiguated text).
+
+The segmenter annotates clause boundaries between words, and start and end locations of embedded clauses. 
+Based on the annotation, each word in the sentence is associated with a clause index. 
+Following is an example on how to access both the initial clause annotations, and also clause indexes of the words::
 
     # Clause indices and annotations
     pprint(list(zip(segmented.words, segmented.clause_indices, segmented.clause_annotations)))
@@ -434,7 +435,6 @@ Here is also an example of how to group words by clauses::
     ['Word(Mees)', 'Word(oli)', 'Word(tuttav)', 'Word(ja)']
     ['Word(,)', 'Word(keda)', 'Word(seal)', 'Word(kohtasime)', 'Word(,)']
     ['Word(teretas)', 'Word(meid.)']
-
 
 Named entity recognition
 ========================
@@ -545,7 +545,16 @@ See :class:`estnltk.corpus.NamedEntity` documentation for information on availab
 Temporal expression (TIMEX) tagging
 ===================================
 
-Temporal Expressions Tagger of Estnltk identifies temporal expression phrases in text and normalizes these expressions in a format similar to TimeML's TIMEX3.
+Temporal expressions tagger identifies temporal expressions (timexes) in text and normalizes these expressions, providing corresponding calendrical dates and times. 
+The program outputs an annotation in a format similar to TimeML's TIMEX3 (see TODO for more details). 
+According to TimeML, four types of temporal expressions are distinguished:
+
+* DATE expressions, e.g. *järgmisel kolmapäeval* (*on next Wednesday*)
+* TIME expressions, e.g. *kell 18.00* (*at 18.00 o’clock*)
+* DURATIONs, e.g. *viis päeva* (*five days*)
+* SETs of times, e.g. *igal aastal* (*on every year*)
+
+Temporal expressions tagger requires that the input text has been tokenized (split into sentences and words), morphologically analyzed and disambiguated (the program also works on morphologically ambiguous text, but the quality of the analysis is expected to be lower than on morphologically disambiguated text).
 
 Example::
 
@@ -563,15 +572,15 @@ Example::
 
     pprint(tagged.timexes)
 
-This prints found timex expressions::
+This prints found temporal expressions::
 
     [['Timex(eile, DATE, 2014-12-02, [timex_id=1])',
      'Timex(nüüd, DATE, PRESENT_REF, [timex_id=2])',
      'Timex(viie aasta, DURATION, P5Y, [timex_id=3])']
 
-Code of this example was run un Dec 3 2014, so words like *eile* will assigned value relative to the run date.
+Note that the relative temporal expressions (such as *eile* (*yesterday*)) are normalized according to the date when the program was run (in the previous example: December 3, 2014). 
 This behaviour can be changed by supplying `creation_date` argument to the tagger.
-For example, let's tag the text given date June 10 1995::
+For example, let's tag the text given date June 10, 1995::
 
     # retag with a new creation date
     import datetime
@@ -583,13 +592,58 @@ For example, let's tag the text given date June 10 1995::
      'Timex(nüüd, DATE, PRESENT_REF, [timex_id=2])',
      'Timex(viie aasta, DURATION, P5Y, [timex_id=3])']
 
-See :class:`estnltk.corpus.Timex` documentation for available attributes.
+By default, the tagger processes all the sentences independently, which is a relatively fast and not too memory demanding way of processing. 
+However, this way of processing also has some limitations. 
+Firstly, timex identifiers (timex_ids) are unique only within a sentence, and not within a document, as it is expected in TimeML. 
+And secondly, some anaphoric temporal expressions (expressions that are referring to other temporal expressions) may be inaccurately normalized, as normalization may require considering a wider context than a single sentence. 
+To overcome these limitations, argument `process_as_whole` can be used to process the input text as a whole (opposed to sentence-by-sentence processing)::
 
+    text = ''''3. detsembril 2014 oli näiteks ilus ilm. Aga kaks päeva varem jälle ei olnud.'''
+    tagged = tagger(analyzer(tokenizer(text)), process_as_whole = True)
+
+    pprint(tagged.timexes)
+    
+    ['Timex(3. detsembril 2014, DATE, 2014-12-03, [timex_id=t1])',
+     'Timex(kaks päeva varem, DATE, 2014-12-01, [timex_id=t2])']
+
+Note that the default string representation of the timex only contains four fields: the temporal expression phrase, type (DATE, TIME, DURATION or SET), TimeML-based value and timex_id. 
+Depending on (the semantics of) the temporal expression, there can also be additional attributes supplied in the timex object. 
+For example, if the timex value has been calculated with respect to some other timex ("anchored" to other timex), the attribute `anchor_id` refers to the identifier of the corresponding timex::
+
+    text = ''''3. detsembril 2014 oli näiteks ilus ilm. Aga kaks päeva varem jälle ei olnud.'''
+    tagged = tagger(analyzer(tokenizer(text)), process_as_whole = True)
+
+    for timex in tagged.timexes:
+        print(timex, ' is anchored to timex:', timex.anchor_id )
+
+outputs::
+        
+    'Timex(3. detsembril 2014, DATE, 2014-12-03, [timex_id=1])'  is anchored to timex: None
+    'Timex(kaks päeva varem, DATE, 2014-12-01, [timex_id=2])'  is anchored to timex: 1
+
+.. If the timex is calculated with respect to document creation time, `anchor_id` value will be 0.
+
+For more information about available attributes, see the documentation of :class:`estnltk.corpus.Timex`.
 
 Verb chain detection
 ====================
 
-In linguistics, a verb phrase or VP is a syntactic unit composed of at least one verb and its dependents—objects, complements and other modifiers—but not always including the subject.
+Verb chain detector identifies multiword verb units from text. 
+The current version of the program aims to detect following verb chain constructions:
+
+* basic main verbs:
+
+  * negated main verbs: *ei/ära/pole/ega* + verb;
+  * (affirmative) single *olema* main verbs and *olema* verb chains: *olema* + verb;
+  * (affirmative) single non-*olema* main verbs;
+
+* verb chain extensions:
+
+  * verb + verb : the chain is extended with an infinite verb if the last verb of the chain subcategorizes for it, e.g. the verb *kutsuma* is extended with *ma*-verb arguments (for example: Kevadpäike **kutsub** mind **suusatama**) and the verb *püüdma* is extended with *da*-verb arguments (Aita **ei püüdnudki** Leenat **mõista**);
+  * verb + nom/adv + verb : the last verb of the chain is extended with nominal/adverb arguments which subcategorize for an infinite verb, e.g. the verb *otsima* forms a multiword unit with the nominal *võimalust* which, in turn, takes infinite *da*-verb as an argument (for example: Seepärast **otsisimegi võimalust** kusagilt mõned ilvesed **hankida**);
+
+Verb chain detector requires that the input text has been tokenized (split into sentences and words), morphologically analyzed, morphologically disambiguated, and segmented into clauses. 
+Recall that the text can be segmented into clauses with :class:`estnltk.clausesegmenter.ClauseSegmenter`.
 
 Example::
 
@@ -607,18 +661,61 @@ Example::
     text = ''''Samas on selge, et senine korraldus jätkuda ei saa.'''
     processed = detector(segmenter(analyzer(tokenizer(text))))
 
-    # print timex objects
+    # print verb chain objects
     pprint(processed.verb_chains)
 
-This will print out the descriptions of found verb chains::
+Property :class:`estnltk.corpus.Corpus.verb_chains` lists all found :class:`estnltk.corpus.VerbChain` objects.
+The previous example prints out following found verb chains::
 
     ['VerbChain(on, ole, ole, POS)',
      'VerbChain(korraldus, verb, korraldu, POS)',
      'VerbChain(jätkuda ei saa., ei+verb+verb, ei_saa_jätku, NEG)']
 
-Verb chain detection requires segmented clauses in input corpus, therefore we must use :class:`estnltk.clausesegmenter.ClauseSegmenter` class to analyze the data.
-Property :class:`estnltk.corpus.Corpus.verb_chain` lists all found :class:`estnltk.corpus.VerbChain` objects.
+Note that because the program was ran on morphologically ambiguous text, the word *korraldus* was mistakenly detected as a main verb (past form of the verb *korralduma*).
+In general, morphological disambiguation of the input is an important requirement for verb chain detector, and the quality of the analysis suffers quite much without it.
 
+The default string representation of the verb chain (as can be seen from the previous example) contains four attribute values: text of the verb chain, the general pattern of the verb chain, concanated lemmas of the verb chain words, and grammatical polarity of the chain.
+These and other attributes can also be directly accessed in the verb chain object::
+
+    text = ''' Ta oleks pidanud sinna minema, aga ei läinud. '''
+    processed = detector(segmenter(analyzer(tokenizer(text))))
+
+    # print attributes of each verb chain object
+    for chain in processed.verb_chains:
+        print('text: ', chain.text )
+        print('general pattern: ', chain.pattern_tokens )
+        print('roots: ', chain.roots )
+        print('morph: ', chain.morph )
+        print('polarity: ', chain.polarity )
+        print('other verbs: ', chain.other_verbs )
+        print()    
+
+The previous example outputs::
+
+     text:  oleks pidanud minema
+     general pattern:  ['ole', 'verb', 'verb']
+     roots:  ['ole', 'pida', 'mine']
+     morph:  ['V_ks', 'V_nud', 'V_ma']
+     polarity:  POS
+     other verbs:  False
+
+     text:  ei läinud.
+     general pattern:  ['ei', 'verb']
+     roots:  ['ei', 'mine']
+     morph:  ['V_neg', 'V_nud']
+     polarity:  NEG
+     other verbs:  False
+
+Following is a brief description of the attributes:
+   
+    * ``estnltk.corpus.VerbChain.pattern_tokens`` - the general pattern of the chain: for each word in the chain, lists whether it is *'ega'*, *'ei'*, *'ära'*, *'pole'*, *'ole'*, *'&'* (conjunction: ja/ning/ega/või), *'verb'* (verb different than *'ole'*) or *'nom/adv'* (nominal/adverb); 
+    * ``estnltk.corpus.VerbChain.roots`` - for each word in the chain, lists its corresponding 'root' value from the morphological analysis;
+    * ``estnltk.corpus.VerbChain.morph`` - for each word in the chain, lists its morphological features: part of speech tag and form (in one string, separated by '_', and multiple variants of the pos/form are separated by '/');
+    * ``estnltk.corpus.VerbChain.polarity`` - grammatical polarity of the chain: *'POS'*, *'NEG'* or *'??'*. *'NEG'* simply means that the chains begins with a negation word *ei/pole/ega/ära*; *'??'* is reserved for cases where it is uncertain whether *ära* forms a negated verb chain or not;
+    * ``estnltk.corpus.VerbChain.other_verbs`` - boolean, marks whether there are other verbs in the context, which can be potentially added to the verb chain; if ``True``,then it is uncertain whether the chain is complete or not;
+  
+.. Note that the words in the verb chain are ordered not as they appear in the text, but by the order of the grammatical relations: first words are mostly grammatical (such as auxiliary negation words *ei/ega/ära*) or otherwise abstract (e.g. modal words like *tohtima*, *võima*, aspectual words like *hakkama*), and only the last words carry most of the semantic/concrete meaning.
+  
 
 Estonian Wordnet
 ================
