@@ -613,8 +613,6 @@ class Timex(ConsequentSentenceElement):
     def assert_valid(self):
         super(Timex, self).assert_valid()
         assert TMX_ID in self
-        assert TMX_TYPE in self
-        assert TMX_VALUE in self
 
     @property
     def id(self):

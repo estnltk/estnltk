@@ -28,207 +28,207 @@ ADV = 'b'
 MAX_TAXONOMY_DEPTHS = {} # necessary for Leacock & Chodorow similarity measure
 
 with open(_MAX_TAX_FILE,'r') as fin:
-  for line in fin:
-    pos,max_depth = line.strip().split(':')
-    MAX_TAXONOMY_DEPTHS[pos] = int(max_depth)
+    for line in fin:
+        pos,max_depth = line.strip().split(':')
+        MAX_TAXONOMY_DEPTHS[pos] = int(max_depth)
 
 SYNSETS_DICT = {} # global dictionary which stores initialized synsets
 LEMMAS_DICT = {}
 
 def _get_synset_offsets(synset_idxes):
-  """Returs pointer offset in the WordNet file for every synset index.
-  
-  Notes
-  -----
+    """Returs pointer offset in the WordNet file for every synset index.
+
+    Notes
+    -----
     Internal function. Do not call directly.
     Preserves order -- for [x,y,z] returns [offset(x),offset(y),offset(z)].
-  
-  Parameters
-  ----------
+
+    Parameters
+    ----------
     synset_idxes : list of ints
       Lists synset IDs, which need offset.
       
-  Returns
-  -------
+    Returns
+    -------
     list of ints
       Lists pointer offsets in Wordnet file.
-  
-  
-  """
-  offsets = {}
-  current_seeked_offset_idx = 0
 
-  ordered_synset_idxes = sorted(synset_idxes)
 
-  with open(_SOI,'r') as fin:
-    for line in fin:
-      split_line = line.split(':')
-      
-      while current_seeked_offset_idx < len(ordered_synset_idxes) and split_line[0] == str(ordered_synset_idxes[current_seeked_offset_idx]):
-	# Looping on single line entries in case synset_indexes contains duplicates.
-	offsets[synset_idxes[current_seeked_offset_idx]] = int(split_line[1])
-	current_seeked_offset_idx += 1
-      if current_seeked_offset_idx >= len(synset_idxes):
-	break
+    """
+    offsets = {}
+    current_seeked_offset_idx = 0
 
-  return [offsets[synset_idx] for synset_idx in synset_idxes]
+    ordered_synset_idxes = sorted(synset_idxes)
+
+    with open(_SOI,'r') as fin:
+        for line in fin:
+            split_line = line.split(':')
+          
+            while current_seeked_offset_idx < len(ordered_synset_idxes) and split_line[0] == str(ordered_synset_idxes[current_seeked_offset_idx]):
+                # Looping on single line entries in case synset_indexes contains duplicates.
+                offsets[synset_idxes[current_seeked_offset_idx]] = int(split_line[1])
+                current_seeked_offset_idx += 1
+            if current_seeked_offset_idx >= len(synset_idxes):
+                break
+    return [offsets[synset_idx] for synset_idx in synset_idxes]
 
 def _get_synsets(synset_offsets):
-  """Given synset offsets in the WordNet file, parses synset object for every offset.
-  
-  Notes
-  -----
+    """Given synset offsets in the WordNet file, parses synset object for every offset.
+
+    Notes
+    -----
     Internal function. Do not call directly.
     Stores every parsed synset into global synset dictionary under two keys:
       synset's name lemma.pos.sense_no and synset's id (unique integer).
 
-  Parameters
-  ----------
+    Parameters
+    ----------
     synset_offsets : list of ints
       Lists pointer offsets from which synset objects will be parsed.
       
-  Returns
-  -------
+    Returns
+    -------
     list of Synsets
       Lists synset objects which synset_offsets point to.
-  
-  """
-  synsets = []
 
-  parser = Parser(_WN_FILE)
-  for offset in synset_offsets:
-    raw_synset = parser.parse_synset(offset)
-    synset = Synset(raw_synset)
-    
-    SYNSETS_DICT[_get_key_from_raw_synset(raw_synset)] = synset
-    SYNSETS_DICT[synset.id] = synset
-    
-    synsets.append(synset)
+    """
+    synsets = []
 
-  return synsets
+    parser = Parser(_WN_FILE)
+    for offset in synset_offsets:
+        raw_synset = parser.parse_synset(offset)
+        synset = Synset(raw_synset)
+
+        SYNSETS_DICT[_get_key_from_raw_synset(raw_synset)] = synset
+        SYNSETS_DICT[synset.id] = synset
+
+        synsets.append(synset)
+
+    return synsets
 
 def _get_key_from_raw_synset(raw_synset):
-  """Derives synset key in the form of `lemma.pos.sense_no` from the provided eurown.py Synset class,
-  
-  Notes
-  -----
+    """Derives synset key in the form of `lemma.pos.sense_no` from the provided eurown.py Synset class,
+
+    Notes
+    -----
     Internal function. Do not call directly.
-  
-  
-  Parameters
-  ----------
+
+
+    Parameters
+    ----------
     raw_synset : eurown.Synset
       Synset representation from which lemma, part-of-speech and sense is derived.
-    
-  Returns
-  -------
+
+    Returns
+    -------
     string
       Key of the synset in the form of `lemma.pos.sense_no`.
       
-  """
-  pos = raw_synset.pos
-  literal = raw_synset.variants[0].literal
-  sense = "%02d"%raw_synset.variants[0].sense
-  return '.'.join([literal,pos,sense]).encode('utf8')
+    """
+    pos = raw_synset.pos
+    literal = raw_synset.variants[0].literal
+    sense = "%02d"%raw_synset.variants[0].sense
+    return '.'.join([literal,pos,sense]).encode('utf8')
 
 def synset(synset_key):
-  """Returns synset object with the provided key.
-  
-  Notes
-  -----
+    """Returns synset object with the provided key.
+
+    Notes
+    -----
     Uses lazy initialization - synsets will be fetched from a dictionary after the first request.
-  
-  Parameters
-  ----------
+
+    Parameters
+    ----------
     synset_key : string
       Unique synset identifier in the form of `lemma.pos.sense_no`.
       
-  Returns
-  -------
+    Returns
+    -------
     Synset
       Synset with key `synset_key`.
       None, if no match was found.
-  
-  """
 
-  if synset_key in SYNSETS_DICT:
-    return SYNSETS_DICT[synset_key]
-
-  def _get_synset_idx(synset_key):
-    """Returns synset index for the provided key.
-    
-    Note
-    ----
-      Internal function. Do not call directly.
-    
     """
-    with open(_SENSE_FILE,'r') as fin:
-      for line in fin:
-	split_line = line.split(':')
-	if split_line[0] == synset_key:
-	  return int(split_line[1].strip())
-    return None
 
-  synset_idx = _get_synset_idx(synset_key)
-  
-  if synset_idx == None:
-    return None
-  
-  synset_offset = _get_synset_offsets([synset_idx])
-  synset = _get_synsets(synset_offset)
+    if synset_key in SYNSETS_DICT:
+        return SYNSETS_DICT[synset_key]
 
-  return synset[0]
+    def _get_synset_idx(synset_key):
+        """Returns synset index for the provided key.
+
+        Note
+        ----
+          Internal function. Do not call directly.
+
+        """
+        with open(_SENSE_FILE,'r') as fin:
+            for line in fin:
+                split_line = line.split(':')
+                if split_line[0] == synset_key:
+                    return int(split_line[1].strip())
+        return None
+
+    synset_idx = _get_synset_idx(synset_key)
+
+    if synset_idx == None:
+        return None
+
+    synset_offset = _get_synset_offsets([synset_idx])
+    synset = _get_synsets(synset_offset)
+
+    return synset[0]
+
 
 def synsets(lemma,pos=None):
-  """Returns all synset objects which have lemma as one of the variant literals and fixed pos, if provided.
-  
-  Notes
-  -----
+    """Returns all synset objects which have lemma as one of the variant literals and fixed pos, if provided.
+
+    Notes
+    -----
     Uses lazy initialization - parses only those synsets which are not yet initialized, others are fetched from a dictionary.
-  
-  Parameters
-  ----------
+
+    Parameters
+    ----------
     lemma : str
       Lemma of the synset.
     pos : str, optional
       Part-of-speech specification of the searched synsets, defaults to None.
-  
-  Returns
-  -------
+
+    Returns
+    -------
     list of Synsets
       Synsets which contain `lemma` and of which part-of-speech is `pos`, if specified.
       Empty list, if no match was found.
-  
-  """
 
-  def _get_synset_idxes(lemma,pos):
-    line_prefix_regexp = "%s:%s:(.*)"%(lemma,pos if pos else "\w+") 
-    line_prefix = re.compile(line_prefix_regexp)
-    
-    idxes = []
+    """
 
-    with open(_LIT_POS_FILE,'r') as fin:
-      for line in fin:
-	result = line_prefix.match(line)
-	if result:
-	  idxes.extend([int(x) for x in result.group(1).split(' ')])				
-    return sorted(idxes)
+    def _get_synset_idxes(lemma,pos):
+        line_prefix_regexp = "%s:%s:(.*)"%(lemma,pos if pos else "\w+") 
+        line_prefix = re.compile(line_prefix_regexp)
 
-  synset_idxes = _get_synset_idxes(lemma,pos)
+        idxes = []
 
-  if len(synset_idxes) == 0:
-    return []
-  
-  stored_synsets = []
-  
-  for i in range(len(synset_idxes)):
-    if synset_idxes[i] in SYNSETS_DICT:
-      stored_synsets.append(SYNSETS_DICT[synset_idxes.pop(i)])
+        with open(_LIT_POS_FILE,'r') as fin:
+            for line in fin:
+            result = line_prefix.match(line)
+            if result:
+                idxes.extend([int(x) for x in result.group(1).split(' ')])				
+        return sorted(idxes)
 
-  synset_offsets = _get_synset_offsets(synset_idxes)
-  synsets = _get_synsets(synset_offsets)
-  
-  return stored_synsets + synsets
+    synset_idxes = _get_synset_idxes(lemma,pos)
+
+    if len(synset_idxes) == 0:
+        return []
+
+    stored_synsets = []
+
+    for i in range(len(synset_idxes)):
+        if synset_idxes[i] in SYNSETS_DICT:
+            stored_synsets.append(SYNSETS_DICT[synset_idxes.pop(i)])
+
+    synset_offsets = _get_synset_offsets(synset_idxes)
+    synsets = _get_synsets(synset_offsets)
+
+    return stored_synsets + synsets
 
 def all_synsets(pos=None):
   """Return all the synsets which have the provided pos.
