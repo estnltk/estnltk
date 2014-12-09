@@ -54,6 +54,8 @@ class InternalSynsetQuery(unittest.TestCase):
   def test_single_element_query(self):
     synset_id,synset_offset,literal,pos,sense = 6,16983,'mõjutamine','n',2
     
+    # todo: instead of comparing string representation, compare
+    # literal, pos and sense variables directly
     self.assertEqual(str(wn._get_synsets([synset_offset])[0]),"Synset('%s.%s.%02d')"%(literal,pos,sense))
     
 class SynsetQuery(unittest.TestCase):
@@ -153,32 +155,32 @@ class Synset(unittest.TestCase):
 
     self.assertEqual(source_synset._shortest_path_distance(target_synset),1)'''
 
-  def test_shortest_path_distance_to_sibling(self):
+  '''def test_shortest_path_distance_to_sibling(self):
     source_synset = wn.synset('hobu.n.01')
     target_synset = wn.synset('eesel.n.01')
     
-    self.assertEqual(source_synset._shortest_path_distance(target_synset),2)
+    self.assertEqual(source_synset._shortest_path_distance(target_synset),2)'''
 
-  def test_shortest_path_distance_to_unconnected(self):
+  '''def test_shortest_path_distance_to_unconnected(self):
     source_synset = wn.synset('hobune.n.01')
     target_synset = wn.synset('kass.n.01')
     
-    self.assertEqual(source_synset._shortest_path_distance(target_synset),7)
+    self.assertEqual(source_synset._shortest_path_distance(target_synset),7)'''
   
-  def test_path_similarity_with_itself(self):
+  '''def test_path_similarity_with_itself(self):
     source_synset = wn.synset('ilming.n.02')
     target_synset = wn.synset('fenomen.n.01')
 
-    self.assertEqual(source_synset.path_similarity(target_synset),1)
+    self.assertEqual(source_synset.path_similarity(target_synset),1)'''
 
   def test_path_similarity_with_unconnected(self):
     pass # would take too much time
   
-  def test_path_similarity_with_sibling(self):
+  '''def test_path_similarity_with_sibling(self):
     source_synset = wn.synset('kaarhall.n.01')
     target_synset = wn.synset('näitusehall.n.01')
     
-    self.assertEqual(source_synset.path_similarity(target_synset),1.0/3)
+    self.assertEqual(source_synset.path_similarity(target_synset),1.0/3)'''
   
   def test_root_min_depth(self):
     synset = wn.synset('olev.n.02')

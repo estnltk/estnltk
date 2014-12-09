@@ -131,7 +131,7 @@ def _get_key_from_raw_synset(raw_synset):
     pos = raw_synset.pos
     literal = raw_synset.variants[0].literal
     sense = "%02d"%raw_synset.variants[0].sense
-    return '.'.join([literal,pos,sense]).encode('utf8')
+    return '.'.join([literal,pos,sense])
 
 def synset(synset_key):
     """Returns synset object with the provided key.
@@ -384,7 +384,7 @@ class Synset:
         self.name = _get_key_from_raw_synset(raw_synset)
         self._raw_synset = raw_synset
         self.id = raw_synset.number or -1
-        self.pos = raw_synset.pos
+        self.pos = as_unicode(raw_synset.pos)
 
     def __eq__(self, other):
         return self._raw_synset.number == other._raw_synset.number
@@ -393,7 +393,7 @@ class Synset:
         return hash(str(self))
 
     def __repr__(self):
-        return ("Synset('%s')"%self.name)
+        return repr("Synset('%s')" % self.name)
 
     def _recursive_hypernyms(self, hypernyms):   
         """Finds all the hypernyms of the synset transitively.
