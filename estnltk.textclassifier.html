@@ -1,0 +1,1269 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Subpackages &mdash; estnltk 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.0 documentation" href="index.html" />
+    <link rel="next" title="estnltk.estner package" href="estnltk.estner.html" />
+    <link rel="prev" title="estnltk.estner package" href="estnltk.estner.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="estnltk.estner.html" title="estnltk.estner package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="estnltk.estner.html" title="estnltk.estner package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="subpackages">
+<h1>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h1>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="module-estnltk.textclassifier.analyzer">
+<span id="estnltk-textclassifier-analyzer-module"></span><h1>estnltk.textclassifier.analyzer module<a class="headerlink" href="#module-estnltk.textclassifier.analyzer" title="Permalink to this headline">¶</a></h1>
+<p>Module containing functionality for processing Estonian.</p>
+<dl class="class">
+<dt id="estnltk.textclassifier.analyzer.SimpleTextAnalyzer">
+<em class="property">class </em><code class="descclassname">estnltk.textclassifier.analyzer.</code><code class="descname">SimpleTextAnalyzer</code><span class="sig-paren">(</span><em>synunifier</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/analyzer.html#SimpleTextAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.analyzer.SimpleTextAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Analyzer for preprocessing Estonian texts.</p>
+<p>Performs stopword removal, lemmatization and synonym unification</p>
+<p class="rubric">Methods</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.textclassifier.analyzer.get_stopwords">
+<code class="descclassname">estnltk.textclassifier.analyzer.</code><code class="descname">get_stopwords</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/analyzer.html#get_stopwords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.analyzer.get_stopwords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for obtaining Estonian stopwords.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">set[str]</p>
+<blockquote class="last">
+<div><p>Estonian stopwords.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-estnltk.textclassifier.classifier">
+<span id="estnltk-textclassifier-classifier-module"></span><h1>estnltk.textclassifier.classifier module<a class="headerlink" href="#module-estnltk.textclassifier.classifier" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="estnltk.textclassifier.classifier.Clf">
+<em class="property">class </em><code class="descclassname">estnltk.textclassifier.classifier.</code><code class="descname">Clf</code><span class="sig-paren">(</span><em>settings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/classifier.html#Clf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.classifier.Clf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.textclassifier.clfbase.ClfBase" title="estnltk.textclassifier.clfbase.ClfBase"><code class="xref py py-class docutils literal"><span class="pre">estnltk.textclassifier.clfbase.ClfBase</span></code></a></p>
+<p>estnltk.textclassifier classifier.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="44%" />
+<col width="56%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>_settings: estnltk.textclassifier.settings.Settings</td>
+<td>Settings containing technical synonyms, feature labels etc.</td>
+</tr>
+<tr class="row-even"><td>_clf: sklearn.base.BaseEstimator</td>
+<td>The internal representation of the classifier model.</td>
+</tr>
+<tr class="row-odd"><td>_fe_serialized: str</td>
+<td>Serialized version of the feature extractor used in training.</td>
+</tr>
+<tr class="row-even"><td>_report: str</td>
+<td>The HTML report of training results.</td>
+</tr>
+<tr class="row-odd"><td>_misclassified_data: str</td>
+<td>Misclassified data report of training results.</td>
+</tr>
+<tr class="row-even"><td>_train_dataframe: pandas.DataFrame</td>
+<td>Original data used for training. It is needed for active learning.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="estnltk.textclassifier.classifier.Clf.classify">
+<code class="descname">classify</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/classifier.html#Clf.classify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.classifier.Clf.classify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Classify the dataframe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">DataFrame</p>
+<blockquote>
+<div><p>The original dataframe with additional label and confidence columns.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>In case the classifier is not yet trained.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textclassifier.classifier.Clf.export_json">
+<code class="descname">export_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/classifier.html#Clf.export_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.classifier.Clf.export_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export the classifier as a JSON string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>JSON encoded data</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="estnltk.textclassifier.classifier.Clf.from_json">
+<em class="property">static </em><code class="descname">from_json</code><span class="sig-paren">(</span><em>json_data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/classifier.html#Clf.from_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.classifier.Clf.from_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import previously exported classifier from a JSON string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>json: str</strong></p>
+<blockquote class="last">
+<div><p>JSON encoded classifier.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.classifier.Clf.misclassified_data">
+<code class="descname">misclassified_data</code><a class="headerlink" href="#estnltk.textclassifier.classifier.Clf.misclassified_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain misclassified data report creating during training.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote>
+<div><p>HTML containing the report</p>
+</div></blockquote>
+<p>None</p>
+<blockquote class="last">
+<div><p>If there is no report, either because the model is not yet trained or was trained without report generation.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.classifier.Clf.report">
+<code class="descname">report</code><a class="headerlink" href="#estnltk.textclassifier.classifier.Clf.report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain the main part of training report created during training.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote>
+<div><p>HTML containing the report</p>
+</div></blockquote>
+<p>None</p>
+<blockquote class="last">
+<div><p>If there is no report, either because the model is not yet trained or was trained without report generation.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textclassifier.classifier.Clf.retrain">
+<code class="descname">retrain</code><span class="sig-paren">(</span><em>dataframe</em>, <em>conf_treshold=0.0</em>, <em>report=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/classifier.html#Clf.retrain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.classifier.Clf.retrain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrain the classifier using extra data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataframe: pandas.DataFrame</strong></p>
+<blockquote>
+<div><p>Dataframe of extra data.
+Should be unlabelled as we automatically label it during retraining.
+In case of labelled data, merge it instead with the original dataset and then train using that.</p>
+</div></blockquote>
+<p><strong>conf_treshold: float</strong></p>
+<blockquote>
+<div><p>The confidence treshold to filter out the rows that will be excluded in the extended training dataset.</p>
+</div></blockquote>
+<p><strong>report: bool</strong></p>
+<blockquote>
+<div><p>Should we regenerate the training report based on new extended dataset (default True).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Clf</p>
+<blockquote class="last">
+<div><p>self</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.classifier.Clf.settings">
+<code class="descname">settings</code><a class="headerlink" href="#estnltk.textclassifier.classifier.Clf.settings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textclassifier.classifier.Clf.test">
+<code class="descname">test</code><span class="sig-paren">(</span><em>dataframe</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/classifier.html#Clf.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.classifier.Clf.test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the classifier using given annotated dataframe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataframe: pandas.DataFrame</strong></p>
+<blockquote>
+<div><p>The testing dataframe. Must contain same columns as the dataset used to train the classifier.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dict</p>
+<blockquote class="last">
+<div><p>Dictionary containing the overall performance characterstics and also by each class.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textclassifier.classifier.Clf.train">
+<code class="descname">train</code><span class="sig-paren">(</span><em>dataframe</em>, <em>report=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/classifier.html#Clf.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.classifier.Clf.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the classifier.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataframe: pandas DataFrame object</strong></p>
+<blockquote>
+<div><p>The dataframe containing feature columns and label column for training task.</p>
+</div></blockquote>
+<p><strong>report: True</strong></p>
+<blockquote>
+<div><p>Should we create a training report (default True).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Clf</p>
+<blockquote class="last">
+<div><p>return self.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.classifier.Clf.train_dataframe">
+<code class="descname">train_dataframe</code><a class="headerlink" href="#estnltk.textclassifier.classifier.Clf.train_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.textclassifier.classifier.merge_datasets">
+<code class="descclassname">estnltk.textclassifier.classifier.</code><code class="descname">merge_datasets</code><span class="sig-paren">(</span><em>settings</em>, <em>indata</em>, <em>extradata</em>, <em>conf_treshold</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/classifier.html#merge_datasets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.classifier.merge_datasets" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Merge original dataset with extra data by keeping only</dt>
+<dd>best examples.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>settings: estnltk.textclassifier.settings.Settings</strong></p>
+<blockquote>
+<div><p>The settings including column information.</p>
+</div></blockquote>
+<p><strong>indata: pandas.DataFrame</strong></p>
+<blockquote>
+<div><p>The original dataset.</p>
+</div></blockquote>
+<p><strong>extradata: pandas.DataFrame</strong></p>
+<blockquote>
+<div><p>The extra dataset.</p>
+</div></blockquote>
+<p><strong>conf_treshold: float</strong></p>
+<blockquote>
+<div><p>The confidence treshold, which determines the split between
+bad and good examples.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">pandas.DataFrame</p>
+<blockquote class="last">
+<div><p>original data + extradata, where confidence &gt;= conf_treshold.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-estnltk.textclassifier.classify">
+<span id="estnltk-textclassifier-classify-module"></span><h1>estnltk.textclassifier.classify module<a class="headerlink" href="#module-estnltk.textclassifier.classify" title="Permalink to this headline">¶</a></h1>
+<p>Command line program for classification.</p>
+<dl class="class">
+<dt id="estnltk.textclassifier.classify.ClassificationApp">
+<em class="property">class </em><code class="descclassname">estnltk.textclassifier.classify.</code><code class="descname">ClassificationApp</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/classify.html#ClassificationApp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.classify.ClassificationApp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="estnltk.textclassifier.classify.ClassificationApp.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/classify.html#ClassificationApp.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.classify.ClassificationApp.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-estnltk.textclassifier.clfbase">
+<span id="estnltk-textclassifier-clfbase-module"></span><h1>estnltk.textclassifier.clfbase module<a class="headerlink" href="#module-estnltk.textclassifier.clfbase" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="estnltk.textclassifier.clfbase.ClfBase">
+<em class="property">class </em><code class="descclassname">estnltk.textclassifier.clfbase.</code><code class="descname">ClfBase</code><span class="sig-paren">(</span><em>feat_extractor</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/clfbase.html#ClfBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.clfbase.ClfBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Base class for classification tasks.</p>
+<p>Provides funtions to perform basic evaluation of model building,</p>
+<p class="rubric">Attributes</p>
+<p class="rubric">Methods</p>
+<dl class="attribute">
+<dt id="estnltk.textclassifier.clfbase.ClfBase.cv_stats">
+<code class="descname">cv_stats</code><a class="headerlink" href="#estnltk.textclassifier.clfbase.ClfBase.cv_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform cross-validation for model evaluation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">(list[int], list[int], list[float])</p>
+<blockquote class="last">
+<div><dl class="docutils">
+<dt>Tuple containing three lists of the same size:</dt>
+<dd><p class="first last">true labels
+predicted labels
+prediction probabilities</p>
+</dd>
+</dl>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.clfbase.ClfBase.feature_extractor">
+<code class="descname">feature_extractor</code><a class="headerlink" href="#estnltk.textclassifier.clfbase.ClfBase.feature_extractor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textclassifier.clfbase.ClfBase.get_new_classifier">
+<code class="descname">get_new_classifier</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/clfbase.html#ClfBase.get_new_classifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.clfbase.ClfBase.get_new_classifier" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">new sklearn compatible classifier.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.textclassifier.clfbase.get_sig_features">
+<code class="descclassname">estnltk.textclassifier.clfbase.</code><code class="descname">get_sig_features</code><span class="sig-paren">(</span><em>y</em>, <em>coef</em>, <em>n=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/clfbase.html#get_sig_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.clfbase.get_sig_features" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-estnltk.textclassifier.featureextractor">
+<span id="estnltk-textclassifier-featureextractor-module"></span><h1>estnltk.textclassifier.featureextractor module<a class="headerlink" href="#module-estnltk.textclassifier.featureextractor" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="estnltk.textclassifier.featureextractor.FeatureExtractor">
+<em class="property">class </em><code class="descclassname">estnltk.textclassifier.featureextractor.</code><code class="descname">FeatureExtractor</code><span class="sig-paren">(</span><em>settings</em>, <em>dataframe</em>, <em>vectorizer=None</em>, <em>labelencoder=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/featureextractor.html#FeatureExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.featureextractor.FeatureExtractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class for exracting features from dataframe object.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>_transform_only: bool</td>
+<td>True, if extractor was initiated from previously serialized vectorizer and labelencoder.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="attribute">
+<dt id="estnltk.textclassifier.featureextractor.FeatureExtractor.X">
+<code class="descname">X</code><a class="headerlink" href="#estnltk.textclassifier.featureextractor.FeatureExtractor.X" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">scipy.sparse</p>
+<blockquote class="last">
+<div><p>Sparse matrix containing textual features for classification.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.featureextractor.FeatureExtractor.dataframe">
+<code class="descname">dataframe</code><a class="headerlink" href="#estnltk.textclassifier.featureextractor.FeatureExtractor.dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textclassifier.featureextractor.FeatureExtractor.export">
+<code class="descname">export</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/featureextractor.html#FeatureExtractor.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.featureextractor.FeatureExtractor.export" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.featureextractor.FeatureExtractor.feature_names">
+<code class="descname">feature_names</code><a class="headerlink" href="#estnltk.textclassifier.featureextractor.FeatureExtractor.feature_names" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list[unicode]</p>
+<blockquote class="last">
+<div><p>Meaningful feature names for vectorized feature matrix columns.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.featureextractor.FeatureExtractor.labelencoder">
+<code class="descname">labelencoder</code><a class="headerlink" href="#estnltk.textclassifier.featureextractor.FeatureExtractor.labelencoder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.featureextractor.FeatureExtractor.labels">
+<code class="descname">labels</code><a class="headerlink" href="#estnltk.textclassifier.featureextractor.FeatureExtractor.labels" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list[unicode]</p>
+<blockquote class="last">
+<div><p>Labels for for encoded labels (y).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.featureextractor.FeatureExtractor.settings">
+<code class="descname">settings</code><a class="headerlink" href="#estnltk.textclassifier.featureextractor.FeatureExtractor.settings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.featureextractor.FeatureExtractor.strings">
+<code class="descname">strings</code><a class="headerlink" href="#estnltk.textclassifier.featureextractor.FeatureExtractor.strings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get feature strings.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list[unicode]</p>
+<blockquote class="last">
+<div><p>Dataframe columns concatenated to a single string.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.featureextractor.FeatureExtractor.vectorizer">
+<code class="descname">vectorizer</code><a class="headerlink" href="#estnltk.textclassifier.featureextractor.FeatureExtractor.vectorizer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.featureextractor.FeatureExtractor.y">
+<code class="descname">y</code><a class="headerlink" href="#estnltk.textclassifier.featureextractor.FeatureExtractor.y" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">numpy.array</p>
+<blockquote class="last">
+<div><p>Labels encoded as integer values. Use get_labels() for mapping them back to strings.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-estnltk.textclassifier.merge">
+<span id="estnltk-textclassifier-merge-module"></span><h1>estnltk.textclassifier.merge module<a class="headerlink" href="#module-estnltk.textclassifier.merge" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="estnltk.textclassifier.merge.MergeApp">
+<em class="property">class </em><code class="descclassname">estnltk.textclassifier.merge.</code><code class="descname">MergeApp</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/merge.html#MergeApp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.merge.MergeApp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="estnltk.textclassifier.merge.MergeApp.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/merge.html#MergeApp.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.merge.MergeApp.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-estnltk.textclassifier.paths">
+<span id="estnltk-textclassifier-paths-module"></span><h1>estnltk.textclassifier.paths module<a class="headerlink" href="#module-estnltk.textclassifier.paths" title="Permalink to this headline">¶</a></h1>
+<p>Module defining the paths of the package.</p>
+</div>
+<div class="section" id="module-estnltk.textclassifier.reportgenerator">
+<span id="estnltk-textclassifier-reportgenerator-module"></span><h1>estnltk.textclassifier.reportgenerator module<a class="headerlink" href="#module-estnltk.textclassifier.reportgenerator" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="estnltk.textclassifier.reportgenerator.Renumberer">
+<em class="property">class </em><code class="descclassname">estnltk.textclassifier.reportgenerator.</code><code class="descname">Renumberer</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/reportgenerator.html#Renumberer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.Renumberer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">sklearn.base.TransformerMixin</span></code></p>
+<p>Class for renumbering integers so that they are consequent.</p>
+<p>As we reorder the labels in computations, it is necessary to make sure they are consequent as otherwise
+scikit learn metrics functions complain.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="estnltk.textclassifier.reportgenerator.Renumberer.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/reportgenerator.html#Renumberer.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.Renumberer.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textclassifier.reportgenerator.Renumberer.transform">
+<code class="descname">transform</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/reportgenerator.html#Renumberer.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.Renumberer.transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.textclassifier.reportgenerator.ReportGenerator">
+<em class="property">class </em><code class="descclassname">estnltk.textclassifier.reportgenerator.</code><code class="descname">ReportGenerator</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/reportgenerator.html#ReportGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.ReportGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class for generating HTML raports.</p>
+<p>Raports containg statistics and evaluation data for estimating the model performance
+and providing clues to improve the performance.</p>
+<p class="rubric">Attributes</p>
+<p class="rubric">Methods</p>
+<dl class="attribute">
+<dt id="estnltk.textclassifier.reportgenerator.ReportGenerator.classification_report">
+<code class="descname">classification_report</code><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.ReportGenerator.classification_report" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">unicode</p>
+<blockquote class="last">
+<div><p>HTML containing the classification report.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textclassifier.reportgenerator.ReportGenerator.classification_report_list">
+<code class="descname">classification_report_list</code><span class="sig-paren">(</span><em>title</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/reportgenerator.html#ReportGenerator.classification_report_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.ReportGenerator.classification_report_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textclassifier.reportgenerator.ReportGenerator.classification_report_total">
+<code class="descname">classification_report_total</code><span class="sig-paren">(</span><em>prec</em>, <em>rec</em>, <em>f1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/reportgenerator.html#ReportGenerator.classification_report_total"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.ReportGenerator.classification_report_total" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.reportgenerator.ReportGenerator.coverage_f1_fig">
+<code class="descname">coverage_f1_fig</code><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.ReportGenerator.coverage_f1_fig" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.reportgenerator.ReportGenerator.cutoff_f1_fig">
+<code class="descname">cutoff_f1_fig</code><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.ReportGenerator.cutoff_f1_fig" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.reportgenerator.ReportGenerator.main_report">
+<code class="descname">main_report</code><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.ReportGenerator.main_report" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.reportgenerator.ReportGenerator.misclassified_data">
+<code class="descname">misclassified_data</code><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.ReportGenerator.misclassified_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.reportgenerator.ReportGenerator.sentence_report">
+<code class="descname">sentence_report</code><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.ReportGenerator.sentence_report" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">unicode</p>
+<blockquote class="last">
+<div><p>HTML containing misclassified sentences.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.reportgenerator.ReportGenerator.significant_features">
+<code class="descname">significant_features</code><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.ReportGenerator.significant_features" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.textclassifier.reportgenerator.ReportGeneratorData">
+<em class="property">class </em><code class="descclassname">estnltk.textclassifier.reportgenerator.</code><code class="descname">ReportGeneratorData</code><span class="sig-paren">(</span><em>clfbase</em>, <em>coef</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/reportgenerator.html#ReportGeneratorData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.ReportGeneratorData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">dict</span></code></p>
+<p>Dictionary containing report generator data.</p>
+<p class="rubric">Attributes</p>
+<p class="rubric">Methods</p>
+<dl class="attribute">
+<dt id="estnltk.textclassifier.reportgenerator.ReportGeneratorData.coverage_curve">
+<code class="descname">coverage_curve</code><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.ReportGeneratorData.coverage_curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute coverage statistics.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">(list[float], list[float], list[float])</p>
+<blockquote class="last">
+<div><dl class="docutils">
+<dt>Three related lists containing:</dt>
+<dd><p class="first last">Coverage percentages
+F1-scores
+Cutoff values</p>
+</dd>
+</dl>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.textclassifier.reportgenerator.TextAnnotator">
+<em class="property">class </em><code class="descclassname">estnltk.textclassifier.reportgenerator.</code><code class="descname">TextAnnotator</code><span class="sig-paren">(</span><em>unifier</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/reportgenerator.html#TextAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.TextAnnotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="estnltk.textclassifier.reportgenerator.TextAnnotator.annotate_color">
+<code class="descname">annotate_color</code><span class="sig-paren">(</span><em>f</em>, <em>v</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/reportgenerator.html#TextAnnotator.annotate_color"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.TextAnnotator.annotate_color" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textclassifier.reportgenerator.TextAnnotator.annotate_important_features">
+<code class="descname">annotate_important_features</code><span class="sig-paren">(</span><em>text</em>, <em>features</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/reportgenerator.html#TextAnnotator.annotate_important_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.TextAnnotator.annotate_important_features" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textclassifier.reportgenerator.TextAnnotator.does_match">
+<code class="descname">does_match</code><span class="sig-paren">(</span><em>variants</em>, <em>features</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/reportgenerator.html#TextAnnotator.does_match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.TextAnnotator.does_match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textclassifier.reportgenerator.TextAnnotator.trim_feature_prefixes">
+<code class="descname">trim_feature_prefixes</code><span class="sig-paren">(</span><em>features</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/reportgenerator.html#TextAnnotator.trim_feature_prefixes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.reportgenerator.TextAnnotator.trim_feature_prefixes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-estnltk.textclassifier.retrain">
+<span id="estnltk-textclassifier-retrain-module"></span><h1>estnltk.textclassifier.retrain module<a class="headerlink" href="#module-estnltk.textclassifier.retrain" title="Permalink to this headline">¶</a></h1>
+<p>Command line program for EKT model training.</p>
+<dl class="class">
+<dt id="estnltk.textclassifier.retrain.ReTrainerApp">
+<em class="property">class </em><code class="descclassname">estnltk.textclassifier.retrain.</code><code class="descname">ReTrainerApp</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/retrain.html#ReTrainerApp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.retrain.ReTrainerApp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="estnltk.textclassifier.retrain.ReTrainerApp.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/retrain.html#ReTrainerApp.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.retrain.ReTrainerApp.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-estnltk.textclassifier.settings">
+<span id="estnltk-textclassifier-settings-module"></span><h1>estnltk.textclassifier.settings module<a class="headerlink" href="#module-estnltk.textclassifier.settings" title="Permalink to this headline">¶</a></h1>
+<p>Module containing the funtionality to handle settings.</p>
+<dl class="class">
+<dt id="estnltk.textclassifier.settings.Settings">
+<em class="property">class </em><code class="descclassname">estnltk.textclassifier.settings.</code><code class="descname">Settings</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/settings.html#Settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.settings.Settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">dict</span></code></p>
+<p>Classification task settings.</p>
+<ol class="arabic simple">
+<li>The feature column names.</li>
+<li>The label column name.</li>
+<li>The confidence column name.</li>
+<li>The Problem-pecific synonyms.</li>
+</ol>
+<p class="rubric">Attributes</p>
+<p class="rubric">Methods</p>
+<dl class="attribute">
+<dt id="estnltk.textclassifier.settings.Settings.REQUIRED_KEYS">
+<code class="descname">REQUIRED_KEYS</code><em class="property"> = frozenset({'label', 'features'})</em><a class="headerlink" href="#estnltk.textclassifier.settings.Settings.REQUIRED_KEYS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.settings.Settings.confidence">
+<code class="descname">confidence</code><a class="headerlink" href="#estnltk.textclassifier.settings.Settings.confidence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textclassifier.settings.Settings.export">
+<code class="descname">export</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/settings.html#Settings.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.settings.Settings.export" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export the settings as a Python dictionary.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.settings.Settings.features">
+<code class="descname">features</code><a class="headerlink" href="#estnltk.textclassifier.settings.Settings.features" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.settings.Settings.label">
+<code class="descname">label</code><a class="headerlink" href="#estnltk.textclassifier.settings.Settings.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="estnltk.textclassifier.settings.Settings.read">
+<em class="property">static </em><code class="descname">read</code><span class="sig-paren">(</span><em>setfnm</em>, <em>synfnm=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/settings.html#Settings.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.settings.Settings.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize settings from technical synonym and settings files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>setfnm: str</strong></p>
+<blockquote>
+<div><p>Path for file containing settings definitions.</p>
+</div></blockquote>
+<p><strong>synfnm: str</strong></p>
+<blockquote>
+<div><p>Path for file containing technical synonyms (default: None).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Settings</p>
+<blockquote class="last">
+<div><p>Dictionary containing the settings and technical synonym vocabulary.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.textclassifier.settings.Settings.unifier">
+<code class="descname">unifier</code><a class="headerlink" href="#estnltk.textclassifier.settings.Settings.unifier" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.textclassifier.settings.SettingsFileReader">
+<em class="property">class </em><code class="descclassname">estnltk.textclassifier.settings.</code><code class="descname">SettingsFileReader</code><span class="sig-paren">(</span><em>fnm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/settings.html#SettingsFileReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.settings.SettingsFileReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class to read settings files.</p>
+<p class="rubric">Methods</p>
+<dl class="attribute">
+<dt id="estnltk.textclassifier.settings.SettingsFileReader.SECTIONS">
+<code class="descname">SECTIONS</code><em class="property"> = ['[features]', '[label]', '[confidence]']</em><a class="headerlink" href="#estnltk.textclassifier.settings.SettingsFileReader.SECTIONS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textclassifier.settings.SettingsFileReader.read">
+<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/settings.html#SettingsFileReader.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.settings.SettingsFileReader.read" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Dictionary containing &#8216;features&#8217;, &#8216;label&#8217; and &#8216;confidence&#8217; values.</p>
+<p class="last">NB! Use Settings.read instead to load the settings also with synonym vocabulary.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-estnltk.textclassifier.synunifier">
+<span id="estnltk-textclassifier-synunifier-module"></span><h1>estnltk.textclassifier.synunifier module<a class="headerlink" href="#module-estnltk.textclassifier.synunifier" title="Permalink to this headline">¶</a></h1>
+<p>Module containing functionality for problem-specific synonym unification.</p>
+<dl class="class">
+<dt id="estnltk.textclassifier.synunifier.SynFileReader">
+<em class="property">class </em><code class="descclassname">estnltk.textclassifier.synunifier.</code><code class="descname">SynFileReader</code><span class="sig-paren">(</span><em>fnm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/synunifier.html#SynFileReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.synunifier.SynFileReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class to read technical synonym files.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="estnltk.textclassifier.synunifier.SynFileReader.read">
+<code class="descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/synunifier.html#SynFileReader.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.synunifier.SynFileReader.read" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.textclassifier.synunifier.SynUnifier">
+<em class="property">class </em><code class="descclassname">estnltk.textclassifier.synunifier.</code><code class="descname">SynUnifier</code><span class="sig-paren">(</span><em>mapped_values={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/synunifier.html#SynUnifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.synunifier.SynUnifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class for storing technical synonyms.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="estnltk.textclassifier.synunifier.SynUnifier.add_synset">
+<code class="descname">add_synset</code><span class="sig-paren">(</span><em>synset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/synunifier.html#SynUnifier.add_synset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.synunifier.SynUnifier.add_synset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a synset to the object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>synset: iterable of str strings</strong></p>
+<blockquote>
+<div><p>The collection of techinical synonyms. The first element will be used as the target value
+that other synonymous values are mapped to.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>If the given collection of synsets does not contain at least two unique elements.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textclassifier.synunifier.SynUnifier.export">
+<code class="descname">export</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/synunifier.html#SynUnifier.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.synunifier.SynUnifier.export" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export the instance to a JSON-serializable dictionary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dict</p>
+<blockquote class="last">
+<div><p>The dictionary contains str key and value mappings from alternative word representations to
+its main representation.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textclassifier.synunifier.SynUnifier.unify">
+<code class="descname">unify</code><span class="sig-paren">(</span><em>word</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/synunifier.html#SynUnifier.unify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.synunifier.SynUnifier.unify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unify the given word.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>word: str</strong></p>
+<blockquote>
+<div><p>The word to be translated.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>The target synonym of the given word, if it exists. Otherwise returns the same word.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-estnltk.textclassifier.test">
+<span id="estnltk-textclassifier-test-module"></span><h1>estnltk.textclassifier.test module<a class="headerlink" href="#module-estnltk.textclassifier.test" title="Permalink to this headline">¶</a></h1>
+<p>Command line program for testing.</p>
+<dl class="class">
+<dt id="estnltk.textclassifier.test.TestingApp">
+<em class="property">class </em><code class="descclassname">estnltk.textclassifier.test.</code><code class="descname">TestingApp</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/test.html#TestingApp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.test.TestingApp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="estnltk.textclassifier.test.TestingApp.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/test.html#TestingApp.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.test.TestingApp.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-estnltk.textclassifier.train">
+<span id="estnltk-textclassifier-train-module"></span><h1>estnltk.textclassifier.train module<a class="headerlink" href="#module-estnltk.textclassifier.train" title="Permalink to this headline">¶</a></h1>
+<p>Command line program for EKT model training.</p>
+<dl class="class">
+<dt id="estnltk.textclassifier.train.TrainerApp">
+<em class="property">class </em><code class="descclassname">estnltk.textclassifier.train.</code><code class="descname">TrainerApp</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/train.html#TrainerApp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.train.TrainerApp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="estnltk.textclassifier.train.TrainerApp.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/train.html#TrainerApp.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.train.TrainerApp.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-estnltk.textclassifier.utils">
+<span id="estnltk-textclassifier-utils-module"></span><h1>estnltk.textclassifier.utils module<a class="headerlink" href="#module-estnltk.textclassifier.utils" title="Permalink to this headline">¶</a></h1>
+<p>File reading/writing utilities for command line programs.
+These are primarly meant to be used by command line programs.</p>
+<dl class="function">
+<dt id="estnltk.textclassifier.utils.check_filename">
+<code class="descclassname">estnltk.textclassifier.utils.</code><code class="descname">check_filename</code><span class="sig-paren">(</span><em>fnm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/utils.html#check_filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.utils.check_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if given filename for datafiles is correct.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fnm: str</strong></p>
+<blockquote>
+<div><p>Filename of the file.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">bool</p>
+<blockquote class="last">
+<div><p>True, if file is either CSV or XLSX, otherwise
+exists the program.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.textclassifier.utils.decode_cmdarg">
+<code class="descclassname">estnltk.textclassifier.utils.</code><code class="descname">decode_cmdarg</code><span class="sig-paren">(</span><em>arg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/utils.html#decode_cmdarg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.utils.decode_cmdarg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a command line argument to str. Skip if int.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.textclassifier.utils.encode_arg">
+<code class="descclassname">estnltk.textclassifier.utils.</code><code class="descname">encode_arg</code><span class="sig-paren">(</span><em>arg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/utils.html#encode_arg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.utils.encode_arg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.textclassifier.utils.load_classifier">
+<code class="descclassname">estnltk.textclassifier.utils.</code><code class="descname">load_classifier</code><span class="sig-paren">(</span><em>fnm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/utils.html#load_classifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.utils.load_classifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the classifier from specified filename.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fnm: str</strong></p>
+<blockquote>
+<div><p>The filename.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">estnltk.textclassifier.classifier.Clf</p>
+<blockquote class="last">
+<div><p>The previously trained classifier model.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.textclassifier.utils.read_dataset">
+<code class="descclassname">estnltk.textclassifier.utils.</code><code class="descname">read_dataset</code><span class="sig-paren">(</span><em>fnm</em>, <em>sep='</em>, <em>'</em>, <em>sheet=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/utils.html#read_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.utils.read_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the dataset from the disk.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fnm: str</strong></p>
+<blockquote>
+<div><p>The filename of the dataset.</p>
+</div></blockquote>
+<p><strong>sep: str</strong></p>
+<blockquote>
+<div><p>The field separater in case of CSV files (default is ,)</p>
+</div></blockquote>
+<p><strong>sheet: int or str</strong></p>
+<blockquote>
+<div><p>The sheet index or name in case of XLSX files (default is 0)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">pandas.DataFrame</p>
+<blockquote class="last">
+<div><p>The dataframe loaded from given file.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.textclassifier.utils.save_classifier">
+<code class="descclassname">estnltk.textclassifier.utils.</code><code class="descname">save_classifier</code><span class="sig-paren">(</span><em>fnm</em>, <em>classifier</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/utils.html#save_classifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.utils.save_classifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the classifier to specified filename.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fnm: str</strong></p>
+<blockquote>
+<div><p>The filename.</p>
+</div></blockquote>
+<p><strong>classifier: estnltk.textclassifier.classifier.Clf</strong></p>
+<blockquote class="last">
+<div><p>The classifier model instance.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.textclassifier.utils.write_dataset">
+<code class="descclassname">estnltk.textclassifier.utils.</code><code class="descname">write_dataset</code><span class="sig-paren">(</span><em>fnm</em>, <em>dataframe</em>, <em>sep='</em>, <em>'</em>, <em>sheet='Sheet1'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/utils.html#write_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.utils.write_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the dataset to the disk.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fnm: str</strong></p>
+<blockquote>
+<div><p>The filename to write the data.</p>
+</div></blockquote>
+<p><strong>dataframe: pandas.DataFrame</strong></p>
+<blockquote>
+<div><p>The pandas dataframe instance to write to disk.</p>
+</div></blockquote>
+<p><strong>sep: str</strong></p>
+<blockquote>
+<div><p>The field separater in case of CSV files (default is ,)</p>
+</div></blockquote>
+<p><strong>sheet: str</strong></p>
+<blockquote class="last">
+<div><p>The sheet index or name in case of XLSX files (default is &#8220;Sheet1&#8221;)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.textclassifier.utils.write_html">
+<code class="descclassname">estnltk.textclassifier.utils.</code><code class="descname">write_html</code><span class="sig-paren">(</span><em>fnm</em>, <em>html</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/textclassifier/utils.html#write_html"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textclassifier.utils.write_html" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write HTML content to specified filename.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fnm: str</strong></p>
+<blockquote>
+<div><p>The filename.</p>
+</div></blockquote>
+<p><strong>html: str</strong></p>
+<blockquote class="last">
+<div><p>HTML content.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-estnltk.textclassifier">
+<span id="module-contents"></span><h1>Module contents<a class="headerlink" href="#module-estnltk.textclassifier" title="Permalink to this headline">¶</a></h1>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-estnltk.textclassifier.analyzer">estnltk.textclassifier.analyzer module</a></li>
+<li><a class="reference internal" href="#module-estnltk.textclassifier.classifier">estnltk.textclassifier.classifier module</a></li>
+<li><a class="reference internal" href="#module-estnltk.textclassifier.classify">estnltk.textclassifier.classify module</a></li>
+<li><a class="reference internal" href="#module-estnltk.textclassifier.clfbase">estnltk.textclassifier.clfbase module</a></li>
+<li><a class="reference internal" href="#module-estnltk.textclassifier.featureextractor">estnltk.textclassifier.featureextractor module</a></li>
+<li><a class="reference internal" href="#module-estnltk.textclassifier.merge">estnltk.textclassifier.merge module</a></li>
+<li><a class="reference internal" href="#module-estnltk.textclassifier.paths">estnltk.textclassifier.paths module</a></li>
+<li><a class="reference internal" href="#module-estnltk.textclassifier.reportgenerator">estnltk.textclassifier.reportgenerator module</a></li>
+<li><a class="reference internal" href="#module-estnltk.textclassifier.retrain">estnltk.textclassifier.retrain module</a></li>
+<li><a class="reference internal" href="#module-estnltk.textclassifier.settings">estnltk.textclassifier.settings module</a></li>
+<li><a class="reference internal" href="#module-estnltk.textclassifier.synunifier">estnltk.textclassifier.synunifier module</a></li>
+<li><a class="reference internal" href="#module-estnltk.textclassifier.test">estnltk.textclassifier.test module</a></li>
+<li><a class="reference internal" href="#module-estnltk.textclassifier.train">estnltk.textclassifier.train module</a></li>
+<li><a class="reference internal" href="#module-estnltk.textclassifier.utils">estnltk.textclassifier.utils module</a></li>
+<li><a class="reference internal" href="#module-estnltk.textclassifier">Module contents</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="estnltk.estner.html"
+                        title="previous chapter">estnltk.estner package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="estnltk.estner.html"
+                        title="next chapter">estnltk.estner package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/estnltk.textclassifier.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="estnltk.estner.html" title="estnltk.estner package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="estnltk.estner.html" title="estnltk.estner package"
+             >previous</a> |</li>
+        <li><a href="index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+    </div>
+  </body>
+</html>

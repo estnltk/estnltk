@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &mdash; estnltk 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.0 documentation" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>We do not recommend building the library from source in Windows as it can be very time-consuming.
+Instead, we provide binary installers that can be downloaded from project <a href="#id1"><span class="problematic" id="id2">`repository`_</span></a>.</p>
+<p>Installers for 32 and 64 bit versions of Python2.7 and Python3.4:</p>
+<ul class="simple">
+<li>installer1</li>
+<li>installer2</li>
+<li>installer3</li>
+<li>installer4</li>
+</ul>
+<p>However, in order to get it working, you need to install these dependencies:
+TODO: try to put them all in a single installer</p>
+<ul class="simple">
+<li>pyvabamorf</li>
+<li>nltk</li>
+<li>whatever else</li>
+</ul>
+<div class="section" id="building-from-source">
+<h2>Building from source<a class="headerlink" href="#building-from-source" title="Permalink to this headline">¶</a></h2>
+<p>To build the <cite>estnltk</cite> module from source, we recommend using Visual Studio 2008 for Python2.7 and Visual Studio 2010 for Python3.4.
+Note that for 64-bit versions you need to have also 64-bit toolchains, which are not included in Express versions of the Visual Studio.
+Please read the Linux section of required dependencies.</p>
+</div>
+<div class="section" id="linux">
+<h2>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h2>
+<p>Although much development of the library is done in Linux, there are no pre-built binaries.
+Fortunately, building software from source in Linux is somewhat easier than in Windows, so we provide the necessary steps.</p>
+<p>First, you need to have installed following dependencies (typically installable from the package manager of your distro):</p>
+<ul class="simple">
+<li>Python development files</li>
+<li>GCC C++ compiler</li>
+<li>SWIG wrapper generator</li>
+<li>list here dependencies of dependencies etc.</li>
+</ul>
+<p>There are no pre-built binaries for Linux. For building, you need to have installed Python development files (headers and libraries), GCC C++ compiler and also SWIG wrapper generator ( <a class="reference external" href="http://swig.org/">http://swig.org/</a> ). Depending on your distribution, you might be able to simply install them from software repositories of your distribution.</p>
+<p>After all dependencies are installed, the easiest way to build the pyvabamorf package is using the pip tool:</p>
+<p>sudo pip install pyvabamorf
+Another way is to clone the repository and execute the setup.py script inside:</p>
+<p>sudo python setup.py install
+Then run the tests and see if they all pass (NB! Do not run them from same directory you have cloned the source distribution):</p>
+</div>
+<div class="section" id="post-installation-steps">
+<h2>Post-installation steps<a class="headerlink" href="#post-installation-steps" title="Permalink to this headline">¶</a></h2>
+<p>Downloading NLTK tokenizers for Estonian:</p>
+<div class="highlight-python"><div class="highlight"><pre>python -m nltk.downloader punkt
+</pre></div>
+</div>
+<p>Building default named entity tagger for Estonian (optional, installation should already come with a pre-trained model):</p>
+<div class="highlight-python"><div class="highlight"><pre>python -m estnltk.ner train_default_model
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#building-from-source">Building from source</a></li>
+<li><a class="reference internal" href="#linux">Linux</a></li>
+<li><a class="reference internal" href="#post-installation-steps">Post-installation steps</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/installation.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+    </div>
+  </body>
+</html>
