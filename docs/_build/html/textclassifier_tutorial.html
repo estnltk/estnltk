@@ -126,7 +126,7 @@ We exclude the <em>comment id</em> column as it does not contain any information
 <h2>Step 2. Building the classification model<a class="headerlink" href="#step-2-building-the-classification-model" title="Permalink to this headline">¶</a></h2>
 <p>In this example, we use the command line training program to build a model for Hinnavaatlus.ee user review classification.
 We can see the possible parameters by issuing command:</p>
-<div class="highlight-python"><div class="highlight"><pre>python3 -m Estnltk.train -h
+<div class="highlight-python"><div class="highlight"><pre>python3 -m estnltk.testclassifier.train -h
 </pre></div>
 </div>
 <p>That will output:</p>
@@ -165,7 +165,7 @@ sülearvuti läpakas rüperaal laptop
 <p>The second parameter is <code class="docutils literal"><span class="pre">--report</span></code> that does additional computation during training and creates two HTML files containing detailed performance characterstics of the trained model (this will be discussed more indepth later).
 The report can be used to improve the categories of the data, to increase the technical synonym list etc.</p>
 <p>However, we currently ignore this extra functionality and just train the classifier by issuing command:</p>
-<div class="highlight-python"><div class="highlight"><pre>python3 -m Estnltk.train definitions/hinnavaatlus.def data/hinnavaatlus.csv models/hinnavaatlus.bin
+<div class="highlight-python"><div class="highlight"><pre>python3 -m estnltk.testclassifier.train definitions/hinnavaatlus.def data/hinnavaatlus.csv models/hinnavaatlus.bin
 </pre></div>
 </div>
 <p>Often the log outputs warnings related to <code class="docutils literal"><span class="pre">numpy</span></code>, <code class="docutils literal"><span class="pre">sckikit-learn</span></code> and other dependencies, but these can be ingored until no specific errors are generated.
@@ -192,8 +192,8 @@ For example, the software cannot load XLSX files with Data Autofilters.</dd>
 <div class="section" id="step-3-using-the-model-to-categorize-data">
 <h2>Step 3. Using the model to categorize data<a class="headerlink" href="#step-3-using-the-model-to-categorize-data" title="Permalink to this headline">¶</a></h2>
 <p>The classification command line program accepts following arguments:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ python3 -m Estnltk.classify -h
-usage: Estnltk.classify [-h] [--insheet INSHEET] [--insep INSEP]
+<div class="highlight-python"><div class="highlight"><pre>$ python3 -m estnltk.testclassifier.classify -h
+usage: estnltk.testclassifier.classify [-h] [--insheet INSHEET] [--insep INSEP]
                          [--outsheet OUTSHEET] [--outsep OUTSEP]
                          indata outdata model
 

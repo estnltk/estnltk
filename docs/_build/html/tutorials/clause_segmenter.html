@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Clause segmenter &mdash; estnltk 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.0 documentation" href="../index.html" />
+    <link rel="next" title="Named entity recognition" href="ner.html" />
+    <link rel="prev" title="Morphological analysis" href="morf_analysis.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ner.html" title="Named entity recognition"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="morf_analysis.html" title="Morphological analysis"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="clause-segmenter">
+<h1>Clause segmenter<a class="headerlink" href="#clause-segmenter" title="Permalink to this headline">¶</a></h1>
+<p>A simple sentence, also called an independent clause, typically contains a finite verb, and expresses a complete thought.
+However, natural language sentences can also be long and complex, consisting of two or more clauses joined together.
+The clause structure can be made even more complex by embedded clauses, which divide their parent clauses into two halves.</p>
+<p>Clause segmenter makes it possible to extract clauses from a complex sentence and treat them independently:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span><span class="p">,</span> <span class="n">PyVabamorfAnalyzer</span><span class="p">,</span> <span class="n">ClauseSegmenter</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">Tokenizer</span><span class="p">()</span>
+<span class="n">analyzer</span> <span class="o">=</span> <span class="n">PyVabamorfAnalyzer</span><span class="p">()</span>
+<span class="n">segmenter</span> <span class="o">=</span> <span class="n">ClauseSegmenter</span><span class="p">()</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;Mees, keda seal kohtasime, oli tuttav ja teretas meid.&#39;&#39;&#39;</span>
+
+<span class="n">segmented</span> <span class="o">=</span> <span class="n">segmenter</span><span class="p">(</span><span class="n">analyzer</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">)))</span>
+</pre></div>
+</div>
+<p>Clause segmenter requires that the input text has been tokenized (split into sentences and words) and morphologically analyzed and disambiguated (the program also works on morphologically ambiguous text, but the quality of the analysis is expected to be lower than on morphologically disambiguated text).</p>
+<p>The segmenter annotates clause boundaries between words, and start and end locations of embedded clauses.
+Based on the annotation, each word in the sentence is associated with a clause index.
+Following is an example on how to access both the initial clause annotations, and also clause indexes of the words:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Clause indices and annotations</span>
+<span class="n">pprint</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">segmented</span><span class="o">.</span><span class="n">words</span><span class="p">,</span> <span class="n">segmented</span><span class="o">.</span><span class="n">clause_indices</span><span class="p">,</span> <span class="n">segmented</span><span class="o">.</span><span class="n">clause_annotations</span><span class="p">)))</span>
+
+<span class="p">[(</span><span class="s">&#39;Word(Mees)&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Word(,)&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;embedded_clause_start&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Word(keda)&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Word(seal)&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Word(kohtasime)&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Word(,)&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;embedded_clause_end&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Word(oli)&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Word(tuttav)&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Word(ja)&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;clause_boundary&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Word(teretas)&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;Word(meid.)&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">None</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>There is also a  <a class="reference internal" href="../estnltk.html#estnltk.corpus.Clause" title="estnltk.corpus.Clause"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Clause</span></code></a> type, that can be queried from the corpus:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># The clauses themselves</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">segmented</span><span class="o">.</span><span class="n">clauses</span><span class="p">)</span>
+
+<span class="p">[</span><span class="s">&#39;Clause(Mees oli tuttav ja [clause_index=0])&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Clause(, keda seal kohtasime , [clause_index=1])&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Clause(teretas meid. [clause_index=2])&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Here is also an example of how to group words by clauses:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Words grouped by clauses</span>
+<span class="k">for</span> <span class="n">clause</span> <span class="ow">in</span> <span class="n">segmented</span><span class="o">.</span><span class="n">clauses</span><span class="p">:</span>
+    <span class="n">pprint</span><span class="p">(</span><span class="n">clause</span><span class="o">.</span><span class="n">words</span><span class="p">)</span>
+
+<span class="p">[</span><span class="s">&#39;Word(Mees)&#39;</span><span class="p">,</span> <span class="s">&#39;Word(oli)&#39;</span><span class="p">,</span> <span class="s">&#39;Word(tuttav)&#39;</span><span class="p">,</span> <span class="s">&#39;Word(ja)&#39;</span><span class="p">]</span>
+<span class="p">[</span><span class="s">&#39;Word(,)&#39;</span><span class="p">,</span> <span class="s">&#39;Word(keda)&#39;</span><span class="p">,</span> <span class="s">&#39;Word(seal)&#39;</span><span class="p">,</span> <span class="s">&#39;Word(kohtasime)&#39;</span><span class="p">,</span> <span class="s">&#39;Word(,)&#39;</span><span class="p">]</span>
+<span class="p">[</span><span class="s">&#39;Word(teretas)&#39;</span><span class="p">,</span> <span class="s">&#39;Word(meid.)&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="morf_analysis.html"
+                        title="previous chapter">Morphological analysis</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ner.html"
+                        title="next chapter">Named entity recognition</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/tutorials/clause_segmenter.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ner.html" title="Named entity recognition"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="morf_analysis.html" title="Morphological analysis"
+             >previous</a> |</li>
+        <li><a href="../index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+    </div>
+  </body>
+</html>

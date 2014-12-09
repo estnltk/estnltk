@@ -38,8 +38,18 @@ Tutorials
     :maxdepth: 2
     
     installation.rst
-    tutorial.rst
-    textclassifier_tutorial.rst
+    
+    tutorials/textdiagnostics.rst
+    tutorials/tokenization.rst
+    tutorials/morf_analysis.rst
+    tutorials/clause_segmenter.rst
+    tutorials/ner.rst
+    tutorials/timex.rst
+    tutorials/verbchain.rst
+    tutorials/wordnet.rst
+    tutorials/importing_tei.rst
+    tutorials/json_format.rst
+    tutorials/textclassifier_tutorial.rst
 
 
 API reference

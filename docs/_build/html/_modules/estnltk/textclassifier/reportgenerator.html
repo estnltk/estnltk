@@ -54,12 +54,12 @@
 
 <span class="kn">from</span> <span class="nn">estnltk.textclassifier.featureextractor</span> <span class="kn">import</span> <span class="n">FeatureExtractor</span>
 <span class="kn">from</span> <span class="nn">estnltk.textclassifier.clfbase</span> <span class="kn">import</span> <span class="n">ClfBase</span><span class="p">,</span> <span class="n">get_sig_features</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">analyze</span>
 
 <span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">Ward</span>
 <span class="kn">from</span> <span class="nn">sklearn.feature_selection</span> <span class="kn">import</span> <span class="n">chi2</span>
 <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">confusion_matrix</span><span class="p">,</span> <span class="n">precision_recall_fscore_support</span><span class="p">,</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span><span class="p">,</span> <span class="n">f1_score</span>
 <span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">TransformerMixin</span>
-<span class="kn">from</span> <span class="nn">pyvabamorf</span> <span class="kn">import</span> <span class="n">analyze</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span>

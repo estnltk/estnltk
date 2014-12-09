@@ -1,0 +1,212 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Estnltk — Avatud lähtekoodiga teegid eestikeelsete vabatektside lihtsamaks töötlemiseks &mdash; estnltk 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.0 documentation" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="estnltk-avatud-lahtekoodiga-teegid-eestikeelsete-vabatektside-lihtsamaks-tootlemiseks">
+<h1>Estnltk &#8212; Avatud lähtekoodiga teegid eestikeelsete vabatektside lihtsamaks töötlemiseks<a class="headerlink" href="#estnltk-avatud-lahtekoodiga-teegid-eestikeelsete-vabatektside-lihtsamaks-tootlemiseks" title="Permalink to this headline">¶</a></h1>
+<p>Estnltk on kogumik Python 2.7/Python 3.4 teeke, mis pakuvad eestikeelsete vabatekstide töötlemiseks vajalikke baasoperatsioone.
+Kuigi eesti keele töötlemiseks on juba loodud üksjagu keeletehnoloogilisi tööriistu, pole seniste tööriistade omavaheline liidestamine, olgu siis rakenduste loomise või uurimustöö eesmärgil, olnud eriti lihtne.
+Tüüpiliselt on olnud tarvis teha lisatööd rakendusespetsiifiliste liideste loomisel.</p>
+<p>Teiseks probleemiks on tööriistade hajutatus: paljud tööriistad on veebis laiali ning neid on keeruline üles leida.
+Kuigi leiduvad keeletehnoloogia materjale ja tulemusi tutvustavad veebilehed <a class="reference external" href="http://www.keeleveeb.ee/">keeleveeb.ee</a> and <a class="reference external" href="https://www.keeletehnoloogia.ee/et/EKT2011-2017-programm-uuendet.pdf/view">EKT</a>, <a class="reference external" href="https://www.keeletehnoloogia.ee/et">EKKTT</a>, on tudengitel ning valdkonnaga mitte kursis olevatel asjahuvilistel keeruline nende põhjal keeletehnoloogilise arendustööga algust teha.</p>
+<p>Käesoleva projekti eesmärgiks ongi siduda olemasolevad avatud lähtekoodiga tööriistad kokku üheks keeletehnoloogiliste tööriistade kogumikuks, et pakkuda tuge järgmistele keeletöötluse baasoperatsioonidele:</p>
+<ul class="simple">
+<li>Teksti tükeldamine sõnadeks ja lauseteks</li>
+<li>Morfoloogiline analüüs ja genereerimine</li>
+<li>Sõnade lemmatiseerimine</li>
+<li>Osalausestamine</li>
+<li>Ajaväljendite tuvastamine</li>
+<li>Nimeüksuste tuvastamine</li>
+<li>Verbiahelate tuvastamine</li>
+<li>Eesti Wordnet&#8217;i liidestamine</li>
+</ul>
+<p>Eeltoodud nimekiri ei sisalda kindlasti kõiki olemasolevaid tööriistu, ent peaks olema siiski piisavalt suur, et katta vabatekstide töötlemise baasjuhud.
+Loodame tulevikus seda nimekirja ka täiendada uute tööriistadega.</p>
+<div class="section" id="kasutusjuhised">
+<h2>Kasutusjuhised<a class="headerlink" href="#kasutusjuhised" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#building-from-source">Building from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#linux">Linux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#post-installation-steps">Post-installation steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_est.html">Estnltk kasutusjuhised</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial_est.html#teksti-tukeldamine-paragrahvideks-lauseteks-ja-sonadeks">Teksti tükeldamine paragrahvideks, lauseteks ja sõnadeks</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="api-kirjeldus">
+<h2>API kirjeldus<a class="headerlink" href="#api-kirjeldus" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.html">estnltk package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.clausesegmenter">estnltk.clausesegmenter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.core">estnltk.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.corpus">estnltk.corpus module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.javaprocess">estnltk.javaprocess module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.morf">estnltk.morf module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.names">estnltk.names module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.ner">estnltk.ner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.teicorpus">estnltk.teicorpus module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.textdiagnostics">estnltk.textdiagnostics module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.textprocessor">estnltk.textprocessor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.timex">estnltk.timex module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.tokenize">estnltk.tokenize module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.wordnet">estnltk.wordnet module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">estnltk</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html">estnltk package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html">Subpackages</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#submodules">Submodules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.analyzer">estnltk.textclassifier.analyzer module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.classifier">estnltk.textclassifier.classifier module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.classify">estnltk.textclassifier.classify module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.clfbase">estnltk.textclassifier.clfbase module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.featureextractor">estnltk.textclassifier.featureextractor module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.merge">estnltk.textclassifier.merge module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.paths">estnltk.textclassifier.paths module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.reportgenerator">estnltk.textclassifier.reportgenerator module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.retrain">estnltk.textclassifier.retrain module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.settings">estnltk.textclassifier.settings module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.synunifier">estnltk.textclassifier.synunifier module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.test">estnltk.textclassifier.test module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.train">estnltk.textclassifier.train module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.utils">estnltk.textclassifier.utils module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.estner.html">estnltk.estner package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.crfsuiteutil">estnltk.estner.crfsuiteutil module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.featureextraction">estnltk.estner.featureextraction module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.ner">estnltk.estner.ner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.nlputil">estnltk.estner.nlputil module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.settings">estnltk.estner.settings module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="indeksid-ja-tabelid">
+<h2>Indeksid ja tabelid<a class="headerlink" href="#indeksid-ja-tabelid" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Estnltk &#8212; Avatud lähtekoodiga teegid eestikeelsete vabatektside lihtsamaks töötlemiseks</a><ul>
+<li><a class="reference internal" href="#kasutusjuhised">Kasutusjuhised</a></li>
+<li><a class="reference internal" href="#api-kirjeldus">API kirjeldus</a></li>
+<li><a class="reference internal" href="#indeksid-ja-tabelid">Indeksid ja tabelid</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index_est.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+    </div>
+  </body>
+</html>
