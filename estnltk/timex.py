@@ -46,6 +46,7 @@ class TimexTagger(JavaProcess, TextProcessor):
         return corpus
 
     def process_words(self, words, **kwargs):
+        remove_unnormalized_timexes = kwargs.get('remove_unnormalized_timexes', True)
         creation_date = kwargs.get('creation_date', datetime.datetime.now())
         creation_date = creation_date.strftime('%Y-%m-%dT%H:%M')
         sentence = {
@@ -53,7 +54,8 @@ class TimexTagger(JavaProcess, TextProcessor):
             WORDS: words
             }
         processed_words = self.rename_attributes(json.loads(self.process_line(json.dumps(sentence)))[WORDS])
-        processed_words = self.remove_timexes_with_no_value_type(processed_words)
+        if remove_unnormalized_timexes:
+            processed_words = self.remove_timexes_with_no_value_type(processed_words)
         for w, p in zip(words, processed_words):
             if TIMEXES in p:
                 w[TIMEXES] = p[TIMEXES]
@@ -61,6 +63,7 @@ class TimexTagger(JavaProcess, TextProcessor):
 
     # Processes all the sentences together
     def process_sentences(self, corpus, process_json=False, **kwargs):
+        remove_unnormalized_timexes = kwargs.get('remove_unnormalized_timexes', True)
         creation_date = kwargs.get('creation_date', datetime.datetime.now())
         creation_date = creation_date.strftime('%Y-%m-%dT%H:%M')
         document = {
@@ -72,7 +75,8 @@ class TimexTagger(JavaProcess, TextProcessor):
         processed_sentences = json.loads(self.process_line(json.dumps(document)))[SENTENCES]
         for input_sentence, processed_sentence in zip(document[SENTENCES], processed_sentences):
             processed_sentence = self.rename_attributes( processed_sentence[WORDS] )
-            processed_sentence = self.remove_timexes_with_no_value_type(processed_sentence)
+            if remove_unnormalized_timexes:
+                processed_sentence = self.remove_timexes_with_no_value_type(processed_sentence)
             for i in range(len( input_sentence[WORDS] )):
                 input_word = input_sentence[WORDS][i]
                 processed_word = processed_sentence[i]
@@ -84,15 +88,13 @@ class TimexTagger(JavaProcess, TextProcessor):
         for word in sentence:
             if TIMEXES in word:
                 for timex in word[TIMEXES]:
-                    # TODO: because order of the timex.items() is arbitary, inserting
-                    # new items and deleting old ones simultaneously may lead to inconsistent 
-                    # renaming (some items may be left unrenamed)
+                    # rename javaStyle to python_style
+                    for oldKey, newKey in RENAMING_MAP.items():
+                        if oldKey in timex:
+                            timex[newKey] = timex[oldKey]
+                            del timex[oldKey]
+                    # trim "t" from id and anchor time
                     for k, v in timex.items():
-                        # rename javaStyle to python_style
-                        if k in RENAMING_MAP:
-                            timex[RENAMING_MAP[k]] = v
-                            del timex[k]
-                        # trim "t" from id and anchor time
                         if k in [TMX_ID, TMX_ANCHOR] and isinstance(v, str) and v.startswith('t'):
                             timex[k] = int(v[1:])
         return sentence
