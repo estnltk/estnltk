@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function
 
-from estnltk.corpus import Element, Word, most_frequent, Sentence
+from estnltk.corpus import ElementMixin, Word, most_frequent, Sentence
 from estnltk.names import *
 
 from nltk.tokenize import RegexpTokenizer
@@ -11,12 +11,12 @@ from copy import deepcopy
 import unittest
 
 
-class ElementTest(unittest.TestCase):
+class ElementMixinTest(unittest.TestCase):
     
     #### test correct initialization
     def test_basic_initialization(self):
-        self.check_values(Element(self.elemdata()))
-        self.check_values(Element(**self.elemdata()))
+        self.check_values(ElementMixin(self.elemdata()))
+        self.check_values(ElementMixin(**self.elemdata()))
     
     def test_initialization_with_casting(self):
         data = self.elemdata()
@@ -25,11 +25,11 @@ class ElementTest(unittest.TestCase):
         data[REL_START] = str(data[REL_START])
         data[END] = str(data[END])
         data[REL_END] = str(data[REL_END])
-        elem = Element(data)
+        elem = ElementMixin(data)
         self.check_values(elem)
     
     def check_values(self, elem):
-        self.assertIsInstance(elem, Element)
+        self.assertIsInstance(elem, ElementMixin)
         self.assertEqual(elem.start, 10)
         self.assertEqual(elem.end, 28)
         self.assertEqual(elem.text, 'This is an element')
@@ -46,48 +46,48 @@ class ElementTest(unittest.TestCase):
     def test_init_fails_no_start(self):
         data = self.elemdata()
         del data[START]
-        self.assertRaises(KeyError, Element, data)
+        self.assertRaises(KeyError, ElementMixin, data)
     
     def test_init_fails_no_rel_start(self):
         data = self.elemdata()
         del data[REL_START]
-        self.assertRaises(KeyError, Element, data)
+        self.assertRaises(KeyError, ElementMixin, data)
         
     def test_init_fails_no_end(self):
         data = self.elemdata()
         del data[END]
-        self.assertRaises(KeyError, Element, data)
+        self.assertRaises(KeyError, ElementMixin, data)
     
     def test_init_fails_no_rel_end(self):
         data = self.elemdata()
         del data[REL_END]
-        self.assertRaises(KeyError, Element, data)
+        self.assertRaises(KeyError, ElementMixin, data)
         
     def test_init_fails_no_text(self):
         data = self.elemdata()
         del data[TEXT]
-        self.assertRaises(KeyError, Element, data)
+        self.assertRaises(KeyError, ElementMixin, data)
         
     #### test invalid ranges
     def test_invalid_main_span(self):
         data = self.elemdata()
         data[START] = 11
-        self.assertRaises(AssertionError, Element, data)
+        self.assertRaises(AssertionError, ElementMixin, data)
         
     def test_invalid_relative_span(self):
         data = self.elemdata()
         data[REL_START] = 11
-        self.assertRaises(AssertionError, Element, data)
+        self.assertRaises(AssertionError, ElementMixin, data)
         
     def test_negative_start(self):
         data = self.elemdata()
         data[START] = '-1'
-        self.assertRaises(AssertionError, Element, data)
+        self.assertRaises(AssertionError, ElementMixin, data)
 
     def test_negative_relative_start(self):
         data = self.elemdata()
         data[REL_START] = '-1'
-        self.assertRaises(AssertionError, Element, data)
+        self.assertRaises(AssertionError, ElementMixin, data)
 
 
 class WordTest(unittest.TestCase):
@@ -158,7 +158,7 @@ class MostFrequentTest(unittest.TestCase):
     def test_empty(self):
         self.assertEqual(most_frequent([]), None)
     
-    def test_single_element(self):
+    def test_single_ElementMixin(self):
         self.assertEqual(most_frequent([5]), 5)
     
     def test_multiple(self):
@@ -180,14 +180,14 @@ class SentenceTest(unittest.TestCase):
     def test_queries(self):
         sentence = Sentence(self.data())
         # word related queries
-        self.assertListEqual(sentence.texts, ['Pane', 'moos', 'purki', 'tagasi'])
+        self.assertListEqual(sentence.word_texts, ['Pane', 'moos', 'purki', 'tagasi'])
         self.assertListEqual(sentence.lemmas, ['pan', 'moos', 'purk', 'tagasi'])
         self.assertListEqual(sentence.postags, ['S', 'S', 'S', 'D'])
         self.assertListEqual(sentence.forms, ['o', 'sg n', 'adt', ''])
         self.assertListEqual(sentence.roots, ['pan', 'moos', 'purk', 'tagasi'])
         self.assertListEqual(sentence.root_tokens, [['pan'], ['moos'], ['purk'], ['tagasi']])
-        self.assertListEqual(sentence.spans, [(0, 4), (5, 9), (10, 15), (16, 22)])
-        self.assertListEqual(sentence.rel_spans, [(0, 4), (5, 9), (10, 15), (16, 22)])
+        self.assertListEqual(sentence.word_spans, [(0, 4), (5, 9), (10, 15), (16, 22)])
+        self.assertListEqual(sentence.word_rel_spans, [(0, 4), (5, 9), (10, 15), (16, 22)])
         self.assertListEqual(sentence.labels, ['O','O','O','O'])
     
     def data(self):
