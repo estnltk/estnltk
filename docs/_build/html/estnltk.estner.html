@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="estnltk 1.0 documentation" href="index.html" />
-    <link rel="prev" title="Estnltk text classifier" href="estnltk.textclassifier.html" /> 
+    <link rel="prev" title="Subpackages" href="estnltk.textclassifier.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -38,7 +38,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="estnltk.textclassifier.html" title="Estnltk text classifier"
+          <a href="estnltk.textclassifier.html" title="Subpackages"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">estnltk 1.0 documentation</a> &raquo;</li> 
       </ul>
@@ -189,6 +189,13 @@ with features specified in configuration files.</p>
 <dt id="estnltk.estner.featureextraction.GazeteerFeatureExtractor">
 <em class="property">class </em><code class="descclassname">estnltk.estner.featureextraction.</code><code class="descname">GazeteerFeatureExtractor</code><span class="sig-paren">(</span><em>settings</em>, <em>look_ahead=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#GazeteerFeatureExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.GazeteerFeatureExtractor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#estnltk.estner.featureextraction.BaseFeatureExtractor" title="estnltk.estner.featureextraction.BaseFeatureExtractor"><code class="xref py py-class docutils literal"><span class="pre">estnltk.estner.featureextraction.BaseFeatureExtractor</span></code></a></p>
+<p>Generates features indicating whether the token is present in a precompiled 
+list of organisations, geographical locations or person names. For instance, 
+if a token t occurs both in the list of person names (PER) and organisations (ORG), 
+assign t[&#8216;gaz&#8217;] = [&#8216;PER&#8217;, &#8216;ORG&#8217;]. With the parameter look_ahead, it is possible to 
+compose multi-token phrases for dictionary lookup. When look_ahead=N, phrases 
+(t[i], ..., t[i+N]) will be composed. If the phrase matches the dictionary, each
+token will be assigned the corresponding value.</p>
 <p class="rubric">Methods</p>
 <dl class="method">
 <dt id="estnltk.estner.featureextraction.GazeteerFeatureExtractor.process">
@@ -220,6 +227,7 @@ with features specified in configuration files.</p>
 <dt id="estnltk.estner.featureextraction.MorphFeatureExtractor">
 <em class="property">class </em><code class="descclassname">estnltk.estner.featureextraction.</code><code class="descname">MorphFeatureExtractor</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#MorphFeatureExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.MorphFeatureExtractor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#estnltk.estner.featureextraction.BaseFeatureExtractor" title="estnltk.estner.featureextraction.BaseFeatureExtractor"><code class="xref py py-class docutils literal"><span class="pre">estnltk.estner.featureextraction.BaseFeatureExtractor</span></code></a></p>
+<p>Extracts features provided by the morphological analyser pyvabamorf.</p>
 <p class="rubric">Methods</p>
 </dd></dl>
 
@@ -243,10 +251,24 @@ A feature template consists of a tuple of (name, offset) pairs,
 where name and offset specify a field name and offset from which
 the template extracts a feature value. Generated features are stored
 in the &#8216;F&#8217; field of each item in the sequence.</p>
-<p>&#64;type X: list of mapping objects
-&#64;param X: The item sequence.
-&#64;type template: tuple of (str, int)
-&#64;param template: The feature template.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>toks: list of tokens</strong></p>
+<blockquote>
+<div><p>A list of processed toknes.</p>
+</div></blockquote>
+<p><strong>templates: list of template tuples (str, int)</strong></p>
+<blockquote class="last">
+<div><p>A feature template consists of a tuple of (name, offset) pairs,
+where name and offset specify a field name and offset from which
+the template extracts a feature value.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -580,7 +602,7 @@ a document.</p>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="estnltk.textclassifier.html"
-                        title="previous chapter">Estnltk text classifier</a></p>
+                        title="previous chapter">Subpackages</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -615,7 +637,7 @@ a document.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="estnltk.textclassifier.html" title="Estnltk text classifier"
+          <a href="estnltk.textclassifier.html" title="Subpackages"
              >previous</a> |</li>
         <li><a href="index.html">estnltk 1.0 documentation</a> &raquo;</li> 
       </ul>

@@ -249,7 +249,8 @@
 
 </div>
 <div class="viewcode-block" id="MorphFeatureExtractor"><a class="viewcode-back" href="../../../estnltk.estner.html#estnltk.estner.featureextraction.MorphFeatureExtractor">[docs]</a><span class="k">class</span> <span class="nc">MorphFeatureExtractor</span><span class="p">(</span><span class="n">BaseFeatureExtractor</span><span class="p">):</span>
-
+    <span class="sd">&#39;&#39;&#39;Extracts features provided by the morphological analyser pyvabamorf. &#39;&#39;&#39;</span>
+    
     <span class="k">def</span> <span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
         <span class="n">LEM</span>  <span class="o">=</span> <span class="s">&quot;lem&quot;</span>
         <span class="n">POS</span>  <span class="o">=</span> <span class="s">&quot;pos&quot;</span>
@@ -269,8 +270,27 @@
 
 </div>
 <div class="viewcode-block" id="GazeteerFeatureExtractor"><a class="viewcode-back" href="../../../estnltk.estner.html#estnltk.estner.featureextraction.GazeteerFeatureExtractor">[docs]</a><span class="k">class</span> <span class="nc">GazeteerFeatureExtractor</span><span class="p">(</span><span class="n">BaseFeatureExtractor</span><span class="p">):</span>
-
+    <span class="sd">&#39;&#39;&#39;Generates features indicating whether the token is present in a precompiled </span>
+<span class="sd">    list of organisations, geographical locations or person names. For instance, </span>
+<span class="sd">    if a token t occurs both in the list of person names (PER) and organisations (ORG), </span>
+<span class="sd">    assign t[&#39;gaz&#39;] = [&#39;PER&#39;, &#39;ORG&#39;]. With the parameter look_ahead, it is possible to </span>
+<span class="sd">    compose multi-token phrases for dictionary lookup. When look_ahead=N, phrases </span>
+<span class="sd">    (t[i], ..., t[i+N]) will be composed. If the phrase matches the dictionary, each</span>
+<span class="sd">    token will be assigned the corresponding value. </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">look_ahead</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Loads a gazeteer file. May take some time!</span>
+<span class="sd">        </span>
+<span class="sd">        Parameteres</span>
+<span class="sd">        -----------</span>
+<span class="sd">        </span>
+<span class="sd">        settings: dict</span>
+<span class="sd">            Global configuration dictionary.</span>
+<span class="sd">        look_ahead: int</span>
+<span class="sd">            A number of tokens to check to compose phrases.</span>
+<span class="sd">        </span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">look_ahead</span> <span class="o">=</span> <span class="n">look_ahead</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">gazetteer_file</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&quot;utf8&quot;</span><span class="p">):</span>
@@ -282,7 +302,7 @@
         <span class="n">look_ahead</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">look_ahead</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">)):</span>
             <span class="k">if</span> <span class="s">&quot;iu&quot;</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="c"># Only capitalised strings</span>
-                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="n">look_ahead</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">look_ahead</span><span class="p">):</span>
                     <span class="n">phrase</span> <span class="o">=</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">token</span><span class="p">[</span><span class="s">&quot;lem&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">j</span><span class="p">])</span>
                     <span class="k">if</span> <span class="n">phrase</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
                         <span class="n">labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">phrase</span><span class="p">]</span>
@@ -480,7 +500,7 @@
         <span class="n">CDS</span> <span class="o">=</span> <span class="s">&quot;cds&quot;</span>
         <span class="n">CDT</span> <span class="o">=</span> <span class="s">&quot;cdt&quot;</span>
         
-        <span class="c"># Contains a uppercase letter.</span>
+        <span class="c"># Contains an uppercase letter.</span>
         <span class="n">t</span><span class="p">[</span><span class="n">CU</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="p">(</span><span class="n">contains_upper</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">W</span><span class="p">]))</span>
         <span class="c"># Contains a lowercase letter.</span>
         <span class="n">t</span><span class="p">[</span><span class="n">CL</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="p">(</span><span class="n">contains_lower</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">W</span><span class="p">]))</span>
@@ -520,10 +540,15 @@
 <span class="sd">    the template extracts a feature value. Generated features are stored</span>
 <span class="sd">    in the &#39;F&#39; field of each item in the sequence.</span>
 <span class="sd">    </span>
-<span class="sd">    @type X: list of mapping objects</span>
-<span class="sd">    @param X: The item sequence.</span>
-<span class="sd">    @type template: tuple of (str, int)</span>
-<span class="sd">    @param template: The feature template.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    toks: list of tokens</span>
+<span class="sd">        A list of processed toknes.</span>
+<span class="sd">    </span>
+<span class="sd">    templates: list of template tuples (str, int)</span>
+<span class="sd">        A feature template consists of a tuple of (name, offset) pairs,</span>
+<span class="sd">        where name and offset specify a field name and offset from which</span>
+<span class="sd">        the template extracts a feature value.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">product</span><span class="p">(</span><span class="n">values_list</span><span class="p">):</span>
         <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>

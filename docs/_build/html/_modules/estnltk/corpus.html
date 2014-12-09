@@ -663,8 +663,6 @@
 <div class="viewcode-block" id="Timex.assert_valid"><a class="viewcode-back" href="../../estnltk.html#estnltk.corpus.Timex.assert_valid">[docs]</a>    <span class="k">def</span> <span class="nf">assert_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Timex</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">assert_valid</span><span class="p">()</span>
         <span class="k">assert</span> <span class="n">TMX_ID</span> <span class="ow">in</span> <span class="bp">self</span>
-        <span class="k">assert</span> <span class="n">TMX_TYPE</span> <span class="ow">in</span> <span class="bp">self</span>
-        <span class="k">assert</span> <span class="n">TMX_VALUE</span> <span class="ow">in</span> <span class="bp">self</span>
 </div>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -681,7 +679,7 @@
 <span class="sd">        str</span>
 <span class="sd">            One of the following: &quot;DATE&quot;, &quot;TIME&quot;, &quot;DURATION&quot;, &quot;SET&quot;</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TMX_TYPE</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">TMX_TYPE</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
     
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -690,7 +688,7 @@
 <span class="sd">        str</span>
 <span class="sd">            calendrical value (largely follows TimeML TIMEX3 value format)</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">TMX_VALUE</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">TMX_VALUE</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
         
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">temporal_function</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
