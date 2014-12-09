@@ -41,7 +41,7 @@ Kasutusjuhised
     :maxdepth: 2
     
     installation.rst
-    tutorial.rst
+    tutorial_est.rst
     textclassifier_tutorial.rst
 
 
