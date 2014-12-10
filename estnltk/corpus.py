@@ -14,17 +14,36 @@ class Corpus(object):
     
     @staticmethod
     def construct(data):
+        '''Construct the corpus from JSON-style data. Same as `from_json` method.'''
         return construct_corpus(data)
     
     @staticmethod
     def from_json(data):
+        '''Construct the corpus from JSON-style data. Same as `construct` method.'''
         return construct_corpus(data)
         
     def to_json(self):
+        '''Convert the corpus to JSON-style data.'''
         return json.loads(json.dumps(self))
         
     # Methods for returning corpus elements
     def elements(self, what):
+        '''Return the specified corpus elements.
+        
+        Parameters
+        ----------
+        what: str
+            DOCUMENTS, PARAGRAPHS, SENTENCES, WORDS, NAMED_ENTITIES, CLAUSES, VERB_CHAINS, TIMEXES
+        '''
+        raise NotImplementedError()
+    
+    @property
+    def root_elements(self):
+        '''Root elements do not have meaningful hierarchial relationship between them in a corpus.
+           A root element contains all TEXT, START, END, REL_START, REL_END attributes.
+           START = REL_START = 0
+           END = REL_END     = len(TEXT)
+        '''
         raise NotImplementedError()
     
     @property
@@ -169,6 +188,18 @@ class List(list, Corpus):
             if isinstance(e, Corpus):
                 elements.extend(e.elements(what))
         return elements
+    
+    @property
+    @overrides(Corpus)
+    def root_elements(self):
+        elements = []
+        for e in self:
+            if isinstance(e, Corpus):
+                if is_root_element(e):
+                    elements.append(e)
+                else:
+                    elements.extend(e.root_elements)
+        return elements
         
     def __repr__(self):
         return repr('List')
@@ -182,6 +213,18 @@ class Dictionary(dict, Corpus):
         for k, v in self.items():
             if isinstance(v, Corpus):
                 elements.extend(v.elements(what))
+        return elements
+    
+    @property
+    @overrides(Corpus)
+    def root_elements(self):
+        elements = []
+        for k, v in self.items():
+            if isinstance(v, Corpus):
+                if is_root_element(v):
+                    elements.append(v)
+                else:
+                    elements.extend(v.root_elements)
         return elements
         
     def __repr__(self):

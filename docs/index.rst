@@ -59,7 +59,9 @@ API reference
    :maxdepth: 2
 
    estnltk.rst
-   modules.rst
+   estnltk.pyvabamorf.rst
+   estnltk.mw_verbs.rst
+   estnltk.wordnet.rst
    estnltk.textclassifier.rst
    estnltk.estner.rst
    
