@@ -42,6 +42,7 @@ Kasutusjuhised
     
     installation.rst
 
+    tutorials/textdiagnostics_est.rst
     tutorials/tokenization_est.rst
 
 
