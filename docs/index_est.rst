@@ -3,9 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-======================================================================
+==============================================================================================
 Estnltk --- Avatud lähtekoodiga teegid eestikeelsete vabatektside lihtsamaks töötlemiseks
-======================================================================
+==============================================================================================
 
 Estnltk on kogumik Python 2.7/Python 3.4 teeke, mis pakuvad eestikeelsete vabatekstide töötlemiseks vajalikke baasoperatsioone.
 Kuigi eesti keele töötlemiseks on juba loodud üksjagu keeletehnoloogilisi tööriistu, pole seniste tööriistade omavaheline liidestamine, olgu siis rakenduste loomise või uurimustöö eesmärgil, olnud eriti lihtne.
@@ -41,8 +41,9 @@ Kasutusjuhised
     :maxdepth: 2
     
     installation.rst
-    tutorial_est.rst
-    textclassifier_tutorial.rst
+
+    tutorials/textdiagnostics_est.rst
+    tutorials/tokenization_est.rst
 
 
 API kirjeldus
