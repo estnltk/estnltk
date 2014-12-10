@@ -44,6 +44,7 @@ Kasutusjuhised
 
     tutorials/textdiagnostics_est.rst
     tutorials/tokenization_est.rst
+    tutorials/morf_analysis_est.rst
 
 
 API kirjeldus

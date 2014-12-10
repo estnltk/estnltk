@@ -2,7 +2,7 @@
 Teksti tükeldamine paragrahvideks, lauseteks ja sõnadeks
 ==========================================================
 
-Enamikus keele automaattöötluse rakendustes on esimeseks sammuks sisendteksti jagamine väiksemateks tükkideks: paragrahvideks, lauseteks ja sõnadeks. Keele analüüsi seisukohalt polegi see alati triviaalne ülesanne, näiteks ei saa eeldada, et punkt sõna lõpus tähistab alati lauselõppu (see võib olla ka nt kuupäeva ja aastarvu lõpus, vanemates tekstides ka lühendite lõpus). Seetõttu sisaldavad keele automaattöötluse rakendused sageli eraldi mooduleid, mis tegelevad teksti tükeldamise probleemidega.
+Enamikus keele automaattöötluse rakendustes on esimeseks sammuks sisendteksti jagamine väiksemateks tükkideks: paragrahvideks, lauseteks ja sõnadeks. Keele automaatanalüüsi seisukohalt polegi see alati triviaalne ülesanne, näiteks ei saa eeldada, et punkt sõna lõpus tähistab alati lauselõppu (see võib olla ka nt kuupäeva ja aastarvu lõpus, vanemates tekstides ka lühendite lõpus). Seetõttu sisaldavad keele automaattöötluse rakendused sageli eraldi mooduleid, mis tegelevad teksti tükeldamise probleemidega.
 
 Estnltk-s pakub teksti tükeldamise tuge klass :class:`estnltk.tokenize.Tokenizer`. Järgnevas näites loome sisendteksti (sõne ``text``), seejärel impordime ja initsialiseerime teksti tükeldaja (``tokenizer``, isendi klassist :class:`estnltk.tokenize.Tokenizer`) ning kasutame seda, et luua tükeldatud kujul sisendteksti sisaldav dokument (``document``, :class:`estnltk.corpus.Document` klassi isend)::
 
