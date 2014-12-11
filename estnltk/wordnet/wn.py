@@ -506,12 +506,11 @@ class Synset:
                     self.__dict__["distances"][target_synset] = distance
                     target_synset.__dict__["distances"][self] = distance
                     return distance
-        
-            neighbor_synsets_next_level |= set(synset.hypernyms())
-            neighbor_synsets_next_level |= set(synset.hyponyms())
-            visited.add(synset)
-        distance += 1
-        neighbor_synsets = set(neighbor_synsets_next_level)
+                neighbor_synsets_next_level |= set(synset.hypernyms())
+                neighbor_synsets_next_level |= set(synset.hyponyms())
+                visited.add(synset)
+            distance += 1
+            neighbor_synsets = set(neighbor_synsets_next_level)
 
         self.__dict__["distances"][target_synset] = -1
         target_synset.__dict__["distances"][self] = -1
@@ -669,7 +668,7 @@ class Synset:
             return None
 
     def lch_similarity(self, synset):
-        """Calculates Leacock and Chodorow’s similarity between the two synsets.
+        """Calculates Leacock and Chodorow's similarity between the two synsets.
 
         Notes
         -----
@@ -683,7 +682,7 @@ class Synset:
         Returns
         -------
           float
-        Leacock and Chodorow’s from `synset`.
+        Leacock and Chodorow's from `synset`.
         None, if synsets are not connected via hypernymy/hyponymy relations. Obvious, if part-of-speeches don't match.
         
         """
@@ -701,7 +700,7 @@ class Synset:
             return None
 
     def wup_similarity(self, target_synset):
-        """Calculates Wu and Palmer’s similarity between the two synsets.
+        """Calculates Wu and Palmer's similarity between the two synsets.
         
         Notes
         -----
@@ -715,7 +714,7 @@ class Synset:
         Returns
         -------
           float
-        Wu and Palmer’s similarity from `synset`.
+        Wu and Palmer's similarity from `synset`.
         
         """
         lchs = self.lowest_common_hypernyms(target_synset)
