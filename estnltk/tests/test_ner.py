@@ -32,7 +32,6 @@ class NerTest(unittest.TestCase):
         
     def test_basic_json(self):
         ner_tagged = Corpus.construct(tagger(analyzer(tokenizer(text)).to_json()))
-        pprint(ner_tagged.to_json())
         self.assertEqual(len(ner_tagged.named_entities), 11)
 
 if __name__ == '__main__':

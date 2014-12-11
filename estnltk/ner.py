@@ -183,19 +183,11 @@ class NerTagger(TextProcessor):
             The documents given as the argument, but with added
             tags.
         '''
-        # todo: fix the problem here
-        # the problem is how to detect the documents in corpora
-        # options:
-        # - perform root element extraction as done when construcing estnltk.corpus.Corpus objects (expected behaviour)
-        # - require that there is {documents=[]} thing in JSON
-        # - accept custom Jsonpath_rw query
-        # - assume the top level element is list and interpret the elements as documents (current behaviour)
-        # current behaviour breaks when top level is not list or it does
-        # not contain documents
-        return self.tagger.tag(corpus)
+        # TODO: this is inefficient. try to make it work directly on JSON
+        return self.process_corpus(Corpus.construct(corpus)).to_json()
         
     def process_corpus(self, corpus, **kwargs):
-        self.tagger.tag(corpus.documents)
+        self.tagger.tag(corpus.root_elements)
         return corpus
         
         

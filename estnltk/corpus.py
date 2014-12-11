@@ -192,6 +192,8 @@ class List(list, Corpus):
     @property
     @overrides(Corpus)
     def root_elements(self):
+        if is_root_element(self):
+            return [self]
         elements = []
         for e in self:
             if isinstance(e, Corpus):
@@ -218,6 +220,8 @@ class Dictionary(dict, Corpus):
     @property
     @overrides(Corpus)
     def root_elements(self):
+        if is_root_element(self):
+            return [self]
         elements = []
         for k, v in self.items():
             if isinstance(v, Corpus):
