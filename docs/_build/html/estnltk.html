@@ -156,17 +156,17 @@ Defines common functionality for all modules.</p>
 </table>
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.analysis">
-<code class="descname">analysis</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b61688edc50&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.analysis" title="Permalink to this definition">¶</a></dt>
+<code class="descname">analysis</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2abc67506f60&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.analysis" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.documents">
-<code class="descname">documents</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b616938b780&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.documents" title="Permalink to this definition">¶</a></dt>
+<code class="descname">documents</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2abc67cff860&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.documents" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.core.JsonPaths.words">
-<code class="descname">words</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b61693c65c0&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.words" title="Permalink to this definition">¶</a></dt>
+<code class="descname">words</code><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2abc67fd68d0&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.words" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -401,7 +401,8 @@ the words of a named entity in the sentence.</p>
 <dl class="staticmethod">
 <dt id="estnltk.corpus.Corpus.construct">
 <em class="property">static </em><code class="descname">construct</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.construct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.construct" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Construct the corpus from JSON-style data. Same as <cite>from_json</cite> method.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.corpus.Corpus.document_texts">
@@ -416,7 +417,20 @@ the words of a named entity in the sentence.</p>
 <dl class="method">
 <dt id="estnltk.corpus.Corpus.elements">
 <code class="descname">elements</code><span class="sig-paren">(</span><em>what</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.elements" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return the specified corpus elements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>what: str</strong></p>
+<blockquote class="last">
+<div><p>DOCUMENTS, PARAGRAPHS, SENTENCES, WORDS, NAMED_ENTITIES, CLAUSES, VERB_CHAINS, TIMEXES</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.corpus.Corpus.endings">
@@ -431,7 +445,8 @@ the words of a named entity in the sentence.</p>
 <dl class="staticmethod">
 <dt id="estnltk.corpus.Corpus.from_json">
 <em class="property">static </em><code class="descname">from_json</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.from_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.from_json" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Construct the corpus from JSON-style data. Same as <cite>construct</cite> method.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.corpus.Corpus.labels">
@@ -472,6 +487,15 @@ the words of a named entity in the sentence.</p>
 <dt id="estnltk.corpus.Corpus.postags">
 <code class="descname">postags</code><a class="headerlink" href="#estnltk.corpus.Corpus.postags" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.root_elements">
+<code class="descname">root_elements</code><a class="headerlink" href="#estnltk.corpus.Corpus.root_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Root elements do not have meaningful hierarchial relationship between them in a corpus.
+A root element contains all TEXT, START, END, REL_START, REL_END attributes.
+START = REL_START = 0
+END = REL_END     = len(TEXT)</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.corpus.Corpus.root_tokens">
@@ -516,7 +540,8 @@ the words of a named entity in the sentence.</p>
 <dl class="method">
 <dt id="estnltk.corpus.Corpus.to_json">
 <code class="descname">to_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.to_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.to_json" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Convert the corpus to JSON-style data.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="estnltk.corpus.Corpus.verb_chains">
@@ -554,6 +579,11 @@ the words of a named entity in the sentence.</p>
 <dl class="method">
 <dt id="estnltk.corpus.Dictionary.elements">
 <code class="descname">elements</code><span class="sig-paren">(</span><em>what</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/corpus.html#Dictionary.elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Dictionary.elements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Dictionary.root_elements">
+<code class="descname">root_elements</code><a class="headerlink" href="#estnltk.corpus.Dictionary.root_elements" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -646,6 +676,11 @@ attribute values.</p>
 <dl class="method">
 <dt id="estnltk.corpus.List.elements">
 <code class="descname">elements</code><span class="sig-paren">(</span><em>what</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/corpus.html#List.elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.List.elements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.List.root_elements">
+<code class="descname">root_elements</code><a class="headerlink" href="#estnltk.corpus.List.root_elements" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

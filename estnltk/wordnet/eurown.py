@@ -34,7 +34,6 @@ import os.path
 import codecs
 import re
 
-
 POSES = ['a','b','v','n','pn'] # for eurowordnet only
 
 LINEBREAK = '\n\n'
