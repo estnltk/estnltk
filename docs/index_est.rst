@@ -23,7 +23,7 @@ Kuigi leiduvad keeletehnoloogia materjale ja tulemusi tutvustavad veebilehed `ke
 Käesoleva projekti eesmärgiks ongi siduda olemasolevad avatud lähtekoodiga tööriistad kokku üheks keeletehnoloogiliste tööriistade kogumikuks, et pakkuda tuge järgmistele keeletöötluse baasoperatsioonidele:
 
 * Teksti tükeldamine sõnadeks ja lauseteks
-* Morfoloogiline analüüs ja genereerimine
+* Morfoloogiline analüüs ja süntees
 * Sõnade lemmatiseerimine
 * Osalausestamine
 * Ajaväljendite tuvastamine

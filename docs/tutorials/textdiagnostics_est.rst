@@ -2,8 +2,8 @@
 Sobimatute sümbolite tuvastamine
 ====================================
 
-Sageli on tekstide eeltöötluse käigus tarvis kontrollida, kas tekstid rahuldavad mingeid nõudeid.
-Näiteks eeldavad eesti keele töötluse vahendid enamasti, et sisendtekst sisaldab vaid eesti keelele omaseid tähemärke, ning ei oska analüüsida kirillitsas tekste.
+Sageli on enne tekstide töötlust tarvis kontrollida, kas need rahuldavad mingeid nõudeid.
+Näiteks ei pruugi eesti keelt töötlevad rakendused osata analüüsida kirillitsas tekste, kuna eeldavad, et sisendtekst sisaldab vaid eesti keele tähemärke.
 Seetõttu on tarvis kuidagi eristada analüüsitavaid tekste mitteanalüüsitavatest.
 
 `Estnltk` klass :class:`estnltk.textdiagnostics.TextDiagnostics` võimaldab sisendteksti võrrelda eeldefineeritud lubatud sümbolite hulgaga, et tuvastada, kas potentsiaalselt võiks tegu olla mitteanalüüsitava tekstiga. 

@@ -14,7 +14,7 @@ Lisaks selguvad morfoloogilise analüüsi käigus muud sõnavormi tasandil avald
 
     pprint(analyze('Tüünete öötööde allmaaraudteejaam'))
 
-Tulemuseks on sisendteksti morfoloogilised analüüsid JSON vormingus::
+Tulemuseks on sisendteksti morfoloogilised analüüsid JSON-i laadses vormingus::
 
     [{'analysis': [{'clitic': '',
                     'ending': 'te',
