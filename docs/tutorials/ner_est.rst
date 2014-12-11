@@ -1,19 +1,18 @@
 ========================
-Named entity recognition
+Nimeüksuste tuvastamine
 ========================
 
-Named-entity recognition (NER) (also known as entity identification, entity chunking and entity extraction) is a subtask of information extraction that seeks to locate
-and classify elements in text into pre-defined categories such as the names of persons, organizations, locations.
+Nimeüksuste tuvastamine on info ekstraheerimise alamülesanne, mille käigus tuvastatakse ja klassifitseeritakse tekstis leiduvad nimed, näiteks isikunimed, organisatsiooninimed, asukohanimed.
 
-The `estnltk` package should contain pretrained models for NE tagging with Python 2.7/Python 3.4.
-However, if required, the model can also trained (or retrained) by invoking the command::
+`Estnltk`-ga peaks tulema kaasa eeltreenitud nimeüksuste tuvastamise mudelid Python 2.7 ja Python 3 jaoks. 
+Aga vajadusel on võimalik mudelid ka ise välja treenida, kasutades süsteemi käsurea käsku::
 
     python -m estnltk.ner train_default_model
 
-This will build the default model tuned for named entity recognition in news articles.
+Eeltoodud käsu täitmisel luuakse nn vaikemudel, mis on kohandatud nimeüksuste tuvastamiseks ajaleheartiklites.
 
-In order to use named entity tagging, the input text needs to be tokenized and morphologically analyzed first.
-A quick example, how to do it::
+Nimeüksuste tuvastamine eeldab, et sisendtekst on lausestatud ja sõnestatud (:class:`estnltk.tokenize.Tokenizer` abil) ning tekstil on sooritatud morfoloogiline analüüs (:class:`estnltk.morf.PyVabamorfAnalyzer` abil).
+Näide nimeüksuste tuvastaja kasutamise kohta::
 
     from estnltk import Tokenizer, PyVabamorfAnalyzer, NerTagger
     from pprint import pprint
@@ -31,14 +30,14 @@ A quick example, how to do it::
     2006. aastal valiti presidendiks Toomas Hendrik Ilves.
     '''
 
-    # tag the documents
+    # tuvastame nimeüksused
     ner_tagged = tagger(analyzer(tokenizer(text)))
 
-    # print the words and their explicit labels in BIO notation
+    # väljastame sõnad ning nende BIO-märgendid
     pprint(list(zip(ner_tagged.word_texts, ner_tagged.labels)))
     
 
-As a result, we see the list of words with annotated labels::
+Tulemusena väljastatakse sõnad koos nimeüksuste märgendusega::
 
     [('Eesti', 'B-LOC'),
      ('Vabariik', 'I-LOC'),
@@ -84,12 +83,11 @@ As a result, we see the list of words with annotated labels::
      ('Hendrik', 'I-PER'),
      ('Ilves.', 'I-PER')]
 
-Named entity tags are encoded using a widely accepted BIO annotation scheme, where each label is prefixed with B or I, or the entire label is given as O.
-**B-** denotes the *beginning* and **I-** *inside* of an entity, while **O** means *omitted*.
-This can be used to detect entities that consist of more than a single word as can be seen in above example.
+Nimeüksuste märgendus järgib BIO-märgendusviisi, mille järgi kodeeritakse fraaside tekstis esinemine/ mitteesinemine märgenditega B, I ja O.
+**B-** tähistab nimeüksuse fraasi alguses paiknevat sõna (ingl *beginning*), **I-** fraasi sees paiknevat sõna  (ingl *inside*) ning **O** tähistab fraasist väljajäävat sõna (ingl *omitted*).
 
-It is also possible to query directly :class:`estnltk.corpus.NamedEntity` objects from tagged corpora.
-This makes it easy to see all words that are grouped into a named entity::
+Lisaks on võimalik tuvastatud nimeüksustele (:class:`estnltk.corpus.NamedEntity` objektidele) ka otse ligi pääseda, kasutades märgendatud dokumendi küljes olevat välja ``named_entities``.
+See võimaldab nimeüksusi käsitleda terviklike fraasidena::
 
     pprint (ner_tagged.named_entities)
     
@@ -105,4 +103,4 @@ This makes it easy to see all words that are grouped into a named entity::
      'NamedEntity(andrus ansip, PER)',
      'NamedEntity(toomas hendrik ilves, PER)']
 
-See :class:`estnltk.corpus.NamedEntity` documentation for information on available properties.
+Klassi :class:`estnltk.corpus.NamedEntity` dokumentatsioonist leiab täpsemat informatsiooni selle väljade kohta.
