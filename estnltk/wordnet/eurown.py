@@ -33,6 +33,9 @@ import sys
 import os.path
 import codecs
 import re
+import six
+
+from estnltk.core import as_unicode
 
 POSES = ['a','b','v','n','pn'] # for eurowordnet only
 
@@ -148,7 +151,7 @@ class Relation(object):
         def fget(self):
             return self._name
         def fset(self, value):
-            if isinstance(value, unicode): # must be string
+            if isinstance(value, six.text_type): # must be string
                 self._name = value
             else:
                 raise TypeError(
@@ -307,7 +310,7 @@ class Source_Id(object):
         def fget(self):
             return self._text_key
         def fset(self, value):
-            if isinstance(value, basestring): # must be string
+            if isinstance(value, six.string_types): # must be string
                 self._text_key = value
             else:
                 raise TypeError(
@@ -431,7 +434,7 @@ class Relation_Source_Id(Source_Id):
     polarisText = property(**polarisText())
 
 
-class FieldValue(unicode):
+class FieldValue(six.text_type):
     """FieldValue class for subclassing
     single value per line 
 
@@ -480,7 +483,7 @@ class Example(FieldValue):
         self.field = 'EXAMPLE'
 
 
-class Property(unicode):
+class Property(six.text_type):
     """Property class
     """
     def polarisText():
@@ -515,7 +518,7 @@ class PropertyValue(object):
         def fget(self):
             return self._name
         def fset(self, value):
-            if isinstance(value, unicode):
+            if isinstance(value, six.text_type):
                 self._name = value
             else:
                 raise TypeError(
@@ -531,7 +534,7 @@ class PropertyValue(object):
         def fget(self):
             return self._value
         def fset(self, avalue):
-            if isinstance(avalue, (unicode)):
+            if isinstance(avalue, (six.text_type)):
                 self._value = avalue
             else:
                 raise TypeError(
@@ -569,7 +572,7 @@ class PropertyValue(object):
                         'SENSE',
                         None,
                         self.value.firstVariant.sense).out)
-            elif isinstance(self.value, unicode):
+            elif isinstance(self.value, six.text_type):
                 _outList.append(
                     PolarisText(
                         3,
@@ -766,7 +769,7 @@ class External_Info(object):
         def fget(self):
             return self._textKey
         def fset(self, value):
-            if isinstance(value, basestring):  # Must be string
+            if isinstance(value, six.string_types):  # Must be string
                 self._textKey = value
             else:
                 raise TypeError(
@@ -860,11 +863,11 @@ class Feature(object):
         def fget(self):
             return self._name
         def fset(self, value):
-            if isinstance(value, basestring):  
+            if isinstance(value, six.string_types):  
                 self._name = value
             else:
                 raise TypeError(
-                    "Feature's object attribute 'name' must be basestring")
+                    "Feature's object attribute 'name' must be six.string_types")
         def fdel(self):
             self._name = None
         return locals()
@@ -876,7 +879,7 @@ class Feature(object):
         def fget(self):
             return self._featureValue
         def fset(self, value):
-            if isinstance(value, (bool, int, tuple, unicode)):  
+            if isinstance(value, (bool, int, tuple, six.text_type)):  
                 self._featureValue = value
             else:
                 raise TypeError(
@@ -912,7 +915,7 @@ class Feature(object):
                     _outList.append(PolarisText(
                             5,'TARGET_VARIANT',None,self.featureValue[1]).out)
 
-                elif isinstance(self.featureValue, basestring):
+                elif isinstance(self.featureValue, six.string_types):
                     _outList.append(PolarisText(
                             4,'FEATURE',None,self.name).out)
 
@@ -941,11 +944,11 @@ class Usage_Label(object):
         def fget(self):
             return self._name
         def fset(self, value):
-            if isinstance(value, basestring):  
+            if isinstance(value, six.string_types):  
                 self._name = value
             else:
                 raise TypeError(
-                    "Usage_Label's object attribute 'name' must be basestring")
+                    "Usage_Label's object attribute 'name' must be six.string_types")
         def fdel(self):
             self._name = None
         return locals()
@@ -957,11 +960,11 @@ class Usage_Label(object):
         def fget(self):
             return self._usage_label_value
         def fset(self, value):
-            if isinstance(value, basestring):  
+            if isinstance(value, six.string_types):  
                 self._usage_label_value = value
             else:
                 raise TypeError(
-                    "Usage_Label's object attribute 'usage_label_value' must be basestring")
+                    "Usage_Label's object attribute 'usage_label_value' must be six.string_types")
         def fdel(self):
             self._usage_label_value = None
         return locals()
@@ -1006,11 +1009,11 @@ class Translation(object):
         def fget(self):
             return self._language
         def fset(self, value):
-            if isinstance(value, basestring):  
+            if isinstance(value, six.string_types):  
                 self._language = value
             else:
                 raise TypeError(
-                    "Translation's object attribute 'language' must be basestring")
+                    "Translation's object attribute 'language' must be six.string_types")
         def fdel(self):
             self._language = None
         return locals()
@@ -1022,11 +1025,11 @@ class Translation(object):
         def fget(self):
             return self._translation_value
         def fset(self, value):
-            if isinstance(value, basestring):  
+            if isinstance(value, six.string_types):  
                 self._translation_value = value
             else:
                 raise TypeError(
-                    "Translation's object attribute 'translation_value' must be basestring")
+                    "Translation's object attribute 'translation_value' must be six.string_types")
         def fdel(self):
             self._translation_value = None
         return locals()
@@ -1187,7 +1190,7 @@ class Parser(object):
 
             def _status():
                 self.noQuotes = True
-                self.synset.variants[-1].status = unicode(self.fieldValue)
+                self.synset.variants[-1].status = as_unicode(self.fieldValue)
                 self.noQuotes = False
 
             def _target_sense():
@@ -1452,7 +1455,7 @@ class Parser(object):
                     print ('offset=',offset)
                 self.file.seek(offset,0)
 
-                line = self.file.readline().decode(self.encoding).strip()
+                line = as_unicode(self.file.readline(), self.encoding).strip()
                 if debug:
                     print (line.encode('utf-8'))
 
@@ -1536,7 +1539,7 @@ class PolarisText(object):
                 if type(self.fieldValue) == type(1):
                     _out = '%s%d %s %d' % (_out,self.levelNumber,
                                            self.fieldTag,self.fieldValue)
-                elif isinstance(self.fieldValue,basestring) : # peab nii olema
+                elif isinstance(self.fieldValue,six.string_types) : # peab nii olema
                     if self.noQuotes:
                         _out = '%s%d %s %s' % (_out,self.levelNumber,
                                                self.fieldTag,self.fieldValue)
@@ -1554,9 +1557,9 @@ class Variant(object):
     Variant. Holds info about variants.
     properties:
 
-    literal (unicode)
+    literal (six.text_type)
     sense  (int)
-    gloss  (unicode)
+    gloss  (six.text_type)
     examples  (Examples)
 
     """
@@ -1598,7 +1601,7 @@ class Variant(object):
         def fget(self):
             return self._literal
         def fset(self, value):
-            if isinstance(value, unicode):  # Must be string
+            if isinstance(value, six.text_type):  # Must be string
                 self._literal = value
             else:
                 raise TypeError(
@@ -1614,7 +1617,7 @@ class Variant(object):
         def fget(self):
             return self._gloss
         def fset(self, value):
-            if isinstance(value, basestring):  # Must be string
+            if isinstance(value, six.string_types):  # Must be string
                 self._gloss = value
             else:
                 raise TypeError(
@@ -1630,7 +1633,7 @@ class Variant(object):
         def fget(self):
             return self._status
         def fset(self, value):
-            if isinstance(value, unicode):
+            if isinstance(value, six.text_type):
                 self._status = value
             else:
                 raise TypeError(
@@ -2065,7 +2068,7 @@ class Synset(object):
         '''
         if self.internalLinks and not neg:
 
-            if isinstance(name, basestring):
+            if isinstance(name, six.string_types):
                 return filter(lambda x: x.name == name,
                               self.internalLinks)
 
@@ -2077,7 +2080,7 @@ class Synset(object):
 
         elif self.internalLinks and neg:
 
-            if isinstance(name, basestring):
+            if isinstance(name, six.string_types):
                 return filter(lambda x: x.name != name,
                               self.internalLinks)
 
@@ -2098,7 +2101,7 @@ class Synset(object):
         '''
         if self.eqLinks and not neg:
 
-            if isinstance(name, basestring):
+            if isinstance(name, six.string_types):
                 return filter(lambda x: x.relation.name == name,
                               self.eqLinks)
 
@@ -2110,7 +2113,7 @@ class Synset(object):
 
         elif self.eqLinks and neg:
 
-            if isinstance(name, basestring):
+            if isinstance(name, six.string_types):
                 return filter(lambda x: x.relation.name != name,
                               self.eqLinks)
 
