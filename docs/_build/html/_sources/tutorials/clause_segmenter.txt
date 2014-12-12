@@ -5,7 +5,9 @@ A simple sentence, also called an independent clause, typically contains a finit
 However, natural language sentences can also be long and complex, consisting of two or more clauses joined together.
 The clause structure can be made even more complex by embedded clauses, which divide their parent clauses into two halves.
 
-Clause segmenter makes it possible to extract clauses from a complex sentence and treat them independently::
+Clause segmenter makes it possible to extract clauses from a complex sentence and treat them independently. Before the tool can be applied, the input text must be tokenized (split into sentences and words) and morphologically analyzed and disambiguated (the program also works on morphologically ambiguous text, but the quality of the analysis is expected to be lower than on morphologically disambiguated text).
+
+Example::
 
     from estnltk import Tokenizer, PyVabamorfAnalyzer, ClauseSegmenter
     from pprint import pprint
@@ -17,8 +19,6 @@ Clause segmenter makes it possible to extract clauses from a complex sentence an
     text = '''Mees, keda seal kohtasime, oli tuttav ja teretas meid.'''
 
     segmented = segmenter(analyzer(tokenizer(text)))
-
-Clause segmenter requires that the input text has been tokenized (split into sentences and words) and morphologically analyzed and disambiguated (the program also works on morphologically ambiguous text, but the quality of the analysis is expected to be lower than on morphologically disambiguated text).
 
 The segmenter annotates clause boundaries between words, and start and end locations of embedded clauses. 
 Based on the annotation, each word in the sentence is associated with a clause index. 

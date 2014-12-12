@@ -24,7 +24,9 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="estnltk 1.0 documentation" href="index.html" /> 
+    <link rel="top" title="estnltk 1.0 documentation" href="index.html" />
+    <link rel="next" title="Detecting invalid characters in text" href="tutorials/textdiagnostics.html" />
+    <link rel="prev" title="Estnltk — Open source tools for Estonian natural language processing" href="index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -36,6 +38,12 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorials/textdiagnostics.html" title="Detecting invalid characters in text"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Estnltk — Open source tools for Estonian natural language processing"
+             accesskey="P">previous</a> |</li>
         <li><a href="index.html">estnltk 1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -47,53 +55,134 @@
             
   <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>We do not recommend building the library from source in Windows as it can be very time-consuming.
-Instead, we provide binary installers that can be downloaded from project <a href="#id1"><span class="problematic" id="id2">`repository`_</span></a>.</p>
-<p>Installers for 32 and 64 bit versions of Python2.7 and Python3.4:</p>
-<ul class="simple">
-<li>installer1</li>
-<li>installer2</li>
-<li>installer3</li>
-<li>installer4</li>
-</ul>
-<p>However, in order to get it working, you need to install these dependencies:
-TODO: try to put them all in a single installer</p>
-<ul class="simple">
-<li>pyvabamorf</li>
-<li>nltk</li>
-<li>whatever else</li>
-</ul>
+<p>Depending on what platform you intend to use the library, you have several choices how to install the library.</p>
 <div class="section" id="building-from-source">
 <h2>Building from source<a class="headerlink" href="#building-from-source" title="Permalink to this headline">¶</a></h2>
-<p>To build the <cite>estnltk</cite> module from source, we recommend using Visual Studio 2008 for Python2.7 and Visual Studio 2010 for Python3.4.
+<p>The most generic use case is to build the library from source and manually install all the necessary dependencies.
+This is mainly intended to be used on Linux systems with a custom setup or when building from source on Windows.
+To do that, you will need to install the following dependencies.</p>
+<div class="section" id="dependencies">
+<h3>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h3>
+<p><strong>Python with development headers.</strong> <a class="reference external" href="https://www.python.org/">https://www.python.org/</a> .
+The most obvious dependency of course is Python itself.
+Estnltk currently supports <em>versions 2.7 and 3.4</em>.
+Other versions may work as well, but are not tested.
+Python installer for Windows includes the development headers that are saved to the Python folder.
+In Linux, depending on the flavor and distribution, you usually have to install the headers separately.
+Either by building the Python from source or using a package manager. The package is typically named
+<code class="docutils literal"><span class="pre">python-dev</span></code> for Python 2 and <code class="docutils literal"><span class="pre">python3-dev</span></code> for Python3.</p>
+<p><strong>SWIG wrapper generator</strong>, <a class="reference external" href="http://swig.org/">http://swig.org/</a> .
+SWIG is a software development tool that connects programs written in C and C++ with a variety of high-level programming languages.
+SWIG is used with different types of target languages including common scripting languages such as Javascript, Perl, PHP, Python, Tcl and Ruby.
+Estnltk contains C++ code that uses SWIG to extend Python.
+In Linux, this package is usually named <code class="docutils literal"><span class="pre">swig</span></code> and can be installed with a package manager.</p>
+<p><strong>C++ compiler</strong>.
+In <em>Linux</em> systems, Estnltk can be built using GNU C++ compiler which can be installed with a package manager.
+Typically the package is named <code class="docutils literal"><span class="pre">g++</span></code>.
+It is also possible to manually download the compiler from <a class="reference external" href="https://gcc.gnu.org/">https://gcc.gnu.org/</a> .</p>
+<p>In <em>Windows</em>, we recommend using Visual Studio 2008 for Python2.7 and Visual Studio 2010 for Python3.4.
 Note that for 64-bit versions you need to have also 64-bit toolchains, which are not included in Express versions of the Visual Studio.
-Please read the Linux section of required dependencies.</p>
-</div>
-<div class="section" id="linux">
-<h2>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h2>
-<p>Although much development of the library is done in Linux, there are no pre-built binaries.
-Fortunately, building software from source in Linux is somewhat easier than in Windows, so we provide the necessary steps.</p>
-<p>First, you need to have installed following dependencies (typically installable from the package manager of your distro):</p>
+We recommend downloading the full Visual Studio SDK and performing the building process through the Visual studio command prompt interface.</p>
+<p><strong>Java VM</strong>.
+Several Estnltk components are written in Java and interfaced with Python.
+Therefore, you also need lates Java Runtime installed on your system.
+The <code class="docutils literal"><span class="pre">java</span></code> virtual machine must be in system <code class="docutils literal"><span class="pre">PATH</span></code>.
+We recommend using Oracle Java <a class="reference external" href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">http://www.oracle.com/technetwork/java/javase/downloads/index.html</a>,
+although alternatives such as OpenJDK (<a class="reference external" href="http://openjdk.java.net/">http://openjdk.java.net/</a>) should also work.</p>
+<p><strong>setuptools</strong>. <a class="reference external" href="https://pypi.python.org/pypi/setuptools">https://pypi.python.org/pypi/setuptools</a> .
+A popular toolchain to build Python packages. In Linux package managers, typically called <code class="docutils literal"><span class="pre">python-setuptools</span></code> .</p>
+<p>Here are all the additional dependencies of <code class="docutils literal"><span class="pre">estnltk</span></code>, which are required to get all the functionality working.
+Note that most or all of them should be installed automatically by <code class="docutils literal"><span class="pre">setuptools</span></code> build system, but non-pure Python
+packages may require additional dependencies to be installed.
+We cannot list them all for all possible platforms, but see next sections on example installs on Ubuntu 14.04 and Windows 8.</p>
 <ul class="simple">
-<li>Python development files</li>
-<li>GCC C++ compiler</li>
-<li>SWIG wrapper generator</li>
-<li>list here dependencies of dependencies etc.</li>
+<li>nltk&gt;=3.0.0</li>
+<li>python-crfsuite&gt;=0.8.1</li>
+<li>jsonpath-rw&gt;=1.3.0&#8217;</li>
+<li>six&gt;=1.7.3&#8217;</li>
+<li>tempdir&gt;=0.6&#8217;</li>
+<li>xmltodict&gt;=0.9.0&#8217;</li>
+<li>beautifulsoup4&gt;=4.3.2&#8217;</li>
+<li>pandas&gt;=0.14.1</li>
+<li>scikit-learn&gt;=0.15.1</li>
+<li>xlrd&gt;=0.9.2</li>
+<li>xlsxwriter&gt;=0.5.7</li>
+<li>numpy&gt;=1.8.2</li>
+<li>scipy&gt;=0.11.0</li>
+<li>pytz&gt;=2014.4</li>
+<li>python-dateutil&gt;=2.2</li>
+<li>nose&gt;=1.3.3</li>
+<li>pyparsing&gt;=2.0.2</li>
+<li>matplotlib&gt;=1.2.1</li>
+<li>xlwt-future&gt;=0.7.5</li>
 </ul>
-<p>There are no pre-built binaries for Linux. For building, you need to have installed Python development files (headers and libraries), GCC C++ compiler and also SWIG wrapper generator ( <a class="reference external" href="http://swig.org/">http://swig.org/</a> ). Depending on your distribution, you might be able to simply install them from software repositories of your distribution.</p>
-<p>After all dependencies are installed, the easiest way to build the pyvabamorf package is using the pip tool:</p>
-<p>sudo pip install pyvabamorf
-Another way is to clone the repository and execute the setup.py script inside:</p>
-<p>sudo python setup.py install
-Then run the tests and see if they all pass (NB! Do not run them from same directory you have cloned the source distribution):</p>
+</div>
+<div class="section" id="building-using-setuptools">
+<h3>Building using setuptools<a class="headerlink" href="#building-using-setuptools" title="Permalink to this headline">¶</a></h3>
+<p>First thing is to get the source. One option is cloing the repository using latest code:</p>
+<div class="highlight-python"><div class="highlight"><pre>git clone https://estnltk.cs.ut.ee/timo/estnltk.git estnltk
+</pre></div>
+</div>
+<p>or download it as a compressed zip:</p>
+<div class="highlight-python"><div class="highlight"><pre>https://estnltk.cs.ut.ee/timo/estnltk/repository/archive.zip
+</pre></div>
+</div>
+<p>Then, extract the sources and issue following commands in the downloaded/cloned folder to build and install:</p>
+<div class="highlight-python"><div class="highlight"><pre>python setup.py build
+sudo python setup.py install
+</pre></div>
+</div>
+<p>Note that <code class="docutils literal"><span class="pre">python</span></code> usually refers to default Python version installed with the system.
+Usually, you can also use more specific versions by replacing <code class="docutils literal"><span class="pre">python</span></code> with <code class="docutils literal"><span class="pre">python2.7</span></code> or <code class="docutils literal"><span class="pre">python3.4</span></code></p>
+</div>
+<div class="section" id="building-using-pip">
+<h3>Building using pip<a class="headerlink" href="#building-using-pip" title="Permalink to this headline">¶</a></h3>
+<p>Another option is to use <code class="docutils literal"><span class="pre">pip</span></code> program to automatically download and install the library without manually cloning the repository:</p>
+<div class="highlight-python"><div class="highlight"><pre>sudo pip install estnltk
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-unittests">
+<h3>Running unittests<a class="headerlink" href="#running-unittests" title="Permalink to this headline">¶</a></h3>
+<p>It is reasonable to run unit tests to see, whether everything is working correctly and library functions properly:</p>
+<div class="highlight-python"><div class="highlight"><pre>python -m unittest discover estnltk
+</pre></div>
+</div>
+<p>After the tests run for a while, you should see something similar in the end:</p>
+<div class="highlight-python"><div class="highlight"><pre>----------------------------------------------------------------------
+Ran 144 tests in 37.809s
+
+OK
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="step-by-step-ubuntu-linux-14-04">
+<h2>Step-by-step Ubuntu Linux 14.04<a class="headerlink" href="#step-by-step-ubuntu-linux-14-04" title="Permalink to this headline">¶</a></h2>
+<p>This section describes step-by-step instructions to install Estnltk with Python3.4 on Ubuntu Linux 14.04 .
+These steps should be also helpful to install Linux on other distributions, although they probably need minor modifications.
+However, we expect the users of other flavours capable of figuring out the necessary steps to set up their systems.</p>
+<div class="section" id="install-dependencies">
+<h3>Install dependencies<a class="headerlink" href="#install-dependencies" title="Permalink to this headline">¶</a></h3>
+<p>asdf</p>
+</div>
+<div class="section" id="build-and-install-estnltk">
+<h3>Build and install estnltk<a class="headerlink" href="#build-and-install-estnltk" title="Permalink to this headline">¶</a></h3>
+<p>asdf</p>
+</div>
+</div>
+<div class="section" id="installing-on-windows">
+<h2>Installing on Windows<a class="headerlink" href="#installing-on-windows" title="Permalink to this headline">¶</a></h2>
+<p>Extremly useful list of binary installers for various Python packages by Christoph Gohlke <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/">http://www.lfd.uci.edu/~gohlke/pythonlibs/</a> .</p>
 </div>
 <div class="section" id="post-installation-steps">
 <h2>Post-installation steps<a class="headerlink" href="#post-installation-steps" title="Permalink to this headline">¶</a></h2>
-<p>Downloading NLTK tokenizers for Estonian:</p>
+<p>Downloading NLTK tokenizers for Estonian. These are necessary for tokenization:</p>
 <div class="highlight-python"><div class="highlight"><pre>python -m nltk.downloader punkt
 </pre></div>
 </div>
-<p>Building default named entity tagger for Estonian (optional, installation should already come with a pre-trained model):</p>
+<p>Estnltk comes with pre-built named entity taggers, but you can optionally rebuild them if you have lost them for some reason.
+The command to build the default named entity tagger for Estonian:</p>
 <div class="highlight-python"><div class="highlight"><pre>python -m estnltk.ner train_default_model
 </pre></div>
 </div>
@@ -109,13 +198,30 @@ Then run the tests and see if they all pass (NB! Do not run them from same direc
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Installation</a><ul>
-<li><a class="reference internal" href="#building-from-source">Building from source</a></li>
-<li><a class="reference internal" href="#linux">Linux</a></li>
+<li><a class="reference internal" href="#building-from-source">Building from source</a><ul>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li><a class="reference internal" href="#building-using-setuptools">Building using setuptools</a></li>
+<li><a class="reference internal" href="#building-using-pip">Building using pip</a></li>
+<li><a class="reference internal" href="#running-unittests">Running unittests</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#step-by-step-ubuntu-linux-14-04">Step-by-step Ubuntu Linux 14.04</a><ul>
+<li><a class="reference internal" href="#install-dependencies">Install dependencies</a></li>
+<li><a class="reference internal" href="#build-and-install-estnltk">Build and install estnltk</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#installing-on-windows">Installing on Windows</a></li>
 <li><a class="reference internal" href="#post-installation-steps">Post-installation steps</a></li>
 </ul>
 </li>
 </ul>
 
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Estnltk &#8212; Open source tools for Estonian natural language processing</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tutorials/textdiagnostics.html"
+                        title="next chapter">Detecting invalid characters in text</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -149,6 +255,12 @@ Then run the tests and see if they all pass (NB! Do not run them from same direc
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorials/textdiagnostics.html" title="Detecting invalid characters in text"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Estnltk — Open source tools for Estonian natural language processing"
+             >previous</a> |</li>
         <li><a href="index.html">estnltk 1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>

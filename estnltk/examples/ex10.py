@@ -1,10 +1,5 @@
 '''
 Read in a A&A TEI corpus and perform some operations:
-
-1. show top word counts
-2. show top lemma counts
-3. show top lemma counts after removing stopwords
-4. show top lemma counts for adjectives
 '''
 
 from estnltk.core import AA_PATH
@@ -15,18 +10,22 @@ from pprint import pprint
 import os
 import json
 
+# read a single XML file
 corp_path = os.path.join(AA_PATH, 'tea_AA_03_1.tasak.xml')
+corpus = parse_tei_corpus(corp_path)
 
-corp = parse_tei_corpus(corp_path)
-
+# do something with the corpora
 from estnltk.corpus import Corpus
 from estnltk.morf import PyVabamorfAnalyzer
 from estnltk.ner import NerTagger
 
+# ner tag the corpus
 analyzer = PyVabamorfAnalyzer()
 tagger = NerTagger()
+corpus = tagger(analyzer(corpus))
 
-analyzer(corp, inplace=True)
-tagger(corp, inplace=True)
+from nltk import FreqDist
 
-pprint (zip(corp.lemmas, corp.labels))
+entities = [ne.lemma for ne in corpus.named_entities]
+print (entities)
+

@@ -3,8 +3,11 @@ Temporal expression (TIMEX) tagging
 ===================================
 
 Temporal expressions tagger identifies temporal expressions (timexes) in text and normalizes these expressions, providing corresponding calendrical dates and times. 
-The program outputs an annotation in a format similar to TimeML's TIMEX3 (see TODO for more details). 
+The program outputs an annotation in a format similar to TimeML's TIMEX3 (more detailed description can be found in `annotation guidelines`_, which are currently only in Estonian).
+
 According to TimeML, four types of temporal expressions are distinguished:
+
+.. _annotation guidelines: https://github.com/soras/EstTimeMLCorpus/blob/master/docs-et/ajav2ljendite_m2rgendamine_06.pdf?raw=true
 
 * DATE expressions, e.g. *järgmisel kolmapäeval* (*on next Wednesday*)
 * TIME expressions, e.g. *kell 18.00* (*at 18.00 o’clock*)
