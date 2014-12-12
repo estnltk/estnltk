@@ -4,7 +4,6 @@ Installation
 
 Depending on what platform you intend to use the library, you have several choices how to install the library.
 
-
 Building from source
 ====================
 
@@ -56,11 +55,11 @@ We cannot list them all for all possible platforms, but see next sections on exa
 
 * nltk>=3.0.0
 * python-crfsuite>=0.8.1
-* jsonpath-rw>=1.3.0'
-* six>=1.7.3'
-* tempdir>=0.6'
-* xmltodict>=0.9.0'
-* beautifulsoup4>=4.3.2'
+* jsonpath-rw>=1.3.0
+* six>=1.7.3
+* tempdir>=0.6
+* xmltodict>=0.9.0
+* beautifulsoup4>=4.3.2
 * pandas>=0.14.1
 * scikit-learn>=0.15.1
 * xlrd>=0.9.2
@@ -97,8 +96,8 @@ Then, extract the sources and issue following commands in the downloaded/cloned 
     sudo python setup.py install
     
 Note that ``python`` usually refers to default Python version installed with the system.
-Usually, you can also use more specific versions by replacing ``python`` with ``python2.7`` or ``python3.4``
-
+Usually, you can also use more specific versions by replacing ``python`` with ``python2.7`` or ``python3.4``.
+Note that the same commands work when building in Windows, but you need to execute them in Visual Studio SDK command prompt.
 
 Building using pip
 ------------------
@@ -134,7 +133,7 @@ However, we expect the users of other flavours capable of figuring out the neces
 
 Install main dependencies::
 
-    sudo apt-get install swig python3-setuptools libfreetype6-dev python3-pip liblapack-dev libblas-dev python3-dev gfortran default-jre
+    sudo apt-get install g++ swig python3-setuptools libfreetype6-dev python3-pip liblapack-dev libblas-dev python3-dev gfortran default-jre
     sudo pip3 install numpy
     
 Build and install ``estnltk``::
@@ -197,12 +196,51 @@ Type some example code::
 Done!
     
 
-Installing on Windows
+Step-by-step Windows
 =====================
 
-1. Download and install the dependencies.
+Although we have ``estnltk`` installers on Windows, compared to Linux, it needs little bit more twiddling to get it work.
+First, decide whether you need 32 or 64 bit package and also decide whether you use Python2.7 or Python3.4 .
+We recommend using 64-bit Python3.4 .
+Next, we use an extremly useful list of binary installers for various Python packages by Christoph Gohlke http://www.lfd.uci.edu/~gohlke/pythonlibs/ ::
 
-Extremly useful list of binary installers for various Python packages by Christoph Gohlke http://www.lfd.uci.edu/~gohlke/pythonlibs/ .
+* **NLTK** http://www.lfd.uci.edu/~gohlke/pythonlibs/#nltk
+* **six** http://www.lfd.uci.edu/~gohlke/pythonlibs/#six
+* **pandas** http://www.lfd.uci.edu/~gohlke/pythonlibs/#pandas
+* **scikit-learn** http://www.lfd.uci.edu/~gohlke/pythonlibs/#scikit-learn
+* **numpy** http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy
+* **scipy** http://www.lfd.uci.edu/~gohlke/pythonlibs/#scipy
+* **pytz** http://www.lfd.uci.edu/~gohlke/pythonlibs/#pytz
+* **python-dateutil** http://www.lfd.uci.edu/~gohlke/pythonlibs/#python-dateutil
+* **nose** http://www.lfd.uci.edu/~gohlke/pythonlibs/#nose
+* **pyparsing** http://www.lfd.uci.edu/~gohlke/pythonlibs/#pyparsing
+* **matplotlib** http://www.lfd.uci.edu/~gohlke/pythonlibs/#matplotlib
+
+Now, Christoph Gohlke's website does not list all required Python packages.
+Next, we install missing packages using the ``pip`` tool.
+This tool comes with default installation of Python3.4 and can be used to install the dependencies with following command in command prompt::
+
+    python -m pip install jsonpath-rw tempdir xmltodict beautifulsoup4 xlwt-future xlrd xlsxwriter
+
+This installs the following dependencies:
+    
+* jsonpath-rw
+* tempdir
+* xmltodict
+* beautifulsoup4
+* xlwt-future
+* xlrd
+* xlsxwriter
+
+The last dependency that is needed for named entity recognition does not have to the best of our knowledge, a pre-built Windows installer.
+So, we created one ourselves and put it to our website.
+
+* python-crfsuite>=0.8.1
+
+Finally, download the suitable ``estnltk`` installer and execute it.
+
+asdf
+
 
 
 Post-installation steps
