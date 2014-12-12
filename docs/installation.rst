@@ -199,10 +199,10 @@ Done!
 Step-by-step Windows 8
 ======================
 
-Although we have ``estnltk`` installers on Windows, compared to Linux, it needs little bit more twiddling to get it work.
+Although we have installers for Windows, it takes little bit more twiddling to get the library work.
 First, decide whether you need 32 or 64 bit package and also decide whether you use Python2.7 or Python3.4 .
 We recommend using 64-bit Python3.4 .
-Next, we use an extremly useful list of binary installers for various Python packages by Christoph Gohlke http://www.lfd.uci.edu/~gohlke/pythonlibs/ ::
+Next, we use an extremely useful list of binary installers for various Python packages by Christoph Gohlke http://www.lfd.uci.edu/~gohlke/pythonlibs/ :
 
 * **NLTK** http://www.lfd.uci.edu/~gohlke/pythonlibs/#nltk
 * **six** http://www.lfd.uci.edu/~gohlke/pythonlibs/#six
@@ -218,7 +218,7 @@ Next, we use an extremly useful list of binary installers for various Python pac
 * **python-crfsuite** TODO: add URL here
 
 Now, Christoph Gohlke's website does not list all required Python packages.
-Note that the ``python-crfsuite`` Windows installers are given in ``esnltk\dist\python-crfsuite`` repository.
+Note that the ``python-crfsuite`` Windows installers are given in ``esnltk\dist\python-crfsuite`` directory.
 The reason was that we had to create these ourselves as we did not find any public website that offers to download them.
 However, we do not want to manage installers for the rest of missing dependencies.
 Therefore, we install missing packages using the ``pip`` tool.
@@ -236,12 +236,17 @@ This installs the following dependencies:
 * xlrd
 * xlsxwriter
 
-Finally, download the suitable ``estnltk` installer and execute it.
+Then, install Java from http://www.oracle.com/technetwork/java/javase/downloads/index.html .
 
-TODO: add URL here
+Then, download and execute the suitable ``estnltk`` installer::
+
+    TODO: add URL here
 
 
+Finally, we are done :) !! TODO: fix ner example
 
+.. image:: _static/installation_windows.png
+   :alt: Screenshot of IDLE with 64-bit Python3.4 after successful installation
 
 
 Post-installation steps

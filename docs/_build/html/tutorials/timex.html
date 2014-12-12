@@ -101,7 +101,7 @@ For example, let&#8217;s tag the text given date June 10, 1995:</p>
  <span class="s">&#39;Timex(viie aasta, DURATION, P5Y, [timex_id=3])&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>By default, the tagger processes all the sentences independently, which is a relatively fast and not too memory demanding way of processing.
+<p>By default, the tagger processes all the sentences independently, which is relatively memory efficient way of processing.
 However, this way of processing also has some limitations.
 Firstly, timex identifiers (timex_ids) are unique only within a sentence, and not within a document, as it is expected in TimeML.
 And secondly, some anaphoric temporal expressions (expressions that are referring to other temporal expressions) may be inaccurately normalized, as normalization may require considering a wider context than a single sentence.
@@ -115,7 +115,8 @@ To overcome these limitations, argument <cite>process_as_whole</cite> can be use
  <span class="s">&#39;Timex(kaks päeva varem, DATE, 2014-12-01, [timex_id=t2])&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>Note that the default string representation of the timex only contains four fields: the temporal expression phrase, type (DATE, TIME, DURATION or SET), TimeML-based value and timex_id.
+<p>Note that this way of processing can be rather demanding in terms of memory, especially when analyzing large documents.</p>
+<p>The default string representation of the timex contains four fields: the temporal expression phrase, type (DATE, TIME, DURATION or SET), TimeML-based value and timex_id.
 Depending on (the semantics of) the temporal expression, there can also be additional attributes supplied in the timex object.
 For example, if the timex value has been calculated with respect to some other timex (&#8220;anchored&#8221; to other timex), the attribute <cite>anchor_id</cite> refers to the identifier of the corresponding timex:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">text</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;&#39;3. detsembril 2014 oli näiteks ilus ilm. Aga kaks päeva varem jälle ei olnud.&#39;&#39;&#39;</span>
@@ -130,7 +131,7 @@ For example, if the timex value has been calculated with respect to some other t
 &#39;Timex(kaks päeva varem, DATE, 2014-12-01, [timex_id=2])&#39;  is anchored to timex: 1
 </pre></div>
 </div>
-<p>For more information about available attributes, see the documentation of <a class="reference internal" href="../estnltk.html#estnltk.corpus.Timex" title="estnltk.corpus.Timex"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Timex</span></code></a>.</p>
+<p>For more information about available attributes, see the documentation of <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Timex</span></code>.</p>
 <p>Temporal expressions tagger also identifies some temporal expressions that are difficult to normalize, and thus no <em>type/value</em> will assigned to those expressions.
 By default, timexes without <em>type/value</em> will be removed from the output; however, this behaviour can be changed by executing the tagger with an argument <cite>remove_unnormalized_timexes=False</cite>.</p>
 </div>

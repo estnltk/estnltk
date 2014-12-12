@@ -47,6 +47,7 @@ Kasutusjuhised
     tutorials/morf_analysis_est.rst
     tutorials/clause_segmenter_est.rst
     tutorials/ner_est.rst
+    tutorials/timex_est.rst
 
 
 API kirjeldus

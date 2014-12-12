@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ajaväljendite tuvastamine &mdash; estnltk 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.0 documentation" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ajavaljendite-tuvastamine">
+<h1>Ajaväljendite tuvastamine<a class="headerlink" href="#ajavaljendite-tuvastamine" title="Permalink to this headline">¶</a></h1>
+<p>Ajaväljendite tuvastaja leiab tekstist ajaväljendid ning esitab (normaliseerib) nende nende semantika (nt väljenditele vastavad kuupäevad ja kellaajad) eeldefineeritud märgenduskeele raamides.
+Programmi poolt kasutatav märgendusviis on sarnane TimeML raamistikus kasutatavale TIMEX3 märgendusele (märgendusviisi detailsema kirjelduse leiab <a class="reference external" href="https://github.com/soras/EstTimeMLCorpus/blob/master/docs-et/ajav2ljendite_m2rgendamine_06.pdf?raw=true">ajaväljendite märgendamise juhistest</a>).</p>
+<p>TimeML järgi eristatakse nelja tüüpi ajaväljendeid:</p>
+<ul class="simple">
+<li>DATE - kalendrilised toimumisajad, nt <em>järgmisel kolmapäeval</em></li>
+<li>TIME - kellaajalised toimumisajad, nt <em>kell 18.00</em></li>
+<li>DURATION - ajalised kestvused, nt <em>viis päeva</em></li>
+<li>SET - ajalised korduvused, nt <em>igal aastal</em></li>
+</ul>
+<p>Ajaväljendite tuvastamine nõuab, et sisendtekst on lausestatud ja sõnestatud (klassi <code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code> abil), morfoloogiliselt analüüsitud (klassi <code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></code> abil) ning morfoloogiliselt ühestatud (kuigi programm töötab ka morfoloogiliselt mitmesel tekstil, võib analüüsi kvaliteet olla madalam kui ühestatud tekstil).</p>
+<p>Näide:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">PyVabamorfAnalyzer</span>
+<span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">TimexTagger</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">Tokenizer</span><span class="p">()</span>
+<span class="n">analyzer</span> <span class="o">=</span> <span class="n">PyVabamorfAnalyzer</span><span class="p">()</span>
+<span class="n">tagger</span> <span class="o">=</span> <span class="n">TimexTagger</span><span class="p">()</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;&#39;Potsataja ütles eile, et vaatavad nüüd Genaga viie aasta plaanid uuesti üle.&#39;&#39;&#39;</span>
+<span class="n">tagged</span> <span class="o">=</span> <span class="n">tagger</span><span class="p">(</span><span class="n">analyzer</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">)))</span>
+
+<span class="n">pprint</span><span class="p">(</span><span class="n">tagged</span><span class="o">.</span><span class="n">timexes</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>tulemusena väljastatakse ajaväljendid:</p>
+<div class="highlight-python"><div class="highlight"><pre>[[&#39;Timex(eile, DATE, 2014-12-02, [timex_id=1])&#39;,
+ &#39;Timex(nüüd, DATE, PRESENT_REF, [timex_id=2])&#39;,
+ &#39;Timex(viie aasta, DURATION, P5Y, [timex_id=3])&#39;]
+</pre></div>
+</div>
+<p>Eelmises näites kuupäevaks normaliseeritud väljendi <em>eile</em> kalendriline semantika sõltub kasutuskontekstist.
+Selliste väljendite normaliseerimisel kasutatakse vaikimisi <em>dokumendi loomise ajana</em> (ehk siis &#8220;kõnehetkena&#8221;) programmi käivitamise kuupäeva (eelmises näites oli selleks 3. detsember 2014).
+Dokumendi loomise aja saab ka teksti analüüsil eraldi täpsustada, kasutades selleks argumendi <cite>creation_date</cite> määramist.
+Nt võime eelneva näitelause analüüsil määrata &#8220;dokumendi loomise ajaks&#8221; 10. juuni 1995:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="c"># märgendame teise dokumendi loomise aja suhtes</span>
+<span class="n">tagged</span> <span class="o">=</span> <span class="n">tagger</span><span class="p">(</span><span class="n">tagged</span><span class="p">,</span> <span class="n">creation_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">1995</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">tagged</span><span class="o">.</span><span class="n">timexes</span><span class="p">)</span>
+
+<span class="p">[</span><span class="s">&#39;Timex(eile, DATE, 1995-06-09, [timex_id=1])&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Timex(nüüd, DATE, PRESENT_REF, [timex_id=2])&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Timex(viie aasta, DURATION, P5Y, [timex_id=3])&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Vaikimisi töötleb ajaväljendite tuvastaja kõiki sisendteksti lauseid eraldi, kuna selline töötlusviis on suhteliselt vähenõudlik mäluressurssi suhtes.
+Samas seab see tulemustele ka teatud piirangud.
+Esiteks, ajaväljendite identifikaatorid on unikaalsed ainult ühe lause piires, mitte kogu dokumendi piires, nagu nõuab TimeML raamistik.
+Ja teiseks, teatud anafoorsete ajaväljendite (s.o ajaväljendite, mille semantika sõltub teistest ajaväljenditest) normaliseerimine jääb poolikuks, kuna selleks võib olla tarvis vaadata ka ajaväljendeid ümbritsevates lausetes.
+Nende probleemide vältimiseks on võimalik kasutada lippu <cite>process_as_whole</cite>, mille sisselülitamisel analüüsitakse kogu sisendteksti tervikuna (mitte lause-lause haaval):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;&#39;3. detsembril 2014 oli näiteks ilus ilm. Aga kaks päeva varem jälle ei olnud.&#39;&#39;&#39;</span>
+<span class="n">tagged</span> <span class="o">=</span> <span class="n">tagger</span><span class="p">(</span><span class="n">analyzer</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">)),</span> <span class="n">process_as_whole</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+
+<span class="n">pprint</span><span class="p">(</span><span class="n">tagged</span><span class="o">.</span><span class="n">timexes</span><span class="p">)</span>
+
+<span class="p">[</span><span class="s">&#39;Timex(3. detsembril 2014, DATE, 2014-12-03, [timex_id=t1])&#39;</span><span class="p">,</span>
+ <span class="s">&#39;Timex(kaks päeva varem, DATE, 2014-12-01, [timex_id=t2])&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Suurte tekstide töötlemisel tasub silmas pidada, et selline töötlemisviis võib olla üsna nõudlik mäluressurssi suhtes.</p>
+<p>Nagu eeltoodud näidetest võib näha, tuuakse vaikimisi ajaväljendi sõne-esituskujus välja neli väärtust: ajaväljendi fraas, tüüp (DATE, TIME, DURATION or SET), semantika esituskuju (TimeML-baseeruv <em>value</em>) ning ajaväljendi unikaalne identifikaator (<em>timex_id</em>).
+Sõltuvalt ajaväljendi semantikast võib määratud olla teisigi atribuute, millele pääseb ligi <em>Timex</em> objekti väljade kaudu.
+Näiteks, kui ajaväljendi semantika on arvutatud mingit teist ajaväljendit aluseks võttes (nagu eelmise näite anafoorne väljend <em>kaks päeva varem</em>), viitab atribuut <cite>anchor_id</cite> teise väljendi identifikaatorile:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">text</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;&#39;3. detsembril 2014 oli näiteks ilus ilm. Aga kaks päeva varem jälle ei olnud.&#39;&#39;&#39;</span>
+<span class="n">tagged</span> <span class="o">=</span> <span class="n">tagger</span><span class="p">(</span><span class="n">analyzer</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">)),</span> <span class="n">process_as_whole</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">timex</span> <span class="ow">in</span> <span class="n">tagged</span><span class="o">.</span><span class="n">timexes</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">timex</span><span class="p">,</span> <span class="s">&#39; is anchored to timex:&#39;</span><span class="p">,</span> <span class="n">timex</span><span class="o">.</span><span class="n">anchor_id</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>tulemusena väljastatakse:</p>
+<div class="highlight-python"><div class="highlight"><pre>&#39;Timex(3. detsembril 2014, DATE, 2014-12-03, [timex_id=1])&#39;  is anchored to timex: None
+&#39;Timex(kaks päeva varem, DATE, 2014-12-01, [timex_id=2])&#39;  is anchored to timex: 1
+</pre></div>
+</div>
+<p>Rohkem informatsiooni kasutusel olevate atribuutide kohta leiab klassi <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Timex</span></code> dokumentatsioonist.</p>
+<p>Ajaväljendite tuvastaja leiab tekstist ka mõned sellised väljendid, mida on keeruline normaliseerida ning seetõttu jäävad ajaväljendi väljad <em>type</em> ja <em>value</em> määratlemata.
+Vaikimisi selliseid ajaväljendid eemaldatakse väljundist, aga seda sätet on võimalik tühistada, käivitades tuvastaja argumendiga <cite>remove_unnormalized_timexes=False</cite>.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/tutorials/timex_est.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+    </div>
+  </body>
+</html>

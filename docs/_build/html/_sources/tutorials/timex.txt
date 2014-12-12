@@ -5,9 +5,9 @@ Temporal expression (TIMEX) tagging
 Temporal expressions tagger identifies temporal expressions (timexes) in text and normalizes these expressions, providing corresponding calendrical dates and times. 
 The program outputs an annotation in a format similar to TimeML's TIMEX3 (more detailed description can be found in `annotation guidelines`_, which are currently only in Estonian).
 
-According to TimeML, four types of temporal expressions are distinguished:
-
 .. _annotation guidelines: https://github.com/soras/EstTimeMLCorpus/blob/master/docs-et/ajav2ljendite_m2rgendamine_06.pdf?raw=true
+
+According to TimeML, four types of temporal expressions are distinguished:
 
 * DATE expressions, e.g. *järgmisel kolmapäeval* (*on next Wednesday*)
 * TIME expressions, e.g. *kell 18.00* (*at 18.00 o’clock*)
@@ -52,7 +52,7 @@ For example, let's tag the text given date June 10, 1995::
      'Timex(nüüd, DATE, PRESENT_REF, [timex_id=2])',
      'Timex(viie aasta, DURATION, P5Y, [timex_id=3])']
 
-By default, the tagger processes all the sentences independently, which is a relatively fast and not too memory demanding way of processing. 
+By default, the tagger processes all the sentences independently, which is relatively memory efficient way of processing.
 However, this way of processing also has some limitations. 
 Firstly, timex identifiers (timex_ids) are unique only within a sentence, and not within a document, as it is expected in TimeML. 
 And secondly, some anaphoric temporal expressions (expressions that are referring to other temporal expressions) may be inaccurately normalized, as normalization may require considering a wider context than a single sentence. 
@@ -66,7 +66,9 @@ To overcome these limitations, argument `process_as_whole` can be used to proces
     ['Timex(3. detsembril 2014, DATE, 2014-12-03, [timex_id=t1])',
      'Timex(kaks päeva varem, DATE, 2014-12-01, [timex_id=t2])']
 
-Note that the default string representation of the timex only contains four fields: the temporal expression phrase, type (DATE, TIME, DURATION or SET), TimeML-based value and timex_id. 
+Note that this way of processing can be rather demanding in terms of memory, especially when analyzing large documents.
+
+The default string representation of the timex contains four fields: the temporal expression phrase, type (DATE, TIME, DURATION or SET), TimeML-based value and timex_id. 
 Depending on (the semantics of) the temporal expression, there can also be additional attributes supplied in the timex object. 
 For example, if the timex value has been calculated with respect to some other timex ("anchored" to other timex), the attribute `anchor_id` refers to the identifier of the corresponding timex::
 
