@@ -81,6 +81,10 @@ Building using setuptools
 First thing after installing the dependencies is to get the source.
 One option is cloing the repository using latest code::
 
+    git clone https://github.com/tpetmanson/estnltk estnltk
+    
+or from mirror repository::
+
     git clone https://estnltk.cs.ut.ee/timo/estnltk.git estnltk
 
 or download it as a compressed zip::    
@@ -104,8 +108,8 @@ Another option is to use ``pip`` program to automatically download and install t
     sudo pip install estnltk
     
 
-Running unittests
------------------
+Running unit tests
+------------------
 
 It is reasonable to run unit tests to see, whether everything is working correctly and library functions properly::
 
@@ -128,21 +132,75 @@ This section describes step-by-step instructions to install Estnltk with Python3
 These steps should be also helpful to install Linux on other distributions, although they probably need minor modifications.
 However, we expect the users of other flavours capable of figuring out the necessary steps to set up their systems.
 
-Install dependencies
---------------------
+Install main dependencies::
 
-sudo apt-get install swig python3-setuptools libfreetype6-dev python3-pip liblapack-dev libblas-dev python3-dev gfortran
-sudo pip3 install numpy
+    sudo apt-get install swig python3-setuptools libfreetype6-dev python3-pip liblapack-dev libblas-dev python3-dev gfortran default-jre
+    sudo pip3 install numpy
+    
+Build and install ``estnltk``::
+
+    git clone https://github.com/tpetmanson/estnltk estnltk
+    cd estnltk
+    python3 setup.py build
+    sudo python3 setup.py install
+
+Post-installation steps::
+
+    python3 -m nltk.downloader punkt
+
+Run tests::
+
+    cd ..
+    python3 -m unittest discover estnltk
 
 
-Build and install estnltk
--------------------------
+Type some example code::
 
-asdf
+    $ python3
+    Python 3.4.0 (default, Apr 11 2014, 13:05:11) 
+    [GCC 4.8.2] on linux
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> import estnltk
+    >>> from pprint import pprint
+    >>> pprint(estnltk.analyze('Tere maailm'))
+    [{'analysis': [{'clitic': '',
+                    'ending': '0',
+                    'form': '',
+                    'lemma': 'tere',
+                    'partofspeech': 'I',
+                    'root': 'tere',
+                    'root_tokens': ['tere']},
+                   {'clitic': '',
+                    'ending': '0',
+                    'form': 'sg g',
+                    'lemma': 'tere',
+                    'partofspeech': 'S',
+                    'root': 'tere',
+                    'root_tokens': ['tere']},
+                   {'clitic': '',
+                    'ending': '0',
+                    'form': 'sg n',
+                    'lemma': 'tere',
+                    'partofspeech': 'S',
+                    'root': 'tere',
+                    'root_tokens': ['tere']}],
+      'text': 'Tere'},
+     {'analysis': [{'clitic': '',
+                    'ending': '0',
+                    'form': 'sg n',
+                    'lemma': 'maailm',
+                    'partofspeech': 'S',
+                    'root': 'maa_ilm',
+                    'root_tokens': ['maa', 'ilm']}],
+      'text': 'maailm'}]
 
+Done!
+    
 
 Installing on Windows
 =====================
+
+1. Download and install the dependencies.
 
 Extremly useful list of binary installers for various Python packages by Christoph Gohlke http://www.lfd.uci.edu/~gohlke/pythonlibs/ .
 
