@@ -78,7 +78,8 @@ We cannot list them all for all possible platforms, but see next sections on exa
 Building using setuptools
 -------------------------
 
-First thing is to get the source. One option is cloing the repository using latest code::
+First thing after installing the dependencies is to get the source.
+One option is cloing the repository using latest code::
 
     git clone https://estnltk.cs.ut.ee/timo/estnltk.git estnltk
 
@@ -130,7 +131,9 @@ However, we expect the users of other flavours capable of figuring out the neces
 Install dependencies
 --------------------
 
-asdf
+sudo apt-get install swig python3-setuptools libfreetype6-dev python3-pip liblapack-dev libblas-dev python3-dev gfortran
+sudo pip3 install numpy
+
 
 Build and install estnltk
 -------------------------
