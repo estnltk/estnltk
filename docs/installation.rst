@@ -196,8 +196,8 @@ Type some example code::
 Done!
     
 
-Step-by-step Windows
-=====================
+Step-by-step Windows 8
+======================
 
 Although we have ``estnltk`` installers on Windows, compared to Linux, it needs little bit more twiddling to get it work.
 First, decide whether you need 32 or 64 bit package and also decide whether you use Python2.7 or Python3.4 .
@@ -215,10 +215,14 @@ Next, we use an extremly useful list of binary installers for various Python pac
 * **nose** http://www.lfd.uci.edu/~gohlke/pythonlibs/#nose
 * **pyparsing** http://www.lfd.uci.edu/~gohlke/pythonlibs/#pyparsing
 * **matplotlib** http://www.lfd.uci.edu/~gohlke/pythonlibs/#matplotlib
+* **python-crfsuite** TODO: add URL here
 
 Now, Christoph Gohlke's website does not list all required Python packages.
-Next, we install missing packages using the ``pip`` tool.
-This tool comes with default installation of Python3.4 and can be used to install the dependencies with following command in command prompt::
+Note that the ``python-crfsuite`` Windows installers are given in ``esnltk\dist\python-crfsuite`` repository.
+The reason was that we had to create these ourselves as we did not find any public website that offers to download them.
+However, we do not want to manage installers for the rest of missing dependencies.
+Therefore, we install missing packages using the ``pip`` tool.
+This tool comes with default installation of Python3.4 (install it separately for Python2.7) and can be used to install the dependencies with following command in command prompt::
 
     python -m pip install jsonpath-rw tempdir xmltodict beautifulsoup4 xlwt-future xlrd xlsxwriter
 
@@ -232,14 +236,11 @@ This installs the following dependencies:
 * xlrd
 * xlsxwriter
 
-The last dependency that is needed for named entity recognition does not have to the best of our knowledge, a pre-built Windows installer.
-So, we created one ourselves and put it to our website.
+Finally, download the suitable ``estnltk` installer and execute it.
 
-* python-crfsuite>=0.8.1
+TODO: add URL here
 
-Finally, download the suitable ``estnltk`` installer and execute it.
 
-asdf
 
 
 
