@@ -48,6 +48,7 @@ Kasutusjuhised
     tutorials/clause_segmenter_est.rst
     tutorials/ner_est.rst
     tutorials/timex_est.rst
+    tutorials/verbchain_est.rst
 
 
 API kirjeldus

@@ -69,7 +69,7 @@ Nende probleemide vältimiseks on võimalik kasutada lippu `process_as_whole`, m
 
 Suurte tekstide töötlemisel tasub silmas pidada, et selline töötlemisviis võib olla üsna nõudlik mäluressurssi suhtes.
 
-Nagu eeltoodud näidetest võib näha, tuuakse vaikimisi ajaväljendi sõne-esituskujus välja neli väärtust: ajaväljendi fraas, tüüp (DATE, TIME, DURATION or SET), semantika esituskuju (TimeML-baseeruv *value*) ning ajaväljendi unikaalne identifikaator (*timex_id*).
+Nagu eeltoodud näidetest võib näha, tuuakse vaikimisi ajaväljendi sõne-esituskujus välja neli väärtust: ajaväljendi fraas, tüüp (DATE, TIME, DURATION või SET), semantika esituskuju (TimeML-baseeruv *value*) ning ajaväljendi unikaalne identifikaator (*timex_id*).
 Sõltuvalt ajaväljendi semantikast võib määratud olla teisigi atribuute, millele pääseb ligi *Timex* objekti väljade kaudu.
 Näiteks, kui ajaväljendi semantika on arvutatud mingit teist ajaväljendit aluseks võttes (nagu eelmise näite anafoorne väljend *kaks päeva varem*), viitab atribuut `anchor_id` teise väljendi identifikaatorile::
 

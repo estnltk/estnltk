@@ -7,9 +7,9 @@ The current version of the program aims to detect following verb chain construct
 
 * basic main verbs:
 
-  * negated main verbs: *ei/ära/pole/ega* + verb;
-  * (affirmative) single *olema* main verbs and *olema* verb chains: *olema* + verb;
-  * (affirmative) single non-*olema* main verbs;
+  * negated main verbs: *ei/ära/pole/ega* + verb (e.g. Helistasin korraks Carmenile, kuid ta **ei vastanud.**);
+  * (affirmative) single *olema* main verbs (e.g. Raha **on** alati vähe) and *olema* verb chains (**Oleme** sellist kino ennegi **näinud**);
+  * (affirmative) single non-*olema* main verbs (example: Pidevalt **uurivad** asjade seisu ka hollandlased);
 
 * verb chain extensions:
 
@@ -82,11 +82,11 @@ The previous example outputs::
 
 Following is a brief description of the attributes:
    
-    * ``estnltk.corpus.VerbChain.pattern_tokens`` - the general pattern of the chain: for each word in the chain, lists whether it is *'ega'*, *'ei'*, *'ära'*, *'pole'*, *'ole'*, *'&'* (conjunction: ja/ning/ega/või), *'verb'* (verb different than *'ole'*) or *'nom/adv'* (nominal/adverb); 
-    * ``estnltk.corpus.VerbChain.roots`` - for each word in the chain, lists its corresponding 'root' value from the morphological analysis;
-    * ``estnltk.corpus.VerbChain.morph`` - for each word in the chain, lists its morphological features: part of speech tag and form (in one string, separated by '_', and multiple variants of the pos/form are separated by '/');
-    * ``estnltk.corpus.VerbChain.polarity`` - grammatical polarity of the chain: *'POS'*, *'NEG'* or *'??'*. *'NEG'* simply means that the chain begins with a negation word *ei/pole/ega/ära*; *'??'* is reserved for cases where it is uncertain whether *ära* forms a negated verb chain or not;
-    * ``estnltk.corpus.VerbChain.other_verbs`` - boolean, marks whether there are other verbs in the context, which can be potentially added to the verb chain; if ``True``,then it is uncertain whether the chain is complete or not;
+    * ``pattern_tokens`` - the general pattern of the chain: for each word in the chain, lists whether it is *'ega'*, *'ei'*, *'ära'*, *'pole'*, *'ole'*, *'&'* (conjunction: ja/ning/ega/või), *'verb'* (verb different than *'ole'*) or *'nom/adv'* (nominal/adverb); 
+    * ``roots`` - for each word in the chain, lists its corresponding 'root' value from the morphological analysis;
+    * ``morph`` - for each word in the chain, lists its morphological features: part of speech tag and form (in one string, separated by '_', and multiple variants of the pos/form are separated by '/');
+    * ``polarity`` - grammatical polarity of the chain: *'POS'*, *'NEG'* or *'??'*. *'NEG'* simply means that the chain begins with a negation word *ei/pole/ega/ära*; *'??'* is reserved for cases where it is uncertain whether *ära* forms a negated verb chain or not;
+    * ``other_verbs`` - boolean, marks whether there are other verbs in the context, which can be potentially added to the verb chain; if ``True``,then it is uncertain whether the chain is complete or not;
   
 .. Note that the words in the verb chain are ordered not as they appear in the text, but by the order of the grammatical relations: first words are mostly grammatical (such as auxiliary negation words *ei/ega/ära*) or otherwise abstract (e.g. modal words like *tohtima*, *võima*, aspectual words like *hakkama*), and only the last words carry most of the semantic/concrete meaning.
   
