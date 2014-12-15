@@ -6,3 +6,5 @@ morphological analysis, named entity recognition etc for the Estonian language.
 
 See http://tpetmanson.github.io/estnltk/index.html for installation instructions and documentation.
 
+Eesti-keelne dokumentatsioon on saadaval siin: http://tpetmanson.github.io/estnltk/index_est.html .
+
