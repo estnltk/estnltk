@@ -50,74 +50,6 @@
 <p>Järgnevalt tutvustame kõiki <cite>estnltk</cite> poolt pakutavaid keeletöötluse vahendeid.
 Tööriistade paremaks tundmaõppimiseks on soovitav need juhised läbi lugeda ning näited kaasa teha.
 Kasutatud koodinäited on pandud ka paketiga kaasa ning need leiab kataloogist <cite>estnltk/examples</cite>.</p>
-<div class="section" id="teksti-tukeldamine-paragrahvideks-lauseteks-ja-sonadeks">
-<h2>Teksti tükeldamine paragrahvideks, lauseteks ja sõnadeks<a class="headerlink" href="#teksti-tukeldamine-paragrahvideks-lauseteks-ja-sonadeks" title="Permalink to this headline">¶</a></h2>
-<p>Enamikus keele automaattöötluse rakendustes on esimeseks sammuks sisendteksti jagamine väiksemateks tükkideks: paragrahvideks, lauseteks ja sõnadeks.</p>
-<p>Estnltk-s pakub teksti tükeldamise tuge klass <a class="reference internal" href="estnltk.html#estnltk.tokenize.Tokenizer" title="estnltk.tokenize.Tokenizer"><code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code></a>. Järgnevas näites loome sisendteksti (sõne <code class="docutils literal"><span class="pre">text</span></code>), seejärel impordime ja initsialiseerime teksti tükeldaja (<code class="docutils literal"><span class="pre">tokenizer</span></code>, isendi klassist <a class="reference internal" href="estnltk.html#estnltk.tokenize.Tokenizer" title="estnltk.tokenize.Tokenizer"><code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code></a>) ning kasutame seda, et luua tükeldatud kujul sisendteksti sisaldav dokument (<code class="docutils literal"><span class="pre">document</span></code>, <a class="reference internal" href="estnltk.html#estnltk.corpus.Document" title="estnltk.corpus.Document"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code></a> klassi isend):</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="c"># Loome näiteteksti</span>
-<span class="n">text</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;Keeletehnoloogia on arvutilingvistika praktiline pool.</span>
-<span class="s">Keeletehnoloogid kasutavad arvutilingvistikas välja töötatud</span>
-<span class="s">teooriaid, et luua rakendusi (nt arvutiprogramme),</span>
-<span class="s">mis võimaldavad inimkeelt arvuti abil töödelda ja mõista.</span>
-
-<span class="s">Tänapäeval on keeletehnoloogia tuntumateks valdkondadeks</span>
-<span class="s">masintõlge, arvutileksikoloogia, dialoogisüsteemid,</span>
-<span class="s">kõneanalüüs ja kõnesüntees.</span>
-<span class="s">&#39;&#39;&#39;</span>
-
-<span class="c"># Tükeldame teksti Tokenizer&#39;i abil</span>
-<span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span>
-<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">Tokenizer</span><span class="p">()</span>
-<span class="n">document</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-
-<span class="c"># Väljastame tükeldamise tulemused</span>
-<span class="k">print</span> <span class="p">(</span><span class="n">document</span><span class="o">.</span><span class="n">word_texts</span><span class="p">)</span>
-<span class="k">print</span> <span class="p">(</span><span class="n">document</span><span class="o">.</span><span class="n">sentence_texts</span><span class="p">)</span>
-<span class="k">print</span> <span class="p">(</span><span class="n">document</span><span class="o">.</span><span class="n">paragraph_texts</span><span class="p">)</span>
-<span class="k">print</span> <span class="p">(</span><span class="n">document</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Tulemusena väljastatakse teksti tükeldus sõnadeks (ehk teksti <em>sõnestus</em>):</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;Keeletehnoloogia&#39;</span><span class="p">,</span> <span class="s">&#39;on&#39;</span><span class="p">,</span> <span class="s">&#39;arvutilingvistika&#39;</span><span class="p">,</span> <span class="s">&#39;praktiline&#39;</span><span class="p">,</span> <span class="s">&#39;pool.&#39;</span><span class="p">,</span> <span class="s">&#39;Keeletehnoloogid&#39;</span><span class="p">,</span>
-<span class="s">&#39;kasutavad&#39;</span><span class="p">,</span> <span class="s">&#39;arvutilingvistikas&#39;</span><span class="p">,</span> <span class="s">&#39;välja&#39;</span><span class="p">,</span> <span class="s">&#39;töötatud&#39;</span><span class="p">,</span> <span class="s">&#39;teooriaid&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;et&#39;</span><span class="p">,</span> <span class="s">&#39;luua&#39;</span><span class="p">,</span>
-<span class="s">&#39;rakendusi&#39;</span><span class="p">,</span> <span class="s">&#39;(&#39;</span><span class="p">,</span> <span class="s">&#39;nt&#39;</span><span class="p">,</span> <span class="s">&#39;arvutiprogramme&#39;</span><span class="p">,</span> <span class="s">&#39;)&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;mis&#39;</span><span class="p">,</span> <span class="s">&#39;võimaldavad&#39;</span><span class="p">,</span> <span class="s">&#39;inimkeelt&#39;</span><span class="p">,</span>
-<span class="s">&#39;arvuti&#39;</span><span class="p">,</span> <span class="s">&#39;abil&#39;</span><span class="p">,</span> <span class="s">&#39;töödelda&#39;</span><span class="p">,</span> <span class="s">&#39;ja&#39;</span><span class="p">,</span> <span class="s">&#39;mõista.&#39;</span><span class="p">,</span> <span class="s">&#39;Tänapäeval&#39;</span><span class="p">,</span> <span class="s">&#39;on&#39;</span><span class="p">,</span> <span class="s">&#39;keeletehnoloogia&#39;</span><span class="p">,</span>
-<span class="s">&#39;tuntumateks&#39;</span><span class="p">,</span> <span class="s">&#39;valdkondadeks&#39;</span><span class="p">,</span> <span class="s">&#39;masintõlge&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;arvutileksikoloogia&#39;</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;dialoogisüsteemid&#39;</span><span class="p">,</span>
-<span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;kõneanalüüs&#39;</span><span class="p">,</span> <span class="s">&#39;ja&#39;</span><span class="p">,</span> <span class="s">&#39;kõnesüntees.&#39;</span><span class="p">]</span>
-</pre></div>
-</div>
-<p>ja tükeldus lauseteks (ehk teksti <em>lausestus</em>):</p>
-<div class="highlight-python"><div class="highlight"><pre>[&#39;Keeletehnoloogia on arvutilingvistika praktiline pool.&#39;,
- &#39;Keeletehnoloogid kasutavad arvutilingvistikas välja töötatud \nteooriaid,
-    et luua rakendusi (nt arvutiprogramme), \nmis võimaldavad inimkeelt
-    arvuti abil töödelda ja mõista. &#39;,
- &#39;Tänapäeval on keeletehnoloogia tuntumateks valdkondadeks \nmasintõlge,
-    arvutileksikoloogia, dialoogisüsteemid, \nkõneanalüüs ja kõnesüntees.\n&#39;]
-</pre></div>
-</div>
-<p>ning tükeldus paragrahvideks:</p>
-<div class="highlight-python"><div class="highlight"><pre>[&#39;Keeletehnoloogia on arvutilingvistika praktiline pool.\nKeeletehnoloogid
-    kasutavad arvutilingvistikas välja töötatud \nteooriaid, et luua
-    rakendusi (nt arvutiprogramme), \nmis võimaldavad inimkeelt arvuti
-    abil töödelda ja mõista.&#39;,
- &#39;Tänapäeval on keeletehnoloogia tuntumateks valdkondadeks \nmasintõlge,
-    arvutileksikoloogia, dialoogisüsteemid, \nkõneanalüüs ja kõnesüntees.\n&#39;]
-</pre></div>
-</div>
-<p>Teksti esialgne (sõnekuju) on endiselt kättesaadav klassi <a class="reference internal" href="estnltk.html#estnltk.corpus.Document" title="estnltk.corpus.Document"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code></a> atribuudi <code class="docutils literal"><span class="pre">text</span></code> kaudu.</p>
-<p>Kui teksti tükeldamisel peaks ilmuma järgnev veateade:</p>
-<div class="highlight-python"><div class="highlight"><pre>LookupError:
-**********************************************************************
-  Resource u&#39;tokenizers/punkt/estonian.pickle&#39; not found.  Please
-  use the NLTK Downloader to obtain the resource:  &gt;&gt;&gt;
-  nltk.download()
-</pre></div>
-</div>
-<p>siis on tõenäoliselt ununenud täitmata installeerimisjärgne samm: NLTK eesti keele tükeldamisvahendite paigaldamine. Selle vea saab parandada (süsteemi käsurea) käsuga:</p>
-<div class="highlight-python"><div class="highlight"><pre>python -m nltk.downloader punkt
-</pre></div>
-</div>
-</div>
 </div>
 
 
@@ -126,14 +58,6 @@ Kasutatud koodinäited on pandud ka paketiga kaasa ning need leiab kataloogist <
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Estnltk kasutusjuhised</a><ul>
-<li><a class="reference internal" href="#teksti-tukeldamine-paragrahvideks-lauseteks-ja-sonadeks">Teksti tükeldamine paragrahvideks, lauseteks ja sõnadeks</a></li>
-</ul>
-</li>
-</ul>
-
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
