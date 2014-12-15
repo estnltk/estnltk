@@ -148,20 +148,6 @@ Note that the same commands work when building in Windows, but you need to execu
 </pre></div>
 </div>
 </div>
-<div class="section" id="running-unit-tests">
-<h3>Running unit tests<a class="headerlink" href="#running-unit-tests" title="Permalink to this headline">¶</a></h3>
-<p>It is reasonable to run unit tests to see, whether everything is working correctly and library functions properly:</p>
-<div class="highlight-python"><div class="highlight"><pre>python -m unittest discover estnltk
-</pre></div>
-</div>
-<p>After the tests run for a while, you should see something similar in the end:</p>
-<div class="highlight-python"><div class="highlight"><pre>----------------------------------------------------------------------
-Ran 144 tests in 37.809s
-
-OK
-</pre></div>
-</div>
-</div>
 </div>
 <div class="section" id="step-by-step-ubuntu-linux-14-04">
 <h2>Step-by-step Ubuntu Linux 14.04<a class="headerlink" href="#step-by-step-ubuntu-linux-14-04" title="Permalink to this headline">¶</a></h2>
@@ -182,11 +168,6 @@ sudo python3 setup.py install
 </div>
 <p>Post-installation steps:</p>
 <div class="highlight-python"><div class="highlight"><pre>python3 -m nltk.downloader punkt
-</pre></div>
-</div>
-<p>Run tests:</p>
-<div class="highlight-python"><div class="highlight"><pre>cd ..
-python3 -m unittest discover estnltk
 </pre></div>
 </div>
 <p>Type some example code:</p>
@@ -249,7 +230,7 @@ Next, we use an extremely useful list of binary installers for various Python pa
 <li><strong>nose</strong> <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/#nose">http://www.lfd.uci.edu/~gohlke/pythonlibs/#nose</a></li>
 <li><strong>pyparsing</strong> <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/#pyparsing">http://www.lfd.uci.edu/~gohlke/pythonlibs/#pyparsing</a></li>
 <li><strong>matplotlib</strong> <a class="reference external" href="http://www.lfd.uci.edu/~gohlke/pythonlibs/#matplotlib">http://www.lfd.uci.edu/~gohlke/pythonlibs/#matplotlib</a></li>
-<li><strong>python-crfsuite</strong> TODO: add URL here</li>
+<li><strong>python-crfsuite</strong> <a class="reference external" href="https://estnltk.cs.ut.ee/timo/estnltk/tree/master/dist/python-crfsuite">https://estnltk.cs.ut.ee/timo/estnltk/tree/master/dist/python-crfsuite</a></li>
 </ul>
 <p>Now, Christoph Gohlke&#8217;s website does not list all required Python packages.
 Note that the <code class="docutils literal"><span class="pre">python-crfsuite</span></code> Windows installers are given in <code class="docutils literal"><span class="pre">esnltk\dist\python-crfsuite</span></code> directory.
@@ -272,9 +253,12 @@ This tool comes with default installation of Python3.4 (install it separately fo
 </ul>
 <p>Then, install Java from <a class="reference external" href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">http://www.oracle.com/technetwork/java/javase/downloads/index.html</a> .</p>
 <p>Then, download and execute the suitable <code class="docutils literal"><span class="pre">estnltk</span></code> installer:</p>
-<div class="highlight-python"><div class="highlight"><pre>TODO: add URL here
-</pre></div>
-</div>
+<ul class="simple">
+<li><a class="reference external" href="https://estnltk.cs.ut.ee/timo/estnltk/blob/master/dist/estnltk-1.0.win-amd64-py2.7.msi">https://estnltk.cs.ut.ee/timo/estnltk/blob/master/dist/estnltk-1.0.win-amd64-py2.7.msi</a></li>
+<li><a class="reference external" href="https://estnltk.cs.ut.ee/timo/estnltk/blob/master/dist/estnltk-1.0.win-amd64-py3.4.msi">https://estnltk.cs.ut.ee/timo/estnltk/blob/master/dist/estnltk-1.0.win-amd64-py3.4.msi</a></li>
+<li><a class="reference external" href="https://estnltk.cs.ut.ee/timo/estnltk/blob/master/dist/estnltk-1.0.win32-py2.7.msi">https://estnltk.cs.ut.ee/timo/estnltk/blob/master/dist/estnltk-1.0.win32-py2.7.msi</a></li>
+<li><a class="reference external" href="https://estnltk.cs.ut.ee/timo/estnltk/blob/master/dist/estnltk-1.0.win32-py3.4.msi">https://estnltk.cs.ut.ee/timo/estnltk/blob/master/dist/estnltk-1.0.win32-py3.4.msi</a></li>
+</ul>
 <p>Finally, we are done :) !! TODO: fix ner example</p>
 <img alt="Screenshot of IDLE with 64-bit Python3.4 after successful installation" src="_images/installation_windows.png" />
 </div>
@@ -305,7 +289,6 @@ The command to build the default named entity tagger for Estonian:</p>
 <li><a class="reference internal" href="#dependencies">Dependencies</a></li>
 <li><a class="reference internal" href="#building-using-setuptools">Building using setuptools</a></li>
 <li><a class="reference internal" href="#building-using-pip">Building using pip</a></li>
-<li><a class="reference internal" href="#running-unit-tests">Running unit tests</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#step-by-step-ubuntu-linux-14-04">Step-by-step Ubuntu Linux 14.04</a></li>

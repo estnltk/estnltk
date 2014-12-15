@@ -107,22 +107,6 @@ Another option is to use ``pip`` program to automatically download and install t
     sudo pip install estnltk
     
 
-Running unit tests
-------------------
-
-It is reasonable to run unit tests to see, whether everything is working correctly and library functions properly::
-
-
-    python -m unittest discover estnltk
-
-
-After the tests run for a while, you should see something similar in the end::
-
-    ----------------------------------------------------------------------
-    Ran 144 tests in 37.809s
-
-    OK
-
                         
 Step-by-step Ubuntu Linux 14.04
 ===============================
@@ -146,12 +130,6 @@ Build and install ``estnltk``::
 Post-installation steps::
 
     python3 -m nltk.downloader punkt
-
-Run tests::
-
-    cd ..
-    python3 -m unittest discover estnltk
-
 
 Type some example code::
 
@@ -215,7 +193,7 @@ Next, we use an extremely useful list of binary installers for various Python pa
 * **nose** http://www.lfd.uci.edu/~gohlke/pythonlibs/#nose
 * **pyparsing** http://www.lfd.uci.edu/~gohlke/pythonlibs/#pyparsing
 * **matplotlib** http://www.lfd.uci.edu/~gohlke/pythonlibs/#matplotlib
-* **python-crfsuite** TODO: add URL here
+* **python-crfsuite** https://estnltk.cs.ut.ee/timo/estnltk/tree/master/dist/python-crfsuite
 
 Now, Christoph Gohlke's website does not list all required Python packages.
 Note that the ``python-crfsuite`` Windows installers are given in ``esnltk\dist\python-crfsuite`` directory.
@@ -238,9 +216,12 @@ This installs the following dependencies:
 
 Then, install Java from http://www.oracle.com/technetwork/java/javase/downloads/index.html .
 
-Then, download and execute the suitable ``estnltk`` installer::
+Then, download and execute the suitable ``estnltk`` installer:
 
-    TODO: add URL here
+* https://estnltk.cs.ut.ee/timo/estnltk/blob/master/dist/estnltk-1.0.win-amd64-py2.7.msi
+* https://estnltk.cs.ut.ee/timo/estnltk/blob/master/dist/estnltk-1.0.win-amd64-py3.4.msi
+* https://estnltk.cs.ut.ee/timo/estnltk/blob/master/dist/estnltk-1.0.win32-py2.7.msi
+* https://estnltk.cs.ut.ee/timo/estnltk/blob/master/dist/estnltk-1.0.win32-py3.4.msi
 
 
 Finally, we are done :) !! TODO: fix ner example
