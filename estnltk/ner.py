@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals, print_function
 '''
 Module containing functionality for training and using NER models.
 
@@ -8,166 +9,98 @@ tagger: NerTagger
     Ner tagger with default model and parameters.
 
 '''
-
-from __future__ import unicode_literals, print_function
-
-from estnltk import Tokenizer
-from estnltk import PyVabamorfAnalyzer
-from estnltk.estner.settings import Settings, DEFAULT_SETTINGS_MODULE
-from estnltk.core import as_unicode, as_binary
-from estnltk.core import DEFAULT_NER_DATASET, DEFAULT_PY2_NER_MODEL, DEFAULT_PY3_NER_MODEL, overrides, JsonPaths
-from estnltk.textprocessor import TextProcessor
-from estnltk.corpus import Corpus
-from estnltk.estner.crfsuiteutil import Trainer, Tagger
-
-from pprint import pprint
-from base64 import b64encode, b64decode
-import bz2
-import tempdir
 import os
 import json
 import codecs
 import sys
+import bz2
+from pprint import pprint
+from base64 import b64encode, b64decode
+import shutil
+import errno
+import inspect
+
 import six
 
-# depending on Python version, use different NER models
-DEFAULT_NER_MODEL = DEFAULT_PY2_NER_MODEL
-if six.PY3:
-    DEFAULT_NER_MODEL = DEFAULT_PY3_NER_MODEL
+from estnltk.core import as_unicode, JsonPaths
+from estnltk.core import DEFAULT_NER_DATASET, DEFAULT_PY2_NER_MODEL_DIR, DEFAULT_PY3_NER_MODEL_DIR
+from estnltk.textprocessor import TextProcessor
+from estnltk.corpus import Corpus
+from estnltk.names import *
+from estnltk.estner import Document, Sentence, Token, CrfsuiteTrainer, CrfsuiteTagger
+from estnltk.estner import settings as default_nersettings
+from estnltk.estner.featureextraction import FeatureExtractor
 
 
-class NerModel(object):
-    '''Class containing the settings and the model for the NER system.'''
-    
-    def __init__(self, settings_module_contents, model):
-        '''Initialize the NER model.
-        
-        Parameters
-        ----------
-        settings_module_contents: str
-            The actual Python code of the configuration.
-        model: binary
-            The serialized trained model used by crfsuite library.
-        '''
-        self.settings_module_contents = settings_module_contents
-        self.model = model
-        
-    def serialize(self):
-        '''Serialize the NerModel to a JSON string.
-        
-        Returns
-        -------
-        JSON string containing the configuration module source code
-        and the model, both base64 encoded.
-        '''
-        return json.dumps(
-            {'settings_module_contents': as_unicode(b64encode(self.settings_module_contents)),
-             'model': as_unicode(b64encode(bz2.compress(self.model)))})
-        
-    def serialize_to_file(self, filename):
-        '''Serialize the NerModel to a file.
-        
-        Parameters
-        ----------
-        filename: str
-            The path where the serialized data will be saved to.
-        '''
-        with open(filename, 'wb') as f:
-            f.write(as_binary(self.serialize()))
-        
-    @staticmethod
-    def deserialize(serialized):
-        '''Deserialize a NerModel.
-        
-        Parameters
-        ----------
-        serialized: str
-            JSON string containing data previously created using serialize() method.
-        
-        Returns
-        -------
-        NerModel
-            The NerModel instance.
-        '''
-        data = json.loads(as_unicode(serialized))
-        return NerModel(b64decode(as_binary(data['settings_module_contents'])),
-                        bz2.decompress(b64decode(as_binary(data['model']))))
-        
-    @staticmethod
-    def deserialize_from_file(filename):
-        '''deserialize a NerModel from file.
-        
-        Parameters
-        ----------
-        filename: str
-            The path pointing to previously serialized and saved NerModel.
-            
-        Returns
-        -------
-            The NerModel instance.
-        '''
-        with open(filename, 'rb') as f:
-            return NerModel.deserialize(f.read())
-        
+# Use different NER models depending on Python version
+DEFAULT_NER_MODEL_DIR = DEFAULT_PY3_NER_MODEL_DIR if six.PY3 else DEFAULT_PY2_NER_MODEL_DIR
+
 
 class NerTrainer(object):
-    '''The class for training NER models.'''
-    
-    def __init__(self, settings_module=DEFAULT_SETTINGS_MODULE):
+    '''The class for training NER models. Uses crfsuite implementation.'''
+
+
+    def __init__(self, nersettings):
         '''Initialize a new NerTrainer.
         
         Parameters
         ----------
-        settings_module: str
-            The path to the settings.
+        nersettings: module
+            NER settings module.
         '''
-        with open(settings_module, 'rb') as f:
-            self.settings_module_contents = f.read()
-        self.settings = Settings(settings_module)
-        self.trainer = Trainer(self.settings)
-        
-    def train(self, docs):
-        ''' Train a NER model on given documents.
+        self.settings = nersettings
+        self.fex = FeatureExtractor(nersettings)
+        self.trainer = CrfsuiteTrainer(algorithm=nersettings.CRFSUITE_ALGORITHM,
+                                       c2=nersettings.CRFSUITE_C2)
+
+
+    def train(self, jsondocs, model_dir):
+        ''' Train a NER model using given documents.
         
         Each word in the documents must have a "label" attribute, which
         denote the named entities in the documents.
         
         Parameters
         ----------
-        docs: list of JSON-style documents.
+        jsondocs: list of JSON-style documents.
             The documents used for training the CRF model.
-        
-        Returns
-        -------
-        NerModel
-            The trained NER model.
+        model_dir: str
+            A directory where the model will be saved.
         '''
-        model = self.trainer.train(docs)
-        return NerModel(self.settings_module_contents, model)
-        
+        modelUtil = ModelStorageUtil(model_dir)
+        modelUtil.makedir()
+        modelUtil.copy_settings(self.settings)
+
+        # Convert json documents to ner documents
+        nerdocs = [json_document_to_estner_document(jsondoc) 
+                   for jsondoc in jsondocs]         
+
+        self.fex.prepare(nerdocs)
+        self.fex.process(nerdocs)
+
+        self.trainer.train(nerdocs, modelUtil.model_filename)
+
 
 class NerTagger(TextProcessor):
     '''The class for tagging named entities.'''
-    
-    def __init__(self, nermodel=None):
+
+
+    def __init__(self, model_dir=DEFAULT_NER_MODEL_DIR):
         '''Initialize a new NerTagger instance.
         
         Parameters
         ----------
-        nermodel: NerModel
-            A Previously trained NER model to be used with this tagger.
-            If None, then loads and uses the default model.
+        model_dir: str
+            A directory containing a trained ner model and a settings file.
         '''
-        if nermodel is None:
-            nermodel = NerModel.deserialize_from_file(DEFAULT_NER_MODEL)
-        assert isinstance(nermodel, NerModel)
-        with tempdir.TempDir() as t:
-            settings_path = os.path.join(t, 'ner_settings.py')
-            with open(settings_path, 'wb') as f:
-                f.write(nermodel.settings_module_contents)
-            self.settings = Settings(settings_path)
-        self.tagger = Tagger(self.settings, model=nermodel.model)
-        
+        modelUtil = ModelStorageUtil(model_dir)
+        nersettings = modelUtil.load_settings()
+
+        self.fex = FeatureExtractor(nersettings)
+        self.tagger = CrfsuiteTagger(settings=nersettings,
+                                     model_filename=modelUtil.model_filename)
+
+
     def process_json(self, corpus, **kwargs):
         '''Tag the given documents with named entities. The tags
         will be stored in "label" attribute of the words.
@@ -185,12 +118,126 @@ class NerTagger(TextProcessor):
         '''
         # TODO: this is inefficient. try to make it work directly on JSON
         return self.process_corpus(Corpus.construct(corpus)).to_json()
-        
+
+
     def process_corpus(self, corpus, **kwargs):
-        self.tagger.tag(corpus.root_elements)
+        jsondocs = corpus.root_elements
+        nerdocs = [json_document_to_estner_document(jsondoc) for jsondoc in jsondocs] 
+
+        self.fex.process(nerdocs)
+
+        for nerdoc, jsondoc in zip(nerdocs, jsondocs):
+            snt_labels = self.tagger.tag(nerdoc)
+            # Assigns labels to original documents
+            for ptr, snt_labels in zip(JsonPaths.words.find(jsondoc), snt_labels):
+                words = ptr.value
+                assert len(words) == len(snt_labels)
+                for word, label in zip(words, snt_labels):
+                    word[LABEL] = as_unicode(label)
         return corpus
-        
-        
+
+
+class ModelStorageUtil(object):
+
+    def __init__(self, model_dir):
+        self.model_dir = model_dir
+        self.model_filename = os.path.join(model_dir, 'model.bin')
+        self.settings_filename = os.path.join(model_dir, 'settings.py')
+
+
+    def makedir(self):
+        ''' Create model_dir directory '''
+        try:
+            os.makedirs(self.model_dir)
+        except OSError as exception:
+            if exception.errno != errno.EEXIST:
+                raise
+
+
+    def copy_settings(self, settings_module):
+        ''' Copy settings module to the model_dir directory '''
+        source = inspect.getsourcefile(settings_module)
+        dest = os.path.join(self.model_dir, 'settings.py')
+        shutil.copyfile(source, dest)
+
+
+    def load_settings(self):
+        '''Load settings module from the model_dir directory.'''
+        mname = 'loaded_module'
+        if six.PY2:
+            import imp
+            return imp.load_source(mname, self.settings_filename)
+        else:
+            import importlib.machinery
+            loader = importlib.machinery.SourceFileLoader(mname, self.settings_filename)
+        return loader.load_module(mname)
+
+
+def json_document_to_estner_document(jsondoc):
+    '''Convert an estnltk document to an estner document.
+    
+    Parameters
+    ----------
+    jsondoc: dict
+        Estnltk JSON-style document.
+    
+    Returns
+    -------
+    estnltk.estner.ner.Document
+        A ner document.
+    '''
+    estnerdoc = Document()
+    for ptr in JsonPaths.words.find(jsondoc):
+        snt = Sentence()
+        for vabamorf_token in ptr.value:
+            token = vabamorf_token_to_estner_token(vabamorf_token)
+            snt.append(token)
+            estnerdoc.tokens.append(token)
+        if snt:
+            for i in range(1, len(snt)):
+                snt[i-1].next = snt[i]
+                snt[i].prew = snt[i-1]
+            estnerdoc.snts.append(snt)
+    return estnerdoc
+
+
+def vabamorf_token_to_estner_token(vabamorf_token, label='label'):
+    '''Convert a JSON-style word token to an estner token.
+    
+    Parameters
+    ----------
+    vabamorf_token: dict
+        Vabamorf token representing a single word.
+    label: str
+        The label string.
+    
+    Returns
+    -------
+    estnltk.estner.ner.Token
+    '''
+    token = Token()
+    word = vabamorf_token[TEXT]
+    lemma = word
+    morph = ''
+    label = 'O'
+    if len(vabamorf_token[ANALYSIS]) > 0:
+        anal = vabamorf_token[ANALYSIS][0]
+        ending = anal[ENDING]
+        lemma = '_'.join(anal[ROOT_TOKENS]) + ('+' + ending if ending else '')
+        if not lemma:
+            lemma = word
+        morph = '_%s_' % anal[POSTAG]
+        if anal[FORM]:
+            morph += ' ' + anal[FORM]
+        if LABEL in vabamorf_token:
+            label = vabamorf_token[LABEL]
+    token.word = word
+    token.lemma = lemma
+    token.morph = morph
+    token.label = label
+    return token
+
+
 def train_default_model():
     '''Function for training the default NER model.
     
@@ -202,17 +249,17 @@ def train_default_model():
     '''
     with codecs.open(DEFAULT_NER_DATASET, 'rb') as f:
         nerdata = f.read()
-        nerdata = bz2.decompress(nerdata)
-        nerdata = json.loads(nerdata.decode('utf-8'))
-        documents = nerdata['documents']
-        trainer = NerTrainer()
-        model = trainer.train(documents)
-        model.serialize_to_file(DEFAULT_NER_MODEL)
+    nerdata = bz2.decompress(nerdata)
+    nerdata = json.loads(nerdata.decode('utf-8'))
+    documents = nerdata['documents']
+    trainer = NerTrainer(default_nersettings)
+    trainer.train(documents, DEFAULT_NER_MODEL_DIR)
+
 
 if __name__ == '__main__':
     # todo: make this script capable of training and annotating corpora
     # from command line. for now, programmatic approach is good enough
     args = sys.argv[1:]
-    
+
     if len(args) == 1 and args[0] == 'train_default_model':
         train_default_model()

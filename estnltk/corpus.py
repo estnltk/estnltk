@@ -8,7 +8,7 @@ from collections import Counter
 from pprint import pprint
 
 import json
-    
+
 
 class Corpus(object):
     
@@ -490,7 +490,7 @@ class Sentence(ElementMixin, Dictionary):
     
     def __repr__(self):
         return repr('Sentence({0})'.format(self.text[:24] + '...'))
-        
+
 
 class ConsequentSentenceElement(ElementMixin):
     '''Some elements such as named entities and timexes may consist
@@ -1026,7 +1026,6 @@ def most_frequent(elements):
             best.append(e)
     best.sort()
     return best[0]
-
 
 
 def construct_corpus(data):
