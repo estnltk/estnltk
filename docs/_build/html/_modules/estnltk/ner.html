@@ -233,19 +233,11 @@
 <span class="sd">            The documents given as the argument, but with added</span>
 <span class="sd">            tags.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="c"># todo: fix the problem here</span>
-        <span class="c"># the problem is how to detect the documents in corpora</span>
-        <span class="c"># options:</span>
-        <span class="c"># - perform root element extraction as done when construcing estnltk.corpus.Corpus objects (expected behaviour)</span>
-        <span class="c"># - require that there is {documents=[]} thing in JSON</span>
-        <span class="c"># - accept custom Jsonpath_rw query</span>
-        <span class="c"># - assume the top level element is list and interpret the elements as documents (current behaviour)</span>
-        <span class="c"># current behaviour breaks when top level is not list or it does</span>
-        <span class="c"># not contain documents</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagger</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+        <span class="c"># TODO: this is inefficient. try to make it work directly on JSON</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_corpus</span><span class="p">(</span><span class="n">Corpus</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span><span class="n">corpus</span><span class="p">))</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span>
         </div>
 <div class="viewcode-block" id="NerTagger.process_corpus"><a class="viewcode-back" href="../../estnltk.html#estnltk.ner.NerTagger.process_corpus">[docs]</a>    <span class="k">def</span> <span class="nf">process_corpus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">corpus</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tagger</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">corpus</span><span class="o">.</span><span class="n">documents</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagger</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">corpus</span><span class="o">.</span><span class="n">root_elements</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">corpus</span>
         
         </div></div>

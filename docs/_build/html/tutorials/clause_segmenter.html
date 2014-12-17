@@ -58,7 +58,8 @@
 <p>A simple sentence, also called an independent clause, typically contains a finite verb, and expresses a complete thought.
 However, natural language sentences can also be long and complex, consisting of two or more clauses joined together.
 The clause structure can be made even more complex by embedded clauses, which divide their parent clauses into two halves.</p>
-<p>Clause segmenter makes it possible to extract clauses from a complex sentence and treat them independently:</p>
+<p>Clause segmenter makes it possible to extract clauses from a complex sentence and treat them independently. Before the tool can be applied, the input text must be tokenized (split into sentences and words) and morphologically analyzed and disambiguated (the program also works on morphologically ambiguous text, but the quality of the analysis is expected to be lower than on morphologically disambiguated text).</p>
+<p>Example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span><span class="p">,</span> <span class="n">PyVabamorfAnalyzer</span><span class="p">,</span> <span class="n">ClauseSegmenter</span>
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 
@@ -71,7 +72,6 @@ The clause structure can be made even more complex by embedded clauses, which di
 <span class="n">segmented</span> <span class="o">=</span> <span class="n">segmenter</span><span class="p">(</span><span class="n">analyzer</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">)))</span>
 </pre></div>
 </div>
-<p>Clause segmenter requires that the input text has been tokenized (split into sentences and words) and morphologically analyzed and disambiguated (the program also works on morphologically ambiguous text, but the quality of the analysis is expected to be lower than on morphologically disambiguated text).</p>
 <p>The segmenter annotates clause boundaries between words, and start and end locations of embedded clauses.
 Based on the annotation, each word in the sentence is associated with a clause index.
 Following is an example on how to access both the initial clause annotations, and also clause indexes of the words:</p>

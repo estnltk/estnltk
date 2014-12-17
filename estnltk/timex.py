@@ -70,7 +70,7 @@ class TimexTagger(JavaProcess, TextProcessor):
             'dct': creation_date,
             SENTENCES: corpus.sentences \
                        if not process_json else \
-                       [sentence_ptr.value for sentence_ptr in JsonPaths.words.find(corpus) ]
+                       [ {WORDS:sentence_ptr.value} for sentence_ptr in JsonPaths.words.find(corpus) ]
         }
         processed_sentences = json.loads(self.process_line(json.dumps(document)))[SENTENCES]
         for input_sentence, processed_sentence in zip(document[SENTENCES], processed_sentences):

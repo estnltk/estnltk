@@ -242,6 +242,8 @@
     <span class="nd">@property</span>
     <span class="nd">@overrides</span><span class="p">(</span><span class="n">Corpus</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">root_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">is_root_element</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
         <span class="n">elements</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Corpus</span><span class="p">):</span>
@@ -268,6 +270,8 @@
     <span class="nd">@property</span>
     <span class="nd">@overrides</span><span class="p">(</span><span class="n">Corpus</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">root_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">is_root_element</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
         <span class="n">elements</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Corpus</span><span class="p">):</span>
