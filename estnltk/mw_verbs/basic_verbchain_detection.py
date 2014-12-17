@@ -97,6 +97,13 @@ def _isFollowedByComma( wordID, clauseTokens ):
             break
     return False
 
+# Adverbid, mis tõenäoliselt on osalauses iseseisvad/otsesed verbi alluvad, ning seega ei saa
+# kuuluda fraasi kooseisu ...
+_phraseBreakerAdvs = \
+    WordTemplate({ROOT:'^(ka|samuti|aga|et|nüüd|praegu|varsti|siis(ki)?|ju|just|siin|kohe|veel|'+\
+                  'seni|küll|hiljem|varem|ikka(gi)?|jälle(gi)?|vist|juba|isegi|seal|sageli|'+\
+                  'mõnikord|muidu|(tavalise|loomuliku|lihtsa|ilmse)lt|taas|harva|eile|ammu|'+\
+                  'ainult|kindlasti|kindlalt)$', POSTAG:'[DJ]'})
 
 _verbAraAgreements = [ \
        #   ära_neg.o   + V_o
@@ -185,6 +192,7 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
         NB! Kui osalauses on veel verbe, mis v6iksid (potentsiaalselt) eraldatud mustriga liituda,
         siis m22ratakse mustris otherVerbs = True;
     '''
+    global _phraseBreakerAdvs
     # Verbieituse indikaatorid
     verbEi   = WordTemplate({ROOT:'^ei$',FORM:'neg',POSTAG:'V'})
     verbEi2  = WordTemplate({ROOT:'^ei$',POSTAG:'D'})  # juhuks, kui morf yhestamises valitakse vale analyys
@@ -426,9 +434,84 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                         foundMatches.append( matchobj )
                         negPhraseWIDs.extend( [wid1, wid2] )
                         matchFound = True
+                if not matchFound:
+                    #
+                    #  3.4. Heuristik: Kui 'pole'-le j2rgneb osalauses kusagil kaugemal -nud, 
+                    #       mis ei saa olla fraasi eestäiend, siis loeme selle olema-verbiga 
+                    #       kokkukuuluvaks;
+                    #
+                    seenNudVerbs = 0
+                    for k in range(i+1, len(clauseTokens)):
+                        tokenJson2 = clauseTokens[k]
+                        if verb.matches(tokenJson2) and not verbInf.matches(tokenJson2):
+                            #  Kui j6uame finiitverbini, siis katkestame otsingu
+                            break
+                        if verbOleJarel.matches(tokenJson2):
+                            seenNudVerbs += 1
+                            #
+                            #     Kui -nud verb eelneb vahetult m6nele teisele infiniitverbile, 
+                            #  on v2ga t6en2oline, et -nud on peaverb "pole" otsene alluv ning 
+                            #  pole eestäiend, nt:
+                            #
+                            #       kuid ta polnud_0 ka teatris õppinud_1 improviseerima ning
+                            #       Ega me pole_0 siia tulnud_1 paastuma ja palvetama , "
+                            #       ja Raul poleks_0 teda härrasmehena kodust välja tahtnud_1 ajada .
+                            #       ma pole_0 iial kasutanud_1 keelatud aineid .
+                            #
+                            #    Kontrollime, et nud-ile j2rgneks infiniitverb, ning
+                            #  vahel poleks teisi nud-verbe ...
+                            #
+                            if k+1 in verbid and verbInf.matches(clauseTokens[k+1]) and \
+                                seenNudVerbs < 2:
+                                wid1 = tokenJson[WORD_ID]
+                                wid2 = tokenJson2[WORD_ID]
+                                matchobj = { PHRASE: [wid1, wid2], PATTERN: ["pole", "verb"] }
+                                matchobj[CLAUSE_IDX] = clauseID
+                                if verbOle.matches(tokenJson2):
+                                    matchobj[PATTERN][1] = 'ole'
+                                matchobj[OTHER_VERBS] = True
+                                matchobj[POLARITY] = 'NEG'
+                                matchobj[ANALYSIS_IDS] = []
+                                matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verbPole, discardAnalyses = verbInf ) )
+                                matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson2, [verbOleJarel] ) )
+                                foundMatches.append( matchobj )
+                                negPhraseWIDs.extend( [wid1, wid2] )
+                                matchFound = True
+                                #_debugPrint( (('+'.join(matchobj[PATTERN]))+' | '+_getJsonAsTextString(clauseTokens, markTokens = [ matchobj[PHRASE] ] )))
+                                break
+                            #
+                            #     Kui -nud verb eelneb vahetult m6nele adverbile, mis t6en2oliselt
+                            #  on lauses iseseisev s6na (nt 'ka', 'siis', 'veel', 'juba' jms), siis ei 
+                            #  saa -nud olla eest2iend ning peaks olema peaverb "pole" otsene alluv, nt:
+                            #
+                            #       Varem pole_0 ma kirjandile jõudnud_0 aga sellepärast ,
+                            #       " Ma pole_0 Belgias saanud_0 isegi parkimistrahvi ! "
+                            #       Polnud_0 õllelembid saanud_0 veel õieti jõuluvaimu sisse elada ,
+                            #       mulle polnud_0 Väike jõudnud_0 ju veel rääkida ,
+                            #
+                            #   Lisaks kontrollime, et vahel poleks teisi -nud verbe;
+                            #
+                            elif k+1<len(clauseTokens) and _phraseBreakerAdvs.matches(clauseTokens[k+1]) and \
+                                seenNudVerbs < 2:
+                                wid1 = tokenJson[WORD_ID]
+                                wid2 = tokenJson2[WORD_ID]
+                                matchobj = { PHRASE: [wid1, wid2], PATTERN: ["pole", "verb"] }
+                                matchobj[CLAUSE_IDX] = clauseID
+                                if verbOle.matches(tokenJson2):
+                                    matchobj[PATTERN][1] = 'ole'
+                                matchobj[OTHER_VERBS] = (len(verbid) > 2)
+                                matchobj[POLARITY] = 'NEG'
+                                matchobj[ANALYSIS_IDS] = []
+                                matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verbPole, discardAnalyses = verbInf ) )
+                                matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson2, [verbOleJarel] ) )
+                                foundMatches.append( matchobj )
+                                negPhraseWIDs.extend( [wid1, wid2] )
+                                matchFound = True
+                                #_debugPrint( (('+'.join(matchobj[PATTERN]))+' | '+_getJsonAsTextString(clauseTokens, markTokens = [ matchobj[PHRASE] ] )))
+                                break
             if not matchFound and _isClauseFinal( tokenJson[WORD_ID], clauseTokens ):
                 #
-                #   3.4. Heuristik: Kui "pole" on osalause l6pus, ning sellele eelneb vahetult
+                #   3.5. Heuristik: Kui "pole" on osalause l6pus, ning sellele eelneb vahetult
                 #        "nud", v6i eelneb vahetult tud/da/mas ning osalauses pole teisi verbe,
                 #        loeme liiteituseks:
                 #          Nt.
@@ -603,6 +686,95 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                                     #      Kõige tähtsam võistlusala on_0 kombineeritud_0 võistlus .
                                     #      Lõpetuseks on_0 grillitud_0 mereandide valik .
                                     #
+                        #
+                        #    Kui olema-verbile j2rgneb osalauses kusagil kaugemal -nud, mis ei saa
+                        #   olla fraasi eestäiend, siis loeme selle olema-verbiga kokkukuuluvaks;
+                        #
+                        if not matchFound:
+                            seenNudVerbs = 0
+                            for k in range(i+1, len(clauseTokens)):
+                                tokenJson2 = clauseTokens[k]
+                                if verb.matches(tokenJson2) and not verbInf.matches(tokenJson2):
+                                    #  Kui j6uame finiitverbini, siis katkestame otsingu
+                                    break
+                                if verbOleJarel.matches(tokenJson2):
+                                    seenNudVerbs += 1
+                                    #
+                                    #     Kui -nud verb eelneb vahetult m6nele teisele infiniitverbile, 
+                                    #  on v2ga t6en2oline, et -nud on peaverb "olema" otsene alluv ning 
+                                    #  pole eestäiend, nt:
+                                    #
+                                    #       Midagi niisugust olin_0 ma kogu aeg lootnud_1 leida .
+                                    #       siis varem või hiljem on_0 ta pidanud_1 taanduma
+                                    #       siis oleks_0 ta mingisuguse plaani tõesti võinud_1 koostada
+                                    #       jälle on_0 ühest investeeringust saanud_1 surnud kapital
+                                    #
+                                    #    Kontrollime, et nud-ile j2rgneks infiniitverb, ning
+                                    #  vahel poleks teisi nud-verbe ...
+                                    #
+                                    if k+1 in verbid and verbInf.matches(clauseTokens[k+1]) and \
+                                       seenNudVerbs < 2:
+                                        wid1 = tokenJson[WORD_ID]
+                                        wid2 = tokenJson2[WORD_ID]
+                                        matchobj = { PHRASE: [wid1, wid2], PATTERN: ["ole", "verb"] }
+                                        matchobj[CLAUSE_IDX] = clauseID
+                                        if verbOle.matches(tokenJson2):
+                                            matchobj[PATTERN][1] = 'ole'
+                                        matchobj[OTHER_VERBS] = True
+                                        matchobj[POLARITY] = 'POS'
+                                        matchobj[ANALYSIS_IDS] = []
+                                        matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verbOle, discardAnalyses = verbInf ) )
+                                        matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson2, [verbOleJarel] ) )
+                                        foundMatches.append( matchobj )
+                                        posPhraseWIDs.extend( [wid1, wid2] )
+                                        matchFound = True
+                                        #_debugPrint( (('+'.join(matchobj[PATTERN]))+' | '+_getJsonAsTextString(clauseTokens, markTokens = [ matchobj[PHRASE] ] )))
+                                        break
+                                        #
+                                        # Probleemset:
+                                        #  *) Kui kaks -nud-i on kõrvuti, võib minna valesti, kui pimesi siduda 
+                                        #     esimene, näiteks:
+                                        #          küllap ta oli_0 siis ka alati armunud_0 olnud .
+                                        #          Eksamikomisjon oli_0 veidi ehmunud_0 olnud ,
+                                        #          Samuti on_0 mitmed TTga õnnetuses osalenud_0 lausunud ,
+                                        #
+                                    #
+                                    #     Kui -nud verb eelneb vahetult m6nele adverbile, mis t6en2oliselt
+                                    #  on lauses iseseisev s6na (nt 'ka', 'siis', 'veel', 'juba' jms), siis ei 
+                                    #  saa -nud olla eest2iend ning peaks olema peaverb "olema" otsene alluv, nt:
+                                    #
+                                    #       Kasiinodega on_0 rikkaks saanud_1 siiski vaid hõimud ,
+                                    #       See näitaja on_0 jällegi tõusnud_1 ainult Hansapangal .
+                                    #       Me oleme_0 tegelikult Kristiga ikka laval laulnud_1 ka .
+                                    #       Georg Ots on_0 noorte hulgas tõusnud_1 küll sümboli staatusesse
+                                    #
+                                    #    Lisaks kontrollime, et vahel poleks teisi -nud verbe;
+                                    #
+                                    elif k+1<len(clauseTokens) and _phraseBreakerAdvs.matches(clauseTokens[k+1]) and \
+                                         seenNudVerbs < 2:
+                                        wid1 = tokenJson[WORD_ID]
+                                        wid2 = tokenJson2[WORD_ID]
+                                        matchobj = { PHRASE: [wid1, wid2], PATTERN: ["ole", "verb"] }
+                                        matchobj[CLAUSE_IDX] = clauseID
+                                        if verbOle.matches(tokenJson2):
+                                            matchobj[PATTERN][1] = 'ole'
+                                        matchobj[OTHER_VERBS] = (len(verbid) > 2)
+                                        matchobj[POLARITY] = 'POS'
+                                        matchobj[ANALYSIS_IDS] = []
+                                        matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson, verbOle, discardAnalyses = verbInf ) )
+                                        matchobj[ANALYSIS_IDS].append( _getMatchingAnalysisIDs( tokenJson2, [verbOleJarel] ) )
+                                        foundMatches.append( matchobj )
+                                        posPhraseWIDs.extend( [wid1, wid2] )
+                                        matchFound = True
+                                        #_debugPrint( (('+'.join(matchobj[PATTERN]))+' | '+_getJsonAsTextString(clauseTokens, markTokens = [ matchobj[PHRASE] ] )))
+                                        break
+                                        #
+                                        #  Probleemset:
+                                        #   *) kui -nud-ile vahetult eelneb sidend, v6ib -nud kuuluda v2ljaj2ttelise 
+                                        #      olema verbi juurde:
+                                        #          Mart Timmi on_0 maakonna üks edukamaid talupidajaid ja olnud_1 ka taluseltsi esimees .
+                                        #          Ulvi oli_0 ometigi loov kunstnik ega võinud_1 ka eraelus esineda epigoonina .
+                                        #
                     if i-1 > -1 and not matchFound:
                         if _isClauseFinal( tokenJson[WORD_ID], clauseTokens ) and \
                            clauseTokens[i-1][WORD_ID] not in negPhraseWIDs and \

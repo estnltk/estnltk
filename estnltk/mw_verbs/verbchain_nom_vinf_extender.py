@@ -460,5 +460,6 @@ class VerbChainNomVInfExtender:
         #         Esmakordselt tekkis_0 reaalne šanss realiseerida_0 Unixi suured võimalused_0 tasuta tarkvarana odava ja laia levikuga riistvara peal .
         #         millistega talle [ tsaarile ] oli_0 iga kord jäänud õigus_0 õigeusu maksu nõuda_0 .
         #         Arendada ja muuta_0 on_0 vaja_0 iga süsteemi .
+        #         Ottawa tegi_0 otsuse_0 hoolimata USA palvest jätta_0 Kanada jalaväeüksused Afganistani
         #
         #

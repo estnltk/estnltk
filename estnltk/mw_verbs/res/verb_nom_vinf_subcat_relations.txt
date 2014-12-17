@@ -153,6 +153,17 @@ puudu NEG	(tahe|tahtmine);S;sg (n)	da
 puudu POS	huvi;S;sg (n|p)	da
 puudu NEG	huvi;S;sg (n|p)	da
 
+# TEGEMA
+tege POS	ette_panek;S;sg (n|g)	da
+tege NEG	ette_panek;S;sg (p)	da
+tege POS	katse;S;sg (n|g)	da
+tege NEG	katse;S;sg (p)	da
+tege POS	otsus;S;sg (n|g)	da
+tege NEG	otsus;S;sg (p)	da
+tege POS	pakkumine;S;sg (n|g)	da
+tege NEG	pakkumine;S;sg (p)	da
+tege POS	üles_anne;S;(sg) (tr)	da
+
 # TEKKIMA
 tekki POS	võimalus;S;(sg|pl) (n|g)	da
 tekki NEG	võimalus;S;(sg|pl) (n|p)	da
@@ -213,10 +224,6 @@ pakku POS	võimalus;S;(sg|pl) (n|p|g)	da
 pakku NEG	võimalus;S;(sg|pl) (p)	da
 sead POS	ees_märk;S;sg tr	da
 sead NEG	ees_märk;S;sg tr	da
-tege POS	ette_panek;S;sg (n|g)	da
-tege NEG	ette_panek;S;sg (p)	da
-tege POS	katse;S;sg (n|g)	da
-tege NEG	katse;S;sg (p)	da
 tund POS	soov;S;sg (g|p)	da
 tund NEG	soov;S;sg (g|p)	da
 tund POS	vajadus;S;sg p	da
