@@ -26,23 +26,23 @@ swig_opts = []
 
 # Python 3 specific configuration
 extra = {}
-if sys.version_info[0] == 3: 
+if sys.version_info[0] == 3:
     swig_opts.append('-py3')
 swig_opts.append('-c++')
 
 setup(
     name = "estnltk",
-    version = "1.0",
+    version = "1.1",
     packages = find_packages(),
     package_data = {
         'estnltk': ['corpora/*.json.bz2', 'java-res/*'],
-        'estnltk.estner': ['models/*.bin', 'gazetteer/*.txt'],
+        'estnltk.estner': ['gazetteer/*.txt', 'models/py2_default/*.*', 'models/py3_default/*.*'],
         'estnltk.mw_verbs': ['res/*.txt'],
         'estnltk.pyvabamorf': ['dct/*.dct'],
         'estnltk.wordnet': ['*.cnf', 'data/*.cnf', 'data/*.soi', 'data/*.txt', 'data/scripts/*.py'],
         'estnltk.textclassifier.tests': ['*.def', '*.xlsx', '*.csv', '*.txt'],
     },
-    
+
     install_requires = ['nltk>=3.0.0',
                         'python-crfsuite>=0.8.1',
                         'jsonpath-rw>=1.3.0',
@@ -50,7 +50,7 @@ setup(
                         'tempdir>=0.6',
                         'xmltodict>=0.9.0',
                         'beautifulsoup4>=4.3.2',
-                        
+
                         'pandas>=0.14.1', # text classifier related + some needed in future
                         'scikit-learn>=0.15.1',
                         'xlrd>=0.9.2',
@@ -63,20 +63,20 @@ setup(
                         'pyparsing>=2.0.2',
                         'matplotlib>=1.2.1',
                         'xlwt-future>=0.7.5'],
-    
+
     author       = "Timo Petmanson, Aleksandr Tkachenko, Siim Orasmaa, Raul Sirel, Karl-Oskar Masing, Tanel Pärnamaa, Dage Särg, Neeme Kahusk, Sven Laur, Tarmo Vaino, Heiki-Jaan Kaalep",
     author_email = "tpetmanson@gmail.com",
     description  = "Open source tools for Estonian natural language processing",
     license      = "GPL",
     url          = "https://github.com/tpetmanson/estnltk",
-    
+
     ext_modules = [
         Extension('estnltk.pyvabamorf._vabamorf',
                   [swig_interface] + lib_sources,
                   swig_opts = swig_opts,
                   include_dirs=include_dirs)
         ],
-    
+
     classifiers = ['Intended Audience :: Developers',
                    'Intended Audience :: Education',
                    'Intended Audience :: Science/Research',
@@ -88,5 +88,5 @@ setup(
                    'Topic :: Scientific/Engineering :: Artificial Intelligence',
                    'Topic :: Scientific/Engineering :: Information Analysis',
                    'Topic :: Text Processing',
-                   'Topic :: Text Processing :: Linguistic']   
+                   'Topic :: Text Processing :: Linguistic']
 )

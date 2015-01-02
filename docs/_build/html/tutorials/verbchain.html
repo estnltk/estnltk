@@ -59,9 +59,9 @@
 The current version of the program aims to detect following verb chain constructions:</p>
 <ul class="simple">
 <li>basic main verbs:<ul>
-<li>negated main verbs: <em>ei/ära/pole/ega</em> + verb;</li>
-<li>(affirmative) single <em>olema</em> main verbs and <em>olema</em> verb chains: <em>olema</em> + verb;</li>
-<li>(affirmative) single non-<em>olema</em> main verbs;</li>
+<li>negated main verbs: <em>ei/ära/pole/ega</em> + verb (e.g. Helistasin korraks Carmenile, kuid ta <strong>ei vastanud.</strong>);</li>
+<li>(affirmative) single <em>olema</em> main verbs (e.g. Raha <strong>on</strong> alati vähe) and <em>olema</em> verb chains (<strong>Oleme</strong> sellist kino ennegi <strong>näinud</strong>);</li>
+<li>(affirmative) single non-<em>olema</em> main verbs (example: Pidevalt <strong>uurivad</strong> asjade seisu ka hollandlased);</li>
 </ul>
 </li>
 <li>verb chain extensions:<ul>
@@ -71,7 +71,7 @@ The current version of the program aims to detect following verb chain construct
 </li>
 </ul>
 <p>Verb chain detector requires that the input text has been tokenized (split into sentences and words), morphologically analyzed, morphologically disambiguated, and segmented into clauses.
-Recall that the text can be segmented into clauses with <a class="reference internal" href="../estnltk.html#estnltk.clausesegmenter.ClauseSegmenter" title="estnltk.clausesegmenter.ClauseSegmenter"><code class="xref py py-class docutils literal"><span class="pre">estnltk.clausesegmenter.ClauseSegmenter</span></code></a>.</p>
+Recall that the text can be segmented into clauses with <code class="xref py py-class docutils literal"><span class="pre">estnltk.clausesegmenter.ClauseSegmenter</span></code>.</p>
 <p>Example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span>
 <span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">PyVabamorfAnalyzer</span>
@@ -91,7 +91,7 @@ Recall that the text can be segmented into clauses with <a class="reference inte
 <span class="n">pprint</span><span class="p">(</span><span class="n">processed</span><span class="o">.</span><span class="n">verb_chains</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Property <a class="reference internal" href="../estnltk.html#estnltk.corpus.Corpus.verb_chains" title="estnltk.corpus.Corpus.verb_chains"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus.verb_chains</span></code></a> lists all found <a class="reference internal" href="../estnltk.html#estnltk.corpus.VerbChain" title="estnltk.corpus.VerbChain"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.VerbChain</span></code></a> objects.
+<p>Property <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus.verb_chains</span></code> lists all found <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.VerbChain</span></code> objects.
 The previous example prints out following found verb chains:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;VerbChain(on, ole, ole, POS)&#39;</span><span class="p">,</span>
  <span class="s">&#39;VerbChain(korraldus, verb, korraldu, POS)&#39;</span><span class="p">,</span>
@@ -135,11 +135,11 @@ other verbs:  False
 <p>Following is a brief description of the attributes:</p>
 <blockquote>
 <div><ul class="simple">
-<li><code class="docutils literal"><span class="pre">estnltk.corpus.VerbChain.pattern_tokens</span></code> - the general pattern of the chain: for each word in the chain, lists whether it is <em>&#8216;ega&#8217;</em>, <em>&#8216;ei&#8217;</em>, <em>&#8216;ära&#8217;</em>, <em>&#8216;pole&#8217;</em>, <em>&#8216;ole&#8217;</em>, <em>&#8216;&amp;&#8217;</em> (conjunction: ja/ning/ega/või), <em>&#8216;verb&#8217;</em> (verb different than <em>&#8216;ole&#8217;</em>) or <em>&#8216;nom/adv&#8217;</em> (nominal/adverb);</li>
-<li><code class="docutils literal"><span class="pre">estnltk.corpus.VerbChain.roots</span></code> - for each word in the chain, lists its corresponding &#8216;root&#8217; value from the morphological analysis;</li>
-<li><code class="docutils literal"><span class="pre">estnltk.corpus.VerbChain.morph</span></code> - for each word in the chain, lists its morphological features: part of speech tag and form (in one string, separated by &#8216;_&#8217;, and multiple variants of the pos/form are separated by &#8216;/&#8217;);</li>
-<li><code class="docutils literal"><span class="pre">estnltk.corpus.VerbChain.polarity</span></code> - grammatical polarity of the chain: <em>&#8216;POS&#8217;</em>, <em>&#8216;NEG&#8217;</em> or <em>&#8216;??&#8217;</em>. <em>&#8216;NEG&#8217;</em> simply means that the chain begins with a negation word <em>ei/pole/ega/ära</em>; <em>&#8216;??&#8217;</em> is reserved for cases where it is uncertain whether <em>ära</em> forms a negated verb chain or not;</li>
-<li><code class="docutils literal"><span class="pre">estnltk.corpus.VerbChain.other_verbs</span></code> - boolean, marks whether there are other verbs in the context, which can be potentially added to the verb chain; if <code class="docutils literal"><span class="pre">True</span></code>,then it is uncertain whether the chain is complete or not;</li>
+<li><code class="docutils literal"><span class="pre">pattern_tokens</span></code> - the general pattern of the chain: for each word in the chain, lists whether it is <em>&#8216;ega&#8217;</em>, <em>&#8216;ei&#8217;</em>, <em>&#8216;ära&#8217;</em>, <em>&#8216;pole&#8217;</em>, <em>&#8216;ole&#8217;</em>, <em>&#8216;&amp;&#8217;</em> (conjunction: ja/ning/ega/või), <em>&#8216;verb&#8217;</em> (verb different than <em>&#8216;ole&#8217;</em>) or <em>&#8216;nom/adv&#8217;</em> (nominal/adverb);</li>
+<li><code class="docutils literal"><span class="pre">roots</span></code> - for each word in the chain, lists its corresponding &#8216;root&#8217; value from the morphological analysis;</li>
+<li><code class="docutils literal"><span class="pre">morph</span></code> - for each word in the chain, lists its morphological features: part of speech tag and form (in one string, separated by &#8216;_&#8217;, and multiple variants of the pos/form are separated by &#8216;/&#8217;);</li>
+<li><code class="docutils literal"><span class="pre">polarity</span></code> - grammatical polarity of the chain: <em>&#8216;POS&#8217;</em>, <em>&#8216;NEG&#8217;</em> or <em>&#8216;??&#8217;</em>. <em>&#8216;NEG&#8217;</em> simply means that the chain begins with a negation word <em>ei/pole/ega/ära</em>; <em>&#8216;??&#8217;</em> is reserved for cases where it is uncertain whether <em>ära</em> forms a negated verb chain or not;</li>
+<li><code class="docutils literal"><span class="pre">other_verbs</span></code> - boolean, marks whether there are other verbs in the context, which can be potentially added to the verb chain; if <code class="docutils literal"><span class="pre">True</span></code>,then it is uncertain whether the chain is complete or not;</li>
 </ul>
 </div></blockquote>
 </div>

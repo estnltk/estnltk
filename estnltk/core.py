@@ -4,9 +4,11 @@ Defines common functionality for all modules.
 '''
 from __future__ import unicode_literals, print_function
 
-import six
 import os
+
+import six
 from jsonpath_rw import parse
+
 
 # setup some paths
 PACKAGE_PATH = os.path.dirname(__file__)
@@ -18,17 +20,20 @@ AA_PATH = os.path.join(CORPORA_PATH, 'arvutustehnika_ja_andmetootlus')
 DEFAULT_NER_DATASET = os.path.join(CORPORA_PATH, 'estner.json.bz2')
 
 # default NER model path
-DEFAULT_PY2_NER_MODEL = os.path.join(PACKAGE_PATH, 'estner', 'models', 'py2_default.bin')
-DEFAULT_PY3_NER_MODEL = os.path.join(PACKAGE_PATH, 'estner', 'models', 'py3_default.bin')
+DEFAULT_PY2_NER_MODEL_DIR = os.path.join(PACKAGE_PATH, 'estner', 'models', 'py2_default')
+DEFAULT_PY3_NER_MODEL_DIR = os.path.join(PACKAGE_PATH, 'estner', 'models', 'py3_default')
+
 
 # verb chain detection resources
 VERB_CHAIN_RES_PATH = os.path.join(PACKAGE_PATH, 'mw_verbs', 'res')
+
 
 def overrides(interface_class):
     def overrider(method):
         assert(method.__name__ in dir(interface_class))
         return method
     return overrider
+
 
 def as_unicode(s, encoding='utf-8'):
     '''Convert the string to unicode.'''
@@ -38,8 +43,8 @@ def as_unicode(s, encoding='utf-8'):
         return s.decode(encoding)
     else:
         raise ValueError('Can only convert types {0} and {1}'.format(six.text_type, six.binary_type))
-   
-    
+
+
 def as_binary(s, encoding='utf-8'):
     '''Convert the string to binary'''
     if isinstance(s, six.text_type):

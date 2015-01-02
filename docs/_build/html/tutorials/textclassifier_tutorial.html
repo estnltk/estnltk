@@ -318,7 +318,7 @@ than the number reported.</p>
 <div class="section" id="classification-report">
 <h2>Classification report<a class="headerlink" href="#classification-report" title="Permalink to this headline">¶</a></h2>
 <p>The first section of the <code class="docutils literal"><span class="pre">hinnavaatlus.html</span></code> file contains the classification report:</p>
-<img alt="Classification report" src="tutorials/_static/classification_report.png" />
+<img alt="Classification report" src="../_images/classification_report.png" />
 <p>It denotes the <em>precision</em>, <em>recall</em> and <em>F1-score</em> for each category as seen above.
 The most important metric is the F1-score, the harmonic mean of precision and recall.
 See <a class="reference external" href="http://en.wikipedia.org/wiki/Precision_and_recall">http://en.wikipedia.org/wiki/Precision_and_recall</a> for detailed descriptions of these metrics.</p>
@@ -332,7 +332,7 @@ Time series of number of <em>neutral</em> opinions would not be interesting to m
 So, we can essentially trade <em>neutral</em> reviews for better overall accuracy.</p>
 <p>Let&#8217;s see, if this tip makes a difference. File <code class="docutils literal"><span class="pre">data/hinnavaatlus_simple.csv</span></code> contains same training data as before, but now only with <em>positive</em> and <em>negative</em> classes.
 After retraining, we see following numbers in classification report.</p>
-<img alt="Classification report" src="tutorials/_static/classification_report_improved.png" />
+<img alt="Classification report" src="../_images/classification_report_improved.png" />
 <p>We see that this simple change increased the overall accuracy by 20 percent points, from 63.3% before to 80.3% now.
 Thus, one simplest, but most effective way to increase the performance is to use only categories, which are required for a particular task.</p>
 </div>
@@ -342,7 +342,7 @@ Thus, one simplest, but most effective way to increase the performance is to use
 Each classified data point has a confidence score &#8211; the higher the score, the lower the probability of making an error.
 In other words, it describes how hard it is to classify the data point.
 The plot shows how the overall accuracy changes by including only data points where the confidence is greater or equal to the confidence cutoff treshold.</p>
-<a class="reference internal image-reference" href="tutorials/_static/confidence.png"><img alt="Confidence cutoff / F1 curve" src="tutorials/_static/confidence.png" style="width: 30em;" /></a>
+<a class="reference internal image-reference" href="../_images/confidence.png"><img alt="Confidence cutoff / F1 curve" src="../_images/confidence.png" style="width: 30em;" /></a>
 <p>The red line depicts the 90% accuracy and green line 95% accuracy.</p>
 <p>The second tip to improve overall accuracy of the predictions is to throw away examples that are harder to classify.
 Confidence cutoff / F1 curve helps to determine the high enough confidence to obtain certain accuracy.</p>
@@ -363,7 +363,7 @@ In any way, these ratios need to interpreted with knowing that they are based on
 <p>The coverage plot shows how the overall accuracy changes by removing data that is harder to classify.
 Typically, by removing the harder examples, we obtain better overall accuracy.
 This is complementary to confidence cutoff vs F1 curve described in previous section.</p>
-<a class="reference internal image-reference" href="tutorials/_static/coverage.png"><img alt="Coverage / F1 curve" src="tutorials/_static/coverage.png" style="width: 30em;" /></a>
+<a class="reference internal image-reference" href="../_images/coverage.png"><img alt="Coverage / F1 curve" src="../_images/coverage.png" style="width: 30em;" /></a>
 <p>We see that for obtaining 90% accuracy, we can keep only 55% of the data.</p>
 </div>
 <div class="section" id="significant-features-by-labels">
@@ -398,7 +398,7 @@ Let&#8217;s see, if this small change reflects in prediction accuracy:</p>
 <div class="highlight-python"><div class="highlight"><pre>$ python3 -m Estnltk.train definitions/hinnavaatlus.def data/hinnavaatlus_simple.csv models/hinnavaatlus.bin --report hinnavaatlus --synonyms hinnavaatlus.txt
 </pre></div>
 </div>
-<img alt="Classification report technical synonyms" src="tutorials/_static/classification_report_tech.png" />
+<img alt="Classification report technical synonyms" src="../_images/classification_report_tech.png" />
 <p>Compared to previous 80.3%, we get a better result, although it is only 0.7 percent point higher score.
 Also, note that due to cross-validation, different runs can give slightly different accuracy estimates.
 But on average, the results of many runs tests should be improved.</p>

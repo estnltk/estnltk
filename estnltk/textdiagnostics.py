@@ -8,7 +8,7 @@ from random import sample
 from collections import defaultdict
 
 # estonian alphabet with foreign characters
-EST_ALPHA_LOWER = 'abcdefghijklmnoprsšzžtuvõäöüxyz'
+EST_ALPHA_LOWER = 'abcdefghijklmnoprsšzžtuvwõäöüxyz'
 EST_ALPHA_UPPER = EST_ALPHA_LOWER.upper()
 EST_ALPHA = EST_ALPHA_LOWER + EST_ALPHA_UPPER
 
