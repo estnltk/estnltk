@@ -1190,7 +1190,8 @@ class Parser(object):
 
             def _status():
                 self.noQuotes = True
-                self.synset.variants[-1].status = as_unicode(self.fieldValue)
+                if not isinstance(self.fieldValue, int): # Timo: lisasin selle
+                    self.synset.variants[-1].status = as_unicode(self.fieldValue)
                 self.noQuotes = False
 
             def _target_sense():

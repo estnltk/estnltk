@@ -230,8 +230,11 @@ def synsets(lemma,pos=None):
     stored_synsets = []
 
     for i in range(len(synset_idxes)):
-        if synset_idxes[i] in SYNSETS_DICT:
-            stored_synsets.append(SYNSETS_DICT[synset_idxes.pop(i)])
+        try: # TODO: fix the indexerror
+            if synset_idxes[i] in SYNSETS_DICT:
+                stored_synsets.append(SYNSETS_DICT[synset_idxes.pop(i)])
+        except IndexError:
+            print ('IndexError', i)
 
     synset_offsets = _get_synset_offsets(synset_idxes)
     synsets = _get_synsets(synset_offsets)

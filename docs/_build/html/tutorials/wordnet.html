@@ -61,12 +61,9 @@ For example, the synset which contains the word &#8220;koer&#8221; (&#8220;dog&#
 <p>Given API is on most parts in conformance with NLTK WordNet&#8217;s API (<a class="reference external" href="http://www.nltk.org/howto/wordnet.html">http://www.nltk.org/howto/wordnet.html</a>).
 However, there are some differences due to different structure of the WordNets.</p>
 <ul class="simple">
-<li>Lemma classes&#8217; relations return empty sets.
-- Reason: In Estonian WordNet relations are only between synsets.</li>
-<li>No verb frames
-- Reason: No information on verb frames.</li>
-<li>Only path, Leacock-Chodorow and Wu-Palmer similarities
-- No information on Information Content</li>
+<li>Lemma classes&#8217; relations return empty sets. Reason: In Estonian WordNet relations are only between synsets.</li>
+<li>No verb frames. Reason: No information on verb frames.</li>
+<li>Only path, Leacock-Chodorow and Wu-Palmer similarities. No information on Information Content.</li>
 </ul>
 </div>
 <div class="section" id="side-notes">
@@ -98,10 +95,102 @@ However, there are some differences due to different structure of the WordNets.<
 </tbody>
 </table>
 <p>Existing relations:</p>
-<p>&#8216;antonym&#8217;, &#8216;be_in_state&#8217;, &#8216;belongs_to_class&#8217;, &#8216;causes&#8217;, &#8216;fuzzynym&#8217;, &#8216;has_holo_location&#8217;, &#8216;has_holo_madeof&#8217;, &#8216;has_holo_member&#8217;, &#8216;has_holo_part&#8217;, &#8216;has_holo_portion&#8217;, &#8216;has_holonym&#8217;, &#8216;has_hyperonym&#8217;, &#8216;has_hyponym&#8217;, &#8216;has_instance&#8217;, &#8216;has_mero_location&#8217;, &#8216;has_mero_madeof&#8217;, &#8216;has_mero_member&#8217;, &#8216;has_mero_part&#8217;, &#8216;has_mero_portion&#8217;, &#8216;has_meronym&#8217;, &#8216;has_subevent&#8217;, &#8216;has_xpos_hyperonym&#8217;, &#8216;has_xpos_hyponym&#8217;, &#8216;involved&#8217;, &#8216;involved_agent&#8217;, &#8216;involved_instrument&#8217;, &#8216;involved_location&#8217;, &#8216;involved_patient&#8217;, &#8216;involved_target_direction&#8217;, &#8216;is_caused_by&#8217;, &#8216;is_subevent_of&#8217;, &#8216;near_antonym&#8217;, &#8216;near_synonym&#8217;, &#8216;role&#8217;, &#8216;role_agent&#8217;, &#8216;role_instrument&#8217;, &#8216;role_location&#8217;, &#8216;role_patient&#8217;, &#8216;role_target_direction&#8217;, &#8216;state_of&#8217;, &#8216;xpos_fuzzynym&#8217;, &#8216;xpos_near_antonym&#8217;, &#8216;xpos_near_synonym&#8217;</p>
-</div>
+<p>antonym, be_in_state, belongs_to_class, causes, fuzzynym, has_holo_location, has_holo_madeof, has_holo_member,
+has_holo_part, has_holo_portion, has_holonym, has_hyperonym, has_hyponym, has_instance, has_mero_location,
+has_mero_madeof, has_mero_member, has_mero_part, has_mero_portion, has_meronym, has_subevent, has_xpos_hyperonym,
+has_xpos_hyponym, involved, involved_agent, involved_instrument, involved_location, involved_patient, involved_target_direction,
+is_caused_by, is_subevent_of, near_antonym, near_synonym, role, role_agent, role_instrument, role_location, role_patient,
+role_target_direction, state_of, xpos_fuzzynym, xpos_near_antonym, xpos_near_synonym .</p>
 <div class="section" id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
+<p>Before anything else, let&#8217;s import the module:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk.wordnet</span> <span class="kn">import</span> <span class="n">wn</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="synsets">
+<h2>Synsets<a class="headerlink" href="#synsets" title="Permalink to this headline">¶</a></h2>
+<p>The most common use for the API is to query synsets.
+Synsets can be queried in several ways.
+The easiest way is to query all the synsets which match some conditions.
+For that we can either use:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">wn</span><span class="o">.</span><span class="n">all_synsets</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>which returns all the synsets there are or:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">wn</span><span class="o">.</span><span class="n">all_synsets</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">wn</span><span class="o">.</span><span class="n">ADV</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>which returns all the synset of which part of speech is &#8220;adverb&#8221;.
+We can also query synsets by providing a lemma and a part of speech using:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">wn</span><span class="o">.</span><span class="n">synsets</span><span class="p">(</span><span class="s">&quot;koer&quot;</span><span class="p">,</span><span class="n">pos</span><span class="o">=</span><span class="n">wn</span><span class="o">.</span><span class="n">VERB</span><span class="p">)</span>
+<span class="go">[]</span>
+</pre></div>
+</div>
+<p>By neglecting &#8220;pos&#8221;, it matches once again all the synsets with &#8220;koer&#8221; as lemma.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">wn</span><span class="o">.</span><span class="n">synsets</span><span class="p">(</span><span class="s">&quot;koer&quot;</span><span class="p">)</span>
+<span class="go">[Synset(&#39;koer.n.01&#39;), Synset(&#39;kaak.n.01&#39;)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="details">
+<h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
+<p>The API allows to query synset&#8217;s details. For example, we can retrieve name and pos:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">synset</span> <span class="o">=</span> <span class="n">wn</span><span class="o">.</span><span class="n">synset</span><span class="p">(</span><span class="s">&quot;king.n.01&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">synset</span><span class="o">.</span><span class="n">name</span>
+<span class="go">&#39;king.n.01&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">synset</span><span class="o">.</span><span class="n">pos</span>
+<span class="go">&#39;n&#39;</span>
+</pre></div>
+</div>
+<p>We can also query definition and examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">synset</span><span class="o">.</span><span class="n">definition</span><span class="p">()</span>
+<span class="go">&#39;jalalaba kattev kontsaga jalats, mis ei ulatu pahkluust kõrgemale&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">synset</span><span class="o">.</span><span class="n">examples</span><span class="p">()</span>
+<span class="go">[u&#39;Jalad hakkasid katkistes kingades k\xfclmetama.&#39;]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="relations">
+<h2>Relations<a class="headerlink" href="#relations" title="Permalink to this headline">¶</a></h2>
+<p>We can also query related synsets.
+There are relations, for which there are specific methods:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">synset</span><span class="o">.</span><span class="n">hypernyms</span><span class="p">()</span>
+<span class="go">[Synset(&#39;jalats.n.01&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">synset</span><span class="o">.</span><span class="n">hyponyms</span><span class="p">()</span>
+<span class="go">[Synset(&#39;peoking.n.01&#39;), Synset(&#39;rihmking.n.01&#39;), Synset(&#39;lapseking.n.01&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">synset</span><span class="o">.</span><span class="n">meronyms</span><span class="p">()</span>
+<span class="go">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">synset</span><span class="o">.</span><span class="n">holonyms</span><span class="p">()</span>
+<span class="go">[]</span>
+</pre></div>
+</div>
+<p>More specific relations can be queried with a universal method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">synset</span><span class="o">.</span><span class="n">get_related_synsets</span><span class="p">(</span><span class="s">&#39;fuzzynym&#39;</span><span class="p">)</span>
+<span class="go">[Synset(&#39;jäätisemüüja.n.01&#39;), Synset(&#39;jäätisekauplus.n.01&#39;), Synset(&#39;jäätisekampaania.n.01&#39;), Synset(&#39;jäätisekohvik.n.01&#39;)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="similarities">
+<h2>Similarities<a class="headerlink" href="#similarities" title="Permalink to this headline">¶</a></h2>
+<p>We can measure distance or similarity between two synsets in several ways.
+For calculating similarity, we provide path, Leacock-Chodorow and Wu-Palmer similarities:</p>
+<div class="highlight-python"><div class="highlight"><pre>&gt;&gt; target_synset = wn.synset(&#39;kinnas.n.01&#39;)
+&gt;&gt;&gt; synset.path_similarity(target_synset)
+0.25
+&gt;&gt;&gt; synset.lch_similarity(target_synset)
+1.8718021769
+&gt;&gt;&gt; synset.wup_similarity(target_synset)
+0.8
+</pre></div>
+</div>
+<p>In addition, we can also find the closest common ancestor via hypernyms.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">synset</span><span class="o">.</span><span class="n">lowest_common_hypernyms</span><span class="p">(</span><span class="n">target_synset</span><span class="p">)</span>
+<span class="go">[Synset(&#39;kehakate.n.01&#39;)]</span>
+</pre></div>
+</div>
+<p>There are 4 different part of speeches available in the Estonian WordNet: <cite>wn.ADJ, wn.ADV, wn.VERB, wn.NOUN</cite>.</p>
 </div>
 </div>
 
@@ -115,8 +204,14 @@ However, there are some differences due to different structure of the WordNets.<
   <ul>
 <li><a class="reference internal" href="#">Estonian Wordnet</a><ul>
 <li><a class="reference internal" href="#resemblance">Resemblance</a></li>
-<li><a class="reference internal" href="#side-notes">Side notes</a></li>
+<li><a class="reference internal" href="#side-notes">Side notes</a><ul>
 <li><a class="reference internal" href="#usage">Usage</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#synsets">Synsets</a></li>
+<li><a class="reference internal" href="#details">Details</a></li>
+<li><a class="reference internal" href="#relations">Relations</a></li>
+<li><a class="reference internal" href="#similarities">Similarities</a></li>
 </ul>
 </li>
 </ul>
