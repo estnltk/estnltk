@@ -241,6 +241,12 @@ Finally, download the suitable ``estnltk` installer and execute it.
 TODO: add URL here
 
 
+Then, install NLTK tokenizers from command promp::
+
+    python -m nltk.downloader punkt
+
+
+Finally, we are done :) !
 
 
 
