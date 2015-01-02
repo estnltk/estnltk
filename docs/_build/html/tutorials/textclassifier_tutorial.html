@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Estnltk text classifier tool &mdash; estnltk 1.0 documentation</title>
+    <title>Estnltk text classifier tool &mdash; estnltk 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="estnltk 1.0 documentation" href="../index.html" />
+    <link rel="top" title="estnltk 1.1 documentation" href="../index.html" />
     <link rel="next" title="estnltk package" href="../estnltk.html" />
     <link rel="prev" title="&lt;no title&gt;" href="json_format.html" /> 
   </head>
@@ -36,15 +36,12 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="../estnltk.html" title="estnltk package"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="json_format.html" title="&lt;no title&gt;"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -130,7 +127,7 @@ We can see the possible parameters by issuing command:</p>
 </pre></div>
 </div>
 <p>That will output:</p>
-<div class="highlight-python"><div class="highlight"><pre>usage: Estnltk.train [-h] [--synonyms SYNONYMS] [-r REPORT] [--sheet SHEET]
+<div class="highlight-python"><div class="highlight"><pre>usage: estnltk.textclassifier.train [-h] [--synonyms SYNONYMS] [-r REPORT] [--sheet SHEET]
                       [--sep SEP]
                       settings dataset model
 
@@ -371,7 +368,7 @@ This is complementary to confidence cutoff vs F1 curve described in previous sec
 <p>The next section displays 100 most significant features for each category.
 Features written in black and red denote features that are respectively contributing towards and against assigning the particular class label.
 Both are equally important, but they should be interpreted differently, when debugging the classifier.</p>
-<a class="reference internal image-reference" href="tutorials/_static/significant_features.png"><img alt="Significant features by labels" src="tutorials/_static/significant_features.png" style="width: 60em;" /></a>
+<a class="reference internal image-reference" href="../_images/significant_features.png"><img alt="Significant features by labels" src="../_images/significant_features.png" style="width: 60em;" /></a>
 <p>Our current example uses only two categories, thus the important features are exactly the opposite of each other. In case of three or more categories,
 there will be more variations.</p>
 </div>
@@ -379,7 +376,7 @@ there will be more variations.</p>
 <h2>Misclassified examples<a class="headerlink" href="#misclassified-examples" title="Permalink to this headline">¶</a></h2>
 <p>File <code class="docutils literal"><span class="pre">hinnavaatlus_misclassified_data.html</span></code> contains a number of sections and lists all examples that were misclassified.
 It displays the <em>true category label</em> and the <em>predicted category label</em>.</p>
-<a class="reference internal image-reference" href="tutorials/_static/misclassified_data.png"><img alt="Misclassified data" src="tutorials/_static/misclassified_data.png" style="width: 60em;" /></a>
+<a class="reference internal image-reference" href="../_images/misclassified_data.png"><img alt="Misclassified data" src="../_images/misclassified_data.png" style="width: 60em;" /></a>
 <p>The first review is an example, where word &#8220;positive&#8221; tricks the classifier to think that the review is actually positive.
 The negating word &#8220;ei&#8221; is too far away so the computer fails to understand the semantics of the review.
 We also see some reviews that are hard to classify strictly as positive or negative as they contain both positive and negative feedback.
@@ -395,7 +392,7 @@ halb ebameeldiv tüütu
 </div>
 <p>The first word of each line denotes the main synonym and all other words on the line are replaced by the first word.
 Let&#8217;s see, if this small change reflects in prediction accuracy:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ python3 -m Estnltk.train definitions/hinnavaatlus.def data/hinnavaatlus_simple.csv models/hinnavaatlus.bin --report hinnavaatlus --synonyms hinnavaatlus.txt
+<div class="highlight-python"><div class="highlight"><pre>$ python3 -m estnltk.textclassifier.train definitions/hinnavaatlus.def data/hinnavaatlus_simple.csv models/hinnavaatlus.bin --report hinnavaatlus --synonyms hinnavaatlus.txt
 </pre></div>
 </div>
 <img alt="Classification report technical synonyms" src="../_images/classification_report_tech.png" />
@@ -466,15 +463,12 @@ But on average, the results of many runs tests should be improved.</p>
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="../estnltk.html" title="estnltk package"
              >next</a> |</li>
         <li class="right" >
           <a href="json_format.html" title="&lt;no title&gt;"
              >previous</a> |</li>
-        <li><a href="../index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

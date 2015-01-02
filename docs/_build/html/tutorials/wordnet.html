@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>&lt;no title&gt; &mdash; estnltk 1.0 documentation</title>
+    <title>Estonian Wordnet &mdash; estnltk 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,8 +24,8 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="estnltk 1.0 documentation" href="../index.html" />
-    <link rel="next" title="&lt;no title&gt;" href="importing_tei.html" />
+    <link rel="top" title="estnltk 1.1 documentation" href="../index.html" />
+    <link rel="next" title="Importing TEI XML files" href="importing_tei.html" />
     <link rel="prev" title="Verb chain detection" href="verbchain.html" /> 
   </head>
   <body role="document">
@@ -36,15 +36,12 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="importing_tei.html" title="&lt;no title&gt;"
+          <a href="importing_tei.html" title="Importing TEI XML files"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="verbchain.html" title="Verb chain detection"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -53,19 +50,83 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  
+  <div class="section" id="estonian-wordnet">
+<h1>Estonian Wordnet<a class="headerlink" href="#estonian-wordnet" title="Permalink to this headline">¶</a></h1>
+<p>Estonian WordNet API provides means to query Estonian WordNet.
+WordNet is a network of synsets, in which synsets are collections of synonymous words and are connected to other synsets via relations.
+For example, the synset which contains the word &#8220;koer&#8221; (&#8220;dog&#8221;) has a generalisation via hypernymy relation in the form of synset which contains the word &#8220;koerlane&#8221; (&#8220;canine&#8221;).</p>
+<p>Estonian WordNet contains synsets with different types of part-of-speech: adverbs, adjectives, verbs and nouns.</p>
+<div class="section" id="resemblance">
+<h2>Resemblance<a class="headerlink" href="#resemblance" title="Permalink to this headline">¶</a></h2>
+<p>Given API is on most parts in conformance with NLTK WordNet&#8217;s API (<a class="reference external" href="http://www.nltk.org/howto/wordnet.html">http://www.nltk.org/howto/wordnet.html</a>).
+However, there are some differences due to different structure of the WordNets.</p>
+<ul class="simple">
+<li>Lemma classes&#8217; relations return empty sets.
+- Reason: In Estonian WordNet relations are only between synsets.</li>
+<li>No verb frames
+- Reason: No information on verb frames.</li>
+<li>Only path, Leacock-Chodorow and Wu-Palmer similarities
+- No information on Information Content</li>
+</ul>
+</div>
+<div class="section" id="side-notes">
+<h2>Side notes<a class="headerlink" href="#side-notes" title="Permalink to this headline">¶</a></h2>
+<p>Existing types of part of speech:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Part of speech</th>
+<th class="head">API equivalent</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Adverb</td>
+<td>wn.ADV</td>
+</tr>
+<tr class="row-odd"><td>Adjective</td>
+<td>wn.ADJ</td>
+</tr>
+<tr class="row-even"><td>Noun</td>
+<td>wn.NOUN</td>
+</tr>
+<tr class="row-odd"><td>Verb</td>
+<td>wn.VERB</td>
+</tr>
+</tbody>
+</table>
+<p>Existing relations:</p>
+<p>&#8216;antonym&#8217;, &#8216;be_in_state&#8217;, &#8216;belongs_to_class&#8217;, &#8216;causes&#8217;, &#8216;fuzzynym&#8217;, &#8216;has_holo_location&#8217;, &#8216;has_holo_madeof&#8217;, &#8216;has_holo_member&#8217;, &#8216;has_holo_part&#8217;, &#8216;has_holo_portion&#8217;, &#8216;has_holonym&#8217;, &#8216;has_hyperonym&#8217;, &#8216;has_hyponym&#8217;, &#8216;has_instance&#8217;, &#8216;has_mero_location&#8217;, &#8216;has_mero_madeof&#8217;, &#8216;has_mero_member&#8217;, &#8216;has_mero_part&#8217;, &#8216;has_mero_portion&#8217;, &#8216;has_meronym&#8217;, &#8216;has_subevent&#8217;, &#8216;has_xpos_hyperonym&#8217;, &#8216;has_xpos_hyponym&#8217;, &#8216;involved&#8217;, &#8216;involved_agent&#8217;, &#8216;involved_instrument&#8217;, &#8216;involved_location&#8217;, &#8216;involved_patient&#8217;, &#8216;involved_target_direction&#8217;, &#8216;is_caused_by&#8217;, &#8216;is_subevent_of&#8217;, &#8216;near_antonym&#8217;, &#8216;near_synonym&#8217;, &#8216;role&#8217;, &#8216;role_agent&#8217;, &#8216;role_instrument&#8217;, &#8216;role_location&#8217;, &#8216;role_patient&#8217;, &#8216;role_target_direction&#8217;, &#8216;state_of&#8217;, &#8216;xpos_fuzzynym&#8217;, &#8216;xpos_near_antonym&#8217;, &#8216;xpos_near_synonym&#8217;</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
 
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Estonian Wordnet</a><ul>
+<li><a class="reference internal" href="#resemblance">Resemblance</a></li>
+<li><a class="reference internal" href="#side-notes">Side notes</a></li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="verbchain.html"
                         title="previous chapter">Verb chain detection</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="importing_tei.html"
-                        title="next chapter">&lt;no title&gt;</a></p>
+                        title="next chapter">Importing TEI XML files</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -97,15 +158,12 @@
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="importing_tei.html" title="&lt;no title&gt;"
+          <a href="importing_tei.html" title="Importing TEI XML files"
              >next</a> |</li>
         <li class="right" >
           <a href="verbchain.html" title="Verb chain detection"
              >previous</a> |</li>
-        <li><a href="../index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

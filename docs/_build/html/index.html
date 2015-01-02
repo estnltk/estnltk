@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Estnltk — Open source tools for Estonian natural language processing &mdash; estnltk 1.0 documentation</title>
+    <title>Estnltk — Open source tools for Estonian natural language processing &mdash; estnltk 1.1 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="estnltk 1.0 documentation" href="#" />
+    <link rel="top" title="estnltk 1.1 documentation" href="#" />
     <link rel="next" title="Installation" href="installation.html" /> 
   </head>
   <body role="document">
@@ -35,12 +35,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="installation.html" title="Installation"
              accesskey="N">next</a> |</li>
-        <li><a href="#">estnltk 1.0 documentation</a> &raquo;</li> 
+        <li><a href="#">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -98,6 +95,12 @@ Hopfully we are able to integrate more and more tools in future.</p>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/ner.html">Named entity recognition</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/timex.html">Temporal expression (TIMEX) tagging</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/verbchain.html">Verb chain detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/wordnet.html">Estonian Wordnet</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/wordnet.html#resemblance">Resemblance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/wordnet.html#side-notes">Side notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/wordnet.html#usage">Usage</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/importing_tei.html">Importing TEI XML files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/textclassifier_tutorial.html">Estnltk text classifier tool</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/textclassifier_tutorial.html#step-1-defining-the-classification-task">Step 1. Defining the classification task</a></li>
@@ -146,18 +149,18 @@ Hopfully we are able to integrate more and more tools in future.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="estnltk.mw_verbs.html">estnltk.mw_verbs package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="estnltk.mw_verbs.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.mw_verbs.html#module-estnltk.mw_verbs.basic_verbchain_detection">estnltk.mw_verbs.basic_verbchain_detection module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.mw_verbs.html#module-estnltk.mw_verbs.utils">estnltk.mw_verbs.utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.mw_verbs.html#module-estnltk.mw_verbs.verbchain_detector">estnltk.mw_verbs.verbchain_detector module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.mw_verbs.html#module-estnltk.mw_verbs.verbchain_nom_vinf_extender">estnltk.mw_verbs.verbchain_nom_vinf_extender module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.mw_verbs.html#module-estnltk.mw_verbs">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.mw_verbs.html#estnltk-mw-verbs-basic-verbchain-detection-module">estnltk.mw_verbs.basic_verbchain_detection module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.mw_verbs.html#estnltk-mw-verbs-utils-module">estnltk.mw_verbs.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.mw_verbs.html#estnltk-mw-verbs-verbchain-detector-module">estnltk.mw_verbs.verbchain_detector module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.mw_verbs.html#estnltk-mw-verbs-verbchain-nom-vinf-extender-module">estnltk.mw_verbs.verbchain_nom_vinf_extender module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.mw_verbs.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="estnltk.wordnet.html">estnltk.wordnet package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="estnltk.wordnet.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.wordnet.html#module-estnltk.wordnet.eurown">estnltk.wordnet.eurown module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.wordnet.html#module-estnltk.wordnet.wn">estnltk.wordnet.wn module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.wordnet.html#module-estnltk.wordnet">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.wordnet.html#estnltk-wordnet-eurown-module">estnltk.wordnet.eurown module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.wordnet.html#estnltk-wordnet-wn-module">estnltk.wordnet.wn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.wordnet.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html">Subpackages</a><ul class="simple">
@@ -253,12 +256,9 @@ Hopfully we are able to integrate more and more tools in future.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="installation.html" title="Installation"
              >next</a> |</li>
-        <li><a href="#">estnltk 1.0 documentation</a> &raquo;</li> 
+        <li><a href="#">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

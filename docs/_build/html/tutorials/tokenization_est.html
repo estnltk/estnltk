@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Teksti tükeldamine paragrahvideks, lauseteks ja sõnadeks &mdash; estnltk 1.0 documentation</title>
+    <title>Teksti tükeldamine paragrahvideks, lauseteks ja sõnadeks &mdash; estnltk 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="estnltk 1.0 documentation" href="../index.html" /> 
+    <link rel="top" title="estnltk 1.1 documentation" href="../index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -33,10 +33,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -48,7 +45,7 @@
   <div class="section" id="teksti-tukeldamine-paragrahvideks-lauseteks-ja-sonadeks">
 <h1>Teksti tükeldamine paragrahvideks, lauseteks ja sõnadeks<a class="headerlink" href="#teksti-tukeldamine-paragrahvideks-lauseteks-ja-sonadeks" title="Permalink to this headline">¶</a></h1>
 <p>Enamikus keele automaattöötluse rakendustes on esimeseks sammuks sisendteksti jagamine väiksemateks tükkideks: paragrahvideks, lauseteks ja sõnadeks. Keele automaatanalüüsi seisukohalt polegi see alati triviaalne ülesanne, näiteks ei saa eeldada, et punkt sõna lõpus tähistab alati lauselõppu (see võib olla ka nt kuupäeva ja aastarvu lõpus, vanemates tekstides ka lühendite lõpus). Seetõttu sisaldavad keele automaattöötluse rakendused sageli eraldi mooduleid, mis tegelevad teksti tükeldamise probleemidega.</p>
-<p>Estnltk-s pakub teksti tükeldamise tuge klass <a class="reference internal" href="../estnltk.html#estnltk.tokenize.Tokenizer" title="estnltk.tokenize.Tokenizer"><code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code></a>. Järgnevas näites loome sisendteksti (sõne <code class="docutils literal"><span class="pre">text</span></code>), seejärel impordime ja initsialiseerime teksti tükeldaja (<code class="docutils literal"><span class="pre">tokenizer</span></code>, isendi klassist <a class="reference internal" href="../estnltk.html#estnltk.tokenize.Tokenizer" title="estnltk.tokenize.Tokenizer"><code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code></a>) ning kasutame seda, et luua tükeldatud kujul sisendteksti sisaldav dokument (<code class="docutils literal"><span class="pre">document</span></code>, <a class="reference internal" href="../estnltk.html#estnltk.corpus.Document" title="estnltk.corpus.Document"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code></a> klassi isend):</p>
+<p>Estnltk-s pakub teksti tükeldamise tuge klass <code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code>. Järgnevas näites loome sisendteksti (sõne <code class="docutils literal"><span class="pre">text</span></code>), seejärel impordime ja initsialiseerime teksti tükeldaja (<code class="docutils literal"><span class="pre">tokenizer</span></code>, isendi klassist <code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code>) ning kasutame seda, et luua tükeldatud kujul sisendteksti sisaldav dokument (<code class="docutils literal"><span class="pre">document</span></code>, <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code> klassi isend):</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Loome näiteteksti</span>
 <span class="n">text</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;Keeletehnoloogia on arvutilingvistika praktiline pool.</span>
 <span class="s">Keeletehnoloogid kasutavad arvutilingvistikas välja töötatud</span>
@@ -99,7 +96,7 @@
     arvutileksikoloogia, dialoogisüsteemid, \nkõneanalüüs ja kõnesüntees.\n&#39;]
 </pre></div>
 </div>
-<p>Teksti esialgne (sõnekuju) on endiselt kättesaadav klassi <a class="reference internal" href="../estnltk.html#estnltk.corpus.Document" title="estnltk.corpus.Document"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code></a> atribuudi <code class="docutils literal"><span class="pre">text</span></code> kaudu.</p>
+<p>Teksti esialgne (sõnekuju) on endiselt kättesaadav klassi <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code> atribuudi <code class="docutils literal"><span class="pre">text</span></code> kaudu.</p>
 <p>Kui teksti tükeldamisel peaks ilmuma järgnev (või sarnane) veateade:</p>
 <div class="highlight-python"><div class="highlight"><pre>LookupError:
 **********************************************************************
@@ -132,7 +129,7 @@ Seda informatsiooni väljastavad <cite>estnltk</cite> meetodid <code class="docu
  <span class="p">(</span><span class="s">&#39;kõnesüntees.&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">355</span><span class="p">,</span> <span class="mi">367</span><span class="p">))]</span>
 </pre></div>
 </div>
-<p>Muude tekstiüksuste positsioonide leidmise kohta palun vt täpsemalt klasside <a class="reference internal" href="../estnltk.html#estnltk.corpus.Corpus" title="estnltk.corpus.Corpus"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus</span></code></a>, <a class="reference internal" href="../estnltk.html#estnltk.corpus.Document" title="estnltk.corpus.Document"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code></a>, <a class="reference internal" href="../estnltk.html#estnltk.corpus.Paragraph" title="estnltk.corpus.Paragraph"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Paragraph</span></code></a>, <a class="reference internal" href="../estnltk.html#estnltk.corpus.Sentence" title="estnltk.corpus.Sentence"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Sentence</span></code></a> ja <a class="reference internal" href="../estnltk.html#estnltk.corpus.Word" title="estnltk.corpus.Word"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Word</span></code></a> dokumentatsioonist.</p>
+<p>Muude tekstiüksuste positsioonide leidmise kohta palun vt täpsemalt klasside <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus</span></code>, <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code>, <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Paragraph</span></code>, <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Sentence</span></code> ja <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Word</span></code> dokumentatsioonist.</p>
 </div>
 </div>
 
@@ -180,10 +177,7 @@ Seda informatsiooni väljastavad <cite>estnltk</cite> meetodid <code class="docu
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

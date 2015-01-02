@@ -215,7 +215,7 @@ Next, we use an extremely useful list of binary installers for various Python pa
 * **nose** http://www.lfd.uci.edu/~gohlke/pythonlibs/#nose
 * **pyparsing** http://www.lfd.uci.edu/~gohlke/pythonlibs/#pyparsing
 * **matplotlib** http://www.lfd.uci.edu/~gohlke/pythonlibs/#matplotlib
-* **python-crfsuite** TODO: add URL here
+* **python-crfsuite** https://github.com/tpetmanson/estnltk/tree/master/dist/python-crfsuite
 
 Now, Christoph Gohlke's website does not list all required Python packages.
 Note that the ``python-crfsuite`` Windows installers are given in ``esnltk\dist\python-crfsuite`` directory.
@@ -238,9 +238,18 @@ This installs the following dependencies:
 
 Then, install Java from http://www.oracle.com/technetwork/java/javase/downloads/index.html .
 
-Then, download and execute the suitable ``estnltk`` installer::
+Then, download and execute the suitable ``estnltk`` installer:
 
-    TODO: add URL here
+32-bit:
+
+* https://github.com/tpetmanson/estnltk/blob/master/dist/estnltk-1.1.win32-py2.7.msi
+* https://github.com/tpetmanson/estnltk/blob/master/dist/estnltk-1.1.win32-py3.4.msi
+
+64-bit:
+
+* https://github.com/tpetmanson/estnltk/blob/master/dist/estnltk-1.1.win-amd64-py2.7.msi
+* https://github.com/tpetmanson/estnltk/blob/master/dist/estnltk-1.1.win-amd64-py3.4.msi
+    
 
 Then, install NLTK tokenizers from command promp::
 
@@ -248,8 +257,6 @@ Then, install NLTK tokenizers from command promp::
 
 
 Finally, we are done :) !
-
-Finally, we are done :) !! TODO: fix ner example
 
 .. image:: _static/installation_windows.png
    :alt: Screenshot of IDLE with 64-bit Python3.4 after successful installation

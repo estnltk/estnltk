@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Osalausestamine &mdash; estnltk 1.0 documentation</title>
+    <title>Osalausestamine &mdash; estnltk 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="estnltk 1.0 documentation" href="../index.html" /> 
+    <link rel="top" title="estnltk 1.1 documentation" href="../index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -33,10 +33,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -50,7 +47,7 @@
 <p>Lihtlause on lause, mis tüüpiliselt sisaldab ühte pöördelist verbivormi ning väljendab ühte tegevust, seisundit või olukorda.
 Loomuliku keele tekstides tuleb aga sageli ette ka keerukama struktuuriga <em>liitlauseid</em>, kus mitu väiksemat lauset (osalauset) on ühendatud üheks lauseks.
 Selliste lausete töötlemisele lisab keerukust veel asjaolu, et osalaused võivad olla sisestatud teiste lausete sisse, jagades need kiiluna kaheks osaks.</p>
-<p>Osalausestaja võimaldab jagada liitlaused väiksemateks osadeks - osalauseteks ja kiiludeks - ning töödelda iga osa eraldiseisva tekstiüksusena. Enne teksti osalausestamist on tarvis see lausestada ja sõnestada (klassi <a class="reference internal" href="../estnltk.html#estnltk.tokenize.Tokenizer" title="estnltk.tokenize.Tokenizer"><code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code></a> abil) ning sooritada tekstil morfoloogiline analüüs (klass <a class="reference internal" href="../estnltk.html#estnltk.morf.PyVabamorfAnalyzer" title="estnltk.morf.PyVabamorfAnalyzer"><code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></code></a>) ja morfoloogiline ühestamine (kuigi osalausestaja töötab ka morfoloogiliselt mitmesel tekstil, võib analüüsi kvaliteet olla madalam kui ühestatud tekstil).</p>
+<p>Osalausestaja võimaldab jagada liitlaused väiksemateks osadeks - osalauseteks ja kiiludeks - ning töödelda iga osa eraldiseisva tekstiüksusena. Enne teksti osalausestamist on tarvis see lausestada ja sõnestada (klassi <code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code> abil) ning sooritada tekstil morfoloogiline analüüs (klass <code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></code>) ja morfoloogiline ühestamine (kuigi osalausestaja töötab ka morfoloogiliselt mitmesel tekstil, võib analüüsi kvaliteet olla madalam kui ühestatud tekstil).</p>
 <p>Näide:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span><span class="p">,</span> <span class="n">PyVabamorfAnalyzer</span><span class="p">,</span> <span class="n">ClauseSegmenter</span>
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
@@ -83,7 +80,7 @@ Järgnevas näites väljastatakse sõnad koos osalauseindeksite ja -märgenditeg
  <span class="p">(</span><span class="s">&#39;Word(meid.)&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">None</span><span class="p">)]</span>
 </pre></div>
 </div>
-<p>Osalausestamise tulemus on ka esitatud <a class="reference internal" href="../estnltk.html#estnltk.corpus.Clause" title="estnltk.corpus.Clause"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Clause</span></code></a> objektidena, mis koondavad endas kõiki osalausesse kuuluvaid sõnu. Seega on võimalik lihtsa päringuga saada kätte kõik tekstist tuvastatud osalaused:</p>
+<p>Osalausestamise tulemus on ka esitatud <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Clause</span></code> objektidena, mis koondavad endas kõiki osalausesse kuuluvaid sõnu. Seega on võimalik lihtsa päringuga saada kätte kõik tekstist tuvastatud osalaused:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># väljastame osalaused</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">segmented</span><span class="o">.</span><span class="n">clauses</span><span class="p">)</span>
 
@@ -140,10 +137,7 @@ Järgnevas näites väljastatakse sõnad koos osalauseindeksite ja -märgenditeg
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

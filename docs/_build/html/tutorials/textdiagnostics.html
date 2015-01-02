@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Detecting invalid characters in text &mdash; estnltk 1.0 documentation</title>
+    <title>Detecting invalid characters in text &mdash; estnltk 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="estnltk 1.0 documentation" href="../index.html" />
+    <link rel="top" title="estnltk 1.1 documentation" href="../index.html" />
     <link rel="next" title="Paragraph, sentence and word tokenization" href="tokenization.html" />
     <link rel="prev" title="Installation" href="../installation.html" /> 
   </head>
@@ -36,15 +36,12 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="tokenization.html" title="Paragraph, sentence and word tokenization"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="../installation.html" title="Installation"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -59,7 +56,7 @@
 One such possible requirement is check if the files contain characters that can be handled by our application.
 For example, an application assuming Estonian input might not work with Cyrillic characters.
 In such cases, it is necessary to detect invalid input.</p>
-<p>Estnltk provides <a class="reference internal" href="../estnltk.html#estnltk.textdiagnostics.TextDiagnostics" title="estnltk.textdiagnostics.TextDiagnostics"><code class="xref py py-class docutils literal"><span class="pre">estnltk.textdiagnostics.TextDiagnostics</span></code></a> class, that compares input texts against a predefined set of allowed characters.
+<p>Estnltk provides <code class="xref py py-class docutils literal"><span class="pre">estnltk.textdiagnostics.TextDiagnostics</span></code> class, that compares input texts against a predefined set of allowed characters.
 The class can be used for detecting invalid input and also to provide basic overview of &#8220;wrong&#8221; characters.</p>
 <div class="section" id="predefined-alphabets">
 <h2>Predefined alphabets<a class="headerlink" href="#predefined-alphabets" title="Permalink to this headline">¶</a></h2>
@@ -83,7 +80,7 @@ There are also lowercase and uppercase variants containing just letters: <cite>E
 </div>
 <div class="section" id="basic-usage">
 <h2>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h2>
-<p>The default alphabet of the <a class="reference internal" href="../estnltk.html#estnltk.textdiagnostics.TextDiagnostics" title="estnltk.textdiagnostics.TextDiagnostics"><code class="xref py py-class docutils literal"><span class="pre">estnltk.textdiagnostics.TextDiagnostics</span></code></a> class is Estonian additionally containing whitespace, digits and punctuation.
+<p>The default alphabet of the <code class="xref py py-class docutils literal"><span class="pre">estnltk.textdiagnostics.TextDiagnostics</span></code> class is Estonian additionally containing whitespace, digits and punctuation.
 <cite>is_valid(text)</cite> method can be used to check, if the text contains only allowed characters in the alphabet:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">td</span> <span class="o">=</span> <span class="n">TextDiagnostics</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">td</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="s">&#39;Segan suhkrut malbelt tassis, kus nii armsalt aurab tee.&#39;</span><span class="p">)</span>
@@ -174,15 +171,12 @@ There are also lowercase and uppercase variants containing just letters: <cite>E
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="tokenization.html" title="Paragraph, sentence and word tokenization"
              >next</a> |</li>
         <li class="right" >
           <a href="../installation.html" title="Installation"
              >previous</a> |</li>
-        <li><a href="../index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

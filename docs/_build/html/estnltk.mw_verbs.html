@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>estnltk.mw_verbs package &mdash; estnltk 1.0 documentation</title>
+    <title>estnltk.mw_verbs package &mdash; estnltk 1.1 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="estnltk 1.0 documentation" href="index.html" />
+    <link rel="top" title="estnltk 1.1 documentation" href="index.html" />
     <link rel="next" title="estnltk.wordnet package" href="estnltk.wordnet.html" />
     <link rel="prev" title="estnltk.pyvabamorf package" href="estnltk.pyvabamorf.html" /> 
   </head>
@@ -36,15 +36,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="estnltk.wordnet.html" title="estnltk.wordnet package"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="estnltk.pyvabamorf.html" title="estnltk.pyvabamorf package"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -58,447 +55,20 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-estnltk.mw_verbs.basic_verbchain_detection">
-<span id="estnltk-mw-verbs-basic-verbchain-detection-module"></span><h2>estnltk.mw_verbs.basic_verbchain_detection module<a class="headerlink" href="#module-estnltk.mw_verbs.basic_verbchain_detection" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="estnltk-mw-verbs-basic-verbchain-detection-module">
+<h2>estnltk.mw_verbs.basic_verbchain_detection module<a class="headerlink" href="#estnltk-mw-verbs-basic-verbchain-detection-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-estnltk.mw_verbs.utils">
-<span id="estnltk-mw-verbs-utils-module"></span><h2>estnltk.mw_verbs.utils module<a class="headerlink" href="#module-estnltk.mw_verbs.utils" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="estnltk.mw_verbs.utils.WordTemplate">
-<em class="property">class </em><code class="descclassname">estnltk.mw_verbs.utils.</code><code class="descname">WordTemplate</code><span class="sig-paren">(</span><em>newRules</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/utils.html#WordTemplate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.utils.WordTemplate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>A template for filtering word tokens based on morphological and other constraints.
-WordTemplate can be used, for example, to extract words that have a special 
-part-of-speech (e.g verb, noun), or a special morphological case (e.g. inessive, 
-allative).</p>
-<p>It is required that the input word token has been morphologically analysed by 
-pyvabamorf, and is in corresponding JSON-style data structure, which contains 
-morphological analyses of the word and its surface textual information:</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>{ANALYSIS: [{&#8216;clitic&#8217;: ...,</dt>
-<dd><blockquote class="first">
-<div>&#8216;ending&#8217;: ...,
-&#8216;form&#8217;:   ...,
-&#8216;lemma&#8217;:  ...,
-&#8216;partofspeech&#8217;: ...,
-&#8216;root&#8217;: ...,
-&#8216;root_tokens&#8217;: ... },
-... ],</div></blockquote>
-<p class="last">&#8216;text&#8217;: ...</p>
-</dd>
-</dl>
-<p>}</p>
-</div></blockquote>
-<p>Constraints are defined as regular expressions which are used to check whether 
-the string value of the key (e.g. value of &#8220;root&#8221;, &#8220;partofspeech&#8221;) matches the 
-regular expression.</p>
-<p class="rubric">Attributes</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="57%" />
-<col width="43%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>analysisRules</td>
-<td>&nbsp;</td>
-</tr>
-<tr class="row-even"><td>otherRules</td>
-<td>&nbsp;</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Methods</p>
-<dl class="method">
-<dt id="estnltk.mw_verbs.utils.WordTemplate.addRule">
-<code class="descname">addRule</code><span class="sig-paren">(</span><em>field</em>, <em>regExpPattern</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/utils.html#WordTemplate.addRule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.utils.WordTemplate.addRule" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds new rule for checking whether a value of the field matches given regular 
-expression regExpPattern;</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>field: str</strong></p>
-<blockquote>
-<div><p>keyword, e.g. &#8216;partofspeech&#8217;, &#8216;root&#8217;, &#8216;text&#8217; etc</p>
-</div></blockquote>
-<p><strong>regExpPattern: str</strong></p>
-<blockquote class="last">
-<div><p>a regular expression that the value of the field must match (using method 
-re.match( regExpPattern, token[field]) ).</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.mw_verbs.utils.WordTemplate.analysisFields">
-<code class="descname">analysisFields</code><em class="property"> = ['root', 'partofspeech', 'ending', 'form', 'clitic', 'lemma']</em><a class="headerlink" href="#estnltk.mw_verbs.utils.WordTemplate.analysisFields" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.mw_verbs.utils.WordTemplate.analysisRules">
-<code class="descname">analysisRules</code><em class="property"> = None</em><a class="headerlink" href="#estnltk.mw_verbs.utils.WordTemplate.analysisRules" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="estnltk.mw_verbs.utils.WordTemplate.matches">
-<code class="descname">matches</code><span class="sig-paren">(</span><em>tokenJson</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/utils.html#WordTemplate.matches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.utils.WordTemplate.matches" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines whether given token (tokenJson) satisfies all the rules listed 
-in the WordTemplate. If the rules describe tokenJson[ANALYSIS], it is 
-required that at least one item in the list tokenJson[ANALYSIS] satisfies 
-all the rules (but it is not required that all the items should satisfy). 
-Returns a boolean value.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tokenJson: pyvabamorf&#8217;s analysis of a single word token;</strong></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="estnltk.mw_verbs.utils.WordTemplate.matchingAnalyseIndexes">
-<code class="descname">matchingAnalyseIndexes</code><span class="sig-paren">(</span><em>tokenJson</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/utils.html#WordTemplate.matchingAnalyseIndexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.utils.WordTemplate.matchingAnalyseIndexes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines whether given token (tokenJson) satisfies all the rules listed 
-in the WordTemplate and returns a list of analyse indexes that correspond 
-to tokenJson[ANALYSIS] elements that are matching all the rules. 
-An empty list is returned if none of the analyses match (all the rules), 
-or (!) if none of the rules are describing the ANALYSIS part of the 
-token;</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tokenJson: pyvabamorf&#8217;s analysis of a single word token;</strong></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="estnltk.mw_verbs.utils.WordTemplate.matchingAnalyses">
-<code class="descname">matchingAnalyses</code><span class="sig-paren">(</span><em>tokenJson</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/utils.html#WordTemplate.matchingAnalyses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.utils.WordTemplate.matchingAnalyses" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines whether given token (tokenJson) satisfies all the rules listed 
-in the WordTemplate and returns a list of analyses (elements of 
-tokenJson[ANALYSIS]) that are matching all the rules. An empty list is 
-returned if none of the analyses match (all the rules), or (!) if none of 
-the rules are describing the ANALYSIS part of the token;</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tokenJson: pyvabamorf&#8217;s analysis of a single word token;</strong></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="estnltk.mw_verbs.utils.WordTemplate.matchingPositions">
-<code class="descname">matchingPositions</code><span class="sig-paren">(</span><em>tokenArray</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/utils.html#WordTemplate.matchingPositions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.utils.WordTemplate.matchingPositions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of positions (indexes) in the tokenArray where this WordTemplate
-matches (the method self.matches(token) returns True). Returns an empty list if
-no matching tokens appear in the input list.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>tokenArray: list of word tokens;</strong></p>
-<blockquote class="last">
-<div><p>A list of word tokens along with their pyvabamorf&#8217;s analyses;</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="estnltk.mw_verbs.utils.WordTemplate.matchingTokens">
-<code class="descname">matchingTokens</code><span class="sig-paren">(</span><em>tokenArray</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/utils.html#WordTemplate.matchingTokens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.utils.WordTemplate.matchingTokens" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of tokens in the tokenArray that match this WordTemplate (the 
-method self.matches(token) returns True). Returns an empty list if no matching 
-tokens appear in the input list.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>tokenArray: list of word tokens;</strong></p>
-<blockquote class="last">
-<div><p>A list of word tokens along with their pyvabamorf&#8217;s analyses;</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.mw_verbs.utils.WordTemplate.otherRules">
-<code class="descname">otherRules</code><em class="property"> = None</em><a class="headerlink" href="#estnltk.mw_verbs.utils.WordTemplate.otherRules" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="function">
-<dt id="estnltk.mw_verbs.utils.addWordIDs">
-<code class="descclassname">estnltk.mw_verbs.utils.</code><code class="descname">addWordIDs</code><span class="sig-paren">(</span><em>jsonSent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/utils.html#addWordIDs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.utils.addWordIDs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="estnltk.mw_verbs.utils.getClausesByClauseIDs">
-<code class="descclassname">estnltk.mw_verbs.utils.</code><code class="descname">getClausesByClauseIDs</code><span class="sig-paren">(</span><em>jsonSent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/utils.html#getClausesByClauseIDs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.utils.getClausesByClauseIDs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="estnltk.mw_verbs.utils.getWordIDrange">
-<code class="descclassname">estnltk.mw_verbs.utils.</code><code class="descname">getWordIDrange</code><span class="sig-paren">(</span><em>a</em>, <em>b</em>, <em>jsonSent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/utils.html#getWordIDrange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.utils.getWordIDrange" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="estnltk.mw_verbs.utils.removeWordIDs">
-<code class="descclassname">estnltk.mw_verbs.utils.</code><code class="descname">removeWordIDs</code><span class="sig-paren">(</span><em>jsonSent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/utils.html#removeWordIDs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.utils.removeWordIDs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<div class="section" id="estnltk-mw-verbs-utils-module">
+<h2>estnltk.mw_verbs.utils module<a class="headerlink" href="#estnltk-mw-verbs-utils-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-estnltk.mw_verbs.verbchain_detector">
-<span id="estnltk-mw-verbs-verbchain-detector-module"></span><h2>estnltk.mw_verbs.verbchain_detector module<a class="headerlink" href="#module-estnltk.mw_verbs.verbchain_detector" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="estnltk.mw_verbs.verbchain_detector.VerbChainDetector">
-<em class="property">class </em><code class="descclassname">estnltk.mw_verbs.verbchain_detector.</code><code class="descname">VerbChainDetector</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/verbchain_detector.html#VerbChainDetector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.verbchain_detector.VerbChainDetector" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Class for performing verb chain detection.</p>
-<p class="rubric">Attributes</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="69%" />
-<col width="31%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>verbInfSubcatLexicon</td>
-<td>&nbsp;</td>
-</tr>
-<tr class="row-even"><td>verbNomAdvVinfExtender</td>
-<td>&nbsp;</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Methods</p>
-<dl class="method">
-<dt id="estnltk.mw_verbs.verbchain_detector.VerbChainDetector.detectVerbChainsFromSent">
-<code class="descname">detectVerbChainsFromSent</code><span class="sig-paren">(</span><em>sentence</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/verbchain_detector.html#VerbChainDetector.detectVerbChainsFromSent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.verbchain_detector.VerbChainDetector.detectVerbChainsFromSent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Detect verb chains from given sentence.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sentence:  list of dict</strong></p>
-<blockquote>
-<div><p>A list of sentence words, each word in form of a dictionary containing 
-morphological analysis and clause boundary annotations (must have CLAUSE_IDX);</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of dict</p>
-<blockquote class="last">
-<div><dl class="docutils">
-<dt>List of detected verb chains, each verb chain has following attributes (keys):</dt>
-<dd><dl class="first last docutils">
-<dt>PHRASE      &#8211; list of int <span class="classifier-delimiter">:</span> <span class="classifier">indexes pointing to elements in sentence that belong </span></dt>
-<dd><p class="first last">to the chain;</p>
-</dd>
-<dt>PATTERN     &#8211; list of str <span class="classifier-delimiter">:</span> <span class="classifier">for each word in phrase, marks whether it is &#8216;ega&#8217;, &#8216;ei&#8217;, </span></dt>
-<dd><p class="first last">&#8216;ära&#8217;, &#8216;pole&#8217;, &#8216;ole&#8217;, &#8216;&amp;&#8217; (conjunction: ja/ning/ega/või) 
-&#8216;verb&#8217; (verb different than &#8216;ole&#8217;) or &#8216;nom/adv&#8217;;</p>
-</dd>
-<dt>ANALYSIS_IDS &#8211; list of (list of int) <span class="classifier-delimiter">:</span> <span class="classifier">for each word in phrase, points to index(es) of </span></dt>
-<dd><p class="first last">morphological analyses that correspond to words
-in the verb chains;</p>
-</dd>
-<dt>ROOTS       &#8211; list of str <span class="classifier-delimiter">:</span> <span class="classifier">for each word in phrase, lists its corresponding ROOT </span></dt>
-<dd><p class="first last">value from the morphological analysis; e.g. for the verb
-chain &#8216;püüab kodeerida&#8217;, the ROOT will be [&#8216;püüd&#8217;, 
-&#8216;kodeeri&#8217;];</p>
-</dd>
-<dt>MORPH       &#8211; list of str <span class="classifier-delimiter">:</span> <span class="classifier">for each word in phrase, lists its part-of-speech value </span></dt>
-<dd><p class="first last">and morphological form (in one string, separated by &#8216;_&#8217;,
-and multiple variants of the pos/form separated by &#8216;/&#8217;); 
-e.g. for the verb chain &#8216;on tulnud&#8217;, the MORPH value 
-will be [&#8216;V_vad/b&#8217;, &#8216;V_nud&#8217;];</p>
-</dd>
-<dt>OTHER_VERBS  &#8211; bool <span class="classifier-delimiter">:</span> <span class="classifier">whether there are other verbs in the context, potentially being </span></dt>
-<dd><p class="first last">part of the verb chain; if this is True, it is uncertain whether 
-the chain is complete or not;</p>
-</dd>
-<dt>&#8216;pol&#8217;         &#8211; &#8216;POS&#8217;, &#8216;NEG&#8217; or &#8216;??&#8217; <span class="classifier-delimiter">:</span> <span class="classifier">grammatical polarity of the verb chain; Negative</span></dt>
-<dd><p class="first last">polarity indicates that the verb phrase begins 
-with &#8216;ei&#8217;, &#8216;ega&#8217;, &#8216;ära&#8217; or &#8216;pole&#8217;;</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.mw_verbs.verbchain_detector.VerbChainDetector.verbInfSubcatLexicon">
-<code class="descname">verbInfSubcatLexicon</code><em class="property"> = None</em><a class="headerlink" href="#estnltk.mw_verbs.verbchain_detector.VerbChainDetector.verbInfSubcatLexicon" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.mw_verbs.verbchain_detector.VerbChainDetector.verbNomAdvVinfExtender">
-<code class="descname">verbNomAdvVinfExtender</code><em class="property"> = None</em><a class="headerlink" href="#estnltk.mw_verbs.verbchain_detector.VerbChainDetector.verbNomAdvVinfExtender" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="function">
-<dt id="estnltk.mw_verbs.verbchain_detector.addGrammaticalFeatsAndRoots">
-<code class="descclassname">estnltk.mw_verbs.verbchain_detector.</code><code class="descname">addGrammaticalFeatsAndRoots</code><span class="sig-paren">(</span><em>sentence</em>, <em>foundChains</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/verbchain_detector.html#addGrammaticalFeatsAndRoots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.verbchain_detector.addGrammaticalFeatsAndRoots" title="Permalink to this definition">¶</a></dt>
-<dd><p>Täiendab leitud verbiahelaid, lisades iga ahela kylge selle s6nade lemmad (ROOT 
-v2ljad morf analyysist) ning morfoloogilised tunnused (POSTAG+FORM: eraldajaks 
-&#8216;_&#8217; ning kui on mitu varianti, siis tuuakse k6ik variandid, eraldajaks &#8216;/&#8217;);
-Iga verbiahela kylge pannakse atribuudid ROOTS ja MORPH, mis sisaldavad tunnuste
-loetelusid (iga ahela liikme jaoks yks tunnus);</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>Nt.  </dt>
-<dd><dl class="first last docutils">
-<dt>** &#8216;püüab kodeerida&#8217; puhul tuleb MORPH väärtuseks [&#8216;V_b&#8217;, &#8216;V_da&#8217;] ning</dt>
-<dd>ROOTS väärtuseks [&#8216;püüd&#8217;, &#8216;kodeeri&#8217;];</dd>
-<dt>** &#8216;on tulnud&#8217; puhul tuleb MORPH väärtuseks [&#8216;V_vad/b&#8217;, &#8216;V_nud&#8217;] ning</dt>
-<dd>ROOTS väärtuseks [&#8216;ole&#8217;, &#8216;tule&#8217;];</dd>
-</dl>
-</dd>
-</dl>
-</div></blockquote>
-</dd></dl>
-
-<dl class="function">
-<dt id="estnltk.mw_verbs.verbchain_detector.removeRedundantVerbChains">
-<code class="descclassname">estnltk.mw_verbs.verbchain_detector.</code><code class="descname">removeRedundantVerbChains</code><span class="sig-paren">(</span><em>foundChains</em>, <em>removeOverlapping=True</em>, <em>removeSingleAraAndEi=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/verbchain_detector.html#removeRedundantVerbChains"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.verbchain_detector.removeRedundantVerbChains" title="Permalink to this definition">¶</a></dt>
-<dd><p>Eemaldab yleliigsed verbiahelad: ahelad, mis katavad osaliselt v6i t2ielikult 
-teisi ahelaid (removeOverlapping == True), yhes6nalised &#8216;ei&#8217; ja &#8216;ära&#8217; ahelad (kui 
-removeSingleAraAndEi == True);</p>
-<blockquote>
-<div>Yldiselt on nii, et ylekattuvaid ei tohiks palju olla, kuna fraaside laiendamisel</div></blockquote>
-<p>pyytakse alati kontrollida, et laiendus ei kattuks m6ne olemasoleva fraasiga;
-Peamiselt tekivad ylekattuvused siis, kui morf analyysi on sattunud valed 
-finiitverbi analyysid (v6i analyysid on j22nud mitmesteks) ja seega tuvastatakse 
-osalausest rohkem finiitverbe, kui oleks vaja.</p>
-<blockquote>
-<div>Heuristik: kahe ylekattuva puhul j2tame alles fraasi, mis algab eespool ning</div></blockquote>
-<p>m2rgime sellel OTHER_VERBS v22rtuseks True, mis m2rgib, et kontekstis on mingi
-segadus teiste verbidega.</p>
-</dd></dl>
-
+<div class="section" id="estnltk-mw-verbs-verbchain-detector-module">
+<h2>estnltk.mw_verbs.verbchain_detector module<a class="headerlink" href="#estnltk-mw-verbs-verbchain-detector-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-estnltk.mw_verbs.verbchain_nom_vinf_extender">
-<span id="estnltk-mw-verbs-verbchain-nom-vinf-extender-module"></span><h2>estnltk.mw_verbs.verbchain_nom_vinf_extender module<a class="headerlink" href="#module-estnltk.mw_verbs.verbchain_nom_vinf_extender" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender">
-<em class="property">class </em><code class="descclassname">estnltk.mw_verbs.verbchain_nom_vinf_extender.</code><code class="descname">VerbChainNomVInfExtender</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/verbchain_nom_vinf_extender.html#VerbChainNomVInfExtender"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Class for extending verb chains with nom/adv-vinf relations.</p>
-<p class="rubric">Attributes</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="66%" />
-<col width="34%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>nomAdvWordTemplates</td>
-<td>&nbsp;</td>
-</tr>
-<tr class="row-even"><td>verbRules</td>
-<td>&nbsp;</td>
-</tr>
-<tr class="row-odd"><td>verbToVinf</td>
-<td>&nbsp;</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Methods</p>
-<dl class="method">
-<dt id="estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.extendChainsInClause">
-<code class="descname">extendChainsInClause</code><span class="sig-paren">(</span><em>clause</em>, <em>clauseID</em>, <em>foundChains</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/verbchain_nom_vinf_extender.html#VerbChainNomVInfExtender.extendChainsInClause"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.extendChainsInClause" title="Permalink to this definition">¶</a></dt>
-<dd><p>Proovime etteantud osalauses leiduvaid verbiahelaid täiendada &#8216;verb-nom/adv-vinf&#8217; 
-rektsiooniseostega, nt:</p>
-<blockquote>
-<div><blockquote>
-<div>andma + võimalus + Vda :  talle anti_0 võimalus_0 olukorda parandada_0
-olema + vaja + Vda    :   nüüd on_0 küll vaja_0 asi lõpetada_0</div></blockquote>
-<p>Teeme seda kahel moel:</p>
-</div></blockquote>
-<ol class="arabic simple">
-<li>kui mingi olemasoleva verbiahela keskelt on puudu &#8216;nom/adv&#8217; (nt &#8216;andma&#8217;, &#8216;jätma&#8217;
-verbide vinf rektsiooniseoste leidmisel võib tekkida selliseid lünki), siis
-lisame ahela keskele &#8216;nom/adv&#8217; sõna.</li>
-<li>kui verbiahela lõpus on verb, mis on sageli ülemuseks &#8216;nom/adv&#8217; sõnale, millest
-omakorda sõltub mingi Vinf verb (Vma, Vda), ning need on osalausekontekstis olemas,
-lisame need verbiahela lõppu;</li>
-</ol>
-</dd></dl>
-
-<dl class="method">
-<dt id="estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.extendChainsInSentence">
-<code class="descname">extendChainsInSentence</code><span class="sig-paren">(</span><em>sentence</em>, <em>foundChains</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/verbchain_nom_vinf_extender.html#VerbChainNomVInfExtender.extendChainsInSentence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.extendChainsInSentence" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rakendab meetodit self.extendChainsInClause() antud lause igal osalausel.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.nomAdvWordTemplates">
-<code class="descname">nomAdvWordTemplates</code><em class="property"> = None</em><a class="headerlink" href="#estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.nomAdvWordTemplates" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.tokenMatchesNomAdvVinf">
-<code class="descname">tokenMatchesNomAdvVinf</code><span class="sig-paren">(</span><em>token</em>, <em>verb</em>, <em>vinf</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/estnltk/mw_verbs/verbchain_nom_vinf_extender.html#VerbChainNomVInfExtender.tokenMatchesNomAdvVinf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.tokenMatchesNomAdvVinf" title="Permalink to this definition">¶</a></dt>
-<dd><p>Teeb kindlaks, kas etteantud token v6iks olla verb&#8217;i alluv ning vinf&#8217;i ylemus (st
-paikneda nende vahel). Kui see nii on, tagastab j2rjendi vahele sobiva s6na morf 
-analyysidega (meetodi _getMatchingAnalysisIDs abil), vastasel juhul tagastab tyhja 
-j2rjendi;</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.verbRules">
-<code class="descname">verbRules</code><em class="property"> = None</em><a class="headerlink" href="#estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.verbRules" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.verbToVinf">
-<code class="descname">verbToVinf</code><em class="property"> = None</em><a class="headerlink" href="#estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.verbToVinf" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.wtNom">
-<code class="descname">wtNom</code><em class="property"> = &lt;estnltk.mw_verbs.utils.WordTemplate object at 0x2b1c689a9908&gt;</em><a class="headerlink" href="#estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.wtNom" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.wtNomSemCase">
-<code class="descname">wtNomSemCase</code><em class="property"> = &lt;estnltk.mw_verbs.utils.WordTemplate object at 0x2b1c689a97b8&gt;</em><a class="headerlink" href="#estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.wtNomSemCase" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.wtNotSyntAttrib">
-<code class="descname">wtNotSyntAttrib</code><em class="property"> = &lt;estnltk.mw_verbs.utils.WordTemplate object at 0x2b1c689ea9e8&gt;</em><a class="headerlink" href="#estnltk.mw_verbs.verbchain_nom_vinf_extender.VerbChainNomVInfExtender.wtNotSyntAttrib" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<div class="section" id="estnltk-mw-verbs-verbchain-nom-vinf-extender-module">
+<h2>estnltk.mw_verbs.verbchain_nom_vinf_extender module<a class="headerlink" href="#estnltk-mw-verbs-verbchain-nom-vinf-extender-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-estnltk.mw_verbs">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-estnltk.mw_verbs" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -512,11 +82,11 @@ j2rjendi;</p>
   <ul>
 <li><a class="reference internal" href="#">estnltk.mw_verbs package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-estnltk.mw_verbs.basic_verbchain_detection">estnltk.mw_verbs.basic_verbchain_detection module</a></li>
-<li><a class="reference internal" href="#module-estnltk.mw_verbs.utils">estnltk.mw_verbs.utils module</a></li>
-<li><a class="reference internal" href="#module-estnltk.mw_verbs.verbchain_detector">estnltk.mw_verbs.verbchain_detector module</a></li>
-<li><a class="reference internal" href="#module-estnltk.mw_verbs.verbchain_nom_vinf_extender">estnltk.mw_verbs.verbchain_nom_vinf_extender module</a></li>
-<li><a class="reference internal" href="#module-estnltk.mw_verbs">Module contents</a></li>
+<li><a class="reference internal" href="#estnltk-mw-verbs-basic-verbchain-detection-module">estnltk.mw_verbs.basic_verbchain_detection module</a></li>
+<li><a class="reference internal" href="#estnltk-mw-verbs-utils-module">estnltk.mw_verbs.utils module</a></li>
+<li><a class="reference internal" href="#estnltk-mw-verbs-verbchain-detector-module">estnltk.mw_verbs.verbchain_detector module</a></li>
+<li><a class="reference internal" href="#estnltk-mw-verbs-verbchain-nom-vinf-extender-module">estnltk.mw_verbs.verbchain_nom_vinf_extender module</a></li>
+<li><a class="reference internal" href="#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -558,15 +128,12 @@ j2rjendi;</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="estnltk.wordnet.html" title="estnltk.wordnet package"
              >next</a> |</li>
         <li class="right" >
           <a href="estnltk.pyvabamorf.html" title="estnltk.pyvabamorf package"
              >previous</a> |</li>
-        <li><a href="index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

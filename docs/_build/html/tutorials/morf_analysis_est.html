@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Morfoloogiline analüüs &mdash; estnltk 1.0 documentation</title>
+    <title>Morfoloogiline analüüs &mdash; estnltk 1.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="estnltk 1.0 documentation" href="../index.html" /> 
+    <link rel="top" title="estnltk 1.1 documentation" href="../index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -33,10 +33,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -91,7 +88,7 @@ Lisaks selguvad morfoloogilise analüüsi käigus muud sõnavormi tasandil avald
 <div></div></blockquote>
 <p>Morfoloogilist analüsaatorit saab rakendada ka juba eeltükeldatud dokumendil (st dokumendil, mis on eelneval analüüsil jagatud paragrahvideks, lauseteks, sõnadeks).
 Sellisel juhul on morfoloogilise analüüsi tulemuseks dokument, millel saab teha ka päringuid, nt võib leida järjendid, kus on toodud välja iga sõna sõnaliik, lemma vm morfoloogiline kategooria.
-Kasutame selleks klassi <a class="reference internal" href="../estnltk.html#estnltk.morf.PyVabamorfAnalyzer" title="estnltk.morf.PyVabamorfAnalyzer"><code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></code></a>:</p>
+Kasutame selleks klassi <code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></code>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span>
 <span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">PyVabamorfAnalyzer</span>
 
@@ -182,7 +179,7 @@ Kasutame selleks klassi <a class="reference internal" href="../estnltk.html#estn
  <span class="p">(</span><span class="s">&#39;kõnesüntees.&#39;</span><span class="p">,</span> <span class="s">&#39;kõnesüntees&#39;</span><span class="p">,</span> <span class="s">&#39;sg n&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">)]</span>
 </pre></div>
 </div>
-<p>NB! Kuigi eelnev näide võib jätta mulje, et igal sõnal ongi ainult üks analüüs, siis tegelikult on mitmesed analüüsid lihtsalt peidetud, st <code class="docutils literal"><span class="pre">morf_analyzed.lemmas</span></code>, <code class="docutils literal"><span class="pre">morf_analyzed.forms</span></code> ja  <code class="docutils literal"><span class="pre">morf_analyzed.postags</span></code> tagastavad iga sõna kohta vaid ühe analüüsi (mis ei pruugi ühestamata teksti korral olla õige analüüs). Sõna ülejäänud analüüsidele pääseb ligi klassi <a class="reference internal" href="../estnltk.html#estnltk.corpus.Word" title="estnltk.corpus.Word"><code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Word</span></code></a> atribuutide kaudu. Näide:</p>
+<p>NB! Kuigi eelnev näide võib jätta mulje, et igal sõnal ongi ainult üks analüüs, siis tegelikult on mitmesed analüüsid lihtsalt peidetud, st <code class="docutils literal"><span class="pre">morf_analyzed.lemmas</span></code>, <code class="docutils literal"><span class="pre">morf_analyzed.forms</span></code> ja  <code class="docutils literal"><span class="pre">morf_analyzed.postags</span></code> tagastavad iga sõna kohta vaid ühe analüüsi (mis ei pruugi ühestamata teksti korral olla õige analüüs). Sõna ülejäänud analüüsidele pääseb ligi klassi <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Word</span></code> atribuutide kaudu. Näide:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Väljastame esimese sõna (&#39;Keeletehnoloogia&#39;) kõik vormitüübid</span>
 <span class="k">print</span> <span class="p">(</span><span class="n">morf_analyzed</span><span class="o">.</span><span class="n">words</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">forms</span><span class="p">)</span>
 </pre></div>
@@ -256,10 +253,7 @@ Selleks rakendame funktsiooni <code class="xref py py-class docutils literal"><s
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../index.html">estnltk 1.0 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

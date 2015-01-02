@@ -51,7 +51,7 @@ We can see the possible parameters by issuing command::
     
 That will output::
 
-    usage: Estnltk.train [-h] [--synonyms SYNONYMS] [-r REPORT] [--sheet SHEET]
+    usage: estnltk.textclassifier.train [-h] [--synonyms SYNONYMS] [-r REPORT] [--sheet SHEET]
                           [--sep SEP]
                           settings dataset model
 
@@ -341,7 +341,7 @@ For example, let's create a file ``hinnavaatlus.txt`` containing some synonymous
 The first word of each line denotes the main synonym and all other words on the line are replaced by the first word.
 Let's see, if this small change reflects in prediction accuracy::
 
-    $ python3 -m Estnltk.train definitions/hinnavaatlus.def data/hinnavaatlus_simple.csv models/hinnavaatlus.bin --report hinnavaatlus --synonyms hinnavaatlus.txt
+    $ python3 -m estnltk.textclassifier.train definitions/hinnavaatlus.def data/hinnavaatlus_simple.csv models/hinnavaatlus.bin --report hinnavaatlus --synonyms hinnavaatlus.txt
 
 .. image:: _static/classification_report_tech.png
    :alt: Classification report technical synonyms
