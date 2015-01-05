@@ -2,7 +2,7 @@
  Ajaväljendite tuvastamine
 ===================================
 
-Ajaväljendite tuvastaja leiab tekstist ajaväljendid ning esitab (normaliseerib) nende nende semantika (nt väljenditele vastavad kuupäevad ja kellaajad) eeldefineeritud märgenduskeele raamides.
+Ajaväljendite tuvastaja leiab tekstist ajaväljendid ning esitab (normaliseerib) nende semantika (väljenditele vastavad kuupäevad ja kellaajad) eeldefineeritud märgenduskeele raamides.
 Programmi poolt kasutatav märgendusviis on sarnane TimeML raamistikus kasutatavale TIMEX3 märgendusele (märgendusviisi detailsema kirjelduse leiab `ajaväljendite märgendamise juhistest`_).
 
 .. _ajaväljendite märgendamise juhistest: https://github.com/soras/EstTimeMLCorpus/blob/master/docs-et/ajav2ljendite_m2rgendamine_06.pdf?raw=true
@@ -38,7 +38,7 @@ tulemusena väljastatakse ajaväljendid::
      'Timex(nüüd, DATE, PRESENT_REF, [timex_id=2])',
      'Timex(viie aasta, DURATION, P5Y, [timex_id=3])']
 
-Eelmises näites kuupäevaks normaliseeritud väljendi *eile* kalendriline semantika sõltub kasutuskontekstist.
+Relatiivsete ajaväljendite (nagu ajaväljend *eile* eelmises näites) semantika sõltub kasutuskontekstist.
 Selliste väljendite normaliseerimisel kasutatakse vaikimisi *dokumendi loomise ajana* (ehk siis "kõnehetkena") programmi käivitamise kuupäeva (eelmises näites oli selleks 3. detsember 2014).
 Dokumendi loomise aja saab ka teksti analüüsil eraldi täpsustada, kasutades selleks argumendi `creation_date` määramist.
 Nt võime eelneva näitelause analüüsil määrata "dokumendi loomise ajaks" 10. juuni 1995::
