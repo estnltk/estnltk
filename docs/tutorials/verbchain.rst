@@ -63,7 +63,10 @@ These and other attributes can also be directly accessed in the verb chain objec
         print('general pattern: ', chain.pattern_tokens )
         print('roots: ', chain.roots )
         print('morph: ', chain.morph )
-        print('polarity: ', chain.polarity )
+        print('polarity of the main verb: ', chain.polarity )
+        print('mood of the main verb:  ', chain.mood )
+        print('tense of the main verb: ', chain.tense )
+        print('voice of the main verb: ', chain.voice )
         print('other verbs: ', chain.other_verbs )
         print()    
 
@@ -73,14 +76,20 @@ The previous example outputs::
      general pattern:  ['ole', 'verb', 'verb']
      roots:  ['ole', 'pida', 'mine']
      morph:  ['V_ks', 'V_nud', 'V_ma']
-     polarity:  POS
+     polarity of the main verb:  POS
+     mood of the main verb:   condit
+     tense of the main verb:  past
+     voice of the main verb:  personal
      other verbs:  False
 
      text:  ei läinud.
      general pattern:  ['ei', 'verb']
      roots:  ['ei', 'mine']
      morph:  ['V_neg', 'V_nud']
-     polarity:  NEG
+     polarity of the main verb:  NEG
+     mood of the main verb:   indic
+     tense of the main verb:  imperfect
+     voice of the main verb:  personal
      other verbs:  False
 
 Following is a brief description of the attributes:
@@ -88,11 +97,14 @@ Following is a brief description of the attributes:
     * ``pattern_tokens`` - the general pattern of the chain: for each word in the chain, lists whether it is *'ega'*, *'ei'*, *'ära'*, *'pole'*, *'ole'*, *'&'* (conjunction: ja/ning/ega/või), *'verb'* (verb different than *'ole'*) or *'nom/adv'* (nominal/adverb); 
     * ``roots`` - for each word in the chain, lists its corresponding 'root' value from the morphological analysis;
     * ``morph`` - for each word in the chain, lists its morphological features: part of speech tag and form (in one string, separated by '_', and multiple variants of the pos/form are separated by '/');
-    * ``polarity`` - grammatical polarity of the chain: *'POS'*, *'NEG'* or *'??'*. *'NEG'* simply means that the chain begins with a negation word *ei/pole/ega/ära*; *'??'* is reserved for cases where it is uncertain whether *ära* forms a negated verb chain or not;
+    * ``polarity`` - grammatical polarity of the main verb. Possible values: *'POS'*, *'NEG'* or *'??'*. *'NEG'* means that the chain begins with a negation word *ei/pole/ega/ära*; *'??'* is reserved for cases where it is uncertain whether *ära* forms a negated verb chain or not;
+    * ``mood``  - mood of the main verb. Possible values: *'indic'* (indicative), *'imper'* (imperative), *'condit'* (conditional), *'quotat'* (quotative) või *'??'* (undetermined);
+    * ``tense`` - tense of the main verb. Possible values depend on the mood value. Tenses of indicative: *'present'*, *'imperfect'*, *'perfect'*, *'pluperfect'*; tense of imperative: *'present'*; tenses of conditional and quotative: *'present'* ja *'past'*. Additionally, the tense may remain undetermined (*'??'*).
+    * ``voice`` - voice of the main verb. Possible values: *'personal'*, *'impersonal'*, *'??'* (undetermined).
     * ``other_verbs`` - boolean, marks whether there are other verbs in the context, which can be potentially added to the verb chain; if ``True``,then it is uncertain whether the chain is complete or not;
 
 Note that the words in the verb chain are ordered by the order of the grammatical relations (the order which may not coincide with the word order in text).
-The first word (or a pair of words, such as in case of negation constructions) is typically main verb of the clause, and each following word is governed by the previous word in the chain.
+The first word (or a pair of words, such as in case of negation constructions) is the main verb of the clause, and each following word is governed by the previous word in the chain.
 An exception: the chain may end with a conjunction of two infinite verbs (general pattern *verb & verb*), in this case, both infinite verbs can be considered as being governed by the preceding word in the chain.
 
 .. From the perspective of semantics, the first word (or a pair of words) may have somewhat more abstract semantics (e.g. if it is a modal word like *tohtima*, *võima*, or an aspectual word like *hakkama*), and in this case, only the last word of the chain carries most of the semantic/concrete meaning.
@@ -103,5 +115,5 @@ One way to get an overview about which kind of verb chains can be currently dete
 In file :download:`tasak_verb_chain_examples <_static/tasak_verb_chain_examples.html>`, the verb chain statistics extracted from The Balanced Corpus of Estonian (http://www.cl.ut.ee/korpused/grammatikakorpus/index.php?lang=et) are listed.
 Verb chains are grouped by the general patterns, more specifically, by the first words of the general patterns, and are sorted by their frequency.
 For each general pattern, the file lists its absolute frequency, relative frequency among all verb chains, and an example sentence (where words belonging to the chain are underlined).
-The last pattern ( *...+??* ) represents all potentially incomplete chains (chains that had ``other_verbs=True``).
+The last pattern ( *...+??* ) represents all potentially incomplete chains (chains that had ``other_verbs == True``).
 

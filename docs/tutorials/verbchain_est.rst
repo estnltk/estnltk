@@ -62,7 +62,10 @@ Neile ja muudele väärtustele pääseb ligi ka otse, verbiahel-objekti atribuut
         print(' üldine muster: ', chain.pattern_tokens )
         print(' algvormid: ', chain.roots )
         print(' morf: ', chain.morph )
-        print(' polaarsus: ', chain.polarity )
+        print(' peaverbi polaarsus: ', chain.polarity )
+        print(' peaverbi kõneviis: ', chain.mood )
+        print(' peaverbi aeg:      ', chain.tense )
+        print(' peaverbi tegumood: ', chain.voice )
         print(' kontekstis on teisi verbe?: ', chain.other_verbs )
         print()  
 
@@ -72,14 +75,20 @@ Tulemusena väljastatakse::
      üldine muster:  ['ole', 'verb', 'verb']
      algvormid:  ['ole', 'pida', 'mine']
      morf:  ['V_ks', 'V_nud', 'V_ma']
-     polaarsus:  POS
+     peaverbi polaarsus:  POS
+     peaverbi kõneviis:  condit
+     peaverbi aeg:       past
+     peaverbi tegumood:  personal
      kontekstis on teisi verbe?:  False
 
      tekst:  ei läinud.
      üldine muster:  ['ei', 'verb']
      algvormid:  ['ei', 'mine']
      morf:  ['V_neg', 'V_nud']
-     polaarsus:  NEG
+     peaverbi polaarsus:  NEG
+     peaverbi kõneviis:  indic
+     peaverbi aeg:       imperfect
+     peaverbi tegumood:  personal
      kontekstis on teisi verbe?:  False
 
 Järgneb atribuutide lühikirjeldus:
@@ -87,8 +96,11 @@ Järgneb atribuutide lühikirjeldus:
     * ``pattern_tokens`` - üldine muster: järjend, mis sisaldab iga ahelasse kuuluva sõna üldist kirjeldust. Märgitakse, kas sõna on *'ega'*, *'ei'*, *'ära'*, *'pole'*, *'ole'*, *'&'* (sidesõna: ja/ning/ega/või), *'verb'* (mitte-*'olema'* verb) või *'nom/adv'* (käändsõna/adverb); 
     * ``roots`` - järjend, mis sisaldab iga ahelasse kuuluva sõna 'root' väärtust morfoloogilisest analüüsist;
     * ``morph`` - järjend, mis sisaldab iga ahelasse kuuluva sõna morfoloogilisi tunnuseid: sõnaliik ja vormitüüp (ühe sõnena, sõnaliigi ja vormitüübi vahel on eraldajaks '_'; kui tunnused on jäänud mitmeseks, on erinevate variantide vahel eraldajaks '/');
-    * ``polarity`` - verbiahela grammatiline polaarsus: *'POS'*, *'NEG'* või *'??'*. *'NEG'* märgib seda, et verbiahela alguses on eitusesõna (*ei/pole/ega/ära*); *'??'* on reserveeritud juhtudeks, kui pole kindel, kas *ära* on kasutusel eitusesõnana või mitte;
-    * ``other_verbs`` - kahendmuutuja märkimaks, kas verbiahela kontekstis on veel verbe, mis võivad  kuuluda verbiahela koosseisu. Kui väärtus on ``True``, pole kindel, kas ahel on terviklik või mitte;
+    * ``polarity`` - ahela peaverbi grammatiline polaarsus. Võimalikud väärtused: *'POS'*, *'NEG'* või *'??'*. *'NEG'* märgib seda, et verbiahela alguses on eitusesõna (*ei/pole/ega/ära*); *'??'* on reserveeritud juhtudeks, kui pole kindel, kas *ära* on kasutusel eitusesõnana või mitte;
+    * ``mood`` - ahela peaverbi kõneviis. Võimalikud väärtused: *'indic'* (indikatiiv ehk kindel kv), *'imper'* (imperatiiv ehk käskiv kv), *'condit'* (konditsionaal ehk tingiv kv), *'quotat'* (kvotatiiv ehk kaudne kv) või *'??'* (määramata);
+    * ``tense`` - ahela peaverbi aeg. Võimalikud väärtused sõltuvad kõneviisist. Kindla kõneviisi ajad: *'present'* (olevik), *'imperfect'* (lihtminevik), *'perfect'* (täisminevik), *'pluperfect'* (enneminevik); käskiva kõneviisi aeg: *'present'*; tingiva ja kaudse kõneviisi ajad: *'present'* (olevik) ja *'past'* (minevik). Lisaks võib aeg jääda määramata (*'??'*).
+    * ``voice`` - ahela peaverbi tegumood. Võimalikud väärtused: *'personal'* (isikuline), *'impersonal'* (umbisikuline), *'??'* (määramata).
+    * ``other_verbs`` - kahendmuutuja, mis märgib, kas verbiahela kontekstis on veel verbe, mis võivad  kuuluda verbiahela koosseisu. Kui väärtus on ``True``, pole kindel, kas ahel on terviklik või mitte;
 
 Verbiahelates on sõnad järjestatud grammatiliste seoste järgi (järjestus, mis võib, aga ei pruugi, langeda kokku sõnade tegeliku järjekorraga lauses). 
 Ahela esimene sõna (või sõnapaar, nt eituse korral) on tüüpiliselt osalauses kesksel kohal olev verb (peaverb) ning iga järgnev sõna ahelas on eelmise sõna alluv.
@@ -102,7 +114,7 @@ Näiteid üldistest mustritest
 Failis :download:`tasak_verb_chain_examples <_static/tasak_verb_chain_examples.html>` ongi toodud Tasakaalus korpusest (http://www.cl.ut.ee/korpused/grammatikakorpus/index.php?lang=et) programmi poolt eraldatud verbiahelate statistika ning näited.
 Verbiahelad on grupeeritud üldiste mustrite järgi (täpsemalt: üldiste mustrite esimeste sõnade järgi) ning iga grupi sisu on omakorda sorteeritud esinemissageduse järgi.
 Iga üldise mustri juures on toodud välja selle esinemissagedus, suhteline sagedus kõigi mustrite seas ning üks näitelause (kus ahelasse kuuluvad sõnad on allajoonitud).
-Viimane muster ( *...+??* ) tähistab kõiki potentsiaalselt poolikuks jäänud verbiahelaid (st ahelaid, mille puhul ``other_verbs=True``).
+Viimane muster ( *...+??* ) tähistab kõiki potentsiaalselt poolikuks jäänud verbiahelaid (st ahelaid, mille puhul ``other_verbs == True``).
 
 
 .. rubric:: Märkused
