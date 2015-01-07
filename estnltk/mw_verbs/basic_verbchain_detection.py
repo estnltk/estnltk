@@ -202,7 +202,7 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
     verbEiJarel   = WordTemplate({POSTAG:'V',FORM:'o|nud|tud|nuks|nuvat|vat|ks|ta|taks|tavat$'})
     verbEiJarel2  = WordTemplate({POSTAG:'V',FORM:'neg o$'})
     # Infiniitverb, olema ja verbid, mis v6ivad olema-le j2rgneda
-    verbInf = WordTemplate({POSTAG:'V', FORM:'^(da|des|ma|maks|mas|mast|nud|tud|v|mata)$'})
+    verbInf = WordTemplate({POSTAG:'V', FORM:'^(da|des|ma|tama|ta|maks|mas|mast|nud|tud|v|mata)$'})
     verbOle = WordTemplate({ROOT:'^ole$',POSTAG:'V'})
     verbOleJarel = WordTemplate({POSTAG:'V',FORM:'nud$'})
     verbOleJarelHeur1 = WordTemplate({POSTAG:'V',FORM:'^(tud|da|mas)$'})
@@ -1336,7 +1336,8 @@ def _extractEgaNegFromSent( sentTokens, clausesDict, foundChains ):
            lauset.
     '''
     sonaEga     = WordTemplate({ROOT:'^ega$',POSTAG:'[DJ]'})
-    verbEiJarel = WordTemplate({POSTAG:'V',FORM:'(o|nud|tud|nuks|nuvat|vat|ks|ta|taks|tavat)$'})
+    verbEiJarel  = WordTemplate({POSTAG:'V',FORM:'(o|nud|tud|nuks|nuvat|vat|ks|ta|taks|tavat)$'})
+    verbEiJarel2 = WordTemplate({ROOT:'^mine$', POSTAG:'V',FORM:'neg o$'})
     verbTud     = WordTemplate({POSTAG:'V',FORM:'(tud)$'})
     verb        = WordTemplate({POSTAG:'V'})
     verbOlema   = WordTemplate({POSTAG:'V', ROOT:'^(ole)$'})
@@ -1368,7 +1369,7 @@ def _extractEgaNegFromSent( sentTokens, clausesDict, foundChains ):
                 #
                 for verbObj in foundChains:
                     if sentTokens[i+1][WORD_ID] in verbObj[PHRASE] and verbObj[POLARITY] != 'NEG' and \
-                       verbEiJarel.matches( sentTokens[i+1] ):
+                       (verbEiJarel.matches( sentTokens[i+1] ) or verbEiJarel2.matches( sentTokens[i+1] )):
                             verbObj[PHRASE].insert(0, token[WORD_ID])
                             verbObj[PATTERN].insert(0, 'ega')
                             verbObj[POLARITY] = 'NEG'
@@ -1547,7 +1548,7 @@ def _determineVerbChainContextualAmbiguity( clauseTokens, clauseID, foundChains 
     verbOlema = WordTemplate({POSTAG:'V', ROOT:'^(ole)$'})
     verbSaama = WordTemplate({POSTAG:'V', ROOT:'^(saa)$'})
     verbEiAra = WordTemplate({ROOT:'^(ära|ei)$',FORM:'neg.*',POSTAG:'V'})
-    verbInf        = WordTemplate({POSTAG:'V', FORM:'^(da|des|ma|maks|mas|mast|nud|tud|v|mata)$'})
+    verbInf        = WordTemplate({POSTAG:'V', FORM:'^(da|des|ma|tama|ta|mas|mast|nud|tud|v|mata)$'})
     regularVerbInf = WordTemplate({POSTAG:'V', FORM:'^(da|ma|maks|mas|mast|mata)$'})
     olemaVerbInf   = WordTemplate({POSTAG:'V', FORM:'^(nud|tud|da|ma|mas|mata)$'})
     saamaVerbInf   = WordTemplate({POSTAG:'V', FORM:'^(tud|da|ma)$'})

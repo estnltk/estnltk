@@ -89,18 +89,32 @@ def addGrammaticalFeatsAndRoots( sentence, foundChains ):
     ''' Täiendab leitud verbiahelaid, lisades iga ahela kylge selle s6nade lemmad (ROOT 
         v2ljad morf analyysist) ning morfoloogilised tunnused (POSTAG+FORM: eraldajaks 
         '_' ning kui on mitu varianti, siis tuuakse k6ik variandid, eraldajaks '/');
-        Iga verbiahela kylge pannakse atribuudid ROOTS ja MORPH, mis sisaldavad tunnuste
-        loetelusid (iga ahela liikme jaoks yks tunnus);
+        Atribuudid ROOTS ja MORPH sisaldavad tunnuste loetelusid (iga ahela liikme jaoks 
+        yks tunnus:
          Nt.  
            ** 'püüab kodeerida' puhul tuleb MORPH väärtuseks ['V_b', 'V_da'] ning
               ROOTS väärtuseks ['püüd', 'kodeeri'];
            ** 'on tulnud' puhul tuleb MORPH väärtuseks ['V_vad/b', 'V_nud'] ning
               ROOTS väärtuseks ['ole', 'tule'];
+
+         Lisaks leiatakse ahela p6hiverbi (esimese verbi) grammatilised tunnused: 
+           ** aeg (TENSE):       present, imperfect, perfect, pluperfect, past, ??
+           ** k6neviis (MOOD):   indic, imper, condit, quotat, ??
+           ** tegumood (VOICE):  personal, impersonal, ??
     '''
+    _indicPresent     = ['n','d','b','me','te','vad']
+    _indicImperfect   = ['sin', 'sid', 's', 'sime', 'site', 'sid']
+    _imperatPlural    = ['gem', 'ge', 'gu']
+    _conditPreesens   = ['ksin', 'ksid', 'ks', 'ksime', 'ksite', 'ksid']
+    _conditPreteerium = ['nuksin', 'nuksid', 'nuks', 'nuksime', 'nuksite', 'nuksid']
     for i in range(len(foundChains)):
         matchObj1 = foundChains[i]
         roots = []
         grammFeats = []
+        grammPosAndForms = []
+        #
+        # 1) Leiame kogu ahela morfoloogilised tunnused ja lemmad
+        #
         for j in range(len( matchObj1[PHRASE] )):
             wid = matchObj1[PHRASE][j]
             token = [token for token in sentence if token[WORD_ID]==wid][0]
@@ -110,6 +124,7 @@ def addGrammaticalFeatsAndRoots( sentence, foundChains ):
             form = set( [a[FORM] for a in analyses] )
             root = [a[ROOT] for a in analyses][0]
             grammatical = ("/".join(list(pos))) + '_' + ("/".join(list(form)))
+            grammPosAndForms.append( (pos, form) )
             #  Yhtlustame m6ningaid mustreid (st kohendame nende morf analyysi selliseks, nagu
             # mustri poolt on eeldatud) ...
             if root == 'ei' and len(matchObj1[PHRASE])>1:
@@ -120,6 +135,280 @@ def addGrammaticalFeatsAndRoots( sentence, foundChains ):
             grammFeats.append( grammatical )
         matchObj1[ROOTS] = roots
         matchObj1[MORPH] = grammFeats
+        #
+        # 2) Leiame eelneva põhjal ahela põhiverbi tunnused:  grammatilise aja (tense),  
+        #      kõneviisi (mood),  tegumoe (voice)
+        #
+        tense = "??"
+        mood  = "??"
+        voice = "??"
+        if matchObj1[POLARITY] == 'POS':
+            #
+            #   Jaatuse tunnused
+            #
+            (pos, form) = grammPosAndForms[0]
+            if 'V' in pos:
+                #
+                #  Indikatiiv e kindel kõneviis
+                #
+                if len(form.intersection( _indicPresent )) > 0:
+                    tense = "present"
+                    mood  = "indic"
+                    voice = "personal"
+                elif len(form.intersection( _indicImperfect )) > 0:
+                    tense = "imperfect"
+                    mood = "indic"
+                    voice = "personal"
+                elif 'takse' in form:
+                    tense = "present"
+                    mood  = "indic"
+                    voice = "impersonal"
+                elif 'ti' in form:
+                    tense = "imperfect"
+                    mood  = "indic"
+                    voice = "impersonal"
+                #
+                #  Imperatiiv e käskiv kõneviis
+                #
+                elif 'o' in form or 'gu' in form:
+                    tense = "present"
+                    mood  = "imper"
+                    voice = "personal"
+                elif len(form.intersection( _imperatPlural )) > 0:
+                    tense = "present"
+                    mood  = "imper"
+                    voice = "personal"
+                elif 'tagu' in form:
+                    tense = "present"
+                    mood  = "imper"
+                    voice = "impersonal"
+                #
+                #  Konditsionaal e tingiv kõneviis
+                #
+                elif len(form.intersection( _conditPreesens )) > 0:
+                    tense = "present"
+                    mood  = "condit"
+                    voice = "personal"
+                elif 'taks' in form:
+                    tense = "present"
+                    mood  = "condit"
+                    voice = "impersonal"
+                elif len(form.intersection( _conditPreteerium )) > 0:
+                    tense = "past"
+                    mood  = "condit"
+                    voice = "personal"
+                elif 'tuks' in form:
+                    tense = "past"
+                    mood  = "condit"
+                    voice = "impersonal"
+                #
+                #  Kvotatiiv e kaudne kõneviis
+                #
+                elif 'vat' in form:
+                    tense = "present"
+                    mood  = "quotat"
+                    voice = "personal"
+                elif 'tavat' in form:
+                    tense = "present"
+                    mood  = "quotat"
+                    voice = "impersonal"
+                elif 'nuvat' in form:
+                    tense = "past"
+                    mood  = "quotat"
+                    voice = "personal"
+                elif 'tuvat' in form:
+                    tense = "past"
+                    mood  = "quotat"
+                    voice = "impersonal"
+                #
+                #  Liitaeg: olema + nud (personaal), olema + tud (impersonaal)
+                #
+                if len(matchObj1[PATTERN]) > 1 and matchObj1[PATTERN][0] == 'ole':
+                    # Kindla kõneviisi liitaeg
+                    if mood == "indic" and (grammFeats[1] == "V_nud" or grammFeats[1] == "V_tud"):
+                        if tense == "present":
+                            #  Täisminevik
+                            tense = "perfect"
+                            if grammFeats[1] == "V_tud":
+                                voice = "impersonal"
+                        elif tense == "imperfect":
+                            #  Enneminevik
+                            tense = "pluperfect"
+                            if grammFeats[1] == "V_tud":
+                                voice = "impersonal"
+                    # Tingiva ja kaudse kõneviisi liitaeg (nn üldminevik)
+                    elif mood in ["quotat", "condit"] and tense == "present" and \
+                         voice == "personal":
+                            if grammFeats[1] == "V_nud":
+                                tense = "past"
+                            elif grammFeats[1] == "V_tud":
+                                if mood == "quotat":
+                                    tense = "past"
+                                    voice = "impersonal"
+                                else:
+                                    # tingiv + tud jääb esialgu lahtiseks
+                                    tense = "??"
+                                    voice = "??"
+        elif matchObj1[POLARITY] == 'NEG':
+            #
+            #   Eituse tunnused
+            #
+            if len(matchObj1[PATTERN]) > 1 and \
+               (matchObj1[PATTERN][0] == 'ei' or matchObj1[PATTERN][0] == 'ega'):
+                (pos, form) = grammPosAndForms[1]
+                # Indikatiiv
+                if 'o' in form or 'neg o' in form:
+                    tense = "present"
+                    mood  = "indic"
+                    voice = "personal"
+                elif 'ta' in form:
+                    tense = "present"
+                    mood  = "indic"
+                    voice = "impersonal"
+                elif 'nud' in form:
+                    tense = "imperfect"
+                    mood  = "indic"
+                    voice = "personal"
+                elif 'tud' in form:
+                    tense = "imperfect"
+                    mood  = "indic"
+                    voice = "impersonal"
+                # Konditsionaal
+                elif 'ks' in form:
+                    tense = "present"
+                    mood  = "condit"
+                    voice = "personal"
+                elif 'taks' in form:
+                    tense = "present"
+                    mood  = "condit"
+                    voice = "impersonal"
+                elif 'nuks' in form:
+                    tense = "past"
+                    mood  = "condit"
+                    voice = "personal"
+                elif 'tuks' in form:
+                    tense = "past"
+                    mood  = "condit"
+                    voice = "impersonal"
+                # Kvotatiiv
+                elif 'vat' in form:
+                    tense = "present"
+                    mood  = "quotat"
+                    voice = "personal"
+                elif 'tavat' in form:
+                    tense = "present"
+                    mood  = "quotat"
+                    voice = "impersonal"
+                elif 'nuvat' in form:
+                    tense = "past"
+                    mood  = "quotat"
+                    voice = "personal"
+                elif 'tuvat' in form:
+                    tense = "past"
+                    mood  = "quotat"
+                    voice = "impersonal"
+                #
+                #  Liitaeg: ei + olema + nud (personaal), ei + olema + tud (impersonaal)
+                #
+                if len(matchObj1[PATTERN]) > 2 and matchObj1[PATTERN][1] == 'ole':
+                    # Kindla kõneviisi liitaeg
+                    if mood == "indic" and (grammFeats[2] == "V_nud" or grammFeats[2] == "V_tud"):
+                        if tense == "present":
+                            #  Täisminevik
+                            tense = "perfect"
+                            if grammFeats[2] == "V_tud":
+                                voice = "impersonal"
+                        elif tense == "imperfect":
+                            #  Enneminevik
+                            tense = "pluperfect"
+                            if grammFeats[2] == "V_tud":
+                                voice = "impersonal"
+                    # Tingiva ja kaudse kõneviisi liitaeg (nn üldminevik)
+                    elif mood in ["quotat", "condit"] and tense == "present" and \
+                         voice == "personal":
+                            if grammFeats[2] == "V_nud":
+                                tense = "past"
+                            elif grammFeats[2] == "V_tud":
+                                if mood == "quotat":
+                                    tense = "past"
+                                    voice = "impersonal"
+                                else:
+                                    # tingiv + tud jääb esialgu lahtiseks
+                                    tense = "??"
+                                    voice = "??"
+            elif len(matchObj1[PATTERN]) > 1 and matchObj1[PATTERN][0] == 'ära':
+                (pos, form) = grammPosAndForms[1]
+                # Imperatiiv
+                if 'tagu' in form:
+                    tense = "present"
+                    mood  = "imper"
+                    voice = "impersonal"
+                else:
+                    tense = "present"
+                    mood  = "imper"
+                    voice = "personal"
+            elif matchObj1[PATTERN][0] == 'pole':
+                (pos, form) = grammPosAndForms[0]
+                # Indikatiiv
+                if 'neg o' in form:
+                    tense = "present"
+                    mood  = "indic"
+                    voice = "personal"
+                elif 'neg nud' in form:
+                    tense = "imperfect"
+                    mood  = "indic"
+                    voice = "personal"
+                elif 'neg tud' in form:
+                    tense = "imperfect"
+                    mood  = "indic"
+                    voice = "impersonal"
+                # Konditsionaal
+                elif 'neg ks' in form:
+                    tense = "present"
+                    mood  = "condit"
+                    voice = "personal"
+                elif 'neg nuks' in form:
+                    tense = "past"
+                    mood  = "condit"
+                    voice = "personal"
+                # Kvotatiiv
+                elif 'neg vat' in form:
+                    tense = "present"
+                    mood  = "quotat"
+                    voice = "personal"
+                #
+                #  Liitaeg: pole + nud (personaal), pole + tud (impersonaal)
+                #
+                if len(matchObj1[PATTERN]) > 1:
+                    # Kindla kõneviisi liitaeg
+                    if mood == "indic" and (grammFeats[1] == "V_nud" or grammFeats[1] == "V_tud"):
+                        if tense == "present":
+                            #  Täisminevik
+                            tense = "perfect"
+                            if grammFeats[1] == "V_tud":
+                                voice = "impersonal"
+                        elif tense == "imperfect":
+                            #  Enneminevik
+                            tense = "pluperfect"
+                            if grammFeats[1] == "V_tud":
+                                voice = "impersonal"
+                    # Tingiva ja kaudse kõneviisi liitaeg (nn üldminevik)
+                    elif mood in ["quotat", "condit"] and tense == "present" and \
+                         voice == "personal":
+                            if grammFeats[1] == "V_nud":
+                                tense = "past"
+                            elif grammFeats[1] == "V_tud":
+                                if mood == "quotat":
+                                    tense = "past"
+                                    voice = "impersonal"
+                                else:
+                                    # tingiv + tud jääb esialgu lahtiseks
+                                    tense = "??"
+                                    voice = "??"
+        matchObj1[MOOD] = mood
+        matchObj1[TENSE] = tense
+        matchObj1[VOICE] = voice
+
 
 # ================================================================
 #    VerbChainDetector -- The Main Class
@@ -213,9 +502,15 @@ class VerbChainDetector:
              OTHER_VERBS  -- bool : whether there are other verbs in the context, potentially being 
                                      part of the verb chain; if this is True, it is uncertain whether 
                                      the chain is complete or not;
-             'pol'         -- 'POS', 'NEG' or '??' : grammatical polarity of the verb chain; Negative
-                                                     polarity indicates that the verb phrase begins 
-                                                     with 'ei', 'ega', 'ära' or 'pole'; 
+             
+             POLARITY     -- 'POS', 'NEG' or '??' : grammatical polarity of the verb chain; Negative
+                                                    polarity indicates that the verb phrase begins 
+                                                    with 'ei', 'ega', 'ära' or 'pole'; 
+             TENSE        -- tense of the main verb:  'present', 'imperfect', 'perfect', 
+                                                              'pluperfect', 'past', '??';
+             MOOD         -- mood of the main verb:   'indic', 'imper', 'condit', 'quotat', '??';
+             VOICE        -- voice of the main verb:  'personal', 'impersonal', '??';
+
         '''
         # 0) Parse given arguments
         expand2ndTime = False

@@ -847,6 +847,18 @@ class VerbChain(SparseSentenceElement):
         return self._data[ROOTS]
         
     @property
+    def tense(self):
+        return self._data[TENSE]
+        
+    @property
+    def voice(self):
+        return self._data[VOICE]
+        
+    @property
+    def mood(self):
+        return self._data[MOOD]
+        
+    @property
     def lemma(self):
         '''Verb chain lemma. A unique identificator for the chain.'''
         return '_'.join(self.roots)
