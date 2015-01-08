@@ -4,11 +4,11 @@ Verbiahelate tuvastamine
 
 Verbiahelate [#]_ tuvastaja leiab tekstist mitmesõnalised verbiüksused. Praegune versioon programmist tegeleb järgmiste verbiüksustega:
 
-* osalauses kesksel kohal olevad verbid:
+* osalauses kesksel kohal olevad verbid (tüüpiliselt pöördelised verbivormid ehk *finiitverbid*):
 
-  * eitus: *ei/ära/pole/ega* + verb (nt, Helistasin korraks Carmenile, kuid ta **ei vastanud.**);
   * (jaatav) *olema* üksiku peaverbina (nt, Raha **on** alati vähe) ja *olema* kahesõnalise verbiahela kooseisus (nt, **Oleme** sellist kino ennegi **näinud**);
   * (jaatav) mitte-*olema* verb peaverbina (nt, Pidevalt **uurivad** asjade seisu ka hollandlased);
+  * eitus: *ei/ära/pole/ega* + verb (nt, Helistasin korraks Carmenile, kuid ta **ei vastanud.**);
 
 * laiendatud verbiahelad:
 
@@ -50,7 +50,7 @@ Eelmise koodilõigu käivitamisel väljastatakse järgmised verbiahelad::
 Kuna programm käivitati morfoloogiliselt ühestamata tekstil, siis tuvastati sõna *korraldus* ekslikult kui osalause peaverb (ehk siis kui verbi *korralduma* minevikuvorm).
 Verbiahelate tuvastaja töökvaliteet sõltub üsnagi palju sellest, kas sisendiks olev tekst on morfoloogiliselt ühestatud ning ühestamata teksti korral on oodata ka rohkem vigu.
 
-Nagu eelmisest näitest näha võib, tuuakse iga verbiahela sõnekuju-esituses vaikimisi välja nelja atribuudi väärtused: verbiahela tekst, üldine muster, verbiahela lemmad ning verbiahela grammatiline polaarsus.
+Nagu eelmisest näitest näha võib, tuuakse iga verbiahela sõnekuju-esituses vaikimisi välja nelja atribuudi väärtused: verbiahela tekst, üldine muster, verbiahela lemmad ning ahela finiitverbi grammatiline polaarsus.
 Neile ja muudele väärtustele pääseb ligi ka otse, verbiahel-objekti atribuutide kaudu::
 
     text = ''' Ta oleks pidanud sinna minema, aga ei läinud. '''
@@ -62,10 +62,10 @@ Neile ja muudele väärtustele pääseb ligi ka otse, verbiahel-objekti atribuut
         print(' üldine muster: ', chain.pattern_tokens )
         print(' algvormid: ', chain.roots )
         print(' morf: ', chain.morph )
-        print(' peaverbi polaarsus: ', chain.polarity )
-        print(' peaverbi kõneviis: ', chain.mood )
-        print(' peaverbi aeg:      ', chain.tense )
-        print(' peaverbi tegumood: ', chain.voice )
+        print(' finiitverbi polaarsus: ', chain.polarity )
+        print(' finiitverbi kõneviis: ', chain.mood )
+        print(' finiitverbi aeg:      ', chain.tense )
+        print(' finiitverbi tegumood: ', chain.voice )
         print(' kontekstis on teisi verbe?: ', chain.other_verbs )
         print()  
 
@@ -75,20 +75,20 @@ Tulemusena väljastatakse::
      üldine muster:  ['ole', 'verb', 'verb']
      algvormid:  ['ole', 'pida', 'mine']
      morf:  ['V_ks', 'V_nud', 'V_ma']
-     peaverbi polaarsus:  POS
-     peaverbi kõneviis:  condit
-     peaverbi aeg:       past
-     peaverbi tegumood:  personal
+     finiitverbi polaarsus:  POS
+     finiitverbi kõneviis:  condit
+     finiitverbi aeg:       past
+     finiitverbi tegumood:  personal
      kontekstis on teisi verbe?:  False
 
      tekst:  ei läinud.
      üldine muster:  ['ei', 'verb']
      algvormid:  ['ei', 'mine']
      morf:  ['V_neg', 'V_nud']
-     peaverbi polaarsus:  NEG
-     peaverbi kõneviis:  indic
-     peaverbi aeg:       imperfect
-     peaverbi tegumood:  personal
+     finiitverbi polaarsus:  NEG
+     finiitverbi kõneviis:  indic
+     finiitverbi aeg:       imperfect
+     finiitverbi tegumood:  personal
      kontekstis on teisi verbe?:  False
 
 Järgneb atribuutide lühikirjeldus:
@@ -96,14 +96,14 @@ Järgneb atribuutide lühikirjeldus:
     * ``pattern_tokens`` - üldine muster: järjend, mis sisaldab iga ahelasse kuuluva sõna üldist kirjeldust. Märgitakse, kas sõna on *'ega'*, *'ei'*, *'ära'*, *'pole'*, *'ole'*, *'&'* (sidesõna: ja/ning/ega/või), *'verb'* (mitte-*'olema'* verb) või *'nom/adv'* (käändsõna/adverb); 
     * ``roots`` - järjend, mis sisaldab iga ahelasse kuuluva sõna 'root' väärtust morfoloogilisest analüüsist;
     * ``morph`` - järjend, mis sisaldab iga ahelasse kuuluva sõna morfoloogilisi tunnuseid: sõnaliik ja vormitüüp (ühe sõnena, sõnaliigi ja vormitüübi vahel on eraldajaks '_'; kui tunnused on jäänud mitmeseks, on erinevate variantide vahel eraldajaks '/');
-    * ``polarity`` - ahela peaverbi grammatiline polaarsus. Võimalikud väärtused: *'POS'*, *'NEG'* või *'??'*. *'NEG'* märgib seda, et verbiahela alguses on eitusesõna (*ei/pole/ega/ära*); *'??'* on reserveeritud juhtudeks, kui pole kindel, kas *ära* on kasutusel eitusesõnana või mitte;
-    * ``mood`` - ahela peaverbi kõneviis. Võimalikud väärtused: *'indic'* (indikatiiv ehk kindel kv), *'imper'* (imperatiiv ehk käskiv kv), *'condit'* (konditsionaal ehk tingiv kv), *'quotat'* (kvotatiiv ehk kaudne kv) või *'??'* (määramata);
-    * ``tense`` - ahela peaverbi aeg. Võimalikud väärtused sõltuvad kõneviisist. Kindla kõneviisi ajad: *'present'* (olevik), *'imperfect'* (lihtminevik), *'perfect'* (täisminevik), *'pluperfect'* (enneminevik); käskiva kõneviisi aeg: *'present'*; tingiva ja kaudse kõneviisi ajad: *'present'* (olevik) ja *'past'* (minevik). Lisaks võib aeg jääda määramata (*'??'*).
-    * ``voice`` - ahela peaverbi tegumood. Võimalikud väärtused: *'personal'* (isikuline), *'impersonal'* (umbisikuline), *'??'* (määramata).
+    * ``polarity`` - ahela finiitverbi (peaverbi) grammatiline polaarsus. Võimalikud väärtused: *'POS'*, *'NEG'* või *'??'*. *'NEG'* märgib seda, et verbiahela alguses on eitusesõna (*ei/pole/ega/ära*); *'??'* on reserveeritud juhtudeks, kui pole kindel, kas *ära* on kasutusel eitusesõnana või mitte;
+    * ``mood`` - ahela finiitverbi kõneviis. Võimalikud väärtused: *'indic'* (indikatiiv ehk kindel kv), *'imper'* (imperatiiv ehk käskiv kv), *'condit'* (konditsionaal ehk tingiv kv), *'quotat'* (kvotatiiv ehk kaudne kv) või *'??'* (määramata);
+    * ``tense`` - ahela finiitverbi aeg. Võimalikud väärtused sõltuvad kõneviisist. Kindla kõneviisi ajad: *'present'* (olevik), *'imperfect'* (lihtminevik), *'perfect'* (täisminevik), *'pluperfect'* (enneminevik); käskiva kõneviisi aeg: *'present'*; tingiva ja kaudse kõneviisi ajad: *'present'* (olevik) ja *'past'* (minevik). Lisaks võib aeg jääda määramata (*'??'*).
+    * ``voice`` - ahela finiitverbi tegumood. Võimalikud väärtused: *'personal'* (isikuline), *'impersonal'* (umbisikuline), *'??'* (määramata).
     * ``other_verbs`` - kahendmuutuja, mis märgib, kas verbiahela kontekstis on veel verbe, mis võivad  kuuluda verbiahela koosseisu. Kui väärtus on ``True``, pole kindel, kas ahel on terviklik või mitte;
 
 Verbiahelates on sõnad järjestatud grammatiliste seoste järgi (järjestus, mis võib, aga ei pruugi, langeda kokku sõnade tegeliku järjekorraga lauses). 
-Ahela esimene sõna (või sõnapaar, nt eituse korral) on tüüpiliselt osalauses kesksel kohal olev verb (peaverb) ning iga järgnev sõna ahelas on eelmise sõna alluv.
+Ahela esimene sõna (või sõnapaar, nt eituse korral) on tüüpiliselt osalauses kesksel kohal olev verb (finiitverb) ning iga järgnev sõna ahelas on eelmise sõna alluv.
 Mõneti erandlikud on juhud, kus verbiahela lõpus on kahe infiniitverbi konjunktsioon (üldise mustri lõpus on *verb & verb*) - sellistel juhtudel peaksid mõlemad infiniitverbid alluma ahelas eelnevale sõnale.
 
 .. Note that the words in the verb chain are ordered not as they appear in the text, but by the order of the grammatical relations: first words are mostly grammatical (such as auxiliary negation words *ei/ega/ära*) or otherwise abstract (e.g. modal words like *tohtima*, *võima*, aspectual words like *hakkama*), and only the last words carry most of the semantic/concrete meaning.
