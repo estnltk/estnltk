@@ -67,3 +67,6 @@ POLARITY = 'pol'
 OTHER_VERBS = 'otherVerbs'
 WORD_ID = 'wordID'
 ANALYSIS_IDS = 'analysisIDs'
+TENSE = "tense"
+MOOD = "mood"
+VOICE = "voice"

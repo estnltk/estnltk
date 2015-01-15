@@ -294,7 +294,7 @@ class VerbChainNomVInfExtender:
                             if i in widToToken and i not in annotatedWords:
                                 token = widToToken[i]
                                 matchingAnalyses = self.tokenMatchesNomAdvVinf( token, headVerb, dependentVerb )
-                                if matchingAnalyses:
+                                if matchingAnalyses and not expansionPerformed:
                                     #   Kontrollime, kas vaheletorgatav sõna paikneb nii, et see on suure
                                     #  tõenäosusega üksiksõna, mitte fraas.
                                     if self._isLikelyNotPhrase( headVerb, headVerbWID, token[WORD_ID], widToToken ):

@@ -61,7 +61,7 @@ def _isSeparatedByPossibleClauseBreakers( tokens, wordID1, wordID2, onlyPunctFor
 
 def _isClauseFinal( wordID, clauseTokens ):
     '''
-        Teeb kindlaks, ka etteantud ID-ga s6na on osalause l6pus:
+        Teeb kindlaks, kas etteantud ID-ga s6na on osalause l6pus:
           -- s6nale ei j2rgne ykski teine s6na;
           -- s6nale j2rgnevad vaid punktuatsioonim2rgid ja/v6i sidendid JA/NING/EGA/VÕI;
         Tagastab True, kui eeltoodud tingimused on t2idetud, vastasel juhul False;
@@ -83,7 +83,7 @@ def _isClauseFinal( wordID, clauseTokens ):
 
 def _isFollowedByComma( wordID, clauseTokens ):
     '''
-        Teeb kindlaks, ka etteantud ID-ga s6nale j2rgneb vahetult koma;
+        Teeb kindlaks, kas etteantud ID-ga s6nale j2rgneb vahetult koma;
         Tagastab True, kui eeltoodud tingimus on t2idetud, vastasel juhul False;
     '''
     koma = WordTemplate({ROOT:'^,+$', POSTAG:'Z'})
@@ -202,7 +202,7 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
     verbEiJarel   = WordTemplate({POSTAG:'V',FORM:'o|nud|tud|nuks|nuvat|vat|ks|ta|taks|tavat$'})
     verbEiJarel2  = WordTemplate({POSTAG:'V',FORM:'neg o$'})
     # Infiniitverb, olema ja verbid, mis v6ivad olema-le j2rgneda
-    verbInf = WordTemplate({POSTAG:'V', FORM:'^(da|des|ma|maks|mas|mast|nud|tud|v|mata)$'})
+    verbInf = WordTemplate({POSTAG:'V', FORM:'^(da|des|ma|tama|ta|maks|mas|mast|nud|tud|v|mata)$'})
     verbOle = WordTemplate({ROOT:'^ole$',POSTAG:'V'})
     verbOleJarel = WordTemplate({POSTAG:'V',FORM:'nud$'})
     verbOleJarelHeur1 = WordTemplate({POSTAG:'V',FORM:'^(tud|da|mas)$'})
@@ -445,6 +445,9 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                         tokenJson2 = clauseTokens[k]
                         if verb.matches(tokenJson2) and not verbInf.matches(tokenJson2):
                             #  Kui j6uame finiitverbini, siis katkestame otsingu
+                            break
+                        if sonaEga.matches(tokenJson2):
+                            #  Kui j6uame 'ega'-ni, siis katkestame otsingu
                             break
                         if verbOleJarel.matches(tokenJson2):
                             seenNudVerbs += 1
@@ -696,6 +699,9 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                                 tokenJson2 = clauseTokens[k]
                                 if verb.matches(tokenJson2) and not verbInf.matches(tokenJson2):
                                     #  Kui j6uame finiitverbini, siis katkestame otsingu
+                                    break
+                                if sonaEga.matches(tokenJson2):
+                                    #  Kui j6uame 'ega'-ni, siis katkestame otsingu
                                     break
                                 if verbOleJarel.matches(tokenJson2):
                                     seenNudVerbs += 1
@@ -1298,6 +1304,9 @@ def _expandVerbChainsBySubcat( clauseTokens, clauseID, foundChains, verbSubcat, 
     #        2) laiendatav verb eelneb verbifraasile kaugemal kui 1 s6na;
     #           kuid hakata Tõllaseppa magamistoast välja ajama ta ka ei_0 tihanud_0 .
     #           Sisse tulla ju ei_0 või_0 ,
+    #        3) ma-rektsiooniseoste kohal ei arvestata praegu ma-verbivormi umbisikulisi vorme (tama), nt
+    #           Kaup pidi_0 kohale veetama, aga ei olnud veetud .
+    #           (paistab olevat üsna haruldane nähtus)
     #
     #   *) Laiendatakse yleliigselt:
     #        1) kui vahel on 'kui'-fraase:
@@ -1336,7 +1345,8 @@ def _extractEgaNegFromSent( sentTokens, clausesDict, foundChains ):
            lauset.
     '''
     sonaEga     = WordTemplate({ROOT:'^ega$',POSTAG:'[DJ]'})
-    verbEiJarel = WordTemplate({POSTAG:'V',FORM:'(o|nud|tud|nuks|nuvat|vat|ks|ta|taks|tavat)$'})
+    verbEiJarel  = WordTemplate({POSTAG:'V',FORM:'(o|nud|tud|nuks|nuvat|vat|ks|ta|taks|tavat)$'})
+    verbEiJarel2 = WordTemplate({ROOT:'^mine$', POSTAG:'V',FORM:'neg o$'})
     verbTud     = WordTemplate({POSTAG:'V',FORM:'(tud)$'})
     verb        = WordTemplate({POSTAG:'V'})
     verbOlema   = WordTemplate({POSTAG:'V', ROOT:'^(ole)$'})
@@ -1365,10 +1375,13 @@ def _extractEgaNegFromSent( sentTokens, clausesDict, foundChains ):
                 #       annaks);
                 #    *) J2rgnev s6na pole 'ei'-ga yhilduv verb (t6en2oliselt on mingi jama,
                 #       nt morf yhestamisel);
+                #    *) J2rgnev s6na kuulub verbiahelasse, mis algab enne 'ega'-t (see viitab 
+                #       tegelikult sellele, et k6nealune verbiahel on katkiselt eraldatud);
                 #
                 for verbObj in foundChains:
                     if sentTokens[i+1][WORD_ID] in verbObj[PHRASE] and verbObj[POLARITY] != 'NEG' and \
-                       verbEiJarel.matches( sentTokens[i+1] ):
+                       (verbEiJarel.matches( sentTokens[i+1] ) or verbEiJarel2.matches( sentTokens[i+1] )) \
+                       and i < min( verbObj[PHRASE] ):
                             verbObj[PHRASE].insert(0, token[WORD_ID])
                             verbObj[PATTERN].insert(0, 'ega')
                             verbObj[POLARITY] = 'NEG'
@@ -1547,7 +1560,7 @@ def _determineVerbChainContextualAmbiguity( clauseTokens, clauseID, foundChains 
     verbOlema = WordTemplate({POSTAG:'V', ROOT:'^(ole)$'})
     verbSaama = WordTemplate({POSTAG:'V', ROOT:'^(saa)$'})
     verbEiAra = WordTemplate({ROOT:'^(ära|ei)$',FORM:'neg.*',POSTAG:'V'})
-    verbInf        = WordTemplate({POSTAG:'V', FORM:'^(da|des|ma|maks|mas|mast|nud|tud|v|mata)$'})
+    verbInf        = WordTemplate({POSTAG:'V', FORM:'^(da|des|ma|tama|ta|mas|mast|nud|tud|v|mata)$'})
     regularVerbInf = WordTemplate({POSTAG:'V', FORM:'^(da|ma|maks|mas|mast|mata)$'})
     olemaVerbInf   = WordTemplate({POSTAG:'V', FORM:'^(nud|tud|da|ma|mas|mata)$'})
     saamaVerbInf   = WordTemplate({POSTAG:'V', FORM:'^(tud|da|ma)$'})
