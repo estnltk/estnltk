@@ -23,16 +23,19 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="estnltk 1.1 documentation" href="index.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li><a href="index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -40,11 +43,12 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="estnltk-avatud-lahtekoodiga-teegid-eestikeelsete-vabatektside-lihtsamaks-tootlemiseks">
 <h1>Estnltk &#8212; Avatud lähtekoodiga teegid eestikeelsete vabatektside lihtsamaks töötlemiseks<a class="headerlink" href="#estnltk-avatud-lahtekoodiga-teegid-eestikeelsete-vabatektside-lihtsamaks-tootlemiseks" title="Permalink to this headline">¶</a></h1>
 <p>Estnltk on kogumik Python 2.7/Python 3.4 teeke, mis pakuvad eestikeelsete vabatekstide töötlemiseks vajalikke baasoperatsioone.
+Projekt on rahastatud <a class="reference external" href="https://www.keeletehnoloogia.ee/">Eesti Keeletehnoloogia Riikliku Programmi</a> alamprojekti <a class="reference external" href="https://www.keeletehnoloogia.ee/et/ekt-projektid/estnltk-pythoni-teegid-eestikeelsete-vabatektside-lihtsamaks-tootlemiseks">EKT57</a> vahenditest.
 Kuigi eesti keele töötlemiseks on juba loodud üksjagu keeletehnoloogilisi tööriistu, pole seniste tööriistade omavaheline liidestamine, olgu siis rakenduste loomise või uurimustöö eesmärgil, olnud eriti lihtne.
 Tüüpiliselt on olnud tarvis teha lisatööd rakendusespetsiifiliste liideste loomisel.</p>
 <p>Teiseks probleemiks on tööriistade hajutatus: paljud tööriistad on veebis laiali ning neid on keeruline üles leida.
@@ -79,7 +83,7 @@ Loodame tulevikus seda nimekirja ka täiendada uute tööriistadega.</p>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/textdiagnostics_est.html#ulevaade-sobimatutest-sumbolitest">Ülevaade sobimatutest sümbolitest</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/tokenization_est.html">Teksti tükeldamine paragrahvideks, lauseteks ja sõnadeks</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tokenization_est.html">Teksti tükeldamine lõikudeks, lauseteks ja sõnadeks</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/tokenization_est.html#tukkide-asukoht-algses-tekstis">Tükkide asukoht algses tekstis</a></li>
 </ul>
 </li>
@@ -101,20 +105,20 @@ Loodame tulevikus seda nimekirja ka täiendada uute tööriistadega.</p>
 <li class="toctree-l1"><a class="reference internal" href="estnltk.html">estnltk package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="estnltk.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="estnltk.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-clausesegmenter-module">estnltk.clausesegmenter module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-core-module">estnltk.core module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-corpus-module">estnltk.corpus module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-javaprocess-module">estnltk.javaprocess module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-morf-module">estnltk.morf module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-names-module">estnltk.names module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-ner-module">estnltk.ner module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-teicorpus-module">estnltk.teicorpus module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-textdiagnostics-module">estnltk.textdiagnostics module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-textprocessor-module">estnltk.textprocessor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-timex-module">estnltk.timex module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-tokenize-module">estnltk.tokenize module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#estnltk-wordnet-module">estnltk.wordnet module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.clausesegmenter">estnltk.clausesegmenter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.core">estnltk.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.corpus">estnltk.corpus module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.javaprocess">estnltk.javaprocess module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.morf">estnltk.morf module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.names">estnltk.names module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.ner">estnltk.ner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.teicorpus">estnltk.teicorpus module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.textdiagnostics">estnltk.textdiagnostics module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.textprocessor">estnltk.textprocessor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.timex">estnltk.timex module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.tokenize">estnltk.tokenize module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.wordnet">estnltk.wordnet module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">estnltk</a><ul>
@@ -125,30 +129,30 @@ Loodame tulevikus seda nimekirja ka täiendada uute tööriistadega.</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#submodules">Submodules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-analyzer-module">estnltk.textclassifier.analyzer module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-classifier-module">estnltk.textclassifier.classifier module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-classify-module">estnltk.textclassifier.classify module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-clfbase-module">estnltk.textclassifier.clfbase module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-featureextractor-module">estnltk.textclassifier.featureextractor module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-merge-module">estnltk.textclassifier.merge module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-paths-module">estnltk.textclassifier.paths module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-reportgenerator-module">estnltk.textclassifier.reportgenerator module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-retrain-module">estnltk.textclassifier.retrain module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-settings-module">estnltk.textclassifier.settings module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-synunifier-module">estnltk.textclassifier.synunifier module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-test-module">estnltk.textclassifier.test module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-train-module">estnltk.textclassifier.train module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#estnltk-textclassifier-utils-module">estnltk.textclassifier.utils module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-contents">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.analyzer">estnltk.textclassifier.analyzer module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.classifier">estnltk.textclassifier.classifier module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.classify">estnltk.textclassifier.classify module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.clfbase">estnltk.textclassifier.clfbase module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.featureextractor">estnltk.textclassifier.featureextractor module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.merge">estnltk.textclassifier.merge module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.paths">estnltk.textclassifier.paths module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.reportgenerator">estnltk.textclassifier.reportgenerator module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.retrain">estnltk.textclassifier.retrain module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.settings">estnltk.textclassifier.settings module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.synunifier">estnltk.textclassifier.synunifier module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.test">estnltk.textclassifier.test module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.train">estnltk.textclassifier.train module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.utils">estnltk.textclassifier.utils module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier">Module contents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="estnltk.estner.html">estnltk.estner package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#estnltk-estner-crfsuiteutil-module">estnltk.estner.crfsuiteutil module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#estnltk-estner-featureextraction-module">estnltk.estner.featureextraction module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#estnltk-estner-ner-module">estnltk.estner.ner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.crfsuiteutil">estnltk.estner.crfsuiteutil module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.featureextraction">estnltk.estner.featureextraction module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.ner">estnltk.estner.ner module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#estnltk-estner-nlputil-module">estnltk.estner.nlputil module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#estnltk-estner-settings-module">estnltk.estner.settings module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.settings">estnltk.estner.settings module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -168,7 +172,7 @@ Loodame tulevikus seda nimekirja ka täiendada uute tööriistadega.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
@@ -180,14 +184,12 @@ Loodame tulevikus seda nimekirja ka täiendada uute tööriistadega.</p>
 </li>
 </ul>
 
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/index_est.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index_est.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -204,18 +206,21 @@ Loodame tulevikus seda nimekirja ka täiendada uute tööriistadega.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li><a href="index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

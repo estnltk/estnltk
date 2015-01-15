@@ -23,18 +23,21 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="estnltk 1.1 documentation" href="../index.html" />
     <link rel="next" title="estnltk package" href="../estnltk.html" />
     <link rel="prev" title="&lt;no title&gt;" href="json_format.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="../estnltk.html" title="estnltk package"
              accesskey="N">next</a> |</li>
@@ -48,13 +51,13 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="estnltk-text-classifier-tool">
 <h1>Estnltk text classifier tool<a class="headerlink" href="#estnltk-text-classifier-tool" title="Permalink to this headline">¶</a></h1>
 <p>Estnltk classifier is <em>machine learning</em> software for organizing data into categories.</p>
 <p>Let&#8217;s start right away with an example to show what kind of problems the software is designed to solve.
-Consider you are given a dataset of user reviews and have to classify them either as positive, negative or neutral (See <code class="docutils literal"><span class="pre">data/hinnavaatlus.csv</span></code> for full dataset):</p>
+Consider you are given a dataset of user reviews and have to classify them either as positive, negative or neutral (See <tt class="docutils literal"><span class="pre">data/hinnavaatlus.csv</span></tt> for full dataset):</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="4%" />
@@ -102,7 +105,7 @@ Consider you are given a dataset of user reviews and have to classify them eithe
 <div class="section" id="step-1-defining-the-classification-task">
 <h2>Step 1. Defining the classification task<a class="headerlink" href="#step-1-defining-the-classification-task" title="Permalink to this headline">¶</a></h2>
 <p>One needs to tell the software, what columns contain features and what columns contain the results.
-This can be done by writing a definitions file (let&#8217;s call it <code class="docutils literal"><span class="pre">hinnavaatlus.def</span></code>), which in our example case would look like:</p>
+This can be done by writing a definitions file (let&#8217;s call it <tt class="docutils literal"><span class="pre">hinnavaatlus.def</span></tt>), which in our example case would look like:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="n">features</span><span class="p">]</span>
 <span class="n">Kommentaar</span>
 <span class="p">[</span><span class="n">label</span><span class="p">]</span>
@@ -112,11 +115,11 @@ This can be done by writing a definitions file (let&#8217;s call it <code class=
 </pre></div>
 </div>
 <ul class="simple">
-<li>The <code class="docutils literal"><span class="pre">[features]</span></code> section contains one feature column name per row.
+<li>The <tt class="docutils literal"><span class="pre">[features]</span></tt> section contains one feature column name per row.
 Our example only has one feature column.
 We exclude the <em>comment id</em> column as it does not contain any information about the user opinion.</li>
-<li>The <code class="docutils literal"><span class="pre">[label]</span></code> section contains the name of the column, where the category label is.</li>
-<li>The <code class="docutils literal"><span class="pre">[confidence]</span></code> is the name of the column, where the classification confidence is stored (this will be discussed later).</li>
+<li>The <tt class="docutils literal"><span class="pre">[label]</span></tt> section contains the name of the column, where the category label is.</li>
+<li>The <tt class="docutils literal"><span class="pre">[confidence]</span></tt> is the name of the column, where the classification confidence is stored (this will be discussed later).</li>
 </ul>
 </div>
 <div class="section" id="step-2-building-the-classification-model">
@@ -152,20 +155,20 @@ optional arguments:
 </pre></div>
 </div>
 <p>There are two parameters we need to discuss separately.</p>
-<p>First one is the <code class="docutils literal"><span class="pre">--synonyms</span></code> parameter, which can be used to fine-tune the classifyer by specifiyng a list of technical synonyms.
+<p>First one is the <tt class="docutils literal"><span class="pre">--synonyms</span></tt> parameter, which can be used to fine-tune the classifyer by specifiyng a list of technical synonyms.
 The argument should contain the path to a file, where each line defines a list of synonyms. For our example, we could define a file like:</p>
 <div class="highlight-python"><div class="highlight"><pre>firma ettevõte kauplus
 sülearvuti läpakas rüperaal laptop
 </pre></div>
 </div>
 <p>This file is optional, but can be used to enhance the classification accuracy.</p>
-<p>The second parameter is <code class="docutils literal"><span class="pre">--report</span></code> that does additional computation during training and creates two HTML files containing detailed performance characterstics of the trained model (this will be discussed more indepth later).
+<p>The second parameter is <tt class="docutils literal"><span class="pre">--report</span></tt> that does additional computation during training and creates two HTML files containing detailed performance characterstics of the trained model (this will be discussed more indepth later).
 The report can be used to improve the categories of the data, to increase the technical synonym list etc.</p>
 <p>However, we currently ignore this extra functionality and just train the classifier by issuing command:</p>
 <div class="highlight-python"><div class="highlight"><pre>python3 -m estnltk.testclassifier.train definitions/hinnavaatlus.def data/hinnavaatlus.csv models/hinnavaatlus.bin
 </pre></div>
 </div>
-<p>Often the log outputs warnings related to <code class="docutils literal"><span class="pre">numpy</span></code>, <code class="docutils literal"><span class="pre">sckikit-learn</span></code> and other dependencies, but these can be ingored until no specific errors are generated.
+<p>Often the log outputs warnings related to <tt class="docutils literal"><span class="pre">numpy</span></tt>, <tt class="docutils literal"><span class="pre">sckikit-learn</span></tt> and other dependencies, but these can be ingored until no specific errors are generated.
 The reason is that the dependencies are constantly being developed and upgraded and most warnings are related to their development:</p>
 <div class="highlight-python"><div class="highlight"><pre>INFO:train:Loading settings from definitions/hinnavaatlus.def and techsynonyms from None .
 Namespace(dataset=&#39;data/hinnavaatlus.csv&#39;, model=&#39;models/hinnavaatlus.bin&#39;, report=None, sep=&#39;,&#39;, settings=&#39;definitions/hinnavaatlus.def&#39;, sheet=0, synonyms=None)
@@ -179,7 +182,7 @@ INFO:train:Done!
 </pre></div>
 </div>
 <p>The log tells as that the trained model uses a combination of 456 word phrases for classification and that the full dataset contained 813 user reviews.
-The saved model is stored in <code class="docutils literal"><span class="pre">models/hinnavaatlus.bin</span></code> file.</p>
+The saved model is stored in <tt class="docutils literal"><span class="pre">models/hinnavaatlus.bin</span></tt> file.</p>
 <dl class="docutils">
 <dt>..note:: The classifier is capable of working with both CSV and XLSX files, but make sure CSV files use character &#8221; for quoting.</dt>
 <dd>With Excel XLSX, we have had problems loading the dataset, if Excel contains some extra functionality.
@@ -211,10 +214,10 @@ optional arguments:
   --outsep OUTSEP      Column separator for saving CSV files (default is ,).
 </pre></div>
 </div>
-<p>The data we want to categorize has to have all columns that we defined in <code class="docutils literal"><span class="pre">[features]</span></code> section in classification task definitions file <code class="docutils literal"><span class="pre">hinnavaatlus.def</span></code> that we used during training/model building step.
-The software will fill out the <code class="docutils literal"><span class="pre">[label]</span></code> and <code class="docutils literal"><span class="pre">[confidence]</span></code> columns itself.
+<p>The data we want to categorize has to have all columns that we defined in <tt class="docutils literal"><span class="pre">[features]</span></tt> section in classification task definitions file <tt class="docutils literal"><span class="pre">hinnavaatlus.def</span></tt> that we used during training/model building step.
+The software will fill out the <tt class="docutils literal"><span class="pre">[label]</span></tt> and <tt class="docutils literal"><span class="pre">[confidence]</span></tt> columns itself.
 The datafiles can contain other columns such as IDS, dates etc that are not used by the classifier, but stored in output as well.</p>
-<p>Consider these four example reviews I have written (<code class="docutils literal"><span class="pre">data/hinnavaatlus_test.csv</span></code>). We expect the first to be positive, second negative, third positive and last one also negative.</p>
+<p>Consider these four example reviews I have written (<tt class="docutils literal"><span class="pre">data/hinnavaatlus_test.csv</span></tt>). We expect the first to be positive, second negative, third positive and last one also negative.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="100%" />
@@ -245,7 +248,7 @@ INFO:root:Writing dataset result.csv
 INFO:classify:Done!
 </pre></div>
 </div>
-<p>We save the results into file <code class="docutils literal"><span class="pre">results.csv</span></code>, which contains the following:</p>
+<p>We save the results into file <tt class="docutils literal"><span class="pre">results.csv</span></tt>, which contains the following:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="81%" />
@@ -309,12 +312,12 @@ Report can be generated only on training dataset as we need <em>true</em> catego
 However, as the cross-validation uses random splits each time, there are smaller variations in the reported accuracy.
 The resulting classifier will be built using full data, so the real accuracy should be always slightly better
 than the number reported.</p>
-<p>But let&#8217;s now analyze the contents of <code class="docutils literal"><span class="pre">hinnavaatlus.html</span></code> document.</p>
+<p>But let&#8217;s now analyze the contents of <tt class="docutils literal"><span class="pre">hinnavaatlus.html</span></tt> document.</p>
 </div>
 </div>
 <div class="section" id="classification-report">
 <h2>Classification report<a class="headerlink" href="#classification-report" title="Permalink to this headline">¶</a></h2>
-<p>The first section of the <code class="docutils literal"><span class="pre">hinnavaatlus.html</span></code> file contains the classification report:</p>
+<p>The first section of the <tt class="docutils literal"><span class="pre">hinnavaatlus.html</span></tt> file contains the classification report:</p>
 <img alt="Classification report" src="../_images/classification_report.png" />
 <p>It denotes the <em>precision</em>, <em>recall</em> and <em>F1-score</em> for each category as seen above.
 The most important metric is the F1-score, the harmonic mean of precision and recall.
@@ -327,7 +330,7 @@ For example, if we would like to do market analysis on how the public opinion ab
 we can join the <em>neutral</em> reviews with <em>negative</em> ones.
 Time series of number of <em>neutral</em> opinions would not be interesting to marketing staff anyway.
 So, we can essentially trade <em>neutral</em> reviews for better overall accuracy.</p>
-<p>Let&#8217;s see, if this tip makes a difference. File <code class="docutils literal"><span class="pre">data/hinnavaatlus_simple.csv</span></code> contains same training data as before, but now only with <em>positive</em> and <em>negative</em> classes.
+<p>Let&#8217;s see, if this tip makes a difference. File <tt class="docutils literal"><span class="pre">data/hinnavaatlus_simple.csv</span></tt> contains same training data as before, but now only with <em>positive</em> and <em>negative</em> classes.
 After retraining, we see following numbers in classification report.</p>
 <img alt="Classification report" src="../_images/classification_report_improved.png" />
 <p>We see that this simple change increased the overall accuracy by 20 percent points, from 63.3% before to 80.3% now.
@@ -335,7 +338,7 @@ Thus, one simplest, but most effective way to increase the performance is to use
 </div>
 <div class="section" id="confidence-cutoff-vs-f1-curve">
 <h2>Confidence cutoff vs F1 curve<a class="headerlink" href="#confidence-cutoff-vs-f1-curve" title="Permalink to this headline">¶</a></h2>
-<p>As discussed earlier, the <code class="docutils literal"><span class="pre">confidence</span></code> column denotes how confident is the prediction.
+<p>As discussed earlier, the <tt class="docutils literal"><span class="pre">confidence</span></tt> column denotes how confident is the prediction.
 Each classified data point has a confidence score &#8211; the higher the score, the lower the probability of making an error.
 In other words, it describes how hard it is to classify the data point.
 The plot shows how the overall accuracy changes by including only data points where the confidence is greater or equal to the confidence cutoff treshold.</p>
@@ -374,7 +377,7 @@ there will be more variations.</p>
 </div>
 <div class="section" id="misclassified-examples">
 <h2>Misclassified examples<a class="headerlink" href="#misclassified-examples" title="Permalink to this headline">¶</a></h2>
-<p>File <code class="docutils literal"><span class="pre">hinnavaatlus_misclassified_data.html</span></code> contains a number of sections and lists all examples that were misclassified.
+<p>File <tt class="docutils literal"><span class="pre">hinnavaatlus_misclassified_data.html</span></tt> contains a number of sections and lists all examples that were misclassified.
 It displays the <em>true category label</em> and the <em>predicted category label</em>.</p>
 <a class="reference internal image-reference" href="../_images/misclassified_data.png"><img alt="Misclassified data" src="../_images/misclassified_data.png" style="width: 60em;" /></a>
 <p>The first review is an example, where word &#8220;positive&#8221; tricks the classifier to think that the review is actually positive.
@@ -383,7 +386,7 @@ We also see some reviews that are hard to classify strictly as positive or negat
 The misclassified data also has black and red bold words that denote the important features.</p>
 <p>By analyzing the significant features and misclassified examples, one can see which features could be aggregated and write them as technical synonyms.
 This can make it easier for the classifier to make predictions.</p>
-<p>For example, let&#8217;s create a file <code class="docutils literal"><span class="pre">hinnavaatlus.txt</span></code> containing some synonymous words:</p>
+<p>For example, let&#8217;s create a file <tt class="docutils literal"><span class="pre">hinnavaatlus.txt</span></tt> containing some synonymous words:</p>
 <div class="highlight-python"><div class="highlight"><pre>firma ettevõte kauplus pood
 sülearvuti läpakas rüperaal laptop
 suurepärane hea super superluks positiivne
@@ -406,7 +409,7 @@ But on average, the results of many runs tests should be improved.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
@@ -432,14 +435,12 @@ But on average, the results of many runs tests should be improved.</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../estnltk.html"
                         title="next chapter">estnltk package</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/textclassifier_tutorial.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/textclassifier_tutorial.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -456,12 +457,15 @@ But on average, the results of many runs tests should be improved.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="../estnltk.html" title="estnltk package"
              >next</a> |</li>
@@ -471,9 +475,9 @@ But on average, the results of many runs tests should be improved.</p>
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

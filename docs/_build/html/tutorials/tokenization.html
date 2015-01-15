@@ -23,18 +23,21 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="estnltk 1.1 documentation" href="../index.html" />
     <link rel="next" title="Morphological analysis" href="morf_analysis.html" />
     <link rel="prev" title="Detecting invalid characters in text" href="textdiagnostics.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="morf_analysis.html" title="Morphological analysis"
              accesskey="N">next</a> |</li>
@@ -48,7 +51,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="paragraph-sentence-and-word-tokenization">
 <h1>Paragraph, sentence and word tokenization<a class="headerlink" href="#paragraph-sentence-and-word-tokenization" title="Permalink to this headline">¶</a></h1>
@@ -56,8 +59,8 @@
 In lexical analysis, tokenization is the process of breaking a stream of text up into words, phrases, symbols, or other meaningful elements called tokens.
 The list of tokens becomes input for further processing such as parsing or text mining.
 Tokenization is useful both in linguistics (where it is a form of text segmentation), and in computer science, where it forms part of lexical analysis.</p>
-<p>Estnltk provides the <code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code> class that does this.
-In the next example, we define some text, then import and initialize a <code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code> instance and use to create a <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code> instance:</p>
+<p>Estnltk provides the <a class="reference internal" href="../estnltk.html#estnltk.tokenize.Tokenizer" title="estnltk.tokenize.Tokenizer"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></tt></a> class that does this.
+In the next example, we define some text, then import and initialize a <a class="reference internal" href="../estnltk.html#estnltk.tokenize.Tokenizer" title="estnltk.tokenize.Tokenizer"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></tt></a> instance and use to create a <a class="reference internal" href="../estnltk.html#estnltk.corpus.Document" title="estnltk.corpus.Document"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></tt></a> instance:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Let&#39;s define a sample document</span>
 <span class="n">text</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;Keeletehnoloogia on arvutilingvistika praktiline pool.</span>
 <span class="s">Keeletehnoloogid kasutavad arvutilingvistikas välja töötatud</span>
@@ -108,7 +111,7 @@ In the next example, we define some text, then import and initialize a <code cla
     arvutileksikoloogia, dialoogisüsteemid, \nkõneanalüüs ja kõnesüntees.\n&#39;]
 </pre></div>
 </div>
-<p>and also the original full text can be accessed using <code class="docutils literal"><span class="pre">text</span></code> property of <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code>.
+<p>and also the original full text can be accessed using <tt class="docutils literal"><span class="pre">text</span></tt> property of <a class="reference internal" href="../estnltk.html#estnltk.corpus.Document" title="estnltk.corpus.Document"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></tt></a>.
 In case you get an error during tokenization, something like:</p>
 <div class="highlight-python"><div class="highlight"><pre>LookupError:
 **********************************************************************
@@ -125,7 +128,7 @@ In case you get an error during tokenization, something like:</p>
 <h2>Token spans &#8211; start and end positions<a class="headerlink" href="#token-spans-start-and-end-positions" title="Permalink to this headline">¶</a></h2>
 <p>In addition to tokenization, it is often necessary to know where the tokens reside in the original document.
 For example, you might want to inspect the context of a particular word.
-For this purpose, estnltk provide <code class="docutils literal"><span class="pre">word_spans</span></code>, <code class="docutils literal"><span class="pre">sentence_spans</span></code> and <code class="docutils literal"><span class="pre">paragraph_spans</span></code> methods.
+For this purpose, estnltk provide <tt class="docutils literal"><span class="pre">word_spans</span></tt>, <tt class="docutils literal"><span class="pre">sentence_spans</span></tt> and <tt class="docutils literal"><span class="pre">paragraph_spans</span></tt> methods.
 Following the previous example, we can group together words and their start and end positions
 in the document using the following:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="nb">zip</span><span class="p">(</span><span class="n">document</span><span class="o">.</span><span class="n">word_texts</span><span class="p">,</span> <span class="n">document</span><span class="o">.</span><span class="n">word_spans</span><span class="p">)</span>
@@ -144,7 +147,7 @@ containing the start and end positions:</p>
  <span class="p">(</span><span class="s">&#39;kõnesüntees.&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">355</span><span class="p">,</span> <span class="mi">367</span><span class="p">))]</span>
 </pre></div>
 </div>
-<p>For other possible options, please check <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus</span></code>, <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></code>, <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Paragraph</span></code>, <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Sentence</span></code> and <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Word</span></code> classes.</p>
+<p>For other possible options, please check <a class="reference internal" href="../estnltk.html#estnltk.corpus.Corpus" title="estnltk.corpus.Corpus"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus</span></tt></a>, <a class="reference internal" href="../estnltk.html#estnltk.corpus.Document" title="estnltk.corpus.Document"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></tt></a>, <a class="reference internal" href="../estnltk.html#estnltk.corpus.Paragraph" title="estnltk.corpus.Paragraph"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Paragraph</span></tt></a>, <a class="reference internal" href="../estnltk.html#estnltk.corpus.Sentence" title="estnltk.corpus.Sentence"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Sentence</span></tt></a> and <a class="reference internal" href="../estnltk.html#estnltk.corpus.Word" title="estnltk.corpus.Word"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Word</span></tt></a> classes.</p>
 </div>
 </div>
 
@@ -152,7 +155,7 @@ containing the start and end positions:</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
@@ -168,14 +171,12 @@ containing the start and end positions:</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="morf_analysis.html"
                         title="next chapter">Morphological analysis</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/tokenization.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/tokenization.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -192,12 +193,15 @@ containing the start and end positions:</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="morf_analysis.html" title="Morphological analysis"
              >next</a> |</li>
@@ -207,9 +211,9 @@ containing the start and end positions:</p>
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

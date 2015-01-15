@@ -23,18 +23,21 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="estnltk 1.1 documentation" href="../index.html" />
     <link rel="next" title="Paragraph, sentence and word tokenization" href="tokenization.html" />
     <link rel="prev" title="Installation" href="../installation.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="tokenization.html" title="Paragraph, sentence and word tokenization"
              accesskey="N">next</a> |</li>
@@ -48,7 +51,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="detecting-invalid-characters-in-text">
 <h1>Detecting invalid characters in text<a class="headerlink" href="#detecting-invalid-characters-in-text" title="Permalink to this headline">¶</a></h1>
@@ -56,7 +59,7 @@
 One such possible requirement is check if the files contain characters that can be handled by our application.
 For example, an application assuming Estonian input might not work with Cyrillic characters.
 In such cases, it is necessary to detect invalid input.</p>
-<p>Estnltk provides <code class="xref py py-class docutils literal"><span class="pre">estnltk.textdiagnostics.TextDiagnostics</span></code> class, that compares input texts against a predefined set of allowed characters.
+<p>Estnltk provides <a class="reference internal" href="../estnltk.html#estnltk.textdiagnostics.TextDiagnostics" title="estnltk.textdiagnostics.TextDiagnostics"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.textdiagnostics.TextDiagnostics</span></tt></a> class, that compares input texts against a predefined set of allowed characters.
 The class can be used for detecting invalid input and also to provide basic overview of &#8220;wrong&#8221; characters.</p>
 <div class="section" id="predefined-alphabets">
 <h2>Predefined alphabets<a class="headerlink" href="#predefined-alphabets" title="Permalink to this headline">¶</a></h2>
@@ -80,7 +83,7 @@ There are also lowercase and uppercase variants containing just letters: <cite>E
 </div>
 <div class="section" id="basic-usage">
 <h2>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h2>
-<p>The default alphabet of the <code class="xref py py-class docutils literal"><span class="pre">estnltk.textdiagnostics.TextDiagnostics</span></code> class is Estonian additionally containing whitespace, digits and punctuation.
+<p>The default alphabet of the <a class="reference internal" href="../estnltk.html#estnltk.textdiagnostics.TextDiagnostics" title="estnltk.textdiagnostics.TextDiagnostics"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.textdiagnostics.TextDiagnostics</span></tt></a> class is Estonian additionally containing whitespace, digits and punctuation.
 <cite>is_valid(text)</cite> method can be used to check, if the text contains only allowed characters in the alphabet:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">td</span> <span class="o">=</span> <span class="n">TextDiagnostics</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">td</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="s">&#39;Segan suhkrut malbelt tassis, kus nii armsalt aurab tee.&#39;</span><span class="p">)</span>
@@ -122,7 +125,7 @@ There are also lowercase and uppercase variants containing just letters: <cite>E
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
@@ -140,14 +143,12 @@ There are also lowercase and uppercase variants containing just letters: <cite>E
   <h4>Next topic</h4>
   <p class="topless"><a href="tokenization.html"
                         title="next chapter">Paragraph, sentence and word tokenization</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/textdiagnostics.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/textdiagnostics.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -164,12 +165,15 @@ There are also lowercase and uppercase variants containing just letters: <cite>E
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="tokenization.html" title="Paragraph, sentence and word tokenization"
              >next</a> |</li>
@@ -179,9 +183,9 @@ There are also lowercase and uppercase variants containing just letters: <cite>E
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

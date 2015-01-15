@@ -23,18 +23,21 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="estnltk 1.1 documentation" href="../index.html" />
     <link rel="next" title="Temporal expression (TIMEX) tagging" href="timex.html" />
     <link rel="prev" title="Clause segmenter" href="clause_segmenter.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="timex.html" title="Temporal expression (TIMEX) tagging"
              accesskey="N">next</a> |</li>
@@ -48,7 +51,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="named-entity-recognition">
 <h1>Named entity recognition<a class="headerlink" href="#named-entity-recognition" title="Permalink to this headline">¶</a></h1>
@@ -134,7 +137,7 @@ A quick example, how to do it:</p>
 <p>Named entity tags are encoded using a widely accepted BIO annotation scheme, where each label is prefixed with B or I, or the entire label is given as O.
 <strong>B-</strong> denotes the <em>beginning</em> and <strong>I-</strong> <em>inside</em> of an entity, while <strong>O</strong> means <em>omitted</em>.
 This can be used to detect entities that consist of more than a single word as can be seen in above example.</p>
-<p>It is also possible to query directly <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.NamedEntity</span></code> objects from tagged corpora.
+<p>It is also possible to query directly <a class="reference internal" href="../estnltk.html#estnltk.corpus.NamedEntity" title="estnltk.corpus.NamedEntity"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.NamedEntity</span></tt></a> objects from tagged corpora.
 This makes it easy to see all words that are grouped into a named entity:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">pprint</span> <span class="p">(</span><span class="n">ner_tagged</span><span class="o">.</span><span class="n">named_entities</span><span class="p">)</span>
 
@@ -151,14 +154,14 @@ This makes it easy to see all words that are grouped into a named entity:</p>
  <span class="s">&#39;NamedEntity(toomas hendrik ilves, PER)&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>See <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.NamedEntity</span></code> documentation for information on available properties.</p>
+<p>See <a class="reference internal" href="../estnltk.html#estnltk.corpus.NamedEntity" title="estnltk.corpus.NamedEntity"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.NamedEntity</span></tt></a> documentation for information on available properties.</p>
 </div>
 
 
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
   <p class="topless"><a href="clause_segmenter.html"
@@ -166,14 +169,12 @@ This makes it easy to see all words that are grouped into a named entity:</p>
   <h4>Next topic</h4>
   <p class="topless"><a href="timex.html"
                         title="next chapter">Temporal expression (TIMEX) tagging</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/ner.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/ner.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -190,12 +191,15 @@ This makes it easy to see all words that are grouped into a named entity:</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="timex.html" title="Temporal expression (TIMEX) tagging"
              >next</a> |</li>
@@ -205,9 +209,9 @@ This makes it easy to see all words that are grouped into a named entity:</p>
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

@@ -1,5 +1,5 @@
 ==========================================================
-Teksti tükeldamine paragrahvideks, lauseteks ja sõnadeks
+Teksti tükeldamine lõikudeks, lauseteks ja sõnadeks
 ==========================================================
 
 Enamikus keele automaattöötluse rakendustes on esimeseks sammuks sisendteksti jagamine väiksemateks tükkideks: paragrahvideks, lauseteks ja sõnadeks. Keele automaatanalüüsi seisukohalt polegi see alati triviaalne ülesanne, näiteks ei saa eeldada, et punkt sõna lõpus tähistab alati lauselõppu (see võib olla ka nt kuupäeva ja aastarvu lõpus, vanemates tekstides ka lühendite lõpus). Seetõttu sisaldavad keele automaattöötluse rakendused sageli eraldi mooduleid, mis tegelevad teksti tükeldamise probleemidega.
@@ -47,7 +47,7 @@ ja tükeldus lauseteks (ehk teksti *lausestus*)::
      'Tänapäeval on keeletehnoloogia tuntumateks valdkondadeks \nmasintõlge, 
         arvutileksikoloogia, dialoogisüsteemid, \nkõneanalüüs ja kõnesüntees.\n']
 
-ning tükeldus paragrahvideks::
+ning tükeldus lõikudeks::
 
     ['Keeletehnoloogia on arvutilingvistika praktiline pool.\nKeeletehnoloogid 
         kasutavad arvutilingvistikas välja töötatud \nteooriaid, et luua 

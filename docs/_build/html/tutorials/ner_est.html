@@ -23,16 +23,19 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="estnltk 1.1 documentation" href="../index.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -40,7 +43,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="nimeuksuste-tuvastamine">
 <h1>Nimeüksuste tuvastamine<a class="headerlink" href="#nimeuksuste-tuvastamine" title="Permalink to this headline">¶</a></h1>
@@ -51,7 +54,7 @@ Aga vajadusel on võimalik mudelid ka ise välja treenida, kasutades süsteemi k
 </pre></div>
 </div>
 <p>Eeltoodud käsu täitmisel luuakse nn vaikemudel, mis on kohandatud nimeüksuste tuvastamiseks ajaleheartiklites.</p>
-<p>Nimeüksuste tuvastamine eeldab, et sisendtekst on lausestatud ja sõnestatud (<code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code> abil) ning tekstil on sooritatud morfoloogiline analüüs (<code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></code> abil).
+<p>Nimeüksuste tuvastamine eeldab, et sisendtekst on lausestatud ja sõnestatud (<a class="reference internal" href="../estnltk.html#estnltk.tokenize.Tokenizer" title="estnltk.tokenize.Tokenizer"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></tt></a> abil) ning tekstil on sooritatud morfoloogiline analüüs (<a class="reference internal" href="../estnltk.html#estnltk.morf.PyVabamorfAnalyzer" title="estnltk.morf.PyVabamorfAnalyzer"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></tt></a> abil).
 Näide nimeüksuste tuvastaja kasutamise kohta:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span><span class="p">,</span> <span class="n">PyVabamorfAnalyzer</span><span class="p">,</span> <span class="n">NerTagger</span>
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
@@ -124,7 +127,7 @@ Näide nimeüksuste tuvastaja kasutamise kohta:</p>
 </div>
 <p>Nimeüksuste märgendus järgib BIO-märgendusviisi, mille järgi kodeeritakse fraaside tekstis esinemine/ mitteesinemine märgenditega B, I ja O.
 <strong>B-</strong> tähistab nimeüksuse fraasi alguses paiknevat sõna (ingl <em>beginning</em>), <strong>I-</strong> fraasi sees paiknevat sõna  (ingl <em>inside</em>) ning <strong>O</strong> tähistab fraasist väljajäävat sõna (ingl <em>omitted</em>).</p>
-<p>Lisaks on võimalik tuvastatud nimeüksustele (<code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.NamedEntity</span></code> objektidele) ka otse ligi pääseda, kasutades märgendatud dokumendi küljes olevat välja <code class="docutils literal"><span class="pre">named_entities</span></code>.
+<p>Lisaks on võimalik tuvastatud nimeüksustele (<a class="reference internal" href="../estnltk.html#estnltk.corpus.NamedEntity" title="estnltk.corpus.NamedEntity"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.NamedEntity</span></tt></a> objektidele) ka otse ligi pääseda, kasutades märgendatud dokumendi küljes olevat välja <tt class="docutils literal"><span class="pre">named_entities</span></tt>.
 See võimaldab nimeüksusi käsitleda terviklike fraasidena:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">pprint</span> <span class="p">(</span><span class="n">ner_tagged</span><span class="o">.</span><span class="n">named_entities</span><span class="p">)</span>
 
@@ -141,23 +144,21 @@ See võimaldab nimeüksusi käsitleda terviklike fraasidena:</p>
  <span class="s">&#39;NamedEntity(toomas hendrik ilves, PER)&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>Klassi <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.NamedEntity</span></code> dokumentatsioonist leiab täpsemat informatsiooni selle väljade kohta.</p>
+<p>Klassi <a class="reference internal" href="../estnltk.html#estnltk.corpus.NamedEntity" title="estnltk.corpus.NamedEntity"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.NamedEntity</span></tt></a> dokumentatsioonist leiab täpsemat informatsiooni selle väljade kohta.</p>
 </div>
 
 
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/ner_est.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/ner_est.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -174,18 +175,21 @@ See võimaldab nimeüksusi käsitleda terviklike fraasidena:</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

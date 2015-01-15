@@ -7,7 +7,7 @@ Algvorm ehk lemma on tüüpiliselt see sõnakuju, mida kasutatakse sõnastikus m
 Sõnaliik määrab selle, milliseid vorme sõnast moodustada saab (nt enamikku nimisõnadest saab käänata 14-nes käändes) ning millistes (süntaktilistes) rollides sõna lauses esineda võib (nt verbid võivad esineda lauses öeldisena). 
 Lisaks selguvad morfoloogilise analüüsi käigus muud sõnavormi tasandil avalduvad grammatilised kategooriad, nt käändsõnade ainsus/mitmus, tegusõnade pöörded jms.
 
-`Estnltk`-s võimaldab sõnesid morfoloogiliselt analüüsida funktsioon :class:`estnltk.morf.analyze`::
+`Estnltk`-s võimaldab sõnesid morfoloogiliselt analüüsida funktsioon :class:`estnltk.pyvabamorf.morf.PyVabamorf.analyze`::
 
     from estnltk import analyze
     from pprint import pprint
@@ -48,6 +48,50 @@ Tuleb täheldada, et eestikeelsed tekstid on sageli morfoloogiliselt *mitmesed*,
     .. _spetsifikatsioonist:  https://www.keeletehnoloogia.ee/et/ekt-projektid/vabavaraline-morfoloogiatarkvara/tarkvara-nouete-spetsifikatsioon
     .. _dokumentatsioonist: https://github.com/Filosoft/vabamorf/blob/master/doc/tagset.html
 
+Analüüsifunktsiooni parametrite kirjeldus::
+
+    def analyze(words, **kwargs):
+        '''Perform morphological analysis on input.
+        
+        Parameters
+        ----------
+        words: list of str or str
+            Either a list of pretokenized words or a string. In case of a string, it will be splitted using
+            default behaviour of string.split() function.
+        guess: boolean, optional
+            If True, then use guessing, when analyzing unknown words (default: True)
+        phonetic: boolean, optional
+            If True, add phonetic information to the root forms (default: False).
+        compound: boolean, optional
+            if True, add compound word markers to root forms (default: True)
+
+        Returns
+        -------
+        list of (list of dict)
+            List of analysis for each word in input. One word usually contains more than one analysis as the
+            analyser does not perform disambiguation. 
+        '''
+
+Näiteks, kasutame *guess* lippu, et kirjutada lihtne kirjavigade tuvastamise funktsioon, mis väljastav *True*
+õige sõnade jaoks ning *False* valede sõnade jaoks::
+
+    >>> from estnltk import analyze
+    >>> 
+    >>> def spell_check(word):
+    ...     an = analyze([word], guess=False)
+    ...     return len(an[0]['analysis']) > 0
+    ... 
+    >>> for word in ['surramurra', 'mis', 'elu', 'see', 'on', 'lalala']:
+    ...     print (word, spell_check(word))
+    ... 
+    ('surramurra', False)
+    ('mis', True)
+    ('elu', True)
+    ('see', True)
+    ('on', True)
+    ('lalala', False)
+
+        
 Morfoloogilist analüsaatorit saab rakendada ka juba eeltükeldatud dokumendil (st dokumendil, mis on eelneval analüüsil jagatud paragrahvideks, lauseteks, sõnadeks).
 Sellisel juhul on morfoloogilise analüüsi tulemuseks dokument, millel saab teha ka päringuid, nt võib leida järjendid, kus on toodud välja iga sõna sõnaliik, lemma vm morfoloogiline kategooria.
 Kasutame selleks klassi :class:`estnltk.morf.PyVabamorfAnalyzer`::
@@ -171,3 +215,28 @@ Vabamorfi `dokumentatsioon`_ pakub ülevaadet võimalikest kategooriates, mida s
 
     .. _dokumentatsioon: https://github.com/Filosoft/vabamorf/blob/master/doc/tagset.html
 
+Sünteesimeetodi parameetrite kirjeldus::
+
+    def synthesize(self, lemma, partofspeech='', form='', hint='', guess=True, phonetic=False):
+        '''Given lemma, pos tag and a form, synthesize the word.
+
+        Parameters
+        ----------
+        lemma: str
+            The lemma of the word to be synthesized.
+        partofspeech: str, optional
+            The POS tag of the word to be synthesized.
+        form: str, optional
+            The form of the word to be synthesized.
+        hint: str, optional
+            The hint used by vabamorf to synthesize the word.
+        guess: bool, optional
+            If True, use guessing for unknown words (default: True)
+        phonetic: bool, optional
+            If True, add phonetic markers to synthesized words (default: False).
+
+        Returns
+        -------
+        list of str
+            The list of synthesized words.
+        '''

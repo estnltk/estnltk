@@ -8,8 +8,12 @@ Estnltk --- Open source tools for Estonian natural language processing
 ======================================================================
 
 Estnltk is a Python 2.7/Python 3.4 library for performing common language processing tasks in Estonian.
+The project is funded by EKT (`Eesti Keeletehnoloogia Riiklik Programm`_) under the project `EKT57`_.
 Although there are already many tools for processing Estonian, it is often not very trivial to interface them in applications or more complex research projects.
 Extra work is required to write application specific interfaces each time a tool is used.
+
+.. _Eesti Keeletehnoloogia Riiklik Programm: https://www.keeletehnoloogia.ee/
+.. _EKT57: https://www.keeletehnoloogia.ee/et/ekt-projektid/estnltk-pythoni-teegid-eestikeelsete-vabatektside-lihtsamaks-tootlemiseks
 
 Another problem is that many of these tools are scattered around the web and are hard to find if you do not know where to look.
 Although we have `keeleveeb.ee`_ and `EKT`_, `EKKTT`_ project pages, it can be hard for students and non-language people to dive in.

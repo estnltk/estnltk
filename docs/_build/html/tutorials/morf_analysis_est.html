@@ -23,16 +23,19 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="estnltk 1.1 documentation" href="../index.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -40,7 +43,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="morfoloogiline-analuus">
 <h1>Morfoloogiline analüüs<a class="headerlink" href="#morfoloogiline-analuus" title="Permalink to this headline">¶</a></h1>
@@ -48,7 +51,7 @@
 Algvorm ehk lemma on tüüpiliselt see sõnakuju, mida kasutatakse sõnastikus märksõnana.
 Sõnaliik määrab selle, milliseid vorme sõnast moodustada saab (nt enamikku nimisõnadest saab käänata 14-nes käändes) ning millistes (süntaktilistes) rollides sõna lauses esineda võib (nt verbid võivad esineda lauses öeldisena).
 Lisaks selguvad morfoloogilise analüüsi käigus muud sõnavormi tasandil avalduvad grammatilised kategooriad, nt käändsõnade ainsus/mitmus, tegusõnade pöörded jms.</p>
-<p><cite>Estnltk</cite>-s võimaldab sõnesid morfoloogiliselt analüüsida funktsioon <code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.analyze</span></code>:</p>
+<p><cite>Estnltk</cite>-s võimaldab sõnesid morfoloogiliselt analüüsida funktsioon <a class="reference internal" href="../estnltk.pyvabamorf.html#estnltk.pyvabamorf.morf.PyVabamorf.analyze" title="estnltk.pyvabamorf.morf.PyVabamorf.analyze"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.pyvabamorf.morf.PyVabamorf.analyze</span></tt></a>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">analyze</span>
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 
@@ -86,9 +89,52 @@ Lisaks selguvad morfoloogilise analüüsi käigus muud sõnavormi tasandil avald
 Ülevaate kasutatavatest morfoloogilistest märgenditest ja nende tähendustest leiab vabamorfi <a class="reference external" href="https://github.com/Filosoft/vabamorf/blob/master/doc/tagset.html">dokumentatsioonist</a> ja <a class="reference external" href="https://www.keeletehnoloogia.ee/et/ekt-projektid/vabavaraline-morfoloogiatarkvara/tarkvara-nouete-spetsifikatsioon">spetsifikatsioonist</a>.</p>
 <blockquote>
 <div></div></blockquote>
+<p>Analüüsifunktsiooni parametrite kirjeldus:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">analyze</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Perform morphological analysis on input.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    words: list of str or str</span>
+<span class="sd">        Either a list of pretokenized words or a string. In case of a string, it will be splitted using</span>
+<span class="sd">        default behaviour of string.split() function.</span>
+<span class="sd">    guess: boolean, optional</span>
+<span class="sd">        If True, then use guessing, when analyzing unknown words (default: True)</span>
+<span class="sd">    phonetic: boolean, optional</span>
+<span class="sd">        If True, add phonetic information to the root forms (default: False).</span>
+<span class="sd">    compound: boolean, optional</span>
+<span class="sd">        if True, add compound word markers to root forms (default: True)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of (list of dict)</span>
+<span class="sd">        List of analysis for each word in input. One word usually contains more than one analysis as the</span>
+<span class="sd">        analyser does not perform disambiguation.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+</pre></div>
+</div>
+<p>Näiteks, kasutame <em>guess</em> lippu, et kirjutada lihtne kirjavigade tuvastamise funktsioon, mis väljastav <em>True</em>
+õige sõnade jaoks ning <em>False</em> valede sõnade jaoks:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">analyze</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">spell_check</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">an</span> <span class="o">=</span> <span class="n">analyze</span><span class="p">([</span><span class="n">word</span><span class="p">],</span> <span class="n">guess</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">an</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;analysis&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;surramurra&#39;</span><span class="p">,</span> <span class="s">&#39;mis&#39;</span><span class="p">,</span> <span class="s">&#39;elu&#39;</span><span class="p">,</span> <span class="s">&#39;see&#39;</span><span class="p">,</span> <span class="s">&#39;on&#39;</span><span class="p">,</span> <span class="s">&#39;lalala&#39;</span><span class="p">]:</span>
+<span class="gp">... </span>    <span class="k">print</span> <span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">spell_check</span><span class="p">(</span><span class="n">word</span><span class="p">))</span>
+<span class="gp">...</span>
+<span class="go">(&#39;surramurra&#39;, False)</span>
+<span class="go">(&#39;mis&#39;, True)</span>
+<span class="go">(&#39;elu&#39;, True)</span>
+<span class="go">(&#39;see&#39;, True)</span>
+<span class="go">(&#39;on&#39;, True)</span>
+<span class="go">(&#39;lalala&#39;, False)</span>
+</pre></div>
+</div>
 <p>Morfoloogilist analüsaatorit saab rakendada ka juba eeltükeldatud dokumendil (st dokumendil, mis on eelneval analüüsil jagatud paragrahvideks, lauseteks, sõnadeks).
 Sellisel juhul on morfoloogilise analüüsi tulemuseks dokument, millel saab teha ka päringuid, nt võib leida järjendid, kus on toodud välja iga sõna sõnaliik, lemma vm morfoloogiline kategooria.
-Kasutame selleks klassi <code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></code>:</p>
+Kasutame selleks klassi <a class="reference internal" href="../estnltk.html#estnltk.morf.PyVabamorfAnalyzer" title="estnltk.morf.PyVabamorfAnalyzer"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></tt></a>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span>
 <span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">PyVabamorfAnalyzer</span>
 
@@ -179,7 +225,7 @@ Kasutame selleks klassi <code class="xref py py-class docutils literal"><span cl
  <span class="p">(</span><span class="s">&#39;kõnesüntees.&#39;</span><span class="p">,</span> <span class="s">&#39;kõnesüntees&#39;</span><span class="p">,</span> <span class="s">&#39;sg n&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">)]</span>
 </pre></div>
 </div>
-<p>NB! Kuigi eelnev näide võib jätta mulje, et igal sõnal ongi ainult üks analüüs, siis tegelikult on mitmesed analüüsid lihtsalt peidetud, st <code class="docutils literal"><span class="pre">morf_analyzed.lemmas</span></code>, <code class="docutils literal"><span class="pre">morf_analyzed.forms</span></code> ja  <code class="docutils literal"><span class="pre">morf_analyzed.postags</span></code> tagastavad iga sõna kohta vaid ühe analüüsi (mis ei pruugi ühestamata teksti korral olla õige analüüs). Sõna ülejäänud analüüsidele pääseb ligi klassi <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Word</span></code> atribuutide kaudu. Näide:</p>
+<p>NB! Kuigi eelnev näide võib jätta mulje, et igal sõnal ongi ainult üks analüüs, siis tegelikult on mitmesed analüüsid lihtsalt peidetud, st <tt class="docutils literal"><span class="pre">morf_analyzed.lemmas</span></tt>, <tt class="docutils literal"><span class="pre">morf_analyzed.forms</span></tt> ja  <tt class="docutils literal"><span class="pre">morf_analyzed.postags</span></tt> tagastavad iga sõna kohta vaid ühe analüüsi (mis ei pruugi ühestamata teksti korral olla õige analüüs). Sõna ülejäänud analüüsidele pääseb ligi klassi <a class="reference internal" href="../estnltk.html#estnltk.corpus.Word" title="estnltk.corpus.Word"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Word</span></tt></a> atribuutide kaudu. Näide:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># Väljastame esimese sõna (&#39;Keeletehnoloogia&#39;) kõik vormitüübid</span>
 <span class="k">print</span> <span class="p">(</span><span class="n">morf_analyzed</span><span class="o">.</span><span class="n">words</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">forms</span><span class="p">)</span>
 </pre></div>
@@ -191,7 +237,7 @@ Kasutame selleks klassi <code class="xref py py-class docutils literal"><span cl
 <div class="section" id="morfoloogiline-suntees">
 <h2>Morfoloogiline süntees<a class="headerlink" href="#morfoloogiline-suntees" title="Permalink to this headline">¶</a></h2>
 <p><cite>Estnltk</cite> pakub ka morfoloogilise sünteesi tuge, st võimaldab etteantud sõnalemmast ja morfoloogilistest kategooriatest lähtuvalt genereerida uusi sõnavorme.
-Selleks rakendame funktsiooni <code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.synthesize</span></code>:</p>
+Selleks rakendame funktsiooni <tt class="xref py py-class docutils literal"><span class="pre">estnltk.morf.synthesize</span></tt>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">synthesize</span>
 
 <span class="k">print</span><span class="p">(</span><span class="n">synthesize</span><span class="p">(</span><span class="s">&#39;pood&#39;</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="s">&#39;pl p&#39;</span><span class="p">,</span> <span class="n">partofspeech</span><span class="o">=</span><span class="s">&#39;S&#39;</span><span class="p">))</span>
@@ -206,6 +252,32 @@ Selleks rakendame funktsiooni <code class="xref py py-class docutils literal"><s
 <p>Vabamorfi <a class="reference external" href="https://github.com/Filosoft/vabamorf/blob/master/doc/tagset.html">dokumentatsioon</a> pakub ülevaadet võimalikest kategooriates, mida saab sünteesil kasutada.</p>
 <blockquote>
 <div></div></blockquote>
+<p>Sünteesimeetodi parameetrite kirjeldus:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">synthesize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lemma</span><span class="p">,</span> <span class="n">partofspeech</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">phonetic</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Given lemma, pos tag and a form, synthesize the word.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lemma: str</span>
+<span class="sd">        The lemma of the word to be synthesized.</span>
+<span class="sd">    partofspeech: str, optional</span>
+<span class="sd">        The POS tag of the word to be synthesized.</span>
+<span class="sd">    form: str, optional</span>
+<span class="sd">        The form of the word to be synthesized.</span>
+<span class="sd">    hint: str, optional</span>
+<span class="sd">        The hint used by vabamorf to synthesize the word.</span>
+<span class="sd">    guess: bool, optional</span>
+<span class="sd">        If True, use guessing for unknown words (default: True)</span>
+<span class="sd">    phonetic: bool, optional</span>
+<span class="sd">        If True, add phonetic markers to synthesized words (default: False).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of str</span>
+<span class="sd">        The list of synthesized words.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -213,7 +285,7 @@ Selleks rakendame funktsiooni <code class="xref py py-class docutils literal"><s
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
@@ -223,14 +295,12 @@ Selleks rakendame funktsiooni <code class="xref py py-class docutils literal"><s
 </li>
 </ul>
 
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/morf_analysis_est.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/morf_analysis_est.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -247,18 +317,21 @@ Selleks rakendame funktsiooni <code class="xref py py-class docutils literal"><s
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

@@ -23,17 +23,20 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="estnltk 1.1 documentation" href="index.html" />
     <link rel="prev" title="Subpackages" href="estnltk.textclassifier.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="estnltk.textclassifier.html" title="Subpackages"
              accesskey="P">previous</a> |</li>
@@ -44,7 +47,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="estnltk-estner-package">
 <h1>estnltk.estner package<a class="headerlink" href="#estnltk-estner-package" title="Permalink to this headline">¶</a></h1>
@@ -58,23 +61,355 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="estnltk-estner-crfsuiteutil-module">
-<h2>estnltk.estner.crfsuiteutil module<a class="headerlink" href="#estnltk-estner-crfsuiteutil-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.estner.crfsuiteutil">
+<span id="estnltk-estner-crfsuiteutil-module"></span><h2>estnltk.estner.crfsuiteutil module<a class="headerlink" href="#module-estnltk.estner.crfsuiteutil" title="Permalink to this headline">¶</a></h2>
+<p>Defines wrappers over crfsuite package for named entity recognition.</p>
+<dl class="class">
+<dt id="estnltk.estner.crfsuiteutil.Tagger">
+<em class="property">class </em><tt class="descclassname">estnltk.estner.crfsuiteutil.</tt><tt class="descname">Tagger</tt><big>(</big><em>settings</em>, <em>model_filename</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/crfsuiteutil.html#Tagger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.crfsuiteutil.Tagger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Class for named entity tagging using a crfsuite model.</p>
+<dl class="method">
+<dt id="estnltk.estner.crfsuiteutil.Tagger.tag">
+<tt class="descname">tag</tt><big>(</big><em>nerdoc</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/crfsuiteutil.html#Tagger.tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.crfsuiteutil.Tagger.tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tag the given document.
+Parameters
+&#8212;&#8212;&#8212;-
+nerdoc: estnltk.estner.Document</p>
+<blockquote>
+<div>The document to be tagged.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of lists of str</p>
+<blockquote class="last">
+<div><p>Predicted token Labels for each sentence in the document</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.estner.crfsuiteutil.Trainer">
+<em class="property">class </em><tt class="descclassname">estnltk.estner.crfsuiteutil.</tt><tt class="descname">Trainer</tt><big>(</big><em>algorithm='l2sgd'</em>, <em>c2=0.001</em>, <em>verbose=True</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/crfsuiteutil.html#Trainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.crfsuiteutil.Trainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Trains a crfsuite model.</p>
+<dl class="method">
+<dt id="estnltk.estner.crfsuiteutil.Trainer.train">
+<tt class="descname">train</tt><big>(</big><em>nerdocs</em>, <em>mode_filename</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/crfsuiteutil.html#Trainer.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.crfsuiteutil.Trainer.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train a CRF model using given documents.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>nerdocs: list of estnltk.estner.ner.Document.</strong></p>
+<blockquote>
+<div><p>The documents for model training.</p>
+</div></blockquote>
+<p><strong>mode_filename: str</strong></p>
+<blockquote class="last">
+<div><p>The fielname where to save the model.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="estnltk-estner-featureextraction-module">
-<h2>estnltk.estner.featureextraction module<a class="headerlink" href="#estnltk-estner-featureextraction-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.estner.featureextraction">
+<span id="estnltk-estner-featureextraction-module"></span><h2>estnltk.estner.featureextraction module<a class="headerlink" href="#module-estnltk.estner.featureextraction" title="Permalink to this headline">¶</a></h2>
+<p>Module containing various feature extractors including local and global
+features.</p>
+<dl class="class">
+<dt id="estnltk.estner.featureextraction.BaseFeatureExtractor">
+<em class="property">class </em><tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">BaseFeatureExtractor</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#BaseFeatureExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.BaseFeatureExtractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Base class for all feature extractors.</p>
+<dl class="method">
+<dt id="estnltk.estner.featureextraction.BaseFeatureExtractor.prepare">
+<tt class="descname">prepare</tt><big>(</big><em>docs</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#BaseFeatureExtractor.prepare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.BaseFeatureExtractor.prepare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called before feature extraction actually happens. Can be used to 
+collect global statistics on the corpus.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.estner.featureextraction.BaseFeatureExtractor.process">
+<tt class="descname">process</tt><big>(</big><em>doc</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#BaseFeatureExtractor.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.BaseFeatureExtractor.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.estner.featureextraction.FeatureExtractor">
+<em class="property">class </em><tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">FeatureExtractor</tt><big>(</big><em>settings</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#FeatureExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.FeatureExtractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Feature extractor is used for decorating tokens of the documents
+with features specified in configuration files.</p>
+<dl class="method">
+<dt id="estnltk.estner.featureextraction.FeatureExtractor.prepare">
+<tt class="descname">prepare</tt><big>(</big><em>docs</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#FeatureExtractor.prepare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.FeatureExtractor.prepare" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.estner.featureextraction.FeatureExtractor.process">
+<tt class="descname">process</tt><big>(</big><em>docs</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#FeatureExtractor.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.FeatureExtractor.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.estner.featureextraction.GazetteerFeatureExtractor">
+<em class="property">class </em><tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">GazetteerFeatureExtractor</tt><big>(</big><em>settings</em>, <em>look_ahead=3</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#GazetteerFeatureExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.GazetteerFeatureExtractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.estner.featureextraction.BaseFeatureExtractor" title="estnltk.estner.featureextraction.BaseFeatureExtractor"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.estner.featureextraction.BaseFeatureExtractor</span></tt></a></p>
+<p>Generates features indicating whether the token is present in a precompiled 
+list of organisations, geographical locations or person names. For instance, 
+if a token t occurs both in the list of person names (PER) and organisations (ORG), 
+assign t[&#8216;gaz&#8217;] = [&#8216;PER&#8217;, &#8216;ORG&#8217;]. With the parameter look_ahead, it is possible to 
+compose multi-token phrases for dictionary lookup. When look_ahead=N, phrases 
+(t[i], ..., t[i+N]) will be composed. If the phrase matches the dictionary, each
+token will be assigned the corresponding value.</p>
+<dl class="method">
+<dt id="estnltk.estner.featureextraction.GazetteerFeatureExtractor.process">
+<tt class="descname">process</tt><big>(</big><em>doc</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#GazetteerFeatureExtractor.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.GazetteerFeatureExtractor.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.estner.featureextraction.GlobalContextFeatureExtractor">
+<em class="property">class </em><tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">GlobalContextFeatureExtractor</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#GlobalContextFeatureExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.GlobalContextFeatureExtractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.estner.featureextraction.BaseFeatureExtractor" title="estnltk.estner.featureextraction.BaseFeatureExtractor"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.estner.featureextraction.BaseFeatureExtractor</span></tt></a></p>
+<dl class="method">
+<dt id="estnltk.estner.featureextraction.GlobalContextFeatureExtractor.process">
+<tt class="descname">process</tt><big>(</big><em>doc</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#GlobalContextFeatureExtractor.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.GlobalContextFeatureExtractor.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.estner.featureextraction.LocalFeatureExtractor">
+<em class="property">class </em><tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">LocalFeatureExtractor</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#LocalFeatureExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.LocalFeatureExtractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.estner.featureextraction.BaseFeatureExtractor" title="estnltk.estner.featureextraction.BaseFeatureExtractor"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.estner.featureextraction.BaseFeatureExtractor</span></tt></a></p>
+<p>Generates features for a token based on its character makeup</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.estner.featureextraction.MorphFeatureExtractor">
+<em class="property">class </em><tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">MorphFeatureExtractor</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#MorphFeatureExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.MorphFeatureExtractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.estner.featureextraction.BaseFeatureExtractor" title="estnltk.estner.featureextraction.BaseFeatureExtractor"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.estner.featureextraction.BaseFeatureExtractor</span></tt></a></p>
+<p>Extracts features provided by the morphological analyser pyvabamorf.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.estner.featureextraction.SentenceFeatureExtractor">
+<em class="property">class </em><tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">SentenceFeatureExtractor</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#SentenceFeatureExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.SentenceFeatureExtractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.estner.featureextraction.BaseFeatureExtractor" title="estnltk.estner.featureextraction.BaseFeatureExtractor"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.estner.featureextraction.BaseFeatureExtractor</span></tt></a></p>
+<p>Generates features for the first and last tokens in a sentence.</p>
+<dl class="method">
+<dt id="estnltk.estner.featureextraction.SentenceFeatureExtractor.process">
+<tt class="descname">process</tt><big>(</big><em>doc</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#SentenceFeatureExtractor.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.SentenceFeatureExtractor.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.apply_templates">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">apply_templates</tt><big>(</big><em>toks</em>, <em>templates</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#apply_templates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.apply_templates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate features for an item sequence by applying feature templates.
+A feature template consists of a tuple of (name, offset) pairs,
+where name and offset specify a field name and offset from which
+the template extracts a feature value. Generated features are stored
+in the &#8216;F&#8217; field of each item in the sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>toks: list of tokens</strong></p>
+<blockquote>
+<div><p>A list of processed toknes.</p>
+</div></blockquote>
+<p><strong>templates: list of template tuples (str, int)</strong></p>
+<blockquote class="last">
+<div><p>A feature template consists of a tuple of (name, offset) pairs,
+where name and offset specify a field name and offset from which
+the template extracts a feature value.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.b">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">b</tt><big>(</big><em>v</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#b"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.b" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.contains_alpha">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">contains_alpha</tt><big>(</big><em>token</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#contains_alpha"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.contains_alpha" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.contains_digit">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">contains_digit</tt><big>(</big><em>token</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#contains_digit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.contains_digit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.contains_lower">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">contains_lower</tt><big>(</big><em>token</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#contains_lower"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.contains_lower" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.contains_symbol">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">contains_symbol</tt><big>(</big><em>token</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#contains_symbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.contains_symbol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.contains_upper">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">contains_upper</tt><big>(</big><em>token</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#contains_upper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.contains_upper" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.degenerate">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">degenerate</tt><big>(</big><em>src</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#degenerate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.degenerate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.get_2d">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">get_2d</tt><big>(</big><em>token</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#get_2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.get_2d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.get_4d">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">get_4d</tt><big>(</big><em>token</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#get_4d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.get_4d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.get_all_other">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">get_all_other</tt><big>(</big><em>token</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#get_all_other"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.get_all_other" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.get_capperiod">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">get_capperiod</tt><big>(</big><em>token</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#get_capperiod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.get_capperiod" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.get_case">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">get_case</tt><big>(</big><em>morph</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#get_case"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.get_case" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.get_da">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">get_da</tt><big>(</big><em>token</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#get_da"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.get_da" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.get_dand">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">get_dand</tt><big>(</big><em>token</em>, <em>p</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#get_dand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.get_dand" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.get_ending">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">get_ending</tt><big>(</big><em>morph_lemma</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#get_ending"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.get_ending" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.get_lemma">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">get_lemma</tt><big>(</big><em>morph_lemma</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#get_lemma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.get_lemma" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.get_pos">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">get_pos</tt><big>(</big><em>morph</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#get_pos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.get_pos" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.get_shape">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">get_shape</tt><big>(</big><em>token</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#get_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.get_shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.get_word_parts">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">get_word_parts</tt><big>(</big><em>morph_lemma</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#get_word_parts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.get_word_parts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.is_prop">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">is_prop</tt><big>(</big><em>morph</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#is_prop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.is_prop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.estner.featureextraction.split_char">
+<tt class="descclassname">estnltk.estner.featureextraction.</tt><tt class="descname">split_char</tt><big>(</big><em>token</em>, <em>char</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/featureextraction.html#split_char"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.featureextraction.split_char" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
-<div class="section" id="estnltk-estner-ner-module">
-<h2>estnltk.estner.ner module<a class="headerlink" href="#estnltk-estner-ner-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.estner.ner">
+<span id="estnltk-estner-ner-module"></span><h2>estnltk.estner.ner module<a class="headerlink" href="#module-estnltk.estner.ner" title="Permalink to this headline">¶</a></h2>
+<p>Contains classes which model text documents and their contents</p>
+<dl class="class">
+<dt id="estnltk.estner.ner.Collection">
+<em class="property">class </em><tt class="descclassname">estnltk.estner.ner.</tt><tt class="descname">Collection</tt><big>(</big><em>documents</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/ner.html#Collection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.ner.Collection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>A collection of NER documents.</p>
+<dl class="attribute">
+<dt id="estnltk.estner.ner.Collection.tokens">
+<tt class="descname">tokens</tt><a class="reference internal" href="_modules/estnltk/estner/ner.html#Collection.tokens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.ner.Collection.tokens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.estner.ner.Document">
+<em class="property">class </em><tt class="descclassname">estnltk.estner.ner.</tt><tt class="descname">Document</tt><a class="reference internal" href="_modules/estnltk/estner/ner.html#Document"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.ner.Document" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>A document is a collection of NER sentences.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.estner.ner.Sentence">
+<em class="property">class </em><tt class="descclassname">estnltk.estner.ner.</tt><tt class="descname">Sentence</tt><big>(</big><em>*args</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/ner.html#Sentence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.ner.Sentence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.list</span></tt></p>
+<p>Sentence is a list of NER tokens.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.estner.ner.Token">
+<em class="property">class </em><tt class="descclassname">estnltk.estner.ner.</tt><tt class="descname">Token</tt><big>(</big><em>*args</em>, <em>**kw</em><big>)</big><a class="reference internal" href="_modules/estnltk/estner/ner.html#Token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.ner.Token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.dict</span></tt></p>
+<p>Token represents a single word in NER system.</p>
+<dl class="method">
+<dt id="estnltk.estner.ner.Token.feature_list">
+<tt class="descname">feature_list</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/estner/ner.html#Token.feature_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.ner.Token.feature_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.estner.ner.Token.features_to_string">
+<tt class="descname">features_to_string</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/estner/ner.html#Token.features_to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.estner.ner.Token.features_to_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="estnltk-estner-nlputil-module">
 <h2>estnltk.estner.nlputil module<a class="headerlink" href="#estnltk-estner-nlputil-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="estnltk-estner-settings-module">
-<h2>estnltk.estner.settings module<a class="headerlink" href="#estnltk-estner-settings-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.estner.settings">
+<span id="estnltk-estner-settings-module"></span><h2>estnltk.estner.settings module<a class="headerlink" href="#module-estnltk.estner.settings" title="Permalink to this headline">¶</a></h2>
+<p>NER settings</p>
 </div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.estner">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-estnltk.estner" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -82,19 +417,19 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">estnltk.estner package</a><ul>
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#estnltk-estner-crfsuiteutil-module">estnltk.estner.crfsuiteutil module</a></li>
-<li><a class="reference internal" href="#estnltk-estner-featureextraction-module">estnltk.estner.featureextraction module</a></li>
-<li><a class="reference internal" href="#estnltk-estner-ner-module">estnltk.estner.ner module</a></li>
+<li><a class="reference internal" href="#module-estnltk.estner.crfsuiteutil">estnltk.estner.crfsuiteutil module</a></li>
+<li><a class="reference internal" href="#module-estnltk.estner.featureextraction">estnltk.estner.featureextraction module</a></li>
+<li><a class="reference internal" href="#module-estnltk.estner.ner">estnltk.estner.ner module</a></li>
 <li><a class="reference internal" href="#estnltk-estner-nlputil-module">estnltk.estner.nlputil module</a></li>
-<li><a class="reference internal" href="#estnltk-estner-settings-module">estnltk.estner.settings module</a></li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-estnltk.estner.settings">estnltk.estner.settings module</a></li>
+<li><a class="reference internal" href="#module-estnltk.estner">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -102,14 +437,12 @@
   <h4>Previous topic</h4>
   <p class="topless"><a href="estnltk.textclassifier.html"
                         title="previous chapter">Subpackages</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/estnltk.estner.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/estnltk.estner.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -126,21 +459,24 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="estnltk.textclassifier.html" title="Subpackages"
              >previous</a> |</li>
         <li><a href="index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

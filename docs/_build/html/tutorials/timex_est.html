@@ -23,16 +23,19 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="estnltk 1.1 documentation" href="../index.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -40,7 +43,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="ajavaljendite-tuvastamine">
 <h1>Ajaväljendite tuvastamine<a class="headerlink" href="#ajavaljendite-tuvastamine" title="Permalink to this headline">¶</a></h1>
@@ -53,7 +56,7 @@ Programmi poolt kasutatav märgendusviis on sarnane TimeML raamistikus kasutatav
 <li>DURATION - ajalised kestvused, nt <em>viis päeva</em></li>
 <li>SET - ajalised korduvused, nt <em>igal aastal</em></li>
 </ul>
-<p>Ajaväljendite tuvastamine nõuab, et sisendtekst on lausestatud ja sõnestatud (klassi <code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code> abil), morfoloogiliselt analüüsitud (klassi <code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></code> abil) ning morfoloogiliselt ühestatud (kuigi programm töötab ka morfoloogiliselt mitmesel tekstil, võib analüüsi kvaliteet olla madalam kui ühestatud tekstil).</p>
+<p>Ajaväljendite tuvastamine nõuab, et sisendtekst on lausestatud ja sõnestatud (klassi <a class="reference internal" href="../estnltk.html#estnltk.tokenize.Tokenizer" title="estnltk.tokenize.Tokenizer"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></tt></a> abil), morfoloogiliselt analüüsitud (klassi <a class="reference internal" href="../estnltk.html#estnltk.morf.PyVabamorfAnalyzer" title="estnltk.morf.PyVabamorfAnalyzer"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></tt></a> abil) ning morfoloogiliselt ühestatud (kuigi programm töötab ka morfoloogiliselt mitmesel tekstil, võib analüüsi kvaliteet olla madalam kui ühestatud tekstil).</p>
 <p>Näide:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span>
 <span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">PyVabamorfAnalyzer</span>
@@ -121,7 +124,7 @@ Näiteks, kui ajaväljendi semantika on arvutatud mingit teist ajaväljendit alu
 &#39;Timex(kaks päeva varem, DATE, 2014-12-01, [timex_id=2])&#39;  is anchored to timex: 1
 </pre></div>
 </div>
-<p>Rohkem informatsiooni kasutusel olevate atribuutide kohta leiab klassi <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Timex</span></code> dokumentatsioonist.</p>
+<p>Rohkem informatsiooni kasutusel olevate atribuutide kohta leiab klassi <a class="reference internal" href="../estnltk.html#estnltk.corpus.Timex" title="estnltk.corpus.Timex"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Timex</span></tt></a> dokumentatsioonist.</p>
 <p>Ajaväljendite tuvastaja leiab tekstist ka mõned sellised väljendid, mida on keeruline normaliseerida ning seetõttu jäävad ajaväljendi väljad <em>type</em> ja <em>value</em> määratlemata.
 Vaikimisi selliseid ajaväljendid eemaldatakse väljundist, aga seda sätet on võimalik tühistada, käivitades tuvastaja argumendiga <cite>remove_unnormalized_timexes=False</cite>.</p>
 </div>
@@ -130,16 +133,14 @@ Vaikimisi selliseid ajaväljendid eemaldatakse väljundist, aga seda sätet on v
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/timex_est.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/timex_est.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -156,18 +157,21 @@ Vaikimisi selliseid ajaväljendid eemaldatakse väljundist, aga seda sätet on v
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

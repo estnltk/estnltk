@@ -23,16 +23,19 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="estnltk 1.1 documentation" href="../index.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -40,14 +43,14 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="sobimatute-sumbolite-tuvastamine">
 <h1>Sobimatute sümbolite tuvastamine<a class="headerlink" href="#sobimatute-sumbolite-tuvastamine" title="Permalink to this headline">¶</a></h1>
 <p>Sageli on enne tekstide töötlust tarvis kontrollida, kas need rahuldavad mingeid nõudeid.
 Näiteks ei pruugi eesti keelt töötlevad rakendused osata analüüsida kirillitsas tekste, kuna eeldavad, et sisendtekst sisaldab vaid eesti keele tähemärke.
 Seetõttu on tarvis kuidagi eristada analüüsitavaid tekste mitteanalüüsitavatest.</p>
-<p><cite>Estnltk</cite> klass <code class="xref py py-class docutils literal"><span class="pre">estnltk.textdiagnostics.TextDiagnostics</span></code> võimaldab sisendteksti võrrelda eeldefineeritud lubatud sümbolite hulgaga, et tuvastada, kas potentsiaalselt võiks tegu olla mitteanalüüsitava tekstiga.
+<p><cite>Estnltk</cite> klass <a class="reference internal" href="../estnltk.html#estnltk.textdiagnostics.TextDiagnostics" title="estnltk.textdiagnostics.TextDiagnostics"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.textdiagnostics.TextDiagnostics</span></tt></a> võimaldab sisendteksti võrrelda eeldefineeritud lubatud sümbolite hulgaga, et tuvastada, kas potentsiaalselt võiks tegu olla mitteanalüüsitava tekstiga.
 Samuti pakub klass ülevaatet &#8220;probleemsetest&#8221; sümbolitest.</p>
 <div class="section" id="eeldefineeritud-sonastikud">
 <h2>Eeldefineeritud sõnastikud<a class="headerlink" href="#eeldefineeritud-sonastikud" title="Permalink to this headline">¶</a></h2>
@@ -71,7 +74,7 @@ Lisaks leiduvad ka eraldi suur- ja väiketähti sisaldavad tähestikud eesti ja 
 </div>
 <div class="section" id="pohikasutus">
 <h2>Põhikasutus<a class="headerlink" href="#pohikasutus" title="Permalink to this headline">¶</a></h2>
-<p>Vaikimisi kasutab <code class="xref py py-class docutils literal"><span class="pre">estnltk.textdiagnostics.TextDiagnostics</span></code> klass eesti tähestikku, milles lisaks eesti tähtedele ka tühikud, numbrid ja punktuatsioon.
+<p>Vaikimisi kasutab <a class="reference internal" href="../estnltk.html#estnltk.textdiagnostics.TextDiagnostics" title="estnltk.textdiagnostics.TextDiagnostics"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.textdiagnostics.TextDiagnostics</span></tt></a> klass eesti tähestikku, milles lisaks eesti tähtedele ka tühikud, numbrid ja punktuatsioon.
 Meetodi <cite>is_valid(text)</cite> abil saab kontrollida, kas sisendsõne sisaldab vaid tähestikus olevaid sümboleid:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">td</span> <span class="o">=</span> <span class="n">TextDiagnostics</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">td</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="s">&#39;Segan suhkrut malbelt tassis, kus nii armsalt aurab tee.&#39;</span><span class="p">)</span>
@@ -113,7 +116,7 @@ Meetodi <cite>is_valid(text)</cite> abil saab kontrollida, kas sisendsõne sisal
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
@@ -125,14 +128,12 @@ Meetodi <cite>is_valid(text)</cite> abil saab kontrollida, kas sisendsõne sisal
 </li>
 </ul>
 
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/textdiagnostics_est.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/textdiagnostics_est.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -149,18 +150,21 @@ Meetodi <cite>is_valid(text)</cite> abil saab kontrollida, kas sisendsõne sisal
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

@@ -296,7 +296,7 @@ class PyVabamorf(object):
                            'analysis': analysis})
         return result
         
-    def synthesize(self, lemma, partofspeech='', form='', hint='', guess=True, phonetic=True):
+    def synthesize(self, lemma, partofspeech='', form='', hint='', guess=True, phonetic=False):
         '''Given lemma, pos tag and a form, synthesize the word.
 
         Parameters

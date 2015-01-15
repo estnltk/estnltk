@@ -12,7 +12,7 @@ Common linguistic categories include noun and verb, among others.
 Word forms define additional grammatical information such as cases, plurality etc.
 
 
-Estnltk contains :class:`estnltk.morf.analyze` function for performing morphological analysis::
+Estnltk contains :class:`estnltk.pyvabamorf.morf.PyVabamorf.analyze` function for performing morphological analysis::
 
     from estnltk import analyze
     from pprint import pprint
@@ -51,6 +51,49 @@ The tags are documented in vabamorf tagset `documentation`_.
 
     .. _vabamorf: https://github.com/Filosoft/vabamorf/
     .. _documentation: https://github.com/Filosoft/vabamorf/blob/master/doc/tagset.html
+
+The function has also various parameters that can be used to change to behaviour of analysis::
+
+    def analyze(words, **kwargs):
+        '''Perform morphological analysis on input.
+        
+        Parameters
+        ----------
+        words: list of str or str
+            Either a list of pretokenized words or a string. In case of a string, it will be splitted using
+            default behaviour of string.split() function.
+        guess: boolean, optional
+            If True, then use guessing, when analyzing unknown words (default: True)
+        phonetic: boolean, optional
+            If True, add phonetic information to the root forms (default: False).
+        compound: boolean, optional
+            if True, add compound word markers to root forms (default: True)
+
+        Returns
+        -------
+        list of (list of dict)
+            List of analysis for each word in input. One word usually contains more than one analysis as the
+            analyser does not perform disambiguation. 
+        '''
+      
+For example, let's use *guess* flag to write a spell check function that returns *True* for known words and *False* for unknown words::
+
+    >>> from estnltk import analyze
+    >>> 
+    >>> def spell_check(word):
+    ...     an = analyze([word], guess=False)
+    ...     return len(an[0]['analysis']) > 0
+    ... 
+    >>> for word in ['surramurra', 'mis', 'elu', 'see', 'on', 'lalala']:
+    ...     print (word, spell_check(word))
+    ... 
+    ('surramurra', False)
+    ('mis', True)
+    ('elu', True)
+    ('see', True)
+    ('on', True)
+    ('lalala', False)
+
 
 
 The morphological analysis can also be applied on pretokenized data, so it will be possible to more easily list all lemmas, pos tags etc.
@@ -150,7 +193,7 @@ More information put together::
 Morphological synthesis
 =======================
 
-Estnltk can also do morphological synthesis using :class:`estnltk.morf.synthesize` function::
+Estnltk can also do morphological synthesis using :class:`estnltk.pyvabamorf.morf.PyVabamorf.synthesize` function::
 
     from estnltk import synthesize
 
@@ -165,4 +208,30 @@ That will print::
 See `documentation`_ for possible parameters.
 
     .. _documentation: https://github.com/Filosoft/vabamorf/blob/master/doc/tagset.html
+
+There are various options for the synthesize method::
+
+    def synthesize(self, lemma, partofspeech='', form='', hint='', guess=True, phonetic=False):
+        '''Given lemma, pos tag and a form, synthesize the word.
+
+        Parameters
+        ----------
+        lemma: str
+            The lemma of the word to be synthesized.
+        partofspeech: str, optional
+            The POS tag of the word to be synthesized.
+        form: str, optional
+            The form of the word to be synthesized.
+        hint: str, optional
+            The hint used by vabamorf to synthesize the word.
+        guess: bool, optional
+            If True, use guessing for unknown words (default: True)
+        phonetic: bool, optional
+            If True, add phonetic markers to synthesized words (default: False).
+
+        Returns
+        -------
+        list of str
+            The list of synthesized words.
+        '''
 

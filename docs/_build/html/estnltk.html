@@ -23,18 +23,21 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="estnltk 1.1 documentation" href="index.html" />
     <link rel="next" title="estnltk.estner package" href="estnltk.estner.html" />
     <link rel="prev" title="Estnltk text classifier tool" href="tutorials/textclassifier_tutorial.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="estnltk.estner.html" title="estnltk.estner package"
              accesskey="N">next</a> |</li>
@@ -48,7 +51,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="estnltk-package">
 <h1>estnltk package<a class="headerlink" href="#estnltk-package" title="Permalink to this headline">¶</a></h1>
@@ -61,12 +64,12 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#estnltk-estner-crfsuiteutil-module">estnltk.estner.crfsuiteutil module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#estnltk-estner-featureextraction-module">estnltk.estner.featureextraction module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#estnltk-estner-ner-module">estnltk.estner.ner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.crfsuiteutil">estnltk.estner.crfsuiteutil module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.featureextraction">estnltk.estner.featureextraction module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.ner">estnltk.estner.ner module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#estnltk-estner-nlputil-module">estnltk.estner.nlputil module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#estnltk-estner-settings-module">estnltk.estner.settings module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.settings">estnltk.estner.settings module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -75,47 +78,1960 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="estnltk-clausesegmenter-module">
-<h2>estnltk.clausesegmenter module<a class="headerlink" href="#estnltk-clausesegmenter-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.clausesegmenter">
+<span id="estnltk-clausesegmenter-module"></span><h2>estnltk.clausesegmenter module<a class="headerlink" href="#module-estnltk.clausesegmenter" title="Permalink to this headline">¶</a></h2>
+<p>Wrapper class around Java-based clause segmenter (Osalausestaja). 
+Allows to process results sentence by sentence.</p>
+<dl class="class">
+<dt id="estnltk.clausesegmenter.ClauseSegmenter">
+<em class="property">class </em><tt class="descclassname">estnltk.clausesegmenter.</tt><tt class="descname">ClauseSegmenter</tt><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.javaprocess.JavaProcess" title="estnltk.javaprocess.JavaProcess"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.javaprocess.JavaProcess</span></tt></a>, <a class="reference internal" href="#estnltk.textprocessor.TextProcessor" title="estnltk.textprocessor.TextProcessor"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.textprocessor.TextProcessor</span></tt></a></p>
+<p>Wrapper class around Java-based clause segmenter (Osalausestaja). 
+Allows to process results sentence by sentence.</p>
+<dl class="method">
+<dt id="estnltk.clausesegmenter.ClauseSegmenter.annotate_indices">
+<tt class="descname">annotate_indices</tt><big>(</big><em>sentence</em><big>)</big><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter.annotate_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.annotate_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add clause indexes to already annotated sentence.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.clausesegmenter.ClauseSegmenter.detect_annotations">
+<tt class="descname">detect_annotations</tt><big>(</big><em>sentence</em><big>)</big><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter.detect_annotations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.detect_annotations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.clausesegmenter.ClauseSegmenter.mark_annotations">
+<tt class="descname">mark_annotations</tt><big>(</big><em>sentence</em><big>)</big><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter.mark_annotations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.mark_annotations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.clausesegmenter.ClauseSegmenter.prepare_sentence">
+<tt class="descname">prepare_sentence</tt><big>(</big><em>sentence</em><big>)</big><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter.prepare_sentence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.prepare_sentence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare the sentence for segment detection.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.clausesegmenter.ClauseSegmenter.process_corpus">
+<tt class="descname">process_corpus</tt><big>(</big><em>corpus</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter.process_corpus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.process_corpus" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.clausesegmenter.ClauseSegmenter.process_json">
+<tt class="descname">process_json</tt><big>(</big><em>corpus</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter.process_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.process_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.clausesegmenter.ClauseSegmenter.rename_annotations">
+<tt class="descname">rename_annotations</tt><big>(</big><em>sentence</em><big>)</big><a class="reference internal" href="_modules/estnltk/clausesegmenter.html#ClauseSegmenter.rename_annotations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.clausesegmenter.ClauseSegmenter.rename_annotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that renames and restructures clause information.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="estnltk-core-module">
-<h2>estnltk.core module<a class="headerlink" href="#estnltk-core-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.core">
+<span id="estnltk-core-module"></span><h2>estnltk.core module<a class="headerlink" href="#module-estnltk.core" title="Permalink to this headline">¶</a></h2>
+<p>Core module of the estnltk library.
+Defines common functionality for all modules.</p>
+<dl class="class">
+<dt id="estnltk.core.JsonPaths">
+<em class="property">class </em><tt class="descclassname">estnltk.core.</tt><tt class="descname">JsonPaths</tt><a class="reference internal" href="_modules/estnltk/core.html#JsonPaths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.core.JsonPaths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Class for defining common jsonpath_rw expresssions.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>words: jsonpath_rw.jsonpath.Descendants</td>
+<td>Expression for extracting words from corpus structures.</td>
+</tr>
+<tr class="row-even"><td>analysis: jsonpath_rw.jsonpath.Descendants</td>
+<td>Expression for exracting analysis results from corpus structures.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="estnltk.core.JsonPaths.analysis">
+<tt class="descname">analysis</tt><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b38032a5e10&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.analysis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.core.JsonPaths.documents">
+<tt class="descname">documents</tt><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b380339e240&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.documents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.core.JsonPaths.words">
+<tt class="descname">words</tt><em class="property"> = &lt;jsonpath_rw.jsonpath.Descendants object at 0x2b38032afb00&gt;</em><a class="headerlink" href="#estnltk.core.JsonPaths.words" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.core.as_binary">
+<tt class="descclassname">estnltk.core.</tt><tt class="descname">as_binary</tt><big>(</big><em>s</em>, <em>encoding='utf-8'</em><big>)</big><a class="reference internal" href="_modules/estnltk/core.html#as_binary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.core.as_binary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the string to binary</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.core.as_unicode">
+<tt class="descclassname">estnltk.core.</tt><tt class="descname">as_unicode</tt><big>(</big><em>s</em>, <em>encoding='utf-8'</em><big>)</big><a class="reference internal" href="_modules/estnltk/core.html#as_unicode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.core.as_unicode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the string to unicode.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.core.get_filenames">
+<tt class="descclassname">estnltk.core.</tt><tt class="descname">get_filenames</tt><big>(</big><em>root</em>, <em>prefix=''</em>, <em>suffix=''</em><big>)</big><a class="reference internal" href="_modules/estnltk/core.html#get_filenames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.core.get_filenames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for listing filenames with given prefix and suffix in the root directory.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>prefix: str</strong></p>
+<blockquote>
+<div><p>The prefix of the required files.</p>
+</div></blockquote>
+<p><strong>suffix: str</strong></p>
+<blockquote>
+<div><p>The suffix of the required files</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of str</p>
+<blockquote class="last">
+<div><p>List of filenames matching the prefix and suffix criteria.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.core.overrides">
+<tt class="descclassname">estnltk.core.</tt><tt class="descname">overrides</tt><big>(</big><em>interface_class</em><big>)</big><a class="reference internal" href="_modules/estnltk/core.html#overrides"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.core.overrides" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
-<div class="section" id="estnltk-corpus-module">
-<h2>estnltk.corpus module<a class="headerlink" href="#estnltk-corpus-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.corpus">
+<span id="estnltk-corpus-module"></span><h2>estnltk.corpus module<a class="headerlink" href="#module-estnltk.corpus" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="estnltk.corpus.Clause">
+<em class="property">class </em><tt class="descclassname">estnltk.corpus.</tt><tt class="descname">Clause</tt><big>(</big><em>sentence</em>, <em>indices</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Clause"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Clause" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.corpus.SparseSentenceElement" title="estnltk.corpus.SparseSentenceElement"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.SparseSentenceElement</span></tt></a></p>
+<dl class="attribute">
+<dt id="estnltk.corpus.Clause.clause_index">
+<tt class="descname">clause_index</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Clause.clause_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Clause.clause_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.corpus.ConsequentSentenceElement">
+<em class="property">class </em><tt class="descclassname">estnltk.corpus.</tt><tt class="descname">ConsequentSentenceElement</tt><big>(</big><em>sentence</em>, <em>word_start</em>, <em>word_end</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#ConsequentSentenceElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.ConsequentSentenceElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.corpus.ElementMixin" title="estnltk.corpus.ElementMixin"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.ElementMixin</span></tt></a></p>
+<p>Some elements such as named entities and timexes may consist
+of more than a single word. This class encapsulates functionality
+to work with them.
+The word indices define a range [word_start, word_end)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sentence: :class:`estnltk.corpus.Sentence`</strong></p>
+<blockquote>
+<div><p>The sentence containing the consequent elements.</p>
+</div></blockquote>
+<p><strong>word_start: int</strong></p>
+<blockquote>
+<div><p>The start index of the word (including)</p>
+</div></blockquote>
+<p><strong>word_end: int</strong></p>
+<blockquote class="last">
+<div><p>The end index of the word (excluding)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>sentence: <a class="reference internal" href="#estnltk.corpus.Sentence" title="estnltk.corpus.Sentence"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Sentence</span></tt></a></td>
+<td>The sentence containing the consequent elements.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="estnltk.corpus.ConsequentSentenceElement.assert_valid">
+<tt class="descname">assert_valid</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#ConsequentSentenceElement.assert_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.ConsequentSentenceElement.assert_valid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.ConsequentSentenceElement.word_end">
+<tt class="descname">word_end</tt><a class="reference internal" href="_modules/estnltk/corpus.html#ConsequentSentenceElement.word_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.ConsequentSentenceElement.word_end" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">int</p>
+<blockquote class="last">
+<div><p>The position after the last entity word in the sentence.
+Therefore you can use <cite>words[word_start:word_end]</cite> to obtain
+the words of a named entity in the sentence.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.ConsequentSentenceElement.word_indices">
+<tt class="descname">word_indices</tt><a class="reference internal" href="_modules/estnltk/corpus.html#ConsequentSentenceElement.word_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.ConsequentSentenceElement.word_indices" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of int</p>
+<blockquote class="last">
+<div><p>The indices of words in the sentence.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.ConsequentSentenceElement.word_span">
+<tt class="descname">word_span</tt><a class="reference internal" href="_modules/estnltk/corpus.html#ConsequentSentenceElement.word_span"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.ConsequentSentenceElement.word_span" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">(int, int)</p>
+<blockquote class="last">
+<div><p>The start and end positions of the named entity words.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.ConsequentSentenceElement.word_start">
+<tt class="descname">word_start</tt><a class="reference internal" href="_modules/estnltk/corpus.html#ConsequentSentenceElement.word_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.ConsequentSentenceElement.word_start" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">int</p>
+<blockquote class="last">
+<div><p>The start position of the first named entity word in the sentence.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.ConsequentSentenceElement.words">
+<tt class="descname">words</tt><a class="reference internal" href="_modules/estnltk/corpus.html#ConsequentSentenceElement.words"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.ConsequentSentenceElement.words" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of :class:<a href="#id1"><span class="problematic" id="id2">`</span></a>estnltk.corpus.Word&#8217;</p>
+<blockquote class="last">
+<div><p>words of the named entity.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.corpus.Corpus">
+<em class="property">class </em><tt class="descclassname">estnltk.corpus.</tt><tt class="descname">Corpus</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<dl class="method">
+<dt id="estnltk.corpus.Corpus.apply">
+<tt class="descname">apply</tt><big>(</big><em>processor</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.apply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a textprocessor.TextProcessor instance on this corpus.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.clause_annotations">
+<tt class="descname">clause_annotations</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.clause_annotations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.clause_annotations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.clause_indices">
+<tt class="descname">clause_indices</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.clause_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.clause_indices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.clauses">
+<tt class="descname">clauses</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.clauses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.clauses" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.clitics">
+<tt class="descname">clitics</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.clitics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.clitics" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="estnltk.corpus.Corpus.construct">
+<em class="property">static </em><tt class="descname">construct</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.construct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.construct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct the corpus from JSON-style data. Same as <cite>from_json</cite> method.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.document_texts">
+<tt class="descname">document_texts</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.document_texts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.document_texts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.documents">
+<tt class="descname">documents</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.documents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.documents" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.corpus.Corpus.elements">
+<tt class="descname">elements</tt><big>(</big><em>what</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the specified corpus elements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>what: str</strong></p>
+<blockquote class="last">
+<div><p>DOCUMENTS, PARAGRAPHS, SENTENCES, WORDS, NAMED_ENTITIES, CLAUSES, VERB_CHAINS, TIMEXES</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.endings">
+<tt class="descname">endings</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.endings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.endings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.forms">
+<tt class="descname">forms</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.forms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.forms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="estnltk.corpus.Corpus.from_json">
+<em class="property">static </em><tt class="descname">from_json</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.from_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.from_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct the corpus from JSON-style data. Same as <cite>construct</cite> method.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.labels">
+<tt class="descname">labels</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.lemmas">
+<tt class="descname">lemmas</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.lemmas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.lemmas" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.named_entities">
+<tt class="descname">named_entities</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.named_entities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.named_entities" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.paragraph_rel_spans">
+<tt class="descname">paragraph_rel_spans</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.paragraph_rel_spans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.paragraph_rel_spans" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.paragraph_spans">
+<tt class="descname">paragraph_spans</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.paragraph_spans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.paragraph_spans" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.paragraph_texts">
+<tt class="descname">paragraph_texts</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.paragraph_texts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.paragraph_texts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.paragraphs">
+<tt class="descname">paragraphs</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.paragraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.paragraphs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.postags">
+<tt class="descname">postags</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.postags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.postags" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.root_elements">
+<tt class="descname">root_elements</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.root_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.root_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Root elements do not have meaningful hierarchial relationship between them in a corpus.
+A root element contains all TEXT, START, END, REL_START, REL_END attributes.
+START = REL_START = 0
+END = REL_END     = len(TEXT)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.root_tokens">
+<tt class="descname">root_tokens</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.root_tokens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.root_tokens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.roots">
+<tt class="descname">roots</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.roots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.roots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.sentence_rel_spans">
+<tt class="descname">sentence_rel_spans</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.sentence_rel_spans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.sentence_rel_spans" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.sentence_spans">
+<tt class="descname">sentence_spans</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.sentence_spans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.sentence_spans" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.sentence_texts">
+<tt class="descname">sentence_texts</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.sentence_texts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.sentence_texts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.sentences">
+<tt class="descname">sentences</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.sentences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.sentences" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.corpus.Corpus.texts">
+<tt class="descname">texts</tt><big>(</big><em>what</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.texts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.texts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.timexes">
+<tt class="descname">timexes</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.timexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.timexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.corpus.Corpus.to_json">
+<tt class="descname">to_json</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.to_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.to_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the corpus to JSON-style data.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.verb_chains">
+<tt class="descname">verb_chains</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.verb_chains"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.verb_chains" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.word_rel_spans">
+<tt class="descname">word_rel_spans</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.word_rel_spans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.word_rel_spans" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.word_spans">
+<tt class="descname">word_spans</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.word_spans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.word_spans" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.word_texts">
+<tt class="descname">word_texts</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.word_texts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.word_texts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Corpus.words">
+<tt class="descname">words</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Corpus.words"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Corpus.words" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.corpus.Dictionary">
+<em class="property">class </em><tt class="descclassname">estnltk.corpus.</tt><tt class="descname">Dictionary</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Dictionary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Dictionary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.dict</span></tt>, <a class="reference internal" href="#estnltk.corpus.Corpus" title="estnltk.corpus.Corpus"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus</span></tt></a></p>
+<dl class="method">
+<dt id="estnltk.corpus.Dictionary.elements">
+<tt class="descname">elements</tt><big>(</big><em>what</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Dictionary.elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Dictionary.elements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Dictionary.root_elements">
+<tt class="descname">root_elements</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Dictionary.root_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Dictionary.root_elements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.corpus.Document">
+<em class="property">class </em><tt class="descclassname">estnltk.corpus.</tt><tt class="descname">Document</tt><big>(</big><em>data=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Document"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Document" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.corpus.ElementMixin" title="estnltk.corpus.ElementMixin"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.ElementMixin</span></tt></a>, <a class="reference internal" href="#estnltk.corpus.Dictionary" title="estnltk.corpus.Dictionary"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Dictionary</span></tt></a></p>
+<p>Estnltk Document object.</p>
+<p>A document must have consistent indices throughout its structure.
+All absoulte indices and text splices must match top-level texts.</p>
+<dl class="method">
+<dt id="estnltk.corpus.Document.elements">
+<tt class="descname">elements</tt><big>(</big><em>what</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Document.elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Document.elements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.corpus.Document.force_cast">
+<tt class="descname">force_cast</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Document.force_cast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Document.force_cast" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.corpus.ElementMixin">
+<em class="property">class </em><tt class="descclassname">estnltk.corpus.</tt><tt class="descname">ElementMixin</tt><big>(</big><em>data=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#ElementMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.ElementMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.dict</span></tt></p>
+<p>Element is a basic composition object of Estnltk corpora.
+It must have TEXT, START, END, REL_START and REL_END attributes.</p>
+<dl class="method">
+<dt id="estnltk.corpus.ElementMixin.assert_valid">
+<tt class="descname">assert_valid</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#ElementMixin.assert_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.ElementMixin.assert_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform assertions to ensure sanity checks on the
+attribute values.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.ElementMixin.end">
+<tt class="descname">end</tt><a class="reference internal" href="_modules/estnltk/corpus.html#ElementMixin.end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.ElementMixin.end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.corpus.ElementMixin.force_cast">
+<tt class="descname">force_cast</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#ElementMixin.force_cast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.ElementMixin.force_cast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cast the necessary attributes to correct types.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.ElementMixin.rel_end">
+<tt class="descname">rel_end</tt><a class="reference internal" href="_modules/estnltk/corpus.html#ElementMixin.rel_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.ElementMixin.rel_end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.ElementMixin.rel_span">
+<tt class="descname">rel_span</tt><a class="reference internal" href="_modules/estnltk/corpus.html#ElementMixin.rel_span"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.ElementMixin.rel_span" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.ElementMixin.rel_start">
+<tt class="descname">rel_start</tt><a class="reference internal" href="_modules/estnltk/corpus.html#ElementMixin.rel_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.ElementMixin.rel_start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.ElementMixin.span">
+<tt class="descname">span</tt><a class="reference internal" href="_modules/estnltk/corpus.html#ElementMixin.span"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.ElementMixin.span" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.ElementMixin.start">
+<tt class="descname">start</tt><a class="reference internal" href="_modules/estnltk/corpus.html#ElementMixin.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.ElementMixin.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.ElementMixin.text">
+<tt class="descname">text</tt><a class="reference internal" href="_modules/estnltk/corpus.html#ElementMixin.text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.ElementMixin.text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.corpus.List">
+<em class="property">class </em><tt class="descclassname">estnltk.corpus.</tt><tt class="descname">List</tt><a class="reference internal" href="_modules/estnltk/corpus.html#List"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.List" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.list</span></tt>, <a class="reference internal" href="#estnltk.corpus.Corpus" title="estnltk.corpus.Corpus"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus</span></tt></a></p>
+<dl class="method">
+<dt id="estnltk.corpus.List.elements">
+<tt class="descname">elements</tt><big>(</big><em>what</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#List.elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.List.elements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.List.root_elements">
+<tt class="descname">root_elements</tt><a class="reference internal" href="_modules/estnltk/corpus.html#List.root_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.List.root_elements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.corpus.NamedEntity">
+<em class="property">class </em><tt class="descclassname">estnltk.corpus.</tt><tt class="descname">NamedEntity</tt><big>(</big><em>sentence</em>, <em>word_start</em>, <em>word_end</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#NamedEntity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.NamedEntity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.corpus.ConsequentSentenceElement" title="estnltk.corpus.ConsequentSentenceElement"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.ConsequentSentenceElement</span></tt></a></p>
+<p>Named entities have to be constructed from sentences containing
+the labelled words. Named entity represents a group of words
+making up the named entity, such as <em>Toomas Hendrik Ilves</em>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sentence: :class:estnltk.corpus.Sentence</strong></p>
+<blockquote>
+<div><p>The sentence, where the named entity is found.</p>
+</div></blockquote>
+<p><strong>word_start: int</strong></p>
+<blockquote>
+<div><p>The index of the word in the sentence, where the named
+entity starts.</p>
+</div></blockquote>
+<p><strong>word_end: int</strong></p>
+<blockquote class="last">
+<div><p>The index of the word in the sentence, where the named
+entity ends.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="estnltk.corpus.NamedEntity.assert_valid">
+<tt class="descname">assert_valid</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#NamedEntity.assert_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.NamedEntity.assert_valid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.NamedEntity.label">
+<tt class="descname">label</tt><a class="reference internal" href="_modules/estnltk/corpus.html#NamedEntity.label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.NamedEntity.label" title="Permalink to this definition">¶</a></dt>
+<dd><p>The labels of named entity words have either prefixes
+<strong>B-</strong> or <strong>I-</strong>, denoting <em>beginning</em> and <em>inside</em> respectively.
+However, the real label is stored as a suffix, which can be
+retrieved using this property.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>The label of the named entity.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.NamedEntity.lemma">
+<tt class="descname">lemma</tt><a class="reference internal" href="_modules/estnltk/corpus.html#NamedEntity.lemma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.NamedEntity.lemma" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>The named entity lemma ie the word lemmas separated by space.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.corpus.Paragraph">
+<em class="property">class </em><tt class="descclassname">estnltk.corpus.</tt><tt class="descname">Paragraph</tt><big>(</big><em>data=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Paragraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Paragraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.corpus.ElementMixin" title="estnltk.corpus.ElementMixin"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.ElementMixin</span></tt></a>, <a class="reference internal" href="#estnltk.corpus.Dictionary" title="estnltk.corpus.Dictionary"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Dictionary</span></tt></a></p>
+<p>Paragraph object.</p>
+<dl class="method">
+<dt id="estnltk.corpus.Paragraph.assert_valid">
+<tt class="descname">assert_valid</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Paragraph.assert_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Paragraph.assert_valid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.corpus.Paragraph.elements">
+<tt class="descname">elements</tt><big>(</big><em>what</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Paragraph.elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Paragraph.elements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.corpus.Paragraph.force_cast">
+<tt class="descname">force_cast</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Paragraph.force_cast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Paragraph.force_cast" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.corpus.Sentence">
+<em class="property">class </em><tt class="descclassname">estnltk.corpus.</tt><tt class="descname">Sentence</tt><big>(</big><em>data=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Sentence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Sentence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.corpus.ElementMixin" title="estnltk.corpus.ElementMixin"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.ElementMixin</span></tt></a>, <a class="reference internal" href="#estnltk.corpus.Dictionary" title="estnltk.corpus.Dictionary"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Dictionary</span></tt></a></p>
+<p>Sentence element of Estnltk corpora.</p>
+<p>Sentence uses WORDS attribute to list its words.</p>
+<dl class="method">
+<dt id="estnltk.corpus.Sentence.assert_consequent_words">
+<tt class="descname">assert_consequent_words</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Sentence.assert_consequent_words"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Sentence.assert_consequent_words" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check the START and END positions of consequent words.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.corpus.Sentence.assert_valid">
+<tt class="descname">assert_valid</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Sentence.assert_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Sentence.assert_valid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.corpus.Sentence.assert_word_splices">
+<tt class="descname">assert_word_splices</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Sentence.assert_word_splices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Sentence.assert_word_splices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that the word texts match the sentence texts.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Sentence.clauses">
+<tt class="descname">clauses</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Sentence.clauses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Sentence.clauses" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.corpus.Sentence.elements">
+<tt class="descname">elements</tt><big>(</big><em>what</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Sentence.elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Sentence.elements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.corpus.Sentence.force_cast">
+<tt class="descname">force_cast</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Sentence.force_cast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Sentence.force_cast" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Sentence.named_entities">
+<tt class="descname">named_entities</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Sentence.named_entities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Sentence.named_entities" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Sentence.timexes">
+<tt class="descname">timexes</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Sentence.timexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Sentence.timexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Sentence.verb_chains">
+<tt class="descname">verb_chains</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Sentence.verb_chains"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Sentence.verb_chains" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.corpus.SparseSentenceElement">
+<em class="property">class </em><tt class="descclassname">estnltk.corpus.</tt><tt class="descname">SparseSentenceElement</tt><big>(</big><em>sentence</em>, <em>indices</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#SparseSentenceElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.SparseSentenceElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Sentence elements like clauses and verb chains usually span
+more than a single word and there can be gaps between the indices.
+SparseSentenceElement class contains common functinality for these elements.</p>
+<dl class="attribute">
+<dt id="estnltk.corpus.SparseSentenceElement.sentence">
+<tt class="descname">sentence</tt><a class="reference internal" href="_modules/estnltk/corpus.html#SparseSentenceElement.sentence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.SparseSentenceElement.sentence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.SparseSentenceElement.text">
+<tt class="descname">text</tt><a class="reference internal" href="_modules/estnltk/corpus.html#SparseSentenceElement.text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.SparseSentenceElement.text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.SparseSentenceElement.text_groups">
+<tt class="descname">text_groups</tt><a class="reference internal" href="_modules/estnltk/corpus.html#SparseSentenceElement.text_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.SparseSentenceElement.text_groups" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.SparseSentenceElement.word_group_spans">
+<tt class="descname">word_group_spans</tt><a class="reference internal" href="_modules/estnltk/corpus.html#SparseSentenceElement.word_group_spans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.SparseSentenceElement.word_group_spans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of consequent index spans.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.SparseSentenceElement.word_groups">
+<tt class="descname">word_groups</tt><a class="reference internal" href="_modules/estnltk/corpus.html#SparseSentenceElement.word_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.SparseSentenceElement.word_groups" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.SparseSentenceElement.word_indices">
+<tt class="descname">word_indices</tt><a class="reference internal" href="_modules/estnltk/corpus.html#SparseSentenceElement.word_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.SparseSentenceElement.word_indices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.SparseSentenceElement.words">
+<tt class="descname">words</tt><a class="reference internal" href="_modules/estnltk/corpus.html#SparseSentenceElement.words"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.SparseSentenceElement.words" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.corpus.Timex">
+<em class="property">class </em><tt class="descclassname">estnltk.corpus.</tt><tt class="descname">Timex</tt><big>(</big><em>sentence</em>, <em>word_start</em>, <em>word_end</em>, <em>data</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Timex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Timex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.corpus.ConsequentSentenceElement" title="estnltk.corpus.ConsequentSentenceElement"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.ConsequentSentenceElement</span></tt></a></p>
+<p>Temporal Expressions Tagger identifies temporal expression phrases in text and
+normalizes these expressions in a format similar to TimeML&#8217;s TIMEX3.</p>
+<dl class="attribute">
+<dt id="estnltk.corpus.Timex.anchor_id">
+<tt class="descname">anchor_id</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Timex.anchor_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Timex.anchor_id" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">int</p>
+<blockquote class="last">
+<div><p>points to the temporal expression (by identifier) that this expression 
+has been anchored to while calculating or determining the value;
+0 &#8211; means that the expression is anchored to document creation 
+time;</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.corpus.Timex.assert_valid">
+<tt class="descname">assert_valid</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Timex.assert_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Timex.assert_valid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Timex.begin_point">
+<tt class="descname">begin_point</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Timex.begin_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Timex.begin_point" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>in case of DURATION: points to the temporal expression (by identifier)
+that serves as a beginning point of this duration;
+&#8221;?&#8221; &#8211; indicates problems on finding the beginning point;</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Timex.end_point">
+<tt class="descname">end_point</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Timex.end_point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Timex.end_point" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>in case of DURATION: points to the temporal expression (by identifier)
+that serves as an ending point of this duration;
+&#8221;?&#8221; &#8211; indicates problems on finding the ending point;</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Timex.freq">
+<tt class="descname">freq</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Timex.freq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Timex.freq" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>Used in some SET expressions, marks frequency of repetition, e.g.
+&#8220;three days in each month&#8221; will be have freq=&#8221;3D&#8221;</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Timex.id">
+<tt class="descname">id</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Timex.id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Timex.id" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">int</p>
+<blockquote class="last">
+<div><p>The timex identificator.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Timex.mod">
+<tt class="descname">mod</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Timex.mod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Timex.mod" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>Largely follows TimeML TIMEX3 mod format, with two additional values
+used to mark first/second half of the date/time (e.g. &#8220;in the first 
+half of the month&#8221;):  FIRST_HALF, SECOND_HALF;</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Timex.quant">
+<tt class="descname">quant</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Timex.quant"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Timex.quant" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>Quantifier; Used only in some SET expressions, e.g. quant=&#8221;EVERY&#8221;</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Timex.temporal_function">
+<tt class="descname">temporal_function</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Timex.temporal_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Timex.temporal_function" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>whether the &#8220;value&#8221; was found by heuristics/calculations (thus can be wrong): &#8220;true&#8221;, &#8220;false&#8221;</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Timex.type">
+<tt class="descname">type</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Timex.type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Timex.type" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>One of the following: &#8220;DATE&#8221;, &#8220;TIME&#8221;, &#8220;DURATION&#8221;, &#8220;SET&#8221;</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Timex.value">
+<tt class="descname">value</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Timex.value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Timex.value" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote class="last">
+<div><p>calendrical value (largely follows TimeML TIMEX3 value format)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.corpus.VerbChain">
+<em class="property">class </em><tt class="descclassname">estnltk.corpus.</tt><tt class="descname">VerbChain</tt><big>(</big><em>sentence</em>, <em>indices</em>, <em>data</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#VerbChain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.VerbChain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.corpus.SparseSentenceElement" title="estnltk.corpus.SparseSentenceElement"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.SparseSentenceElement</span></tt></a></p>
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.analysis_ids">
+<tt class="descname">analysis_ids</tt><a class="reference internal" href="_modules/estnltk/corpus.html#VerbChain.analysis_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.VerbChain.analysis_ids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.clause_index">
+<tt class="descname">clause_index</tt><a class="reference internal" href="_modules/estnltk/corpus.html#VerbChain.clause_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.VerbChain.clause_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.data">
+<tt class="descname">data</tt><a class="reference internal" href="_modules/estnltk/corpus.html#VerbChain.data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.VerbChain.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.lemma">
+<tt class="descname">lemma</tt><a class="reference internal" href="_modules/estnltk/corpus.html#VerbChain.lemma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.VerbChain.lemma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verb chain lemma. A unique identificator for the chain.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.morph">
+<tt class="descname">morph</tt><a class="reference internal" href="_modules/estnltk/corpus.html#VerbChain.morph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.VerbChain.morph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.other_verbs">
+<tt class="descname">other_verbs</tt><a class="reference internal" href="_modules/estnltk/corpus.html#VerbChain.other_verbs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.VerbChain.other_verbs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.pattern">
+<tt class="descname">pattern</tt><a class="reference internal" href="_modules/estnltk/corpus.html#VerbChain.pattern"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.VerbChain.pattern" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.pattern_tokens">
+<tt class="descname">pattern_tokens</tt><a class="reference internal" href="_modules/estnltk/corpus.html#VerbChain.pattern_tokens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.VerbChain.pattern_tokens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.polarity">
+<tt class="descname">polarity</tt><a class="reference internal" href="_modules/estnltk/corpus.html#VerbChain.polarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.VerbChain.polarity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.roots">
+<tt class="descname">roots</tt><a class="reference internal" href="_modules/estnltk/corpus.html#VerbChain.roots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.VerbChain.roots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.word_indices">
+<tt class="descname">word_indices</tt><a class="reference internal" href="_modules/estnltk/corpus.html#VerbChain.word_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.VerbChain.word_indices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Consequent word indices.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.VerbChain.word_indices_chain">
+<tt class="descname">word_indices_chain</tt><a class="reference internal" href="_modules/estnltk/corpus.html#VerbChain.word_indices_chain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.VerbChain.word_indices_chain" title="Permalink to this definition">¶</a></dt>
+<dd><p>The real order of word indices making up a chain.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.corpus.Word">
+<em class="property">class </em><tt class="descclassname">estnltk.corpus.</tt><tt class="descname">Word</tt><big>(</big><em>data=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Word"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.corpus.ElementMixin" title="estnltk.corpus.ElementMixin"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.ElementMixin</span></tt></a>, <a class="reference internal" href="#estnltk.corpus.Dictionary" title="estnltk.corpus.Dictionary"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Dictionary</span></tt></a></p>
+<p>Word element of Estnltk corpora.</p>
+<p>Word element can contain vast amount of different information
+starting from morphological analysis results to named entity
+labels.</p>
+<p>This is one of the central elements of the Estnltk corpora.</p>
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.analysis">
+<tt class="descname">analysis</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.analysis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.clause_annotation">
+<tt class="descname">clause_annotation</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.clause_annotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.clause_annotation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.clause_index">
+<tt class="descname">clause_index</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.clause_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.clause_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.clitic">
+<tt class="descname">clitic</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.clitic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.clitic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.clitics">
+<tt class="descname">clitics</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.clitics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.clitics" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.corpus.Word.elements">
+<tt class="descname">elements</tt><big>(</big><em>what</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#Word.elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.elements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.ending">
+<tt class="descname">ending</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.ending"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.ending" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.endings">
+<tt class="descname">endings</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.endings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.endings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.form">
+<tt class="descname">form</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.form"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.form" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.forms">
+<tt class="descname">forms</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.forms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.forms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.label">
+<tt class="descname">label</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.lemma">
+<tt class="descname">lemma</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.lemma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.lemma" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.lemmas">
+<tt class="descname">lemmas</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.lemmas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.lemmas" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.postag">
+<tt class="descname">postag</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.postag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.postag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.postags">
+<tt class="descname">postags</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.postags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.postags" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.root">
+<tt class="descname">root</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.root" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.root_tokens">
+<tt class="descname">root_tokens</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.root_tokens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.root_tokens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.roots">
+<tt class="descname">roots</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.roots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.roots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="estnltk.corpus.Word.timex_data">
+<tt class="descname">timex_data</tt><a class="reference internal" href="_modules/estnltk/corpus.html#Word.timex_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.Word.timex_data" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of str</p>
+<blockquote class="last">
+<div><p>List of dictionaries containing TIMEX data (TMX_ID, TMX_TYPE, TMX_VALUE) etc.
+Note that for disambiguated morphological data, there can be more
+timexes.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.corpus.construct_corpus">
+<tt class="descclassname">estnltk.corpus.</tt><tt class="descname">construct_corpus</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#construct_corpus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.construct_corpus" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="estnltk.corpus.is_root_element">
+<tt class="descclassname">estnltk.corpus.</tt><tt class="descname">is_root_element</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#is_root_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.is_root_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does the given element satisfy root element requirements:
+Contains all TEXT, START, END, REL_START, REL_END attributes.
+START = REL_START = 0
+END = REL_END     = len(TEXT)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data: dict</strong></p>
+<blockquote>
+<div><p>The potential root element.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True</p>
+<blockquote>
+<div><p>If element satisfies root element requirements.</p>
+</div></blockquote>
+<p>False</p>
+<blockquote class="last">
+<div><p>otherwise.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.corpus.most_frequent">
+<tt class="descclassname">estnltk.corpus.</tt><tt class="descname">most_frequent</tt><big>(</big><em>elements</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#most_frequent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.most_frequent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the most frequent element from the list.
+In case of equal counts, return alphabetically first.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str</p>
+<blockquote>
+<div><p>The most frequent (or alphabetically first) element</p>
+</div></blockquote>
+<p>None</p>
+<blockquote class="last">
+<div><p>In case of empty input.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.corpus.parse_root_element">
+<tt class="descclassname">estnltk.corpus.</tt><tt class="descname">parse_root_element</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="_modules/estnltk/corpus.html#parse_root_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.corpus.parse_root_element" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
-<div class="section" id="estnltk-javaprocess-module">
-<h2>estnltk.javaprocess module<a class="headerlink" href="#estnltk-javaprocess-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.javaprocess">
+<span id="estnltk-javaprocess-module"></span><h2>estnltk.javaprocess module<a class="headerlink" href="#module-estnltk.javaprocess" title="Permalink to this headline">¶</a></h2>
+<p>Functionality for using Java-based components.</p>
+<div class="section" id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt>JAVARES_PATH: str</dt>
+<dd>The root path for Java components of Estnltk library.</dd>
+</dl>
+<dl class="class">
+<dt id="estnltk.javaprocess.JavaProcess">
+<em class="property">class </em><tt class="descclassname">estnltk.javaprocess.</tt><tt class="descname">JavaProcess</tt><big>(</big><em>runnable_jar</em>, <em>args=[]</em><big>)</big><a class="reference internal" href="_modules/estnltk/javaprocess.html#JavaProcess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.javaprocess.JavaProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Base class for Java-based components.</p>
+<p>It opens a pipe to a Java VM running the component and interacts with
+it using standard input and standard output.</p>
+<p>The data is encoded as a single line and then flushed down the pipe.
+The Java component receives the input, processes it and writes the
+output also encoded on a single line and flushes it.</p>
+<p>This line-based approach is easy to implement and debug.</p>
+<p>To implement a Java component, inherit from this class and use
+<cite>process_line</cite> method to interact with the process.</p>
+<p>It deals with input/output and errors.</p>
+<dl class="method">
+<dt id="estnltk.javaprocess.JavaProcess.process_line">
+<tt class="descname">process_line</tt><big>(</big><em>line</em><big>)</big><a class="reference internal" href="_modules/estnltk/javaprocess.html#JavaProcess.process_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.javaprocess.JavaProcess.process_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a line of data.</p>
+<p>Sends the data through the pipe to the process and flush it. Reads a resulting line
+and returns it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>line: str</strong></p>
+<blockquote>
+<div><p>The data sent to process. Make sure it does not contain any newline characters.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">str: The line returned by the Java process</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>Exception</strong></p>
+<blockquote>
+<div><p>In case of EOF is encountered.</p>
+</div></blockquote>
+<p><strong>IoError</strong></p>
+<blockquote class="last">
+<div><p>In case it was impossible to read or write from the subprocess standard input / output.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="estnltk-morf-module">
-<h2>estnltk.morf module<a class="headerlink" href="#estnltk-morf-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="estnltk-names-module">
-<h2>estnltk.names module<a class="headerlink" href="#estnltk-names-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.morf">
+<span id="estnltk-morf-module"></span><h2>estnltk.morf module<a class="headerlink" href="#module-estnltk.morf" title="Permalink to this headline">¶</a></h2>
+<p>Module containing functionality for adding morphological analysis
+information to corpora.</p>
+<dl class="class">
+<dt id="estnltk.morf.PyVabamorfAnalyzer">
+<em class="property">class </em><tt class="descclassname">estnltk.morf.</tt><tt class="descname">PyVabamorfAnalyzer</tt><a class="reference internal" href="_modules/estnltk/morf.html#PyVabamorfAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.morf.PyVabamorfAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.textprocessor.TextProcessor" title="estnltk.textprocessor.TextProcessor"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.textprocessor.TextProcessor</span></tt></a></p>
+<p>Class using vabamorf library for morphological analysis.</p>
+<dl class="method">
+<dt id="estnltk.morf.PyVabamorfAnalyzer.analyze">
+<tt class="descname">analyze</tt><big>(</big><em>wordlist</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/morf.html#PyVabamorfAnalyzer.analyze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.morf.PyVabamorfAnalyzer.analyze" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.morf.PyVabamorfAnalyzer.process_corpus">
+<tt class="descname">process_corpus</tt><big>(</big><em>corpus</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/morf.html#PyVabamorfAnalyzer.process_corpus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.morf.PyVabamorfAnalyzer.process_corpus" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.morf.PyVabamorfAnalyzer.process_json">
+<tt class="descname">process_json</tt><big>(</big><em>corpus</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/morf.html#PyVabamorfAnalyzer.process_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.morf.PyVabamorfAnalyzer.process_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="estnltk-ner-module">
-<h2>estnltk.ner module<a class="headerlink" href="#estnltk-ner-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.names">
+<span id="estnltk-names-module"></span><h2>estnltk.names module<a class="headerlink" href="#module-estnltk.names" title="Permalink to this headline">¶</a></h2>
+<p>Module that defines the attribute names and constants used througout the library
+and in corpora.</p>
 </div>
-<div class="section" id="estnltk-teicorpus-module">
-<h2>estnltk.teicorpus module<a class="headerlink" href="#estnltk-teicorpus-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.ner">
+<span id="estnltk-ner-module"></span><h2>estnltk.ner module<a class="headerlink" href="#module-estnltk.ner" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="estnltk.ner.ModelStorageUtil">
+<em class="property">class </em><tt class="descclassname">estnltk.ner.</tt><tt class="descname">ModelStorageUtil</tt><big>(</big><em>model_dir</em><big>)</big><a class="reference internal" href="_modules/estnltk/ner.html#ModelStorageUtil"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.ModelStorageUtil" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<dl class="method">
+<dt id="estnltk.ner.ModelStorageUtil.copy_settings">
+<tt class="descname">copy_settings</tt><big>(</big><em>settings_module</em><big>)</big><a class="reference internal" href="_modules/estnltk/ner.html#ModelStorageUtil.copy_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.ModelStorageUtil.copy_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy settings module to the model_dir directory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.ner.ModelStorageUtil.load_settings">
+<tt class="descname">load_settings</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/ner.html#ModelStorageUtil.load_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.ModelStorageUtil.load_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load settings module from the model_dir directory.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.ner.ModelStorageUtil.makedir">
+<tt class="descname">makedir</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/ner.html#ModelStorageUtil.makedir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.ModelStorageUtil.makedir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create model_dir directory</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.ner.NerTagger">
+<em class="property">class </em><tt class="descclassname">estnltk.ner.</tt><tt class="descname">NerTagger</tt><big>(</big><em>model_dir='/home/timo/projects/estnltk/estnltk/estner/models/py3_default'</em><big>)</big><a class="reference internal" href="_modules/estnltk/ner.html#NerTagger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.NerTagger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.textprocessor.TextProcessor" title="estnltk.textprocessor.TextProcessor"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.textprocessor.TextProcessor</span></tt></a></p>
+<p>The class for tagging named entities.</p>
+<dl class="method">
+<dt id="estnltk.ner.NerTagger.process_corpus">
+<tt class="descname">process_corpus</tt><big>(</big><em>corpus</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/ner.html#NerTagger.process_corpus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.NerTagger.process_corpus" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.ner.NerTagger.process_json">
+<tt class="descname">process_json</tt><big>(</big><em>corpus</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/ner.html#NerTagger.process_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.NerTagger.process_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tag the given documents with named entities. The tags
+will be stored in &#8220;label&#8221; attribute of the words.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>docs: list of JSON-style documents/corpora.</strong></p>
+<blockquote>
+<div><p>The documents that will be tagged.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">docs: list of JSON-style documents/corpora.</p>
+<blockquote class="last">
+<div><p>The documents given as the argument, but with added
+tags.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="estnltk.ner.NerTrainer">
+<em class="property">class </em><tt class="descclassname">estnltk.ner.</tt><tt class="descname">NerTrainer</tt><big>(</big><em>nersettings</em><big>)</big><a class="reference internal" href="_modules/estnltk/ner.html#NerTrainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.NerTrainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The class for training NER models. Uses crfsuite implementation.</p>
+<dl class="method">
+<dt id="estnltk.ner.NerTrainer.train">
+<tt class="descname">train</tt><big>(</big><em>jsondocs</em>, <em>model_dir</em><big>)</big><a class="reference internal" href="_modules/estnltk/ner.html#NerTrainer.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.NerTrainer.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train a NER model using given documents.</p>
+<p>Each word in the documents must have a &#8220;label&#8221; attribute, which
+denote the named entities in the documents.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>jsondocs: list of JSON-style documents.</strong></p>
+<blockquote>
+<div><p>The documents used for training the CRF model.</p>
+</div></blockquote>
+<p><strong>model_dir: str</strong></p>
+<blockquote class="last">
+<div><p>A directory where the model will be saved.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.ner.json_document_to_estner_document">
+<tt class="descclassname">estnltk.ner.</tt><tt class="descname">json_document_to_estner_document</tt><big>(</big><em>jsondoc</em><big>)</big><a class="reference internal" href="_modules/estnltk/ner.html#json_document_to_estner_document"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.json_document_to_estner_document" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an estnltk document to an estner document.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>jsondoc: dict</strong></p>
+<blockquote>
+<div><p>Estnltk JSON-style document.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">estnltk.estner.ner.Document</p>
+<blockquote class="last">
+<div><p>A ner document.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.ner.train_default_model">
+<tt class="descclassname">estnltk.ner.</tt><tt class="descname">train_default_model</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/estnltk/ner.html#train_default_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.train_default_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for training the default NER model.</p>
+<p>NB! It overwrites the default model, so do not use it unless
+you know what are you doing.</p>
+<p>The training data is in file estnltk/corpora/estner.json.bz2 .
+The resulting model will be saved to estnltk/estner/models/default.bin</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.ner.vabamorf_token_to_estner_token">
+<tt class="descclassname">estnltk.ner.</tt><tt class="descname">vabamorf_token_to_estner_token</tt><big>(</big><em>vabamorf_token</em>, <em>label='label'</em><big>)</big><a class="reference internal" href="_modules/estnltk/ner.html#vabamorf_token_to_estner_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.ner.vabamorf_token_to_estner_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a JSON-style word token to an estner token.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>vabamorf_token: dict</strong></p>
+<blockquote>
+<div><p>Vabamorf token representing a single word.</p>
+</div></blockquote>
+<p><strong>label: str</strong></p>
+<blockquote>
+<div><p>The label string.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">estnltk.estner.ner.Token</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
-<div class="section" id="estnltk-textdiagnostics-module">
-<h2>estnltk.textdiagnostics module<a class="headerlink" href="#estnltk-textdiagnostics-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.teicorpus">
+<span id="estnltk-teicorpus-module"></span><h2>estnltk.teicorpus module<a class="headerlink" href="#module-estnltk.teicorpus" title="Permalink to this headline">¶</a></h2>
+<p>Module for reading koondcorpus files. See <a class="reference external" href="http://www.cl.ut.ee/korpused/segakorpus/index.php?lang=et">http://www.cl.ut.ee/korpused/segakorpus/index.php?lang=et</a></p>
+<p>The corpus contains variety of documents from different domains and can be used freely for non-commercial purposes.
+Estnltk is capable of reading XML formatted files of the corpus and parse the
+documents, paragraphs, sentences and words with some additional metadata found in XML files.</p>
+<p>The implementation is currently quite simplistic, though. But it should
+be sufficient for simpler use cases.</p>
+<dl class="function">
+<dt id="estnltk.teicorpus.parse_div">
+<tt class="descclassname">estnltk.teicorpus.</tt><tt class="descname">parse_div</tt><big>(</big><em>soup</em>, <em>metadata</em>, <em>target</em><big>)</big><a class="reference internal" href="_modules/estnltk/teicorpus.html#parse_div"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.teicorpus.parse_div" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a &lt;div&gt; tag from the file.</p>
+<p>The sections in XML files are given in &lt;div1&gt;, &lt;div2&gt; and &lt;div3&gt;
+tags. Each such tag has a type and name (plus possibly more extra attributes).</p>
+<p>If the div type is found in target variable, the div is parsed
+into structured paragraphs, sentences and words.</p>
+<p>Otherwise, the type and name are added as metadata to subdivs
+and stored in.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>soup: bs4.BeautifulSoup</strong></p>
+<blockquote>
+<div><p>The parsed XML data.</p>
+</div></blockquote>
+<p><strong>metdata: dict</strong></p>
+<blockquote>
+<div><p>The metadata for parent divs.</p>
+</div></blockquote>
+<p><strong>target: list of str</strong></p>
+<blockquote class="last">
+<div><p>List of &lt;div&gt; types, that are considered documents in the XML files.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.teicorpus.parse_paragraphs">
+<tt class="descclassname">estnltk.teicorpus.</tt><tt class="descname">parse_paragraphs</tt><big>(</big><em>soup</em><big>)</big><a class="reference internal" href="_modules/estnltk/teicorpus.html#parse_paragraphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.teicorpus.parse_paragraphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse sentences and paragraphs in the section.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>soup: bs4.BeautifulSoup</strong></p>
+<blockquote>
+<div><p>The parsed XML data.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of (list of str)</p>
+<blockquote class="last">
+<div><p>List of paragraphs given as list of sentences.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.teicorpus.parse_tei_corpora">
+<tt class="descclassname">estnltk.teicorpus.</tt><tt class="descname">parse_tei_corpora</tt><big>(</big><em>root, prefix='', suffix='.xml', target=['artikkel']</em><big>)</big><a class="reference internal" href="_modules/estnltk/teicorpus.html#parse_tei_corpora"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.teicorpus.parse_tei_corpora" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse documents from TEI style XML files.</p>
+<p>Gives each document FILE attribute that denotes the original filename.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>root: str</strong></p>
+<blockquote>
+<div><p>The directory path containing the TEI corpora XMl files.</p>
+</div></blockquote>
+<p><strong>prefix: str</strong></p>
+<blockquote>
+<div><p>The prefix of filenames to include (default: &#8216;&#8217;)</p>
+</div></blockquote>
+<p><strong>suffix: str</strong></p>
+<blockquote>
+<div><p>The suffix of filenames to include (default: &#8216;.xml&#8217;)</p>
+</div></blockquote>
+<p><strong>target: list of str</strong></p>
+<blockquote>
+<div><p>List of &lt;div&gt; types, that are considered documents in the XML files (default: [&#8220;artikkel&#8221;]).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">estnltk.corpus.Corpus</p>
+<blockquote class="last">
+<div><p>Corpus containing parsed documents from all files. The file path
+is stored in FILE attribute of the documents.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.teicorpus.parse_tei_corpus">
+<tt class="descclassname">estnltk.teicorpus.</tt><tt class="descname">parse_tei_corpus</tt><big>(</big><em>path, target=['artikkel']</em><big>)</big><a class="reference internal" href="_modules/estnltk/teicorpus.html#parse_tei_corpus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.teicorpus.parse_tei_corpus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse documents from a TEI style XML file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>path: str</strong></p>
+<blockquote>
+<div><p>The path of the XML file.</p>
+</div></blockquote>
+<p><strong>target: list of str</strong></p>
+<blockquote>
+<div><p>List of &lt;div&gt; types, that are considered documents in the XML files (default: [&#8220;artikkel&#8221;]).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">esnltk.corpus.Corpus</p>
+<blockquote class="last">
+<div><p>Corpus containing parsed documents.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.teicorpus.tokenize_documents">
+<tt class="descclassname">estnltk.teicorpus.</tt><tt class="descname">tokenize_documents</tt><big>(</big><em>docs</em><big>)</big><a class="reference internal" href="_modules/estnltk/teicorpus.html#tokenize_documents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.teicorpus.tokenize_documents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a document containing paragraphs and sentences, retokenize
+it and store the starting and end indices.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>docs: list of (list of str)</strong></p>
+<blockquote>
+<div><p>List of paragraphs given as list of sentences.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of dict</p>
+<blockquote class="last">
+<div><p>Each element dictionary of tokenized paragraphs, sentences and words
+with following structure:
+{</p>
+<blockquote>
+<div><p>text, start, end, rel_start, rel_end
+paragraphs:
+[</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>{</dt>
+<dd><p class="first">text, start, end, rel_start, rel_end
+sentences:
+[</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>{</dt>
+<dd><p class="first">text, start, end, rel_start, rel_end
+words:
+[</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>{</dt>
+<dd><p class="first last">text, start, end, rel_start, rel_end</p>
+</dd>
+</dl>
+</div></blockquote>
+<p class="last">]</p>
+</dd>
+</dl>
+</div></blockquote>
+<p class="last">]</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>}
+Extra fields at document level are preserved.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
-<div class="section" id="estnltk-textprocessor-module">
-<h2>estnltk.textprocessor module<a class="headerlink" href="#estnltk-textprocessor-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.textdiagnostics">
+<span id="estnltk-textdiagnostics-module"></span><h2>estnltk.textdiagnostics module<a class="headerlink" href="#module-estnltk.textdiagnostics" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="estnltk.textdiagnostics.TextDiagnostics">
+<em class="property">class </em><tt class="descclassname">estnltk.textdiagnostics.</tt><tt class="descname">TextDiagnostics</tt><big>(</big><em>alphabet='abcdefghijklmnoprsšzžtuvwõäöüxyzABCDEFGHIJKLMNOPRSŠZŽTUVWÕÄÖÜXYZ0123456789 tnrx0bx0c!&quot;#$%&amp;'()*+</em>, <em>-./:;&lt;=&gt;?&#64;[\]^_`{|}~–'</em><big>)</big><a class="reference internal" href="_modules/estnltk/textdiagnostics.html#TextDiagnostics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textdiagnostics.TextDiagnostics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Class for comparing texts against a predefined alphabet</p>
+<dl class="method">
+<dt id="estnltk.textdiagnostics.TextDiagnostics.compute_report">
+<tt class="descname">compute_report</tt><big>(</big><em>texts</em>, <em>context_size=10</em><big>)</big><a class="reference internal" href="_modules/estnltk/textdiagnostics.html#TextDiagnostics.compute_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textdiagnostics.TextDiagnostics.compute_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute statistics of invalid characters on given texts.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>texts: list of str</strong></p>
+<blockquote>
+<div><p>The texts to search for invalid characters.</p>
+</div></blockquote>
+<p><strong>context_size: int</strong></p>
+<blockquote>
+<div><p>How many characters to return as the context.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dict of (char -&gt; list of tuple (index, context))</p>
+<blockquote class="last">
+<div><p>Returns a dictionary, where keys are invalid characters.
+Values are lists containign tuples with character indices</p>
+<blockquote>
+<div><p>and context strings.</p>
+</div></blockquote>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textdiagnostics.TextDiagnostics.find_invalid_chars">
+<tt class="descname">find_invalid_chars</tt><big>(</big><em>text</em>, <em>context_size=20</em><big>)</big><a class="reference internal" href="_modules/estnltk/textdiagnostics.html#TextDiagnostics.find_invalid_chars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textdiagnostics.TextDiagnostics.find_invalid_chars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find invalid characters in text and store information about
+the findings.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>context_size: int</strong></p>
+<blockquote class="last">
+<div><p>How many characters to return as the context.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textdiagnostics.TextDiagnostics.is_valid">
+<tt class="descname">is_valid</tt><big>(</big><em>text</em><big>)</big><a class="reference internal" href="_modules/estnltk/textdiagnostics.html#TextDiagnostics.is_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textdiagnostics.TextDiagnostics.is_valid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textdiagnostics.TextDiagnostics.report">
+<tt class="descname">report</tt><big>(</big><em>texts</em>, <em>n_examples=10</em>, <em>context_size=10</em>, <em>f=&lt;_io.TextIOWrapper name='&lt;stdout&gt;' mode='w' encoding='UTF-8'&gt;</em><big>)</big><a class="reference internal" href="_modules/estnltk/textdiagnostics.html#TextDiagnostics.report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textdiagnostics.TextDiagnostics.report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute statistics of invalid characters and print them.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>texts: list of str</strong></p>
+<blockquote>
+<div><p>The texts to search for invalid characters.</p>
+</div></blockquote>
+<p><strong>n_examples: int</strong></p>
+<blockquote>
+<div><p>How many examples to display per invalid character.</p>
+</div></blockquote>
+<p><strong>context_size: int</strong></p>
+<blockquote>
+<div><p>How many characters to return as the context.</p>
+</div></blockquote>
+<p><strong>f: file</strong></p>
+<blockquote class="last">
+<div><p>The file to print the report (default is sys.stdout)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="estnltk-timex-module">
-<h2>estnltk.timex module<a class="headerlink" href="#estnltk-timex-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.textprocessor">
+<span id="estnltk-textprocessor-module"></span><h2>estnltk.textprocessor module<a class="headerlink" href="#module-estnltk.textprocessor" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="estnltk.textprocessor.TextProcessor">
+<em class="property">class </em><tt class="descclassname">estnltk.textprocessor.</tt><tt class="descname">TextProcessor</tt><a class="reference internal" href="_modules/estnltk/textprocessor.html#TextProcessor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textprocessor.TextProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Base class for text processors.</p>
+<dl class="method">
+<dt id="estnltk.textprocessor.TextProcessor.process">
+<tt class="descname">process</tt><big>(</big><em>corpus</em>, <em>inplace=False</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/textprocessor.html#TextProcessor.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textprocessor.TextProcessor.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the corpus.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>corpus: estnltk.corpus.Corpus</strong></p>
+<blockquote>
+<div><p>The corpus to process.</p>
+</div></blockquote>
+<p><strong>inplace: boolean</strong></p>
+<blockquote>
+<div><p>If True, modifies the corpus inplace. Otherwise creates
+a copy first when applying modifications.</p>
+</div></blockquote>
+<p class="last"><strong>Keyword parameters are subclass specific.</strong></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textprocessor.TextProcessor.process_corpus">
+<tt class="descname">process_corpus</tt><big>(</big><em>corpus</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/textprocessor.html#TextProcessor.process_corpus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textprocessor.TextProcessor.process_corpus" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.textprocessor.TextProcessor.process_json">
+<tt class="descname">process_json</tt><big>(</big><em>corpus</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/textprocessor.html#TextProcessor.process_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.textprocessor.TextProcessor.process_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="estnltk-tokenize-module">
-<h2>estnltk.tokenize module<a class="headerlink" href="#estnltk-tokenize-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.timex">
+<span id="estnltk-timex-module"></span><h2>estnltk.timex module<a class="headerlink" href="#module-estnltk.timex" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="estnltk.timex.TimexTagger">
+<em class="property">class </em><tt class="descclassname">estnltk.timex.</tt><tt class="descname">TimexTagger</tt><a class="reference internal" href="_modules/estnltk/timex.html#TimexTagger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.timex.TimexTagger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#estnltk.javaprocess.JavaProcess" title="estnltk.javaprocess.JavaProcess"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.javaprocess.JavaProcess</span></tt></a>, <a class="reference internal" href="#estnltk.textprocessor.TextProcessor" title="estnltk.textprocessor.TextProcessor"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.textprocessor.TextProcessor</span></tt></a></p>
+<dl class="method">
+<dt id="estnltk.timex.TimexTagger.process_corpus">
+<tt class="descname">process_corpus</tt><big>(</big><em>corpus</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/timex.html#TimexTagger.process_corpus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.timex.TimexTagger.process_corpus" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.timex.TimexTagger.process_json">
+<tt class="descname">process_json</tt><big>(</big><em>corpus</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/timex.html#TimexTagger.process_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.timex.TimexTagger.process_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.timex.TimexTagger.process_sentences">
+<tt class="descname">process_sentences</tt><big>(</big><em>corpus</em>, <em>process_json=False</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/timex.html#TimexTagger.process_sentences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.timex.TimexTagger.process_sentences" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.timex.TimexTagger.process_words">
+<tt class="descname">process_words</tt><big>(</big><em>words</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/timex.html#TimexTagger.process_words"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.timex.TimexTagger.process_words" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.timex.TimexTagger.remove_timexes_with_no_value_type">
+<tt class="descname">remove_timexes_with_no_value_type</tt><big>(</big><em>sentence</em><big>)</big><a class="reference internal" href="_modules/estnltk/timex.html#TimexTagger.remove_timexes_with_no_value_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.timex.TimexTagger.remove_timexes_with_no_value_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="estnltk.timex.TimexTagger.rename_attributes">
+<tt class="descname">rename_attributes</tt><big>(</big><em>sentence</em><big>)</big><a class="reference internal" href="_modules/estnltk/timex.html#TimexTagger.rename_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.timex.TimexTagger.rename_attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="estnltk-wordnet-module">
-<h2>estnltk.wordnet module<a class="headerlink" href="#estnltk-wordnet-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.tokenize">
+<span id="estnltk-tokenize-module"></span><h2>estnltk.tokenize module<a class="headerlink" href="#module-estnltk.tokenize" title="Permalink to this headline">¶</a></h2>
+<p>Whenever you need to work with new plaintext data, you typically first need
+to separate it into sentences/words or any other meaningful structure
+for the task at hand.</p>
+<dl class="class">
+<dt id="estnltk.tokenize.Tokenizer">
+<em class="property">class </em><tt class="descclassname">estnltk.tokenize.</tt><tt class="descname">Tokenizer</tt><big>(</big><em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/estnltk/tokenize.html#Tokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.tokenize.Tokenizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>Class for performing tokenization of plain text.</p>
+<p>First, it creates paragraph, then tokenizes each paragraph to sentences
+and then tokenizes the words of each sentence.
+How the tokenization will happen, can be specified by the user
+by supplying <tt class="xref py py-class docutils literal"><span class="pre">ntlk.tokenize.api.StringTokenizer</span></tt> instance
+for a particular tokenizer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>paragraph_tokenizer</strong> : <tt class="xref py py-class docutils literal"><span class="pre">ntlk.tokenize.api.StringTokenizer</span></tt>, optional</p>
+<blockquote>
+<div><p>Default paragraph tokenizer uses newlines to separate paragraphs.</p>
+</div></blockquote>
+<p><strong>sentence_tokenizer</strong> : <tt class="xref py py-class docutils literal"><span class="pre">ntlk.tokenize.api.StringTokenizer</span></tt>, optional</p>
+<blockquote>
+<div><p>Default sentence tokenizer is NLTK default PunktSentenceTokenizer for Estonian.</p>
+</div></blockquote>
+<p><strong>word_tokenizer</strong> : <tt class="xref py py-class docutils literal"><span class="pre">ntlk.tokenize.api.StringTokenizer</span></tt>, optional</p>
+<blockquote class="last">
+<div><p>Default is NLTK PunktWordTokenizer.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="estnltk.tokenize.Tokenizer.tokenize">
+<tt class="descname">tokenize</tt><big>(</big><em>text</em><big>)</big><a class="reference internal" href="_modules/estnltk/tokenize.html#Tokenizer.tokenize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.tokenize.Tokenizer.tokenize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tokenize the text into paragraphs, sentences and words.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>text</strong> : str</p>
+<blockquote>
+<div><p>The text to be tokenized.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#estnltk.corpus.Document" title="estnltk.corpus.Document"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Document</span></tt></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="estnltk.tokenize.tokenize">
+<tt class="descclassname">estnltk.tokenize.</tt><tt class="descname">tokenize</tt><big>(</big><em>text</em>, <em>tokenizer</em>, <em>start=0</em><big>)</big><a class="reference internal" href="_modules/estnltk/tokenize.html#tokenize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#estnltk.tokenize.tokenize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that tokenizes given text with given tokenizer
+and returns JSON-style output.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>text: str</strong></p>
+<blockquote>
+<div><p>The text to be tokenized.</p>
+</div></blockquote>
+<p><strong>tokenizer: :class:`ntlk.tokenize.api.StringTokenizer`</strong></p>
+<blockquote>
+<div><p>The tokenizer to use.</p>
+</div></blockquote>
+<p><strong>start: int</strong></p>
+<blockquote>
+<div><p>the absolute start position of the given text. Only required when this text is a substring
+of a larger text. Such as a sentence in a paragraph.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of dict</p>
+<blockquote class="last">
+<div><p>List of tokens, described by &#8220;text&#8221;, &#8220;start&#8221;, &#8220;end&#8221;, &#8220;rel_start&#8221;, &#8220;rel_end&#8221; elements.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-estnltk.wordnet">
+<span id="estnltk-wordnet-module"></span><h2>estnltk.wordnet module<a class="headerlink" href="#module-estnltk.wordnet" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-estnltk">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-estnltk" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -123,27 +2039,30 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">estnltk package</a><ul>
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#estnltk-clausesegmenter-module">estnltk.clausesegmenter module</a></li>
-<li><a class="reference internal" href="#estnltk-core-module">estnltk.core module</a></li>
-<li><a class="reference internal" href="#estnltk-corpus-module">estnltk.corpus module</a></li>
-<li><a class="reference internal" href="#estnltk-javaprocess-module">estnltk.javaprocess module</a></li>
-<li><a class="reference internal" href="#estnltk-morf-module">estnltk.morf module</a></li>
-<li><a class="reference internal" href="#estnltk-names-module">estnltk.names module</a></li>
-<li><a class="reference internal" href="#estnltk-ner-module">estnltk.ner module</a></li>
-<li><a class="reference internal" href="#estnltk-teicorpus-module">estnltk.teicorpus module</a></li>
-<li><a class="reference internal" href="#estnltk-textdiagnostics-module">estnltk.textdiagnostics module</a></li>
-<li><a class="reference internal" href="#estnltk-textprocessor-module">estnltk.textprocessor module</a></li>
-<li><a class="reference internal" href="#estnltk-timex-module">estnltk.timex module</a></li>
-<li><a class="reference internal" href="#estnltk-tokenize-module">estnltk.tokenize module</a></li>
-<li><a class="reference internal" href="#estnltk-wordnet-module">estnltk.wordnet module</a></li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-estnltk.clausesegmenter">estnltk.clausesegmenter module</a></li>
+<li><a class="reference internal" href="#module-estnltk.core">estnltk.core module</a></li>
+<li><a class="reference internal" href="#module-estnltk.corpus">estnltk.corpus module</a></li>
+<li><a class="reference internal" href="#module-estnltk.javaprocess">estnltk.javaprocess module</a><ul>
+<li><a class="reference internal" href="#attributes">Attributes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-estnltk.morf">estnltk.morf module</a></li>
+<li><a class="reference internal" href="#module-estnltk.names">estnltk.names module</a></li>
+<li><a class="reference internal" href="#module-estnltk.ner">estnltk.ner module</a></li>
+<li><a class="reference internal" href="#module-estnltk.teicorpus">estnltk.teicorpus module</a></li>
+<li><a class="reference internal" href="#module-estnltk.textdiagnostics">estnltk.textdiagnostics module</a></li>
+<li><a class="reference internal" href="#module-estnltk.textprocessor">estnltk.textprocessor module</a></li>
+<li><a class="reference internal" href="#module-estnltk.timex">estnltk.timex module</a></li>
+<li><a class="reference internal" href="#module-estnltk.tokenize">estnltk.tokenize module</a></li>
+<li><a class="reference internal" href="#module-estnltk.wordnet">estnltk.wordnet module</a></li>
+<li><a class="reference internal" href="#module-estnltk">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -154,14 +2073,12 @@
   <h4>Next topic</h4>
   <p class="topless"><a href="estnltk.estner.html"
                         title="next chapter">estnltk.estner package</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/estnltk.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/estnltk.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -178,12 +2095,15 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="estnltk.estner.html" title="estnltk.estner package"
              >next</a> |</li>
@@ -193,9 +2113,9 @@
         <li><a href="index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

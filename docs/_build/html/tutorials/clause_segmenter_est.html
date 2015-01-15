@@ -23,16 +23,19 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="estnltk 1.1 documentation" href="../index.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -40,14 +43,14 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="osalausestamine">
 <h1>Osalausestamine<a class="headerlink" href="#osalausestamine" title="Permalink to this headline">¶</a></h1>
 <p>Lihtlause on lause, mis tüüpiliselt sisaldab ühte pöördelist verbivormi ning väljendab ühte tegevust, seisundit või olukorda.
 Loomuliku keele tekstides tuleb aga sageli ette ka keerukama struktuuriga <em>liitlauseid</em>, kus mitu väiksemat lauset (osalauset) on ühendatud üheks lauseks.
 Selliste lausete töötlemisele lisab keerukust veel asjaolu, et osalaused võivad olla sisestatud teiste lausete sisse, jagades need kiiluna kaheks osaks.</p>
-<p>Osalausestaja võimaldab jagada liitlaused väiksemateks osadeks - osalauseteks ja kiiludeks - ning töödelda iga osa eraldiseisva tekstiüksusena. Enne teksti osalausestamist on tarvis see lausestada ja sõnestada (klassi <code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code> abil) ning sooritada tekstil morfoloogiline analüüs (klass <code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></code>) ja morfoloogiline ühestamine (kuigi osalausestaja töötab ka morfoloogiliselt mitmesel tekstil, võib analüüsi kvaliteet olla madalam kui ühestatud tekstil).</p>
+<p>Osalausestaja võimaldab jagada liitlaused väiksemateks osadeks - osalauseteks ja kiiludeks - ning töödelda iga osa eraldiseisva tekstiüksusena. Enne teksti osalausestamist on tarvis see lausestada ja sõnestada (klassi <a class="reference internal" href="../estnltk.html#estnltk.tokenize.Tokenizer" title="estnltk.tokenize.Tokenizer"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></tt></a> abil) ning sooritada tekstil morfoloogiline analüüs (klass <a class="reference internal" href="../estnltk.html#estnltk.morf.PyVabamorfAnalyzer" title="estnltk.morf.PyVabamorfAnalyzer"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></tt></a>) ja morfoloogiline ühestamine (kuigi osalausestaja töötab ka morfoloogiliselt mitmesel tekstil, võib analüüsi kvaliteet olla madalam kui ühestatud tekstil).</p>
 <p>Näide:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span><span class="p">,</span> <span class="n">PyVabamorfAnalyzer</span><span class="p">,</span> <span class="n">ClauseSegmenter</span>
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
@@ -63,7 +66,7 @@ Selliste lausete töötlemisele lisab keerukust veel asjaolu, et osalaused võiv
 </div>
 <p>Osalausestaja märgib tekstis osalausepiirid (milliste sõnade järelt jookseb osalausepiir) ning kiilude algus- ja lõpp-positsioonid.
 Selle märgenduse põhjal genereeritakse igale lause sõnale arvuline indeks, mis märgib, millisesse osalausesse sõna kuulub.
-Sõnadele omistatud osalausemärgendid on saadaval järjendina dokumendi välja <code class="docutils literal"><span class="pre">clause_indices</span></code> kaudu ning osalauseindeksid <code class="docutils literal"><span class="pre">clause_annotations</span></code> kaudu.
+Sõnadele omistatud osalausemärgendid on saadaval järjendina dokumendi välja <tt class="docutils literal"><span class="pre">clause_indices</span></tt> kaudu ning osalauseindeksid <tt class="docutils literal"><span class="pre">clause_annotations</span></tt> kaudu.
 Järgnevas näites väljastatakse sõnad koos osalauseindeksite ja -märgenditega:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">pprint</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">segmented</span><span class="o">.</span><span class="n">words</span><span class="p">,</span> <span class="n">segmented</span><span class="o">.</span><span class="n">clause_indices</span><span class="p">,</span> <span class="n">segmented</span><span class="o">.</span><span class="n">clause_annotations</span><span class="p">)))</span>
 
@@ -80,7 +83,7 @@ Järgnevas näites väljastatakse sõnad koos osalauseindeksite ja -märgenditeg
  <span class="p">(</span><span class="s">&#39;Word(meid.)&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">None</span><span class="p">)]</span>
 </pre></div>
 </div>
-<p>Osalausestamise tulemus on ka esitatud <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Clause</span></code> objektidena, mis koondavad endas kõiki osalausesse kuuluvaid sõnu. Seega on võimalik lihtsa päringuga saada kätte kõik tekstist tuvastatud osalaused:</p>
+<p>Osalausestamise tulemus on ka esitatud <a class="reference internal" href="../estnltk.html#estnltk.corpus.Clause" title="estnltk.corpus.Clause"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Clause</span></tt></a> objektidena, mis koondavad endas kõiki osalausesse kuuluvaid sõnu. Seega on võimalik lihtsa päringuga saada kätte kõik tekstist tuvastatud osalaused:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># väljastame osalaused</span>
 <span class="n">pprint</span><span class="p">(</span><span class="n">segmented</span><span class="o">.</span><span class="n">clauses</span><span class="p">)</span>
 
@@ -105,16 +108,14 @@ Järgnevas näites väljastatakse sõnad koos osalauseindeksite ja -märgenditeg
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/clause_segmenter_est.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/clause_segmenter_est.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -131,18 +132,21 @@ Järgnevas näites väljastatakse sõnad koos osalauseindeksite ja -märgenditeg
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

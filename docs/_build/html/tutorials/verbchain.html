@@ -23,20 +23,23 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="estnltk 1.1 documentation" href="../index.html" />
-    <link rel="next" title="&lt;no title&gt;" href="wordnet.html" />
+    <link rel="next" title="Estonian Wordnet" href="wordnet.html" />
     <link rel="prev" title="Temporal expression (TIMEX) tagging" href="timex.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="wordnet.html" title="&lt;no title&gt;"
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wordnet.html" title="Estonian Wordnet"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="timex.html" title="Temporal expression (TIMEX) tagging"
@@ -48,7 +51,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="verb-chain-detection">
 <h1>Verb chain detection<a class="headerlink" href="#verb-chain-detection" title="Permalink to this headline">¶</a></h1>
@@ -68,7 +71,7 @@ The current version of the program aims to detect following verb chain construct
 </li>
 </ul>
 <p>Verb chain detector requires that the input text has been tokenized (split into sentences and words), morphologically analyzed, morphologically disambiguated, and segmented into clauses.
-Recall that the text can be segmented into clauses with <code class="xref py py-class docutils literal"><span class="pre">estnltk.clausesegmenter.ClauseSegmenter</span></code>.</p>
+Recall that the text can be segmented into clauses with <a class="reference internal" href="../estnltk.html#estnltk.clausesegmenter.ClauseSegmenter" title="estnltk.clausesegmenter.ClauseSegmenter"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.clausesegmenter.ClauseSegmenter</span></tt></a>.</p>
 <p>Example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span>
 <span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">PyVabamorfAnalyzer</span>
@@ -88,7 +91,7 @@ Recall that the text can be segmented into clauses with <code class="xref py py-
 <span class="n">pprint</span><span class="p">(</span><span class="n">processed</span><span class="o">.</span><span class="n">verb_chains</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Property <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus.verb_chains</span></code> lists all found <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.VerbChain</span></code> objects.
+<p>Property <a class="reference internal" href="../estnltk.html#estnltk.corpus.Corpus.verb_chains" title="estnltk.corpus.Corpus.verb_chains"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus.verb_chains</span></tt></a> lists all found <a class="reference internal" href="../estnltk.html#estnltk.corpus.VerbChain" title="estnltk.corpus.VerbChain"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.VerbChain</span></tt></a> objects.
 The previous example prints out following found verb chains:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;VerbChain(on, ole, ole, POS)&#39;</span><span class="p">,</span>
  <span class="s">&#39;VerbChain(korraldus, verb, korraldu, POS)&#39;</span><span class="p">,</span>
@@ -132,11 +135,11 @@ other verbs:  False
 <p>Following is a brief description of the attributes:</p>
 <blockquote>
 <div><ul class="simple">
-<li><code class="docutils literal"><span class="pre">pattern_tokens</span></code> - the general pattern of the chain: for each word in the chain, lists whether it is <em>&#8216;ega&#8217;</em>, <em>&#8216;ei&#8217;</em>, <em>&#8216;ära&#8217;</em>, <em>&#8216;pole&#8217;</em>, <em>&#8216;ole&#8217;</em>, <em>&#8216;&amp;&#8217;</em> (conjunction: ja/ning/ega/või), <em>&#8216;verb&#8217;</em> (verb different than <em>&#8216;ole&#8217;</em>) or <em>&#8216;nom/adv&#8217;</em> (nominal/adverb);</li>
-<li><code class="docutils literal"><span class="pre">roots</span></code> - for each word in the chain, lists its corresponding &#8216;root&#8217; value from the morphological analysis;</li>
-<li><code class="docutils literal"><span class="pre">morph</span></code> - for each word in the chain, lists its morphological features: part of speech tag and form (in one string, separated by &#8216;_&#8217;, and multiple variants of the pos/form are separated by &#8216;/&#8217;);</li>
-<li><code class="docutils literal"><span class="pre">polarity</span></code> - grammatical polarity of the chain: <em>&#8216;POS&#8217;</em>, <em>&#8216;NEG&#8217;</em> or <em>&#8216;??&#8217;</em>. <em>&#8216;NEG&#8217;</em> simply means that the chain begins with a negation word <em>ei/pole/ega/ära</em>; <em>&#8216;??&#8217;</em> is reserved for cases where it is uncertain whether <em>ära</em> forms a negated verb chain or not;</li>
-<li><code class="docutils literal"><span class="pre">other_verbs</span></code> - boolean, marks whether there are other verbs in the context, which can be potentially added to the verb chain; if <code class="docutils literal"><span class="pre">True</span></code>,then it is uncertain whether the chain is complete or not;</li>
+<li><tt class="docutils literal"><span class="pre">pattern_tokens</span></tt> - the general pattern of the chain: for each word in the chain, lists whether it is <em>&#8216;ega&#8217;</em>, <em>&#8216;ei&#8217;</em>, <em>&#8216;ära&#8217;</em>, <em>&#8216;pole&#8217;</em>, <em>&#8216;ole&#8217;</em>, <em>&#8216;&amp;&#8217;</em> (conjunction: ja/ning/ega/või), <em>&#8216;verb&#8217;</em> (verb different than <em>&#8216;ole&#8217;</em>) or <em>&#8216;nom/adv&#8217;</em> (nominal/adverb);</li>
+<li><tt class="docutils literal"><span class="pre">roots</span></tt> - for each word in the chain, lists its corresponding &#8216;root&#8217; value from the morphological analysis;</li>
+<li><tt class="docutils literal"><span class="pre">morph</span></tt> - for each word in the chain, lists its morphological features: part of speech tag and form (in one string, separated by &#8216;_&#8217;, and multiple variants of the pos/form are separated by &#8216;/&#8217;);</li>
+<li><tt class="docutils literal"><span class="pre">polarity</span></tt> - grammatical polarity of the chain: <em>&#8216;POS&#8217;</em>, <em>&#8216;NEG&#8217;</em> or <em>&#8216;??&#8217;</em>. <em>&#8216;NEG&#8217;</em> simply means that the chain begins with a negation word <em>ei/pole/ega/ära</em>; <em>&#8216;??&#8217;</em> is reserved for cases where it is uncertain whether <em>ära</em> forms a negated verb chain or not;</li>
+<li><tt class="docutils literal"><span class="pre">other_verbs</span></tt> - boolean, marks whether there are other verbs in the context, which can be potentially added to the verb chain; if <tt class="docutils literal"><span class="pre">True</span></tt>,then it is uncertain whether the chain is complete or not;</li>
 </ul>
 </div></blockquote>
 </div>
@@ -145,22 +148,20 @@ other verbs:  False
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
   <p class="topless"><a href="timex.html"
                         title="previous chapter">Temporal expression (TIMEX) tagging</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="wordnet.html"
-                        title="next chapter">&lt;no title&gt;</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/verbchain.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+                        title="next chapter">Estonian Wordnet</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/verbchain.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -177,14 +178,17 @@ other verbs:  False
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="wordnet.html" title="&lt;no title&gt;"
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="wordnet.html" title="Estonian Wordnet"
              >next</a> |</li>
         <li class="right" >
           <a href="timex.html" title="Temporal expression (TIMEX) tagging"
@@ -192,9 +196,9 @@ other verbs:  False
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

@@ -23,16 +23,19 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="estnltk 1.1 documentation" href="../index.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -40,7 +43,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="verbiahelate-tuvastamine">
 <h1>Verbiahelate tuvastamine<a class="headerlink" href="#verbiahelate-tuvastamine" title="Permalink to this headline">¶</a></h1>
@@ -58,8 +61,8 @@
 </ul>
 </li>
 </ul>
-<p>Verbiahelate tuvastamine nõuab, et sisendtekst on lausestatud ja sõnestatud (klassi <code class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></code> abil), morfoloogiliselt analüüsitud (klassi <code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></code> abil), morfoloogiliselt ühestatud ning jagatud osalauseteks.
-Meenutagem, et teksti on võimalik jagada osalauseteks klassi <code class="xref py py-class docutils literal"><span class="pre">estnltk.clausesegmenter.ClauseSegmenter</span></code> abil.</p>
+<p>Verbiahelate tuvastamine nõuab, et sisendtekst on lausestatud ja sõnestatud (klassi <a class="reference internal" href="../estnltk.html#estnltk.tokenize.Tokenizer" title="estnltk.tokenize.Tokenizer"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.tokenize.Tokenizer</span></tt></a> abil), morfoloogiliselt analüüsitud (klassi <a class="reference internal" href="../estnltk.html#estnltk.morf.PyVabamorfAnalyzer" title="estnltk.morf.PyVabamorfAnalyzer"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></tt></a> abil), morfoloogiliselt ühestatud ning jagatud osalauseteks.
+Meenutagem, et teksti on võimalik jagada osalauseteks klassi <a class="reference internal" href="../estnltk.html#estnltk.clausesegmenter.ClauseSegmenter" title="estnltk.clausesegmenter.ClauseSegmenter"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.clausesegmenter.ClauseSegmenter</span></tt></a> abil.</p>
 <p>Näide:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span>
 <span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">PyVabamorfAnalyzer</span>
@@ -79,7 +82,7 @@ Meenutagem, et teksti on võimalik jagada osalauseteks klassi <code class="xref 
 <span class="n">pprint</span><span class="p">(</span><span class="n">processed</span><span class="o">.</span><span class="n">verb_chains</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Väli <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus.verb_chains</span></code> annab järjendi kõigist leitud verbiahelatest, mis on esitatud   <code class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.VerbChain</span></code> objektide kujul.
+<p>Väli <a class="reference internal" href="../estnltk.html#estnltk.corpus.Corpus.verb_chains" title="estnltk.corpus.Corpus.verb_chains"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.Corpus.verb_chains</span></tt></a> annab järjendi kõigist leitud verbiahelatest, mis on esitatud   <a class="reference internal" href="../estnltk.html#estnltk.corpus.VerbChain" title="estnltk.corpus.VerbChain"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.corpus.VerbChain</span></tt></a> objektide kujul.
 Eelmise koodilõigu käivitamisel väljastatakse järgmised verbiahelad:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">[</span><span class="s">&#39;VerbChain(on, ole, ole, POS)&#39;</span><span class="p">,</span>
  <span class="s">&#39;VerbChain(korraldus, verb, korraldu, POS)&#39;</span><span class="p">,</span>
@@ -123,11 +126,11 @@ kontekstis on teisi verbe?:  False
 <p>Järgneb atribuutide lühikirjeldus:</p>
 <blockquote>
 <div><ul class="simple">
-<li><code class="docutils literal"><span class="pre">pattern_tokens</span></code> - üldine muster: järjend, mis sisaldab iga ahelasse kuuluva sõna üldist kirjeldust. Märgitakse, kas sõna on <em>&#8216;ega&#8217;</em>, <em>&#8216;ei&#8217;</em>, <em>&#8216;ära&#8217;</em>, <em>&#8216;pole&#8217;</em>, <em>&#8216;ole&#8217;</em>, <em>&#8216;&amp;&#8217;</em> (sidesõna: ja/ning/ega/või), <em>&#8216;verb&#8217;</em> (mitte-<em>&#8216;olema&#8217;</em> verb) või <em>&#8216;nom/adv&#8217;</em> (käändsõna/adverb);</li>
-<li><code class="docutils literal"><span class="pre">roots</span></code> - järjend, mis sisaldab iga ahelasse kuuluva sõna &#8216;root&#8217; väärtust morfoloogilisest analüüsist;</li>
-<li><code class="docutils literal"><span class="pre">morph</span></code> - järjend, mis sisaldab iga ahelasse kuuluva sõna morfoloogilisi tunnuseid: sõnaliik ja vormitüüp (ühe sõnena, sõnaliigi ja vormitüübi vahel on eraldajaks &#8216;_&#8217;; kui tunnused on jäänud mitmeseks, on erinevate variantide vahel eraldajaks &#8216;/&#8217;);</li>
-<li><code class="docutils literal"><span class="pre">polarity</span></code> - verbiahela grammatiline polaarsus: <em>&#8216;POS&#8217;</em>, <em>&#8216;NEG&#8217;</em> või <em>&#8216;??&#8217;</em>. <em>&#8216;NEG&#8217;</em> märgib seda, et verbiahela alguses on eitusesõna (<em>ei/pole/ega/ära</em>); <em>&#8216;??&#8217;</em> on reserveeritud juhtudeks, kui pole kindel, kas <em>ära</em> on kasutusel eitusesõnana või mitte;</li>
-<li><code class="docutils literal"><span class="pre">other_verbs</span></code> - kahendmuutuja märkimaks, kas verbiahela kontekstis on veel verbe, mis võivad  kuuluda verbiahela koosseisu. Kui väärtus on <code class="docutils literal"><span class="pre">True</span></code>, pole kindel, kas ahel on terviklik või mitte;</li>
+<li><tt class="docutils literal"><span class="pre">pattern_tokens</span></tt> - üldine muster: järjend, mis sisaldab iga ahelasse kuuluva sõna üldist kirjeldust. Märgitakse, kas sõna on <em>&#8216;ega&#8217;</em>, <em>&#8216;ei&#8217;</em>, <em>&#8216;ära&#8217;</em>, <em>&#8216;pole&#8217;</em>, <em>&#8216;ole&#8217;</em>, <em>&#8216;&amp;&#8217;</em> (sidesõna: ja/ning/ega/või), <em>&#8216;verb&#8217;</em> (mitte-<em>&#8216;olema&#8217;</em> verb) või <em>&#8216;nom/adv&#8217;</em> (käändsõna/adverb);</li>
+<li><tt class="docutils literal"><span class="pre">roots</span></tt> - järjend, mis sisaldab iga ahelasse kuuluva sõna &#8216;root&#8217; väärtust morfoloogilisest analüüsist;</li>
+<li><tt class="docutils literal"><span class="pre">morph</span></tt> - järjend, mis sisaldab iga ahelasse kuuluva sõna morfoloogilisi tunnuseid: sõnaliik ja vormitüüp (ühe sõnena, sõnaliigi ja vormitüübi vahel on eraldajaks &#8216;_&#8217;; kui tunnused on jäänud mitmeseks, on erinevate variantide vahel eraldajaks &#8216;/&#8217;);</li>
+<li><tt class="docutils literal"><span class="pre">polarity</span></tt> - verbiahela grammatiline polaarsus: <em>&#8216;POS&#8217;</em>, <em>&#8216;NEG&#8217;</em> või <em>&#8216;??&#8217;</em>. <em>&#8216;NEG&#8217;</em> märgib seda, et verbiahela alguses on eitusesõna (<em>ei/pole/ega/ära</em>); <em>&#8216;??&#8217;</em> on reserveeritud juhtudeks, kui pole kindel, kas <em>ära</em> on kasutusel eitusesõnana või mitte;</li>
+<li><tt class="docutils literal"><span class="pre">other_verbs</span></tt> - kahendmuutuja märkimaks, kas verbiahela kontekstis on veel verbe, mis võivad  kuuluda verbiahela koosseisu. Kui väärtus on <tt class="docutils literal"><span class="pre">True</span></tt>, pole kindel, kas ahel on terviklik või mitte;</li>
 </ul>
 </div></blockquote>
 <p class="rubric">Märkused</p>
@@ -143,16 +146,14 @@ kontekstis on teisi verbe?:  False
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/verbchain_est.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/verbchain_est.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -169,18 +170,21 @@ kontekstis on teisi verbe?:  False
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

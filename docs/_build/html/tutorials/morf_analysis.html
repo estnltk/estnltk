@@ -23,18 +23,21 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="estnltk 1.1 documentation" href="../index.html" />
     <link rel="next" title="Clause segmenter" href="clause_segmenter.html" />
     <link rel="prev" title="Paragraph, sentence and word tokenization" href="tokenization.html" /> 
   </head>
-  <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
+  <body>
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="clause_segmenter.html" title="Clause segmenter"
              accesskey="N">next</a> |</li>
@@ -48,7 +51,7 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body" role="main">
+          <div class="body">
             
   <div class="section" id="morphological-analysis">
 <h1>Morphological analysis<a class="headerlink" href="#morphological-analysis" title="Permalink to this headline">¶</a></h1>
@@ -59,7 +62,7 @@ In grammar, a part of speech (also a word class, a lexical class, or a lexical c
 which is generally defined by the syntactic or morphological behaviour of the lexical item in question.
 Common linguistic categories include noun and verb, among others.
 Word forms define additional grammatical information such as cases, plurality etc.</p>
-<p>Estnltk contains <code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.analyze</span></code> function for performing morphological analysis:</p>
+<p>Estnltk contains <a class="reference internal" href="../estnltk.pyvabamorf.html#estnltk.pyvabamorf.morf.PyVabamorf.analyze" title="estnltk.pyvabamorf.morf.PyVabamorf.analyze"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.pyvabamorf.morf.PyVabamorf.analyze</span></tt></a> function for performing morphological analysis:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">analyze</span>
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 
@@ -97,8 +100,50 @@ Word forms define additional grammatical information such as cases, plurality et
 The tags are documented in vabamorf tagset <a class="reference external" href="https://github.com/Filosoft/vabamorf/blob/master/doc/tagset.html">documentation</a>.</p>
 <blockquote>
 <div></div></blockquote>
+<p>The function has also various parameters that can be used to change to behaviour of analysis:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">analyze</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Perform morphological analysis on input.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    words: list of str or str</span>
+<span class="sd">        Either a list of pretokenized words or a string. In case of a string, it will be splitted using</span>
+<span class="sd">        default behaviour of string.split() function.</span>
+<span class="sd">    guess: boolean, optional</span>
+<span class="sd">        If True, then use guessing, when analyzing unknown words (default: True)</span>
+<span class="sd">    phonetic: boolean, optional</span>
+<span class="sd">        If True, add phonetic information to the root forms (default: False).</span>
+<span class="sd">    compound: boolean, optional</span>
+<span class="sd">        if True, add compound word markers to root forms (default: True)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of (list of dict)</span>
+<span class="sd">        List of analysis for each word in input. One word usually contains more than one analysis as the</span>
+<span class="sd">        analyser does not perform disambiguation.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+</pre></div>
+</div>
+<p>For example, let&#8217;s use <em>guess</em> flag to write a spell check function that returns <em>True</em> for known words and <em>False</em> for unknown words:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">analyze</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">spell_check</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">an</span> <span class="o">=</span> <span class="n">analyze</span><span class="p">([</span><span class="n">word</span><span class="p">],</span> <span class="n">guess</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">an</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;analysis&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;surramurra&#39;</span><span class="p">,</span> <span class="s">&#39;mis&#39;</span><span class="p">,</span> <span class="s">&#39;elu&#39;</span><span class="p">,</span> <span class="s">&#39;see&#39;</span><span class="p">,</span> <span class="s">&#39;on&#39;</span><span class="p">,</span> <span class="s">&#39;lalala&#39;</span><span class="p">]:</span>
+<span class="gp">... </span>    <span class="k">print</span> <span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">spell_check</span><span class="p">(</span><span class="n">word</span><span class="p">))</span>
+<span class="gp">...</span>
+<span class="go">(&#39;surramurra&#39;, False)</span>
+<span class="go">(&#39;mis&#39;, True)</span>
+<span class="go">(&#39;elu&#39;, True)</span>
+<span class="go">(&#39;see&#39;, True)</span>
+<span class="go">(&#39;on&#39;, True)</span>
+<span class="go">(&#39;lalala&#39;, False)</span>
+</pre></div>
+</div>
 <p>The morphological analysis can also be applied on pretokenized data, so it will be possible to more easily list all lemmas, pos tags etc.
-To do that, one needs to use <code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></code> class:</p>
+To do that, one needs to use <a class="reference internal" href="../estnltk.html#estnltk.morf.PyVabamorfAnalyzer" title="estnltk.morf.PyVabamorfAnalyzer"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.morf.PyVabamorfAnalyzer</span></tt></a> class:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Tokenizer</span>
 <span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">PyVabamorfAnalyzer</span>
 
@@ -191,7 +236,7 @@ To do that, one needs to use <code class="xref py py-class docutils literal"><sp
 </div>
 <div class="section" id="morphological-synthesis">
 <h2>Morphological synthesis<a class="headerlink" href="#morphological-synthesis" title="Permalink to this headline">¶</a></h2>
-<p>Estnltk can also do morphological synthesis using <code class="xref py py-class docutils literal"><span class="pre">estnltk.morf.synthesize</span></code> function:</p>
+<p>Estnltk can also do morphological synthesis using <a class="reference internal" href="../estnltk.pyvabamorf.html#estnltk.pyvabamorf.morf.PyVabamorf.synthesize" title="estnltk.pyvabamorf.morf.PyVabamorf.synthesize"><tt class="xref py py-class docutils literal"><span class="pre">estnltk.pyvabamorf.morf.PyVabamorf.synthesize</span></tt></a> function:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">synthesize</span>
 
 <span class="k">print</span><span class="p">(</span><span class="n">synthesize</span><span class="p">(</span><span class="s">&#39;pood&#39;</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="s">&#39;pl p&#39;</span><span class="p">,</span> <span class="n">partofspeech</span><span class="o">=</span><span class="s">&#39;S&#39;</span><span class="p">))</span>
@@ -206,6 +251,32 @@ To do that, one needs to use <code class="xref py py-class docutils literal"><sp
 <p>See <a class="reference external" href="https://github.com/Filosoft/vabamorf/blob/master/doc/tagset.html">documentation</a> for possible parameters.</p>
 <blockquote>
 <div></div></blockquote>
+<p>There are various options for the synthesize method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">synthesize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lemma</span><span class="p">,</span> <span class="n">partofspeech</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">guess</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">phonetic</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Given lemma, pos tag and a form, synthesize the word.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lemma: str</span>
+<span class="sd">        The lemma of the word to be synthesized.</span>
+<span class="sd">    partofspeech: str, optional</span>
+<span class="sd">        The POS tag of the word to be synthesized.</span>
+<span class="sd">    form: str, optional</span>
+<span class="sd">        The form of the word to be synthesized.</span>
+<span class="sd">    hint: str, optional</span>
+<span class="sd">        The hint used by vabamorf to synthesize the word.</span>
+<span class="sd">    guess: bool, optional</span>
+<span class="sd">        If True, use guessing for unknown words (default: True)</span>
+<span class="sd">    phonetic: bool, optional</span>
+<span class="sd">        If True, add phonetic markers to synthesized words (default: False).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of str</span>
+<span class="sd">        The list of synthesized words.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -213,7 +284,7 @@ To do that, one needs to use <code class="xref py py-class docutils literal"><sp
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
@@ -229,14 +300,12 @@ To do that, one needs to use <code class="xref py py-class docutils literal"><sp
   <h4>Next topic</h4>
   <p class="topless"><a href="clause_segmenter.html"
                         title="next chapter">Clause segmenter</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/morf_analysis.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/tutorials/morf_analysis.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
@@ -253,12 +322,15 @@ To do that, one needs to use <code class="xref py py-class docutils literal"><sp
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="clause_segmenter.html" title="Clause segmenter"
              >next</a> |</li>
@@ -268,9 +340,9 @@ To do that, one needs to use <code class="xref py py-class docutils literal"><sp
         <li><a href="../index.html">estnltk 1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer" role="contentinfo">
+    <div class="footer">
         &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

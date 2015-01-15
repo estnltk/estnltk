@@ -8,8 +8,12 @@ Estnltk --- Avatud lähtekoodiga teegid eestikeelsete vabatektside lihtsamaks t�
 ==============================================================================================
 
 Estnltk on kogumik Python 2.7/Python 3.4 teeke, mis pakuvad eestikeelsete vabatekstide töötlemiseks vajalikke baasoperatsioone.
+Projekt on rahastatud `Eesti Keeletehnoloogia Riikliku Programmi`_ alamprojekti `EKT57`_ vahenditest.
 Kuigi eesti keele töötlemiseks on juba loodud üksjagu keeletehnoloogilisi tööriistu, pole seniste tööriistade omavaheline liidestamine, olgu siis rakenduste loomise või uurimustöö eesmärgil, olnud eriti lihtne.
 Tüüpiliselt on olnud tarvis teha lisatööd rakendusespetsiifiliste liideste loomisel.
+
+.. _Eesti Keeletehnoloogia Riikliku Programmi: https://www.keeletehnoloogia.ee/
+.. _EKT57: https://www.keeletehnoloogia.ee/et/ekt-projektid/estnltk-pythoni-teegid-eestikeelsete-vabatektside-lihtsamaks-tootlemiseks
 
 Teiseks probleemiks on tööriistade hajutatus: paljud tööriistad on veebis laiali ning neid on keeruline üles leida.
 Kuigi leiduvad keeletehnoloogia materjale ja tulemusi tutvustavad veebilehed `keeleveeb.ee`_ and `EKT`_, `EKKTT`_, on tudengitel ning valdkonnaga mitte kursis olevatel asjahuvilistel keeruline nende põhjal keeletehnoloogilise arendustööga algust teha.
