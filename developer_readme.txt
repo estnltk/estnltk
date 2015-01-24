@@ -19,30 +19,35 @@ Some unit tests with Python2.7 do not work in Windows due to Python multiprocess
 Working with GIT repositories
 =============================
 
-Here is a tip how to work with both Github and estnltk.cs.ut.ee repositories in a dual setup.
+We have three repositories where we store Estnltk code: you should push/pull every time from all of them to make them synced.
 
 First, modify your .git/setup configuration to look like following:
 
 [core]
-	repositoryformatversion = 0
-	filemode = true
-	bare = false
-	logallrefupdates = true
+    repositoryformatversion = 0
+    filemode = true
+    bare = false
+    logallrefupdates = true
 [remote "github"]
-	url = git@github.com:tpetmanson/estnltk.git
-	fetch = +refs/heads/*:refs/remotes/github/*
+    url = git@github.com:tpetmanson/estnltk.git
+    fetch = +refs/heads/*:refs/remotes/github/*
 [remote "ut"]
-	url = git@estnltk.cs.ut.ee:timo/estnltk.git
-	fetch = +refs/heads/*:refs/remotes/ut/*
+    url = git@estnltk.cs.ut.ee:timo/estnltk.git
+    fetch = +refs/heads/*:refs/remotes/ut/*
+[remote "keeleressursid"]
+    url = git@gitlab.keeleressursid.ee:timo-petmanson/estnltk.git
+    fetch = +refs/heads/*:refs/remotes/keeleressursid/*
 [remote "origin"]
-	url = git@github.com:tpetmanson/estnltk.git
-	url = git@estnltk.cs.ut.ee:timo/estnltk.git
+    url = git@github.com:tpetmanson/estnltk.git
+    url = git@estnltk.cs.ut.ee:timo/estnltk.git
+    url = git@gitlab.keeleressursid.ee:timo-petmanson/estnltk.git
 [branch "master"]
-	remote = ut
-	merge = refs/heads/master
+    remote = origin
+    merge = refs/heads/master
 [gui]
-	wmstate = normal
-	geometry = 844x391+0+0 189 177
+    wmstate = normal
+    geometry = 844x391+0+0 189 177
+
 
 
 Second, use commands
