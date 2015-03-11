@@ -25,8 +25,12 @@ class ClauseSegmenter(JavaProcess, TextProcessor):
         Allows to process results sentence by sentence. 
         ''' 
     
-    def __init__(self):
-        JavaProcess.__init__(self, 'Osalau.jar', ['-pyvabamorf'])
+    def __init__(self, **kwargs):
+        args = ['-pyvabamorf']
+        ignore_missing_commas = kwargs.get('ignore_missing_commas', False)
+        if ignore_missing_commas:
+            args.append('-ins_comma_mis')
+        JavaProcess.__init__(self, 'Osalau.jar', args)
         
     def process_corpus(self, corpus, **kwargs):
         for sentence in corpus.sentences:
