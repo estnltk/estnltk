@@ -5,6 +5,9 @@ A simple sentence, also called an independent clause, typically contains a finit
 However, natural language sentences can also be long and complex, consisting of two or more clauses joined together.
 The clause structure can be made even more complex by embedded clauses, which divide their parent clauses into two halves.
 
+Basic usage
+------------
+
 Clause segmenter makes it possible to extract clauses from a complex sentence and treat them independently. Before the tool can be applied, the input text must be tokenized (split into sentences and words) and morphologically analyzed and disambiguated (the program also works on morphologically ambiguous text, but the quality of the analysis is expected to be lower than on morphologically disambiguated text).
 
 Example::
@@ -57,3 +60,33 @@ Here is also an example of how to group words by clauses::
     ['Word(Mees)', 'Word(oli)', 'Word(tuttav)', 'Word(ja)']
     ['Word(,)', 'Word(keda)', 'Word(seal)', 'Word(kohtasime)', 'Word(,)']
     ['Word(teretas)', 'Word(meid.)']
+
+The 'ignore_missing_commas' mode
+----------------------------------
+
+Because commas are important clause delimiters in Estonian, the quality of the clause segmentation may suffer due to accidentially missing commas in the input text. To address this issue, the clause segmenter can be initialized in a mode in which the program tries to be less sensitive to missing commas while detecting clause boundaries.
+
+Example::
+
+    from estnltk import Tokenizer, PyVabamorfAnalyzer, ClauseSegmenter
+    from pprint import pprint
+
+    tokenizer = Tokenizer()
+    analyzer = PyVabamorfAnalyzer()
+    segmenter = ClauseSegmenter( ignore_missing_commas=True )
+
+    text = 'Keegi teine ka siin ju kirjutas et ütles et saab ise asjadele järgi minna aga vastust seepeale ei tulnudki.'
+
+    segmented = segmenter(analyzer(tokenizer(text)))
+    
+    pprint(segmented.clauses)
+
+will produce following output::
+
+    ['Clause(Keegi teine ka siin ju kirjutas [clause_index=0])',
+     'Clause(et ütles [clause_index=1])',
+     'Clause(et saab ise asjadele järgi minna [clause_index=2])',
+     'Clause(aga vastust seepeale ei tulnudki. [clause_index=3])']
+
+
+Note that this mode is experimental and compared to the default mode, it may introduce additional incorrect clause boundaries, although it also improves clause boundary detection in texts with (a lot of) missing commas.

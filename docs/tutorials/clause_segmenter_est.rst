@@ -6,6 +6,9 @@ Lihtlause on lause, mis tüüpiliselt sisaldab ühte pöördelist verbivormi nin
 Loomuliku keele tekstides tuleb aga sageli ette ka keerukama struktuuriga *liitlauseid*, kus mitu väiksemat lauset (osalauset) on ühendatud üheks lauseks.
 Selliste lausete töötlemisele lisab keerukust veel asjaolu, et osalaused võivad olla sisestatud teiste lausete sisse, jagades need kiiluna kaheks osaks.
 
+Põhikasutus
+------------
+
 Osalausestaja võimaldab jagada liitlaused väiksemateks osadeks - osalauseteks ja kiiludeks - ning töödelda iga osa eraldiseisva tekstiüksusena. Enne teksti osalausestamist on tarvis see lausestada ja sõnestada (klassi :class:`estnltk.tokenize.Tokenizer` abil) ning sooritada tekstil morfoloogiline analüüs (klass :class:`estnltk.morf.PyVabamorfAnalyzer`) ja morfoloogiline ühestamine (kuigi osalausestaja töötab ka morfoloogiliselt mitmesel tekstil, võib analüüsi kvaliteet olla madalam kui ühestatud tekstil).
 
 Näide::
@@ -60,3 +63,32 @@ Järgnev näide demonstreerib, kuidas saada tekstist osalausete kaupa grupeeritu
     ['Word(Mees)', 'Word(oli)', 'Word(tuttav)', 'Word(ja)']
     ['Word(,)', 'Word(keda)', 'Word(seal)', 'Word(kohtasime)', 'Word(,)']
     ['Word(teretas)', 'Word(meid.)']
+
+Väiksem tundlikkus komavigade suhtes
+-------------------------------------
+
+Kuna eestikeelsete tekstide liigendamisel osalauseteks mängivad olulist rolli komad, halvendab komade puudumine osalausestamise kvaliteeti. Selle probleemi leevendamiseks on võimalik lähtestada osalausestaja režiimil, kus programm on osalausepiiride määramisel vähem tundlik puuduvate komade suhtes. Selleks kasutame lippu `ignore_missing_commas`.
+
+Näide::
+
+    from estnltk import Tokenizer, PyVabamorfAnalyzer, ClauseSegmenter
+    from pprint import pprint
+
+    tokenizer = Tokenizer()
+    analyzer = PyVabamorfAnalyzer()
+    segmenter = ClauseSegmenter( ignore_missing_commas=True )
+
+    text = 'Keegi teine ka siin ju kirjutas et ütles et saab ise asjadele järgi minna aga vastust seepeale ei tulnudki.'
+
+    segmented = segmenter(analyzer(tokenizer(text)))
+    
+    pprint(segmented.clauses)
+    
+annab järgmise väljundi::
+
+    ['Clause(Keegi teine ka siin ju kirjutas [clause_index=0])',
+     'Clause(et ütles [clause_index=1])',
+     'Clause(et saab ise asjadele järgi minna [clause_index=2])',
+     'Clause(aga vastust seepeale ei tulnudki. [clause_index=3])']
+     
+NB! Antud režiim on eksperimentaalne ning võib tekitada suuremal arvul ebakorrektseid osalausepiire kui tavarežiim, kuigi parandab osalausestamise kvaliteeti tekstides, kus on palju komavigu (st puuduvaid komasid);
