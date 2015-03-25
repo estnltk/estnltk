@@ -8,6 +8,7 @@ import os
 import re
 import math
 import codecs
+from collections import defaultdict
 
 try:
     from StringIO import StringIO
@@ -42,6 +43,10 @@ with codecs.open(_MAX_TAX_FILE,'rb', 'utf-8') as fin:
 
 SYNSETS_DICT = {} # global dictionary which stores initialized synsets
 LEMMAS_DICT = {}
+
+LEM_POS_2_SS_IDX = defaultdict(lambda: defaultdict(list)) # map lemma and pos to synset index
+
+LOADED_POS = set()
 
 def _get_synset_offsets(synset_idxes):
     """Returs pointer offset in the WordNet file for every synset index.
@@ -209,7 +214,7 @@ def synsets(lemma,pos=None):
 
     """
 
-    def _get_synset_idxes(lemma,pos):
+    def _get_synset_idxes(lemma,pos):       ###################################################################### TOODOOOOOOOOOOOOOOO this shit sorts - really shouldnt
         line_prefix_regexp = "%s:%s:(.*)"%(lemma,pos if pos else "\w+") 
         line_prefix = re.compile(line_prefix_regexp)
 
@@ -219,26 +224,42 @@ def synsets(lemma,pos=None):
             for line in fin:
                 result = line_prefix.match(line)
                 if result:
-                    idxes.extend([int(x) for x in result.group(1).split(' ')])				
+                    res_indices = [int(x) for x in result.group(1).split(' ')]
+                    idxes.extend(res_indices)
+                    LEM_POS_2_SS_IDX[lemma][pos].extend(res_indices)
         return sorted(idxes)
 
-    synset_idxes = _get_synset_idxes(lemma,pos)
+    synset_idxes = None
+
+    if lemma in LEM_POS_2_SS_IDX:
+        if pos in LEM_POS_2_SS_IDX[lemma]:
+            synset_idxes = LEM_POS_2_SS_IDX[lemma][pos]
+        else:
+            synset_idxes = [idx for pos in LEM_POS_2_SS_IDX[lemma] for idx in LEM_POS_2_SS_IDX[lemma][pos]]
+    if not synset_idxes:
+        synset_idxes = _get_synset_idxes(lemma,pos)
 
     if len(synset_idxes) == 0:
         return []
 
     stored_synsets = []
 
+    stored_synset_idxes = [i for i in range(len(synset_idxes)) if synset_idxes[i] in SYNSETS_DICT]
+    stored_synsets = [SYNSETS_DICT[synset_idxes[idx]] for idx in stored_synset_idxes]
+
+    stored_synset_idxes = set(stored_synset_idxes)
+    synset_idxes = [synset_idxes[i] for i in range(len(synset_idxes)) if i not in stored_synset_idxes]
+    """
     for i in range(len(synset_idxes)):
         try: # TODO: fix the indexerror
             if synset_idxes[i] in SYNSETS_DICT:
                 stored_synsets.append(SYNSETS_DICT[synset_idxes.pop(i)])
         except IndexError:
             print ('IndexError', i)
-
+    """
     synset_offsets = _get_synset_offsets(synset_idxes)
     synsets = _get_synsets(synset_offsets)
-
+    
     return stored_synsets + synsets
 
 def all_synsets(pos=None):
@@ -279,20 +300,29 @@ def all_synsets(pos=None):
         idxes.sort()
         return idxes
 
-    synset_idxes = _get_unique_synset_idxes(pos)
+    if pos in LOADED_POS:
+        return [SYNSETS_DICT[idx] for lemma in LEM_POS_2_SS_IDX for idx in LEM_POS_2_SS_IDX[lemma][pos]]
+    else:
+        synset_idxes = _get_unique_synset_idxes(pos)
 
-    if len(synset_idxes) == 0:
-        return []
+        if len(synset_idxes) == 0:
+            return []
 
-    stored_synsets = []
-    
-    for i in range(len(synset_idxes)):
-        if synset_idxes[i] in SYNSETS_DICT:
-            stored_synsets.append(SYNSETS_DICT[synset_idxes.pop(i)])
-    synset_offsets = _get_synset_offsets(synset_idxes)
-    synsets = _get_synsets(synset_offsets)
+        stored_synsets = []
+        
+        for i in range(len(synset_idxes)):
+            if synset_idxes[i] in SYNSETS_DICT:
+                stored_synsets.append(SYNSETS_DICT[synset_idxes.pop(i)])
+        synset_offsets = _get_synset_offsets(synset_idxes)
+        synsets = _get_synsets(synset_offsets)
 
-    return stored_synsets + synsets
+        for synset in synsets:
+            for variant in synset.get_variants():
+                LEM_POS_2_SS_IDX[variant.literal][synset.pos].append(synset.id)
+
+        LOADED_POS.add(pos)
+
+        return stored_synsets + synsets
 
 def lemma(lemma_key):
     """Returns the Lemma object with the given key.
@@ -738,7 +768,7 @@ class Synset:
         Lemmas/variants of the synset.
         
         """
-        return _raw_synset.variants
+        return self._raw_synset.variants
       
     def definition(self):
         """Returns the definition of the synset.
