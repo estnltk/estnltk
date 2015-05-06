@@ -768,27 +768,27 @@ public:
         return NULL;
     }
 
-    /**
-     *
+    /** 
+     * 
      * @param abs
      * @param suht
      * @param lipuMask
      * @param pIdx
-     * @return
+     * @return 
      */
      LYLI_TMPL<S_TYYP, C_TYYP> *LyliN(const int abs, const int suht,
             const LYLI_FLAGS_BASE_TYPE lipuMask = PRMS_SONA, int *pIdx = NULL)
     {
         assert(suht!=0);
         assert(lipuMask!=A2_SUVALINE_LYLI);
-
+     
         LYLI_TMPL<S_TYYP, C_TYYP> *pLyli;
         int samm = suht>0 ? 1 : -1; // vaatame järgmisi/eelmisi
         int n = suht*samm; //abs väärtus
         int indeks;
-
+        
         int cnt=0;
-        for(int pos=abs+samm; (pLyli=Lyli(pos, A2_SUVALINE_LYLI, &indeks))!=NULL;
+        for(int pos=abs+samm; (pLyli=Lyli(pos, A2_SUVALINE_LYLI, &indeks))!=NULL; 
                                                                 pos += samm)
         {
             if((pLyli->lipp & lipuMask)==lipuMask && ++cnt >= n)
@@ -799,11 +799,11 @@ public:
             }
         }
         if (pIdx)
-            *pIdx = -1;
+            *pIdx = -1;   
         return NULL;
-    }
-
-
+    }   
+    
+    
     /** Annab stringi kandvast lülist stringi algusviida */
     const C_TYYP *LyliInf0(const int n = 0,
                            const LYLI_FLAGS_BASE_TYPE lipuMask = PRMS_SONA, int *pIdx = NULL)
@@ -824,8 +824,8 @@ public:
     }
 
     /** Funktsioonimall etteantud tüüpi infoga lüli lisamiseks
-     *
-     * Malliparameeter T kuulub hulka {int, S_TYYP, TSTRID<S_TYYP>,
+     * 
+     * Malliparameeter T kuulub hulka {int, S_TYYP, TSTRID<S_TYYP>, 
      * MRFTULEMUSED_TMPL<S_TYYP, C_TYYP>}
      * @param[in] t -- Lülisse selle koopia
      * @param[in] _lipp_ -- Lüli lipud
@@ -846,7 +846,7 @@ public:
     }
 
     /** Lisab sappa lüli koopia
-     *
+     * 
      * @param lyli Selles koopia sappa
      */
     void LisaSappaKoopia(const LYLI_TMPL<S_TYYP, C_TYYP> &lyli)
@@ -861,9 +861,9 @@ public:
             TMPLPTRARRAY<LYLI_TMPL<S_TYYP, C_TYYP> >::Del(); // nässus, kustutame
             throw;
         }
-    }
-
-
+    }    
+    
+    
     /** Sõna ahelas sappa
      *
      * @param pStr
@@ -891,26 +891,26 @@ public:
         return
             ahelaLipp == 0;
     }
-
+    
     bool ClassInvariant(void) const
     {
         return
             TMPLPTRARRAY<LYLI_TMPL<S_TYYP, C_TYYP> >::ClassInvariant();
     }
-
+    
 private:
 
     void InitClassVariables(void)
     {
         ahelaLipp = 0;
         TMPLPTRARRAY<LYLI_TMPL<S_TYYP, C_TYYP> >::Start(0, 10);
-    }
-
+    }    
+    
     // Need kuulutame illegaalseteks-{{
 
     /// Illegaalne
 
-    /*AHEL2_TMPL(const AHEL2_TMPL&)
+    AHEL2_TMPL(const AHEL2_TMPL&)
     {
         assert(false);
     }
@@ -921,7 +921,7 @@ private:
     {
         assert(false);
         return *this;
-    }*/
+    }
     // }}-Need kuulutame illegaalseteks
 };
 

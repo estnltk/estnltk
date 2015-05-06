@@ -227,27 +227,28 @@ public:
         file = _file_;
         versioon = etMrfVersionString;
         msg = _constTxt_;
+        
         charMsgBuf = true;
         msgBuf.a[0] = '\0';
 
-        CFSAString msg;
+        CFSAString msgTmp;
         if(_nonConstTxt1_!=NULL)
-            msg += _nonConstTxt1_;
+            msgTmp += _nonConstTxt1_;
         if(_nonConstTxt2_!=NULL)
         {
-            if(msg.GetLength() > 0)
-                msg += " : ";
-            msg += _nonConstTxt2_;
+            if(msgTmp.GetLength() > 0)
+                msgTmp += " : ";
+            msgTmp += _nonConstTxt2_;
         }
-        int msgLen = (int) msg.GetLength();
-        if (msgLen > MSGBUFSIZE)
+        int msgTmpLen = (int) msgTmp.GetLength();
+        if (msgTmpLen > MSGBUFSIZE)
         {
-            memmove(msgBuf.a, (const char*)msg, MSGBUFSIZE * sizeof (char));
+            memmove(msgBuf.a, (const char*)msgTmp, MSGBUFSIZE * sizeof (char));
             FSStrCpy(msgBuf.a + MSGBUFSIZE, 4, "...");
         }
         else
-            FSStrCpy(msgBuf.a, MSGBUFSIZE + 4, (const char*)msg);
-        return errNo; 
+            FSStrCpy(msgBuf.a, MSGBUFSIZE + 4, (const char*)msgTmp);
+        return errNo;         
     }
     
     

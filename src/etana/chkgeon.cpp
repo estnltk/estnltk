@@ -18,6 +18,9 @@ int MORF0::chkgeon(MRFTULEMUSED *tul, FSXSTRING *sona, int *mitu)
     gsona = *sona;
     TaheHulgad::Puhasta(&gsona);
 
+    if (mrfFlags.ChkB(MF_V0TAKOKKU)==false) // ära võta sõnu üheks üksuseks kokku
+         return ALL_RIGHT;   // ... siis siin pole midagi teha; 04.2015
+        
  	if ( ( (dctLoend[5])[(FSxCHAR *)(const FSxCHAR *)gsona] ) == -1 )
          return ALL_RIGHT; // pole mitmesonal. geogr. nime 1. osa
     gsona += FSxSTR("=");

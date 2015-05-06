@@ -3,7 +3,7 @@
 
 #if defined (_WIN32_WCE) // MS eMbedded Visual C++ 3|4
 	#if !defined (WIN32CE)
-		#define WIN32CE
+		#define WIN32CE 
 	#endif
 	#if !defined (WIN32)
 		#define WIN32
@@ -45,7 +45,7 @@
 	#include <math.h>
 	#include <process.h>
 	#include <share.h>
-	#if defined (WINAPI_FAMILY)
+	#if defined (WINAPI_FAMILY) 
 		#if (WINAPI_FAMILY == WINAPI_FAMILY_APP)
 			#define WINRT
 		#endif
@@ -71,7 +71,7 @@
 	#include <wchar.h>
 	#include <dlfcn.h>
 #else
-    #error Only Win32(CE), Unix and Mac are currently supported.
+	#error Only Win32(CE), Unix and Mac are currently supported.
 #endif
 
 #if (_MSC_VER >= 1600) || defined (__GXX_EXPERIMENTAL_CXX0X__)

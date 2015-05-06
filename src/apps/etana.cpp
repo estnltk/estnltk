@@ -1,192 +1,135 @@
-#include "json.h"
-#include "etmrf.h"
-#include "proof.h"
+#include "../../lib/json.h"
+#include "../../../lib/proof/proof.h"
 
 class CSettings {
 public:
 	CSettings() {
 		m_bAnalyzeGuess=false;
-		m_bAnalyzePhon=false;
+		m_bAnalyzePhonetic=false;
+		m_bAnalyzeProperName=false;
 		m_bSpellSuggest=false;
 	}
 
 	CFSAString m_szCommand;
 
 	bool m_bAnalyzeGuess;
-	bool m_bAnalyzePhon;
+	bool m_bAnalyzePhonetic;
+	bool m_bAnalyzeProperName;
 
 	bool m_bSpellSuggest;
 };
 
-class CMyJSONReader : public CJSONReader, public CSuggestor {
+class CMyJSONReader : public CJSONReader {
 public:
-	CMyJSONReader(CFSStream &Stream, ETMRFA &Morf, const CSettings &Settings, CJSONWriter &Writer) : CJSONReader(Stream), m_Morf(Morf), m_Settings(Settings), m_Writer(Writer) { }
+	CMyJSONReader(CFSStream &Stream, CLinguistic &Linguistic, const CSettings &Settings, CJSONWriter &Writer) : CJSONReader(Stream), m_Linguistic(Linguistic), m_Settings(Settings), m_Writer(Writer) { }
 
 protected:
 	void OnValReadStart(const CFSAString &szKey) {
 		//printf("OnObjectReadStart(%s)\n", (const char *)szKey);
 		if (szKey.IsEmpty()) {
 			m_Writer.ObjectStart();
-			m_iCollectData--;
 		} else if (szKey=="/paragraphs") {
 			m_Writer.Key("paragraphs");
 			m_Writer.ArrayStart();
-		} else if (szKey.EndsWith("/sentences")) {
+			m_iCollectData--;
+		} else if (KeyMatch(szKey, "/paragraphs/%d")) {
 			m_Writer.ObjectStart();
+			m_iCollectData++;
+		} else if (KeyMatch(szKey, "/paragraphs/%d/sentences")) {
 			m_Writer.Key("sentences");
 			m_Writer.ArrayStart();
-		} else if (szKey.EndsWith("/words")) {
+			m_iCollectData--;
+		} else if (KeyMatch(szKey, "/paragraphs/%d/sentences/%d")) {
 			m_iCollectData++;
 		}
 	}
+
+	void SubKeys(const CFSAString szExcept, const CFSVar &Data) {
+		for (INTPTR ip=0; ip<Data.GetSize(); ip++) {
+			CFSAString szKey=Data.GetKey(ip);
+			if (szKey==szExcept) continue;
+			m_Writer.Key(szKey);
+			m_Writer.Val(Data[szKey]);
+		}
+	}
+
 	void OnValReadEnd(const CFSAString &szKey, CFSVar &Data) {
 		//printf("OnObjectReadEnd(%s, ...)\n", (const char *)szKey);
 		if (szKey.IsEmpty()) {
+			SubKeys("paragraphs", Data);
 			m_Writer.ObjectEnd();
+		} else if (szKey=="/paragraphs") {
+			m_Writer.ArrayEnd();
 			m_iCollectData++;
-		}  else if (szKey=="/paragraphs") {
-			m_Writer.ArrayEnd();
-		} else if (szKey.EndsWith("/sentences")) {
-			m_Writer.ArrayEnd();
+		} else if (KeyMatch(szKey, "/paragraphs/%d")) {
+			SubKeys("sentences", Data);
 			m_Writer.ObjectEnd();
-		} else if (szKey.EndsWith("/words")) {
-			m_Writer.ObjectStart();
+			m_iCollectData--;
+		} else if (KeyMatch(szKey, "/paragraphs/%d/sentences")) {
+			m_Writer.ArrayEnd();
+			m_iCollectData++;
+		} else if (KeyMatch(szKey, "/paragraphs/%d/sentences/%d")) {
+			if (Data.KeyExist("words")) {
+				CFSVar &Words=Data["words"];
 
-			if (m_Settings.m_szCommand=="spell") {
+				if (m_Settings.m_szCommand=="spell") {
 
-				m_Morf.SetFlags(MF_DFLT_SPL);
-				m_Morf.SetMaxTasand();
-				m_Morf.Clr();
-
-				for (INTPTR ip=0; ip<Data.GetSize(); ip++) {
-					CFSVar &Word=Data[ip];
-					CFSWString szText=Word["text"].GetWString();
-					m_Morf.Set1(szText);
-					m_Morf.Tag<int>((int)ip, PRMS_TAGSINT);
-				}
-
-				LYLI Lyli;
-				bool bSpelling=true;
-				while (m_Morf.Flush(Lyli)) {
-					if (Lyli.lipp & PRMS_TAGSINT){
-						INTPTR ipPos=Lyli.ptr.arv;
-						Data[ipPos]["spelling"]=bSpelling;
-					} else if (Lyli.lipp & PRMS_MRF) {
-						bSpelling=Lyli.ptr.pMrfAnal->on_tulem();
-					}
-				}
-
-				if (m_Settings.m_bSpellSuggest) {
-					for (INTPTR ip=0; ip<Data.GetSize(); ip++) {
-						if (!Data[ip]["spelling"].GetBool()) {
-							m_Morf.SetMaxTasand();
-							CFSVar Suggs;
-							Suggs.Cast(CFSVar::VAR_ARRAY);
-							Suggest(Data[ip]["text"].GetWString(), ip==0);
-							for (INTPTR ipSugg=0; ipSugg<GetSize(); ipSugg++) {
-								CFSWString szSugg;
-								GetItem(ipSugg, szSugg);
-								Suggs[ipSugg]=szSugg;
-							}
-							Data[ip]["suggestions"]=Suggs;
-						}
-					}
-				}
-
-			} else if (m_Settings.m_szCommand=="analyze") {
-
-				MRF_FLAGS_BASE_TYPE Flags=MF_DFLT_MORFA;
-				if (m_Settings.m_bAnalyzeGuess) Flags|=MF_OLETA;
-				if (m_Settings.m_bAnalyzePhon) Flags|=MF_KR6NKSA;
-				m_Morf.SetFlags(Flags);
-				m_Morf.SetMaxTasand();
-				m_Morf.Clr();
-
-				CFSArray<CFSVar> Words;
-				for (INTPTR ip=0; ip<Data.GetSize(); ip++) {
-					CFSVar &Word=Data[ip];
-					Words.AddItem(Word);
-					CFSWString szText=Word["text"].GetWString();
-					m_Morf.Set1(szText);
-					m_Morf.Tag<int>((int)ip, PRMS_TAGSINT);
-				}
-				Data.Cleanup();
-				Data.Cast(CFSVar::VAR_ARRAY);
-
-				LYLI Lyli;
-				CFSVar Analysis;
-				Analysis.Cast(CFSVar::VAR_ARRAY);
-				INTPTR ipLastPos=-1;
-				INTPTR ipDeleted=0;
-
-				while (m_Morf.Flush(Lyli)) {
-					if (Lyli.lipp & PRMS_TAGSINT){
-						INTPTR ipPos=-ipDeleted+Lyli.ptr.arv;
-						if (ipLastPos==-1) {
-							Words[ipPos]["analysis"]=Analysis;
-							ipLastPos=ipPos;
+					for (INTPTR ip=0; ip<Words.GetSize(); ip++) {
+						CFSVar &Word=Words[ip];
+						CPTWord PTWord=Word["text"].GetWString();
+						PTWord.RemoveHyphens();
+						PTWord.RemovePunctuation();
+						PTWord.Trim();
+						if (PTWord.m_szWord.IsEmpty() || m_Linguistic.SpellWord(PTWord.m_szWord)==SPL_NOERROR) {
+							Word["spelling"]=true;
 						} else {
-							Words[ipLastPos]["text"]=Words[ipLastPos]["text"].GetAString()+" "+Words[ipPos]["text"].GetAString();
-							Words.RemoveItem(ipPos);
-							ipDeleted++;
-						}
-					} else if (Lyli.lipp & PRMS_MRF) {
-						Analysis.Cleanup();
-						Analysis.Cast(CFSVar::VAR_ARRAY);
-						ipLastPos=-1;
-						Lyli.ptr.pMrfAnal->StrctKomadLahku();
-						for (INTPTR ipTul=0; ipTul<Lyli.ptr.pMrfAnal->idxLast; ipTul++){
-							MRFTUL Tul=*(*Lyli.ptr.pMrfAnal)[(int)ipTul];
-							CFSVar Analysis1;
-							Analysis1["root"]=Tul.tyvi;
-							Analysis1["ending"]=Tul.lopp;
-							Analysis1["clitic"]=Tul.kigi;
-							Analysis1["partofspeech"]=Tul.sl;
-							CFSWString szForm=Tul.vormid; szForm.TrimRight(L", ");
-							Analysis1["form"]=szForm;
-							Analysis[ipTul]=Analysis1;
+							Word["spelling"]=false;
+							if (m_Settings.m_bSpellSuggest) {
+								CFSWStringArray Suggestions=m_Linguistic.Suggest(PTWord.m_szWord);
+								CFSVar VarSuggestions;
+								VarSuggestions.Cast(CFSVar::VAR_ARRAY);
+								for (INTPTR ipRes=0; ipRes<Suggestions.GetSize(); ipRes++) {
+									VarSuggestions[ipRes]=Suggestions[ipRes];
+								}
+								Word["suggestions"]=VarSuggestions;
+							}
 						}
 					}
-				}
 
-				for (INTPTR ip=0; ip<Words.GetSize(); ip++) {
-					Data[ip]=Words[ip];
+				} else if (m_Settings.m_szCommand=="analyze") {
+
+					CFSArray<CPTWord> PTWords;
+					for (INTPTR ip=0; ip<Words.GetSize(); ip++) {
+						PTWords.AddItem(Words[ip]["text"].GetWString());
+					}
+					CFSArray<CMorphInfos> MorphResults=m_Linguistic.AnalyzeSentense(PTWords);
+					ASSERT(PTWords.GetSize()==MorphResults.GetSize());
+					for (INTPTR ip=0; ip<Words.GetSize(); ip++) {
+						const CFSArray<CMorphInfo> &Analysis=MorphResults[ip].m_MorphInfo;
+						CFSVar VarAnalysis;
+						VarAnalysis.Cast(CFSVar::VAR_ARRAY);
+						for (INTPTR ipRes=0; ipRes<Analysis.GetSize(); ipRes++) {
+							const CMorphInfo &Analysis1=Analysis[ipRes];
+							CFSVar VarAnalysis1;
+							VarAnalysis1["root"]=Analysis1.m_szRoot;
+							VarAnalysis1["ending"]=Analysis1.m_szEnding;
+							VarAnalysis1["clitic"]=Analysis1.m_szClitic;
+							VarAnalysis1["partofspeech"]=CFSWString(Analysis1.m_cPOS);
+							VarAnalysis1["form"]=Analysis1.m_szForm;
+							VarAnalysis[ipRes]=VarAnalysis1;
+						}
+						Words[ip]["analysis"]=VarAnalysis;
+					}
+
 				}
 			}
-
-			m_Writer.Key("words");
 			m_Writer.Val(Data);
-
-			m_Writer.ObjectEnd();
 			m_iCollectData--;
 		}
 	}
 
-	// Speller & suggestor callbacks
-	SPLRESULT SpellWord(const CFSWString &szWord, CFSWString &szWordReal, long *pLevel) {
-		m_Morf.Clr();
-		m_Morf.Set1(szWord);
-		LYLI Lyli;
-		if (!m_Morf.Flush(Lyli)) return SPL_NOERROR;
-		ASSERT((Lyli.lipp & PRMS_MRF) && Lyli.ptr.pMrfAnal);
-		if (!Lyli.ptr.pMrfAnal->on_tulem()) return SPL_INVALIDWORD;
-
-		if (pLevel) *pLevel=Lyli.ptr.pMrfAnal->tagasiTasand;
-
-		MRF_FLAGS Flags(MF_DFLT_SPL); FSXSTRING XString;
-		(*Lyli.ptr.pMrfAnal)[0]->Strct2Strng(&XString, &Flags);
-		szWordReal=XString;
-		szWordReal.Remove(FSWSTR('_'));
-		szWordReal.Trim();
-
-		return SPL_NOERROR;
-	}
-	void SetLevel(long lLevel) {
-		m_Morf.SetMaxTasand(lLevel);
-	}
-
 protected:
-	ETMRFA &m_Morf;
+	CLinguistic &m_Linguistic;
 	CSettings m_Settings;
 	CJSONWriter m_Writer;
 };
@@ -195,16 +138,18 @@ int PrintUsage() {
 	fprintf(stderr, "Use: etana command -options\n");
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Commands:\n");
-	fprintf(stderr, " analyze   -- morphological analysis\n");
-	fprintf(stderr, " spell     -- check spelling\n");
+	fprintf(stderr, " analyze     -- morphological analysis\n");
+	fprintf(stderr, " spell       -- check spelling\n");
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Options:\n");
-	fprintf(stderr, " -in file  -- read input from file, default input from stdin\n");
-	fprintf(stderr, " -out file -- write output to file, default output stdout\n");
-	fprintf(stderr, " -lex path -- path to lexicon files, default active directory\n");
-	fprintf(stderr, " -guess    -- guess forms for unknown words (analyze only)\n");
-	fprintf(stderr, " -phonetic -- add phonetic markup (analyze only)\n");
-	fprintf(stderr, " -suggest  -- suggest correct forms (spell only)\n");
+	fprintf(stderr, " -in file    -- read input from file, default input from stdin\n");
+	fprintf(stderr, " -out file   -- write output to file, default output to stdout\n");
+	fprintf(stderr, " -lex file   -- path to lexicon file, default et.dct\n");
+	fprintf(stderr, " -guess      -- guess forms for unknown words (analyze only)\n");
+	fprintf(stderr, " -phonetic   -- add phonetic markup (analyze only)\n");
+	fprintf(stderr, " -propername -- additional proper name analysis (analyze only)\n");
+	fprintf(stderr, " -suggest    -- suggest correct forms (spell only)\n");
+	fprintf(stderr, " -help       -- this screen\n");
 	fprintf(stderr, "\n");
 	return -1;
 }
@@ -226,11 +171,13 @@ int main(int argc, char* argv[])
 			return PrintUsage();
 		}
 
-		CFSAString InFileName, OutFileName, LexPath=".";
+		CFSAString InFileName, OutFileName, LexFileName="et.dct";
 		for (int i=2; i<argc; i++) {
-			if (CFSAString("-lex")==argv[i]) {
+			if (CFSAString("-help")==argv[i]) {
+				return PrintUsage();
+			} else if (CFSAString("-lex")==argv[i]) {
 				if (i+1<argc) {
-					LexPath=argv[++i];
+					LexFileName=argv[++i];
 				} else {
 					return PrintUsage();
 				}
@@ -249,7 +196,9 @@ int main(int argc, char* argv[])
 			} else if (CFSAString("-guess")==argv[i]) {
 				Settings.m_bAnalyzeGuess=true;
 			} else if (CFSAString("-phonetic")==argv[i]) {
-				Settings.m_bAnalyzePhon=true;
+				Settings.m_bAnalyzePhonetic=true;
+			} else if (CFSAString("-propername")==argv[i]) {
+				Settings.m_bAnalyzeProperName=true;
 			} else if (CFSAString("-suggest")==argv[i]) {
 				Settings.m_bSpellSuggest=true;
 			} else {
@@ -270,11 +219,16 @@ int main(int argc, char* argv[])
 			OutFile.Open(OutFileName, "wb");
 		}
 
-		ETMRFA Morf;
-		Morf.Start(LexPath, MF_DFLT_MORFA);
-
+		CLinguistic Linguistic;
+		Linguistic.Open(LexFileName);
+		if (Settings.m_szCommand=="analyze") {
+			Linguistic.m_bProperName=Settings.m_bAnalyzeProperName;
+			Linguistic.m_bGuess=(Settings.m_bAnalyzeGuess || Linguistic.m_bProperName);
+			if (Linguistic.m_bGuess) Linguistic.m_bAbbrevations=false;
+			Linguistic.m_bPhonetic=Settings.m_bAnalyzePhonetic;
+		}
 		CJSONWriter JSONWriter(OutFile);
-		CMyJSONReader JSONReader(InFile, Morf, Settings, JSONWriter);
+		CMyJSONReader JSONReader(InFile, Linguistic, Settings, JSONWriter);
 
 		// Run the loop
 		JSONReader.Read();

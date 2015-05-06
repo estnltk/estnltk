@@ -146,8 +146,8 @@ const MRF_FLAGS_BASE_TYPE MF_ALGV = 0x0000000000000001LL;
 const MRF_FLAGS_BASE_TYPE MF_LEMMA = 0x0000000000000002LL;
 /** 00.4 \a +c kinni kahekohalise lipu all */
 const MRF_FLAGS_BASE_TYPE MF_kinni004 = 0x0000000000000004LL;
-/** 00.8 \a +d lubab mitmesõnaliste liitsõnade osasõnu eraldi kasutada */
-const MRF_FLAGS_BASE_TYPE MF_LUBAMITMIKUO = 0x0000000000000008LL;
+/** 00.8 \a +d MF_LUBAMITMIKUO lubas mitmesõnaliste liitsõnade osasõnu eraldi kasutada; tegelikult alates 04.2015 seda kuskil ei kasutata */
+const MRF_FLAGS_BASE_TYPE MF_vaba008 = 0x0000000000000008LL;
 /** 01.1 \a +e lipukombinatsioon failinime laiendiks */
 const MRF_FLAGS_BASE_TYPE MF_LIPUD2EXT = 0x0000000000000010LL;
 /** 01.2 \a +f lubab mõnede tesauruses olevate sõnade nagu \a aukudega analüüsi iseseisvate lemmadena */
@@ -164,7 +164,7 @@ const MRF_FLAGS_BASE_TYPE MF_LISAPNANAL = 0x0000000000000200LL;
 const MRF_FLAGS_BASE_TYPE MF_KR6NKSA = 0x0000000000000400LL;
 /** 02.8 \a +l range lühendikontroll, muidu liberaalne */
 const MRF_FLAGS_BASE_TYPE MF_LYHREZH = 0x0000000000000800LL;
-/** 03.1 \a -m analüüs -- ??? MIS SEE VEEL ON ??? */
+/** 03.1 \a -m analüüs (mitte süntees)  */
 const MRF_FLAGS_BASE_TYPE MF_MRF = 0x0000000000001000LL;
 /** 03.2 \a +n range nimekontroll, muidu liberaalne */
 const MRF_FLAGS_BASE_TYPE MF_NIMEREZH = 0x0000000000002000LL;
@@ -182,8 +182,8 @@ const MRF_FLAGS_BASE_TYPE MF_SPELL = 0x0000000000040000LL;
 const MRF_FLAGS_BASE_TYPE MF_EILUBATABU = 0x0000000000080000LL;
 /** 05.1 \a +u ei tuleta liitsõnu; ainult need, mis sõnastikus (ka liitsõnad) */
 const MRF_FLAGS_BASE_TYPE MF_EITULETALIIT = 0x0000000000100000LL;
-/** 05.2 \a +v VABA */
-const MRF_FLAGS_BASE_TYPE MF_vaba052 = 0x0000000000200000LL;
+/** 05.2 \a +v võta Sri Lanka kokku */
+const MRF_FLAGS_BASE_TYPE MF_V0TAKOKKU = 0x0000000000200000LL;
 /** 05.4 \a +w keelab rooma numbrite analüüsi */
 const MRF_FLAGS_BASE_TYPE MF_ARAROOMA = 0x0000000000400000LL;
 /**  05.8 \a +x loeb e-maili ja veebiaadresside sarnased stringid õigeteks (sõnaliigiks "Y" e. lühend) */
@@ -238,38 +238,45 @@ const MRF_FLAGS_BASE_TYPE T3_vaba112 = 0x0000200000000000LL;
 //======tüüpilised kombinatsioonid
 /** \a -M bitikombinatsioon (-ilapm) standardseks
  *        morf analüüsiks ilma tundmatute sõnade oletamiseta */
-
 const MRF_FLAGS_BASE_TYPE MF_DFLT_MORFA = MF_MRF | MF_ALGV | MF_POOLITA |
-                                MF_PIKADVALED | MF_LYHREZH | MF_VEEBIAADRESS;
+                                MF_PIKADVALED | MF_LYHREZH | MF_VEEBIAADRESS |
+                                MF_YHELE_REALE | MF_V0TAKOKKU;
 /** \a -O või \a -MO bitikombinatsioon (-oapm) standardseks
  *                morf analüüsiks koos tundmatute sõnade oletamisega */
 const MRF_FLAGS_BASE_TYPE MF_DFLT_OLETA = MF_MRF | MF_ALGV | MF_POOLITA |
-                                                    MF_OLETA | MF_VEEBIAADRESS;
-/** \a -Y bitikombinatsioon standardseks morf analüüsiks koos ühestamisega */
+                    MF_OLETA | MF_VEEBIAADRESS | MF_YHELE_REALE | MF_V0TAKOKKU;
+
+#if defined(ETANA)
+/** \a -Y bitikombinatsioon standardseks morf analüüsiks hilisemaks ühestamiseks sobilikul moel */
 const MRF_FLAGS_BASE_TYPE MF_DFLT_MORFY = MF_YHESTA | MF_DFLT_OLETA | 
-                                    MF_LISAPNANAL|MF_YHELE_REALE|MF_KOMA_LAHKU;
+                    MF_LISAPNANAL|MF_YHELE_REALE|MF_KOMA_LAHKU | MF_V0TAKOKKU;
+#else
+/** \a -Y bitikombinatsioon standardseks morfitud sisendi ühestamiseks */
+const MRF_FLAGS_BASE_TYPE MF_DFLT_MORFY = MF_YHESTA | 
+                                                MF_YHELE_REALE|MF_KOMA_LAHKU;
+#endif
 /** \a -G bitikombinatsioon standardseks sünteesiks mitte-tesaurusele */
-const MRF_FLAGS_BASE_TYPE MF_DFLT_GEN = MF_GENE;
+const MRF_FLAGS_BASE_TYPE MF_DFLT_GEN = MF_GENE | MF_V0TAKOKKU;
 /** \a -GO bitikombinatsioon standardseks sünteesiks mitte-tesaurusele koos oletamisega */
-const MRF_FLAGS_BASE_TYPE MF_DFLT_GENOLE = MF_GENE | MF_OLETA;
+const MRF_FLAGS_BASE_TYPE MF_DFLT_GENOLE = MF_GENE | MF_OLETA | MF_V0TAKOKKU;
 /** \a -GT bitikombinatsioon standardseks sünteesiks tesaurusele */
 const MRF_FLAGS_BASE_TYPE MF_DFLT_GENTES = MF_GENE | MF_EITULETALIIT |
-                                                                MF_LUBATESA;
+                                                        MF_LUBATESA | MF_V0TAKOKKU;
 /** \a -L bitikombinatsioon standardseks lemmatiseerimiseks ilma tundmatute sõnade oletamiseta */
 const MRF_FLAGS_BASE_TYPE MF_DFLT_LEM = MF_LEMMA | MF_DFLT_MORFA;
 /** \a -LO bitikombinatsioon standardseks lemmatiseerimiseks koos tundmatute sõnade oletamisega */
 const MRF_FLAGS_BASE_TYPE MF_DFLT_LEMOLE = MF_LEMMA | MF_DFLT_OLETA;
 /** \a -Q bitikombinatsioon standardseks oletajata morf analüüsiks, lisab rõhu, välte jms märgid */
 const MRF_FLAGS_BASE_TYPE MF_DFLT_KR6NKSA = MF_MRF | MF_PIKADVALED | 
-                        MF_POOLITA | MF_KR6NKSA | MF_LYHREZH | MF_VEEBIAADRESS;
-/** \a -QO bitikombinatsioon standardseks oletajaga morf analüüsiks, lisab rühu, välte jms märgid */
+        MF_POOLITA | MF_KR6NKSA | MF_LYHREZH | MF_VEEBIAADRESS | MF_V0TAKOKKU;
+/** \a -QO bitikombinatsioon standardseks oletajaga morf analüüsiks, lisab rõhu, välte jms märgid */
 const MRF_FLAGS_BASE_TYPE MF_DFLT_OLETAKS = MF_MRF | MF_PIKADVALED | 
-                        MF_POOLITA | MF_KR6NKSA | MF_OLETA | MF_VEEBIAADRESS;
+        MF_POOLITA | MF_KR6NKSA | MF_OLETA | MF_VEEBIAADRESS | MF_V0TAKOKKU;
 
 const MRF_FLAGS_BASE_TYPE MF_DFLT_SPL = MF_PIKADVALED | MF_SPELL | MF_NIMEREZH |
                         MF_LYHREZH | MF_POOLITA | MF_LUBATESA | MF_VEEBIAADRESS;
 const MRF_FLAGS_BASE_TYPE MF_DFLT_HYP = MF_PIKADVALED | MF_SPELL | MF_NIMEREZH | 
-                        MF_LYHREZH | MF_POOLITA | MF_LUBATESA | MF_LUBAMITMIKUO;
+                        MF_LYHREZH | MF_POOLITA | MF_LUBATESA ;
 const MRF_FLAGS_BASE_TYPE MF_DFLT_SUG = MF_PIKADVALED | MF_SPELL | MF_NIMEREZH | 
             MF_LYHREZH | MF_POOLITA | MF_LUBATESA | MF_ARAROOMA | MF_EILUBATABU;
 
@@ -278,24 +285,32 @@ const MRF_FLAGS_BASE_TYPE MF_DFLT_THES = MF_PIKADVALED | MF_ALGV | MF_LEMMA;
 
 /** morf analüüsi jaoks legaalsed bitid */
 const MRF_FLAGS_BASE_TYPE MF_MRF_OKFLAGS =
-    //MF_GENE |
-    MF_ALGV | MF_LEMMA | MF_LUBAMITMIKUO | MF_LIPUD2EXT | MF_LUBATESA | 
-    MF_PIKADVALED | MF_LISAPNANAL | MF_KR6NKSA | MF_LYHREZH | MF_MRF | MF_NIMEREZH |
-    MF_OLETA | MF_POOLITA | MF_YHMRG | MF_SPELL | MF_EILUBATABU | MF_EITULETALIIT | MF_ARAROOMA | MF_VEEBIAADRESS |
+    MF_MRF | MF_YHESTA | MF_OLETA | 
+    MF_ALGV | MF_LEMMA | MF_LIPUD2EXT | MF_LUBATESA | 
+    MF_PIKADVALED | MF_LISAPNANAL | MF_KR6NKSA | MF_LYHREZH | MF_NIMEREZH |
+    MF_POOLITA | MF_YHMRG | MF_SPELL | MF_EILUBATABU | MF_EITULETALIIT | MF_ARAROOMA | MF_VEEBIAADRESS |
     MF_YHELE_REALE | MF_IGNORAMP | MF_IGNOREBLK | MF_IGNORETAG |
-    MF_BOM | MF_AUTOSGML | MF_XML | MF_KOMA_LAHKU;
+    MF_BOM | MF_AUTOSGML | MF_XML | MF_KOMA_LAHKU | MF_V0TAKOKKU;
 
+// Sünteesiga korral kasutatakse käsurealt saadud lipukmbinatsiooni 
+// morfanalüsaatori väljakutsumisel lippude põhjana, 
+// millele lisatakse teatavaid lippe 
+// ja millest eemaldatakse teatavaid lippe.
 /** morf sünteesi jaoks legaalsed bitid */
 const MRF_FLAGS_BASE_TYPE MF_GEN_OKFLAGS =
-    //MF_MRF |
-    MF_ALGV | MF_LEMMA | MF_LUBAMITMIKUO | MF_LIPUD2EXT | MF_LUBATESA | MF_GENE |
-    MF_PIKADVALED | MF_LYHREZH | MF_NIMEREZH | MF_KR6NKSA |
-    MF_OLETA | MF_POOLITA | MF_SPELL | MF_EILUBATABU | MF_EITULETALIIT | MF_ARAROOMA | MF_VEEBIAADRESS |
-    MF_YHELE_REALE | MF_IGNORAMP | MF_IGNOREBLK | MF_IGNORETAG |
-    MF_BOM | MF_AUTOSGML | MF_XML | MF_KOMA_LAHKU;
+    MF_GENE | MF_OLETA | MF_KR6NKSA | MF_YHELE_REALE | 
+    MF_ALGV | MF_LEMMA | MF_LIPUD2EXT | MF_LUBATESA | 
+    MF_PIKADVALED | MF_LYHREZH | MF_NIMEREZH | 
+    MF_POOLITA | MF_SPELL | MF_EILUBATABU | MF_EITULETALIIT | MF_ARAROOMA | MF_VEEBIAADRESS |
+    MF_IGNORAMP | MF_IGNOREBLK | MF_IGNORETAG |
+    MF_BOM | MF_AUTOSGML | MF_XML | MF_KOMA_LAHKU | MF_V0TAKOKKU;
 
 /** t3-ühestaja jaoks legaalsed bitid */
-const MRF_FLAGS_BASE_TYPE MF_YHS_OKFLAGS = MF_MRF_OKFLAGS | MF_YHESTA | T3_MK_KASUTU | T3_LEXPKASUTU;
+const MRF_FLAGS_BASE_TYPE MF_YHS_OKFLAGS = MF_YHESTA | MF_YHELE_REALE | 
+        MF_KOMA_LAHKU | MF_IGNOREBLK | MF_XML | T3_MK_KASUTU | T3_LEXPKASUTU;
+
+const MRF_FLAGS_BASE_TYPE LYHVALIK = MF_YHELE_REALE|MF_IGNOREBLK|MF_XML;
+
 
 /** Klass morf analüsaatori ja süntesaatori lippude käitlemiseks */
 class MRF_FLAGS

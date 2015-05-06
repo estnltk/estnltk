@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
 	FSUNUSED(argv);
 
 	try {
-		openmorf::speller spl(FSTSTR("et.dct"));
+		vabamorf::speller spl(FSTSTR("et.dct"));
 
 		for (size_t i = 0; words[i]; i++) {
 			std::wcout << words[i] << L" -- ";
@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 			}
 		}
 
-	} catch (const openmorf::exception &) {
+	} catch (const vabamorf::exception &) {
 		std::wcerr << L"Viga!\n";
 	}
 	return 0;

@@ -11,11 +11,11 @@
 #include "post-fsc.h"
 #include "fsxstring.h"
 
-#define KOIK_LIIGID FSxSTR("ABCDFGHIJKMNOPSUVWXYZ")     ///< v�imalikud s�naliigid
+#define KOIK_LIIGID FSxSTR("ABCDFGHIJKNOPSUVWXYZ")     ///< v�imalikud s�naliigid
 
-#define MITTE_VERB  FSxSTR("ABCDFGHIJKMNOPSUWXYZ")      ///< v�imalikud s�naliigid, v.a. tegusona
+#define MITTE_VERB  FSxSTR("ABCDFGHIJKNOPSUWXYZ")      ///< v�imalikud s�naliigid, v.a. tegusona
 
-#define KI_LIIGID   FSxSTR("kABCDFGHIJKMNOPSUVWXYZ")    ///< == KOIK_LIIGID + k ki-liite ad hoc variantide piiramiseks
+#define KI_LIIGID   FSxSTR("kABCDFGHIJKNOPSUVWXYZ")    ///< == KOIK_LIIGID + k ki-liite ad hoc variantide piiramiseks
 
 #define LIIK_VERB  FSxSTR("V")                          ///< s�naliik tegusona
 
@@ -29,7 +29,7 @@
 
 #define LIIK_KAANDSONA  FSxSTR("ABCGHNOPSU")            ///< ainult k��ndsonad
 
-#define LIIK_KAAND1     FSxSTR("ABCDGHJKMNOPSUXY")      ///< LIIK_KAANDSONA + muutumatud, v.a. h��ds�nad I
+#define LIIK_KAAND1     FSxSTR("ABCDGHJKNOPSUXY")      ///< LIIK_KAANDSONA + muutumatud, v.a. h��ds�nad I
 
 #define TYLP_LIIK1  FSxSTR("ABCDGHIJKNOPSUWXYZ")        ///< gene jaoks - noomen, mis v�ib olla sg n
 
@@ -50,7 +50,7 @@
 
 #define TABU_SL      (FSxCHAR)'t'                       ///< tabus�na (perse) tunnus
 
-#define SPELL_SL     (FSxCHAR)'s'                       ///< aint spelleris lubatava s�na (Aires) tunnus 
+#define SPELL_SL     (FSxCHAR)'s'                       ///< mitmesõnalise nime viimase osa (Aires) tunnus (varem aint spelleris lubatud, 2015 alati lubatud) 
 
 #define TESA_SL      (FSxCHAR)'e'                       ///< aint tesauruses lubatava s�na (aukudega) tunnus 
 

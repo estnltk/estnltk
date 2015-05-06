@@ -588,9 +588,12 @@ bool ETMRFAS::GeneTLDetailne(
     for(i=0; i < rec->n; i++) // vt selle sõna kõiki tüvesid
         {
         FSXSTRING tyvi= gTyvi->Left(muutumatu) + rec->mkt1c[i].tyMuut;
+        FSXSTRING tyvi_leksikonis=tyvi;
         int slTabIdx;
         int sliike;
-	if (cXXfirst(&tyvi, &slTabIdx)!=ALL_RIGHT)
+        if (tyvi_leksikonis.Find(FSxSTR(" "))!=-1)
+            tyvi_leksikonis.Replace(FSxSTR(" "), FSxSTR("="), 1);
+	if (cXXfirst(&tyvi_leksikonis, &slTabIdx)!=ALL_RIGHT)
 	    {
 	    return NULL;
 	    }

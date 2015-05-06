@@ -1,0 +1,10 @@
+Kasutamine
+----------
+etdisamb käivitamine -help parameetriga kuvab käsureaparameetrid koos seletusega.
+
+Sisendfail = etana väljundfail (vt etana readme faili)
+Väljundfail = sana fail vähendatud analüüsidega
+
+Parimaks tulemuseks soovitame kasutada faili, mis on saadud käivitades
+etana analyze -propername -guess
+parameetritega.

@@ -18,57 +18,64 @@
 #include "tmk2tx.h"
 
 // {{-bsearch.h-st
-               
-typedef struct  // kettal on 1bait + (1bait + 1bait)
+
+typedef struct
     {
-    unsigned char len;
-    unsigned char s_nihe[2];
-    } TABLE_DCT;
+    unsigned char len; /** tyve pikkus baitides  */
+    unsigned char s_nihe[2]; /** tyve algus massivis stm_buf */
+    } TABLE_DCT; /** Kahendabeli elment kettal: 1bait + (1bait + 1bait */
     
 
 //typedef _int16 TYVE_NIHE;
-typedef struct  // kahendtabeli element op m�lus
+typedef struct
 	{
-	int len;	 // tyve pikkus baitides
-	int s_nihe;  // tyve algus massivis	stm_buf
-	} TABLE;
+	int len;	 /** tyve pikkus baitides  */
+	int s_nihe;  /** tyve algus massivis stm_buf */
+	} TABLE; /**  kahendtabeli element op mälus */
 
 typedef struct
 	{
-	FSxCHAR  *v6tmed;   // Viit v�tmete puhvrile
-	unsigned vbSuurus;  // V�tmete puhvri suurus baitides
-	TABLE    *kTabel;   // Viit kahendtabelile
-	int      ktSuurus;  // Kahendabeli pikkus
-	} BTABLE;
+	FSxCHAR  *v6tmed;   /** Viit võtmete puhvrile */
+	unsigned vbSuurus;  /** Võtmete puhvri suurus baitides */
+	TABLE    *kTabel;   /** Viit kahendtabelile */
+	int      ktSuurus;  /** Kahendabeli pikkus */
+	} BTABLE; /** cooperdatud blokkide algustüvede kahendabel op mälus */
 // }}-bsearch.h-st
 
 
 //*** -----------------------------------------------------------
 //*** Siin tulevad p6his6nastiku kokku/lahtipakkimiseks vajalikud
-//*** konstandid, andmestrukuurid, v@lismuutujad, funktsid
+//*** konstandid, andmestrukuurid, välismuutujad, funktsid
 //***
 //
-// Sellisest failist on see v�rk tehtud
+// Sellisest failist on see värk tehtud
 //
 //ala#s+0-0_0 103=0,160,255,0
 //alune#s+d-0_0 27=0,0,449,255,0
   
 
-//#define DFLT_BUF_SIZE 256       // 256 S6nastikubloki suurus vaikimisi. 
-#define DFLT_BUF_SIZE   512       // 512 S6nastikubloki suurus vaikimisi. 
+/** S6nastikubloki suurus vaikimisi */
+#define DFLT_BUF_SIZE   512 
 
 #define NULL_LIIKI   (SONALIIKE-1) // vt kommentaari 'ini_mrf.h' failis
+
 #if defined( FSCHAR_ASCII )
     #define EofB          '\377'    // '\xFF'
 #elif defined( FSCHAR_UNICODE )     // kasutame UNICODE kooditabelit
     #define EofB          0xFFFF    // 0xFFFF
 #else
-    #error defineeri kas FSCHAR_ASCII v�i FSCHAR_UNICODE
+    #error defineeri kas FSCHAR_ASCII või FSCHAR_UNICODE
 #endif
 
-#define POLNUD     -1  // genes tuleb selle asemele panna POLE_YLDSE v�i POLE_SEDA
-#define POLE_YLDSE -2  // stringi x polnud ja stringi xy pole ka kindlasti
-#define POLE_SEDA  -1  // stringi x polnud, aga string xy v�ib olla
+/** genes tuleb selle asemele panna POLE_YLDSE või POLE_SEDA */    
+#define POLNUD     -1
+
+/** stringi x polnud ja stringi xy pole ka kindlasti */    
+#define POLE_YLDSE -2
+
+/** stringi x polnud, aga string xy võib olla */
+#define POLE_SEDA  -1
+
 #define V0RDLE      0
 
 class PREFIKS
@@ -169,21 +176,23 @@ typedef struct
     } ENDOFBLK;
 
 
-// info, mis on vajalik suf sobivuse kontr-ks
+// 
 typedef struct
 	 {
-	 char taandlp;  // sufiksi taandl"pp 
-	 char tsl;      // s"naliik, millele suf v"ib liituda (indeks massiivis)
-	 char ssl;      // sufiksi s"naliigi indeks; sõnaliikide string ise on sonaliik[sufix[i].ssl] 
-	 char tylp;     // n"utav tyvel"pp (indeks massiivis) 
-	 char mitutht;  // mitu ta"hte sufiksi lopust kuulub tegelikult tyvele 
-    TYVE_INF suftyinf[SUF_LGCNT];  /* HJK 19.12.01 palakro'nksunduse jaoks */
-    // kuna SUFINFO *sufix; siis (sonaliik[sufix[i].ssl])->GetLength() == sufix[i].suftyinf massiivi tegelik pikkus
-    } SUFINFO;      
+	 char taandlp;  /** sufiksi taandlõpp */ 
+	 char tsl;      /** sõnaliik, millele suf võib liituda (indeks massiivis) */
+	 char ssl;      /** sufiksi sõnaliigi indeks; sõnaliikide string ise on sonaliik[sufix[i].ssl] */ 
+	 char tylp;     /** nõutav tyvelõpp (indeks massiivis) */
+	 char mitutht;  /** mitu tähte sufiksi lopust kuulub tegelikult tyvele */ 
+    TYVE_INF suftyinf[SUF_LGCNT];  /** HJK 19.12.01 palakro'nksunduse jaoks @n
+            kuna SUFINFO *sufix; 
+            siis (sonaliik[sufix[i].ssl])->GetLength() == sufix[i].suftyinf 
+            massiivi tegelik pikkus */
+    } SUFINFO; /** info, mis on vajalik suf sobivuse kontr-ks */  
  
-//**** suffiksite v�rgi l�pp 
+//**** suffiksite värgi lõpp 
 
-// tyveinfo suurus m"alus 
+// tyveinfo suurus mälus 
 //
 #define  SizeOfLg2(nlg)   (nlg * sizeof(TYVE_INF)) 
 #define  SizeOfEndOfBlk	  sizeof(ENDOFBLK) 
@@ -209,11 +218,9 @@ class cTYVEDETABEL
     protected:
         cTYVEDETABEL(void)
             {
-//            DBSTDERR1("cTYVEDETABEL-0");
             tmp1=NULL;
             ps.v6tmed=NULL;
             ps.kTabel=NULL;
-//            DBSTDERR1("cTYVEDETABEL-1");
             };
 
         ~cTYVEDETABEL(void)
@@ -240,15 +247,12 @@ class cTYVEDETABEL
         unsigned char* tmp1;
     };
 
-// failis S�nastik/readloe.cpp
+// failis Sõnastik/readloe.cpp
 //
 class HJK_LOEND : public LOEND<FSxCHAR *,FSxCHAR *>
     {
     public:
-        /// Argumentideta konstruktor
-        //
-        /// See konstruktor
-        /// �nnestub alati.
+
         HJK_LOEND(void);
 
         /// Initsialiseerib klassi
@@ -266,23 +270,25 @@ class HJK_LOEND : public LOEND<FSxCHAR *,FSxCHAR *>
         /// @n - TODO::uhh mikngi kamarajura, uuri mis toimub
         /// @throw VEAD,
         /// CFSFileException, CFSMemoryException, CFSRuntimeException
-        void Start(
-            const CMPFUNBS  _cmpbs_,
-                ///< v�rdleb(v�ti,  kirje)
-                ///<
-            const int _len_,
-                ///< Kui @a _ptr_==NULL 
-                ///< @n siis on @a _xstrArr_ pikkus @n
-                ///< Kui @a _ptr_!=NULL 
-                ///< @n siis on @a _ptr_massiivi pikkus BAITIDES
-            FSxCHAR *_xstrArr_,  
-                ///< Kui @a _ptr_==NULL siis @a _xstrArr_ seal on @a _len_/dctsizeofFSxCHAR
-                ///< t�hte, iga�ks dctsizeofFSxCHAR baiti pikk. Edasi reserveeritakse
-                ///< @a sizeof(FSxCHAR)*_len_/dctsizeofFSxCHAR baiti m�lu, sinna teisendatakse
-                ///< esialgsest puhvrist dctsizeofFSxCHAR baidised (tegelikult 2baidised) 
-                ///< t�hed ja esialgne puver vabastatakse.
-            FSxCHAR **_ptr_=NULL
-            );
+        
+        /**
+         * 
+         * @param _cmpbs_ - võrdleb(võti,  kirje)
+         * @param _len_ - 
+         *     <ul><li> _xstrArr_ pikkus kui a _ptr_==NULL
+         *         <li> _ptr_massiivi pikkus BAITIDES kui  _ptr_!=NULL 
+         *     </ul>
+         * @param _xstrArr_
+         *       @n Kui _ptr_==NULL siis on seal on _len_/dctsizeofFSxCHAR
+         *       tähte, igaüks dctsizeofFSxCHAR baiti pikk. 
+         *       Edasi reserveeritakse sizeof(FSxCHAR)*_len_/dctsizeofFSxCHAR 
+         *       baiti mälu, sinna teisendatakse esialgsest puhvrist 
+         *       dctsizeofFSxCHAR baidised (tegelikult 2baidised) 
+         *       tähed ja esialgne puver vabastatakse.
+         * @param _ptr_
+         */
+        void Start(const CMPFUNBS  _cmpbs_, const int _len_, FSxCHAR *_xstrArr_,
+                                                        FSxCHAR **_ptr_=NULL);
             
         ~HJK_LOEND(void);
 
@@ -410,8 +416,8 @@ class FSXSTRARR
                 xstrArr=new FSXSTRING[len]; // stringide massiiv
                 for(i=0; i < len; i++)
                     {
-                    // See kirjutab stringile t�hthaaval juurde
-                    // ja v�ib seega throw()'ga vea tagasi anda.
+                    // See kirjutab stringile tähthaaval juurde
+                    // ja võib seega throw()'ga vea tagasi anda.
                     STRSOUP::FixStrByteOrder(xstrArr[i],tmpXptr + (i*nVeergu*dctsizeofFSxCHAR));
                     //STRSOUP::FixStrByteOrder(xstrArr+i,tmpXptr + (i*nVeergu*dctsizeofFSxCHAR));
                     assert( xstrArr[i].GetLength() < nVeergu );
@@ -480,7 +486,7 @@ class FSXSTRARR
 
 extern "C" int FSxvrdle(const void *ee1, const void *ee2 );// vajalik loenditest 2ndotsimiseks
 
-/// S�nastikuga tegelev klass
+/// Sõnastikuga tegelev klass
 class DCTRD:
     public cFILEINFO,
     public cTYVEDETABEL, 
@@ -490,9 +496,7 @@ class DCTRD:
     public:
         DCTRD(void)
             {
-//DBSTDERR1("DCTRD0");
             NulliViidad();
-//DBSTDERR1("DCTRD1");
             }
 
         bool EmptyClassInvariant(void)
@@ -515,12 +519,12 @@ class DCTRD:
                 ;
             }
 
-        /// Avab p�his�nastiku ja loeb sealt loendid jms sisse
-        //
-        /// @throw VEAD,
-        /// CFSFileException, CFSMemoryException, CFSRuntimeException
-        void Open(
-            const CFSFileName *pS6n);
+
+        /** Avab phisõnastiku ja loeb sealt loendid jms sisse
+         * 
+         * @param pS6n
+         */
+        void Open(const CFSFileName *pS6n);
 
         void Close(void);
 
@@ -529,17 +533,24 @@ class DCTRD:
             Close();    
             };
 
-        /// Otsi t�ve
+        /// 
         //
         /// @return
         /// - @a ==NULL �heski l�pugrupis polnud vajalikke vorme
         /// - @a !=NULL Leidis
-        bool OtsiTyvi(
-	        const AVTIDX *idx,
-            const int lopp,
-            const int vorm,
-            FSXSTRING *tyvi
-            );
+        /** Otsi tüve
+         * 
+         * @param idx
+         * @param lopp
+         * @param vorm
+         * @param tyvi
+         * @return 
+         * <ul><li> ==NULL - üheski lõpugrupis polnud vajalikke vorme
+         *     <li> !=NULL - leidis
+         * </ul>
+         */
+        bool OtsiTyvi(const AVTIDX *idx,const int lopp,const int vorm,
+                                                            FSXSTRING *tyvi);
 
         SONALIIGID sonaliik;    ///< s�naliikude massiiv
         MKTAc tyveMuutused;        
@@ -648,13 +659,27 @@ class DCTRD:
 //*** tekitamiseks ja ei millekski muuks.
 
 void cXXinit3(FILE_INFO &file_info);
-bool cXXget2(               // ==true: j�rjekordne rida hakitud; ==false: fail otsas v�i viga
-    CPFSFile &p6hisS6nTxt,  // seda cooperdame 
-    CFSbaseSTRING *tyvi2,   // j�rjekorden t�vi
-    int *tabidx,            // indeks
-    int *hhhidx,
-    TYVE_INF *lg,           // t�veinf
-    int *lgcnt);            // t�idetud struktuuride arv t�veinfis
+
+/**
+ * 
+ * Sisendread on midagi sellist: @n
+ * Adelaide 99=0,361,255,0 2,361,208,0 @n
+ * Adelaidei 98=1,361,208,0 @n
+ * 
+ * @param p6hisS6nTxt - selles failis on sõnastik, mida hakkame cooper'dama
+ * @param tyvi2 - järjekordne tüvi
+ * @param tabidx - sõnaliikide tabeli indeks
+ * @param hhhidx - liitsõnapiiri tabeli indeks
+ * @param lg - tüvega seotud info massiiiv
+ * @param lgcnt - elementide arv massiivis lg
+ * @return 
+ * <ul><li> ==true - järjekordne rida hakitud
+ *     <li> ==false - sisend otsas või mingi jama
+ * </ul>
+ */
+bool cXXget2(CPFSFile &p6hisS6nTxt, CFSbaseSTRING *tyvi2, 
+                        int *tabidx, int *hhhidx, TYVE_INF *lg, int *lgcnt);
+
 void cXXpack2(void);
 void cXXtest(void);
 void cXXkontr(void);

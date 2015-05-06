@@ -44,6 +44,8 @@
 
  typedef struct
 	 {
+     // 2 baidine täisarv on lõõdud 2ks baidiks, et asi ei sõltuks
+     // protsessori baidijärjest
 	 unsigned char  gr_algus; /* 'viit' lgr lõppude jadale gr[]-s; suurem bait */
 	 unsigned char  gr_lopp; /* 'viit' lgr lõppude jadale gr[]-s; vaiksem bait */
 	 char cnt;      /* selle jada pikkus */
@@ -86,7 +88,7 @@ typedef struct
 	{
 	char sl;        /* sõnaliik, millele pref võib liituda (indeks mass-s) */
 	int  piiriKr6nksud; 
-        int  lisaKr6nksud;
+    int  lisaKr6nksud;
 	} PREFINFO;     /* info, mis on vajalik pref sobivuse kontr-ks (mälus) */
 
 #endif

@@ -2,13 +2,13 @@
 #define POST_FSC_H
 
 #include <assert.h>
-#if defined( _WIN32 ) || defined( _WIN64 )
+#if defined( WIN32 ) || defined( WIN64 )
 #include <fcntl.h>
 #include <io.h>
 #endif
 #include <time.h>
 
-#include "../fsc/fsc.h"
+#include "fsc.h"
 
 #include "tmplptrsrtfnd.h"
 #include "suurused.h"
@@ -1708,7 +1708,7 @@ public:
         while (ReadLine(&xstr) == true)
         {
             xstr.TrimRight();
-            AddClone(xstr); // jama korral siit throw
+            TMPLPTRARRAYBIN<REC, KEY>::AddClone(xstr); // jama korral siit throw
         }
         Close();
         return true;

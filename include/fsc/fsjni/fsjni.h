@@ -1,7 +1,7 @@
 #if !defined _FSJNI_H_
 #define _FSJNI_H_
 
-#include "../fsc.h"
+#include "fsc.h"
 #include <jni.h>
 
 class CFSJNIException : public CFSException { };

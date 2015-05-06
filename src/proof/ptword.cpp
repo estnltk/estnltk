@@ -1,4 +1,4 @@
-#include "../fsc/fsc.h"
+#include "fsc.h"
 #include "ptword.h"
 
 void CPTWord::RemovePunctuation()

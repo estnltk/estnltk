@@ -2,12 +2,12 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "../fsc/fsc.h"
+#include "fsc.h"
 #include "pttype.h"
 #include "suggestor.h"
 
-static const CFSWString szInsertLettersBeg=L"KPSTVLMRAHNEJIO\x00dc"L"DFUB\x00d5"L"G";
-static const CFSWString szInsertLetters=L"AEISTLUNKMODRVGHJP\x00c4\x00d5"L"B\x00dc\x00d6";
+static const CFSWString szInsertLettersBeg=L"KPSTVLMRAHNEJIO\x00dc" L"DFUB\x00d5" L"G";
+static const CFSWString szInsertLetters=L"AEISTLUNKMODRVGHJP\x00c4\x00d5" L"B\x00dc\x00d6";
 static const CFSWString szEstAlphas=L"ABCDEFGHIJKLMNOPQRSTUVWXYZ\x00d5\x00c4\x00d6\x00dc\x0160\x017d";
 
 /*static CFSWString szQuotLeft=  FSWSTR("\x2018\x2019\x201a\x2039\x0027");

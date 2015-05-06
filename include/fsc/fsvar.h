@@ -64,12 +64,21 @@ public:
 	}
 
 /**
-* Function that returns the key of N-th physical element of array or map
+* Function returns the key of N-th physical element of array or map
 * @param[in] ipIndex Index of physical element
 * @return Key of the element
 */
 	CFSAString GetKey(INTPTR ipIndex) const {
 		return m_Map.GetItem(ipIndex).Key;
+	}
+
+/**
+* Function verifies if the key exist in the map or array
+* @param[in] szKey Key name
+* @return true if key exists
+*/
+	bool KeyExist(const CFSAString &szKey) const {
+		return (m_iType==VAR_MAP || m_iType==VAR_ARRAY) && m_Map.Exist(szKey);
 	}
 
 /**

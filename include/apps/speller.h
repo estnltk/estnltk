@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace openmorf {
+namespace vabamorf {
 
 class exception : public std::exception {
 public:

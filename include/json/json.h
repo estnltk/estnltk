@@ -14,6 +14,8 @@ public:
 
 	CFSVar Read();
 
+	static bool KeyMatch(const CFSAString &szKey, const CFSAString &szPattern);
+
 protected:
 	virtual void OnValReadStart(const CFSAString &/*szKey*/) { }
 	virtual void OnValReadEnd(const CFSAString &/*szKey*/, CFSVar &/*Data*/) { }

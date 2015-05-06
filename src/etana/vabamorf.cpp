@@ -1,5 +1,10 @@
 #include "vabamorf.h"
 
+
+//////////////////////////////////////////////////////////////////////
+// DATA STRUCTURES
+//////////////////////////////////////////////////////////////////////
+
 Analysis::Analysis(const char* root, const char* ending, const char* clitic, const char* partofspeech, const char* form)
     : root(root), ending(ending), clitic(clitic), partofspeech(partofspeech), form(form) {
 }
@@ -8,68 +13,82 @@ Analysis::Analysis(const Analysis& analysis)
     : root(analysis.root), ending(analysis.ending), clitic(analysis.clitic), partofspeech(analysis.partofspeech), form(analysis.form) {
 }
 
-Analyzer::Analyzer(std::string const lexPath) {
-    morf.Start(lexPath.c_str(), MF_DFLT_MORFA);
-    enableHeuristics(true);
+SpellingResults::SpellingResults(std::string const& word, const bool spelling, const StringVector& suggestions)
+    : word(word), spelling(spelling), suggestions(suggestions) {
 }
 
-void Analyzer::enableHeuristics(bool heuristics) {
-    MRF_FLAGS_BASE_TYPE flags=MF_DFLT_MORFA;
-    if (heuristics) {
-        flags|=MF_OLETA;
+//////////////////////////////////////////////////////////////////////
+// COMMON FUNCTIONS
+//////////////////////////////////////////////////////////////////////
+
+// convert StringVector input to CFSArray input required by vabamorf base library.
+CFSArray<CFSVar> convertInput(StringVector const& sentence) {
+    CFSArray<CFSVar> data(sentence.size());
+    for (size_t i=0 ; i<sentence.size() ; ++i) {
+        CFSVar wordData;
+        wordData.Cast(CFSVar::VAR_MAP);
+        wordData["text"] = sentence[i].c_str();
+        data.AddItem(wordData);
     }
-    // always add phonetic markup
-    // we will trim it in python module, when necessary
-    flags|=MF_KR6NKSA;
-    morf.SetFlags(flags);
-    morf.SetMaxTasand();
-    morf.Clr();
+    return data;
 }
 
-void Analyzer::process(CFSArray<CFSVar>& words) {
-    for (int i=0 ; i<words.GetSize() ; ++i) {
-        morf.Set1(words[i]["text"].GetWString());
-        morf.Tag<int>((int)i, PRMS_TAGSINT);
+// apply morphoanalysis settings to CLinguistics instance.
+void applyMorfSettings(CLinguistic& linguistic, const bool guess, const bool phonetic, const bool propername) {
+    linguistic.m_bProperName=propername;
+    linguistic.m_bGuess=(guess || linguistic.m_bProperName);
+    if (linguistic.m_bGuess) {
+        linguistic.m_bAbbrevations = false;
     }
+    linguistic.m_bPhonetic = phonetic;
+}
 
-    LYLI Lyli;
-    CFSVar Analysis;
-    Analysis.Cast(CFSVar::VAR_ARRAY);
-    INTPTR ipLastPos=-1;
-    INTPTR ipDeleted=0;
+//////////////////////////////////////////////////////////////////////
+// ANALYZER
+//////////////////////////////////////////////////////////////////////
 
-    while (morf.Flush(Lyli)) {
-        if (Lyli.lipp & PRMS_TAGSINT){
-            INTPTR ipPos=-ipDeleted+Lyli.ptr.arv;
-            if (ipLastPos==-1) {
-                words[ipPos]["analysis"]=Analysis;
-                ipLastPos=ipPos;
-            } else {
-                words[ipLastPos]["text"]=words[ipLastPos]["text"].GetAString()+" "+words[ipPos]["text"].GetAString();
-                words.RemoveItem(ipPos);
-                ipDeleted++;
-            }
-        } else if (Lyli.lipp & PRMS_MRF) {
-            Analysis.Cleanup();
-            Analysis.Cast(CFSVar::VAR_ARRAY);
-            ipLastPos=-1;
-            Lyli.ptr.pMrfAnal->StrctKomadLahku();
-            for (INTPTR ipTul=0; ipTul<Lyli.ptr.pMrfAnal->idxLast; ipTul++){
-                MRFTUL Tul=*(*Lyli.ptr.pMrfAnal)[(int)ipTul];
-                CFSVar Analysis1;
-                Analysis1["root"]=Tul.tyvi;
-                Analysis1["ending"]=Tul.lopp;
-                Analysis1["clitic"]=Tul.kigi;
-                Analysis1["partofspeech"]=Tul.sl;
-                CFSWString szForm=Tul.vormid; szForm.TrimRight(L", ");
-                Analysis1["form"]=szForm;
-                Analysis[ipTul]=Analysis1;
-            }
+Vabamorf::Vabamorf(std::string const lexPath, std::string const disambLexPath) {
+    linguistic.Open(lexPath.c_str());
+    disambiguator.Open(disambLexPath.c_str());
+}
+
+
+// add morphological analysis to CFSArray containing the sentence
+void addAnalysis(CLinguistic& linguistic, CDisambiguator& disambiguator, CFSArray<CFSVar>& words, const bool disambiguate) {
+    //CFSVar &words=Data["words"];
+    CFSArray<CPTWord> PTWords;
+    for (INTPTR ip=0; ip<words.GetSize(); ip++) {
+        PTWords.AddItem(words[ip]["text"].GetWString());
+    }
+    // perform analysis and optional disambiguation
+    CFSArray<CMorphInfos> MorphResults=linguistic.AnalyzeSentense(PTWords);
+    if (disambiguate) {
+        MorphResults=disambiguator.Disambiguate(MorphResults);
+    }
+    // collect the analysis results
+    ASSERT(PTWords.GetSize()==MorphResults.GetSize());
+    for (INTPTR ip=0; ip<words.GetSize(); ip++) {
+        const CFSArray<CMorphInfo> &Analysis=MorphResults[ip].m_MorphInfo;
+        CFSVar VarAnalysis;
+        VarAnalysis.Cast(CFSVar::VAR_ARRAY);
+        for (INTPTR ipRes=0; ipRes<Analysis.GetSize(); ipRes++) {
+            const CMorphInfo &Analysis1=Analysis[ipRes];
+            CFSVar VarAnalysis1;
+            VarAnalysis1["root"]=Analysis1.m_szRoot;
+            VarAnalysis1["ending"]=Analysis1.m_szEnding;
+            VarAnalysis1["clitic"]=Analysis1.m_szClitic;
+            VarAnalysis1["partofspeech"]=CFSWString(Analysis1.m_cPOS);
+            VarAnalysis1["form"]=Analysis1.m_szForm;
+            VarAnalysis[ipRes]=VarAnalysis1;
         }
+        words[ip]["analysis"]=VarAnalysis;
     }
 }
 
-void Analyzer::compileResults(CFSArray<CFSVar>& words, std::vector<WordAnalysis>& results) {
+// convert vabamorf base library output to WordAnalysis instances, which as easier to wrap.
+std::vector<WordAnalysis> convertOutput(CFSArray<CFSVar>& words) {
+    std::vector<WordAnalysis> results;
+    results.reserve(words.GetSize());
     for (int widx=0 ; widx < words.GetSize() ; ++widx) {
         CFSVar word = words[widx];
         CFSVar analysis = word["analysis"];
@@ -84,90 +103,131 @@ void Analyzer::compileResults(CFSArray<CFSVar>& words, std::vector<WordAnalysis>
         }
         results.push_back(WordAnalysis(std::string(word["text"].GetAString()), vec));
     }
+    return results;
 }
 
-CFSArray<CFSVar> cfsvarFromStringVector(StringVector const& sentence) {
-    CFSArray<CFSVar> data(sentence.size());
-    for (size_t i=0 ; i<sentence.size() ; ++i) {
-        CFSVar wordData;
-        wordData.Cast(CFSVar::VAR_MAP);
-        wordData["text"] = sentence[i].c_str();
-        data.AddItem(wordData);
+std::vector<WordAnalysis> Vabamorf::analyze(
+    StringVector const& sentence,
+    const bool disambiguate,
+    const bool guess,
+    const bool phonetic,
+    const bool propername) {
+
+    applyMorfSettings(linguistic, guess, phonetic, propername);
+    CFSArray<CFSVar> words = convertInput(sentence);
+    addAnalysis(linguistic, disambiguator, words, disambiguate);
+    return convertOutput(words);
+}
+
+//////////////////////////////////////////////////////////////////////
+// SPELLCHCKER
+//////////////////////////////////////////////////////////////////////
+
+// spellcheck the words and add suggestions
+void addSuggestions(CLinguistic& linguistic, CFSArray<CFSVar>& words, const bool suggest) {
+    for (INTPTR ip=0; ip<words.GetSize(); ip++) {
+        CFSVar &Word=words[ip];
+        CPTWord PTWord=Word["text"].GetWString();
+        PTWord.RemoveHyphens();
+        PTWord.RemovePunctuation();
+        PTWord.Trim();
+        if (PTWord.m_szWord.IsEmpty() || linguistic.SpellWord(PTWord.m_szWord)==SPL_NOERROR) {
+            Word["spelling"]=true;
+        } else {
+            Word["spelling"]=false;
+            if (suggest) {
+                CFSWStringArray Suggestions=linguistic.Suggest(PTWord.m_szWord);
+                CFSVar VarSuggestions;
+                VarSuggestions.Cast(CFSVar::VAR_ARRAY);
+                for (INTPTR ipRes=0; ipRes<Suggestions.GetSize(); ipRes++) {
+                    VarSuggestions[ipRes]=Suggestions[ipRes];
+                }
+                Word["suggestions"]=VarSuggestions;
+            }
+        }
     }
-    return data;
 }
 
-std::vector<WordAnalysis> Analyzer::analyze(StringVector const& sentence, bool useHeuristics) {
-    enableHeuristics(useHeuristics);
-
-    CFSArray<CFSVar> words = cfsvarFromStringVector(sentence);
-    process(words);
-
-    std::vector<WordAnalysis> results;
-    results.reserve(sentence.size());
-    compileResults(words, results);
-
+// convert output to wrapper format
+std::vector<SpellingResults> convertSpellingOutput(CFSArray<CFSVar>& words) {
+    std::vector<SpellingResults> results;
+    results.reserve(words.GetSize());
+    for (int widx=0 ; widx < words.GetSize() ; ++widx) {
+        CFSVar word = words[widx];
+        std::string text = std::string(word["text"].GetAString());
+        CFSVar suggestions = word["suggestions"];
+        StringVector suggestStrings;
+        suggestStrings.reserve(suggestions.GetSize());
+        for (int sidx=0 ; sidx < suggestions.GetSize() ; ++sidx) {
+            CFSVar suggestion = suggestions[sidx];
+            suggestStrings.push_back(std::string(suggestion.GetAString()));
+        }
+        results.push_back(SpellingResults(text, word["spelling"].GetInt(), suggestStrings));
+    }
     return results;
 }
 
 
-
-Synthesizer::Synthesizer(std::string const lexPath) {
-    morf.Start(lexPath.c_str(), MF_DFLT_MORFA);
+std::vector<SpellingResults>
+Vabamorf::spellcheck(StringVector const& sentence, const bool suggest) {
+    CFSArray<CFSVar> words = convertInput(sentence);
+    addSuggestions(linguistic, words, suggest);
+    return convertSpellingOutput(words);
 }
 
-void Synthesizer::updateSettings(bool guess, bool phon) {
-    MRF_FLAGS_BASE_TYPE flags=MF_DFLT_MORFA;
-    if (guess) {
-        flags|=MF_OLETA;
+
+//////////////////////////////////////////////////////////////////////
+// SYNTHESIZER
+//////////////////////////////////////////////////////////////////////
+
+// synthesize words based on lemma, pos and form
+void synthesizeWord(CLinguistic& linguistic, CFSVar &Data) {
+    const CFSVar &Word=Data;
+
+    CMorphInfo Input;
+    Input.m_szRoot=Word["lemma"].GetWString();
+    Input.m_cPOS=Word["partofspeech"].GetWString()[0];
+    if (!Input.m_cPOS) {
+        Input.m_cPOS='*';
     }
-    if (phon) {
-        flags|=MF_KR6NKSA;
-    }
-    morf.SetFlags(flags);
-    morf.Clr();
-}
+    Input.m_szForm=Word["form"].GetWString();
+    CFSWString szHint=Word["hint"].GetWString();
 
-std::vector<std::string>
-Synthesizer::synthesize(std::string lemma,
-                        std::string partofspeech,
-                        std::string form,
-                        std::string hint,
-                        bool guess,
-                        bool phon)
-{
-    updateSettings(guess, phon);
-        
-    CFSVar word;
-    word.Cast(CFSVar::VAR_MAP);
-    word["lemma"] = lemma.c_str();
-    word["partofspeech"] = partofspeech.c_str();
-    word["form"] = form.c_str();
-    word["hint"] = hint.c_str();
-
-    MRFTUL Input;
-    Input.tyvi=word["lemma"].GetWString();
-    Input.sl=word["partofspeech"].GetWString();
-    if (Input.sl.IsEmpty()) Input.sl=FSWSTR("*");
-    Input.vormid=word["form"].GetWString();
-    CFSWString szHint=word["hint"].GetWString();
-
-    morf.Clr();
-    MRFTULEMUSED Result;
-    if (morf.Synt(Result, Input, szHint) && Result.on_tulem()) {
+    CFSArray<CMorphInfo> Result=linguistic.Synthesize(Input, szHint);
+    if (Result.GetSize()){
         CFSVar Text;
         Text.Cast(CFSVar::VAR_ARRAY);
-        for (INTPTR ipRes=0; Result[ipRes]; ipRes++){
-            Text[ipRes]=Result[ipRes]->tyvi+Result[ipRes]->lopp+Result[ipRes]->kigi;
+        for (INTPTR ipRes=0; ipRes<Result.GetSize(); ipRes++) {
+            Text[ipRes]=Result[ipRes].m_szRoot+Result[ipRes].m_szEnding+Result[ipRes].m_szClitic;
         }
-        word["text"]=Text;
-        CFSVar text = word["text"];
-        std::vector<std::string> result;
-        result.reserve(text.GetSize());
-        for (int i=0 ; i<text.GetSize() ; ++i) {
-            result.push_back(std::string(text[i].GetAString()));
-        }
-        return result;
+        Data["text"]=Text;
     }
-    return std::vector<std::string>();
+}
+
+StringVector convertStringVectorOutput(CFSVar& data) {
+    CFSVar text = data["text"];
+    StringVector words;
+    words.reserve(text.GetSize());
+    for (int idx=0 ; idx<text.GetSize() ; ++idx) {
+        words.push_back(std::string(text[idx].GetAString()));
+    }
+    return words;
+}
+
+StringVector Vabamorf::synthesize(
+        std::string lemma,
+        std::string partofspeech,
+        std::string form,
+        std::string hint,
+        bool guess,
+        bool phonetic) {
+    // setup data
+    CFSVar data;
+    data["lemma"] = lemma.c_str();
+    data["partofspeech"] = partofspeech.c_str();
+    data["hint"] = hint.c_str();
+
+    applyMorfSettings(linguistic, guess, phonetic, true);
+    synthesizeWord(linguistic, data);
+    return convertStringVectorOutput(data);
 }

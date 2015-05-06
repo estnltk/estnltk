@@ -168,6 +168,37 @@ CFSVar CJSONReader::Read()
 	return Data;
 }
 
+bool CJSONReader::KeyMatch(const CFSAString &szKey, const CFSAString &szPattern)
+{
+	INTPTR ipKey=0;
+	INTPTR ipPattern=0;
+	for (;; ipKey++, ipPattern++) {
+		if (szPattern[ipPattern]=='%') {
+			ipPattern++;
+			switch (szPattern[ipPattern]) {
+				case '%':
+					if (szKey[ipKey]!='%') {
+						return false;
+					}
+				break;
+				case 'd':
+					if (!FSIsNumber(szKey[ipKey])) {
+						return false;
+					}
+					for (; FSIsNumber(szKey[ipKey+1]); ipKey++);
+				break;
+				default:
+					return false;
+			}
+		} else if (szKey[ipKey]!=szPattern[ipPattern]) {
+			return false;
+		}
+		if (szPattern[ipPattern]==0) {
+			return true;
+		}
+	}
+}
+
 ///////////////////////////////////////////////////////////
 // Writer
 
@@ -207,7 +238,7 @@ void CJSONWriter::Val(const CFSVar &Var) {
 		case CFSVar::VAR_ARRAY:
 			ArrayStart();
 			for (INTPTR ip=0; ip<Var.GetSize(); ip++) {
-				Val(Var[Var.GetKey(ip)]);
+				Val(Var[ip]);
 			}
 			ArrayEnd();
 		break;

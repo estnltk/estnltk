@@ -1,75 +1,80 @@
 #include "json.h"
-#include "etmrf.h"
+#include "proof.h"
 
 class CSettings {
 public:
 	CSettings() {
 		m_bGuess=false;
-		m_bPhon=false;
+		m_bPhonetic=false;
 	}
 
 	bool m_bGuess;
-	bool m_bPhon;
+	bool m_bPhonetic;
 };
 
 class CMyJSONReader : public CJSONReader {
 public:
-	CMyJSONReader(CFSStream &Stream, ETMRFAS &Morf, const CSettings &Settings, CJSONWriter &Writer) : CJSONReader(Stream), m_Morf(Morf), m_Settings(Settings), m_Writer(Writer) { }
+	CMyJSONReader(CFSStream &Stream, CLinguistic &Linguistic, const CSettings &Settings, CJSONWriter &Writer) : CJSONReader(Stream), m_Linguistic(Linguistic), m_Settings(Settings), m_Writer(Writer) { }
 
 protected:
 	void OnValReadStart(const CFSAString &szKey) {
 		if (szKey.IsEmpty()) {
 			m_Writer.ObjectStart();
+		} else if (szKey=="/words") {
 			m_Writer.Key("words");
 			m_Writer.ArrayStart();
 			m_iCollectData--;
-			m_ipWordIndex=0;
-			m_szWordKey.Format("/words/%zd", m_ipWordIndex);
-		} else if (szKey==m_szWordKey) {
+		} else if (KeyMatch(szKey, "/words/%d")) {
 			m_iCollectData++;
 		}
 	}
+
+	void SubKeys(const CFSAString szExcept, const CFSVar &Data) {
+		for (INTPTR ip=0; ip<Data.GetSize(); ip++) {
+			CFSAString szKey=Data.GetKey(ip);
+			if (szKey==szExcept) continue;
+			m_Writer.Key(szKey);
+			m_Writer.Val(Data[szKey]);
+		}
+	}
+
 	void OnValReadEnd(const CFSAString &szKey, CFSVar &Data) {
 		if (szKey.IsEmpty()) {
-			m_Writer.ArrayEnd();
+			SubKeys("words", Data);
 			m_Writer.ObjectEnd();
+		} else if (szKey=="/words") {
+			m_Writer.ArrayEnd();
 			m_iCollectData++;
-		} else if (szKey==m_szWordKey) {
+		} else if (KeyMatch(szKey, "/words/%d")) {
+
 			const CFSVar &Word=Data;
 
-			MRFTUL Input;
-			Input.tyvi=Word["lemma"].GetWString();
-			Input.sl=Word["partofspeech"].GetWString();
-			if (Input.sl.IsEmpty()) Input.sl=FSWSTR("*");
-			Input.vormid=Word["form"].GetWString();
+			CMorphInfo Input;
+			Input.m_szRoot=Word["lemma"].GetWString();
+			Input.m_cPOS=Word["partofspeech"].GetWString()[0];
+			if (!Input.m_cPOS) Input.m_cPOS='*';
+			Input.m_szForm=Word["form"].GetWString();
 			CFSWString szHint=Word["hint"].GetWString();
 
-			m_Morf.Clr();
-			MRFTULEMUSED Result;
-			if (m_Morf.Synt(Result, Input, szHint) && Result.on_tulem()){
+			CFSArray<CMorphInfo> Result=m_Linguistic.Synthesize(Input, szHint);
+			if (Result.GetSize()){
 				CFSVar Text;
 				Text.Cast(CFSVar::VAR_ARRAY);
-				for (INTPTR ipRes=0; Result[ipRes]; ipRes++){
-					Text[ipRes]=Result[ipRes]->tyvi+Result[ipRes]->lopp+Result[ipRes]->kigi;
+				for (INTPTR ipRes=0; ipRes<Result.GetSize(); ipRes++){
+					Text[ipRes]=Result[ipRes].m_szRoot+Result[ipRes].m_szEnding+Result[ipRes].m_szClitic;
 				}
 				Data["text"]=Text;
 			}
 
 			m_Writer.Val(Data);
-
-			m_ipWordIndex++;
-			m_szWordKey.Format("/words/%zd", m_ipWordIndex);
 			m_iCollectData--;
 		}
 	}
 
 protected:
-	ETMRFAS &m_Morf;
+	CLinguistic &m_Linguistic;
 	CSettings m_Settings;
 	CJSONWriter m_Writer;
-
-	INTPTR m_ipWordIndex;
-	CFSAString m_szWordKey;
 };
 
 int PrintUsage() {
@@ -77,10 +82,11 @@ int PrintUsage() {
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Options:\n");
 	fprintf(stderr, " -in file  -- read input from file, default input from stdin\n");
-	fprintf(stderr, " -out file -- write output to file, default output stdout\n");
-	fprintf(stderr, " -lex path -- path to lexicon files, default active directory\n");
+	fprintf(stderr, " -out file -- write output to file, default output to stdout\n");
+	fprintf(stderr, " -lex file -- path to lexicon file, default et.dct\n");
 	fprintf(stderr, " -guess    -- guess forms for unknown words\n");
 	fprintf(stderr, " -phonetic -- add phonetic markup\n");
+	fprintf(stderr, " -help     -- this screen\n");
 	fprintf(stderr, "\n");
 	return -1;
 }
@@ -92,16 +98,14 @@ int main(int argc, char* argv[])
 
 	try {
 		// Command line parsing
-		if (argc<=1) {
-			return PrintUsage();
-		}
-
 		CSettings Settings;
-		CFSAString InFileName, OutFileName, LexPath=".";
+		CFSAString InFileName, OutFileName, LexFileName="et.dct";
 		for (int i=1; i<argc; i++) {
-			if (CFSAString("-lex")==argv[i]) {
+			if (CFSAString("-help")==argv[i]) {
+				return PrintUsage();
+			} else if (CFSAString("-lex")==argv[i]) {
 				if (i+1<argc) {
-					LexPath=argv[++i];
+					LexFileName=argv[++i];
 				} else {
 					return PrintUsage();
 				}
@@ -120,7 +124,7 @@ int main(int argc, char* argv[])
 			} else if (CFSAString("-guess")==argv[i]) {
 				Settings.m_bGuess=true;
 			} else if (CFSAString("-phonetic")==argv[i]) {
-				Settings.m_bPhon=true;
+				Settings.m_bPhonetic=true;
 			} else {
 				return PrintUsage();
 			}
@@ -139,14 +143,13 @@ int main(int argc, char* argv[])
 			OutFile.Open(OutFileName, "wb");
 		}
 
-		MRF_FLAGS_BASE_TYPE Flags=MF_DFLT_MORFA;
-		if (Settings.m_bGuess) Flags|=MF_OLETA;
-		if (Settings.m_bPhon) Flags|=MF_KR6NKSA;
+		CLinguistic Linguistic;
+		Linguistic.Open(LexFileName);
+		Linguistic.m_bGuess=Settings.m_bGuess;
+		Linguistic.m_bPhonetic=Settings.m_bPhonetic;
 
-		ETMRFAS Morf;
-		Morf.Start(LexPath, Flags);
 		CJSONWriter JSONWriter(OutFile);
-		CMyJSONReader JSONReader(InFile, Morf, Settings, JSONWriter);
+		CMyJSONReader JSONReader(InFile, Linguistic, Settings, JSONWriter);
 
 		// Run the loop
 		JSONReader.Read();

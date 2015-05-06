@@ -6,7 +6,7 @@
 /// @brief Klasssid dünaamilise viitade massiivi käitlemiseks
 ///
 /// Klassid võimaldavad tekitada dünaamiliselt suurendatavat viitade massiivi.
-/// Selliseid massiive saab kirjete järgi järjestada, neist saab
+/// Selliseid massiive saab kirjete järgi järjestada, neist saab  
 /// (lineaarselt või kahendotsimisega) leida võtit sisaldava(id) kirje(id).
 
 #include <assert.h>
@@ -23,22 +23,22 @@ class VIIDAKEST
 public:
     /** Viit */
     T* ptr;
-
+    
     VIIDAKEST(void) : ptr(NULL)
     {
-
+        
     }
-
+    
     VIIDAKEST(T *p) : ptr (p)
     {
     }
-
+    
     ~VIIDAKEST(void)
     {
         delete ptr;
     }
-
-    /*T& operator=(T &p)
+    
+    /*T& operator=(T &p) 
     {
         if(ptr!=p)
         {
@@ -47,15 +47,15 @@ public:
         }
         return *ptr;
     }*/
-
+    
 
 private:
     VIIDAKEST(const VIIDAKEST& viidaKest)
     {
         assert(false);
-    }
+    }   
 
-    VIIDAKEST& operator=(const VIIDAKEST& viidaKest)
+    VIIDAKEST& operator=(const VIIDAKEST& viidaKest) 
     {
         assert(false);
         return this;
@@ -64,7 +64,7 @@ private:
 //---------------------------------------------------------------------------
 
 /** Vahetab omavahel kaks viita
- *
+ * 
  * Klassimalli parameetrid
  * <ul><li> @a PTR viida tüüp </ul>
  * @param a
@@ -82,7 +82,7 @@ void FsPtrSwap(PTR** a, PTR** b)
 //---------------------------------------------------------------------------
 
 /** Viitade massii quicksortimiseks
- *
+ * 
  * Klassimalli parameetrid
  * <ul><li> @a REC järjestatavate kirjete tüüp </ul>
  */
@@ -91,7 +91,7 @@ class TMPLPTRQSRT
 {
 public:
     /** Quicksordib viitade (=kirjete) massiivi
-     *
+     * 
      * @param @a base viit viitade massiivile
      * @param @a num viitade massiivi pikkus
      * @param @a sortOrder järjestmisviisi määrav REC::Compare() funktsiooni parameeter
@@ -100,7 +100,7 @@ public:
 
 private:
     void PtrShrtSrt(REC** lo, REC** hi, const int sortOrder);
-
+    
     /** klassikud peavad seda heaks suuruseks */
     const static unsigned int MAXTYKK = 8;
 };
@@ -149,7 +149,7 @@ void TMPLPTRQSRT<REC>::PtrSrt(REC** base, const unsigned num, const int sortOrde
     lo = base;
     hi = base + num - 1;
 recurse:
-    //size = hi - lo + 1;
+    //size = hi - lo + 1; 
     size = (unsigned int) (hi - lo) + 1;
     if (size <= MAXTYKK)
     {
@@ -265,7 +265,7 @@ public:
 };
 
 /** Funktsioon kahendotsimiseks unikaalsete/korduvate võtmetega viitade massiivist
- *
+ * 
  * Klassimalli parameetrid:
  * <ul><li> REC -- kirje tüüp
  *     <li> KEY -- võtme tüüp
@@ -333,7 +333,7 @@ public:
 
     /** Leiab indeksite vahemiku, kuhu jäävad korduvate võtmetaga järjestatud
      * massiivis võtmele vastavad kirjed
-     *
+     * 
      * Klassimalli parameetrid:
      * <ul><li> REC -- kirje tüüp
      *     <li> KEY -- võtme tüüp
@@ -366,11 +366,11 @@ public:
         last = crnt;
         while (++last < len && rec[last]->Compare(key, sortOrder) == 0)
             ++last;
-
+        
         return true;
     }
 };
-
+   
 
 /** Funktsioonid kahendotsimiseks korduvate võtmetega viitade massiivist
  *
@@ -399,13 +399,13 @@ public:
      * @return On @a NULL kui sellise võtmega kirjet polnud,
      * muidu võtmele vastava kirje viit.
      */
-    REC* BSearchFirst(REC** rec,const int len, const KEY *key,
+    REC* BSearchFirst(REC** rec,const int len, const KEY *key, 
                                 int* idx = NULL, const int _sortOrder_ = 0)
     {
         sortOrder = _sortOrder_;
         _rec_ = rec;
         _len_ = len;
-        REC* recPtr = TMPLPTRSEARCHBIN<REC, KEY>::BSearch(_rec_, _len_, key,
+        REC* recPtr = TMPLPTRSEARCHBIN<REC, KEY>::BSearch(_rec_, _len_, key, 
                                                           &crntIdx, sortOrder);
         if (recPtr == NULL)
         {
@@ -424,7 +424,7 @@ public:
 
     /** Leiab korduvate võtmetega järjestatud (viitade=kirjete) massiivist
      * järgmise võtmele vastava kirje viida.
-     *
+     * 
      * @param[in] key Viit võtmele. Sellise võtmega kirjet otsime.
      * @attention See peab olema sama võti, mida kasutati BSearchFirst() funktsioonis.
      * @param[out] idx Vaikimisi @a NULL-viit.
@@ -558,9 +558,9 @@ public:
 
     /** Lisab kirjeviida
      *
-     * @attention Vajadusel suurendab sammu võtta massiivi pikkust,
+     * @attention Vajadusel suurendab sammu võtta massiivi pikkust, 
      * et viit ära mahuks. Kui massiivi suurendamine ebaõnnestus (throw),
-     * siis viidale kutustakse välja destuktor.
+     * siis viidale kutustakse välja destuktor.    
      * @param[in] pRec Viit lisatavale kirjele.
      * Ei tohi olla viit staatilistele andmetele, sest vabastatakse destruktoris.
      * @param idx Niimitmendaks lisame, vaikimisi lõppu (~0)
@@ -621,13 +621,13 @@ public:
 
     /** Viit viitade massiivi algusele */
     REC** rec;
-
+    
     /** Sellise sammuga kasvatame vajadusel massiivi suuremaks */
     int idxStep;
-
+    
     /** Hetkel mahub massiivi maksimaalselt niipalju viitasid */
     int idxMax;
-
+    
     /** Niipalju on hetkel massiivis tegelikult viitasid */
     int idxLast;
 
@@ -643,7 +643,7 @@ private:
 
     // Need on illegaliseed-{{
 
-    /*TMPLPTRARRAY(TMPLPTRARRAY&)
+    TMPLPTRARRAY(TMPLPTRARRAY&)
     {
         assert(false);
     }
@@ -652,7 +652,7 @@ private:
     {
         assert(false);
         return *this;
-    })*/
+    }
     // }}-Need on illegaliseed
 
 };
@@ -701,7 +701,7 @@ REC* TMPLPTRARRAY<REC>::AddPtr(REC* pRec,const int idx)
     {
         VIIDAKEST<REC> kest(pRec);
         InCrease();
-        kest.ptr=NULL;
+        kest.ptr=NULL;    
     }
     if (idx == ~0)
     {
@@ -830,10 +830,10 @@ bool TMPLPTRARRAY<REC>::EmptyClassInvariant(void) const
 //---------------------------------------------------------------------------
 
 /** Klass sorditava dünaamiline viitade massiivi käsitlemiseks
- *
- * Klassimalli parameeter
+ * 
+ * Klassimalli parameeter 
  * <ul><li> @a REC -- kirje tüüp </ul>
- *
+ * 
  * Klass võimaldab:
  * <ul><li> indeksi järgi - lisada, kustutada, otsida.
  *     <li> massiivi - kirjete järgi järjestada ja kustutada korduvad järjestikused kirjed.
@@ -851,7 +851,7 @@ bool TMPLPTRARRAY<REC>::EmptyClassInvariant(void) const
  *   EXAMPLE(void) { key=data=0; }
  *   bool Start(const EXAMPLE& rec) { key=rec.key; data=rec.data; return true; }
  *   int Compare(const KEY *keyPtr) { assert(keyPtr!=NULL); return key - *keyPtr; }
- *   int Compare(const REC *recPtr) {
+ *   int Compare(const REC *recPtr) { 
  *     assert(recPtr!=NULL);
  *     int cmpRes=Compare(&(recPtr->key)); // kõigepealt võtmeid
  *     if(cmpRes==0) // võrdsete võtmete korral muid asju
@@ -867,7 +867,7 @@ class TMPLPTRARRAYSRT : public TMPLPTRARRAY<REC>, public TMPLPTRQSRT<REC>
 public:
 
     /** 2in1 - argumentideta ja argumentidetega konstruktor
-     *
+     * 
      * @param _idxMax_ -- Viitadev massivi algsuurus (vaikimisi 0)
      * @param _idxStep_ -- Viitade massiiv kasvab sellise sammuga (vaikimisi 0)
      */
@@ -883,9 +883,9 @@ public:
         assert(TMPLPTRARRAY<REC>::ClassInvariant());
         TMPLPTRQSRT<REC>::PtrSrt(TMPLPTRARRAY<REC>::rec, TMPLPTRARRAY<REC>::idxLast, sortOrder);
     };
-
+    
     /** Kustutab järjestikused korused
-     *
+     * 
      * @param @a sortOrder -- vaikimisi 0
      */
     void Uniq(const int sortOrder = 0);
@@ -962,24 +962,24 @@ void TMPLPTRARRAYSRT<REC>::SortUniq(const int sortOrder)
 /** Klass lineaarselt otsitava ja sorditava unikaalsete võtmetega
  * dünaamilise viitade massiivi massiivi käsitlemiseks.
  *
- * Klassimalli parameeter
- * <ul><li> @a REC -- kirje tüüp
+ * Klassimalli parameeter 
+ * <ul><li> @a REC -- kirje tüüp 
  *     <li> @a KEY -- võtme tüüp
  * </ul>
- *
+ * 
  * Klass võimaldab:
  * <ul><li> indeksi järgi - lisada, kustutada, otsida.
  *     <li> massiivi - kirjete järgi järjestada ja kustutada korduvad järjestikused kirjed.
  *     <li> Võtme järgi - lineaarselt otsides leida sobiva kirje indeks või viit
  * </ul>
- *
+ * 
  * Kirjel peavad olema defineeritud funktsioonid:
  * <ul><li> võtmega võrdlemiseks meetod int REC::Compare(const KEY *key)
  *     <li> kirjete võrdlemiseks meetod int REC::Compare(const REC *rec)
  *     <li> kirje kloonimiseks (copy-konstruktor) meetod: void REC::Start(const REC &rec)
  *     <li> argumentideta konstrukor REC::REC(void)
  * </ul>
- *
+ * 
  * Näiteks:
  * @code
  * class EXAMPLE {
@@ -988,7 +988,7 @@ void TMPLPTRARRAYSRT<REC>::SortUniq(const int sortOrder)
  *   EXAMPLE(void) { key=data=0; }
  *   bool Start(const EXAMPLE& rec) { key=rec.key; data=rec.data; return true; }
  *   int Compare(const KEY *keyPtr) { assert(keyPtr!=NULL); return key - *keyPtr; }
- *   int Compare(const REC *recPtr) {
+ *   int Compare(const REC *recPtr) { 
  *     assert(recPtr!=NULL);
  *     int cmpRes=Compare(&(recPtr->key)); // kõigepealt võtmeid
  *     if(cmpRes==0) // võrdsete võtmete korral muid asju
@@ -1003,41 +1003,41 @@ class TMPLPTRARRAYLIN : public TMPLPTRARRAYSRT<REC>, public TMPLPTRSEARCHLIN<REC
 {
 public:
     /** 2in1 - argumentideta ja argumentidetega konstruktor
-     *
+     * 
      * @param _idxMax_ -- Viitadev massivi algsuurus (vaikimisi 0)
      * @param _idxStep_ -- Viitade massiiv kasvab sellise sammuga (vaikimisi 0)
      */
-    TMPLPTRARRAYLIN(const int _idxMax_ = 0, const int _idxStep_ = 0) :
+    TMPLPTRARRAYLIN(const int _idxMax_ = 0, const int _idxStep_ = 0) : 
                                 TMPLPTRARRAYSRT<REC>(_idxMax_, _idxStep_)
     {
     };
 
     /** Leiab lineaarselt otsides võtme järgi kirje indeksi ja viida
-     *
+     * 
      * @param @a key -- otsitav võti
      * @param idx Vaikimisi NULL
      * @param sortOrder
-     * @return
+     * @return 
      * <ul><li> NULL -- sellist polnud, *idx==-1
      *     <li> viit leitud kirjele, *idx on leitud kirje indeks viitade massiivis
      * </ul>
      */
     REC* Get(const KEY* key, int* idx = NULL, const int sortOrder = 0) const
     {
-        return TMPLPTRSEARCHLIN<REC, KEY>::LSearch(TMPLPTRARRAYSRT<REC>::rec,
+        return TMPLPTRSEARCHLIN<REC, KEY>::LSearch(TMPLPTRARRAYSRT<REC>::rec, 
                             TMPLPTRARRAYSRT<REC>::idxLast,key, idx, sortOrder);
     };
 
     /** Võti massiivi indeksina
-     *
+     * 
      * @param key -- selle järgi otsime
      * @return Kirje viit, kui selline oli, muidu NULL
      */
     REC * operator[] (const KEY* key) const
     {
         int idx;
-        return TMPLPTRSEARCHLIN<REC, KEY>::LSearch(TMPLPTRARRAY<REC>::rec,
-                TMPLPTRARRAY<REC>::idxLast, key, &idx) == true ?
+        return TMPLPTRSEARCHLIN<REC, KEY>::LSearch(TMPLPTRARRAY<REC>::rec, 
+                TMPLPTRARRAY<REC>::idxLast, key, &idx) == true ? 
                                         TMPLPTRARRAY<REC>::rec[idx] : NULL;
     }
 
@@ -1100,8 +1100,8 @@ private:
 ///   EXAMPLE(void) { key=data=0; }
 ///   bool Start(const EXAMPLE& rec) { key=rec.key; data=rec.data; return true; }
 ///   int Compare(const KEY* keyPtr) { assert(keyPtr!=NULL); return key - *keyPtr; }
-///   int Compare(const REC* recPtr)
-///     {
+///   int Compare(const REC* recPtr) 
+///     { 
 ///     assert(recPtr!=NULL);
 ///     int cmpRes=Compare(&(recPtr->key)); // kõigepealt võtmeid
 ///     if(cmpRes==0) // võrdsete võtmete korral muid asju
@@ -1116,20 +1116,20 @@ class TMPLPTRARRAYBIN : public TMPLPTRARRAYSRT<REC>, TMPLPTRSEARCHBIN<REC, KEY>
 {
 public:
 
-    TMPLPTRARRAYBIN(const int _idxMax_ = 0, const int _idxStep_ = 0) :
+    TMPLPTRARRAYBIN(const int _idxMax_ = 0, const int _idxStep_ = 0) : 
                                 TMPLPTRARRAYSRT<REC>(_idxMax_, _idxStep_)
     {
     };
 
-
+    
     /** Leiab kahendotsides võtme järgi kirje indeksi ja viida
-     *
-     * @return
-     * <ul><li> @a ==NULL polnud sellise võtmega kirjet. Et säiliks
+     * 
+     * @return 
+     * <ul><li> @a ==NULL polnud sellise võtmega kirjet. Et säiliks 
      * kirjete järjestus, lisa uus kirje kohale @a *idx
      *     <li> @a !=NULL viit vastava võtmega kirjele massiivis. @a *idx on
      * vastava kirje indeks massiivis
-     * </ul>
+     * </ul> 
      * @param key Võti, seda otsime
      * @param idx Vaikimisi NULL-viit
      * @param sortOrder Vaikimisi 0
@@ -1139,25 +1139,25 @@ public:
         return TMPLPTRSEARCHBIN<REC, KEY>::BSearch(TMPLPTRARRAY<REC>::rec,
                               TMPLPTRARRAY<REC>::idxLast, key, idx, sortOrder);
     };
-
+    
     /** Leiab indeksite vahemiku järjestatud massiivis, kuhu jäävad etteantud
      * võtmega kirjed
-     *
+     * 
      * @param key -- otsitav võti
-     * @param first -- esimese võtmele vastav kirje indeks, -1 kui võtmele
+     * @param first -- esimese võtmele vastav kirje indeks, -1 kui võtmele 
      * vastavaid kirjeid polnud
-     * @param last -- viimase võtmele vastava kirje indeks+1, -1 kui võtmele
-     * vastavaid kirjeid polnud
+     * @param last -- viimase võtmele vastava kirje indeks+1, -1 kui võtmele 
+     * vastavaid kirjeid polnud 
      * @param sortOrder -- vaikimisi 0
-     * @return @a false - sellise võtmega kirjeid polnud, @a true - leidis
+     * @return @a false - sellise võtmega kirjeid polnud, @a true - leidis 
      * vähemalt ühe kirjele vastava võtme
      */
     bool Get(const KEY* key, int& first, int& last, const int sortOrder = 0) const
     {
-        return TMPLPTRSEARCHBIN<REC, KEY>::BSearchDup(TMPLPTRARRAY<REC>::rec,
+        return TMPLPTRSEARCHBIN<REC, KEY>::BSearchDup(TMPLPTRARRAY<REC>::rec, 
                     TMPLPTRARRAY<REC>::idxLast, key, first, last, sortOrder);
     }
-
+    
     /**  Leiab kahendotsides võtme järgi kirje indeksi
      *
      * @param key Viit kahendotsitavale võtmele.
@@ -1251,8 +1251,8 @@ private:
 ///   EXAMPLE(void) { key=data=0; }
 ///   bool Start(const EXAMPLE& rec) { key=rec.key; data=rec.data; return true; }
 ///   int Compare(const KEY* keyPtr) { assert(keyPtr!=NULL); return key - *keyPtr; }
-///   int Compare(const REC* recPtr)
-///     {
+///   int Compare(const REC* recPtr) 
+///     { 
 ///     assert(recPtr!=NULL);
 ///     int cmpRes=Compare(&(recPtr->key)); // kõigepealt võtmeid
 ///     if(cmpRes==0) // võrdsete võtmete korral muid asju
@@ -1266,7 +1266,7 @@ template <class REC, class KEY>
 class TMPLPTRARRAYBINDUP : public TMPLPTRARRAYSRT<REC>, public TMPLPTRSEARCHBINDUP<REC, KEY>
 {
 public:
-    TMPLPTRARRAYBINDUP(const int _idxMax_ = 0, const int _idxStep_ = 0) :
+    TMPLPTRARRAYBINDUP(const int _idxMax_ = 0, const int _idxStep_ = 0) : 
                                     TMPLPTRARRAYSRT<REC>(_idxMax_, _idxStep_)
     {
         keyPtr = NULL;
@@ -1282,7 +1282,7 @@ public:
     REC* Get(const KEY* key, const int sortOrder = 0)
     {
         keyPtr = key;
-        return TMPLPTRSEARCHBINDUP<REC, KEY>::BSearchFirst(TMPLPTRARRAY<REC>::rec,
+        return TMPLPTRSEARCHBINDUP<REC, KEY>::BSearchFirst(TMPLPTRARRAY<REC>::rec, 
                             TMPLPTRARRAY<REC>::idxLast, key, NULL, sortOrder);
     }
 
@@ -1383,8 +1383,8 @@ private:
 ///   EXAMPLE(void) { key=data=0; }
 ///   bool Start(const EXAMPLE& rec) { key=rec.key; data=rec.data; return true; }
 ///   int Compare(const KEY *keyPtr) { assert(keyPtr!=NULL); return key - *keyPtr; }
-///   int Compare(const REC *recPtr)
-///     {
+///   int Compare(const REC *recPtr) 
+///     { 
 ///     assert(recPtr!=NULL);
 ///     int cmpRes=Compare(&(recPtr->key)); // kõigepealt võtmeid
 ///     if(cmpRes==0) // võrdsete võtmete korral muid asju
@@ -1559,7 +1559,7 @@ private:
 //---------------------------------------------------------------------------
 
 /** Kahe võtmega kirjete massiiv, esimese järgi lineaarselt, teise järgi kahendotsitav
- *
+ * 
  * @attention Kehendotsimine toimub unikalsete võtmetega massiivist.
  * Klassimalli parameetrid:
  * <ul><li> @a REC massiivi elemendit tüüp
@@ -1568,7 +1568,7 @@ private:
  * </ul>
  */
 template <typename REC, typename KEY4LSEARCH, typename KEY4BSEARCH>
-class TMPLPTRARRAYLINBIN :
+class TMPLPTRARRAYLINBIN : 
                             public TMPLPTRARRAYSRT<REC>,
                             public TMPLPTRSEARCHLIN<REC, KEY4LSEARCH>,
                             public TMPLPTRSEARCHBIN<REC, KEY4BSEARCH>
@@ -1646,13 +1646,13 @@ public:
     {
         return Get(key4lsearch);
     }
-
+    
 private:
     void InitClassVariables(void)
     {
-
+        
     }
-
+    
     /** Copy-construktor on antud juhul illegaalne
      */
     TMPLPTRARRAYLINBIN(const TMPLPTRARRAYLINBIN*)

@@ -1,6 +1,6 @@
 
 /*
-* kontrollib, kas S6na on mitmes�naline geo nimi
+* kontrollib, kas S6na on mitmesõnaline väljend (nt. ette tulema)
 */
 #include "mrflags.h"
 #include "post-fsc.h"
@@ -18,6 +18,8 @@ int MORF0::chkvaljend(MRFTULEMUSED *tul, FSXSTRING *sona)
     FSXSTRING S6na3;
     FSxCHAR enne_ki;
 
+    if (mrfFlags.ChkB(MF_V0TAKOKKU)==false) // ära võta sõnu üheks üksuseks kokku
+         return ALL_RIGHT;   // ... siis siin pole midagi teha; 04.2015
     jupp2 = (FSxCHAR *)(konveier->LyliInf0(1));
     if (jupp2.GetLength() == 0) // v�ljendit polegi
         return ALL_RIGHT;

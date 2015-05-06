@@ -1,0 +1,26 @@
+Kasutamine
+----------
+etsyn käivitamine -help parameetriga kuvab käsureaparameetrid koos seletusega.
+
+Sisendfail
+----------
+Kodeering: UTF8, ilma BOM-ita
+Struktuur:
+{
+	words: [
+		{
+			"lemma": "string",
+			"partofspeech": "string",
+			"form": "string",
+			"hint": "string"
+		},
+		...
+	]
+}
+hint ja partofspeech võivad puududa.
+
+Väljundfail
+-----------
+Kodeering: UTF8, ilma BOM-ita
+Sõnadele (words[*]) lisatakse täiendav informatsioon. 
+"text": [ "string", ... ]
