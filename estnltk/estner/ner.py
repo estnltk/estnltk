@@ -53,8 +53,8 @@ class Document(object):
         self.tokens = []
 
 
-    def __unicode__(self):
-        return ". ".join(unicode(snt) for snt in self.snts)
+    def __repr__(self):
+        return " ".join(repr(snt) for snt in self.snts)
 
 
 class Sentence(list):
@@ -65,5 +65,5 @@ class Sentence(list):
         super(Sentence, self).__init__(*args)
 
 
-    def __unicode__(self):
+    def __repr__(self):
         return " ".join(token.word for token in self)

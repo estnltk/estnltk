@@ -9,7 +9,6 @@ from estnltk.core import PACKAGE_PATH
 
 NER_PACKAGE_PATH = os.path.join(PACKAGE_PATH, 'estner')
 
-
 CLASSES = ['PER', 'ORG', 'LOC']
 
 # Crfsuite settings

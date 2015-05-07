@@ -34,10 +34,9 @@ CLITIC = 'clitic'
 LABEL = 'label' # named entity
 ENDING = 'ending'
 FORM = 'form'
+SPELLING = 'spelling'
+SUGGESTIONS = 'suggestions'
 
-# named entity related
-WORD_START = 'word_start'
-WORD_END = 'word_end'
 
 # clause segmenter related
 CLAUSE_ANNOTATION = 'clause_annotation'
