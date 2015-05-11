@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-'''Functionality for using Java-based components.
+"""Functionality for using Java-based components.
 
 Attributes
 ----------
 JAVARES_PATH: str
     The root path for Java components of Estnltk library.
-'''
+"""
 from __future__ import unicode_literals, print_function
 
 from estnltk.core import PACKAGE_PATH, as_unicode, as_binary
@@ -16,7 +16,7 @@ JAVARES_PATH = os.path.join(PACKAGE_PATH, 'java-res')
 
 
 class JavaProcess(object):
-    '''Base class for Java-based components.
+    """Base class for Java-based components.
     
     It opens a pipe to a Java VM running the component and interacts with
     it using standard input and standard output.
@@ -31,10 +31,10 @@ class JavaProcess(object):
     `process_line` method to interact with the process.
     
     It deals with input/output and errors.
-    '''
+    """
 
     def __init__(self, runnable_jar, args=[]):
-        '''Initialize a Java VM.
+        """Initialize a Java VM.
         
         Parameters
         ----------
@@ -43,14 +43,14 @@ class JavaProcess(object):
             to reside in `java-res` folder of the estnltk project.
         args: list of str
             The list of arguments given to the Java program.
-        '''
+        """
         self._process = subprocess.Popen(['java', '-jar', os.path.join(JAVARES_PATH, runnable_jar)] + args,
                                          stdin=subprocess.PIPE,
                                          stdout=subprocess.PIPE,
                                          stderr=subprocess.PIPE)
                                          
     def process_line(self, line):
-        '''Process a line of data.
+        """Process a line of data.
         
         Sends the data through the pipe to the process and flush it. Reads a resulting line
         and returns it.
@@ -71,7 +71,7 @@ class JavaProcess(object):
             In case of EOF is encountered.
         IoError
             In case it was impossible to read or write from the subprocess standard input / output.
-        '''
+        """
         assert isinstance(line, str)
         try:
             self._process.stdin.write(as_binary(line))

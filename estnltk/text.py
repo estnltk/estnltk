@@ -5,6 +5,7 @@ from .core import as_unicode
 from .names import *
 from .vabamorf import morf as vabamorf
 from .ner import NerTagger
+from .timex import TimexTagger
 
 import nltk.data
 from nltk.tokenize.regexp import WordPunctTokenizer
@@ -17,6 +18,7 @@ import codecs
 sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
 word_tokenizer = WordPunctTokenizer()
 nertagger = None
+timextagger = None
 
 def load_default_ner_tagger():
     global nertagger
@@ -24,6 +26,11 @@ def load_default_ner_tagger():
         nertagger = NerTagger()
     return nertagger
 
+def load_default_timex_tagger():
+    global timextagger
+    if timextagger is None:
+        timextagger = TimexTagger()
+    return timextagger
 
 class Text(dict):
     """Text class of estnltk.
@@ -33,10 +40,10 @@ class Text(dict):
     def __init__(self, text_or_instance, **kwargs):
         encoding = kwargs.get('encoding', 'utf-8')
         if isinstance(text_or_instance, dict):
-            super(Text, self).__init__(text_or_instance, **kwargs)
+            super(Text, self).__init__(text_or_instance)
             self[TEXT] = as_unicode(self[TEXT], encoding)
         else:
-            super(Text, self).__init__(**kwargs)
+            super(Text, self).__init__()
             self[TEXT] = as_unicode(text_or_instance, encoding)
         self.__kwargs = kwargs
         self.__load_functionality(**kwargs)
@@ -49,6 +56,11 @@ class Text(dict):
             'word_tokenizer', word_tokenizer)
         self.__ner_tagger = kwargs.get( # ner models take time to load, load only when needed
             'ner_tagger', None)
+        self.__timex_tagger = kwargs.get( # lazy loading for timex tagger
+            'timex_tagger', None)
+
+    def get_kwargs(self):
+        return self.__kwargs
 
     def __find_what_is_computed(self):
         computed = set()
@@ -287,6 +299,40 @@ class Text(dict):
             self.compute_named_entities()
         return [ne[LABEL] for ne in self[NAMED_ENTITIES]]
 
+    def compute_timexes(self):
+        if self.__timex_tagger is None:
+            self.__timex_tagger = load_default_timex_tagger()
+        self.__timex_tagger.tag_document(self, **self.__kwargs)
+        self.__computed.add(TIMEXES)
+
+    @property
+    def timexes(self):
+        if not self.is_computed(TIMEXES):
+            self.compute_timexes()
+        timex_data = {}
+        for i, w in enumerate(self[WORDS]):
+            if TIMEXES in w:
+                for timex in w[TIMEXES]:
+                    data = timex_data.get(timex[TMX_ID], [])
+                    data.append((i, timex))
+                    timex_data[timex[TMX_ID]] = data
+        timex_objects = []
+        for k, timexes in timex_data.items():
+            for (i, t1), (j, t2) in zip(timexes, timexes[1:]):
+                assert i == j-1 # assert that timexes are consequent
+            start_word = timexes[0][0]
+            end_word = timexes[-1][0] + 1
+            timex_objects.append(timexes[0][1])
+        return timex_objects
+
+    @property
+    def timex_texts(self):
+        return [timex[TEXT] for timex in self.timexes]
+
+    @property
+    def timex_values(self):
+        return [timex[TMX_VALUE] for timex in self.timexes]
+
     # ///////////////////////////////////////////////////////////////////
     # SPELLCHECK
     # ///////////////////////////////////////////////////////////////////
@@ -360,6 +406,14 @@ class Text(dict):
 
     def split_by_words(self):
         return self.split_by(WORDS)
+
+    def get_elements_in_span(self, element, span):
+        items = []
+        if element in self:
+            for item in self[element]:
+                if item[START] >= span[0] and item[END] <= span[1]:
+                    items.append(item)
+        return items
 
 
 

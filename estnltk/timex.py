@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals, print_function
+from __future__ import unicode_literals, print_function, absolute_import
 
-from estnltk.javaprocess import JavaProcess, JAVARES_PATH
-from estnltk.textprocessor import TextProcessor
-from estnltk.core import JsonPaths
-from estnltk.names import *
+from .javaprocess import JavaProcess, JAVARES_PATH
+from .names import *
 
 from pprint import pprint
 
@@ -20,46 +18,57 @@ RENAMING_MAP = {
     'endPoint': TMX_ENDPOINT,
 }
 
-class TimexTagger(JavaProcess, TextProcessor):
+class TimexTagger(JavaProcess):
     
     def __init__(self):
         JavaProcess.__init__(self, 'Ajavt.jar', ['-pyvabamorf', '-r', os.path.join(JAVARES_PATH, 'reeglid.xml')])
 
-    def process_json(self, corpus, **kwargs):
+    def tag_document(self, document, **kwargs):
         process_as_whole = kwargs.get('process_as_whole', False)
-        if process_as_whole:
-            # Process all the sentences together
-            return self.process_sentences(corpus, process_json=True)
-        # Process each sentence independently 
-        for sentence_ptr in JsonPaths.words.find(corpus):
-            self.process_words(sentence_ptr.value, **kwargs)
-        return corpus
+        if not document.is_computed(ANALYSIS):
+            document.compute_analysis()
+        #if process_as_whole:
+        #    # Process all the sentences together
+        #    return self.process_sentences(document, process_json=False)
+        # Process each sentence independently
+        self.tag_separately(document, **kwargs)
 
-    def process_corpus(self, corpus, **kwargs):
-        process_as_whole = kwargs.get('process_as_whole', False)
-        if process_as_whole:
-            # Process all the sentences together
-            return self.process_sentences(corpus, process_json=False)
-        # Process each sentence independently 
-        for sentence in corpus.sentences:
-            self.process_words(sentence[WORDS], **kwargs)
-        return corpus
-
-    def process_words(self, words, **kwargs):
+    def tag_separately(self, document, **kwargs):
         remove_unnormalized_timexes = kwargs.get('remove_unnormalized_timexes', True)
         creation_date = kwargs.get('creation_date', datetime.datetime.now())
         creation_date = creation_date.strftime('%Y-%m-%dT%H:%M')
-        sentence = {
-            'dct': creation_date,
-            WORDS: words
+        document[CREATION_DATE] = creation_date
+
+        sentences = document.split_by_sentences()
+        sent_spans = document.sentence_spans
+        for sentidx, sentence in enumerate(sentences):
+            # prepare data for Java library
+            self.add_text(sentence)
+            data = {
+                WORDS: sentence.words,
+                CREATION_DATE: creation_date
             }
-        processed_words = self.rename_attributes(json.loads(self.process_line(json.dumps(sentence)))[WORDS])
-        if remove_unnormalized_timexes:
-            processed_words = self.remove_timexes_with_no_value_type(processed_words)
-        for w, p in zip(words, processed_words):
-            if TIMEXES in p:
-                w[TIMEXES] = p[TIMEXES]
-        return words
+            dump = json.dumps(data)
+            # process data with timex library
+            result = json.loads(self.process_line(dump))
+            # process the result
+            result = self.rename_attributes(result[WORDS])
+            if remove_unnormalized_timexes:
+                result = self.remove_timexes_with_no_value_type(result)
+            # add timex data to original document
+            doc_words = document.get_elements_in_span(WORDS, sent_spans[sentidx])
+            assert len(doc_words) == len(result)
+            for word, result_word in zip(doc_words, result):
+                if TIMEXES in result_word:
+                    word[TIMEXES] = result_word[TIMEXES]
+
+    def add_text(self, sentence):
+        for word in sentence.words:
+            word[TEXT] = sentence.text[word[START]:word[END]]
+
+    def remove_text(self, sentence):
+        for word in sentence.words:
+            del word[TEXT]
 
     # Processes all the sentences together
     def process_sentences(self, corpus, process_json=False, **kwargs):
