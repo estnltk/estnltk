@@ -194,7 +194,7 @@ void synthesizeWord(CLinguistic& linguistic, CFSVar &Data) {
     CFSWString szHint=Word["hint"].GetWString();
 
     CFSArray<CMorphInfo> Result=linguistic.Synthesize(Input, szHint);
-    if (Result.GetSize()){
+    if (Result.GetSize()) {
         CFSVar Text;
         Text.Cast(CFSVar::VAR_ARRAY);
         for (INTPTR ipRes=0; ipRes<Result.GetSize(); ipRes++) {
@@ -215,19 +215,24 @@ StringVector convertStringVectorOutput(CFSVar& data) {
 }
 
 StringVector Vabamorf::synthesize(
-        std::string lemma,
-        std::string partofspeech,
-        std::string form,
-        std::string hint,
-        bool guess,
-        bool phonetic) {
+        const std::string lemma,
+        const std::string form,
+        const std::string partofspeech,
+        const std::string hint,
+        const bool guess,
+        const bool phonetic) {
     // setup data
     CFSVar data;
     data["lemma"] = lemma.c_str();
-    data["partofspeech"] = partofspeech.c_str();
-    data["hint"] = hint.c_str();
+    data["form"] = form.c_str();
+    if (partofspeech.size() > 0) {
+        data["partofspeech"] = partofspeech.c_str();
+    }
+    if (hint.size() > 0) {
+        data["hint"] = hint.c_str();
+    }
 
-    applyMorfSettings(linguistic, guess, phonetic, true);
+    applyMorfSettings(linguistic, guess, phonetic, false);
     synthesizeWord(linguistic, data);
     return convertStringVectorOutput(data);
 }

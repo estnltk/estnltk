@@ -19768,7 +19768,7 @@ SWIGINTERN PyObject *_wrap_Vabamorf_synthesize(PyObject *self, PyObject *args) {
     std::string *ptr = (std::string *)0;
     int res = SWIG_AsPtr_std_string(obj1, &ptr);
     if (!SWIG_IsOK(res) || !ptr) {
-      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "Vabamorf_synthesize" "', argument " "2"" of type '" "std::string""'"); 
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "Vabamorf_synthesize" "', argument " "2"" of type '" "std::string const""'"); 
     }
     arg2 = *ptr;
     if (SWIG_IsNewObj(res)) delete ptr;
@@ -19777,7 +19777,7 @@ SWIGINTERN PyObject *_wrap_Vabamorf_synthesize(PyObject *self, PyObject *args) {
     std::string *ptr = (std::string *)0;
     int res = SWIG_AsPtr_std_string(obj2, &ptr);
     if (!SWIG_IsOK(res) || !ptr) {
-      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "Vabamorf_synthesize" "', argument " "3"" of type '" "std::string""'"); 
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "Vabamorf_synthesize" "', argument " "3"" of type '" "std::string const""'"); 
     }
     arg3 = *ptr;
     if (SWIG_IsNewObj(res)) delete ptr;
@@ -19786,7 +19786,7 @@ SWIGINTERN PyObject *_wrap_Vabamorf_synthesize(PyObject *self, PyObject *args) {
     std::string *ptr = (std::string *)0;
     int res = SWIG_AsPtr_std_string(obj3, &ptr);
     if (!SWIG_IsOK(res) || !ptr) {
-      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "Vabamorf_synthesize" "', argument " "4"" of type '" "std::string""'"); 
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "Vabamorf_synthesize" "', argument " "4"" of type '" "std::string const""'"); 
     }
     arg4 = *ptr;
     if (SWIG_IsNewObj(res)) delete ptr;
@@ -19795,7 +19795,7 @@ SWIGINTERN PyObject *_wrap_Vabamorf_synthesize(PyObject *self, PyObject *args) {
     std::string *ptr = (std::string *)0;
     int res = SWIG_AsPtr_std_string(obj4, &ptr);
     if (!SWIG_IsOK(res) || !ptr) {
-      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "Vabamorf_synthesize" "', argument " "5"" of type '" "std::string""'"); 
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "Vabamorf_synthesize" "', argument " "5"" of type '" "std::string const""'"); 
     }
     arg5 = *ptr;
     if (SWIG_IsNewObj(res)) delete ptr;

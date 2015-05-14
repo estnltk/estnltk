@@ -257,7 +257,3 @@ class NameGroupingTest(unittest.TestCase):
     def test_grouping(self):
         analysis = analyze('See on New York')
         self.assertEqual(4, len(analysis))
-
-
-if __name__ == '__main__':
-    unittest.main()

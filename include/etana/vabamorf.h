@@ -108,12 +108,12 @@ public:
      * @param phon Add phonetic markup.
      */
     StringVector synthesize(
-        std::string lemma,
-        std::string partofspeech,
-        std::string form,
-        std::string hint,
-        bool guess,
-        bool phon);
+        const std::string lemma,
+        const std::string form,
+        const std::string partofspeech,
+        const std::string hint,
+        const bool guess,
+        const bool phon);
 
 private:
     CLinguistic linguistic;

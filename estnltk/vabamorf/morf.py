@@ -249,7 +249,7 @@ class Vabamorf(object):
             return fixed_words
 
 
-    def synthesize(self, lemma, form, guess=True, phonetic=False, **kwargs):
+    def synthesize(self, lemma, form, partofspeech='', hint='', guess=True, phonetic=False):
         """Synthesize a single word based on given morphological attributes.
 
         Note that spellchecker does not respect pre-tokenized words and concatenates
@@ -258,15 +258,18 @@ class Vabamorf(object):
         Parameters
         ----------
         lemma: str
+            The lemma of the word(s) to be synthesized.
         form: str
+            The form of the word(s) to be synthesized.
 
         Keyword parameters
         ------------------
         partofspeech: str
         hint: str
         guess: boolean (default: True)
+            Use heuristics when synthesizing unknown words.
         phonetic: boolean (default: False)
-
+            Add phonetic markup to synthesized words.
 
         Returns
         -------
@@ -274,10 +277,10 @@ class Vabamorf(object):
             List of synthesized words.
         """
         words = self._morf.synthesize(
-            convert(lemma),
-            convert(kwargs.get('partofspeech', '')),
-            convert(form),
-            convert(kwargs.get('hint', '')),
+            convert(lemma.strip()),
+            convert(form.strip()),
+            convert(partofspeech.strip()),
+            convert(hint.strip()),
             guess,
             phonetic
         )
@@ -481,7 +484,7 @@ def fix_spelling(words, join=True, joinstring=' '):
     return Vabamorf.instance().fix_spelling(words, join, joinstring)
 
 
-def synthesize(lemma, form, guess=True, phonetic=False, **kwargs):
+def synthesize(lemma, form, partofspeech='', hint='', guess=True, phonetic=False):
     """Synthesize a single word based on given morphological attributes.
 
     Note that spellchecker does not respect pre-tokenized words and concatenates
@@ -490,19 +493,23 @@ def synthesize(lemma, form, guess=True, phonetic=False, **kwargs):
     Parameters
     ----------
     lemma: str
+        The lemma of the word(s) to be synthesized.
     form: str
+        The form of the word(s) to be synthesized.
 
     Keyword parameters
     ------------------
     partofspeech: str
     hint: str
     guess: boolean (default: True)
+        Use heuristics when synthesizing unknown words.
     phonetic: boolean (default: False)
+        Add phonetic markup to synthesized words.
 
     Returns
     -------
     list
         List of synthesized words.
     """
-    return Vabamorf.instance().synthesize(lemma, form, guess=True, phonetic=False,  **kwargs)
+    return Vabamorf.instance().synthesize(lemma, form, partofspeech, hint, guess, phonetic)
 

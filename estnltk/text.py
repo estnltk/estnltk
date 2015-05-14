@@ -20,17 +20,20 @@ word_tokenizer = WordPunctTokenizer()
 nertagger = None
 timextagger = None
 
+
 def load_default_ner_tagger():
     global nertagger
     if nertagger is None:
         nertagger = NerTagger()
     return nertagger
 
+
 def load_default_timex_tagger():
     global timextagger
     if timextagger is None:
         timextagger = TimexTagger()
     return timextagger
+
 
 class Text(dict):
     """Text class of estnltk.
@@ -416,7 +419,6 @@ class Text(dict):
         return items
 
 
-
 def read_corpus(fnm):
     """Function to read a JSON corpus from a file.
     A JSON corpus contains one document per line, encoded in JSON.
@@ -437,6 +439,7 @@ def read_corpus(fnm):
             documents.append(Text(json.loads(line)))
             line = f.readline()
     return documents
+
 
 if __name__ == '__main__':
     text = Text("See on esimene lause. See on teine lause!")
