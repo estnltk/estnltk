@@ -7,7 +7,9 @@ from .vabamorf import morf as vabamorf
 from .ner import NerTagger
 from .timex import TimexTagger
 
+import six
 import nltk.data
+import regex as re
 from nltk.tokenize.regexp import WordPunctTokenizer
 
 import json
@@ -41,6 +43,17 @@ class Text(dict):
     """
 
     def __init__(self, text_or_instance, **kwargs):
+        """Initialize an Text object.
+
+        Keyword parameters
+        ------------------
+        sentence_tokenizer: nltk.Tokenizer
+        word_tokenizer: nltk.Tokenizer
+        ner_tagger: NerTagger
+        timex_tagger: TimexTagger
+        creation_date: datetime.datetime
+            For timex expression, the anchor time.
+        """
         encoding = kwargs.get('encoding', 'utf-8')
         if isinstance(text_or_instance, dict):
             super(Text, self).__init__(text_or_instance)
@@ -117,6 +130,7 @@ class Text(dict):
             self.compute_words()
         elif element == ANALYSIS:
             self.compute_analysis()
+        return self
 
     def compute_sentences(self):
         if self.is_computed(SENTENCES):
@@ -128,6 +142,7 @@ class Text(dict):
             dicts.append({'start': start, 'end': end})
         self[SENTENCES] = dicts
         self.__computed.add(SENTENCES)
+        return self
 
     @property
     def sentences(self):
@@ -157,6 +172,7 @@ class Text(dict):
             dicts.append({'start': start, 'end': end})
         self[WORDS] = dicts
         self.__computed.add(WORDS)
+        return self
 
     def compute_analysis(self):
         if self.is_computed(ANALYSIS):
@@ -169,6 +185,7 @@ class Text(dict):
             word[ANALYSIS] = analysis[ANALYSIS]
             word[TEXT] = analysis[TEXT]
         self.__computed.add(ANALYSIS)
+        return self
 
     @property
     def words(self):
@@ -250,6 +267,7 @@ class Text(dict):
             self.__ner_tagger = load_default_ner_tagger()
         self.__ner_tagger.tag_document(self)
         self.__computed.add(LABEL)
+        return self
 
     @property
     def labels(self):
@@ -276,6 +294,7 @@ class Text(dict):
                     word_start = -1
         self[NAMED_ENTITIES] = nes
         self.__computed.add(NAMED_ENTITIES)
+        return self
 
     @property
     def named_entities(self):
@@ -307,6 +326,7 @@ class Text(dict):
             self.__timex_tagger = load_default_timex_tagger()
         self.__timex_tagger.tag_document(self, **self.__kwargs)
         self.__computed.add(TIMEXES)
+        return self
 
     @property
     def timexes(self):
@@ -355,6 +375,12 @@ class Text(dict):
         return vabamorf.spellcheck(self.word_texts, suggestions=True)
 
     def fix_spelling(self):
+        """Fix spellin of the text.
+
+        NB! Invalidates computed properties, which have to be recomputed in order to use.
+        If accessing data using properties, they will be updated automatically, but
+        direct use of the underlying dictionary will yield wrong results.
+        """
         if not self.is_computed(WORDS):
             self.compute_words()
         text = self.text
@@ -371,6 +397,7 @@ class Text(dict):
             newtoks.append(text[lastend:])
             self[TEXT] = ''.join(newtoks)
             self.__computed.clear()
+        return self
 
     # ///////////////////////////////////////////////////////////////////
     # SPLITTING
@@ -390,25 +417,85 @@ class Text(dict):
                     break
         return splits
 
-    def split_by(self, element):
-        if not self.is_computed(element):
-            self.compute(element)
+    def __split_given_spans(self, spans):
         text = self.text
-        split_spans = self.__spans(element)
-        N = len(split_spans)
-        results = [{TEXT: text[start:end]} for start, end in split_spans]
+        N = len(spans)
+        results = [{TEXT: text[start:end]} for start, end in spans]
         for elem in self:
             if isinstance(self[elem], list):
-                splits = self.__divide_to_spans(split_spans, self[elem])
+                splits = self.__divide_to_spans(spans, self[elem])
                 for idx in range(N):
                     results[idx][elem] = splits[idx]
         return [Text(res) for res in results]
+
+    def split_by(self, element):
+        """Split the text into multiple instances by the given element.
+
+        Parameters
+        ----------
+        element: str
+            String determining the element, such as "sentences" or "words"
+
+        Returns
+        -------
+        list of Text
+        """
+        if not self.is_computed(element):
+            self.compute(element)
+        return self.__split_given_spans(self.__spans(element))
 
     def split_by_sentences(self):
         return self.split_by(SENTENCES)
 
     def split_by_words(self):
         return self.split_by(WORDS)
+
+    def split_by_regex(self, regex_or_pattern, flags=re.U, gaps=True):
+        """Split the text into multiple instances using a regex.
+
+        Parameters
+        ----------
+        regex_or_pattern: str or compiled pattern
+            The regular expression to use for splitting.
+
+        Keyword parameters
+        ------------------
+        flags: int (default: re.U)
+            The regular expression flags (only used, when user has not supplied compiled regex).
+        gaps: boolean (default: True)
+            If True, then regions matched by the regex are not included in the resulting Text instances, which
+            is expected behaviour.
+            If False, then only regions matched by the regex are included in the result.
+
+        Returns
+        -------
+        list of Text
+            The Text instances obtained by splitting.
+        """
+
+        text = self[TEXT]
+        regex = regex_or_pattern
+        if isinstance(regex, six.string_types):
+            regex = re.compile(regex_or_pattern, flags=flags)
+        # else is assumed pattern
+        last_end = 0
+        spans = []
+        if gaps: # compute cap spans
+            for mo in regex.finditer(text):
+                start, end = mo.start(), mo.end()
+                if start > last_end:
+                    spans.append((last_end, start))
+                last_end = end
+            if last_end < len(text):
+                spans.append((last_end, len(text)))
+        else: # use matched regions
+            spans = [(mo.start(), mo.end()) for mo in regex.finditer(text)]
+        return self.__split_given_spans(spans)
+
+
+    # ///////////////////////////////////////////////////////////////////
+    # FILTERING
+    # ///////////////////////////////////////////////////////////////////
 
     def get_elements_in_span(self, element, span):
         items = []
@@ -442,8 +529,8 @@ def read_corpus(fnm):
 
 
 if __name__ == '__main__':
-    text = Text("See on esimene lause. See on teine lause!")
+    text = Text('Esimene lause. Teine lause. Kolmas lause. See on neljas.')
+    text.compute_sentences()
+    text.compute_words()
     from pprint import pprint
-    print (text.lemmas)
-    sents = text.split_by(SENTENCES)
-    pprint (sents[1].lemmas)
+    pprint (dict(text))

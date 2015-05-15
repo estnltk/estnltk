@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals, print_function
+from __future__ import unicode_literals, print_function, absolute_import
 
-from estnltk.core import as_unicode, as_binary
+from ..core import as_unicode, as_binary
 import unittest
 import six
 
 
 class TestAsUnicode(unittest.TestCase):
-    '''Tests for as_unicode function'''
+    """Tests for as_unicode function"""
     
     def test_unicode_input(self):
         w = as_unicode('ööTää')
@@ -31,7 +31,7 @@ class TestAsUnicode(unittest.TestCase):
 
 
 class TestAsBinary(unittest.TestCase):
-    '''Tests for as_binary function.'''
+    """Tests for as_binary function."""
     
     def test_unicode_input(self):
         w = as_binary('ööTää')
@@ -56,6 +56,3 @@ class TestAsBinary(unittest.TestCase):
     def test_invalid_input_type(self):
         w = ['list']
         self.assertRaises(ValueError, as_unicode, w)
-    
-if __name__ == '__main__':
-    unittest.main()
