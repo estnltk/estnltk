@@ -69,7 +69,7 @@ class TextSplittingTest(unittest.TestCase):
 
     def test_split_by_regex_notcaps(self):
         text = Text("SUUR väike SUUR")
-        regex = '[A-Z]+'
+        regex = re.compile('[A-Z]+')
         texts = text.split_by_regex(regex, gaps=False)
         expected = [Text('SUUR'), Text('SUUR')]
         self.assertListEqual(expected, texts)
