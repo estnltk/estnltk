@@ -7,4 +7,4 @@ from estnltk import Text
 from pprint import pprint
 
 text = Text('''Tuleb minna vanast raudteeülesõidukohast edasi ja pöörata paremale.''')
-pprint(list(zip(text.word_texts, text.lemmas, text.postags, text.forms)))
+pprint(list(zip(text.word_texts, text.lemmas, text.postag_descriptions, text.forms)))

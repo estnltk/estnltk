@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
-from .core import as_unicode
+from .core import as_unicode, POSTAG_DESCRIPTIONS, CASES, PLURALITY, VERB_TYPES
 from .names import *
 from .vabamorf import morf as vabamorf
 from .ner import NerTagger
 from .timex import TimexTagger
 
 import six
+import pandas
 import nltk.data
 import regex as re
 from nltk.tokenize.regexp import WordPunctTokenizer
@@ -15,6 +16,7 @@ from nltk.tokenize.regexp import WordPunctTokenizer
 import json
 from copy import deepcopy
 import codecs
+
 
 # default functionality
 sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
@@ -39,7 +41,6 @@ def load_default_timex_tagger():
 
 class Text(dict):
     """Text class of estnltk.
-    We represent each text as a dictionary, in order to make it easy to store as JSON.
     """
 
     def __init__(self, text_or_instance, **kwargs):
@@ -257,10 +258,35 @@ class Text(dict):
         return self.__get_analysis_element(POSTAG)
 
     @property
+    def postag_descriptions(self):
+        if not self.is_computed(ANALYSIS):
+            self.compute_analysis()
+        return [POSTAG_DESCRIPTIONS.get(tag, '') for tag in self.__get_analysis_element(POSTAG)]
+
+    @property
     def root_tokens(self):
         if not self.is_computed(ANALYSIS):
             self.compute_analysis()
         return self.__get_analysis_element(ROOT_TOKENS)
+
+    @property
+    def descriptions(self):
+        descs = []
+        for postag, form in zip(self.postags, self.forms):
+            desc = VERB_TYPES.get(form, '')
+            if len(desc) == 0:
+                toks = form.split(' ')
+                if len(toks) == 2:
+                    plur_desc = PLURALITY.get(toks[0], None)
+                    case_desc = CASES.get(toks[1], None)
+                    toks = []
+                    if plur_desc is not None:
+                        toks.append(plur_desc)
+                    if case_desc is not None:
+                        toks.append(case_desc)
+                    desc = ' '.join(toks)
+            descs.append(desc)
+        return descs
 
     def compute_labels(self):
         if self.__ner_tagger is None:
@@ -504,6 +530,64 @@ class Text(dict):
                 if item[START] >= span[0] and item[END] <= span[1]:
                     items.append(item)
         return items
+
+
+    # ///////////////////////////////////////////////////////////////////
+    # AGGREGATE GETTER
+    # ///////////////////////////////////////////////////////////////////
+
+    @property
+    def get(self):
+        return ZipBuilder(self)
+
+
+class ZipBuilder(object):
+    """Helper class to aggregate various :py:class:`~estnltk.text.Text` properties in a simple way.
+    Uses builder pattern.
+
+    Example::
+
+        text = Text('Alles see oli, kui käisin koolis')
+        text.get.word_texts.lemmas.postags.as_dataframe
+
+    test.get - this initiates a new :py:class:`~estnltk.text.ZipBuilder` instance on the Text object.
+
+    .word_texts - adds word texts
+    .postags - adds postags
+
+    .as_dataframe - builds the final object and returns a dataframe
+    """
+
+    def __init__(self, text):
+        self.__text = text
+        self.__keys = []
+        self.__values = []
+
+    def __getattribute__(self, item):
+        if not item.startswith('__') and item not in dir(self):
+            self.__keys.append(item)
+            self.__values.append(object.__getattribute__(self.__text, item))
+            return self
+        return object.__getattribute__(self, item)
+
+    @property
+    def as_dataframe(self):
+        df = pandas.DataFrame.from_dict(self.as_dict)
+        return df[self.__keys]
+
+    @property
+    def as_zip(self):
+        return zip(*self.__values)
+
+    @property
+    def as_list(self):
+        return self.__values
+
+    @property
+    def as_dict(self):
+        return dict(zip(self.__keys, self.__values))
+
+
 
 
 def read_corpus(fnm):

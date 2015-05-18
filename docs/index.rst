@@ -18,20 +18,21 @@ Quick example
     from estnltk import Text
     text = Text('Tuleb minna vanast raudteeülesõidukohast edasi ja pöörata paremale.')
 
-    # tokenized words, their stemmed / lemmatized versions, part-of-speech tags and forms
-    zip(text.word_texts, text.lemmas, text.postags, text.forms)
+    # tokenized words, their stemmed / lemmatized versions, postag descriptions and word forms
+    zip(text.word_texts, text.lemmas, text.postag_descriptions, text.forms)
 
 ::
 
-    [('Tuleb', 'tulema', 'V', 'b'),
-     ('minna', 'minema', 'V', 'da'),
-     ('vanast', 'vana', 'A', 'sg el'),
-     ('raudteeülesõidukohast', 'raudteeülesõidukoht', 'S', 'sg el'),
-     ('edasi', 'edasi', 'D', ''),
-     ('ja', 'ja', 'J', ''),
-     ('pöörata', 'pöörama', 'V', 'da'),
-     ('paremale', 'paremale', 'D', ''),
-     ('.', '.', 'Z', '')]
+    [('Tuleb', 'tulema', 'tegusõna', 'b'),
+     ('minna', 'minema', 'tegusõna', 'da'),
+     ('vanast', 'vana', 'omadussõna algvõrre', 'sg el'),
+     ('raudteeülesõidukohast', 'raudteeülesõidukoht', 'nimisõna', 'sg el'),
+     ('edasi', 'edasi', 'määrsõna', ''),
+     ('ja', 'ja', 'sidesõna', ''),
+     ('pöörata', 'pöörama', 'tegusõna', 'da'),
+     ('paremale', 'paremale', 'määrsõna', ''),
+     ('.', '.', 'lausemärk', '')]
+
 
 
 Introduction
