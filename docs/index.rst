@@ -13,27 +13,76 @@ Estnltk is licensed under `GNU GPL version 2`_.
 Quick example
 =============
 
-::
+The best way to learn Estnltk is to start using it right away, so without further ado,
+let's begin with an example on how to extract some morphological information from text and
+display it as a nicely formatted `DataFrame`_ object::
 
     from estnltk import Text
-    text = Text('Tuleb minna vanast raudteeülesõidukohast edasi ja pöörata paremale.')
-
-    # tokenized words, their stemmed / lemmatized versions, postag descriptions and word forms
-    zip(text.word_texts, text.lemmas, text.postag_descriptions, text.forms)
+    text = Text('Mine vanast raudteeülesõidukohast edasi ja pööra paremale, siis leiad Krokodilli!')
+    text.get.word_texts.lemmas.postags.postag_descriptions.as_dataframe
 
 ::
 
-    [('Tuleb', 'tulema', 'tegusõna', 'b'),
-     ('minna', 'minema', 'tegusõna', 'da'),
-     ('vanast', 'vana', 'omadussõna algvõrre', 'sg el'),
-     ('raudteeülesõidukohast', 'raudteeülesõidukoht', 'nimisõna', 'sg el'),
-     ('edasi', 'edasi', 'määrsõna', ''),
-     ('ja', 'ja', 'sidesõna', ''),
-     ('pöörata', 'pöörama', 'tegusõna', 'da'),
-     ('paremale', 'paremale', 'määrsõna', ''),
-     ('.', '.', 'lausemärk', '')]
+                       word_texts               lemmas postags  postag_descriptions
+    0                    Mine               minema       V             tegusõna
+    1                  vanast                 vana       A  omadussõna algvõrre
+    2   raudteeülesõidukohast  raudteeülesõidukoht       S             nimisõna
+    3                   edasi                edasi       D             määrsõna
+    4                      ja                   ja       J             sidesõna
+    5                   pööra              pöörama       V             tegusõna
+    6                paremale             paremale       D             määrsõna
+    7                       ,                    ,       Z            lausemärk
+    8                    siis                 siis       J             sidesõna
+    9                   leiad               leidma       V             tegusõna
+    10             Krokodilli            Krokodill       H            pärisnimi
+    11                      !                    !       Z            lausemärk
 
 
+Here is the same data as a dictionary::
+
+    text.get.word_texts.lemmas.postags.postag_descriptions.as_dict
+
+::
+
+    {'lemmas': ['minema',
+                'vana',
+                'raudteeülesõidukoht',
+                'edasi',
+                'ja',
+                'pöörama',
+                'paremale',
+                ',',
+                'siis',
+                'leidma',
+                'Krokodill',
+                '!'],
+     'postag_descriptions': ['tegusõna',
+                             'omadussõna algvõrre',
+                             'nimisõna',
+                             'määrsõna',
+                             'sidesõna',
+                             'tegusõna',
+                             'määrsõna',
+                             'lausemärk',
+                             'sidesõna',
+                             'tegusõna',
+                             'pärisnimi',
+                             'lausemärk'],
+     'postags': ['V', 'A', 'S', 'D', 'J', 'V', 'D', 'Z', 'J', 'V', 'H', 'Z'],
+     'word_texts': ['Mine',
+                    'vanast',
+                    'raudteeülesõidukohast',
+                    'edasi',
+                    'ja',
+                    'pööra',
+                    'paremale',
+                    ',',
+                    'siis',
+                    'leiad',
+                    'Krokodilli',
+                    '!']}
+
+.. _DataFrame: http://pandas.pydata.org/pandas-docs/dev/generated/pandas.DataFrame.html
 
 Introduction
 ============
@@ -66,6 +115,7 @@ Tutorials
    :maxdepth: 2
 
    tutorials/installation
+   tutorials/text
 
 
 API reference
