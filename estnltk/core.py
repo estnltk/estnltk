@@ -1,6 +1,15 @@
 # -*- coding: utf-8 -*-
-"""Core module of the estnltk library.
-Defines some common functionality and various paths.
+"""Core module of the Estnltk library, that sets up some common paths and has functions to convert between
+binary and unicode data.
+
+Python 2.x and Python 3.x versions are different in the way the handle unicode data.
+
+* Python 2 uses ``str`` for binary data and ``unicode`` for textual data.
+* Python 3 uses ``str`` for unicode data and ``bytes`` for binary data.
+
+As it is impossible to write code that is compatible with both Python versions due to using different types,
+we use :py:func:`~estnltk.core.as_unicode` and  :py:func:`~estnltk.core.as_binary` to abstact the conversion away.
+
 """
 from __future__ import unicode_literals, print_function, absolute_import
 
@@ -26,7 +35,27 @@ VERB_CHAIN_RES_PATH = os.path.join(PACKAGE_PATH, 'mw_verbs', 'res')
 
 
 def as_unicode(s, encoding='utf-8'):
-    """Convert the string to unicode."""
+    """Force conversion of given string to unicode type.
+    Unicode is ``str`` type for Python 3.x and ``unicode`` for Python 2.x .
+
+    If the string is already in unicode, then no conversion is done and the same string is returned.
+
+    Parameters
+    ----------
+    s: str or bytes (Python3), str or unicode (Python2)
+        The string to convert to unicode.
+    encoding: str
+        The encoding of the input string (default: utf-8)
+
+    Raises
+    ------
+    ValueError
+        In case an input of invalid type was passed to the function.
+
+    Returns
+    -------
+    ``str`` for Python3 or ``unicode`` for Python 2.
+    """
     if isinstance(s, six.text_type):
         return s
     elif isinstance(s, six.binary_type):
@@ -36,7 +65,28 @@ def as_unicode(s, encoding='utf-8'):
 
 
 def as_binary(s, encoding='utf-8'):
-    """Convert the string to binary"""
+    """Force conversion of given string to binary type.
+    Binary is ``bytes`` type for Python 3.x and ``str`` for Python 2.x .
+
+    If the string is already in binary, then no conversion is done and the same string is returned
+    and ``encoding`` argument is ignored.
+
+    Parameters
+    ----------
+    s: str or bytes (Python3), str or unicode (Python2)
+        The string to convert to binary.
+    encoding: str
+        The encoding of the resulting binary string (default: utf-8)
+
+    Raises
+    ------
+    ValueError
+        In case an input of invalid type was passed to the function.
+
+    Returns
+    -------
+    ``bytes`` for Python3 or ``str`` for Python 2.
+    """
     if isinstance(s, six.text_type):
         return s.encode(encoding)
     elif isinstance(s, six.binary_type):

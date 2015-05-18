@@ -6,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Estnltk — Open source tools for Estonian natural language processing &mdash; estnltk 1.1 documentation</title>
+    <title>Estnltk — Open source tools for Estonian natural language processing &mdash; estnltk 1.2 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.1',
+        VERSION:     '1.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,12 +23,12 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="estnltk 1.1 documentation" href="#" />
-    <link rel="next" title="Installation" href="installation.html" /> 
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.2 documentation" href="#" />
+    <link rel="next" title="Installation" href="tutorials/installation.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -38,86 +38,89 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="installation.html" title="Installation"
+          <a href="tutorials/installation.html" title="Installation"
              accesskey="N">next</a> |</li>
-        <li><a href="#">estnltk 1.1 documentation</a> &raquo;</li> 
+        <li><a href="#">estnltk 1.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="estnltk-open-source-tools-for-estonian-natural-language-processing">
 <h1>Estnltk &#8212; Open source tools for Estonian natural language processing<a class="headerlink" href="#estnltk-open-source-tools-for-estonian-natural-language-processing" title="Permalink to this headline">¶</a></h1>
-<p>Estnltk is a Python 2.7/Python 3.4 library for performing common language processing tasks in Estonian.
-The project is funded by EKT (<a class="reference external" href="https://www.keeletehnoloogia.ee/">Eesti Keeletehnoloogia Riiklik Programm</a>) under the project <a class="reference external" href="https://www.keeletehnoloogia.ee/et/ekt-projektid/estnltk-pythoni-teegid-eestikeelsete-vabatektside-lihtsamaks-tootlemiseks">EKT57</a>.
-Although there are already many tools for processing Estonian, it is often not very trivial to interface them in applications or more complex research projects.
-Extra work is required to write application specific interfaces each time a tool is used.</p>
-<p>Another problem is that many of these tools are scattered around the web and are hard to find if you do not know where to look.
-Although we have <a class="reference external" href="http://www.keeleveeb.ee/">keeleveeb.ee</a> and <a class="reference external" href="https://www.keeletehnoloogia.ee/et">EKT</a>, <a class="reference external" href="https://www.keeletehnoloogia.ee/et">EKKTT</a> project pages, it can be hard for students and non-language people to dive in.
-The aim of the project is to tie together a number of open source components so that they could be used easily:</p>
-<ul class="simple">
-<li>Word and sentence tokenization</li>
-<li>Morphological analysis and generation</li>
-<li>Lemmatization / stemming</li>
-<li>Clause segmenter</li>
-<li>Temporal expression tagger</li>
-<li>Named entity recognition</li>
-<li>Verb chain detector</li>
-<li>Estonian Wordnet integration.</li>
-</ul>
-<p>The above list is actually only a modest fraction of different tools available, but is large enough to cover most basic uses cases.
-Hopfully we are able to integrate more and more tools in future.</p>
+<p>Estnltk is a Python 2.7/Python 3.4 library for performing common language processing tasks in Estonian, funded by <a class="reference external" href="https://www.keeletehnoloogia.ee/">Eesti Keeletehnoloogia Riiklik Programm</a> under the project <a class="reference external" href="https://www.keeletehnoloogia.ee/et/ekt-projektid/estnltk-pythoni-teegid-eestikeelsete-vabatektside-lihtsamaks-tootlemiseks">EKT57</a>.
+Estnltk is licensed under <a class="reference external" href="http://www.gnu.org/licenses/gpl-2.0.html">GNU GPL version 2</a>.</p>
+<div class="section" id="quick-example">
+<h2>Quick example<a class="headerlink" href="#quick-example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">estnltk</span> <span class="kn">import</span> <span class="n">Text</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s">&#39;Tuleb minna vanast raudteeülesõidukohast edasi ja pöörata paremale.&#39;</span><span class="p">)</span>
+
+<span class="c"># tokenized words, their stemmed / lemmatized versions, part-of-speech tags and forms</span>
+<span class="nb">zip</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">word_texts</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">lemmas</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">postags</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">forms</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[(</span><span class="s">&#39;Tuleb&#39;</span><span class="p">,</span> <span class="s">&#39;tulema&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;minna&#39;</span><span class="p">,</span> <span class="s">&#39;minema&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;da&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;vanast&#39;</span><span class="p">,</span> <span class="s">&#39;vana&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;sg el&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;raudteeülesõidukohast&#39;</span><span class="p">,</span> <span class="s">&#39;raudteeülesõidukoht&#39;</span><span class="p">,</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="s">&#39;sg el&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;edasi&#39;</span><span class="p">,</span> <span class="s">&#39;edasi&#39;</span><span class="p">,</span> <span class="s">&#39;D&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;ja&#39;</span><span class="p">,</span> <span class="s">&#39;ja&#39;</span><span class="p">,</span> <span class="s">&#39;J&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;pöörata&#39;</span><span class="p">,</span> <span class="s">&#39;pöörama&#39;</span><span class="p">,</span> <span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;da&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;paremale&#39;</span><span class="p">,</span> <span class="s">&#39;paremale&#39;</span><span class="p">,</span> <span class="s">&#39;D&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;.&#39;</span><span class="p">,</span> <span class="s">&#39;Z&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>In recent years, several major NLP components for Estonian have become available under free open source licenses, which is an important milestone in Estonian NLP domain.</p>
+<p>The most important component is <strong>vabamorf</strong>, which is a C++ library for morphological analysis, disambiguation and synthesis <a class="reference internal" href="#ka97" id="id1">[KA97]</a>.
+For named entity recognition, <strong>Estner library</strong> provides necessary code and also a valuable training dataset, which is required for training the default models that come with the software <a class="reference internal" href="#tk13" id="id2">[TK13]</a>.
+Estnltk also includes <strong>temporal time expression</strong> (TIMEX) library <a class="reference internal" href="#or12" id="id3">[OR12]</a>.
+The de facto library for NLP in English, the <strong>NLTK toolkit</strong> is also a dependency <a class="reference internal" href="#bi06" id="id4">[BI06]</a>.</p>
+<p>The goal of Estnltk is to become the main platform for Estonian NLP and glue together existing free components to make them easily usable.
+Current situation requires the researchers to write their own interfaces to the tools, which can be very time-consuming
+Also, a simple platform is a great resource for students who are interested in NLP domain.</p>
+<p>In addition to providing an API that is simple to use for software developers, Estnltk also aims to be useful for language researches and linguists in general.
+The library has tools for sentiment analysis, text classification and information extraction, which requires no programming knowledge once they are set up.
+Including useful tools is a major goal in the future of Estnltk.</p>
+<table class="docutils citation" frame="void" id="ka97" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[KA97]</a></td><td>Kaalep, Heiki-Jaan. <em>&#8220;An Estonian morphological analyser and the impact of a corpus on its development.&#8221;</em> Computers and the Humanities 31, no. 2 (1997): 115-133.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="tk13" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[TK13]</a></td><td>Tkachenko, Alexander; Petmanson, Timo; Laur, Sven. <em>&#8220;Named Entity Recognition in Estonian.&#8221;</em> ACL 2013 (2013): 78.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="or12" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[OR12]</a></td><td>Orasmaa, Siim. <em>&#8220;Automaatne ajaväljendite tuvastamine eestikeelsetes tekstides.&#8221;</em> Eesti Rakenduslingvistika Ühingu aastaraamat 8 (2012): 153-169.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="bi06" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[BI06]</a></td><td>Bird, Steven. <em>&#8220;NLTK: the natural language toolkit.&#8221;</em> In Proceedings of the COLING/ACL on Interactive presentation sessions, pp. 69-72. Association for Computational Linguistics, 2006.</td></tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="tutorials">
 <h2>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#building-from-source">Building from source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#step-by-step-ubuntu-linux-14-04">Step-by-step Ubuntu Linux 14.04</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#step-by-step-windows-8">Step-by-step Windows 8</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#post-installation-steps">Post-installation steps</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/textdiagnostics.html">Detecting invalid characters in text</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/textdiagnostics.html#predefined-alphabets">Predefined alphabets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/textdiagnostics.html#basic-usage">Basic usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/textdiagnostics.html#overview-of-invalid-characters">Overview of invalid characters</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/tokenization.html">Paragraph, sentence and word tokenization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/tokenization.html#token-spans-start-and-end-positions">Token spans &#8211; start and end positions</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/morf_analysis.html">Morphological analysis</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/morf_analysis.html#morphological-synthesis">Morphological synthesis</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/clause_segmenter.html">Clause segmenter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/ner.html">Named entity recognition</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/timex.html">Temporal expression (TIMEX) tagging</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/verbchain.html">Verb chain detection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/wordnet.html">Estonian Wordnet</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/wordnet.html#resemblance">Resemblance</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/wordnet.html#side-notes">Side notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/wordnet.html#synsets">Synsets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/wordnet.html#details">Details</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/wordnet.html#relations">Relations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/wordnet.html#similarities">Similarities</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/importing_tei.html">Importing TEI XML files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/textclassifier_tutorial.html">Estnltk text classifier tool</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/textclassifier_tutorial.html#step-1-defining-the-classification-task">Step 1. Defining the classification task</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/textclassifier_tutorial.html#step-2-building-the-classification-model">Step 2. Building the classification model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/textclassifier_tutorial.html#step-3-using-the-model-to-categorize-data">Step 3. Using the model to categorize data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/textclassifier_tutorial.html#classification-report">Classification report</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/textclassifier_tutorial.html#confidence-cutoff-vs-f1-curve">Confidence cutoff vs F1 curve</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/textclassifier_tutorial.html#coverage-vs-f1-curve">Coverage vs F1 curve</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/textclassifier_tutorial.html#significant-features-by-labels">Significant features by labels</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/textclassifier_tutorial.html#misclassified-examples">Misclassified examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/installation.html#building-from-source">Building from source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/installation.html#step-by-step-ubuntu-linux-14-04">Step-by-step Ubuntu Linux 14.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/installation.html#step-by-step-windows-8">Step-by-step Windows 8</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/installation.html#post-installation-steps">Post-installation steps</a></li>
 </ul>
 </li>
 </ul>
@@ -127,89 +130,10 @@ Hopfully we are able to integrate more and more tools in future.</p>
 <h2>API reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.html">estnltk package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#subpackages">Subpackages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.clausesegmenter">estnltk.clausesegmenter module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.core">estnltk.core module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.corpus">estnltk.corpus module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.javaprocess">estnltk.javaprocess module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.morf">estnltk.morf module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.names">estnltk.names module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.ner">estnltk.ner module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.teicorpus">estnltk.teicorpus module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.textdiagnostics">estnltk.textdiagnostics module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.textprocessor">estnltk.textprocessor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.timex">estnltk.timex module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.tokenize">estnltk.tokenize module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk.wordnet">estnltk.wordnet module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.html#module-estnltk">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.pyvabamorf.html">estnltk.pyvabamorf package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.pyvabamorf.html#subpackages">Subpackages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.pyvabamorf.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.pyvabamorf.html#module-estnltk.pyvabamorf.morf">estnltk.pyvabamorf.morf module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.pyvabamorf.html#module-estnltk.pyvabamorf.vabamorf">estnltk.pyvabamorf.vabamorf module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.pyvabamorf.html#module-estnltk.pyvabamorf">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.mw_verbs.html">estnltk.mw_verbs package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.mw_verbs.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.mw_verbs.html#module-estnltk.mw_verbs.basic_verbchain_detection">estnltk.mw_verbs.basic_verbchain_detection module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.mw_verbs.html#module-estnltk.mw_verbs.utils">estnltk.mw_verbs.utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.mw_verbs.html#module-estnltk.mw_verbs.verbchain_detector">estnltk.mw_verbs.verbchain_detector module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.mw_verbs.html#module-estnltk.mw_verbs.verbchain_nom_vinf_extender">estnltk.mw_verbs.verbchain_nom_vinf_extender module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.mw_verbs.html#module-estnltk.mw_verbs">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.wordnet.html">estnltk.wordnet package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.wordnet.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.wordnet.html#module-estnltk.wordnet.eurown">estnltk.wordnet.eurown module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.wordnet.html#module-estnltk.wordnet.wn">estnltk.wordnet.wn module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.wordnet.html#module-estnltk.wordnet">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html">Subpackages</a><ul class="simple">
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#submodules">Submodules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.analyzer">estnltk.textclassifier.analyzer module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.classifier">estnltk.textclassifier.classifier module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.classify">estnltk.textclassifier.classify module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.clfbase">estnltk.textclassifier.clfbase module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.featureextractor">estnltk.textclassifier.featureextractor module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.merge">estnltk.textclassifier.merge module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.paths">estnltk.textclassifier.paths module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.reportgenerator">estnltk.textclassifier.reportgenerator module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.retrain">estnltk.textclassifier.retrain module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.settings">estnltk.textclassifier.settings module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.synunifier">estnltk.textclassifier.synunifier module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.test">estnltk.textclassifier.test module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.train">estnltk.textclassifier.train module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier.utils">estnltk.textclassifier.utils module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.textclassifier.html#module-estnltk.textclassifier">Module contents</a></li>
-<li class="toctree-l1"><a class="reference internal" href="estnltk.estner.html">estnltk.estner package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#subpackages">Subpackages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.crfsuiteutil">estnltk.estner.crfsuiteutil module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.featureextraction">estnltk.estner.featureextraction module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.ner">estnltk.estner.ner module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#estnltk-estner-nlputil-module">estnltk.estner.nlputil module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner.settings">estnltk.estner.settings module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="estnltk.estner.html#module-estnltk.estner">Module contents</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="api/core.html">estnltk.core module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/text.html">estnltk.text module</a></li>
 </ul>
 </div>
-</div>
-<div class="section" id="indices-and-tables">
-<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
-<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
-<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
-</ul>
 </div>
 </div>
 
@@ -217,27 +141,30 @@ Hopfully we are able to integrate more and more tools in future.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Estnltk &#8212; Open source tools for Estonian natural language processing</a><ul>
+<li><a class="reference internal" href="#quick-example">Quick example</a></li>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
 <li><a class="reference internal" href="#tutorials">Tutorials</a></li>
 <li><a class="reference internal" href="#api-reference">API reference</a></li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Next topic</h4>
-  <p class="topless"><a href="installation.html"
+  <p class="topless"><a href="tutorials/installation.html"
                         title="next chapter">Installation</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/index.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -254,7 +181,7 @@ Hopfully we are able to integrate more and more tools in future.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -264,14 +191,14 @@ Hopfully we are able to integrate more and more tools in future.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="installation.html" title="Installation"
+          <a href="tutorials/installation.html" title="Installation"
              >next</a> |</li>
-        <li><a href="#">estnltk 1.1 documentation</a> &raquo;</li> 
+        <li><a href="#">estnltk 1.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b3.
     </div>
   </body>
 </html>

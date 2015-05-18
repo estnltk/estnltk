@@ -1,80 +1,78 @@
-.. estnltk documentation master file, created by
-   sphinx-quickstart on Fri Nov 28 13:32:28 2014.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 ======================================================================
 Estnltk --- Open source tools for Estonian natural language processing
 ======================================================================
+.. highlight:: python
 
-Estnltk is a Python 2.7/Python 3.4 library for performing common language processing tasks in Estonian.
-The project is funded by EKT (`Eesti Keeletehnoloogia Riiklik Programm`_) under the project `EKT57`_.
-Although there are already many tools for processing Estonian, it is often not very trivial to interface them in applications or more complex research projects.
-Extra work is required to write application specific interfaces each time a tool is used.
+Estnltk is a Python 2.7/Python 3.4 library for performing common language processing tasks in Estonian, funded by `Eesti Keeletehnoloogia Riiklik Programm`_ under the project `EKT57`_.
+Estnltk is licensed under `GNU GPL version 2`_.
 
 .. _Eesti Keeletehnoloogia Riiklik Programm: https://www.keeletehnoloogia.ee/
 .. _EKT57: https://www.keeletehnoloogia.ee/et/ekt-projektid/estnltk-pythoni-teegid-eestikeelsete-vabatektside-lihtsamaks-tootlemiseks
+.. _GNU GPL version 2: http://www.gnu.org/licenses/gpl-2.0.html
 
-Another problem is that many of these tools are scattered around the web and are hard to find if you do not know where to look.
-Although we have `keeleveeb.ee`_ and `EKT`_, `EKKTT`_ project pages, it can be hard for students and non-language people to dive in.
-The aim of the project is to tie together a number of open source components so that they could be used easily:
+Quick example
+=============
 
-.. _keeleveeb.ee: http://www.keeleveeb.ee/
-.. _EKT: https://www.keeletehnoloogia.ee/et
-.. _EKKTT: https://www.keeletehnoloogia.ee/et
+::
 
-* Word and sentence tokenization
-* Morphological analysis and generation
-* Lemmatization / stemming
-* Clause segmenter
-* Temporal expression tagger
-* Named entity recognition
-* Verb chain detector
-* Estonian Wordnet integration.
+    from estnltk import Text
+    text = Text('Tuleb minna vanast raudteeülesõidukohast edasi ja pöörata paremale.')
 
-The above list is actually only a modest fraction of different tools available, but is large enough to cover most basic uses cases.
-Hopfully we are able to integrate more and more tools in future.
+    # tokenized words, their stemmed / lemmatized versions, part-of-speech tags and forms
+    zip(text.word_texts, text.lemmas, text.postags, text.forms)
+
+::
+
+    [('Tuleb', 'tulema', 'V', 'b'),
+     ('minna', 'minema', 'V', 'da'),
+     ('vanast', 'vana', 'A', 'sg el'),
+     ('raudteeülesõidukohast', 'raudteeülesõidukoht', 'S', 'sg el'),
+     ('edasi', 'edasi', 'D', ''),
+     ('ja', 'ja', 'J', ''),
+     ('pöörata', 'pöörama', 'V', 'da'),
+     ('paremale', 'paremale', 'D', ''),
+     ('.', '.', 'Z', '')]
+
+
+Introduction
+============
+
+In recent years, several major NLP components for Estonian have become available under free open source licenses, which is an important milestone in Estonian NLP domain.
+
+The most important component is **vabamorf**, which is a C++ library for morphological analysis, disambiguation and synthesis [KA97]_.
+For named entity recognition, **Estner library** provides necessary code and also a valuable training dataset, which is required for training the default models that come with the software [TK13]_.
+Estnltk also includes **temporal time expression** (TIMEX) library [OR12]_.
+The de facto library for NLP in English, the **NLTK toolkit** is also a dependency [BI06]_.
+
+The goal of Estnltk is to become the main platform for Estonian NLP and glue together existing free components to make them easily usable.
+Current situation requires the researchers to write their own interfaces to the tools, which can be very time-consuming
+Also, a simple platform is a great resource for students who are interested in NLP domain.
+
+In addition to providing an API that is simple to use for software developers, Estnltk also aims to be useful for language researches and linguists in general.
+The library has tools for sentiment analysis, text classification and information extraction, which requires no programming knowledge once they are set up.
+Including useful tools is a major goal in the future of Estnltk.
+
+.. [KA97] Kaalep, Heiki-Jaan. *"An Estonian morphological analyser and the impact of a corpus on its development."* Computers and the Humanities 31, no. 2 (1997): 115-133.
+.. [TK13] Tkachenko, Alexander; Petmanson, Timo; Laur, Sven. *"Named Entity Recognition in Estonian."* ACL 2013 (2013): 78.
+.. [OR12] Orasmaa, Siim. *"Automaatne ajaväljendite tuvastamine eestikeelsetes tekstides."* Eesti Rakenduslingvistika Ühingu aastaraamat 8 (2012): 153-169.
+.. [BI06] Bird, Steven. *"NLTK: the natural language toolkit."* In Proceedings of the COLING/ACL on Interactive presentation sessions, pp. 69-72. Association for Computational Linguistics, 2006.
+
 
 Tutorials
 =========
 
 .. toctree::
-    :maxdepth: 2
-    
-    installation.rst
-    
-    tutorials/textdiagnostics.rst
-    tutorials/tokenization.rst
-    tutorials/morf_analysis.rst
-    tutorials/clause_segmenter.rst
-    tutorials/ner.rst
-    tutorials/timex.rst
-    tutorials/verbchain.rst
-    tutorials/wordnet.rst
-    tutorials/importing_tei.rst
-    tutorials/json_format.rst
-    tutorials/textclassifier_tutorial.rst
+   :maxdepth: 2
+
+   tutorials/installation
 
 
 API reference
 =============
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   estnltk.rst
-   estnltk.pyvabamorf.rst
-   estnltk.mw_verbs.rst
-   estnltk.wordnet.rst
-   estnltk.textclassifier.rst
-   estnltk.estner.rst
-   
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+   api/core
+   api/text
 

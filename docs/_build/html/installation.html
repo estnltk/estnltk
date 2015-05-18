@@ -6,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installation &mdash; estnltk 1.1 documentation</title>
+    <title>Installation &mdash; estnltk 1.2 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.1',
+        VERSION:     '1.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,35 +23,28 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="estnltk 1.1 documentation" href="index.html" />
-    <link rel="next" title="Detecting invalid characters in text" href="tutorials/textdiagnostics.html" />
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.2 documentation" href="index.html" />
     <link rel="prev" title="Estnltk — Open source tools for Estonian natural language processing" href="index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="tutorials/textdiagnostics.html" title="Detecting invalid characters in text"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
           <a href="index.html" title="Estnltk — Open source tools for Estonian natural language processing"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">estnltk 1.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">estnltk 1.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
@@ -70,15 +63,15 @@ Other versions may work as well, but are not tested.
 Python installer for Windows includes the development headers that are saved to the Python folder.
 In Linux, depending on the flavor and distribution, you usually have to install the headers separately.
 Either by building the Python from source or using a package manager. The package is typically named
-<tt class="docutils literal"><span class="pre">python-dev</span></tt> for Python 2 and <tt class="docutils literal"><span class="pre">python3-dev</span></tt> for Python3.</p>
+<code class="docutils literal"><span class="pre">python-dev</span></code> for Python 2 and <code class="docutils literal"><span class="pre">python3-dev</span></code> for Python3.</p>
 <p><strong>SWIG wrapper generator</strong>, <a class="reference external" href="http://swig.org/">http://swig.org/</a> .
 SWIG is a software development tool that connects programs written in C and C++ with a variety of high-level programming languages.
 SWIG is used with different types of target languages including common scripting languages such as Javascript, Perl, PHP, Python, Tcl and Ruby.
 Estnltk contains C++ code that uses SWIG to extend Python.
-In Linux, this package is usually named <tt class="docutils literal"><span class="pre">swig</span></tt> and can be installed with a package manager.</p>
+In Linux, this package is usually named <code class="docutils literal"><span class="pre">swig</span></code> and can be installed with a package manager.</p>
 <p><strong>C++ compiler</strong>.
 In <em>Linux</em> systems, Estnltk can be built using GNU C++ compiler which can be installed with a package manager.
-Typically the package is named <tt class="docutils literal"><span class="pre">g++</span></tt>.
+Typically the package is named <code class="docutils literal"><span class="pre">g++</span></code>.
 It is also possible to manually download the compiler from <a class="reference external" href="https://gcc.gnu.org/">https://gcc.gnu.org/</a> .</p>
 <p>In <em>Windows</em>, we recommend using Visual Studio 2008 for Python2.7 and Visual Studio 2010 for Python3.4.
 Note that for 64-bit versions you need to have also 64-bit toolchains, which are not included in Express versions of the Visual Studio.
@@ -86,13 +79,13 @@ We recommend downloading the full Visual Studio SDK and performing the building 
 <p><strong>Java VM</strong>.
 Several Estnltk components are written in Java and interfaced with Python.
 Therefore, you also need latest Java Runtime installed on your system.
-The <tt class="docutils literal"><span class="pre">java</span></tt> virtual machine must be in the system <tt class="docutils literal"><span class="pre">PATH</span></tt>.
+The <code class="docutils literal"><span class="pre">java</span></code> virtual machine must be in the system <code class="docutils literal"><span class="pre">PATH</span></code>.
 We recommend using Oracle Java <a class="reference external" href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">http://www.oracle.com/technetwork/java/javase/downloads/index.html</a>,
 although alternatives such as OpenJDK (<a class="reference external" href="http://openjdk.java.net/">http://openjdk.java.net/</a>) should also work.</p>
 <p><strong>setuptools</strong>. <a class="reference external" href="https://pypi.python.org/pypi/setuptools">https://pypi.python.org/pypi/setuptools</a> .
-A popular toolchain to build Python packages. In Linux package managers, typically called <tt class="docutils literal"><span class="pre">python-setuptools</span></tt> .</p>
-<p>Here are all the additional dependencies of <tt class="docutils literal"><span class="pre">estnltk</span></tt>, which are required to get all the functionality working.
-Note that most or all of them should be installed automatically by <tt class="docutils literal"><span class="pre">setuptools</span></tt> build system, but non-pure Python
+A popular toolchain to build Python packages. In Linux package managers, typically called <code class="docutils literal"><span class="pre">python-setuptools</span></code> .</p>
+<p>Here are all the additional dependencies of <code class="docutils literal"><span class="pre">estnltk</span></code>, which are required to get all the functionality working.
+Note that most or all of them should be installed automatically by <code class="docutils literal"><span class="pre">setuptools</span></code> build system, but non-pure Python
 packages may require additional dependencies to be installed.
 We cannot list them all for all possible platforms, but see next sections on example installs on Ubuntu 14.04 and Windows 8.</p>
 <ul class="simple">
@@ -137,13 +130,13 @@ One option is cloing the repository using latest code:</p>
 sudo python setup.py install
 </pre></div>
 </div>
-<p>Note that <tt class="docutils literal"><span class="pre">python</span></tt> usually refers to default Python version installed with the system.
-Usually, you can also use more specific versions by replacing <tt class="docutils literal"><span class="pre">python</span></tt> with <tt class="docutils literal"><span class="pre">python2.7</span></tt> or <tt class="docutils literal"><span class="pre">python3.4</span></tt>.
+<p>Note that <code class="docutils literal"><span class="pre">python</span></code> usually refers to default Python version installed with the system.
+Usually, you can also use more specific versions by replacing <code class="docutils literal"><span class="pre">python</span></code> with <code class="docutils literal"><span class="pre">python2.7</span></code> or <code class="docutils literal"><span class="pre">python3.4</span></code>.
 Note that the same commands work when building in Windows, but you need to execute them in Visual Studio SDK command prompt.</p>
 </div>
 <div class="section" id="building-using-pip">
 <h3>Building using pip<a class="headerlink" href="#building-using-pip" title="Permalink to this headline">¶</a></h3>
-<p>Another option is to use <tt class="docutils literal"><span class="pre">pip</span></tt> program to automatically download and install the library without manually cloning the repository:</p>
+<p>Another option is to use <code class="docutils literal"><span class="pre">pip</span></code> program to automatically download and install the library without manually cloning the repository:</p>
 <div class="highlight-python"><div class="highlight"><pre>sudo pip install estnltk
 </pre></div>
 </div>
@@ -173,7 +166,7 @@ However, we expect the users of other flavours capable of figuring out the neces
 sudo pip3 install numpy
 </pre></div>
 </div>
-<p>Build and install <tt class="docutils literal"><span class="pre">estnltk</span></tt>:</p>
+<p>Build and install <code class="docutils literal"><span class="pre">estnltk</span></code>:</p>
 <div class="highlight-python"><div class="highlight"><pre>git clone https://github.com/tpetmanson/estnltk estnltk
 cd estnltk
 python3 setup.py build
@@ -252,10 +245,10 @@ Next, we use an extremely useful list of binary installers for various Python pa
 <li><strong>python-crfsuite</strong> <a class="reference external" href="https://github.com/tpetmanson/estnltk/tree/master/dist/python-crfsuite">https://github.com/tpetmanson/estnltk/tree/master/dist/python-crfsuite</a></li>
 </ul>
 <p>Now, Christoph Gohlke&#8217;s website does not list all required Python packages.
-Note that the <tt class="docutils literal"><span class="pre">python-crfsuite</span></tt> Windows installers are given in <tt class="docutils literal"><span class="pre">esnltk\dist\python-crfsuite</span></tt> directory.
+Note that the <code class="docutils literal"><span class="pre">python-crfsuite</span></code> Windows installers are given in <code class="docutils literal"><span class="pre">esnltk\dist\python-crfsuite</span></code> directory.
 The reason was that we had to create these ourselves as we did not find any public website that offers to download them.
 However, we do not want to manage installers for the rest of missing dependencies.
-Therefore, we install missing packages using the <tt class="docutils literal"><span class="pre">pip</span></tt> tool.
+Therefore, we install missing packages using the <code class="docutils literal"><span class="pre">pip</span></code> tool.
 This tool comes with default installation of Python3.4 (install it separately for Python2.7) and can be used to install the dependencies with following command in command prompt:</p>
 <div class="highlight-python"><div class="highlight"><pre>python -m pip install jsonpath-rw tempdir xmltodict beautifulsoup4 xlwt-future xlrd xlsxwriter
 </pre></div>
@@ -271,7 +264,7 @@ This tool comes with default installation of Python3.4 (install it separately fo
 <li>xlsxwriter</li>
 </ul>
 <p>Then, install Java from <a class="reference external" href="http://www.oracle.com/technetwork/java/javase/downloads/index.html">http://www.oracle.com/technetwork/java/javase/downloads/index.html</a> .</p>
-<p>Then, download and execute the suitable <tt class="docutils literal"><span class="pre">estnltk</span></tt> installer:</p>
+<p>Then, download and execute the suitable <code class="docutils literal"><span class="pre">estnltk</span></code> installer:</p>
 <p>32-bit:</p>
 <ul class="simple">
 <li><a class="reference external" href="https://github.com/tpetmanson/estnltk/blob/master/dist/estnltk-1.1.win32-py2.7.msi">https://github.com/tpetmanson/estnltk/blob/master/dist/estnltk-1.1.win32-py2.7.msi</a></li>
@@ -287,7 +280,7 @@ This tool comes with default installation of Python3.4 (install it separately fo
 </pre></div>
 </div>
 <p>Finally, we are done :) !</p>
-<img alt="Screenshot of IDLE with 64-bit Python3.4 after successful installation" src="_images/installation_windows.png" />
+<img alt="Screenshot of IDLE with 64-bit Python3.4 after successful installation" src="_static/installation_windows.png" />
 </div>
 <div class="section" id="post-installation-steps">
 <h2>Post-installation steps<a class="headerlink" href="#post-installation-steps" title="Permalink to this headline">¶</a></h2>
@@ -307,7 +300,7 @@ The command to build the default named entity tagger for Estonian:</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
@@ -329,15 +322,14 @@ The command to build the default named entity tagger for Estonian:</p>
   <h4>Previous topic</h4>
   <p class="topless"><a href="index.html"
                         title="previous chapter">Estnltk &#8212; Open source tools for Estonian natural language processing</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="tutorials/textdiagnostics.html"
-                        title="next chapter">Detecting invalid characters in text</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/installation.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/installation.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -354,27 +346,21 @@ The command to build the default named entity tagger for Estonian:</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="tutorials/textdiagnostics.html" title="Detecting invalid characters in text"
-             >next</a> |</li>
-        <li class="right" >
           <a href="index.html" title="Estnltk — Open source tools for Estonian natural language processing"
              >previous</a> |</li>
-        <li><a href="index.html">estnltk 1.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">estnltk 1.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b3.
     </div>
   </body>
 </html>

@@ -6,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>estnltk.core &mdash; estnltk 1.1 documentation</title>
+    <title>estnltk.core &mdash; estnltk 1.2 documentation</title>
     
-    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.1',
+        VERSION:     '1.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,12 +23,12 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="estnltk 1.1 documentation" href="../../index.html" />
+    <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="estnltk 1.2 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -37,7 +37,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">estnltk 1.1 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">estnltk 1.2 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
@@ -45,19 +45,26 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <h1>Source code for estnltk.core</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39;Core module of the estnltk library.</span>
-<span class="sd">Defines common functionality for all modules.</span>
-<span class="sd">&#39;&#39;&#39;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span>
+<span class="sd">&quot;&quot;&quot;Core module of the Estnltk library, that sets up some common paths and has functions to convert between</span>
+<span class="sd">binary and unicode data.</span>
+
+<span class="sd">Python 2.x and Python 3.x versions are different in the way the handle unicode data.</span>
+
+<span class="sd">* Python 2 uses ``str`` for binary data and ``unicode`` for textual data.</span>
+<span class="sd">* Python 3 uses ``str`` for unicode data and ``bytes`` for binary data.</span>
+
+<span class="sd">As it is impossible to write code that is compatible with both Python versions due to using different types,</span>
+<span class="sd">we use :py:func:`~estnltk.core.as_unicode` and  :py:func:`~estnltk.core.as_binary` to abstact the conversion away.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
-
 <span class="kn">import</span> <span class="nn">six</span>
-<span class="kn">from</span> <span class="nn">jsonpath_rw</span> <span class="kn">import</span> <span class="n">parse</span>
 
 
 <span class="c"># setup some paths</span>
@@ -67,26 +74,38 @@
 <span class="n">CORPORA_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PACKAGE_PATH</span><span class="p">,</span> <span class="s">&#39;corpora&#39;</span><span class="p">)</span>
 <span class="n">PMNEWS_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CORPORA_PATH</span><span class="p">,</span> <span class="s">&#39;pm_news&#39;</span><span class="p">)</span>
 <span class="n">AA_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CORPORA_PATH</span><span class="p">,</span> <span class="s">&#39;arvutustehnika_ja_andmetootlus&#39;</span><span class="p">)</span>
-<span class="n">DEFAULT_NER_DATASET</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CORPORA_PATH</span><span class="p">,</span> <span class="s">&#39;estner.json.bz2&#39;</span><span class="p">)</span>
+<span class="n">DEFAULT_NER_DATASET</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CORPORA_PATH</span><span class="p">,</span> <span class="s">&#39;estner.json&#39;</span><span class="p">)</span>
 
 <span class="c"># default NER model path</span>
 <span class="n">DEFAULT_PY2_NER_MODEL_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PACKAGE_PATH</span><span class="p">,</span> <span class="s">&#39;estner&#39;</span><span class="p">,</span> <span class="s">&#39;models&#39;</span><span class="p">,</span> <span class="s">&#39;py2_default&#39;</span><span class="p">)</span>
 <span class="n">DEFAULT_PY3_NER_MODEL_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PACKAGE_PATH</span><span class="p">,</span> <span class="s">&#39;estner&#39;</span><span class="p">,</span> <span class="s">&#39;models&#39;</span><span class="p">,</span> <span class="s">&#39;py3_default&#39;</span><span class="p">)</span>
 
-
 <span class="c"># verb chain detection resources</span>
 <span class="n">VERB_CHAIN_RES_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PACKAGE_PATH</span><span class="p">,</span> <span class="s">&#39;mw_verbs&#39;</span><span class="p">,</span> <span class="s">&#39;res&#39;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="overrides"><a class="viewcode-back" href="../../estnltk.html#estnltk.core.overrides">[docs]</a><span class="k">def</span> <span class="nf">overrides</span><span class="p">(</span><span class="n">interface_class</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">overrider</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
-        <span class="k">assert</span><span class="p">(</span><span class="n">method</span><span class="o">.</span><span class="n">__name__</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">interface_class</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">method</span>
-    <span class="k">return</span> <span class="n">overrider</span>
+<div class="viewcode-block" id="as_unicode"><a class="viewcode-back" href="../../api/core.html#estnltk.core.as_unicode">[docs]</a><span class="k">def</span> <span class="nf">as_unicode</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Force conversion of given string to unicode type.</span>
+<span class="sd">    Unicode is ``str`` type for Python 3.x and ``unicode`` for Python 2.x .</span>
 
-</div>
-<div class="viewcode-block" id="as_unicode"><a class="viewcode-back" href="../../estnltk.html#estnltk.core.as_unicode">[docs]</a><span class="k">def</span> <span class="nf">as_unicode</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Convert the string to unicode.&#39;&#39;&#39;</span>
+<span class="sd">    If the string is already in unicode, then no conversion is done and the same string is returned.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    s: str or bytes (Python3), str or unicode (Python2)</span>
+<span class="sd">        The string to convert to unicode.</span>
+<span class="sd">    encoding: str</span>
+<span class="sd">        The encoding of the input string (default: utf-8)</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        In case an input of invalid type was passed to the function.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ``str`` for Python3 or ``unicode`` for Python 2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">s</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">binary_type</span><span class="p">):</span>
@@ -95,8 +114,29 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Can only convert types {0} and {1}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">binary_type</span><span class="p">))</span>
 
 </div>
-<div class="viewcode-block" id="as_binary"><a class="viewcode-back" href="../../estnltk.html#estnltk.core.as_binary">[docs]</a><span class="k">def</span> <span class="nf">as_binary</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Convert the string to binary&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="as_binary"><a class="viewcode-back" href="../../api/core.html#estnltk.core.as_binary">[docs]</a><span class="k">def</span> <span class="nf">as_binary</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Force conversion of given string to binary type.</span>
+<span class="sd">    Binary is ``bytes`` type for Python 3.x and ``str`` for Python 2.x .</span>
+
+<span class="sd">    If the string is already in binary, then no conversion is done and the same string is returned</span>
+<span class="sd">    and ``encoding`` argument is ignored.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    s: str or bytes (Python3), str or unicode (Python2)</span>
+<span class="sd">        The string to convert to binary.</span>
+<span class="sd">    encoding: str</span>
+<span class="sd">        The encoding of the resulting binary string (default: utf-8)</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        In case an input of invalid type was passed to the function.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ``bytes`` for Python3 or ``str`` for Python 2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">binary_type</span><span class="p">):</span>
@@ -106,8 +146,8 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Can only convert types {0} and {1}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">binary_type</span><span class="p">))</span>
 
 </div>
-<div class="viewcode-block" id="get_filenames"><a class="viewcode-back" href="../../estnltk.html#estnltk.core.get_filenames">[docs]</a><span class="k">def</span> <span class="nf">get_filenames</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s">u&#39;&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s">u&#39;&#39;</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Function for listing filenames with given prefix and suffix in the root directory.</span>
+<span class="k">def</span> <span class="nf">get_filenames</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s">u&#39;&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s">u&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Function for listing filenames with given prefix and suffix in the root directory.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -121,31 +161,16 @@
 <span class="sd">    -------</span>
 <span class="sd">    list of str</span>
 <span class="sd">        List of filenames matching the prefix and suffix criteria.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">fnm</span> <span class="k">for</span> <span class="n">fnm</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="k">if</span> <span class="n">fnm</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="ow">and</span> <span class="n">fnm</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">suffix</span><span class="p">)]</span>
-
-</div>
-<div class="viewcode-block" id="JsonPaths"><a class="viewcode-back" href="../../estnltk.html#estnltk.core.JsonPaths">[docs]</a><span class="k">class</span> <span class="nc">JsonPaths</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Class for defining common jsonpath_rw expresssions.</span>
-<span class="sd">    </span>
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    words: jsonpath_rw.jsonpath.Descendants</span>
-<span class="sd">        Expression for extracting words from corpus structures.</span>
-<span class="sd">    analysis: jsonpath_rw.jsonpath.Descendants</span>
-<span class="sd">        Expression for exracting analysis results from corpus structures.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">documents</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="s">&#39;[*]..documents&#39;</span><span class="p">)</span>
-    <span class="n">words</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="s">&#39;[*]..words&#39;</span><span class="p">)</span>
-    <span class="n">analysis</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="s">&#39;[*]..analysis&#39;</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
       <input type="text" name="q" />
@@ -162,7 +187,7 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -171,13 +196,13 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="../../index.html">estnltk 1.1 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">estnltk 1.2 documentation</a> &raquo;</li>
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2014, University of Tartu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, University of Tartu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b3.
     </div>
   </body>
 </html>

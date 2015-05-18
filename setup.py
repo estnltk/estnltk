@@ -53,11 +53,13 @@ setup(
                   include_dirs=include_dirs)
         ],
 
+    # we have fixed dependency versions to guarantee, what works
+    # however, you can probably safely install newer versions of the dependencies
     install_requires = [
-        'six>=1.9.0',
-        'nltk>=3.0.2',
-        'regex>=2015.03.18',
-        'python-crfsuite>=0.8.1'],
+        'six==1.9.0',
+        'nltk==3.0.2',
+        'regex==2015.03.18',
+        'python-crfsuite==0.8.1'],
 
     classifiers = ['Intended Audience :: Developers',
                    'Intended Audience :: Education',
