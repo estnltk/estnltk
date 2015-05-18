@@ -77,9 +77,14 @@ class Text(dict):
             'timex_tagger', None)
 
     def get_kwargs(self):
+        """Get the keyword arguments that were passed to the :py:class:`~estnltk.text.Text` when it was constructed."""
         return self.__kwargs
 
     def __find_what_is_computed(self):
+        """Find out what kind of information is already computed. It uses keys such as "elements", "sentences" etc
+           to *guess* what is computed and what is not.
+           It does not perform extensive checks to see if the values of these keys are actually valid.
+        """
         computed = set()
         if SENTENCES in self:
             computed.add(SENTENCES)
@@ -95,9 +100,17 @@ class Text(dict):
         return computed
 
     def is_computed(self, element):
+        """Is the given element computed?"""
         return element in self.__computed
 
     def __texts(self, element):
+        """Retrieve texts for given element.
+
+        Returns
+        -------
+        list of str
+            List of strings that make up given elements.
+        """
         text = self.text
         texts = []
         for data in self[element]:
@@ -105,10 +118,29 @@ class Text(dict):
         return texts
 
     def __spans(self, element):
+        """Retrieve (start, end) tuples denoting the spans of given elements.
+
+        Returns
+        -------
+        list of (int, int)
+            List of (start, end) tuples.
+        """
         spans = []
         for data in self[element]:
             spans.append((data[START], data[END]))
         return spans
+
+    def __starts(self, element):
+        starts = []
+        for data in self[element]:
+            starts.append(data[START])
+        return starts
+
+    def __ends(self, element):
+        ends = []
+        for data in self[element]:
+            ends.append(data[END])
+        return ends
 
     def __str__(self):
         return self[TEXT]
@@ -163,6 +195,18 @@ class Text(dict):
             self.compute_sentences()
         return self.__spans(SENTENCES)
 
+    @property
+    def sentence_starts(self):
+        if not self.is_computed(SENTENCES):
+            self.compute_sentences()
+        return self.__starts(SENTENCES)
+
+    @property
+    def sentence_ends(self):
+        if not self.is_computed(SENTENCES):
+            self.compute_sentences()
+        return self.__ends(SENTENCES)
+
     def compute_words(self):
         if self.is_computed(WORDS):
             self.__computed.remove(WORDS)
@@ -205,6 +249,18 @@ class Text(dict):
         if not self.is_computed(WORDS):
             self.compute_words()
         return self.__spans(WORDS)
+
+    @property
+    def word_starts(self):
+        if not self.is_computed(WORDS):
+            self.compute_words()
+        return self.__starts(WORDS)
+
+    @property
+    def word_ends(self):
+        if not self.is_computed(WORDS):
+            self.compute_words()
+        return self.__ends(WORDS)
 
     @property
     def analysis(self):
