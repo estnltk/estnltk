@@ -116,6 +116,9 @@ Tutorials
 
    tutorials/installation
    tutorials/text
+   tutorials/ner
+   tutorials/textclassifier
+   tutorials/informationextractor
 
 
 API reference

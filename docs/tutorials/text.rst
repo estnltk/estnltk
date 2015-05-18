@@ -1,13 +1,13 @@
-===============
-Getting started
-===============
+=================
+Working with text
+=================
 
 In this tutorial, we start with Estnltk basics and introduce you to the :py:class:`~estnltk.text.Text` class.
 We will take the class apart to bits and pieces and put it back together to give a good overview, what it can do for you
 and how can you work with it.
 
-Working with Text
-=================
+Getting started
+===============
 
 One of the most important classes in Estnltk is :py:class:`~estnltk.text.Text`, which is essentally the main interface
 for doing everything Estnltk is capable of. It is actually a subclass of standard ``dict`` class in Python and stores
@@ -42,7 +42,7 @@ Naturally, you can initiate a new instance from a dictionary::
 
 
 Tokenization
-------------
+============
 
 One of the most basic tasks of any NLP pipeline is text and sentence tokenization.
 The :py:class:`~estnltk.text.Text` class has properties :py:attr:`~estnltk.text.Text.word_texts` and
@@ -246,4 +246,45 @@ recomputing them::
                            {'end': 26, 'start': 21}]})
 
     print (text.word_texts) # tokenization is already done, just extract words using the positions
+
+
+Morphological analysis
+======================
+
+asdf
+
+Aggregating many properties
+===========================
+
+asdf
+
+Splitting up texts
+==================
+
+asdf
+
+Named entity recognition
+========================
+
+asdf
+
+Temporal time expressions
+=========================
+
+asdf
+
+Clauses
+=======
+
+asdf
+
+Verb chains
+===========
+
+asdf
+
+Serialization
+=============
+
+asdf
 
