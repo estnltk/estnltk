@@ -544,3 +544,109 @@ analysis results:
 
 
 See :ref:`phonetic_markers` for more information.
+
+
+Morphological synthesis
+=======================
+
+The reverse operation of morphological analysis is synthesis. That is, given the dictionary form of the word
+and some options, generating all possible inflections that match given criteria.
+
+Estnltk has function :py:func:`~estnltk.vabamorf.morf.synthesize`, which accepts these parameters:
+
+1. word dictionary form (lemma).
+2. word form (see :ref:`nounform_table` and :ref:`verbform_table`).
+3. *(optional)* POS tag (see :ref:`postag_table`).
+4. *(optional)* hint, essentially a prefix filter.
+
+Let's generate plural genitive forms for lemma "palk" (in English both a *paycheck* and a *log*)
+
+    from estnltk import synthesize
+    synthesize('palk', 'pl g')
+
+::
+
+    ['palkade', 'palkide']
+
+
+We can hint the synthesizer so that it outputs only inflections that match prefix *palka*::
+
+    synthesize('palk', 'pl g', hint='palka')
+
+::
+
+    ['palkade']
+
+
+For fun, here is some demo code for synthesizing all forms of any given noun (See :ref:`nounform_table`)::
+
+    from estnltk import synthesize
+    import pandas
+
+    cases = [
+        ('n', 'nimetav'),
+        ('g', 'omastav'),
+        ('p', 'osastav'),
+        ('ill', 'sisseütlev'),
+        ('in', 'seesütlev'),
+        ('el', 'seestütlev'),
+        ('all', 'alaleütlev'),
+        ('ad', 'alalütlev'),
+        ('abl', 'alaltütlev'),
+        ('tr', 'saav'),
+        ('ter', 'rajav'),
+        ('es', 'olev'),
+        ('ab', 'ilmaütlev'),
+        ('kom', 'kaasaütlev')]
+
+    def synthesize_all(word):
+        case_rows = []
+        sing_rows = []
+        plur_rows = []
+        for case, name in cases:
+            case_rows.append(name)
+            sing_rows.append(', '.join(synthesize(word, 'sg ' + case, 'S')))
+            plur_rows.append(', '.join(synthesize(word, 'pl ' + case, 'S')))
+        return pandas.DataFrame({'case': case_rows, 'singular': sing_rows, 'plural': plur_rows}, columns=['case', 'singular', 'plural'])
+
+    synthesize_all('kuusk')
+
+::
+
+              case  singular             plural
+    0      nimetav     kuusk             kuused
+    1      omastav     kuuse           kuuskede
+    2      osastav    kuuske  kuuski, kuuskesid
+    3   sisseütlev  kuusesse        kuuskedesse
+    4    seesütlev    kuuses          kuuskedes
+    5   seestütlev   kuusest         kuuskedest
+    6   alaleütlev   kuusele         kuuskedele
+    7    alalütlev    kuusel          kuuskedel
+    8   alaltütlev   kuuselt         kuuskedelt
+    9         saav   kuuseks         kuuskedeks
+    10       rajav   kuuseni         kuuskedeni
+    11        olev   kuusena         kuuskedena
+    12   ilmaütlev   kuuseta         kuuskedeta
+    13  kaasaütlev   kuusega         kuuskedega
+
+Let's try something funny as well::
+
+    synthesize_all('luuslang-lendur')
+
+Haha ^_^::
+
+              case             singular                                       plural
+    0      nimetav      luuslang-lendur                            luuslang-lendurid
+    1      omastav     luuslang-lenduri                           luuslang-lendurite
+    2      osastav    luuslang-lendurit                           luuslang-lendureid
+    3   sisseütlev  luuslang-lendurisse  luuslang-lendureisse, luuslang-lenduritesse
+    4    seesütlev    luuslang-lenduris      luuslang-lendureis, luuslang-lendurites
+    5   seestütlev   luuslang-lendurist    luuslang-lendureist, luuslang-lenduritest
+    6   alaleütlev   luuslang-lendurile    luuslang-lendureile, luuslang-lenduritele
+    7    alalütlev    luuslang-lenduril      luuslang-lendureil, luuslang-lenduritel
+    8   alaltütlev   luuslang-lendurilt    luuslang-lendureilt, luuslang-lenduritelt
+    9         saav   luuslang-lenduriks    luuslang-lendureiks, luuslang-lenduriteks
+    10       rajav   luuslang-lendurini    luuslang-lendureini, luuslang-lenduriteni
+    11        olev   luuslang-lendurina    luuslang-lendureina, luuslang-lenduritena
+    12   ilmaütlev   luuslang-lendurita                         luuslang-lenduriteta
+    13  kaasaütlev   luuslang-lenduriga                         luuslang-lenduritega
