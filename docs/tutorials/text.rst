@@ -427,7 +427,7 @@ tav      kesksõna olevik passiiv jaatav kõne                           loetav
 tavat    kaudne kõneviis olevik passiiv jaatav kõne                    loetavat
 te       kindel kõneviis olevik 2. isik mitmus aktiiv jaatav kõne      loete
 ti       kindel kõneviis lihtminevik passiiv jaatav kõne               loeti
-tud      kesksõna minevik passiiv jaatav kõne                          loetud          
+tud      kesksõna minevik passiiv jaatav kõne                          loetud
 tuks     tingiv kõneviis minevik passiiv jaatav kõne                   loetuks
 tuvat    kaudne kõneviis minevik passiiv jaatav kõne                   loetuvat
 v        kesksõna olevik aktiiv jaatav kõne                            lugev
@@ -682,3 +682,24 @@ analysis results:
 * phonetic: boolean (default: False)
     Add phonetic information to root forms.
 
+::
+
+    from estnltk import Text
+    print (Text('tosinkond palki sai oma palga', phonetic=True, compound=False).roots)
+
+::
+
+    ['t?os]in~k<ond', 'p<al]k', 's<aa', 'oma', 'p<alk']
+
+
+Phonetic markers
+----------------
+
+======= =======================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
+Marker  Description
+======= =======================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
+<       silp on kolmandas vältes; asetseb vahetult silbi tuuma moodustava täishääliku ees
+?       silp on rõhuline; asetseb vahetult silbi tuuma moodustava täishääliku ees (silbi rõhulisust märgitakse ainult sellisel juhul, kui rõhuline silp on midagi muud kui võiks ennustada, ja ennustamine käib järgmiselt: kui sõnas on kolmandas vältes silp, siis rõhk on sellel; muidu, kui sõnas on pika täishääliku või täishäälikuühendiga silp, siis rõhk on sellel; muidu on rõhk esimesel silbil)
+]       eelmine häälik on palataliseeritud
+~       n ja k ühendis hääldatakse n ja k selgelt eraldi, mitte ei sulandu kokku; kasutuses ainult sõnades soonkond ja tosinkond
+======= =======================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
