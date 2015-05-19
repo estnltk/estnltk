@@ -272,6 +272,175 @@ Esnltk :py:class:`~estnltk.text.Text` class  properties for extracting morpholog
 * :py:attr:`~estnltk.text.Text.descriptions` - Estonian descriptions for forms.
 
 
+POS tags table
+--------------
+
+=======     ===========================================================================  ====================
+POS tag     Description                                                                  Example
+=======     ===========================================================================  ====================
+A           omadussõna - algvõrre (adjektiiv - positiiv), nii käänduvad kui käändumatud  kallis või eht
+C           omadussõna - keskvõrre (adjektiiv - komparatiiv)                             laiem
+D           määrsõna (adverb)                                                            kõrvuti
+G           genitiivatribuut (käändumatu omadussõna)                                     balti
+H           pärisnimi                                                                    Edgar
+I           hüüdsõna (interjektsioon)                                                    tere
+J           sidesõna (konjunktsioon)                                                     ja
+K           kaassõna (pre/postpositsioon)                                                kaudu
+N           põhiarvsõna (kardinaalnumeraal)                                              kaks
+O           järgarvsõna (ordinaalnumeraal)                                               teine
+P           asesõna (pronoomen)                                                          see
+S           nimisõna (substantiiv)                                                       asi
+U           omadussõna - ülivõrre (adjektiiv - superlatiiv)                              pikim
+V           tegusõna (verb)                                                              lugema
+X           verbi juurde kuuluv sõna, millel eraldi sõnaliigi tähistus puudub            plehku
+Y           lühend                                                                       USA
+Z           lausemärk                                                                    -, /, ...
+=======     ===========================================================================  ====================
+
+Noun forms table
+----------------
+
+======  ====================================================
+Form    Description
+======  ====================================================
+ab      abessiiv (ilmaütlev)
+abl     ablatiiv (alaltütlev)
+ad      adessiiv (alalütlev)
+adt     aditiiv	suunduv (lühike sisseütlev), nt. "majja"
+all     allatiiv (alaleütlev)
+el      elatiiv (seestütlev)
+es      essiiv (olev)
+g       genitiiv (omastav)
+ill     illatiiv (sisseütlev)
+in      inessiiv (seesütlev)
+kom     komitatiiv (kaasaütlev)
+n       nominatiiv (nimetav)
+p       partitiiv (osastav)
+pl      pluural (mitmus)
+sg      ainsus (ainsus)
+ter     terminatiiv (rajav)
+tr      translatiiv (saav)
+======  ====================================================
+
+
+Verb forms table
+----------------
+======== ============================================================= ===========================
+Form     Description                                                   Example
+======== ============================================================= ===========================
+b        kindel kõneviis olevik 3. isik ainsus aktiiv jaatav kõne      loeb
+d        kindel kõneviis olevik 2. isik ainsus aktiiv jaatav kõne      loed
+da       infinitiiv jaatav kõne                                        lugeda
+des      gerundium jaatav kõne                                         lugedes
+ge       käskiv kõneviis olevik 2. isik mitmus aktiiv jaatav kõne      lugege
+gem      käskiv kõneviis olevik 1. isik mitmus aktiiv jaatav kõne      lugegem
+gu       käskiv kõneviis olevik 3. isik mitmus aktiiv jaatav kõne      (nad) lugegu
+gu       käskiv kõneviis olevik 3. isik ainsus aktiiv jaatav kõne      (ta) lugegu
+ks       tingiv kõneviis olevik 1. isik mitmus aktiiv jaatav kõne      (me) loeks
+ks       tingiv kõneviis olevik 1. isik ainsus aktiiv jaatav kõne      (ma) loeks
+ks       tingiv kõneviis olevik 2. isik mitmus aktiiv jaatav kõne      (te) loeks
+ks       tingiv kõneviis olevik 2. isik ainsus aktiiv jaatav kõne      (sa) loeks
+ks       tingiv kõneviis olevik 3. isik mitmus aktiiv jaatav kõne      (nad) loeks
+ks       tingiv kõneviis olevik 3. isik ainsus aktiiv jaatav kõne      (ta) loeks
+ksid     tingiv kõneviis olevik 2. isik ainsus aktiiv jaatav kõne      (sa) loeksid
+ksid     tingiv kõneviis olevik 3. isik mitmus aktiiv jaatav kõne      (nad) loeksid
+ksime    tingiv kõneviis olevik 1. isik mitmus aktiiv jaatav kõne      (me) loeksime
+ksin     tingiv kõneviis olevik 1. isik ainsus aktiiv jaatav kõne      (ma) loeksin
+ksite    tingiv kõneviis olevik 2. isik mitmus aktiiv jaatav kõne      (te) loeksite
+ma       supiin aktiiv jaatav kõne sisseütlev                          lugema
+maks     supiin aktiiv jaatav kõne saav                                lugemaks
+mas      supiin aktiiv jaatav kõne seesütlev                           lugemas
+mast     supiin aktiiv jaatav kõne seestütlev                          lugemast
+mata     supiin aktiiv jaatav kõne ilmaütlev                           lugemata
+me       kindel kõneviis olevik 1. isik mitmus aktiiv jaatav kõne      loeme
+n        kindel kõneviis olevik 1. isik ainsus aktiiv jaatav kõne      loen
+neg      eitav kõne                                                    ei
+neg ge   käskiv kõneviis olevik 2. isik mitmus aktiiv eitav kõne       ärge
+neg gem  käskiv kõneviis olevik 1. isik mitmus aktiiv eitav kõne       ärgem
+neg gu   käskiv kõneviis olevik 3. isik mitmus aktiiv eitav kõne       (nad) ärgu
+neg gu   käskiv kõneviis olevik 3. isik ainsus aktiiv eitav kõne       (ta) ärgu
+neg gu   käskiv kõneviis olevik passiiv eitav kõne                     ärgu
+neg ks   tingiv kõneviis olevik 1. isik mitmus aktiiv eitav kõne       (me) poleks
+neg ks   tingiv kõneviis olevik 1. isik ainsus aktiiv eitav kõne       (ma) poleks
+neg ks   tingiv kõneviis olevik 2. isik mitmus aktiiv eitav kõne       (te) poleks
+neg ks   tingiv kõneviis olevik 2. isik ainsus aktiiv eitav kõne       (sa) poleks
+neg ks   tingiv kõneviis olevik 3. isik mitmus aktiiv eitav kõne       (nad) poleks
+neg ks   tingiv kõneviis olevik 3. isik ainsus aktiiv eitav kõne       (ta) poleks
+neg me   käskiv kõneviis olevik 1. isik mitmus aktiiv eitav kõne       ärme
+neg nud  kindel kõneviis lihtminevik 1. isik mitmus aktiiv eitav kõne  (me) polnud
+neg nud  kindel kõneviis lihtminevik 1. isik ainsus aktiiv eitav kõne  (ma) polnud
+neg nud  kindel kõneviis lihtminevik 2. isik mitmus aktiiv eitav kõne  (te) polnud
+neg nud  kindel kõneviis lihtminevik 2. isik ainsus aktiiv eitav kõne  (sa) polnud
+neg nud  kindel kõneviis lihtminevik 3. isik mitmus aktiiv eitav kõne  (nad) polnud
+neg nud  kindel kõneviis lihtminevik 3. isik ainsus aktiiv eitav kõne  (ta) polnud
+neg nuks tingiv kõneviis minevik 1. isik mitmus aktiiv eitav kõne      (me) polnuks
+neg nuks tingiv kõneviis minevik 1. isik ainsus aktiiv eitav kõne      (ma) polnuks
+neg nuks tingiv kõneviis minevik 2. isik mitmus aktiiv eitav kõne      (te) polnuks
+neg nuks tingiv kõneviis minevik 2. isik ainsus aktiiv eitav kõne      (sa) polnuks
+neg nuks tingiv kõneviis minevik 3. isik mitmus aktiiv eitav kõne      (nad) polnuks
+neg nuks tingiv kõneviis minevik 3. isik ainsus aktiiv eitav kõne      (ta) polnuks
+neg o    käskiv kõneviis olevik 2. isik ainsus aktiiv eitav kõne       ära
+neg o    kindel kõneviis olevik 1. isik mitmus aktiiv eitav kõne       (me) pole
+neg o    kindel kõneviis olevik 1. isik ainsus aktiiv eitav kõne       (ma) pole
+neg o    kindel kõneviis olevik 2. isik mitmus aktiiv eitav kõne       (te) pole
+neg o    kindel kõneviis olevik 2. isik ainsus aktiiv eitav kõne       (sa) pole
+neg o    kindel kõneviis olevik 3. isik mitmus aktiiv eitav kõne       (nad) pole
+neg o    kindel kõneviis olevik 3. isik ainsus aktiiv eitav kõne       (ta) pole
+neg vat  kaudne kõneviis olevik 1. isik mitmus aktiiv eitav kõne       (me) polevat
+neg vat  kaudne kõneviis olevik 1. isik ainsus aktiiv eitav kõne       (ma) polevat
+neg tud  kesksõna minevik passiiv eitav kõne                           poldud
+neg vat  kaudne kõneviis olevik 2. isik mitmus aktiiv eitav kõne       (te) polevat
+neg vat  kaudne kõneviis olevik 2. isik ainsus aktiiv eitav kõne       (sa) polevat
+neg vat  kaudne kõneviis olevik 3. isik mitmus aktiiv eitav kõne       (nad) polevat
+neg vat  kaudne kõneviis olevik 3. isik ainsus aktiiv eitav kõne       (ta) polevat
+nud      kesksõna minevik aktiiv jaatav kõne                           lugenud
+nuks     tingiv kõneviis minevik 1. isik mitmus aktiiv jaatav kõne     (me) lugenuks
+nuks     tingiv kõneviis minevik 1. isik ainsus aktiiv jaatav kõne     (ma) lugenuks
+nuks     tingiv kõneviis minevik 2. isik mitmus aktiiv jaatav kõne     (te) lugenuks
+nuks     tingiv kõneviis minevik 2. isik ainsus aktiiv jaatav kõne     (sa) lugenuks
+nuks     tingiv kõneviis minevik 3. isik mitmus aktiiv jaatav kõne     (nad) lugenuks
+nuks     tingiv kõneviis minevik 3. isik ainsus aktiiv jaatav kõne     (ta) lugenuks
+nuksid   tingiv kõneviis minevik 2. isik ainsus aktiiv jaatav kõne     (sa) lugenuksid
+nuksid   tingiv kõneviis minevik 3. isik mitmus aktiiv jaatav kõne     (nad) lugenuksid
+nuksime  tingiv kõneviis minevik 1. isik mitmus aktiiv jaatav kõne     lugenuksime
+nuksin   tingiv kõneviis minevik 1. isik ainsus aktiiv jaatav kõne     lugenuksin
+nuksite  tingiv kõneviis minevik 2. isik mitmus aktiiv jaatav kõne     lugenuksite
+nuvat    kaudne kõneviis minevik 1. isik mitmus aktiiv jaatav kõne     (me) lugenuvat
+nuvat    kaudne kõneviis minevik 1. isik ainsus aktiiv jaatav kõne     (ma) lugenuvat
+nuvat    kaudne kõneviis minevik 2. isik mitmus aktiiv jaatav kõne     (te) lugenuvat
+nuvat    kaudne kõneviis minevik 2. isik ainsus aktiiv jaatav kõne     (sa) lugenuvat
+nuvat    kaudne kõneviis minevik 3. isik mitmus aktiiv jaatav kõne     (nad) lugenuvat
+nuvat    kaudne kõneviis minevik 3. isik ainsus aktiiv jaatav kõne     (ta) lugenuvat
+o        käskiv kõneviis olevik 2. isik ainsus aktiiv jaatav kõne      loe
+s        kindel kõneviis lihtminevik 3. isik ainsus aktiiv jaatav kõne luges
+sid      kindel kõneviis lihtminevik 2. isik ainsus aktiiv jaatav kõne (sa) lugesid
+sid      kindel kõneviis lihtminevik 3. isik mitmus aktiiv jaatav kõne (nad) lugesid
+sime     kindel kõneviis lihtminevik 1. isik mitmus aktiiv jaatav kõne lugesime
+sin      kindel kõneviis lihtminevik 1. isik ainsus aktiiv jaatav kõne lugesin
+site     kindel kõneviis lihtminevik 2. isik mitmus aktiiv jaatav kõne lugesite
+ta       kindel kõneviis olevik passiiv eitav kõne                     loeta
+tagu     käskiv kõneviis olevik passiiv jaatav kõne                    loetagu
+taks     tingiv kõneviis olevik passiiv jaatav kõne                    loetaks
+takse    kindel kõneviis olevik passiiv jaatav kõne                    loetakse
+tama     supiin passiiv jaatav kõne                                    loetama
+tav      kesksõna olevik passiiv jaatav kõne                           loetav
+tavat    kaudne kõneviis olevik passiiv jaatav kõne                    loetavat
+te       kindel kõneviis olevik 2. isik mitmus aktiiv jaatav kõne      loete
+ti       kindel kõneviis lihtminevik passiiv jaatav kõne               loeti
+tud      kesksõna minevik passiiv jaatav kõne                          loetud          
+tuks     tingiv kõneviis minevik passiiv jaatav kõne                   loetuks
+tuvat    kaudne kõneviis minevik passiiv jaatav kõne                   loetuvat
+v        kesksõna olevik aktiiv jaatav kõne                            lugev
+vad      kindel kõneviis olevik 3. isik mitmus aktiiv jaatav kõne      loevad
+vat      kaudne kõneviis olevik 1. isik mitmus aktiiv jaatav kõne      (me) lugevat
+vat      kaudne kõneviis olevik 1. isik ainsus aktiiv jaatav kõne      (ma) lugevat
+vat      kaudne kõneviis olevik 2. isik mitmus aktiiv jaatav kõne      (te) lugevat
+vat      kaudne kõneviis olevik 2. isik ainsus aktiiv jaatav kõne      (sa) lugevat
+vat      kaudne kõneviis olevik 3. isik mitmus aktiiv jaatav kõne      (nad) lugevat
+vat      kaudne kõneviis olevik 3. isik ainsus aktiiv jaatav kõne      (ta) lugevat
+======== ============================================================= ===========================
+
+
 Property aggregation
 --------------------
 
@@ -457,7 +626,59 @@ look at a single analysis dictionary element for word "raudteejaamadelgi"::
 Human-readable descriptions
 ---------------------------
 
+:py:class:`~estnltk.text.Text` class has properties :py:attr:`~estnltk.text.Text.postag_descriptions` and
+:py:attr:`~estnltk.text.Text.descriptions`, which give Estonian descriptions respectively to POS tags and word forms::
+
+    from estnltk import Text
+    text = Text('Usjas kaslane ründas künklikul maastikul tünjat Tallinnfilmi režissööri')
+
+    text.get.word_texts.postags.postag_descriptions.as_dataframe
+
+::
+
+    text.get.word_texts.postags.postag_descriptions.as_dataframe
+         word_texts postags  postag_descriptions
+    0         Usjas       A  omadussõna algvõrre
+    1       kaslane       S             nimisõna
+    2        ründas       V             tegusõna
+    3     künklikul       A  omadussõna algvõrre
+    4     maastikul       S             nimisõna
+    5        tünjat       A  omadussõna algvõrre
+    6  Tallinnfilmi       H            pärisnimi
+    7    režissööri       S             nimisõna
+
+::
+
+    text.get.word_texts.forms.descriptions.as_dataframe
+
+::
+
+         word_texts  forms                                       descriptions
+    0         Usjas   sg n                        ainsus nimetav (nominatiiv)
+    1       kaslane   sg n                        ainsus nimetav (nominatiiv)
+    2        ründas      s  kindel kõneviis lihtminevik 3. isik ainsus akt...
+    3     künklikul  sg ad                        ainsus alalütlev (adessiiv)
+    4     maastikul  sg ad                        ainsus alalütlev (adessiiv)
+    5        tünjat   sg p                         ainsus osastav (partitiiv)
+    6  Tallinnfilmi   sg g                          ainsus omastav (genitiiv)
+    7    režissööri   sg p                         ainsus osastav (partitiiv)
+
 
 Analysis options & phonetic information
 ---------------------------------------
+
+By default, estnltk does not add phonetic information to analyzed word roots, but this functionality can be changed.
+Here are all the options that can be given to the :py:class:`~estnltk.text.Text` class that will affect the
+analysis results:
+
+* disambiguate: boolean (default: True)
+    Disambiguate the output and remove incosistent analysis.
+* guess: boolean (default: True)
+     Use guessing in case of unknown words
+* propername: boolean (default: True)
+    Perform additional analysis of proper names.
+* compound: boolean (default: True)
+    Add compound word markers to root forms.
+* phonetic: boolean (default: False)
+    Add phonetic information to root forms.
 
