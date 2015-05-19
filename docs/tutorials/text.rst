@@ -559,7 +559,7 @@ Estnltk has function :py:func:`~estnltk.vabamorf.morf.synthesize`, which accepts
 3. *(optional)* POS tag (see :ref:`postag_table`).
 4. *(optional)* hint, essentially a prefix filter.
 
-Let's generate plural genitive forms for lemma "palk" (in English both a *paycheck* and a *log*)
+Let's generate plural genitive forms for lemma "palk" (in English a *paycheck* and a *log*)::
 
     from estnltk import synthesize
     synthesize('palk', 'pl g')
@@ -633,7 +633,7 @@ Let's try something funny as well::
 
     synthesize_all('luuslang-lendur')
 
-Haha ^_^::
+^_^::
 
               case             singular                                       plural
     0      nimetav      luuslang-lendur                            luuslang-lendurid
