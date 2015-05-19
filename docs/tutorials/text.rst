@@ -11,7 +11,7 @@ Getting started
 
 One of the most important classes in Estnltk is :py:class:`~estnltk.text.Text`, which is essentally the main interface
 for doing everything Estnltk is capable of. It is actually a subclass of standard ``dict`` class in Python and stores
-all data relevant to the text there::
+all data relevant to the text in this form::
 
     from estnltk import Text
 
@@ -247,44 +247,217 @@ recomputing them::
 
     print (text.word_texts) # tokenization is already done, just extract words using the positions
 
+You should also remember this, when you have defined custom tokenizers. In such cases you can force retokenization by
+calling :py:meth:`~estnltk.text.Text.compute_words` and :py:meth:`~estnltk.text.Text.compute_sentences`.
 
 Morphological analysis
 ======================
 
-asdf
+In linguistics, morphology is the identification, analysis, and description of the structure of a given language's morphemes and other linguistic units,
+such as root words, lemmas, suffixes, parts of speech etc.
+Estnltk wraps `Vabamorf`_ morphological analyzer, which can do both morphological analysis and synthesis.
 
-Aggregating many properties
-===========================
+.. _Vabamorf: https://github.com/Filosoft/vabamorf
 
-asdf
+Esnltk :py:class:`~estnltk.text.Text` class  properties for extracting morphological information:
 
-Splitting up texts
-==================
+* :py:attr:`~estnltk.text.Text.analysis` - raw analysis data.
+* :py:attr:`~estnltk.text.Text.roots` - root forms of words.
+* :py:attr:`~estnltk.text.Text.root_tokens` - for compound words, all the tokens the root is made of.
+* :py:attr:`~estnltk.text.Text.lemmas` - dictionary (canonical) word forms.
+* :py:attr:`~estnltk.text.Text.forms` - word form expressing the case, plurality, voice etc.
+* :py:attr:`~estnltk.text.Text.endings` - word inflective suffixes.
+* :py:attr:`~estnltk.text.Text.postags` - part-of-speech (POS) tags (word types).
+* :py:attr:`~estnltk.text.Text.postag_descriptions` - Estonian descriptions for POS tags.
+* :py:attr:`~estnltk.text.Text.descriptions` - Estonian descriptions for forms.
 
-asdf
 
-Named entity recognition
-========================
+Property aggregation
+--------------------
 
-asdf
+Before we continue with morphological analysis, we introduce a way to put together various information in
+a simple way.
+Often you want to extract various information, such as words, lemmas, postags and put them together such that
+you could easily access all of them.
+Estnltk has :py:class:`~estnltk.text.ZipBuilder` class, which can compile together properties you need and then
+format them in various ways.
+First, you can initiate the builder on a Text object by calling :py:attr:`~estnltk.text.Text.get` attribute and
+then chain together the attributes you wish to have.
+Last step is telling the format you want the data to appear.
 
-Temporal time expressions
-=========================
+You can think of this process as building a sentence: **get <item_1> <item_2> ... <item_n> as <format>**.
+Output formats include Pandas `DataFrame`_::
 
-asdf
+    from estnltk import Text
+    text = Text('Usjas kaslane ründas künklikul maastikul tünjat Tallinnfilmi režissööri')
+    text.get.word_texts.postags.postag_descriptions.as_dataframe
 
-Clauses
-=======
+::
 
-asdf
+             word_texts postags  postag_descriptions
+    0         Usjas       A  omadussõna algvõrre
+    1       kaslane       S             nimisõna
+    2        ründas       V             tegusõna
+    3     künklikul       A  omadussõna algvõrre
+    4     maastikul       S             nimisõna
+    5        tünjat       A  omadussõna algvõrre
+    6  Tallinnfilmi       H            pärisnimi
+    7    režissööri       S             nimisõna
 
-Verb chains
-===========
+.. _DataFrame: http://pandas.pydata.org/pandas-docs/dev/generated/pandas.DataFrame.html
 
-asdf
+A list of tuples::
 
-Serialization
-=============
+    text.get.word_texts.postags.postag_descriptions.as_zip
 
-asdf
+::
+
+    [('Usjas', 'A', 'omadussõna algvõrre'),
+     ('kaslane', 'S', 'nimisõna'),
+     ('ründas', 'V', 'tegusõna'),
+     ('künklikul', 'A', 'omadussõna algvõrre'),
+     ('maastikul', 'S', 'nimisõna'),
+     ('tünjat', 'A', 'omadussõna algvõrre'),
+     ('Tallinnfilmi', 'H', 'pärisnimi'),
+     ('režissööri', 'S', 'nimisõna')]
+
+A list of lists::
+
+    text.get.word_texts.postags.postag_descriptions.as_list
+
+::
+
+    [['Usjas',
+      'kaslane',
+      'ründas',
+      'künklikul',
+      'maastikul',
+      'tünjat',
+      'Tallinnfilmi',
+      'režissööri'],
+     ['A', 'S', 'V', 'A', 'S', 'A', 'H', 'S'],
+     ['omadussõna algvõrre',
+      'nimisõna',
+      'tegusõna',
+      'omadussõna algvõrre',
+      'nimisõna',
+      'omadussõna algvõrre',
+      'pärisnimi',
+      'nimisõna']]
+
+A dictionary::
+
+    text.get.word_texts.postags.postag_descriptions.as_dict
+
+::
+
+    {'postag_descriptions': ['omadussõna algvõrre',
+                             'nimisõna',
+                             'tegusõna',
+                             'omadussõna algvõrre',
+                             'nimisõna',
+                             'omadussõna algvõrre',
+                             'pärisnimi',
+                             'nimisõna'],
+     'postags': ['A', 'S', 'V', 'A', 'S', 'A', 'H', 'S'],
+     'word_texts': ['Usjas',
+                    'kaslane',
+                    'ründas',
+                    'künklikul',
+                    'maastikul',
+                    'tünjat',
+                    'Tallinnfilmi',
+                    'režissööri']}
+
+
+.. note:: Estnltk does not stop the programmer doing wrong things
+
+    You can chain together any :py:class:`~estnltk.text.Text` property, but only thing you must take care of is that
+    all the properties act on same unit of data. So, when you mix sentence and word properties, you get either an error
+    or malformed output.
+
+
+Word analysis
+-------------
+
+After doing morphological analysis, ideally only one unambiguous dictionary containing all the raw data is generated.
+However, sometimes the disambiguator cannot really eliminate all ambiguity and you get multiple analysis variants::
+
+    from estnltk import Text
+    text = Text('mõeldud')
+    print (text.analysis)
+
+::
+
+    {'text': 'mõeldud',
+     'words': [{'analysis': [{'clitic': '',
+                              'ending': '0',
+                              'form': '',
+                              'lemma': 'mõeldud',
+                              'partofspeech': 'A',
+                              'root': 'mõel=dud',
+                              'root_tokens': ['mõeldud']},
+                             {'clitic': '',
+                              'ending': '0',
+                              'form': 'sg n',
+                              'lemma': 'mõeldud',
+                              'partofspeech': 'A',
+                              'root': 'mõel=dud',
+                              'root_tokens': ['mõeldud']},
+                             {'clitic': '',
+                              'ending': 'd',
+                              'form': 'pl n',
+                              'lemma': 'mõeldud',
+                              'partofspeech': 'A',
+                              'root': 'mõel=dud',
+                              'root_tokens': ['mõeldud']},
+                             {'clitic': '',
+                              'ending': 'dud',
+                              'form': 'tud',
+                              'lemma': 'mõtlema',
+                              'partofspeech': 'V',
+                              'root': 'mõtle',
+                              'root_tokens': ['mõtle']}],
+                'end': 7,
+                'start': 0,
+                'text': 'mõeldud'}]}
+
+The word "mõeldud" has quite a lot ambiguity as it can be interpreted either as a *verb* or *adjective*. Adjective
+version itself can be though of as singular or plural and with different suffixes.
+
+This ambiguity also affects how properties work.
+In this case, there are two lemmas and when accessing :py:attr:`~estnltk.text.Text.lemmas` property, estnltk
+displays both unique cases, sorted alphabetically and separated by a pipe::
+
+    print (text.lemmas)
+    print (text.postags)
+
+::
+
+    ['mõeldud|mõtlema']
+    ['A|V']
+
+
+Now, we have already seen that morphological data is added to word level dictionary under element ``analysis``. Let's also
+look at a single analysis dictionary element for word "raudteejaamadelgi"::
+
+    Text('raudteejaamadelgi').analysis
+
+::
+
+    {'clitic': 'gi', # In Estonian, -gi and -ki suffixes
+     'ending': 'del', # word suffix without clitic
+     'form': 'pl ad', # word form, in this case plural and allative case
+     'lemma': 'raudteejaam', # the dictionary form of the word
+     'partofspeech': 'S', # POS tag, in this case substantive
+     'root': 'raud_tee_jaam', # root form (same as lemma, but verbs do not have -ma suffix)
+     'root_tokens': ['raud', 'tee', 'jaam']} # for compund word roots, a list of simple roots the compound is made of
+
+
+Human-readable descriptions
+---------------------------
+
+
+Analysis options & phonetic information
+---------------------------------------
 

@@ -112,7 +112,7 @@ Tutorials
 =========
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    tutorials/installation
    tutorials/text
@@ -125,7 +125,7 @@ API reference
 =============
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 3
 
    api/core
    api/text
