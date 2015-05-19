@@ -116,6 +116,7 @@ Tutorials
 
    tutorials/installation
    tutorials/text
+   tutorials/morf_tables
    tutorials/ner
    tutorials/textclassifier
    tutorials/informationextractor

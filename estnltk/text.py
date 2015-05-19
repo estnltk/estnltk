@@ -626,6 +626,11 @@ class ZipBuilder(object):
             return self
         return object.__getattribute__(self, item)
 
+    def __call__(self, props):
+        for prop in props:
+            self.__getattribute__(prop)
+        return self
+
     @property
     def as_dataframe(self):
         df = pandas.DataFrame.from_dict(self.as_dict)
