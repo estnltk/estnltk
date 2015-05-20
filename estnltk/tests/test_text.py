@@ -120,3 +120,10 @@ class ZipBuilderTest(unittest.TestCase):
             "postags": text.postags,
             "endings": text.endings
         }
+
+    def test_zipbuilder_call(self):
+        text = self.text()
+        built_list = text.get(['word_texts', 'lemmas', 'postags', 'endings']).as_list
+        expected = self.list()
+        self.assertListEqual(expected, built_list)
+
