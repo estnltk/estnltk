@@ -467,10 +467,11 @@ look at a single analysis dictionary element for word "raudteejaamadelgi"::
 
     {'clitic': 'gi', # In Estonian, -gi and -ki suffixes
      'ending': 'del', # word suffix without clitic
-     'form': 'pl ad', # word form, in this case plural and allative case
+     'form': 'pl ad', # word form, in this case plural and adessive (alalütlev) case
      'lemma': 'raudteejaam', # the dictionary form of the word
      'partofspeech': 'S', # POS tag, in this case substantive
      'root': 'raud_tee_jaam', # root form (same as lemma, but verbs do not have -ma suffix)
+                              # also has compound word markers and optional phonetic markers
      'root_tokens': ['raud', 'tee', 'jaam']} # for compund word roots, a list of simple roots the compound is made of
 
 
@@ -650,3 +651,53 @@ Let's try something funny as well::
     11        olev   luuslang-lendurina    luuslang-lendureina, luuslang-lenduritena
     12   ilmaütlev   luuslang-lendurita                         luuslang-lenduriteta
     13  kaasaütlev   luuslang-lenduriga                         luuslang-lenduritega
+
+
+Correcting spelling
+===================
+
+Many applications can benefit from spellcheck functionality, which flags incorrect words and also
+provides suggestions.
+Estnltk Text class has properties :py:attr:`~estnltk.text.Text.spelling`, that tells which words are correctly spelled
+and :py:attr:`~estnltk.text.Text.spelling_suggestions`, which lists suggestions for incorrect words::
+
+    from estnltk import Text
+    text = Text('Vikastes lausetes on trügivigasid!')
+
+    text.get.word_texts.spelling.spelling_suggestions.as_dataframe
+
+::
+
+         word_texts spelling  spelling_suggestions
+    0      Vikastes    False  [Vigastes, Vihastes]
+    1      lausetes     True                    []
+    2            on     True                    []
+    3  trügivigasid    False        [trükivigasid]
+    4             !     True                    []
+
+There is also property :py:attr:`~estnltk.text.Text.spellcheck_results`, that gives both spelling and suggestions
+together.
+This is more efficient than calling :py:attr:`~estnltk.text.Text.spelling` and :py:attr:`~estnltk.text.Text.spelling_suggestions` separately::
+
+    text.spellcheck_results
+
+::
+
+    [{'spelling': False,
+      'suggestions': ['Vigastes', 'Vihastes'],
+      'text': 'Vikastes'},
+     {'spelling': True, 'suggestions': [], 'text': 'lausetes'},
+     {'spelling': True, 'suggestions': [], 'text': 'on'},
+     {'spelling': False, 'suggestions': ['trükivigasid'], 'text': 'trügivigasid'},
+     {'spelling': True, 'suggestions': [], 'text': '!'}]
+
+
+Last, there is function :py:meth:`~estnltk.text.Text.fix_spelling`, that replaces incorrect words with first
+suggestion in the list. It is very naive, but it may be handy::
+
+    print(text.fix_spelling())
+
+::
+
+    Vigastes lausetes on trükivigasid!
+

@@ -441,17 +441,25 @@ class Text(dict):
     # ///////////////////////////////////////////////////////////////////
     # SPELLCHECK
     # ///////////////////////////////////////////////////////////////////
-    def spellcheck_words(self):
+
+    @property
+    def spelling(self):
+        """Flag incorrectly spelled words.
+        Returns a list of booleans, where element at each position denotes, if the word at the same position
+        is spelled correctly.
+        """
         if not self.is_computed(WORDS):
             self.compute_words()
         return [data[SPELLING] for data in vabamorf.spellcheck(self.word_texts, suggestions=False)]
 
-    def spellcheck_suggestions(self):
+    @property
+    def spelling_suggestions(self):
         if not self.is_computed(WORDS):
             self.compute_words()
         return [data[SUGGESTIONS] for data in vabamorf.spellcheck(self.word_texts, suggestions=True)]
 
-    def spellcheck(self):
+    @property
+    def spellcheck_results(self):
         if not self.is_computed(WORDS):
             self.compute_words()
         return vabamorf.spellcheck(self.word_texts, suggestions=True)
