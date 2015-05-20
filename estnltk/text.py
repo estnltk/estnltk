@@ -6,6 +6,7 @@ from .names import *
 from .vabamorf import morf as vabamorf
 from .ner import NerTagger
 from .timex import TimexTagger
+from .textcleaner import ESTONIAN, TextCleaner
 
 import six
 import pandas
@@ -23,6 +24,7 @@ sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
 word_tokenizer = WordPunctTokenizer()
 nertagger = None
 timextagger = None
+textcleaner = TextCleaner()
 
 
 def load_default_ner_tagger():
@@ -40,7 +42,8 @@ def load_default_timex_tagger():
 
 
 class Text(dict):
-    """Text class of estnltk.
+    """Text class.
+
     """
 
     def __init__(self, text_or_instance, **kwargs):
@@ -75,6 +78,7 @@ class Text(dict):
             'ner_tagger', None)
         self.__timex_tagger = kwargs.get( # lazy loading for timex tagger
             'timex_tagger', None)
+        self.__text_cleaner = kwargs.get('text_cleaner', textcleaner)
 
     def get_kwargs(self):
         """Get the keyword arguments that were passed to the :py:class:`~estnltk.text.Text` when it was constructed."""
@@ -147,6 +151,71 @@ class Text(dict):
 
     def __unicode__(self):
         return self[TEXT]
+
+    # ///////////////////////////////////////////////////////////////////
+    # STRING METHODS
+    # ///////////////////////////////////////////////////////////////////
+
+    def capitalize(self):
+        return Text(self[TEXT].capitalize(), **self.__kwargs)
+
+    def count(self, sub, *args):
+        return self[TEXT].count(sub, *args)
+
+    def endswith(self, suffix, *args):
+        return self[TEXT].endswith(suffix, *args)
+
+    def find(self, sub, *args):
+        return self[TEXT].find(sub, *args)
+
+    def index(self, sub, *args):
+        return self[TEXT].index(sub, *args)
+
+    def isalnum(self):
+        return self[TEXT].isalnum()
+
+    def isalpha(self):
+        return self[TEXT].isalpha()
+
+    def isdigit(self):
+        return self[TEXT].isdigit()
+
+    def islower(self):
+        return self[TEXT].islower()
+
+    def isspace(self):
+        return self[TEXT].isspace()
+
+    def istitle(self):
+        return self[TEXT].istitle()
+
+    def isupper(self):
+        return self[TEXT].isupper()
+
+    def lower(self):
+        return Text(self[TEXT].lower(), **self.__kwargs)
+
+    def lstrip(self, *args):
+        return Text(self[TEXT].lstrip(*args), **self.__kwargs)
+
+    def replace(self, old, new, *args):
+        return Text(self[TEXT].replace(old, new, *args), **self.__kwargs)
+
+    def rfind(self, sub, *args):
+        return self[TEXT].rfind(sub, *args)
+
+    def rindex(self, sub, *args):
+        return self[TEXT].rindex(sub, *args)
+
+    def rstrip(self, *args):
+        return Text(self[TEXT].rstrip(*args), **self.__kwargs)
+
+    def startswith(self, prefix, *args):
+        return self[TEXT].startswith(prefix, *args)
+
+    def strip(self, *args):
+        return Text(self[TEXT].strip(*args), **self.__kwargs)
+
 
     # ///////////////////////////////////////////////////////////////////
     # RETRIEVING AND COMPUTING PROPERTIES
@@ -465,11 +534,7 @@ class Text(dict):
         return vabamorf.spellcheck(self.word_texts, suggestions=True)
 
     def fix_spelling(self):
-        """Fix spellin of the text.
-
-        NB! Invalidates computed properties, which have to be recomputed in order to use.
-        If accessing data using properties, they will be updated automatically, but
-        direct use of the underlying dictionary will yield wrong results.
+        """Fix spelling of the text.
         """
         if not self.is_computed(WORDS):
             self.compute_words()
@@ -485,9 +550,22 @@ class Text(dict):
                 newtoks.append(fix)
                 lastend = end
             newtoks.append(text[lastend:])
-            self[TEXT] = ''.join(newtoks)
-            self.__computed.clear()
+            return Text(''.join(newtoks), **self.__kwargs)
         return self
+
+    # ///////////////////////////////////////////////////////////////////
+    # TEXTCLEANER
+    # ///////////////////////////////////////////////////////////////////
+
+    def is_valid(self):
+        return self.__text_cleaner.is_valid(self[TEXT])
+
+    @property
+    def invalid_characters(self):
+        return self.__text_cleaner.invalid_characters(self[TEXT])
+
+    def clean(self):
+        return Text(self.__text_cleaner.clean(self[TEXT]), **self.__kwargs)
 
     # ///////////////////////////////////////////////////////////////////
     # SPLITTING

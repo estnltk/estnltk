@@ -704,3 +704,149 @@ suggestion in the list. It is very naive, but it may be handy::
 
     Vigastes lausetes on trükivigasid!
 
+
+Detecting invalid characters
+============================
+
+Often, during preprocessing of text files, we wish to check if the files satisfy certain assumptions.
+One such possible requirement is check if the files contain characters that can be handled by our application.
+For example, an application assuming Estonian input might not work with Cyrillic characters.
+In such cases, it is necessary to detect invalid input.
+
+Predefined alphabets
+--------------------
+
+Estnltk has predefined alphabets for Estonian and Russian, that can be combined with various punctuation and whitespace::
+
+    from estnltk import EST_ALPHA, RUS_ALPHA, DIGITS, WHITESPACE, PUNCTUATION, ESTONIAN, RUSSIAN
+
+Estonian alphabet (EST_ALPHA)::
+
+    abcdefghijklmnoprsšzžtuvwõäöüxyzABCDEFGHIJKLMNOPRSŠZŽTUVWÕÄÖÜXYZ
+
+Russian alphabet (RUS_ALPHA)::
+
+    абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ
+
+Standard punctuation (PUNCTUATION)::
+
+    !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~–
+
+Digits::
+
+    0123456789
+
+Whitespace::
+
+    ' \t\n\r\x0b\x0c'
+
+Estonian combined with punctuation and whitespace::
+
+    'abcdefghijklmnoprsšzžtuvwõäöüxyzABCDEFGHIJKLMNOPRSŠZŽTUVWÕÄÖÜXYZ0123456789 \t\n\r\x0b\x0c!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~–'
+
+Russian combined with punctuation and whitespace::
+
+    'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ0123456789 \t\n\r\x0b\x0c!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~–'
+
+
+Detecting characters
+--------------------
+
+By default, Estnltk assumes Estonian alphabet with whitespace and punctuation, but you can supply :py:class:`~estnltk.textclearner.TextCleaner`
+instances with other dictionaries to a Text instance::
+
+    from estnltk import Text, TextCleaner, RUSSIAN
+    td_ru = TextCleaner(RUSSIAN)
+
+    et_plain = 'Segan suhkrut malbelt tassis, kus nii armsalt aurab tee.'
+    ru_plain = 'Дождь, звонкой пеленой наполнил небо майский дождь.'
+
+    et_correct = Text(et_plain)
+    et_invalid = Text(ru_plain)
+    ru_correct = Text(ru_plain, text_cleaner=td_ru)
+    ru_invalid = Text(et_plain, text_cleaner=td_ru)
+
+Now you can use :py:meth:`~estnltk.text.Text.is_valid` method to check if the text contains only characters defined in the alphabet::
+
+    et_correct.is_valid()
+    et_invalid.is_valid()
+
+::
+
+    True
+    False
+
+::
+
+    ru_correct.is_valid()
+    ru_invalid.is_valid()
+
+::
+
+    True
+    False
+
+
+In addition to checking just for correctness, we might want to get the list of invalid characters::
+
+    from estnltk import Text
+
+    text = Text('Esmaspäeval (27.04) liikus madalrōhkkond Pōhjalahelt Soome kohale.¶')
+    print (text.invalid_characters)
+
+::
+
+    ¶ō
+
+Surprisingly, in addition to ``¶`` we also see character ``ō`` as invalid.
+Well, the reason is that is not the correct ``õ``.
+
+.. note:: Different Unicode characters
+
+    * ō latin small letter o with macron (U+014D)
+    * õ latin small letter o with tilde (U+00F5)
+
+It is really hard to distinguish the difference visually, but in case we are indexing the text, we fail to find it
+via search later if we assume it used correct character ``õ``.
+
+So, let's replace the wrong ``ō`` and remove other invalid characters using method :py:meth:`~estnltk.text.Text.clean`::
+
+    text = text.replace('ō', 'õ').clean()
+    print (text)
+    print (text.is_valid())
+
+::
+
+    Esmaspäeval (27.04) liikus madalrõhkkond Põhjalahelt Soome kohale.
+    True
+
+
+Searching, replacing and splitting
+==================================
+
+Estnltk :py:class:`~estnltk.text.Text` class mimics the behaviour of some string functions for convenience:
+:py:meth:`~estnltk.text.Text.capitalize`,
+:py:meth:`~estnltk.text.Text.count`,
+:py:meth:`~estnltk.text.Text.endswith`,
+:py:meth:`~estnltk.text.Text.find`,
+:py:meth:`~estnltk.text.Text.index`,
+:py:meth:`~estnltk.text.Text.isalnum`,
+:py:meth:`~estnltk.text.Text.isalpha`,
+:py:meth:`~estnltk.text.Text.isdigit`,
+:py:meth:`~estnltk.text.Text.islower`,
+:py:meth:`~estnltk.text.Text.isspace`,
+:py:meth:`~estnltk.text.Text.istitle`,
+:py:meth:`~estnltk.text.Text.isupper`,
+:py:meth:`~estnltk.text.Text.lower`,
+:py:meth:`~estnltk.text.Text.lstrip`,
+:py:meth:`~estnltk.text.Text.replace`,
+:py:meth:`~estnltk.text.Text.rfind`,
+:py:meth:`~estnltk.text.Text.rindex`,
+:py:meth:`~estnltk.text.Text.rstrip`,
+:py:meth:`~estnltk.text.Text.startswith`,
+:py:meth:`~estnltk.text.Text.strip`.
+
+However, if the method modifies the string, such as ``strip``, the method returns a new :py:class:`~estnltk.text.Text`
+instance, invalidating all computed attributes such as the start and end positions as a result of tokenization. These
+attributes won't be copied to the resulting string. However, all the original keyword arguments are passed to the new copy.
+
