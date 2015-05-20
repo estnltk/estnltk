@@ -516,6 +516,9 @@ Human-readable descriptions
     7    režissööri   sg p                         ainsus osastav (partitiiv)
 
 
+Also, see :ref:`nounform_table`, :ref:`verbform_table` and :ref:`postag_table` that contains detailed information
+with examples about the morphological attributes.
+
 Analysis options & phonetic information
 ---------------------------------------
 
