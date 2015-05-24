@@ -26,7 +26,7 @@
 #include "fswav.h"
 
 #if defined (WIN32) && !defined (WINRT)
-	#include "fsreg.h"
+	//#include "fsreg.h"
 #elif defined (UNIX)
 #elif defined (MAC)
 #endif
