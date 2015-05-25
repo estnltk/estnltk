@@ -503,6 +503,83 @@ class Text(dict):
     def timex_values(self):
         return [timex[TMX_VALUE] for timex in self.timexes]
 
+    @property
+    def timex_types(self):
+        return [timex[TMX_TYPE] for timex in self.timexes]
+
+    @property
+    def timex_ids(self):
+        return [timex[TMX_ID] for timex in self.timexes]
+
+    @property
+    def timex_anchor_ids(self):
+        ids = []
+        for timex in self.timexes:
+            if TMX_ANCHOR in timex:
+                ids.append(timex[TMX_ANCHOR])
+            else:
+                ids.append(None)
+        return ids
+
+    @property
+    def timex_anchors(self):
+        timexes = self.timexes
+        anchors = []
+        for timex in timexes:
+            if TMX_ANCHOR in timex:
+                anchors.append(timexes[timex[TMX_ANCHOR]])
+            else:
+                anchors.append(None)
+        return anchors
+
+    @property
+    def timex_anchor_texts(self):
+        texts = []
+        for anchor in self.timex_anchors:
+            if anchor is not None:
+                texts.append(anchor[TEXT])
+            else:
+                texts.append('')
+        return texts
+
+    @property
+    def timex_anchor_values(self):
+        values = []
+        for anchor in self.timex_anchors:
+            if anchor is not None:
+                values.append(anchor[TMX_VALUE])
+            else:
+                values.append(None)
+        return values
+
+    @property
+    def timex_anchor_types(self):
+        types = []
+        for anchor in self.timex_anchors:
+            if anchor is not None:
+                types.append(anchor[TMX_VALUE])
+            else:
+                types.append(None)
+        return types
+
+    @property
+    def timex_starts(self):
+        if not self.is_computed(TIMEXES):
+            self.compute_timexes()
+        return self.__starts(TIMEXES)
+
+    @property
+    def timex_ends(self):
+        if not self.is_computed(TIMEXES):
+            self.compute_timexes()
+        return self.__ends(TIMEXES)
+
+    @property
+    def timex_spans(self):
+        if not self.is_computed(TIMEXES):
+            self.compute_timexes()
+        return self.__spans(TIMEXES)
+
     # ///////////////////////////////////////////////////////////////////
     # SPELLCHECK
     # ///////////////////////////////////////////////////////////////////
