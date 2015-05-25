@@ -130,4 +130,4 @@ API reference
 
    api/core
    api/text
-
+   api/textcleaner

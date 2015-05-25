@@ -4,6 +4,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 from ..text import Text
 
 import unittest
+import datetime
 import regex as re
 
 
@@ -127,3 +128,26 @@ class ZipBuilderTest(unittest.TestCase):
         expected = self.list()
         self.assertListEqual(expected, built_list)
 
+
+'''
+class TimexTest(unittest.TestCase):
+
+    def test_tag_separately(self):
+        text = self.document()
+        text.compute_timexes()
+
+    def document(self):
+        return Text('3. detsembril 2014 oli näiteks ilus ilm. Aga kaks päeva varem jälle ei olnud.')
+
+    @property
+    def sentence(self):
+        return Text('Potsataja ütles eile, et vaatavad nüüd Genaga viie aasta plaanid uuesti üle.', creation_date=datetime.datetime(2015, 5, 5))
+
+    @property
+    def sentence_timexes(self):
+        return ['eile', 'nüüd', 'viie aasta']
+
+    @property
+    def timex_values(self):
+        return ['2015-05-06', 'PRESENT_REF', 'P5Y']
+'''

@@ -280,10 +280,11 @@ class Text(dict):
         if self.is_computed(WORDS):
             self.__computed.remove(WORDS)
         tok = self.__word_tokenizer
-        spans = tok.span_tokenize(self.text)
+        text = self.text
+        spans = tok.span_tokenize(text)
         dicts = []
         for start, end in spans:
-            dicts.append({'start': start, 'end': end})
+            dicts.append({START: start, END: end, TEXT: text[start:end]})
         self[WORDS] = dicts
         self.__computed.add(WORDS)
         return self
@@ -473,10 +474,11 @@ class Text(dict):
         return [ne[LABEL] for ne in self[NAMED_ENTITIES]]
 
     def compute_timexes(self):
-        if self.__timex_tagger is None:
-            self.__timex_tagger = load_default_timex_tagger()
-        self.__timex_tagger.tag_document(self, **self.__kwargs)
-        self.__computed.add(TIMEXES)
+        if not self.is_computed(TIMEXES):
+            if self.__timex_tagger is None:
+                self.__timex_tagger = load_default_timex_tagger()
+            self.__timex_tagger.tag_document(self, **self.__kwargs)
+            self.__computed.add(TIMEXES)
         return self
 
     @property

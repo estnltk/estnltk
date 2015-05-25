@@ -18,32 +18,57 @@ RENAMING_MAP = {
     'endPoint': TMX_ENDPOINT,
 }
 
+
 class TimexTagger(JavaProcess):
+    """Class for extracting temporal (TIMEX) expressions."""
     
     def __init__(self):
         JavaProcess.__init__(self, 'Ajavt.jar', ['-pyvabamorf', '-r', os.path.join(JAVARES_PATH, 'reeglid.xml')])
 
     def tag_document(self, document, **kwargs):
-        process_as_whole = kwargs.get('process_as_whole', False)
-        if not document.is_computed(ANALYSIS):
-            document.compute_analysis()
-        #if process_as_whole:
-        #    # Process all the sentences together
-        #    return self.process_sentences(document, process_json=False)
-        # Process each sentence independently
-        self.tag_separately(document, **kwargs)
-
-    def tag_separately(self, document, **kwargs):
+        # get the arguments
+        process_as_whole = kwargs.get('process_as_whole', True)
         remove_unnormalized_timexes = kwargs.get('remove_unnormalized_timexes', True)
         creation_date = kwargs.get('creation_date', datetime.datetime.now())
         creation_date = creation_date.strftime('%Y-%m-%dT%H:%M')
+
+        # analysis is required to detect timexes
+        if not document.is_computed(ANALYSIS):
+            document.compute_analysis()
+
+        # add creation date to document
         document[CREATION_DATE] = creation_date
 
+        # prepare data and process
+        output = [self.process_line(line) for line in self.prepare_data(document, process_as_whole)]
+
+        from pprint import pprint
+        pprint(output)
+
+    def prepare_data(self, document, process_as_whole):
+        sentences = [self.add_word_texts(s) for s in document.split_by_sentences()]
+        lines = []
+        if process_as_whole:
+            document_data = {
+                CREATION_DATE: document[CREATION_DATE],
+                SENTENCES: [{WORDS: s.words} for s in sentences]
+            }
+            lines.append(json.dumps(document_data))
+        else:
+            for sentence in sentences:
+                sentence_data = {
+                    CREATION_DATE: document[CREATION_DATE],
+                    WORDS: sentence.words
+                }
+                lines.append(json.dumps(sentence_data))
+        return lines
+
+    def tag_separately(self, document, creation_date, remove_unnormalized_timexes):
         sentences = document.split_by_sentences()
         sent_spans = document.sentence_spans
         for sentidx, sentence in enumerate(sentences):
             # prepare data for Java library
-            self.add_text(sentence)
+            self.add_word_texts(sentence)
             data = {
                 WORDS: sentence.words,
                 CREATION_DATE: creation_date
@@ -61,25 +86,12 @@ class TimexTagger(JavaProcess):
             for word, result_word in zip(doc_words, result):
                 if TIMEXES in result_word:
                     word[TIMEXES] = result_word[TIMEXES]
+        return document
 
-    def add_text(self, sentence):
-        for word in sentence.words:
-            word[TEXT] = sentence.text[word[START]:word[END]]
-
-    def remove_text(self, sentence):
-        for word in sentence.words:
-            del word[TEXT]
-
-    # Processes all the sentences together
-    def process_sentences(self, corpus, process_json=False, **kwargs):
-        remove_unnormalized_timexes = kwargs.get('remove_unnormalized_timexes', True)
-        creation_date = kwargs.get('creation_date', datetime.datetime.now())
-        creation_date = creation_date.strftime('%Y-%m-%dT%H:%M')
-        document = {
-            'dct': creation_date,
-            SENTENCES: corpus.sentences \
-                       if not process_json else \
-                       [ {WORDS:sentence_ptr.value} for sentence_ptr in JsonPaths.words.find(corpus) ]
+    def tag_full(self, document, remove_unnormalized_timexes):
+        temp_doc = {
+            CREATION_DATE: document[CREATION_DATE],
+            SENTENCES: document.split_by_sentences()
         }
         processed_sentences = json.loads(self.process_line(json.dumps(document)))[SENTENCES]
         for input_sentence, processed_sentence in zip(document[SENTENCES], processed_sentences):
@@ -92,6 +104,16 @@ class TimexTagger(JavaProcess):
                 if TIMEXES in processed_word:
                     input_word[TIMEXES] = processed_word[TIMEXES]
         return corpus
+
+    def add_word_texts(self, sentence):
+        """Estnltk 1.1 had "text" attribute on words and Java component uses this."""
+        for word in sentence.words:
+            word[TEXT] = sentence.text[word[START]:word[END]]
+        return sentence
+
+    def remove_text(self, sentence):
+        for word in sentence.words:
+            del word[TEXT]
 
     def rename_attributes(self, sentence):
         for word in sentence:
