@@ -232,6 +232,10 @@ class Text(dict):
             self.compute_words()
         elif element == ANALYSIS:
             self.compute_analysis()
+        elif element == TIMEXES:
+            self.compute_timexes()
+        elif element == NAMED_ENTITIES:
+            self.compute_named_entities()
         return self
 
     def compute_sentences(self):
@@ -277,6 +281,8 @@ class Text(dict):
         return self.__ends(SENTENCES)
 
     def compute_words(self):
+        if not self.is_computed(SENTENCES):
+            self.compute_sentences()
         if self.is_computed(WORDS):
             self.__computed.remove(WORDS)
         tok = self.__word_tokenizer
@@ -595,7 +601,8 @@ class Text(dict):
             if isinstance(self[elem], list):
                 splits = self.__divide_to_spans(spans, self[elem])
                 for idx in range(N):
-                    results[idx][elem] = splits[idx]
+                    if len(splits[idx]) > 0:
+                        results[idx][elem] = splits[idx]
         return [Text(res) for res in results]
 
     def split_by(self, element):
@@ -662,6 +669,32 @@ class Text(dict):
             spans = [(mo.start(), mo.end()) for mo in regex.finditer(text)]
         return self.__split_given_spans(spans)
 
+    # ///////////////////////////////////////////////////////////////////
+    # DIVIDING
+    # ///////////////////////////////////////////////////////////////////
+
+    def divide(self, element=WORDS, by=SENTENCES):
+        if not self.is_computed(element):
+            self.compute(element)
+        if not self.is_computed(by):
+            self.compute(by)
+        divisions = []
+        elems = self[element]
+        N = len(elems)
+        pos = 0
+        for start, end in self.__spans(by):
+            div_elems = []
+            while pos < N:
+                elem = elems[pos]
+                if elem[START] < start:
+                    pass
+                elif elem[END] <= end:
+                    div_elems.append(elem)
+                else:
+                    break
+                pos += 1
+            divisions.append(div_elems)
+        return divisions
 
     # ///////////////////////////////////////////////////////////////////
     # FILTERING

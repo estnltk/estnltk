@@ -2,6 +2,7 @@
 from __future__ import unicode_literals, print_function, absolute_import
 
 from ..text import Text
+from pprint import pprint
 
 import unittest
 import datetime
@@ -59,7 +60,9 @@ class TextSplittingTest(unittest.TestCase):
         self.assertListEqual(expected, words)
 
     def word(self, word):
-        return Text(word).compute_analysis()
+        word = Text(word).compute_analysis()
+        del word['sentences']
+        return word
 
     def test_split_by_regex(self):
         text = Text("SUUR väike SUUR väike SUUR")
@@ -128,6 +131,33 @@ class ZipBuilderTest(unittest.TestCase):
         expected = self.list()
         self.assertListEqual(expected, built_list)
 
+
+class TextDivideTest(unittest.TestCase):
+
+    def test_divide(self):
+        text = self.text
+        divisions = text.divide()
+        self.assertListEqual(self.divisions, divisions)
+
+    def test_modifying_reference(self):
+        text = self.text
+        divisions = text.divide()
+        divisions[2][1]['text'] = 'LAUSE'
+        self.assertEqual(text.words[7]['text'], 'LAUSE')
+
+    @property
+    def text(self):
+        return Text('Esimene lause. Teine lause. Kolmas lause!')
+
+    @property
+    def divisions(self):
+        text = self.text.compute_words()
+        words = text.words
+        return [
+            [words[0], words[1], words[2]],
+            [words[3], words[4], words[5]],
+            [words[6], words[7], words[8]]
+        ]
 
 '''
 class TimexTest(unittest.TestCase):
