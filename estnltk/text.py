@@ -318,7 +318,7 @@ class Text(dict):
     def word_texts(self):
         if not self.is_computed(WORDS):
             self.compute_words()
-        return self.__texts(WORDS)
+        return [word[TEXT] for word in self[WORDS]]
 
     @property
     def word_spans(self):
@@ -480,6 +480,8 @@ class Text(dict):
         return [ne[LABEL] for ne in self[NAMED_ENTITIES]]
 
     def compute_timexes(self):
+        if not self.is_computed(ANALYSIS):
+            self.compute_analysis()
         if not self.is_computed(TIMEXES):
             if self.__timex_tagger is None:
                 self.__timex_tagger = load_default_timex_tagger()
@@ -491,21 +493,7 @@ class Text(dict):
     def timexes(self):
         if not self.is_computed(TIMEXES):
             self.compute_timexes()
-        timex_data = {}
-        for i, w in enumerate(self[WORDS]):
-            if TIMEXES in w:
-                for timex in w[TIMEXES]:
-                    data = timex_data.get(timex[TMX_ID], [])
-                    data.append((i, timex))
-                    timex_data[timex[TMX_ID]] = data
-        timex_objects = []
-        for k, timexes in timex_data.items():
-            for (i, t1), (j, t2) in zip(timexes, timexes[1:]):
-                assert i == j-1 # assert that timexes are consequent
-            start_word = timexes[0][0]
-            end_word = timexes[-1][0] + 1
-            timex_objects.append(timexes[0][1])
-        return timex_objects
+        return self[TIMEXES]
 
     @property
     def timex_texts(self):

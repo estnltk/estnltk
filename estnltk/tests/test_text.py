@@ -159,25 +159,31 @@ class TextDivideTest(unittest.TestCase):
             [words[6], words[7], words[8]]
         ]
 
-'''
+
 class TimexTest(unittest.TestCase):
 
     def test_tag_separately(self):
-        text = self.document()
-        text.compute_timexes()
+        text = self.document
+        self.assertListEqual(text.timexes, self.timexes)
 
+    @property
     def document(self):
         return Text('3. detsembril 2014 oli näiteks ilus ilm. Aga kaks päeva varem jälle ei olnud.')
 
     @property
-    def sentence(self):
-        return Text('Potsataja ütles eile, et vaatavad nüüd Genaga viie aasta plaanid uuesti üle.', creation_date=datetime.datetime(2015, 5, 5))
-
-    @property
-    def sentence_timexes(self):
-        return ['eile', 'nüüd', 'viie aasta']
-
-    @property
-    def timex_values(self):
-        return ['2015-05-06', 'PRESENT_REF', 'P5Y']
-'''
+    def timexes(self):
+        return [{'end': 18,
+                  'start': 0,
+                  'temporal_function': 'false',
+                  'text': '3. detsembril 2014',
+                  'tid': 0,
+                  'type': 'DATE',
+                  'value': '2014-12-03'},
+                 {'anchor_time_id': 0,
+                  'end': 61,
+                  'start': 45,
+                  'temporal_function': 'true',
+                  'text': 'kaks päeva varem',
+                  'tid': 1,
+                  'type': 'DATE',
+                  'value': '2014-12-01'}]
