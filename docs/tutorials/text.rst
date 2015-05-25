@@ -948,13 +948,14 @@ For example, if the timex value has been calculated with respect to some other t
     from estnltk import Text
 
     text = Text('3. detsembril 2014 oli näiteks ilus ilm. Aga kaks päeva varem jälle ei olnud.')
-    text.get.timex_ids.timex_texts.timex_anchor_ids.timex_anchor_texts.as_dataframe
+    text.get.timex_ids.timex_texts.timex_values.timex_anchor_ids.timex_anchor_texts.as_dataframe
 
 ::
 
-       timex_ids         timex_texts  timex_anchor_ids  timex_anchor_texts
-    0          0  3. detsembril 2014               NaN
-    1          1    kaks päeva varem                 0  3. detsembril 2014
+       timex_ids         timex_texts timex_values  timex_anchor_ids  timex_anchor_texts
+    0          0  3. detsembril 2014   2014-12-03               NaN
+    1          1    kaks päeva varem   2014-12-01                 0  3. detsembril 2014
+
 
 Temporal expressions tagger also identifies some temporal expressions that are difficult to normalize, and thus no *type/value* will assigned to those expressions.
 By default, timexes without *type/value* will be removed from the output; however, this behaviour can be changed by executing the tagger with an argument `remove_unnormalized_timexes=False`.
