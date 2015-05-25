@@ -45,6 +45,10 @@
 	#include <math.h>
 	#include <process.h>
 	#include <share.h>
+    #include <fcntl.h>
+    #include <sys/types.h>
+    #include <sys/stat.h>
+    #include <io.h>
 	#if defined (WINAPI_FAMILY) 
 		#if (WINAPI_FAMILY == WINAPI_FAMILY_APP)
 			#define WINRT
