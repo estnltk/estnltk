@@ -469,9 +469,9 @@ class Sentence(ElementMixin, Dictionary):
         for i, w in enumerate(self[WORDS]):
             if TIMEXES in w:
                 for timex in w[TIMEXES]:
-                    data = timex_data.get(timex[TMX_ID], [])
+                    data = timex_data.get(timex[TMX_TID], [])
                     data.append((i, timex))
-                    timex_data[timex[TMX_ID]] = data
+                    timex_data[timex[TMX_TID]] = data
         timex_objects = []
         for k, timexes in timex_data.items():
             for (i, t1), (j, t2) in zip(timexes, timexes[1:]):
@@ -659,7 +659,7 @@ class Timex(ConsequentSentenceElement):
     @overrides(ConsequentSentenceElement)
     def assert_valid(self):
         super(Timex, self).assert_valid()
-        assert TMX_ID in self
+        assert TMX_TID in self
 
     @property
     def id(self):
@@ -667,7 +667,7 @@ class Timex(ConsequentSentenceElement):
         --------
         int
             The timex identificator.'''
-        return self[TMX_ID]
+        return self[TMX_TID]
     
     @property
     def type(self):
@@ -717,7 +717,7 @@ class Timex(ConsequentSentenceElement):
             0 -- means that the expression is anchored to document creation 
             time;
         '''
-        return self.get(TMX_ANCHOR, None)
+        return self.get(TMX_ANCHOR_TID, None)
     
     @property
     def begin_point(self):

@@ -39,13 +39,13 @@ class TimexTagger(JavaProcess):
             timexes = remove_unnormalized(timexes)
 
         text = document.text
-        document[TIMEXES] = [fix_text(rebase_zero(timex), text) for tid, timex in sorted(timexes.items())]
+        document[TIMEXES] = [convert_timex(timex, text) for tid, timex in sorted(timexes.items())]
         return document
 
 
 RENAMING_MAP = {
     'temporalFunction': TMX_TEMP_FUNCTION,
-    'anchorTimeID': TMX_ANCHOR,
+    'anchorTimeID': TMX_ANCHOR_TID,
     'beginPoint': TMX_BEGINPOINT,
     'endPoint': TMX_ENDPOINT,
 }
@@ -57,10 +57,6 @@ def rename_attributes(timex):
         if oldKey in timex:
             timex[newKey] = timex[oldKey]
             del timex[oldKey]
-    # trim "t" from id and anchor time
-    for k, v in timex.items():
-        if k in [TMX_ID, TMX_ANCHOR] and isinstance(v, str) and v.startswith('t'):
-            timex[k] = int(v[1:])
     return timex
 
 def collect_timexes(output):
@@ -73,7 +69,7 @@ def collect_timexes(output):
                     timex[START] = word[START]
                     timex[END] = word[END]
                     # merge with existing reference to same timex, if it exists
-                    tid = timex[TMX_ID]
+                    tid = timex[TMX_TID]
                     if tid in timexes:
                         for k, v in timexes[tid].items():
                             if k == START:
@@ -88,12 +84,24 @@ def collect_timexes(output):
 def remove_unnormalized(timexes):
     return dict((tid, timex) for tid, timex in timexes.items() if TMX_TYPE in timex and TMX_VALUE in timex)
 
-def rebase_zero(timex):
-    timex[TMX_ID] = timex[TMX_ID] - 1
-    if TMX_ANCHOR in timex:
-        timex[TMX_ANCHOR] = timex[TMX_ANCHOR]-1
-    return timex
-
-def fix_text(timex, text):
+def convert_timex(timex, text):
+    # fix the text
     timex[TEXT] = text[timex[START]:timex[END]]
+    if TMX_TEMP_FUNCTION in timex:
+        tmp = timex[TMX_TEMP_FUNCTION].upper()
+        if tmp.startswith('T'):
+            timex[TMX_TEMP_FUNCTION] = True
+        else:
+            timex[TMX_TEMP_FUNCTION] = False
+    # extract integer versions of timexes
+    if TMX_TID in timex:
+        tid = timex[TMX_TID]
+        if tid.startswith('t'):
+            tid = tid[1:]
+        timex[TMX_ID] = int(tid)-1
+    # extract anchor ids
+    if TMX_ANCHOR_TID in timex:
+        aid = timex[TMX_ANCHOR_TID]
+        if aid != 't0': # refers to document creation date:
+            timex[TMX_ANCHOR_ID] = int(aid[1:])-1
     return timex

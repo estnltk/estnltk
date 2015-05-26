@@ -877,86 +877,111 @@ The program outputs an annotation in a format similar to TimeML's TIMEX3 (more d
 
 .. _annotation guidelines: https://github.com/soras/EstTimeMLCorpus/blob/master/docs-et/ajav2ljendite_m2rgendamine_06.pdf?raw=true
 
-According to TimeML, four types of temporal expressions are distinguished:
-
-* DATE expressions, e.g. *järgmisel kolmapäeval* (*on next Wednesday*)
-* TIME expressions, e.g. *kell 18.00* (*at 18.00 o’clock*)
-* DURATIONs, e.g. *viis päeva* (*five days*)
-* SETs of times, e.g. *igal aastal* (*on every year*)
-
-Temporal expressions tagger requires that the input text has been tokenized (split into sentences and words), morphologically analyzed and disambiguated
-(the program also works on morphologically ambiguous text, but the quality of the analysis is expected to be lower than on morphologically disambiguated text).
-You should keep this in mind, if you supply custom arguments to morphological analyzer.
-
-We can use :py:attr:`~estnltk.text.Text.timexes` property to extract TIMEX related data from texts::
+The :py:class:`~estnltk.text.Text` class has property :py:attr:`~estnltk.text.Text.timexes`, which returns a list of time expressions found in the text::
 
     from estnltk import Text
     from pprint import pprint
 
-    text = Text('Potsataja ütles eile, et vaatavad nüüd Genaga viie aasta plaanid uuesti üle.')
+    text = Text('Järgmisel kolmapäeval, kõige hiljemalt kell 18.00 algab viiepäevane koosolek, mida korraldatakse igal aastal')
     pprint(text.timexes)
 
-As a result, :py:class:`~estnltk.text.Text` instance has new attribute *timexes*, containing following::
 
-    [{'end': 20,
-      'start': 16,
-      'temporal_function': 'true',
-      'text': 'eile',
-      'tid': 0,
+The output is a list of four dictionaries, each representing an timex found in text::
+
+    [{'end': 21,
+      'id': 0,
+      'start': 0,
+      'temporal_function': True,
+      'text': 'Järgmisel kolmapäeval',
+      'tid': 't1',
       'type': 'DATE',
-      'value': '2015-05-24'},
-     {'anchor_time_id': -1,
-      'end': 38,
-      'start': 34,
-      'temporal_function': 'true',
-      'text': 'nüüd',
-      'tid': 1,
-      'type': 'DATE',
-      'value': 'PRESENT_REF'},
-     {'end': 56,
-      'start': 46,
-      'temporal_function': 'false',
-      'text': 'viie aasta',
-      'tid': 2,
+      'value': '2015-06-03'},
+     {'anchor_id': 0,
+      'anchor_tid': 't1',
+      'end': 49,
+      'id': 1,
+      'start': 39,
+      'temporal_function': True,
+      'text': 'kell 18.00',
+      'tid': 't2',
+      'type': 'TIME',
+      'value': '2015-06-03T18:00'},
+     {'end': 67,
+      'id': 2,
+      'start': 56,
+      'temporal_function': False,
+      'text': 'viiepäevane',
+      'tid': 't3',
       'type': 'DURATION',
-      'value': 'P5Y'}]
-
-In addition to attributes describeds above, the output has straightforward attributes such as *start* and *end*, denoting the timex position in the text.
-Note that the relative temporal expressions (such as *eile* (*yesterday*)) are normalized according to the date when the program was run (in the previous example: May 24, 2015).
-This behaviour can be changed by supplying `creation_date` argument to the tagger.
-For example, let's tag the text given date June 10, 1995::
-
-    from estnltk import Text
-    from pprint import pprint
-    import datetime
-
-    text = Text('Potsataja ütles eile, et vaatavad nüüd Genaga viie aasta plaanid uuesti üle.',
-                 creation_date=datetime.datetime(1995, 6, 10))
-
-    text.get.timex_texts.timex_types.timex_values.as_dataframe
-
-::
-
-      timex_texts timex_types timex_values
-    0        eile        DATE   1995-06-09
-    1        nüüd        DATE  PRESENT_REF
-    2  viie aasta    DURATION          P5Y
-
-Depending on (the semantics of) the temporal expression, there can be additional attributes supplied in the timex object.
-For example, if the timex value has been calculated with respect to some other timex ("anchored" to other timex), the attribute `anchor_id` refers to the identifier of the corresponding timex::
-
-    from estnltk import Text
-
-    text = Text('3. detsembril 2014 oli näiteks ilus ilm. Aga kaks päeva varem jälle ei olnud.')
-    text.get.timex_ids.timex_texts.timex_values.timex_anchor_ids.timex_anchor_texts.as_dataframe
-
-::
-
-       timex_ids         timex_texts timex_values  timex_anchor_ids  timex_anchor_texts
-    0          0  3. detsembril 2014   2014-12-03               NaN
-    1          1    kaks päeva varem   2014-12-01                 0  3. detsembril 2014
+      'value': 'P5D'},
+     {'end': 108,
+      'id': 3,
+      'quant': 'EVERY',
+      'start': 97,
+      'temporal_function': True,
+      'text': 'igal aastal',
+      'tid': 't4',
+      'type': 'SET',
+      'value': 'P1Y'}]
 
 
-Temporal expressions tagger also identifies some temporal expressions that are difficult to normalize, and thus no *type/value* will assigned to those expressions.
-By default, timexes without *type/value* will be removed from the output; however, this behaviour can be changed by executing the tagger with an argument `remove_unnormalized_timexes=False`.
+There are a number of mandatory attributes present in the dictionaries:
+
+* **start, end** - the expression start and end positions in the text.
+* **tid** - TimeML format *id* of the expression.
+* **id** - the zero-based *id* of the expressions, matches the position of the respective dictionary in the resulting list.
+* **temporal_function** - *true*, if the expression is relative and exact date has to be computed from anchor points.
+* **type** - according to TimeML, four types of temporal expressions are distinguished:
+    * *DATE expressions*, e.g. *järgmisel kolmapäeval* (*on next Wednesday*)
+    * *TIME expressions*, e.g. *kell 18.00* (*at 18.00 o’clock*)
+    * *DURATIONs*, e.g. *viis päeva* (*five days*)
+    * *SETs of times*, e.g. *igal aastal* (*on every year*)
+
+The **value** is a mandatory attribute containing the semantics and has four possible formats:
+
+1. Date and time **yyyy-mm-ddThh:mm**
+    * *yyyy* - year (4 digits)
+    * *mm* - month (01-12)
+    * *dd* - day (01-31)
+2. Week-based **yyyy-Wnn-wdThh:mm**
+    * *nn* - the week of the year (01-53)
+    * *wd* - day of the week (1-7, where 1 denotes Monday).
+3. Time based **Thh:mm**
+4. Time span **Pn1Yn2Mn3Wn4DTn5Hn6M**
+    ni denotes a value and Y (year), M (month), W (week), D (day), H (hours), M (minutes) denotes respective time granularity.
+
+
+Formats (1) and (2) are used with DATE, TIME and SET types.
+Format (1) is always preferred if both (1) and (2) can be used.
+Format (3) is used in cases it is impossible to extract the date.
+Format (4) is used is used in time span expressions.
+
+In addition, there are dedicated markers for special time notions:
+
+1. Different times of the day
+    * *MO* - morning - hommik
+    * *AF* - afternoon - pärastlõuna
+    * *EV* - evening - õhtu
+    * *NI* - night - öö
+    * *DT* - daytime - päevane aeg
+
+2. Weekends/workdays
+    * *WD* - workday - tööpäev
+    * *WE* - weekend - nädalalõpp
+
+3. Seasons
+    * *SP* - spring - kevad
+    * *SU* - summer - suvi
+    * *FA* - fall - sügis
+    * *WI* - winter - talv
+
+4. Quarters
+    * *Q1, Q2, Q3, Q4*
+    * *QX* - unknown/unspecified quarter
+
+
+TIMEX examples
+--------------
+
+TODO: add here a sufficiently large number of examples with tabulated output
 

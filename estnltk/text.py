@@ -509,14 +509,14 @@ class Text(dict):
 
     @property
     def timex_ids(self):
-        return [timex[TMX_ID] for timex in self.timexes]
+        return [timex[TMX_TID] for timex in self.timexes]
 
     @property
     def timex_anchor_ids(self):
         ids = []
         for timex in self.timexes:
-            if TMX_ANCHOR in timex:
-                ids.append(timex[TMX_ANCHOR])
+            if TMX_ANCHOR_TID in timex:
+                ids.append(timex[TMX_ANCHOR_TID])
             else:
                 ids.append(None)
         return ids
@@ -526,8 +526,8 @@ class Text(dict):
         timexes = self.timexes
         anchors = []
         for timex in timexes:
-            if TMX_ANCHOR in timex:
-                anchors.append(timexes[timex[TMX_ANCHOR]])
+            if TMX_ANCHOR_TID in timex:
+                anchors.append(timexes[timex[TMX_ANCHOR_TID]])
             else:
                 anchors.append(None)
         return anchors
