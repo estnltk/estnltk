@@ -606,7 +606,7 @@ class Text(dict):
 
         self[CLAUSES] = clauses
         self.__computed.add(CLAUSES)
-        return clauses
+        return self
 
     @property
     def clauses(self):
@@ -685,7 +685,8 @@ class Text(dict):
     # ///////////////////////////////////////////////////////////////////
 
     def __divide_to_spans(self, spans, elemlist):
-        """TODO: make more efficient, currently O(n^2)."""
+        """TODO: make more efficient, currently O(n^2).
+        TODO: refactor this"""
         N = len(spans)
         splits = [[] for _ in range(N)]
         for elem in elemlist:
@@ -696,7 +697,7 @@ class Text(dict):
                     for s, e in zip(spanlist[0], spanlist[1]):
                         if isinstance(elem[START], list):
                             break
-                        if elem[START] >= s and elem[END] <= e:
+                        elif elem[START] >= s and elem[END] <= e:
                             new_elem = deepcopy(elem)
                             new_elem[START] = elem[START] - s + offset
                             new_elem[END] = elem[END] - s + offset
@@ -844,7 +845,7 @@ class Text(dict):
         elems = self[element]
         clauses = [(s, e, idx) for idx, clause in enumerate(self[by]) for s, e in zip(clause[START], clause[END])]
         clauses.sort()
-        divisions = [[] for _ in range(len(clauses))]
+        divisions = [[] for _ in range(len(self[by]))]
         idx = 0
         for s, e, clause in clauses:
             while s > elems[idx][START] and idx < len(elems):
