@@ -60,7 +60,8 @@ setup(
         'nltk==3.0.2',
         'regex==2015.03.18',
         'pandas==0.15.2',
-        'python-crfsuite==0.8.1'],
+        'python-crfsuite==0.8.1',
+        'cached-property==1.2.0'],
 
     classifiers = ['Intended Audience :: Developers',
                    'Intended Audience :: Education',

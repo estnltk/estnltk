@@ -6,6 +6,7 @@ from .names import *
 from .vabamorf import morf as vabamorf
 from .ner import NerTagger
 from .timex import TimexTagger
+from .clausesegmenter import ClauseSegmenter
 from .textcleaner import ESTONIAN, TextCleaner
 
 import six
@@ -14,8 +15,10 @@ import nltk.data
 import regex as re
 from nltk.tokenize.regexp import WordPunctTokenizer
 
+from cached_property import cached_property
 import json
 from copy import deepcopy
+from collections import defaultdict
 import codecs
 
 
@@ -25,7 +28,7 @@ word_tokenizer = WordPunctTokenizer()
 nertagger = None
 timextagger = None
 textcleaner = TextCleaner()
-
+clausesegmenter = None
 
 def load_default_ner_tagger():
     global nertagger
@@ -39,6 +42,12 @@ def load_default_timex_tagger():
     if timextagger is None:
         timextagger = TimexTagger()
     return timextagger
+
+def load_default_clausesegmenter():
+    global clausesegmenter
+    if clausesegmenter is None:
+        clausesegmenter = ClauseSegmenter()
+    return clausesegmenter
 
 
 class Text(dict):
@@ -55,6 +64,7 @@ class Text(dict):
         word_tokenizer: nltk.Tokenizer
         ner_tagger: NerTagger
         timex_tagger: TimexTagger
+        clause_segmenter: ClauseSegmenter
         creation_date: datetime.datetime
             For timex expression, the anchor time.
         """
@@ -78,6 +88,8 @@ class Text(dict):
             'ner_tagger', None)
         self.__timex_tagger = kwargs.get( # lazy loading for timex tagger
             'timex_tagger', None)
+        self.__clause_segmenter = kwargs.get(
+            'clause_segmenter', None)
         self.__text_cleaner = kwargs.get('text_cleaner', textcleaner)
 
     def get_kwargs(self):
@@ -100,6 +112,8 @@ class Text(dict):
                 computed.add(LABEL)
         if NAMED_ENTITIES in self:
             computed.add(NAMED_ENTITIES)
+        if CLAUSES in self:
+            computed.add(CLAUSES)
         self.__computed = computed
         return computed
 
@@ -107,18 +121,30 @@ class Text(dict):
         """Is the given element computed?"""
         return element in self.__computed
 
-    def __texts(self, element):
+    def __texts(self, element, sep=' '):
         """Retrieve texts for given element.
+
+        Parameters
+        ----------
+
+        sep: str
+            Separator for elements that span more than one region.
 
         Returns
         -------
         list of str
             List of strings that make up given elements.
         """
+        return self.__texts_from_spans(self.__spans(element), sep)
+
+    def __texts_from_spans(self, spans, sep=' '):
         text = self.text
         texts = []
-        for data in self[element]:
-            texts.append(text[data[START]:data[END]])
+        for start, end in spans:
+            if isinstance(start, list):
+                texts.append(sep.join(text[s:e] for s, e in zip(start, end)))
+            else:
+                texts.append(text[start:end])
         return texts
 
     def __spans(self, element):
@@ -236,6 +262,10 @@ class Text(dict):
             self.compute_timexes()
         elif element == NAMED_ENTITIES:
             self.compute_named_entities()
+        elif element == CLAUSE_ANNOTATION:
+            self.compute_clause_annotations()
+        elif element == CLAUSES:
+            self.compute_clauses()
         return self
 
     def compute_sentences(self):
@@ -296,15 +326,16 @@ class Text(dict):
         return self
 
     def compute_analysis(self):
-        if self.is_computed(ANALYSIS):
-            self.__computed.remove(ANALYSIS)
         if not self.is_computed(WORDS):
             self.compute_words()
+        sentences = self.divide(WORDS, SENTENCES)
         tok = self.__word_tokenizer
-        all_analysis = vabamorf.analyze(self.word_texts, **self.__kwargs)
-        for word, analysis in zip(self.words, all_analysis):
-            word[ANALYSIS] = analysis[ANALYSIS]
-            word[TEXT] = analysis[TEXT]
+        for sentence in sentences:
+            texts = [word[TEXT] for word in sentence]
+            all_analysis = vabamorf.analyze(texts, **self.__kwargs)
+            for word, analysis in zip(sentence, all_analysis):
+                word[ANALYSIS] = analysis[ANALYSIS]
+                word[TEXT] = analysis[TEXT]
         self.__computed.add(ANALYSIS)
         return self
 
@@ -509,58 +540,7 @@ class Text(dict):
 
     @property
     def timex_ids(self):
-        return [timex[TMX_TID] for timex in self.timexes]
-
-    @property
-    def timex_anchor_ids(self):
-        ids = []
-        for timex in self.timexes:
-            if TMX_ANCHOR_TID in timex:
-                ids.append(timex[TMX_ANCHOR_TID])
-            else:
-                ids.append(None)
-        return ids
-
-    @property
-    def timex_anchors(self):
-        timexes = self.timexes
-        anchors = []
-        for timex in timexes:
-            if TMX_ANCHOR_TID in timex:
-                anchors.append(timexes[timex[TMX_ANCHOR_TID]])
-            else:
-                anchors.append(None)
-        return anchors
-
-    @property
-    def timex_anchor_texts(self):
-        texts = []
-        for anchor in self.timex_anchors:
-            if anchor is not None:
-                texts.append(anchor[TEXT])
-            else:
-                texts.append('')
-        return texts
-
-    @property
-    def timex_anchor_values(self):
-        values = []
-        for anchor in self.timex_anchors:
-            if anchor is not None:
-                values.append(anchor[TMX_VALUE])
-            else:
-                values.append(None)
-        return values
-
-    @property
-    def timex_anchor_types(self):
-        types = []
-        for anchor in self.timex_anchors:
-            if anchor is not None:
-                types.append(anchor[TMX_VALUE])
-            else:
-                types.append(None)
-        return types
+        return [timex[TMX_ID] for timex in self.timexes]
 
     @property
     def timex_starts(self):
@@ -579,6 +559,66 @@ class Text(dict):
         if not self.is_computed(TIMEXES):
             self.compute_timexes()
         return self.__spans(TIMEXES)
+
+    def compute_clause_annotations(self):
+        if not self.is_computed(ANALYSIS):
+            self.compute_analysis()
+        if self.__clause_segmenter is None:
+            self.__clause_segmenter = load_default_clausesegmenter()
+        self.__computed.add(CLAUSE_ANNOTATION)
+        return self.__clause_segmenter.tag(self)
+
+    @property
+    def clause_annotations(self):
+        if not self.is_computed(CLAUSE_ANNOTATION):
+            self.compute_clause_annotations()
+        return [word.get(CLAUSE_ANNOTATION, None) for word in self[WORDS]]
+
+    @property
+    def clause_indices(self):
+        if not self.is_computed(CLAUSE_ANNOTATION):
+            self.compute_clause_annotations()
+        return [word.get(CLAUSE_IDX, None) for word in self[WORDS]]
+
+    def compute_clauses(self):
+        if not self.is_computed(CLAUSE_ANNOTATION):
+            self.compute_clause_annotations()
+
+        def from_sentence(words):
+            """Function that extracts clauses from a signle sentence."""
+            clauses = defaultdict(list)
+            start = words[0][START]
+            end = words[0][END]
+            clause = words[0][CLAUSE_IDX]
+            for word in words:
+                if word[CLAUSE_IDX] != clause:
+                    clauses[clause].append((start, end))
+                    start, clause = word[START], word[CLAUSE_IDX]
+                end = word[END]
+            clauses[clause].append((start, words[-1][END]))
+            clauses = [(key, {START: [s for s, e in clause], END: [e for s, e in clause]}) for key, clause in clauses.items()]
+            return [v for k, v in sorted(clauses)]
+
+        clauses = []
+        sentences = self.divide()
+        for sentence in sentences:
+            clauses.extend(from_sentence(sentence))
+
+        self[CLAUSES] = clauses
+        self.__computed.add(CLAUSES)
+        return clauses
+
+    @property
+    def clauses(self):
+        if not self.is_computed(CLAUSES):
+            self.compute_clauses()
+        return self[CLAUSES]
+
+    @property
+    def clause_texts(self):
+        if not self.is_computed(CLAUSES):
+            self.compute_clauses()
+        return self.__texts(CLAUSES)
 
     # ///////////////////////////////////////////////////////////////////
     # SPELLCHECK
@@ -649,19 +689,38 @@ class Text(dict):
         N = len(spans)
         splits = [[] for _ in range(N)]
         for elem in elemlist:
-            for spanidx, span in enumerate(spans):
-                if elem[START] >= span[0] and elem[END] <= span[1]:
-                    new_elem = deepcopy(elem)
-                    new_elem[START] = elem[START] - span[0]
-                    new_elem[END] = elem[END] - span[0]
-                    splits[spanidx].append(new_elem)
+            for spanidx, spanlist in enumerate(spans):
+                added = False
+                if isinstance(spanlist[0], list):
+                    offset = 0
+                    for s, e in zip(spanlist[0], spanlist[1]):
+                        if isinstance(elem[START], list):
+                            break
+                        if elem[START] >= s and elem[END] <= e:
+                            new_elem = deepcopy(elem)
+                            new_elem[START] = elem[START] - s + offset
+                            new_elem[END] = elem[END] - s + offset
+                            splits[spanidx].append(new_elem)
+                            added = True
+                        offset += e-s+1 # +1 for separator ' '
+                        if added:
+                            break
+                else:
+                    s, e = spanlist
+                    if elem[START] >= s and elem[END] <= e:
+                        new_elem = deepcopy(elem)
+                        new_elem[START] = elem[START] - s
+                        new_elem[END] = elem[END] - s
+                        splits[spanidx].append(new_elem)
+                        added = True
+                if added:
                     break
+
         return splits
 
     def __split_given_spans(self, spans):
-        text = self.text
         N = len(spans)
-        results = [{TEXT: text[start:end]} for start, end in spans]
+        results = [{TEXT: text} for text in self.__texts_from_spans(spans)]
         for elem in self:
             if isinstance(self[elem], list):
                 splits = self.__divide_to_spans(spans, self[elem])
@@ -739,10 +798,30 @@ class Text(dict):
     # ///////////////////////////////////////////////////////////////////
 
     def divide(self, element=WORDS, by=SENTENCES):
+        """Divide the Text into pieces by keeping references to original text.
+
+        Parameters
+        ----------
+
+        element: str
+            The element to collect and distribute in resulting bins.
+        by: str
+            Each resulting bin is defined by spans of this element.
+
+        Returns
+        -------
+        list of (list of dict)
+        """
         if not self.is_computed(element):
             self.compute(element)
         if not self.is_computed(by):
             self.compute(by)
+        if by in [CLAUSES]:
+            return self.__divide_multispans(element, by)
+        else:
+            return self.__divide_spans(element, by)
+
+    def __divide_spans(self, element, by):
         divisions = []
         elems = self[element]
         N = len(elems)
@@ -759,6 +838,24 @@ class Text(dict):
                     break
                 pos += 1
             divisions.append(div_elems)
+        return divisions
+
+    def __divide_multispans(self, element, by):
+        elems = self[element]
+        clauses = [(s, e, idx) for idx, clause in enumerate(self[by]) for s, e in zip(clause[START], clause[END])]
+        clauses.sort()
+        divisions = [[] for _ in range(len(clauses))]
+        idx = 0
+        for s, e, clause in clauses:
+            while s > elems[idx][START] and idx < len(elems):
+                idx += 1
+            while idx < len(elems):
+                elem = elems[idx]
+                if elem[START] >= s and elem[END] <= e:
+                    divisions[clause].append(elem)
+                    idx += 1
+                else:
+                    break
         return divisions
 
     # ///////////////////////////////////////////////////////////////////
@@ -858,10 +955,3 @@ def read_corpus(fnm):
             line = f.readline()
     return documents
 
-
-if __name__ == '__main__':
-    text = Text('Esimene lause. Teine lause. Kolmas lause. See on neljas.')
-    text.compute_sentences()
-    text.compute_words()
-    from pprint import pprint
-    pprint (dict(text))

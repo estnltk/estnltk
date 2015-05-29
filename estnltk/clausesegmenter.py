@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 
-'''
+"""
 Wrapper class around Java-based clause segmenter (Osalausestaja). 
 Allows to process results sentence by sentence. 
-'''
+"""
 from __future__ import unicode_literals, print_function
 
-from estnltk.core import JsonPaths
 from estnltk.names import *
 from estnltk.javaprocess import JavaProcess
-from estnltk.textprocessor import TextProcessor
 
 from copy import deepcopy
 from pprint import pprint
@@ -20,10 +18,10 @@ import re
 
 CLAUSE_ANNOT = 'clauseAnnotation'
 
-class ClauseSegmenter(JavaProcess, TextProcessor):
-    ''' Wrapper class around Java-based clause segmenter (Osalausestaja). 
+class ClauseSegmenter(JavaProcess):
+    """ Wrapper class around Java-based clause segmenter (Osalausestaja). 
         Allows to process results sentence by sentence. 
-        ''' 
+        """ 
     
     def __init__(self, **kwargs):
         args = ['-pyvabamorf']
@@ -31,44 +29,40 @@ class ClauseSegmenter(JavaProcess, TextProcessor):
         if ignore_missing_commas:
             args.append('-ins_comma_mis')
         JavaProcess.__init__(self, 'Osalau.jar', args)
-        
-    def process_corpus(self, corpus, **kwargs):
-        for sentence in corpus.sentences:
+
+    def tag(self, text):
+        sentences = text.divide()
+        for sentence in sentences:
             self.mark_annotations(sentence)
-        return corpus
-        
-    def process_json(self, corpus, **kwargs):
-        for sentence in JsonPaths.words.find(corpus):
-            sentence.value = self.mark_annotations({WORDS: sentence.value})[WORDS]
-        return corpus
+        return text
     
     def detect_annotations(self, sentence):
-        prep_sentence = self.prepare_sentence(sentence)
+        prep_sentence = self.prepare_sentence(deepcopy(sentence))
         result = json.loads(self.process_line(prep_sentence))
         words = self.annotate_indices(result[WORDS])
         return self.rename_annotations(words)
     
     def mark_annotations(self, sentence):
         annotations = self.detect_annotations(sentence)
-        assert len(sentence[WORDS]) == len(annotations)
-        for w, a in zip(sentence[WORDS], annotations):
+        assert len(sentence) == len(annotations)
+        for w, a in zip(sentence, annotations):
             for k, v in a.items():
                 w[k] = v
         return sentence
     
     def prepare_sentence(self, sentence):
-        '''Prepare the sentence for segment detection.'''
+        """Prepare the sentence for segment detection."""
         # depending on how the morphological analysis was added, there may be
         # phonetic markup. Remove it, if it exists.
-        for word in sentence[WORDS]:
+        for word in sentence:
             for analysis in word[ANALYSIS]:
                 analysis[ROOT] = analysis[ROOT].replace('~', '')
                 analysis[ROOT] = re.sub('[?<\]]([aioueöäõü])', '\\1', analysis[ROOT])
-        return json.dumps(sentence)
+        return json.dumps({WORDS: sentence})
     
         
     def annotate_indices(self, sentence):
-        '''Add clause indexes to already annotated sentence.'''
+        """Add clause indexes to already annotated sentence."""
         max_index = 0
         max_depth = 1
         stack_of_indexes = [ max_index ]
@@ -97,7 +91,7 @@ class ClauseSegmenter(JavaProcess, TextProcessor):
         return sentence
         
     def rename_annotations(self, sentence):
-        '''Function that renames and restructures clause information.'''
+        """Function that renames and restructures clause information."""
         annotations = []
         for token in sentence:
             data = {CLAUSE_IDX: token[CLAUSE_IDX]}
