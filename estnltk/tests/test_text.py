@@ -8,7 +8,7 @@ import unittest
 import datetime
 import regex as re
 
-
+'''
 class TextInitializationTest(unittest.TestCase):
 
     def test_initialization(self):
@@ -28,7 +28,7 @@ class TextInitializationTest(unittest.TestCase):
 
     def text(self):
         return {'text': 'Tere maailm!'}
-
+'''
 
 class TextSplittingTest(unittest.TestCase):
 
@@ -77,15 +77,7 @@ class TextSplittingTest(unittest.TestCase):
         texts = text.split_by_regex(regex, gaps=False)
         expected = [Text('SUUR'), Text('SUUR')]
         self.assertListEqual(expected, texts)
-
-    def test_split_by_clauses(self):
-        text = Text('Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks.')
-        outer = Text('Kõrred jäävad õhukeseks.').compute_clauses()
-        inner = Text(', millel on toitunud väljasääse vastsed,').compute_clauses()
-        outer_split, inner_split = text.split_by('clauses')
-        self.assertListEqual(inner.word_spans, inner_split.word_spans)
-        self.assertListEqual(outer.word_spans, outer_split.word_spans)
-
+'''
 
 class ZipBuilderTest(unittest.TestCase):
 
@@ -138,7 +130,7 @@ class ZipBuilderTest(unittest.TestCase):
         built_list = text.get(['word_texts', 'lemmas', 'postags', 'endings']).as_list
         expected = self.list()
         self.assertListEqual(expected, built_list)
-
+'''
 
 class TextDivideTest(unittest.TestCase):
 
@@ -153,14 +145,6 @@ class TextDivideTest(unittest.TestCase):
         divisions[2][1]['text'] = 'LAUSE'
         self.assertEqual(text.words[7]['text'], 'LAUSE')
 
-    def test_divide_multi(self):
-        text = Text('Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks.')
-        clauses = text.divide('words', 'clauses')
-        korred, _1, millel, on, toitunud, viljasaase, vastsed, _2, jaavad, ohukeseks, _3 = text.words
-        self.assertListEqual([korred, jaavad, ohukeseks, _3], clauses[0])
-        self.assertListEqual([_1, millel, on, toitunud, viljasaase, vastsed, _2], clauses[1])
-        self.assertEqual(len(clauses), 2)
-
     @property
     def text(self):
         return Text('Esimene lause. Teine lause. Kolmas lause!')
@@ -174,7 +158,7 @@ class TextDivideTest(unittest.TestCase):
             [words[3], words[4], words[5]],
             [words[6], words[7], words[8]]
         ]
-
+'''
 class TimexTest(unittest.TestCase):
 
     def test_tag_separately(self):
@@ -205,3 +189,33 @@ class TimexTest(unittest.TestCase):
                   'tid': 't2',
                   'type': 'DATE',
                   'value': '2014-12-01'}]
+
+class ClausesTest(unittest.TestCase):
+
+    def test_divide_multi(self):
+        text = Text('Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks.')
+        clauses = text.divide('words', 'clauses')
+        korred, _1, millel, on, toitunud, viljasaase, vastsed, _2, jaavad, ohukeseks, _3 = text.words
+        self.assertListEqual([korred, jaavad, ohukeseks, _3], clauses[0])
+        self.assertListEqual([_1, millel, on, toitunud, viljasaase, vastsed, _2], clauses[1])
+        self.assertEqual(len(clauses), 2)
+
+    def test_split_by_clauses(self):
+        text = Text('Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks.')
+        outer = Text('Kõrred jäävad õhukeseks.').compute_clauses()
+        inner = Text(', millel on toitunud väljasääse vastsed,').compute_clauses()
+        outer_split, inner_split = text.split_by('clauses')
+        self.assertListEqual(inner.word_spans, inner_split.word_spans)
+        self.assertListEqual(outer.word_spans, outer_split.word_spans)
+
+class VerbchainTest(unittest.TestCase):
+
+    def test_verbchain(self):
+        text = Text('Kass, suur ja must, ei jooksnud üle tee.')
+        phrase = Text('ei jooksnud')
+        phrase.compute_verb_chains()
+        text.compute_verb_chains()
+        phrases = text.split_by('verb_chains')
+        self.assertEqual(len(phrases), 1)
+        self.assertDictEqual(phrase, phrases[0])
+'''

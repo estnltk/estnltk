@@ -2,11 +2,14 @@
 from __future__ import unicode_literals, print_function, absolute_import
 
 from .core import as_unicode, POSTAG_DESCRIPTIONS, CASES, PLURALITY, VERB_TYPES
+from .core import VERB_CHAIN_RES_PATH
 from .names import *
+from .dividing import divide, divide_by_spans
 from .vabamorf import morf as vabamorf
 from .ner import NerTagger
 from .timex import TimexTagger
 from .clausesegmenter import ClauseSegmenter
+from .mw_verbs.verbchain_detector import VerbChainDetector
 from .textcleaner import ESTONIAN, TextCleaner
 
 import six
@@ -29,6 +32,7 @@ nertagger = None
 timextagger = None
 textcleaner = TextCleaner()
 clausesegmenter = None
+verbchain_detector = None
 
 def load_default_ner_tagger():
     global nertagger
@@ -49,6 +53,11 @@ def load_default_clausesegmenter():
         clausesegmenter = ClauseSegmenter()
     return clausesegmenter
 
+def load_default_verbchain_detector():
+    global verbchain_detector
+    if verbchain_detector is None:
+        verbchain_detector = VerbChainDetector(resourcesPath=VERB_CHAIN_RES_PATH)
+    return verbchain_detector
 
 class Text(dict):
     """Text class.
@@ -90,6 +99,9 @@ class Text(dict):
             'timex_tagger', None)
         self.__clause_segmenter = kwargs.get(
             'clause_segmenter', None)
+        self.__verbchain_detector = kwargs.get(
+            'verbchain_detector', None # lazy loading
+        )
         self.__text_cleaner = kwargs.get('text_cleaner', textcleaner)
 
     def get_kwargs(self):
@@ -266,6 +278,8 @@ class Text(dict):
             self.compute_clause_annotations()
         elif element == CLAUSES:
             self.compute_clauses()
+        elif element == VERB_CHAINS:
+            self.compute_verb_chains()
         return self
 
     def compute_sentences(self):
@@ -620,6 +634,35 @@ class Text(dict):
             self.compute_clauses()
         return self.__texts(CLAUSES)
 
+    def compute_verb_chains(self):
+        if not self.is_computed(CLAUSES):
+            self.compute_clauses()
+        if self.__verbchain_detector is None:
+            self.__verbchain_detector = load_default_verbchain_detector()
+        sentences = self.divide()
+        verbchains = []
+        for sentence in sentences:
+            chains = self.__verbchain_detector.detectVerbChainsFromSent(sentence)
+            offset = 0
+            for chain in chains:
+                chain[PHRASE] = [idx+offset for idx in chain[PHRASE]]
+            chain[START] = self[WORDS][chain[PHRASE][0]][START]
+            chain[END] = self[WORDS][chain[PHRASE][-1]][END]
+            offset += len(sentence)
+            verbchains.extend(chains)
+        self[VERB_CHAINS] = verbchains
+        self.__computed.add(VERB_CHAINS)
+        return self
+
+    @property
+    def verb_chains(self):
+        if not self.is_computed(VERB_CHAINS):
+            self.compute_verb_chains()
+        return self[VERB_CHAINS]
+
+
+
+
     # ///////////////////////////////////////////////////////////////////
     # SPELLCHECK
     # ///////////////////////////////////////////////////////////////////
@@ -684,50 +727,14 @@ class Text(dict):
     # SPLITTING
     # ///////////////////////////////////////////////////////////////////
 
-    def __divide_to_spans(self, spans, elemlist):
-        """TODO: make more efficient, currently O(n^2).
-        TODO: refactor this"""
-        N = len(spans)
-        splits = [[] for _ in range(N)]
-        for elem in elemlist:
-            for spanidx, spanlist in enumerate(spans):
-                added = False
-                if isinstance(spanlist[0], list):
-                    offset = 0
-                    for s, e in zip(spanlist[0], spanlist[1]):
-                        if isinstance(elem[START], list):
-                            break
-                        elif elem[START] >= s and elem[END] <= e:
-                            new_elem = deepcopy(elem)
-                            new_elem[START] = elem[START] - s + offset
-                            new_elem[END] = elem[END] - s + offset
-                            splits[spanidx].append(new_elem)
-                            added = True
-                        offset += e-s+1 # +1 for separator ' '
-                        if added:
-                            break
-                else:
-                    s, e = spanlist
-                    if elem[START] >= s and elem[END] <= e:
-                        new_elem = deepcopy(elem)
-                        new_elem[START] = elem[START] - s
-                        new_elem[END] = elem[END] - s
-                        splits[spanidx].append(new_elem)
-                        added = True
-                if added:
-                    break
-
-        return splits
-
     def __split_given_spans(self, spans):
         N = len(spans)
         results = [{TEXT: text} for text in self.__texts_from_spans(spans)]
         for elem in self:
             if isinstance(self[elem], list):
-                splits = self.__divide_to_spans(spans, self[elem])
+                splits = divide_by_spans(self[elem], spans)
                 for idx in range(N):
-                    if len(splits[idx]) > 0:
-                        results[idx][elem] = splits[idx]
+                    results[idx][elem] = deepcopy(splits[idx])
         return [Text(res) for res in results]
 
     def split_by(self, element):
@@ -799,7 +806,8 @@ class Text(dict):
     # ///////////////////////////////////////////////////////////////////
 
     def divide(self, element=WORDS, by=SENTENCES):
-        """Divide the Text into pieces by keeping references to original text.
+        """Divide the Text into pieces by keeping references to original elements, when possible.
+        This is not possible only, if the _element_ is a multispan.
 
         Parameters
         ----------
@@ -817,47 +825,7 @@ class Text(dict):
             self.compute(element)
         if not self.is_computed(by):
             self.compute(by)
-        if by in [CLAUSES]:
-            return self.__divide_multispans(element, by)
-        else:
-            return self.__divide_spans(element, by)
-
-    def __divide_spans(self, element, by):
-        divisions = []
-        elems = self[element]
-        N = len(elems)
-        pos = 0
-        for start, end in self.__spans(by):
-            div_elems = []
-            while pos < N:
-                elem = elems[pos]
-                if elem[START] < start:
-                    pass
-                elif elem[END] <= end:
-                    div_elems.append(elem)
-                else:
-                    break
-                pos += 1
-            divisions.append(div_elems)
-        return divisions
-
-    def __divide_multispans(self, element, by):
-        elems = self[element]
-        clauses = [(s, e, idx) for idx, clause in enumerate(self[by]) for s, e in zip(clause[START], clause[END])]
-        clauses.sort()
-        divisions = [[] for _ in range(len(self[by]))]
-        idx = 0
-        for s, e, clause in clauses:
-            while s > elems[idx][START] and idx < len(elems):
-                idx += 1
-            while idx < len(elems):
-                elem = elems[idx]
-                if elem[START] >= s and elem[END] <= e:
-                    divisions[clause].append(elem)
-                    idx += 1
-                else:
-                    break
-        return divisions
+        return divide(self[element], self[by])
 
     # ///////////////////////////////////////////////////////////////////
     # FILTERING

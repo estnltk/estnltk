@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Module for highlighting elements in corpora using HTML and CSS.'''
+"""Module for highlighting elements in corpora using HTML and CSS."""
 
 from __future__ import unicode_literals, print_function
 from estnltk.corpus import Corpus
@@ -18,19 +18,19 @@ except ImportError:
 import colorsys
 import re
 
-HEADER = '''<!DOCTYPE html>
+HEADER = """<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <title>{0}</title>
 </head>
 
-<body>'''
+<body>"""
 
-FOOTER = '''</body></html>'''
+FOOTER = """</body></html>"""
 
 def render_html(corpus, element, value=TEXT, css=[('.*', 'background-color:yellow')], encapsulate_body=False):
-    '''Highlight interesting corpus elements and return them as HTML
+    """Highlight interesting corpus elements and return them as HTML
     
     Parameters
     ----------
@@ -47,7 +47,7 @@ def render_html(corpus, element, value=TEXT, css=[('.*', 'background-color:yello
         matching regex will be given.
     encapsulate_body: boolean
         If True, adds HTML5 header and body to HTML.
-    '''
+    """
     stream = StringIO()
     if encapsulate_body:
         stream.write(HEADER.format(element))
@@ -87,13 +87,13 @@ def collect_styles(values, css):
     return styles
 
 def make_colors(n):
-    '''Function that creates `n` colors usable in plotting.'''
+    """Function that creates `n` colors usable in plotting."""
     hsv_tuples = [(x*1.0/n, 0.5, 0.5) for x in range(n)]
     return [colorsys.hsv_to_rgb(*x) for x in hsv_tuples]
 
 def insert_spans(text, spans, css_classes):
-    '''Insert spans with specified css classes into text
-    and html escape all other characters.'''
+    """Insert spans with specified css classes into text
+    and html escape all other characters."""
     positions = []
     for (start, end), classes in zip(spans, css_classes):
         start_token = (start, 1, classes)

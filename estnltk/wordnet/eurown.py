@@ -13,7 +13,7 @@ Output may be whatever encoding, default is utf-8
 Every "higher" class should call "lower" class polarisText property
 for compiling its own polarisText
 
-__version__ = "1.%s" % filter(str.isdigit, "$Revision: 418 $")
+__version__ = "1.%s" % filter_containing(str.isdigit, "$Revision: 418 $")
 __date__ = "$Date: 2014-04-08 11:56:16 +0300 (T, 08 apr   2014) $"[6:-2]
 
 __author__ = "Neeme Kahusk"

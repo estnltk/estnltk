@@ -179,7 +179,7 @@ class Clf(ClfBase):
             Should be unlabelled as we automatically label it during retraining.
             In case of labelled data, merge it instead with the original dataset and then train using that.
         conf_treshold: float
-            The confidence treshold to filter out the rows that will be excluded in the extended training dataset.
+            The confidence treshold to filter_containing out the rows that will be excluded in the extended training dataset.
         report: bool
             Should we regenerate the training report based on new extended dataset (default True).
             

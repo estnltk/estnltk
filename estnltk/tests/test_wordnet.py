@@ -10,7 +10,7 @@ from __future__ import unicode_literals, print_function
 import unittest
 import sys, os
 
-from estnltk.wordnet import wn, eurown
+from ..wordnet import wn, eurown
 
 class InternalSynsetOffsetQueryTest(unittest.TestCase):
  
@@ -182,7 +182,7 @@ class Synset(unittest.TestCase):
     source_synset = wn.synset('kaarhall.n.01')
     target_synset = wn.synset('näitusehall.n.01')
     
-    self.assertEqual(source_synset.path_similarity(target_synset),1.0/3)
+    self.assertEqual(source_synset.path_similarity(target_synset), 1.0/3)
   
   def test_root_min_depth(self):
     synset = wn.synset('olev.n.02')
