@@ -34,6 +34,7 @@ textcleaner = TextCleaner()
 clausesegmenter = None
 verbchain_detector = None
 
+
 def load_default_ner_tagger():
     global nertagger
     if nertagger is None:
@@ -47,17 +48,20 @@ def load_default_timex_tagger():
         timextagger = TimexTagger()
     return timextagger
 
+
 def load_default_clausesegmenter():
     global clausesegmenter
     if clausesegmenter is None:
         clausesegmenter = ClauseSegmenter()
     return clausesegmenter
 
+
 def load_default_verbchain_detector():
     global verbchain_detector
     if verbchain_detector is None:
         verbchain_detector = VerbChainDetector(resourcesPath=VERB_CHAIN_RES_PATH)
     return verbchain_detector
+
 
 class Text(dict):
     """Text class.
@@ -732,7 +736,7 @@ class Text(dict):
         results = [{TEXT: text} for text in self.__texts_from_spans(spans)]
         for elem in self:
             if isinstance(self[elem], list):
-                splits = divide_by_spans(self[elem], spans)
+                splits = divide_by_spans(self[elem], spans, translate=True)
                 for idx in range(N):
                     results[idx][elem] = deepcopy(splits[idx])
         return [Text(res) for res in results]
@@ -902,7 +906,6 @@ class ZipBuilder(object):
 
 
 
-
 def read_corpus(fnm):
     """Function to read a JSON corpus from a file.
     A JSON corpus contains one document per line, encoded in JSON.
@@ -923,4 +926,3 @@ def read_corpus(fnm):
             documents.append(Text(json.loads(line)))
             line = f.readline()
     return documents
-

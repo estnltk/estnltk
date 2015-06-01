@@ -8,7 +8,7 @@ import unittest
 import datetime
 import regex as re
 
-'''
+
 class TextInitializationTest(unittest.TestCase):
 
     def test_initialization(self):
@@ -28,19 +28,16 @@ class TextInitializationTest(unittest.TestCase):
 
     def text(self):
         return {'text': 'Tere maailm!'}
-'''
 
 class TextSplittingTest(unittest.TestCase):
 
     def test_split_by_sentences(self):
-        text = Text('Esimene lause. Teine lause. Kolmas lause. See on neljas.')
+        text = Text('Esimene lause. Teine lause.')
         text.compute_words()
         sentences = text.split_by_sentences()
         expected = [
             self.sentence('Esimene lause.'),
-            self.sentence('Teine lause.'),
-            self.sentence('Kolmas lause.'),
-            self.sentence('See on neljas.')
+            self.sentence('Teine lause.')
         ]
         self.assertListEqual(expected, sentences)
 
@@ -61,7 +58,7 @@ class TextSplittingTest(unittest.TestCase):
 
     def word(self, word):
         word = Text(word).compute_analysis()
-        del word['sentences']
+        word['sentences'] = []
         return word
 
     def test_split_by_regex(self):
@@ -77,7 +74,7 @@ class TextSplittingTest(unittest.TestCase):
         texts = text.split_by_regex(regex, gaps=False)
         expected = [Text('SUUR'), Text('SUUR')]
         self.assertListEqual(expected, texts)
-'''
+
 
 class ZipBuilderTest(unittest.TestCase):
 
@@ -130,7 +127,7 @@ class ZipBuilderTest(unittest.TestCase):
         built_list = text.get(['word_texts', 'lemmas', 'postags', 'endings']).as_list
         expected = self.list()
         self.assertListEqual(expected, built_list)
-'''
+
 
 class TextDivideTest(unittest.TestCase):
 
@@ -158,7 +155,8 @@ class TextDivideTest(unittest.TestCase):
             [words[3], words[4], words[5]],
             [words[6], words[7], words[8]]
         ]
-'''
+
+
 class TimexTest(unittest.TestCase):
 
     def test_tag_separately(self):
@@ -208,6 +206,7 @@ class ClausesTest(unittest.TestCase):
         self.assertListEqual(inner.word_spans, inner_split.word_spans)
         self.assertListEqual(outer.word_spans, outer_split.word_spans)
 
+'''
 class VerbchainTest(unittest.TestCase):
 
     def test_verbchain(self):

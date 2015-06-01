@@ -45,6 +45,8 @@ class FilterTest(unittest.TestCase):
         self.assertEqual(filter_containing([(5, 10), (11, 15)], (10, 13)), None)
         self.assertEqual(filter_containing((0, 100), [(0, 50), (100, 101), (150, 200)]), [(0, 50)])
 
+        self.assertEqual(filter_containing((10, 20), (15, 20), True), (5, 10))
+
 
 def element(start, end):
     return {'start': start, 'end': end}
@@ -73,9 +75,17 @@ class DivideTest(unittest.TestCase):
         divs = divide(inner, outer)
         self.assertListEqual(expected, divs)
 
+    def test_list_divide_span_translate(self):
+        outer = [element([0, 100], [50, 150]), element([50], [100])]
+        inner = [element(0, 10), element(100, 110)]
+        expected = [[element(0, 10), element(50, 60)], []]
+        divs = divide(inner, outer, translate=True, sep='')
+        self.assertListEqual(expected, divs)
+
     def test_list_divide_list(self):
         outer = [element([0, 100], [50, 150]), element([200, 300], [250, 350])]
         inner = [element([25, 225], [50, 250]), element([325, 425], [350, 450])]
         expected = [[element([25], [50])], [element([225], [250]), element([325], [350])]]
         divs = divide(inner, outer)
         self.assertListEqual(expected, divs)
+
