@@ -1,6 +1,6 @@
-=================
-Working with text
-=================
+========================
+Working with text basics
+========================
 
 In this tutorial, we start with Estnltk basics and introduce you to the :py:class:`~estnltk.text.Text` class.
 We will take the class apart to bits and pieces and put it back together to give a good overview, what it can do for you
@@ -41,12 +41,86 @@ Naturally, you can initiate a new instance from a dictionary::
     True
 
 
+As the :py:class:`~estnltk.text.Text` class is essentially a dictionary, it has a number of **advantages**:
+
+* via JSON serialization, it is easy to store texts in databases, pass it easily around with HTTP GET/PUT commands,
+* simple to inspect and debug,
+* simple to extend and add new layers of annotations.
+
+Main disadvantage is that the dictionary can get quite verbose, so space can be an issue when storing large corpora with many layers of annotations.
+
+Layers
+------
+
+A :py:class:`~estnltk.text.Text` instance can have different types of layers that hold annotations or denote
+special regions of the text.
+For instance, ``words`` layer defines the word tokens, ``named_entities`` layer denotes the positions of named entities etc.
+
+There are two types of layers:
+
+1. **simple** layer has elements that only span a single region *such as words, sentences*.
+2. **multi** layer has elements that can span several regions. For example, sentence
+   *"Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks."* has two clauses:
+
+   a. *"Korred jäävad õhukeseks"*,
+   b. *", millel on toitunud viljasääse vastsed, "* .
+
+   Clause (a) spans multiple regions in the original text.
+
+Both types of layers require each layer element to define ``start`` and ``end`` attributes.
+Simple layer elements define ``start`` and ``end`` as integers of the range containing the element.
+Multi layer elements similarily define ``start`` and ``end`` attributes, but these are lists of
+respective start and end positions of the element.
+
+Simple layer::
+
+    from estnltk import Text
+    text = Text('Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks.')
+    text.compute_words()
+    text['words']
+
+::
+
+    [{'end': 6, 'start': 0, 'text': 'Kõrred'},
+     {'end': 7, 'start': 6, 'text': ','},
+     {'end': 14, 'start': 8, 'text': 'millel'},
+     {'end': 17, 'start': 15, 'text': 'on'},
+     {'end': 26, 'start': 18, 'text': 'toitunud'},
+     {'end': 37, 'start': 27, 'text': 'viljasääse'},
+     {'end': 45, 'start': 38, 'text': 'vastsed'},
+     {'end': 46, 'start': 45, 'text': ','},
+     {'end': 53, 'start': 47, 'text': 'jäävad'},
+     {'end': 63, 'start': 54, 'text': 'õhukeseks'},
+     {'end': 64, 'start': 63, 'text': '.'}]
+
+Each word has a ``start`` and ``end`` attribute that tells, where the word is located in the text.
+In case of multi layers, we see slightly different result::
+
+    text.compute_clauses()
+    text['clauses']
+
+::
+
+    [{'end': [6, 64], 'start': [0, 47]},
+     {'end': [46], 'start': [6]}]
+
+We see that first clause has two spans in the text.
+Although the second clause has only one span, it is also defined as a multi layer element.
+Estnltk uses *either* **simple** or **multi** type for a single layer.
+However, nothing stops you from mixing these two, if you wish.
+
+In next sections, we discuss typical NLP operations you can do with Estnltk and also explain, how the results are stored in the dictionary underneath the  :py:class:`~estnltk.text.Text` instances.
+
 Tokenization
 ============
 
 One of the most basic tasks of any NLP pipeline is text and sentence tokenization.
-The :py:class:`~estnltk.text.Text` class has properties :py:attr:`~estnltk.text.Text.word_texts` and
-:py:attr:`~estnltk.text.Text.sentence_texts` properties that do this whenever you access them::
+The :py:class:`~estnltk.text.Text` class has methods :py:func:`~estnltk.text.Text.compute_sentences` and :py:func:`~estnltk.text.Text.compute_words`,
+which you can call to do this explicitly.
+However, there are also properties :py:attr:`~estnltk.text.Text.word_texts` and
+:py:attr:`~estnltk.text.Text.sentence_texts` that do this automatically when you use them and also
+give you the texts of tokenized words or sentences::
+
 
     from estnltk import Text
 
@@ -65,23 +139,26 @@ background and updates the text data::
 
 ::
 
-    {'text': 'Üle oja mäele, läbi oru jõele. Ämber läks ümber.',
-     'words': [{'end': 3, 'start': 0},
-               {'end': 7, 'start': 4},
-               {'end': 13, 'start': 8},
-               {'end': 14, 'start': 13},
-               {'end': 19, 'start': 15},
-               {'end': 23, 'start': 20},
-               {'end': 29, 'start': 24},
-               {'end': 30, 'start': 29},
-               {'end': 36, 'start': 31},
-               {'end': 41, 'start': 37},
-               {'end': 47, 'start': 42},
-               {'end': 48, 'start': 47}]}
+    {'sentences': [{'end': 30, 'start': 0}, {'end': 48, 'start': 31}],
+     'text': 'Üle oja mäele, läbi oru jõele. Ämber läks ümber.',
+     'words': [{'end': 3, 'start': 0, 'text': 'Üle'},
+               {'end': 7, 'start': 4, 'text': 'oja'},
+               {'end': 13, 'start': 8, 'text': 'mäele'},
+               {'end': 14, 'start': 13, 'text': ','},
+               {'end': 19, 'start': 15, 'text': 'läbi'},
+               {'end': 23, 'start': 20, 'text': 'oru'},
+               {'end': 29, 'start': 24, 'text': 'jõele'},
+               {'end': 30, 'start': 29, 'text': '.'},
+               {'end': 36, 'start': 31, 'text': 'Ämber'},
+               {'end': 41, 'start': 37, 'text': 'läks'},
+               {'end': 47, 'start': 42, 'text': 'ümber'},
+               {'end': 48, 'start': 47, 'text': '.'}]}
 
 As you can see, there is now a ``words`` element in the dictionary, which is a list of dictionaries denoting ``start``
-and ``end`` positions of the respective words.
-Basically, :py:attr:`~estnltk.text.Text.word_texts` property does basically the same as the following snippet::
+and ``end`` positions of the respective words. You also see ``sentences`` element, because sentence tokenization is a prerequisite
+before word tokenization and Estnltk did this automatically on your behalf.
+
+The :py:attr:`~estnltk.text.Text.word_texts` property does basically the same as the following snippet::
 
     text = Text('Üle oja mäele, läbi oru jõele. Ämber läks ümber.')
     text.compute_words() # this method applies text tokenization
@@ -90,6 +167,10 @@ Basically, :py:attr:`~estnltk.text.Text.word_texts` property does basically the 
 ::
 
     ['Üle', 'oja', 'mäele', ',', 'läbi', 'oru', 'jõele', '.', 'Ämber', 'läks', 'ümber', '.']
+
+Only difference is that by using :py:attr:`~estnltk.text.Text.word_texts` property twice does not perform tokenization twice.
+Second call would use the ``start`` and ``end`` attributes already stored in the :py:class:`~estnltk.text.Text` instance.
+
 
 The default word tokenizer is NLTK-s `WordPunctTokenizer`_::
 
@@ -156,20 +237,17 @@ After both word and sentence tokenization, a :py:class:`~estnltk.text.Text` inst
              'tuvastatakse praegu\n'
              '\n'
              'reavahetuste järgi',
-     'words': [{'end': 4, 'start': 0},
-               {'end': 16, 'start': 5},
-               {'end': 23, 'start': 17},
-               {'end': 30, 'start': 24},
-               {'end': 37, 'start': 31},
-               {'end': 40, 'start': 38},
-               {'end': 47, 'start': 41},
-               {'end': 60, 'start': 48},
-               {'end': 67, 'start': 61},
-               {'end': 81, 'start': 69},
-               {'end': 87, 'start': 82}]}
-
-Consequent calls to any property won't require retokenization as the stored start and end positions can be used
-to construct new text fragments.
+     'words': [{'end': 4, 'start': 0, 'text': 'Hmm,'},
+               {'end': 16, 'start': 5, 'text': 'lausemärgid'},
+               {'end': 23, 'start': 17, 'text': 'jäävad'},
+               {'end': 30, 'start': 24, 'text': 'sõnade'},
+               {'end': 37, 'start': 31, 'text': 'külge.'},
+               {'end': 40, 'start': 38, 'text': 'Ja'},
+               {'end': 47, 'start': 41, 'text': 'laused'},
+               {'end': 60, 'start': 48, 'text': 'tuvastatakse'},
+               {'end': 67, 'start': 61, 'text': 'praegu'},
+               {'end': 81, 'start': 69, 'text': 'reavahetuste'},
+               {'end': 87, 'start': 82, 'text': 'järgi'}]}
 
 This is the full list of tokenization related properties of :py:class:`~estnltk.text.Text`:
 
@@ -211,7 +289,8 @@ Output::
     Esimene lause. Teine lause
 
     # text.words
-    [{'end': 7, 'start': 0}, {'end': 13, 'start': 8}, {'end': 14, 'start': 13}, {'end': 20, 'start': 15}, {'end': 26, 'start': 21}]
+    [{'end': 7, 'start': 0, 'text': 'Esimene'}, {'end': 13, 'start': 8, 'text': 'lause'}, {'end': 14, 'start': 13, 'text': '.'},
+    {'end': 20, 'start': 15, 'text': 'Teine'}, {'end': 26, 'start': 21, 'text': 'lause'}]
     # text.word_texts
     ['Esimene', 'lause', '.', 'Teine', 'lause']
     # text.word_starts
@@ -232,23 +311,33 @@ Output::
     # text.sentence_spans
     [(0, 14), (15, 26)]
 
-
-Note that if a dictionary alraedy has ``words`` and ``sentences`` elements (or any other element that we introduce later),
+Note that if a dictionary already has ``words`` and ``sentences`` elements (or any other element that we introduce later),
 accessing these elements in a newly initialized :py:class:`~estnltk.text.Text` object does not require
 recomputing them::
 
-    text = Text({'sentences': [{'end': 14, 'start': 0}, {'end': 26, 'start': 15}],
-                 'text': 'Esimene lause. Teine lause',
-                 'words': [{'end': 7, 'start': 0},
-                           {'end': 13, 'start': 8},
-                           {'end': 14, 'start': 13},
-                           {'end': 20, 'start': 15},
-                           {'end': 26, 'start': 21}]})
+    text = Text({'sentences': [{'end': 14, 'start': 0}, {'end': 27, 'start': 15}],
+                 'text': 'Esimene lause. Teine lause.',
+                 'words': [{'end': 7, 'start': 0, 'text': 'Esimene'},
+                           {'end': 13, 'start': 8, 'text': 'lause'},
+                           {'end': 14, 'start': 13, 'text': '.'},
+                           {'end': 20, 'start': 15, 'text': 'Teine'},
+                           {'end': 26, 'start': 21, 'text': 'lause'},
+                           {'end': 27, 'start': 26, 'text': '.'}]})
 
     print (text.word_texts) # tokenization is already done, just extract words using the positions
 
+::
+
+    ['Esimene', 'lause', '.', 'Teine', 'lause', '.']
+
 You should also remember this, when you have defined custom tokenizers. In such cases you can force retokenization by
 calling :py:meth:`~estnltk.text.Text.compute_words` and :py:meth:`~estnltk.text.Text.compute_sentences`.
+
+.. important:: **Things to remember!**
+
+    1. ``words`` and ``sentences`` are **simple** layers.
+    2. use properties to access the tokenized word/sentence texts and avoid :py:meth:`~estnltk.text.Text.compute_words` and :py:meth:`~estnltk.text.Text.compute_sentences`, unless you have a meaningful reason to use them.
+
 
 Morphological analysis
 ======================

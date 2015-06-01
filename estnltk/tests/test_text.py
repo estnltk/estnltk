@@ -206,7 +206,7 @@ class ClausesTest(unittest.TestCase):
         self.assertListEqual(inner.word_spans, inner_split.word_spans)
         self.assertListEqual(outer.word_spans, outer_split.word_spans)
 
-'''
+
 class VerbchainTest(unittest.TestCase):
 
     def test_verbchain(self):
@@ -216,5 +216,4 @@ class VerbchainTest(unittest.TestCase):
         text.compute_verb_chains()
         phrases = text.split_by('verb_chains')
         self.assertEqual(len(phrases), 1)
-        self.assertDictEqual(phrase, phrases[0])
-'''
+        self.assertListEqual(phrase['verb_chains'], phrases[0]['verb_chains'])

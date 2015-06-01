@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Module containing functions for splitting and dividing spans.
+These are mainly used in :py:class:`~estnltk.text.Text` class split and divide methods.
 """
 from __future__ import unicode_literals, print_function, absolute_import
 from .names import START, END
@@ -128,5 +129,20 @@ def divide_by_spans(elements, outer_spans, translate=False, sep=' '):
 
 
 def divide(elements, by, translate=False, sep=' '):
+    """Divide lists `elements` and `by`.
+    All elements are grouped into N bins, where N denotes the elements in `by` list.
+
+    Parameters
+    ----------
+    elements: list of dict
+        Elements to be grouped into bins.
+    by: list of dict
+        Elements defining the bins.
+    translate: bool (default: False)
+        When dividing, also translate start and end positions of elements.
+    sep: str (default ' ')
+        In case of multispans, what is the default text separator.
+        This is required in order to compute correct start, end positions of elements.
+    """
     outer_spans = [spans(elem) for elem in by]
     return divide_by_spans(elements, outer_spans, translate=translate, sep=sep)

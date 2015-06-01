@@ -84,19 +84,19 @@ Here is the same data as a dictionary::
 
 .. _DataFrame: http://pandas.pydata.org/pandas-docs/dev/generated/pandas.DataFrame.html
 
-Introduction
-============
+About
+=====
 
 In recent years, several major NLP components for Estonian have become available under free open source licenses, which is an important milestone in Estonian NLP domain.
+
+The goal of Estnltk is to become the main platform for Estonian NLP and glue together existing free components to make them easily usable.
+Current situation requires the researchers to write their own interfaces to the tools, which can be very time-consuming
+Also, a simple platform is a great resource for students who are interested in NLP domain.
 
 The most important component is **vabamorf**, which is a C++ library for morphological analysis, disambiguation and synthesis [KA97]_.
 For named entity recognition, **Estner library** provides necessary code and also a valuable training dataset, which is required for training the default models that come with the software [TK13]_.
 Estnltk also includes **temporal time expression** (TIMEX) library [OR12]_.
 The de facto library for NLP in English, the **NLTK toolkit** is also a dependency [BI06]_.
-
-The goal of Estnltk is to become the main platform for Estonian NLP and glue together existing free components to make them easily usable.
-Current situation requires the researchers to write their own interfaces to the tools, which can be very time-consuming
-Also, a simple platform is a great resource for students who are interested in NLP domain.
 
 In addition to providing an API that is simple to use for software developers, Estnltk also aims to be useful for language researches and linguists in general.
 The library has tools for sentiment analysis, text classification and information extraction, which requires no programming knowledge once they are set up.

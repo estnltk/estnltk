@@ -56,12 +56,13 @@ setup(
     # we have fixed dependency versions to guarantee, what works
     # however, you can probably safely install newer versions of the dependencies
     install_requires = [
-        'six==1.9.0',
-        'nltk==3.0.2',
-        'regex==2015.03.18',
-        'pandas==0.15.2',
-        'python-crfsuite==0.8.1',
-        'cached-property==1.2.0'],
+        'six==1.9.0',                       # helps to build Py2/Py3 compatible programs
+        'nltk==3.0.2',                      # NLTK mainly used for English
+        'regex==2015.03.18',                # improved Python regular expressions
+        'pandas==0.15.2',                   # Panel Data Analysis library for Python
+        'python-crfsuite==0.8.1',           # Conditional random fields library
+        'cached-property==1.2.0',           # Simple property for caching results
+        'numba=0.18.2'],                    # JIT compiler for compute-heavy functions
 
     classifiers = ['Intended Audience :: Developers',
                    'Intended Audience :: Education',
