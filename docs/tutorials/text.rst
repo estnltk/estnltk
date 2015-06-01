@@ -333,7 +333,7 @@ recomputing them::
 You should also remember this, when you have defined custom tokenizers. In such cases you can force retokenization by
 calling :py:meth:`~estnltk.text.Text.compute_words` and :py:meth:`~estnltk.text.Text.compute_sentences`.
 
-.. important:: **Things to remember!**
+.. note:: Things to remember!
 
     1. ``words`` and ``sentences`` are **simple** layers.
     2. use properties to access the tokenized word/sentence texts and avoid :py:meth:`~estnltk.text.Text.compute_words` and :py:meth:`~estnltk.text.Text.compute_sentences`, unless you have a meaningful reason to use them.
