@@ -348,7 +348,7 @@ Estnltk wraps `Vabamorf`_ morphological analyzer, which can do both morphologica
 
 .. _Vabamorf: https://github.com/Filosoft/vabamorf
 
-Esnltk :py:class:`~estnltk.text.Text` class  properties for extracting morphological information:
+Esnltk :py:class:`~estnltk.text.Text` class properties for extracting morphological information:
 
 * :py:attr:`~estnltk.text.Text.analysis` - raw analysis data.
 * :py:attr:`~estnltk.text.Text.roots` - root forms of words.
@@ -360,8 +360,13 @@ Esnltk :py:class:`~estnltk.text.Text` class  properties for extracting morpholog
 * :py:attr:`~estnltk.text.Text.postag_descriptions` - Estonian descriptions for POS tags.
 * :py:attr:`~estnltk.text.Text.descriptions` - Estonian descriptions for forms.
 
+These properties call :py:func:`~estnltk.text.Text.compute_analysis` method in background, which also
+call :py:func:`~estnltk.text.Text.compute_sentences` and :py:func:`~estnltk.text.Text.compute_words` as
+word tokenization is required in order add morphological analysis.
+Morphological analysis adds extra information to ``words`` layer, which we'll explain in following sections.
 
-See :ref:`postag_table`, :ref:`nounform_table` and :ref:`verbform_table` for more detailed information.
+See :ref:`postag_table`, :ref:`nounform_table` and :ref:`verbform_table` for more detailed information
+about various analysis tags.
 
 
 Property aggregation
@@ -489,16 +494,23 @@ All the properties can be given also as a list, which can be convinient in some 
 Word analysis
 -------------
 
+Morphological analysis is performed with method :py:func:`~estnltk.text.Text.compute_analysis`
+and is invoked by accessing any property requiring this.
+In such case, also methods :py:func:`~estnltk.text.Text.compute_sentences` and :py:func:`~estnltk.text.Text.compute_words` are called as word and sentence tokenization is required in order add morphological analysis.
+Morphological analysis adds extra information to ``words`` layer, which we'll explain below.
+
 After doing morphological analysis, ideally only one unambiguous dictionary containing all the raw data is generated.
 However, sometimes the disambiguator cannot really eliminate all ambiguity and you get multiple analysis variants::
 
     from estnltk import Text
     text = Text('mõeldud')
-    print (text.analysis)
+    text.compute_analysis()
+    print (text)
 
 ::
 
-    {'text': 'mõeldud',
+    {'sentences': [{'end': 7, 'start': 0}],
+     'text': 'mõeldud',
      'words': [{'analysis': [{'clitic': '',
                               'ending': '0',
                               'form': '',
@@ -531,7 +543,7 @@ However, sometimes the disambiguator cannot really eliminate all ambiguity and y
                 'start': 0,
                 'text': 'mõeldud'}]}
 
-The word "mõeldud" has quite a lot ambiguity as it can be interpreted either as a *verb* or *adjective*. Adjective
+The word *mõeldud* has quite a lot ambiguity as it can be interpreted either as a *verb* or *adjective*. Adjective
 version itself can be though of as singular or plural and with different suffixes.
 
 This ambiguity also affects how properties work.
@@ -554,13 +566,13 @@ look at a single analysis dictionary element for word "raudteejaamadelgi"::
 
 ::
 
-    {'clitic': 'gi', # In Estonian, -gi and -ki suffixes
-     'ending': 'del', # word suffix without clitic
-     'form': 'pl ad', # word form, in this case plural and adessive (alalütlev) case
-     'lemma': 'raudteejaam', # the dictionary form of the word
-     'partofspeech': 'S', # POS tag, in this case substantive
-     'root': 'raud_tee_jaam', # root form (same as lemma, but verbs do not have -ma suffix)
-                              # also has compound word markers and optional phonetic markers
+    {'clitic': 'gi',                         # In Estonian, -gi and -ki suffixes
+     'ending': 'del',                        # word suffix without clitic
+     'form': 'pl ad',                        # word form, in this case plural and adessive (alalütlev) case
+     'lemma': 'raudteejaam',                 # the dictionary form of the word
+     'partofspeech': 'S',                    # POS tag, in this case substantive
+     'root': 'raud_tee_jaam',                # root form (same as lemma, but verbs do not have -ma suffix)
+                                             # also has compound word markers and optional phonetic markers
      'root_tokens': ['raud', 'tee', 'jaam']} # for compund word roots, a list of simple roots the compound is made of
 
 
@@ -638,6 +650,13 @@ analysis results:
 
 See :ref:`phonetic_markers` for more information.
 
+.. note:: Things to remember about morphological analysis!
+
+    1. Morphological analysis is stored in ``analysis`` attribute of each word.
+    2. Morphological analysis is in ``words`` layer.
+    3. Use :py:class:`~estnltk.text.ZipBuilder` class simplify data retrieval.
+    4. If you write something that needs better performance, access the :py:class:`~estnltk.text.Text` directly as a dictionary,
+       because when using properties, one loop per property is executed.
 
 Morphological synthesis
 =======================
