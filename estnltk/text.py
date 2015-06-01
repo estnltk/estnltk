@@ -731,23 +731,25 @@ class Text(dict):
     # SPLITTING
     # ///////////////////////////////////////////////////////////////////
 
-    def __split_given_spans(self, spans):
+    def __split_given_spans(self, spans, sep=' '):
         N = len(spans)
         results = [{TEXT: text} for text in self.__texts_from_spans(spans)]
         for elem in self:
             if isinstance(self[elem], list):
-                splits = divide_by_spans(self[elem], spans, translate=True)
+                splits = divide_by_spans(self[elem], spans, translate=True, sep=sep)
                 for idx in range(N):
                     results[idx][elem] = deepcopy(splits[idx])
         return [Text(res) for res in results]
 
-    def split_by(self, element):
+    def split_by(self, element, sep=' '):
         """Split the text into multiple instances by the given element.
 
         Parameters
         ----------
         element: str
             String determining the element, such as "sentences" or "words"
+        sep: str (default: ' ')
+            The separator to use to join texts of multi layer elements.
 
         Returns
         -------
@@ -755,7 +757,7 @@ class Text(dict):
         """
         if not self.is_computed(element):
             self.compute(element)
-        return self.__split_given_spans(self.__spans(element))
+        return self.__split_given_spans(self.__spans(element), sep=sep)
 
     def split_by_sentences(self):
         return self.split_by(SENTENCES)

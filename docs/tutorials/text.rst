@@ -957,6 +957,7 @@ Estnltk :py:class:`~estnltk.text.Text` class mimics the behaviour of some string
 However, if the method modifies the string, such as :py:meth:`~estnltk.text.Text.strip`, the method returns a new :py:class:`~estnltk.text.Text`
 instance, invalidating all computed attributes such as the start and end positions as a result of tokenization. These
 attributes won't be copied to the resulting string. However, all the original keyword arguments are passed to the new copy.
+It is recommended to use these methods in case the text does not have any layers.
 
 Here is an example showing few of these methods at work::
 
@@ -970,12 +971,128 @@ Here is an example showing few of these methods at work::
     Tere estnltk!
 
 
-Splitting
----------
+Splitting by layers
+-------------------
 
 A more important concept is splitting text into smaller pieces in order to work with them independently.
-For example, we might want to process the text on sentence at a time.
+For example, we might want to process the text one sentence at a time.
+Estnltk has :py:meth:`~estnltk.text.Text.split_by` method, that takes one parameter: the layer defining the splits::
 
+    from estnltk import Text
+    from pprint import pprint
+    text = Text('Esimene lause. Teine lause. Kolmas lause.')
+    for sentence in text.split_by('sentences'):
+        pprint(sentence)
+
+::
+
+    {'sentences': [{'end': 14, 'start': 0}], 'text': 'Esimene lause.'}
+    {'sentences': [{'end': 12, 'start': 0}], 'text': 'Teine lause.'}
+    {'sentences': [{'end': 13, 'start': 0}], 'text': 'Kolmas lause.'}
+
+An example with **multi** layer::
+
+    from estnltk import Text
+
+    text = Text('Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks.')
+    for clause in text.split_by('clauses'):
+        print (clause)
+
+::
+
+    Kõrred jäävad õhukeseks.
+    , millel on toitunud viljasääse vastsed,
+
+
+.. note:: Things to remember!
+
+    1. The resulting sentences are also :py:class:`~estnltk.text.Text` instances.
+    2. **Simple** layer elements that do not belong entirely to a single split, **are discarded**!
+    3. **Multi** layer element regions that do not belong entirely to a single split, **are discarded**!
+    4. **Multi** layer elements will end up in several splits, if spans of the element are distributed in several splits.
+    5. Start and end positions defining the layer element locations are modified so they align with the split they are moved into.
+    6. Splitting only deals with ``start`` and ``end`` attributes of layer elements.
+       Other attributes are not modified and are copied as they are.
+    7. **Multi** layer split texts are by default separated with a space character ' '.
+
+Splitting with regular expressions
+----------------------------------
+
+Sometimes it can be useful to split the text using regular expressions::
+
+    from estnltk import Text
+    text = Text('Pidage meeles, et <red font>teete kodused tööd kõik ära</red font>, muidu tuleb pahandus!')
+    text.split_by_regex('<red font>.*?</red font>')
+
+::
+
+    [{'text': 'Pidage meeles, et '}, {'text': ', muidu tuleb pahandus!'}]
+
+By default, the matched regions are discarded and used as separators.
+This can be changed by using ``gaps=False`` argument that reverses the behaviour::
+
+    text.split_by_regex('<red font>.*?</red font>', gaps=False)
+
+::
+
+    [{'text': '<red font>teete kodused tööd kõik ära</red font>'}]
+
+
+Dividing elements by layers
+---------------------------
+
+In addition to splitting, we use a term *dividing* if we actually do not want :py:class:`~estnltk.text.Text` instances as the result.
+Instead, we may just want to access the words, one sentence at a time, having the reference to the original instance.
+Estnltk has :py:meth:`~estnltk.text.Text.divide` method, that takes two parameters: the element to divide into bins, the element that defines the bins::
+
+    from estnltk import Text
+
+    text = Text('Esimene lause. Teine lause.')
+    for sentence in text.divide('words', 'sentences'):
+        for word in sentence:
+            word['new_attribute'] = 'Estnltk greets the word ' + word['text']
+    print(text)
+
+::
+
+    {'sentences': [{'end': 14, 'start': 0}, {'end': 27, 'start': 15}],
+     'text': 'Esimene lause. Teine lause.',
+     'words': [{'end': 7,
+                'new_attribute': 'Estnltk greets the word Esimene',
+                'start': 0,
+                'text': 'Esimene'},
+               {'end': 13,
+                'new_attribute': 'Estnltk greets the word lause',
+                'start': 8,
+                'text': 'lause'},
+               {'end': 14,
+                'new_attribute': 'Estnltk greets the word .',
+                'start': 13,
+                'text': '.'},
+               {'end': 20,
+                'new_attribute': 'Estnltk greets the word Teine',
+                'start': 15,
+                'text': 'Teine'},
+               {'end': 26,
+                'new_attribute': 'Estnltk greets the word lause',
+                'start': 21,
+                'text': 'lause'},
+               {'end': 27,
+                'new_attribute': 'Estnltk greets the word .',
+                'start': 26,
+                'text': '.'}]}
+
+The :py:meth:`~estnltk.text.Text.divide` method is useful for
+
+1. adding new attributes to existing elements/layers in the text
+2. keeping the original `start` and `end` positions when
+
+.. note:: Nota bene!
+
+    The original references are lost in elements having ``start`` and ``end`` positions in **multi layer format**.
+    The reason is that multi layer elements can span regions that end up in different splits/divisions, thus invalidating the ``start`` and ``end`` attributes.
+    Updating the invalidated attributes requires modifying them, which we cannot do as this would also modify the original element.
+    Thus, instead a copy is made of the element, the attributes are updated, and the element is returned.
 
 Temporal expression (TIMEX) tagging
 ===================================
