@@ -183,6 +183,7 @@ def spans_collect_spans(outer_spans, inner_spans):
     n, m = len(outer_spans), len(inner_spans)
     i, j = 0, 0
     current_bin = []
+    nyielded = 0
     while i < n and j < m:
         (ostart, oend), (istart, iend) = outer_spans[i], inner_spans[j]
         if ostart > istart:
@@ -193,9 +194,25 @@ def spans_collect_spans(outer_spans, inner_spans):
             j += 1
         else:
             yield current_bin
+            nyielded += 1
             current_bin = []
             i += 1
-    yield current_bin
+    # yield the last (possibly) half-filled bin
+    if nyielded < n:
+        yield current_bin
+        nyielded += 1
+    # yield empty bins
+    while nyielded < n:
+        yield []
+        nyielded += 1
+
+
+def unique(iterable):
+    seen = set()
+    for e in iterable:
+        if e not in seen:
+            yield e
+            seen.add(e)
 
 
 def spans_collect_lists(outer_spans, inner_spans):
@@ -206,7 +223,7 @@ def spans_collect_lists(outer_spans, inner_spans):
             flattened_spans.append(s)
             mapping.append(idx)
     for bin in spans_collect_spans(outer_spans, flattened_spans):
-        yield [mapping[idx] for idx in bin]
+        yield unique(mapping[idx] for idx in bin)
 
 
 def lists_collect_spans(outer_spans, inner_spans):

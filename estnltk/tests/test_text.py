@@ -29,6 +29,7 @@ class TextInitializationTest(unittest.TestCase):
     def text(self):
         return {'text': 'Tere maailm!'}
 
+
 class TextSplittingTest(unittest.TestCase):
 
     def test_split_by_sentences(self):
@@ -59,6 +60,7 @@ class TextSplittingTest(unittest.TestCase):
     def word(self, word):
         word = Text(word).compute_analysis()
         word['sentences'] = []
+        word['paragraphs'] = []
         return word
 
     def test_split_by_regex(self):

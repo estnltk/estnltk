@@ -20,11 +20,11 @@ half1, half2 = plain[:n], plain[n:]
 
 
 def large_document():
-    Text(plain).compute_analysis()
+    Text(plain).compute_analysis().compute_named_entities()
 
 def small_documents():
-    Text(half1).compute_analysis()
-    Text(half2).compute_analysis()
+    Text(half1).compute_analysis().compute_named_entities()
+    Text(half2).compute_analysis().compute_named_entities()
 
 
 class LargeTextTest(unittest.TestCase):
