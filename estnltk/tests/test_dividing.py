@@ -59,7 +59,7 @@ class DivideTest(unittest.TestCase):
         inner = [element(0, 10), element(201, 210)]
         divs = divide(inner, outer)
         expected = [[element(0, 10)], []]
-        self.assertListEqual(expected, divs)
+        self.assertListEqual(expected, divs)'''
 
     def test_span_divide_list(self):
         outer = [element(0, 100), element(101, 200)]
@@ -68,7 +68,7 @@ class DivideTest(unittest.TestCase):
         expected = [[element([0], [50])], [element([150], [200])]]
         self.assertListEqual(expected, divs)
 
-    def test_list_divide_span(self):
+    '''def test_list_divide_span(self):
         outer = [element([0, 100, 200], [50, 150, 250])]
         inner = [element(40, 45), element(150, 160), element(240, 250)]
         expected = [[element(40, 45), element(240, 250)]]
@@ -80,12 +80,12 @@ class DivideTest(unittest.TestCase):
         inner = [element(0, 10), element(100, 110)]
         expected = [[element(0, 10), element(50, 60)], []]
         divs = divide(inner, outer, translate=True, sep='')
-        self.assertListEqual(expected, divs)'''
+        self.assertListEqual(expected, divs)
 
     def test_list_divide_list(self):
         outer = [element([0, 100], [50, 150]), element([200, 300], [250, 350])]
         inner = [element([25, 225], [50, 250]), element([325, 425], [350, 450])]
         expected = [[element([25], [50])], [element([225], [250]), element([325], [350])]]
         divs = divide(inner, outer)
-        self.assertListEqual(expected, divs)
+        self.assertListEqual(expected, divs)'''
 

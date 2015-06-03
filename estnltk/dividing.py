@@ -195,6 +195,7 @@ def spans_collect_spans(outer_spans, inner_spans):
             yield current_bin
             current_bin = []
             i += 1
+    yield current_bin
 
 
 def spans_collect_lists(outer_spans, inner_spans):
@@ -271,7 +272,7 @@ def divide_by_spans(elements, outer_spans, translate=False, sep=' '):
     return bins
 
 
-def divide_by_spans2(elements, outer_spans, translate=False, sep=' '):
+def divide_by_spans_old_inefficient(elements, outer_spans, translate=False, sep=' '):
     inner_elems = elements
     outer_spans = [(i, convert_span(e)) for i, e in enumerate(outer_spans)]
     inner_spans = [(i, spans(e)) for i, e in enumerate(inner_elems)]
