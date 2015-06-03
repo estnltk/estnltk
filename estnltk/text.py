@@ -700,8 +700,8 @@ class Text(dict):
             offset = 0
             for chain in chains:
                 chain[PHRASE] = [idx+offset for idx in chain[PHRASE]]
-            chain[START] = self[WORDS][chain[PHRASE][0]][START]
-            chain[END] = self[WORDS][chain[PHRASE][-1]][END]
+                chain[START] = self[WORDS][chain[PHRASE][0]][START]
+                chain[END] = self[WORDS][chain[PHRASE][-1]][END]
             offset += len(sentence)
             verbchains.extend(chains)
         self[VERB_CHAINS] = verbchains

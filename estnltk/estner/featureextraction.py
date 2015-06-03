@@ -264,9 +264,10 @@ class GazetteerFeatureExtractor(BaseFeatureExtractor):
         '''
         self.look_ahead = look_ahead
         self.data = defaultdict(set)
-        for ln in codecs.open(settings.GAZETTEER_FILE, 'rb', encoding="utf8"):
-            word, lbl = ln.strip().rsplit("\t", 1)
-            self.data[word].add(lbl)
+        with codecs.open(settings.GAZETTEER_FILE, 'rb', encoding="utf8") as f:
+            for ln in f:
+                word, lbl = ln.strip().rsplit("\t", 1)
+                self.data[word].add(lbl)
 
 
     def process(self, doc):
