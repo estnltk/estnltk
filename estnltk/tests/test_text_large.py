@@ -14,7 +14,7 @@ from ..core import AA_PATH
 dummy = Text('Tere maailm!').compute_analysis()
 
 docs = parse_tei_corpus(os.path.join(AA_PATH, 'tea_AA_00_1.tasak.xml'))
-plain = docs[5].text*5
+plain = docs[5].text
 n = len(plain)//2
 half1, half2 = plain[:n], plain[n:]
 
@@ -34,7 +34,7 @@ class LargeTextTest(unittest.TestCase):
 
     def test_time(self):
 
-        number = 5
+        number = 10
         large_time = timeit.timeit(large_document, number=number)
         small_time = timeit.timeit(small_documents, number=number)
         print('Large document: ', large_time)
