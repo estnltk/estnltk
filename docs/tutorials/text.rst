@@ -1205,6 +1205,11 @@ In addition, there are dedicated markers for special time notions:
     * *QX* - unknown/unspecified quarter
 
 
+Document creation date
+----------------------
+
+TODO
+
 TIMEX examples
 --------------
 

@@ -22,7 +22,6 @@ PACKAGE_PATH = os.path.dirname(__file__)
 
 # corpora
 CORPORA_PATH = os.path.join(PACKAGE_PATH, 'corpora')
-PMNEWS_PATH = os.path.join(CORPORA_PATH, 'pm_news')
 AA_PATH = os.path.join(CORPORA_PATH, 'arvutustehnika_ja_andmetootlus')
 DEFAULT_NER_DATASET = os.path.join(CORPORA_PATH, 'estner.json')
 

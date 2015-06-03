@@ -16,7 +16,7 @@ import six
 import pandas
 import nltk.data
 import regex as re
-from nltk.tokenize.regexp import WordPunctTokenizer
+from nltk.tokenize.regexp import WordPunctTokenizer, RegexpTokenizer
 
 from cached_property import cached_property
 import json
@@ -26,6 +26,7 @@ import codecs
 
 
 # default functionality
+paragraph_tokenizer = RegexpTokenizer('\n\n', gaps=True, discard_empty=True)
 sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
 word_tokenizer = WordPunctTokenizer()
 nertagger = None
@@ -93,6 +94,8 @@ class Text(dict):
         self.__find_what_is_computed()
 
     def __load_functionality(self, **kwargs):
+        self.__paragraph_tokenizer = kwargs.get(
+            'paragraph_tokenizer', paragraph_tokenizer)
         self.__sentence_tokenizer = kwargs.get(
             'sentence_tokenizer', sentence_tokenizer)
         self.__word_tokenizer = kwargs.get(
@@ -118,6 +121,8 @@ class Text(dict):
            It does not perform extensive checks to see if the values of these keys are actually valid.
         """
         computed = set()
+        if PARAGRAPHS in self:
+            computed.add(PARAGRAPHS)
         if SENTENCES in self:
             computed.add(SENTENCES)
         if WORDS in self:
@@ -268,7 +273,9 @@ class Text(dict):
         return self[TEXT]
 
     def compute(self, element):
-        if element == SENTENCES:
+        if element == PARAGRAPHS:
+            self.compute_paragraphs()
+        elif element == SENTENCES:
             self.compute_sentences()
         elif element == WORDS:
             self.compute_words()
@@ -286,14 +293,58 @@ class Text(dict):
             self.compute_verb_chains()
         return self
 
-    def compute_sentences(self):
-        if self.is_computed(SENTENCES):
-            self.__computed.remove(SENTENCES)
-        tok = self.__sentence_tokenizer
+    def compute_paragraphs(self):
+        tok = self.__paragraph_tokenizer
         spans = tok.span_tokenize(self.text)
         dicts = []
         for start, end in spans:
             dicts.append({'start': start, 'end': end})
+        self[PARAGRAPHS] = dicts
+        self.__computed.add(PARAGRAPHS)
+        return self
+
+    @property
+    def paragraphs(self):
+        if not self.is_computed(PARAGRAPHS):
+            self.compute_paragraphs()
+        return self[PARAGRAPHS]
+
+    @property
+    def paragraph_texts(self):
+        if not self.is_computed(PARAGRAPHS):
+            self.compute_paragraphs()
+        return self.__texts(PARAGRAPHS)
+
+    @property
+    def paragraph_spans(self):
+        if not self.is_computed(PARAGRAPHS):
+            self.compute_paragraphs()
+        return self.__spans(PARAGRAPHS)
+
+    @property
+    def paragraph_starts(self):
+        if not self.is_computed(PARAGRAPHS):
+            self.compute_paragraphs()
+        return self.__starts(PARAGRAPHS)
+
+    @property
+    def paragraph_ends(self):
+        if not self.is_computed(PARAGRAPHS):
+            self.compute_paragraphs()
+        return self.__ends(PARAGRAPHS)
+
+    def compute_sentences(self):
+        if not self.is_computed(PARAGRAPHS):
+            self.compute_paragraphs()
+        tok = self.__sentence_tokenizer
+        text = self.text
+        dicts = []
+        for paragraph in self[PARAGRAPHS]:
+            para_start, para_end = paragraph[START], paragraph[END]
+            para_text = text[para_start:para_end]
+            spans = tok.span_tokenize(para_text)
+            for start, end in spans:
+                dicts.append({'start': start+para_start, 'end': end+para_start})
         self[SENTENCES] = dicts
         self.__computed.add(SENTENCES)
         return self
@@ -347,7 +398,6 @@ class Text(dict):
         if not self.is_computed(WORDS):
             self.compute_words()
         sentences = self.divide(WORDS, SENTENCES)
-        tok = self.__word_tokenizer
         for sentence in sentences:
             texts = [word[TEXT] for word in sentence]
             all_analysis = vabamorf.analyze(texts, **self.__kwargs)

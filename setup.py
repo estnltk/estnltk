@@ -37,7 +37,9 @@ setup(
     version = "1.2",
     packages = find_packages(),
     package_data = {
+        'estnltk': ['corpora/*'],
         'estnltk.vabamorf': ['dct/*.dct'],
+        'estnltk.estner': ['gazetteer/*', 'models/*']
     },
 
     author       = "University of Tartu",
@@ -62,6 +64,7 @@ setup(
         'pandas==0.15.2',                   # Panel Data Analysis library for Python
         'python-crfsuite==0.8.1',           # Conditional random fields library
         'cached-property==1.2.0',           # Simple property for caching results
+        'beautifulsoup4==4.3.2',            # HTML parsing library
         'numba=0.18.2'],                    # JIT compiler for compute-heavy functions
 
     classifiers = ['Intended Audience :: Developers',

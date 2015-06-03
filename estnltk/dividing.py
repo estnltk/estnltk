@@ -8,66 +8,135 @@ from .names import START, END
 from copy import deepcopy
 
 
-def contains(outer, inner):
-    """Check if outer span contains the inner span."""
-    outer_is_list = isinstance(outer, list)
-    inner_is_list = isinstance(inner, list)
+def span_contains_span(outer, inner):
+    return outer[0] <= inner[0] and outer[1] >= inner[1]
 
+
+def span_contains_list(outer, inner):
+    return all(span_contains_span(outer, span) for span in inner)
+
+
+def list_contains_span(outer, inner):
+    return any(span_contains_span(span, inner) for span in outer)
+
+
+def list_contains_list(outer, inner):
+    n, m = len(outer), len(inner)
+    i, j = 0, 0
+    while i < n and j < m:
+        (ostart, oend), (istart, iend) = outer[i], inner[j]
+        if ostart > istart:
+            return False
+        if oend >= iend:
+            j += 1
+        else:
+            i += 1
+    return j == m
+
+
+def contains(outer, inner):
+    inner_is_list = isinstance(inner, list)
+    outer_is_list = isinstance(outer, list)
+    if inner_is_list:
+        if outer_is_list:
+            return list_contains_list(outer, inner)
+        return span_contains_list(outer, inner)
     if outer_is_list:
-        if inner_is_list:
-            return all(contains(outer, span) for span in inner)
+        return list_contains_span(outer, inner)
+    return span_contains_span(outer, inner)
+
+
+def any_filters_span(outer, inner):
+    if contains(outer, inner):
+        return inner
+
+
+def span_filters_list(outer, inner):
+    filtered = [span for span in inner if span_contains_span(outer, span)]
+    if len(filtered) > 0:
+        return filtered
+
+
+def list_filters_list(outer, inner):
+    n, m = len(outer), len(inner)
+    i, j = 0, 0
+    filtered = []
+    while i < n and j < m:
+        (ostart, oend), (istart, iend) = outer[i], inner[j]
+        if ostart > istart:
+            j += 1
+            continue
+        if oend >= iend:
+            filtered.append((istart, iend))
+            j += 1
         else:
-            return any(contains(span, inner) for span in outer)
-    else:
-        ostart, oend = outer
-        if inner_is_list:
-            return all(contains(outer, span) for span in inner)
+            i += 1
+    if len(filtered) > 0:
+        return filtered
+
+
+def span_translates_span(outer, inner):
+    if span_contains_span(outer, inner):
+        outer_left = outer[0]
+        return inner[0]-outer_left, inner[1]-outer_left
+
+
+def span_translates_list(outer, inner):
+    outer_left = outer[0]
+    translated = [(span[0]-outer_left, span[1]-outer_left) for span in inner if span_contains_span(outer, span)]
+    if len(translated) > 0:
+        return translated
+
+
+def list_translates_span(outer, inner, sep):
+    offset = 0
+    seplen = len(sep)
+    for span in outer:
+        if span_contains_span(span, inner):
+            outer_left = first(span)
+            return inner[0]-outer_left+offset, inner[1]-outer_left+offset
+        offset += span[1]-span[0] + seplen
+
+
+def list_translates_list(outer, inner, sep):
+    n, m = len(outer), len(inner)
+    i, j = 0, 0
+    translated = []
+    offset = 0
+    seplen = len(sep)
+    while i < n and j < m:
+        (ostart, oend), (istart, iend) = outer[i], inner[j]
+        if ostart > istart:
+            j += 1
+            continue
+        if oend >= iend:
+            outer_left = first(outer[i])
+            translated.append((istart-outer_left+offset, iend-outer_left+offset))
+            j += 1
         else:
-            istart, iend = inner
-            return ostart <= istart and iend <= oend
+            offset += oend - ostart + seplen
+            i += 1
+    if len(translated) > 0:
+        return translated
 
 
 def filter_containing(outer, inner, translate=False, sep=' '):
     inner_is_list = isinstance(inner, list)
     outer_is_list = isinstance(outer, list)
-    seplen = len(sep)
 
-    if not inner_is_list:
-        if translate:
-            # if we need to translate positions, find the outer span that matches the inner span
+    if translate:
+        if inner_is_list:
             if outer_is_list:
-                offset = 0
-                for span in outer:
-                    if contains(span, inner):
-                        outer_left = first(span)
-                        return inner[0]-outer_left+offset, inner[1]-outer_left+offset
-                    offset += span[1]-span[0] + seplen
-            else:
-                if contains(outer, inner):
-                    outer_left = first(outer)
-                    return inner[0]-outer_left, inner[1]-outer_left
-        else:
-            if contains(outer, inner):
-                return inner
-    else:
-        if translate:
-            if outer_is_list:
-                result = []
-                for ispan in inner:
-                    offset = 0
-                    for ospan in outer:
-                        if contains(ospan, ispan):
-                            outer_left = first(ospan)
-                            result.append((ispan[0]-outer_left+offset, ispan[1]-outer_left+offset))
-                            break
-                        offset += ospan[1]-ospan[0] + seplen
-            else:
-                outer_left = first(outer)
-                result = [(span[0]-outer_left, span[1]-outer_left) for span in inner if contains(outer, span)]
-        else:
-            result = [span for span in inner if contains(outer, span)]
-        if len(result) > 0:
-            return result
+                return list_translates_list(outer, inner, sep)
+            return span_translates_list(outer, inner)
+        if outer_is_list:
+            return list_translates_span(outer, inner, sep)
+        return span_translates_span(outer, inner)
+    if inner_is_list:
+        if outer_is_list:
+            return list_filters_list(outer, inner)
+        return span_filters_list(outer, inner)
+    return any_filters_span(outer, inner)
 
 
 def spans(element):
@@ -84,8 +153,7 @@ def convert_span(span):
     start, end = span
     if isinstance(start, int):
         return int(start), int(end)
-    else:
-        return list(zip(start, end))
+    return list(zip(start, end))
 
 
 def first(span):
@@ -111,7 +179,99 @@ def update_span(element, spans):
     return element
 
 
+def spans_collect_spans(outer_spans, inner_spans):
+    n, m = len(outer_spans), len(inner_spans)
+    i, j = 0, 0
+    current_bin = []
+    while i < n and j < m:
+        (ostart, oend), (istart, iend) = outer_spans[i], inner_spans[j]
+        if ostart > istart:
+            j += 1
+            continue
+        if oend >= iend:
+            current_bin.append(j)
+            j += 1
+        else:
+            yield current_bin
+            current_bin = []
+            i += 1
+
+
+def spans_collect_lists(outer_spans, inner_spans):
+    mapping = []
+    flattened_spans = []
+    for idx, spans in enumerate(inner_spans):
+        for s in spans:
+            flattened_spans.append(s)
+            mapping.append(idx)
+    for bin in spans_collect_spans(outer_spans, flattened_spans):
+        yield [mapping[idx] for idx in bin]
+
+
+def lists_collect_spans(outer_spans, inner_spans):
+    spans = [(first(span), last(span)) for span in outer_spans]
+    return spans_collect_spans(spans, inner_spans)
+
+
+def lists_collect_lists(outer_spans, inner_spans):
+    outers = [(first(span), last(span)) for span in outer_spans]
+    return spans_collect_lists(outers, inner_spans)
+
+
+def get_bins(outer_spans, inner_spans):
+    outers_are_lists = isinstance(outer_spans[0], list)
+    inners_are_lists = isinstance(inner_spans[0], list)
+    if outers_are_lists:
+        if inners_are_lists:
+            return lists_collect_lists(outer_spans, inner_spans)
+        return lists_collect_spans(outer_spans, inner_spans)
+    else:
+        if inners_are_lists:
+            return spans_collect_lists(outer_spans, inner_spans)
+        return spans_collect_spans(outer_spans, inner_spans)
+
+
+def get_filterer(outer_spans, inner_spans, translate, sep):
+    outers_are_lists = isinstance(outer_spans[0], list)
+    inners_are_lists = isinstance(inner_spans[0], list)
+
+    if translate:
+        if inners_are_lists:
+            if outers_are_lists:
+                return lambda outer, inner: list_translates_list(outer, inner, sep)
+            return lambda outer, inner: span_translates_list(outer, inner)
+        if outers_are_lists:
+            return lambda outer, inner: list_translates_span(outer, inner, sep)
+        return lambda outer, inner: span_translates_span(outer, inner)
+    if inners_are_lists:
+        if outers_are_lists:
+            return lambda outer, inner: list_filters_list(outer, inner)
+        return lambda outer, inner: span_filters_list(outer, inner)
+    return lambda outer, inner: any_filters_span(outer, inner)
+
+
 def divide_by_spans(elements, outer_spans, translate=False, sep=' '):
+    outer_spans = [convert_span(s) for s in outer_spans]
+    inner_spans = [spans(e) for e in elements]
+    inners_are_lists = isinstance(inner_spans[0], list)
+    filterer = get_filterer(outer_spans, inner_spans, translate, sep)
+    bins = []
+    for binidx, collection in enumerate(get_bins(outer_spans, inner_spans)):
+        outer = outer_spans[binidx]
+        bin = []
+        for elemidx in collection:
+            elem = elements[elemidx]
+            filtered = filterer(outer, inner_spans[elemidx])
+            if filtered is not None:
+                if inners_are_lists or translate:
+                    elem = deepcopy(elem)
+                elem = update_span(elem, filtered)
+                bin.append(elem)
+        bins.append(bin)
+    return bins
+
+
+def divide_by_spans2(elements, outer_spans, translate=False, sep=' '):
     inner_elems = elements
     outer_spans = [(i, convert_span(e)) for i, e in enumerate(outer_spans)]
     inner_spans = [(i, spans(e)) for i, e in enumerate(inner_elems)]
