@@ -14,17 +14,17 @@ from ..core import AA_PATH
 dummy = Text('Tere maailm!').compute_analysis()
 
 docs = parse_tei_corpus(os.path.join(AA_PATH, 'tea_AA_00_1.tasak.xml'))
-plain = docs[5].text
+plain = docs[5].text*5
 n = len(plain)//2
 half1, half2 = plain[:n], plain[n:]
 
 
 def large_document():
-    Text(plain).compute_analysis().compute_named_entities()
+    Text(plain).compute_analysis()
 
 def small_documents():
-    Text(half1).compute_analysis().compute_named_entities()
-    Text(half2).compute_analysis().compute_named_entities()
+    Text(half1).compute_analysis()
+    Text(half2).compute_analysis()
 
 
 class LargeTextTest(unittest.TestCase):
@@ -34,10 +34,10 @@ class LargeTextTest(unittest.TestCase):
 
     def test_time(self):
 
-        number = 10
+        number = 5
         large_time = timeit.timeit(large_document, number=number)
         small_time = timeit.timeit(small_documents, number=number)
         print('Large document: ', large_time)
         print('Small documents:', small_time)
         diff = abs((float(large_time) / float(small_time)) - 1.0)
-        self.assertTrue(diff < 0.05)
+        self.assertTrue(diff < 0.05) # fail with 5% difference

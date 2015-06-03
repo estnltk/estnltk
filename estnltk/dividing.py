@@ -222,18 +222,43 @@ def spans_collect_lists(outer_spans, inner_spans):
         for s in spans:
             flattened_spans.append(s)
             mapping.append(idx)
+    flattened_spans, mapping = zip(*sorted(zip(flattened_spans, mapping)))
     for bin in spans_collect_spans(outer_spans, flattened_spans):
         yield unique(mapping[idx] for idx in bin)
 
 
 def lists_collect_spans(outer_spans, inner_spans):
-    spans = [(first(span), last(span)) for span in outer_spans]
-    return spans_collect_spans(spans, inner_spans)
+    mapping = []
+    flattened_spans = []
+    for idx, spans in enumerate(outer_spans):
+        for s in spans:
+            flattened_spans.append(s)
+            mapping.append(idx)
+    flattened_spans, mapping = zip(*sorted(zip(flattened_spans, mapping)))
+    flat_bins = list(spans_collect_spans(flattened_spans, inner_spans))
+    bins = [[] for _ in range(len(outer_spans))]
+    for flatidx, flatbin in enumerate(flat_bins):
+        binidx = mapping[flatidx]
+        bins[binidx].extend(flatbin)
+    for bin in bins:
+        yield unique(bin)
 
 
 def lists_collect_lists(outer_spans, inner_spans):
-    outers = [(first(span), last(span)) for span in outer_spans]
-    return spans_collect_lists(outers, inner_spans)
+    mapping = []
+    flattened_spans = []
+    for idx, spans in enumerate(outer_spans):
+        for s in spans:
+            flattened_spans.append(s)
+            mapping.append(idx)
+    flattened_spans, mapping = zip(*sorted(zip(flattened_spans, mapping)))
+    flat_bins = list(spans_collect_lists(flattened_spans, inner_spans))
+    bins = [[] for _ in range(len(outer_spans))]
+    for flatidx, flatbin in enumerate(flat_bins):
+        binidx = mapping[flatidx]
+        bins[binidx].extend(flatbin)
+    for bin in bins:
+        yield unique(bin)
 
 
 def get_bins(outer_spans, inner_spans):

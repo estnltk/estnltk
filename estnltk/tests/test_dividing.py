@@ -107,9 +107,8 @@ class TranslateTest(unittest.TestCase):
         self.assertListEqual(expected, divs)
 
     def test_list_translate_list(self):
-        outer = [element([0, 10], [5, 15]), element([100, 110], [105, 115])]
-        inner = [element([0, 10, 100, 110], [1, 11, 101, 111])]
-        expected = [[element([0, 15], [1, 16])], [element([0, 15], [1, 16])]]
+        outer = [element([0, 100], [10, 110]), element([10], [100])]
+        inner = [element([0, 10, 100], [1, 11, 101])]
+        expected = [[element([0, 20], [1, 21])], [element([0], [1])]]
         divs = divide(inner, outer, translate=True, sep='1234567890')
         self.assertListEqual(expected, divs)
-

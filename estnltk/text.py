@@ -22,6 +22,7 @@ from cached_property import cached_property
 import json
 from copy import deepcopy
 from collections import defaultdict
+from pprint import pprint
 import codecs
 
 
@@ -127,10 +128,11 @@ class Text(dict):
             computed.add(SENTENCES)
         if WORDS in self:
             computed.add(WORDS)
-            if ANALYSIS in self[WORDS][0]:
-                computed.add(ANALYSIS)
-            if LABEL in self:
-                computed.add(LABEL)
+            if len(self[WORDS]) > 0:
+                if ANALYSIS in self[WORDS][0]:
+                    computed.add(ANALYSIS)
+                if LABEL in self:
+                    computed.add(LABEL)
         if NAMED_ENTITIES in self:
             computed.add(NAMED_ENTITIES)
         if CLAUSES in self:
@@ -783,12 +785,12 @@ class Text(dict):
 
     def __split_given_spans(self, spans, sep=' '):
         N = len(spans)
-        results = [{TEXT: text} for text in self.__texts_from_spans(spans)]
+        results = [{TEXT: text} for text in self.__texts_from_spans(spans, sep=sep)]
         for elem in self:
             if isinstance(self[elem], list):
                 splits = divide_by_spans(self[elem], spans, translate=True, sep=sep)
                 for idx in range(N):
-                    results[idx][elem] = deepcopy(splits[idx])
+                    results[idx][elem] = splits[idx]
         return [Text(res) for res in results]
 
     def split_by(self, element, sep=' '):

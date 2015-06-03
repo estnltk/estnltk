@@ -2,6 +2,7 @@
 from __future__ import unicode_literals, print_function, absolute_import
 
 from ..text import Text
+from ..names import *
 from pprint import pprint
 
 import unittest
@@ -27,7 +28,7 @@ class TextInitializationTest(unittest.TestCase):
         self.assertRaises(Exception, create)
 
     def text(self):
-        return {'text': 'Tere maailm!'}
+        return {TEXT: 'Tere maailm!'}
 
 
 class TextSplittingTest(unittest.TestCase):
@@ -35,6 +36,7 @@ class TextSplittingTest(unittest.TestCase):
     def test_split_by_sentences(self):
         text = Text('Esimene lause. Teine lause.')
         text.compute_words()
+        del text[PARAGRAPHS]
         sentences = text.split_by_sentences()
         expected = [
             self.sentence('Esimene lause.'),
@@ -43,7 +45,9 @@ class TextSplittingTest(unittest.TestCase):
         self.assertListEqual(expected, sentences)
 
     def sentence(self, text):
-        return Text(text).compute_sentences().compute_words()
+        t = Text(text).compute_sentences().compute_words()
+        del t[PARAGRAPHS]
+        return t
 
     def test_split_by_words(self):
         text = Text('Kirjakeel koosneb sõnadest.')
@@ -190,6 +194,7 @@ class TimexTest(unittest.TestCase):
                   'type': 'DATE',
                   'value': '2014-12-01'}]
 
+
 class ClausesTest(unittest.TestCase):
 
     def test_divide_multi(self):
@@ -218,4 +223,3 @@ class VerbchainTest(unittest.TestCase):
         text.compute_verb_chains()
         phrases = text.split_by('verb_chains')
         self.assertEqual(len(phrases), 1)
-        self.assertListEqual(phrase['verb_chains'], phrases[0]['verb_chains'])
