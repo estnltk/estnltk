@@ -69,9 +69,16 @@ POLARITY = 'pol'
 OTHER_VERBS = 'otherVerbs'
 WORD_ID = 'wordID'
 ANALYSIS_IDS = 'analysisIDs'
-TENSE = "tense"
-MOOD = "mood"
-VOICE = "voice"
+TENSE = 'tense'
+MOOD = 'mood'
+VOICE = 'voice'
 
 # wordnet
 WORDNET = 'wordnet'
+SYNSETS = 'synsets'
+SYN_ID = 'id'
+SYN_POS = 'pos'
+SYN_VARIANTS = 'variants'
+LITERAL = 'literal'
+SENSE = 'sense'
+RELATIONS = 'relations'

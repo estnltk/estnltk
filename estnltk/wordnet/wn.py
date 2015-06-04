@@ -36,6 +36,8 @@ ADV = 'b'
 
 MAX_TAXONOMY_DEPTHS = {} # necessary for Leacock & Chodorow similarity measure
 
+parser = None
+
 with codecs.open(_MAX_TAX_FILE,'rb', 'utf-8') as fin:
     for line in fin:
         pos,max_depth = line.strip().split(':')
@@ -105,9 +107,11 @@ def _get_synsets(synset_offsets):
       Lists synset objects which synset_offsets point to.
 
     """
+    global parser
+    if parser is None:
+        parser = Parser(_WN_FILE)
     synsets = []
 
-    parser = Parser(_WN_FILE)
     for offset in synset_offsets:
         raw_synset = parser.parse_synset(offset)
         synset = Synset(raw_synset)

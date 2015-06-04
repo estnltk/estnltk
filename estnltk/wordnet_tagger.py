@@ -5,6 +5,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 """
 
 from .wordnet import wn
+from pprint import pprint
 
 PYVABAMORF_TO_WORDNET_POS_MAP = {'A': wn.ADJ, 'S': wn.NOUN, 'V': wn.VERB, 'D': wn.ADV}
 
@@ -56,16 +57,16 @@ class WordnetTagger(object):
 
         Returns
         -------
-        dict
+        estnltk.text.Text
           In-place annotated `text`.
 
         """
 
-        wordnet_obj = {}
         for analysis_match in text.analysis:
             for candidate in analysis_match:
                 if candidate['partofspeech'] in PYVABAMORF_TO_WORDNET_POS_MAP:
                     # Wordnet contains data about the given lemma and pos combination - will annotate.
+                    wordnet_obj = {}
                     tag_synsets(wordnet_obj, candidate, **kwargs)
         return text
 
@@ -107,7 +108,7 @@ def tag_relations(wordnet_obj, synset, **kwargs):
 
             for relation_str in kwargs['relations']:
                 related_synsets = [{'id': synset.id} for synset in synset.get_related_synsets(relation_str)]
-                relations_dict[relation_str] = [synset_dict for synset_dict, _ in related_synsets]
+                relations_dict[relation_str] = [synset_dict for synset_dict in related_synsets]
 
             wordnet_obj['relations'] = relations_dict
 

@@ -136,6 +136,8 @@ class Text(dict):
             if len(self[WORDS]) > 0:
                 if ANALYSIS in self[WORDS][0]:
                     computed.add(ANALYSIS)
+                    if len(WORDS[0][ANALYSIS]) and WORDNET in WORDS[0][ANALYSIS][0]:
+                        computed.add(WORDNET)
                 if LABEL in self:
                     computed.add(LABEL)
         if NAMED_ENTITIES in self:
@@ -279,25 +281,22 @@ class Text(dict):
     def text(self):
         return self[TEXT]
 
+    @cached_property
+    def compute_mapping(self):
+        return {
+            PARAGRAPHS: self.compute_paragraphs,
+            SENTENCES: self.compute_sentences,
+            WORDS: self.compute_words,
+            ANALYSIS: self.compute_analysis,
+            TIMEXES: self.compute_timexes,
+            NAMED_ENTITIES: self.compute_named_entities,
+            CLAUSE_ANNOTATION: self.compute_clause_annotations,
+            CLAUSES: self.compute_clauses,
+            WORDNET: self.compute_wordnet
+        }
+
     def compute(self, element):
-        if element == PARAGRAPHS:
-            self.compute_paragraphs()
-        elif element == SENTENCES:
-            self.compute_sentences()
-        elif element == WORDS:
-            self.compute_words()
-        elif element == ANALYSIS:
-            self.compute_analysis()
-        elif element == TIMEXES:
-            self.compute_timexes()
-        elif element == NAMED_ENTITIES:
-            self.compute_named_entities()
-        elif element == CLAUSE_ANNOTATION:
-            self.compute_clause_annotations()
-        elif element == CLAUSES:
-            self.compute_clauses()
-        elif element == VERB_CHAINS:
-            self.compute_verb_chains()
+        self.compute_mapping[element]()
         return self
 
     def compute_paragraphs(self):
@@ -727,13 +726,39 @@ class Text(dict):
         if wordnet_tagger is None: # cached wn tagger
             wordnet_tagger = WordnetTagger()
         self.__wordnet_tagger = wordnet_tagger
+        self.__computed.add(WORDNET)
         if len(kwargs) > 0:
             return self.__wordnet_tagger.tag_text(self, **kwargs)
-        return self.__wordnet_tagger.tag_text(self, self.__kwargs)
+        return self.__wordnet_tagger.tag_text(self, **self.__kwargs)
 
     @cached_property
     def wordnet_annotations(self):
-        return self.__get_analysis_element(WORDNET)
+        if not self.is_computed(WORDNET):
+            self.compute_wordnet()
+        return [[a[WORDNET] for a in analysis] for analysis in self.analysis]
+
+    @cached_property
+    def synsets(self):
+        synsets = []
+        for wn_annots in self.wordnet_annotations:
+            word_synsets = []
+            for wn_annot in wn_annots:
+                for synset in wn_annot.get(SYNSETS, []):
+                    word_synsets.append(deepcopy(synset))
+            synsets.append(word_synsets)
+        return synsets
+
+    @cached_property
+    def word_literals(self):
+        literals = []
+        for word_synsets in self.synsets:
+            word_literals = set()
+            for synset in word_synsets:
+                for variant in synset.get(SYN_VARIANTS):
+                    if LITERAL in variant:
+                        word_literals.add(variant[LITERAL])
+            literals.append(list(sorted(word_literals)))
+        return literals
 
     # ///////////////////////////////////////////////////////////////////
     # SPELLCHECK
