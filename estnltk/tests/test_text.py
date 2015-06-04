@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
+import unittest
+
 from ..text import Text
 from ..names import *
 from pprint import pprint
 
-import unittest
 import datetime
 import regex as re
 
@@ -82,59 +83,6 @@ class TextSplittingTest(unittest.TestCase):
         self.assertListEqual(expected, texts)
 
 
-class ZipBuilderTest(unittest.TestCase):
-
-    def test_as_zip(self):
-        text = self.text()
-        built_zip = text.get.word_texts.lemmas.postags.endings.as_zip
-        expected = self.zip()
-        self.assertListEqual(list(expected), list(built_zip))
-
-    def text(self):
-        return Text('Tuleb minna vanast raudteeülesõidukohast edasi ja pöörata paremale.')
-
-    def zip(self):
-        text = self.text()
-        return zip(text.word_texts, text.lemmas, text.postags, text.endings)
-
-    def test_as_list(self):
-        text = self.text()
-        built_list = text.get.word_texts.lemmas.postags.endings.as_list
-        expected = self.list()
-        self.assertListEqual(expected, built_list)
-
-    def list(self):
-        text = self.text()
-        return [text.word_texts, text.lemmas, text.postags, text.endings]
-
-    def test_as_dict(self):
-        text = self.text()
-        built_dict = text.get.word_texts.lemmas.postags.endings.as_dict
-        expected = self.dict()
-        self.assertDictEqual(expected, built_dict)
-
-    def test_as_dataframe(self):
-        text = self.text()
-        df = text.get.word_texts.lemmas.as_dataframe
-        self.assertListEqual(text.word_texts, list(df.word_texts))
-        self.assertListEqual(text.lemmas, list(df.lemmas))
-
-    def dict(self):
-        text = self.text()
-        return {
-            "word_texts": text.word_texts,
-            "lemmas": text.lemmas,
-            "postags": text.postags,
-            "endings": text.endings
-        }
-
-    def test_zipbuilder_call(self):
-        text = self.text()
-        built_list = text.get(['word_texts', 'lemmas', 'postags', 'endings']).as_list
-        expected = self.list()
-        self.assertListEqual(expected, built_list)
-
-
 class TextDivideTest(unittest.TestCase):
 
     def test_divide(self):
@@ -163,63 +111,9 @@ class TextDivideTest(unittest.TestCase):
         ]
 
 
-class TimexTest(unittest.TestCase):
-
-    def test_tag_separately(self):
-        text = self.document
-        self.assertListEqual(text.timexes, self.timexes)
-
-    @property
-    def document(self):
-        return Text('3. detsembril 2014 oli näiteks ilus ilm. Aga kaks päeva varem jälle ei olnud.')
-
-    @property
-    def timexes(self):
-        return [{'end': 18,
-                  'id': 0,
-                  'start': 0,
-                  'temporal_function': False,
-                  'text': '3. detsembril 2014',
-                  'tid': 't1',
-                  'type': 'DATE',
-                  'value': '2014-12-03'},
-                 {'anchor_id': 0,
-                  'anchor_tid': 't1',
-                  'end': 61,
-                  'id': 1,
-                  'start': 45,
-                  'temporal_function': True,
-                  'text': 'kaks päeva varem',
-                  'tid': 't2',
-                  'type': 'DATE',
-                  'value': '2014-12-01'}]
 
 
-class ClausesTest(unittest.TestCase):
-
-    def test_divide_multi(self):
-        text = Text('Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks.')
-        clauses = text.divide('words', 'clauses')
-        korred, _1, millel, on, toitunud, viljasaase, vastsed, _2, jaavad, ohukeseks, _3 = text.words
-        self.assertListEqual([korred, jaavad, ohukeseks, _3], clauses[0])
-        self.assertListEqual([_1, millel, on, toitunud, viljasaase, vastsed, _2], clauses[1])
-        self.assertEqual(len(clauses), 2)
-
-    def test_split_by_clauses(self):
-        text = Text('Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks.')
-        outer = Text('Kõrred jäävad õhukeseks.').compute_clauses()
-        inner = Text(', millel on toitunud väljasääse vastsed,').compute_clauses()
-        outer_split, inner_split = text.split_by('clauses')
-        self.assertListEqual(inner.word_spans, inner_split.word_spans)
-        self.assertListEqual(outer.word_spans, outer_split.word_spans)
 
 
-class VerbchainTest(unittest.TestCase):
 
-    def test_verbchain(self):
-        text = Text('Kass, suur ja must, ei jooksnud üle tee.')
-        phrase = Text('ei jooksnud')
-        phrase.compute_verb_chains()
-        text.compute_verb_chains()
-        phrases = text.split_by('verb_chains')
-        self.assertEqual(len(phrases), 1)
+

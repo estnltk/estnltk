@@ -10,7 +10,6 @@ from ..text import Text
 from ..teicorpus import parse_tei_corpus
 from ..core import AA_PATH
 
-# dummy initialization of everything we may test
 dummy = Text('Tere maailm!').compute_analysis()
 
 docs = parse_tei_corpus(os.path.join(AA_PATH, 'tea_AA_00_1.tasak.xml'))

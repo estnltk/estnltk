@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals, print_function
+from __future__ import unicode_literals, print_function, absolute_import
 
 """Mid-level module for interacting with Estonian WordNet. Uses Neeme Kahusk's eurown module to parse WordNet file.
 """

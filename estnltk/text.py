@@ -8,6 +8,7 @@ from .dividing import divide, divide_by_spans
 from .vabamorf import morf as vabamorf
 from .ner import NerTagger
 from .timex import TimexTagger
+from .wordnet_tagger import WordnetTagger
 from .clausesegmenter import ClauseSegmenter
 from .mw_verbs.verbchain_detector import VerbChainDetector
 from .textcleaner import ESTONIAN, TextCleaner
@@ -35,6 +36,7 @@ timextagger = None
 textcleaner = TextCleaner()
 clausesegmenter = None
 verbchain_detector = None
+wordnet_tagger = None
 
 
 def load_default_ner_tagger():
@@ -109,6 +111,9 @@ class Text(dict):
             'clause_segmenter', None)
         self.__verbchain_detector = kwargs.get(
             'verbchain_detector', None # lazy loading
+        )
+        self.__wordnet_tagger = kwargs.get(
+            'wordnet_tagger', None # lazy loading
         )
         self.__text_cleaner = kwargs.get('text_cleaner', textcleaner)
 
@@ -270,7 +275,7 @@ class Text(dict):
     # RETRIEVING AND COMPUTING PROPERTIES
     # ///////////////////////////////////////////////////////////////////
 
-    @property
+    @cached_property
     def text(self):
         return self[TEXT]
 
@@ -305,31 +310,31 @@ class Text(dict):
         self.__computed.add(PARAGRAPHS)
         return self
 
-    @property
+    @cached_property
     def paragraphs(self):
         if not self.is_computed(PARAGRAPHS):
             self.compute_paragraphs()
         return self[PARAGRAPHS]
 
-    @property
+    @cached_property
     def paragraph_texts(self):
         if not self.is_computed(PARAGRAPHS):
             self.compute_paragraphs()
         return self.__texts(PARAGRAPHS)
 
-    @property
+    @cached_property
     def paragraph_spans(self):
         if not self.is_computed(PARAGRAPHS):
             self.compute_paragraphs()
         return self.__spans(PARAGRAPHS)
 
-    @property
+    @cached_property
     def paragraph_starts(self):
         if not self.is_computed(PARAGRAPHS):
             self.compute_paragraphs()
         return self.__starts(PARAGRAPHS)
 
-    @property
+    @cached_property
     def paragraph_ends(self):
         if not self.is_computed(PARAGRAPHS):
             self.compute_paragraphs()
@@ -351,31 +356,31 @@ class Text(dict):
         self.__computed.add(SENTENCES)
         return self
 
-    @property
+    @cached_property
     def sentences(self):
         if not self.is_computed(SENTENCES):
             self.compute_sentences()
         return self[SENTENCES]
 
-    @property
+    @cached_property
     def sentence_texts(self):
         if not self.is_computed(SENTENCES):
             self.compute_sentences()
         return self.__texts(SENTENCES)
 
-    @property
+    @cached_property
     def sentence_spans(self):
         if not self.is_computed(SENTENCES):
             self.compute_sentences()
         return self.__spans(SENTENCES)
 
-    @property
+    @cached_property
     def sentence_starts(self):
         if not self.is_computed(SENTENCES):
             self.compute_sentences()
         return self.__starts(SENTENCES)
 
-    @property
+    @cached_property
     def sentence_ends(self):
         if not self.is_computed(SENTENCES):
             self.compute_sentences()
@@ -409,37 +414,37 @@ class Text(dict):
         self.__computed.add(ANALYSIS)
         return self
 
-    @property
+    @cached_property
     def words(self):
         if not self.is_computed(WORDS):
             self.compute_words()
         return self[WORDS]
 
-    @property
+    @cached_property
     def word_texts(self):
         if not self.is_computed(WORDS):
             self.compute_words()
         return [word[TEXT] for word in self[WORDS]]
 
-    @property
+    @cached_property
     def word_spans(self):
         if not self.is_computed(WORDS):
             self.compute_words()
         return self.__spans(WORDS)
 
-    @property
+    @cached_property
     def word_starts(self):
         if not self.is_computed(WORDS):
             self.compute_words()
         return self.__starts(WORDS)
 
-    @property
+    @cached_property
     def word_ends(self):
         if not self.is_computed(WORDS):
             self.compute_words()
         return self.__ends(WORDS)
 
-    @property
+    @cached_property
     def analysis(self):
         if not self.is_computed(ANALYSIS):
             self.compute_analysis()
@@ -460,49 +465,49 @@ class Text(dict):
     def __get_analysis_element(self, element):
         return [self.__get_key(word[ANALYSIS], element) for word in self.words]
 
-    @property
+    @cached_property
     def roots(self):
         if not self.is_computed(ANALYSIS):
             self.compute_analysis()
         return self.__get_analysis_element(ROOT)
 
-    @property
+    @cached_property
     def lemmas(self):
         if not self.is_computed(ANALYSIS):
             self.compute_analysis()
         return self.__get_analysis_element(LEMMA)
 
-    @property
+    @cached_property
     def endings(self):
         if not self.is_computed(ANALYSIS):
             self.compute_analysis()
         return self.__get_analysis_element(ENDING)
 
-    @property
+    @cached_property
     def forms(self):
         if not self.is_computed(ANALYSIS):
             self.compute_analysis()
         return self.__get_analysis_element(FORM)
 
-    @property
+    @cached_property
     def postags(self):
         if not self.is_computed(ANALYSIS):
             self.compute_analysis()
         return self.__get_analysis_element(POSTAG)
 
-    @property
+    @cached_property
     def postag_descriptions(self):
         if not self.is_computed(ANALYSIS):
             self.compute_analysis()
         return [POSTAG_DESCRIPTIONS.get(tag, '') for tag in self.__get_analysis_element(POSTAG)]
 
-    @property
+    @cached_property
     def root_tokens(self):
         if not self.is_computed(ANALYSIS):
             self.compute_analysis()
         return self.__get_analysis_element(ROOT_TOKENS)
 
-    @property
+    @cached_property
     def descriptions(self):
         descs = []
         for postag, form in zip(self.postags, self.forms):
@@ -528,7 +533,7 @@ class Text(dict):
         self.__computed.add(LABEL)
         return self
 
-    @property
+    @cached_property
     def labels(self):
         if not self.is_computed(LABEL):
             self.compute_labels()
@@ -555,26 +560,26 @@ class Text(dict):
         self.__computed.add(NAMED_ENTITIES)
         return self
 
-    @property
+    @cached_property
     def named_entities(self):
         if not self.is_computed(NAMED_ENTITIES):
             self.compute_named_entities()
         phrases = self.split_by(NAMED_ENTITIES)
         return [' '.join(phrase.lemmas) for phrase in phrases]
 
-    @property
+    @cached_property
     def named_entity_texts(self):
         if not self.is_computed(NAMED_ENTITIES):
             self.compute_named_entities()
         return self.__texts(NAMED_ENTITIES)
 
-    @property
+    @cached_property
     def named_entity_spans(self):
         if not self.is_computed(NAMED_ENTITIES):
             self.compute_named_entities()
         return self.__spans(NAMED_ENTITIES)
 
-    @property
+    @cached_property
     def named_entity_labels(self):
         if not self.is_computed(NAMED_ENTITIES):
             self.compute_named_entities()
@@ -590,41 +595,41 @@ class Text(dict):
             self.__computed.add(TIMEXES)
         return self
 
-    @property
+    @cached_property
     def timexes(self):
         if not self.is_computed(TIMEXES):
             self.compute_timexes()
         return self[TIMEXES]
 
-    @property
+    @cached_property
     def timex_texts(self):
         return [timex[TEXT] for timex in self.timexes]
 
-    @property
+    @cached_property
     def timex_values(self):
         return [timex[TMX_VALUE] for timex in self.timexes]
 
-    @property
+    @cached_property
     def timex_types(self):
         return [timex[TMX_TYPE] for timex in self.timexes]
 
-    @property
+    @cached_property
     def timex_ids(self):
         return [timex[TMX_ID] for timex in self.timexes]
 
-    @property
+    @cached_property
     def timex_starts(self):
         if not self.is_computed(TIMEXES):
             self.compute_timexes()
         return self.__starts(TIMEXES)
 
-    @property
+    @cached_property
     def timex_ends(self):
         if not self.is_computed(TIMEXES):
             self.compute_timexes()
         return self.__ends(TIMEXES)
 
-    @property
+    @cached_property
     def timex_spans(self):
         if not self.is_computed(TIMEXES):
             self.compute_timexes()
@@ -638,13 +643,13 @@ class Text(dict):
         self.__computed.add(CLAUSE_ANNOTATION)
         return self.__clause_segmenter.tag(self)
 
-    @property
+    @cached_property
     def clause_annotations(self):
         if not self.is_computed(CLAUSE_ANNOTATION):
             self.compute_clause_annotations()
         return [word.get(CLAUSE_ANNOTATION, None) for word in self[WORDS]]
 
-    @property
+    @cached_property
     def clause_indices(self):
         if not self.is_computed(CLAUSE_ANNOTATION):
             self.compute_clause_annotations()
@@ -678,13 +683,13 @@ class Text(dict):
         self.__computed.add(CLAUSES)
         return self
 
-    @property
+    @cached_property
     def clauses(self):
         if not self.is_computed(CLAUSES):
             self.compute_clauses()
         return self[CLAUSES]
 
-    @property
+    @cached_property
     def clause_texts(self):
         if not self.is_computed(CLAUSES):
             self.compute_clauses()
@@ -710,20 +715,31 @@ class Text(dict):
         self.__computed.add(VERB_CHAINS)
         return self
 
-    @property
+    @cached_property
     def verb_chains(self):
         if not self.is_computed(VERB_CHAINS):
             self.compute_verb_chains()
         return self[VERB_CHAINS]
 
 
+    def compute_wordnet(self, **kwargs):
+        global wordnet_tagger
+        if wordnet_tagger is None: # cached wn tagger
+            wordnet_tagger = WordnetTagger()
+        self.__wordnet_tagger = wordnet_tagger
+        if len(kwargs) > 0:
+            return self.__wordnet_tagger.tag_text(self, **kwargs)
+        return self.__wordnet_tagger.tag_text(self, self.__kwargs)
 
+    @cached_property
+    def wordnet_annotations(self):
+        return self.__get_analysis_element(WORDNET)
 
     # ///////////////////////////////////////////////////////////////////
     # SPELLCHECK
     # ///////////////////////////////////////////////////////////////////
 
-    @property
+    @cached_property
     def spelling(self):
         """Flag incorrectly spelled words.
         Returns a list of booleans, where element at each position denotes, if the word at the same position
@@ -733,13 +749,13 @@ class Text(dict):
             self.compute_words()
         return [data[SPELLING] for data in vabamorf.spellcheck(self.word_texts, suggestions=False)]
 
-    @property
+    @cached_property
     def spelling_suggestions(self):
         if not self.is_computed(WORDS):
             self.compute_words()
         return [data[SUGGESTIONS] for data in vabamorf.spellcheck(self.word_texts, suggestions=True)]
 
-    @property
+    @cached_property
     def spellcheck_results(self):
         if not self.is_computed(WORDS):
             self.compute_words()
@@ -772,7 +788,7 @@ class Text(dict):
     def is_valid(self):
         return self.__text_cleaner.is_valid(self[TEXT])
 
-    @property
+    @cached_property
     def invalid_characters(self):
         return self.__text_cleaner.invalid_characters(self[TEXT])
 

@@ -72,3 +72,6 @@ ANALYSIS_IDS = 'analysisIDs'
 TENSE = "tense"
 MOOD = "mood"
 VOICE = "voice"
+
+# wordnet
+WORDNET = 'wordnet'
