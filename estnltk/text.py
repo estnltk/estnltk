@@ -136,7 +136,7 @@ class Text(dict):
             if len(self[WORDS]) > 0:
                 if ANALYSIS in self[WORDS][0]:
                     computed.add(ANALYSIS)
-                    if len(WORDS[0][ANALYSIS]) and WORDNET in WORDS[0][ANALYSIS][0]:
+                    if len(self[WORDS][0][ANALYSIS]) and WORDNET in self[WORDS][0][ANALYSIS][0]:
                         computed.add(WORDNET)
                 if LABEL in self:
                     computed.add(LABEL)
@@ -999,25 +999,3 @@ class ZipBuilder(object):
     def as_dict(self):
         return dict(zip(self.__keys, self.__values))
 
-
-
-def read_corpus(fnm):
-    """Function to read a JSON corpus from a file.
-    A JSON corpus contains one document per line, encoded in JSON.
-
-    Parameters
-    ----------
-    fnm: str
-        The filename of the corpus.
-
-    Returns
-    -------
-    list of Text
-    """
-    documents = []
-    with codecs.open(fnm, 'rb', 'ascii') as f:
-        line = f.readline()
-        while line != '':
-            documents.append(Text(json.loads(line)))
-            line = f.readline()
-    return documents

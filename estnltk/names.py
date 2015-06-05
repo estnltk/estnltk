@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-'''Module that defines the attribute names and constants used througout the library
-and in corpora.'''
+"""Module that defines the attribute names and constants used througout the library
+and in corpora."""
 
 from __future__ import unicode_literals, print_function
 

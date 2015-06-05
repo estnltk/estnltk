@@ -4,7 +4,7 @@ import os
 import sys
 
 def get_sources(src_dir='src', ending='.cpp'):
-    '''Function to get a list of files ending with `ending` in `src_dir`.'''
+    """Function to get a list of files ending with `ending` in `src_dir`."""
     return [os.path.join(src_dir, fnm) for fnm in os.listdir(src_dir) if fnm.endswith(ending)]
 
 # define directories for vabamorf source directories

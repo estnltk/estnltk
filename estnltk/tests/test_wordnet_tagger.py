@@ -18,5 +18,6 @@ class WordnetTaggerTest(unittest.TestCase):
         }
         plain = 'Laisk mees magas'
         text = Text(plain, **kwargs)
-        print(text.get.word_texts.postags.word_literals.as_dataframe)
-        pprint(text)
+        df = text.get.word_texts.postags.word_literals.as_dataframe
+        #print(df)
+        #pprint(text)
