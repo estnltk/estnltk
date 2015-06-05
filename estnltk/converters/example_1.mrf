@@ -1,0 +1,162 @@
+<ignoreeri>
+|
+autor:
+Krister
+Kivi
+|
+ajalehenumber:
+Eesti
+Ekspress
+|
+alaosa:
+A-OSA
+|
+rubriik:
+Persoon
+:
+|
+artikkel:
+Eneseteostuse
+umbsõlmed
+|
+</ignoreeri>
+<s>
+Keskkriminaalpolitsei    Kesk_kriminaal_politsei+0 //_H_ sg g, //    Kesk_kriminaal_politsei+0 //_H_ sg n, //    kesk_kriminaal_politsei+0 //_S_ sg g, //    kesk_kriminaal_politsei+0 //_S_ sg n, //
+endisel    endine+l //_A_ sg ad, //
+abidirektoril    abi_direktor+l //_S_ sg ad, //
+Koit    Koit+0 //_H_ sg n, //    koit+0 //_S_ sg n, //
+Pikarol    Pikaro+l //_H_ sg ad, //
+(    ( //_Z_ //
+47    47+0 //_N_ ?, //
+)    ) //_Z_ //
+on    ole+0 //_V_ b, //    ole+0 //_V_ vad, //
+veel    veel+0 //_D_ //    vesi+l //_S_ sg ad, //
+kuiva    kuiv+0 //_A_ adt, //    kuiv+0 //_A_ sg g, //    kuiv+0 //_S_ adt, //    kuiv+0 //_S_ sg g, //    kuiva+0 //_V_ o, //    kuiv+0 //_A_ sg p, //    kuiv+0 //_S_ sg p, //
+püssirohtu    püssi_rohi+0 //_S_ adt, //    püssi_rohi+0 //_S_ sg p, //
+sarves    sarv+s //_S_ sg in, //
+.    . //_Z_ //
+</s>
+<s>
+"    " //_Z_ //
+Buldooser    Buldooser+0 //_H_ sg n, //    buldooser+0 //_S_ sg n, //
+"    " //_Z_ //
+annab    and+b //_V_ b, //
+mõista    mõist+0 //_V_ o, //    mõist+a //_V_ da, //
+,    , //_Z_ //
+et    et+0 //_J_ //
+ametist    amet+st //_S_ sg el, //
+tagandamise    tagandamine+0 //_S_ sg g, //
+korral    kord+l //_S_ sg ad, //    korral+0 //_D_ //    korral+0 //_K_ //
+toob    too+b //_V_ b, //
+ta    tema+0 //_P_ sg g, //    tema+0 //_P_ sg n, //
+välja    väli+0 //_S_ adt, //    väli+0 //_S_ sg g, //    välja+0 //_D_ //    välja+0 //_V_ o, //    väli+0 //_S_ sg p, //
+kurikuulsad    kuri_kuulus+d //_A_ pl n, //
+"    " //_Z_ //
+mustad    must+d //_A_ pl n, //    must+d //_S_ pl n, //    musta+d //_V_ d, //
+toimikud    toimik+d //_S_ pl n, //
+"    " //_Z_ //
+,    , //_Z_ //
+kuhu    kuhu+0 //_D_ //
+on    ole+0 //_V_ b, //    ole+0 //_V_ vad, //
+kätketud    kätke+tud //_V_ tud, //    kätke=tu+d //_S_ pl n, //    kätke=tud+0 //_A_ //    kätke=tud+0 //_A_ sg n, //    kätke=tud+d //_A_ pl n, //
+kompromiteerivat    kompromiteeri+vat //_V_ vat, //    kompromiteeri=v+t //_A_ sg p, //
+infot    info+t //_S_ sg p, //
+kõrgete    kõrge+te //_A_ pl g, //
+riigiametnike    riigi_ametnik+e //_S_ pl g, //
+ja    ja+0 //_J_ //
+poliitikute    poliitik+te //_S_ pl g, //
+kohta    koht+0 //_S_ adt, //    kohta+0 //_K_ //    kohta+0 //_V_ o, //    koht+0 //_S_ sg p, //
+.    . //_Z_ //
+</s>
+<s>
+"    " //_Z_ //
+Mul    mina+l //_P_ sg ad, //
+on    ole+0 //_V_ b, //    ole+0 //_V_ vad, //
+palju    palju+0 //_D_ //    palju+0 //_P_ sg g, //    palju+0 //_P_ sg n, //
+igasugust    iga_sugune+t //_P_ sg p, //
+informatsiooni    informatsioon+0 //_S_ adt, //    informatsioon+0 //_S_ sg g, //    informatsioon+0 //_S_ sg p, //
+.    . //_Z_ //
+</s>
+<s>
+Kivide    Kiv+de //_H_ pl g, //    Kivi+de //_H_ pl g, //    Kivide+0 //_H_ sg g, //    Kivide+0 //_H_ sg n, //    kivi+de //_S_ pl g, //
+korjamise    korjamine+0 //_S_ sg g, //
+aeg    aeg+0 //_S_ sg n, //
+on    ole+0 //_V_ b, //    ole+0 //_V_ vad, //
+möödas    möödas+0 //_D_ //
+ja    ja+0 //_J_ //
+nüüd    nüüd+0 //_D_ //
+tuleb    tule+b //_V_ b, //
+hakata    hakata+0 //_V_ o, //    hakka+ta //_V_ da, //    hakka+ta //_V_ ta, //
+neid    neid+0 //_S_ sg n, //    see+d //_P_ pl p, //    tema+d //_P_ pl p, //
+käiku    käik+0 //_S_ adt, //    käik+0 //_S_ sg p, //
+laskma    lask+ma //_V_ ma, //
+.    . //_Z_ //
+</s>
+<s>
+Kui    kui+0 //_D_ //    kui+0 //_J_ //
+keegi    kee+gi //_S_ sg g, //    kee+gi //_V_ o, //    keegi+0 //_P_ sg n, //    kee+gi //_S_ sg n, //
+arvab    arva+b //_V_ b, //
+,    , //_Z_ //
+et    et+0 //_J_ //
+ta    tema+0 //_P_ sg g, //    tema+0 //_P_ sg n, //
+on    ole+0 //_V_ b, //    ole+0 //_V_ vad, //
+ilma    ilm+0 //_S_ adt, //    ilm+0 //_S_ sg g, //    ilma+0 //_D_ //    ilma+0 //_K_ //    ilm+0 //_S_ sg p, //
+patuta    patt+ta //_S_ sg ab, //
+ja    ja+0 //_J_ //
+võib    või+b //_V_ b, //
+seetõttu    see_tõttu+0 //_D_ //
+visata    visa+ta //_A_ sg ab, //    viska+ta //_V_ da, //    viska+ta //_V_ ta, //
+esimese    esimene+0 //_O_ sg g, //    esimene+0 //_P_ sg g, //
+kivi    kivi+0 //_S_ sg g, //    kivi+0 //_S_ sg n, //    kivi+0 //_S_ sg p, //
+,    , //_Z_ //
+siis    siis+0 //_D_ //    siis+0 //_J_ //
+ta    tema+0 //_P_ sg g, //    tema+0 //_P_ sg n, //
+eksib    eksi+b //_V_ b, //
+,    , //_Z_ //
+"    " //_Z_ //
+ütles    ütle+s //_V_ s, //
+Pikaro    Pikaro+0 //_H_ sg g, //    Pikaro+0 //_H_ sg n, //
+EEle    EE+le //_Y_ sg all, //
+.    . //_Z_ //
+</s>
+<s>
+Esmaspäeval    Esmas_päev+l //_H_ sg ad, //    esmas_päev+l //_S_ sg ad, //
+teatas    teata+s //_V_ s, //
+Politseiameti    Politsei_amet+0 //_H_ sg g, //    politsei_amet+0 //_S_ sg g, //
+peadirektor    pea_direktor+0 //_S_ sg n, //
+Ain    Ain+0 //_H_ sg n, //
+Seppik    Seppik+0 //_H_ sg n, //
+ajakirjanikele    aja_kirjanik+ele //_S_ pl all, //
+kergelt    kerge+lt //_A_ sg abl, //    kergelt+0 //_D_ //
+kogeledes    kogele+des //_V_ des, //
+,    , //_Z_ //
+et    et+0 //_J_ //
+vallandab    vallanda+b //_V_ b, //
+kaks    kaks+0 //_N_ sg n, //
+Keskkriminaalpolitsei    Kesk_kriminaal_politsei+0 //_H_ sg g, //    Kesk_kriminaal_politsei+0 //_H_ sg n, //    kesk_kriminaal_politsei+0 //_S_ sg g, //    kesk_kriminaal_politsei+0 //_S_ sg n, //
+komissari    komissar+0 //_S_ adt, //    komissar+0 //_S_ sg g, //    komissar+0 //_S_ sg p, //
+.    . //_Z_ //
+</s>
+<s>
+Lisaks    Lisa+ks //_H_ sg tr, //    Lisaks+0 //_H_ sg n, //    lisa+ks //_S_ sg tr, //    lisa+ks //_V_ ks, //
+sellele    see+le //_P_ sg all, //
+seisvat    seis+vat //_V_ vat, //    seisev+t //_A_ sg p, //
+samas    sama+s //_P_ sg in, //    samas+0 //_D_ //
+struktuuris    struktuur+s //_S_ sg in, //
+ees    ees+0 //_D_ //    ees+0 //_K_ //    esi+s //_S_ sg in, //
+teinegi    teine+gi //_O_ sg n, //    teine+gi //_P_ sg n, //
+ränk    ränk+0 //_A_ sg n, //
+ümberkorraldus    ümber_korraldus+0 //_S_ sg n, //
+:    : //_Z_ //
+välja    väli+0 //_S_ adt, //    väli+0 //_S_ sg g, //    välja+0 //_D_ //    välja+0 //_V_ o, //    väli+0 //_S_ sg p, //
+vahetatakse    vaheta+takse //_V_ takse, //
+üks    üks+0 //_N_ sg n, //    üks+0 //_P_ sg n, //
+juhtivtöötaja    juhtiv_töötaja+0 //_S_ sg g, //    juhtiv_töötaja+0 //_S_ sg n, //
+.    . //_Z_ //
+</s>
+<s>
+Nimesid    Nime+sid //_H_ pl p, //    Nimes+d //_H_ pl n, //    Nimesi+d //_H_ pl n, //    Nimi+sid //_H_ pl p, //    nimi+sid //_S_ pl p, //
+ei    ei+0 //_D_ //    ei+0 //_V_ neg, //
+nimetatud    nimeta+tud //_V_ tud, //    nimetatu+d //_S_ pl n, //    nimetatud+0 //_A_ //    nimetatud+0 //_A_ sg n, //    nimetatud+d //_A_ pl n, //
+.    . //_Z_ //
+</s>
