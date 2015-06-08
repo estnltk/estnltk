@@ -312,12 +312,10 @@ def all_synsets(pos=None):
         if len(synset_idxes) == 0:
             return []
 
-        stored_synsets = []
+        stored_synsets = [SYNSETS_DICT[synset_idxes[i]] for i in range(len(synset_idxes)) if synset_idxes[i] in SYNSETS_DICT]
+        unstored_synset_idxes = [synset_idxes[i] for i in range(len(synset_indxes)) if synset_idxes[i] not in SYNSETS_DICT]
         
-        for i in range(len(synset_idxes)):
-            if synset_idxes[i] in SYNSETS_DICT:
-                stored_synsets.append(SYNSETS_DICT[synset_idxes.pop(i)])
-        synset_offsets = _get_synset_offsets(synset_idxes)
+        synset_offsets = _get_synset_offsets(unstored_synset_idxes)
         synsets = _get_synsets(synset_offsets)
 
         for synset in synsets:
