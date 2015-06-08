@@ -720,6 +720,59 @@ class Text(dict):
             self.compute_verb_chains()
         return self[VERB_CHAINS]
 
+    @cached_property
+    def verb_chain_texts(self):
+        if not self.is_computed(VERB_CHAINS):
+            self.compute_verb_chains()
+        return self.__texts(VERB_CHAINS)
+
+    @cached_property
+    def verb_chain_patterns(self):
+        return [vc[PATTERN] for vc in self.verb_chains]
+
+    @cached_property
+    def verb_chain_roots(self):
+        return [vc[ROOTS] for vc in self.verb_chains]
+
+    @cached_property
+    def verb_chain_morphs(self):
+        return [vc[MORPH] for vc in self.verb_chains]
+
+    @cached_property
+    def verb_chain_polarities(self):
+        return [vc[POLARITY] for vc in self.verb_chains]
+
+    @cached_property
+    def verb_chain_tenses(self):
+        return [vc[TENSE] for vc in self.verb_chains]
+
+    @cached_property
+    def verb_chain_moods(self):
+        return [vc[MOOD] for vc in self.verb_chains]
+
+    @cached_property
+    def verb_chain_voices(self):
+        return [vc[VOICE] for vc in self.verb_chains]
+
+    @cached_property
+    def verb_chain_clause_indices(self):
+        return [vc[CLAUSE_IDX] for vc in self.verb_chains]
+
+    @cached_property
+    def verb_chain_starts(self):
+        if not self.is_computed(VERB_CHAINS):
+            self.compute_verb_chains()
+        return self.__starts(VERB_CHAINS)
+
+    @cached_property
+    def verb_chain_ends(self):
+        if not self.is_computed(VERB_CHAINS):
+            self.compute_verb_chains()
+        return self.__ends(VERB_CHAINS)
+
+    @cached_property
+    def verb_chain_other_verbs(self):
+        return [vc[OTHER_VERBS] for vc in self.verb_chains]
 
     def compute_wordnet(self, **kwargs):
         global wordnet_tagger

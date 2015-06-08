@@ -1208,10 +1208,457 @@ In addition, there are dedicated markers for special time notions:
 Document creation date
 ----------------------
 
-TODO
+Relatime temporal expressions often depend on document creation date, which can be supplied as ``creation_date`` parameter.
+If no ``creation_date`` argument is passed, it is set as the date the code is run (June 8 2015 in the example)::
+
+    from estnltk import Text
+    Text('Täna on ilus ilm').timexes
+
+::
+
+    [{'end': 4,
+      'id': 0,
+      'start': 0,
+      'temporal_function': True,
+      'text': 'Täna',
+      'tid': 't1',
+      'type': 'DATE',
+      'value': '2015-06-08'}]
+
+
+However, when passing ``creation_date=datetime.datetime(1986, 12, 21)``::
+
+    import datetime
+    Text('Täna on ilus ilm', creation_date=datetime.datetime(1986, 12, 21)).timexes
+
+We see that word "today" (*täna*) refers to to December 21 1986::
+
+    [{'end': 4,
+      'id': 0,
+      'start': 0,
+      'temporal_function': True,
+      'text': 'Täna',
+      'tid': 't1',
+      'type': 'DATE',
+      'value': '1986-12-21'}]
 
 TIMEX examples
 --------------
 
-TODO: add here a sufficiently large number of examples with tabulated output
+Here are some example of time expressions and fields that Estnltk can extract.
+The document creation date is fixed to Dec 21 1986 in the examples below.
+See `annotation guidelines`_ for more detailed explanations.
+
+.. _annotation guidelines: https://github.com/soras/EstTimeMLCorpus/blob/master/docs-et/ajav2ljendite_m2rgendamine_06.pdf?raw=true
+
+
+========================================================================= ============================= ======== ================ ==========
+Example                                                                   Time expression               Type     Value            Modifier
+========================================================================= ============================= ======== ================ ==========
+Järgmisel reedel, 2004. aastal                                            Järgmisel reedel              DATE     1986-12-26
+Järgmisel reedel, 2004. aastal                                            2004                          DATE     2004
+esmaspäeva hommikul, järgmisel reedel kell 14.00                          esmaspäeva hommikul           TIME     1986-12-15TMO
+esmaspäeva hommikul, järgmisel reedel kell 14.00                          järgmisel reedel kell 14.00   TIME     1986-12-26T14:00
+neljapäeviti, hommikuti                                                   neljapäeviti                  SET      XXXX-WXX-XX
+neljapäeviti, hommikuti                                                   hommikuti                     SET      XXXX-XX-XXTMO
+selle kuu alguses                                                         selle kuu alguses             DATE     1986-12          START
+1990ndate lõpus                                                           1990ndate lõpus               DATE     199              END
+VI sajandist e. m. a                                                      VI sajandist                  DATE     05
+kolm tundi                                                                kolm tundi                    DURATION PT3H
+viis kuud                                                                 viis kuud                     DURATION P5M
+kaks minutit                                                              kaks minutit                  DURATION PT2M
+teisipäeviti                                                              teisipäeviti                  SET      XXXX-WXX-XX
+kolm päeva igas kuus                                                      kolm päeva                    DURATION P3D
+kolm päeva igas kuus                                                      igas kuus                     SET      P1M
+kolm korda igas kuus                                                      igas kuus                     SET      P1M
+Ühel kenal päeval                                                         päeval                        TIME     TDT
+Ühel märtsikuu päeval                                                     märtsikuu                     DATE     1987-03
+Ühel märtsikuu päeval                                                     päeval                        TIME     TDT
+hiljuti                                                                   hiljuti                       DATE     PAST_REF
+tulevikus                                                                 tulevikus                     DATE     FUTURE_REF
+2009. aasta alguses                                                       2009                          DATE     2009
+2009. aasta alguses                                                       aasta alguses                 DATE     XXXX             START
+juuni alguseks 2007. aastal                                               juuni alguseks                DATE     1986-06          START
+juuni alguseks 2007. aastal                                               2007                          DATE     2007
+2009. aasta esimesel poolel                                               2009                          DATE     2009
+2009. aasta esimesel poolel                                               aasta esimesel poolel         DATE     XXXX             FIRST_HALF
+umbes 4 aastat                                                            umbes 4 aastat                DURATION P4Y              APPROX
+peaaegu 4 aastat                                                          peaaegu 4 aastat              DURATION P4Y              LESS_THAN
+12-15 märts 2009                                                          15 märts 2009                 DATE     2009-03-15
+eelmise kuu lõpus                                                         eelmise kuu lõpus             DATE     1986-11          END
+2004. aasta suvel                                                         2004                          DATE     2004
+2004. aasta suvel                                                         aasta                         DATE     XXXX
+2004. aasta suvel                                                         suvel                         DATE     1986-SU
+Detsembris oli keskmine temperatuur kaks korda madalam kui kuu aega varem Detsembris                    DATE     1986-12
+Detsembris oli keskmine temperatuur kaks korda madalam kui kuu aega varem kuu aega varem                DATE     1986-11
+neljapäeval, 17. juunil                                                   neljapäeval                   DATE     1986-12-18
+neljapäeval, 17. juunil                                                   17. juunil                    DATE     1986-06-17
+täna, 100 aastat tagasi                                                   täna                          DATE     1986-12-21
+täna, 100 aastat tagasi                                                   100 aastat tagasi             DATE     1886
+neljapäeva öösel vastu reedet                                             neljapäeva öösel vastu reedet TIME     1986-12-19TNI
+aasta esimestel kuudel                                                    aasta                         DATE     XXXX
+viimase aasta jooksul                                                     viimase aasta jooksul         DURATION P1Y
+viimase aasta jooksul                                                     jooksul                       DATE     1985
+viimase kolme aasta jooksul                                               viimase kolme aasta jooksul   DURATION P3Y
+viimase kolme aasta jooksul                                               jooksul                       DATE     1983
+varasemad aastad, hilisemad aastad                                        varasemad aastad              DATE     PAST_REF
+varasemad aastad, hilisemad aastad                                        aastad                        DURATION PXY
+viie-kuue aasta pärast, kahe-kolme aasta tagune                           kuue aasta pärast             DATE     1992
+viie-kuue aasta pärast, kahe-kolme aasta tagune                           kolme aasta tagune            DATE     1983
+aastaid tagasi                                                            aastaid tagasi                DATE     PAST_REF
+aastate pärast                                                            aastate pärast                DATE     FUTURE_REF
+========================================================================= ============================= ======== ================ ==========
+
+
+Tagging clauses
+===============
+
+A simple sentence, also called an independent clause, typically contains a finite verb, and expresses a complete thought.
+However, natural language sentences can also be long and complex, consisting of two or more clauses joined together.
+The clause structure can be made even more complex due to embedded clauses, which divide their parent clauses into two halves::
+
+    from estnltk import Text
+    text = Text('Mees, keda seal kohtasime, oli tuttav ja teretas meid.')
+    text.get.word_texts.clause_indices.clause_annotations.as_dataframe
+
+The clause annotations defien embedded clauses and clause boundaries.
+Additionally, each word in a sentence is associated with a clause index::
+
+       word_texts  clause_indices     clause_annotations
+    0        Mees               0                   None
+    1           ,               1  embedded_clause_start
+    2        keda               1                   None
+    3        seal               1                   None
+    4   kohtasime               1                   None
+    5           ,               1    embedded_clause_end
+    6         oli               0                   None
+    7      tuttav               0                   None
+    8          ja               0        clause_boundary
+    9     teretas               2                   None
+    10       meid               2                   None
+    11          .               2                   None
+
+Clause annotation information is stored in ``words`` layer as ``clause_index`` and ``clause_annotation`` attributes::
+
+    {'analysis': [{'clitic': '',
+                   'ending': '0',
+                   'form': 'sg n',
+                   'lemma': 'mees',
+                   'partofspeech': 'S',
+                   'root': 'mees',
+                   'root_tokens': ['mees']}],
+     'clause_index': 0,
+     'end': 4,
+     'start': 0,
+     'text': 'Mees'}
+
+    {'analysis': [{'clitic': '',
+                   'ending': '',
+                   'form': '',
+                   'lemma': ',',
+                   'partofspeech': 'Z',
+                   'root': ',',
+                   'root_tokens': [',']}],
+     'clause_annotation': 'embedded_clause_start',
+     'clause_index': 1,
+     'end': 5,
+     'start': 4,
+     'text': ','}
+
+Clause indices and annotations can be explicitly tagged with method :py:meth:`~estnltk.text.Text.compute_clause_annotations`.
+
+Property :py:attr:`~estnltk.text.Text.clause_texts` can be used to see the full clauses themselves::
+
+    text.clause_texts
+
+::
+
+    ['Mees oli tuttav ja', ', keda seal kohtasime,', 'teretas meid.']
+
+Method :py:meth:`~estnltk.text.Text.compute_clauses` can be used create a special ``clauses`` multilayer,
+that lists character-level indices of start and end positions of clause regions::
+
+    text.compute_clauses()
+    text['clauses']
+
+::
+
+    [{'end': [4, 40], 'start': [0, 27]},
+     {'end': [26], 'start': [4]},
+     {'end': [54], 'start': [41]}]
+
+
+It might be useful to process each clause of the sentence independently::
+
+    for clause in text.split_by('clauses'):
+        print (clause.text)
+
+::
+
+    Mees oli tuttav ja
+    , keda seal kohtasime,
+    teretas meid.
+
+
+
+Verb chain tagging
+==================
+
+Verb chain tagger identifies multiword verb units from text.
+The current version of the program aims to detect following verb chain constructions:
+
+* basic main verbs:
+
+  * negated main verbs: *ei/ära/pole/ega* + verb (e.g. Helistasin korraks Carmenile, kuid ta **ei vastanud.**);
+  * (affirmative) single *olema* main verbs (e.g. Raha **on** alati vähe) and two word *olema* verb chains (**Oleme** sellist kino ennegi **näinud**);
+  * (affirmative) single non-*olema* main verbs (example: Pidevalt **uurivad** asjade seisu ka hollandlased);
+
+* verb chain extensions:
+
+  * verb + verb : the chain is extended with an infinite verb if the last verb of the chain subcategorizes for it, e.g. the verb *kutsuma* is extended with *ma*-verb arguments (for example: Kevadpäike **kutsub** mind **suusatama**) and the verb *püüdma* is extended with *da*-verb arguments (Aita **ei püüdnudki** Leenat **mõista**);
+  * verb + nom/adv + verb : the last verb of the chain is extended with nominal/adverb arguments which subcategorize for an infinite verb, e.g. the verb *otsima* forms a multiword unit with the nominal *võimalust* which, in turn, takes infinite *da*-verb as an argument (for example: Seepärast **otsisimegi võimalust** kusagilt mõned ilvesed **hankida**);
+
+Verb chains are stored as a simple layer named ``verb_chains``::
+
+    from estnltk import Text
+    text = Text('Ta oleks pidanud sinna minema, aga ei läinud.')
+    text.verb_chains
+
+::
+
+    [{'analysis_ids': [[0], [0], [0]],
+      'clause_index': 0,
+      'end': 29,
+      'mood': 'condit',
+      'morph': ['V_ks', 'V_nud', 'V_ma'],
+      'other_verbs': False,
+      'pattern': ['ole', 'verb', 'verb'],
+      'phrase': [1, 2, 4],
+      'pol': 'POS',
+      'roots': ['ole', 'pida', 'mine'],
+      'start': 3,
+      'tense': 'past',
+      'voice': 'personal'},
+     {'analysis_ids': [[0], [3]],
+      'clause_index': 1,
+      'end': 44,
+      'mood': 'indic',
+      'morph': ['V_neg', 'V_nud'],
+      'other_verbs': False,
+      'pattern': ['ei', 'verb'],
+      'phrase': [7, 8],
+      'pol': 'NEG',
+      'roots': ['ei', 'mine'],
+      'start': 35,
+      'tense': 'imperfect',
+      'voice': 'personal'}]
+
+
+Following is a brief description of the attributes:
+
+* ``analysis_ids`` - the indices of analysis ids of the words in the phrase of this chain.
+* ``clause_index`` - the clause id this chain was tagged in.
+* ``mood``  - mood of the finite verb. Possible values: *'indic'* (indicative), *'imper'* (imperative), *'condit'* (conditional), *'quotat'* (quotative) või *'??'* (undetermined);
+* ``morph`` - for each word in the chain, lists its morphological features: part of speech tag and form (in one string, separated by '_', and multiple variants of the pos/form are separated by '/');
+* ``other_verbs`` - boolean, marks whether there are other verbs in the context, which can be potentially added to the verb chain; if ``True``,then it is uncertain whether the chain is complete or not;
+* ``pattern`` - the general pattern of the chain: for each word in the chain, lists whether it is *'ega'*, *'ei'*, *'ära'*, *'pole'*, *'ole'*, *'&'* (conjunction: ja/ning/ega/või), *'verb'* (verb different than *'ole'*) or *'nom/adv'* (nominal/adverb);
+* ``phrase`` - the word indices of the sentence that make up the verb chain phrase.
+* ``pol`` - grammatical polarity of the finite verb. Possible values: *'POS'*, *'NEG'* or *'??'*. *'NEG'* means that the chain begins with a negation word *ei/pole/ega/ära*; *'??'* is reserved for cases where it is uncertain whether *ära* forms a negated verb chain or not;
+* ``roots`` - for each word in the chain, lists its corresponding 'root' value from the morphological analysis;
+* ``tense`` - tense of the finite verb. Possible values depend on the mood value. Tenses of indicative: *'present'*, *'imperfect'*, *'perfect'*, *'pluperfect'*; tense of imperative: *'present'*; tenses of conditional and quotative: *'present'* ja *'past'*. Additionally, the tense may remain undetermined (*'??'*).
+* ``voice`` - voice of the finite verb. Possible values: *'personal'*, *'impersonal'*, *'??'* (undetermined).
+
+Note that the words in the verb chain are ordered by the order of the grammatical relations (the order which may not coincide with the word order in text).
+The first word is the finite verb (main verb) of the clause (except in case of the negation constructions, where the first word is typically a negation word), and each following word is governed by the previous word in the chain.
+An exception: the chain may end with a conjunction of two infinite verbs (general pattern *verb & verb*), in this case, both infinite verbs can be considered as being governed by the preceding word in the chain.
+
+
+Estonian wordnet
+================
+
+Estonian WordNet API provides means to query Estonian WordNet.
+WordNet is a network of synsets, in which synsets are collections of synonymous words and are connected to other synsets via relations.
+For example, the synset which contains the word "koer" ("dog") has a generalisation via hypernymy relation in the form of synset which contains the word "koerlane" ("canine").
+
+Estonian WordNet contains synsets with different types of part-of-speech: *adverbs, adjectives, verbs* and *nouns*.
+
+===============  ===============
+Part of speech   API equivalent
+===============  ===============
+Adverb           wn.ADV
+Adjective        wn.ADJ
+Noun             wn.NOUN
+Verb             wn.VERB
+===============  ===============
+
+Given API is on most parts in conformance with NLTK WordNet's API (http://www.nltk.org/howto/wordnet.html).
+However, there are some differences due to different structure of the WordNets.
+
+* Lemma classes' relations return empty sets. Reason: In Estonian WordNet relations are only between synsets.
+* No verb frames. Reason: No information on verb frames.
+* Only path, Leacock-Chodorow and Wu-Palmer similarities. No information on Information Content.
+
+Existing relations:
+
+*antonym, be_in_state, belongs_to_class, causes, fuzzynym, has_holo_location, has_holo_madeof, has_holo_member,
+has_holo_part, has_holo_portion, has_holonym, has_hyperonym, has_hyponym, has_instance, has_mero_location,
+has_mero_madeof, has_mero_member, has_mero_part, has_mero_portion, has_meronym, has_subevent, has_xpos_hyperonym,
+has_xpos_hyponym, involved, involved_agent, involved_instrument, involved_location, involved_patient, involved_target_direction,
+is_caused_by, is_subevent_of, near_antonym, near_synonym, role, role_agent, role_instrument, role_location, role_patient,
+role_target_direction, state_of, xpos_fuzzynym, xpos_near_antonym, xpos_near_synonym .*
+
+
+Wordnet API
+-----------
+
+Before anything else, let's import the module::
+
+    from estnltk.wordnet import wn
+
+
+The most common use for the API is to query synsets.
+Synsets can be queried in several ways.
+The easiest way is to query all the synsets which match some conditions.
+For that we can either use::
+
+    wn.all_synsets()
+
+which returns all the synsets there are or::
+
+    wn.all_synsets(pos=wn.ADV)
+
+which returns all the synset of which part of speech is "adverb".
+We can also query synsets by providing a lemma and a part of speech using::
+
+    wn.synsets("koer",pos=wn.VERB)
+
+::
+
+    []
+
+By neglecting "pos", it matches once again all the synsets with "koer" as lemma::
+
+    wn.synsets("koer")
+
+::
+
+    [Synset('koer.n.01'), Synset('kaak.n.01')]
+
+The API allows to query synset's details. For example, we can retrieve name and pos::
+
+    synset = wn.synset("king.n.01")
+    synset.name
+
+::
+
+    'king.n.01'
+
+::
+
+    synset.pos
+
+::
+
+    'n'
+
+We can also query definition and examples::
+
+    synset.definition()
+
+::
+
+    'jalalaba kattev kontsaga jalats, mis ei ulatu pahkluust kõrgemale'
+
+::
+
+    synset.examples()
+
+::
+
+    [u'Jalad hakkasid katkistes kingades k\xfclmetama.']
+
+
+Relations
+---------
+We can also query related synsets.
+There are relations, for which there are specific methods::
+
+    synset.hypernyms()
+
+::
+
+    [Synset('jalats.n.01')]
+
+::
+
+    synset.hyponyms()
+
+::
+
+    [Synset('peoking.n.01'), Synset('rihmking.n.01'), Synset('lapseking.n.01')]
+
+::
+
+    synset.meronyms()
+
+::
+
+    []
+
+::
+
+    synset.holonyms()
+
+::
+
+    []
+
+More specific relations can be queried with a universal method::
+
+    synset = wn.synset('jäätis.n.01')
+    synset.get_related_synsets('fuzzynym')
+
+::
+
+    [Synset('jäätisemüüja.n.01'), Synset('jäätisekauplus.n.01'), Synset('jäätisekampaania.n.01'), Synset('jäätisekohvik.n.01')]
+
+
+Similarities
+------------
+
+We can measure distance or similarity between two synsets in several ways.
+For calculating similarity, we provide path, Leacock-Chodorow and Wu-Palmer similarities::
+
+    synset = wn.synset('jalats.n.01')
+    target_synset = wn.synset('kinnas.n.01')
+    synset.path_similarity(target_synset)
+
+::
+
+    0.33
+
+::
+
+    synset.lch_similarity(target_synset)
+
+::
+
+    2.159484249353372
+
+::
+
+    synset.wup_similarity(target_synset)
+
+::
+
+    0.8571428571428571
+
+In addition, we can also find the closest common ancestor via hypernyms::
+
+    synset.lowest_common_hypernyms(target_synset)
+
+::
+
+    [Synset('kehakate.n.01')]
+
 

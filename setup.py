@@ -3,6 +3,7 @@ from setuptools import setup, find_packages, Extension
 import os
 import sys
 
+
 def get_sources(src_dir='src', ending='.cpp'):
     """Function to get a list of files ending with `ending` in `src_dir`."""
     return [os.path.join(src_dir, fnm) for fnm in os.listdir(src_dir) if fnm.endswith(ending)]
@@ -37,9 +38,9 @@ setup(
     version = "1.2",
     packages = find_packages(),
     package_data = {
-        'estnltk': ['corpora/*'],
+        'estnltk': ['corpora/*.xml', 'corpora/*.json'],
         'estnltk.vabamorf': ['dct/*.dct'],
-        'estnltk.estner': ['gazetteer/*', 'models/*']
+        'estnltk.estner': ['gazetteer/*', 'models/*.*']
     },
 
     author       = "University of Tartu",
@@ -64,8 +65,8 @@ setup(
         'pandas==0.15.2',                   # Panel Data Analysis library for Python
         'python-crfsuite==0.8.1',           # Conditional random fields library
         'cached-property==1.2.0',           # Simple property for caching results
-        'beautifulsoup4==4.3.2',            # HTML parsing library
-        'numba=0.18.2'],                    # JIT compiler for compute-heavy functions
+        'beautifulsoup4==4.3.2'             # HTML parsing library
+        ],
 
     classifiers = ['Intended Audience :: Developers',
                    'Intended Audience :: Education',
