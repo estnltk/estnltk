@@ -218,7 +218,7 @@ def synsets(lemma,pos=None):
 
     """
 
-    def _get_synset_idxes(lemma,pos):       ###################################################################### TOODOOOOOOOOOOOOOOO this shit sorts - really shouldnt
+    def _get_synset_idxes(lemma,pos):
         line_prefix_regexp = "%s:%s:(.*)"%(lemma,pos if pos else "\w+") 
         line_prefix = re.compile(line_prefix_regexp)
 
@@ -230,7 +230,8 @@ def synsets(lemma,pos=None):
                 if result:
                     res_indices = [int(x) for x in result.group(1).split(' ')]
                     idxes.extend(res_indices)
-                    LEM_POS_2_SS_IDX[lemma][pos].extend(res_indices)
+                    
+        LEM_POS_2_SS_IDX[lemma][pos].extend(idxes)
         return sorted(idxes)
 
     synset_idxes = None
@@ -246,22 +247,10 @@ def synsets(lemma,pos=None):
     if len(synset_idxes) == 0:
         return []
 
-    stored_synsets = []
+    stored_synsets = [SYNSETS_DICT[synset_idxes[i]] for i in range(len(synset_idxes)) if synset_idxes[i] in SYNSETS_DICT]
+    unstored_synset_idxes = [synset_idxes[i] for i in range(len(synset_idxes)) if synset_idxes[i] not in SYNSETS_DICT]
 
-    stored_synset_idxes = [i for i in range(len(synset_idxes)) if synset_idxes[i] in SYNSETS_DICT]
-    stored_synsets = [SYNSETS_DICT[synset_idxes[idx]] for idx in stored_synset_idxes]
-
-    stored_synset_idxes = set(stored_synset_idxes)
-    synset_idxes = [synset_idxes[i] for i in range(len(synset_idxes)) if i not in stored_synset_idxes]
-    """
-    for i in range(len(synset_idxes)):
-        try: # TODO: fix the indexerror
-            if synset_idxes[i] in SYNSETS_DICT:
-                stored_synsets.append(SYNSETS_DICT[synset_idxes.pop(i)])
-        except IndexError:
-            print ('IndexError', i)
-    """
-    synset_offsets = _get_synset_offsets(synset_idxes)
+    synset_offsets = _get_synset_offsets(unstored_synset_idxes)
     synsets = _get_synsets(synset_offsets)
     
     return stored_synsets + synsets
@@ -313,7 +302,7 @@ def all_synsets(pos=None):
             return []
 
         stored_synsets = [SYNSETS_DICT[synset_idxes[i]] for i in range(len(synset_idxes)) if synset_idxes[i] in SYNSETS_DICT]
-        unstored_synset_idxes = [synset_idxes[i] for i in range(len(synset_indxes)) if synset_idxes[i] not in SYNSETS_DICT]
+        unstored_synset_idxes = [synset_idxes[i] for i in range(len(synset_idxes)) if synset_idxes[i] not in SYNSETS_DICT]
         
         synset_offsets = _get_synset_offsets(unstored_synset_idxes)
         synsets = _get_synsets(synset_offsets)
