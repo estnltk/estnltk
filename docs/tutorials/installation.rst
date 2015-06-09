@@ -4,6 +4,8 @@ Installation
 
 Depending on what platform you intend to use the library, you have several choices how to install the library.
 
+Windows users can download and install most of the extensions from Christoph Gohlke's website: http://www.lfd.uci.edu/~gohlke/pythonlibs/ .
+
 Building from source
 ====================
 
@@ -88,7 +90,7 @@ or from mirror repository::
 
 or download it as a compressed zip::    
 
-    https://estnltk.cs.ut.ee/timo/estnltk/repository/archive.zip
+    https://estnltk.cs.ut.ee/estnltk/estnltk/repository/archive.zip
     
 Then, extract the sources and issue following commands in the downloaded/cloned folder to build and install::
 
