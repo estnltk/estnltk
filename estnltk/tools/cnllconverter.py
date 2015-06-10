@@ -40,10 +40,12 @@ def convert(document):
     text_spans = []
     all_labels = []
     sent_spans = []
+    word_texts = []
     for sentence in document:
         startpos = curpos
         for idx, (text, label) in enumerate(sentence):
             raw_tokens.append(text)
+            word_texts.append(text)
             all_labels.append(label)
             text_spans.append((curpos, curpos+len(text)))
             curpos += len(text)
@@ -55,7 +57,7 @@ def convert(document):
         curpos += 1
     return {
         TEXT: ''.join(raw_tokens),
-        WORDS: [{START: start, END: end, LABEL: label} for (start, end), label in zip(text_spans, all_labels)],
+        WORDS: [{TEXT: text, START: start, END: end, LABEL: label} for text, (start, end), label in zip(word_texts, text_spans, all_labels)],
         SENTENCES: [{START: start, END:end} for start, end in sent_spans]
     }
 

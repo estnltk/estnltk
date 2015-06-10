@@ -42,5 +42,5 @@ def write_json_corpus(documents, fnm):
     """
     with codecs.open(fnm, 'wb', 'ascii') as f:
         for document in documents:
-            f.writeline(json.dumps(document))
+            f.write(json.dumps(document))
     return documents

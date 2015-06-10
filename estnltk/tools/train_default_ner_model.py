@@ -5,6 +5,7 @@ from ..estner import settings as default_nersettings
 from ..core import DEFAULT_NER_DATASET
 from ..corpus import read_json_corpus
 from ..ner import NerTrainer, NerTagger, DEFAULT_NER_MODEL_DIR
+from pprint import pprint
 
 def train_default_model():
     """Function for training the default NER model.
@@ -16,6 +17,7 @@ def train_default_model():
     The resulting model will be saved to estnltk/estner/models/default.bin
     """
     docs = read_json_corpus(DEFAULT_NER_DATASET)
+    pprint(docs[0])
     trainer = NerTrainer(default_nersettings)
     trainer.train(docs, DEFAULT_NER_MODEL_DIR)
 
