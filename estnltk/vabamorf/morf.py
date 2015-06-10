@@ -216,7 +216,7 @@ class Vabamorf(object):
             default behaviour of string.split() function.
         join: boolean (default: True)
             Should we join the list of words into a single string.
-        joinchar: str (default: ' ')
+        joinstring: str (default: ' ')
             The string that will be used to join together the fixed words.
 
         Returns
@@ -458,7 +458,7 @@ def fix_spelling(words, join=True, joinstring=' '):
         default behaviour of string.split() function.
     join: boolean (default: True)
         Should we join the list of words into a single string.
-    joinchar: str (default: ' ')
+    joinstring: str (default: ' ')
         The string that will be used to join together the fixed words.
 
     Returns

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
-"""Module which holds Wordnet class for annotating corpus.
-"""
+"""Module which holds Wordnet class for annotating texts."""
 
 from .wordnet import wn
 from pprint import pprint

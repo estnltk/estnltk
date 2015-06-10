@@ -83,7 +83,7 @@ class TextCleaner(object):
         dict of (char -> list of tuple (index, context))
             Returns a dictionary, where keys are invalid characters.
             Values are lists containign tuples with character indices
-                and context strings.
+            and context strings.
         """
         result = defaultdict(list)
         for text in texts:

@@ -2,7 +2,6 @@ estnltk.textcleaner module
 ==========================
 
 .. automodule:: estnltk.textcleaner
+
+.. autoclass:: TextCleaner
     :members:
-    :undoc-members:
-    :show-inheritance:
- 

@@ -99,8 +99,8 @@ Estnltk also includes **temporal time expression** (TIMEX) library [OR12]_.
 The de facto library for NLP in English, the **NLTK toolkit** is also a dependency [BI06]_.
 
 In addition to providing an API that is simple to use for software developers, Estnltk also aims to be useful for language researches and linguists in general.
-The library has tools for sentiment analysis, text classification and information extraction, which requires no programming knowledge once they are set up.
-Including useful tools is a major goal in the future of Estnltk.
+The library is used to create tools for sentiment analysis, text classification and information extraction, which requires no programming knowledge once they are set up.
+Including useful tools is a major goal in the future of Estnltk. See https://github.com/estnltk/ for a list of tools available.
 
 .. [KA97] Kaalep, Heiki-Jaan. *"An Estonian morphological analyser and the impact of a corpus on its development."* Computers and the Humanities 31, no. 2 (1997): 115-133.
 .. [TK13] Tkachenko, Alexander; Petmanson, Timo; Laur, Sven. *"Named Entity Recognition in Estonian."* ACL 2013 (2013): 78.
@@ -123,8 +123,16 @@ API reference
 =============
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
 
+   api/clausesegmenter
    api/core
+   api/ner
+   api/teicorpus
    api/text
    api/textcleaner
+   api/timex
+   api/vabamorf
+   api/wordnet_tagger
+   api/wn
+

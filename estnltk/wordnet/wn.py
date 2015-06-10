@@ -826,7 +826,7 @@ class Synset:
         else:
             return None
             
-class Lemma:
+class Lemma(object):
     """Represents a lemma.
 
     Attributes
