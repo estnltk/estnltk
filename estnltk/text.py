@@ -151,7 +151,7 @@ class Text(dict):
         """Is the given element computed?"""
         return element in self.__computed
 
-    def __texts(self, element, sep=' '):
+    def texts(self, element, sep=' '):
         """Retrieve texts for given element.
 
         Parameters
@@ -165,9 +165,9 @@ class Text(dict):
         list of str
             List of strings that make up given elements.
         """
-        return self.__texts_from_spans(self.__spans(element), sep)
+        return self.texts_from_spans(self.spans(element), sep)
 
-    def __texts_from_spans(self, spans, sep=' '):
+    def texts_from_spans(self, spans, sep=' '):
         text = self.text
         texts = []
         for start, end in spans:
@@ -177,7 +177,7 @@ class Text(dict):
                 texts.append(text[start:end])
         return texts
 
-    def __spans(self, element):
+    def spans(self, element):
         """Retrieve (start, end) tuples denoting the spans of given elements.
 
         Returns
@@ -190,13 +190,13 @@ class Text(dict):
             spans.append((data[START], data[END]))
         return spans
 
-    def __starts(self, element):
+    def starts(self, element):
         starts = []
         for data in self[element]:
             starts.append(data[START])
         return starts
 
-    def __ends(self, element):
+    def ends(self, element):
         ends = []
         for data in self[element]:
             ends.append(data[END])
@@ -296,7 +296,9 @@ class Text(dict):
         }
 
     def compute(self, element):
-        self.compute_mapping[element]()
+        mapping = self.compute_mapping
+        if element in mapping:
+            mapping[element]()
         return self
 
     def compute_paragraphs(self):
@@ -319,25 +321,25 @@ class Text(dict):
     def paragraph_texts(self):
         if not self.is_computed(PARAGRAPHS):
             self.compute_paragraphs()
-        return self.__texts(PARAGRAPHS)
+        return self.texts(PARAGRAPHS)
 
     @cached_property
     def paragraph_spans(self):
         if not self.is_computed(PARAGRAPHS):
             self.compute_paragraphs()
-        return self.__spans(PARAGRAPHS)
+        return self.spans(PARAGRAPHS)
 
     @cached_property
     def paragraph_starts(self):
         if not self.is_computed(PARAGRAPHS):
             self.compute_paragraphs()
-        return self.__starts(PARAGRAPHS)
+        return self.starts(PARAGRAPHS)
 
     @cached_property
     def paragraph_ends(self):
         if not self.is_computed(PARAGRAPHS):
             self.compute_paragraphs()
-        return self.__ends(PARAGRAPHS)
+        return self.ends(PARAGRAPHS)
 
     def compute_sentences(self):
         if not self.is_computed(PARAGRAPHS):
@@ -365,25 +367,25 @@ class Text(dict):
     def sentence_texts(self):
         if not self.is_computed(SENTENCES):
             self.compute_sentences()
-        return self.__texts(SENTENCES)
+        return self.texts(SENTENCES)
 
     @cached_property
     def sentence_spans(self):
         if not self.is_computed(SENTENCES):
             self.compute_sentences()
-        return self.__spans(SENTENCES)
+        return self.spans(SENTENCES)
 
     @cached_property
     def sentence_starts(self):
         if not self.is_computed(SENTENCES):
             self.compute_sentences()
-        return self.__starts(SENTENCES)
+        return self.starts(SENTENCES)
 
     @cached_property
     def sentence_ends(self):
         if not self.is_computed(SENTENCES):
             self.compute_sentences()
-        return self.__ends(SENTENCES)
+        return self.ends(SENTENCES)
 
     def compute_words(self):
         if not self.is_computed(SENTENCES):
@@ -430,19 +432,19 @@ class Text(dict):
     def word_spans(self):
         if not self.is_computed(WORDS):
             self.compute_words()
-        return self.__spans(WORDS)
+        return self.spans(WORDS)
 
     @cached_property
     def word_starts(self):
         if not self.is_computed(WORDS):
             self.compute_words()
-        return self.__starts(WORDS)
+        return self.starts(WORDS)
 
     @cached_property
     def word_ends(self):
         if not self.is_computed(WORDS):
             self.compute_words()
-        return self.__ends(WORDS)
+        return self.ends(WORDS)
 
     @cached_property
     def analysis(self):
@@ -575,13 +577,13 @@ class Text(dict):
     def named_entity_texts(self):
         if not self.is_computed(NAMED_ENTITIES):
             self.compute_named_entities()
-        return self.__texts(NAMED_ENTITIES)
+        return self.texts(NAMED_ENTITIES)
 
     @cached_property
     def named_entity_spans(self):
         if not self.is_computed(NAMED_ENTITIES):
             self.compute_named_entities()
-        return self.__spans(NAMED_ENTITIES)
+        return self.spans(NAMED_ENTITIES)
 
     @cached_property
     def named_entity_labels(self):
@@ -625,19 +627,19 @@ class Text(dict):
     def timex_starts(self):
         if not self.is_computed(TIMEXES):
             self.compute_timexes()
-        return self.__starts(TIMEXES)
+        return self.starts(TIMEXES)
 
     @cached_property
     def timex_ends(self):
         if not self.is_computed(TIMEXES):
             self.compute_timexes()
-        return self.__ends(TIMEXES)
+        return self.ends(TIMEXES)
 
     @cached_property
     def timex_spans(self):
         if not self.is_computed(TIMEXES):
             self.compute_timexes()
-        return self.__spans(TIMEXES)
+        return self.spans(TIMEXES)
 
     def compute_clause_annotations(self):
         if not self.is_computed(ANALYSIS):
@@ -697,7 +699,7 @@ class Text(dict):
     def clause_texts(self):
         if not self.is_computed(CLAUSES):
             self.compute_clauses()
-        return self.__texts(CLAUSES)
+        return self.texts(CLAUSES)
 
     def compute_verb_chains(self):
         if not self.is_computed(CLAUSES):
@@ -729,7 +731,7 @@ class Text(dict):
     def verb_chain_texts(self):
         if not self.is_computed(VERB_CHAINS):
             self.compute_verb_chains()
-        return self.__texts(VERB_CHAINS)
+        return self.texts(VERB_CHAINS)
 
     @cached_property
     def verb_chain_patterns(self):
@@ -767,13 +769,13 @@ class Text(dict):
     def verb_chain_starts(self):
         if not self.is_computed(VERB_CHAINS):
             self.compute_verb_chains()
-        return self.__starts(VERB_CHAINS)
+        return self.starts(VERB_CHAINS)
 
     @cached_property
     def verb_chain_ends(self):
         if not self.is_computed(VERB_CHAINS):
             self.compute_verb_chains()
-        return self.__ends(VERB_CHAINS)
+        return self.ends(VERB_CHAINS)
 
     @cached_property
     def verb_chain_other_verbs(self):
@@ -884,7 +886,7 @@ class Text(dict):
 
     def __split_given_spans(self, spans, sep=' '):
         N = len(spans)
-        results = [{TEXT: text} for text in self.__texts_from_spans(spans, sep=sep)]
+        results = [{TEXT: text} for text in self.texts_from_spans(spans, sep=sep)]
         for elem in self:
             if isinstance(self[elem], list):
                 splits = divide_by_spans(self[elem], spans, translate=True, sep=sep)
@@ -908,7 +910,7 @@ class Text(dict):
         """
         if not self.is_computed(element):
             self.compute(element)
-        return self.__split_given_spans(self.__spans(element), sep=sep)
+        return self.__split_given_spans(self.spans(element), sep=sep)
 
     def split_by_sentences(self):
         return self.split_by(SENTENCES)
