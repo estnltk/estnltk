@@ -38,9 +38,11 @@ setup(
     version = "1.2",
     packages = find_packages(),
     package_data = {
-        'estnltk': ['corpora/*.xml', 'corpora/*.json'],
+        'estnltk': ['corpora/*.xml', 'corpora/*.json', 'java-res/*'],
         'estnltk.vabamorf': ['dct/*.dct'],
-        'estnltk.estner': ['gazetteer/*', 'models/*.*']
+        'estnltk.estner': ['gazetteer/*', 'models/*.*'],
+        'estnltk.wordnet': ['*.cnf', 'data/*.txt', 'data/*.soi', 'data/*.cnf', 'data/scripts/*.py'],
+        'estnltk.mw_verbs': ['res/*']
     },
 
     author       = "University of Tartu",

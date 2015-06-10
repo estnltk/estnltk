@@ -10,7 +10,7 @@ the latest Estnltk version from PyPi repository, builds it and installs it::
 
     pip install estnltk
 
-However, in order the command to succeed, you need to have following dependencies installed your system,
+However, in order the command to succeed, you need to have the necessary dependencies installed your system,
 regardless of the OS you run.
 
 **NB! Check section about post-installation steps as well.**
