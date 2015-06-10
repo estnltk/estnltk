@@ -173,5 +173,5 @@ def tokenize_documents(docs):
         text = '\n\n'.join([' '.join(para[SENTENCES]) for para in doc[PARAGRAPHS]])
         doc[TEXT] = text
         del doc[PARAGRAPHS]
-        texts.append(Text(doc).compute_paragraphs().compute_words())
+        texts.append(Text(doc).tokenize_paragraphs().tokenize_words())
     return texts

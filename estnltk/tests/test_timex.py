@@ -23,7 +23,7 @@ class TimexTest(unittest.TestCase):
                   'id': 0,
                   'start': 0,
                   'temporal_function': False,
-                  'text': '3. detsembril 2014',
+                  'text': '3 . detsembril 2014',
                   'tid': 't1',
                   'type': 'DATE',
                   'value': '2014-12-03'},

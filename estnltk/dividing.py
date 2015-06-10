@@ -347,7 +347,7 @@ def divide(elements, by, translate=False, sep=' '):
         When dividing, also translate start and end positions of elements.
     sep: str (default ' ')
         In case of multispans, what is the default text separator.
-        This is required in order to compute correct start, end positions of elements.
+        This is required in order to tag correct start, end positions of elements.
     """
     outer_spans = [spans(elem) for elem in by]
     return divide_by_spans(elements, outer_spans, translate=translate, sep=sep)

@@ -10,7 +10,7 @@ from ..text import Text
 from ..teicorpus import parse_tei_corpus
 from ..core import AA_PATH
 
-dummy = Text('Tere maailm!').compute_analysis()
+dummy = Text('Tere maailm!').tag_analysis()
 
 docs = parse_tei_corpus(os.path.join(AA_PATH, 'tea_AA_00_1.tasak.xml'))
 plain = docs[5].text
@@ -19,15 +19,15 @@ half1, half2 = plain[:n], plain[n:]
 
 
 def large_document():
-    Text(plain).compute_analysis()
+    Text(plain).tag_analysis()
 
 def small_documents():
-    Text(half1).compute_analysis()
-    Text(half2).compute_analysis()
+    Text(half1).tag_analysis()
+    Text(half2).tag_analysis()
 
 
 class LargeTextTest(unittest.TestCase):
-    """Test for ensuring that processing time of texts has linear complexity.
+    """Test for ensuring that basic processing time of texts has linear complexity.
     This is good for detecting inefficient loops that depend on text size/complexity.
     """
 

@@ -18,8 +18,8 @@ class ClausesTest(unittest.TestCase):
 
     def test_split_by_clauses(self):
         text = Text('Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks.')
-        outer = Text('Kõrred jäävad õhukeseks.').compute_clauses()
-        inner = Text(', millel on toitunud väljasääse vastsed,').compute_clauses()
+        outer = Text('Kõrred jäävad õhukeseks.').tag_clauses()
+        inner = Text(', millel on toitunud väljasääse vastsed,').tag_clauses()
         outer_split, inner_split = text.split_by('clauses')
         self.assertListEqual(inner.word_spans, inner_split.word_spans)
         self.assertListEqual(outer.word_spans, outer_split.word_spans)

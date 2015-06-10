@@ -11,7 +11,7 @@ class VerbchainTest(unittest.TestCase):
     def test_verbchain(self):
         text = Text('Kass, suur ja must, ei jooksnud üle tee.')
         phrase = Text('ei jooksnud')
-        phrase.compute_verb_chains()
-        text.compute_verb_chains()
+        phrase.tag_verb_chains()
+        text.tag_verb_chains()
         phrases = text.split_by('verb_chains')
         self.assertEqual(len(phrases), 1)

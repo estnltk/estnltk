@@ -29,7 +29,7 @@ class TextInitializationTest(unittest.TestCase):
         self.assertRaises(Exception, create)
 
     def test_empty(self):
-        Text('').compute_analysis()
+        Text('').tag_analysis()
 
     def text(self):
         return {TEXT: 'Tere maailm!'}
@@ -39,14 +39,14 @@ class TokenizationTest(unittest.TestCase):
 
     def test_tokenization(self):
         text = Text('''Lugejal vöib ette tulla , at korraehitamine on iseenesest arusaadav ide , mis juba eelnevalt teada oli . Mullat oli aga ainult se isik kes sellist L.V. omadust tõestanud ??''')
-        text.compute_analysis()
+        text.tag_analysis()
 
 
 class TextSplittingTest(unittest.TestCase):
 
     def test_split_by_sentences(self):
         text = Text('Esimene lause. Teine lause.')
-        text.compute_words()
+        text.tokenize_words()
         del text[PARAGRAPHS]
         sentences = text.split_by_sentences()
         expected = [
@@ -56,13 +56,13 @@ class TextSplittingTest(unittest.TestCase):
         self.assertListEqual(expected, sentences)
 
     def sentence(self, text):
-        t = Text(text).compute_sentences().compute_words()
+        t = Text(text).tokenize_sentences().tokenize_words()
         del t[PARAGRAPHS]
         return t
 
     def test_split_by_words(self):
         text = Text('Kirjakeel koosneb sõnadest.')
-        text.compute_analysis()
+        text.tag_analysis()
         words = text.split_by_words()
         expected = [
             self.word('Kirjakeel'),
@@ -73,7 +73,7 @@ class TextSplittingTest(unittest.TestCase):
         self.assertListEqual(expected, words)
 
     def word(self, word):
-        word = Text(word).compute_analysis()
+        word = Text(word).tag_analysis()
         word['sentences'] = []
         word['paragraphs'] = []
         return word
@@ -112,17 +112,11 @@ class TextDivideTest(unittest.TestCase):
 
     @property
     def divisions(self):
-        text = self.text.compute_words()
+        text = self.text.tokenize_words()
         words = text.words
         return [
             [words[0], words[1], words[2]],
             [words[3], words[4], words[5]],
             [words[6], words[7], words[8]]
         ]
-
-
-
-
-
-
 

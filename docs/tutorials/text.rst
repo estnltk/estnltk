@@ -1,6 +1,6 @@
-========================
-Working with text basics
-========================
+=================
+Working with text
+=================
 
 In this tutorial, we start with Estnltk basics and introduce you to the :py:class:`~estnltk.text.Text` class.
 We will take the class apart to bits and pieces and put it back together to give a good overview, what it can do for you
@@ -76,7 +76,7 @@ Simple layer::
 
     from estnltk import Text
     text = Text('Kõrred, millel on toitunud viljasääse vastsed, jäävad õhukeseks.')
-    text.compute_words()
+    text.tokenize_words()
     text['words']
 
 ::
@@ -96,7 +96,7 @@ Simple layer::
 Each word has a ``start`` and ``end`` attribute that tells, where the word is located in the text.
 In case of multi layers, we see slightly different result::
 
-    text.compute_clauses()
+    text.tag_clauses()
     text['clauses']
 
 ::
@@ -115,10 +115,13 @@ Tokenization
 ============
 
 One of the most basic tasks of any NLP pipeline is text and sentence tokenization.
-The :py:class:`~estnltk.text.Text` class has methods :py:func:`~estnltk.text.Text.compute_sentences` and :py:func:`~estnltk.text.Text.compute_words`,
+The :py:class:`~estnltk.text.Text` class has methods
+:py:func:`~estnltk.text.Text.tokenize_paragraphs`,
+:py:func:`~estnltk.text.Text.tokenize_sentences` and :py:func:`~estnltk.text.Text.tokenize_words`,
 which you can call to do this explicitly.
-However, there are also properties :py:attr:`~estnltk.text.Text.word_texts` and
-:py:attr:`~estnltk.text.Text.sentence_texts` that do this automatically when you use them and also
+However, there are also properties :py:attr:`~estnltk.text.Text.word_texts`,
+:py:attr:`~estnltk.text.Text.sentence_texts` and :py:attr:`~estnltk.text.Text.paragraph_texts`
+that do this automatically when you use them and also
 give you the texts of tokenized words or sentences::
 
 
@@ -139,7 +142,8 @@ background and updates the text data::
 
 ::
 
-    {'sentences': [{'end': 30, 'start': 0}, {'end': 48, 'start': 31}],
+    {'paragraphs': [{'end': 48, 'start': 0}],
+     'sentences': [{'end': 30, 'start': 0}, {'end': 48, 'start': 31}],
      'text': 'Üle oja mäele, läbi oru jõele. Ämber läks ümber.',
      'words': [{'end': 3, 'start': 0, 'text': 'Üle'},
                {'end': 7, 'start': 4, 'text': 'oja'},
@@ -155,13 +159,14 @@ background and updates the text data::
                {'end': 48, 'start': 47, 'text': '.'}]}
 
 As you can see, there is now a ``words`` element in the dictionary, which is a list of dictionaries denoting ``start``
-and ``end`` positions of the respective words. You also see ``sentences`` element, because sentence tokenization is a prerequisite
+and ``end`` positions of the respective words. You also see ``sentences`` and ``paragraphs`` elements,
+because sentence and paragraph tokenization is a prerequisite
 before word tokenization and Estnltk did this automatically on your behalf.
 
 The :py:attr:`~estnltk.text.Text.word_texts` property does basically the same as the following snippet::
 
     text = Text('Üle oja mäele, läbi oru jõele. Ämber läks ümber.')
-    text.compute_words() # this method applies text tokenization
+    text.tokenize_words() # this method applies text tokenization
     print ([text['text'][word['start']:word['end']] for word in text['words']])
 
 ::
@@ -262,6 +267,10 @@ This is the full list of tokenization related properties of :py:class:`~estnltk.
 * :py:attr:`~estnltk.text.Text.sentence_starts` - sentence start positions
 * :py:attr:`~estnltk.text.Text.sentence_ends` - sentence end positions
 * :py:attr:`~estnltk.text.Text.sentence_spans` - sentence (start, end) position pairs
+* :py:attr:`~estnltk.text.Text.paragraph_texts` - paragraph texts
+* :py:attr:`~estnltk.text.Text.paragraph_starts` - paragraph start positions
+* :py:attr:`~estnltk.text.Text.paragraph_ends` - paragraph end positions
+* :py:attr:`~estnltk.text.Text.paragraph_spans` - paragraph (start, end) position pairs
 
 Example::
 
@@ -311,18 +320,20 @@ Output::
     # text.sentence_spans
     [(0, 14), (15, 26)]
 
-Note that if a dictionary already has ``words`` and ``sentences`` elements (or any other element that we introduce later),
+Note that if a dictionary already has ``words``, ``sentences`` or ``paragraphs`` elements (or any other element that we introduce later),
 accessing these elements in a newly initialized :py:class:`~estnltk.text.Text` object does not require
 recomputing them::
 
-    text = Text({'sentences': [{'end': 14, 'start': 0}, {'end': 27, 'start': 15}],
+    text = Text({'paragraphs': [{'end': 27, 'start': 0}],
+                 'sentences': [{'end': 14, 'start': 0}, {'end': 27, 'start': 15}],
                  'text': 'Esimene lause. Teine lause.',
                  'words': [{'end': 7, 'start': 0, 'text': 'Esimene'},
                            {'end': 13, 'start': 8, 'text': 'lause'},
                            {'end': 14, 'start': 13, 'text': '.'},
                            {'end': 20, 'start': 15, 'text': 'Teine'},
                            {'end': 26, 'start': 21, 'text': 'lause'},
-                           {'end': 27, 'start': 26, 'text': '.'}]})
+                           {'end': 27, 'start': 26, 'text': '.'}]}
+    )
 
     print (text.word_texts) # tokenization is already done, just extract words using the positions
 
@@ -331,12 +342,15 @@ recomputing them::
     ['Esimene', 'lause', '.', 'Teine', 'lause', '.']
 
 You should also remember this, when you have defined custom tokenizers. In such cases you can force retokenization by
-calling :py:meth:`~estnltk.text.Text.compute_words` and :py:meth:`~estnltk.text.Text.compute_sentences`.
+calling
+:py:meth:`~estnltk.text.Text.tokenize_words`,
+:py:meth:`~estnltk.text.Text.tokenize_sentences`
+or :py:meth:`~estnltk.text.Text.tokenize_words`.
 
 .. note:: Things to remember!
 
-    1. ``words`` and ``sentences`` are **simple** layers.
-    2. use properties to access the tokenized word/sentence texts and avoid :py:meth:`~estnltk.text.Text.compute_words` and :py:meth:`~estnltk.text.Text.compute_sentences`, unless you have a meaningful reason to use them.
+    1. ``words``, ``sentences`` and ``paragraphs`` are **simple** layers.
+    2. use properties to access the tokenized word/sentence texts and avoid :py:meth:`~estnltk.text.Text.tokenize_words`, :py:meth:`~estnltk.text.Text.tokenize_sentences` or :py:meth:`~estnltk.text.Text.tokenize_paragraphs`, unless you have a meaningful reason to use them (for example, preparing documents for indexing in a database).
 
 
 Morphological analysis
@@ -360,8 +374,8 @@ Esnltk :py:class:`~estnltk.text.Text` class properties for extracting morphologi
 * :py:attr:`~estnltk.text.Text.postag_descriptions` - Estonian descriptions for POS tags.
 * :py:attr:`~estnltk.text.Text.descriptions` - Estonian descriptions for forms.
 
-These properties call :py:func:`~estnltk.text.Text.compute_analysis` method in background, which also
-call :py:func:`~estnltk.text.Text.compute_sentences` and :py:func:`~estnltk.text.Text.compute_words` as
+These properties call :py:func:`~estnltk.text.Text.tag_analysis` method in background, which also
+call :py:func:`~estnltk.text.Text.tokenize_paragraphs`, :py:func:`~estnltk.text.Text.tokenize_sentences` and :py:func:`~estnltk.text.Text.tokenize_words` as
 word tokenization is required in order add morphological analysis.
 Morphological analysis adds extra information to ``words`` layer, which we'll explain in following sections.
 
@@ -487,16 +501,16 @@ All the properties can be given also as a list, which can be convinient in some 
 .. note:: Estnltk does not stop the programmer doing wrong things
 
     You can chain together any :py:class:`~estnltk.text.Text` property, but only thing you must take care of is that
-    all the properties act on same unit of data. So, when you mix sentence and word properties, you get either an error
+    all the properties act on same layer/unit data. So, when you mix sentence and word properties, you get either an error
     or malformed output.
 
 
 Word analysis
 -------------
 
-Morphological analysis is performed with method :py:func:`~estnltk.text.Text.compute_analysis`
+Morphological analysis is performed with method :py:func:`~estnltk.text.Text.tag_analysis`
 and is invoked by accessing any property requiring this.
-In such case, also methods :py:func:`~estnltk.text.Text.compute_sentences` and :py:func:`~estnltk.text.Text.compute_words` are called as word and sentence tokenization is required in order add morphological analysis.
+In such case, also methods :py:func:`~estnltk.text.Text.tokenize_paragraphs`, :py:func:`~estnltk.text.Text.tokenize_sentences` and :py:func:`~estnltk.text.Text.tokenize_words` are called as word and sentence tokenization is required in order add morphological analysis.
 Morphological analysis adds extra information to ``words`` layer, which we'll explain below.
 
 After doing morphological analysis, ideally only one unambiguous dictionary containing all the raw data is generated.
@@ -504,8 +518,7 @@ However, sometimes the disambiguator cannot really eliminate all ambiguity and y
 
     from estnltk import Text
     text = Text('mõeldud')
-    text.compute_analysis()
-    print (text)
+    text.tag_analysis()
 
 ::
 
@@ -986,9 +999,16 @@ Estnltk has :py:meth:`~estnltk.text.Text.split_by` method, that takes one parame
 
 ::
 
-    {'sentences': [{'end': 14, 'start': 0}], 'text': 'Esimene lause.'}
-    {'sentences': [{'end': 12, 'start': 0}], 'text': 'Teine lause.'}
-    {'sentences': [{'end': 13, 'start': 0}], 'text': 'Kolmas lause.'}
+    {'paragraphs': [],
+     'sentences': [{'end': 14, 'start': 0}],
+     'text': 'Esimene lause.'}
+    {'paragraphs': [],
+     'sentences': [{'end': 12, 'start': 0}],
+     'text': 'Teine lause.'}
+    {'paragraphs': [],
+     'sentences': [{'end': 13, 'start': 0}],
+     'text': 'Kolmas lause.'}
+
 
 An example with **multi** layer::
 
@@ -1055,7 +1075,8 @@ Estnltk has :py:meth:`~estnltk.text.Text.divide` method, that takes two paramete
 
 ::
 
-    {'sentences': [{'end': 14, 'start': 0}, {'end': 27, 'start': 15}],
+    {'paragraphs': [{'end': 27, 'start': 0}],
+     'sentences': [{'end': 14, 'start': 0}, {'end': 27, 'start': 15}],
      'text': 'Esimene lause. Teine lause.',
      'words': [{'end': 7,
                 'new_attribute': 'Estnltk greets the word Esimene',
@@ -1081,6 +1102,7 @@ Estnltk has :py:meth:`~estnltk.text.Text.divide` method, that takes two paramete
                 'new_attribute': 'Estnltk greets the word .',
                 'start': 26,
                 'text': '.'}]}
+
 
 The :py:meth:`~estnltk.text.Text.divide` method is useful for
 
@@ -1120,17 +1142,17 @@ The output is a list of four dictionaries, each representing an timex found in t
       'text': 'Järgmisel kolmapäeval',
       'tid': 't1',
       'type': 'DATE',
-      'value': '2015-06-03'},
+      'value': '2015-06-17'},
      {'anchor_id': 0,
       'anchor_tid': 't1',
       'end': 49,
       'id': 1,
       'start': 39,
       'temporal_function': True,
-      'text': 'kell 18.00',
+      'text': 'kell 18 . 00',
       'tid': 't2',
       'type': 'TIME',
-      'value': '2015-06-03T18:00'},
+      'value': '2015-06-17T18:00'},
      {'end': 67,
       'id': 2,
       'start': 56,
@@ -1365,7 +1387,7 @@ Clause annotation information is stored in ``words`` layer as ``clause_index`` a
      'start': 4,
      'text': ','}
 
-Clause indices and annotations can be explicitly tagged with method :py:meth:`~estnltk.text.Text.compute_clause_annotations`.
+Clause indices and annotations can be explicitly tagged with method :py:meth:`~estnltk.text.Text.tag_clause_annotations`.
 
 Property :py:attr:`~estnltk.text.Text.clause_texts` can be used to see the full clauses themselves::
 
@@ -1375,10 +1397,10 @@ Property :py:attr:`~estnltk.text.Text.clause_texts` can be used to see the full 
 
     ['Mees oli tuttav ja', ', keda seal kohtasime,', 'teretas meid.']
 
-Method :py:meth:`~estnltk.text.Text.compute_clauses` can be used create a special ``clauses`` multilayer,
+Method :py:meth:`~estnltk.text.Text.tag_clauses` can be used create a special ``clauses`` multilayer,
 that lists character-level indices of start and end positions of clause regions::
 
-    text.compute_clauses()
+    text.tag_clauses()
     text['clauses']
 
 ::

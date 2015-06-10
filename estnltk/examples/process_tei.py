@@ -13,7 +13,7 @@ import os
 texts = parse_tei_corpora(os.path.join(AA_PATH))
 for text in texts:
     print(text['title'], text['file'])
-    text.compute_named_entities()
-    text.compute_clauses()
-    text.compute_verb_chains()
-    text.compute_timexes()
+    text.tag_named_entities()
+    text.tag_clauses()
+    text.tag_verb_chains()
+    text.tag_timexes()

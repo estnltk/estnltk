@@ -18,3 +18,6 @@ class Database(object):
         Iterable of {"text": document, "matches": layer}
         """
         pass
+
+    def keyword_query(self, regex):
+        pass

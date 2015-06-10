@@ -14,7 +14,7 @@ class Disambiguator(object):
         docs = [Text(doc, **kwargs) for doc in docs]
 
         # morf.analysis without disambiguation
-        docs = [doc.compute_analysis() for doc in docs]
+        docs = [doc.tag_analysis() for doc in docs]
 
         docs = self.pre_disambiguate(docs)
         docs = self.stat_disambiguate(docs)
