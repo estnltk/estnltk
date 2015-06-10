@@ -296,6 +296,8 @@ def get_filterer(outer_spans, inner_spans, translate, sep):
 def divide_by_spans(elements, outer_spans, translate=False, sep=' '):
     outer_spans = [convert_span(s) for s in outer_spans]
     inner_spans = [spans(e) for e in elements]
+    #if len(inner_spans) == 0:
+    #    return [[] for _ in range(len(outer_spans))]
     inners_are_lists = isinstance(inner_spans[0], list)
     filterer = get_filterer(outer_spans, inner_spans, translate, sep)
     bins = []

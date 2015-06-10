@@ -28,8 +28,18 @@ class TextInitializationTest(unittest.TestCase):
 
         self.assertRaises(Exception, create)
 
+    def test_empty(self):
+        Text('').compute_analysis()
+
     def text(self):
         return {TEXT: 'Tere maailm!'}
+
+
+class TokenizationTest(unittest.TestCase):
+
+    def test_tokenization(self):
+        text = Text('''Lugejal vöib ette tulla , at korraehitamine on iseenesest arusaadav ide , mis juba eelnevalt teada oli . Mullat oli aga ainult se isik kes sellist L.V. omadust tõestanud ??''')
+        text.compute_analysis()
 
 
 class TextSplittingTest(unittest.TestCase):

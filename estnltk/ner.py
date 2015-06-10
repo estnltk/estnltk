@@ -78,7 +78,6 @@ def json_document_to_estner_document(jsondoc):
         A ner document.
     """
     estnerdoc = Document()
-    json_sentences = jsondoc.split_by_sentences()
     for json_sent in jsondoc.split_by_sentences():
         snt = Sentence()
         zipped = list(zip(

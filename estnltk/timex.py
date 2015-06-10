@@ -59,6 +59,7 @@ def rename_attributes(timex):
             del timex[oldKey]
     return timex
 
+
 def collect_timexes(output):
     timexes = {}
     for sentidx, sentence in enumerate(output[SENTENCES]):
@@ -81,12 +82,13 @@ def collect_timexes(output):
                     timexes[tid] = timex
     return timexes
 
+
 def remove_unnormalized(timexes):
     return dict((tid, timex) for tid, timex in timexes.items() if TMX_TYPE in timex and TMX_VALUE in timex)
 
+
 def convert_timex(timex, text):
-    # fix the text
-    timex[TEXT] = text[timex[START]:timex[END]]
+    #timex[TEXT] = text[timex[START]:timex[END]]
     if TMX_TEMP_FUNCTION in timex:
         tmp = timex[TMX_TEMP_FUNCTION].upper()
         if tmp.startswith('T'):
@@ -102,6 +104,6 @@ def convert_timex(timex, text):
     # extract anchor ids
     if TMX_ANCHOR_TID in timex:
         aid = timex[TMX_ANCHOR_TID]
-        if aid != 't0': # refers to document creation date:
+        if aid != 't0' and '?' not in aid:  # refers to document creation date:
             timex[TMX_ANCHOR_ID] = int(aid[1:])-1
     return timex

@@ -388,14 +388,15 @@ class Text(dict):
     def compute_words(self):
         if not self.is_computed(SENTENCES):
             self.compute_sentences()
-        if self.is_computed(WORDS):
-            self.__computed.remove(WORDS)
         tok = self.__word_tokenizer
         text = self.text
-        spans = tok.span_tokenize(text)
         dicts = []
-        for start, end in spans:
-            dicts.append({START: start, END: end, TEXT: text[start:end]})
+        for sentence in self[SENTENCES]:
+            sent_start, sent_end = sentence[START], sentence[END]
+            sent_text = text[sent_start:sent_end]
+            spans = tok.span_tokenize(sent_text)
+            for start, end in spans:
+                dicts.append({START: start+sent_start, END: end+sent_start, TEXT: sent_text[start:end]})
         self[WORDS] = dicts
         self.__computed.add(WORDS)
         return self
@@ -526,6 +527,8 @@ class Text(dict):
         return descs
 
     def compute_labels(self):
+        if not self.is_computed(ANALYSIS):
+            self.compute_analysis()
         if self.__ner_tagger is None:
             self.__ner_tagger = load_default_ner_tagger()
         self.__ner_tagger.tag_document(self)
@@ -539,6 +542,8 @@ class Text(dict):
         return [word[LABEL] for word in self.words]
 
     def compute_named_entities(self):
+        if self.is_computed(ANALYSIS):
+            self.compute_labels()
         nes = []
         word_start = -1
         labels = self.labels + ['O'] # last is sentinel
