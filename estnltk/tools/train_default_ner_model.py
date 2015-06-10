@@ -3,7 +3,6 @@ from __future__ import unicode_literals, print_function
 
 from ..estner import settings as default_nersettings
 from ..core import DEFAULT_NER_DATASET
-from ..text import Text
 from ..corpus import read_json_corpus
 from ..ner import NerTrainer, NerTagger, DEFAULT_NER_MODEL_DIR
 

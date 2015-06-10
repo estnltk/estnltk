@@ -2,19 +2,21 @@
 Installation
 ============
 
-Depending on what platform you intend to use the library, you have several choices how to install the library.
+Quick installation with pip
+===========================
 
-Windows users can download and install most of the extensions from Christoph Gohlke's website: http://www.lfd.uci.edu/~gohlke/pythonlibs/ .
+The easiest way to install Estnltk is using the standard ``pip`` tool, which downloads
+the latest Estnltk version from PyPi repository, builds it and installs it::
 
-Building from source
-====================
+    pip install estnltk
 
-The most generic use case is to build the library from source and manually install all the necessary dependencies.
-This is mainly intended to be used on Linux systems with a custom setup or when building from source on Windows.
-To do that, you will need to install the following dependencies.
+However, in order the command to succeed, you need to have following dependencies installed your system,
+regardless of the OS you run.
+
+**NB! Check section about post-installation steps as well.**
 
 Dependencies
-------------
+============
 
 **Python with development headers.** https://www.python.org/ .
 The most obvious dependency of course is Python itself.
@@ -40,7 +42,7 @@ In *Windows*, we recommend using Visual Studio 2008 for Python2.7 and Visual Stu
 Note that for 64-bit versions you need to have also 64-bit toolchains, which are not included in Express versions of the Visual Studio.
 We recommend downloading the full Visual Studio SDK and performing the building process through the Visual studio command prompt interface.
 
-**Java VM**. 
+**Java VM**.
 Several Estnltk components are written in Java and interfaced with Python.
 Therefore, you also need latest Java Runtime installed on your system.
 The ``java`` virtual machine must be in the system ``PATH``.
@@ -50,39 +52,49 @@ although alternatives such as OpenJDK (http://openjdk.java.net/) should also wor
 **setuptools**. https://pypi.python.org/pypi/setuptools .
 A popular toolchain to build Python packages. In Linux package managers, typically called ``python-setuptools`` .
 
-Here are all the additional dependencies of ``estnltk``, which are required to get all the functionality working.
-Note that most or all of them should be installed automatically by ``setuptools`` build system, but non-pure Python
-packages may require additional dependencies to be installed.
-We cannot list them all for all possible platforms, but see next sections on example installs on Ubuntu 14.04 and Windows 8.
+**Numpy/Scipy stack**. http://www.scipy.org/install.html
+We include numpy/scipy in this list as it is quite difficult to build it from scratch
+due to ATLAS/BLAS dependencies. Thus, we recommend installing a pre-built binaries (see http://www.scipy.org/install.html).
 
-* nltk>=3.0.0
-* python-crfsuite>=0.8.1
-* jsonpath-rw>=1.3.0
-* six>=1.7.3
-* tempdir>=0.6
-* xmltodict>=0.9.0
-* beautifulsoup4>=4.3.2
-* pandas>=0.14.1
-* scikit-learn>=0.15.1
-* xlrd>=0.9.2
-* xlsxwriter>=0.5.7
-* numpy>=1.8.2
-* scipy>=0.11.0
-* pytz>=2014.4
-* python-dateutil>=2.2
-* nose>=1.3.3
-* pyparsing>=2.0.2
-* matplotlib>=1.2.1
-* xlwt-future>=0.7.5
+**python-crfsuite (version 0.8.1)**. Conditional random field library. There should be no problems building it automatically,
+but just in case we have included pre-built binaries in our repository:
+https://github.com/estnltk/estnltk/tree/master/dist/python-crfsuite .
+
+**Other dependencies**
+
+The rest of the dependencies should be easy to build, but just in case they wont,
+here is the list of their names and precise version required by Estnltk.
+
+Windows users should check out Christoph Gohlke's website: http://www.lfd.uci.edu/~gohlke/pythonlibs/ ,
+that contains an marvellous list of pre-built binaries, including the ones required by Estnltk.
+
+* **regex (version 2015.03.18)**
+* **six (version 1.9.0)**
+* **nltk (version 3.0.2)**
+* **pandas (version 0.15.2)**
+* **cached-property (version 1.2.0)**
+* **beautifulsoup4 (version 4.3.2)**
 
 
-Building using setuptools
--------------------------
+Running the tests
+=================
+
+After you have installed the library, you should run the unit tests::
+
+    python -m unittest discover estnltk.tests
+
+Note that when you built directly from cloned Estnltk repository, navigate away from it as
+running the command in the same directory can cause problems.
+
+When unit tests pass, you know you have installed all necessary dependencies of the library.
+
+Building from source
+====================
 
 First thing after installing the dependencies is to get the source.
 One option is cloing the repository using latest code::
 
-    git clone https://github.com/tpetmanson/estnltk estnltk
+    git clone https://github.com/estnltk/estnltk estnltk
     
 or from mirror repository::
 
@@ -101,167 +113,23 @@ Note that ``python`` usually refers to default Python version installed with the
 Usually, you can also use more specific versions by replacing ``python`` with ``python2.7`` or ``python3.4``.
 Note that the same commands work when building in Windows, but you need to execute them in Visual Studio SDK command prompt.
 
-Building using pip
-------------------
 
-Another option is to use ``pip`` program to automatically download and install the library without manually cloning the repository::
+Windows installers
+==================
 
-    sudo pip install estnltk
-    
-
-Running unit tests
-------------------
-
-It is reasonable to run unit tests to see, whether everything is working correctly and library functions properly::
-
-
-    python -m unittest discover estnltk
-
-
-After the tests run for a while, you should see something similar in the end::
-
-    ----------------------------------------------------------------------
-    Ran 144 tests in 37.809s
-
-    OK
-
-                        
-Step-by-step Ubuntu Linux 14.04
-===============================
-
-This section describes step-by-step instructions to install Estnltk with Python3.4 on Ubuntu Linux 14.04 .
-These steps should be also helpful to install Linux on other distributions, although they probably need minor modifications.
-However, we expect the users of other flavours capable of figuring out the necessary steps to set up their systems.
-
-Install main dependencies::
-
-    sudo apt-get install g++ swig python3-setuptools libfreetype6-dev python3-pip liblapack-dev libblas-dev python3-dev gfortran default-jre
-    sudo pip3 install numpy
-    
-Build and install ``estnltk``::
-
-    git clone https://github.com/tpetmanson/estnltk estnltk
-    cd estnltk
-    python3 setup.py build
-    sudo python3 setup.py install
-
-Post-installation steps::
-
-    python3 -m nltk.downloader punkt
-
-Run tests::
-
-    cd ..
-    python3 -m unittest discover estnltk
-
-
-Type some example code::
-
-    $ python3
-    Python 3.4.0 (default, Apr 11 2014, 13:05:11) 
-    [GCC 4.8.2] on linux
-    Type "help", "copyright", "credits" or "license" for more information.
-    >>> import estnltk
-    >>> from pprint import pprint
-    >>> pprint(estnltk.analyze('Tere maailm'))
-    [{'analysis': [{'clitic': '',
-                    'ending': '0',
-                    'form': '',
-                    'lemma': 'tere',
-                    'partofspeech': 'I',
-                    'root': 'tere',
-                    'root_tokens': ['tere']},
-                   {'clitic': '',
-                    'ending': '0',
-                    'form': 'sg g',
-                    'lemma': 'tere',
-                    'partofspeech': 'S',
-                    'root': 'tere',
-                    'root_tokens': ['tere']},
-                   {'clitic': '',
-                    'ending': '0',
-                    'form': 'sg n',
-                    'lemma': 'tere',
-                    'partofspeech': 'S',
-                    'root': 'tere',
-                    'root_tokens': ['tere']}],
-      'text': 'Tere'},
-     {'analysis': [{'clitic': '',
-                    'ending': '0',
-                    'form': 'sg n',
-                    'lemma': 'maailm',
-                    'partofspeech': 'S',
-                    'root': 'maa_ilm',
-                    'root_tokens': ['maa', 'ilm']}],
-      'text': 'maailm'}]
-
-Done!
-    
-
-Step-by-step Windows 8
-======================
-
-Although we have installers for Windows, it takes little bit more twiddling to get the library work.
-First, decide whether you need 32 or 64 bit package and also decide whether you use Python2.7 or Python3.4 .
-We recommend using 64-bit Python3.4 .
-Next, we use an extremely useful list of binary installers for various Python packages by Christoph Gohlke http://www.lfd.uci.edu/~gohlke/pythonlibs/ :
-
-* **NLTK** http://www.lfd.uci.edu/~gohlke/pythonlibs/#nltk
-* **six** http://www.lfd.uci.edu/~gohlke/pythonlibs/#six
-* **pandas** http://www.lfd.uci.edu/~gohlke/pythonlibs/#pandas
-* **scikit-learn** http://www.lfd.uci.edu/~gohlke/pythonlibs/#scikit-learn
-* **numpy** http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy
-* **scipy** http://www.lfd.uci.edu/~gohlke/pythonlibs/#scipy
-* **pytz** http://www.lfd.uci.edu/~gohlke/pythonlibs/#pytz
-* **python-dateutil** http://www.lfd.uci.edu/~gohlke/pythonlibs/#python-dateutil
-* **nose** http://www.lfd.uci.edu/~gohlke/pythonlibs/#nose
-* **pyparsing** http://www.lfd.uci.edu/~gohlke/pythonlibs/#pyparsing
-* **matplotlib** http://www.lfd.uci.edu/~gohlke/pythonlibs/#matplotlib
-* **python-crfsuite** https://github.com/tpetmanson/estnltk/tree/master/dist/python-crfsuite
-
-Now, Christoph Gohlke's website does not list all required Python packages.
-Note that the ``python-crfsuite`` Windows installers are given in ``esnltk\dist\python-crfsuite`` directory.
-The reason was that we had to create these ourselves as we did not find any public website that offers to download them.
-However, we do not want to manage installers for the rest of missing dependencies.
-Therefore, we install missing packages using the ``pip`` tool.
-This tool comes with default installation of Python3.4 (install it separately for Python2.7) and can be used to install the dependencies with following command in command prompt::
-
-    python -m pip install jsonpath-rw tempdir xmltodict beautifulsoup4 xlwt-future xlrd xlsxwriter
-
-This installs the following dependencies:
-    
-* jsonpath-rw
-* tempdir
-* xmltodict
-* beautifulsoup4
-* xlwt-future
-* xlrd
-* xlsxwriter
-
-Then, install Java from http://www.oracle.com/technetwork/java/javase/downloads/index.html .
-
-Then, download and execute the suitable ``estnltk`` installer:
+You can use pre-built windows installers for Estnltk.
+Note that you still need to install the dependencies separately.
 
 32-bit:
 
-* https://github.com/tpetmanson/estnltk/blob/master/dist/estnltk-1.1.win32-py2.7.msi
-* https://github.com/tpetmanson/estnltk/blob/master/dist/estnltk-1.1.win32-py3.4.msi
+* https://github.com/estnltk/estnltk/blob/master/dist/estnltk-1.2.win32-py2.7.msi
+* https://github.com/estnltk/estnltk/blob/master/dist/estnltk-1.2.win32-py3.4.msi
 
 64-bit:
 
-* https://github.com/tpetmanson/estnltk/blob/master/dist/estnltk-1.1.win-amd64-py2.7.msi
-* https://github.com/tpetmanson/estnltk/blob/master/dist/estnltk-1.1.win-amd64-py3.4.msi
+* https://github.com/estnltk/estnltk/blob/master/dist/estnltk-1.2.win-amd64-py2.7.msi
+* https://github.com/estnltk/estnltk/blob/master/dist/estnltk-1.2.win-amd64-py3.4.msi
     
-
-Then, install NLTK tokenizers from command promp::
-
-    python -m nltk.downloader punkt
-
-
-Finally, we are done :) !
-
-.. image:: _static/installation_windows.png
-   :alt: Screenshot of IDLE with 64-bit Python3.4 after successful installation
 
 
 Post-installation steps
@@ -274,4 +142,5 @@ Downloading NLTK tokenizers for Estonian. These are necessary for tokenization::
 Estnltk comes with pre-built named entity taggers, but you can optionally rebuild them if you have lost them for some reason.
 The command to build the default named entity tagger for Estonian::
 
-    python -m estnltk.ner train_default_model
+    python -m estnltk.tools.train_default_ner_model
+
