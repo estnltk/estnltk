@@ -18,6 +18,7 @@ vabamorf_src = os.path.join('src', 'etana', 'vabamorf.cpp')
 for d in src_dirs:
     lib_sources.extend(get_sources(d))
 lib_sources.remove(vabamorf_src) # we add it later as the first file to compile
+                                 # less time to wait, when working with vabamorf wrapper
 
 # define directories for vabamorf include directories
 dirs.append(os.path.join('fsc', 'fsjni'))
@@ -38,7 +39,7 @@ setup(
     version = "1.2",
     packages = find_packages(),
     package_data = {
-        'estnltk': ['corpora/*.xml', 'corpora/*.json', 'java-res/*'],
+        'estnltk': ['corpora/arvutustehnika_ja_andmetootlus/*.xml', 'corpora/*.json', 'java-res/*'],
         'estnltk.vabamorf': ['dct/*.dct'],
         'estnltk.estner': ['gazetteer/*', 'models/*.*'],
         'estnltk.wordnet': ['*.cnf', 'data/*.txt', 'data/*.soi', 'data/*.cnf', 'data/scripts/*.py'],
@@ -46,7 +47,7 @@ setup(
     },
 
     author       = "University of Tartu",
-    author_email = "tpetmanson@gmail.com",
+    author_email = "tpetmanson@gmail.com, alex.tk.fb@gmail.com, siim.orasmaa@gmail.com, swen@math.ut.ee",
     description  = "Estnltk — open source tools for Estonian natural language processing",
     license      = "GPLv2",
     url          = "https://github.com/estnltk/estnltk",
