@@ -12,7 +12,7 @@ Install latest stable version directly with pip tool:
 
 **Right now you also need nltk version 3.0.0, as latest estnltk breaks with newer versions!!!**
 
-```python -m pip install nltk=3.0.0```
+```python -m pip install nltk==3.0.0```
 
 Stay tuned for next estnltk release, which will fix these problems!
 
