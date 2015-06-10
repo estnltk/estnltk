@@ -5,3 +5,6 @@ from .vabamorf.morf import Vabamorf, analyze, spellcheck, fix_spelling, synthesi
 from .text import Text
 from .textcleaner import TextCleaner, EST_ALPHA, RUS_ALPHA, DIGITS, WHITESPACE, PUNCTUATION, ESTONIAN, RUSSIAN
 from .disambiguator import Disambiguator
+from .ner import NerTrainer, NerTagger
+from .timex import TimexTagger
+from .clausesegmenter import ClauseSegmenter

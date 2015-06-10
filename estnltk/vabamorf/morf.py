@@ -132,9 +132,6 @@ class Vabamorf(object):
         words: list of str or str
             Either a list of pretokenized words or a string. In case of a string, it will be splitted using
             default behaviour of string.split() function.
-
-        Keyword parameters
-        ------------------
         disambiguate: boolean (default: True)
             Disambiguate the output and remove incosistent analysis.
         guess: boolean (default: True)
@@ -217,9 +214,6 @@ class Vabamorf(object):
         words: list of str or str
             Either a list of pretokenized words or a string. In case of a string, it will be splitted using
             default behaviour of string.split() function.
-
-        Keyword parameters
-        ------------------
         join: boolean (default: True)
             Should we join the list of words into a single string.
         joinchar: str (default: ' ')
@@ -261,11 +255,10 @@ class Vabamorf(object):
             The lemma of the word(s) to be synthesized.
         form: str
             The form of the word(s) to be synthesized.
-
-        Keyword parameters
-        ------------------
         partofspeech: str
+            Part-of-speech.
         hint: str
+            Hint.
         guess: boolean (default: True)
             Use heuristics when synthesizing unknown words.
         phonetic: boolean (default: False)
@@ -412,9 +405,6 @@ def analyze(words, **kwargs):
     words: list of str or str
         Either a list of pretokenized words or a string. In case of a string, it will be splitted using
         default behaviour of string.split() function.
-
-    Keyword parameters
-    ------------------
     disambiguate: boolean (default: True)
         Disambiguate the output and remove incosistent analysis.
     guess: boolean (default: True)
@@ -466,9 +456,6 @@ def fix_spelling(words, join=True, joinstring=' '):
     words: list of str or str
         Either a list of pretokenized words or a string. In case of a string, it will be splitted using
         default behaviour of string.split() function.
-
-    Keyword parameters
-    ------------------
     join: boolean (default: True)
         Should we join the list of words into a single string.
     joinchar: str (default: ' ')
@@ -496,11 +483,10 @@ def synthesize(lemma, form, partofspeech='', hint='', guess=True, phonetic=False
         The lemma of the word(s) to be synthesized.
     form: str
         The form of the word(s) to be synthesized.
-
-    Keyword parameters
-    ------------------
     partofspeech: str
+        Part-of-speech.
     hint: str
+        Hint.
     guess: boolean (default: True)
         Use heuristics when synthesizing unknown words.
     phonetic: boolean (default: False)
