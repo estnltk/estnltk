@@ -251,11 +251,11 @@ class GazetteerFeatureExtractor(BaseFeatureExtractor):
     '''
 
     def __init__(self, settings, look_ahead=3):
-        '''Loads a gazeteer file. May take some time!
-
-        Parameteres
+        '''Loads a gazetteer file. Can take some time!
+        
+        Parameters
         -----------
-
+        
         settings: dict
             Global configuration dictionary.
         look_ahead: int
