@@ -43,7 +43,8 @@ setup(
         'estnltk.vabamorf': ['dct/*.dct'],
         'estnltk.estner': ['gazetteer/*', 'models/*.*'],
         'estnltk.wordnet': ['*.cnf', 'data/*.txt', 'data/*.soi', 'data/*.cnf', 'data/scripts/*.py'],
-        'estnltk.mw_verbs': ['res/*']
+        'estnltk.mw_verbs': ['res/*'],
+        'estnltk.converters': ['*.mrf']
     },
 
     author       = "University of Tartu",
