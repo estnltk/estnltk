@@ -1,3 +1,3 @@
 rm -r ./build
-rm estnltk/pyvabamorf/vabamorf.py
-rm estnltk/pyvabamorf/vabamorf_wrap.cpp
+rm estnltk/vabamorf/vabamorf.py
+rm estnltk/vabamorf/vabamorf_wrap.cpp
