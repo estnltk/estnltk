@@ -195,7 +195,9 @@ IntVector unique(IntVector& const vec) {
 }
 
 
-IntVectors spans_collect_lists()
+IntVectors spans_collect_lists(SpanVector const& outer_spans, SpanVectors const& inner_spans) {
+
+}
 
 
 def spans_collect_lists(outer_spans, inner_spans):

@@ -39,4 +39,4 @@ class LargeTextTest(unittest.TestCase):
         print('Large document: ', large_time)
         print('Small documents:', small_time)
         diff = abs((float(large_time) / float(small_time)) - 1.0)
-        self.assertTrue(diff < 0.05) # fail with 5% difference
+        self.assertTrue(diff < 0.1) # fail with 10% difference

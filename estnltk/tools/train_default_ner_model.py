@@ -17,7 +17,6 @@ def train_default_model():
     The resulting model will be saved to estnltk/estner/models/default.bin
     """
     docs = read_json_corpus(DEFAULT_NER_DATASET)
-    pprint(docs[0])
     trainer = NerTrainer(default_nersettings)
     trainer.train(docs, DEFAULT_NER_MODEL_DIR)
 
