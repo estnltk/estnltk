@@ -12,6 +12,7 @@ import sys, os
 
 from ..wordnet import wn, eurown
 
+
 class InternalSynsetOffsetQueryTest(unittest.TestCase):
  
   def test_empty_query(self):
@@ -57,7 +58,8 @@ class InternalSynsetQuery(unittest.TestCase):
     # todo: instead of comparing string representation, compare
     # literal, pos and sense variables directly
     self.assertEqual(wn._get_synsets([synset_offset])[0].id,synset_id)
-    
+"""
+
 class SynsetQuery(unittest.TestCase):
   
   def test_synset_query(self):
@@ -70,6 +72,7 @@ class SynsetQuery(unittest.TestCase):
     self.assertEqual(synset.id, synset_id)
     self.assertEqual(synset.name, synset_key)
 
+"""
 class SynsetsQuery(unittest.TestCase):
   
   def test_synsets_query(self):
@@ -161,14 +164,6 @@ class Synset(unittest.TestCase):
 
     self.assertEqual(source_synset._shortest_path_distance(target_synset),2)
 
-  """
-  def test_shortest_path_distance_to_unconnected(self):
-    source_synset = wn.synset('hobune.n.01')
-    target_synset = wn.synset('kass.n.01')
-    
-    self.assertEqual(source_synset._shortest_path_distance(target_synset),7)
-  """  
-
   def test_path_similarity_with_itself(self):
     source_synset = wn.synset('ilming.n.02')
     target_synset = wn.synset('fenomen.n.01')
@@ -194,6 +189,3 @@ class Synset(unittest.TestCase):
     
     self.assertEqual(synset._min_depth(),3)
 
-
-if __name__ == '__main__':
-    unittest.main()

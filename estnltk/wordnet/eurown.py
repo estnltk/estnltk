@@ -45,11 +45,11 @@ INTERNAL_RELATION_FILE = os.path.join(os.path.dirname(__file__ ), 'semrel.cnf')
 EXTERNAL_RELATION_FILE = os.path.join(os.path.dirname(__file__ ), 'eqsemrel.cnf')
 
 
-f = open(INTERNAL_RELATION_FILE,'r')
+f = open(INTERNAL_RELATION_FILE, 'rb')
 INTERNAL_RELATION_NAMES = list(map(lambda x: x.strip(),f.readlines()))
 f.close()
 
-f = open(EXTERNAL_RELATION_FILE,'r')
+f = open(EXTERNAL_RELATION_FILE, 'rb')
 EQ_RELATION_NAMES = list(map(lambda x: x.strip(),f.readlines()))
 f.close()
 
@@ -74,7 +74,7 @@ class _TypedList(list):
     def __init__(self, *args):
         super(list,self).__init__(*args)
         self.memberType = type(None)
-        self.parent = (1, u'TEST')
+        self.parent = (1, 'TEST')
 
     def insert(self, i, x):
         if isinstance(x, self.memberType):
@@ -99,7 +99,7 @@ class _TypedList(list):
 
         """
         def fget(self):
-            _out = u''
+            _out = ''
             _n = '\n'
             if len(self):
                 if self.parent:
@@ -239,7 +239,7 @@ class Relation(object):
 
     def polarisText():
         def fget(self):
-            _out = u''
+            _out = ''
             _n = '\n'
             _outList = []
             _outList.append(PolarisText(2,'RELATION',None,self.name).out)
@@ -339,7 +339,7 @@ class Source_Id(object):
 
     def polarisText():
         def fget(self):
-            _out = u''
+            _out = ''
             _n = '\n'
             _outList = []
             _outList.append(PolarisText(4,'SOURCE_ID',None,self.number).out)
@@ -400,7 +400,7 @@ class Corpus_Id(object):
 
     def polarisText():
         def fget(self):
-            _out = u''
+            _out = ''
             _n = '\n'
             _outList = []
             _outList.append(PolarisText(4,'CORPUS_ID',None,self.number).out)
@@ -422,7 +422,7 @@ class Relation_Source_Id(Source_Id):
 
     def polarisText():
         def fget(self):
-            _out = u''
+            _out = ''
             _n = '\n'
             _outList = []
             _outList.append(PolarisText(3,'SOURCE_ID',None,self.number).out)
@@ -461,7 +461,7 @@ class FieldValue(six.text_type):
 
         """
         def fget(self):
-            _out = u''
+            _out = ''
             _n = '\n'
             _outList = []
             _outList.append(PolarisText(self.level,self.field,None,self).out)
@@ -494,7 +494,7 @@ class Property(six.text_type):
 
         """
         def fget(self):
-            _out = u''
+            _out = ''
             _n = '\n'
             _outList = []
             _outList.append(PolarisText(2,'NAME',None,self).out)
@@ -547,7 +547,7 @@ class PropertyValue(object):
 
     def polarisText():
         def fget(self):
-            _out = u''
+            _out = ''
             _n = '\n'
             _outList = []
             _outList.append(PolarisText(2,'NAME',None,self.name).out)
@@ -635,7 +635,7 @@ class EqLink(Relation):
 
     def polarisText():
         def fget(self):
-            _out = u''
+            _out = ''
             _n = '\n'
             _outList = []
             _outList.append(PolarisText(2,'EQ_RELATION',None,self.name).out)
@@ -831,7 +831,7 @@ class External_Info(object):
 
     def polarisText():
         def fget(self):
-            _out = u''
+            _out = ''
             _n = '\n'
             _outList = []
             _outList.append(PolarisText(3,'EXTERNAL_INFO').out)
@@ -892,7 +892,7 @@ class Feature(object):
 
     def polarisText():
         def fget(self):
-            _out = u''
+            _out = ''
             _n = '\n'
             _outList = []
             if self.name:
@@ -973,7 +973,7 @@ class Usage_Label(object):
 
     def polarisText():
         def fget(self):
-            _out = u''
+            _out = ''
             _n = '\n'
             _outList = []
             if self.name:
@@ -1038,7 +1038,7 @@ class Translation(object):
 
     def polarisText():
         def fget(self):
-            _out = u''
+            _out = ''
             _n = '\n'
             _outList = []
             if self.language and self.translation_value:
@@ -1082,7 +1082,7 @@ class Parser(object):
         # self._file = file or None
         self._fileName = fileName or ''
         if self._fileName:
-            self.file = open(self._fileName,'r')
+            self.file = open(self._fileName, 'rb')
         else:
             self.file = None
 
@@ -1111,7 +1111,7 @@ class Parser(object):
             return self._fileName
         def fset(self, value):
             self._fileName = value
-            self.file = open(self._fileName,'r')
+            self.file = open(self._fileName, 'rb')
         def fdel(self):
             self.file.close()
             self._fileName = None
@@ -1393,52 +1393,52 @@ class Parser(object):
                 pass
 
             rulez = {
-                (0,u'WORD_MEANING'): _synset,
-                (0,u'WORD_INSTANCE'): _word_instance,
-                (1,u'PART_OF_SPEECH'): _pos,
-                (1,u'VARIANTS'): _variants,
-                (2,u'LITERAL'): _literal,
-                (3,u'SENSE'): _sense,
-                (3,u'STATUS'): _status,
-                (3,u'DEFINITION'): _gloss,
-                (3,u'EXAMPLES'): _examples,
-                (3,u'USAGE_LABELS'): _usage_labels,
-                (4,u'USAGE_LABEL'): _usage_label,
-                (5,u'USAGE_LABEL_VALUE'): _usage_label_value,
-                (4,u'EXAMPLE'): _example,
-                (3,u'TRANSLATIONS'): _translations,
-                (4,u'TRANSLATION'): _translation,
-                (3,u'EXTERNAL_INFO'): _external_info,
-                (4,u'SOURCE_ID'): _source_id,
-                (4,u'CORPUS_ID'): _corpus_id,
-                (5,u'FREQUENCY'): _frequency,
-                (5,u'TEXT_KEY'): _text_key,
-                (5,u'NUMBER_KEY'): _number_key,
-                (1,u'INTERNAL_LINKS'): _internal_links,
-                (2,u'RELATION'): _relation,
-                (3,u'TARGET_CONCEPT'): _target_concept,
-                (4,u'PART_OF_SPEECH'): _target_pos,
-                (4,u'LITERAL'): _target_literal,
-                (5,u'SENSE'): _target_sense,
-                (3,u'FEATURES'): _features,
-                (4,u'FEATURE'): _feature,
-                (5,u'FEATURE_VALUE'): _feature_value,
-                (4,u'REVERSED'): _reversed,
-                (4,u'VARIANT_TO_VARIANT'): _variant_to_variant,
-                (5,u'SOURCE_VARIANT'): _source_variant,
-                (5,u'TARGET_VARIANT'): _target_variant,
-                (3,u'SOURCE_ID'): _source_id,
-                (1,u'EQ_LINKS'): _eq_links,
-                (2,u'EQ_RELATION'): _relation,
-                (3,u'TARGET_ILI'): _target_concept,
-                (4,u'WORDNET_OFFSET'): _wn_offset,
-                (4,u'ADD_ON_ID'): _add_on_id,
-                (1,u'PROPERTIES'): _properties,
-                (1,u'PROPERTY_VALUES'): _property_values,
-                (2,u'NAME'): _name,
-                (3,u'VALUE'): _property_value,
-                (3,u'VALUE_AS_TEXT'): _property_value,
-                (3,u'VALUE_AS_WORD_MEANING'): _target_concept,
+                (0,'WORD_MEANING'): _synset,
+                (0,'WORD_INSTANCE'): _word_instance,
+                (1,'PART_OF_SPEECH'): _pos,
+                (1,'VARIANTS'): _variants,
+                (2,'LITERAL'): _literal,
+                (3,'SENSE'): _sense,
+                (3,'STATUS'): _status,
+                (3,'DEFINITION'): _gloss,
+                (3,'EXAMPLES'): _examples,
+                (3,'USAGE_LABELS'): _usage_labels,
+                (4,'USAGE_LABEL'): _usage_label,
+                (5,'USAGE_LABEL_VALUE'): _usage_label_value,
+                (4,'EXAMPLE'): _example,
+                (3,'TRANSLATIONS'): _translations,
+                (4,'TRANSLATION'): _translation,
+                (3,'EXTERNAL_INFO'): _external_info,
+                (4,'SOURCE_ID'): _source_id,
+                (4,'CORPUS_ID'): _corpus_id,
+                (5,'FREQUENCY'): _frequency,
+                (5,'TEXT_KEY'): _text_key,
+                (5,'NUMBER_KEY'): _number_key,
+                (1,'INTERNAL_LINKS'): _internal_links,
+                (2,'RELATION'): _relation,
+                (3,'TARGET_CONCEPT'): _target_concept,
+                (4,'PART_OF_SPEECH'): _target_pos,
+                (4,'LITERAL'): _target_literal,
+                (5,'SENSE'): _target_sense,
+                (3,'FEATURES'): _features,
+                (4,'FEATURE'): _feature,
+                (5,'FEATURE_VALUE'): _feature_value,
+                (4,'REVERSED'): _reversed,
+                (4,'VARIANT_TO_VARIANT'): _variant_to_variant,
+                (5,'SOURCE_VARIANT'): _source_variant,
+                (5,'TARGET_VARIANT'): _target_variant,
+                (3,'SOURCE_ID'): _source_id,
+                (1,'EQ_LINKS'): _eq_links,
+                (2,'EQ_RELATION'): _relation,
+                (3,'TARGET_ILI'): _target_concept,
+                (4,'WORDNET_OFFSET'): _wn_offset,
+                (4,'ADD_ON_ID'): _add_on_id,
+                (1,'PROPERTIES'): _properties,
+                (1,'PROPERTY_VALUES'): _property_values,
+                (2,'NAME'): _name,
+                (3,'VALUE'): _property_value,
+                (3,'VALUE_AS_TEXT'): _property_value,
+                (3,'VALUE_AS_WORD_MEANING'): _target_concept,
                 }
 
             if not offset:
@@ -1454,8 +1454,6 @@ class Parser(object):
             while line.strip():
 
                 offset = self.file.tell()
-                if debug:
-                    print ('offset=',offset)
                 self.file.seek(offset,0)
 
                 line = as_unicode(self.file.readline(), self.encoding).strip()
@@ -1757,7 +1755,7 @@ class Variant(object):
 
     def polarisText():
         def fget(self):
-            _out = u''
+            _out = ''
             _n = '\n'
             _outList = []
             elementz = {
@@ -2134,7 +2132,7 @@ class Synset(object):
 
         """
         def fget(self):
-            _out = u''
+            _out = ''
             _n = '\n'
 
             ptSynsetHead = PolarisText(levelNumber=0, 
@@ -2177,7 +2175,7 @@ class Synset(object):
         from offset <offset>
         '''
         p = Parser()
-        p.file = open(fileName,'r')
+        p.file = open(fileName, 'rb')
         a = p.parse_synset(offset=offset)
         p.file.close()
         self.__dict__.update(a.__dict__)
@@ -2186,7 +2184,7 @@ class Synset(object):
     def write(self,fileName):
         '''Appends synset to Polaris IO file <fileName>
         '''
-        f = open(fileName, 'a')
+        f = open(fileName, 'ab')
         f.write('%s%s' % (self.polarisText,
                           Synset.linebreak)
                 )
@@ -2199,7 +2197,7 @@ class WordInstance (Synset):
     """Synset pos="pn"
     No properties, has PROPERTY_VALUES
     """
-    def __init__(self, number=0, pos=u'pn', 
+    def __init__(self, number=0, pos='pn', 
                  wordnet_offset=None,
                  add_on_id=None, variants=None, 
                  internalLinks=None, eqLinks=None,
@@ -2236,7 +2234,7 @@ class WordInstance (Synset):
 
     def polarisText():
         def fget(self):
-            _out = u''
+            _out = ''
             _n = '\n'
             ptSynsetHead = PolarisText(levelNumber=0, 
                                        fieldTag='WORD_INSTANCE',
@@ -2269,7 +2267,7 @@ class Variants(_TypedList):
     def __init__(self, *args):
         super(_TypedList,self).__init__(*args)
         self.memberType = Variant
-        self.parent = (1, u'VARIANTS')
+        self.parent = (1, 'VARIANTS')
 
 
 class Properties(_TypedList):
@@ -2278,7 +2276,7 @@ class Properties(_TypedList):
     def __init__(self, *args):
         super(_TypedList,self).__init__(*args)
         self.memberType = Property
-        self.parent = (1, u'PROPERTIES')
+        self.parent = (1, 'PROPERTIES')
 
 
 class PropertyValues(_TypedList):
@@ -2287,7 +2285,7 @@ class PropertyValues(_TypedList):
     def __init__(self, *args):
         super(_TypedList,self).__init__(*args)
         self.memberType = PropertyValue
-        self.parent = (1, u'PROPERTY_VALUES')
+        self.parent = (1, 'PROPERTY_VALUES')
 
 
 class InternalLinks(_TypedList):
@@ -2296,7 +2294,7 @@ class InternalLinks(_TypedList):
     def __init__(self, *args):
         super(_TypedList,self).__init__(*args)
         self.memberType = Relation
-        self.parent = (1, u'INTERNAL_LINKS')
+        self.parent = (1, 'INTERNAL_LINKS')
 
 
 class EqLinks(_TypedList):
@@ -2306,7 +2304,7 @@ class EqLinks(_TypedList):
     def __init__(self):
         super(_TypedList,self).__init__()
         self.memberType = EqLink
-        self.parent = (1, u'EQ_LINKS')
+        self.parent = (1, 'EQ_LINKS')
 
 
 class Examples(_TypedList):
@@ -2315,7 +2313,7 @@ class Examples(_TypedList):
     def __init__(self,*args):
         super(_TypedList,self).__init__(*args)
         self.memberType = Example
-        self.parent = (3, u'EXAMPLES')
+        self.parent = (3, 'EXAMPLES')
 
 
 class Translations(_TypedList):
@@ -2324,7 +2322,7 @@ class Translations(_TypedList):
     def __init__(self):
         super(_TypedList,self).__init__()
         self.memberType = Translation
-        self.parent = (3, u'TRANSLATIONS')
+        self.parent = (3, 'TRANSLATIONS')
 
 
 class Corpus_Ids(_TypedList):
@@ -2353,7 +2351,7 @@ class Morphological_Codes(_TypedList):
         list.__init__(self, items)
         a = ''
         self.memberType = type(a)
-        self.parent = (3, u'MORPHOLOGICAL_CODES')
+        self.parent = (3, 'MORPHOLOGICAL_CODES')
 
 
 class Usage_Labels(_TypedList):
@@ -2362,7 +2360,7 @@ class Usage_Labels(_TypedList):
     def __init__(self):
         super(_TypedList,self).__init__()
         self.memberType = Usage_Label
-        self.parent = (3, u'USAGE_LABELS')
+        self.parent = (3, 'USAGE_LABELS')
 
 
 class Features(_TypedList):
@@ -2371,7 +2369,7 @@ class Features(_TypedList):
     def __init__(self):
         super(_TypedList,self).__init__()
         self.memberType = Feature
-        self.parent = (3, u'FEATURES')
+        self.parent = (3, 'FEATURES')
 
 
 # ===== Errors =====
