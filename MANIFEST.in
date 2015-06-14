@@ -1,1 +1,7 @@
 graft include
+graft estnltk/corpora
+graft estnltk/java-res
+graft estnltk/wordnet
+graft estnltk/vabamorf/dct
+graft estnltk/mw_verbs/res
+graft estnltk/converters

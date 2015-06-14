@@ -37,7 +37,9 @@ swig_opts.append('-c++')
 setup(
     name = "estnltk",
     version = "1.2",
+
     packages = find_packages(),
+    include_package_data=True,
     package_data = {
         'estnltk': ['corpora/arvutustehnika_ja_andmetootlus/*.xml', 'corpora/*.json', 'java-res/*'],
         'estnltk.vabamorf': ['dct/*.dct'],
@@ -52,7 +54,6 @@ setup(
     description  = "Estnltk — open source tools for Estonian natural language processing",
     license      = "GPLv2",
     url          = "https://github.com/estnltk/estnltk",
-
     ext_modules = [
         Extension('estnltk.vabamorf._vabamorf',
                   [swig_interface, vabamorf_src] + lib_sources,
