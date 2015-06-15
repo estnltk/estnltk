@@ -7,7 +7,7 @@ from estnltk.estner.featureextraction import MorphFeatureExtractor,\
 from estnltk.estner.ner import Token
 from estnltk.core import as_unicode
 from estnltk.text import Text
-from estnltk.ner import json_document_to_estner_document
+from estnltk.ner import json_document_to_estner_document, NerTagger
 
 
 class TestGazetteerFeatureExtractor(unittest.TestCase):
@@ -120,4 +120,17 @@ class TestLocalFeatureExtractor(unittest.TestCase):
         self.assertEqual(t['adash'], as_unicode('eesti'))
         
         self.assertEqual(t['len'], '11' )
+    
+    
+class TestNer(unittest.TestCase):
 
+    
+    def test(self):
+        t = Text('Alexander Tkachenko elab Pärnus')
+        self.assertEqual(t.named_entities, ['Alexander Tkachenko', as_unicode('Pärnu')])
+        self.assertEqual(t.named_entity_labels, ['PER', 'LOC'])
+        self.assertEqual(t.named_entity_spans, [(0, 19), (25, 31)])
+        
+        t = Text(as_unicode('Tallinn on Eesti pealinn.'))
+        self.assertEqual(t.named_entities, ['Tallinn', 'Eesti'])
+        
