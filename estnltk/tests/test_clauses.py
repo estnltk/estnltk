@@ -5,6 +5,7 @@ import unittest
 
 from ..text import Text
 
+from ..clausesegmenter import ClauseSegmenter
 
 class ClausesTest(unittest.TestCase):
 
@@ -23,3 +24,15 @@ class ClausesTest(unittest.TestCase):
         outer_split, inner_split = text.split_by('clauses')
         self.assertListEqual(inner.word_spans, inner_split.word_spans)
         self.assertListEqual(outer.word_spans, outer_split.word_spans)
+
+    def test_ignore_missing_commas_1(self):
+        segmenter = ClauseSegmenter( ignore_missing_commas=True )
+        text = Text('Pritsimehed leidsid eest lõõmava kapotialusega auto mida läheduses parkinud masinate sohvrid eemale üritasid lükata kuid esialgu see ei õnnestunud sest autol oli käik sees.', clause_segmenter = segmenter)
+        clauses = text.divide('words', 'clauses')
+        self.assertEqual(len(clauses), 4)
+    
+    def test_ignore_missing_commas_2(self):
+        segmenter = ClauseSegmenter( ignore_missing_commas=True )
+        text = Text('Keegi teine ka siin ju kirjutas et ütles et saab ise asjadele järgi minna aga vastust seepeale ei tulnudki.', clause_segmenter = segmenter)
+        clauses = text.divide('words', 'clauses')
+        self.assertEqual(len(clauses), 4)
