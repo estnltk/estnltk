@@ -12,6 +12,8 @@ class Disambiguator(object):
         # convert input
         kwargs = kwargs
         kwargs['disambiguate'] = False # do not use disambiguation right now
+        kwargs['guess']      = True  # should be set for the morph analyzer
+        kwargs['propername'] = True  # should be set for the morph analyzer
         
         use_pre_disambiguation    = kwargs.get('pre_disambiguate', True)
         use_post_disambiguation   = kwargs.get('post_disambiguate', True)
