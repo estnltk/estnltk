@@ -133,4 +133,26 @@ class TestNer(unittest.TestCase):
         
         t = Text(as_unicode('Tallinn on Eesti pealinn.'))
         self.assertEqual(t.named_entities, ['Tallinn', 'Eesti'])
+        self.assertEqual(t.named_entity_labels, ['LOC', 'LOC'])
+        
+        t = Text(as_unicode('Eesti piirneb põhjas üle Soome lahe Soome Vabariigiga.'))
+        self.assertEqual(t.named_entities, ['Eesti', 'Soome laht', 'Soome Vabariik'])
+        self.assertEqual(t.named_entity_labels, ['LOC', 'LOC', 'LOC'])
+
+        t = Text(as_unicode('2006. aastal valiti presidendiks Toomas Hendrik Ilves.'))
+        self.assertEqual(t.named_entities, ['Toomas Hendrik Ilves'])
+        self.assertEqual(t.named_entity_labels, ['PER'])
+        
+        t = Text(as_unicode('Inimestelt saadud vihjed pole veel politseil aidanud leida 43-aastast Kajar Paasi, kes tema naise sõnul Ardus maanteel rööviti.'))
+        self.assertEqual(t.named_entities, ['Kajar Paasi', 'Ardu'])
+        self.assertEqual(t.named_entity_labels, ['PER', 'LOC'])
+        
+        t = Text(as_unicode('Tuhanded Šotimaa kodud on lääneranniku piirkondi tabanud „ilmapommi“-tormi tõttu elektrita'))
+        self.assertEqual(t.named_entities, [as_unicode('Šotimaa')])
+        self.assertEqual(t.named_entity_labels, ['LOC'])
+        
+        t = Text(as_unicode('Elion AS ja EMT on Eesti suurimad ettevõted.'))
+        self.assertEqual(t.named_entities, ['Elion AS', 'EMT', 'Eesti'])
+        self.assertEqual(t.named_entity_labels, ['ORG', 'ORG', 'LOC'])
+        
         
