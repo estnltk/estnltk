@@ -1,18 +1,5 @@
-/* Functions to speed up dividing and splitting algorithms in Estnltk's Text class
-
-Duplicates the functionality of pure-Python divide module.
-*/
-
-#include <pair>
-#include <vector>
-#include <string>
-#include <unordered_set>
-
-typedef std::pair<int, int> Span;
-typedef std::vector<Span> SpanVector;
-typedef std::vector<SpanVector> SpanVectors;
-typedef std::vector<int> IntVector;
-typedef std::vector<IntVector> IntVectors;
+/* Functions to speed up dividing and splitting algorithms in Estnltk's Text class */
+#include "dividing.h"
 
 const Span none(-1,-1);
 const SpanVector<Span>(1, none) vec_none;
@@ -181,35 +168,60 @@ IntVectors spans_collect_spans(SpanVector const& outer_spans, SpanVector const& 
 }
 
 
+IntVectors spans_collect_spans(SpanVector const& outer_spans, IndexedSpanVector const& inner_spans) {
+    SpanVector converted;
+    converted.reserve(inner_spans.size());
+    for (int i = 0 : i<inner_spans.size(); ++i) {
+        converted.push_back(inner_spans[i].first);
+    }
+    return spans_collect_spans(outer_spans, converted);
+}
+
+
 IntVector unique(IntVector& const vec) {
     std::unordered_set<int> seen;
     IntVector unique_vec;
     unique_vec.reserve(vec.size());
-    for (int i=0 ; i<vec.size() ; ++i) {
+    for (int i = 0 ; i < vec.size() ; ++i) {
         int e = vec[i];
         if (seen.find(e) == seen.end()) {
             seen.insert(e);
             unique_vec.push_back(e);
         }
     }
+    return unique_vec;
 }
 
 
 IntVectors spans_collect_lists(SpanVector const& outer_spans, SpanVectors const& inner_spans) {
+    const int n = inner_spans.size();
+    IndexedSpanVector flattened_spans;
+    flattened_spans.reserve(n);
 
+    for (int i = 0 ; i < n ; ++i) {
+    SpanVector& spans = inner_spans[i];
+        const int m = spans.size();
+        for (int j = 0; j < m ; ++j) {
+            flattened_spans.push_back(IndexedSpan(spans[j], i));
+        }
+    }
+    sort(flattened_spans.first(), flattened_spans.last());
+
+    IntVectors bins = spans_collect_spans(outer_spans, flattened_spans);
+    for (int i = 0 ; i < bins.size() ; ++i) {
+        IntVector& vec = bins[i];
+        for (j = 0 ; j < vec.size() ; ++ j) {
+            vec[j] = flattened_spans[vec[j]];
+        }
+        bins[i] = unique(vec);
+    }
+    return bins;
 }
 
 
-def spans_collect_lists(outer_spans, inner_spans):
-    mapping = []
-    flattened_spans = []
-    for idx, spans in enumerate(inner_spans):
-        for s in spans:
-            flattened_spans.append(s)
-            mapping.append(idx)
-    flattened_spans, mapping = zip(*sorted(zip(flattened_spans, mapping)))
-    for bin in spans_collect_spans(outer_spans, flattened_spans):
-        yield unique(mapping[idx] for idx in bin)
+IntVectors lists_collect_spans(SpanVectors const& outer_spans, SpanVector const& inner_spans) {
+
+}
 
 
 def lists_collect_spans(outer_spans, inner_spans):
