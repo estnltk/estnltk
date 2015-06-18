@@ -14,17 +14,39 @@ class DisambiguatorTest(unittest.TestCase):
         corpus = ['Jänes oli parajasti põllu peal. Hunti nähes ta ehmus ja pani jooksu.',\
                   'Talupidaja Jänes kommenteeris, et hunte on viimasel ajal liiga palju siginenud. Tema naaber, talunik Lammas, nõustus sellega.', \
                   'Jänesele ja Lambale oli selge, et midagi tuleb ette võtta. Eile algatasid nad huntidevastase kampaania.']
-        texts = [ Text(text, vabamorf_disambiguate=False, post_disambiguate=False, disambiguate=False, guess=True, propername=True) for text in corpus ]
+        texts = [ Text(text, disambiguate=False, guess=True, propername=True) for text in corpus ]
         texts = [ text.tag_analysis() for text in texts ]
         # Count morph analyses before pre-disambiguation step
         [countTotal, countH, countNonH] = self.__debug_count_analyses(texts)
         self.assertListEqual([countTotal, countH, countNonH], [106, 21, 85])
         #print ([countTotal, countH, countNonH])
         disambuator = Disambiguator()
-        texts = disambuator.disambiguate(texts)
+        texts = disambuator.disambiguate(texts, vabamorf_disambiguate=False, post_disambiguate=False)
         # Count morph analyses after pre-disambiguation step
         [countTotal, countH, countNonH] = self.__debug_count_analyses(texts)
         self.assertListEqual([countTotal, countH, countNonH], [85, 5, 80])
+        #print ([countTotal, countH, countNonH])
+
+
+    def test_post_disambiguation_1(self):
+        corpus = ['Esimesele kohale tuleb Jänes, kuigi tema punktide summa pole kõrgeim.',\
+                  'Lõpparvestuses läks Konnale esimene koht. Teise koha sai seekord Jänes. Uus võistlus toimub 2. mail.', \
+                  'Konn paistis silma suurima punktide summaga. Uue võistluse toimumisajaks on 2. mai.']
+        #   Mitmesused:
+        #      kohale  S_koht+le  S_koha+le
+        #      mail   S_maa+l  S_mai+l
+        #      summaga  S_summ+ga  S_summa+ga
+        texts = [ Text(text, disambiguate=True, guess=True, propername=True) for text in corpus ]
+        texts = [ text.tag_analysis() for text in texts ]
+        # Count morph analyses before pre-disambiguation step
+        [countTotal, countH, countNonH] = self.__debug_count_analyses(texts)
+        self.assertListEqual([countTotal, countH, countNonH], [53, 0, 53])
+        #print ([countTotal, countH, countNonH])
+        disambuator = Disambiguator()
+        texts = disambuator.disambiguate(texts, vabamorf=False, vabamorf_disambiguate=False, post_disambiguate=True )
+        # Count morph analyses after pre-disambiguation step
+        [countTotal, countH, countNonH] = self.__debug_count_analyses(texts)
+        self.assertListEqual([countTotal, countH, countNonH], [49, 0, 49])
         #print ([countTotal, countH, countNonH])
 
 
