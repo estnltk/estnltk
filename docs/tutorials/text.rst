@@ -1120,6 +1120,7 @@ Temporal expression (TIMEX) tagging
 ===================================
 
 Temporal expressions tagger identifies temporal expressions (timexes) in text and normalizes these expressions, providing corresponding calendrical dates and times.
+The current version of the temporal expressions tagger is tuned for processing news texts (the quality of the analysis may be suboptimal in other domains).
 The program outputs an annotation in a format similar to TimeML's TIMEX3 (more detailed description can be found in `annotation guidelines`_, which are currently only in Estonian).
 
 .. _annotation guidelines: https://github.com/soras/EstTimeMLCorpus/blob/master/docs-et/ajav2ljendite_m2rgendamine_06.pdf?raw=true
@@ -1180,7 +1181,7 @@ There are a number of mandatory attributes present in the dictionaries:
 * **temporal_function** - *true*, if the expression is relative and exact date has to be computed from anchor points.
 * **type** - according to TimeML, four types of temporal expressions are distinguished:
     * *DATE expressions*, e.g. *järgmisel kolmapäeval* (*on next Wednesday*)
-    * *TIME expressions*, e.g. *kell 18.00* (*at 18.00 o’clock*)
+    * *TIME expressions*, e.g. *kell 18.00* (*at 18 o’clock*)
     * *DURATIONs*, e.g. *viis päeva* (*five days*)
     * *SETs of times*, e.g. *igal aastal* (*on every year*)
 
@@ -1230,7 +1231,7 @@ In addition, there are dedicated markers for special time notions:
 Document creation date
 ----------------------
 
-Relatime temporal expressions often depend on document creation date, which can be supplied as ``creation_date`` parameter.
+Relative temporal expressions often depend on document creation date, which can be supplied as ``creation_date`` parameter.
 If no ``creation_date`` argument is passed, it is set as the date the code is run (June 8 2015 in the example)::
 
     from estnltk import Text
@@ -1267,7 +1268,7 @@ We see that word "today" (*täna*) refers to to December 21 1986::
 TIMEX examples
 --------------
 
-Here are some example of time expressions and fields that Estnltk can extract.
+Here are some example of time expressions and fields that the tagger can extract.
 The document creation date is fixed to Dec 21 1986 in the examples below.
 See `annotation guidelines`_ for more detailed explanations.
 
@@ -1335,6 +1336,9 @@ aastate pärast                                                            aasta
 Tagging clauses
 ===============
 
+Basic usage
+--------------
+
 A simple sentence, also called an independent clause, typically contains a finite verb, and expresses a complete thought.
 However, natural language sentences can also be long and complex, consisting of two or more clauses joined together.
 The clause structure can be made even more complex due to embedded clauses, which divide their parent clauses into two halves::
@@ -1343,7 +1347,7 @@ The clause structure can be made even more complex due to embedded clauses, whic
     text = Text('Mees, keda seal kohtasime, oli tuttav ja teretas meid.')
     text.get.word_texts.clause_indices.clause_annotations.as_dataframe
 
-The clause annotations defien embedded clauses and clause boundaries.
+The clause annotations define embedded clauses and clause boundaries.
 Additionally, each word in a sentence is associated with a clause index::
 
        word_texts  clause_indices     clause_annotations
@@ -1421,6 +1425,30 @@ It might be useful to process each clause of the sentence independently::
     , keda seal kohtasime,
     teretas meid.
 
+The 'ignore_missing_commas' mode
+----------------------------------
+
+Because commas are important clause delimiters in Estonian, the quality of the clause segmentation may suffer due to accidentially missing commas in the input text. To address this issue, the clause segmenter can be initialized in a mode in which the program tries to be less sensitive to missing commas while detecting clause boundaries.
+
+Example::
+
+    from estnltk import ClauseSegmenter
+    from estnltk import Text
+    
+    segmenter = ClauseSegmenter( ignore_missing_commas=True )
+    text = Text('Keegi teine ka siin ju kirjutas et ütles et saab ise asjadele järgi minna aga vastust seepeale ei tulnudki.', clause_segmenter = segmenter)
+    
+    for clause in text.split_by('clauses'):
+        print (clause.text)
+    
+will produce following output::
+
+    Keegi teine ka siin ju kirjutas
+    et ütles
+    et saab ise asjadele järgi minna
+    aga vastust seepeale ei tulnudki.
+    
+Note that this mode is experimental and compared to the basic mode, it may introduce additional incorrect clause boundaries, although it also improves clause boundary detection in texts with (a lot of) missing commas.
 
 
 Verb chain tagging
