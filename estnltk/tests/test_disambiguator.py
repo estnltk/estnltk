@@ -77,4 +77,3 @@ class DisambiguatorTest(unittest.TestCase):
         texts = disambuator.disambiguate(corpus, disambiguate=False, vabamorf_disambiguate=True, post_disambiguate=False)
         for orig_text, text in zip(corpus, texts):
             self.assertDictEqual(Text(orig_text).tag_analysis(), text)
-
