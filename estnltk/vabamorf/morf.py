@@ -60,6 +60,7 @@ def regex_from_markers(markers):
 phonetic_regex = regex_from_markers(phonetic_markers)
 compound_regex = regex_from_markers(compound_markers)
 
+
 def convert(word):
     """This method converts given `word` to UTF-8 encoding and `bytes` type for the
        SWIG wrapper."""
@@ -72,6 +73,7 @@ def convert(word):
         if isinstance(word, bytes):
             return word.decode('utf-8') # bytes must be in utf8
         return word
+
 
 def deconvert(word):
     """This method converts back the output from wrapper.
@@ -165,6 +167,23 @@ class Vabamorf(object):
         trim_compound = kwargs.get('compound', True)
 
         return [postprocess_result(mr, trim_phonetic, trim_compound) for mr in morfresults]
+
+    def disambiguate(self, words):
+        """Disambiguate previously analyzed words.
+
+        Parameters
+        ----------
+        words: list of dict
+            A sentence of words.
+
+        Returns
+        -------
+        list of dict
+            Sentence of disambiguated words.
+        """
+        words = vm.SentenceAnalysis([as_wordanalysis(w) for w in words])
+        disambiguated = self._morf.disambiguate(words)
+        return [postprocess_result(mr, False, True) for mr in disambiguated]
 
     def spellcheck(self, words, suggestions=True):
         """Spellcheck given sentence.
@@ -288,6 +307,7 @@ def postprocess_result(morphresult, trim_phonetic, trim_compound):
         'analysis': [postprocess_analysis(a, trim_phonetic, trim_compound) for a in analysis]
     }
 
+
 def postprocess_analysis(analysis, trim_phonetic, trim_compound):
     root = deconvert(analysis.root)
 
@@ -305,6 +325,7 @@ def postprocess_analysis(analysis, trim_phonetic, trim_compound):
         'form': deconvert(analysis.form),
         'lemma': lemma
         }
+
 
 def trim_phonetics(root):
     """Function that trims phonetic markup from the root.
@@ -326,6 +347,7 @@ def trim_phonetics(root):
     else:
         return phonetic_regex.sub('', root)
 
+
 def trim_compounds(root):
     """Function that trims compound markup from the root.
 
@@ -343,6 +365,7 @@ def trim_compounds(root):
         return root
     else:
         return compound_regex.sub('', root)
+
 
 def get_root(root, phonetic, compound):
     """Get the root form without markers.
@@ -362,6 +385,7 @@ def get_root(root, phonetic, compound):
     if not compound:
         root = trim_compounds(root)
     return root
+
 
 def get_group_tokens(root):
     """Function to extract tokens in hyphenated groups (saunameheks-tallimeheks).
@@ -385,11 +409,27 @@ def get_group_tokens(root):
         groups.append(toks)
     return groups
 
+
 def get_lemma(grouptoks, partofspeech):
     lemma = '-'.join([''.join(gr) for gr in grouptoks])
     if partofspeech == 'V' and lemma not in ['ei', 'ära']:
         lemma += 'ma'
     return lemma
+
+
+def as_analysis(analysis):
+    return vm.Analysis(
+        convert(analysis['root']),
+        convert(analysis['ending']),
+        convert(analysis['clitic']),
+        convert(analysis['partofspeech']),
+        convert(analysis['form'])
+    )
+
+
+def as_wordanalysis(word):
+    analysis = vm.AnalysisVector([as_analysis(a) for a in word['analysis']])
+    return vm.WordAnalysis(convert(word['text']), analysis)
 
 
 ######################################################
@@ -422,6 +462,23 @@ def analyze(words, **kwargs):
         List of analysis for each word in input.
     """
     return Vabamorf.instance().analyze(words, **kwargs)
+
+
+def disambiguate(words):
+    """Disambiguate previously analyzed words.
+
+    Parameters
+    ----------
+    words: list of dict
+        A sentence of words.
+
+    Returns
+    -------
+    list of dict
+        Sentence of disambiguated words.
+    """
+    return Vabamorf.instance().disambiguate(words)
+
 
 def spellcheck(words, suggestions=True):
     """Spellcheck given sentence.
@@ -498,4 +555,3 @@ def synthesize(lemma, form, partofspeech='', hint='', guess=True, phonetic=False
         List of synthesized words.
     """
     return Vabamorf.instance().synthesize(lemma, form, partofspeech, hint, guess, phonetic)
-
