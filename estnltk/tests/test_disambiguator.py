@@ -66,3 +66,15 @@ class DisambiguatorTest(unittest.TestCase):
                         else:
                             analyseCountNotH += 1
         return [analyseCountTotal, analyseCountH, analyseCountNotH]
+
+
+    def test_vabamorf_disambiguate(self):
+        corpus = ['Esimesele kohale tuleb Jänes, kuigi tema punktide summa pole kõrgeim.',\
+                  'Lõpparvestuses läks Konnale esimene koht. Teise koha sai seekord Jänes. Uus võistlus toimub 2. mail.', \
+                  'Konn paistis silma suurima punktide summaga. Uue võistluse toimumisajaks on 2. mai.']
+        disambuator = Disambiguator()
+        # todo: test ei tööta, sest ma pole kindel, kuidas tulemust tuleks kontrollida
+        texts = disambuator.disambiguate(corpus, disambiguate=False, vabamorf_disambiguate=True, post_disambiguate=False)
+        for orig_text, text in zip(corpus, texts):
+            self.assertDictEqual(Text(orig_text).tag_analysis(), text)
+

@@ -3,7 +3,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 from .names import *
 from .text import Text
-
+from .vabamorf.morf import disambiguate
 import re
 
 class Disambiguator(object):
@@ -53,7 +53,13 @@ class Disambiguator(object):
 
 
     def __vabamorf_disambiguate(self, docs):
-        # TODO for Timo: extract vabamorf disambiguator from analyzer and apply it here
+        for doc in docs:
+            sentences = doc.divide()
+            for sentence in sentences:
+                disambiguated = disambiguate(sentence)
+                # replace the analysis
+                for orig, new in zip(sentence, disambiguated):
+                    orig[ANALYSIS] = new[ANALYSIS]
         return docs
 
 
