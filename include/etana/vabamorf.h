@@ -33,6 +33,7 @@ public:
 
     Analysis() {}
     Analysis(const char* root, const char* ending, const char* clitic, const char* partofspeech, const char* form);
+    Analysis(std::string const& root, std::string const& ending, std::string const& clitic, std::string const& partofspeech, std::string const& form);
     Analysis(Analysis const& analysis);
 };
 
@@ -91,6 +92,16 @@ public:
         const bool guess,
         const bool phonetic,
         const bool propername);
+
+    /**
+     * Disambiguate a sentence that is already analyzed.
+     * This method is a single step in a more complex
+     * disambiguation method.
+     * When you don't care or don't know what it means, just
+     * use analyze method with disambiguate=true .
+     * @param sentence The morphologically analyzed word vector,
+     */
+    std::vector<WordAnalysis> disambiguate(std::vector<WordAnalysis> &sentence);
 
     /**
      * Spellcheck words.
