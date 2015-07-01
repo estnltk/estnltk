@@ -7,8 +7,62 @@ from .vabamorf.morf import disambiguate
 import re
 
 class Disambiguator(object):
-
+    ''' Class for merging together different morphological disambiguation steps:
+        *) pre-disambiguation of proper names based on lemma counts in the corpus;
+        *) vabamorf's statistical disambiguation;
+        *) post-disambiguation of analyses based on lemma counts in the corpus;
+    '''
+    
     def disambiguate(self, docs, **kwargs):
+        ''' Performs morphological analysis along with different morphological 
+            disambiguation steps (pre-disambiguation, vabamorf's disambiguation
+            and post-disambiguation) in the input document collection `docs`.
+        
+        Note
+        ----
+             It is assumed that the documents in the input document collection `docs`
+            have some similarities, e.g. they are parts of the same story, they are 
+            on the same topic etc., so that morphologically ambiguous words (for 
+            example: proper names) reoccur in different parts of the collection. 
+            The information about reoccurring ambiguous words is then used in 
+            pre-disambiguation and post-disambiguation steps for improving the overall
+            quality of morphological disambiguation.
+            
+             Additionally, the input collection `docs` can have two levels: it can be
+            list of list of estnltk.text.Text . For example, if we have a corpus of
+            daily newspaper issues from one month, and each issue consists of articles
+            (published on a single day), we can place the issues to the outer list, 
+            and the articles of the issues to the inner lists. 
+        
+        Parameters
+        ----------
+        docs: list of estnltk.text.Text
+              List of texts (documents) in which the morphological disambiguation
+              is performed. Additionally, the list can have two levels: it can be
+              list of list of estnltk.text.Text (this can improve quality of the
+              post-disambiguation);
+        post_disambiguate : boolean, optional
+              Applies the lemma-based post-disambiguation on the collection. 
+              Default: True;
+        disambiguate : boolean, optional
+              Applies vabamorf's statistical disambiguation on the collection. 
+              Default: True;
+              Note: this step shouldn't be turned off, unless for testing purposes;
+        pre_disambiguate : boolean, optional
+              Applies the pre-disambiguation of proper names on the collection. 
+              Default: True;
+        vabamorf : boolean, optional
+              Applies vabamorf's morphological analyzer on the collection. 
+              Default: True;
+              Note: this step shouldn't be turned off, unless for testing purposes.
+              
+        Returns
+        -------
+        list of estnltk.text.Text
+          List of morphologically disambiguated texts (documents). Preserves the
+          structure, if the input was  list of list of estnltk.text.Text;
+          
+        '''
         # For testing purposes, morph analysis and morph disambiguation can both
         # be switched off:
         use_vabamorf              = kwargs.get('vabamorf', True)
