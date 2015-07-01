@@ -18,17 +18,27 @@ except ImportError:
 
 from estnltk import Text
 
-
 class PrettyPrinter(object):
     """Class for formatting Text instances as HTML & CSS."""
     def __init__(self, **kwargs):
-        asi=kwargs['asesõna']
-        print(asi)
-        asesõna = wordType(asi)
+        self.text = kwargs['text']
+        self.list = kwargs
         return
 
     def render(self, text):
         text = Text(text)
+        file_jason = text.get.word_texts.lemmas.postag_descriptions.as_dict
+        temporary = file_jason['postag_descriptions']
+        descriptions = list(set(temporary))
+        print(descriptions)
+        for el in range(0,len(descriptions),1):
+            try:
+                asi = kwargs[descriptions[el]]
+            except KeyError:
+                asi = {'color': 'black', 'background': 'white', 'font': 'serif', 'weight': 'normal','italics': 'normal',
+                     'underline': 'normal', 'size': 'normal', 'tracking': 'normal'}
+            exec("self."+descriptions[el]+" = wordType(**asi)")
+
         return text.get.word_texts.lemmas.postag_descriptions.as_dict
 
     @property
@@ -39,7 +49,7 @@ class PrettyPrinter(object):
 class wordType(object):
     def __init__(self, **kwargs):
         variables = {'color': 'black', 'background': 'white', 'font': 'serif', 'weight': 'normal','italics': 'normal',
-                     'underline': 'normal', 'size': 'normal', 'tracking': 'normal', 'text': ''}
+                     'underline': 'normal', 'size': 'normal', 'tracking': 'normal'}
         for k,v in kwargs.items():
             variables[k] = v
         self.color = variables['color']
@@ -50,19 +60,17 @@ class wordType(object):
         self.underline = variables['underline']
         self.size = variables['size']
         self.tracking = variables['tracking']
-        self.text=variables['text']
         return
 
 """Current test protocols"""
 
-kwargs = {'asesõna': {'text': "mis", 'color': 'red', 'size': 'large'},
-          'tegusõna': {'text': "on", 'color': 'green', 'size': 'small'}}
+kwargs = {'text': "Mis siin  praegu siin toimub?", 'asesõna': {'color': 'red', 'size': 'large'},
+          'tegusõna': {'color': 'green', 'size': 'small'}}
 p2 = PrettyPrinter(**kwargs)
 p2Render = p2.render(p2.text)
 print(p2Render['postag_descriptions'])
 
 
-print(p2.asesõna.text)
 print(p2.asesõna.color)
 print(p2.asesõna.background)
 print(p2.asesõna.font)
