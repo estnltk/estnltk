@@ -27,10 +27,9 @@ class PrettyPrinter(object):
 
     def render(self, text):
         text = Text(text)
-        file_jason = text.get.word_texts.lemmas.postag_descriptions.as_dict
-        temporary = file_jason['postag_descriptions']
+        file_json = text.get.word_texts.lemmas.postag_descriptions.as_dict
+        temporary = file_json['postag_descriptions']
         descriptions = list(set(temporary))
-        print(descriptions)
         for el in range(0,len(descriptions),1):
             try:
                 asi = kwargs[descriptions[el]]
@@ -68,9 +67,11 @@ kwargs = {'text': "Mis siin  praegu siin toimub?", 'asesõna': {'color': 'red', 
           'tegusõna': {'color': 'green', 'size': 'small'}}
 p2 = PrettyPrinter(**kwargs)
 p2Render = p2.render(p2.text)
+
+print(p2Render['word_texts'])
 print(p2Render['postag_descriptions'])
 
-for tag in p2Render['postag_descriptions']:
+for tag in list(set(p2Render['postag_descriptions'])):
     print()
     print(tag)
     print()
