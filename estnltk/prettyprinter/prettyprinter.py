@@ -16,21 +16,25 @@ try:
 except ImportError:
     from cgi import escape as htmlescape
 
-from ..text import Text
+from estnltk import Text
 
 
 class PrettyPrinter(object):
     """Class for formatting Text instances as HTML & CSS."""
-
+    text=""
+    vorming=[]
     def __init__(self, **kwargs):
-        pass
+        for key, value in kwargs.iteritems():
+            print(key+" = "+value)
+        return
 
     def render(self, text):
         text = Text(text)
-        return ''
+        return text
 
     @property
     def css(self):
         """The CSS of the prettyprinter."""
         return ''
-
+kwargs={'text': "mis see on", 'vorming': ["a1", "a2"]}
+p1=PrettyPrinter(**kwargs)
