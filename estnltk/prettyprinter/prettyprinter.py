@@ -24,8 +24,8 @@ class PrettyPrinter(object):
     text=""
     vorming=[]
     def __init__(self, **kwargs):
-        for key, value in kwargs.iteritems():
-            print(key+" = "+value)
+        for key, value in kwargs.items():
+            print(key, value)
         return
 
     def render(self, text):

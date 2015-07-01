@@ -3,6 +3,8 @@ from setuptools import setup, find_packages, Extension
 import os
 import sys
 
+os.environ['CC'] = 'g++'
+os.environ['CXX'] = 'g++'
 
 def get_sources(src_dir='src', ending='.cpp'):
     """Function to get a list of files ending with `ending` in `src_dir`."""
