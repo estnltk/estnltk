@@ -28,6 +28,7 @@ class PrettyPrinter(object):
         self.HEADER = """<!DOCTYPE html>
 <html>
     <head>
+        <link rel="stylesheet" type="text/css" href="prettyprinter.css">
         <meta charset="utf-8">
         <title>{0}</title>
     </head>
@@ -42,15 +43,78 @@ class PrettyPrinter(object):
         file_json = text.get.word_texts.lemmas.postag_descriptions.as_dict
         temporary = file_json['postag_descriptions']
         descriptions = list(set(temporary))
+        dictionary = {}
         for el in range(0,len(descriptions),1):
             try:
                 asi = kwargs[descriptions[el]]
             except KeyError:
-                asi = {'color': 'black', 'background': 'white', 'font': 'serif', 'weight': 'normal','italics': 'normal',
-                     'underline': 'normal', 'size': 'normal', 'tracking': 'normal'}
-            exec("self."+descriptions[el]+" = wordType(**asi)")
-
+                asi = {}
+            dictionary[descriptions[el]] = asi
+        self.properties = dictionary
         return text.get.word_texts.lemmas.postag_descriptions.as_dict
+
+    @property
+    def css(self):
+        """The CSS of the prettyprinter"""
+        rendered = self.render(self.text)
+        words = rendered['word_texts']
+        postags = list(set(rendered['postag_descriptions']))
+        cssContent = """p {
+    color: black;
+    background-color: white;
+    font-family: "Times New Roman", Times, serif;
+    font-weight: normal;
+    font-style: normal;
+    text-decoration: none;
+    font-size: 30px;
+    letter-spacing: 2px;
+    }\n"""
+        font = {'small':'20', 'normal':'30', 'large':'40'}
+        spacing = {'small':'1', 'normal':'2', 'large':'4'}
+
+        for el in range(len(postags)):
+            try:
+                cssContent += 'mark.'+postags[el]+' {\n'
+            except:
+                pass
+            try:
+                cssContent += '\tcolor: '+self.properties[postags[el]]['color']+';\n'
+            except:
+                pass
+            try:
+                cssContent += '\tbackground-color: '+self.properties[postags[el]]['background']+';\n'
+            except:
+                cssContent += '\tbackground-color: white;\n'
+            try:
+                cssContent += '\tfont-family: "Times New Roman", Times, '+self.properties[postags[el]]['font']+';\n'
+            except:
+                pass
+            try:
+                cssContent += '\tfont-weight: '+self.properties[postags[el]]['weight']+';\n'
+            except:
+                pass
+            try:
+                cssContent += '\tfont-style: '+self.properties[postags[el]]['weight']+';\n'
+            except:
+                pass
+            try:
+                cssContent += '\ttext-decoration: '+self.properties[postags[el]]['underline']+';\n'
+            except:
+                pass
+            try:
+                cssContent += '\tfont-size: '+font[self.properties[postags[el]]['size']]+'px;\n'
+            except:
+                pass
+            try:
+                cssContent += '\tletter-spacing: '+spacing[self.properties[postags[el]]['spacing']]+'px;\n'
+            except:
+                pass
+            cssContent += '}\n'
+
+        file = open('prettyprinter.css', 'w')
+        file.write(cssContent)
+        file.close()
+        return
 
     def createHTML(self):
         rendered = self.render(self.text)
@@ -65,43 +129,13 @@ class PrettyPrinter(object):
         file.write(htmlContent)
         file.write(self.FOOTER)
         file.close()
-        return
-
-    @property
-    def css(self):
-        rendered = self.render(self.text)
-        words = rendered['word_texts']
-        postags = rendered['postag_descriptions']
-        cssContent = "p {"
-        for el in range(len(words)):
-            a=1
-
-        file = open('prettyprinter.css', 'w')
-        file.write(cssContent)
-        file.close()
-        """The CSS of the prettyprinter."""
-        return ''
-
-class wordType(object):
-    def __init__(self, **kwargs):
-        variables = {'color': 'black', 'background': 'white', 'font': 'serif', 'weight': 'normal','italics': 'normal',
-                     'underline': 'normal', 'size': 'normal', 'tracking': 'normal'}
-        for k,v in kwargs.items():
-            variables[k] = v
-        self.color = variables['color']
-        self.background = variables['background']
-        self.font = variables['font']
-        self.weight = variables['weight']
-        self.italics = variables['italics']
-        self.underline = variables['underline']
-        self.size = variables['size']
-        self.tracking = variables['tracking']
+        self.css
         return
 
 """Current test protocols"""
 
 kwargs = {'text': "Mis siin  praegu siin toimub?", 'asesõna': {'color': 'red', 'size': 'large'},
-          'tegusõna': {'color': 'green', 'size': 'small'}}
+          'tegusõna': {'color': 'green', 'background':'white', 'size': 'small'}}
 p2 = PrettyPrinter(**kwargs)
 p2Render = p2.render(p2.text)
 p2.createHTML()
@@ -109,10 +143,14 @@ p2.createHTML()
 print(p2Render['word_texts'])
 print(p2Render['postag_descriptions'])
 
-for tag in list(set(p2Render['postag_descriptions'])):
+print(p2.properties)
+
+"""for tag in list(set(p2Render['postag_descriptions'])):
     print()
     print(tag)
     print()
+
+
     exec("print(p2."+tag+".color)")
     exec("print(p2."+tag+".background)")
     exec("print(p2."+tag+".font)")
@@ -120,4 +158,4 @@ for tag in list(set(p2Render['postag_descriptions'])):
     exec("print(p2."+tag+".italics)")
     exec("print(p2."+tag+".underline)")
     exec("print(p2."+tag+".size)")
-    exec("print(p2."+tag+".tracking)")
+    exec("print(p2."+tag+".tracking)")"""
