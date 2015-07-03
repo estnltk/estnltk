@@ -19,11 +19,23 @@ except ImportError:
 from estnltk import Text
 
 class PrettyPrinter(object):
+
     """Class for formatting Text instances as HTML & CSS."""
+
     def __init__(self, **kwargs):
         self.text = kwargs['text']
         self.list = kwargs
+        self.HEADER = """<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{0}</title>
+    </head>
+    <body>\n"""
+        self.FOOTER = """\t</body>\n</html>"""
         return
+
+#function render
 
     def render(self, text):
         text = Text(text)
@@ -40,8 +52,33 @@ class PrettyPrinter(object):
 
         return text.get.word_texts.lemmas.postag_descriptions.as_dict
 
+    def createHTML(self):
+        rendered = self.render(self.text)
+        words = rendered['word_texts']
+        postags = rendered['postag_descriptions']
+        htmlContent = "\t\t<p>\n"
+        for el in range(len(words)):
+            htmlContent += '\t\t\t<mark class=\"'+postags[el]+'\">'+words[el]+'</mark>\n'
+        htmlContent += '\t\t</p>\n'
+        file = open('prettyprinter.HTML', 'w')
+        file.write(self.HEADER)
+        file.write(htmlContent)
+        file.write(self.FOOTER)
+        file.close()
+        return
+
     @property
     def css(self):
+        rendered = self.render(self.text)
+        words = rendered['word_texts']
+        postags = rendered['postag_descriptions']
+        cssContent = "p {"
+        for el in range(len(words)):
+            a=1
+
+        file = open('prettyprinter.css', 'w')
+        file.write(cssContent)
+        file.close()
         """The CSS of the prettyprinter."""
         return ''
 
@@ -67,6 +104,7 @@ kwargs = {'text': "Mis siin  praegu siin toimub?", 'asesõna': {'color': 'red', 
           'tegusõna': {'color': 'green', 'size': 'small'}}
 p2 = PrettyPrinter(**kwargs)
 p2Render = p2.render(p2.text)
+p2.createHTML()
 
 print(p2Render['word_texts'])
 print(p2Render['postag_descriptions'])
