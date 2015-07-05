@@ -1,0 +1,1090 @@
+{
+    "categories": [
+        "Arhitektuur",
+        "Planeerimine"
+    ],
+    "sections": [
+        {
+            "images": [
+                {
+                    "text": "Tartu \u00dclikooli peahoone",
+                    "url": "http://et.wikipedia.org/wiki/Pilt:Tartu Universit\u00e4t.jpg"
+                }
+            ],
+            "internal_links": [
+                {
+                    "end": 104,
+                    "label": "Arhitektuur (t\u00e4psustus)",
+                    "start": 79,
+                    "title": "Arhitektuur (t\u00e4psustus)",
+                    "url": "http://et.wikipedia.org/wiki/Arhitektuur_(t\u00e4psustus)"
+                },
+                {
+                    "end": 176,
+                    "label": "ladina keel",
+                    "start": 163,
+                    "title": "ladina keel",
+                    "url": "http://et.wikipedia.org/wiki/ladina_keel"
+                },
+                {
+                    "end": 203,
+                    "label": "kreeka",
+                    "start": 195,
+                    "title": "vanakreeka keel",
+                    "url": "http://et.wikipedia.org/wiki/vanakreeka_keel"
+                },
+                {
+                    "end": 274,
+                    "label": "hoone",
+                    "start": 267,
+                    "title": "hoone",
+                    "url": "http://et.wikipedia.org/wiki/hoone"
+                },
+                {
+                    "end": 659,
+                    "label": "sakraalarhitektuur",
+                    "start": 639,
+                    "title": "sakraalarhitektuur",
+                    "url": "http://et.wikipedia.org/wiki/sakraalarhitektuur"
+                },
+                {
+                    "end": 667,
+                    "label": "tempel",
+                    "start": 659,
+                    "title": "tempel",
+                    "url": "http://et.wikipedia.org/wiki/tempel"
+                },
+                {
+                    "end": 674,
+                    "label": "kirik",
+                    "start": 667,
+                    "title": "kirik",
+                    "url": "http://et.wikipedia.org/wiki/kirik"
+                },
+                {
+                    "end": 681,
+                    "label": "kabel",
+                    "start": 674,
+                    "title": "kabel",
+                    "url": "http://et.wikipedia.org/wiki/kabel"
+                },
+                {
+                    "end": 704,
+                    "label": "profaanarhitektuur",
+                    "start": 684,
+                    "title": "profaanarhitektuur",
+                    "url": "http://et.wikipedia.org/wiki/profaanarhitektuur"
+                },
+                {
+                    "end": 710,
+                    "label": "loss",
+                    "start": 704,
+                    "title": "loss",
+                    "url": "http://et.wikipedia.org/wiki/loss"
+                },
+                {
+                    "end": 719,
+                    "label": "kindlus",
+                    "start": 710,
+                    "title": "kindlus",
+                    "url": "http://et.wikipedia.org/wiki/kindlus"
+                },
+                {
+                    "end": 726,
+                    "label": "elamu",
+                    "start": 719,
+                    "title": "elamu",
+                    "url": "http://et.wikipedia.org/wiki/elamu"
+                },
+                {
+                    "end": 743,
+                    "label": "avalikud hooned",
+                    "start": 726,
+                    "title": "avalikud hooned",
+                    "url": "http://et.wikipedia.org/wiki/avalikud_hooned"
+                },
+                {
+                    "end": 767,
+                    "label": "maastikuarhitektuur",
+                    "start": 746,
+                    "title": "maastikuarhitektuur",
+                    "url": "http://et.wikipedia.org/wiki/maastikuarhitektuur"
+                },
+                {
+                    "end": 772,
+                    "label": "aed",
+                    "start": 767,
+                    "title": "aed",
+                    "url": "http://et.wikipedia.org/wiki/aed"
+                },
+                {
+                    "end": 778,
+                    "label": "park",
+                    "start": 772,
+                    "title": "park",
+                    "url": "http://et.wikipedia.org/wiki/park"
+                },
+                {
+                    "end": 829,
+                    "label": "ruumide",
+                    "start": 820,
+                    "title": "ruum (arhitektuur)",
+                    "url": "http://et.wikipedia.org/wiki/ruum_(arhitektuur)"
+                },
+                {
+                    "end": 850,
+                    "label": "asula",
+                    "start": 843,
+                    "title": "asula",
+                    "url": "http://et.wikipedia.org/wiki/asula"
+                },
+                {
+                    "end": 920,
+                    "label": "sisearhitektuur",
+                    "start": 903,
+                    "title": "sisearhitektuur",
+                    "url": "http://et.wikipedia.org/wiki/sisearhitektuur"
+                },
+                {
+                    "end": 998,
+                    "label": "ruumiline planeerimine",
+                    "start": 974,
+                    "title": "ruumiline planeerimine",
+                    "url": "http://et.wikipedia.org/wiki/ruumiline_planeerimine"
+                },
+                {
+                    "end": 1010,
+                    "label": "Planeering",
+                    "start": 998,
+                    "title": "Planeering",
+                    "url": "http://et.wikipedia.org/wiki/Planeering"
+                },
+                {
+                    "end": 1036,
+                    "label": "ehitus\u00f5igus",
+                    "start": 1023,
+                    "title": "ehitus\u00f5igus",
+                    "url": "http://et.wikipedia.org/wiki/ehitus\u00f5igus"
+                },
+                {
+                    "end": 1150,
+                    "label": "ehitustehnika",
+                    "start": 1135,
+                    "title": "ehitustehnika",
+                    "url": "http://et.wikipedia.org/wiki/ehitustehnika"
+                },
+                {
+                    "end": 1174,
+                    "label": "ehitusmaterjal",
+                    "start": 1158,
+                    "title": "ehitusmaterjal",
+                    "url": "http://et.wikipedia.org/wiki/ehitusmaterjal"
+                },
+                {
+                    "end": 1197,
+                    "label": "konstruktsioon",
+                    "start": 1181,
+                    "title": "konstruktsioon",
+                    "url": "http://et.wikipedia.org/wiki/konstruktsioon"
+                }
+            ],
+            "references": [
+                0,
+                1
+            ],
+            "text": "{{See artikkel| r\u00e4\u00e4gib ehituskunstist; teiste t\u00e4henduste kohta vaata lehek\u00fclge Arhitektuur (t\u00e4psustus).}}\n{{ToimetaAeg|kuu=august|aasta=2009}}\n\n'''Arhitektuur''' (ladina keeles ''architectura''; kreeka s\u00f5nast ''architekt\u014dn'' 'ehitusmeister') ehk '''ehituskunst''' on hoonete ja neid \u00fcmbritseva keskkonna kujundamine. Arhitektuuriliste rajatiste kavandajat nimetatakse arhitektiks.\n\n''Arhitektuur on kunst, mis kujundab ja kaunistab inimese mistahes otstarbel p\u00fcstitatud ehitisi niimoodi, et nende v\u00e4limus tuleb kasuks ta vaimsele tervisele, annab talle j\u00f5udu ja teeb r\u00f5\u00f5mu.'' \n\nArhitektuuri liigitatakse mitmeti. \u00dcks v\u00f5imalik jaotus on:\n* sakraalarhitektuur (tempel, kirik, kabel);\n* profaanarhitektuur (loss, kindlus, elamu, avalikud hooned);\n* maastikuarhitektuur (aed, park).\n\nArhitektuuri m\u00f5iste h\u00f5lmab nii \u00fcksikute ruumide kui ka tervete asulate kujundamist. Hoonete sisemuse kujundamisega tegeleb sisearhitektuur. Arhitektuurse keskkonna kujundamisele eelneb reeglina ruumiline planeerimine. Planeeringuga m\u00e4\u00e4ratakse ehitus\u00f5igus.\n\nArhitektuur kuulub ainelisse kultuuri ja kunsti, mist\u00f5ttu arhitektuur s\u00f5ltub oluliselt nii ajastu ehitustehnikast (eriti ehitusmaterjalidest ja konstruktsioon"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 6,
+                    "label": "ait",
+                    "start": 1,
+                    "title": "ait",
+                    "url": "http://et.wikipedia.org/wiki/ait"
+                },
+                {
+                    "end": 21,
+                    "label": "buleuteerion",
+                    "start": 7,
+                    "title": "buleuteerion",
+                    "url": "http://et.wikipedia.org/wiki/buleuteerion"
+                },
+                {
+                    "end": 33,
+                    "label": "bussijaam",
+                    "start": 22,
+                    "title": "bussijaam",
+                    "url": "http://et.wikipedia.org/wiki/bussijaam"
+                },
+                {
+                    "end": 41,
+                    "label": "elamu",
+                    "start": 34,
+                    "title": "elamu",
+                    "url": "http://et.wikipedia.org/wiki/elamu"
+                },
+                {
+                    "end": 49,
+                    "label": "eramu",
+                    "start": 42,
+                    "title": "eramu",
+                    "url": "http://et.wikipedia.org/wiki/eramu"
+                },
+                {
+                    "end": 58,
+                    "label": "haigla",
+                    "start": 50,
+                    "title": "haigla",
+                    "url": "http://et.wikipedia.org/wiki/haigla"
+                },
+                {
+                    "end": 67,
+                    "label": "hotell",
+                    "start": 59,
+                    "title": "hotell",
+                    "url": "http://et.wikipedia.org/wiki/hotell"
+                },
+                {
+                    "end": 77,
+                    "label": "kastell",
+                    "start": 68,
+                    "title": "kastell",
+                    "url": "http://et.wikipedia.org/wiki/kastell"
+                },
+                {
+                    "end": 94,
+                    "label": "kastell-linnus",
+                    "start": 78,
+                    "title": "kastell-linnus",
+                    "url": "http://et.wikipedia.org/wiki/kastell-linnus"
+                },
+                {
+                    "end": 106,
+                    "label": "katedraal",
+                    "start": 95,
+                    "title": "katedraal",
+                    "url": "http://et.wikipedia.org/wiki/katedraal"
+                },
+                {
+                    "end": 113,
+                    "label": "kino",
+                    "start": 107,
+                    "title": "kino",
+                    "url": "http://et.wikipedia.org/wiki/kino"
+                },
+                {
+                    "end": 121,
+                    "label": "kirik",
+                    "start": 114,
+                    "title": "kirik (p\u00fchakoda)",
+                    "url": "http://et.wikipedia.org/wiki/kirik_(p\u00fchakoda)"
+                },
+                {
+                    "end": 132,
+                    "label": "klooster",
+                    "start": 122,
+                    "title": "klooster",
+                    "url": "http://et.wikipedia.org/wiki/klooster"
+                },
+                {
+                    "end": 140,
+                    "label": "klubi",
+                    "start": 133,
+                    "title": "klubi",
+                    "url": "http://et.wikipedia.org/wiki/klubi"
+                },
+                {
+                    "end": 147,
+                    "label": "kool",
+                    "start": 141,
+                    "title": "kool",
+                    "url": "http://et.wikipedia.org/wiki/kool"
+                },
+                {
+                    "end": 160,
+                    "label": "kortermaja",
+                    "start": 148,
+                    "title": "kortermaja",
+                    "url": "http://et.wikipedia.org/wiki/kortermaja"
+                },
+                {
+                    "end": 168,
+                    "label": "kreml",
+                    "start": 161,
+                    "title": "kreml",
+                    "url": "http://et.wikipedia.org/wiki/kreml"
+                },
+                {
+                    "end": 185,
+                    "label": "kultuurikeskus",
+                    "start": 169,
+                    "title": "kultuurikeskus",
+                    "url": "http://et.wikipedia.org/wiki/kultuurikeskus"
+                },
+                {
+                    "end": 192,
+                    "label": "k\u00fc\u00fcn",
+                    "start": 186,
+                    "title": "k\u00fc\u00fcn",
+                    "url": "http://et.wikipedia.org/wiki/k\u00fc\u00fcn"
+                },
+                {
+                    "end": 199,
+                    "label": "laut",
+                    "start": 193,
+                    "title": "laut",
+                    "url": "http://et.wikipedia.org/wiki/laut"
+                },
+                {
+                    "end": 206,
+                    "label": "loss",
+                    "start": 200,
+                    "title": "loss",
+                    "url": "http://et.wikipedia.org/wiki/loss"
+                },
+                {
+                    "end": 215,
+                    "label": "linnus",
+                    "start": 207,
+                    "title": "linnus",
+                    "url": "http://et.wikipedia.org/wiki/linnus"
+                },
+                {
+                    "end": 227,
+                    "label": "magasiait",
+                    "start": 216,
+                    "title": "magasiait",
+                    "url": "http://et.wikipedia.org/wiki/magasiait"
+                },
+                {
+                    "end": 235,
+                    "label": "mo\u0161ee",
+                    "start": 228,
+                    "title": "mo\u0161ee",
+                    "url": "http://et.wikipedia.org/wiki/mo\u0161ee"
+                },
+                {
+                    "end": 248,
+                    "label": "m\u00f5isahoone",
+                    "start": 236,
+                    "title": "m\u00f5isahoone",
+                    "url": "http://et.wikipedia.org/wiki/m\u00f5isahoone"
+                },
+                {
+                    "end": 263,
+                    "label": "noortekeskus",
+                    "start": 249,
+                    "title": "noortekeskus",
+                    "url": "http://et.wikipedia.org/wiki/noortekeskus"
+                },
+                {
+                    "end": 269,
+                    "label": "onn",
+                    "start": 264,
+                    "title": "onn",
+                    "url": "http://et.wikipedia.org/wiki/onn"
+                },
+                {
+                    "end": 277,
+                    "label": "palee",
+                    "start": 270,
+                    "title": "palee",
+                    "url": "http://et.wikipedia.org/wiki/palee"
+                },
+                {
+                    "end": 292,
+                    "label": "raudteejaam",
+                    "start": 279,
+                    "title": "raudteejaam",
+                    "url": "http://et.wikipedia.org/wiki/raudteejaam"
+                },
+                {
+                    "end": 304,
+                    "label": "rehielamu",
+                    "start": 293,
+                    "title": "rehielamu",
+                    "url": "http://et.wikipedia.org/wiki/rehielamu"
+                },
+                {
+                    "end": 311,
+                    "label": "saun",
+                    "start": 305,
+                    "title": "saun",
+                    "url": "http://et.wikipedia.org/wiki/saun"
+                },
+                {
+                    "end": 322,
+                    "label": "staadion",
+                    "start": 312,
+                    "title": "staadion",
+                    "url": "http://et.wikipedia.org/wiki/staadion"
+                },
+                {
+                    "end": 333,
+                    "label": "s\u00fcnagoog",
+                    "start": 323,
+                    "title": "s\u00fcnagoog",
+                    "url": "http://et.wikipedia.org/wiki/s\u00fcnagoog"
+                },
+                {
+                    "end": 340,
+                    "label": "tall",
+                    "start": 334,
+                    "title": "tall",
+                    "url": "http://et.wikipedia.org/wiki/tall"
+                },
+                {
+                    "end": 351,
+                    "label": "talumaja",
+                    "start": 341,
+                    "title": "talumaja",
+                    "url": "http://et.wikipedia.org/wiki/talumaja"
+                },
+                {
+                    "end": 360,
+                    "label": "teater",
+                    "start": 352,
+                    "title": "teater",
+                    "url": "http://et.wikipedia.org/wiki/teater"
+                },
+                {
+                    "end": 368,
+                    "label": "tehas",
+                    "start": 361,
+                    "title": "tehas",
+                    "url": "http://et.wikipedia.org/wiki/tehas"
+                },
+                {
+                    "end": 377,
+                    "label": "tempel",
+                    "start": 369,
+                    "title": "tempel",
+                    "url": "http://et.wikipedia.org/wiki/tempel"
+                },
+                {
+                    "end": 388,
+                    "label": "tuletorn",
+                    "start": 378,
+                    "title": "tuletorn",
+                    "url": "http://et.wikipedia.org/wiki/tuletorn"
+                },
+                {
+                    "end": 400,
+                    "label": "velodroom",
+                    "start": 389,
+                    "title": "velodroom",
+                    "url": "http://et.wikipedia.org/wiki/velodroom"
+                },
+                {
+                    "end": 408,
+                    "label": "villa",
+                    "start": 401,
+                    "title": "villa",
+                    "url": "http://et.wikipedia.org/wiki/villa"
+                }
+            ],
+            "text": "\nait - buleuteerion - bussijaam - elamu - eramu - haigla - hotell - kastell - kastell-linnus - katedraal - kino - kirik - klooster - klubi - kool - kortermaja - kreml - kultuurikeskus - k\u00fc\u00fcn - laut - loss - linnus - magasiait - mo\u0161ee - m\u00f5isahoone - noortekeskus - onn - palee -  raudteejaam - rehielamu - saun - staadion - s\u00fcnagoog - tall - talumaja - teater - tehas - tempel - tuletorn - velodroom - villa",
+            "title": "Hoonete liike"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 9,
+                    "label": "barokk",
+                    "start": 1,
+                    "title": "barokk",
+                    "url": "http://et.wikipedia.org/wiki/barokk"
+                },
+                {
+                    "end": 19,
+                    "label": "blobism",
+                    "start": 10,
+                    "title": "blobism",
+                    "url": "http://et.wikipedia.org/wiki/blobism"
+                },
+                {
+                    "end": 34,
+                    "label": "dooria stiil",
+                    "start": 20,
+                    "title": "dooria stiil",
+                    "url": "http://et.wikipedia.org/wiki/dooria_stiil"
+                },
+                {
+                    "end": 51,
+                    "label": "funktsionalism",
+                    "start": 35,
+                    "title": "funktsionalism",
+                    "url": "http://et.wikipedia.org/wiki/funktsionalism"
+                },
+                {
+                    "end": 65,
+                    "label": "gooti stiil",
+                    "start": 52,
+                    "title": "gooti stiil",
+                    "url": "http://et.wikipedia.org/wiki/gooti_stiil"
+                },
+                {
+                    "end": 80,
+                    "label": "historitsism",
+                    "start": 66,
+                    "title": "historitsism",
+                    "url": "http://et.wikipedia.org/wiki/historitsism"
+                },
+                {
+                    "end": 95,
+                    "label": "neorenessanss",
+                    "start": 80,
+                    "title": "neorenessanss",
+                    "url": "http://et.wikipedia.org/wiki/neorenessanss"
+                },
+                {
+                    "end": 107,
+                    "label": "neogootika",
+                    "start": 95,
+                    "title": "neogootika",
+                    "url": "http://et.wikipedia.org/wiki/neogootika"
+                },
+                {
+                    "end": 118,
+                    "label": "neobarokk",
+                    "start": 107,
+                    "title": "neobarokk",
+                    "url": "http://et.wikipedia.org/wiki/neobarokk"
+                },
+                {
+                    "end": 133,
+                    "label": "heimatstiil",
+                    "start": 120,
+                    "title": "heimatstiil",
+                    "url": "http://et.wikipedia.org/wiki/heimatstiil"
+                },
+                {
+                    "end": 147,
+                    "label": "hilisbarokk",
+                    "start": 134,
+                    "title": "hilisbarokk",
+                    "url": "http://et.wikipedia.org/wiki/hilisbarokk"
+                },
+                {
+                    "end": 162,
+                    "label": "joonia stiil",
+                    "start": 148,
+                    "title": "joonia stiil",
+                    "url": "http://et.wikipedia.org/wiki/joonia_stiil"
+                },
+                {
+                    "end": 172,
+                    "label": "juugend",
+                    "start": 163,
+                    "title": "juugend",
+                    "url": "http://et.wikipedia.org/wiki/juugend"
+                },
+                {
+                    "end": 186,
+                    "label": "klassitsism",
+                    "start": 173,
+                    "title": "klassitsism",
+                    "url": "http://et.wikipedia.org/wiki/klassitsism"
+                },
+                {
+                    "end": 204,
+                    "label": "korintose stiil",
+                    "start": 187,
+                    "title": "korintose stiil",
+                    "url": "http://et.wikipedia.org/wiki/korintose_stiil"
+                },
+                {
+                    "end": 230,
+                    "label": "Lombardia romaani stiil",
+                    "start": 205,
+                    "title": "Lombardia romaani stiil",
+                    "url": "http://et.wikipedia.org/wiki/Lombardia_romaani_stiil"
+                },
+                {
+                    "end": 242,
+                    "label": "modernism",
+                    "start": 231,
+                    "title": "modernism",
+                    "url": "http://et.wikipedia.org/wiki/modernism"
+                },
+                {
+                    "end": 266,
+                    "label": "N\u00f5ukogude arhitektuur",
+                    "start": 243,
+                    "title": "N\u00f5ukogude arhitektuur",
+                    "url": "http://et.wikipedia.org/wiki/N\u00f5ukogude_arhitektuur"
+                },
+                {
+                    "end": 282,
+                    "label": "postmodernism",
+                    "start": 267,
+                    "title": "postmodernism",
+                    "url": "http://et.wikipedia.org/wiki/postmodernism"
+                },
+                {
+                    "end": 295,
+                    "label": "renessanss",
+                    "start": 283,
+                    "title": "renessanssarhitektuur",
+                    "url": "http://et.wikipedia.org/wiki/renessanssarhitektuur"
+                },
+                {
+                    "end": 305,
+                    "label": "rokokoo",
+                    "start": 296,
+                    "title": "rokokoo",
+                    "url": "http://et.wikipedia.org/wiki/rokokoo"
+                },
+                {
+                    "end": 322,
+                    "label": "romaani stiil",
+                    "start": 307,
+                    "title": "romaani stiil",
+                    "url": "http://et.wikipedia.org/wiki/romaani_stiil"
+                },
+                {
+                    "end": 334,
+                    "label": "romantism",
+                    "start": 323,
+                    "title": "romantism",
+                    "url": "http://et.wikipedia.org/wiki/romantism"
+                },
+                {
+                    "end": 352,
+                    "label": "varaklassitsism",
+                    "start": 335,
+                    "title": "varaklassitsism",
+                    "url": "http://et.wikipedia.org/wiki/varaklassitsism"
+                }
+            ],
+            "text": "\nbarokk - blobism - dooria stiil - funktsionalism - gooti stiil - historitsism (neorenessanss, neogootika, neobarokk) - heimatstiil - hilisbarokk - joonia stiil - juugend - klassitsism - korintose stiil - Lombardia romaani stiil - modernism - N\u00f5ukogude arhitektuur - postmodernism - renessanss - rokokoo -  romaani stiil - romantism - varaklassitsism",
+            "title": "Arhitektuuristiile"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 49,
+                    "label": "Emaj\u00f5e \u00c4rikeskus",
+                    "start": 31,
+                    "title": "Emaj\u00f5e \u00c4rikeskus",
+                    "url": "http://et.wikipedia.org/wiki/Emaj\u00f5e_\u00c4rikeskus"
+                },
+                {
+                    "end": 72,
+                    "label": "P\u00e4\u00e4sk\u00fcla raamatukogu",
+                    "start": 50,
+                    "title": "P\u00e4\u00e4sk\u00fcla raamatukogu",
+                    "url": "http://et.wikipedia.org/wiki/P\u00e4\u00e4sk\u00fcla_raamatukogu"
+                },
+                {
+                    "end": 88,
+                    "label": "Sakala keskus",
+                    "start": 73,
+                    "title": "Sakala keskus",
+                    "url": "http://et.wikipedia.org/wiki/Sakala_keskus"
+                },
+                {
+                    "end": 109,
+                    "label": "Tallinna Linnahall",
+                    "start": 89,
+                    "title": "Tallinna Linnahall",
+                    "url": "http://et.wikipedia.org/wiki/Tallinna_Linnahall"
+                },
+                {
+                    "end": 145,
+                    "label": "Tallinna Ol\u00fcmpiapurjespordikeskus",
+                    "start": 110,
+                    "title": "Tallinna Ol\u00fcmpiapurjespordikeskus",
+                    "url": "http://et.wikipedia.org/wiki/Tallinna_Ol\u00fcmpiapurjespordikeskus"
+                },
+                {
+                    "end": 165,
+                    "label": "Tallinna vanalinn",
+                    "start": 146,
+                    "title": "Tallinna vanalinn",
+                    "url": "http://et.wikipedia.org/wiki/Tallinna_vanalinn"
+                },
+                {
+                    "end": 183,
+                    "label": "Tartu Kaubahoov",
+                    "start": 166,
+                    "title": "Tartu Kaubahoov",
+                    "url": "http://et.wikipedia.org/wiki/Tartu_Kaubahoov"
+                },
+                {
+                    "end": 209,
+                    "label": "Tartu \u00dclikooli peahoone",
+                    "start": 184,
+                    "title": "Tartu \u00dclikooli peahoone",
+                    "url": "http://et.wikipedia.org/wiki/Tartu_\u00dclikooli_peahoone"
+                },
+                {
+                    "end": 220,
+                    "label": "Tigutorn",
+                    "start": 210,
+                    "title": "Tigutorn",
+                    "url": "http://et.wikipedia.org/wiki/Tigutorn"
+                }
+            ],
+            "related_articles": [
+                [
+                    "|Eesti arhitektuur",
+                    [
+                        2,
+                        29
+                    ]
+                ]
+            ],
+            "text": "\n\n{{Vaata|Eesti arhitektuur}}\n\nEmaj\u00f5e \u00c4rikeskus - P\u00e4\u00e4sk\u00fcla raamatukogu - Sakala keskus - Tallinna Linnahall - Tallinna Ol\u00fcmpiapurjespordikeskus - Tallinna vanalinn - Tartu Kaubahoov - Tartu \u00dclikooli peahoone - Tigutorn",
+            "title": "Eesti arhitektuuriteoseid"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 18,
+                    "label": "1 Canada Square",
+                    "start": 1,
+                    "title": "1 Canada Square",
+                    "url": "http://et.wikipedia.org/wiki/1_Canada_Square"
+                },
+                {
+                    "end": 44,
+                    "label": "Austria parlamendihoone",
+                    "start": 19,
+                    "title": "Austria parlamendihoone",
+                    "url": "http://et.wikipedia.org/wiki/Austria_parlamendihoone"
+                },
+                {
+                    "end": 60,
+                    "label": "Burj Khal\u012bfah",
+                    "start": 45,
+                    "title": "Burj Khal\u012bfah",
+                    "url": "http://et.wikipedia.org/wiki/Burj_Khal\u012bfah"
+                },
+                {
+                    "end": 72,
+                    "label": "Colosseum",
+                    "start": 61,
+                    "title": "Colosseum",
+                    "url": "http://et.wikipedia.org/wiki/Colosseum"
+                },
+                {
+                    "end": 92,
+                    "label": "Commerzbank Tower",
+                    "start": 73,
+                    "title": "Commerzbank Tower",
+                    "url": "http://et.wikipedia.org/wiki/Commerzbank_Tower"
+                },
+                {
+                    "end": 110,
+                    "label": "Dood\u017eide palee",
+                    "start": 94,
+                    "title": "Dood\u017eide palee",
+                    "url": "http://et.wikipedia.org/wiki/Dood\u017eide_palee"
+                },
+                {
+                    "end": 125,
+                    "label": "Eiffeli torn",
+                    "start": 111,
+                    "title": "Eiffeli torn",
+                    "url": "http://et.wikipedia.org/wiki/Eiffeli_torn"
+                },
+                {
+                    "end": 151,
+                    "label": "Empire State Building",
+                    "start": 128,
+                    "title": "Empire State Building",
+                    "url": "http://et.wikipedia.org/wiki/Empire_State_Building"
+                },
+                {
+                    "end": 167,
+                    "label": "Erechtheion",
+                    "start": 154,
+                    "title": "Erechtheion",
+                    "url": "http://et.wikipedia.org/wiki/Erechtheion"
+                },
+                {
+                    "end": 182,
+                    "label": "Euroopa torn",
+                    "start": 168,
+                    "title": "Euroopa torn",
+                    "url": "http://et.wikipedia.org/wiki/Euroopa_torn"
+                },
+                {
+                    "end": 198,
+                    "label": "Hagia Sophia",
+                    "start": 184,
+                    "title": "Hagia Sophia",
+                    "url": "http://et.wikipedia.org/wiki/Hagia_Sophia"
+                },
+                {
+                    "end": 209,
+                    "label": "Heraion",
+                    "start": 200,
+                    "title": "Heraion",
+                    "url": "http://et.wikipedia.org/wiki/Heraion"
+                },
+                {
+                    "end": 225,
+                    "label": "Jin Mao Tower",
+                    "start": 210,
+                    "title": "Jin Mao Tower",
+                    "url": "http://et.wikipedia.org/wiki/Jin_Mao_Tower"
+                },
+                {
+                    "end": 239,
+                    "label": "Kapitoolium",
+                    "start": 226,
+                    "title": "Kapitoolium",
+                    "url": "http://et.wikipedia.org/wiki/Kapitoolium"
+                },
+                {
+                    "end": 266,
+                    "label": "Kapitoolium (Washington)",
+                    "start": 240,
+                    "title": "Kapitoolium (Washington)",
+                    "url": "http://et.wikipedia.org/wiki/Kapitoolium_(Washington)"
+                },
+                {
+                    "end": 278,
+                    "label": "L\u00f5unatorn",
+                    "start": 267,
+                    "title": "L\u00f5unatorn",
+                    "url": "http://et.wikipedia.org/wiki/L\u00f5unatorn"
+                },
+                {
+                    "end": 290,
+                    "label": "Parthenon",
+                    "start": 279,
+                    "title": "Parthenon",
+                    "url": "http://et.wikipedia.org/wiki/Parthenon"
+                },
+                {
+                    "end": 308,
+                    "label": "Petronas Towers",
+                    "start": 291,
+                    "title": "Petronas Towers",
+                    "url": "http://et.wikipedia.org/wiki/Petronas_Towers"
+                },
+                {
+                    "end": 320,
+                    "label": "Rundet\u00e5rn",
+                    "start": 309,
+                    "title": "Rundet\u00e5rn",
+                    "url": "http://et.wikipedia.org/wiki/Rundet\u00e5rn"
+                },
+                {
+                    "end": 336,
+                    "label": "Saint-Sulpice",
+                    "start": 321,
+                    "title": "Saint-Sulpice'i kirik",
+                    "url": "http://et.wikipedia.org/wiki/Saint-Sulpice'i_kirik"
+                },
+                {
+                    "end": 355,
+                    "label": "Sch\u00f6nbrunni loss",
+                    "start": 337,
+                    "title": "Sch\u00f6nbrunni loss",
+                    "url": "http://et.wikipedia.org/wiki/Sch\u00f6nbrunni_loss"
+                },
+                {
+                    "end": 369,
+                    "label": "Sears Tower",
+                    "start": 356,
+                    "title": "Sears Tower",
+                    "url": "http://et.wikipedia.org/wiki/Sears_Tower"
+                },
+                {
+                    "end": 403,
+                    "label": "Shanghai World Financial Center",
+                    "start": 370,
+                    "title": "Shanghai World Financial Center",
+                    "url": "http://et.wikipedia.org/wiki/Shanghai_World_Financial_Center"
+                },
+                {
+                    "end": 425,
+                    "label": "Sydney ooperiteater",
+                    "start": 404,
+                    "title": "Sydney ooperiteater",
+                    "url": "http://et.wikipedia.org/wiki/Sydney_ooperiteater"
+                },
+                {
+                    "end": 438,
+                    "label": "Tad\u017e Mahal",
+                    "start": 426,
+                    "title": "Tad\u017e Mahal",
+                    "url": "http://et.wikipedia.org/wiki/Tad\u017e_Mahal"
+                },
+                {
+                    "end": 451,
+                    "label": "Taipei 101",
+                    "start": 439,
+                    "title": "Taipei 101",
+                    "url": "http://et.wikipedia.org/wiki/Taipei_101"
+                },
+                {
+                    "end": 464,
+                    "label": "Talvepalee",
+                    "start": 452,
+                    "title": "Talvepalee",
+                    "url": "http://et.wikipedia.org/wiki/Talvepalee"
+                },
+                {
+                    "end": 476,
+                    "label": "The Shard",
+                    "start": 465,
+                    "title": "The Shard",
+                    "url": "http://et.wikipedia.org/wiki/The_Shard"
+                },
+                {
+                    "end": 490,
+                    "label": "Torre Agbar",
+                    "start": 477,
+                    "title": "Torre Agbar",
+                    "url": "http://et.wikipedia.org/wiki/Torre_Agbar"
+                },
+                {
+                    "end": 510,
+                    "label": "Tour Montparnasse",
+                    "start": 491,
+                    "title": "Tour Montparnasse",
+                    "url": "http://et.wikipedia.org/wiki/Tour_Montparnasse"
+                },
+                {
+                    "end": 531,
+                    "label": "Umeda Sky Building",
+                    "start": 511,
+                    "title": "Umeda Sky Building",
+                    "url": "http://et.wikipedia.org/wiki/Umeda_Sky_Building"
+                },
+                {
+                    "end": 557,
+                    "label": "Yokohama Landmark Tower",
+                    "start": 532,
+                    "title": "Yokohama Landmark Tower",
+                    "url": "http://et.wikipedia.org/wiki/Yokohama_Landmark_Tower"
+                }
+            ],
+            "text": "\n1 Canada Square - Austria parlamendihoone - Burj Khal\u012bfah - Colosseum - Commerzbank Tower  - Dood\u017eide palee - Eiffeli torn - ''Empire State Building'' - Erechtheion - Euroopa torn  - Hagia Sophia -  Heraion - Jin Mao Tower \u2013 Kapitoolium - Kapitoolium (Washington) - L\u00f5unatorn - Parthenon - Petronas Towers \u2013 Rundet\u00e5rn - Saint-Sulpice - Sch\u00f6nbrunni loss - Sears Tower - Shanghai World Financial Center - Sydney ooperiteater - Tad\u017e Mahal - Taipei 101 - Talvepalee - The Shard - Torre Agbar - Tour Montparnasse - Umeda Sky Building - Yokohama Landmark Tower",
+            "title": "V\u00e4lisriikide arhitektuuriteoseid"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 31,
+                    "label": "V\u00e4lismaa arhitektide loend",
+                    "start": 3,
+                    "title": "V\u00e4lismaa arhitektide loend",
+                    "url": "http://et.wikipedia.org/wiki/V\u00e4lismaa_arhitektide_loend"
+                },
+                {
+                    "end": 57,
+                    "label": "Eesti arhitektide loend",
+                    "start": 32,
+                    "title": "Eesti arhitektide loend",
+                    "url": "http://et.wikipedia.org/wiki/Eesti_arhitektide_loend"
+                },
+                {
+                    "end": 80,
+                    "label": "Eesti linnuste loend",
+                    "start": 58,
+                    "title": "Eesti linnuste loend",
+                    "url": "http://et.wikipedia.org/wiki/Eesti_linnuste_loend"
+                },
+                {
+                    "end": 124,
+                    "label": "Eesti kirikute loend haldus\u00fcksuste kaupa",
+                    "start": 82,
+                    "title": "Eesti kirikute loend haldus\u00fcksuste kaupa",
+                    "url": "http://et.wikipedia.org/wiki/Eesti_kirikute_loend_haldus\u00fcksuste_kaupa"
+                },
+                {
+                    "end": 146,
+                    "label": "Eesti m\u00f5isate loend",
+                    "start": 125,
+                    "title": "Eesti m\u00f5isate loend",
+                    "url": "http://et.wikipedia.org/wiki/Eesti_m\u00f5isate_loend"
+                },
+                {
+                    "end": 173,
+                    "label": "Eesti tuletornide loend",
+                    "start": 148,
+                    "title": "Eesti tuletornide loend",
+                    "url": "http://et.wikipedia.org/wiki/Eesti_tuletornide_loend"
+                },
+                {
+                    "end": 184,
+                    "label": "Kirikud",
+                    "start": 175,
+                    "title": "Kirikud",
+                    "url": "http://et.wikipedia.org/wiki/Kirikud"
+                },
+                {
+                    "end": 206,
+                    "label": "Tallinna k\u00f5rghooned",
+                    "start": 185,
+                    "title": "Tallinna k\u00f5rghooned",
+                    "url": "http://et.wikipedia.org/wiki/Tallinna_k\u00f5rghooned"
+                },
+                {
+                    "end": 229,
+                    "label": "Raudteejaamade loend",
+                    "start": 207,
+                    "title": "Raudteejaamade loend",
+                    "url": "http://et.wikipedia.org/wiki/Raudteejaamade_loend"
+                }
+            ],
+            "text": "\n* V\u00e4lismaa arhitektide loend\n* Eesti arhitektide loend\n* Eesti linnuste loend \n* Eesti kirikute loend haldus\u00fcksuste kaupa\n* Eesti m\u00f5isate loend \n* Eesti tuletornide loend \n* Kirikud\n* Tallinna k\u00f5rghooned\n* Raudteejaamade loend",
+            "title": "Loendid"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 26,
+                    "label": "Arhitektuuri m\u00f5isteid",
+                    "start": 3,
+                    "title": "Arhitektuuri m\u00f5isteid",
+                    "url": "http://et.wikipedia.org/wiki/Arhitektuuri_m\u00f5isteid"
+                },
+                {
+                    "end": 41,
+                    "label": "Ateena harta",
+                    "start": 27,
+                    "title": "Ateena harta",
+                    "url": "http://et.wikipedia.org/wiki/Ateena_harta"
+                },
+                {
+                    "end": 57,
+                    "label": "Venezia harta",
+                    "start": 42,
+                    "title": "Venezia harta",
+                    "url": "http://et.wikipedia.org/wiki/Venezia_harta"
+                }
+            ],
+            "text": "\n* Arhitektuuri m\u00f5isteid\n* Ateena harta\n* Venezia harta",
+            "title": "Vaata ka"
+        },
+        {
+            "external links": [
+                {
+                    "end": 105,
+                    "label": "\"Arhitektuurip\u00e4rlid ja -k\u00e4kid\"",
+                    "start": 75,
+                    "url": "http://www.epl.ee/artikkel/482613"
+                },
+                {
+                    "end": 277,
+                    "label": "Mai \u0160ein: Kultuuritus kultuuris",
+                    "start": 246,
+                    "url": "http://www.sirp.ee/index.php?view=article&catid=20%3Aarhitektuur&id=20340%3Akultuuritus-kultuuris&tmpl=component&print=1&page=&option=com_content&Itemid=25"
+                }
+            ],
+            "text": "\n{{Viited}}\n{{commons|Architecture}}\n* 14. november 2009, Eesti P\u00e4evaleht, \"Arhitektuurip\u00e4rlid ja -k\u00e4kid\" - Arhitektuuriprofid toovad v\u00e4lja parima ja halvima, mis on juhtunud taasiseseisvunud Eesti hooneehituskunstis.\n* 19. detsember 2013, Sirp, Mai \u0160ein: Kultuuritus kultuuris \u2013 autori\u00f5iguste ahistamisest Eesti arhitektuurivaldkonnas\n\n\n",
+            "title": "V\u00e4lislingid"
+        }
+    ],
+    "timestamp": "2015-03-10T00:39:53Z",
+    "title": "Arhitektuur",
+    "url": "http://et.wikipedia.org/wiki/Arhitektuur"
+}

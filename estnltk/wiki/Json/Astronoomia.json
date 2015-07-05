@@ -1,0 +1,667 @@
+{
+    "categories": [
+        "Astronoomia"
+    ],
+    "sections": [
+        {
+            "images": [
+                {
+                    "text": "Planetaarudu",
+                    "url": "http://et.wikipedia.org/wiki/Pilt:NGC7293 (2004).jpg"
+                }
+            ],
+            "internal_links": [
+                {
+                    "end": 11,
+                    "label": "NGC 7293",
+                    "start": 1,
+                    "title": "NGC 7293",
+                    "url": "http://et.wikipedia.org/wiki/NGC_7293"
+                },
+                {
+                    "end": 76,
+                    "label": "teadusharu",
+                    "start": 64,
+                    "title": "teadusharu",
+                    "url": "http://et.wikipedia.org/wiki/teadusharu"
+                },
+                {
+                    "end": 97,
+                    "label": "kosmilisi",
+                    "start": 86,
+                    "title": "Maailmaruum",
+                    "url": "http://et.wikipedia.org/wiki/Maailmaruum"
+                },
+                {
+                    "end": 118,
+                    "label": "universum",
+                    "start": 107,
+                    "title": "universum",
+                    "url": "http://et.wikipedia.org/wiki/universum"
+                }
+            ],
+            "text": " NGC 7293 ehk Helix]]\n'''Astronoomia''' ehk '''t\u00e4heteadus''' on teadusharu, mis uurib kosmilisi objekte ja universum"
+        },
+        {
+            "sections": [
+                {
+                    "internal_links": [
+                        {
+                            "end": 61,
+                            "label": "astromeetria",
+                            "start": 47,
+                            "title": "astromeetria",
+                            "url": "http://et.wikipedia.org/wiki/astromeetria"
+                        },
+                        {
+                            "end": 117,
+                            "label": "taevakaart",
+                            "start": 105,
+                            "title": "taevakaart",
+                            "url": "http://et.wikipedia.org/wiki/taevakaart"
+                        },
+                        {
+                            "end": 151,
+                            "label": "taevamehaanika",
+                            "start": 135,
+                            "title": "taevamehaanika",
+                            "url": "http://et.wikipedia.org/wiki/taevamehaanika"
+                        },
+                        {
+                            "end": 186,
+                            "label": "planeet",
+                            "start": 177,
+                            "title": "planeet",
+                            "url": "http://et.wikipedia.org/wiki/planeet"
+                        },
+                        {
+                            "end": 248,
+                            "label": "taevasf\u00e4\u00e4r",
+                            "start": 236,
+                            "title": "taevasf\u00e4\u00e4r",
+                            "url": "http://et.wikipedia.org/wiki/taevasf\u00e4\u00e4r"
+                        },
+                        {
+                            "end": 266,
+                            "label": "astrof\u00fc\u00fcsika",
+                            "start": 252,
+                            "title": "astrof\u00fc\u00fcsika",
+                            "url": "http://et.wikipedia.org/wiki/astrof\u00fc\u00fcsika"
+                        }
+                    ],
+                    "text": "\nMeetodi j\u00e4rgi liigendub astronoomia kolmeks:\n*astromeetria tegeleb taevakehade asukoha m\u00e4\u00e4ramisega ning taevakaartide koostamisega; \n*taevamehaanika uurib taevakehade, eesk\u00e4tt planeetide liikumist ruumis ja selle liikumise kajastumist taevasf\u00e4\u00e4ril; \n*astrof\u00fc\u00fcsika",
+                    "title": "Jaotus meetodi j\u00e4rgi"
+                },
+                {
+                    "internal_links": [
+                        {
+                            "end": 62,
+                            "label": "planetoloogia",
+                            "start": 47,
+                            "title": "planetoloogia",
+                            "url": "http://et.wikipedia.org/wiki/planetoloogia"
+                        },
+                        {
+                            "end": 79,
+                            "label": "geof\u00fc\u00fcsika",
+                            "start": 67,
+                            "title": "geof\u00fc\u00fcsika",
+                            "url": "http://et.wikipedia.org/wiki/geof\u00fc\u00fcsika"
+                        },
+                        {
+                            "end": 116,
+                            "label": "kaaslaste",
+                            "start": 105,
+                            "title": "planeedi kaaslane",
+                            "url": "http://et.wikipedia.org/wiki/planeedi_kaaslane"
+                        },
+                        {
+                            "end": 134,
+                            "label": "P\u00e4ikeses\u00fcsteem",
+                            "start": 118,
+                            "title": "P\u00e4ikeses\u00fcsteem",
+                            "url": "http://et.wikipedia.org/wiki/P\u00e4ikeses\u00fcsteem"
+                        },
+                        {
+                            "end": 173,
+                            "label": "t\u00e4htede f\u00fc\u00fcsika",
+                            "start": 156,
+                            "title": "t\u00e4htede f\u00fc\u00fcsika",
+                            "url": "http://et.wikipedia.org/wiki/t\u00e4htede_f\u00fc\u00fcsika"
+                        },
+                        {
+                            "end": 185,
+                            "label": "t\u00e4ht",
+                            "start": 179,
+                            "title": "t\u00e4ht (astronoomia)",
+                            "url": "http://et.wikipedia.org/wiki/t\u00e4ht_(astronoomia)"
+                        },
+                        {
+                            "end": 210,
+                            "label": "galaktikate f\u00fc\u00fcsika",
+                            "start": 189,
+                            "title": "galaktikate f\u00fc\u00fcsika",
+                            "url": "http://et.wikipedia.org/wiki/galaktikate_f\u00fc\u00fcsika"
+                        },
+                        {
+                            "end": 226,
+                            "label": "galaktika",
+                            "start": 215,
+                            "title": "galaktika",
+                            "url": "http://et.wikipedia.org/wiki/galaktika"
+                        },
+                        {
+                            "end": 258,
+                            "label": "kosmoloogia",
+                            "start": 245,
+                            "title": "kosmoloogia",
+                            "url": "http://et.wikipedia.org/wiki/kosmoloogia"
+                        },
+                        {
+                            "end": 275,
+                            "label": "Universum",
+                            "start": 264,
+                            "title": "Universum",
+                            "url": "http://et.wikipedia.org/wiki/Universum"
+                        }
+                    ],
+                    "text": "\nObjekti j\u00e4rgi jaguneb astrof\u00fc\u00fcsika neljaks:\n**planetoloogia (koos geof\u00fc\u00fcsikaga) uurib planeetide, nende kaaslaste jt P\u00e4ikeses\u00fcsteemi objektide ehitust);\n**t\u00e4htede f\u00fc\u00fcsika (uurib t\u00e4hti);\n**galaktikate f\u00fc\u00fcsika uurib galaktikaid (t\u00e4hes\u00fcsteeme);\n**kosmoloogia (uurib Universum",
+                    "title": "Jaotus objekti j\u00e4rgi"
+                }
+            ],
+            "text": "",
+            "title": "Nimetus"
+        },
+        {
+            "images": [
+                {
+                    "text": "Hiina astronoomi kujutav maaling 1675. aastast",
+                    "url": "http://et.wikipedia.org/wiki/Pilt:Utagawa_Kuniyoshi,_Portrait_of_Chicasei_Goy\u00f4_(Wu_Yong)_(1827\u20131830).jpg"
+                }
+            ],
+            "internal_links": [
+                {
+                    "end": 102,
+                    "label": "taevakeha",
+                    "start": 91,
+                    "title": "taevakeha",
+                    "url": "http://et.wikipedia.org/wiki/taevakeha"
+                },
+                {
+                    "end": 122,
+                    "label": "vaatlus",
+                    "start": 113,
+                    "title": "vaatlus",
+                    "url": "http://et.wikipedia.org/wiki/vaatlus"
+                },
+                {
+                    "end": 135,
+                    "label": "ennustus",
+                    "start": 125,
+                    "title": "ennustus (teadus)",
+                    "url": "http://et.wikipedia.org/wiki/ennustus_(teadus)"
+                },
+                {
+                    "end": 172,
+                    "label": "Vana-Kreeka",
+                    "start": 159,
+                    "title": "Vana-Kreeka",
+                    "url": "http://et.wikipedia.org/wiki/Vana-Kreeka"
+                },
+                {
+                    "end": 193,
+                    "label": "t\u00e4hesuurus",
+                    "start": 181,
+                    "title": "t\u00e4hesuurus",
+                    "url": "http://et.wikipedia.org/wiki/t\u00e4hesuurus"
+                },
+                {
+                    "end": 245,
+                    "label": "t\u00e4htkuju",
+                    "start": 235,
+                    "title": "t\u00e4htkuju",
+                    "url": "http://et.wikipedia.org/wiki/t\u00e4htkuju"
+                },
+                {
+                    "end": 263,
+                    "label": "sodiaak",
+                    "start": 254,
+                    "title": "sodiaak",
+                    "url": "http://et.wikipedia.org/wiki/sodiaak"
+                },
+                {
+                    "end": 274,
+                    "label": "Keskajal",
+                    "start": 264,
+                    "title": "Keskaeg",
+                    "url": "http://et.wikipedia.org/wiki/Keskaeg"
+                },
+                {
+                    "end": 350,
+                    "label": "Renessansiajal",
+                    "start": 334,
+                    "title": "Renessanss",
+                    "url": "http://et.wikipedia.org/wiki/Renessanss"
+                },
+                {
+                    "end": 366,
+                    "label": "Kopernik",
+                    "start": 356,
+                    "title": "Mikolaj Kopernik",
+                    "url": "http://et.wikipedia.org/wiki/Mikolaj_Kopernik"
+                },
+                {
+                    "end": 381,
+                    "label": "P\u00e4ikeses\u00fcsteem",
+                    "start": 365,
+                    "title": "P\u00e4ikeses\u00fcsteem",
+                    "url": "http://et.wikipedia.org/wiki/P\u00e4ikeses\u00fcsteem"
+                },
+                {
+                    "end": 406,
+                    "label": "heliotsentrilise mudeli",
+                    "start": 381,
+                    "title": "heliotsentriline mudel",
+                    "url": "http://et.wikipedia.org/wiki/heliotsentriline_mudel"
+                },
+                {
+                    "end": 464,
+                    "label": "Galilei",
+                    "start": 455,
+                    "title": "Galileo Galilei",
+                    "url": "http://et.wikipedia.org/wiki/Galileo_Galilei"
+                },
+                {
+                    "end": 474,
+                    "label": "Kepler",
+                    "start": 466,
+                    "title": "Johannes Kepler",
+                    "url": "http://et.wikipedia.org/wiki/Johannes_Kepler"
+                },
+                {
+                    "end": 539,
+                    "label": "planeet",
+                    "start": 530,
+                    "title": "planeet",
+                    "url": "http://et.wikipedia.org/wiki/planeet"
+                },
+                {
+                    "end": 553,
+                    "label": "tiirlemist",
+                    "start": 541,
+                    "title": "tiirlemine",
+                    "url": "http://et.wikipedia.org/wiki/tiirlemine"
+                },
+                {
+                    "end": 565,
+                    "label": "P\u00e4ike",
+                    "start": 558,
+                    "title": "P\u00e4ike",
+                    "url": "http://et.wikipedia.org/wiki/P\u00e4ike"
+                },
+                {
+                    "end": 612,
+                    "label": "Newton",
+                    "start": 604,
+                    "title": "Isaac Newton",
+                    "url": "http://et.wikipedia.org/wiki/Isaac_Newton"
+                },
+                {
+                    "end": 650,
+                    "label": "gravitatsiooniseadus",
+                    "start": 628,
+                    "title": "gravitatsiooniseadus",
+                    "url": "http://et.wikipedia.org/wiki/gravitatsiooniseadus"
+                },
+                {
+                    "end": 669,
+                    "label": "taevamehhaanika",
+                    "start": 652,
+                    "title": "taevamehhaanika",
+                    "url": "http://et.wikipedia.org/wiki/taevamehhaanika"
+                },
+                {
+                    "end": 704,
+                    "label": "astrof\u00fc\u00fcsika",
+                    "start": 690,
+                    "title": "astrof\u00fc\u00fcsika",
+                    "url": "http://et.wikipedia.org/wiki/astrof\u00fc\u00fcsika"
+                },
+                {
+                    "end": 739,
+                    "label": "f\u00fc\u00fcsika",
+                    "start": 730,
+                    "title": "f\u00fc\u00fcsika",
+                    "url": "http://et.wikipedia.org/wiki/f\u00fc\u00fcsika"
+                },
+                {
+                    "end": 770,
+                    "label": "Maal",
+                    "start": 764,
+                    "title": "planeet Maa",
+                    "url": "http://et.wikipedia.org/wiki/planeet_Maa"
+                },
+                {
+                    "end": 786,
+                    "label": "kosmoses",
+                    "start": 776,
+                    "title": "Maailmaruum",
+                    "url": "http://et.wikipedia.org/wiki/Maailmaruum"
+                },
+                {
+                    "end": 807,
+                    "label": "t\u00e4hed",
+                    "start": 800,
+                    "title": "T\u00e4ht (astronoomia)",
+                    "url": "http://et.wikipedia.org/wiki/T\u00e4ht_(astronoomia)"
+                },
+                {
+                    "end": 832,
+                    "label": "taevakeha",
+                    "start": 821,
+                    "title": "taevakeha",
+                    "url": "http://et.wikipedia.org/wiki/taevakeha"
+                },
+                {
+                    "end": 849,
+                    "label": "Spektroskoopia",
+                    "start": 833,
+                    "title": "Spektroskoopia",
+                    "url": "http://et.wikipedia.org/wiki/Spektroskoopia"
+                },
+                {
+                    "end": 890,
+                    "label": "P\u00e4ike",
+                    "start": 883,
+                    "title": "P\u00e4ike",
+                    "url": "http://et.wikipedia.org/wiki/P\u00e4ike"
+                },
+                {
+                    "end": 918,
+                    "label": "temperatuur",
+                    "start": 905,
+                    "title": "temperatuur",
+                    "url": "http://et.wikipedia.org/wiki/temperatuur"
+                },
+                {
+                    "end": 926,
+                    "label": "mass",
+                    "start": 920,
+                    "title": "mass",
+                    "url": "http://et.wikipedia.org/wiki/mass"
+                },
+                {
+                    "end": 1018,
+                    "label": "Linnutee",
+                    "start": 1008,
+                    "title": "Linnutee",
+                    "url": "http://et.wikipedia.org/wiki/Linnutee"
+                },
+                {
+                    "end": 1051,
+                    "label": "galaktika",
+                    "start": 1040,
+                    "title": "galaktika",
+                    "url": "http://et.wikipedia.org/wiki/galaktika"
+                },
+                {
+                    "end": 1073,
+                    "label": "Universum",
+                    "start": 1062,
+                    "title": "Universum",
+                    "url": "http://et.wikipedia.org/wiki/Universum"
+                },
+                {
+                    "end": 1170,
+                    "label": "kosmoloogia",
+                    "start": 1157,
+                    "title": "kosmoloogia",
+                    "url": "http://et.wikipedia.org/wiki/kosmoloogia"
+                },
+                {
+                    "end": 1183,
+                    "label": "Suure Paugu",
+                    "start": 1170,
+                    "title": "Suur Pauk",
+                    "url": "http://et.wikipedia.org/wiki/Suur_Pauk"
+                },
+                {
+                    "end": 1237,
+                    "label": "reliktkiirgus",
+                    "start": 1222,
+                    "title": "reliktkiirgus",
+                    "url": "http://et.wikipedia.org/wiki/reliktkiirgus"
+                },
+                {
+                    "end": 1257,
+                    "label": "Hubble'i seadus",
+                    "start": 1240,
+                    "title": "Hubble'i seadus",
+                    "url": "http://et.wikipedia.org/wiki/Hubble'i_seadus"
+                }
+            ],
+            "related_articles": [
+                [
+                    "|Astronoomia ajalugu",
+                    [
+                        134,
+                        163
+                    ]
+                ]
+            ],
+            "text": "\n\n{{vaata|Astronoomia ajalugu}}\n\nAlgul t\u00e4hendas astronoomia \u00fcksnes palja silmaga n\u00e4htavate taevakehade liikumise vaatlusi ja ennustusi nende liikumise kohta.\n\nVana-Kreekas leiutati t\u00e4hesuuruste s\u00fcsteem ning m\u00e4\u00e4ratleti kaheteistk\u00fcmnest t\u00e4htkujust koosnev sodiaak.\n\nKeskajal viisid astronoomiat edasi \u00fcksnes m\u00f5ned araabia astronoomid.\n\nRenessansiajal esitas Kopernik P\u00e4ikeses\u00fcsteemi heliotsentrilise mudeli, mida kaitsesid, arendasid edasi ja korrigeerisid Galilei ja Kepler. Viimane rajas esimesena s\u00fcsteemi, mis kirjeldas \u00f5igesti planeetide tiirlemist \u00fcmber P\u00e4ikese. Planeetide liikumise p\u00f5hjuse avastas Newton, kellelt p\u00e4rineb gravitatsiooniseadus ja taevamehhaanika. See oli esimene samm astrof\u00fc\u00fcsikas, mis p\u00f5hineb eeldusel, et f\u00fc\u00fcsikaseadused on \u00fchesugused nii Maal kui ka kosmoses.\n\nAvastati, et t\u00e4hed on v\u00e4ga kauged taevakehad. Spektroskoopia abil t\u00f5estati, et t\u00e4hed sarnanevad P\u00e4ikesega, kuid nende temperatuurid, massid ja m\u00f5\u00f5tmed v\u00f5ivad olla v\u00e4ga erinevad.\n\n20. sajandil t\u00f5estati, et meie Galaktika (Linnutee) on vaid \u00fcks paljudest galaktikatest ning et Universumi paisumise t\u00f5ttu enamik galaktikaid eemaldub meist.\n\n20. sajandil arenes tormiliselt kosmoloogia. Suure Paugu mudel on astronoomias kinnitust leidnud reliktkiirguse ja Hubble'i seadus",
+            "title": "Astronoomia ajalugu"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 24,
+                    "label": "Astronoomia m\u00f5isteid",
+                    "start": 2,
+                    "title": "Astronoomia m\u00f5isteid",
+                    "url": "http://et.wikipedia.org/wiki/Astronoomia_m\u00f5isteid"
+                },
+                {
+                    "end": 44,
+                    "label": "Amat\u00f6\u00f6rastronoomia",
+                    "start": 24,
+                    "title": "Amat\u00f6\u00f6rastronoomia",
+                    "url": "http://et.wikipedia.org/wiki/Amat\u00f6\u00f6rastronoomia"
+                },
+                {
+                    "end": 58,
+                    "label": "Astrof\u00fc\u00fcsika",
+                    "start": 44,
+                    "title": "Astrof\u00fc\u00fcsika",
+                    "url": "http://et.wikipedia.org/wiki/Astrof\u00fc\u00fcsika"
+                },
+                {
+                    "end": 79,
+                    "label": "Astronoomia ajalugu",
+                    "start": 58,
+                    "title": "Astronoomia ajalugu",
+                    "url": "http://et.wikipedia.org/wiki/Astronoomia_ajalugu"
+                },
+                {
+                    "end": 98,
+                    "label": "Astronoomiam\u00e4rgid",
+                    "start": 79,
+                    "title": "Astronoomiam\u00e4rgid",
+                    "url": "http://et.wikipedia.org/wiki/Astronoomiam\u00e4rgid"
+                },
+                {
+                    "end": 111,
+                    "label": "Kosmoloogia",
+                    "start": 98,
+                    "title": "Kosmoloogia",
+                    "url": "http://et.wikipedia.org/wiki/Kosmoloogia"
+                },
+                {
+                    "end": 127,
+                    "label": "Observatoorium",
+                    "start": 111,
+                    "title": "Observatoorium",
+                    "url": "http://et.wikipedia.org/wiki/Observatoorium"
+                },
+                {
+                    "end": 145,
+                    "label": "Rahvaastronoomia",
+                    "start": 127,
+                    "title": "Rahvaastronoomia",
+                    "url": "http://et.wikipedia.org/wiki/Rahvaastronoomia"
+                },
+                {
+                    "end": 170,
+                    "label": "Observatooriumite loend",
+                    "start": 145,
+                    "title": "Observatooriumite loend",
+                    "url": "http://et.wikipedia.org/wiki/Observatooriumite_loend"
+                },
+                {
+                    "end": 190,
+                    "label": "Astronoomide loend",
+                    "start": 170,
+                    "title": "Astronoomide loend",
+                    "url": "http://et.wikipedia.org/wiki/Astronoomide_loend"
+                },
+                {
+                    "end": 209,
+                    "label": "Taevakehade loend",
+                    "start": 190,
+                    "title": "Taevakehade loend",
+                    "url": "http://et.wikipedia.org/wiki/Taevakehade_loend"
+                },
+                {
+                    "end": 227,
+                    "label": "T\u00e4htkujude loend",
+                    "start": 209,
+                    "title": "T\u00e4htkujude loend",
+                    "url": "http://et.wikipedia.org/wiki/T\u00e4htkujude_loend"
+                },
+                {
+                    "end": 252,
+                    "label": "Kosmoseaparaatide loend",
+                    "start": 227,
+                    "title": "Kosmoseaparaatide loend",
+                    "url": "http://et.wikipedia.org/wiki/Kosmoseaparaatide_loend"
+                },
+                {
+                    "end": 279,
+                    "label": "Ameerika Astronoomiaselts",
+                    "start": 252,
+                    "title": "Ameerika Astronoomiaselts",
+                    "url": "http://et.wikipedia.org/wiki/Ameerika_Astronoomiaselts"
+                }
+            ],
+            "text": "\n*Astronoomia m\u00f5isteid\n*Amat\u00f6\u00f6rastronoomia\n*Astrof\u00fc\u00fcsika\n*Astronoomia ajalugu\n*Astronoomiam\u00e4rgid\n*Kosmoloogia\n*Observatoorium\n*Rahvaastronoomia\n*Observatooriumite loend\n*Astronoomide loend\n*Taevakehade loend\n*T\u00e4htkujude loend\n*Kosmoseaparaatide loend\n*Ameerika Astronoomiaselts",
+            "title": "Vaata ka"
+        },
+        {
+            "external links": [
+                {
+                    "end": 66,
+                    "label": "Tartu Observatoorium",
+                    "start": 46,
+                    "url": "http://www.aai.ee/"
+                },
+                {
+                    "end": 90,
+                    "label": "Eesti rahvaastronoomia",
+                    "start": 68,
+                    "url": "http://haldjas.folklore.ee/~aado/maailm/maailm.htm"
+                }
+            ],
+            "sections": [
+                {
+                    "external links": [
+                        {
+                            "end": 45,
+                            "label": "Interaktiivne astronoomia\u00f5pik \"Kosmoloogia\"",
+                            "start": 2,
+                            "url": "http://opik.obs.ee/sisukord.html"
+                        },
+                        {
+                            "end": 58,
+                            "label": "AstroSkript",
+                            "start": 47,
+                            "url": "http://www.promathika.lazarusforum.de/astroskript1.pdf"
+                        }
+                    ],
+                    "text": "\n*Interaktiivne astronoomia\u00f5pik \"Kosmoloogia\"\n*AstroSkript (pdf; ''saksa keeles'')",
+                    "title": "\u00d5pikud"
+                },
+                {
+                    "external links": [
+                        {
+                            "end": 25,
+                            "label": "Veebiajakiri \"Vaatleja\"",
+                            "start": 2,
+                            "url": "http://www.astronoomia.ee/vaatleja/"
+                        },
+                        {
+                            "end": 49,
+                            "label": "Astronoomia Horisondis",
+                            "start": 27,
+                            "url": "http://www.horisont.ee/taxonomy/term/2"
+                        },
+                        {
+                            "end": 74,
+                            "label": "Ajakiri Sky & Telescope",
+                            "start": 51,
+                            "url": "http://www.skyandtelescope.com/"
+                        },
+                        {
+                            "end": 118,
+                            "label": "Ajakiri Astronomy Now",
+                            "start": 97,
+                            "url": "http://www.astronomynow.com/"
+                        },
+                        {
+                            "end": 168,
+                            "label": "Ajakiri Sterne und Weltraum",
+                            "start": 141,
+                            "url": "http://www.suw-online.de/"
+                        },
+                        {
+                            "end": 211,
+                            "label": "Ajakiri interstellarum",
+                            "start": 189,
+                            "url": "http://www.interstellarum.de/"
+                        }
+                    ],
+                    "text": "\n*Veebiajakiri \"Vaatleja\"\n*Astronoomia Horisondis\n*Ajakiri Sky & Telescope (''inglise keeles'')\n*Ajakiri Astronomy Now (''inglise keeles'')\n*Ajakiri Sterne und Weltraum (''saksa keeles'')\n*Ajakiri interstellarum (''saksa keeles'')\n",
+                    "title": "Ajakirjad"
+                },
+                {
+                    "external links": [
+                        {
+                            "end": 16,
+                            "label": "Astronoomia.ee",
+                            "start": 2,
+                            "url": "http://www.astronoomia.ee/"
+                        },
+                        {
+                            "end": 31,
+                            "label": "Astronomie.de",
+                            "start": 18,
+                            "url": "http://www.astronomie.de/"
+                        },
+                        {
+                            "end": 63,
+                            "label": "Das Weltall",
+                            "start": 52,
+                            "url": "http://www.weltderphysik.de/de/3812.php"
+                        }
+                    ],
+                    "text": "\n*Astronoomia.ee\n*Astronomie.de (''saksa keeles'')\n*Das Weltall (''saksa keeles'')\n\n",
+                    "title": "Portaalid"
+                }
+            ],
+            "text": "\n{{commons|Category:Astronomy|Astronoomia}}\n\n*Tartu Observatoorium\n*Eesti rahvaastronoomia",
+            "title": "V\u00e4lislingid"
+        }
+    ],
+    "timestamp": "2014-10-28T00:45:14Z",
+    "title": "Astronoomia",
+    "url": "http://et.wikipedia.org/wiki/Astronoomia"
+}

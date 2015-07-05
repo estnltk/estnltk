@@ -1,0 +1,870 @@
+{
+    "categories": [
+        "Ajalugu"
+    ],
+    "sections": [
+        {
+            "internal_links": [
+                {
+                    "end": 84,
+                    "label": "Historia",
+                    "start": 74,
+                    "title": "Historia",
+                    "url": "http://et.wikipedia.org/wiki/Historia"
+                },
+                {
+                    "end": 171,
+                    "label": "kreeka keeles",
+                    "start": 156,
+                    "title": "Kreeka keel",
+                    "url": "http://et.wikipedia.org/wiki/Kreeka_keel"
+                },
+                {
+                    "end": 255,
+                    "label": "minevik",
+                    "start": 246,
+                    "title": "minevik",
+                    "url": "http://et.wikipedia.org/wiki/minevik"
+                },
+                {
+                    "end": 488,
+                    "label": "arheoloogia",
+                    "start": 475,
+                    "title": "arheoloogia",
+                    "url": "http://et.wikipedia.org/wiki/arheoloogia"
+                },
+                {
+                    "end": 502,
+                    "label": "etnoloogia",
+                    "start": 490,
+                    "title": "etnoloogia",
+                    "url": "http://et.wikipedia.org/wiki/etnoloogia"
+                }
+            ],
+            "references": [
+                0
+            ],
+            "text": "{{See artikkel| r\u00e4\u00e4gib \u00fcldm\u00f5istest; Herodotose teose kohta vaata artiklit Historia}}\n{{ToimetaAeg|kuu=oktoober|aasta=2012}}{{keeletoimeta}}\n\n'''Ajalugu''' (kreeka keeles {{lang|el|''\u1f31\u03c3\u03c4\u03bf\u03c1\u03af\u03b1''}} - ''historia'', mis t\u00e4hendab uurimust) t\u00e4hendab nii minevikus toimunut kui ka mineviku taasesistamist. Ajalooteadus uurib inimkonna ajalugu alates inimese kujunemisest ja l\u00f5petades t\u00e4nap\u00e4eva s\u00fcndmustega. Ajalugu on humanitaarteadus, sest uurib inimesega seounduvat. Selle harud on arheoloogia ja etnoloogia"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 394,
+                    "label": "vanaaeg",
+                    "start": 385,
+                    "title": "vanaaeg",
+                    "url": "http://et.wikipedia.org/wiki/vanaaeg"
+                },
+                {
+                    "end": 403,
+                    "label": "keskaeg",
+                    "start": 394,
+                    "title": "keskaeg",
+                    "url": "http://et.wikipedia.org/wiki/keskaeg"
+                },
+                {
+                    "end": 411,
+                    "label": "uusaeg",
+                    "start": 403,
+                    "title": "uusaeg",
+                    "url": "http://et.wikipedia.org/wiki/uusaeg"
+                },
+                {
+                    "end": 430,
+                    "label": "kaasaja ajalugu",
+                    "start": 413,
+                    "title": "uusim aeg",
+                    "url": "http://et.wikipedia.org/wiki/uusim_aeg"
+                },
+                {
+                    "end": 446,
+                    "label": "l\u00e4hiajalugu",
+                    "start": 433,
+                    "title": "l\u00e4hiajalugu",
+                    "url": "http://et.wikipedia.org/wiki/l\u00e4hiajalugu"
+                },
+                {
+                    "end": 627,
+                    "label": "uusajas",
+                    "start": 618,
+                    "title": "uusaeg",
+                    "url": "http://et.wikipedia.org/wiki/uusaeg"
+                },
+                {
+                    "end": 638,
+                    "label": "varauusaeg",
+                    "start": 626,
+                    "title": "varauusaeg",
+                    "url": "http://et.wikipedia.org/wiki/varauusaeg"
+                },
+                {
+                    "end": 793,
+                    "label": "Euroopa ajalugu",
+                    "start": 776,
+                    "title": "Euroopa ajalugu",
+                    "url": "http://et.wikipedia.org/wiki/Euroopa_ajalugu"
+                },
+                {
+                    "end": 825,
+                    "label": "Ladina-Ameerika ajalugu",
+                    "start": 800,
+                    "title": "Ladina-Ameerika ajalugu",
+                    "url": "http://et.wikipedia.org/wiki/Ladina-Ameerika_ajalugu"
+                },
+                {
+                    "end": 845,
+                    "label": "Aafrika ajalugu",
+                    "start": 828,
+                    "title": "Aafrika ajalugu",
+                    "url": "http://et.wikipedia.org/wiki/Aafrika_ajalugu"
+                },
+                {
+                    "end": 892,
+                    "label": "Baltikum",
+                    "start": 882,
+                    "title": "Baltikum",
+                    "url": "http://et.wikipedia.org/wiki/Baltikum"
+                },
+                {
+                    "end": 904,
+                    "label": "L\u00e4his-Ida",
+                    "start": 893,
+                    "title": "L\u00e4his-Ida",
+                    "url": "http://et.wikipedia.org/wiki/L\u00e4his-Ida"
+                },
+                {
+                    "end": 915,
+                    "label": "Balkan",
+                    "start": 907,
+                    "title": "Balkan",
+                    "url": "http://et.wikipedia.org/wiki/Balkan"
+                },
+                {
+                    "end": 931,
+                    "label": "Riik",
+                    "start": 925,
+                    "title": "Riik",
+                    "url": "http://et.wikipedia.org/wiki/Riik"
+                },
+                {
+                    "end": 944,
+                    "label": "rahvus",
+                    "start": 936,
+                    "title": "rahvus",
+                    "url": "http://et.wikipedia.org/wiki/rahvus"
+                },
+                {
+                    "end": 1053,
+                    "label": "ajalookultuur",
+                    "start": 1038,
+                    "title": "ajalookultuur",
+                    "url": "http://et.wikipedia.org/wiki/ajalookultuur"
+                },
+                {
+                    "end": 1090,
+                    "label": "rahvusriigid",
+                    "start": 1076,
+                    "title": "rahvusriik",
+                    "url": "http://et.wikipedia.org/wiki/rahvusriik"
+                },
+                {
+                    "end": 1096,
+                    "label": "Riik",
+                    "start": 1090,
+                    "title": "Riik",
+                    "url": "http://et.wikipedia.org/wiki/Riik"
+                },
+                {
+                    "end": 1109,
+                    "label": "rahvus",
+                    "start": 1101,
+                    "title": "rahvus",
+                    "url": "http://et.wikipedia.org/wiki/rahvus"
+                },
+                {
+                    "end": 1148,
+                    "label": "riigi",
+                    "start": 1141,
+                    "title": "riik",
+                    "url": "http://et.wikipedia.org/wiki/riik"
+                },
+                {
+                    "end": 1167,
+                    "label": "rahvus",
+                    "start": 1159,
+                    "title": "rahvus",
+                    "url": "http://et.wikipedia.org/wiki/rahvus"
+                },
+                {
+                    "end": 1275,
+                    "label": "riik",
+                    "start": 1269,
+                    "title": "riik",
+                    "url": "http://et.wikipedia.org/wiki/riik"
+                },
+                {
+                    "end": 1287,
+                    "label": "rahvas",
+                    "start": 1279,
+                    "title": "rahvas",
+                    "url": "http://et.wikipedia.org/wiki/rahvas"
+                },
+                {
+                    "end": 1348,
+                    "label": "rahvaid",
+                    "start": 1339,
+                    "title": "rahvas",
+                    "url": "http://et.wikipedia.org/wiki/rahvas"
+                },
+                {
+                    "end": 2341,
+                    "label": "kunstiajalugu",
+                    "start": 2326,
+                    "title": "kunstiajalugu",
+                    "url": "http://et.wikipedia.org/wiki/kunstiajalugu"
+                }
+            ],
+            "text": "\nAjalooteadus on \u00fcks k\u00f5ige laiahaardelisemaid teadusi. See on tingitud sellest, et igal \u00fchiskonnaelu valdkonnal on ajalugu, mida saab ajalooteaduse meetoditega uurida.\n\nAjalugu on traditsiooniliselt jagatud j\u00e4rgmiselt:\n*Kronoloogiline\n**Selle kohaselt jaguneb ajalugu (st minevik) eelajalooliseks ja ajalooliseks ajaks. Ajalooline aeg omakorda perioodideks, millest k\u00f5ige \u00fcldisemad on vanaaeg, keskaeg, uusaeg ja kaasaja ajalugu ehk l\u00e4hiajalugu. Nende ajaj\u00e4rkude kronoloogilised piirid on vaieldavad. Samuti jagunevad need ajaj\u00e4rgud ise l\u00fchemateks perioodideks. Nii eristatakse keskajas vara-, k\u00f5rg- ja hiliskeskaega; uusajas varauusaega (1500\u20131800).\n*Geograafiline\n**Selle kohaselt eristuvad terviklikena mandrite v\u00f5i suuremate regioonide ajalood. Sellisteks on eriti sageli Euroopa ajalugu, aga ka Ladina-Ameerika ajalugu v\u00f5i Aafrika ajalugu. Piirkondlike ajalugudena aga n\u00e4iteks Baltikumi, L\u00e4his-Ida v\u00f5i Balkani ajalugu.\n*Riikide ja rahvuste j\u00e4rgi\n**See on k\u00f5ige enam levinud ajalook\u00e4sitlus. Seda eriti paaril viimasel aastasajal, kui ajalookultuuri juhtivad maad on olnud rahvusriigid. Riikide ja rahvuste ajalood, olgu kirjutatud selle riigi elaniku v\u00f5i rahvuse esinadaja poolt v\u00f5i kellegi teise poolt, on k\u00f5ige enam vaidlusi tekitanud. Seda eriti juhul kui m\u00f5nda riiki v\u00f5i rahvast on ajaloos erilisele kohale t\u00f5stetud v\u00f5i siis teisi rahvaid, eriti v\u00e4iksemaid on tahetud sootuks n-\u00f6 ajaloost v\u00e4lja j\u00e4tta.\n*Temaatiline\n**Temaatiline ajalook\u00e4sitlus keskendub \u00fchele v\u00f5i mitmele ajaloovaldkonnale. Sageli on valdkondlikud ajalood k\u00f5ige teaduslikumad kuna kasutavad k\u00f5ige laiadasemalt erinevaid uurimismeetodeid. Kuid on ka vastupidised n\u00e4ited, kus n\u00e4iteks poliitilised ajalood on v\u00e4ga ideologiseeritud. Oma kujunemise ajal oli ajalooteadus suuresti poliitiline ajalugu.\n**Traditsiooniliselt eristuvad j\u00e4rgmised teemad:\n***Poliitiline ajalugu, milles omakorda on rahvusvaheliste suhete ajalugu ja diplomaatia ajalugu\n***Ideede ajalugu ja mentaliteedi ajalugu\n***Majandusajalugu, milles on muuhulgas kaubanduse ajalugu, t\u00f6\u00f6stuse ja p\u00f5llumajanduse ajalugu \n***Sotsiaalajalugu, mis on \u00e4\u00e4rmiselt lai valdkond ja k\u00f5ige tihedamalt p\u00f5imunud sotsiaalteadustega. Sellesse kuuluvad rahvastiku ajalugu, sotsiaalsete r\u00fchmade ja suhete ajalugu, milles omakorda on suurte valdkondadena naiste, t\u00f6\u00f6liste ja v\u00e4hemuste ajalugu\n***Kultuuri- ja kunstiajalugu",
+            "title": "Liigitus"
+        },
+        {
+            "images": [
+                {
+                    "text": "Vaidlustatud",
+                    "url": "http://et.wikipedia.org/wiki/Pilt:Stop_hand.png"
+                }
+            ],
+            "internal_links": [
+                {
+                    "end": 502,
+                    "label": "arutelulehek\u00fcljelt",
+                    "start": 482,
+                    "title": ":{{NAMESPACE}} talk:{{PAGENAME}}",
+                    "url": "http://et.wikipedia.org/wiki/:{{NAMESPACE}}_talk:{{PAGENAME}}"
+                },
+                {
+                    "end": 554,
+                    "label": "Esemelised ajalooallikad",
+                    "start": 528,
+                    "title": "Esemelised ajalooallikad",
+                    "url": "http://et.wikipedia.org/wiki/Esemelised_ajalooallikad"
+                },
+                {
+                    "end": 566,
+                    "label": "muistis",
+                    "start": 557,
+                    "title": "muistis",
+                    "url": "http://et.wikipedia.org/wiki/muistis"
+                },
+                {
+                    "end": 583,
+                    "label": "kinnismuistis",
+                    "start": 568,
+                    "title": "kinnismuistis",
+                    "url": "http://et.wikipedia.org/wiki/kinnismuistis"
+                },
+                {
+                    "end": 599,
+                    "label": "irdmuistis",
+                    "start": 587,
+                    "title": "irdmuistis",
+                    "url": "http://et.wikipedia.org/wiki/irdmuistis"
+                },
+                {
+                    "end": 627,
+                    "label": "Kirjalikud ajalooallikad",
+                    "start": 601,
+                    "title": "Kirjalikud ajalooallikad",
+                    "url": "http://et.wikipedia.org/wiki/Kirjalikud_ajalooallikad"
+                },
+                {
+                    "end": 633,
+                    "label": "\u00fcrik",
+                    "start": 627,
+                    "title": "\u00fcrik",
+                    "url": "http://et.wikipedia.org/wiki/\u00fcrik"
+                },
+                {
+                    "end": 645,
+                    "label": "kroonika",
+                    "start": 635,
+                    "title": "kroonika",
+                    "url": "http://et.wikipedia.org/wiki/kroonika"
+                },
+                {
+                    "end": 654,
+                    "label": "seadus",
+                    "start": 646,
+                    "title": "seadus",
+                    "url": "http://et.wikipedia.org/wiki/seadus"
+                },
+                {
+                    "end": 667,
+                    "label": "memuaarid",
+                    "start": 656,
+                    "title": "memuaarid",
+                    "url": "http://et.wikipedia.org/wiki/memuaarid"
+                },
+                {
+                    "end": 693,
+                    "label": "statistilised materjalid",
+                    "start": 667,
+                    "title": "statistilised materjalid",
+                    "url": "http://et.wikipedia.org/wiki/statistilised_materjalid"
+                },
+                {
+                    "end": 721,
+                    "label": "Suulised ajalooallikad",
+                    "start": 697,
+                    "title": "Suulised ajalooallikad",
+                    "url": "http://et.wikipedia.org/wiki/Suulised_ajalooallikad"
+                },
+                {
+                    "end": 730,
+                    "label": "p\u00e4rimus",
+                    "start": 721,
+                    "title": "p\u00e4rimus",
+                    "url": "http://et.wikipedia.org/wiki/p\u00e4rimus"
+                },
+                {
+                    "end": 744,
+                    "label": "rahvaluule",
+                    "start": 732,
+                    "title": "rahvaluule",
+                    "url": "http://et.wikipedia.org/wiki/rahvaluule"
+                },
+                {
+                    "end": 752,
+                    "label": "legend",
+                    "start": 744,
+                    "title": "legend",
+                    "url": "http://et.wikipedia.org/wiki/legend"
+                },
+                {
+                    "end": 762,
+                    "label": "m\u00fc\u00fcdid",
+                    "start": 754,
+                    "title": "m\u00fc\u00fct",
+                    "url": "http://et.wikipedia.org/wiki/m\u00fc\u00fct"
+                },
+                {
+                    "end": 775,
+                    "label": "muinasjutud",
+                    "start": 762,
+                    "title": "muinasjutt",
+                    "url": "http://et.wikipedia.org/wiki/muinasjutt"
+                },
+                {
+                    "end": 807,
+                    "label": "Etnoloogilised ajalooallikad",
+                    "start": 777,
+                    "title": "Etnoloogilised ajalooallikad",
+                    "url": "http://et.wikipedia.org/wiki/Etnoloogilised_ajalooallikad"
+                },
+                {
+                    "end": 813,
+                    "label": "tava",
+                    "start": 807,
+                    "title": "tava",
+                    "url": "http://et.wikipedia.org/wiki/tava"
+                },
+                {
+                    "end": 822,
+                    "label": "kombed",
+                    "start": 814,
+                    "title": "komme",
+                    "url": "http://et.wikipedia.org/wiki/komme"
+                },
+                {
+                    "end": 837,
+                    "label": "traditsioon",
+                    "start": 824,
+                    "title": "traditsioon",
+                    "url": "http://et.wikipedia.org/wiki/traditsioon"
+                },
+                {
+                    "end": 869,
+                    "label": "Lingvistilised ajalooallikad",
+                    "start": 839,
+                    "title": "Lingvistilised ajalooallikad",
+                    "url": "http://et.wikipedia.org/wiki/Lingvistilised_ajalooallikad"
+                },
+                {
+                    "end": 875,
+                    "label": "keel",
+                    "start": 869,
+                    "title": "Keel (keeleteadus)",
+                    "url": "http://et.wikipedia.org/wiki/Keel_(keeleteadus)"
+                },
+                {
+                    "end": 885,
+                    "label": "murded",
+                    "start": 877,
+                    "title": "murre",
+                    "url": "http://et.wikipedia.org/wiki/murre"
+                },
+                {
+                    "end": 916,
+                    "label": "Audiovisuaalsed ajalooallikad",
+                    "start": 885,
+                    "title": "Audiovisuaalsed ajalooallikad",
+                    "url": "http://et.wikipedia.org/wiki/Audiovisuaalsed_ajalooallikad"
+                },
+                {
+                    "end": 922,
+                    "label": "foto",
+                    "start": 916,
+                    "title": "foto",
+                    "url": "http://et.wikipedia.org/wiki/foto"
+                },
+                {
+                    "end": 929,
+                    "label": "film",
+                    "start": 923,
+                    "title": "film",
+                    "url": "http://et.wikipedia.org/wiki/film"
+                },
+                {
+                    "end": 948,
+                    "label": "helisalvestis",
+                    "start": 933,
+                    "title": "helisalvestis",
+                    "url": "http://et.wikipedia.org/wiki/helisalvestis"
+                }
+            ],
+            "text": "\n<center><div style=\"text-align: center; margin: 0 10% 1em 10%;\">\n{| align=center class=\"disputeabout\" style=\"background: beige; border: 1px solid #aaa; padding: .2em; margin-bottom: 3px; font-size: 95%; width: auto;\"\n| valign=\"top\" style=\"padding: .2em\" | \n| style=\"padding: 0.1em\" width = 320| '''Artikli selle osa faktiline \u00f5igsus on vaieldav.'''<br>\n''Vaieldav on allikate selline liigitus.''\n|-\n|colspan=2 align=center|<div style=\"font-size: 90%;\">Vaata l\u00e4hemalt selle artikli arutelulehek\u00fcljelt.</div>\n|}\n</div></center>\n*Esemelised ajalooallikad ehk muistised: kinnismuistised ja irdmuistised\n*Kirjalikud ajalooallikad: \u00fcrikud, kroonikad, seadused, memuaarid, statistilised materjalid jne\n*Suulised ajalooallikad: p\u00e4rimused, rahvaluule (legendid, m\u00fc\u00fcdid, muinasjutud) \n*Etnoloogilised ajalooallikad: tavad, kombed ja traditsioonid\n*Lingvistilised ajalooallikad: keel ja murded\n*Audiovisuaalsed ajalooallikad: fotod, filmid ja helisalvestis",
+            "title": "Allikad"
+        },
+        {
+            "images": [
+                {
+                    "text": "Accuracy dispute",
+                    "url": "http://et.wikipedia.org/wiki/Pilt:Stop_hand.png"
+                }
+            ],
+            "internal_links": [
+                {
+                    "end": 505,
+                    "label": "arutelulehek\u00fcljelt",
+                    "start": 485,
+                    "title": ":{{NAMESPACE}} talk:{{PAGENAME}}",
+                    "url": "http://et.wikipedia.org/wiki/:{{NAMESPACE}}_talk:{{PAGENAME}}"
+                },
+                {
+                    "end": 553,
+                    "label": "Ajalooline geograafia",
+                    "start": 530,
+                    "title": "Ajalooline geograafia",
+                    "url": "http://et.wikipedia.org/wiki/Ajalooline_geograafia"
+                },
+                {
+                    "end": 568,
+                    "label": "Allika\u00f5petus",
+                    "start": 554,
+                    "title": "Allika\u00f5petus",
+                    "url": "http://et.wikipedia.org/wiki/Allika\u00f5petus"
+                },
+                {
+                    "end": 584,
+                    "label": "Antropoloogia",
+                    "start": 569,
+                    "title": "Antropoloogia",
+                    "url": "http://et.wikipedia.org/wiki/Antropoloogia"
+                },
+                {
+                    "end": 599,
+                    "label": "Arheograafia",
+                    "start": 585,
+                    "title": "Arheograafia",
+                    "url": "http://et.wikipedia.org/wiki/Arheograafia"
+                },
+                {
+                    "end": 613,
+                    "label": "Arheoloogia",
+                    "start": 600,
+                    "title": "Arheoloogia",
+                    "url": "http://et.wikipedia.org/wiki/Arheoloogia"
+                },
+                {
+                    "end": 627,
+                    "label": "Arhiivindus",
+                    "start": 614,
+                    "title": "Arhiivindus",
+                    "url": "http://et.wikipedia.org/wiki/Arhiivindus"
+                },
+                {
+                    "end": 642,
+                    "label": "Diplomaatika",
+                    "start": 628,
+                    "title": "Diplomaatika",
+                    "url": "http://et.wikipedia.org/wiki/Diplomaatika"
+                },
+                {
+                    "end": 655,
+                    "label": "Etnoloogia",
+                    "start": 643,
+                    "title": "Etnoloogia",
+                    "url": "http://et.wikipedia.org/wiki/Etnoloogia"
+                },
+                {
+                    "end": 668,
+                    "label": "Filateelia",
+                    "start": 656,
+                    "title": "Filateelia",
+                    "url": "http://et.wikipedia.org/wiki/Filateelia"
+                },
+                {
+                    "end": 684,
+                    "label": "Folkloristika",
+                    "start": 669,
+                    "title": "Folkloristika",
+                    "url": "http://et.wikipedia.org/wiki/Folkloristika"
+                },
+                {
+                    "end": 698,
+                    "label": "Genealoogia",
+                    "start": 685,
+                    "title": "Genealoogia",
+                    "url": "http://et.wikipedia.org/wiki/Genealoogia"
+                },
+                {
+                    "end": 710,
+                    "label": "Heraldika",
+                    "start": 699,
+                    "title": "Heraldika",
+                    "url": "http://et.wikipedia.org/wiki/Heraldika"
+                },
+                {
+                    "end": 724,
+                    "label": "Kronoloogia",
+                    "start": 711,
+                    "title": "Kronoloogia",
+                    "url": "http://et.wikipedia.org/wiki/Kronoloogia"
+                },
+                {
+                    "end": 738,
+                    "label": "Metroloogia",
+                    "start": 725,
+                    "title": "Metroloogia (ajalugu)",
+                    "url": "http://et.wikipedia.org/wiki/Metroloogia_(ajalugu)"
+                },
+                {
+                    "end": 751,
+                    "label": "M\u00fctoloogia",
+                    "start": 739,
+                    "title": "M\u00fctoloogia",
+                    "url": "http://et.wikipedia.org/wiki/M\u00fctoloogia"
+                },
+                {
+                    "end": 766,
+                    "label": "Numismaatika",
+                    "start": 752,
+                    "title": "Numismaatika",
+                    "url": "http://et.wikipedia.org/wiki/Numismaatika"
+                },
+                {
+                    "end": 781,
+                    "label": "Paleograafia",
+                    "start": 767,
+                    "title": "Paleograafia",
+                    "url": "http://et.wikipedia.org/wiki/Paleograafia"
+                },
+                {
+                    "end": 795,
+                    "label": "Sfragistika",
+                    "start": 782,
+                    "title": "Sfragistika",
+                    "url": "http://et.wikipedia.org/wiki/Sfragistika"
+                }
+            ],
+            "text": "\n<center><div style=\"text-align: center; margin: 0 10% 1em 10%;\">\n{| align=center class=\"disputeabout\" style=\"background: beige; border: 1px solid #aaa; padding: .2em; margin-bottom: 3px; font-size: 95%; width: auto;\"\n| valign=\"top\" style=\"padding: .2em\" | \n| style=\"padding: 0.1em\" width = 320| '''Artikli selle osa faktiline \u00f5igsus on vaieldav.'''<br>\n''Vaieldav on abiteaduste selline liigitus.''\n|-\n|colspan=2 align=center|<div style=\"font-size: 90%;\">Vaata l\u00e4hemalt selle artikli arutelulehek\u00fcljelt.</div>\n|}</div></center>\n*Ajalooline geograafia - Allika\u00f5petus - Antropoloogia - Arheograafia - Arheoloogia - Arhiivindus - Diplomaatika - Etnoloogia - Filateelia - Folkloristika - Genealoogia - Heraldika - Kronoloogia - Metroloogia - M\u00fctoloogia - Numismaatika - Paleograafia - Sfragistika",
+            "title": "Abiteadused"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 44,
+                    "label": "neologism",
+                    "start": 33,
+                    "title": "neologism",
+                    "url": "http://et.wikipedia.org/wiki/neologism"
+                },
+                {
+                    "end": 141,
+                    "label": "Jaan Jung",
+                    "start": 130,
+                    "title": "Jaan Jung",
+                    "url": "http://et.wikipedia.org/wiki/Jaan_Jung"
+                },
+                {
+                    "end": 160,
+                    "label": "Euroopa",
+                    "start": 151,
+                    "title": "Euroopa",
+                    "url": "http://et.wikipedia.org/wiki/Euroopa"
+                },
+                {
+                    "end": 202,
+                    "label": "laens\u00f5na",
+                    "start": 192,
+                    "title": "laens\u00f5na",
+                    "url": "http://et.wikipedia.org/wiki/laens\u00f5na"
+                },
+                {
+                    "end": 230,
+                    "label": "kreekakeelsest",
+                    "start": 214,
+                    "title": "kreeka keel",
+                    "url": "http://et.wikipedia.org/wiki/kreeka_keel"
+                }
+            ],
+            "text": "\nEestikeelne termin \"ajalugu\" on neologism, mis on kasutusel alates 19. sajandi teisest poolest. Selle kasutuselev\u00f5tjaks peetakse Jaan Jungi. Enamikus Euroopa keeltes on selle termini vasteks laens\u00f5na, mis p\u00e4rineb kreekakeelsest",
+            "title": "Et\u00fcmoloogia"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 273,
+                    "label": "historiograaf",
+                    "start": 258,
+                    "title": "historiograaf",
+                    "url": "http://et.wikipedia.org/wiki/historiograaf"
+                },
+                {
+                    "end": 688,
+                    "label": "Eesti ajaloo historiograafia",
+                    "start": 658,
+                    "title": "Eesti ajaloo historiograafia",
+                    "url": "http://et.wikipedia.org/wiki/Eesti_ajaloo_historiograafia"
+                },
+                {
+                    "end": 752,
+                    "label": "Vana-Kreeka",
+                    "start": 739,
+                    "title": "Vana-Kreeka",
+                    "url": "http://et.wikipedia.org/wiki/Vana-Kreeka"
+                }
+            ],
+            "related_articles": [
+                [
+                    "|Historiograafia",
+                    [
+                        1,
+                        26
+                    ]
+                ]
+            ],
+            "text": "\n{{vaata|Historiograafia}}\nS\u00f5na \"historiograafia\" tuleneb kreeka s\u00f5nadest ''\u03b9\u03c3\u03c4\u03bf\u03c1\u03af\u03b1'' (''histor\u00eda''; 'ajalugu', 'mineviku uurimine') ja ''\u03b3\u03c1\u03ac\u03c6\u03bf'' (''graph\u014d''; 'kirjutan'), t\u00e4hendades k\u00f5ige lihtsamas m\u00f5ttes ajaloo kirjutamist. Varem ongi ajaloolasi nimetatud historiograafideks. Sellel on aga ka v\u00e4ga palju muid definitsioone, millest olulisemad on:\n*Kogu ajalookirjandus \u00fcldse v\u00f5i mingi osa sellest (Eesti, Euroopa jne).\n*Anal\u00fc\u00fcsiv ja kriitiline (teaduslik) \u00fclevaade ajalookirjandusest mingi valdkonna, maa v\u00f5i perioodi kohta; see t\u00e4hendus on ka levinuim.\n*Ajalooteadmiste, -m\u00f5tte, -teaduse (ehk -kirjutuse) ajalugu tervikuna v\u00f5i m\u00f5nel \u00fcksikul maal (n\u00e4iteks Eesti ajaloo historiograafia). Ajalooteadus t\u00e4nases m\u00f5ttes hakkas v\u00e4lja kujunema Vana-Kreeka",
+            "title": "Historiograafia"
+        },
+        {
+            "text": "\n{{viited}}\n",
+            "title": "Viited"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 14,
+                    "label": "Ajaloolane",
+                    "start": 2,
+                    "title": "Ajaloolane",
+                    "url": "http://et.wikipedia.org/wiki/Ajaloolane"
+                },
+                {
+                    "end": 33,
+                    "label": "Ajaloolaste loend",
+                    "start": 14,
+                    "title": "Ajaloolaste loend",
+                    "url": "http://et.wikipedia.org/wiki/Ajaloolaste_loend"
+                },
+                {
+                    "end": 49,
+                    "label": "Allikakriitika",
+                    "start": 33,
+                    "title": "Allikakriitika",
+                    "url": "http://et.wikipedia.org/wiki/Allikakriitika"
+                },
+                {
+                    "end": 62,
+                    "label": "Arheoloogia",
+                    "start": 49,
+                    "title": "Arheoloogia",
+                    "url": "http://et.wikipedia.org/wiki/Arheoloogia"
+                },
+                {
+                    "end": 77,
+                    "label": "Eesti ajalugu",
+                    "start": 62,
+                    "title": "Eesti ajalugu",
+                    "url": "http://et.wikipedia.org/wiki/Eesti_ajalugu"
+                },
+                {
+                    "end": 84,
+                    "label": "S\u00f5jad",
+                    "start": 77,
+                    "title": "S\u00f5jad",
+                    "url": "http://et.wikipedia.org/wiki/S\u00f5jad"
+                },
+                {
+                    "end": 101,
+                    "label": "Sotsiaalajalugu",
+                    "start": 84,
+                    "title": "Sotsiaalajalugu",
+                    "url": "http://et.wikipedia.org/wiki/Sotsiaalajalugu"
+                },
+                {
+                    "end": 113,
+                    "label": "\u00dcldajalugu",
+                    "start": 101,
+                    "title": "\u00dcldajalugu",
+                    "url": "http://et.wikipedia.org/wiki/\u00dcldajalugu"
+                },
+                {
+                    "end": 121,
+                    "label": "Esiaeg",
+                    "start": 113,
+                    "title": "Esiaeg",
+                    "url": "http://et.wikipedia.org/wiki/Esiaeg"
+                },
+                {
+                    "end": 131,
+                    "label": "Kiviaeg",
+                    "start": 122,
+                    "title": "Kiviaeg",
+                    "url": "http://et.wikipedia.org/wiki/Kiviaeg"
+                },
+                {
+                    "end": 147,
+                    "label": "Paleoliitikum",
+                    "start": 132,
+                    "title": "Paleoliitikum",
+                    "url": "http://et.wikipedia.org/wiki/Paleoliitikum"
+                },
+                {
+                    "end": 162,
+                    "label": "Mesoliitikum",
+                    "start": 148,
+                    "title": "Mesoliitikum",
+                    "url": "http://et.wikipedia.org/wiki/Mesoliitikum"
+                },
+                {
+                    "end": 176,
+                    "label": "Neoliitikum",
+                    "start": 163,
+                    "title": "Neoliitikum",
+                    "url": "http://et.wikipedia.org/wiki/Neoliitikum"
+                },
+                {
+                    "end": 191,
+                    "label": "Eneoliitikum",
+                    "start": 177,
+                    "title": "Eneoliitikum",
+                    "url": "http://et.wikipedia.org/wiki/Eneoliitikum"
+                },
+                {
+                    "end": 204,
+                    "label": "Pronksiaeg",
+                    "start": 192,
+                    "title": "Pronksiaeg",
+                    "url": "http://et.wikipedia.org/wiki/Pronksiaeg"
+                },
+                {
+                    "end": 214,
+                    "label": "Rauaaeg",
+                    "start": 205,
+                    "title": "Rauaaeg",
+                    "url": "http://et.wikipedia.org/wiki/Rauaaeg"
+                },
+                {
+                    "end": 232,
+                    "label": "Ajalooline aeg",
+                    "start": 216,
+                    "title": "Ajalooline aeg",
+                    "url": "http://et.wikipedia.org/wiki/Ajalooline_aeg"
+                },
+                {
+                    "end": 242,
+                    "label": "Vanaaeg",
+                    "start": 233,
+                    "title": "Vanaaeg",
+                    "url": "http://et.wikipedia.org/wiki/Vanaaeg"
+                },
+                {
+                    "end": 254,
+                    "label": "Antiikaeg",
+                    "start": 243,
+                    "title": "Antiikaeg",
+                    "url": "http://et.wikipedia.org/wiki/Antiikaeg"
+                },
+                {
+                    "end": 264,
+                    "label": "Keskaeg",
+                    "start": 255,
+                    "title": "Keskaeg",
+                    "url": "http://et.wikipedia.org/wiki/Keskaeg"
+                },
+                {
+                    "end": 273,
+                    "label": "Uusaeg",
+                    "start": 265,
+                    "title": "Uusaeg",
+                    "url": "http://et.wikipedia.org/wiki/Uusaeg"
+                },
+                {
+                    "end": 285,
+                    "label": "Uusim aeg",
+                    "start": 274,
+                    "title": "Uusim aeg",
+                    "url": "http://et.wikipedia.org/wiki/Uusim_aeg"
+                },
+                {
+                    "end": 299,
+                    "label": "Ajaarvamine",
+                    "start": 286,
+                    "title": "Ajaarvamine",
+                    "url": "http://et.wikipedia.org/wiki/Ajaarvamine"
+                },
+                {
+                    "end": 322,
+                    "label": "Kristlik ajaarvamine",
+                    "start": 300,
+                    "title": "Kristlik ajaarvamine",
+                    "url": "http://et.wikipedia.org/wiki/Kristlik_ajaarvamine"
+                },
+                {
+                    "end": 336,
+                    "label": "Kronoloogia",
+                    "start": 323,
+                    "title": "Kronoloogia",
+                    "url": "http://et.wikipedia.org/wiki/Kronoloogia"
+                },
+                {
+                    "end": 349,
+                    "label": "Diplomaatia",
+                    "start": 336,
+                    "title": "Diplomaatia",
+                    "url": "http://et.wikipedia.org/wiki/Diplomaatia"
+                },
+                {
+                    "end": 361,
+                    "label": "D\u00fcnastiad",
+                    "start": 350,
+                    "title": "D\u00fcnastiad",
+                    "url": "http://et.wikipedia.org/wiki/D\u00fcnastiad"
+                },
+                {
+                    "end": 371,
+                    "label": "Muuseum",
+                    "start": 362,
+                    "title": "Muuseum",
+                    "url": "http://et.wikipedia.org/wiki/Muuseum"
+                }
+            ],
+            "text": "\n*Ajaloolane\n*Ajaloolaste loend\n*Allikakriitika\n*Arheoloogia\n*Eesti ajalugu\n*S\u00f5jad\n*Sotsiaalajalugu\n*\u00dcldajalugu\n\nEsiaeg - Kiviaeg - Paleoliitikum - Mesoliitikum - Neoliitikum - Eneoliitikum - Pronksiaeg - Rauaaeg -  Ajalooline aeg - Vanaaeg - Antiikaeg - Keskaeg - Uusaeg - Uusim aeg - Ajaarvamine - Kristlik ajaarvamine - Kronoloogia\n\nDiplomaatia - D\u00fcnastiad - Muuseum",
+            "title": "Vaata ka"
+        }
+    ],
+    "timestamp": "2015-04-17T15:50:58Z",
+    "title": "Ajalugu",
+    "url": "http://et.wikipedia.org/wiki/Ajalugu"
+}

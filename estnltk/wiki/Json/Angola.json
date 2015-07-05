@@ -1,0 +1,649 @@
+{
+    "categories": [
+        "Angola",
+        "Aafrika maad",
+        "Portugali endised kolooniad"
+    ],
+    "infobox": {
+        "SKT_elaniku_kohta": "3971 USD (2009)",
+        "ajav\u00f6\u00f6nd": "maailmaaeg +1",
+        "asendikaart": "LocationAngola.svg",
+        "h\u00fcmn": "Angola Avante",
+        "iseseisvus": "11. november 1975",
+        "omakeelne_nimi_1": " Rep\u00fablica de Angola",
+        "omastav": "Angola",
+        "pealinn": "Luanda",
+        "pindala": "1 246 700",
+        "rahvaarv": "18 056 000 (2012)",
+        "rahvastiku_tihedus": "14,5",
+        "riigikeel": "portugali keel",
+        "riigikord": "presidentaalne vabariik",
+        "riiginimi": "Angola Vabariik",
+        "riigipea_ametinimi": "President",
+        "riigipea_nimi": "Jos\u00e9 Eduardo dos Santos",
+        "rok-i_kood": "ANG",
+        "telefonikood": "244",
+        "valuuta": "kwanza (AOA)",
+        "vapi_laius": "100px",
+        "\u00fcladomeen": ".ao"
+    },
+    "sections": [
+        {
+            "internal_links": [
+                {
+                    "end": 80,
+                    "label": "Angola (Indiana)",
+                    "start": 62,
+                    "title": "Angola (Indiana)",
+                    "url": "http://et.wikipedia.org/wiki/Angola_(Indiana)"
+                },
+                {
+                    "end": 227,
+                    "label": "riik",
+                    "start": 221,
+                    "title": "riik",
+                    "url": "http://et.wikipedia.org/wiki/riik"
+                },
+                {
+                    "end": 235,
+                    "label": "Aafrika",
+                    "start": 226,
+                    "title": "Aafrika",
+                    "url": "http://et.wikipedia.org/wiki/Aafrika"
+                },
+                {
+                    "end": 260,
+                    "label": "Atlandi ookean",
+                    "start": 244,
+                    "title": "Atlandi ookean",
+                    "url": "http://et.wikipedia.org/wiki/Atlandi_ookean"
+                },
+                {
+                    "end": 289,
+                    "label": "Namiibia",
+                    "start": 279,
+                    "title": "Namiibia",
+                    "url": "http://et.wikipedia.org/wiki/Namiibia"
+                },
+                {
+                    "end": 331,
+                    "label": "Kongo Demokraatliku Vabariigiga",
+                    "start": 298,
+                    "title": "Kongo Demokraatlik Vabariik",
+                    "url": "http://et.wikipedia.org/wiki/Kongo_Demokraatlik_Vabariik"
+                },
+                {
+                    "end": 356,
+                    "label": "Sambia",
+                    "start": 348,
+                    "title": "Sambia",
+                    "url": "http://et.wikipedia.org/wiki/Sambia"
+                },
+                {
+                    "end": 380,
+                    "label": "eksklaav",
+                    "start": 370,
+                    "title": "eksklaav",
+                    "url": "http://et.wikipedia.org/wiki/eksklaav"
+                },
+                {
+                    "end": 388,
+                    "label": "Cabinda",
+                    "start": 379,
+                    "title": "Cabinda",
+                    "url": "http://et.wikipedia.org/wiki/Cabinda"
+                },
+                {
+                    "end": 414,
+                    "label": "Kongo Vabariigiga",
+                    "start": 395,
+                    "title": "Kongo Vabariik",
+                    "url": "http://et.wikipedia.org/wiki/Kongo_Vabariik"
+                },
+                {
+                    "end": 456,
+                    "label": "Kongo Demokraatliku Vabariigiga",
+                    "start": 423,
+                    "title": "Kongo Demokraatlik Vabariik",
+                    "url": "http://et.wikipedia.org/wiki/Kongo_Demokraatlik_Vabariik"
+                }
+            ],
+            "text": "{{See artikkel|on riigist; Indiana linna kohta vaata artiklit Angola (Indiana).}}\n  SKT = \n|  SKT_elaniku_kohta = 3971 USD (2009) \n|  rok-i_kood = ANG\n|  m\u00e4rkused = \n}}\n\n'''Angola''' (eesti keeles varem '''Angoola''') on riik Aafrika edelaosas Atlandi ookeani kaldal. Ta piirneb Namiibiaga l\u00f5unas, Kongo Demokraatliku Vabariigiga p\u00f5hjas ja kirdes, Sambiaga idas. Angola eksklaav Cabinda piirneb Kongo Vabariigiga p\u00f5hjas ja Kongo Demokraatliku Vabariigiga"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 26,
+                    "label": "Kongo",
+                    "start": 19,
+                    "title": "Kongo j\u00f5gi",
+                    "url": "http://et.wikipedia.org/wiki/Kongo_j\u00f5gi"
+                },
+                {
+                    "end": 33,
+                    "label": "Kasai",
+                    "start": 26,
+                    "title": "Kasai j\u00f5gi",
+                    "url": "http://et.wikipedia.org/wiki/Kasai_j\u00f5gi"
+                },
+                {
+                    "end": 42,
+                    "label": "Zambezi",
+                    "start": 33,
+                    "title": "Zambezi",
+                    "url": "http://et.wikipedia.org/wiki/Zambezi"
+                },
+                {
+                    "end": 52,
+                    "label": "Okavango",
+                    "start": 42,
+                    "title": "Okavango",
+                    "url": "http://et.wikipedia.org/wiki/Okavango"
+                },
+                {
+                    "end": 62,
+                    "label": "Cunene",
+                    "start": 54,
+                    "title": "Cunene j\u00f5gi",
+                    "url": "http://et.wikipedia.org/wiki/Cunene_j\u00f5gi"
+                },
+                {
+                    "end": 92,
+                    "label": "Bi\u00e9 platoo",
+                    "start": 80,
+                    "title": "Bi\u00e9 platoo",
+                    "url": "http://et.wikipedia.org/wiki/Bi\u00e9_platoo"
+                },
+                {
+                    "end": 103,
+                    "label": "M\u00f4co",
+                    "start": 97,
+                    "title": "M\u00f4co",
+                    "url": "http://et.wikipedia.org/wiki/M\u00f4co"
+                }
+            ],
+            "text": "\n\nSuuremad j\u00f5ed on Kongo, Kasai, Zambezi, Okavango ja Cunene. \n\nK\u00f5rgeim tipp on Bi\u00e9 platool asuv M\u00f4co",
+            "title": "Geograafia"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 17,
+                    "label": "kodus\u00f5ja",
+                    "start": 7,
+                    "title": "Angola kodus\u00f5da",
+                    "url": "http://et.wikipedia.org/wiki/Angola_kodus\u00f5da"
+                },
+                {
+                    "end": 28,
+                    "label": "1974",
+                    "start": 22,
+                    "title": "1974",
+                    "url": "http://et.wikipedia.org/wiki/1974"
+                },
+                {
+                    "end": 33,
+                    "label": "2002",
+                    "start": 27,
+                    "title": "2002",
+                    "url": "http://et.wikipedia.org/wiki/2002"
+                },
+                {
+                    "end": 163,
+                    "label": "infrastruktuur",
+                    "start": 147,
+                    "title": "infrastruktuur",
+                    "url": "http://et.wikipedia.org/wiki/infrastruktuur"
+                },
+                {
+                    "end": 255,
+                    "label": "Sisemajanduse kogutoodang elaniku kohta",
+                    "start": 214,
+                    "title": "Sisemajanduse kogutoodang elaniku kohta",
+                    "url": "http://et.wikipedia.org/wiki/Sisemajanduse_kogutoodang_elaniku_kohta"
+                },
+                {
+                    "end": 272,
+                    "label": "2005",
+                    "start": 266,
+                    "title": "2005",
+                    "url": "http://et.wikipedia.org/wiki/2005"
+                },
+                {
+                    "end": 358,
+                    "label": "2004",
+                    "start": 352,
+                    "title": "2004",
+                    "url": "http://et.wikipedia.org/wiki/2004"
+                },
+                {
+                    "end": 410,
+                    "label": "Hiina",
+                    "start": 403,
+                    "title": "Hiina",
+                    "url": "http://et.wikipedia.org/wiki/Hiina"
+                },
+                {
+                    "end": 513,
+                    "label": "nafta",
+                    "start": 506,
+                    "title": "nafta",
+                    "url": "http://et.wikipedia.org/wiki/nafta"
+                },
+                {
+                    "end": 572,
+                    "label": "barrel",
+                    "start": 564,
+                    "title": "barrel",
+                    "url": "http://et.wikipedia.org/wiki/barrel"
+                },
+                {
+                    "end": 599,
+                    "label": "2007",
+                    "start": 593,
+                    "title": "2007",
+                    "url": "http://et.wikipedia.org/wiki/2007"
+                },
+                {
+                    "end": 771,
+                    "label": "OPEC",
+                    "start": 765,
+                    "title": "OPEC",
+                    "url": "http://et.wikipedia.org/wiki/OPEC"
+                },
+                {
+                    "end": 1010,
+                    "label": "teemandi",
+                    "start": 1000,
+                    "title": "teemant",
+                    "url": "http://et.wikipedia.org/wiki/teemant"
+                },
+                {
+                    "end": 1020,
+                    "label": "uraan",
+                    "start": 1013,
+                    "title": "uraan",
+                    "url": "http://et.wikipedia.org/wiki/uraan"
+                }
+            ],
+            "text": "\n\nPika kodus\u00f5ja ajal (1974-2002 august) oli Angola majandus madalseisus ning praktiliselt mingit kasvu ei toimunud. S\u00f5jas sai r\u00e4ngalt kannatada ka infrastruktuur. P\u00e4rast kodus\u00f5da on majandus aga kiiresti kasvanud. Sisemajanduse kogutoodang elaniku kohta, mis aastal 2005 oli 2800 dollarit, on madal, kuid siiski k\u00f5rgem kui enamikul Aafrika riikidel. \n\n2004. aastal sai Angola 2 miljardit dollarit laenu Hiinast, millega parandati s\u00f5ja ajal h\u00e4vinud infrastruktuure.\n\nAngolas on peale kodus\u00f5ja l\u00f5ppu t\u00f5usnud naftatootmine. Kui 2005. aasta l\u00f5pus toodeti 1,4 miljonit barrelit naftat p\u00e4evas, siis 2007. aasta algul juba 2 miljonit barrelit p\u00e4evas. Naftatootmist kontrollib firma nimega \"Sonangol Group\", mis kuulub Angola valitsusele. 2006. aasta detsembris sai Angola OPEC-i t\u00e4isliikmeks. 2005. aastal kasvas Angola majandus 18% ning 2006 aastal 26%. Samas suurusj\u00e4rgus kasvu oodatakse ka 2007. aastal. Nende n\u00e4itajatega on Angola \u00fcks kiireimini kasvavaid majandusi maailmas.\n\nRiigil on m\u00e4rkimisv\u00e4\u00e4rsed teemandi- ja uraan",
+            "title": "Majandus"
+        },
+        {
+            "external links": [
+                {
+                    "end": 387,
+                    "label": "",
+                    "start": 387,
+                    "url": "http://archive.is/20130630163456/http://www.world-gazetteer.com/wg.php?x=&men=gpro&lng=en&dat=32&geo=-19&srt=npan&col=aohdq"
+                },
+                {
+                    "end": 429,
+                    "label": "Population Reference Bureau",
+                    "start": 402,
+                    "url": "http://www.prb.org/"
+                }
+            ],
+            "internal_links": [
+                {
+                    "end": 44,
+                    "label": "1970",
+                    "start": 38,
+                    "title": "1970",
+                    "url": "http://et.wikipedia.org/wiki/1970"
+                },
+                {
+                    "end": 354,
+                    "label": "World Gazetteer",
+                    "start": 337,
+                    "title": "World Gazetteer",
+                    "url": "http://et.wikipedia.org/wiki/World_Gazetteer"
+                },
+                {
+                    "end": 469,
+                    "label": "2014",
+                    "start": 463,
+                    "title": "2014",
+                    "url": "http://et.wikipedia.org/wiki/2014"
+                },
+                {
+                    "end": 513,
+                    "label": "umbundud",
+                    "start": 503,
+                    "title": "umbundud",
+                    "url": "http://et.wikipedia.org/wiki/umbundud"
+                },
+                {
+                    "end": 530,
+                    "label": "kimbundud",
+                    "start": 519,
+                    "title": "kimbundud",
+                    "url": "http://et.wikipedia.org/wiki/kimbundud"
+                },
+                {
+                    "end": 548,
+                    "label": "kikongod",
+                    "start": 538,
+                    "title": "kikongod",
+                    "url": "http://et.wikipedia.org/wiki/kikongod"
+                },
+                {
+                    "end": 583,
+                    "label": "ovambod",
+                    "start": 574,
+                    "title": "ovambod",
+                    "url": "http://et.wikipedia.org/wiki/ovambod"
+                },
+                {
+                    "end": 592,
+                    "label": "hererod",
+                    "start": 583,
+                    "title": "hererod",
+                    "url": "http://et.wikipedia.org/wiki/hererod"
+                },
+                {
+                    "end": 600,
+                    "label": "lundad",
+                    "start": 592,
+                    "title": "lundad",
+                    "url": "http://et.wikipedia.org/wiki/lundad"
+                },
+                {
+                    "end": 610,
+                    "label": "bu\u0161manid",
+                    "start": 600,
+                    "title": "bu\u0161manid",
+                    "url": "http://et.wikipedia.org/wiki/bu\u0161manid"
+                },
+                {
+                    "end": 621,
+                    "label": "p\u00fcgmeed",
+                    "start": 612,
+                    "title": "p\u00fcgmeed",
+                    "url": "http://et.wikipedia.org/wiki/p\u00fcgmeed"
+                }
+            ],
+            "references": [
+                0
+            ],
+            "text": "\n\nAngolas toimus viimane rahvaloendus 1970. aastal. Siis saadi rahvaarvuks 5 646 166. Kodus\u00f5ja t\u00f5ttu ei olnud v\u00f5imalik hiljem rahvaloendusi korraldada ja seet\u00f5ttu lahknevad hinnangud Angola rahvaarvule suurel m\u00e4\u00e4ral. Eri hinnanguil on see 12 263 596 (CIA Factbook, juuli 2007); 16 329 000 (Rahvusvaheline valuutafond 2007);  13 313 553 (World Gazetteer, 2007), 16 853 679 (2008, ); 16 300 000 (Population Reference Bureau, 2007). Kavas on korraldada rahvaloendus 2014. aastal.\n\nSuuremad rahvusr\u00fchmad on umbundud (37%), kimbundud (25%) ja kikongod (13%). V\u00e4iksemad r\u00fchmad on ovambod, hererod, lundad, bu\u0161manid ja p\u00fcgmeed",
+            "title": "Rahvastik"
+        },
+        {
+            "images": [
+                {
+                    "text": "Angola provintsid",
+                    "url": "http://et.wikipedia.org/wiki/Image:Angola Provinces numbered 300px.png"
+                }
+            ],
+            "internal_links": [
+                {
+                    "end": 132,
+                    "label": "Bengo",
+                    "start": 125,
+                    "title": "Bengo provints",
+                    "url": "http://et.wikipedia.org/wiki/Bengo_provints"
+                },
+                {
+                    "end": 150,
+                    "label": "Benguela",
+                    "start": 140,
+                    "title": "Benguela provints",
+                    "url": "http://et.wikipedia.org/wiki/Benguela_provints"
+                },
+                {
+                    "end": 159,
+                    "label": "Bi\u00e9",
+                    "start": 154,
+                    "title": "Bi\u00e9 provints",
+                    "url": "http://et.wikipedia.org/wiki/Bi\u00e9_provints"
+                },
+                {
+                    "end": 180,
+                    "label": "Cabinda",
+                    "start": 171,
+                    "title": "Cabinda provints",
+                    "url": "http://et.wikipedia.org/wiki/Cabinda_provints"
+                },
+                {
+                    "end": 200,
+                    "label": "Cuando Cubango",
+                    "start": 184,
+                    "title": "Cuando Cubango",
+                    "url": "http://et.wikipedia.org/wiki/Cuando_Cubango"
+                },
+                {
+                    "end": 230,
+                    "label": "Cuanza Norte",
+                    "start": 216,
+                    "title": "Cuanza Norte",
+                    "url": "http://et.wikipedia.org/wiki/Cuanza_Norte"
+                },
+                {
+                    "end": 260,
+                    "label": "Cuanza Sul",
+                    "start": 248,
+                    "title": "Cuanza Sul",
+                    "url": "http://et.wikipedia.org/wiki/Cuanza_Sul"
+                },
+                {
+                    "end": 288,
+                    "label": "Cunene",
+                    "start": 280,
+                    "title": "Cunene provints",
+                    "url": "http://et.wikipedia.org/wiki/Cunene_provints"
+                },
+                {
+                    "end": 302,
+                    "label": "Huambo",
+                    "start": 294,
+                    "title": "Huambo provints",
+                    "url": "http://et.wikipedia.org/wiki/Huambo_provints"
+                },
+                {
+                    "end": 345,
+                    "label": "Huila",
+                    "start": 338,
+                    "title": "Huila provints",
+                    "url": "http://et.wikipedia.org/wiki/Huila_provints"
+                },
+                {
+                    "end": 362,
+                    "label": "Luanda",
+                    "start": 354,
+                    "title": "Luanda provints",
+                    "url": "http://et.wikipedia.org/wiki/Luanda_provints"
+                },
+                {
+                    "end": 382,
+                    "label": "Lunda Norte",
+                    "start": 369,
+                    "title": "Lunda Norte",
+                    "url": "http://et.wikipedia.org/wiki/Lunda_Norte"
+                },
+                {
+                    "end": 410,
+                    "label": "Lunda Sul",
+                    "start": 399,
+                    "title": "Lunda Sul",
+                    "url": "http://et.wikipedia.org/wiki/Lunda_Sul"
+                },
+                {
+                    "end": 439,
+                    "label": "Malanje",
+                    "start": 430,
+                    "title": "Malanje provints",
+                    "url": "http://et.wikipedia.org/wiki/Malanje_provints"
+                },
+                {
+                    "end": 452,
+                    "label": "Moxico",
+                    "start": 444,
+                    "title": "Moxico provints",
+                    "url": "http://et.wikipedia.org/wiki/Moxico_provints"
+                },
+                {
+                    "end": 465,
+                    "label": "Namibe",
+                    "start": 457,
+                    "title": "Namibe provints",
+                    "url": "http://et.wikipedia.org/wiki/Namibe_provints"
+                },
+                {
+                    "end": 478,
+                    "label": "Uige",
+                    "start": 472,
+                    "title": "Uige provints",
+                    "url": "http://et.wikipedia.org/wiki/Uige_provints"
+                },
+                {
+                    "end": 496,
+                    "label": "Zaire",
+                    "start": 489,
+                    "title": "Zaire provints",
+                    "url": "http://et.wikipedia.org/wiki/Zaire_provints"
+                }
+            ],
+            "text": "\n\n\nAngola jaguneb kaheksateistk\u00fcmneks provintsiks, mis omakorda jaotatakse 158 vallaks. Provintsid on:\n\n<table><td><ol>\n<li> Bengo    \n<li> Benguela\n<li> Bi\u00e9        \n<li> Cabinda\n<li> Cuando Cubango            \n<li> Cuanza Norte              \n<li> Cuanza Sul                \n<li> Cunene  \n<li> Huambo    \n</ol></td><td><ol start=10>\n<li> Huila     \n<li> Luanda   \n<li> Lunda Norte             \n<li> Lunda Sul                \n<li> Malanje \n<li> Moxico \n<li> Namibe   \n<li> Uige       \n<li> Zaire",
+            "title": "Haldusjaotus"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 44,
+                    "label": "khoisani",
+                    "start": 34,
+                    "title": "khoisanid",
+                    "url": "http://et.wikipedia.org/wiki/khoisanid"
+                },
+                {
+                    "end": 70,
+                    "label": "bantu keeli",
+                    "start": 57,
+                    "title": "Bantu keeled",
+                    "url": "http://et.wikipedia.org/wiki/Bantu_keeled"
+                },
+                {
+                    "end": 114,
+                    "label": "1483",
+                    "start": 108,
+                    "title": "1483",
+                    "url": "http://et.wikipedia.org/wiki/1483"
+                },
+                {
+                    "end": 377,
+                    "label": "1961",
+                    "start": 371,
+                    "title": "1961",
+                    "url": "http://et.wikipedia.org/wiki/1961"
+                },
+                {
+                    "end": 415,
+                    "label": "1974",
+                    "start": 409,
+                    "title": "1974",
+                    "url": "http://et.wikipedia.org/wiki/1974"
+                },
+                {
+                    "end": 460,
+                    "label": "FNLA",
+                    "start": 454,
+                    "title": "FNLA",
+                    "url": "http://et.wikipedia.org/wiki/FNLA"
+                },
+                {
+                    "end": 467,
+                    "label": "UNITA",
+                    "start": 460,
+                    "title": "UNITA",
+                    "url": "http://et.wikipedia.org/wiki/UNITA"
+                },
+                {
+                    "end": 475,
+                    "label": "MPLA",
+                    "start": 469,
+                    "title": "MPLA",
+                    "url": "http://et.wikipedia.org/wiki/MPLA"
+                },
+                {
+                    "end": 525,
+                    "label": "Ameerika \u00dchendriigid",
+                    "start": 503,
+                    "title": "Ameerika \u00dchendriigid",
+                    "url": "http://et.wikipedia.org/wiki/Ameerika_\u00dchendriigid"
+                },
+                {
+                    "end": 532,
+                    "label": "LAV",
+                    "start": 527,
+                    "title": "LAV",
+                    "url": "http://et.wikipedia.org/wiki/LAV"
+                },
+                {
+                    "end": 568,
+                    "label": "Kuuba",
+                    "start": 561,
+                    "title": "Kuuba",
+                    "url": "http://et.wikipedia.org/wiki/Kuuba"
+                },
+                {
+                    "end": 586,
+                    "label": "N\u00f5ukogude Liit",
+                    "start": 570,
+                    "title": "N\u00f5ukogude Liit",
+                    "url": "http://et.wikipedia.org/wiki/N\u00f5ukogude_Liit"
+                },
+                {
+                    "end": 592,
+                    "label": "1975",
+                    "start": 586,
+                    "title": "1975",
+                    "url": "http://et.wikipedia.org/wiki/1975"
+                },
+                {
+                    "end": 614,
+                    "label": "Cabinda",
+                    "start": 605,
+                    "title": "Cabinda",
+                    "url": "http://et.wikipedia.org/wiki/Cabinda"
+                },
+                {
+                    "end": 688,
+                    "label": "2002",
+                    "start": 682,
+                    "title": "2002",
+                    "url": "http://et.wikipedia.org/wiki/2002"
+                },
+                {
+                    "end": 728,
+                    "label": "Jonas Savimbi",
+                    "start": 713,
+                    "title": "Jonas Savimbi",
+                    "url": "http://et.wikipedia.org/wiki/Jonas_Savimbi"
+                }
+            ],
+            "text": "\nAngola esimesteks asukateks olid khoisani h\u00f5imud, kelle bantu keeli r\u00e4\u00e4kivad h\u00f5imud k\u00f5rbealadele t\u00f5rjusid. 1483 hakkasid portugallased Angola rannikule rajama tugiposte. 19. sajandil algas Angola ala s\u00fcstemaatiline allutamine Portugali v\u00f5imule, mis j\u00f5udis l\u00f5pule 1920. aastateks. 1975. aastani oli Angola Portugali asumaa. 1950. aastatel alanud vabastusliikumine muutus 1961. aastal relvastatud vastupanuks. 1974. aastal algasid relvastatud kokkup\u00f5rked FNLA, UNITA ja MPLA vahel. Kaht esimest toetasid Ameerika \u00dchendriigid ja LAV, marksistlikku MPLAd toetasid Kuuba ja N\u00f5ukogude Liit. 1975 kuulutas MPLA Cabinda eksklaavis v\u00e4lja iseseisvuse. 1994 s\u00f5lmiti vaherahu. Kodus\u00f5da l\u00f5ppes 2002. aastal p\u00e4rast UNITA juhi Jonas Savimbi",
+            "title": "Ajalugu"
+        },
+        {
+            "text": "\n{{viited}}\n",
+            "title": "Viited"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 28,
+                    "label": "Angola riigipeade loend",
+                    "start": 3,
+                    "title": "Angola riigipeade loend",
+                    "url": "http://et.wikipedia.org/wiki/Angola_riigipeade_loend"
+                }
+            ],
+            "text": "\n* Angola riigipeade loend",
+            "title": "Vaata ka"
+        }
+    ],
+    "timestamp": "2015-01-16T12:54:32Z",
+    "title": "Angola",
+    "url": "http://et.wikipedia.org/wiki/Angola"
+}

@@ -1,0 +1,196 @@
+{
+    "categories": [
+        "Araabia keel"
+    ],
+    "sections": [
+        {
+            "internal_links": [
+                {
+                    "end": 68,
+                    "label": "afroaasia keelkonna",
+                    "start": 47,
+                    "title": "afroaasia keeled",
+                    "url": "http://et.wikipedia.org/wiki/afroaasia_keeled"
+                },
+                {
+                    "end": 87,
+                    "label": "semiidi keeler\u00fchma",
+                    "start": 67,
+                    "title": "semiidi keeled",
+                    "url": "http://et.wikipedia.org/wiki/semiidi_keeled"
+                },
+                {
+                    "end": 111,
+                    "label": "l\u00f5unakesksemiidi keelte",
+                    "start": 86,
+                    "title": "l\u00f5unakesksemiidi keeled",
+                    "url": "http://et.wikipedia.org/wiki/l\u00f5unakesksemiidi_keeled"
+                },
+                {
+                    "end": 129,
+                    "label": "keel",
+                    "start": 123,
+                    "title": "keel (keeleteadus)",
+                    "url": "http://et.wikipedia.org/wiki/keel_(keeleteadus)"
+                },
+                {
+                    "end": 234,
+                    "label": "L\u00e4his-Ida",
+                    "start": 223,
+                    "title": "L\u00e4his-Ida",
+                    "url": "http://et.wikipedia.org/wiki/L\u00e4his-Ida"
+                },
+                {
+                    "end": 252,
+                    "label": "P\u00f5hja-Aafrika",
+                    "start": 237,
+                    "title": "P\u00f5hja-Aafrika",
+                    "url": "http://et.wikipedia.org/wiki/P\u00f5hja-Aafrika"
+                },
+                {
+                    "end": 312,
+                    "label": "beduiinid",
+                    "start": 301,
+                    "title": "beduiinid",
+                    "url": "http://et.wikipedia.org/wiki/beduiinid"
+                },
+                {
+                    "end": 329,
+                    "label": "Araabia poolsaar",
+                    "start": 311,
+                    "title": "Araabia poolsaar",
+                    "url": "http://et.wikipedia.org/wiki/Araabia_poolsaar"
+                },
+                {
+                    "end": 344,
+                    "label": "7. sajand",
+                    "start": 333,
+                    "title": "7. sajand",
+                    "url": "http://et.wikipedia.org/wiki/7._sajand"
+                },
+                {
+                    "end": 372,
+                    "label": "kirjakeel",
+                    "start": 361,
+                    "title": "kirjakeel",
+                    "url": "http://et.wikipedia.org/wiki/kirjakeel"
+                },
+                {
+                    "end": 401,
+                    "label": "Araabia kalifaat",
+                    "start": 383,
+                    "title": "Araabia kalifaat",
+                    "url": "http://et.wikipedia.org/wiki/Araabia_kalifaat"
+                },
+                {
+                    "end": 432,
+                    "label": "islam",
+                    "start": 425,
+                    "title": "islam",
+                    "url": "http://et.wikipedia.org/wiki/islam"
+                },
+                {
+                    "end": 520,
+                    "label": "\u00fchiskeel",
+                    "start": 510,
+                    "title": "\u00fchiskeel",
+                    "url": "http://et.wikipedia.org/wiki/\u00fchiskeel"
+                },
+                {
+                    "end": 547,
+                    "label": "araabia maad",
+                    "start": 533,
+                    "title": "araabia maad",
+                    "url": "http://et.wikipedia.org/wiki/araabia_maad"
+                },
+                {
+                    "end": 670,
+                    "label": "Araabia kiri",
+                    "start": 656,
+                    "title": "Araabia kiri",
+                    "url": "http://et.wikipedia.org/wiki/Araabia_kiri"
+                },
+                {
+                    "end": 702,
+                    "label": "kaash\u00e4\u00e4lik",
+                    "start": 690,
+                    "title": "konsonant",
+                    "url": "http://et.wikipedia.org/wiki/konsonant"
+                },
+                {
+                    "end": 721,
+                    "label": "Euroopa",
+                    "start": 712,
+                    "title": "Euroopa",
+                    "url": "http://et.wikipedia.org/wiki/Euroopa"
+                },
+                {
+                    "end": 755,
+                    "label": "laen",
+                    "start": 749,
+                    "title": "laen (keeleteadus)",
+                    "url": "http://et.wikipedia.org/wiki/laen_(keeleteadus)"
+                },
+                {
+                    "end": 789,
+                    "label": "alkohol",
+                    "start": 780,
+                    "title": "alkohol",
+                    "url": "http://et.wikipedia.org/wiki/alkohol"
+                },
+                {
+                    "end": 802,
+                    "label": "algebra",
+                    "start": 793,
+                    "title": "algebra",
+                    "url": "http://et.wikipedia.org/wiki/algebra"
+                },
+                {
+                    "end": 815,
+                    "label": "asimuut",
+                    "start": 806,
+                    "title": "asimuut",
+                    "url": "http://et.wikipedia.org/wiki/asimuut"
+                },
+                {
+                    "end": 825,
+                    "label": "kuup",
+                    "start": 819,
+                    "title": "kuup",
+                    "url": "http://et.wikipedia.org/wiki/kuup"
+                },
+                {
+                    "end": 835,
+                    "label": "kohv",
+                    "start": 829,
+                    "title": "kohv",
+                    "url": "http://et.wikipedia.org/wiki/kohv"
+                },
+                {
+                    "end": 847,
+                    "label": "tariif",
+                    "start": 839,
+                    "title": "tariif",
+                    "url": "http://et.wikipedia.org/wiki/tariif"
+                },
+                {
+                    "end": 861,
+                    "label": "talisman",
+                    "start": 851,
+                    "title": "talisman",
+                    "url": "http://et.wikipedia.org/wiki/talisman"
+                }
+            ],
+            "sections": [
+                {
+                    "text": "\n\n{| class=\"sortable wikitable\"\n |+ \n ! width=030px | Nr.\n ! width=200px | Riik\n ! width=200px | # Rahvaarv\n |-\n !  #  || -      || 359 288 109\n |-\n |  1. || {{PisiLipp|Al\u017eeeria}}  || 33 333 216\n |-\n |  2. || {{PisiLipp|Bahrein}}  || 708 573 \n |-\n |  3. || {{PisiLipp|Komoorid}} || 798 000\n |-\n |  4. || {{PisiLipp|T\u0161aad}}  || 10 146 000\n |-\n |  5 . || {{PisiLipp|Djibouti}}  || 496 374\n |-\n |  6. || {{PisiLipp|Egiptus}}  || 80 335 036\n |-\n |  7. || {{PisiLipp|Eritrea}}  || 4 401 000 \n |-\n |  8. || {{PisiLipp|Iraak}}  || 26 783 383\n |-\n|9||{{PisiLipp|Iisrael}}||7 184 000 \n|-\n|10||{{PisiLipp|Jordaania}}|| 5 924 000 \n|-\n|11||{{PisiLipp|Kuveit}}||3 100 000\n|-\n|12||{{PisiLipp|Liibanon}}||4 099 000\n|-\n|13||{{PisiLipp|Liib\u00fca}}|| 6 036 914 \n|-\n|14||{{PisiLipp|Mauritaania}}|| 3 069 000\n|-\n|15||{{PisiLipp|Maroko}}|| 33 757 175\n|-\n|16||{{PisiLipp|Omaan}}|| 3 204 897\n|-\n|17||{{PisiLipp|Palestiina}}|| 3 800 000 \n|-\n|18||{{PisiLipp|Katar}}|| 841 000 \n|-\n|19||{{PisiLipp|Saudi Araabia}}|| 24 735 000\n|-\n|20||{{PisiLipp|Somaalia}}|| 9 118 773\n|-\n|21||{{PisiLipp|Sudaan}} || 39 992 490\n|-\n |-\n |  22. || {{PisiLipp|S\u00fc\u00fcria}}  || 20 314 747 \n |-\n |  23. || {{PisiLipp|Tuneesia}}  || 10 102 000 \n |-\n |  24. || {{PisiLipp|Araabia \u00dchendemiraadid}}  || 4 496 000 \n |-\n |  25 . || {{PisiLipp|Jeemen}} || 22 230 531\n |}\n\n{{Vikipeedia/keel|ar|Araabiakeelne}}\n\n",
+                    "title": "Riigid, kus on riigikeeleks araabia keel"
+                }
+            ],
+            "text": "'''Araabia keel''' (\u0627\u0644\u0644\u063a\u0629 \u0627\u0644\u0639\u0631\u0628\u064a\u0629 ehk \u0639\u0631\u0628\u064a) on afroaasia keelkonna semiidi keeler\u00fchma l\u00f5unakesksemiidi keelte hulka kuuluv keel. \n\nAraabia keel on suurima k\u00f5nelejate arvuga semiidi keel. \n\nSeda k\u00f5neleb 422 miljonit inimest L\u00e4his-Idas ja P\u00f5hja-Aafrikas{{lisa viide}}. \n\nAraabia keelt k\u00f5nelesid algselt beduiinid Araabia poolsaarel. \n\n7. sajandil kujunes araabia kirjakeel. Kui tekkis Araabia kalifaat, levis araabia keel koos islamiga ja araabia kultuuriga naabermaadele. \n\nVanast kirjakeelest l\u00e4htunud araabia \u00fchiskeel on t\u00e4nap\u00e4eval araabia maade riigikeel. Selles keeles toimub kooli\u00f5petus, ilmuvad ajalehed ja raamatud. Rahvakeel on eri maades erinev. \n\nAraabia kiri koosneb 28 peamiselt kaash\u00e4\u00e4likum\u00e4rgist. \n\nEuroopa keeltesse on araabia keelest laenatud palju s\u00f5nu, n\u00e4iteks ''alkohol'', ''algebra'', ''asimuut'', ''kuup'', ''kohv'', ''tariif'', ''talisman"
+        }
+    ],
+    "timestamp": "2014-10-27T15:40:48Z",
+    "title": "Araabia keel",
+    "url": "http://et.wikipedia.org/wiki/Araabia_keel"
+}
