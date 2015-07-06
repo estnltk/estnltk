@@ -33,7 +33,7 @@ def imageParser(sectionObj):
 
             imgText = imgText.split('|')
             text= imgText[-1]
-            url = internalLink.urlBegin + imgText[0]
+            url = internalLink.urlBegin + imgText[0].replace(' ', '_')
             img['text'] = text
             img['url'] = url
 
@@ -57,6 +57,7 @@ if __name__ == '__main__':
     with open("armeenia.txt", encoding='utf-8') as f:
         data = f.read()
 
+    print(imageParser({'text' : data}))
 
     """
     imageRegEx = re.compile(r'\[\[(Pilt|File)\:.+')

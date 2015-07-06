@@ -5,7 +5,7 @@ __author__ = 'Andres'
 import json
 import re
 import os
-from estnltk import Text
+#from estnltk import Text
 
 fileCleanerRegEx = re.compile(r'[:\\/]+')
 def jsonWriter(jsonObj, dir=''):

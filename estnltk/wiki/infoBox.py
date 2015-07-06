@@ -37,7 +37,8 @@ def infoBoxParser(text):
         for i in infob:
             start = i.start()
             infobContent, end = bSB(text[start:], openDelim='{', closeDelim='}')
-            t = text [:start]+text[end:]
+            print('Infobox:', text[start:end])
+            t = text[:start]+text[end:]
             if infobContent:
                 infobContent = infobContent.replace('[', '').replace(']', '').splitlines()  #.replace('|', '').split('\n'))
                 infobDict = {}

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from pandas.core.common import _ABCGeneric
+
 __author__ = 'Andres'
 import re
 from images import imageRegEx
@@ -16,16 +18,17 @@ EXT_LINK_URL_CLASS = r'[^][<>"\x00-\x20\x7F\s]'
 ExtLinkBracketedRegex = re.compile('\[(((?i)' + '|'.join(wgUrlProtocols) + ')' +
                                    EXT_LINK_URL_CLASS + r'+)\s*([^\]\x00-\x08\x0a-\x1F]*?)\]', re.S | re.U)
 
-relatedRegEx = re.compile('\{\{vaata(.+?)\}\}', re.IGNORECASE)
-
+relatedRegEx = re.compile(r'\{\{vaata(.+?)\}\}', re.IGNORECASE)
+intLinkRegex = re.compile(r'\[\[.+?\|?.+?\]\].+?\b')
 def relatedArticles(sectionObject):
     text = sectionObject['text']
-    related = [(x.group(1), x.span()) for x in relatedRegEx.finditer(text)]
+    related = [x.group(1).strip('|') for x in relatedRegEx.finditer(text)]
     if related:
         sectionObject['related_articles'] = related
         text = re.sub(relatedRegEx, '', text)
-
+        sectionObject['text'] = text
     return sectionObject
+
 def bracketsParser(sectionObject):
     """
     call it after the images have been parsed
@@ -147,7 +150,7 @@ def addIntLinks(sectionObj):
 #TODO: FULL LABEL ISSUE
 
     t = sectionObj['text']
-    spans = [(s,e) for s, e in findBalanced(t, '[[', ']]')]
+    spans = [(m.start(), m.end()) for m in intLinkRegex.finditer(t)]
 
     if spans:
         text = ''
@@ -162,24 +165,27 @@ def addIntLinks(sectionObj):
                 nextStart = spans[index+1][0]
             except IndexError:
                 nextStart = None
-            linktext = t[start+2:end-2]
+
+            linktext = t[start:end].replace('[', '').strip('{:;-., ')
             if '|' in linktext:
                 linktext = linktext.split('|')
-                label = linktext[1]
+                label = linktext[1].replace(']', '')
                 title = linktext[0]
                 url = urlBegin + title
 
             else:
 
-                label = linktext
-                title = linktext
-                url = urlBegin+linktext
+                label = linktext.replace(']', '')
+
+                title = linktext[:linktext.index(']')]
+
+                url = urlBegin+title
 
 
             text+=t[lastEnd:start]+label
             #text+=t[end:nextStart]
             lastEnd = end
-            link['start'] = len(text)- len(label)
+            link['start'] =1+ len(text)- len(label)
             link['end'] = len(text)
             link['label'] = label
             link['title'] = title
