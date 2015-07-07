@@ -30,698 +30,564 @@
         {
             "internal_links": [
                 {
-                    "end": 68,
-                    "label": "Armenija",
-                    "start": 58,
+                    "end": 67,
+                    "label": "Armenija;",
+                    "start": 59,
                     "title": "Armenija",
                     "url": "http://et.wikipedia.org/wiki/Armenija"
                 },
                 {
-                    "end": 115,
-                    "label": "Armenia (Colombia)",
-                    "start": 95,
-                    "title": "Armenia (Colombia)",
-                    "url": "http://et.wikipedia.org/wiki/Armenia_(Colombia)"
-                },
-                {
-                    "end": 213,
-                    "label": "Mer hajrenikh",
-                    "start": 198,
+                    "end": 215,
+                    "label": "Mer hajrenikh (",
+                    "start": 201,
                     "title": "Mer hajrenikh",
                     "url": "http://et.wikipedia.org/wiki/Mer_hajrenikh"
                 },
                 {
-                    "end": 256,
-                    "label": ".am",
-                    "start": 251,
-                    "title": ".am",
-                    "url": "http://et.wikipedia.org/wiki/.am"
-                },
-                {
-                    "end": 396,
-                    "label": "armeenia keel",
-                    "start": 381,
+                    "end": 385,
+                    "label": "armeenia keeles",
+                    "start": 371,
                     "title": "armeenia keel",
                     "url": "http://et.wikipedia.org/wiki/armeenia_keel"
                 },
                 {
-                    "end": 430,
-                    "label": "\u0251j\u0251s\u02c8t\u0251",
-                    "start": 421,
-                    "title": "\u0251j\u0251s\u02c8t\u0251",
-                    "url": "http://et.wikipedia.org/wiki/\u0251j\u0251s\u02c8t\u0251"
-                },
-                {
-                    "end": 550,
-                    "label": "\u0251j\u0251st\u0251\u02c8ni h\u0251n\u027e\u0251p\u025btu\u02c8t\u02b0ju",
-                    "start": 524,
-                    "title": "\u0251j\u0251st\u0251\u02c8ni h\u0251n\u027e\u0251p\u025btu\u02c8t\u02b0ju",
-                    "url": "http://et.wikipedia.org/wiki/\u0251j\u0251st\u0251\u02c8ni_h\u0251n\u027e\u0251p\u025btu\u02c8t\u02b0ju"
-                },
-                {
-                    "end": 568,
+                    "end": 553,
                     "label": "merepiirita",
-                    "start": 555,
+                    "start": 543,
                     "title": "merepiirita riik",
                     "url": "http://et.wikipedia.org/wiki/merepiirita_riik"
                 },
                 {
-                    "end": 573,
-                    "label": "riik",
-                    "start": 567,
-                    "title": "riik",
-                    "url": "http://et.wikipedia.org/wiki/riik"
-                },
-                {
-                    "end": 583,
-                    "label": "Ees-Aasia",
-                    "start": 572,
+                    "end": 570,
+                    "label": "Ees-Aasias",
+                    "start": 561,
                     "title": "Ees-Aasia",
                     "url": "http://et.wikipedia.org/wiki/Ees-Aasia"
                 },
                 {
-                    "end": 595,
+                    "end": 581,
                     "label": "Musta mere",
-                    "start": 583,
+                    "start": 572,
                     "title": "Must meri",
                     "url": "http://et.wikipedia.org/wiki/Must_meri"
                 },
                 {
-                    "end": 610,
+                    "end": 595,
                     "label": "Kaspia mere",
-                    "start": 597,
+                    "start": 585,
                     "title": "Kaspia meri",
                     "url": "http://et.wikipedia.org/wiki/Kaspia_meri"
                 },
                 {
-                    "end": 630,
-                    "label": "maakitsus",
-                    "start": 619,
+                    "end": 616,
+                    "label": "maakitsusel",
+                    "start": 606,
                     "title": "maakitsus",
                     "url": "http://et.wikipedia.org/wiki/maakitsus"
                 },
                 {
-                    "end": 648,
-                    "label": "L\u00f5una-Kaukaasia",
-                    "start": 631,
+                    "end": 633,
+                    "label": "L\u00f5una-Kaukaasias",
+                    "start": 618,
                     "title": "L\u00f5una-Kaukaasia",
                     "url": "http://et.wikipedia.org/wiki/L\u00f5una-Kaukaasia"
                 },
                 {
-                    "end": 682,
-                    "label": "Gruusia",
-                    "start": 673,
+                    "end": 668,
+                    "label": "Gruusiaga",
+                    "start": 660,
                     "title": "Gruusia",
                     "url": "http://et.wikipedia.org/wiki/Gruusia"
                 },
                 {
-                    "end": 703,
-                    "label": "Aserbaid\u017eaan",
-                    "start": 689,
+                    "end": 690,
+                    "label": "Aserbaid\u017eaaniga",
+                    "start": 676,
                     "title": "Aserbaid\u017eaan",
                     "url": "http://et.wikipedia.org/wiki/Aserbaid\u017eaan"
                 },
                 {
-                    "end": 766,
-                    "label": "M\u00e4gi-Karabahh",
-                    "start": 751,
+                    "end": 751,
+                    "label": "M\u00e4gi-Karabahhi",
+                    "start": 738,
                     "title": "M\u00e4gi-Karabahh",
                     "url": "http://et.wikipedia.org/wiki/M\u00e4gi-Karabahh"
                 },
                 {
-                    "end": 795,
-                    "label": "Iraan",
-                    "start": 788,
+                    "end": 782,
+                    "label": "Iraaniga",
+                    "start": 775,
                     "title": "Iraan",
                     "url": "http://et.wikipedia.org/wiki/Iraan"
                 },
                 {
-                    "end": 830,
-                    "label": "eksklaav",
-                    "start": 820,
+                    "end": 815,
+                    "label": "eksklaavi",
+                    "start": 807,
                     "title": "eksklaav",
                     "url": "http://et.wikipedia.org/wiki/eksklaav"
                 },
                 {
-                    "end": 843,
-                    "label": "Nahhit\u0161evan",
-                    "start": 830,
+                    "end": 830,
+                    "label": "Nahhit\u0161evaniga",
+                    "start": 817,
                     "title": "Nahhit\u0161evan",
                     "url": "http://et.wikipedia.org/wiki/Nahhit\u0161evan"
                 },
                 {
-                    "end": 863,
-                    "label": "T\u00fcrgi",
-                    "start": 856,
+                    "end": 849,
+                    "label": "T\u00fcrgiga",
+                    "start": 843,
                     "title": "T\u00fcrgi",
                     "url": "http://et.wikipedia.org/wiki/T\u00fcrgi"
                 },
                 {
-                    "end": 899,
+                    "end": 883,
                     "label": "ajaloolisest Armeeniast",
-                    "start": 874,
+                    "start": 861,
                     "title": "ajalooline Armeenia",
                     "url": "http://et.wikipedia.org/wiki/ajalooline_Armeenia"
                 },
                 {
-                    "end": 911,
-                    "label": "idaosa",
-                    "start": 903,
-                    "title": "Ida-Armeenia",
-                    "url": "http://et.wikipedia.org/wiki/Ida-Armeenia"
-                },
-                {
-                    "end": 946,
+                    "end": 945,
                     "label": "Ida-Armeenia",
-                    "start": 932,
+                    "start": 934,
                     "title": "Ida-Armeenia",
                     "url": "http://et.wikipedia.org/wiki/Ida-Armeenia"
                 },
                 {
-                    "end": 984,
-                    "label": "M\u00e4gi-Karabahh",
+                    "end": 982,
+                    "label": "M\u00e4gi-Karabahhi",
                     "start": 969,
                     "title": "M\u00e4gi-Karabahh",
                     "url": "http://et.wikipedia.org/wiki/M\u00e4gi-Karabahh"
                 },
                 {
-                    "end": 1013,
+                    "end": 1010,
                     "label": "teise Vene-P\u00e4rsia s\u00f5ja",
                     "start": 989,
                     "title": "Vene-P\u00e4rsia s\u00f5da (1826\u20131828)",
                     "url": "http://et.wikipedia.org/wiki/Vene-P\u00e4rsia_s\u00f5da_(1826\u20131828)"
                 },
                 {
-                    "end": 1027,
+                    "end": 1023,
                     "label": "Venemaa",
-                    "start": 1018,
+                    "start": 1017,
                     "title": "Venemaa",
                     "url": "http://et.wikipedia.org/wiki/Venemaa"
                 },
                 {
-                    "end": 1047,
-                    "label": "28. mai",
-                    "start": 1038,
+                    "end": 1043,
+                    "label": "28. mail",
+                    "start": 1036,
                     "title": "28. mai",
                     "url": "http://et.wikipedia.org/wiki/28._mai"
                 },
                 {
-                    "end": 1053,
+                    "end": 1048,
                     "label": "1918",
-                    "start": 1047,
+                    "start": 1045,
                     "title": "1918",
                     "url": "http://et.wikipedia.org/wiki/1918"
                 },
                 {
-                    "end": 1110,
+                    "end": 1104,
                     "label": "Armeenia Demokraatlik Vabariik",
-                    "start": 1078,
+                    "start": 1075,
                     "title": "Armeenia Demokraatlik Vabariik",
                     "url": "http://et.wikipedia.org/wiki/Armeenia_Demokraatlik_Vabariik"
                 },
                 {
-                    "end": 1125,
-                    "label": "29. novembril",
-                    "start": 1110,
-                    "title": "29. november",
-                    "url": "http://et.wikipedia.org/wiki/29._november"
-                },
-                {
-                    "end": 1130,
+                    "end": 1137,
                     "label": "1920",
-                    "start": 1124,
+                    "start": 1134,
                     "title": "1920",
                     "url": "http://et.wikipedia.org/wiki/1920"
                 },
                 {
-                    "end": 1156,
+                    "end": 1162,
                     "label": "n\u00f5ukogude v\u00f5im",
-                    "start": 1140,
+                    "start": 1149,
                     "title": "n\u00f5ukogude v\u00f5im",
                     "url": "http://et.wikipedia.org/wiki/n\u00f5ukogude_v\u00f5im"
                 },
                 {
-                    "end": 1183,
+                    "end": 1188,
                     "label": "Armeenia NSV",
-                    "start": 1169,
+                    "start": 1177,
                     "title": "Armeenia NSV",
                     "url": "http://et.wikipedia.org/wiki/Armeenia_NSV"
                 },
                 {
-                    "end": 1211,
+                    "end": 1214,
                     "label": "N\u00f5ukogude Liidu",
-                    "start": 1194,
+                    "start": 1200,
                     "title": "N\u00f5ukogude Liit",
                     "url": "http://et.wikipedia.org/wiki/N\u00f5ukogude_Liit"
                 },
                 {
-                    "end": 1251,
+                    "end": 1253,
                     "label": "Taga-Kaukaasia SFNV",
-                    "start": 1230,
+                    "start": 1235,
                     "title": "Taga-Kaukaasia SFNV",
                     "url": "http://et.wikipedia.org/wiki/Taga-Kaukaasia_SFNV"
                 },
                 {
-                    "end": 1289,
+                    "end": 1290,
                     "label": "5. detsembrist",
-                    "start": 1273,
+                    "start": 1277,
                     "title": "5. detsember",
                     "url": "http://et.wikipedia.org/wiki/5._detsember"
                 },
                 {
-                    "end": 1294,
-                    "label": "1936",
-                    "start": 1288,
-                    "title": "1936",
-                    "url": "http://et.wikipedia.org/wiki/1936"
-                },
-                {
-                    "end": 1331,
+                    "end": 1333,
                     "label": "liiduvabariigina",
-                    "start": 1313,
+                    "start": 1318,
                     "title": "liiduvabariik",
                     "url": "http://et.wikipedia.org/wiki/liiduvabariik"
                 },
                 {
-                    "end": 1347,
-                    "label": "23. septembril",
-                    "start": 1331,
-                    "title": "23. september",
-                    "url": "http://et.wikipedia.org/wiki/23._september"
-                },
-                {
-                    "end": 1352,
+                    "end": 1368,
                     "label": "1991",
-                    "start": 1346,
+                    "start": 1365,
                     "title": "1991",
                     "url": "http://et.wikipedia.org/wiki/1991"
                 },
                 {
-                    "end": 1406,
+                    "end": 1421,
                     "label": "21. septembril",
-                    "start": 1390,
+                    "start": 1408,
                     "title": "21. september",
                     "url": "http://et.wikipedia.org/wiki/21._september"
                 },
                 {
-                    "end": 1502,
-                    "label": "Deklaratsiooni Armeenia riiklikust iseseisvusest",
-                    "start": 1452,
+                    "end": 1517,
+                    "label": "Deklaratsiooni Armeenia riiklikust iseseisvusest\"",
+                    "start": 1469,
                     "title": "Deklaratsioon Armeenia riiklikust iseseisvusest",
                     "url": "http://et.wikipedia.org/wiki/Deklaratsioon_Armeenia_riiklikust_iseseisvusest"
                 },
                 {
-                    "end": 1531,
-                    "label": "N\u00f5ukogude Liidu lagunemine",
-                    "start": 1503,
-                    "title": "N\u00f5ukogude Liidu lagunemine",
-                    "url": "http://et.wikipedia.org/wiki/N\u00f5ukogude_Liidu_lagunemine"
-                },
-                {
-                    "end": 1536,
+                    "end": 1550,
                     "label": "1991",
-                    "start": 1530,
+                    "start": 1547,
                     "title": "1991",
                     "url": "http://et.wikipedia.org/wiki/1991"
                 },
                 {
-                    "end": 1579,
+                    "end": 1592,
                     "label": "\u00dcRO",
-                    "start": 1574,
+                    "start": 1590,
                     "title": "\u00dcRO",
                     "url": "http://et.wikipedia.org/wiki/\u00dcRO"
                 },
                 {
-                    "end": 1595,
+                    "end": 1607,
                     "label": "Pakistan",
-                    "start": 1585,
+                    "start": 1600,
                     "title": "Pakistan",
                     "url": "http://et.wikipedia.org/wiki/Pakistan"
                 },
                 {
-                    "end": 1672,
-                    "label": "M\u00e4gi-Karabahhi konflikt",
-                    "start": 1647,
+                    "end": 1684,
+                    "label": "M\u00e4gi-Karabahhi konfliktis",
+                    "start": 1660,
                     "title": "M\u00e4gi-Karabahhi konflikt",
                     "url": "http://et.wikipedia.org/wiki/M\u00e4gi-Karabahhi_konflikt"
                 },
                 {
-                    "end": 1753,
+                    "end": 1763,
                     "label": "armeenia",
-                    "start": 1743,
+                    "start": 1756,
                     "title": "armeenlased",
                     "url": "http://et.wikipedia.org/wiki/armeenlased"
                 },
                 {
-                    "end": 1790,
-                    "label": "M\u00e4gi-Karabahh",
-                    "start": 1775,
+                    "end": 1800,
+                    "label": "M\u00e4gi-Karabahhi",
+                    "start": 1787,
                     "title": "M\u00e4gi-Karabahh",
                     "url": "http://et.wikipedia.org/wiki/M\u00e4gi-Karabahh"
                 },
                 {
-                    "end": 1810,
-                    "label": "22. m\u00e4rts",
-                    "start": 1799,
+                    "end": 1821,
+                    "label": "22. m\u00e4rtsil",
+                    "start": 1811,
                     "title": "22. m\u00e4rts",
                     "url": "http://et.wikipedia.org/wiki/22._m\u00e4rts"
                 },
                 {
-                    "end": 1817,
+                    "end": 1826,
                     "label": "1992",
-                    "start": 1811,
+                    "start": 1823,
                     "title": "1992",
                     "url": "http://et.wikipedia.org/wiki/1992"
                 },
                 {
-                    "end": 1851,
-                    "label": "\u00dcRO",
-                    "start": 1846,
+                    "end": 1860,
+                    "label": "\u00dcRO-",
+                    "start": 1857,
                     "title": "\u00dcRO",
                     "url": "http://et.wikipedia.org/wiki/\u00dcRO"
                 },
                 {
-                    "end": 1868,
-                    "label": "25. jaanuar",
-                    "start": 1855,
+                    "end": 1878,
+                    "label": "25. jaanuaril",
+                    "start": 1866,
                     "title": "25. jaanuar",
                     "url": "http://et.wikipedia.org/wiki/25._jaanuar"
                 },
                 {
-                    "end": 1875,
+                    "end": 1883,
                     "label": "2001",
-                    "start": 1869,
+                    "start": 1880,
                     "title": "2001",
                     "url": "http://et.wikipedia.org/wiki/2001"
                 },
                 {
-                    "end": 1891,
-                    "label": "Euroopa N\u00f5ukogu",
-                    "start": 1874,
-                    "title": "Euroopa N\u00f5ukogu",
-                    "url": "http://et.wikipedia.org/wiki/Euroopa_N\u00f5ukogu"
-                },
-                {
-                    "end": 1931,
-                    "label": "M\u00e4gi-Karabahhi konflikt",
-                    "start": 1906,
+                    "end": 1937,
+                    "label": "M\u00e4gi-Karabahhi konflikti",
+                    "start": 1914,
                     "title": "M\u00e4gi-Karabahhi konflikt",
                     "url": "http://et.wikipedia.org/wiki/M\u00e4gi-Karabahhi_konflikt"
                 },
                 {
-                    "end": 1951,
+                    "end": 1956,
                     "label": "N\u00f5ukogude Liidu",
-                    "start": 1934,
+                    "start": 1942,
                     "title": "N\u00f5ukogude Liidu lagunemine",
                     "url": "http://et.wikipedia.org/wiki/N\u00f5ukogude_Liidu_lagunemine"
                 },
                 {
-                    "end": 2032,
+                    "end": 2036,
                     "label": "Sisemajanduse kogutoodang",
-                    "start": 2005,
+                    "start": 2012,
                     "title": "Sisemajanduse kogutoodang",
                     "url": "http://et.wikipedia.org/wiki/Sisemajanduse_kogutoodang"
                 },
                 {
-                    "end": 2076,
-                    "label": "USA dollar",
-                    "start": 2064,
+                    "end": 2081,
+                    "label": "USA dollarit",
+                    "start": 2070,
                     "title": "USA dollar",
                     "url": "http://et.wikipedia.org/wiki/USA_dollar"
                 },
                 {
-                    "end": 2119,
+                    "end": 2122,
                     "label": "sisemajanduse kogutoodang elaniku kohta",
-                    "start": 2078,
+                    "start": 2084,
                     "title": "sisemajanduse kogutoodang elaniku kohta",
                     "url": "http://et.wikipedia.org/wiki/sisemajanduse_kogutoodang_elaniku_kohta"
                 },
                 {
-                    "end": 2165,
-                    "label": "Armeenia dramm",
-                    "start": 2149,
+                    "end": 2169,
+                    "label": "Armeenia dramm (",
+                    "start": 2154,
                     "title": "Armeenia dramm",
                     "url": "http://et.wikipedia.org/wiki/Armeenia_dramm"
                 },
                 {
-                    "end": 2297,
+                    "end": 2296,
                     "label": "ajaloolisest Armeeniast",
-                    "start": 2272,
+                    "start": 2274,
                     "title": "ajalooline Armeenia",
                     "url": "http://et.wikipedia.org/wiki/ajalooline_Armeenia"
                 },
                 {
-                    "end": 2356,
-                    "label": "Kaspia mereni",
-                    "start": 2341,
-                    "title": "Kaspia meri",
-                    "url": "http://et.wikipedia.org/wiki/Kaspia_meri"
-                },
-                {
-                    "end": 2400,
+                    "end": 2412,
                     "label": "rahvaarv",
-                    "start": 2390,
+                    "start": 2405,
                     "title": "rahvaarv",
                     "url": "http://et.wikipedia.org/wiki/rahvaarv"
                 },
                 {
-                    "end": 2452,
+                    "end": 2462,
                     "label": "Jerevan",
-                    "start": 2443,
+                    "start": 2456,
                     "title": "Jerevan",
                     "url": "http://et.wikipedia.org/wiki/Jerevan"
-                },
-                {
-                    "end": 2463,
-                    "label": "riigikeel",
-                    "start": 2452,
-                    "title": "riigikeel",
-                    "url": "http://et.wikipedia.org/wiki/riigikeel"
-                },
-                {
-                    "end": 2480,
-                    "label": "armeenia keel",
-                    "start": 2465,
-                    "title": "armeenia keel",
-                    "url": "http://et.wikipedia.org/wiki/armeenia_keel"
                 }
             ],
-            "references": [
-                0,
-                1
-            ],
-            "text": "{{See artikkel|r\u00e4\u00e4gib riigist; laeva kohta vaata artiklit Armenija; linna kohta vaata artiklit Armenia (Colombia)}}\n{{keeletoimeta}}{{ToimetaAeg|kuu=juuni|aasta=2011}}{{ajakohasta}}\n]] +5\n|  h\u00fcmn = Mer hajrenikh (Meie Isamaa)\n|  usk = \n|  \u00fcladomeen = .am\n|  telefonikood = 374\n|  riigikord = \n|  SKT = \n|  SKT_elaniku_kohta = \n|  rok-i_kood = ARM\n|  m\u00e4rkused = \n}}\n'''Armeenia''' (armeenia keeles: \u0540\u0561\u0575\u0561\u057d\u057f\u0561\u0576 (''Hajastan'' \u0251j\u0251s\u02c8t\u0251), ametlikult '''Armeenia Vabariik''' (\u0540\u0561\u0575\u0561\u057d\u057f\u0561\u0576\u056b \u0540\u0561\u0576\u0580\u0561\u057a\u0565\u057f\u0578\u0582\u0569\u0575\u0578\u0582\u0576 (''Hajastani Hanrapetuthjun'', \u0251j\u0251st\u0251\u02c8ni h\u0251n\u027e\u0251p\u025btu\u02c8t\u02b0ju)), on merepiirita riik Ees-Aasias Musta mere ja Kaspia mere vahelisel maakitsusel L\u00f5una-Kaukaasias. Armeenia piirneb p\u00f5hjas Gruusiaga, idas Aserbaid\u017eaaniga (ning ainult Armeenia poolt tunnustatud riigi M\u00e4gi-Karabahhi Vabariigiga), l\u00f5unast Iraaniga, edelast Aserbaid\u017eaani eksklaavi Nahhit\u0161evaniga ja l\u00e4\u00e4nest T\u00fcrgiga, h\u00f5lmates ajaloolisest Armeeniast vaid idaosa.\n\n19. sajandil langes Ida-Armeenia, sealhulgas Armeenia ja M\u00e4gi-Karabahhi ala, teise Vene-P\u00e4rsia s\u00f5ja j\u00e4rel Venemaa v\u00f5imu alla. 28. mail 1918 kuulutati v\u00e4lja iseseisev Armeenia Demokraatlik Vabariik. 29. novembril 1920 kehtestati n\u00f5ukogude v\u00f5im ja moodustati Armeenia NSV, mis kuulus N\u00f5ukogude Liidu koosseisu 1922\u20131936 Taga-Kaukaasia SFNV koosseisus ning alates 5. detsembrist 1936 v\u00e4ikseima pindalaga liiduvabariigina. 23. septembril 1991 v\u00f5ttis vabariigi \u00dclemn\u00f5ukogu Armeenias 21. septembril l\u00e4biviidud referendumi tulemuste p\u00f5hjal vastu \"Deklaratsiooni Armeenia riiklikust iseseisvusest\". N\u00f5ukogude Liidu lagunemine 1991 t\u00f5i kaasa Armeenia iseseisvumise. (\u00dcks \u00dcRO liige, Pakistan, ei ole Armeeniat t\u00e4nini tunnustanud, sest ta toetab M\u00e4gi-Karabahhi konfliktis Aserbaid\u017eaani. See konflikt tekkis 1980ndatel Aserbaid\u017eaani valdavalt armeenia rahvastikuga piirkonna M\u00e4gi-Karabahhi p\u00e4rast.) 22. m\u00e4rtsil 1992 v\u00f5eti Armeenia Vabariik vastu \u00dcRO-sse, 25. jaanuaril 2001 Euroopa N\u00f5ukogusse.    \n\nP\u00e4rast M\u00e4gi-Karabahhi konflikti ja N\u00f5ukogude Liidu lagunemist tabas Armeenia majandust t\u00f5sine tagasil\u00f6\u00f6k. Sisemajanduse kogutoodang oli 2012. aastal 19,73 miljardit USA dollarit, sisemajanduse kogutoodang elaniku kohta 6645 USA dollarit. Raha\u00fchik on Armeenia dramm (2012. aasta keskmistatud kurss 412 drammi 1 USA dollari eest).   \n\nArmeenia Vabariik moodustab v\u00e4ikese osa ajaloolisest Armeeniast, mis h\u00f5lmab 300\u2013400 tuhat km\u00b2 T\u00fcrgi idaosast Kaspia mereni. \n\nArmeenia pindala on 29 743 km\u00b2, rahvaarv on 3 027 600 (1. aprill 2013). \n\nPealinn on Jerevan, riigikeel on armeenia keel"
+            "text": "{{See artikkel|r\u00e4\u00e4gib riigist; laeva kohta vaata artiklit Armenija;linna kohta vaata artiklit [[Armenia (Colombia)]]}}\n{{keeletoimeta}}{{ToimetaAeg|kuu=juuni|aasta=2011}}{{ajakohasta}}\n]] +5\n| h\u00fcmn = Mer hajrenikh (Meie Isamaa)\n| usk = \n| \u00fcladomeen = [[.am]]\n| telefonikood = 374\n| riigikord = \n| SKT = \n| SKT_elaniku_kohta = \n| rok-i_kood = ARM\n| m\u00e4rkused = \nArmeenia (armeenia keeles: \u0540\u0561\u0575\u0561\u057d\u057f\u0561\u0576 (\"Hajastan\" [h\u0251j\u0251s\u02c8t\u0251n]), ametlikult Armeenia Vabariik (\u0540\u0561\u0575\u0561\u057d\u057f\u0561\u0576\u056b \u0540\u0561\u0576\u0580\u0561\u057a\u0565\u057f\u0578\u0582\u0569\u0575\u0578\u0582\u0576 (\"Hajastani Hanrapetuthjun\", [h\u0251j\u0251st\u0251\u02c8ni h\u0251n\u027e\u0251p\u025btu\u02c8t\u02b0jun])), on merepiiritariik]] Ees-Aasias Musta mereja Kaspia merevahelisel maakitsusel L\u00f5una-Kaukaasias. Armeenia piirneb p\u00f5hjas Gruusiaga, idas Aserbaid\u017eaaniga (ning ainult Armeenia poolt tunnustatud riigi M\u00e4gi-Karabahhi Vabariigiga), l\u00f5unast Iraaniga, edelast Aserbaid\u017eaani eksklaavi Nahhit\u0161evaniga ja l\u00e4\u00e4nest T\u00fcrgiga, h\u00f5lmates ajaloolisest Armeeniastvaid [[Ida-Armeenia|idaosa]].\n19. sajandil langes Ida-Armeeniasealhulgas Armeenia ja M\u00e4gi-Karabahhi ala, teise Vene-P\u00e4rsia s\u00f5jaj\u00e4rel Venemaav\u00f5imu alla. 28. mail 1918kuulutati v\u00e4lja iseseisev Armeenia Demokraatlik Vabariik29. november|29. novembril]] 1920kehtestati n\u00f5ukogude v\u00f5imja moodustati Armeenia NSVmis kuulus N\u00f5ukogude Liidukoosseisu 1922\u20131936 Taga-Kaukaasia SFNVkoosseisus ning alates 5. detsembrist1936]] v\u00e4ikseima pindalaga liiduvabariigina23. september|23. septembril]] 1991v\u00f5ttis vabariigi \u00dclemn\u00f5ukogu Armeenias 21. septembrill\u00e4biviidud referendumi tulemuste p\u00f5hjal vastu \"Deklaratsiooni Armeenia riiklikust iseseisvusest\"N\u00f5ukogude Liidu lagunemine]] 1991t\u00f5i kaasa Armeenia iseseisvumise. (\u00dcks \u00dcROliige, Pakistanei ole Armeeniat t\u00e4nini tunnustanud, sest ta toetab M\u00e4gi-Karabahhi konfliktis Aserbaid\u017eaani. See konflikt tekkis 1980ndatel Aserbaid\u017eaani valdavalt armeeniarahvastikuga piirkonna M\u00e4gi-Karabahhi p\u00e4rast.) 22. m\u00e4rtsil 1992v\u00f5eti Armeenia Vabariik vastu \u00dcRO-sse, 25. jaanuaril 2001Euroopa N\u00f5ukogu]]sse. \nP\u00e4rast M\u00e4gi-Karabahhi konflikti ja N\u00f5ukogude Liidulagunemist tabas Armeenia majandust t\u00f5sine tagasil\u00f6\u00f6k. Sisemajanduse kogutoodangoli 2012. aastal 19,73 miljardit USA dollarit, sisemajanduse kogutoodang elaniku kohta6645 USA dollarit. Raha\u00fchik on Armeenia dramm (2012. aasta keskmistatud kurss 412 drammi 1 USA dollari eest). \nArmeenia Vabariik moodustab v\u00e4ikese osa ajaloolisest Armeeniastmis h\u00f5lmab 300\u2013400 tuhat km\u00b2 T\u00fcrgi idaosast [[Kaspia meri|Kaspia mereni]]. \nArmeenia pindala on 29 743 km\u00b2, rahvaarvon 3 027 600 (1. aprill 2013). \nPealinn on Jerevan"
         },
         {
             "images": [
                 {
                     "text": "Dareios I",
-                    "url": "http://et.wikipedia.org/wiki/Pilt:Darius I the Great's inscription.jpg"
+                    "url": "http://et.wikipedia.org/wiki/Pilt:Darius_I_the_Great's_inscription.jpg"
                 }
             ],
             "internal_links": [
                 {
-                    "end": 22,
+                    "end": 20,
                     "label": "Behistuni raidkiri",
-                    "start": 2,
+                    "start": 3,
                     "title": "Behistuni raidkiri",
                     "url": "http://et.wikipedia.org/wiki/Behistuni_raidkiri"
                 },
                 {
-                    "end": 66,
-                    "label": "6. sajand eKr",
-                    "start": 51,
-                    "title": "6. sajand eKr",
-                    "url": "http://et.wikipedia.org/wiki/6._sajand_eKr"
-                },
-                {
                     "end": 116,
-                    "label": "Armeenia m\u00e4gismaa",
-                    "start": 97,
+                    "label": "Armeenia m\u00e4gismaal",
+                    "start": 99,
                     "title": "Armeenia m\u00e4gismaa",
                     "url": "http://et.wikipedia.org/wiki/Armeenia_m\u00e4gismaa"
                 },
                 {
-                    "end": 134,
+                    "end": 133,
                     "label": "Malatya",
-                    "start": 125,
+                    "start": 127,
                     "title": "Malatya",
                     "url": "http://et.wikipedia.org/wiki/Malatya"
                 },
                 {
-                    "end": 186,
+                    "end": 182,
                     "label": "hurrikeelsest",
-                    "start": 171,
+                    "start": 170,
                     "title": "hurri keel",
                     "url": "http://et.wikipedia.org/wiki/hurri_keel"
                 },
                 {
-                    "end": 201,
+                    "end": 196,
                     "label": "Aramea",
-                    "start": 193,
+                    "start": 191,
                     "title": "Aramea keeled",
                     "url": "http://et.wikipedia.org/wiki/Aramea_keeled"
                 },
                 {
-                    "end": 261,
-                    "label": "vanap\u00e4rsia keel",
-                    "start": 244,
+                    "end": 255,
+                    "label": "vanap\u00e4rsia keelde",
+                    "start": 239,
                     "title": "vanap\u00e4rsia keel",
                     "url": "http://et.wikipedia.org/wiki/vanap\u00e4rsia_keel"
                 },
                 {
-                    "end": 284,
-                    "label": "lokatiiv",
-                    "start": 274,
+                    "end": 283,
+                    "label": "lokatiivivormis",
+                    "start": 269,
                     "title": "lokatiiv",
                     "url": "http://et.wikipedia.org/wiki/lokatiiv"
                 },
                 {
-                    "end": 339,
+                    "end": 329,
                     "label": "Behistuni raidkirjal",
-                    "start": 317,
+                    "start": 310,
                     "title": "Behistuni raidkiri",
                     "url": "http://et.wikipedia.org/wiki/Behistuni_raidkiri"
                 },
                 {
-                    "end": 356,
-                    "label": "6. sajandist eKr",
-                    "start": 338,
-                    "title": "6. sajand eKr",
-                    "url": "http://et.wikipedia.org/wiki/6._sajand_eKr"
-                },
-                {
-                    "end": 476,
-                    "label": "Vanakreeka keel",
-                    "start": 459,
+                    "end": 481,
+                    "label": "Vanakreeka keeles",
+                    "start": 465,
                     "title": "Vanakreeka keel",
                     "url": "http://et.wikipedia.org/wiki/Vanakreeka_keel"
                 },
                 {
-                    "end": 544,
+                    "end": 547,
                     "label": "Hekataios",
-                    "start": 533,
+                    "start": 539,
                     "title": "Hekataios",
                     "url": "http://et.wikipedia.org/wiki/Hekataios"
                 },
                 {
-                    "end": 605,
+                    "end": 606,
                     "label": "armeenlasi",
-                    "start": 593,
+                    "start": 597,
                     "title": "armeenlased",
                     "url": "http://et.wikipedia.org/wiki/armeenlased"
                 },
                 {
-                    "end": 661,
+                    "end": 660,
                     "label": "armeeniakeelne",
-                    "start": 645,
+                    "start": 647,
                     "title": "armeenia keel",
                     "url": "http://et.wikipedia.org/wiki/armeenia_keel"
                 },
                 {
-                    "end": 697,
-                    "label": "5. sajand",
-                    "start": 686,
+                    "end": 694,
+                    "label": "5. sajandi",
+                    "start": 685,
                     "title": "5. sajand",
                     "url": "http://et.wikipedia.org/wiki/5._sajand"
                 },
                 {
-                    "end": 727,
+                    "end": 723,
                     "label": "Movses Khorenatsi",
-                    "start": 708,
+                    "start": 707,
                     "title": "Movses Khorenatsi",
                     "url": "http://et.wikipedia.org/wiki/Movses_Khorenatsi"
                 },
                 {
-                    "end": 780,
+                    "end": 775,
                     "label": "Hajk",
-                    "start": 774,
+                    "start": 772,
                     "title": "Hajk",
                     "url": "http://et.wikipedia.org/wiki/Hajk"
                 },
                 {
-                    "end": 801,
-                    "label": "Aram",
-                    "start": 795,
+                    "end": 795,
+                    "label": "Arami",
+                    "start": 791,
                     "title": "Aram",
                     "url": "http://et.wikipedia.org/wiki/Aram"
                 },
                 {
-                    "end": 810,
+                    "end": 803,
                     "label": "Urartu",
-                    "start": 802,
+                    "start": 798,
                     "title": "Urartu",
                     "url": "http://et.wikipedia.org/wiki/Urartu"
                 },
                 {
-                    "end": 892,
+                    "end": 882,
                     "label": "2492 eKr",
-                    "start": 882,
+                    "start": 875,
                     "title": "2492 eKr",
                     "url": "http://et.wikipedia.org/wiki/2492_eKr"
                 },
                 {
-                    "end": 910,
+                    "end": 899,
                     "label": "Ass\u00fc\u00fcria",
-                    "start": 900,
+                    "start": 892,
                     "title": "Ass\u00fc\u00fcria",
                     "url": "http://et.wikipedia.org/wiki/Ass\u00fc\u00fcria"
                 },
                 {
-                    "end": 923,
-                    "label": "Bel",
-                    "start": 918,
+                    "end": 912,
+                    "label": "Beli",
+                    "start": 909,
                     "title": "Bel",
                     "url": "http://et.wikipedia.org/wiki/Bel"
                 },
                 {
-                    "end": 1008,
+                    "end": 996,
                     "label": "Vanaarmeenia ajaarvamise",
-                    "start": 982,
+                    "start": 973,
                     "title": "vanaarmeenia ajaarvamine",
                     "url": "http://et.wikipedia.org/wiki/vanaarmeenia_ajaarvamine"
                 },
                 {
-                    "end": 1064,
+                    "end": 1051,
                     "label": "\u1e2aaja\u0161a",
-                    "start": 1056,
+                    "start": 1046,
                     "title": "\u1e2aaja\u0161a",
                     "url": "http://et.wikipedia.org/wiki/\u1e2aaja\u0161a"
                 },
                 {
-                    "end": 1127,
+                    "end": 1113,
                     "label": "Malatya",
-                    "start": 1118,
+                    "start": 1107,
                     "title": "Malatya",
                     "url": "http://et.wikipedia.org/wiki/Malatya"
                 },
                 {
-                    "end": 1142,
-                    "label": "urartukeelsest",
-                    "start": 1126,
-                    "title": "urartu keel",
-                    "url": "http://et.wikipedia.org/wiki/urartu_keel"
-                },
-                {
-                    "end": 1258,
-                    "label": "-stan",
-                    "start": 1251,
+                    "end": 1252,
+                    "label": "-stan\"",
+                    "start": 1247,
                     "title": "-stan",
                     "url": "http://et.wikipedia.org/wiki/-stan"
                 }
             ],
-            "references": [
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                5,
-                8,
-                9
-            ],
-            "text": "\n Behistuni raidkiri, millel mainitakse Armeeniat. 6. sajand eKr.]]\n\nKohanimi \"Armeenia\" p\u00e4rineb Armeenia m\u00e4gismaal praeguse Malatya l\u00e4hedal paiknenud piirkonna ''Armi-'' hurrikeelsest nimest. Aramea kuju ''\u02caarm\u01ddn-\u0101i\u0113'' vahendusel l\u00e4ks see \u00fcle vanap\u00e4rsia keelde ning esineb lokatiivivormis \n''Arminiyaiy'' kuus korda Behistuni raidkirjal 6. sajandist eKr. Teistel andmetel on see nimi moodustatud Armeenia m\u00e4gismaal elanud rahva armeenide (''arim'') nimest.. Vanakreeka keeles v\u00f5ttis nimi kuju \u1f08\u03c1\u03bc\u03b5\u03bd\u03af\u03b1. Seda nime mainis esmakordselt Hekataios Mileetoselt. \n\nEnne nime \u1f08\u03c1\u03bc\u03ad\u03bd\u03b9\u03bf\u03b9 levikut kitsuti armeenlasi vanakreeka keeles \u039c\u03b5\u03bb\u03b9\u03c4\u03c4\u03ae\u03bd\u03b9\u03bf\u03b9.\n\nArmeenia armeeniakeelne nimi on \u0540\u0561\u0575\u0584 (''Hajkh''). 5. sajandi ajaloolase Movses Khorenatsi j\u00e4rgi andis selle Armeenia legendaarne patriarh Hajk, kelle j\u00e4rglase Arami, Urartu kuninga nimest s\u00fcndis omakorda nimi ''Armeenia''. Legendi j\u00e4rgi l\u00f5i Hajk 2492 eKr lahingus Ass\u00fc\u00fcria kuningat Beli ning hiljem moodustas esimese Armeenia riigi. See aasta on Vanaarmeenia ajaarvamise algusaasta. Teine versioon seostab seda nimetust \u1e2aaja\u0161a riigiga. Kolmanda versiooni j\u00e4rgi p\u00e4rineb see praeguse Malatya urartukeelsest nimest ''\u1e2a\u0101ti''.\n\nKeskajal asendus armeenia kohanimej\u00e4relliide ''-kh'' p\u00e4rsia keelest laenatud j\u00e4relliitega ''-stan",
+            "text": "\n Behistuni raidkirimillel mainitakse Armeeniat. [[6. sajand eKr]].]]\nKohanimi \"Armeenia\" p\u00e4rineb Armeenia m\u00e4gismaal praeguse Malatyal\u00e4hedal paiknenud piirkonna \"Armi-\" hurrikeelsestnimest. Arameakuju \"\u02caarm\u01ddn-\u0101i\u0113\" vahendusel l\u00e4ks see \u00fcle vanap\u00e4rsia keelde ning esineb lokatiivivormis \n\"Arminiyaiy\" kuus korda Behistuni raidkirjal6. sajand eKr|6. sajandist eKr]]. Teistel andmetel on see nimi moodustatud Armeenia m\u00e4gismaal elanud rahva armeenide (\"arim\") nimest.. Vanakreeka keeles v\u00f5ttis nimi kuju \u1f08\u03c1\u03bc\u03b5\u03bd\u03af\u03b1. Seda nime mainis esmakordselt HekataiosMileetoselt. \nEnne nime \u1f08\u03c1\u03bc\u03ad\u03bd\u03b9\u03bf\u03b9 levikut kitsuti armeenlasivanakreeka keeles \u039c\u03b5\u03bb\u03b9\u03c4\u03c4\u03ae\u03bd\u03b9\u03bf\u03b9.\nArmeenia armeeniakeelnenimi on \u0540\u0561\u0575\u0584 (\"Hajkh\"). 5. sajandi ajaloolase Movses Khorenatsij\u00e4rgi andis selle Armeenia legendaarne patriarh Hajkkelle j\u00e4rglase Arami, Urartukuninga nimest s\u00fcndis omakorda nimi \"Armeenia\". Legendi j\u00e4rgi l\u00f5i Hajk 2492 eKrlahingus Ass\u00fc\u00fcriakuningat Beli ning hiljem moodustas esimese Armeenia riigi. See aasta on Vanaarmeenia ajaarvamisealgusaasta. Teine versioon seostab seda nimetust \u1e2aaja\u0161ariigiga. Kolmanda versiooni j\u00e4rgi p\u00e4rineb see praeguse Malatyaurartu keel|urartukeelsest]] nimest \"\u1e2a\u0101ti\".\nKeskajal asendus armeenia kohanimej\u00e4relliide \"-kh\" p\u00e4rsia keelest laenatud j\u00e4relliitega \"-stan\"",
             "title": "Nimi"
         },
         {
@@ -729,285 +595,153 @@
                 {
                     "sections": [
                         {
-                            "references": [
-                                1
-                            ],
-                            "text": "\n1. jaanuari 2013 seisuga oli Armeenias linnaelanikke 1 917 500 ja maaelanikke 1 109 400.\n",
+                            "text": "\n1. jaanuari 2013 seisuga oli Armeenias linnaelanikke 1 917 500 ja maaelanikke 1 109 400.",
                             "title": "Linnastumine"
                         },
                         {
                             "internal_links": [
                                 {
-                                    "end": 180,
-                                    "label": "Jerevan",
-                                    "start": 171,
-                                    "title": "Jerevan",
-                                    "url": "http://et.wikipedia.org/wiki/Jerevan"
+                                    "end": 159,
+                                    "label": "",
+                                    "start": 160,
+                                    "title": "Jerevan]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Jerevan]]_"
                                 },
                                 {
-                                    "end": 240,
-                                    "label": "Kotajkh",
+                                    "end": 211,
+                                    "label": "Kotajkh ",
+                                    "start": 204,
+                                    "title": "Kotajkhi maakond",
+                                    "url": "http://et.wikipedia.org/wiki/Kotajkhi_maakond"
+                                },
+                                {
+                                    "end": 230,
+                                    "label": "",
                                     "start": 231,
-                                    "title": "Kotajkhi maakond",
-                                    "url": "http://et.wikipedia.org/wiki/Kotajkhi_maakond"
+                                    "title": "Gjumri]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Gjumri]]_"
                                 },
                                 {
-                                    "end": 272,
-                                    "label": "Gjumri",
-                                    "start": 264,
-                                    "title": "Gjumri",
-                                    "url": "http://et.wikipedia.org/wiki/Gjumri"
+                                    "end": 277,
+                                    "label": "",
+                                    "start": 278,
+                                    "title": "Sevan]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Sevan]]_"
                                 },
                                 {
-                                    "end": 281,
-                                    "label": "\u0160irak",
-                                    "start": 274,
-                                    "title": "\u0160iraki maakond",
-                                    "url": "http://et.wikipedia.org/wiki/\u0160iraki_maakond"
+                                    "end": 338,
+                                    "label": "",
+                                    "start": 339,
+                                    "title": "Vanadzor]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Vanadzor]]_"
                                 },
                                 {
-                                    "end": 311,
-                                    "label": "Sevan",
-                                    "start": 304,
-                                    "title": "Sevan",
-                                    "url": "http://et.wikipedia.org/wiki/Sevan"
+                                    "end": 382,
+                                    "label": "",
+                                    "start": 383,
+                                    "title": "Goris]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Goris]]_"
                                 },
                                 {
-                                    "end": 328,
-                                    "label": "Gegharkhunikh",
-                                    "start": 313,
-                                    "title": "Gegharkhunikhi maakond",
-                                    "url": "http://et.wikipedia.org/wiki/Gegharkhunikhi_maakond"
+                                    "end": 431,
+                                    "label": "",
+                                    "start": 432,
+                                    "title": "Vaghar\u0161apat]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Vaghar\u0161apat]]_"
                                 },
                                 {
-                                    "end": 362,
-                                    "label": "Vanadzor",
-                                    "start": 352,
-                                    "title": "Vanadzor",
-                                    "url": "http://et.wikipedia.org/wiki/Vanadzor"
+                                    "end": 481,
+                                    "label": "",
+                                    "start": 482,
+                                    "title": "Masis]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Masis]]_"
                                 },
                                 {
-                                    "end": 370,
-                                    "label": "Lori",
-                                    "start": 364,
-                                    "title": "Lori maakond",
-                                    "url": "http://et.wikipedia.org/wiki/Lori_maakond"
+                                    "end": 528,
+                                    "label": "",
+                                    "start": 529,
+                                    "title": "Hrazdan]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Hrazdan]]_"
                                 },
                                 {
-                                    "end": 400,
-                                    "label": "Goris",
-                                    "start": 393,
-                                    "title": "Goris",
-                                    "url": "http://et.wikipedia.org/wiki/Goris"
+                                    "end": 578,
+                                    "label": "",
+                                    "start": 579,
+                                    "title": "A\u0161tarak]] ",
+                                    "url": "http://et.wikipedia.org/wiki/A\u0161tarak]]_"
                                 },
                                 {
-                                    "end": 411,
-                                    "label": "Sjunikh",
-                                    "start": 402,
-                                    "title": "Sjunikhi maakond",
-                                    "url": "http://et.wikipedia.org/wiki/Sjunikhi_maakond"
+                                    "end": 633,
+                                    "label": "",
+                                    "start": 634,
+                                    "title": "Abovjan]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Abovjan]]_"
                                 },
                                 {
-                                    "end": 448,
-                                    "label": "Vaghar\u0161apat",
-                                    "start": 435,
-                                    "title": "Vaghar\u0161apat",
-                                    "url": "http://et.wikipedia.org/wiki/Vaghar\u0161apat"
+                                    "end": 683,
+                                    "label": "",
+                                    "start": 684,
+                                    "title": "Ararat]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Ararat]]_"
                                 },
                                 {
-                                    "end": 459,
-                                    "label": "Armavir",
-                                    "start": 450,
-                                    "title": "Armaviri maakond",
-                                    "url": "http://et.wikipedia.org/wiki/Armaviri_maakond"
+                                    "end": 730,
+                                    "label": "",
+                                    "start": 731,
+                                    "title": "Kapan]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Kapan]]_"
                                 },
                                 {
-                                    "end": 488,
-                                    "label": "Masis",
-                                    "start": 481,
-                                    "title": "Masis",
-                                    "url": "http://et.wikipedia.org/wiki/Masis"
+                                    "end": 780,
+                                    "label": "",
+                                    "start": 781,
+                                    "title": "Id\u017eevan]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Id\u017eevan]]_"
                                 },
                                 {
-                                    "end": 498,
-                                    "label": "Ararat",
-                                    "start": 490,
-                                    "title": "Ararati maakond",
-                                    "url": "http://et.wikipedia.org/wiki/Ararati_maakond"
+                                    "end": 825,
+                                    "label": "",
+                                    "start": 826,
+                                    "title": "Armavir]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Armavir]]_"
                                 },
                                 {
-                                    "end": 531,
-                                    "label": "Hrazdan",
-                                    "start": 522,
-                                    "title": "Hrazdan",
-                                    "url": "http://et.wikipedia.org/wiki/Hrazdan"
+                                    "end": 875,
+                                    "label": "",
+                                    "start": 876,
+                                    "title": "Arthik]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Arthik]]_"
                                 },
                                 {
-                                    "end": 542,
-                                    "label": "Kotajkh",
-                                    "start": 533,
-                                    "title": "Kotajkhi maakond",
-                                    "url": "http://et.wikipedia.org/wiki/Kotajkhi_maakond"
+                                    "end": 920,
+                                    "label": "",
+                                    "start": 921,
+                                    "title": "Gavar]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Gavar]]_"
                                 },
                                 {
-                                    "end": 573,
-                                    "label": "A\u0161tarak",
-                                    "start": 564,
-                                    "title": "A\u0161tarak",
-                                    "url": "http://et.wikipedia.org/wiki/A\u0161tarak"
+                                    "end": 982,
+                                    "label": "",
+                                    "start": 983,
+                                    "title": "Sisian]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Sisian]]_"
                                 },
                                 {
-                                    "end": 587,
-                                    "label": "Aragatsotn",
-                                    "start": 575,
-                                    "title": "Aragatsotni maakond",
-                                    "url": "http://et.wikipedia.org/wiki/Aragatsotni_maakond"
+                                    "end": 1032,
+                                    "label": "",
+                                    "start": 1033,
+                                    "title": "Arta\u0161at]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Arta\u0161at]]_"
                                 },
                                 {
-                                    "end": 620,
-                                    "label": "Abovjan",
-                                    "start": 611,
-                                    "title": "Abovjan",
-                                    "url": "http://et.wikipedia.org/wiki/Abovjan"
-                                },
-                                {
-                                    "end": 631,
-                                    "label": "Kotajkh",
-                                    "start": 622,
-                                    "title": "Kotajkhi maakond",
-                                    "url": "http://et.wikipedia.org/wiki/Kotajkhi_maakond"
-                                },
-                                {
-                                    "end": 661,
-                                    "label": "Ararat",
-                                    "start": 653,
-                                    "title": "Ararat",
-                                    "url": "http://et.wikipedia.org/wiki/Ararat"
-                                },
-                                {
-                                    "end": 671,
-                                    "label": "Ararat",
-                                    "start": 663,
-                                    "title": "Ararati maakond",
-                                    "url": "http://et.wikipedia.org/wiki/Ararati_maakond"
-                                },
-                                {
-                                    "end": 702,
-                                    "label": "Kapan",
-                                    "start": 695,
-                                    "title": "Kapan",
-                                    "url": "http://et.wikipedia.org/wiki/Kapan"
-                                },
-                                {
-                                    "end": 713,
-                                    "label": "Sjunikh",
-                                    "start": 704,
-                                    "title": "Sjunikhi maakond",
-                                    "url": "http://et.wikipedia.org/wiki/Sjunikhi_maakond"
-                                },
-                                {
-                                    "end": 744,
-                                    "label": "Id\u017eevan",
-                                    "start": 735,
-                                    "title": "Id\u017eevan",
-                                    "url": "http://et.wikipedia.org/wiki/Id\u017eevan"
-                                },
-                                {
-                                    "end": 753,
-                                    "label": "Tavu\u0161",
-                                    "start": 746,
-                                    "title": "Tavu\u0161i maakond",
-                                    "url": "http://et.wikipedia.org/wiki/Tavu\u0161i_maakond"
-                                },
-                                {
-                                    "end": 786,
-                                    "label": "Armavir",
-                                    "start": 777,
-                                    "title": "Armavir",
-                                    "url": "http://et.wikipedia.org/wiki/Armavir"
-                                },
-                                {
-                                    "end": 797,
-                                    "label": "Armavir",
-                                    "start": 788,
-                                    "title": "Armaviri maakond",
-                                    "url": "http://et.wikipedia.org/wiki/Armaviri_maakond"
-                                },
-                                {
-                                    "end": 827,
-                                    "label": "Arthik",
-                                    "start": 819,
-                                    "title": "Arthik",
-                                    "url": "http://et.wikipedia.org/wiki/Arthik"
-                                },
-                                {
-                                    "end": 836,
-                                    "label": "\u0160irak",
-                                    "start": 829,
-                                    "title": "\u0160iraki maakond",
-                                    "url": "http://et.wikipedia.org/wiki/\u0160iraki_maakond"
-                                },
-                                {
-                                    "end": 867,
-                                    "label": "Gavar",
-                                    "start": 860,
-                                    "title": "Gavar",
-                                    "url": "http://et.wikipedia.org/wiki/Gavar"
-                                },
-                                {
-                                    "end": 884,
-                                    "label": "Gegharkhunikh",
-                                    "start": 869,
-                                    "title": "Gegharkhunikhi maakond",
-                                    "url": "http://et.wikipedia.org/wiki/Gegharkhunikhi_maakond"
-                                },
-                                {
-                                    "end": 914,
-                                    "label": "Sisian",
-                                    "start": 906,
-                                    "title": "Sisian",
-                                    "url": "http://et.wikipedia.org/wiki/Sisian"
-                                },
-                                {
-                                    "end": 925,
-                                    "label": "Sjunikh",
-                                    "start": 916,
-                                    "title": "Sjunikhi maakond",
-                                    "url": "http://et.wikipedia.org/wiki/Sjunikhi_maakond"
-                                },
-                                {
-                                    "end": 959,
-                                    "label": "Arta\u0161at",
-                                    "start": 950,
-                                    "title": "Arta\u0161at",
-                                    "url": "http://et.wikipedia.org/wiki/Arta\u0161at"
-                                },
-                                {
-                                    "end": 969,
-                                    "label": "Ararat",
-                                    "start": 961,
-                                    "title": "Ararati maakond",
-                                    "url": "http://et.wikipedia.org/wiki/Ararati_maakond"
-                                },
-                                {
-                                    "end": 1001,
-                                    "label": "Alaverdi",
-                                    "start": 991,
-                                    "title": "Alaverdi",
-                                    "url": "http://et.wikipedia.org/wiki/Alaverdi"
-                                },
-                                {
-                                    "end": 1009,
-                                    "label": "Lori",
-                                    "start": 1003,
-                                    "title": "Lori maakond",
-                                    "url": "http://et.wikipedia.org/wiki/Lori_maakond"
+                                    "end": 1080,
+                                    "label": "",
+                                    "start": 1081,
+                                    "title": "Alaverdi]] ",
+                                    "url": "http://et.wikipedia.org/wiki/Alaverdi]]_"
                                 }
                             ],
-                            "references": [
-                                9
-                            ],
-                            "text": "\n{| class=\"wikitable\"\n! colspan=\"8\" |Armeenia peamised asulad<br />2012. aasta andmed\n|-\n! # !! Linn !! Maakond !! Elanikke !! # !! Linn !! Maakond !! Elanikke \n|-\n! 1 \n| Jerevan || \u2013 || 1&#160;127&#160;300 \n! 11\n| Charentsavan || Kotajkh || 25&#160;200 \n|-\n! 2\n| Gjumri || \u0160irak || 145&#160;900 \n! 12\n| Sevan || Gegharkhunikh || 23&#160;500 \n|-\n! 3\n| Vanadzor || Lori || 104&#160;900 \n! 13\n| Goris || Sjunikh || 23&#160;100 \n|-\n! 4\n| Vaghar\u0161apat || Armavir || 57&#160;800 \n! 14\n| Masis || Ararat || 22&#160;700 \n|-\n! 5\n| Hrazdan || Kotajkh || 53&#160;700 \n! 15\n| A\u0161tarak || Aragatsotn || 21&#160;700 \n|-\n! 6\n| Abovjan || Kotajkh || 47&#160;200 \n! 16\n| Ararat || Ararat || 21&#160;000 \n|-\n! 7\n| Kapan || Sjunikh || 45&#160;500 \n! 17\n| Id\u017eevan || Tavu\u0161 || 20&#160;700 \n|-\n! 8\n| Armavir || Armavir || 34&#160;000 \n! 18\n| Arthik || \u0160irak || 17&#160;400 \n|-\n! 9\n| Gavar || Gegharkhunikh || 25&#160;700 \n! 19\n| Sisian || Sjunikh || 16&#160;800 \n|-\n! 10\n| Arta\u0161at || Ararat || 25&#160;600 \n! 20\n| Alaverdi || Lori",
+                            "text": "\n{| class=\"wikitable\"\n! colspan=\"8\" |Armeenia peamised asulad2012. aasta andmed\n! # !! Linn !! Maakond !! Elanikke !! # !! Linn !! Maakond !! Elanikke \n! 1 \n| 1&#160;127&#160;300 \n! 11\n| Charentsavan || Kotajkh 25&#160;200 \n! 2\n| \u0160iraki maakond|\u0160irak]] || 145&#160;900 \n! 12\n| Gegharkhunikhi maakond|Gegharkhunikh]] || 23&#160;500 \n! 3\n| Lori maakond|Lori]] || 104&#160;900 \n! 13\n| Sjunikhi maakond|Sjunikh]] || 23&#160;100 \n! 4\n| Armaviri maakond|Armavir]] || 57&#160;800 \n! 14\n| Ararati maakond|Ararat]] || 22&#160;700 \n! 5\n| Kotajkhi maakond|Kotajkh]] || 53&#160;700 \n! 15\n| Aragatsotni maakond|Aragatsotn]] || 21&#160;700 \n! 6\n| Kotajkhi maakond|Kotajkh]] || 47&#160;200 \n! 16\n| Ararati maakond|Ararat]] || 21&#160;000 \n! 7\n| Sjunikhi maakond|Sjunikh]] || 45&#160;500 \n! 17\n| Tavu\u0161i maakond|Tavu\u0161]] || 20&#160;700 \n! 8\n| Armaviri maakond|Armavir]] || 34&#160;000 \n! 18\n| \u0160iraki maakond|\u0160irak]] || 17&#160;400 \n! 9\n| Gegharkhunikhi maakond|Gegharkhunikh]] || 25&#160;700 \n! 19\n| Sjunikhi maakond|Sjunikh]] || 16&#160;800 \n! 10\n| Ararati maakond|Ararat]] || 25&#160;600 \n! 20\n| ",
                             "title": "Suuremad linnad"
                         }
                     ],
@@ -1017,45 +751,33 @@
                 {
                     "internal_links": [
                         {
-                            "end": 45,
+                            "end": 14,
                             "label": "usund",
-                            "start": 38,
+                            "start": 10,
                             "title": "usund",
                             "url": "http://et.wikipedia.org/wiki/usund"
                         },
                         {
-                            "end": 57,
-                            "label": "kristlus",
-                            "start": 47,
+                            "end": 26,
+                            "label": "kristlus:",
+                            "start": 18,
                             "title": "kristlus",
                             "url": "http://et.wikipedia.org/wiki/kristlus"
                         },
                         {
-                            "end": 126,
+                            "end": 93,
                             "label": "Armeenia Apostlikku Kirikusse",
-                            "start": 95,
+                            "start": 65,
                             "title": "Armeenia Apostlik Kirik",
                             "url": "http://et.wikipedia.org/wiki/Armeenia_Apostlik_Kirik"
                         },
                         {
-                            "end": 204,
-                            "label": "\u00f5igeusk",
-                            "start": 195,
+                            "end": 174,
+                            "label": "\u00f5igeusklikud",
+                            "start": 163,
                             "title": "\u00f5igeusk",
                             "url": "http://et.wikipedia.org/wiki/\u00f5igeusk"
-                        },
-                        {
-                            "end": 237,
-                            "label": "jeziidid",
-                            "start": 227,
-                            "title": "jeziidid",
-                            "url": "http://et.wikipedia.org/wiki/jeziidid"
                         }
-                    ],
-                    "references": [
-                        0,
-                        0,
-                        0
                     ],
                     "related_articles": [
                         [
@@ -1066,7 +788,7 @@
                             ]
                         ]
                     ],
-                    "text": "\n{{vaata|Religioon Armeenias}}\nValdav usund on kristlus: 94,7% rahvastikust loetakse kuuluvaks Armeenia Apostlikku Kirikusse, 4% elanikest on muud kristlased. Armeenia venelased ja kreeklased on \u00f5igeusklikud. 1,3% elanikest on jeziidid",
+                    "text": "\n\nValdav usundon kristlus:94,7% rahvastikust loetakse kuuluvaks Armeenia Apostlikku Kirikusse4% elanikest on muud kristlased. Armeenia venelased ja kreeklased on \u00f5igeusklikud",
                     "title": "Religioon"
                 }
             ],
@@ -1094,204 +816,166 @@
                 {
                     "internal_links": [
                         {
-                            "end": 37,
-                            "label": "pisi",
-                            "start": 31,
-                            "title": "Pilt:Armenian Qarhunj01.jpg",
-                            "url": "http://et.wikipedia.org/wiki/Pilt:Armenian_Qarhunj01.jpg"
+                            "end": 58,
+                            "label": "megaliitide",
+                            "start": 48,
+                            "title": "megaliit",
+                            "url": "http://et.wikipedia.org/wiki/megaliit"
                         },
                         {
-                            "end": 91,
+                            "end": 82,
+                            "label": "Zoratsh Kharer",
+                            "start": 69,
+                            "title": "Zoratsh Kharer",
+                            "url": "http://et.wikipedia.org/wiki/Zoratsh_Kharer"
+                        },
+                        {
+                            "end": 175,
                             "label": "Armeenia m\u00e4gismaa",
-                            "start": 72,
+                            "start": 159,
                             "title": "Armeenia m\u00e4gismaa",
                             "url": "http://et.wikipedia.org/wiki/Armeenia_m\u00e4gismaa"
                         },
                         {
-                            "end": 109,
-                            "label": "Arzni",
-                            "start": 102,
+                            "end": 194,
+                            "label": "Arznist",
+                            "start": 188,
                             "title": "Arzni",
                             "url": "http://et.wikipedia.org/wiki/Arzni"
                         },
                         {
-                            "end": 119,
-                            "label": "Nurnus",
-                            "start": 111,
+                            "end": 205,
+                            "label": "Nurnusist",
+                            "start": 197,
                             "title": "Nurnus",
                             "url": "http://et.wikipedia.org/wiki/Nurnus"
                         },
                         {
-                            "end": 189,
+                            "end": 272,
                             "label": "Hrazdani j\u00f5e",
-                            "start": 175,
+                            "start": 261,
                             "title": "Hrazdani j\u00f5gi",
                             "url": "http://et.wikipedia.org/wiki/Hrazdani_j\u00f5gi"
                         },
                         {
-                            "end": 211,
-                            "label": "Lusakert",
-                            "start": 201,
+                            "end": 296,
+                            "label": "Lusakertist",
+                            "start": 286,
                             "title": "Lusakert",
                             "url": "http://et.wikipedia.org/wiki/Lusakert"
                         },
                         {
-                            "end": 339,
-                            "label": "neoliitikum",
-                            "start": 326,
+                            "end": 421,
+                            "label": "neoliitikumi",
+                            "start": 410,
                             "title": "neoliitikum",
                             "url": "http://et.wikipedia.org/wiki/neoliitikum"
                         },
                         {
-                            "end": 426,
-                            "label": "kaljujoonis",
-                            "start": 413,
+                            "end": 510,
+                            "label": "kaljujooniseid",
+                            "start": 497,
                             "title": "kaljujoonis",
                             "url": "http://et.wikipedia.org/wiki/kaljujoonis"
                         },
                         {
-                            "end": 452,
-                            "label": "maaharija",
-                            "start": 441,
+                            "end": 533,
+                            "label": "maaharijate",
+                            "start": 523,
                             "title": "maaharija",
                             "url": "http://et.wikipedia.org/wiki/maaharija"
                         },
                         {
-                            "end": 472,
-                            "label": "karjakasvataja",
-                            "start": 456,
+                            "end": 553,
+                            "label": "karjakasvatajate",
+                            "start": 538,
                             "title": "karjakasvataja",
                             "url": "http://et.wikipedia.org/wiki/karjakasvataja"
                         },
                         {
-                            "end": 518,
-                            "label": "Ararati j\u00f5eorg",
-                            "start": 502,
+                            "end": 598,
+                            "label": "Ararati j\u00f5eorgu",
+                            "start": 584,
                             "title": "Ararati j\u00f5eorg",
                             "url": "http://et.wikipedia.org/wiki/Ararati_j\u00f5eorg"
                         },
                         {
-                            "end": 535,
+                            "end": 614,
                             "label": "\u0160iraki maakonna",
-                            "start": 518,
+                            "start": 600,
                             "title": "\u0160iraki maakond",
                             "url": "http://et.wikipedia.org/wiki/\u0160iraki_maakond"
                         },
                         {
-                            "end": 558,
-                            "label": "Areni koopast",
-                            "start": 543,
+                            "end": 637,
+                            "label": "Areni koopast (",
+                            "start": 623,
                             "title": "Areni koobas",
                             "url": "http://et.wikipedia.org/wiki/Areni_koobas"
                         },
                         {
-                            "end": 567,
-                            "label": "Areni-1",
-                            "start": 558,
-                            "title": "Areni-1",
-                            "url": "http://et.wikipedia.org/wiki/Areni-1"
-                        },
-                        {
-                            "end": 638,
-                            "label": "Areni-1 king",
-                            "start": 624,
+                            "end": 719,
+                            "label": "Areni-1 king):",
+                            "start": 706,
                             "title": "Areni-1 king",
                             "url": "http://et.wikipedia.org/wiki/Areni-1_king"
                         },
                         {
-                            "end": 701,
-                            "label": "eneoliitikum",
-                            "start": 687,
+                            "end": 780,
+                            "label": "eneoliitikumi",
+                            "start": 768,
                             "title": "eneoliitikum",
                             "url": "http://et.wikipedia.org/wiki/eneoliitikum"
                         },
                         {
-                            "end": 960,
-                            "label": "Areni-1 veinit\u00f6\u00f6koda",
-                            "start": 938,
-                            "title": "Areni-1 veinit\u00f6\u00f6koda",
-                            "url": "http://et.wikipedia.org/wiki/Areni-1_veinit\u00f6\u00f6koda"
-                        },
-                        {
-                            "end": 971,
-                            "label": "Jerevan",
-                            "start": 962,
+                            "end": 1053,
+                            "label": "Jerevani",
+                            "start": 1046,
                             "title": "Jerevan",
                             "url": "http://et.wikipedia.org/wiki/Jerevan"
                         },
                         {
-                            "end": 988,
-                            "label": "\u0160engavith",
-                            "start": 977,
+                            "end": 1072,
+                            "label": "\u0160engavithist",
+                            "start": 1061,
                             "title": "\u0160engavith",
                             "url": "http://et.wikipedia.org/wiki/\u0160engavith"
                         },
                         {
-                            "end": 1008,
+                            "end": 1089,
                             "label": "pronksiaja",
-                            "start": 996,
+                            "start": 1080,
                             "title": "pronksiaeg",
                             "url": "http://et.wikipedia.org/wiki/pronksiaeg"
                         },
                         {
-                            "end": 1037,
-                            "label": "5.",
-                            "start": 1033,
-                            "title": "5. aastatuhat eKr",
-                            "url": "http://et.wikipedia.org/wiki/5._aastatuhat_eKr"
-                        },
-                        {
-                            "end": 1059,
-                            "label": "3. aastatuhandest eKr",
-                            "start": 1036,
-                            "title": "3. aastatuhat eKr",
-                            "url": "http://et.wikipedia.org/wiki/3._aastatuhat_eKr"
-                        },
-                        {
-                            "end": 1674,
+                            "end": 1118,
                             "label": "5.\u2013",
-                            "start": 1669,
+                            "start": 1116,
                             "title": "5. aastatuhat eKr",
                             "url": "http://et.wikipedia.org/wiki/5._aastatuhat_eKr"
                         },
                         {
-                            "end": 1694,
-                            "label": "4. aastatuhandel eKr",
-                            "start": 1672,
-                            "title": "4. aastatuhat eKr",
-                            "url": "http://et.wikipedia.org/wiki/4._aastatuhat_eKr"
+                            "end": 1772,
+                            "label": "5.\u2013",
+                            "start": 1770,
+                            "title": "5. aastatuhat eKr",
+                            "url": "http://et.wikipedia.org/wiki/5._aastatuhat_eKr"
                         },
                         {
-                            "end": 1714,
-                            "label": "vask",
-                            "start": 1708,
+                            "end": 1833,
+                            "label": "vaske",
+                            "start": 1829,
                             "title": "vask",
                             "url": "http://et.wikipedia.org/wiki/vask"
                         },
                         {
-                            "end": 1741,
+                            "end": 1859,
                             "label": "2. aastatuhandel eKr",
-                            "start": 1719,
+                            "start": 1840,
                             "title": "2. aastatuhat eKr",
                             "url": "http://et.wikipedia.org/wiki/2._aastatuhat_eKr"
-                        },
-                        {
-                            "end": 1746,
-                            "label": "raud",
-                            "start": 1740,
-                            "title": "raud",
-                            "url": "http://et.wikipedia.org/wiki/raud"
                         }
-                    ],
-                    "references": [
-                        1,
-                        2,
-                        3,
-                        4,
-                        5,
-                        6,
-                        7,
-                        8
                     ],
                     "related_articles": [
                         [
@@ -1302,7 +986,7 @@
                             ]
                         ]
                     ],
-                    "text": "\n{{vaata|Armeenia esiajalugu}}\npisi \n\u00dcrgasustuse j\u00e4lgi on leitud mitmes Armeenia m\u00e4gismaa piirkonnas: Arznist, Nurnusist ja mujalt on leitud peatuspaiku kivist t\u00f6\u00f6riistadega. Hrazdani j\u00f5e kuristikust, Lusakertist ja mujalt on leitud koobaseluasemeid. K\u00f5ige vanemad leitud kivist t\u00f6\u00f6riistad on 800 000 aastat vanad.\n\nOn leitud neoliitikumi aegsete inimeste peatuspaiku. M\u00e4gedest on leitud arvukalt jahistseenidega kaljujooniseid.  \n\nEsimesed maaharijate ja karjakasvatajate asulad Armeenia alal ilmusid Ararati j\u00f5eorgu \u0160iraki maakonna alale..\n\nAreni koopast (Areni-1) leiti septembris 2008 k\u00f5ige vanem teadaolev nahast king (Areni-1 king): see on \u00fcle 5500 aasta vanune. Leid dateeritakse eneoliitikumi (3600\u20133500 eKr). See on pehme teravate otstega nahkking (t\u0161arohh). See on vanim jalatsileid Euroopas ja Aasias. Asjatundjate arvates kanti armeenia asulates praktiliselt samasuguseid jalatseid. Samuti leiti sealt seelik ja veinit\u00f6\u00f6koda (Areni-1 veinit\u00f6\u00f6koda).\n\nJerevani alalt \u0160engavithist leiti pronksiaja alguse asula, mis p\u00e4rineb 5.\u20133. aastatuhandest eKr.\n\n\"K\u00f5ikjal, kus looduslikud tingimused olid k\u00fclviks ja karjatamiseks soodsad, paiknesid sugukondade v\u00f5i suurperede asulad. M\u00e4gipiirkondades valiti selliste asulate jaoks k\u00f5rgendikud; tasandikul kasvas kunstlik k\u00fcngas tasapisi mitme sajandi jooksul, mil samas kohas oli asula. Need asulad koosnesid l\u00f5unapiirkondades kivivundamendile toortellistest ehitatud majadest. T\u00fc\u00fcpiline elamu oli \u00fcmmarguse p\u00f5hiplaaniga hoone l\u00e4bim\u00f5\u00f5duga 5\u20137 m, posti tugikiviga keskel. N\u00e4htavasti toetas post lage..\n\nArheoloogiliste v\u00e4ljakaevamiste andmed kinnitavad, et Armeenia m\u00e4gismaal tunti juba iidsel ajal paljusid k\u00e4sit\u00f6id. Juba 5.\u20134. aastatuhandel eKr osati sulatada vaske ning 2. aastatuhandel eKr raud",
+                    "text": "\n\n[[Pilt:Armenian Qarhunj01.jpg|pisi|\nEsiaegne megaliitide kompleks Zoratsh KharerSjunikhi maakond|Sjunikhi maakonnas]]]] \n\u00dcrgasustuse j\u00e4lgi on leitud mitmes Armeenia m\u00e4gismaapiirkonnas: Arznist, Nurnusist ja mujalt on leitud peatuspaiku kivist t\u00f6\u00f6riistadega. Hrazdani j\u00f5ekuristikust, Lusakertist ja mujalt on leitud koobaseluasemeid. K\u00f5ige vanemad leitud kivist t\u00f6\u00f6riistad on 800 000 aastat vanad.\nOn leitud neoliitikumi aegsete inimeste peatuspaiku. M\u00e4gedest on leitud arvukalt jahistseenidega kaljujooniseid. \nEsimesed maaharijate ja karjakasvatajate asulad Armeenia alal ilmusid Ararati j\u00f5eorgu \u0160iraki maakonnaalale..\nAreni koopast (Areni-1]]) leiti septembris 2008 k\u00f5ige vanem teadaolev nahast king (Areni-1 king):see on \u00fcle 5500 aasta vanune. Leid dateeritakse eneoliitikumi (3600\u20133500 eKr). See on pehme teravate otstega nahkking (t\u0161arohh). See on vanim jalatsileid Euroopas ja Aasias. Asjatundjate arvates kanti armeenia asulates praktiliselt samasuguseid jalatseid. Samuti leiti sealt seelik ja veinit\u00f6\u00f6koda ([[Areni-1 veinit\u00f6\u00f6koda]]).\nJerevani alalt \u0160engavithist leiti pronksiajaalguse asula, mis p\u00e4rineb 5.\u20133. aastatuhat eKr|3. aastatuhandest eKr]].\n\"K\u00f5ikjal, kus looduslikud tingimused olid k\u00fclviks ja karjatamiseks soodsad, paiknesid sugukondade v\u00f5i suurperede asulad. M\u00e4gipiirkondades valiti selliste asulate jaoks k\u00f5rgendikud; tasandikul kasvas kunstlik k\u00fcngas tasapisi mitme sajandi jooksul, mil samas kohas oli asula. Need asulad koosnesid l\u00f5unapiirkondades kivivundamendile toortellistest ehitatud majadest. T\u00fc\u00fcpiline elamu oli \u00fcmmarguse p\u00f5hiplaaniga hoone l\u00e4bim\u00f5\u00f5duga 5\u20137 m, posti tugikiviga keskel. N\u00e4htavasti toetas post lage..\nArheoloogiliste v\u00e4ljakaevamiste andmed kinnitavad, et Armeenia m\u00e4gismaal tunti juba iidsel ajal paljusid k\u00e4sit\u00f6id. Juba 5.\u20134. aastatuhat eKr|4. aastatuhandel eKr]] osati sulatada vaske ning 2. aastatuhandel eKr",
                     "title": "Esiaeg"
                 },
                 {
@@ -1310,42 +994,42 @@
                         {
                             "internal_links": [
                                 {
-                                    "end": 22,
+                                    "end": 20,
                                     "label": "Armeenia m\u00fctoloogia",
-                                    "start": 1,
+                                    "start": 2,
                                     "title": "Armeenia m\u00fctoloogia",
                                     "url": "http://et.wikipedia.org/wiki/Armeenia_m\u00fctoloogia"
                                 },
                                 {
                                     "end": 78,
-                                    "label": "Hajk",
+                                    "label": "Hajkiga",
                                     "start": 72,
                                     "title": "Hajk",
                                     "url": "http://et.wikipedia.org/wiki/Hajk"
                                 },
                                 {
-                                    "end": 182,
+                                    "end": 179,
                                     "label": "Movses Horenatshi",
                                     "start": 163,
                                     "title": "Movses Horenatshi",
                                     "url": "http://et.wikipedia.org/wiki/Movses_Horenatshi"
                                 },
                                 {
-                                    "end": 212,
-                                    "label": "Aram",
-                                    "start": 206,
+                                    "end": 209,
+                                    "label": "Arami",
+                                    "start": 205,
                                     "title": "Aram",
                                     "url": "http://et.wikipedia.org/wiki/Aram"
                                 },
                                 {
-                                    "end": 249,
-                                    "label": "armeenid",
-                                    "start": 239,
+                                    "end": 246,
+                                    "label": "armeenide",
+                                    "start": 238,
                                     "title": "armeenid",
                                     "url": "http://et.wikipedia.org/wiki/armeenid"
                                 }
                             ],
-                            "text": "\nArmeenia m\u00fctoloogia seostab Armeenia ja armeenlaste p\u00e4ritolu kangelase Hajkiga, kelle nimega seostatakse armeenlaste endanimetust. 5. sajandi armeenia ajaloolane Movses Horenatshi jutustab \u00fcksikasjalikult Arami v\u00e4gitegudest. Armeenlaste (armeenid",
+                            "text": "\nArmeenia m\u00fctoloogiaseostab Armeenia ja armeenlaste p\u00e4ritolu kangelase Hajkiga, kelle nimega seostatakse armeenlaste endanimetust. 5. sajandi armeenia ajaloolane Movses Horenatshijutustab \u00fcksikasjalikult Arami v\u00e4gitegudest. Armeenlaste (armeenide",
                             "title": "Armeenia ja armeenlaste p\u00e4ritolu"
                         },
                         {
@@ -1357,169 +1041,166 @@
                             ],
                             "internal_links": [
                                 {
-                                    "end": 34,
+                                    "end": 16,
                                     "label": "Urartu",
-                                    "start": 26,
+                                    "start": 11,
                                     "title": "Urartu",
                                     "url": "http://et.wikipedia.org/wiki/Urartu"
                                 },
                                 {
-                                    "end": 66,
-                                    "label": "Vani j\u00e4rv",
-                                    "start": 55,
+                                    "end": 48,
+                                    "label": "Vani j\u00e4rve",
+                                    "start": 39,
                                     "title": "Vani j\u00e4rv",
                                     "url": "http://et.wikipedia.org/wiki/Vani_j\u00e4rv"
                                 },
                                 {
-                                    "end": 105,
+                                    "end": 86,
                                     "label": "Ass\u00fc\u00fcria",
-                                    "start": 95,
+                                    "start": 79,
                                     "title": "Ass\u00fc\u00fcria",
                                     "url": "http://et.wikipedia.org/wiki/Ass\u00fc\u00fcria"
                                 },
                                 {
-                                    "end": 136,
-                                    "label": "Arza\u0161kun",
-                                    "start": 126,
+                                    "end": 117,
+                                    "label": "Arza\u0161kuni",
+                                    "start": 109,
                                     "title": "Arza\u0161kun",
                                     "url": "http://et.wikipedia.org/wiki/Arza\u0161kun"
                                 },
                                 {
-                                    "end": 152,
+                                    "end": 132,
                                     "label": "Arama",
-                                    "start": 145,
+                                    "start": 128,
                                     "title": "Arama",
                                     "url": "http://et.wikipedia.org/wiki/Arama"
                                 },
                                 {
-                                    "end": 179,
+                                    "end": 158,
                                     "label": "aramea",
-                                    "start": 171,
+                                    "start": 153,
                                     "title": "aramealased",
                                     "url": "http://et.wikipedia.org/wiki/aramealased"
                                 },
                                 {
-                                    "end": 199,
-                                    "label": "Bit Agusi",
-                                    "start": 188,
+                                    "end": 179,
+                                    "label": "Bit Agusiga",
+                                    "start": 169,
                                     "title": "Bit Agusi",
                                     "url": "http://et.wikipedia.org/wiki/Bit_Agusi"
                                 },
                                 {
-                                    "end": 217,
+                                    "end": 195,
                                     "label": "848 eKr",
-                                    "start": 208,
+                                    "start": 189,
                                     "title": "848 eKr",
                                     "url": "http://et.wikipedia.org/wiki/848_eKr"
                                 },
                                 {
-                                    "end": 250,
+                                    "end": 227,
                                     "label": "Salmanassar III",
-                                    "start": 233,
+                                    "start": 213,
                                     "title": "Salmanassar III",
                                     "url": "http://et.wikipedia.org/wiki/Salmanassar_III"
                                 },
                                 {
-                                    "end": 426,
+                                    "end": 402,
                                     "label": "Nairi",
-                                    "start": 419,
+                                    "start": 398,
                                     "title": "Nairi",
                                     "url": "http://et.wikipedia.org/wiki/Nairi"
                                 },
                                 {
-                                    "end": 443,
+                                    "end": 418,
                                     "label": "Sarduri I",
-                                    "start": 432,
+                                    "start": 410,
                                     "title": "Sarduri I",
                                     "url": "http://et.wikipedia.org/wiki/Sarduri_I"
                                 },
                                 {
-                                    "end": 488,
-                                    "label": "Vani j\u00e4rv",
-                                    "start": 477,
+                                    "end": 463,
+                                    "label": "Vani j\u00e4rve",
+                                    "start": 454,
                                     "title": "Vani j\u00e4rv",
                                     "url": "http://et.wikipedia.org/wiki/Vani_j\u00e4rv"
                                 },
                                 {
-                                    "end": 521,
-                                    "label": "Tu\u0161pa",
-                                    "start": 514,
+                                    "end": 497,
+                                    "label": "Tu\u0161pa (",
+                                    "start": 491,
                                     "title": "Tu\u0161pa",
                                     "url": "http://et.wikipedia.org/wiki/Tu\u0161pa"
                                 },
                                 {
-                                    "end": 535,
-                                    "label": "Van",
-                                    "start": 530,
+                                    "end": 510,
+                                    "label": "Van'",
+                                    "start": 507,
                                     "title": "Van (T\u00fcrgi)",
                                     "url": "http://et.wikipedia.org/wiki/Van_(T\u00fcrgi)"
                                 },
                                 {
-                                    "end": 693,
+                                    "end": 666,
                                     "label": "Menua",
-                                    "start": 686,
+                                    "start": 662,
                                     "title": "Menua",
                                     "url": "http://et.wikipedia.org/wiki/Menua"
                                 },
                                 {
-                                    "end": 839,
+                                    "end": 811,
                                     "label": "G\u00fczelsu",
-                                    "start": 830,
+                                    "start": 805,
                                     "title": "G\u00fczelsu",
                                     "url": "http://et.wikipedia.org/wiki/G\u00fczelsu"
                                 },
                                 {
-                                    "end": 987,
-                                    "label": "Semiramis",
-                                    "start": 976,
+                                    "end": 961,
+                                    "label": "Semiramisega",
+                                    "start": 950,
                                     "title": "Semiramis",
                                     "url": "http://et.wikipedia.org/wiki/Semiramis"
                                 },
                                 {
-                                    "end": 1003,
+                                    "end": 973,
                                     "label": "Sarduri II",
-                                    "start": 991,
+                                    "start": 964,
                                     "title": "Sarduri II",
                                     "url": "http://et.wikipedia.org/wiki/Sarduri_II"
                                 },
                                 {
-                                    "end": 1163,
-                                    "label": "Rusa I",
-                                    "start": 1155,
+                                    "end": 1133,
+                                    "label": "Rusa I (",
+                                    "start": 1126,
                                     "title": "Rusa I",
                                     "url": "http://et.wikipedia.org/wiki/Rusa_I"
                                 },
                                 {
-                                    "end": 1242,
-                                    "label": "Sargon II",
-                                    "start": 1231,
+                                    "end": 1212,
+                                    "label": "Sargon II (",
+                                    "start": 1202,
                                     "title": "Sargon II",
                                     "url": "http://et.wikipedia.org/wiki/Sargon_II"
                                 },
                                 {
-                                    "end": 1287,
+                                    "end": 1255,
                                     "label": "Musasir",
-                                    "start": 1278,
+                                    "start": 1249,
                                     "title": "Musasir",
                                     "url": "http://et.wikipedia.org/wiki/Musasir"
                                 },
                                 {
-                                    "end": 1397,
+                                    "end": 1363,
                                     "label": "609 eKr",
-                                    "start": 1388,
+                                    "start": 1357,
                                     "title": "609 eKr",
                                     "url": "http://et.wikipedia.org/wiki/609_eKr"
                                 },
                                 {
-                                    "end": 1482,
+                                    "end": 1447,
                                     "label": "Kyros II",
-                                    "start": 1472,
+                                    "start": 1440,
                                     "title": "Kyros II",
                                     "url": "http://et.wikipedia.org/wiki/Kyros_II"
                                 }
-                            ],
-                            "references": [
-                                9
                             ],
                             "related_articles": [
                                 [
@@ -1530,14 +1211,14 @@
                                     ]
                                 ]
                             ],
-                            "text": "\n{{vaata|Urartu}}\n riik]]\nUrartu kuningriik sai alguse Vani j\u00e4rve \u00e4\u00e4rest. Et kaitsta oma riiki Ass\u00fc\u00fcria eest, s\u00f5lmis kuningas Arza\u0161kuni kuningas Arama umbes 850 eKr liidu aramea linnriigi Bit Agusiga. Aastal 848 eKr leidis aset kaks Salmanassar III rasket r\u00fcnnakut Arza\u0161kuni vastu, mille k\u00e4igus h\u00e4vitati ka \u00fcmberkaudsed asulad ja Arama p\u00f5genes m\u00e4gedesse. Aastatel 844\u2013832 eKr v\u00f5ttis Salmanassar III ette veel s\u00f5jak\u00e4ike Nairi vastu. Sarduri I ajal rajati umbes 832 eKr Nairisse Vani j\u00e4rve \u00e4\u00e4rde kuninga- ja pealinn Tu\u0161pa (praeguse Van'i l\u00e4hedal).\n\nTema j\u00e4rglased laiendasid riiki ja viisid selle \u00f5itsengule. Rajati palju uusi kindlustusi (t\u00f5en\u00e4oliselt vallutatud alade kindlustamiseks). Menua valitsemise ajal (umbes 810\u2013785 eKr) arenesid k\u00e4sit\u00f6\u00f6 ja p\u00f5llumajandus. Rajati ladusid ja viljaaitu. Samuti rajas ta 70 km pikkuse kanali G\u00fczelsu orust Tu\u0161passe, et linna mageveega varustada (Vani j\u00e4rv on soolane). T\u00e4nap\u00e4eval seostatakse seda kanalit ekslikult legendaarse kuninganna Semiramisega.\n\nSarduri II ajal (umbes 765\u2013733 eKr) j\u00f5udis Urartu territoorium maksimumini. P\u00fc\u00fcdes murda Ass\u00fc\u00fcria \u00fclemv\u00f5imu, pingutas ta \u00fcle ja sai ass\u00fc\u00fcrlastelt h\u00e4vitavalt l\u00fc\u00fca.\n\nRusa I (umbes 733\u2013714 eKr) ajal sai Urartu hinge t\u00f5mmata. Ass\u00fc\u00fcria kuningas Sargon II (721\u2013704 eKr) h\u00e4vitas aastal 714 eKr Musasir. Rusa I sooritas v\u00e4idetavalt enesetapu. Tema j\u00e4rglased p\u00fc\u00fcdsid riiki uuesti kindlustada. Kuni aastani 609 eKr j\u00e4i Urartu]] edasi. P\u00e4rast Ass\u00fc\u00fcria l\u00f5ppu j\u00e4rgnes uus t\u00f5us. P\u00e4rsia kuningas Kyros II",
+                            "text": "\n\n riik]]\nUrartukuningriik sai alguse Vani j\u00e4rve \u00e4\u00e4rest. Et kaitsta oma riiki Ass\u00fc\u00fcriaeest, s\u00f5lmis kuningas Arza\u0161kuni kuningas Aramaumbes 850 eKr liidu aramealinnriigi Bit Agusiga. Aastal 848 eKrleidis aset kaks Salmanassar IIIrasket r\u00fcnnakut Arza\u0161kuni vastu, mille k\u00e4igus h\u00e4vitati ka \u00fcmberkaudsed asulad ja Arama p\u00f5genes m\u00e4gedesse. Aastatel 844\u2013832 eKr v\u00f5ttis Salmanassar III ette veel s\u00f5jak\u00e4ike Nairivastu. Sarduri Iajal rajati umbes 832 eKr Nairisse Vani j\u00e4rve \u00e4\u00e4rde kuninga- ja pealinn Tu\u0161pa (praeguse Van'i l\u00e4hedal).\nTema j\u00e4rglased laiendasid riiki ja viisid selle \u00f5itsengule. Rajati palju uusi kindlustusi (t\u00f5en\u00e4oliselt vallutatud alade kindlustamiseks). Menuavalitsemise ajal (umbes 810\u2013785 eKr) arenesid k\u00e4sit\u00f6\u00f6 ja p\u00f5llumajandus. Rajati ladusid ja viljaaitu. Samuti rajas ta 70 km pikkuse kanali G\u00fczelsuorust Tu\u0161passe, et linna mageveega varustada (Vani j\u00e4rv on soolane). T\u00e4nap\u00e4eval seostatakse seda kanalit ekslikult legendaarse kuninganna Semiramisega.\nSarduri IIajal (umbes 765\u2013733 eKr) j\u00f5udis Urartu territoorium maksimumini. P\u00fc\u00fcdes murda Ass\u00fc\u00fcria \u00fclemv\u00f5imu, pingutas ta \u00fcle ja sai ass\u00fc\u00fcrlastelt h\u00e4vitavalt l\u00fc\u00fca.\nRusa I (umbes 733\u2013714 eKr) ajal sai Urartu hinge t\u00f5mmata. Ass\u00fc\u00fcria kuningas Sargon II (721\u2013704 eKr) h\u00e4vitas aastal 714 eKr MusasirRusa I sooritas v\u00e4idetavalt enesetapu. Tema j\u00e4rglased p\u00fc\u00fcdsid riiki uuesti kindlustada. Kuni aastani 609 eKrj\u00e4i Urartu]] edasi. P\u00e4rast Ass\u00fc\u00fcria l\u00f5ppu j\u00e4rgnes uus t\u00f5us. P\u00e4rsia kuningas Kyros II",
                             "title": "Urartu kuningriik"
                         },
                         {
                             "images": [
                                 {
                                     "text": "Tigran II",
-                                    "url": "http://et.wikipedia.org/wiki/Pilt:Artaxiad Armenia 80BC-fr.svg"
+                                    "url": "http://et.wikipedia.org/wiki/Pilt:Artaxiad_Armenia_80BC-fr.svg"
                                 },
                                 {
                                     "text": "Armeenia Tigran Suur",
@@ -1546,564 +1227,425 @@
                             ],
                             "internal_links": [
                                 {
-                                    "end": 41,
-                                    "label": "Suur-Armeenia",
-                                    "start": 26,
+                                    "end": 18,
+                                    "label": "Suur-Armeeniasse",
+                                    "start": 3,
                                     "title": "Suur-Armeenia",
                                     "url": "http://et.wikipedia.org/wiki/Suur-Armeenia"
                                 },
                                 {
-                                    "end": 107,
+                                    "end": 81,
                                     "label": "Hetiidi impeerium",
-                                    "start": 88,
+                                    "start": 65,
                                     "title": "Hetiidi impeerium",
                                     "url": "http://et.wikipedia.org/wiki/Hetiidi_impeerium"
                                 },
                                 {
-                                    "end": 116,
-                                    "label": "Mitanni",
-                                    "start": 107,
-                                    "title": "Mitanni",
-                                    "url": "http://et.wikipedia.org/wiki/Mitanni"
-                                },
-                                {
-                                    "end": 131,
-                                    "label": "Hayasa-Azzi",
-                                    "start": 118,
+                                    "end": 107,
+                                    "label": "Hayasa-Azzi (",
+                                    "start": 95,
                                     "title": "Hayasa-Azzi",
                                     "url": "http://et.wikipedia.org/wiki/Hayasa-Azzi"
                                 },
                                 {
-                                    "end": 200,
+                                    "end": 174,
                                     "label": "Nairi",
-                                    "start": 193,
+                                    "start": 170,
                                     "title": "Nairi",
                                     "url": "http://et.wikipedia.org/wiki/Nairi"
                                 },
                                 {
-                                    "end": 223,
+                                    "end": 196,
                                     "label": "Urartu",
-                                    "start": 215,
+                                    "start": 191,
                                     "title": "Urartu",
                                     "url": "http://et.wikipedia.org/wiki/Urartu"
                                 },
                                 {
-                                    "end": 299,
-                                    "label": "Argi\u0161ti I",
-                                    "start": 288,
-                                    "title": "Argi\u0161ti I",
-                                    "url": "http://et.wikipedia.org/wiki/Argi\u0161ti_I"
-                                },
-                                {
-                                    "end": 321,
-                                    "label": "Suur-Armeenia",
-                                    "start": 306,
-                                    "title": "Suur-Armeenia",
-                                    "url": "http://et.wikipedia.org/wiki/Suur-Armeenia"
-                                },
-                                {
-                                    "end": 358,
-                                    "label": "Orontiidide",
-                                    "start": 345,
+                                    "end": 338,
+                                    "label": "Orontiidide (",
+                                    "start": 326,
                                     "title": "Orontiidide d\u00fcnastia",
                                     "url": "http://et.wikipedia.org/wiki/Orontiidide_d\u00fcnastia"
                                 },
                                 {
-                                    "end": 416,
-                                    "label": "Armeenia kuningriigi",
-                                    "start": 394,
-                                    "title": "Armeenia kuningriik",
-                                    "url": "http://et.wikipedia.org/wiki/Armeenia_kuningriik"
-                                },
-                                {
-                                    "end": 461,
+                                    "end": 462,
                                     "label": "Urartu",
-                                    "start": 453,
+                                    "start": 457,
                                     "title": "Urartu",
                                     "url": "http://et.wikipedia.org/wiki/Urartu"
                                 },
                                 {
                                     "end": 495,
                                     "label": "Behistuni raidkirjal",
-                                    "start": 473,
+                                    "start": 476,
                                     "title": "Behistuni raidkiri",
                                     "url": "http://et.wikipedia.org/wiki/Behistuni_raidkiri"
                                 },
                                 {
-                                    "end": 675,
-                                    "label": "Aleksander Suur",
-                                    "start": 658,
+                                    "end": 674,
+                                    "label": "Aleksander Suure",
+                                    "start": 659,
                                     "title": "Aleksander Suur",
                                     "url": "http://et.wikipedia.org/wiki/Aleksander_Suur"
                                 },
                                 {
-                                    "end": 697,
+                                    "end": 695,
                                     "label": "323 eKr",
-                                    "start": 688,
+                                    "start": 689,
                                     "title": "323 eKr",
                                     "url": "http://et.wikipedia.org/wiki/323_eKr"
                                 },
                                 {
-                                    "end": 725,
+                                    "end": 722,
                                     "label": "Suur-S\u00fc\u00fcria",
                                     "start": 712,
                                     "title": "Suur-S\u00fc\u00fcria",
                                     "url": "http://et.wikipedia.org/wiki/Suur-S\u00fc\u00fcria"
                                 },
                                 {
-                                    "end": 744,
-                                    "label": "Seleukiidide riigi",
-                                    "start": 724,
-                                    "title": "Seleukid",
-                                    "url": "http://et.wikipedia.org/wiki/Seleukid"
-                                },
-                                {
-                                    "end": 751,
-                                    "label": "vasall",
-                                    "start": 743,
+                                    "end": 761,
+                                    "label": "vasalliks",
+                                    "start": 753,
                                     "title": "vasall",
                                     "url": "http://et.wikipedia.org/wiki/vasall"
                                 },
                                 {
-                                    "end": 790,
+                                    "end": 797,
                                     "label": "roomlastelt",
-                                    "start": 777,
+                                    "start": 787,
                                     "title": "Vana-Rooma riik",
                                     "url": "http://et.wikipedia.org/wiki/Vana-Rooma_riik"
                                 },
                                 {
-                                    "end": 805,
-                                    "label": "Magnesi lahing",
-                                    "start": 789,
-                                    "title": "Magnesi lahing",
-                                    "url": "http://et.wikipedia.org/wiki/Magnesi_lahing"
-                                },
-                                {
-                                    "end": 816,
-                                    "label": "190 eKr",
-                                    "start": 807,
+                                    "end": 825,
+                                    "label": "190 eKr)",
+                                    "start": 818,
                                     "title": "190 eKr",
                                     "url": "http://et.wikipedia.org/wiki/190_eKr"
                                 },
                                 {
-                                    "end": 870,
+                                    "end": 876,
                                     "label": "V\u00e4ike-Armeenia",
-                                    "start": 854,
+                                    "start": 863,
                                     "title": "V\u00e4ike-Armeenia",
                                     "url": "http://et.wikipedia.org/wiki/V\u00e4ike-Armeenia"
                                 },
                                 {
-                                    "end": 877,
-                                    "label": "Eufrat",
-                                    "start": 869,
-                                    "title": "Eufrat",
-                                    "url": "http://et.wikipedia.org/wiki/Eufrat"
-                                },
-                                {
-                                    "end": 903,
+                                    "end": 910,
                                     "label": "Sophena",
-                                    "start": 894,
+                                    "start": 904,
                                     "title": "Sophena",
                                     "url": "http://et.wikipedia.org/wiki/Sophena"
                                 },
                                 {
-                                    "end": 947,
+                                    "end": 953,
                                     "label": "Suur-Armeenia",
-                                    "start": 932,
+                                    "start": 941,
                                     "title": "Suur-Armeenia",
                                     "url": "http://et.wikipedia.org/wiki/Suur-Armeenia"
                                 },
                                 {
-                                    "end": 974,
-                                    "label": "Ararati tasandik",
-                                    "start": 956,
+                                    "end": 981,
+                                    "label": "Ararati tasandikul",
+                                    "start": 964,
                                     "title": "Ararati tasandik",
                                     "url": "http://et.wikipedia.org/wiki/Ararati_tasandik"
                                 },
                                 {
-                                    "end": 1001,
-                                    "label": "Aleksander Suur",
-                                    "start": 984,
+                                    "end": 1006,
+                                    "label": "Aleksander Suure",
+                                    "start": 991,
                                     "title": "Aleksander Suur",
                                     "url": "http://et.wikipedia.org/wiki/Aleksander_Suur"
                                 },
                                 {
-                                    "end": 1072,
-                                    "label": "Ajrarati riik",
-                                    "start": 1057,
+                                    "end": 1078,
+                                    "label": "Ajrarati riik (",
+                                    "start": 1064,
                                     "title": "Ajrarati riik",
                                     "url": "http://et.wikipedia.org/wiki/Ajrarati_riik"
                                 },
                                 {
-                                    "end": 1092,
-                                    "label": "Armeenia satraapia",
-                                    "start": 1072,
-                                    "title": "Armeenia satraapia",
-                                    "url": "http://et.wikipedia.org/wiki/Armeenia_satraapia"
-                                },
-                                {
-                                    "end": 1110,
-                                    "label": "Tsophkhi riik",
-                                    "start": 1095,
+                                    "end": 1118,
+                                    "label": "Tsophkhi riik (",
+                                    "start": 1104,
                                     "title": "Tsophkhi riik",
                                     "url": "http://et.wikipedia.org/wiki/Tsophkhi_riik"
                                 },
                                 {
-                                    "end": 1124,
-                                    "label": "Sophene riik",
-                                    "start": 1110,
-                                    "title": "Sophene riik",
-                                    "url": "http://et.wikipedia.org/wiki/Sophene_riik"
-                                },
-                                {
-                                    "end": 1160,
+                                    "end": 1168,
                                     "label": "Seleukiidide riik",
-                                    "start": 1141,
+                                    "start": 1152,
                                     "title": "Seleukiidide riik",
                                     "url": "http://et.wikipedia.org/wiki/Seleukiidide_riik"
                                 },
                                 {
-                                    "end": 1223,
+                                    "end": 1230,
                                     "label": "Rooma riigi",
-                                    "start": 1210,
+                                    "start": 1220,
                                     "title": "Rooma riik",
                                     "url": "http://et.wikipedia.org/wiki/Rooma_riik"
                                 },
                                 {
-                                    "end": 1287,
+                                    "end": 1293,
                                     "label": "Suur-Armeenia",
-                                    "start": 1272,
+                                    "start": 1281,
                                     "title": "Suur-Armeenia",
                                     "url": "http://et.wikipedia.org/wiki/Suur-Armeenia"
                                 },
                                 {
-                                    "end": 1303,
-                                    "label": "V\u00e4ike-Armeenia",
-                                    "start": 1287,
-                                    "title": "V\u00e4ike-Armeenia",
-                                    "url": "http://et.wikipedia.org/wiki/V\u00e4ike-Armeenia"
-                                },
-                                {
-                                    "end": 1314,
+                                    "end": 1320,
                                     "label": "Sophene",
-                                    "start": 1305,
+                                    "start": 1314,
                                     "title": "Sophene",
                                     "url": "http://et.wikipedia.org/wiki/Sophene"
                                 },
                                 {
-                                    "end": 1325,
-                                    "label": "Tigran II",
-                                    "start": 1314,
-                                    "title": "Tigran II",
-                                    "url": "http://et.wikipedia.org/wiki/Tigran_II"
-                                },
-                                {
-                                    "end": 1363,
+                                    "end": 1369,
                                     "label": "Suur-Armeenia",
-                                    "start": 1348,
+                                    "start": 1357,
                                     "title": "Suur-Armeenia",
                                     "url": "http://et.wikipedia.org/wiki/Suur-Armeenia"
                                 },
                                 {
-                                    "end": 1402,
-                                    "label": "Palestiina",
-                                    "start": 1390,
+                                    "end": 1409,
+                                    "label": "Palestiinast",
+                                    "start": 1398,
                                     "title": "Palestiina (ajalooline)",
                                     "url": "http://et.wikipedia.org/wiki/Palestiina_(ajalooline)"
                                 },
                                 {
-                                    "end": 1418,
-                                    "label": "Kaspia mereni",
-                                    "start": 1403,
+                                    "end": 1425,
+                                    "label": "Kaspia mereni.;",
+                                    "start": 1411,
                                     "title": "Kaspia meri",
                                     "url": "http://et.wikipedia.org/wiki/Kaspia_meri"
                                 },
                                 {
-                                    "end": 1471,
-                                    "label": "Pontos",
-                                    "start": 1463,
+                                    "end": 1476,
+                                    "label": "Pontose",
+                                    "start": 1470,
                                     "title": "Pontos",
                                     "url": "http://et.wikipedia.org/wiki/Pontos"
                                 },
                                 {
-                                    "end": 1496,
+                                    "end": 1500,
                                     "label": "Mithridates VI",
-                                    "start": 1480,
+                                    "start": 1487,
                                     "title": "Mithridates VI",
                                     "url": "http://et.wikipedia.org/wiki/Mithridates_VI"
                                 },
                                 {
-                                    "end": 1507,
+                                    "end": 1510,
                                     "label": "66 eKr",
-                                    "start": 1499,
+                                    "start": 1505,
                                     "title": "66 eKr",
                                     "url": "http://et.wikipedia.org/wiki/66_eKr"
                                 },
                                 {
-                                    "end": 1532,
-                                    "label": "Pompeius",
-                                    "start": 1522,
+                                    "end": 1537,
+                                    "label": "Pompeiuselt",
+                                    "start": 1527,
                                     "title": "Pompeius",
                                     "url": "http://et.wikipedia.org/wiki/Pompeius"
                                 },
                                 {
-                                    "end": 1715,
-                                    "label": "Partia",
-                                    "start": 1707,
+                                    "end": 1719,
+                                    "label": "Partialt",
+                                    "start": 1712,
                                     "title": "Partia",
                                     "url": "http://et.wikipedia.org/wiki/Partia"
                                 },
                                 {
-                                    "end": 1772,
+                                    "end": 1774,
                                     "label": "Partia",
-                                    "start": 1764,
+                                    "start": 1769,
                                     "title": "Partia",
                                     "url": "http://et.wikipedia.org/wiki/Partia"
                                 },
                                 {
-                                    "end": 1812,
+                                    "end": 1813,
                                     "label": "puhverriigiks",
-                                    "start": 1797,
+                                    "start": 1801,
                                     "title": "puhverriik",
                                     "url": "http://et.wikipedia.org/wiki/puhverriik"
                                 },
                                 {
-                                    "end": 1869,
-                                    "label": "Sassaniidid",
-                                    "start": 1856,
+                                    "end": 1870,
+                                    "label": "Sassaniidide",
+                                    "start": 1859,
                                     "title": "Sassaniidid",
                                     "url": "http://et.wikipedia.org/wiki/Sassaniidid"
                                 },
                                 {
-                                    "end": 1927,
+                                    "end": 1926,
                                     "label": "Arta\u0161esiidide d\u00fcnastia",
-                                    "start": 1903,
+                                    "start": 1905,
                                     "title": "Arta\u0161esiidide d\u00fcnastia",
                                     "url": "http://et.wikipedia.org/wiki/Arta\u0161esiidide_d\u00fcnastia"
                                 },
                                 {
-                                    "end": 2004,
+                                    "end": 2002,
                                     "label": "Kaspia",
-                                    "start": 1996,
+                                    "start": 1997,
                                     "title": "Kaspia",
                                     "url": "http://et.wikipedia.org/wiki/Kaspia"
                                 },
                                 {
-                                    "end": 2033,
+                                    "end": 2030,
                                     "label": "Armeenia kuningriigi",
                                     "start": 2011,
                                     "title": "Armeenia kuningriik",
                                     "url": "http://et.wikipedia.org/wiki/Armeenia_kuningriik"
                                 },
                                 {
-                                    "end": 2061,
-                                    "label": "Tigran II Suur",
-                                    "start": 2045,
+                                    "end": 2058,
+                                    "label": "Tigran II Suure",
+                                    "start": 2044,
                                     "title": "Tigran II Suur",
                                     "url": "http://et.wikipedia.org/wiki/Tigran_II_Suur"
                                 },
                                 {
-                                    "end": 2200,
+                                    "end": 2196,
                                     "label": "Partia",
-                                    "start": 2192,
+                                    "start": 2191,
                                     "title": "Partia",
                                     "url": "http://et.wikipedia.org/wiki/Partia"
                                 },
                                 {
-                                    "end": 2250,
-                                    "label": "V\u00e4ike-Kaukasus",
-                                    "start": 2234,
+                                    "end": 2248,
+                                    "label": "V\u00e4ike-Kaukasusest",
+                                    "start": 2232,
                                     "title": "V\u00e4ike-Kaukasus",
                                     "url": "http://et.wikipedia.org/wiki/V\u00e4ike-Kaukasus"
                                 },
                                 {
-                                    "end": 2264,
+                                    "end": 2259,
                                     "label": "Palestiina",
-                                    "start": 2252,
+                                    "start": 2250,
                                     "title": "Palestiina",
                                     "url": "http://et.wikipedia.org/wiki/Palestiina"
                                 },
                                 {
-                                    "end": 2326,
-                                    "label": "P\u00e4rsia",
-                                    "start": 2318,
+                                    "end": 2322,
+                                    "label": "P\u00e4rsiale",
+                                    "start": 2315,
                                     "title": "P\u00e4rsia",
                                     "url": "http://et.wikipedia.org/wiki/P\u00e4rsia"
                                 },
                                 {
-                                    "end": 2383,
-                                    "label": "autonoomia",
-                                    "start": 2371,
+                                    "end": 2379,
+                                    "label": "autonoomiaga",
+                                    "start": 2368,
                                     "title": "autonoomia",
                                     "url": "http://et.wikipedia.org/wiki/autonoomia"
                                 },
                                 {
-                                    "end": 2520,
+                                    "end": 2514,
                                     "label": "ass\u00fc\u00fcrlased",
-                                    "start": 2507,
+                                    "start": 2504,
                                     "title": "ass\u00fc\u00fcrlased",
                                     "url": "http://et.wikipedia.org/wiki/ass\u00fc\u00fcrlased"
                                 },
                                 {
-                                    "end": 2532,
-                                    "label": "kreeklased",
-                                    "start": 2520,
-                                    "title": "kreeklased",
-                                    "url": "http://et.wikipedia.org/wiki/kreeklased"
-                                },
-                                {
-                                    "end": 2543,
+                                    "end": 2537,
                                     "label": "roomlased",
-                                    "start": 2532,
+                                    "start": 2529,
                                     "title": "roomlased",
                                     "url": "http://et.wikipedia.org/wiki/roomlased"
                                 },
                                 {
-                                    "end": 2558,
-                                    "label": "b\u00fctsantslased",
-                                    "start": 2543,
-                                    "title": "b\u00fctsantslased",
-                                    "url": "http://et.wikipedia.org/wiki/b\u00fctsantslased"
-                                },
-                                {
-                                    "end": 2570,
+                                    "end": 2564,
                                     "label": "araablased",
-                                    "start": 2558,
+                                    "start": 2555,
                                     "title": "araablased",
                                     "url": "http://et.wikipedia.org/wiki/araablased"
                                 },
                                 {
-                                    "end": 2580,
-                                    "label": "mongolid",
-                                    "start": 2570,
-                                    "title": "mongolid",
-                                    "url": "http://et.wikipedia.org/wiki/mongolid"
-                                },
-                                {
-                                    "end": 2591,
+                                    "end": 2585,
                                     "label": "p\u00e4rslased",
-                                    "start": 2580,
+                                    "start": 2577,
                                     "title": "p\u00e4rslased",
                                     "url": "http://et.wikipedia.org/wiki/p\u00e4rslased"
                                 },
                                 {
-                                    "end": 2602,
-                                    "label": "t\u00fcrklased",
-                                    "start": 2591,
-                                    "title": "t\u00fcrklased",
-                                    "url": "http://et.wikipedia.org/wiki/t\u00fcrklased"
-                                },
-                                {
-                                    "end": 2615,
-                                    "label": "venelased",
-                                    "start": 2604,
-                                    "title": "venelased",
-                                    "url": "http://et.wikipedia.org/wiki/venelased"
-                                },
-                                {
-                                    "end": 2680,
+                                    "end": 2678,
                                     "label": "masdaistlik",
-                                    "start": 2667,
+                                    "start": 2668,
                                     "title": "mazdaism",
                                     "url": "http://et.wikipedia.org/wiki/mazdaism"
                                 },
                                 {
-                                    "end": 2692,
-                                    "label": "zoroastrism",
-                                    "start": 2679,
-                                    "title": "zoroastrism",
-                                    "url": "http://et.wikipedia.org/wiki/zoroastrism"
-                                },
-                                {
-                                    "end": 2726,
+                                    "end": 2725,
                                     "label": "zurvanistlikust",
-                                    "start": 2709,
+                                    "start": 2711,
                                     "title": "Zurvanism",
                                     "url": "http://et.wikipedia.org/wiki/Zurvanism"
                                 },
                                 {
-                                    "end": 2747,
-                                    "label": "Sassaniidide riigist",
-                                    "start": 2725,
-                                    "title": "Sassaniidide riik",
-                                    "url": "http://et.wikipedia.org/wiki/Sassaniidide_riik"
-                                },
-                                {
-                                    "end": 2788,
+                                    "end": 2806,
                                     "label": "avesta",
-                                    "start": 2780,
+                                    "start": 2801,
                                     "title": "avesta",
                                     "url": "http://et.wikipedia.org/wiki/avesta"
                                 },
                                 {
-                                    "end": 2795,
-                                    "label": "Mithra",
-                                    "start": 2787,
-                                    "title": "Mithra",
-                                    "url": "http://et.wikipedia.org/wiki/Mithra"
-                                },
-                                {
-                                    "end": 2806,
+                                    "end": 2825,
                                     "label": "Kristlus",
-                                    "start": 2796,
+                                    "start": 2818,
                                     "title": "Kristlus",
                                     "url": "http://et.wikipedia.org/wiki/Kristlus"
                                 },
                                 {
-                                    "end": 2859,
-                                    "label": "Tiridates III",
-                                    "start": 2844,
+                                    "end": 2879,
+                                    "label": "Tiridates III (",
+                                    "start": 2865,
                                     "title": "Tiridates III",
                                     "url": "http://et.wikipedia.org/wiki/Tiridates_III"
                                 },
                                 {
-                                    "end": 3043,
-                                    "label": "Galerius",
-                                    "start": 3033,
+                                    "end": 3062,
+                                    "label": "Galeriuse",
+                                    "start": 3054,
                                     "title": "Galerius",
                                     "url": "http://et.wikipedia.org/wiki/Galerius"
                                 },
                                 {
-                                    "end": 3087,
-                                    "label": "Constantinus Suur",
-                                    "start": 3068,
+                                    "end": 3106,
+                                    "label": "Constantinus Suure",
+                                    "start": 3089,
                                     "title": "Constantinus Suur",
                                     "url": "http://et.wikipedia.org/wiki/Constantinus_Suur"
                                 },
                                 {
-                                    "end": 3135,
+                                    "end": 3152,
                                     "label": "P\u00e4rsia",
-                                    "start": 3127,
+                                    "start": 3147,
                                     "title": "P\u00e4rsia",
                                     "url": "http://et.wikipedia.org/wiki/P\u00e4rsia"
                                 },
                                 {
-                                    "end": 3201,
+                                    "end": 3217,
                                     "label": "428",
-                                    "start": 3196,
+                                    "start": 3215,
                                     "title": "428",
                                     "url": "http://et.wikipedia.org/wiki/428"
                                 },
                                 {
-                                    "end": 3256,
+                                    "end": 3270,
                                     "label": "Sassaniidide riigiga",
-                                    "start": 3234,
+                                    "start": 3251,
                                     "title": "Sassaniidide riik",
                                     "url": "http://et.wikipedia.org/wiki/Sassaniidide_riik"
                                 },
                                 {
-                                    "end": 3338,
+                                    "end": 3350,
                                     "label": "usuvabadus",
-                                    "start": 3326,
+                                    "start": 3341,
                                     "title": "usuvabadus",
                                     "url": "http://et.wikipedia.org/wiki/usuvabadus"
                                 }
-                            ],
-                            "references": [
-                                0,
-                                0,
-                                1,
-                                2
                             ],
                             "related_articles": [
                                 [
@@ -2114,7 +1656,7 @@
                                     ]
                                 ]
                             ],
-                            "text": "\n{{vaata|Suur-Armeenia}}\n\nSuur-Armeeniasse ulatus mitme suurriigi v\u00f5im, nende seas olid Hetiidi impeerium, Mitanni ja Hayasa-Azzi (1500\u20131200 eKr). Armeenia m\u00e4gismaal asusid 12.-9. sajandil eKr Nairi ja 1000\u2013600 eKr Urartu riik. T\u00e4nap\u00e4eva Armeenia pealinna Jerevani rajas 782 eKr kuningas Argi\u0161ti I.\n aegne Suur-Armeenia]]\n\n\n600. aasta paiku l\u00f5i Orontiidide (armeenia keeles Ervanduni) d\u00fcnastia Armeenia kuningriigi.\n\nArmeenia nimi esineb esimest korda (Urartu s\u00fcnon\u00fc\u00fcmina) Behistuni raidkirjal umbes aastast 520 eKr. Suurimate antiikajaloolaste ja -geograafide kaartidel on Armeenia t\u00e4histatud k\u00f5rvuti P\u00e4rsia, S\u00fc\u00fcria ja teiste antiikaja riikidega.. \n\nP\u00e4rast Aleksander Suure surma aastal 323 eKr muutus Armeenia Suur-S\u00fc\u00fcria Seleukiidide riigi vasalliks. Kui viimased said l\u00fc\u00fca roomlastelt Magnesi lahingus (190 eKr), tekkis korraga kolm armeenia riiki \u2013 V\u00e4ike-Armeenia Eufrati j\u00f5e l\u00e4\u00e4nekaldal, Sophena sama j\u00f5e idapoolsel kaldal ja Suur-Armeenia keskusega Ararati tasandikul.\n\nP\u00e4rast Aleksander Suure impeeriumi lagunemist tekkisid armeenlaste kuningriigid Ajrarati riik (Armeenia satraapia) ja Tsophkhi riik (Sophene riik). Hiljem vallutas Seleukiidide riik need riigid. P\u00e4rast Seleukiidide riigi purustamist Rooma riigi poolt 2. sajandil eKr tekkis kolm armeenia riiki: Suur-Armeenia, V\u00e4ike-Armeenia ja Sophene. Tigran II ajal (95\u201355 eKr) muutus Suur-Armeenia v\u00e4gevaks riigiks, mis laius Palestiinast Kaspia mereni.; ent p\u00e4rast seda, kui Tigrani \u00e4i ja liitlane Pontose kuningas Mithridates VI sai 66 eKr Rooma v\u00e4ejuhilt Pompeiuselt l\u00fc\u00fca, ei suutnud liitlasteta j\u00e4\u00e4nud Tigran kahel rindel v\u00f5idelda ning kaotas Rooma-Partia liidule ja j\u00e4i ilma k\u00f5igist vallutatud aladest peale p\u00e4ris Suur-Armeenia. ning osa Partialt vallutatud maadest. Hiljem muutus Suur-Armeenia Partia ja Rooma riigi vaheliseks puhverriigiks ja veel hiljem (3.\u20134. sajandil pKr) Rooma ja Sassaniidide Iraani vaheliseks puhverriigiks.\n\nArta\u0161esiidide d\u00fcnastia valitsemisajal laiendas Suur-Armeenia oma territooriumi vahetult kuni Kaspia mereni. Armeenia kuningriigi \u00f5itseaeg oli Tigran II Suure valitsusajal 95-66 eKr, mil see oli piirkonna \u00fcks v\u00f5imsamaid kuningriike, alistades Sophena ning kasutades \u00e4ra pikka s\u00f5da Rooma ja Partia vahel. Sellal ulatus Armeenia v\u00f5im V\u00e4ike-Kaukasusest Palestiina piirini. J\u00e4rgnenud sajandeil kuulus Armeenia peamiselt P\u00e4rsiale. Ajaloos vaheldusid Armeenia iseseisvusajad autonoomiaga suurriikide v\u00f5imu all. Armeenia strateegilise asendi t\u00f5ttu kahe kontinendi piiril tungisid sinna paljud rahvad, nende seas ass\u00fc\u00fcrlased, kreeklased, roomlased, b\u00fctsantslased, araablased, mongolid, p\u00e4rslased, t\u00fcrklased ja venelased.\ne valitsemiseajal]]\nAjalooliselt valitses Armeenias masdaistlik zoroastrism (erinevalt P\u00e4rsia zurvanistlikust Sassaniidide riigist), mille kultuse keskmes oli Mihr (avesta Mithra). Kristlus j\u00f5udis maale v\u00e4hemalt 40 pKr. Kuningas Tiridates III (238\u2013314) kuulutas kristluse 301. aastal riigiusuks. Sellega sai Armeeniast maailma esimene ametlikult kristlik riik, 10 aastat enne kristlusele sallivuse kehtestamist Roomas Galeriuse ajal ning 36 aastat enne Constantinus Suure ristimist.\n\nAastal 387 jagasid Rooma ja P\u00e4rsia omavahel Suur-Armeenia. P\u00e4rast Armeenia kuningriigi langemist 428. aastal liideti enamik Armeeniast Sassaniidide riigiga. P\u00e4rast Armeenia \u00fclest\u00f5usu 451. aastal j\u00e4eti kristlikele armeenlastele usuvabadus",
+                            "text": "\n\nSuur-Armeeniasse ulatus mitme suurriigi v\u00f5im, nende seas olid Hetiidi impeeriumMitanni]] ja Hayasa-Azzi (1500\u20131200 eKr). Armeenia m\u00e4gismaal asusid 12.-9. sajandil eKr Nairija 1000\u2013600 eKr Urarturiik. T\u00e4nap\u00e4eva Armeenia pealinna Jerevani rajas 782 eKr kuningas [[Argi\u0161ti I]].\n aegne [[Suur-Armeenia]]]]\n600. aasta paiku l\u00f5i Orontiidide (armeenia keeles Ervanduni) d\u00fcnastia [[Armeenia kuningriik|Armeenia kuningriigi]].\nArmeenia nimi esineb esimest korda (Urartus\u00fcnon\u00fc\u00fcmina) Behistuni raidkirjalumbes aastast 520 eKr. Suurimate antiikajaloolaste ja -geograafide kaartidel on Armeenia t\u00e4histatud k\u00f5rvuti P\u00e4rsia, S\u00fc\u00fcria ja teiste antiikaja riikidega.. \nP\u00e4rast Aleksander Suure surma aastal 323 eKrmuutus Armeenia Suur-S\u00fc\u00fcriaSeleukid|Seleukiidide riigi]] vasalliks. Kui viimased said l\u00fc\u00fca roomlasteltMagnesi lahing]]us (190 eKr)tekkis korraga kolm armeenia riiki \u2013 V\u00e4ike-ArmeeniaEufrat]]i j\u00f5e l\u00e4\u00e4nekaldal, Sophenasama j\u00f5e idapoolsel kaldal ja Suur-Armeeniakeskusega Ararati tasandikul.\nP\u00e4rast Aleksander Suure impeeriumi lagunemist tekkisid armeenlaste kuningriigid Ajrarati riik (Armeenia satraapia]]) ja Tsophkhi riik (Sophene riik]]). Hiljem vallutas Seleukiidide riikneed riigid. P\u00e4rast Seleukiidide riigi purustamist Rooma riigipoolt 2. sajandil eKr tekkis kolm armeenia riiki: Suur-ArmeeniaV\u00e4ike-Armeenia]] ja SopheneTigran II]] ajal (95\u201355 eKr) muutus Suur-Armeeniav\u00e4gevaks riigiks, mis laius Palestiinast Kaspia mereni.;ent p\u00e4rast seda, kui Tigrani \u00e4i ja liitlane Pontose kuningas Mithridates VIsai 66 eKrRooma v\u00e4ejuhilt Pompeiuselt l\u00fc\u00fca, ei suutnud liitlasteta j\u00e4\u00e4nud Tigran kahel rindel v\u00f5idelda ning kaotas Rooma-Partia liidule ja j\u00e4i ilma k\u00f5igist vallutatud aladest peale p\u00e4ris Suur-Armeenia. ning osa Partialt vallutatud maadest. Hiljem muutus Suur-Armeenia Partiaja Rooma riigi vaheliseks puhverriigiksja veel hiljem (3.\u20134. sajandil pKr) Rooma ja Sassaniidide Iraani vaheliseks puhverriigiks.\nArta\u0161esiidide d\u00fcnastiavalitsemisajal laiendas Suur-Armeenia oma territooriumi vahetult kuni Kaspiamereni. Armeenia kuningriigi\u00f5itseaeg oli Tigran II Suure valitsusajal 95-66 eKr, mil see oli piirkonna \u00fcks v\u00f5imsamaid kuningriike, alistades Sophena ning kasutades \u00e4ra pikka s\u00f5da Rooma ja Partiavahel. Sellal ulatus Armeenia v\u00f5im V\u00e4ike-Kaukasusest Palestiinapiirini. J\u00e4rgnenud sajandeil kuulus Armeenia peamiselt P\u00e4rsiale. Ajaloos vaheldusid Armeenia iseseisvusajad autonoomiaga suurriikide v\u00f5imu all. Armeenia strateegilise asendi t\u00f5ttu kahe kontinendi piiril tungisid sinna paljud rahvad, nende seas ass\u00fc\u00fcrlasedkreeklased]], roomlasedb\u00fctsantslased]], araablasedmongolid]], p\u00e4rslasedt\u00fcrklased]] ja [[venelased]].\ne valitsemiseajal]]\nAjalooliselt valitses Armeenias masdaistlikzoroastrism]] (erinevalt P\u00e4rsia zurvanistlikustSassaniidide riik|Sassaniidide riigist]]), mille kultuse keskmes oli Mihr (avestaMithra]]). Kristlusj\u00f5udis maale v\u00e4hemalt 40 pKr. Kuningas Tiridates III (238\u2013314) kuulutas kristluse 301. aastal riigiusuks. Sellega sai Armeeniast maailma esimene ametlikult kristlik riik, 10 aastat enne kristlusele sallivuse kehtestamist Roomas Galeriuse ajal ning 36 aastat enne Constantinus Suure ristimist.\nAastal 387 jagasid Rooma ja P\u00e4rsiaomavahel Suur-Armeenia. P\u00e4rast Armeenia kuningriigi langemist 428aastal liideti enamik Armeeniast Sassaniidide riigigaP\u00e4rast Armeenia \u00fclest\u00f5usu 451. aastal j\u00e4eti kristlikele armeenlastele usuvabadus",
                             "title": "Armeenia teke"
                         }
                     ],
@@ -2124,436 +1666,315 @@
                 {
                     "internal_links": [
                         {
-                            "end": 19,
+                            "end": 17,
                             "label": "Vene-P\u00e4rsia s\u00f5ja",
-                            "start": 1,
+                            "start": 2,
                             "title": "Vene-P\u00e4rsia s\u00f5da",
                             "url": "http://et.wikipedia.org/wiki/Vene-P\u00e4rsia_s\u00f5da"
                         },
                         {
-                            "end": 50,
-                            "label": "Gulistani rahuleping",
+                            "end": 48,
+                            "label": "Gulistani rahulepingu",
                             "start": 28,
                             "title": "Gulistani rahuleping",
                             "url": "http://et.wikipedia.org/wiki/Gulistani_rahuleping"
                         },
                         {
-                            "end": 73,
+                            "end": 70,
                             "label": "Venemaa",
                             "start": 64,
                             "title": "Venemaa",
                             "url": "http://et.wikipedia.org/wiki/Venemaa"
                         },
                         {
-                            "end": 104,
+                            "end": 100,
                             "label": "Karabahhia",
-                            "start": 92,
+                            "start": 91,
                             "title": "Karabahhia",
                             "url": "http://et.wikipedia.org/wiki/Karabahhia"
                         },
                         {
-                            "end": 132,
-                            "label": "Turkmeenia leping",
-                            "start": 113,
+                            "end": 128,
+                            "label": "Turkmeenia lepingu",
+                            "start": 111,
                             "title": "Turkmeenia rahuleping",
                             "url": "http://et.wikipedia.org/wiki/Turkmeenia_rahuleping"
                         },
                         {
-                            "end": 162,
+                            "end": 157,
                             "label": "Jerevani",
-                            "start": 152,
+                            "start": 150,
                             "title": "Jerevani khanaat",
                             "url": "http://et.wikipedia.org/wiki/Jerevani_khanaat"
                         },
                         {
-                            "end": 177,
-                            "label": "Nahhit\u0161evan",
-                            "start": 164,
+                            "end": 172,
+                            "label": "Nahhit\u0161evani",
+                            "start": 161,
                             "title": "Nahhit\u0161evani khanaat",
                             "url": "http://et.wikipedia.org/wiki/Nahhit\u0161evani_khanaat"
                         },
                         {
-                            "end": 208,
+                            "end": 202,
                             "label": "Vene-T\u00fcrgi s\u00f5ja",
-                            "start": 191,
+                            "start": 188,
                             "title": "Vene-T\u00fcrgi s\u00f5da (1877\u20131878)",
                             "url": "http://et.wikipedia.org/wiki/Vene-T\u00fcrgi_s\u00f5da_(1877\u20131878)"
                         },
                         {
-                            "end": 435,
+                            "end": 427,
                             "label": "\u2018Abdu\u2019l-Hamid II",
-                            "start": 417,
+                            "start": 412,
                             "title": "\u2018Abdu\u2019l-Hamid II",
                             "url": "http://et.wikipedia.org/wiki/\u2018Abdu\u2019l-Hamid_II"
                         },
                         {
-                            "end": 665,
-                            "label": "noort\u00fcrklaste revolutsioon",
-                            "start": 637,
+                            "end": 657,
+                            "label": "noort\u00fcrklaste revolutsiooni",
+                            "start": 631,
                             "title": "noort\u00fcrklaste revolutsioon",
                             "url": "http://et.wikipedia.org/wiki/noort\u00fcrklaste_revolutsioon"
                         },
                         {
-                            "end": 834,
+                            "end": 824,
                             "label": "Esimene maailmas\u00f5da",
-                            "start": 813,
+                            "start": 806,
                             "title": "Esimene maailmas\u00f5da",
                             "url": "http://et.wikipedia.org/wiki/Esimene_maailmas\u00f5da"
                         },
                         {
-                            "end": 1135,
+                            "end": 1124,
                             "label": "S\u00fc\u00fcria",
-                            "start": 1127,
+                            "start": 1119,
                             "title": "S\u00fc\u00fcria",
                             "url": "http://et.wikipedia.org/wiki/S\u00fc\u00fcria"
                         },
                         {
-                            "end": 1181,
-                            "label": "armeenia genotsiid",
-                            "start": 1161,
+                            "end": 1171,
+                            "label": "armeenia genotsiidis",
+                            "start": 1152,
                             "title": "armeenia genotsiid",
                             "url": "http://et.wikipedia.org/wiki/armeenia_genotsiid"
                         },
                         {
-                            "end": 1278,
-                            "label": "kurdid",
-                            "start": 1270,
+                            "end": 1267,
+                            "label": "kurdide",
+                            "start": 1261,
                             "title": "kurdid",
                             "url": "http://et.wikipedia.org/wiki/kurdid"
                         },
                         {
-                            "end": 1442,
+                            "end": 1429,
                             "label": "Armeenia Demokraatlikuks Vabariigiks",
-                            "start": 1404,
+                            "start": 1394,
                             "title": "Armeenia Demokraatlik Vabariik",
                             "url": "http://et.wikipedia.org/wiki/Armeenia_Demokraatlik_Vabariik"
-                        },
-                        {
-                            "end": 1713,
-                            "label": "Armeenia N\u00f5ukogude Sotsialistlik Vabariik",
-                            "start": 1670,
-                            "title": "Armeenia N\u00f5ukogude Sotsialistlik Vabariik",
-                            "url": "http://et.wikipedia.org/wiki/Armeenia_N\u00f5ukogude_Sotsialistlik_Vabariik"
                         }
                     ],
-                    "text": "\nVene-P\u00e4rsia s\u00f5ja l\u00f5petanud Gulistani rahulepingu j\u00e4rgi \u00fchendas Venemaa endaga 1813. aastal Karabahhia alad, aga Turkmeenia lepingu alusel 1828. aastal Jerevani ja Nahhit\u0161evani khaaniriigid. Vene-T\u00fcrgi s\u00f5ja tulemusena 1877\u20131878 vallutas Venemaa T\u00fcrgi v\u00f5imu all olnud Armeenia alad.\n\nKristlastena olid armeenlased Ottomani riigis diskrimineeritud. Kui nad hakkasid taotlema senisest suuremaid \u00f5igusi, korraldas sultan \u2018Abdu\u2019l-Hamid II 1894\u201396 vastuseks armeenlaste vastased pogrommid. Eri allikate andmeil hukkus neis 80 000\u2013300 000 inimest. Veresauna t\u00f5ttu p\u00e4lvis valitseja v\u00e4lismaal h\u00fc\u00fcdnimed \"Verine sultan\" ja \"Punane sultan\". P\u00e4rast noort\u00fcrklaste revolutsiooni lootsid armeenlased olukorra paranemist, ent kuna Vene armees oli hulgaliselt armeenia vabatahtlikke, suhtus ka uus valitsus neisse umbusuga. \n\nKui Esimene maailmas\u00f5da oli alanud, asusid t\u00fcrklased peagi lahendama nn armeenia k\u00fcsimust, pagendades armeenlased V\u00e4ike-Aasiast. 24. aprillil 1915 arreteeriti armeenia intellektuaalid. Armeenlastest s\u00f5durid, kes olid teeninud T\u00fcrgi s\u00f5jav\u00e4es, kutsuti s\u00f5jav\u00e4kke tagasi ja lasti maha. Naised, lapsed ja vanurid pagendati S\u00fc\u00fcria k\u00f5rbesse. 1915\u201317 toimunud armeenia genotsiidis hukkus 600 000\u20131 000 000 inimest. Paljud armeenlastest, kes j\u00e4id ellu t\u00e4nu t\u00fcrklaste ja kurdide abile, p\u00f5genesid Venemaa Armeenia aladele v\u00f5i teistesse L\u00e4his-Ida maadesse.\n\nVenemaa Armeenia kuulutati avalikult iseseisvaks Armeenia Demokraatlikuks Vabariigiks 28. mail 1918. Septembris 1920 alustas T\u00fcrgi s\u00f5jategevust Armeenia vastu ja vallutas Armeenia territooriumist kaks kolmandikku. Novembris tungisid Armeeniasse aga Punaarmee v\u00e4eosad ja 29. novembril 1920 kuulutati avalikult v\u00e4lja Armeenia N\u00f5ukogude Sotsialistlik Vabariik",
+                    "text": "\nVene-P\u00e4rsia s\u00f5jal\u00f5petanud Gulistani rahulepingu j\u00e4rgi \u00fchendas Venemaaendaga 1813. aastal Karabahhiaalad, aga Turkmeenia lepingu alusel 1828. aastal Jerevanija Nahhit\u0161evani khaaniriigid. Vene-T\u00fcrgi s\u00f5jatulemusena 1877\u20131878 vallutas Venemaa T\u00fcrgi v\u00f5imu all olnud Armeenia alad.\nKristlastena olid armeenlased Ottomani riigis diskrimineeritud. Kui nad hakkasid taotlema senisest suuremaid \u00f5igusi, korraldas sultan \u2018Abdu\u2019l-Hamid II1894\u201396 vastuseks armeenlaste vastased pogrommid. Eri allikate andmeil hukkus neis 80 000\u2013300 000 inimest. Veresauna t\u00f5ttu p\u00e4lvis valitseja v\u00e4lismaal h\u00fc\u00fcdnimed \"Verine sultan\" ja \"Punane sultan\". P\u00e4rast noort\u00fcrklaste revolutsiooni lootsid armeenlased olukorra paranemist, ent kuna Vene armees oli hulgaliselt armeenia vabatahtlikke, suhtus ka uus valitsus neisse umbusuga. \nKui Esimene maailmas\u00f5daoli alanud, asusid t\u00fcrklased peagi lahendama nn armeenia k\u00fcsimust, pagendades armeenlased V\u00e4ike-Aasiast. 24. aprillil 1915 arreteeriti armeenia intellektuaalid. Armeenlastest s\u00f5durid, kes olid teeninud T\u00fcrgi s\u00f5jav\u00e4es, kutsuti s\u00f5jav\u00e4kke tagasi ja lasti maha. Naised, lapsed ja vanurid pagendati S\u00fc\u00fcriak\u00f5rbesse. 1915\u201317 toimunud armeenia genotsiidis hukkus 600 000\u20131 000 000 inimest. Paljud armeenlastest, kes j\u00e4id ellu t\u00e4nu t\u00fcrklaste ja kurdide abile, p\u00f5genesid Venemaa Armeenia aladele v\u00f5i teistesse L\u00e4his-Ida maadesse.\nVenemaa Armeenia kuulutati avalikult iseseisvaks Armeenia Demokraatlikuks Vabariigiks",
                     "title": "Rahvusliku \u00e4rkamise ajaj\u00e4rk"
                 },
                 {
                     "internal_links": [
                         {
-                            "end": 162,
+                            "end": 160,
                             "label": "Taga-Kaukaasia Sotsialistlike N\u00f5ukogude Vabariikide F\u00f6deratiivne Liit",
-                            "start": 91,
+                            "start": 92,
                             "title": "Taga-Kaukaasia Sotsialistlike N\u00f5ukogude Vabariikide F\u00f6deratiivne Liit",
                             "url": "http://et.wikipedia.org/wiki/Taga-Kaukaasia_Sotsialistlike_N\u00f5ukogude_Vabariikide_F\u00f6deratiivne_Liit"
                         },
                         {
-                            "end": 482,
+                            "end": 477,
                             "label": "p\u00f5llumajanduse kollektiviseerimine",
-                            "start": 446,
+                            "start": 444,
                             "title": "p\u00f5llumajanduse kollektiviseerimine",
                             "url": "http://et.wikipedia.org/wiki/p\u00f5llumajanduse_kollektiviseerimine"
                         },
                         {
-                            "end": 526,
-                            "label": "rasket\u00f6\u00f6stus",
-                            "start": 512,
+                            "end": 522,
+                            "label": "rasket\u00f6\u00f6stusele",
+                            "start": 508,
                             "title": "rasket\u00f6\u00f6stus",
                             "url": "http://et.wikipedia.org/wiki/rasket\u00f6\u00f6stus"
                         },
                         {
-                            "end": 544,
-                            "label": "s\u00f5jat\u00f6\u00f6stus",
-                            "start": 531,
+                            "end": 540,
+                            "label": "s\u00f5jat\u00f6\u00f6stusele",
+                            "start": 527,
                             "title": "s\u00f5jat\u00f6\u00f6stus",
                             "url": "http://et.wikipedia.org/wiki/s\u00f5jat\u00f6\u00f6stus"
                         },
                         {
-                            "end": 565,
+                            "end": 558,
                             "label": "urbaniseerumine",
-                            "start": 548,
+                            "start": 544,
                             "title": "urbaniseerumine",
                             "url": "http://et.wikipedia.org/wiki/urbaniseerumine"
                         },
                         {
-                            "end": 867,
+                            "end": 857,
                             "label": "Agasi Hand\u017ejan",
-                            "start": 851,
+                            "start": 844,
                             "title": "Agasi Hand\u017ejan",
                             "url": "http://et.wikipedia.org/wiki/Agasi_Hand\u017ejan"
                         },
                         {
-                            "end": 897,
+                            "end": 885,
                             "label": "Horen Muradbekjan",
-                            "start": 878,
+                            "start": 869,
                             "title": "Horen Muradbekjan",
                             "url": "http://et.wikipedia.org/wiki/Horen_Muradbekjan"
                         },
                         {
-                            "end": 1227,
-                            "label": "katoolikos",
-                            "start": 1215,
+                            "end": 1215,
+                            "label": "katoolikosele",
+                            "start": 1203,
                             "title": "katoolikos",
                             "url": "http://et.wikipedia.org/wiki/katoolikos"
                         },
                         {
-                            "end": 1381,
-                            "label": "Armeenia diasporaa",
-                            "start": 1361,
+                            "end": 1367,
+                            "label": "Armeenia diasporaas",
+                            "start": 1349,
                             "title": "Armeenia diasporaa",
                             "url": "http://et.wikipedia.org/wiki/Armeenia_diasporaa"
                         }
                     ],
-                    "text": "\n12. m\u00e4rtsil 1922 s\u00f5lmis Armeenia Aserbaid\u017eaani ja Gruusiaga lepingu, mille kohaselt loodi Taga-Kaukaasia Sotsialistlike N\u00f5ukogude Vabariikide F\u00f6deratiivne Liit, millest moodustati omakorda Taga-Kaukaasia Sotsialistlik F\u00f6deraalne N\u00f5ukogude Vabariik 13. detsembril 1922. Seejuures s\u00e4ilitas iga vabariik oma iseseisvuse. F\u00f6deratsioon astus NSV Liidu koosseisu 30. detsembril.\n\nStalini valitsusajal oli riigis kehtestatud diktatuur, millega kaasnes p\u00f5llumajanduse kollektiviseerimine, industrialiseerimine (suunaga rasket\u00f6\u00f6stusele ja s\u00f5jat\u00f6\u00f6stusele), urbaniseerumine, religiooni tagakiusamine ja \"parteilise liini\" ametlik kehtestamine k\u00f5igis eluvaldkondades.\n\nAastal 1936 deporteeriti Kesk-Aasiasse umbes 25 000 armeenlast, kes v\u00f5itlesid kollektiviseerimispoliitika vastu. Stalinistlike puhastust\u00f6\u00f6de k\u00e4igus hukkusid Armeenia kompartei esimene sekret\u00e4r Agasi Hand\u017ejan, katoolikos Horen Muradbekjan, rida valitsuse ministreid, silmapaistvad armeenia kirjanikud ja poeedid (Jeghi\u0161e T\u0161arents, Axel Bakunts ja teised). Aastal 1936 likvideeriti Taga-Kaukaasia SFNV, aga selle koosseisu kuulunud Armeenia, Gruusia ja Aserbaid\u017eaan kuulutati iseseisvateks liiduvabariikideks NSV Liidu koosseisus. \n\nS\u00f5ja l\u00f5ppedes tegi Stalin katoolikosele ettepaneku p\u00f6\u00f6rduda v\u00e4lismaal elavate armeenlaste poole kutsega p\u00f6\u00f6rduda tagasi kodumaale N\u00f5ukogude Armeeniasse, v\u00f5ttes arvesse, et Armeenia diasporaa",
+                    "text": "\n12. m\u00e4rtsil 1922 s\u00f5lmis Armeenia Aserbaid\u017eaani ja Gruusiaga lepingu, mille kohaselt loodi Taga-Kaukaasia Sotsialistlike N\u00f5ukogude Vabariikide F\u00f6deratiivne Liitmillest moodustati omakorda Taga-Kaukaasia Sotsialistlik F\u00f6deraalne N\u00f5ukogude Vabariik 13. detsembril 1922. Seejuures s\u00e4ilitas iga vabariik oma iseseisvuse. F\u00f6deratsioon astus NSV Liidu koosseisu 30. detsembril.\nStalini valitsusajal oli riigis kehtestatud diktatuur, millega kaasnes p\u00f5llumajanduse kollektiviseerimineindustrialiseerimine (suunaga rasket\u00f6\u00f6stusele ja s\u00f5jat\u00f6\u00f6stusele), urbaniseeruminereligiooni tagakiusamine ja \"parteilise liini\" ametlik kehtestamine k\u00f5igis eluvaldkondades.\nAastal 1936 deporteeriti Kesk-Aasiasse umbes 25 000 armeenlast, kes v\u00f5itlesid kollektiviseerimispoliitika vastu. Stalinistlike puhastust\u00f6\u00f6de k\u00e4igus hukkusid Armeenia kompartei esimene sekret\u00e4r Agasi Hand\u017ejankatoolikos Horen Muradbekjanrida valitsuse ministreid, silmapaistvad armeenia kirjanikud ja poeedid (Jeghi\u0161e T\u0161arents, Axel Bakunts ja teised). Aastal 1936 likvideeriti Taga-Kaukaasia SFNV, aga selle koosseisu kuulunud Armeenia, Gruusia ja Aserbaid\u017eaan kuulutati iseseisvateks liiduvabariikideks NSV Liidu koosseisus. \nS\u00f5ja l\u00f5ppedes tegi Stalin katoolikosele ettepaneku p\u00f6\u00f6rduda v\u00e4lismaal elavate armeenlaste poole kutsega p\u00f6\u00f6rduda tagasi kodumaale N\u00f5ukogude Armeeniasse, v\u00f5ttes arvesse, et Armeenia diasporaas",
                     "title": "N\u00f5ukogude Armeenia"
                 },
                 {
                     "internal_links": [
                         {
                             "end": 167,
-                            "label": "Armeenia \u00fcldrahvusliku liikumise",
-                            "start": 133,
+                            "label": "Armeenia \u00fcldrahvusliku liikumise (",
+                            "start": 134,
                             "title": "Armeenia \u00fcldrahvuslik liikumine",
                             "url": "http://et.wikipedia.org/wiki/Armeenia_\u00fcldrahvuslik_liikumine"
                         },
                         {
-                            "end": 256,
-                            "label": "Levon Ter-Petrosjan",
-                            "start": 235,
-                            "title": "Levon Ter-Petrosjan",
-                            "url": "http://et.wikipedia.org/wiki/Levon_Ter-Petrosjan"
-                        },
-                        {
-                            "end": 352,
+                            "end": 353,
                             "label": "Armeenia iseseisvusdeklaratsioon",
-                            "start": 318,
+                            "start": 322,
                             "title": "Armeenia iseseisvusdeklaratsioon",
                             "url": "http://et.wikipedia.org/wiki/Armeenia_iseseisvusdeklaratsioon"
-                        },
-                        {
-                            "end": 434,
-                            "label": "Armeenia Vabariik",
-                            "start": 415,
-                            "title": "Armeenia Vabariik",
-                            "url": "http://et.wikipedia.org/wiki/Armeenia_Vabariik"
                         }
                     ],
-                    "text": "\n1990. aasta mais toimusid Armeenia \u00dclemn\u00f5ukogu (\u00dcN) valimised, mille koosseisu said nii kommunistid kui ka opositsiooni esindajad \u2013 Armeenia \u00fcldrahvusliku liikumise (A\u00dcRL) liikmed. Augustis valiti \u00dclemn\u00f5ukogu esimeheks A\u00dcRL-i esimees Levon Ter-Petrosjan. \n\n23. augustil 1990 v\u00f5eti \u00dclemn\u00f5ukogu esimesel istungil vastu Armeenia iseseisvusdeklaratsioon, mille alusel likvideeriti Armeenia NSV ja moodustati iseseisev Armeenia Vabariik",
+                    "text": "\n1990. aasta mais toimusid Armeenia \u00dclemn\u00f5ukogu (\u00dcN) valimised, mille koosseisu said nii kommunistid kui ka opositsiooni esindajad \u2013 Armeenia \u00fcldrahvusliku liikumise (A\u00dcRL) liikmed. Augustis valiti \u00dclemn\u00f5ukogu esimeheks A\u00dcRL-i esimees [[Levon Ter-Petrosjan]]. \n23. augustil 1990 v\u00f5eti \u00dclemn\u00f5ukogu esimesel istungil vastu Armeenia iseseisvusdeklaratsioon",
                     "title": "Iseseisev Armeenia"
                 }
             ],
-            "text": "\n{{vaata|Armeenia ajalugu}}\n{{vaata|Armeenia kronoloogia}}\n",
+            "text": "\n\n",
             "title": "Ajalugu"
         },
         {
-            "internal_links": [
-                {
-                    "end": 18,
-                    "label": "L\u00e4\u00e4ne-Armeenia",
-                    "start": 2,
-                    "title": "L\u00e4\u00e4ne-Armeenia",
-                    "url": "http://et.wikipedia.org/wiki/L\u00e4\u00e4ne-Armeenia"
-                },
-                {
-                    "end": 34,
-                    "label": "V\u00e4ike-Armeenia",
-                    "start": 18,
-                    "title": "V\u00e4ike-Armeenia",
-                    "url": "http://et.wikipedia.org/wiki/V\u00e4ike-Armeenia"
-                },
-                {
-                    "end": 49,
-                    "label": "M\u00e4gi-Karabahh",
-                    "start": 34,
-                    "title": "M\u00e4gi-Karabahh",
-                    "url": "http://et.wikipedia.org/wiki/M\u00e4gi-Karabahh"
-                },
-                {
-                    "end": 88,
-                    "label": "Armeenia Eurovisiooni lauluv\u00f5istlusel",
-                    "start": 49,
-                    "title": "Armeenia Eurovisiooni lauluv\u00f5istlusel",
-                    "url": "http://et.wikipedia.org/wiki/Armeenia_Eurovisiooni_lauluv\u00f5istlusel"
-                },
-                {
-                    "end": 115,
-                    "label": "Armeenia jalgpallikoondis",
-                    "start": 88,
-                    "title": "Armeenia jalgpallikoondis",
-                    "url": "http://et.wikipedia.org/wiki/Armeenia_jalgpallikoondis"
-                },
-                {
-                    "end": 145,
-                    "label": "Armeenia jalgpalli k\u00f5rgliiga",
-                    "start": 115,
-                    "title": "Armeenia jalgpalli k\u00f5rgliiga",
-                    "url": "http://et.wikipedia.org/wiki/Armeenia_jalgpalli_k\u00f5rgliiga"
-                },
-                {
-                    "end": 172,
-                    "label": "Armeenia ajalehtede loend",
-                    "start": 145,
-                    "title": "Armeenia ajalehtede loend",
-                    "url": "http://et.wikipedia.org/wiki/Armeenia_ajalehtede_loend"
-                },
-                {
-                    "end": 192,
-                    "label": "Armeenia poliitika",
-                    "start": 172,
-                    "title": "Armeenia poliitika",
-                    "url": "http://et.wikipedia.org/wiki/Armeenia_poliitika"
-                },
-                {
-                    "end": 212,
-                    "label": "Armeenia kirjandus",
-                    "start": 192,
-                    "title": "Armeenia kirjandus",
-                    "url": "http://et.wikipedia.org/wiki/Armeenia_kirjandus"
-                },
-                {
-                    "end": 227,
-                    "label": "Armeenia k\u00f6\u00f6k",
-                    "start": 212,
-                    "title": "Armeenia k\u00f6\u00f6k",
-                    "url": "http://et.wikipedia.org/wiki/Armeenia_k\u00f6\u00f6k"
-                },
-                {
-                    "end": 258,
-                    "label": "Armeenia v\u00e4lisesinduste loend",
-                    "start": 227,
-                    "title": "Armeenia v\u00e4lisesinduste loend",
-                    "url": "http://et.wikipedia.org/wiki/Armeenia_v\u00e4lisesinduste_loend"
-                },
-                {
-                    "end": 280,
-                    "label": "Dilid\u017eani rahvuspark",
-                    "start": 258,
-                    "title": "Dilid\u017eani rahvuspark",
-                    "url": "http://et.wikipedia.org/wiki/Dilid\u017eani_rahvuspark"
-                },
-                {
-                    "end": 299,
-                    "label": "Sevani rahvuspark",
-                    "start": 280,
-                    "title": "Sevani rahvuspark",
-                    "url": "http://et.wikipedia.org/wiki/Sevani_rahvuspark"
-                },
-                {
-                    "end": 341,
-                    "label": "Armeenia 2014. aasta taliol\u00fcmpiam\u00e4ngudel",
-                    "start": 299,
-                    "title": "Armeenia 2014. aasta taliol\u00fcmpiam\u00e4ngudel",
-                    "url": "http://et.wikipedia.org/wiki/Armeenia_2014._aasta_taliol\u00fcmpiam\u00e4ngudel"
-                }
-            ],
-            "text": "\n*L\u00e4\u00e4ne-Armeenia\n*V\u00e4ike-Armeenia\n*M\u00e4gi-Karabahh\n*Armeenia Eurovisiooni lauluv\u00f5istlusel\n*Armeenia jalgpallikoondis\n*Armeenia jalgpalli k\u00f5rgliiga\n*Armeenia ajalehtede loend\n*Armeenia poliitika\n*Armeenia kirjandus\n*Armeenia k\u00f6\u00f6k\n*Armeenia v\u00e4lisesinduste loend\n*Dilid\u017eani rahvuspark\n*Sevani rahvuspark\n*Armeenia 2014. aasta taliol\u00fcmpiam\u00e4ngudel",
+            "text": "\n[[L\u00e4\u00e4ne-Armeenia]]\n[[V\u00e4ike-Armeenia]]\n[[M\u00e4gi-Karabahh]]\n[[Armeenia Eurovisiooni lauluv\u00f5istlusel]]\n[[Armeenia jalgpallikoondis]]\n[[Armeenia jalgpalli k\u00f5rgliiga]]\n[[Armeenia ajalehtede loend]]\n[[Armeenia poliitika]]\n[[Armeenia kirjandus]]\n[[Armeenia k\u00f6\u00f6k]]\n[[Armeenia v\u00e4lisesinduste loend]]\n[[Dilid\u017eani rahvuspark]]\n[[Sevani rahvuspark]]\n[[Armeenia 2014. aasta taliol\u00fcmpiam\u00e4ngudel]]",
             "title": "Vaata ka"
         },
         {
-            "text": "\n{{viited}}\n",
+            "text": "\n{{viited}}",
             "title": "Viited"
         },
         {
             "internal_links": [
                 {
-                    "end": 24,
-                    "label": "Karl August Hermann",
+                    "end": 23,
+                    "label": "Karl August Hermann \"",
                     "start": 3,
                     "title": "Karl August Hermann",
                     "url": "http://et.wikipedia.org/wiki/Karl_August_Hermann"
                 },
                 {
-                    "end": 268,
-                    "label": "Marietta \u0160aginjan",
-                    "start": 249,
+                    "end": 265,
+                    "label": "Marietta \u0160aginjan \"",
+                    "start": 247,
                     "title": "Marietta \u0160aginjan",
                     "url": "http://et.wikipedia.org/wiki/Marietta_\u0160aginjan"
                 },
                 {
-                    "end": 377,
-                    "label": "Garnik Isaakjan",
-                    "start": 360,
+                    "end": 373,
+                    "label": "Garnik Isaakjan \"",
+                    "start": 357,
                     "title": "Garnik Isaakjan",
                     "url": "http://et.wikipedia.org/wiki/Garnik_Isaakjan"
                 },
                 {
-                    "end": 465,
-                    "label": "Aira Kaal",
-                    "start": 454,
+                    "end": 460,
+                    "label": "Aira Kaal \"",
+                    "start": 450,
                     "title": "Aira Kaal",
                     "url": "http://et.wikipedia.org/wiki/Aira_Kaal"
                 },
                 {
-                    "end": 624,
-                    "label": "Lembo Tanning",
-                    "start": 609,
+                    "end": 617,
+                    "label": "Lembo Tanning \"",
+                    "start": 603,
                     "title": "Lembo Tanning",
                     "url": "http://et.wikipedia.org/wiki/Lembo_Tanning"
                 },
                 {
-                    "end": 905,
-                    "label": "Brigitta Davidjants",
-                    "start": 884,
+                    "end": 895,
+                    "label": "Brigitta Davidjants \"",
+                    "start": 875,
                     "title": "Brigitta Davidjants",
                     "url": "http://et.wikipedia.org/wiki/Brigitta_Davidjants"
                 }
             ],
-            "text": "\n* Karl August Hermann \"Wanad poisid: Teadusline lugemine rahwa elust. Abessinia maa ja rahwas. Armenlased ja kurdlased. Korea\" Tartu: Postimees, 1896\n* H. Aasamaa \"Armeenia N\u00f5ukogude Sotsialistlik Vabariik\" Tallinn: Eesti Riiklik Kirjastus, 1950\n* Marietta \u0160aginjan \"Matk l\u00e4bi N\u00f5ukogude Armeenia\" (t\u00f5lkinud E. Roomet) Tallinn: Eesti Riiklik Kirjastus, 1954\n* Garnik Isaakjan \"Armeenia NSV\" (t\u00f5lkinud E. Hiiem\u00e4e) Tallinn: Eesti Riiklik Kirjastus, 1962\n* Aira Kaal \"Esimest korda Armeenias: reisikiri\" Tallinn: Eesti Riiklik Kirjastus, 1964\n* \"Armeenia NSV\" (koostanud K. Laigna) Tallinn: Eesti Raamat, 1986\n* Lembo Tanning \"Armeenia probleem\" Tallinn: L. Tanning, 2005\n* \"Armeenlaste v\u00e4ited ja ajaloolised faktid: k\u00fcsimused ja vastused\" Ankara: Strateegiliste Uuringute Keskus, 2005\n* \"Armeenlased\" (koostanud Armenui Kazarjan ja Ita Serman, t\u00f5lkinud Ita Serman) Tallinn: Ilo, 2009\n* Brigitta Davidjants",
+            "text": "\n Karl August Hermann \"Wanad poisid: Teadusline lugemine rahwa elust. Abessinia maa ja rahwas. Armenlased ja kurdlased. Korea\" Tartu: Postimees, 1896\n H. Aasamaa \"Armeenia N\u00f5ukogude Sotsialistlik Vabariik\" Tallinn: Eesti Riiklik Kirjastus, 1950\n Marietta \u0160aginjan \"Matk l\u00e4bi N\u00f5ukogude Armeenia\" (t\u00f5lkinud E. Roomet) Tallinn: Eesti Riiklik Kirjastus, 1954\n Garnik Isaakjan \"Armeenia NSV\" (t\u00f5lkinud E. Hiiem\u00e4e) Tallinn: Eesti Riiklik Kirjastus, 1962\n Aira Kaal \"Esimest korda Armeenias: reisikiri\" Tallinn: Eesti Riiklik Kirjastus, 1964\n \"Armeenia NSV\" (koostanud K. Laigna) Tallinn: Eesti Raamat, 1986\n Lembo Tanning \"Armeenia probleem\" Tallinn: L. Tanning, 2005\n \"Armeenlaste v\u00e4ited ja ajaloolised faktid: k\u00fcsimused ja vastused\" Ankara: Strateegiliste Uuringute Keskus, 2005\n \"Armeenlased\" (koostanud Armenui Kazarjan ja Ita Serman, t\u00f5lkinud Ita Serman) Tallinn: Ilo, 2009\n Brigitta Davidjants \"",
             "title": "Kirjandus"
         },
         {
             "external links": [
                 {
-                    "end": 58,
+                    "end": 57,
                     "label": "Armenia.EE Armeenia portaal Eestis",
-                    "start": 24,
+                    "start": 23,
                     "url": "http://www.armenia.ee"
                 },
                 {
-                    "end": 117,
+                    "end": 113,
                     "label": "Armeniapedia \u2013 Armeenia wiki",
-                    "start": 89,
+                    "start": 85,
                     "url": "http://www.armeniapedia.org"
                 },
                 {
-                    "end": 132,
+                    "end": 127,
                     "label": "Armenica.org",
-                    "start": 120,
+                    "start": 115,
                     "url": "http://www.armenica.org"
                 },
                 {
-                    "end": 153,
+                    "end": 147,
                     "label": "Armeenia president",
-                    "start": 135,
+                    "start": 129,
                     "url": "http://www.president.am/eng/"
                 },
                 {
-                    "end": 173,
+                    "end": 166,
                     "label": "Armeenia valitsus",
-                    "start": 156,
+                    "start": 149,
                     "url": "http://www.gov.am/"
                 },
                 {
-                    "end": 193,
+                    "end": 185,
                     "label": "virtuaal-Armeenia",
-                    "start": 176,
+                    "start": 168,
                     "url": "http://www.haias.net/armenien.html"
                 },
                 {
-                    "end": 272,
+                    "end": 263,
                     "label": "Armeenia kultuuri sait, eesk\u00e4tt Venemaa armeenlaste kultuurist (vene keeles)",
-                    "start": 196,
+                    "start": 187,
                     "url": "http://www.haylife.ru/"
                 },
                 {
-                    "end": 298,
+                    "end": 288,
                     "label": "Armeenia turismiportaal",
-                    "start": 275,
+                    "start": 265,
                     "url": "http://www.armeniainfo.am/"
                 }
             ],
-            "text": "\n{{vikis\u00f5naraamatus}}\n* Armenia.EE Armeenia portaal Eestis (''vene ja eesti keeles'') \n* Armeniapedia \u2013 Armeenia wiki\n* Armenica.org\n* Armeenia president\n* Armeenia valitsus\n* virtuaal-Armeenia\n* Armeenia kultuuri sait, eesk\u00e4tt Venemaa armeenlaste kultuurist (vene keeles)\n* Armeenia turismiportaal\n\n{{commonskat|Armenia}}\n\n{{SR\u00dc}}\n{{Aasiariigid}}\n{{Coordinate |NS=40.38333333 |EW=44.95 |type=country |region=AM}}\n\n\n\n\n",
+            "text": "\n{{vikis\u00f5naraamatus}}\n Armenia.EE Armeenia portaal Eestis (\"vene ja eesti keeles\") \n Armeniapedia \u2013 Armeenia wiki\n Armenica.org\n Armeenia president\n Armeenia valitsus\n virtuaal-Armeenia\n Armeenia kultuuri sait, eesk\u00e4tt Venemaa armeenlaste kultuurist (vene keeles)\n Armeenia turismiportaal\n{{commonskat|Armenia}}\n{{SR\u00dc}}\n{{Aasiariigid}}\n{{Coordinate |NS=40.38333333 |EW=44.95 |type=country |region=AM}}\n",
             "title": "V\u00e4lislingid"
         }
     ],

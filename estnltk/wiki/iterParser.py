@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from estnltk.wiki.iterParser import totalTime
 
 __author__ = 'Andres'
 
@@ -71,18 +72,16 @@ errata = []
 for tag, text in data:
     tag, text = str(tag), str(text)
 
-    if '#REDIRECT' in text:
-        print('REDIRECT')
-        continue
+
     if 'title' in tag:
         pageObj['title'] = text
         pageObj['url'] = linkBegin+text.replace(' ', '_')
         print('-----------')
         print(pageObj['title'])
-        print(pageObj['url'])
+        #print(pageObj['url'])
     if 'timestamp' in tag:
         pageObj['timestamp'] = text
-        print(pageObj['timestamp'])
+        #print(pageObj['timestamp'])
 
  #   def refsParser(refsDict):
  #       for k, v in refsDict.items():
@@ -91,6 +90,9 @@ for tag, text in data:
 
 
     if 'text' in tag:
+        if '#REDIRECT' or '#suuna' in text:
+        #print('REDIRECT')
+            continue
         compStart = time.time()
         #TOdO: remove junk from text
         m = re.search(ib, text)
@@ -124,14 +126,17 @@ for tag, text in data:
 
         thisComp = time.time() - compStart
         totalComp += thisComp
-        print('Progtime : ',thisComp , totalComp)
+        #print('Progtime : ',thisComp , totalComp)
         timestart = time.time()
         jsonWriter(pageObj)
         thisWrite = time.time()-timestart
         totalwriter += thisWrite
-        print('Writetime: ' , thisWrite ,totalwriter)
+        #print('Writetime: ' , thisWrite ,totalwriter)
+
+
         pageObj = {}
         totalTime +=thisComp + thisWrite
+        print('Totaltime: ' , totalTime)
 #TODO.  pudi-padi, special pages
 
 def writejson(pageObj, title):

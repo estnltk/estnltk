@@ -31,224 +31,178 @@
         {
             "internal_links": [
                 {
-                    "end": 134,
-                    "label": "pu\u0161tu keel",
-                    "start": 122,
+                    "end": 122,
+                    "label": "pu\u0161tu keeles",
+                    "start": 111,
                     "title": "pu\u0161tu keel",
                     "url": "http://et.wikipedia.org/wiki/pu\u0161tu_keel"
                 },
                 {
-                    "end": 175,
-                    "label": "dari keel",
-                    "start": 164,
+                    "end": 161,
+                    "label": "dari keeles",
+                    "start": 151,
                     "title": "dari keel",
                     "url": "http://et.wikipedia.org/wiki/dari_keel"
                 },
                 {
-                    "end": 238,
+                    "end": 219,
                     "label": "merepiirita",
-                    "start": 225,
+                    "start": 209,
                     "title": "merepiirita riik",
                     "url": "http://et.wikipedia.org/wiki/merepiirita_riik"
                 },
                 {
-                    "end": 243,
-                    "label": "riik",
-                    "start": 237,
-                    "title": "riik",
-                    "url": "http://et.wikipedia.org/wiki/riik"
-                },
-                {
-                    "end": 249,
+                    "end": 231,
                     "label": "Aasia",
-                    "start": 242,
+                    "start": 227,
                     "title": "Aasia",
                     "url": "http://et.wikipedia.org/wiki/Aasia"
                 },
                 {
-                    "end": 295,
+                    "end": 276,
                     "label": "Kesk-Aasia",
-                    "start": 283,
+                    "start": 267,
                     "title": "Kesk-Aasia",
                     "url": "http://et.wikipedia.org/wiki/Kesk-Aasia"
                 },
                 {
-                    "end": 308,
-                    "label": "L\u00f5una-Aasia",
-                    "start": 295,
-                    "title": "L\u00f5una-Aasia",
-                    "url": "http://et.wikipedia.org/wiki/L\u00f5una-Aasia"
-                },
-                {
-                    "end": 325,
+                    "end": 306,
                     "label": "L\u00e4his-Ida",
-                    "start": 314,
+                    "start": 298,
                     "title": "L\u00e4his-Ida",
                     "url": "http://et.wikipedia.org/wiki/L\u00e4his-Ida"
                 },
                 {
-                    "end": 358,
+                    "end": 337,
                     "label": "Hiina",
-                    "start": 351,
+                    "start": 333,
                     "title": "Hiina",
                     "url": "http://et.wikipedia.org/wiki/Hiina"
                 },
                 {
-                    "end": 368,
-                    "label": "Pakistan",
-                    "start": 358,
-                    "title": "Pakistan",
-                    "url": "http://et.wikipedia.org/wiki/Pakistan"
-                },
-                {
-                    "end": 376,
-                    "label": "Iraan",
-                    "start": 369,
+                    "end": 356,
+                    "label": "Iraani",
+                    "start": 351,
                     "title": "Iraan",
                     "url": "http://et.wikipedia.org/wiki/Iraan"
                 },
                 {
-                    "end": 391,
-                    "label": "T\u00fcrkmenistan",
-                    "start": 377,
+                    "end": 371,
+                    "label": "T\u00fcrkmenistani",
+                    "start": 359,
                     "title": "T\u00fcrkmenistan",
                     "url": "http://et.wikipedia.org/wiki/T\u00fcrkmenistan"
                 },
                 {
-                    "end": 404,
-                    "label": "Usbekistan",
-                    "start": 392,
+                    "end": 384,
+                    "label": "Usbekistani",
+                    "start": 374,
                     "title": "Usbekistan",
                     "url": "http://et.wikipedia.org/wiki/Usbekistan"
                 },
                 {
-                    "end": 420,
-                    "label": "Tad\u017eikistan",
-                    "start": 407,
+                    "end": 402,
+                    "label": "Tad\u017eikistaniga",
+                    "start": 389,
                     "title": "Tad\u017eikistan",
                     "url": "http://et.wikipedia.org/wiki/Tad\u017eikistan"
                 }
             ],
-            "references": [
-                0,
-                0
-            ],
-            "text": "{{ToimetaAeg|kuu=august|aasta=2009}}{{ajakohasta}}\nniku_kohta = \n|  rok-i_kood = AFG\n|  m\u00e4rkused = \n}}\n\n'''Afganistan''' (pu\u0161tu keeles \u0627\u0641\u063a\u0627\u0646\u0633\u062a\u0627\u0646 (''Afgh\u0101nist\u0101n''), dari keeles  \u0627\u0641\u063a\u0627\u0646\u0633\u062a\u0627\u0646 (''Afgh\u0101nest\u0101n'') on paljurahvuseline merepiirita riik Aasia sisemaal. Teda v\u00f5idakse arvata nii Kesk-Aasia, L\u00f5una-Aasia kui ka L\u00e4his-Ida alla. \n\nTal on \u00fchist piiri Hiina, Pakistani, Iraani, T\u00fcrkmenistani, Usbekistani ja Tad\u017eikistan"
+            "text": "{{ToimetaAeg|kuu=august|aasta=2009}}{{ajakohasta}}\nniku_kohta = \n| rok-i_kood = AFG\n| m\u00e4rkused = \nAfganistan (pu\u0161tu keeles \u0627\u0641\u063a\u0627\u0646\u0633\u062a\u0627\u0646 (\"Afgh\u0101nist\u0101n\"), dari keeles \u0627\u0641\u063a\u0627\u0646\u0633\u062a\u0627\u0646 (\"Afgh\u0101nest\u0101n\") on paljurahvuseline merepiiritariik]] Aasiasisemaal. Teda v\u00f5idakse arvata nii Kesk-AasiaL\u00f5una-Aasia]] kui ka L\u00e4his-Idaalla. \nTal on \u00fchist piiri HiinaPakistan]]i, Iraani, T\u00fcrkmenistani, Usbekistani ja Tad\u017eikistaniga"
         },
         {
             "internal_links": [
                 {
-                    "end": 34,
-                    "label": "afgaanid",
-                    "start": 24,
+                    "end": 33,
+                    "label": "afgaanide",
+                    "start": 25,
                     "title": "afgaanid",
                     "url": "http://et.wikipedia.org/wiki/afgaanid"
                 },
                 {
-                    "end": 93,
-                    "label": "pu\u0161tud",
-                    "start": 85,
+                    "end": 92,
+                    "label": "pu\u0161tude",
+                    "start": 86,
                     "title": "pu\u0161tud",
                     "url": "http://et.wikipedia.org/wiki/pu\u0161tud"
                 }
             ],
-            "text": "\n\"Afganistan\" t\u00e4hendab 'afgaanide maa'. Kuni 19. sajandini kasutati seda nime \u00fcksnes pu\u0161tud",
+            "text": "\n\"Afganistan\" t\u00e4hendab 'afgaanide maa'. Kuni 19. sajandini kasutati seda nime \u00fcksnes pu\u0161tude",
             "title": "Nimi"
         },
         {
             "internal_links": [
                 {
-                    "end": 23,
+                    "end": 21,
                     "label": "lipp",
-                    "start": 17,
+                    "start": 18,
                     "title": "Afganistani lipp",
                     "url": "http://et.wikipedia.org/wiki/Afganistani_lipp"
                 },
                 {
-                    "end": 31,
-                    "label": "vapp",
-                    "start": 25,
-                    "title": "Afganistani vapp",
-                    "url": "http://et.wikipedia.org/wiki/Afganistani_vapp"
-                },
-                {
-                    "end": 55,
+                    "end": 72,
                     "label": "riigih\u00fcmn",
-                    "start": 44,
+                    "start": 64,
                     "title": "riigih\u00fcmn",
                     "url": "http://et.wikipedia.org/wiki/riigih\u00fcmn"
-                },
-                {
-                    "end": 98,
-                    "label": "De wa\u0163an Afgh\u0101nist\u0101n day",
-                    "start": 72,
-                    "title": "De wa\u0163an Afgh\u0101nist\u0101n day",
-                    "url": "http://et.wikipedia.org/wiki/De_wa\u0163an_Afgh\u0101nist\u0101n_day"
                 }
             ],
-            "text": "\nAfganistanil on lipp ja vapp.\n\nAfganistani riigih\u00fcmn on 2006. aastast \"De wa\u0163an Afgh\u0101nist\u0101n day",
+            "text": "\nAfganistanil on lippja [[Afganistani vapp|vapp]].\nAfganistani riigih\u00fcmn",
             "title": "S\u00fcmbolid ja t\u00e4hised"
         },
         {
             "internal_links": [
                 {
-                    "end": 42,
-                    "label": "T\u00fcrkmenistan",
-                    "start": 28,
+                    "end": 41,
+                    "label": "T\u00fcrkmenistani",
+                    "start": 29,
                     "title": "T\u00fcrkmenistan",
                     "url": "http://et.wikipedia.org/wiki/T\u00fcrkmenistan"
                 },
                 {
-                    "end": 70,
-                    "label": "Usbekistan",
-                    "start": 58,
+                    "end": 69,
+                    "label": "Usbekistani",
+                    "start": 59,
                     "title": "Usbekistan",
                     "url": "http://et.wikipedia.org/wiki/Usbekistan"
                 },
                 {
-                    "end": 95,
-                    "label": "Tad\u017eikistan",
-                    "start": 82,
+                    "end": 94,
+                    "label": "Tad\u017eikistani",
+                    "start": 83,
                     "title": "Tad\u017eikistan",
                     "url": "http://et.wikipedia.org/wiki/Tad\u017eikistan"
                 },
                 {
-                    "end": 120,
+                    "end": 118,
                     "label": "Hiina",
-                    "start": 113,
+                    "start": 114,
                     "title": "Hiina",
                     "url": "http://et.wikipedia.org/wiki/Hiina"
                 },
                 {
-                    "end": 145,
-                    "label": "Pakistan",
-                    "start": 135,
+                    "end": 142,
+                    "label": "Pakistani",
+                    "start": 134,
                     "title": "Pakistan",
                     "url": "http://et.wikipedia.org/wiki/Pakistan"
                 },
                 {
-                    "end": 181,
-                    "label": "Iraan",
-                    "start": 174,
+                    "end": 180,
+                    "label": "Iraaniga",
+                    "start": 173,
                     "title": "Iraan",
                     "url": "http://et.wikipedia.org/wiki/Iraan"
                 },
                 {
-                    "end": 254,
-                    "label": "V\u0101kh\u0101ni koridor",
-                    "start": 237,
-                    "title": "V\u0101kh\u0101ni koridor",
-                    "url": "http://et.wikipedia.org/wiki/V\u0101kh\u0101ni_koridor"
-                },
-                {
-                    "end": 289,
-                    "label": "Araabia merest",
-                    "start": 273,
+                    "end": 288,
+                    "label": "Araabia merest)",
+                    "start": 274,
                     "title": "Araabia meri",
                     "url": "http://et.wikipedia.org/wiki/Araabia_meri"
                 }
             ],
-            "text": "\nAfganistan piirneb p\u00f5hjast T\u00fcrkmenistani (744 km piiri), Usbekistani (137 km) ja Tad\u017eikistani (1206 km), kirdes Hiina, idas ja l\u00f5unas Pakistani (pikkus 2430 km) ning l\u00e4\u00e4nes Iraaniga (936 km).\n\nHiinaga \u00fchendab Afganistani pikk ja kitsas V\u0101kh\u0101ni koridor. \n\nL\u00e4himast merest (Araabia merest",
+            "text": "\nAfganistan piirneb p\u00f5hjast T\u00fcrkmenistani (744 km piiri), Usbekistani (137 km) ja Tad\u017eikistani (1206 km), kirdes Hiinaidas ja l\u00f5unas Pakistani (pikkus 2430 km) ning l\u00e4\u00e4nes Iraaniga (936 km).\nHiinaga \u00fchendab Afganistani pikk ja kitsas [[V\u0101kh\u0101ni koridor]]. \nL\u00e4himast merest (Araabia merest)",
             "title": "Piir"
         },
         {
@@ -256,116 +210,109 @@
                 {
                     "internal_links": [
                         {
-                            "end": 68,
-                            "label": "p\u00f5llumaa",
-                            "start": 58,
+                            "end": 67,
+                            "label": "p\u00f5llumaad",
+                            "start": 59,
                             "title": "p\u00f5llumaa",
                             "url": "http://et.wikipedia.org/wiki/p\u00f5llumaa"
                         },
                         {
-                            "end": 78,
-                            "label": "mets",
-                            "start": 72,
+                            "end": 77,
+                            "label": "metsa",
+                            "start": 73,
                             "title": "mets",
                             "url": "http://et.wikipedia.org/wiki/mets"
                         }
                     ],
-                    "text": "\nMaa on m\u00e4gine. Suurem osa maast on viljatu. Maast on 12% p\u00f5llumaad, 3% mets",
+                    "text": "\nMaa on m\u00e4gine. Suurem osa maast on viljatu. Maast on 12% p\u00f5llumaad, 3% metsa",
                     "title": "Maakasutus"
                 },
                 {
                     "internal_links": [
                         {
-                            "end": 14,
+                            "end": 12,
                             "label": "Kabuli n\u00f5gu",
-                            "start": 1,
+                            "start": 2,
                             "title": "Kabuli n\u00f5gu",
                             "url": "http://et.wikipedia.org/wiki/Kabuli_n\u00f5gu"
                         },
                         {
-                            "end": 45,
+                            "end": 42,
                             "label": "1964",
                             "start": 39,
                             "title": "1964",
                             "url": "http://et.wikipedia.org/wiki/1964"
                         },
                         {
-                            "end": 85,
-                            "label": "S\u0101lang",
-                            "start": 77,
+                            "end": 81,
+                            "label": "S\u0101langi",
+                            "start": 75,
                             "title": "S\u0101lang",
                             "url": "http://et.wikipedia.org/wiki/S\u0101lang"
                         }
                     ],
-                    "text": "\nKabuli n\u00f5gu ja riigi p\u00f5hjaosa \u00fchendab 1964. aastast talvekindel maantee \u00fcle S\u0101lang",
+                    "text": "\nKabuli n\u00f5guja riigi p\u00f5hjaosa \u00fchendab 1964aastast talvekindel maantee \u00fcle S\u0101langi",
                     "title": "Teed"
                 }
             ],
-            "text": "\n",
+            "text": "",
             "title": "Loodus"
         },
         {
             "internal_links": [
                 {
-                    "end": 8,
+                    "end": 6,
                     "label": "Vana-",
-                    "start": 1,
+                    "start": 2,
                     "title": "Vanaaeg",
                     "url": "http://et.wikipedia.org/wiki/Vanaaeg"
                 },
                 {
-                    "end": 20,
+                    "end": 17,
                     "label": "keskajal",
                     "start": 10,
                     "title": "keskaeg",
                     "url": "http://et.wikipedia.org/wiki/keskaeg"
                 },
                 {
-                    "end": 146,
-                    "label": "India",
-                    "start": 139,
+                    "end": 145,
+                    "label": "Indiasse",
+                    "start": 138,
                     "title": "India",
                     "url": "http://et.wikipedia.org/wiki/India"
                 },
                 {
-                    "end": 209,
+                    "end": 204,
                     "label": "Kesk-Aasia",
-                    "start": 197,
+                    "start": 195,
                     "title": "Kesk-Aasia",
                     "url": "http://et.wikipedia.org/wiki/Kesk-Aasia"
                 },
                 {
-                    "end": 216,
-                    "label": "Iraan",
-                    "start": 209,
-                    "title": "Iraan",
-                    "url": "http://et.wikipedia.org/wiki/Iraan"
-                },
-                {
-                    "end": 226,
+                    "end": 221,
                     "label": "India",
-                    "start": 219,
+                    "start": 217,
                     "title": "India",
                     "url": "http://et.wikipedia.org/wiki/India"
                 },
                 {
-                    "end": 260,
+                    "end": 254,
                     "label": "keskajani",
-                    "start": 249,
+                    "start": 246,
                     "title": "keskaeg",
                     "url": "http://et.wikipedia.org/wiki/keskaeg"
                 },
                 {
-                    "end": 336,
+                    "end": 329,
                     "label": "P\u00e4rsia",
-                    "start": 328,
+                    "start": 324,
                     "title": "P\u00e4rsia",
                     "url": "http://et.wikipedia.org/wiki/P\u00e4rsia"
                 },
                 {
-                    "end": 352,
+                    "end": 344,
                     "label": "India",
-                    "start": 345,
+                    "start": 340,
                     "title": "India",
                     "url": "http://et.wikipedia.org/wiki/India"
                 }
@@ -374,30 +321,30 @@
                 {
                     "internal_links": [
                         {
-                            "end": 5,
+                            "end": 3,
                             "label": "7.",
-                            "start": 1,
+                            "start": 2,
                             "title": "7. sajand eKr",
                             "url": "http://et.wikipedia.org/wiki/7._sajand_eKr"
                         },
                         {
-                            "end": 24,
+                            "end": 21,
                             "label": "6. sajandil eKr",
                             "start": 7,
                             "title": "6. sajand eKr",
                             "url": "http://et.wikipedia.org/wiki/6._sajand_eKr"
                         },
                         {
-                            "end": 87,
+                            "end": 83,
                             "label": "Baktria",
-                            "start": 78,
+                            "start": 77,
                             "title": "Baktria",
                             "url": "http://et.wikipedia.org/wiki/Baktria"
                         },
                         {
-                            "end": 103,
-                            "label": "Balkh",
-                            "start": 96,
+                            "end": 100,
+                            "label": "Balkhis",
+                            "start": 94,
                             "title": "Balkh",
                             "url": "http://et.wikipedia.org/wiki/Balkh"
                         }
@@ -406,1065 +353,889 @@
                         {
                             "internal_links": [
                                 {
-                                    "end": 29,
+                                    "end": 26,
                                     "label": "530. aastatest eKr",
                                     "start": 9,
                                     "title": "530. aastad eKr",
                                     "url": "http://et.wikipedia.org/wiki/530._aastad_eKr"
                                 },
                                 {
-                                    "end": 52,
-                                    "label": "Kabul",
-                                    "start": 45,
+                                    "end": 49,
+                                    "label": "Kabuli",
+                                    "start": 44,
                                     "title": "Kabul",
                                     "url": "http://et.wikipedia.org/wiki/Kabul"
                                 },
                                 {
-                                    "end": 63,
-                                    "label": "Kandah\u0101r",
-                                    "start": 53,
+                                    "end": 60,
+                                    "label": "Kandah\u0101ri",
+                                    "start": 52,
                                     "title": "Kandah\u0101r",
                                     "url": "http://et.wikipedia.org/wiki/Kandah\u0101r"
                                 },
                                 {
-                                    "end": 73,
-                                    "label": "Her\u0101t",
-                                    "start": 66,
+                                    "end": 70,
+                                    "label": "Her\u0101ti",
+                                    "start": 65,
                                     "title": "Her\u0101t",
                                     "url": "http://et.wikipedia.org/wiki/Her\u0101t"
                                 },
                                 {
-                                    "end": 96,
-                                    "label": "Ahhemeniidid",
-                                    "start": 82,
+                                    "end": 93,
+                                    "label": "Ahhemeniidide",
+                                    "start": 81,
                                     "title": "Ahhemeniidid",
                                     "url": "http://et.wikipedia.org/wiki/Ahhemeniidid"
                                 },
                                 {
-                                    "end": 112,
-                                    "label": "Baktria",
-                                    "start": 103,
+                                    "end": 110,
+                                    "label": "Baktriast",
+                                    "start": 102,
                                     "title": "Baktria",
                                     "url": "http://et.wikipedia.org/wiki/Baktria"
                                 },
                                 {
-                                    "end": 147,
+                                    "end": 143,
                                     "label": "Balkh",
-                                    "start": 140,
+                                    "start": 139,
                                     "title": "Balkh",
                                     "url": "http://et.wikipedia.org/wiki/Balkh"
                                 },
                                 {
-                                    "end": 179,
-                                    "label": "zoroastrism",
-                                    "start": 166,
+                                    "end": 174,
+                                    "label": "zoroastrismi",
+                                    "start": 163,
                                     "title": "zoroastrism",
                                     "url": "http://et.wikipedia.org/wiki/zoroastrism"
                                 },
                                 {
-                                    "end": 199,
-                                    "label": "Zarathu\u0161tra",
-                                    "start": 186,
-                                    "title": "Zarathu\u0161tra",
-                                    "url": "http://et.wikipedia.org/wiki/Zarathu\u0161tra"
-                                },
-                                {
-                                    "end": 219,
+                                    "end": 216,
                                     "label": "4. sajandiks eKr",
                                     "start": 201,
                                     "title": "4. sajand eKr",
                                     "url": "http://et.wikipedia.org/wiki/4._sajand_eKr"
                                 },
                                 {
-                                    "end": 388,
-                                    "label": "Gaugamela lahing",
-                                    "start": 370,
+                                    "end": 387,
+                                    "label": "Gaugamela lahingust",
+                                    "start": 369,
                                     "title": "Gaugamela lahing",
                                     "url": "http://et.wikipedia.org/wiki/Gaugamela_lahing"
                                 },
                                 {
-                                    "end": 400,
-                                    "label": "330 ekr",
-                                    "start": 391,
+                                    "end": 397,
+                                    "label": "330 ekr)",
+                                    "start": 390,
                                     "title": "330 ekr",
                                     "url": "http://et.wikipedia.org/wiki/330_ekr"
                                 },
                                 {
-                                    "end": 452,
-                                    "label": "Aleksander Suur",
-                                    "start": 435,
+                                    "end": 450,
+                                    "label": "Aleksander Suurelt",
+                                    "start": 433,
                                     "title": "Aleksander Suur",
                                     "url": "http://et.wikipedia.org/wiki/Aleksander_Suur"
                                 },
                                 {
-                                    "end": 475,
-                                    "label": "330",
-                                    "start": 470,
+                                    "end": 468,
+                                    "label": "330\u2013",
+                                    "start": 465,
                                     "title": "330 eKr",
                                     "url": "http://et.wikipedia.org/wiki/330_eKr"
                                 },
                                 {
-                                    "end": 483,
-                                    "label": "329 eKr",
-                                    "start": 474,
-                                    "title": "329 eKr",
-                                    "url": "http://et.wikipedia.org/wiki/329_eKr"
-                                },
-                                {
-                                    "end": 518,
+                                    "end": 512,
                                     "label": "Aleksander Suur",
-                                    "start": 501,
+                                    "start": 498,
                                     "title": "Aleksander Suur",
                                     "url": "http://et.wikipedia.org/wiki/Aleksander_Suur"
                                 },
                                 {
-                                    "end": 567,
+                                    "end": 559,
                                     "label": "Seleukiidide riigi",
-                                    "start": 547,
+                                    "start": 542,
                                     "title": "Seleukiidide riik",
                                     "url": "http://et.wikipedia.org/wiki/Seleukiidide_riik"
                                 },
                                 {
-                                    "end": 630,
+                                    "end": 621,
                                     "label": "Seleukos I",
-                                    "start": 618,
+                                    "start": 612,
                                     "title": "Seleukos I",
                                     "url": "http://et.wikipedia.org/wiki/Seleukos_I"
                                 },
                                 {
-                                    "end": 655,
+                                    "end": 645,
                                     "label": "305. aasta paiku eKr",
-                                    "start": 633,
+                                    "start": 626,
                                     "title": "305 eKr",
                                     "url": "http://et.wikipedia.org/wiki/305_eKr"
                                 },
                                 {
-                                    "end": 679,
-                                    "label": "Maurjad",
-                                    "start": 670,
+                                    "end": 669,
+                                    "label": "Maurjade",
+                                    "start": 662,
                                     "title": "Maurjad",
                                     "url": "http://et.wikipedia.org/wiki/Maurjad"
                                 },
                                 {
-                                    "end": 708,
-                                    "label": "T\u0161andragupta",
-                                    "start": 694,
+                                    "end": 699,
+                                    "label": "T\u0161andraguptale",
+                                    "start": 686,
                                     "title": "T\u0161andragupta",
                                     "url": "http://et.wikipedia.org/wiki/T\u0161andragupta"
                                 },
                                 {
-                                    "end": 736,
+                                    "end": 724,
                                     "label": "3. sajandist eKr",
-                                    "start": 718,
+                                    "start": 709,
                                     "title": "3. sajand eKr",
                                     "url": "http://et.wikipedia.org/wiki/3._sajand_eKr"
                                 },
                                 {
-                                    "end": 749,
-                                    "label": "140 eKr",
-                                    "start": 740,
+                                    "end": 738,
+                                    "label": "140 eKr.\u2013",
+                                    "start": 730,
                                     "title": "140 eKr",
                                     "url": "http://et.wikipedia.org/wiki/140_eKr"
                                 },
                                 {
-                                    "end": 767,
-                                    "label": "130. aastani eKr",
-                                    "start": 749,
-                                    "title": "130 eKr",
-                                    "url": "http://et.wikipedia.org/wiki/130_eKr"
-                                },
-                                {
-                                    "end": 820,
+                                    "end": 817,
                                     "label": "Kreeka-Baktria riigi",
                                     "start": 798,
                                     "title": "Kreeka-Baktria riik",
                                     "url": "http://et.wikipedia.org/wiki/Kreeka-Baktria_riik"
                                 },
                                 {
-                                    "end": 853,
-                                    "label": "Ajaarvamise vahetus",
-                                    "start": 832,
+                                    "end": 849,
+                                    "label": "Ajaarvamise vahetuse",
+                                    "start": 830,
                                     "title": "Ajaarvamise vahetus",
                                     "url": "http://et.wikipedia.org/wiki/Ajaarvamise_vahetus"
                                 },
                                 {
-                                    "end": 895,
+                                    "end": 890,
                                     "label": "Ku\u0161aani riik",
-                                    "start": 881,
+                                    "start": 879,
                                     "title": "Ku\u0161aani riik",
                                     "url": "http://et.wikipedia.org/wiki/Ku\u0161aani_riik"
                                 },
                                 {
-                                    "end": 944,
-                                    "label": "3. sajand",
-                                    "start": 933,
+                                    "end": 939,
+                                    "label": "3. sajandil",
+                                    "start": 929,
                                     "title": "3. sajand",
                                     "url": "http://et.wikipedia.org/wiki/3._sajand"
                                 },
                                 {
-                                    "end": 987,
+                                    "end": 980,
                                     "label": "Sassaniidid",
-                                    "start": 974,
+                                    "start": 970,
                                     "title": "Sassaniidid",
                                     "url": "http://et.wikipedia.org/wiki/Sassaniidid"
                                 },
                                 {
-                                    "end": 1019,
-                                    "label": "Merv",
-                                    "start": 1013,
+                                    "end": 1012,
+                                    "label": "Merv (",
+                                    "start": 1007,
                                     "title": "Merv",
                                     "url": "http://et.wikipedia.org/wiki/Merv"
                                 },
                                 {
-                                    "end": 1032,
-                                    "label": "Mary",
-                                    "start": 1026,
+                                    "end": 1024,
+                                    "label": "Mary)",
+                                    "start": 1020,
                                     "title": "Mary (T\u00fcrkmenistan)",
                                     "url": "http://et.wikipedia.org/wiki/Mary_(T\u00fcrkmenistan)"
                                 },
                                 {
-                                    "end": 1054,
-                                    "label": "Har\u012b R\u016bd",
-                                    "start": 1044,
-                                    "title": "Har\u012b R\u016bd",
-                                    "url": "http://et.wikipedia.org/wiki/Har\u012b_R\u016bd"
-                                },
-                                {
-                                    "end": 1073,
-                                    "label": "P\u00f5hja-India",
-                                    "start": 1060,
+                                    "end": 1068,
+                                    "label": "P\u00f5hja-Indiasse",
+                                    "start": 1055,
                                     "title": "P\u00f5hja-India",
                                     "url": "http://et.wikipedia.org/wiki/P\u00f5hja-India"
                                 },
                                 {
-                                    "end": 1123,
-                                    "label": "5. sajand",
-                                    "start": 1112,
+                                    "end": 1116,
+                                    "label": "5. sajandi",
+                                    "start": 1107,
                                     "title": "5. sajand",
                                     "url": "http://et.wikipedia.org/wiki/5._sajand"
                                 },
                                 {
-                                    "end": 1152,
-                                    "label": "heftaliidid",
-                                    "start": 1139,
-                                    "title": "heftaliidid",
-                                    "url": "http://et.wikipedia.org/wiki/heftaliidid"
-                                },
-                                {
-                                    "end": 1188,
+                                    "end": 1183,
                                     "label": "664",
-                                    "start": 1183,
+                                    "start": 1181,
                                     "title": "664",
                                     "url": "http://et.wikipedia.org/wiki/664"
                                 },
                                 {
-                                    "end": 1195,
-                                    "label": "Islam",
-                                    "start": 1188,
-                                    "title": "Islam",
-                                    "url": "http://et.wikipedia.org/wiki/Islam"
-                                },
-                                {
-                                    "end": 1272,
-                                    "label": "Ghasnaviidid",
-                                    "start": 1258,
+                                    "end": 1267,
+                                    "label": "Ghasnaviidide",
+                                    "start": 1255,
                                     "title": "Ghasnaviidid",
                                     "url": "http://et.wikipedia.org/wiki/Ghasnaviidid"
                                 },
                                 {
-                                    "end": 1286,
-                                    "label": "Ghuriidid",
-                                    "start": 1275,
+                                    "end": 1281,
+                                    "label": "Ghuriidide",
+                                    "start": 1272,
                                     "title": "Ghuriidid",
                                     "url": "http://et.wikipedia.org/wiki/Ghuriidid"
                                 },
                                 {
-                                    "end": 1401,
-                                    "label": "13. sajand",
-                                    "start": 1389,
+                                    "end": 1396,
+                                    "label": "13. sajandil",
+                                    "start": 1385,
                                     "title": "13. sajand",
                                     "url": "http://et.wikipedia.org/wiki/13._sajand"
                                 },
                                 {
-                                    "end": 1425,
+                                    "end": 1418,
                                     "label": "mongolite",
-                                    "start": 1414,
+                                    "start": 1410,
                                     "title": "T\u0161ingis-khaan",
                                     "url": "http://et.wikipedia.org/wiki/T\u0161ingis-khaan"
                                 },
                                 {
-                                    "end": 1458,
-                                    "label": "Kartiidid",
-                                    "start": 1447,
+                                    "end": 1450,
+                                    "label": "Kartiidide",
+                                    "start": 1441,
                                     "title": "Kartiidid",
                                     "url": "http://et.wikipedia.org/wiki/Kartiidid"
                                 },
                                 {
-                                    "end": 1512,
-                                    "label": "Timur",
-                                    "start": 1505,
+                                    "end": 1503,
+                                    "label": "Timuri",
+                                    "start": 1498,
                                     "title": "Timur",
                                     "url": "http://et.wikipedia.org/wiki/Timur"
                                 },
                                 {
-                                    "end": 1553,
-                                    "label": "16. sajand",
-                                    "start": 1541,
+                                    "end": 1545,
+                                    "label": "16. sajandil",
+                                    "start": 1534,
                                     "title": "16. sajand",
                                     "url": "http://et.wikipedia.org/wiki/16._sajand"
                                 },
                                 {
-                                    "end": 1568,
+                                    "end": 1558,
                                     "label": "Suurmogulite",
-                                    "start": 1554,
+                                    "start": 1547,
                                     "title": "Suurmogulid",
                                     "url": "http://et.wikipedia.org/wiki/Suurmogulid"
                                 },
                                 {
-                                    "end": 1594,
-                                    "label": "Af\u0161ariidid",
-                                    "start": 1582,
+                                    "end": 1582,
+                                    "label": "Af\u0161ariidide",
+                                    "start": 1572,
                                     "title": "Af\u0161ariidid",
                                     "url": "http://et.wikipedia.org/wiki/Af\u0161ariidid"
                                 },
                                 {
-                                    "end": 1607,
-                                    "label": "Nadir-\u0161ahh",
-                                    "start": 1595,
+                                    "end": 1595,
+                                    "label": "Nadir-\u0161ahhi",
+                                    "start": 1585,
                                     "title": "Nadir-\u0161ahh",
                                     "url": "http://et.wikipedia.org/wiki/Nadir-\u0161ahh"
                                 },
                                 {
-                                    "end": 1625,
-                                    "label": "1736",
-                                    "start": 1619,
+                                    "end": 1613,
+                                    "label": "1736\u2013",
+                                    "start": 1609,
                                     "title": "1736",
                                     "url": "http://et.wikipedia.org/wiki/1736"
                                 },
                                 {
-                                    "end": 1630,
-                                    "label": "1747",
-                                    "start": 1624,
-                                    "title": "1747",
-                                    "url": "http://et.wikipedia.org/wiki/1747"
-                                },
-                                {
-                                    "end": 1750,
-                                    "label": "Durrani",
-                                    "start": 1741,
+                                    "end": 1741,
+                                    "label": "Durranide",
+                                    "start": 1733,
                                     "title": "Durrani",
                                     "url": "http://et.wikipedia.org/wiki/Durrani"
                                 },
                                 {
-                                    "end": 1794,
+                                    "end": 1783,
                                     "label": "pu\u0161tu",
-                                    "start": 1787,
+                                    "start": 1779,
                                     "title": "pu\u0161tud",
                                     "url": "http://et.wikipedia.org/wiki/pu\u0161tud"
                                 },
                                 {
-                                    "end": 1814,
-                                    "label": "Ahmed-khaan Durrani",
-                                    "start": 1793,
-                                    "title": "Ahmed-khaan Durrani",
-                                    "url": "http://et.wikipedia.org/wiki/Ahmed-khaan_Durrani"
-                                },
-                                {
-                                    "end": 1825,
+                                    "end": 1815,
                                     "label": "1747",
-                                    "start": 1819,
+                                    "start": 1812,
                                     "title": "1747",
                                     "url": "http://et.wikipedia.org/wiki/1747"
                                 },
                                 {
-                                    "end": 1924,
-                                    "label": "19. sajand",
-                                    "start": 1912,
+                                    "end": 1914,
+                                    "label": "19. sajandi",
+                                    "start": 1904,
                                     "title": "19. sajand",
                                     "url": "http://et.wikipedia.org/wiki/19._sajand"
                                 }
                             ],
-                            "text": "\n\nAlates 530. aastatest eKr kuulusid Balkhi, Kabuli, Kandah\u0101ri ja Her\u0101ti piirkond Ahhemeniidide riiki. Baktriast (mille keskus oli praegune Balkh, olevat p\u00e4rit olnud zoroastrismi rajaja Zarathu\u0161tra. \n\n4. sajandiks eKr oli Ahhemeniidide impeerium n\u00f5rgenenud. Olgugi et Baktria-taolised \u00e4\u00e4realad olid Ahhemeniidide valitsemise ajal alati rahutud olnud, v\u00f5tsid otsustavast Gaugamela lahingust (330 ekr) P\u00e4rsia poolel osa ka Baktria v\u00e4ed. Aleksander Suurelt saadi l\u00fc\u00fca.   \n\n330\u2013329 eKr vallutas need alad Aleksander Suur. P\u00e4rast tema surma l\u00e4ksid nad Seleukiidide riigi koosseisu. P\u00e4rast edutut s\u00f5jak\u00e4iku India vastu pidi Seleukos I nad 305. aasta paiku eKr loovutama India Maurjade riigi rajajale T\u0161andraguptale.\n\nAlates 3. sajandist eKr kuni 140 eKr.\u2013130. aastani eKr kuulus Afganistani territoorium Kreeka-Baktria riigi koosseisu. \n\nAjaarvamise vahetuse paiku moodustus Kesk-Aasias Ku\u0161aani riik. See oli vanaaja Afganistani \u00f5itseaeg. 3. sajandil pKr purustasid Ku\u0161aani riigi Sassaniidid, kelle v\u00f5imu alla langesid Merv (praegu Mary), Seistan ja Har\u012b R\u016bd.\n\nTeel P\u00f5hja-Indiasse vallutasid Afganistani territooriumi 5. sajandi esimesel poolel heftaliidid. \n\nAraabia kaliifide m\u00f5ju algas 664. Islam p\u00e4\u00e4ses selles piirkonnas maksvusele suhteliselt hilja. \n\nSiiski Ghasnaviidide ja Ghuriidide ajal poliitiline, majanduslik ja kultuuriline \u00f5itseng islami t\u00e4he all. \n\nSellele linnakultuurile andis 13. sajandil r\u00e4nga hoobi mongolite sissetung. \n\nJ\u00e4rgnenud Kartiidide v\u00f5imu ajal oli maal teatav iseseisvus.\n\nP\u00e4rast Timuri laastamist langes Afganistan 16. sajandil Suurmogulite riigi alla.  \n\nAf\u0161ariidide (Nadir-\u0161ahhi vallutused (1736\u20131747) t\u00f5id Afganistani ajutiselt j\u00e4lle P\u00e4rsia v\u00f5imu alla. P\u00e4rast Nadir-\u0161ahhi m\u00f5rvamist v\u00f5ttis tema v\u00e4gedes v\u00f5idelnud Durranide h\u00f5im iseseisvalt v\u00f5imu. Selle juht, pu\u0161tu Ahmed-khaan Durrani rajas 1747 iseseisva afgaani riigi ning teda peetakse Afganistani rajajaks. H\u00f5imut\u00fclide t\u00f5ttu riik 19. sajand",
-                            "title": "Ahhemeniidide v\u00f5imu all umbes [[550 eKr]] kuni  [[331 eKr]]"
+                            "text": "\nAlates 530. aastatest eKrkuulusid Balkhi, Kabuli, Kandah\u0101ri ja Her\u0101ti piirkond Ahhemeniidide riiki. Baktriast (mille keskus oli praegune Balkholevat p\u00e4rit olnud zoroastrismi rajaja [[Zarathu\u0161tra]]. \n4. sajandiks eKroli Ahhemeniidide impeerium n\u00f5rgenenud. Olgugi et Baktria-taolised \u00e4\u00e4realad olid Ahhemeniidide valitsemise ajal alati rahutud olnud, v\u00f5tsid otsustavast Gaugamela lahingust (330 ekr)P\u00e4rsia poolel osa ka Baktria v\u00e4ed. Aleksander Suurelt saadi l\u00fc\u00fca. \n330\u2013329 eKr]] vallutas need alad Aleksander SuurP\u00e4rast tema surma l\u00e4ksid nad Seleukiidide riigikoosseisu. P\u00e4rast edutut s\u00f5jak\u00e4iku India vastu pidi Seleukos Inad 305. aasta paiku eKrloovutama India Maurjade riigi rajajale T\u0161andraguptale.\nAlates 3. sajandist eKrkuni 140 eKr.\u2013130 eKr|130. aastani eKr]] kuulus Afganistani territoorium Kreeka-Baktria riigikoosseisu. \nAjaarvamise vahetuse paiku moodustus Kesk-Aasias Ku\u0161aani riikSee oli vanaaja Afganistani \u00f5itseaeg. 3. sajandil pKr purustasid Ku\u0161aani riigi Sassaniididkelle v\u00f5imu alla langesid Merv (praegu Mary)Seistan ja [[Har\u012b R\u016bd]].\nTeel P\u00f5hja-Indiasse vallutasid Afganistani territooriumi 5. sajandi esimesel poolel [[heftaliidid]]. \nAraabia kaliifide m\u00f5ju algas 664Islam]] p\u00e4\u00e4ses selles piirkonnas maksvusele suhteliselt hilja. \nSiiski Ghasnaviidide ja Ghuriidide ajal poliitiline, majanduslik ja kultuuriline \u00f5itseng islami t\u00e4he all. \nSellele linnakultuurile andis 13. sajandil r\u00e4nga hoobi mongolitesissetung. \nJ\u00e4rgnenud Kartiidide v\u00f5imu ajal oli maal teatav iseseisvus.\nP\u00e4rast Timuri laastamist langes Afganistan 16. sajandil Suurmoguliteriigi alla. \nAf\u0161ariidide (Nadir-\u0161ahhi vallutused (1736\u20131747]]) t\u00f5id Afganistani ajutiselt j\u00e4lle P\u00e4rsia v\u00f5imu alla. P\u00e4rast Nadir-\u0161ahhi m\u00f5rvamist v\u00f5ttis tema v\u00e4gedes v\u00f5idelnud Durranide h\u00f5im iseseisvalt v\u00f5imu. Selle juht, pu\u0161tuAhmed-khaan Durrani]] rajas 1747iseseisva afgaani riigi ning teda peetakse Afganistani rajajaks. H\u00f5imut\u00fclide t\u00f5ttu riik 19. sajandi",
+                            "title": "Ahhemeniidide v\u00f5imu all umbes [[550 eKr]] kuni [[331 eKr]]"
                         }
                     ],
-                    "text": "\n7. ja 6. sajandil eKr tekkisid Kesk-Aasias suured riigid, millest suurim oli Baktria keskusega Balkh",
+                    "text": "\n7.ja 6. sajandil eKrtekkisid Kesk-Aasias suured riigid, millest suurim oli Baktriakeskusega Balkhis",
                     "title": "Islamieelne periood"
                 },
                 {
                     "internal_links": [
                         {
                             "end": 18,
-                            "label": "Rawalpindi rahu",
-                            "start": 1,
+                            "label": "Rawalpindi rahuga",
+                            "start": 2,
                             "title": "Rawalpindi rahu",
                             "url": "http://et.wikipedia.org/wiki/Rawalpindi_rahu"
                         },
                         {
-                            "end": 25,
+                            "end": 23,
                             "label": "1919",
-                            "start": 19,
+                            "start": 20,
                             "title": "1919",
                             "url": "http://et.wikipedia.org/wiki/1919"
                         },
                         {
-                            "end": 62,
+                            "end": 59,
                             "label": "kolmas Inglise-Afgaani s\u00f5da",
                             "start": 33,
                             "title": "kolmas Inglise-Afgaani s\u00f5da",
                             "url": "http://et.wikipedia.org/wiki/kolmas_Inglise-Afgaani_s\u00f5da"
                         },
                         {
-                            "end": 81,
-                            "label": "Kabuli leping",
-                            "start": 66,
+                            "end": 80,
+                            "label": "Kabuli lepinguni",
+                            "start": 65,
                             "title": "Kabuli leping",
                             "url": "http://et.wikipedia.org/wiki/Kabuli_leping"
                         },
                         {
-                            "end": 90,
-                            "label": "1921",
-                            "start": 84,
+                            "end": 87,
+                            "label": "1921)",
+                            "start": 83,
                             "title": "1921",
                             "url": "http://et.wikipedia.org/wiki/1921"
                         },
                         {
-                            "end": 108,
+                            "end": 102,
                             "label": "Venemaa",
-                            "start": 99,
+                            "start": 96,
                             "title": "Venemaa",
                             "url": "http://et.wikipedia.org/wiki/Venemaa"
                         },
                         {
-                            "end": 125,
+                            "end": 118,
                             "label": "Suurbritannia",
-                            "start": 110,
+                            "start": 106,
                             "title": "Suurbritannia",
                             "url": "http://et.wikipedia.org/wiki/Suurbritannia"
                         },
                         {
-                            "end": 186,
+                            "end": 177,
                             "label": "1925",
-                            "start": 180,
+                            "start": 174,
                             "title": "1925",
                             "url": "http://et.wikipedia.org/wiki/1925"
-                        },
-                        {
-                            "end": 239,
-                            "label": "konstitutsiooniline monarhia",
-                            "start": 209,
-                            "title": "konstitutsiooniline monarhia",
-                            "url": "http://et.wikipedia.org/wiki/konstitutsiooniline_monarhia"
                         }
                     ],
-                    "text": "\nRawalpindi rahuga 1919 l\u00f5ppenud kolmas Inglise-Afgaani s\u00f5da viis Kabuli lepinguni (1921), millega Venemaa ja Suurbritannia tunnustasid Afganistani t\u00e4ielikku s\u00f5ltumatust. \n\nAlates 1925. aastast oli Afganistan konstitutsiooniline monarhia",
+                    "text": "\nRawalpindi rahuga 1919l\u00f5ppenud kolmas Inglise-Afgaani s\u00f5daviis Kabuli lepinguni (1921)millega Venemaaja Suurbritanniatunnustasid Afganistani t\u00e4ielikku s\u00f5ltumatust. \nAlates 1925",
                     "title": "20. sajand"
                 },
                 {
                     "internal_links": [
                         {
-                            "end": 12,
-                            "label": "17. juuli",
-                            "start": 1,
+                            "end": 11,
+                            "label": "17. juulil",
+                            "start": 2,
                             "title": "17. juuli",
                             "url": "http://et.wikipedia.org/wiki/17._juuli"
                         },
                         {
-                            "end": 18,
+                            "end": 16,
                             "label": "1973",
-                            "start": 12,
+                            "start": 13,
                             "title": "1973",
                             "url": "http://et.wikipedia.org/wiki/1973"
                         },
                         {
-                            "end": 38,
+                            "end": 35,
                             "label": "vabariik",
                             "start": 28,
                             "title": "vabariik",
                             "url": "http://et.wikipedia.org/wiki/vabariik"
                         },
                         {
-                            "end": 82,
+                            "end": 77,
                             "label": "Mo\u1e29ammad D\u0101'\u016bd Kh\u0101n",
-                            "start": 61,
+                            "start": 59,
                             "title": "Mo\u1e29ammad D\u0101'\u016bd Kh\u0101n",
                             "url": "http://et.wikipedia.org/wiki/Mo\u1e29ammad_D\u0101'\u016bd_Kh\u0101n"
                         },
                         {
-                            "end": 183,
+                            "end": 176,
                             "label": "K\u00fclma s\u00f5ja",
-                            "start": 171,
+                            "start": 167,
                             "title": "K\u00fclm s\u00f5da",
                             "url": "http://et.wikipedia.org/wiki/K\u00fclm_s\u00f5da"
                         },
                         {
-                            "end": 218,
-                            "label": "asenduss\u00f5ja",
-                            "start": 205,
+                            "end": 212,
+                            "label": "asenduss\u00f5ja (",
+                            "start": 200,
                             "title": "asenduss\u00f5da",
                             "url": "http://et.wikipedia.org/wiki/asenduss\u00f5da"
                         },
                         {
-                            "end": 246,
-                            "label": "N\u00f5ukogude-Afganistani s\u00f5da",
-                            "start": 218,
-                            "title": "N\u00f5ukogude-Afganistani s\u00f5da",
-                            "url": "http://et.wikipedia.org/wiki/N\u00f5ukogude-Afganistani_s\u00f5da"
-                        },
-                        {
-                            "end": 297,
+                            "end": 291,
                             "label": "padi\u0161ahh",
-                            "start": 287,
+                            "start": 284,
                             "title": "padi\u0161ahh",
                             "url": "http://et.wikipedia.org/wiki/padi\u0161ahh"
                         },
                         {
-                            "end": 308,
-                            "label": "eksiil",
-                            "start": 300,
+                            "end": 303,
+                            "label": "eksiilis",
+                            "start": 296,
                             "title": "eksiil",
                             "url": "http://et.wikipedia.org/wiki/eksiil"
-                        },
-                        {
-                            "end": 374,
-                            "label": "kommunistid",
-                            "start": 361,
-                            "title": "kommunistid",
-                            "url": "http://et.wikipedia.org/wiki/kommunistid"
                         }
                     ],
                     "sections": [
                         {
                             "internal_links": [
                                 {
-                                    "end": 84,
+                                    "end": 45,
                                     "label": "N\u00f5ukogude Liit",
-                                    "start": 68,
+                                    "start": 32,
                                     "title": "N\u00f5ukogude Liit",
                                     "url": "http://et.wikipedia.org/wiki/N\u00f5ukogude_Liit"
                                 },
                                 {
-                                    "end": 99,
-                                    "label": "27. detsembril",
-                                    "start": 83,
-                                    "title": "27. detsember",
-                                    "url": "http://et.wikipedia.org/wiki/27._detsember"
-                                },
-                                {
-                                    "end": 104,
+                                    "end": 80,
                                     "label": "1979",
-                                    "start": 98,
+                                    "start": 77,
                                     "title": "1979",
                                     "url": "http://et.wikipedia.org/wiki/1979"
                                 },
                                 {
-                                    "end": 236,
+                                    "end": 211,
                                     "label": "Afganistani Demokraatliku Vabariigi",
-                                    "start": 199,
+                                    "start": 177,
                                     "title": "Afganistani Demokraatlik Vabariik",
                                     "url": "http://et.wikipedia.org/wiki/Afganistani_Demokraatlik_Vabariik"
                                 },
                                 {
-                                    "end": 289,
-                                    "label": "Babrak Karmal",
-                                    "start": 274,
+                                    "end": 264,
+                                    "label": "Babrak Karmali",
+                                    "start": 251,
                                     "title": "Babrak Karmal",
                                     "url": "http://et.wikipedia.org/wiki/Babrak_Karmal"
                                 },
                                 {
-                                    "end": 477,
-                                    "label": "N\u00f5ukogude Armee",
-                                    "start": 460,
+                                    "end": 453,
+                                    "label": "N\u00f5ukogude Armeele",
+                                    "start": 437,
                                     "title": "N\u00f5ukogude Armee",
                                     "url": "http://et.wikipedia.org/wiki/N\u00f5ukogude_Armee"
                                 },
                                 {
-                                    "end": 635,
-                                    "label": "14. veebruar",
-                                    "start": 621,
+                                    "end": 611,
+                                    "label": "14. veebruaril",
+                                    "start": 598,
                                     "title": "14. veebruar",
                                     "url": "http://et.wikipedia.org/wiki/14._veebruar"
                                 },
                                 {
-                                    "end": 642,
-                                    "label": "1989",
-                                    "start": 636,
-                                    "title": "1989",
-                                    "url": "http://et.wikipedia.org/wiki/1989"
-                                },
-                                {
-                                    "end": 685,
-                                    "label": "mud\u017eaheedid",
-                                    "start": 672,
+                                    "end": 663,
+                                    "label": "mud\u017eaheedid)",
+                                    "start": 652,
                                     "title": "mud\u017eaheedid",
                                     "url": "http://et.wikipedia.org/wiki/mud\u017eaheedid"
                                 },
                                 {
-                                    "end": 727,
-                                    "label": "siss",
-                                    "start": 721,
+                                    "end": 711,
+                                    "label": "sissitaktika",
+                                    "start": 700,
                                     "title": "siss",
                                     "url": "http://et.wikipedia.org/wiki/siss"
                                 },
                                 {
-                                    "end": 760,
-                                    "label": "v\u00e4lilahing",
-                                    "start": 748,
+                                    "end": 738,
+                                    "label": "v\u00e4lilahingute",
+                                    "start": 726,
                                     "title": "v\u00e4lilahing",
                                     "url": "http://et.wikipedia.org/wiki/v\u00e4lilahing"
                                 },
                                 {
-                                    "end": 842,
-                                    "label": "Pakistan",
-                                    "start": 832,
+                                    "end": 820,
+                                    "label": "Pakistanist",
+                                    "start": 810,
                                     "title": "Pakistan",
                                     "url": "http://et.wikipedia.org/wiki/Pakistan"
                                 },
                                 {
-                                    "end": 860,
-                                    "label": "Saudi Araabia",
-                                    "start": 845,
+                                    "end": 837,
+                                    "label": "Saudi Araabiast",
+                                    "start": 823,
                                     "title": "Saudi Araabia",
                                     "url": "http://et.wikipedia.org/wiki/Saudi_Araabia"
                                 },
                                 {
-                                    "end": 869,
+                                    "end": 844,
                                     "label": "USA",
-                                    "start": 864,
+                                    "start": 842,
                                     "title": "USA",
                                     "url": "http://et.wikipedia.org/wiki/USA"
                                 },
                                 {
-                                    "end": 944,
-                                    "label": "palgas\u00f5dur",
-                                    "start": 932,
+                                    "end": 921,
+                                    "label": "palgas\u00f5dureid",
+                                    "start": 909,
                                     "title": "palgas\u00f5dur",
                                     "url": "http://et.wikipedia.org/wiki/palgas\u00f5dur"
                                 },
                                 {
-                                    "end": 1023,
+                                    "end": 997,
                                     "label": "1996",
-                                    "start": 1017,
+                                    "start": 994,
                                     "title": "1996",
                                     "url": "http://et.wikipedia.org/wiki/1996"
                                 },
                                 {
-                                    "end": 1045,
-                                    "label": "\u0162\u0101leb\u0101n",
-                                    "start": 1036,
+                                    "end": 1018,
+                                    "label": "\u0162\u0101leb\u0101ni",
+                                    "start": 1011,
                                     "title": "\u0162\u0101leb\u0101n",
                                     "url": "http://et.wikipedia.org/wiki/\u0162\u0101leb\u0101n"
                                 }
                             ],
                             "related_articles": [
-                                [
-                                    "|N\u00f5ukogude-Afganistani s\u00f5da",
-                                    [
-                                        3,
-                                        39
-                                    ]
-                                ]
+                                "N\u00f5ukogude-Afganistani s\u00f5da"
                             ],
-                            "text": "  \n{{vaata|N\u00f5ukogude-Afganistani s\u00f5da}}\nK\u00fclma s\u00f5ja haripunktil viis N\u00f5ukogude Liit 27. detsembril 1979 Afganistani oma s\u00f5jav\u00e4e \"piiratud v\u00e4ekontingendi\", nagu N\u00f5ukogude propagana kinnitas, ning pani Afganistani Demokraatliku Vabariigi presidendiks N\u00f5ukogude Liidust s\u00f5ltuva Babrak Karmali. Hoolimata \u00fcleolekust relvastuses ja 100 000-mehelisest v\u00e4est ei \u00f5nnestunud N\u00f5ukogude Liidul Afganistani oma kontrolli alla saada, kuna l\u00e4biviidav s\u00f5jategevus ei vastanud N\u00f5ukogude Armeele omasele suurte v\u00e4e\u00fcksuste lahingutaktikale ning uuel v\u00f5imul puudus t\u00e4ielik kohaliku elanikkonna toetus. Viimased N\u00f5ukogude v\u00e4e\u00fcksused lahkusid 14. veebruaril 1989. \n\nAfgaani vastupanuv\u00f5itlejad (mud\u017eaheedid) v\u00f5itsid l\u00f5puks konflikti samasuguse sissitaktika abil (avatud  v\u00e4lilahingute v\u00e4ltimine) nagu Inglise-Afganistani s\u00f5dades. Peale selle said nad abi Pakistanist, Saudi Araabiast ja USA-st. Ortodokssetest islamimaadest, nagu Saudi Araabiast, v\u00e4rvati palgas\u00f5dureid, kes p\u00e4rast s\u00f5ja l\u00f5ppu omandasid riigis suure m\u00f5juv\u00f5imu ja kehtestasid 1996. aasta l\u00f5puks \u0162\u0101leb\u0101n",
+                            "text": " \n\nK\u00fclma s\u00f5ja haripunktil viis N\u00f5ukogude Liit27. detsember|27. detsembril]] 1979Afganistani oma s\u00f5jav\u00e4e \"piiratud v\u00e4ekontingendi\", nagu N\u00f5ukogude propagana kinnitas, ning pani Afganistani Demokraatliku Vabariigipresidendiks N\u00f5ukogude Liidust s\u00f5ltuva Babrak Karmali. Hoolimata \u00fcleolekust relvastuses ja 100 000-mehelisest v\u00e4est ei \u00f5nnestunud N\u00f5ukogude Liidul Afganistani oma kontrolli alla saada, kuna l\u00e4biviidav s\u00f5jategevus ei vastanud N\u00f5ukogude Armeele omasele suurte v\u00e4e\u00fcksuste lahingutaktikale ning uuel v\u00f5imul puudus t\u00e4ielik kohaliku elanikkonna toetus. Viimased N\u00f5ukogude v\u00e4e\u00fcksused lahkusid 14. veebruaril [[1989]]. \nAfgaani vastupanuv\u00f5itlejad (mud\u017eaheedid)v\u00f5itsid l\u00f5puks konflikti samasuguse sissitaktika abil (avatud v\u00e4lilahingute v\u00e4ltimine) nagu Inglise-Afganistani s\u00f5dades. Peale selle said nad abi Pakistanist, Saudi Araabiast ja USAst. Ortodokssetest islamimaadest, nagu Saudi Araabiast, v\u00e4rvati palgas\u00f5dureid, kes p\u00e4rast s\u00f5ja l\u00f5ppu omandasid riigis suure m\u00f5juv\u00f5imu ja kehtestasid 1996aasta l\u00f5puks \u0162\u0101leb\u0101ni",
                             "title": "N\u00f5ukogude-Afganistani s\u00f5da"
                         }
                     ],
-                    "text": "\n17. juulil 1973 kehtestati vabariik, mille presidendiks sai Mo\u1e29ammad D\u0101'\u016bd Kh\u0101n, kes tapeti N\u00f5ukogude Liidu poolt mahitatud kommunistide riigip\u00f6\u00f6rde k\u00e4igus 1978. aastal. K\u00fclma s\u00f5ja ajal sai Afganistanist asenduss\u00f5ja (N\u00f5ukogude-Afganistani s\u00f5da) ohver. Alates 1973. aasta riigip\u00f6\u00f6rdest (padi\u0161ahh oli eksiilis) v\u00f5itlesid v\u00f5imu p\u00e4rast traditsioonilised h\u00f5imud ja kommunistid",
+                    "text": "\n17. juulil 1973kehtestati vabariikmille presidendiks sai Mo\u1e29ammad D\u0101'\u016bd Kh\u0101nkes tapeti N\u00f5ukogude Liidu poolt mahitatud kommunistide riigip\u00f6\u00f6rde k\u00e4igus 1978. aastal. K\u00fclma s\u00f5jaajal sai Afganistanist asenduss\u00f5ja (N\u00f5ukogude-Afganistani s\u00f5da]]) ohver. Alates 1973. aasta riigip\u00f6\u00f6rdest (padi\u0161ahholi eksiilis",
                     "title": "Afganistani Demokraatlik Vabariik"
                 },
                 {
                     "internal_links": [
                         {
-                            "end": 58,
+                            "end": 56,
                             "label": "2001. aasta 11. septembri terrorir\u00fcnnakuid USA-s",
-                            "start": 8,
+                            "start": 9,
                             "title": "11. septembri terrorir\u00fcnnakud",
                             "url": "http://et.wikipedia.org/wiki/11._septembri_terrorir\u00fcnnakud"
                         },
                         {
-                            "end": 70,
+                            "end": 67,
                             "label": "USA",
                             "start": 65,
                             "title": "USA",
                             "url": "http://et.wikipedia.org/wiki/USA"
                         },
                         {
-                            "end": 83,
-                            "label": "7. oktoobril",
-                            "start": 69,
-                            "title": "7. oktoober",
-                            "url": "http://et.wikipedia.org/wiki/7._oktoober"
-                        },
-                        {
-                            "end": 100,
+                            "end": 110,
                             "label": "Afganistani s\u00f5da",
-                            "start": 82,
+                            "start": 95,
                             "title": "Afganistani s\u00f5da (2001)",
                             "url": "http://et.wikipedia.org/wiki/Afganistani_s\u00f5da_(2001)"
                         },
                         {
-                            "end": 125,
+                            "end": 133,
                             "label": "1996",
-                            "start": 119,
+                            "start": 130,
                             "title": "1996",
                             "url": "http://et.wikipedia.org/wiki/1996"
                         },
                         {
-                            "end": 166,
-                            "label": "Taliban",
-                            "start": 157,
+                            "end": 173,
+                            "label": "Talibani",
+                            "start": 166,
                             "title": "Taliban",
                             "url": "http://et.wikipedia.org/wiki/Taliban"
                         },
                         {
-                            "end": 232,
-                            "label": "terror",
-                            "start": 224,
+                            "end": 253,
+                            "label": "terroriorganisatsiooni",
+                            "start": 232,
                             "title": "terror",
                             "url": "http://et.wikipedia.org/wiki/terror"
                         },
                         {
-                            "end": 259,
+                            "end": 264,
                             "label": "Al-Q\u0101\u2018idah",
-                            "start": 247,
+                            "start": 255,
                             "title": "Al-Q\u0101\u2018idah",
                             "url": "http://et.wikipedia.org/wiki/Al-Q\u0101\u2018idah"
                         },
                         {
-                            "end": 290,
+                            "end": 294,
                             "label": "Us\u0101mah ibn L\u0101din",
-                            "start": 272,
+                            "start": 279,
                             "title": "Us\u0101mah ibn L\u0101din",
                             "url": "http://et.wikipedia.org/wiki/Us\u0101mah_ibn_L\u0101din"
                         },
                         {
-                            "end": 312,
-                            "label": "\u00f5hur\u00fcnnak",
-                            "start": 301,
+                            "end": 320,
+                            "label": "\u00f5hur\u00fcnnakutega",
+                            "start": 307,
                             "title": "\u00f5hur\u00fcnnak",
                             "url": "http://et.wikipedia.org/wiki/\u00f5hur\u00fcnnak"
                         },
                         {
                             "end": 327,
                             "label": "NATO",
-                            "start": 321,
+                            "start": 324,
                             "title": "NATO",
                             "url": "http://et.wikipedia.org/wiki/NATO"
                         },
                         {
-                            "end": 429,
-                            "label": "Pakistan",
-                            "start": 419,
+                            "end": 430,
+                            "label": "Pakistanis",
+                            "start": 421,
                             "title": "Pakistan",
                             "url": "http://et.wikipedia.org/wiki/Pakistan"
                         },
                         {
-                            "end": 482,
+                            "end": 480,
                             "label": "13. novembril",
-                            "start": 467,
+                            "start": 468,
                             "title": "13. november",
                             "url": "http://et.wikipedia.org/wiki/13._november"
                         },
                         {
-                            "end": 508,
+                            "end": 505,
                             "label": "Kabul",
                             "start": 501,
                             "title": "Kabul",
                             "url": "http://et.wikipedia.org/wiki/Kabul"
                         },
                         {
-                            "end": 569,
+                            "end": 564,
                             "label": "P\u00f5hjaalliansil",
-                            "start": 553,
+                            "start": 551,
                             "title": "P\u00f5hjaallianss",
                             "url": "http://et.wikipedia.org/wiki/P\u00f5hjaallianss"
                         },
                         {
-                            "end": 703,
-                            "label": "Afganistani konverents",
-                            "start": 679,
+                            "end": 696,
+                            "label": "Afganistani konverentsi",
+                            "start": 674,
                             "title": "Afganistani konverents",
                             "url": "http://et.wikipedia.org/wiki/Afganistani_konverents"
                         },
                         {
-                            "end": 709,
-                            "label": "Bonn",
-                            "start": 703,
+                            "end": 703,
+                            "label": "Bonnis",
+                            "start": 698,
                             "title": "Bonn",
                             "url": "http://et.wikipedia.org/wiki/Bonn"
                         },
                         {
-                            "end": 724,
+                            "end": 716,
                             "label": "2002",
-                            "start": 718,
+                            "start": 713,
                             "title": "2002",
                             "url": "http://et.wikipedia.org/wiki/2002"
                         },
                         {
-                            "end": 759,
+                            "end": 750,
                             "label": "Hamid Karzai",
-                            "start": 745,
+                            "start": 739,
                             "title": "Hamid Karzai",
                             "url": "http://et.wikipedia.org/wiki/Hamid_Karzai"
                         },
                         {
-                            "end": 822,
+                            "end": 812,
                             "label": "ISAF",
-                            "start": 816,
+                            "start": 809,
                             "title": "Rahvusvahelised julgeolekuabij\u00f5ud",
                             "url": "http://et.wikipedia.org/wiki/Rahvusvahelised_julgeolekuabij\u00f5ud"
                         },
                         {
-                            "end": 836,
-                            "label": "Suurbritannia",
-                            "start": 821,
-                            "title": "Suurbritannia",
-                            "url": "http://et.wikipedia.org/wiki/Suurbritannia"
-                        },
-                        {
-                            "end": 850,
+                            "end": 841,
                             "label": "T\u00fcrgi",
-                            "start": 843,
+                            "start": 837,
                             "title": "T\u00fcrgi",
                             "url": "http://et.wikipedia.org/wiki/T\u00fcrgi"
                         },
                         {
-                            "end": 860,
-                            "label": "Saksamaa",
-                            "start": 850,
-                            "title": "Saksamaa",
-                            "url": "http://et.wikipedia.org/wiki/Saksamaa"
-                        },
-                        {
-                            "end": 871,
-                            "label": "Holland",
-                            "start": 862,
+                            "end": 863,
+                            "label": "Hollandi",
+                            "start": 856,
                             "title": "Holland",
                             "url": "http://et.wikipedia.org/wiki/Holland"
                         },
                         {
-                            "end": 904,
+                            "end": 895,
                             "label": "NATO",
-                            "start": 898,
+                            "start": 892,
                             "title": "NATO",
                             "url": "http://et.wikipedia.org/wiki/NATO"
                         },
                         {
-                            "end": 917,
+                            "end": 906,
                             "label": "Kanada",
-                            "start": 909,
+                            "start": 901,
                             "title": "Kanada",
                             "url": "http://et.wikipedia.org/wiki/Kanada"
                         },
                         {
-                            "end": 940,
-                            "label": "21. m\u00e4rts",
-                            "start": 929,
+                            "end": 929,
+                            "label": "21. m\u00e4rtsil",
+                            "start": 919,
                             "title": "21. m\u00e4rts",
                             "url": "http://et.wikipedia.org/wiki/21._m\u00e4rts"
                         },
                         {
-                            "end": 947,
+                            "end": 934,
                             "label": "2004",
-                            "start": 941,
+                            "start": 931,
                             "title": "2004",
                             "url": "http://et.wikipedia.org/wiki/2004"
                         },
                         {
-                            "end": 964,
+                            "end": 950,
                             "label": "atentaadi",
-                            "start": 953,
+                            "start": 942,
                             "title": "atentaat",
                             "url": "http://et.wikipedia.org/wiki/atentaat"
                         },
                         {
-                            "end": 1016,
+                            "end": 1001,
                             "label": "Mirwais Sadeq",
-                            "start": 1001,
+                            "start": 989,
                             "title": "Mirwais Sadeq",
                             "url": "http://et.wikipedia.org/wiki/Mirwais_Sadeq"
                         },
                         {
-                            "end": 1104,
+                            "end": 1086,
                             "label": "2004",
-                            "start": 1098,
+                            "start": 1083,
                             "title": "2004",
                             "url": "http://et.wikipedia.org/wiki/2004"
-                        },
-                        {
-                            "end": 1171,
-                            "label": "2004. aasta Afganistani p\u00f5hiseadus",
-                            "start": 1135,
-                            "title": "2004. aasta Afganistani p\u00f5hiseadus",
-                            "url": "http://et.wikipedia.org/wiki/2004._aasta_Afganistani_p\u00f5hiseadus"
                         }
                     ],
-                    "text": "\nP\u00e4rast 2001. aasta 11. septembri terrorir\u00fcnnakuid USA-s alustas USA 7. oktoobril Afganistani s\u00f5da, et kukutada alates 1996. aastast Afganistanis valitsenud Talibani s\u00fcsteem ning  ning purustada seal USA andmetel tegutsenud terroriorganisatsiooni Al-Q\u0101\u2018idah ja selle juht Us\u0101mah ibn L\u0101din massiivsete \u00f5hur\u00fcnnakutega.   \n\nNATO riigid olid \u00fchel meelel s\u00f5jalise l\u00f6\u00f6gi \u00f5igustatuses, ent islamimaades, sealhulgas naabermaal Pakistanis, olid s\u00f5javastased meeleavaldused. \n\n13. novembril 2001 langes pealinn Kabul. M\u00f5ni n\u00e4dal p\u00e4rast esimesi r\u00fcnnakuid \u00f5nnestus P\u00f5hjaalliansil, mis seni oli kontrollinud umbes 10% riigist, h\u00f5ivata peaaegu kogu Afganistan. \n\nP\u00e4rast esimest rahvusvahelist Afganistani konverentsi Bonnis m\u00e4\u00e4rati 2002 \u00fcleminekupresidendiks Hamid Karzai ning saadeti Afganistani rahvusvahelised korratagamisj\u00f5ud ISAF Suurbritannia, hiljem T\u00fcrgi, Saksamaa ja Hollandi juhtimisel. Praegu on seal NATO j\u00f5ud  Kanada juhtimisel.\n\n21. m\u00e4rtsil 2004 langes atentaadi ohvriks Afganistani lennundusminister Mirwais Sadeq. Sadeq oli kolmas atentaadis hukkunud minister p\u00e4rast Talibani kukutamist.\n\nAastal 2004 sai Afganistan uue p\u00f5hiseaduse (2004. aasta Afganistani p\u00f5hiseadus",
+                    "text": "\nP\u00e4rast 2001. aasta 11. septembri terrorir\u00fcnnakuid USA-salustas USA7. oktoober|7. oktoobril]] Afganistani s\u00f5daet kukutada alates 1996aastast Afganistanis valitsenud Talibani s\u00fcsteem ning ning purustada seal USA andmetel tegutsenud terroriorganisatsiooni Al-Q\u0101\u2018idahja selle juht Us\u0101mah ibn L\u0101dinmassiivsete \u00f5hur\u00fcnnakutega. \nNATOriigid olid \u00fchel meelel s\u00f5jalise l\u00f6\u00f6gi \u00f5igustatuses, ent islamimaades, sealhulgas naabermaal Pakistanis, olid s\u00f5javastased meeleavaldused. \n13. novembril2001 langes pealinn KabulM\u00f5ni n\u00e4dal p\u00e4rast esimesi r\u00fcnnakuid \u00f5nnestus P\u00f5hjaalliansilmis seni oli kontrollinud umbes 10% riigist, h\u00f5ivata peaaegu kogu Afganistan. \nP\u00e4rast esimest rahvusvahelist Afganistani konverentsi Bonnis m\u00e4\u00e4rati 2002\u00fcleminekupresidendiks Hamid Karzaining saadeti Afganistani rahvusvahelised korratagamisj\u00f5ud ISAFSuurbritannia]], hiljem T\u00fcrgiSaksamaa]] ja Hollandi juhtimisel. Praegu on seal NATOj\u00f5ud Kanadajuhtimisel.\n21. m\u00e4rtsil 2004langes atentaadiohvriks Afganistani lennundusminister Mirwais SadeqSadeq oli kolmas atentaadis hukkunud minister p\u00e4rast Talibani kukutamist.\nAastal 2004",
                     "title": "Afganistani s\u00f5da"
                 }
             ],
-            "text": "\nVana- ja keskajal oli kuulus t\u00e4nap\u00e4eva Afganistani territoorium eri riikide koosseisu ning seda l\u00e4bisid rahvad ja s\u00f5jav\u00e4ed, kes olid teel Indiasse.  Seal elanud rahvaste ajalugu on tihedas seoses Kesk-Aasia, Iraani ja India rahvaste ajalooga. Kuni keskajani koosnes Afganistan peamiselt kohalikest d\u00fcnastiatest, mida m\u00f5jutasid P\u00e4rsia riik ning India",
+            "text": "\nVana-ja keskajaloli kuulus t\u00e4nap\u00e4eva Afganistani territoorium eri riikide koosseisu ning seda l\u00e4bisid rahvad ja s\u00f5jav\u00e4ed, kes olid teel Indiasse. Seal elanud rahvaste ajalugu on tihedas seoses Kesk-AasiaIraan]]i ja Indiarahvaste ajalooga. Kuni keskajanikoosnes Afganistan peamiselt kohalikest d\u00fcnastiatest, mida m\u00f5jutasid P\u00e4rsiariik ning India",
             "title": "Ajalugu"
         },
         {
-            "internal_links": [
-                {
-                    "end": 38,
-                    "label": "2004. aasta Afganistani p\u00f5hiseadus",
-                    "start": 2,
-                    "title": "2004. aasta Afganistani p\u00f5hiseadus",
-                    "url": "http://et.wikipedia.org/wiki/2004._aasta_Afganistani_p\u00f5hiseadus"
-                },
-                {
-                    "end": 62,
-                    "label": "Afganistani k\u00f5rgkoolid",
-                    "start": 38,
-                    "title": "Afganistani k\u00f5rgkoolid",
-                    "url": "http://et.wikipedia.org/wiki/Afganistani_k\u00f5rgkoolid"
-                },
-                {
-                    "end": 92,
-                    "label": "Afganistani riigipeade loend",
-                    "start": 62,
-                    "title": "Afganistani riigipeade loend",
-                    "url": "http://et.wikipedia.org/wiki/Afganistani_riigipeade_loend"
-                },
-                {
-                    "end": 127,
-                    "label": "Afganistani valitsusjuhtide loend",
-                    "start": 92,
-                    "title": "Afganistani valitsusjuhtide loend",
-                    "url": "http://et.wikipedia.org/wiki/Afganistani_valitsusjuhtide_loend"
-                },
-                {
-                    "end": 141,
-                    "label": "Durandi liin",
-                    "start": 127,
-                    "title": "Durandi liin",
-                    "url": "http://et.wikipedia.org/wiki/Durandi_liin"
-                },
-                {
-                    "end": 171,
-                    "label": "Afganistani jalgpallikoondis",
-                    "start": 141,
-                    "title": "Afganistani jalgpallikoondis",
-                    "url": "http://et.wikipedia.org/wiki/Afganistani_jalgpallikoondis"
-                },
-                {
-                    "end": 186,
-                    "label": "Bamiani budad",
-                    "start": 171,
-                    "title": "Bamiani budad",
-                    "url": "http://et.wikipedia.org/wiki/Bamiani_budad"
-                }
-            ],
-            "text": "\n*2004. aasta Afganistani p\u00f5hiseadus\n*Afganistani k\u00f5rgkoolid\n*Afganistani riigipeade loend\n*Afganistani valitsusjuhtide loend\n*Durandi liin\n*Afganistani jalgpallikoondis\n*Bamiani budad",
+            "text": "\n[[2004. aasta Afganistani p\u00f5hiseadus]]\n[[Afganistani k\u00f5rgkoolid]]\n[[Afganistani riigipeade loend]]\n[[Afganistani valitsusjuhtide loend]]\n[[Durandi liin]]\n[[Afganistani jalgpallikoondis]]\n[[Bamiani budad]]",
             "title": "Vaata ka"
         },
         {
-            "text": "\n{{viited}}\n",
+            "text": "\n{{viited}}",
             "title": "Viited"
         },
         {
             "external links": [
                 {
-                    "end": 148,
+                    "end": 147,
                     "label": "\"Vaata pilte: Afganistan l\u00e4bi politseiniku kaamera\"",
-                    "start": 97,
+                    "start": 96,
                     "url": "http://www.maaleht.ee/news/fotogalerii/fotod/vaata-pilte-afganistan-labi-politseiniku-kaamera.d?id=24598135"
                 },
                 {
-                    "end": 232,
+                    "end": 230,
                     "label": "\"Afganistan aastal 2009 \u2013 kas p\u00f6\u00f6rdepunkt?\"",
-                    "start": 189,
+                    "start": 187,
                     "url": "http://www.postimees.ee/?id=150940"
                 },
                 {
-                    "end": 299,
+                    "end": 296,
                     "label": "Afganistani vari",
-                    "start": 283,
+                    "start": 280,
                     "url": "http://www.postimees.ee/?id=180133"
                 },
                 {
-                    "end": 369,
+                    "end": 365,
                     "label": "\"Armastatud Afganistan\"",
-                    "start": 346,
+                    "start": 342,
                     "url": "http://www.apollo.ee/product.php/0999703"
                 },
                 {
-                    "end": 398,
+                    "end": 393,
                     "label": "\"Kabuli p\u00e4evik\"",
-                    "start": 383,
+                    "start": 378,
                     "url": "http://qnne.blogspot.com/"
                 },
                 {
-                    "end": 437,
+                    "end": 431,
                     "label": "\"Afganistani fotogalerii\"",
-                    "start": 412,
+                    "start": 406,
                     "url": "http://afghanistan-photogallery.blogspot.com/"
                 },
                 {
-                    "end": 494,
+                    "end": 487,
                     "label": "\"Mulla vastab k\u00fcsimustele l\u00e4bi p\u00fcha teksti\"",
-                    "start": 451,
+                    "start": 444,
                     "url": "http://www.postimees.ee/?id=153939"
                 },
                 {
-                    "end": 583,
+                    "end": 575,
                     "label": "\"Nancy Hatch Dupree \u2014 afgaanide ajaloo elav m\u00e4lu\"",
-                    "start": 534,
+                    "start": 526,
                     "url": "http://www.epl.ee/artikkel/416154"
                 },
                 {
-                    "end": 700,
+                    "end": 691,
                     "label": "\"Kaheksa kevadist hetke tolmuses Kabulis - hirmutav ja p\u00f5nev korraga\"",
-                    "start": 631,
+                    "start": 622,
                     "url": "http://www.epl.ee/artikkel/317889"
                 },
                 {
-                    "end": 807,
+                    "end": 797,
                     "label": "Anal\u00fc\u00fcs: Eesti meedia n\u00e4itab Afganistanist v\u00e4\u00e4rastunud pilti",
-                    "start": 747,
+                    "start": 737,
                     "url": "http://www.epl.ee/artikkel/493210"
                 },
                 {
-                    "end": 916,
+                    "end": 905,
                     "label": "\"Afganistani Rubiku kuubik ehk kuidas maetakse miljardeid\"",
-                    "start": 858,
+                    "start": 847,
                     "url": "http://www.ekspress.ee/news/arvamus/arvamus/harri-tiido-afganistani-rubiku-kuubik-ehk-kuidas-maetakse-miljardeid.d?id=49360339"
                 }
             ],
             "internal_links": [
                 {
-                    "end": 185,
-                    "label": "Kai Eide",
-                    "start": 175,
+                    "end": 184,
+                    "label": "Kai Eide: \"",
+                    "start": 174,
                     "title": "Kai Eide",
                     "url": "http://et.wikipedia.org/wiki/Kai_Eide"
                 },
                 {
-                    "end": 275,
+                    "end": 270,
                     "label": "Urmas Roosim\u00e4gi",
-                    "start": 258,
+                    "start": 256,
                     "title": "Urmas Roosim\u00e4gi",
                     "url": "http://et.wikipedia.org/wiki/Urmas_Roosim\u00e4gi"
                 },
                 {
-                    "end": 334,
-                    "label": "\u00d5nne P\u00e4rl",
-                    "start": 323,
+                    "end": 329,
+                    "label": "\u00d5nne P\u00e4rl: \"",
+                    "start": 318,
                     "title": "\u00d5nne P\u00e4rl",
                     "url": "http://et.wikipedia.org/wiki/\u00d5nne_P\u00e4rl"
                 },
                 {
-                    "end": 842,
-                    "label": "Harri Tiido",
-                    "start": 829,
+                    "end": 830,
+                    "label": "Harri Tiido: \"",
+                    "start": 817,
                     "title": "Harri Tiido",
                     "url": "http://et.wikipedia.org/wiki/Harri_Tiido"
                 }
             ],
-            "text": "\n{{vikis\u00f5naraamatus}}\n{{vikis\u00f5nastikus|Afganistani Islamivabariik}}\n{{Commonskat|Afghanistan}}\n* \"Vaata pilte: Afganistan l\u00e4bi politseiniku kaamera\" Maaleht, 17. juuli 2009\n* Kai Eide: \"Afganistan aastal 2009 \u2013 kas p\u00f6\u00f6rdepunkt?\" Postimees, 10. august 2009\n* Urmas Roosim\u00e4gi: Afganistani vari Postimees, 27. oktoober 2009\n* \u00d5nne P\u00e4rl: \"Armastatud Afganistan\"\n* \u00d5nne P\u00e4rl: \"Kabuli p\u00e4evik\"\n* \u00d5nne P\u00e4rl: \"Afganistani fotogalerii\"\n* \u00d5nne P\u00e4rl: \"Mulla vastab k\u00fcsimustele l\u00e4bi p\u00fcha teksti\" Postimees, 18.august 2009\n* \u00d5nne P\u00e4rl: \"Nancy Hatch Dupree \u2014 afgaanide ajaloo elav m\u00e4lu\" Eesti P\u00e4evaleht, 26. jaanuar 2009\n* \u00d5nne P\u00e4rl: \"Kaheksa kevadist hetke tolmuses Kabulis - hirmutav ja p\u00f5nev korraga\" Eesti P\u00e4evaleht, 12. aprill 2006\n* \u00d5nne P\u00e4rl: Anal\u00fc\u00fcs: Eesti meedia n\u00e4itab Afganistanist v\u00e4\u00e4rastunud pilti Eesti P\u00e4evaleht, 8. m\u00e4rts 2010\n* Harri Tiido",
+            "text": "\n{{vikis\u00f5naraamatus}}\n{{vikis\u00f5nastikus|Afganistani Islamivabariik}}\n{{Commonskat|Afghanistan}}\n \"Vaata pilte: Afganistan l\u00e4bi politseiniku kaamera\" Maaleht, 17. juuli 2009\n Kai Eide: \"Afganistan aastal 2009 \u2013 kas p\u00f6\u00f6rdepunkt?\" Postimees, 10. august 2009\n Urmas Roosim\u00e4giAfganistani vari Postimees, 27. oktoober 2009\n \u00d5nne P\u00e4rl: \"Armastatud Afganistan\"\n \u00d5nne P\u00e4rl: \"Kabuli p\u00e4evik\"\n \u00d5nne P\u00e4rl: \"Afganistani fotogalerii\"\n \u00d5nne P\u00e4rl: \"Mulla vastab k\u00fcsimustele l\u00e4bi p\u00fcha teksti\" Postimees, 18.august 2009\n \u00d5nne P\u00e4rl: \"Nancy Hatch Dupree \u2014 afgaanide ajaloo elav m\u00e4lu\" Eesti P\u00e4evaleht, 26. jaanuar 2009\n \u00d5nne P\u00e4rl: \"Kaheksa kevadist hetke tolmuses Kabulis - hirmutav ja p\u00f5nev korraga\" Eesti P\u00e4evaleht, 12. aprill 2006\n \u00d5nne P\u00e4rl: Anal\u00fc\u00fcs: Eesti meedia n\u00e4itab Afganistanist v\u00e4\u00e4rastunud pilti Eesti P\u00e4evaleht, 8. m\u00e4rts 2010\n Harri Tiido: \"",
             "title": "V\u00e4lislingid"
         }
     ],

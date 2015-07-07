@@ -30,54 +30,42 @@
     },
     "sections": [
         {
-            "internal_links": [
-                {
-                    "end": 91,
-                    "label": "Andorra (Hispaania)",
-                    "start": 70,
-                    "title": "Andorra (Hispaania)",
-                    "url": "http://et.wikipedia.org/wiki/Andorra_(Hispaania)"
-                }
-            ],
-            "text": "{{See artikkel| r\u00e4\u00e4gib riigist; linna kohta Hispaanias vaata artiklit Andorra (Hispaania)"
+            "text": "{{See artikkel| r\u00e4\u00e4gib riigist; linna kohta Hispaanias vaata artiklit [[Andorra (Hispaania)]]}} \n{{keeletoimeta}}{{ToimetaAeg|kuu=detsember|aasta=2010}}"
         },
         {
-            "text": "\nPiir Prantsusmaaga on 56,6 km pikkune ja piir Hispaaniaga on 63,7 km pikkune. \n",
+            "text": "\nPiir Prantsusmaaga on 56,6 km pikkune ja piir Hispaaniaga on 63,7 km pikkune. ",
             "title": "Piir"
         },
         {
             "internal_links": [
                 {
-                    "end": 120,
+                    "end": 117,
                     "label": "araabia",
                     "start": 111,
                     "title": "araabia keel",
                     "url": "http://et.wikipedia.org/wiki/araabia_keel"
                 },
                 {
-                    "end": 194,
-                    "label": "P\u00fcrenee poolsaar",
-                    "start": 176,
+                    "end": 189,
+                    "label": "P\u00fcrenee poolsaare",
+                    "start": 173,
                     "title": "P\u00fcrenee poolsaar",
                     "url": "http://et.wikipedia.org/wiki/P\u00fcrenee_poolsaar"
                 }
             ],
-            "references": [
-                1
-            ],
-            "text": "\nNime \"Andorra\" p\u00e4ritolu on teadmata; selle kohta on erinevaid teooriaid. \n\n\u00dche teooria j\u00e4rgi on see tuletatud araabia s\u00f5nast ''ad-darrah'' ('mets'). Kui araablased vallutasid P\u00fcrenee poolsaar",
+            "text": "\nNime \"Andorra\" p\u00e4ritolu on teadmata; selle kohta on erinevaid teooriaid. \n\u00dche teooria j\u00e4rgi on see tuletatud araabias\u00f5nast \"ad-darrah\" ('mets'). Kui araablased vallutasid P\u00fcrenee poolsaare",
             "title": "Nimi"
         },
         {
             "images": [
                 {
                     "text": "Satelliidifoto",
-                    "url": "http://et.wikipedia.org/wiki/Pilt:Andorra nasa world wind.png"
+                    "url": "http://et.wikipedia.org/wiki/Pilt:Andorra_nasa_world_wind.png"
                 }
             ],
             "sections": [
                 {
-                    "text": "\nOsa Andorra energiavajadusest katab h\u00fcdroelektrijaam Valira j\u00f5el. \n",
+                    "text": "\nOsa Andorra energiavajadusest katab h\u00fcdroelektrijaam Valira j\u00f5el. ",
                     "title": "Energeetika"
                 }
             ],
@@ -85,66 +73,29 @@
             "title": "Loodus"
         },
         {
-            "text": "\n{{viited}}\n",
+            "text": "\n{{viited}}",
             "title": "Viited"
         },
         {
-            "internal_links": [
-                {
-                    "end": 40,
-                    "label": "Andorra Eurovisiooni lauluv\u00f5istlusel",
-                    "start": 2,
-                    "title": "Andorra Eurovisiooni lauluv\u00f5istlusel",
-                    "url": "http://et.wikipedia.org/wiki/Andorra_Eurovisiooni_lauluv\u00f5istlusel"
-                },
-                {
-                    "end": 64,
-                    "label": "Andorra Jalgpalli Liit",
-                    "start": 40,
-                    "title": "Andorra Jalgpalli Liit",
-                    "url": "http://et.wikipedia.org/wiki/Andorra_Jalgpalli_Liit"
-                },
-                {
-                    "end": 90,
-                    "label": "Andorra jalgpallikoondis",
-                    "start": 64,
-                    "title": "Andorra jalgpallikoondis",
-                    "url": "http://et.wikipedia.org/wiki/Andorra_jalgpallikoondis"
-                },
-                {
-                    "end": 113,
-                    "label": "Andorra linnade loend",
-                    "start": 90,
-                    "title": "Andorra linnade loend",
-                    "url": "http://et.wikipedia.org/wiki/Andorra_linnade_loend"
-                },
-                {
-                    "end": 139,
-                    "label": "Andorra riigipeade loend",
-                    "start": 113,
-                    "title": "Andorra riigipeade loend",
-                    "url": "http://et.wikipedia.org/wiki/Andorra_riigipeade_loend"
-                }
-            ],
-            "text": "\n*Andorra Eurovisiooni lauluv\u00f5istlusel\n*Andorra Jalgpalli Liit\n*Andorra jalgpallikoondis\n*Andorra linnade loend\n*Andorra riigipeade loend",
+            "text": "\n[[Andorra Eurovisiooni lauluv\u00f5istlusel]]\n[[Andorra Jalgpalli Liit]]\n[[Andorra jalgpallikoondis]]\n[[Andorra linnade loend]]\n[[Andorra riigipeade loend]]",
             "title": "Vaata ka"
         },
         {
             "external links": [
                 {
-                    "end": 63,
+                    "end": 62,
                     "label": "Andorra Turismib\u00fcroo",
-                    "start": 43,
+                    "start": 42,
                     "url": "http://www.andorra.ad/en-US/Pages/default.aspx"
                 },
                 {
-                    "end": 109,
+                    "end": 105,
                     "label": "Katoliku kirik Andorras",
-                    "start": 86,
+                    "start": 82,
                     "url": "http://www.esglesiacatolica.ad/"
                 }
             ],
-            "text": "\n{{vikis\u00f5naraamatus}}{{commons|Andorra}}\n* Andorra Turismib\u00fcroo (''inglise keeles'')\n*Katoliku kirik Andorras\n\n{{Euroopariigid}}\n\n{{Coordinate |NS=42.55833333 |EW=1.55527778 |type=country |region=AD}}\n\n\n",
+            "text": "\n{{vikis\u00f5naraamatus}}{{commons|Andorra}}\n Andorra Turismib\u00fcroo (\"inglise keeles\")\nKatoliku kirik Andorras\n{{Euroopariigid}}\n{{Coordinate |NS=42.55833333 |EW=1.55527778 |type=country |region=AD}}\n",
             "title": "V\u00e4lislingid"
         }
     ],

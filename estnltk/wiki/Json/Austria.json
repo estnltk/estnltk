@@ -33,270 +33,172 @@
         {
             "internal_links": [
                 {
-                    "end": 113,
-                    "label": "Austria (\u00fcli\u00f5pilasorganisatsioon)",
-                    "start": 78,
+                    "end": 112,
+                    "label": "Austria (\u00fcli\u00f5pilasorganisatsioon);",
+                    "start": 79,
                     "title": "Austria (\u00fcli\u00f5pilasorganisatsioon)",
                     "url": "http://et.wikipedia.org/wiki/Austria_(\u00fcli\u00f5pilasorganisatsioon)"
                 },
                 {
-                    "end": 150,
-                    "label": "My Story",
-                    "start": 140,
-                    "title": "My Story",
-                    "url": "http://et.wikipedia.org/wiki/My_Story"
-                },
-                {
-                    "end": 224,
-                    "label": ".at",
-                    "start": 219,
-                    "title": ".at",
-                    "url": "http://et.wikipedia.org/wiki/.at"
-                },
-                {
-                    "end": 309,
-                    "label": "USD",
-                    "start": 304,
-                    "title": "USD",
-                    "url": "http://et.wikipedia.org/wiki/USD"
-                },
-                {
-                    "end": 342,
-                    "label": "USD",
-                    "start": 337,
-                    "title": "USD",
-                    "url": "http://et.wikipedia.org/wiki/USD"
-                },
-                {
-                    "end": 413,
-                    "label": "saksa keel",
-                    "start": 401,
+                    "end": 418,
+                    "label": "saksa keeles",
+                    "start": 407,
                     "title": "saksa keel",
                     "url": "http://et.wikipedia.org/wiki/saksa_keel"
                 },
                 {
-                    "end": 460,
+                    "end": 461,
                     "label": "merepiirita riik",
-                    "start": 442,
+                    "start": 446,
                     "title": "merepiirita riik",
                     "url": "http://et.wikipedia.org/wiki/merepiirita_riik"
                 },
                 {
-                    "end": 473,
-                    "label": "Kesk-Euroopa",
-                    "start": 459,
-                    "title": "Kesk-Euroopa",
-                    "url": "http://et.wikipedia.org/wiki/Kesk-Euroopa"
-                },
-                {
-                    "end": 486,
-                    "label": "liidumaa",
-                    "start": 476,
+                    "end": 490,
+                    "label": "liidumaast",
+                    "start": 481,
                     "title": "liidumaa",
                     "url": "http://et.wikipedia.org/wiki/liidumaa"
                 },
                 {
-                    "end": 509,
+                    "end": 511,
                     "label": "f\u00f6deratsioon",
-                    "start": 495,
+                    "start": 500,
                     "title": "f\u00f6deratsioon",
                     "url": "http://et.wikipedia.org/wiki/f\u00f6deratsioon"
                 },
                 {
-                    "end": 548,
-                    "label": "Liechtenstein",
-                    "start": 533,
+                    "end": 549,
+                    "label": "Liechtensteini",
+                    "start": 536,
                     "title": "Liechtenstein",
                     "url": "http://et.wikipedia.org/wiki/Liechtenstein"
                 },
                 {
-                    "end": 559,
-                    "label": "\u0160veits",
-                    "start": 551,
+                    "end": 562,
+                    "label": "\u0160veitsiga",
+                    "start": 554,
                     "title": "\u0160veits",
                     "url": "http://et.wikipedia.org/wiki/\u0160veits"
                 },
                 {
                     "end": 579,
                     "label": "Itaalia",
-                    "start": 570,
+                    "start": 573,
                     "title": "Itaalia",
                     "url": "http://et.wikipedia.org/wiki/Itaalia"
                 },
                 {
-                    "end": 592,
-                    "label": "Sloveenia",
-                    "start": 581,
+                    "end": 593,
+                    "label": "Sloveeniaga",
+                    "start": 583,
                     "title": "Sloveenia",
                     "url": "http://et.wikipedia.org/wiki/Sloveenia"
                 },
                 {
-                    "end": 608,
+                    "end": 607,
                     "label": "Ungari",
-                    "start": 600,
+                    "start": 602,
                     "title": "Ungari",
                     "url": "http://et.wikipedia.org/wiki/Ungari"
                 },
                 {
                     "end": 621,
-                    "label": "Slovakkia",
-                    "start": 610,
+                    "label": "Slovakkiaga",
+                    "start": 611,
                     "title": "Slovakkia",
                     "url": "http://et.wikipedia.org/wiki/Slovakkia"
                 },
                 {
-                    "end": 645,
+                    "end": 643,
                     "label": "Saksamaa",
-                    "start": 635,
+                    "start": 636,
                     "title": "Saksamaa",
                     "url": "http://et.wikipedia.org/wiki/Saksamaa"
                 },
                 {
-                    "end": 667,
+                    "end": 664,
                     "label": "T\u0161ehhi Vabariigiga",
                     "start": 647,
                     "title": "T\u0161ehhi",
                     "url": "http://et.wikipedia.org/wiki/T\u0161ehhi"
                 },
                 {
-                    "end": 680,
+                    "end": 675,
                     "label": "1995",
-                    "start": 674,
+                    "start": 672,
                     "title": "1995",
                     "url": "http://et.wikipedia.org/wiki/1995"
                 },
                 {
-                    "end": 717,
-                    "label": "Euroopa Liit",
-                    "start": 703,
+                    "end": 711,
+                    "label": "Euroopa Liitu",
+                    "start": 699,
                     "title": "Euroopa Liit",
                     "url": "http://et.wikipedia.org/wiki/Euroopa_Liit"
                 }
             ],
-            "text": "{{See artikkel| r\u00e4\u00e4gib riigist; \u00fcli\u00f5pilasorganisatsiooni kohta vaata artiklit Austria (\u00fcli\u00f5pilasorganisatsioon); laeva kohta vaata artiklit My Story}}\n{{ToimetaAeg|kuu=august|aasta=2006}}  \ne]]\n| usund = \n| \u00fcladomeen = .at\n| telefonikood = 43\n| riigikord = f\u00f6deratiivne vabariik\n| SKT = 307,07 miljardit USD\n| SKT_elaniku_kohta = 37 117 USD\n| rok-i_kood = AUT\n| m\u00e4rkused = \n}}\n'''Austria Vabariik''' (saksa keeles ''Republik \u00d6sterreich'') on merepiirita riik Kesk-Euroopas, 9 liidumaast koosnev f\u00f6deratsioon. Austria piirneb l\u00e4\u00e4nest Liechtensteini ja \u0160veitsiga, l\u00f5unast Itaalia ja Sloveeniaga, idast Ungari ja Slovakkiaga ning p\u00f5hjast Saksamaa ja T\u0161ehhi Vabariigiga. Alates 1995. aastast kuulub Austria Euroopa Liit"
+            "text": "{{See artikkel| r\u00e4\u00e4gib riigist; \u00fcli\u00f5pilasorganisatsiooni kohta vaata artiklit Austria (\u00fcli\u00f5pilasorganisatsioon);laeva kohta vaata artiklit [[My Story]]}}\n{{ToimetaAeg|kuu=august|aasta=2006}} \ne]]\n| usund = \n| \u00fcladomeen = [[.at]]\n| telefonikood = 43\n| riigikord = f\u00f6deratiivne vabariik\n| SKT = 307,07 miljardit [[USD]]\n| SKT_elaniku_kohta = 37 117 [[USD]]\n| rok-i_kood = AUT\n| m\u00e4rkused = \nAustria Vabariik (saksa keeles \"Republik \u00d6sterreich\") on merepiirita riikKesk-Euroopa]]s, 9 liidumaast koosnev f\u00f6deratsioonAustria piirneb l\u00e4\u00e4nest Liechtensteini ja \u0160veitsiga, l\u00f5unast Itaaliaja Sloveeniaga, idast Ungarija Slovakkiaga ning p\u00f5hjast Saksamaaja T\u0161ehhi VabariigigaAlates 1995aastast kuulub Austria Euroopa Liitu"
         },
         {
             "internal_links": [
                 {
                     "end": 51,
-                    "label": "liidumaa",
-                    "start": 41,
+                    "label": "liidumaaks",
+                    "start": 42,
                     "title": "liidumaa",
                     "url": "http://et.wikipedia.org/wiki/liidumaa"
-                },
-                {
-                    "end": 86,
-                    "label": "Burgenland",
-                    "start": 74,
-                    "title": "Burgenland",
-                    "url": "http://et.wikipedia.org/wiki/Burgenland"
-                },
-                {
-                    "end": 96,
-                    "label": "K\u00e4rnten",
-                    "start": 87,
-                    "title": "K\u00e4rnten",
-                    "url": "http://et.wikipedia.org/wiki/K\u00e4rnten"
-                },
-                {
-                    "end": 111,
-                    "label": "Alam-Austria",
-                    "start": 97,
-                    "title": "Alam-Austria",
-                    "url": "http://et.wikipedia.org/wiki/Alam-Austria"
-                },
-                {
-                    "end": 126,
-                    "label": "\u00dclem-Austria",
-                    "start": 112,
-                    "title": "\u00dclem-Austria",
-                    "url": "http://et.wikipedia.org/wiki/\u00dclem-Austria"
-                },
-                {
-                    "end": 137,
-                    "label": "Salzburg",
-                    "start": 127,
-                    "title": "Salzburgi liidumaa",
-                    "url": "http://et.wikipedia.org/wiki/Salzburgi_liidumaa"
-                },
-                {
-                    "end": 150,
-                    "label": "Steiermark",
-                    "start": 138,
-                    "title": "Steiermark",
-                    "url": "http://et.wikipedia.org/wiki/Steiermark"
-                },
-                {
-                    "end": 159,
-                    "label": "Tirool",
-                    "start": 151,
-                    "title": "Tirool",
-                    "url": "http://et.wikipedia.org/wiki/Tirool"
-                },
-                {
-                    "end": 172,
-                    "label": "Vorarlberg",
-                    "start": 160,
-                    "title": "Vorarlberg",
-                    "url": "http://et.wikipedia.org/wiki/Vorarlberg"
-                },
-                {
-                    "end": 179,
-                    "label": "Viin",
-                    "start": 173,
-                    "title": "Viin",
-                    "url": "http://et.wikipedia.org/wiki/Viin"
                 }
             ],
-            "text": "\nLiitriigina on Austria jagatud \u00fcheksaks liidumaaks (''Bundesl\u00e4nder''):\n# Burgenland\n# K\u00e4rnten\n# Alam-Austria\n# \u00dclem-Austria\n# Salzburg\n# Steiermark\n# Tirool\n# Vorarlberg\n# Viin",
+            "text": "\nLiitriigina on Austria jagatud \u00fcheksaks liidumaaks",
             "title": "Liidumaad"
         },
         {
             "internal_links": [
                 {
                     "end": 46,
-                    "label": "Viin",
-                    "start": 40,
+                    "label": "Viin \u2013",
+                    "start": 41,
                     "title": "Viin",
                     "url": "http://et.wikipedia.org/wiki/Viin"
                 },
                 {
-                    "end": 65,
-                    "label": "Graz",
+                    "end": 64,
+                    "label": "Graz \u2013",
                     "start": 59,
                     "title": "Graz",
                     "url": "http://et.wikipedia.org/wiki/Graz"
                 },
                 {
-                    "end": 82,
-                    "label": "Linz",
-                    "start": 76,
+                    "end": 80,
+                    "label": "Linz \u2013",
+                    "start": 75,
                     "title": "Linz",
                     "url": "http://et.wikipedia.org/wiki/Linz"
                 },
                 {
-                    "end": 103,
-                    "label": "Salzburg",
-                    "start": 93,
+                    "end": 100,
+                    "label": "Salzburg \u2013",
+                    "start": 91,
                     "title": "Salzburg",
                     "url": "http://et.wikipedia.org/wiki/Salzburg"
                 },
                 {
-                    "end": 125,
-                    "label": "Innsbruck",
-                    "start": 114,
+                    "end": 121,
+                    "label": "Innsbruck \u2013",
+                    "start": 111,
                     "title": "Innsbruck",
                     "url": "http://et.wikipedia.org/wiki/Innsbruck"
                 },
                 {
-                    "end": 148,
-                    "label": "Klagenfurt",
-                    "start": 136,
+                    "end": 143,
+                    "label": "Klagenfurt \u2013",
+                    "start": 132,
                     "title": "Klagenfurt",
                     "url": "http://et.wikipedia.org/wiki/Klagenfurt"
                 }
             ],
-            "text": "\nElanike arv seisuga 1. jaanuar 2012:\n# Viin \u2013 1,731 mln\n# Graz \u2013 265 000\n# Linz \u2013 191 000\n# Salzburg \u2013 149 000\n# Innsbruck \u2013 121 000\n# Klagenfurt",
+            "text": "\nElanike arv seisuga 1. jaanuar 2012:\n# Viin \u20131,731 mln\n# Graz \u2013265 000\n# Linz \u2013191 000\n# Salzburg \u2013149 000\n# Innsbruck \u2013121 000\n# Klagenfurt \u2013",
             "title": "Suuremad linnad"
         },
         {
@@ -307,176 +209,129 @@
                 },
                 {
                     "text": "Kaart Austria liidumaadest",
-                    "url": "http://et.wikipedia.org/wiki/Pilt:The States of Austria Numbered.png"
+                    "url": "http://et.wikipedia.org/wiki/Pilt:The_States_of_Austria_Numbered.png"
                 }
             ],
             "internal_links": [
                 {
-                    "end": 28,
-                    "label": "turumajandus",
-                    "start": 14,
+                    "end": 29,
+                    "label": "turumajanduslik",
+                    "start": 15,
                     "title": "turumajandus",
                     "url": "http://et.wikipedia.org/wiki/turumajandus"
                 },
                 {
-                    "end": 52,
+                    "end": 50,
                     "label": "t\u00f6\u00f6stusriik",
-                    "start": 39,
+                    "start": 40,
                     "title": "t\u00f6\u00f6stusriik",
                     "url": "http://et.wikipedia.org/wiki/t\u00f6\u00f6stusriik"
                 },
                 {
-                    "end": 71,
+                    "end": 67,
                     "label": "2002",
-                    "start": 65,
+                    "start": 64,
                     "title": "2002",
                     "url": "http://et.wikipedia.org/wiki/2002"
                 },
                 {
-                    "end": 93,
+                    "end": 88,
                     "label": "euro",
-                    "start": 87,
+                    "start": 85,
                     "title": "euro",
                     "url": "http://et.wikipedia.org/wiki/euro"
                 },
                 {
-                    "end": 128,
-                    "label": "Austria \u0161illing",
-                    "start": 111,
+                    "end": 122,
+                    "label": "Austria \u0161illingi",
+                    "start": 107,
                     "title": "Austria \u0161illing",
                     "url": "http://et.wikipedia.org/wiki/Austria_\u0161illing"
                 },
                 {
-                    "end": 156,
+                    "end": 148,
                     "label": "Teist maailmas\u00f5da",
-                    "start": 137,
+                    "start": 132,
                     "title": "Teine maailmas\u00f5da",
                     "url": "http://et.wikipedia.org/wiki/Teine_maailmas\u00f5da"
                 },
                 {
-                    "end": 230,
-                    "label": "rasket\u00f6\u00f6stus",
-                    "start": 216,
+                    "end": 222,
+                    "label": "rasket\u00f6\u00f6stuse",
+                    "start": 210,
                     "title": "rasket\u00f6\u00f6stus",
                     "url": "http://et.wikipedia.org/wiki/rasket\u00f6\u00f6stus"
                 },
                 {
-                    "end": 254,
+                    "end": 245,
                     "label": "energeetika",
-                    "start": 241,
+                    "start": 235,
                     "title": "energeetika",
                     "url": "http://et.wikipedia.org/wiki/energeetika"
                 },
                 {
-                    "end": 267,
-                    "label": "metallurgia",
-                    "start": 254,
-                    "title": "metallurgia",
-                    "url": "http://et.wikipedia.org/wiki/metallurgia"
-                },
-                {
-                    "end": 281,
-                    "label": "naftat\u00f6\u00f6stus",
-                    "start": 267,
+                    "end": 273,
+                    "label": "naftat\u00f6\u00f6stus)",
+                    "start": 261,
                     "title": "naftat\u00f6\u00f6stus",
                     "url": "http://et.wikipedia.org/wiki/naftat\u00f6\u00f6stus"
                 },
                 {
-                    "end": 382,
+                    "end": 372,
                     "label": "\u00d6sterreichische Industrieverwaltungs-Aktiengesellschaft",
-                    "start": 325,
+                    "start": 318,
                     "title": "\u00d6sterreichische Industrieverwaltungs-Aktiengesellschaft",
                     "url": "http://et.wikipedia.org/wiki/\u00d6sterreichische_Industrieverwaltungs-Aktiengesellschaft"
                 },
                 {
-                    "end": 528,
+                    "end": 517,
                     "label": "OMV AG",
-                    "start": 520,
+                    "start": 512,
                     "title": "OMV AG",
                     "url": "http://et.wikipedia.org/wiki/OMV_AG"
                 },
                 {
-                    "end": 544,
-                    "label": "Voestalpine AG",
-                    "start": 528,
-                    "title": "Voestalpine AG",
-                    "url": "http://et.wikipedia.org/wiki/Voestalpine_AG"
-                },
-                {
-                    "end": 563,
+                    "end": 552,
                     "label": "VA Technologie AG",
-                    "start": 544,
+                    "start": 536,
                     "title": "VA Technologie AG",
                     "url": "http://et.wikipedia.org/wiki/VA_Technologie_AG"
                 },
                 {
-                    "end": 586,
-                    "label": "Steyr Daimler Puch AG",
-                    "start": 563,
-                    "title": "Steyr Daimler Puch AG",
-                    "url": "http://et.wikipedia.org/wiki/Steyr_Daimler_Puch_AG"
-                },
-                {
-                    "end": 605,
-                    "label": "Austria Metall AG",
-                    "start": 586,
+                    "end": 595,
+                    "label": "Austria Metall AG)",
+                    "start": 578,
                     "title": "Austria Metall AG",
                     "url": "http://et.wikipedia.org/wiki/Austria_Metall_AG"
                 },
                 {
-                    "end": 626,
-                    "label": "Steyr-Daimler-Puch",
-                    "start": 606,
-                    "title": "Steyr-Daimler-Puch",
-                    "url": "http://et.wikipedia.org/wiki/Steyr-Daimler-Puch"
-                },
-                {
-                    "end": 664,
+                    "end": 653,
                     "label": "Magna International",
-                    "start": 643,
+                    "start": 635,
                     "title": "Magna International",
                     "url": "http://et.wikipedia.org/wiki/Magna_International"
                 },
                 {
-                    "end": 673,
-                    "label": "VA Tech",
+                    "end": 674,
+                    "label": "Siemens AG-",
                     "start": 664,
-                    "title": "VA Tech",
-                    "url": "http://et.wikipedia.org/wiki/VA_Tech"
-                },
-                {
-                    "end": 684,
-                    "label": "Siemens AG",
-                    "start": 672,
                     "title": "Siemens AG",
                     "url": "http://et.wikipedia.org/wiki/Siemens_AG"
                 },
                 {
-                    "end": 704,
+                    "end": 693,
                     "label": "Jenbacher Werke",
-                    "start": 687,
+                    "start": 679,
                     "title": "Jenbacher Werke",
                     "url": "http://et.wikipedia.org/wiki/Jenbacher_Werke"
                 },
                 {
-                    "end": 721,
-                    "label": "General Electric",
-                    "start": 703,
-                    "title": "General Electric",
-                    "url": "http://et.wikipedia.org/wiki/General_Electric"
-                },
-                {
-                    "end": 983,
+                    "end": 972,
                     "label": "L\u00e4\u00e4ne-Euroopa",
-                    "start": 968,
+                    "start": 960,
                     "title": "L\u00e4\u00e4ne-Euroopa",
                     "url": "http://et.wikipedia.org/wiki/L\u00e4\u00e4ne-Euroopa"
                 }
-            ],
-            "references": [
-                0,
-                0,
-                0
             ],
             "sections": [
                 {
@@ -485,97 +340,89 @@
                             "images": [
                                 {
                                     "text": "Nafta",
-                                    "url": "http://et.wikipedia.org/wiki/Pilt:Raffinerie OMV Schwechat.jpg"
+                                    "url": "http://et.wikipedia.org/wiki/Pilt:Raffinerie_OMV_Schwechat.jpg"
                                 },
                                 {
                                     "text": "Wei\u00dfensteini keemiat\u00f6\u00f6stus",
-                                    "url": "http://et.wikipedia.org/wiki/Pilt:Wei\u00dfenstein - Chemiewerk.jpg"
+                                    "url": "http://et.wikipedia.org/wiki/Pilt:Wei\u00dfenstein_-_Chemiewerk.jpg"
                                 },
                                 {
                                     "text": "Frantschachi tselluloos",
-                                    "url": "http://et.wikipedia.org/wiki/Pilt:Papier- und Zellstofffabrik in Frantschach3.JPG"
+                                    "url": "http://et.wikipedia.org/wiki/Pilt:Papier-_und_Zellstofffabrik_in_Frantschach3.JPG"
                                 }
                             ],
                             "internal_links": [
                                 {
-                                    "end": 53,
-                                    "label": "paber",
-                                    "start": 46,
+                                    "end": 58,
+                                    "label": "paberivabrik",
+                                    "start": 47,
                                     "title": "paber",
                                     "url": "http://et.wikipedia.org/wiki/paber"
                                 },
                                 {
-                                    "end": 288,
+                                    "end": 277,
                                     "label": "Saksamaa",
-                                    "start": 278,
+                                    "start": 270,
                                     "title": "Saksamaa",
                                     "url": "http://et.wikipedia.org/wiki/Saksamaa"
                                 },
                                 {
-                                    "end": 304,
+                                    "end": 292,
                                     "label": "Itaalia",
-                                    "start": 295,
+                                    "start": 286,
                                     "title": "Itaalia",
                                     "url": "http://et.wikipedia.org/wiki/Itaalia"
                                 },
                                 {
-                                    "end": 318,
+                                    "end": 305,
                                     "label": "\u0160veits",
-                                    "start": 310,
+                                    "start": 300,
                                     "title": "\u0160veits",
                                     "url": "http://et.wikipedia.org/wiki/\u0160veits"
                                 },
                                 {
-                                    "end": 346,
+                                    "end": 332,
                                     "label": "Ameerika \u00dchendriigid",
-                                    "start": 324,
+                                    "start": 313,
                                     "title": "Ameerika \u00dchendriigid",
                                     "url": "http://et.wikipedia.org/wiki/Ameerika_\u00dchendriigid"
                                 }
                             ],
-                            "references": [
-                                0,
-                                0
-                            ],
-                            "text": "\n rafineerimise ettev\u00f5te Schwechatis]]\n\ni- ja paberivabrik]]\nAustria t\u00e4htsaimad ekspordiartiklid on\n*masinad ja varuosad\n*mootors\u00f5idukid ja nende varuosad\n*paber ja papp\n*metallikaubad\n*kemikaalid\n*raud ja teras\n*tekstiilid\n*toidukaubad\n\nAustria t\u00e4htsaimad ekspordipartnerid on Saksamaa 30,96%, Itaalia 8,17%, \u0160veits 4,99%, Ameerika \u00dchendriigid",
+                            "text": "\n rafineerimise ettev\u00f5te Schwechatis]]\n\ni- ja paberivabrik]]\nAustria t\u00e4htsaimad ekspordiartiklid on\nmasinad ja varuosad\nmootors\u00f5idukid ja nende varuosad\npaber ja papp\nmetallikaubad\nkemikaalid\nraud ja teras\ntekstiilid\ntoidukaubad\nAustria t\u00e4htsaimad ekspordipartnerid on Saksamaa30,96%, Itaalia8,17%, \u0160veits4,99%, Ameerika \u00dchendriigid",
                             "title": "Eksport"
                         },
                         {
                             "internal_links": [
                                 {
-                                    "end": 187,
+                                    "end": 178,
                                     "label": "Saksamaa",
-                                    "start": 177,
+                                    "start": 171,
                                     "title": "Saksamaa",
                                     "url": "http://et.wikipedia.org/wiki/Saksamaa"
                                 },
                                 {
-                                    "end": 202,
+                                    "end": 192,
                                     "label": "\u0160veits",
-                                    "start": 194,
+                                    "start": 187,
                                     "title": "\u0160veits",
                                     "url": "http://et.wikipedia.org/wiki/\u0160veits"
                                 },
                                 {
-                                    "end": 217,
+                                    "end": 206,
                                     "label": "Itaalia",
-                                    "start": 208,
+                                    "start": 200,
                                     "title": "Itaalia",
                                     "url": "http://et.wikipedia.org/wiki/Itaalia"
                                 },
                                 {
-                                    "end": 232,
+                                    "end": 220,
                                     "label": "Holland",
-                                    "start": 223,
+                                    "start": 214,
                                     "title": "Holland",
                                     "url": "http://et.wikipedia.org/wiki/Holland"
                                 }
                             ],
-                            "references": [
-                                0,
-                                0
-                            ],
-                            "text": "\nAustria t\u00e4htsaimad impordiartiklid on\n*masinad ja varuosad\n*mootors\u00f5idukid\n*kemikaalid\n*metallikaubad\n*\u00f5li ja \u00f5liproduktid\n*toidukaubad\n\nAustria t\u00e4htsaimad impordipartnerid on Saksamaa 45,07%, \u0160veits 6,76%, Itaalia 6,66%, Holland",
+                            "text": "\nAustria t\u00e4htsaimad impordiartiklid on\nmasinad ja varuosad\nmootors\u00f5idukid\nkemikaalid\nmetallikaubad\n\u00f5li ja \u00f5liproduktid\ntoidukaubad\nAustria t\u00e4htsaimad impordipartnerid on Saksamaa45,07%, \u0160veits6,76%, Itaalia6,66%, Holland",
                             "title": "Import"
                         }
                     ],
@@ -585,165 +432,158 @@
                 {
                     "internal_links": [
                         {
-                            "end": 23,
+                            "end": 21,
                             "label": "b\u00f6rs",
-                            "start": 17,
+                            "start": 18,
                             "title": "b\u00f6rs",
                             "url": "http://et.wikipedia.org/wiki/b\u00f6rs"
                         },
                         {
-                            "end": 37,
+                            "end": 34,
                             "label": "Viini B\u00f6rs",
                             "start": 25,
                             "title": "Viini B\u00f6rs",
                             "url": "http://et.wikipedia.org/wiki/Viini_B\u00f6rs"
                         },
                         {
-                            "end": 65,
+                            "end": 60,
                             "label": "b\u00f6rsiindeks",
-                            "start": 52,
+                            "start": 50,
                             "title": "b\u00f6rsiindeks",
                             "url": "http://et.wikipedia.org/wiki/b\u00f6rsiindeks"
                         },
                         {
-                            "end": 90,
-                            "label": "Austrian Traded Index",
-                            "start": 67,
+                            "end": 86,
+                            "label": "Austrian Traded Index (",
+                            "start": 64,
                             "title": "Austrian Traded Index",
                             "url": "http://et.wikipedia.org/wiki/Austrian_Traded_Index"
                         }
                     ],
-                    "text": " \nAustria suurim b\u00f6rs on Viini B\u00f6rs, mille t\u00e4htsaim b\u00f6rsiindeks on Austrian Traded Index",
+                    "text": " \nAustria suurim b\u00f6rson Viini B\u00f6rsmille t\u00e4htsaim b\u00f6rsiindekson Austrian Traded Index (",
                     "title": "B\u00f6rsid"
                 },
                 {
                     "images": [
                         {
                             "text": "Lehis",
-                            "url": "http://et.wikipedia.org/wiki/Pilt:Skarbin Laerchen Mischwald 17112006 03.jpg"
+                            "url": "http://et.wikipedia.org/wiki/Pilt:Skarbin_Laerchen_Mischwald_17112006_03.jpg"
                         }
                     ],
                     "internal_links": [
                         {
                             "end": 106,
-                            "label": "p\u00f5llumajandus",
-                            "start": 91,
+                            "label": "p\u00f5llumajanduses",
+                            "start": 92,
                             "title": "p\u00f5llumajandus",
                             "url": "http://et.wikipedia.org/wiki/p\u00f5llumajandus"
                         },
                         {
                             "end": 306,
-                            "label": "mahep\u00f5llundus",
+                            "label": "mahep\u00f5llundusega",
                             "start": 291,
                             "title": "mahep\u00f5llundus",
                             "url": "http://et.wikipedia.org/wiki/mahep\u00f5llundus"
                         },
                         {
-                            "end": 427,
+                            "end": 423,
                             "label": "Marchfeld",
-                            "start": 416,
+                            "start": 415,
                             "title": "Marchfeld",
                             "url": "http://et.wikipedia.org/wiki/Marchfeld"
                         },
                         {
-                            "end": 432,
-                            "label": "Viin",
-                            "start": 426,
-                            "title": "Viin",
-                            "url": "http://et.wikipedia.org/wiki/Viin"
-                        },
-                        {
-                            "end": 490,
+                            "end": 486,
                             "label": "vein",
-                            "start": 484,
+                            "start": 483,
                             "title": "vein",
                             "url": "http://et.wikipedia.org/wiki/vein"
                         },
                         {
-                            "end": 558,
-                            "label": "USA",
-                            "start": 553,
+                            "end": 553,
+                            "label": "USA-",
+                            "start": 550,
                             "title": "USA",
                             "url": "http://et.wikipedia.org/wiki/USA"
                         },
                         {
-                            "end": 593,
+                            "end": 587,
                             "label": "1985",
-                            "start": 587,
+                            "start": 584,
                             "title": "1985",
                             "url": "http://et.wikipedia.org/wiki/1985"
                         },
                         {
-                            "end": 621,
+                            "end": 613,
                             "label": "gl\u00fckoolveiniskandaal",
-                            "start": 599,
+                            "start": 594,
                             "title": "gl\u00fckoolveiniskandaal",
                             "url": "http://et.wikipedia.org/wiki/gl\u00fckoolveiniskandaal"
                         },
                         {
-                            "end": 660,
-                            "label": "kvaliteetvein",
-                            "start": 645,
+                            "end": 652,
+                            "label": "kvaliteetveinid",
+                            "start": 638,
                             "title": "kvaliteetvein",
                             "url": "http://et.wikipedia.org/wiki/kvaliteetvein"
                         }
                     ],
-                    "text": "\ne-segamets L\u00f5una-Austrias]]\n1988. aasta andmetel on umbes 45% Austria pindalast kasutusel p\u00f5llumajanduses.{{lisa viide}}\n\nAustria p\u00f5llumajandus p\u00f5hineb v\u00e4ikemajanditel. P\u00fc\u00fctakse spetsialiseeruda kvaliteettoodetele, sest Euroopa Liidu laienemine teravdab konkurentsi. 10% majandeist tegeleb mahep\u00f5llundusega. Austrias on mahep\u00f5llunduse osakaal Euroopa Liidu suurim.\n\nT\u00e4htsaim p\u00f5llukultuuride kasvatamise piirkond on Marchfeld Viini l\u00e4hedal.\n\nT\u00e4htsaim p\u00f5llumajanduslik eksporttoode on vein, mida viiakse peamiselt Saksamaale (2/3 ekspordist), \u0160veitsi ja USA-sse. Veini eksporti kahjustas 1985. aasta gl\u00fckoolveiniskandaal, ent vahepeal on Austria kvaliteetvein",
+                    "text": "\ne-segamets L\u00f5una-Austrias]]\n1988. aasta andmetel on umbes 45% Austria pindalast kasutusel p\u00f5llumajanduses.{{lisa viide}}\nAustria p\u00f5llumajandus p\u00f5hineb v\u00e4ikemajanditel. P\u00fc\u00fctakse spetsialiseeruda kvaliteettoodetele, sest Euroopa Liidu laienemine teravdab konkurentsi. 10% majandeist tegeleb mahep\u00f5llundusega. Austrias on mahep\u00f5llunduse osakaal Euroopa Liidu suurim.\nT\u00e4htsaim p\u00f5llukultuuride kasvatamise piirkond on MarchfeldViin]]i l\u00e4hedal.\nT\u00e4htsaim p\u00f5llumajanduslik eksporttoode on veinmida viiakse peamiselt Saksamaale (2/3 ekspordist), \u0160veitsi ja USA-sse. Veini eksporti kahjustas 1985aasta gl\u00fckoolveiniskandaalent vahepeal on Austria kvaliteetveinid",
                     "title": "P\u00f5llumajandus"
                 },
                 {
                     "internal_links": [
                         {
                             "end": 100,
-                            "label": "mets",
+                            "label": "metsade",
                             "start": 94,
                             "title": "mets",
                             "url": "http://et.wikipedia.org/wiki/mets"
                         },
                         {
-                            "end": 126,
+                            "end": 123,
                             "label": "metsamajandus",
                             "start": 111,
                             "title": "metsamajandus",
                             "url": "http://et.wikipedia.org/wiki/metsamajandus"
                         },
                         {
-                            "end": 195,
-                            "label": "puidut\u00f6\u00f6stus",
-                            "start": 181,
+                            "end": 192,
+                            "label": "puidut\u00f6\u00f6stust",
+                            "start": 180,
                             "title": "puidut\u00f6\u00f6stus",
                             "url": "http://et.wikipedia.org/wiki/puidut\u00f6\u00f6stus"
                         },
                         {
-                            "end": 213,
-                            "label": "paberit\u00f6\u00f6stus",
-                            "start": 198,
+                            "end": 210,
+                            "label": "paberit\u00f6\u00f6stust",
+                            "start": 197,
                             "title": "paberit\u00f6\u00f6stus",
                             "url": "http://et.wikipedia.org/wiki/paberit\u00f6\u00f6stus"
                         },
                         {
-                            "end": 263,
-                            "label": "L\u00f5una-Euroopa",
-                            "start": 248,
+                            "end": 262,
+                            "label": "L\u00f5una-Euroopasse",
+                            "start": 247,
                             "title": "L\u00f5una-Euroopa",
                             "url": "http://et.wikipedia.org/wiki/L\u00f5una-Euroopa"
                         },
                         {
-                            "end": 281,
+                            "end": 276,
                             "label": "Jahimajandus",
-                            "start": 267,
+                            "start": 265,
                             "title": "Jahimajandus",
                             "url": "http://et.wikipedia.org/wiki/Jahimajandus"
                         },
                         {
-                            "end": 293,
+                            "end": 287,
                             "label": "kalandus",
-                            "start": 283,
+                            "start": 280,
                             "title": "kalandus",
                             "url": "http://et.wikipedia.org/wiki/kalandus"
                         }
                     ],
-                    "text": "\n1988. aasta andmetel on umbes 40% Austriast kasutusel metsamajanduses.{{lisa viide}}\n\nSuurte metsade t\u00f5ttu on metsamajandus oluline majandusharu. Toorainega varustatakse kohalikku puidut\u00f6\u00f6stust ja paberit\u00f6\u00f6stust. Toorpuitu eksporditakse peamiselt L\u00f5una-Euroopasse.\n\nJahimajandus ja kalandus",
+                    "text": "\n1988. aasta andmetel on umbes 40% Austriast kasutusel metsamajanduses.{{lisa viide}}\nSuurte metsade t\u00f5ttu on metsamajandusoluline majandusharu. Toorainega varustatakse kohalikku puidut\u00f6\u00f6stust ja paberit\u00f6\u00f6stust. Toorpuitu eksporditakse peamiselt L\u00f5una-Euroopasse.\nJahimajandusja kalandus",
                     "title": "Metsamajandus"
                 },
                 {
@@ -755,338 +595,300 @@
                     ],
                     "internal_links": [
                         {
-                            "end": 74,
+                            "end": 72,
                             "label": "plii",
-                            "start": 68,
+                            "start": 69,
                             "title": "plii",
                             "url": "http://et.wikipedia.org/wiki/plii"
                         },
                         {
-                            "end": 100,
-                            "label": "Bad Bleiberg",
+                            "end": 99,
+                            "label": "Bad Bleibergis",
                             "start": 86,
                             "title": "Bad Bleiberg",
                             "url": "http://et.wikipedia.org/wiki/Bad_Bleiberg"
                         },
                         {
-                            "end": 151,
-                            "label": "rauamaagi",
+                            "end": 149,
+                            "label": "rauamaagi-",
                             "start": 140,
                             "title": "rauamaak",
                             "url": "http://et.wikipedia.org/wiki/rauamaak"
                         },
                         {
-                            "end": 164,
-                            "label": "pruuns\u00f6e",
-                            "start": 154,
+                            "end": 170,
+                            "label": "pruuns\u00f6ekaevandusi",
+                            "start": 153,
                             "title": "pruuns\u00fcsi",
                             "url": "http://et.wikipedia.org/wiki/pruuns\u00fcsi"
                         },
                         {
-                            "end": 200,
-                            "label": "sool",
-                            "start": 194,
+                            "end": 195,
+                            "label": "soola",
+                            "start": 191,
                             "title": "sool",
                             "url": "http://et.wikipedia.org/wiki/sool"
                         },
                         {
-                            "end": 230,
+                            "end": 224,
                             "label": "raudl\u00e4igiga",
-                            "start": 217,
+                            "start": 214,
                             "title": "raudl\u00e4ik",
                             "url": "http://et.wikipedia.org/wiki/raudl\u00e4ik"
                         },
                         {
-                            "end": 268,
-                            "label": "Erzberg",
-                            "start": 259,
+                            "end": 264,
+                            "label": "Erzbergilt",
+                            "start": 255,
                             "title": "Erzberg",
                             "url": "http://et.wikipedia.org/wiki/Erzberg"
                         },
                         {
-                            "end": 284,
-                            "label": "magnesiidi",
-                            "start": 272,
+                            "end": 279,
+                            "label": "magnesiidi (",
+                            "start": 268,
                             "title": "magnesiit",
                             "url": "http://et.wikipedia.org/wiki/magnesiit"
                         },
                         {
-                            "end": 317,
-                            "label": "volframimaagi",
-                            "start": 302,
+                            "end": 312,
+                            "label": "volframimaagi (",
+                            "start": 298,
                             "title": "volframimaak",
                             "url": "http://et.wikipedia.org/wiki/volframimaak"
                         },
                         {
-                            "end": 357,
-                            "label": "nafta",
-                            "start": 350,
+                            "end": 352,
+                            "label": "nafta (",
+                            "start": 346,
                             "title": "nafta",
                             "url": "http://et.wikipedia.org/wiki/nafta"
                         },
                         {
-                            "end": 385,
-                            "label": "maagaasi",
-                            "start": 375,
+                            "end": 380,
+                            "label": "maagaasi (",
+                            "start": 371,
                             "title": "maagaasi",
                             "url": "http://et.wikipedia.org/wiki/maagaasi"
                         },
                         {
-                            "end": 450,
+                            "end": 443,
                             "label": "Salinen Austria",
-                            "start": 433,
+                            "start": 429,
                             "title": "Salinen Austria",
                             "url": "http://et.wikipedia.org/wiki/Salinen_Austria"
                         },
                         {
-                            "end": 494,
-                            "label": "keedusool",
-                            "start": 483,
+                            "end": 487,
+                            "label": "keedusoola",
+                            "start": 478,
                             "title": "keedusool",
                             "url": "http://et.wikipedia.org/wiki/keedusool"
                         },
                         {
-                            "end": 518,
-                            "label": "kivisool",
-                            "start": 508,
+                            "end": 511,
+                            "label": "kivisoola",
+                            "start": 503,
                             "title": "kivisool",
                             "url": "http://et.wikipedia.org/wiki/kivisool"
                         },
                         {
-                            "end": 617,
-                            "label": "M\u00e4et\u00f6\u00f6stus",
-                            "start": 605,
+                            "end": 610,
+                            "label": "M\u00e4et\u00f6\u00f6stuses",
+                            "start": 599,
                             "title": "M\u00e4et\u00f6\u00f6stus",
                             "url": "http://et.wikipedia.org/wiki/M\u00e4et\u00f6\u00f6stus"
                         },
                         {
-                            "end": 676,
-                            "label": "kivimurdud",
-                            "start": 664,
+                            "end": 669,
+                            "label": "kivimurdudes",
+                            "start": 658,
                             "title": "kivimurdud",
                             "url": "http://et.wikipedia.org/wiki/kivimurdud"
                         },
                         {
-                            "end": 689,
-                            "label": "kruus",
-                            "start": 682,
+                            "end": 681,
+                            "label": "kruusa",
+                            "start": 676,
                             "title": "kruus",
                             "url": "http://et.wikipedia.org/wiki/kruus"
                         },
                         {
-                            "end": 707,
-                            "label": "liivakarj\u00e4\u00e4r",
-                            "start": 693,
+                            "end": 702,
+                            "label": "liivakarj\u00e4\u00e4rides",
+                            "start": 687,
                             "title": "liivakarj\u00e4\u00e4r",
                             "url": "http://et.wikipedia.org/wiki/liivakarj\u00e4\u00e4r"
                         }
                     ],
-                    "references": [
-                        1
-                    ],
-                    "text": "\n]]\nM\u00e4et\u00f6\u00f6stuse t\u00e4htsus on viimastel k\u00fcmnenditel v\u00e4henenud. N\u00e4iteks plii kaevandamine Bad Bleibergis on l\u00f5petatud. Suletud on ka suurem osa rauamaagi- ja pruuns\u00f6ekaevandusi.  \n\nOlulised on veel soola, rauamaagi (koos raudl\u00e4igiga 2 091 995 tonni, peaaegu k\u00f5ik Erzbergilt), magnesiidi (769 188 tonni) ja volframimaagi (400 000 tonni) kaevandamine ning nafta (856 270 tonni) ja maagaasi (1,76 miljardit kuupmeetrit). Suurim soolatootja Salinen Austria tootis 2006. aastal 764 189 tonni keedusoola ja 1336 tonni kivisoola. Pruuns\u00f6ekaevandusi on j\u00e4\u00e4nud ainult \u00fcks (7854 tonni 2006, 3,7 miljonit tonni 1970). \n\nM\u00e4et\u00f6\u00f6stuses on umbes 5000 t\u00f6\u00f6tajat, kellest enamik t\u00f6\u00f6tab kivimurdudes ning kruusa- ja liivakarj\u00e4\u00e4r",
+                    "text": "\n]]\nM\u00e4et\u00f6\u00f6stuse t\u00e4htsus on viimastel k\u00fcmnenditel v\u00e4henenud. N\u00e4iteks pliikaevandamine Bad Bleibergis on l\u00f5petatud. Suletud on ka suurem osa rauamaagi-ja pruuns\u00f6ekaevandusi. \nOlulised on veel soola, rauamaagi (koos raudl\u00e4igiga2 091 995 tonni, peaaegu k\u00f5ik Erzbergilt), magnesiidi (769 188 tonni) ja volframimaagi (400 000 tonni) kaevandamine ning nafta (856 270 tonni) ja maagaasi (1,76 miljardit kuupmeetrit). Suurim soolatootja Salinen Austriatootis 2006. aastal 764 189 tonni keedusoola ja 1336 tonni kivisoola. Pruuns\u00f6ekaevandusi on j\u00e4\u00e4nud ainult \u00fcks (7854 tonni 2006, 3,7 miljonit tonni 1970). \nM\u00e4et\u00f6\u00f6stuses on umbes 5000 t\u00f6\u00f6tajat, kellest enamik t\u00f6\u00f6tab kivimurdudes ning kruusa- ja liivakarj\u00e4\u00e4rides",
                     "title": "M\u00e4et\u00f6\u00f6stus"
                 },
                 {
                     "internal_links": [
                         {
-                            "end": 37,
+                            "end": 35,
                             "label": "rasket\u00f6\u00f6stus",
-                            "start": 23,
+                            "start": 24,
                             "title": "rasket\u00f6\u00f6stus",
                             "url": "http://et.wikipedia.org/wiki/rasket\u00f6\u00f6stus"
                         },
                         {
-                            "end": 56,
-                            "label": "Musta metallurgia",
-                            "start": 37,
-                            "title": "Must metallurgia",
-                            "url": "http://et.wikipedia.org/wiki/Must_metallurgia"
-                        },
-                        {
-                            "end": 62,
+                            "end": 77,
                             "label": "Linz",
-                            "start": 56,
+                            "start": 74,
                             "title": "Linz",
                             "url": "http://et.wikipedia.org/wiki/Linz"
                         },
                         {
-                            "end": 70,
-                            "label": "Leoben",
-                            "start": 62,
-                            "title": "Leoben",
-                            "url": "http://et.wikipedia.org/wiki/Leoben"
-                        },
-                        {
-                            "end": 82,
-                            "label": "Kapfenberg",
-                            "start": 70,
+                            "end": 98,
+                            "label": "Kapfenberg)",
+                            "start": 88,
                             "title": "Kapfenberg",
                             "url": "http://et.wikipedia.org/wiki/Kapfenberg"
                         },
                         {
-                            "end": 144,
+                            "end": 158,
                             "label": "V\u00e4rvilistest metallidest",
-                            "start": 118,
+                            "start": 135,
                             "title": "V\u00e4rvilised metallid",
                             "url": "http://et.wikipedia.org/wiki/V\u00e4rvilised_metallid"
                         },
                         {
-                            "end": 179,
-                            "label": "alumiinium",
-                            "start": 167,
+                            "end": 193,
+                            "label": "alumiiniumi",
+                            "start": 183,
                             "title": "alumiinium",
                             "url": "http://et.wikipedia.org/wiki/alumiinium"
                         },
                         {
-                            "end": 191,
-                            "label": "Ranshofen",
-                            "start": 180,
+                            "end": 206,
+                            "label": "Ranshofenis",
+                            "start": 196,
                             "title": "Ranshofen",
                             "url": "http://et.wikipedia.org/wiki/Ranshofen"
                         },
                         {
-                            "end": 200,
-                            "label": "vask",
-                            "start": 194,
+                            "end": 214,
+                            "label": "vaske",
+                            "start": 210,
                             "title": "vask",
                             "url": "http://et.wikipedia.org/wiki/vask"
                         },
                         {
-                            "end": 211,
-                            "label": "Brixlegg",
-                            "start": 201,
+                            "end": 226,
+                            "label": "Brixleggis",
+                            "start": 217,
                             "title": "Brixlegg",
                             "url": "http://et.wikipedia.org/wiki/Brixlegg"
                         },
                         {
-                            "end": 232,
-                            "label": "Gailitz",
-                            "start": 223,
+                            "end": 247,
+                            "label": "Gailitzis",
+                            "start": 239,
                             "title": "Gailitz",
                             "url": "http://et.wikipedia.org/wiki/Gailitz"
                         },
                         {
-                            "end": 261,
-                            "label": "elektrienergia",
-                            "start": 245,
+                            "end": 276,
+                            "label": "elektrienergiast",
+                            "start": 261,
                             "title": "elektrienergia",
                             "url": "http://et.wikipedia.org/wiki/elektrienergia"
                         },
                         {
-                            "end": 288,
-                            "label": "h\u00fcdroelektrijaam",
-                            "start": 270,
+                            "end": 303,
+                            "label": "h\u00fcdroelektrijaamad",
+                            "start": 286,
                             "title": "h\u00fcdroelektrijaam",
                             "url": "http://et.wikipedia.org/wiki/h\u00fcdroelektrijaam"
                         },
                         {
-                            "end": 305,
-                            "label": "Masinat\u00f6\u00f6stus",
-                            "start": 290,
+                            "end": 320,
+                            "label": "Masinat\u00f6\u00f6stus (",
+                            "start": 306,
                             "title": "Masinat\u00f6\u00f6stus",
                             "url": "http://et.wikipedia.org/wiki/Masinat\u00f6\u00f6stus"
                         },
                         {
-                            "end": 331,
+                            "end": 344,
                             "label": "Sankt P\u00f6lten",
-                            "start": 317,
+                            "start": 333,
                             "title": "Sankt P\u00f6lten",
                             "url": "http://et.wikipedia.org/wiki/Sankt_P\u00f6lten"
                         },
                         {
-                            "end": 338,
-                            "label": "Steyr",
-                            "start": 331,
-                            "title": "Steyr",
-                            "url": "http://et.wikipedia.org/wiki/Steyr"
-                        },
-                        {
-                            "end": 352,
-                            "label": "kerge",
-                            "start": 345,
+                            "end": 366,
+                            "label": "kerge-",
+                            "start": 361,
                             "title": "kerget\u00f6\u00f6stus",
                             "url": "http://et.wikipedia.org/wiki/kerget\u00f6\u00f6stus"
                         },
                         {
-                            "end": 364,
-                            "label": "toiduaine",
-                            "start": 353,
-                            "title": "toiduainet\u00f6\u00f6stus",
-                            "url": "http://et.wikipedia.org/wiki/toiduainet\u00f6\u00f6stus"
-                        },
-                        {
-                            "end": 381,
-                            "label": "naftat\u00f6\u00f6stus",
-                            "start": 367,
+                            "end": 412,
+                            "label": "naftat\u00f6\u00f6stuse",
+                            "start": 400,
                             "title": "naftat\u00f6\u00f6stus",
                             "url": "http://et.wikipedia.org/wiki/naftat\u00f6\u00f6stus"
                         },
                         {
-                            "end": 399,
-                            "label": "energeetika",
-                            "start": 386,
+                            "end": 437,
+                            "label": "energeetikaseadmeid",
+                            "start": 419,
                             "title": "energeetika",
                             "url": "http://et.wikipedia.org/wiki/energeetika"
                         },
                         {
-                            "end": 431,
-                            "label": "vedur",
-                            "start": 424,
+                            "end": 464,
+                            "label": "vedureid",
+                            "start": 457,
                             "title": "vedur",
                             "url": "http://et.wikipedia.org/wiki/vedur"
                         },
                         {
-                            "end": 449,
+                            "end": 479,
                             "label": "mootorrattaid",
-                            "start": 434,
+                            "start": 467,
                             "title": "mootorratas",
                             "url": "http://et.wikipedia.org/wiki/mootorratas"
                         },
                         {
-                            "end": 460,
-                            "label": "j\u00f5elaev",
-                            "start": 451,
+                            "end": 490,
+                            "label": "j\u00f5elaevu",
+                            "start": 483,
                             "title": "j\u00f5elaev",
                             "url": "http://et.wikipedia.org/wiki/j\u00f5elaev"
                         },
                         {
-                            "end": 476,
-                            "label": "Keemiat\u00f6\u00f6stus",
-                            "start": 461,
+                            "end": 506,
+                            "label": "Keemiat\u00f6\u00f6stuse",
+                            "start": 493,
                             "title": "Keemiat\u00f6\u00f6stus",
                             "url": "http://et.wikipedia.org/wiki/Keemiat\u00f6\u00f6stus"
                         },
                         {
-                            "end": 518,
-                            "label": "l\u00e4mmastikv\u00e4etis",
-                            "start": 501,
+                            "end": 549,
+                            "label": "l\u00e4mmastikv\u00e4etised",
+                            "start": 533,
                             "title": "l\u00e4mmastikv\u00e4etis",
                             "url": "http://et.wikipedia.org/wiki/l\u00e4mmastikv\u00e4etis"
                         },
                         {
-                            "end": 538,
-                            "label": "kunstkiud",
-                            "start": 527,
+                            "end": 569,
+                            "label": "kunstkiud (",
+                            "start": 559,
                             "title": "kunstkiud",
                             "url": "http://et.wikipedia.org/wiki/kunstkiud"
                         },
                         {
-                            "end": 547,
-                            "label": "Gmunden",
-                            "start": 538,
-                            "title": "Gmunden",
-                            "url": "http://et.wikipedia.org/wiki/Gmunden"
-                        },
-                        {
-                            "end": 561,
-                            "label": "plastmass",
-                            "start": 550,
+                            "end": 594,
+                            "label": "plastmassid",
+                            "start": 584,
                             "title": "plastmass",
                             "url": "http://et.wikipedia.org/wiki/plastmass"
                         }
                     ],
-                    "text": "\nT\u00f6\u00f6stuses on esikohal rasket\u00f6\u00f6stus. Musta metallurgia (Linz, Leoben, Kapfenberg) toodang \u00fcletab omamaised vajadused. V\u00e4rvilistest metallidest toodetakse k\u00f5ige rohkem alumiiniumi (Ranshofenis), vaske (Brixleggis) ja pliid (Gailitzis). \u00dcle poole elektrienergiast annavad h\u00fcdroelektrijaamad. Masinat\u00f6\u00f6stus (Viin, Graz, Sankt P\u00f6lten, Steyr) toodab kerge-, toiduaine- ja naftat\u00f6\u00f6stuse ning energeetikaseadmeid, elektriaparaate, vedureid, mootorrattaid ja j\u00f5elaevu. Keemiat\u00f6\u00f6stuse p\u00f5hitoodangusse kuuluvad l\u00e4mmastikv\u00e4etised (Linz), kunstkiud (Gmunden) ja plastmass",
+                    "text": "\nT\u00f6\u00f6stuses on esikohal rasket\u00f6\u00f6stusMust metallurgia|Musta metallurgia]] (LinzLeoben]], Kapfenberg)toodang \u00fcletab omamaised vajadused. V\u00e4rvilistest metallidesttoodetakse k\u00f5ige rohkem alumiiniumi (Ranshofenis), vaske (Brixleggis) ja pliid (Gailitzis). \u00dcle poole elektrienergiast annavad h\u00fcdroelektrijaamad. Masinat\u00f6\u00f6stus (Viin, Graz, Sankt P\u00f6ltenSteyr]]) toodab kerge-toiduainet\u00f6\u00f6stus|toiduaine]]- ja naftat\u00f6\u00f6stuse ning energeetikaseadmeid, elektriaparaate, vedureid, mootorrattaidja j\u00f5elaevu. Keemiat\u00f6\u00f6stuse p\u00f5hitoodangusse kuuluvad l\u00e4mmastikv\u00e4etised (Linz), kunstkiud (Gmunden]]) ja plastmassid",
                     "title": "T\u00f6\u00f6tlev t\u00f6\u00f6stus"
                 },
                 {
@@ -1097,152 +899,45 @@
                         },
                         {
                             "text": "Hinterthal talvel",
-                            "url": "http://et.wikipedia.org/wiki/Pilt:Hinterthal View3.jpg"
+                            "url": "http://et.wikipedia.org/wiki/Pilt:Hinterthal_View3.jpg"
                         }
                     ],
                     "internal_links": [
                         {
-                            "end": 51,
-                            "label": "h\u00fcvis",
+                            "end": 52,
+                            "label": "h\u00fcvistest",
                             "start": 44,
                             "title": "h\u00fcvis",
                             "url": "http://et.wikipedia.org/wiki/h\u00fcvis"
                         },
                         {
-                            "end": 86,
+                            "end": 83,
                             "label": "turism",
                             "start": 78,
                             "title": "turism",
                             "url": "http://et.wikipedia.org/wiki/turism"
                         },
                         {
-                            "end": 97,
-                            "label": "kaubandus",
-                            "start": 86,
-                            "title": "kaubandus",
-                            "url": "http://et.wikipedia.org/wiki/kaubandus"
-                        },
-                        {
-                            "end": 110,
-                            "label": "pangandus",
-                            "start": 99,
-                            "title": "pangandus",
-                            "url": "http://et.wikipedia.org/wiki/pangandus"
-                        },
-                        {
-                            "end": 170,
-                            "label": "pangasaladus",
-                            "start": 156,
+                            "end": 173,
+                            "label": "pangasaladusest",
+                            "start": 159,
                             "title": "pangasaladus",
                             "url": "http://et.wikipedia.org/wiki/pangasaladus"
-                        },
-                        {
-                            "end": 430,
-                            "label": "talispordiga",
-                            "start": 416,
-                            "title": "talisport",
-                            "url": "http://et.wikipedia.org/wiki/talisport"
                         }
                     ],
-                    "text": "\n\n\n\nTeenused moodustavad Austrias \u00fcle poole h\u00fcvistest. Peamised valdkonnad on turism, kaubandus ja pangandus. \n\nAustria pangad l\u00f5ikavad t\u00e4nini kasu rangest pangasaladusest. P\u00e4rast Euroopa Liitu astumist kaotati k\u00fcll pangakontode anon\u00fc\u00fcmsus, kuid v\u00f5imud p\u00e4\u00e4sevad neile ligi \u00fcksnes kohtuniku korraldusega.\n\nTurism on Austrias oluline majandusharu. Umbes 5% sisemajanduse kogutoodangust on otseselt v\u00f5i kaudselt seotud talispordiga",
+                    "text": "\n\n\nTeenused moodustavad Austrias \u00fcle poole h\u00fcvistest. Peamised valdkonnad on turismkaubandus]] ja [[pangandus]]. \nAustria pangad l\u00f5ikavad t\u00e4nini kasu rangest pangasaladusest",
                     "title": "Teenindus"
                 }
             ],
-            "text": "\n\n\nAustria on turumajanduslik arenenud t\u00f6\u00f6stusriik. 1. jaanuaril 2002 v\u00f5eti kasutusele euro, mis vahetas v\u00e4lja Austria \u0161illingi.\n\nP\u00e4rast Teist maailmas\u00f5da riigistati Saksamaale kuulunud ettev\u00f5tted. Riigi valduses on rasket\u00f6\u00f6stuse p\u00f5hiharud (energeetika, metallurgia, naftat\u00f6\u00f6stus) ja suured pangad.{{lisa viide}} Haldusfirma \u00d6sterreichische Industrieverwaltungs-Aktiengesellschaft kontrollitavais riigiettev\u00f5tteis valmib veerand Austria t\u00f6\u00f6stustoodangust.{{lisa viide}} Riigistatud t\u00f6\u00f6stus on suuremalt jaolt erastatud (OMV AG, Voestalpine AG, VA Technologie AG, Steyr Daimler Puch AG, Austria Metall AG). Steyr-Daimler-Puch m\u00fc\u00fcdi kontsernile Magna International, VA Tech Siemens AG-le, Jenbacher Werke General Electricule.\n\nAustria majandusse on paigutatud rohkesti v\u00e4liskapitali, millest kolmandik p\u00e4rineb Saksamaalt. Et Austria v\u00e4lispoliitika p\u00f5hineb neutraalsusel, on s\u00f5jalised kulutused piiratud. See on soodustanud Austria majanduse \u00fchtlasemat arengut v\u00f5rreldes L\u00e4\u00e4ne-Euroopa",
+            "text": "\n\n\nAustria on turumajanduslik arenenud t\u00f6\u00f6stusriik1. jaanuaril 2002v\u00f5eti kasutusele euromis vahetas v\u00e4lja Austria \u0161illingi.\nP\u00e4rast Teist maailmas\u00f5dariigistati Saksamaale kuulunud ettev\u00f5tted. Riigi valduses on rasket\u00f6\u00f6stuse p\u00f5hiharud (energeetikametallurgia]], naftat\u00f6\u00f6stus)ja suured pangad.{{lisa viide}} Haldusfirma \u00d6sterreichische Industrieverwaltungs-Aktiengesellschaftkontrollitavais riigiettev\u00f5tteis valmib veerand Austria t\u00f6\u00f6stustoodangust.{{lisa viide}} Riigistatud t\u00f6\u00f6stus on suuremalt jaolt erastatud (OMV AGVoestalpine AG]], VA Technologie AGSteyr Daimler Puch AG]], Austria Metall AG)Steyr-Daimler-Puch]] m\u00fc\u00fcdi kontsernile Magna InternationalVA Tech]] Siemens AG-le, Jenbacher WerkeGeneral Electric]]ule.\nAustria majandusse on paigutatud rohkesti v\u00e4liskapitali, millest kolmandik p\u00e4rineb Saksamaalt. Et Austria v\u00e4lispoliitika p\u00f5hineb neutraalsusel, on s\u00f5jalised kulutused piiratud. See on soodustanud Austria majanduse \u00fchtlasemat arengut v\u00f5rreldes L\u00e4\u00e4ne-Euroopa",
             "title": "Majandus"
         },
         {
-            "internal_links": [
-                {
-                    "end": 44,
-                    "label": "1999. aasta Austria parlamendivalimised",
-                    "start": 3,
-                    "title": "1999. aasta Austria parlamendivalimised",
-                    "url": "http://et.wikipedia.org/wiki/1999._aasta_Austria_parlamendivalimised"
-                },
-                {
-                    "end": 86,
-                    "label": "2002. aasta Austria parlamendivalimised",
-                    "start": 45,
-                    "title": "2002. aasta Austria parlamendivalimised",
-                    "url": "http://et.wikipedia.org/wiki/2002._aasta_Austria_parlamendivalimised"
-                },
-                {
-                    "end": 128,
-                    "label": "2006. aasta Austria parlamendivalimised",
-                    "start": 87,
-                    "title": "2006. aasta Austria parlamendivalimised",
-                    "url": "http://et.wikipedia.org/wiki/2006._aasta_Austria_parlamendivalimised"
-                },
-                {
-                    "end": 170,
-                    "label": "2008. aasta Austria parlamendivalimised",
-                    "start": 129,
-                    "title": "2008. aasta Austria parlamendivalimised",
-                    "url": "http://et.wikipedia.org/wiki/2008._aasta_Austria_parlamendivalimised"
-                },
-                {
-                    "end": 212,
-                    "label": "2010. aasta Austria presidendivalimised",
-                    "start": 171,
-                    "title": "2010. aasta Austria presidendivalimised",
-                    "url": "http://et.wikipedia.org/wiki/2010._aasta_Austria_presidendivalimised"
-                },
-                {
-                    "end": 239,
-                    "label": "Austria jalgpallikoondis",
-                    "start": 213,
-                    "title": "Austria jalgpallikoondis",
-                    "url": "http://et.wikipedia.org/wiki/Austria_jalgpallikoondis"
-                },
-                {
-                    "end": 263,
-                    "label": "Austria meedias\u00fcsteem",
-                    "start": 240,
-                    "title": "Austria meedias\u00fcsteem",
-                    "url": "http://et.wikipedia.org/wiki/Austria_meedias\u00fcsteem"
-                },
-                {
-                    "end": 295,
-                    "label": "Austria lennukompaniide loend",
-                    "start": 264,
-                    "title": "Austria lennukompaniide loend",
-                    "url": "http://et.wikipedia.org/wiki/Austria_lennukompaniide_loend"
-                },
-                {
-                    "end": 323,
-                    "label": "Austria v\u00e4lismaateenistus",
-                    "start": 296,
-                    "title": "Austria v\u00e4lismaateenistus",
-                    "url": "http://et.wikipedia.org/wiki/Austria_v\u00e4lismaateenistus"
-                },
-                {
-                    "end": 362,
-                    "label": "Austria Eurovisiooni lauluv\u00f5istlusel",
-                    "start": 324,
-                    "title": "Austria Eurovisiooni lauluv\u00f5istlusel",
-                    "url": "http://et.wikipedia.org/wiki/Austria_Eurovisiooni_lauluv\u00f5istlusel"
-                },
-                {
-                    "end": 392,
-                    "label": "Austria jalgpalli k\u00f5rgliiga",
-                    "start": 363,
-                    "title": "Austria jalgpalli k\u00f5rgliiga",
-                    "url": "http://et.wikipedia.org/wiki/Austria_jalgpalli_k\u00f5rgliiga"
-                },
-                {
-                    "end": 409,
-                    "label": "Austria veinid",
-                    "start": 393,
-                    "title": "Austria veinid",
-                    "url": "http://et.wikipedia.org/wiki/Austria_veinid"
-                }
-            ],
-            "text": "\n* 1999. aasta Austria parlamendivalimised\n* 2002. aasta Austria parlamendivalimised\n* 2006. aasta Austria parlamendivalimised\n* 2008. aasta Austria parlamendivalimised\n* 2010. aasta Austria presidendivalimised\n* Austria jalgpallikoondis\n* Austria meedias\u00fcsteem\n* Austria lennukompaniide loend\n* Austria v\u00e4lismaateenistus\n* Austria Eurovisiooni lauluv\u00f5istlusel\n* Austria jalgpalli k\u00f5rgliiga\n* Austria veinid",
+            "text": "\n [[1999. aasta Austria parlamendivalimised]]\n [[2002. aasta Austria parlamendivalimised]]\n [[2006. aasta Austria parlamendivalimised]]\n [[2008. aasta Austria parlamendivalimised]]\n [[2010. aasta Austria presidendivalimised]]\n [[Austria jalgpallikoondis]]\n [[Austria meedias\u00fcsteem]]\n [[Austria lennukompaniide loend]]\n [[Austria v\u00e4lismaateenistus]]\n [[Austria Eurovisiooni lauluv\u00f5istlusel]]\n [[Austria jalgpalli k\u00f5rgliiga]]\n [[Austria veinid]]",
             "title": "Vaata ka"
         },
         {
-            "text": "\n{{viited}}\n\n{{ELriigid}}\n{{Euroopariigid}}\n\n{{Coordinate |NS=47.6 |EW=13.78333333 |type=country |region=AT}}\n\n\n",
+            "text": "\n{{viited}}\n{{ELriigid}}\n{{Euroopariigid}}\n{{Coordinate |NS=47.6 |EW=13.78333333 |type=country |region=AT}}\n",
             "title": "Viited"
         }
     ],

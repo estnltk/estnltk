@@ -34,234 +34,179 @@
         {
             "internal_links": [
                 {
-                    "end": 79,
-                    "label": "Austraalia manner",
-                    "start": 60,
+                    "end": 78,
+                    "label": "Austraalia manner;",
+                    "start": 61,
                     "title": "Austraalia manner",
                     "url": "http://et.wikipedia.org/wiki/Austraalia_manner"
                 },
                 {
-                    "end": 125,
-                    "label": "Austraalia (film)",
-                    "start": 106,
-                    "title": "Austraalia (film)",
-                    "url": "http://et.wikipedia.org/wiki/Austraalia_(film)"
-                },
-                {
-                    "end": 312,
+                    "end": 294,
                     "label": "f\u00f6deratiivne riik",
-                    "start": 293,
+                    "start": 278,
                     "title": "f\u00f6deratsioon",
                     "url": "http://et.wikipedia.org/wiki/f\u00f6deratsioon"
                 },
                 {
-                    "end": 331,
-                    "label": "Austraalia mandril",
-                    "start": 311,
-                    "title": "Austraalia manner",
-                    "url": "http://et.wikipedia.org/wiki/Austraalia_manner"
-                },
-                {
-                    "end": 342,
+                    "end": 343,
                     "label": "Tasmaania",
-                    "start": 331,
+                    "start": 335,
                     "title": "Tasmaania",
                     "url": "http://et.wikipedia.org/wiki/Tasmaania"
                 },
                 {
-                    "end": 452,
-                    "label": "Uus-Meremaa",
-                    "start": 439,
+                    "end": 454,
+                    "label": "Uus-Meremaast",
+                    "start": 442,
                     "title": "Uus-Meremaa",
                     "url": "http://et.wikipedia.org/wiki/Uus-Meremaa"
                 },
                 {
-                    "end": 475,
-                    "label": "Indoneesia",
-                    "start": 463,
+                    "end": 477,
+                    "label": "Indoneesiast",
+                    "start": 466,
                     "title": "Indoneesia",
                     "url": "http://et.wikipedia.org/wiki/Indoneesia"
                 },
                 {
-                    "end": 515,
-                    "label": "India ookean",
-                    "start": 501,
+                    "end": 517,
+                    "label": "India ookeanis",
+                    "start": 504,
                     "title": "India ookean",
                     "url": "http://et.wikipedia.org/wiki/India_ookean"
                 },
                 {
                     "end": 536,
                     "label": "Ashmore ja Cartier",
-                    "start": 516,
+                    "start": 519,
                     "title": "Ashmore ja Cartier",
                     "url": "http://et.wikipedia.org/wiki/Ashmore_ja_Cartier"
                 },
                 {
-                    "end": 547,
-                    "label": "J\u00f5ulusaar",
-                    "start": 536,
-                    "title": "J\u00f5ulusaar",
-                    "url": "http://et.wikipedia.org/wiki/J\u00f5ulusaar"
-                },
-                {
                     "end": 563,
                     "label": "Kookossaared",
-                    "start": 549,
+                    "start": 552,
                     "title": "Kookossaared",
                     "url": "http://et.wikipedia.org/wiki/Kookossaared"
                 },
                 {
-                    "end": 581,
-                    "label": "Vaikses ookeanis",
-                    "start": 563,
-                    "title": "Vaikne ookean",
-                    "url": "http://et.wikipedia.org/wiki/Vaikne_ookean"
-                },
-                {
-                    "end": 589,
+                    "end": 603,
                     "label": "Norfolk",
-                    "start": 580,
+                    "start": 597,
                     "title": "Norfolki saar",
                     "url": "http://et.wikipedia.org/wiki/Norfolki_saar"
                 },
                 {
-                    "end": 604,
+                    "end": 617,
                     "label": "Korallimere",
-                    "start": 591,
+                    "start": 607,
                     "title": "Korallimeri",
                     "url": "http://et.wikipedia.org/wiki/Korallimeri"
                 },
                 {
-                    "end": 634,
+                    "end": 646,
                     "label": "Heard ja McDonald",
-                    "start": 615,
+                    "start": 630,
                     "title": "Heard ja McDonald",
                     "url": "http://et.wikipedia.org/wiki/Heard_ja_McDonald"
                 },
                 {
-                    "end": 645,
-                    "label": "Antarktika",
-                    "start": 633,
-                    "title": "Antarktika",
-                    "url": "http://et.wikipedia.org/wiki/Antarktika"
-                },
-                {
-                    "end": 672,
+                    "end": 685,
                     "label": "Kaug-L\u00f5una",
-                    "start": 660,
+                    "start": 676,
                     "title": "Kaug-L\u00f5una",
                     "url": "http://et.wikipedia.org/wiki/Kaug-L\u00f5una"
                 }
             ],
-            "references": [
-                0
-            ],
-            "text": "{{See artikkel| on riigi kohta; mandri kohta vaata artiklit Austraalia manner; filmi kohta vaata artiklit Austraalia (film).}}\nm|(inglise)}}}}</ref>\n|  SKT_elaniku_kohta = 47 400 dollarit {{v\u00e4iksem|(2008)}}\n|  rok-i_kood = AUS\n|  m\u00e4rkused = \n}}\n\n'''Austraalia''' ('''Austraalia \u00dchendus''') on f\u00f6deratiivne riik Austraalia mandril, Tasmaania saarel ja nende l\u00e4hisaartel. Austraalia on pindalalt kuues riik maailmas ning asub l\u00f5unapoolkeral Uus-Meremaast loodes ja Indoneesiast l\u00f5unas. Riigile kuuluvad India ookeanis Ashmore ja Cartier, J\u00f5ulusaar ja Kookossaared, Vaikses ookeanis Norfolk ja Korallimere saared ning Heard ja McDonald Antarktikas. Austraalia on Kaug-L\u00f5una"
+            "text": "{{See artikkel| on riigi kohta; mandri kohta vaata artiklit Austraalia manner;filmi kohta vaata artiklit [[Austraalia (film)]].}}\nm|(inglise)}}}}</ref>\n| SKT_elaniku_kohta = 47 400 dollarit {{v\u00e4iksem|(2008)}}\n| rok-i_kood = AUS\n| m\u00e4rkused = \nAustraalia (Austraalia \u00dchendus) on f\u00f6deratiivne riikAustraalia manner|Austraalia mandril]], Tasmaaniasaarel ja nende l\u00e4hisaartel. Austraalia on pindalalt kuues riik maailmas ning asub l\u00f5unapoolkeral Uus-Meremaast loodes ja Indoneesiast l\u00f5unas. Riigile kuuluvad India ookeanis Ashmore ja CartierJ\u00f5ulusaar]] ja KookossaaredVaikne ookean|Vaikses ookeanis]] Norfolkja Korallimeresaared ning Heard ja McDonaldAntarktika]]s. Austraalia on Kaug-L\u00f5una"
         },
         {
             "images": [
                 {
                     "text": "Austraalia kaart",
-                    "url": "http://et.wikipedia.org/wiki/Pilt:Map of Australia est.png"
+                    "url": "http://et.wikipedia.org/wiki/Pilt:Map_of_Australia_est.png"
                 }
             ],
             "sections": [
                 {
                     "internal_links": [
                         {
-                            "end": 23,
-                            "label": "rannajoon",
-                            "start": 12,
+                            "end": 22,
+                            "label": "rannajoone",
+                            "start": 13,
                             "title": "rannajoon",
                             "url": "http://et.wikipedia.org/wiki/rannajoon"
                         }
                     ],
-                    "references": [
-                        1
-                    ],
-                    "text": "\nAustraalia rannajoon",
+                    "text": "\nAustraalia rannajoone",
                     "title": "Rannajoon"
                 },
                 {
                     "internal_links": [
                         {
-                            "end": 38,
+                            "end": 36,
                             "label": "Eyre'i j\u00e4rv",
-                            "start": 25,
+                            "start": 26,
                             "title": "Eyre'i j\u00e4rv",
                             "url": "http://et.wikipedia.org/wiki/Eyre'i_j\u00e4rv"
                         },
                         {
-                            "end": 121,
-                            "label": "Kosciuszko",
-                            "start": 109,
+                            "end": 119,
+                            "label": "Kosciuszko (",
+                            "start": 108,
                             "title": "Kosciuszko m\u00e4gi",
                             "url": "http://et.wikipedia.org/wiki/Kosciuszko_m\u00e4gi"
                         },
                         {
-                            "end": 146,
-                            "label": "Uus-L\u00f5una-Wales",
-                            "start": 129,
+                            "end": 143,
+                            "label": "Uus-L\u00f5una-Walesi",
+                            "start": 128,
                             "title": "Uus-L\u00f5una-Wales",
                             "url": "http://et.wikipedia.org/wiki/Uus-L\u00f5una-Wales"
                         },
                         {
-                            "end": 215,
+                            "end": 211,
                             "label": "Mawson Peak",
-                            "start": 202,
+                            "start": 201,
                             "title": "Mawson Peak",
                             "url": "http://et.wikipedia.org/wiki/Mawson_Peak"
                         },
                         {
-                            "end": 224,
-                            "label": "Big Beni",
-                            "start": 214,
-                            "title": "Big Ben (Heardi saar)",
-                            "url": "http://et.wikipedia.org/wiki/Big_Ben_(Heardi_saar)"
-                        },
-                        {
-                            "end": 257,
+                            "end": 276,
                             "label": "Heardi saarel",
-                            "start": 242,
+                            "start": 264,
                             "title": "Heard ja McDonald",
                             "url": "http://et.wikipedia.org/wiki/Heard_ja_McDonald"
                         },
                         {
-                            "end": 323,
-                            "label": "Mount McClintock",
-                            "start": 305,
+                            "end": 342,
+                            "label": "Mount McClintock (",
+                            "start": 325,
                             "title": "Mount McClintock",
                             "url": "http://et.wikipedia.org/wiki/Mount_McClintock"
                         },
                         {
-                            "end": 343,
+                            "end": 360,
                             "label": "Antarktika",
-                            "start": 331,
+                            "start": 351,
                             "title": "Antarktika",
                             "url": "http://et.wikipedia.org/wiki/Antarktika"
                         }
                     ],
-                    "text": "\nRiigi madalaim punkt on Eyre'i j\u00e4rv, mis asub 15 m merepinnast madalamal. Austraalia mandri k\u00f5rgeim m\u00e4gi on Kosciuszko (2228 m) Uus-L\u00f5una-Walesi l\u00f5unapiiril ja Austraalia riigi k\u00f5rgeim m\u00e4gi on vulkaan Mawson Peak Big Beni massiivis (2745 m) Heardi saarel. Tinglikult kuulub Austraaliale ka veelgi k\u00f5rgem Mount McClintock (3492 m) Antarktika",
+                    "text": "\nRiigi madalaim punkt on Eyre'i j\u00e4rvmis asub 15 m merepinnast madalamal. Austraalia mandri k\u00f5rgeim m\u00e4gi on Kosciuszko (2228 m) Uus-L\u00f5una-Walesi l\u00f5unapiiril ja Austraalia riigi k\u00f5rgeim m\u00e4gi on vulkaan Mawson PeakBig Ben (Heardi saar)|Big Beni]] massiivis (2745 m) Heardi saarelTinglikult kuulub Austraaliale ka veelgi k\u00f5rgem Mount McClintock (3492 m) Antarktika",
                     "title": "Pinnamood"
                 },
                 {
                     "internal_links": [
                         {
-                            "end": 197,
+                            "end": 195,
                             "label": "Murray",
-                            "start": 189,
+                            "start": 190,
                             "title": "Murray",
                             "url": "http://et.wikipedia.org/wiki/Murray"
-                        },
-                        {
-                            "end": 205,
-                            "label": "Darling",
-                            "start": 196,
-                            "title": "Darling",
-                            "url": "http://et.wikipedia.org/wiki/Darling"
                         }
                     ],
-                    "text": "\nAustraalia pindalast 68 920 km\u00b2 moodustavad veekogud. Enamik j\u00e4rvedest asub riigi kuivas ja tasase pinnamoega siseosas, kus nende pindala s\u00f5ltub sademete hulgast. Austraalia pikim j\u00f5gi on Murray Darling",
+                    "text": "\nAustraalia pindalast 68 920 km\u00b2 moodustavad veekogud. Enamik j\u00e4rvedest asub riigi kuivas ja tasase pinnamoega siseosas, kus nende pindala s\u00f5ltub sademete hulgast. Austraalia pikim j\u00f5gi on Murray",
                     "title": "Veestik"
                 },
                 {
@@ -273,119 +218,105 @@
                     ],
                     "internal_links": [
                         {
-                            "end": 47,
+                            "end": 45,
                             "label": "troopikav\u00f6\u00f6tmes",
-                            "start": 30,
+                            "start": 31,
                             "title": "troopikav\u00f6\u00f6de",
                             "url": "http://et.wikipedia.org/wiki/troopikav\u00f6\u00f6de"
                         },
                         {
-                            "end": 74,
-                            "label": "L\u00e4hisekvatoriaalne kliima",
-                            "start": 47,
-                            "title": "L\u00e4hisekvatoriaalne kliima",
-                            "url": "http://et.wikipedia.org/wiki/L\u00e4hisekvatoriaalne_kliima"
-                        },
-                        {
-                            "end": 94,
-                            "label": "Queensland",
-                            "start": 82,
+                            "end": 93,
+                            "label": "Queenslandi",
+                            "start": 83,
                             "title": "Queensland",
                             "url": "http://et.wikipedia.org/wiki/Queensland"
                         },
                         {
-                            "end": 129,
-                            "label": "mussoon",
-                            "start": 120,
+                            "end": 133,
+                            "label": "mussoonkliima",
+                            "start": 121,
                             "title": "mussoon",
                             "url": "http://et.wikipedia.org/wiki/mussoon"
                         },
                         {
-                            "end": 161,
+                            "end": 159,
                             "label": "L\u00e4\u00e4ne-Austraalia",
-                            "start": 143,
+                            "start": 144,
                             "title": "L\u00e4\u00e4ne-Austraalia",
                             "url": "http://et.wikipedia.org/wiki/L\u00e4\u00e4ne-Austraalia"
                         },
                         {
-                            "end": 182,
-                            "label": "P\u00f5hjaterritoorium",
+                            "end": 180,
+                            "label": "P\u00f5hjaterritooriumi",
                             "start": 163,
                             "title": "P\u00f5hjaterritoorium",
                             "url": "http://et.wikipedia.org/wiki/P\u00f5hjaterritoorium"
                         },
                         {
-                            "end": 255,
+                            "end": 252,
                             "label": "L\u00e4histroopilisse kliimav\u00f6\u00f6temesse",
                             "start": 220,
                             "title": "l\u00e4histroopiline kliimav\u00f6\u00f6de",
                             "url": "http://et.wikipedia.org/wiki/l\u00e4histroopiline_kliimav\u00f6\u00f6de"
                         },
                         {
-                            "end": 279,
+                            "end": 275,
                             "label": "L\u00f5una-Austraalia",
-                            "start": 261,
+                            "start": 260,
                             "title": "L\u00f5una-Austraalia",
                             "url": "http://et.wikipedia.org/wiki/L\u00f5una-Austraalia"
                         },
                         {
-                            "end": 306,
+                            "end": 301,
                             "label": "L\u00e4\u00e4ne-Austraalia",
-                            "start": 288,
+                            "start": 286,
                             "title": "L\u00e4\u00e4ne-Austraalia",
                             "url": "http://et.wikipedia.org/wiki/L\u00e4\u00e4ne-Austraalia"
                         },
                         {
-                            "end": 334,
+                            "end": 328,
                             "label": "Uus-L\u00f5una-Wales",
-                            "start": 317,
+                            "start": 314,
                             "title": "Uus-L\u00f5una-Wales",
                             "url": "http://et.wikipedia.org/wiki/Uus-L\u00f5una-Wales"
                         },
                         {
-                            "end": 358,
-                            "label": "Parasv\u00f6\u00f6tmeline kliima",
-                            "start": 334,
-                            "title": "parasv\u00f6\u00f6de",
-                            "url": "http://et.wikipedia.org/wiki/parasv\u00f6\u00f6de"
-                        },
-                        {
-                            "end": 376,
+                            "end": 381,
                             "label": "Victoria",
-                            "start": 366,
+                            "start": 374,
                             "title": "Victoria (Austraalia)",
                             "url": "http://et.wikipedia.org/wiki/Victoria_(Austraalia)"
                         },
                         {
-                            "end": 399,
-                            "label": "Tasmaania",
-                            "start": 388,
+                            "end": 404,
+                            "label": "Tasmaanias",
+                            "start": 395,
                             "title": "Tasmaania",
                             "url": "http://et.wikipedia.org/wiki/Tasmaania"
                         },
                         {
-                            "end": 477,
+                            "end": 479,
                             "label": "Arnhemi maa",
-                            "start": 464,
+                            "start": 469,
                             "title": "Arnhemi maa",
                             "url": "http://et.wikipedia.org/wiki/Arnhemi_maa"
                         },
                         {
-                            "end": 500,
-                            "label": "Cape Yorki poolsaar",
-                            "start": 479,
+                            "end": 502,
+                            "label": "Cape Yorki poolsaare",
+                            "start": 483,
                             "title": "Cape Yorki poolsaar",
                             "url": "http://et.wikipedia.org/wiki/Cape_Yorki_poolsaar"
                         },
                         {
-                            "end": 660,
+                            "end": 661,
                             "label": "Perthi",
-                            "start": 652,
+                            "start": 656,
                             "title": "Perth (Austraalia)",
                             "url": "http://et.wikipedia.org/wiki/Perth_(Austraalia)"
                         }
                     ],
-                    "text": "\nSuurem osa Austraaliast asub troopikav\u00f6\u00f6tmes. L\u00e4hisekvatoriaalne kliima valitseb Queenslandi p\u00f5hjaosas ning troopiline mussoonkliima valitseb L\u00e4\u00e4ne-Austraalia ja P\u00f5hjaterritooriumi p\u00f5hjaosas ning Queenslandi loodeosas. L\u00e4histroopilisse kliimav\u00f6\u00f6temesse j\u00e4\u00e4vad L\u00f5una-Austraalia l\u00f5unaosa, L\u00e4\u00e4ne-Austraalia edelaosa ja Uus-L\u00f5una-Wales. Parasv\u00f6\u00f6tmeline kliima valitseb Victoria l\u00f5unaosas ja Tasmaanias.\n \nSisemaal ning l\u00e4\u00e4ne- ja l\u00f5unaosas on v\u00e4ga kuiv. Maa p\u00f5hjaosas Arnhemi maa ja Cape Yorki poolsaare piirkonnas on kogu aasta palav, suvemussoonide ajal ka niiske. M\u00f5\u00f5dukas kliima valitseb ainult ida- ja kaguosa 400 km laiusel rannikuribal ja edelaosas Perthi",
+                    "text": "\nSuurem osa Austraaliast asub troopikav\u00f6\u00f6tmesL\u00e4hisekvatoriaalne kliima]] valitseb Queenslandi p\u00f5hjaosas ning troopiline mussoonkliima valitseb L\u00e4\u00e4ne-Austraaliaja P\u00f5hjaterritooriumi p\u00f5hjaosas ning Queenslandi loodeosas. L\u00e4histroopilisse kliimav\u00f6\u00f6temessej\u00e4\u00e4vad L\u00f5una-Austraalial\u00f5unaosa, L\u00e4\u00e4ne-Austraaliaedelaosa ja Uus-L\u00f5una-Walesparasv\u00f6\u00f6de|Parasv\u00f6\u00f6tmeline kliima]] valitseb Victorial\u00f5unaosas ja Tasmaanias.\nSisemaal ning l\u00e4\u00e4ne- ja l\u00f5unaosas on v\u00e4ga kuiv. Maa p\u00f5hjaosas Arnhemi maaja Cape Yorki poolsaare piirkonnas on kogu aasta palav, suvemussoonide ajal ka niiske. M\u00f5\u00f5dukas kliima valitseb ainult ida- ja kaguosa 400 km laiusel rannikuribal ja edelaosas Perthi",
                     "title": "Kliima"
                 }
             ],
@@ -395,736 +326,692 @@
         {
             "internal_links": [
                 {
-                    "end": 37,
+                    "end": 35,
                     "label": "protoaustraallased",
-                    "start": 17,
+                    "start": 18,
                     "title": "protoaustraallased",
                     "url": "http://et.wikipedia.org/wiki/protoaustraallased"
                 },
                 {
-                    "end": 118,
-                    "label": "Kagu-Aasia",
+                    "end": 117,
+                    "label": "Kagu-Aasiast",
                     "start": 106,
                     "title": "Kagu-Aasia",
                     "url": "http://et.wikipedia.org/wiki/Kagu-Aasia"
                 },
                 {
-                    "end": 218,
-                    "label": "veerkiviriist",
+                    "end": 216,
+                    "label": "veerkiviriistu",
                     "start": 203,
                     "title": "veerkiviriist",
                     "url": "http://et.wikipedia.org/wiki/veerkiviriist"
                 },
                 {
-                    "end": 232,
+                    "end": 229,
                     "label": "pihukirveid",
                     "start": 219,
                     "title": "pihukirves",
                     "url": "http://et.wikipedia.org/wiki/pihukirves"
                 },
                 {
-                    "end": 241,
-                    "label": "k\u00f5\u00f5vits",
-                    "start": 232,
-                    "title": "k\u00f5\u00f5vits",
-                    "url": "http://et.wikipedia.org/wiki/k\u00f5\u00f5vits"
-                },
-                {
-                    "end": 373,
+                    "end": 369,
                     "label": "enne meie ajaarvamist",
-                    "start": 350,
+                    "start": 349,
                     "title": "eKr",
                     "url": "http://et.wikipedia.org/wiki/eKr"
                 },
                 {
-                    "end": 433,
-                    "label": "odaots",
-                    "start": 425,
+                    "end": 429,
+                    "label": "odaotsi",
+                    "start": 423,
                     "title": "odaots",
                     "url": "http://et.wikipedia.org/wiki/odaots"
                 },
                 {
-                    "end": 440,
+                    "end": 435,
                     "label": "nuge",
-                    "start": 434,
+                    "start": 432,
                     "title": "Nuga",
                     "url": "http://et.wikipedia.org/wiki/Nuga"
                 },
                 {
-                    "end": 448,
-                    "label": "talb",
-                    "start": 442,
+                    "end": 443,
+                    "label": "talbu",
+                    "start": 439,
                     "title": "talb",
                     "url": "http://et.wikipedia.org/wiki/talb"
                 },
                 {
-                    "end": 468,
-                    "label": "heitepuu",
-                    "start": 458,
+                    "end": 463,
+                    "label": "heitepuud",
+                    "start": 455,
                     "title": "heitepuu",
                     "url": "http://et.wikipedia.org/wiki/heitepuu"
                 },
                 {
-                    "end": 481,
-                    "label": "bumerang",
-                    "start": 471,
+                    "end": 476,
+                    "label": "bumerangi",
+                    "start": 468,
                     "title": "bumerang",
                     "url": "http://et.wikipedia.org/wiki/bumerang"
                 },
                 {
-                    "end": 561,
+                    "end": 555,
                     "label": "kivikirved",
-                    "start": 549,
+                    "start": 546,
                     "title": "kivikirves",
                     "url": "http://et.wikipedia.org/wiki/kivikirves"
                 },
                 {
-                    "end": 578,
-                    "label": "\u00f5ngekonks",
-                    "start": 567,
+                    "end": 572,
+                    "label": "\u00f5ngekonksud",
+                    "start": 562,
                     "title": "\u00f5ngekonks",
                     "url": "http://et.wikipedia.org/wiki/\u00f5ngekonks"
                 },
                 {
-                    "end": 589,
-                    "label": "ahing",
-                    "start": 582,
+                    "end": 583,
+                    "label": "ahingud",
+                    "start": 577,
                     "title": "ahing",
                     "url": "http://et.wikipedia.org/wiki/ahing"
                 },
                 {
-                    "end": 642,
-                    "label": "kaljujoonis",
-                    "start": 629,
+                    "end": 637,
+                    "label": "kaljujooniseid",
+                    "start": 624,
                     "title": "kaljujoonis",
                     "url": "http://et.wikipedia.org/wiki/kaljujoonis"
                 },
                 {
-                    "end": 667,
-                    "label": "korilus",
-                    "start": 658,
+                    "end": 662,
+                    "label": "korilusest",
+                    "start": 653,
                     "title": "korilus",
                     "url": "http://et.wikipedia.org/wiki/korilus"
                 },
                 {
-                    "end": 725,
+                    "end": 717,
                     "label": "aborigeenide",
-                    "start": 711,
+                    "start": 706,
                     "title": "Austraalia aborigeenid",
                     "url": "http://et.wikipedia.org/wiki/Austraalia_aborigeenid"
                 },
                 {
-                    "end": 747,
+                    "end": 738,
                     "label": "kiviaja",
-                    "start": 738,
+                    "start": 732,
                     "title": "kiviaeg",
                     "url": "http://et.wikipedia.org/wiki/kiviaeg"
                 },
                 {
-                    "end": 998,
+                    "end": 987,
                     "label": "1611",
-                    "start": 992,
+                    "start": 984,
                     "title": "1611",
                     "url": "http://et.wikipedia.org/wiki/1611"
                 },
                 {
-                    "end": 1033,
+                    "end": 1020,
                     "label": "hollandi",
-                    "start": 1023,
+                    "start": 1013,
                     "title": "hollandlased",
                     "url": "http://et.wikipedia.org/wiki/hollandlased"
                 },
                 {
-                    "end": 1328,
+                    "end": 1313,
                     "label": "William Dampier",
-                    "start": 1311,
+                    "start": 1299,
                     "title": "William Dampier",
                     "url": "http://et.wikipedia.org/wiki/William_Dampier"
                 },
                 {
-                    "end": 1345,
-                    "label": "James Cook",
-                    "start": 1333,
+                    "end": 1329,
+                    "label": "James Cooki",
+                    "start": 1319,
                     "title": "James Cook",
                     "url": "http://et.wikipedia.org/wiki/James_Cook"
                 },
                 {
-                    "end": 1380,
+                    "end": 1363,
                     "label": "1770",
-                    "start": 1374,
+                    "start": 1360,
                     "title": "1770",
                     "url": "http://et.wikipedia.org/wiki/1770"
                 },
                 {
-                    "end": 1527,
-                    "label": "kummipuu",
-                    "start": 1517,
+                    "end": 1509,
+                    "label": "kummipuud",
+                    "start": 1501,
                     "title": "kummipuu",
                     "url": "http://et.wikipedia.org/wiki/kummipuu"
                 },
                 {
-                    "end": 1585,
-                    "label": "nektar",
-                    "start": 1577,
+                    "end": 1569,
+                    "label": "nektarist",
+                    "start": 1561,
                     "title": "nektar",
                     "url": "http://et.wikipedia.org/wiki/nektar"
                 },
                 {
-                    "end": 1606,
-                    "label": "papagoi",
-                    "start": 1597,
+                    "end": 1590,
+                    "label": "papagoisid",
+                    "start": 1581,
                     "title": "papagoi",
                     "url": "http://et.wikipedia.org/wiki/papagoi"
                 },
                 {
-                    "end": 1715,
-                    "label": "Botany Bay",
-                    "start": 1703,
+                    "end": 1698,
+                    "label": "Botany Bayks",
+                    "start": 1687,
                     "title": "Botany Bay",
                     "url": "http://et.wikipedia.org/wiki/Botany_Bay"
                 },
                 {
-                    "end": 1743,
+                    "end": 1724,
                     "label": "1788",
-                    "start": 1737,
+                    "start": 1721,
                     "title": "1788",
                     "url": "http://et.wikipedia.org/wiki/1788"
                 },
                 {
-                    "end": 1857,
+                    "end": 1836,
                     "label": "Sydney",
-                    "start": 1849,
+                    "start": 1831,
                     "title": "Sydney",
                     "url": "http://et.wikipedia.org/wiki/Sydney"
                 },
                 {
-                    "end": 1894,
+                    "end": 1871,
                     "label": "1811",
-                    "start": 1888,
+                    "start": 1868,
                     "title": "1811",
                     "url": "http://et.wikipedia.org/wiki/1811"
                 },
                 {
-                    "end": 1917,
-                    "label": "Pariis",
-                    "start": 1909,
+                    "end": 1894,
+                    "label": "Pariisis",
+                    "start": 1887,
                     "title": "Pariis",
                     "url": "http://et.wikipedia.org/wiki/Pariis"
                 },
                 {
-                    "end": 1958,
+                    "end": 1933,
                     "label": "kaart",
-                    "start": 1951,
+                    "start": 1929,
                     "title": "Kaart (kartograafia)",
                     "url": "http://et.wikipedia.org/wiki/Kaart_(kartograafia)"
                 },
                 {
-                    "end": 1998,
-                    "label": "Louis de Freycinet",
-                    "start": 1978,
+                    "end": 1973,
+                    "label": "Louis de Freycinet (",
+                    "start": 1954,
                     "title": "Louis Claude de Saulces de Freycinet",
                     "url": "http://et.wikipedia.org/wiki/Louis_Claude_de_Saulces_de_Freycinet"
                 },
                 {
-                    "end": 2115,
+                    "end": 2087,
                     "label": "P\u00f5hja-Ameerika",
-                    "start": 2099,
+                    "start": 2074,
                     "title": "P\u00f5hja-Ameerika",
                     "url": "http://et.wikipedia.org/wiki/P\u00f5hja-Ameerika"
                 },
                 {
-                    "end": 2124,
-                    "label": "koloonia",
-                    "start": 2114,
-                    "title": "koloonia",
-                    "url": "http://et.wikipedia.org/wiki/koloonia"
-                },
-                {
-                    "end": 2205,
+                    "end": 2178,
                     "label": "iirlased",
-                    "start": 2195,
+                    "start": 2171,
                     "title": "iirlased",
                     "url": "http://et.wikipedia.org/wiki/iirlased"
                 },
                 {
-                    "end": 2341,
+                    "end": 2312,
                     "label": "1852",
-                    "start": 2335,
+                    "start": 2309,
                     "title": "1852",
                     "url": "http://et.wikipedia.org/wiki/1852"
                 },
                 {
-                    "end": 2511,
-                    "label": "Bay Hurst",
-                    "start": 2500,
+                    "end": 2481,
+                    "label": "Bay Hurstis",
+                    "start": 2471,
                     "title": "Bay Hurst",
                     "url": "http://et.wikipedia.org/wiki/Bay_Hurst"
                 },
                 {
-                    "end": 2604,
-                    "label": "1829",
-                    "start": 2598,
+                    "end": 2573,
+                    "label": "1829\u2013",
+                    "start": 2569,
                     "title": "1829",
                     "url": "http://et.wikipedia.org/wiki/1829"
                 },
                 {
-                    "end": 2609,
-                    "label": "1859",
-                    "start": 2603,
-                    "title": "1859",
-                    "url": "http://et.wikipedia.org/wiki/1859"
-                },
-                {
-                    "end": 2649,
+                    "end": 2619,
                     "label": "Austraalia osariikideks",
-                    "start": 2624,
+                    "start": 2597,
                     "title": "Austraalia osariigid",
                     "url": "http://et.wikipedia.org/wiki/Austraalia_osariigid"
                 },
                 {
-                    "end": 2676,
-                    "label": "lamba",
-                    "start": 2669,
+                    "end": 2645,
+                    "label": "lamba-",
+                    "start": 2640,
                     "title": "Lambakasvatus",
                     "url": "http://et.wikipedia.org/wiki/Lambakasvatus"
                 },
                 {
-                    "end": 2693,
-                    "label": "karjakasvatu",
-                    "start": 2679,
+                    "end": 2662,
+                    "label": "karjakasvatuse",
+                    "start": 2649,
                     "title": "karjakasvatu",
                     "url": "http://et.wikipedia.org/wiki/karjakasvatu"
                 },
                 {
-                    "end": 2800,
+                    "end": 2766,
                     "label": "Earl Grey",
-                    "start": 2789,
+                    "start": 2758,
                     "title": "Earl Grey",
                     "url": "http://et.wikipedia.org/wiki/Earl_Grey"
                 },
                 {
-                    "end": 2810,
+                    "end": 2775,
                     "label": "1847",
-                    "start": 2804,
+                    "start": 2772,
                     "title": "1847",
                     "url": "http://et.wikipedia.org/wiki/1847"
                 },
                 {
-                    "end": 2835,
+                    "end": 2798,
                     "label": "Briti parlament",
-                    "start": 2818,
+                    "start": 2784,
                     "title": "Briti parlament",
                     "url": "http://et.wikipedia.org/wiki/Briti_parlament"
                 },
                 {
-                    "end": 2901,
-                    "label": "1. jaanuar",
-                    "start": 2889,
+                    "end": 2865,
+                    "label": "1. jaanuaril",
+                    "start": 2854,
                     "title": "1. jaanuar",
                     "url": "http://et.wikipedia.org/wiki/1._jaanuar"
                 },
                 {
-                    "end": 2908,
+                    "end": 2870,
                     "label": "1901",
-                    "start": 2902,
+                    "start": 2867,
                     "title": "1901",
                     "url": "http://et.wikipedia.org/wiki/1901"
                 },
                 {
-                    "end": 2921,
+                    "end": 2881,
                     "label": "Sydney",
-                    "start": 2913,
+                    "start": 2876,
                     "title": "Sydney",
                     "url": "http://et.wikipedia.org/wiki/Sydney"
                 },
                 {
-                    "end": 2935,
+                    "end": 2894,
                     "label": "Melbourne",
-                    "start": 2924,
+                    "start": 2886,
                     "title": "Melbourne",
                     "url": "http://et.wikipedia.org/wiki/Melbourne"
                 },
                 {
-                    "end": 2990,
+                    "end": 2948,
                     "label": "1911",
-                    "start": 2984,
+                    "start": 2945,
                     "title": "1911",
                     "url": "http://et.wikipedia.org/wiki/1911"
                 },
                 {
-                    "end": 3021,
+                    "end": 2977,
                     "label": "Canberra",
-                    "start": 3011,
+                    "start": 2970,
                     "title": "Canberra",
                     "url": "http://et.wikipedia.org/wiki/Canberra"
                 }
             ],
-            "references": [
-                3
-            ],
-            "text": "\nEsimesed asukad protoaustraallased tulid Austraaliasse hiljemalt {{kas|30 000 aasta eest}}{{lisa viide}} Kagu-Aasiast, mida Austraaliast lahutab saarterohke v\u00e4in. Vanimast leiukohast on saadud algelisi veerkiviriistu, pihukirveid, k\u00f5\u00f5vitsaid ja teravikke. Eriti ida- ja kaguranniku ning sisemaa vahel ilmneb kultuurierinevusi.\n\nV-III aastatuhandeni enne meie ajaarvamist arenes kivit\u00f6\u00f6tlemine, valmistati korrap\u00e4rase kujuga odaotsi, nuge ja talbu, kasutati heitepuud ja bumerangi. II-I aastatuhandel enne meie ajaarvamist v\u00f5eti kasutusele lihvitud kivikirved, luust \u00f5ngekonksud ja ahingud. Paljudes kohtades on leitud koopa- ja kaljujooniseid. K\u00fcttimisest, korilusest ja kalastamisest elatuvate t\u00f5mmunahaliste aborigeenide kultuur p\u00fcsis kiviaja tasemel eurooplaste tulekuni. Siiski olid nende h\u00f5imudel v\u00e4ga h\u00e4sti v\u00e4lja kujunenud tavad ja kombed. M\u00f5ned aborigeenid elavad t\u00e4naseni Austraalia inimasustusest puutumatutes piirkondades ja j\u00e4rgivad oma esiisade tuhandete aastate vanuseid tavu.\n\n1611. aastal randusid esimesed hollandi meremehed Austraalia p\u00f5hjarannikul ning viisid koju tagasi teate, et maa on kasutu ja elamisk\u00f5lbmatu, kuna Austraalia l\u00e4\u00e4nerannik on kaetud peamiselt suurte k\u00f5rbetega ja p\u00f5hjaranniku kuum ja niiske kliima oli nende jaoks talumatu.\n\nEsimene inglane, kes Austraaliasse j\u00f5udis, oli William Dampier, kuid James Cooki uurimisretked l\u00f5unarannikule 1770. aastal olid tunduvalt suurema t\u00e4htsusega. Cook leidis seal m\u00f5nusa kliima ja imeilusad metsad veidrate taimedega. Teda h\u00e4mmastasid suured kummipuud ja rohtpuud, mille \u00f5ied meelitasid ligi tillukesi nektarist toituvaid papagoisid, ja eriv\u00e4rviliste \u00f5itega p\u00f5\u00f5sad. Oma maabumiskoha nimetas ta sealse rikkaliku taimestiku j\u00e4rgi Botany Bayks. Varsti p\u00e4rast seda, 1788. aastal, saabusid Botany Baysse 700 sunnit\u00f6\u00f6le m\u00f5istetud vangi ja 200 meremeest ning tasandikele t\u00e4nap\u00e4eva Sydney kohal rajati esimesed asulad. \n\n1811. aastal tr\u00fckiti Pariisis esimest korda t\u00e4ielik Austraalia kaart, mille oli koostanud Louis de Freycinet (1779\u20131842), prantsuse meremees ja maadeavastaja.\n\nBritid olid huvitatud Austraalia koloniseerimisest P\u00f5hja-Ameerika kolooniate kaotamise t\u00f5ttu. Umbes 20% kolonistidest olid naised ja \u00fcks kolmandik iirlased. Peaaegu keegi asumisele saadetutest ei osanud lugeda ega kirjutada. Uue \u00fchiskonda loomine sellise inimr\u00fchma alusel oli keeruline. 1852. aastal l\u00f5petati sunnit\u00f6\u00f6liste saatmine Austraaliasse, kuid selleks ajaks oli neid seal juba 150 000.\n\nArenguh\u00fcpe Austraalia ajaloos kaasnes kulla avastamisega Bay Hurstis 1851. aastal. Paljud kullaotsijad rajasid endale Austraaliasse uue kodu. Ajavahemikul 1829\u20131859 sai 4 kolooniat Austraalia osariikideks. See t\u00f5i kaasa kiire lamba- ja karjakasvatuse kasvu ning kaevandust\u00f6\u00f6stuse ja transpordi arengu. \n\nK\u00f5ikide osariikide \u00fchendamise ideele tuli Earl Grey juba 1847. aastal. Briti parlament tunnustas Austraalia \u00dchendust ja Austraalia iseseisvus 1. jaanuaril 1901. Kuna Sydney ega Melbourne polnud \u00fchenduse pealinnana vastuv\u00f5etavad, asutati 1911. aastal Austraaliasse Canberra",
+            "text": "\nEsimesed asukad protoaustraallasedtulid Austraaliasse hiljemalt {{kas|30 000 aasta eest}}{{lisa viide}} Kagu-Aasiast, mida Austraaliast lahutab saarterohke v\u00e4in. Vanimast leiukohast on saadud algelisi veerkiviriistu, pihukirveidk\u00f5\u00f5vits]]aid ja teravikke. Eriti ida- ja kaguranniku ning sisemaa vahel ilmneb kultuurierinevusi.\nV-III aastatuhandeni enne meie ajaarvamistarenes kivit\u00f6\u00f6tlemine, valmistati korrap\u00e4rase kujuga odaotsi, nugeja talbu, kasutati heitepuud ja bumerangi. II-I aastatuhandel enne meie ajaarvamist v\u00f5eti kasutusele lihvitud kivikirvedluust \u00f5ngekonksud ja ahingud. Paljudes kohtades on leitud koopa- ja kaljujooniseid. K\u00fcttimisest, korilusest ja kalastamisest elatuvate t\u00f5mmunahaliste aborigeenidekultuur p\u00fcsis kiviajatasemel eurooplaste tulekuni. Siiski olid nende h\u00f5imudel v\u00e4ga h\u00e4sti v\u00e4lja kujunenud tavad ja kombed. M\u00f5ned aborigeenid elavad t\u00e4naseni Austraalia inimasustusest puutumatutes piirkondades ja j\u00e4rgivad oma esiisade tuhandete aastate vanuseid tavu.\n1611aastal randusid esimesed hollandimeremehed Austraalia p\u00f5hjarannikul ning viisid koju tagasi teate, et maa on kasutu ja elamisk\u00f5lbmatu, kuna Austraalia l\u00e4\u00e4nerannik on kaetud peamiselt suurte k\u00f5rbetega ja p\u00f5hjaranniku kuum ja niiske kliima oli nende jaoks talumatu.\nEsimene inglane, kes Austraaliasse j\u00f5udis, oli William Dampierkuid James Cooki uurimisretked l\u00f5unarannikule 1770aastal olid tunduvalt suurema t\u00e4htsusega. Cook leidis seal m\u00f5nusa kliima ja imeilusad metsad veidrate taimedega. Teda h\u00e4mmastasid suured kummipuud ja rohtpuud, mille \u00f5ied meelitasid ligi tillukesi nektarist toituvaid papagoisid, ja eriv\u00e4rviliste \u00f5itega p\u00f5\u00f5sad. Oma maabumiskoha nimetas ta sealse rikkaliku taimestiku j\u00e4rgi Botany Bayks. Varsti p\u00e4rast seda, 1788aastal, saabusid Botany Baysse 700 sunnit\u00f6\u00f6le m\u00f5istetud vangi ja 200 meremeest ning tasandikele t\u00e4nap\u00e4eva Sydneykohal rajati esimesed asulad. \n1811aastal tr\u00fckiti Pariisis esimest korda t\u00e4ielik Austraalia kaartmille oli koostanud Louis de Freycinet (1779\u20131842), prantsuse meremees ja maadeavastaja.\nBritid olid huvitatud Austraalia koloniseerimisest P\u00f5hja-Ameerikakoloonia]]te kaotamise t\u00f5ttu. Umbes 20% kolonistidest olid naised ja \u00fcks kolmandik iirlasedPeaaegu keegi asumisele saadetutest ei osanud lugeda ega kirjutada. Uue \u00fchiskonda loomine sellise inimr\u00fchma alusel oli keeruline. 1852aastal l\u00f5petati sunnit\u00f6\u00f6liste saatmine Austraaliasse, kuid selleks ajaks oli neid seal juba 150 000.\nArenguh\u00fcpe Austraalia ajaloos kaasnes kulla avastamisega Bay Hurstis 1851. aastal. Paljud kullaotsijad rajasid endale Austraaliasse uue kodu. Ajavahemikul 1829\u20131859]] sai 4 kolooniat Austraalia osariikideksSee t\u00f5i kaasa kiire lamba-ja karjakasvatuse kasvu ning kaevandust\u00f6\u00f6stuse ja transpordi arengu. \nK\u00f5ikide osariikide \u00fchendamise ideele tuli Earl Greyjuba 1847aastal. Briti parlamenttunnustas Austraalia \u00dchendust ja Austraalia iseseisvus 1. jaanuaril 1901Kuna Sydneyega Melbournepolnud \u00fchenduse pealinnana vastuv\u00f5etavad, asutati 1911aastal Austraaliasse Canberra",
             "title": "Ajalugu"
         },
         {
             "images": [
                 {
                     "text": "Austraalia peaminister Tony Abbott.",
-                    "url": "http://et.wikipedia.org/wiki/File:Opposition Leader Tony Abbott (16) - Flickr - MystifyMe Concert Photography\u2122.jpg"
+                    "url": "http://et.wikipedia.org/wiki/File:Opposition_Leader_Tony_Abbott_(16)_-_Flickr_-_MystifyMe_Concert_Photography\u2122.jpg"
                 }
             ],
             "internal_links": [
                 {
-                    "end": 46,
+                    "end": 44,
                     "label": "konstitutsiooniline monarhia",
-                    "start": 16,
+                    "start": 17,
                     "title": "konstitutsiooniline monarhia",
                     "url": "http://et.wikipedia.org/wiki/konstitutsiooniline_monarhia"
                 },
                 {
-                    "end": 78,
-                    "label": "Elizabeth II",
-                    "start": 64,
+                    "end": 75,
+                    "label": "Elizabeth II;",
+                    "start": 63,
                     "title": "Elizabeth II",
                     "url": "http://et.wikipedia.org/wiki/Elizabeth_II"
                 },
                 {
-                    "end": 113,
-                    "label": "Austraalia kuninganna",
-                    "start": 90,
+                    "end": 110,
+                    "label": "Austraalia kuningannana",
+                    "start": 88,
                     "title": "Austraalia kuninganna",
                     "url": "http://et.wikipedia.org/wiki/Austraalia_kuninganna"
                 },
                 {
-                    "end": 172,
-                    "label": "Briti Rahvaste \u00dchendus",
-                    "start": 148,
+                    "end": 168,
+                    "label": "Briti Rahvaste \u00dchenduse",
+                    "start": 146,
                     "title": "Briti Rahvaste \u00dchendus",
                     "url": "http://et.wikipedia.org/wiki/Briti_Rahvaste_\u00dchendus"
                 },
                 {
-                    "end": 306,
+                    "end": 301,
                     "label": "Austraalia kindralkuberner",
-                    "start": 278,
+                    "start": 276,
                     "title": "Austraalia kindralkuberner",
                     "url": "http://et.wikipedia.org/wiki/Austraalia_kindralkuberner"
                 },
                 {
-                    "end": 355,
-                    "label": "Austraalia p\u00f5hiseadus",
-                    "start": 332,
+                    "end": 350,
+                    "label": "Austraalia p\u00f5hiseaduse",
+                    "start": 329,
                     "title": "Austraalia p\u00f5hiseadus",
                     "url": "http://et.wikipedia.org/wiki/Austraalia_p\u00f5hiseadus"
                 },
                 {
-                    "end": 529,
+                    "end": 523,
                     "label": "1975. aasta p\u00f5hiseaduskriisi",
-                    "start": 499,
+                    "start": 496,
                     "title": "1975. aasta Austraalia p\u00f5hiseaduskriis",
                     "url": "http://et.wikipedia.org/wiki/1975._aasta_Austraalia_p\u00f5hiseaduskriis"
                 },
                 {
-                    "end": 621,
+                    "end": 612,
                     "label": "parlament",
-                    "start": 610,
+                    "start": 604,
                     "title": "Austraalia parlament",
                     "url": "http://et.wikipedia.org/wiki/Austraalia_parlament"
                 },
                 {
-                    "end": 710,
+                    "end": 699,
                     "label": "senat",
-                    "start": 703,
+                    "start": 695,
                     "title": "senat (Austraalia)",
                     "url": "http://et.wikipedia.org/wiki/senat_(Austraalia)"
                 },
                 {
-                    "end": 728,
-                    "label": "esindajatekoda",
-                    "start": 712,
-                    "title": "Esindajatekoda (Austraalia)",
-                    "url": "http://et.wikipedia.org/wiki/Esindajatekoda_(Austraalia)"
-                },
-                {
-                    "end": 758,
+                    "end": 777,
                     "label": "valitsus",
-                    "start": 748,
+                    "start": 770,
                     "title": "Austraalia valitsus",
                     "url": "http://et.wikipedia.org/wiki/Austraalia_valitsus"
                 },
                 {
-                    "end": 871,
+                    "end": 889,
                     "label": "peaminister",
-                    "start": 858,
+                    "start": 879,
                     "title": "Austraalia peaminister",
                     "url": "http://et.wikipedia.org/wiki/Austraalia_peaminister"
                 },
                 {
-                    "end": 919,
+                    "end": 935,
                     "label": "Austraalia \u00fclemkohus",
-                    "start": 897,
+                    "start": 916,
                     "title": "Austraalia \u00fclemkohus",
                     "url": "http://et.wikipedia.org/wiki/Austraalia_\u00fclemkohus"
                 },
                 {
-                    "end": 1141,
+                    "end": 1155,
                     "label": "Austraalia pealinna ala",
-                    "start": 1116,
+                    "start": 1133,
                     "title": "Austraalia pealinna ala",
                     "url": "http://et.wikipedia.org/wiki/Austraalia_pealinna_ala"
                 },
                 {
-                    "end": 1162,
+                    "end": 1175,
                     "label": "P\u00f5hjaterritoorium",
-                    "start": 1143,
+                    "start": 1159,
                     "title": "P\u00f5hjaterritoorium",
                     "url": "http://et.wikipedia.org/wiki/P\u00f5hjaterritoorium"
                 },
                 {
-                    "end": 1256,
-                    "label": "valimisringkond",
-                    "start": 1239,
+                    "end": 1271,
+                    "label": "valimisringkondades",
+                    "start": 1253,
                     "title": "valimisringkond",
                     "url": "http://et.wikipedia.org/wiki/valimisringkond"
                 },
                 {
-                    "end": 1597,
-                    "label": "Austraalia T\u00f6\u00f6partei",
-                    "start": 1575,
+                    "end": 1609,
+                    "label": "Austraalia T\u00f6\u00f6partei (",
+                    "start": 1588,
                     "title": "Austraalia T\u00f6\u00f6partei",
                     "url": "http://et.wikipedia.org/wiki/Austraalia_T\u00f6\u00f6partei"
                 },
                 {
-                    "end": 1651,
-                    "label": "Koalitsioon",
-                    "start": 1638,
+                    "end": 1663,
+                    "label": "Koalitsioon (",
+                    "start": 1651,
                     "title": "Koalitsioon (Austraalia)",
                     "url": "http://et.wikipedia.org/wiki/Koalitsioon_(Austraalia)"
                 },
                 {
-                    "end": 1707,
-                    "label": "Austraalia Liberaalne Partei",
-                    "start": 1677,
+                    "end": 1719,
+                    "label": "Austraalia Liberaalne Partei (",
+                    "start": 1690,
                     "title": "Austraalia Liberaalne Partei",
                     "url": "http://et.wikipedia.org/wiki/Austraalia_Liberaalne_Partei"
                 },
                 {
-                    "end": 1786,
-                    "label": "Austraalia Rahvuspartei",
-                    "start": 1761,
+                    "end": 1798,
+                    "label": "Austraalia Rahvuspartei (",
+                    "start": 1774,
                     "title": "Austraalia Rahvuspartei",
                     "url": "http://et.wikipedia.org/wiki/Austraalia_Rahvuspartei"
                 },
                 {
-                    "end": 1954,
-                    "label": "Austraalia poliitika",
-                    "start": 1932,
+                    "end": 1964,
+                    "label": "Austraalia poliitikas",
+                    "start": 1944,
                     "title": "Austraalia poliitika",
                     "url": "http://et.wikipedia.org/wiki/Austraalia_poliitika"
                 },
                 {
-                    "end": 2350,
-                    "label": "Julia Gillard",
-                    "start": 2335,
+                    "end": 2361,
+                    "label": "Julia Gillardist",
+                    "start": 2346,
                     "title": "Julia Gillard",
                     "url": "http://et.wikipedia.org/wiki/Julia_Gillard"
                 },
                 {
-                    "end": 2557,
+                    "end": 2565,
                     "label": "Tony Abbott",
-                    "start": 2544,
+                    "start": 2555,
                     "title": "Tony Abbott",
                     "url": "http://et.wikipedia.org/wiki/Tony_Abbott"
                 }
             ],
-            "text": "\n\nAustraalia on konstitutsiooniline monarhia, mille riigipea on Elizabeth II; tema tiitel Austraalia kuningannana ei ole seotud tema rolliga teiste Briti Rahvaste \u00dchenduse maade valitsemisel. Kuninganna resideerib Suurbritannia ning kohapeal esindavad teda f\u00f6deraalsel tasandil Austraalia kindralkuberner ja osariikides kubernerid. Austraalia p\u00f5hiseaduse kohaselt kuulub k\u00f5rgeim t\u00e4itevv\u00f5im kuningannale, kuid seda teostab kindralkuberner, kel on muuhulgas \u00f5igus valitsus laiali saata (nagu tehti nt 1975. aasta p\u00f5hiseaduskriisi ajal).\n\nF\u00f6deraalvalitsus jaguneb kolmeks haruks:\n* seadusandev v\u00f5im: kahekojaline parlament, millesse kuuluvad p\u00f5hiseaduse kohaselt kuninganna (keda esindab kindralkuberner), senat ja esindajatekoda;\n* t\u00e4idesaatev v\u00f5im: valitsus ehk f\u00f6deraalne t\u00e4itevn\u00f5ukogu (Federal Executive Council), tegelikult kindralkuberner, keda n\u00f5ustavad peaminister ja ministrid;\n* kohtuv\u00f5im: Austraalia \u00fclemkohus ja teised f\u00f6deraalkohtud, mille kohtunikud m\u00e4\u00e4rab kindralkuberner t\u00e4itevn\u00f5ukogu soovitusel.\n\nParlamendi \u00fclemkojas ehk senatis on 76 senaatorit: 12 igast osariigist ja 2 mandriosa territooriumitelt (Austraalia pealinna ala ja P\u00f5hjaterritoorium. Alamkojas ehk esindajatekojas on 150 liiget, kes valitakse \u00fchemandaadilistes valimisringkondades; igast osariigist on v\u00e4hemalt 5 saadikut. Valitsuse moodustab partei, kellel on esindajatekoja enamuse toetus, partei juhist saab peaminister. Kui \u00fckski partei ei saavuta enamuse toetust, m\u00e4\u00e4rab peaministri kindralkuberner.\n\nNii f\u00f6deraaltasandil kui ka osariikides moodustab valitsuse tavaliselt \u00fcks kahest r\u00fchmast: Austraalia T\u00f6\u00f6partei (leiboristid, Australian Labor Party) v\u00f5i Koalitsioon (Coalition), kuhu kuuluvad Austraalia Liberaalne Partei (Liberal Party of Australia) ja selle v\u00e4iksem liitlane Austraalia Rahvuspartei (National Party of Australia). Austraalia parlamentidesse on j\u00f5udnud ka v\u00e4iksemad parteid ja s\u00f5ltumatud kandidaadid, enamasti k\u00fcll \u00fclemkodadesse.\n\nAustraalia poliitikas peetakse Koalitsiooni paremtsentristlikuks ja T\u00f6\u00f6parteid vasaktsentristlikuks. Queensland, L\u00e4\u00e4ne-Austraalia ja P\u00f5hjaterritoorium on suhteliselt konservatiivsed, seevastu Victoria, L\u00f5una-Austraalia, Tasmaania ja pealinna ala on suhteliselt sotsiaaliberaalsed. Uus-L\u00f5una-Wales on poliitiliselt m\u00f5\u00f5dukas ja seda peetakse sageli valimiste kaalukeeleks.\n\nP\u00e4rast parteijuhi vahetust sai Julia Gillardist 2010. aasta juunis Austraalia esimene naispeaminister. P\u00e4rast viimaseid f\u00f6deraalvalimisi 7. septembril 2013 moodustas enamusvalitsuse Koalitsioon ning peaministriks sai Liberaalse Partei juht Tony Abbott",
+            "text": "\n\nAustraalia on konstitutsiooniline monarhiamille riigipea on Elizabeth II;tema tiitel Austraalia kuningannana ei ole seotud tema rolliga teiste Briti Rahvaste \u00dchenduse maade valitsemisel. Kuninganna resideerib Suurbritannia ning kohapeal esindavad teda f\u00f6deraalsel tasandil Austraalia kindralkubernerja osariikides kubernerid. Austraalia p\u00f5hiseaduse kohaselt kuulub k\u00f5rgeim t\u00e4itevv\u00f5im kuningannale, kuid seda teostab kindralkuberner, kel on muuhulgas \u00f5igus valitsus laiali saata (nagu tehti nt 1975. aasta p\u00f5hiseaduskriisiajal).\nF\u00f6deraalvalitsus jaguneb kolmeks haruks:\n seadusandev v\u00f5im: kahekojaline parlamentmillesse kuuluvad p\u00f5hiseaduse kohaselt kuninganna (keda esindab kindralkuberner), senatja [[Esindajatekoda (Austraalia)|esindajatekoda]];\n t\u00e4idesaatev v\u00f5im: valitsusehk f\u00f6deraalne t\u00e4itevn\u00f5ukogu (Federal Executive Council), tegelikult kindralkuberner, keda n\u00f5ustavad peaministerja ministrid;\n kohtuv\u00f5im: Austraalia \u00fclemkohusja teised f\u00f6deraalkohtud, mille kohtunikud m\u00e4\u00e4rab kindralkuberner t\u00e4itevn\u00f5ukogu soovitusel.\nParlamendi \u00fclemkojas ehk senatis on 76 senaatorit: 12 igast osariigist ja 2 mandriosa territooriumitelt (Austraalia pealinna alaja P\u00f5hjaterritooriumAlamkojas ehk esindajatekojas on 150 liiget, kes valitakse \u00fchemandaadilistes valimisringkondades; igast osariigist on v\u00e4hemalt 5 saadikut. Valitsuse moodustab partei, kellel on esindajatekoja enamuse toetus, partei juhist saab peaminister. Kui \u00fckski partei ei saavuta enamuse toetust, m\u00e4\u00e4rab peaministri kindralkuberner.\nNii f\u00f6deraaltasandil kui ka osariikides moodustab valitsuse tavaliselt \u00fcks kahest r\u00fchmast: Austraalia T\u00f6\u00f6partei (leiboristid, Australian Labor Party) v\u00f5i Koalitsioon (Coalition), kuhu kuuluvad Austraalia Liberaalne Partei (Liberal Party of Australia) ja selle v\u00e4iksem liitlane Austraalia Rahvuspartei (National Party of Australia). Austraalia parlamentidesse on j\u00f5udnud ka v\u00e4iksemad parteid ja s\u00f5ltumatud kandidaadid, enamasti k\u00fcll \u00fclemkodadesse.\nAustraalia poliitikas peetakse Koalitsiooni paremtsentristlikuks ja T\u00f6\u00f6parteid vasaktsentristlikuks. Queensland, L\u00e4\u00e4ne-Austraalia ja P\u00f5hjaterritoorium on suhteliselt konservatiivsed, seevastu Victoria, L\u00f5una-Austraalia, Tasmaania ja pealinna ala on suhteliselt sotsiaaliberaalsed. Uus-L\u00f5una-Wales on poliitiliselt m\u00f5\u00f5dukas ja seda peetakse sageli valimiste kaalukeeleks.\nP\u00e4rast parteijuhi vahetust sai Julia Gillardist 2010. aasta juunis Austraalia esimene naispeaminister. P\u00e4rast viimaseid f\u00f6deraalvalimisi 7. septembril 2013 moodustas enamusvalitsuse Koalitsioon ning peaministriks sai Liberaalse Partei juht Tony Abbott",
             "title": "Poliitika"
         },
         {
             "images": [
                 {
                     "text": "Austraalia ekspordi sihtkohad ja suurused 2006. aastal",
-                    "url": "http://et.wikipedia.org/wiki/Pilt:2006Australian exports.svg"
+                    "url": "http://et.wikipedia.org/wiki/Pilt:2006Australian_exports.svg"
                 }
             ],
             "internal_links": [
                 {
-                    "end": 39,
+                    "end": 37,
                     "label": "segamajandus",
-                    "start": 25,
+                    "start": 26,
                     "title": "segamajandus",
                     "url": "http://et.wikipedia.org/wiki/segamajandus"
                 },
                 {
-                    "end": 102,
+                    "end": 98,
                     "label": "1980. aastatel",
-                    "start": 86,
+                    "start": 85,
                     "title": "1980. aastad",
                     "url": "http://et.wikipedia.org/wiki/1980._aastad"
                 },
                 {
-                    "end": 152,
-                    "label": "Bob Hawke",
-                    "start": 141,
+                    "end": 148,
+                    "label": "Bob Hawke'",
+                    "start": 139,
                     "title": "Bob Hawke",
                     "url": "http://et.wikipedia.org/wiki/Bob_Hawke"
                 },
                 {
-                    "end": 187,
-                    "label": "Paul Keating",
-                    "start": 173,
+                    "end": 183,
+                    "label": "Paul Keatingi",
+                    "start": 171,
                     "title": "Paul Keating",
                     "url": "http://et.wikipedia.org/wiki/Paul_Keating"
                 },
                 {
-                    "end": 347,
+                    "end": 342,
                     "label": "1990. aastatest",
-                    "start": 330,
+                    "start": 328,
                     "title": "1990. aastad",
                     "url": "http://et.wikipedia.org/wiki/1990._aastad"
                 },
                 {
-                    "end": 402,
+                    "end": 396,
                     "label": "OECD",
-                    "start": 396,
+                    "start": 393,
                     "title": "Majanduskoost\u00f6\u00f6 ja Arengu Organisatsioon",
                     "url": "http://et.wikipedia.org/wiki/Majanduskoost\u00f6\u00f6_ja_Arengu_Organisatsioon"
                 },
                 {
-                    "end": 508,
+                    "end": 501,
                     "label": "1996",
-                    "start": 502,
+                    "start": 498,
                     "title": "1996",
                     "url": "http://et.wikipedia.org/wiki/1996"
                 },
                 {
-                    "end": 559,
-                    "label": "John Howard",
-                    "start": 546,
+                    "end": 551,
+                    "label": "John Howardi",
+                    "start": 540,
                     "title": "John Howard",
                     "url": "http://et.wikipedia.org/wiki/John_Howard"
                 },
                 {
-                    "end": 594,
+                    "end": 585,
                     "label": "liberaalset",
-                    "start": 581,
+                    "start": 575,
                     "title": "liberalism",
                     "url": "http://et.wikipedia.org/wiki/liberalism"
                 }
-            ],
-            "references": [
-                4,
-                4,
-                4
             ],
             "sections": [
                 {
                     "internal_links": [
                         {
-                            "end": 187,
+                            "end": 176,
                             "label": "Hiina",
-                            "start": 180,
+                            "start": 172,
                             "title": "Hiina",
                             "url": "http://et.wikipedia.org/wiki/Hiina"
                         },
                         {
-                            "end": 202,
+                            "end": 190,
                             "label": "Jaapan",
-                            "start": 194,
+                            "start": 185,
                             "title": "Jaapan",
                             "url": "http://et.wikipedia.org/wiki/Jaapan"
                         },
                         {
-                            "end": 222,
+                            "end": 209,
                             "label": "L\u00f5una-Korea",
-                            "start": 209,
+                            "start": 199,
                             "title": "L\u00f5una-Korea",
                             "url": "http://et.wikipedia.org/wiki/L\u00f5una-Korea"
                         },
                         {
-                            "end": 235,
+                            "end": 221,
                             "label": "India",
-                            "start": 228,
+                            "start": 217,
                             "title": "India",
                             "url": "http://et.wikipedia.org/wiki/India"
                         },
                         {
-                            "end": 263,
+                            "end": 248,
                             "label": "Ameerika \u00dchendriigid",
-                            "start": 241,
+                            "start": 229,
                             "title": "Ameerika \u00dchendriigid",
                             "url": "http://et.wikipedia.org/wiki/Ameerika_\u00dchendriigid"
                         },
                         {
-                            "end": 284,
+                            "end": 268,
                             "label": "Suurbritannia",
-                            "start": 269,
+                            "start": 256,
                             "title": "Suurbritannia",
                             "url": "http://et.wikipedia.org/wiki/Suurbritannia"
                         },
                         {
-                            "end": 303,
+                            "end": 286,
                             "label": "Uus-Meremaa",
-                            "start": 290,
+                            "start": 276,
                             "title": "Uus-Meremaa",
                             "url": "http://et.wikipedia.org/wiki/Uus-Meremaa"
                         }
                     ],
-                    "references": [
-                        4,
-                        4
-                    ],
-                    "text": "\nAustraalia t\u00e4htsaimad ekspordiartiklid on\n*kivis\u00fcsi\n*rauamaak\n*kuld\n*liha\n*vill\n*alumiiniumoksiid\n*nisu\n*masinad ja transpordivarustus\n\nAustraalia t\u00e4htsaimad ekspordipartnerid on Hiina 21,81%, Jaapan 19,19%, L\u00f5una-Korea 7,88%, India 7,51%, Ameerika \u00dchendriigid 4,95%, Suurbritannia 4,37%, Uus-Meremaa",
+                    "text": "\nAustraalia t\u00e4htsaimad ekspordiartiklid on\nkivis\u00fcsi\nrauamaak\nkuld\nliha\nvill\nalumiiniumoksiid\nnisu\nmasinad ja transpordivarustus\nAustraalia t\u00e4htsaimad ekspordipartnerid on Hiina21,81%, Jaapan19,19%, L\u00f5una-Korea7,88%, India7,51%, Ameerika \u00dchendriigid4,95%, Suurbritannia4,37%, Uus-Meremaa",
                     "title": "Eksport"
                 },
                 {
                     "internal_links": [
                         {
-                            "end": 210,
+                            "end": 202,
                             "label": "Hiina",
-                            "start": 203,
+                            "start": 198,
                             "title": "Hiina",
                             "url": "http://et.wikipedia.org/wiki/Hiina"
                         },
                         {
-                            "end": 239,
+                            "end": 230,
                             "label": "Ameerika \u00dchendriigid",
-                            "start": 217,
+                            "start": 211,
                             "title": "Ameerika \u00dchendriigid",
                             "url": "http://et.wikipedia.org/wiki/Ameerika_\u00dchendriigid"
                         },
                         {
-                            "end": 254,
+                            "end": 244,
                             "label": "Jaapan",
-                            "start": 246,
+                            "start": 239,
                             "title": "Jaapan",
                             "url": "http://et.wikipedia.org/wiki/Jaapan"
                         },
                         {
-                            "end": 265,
+                            "end": 254,
                             "label": "Tai",
-                            "start": 260,
+                            "start": 252,
                             "title": "Tai",
                             "url": "http://et.wikipedia.org/wiki/Tai"
                         },
                         {
-                            "end": 281,
+                            "end": 269,
                             "label": "Singapur",
-                            "start": 271,
+                            "start": 262,
                             "title": "Singapur",
                             "url": "http://et.wikipedia.org/wiki/Singapur"
                         },
                         {
-                            "end": 297,
+                            "end": 284,
                             "label": "Saksamaa",
-                            "start": 287,
+                            "start": 277,
                             "title": "Saksamaa",
                             "url": "http://et.wikipedia.org/wiki/Saksamaa"
                         }
                     ],
-                    "references": [
-                        4,
-                        4
-                    ],
-                    "text": "\nAustraalia t\u00e4htsaimad impordiartiklid on\n*masinad ja transpordivarustus\n*arvutid ja kontorimasinad\n*telekommunikatsioonivahendid\n*toornafta\n*petrooleumitooted\n\nAustraalia t\u00e4htsaimad impordipartnerid on Hiina 17,94%, Ameerika \u00dchendriigid 11,26%, Jaapan 8,36%, Tai 5,81%, Singapur 5,54%, Saksamaa",
+                    "text": "\nAustraalia t\u00e4htsaimad impordiartiklid on\nmasinad ja transpordivarustus\narvutid ja kontorimasinad\ntelekommunikatsioonivahendid\ntoornafta\npetrooleumitooted\nAustraalia t\u00e4htsaimad impordipartnerid on Hiina17,94%, Ameerika \u00dchendriigid11,26%, Jaapan8,36%, Tai5,81%, Singapur5,54%, Saksamaa",
                     "title": "Import"
                 },
                 {
@@ -1135,153 +1022,102 @@
                     "images": [
                         {
                             "text": "Sydney ooperiteater",
-                            "url": "http://et.wikipedia.org/wiki/Pilt:Sydney Opera House Sails edit02.jpg"
+                            "url": "http://et.wikipedia.org/wiki/Pilt:Sydney_Opera_House_Sails_edit02.jpg"
                         },
                         {
                             "text": "Uluru",
-                            "url": "http://et.wikipedia.org/wiki/Pilt:Uluru Australia(1).jpg"
+                            "url": "http://et.wikipedia.org/wiki/Pilt:Uluru_Australia(1).jpg"
                         }
                     ],
                     "internal_links": [
                         {
-                            "end": 95,
+                            "end": 93,
                             "label": "kivis\u00f6e",
-                            "start": 86,
+                            "start": 87,
                             "title": "kivis\u00fcsi",
                             "url": "http://et.wikipedia.org/wiki/kivis\u00fcsi"
                         },
                         {
-                            "end": 102,
-                            "label": "kulla",
-                            "start": 95,
-                            "title": "kuld",
-                            "url": "http://et.wikipedia.org/wiki/kuld"
-                        },
-                        {
-                            "end": 112,
+                            "end": 115,
                             "label": "boksiidi",
-                            "start": 102,
+                            "start": 108,
                             "title": "boksiit",
                             "url": "http://et.wikipedia.org/wiki/boksiit"
                         },
                         {
-                            "end": 118,
-                            "label": "vase",
-                            "start": 112,
-                            "title": "vask",
-                            "url": "http://et.wikipedia.org/wiki/vask"
-                        },
-                        {
-                            "end": 131,
+                            "end": 139,
                             "label": "rauamaagi",
-                            "start": 120,
+                            "start": 131,
                             "title": "rauamaak",
                             "url": "http://et.wikipedia.org/wiki/rauamaak"
                         },
                         {
-                            "end": 222,
-                            "label": "sisemajanduse kogutoodang",
-                            "start": 195,
+                            "end": 232,
+                            "label": "sisemajanduse kogutoodangust",
+                            "start": 205,
                             "title": "sisemajanduse kogutoodang",
                             "url": "http://et.wikipedia.org/wiki/sisemajanduse_kogutoodang"
-                        },
-                        {
-                            "end": 253,
-                            "label": "koguv\u00e4ljaveost",
-                            "start": 237,
-                            "title": "eksport",
-                            "url": "http://et.wikipedia.org/wiki/eksport"
                         }
                     ],
-                    "text": "\n]]\n ]]\nAustraalia on \u00fcks maailma t\u00e4htsaimaid m\u00e4et\u00f6\u00f6stusmaid. Ta on maailmas esikohal kivis\u00f6e, kulla, boksiidi, vase ja rauamaagi v\u00e4ljaveo poolest. Maavarad annavad peaaegu k\u00fcmnendiku Austraalia sisemajanduse kogutoodangust ja \u00fcle poole koguv\u00e4ljaveost",
+                    "text": "\n]]\n ]]\nAustraalia on \u00fcks maailma t\u00e4htsaimaid m\u00e4et\u00f6\u00f6stusmaid. Ta on maailmas esikohal kivis\u00f6ekuld|kulla]], boksiidivask|vase]] ja rauamaagiv\u00e4ljaveo poolest. Maavarad annavad peaaegu k\u00fcmnendiku Austraalia sisemajanduse kogutoodangust",
                     "title": "M\u00e4et\u00f6\u00f6stus"
                 }
             ],
-            "text": "\n\nAustraalia majandus on segamajandus, mida j\u00e4rjest rohkem erastatakse.{{lisa viide}} 1980. aastatel hakkas Austraalia T\u00f6\u00f6partei peaministri Bob Hawke'i ja rahandusministri Paul Keatingi juhtimisel riigi majandust ajakohastama. P\u00e4rast sellele j\u00e4rgnenud majanduse kokkukukkumist on Austraalia suutnud sellest kiiresti \u00fcle saada ja 1990. aastatest alates on ta \u00fcks paremal j\u00e4rjel oleva majandusega OECD riikidest. T\u00f6\u00f6tus on sellest ajast peale j\u00e4rsult langenud ja ettev\u00f5tete konkurentsiv\u00f5ime suurenenud. 1996. aastast hakati Austraalia peaminister John Howardi juhtimisel ellu viima liberaalset",
+            "text": "\n\nAustraalia majandus on segamajandusmida j\u00e4rjest rohkem erastatakse.{{lisa viide}} 1980. aastatelhakkas Austraalia T\u00f6\u00f6partei peaministri Bob Hawke'i ja rahandusministri Paul Keatingi juhtimisel riigi majandust ajakohastama. P\u00e4rast sellele j\u00e4rgnenud majanduse kokkukukkumist on Austraalia suutnud sellest kiiresti \u00fcle saada ja 1990. aastatestalates on ta \u00fcks paremal j\u00e4rjel oleva majandusega OECDriikidest. T\u00f6\u00f6tus on sellest ajast peale j\u00e4rsult langenud ja ettev\u00f5tete konkurentsiv\u00f5ime suurenenud. 1996aastast hakati Austraalia peaminister John Howardi juhtimisel ellu viima liberaalset",
             "title": "Majandus"
         },
         {
             "internal_links": [
                 {
                     "end": 200,
-                    "label": "Sydney",
-                    "start": 192,
+                    "label": "Sydneyle",
+                    "start": 193,
                     "title": "Sydney",
                     "url": "http://et.wikipedia.org/wiki/Sydney"
                 },
                 {
-                    "end": 224,
-                    "label": "Melbourne",
-                    "start": 213,
+                    "end": 214,
+                    "label": "Melbourne'",
+                    "start": 205,
                     "title": "Melbourne",
                     "url": "http://et.wikipedia.org/wiki/Melbourne"
                 },
                 {
-                    "end": 244,
+                    "end": 233,
                     "label": "aborigeenide",
-                    "start": 230,
+                    "start": 222,
                     "title": "Austraalia aborigeenid",
                     "url": "http://et.wikipedia.org/wiki/Austraalia_aborigeenid"
                 },
                 {
-                    "end": 260,
+                    "end": 248,
                     "label": "Uluru",
-                    "start": 253,
+                    "start": 244,
                     "title": "Uluru",
                     "url": "http://et.wikipedia.org/wiki/Uluru"
-                },
-                {
-                    "end": 281,
-                    "label": "Kakadu rahvuspark",
-                    "start": 262,
-                    "title": "Kakadu rahvuspark",
-                    "url": "http://et.wikipedia.org/wiki/Kakadu_rahvuspark"
                 }
             ],
-            "text": "\nAlates 1970. aastatest on Austraalias aina enam turiste k\u00e4inud. Perioodil August 2013 - Juuli 2014 k\u00fclastas riiki 6,7 miljonit turisti. K\u00fclastajate peamised sihtkohad on lisaks suurlinnadele Sydney<nowiki/>le ja Melbourne'ile ka aborigeenide p\u00fcha m\u00e4gi Uluru ja Kakadu rahvuspark",
+            "text": "\nAlates 1970. aastatest on Austraalias aina enam turiste k\u00e4inud. Perioodil August 2013 - Juuli 2014 k\u00fclastas riiki 6,7 miljonit turisti. K\u00fclastajate peamised sihtkohad on lisaks suurlinnadele Sydneyle ja Melbourne'ile ka aborigeenidep\u00fcha m\u00e4gi Uluru",
             "title": "Turism"
         },
         {
-            "internal_links": [
-                {
-                    "end": 18,
-                    "label": "Austraallased",
-                    "start": 3,
-                    "title": "Austraallased",
-                    "url": "http://et.wikipedia.org/wiki/Austraallased"
-                },
-                {
-                    "end": 56,
-                    "label": "Austraalia kindralkuberneride loend",
-                    "start": 19,
-                    "title": "Austraalia kindralkuberneride loend",
-                    "url": "http://et.wikipedia.org/wiki/Austraalia_kindralkuberneride_loend"
-                },
-                {
-                    "end": 76,
-                    "label": "Austraalia veinid",
-                    "start": 57,
-                    "title": "Austraalia veinid",
-                    "url": "http://et.wikipedia.org/wiki/Austraalia_veinid"
-                }
-            ],
-            "text": "\n* Austraallased\n* Austraalia kindralkuberneride loend\n* Austraalia veinid",
+            "text": "\n [[Austraallased]]\n [[Austraalia kindralkuberneride loend]]\n [[Austraalia veinid]]",
             "title": "Vaata ka"
         },
         {
-            "text": "\n{{viited}}\n",
+            "text": "\n{{viited}}",
             "title": "Viited"
         },
         {
             "external links": [
                 {
-                    "end": 68,
+                    "end": 67,
                     "label": "Austraalia valitsus",
-                    "start": 49,
+                    "start": 48,
                     "url": "http://www.gov.au/"
                 }
             ],
-            "text": "\n{{vikis\u00f5naraamatus}}\n{{commonskat|Australia}}\n* Austraalia valitsus\n\n{{Rahvaste \u00dchendus}}\n{{Okeaaniariigid}}\n\n{{koord|NS=-25.0 |EW=135.0 |type=country |region=AU}}\n\n\n\n\n",
+            "text": "\n{{vikis\u00f5naraamatus}}\n{{commonskat|Australia}}\n Austraalia valitsus\n{{Rahvaste \u00dchendus}}\n{{Okeaaniariigid}}\n{{koord|NS=-25.0 |EW=135.0 |type=country |region=AU}}\n",
             "title": "V\u00e4lislingid"
         }
     ],

@@ -32,263 +32,228 @@
             "images": [
                 {
                     "text": "300px",
-                    "url": "http://et.wikipedia.org/wiki/Pilt:Albaania kaart.gif"
+                    "url": "http://et.wikipedia.org/wiki/Pilt:Albaania_kaart.gif"
                 }
             ],
             "internal_links": [
                 {
-                    "end": 118,
-                    "label": "Albaania (Aserbaid\u017eaan)",
-                    "start": 93,
-                    "title": "Albaania (Aserbaid\u017eaan)",
-                    "url": "http://et.wikipedia.org/wiki/Albaania_(Aserbaid\u017eaan)"
-                },
-                {
-                    "end": 172,
-                    "label": ".al",
-                    "start": 167,
-                    "title": ".al",
-                    "url": "http://et.wikipedia.org/wiki/.al"
-                },
-                {
-                    "end": 229,
-                    "label": "parlamentaarne vabariik",
-                    "start": 204,
-                    "title": "parlamentaarne vabariik",
-                    "url": "http://et.wikipedia.org/wiki/parlamentaarne_vabariik"
-                },
-                {
                     "end": 359,
-                    "label": "Euroopa",
-                    "start": 350,
+                    "label": "Euroopas",
+                    "start": 352,
                     "title": "Euroopa",
                     "url": "http://et.wikipedia.org/wiki/Euroopa"
                 },
                 {
                     "end": 377,
-                    "label": "Balkani poolsaar",
-                    "start": 359,
+                    "label": "Balkani poolsaare",
+                    "start": 361,
                     "title": "Balkani poolsaar",
                     "url": "http://et.wikipedia.org/wiki/Balkani_poolsaar"
                 },
                 {
-                    "end": 415,
-                    "label": "Kreeka",
-                    "start": 407,
+                    "end": 416,
+                    "label": "Kreeka (",
+                    "start": 409,
                     "title": "Kreeka",
                     "url": "http://et.wikipedia.org/wiki/Kreeka"
                 },
                 {
-                    "end": 438,
-                    "label": "Makedoonia",
-                    "start": 426,
+                    "end": 439,
+                    "label": "Makedooniaga",
+                    "start": 428,
                     "title": "Makedoonia",
                     "url": "http://et.wikipedia.org/wiki/Makedoonia"
                 },
                 {
-                    "end": 474,
-                    "label": "Kosovo",
-                    "start": 466,
+                    "end": 475,
+                    "label": "Kosovo (",
+                    "start": 468,
                     "title": "Kosovo",
                     "url": "http://et.wikipedia.org/wiki/Kosovo"
                 },
                 {
-                    "end": 507,
-                    "label": "Montenegro",
-                    "start": 495,
+                    "end": 508,
+                    "label": "Montenegroga",
+                    "start": 497,
                     "title": "Montenegro",
                     "url": "http://et.wikipedia.org/wiki/Montenegro"
                 },
                 {
-                    "end": 583,
+                    "end": 582,
                     "label": "Aadria meri",
-                    "start": 570,
+                    "start": 572,
                     "title": "Aadria meri",
                     "url": "http://et.wikipedia.org/wiki/Aadria_meri"
                 },
                 {
-                    "end": 610,
+                    "end": 608,
                     "label": "Joonia meri",
-                    "start": 597,
+                    "start": 598,
                     "title": "Joonia meri",
                     "url": "http://et.wikipedia.org/wiki/Joonia_meri"
                 },
                 {
-                    "end": 678,
-                    "label": "meremiil",
-                    "start": 668,
+                    "end": 675,
+                    "label": "meremiili",
+                    "start": 667,
                     "title": "meremiil",
                     "url": "http://et.wikipedia.org/wiki/meremiil"
                 },
                 {
-                    "end": 767,
-                    "label": "Otranto v\u00e4in",
-                    "start": 753,
+                    "end": 765,
+                    "label": "Otranto v\u00e4inaga",
+                    "start": 751,
                     "title": "Otranto v\u00e4in",
                     "url": "http://et.wikipedia.org/wiki/Otranto_v\u00e4in"
                 },
                 {
-                    "end": 820,
+                    "end": 815,
                     "label": "Itaalia",
-                    "start": 811,
+                    "start": 809,
                     "title": "Itaalia",
                     "url": "http://et.wikipedia.org/wiki/Itaalia"
-                },
-                {
-                    "end": 901,
-                    "label": "Vahemerega",
-                    "start": 889,
-                    "title": "Vahemeri",
-                    "url": "http://et.wikipedia.org/wiki/Vahemeri"
                 }
             ],
-            "text": "{{See artikkel|r\u00e4\u00e4gib riigist Euroopas; ajaloolise piirkonna kohta Kaukaasias vaata artiklit Albaania (Aserbaid\u017eaan)}}\n{{ajakohasta}}\n{{allikad}}\nusund =\n|\u00fcladomeen = .al\n|telefonikood = 355\n|riigikord = parlamentaarne vabariik\n|SKT =\n|SKT_elaniku_kohta =\n|rok-i_kood = ALB\n|m\u00e4rkused =\n}}\n'''Albaania Vabariik''' (''Republika e Shqip\u00ebris\u00eb'') paikneb Euroopas Balkani poolsaare l\u00e4\u00e4neosas. Riik piirneb idast Kreeka (282 km) ja Makedooniaga (151 km), idast ja p\u00f5hjast Kosovo (114 km) ning p\u00f5hjast Montenegroga (173 km). Maismaapiiri kogupikkus on 720 km. L\u00e4\u00e4ne poole j\u00e4\u00e4b Aadria meri ja edela poole Joonia meri. Rannajoone pikkus on 362 km. Territoriaalmere laius on 12 meremiili.\n\nL\u00e4\u00e4ne-Albaania madalikud piirnevad Aadria mere ja strateegiliselt t\u00e4htsa Otranto v\u00e4inaga, mis j\u00e4tab alla 100 km vett Albaania ning Itaalia saapa \"kanna\" vahele. Otranto v\u00e4in \u00fchendab Aadria merd Joonia mere ja Vahemerega"
+            "text": "{{See artikkel|r\u00e4\u00e4gib riigist Euroopas; ajaloolise piirkonna kohta Kaukaasias vaata artiklit [[Albaania (Aserbaid\u017eaan)]]}}\n{{ajakohasta}}\n{{allikad}}\nusund =\n|\u00fcladomeen = [[.al]]\n|telefonikood = 355\n|riigikord = [[parlamentaarne vabariik]]\n|SKT =\n|SKT_elaniku_kohta =\n|rok-i_kood = ALB\n|m\u00e4rkused =\nAlbaania Vabariik (\"Republika e Shqip\u00ebris\u00eb\") paikneb Euroopas Balkani poolsaare l\u00e4\u00e4neosas. Riik piirneb idast Kreeka (282 km) ja Makedooniaga (151 km), idast ja p\u00f5hjast Kosovo (114 km) ning p\u00f5hjast Montenegroga (173 km). Maismaapiiri kogupikkus on 720 km. L\u00e4\u00e4ne poole j\u00e4\u00e4b Aadria merija edela poole Joonia meriRannajoone pikkus on 362 km. Territoriaalmere laius on 12 meremiili.\nL\u00e4\u00e4ne-Albaania madalikud piirnevad Aadria mere ja strateegiliselt t\u00e4htsa Otranto v\u00e4inaga, mis j\u00e4tab alla 100 km vett Albaania ning Itaalia"
         },
         {
             "internal_links": [
                 {
-                    "end": 38,
+                    "end": 36,
                     "label": "ill\u00fc\u00fcria",
-                    "start": 28,
+                    "start": 29,
                     "title": "ill\u00fc\u00fcrlased",
                     "url": "http://et.wikipedia.org/wiki/ill\u00fc\u00fcrlased"
                 },
                 {
-                    "end": 160,
-                    "label": "11. sajand",
-                    "start": 148,
+                    "end": 157,
+                    "label": "11. sajandil",
+                    "start": 146,
                     "title": "11. sajand",
                     "url": "http://et.wikipedia.org/wiki/11._sajand"
                 },
                 {
-                    "end": 175,
-                    "label": "Durr\u00ebs",
-                    "start": 167,
+                    "end": 172,
+                    "label": "Durr\u00ebses",
+                    "start": 165,
                     "title": "Durr\u00ebs",
                     "url": "http://et.wikipedia.org/wiki/Durr\u00ebs"
                 },
                 {
-                    "end": 408,
+                    "end": 399,
                     "label": "Albaania lipp",
-                    "start": 393,
+                    "start": 387,
                     "title": "Albaania lipp",
                     "url": "http://et.wikipedia.org/wiki/Albaania_lipp"
                 }
             ],
-            "text": "\nAlbaania nimi on tuletatud ill\u00fc\u00fcria h\u00f5imu albaanide (kreeka keeles ''Albanoi'') j\u00e4rgi, keda peetakse albaanlaste esivanemateks. See nimetus kerkib 11. sajandil esile Durr\u00ebses ja selle \u00fcmbruses elava ill\u00fc\u00fcria h\u00f5imu kohta. Albaania albaaniakeelne nimetus on ''Shqip\u00ebria''. Seda nime seostatakse rahvusteadvuses s\u00f5naga ''shqiponja'' ('kotkas'; kahe peaga kotkas on ka Albaania rahvuslik s\u00fcmbol; Albaania lipp",
+            "text": "\nAlbaania nimi on tuletatud ill\u00fc\u00fcriah\u00f5imu albaanide (kreeka keeles \"Albanoi\") j\u00e4rgi, keda peetakse albaanlaste esivanemateks. See nimetus kerkib 11. sajandil esile Durr\u00ebses ja selle \u00fcmbruses elava ill\u00fc\u00fcria h\u00f5imu kohta. Albaania albaaniakeelne nimetus on \"Shqip\u00ebria\". Seda nime seostatakse rahvusteadvuses s\u00f5naga \"shqiponja\" ('kotkas'; kahe peaga kotkas on ka Albaania rahvuslik s\u00fcmbol; Albaania lipp",
             "title": "Nimi"
         },
         {
             "internal_links": [
                 {
-                    "end": 366,
-                    "label": "London",
-                    "start": 358,
+                    "end": 364,
+                    "label": "Londonis",
+                    "start": 357,
                     "title": "London",
                     "url": "http://et.wikipedia.org/wiki/London"
                 },
                 {
-                    "end": 373,
-                    "label": "1912",
-                    "start": 367,
+                    "end": 370,
+                    "label": "1912\u2013",
+                    "start": 366,
                     "title": "1912",
                     "url": "http://et.wikipedia.org/wiki/1912"
                 },
                 {
-                    "end": 378,
-                    "label": "1913",
-                    "start": 372,
-                    "title": "1913",
-                    "url": "http://et.wikipedia.org/wiki/1913"
-                },
-                {
-                    "end": 399,
+                    "end": 397,
                     "label": "Esimese maailmas\u00f5ja",
-                    "start": 378,
+                    "start": 379,
                     "title": "Esimene maailmas\u00f5da",
                     "url": "http://et.wikipedia.org/wiki/Esimene_maailmas\u00f5da"
                 },
                 {
-                    "end": 463,
+                    "end": 460,
                     "label": "Prantsuse",
                     "start": 452,
                     "title": "Prantsusmaa",
                     "url": "http://et.wikipedia.org/wiki/Prantsusmaa"
                 },
                 {
-                    "end": 503,
+                    "end": 499,
                     "label": "1921",
-                    "start": 497,
+                    "start": 496,
                     "title": "1921",
                     "url": "http://et.wikipedia.org/wiki/1921"
                 },
                 {
-                    "end": 593,
+                    "end": 588,
                     "label": "albaania",
-                    "start": 583,
+                    "start": 581,
                     "title": "albaanlased",
                     "url": "http://et.wikipedia.org/wiki/albaanlased"
                 },
                 {
-                    "end": 709,
+                    "end": 703,
                     "label": "serblastest",
-                    "start": 696,
+                    "start": 693,
                     "title": "serblased",
                     "url": "http://et.wikipedia.org/wiki/serblased"
                 },
                 {
-                    "end": 730,
+                    "end": 723,
                     "label": "montenegrolastest",
-                    "start": 711,
+                    "start": 707,
                     "title": "montenegrolased",
                     "url": "http://et.wikipedia.org/wiki/montenegrolased"
                 },
                 {
-                    "end": 780,
+                    "end": 771,
                     "label": "kreeklased",
-                    "start": 768,
+                    "start": 762,
                     "title": "kreeklased",
                     "url": "http://et.wikipedia.org/wiki/kreeklased"
                 },
                 {
-                    "end": 910,
+                    "end": 899,
                     "label": "Jugoslaavia",
-                    "start": 897,
+                    "start": 889,
                     "title": "Jugoslaavia",
                     "url": "http://et.wikipedia.org/wiki/Jugoslaavia"
                 },
                 {
-                    "end": 1650,
-                    "label": "veelahe",
-                    "start": 1641,
+                    "end": 1637,
+                    "label": "veelahet",
+                    "start": 1630,
                     "title": "veelahe",
                     "url": "http://et.wikipedia.org/wiki/veelahe"
                 },
                 {
-                    "end": 1873,
-                    "label": "P\u00f5hja-Albaania Alpid",
-                    "start": 1851,
+                    "end": 1860,
+                    "label": "P\u00f5hja-Albaania Alpides",
+                    "start": 1839,
                     "title": "P\u00f5hja-Albaania Alpid",
                     "url": "http://et.wikipedia.org/wiki/P\u00f5hja-Albaania_Alpid"
                 },
                 {
-                    "end": 1988,
-                    "label": "Shkod\u00ebri j\u00e4rv",
-                    "start": 1973,
+                    "end": 1974,
+                    "label": "Shkod\u00ebri j\u00e4rve",
+                    "start": 1961,
                     "title": "Shkod\u00ebri j\u00e4rv",
                     "url": "http://et.wikipedia.org/wiki/Shkod\u00ebri_j\u00e4rv"
                 },
                 {
-                    "end": 2007,
+                    "end": 1992,
                     "label": "Bun\u00eb j\u00f5est",
-                    "start": 1995,
+                    "start": 1983,
                     "title": "Bun\u00eb j\u00f5gi",
                     "url": "http://et.wikipedia.org/wiki/Bun\u00eb_j\u00f5gi"
                 },
                 {
-                    "end": 2042,
+                    "end": 2025,
                     "label": "Joonia mereni",
-                    "start": 2027,
+                    "start": 2013,
                     "title": "Joonia meri",
                     "url": "http://et.wikipedia.org/wiki/Joonia_meri"
                 }
@@ -297,380 +262,329 @@
                 {
                     "internal_links": [
                         {
-                            "end": 80,
+                            "end": 78,
                             "label": "lamba",
-                            "start": 73,
+                            "start": 74,
                             "title": "lammas",
                             "url": "http://et.wikipedia.org/wiki/lammas"
                         },
                         {
-                            "end": 89,
-                            "label": "kits",
-                            "start": 83,
+                            "end": 92,
+                            "label": "kitsekarjad",
+                            "start": 82,
                             "title": "kits",
                             "url": "http://et.wikipedia.org/wiki/kits"
                         },
                         {
-                            "end": 236,
+                            "end": 232,
                             "label": "nisu",
-                            "start": 230,
+                            "start": 229,
                             "title": "nisu",
                             "url": "http://et.wikipedia.org/wiki/nisu"
                         },
                         {
-                            "end": 268,
+                            "end": 262,
                             "label": "mais",
-                            "start": 262,
+                            "start": 259,
                             "title": "mais",
                             "url": "http://et.wikipedia.org/wiki/mais"
                         },
                         {
-                            "end": 288,
+                            "end": 280,
                             "label": "riis",
-                            "start": 282,
+                            "start": 277,
                             "title": "riis",
                             "url": "http://et.wikipedia.org/wiki/riis"
                         },
                         {
-                            "end": 297,
-                            "label": "puuvill",
-                            "start": 288,
-                            "title": "puuvill",
-                            "url": "http://et.wikipedia.org/wiki/puuvill"
-                        },
-                        {
-                            "end": 309,
+                            "end": 301,
                             "label": "suhkrupeet",
-                            "start": 297,
+                            "start": 292,
                             "title": "suhkrupeet",
                             "url": "http://et.wikipedia.org/wiki/suhkrupeet"
                         },
                         {
-                            "end": 317,
-                            "label": "kartul",
-                            "start": 309,
-                            "title": "kartul",
-                            "url": "http://et.wikipedia.org/wiki/kartul"
-                        },
-                        {
-                            "end": 382,
-                            "label": "oliiv",
-                            "start": 375,
+                            "end": 375,
+                            "label": "oliive",
+                            "start": 370,
                             "title": "oliiv",
                             "url": "http://et.wikipedia.org/wiki/oliiv"
                         },
                         {
-                            "end": 395,
+                            "end": 387,
                             "label": "viinamarja",
-                            "start": 383,
+                            "start": 378,
                             "title": "viinamarjad",
                             "url": "http://et.wikipedia.org/wiki/viinamarjad"
-                        },
-                        {
-                            "end": 404,
-                            "label": "tubakat",
-                            "start": 395,
-                            "title": "tubakas",
-                            "url": "http://et.wikipedia.org/wiki/tubakas"
                         }
                     ],
-                    "text": "\nAlbaanlased on traditsiooniliselt olnud karjakasvatajad, kes viisid oma lamba- ja kitsekarjad suveks m\u00e4gikarjamaadele. Karjakasvatus on ka praegu t\u00e4htis, kuid 2/3 p\u00f5llumajandustoodangust tuleb p\u00f5lluviljadest. Peamine teravili on nisu, millest ei j\u00e4\u00e4 palju maha mais. T\u00e4htsad on ka riis, puuvill, suhkrupeet, kartul, juurvili ja s\u00f6\u00f6davili. Soojad suved v\u00f5imaldavad kasvatada oliive, viinamarja, tubakat",
+                    "text": "\nAlbaanlased on traditsiooniliselt olnud karjakasvatajad, kes viisid oma lambaja kitsekarjad suveks m\u00e4gikarjamaadele. Karjakasvatus on ka praegu t\u00e4htis, kuid 2/3 p\u00f5llumajandustoodangust tuleb p\u00f5lluviljadest. Peamine teravili on nisumillest ei j\u00e4\u00e4 palju maha maisT\u00e4htsad on ka riispuuvill]], suhkrupeetkartul]], juurvili ja s\u00f6\u00f6davili. Soojad suved v\u00f5imaldavad kasvatada oliive, viinamarja",
                     "title": "P\u00f5llumajandus"
                 },
                 {
                     "internal_links": [
                         {
-                            "end": 46,
-                            "label": "Nafta",
-                            "start": 39,
+                            "end": 45,
+                            "label": "Naftat",
+                            "start": 40,
                             "title": "Nafta",
                             "url": "http://et.wikipedia.org/wiki/Nafta"
                         },
                         {
-                            "end": 126,
+                            "end": 124,
                             "label": "Ku\u00e7ova",
-                            "start": 118,
+                            "start": 119,
                             "title": "Ku\u00e7ova",
                             "url": "http://et.wikipedia.org/wiki/Ku\u00e7ova"
                         },
                         {
-                            "end": 210,
-                            "label": "maagaas",
+                            "end": 208,
+                            "label": "maagaasi",
                             "start": 201,
                             "title": "maagaas",
                             "url": "http://et.wikipedia.org/wiki/maagaas"
                         },
                         {
-                            "end": 229,
+                            "end": 226,
                             "label": "pruuns\u00fctt",
                             "start": 218,
                             "title": "pruuns\u00fcsi",
                             "url": "http://et.wikipedia.org/wiki/pruuns\u00fcsi"
                         },
                         {
-                            "end": 257,
+                            "end": 252,
                             "label": "elektri",
-                            "start": 248,
+                            "start": 246,
                             "title": "elekter",
                             "url": "http://et.wikipedia.org/wiki/elekter"
                         },
                         {
-                            "end": 327,
-                            "label": "h\u00fcdroelektrijaam",
-                            "start": 309,
+                            "end": 326,
+                            "label": "h\u00fcdroelektrijaamadest",
+                            "start": 306,
                             "title": "h\u00fcdroelektrijaam",
                             "url": "http://et.wikipedia.org/wiki/h\u00fcdroelektrijaam"
                         },
                         {
-                            "end": 375,
+                            "end": 369,
                             "label": "kromiit",
-                            "start": 366,
+                            "start": 363,
                             "title": "kromiit",
                             "url": "http://et.wikipedia.org/wiki/kromiit"
                         },
                         {
-                            "end": 391,
-                            "label": "vask",
-                            "start": 385,
+                            "end": 384,
+                            "label": "vaske",
+                            "start": 380,
                             "title": "vask",
                             "url": "http://et.wikipedia.org/wiki/vask"
-                        },
-                        {
-                            "end": 402,
-                            "label": "niklit",
-                            "start": 394,
-                            "title": "nikkel",
-                            "url": "http://et.wikipedia.org/wiki/nikkel"
                         }
                     ],
-                    "text": "\nAlbaanial on suuri maavarade varusid. Naftat j\u00e4tkub sisetarbimiseks ning j\u00e4\u00e4b pisut \u00fcle ka ekspordiks. Torujuhe viib Ku\u00e7ova naftav\u00e4ljadelt Vlor\u00eb sadamasse. On ka mitu naftat\u00f6\u00f6tlemistehast. Toodetakse maagaasi. Leidub pruuns\u00fctt, mida saab kasutada elektri tootmisel. Enamik toodetavast elektrist tuleb siiski h\u00fcdroelektrijaamadest. Metallimaakidest on k\u00f5ige t\u00e4htsam kromiit. Leidub ka vaske ja niklit",
+                    "text": "\nAlbaanial on suuri maavarade varusid. Naftat j\u00e4tkub sisetarbimiseks ning j\u00e4\u00e4b pisut \u00fcle ka ekspordiks. Torujuhe viib Ku\u00e7ovanaftav\u00e4ljadelt Vlor\u00eb sadamasse. On ka mitu naftat\u00f6\u00f6tlemistehast. Toodetakse maagaasi. Leidub pruuns\u00fcttmida saab kasutada elektritootmisel. Enamik toodetavast elektrist tuleb siiski h\u00fcdroelektrijaamadest. Metallimaakidest on k\u00f5ige t\u00e4htsam kromiitLeidub ka vaske",
                     "title": "Maavarad"
                 },
                 {
                     "internal_links": [
                         {
-                            "end": 207,
-                            "label": "rauamaak",
-                            "start": 197,
+                            "end": 206,
+                            "label": "rauamaaki",
+                            "start": 198,
                             "title": "rauamaak",
                             "url": "http://et.wikipedia.org/wiki/rauamaak"
                         },
                         {
-                            "end": 216,
-                            "label": "asfalt",
-                            "start": 208,
+                            "end": 215,
+                            "label": "asfalti",
+                            "start": 209,
                             "title": "asfalt",
                             "url": "http://et.wikipedia.org/wiki/asfalt"
                         },
                         {
-                            "end": 255,
-                            "label": "vein",
-                            "start": 249,
+                            "end": 254,
+                            "label": "veini",
+                            "start": 250,
                             "title": "vein",
                             "url": "http://et.wikipedia.org/wiki/vein"
                         },
                         {
                             "end": 324,
-                            "label": "Saksamaa",
-                            "start": 314,
+                            "label": "Saksamaa (",
+                            "start": 315,
                             "title": "Saksamaa",
                             "url": "http://et.wikipedia.org/wiki/Saksamaa"
                         }
                     ],
-                    "text": "\nEkspordi kogumaht on 256 miljonit USA dollarit aastas. Sellest moodustab tekstiil 32,7%, nahk ja nahktooted 19,5% ja maagid 10,4%. M\u00e4rkimisv\u00e4\u00e4rselt eksporditakse kromiiti. Eksporditakse ka vaske, rauamaaki, asfalti, tubakat, puu- ja juurvilju ning veini. P\u00f5hilised ekspordimaad on Itaalia (60%), Kreeka (5,7%) ja Saksamaa",
+                    "text": "\nEkspordi kogumaht on 256 miljonit USA dollarit aastas. Sellest moodustab tekstiil 32,7%, nahk ja nahktooted 19,5% ja maagid 10,4%. M\u00e4rkimisv\u00e4\u00e4rselt eksporditakse kromiiti. Eksporditakse ka vaske, rauamaaki, asfalti, tubakat, puu- ja juurvilju ning veini. P\u00f5hilised ekspordimaad on Itaalia (60%), Kreeka (5,7%) ja Saksamaa (",
                     "title": "Eksport ja import"
                 },
                 {
                     "internal_links": [
                         {
                             "end": 103,
-                            "label": "Elbasan",
-                            "start": 94,
+                            "label": "Elbasanis",
+                            "start": 95,
                             "title": "Elbasan",
                             "url": "http://et.wikipedia.org/wiki/Elbasan"
                         },
                         {
-                            "end": 116,
+                            "end": 114,
                             "label": "1976",
-                            "start": 110,
+                            "start": 111,
                             "title": "1976",
                             "url": "http://et.wikipedia.org/wiki/1976"
                         },
                         {
-                            "end": 137,
-                            "label": "teras",
+                            "end": 140,
+                            "label": "terasetehas",
                             "start": 130,
                             "title": "teras",
                             "url": "http://et.wikipedia.org/wiki/teras"
                         },
                         {
                             "end": 170,
-                            "label": "keemiatehas",
+                            "label": "keemiatehaseid",
                             "start": 157,
                             "title": "keemiatehas",
                             "url": "http://et.wikipedia.org/wiki/keemiatehas"
                         },
                         {
-                            "end": 191,
-                            "label": "Berat",
+                            "end": 190,
+                            "label": "Beratis",
                             "start": 184,
                             "title": "Berat",
                             "url": "http://et.wikipedia.org/wiki/Berat"
                         },
                         {
-                            "end": 212,
-                            "label": "tekstiil",
+                            "end": 221,
+                            "label": "tekstiilikombinaadid",
                             "start": 202,
                             "title": "tekstiil",
                             "url": "http://et.wikipedia.org/wiki/tekstiil"
                         }
                     ],
-                    "text": "\nT\u00f6\u00f6stuse, eriti nafta- ja keemiat\u00f6\u00f6stuse arendamisele p\u00f6\u00f6ratakse Albaanias suurt t\u00e4helepanu. Elbasanis avati 1976 v\u00e4ike raua- ja terasetehas. On ka v\u00e4ikesi keemiatehaseid. Tiranas ja Beratis on suured tekstiil",
+                    "text": "\nT\u00f6\u00f6stuse, eriti nafta- ja keemiat\u00f6\u00f6stuse arendamisele p\u00f6\u00f6ratakse Albaanias suurt t\u00e4helepanu. Elbasanis avati 1976v\u00e4ike raua- ja terasetehas. On ka v\u00e4ikesi keemiatehaseid. Tiranas ja Beratis on suured tekstiilikombinaadid",
                     "title": "T\u00f6\u00f6stus"
                 },
                 {
                     "internal_links": [
                         {
-                            "end": 18,
+                            "end": 16,
                             "label": "raudtee",
-                            "start": 9,
+                            "start": 10,
                             "title": "raudtee",
                             "url": "http://et.wikipedia.org/wiki/raudtee"
                         },
                         {
-                            "end": 59,
-                            "label": "Durr\u00ebs",
+                            "end": 57,
+                            "label": "Durr\u00ebse",
                             "start": 51,
                             "title": "Durr\u00ebs",
                             "url": "http://et.wikipedia.org/wiki/Durr\u00ebs"
                         },
                         {
-                            "end": 187,
-                            "label": "Han i Hotit",
+                            "end": 185,
+                            "label": "Han i Hotiti",
                             "start": 174,
                             "title": "Han i Hotit",
                             "url": "http://et.wikipedia.org/wiki/Han_i_Hotit"
                         },
                         {
-                            "end": 288,
-                            "label": "auto",
-                            "start": 282,
+                            "end": 284,
+                            "label": "autot",
+                            "start": 280,
                             "title": "auto",
                             "url": "http://et.wikipedia.org/wiki/auto"
                         },
                         {
-                            "end": 325,
+                            "end": 319,
                             "label": "Vlor\u00eb",
-                            "start": 318,
+                            "start": 315,
                             "title": "Vlor\u00eb",
                             "url": "http://et.wikipedia.org/wiki/Vlor\u00eb"
                         },
                         {
-                            "end": 335,
-                            "label": "Sh\u00ebngjin",
-                            "start": 325,
-                            "title": "Sh\u00ebngjin",
-                            "url": "http://et.wikipedia.org/wiki/Sh\u00ebngjin"
-                        },
-                        {
-                            "end": 346,
+                            "end": 340,
                             "label": "Sarand\u00eb",
-                            "start": 337,
+                            "start": 334,
                             "title": "Sarand\u00eb",
                             "url": "http://et.wikipedia.org/wiki/Sarand\u00eb"
                         },
                         {
-                            "end": 458,
+                            "end": 449,
                             "label": "Albanian Airline",
-                            "start": 440,
+                            "start": 434,
                             "title": "Albanian Airline",
                             "url": "http://et.wikipedia.org/wiki/Albanian_Airline"
-                        },
-                        {
-                            "end": 469,
-                            "label": "Ada Air",
-                            "start": 460,
-                            "title": "Ada Air",
-                            "url": "http://et.wikipedia.org/wiki/Ada_Air"
                         }
                     ],
-                    "text": "\nEsimene raudtee ehitati 1948. See \u00fchendas Tiranat Durr\u00ebse ja Elbasaniga. Raudteede kogupikkus on 447 km. Algselt ehitati raudtee rahvusvahelise raudtee j\u00e4tkuna Montenegrost Han i Hotiti kaudu.\n\nMaanteede kogupikkus on 18 000 km, neist k\u00f5vakattega 39%.\n\n1000 elaniku kohta tuleb 44 autot.\n\nPeamised sadamad on Durr\u00ebs, Vlor\u00eb, Sh\u00ebngjin ja Sarand\u00eb. Siselaevaliinide kogupikkus on 43 km.\n\nTiranas on rahvusvaheline lennujaam. Lennukompaniid on Albanian Airline ja Ada Air",
+                    "text": "\nEsimene raudteeehitati 1948. See \u00fchendas Tiranat Durr\u00ebse ja Elbasaniga. Raudteede kogupikkus on 447 km. Algselt ehitati raudtee rahvusvahelise raudtee j\u00e4tkuna Montenegrost Han i Hotiti kaudu.\nMaanteede kogupikkus on 18 000 km, neist k\u00f5vakattega 39%.\n1000 elaniku kohta tuleb 44 autot.\nPeamised sadamad on Durr\u00ebs, Vlor\u00ebSh\u00ebngjin]] ja Sarand\u00ebSiselaevaliinide kogupikkus on 43 km.\nTiranas on rahvusvaheline lennujaam. Lennukompaniid on Albanian Airline",
                     "title": "Transport"
                 },
                 {
                     "internal_links": [
                         {
-                            "end": 10,
-                            "label": "Telefon",
-                            "start": 1,
+                            "end": 13,
+                            "label": "Telefoniv\u00f5rk",
+                            "start": 2,
                             "title": "Telefon",
                             "url": "http://et.wikipedia.org/wiki/Telefon"
                         },
                         {
-                            "end": 35,
+                            "end": 33,
                             "label": "Raadio",
-                            "start": 27,
+                            "start": 28,
                             "title": "Raadio",
                             "url": "http://et.wikipedia.org/wiki/Raadio"
                         },
                         {
-                            "end": 66,
-                            "label": "Televisioon",
+                            "end": 70,
+                            "label": "Televisioonisaated",
                             "start": 53,
                             "title": "Televisioon",
                             "url": "http://et.wikipedia.org/wiki/Televisioon"
                         },
                         {
-                            "end": 178,
-                            "label": "mobiiltelefon",
-                            "start": 163,
+                            "end": 175,
+                            "label": "mobiiltelefoni",
+                            "start": 162,
                             "title": "mobiiltelefon",
                             "url": "http://et.wikipedia.org/wiki/mobiiltelefon"
                         },
                         {
-                            "end": 202,
-                            "label": "personaalarvuti",
-                            "start": 185,
+                            "end": 199,
+                            "label": "personaalarvutit",
+                            "start": 184,
                             "title": "personaalarvuti",
                             "url": "http://et.wikipedia.org/wiki/personaalarvuti"
                         }
                     ],
-                    "text": "\nTelefoniv\u00f5rk on piiratud. Raadio on laialt levinud. Televisioonisaated algasid 1971.\n\n1000 elaniku kohta on 243 raadiot, 123 telerit, 49,7 telefoni\u00fchendust, 88,2 mobiiltelefoni ja 7,6 personaalarvuti",
+                    "text": "\nTelefoniv\u00f5rk on piiratud. Raadioon laialt levinud. Televisioonisaated algasid 1971.\n1000 elaniku kohta on 243 raadiot, 123 telerit, 49,7 telefoni\u00fchendust, 88,2 mobiiltelefoni ja 7,6 personaalarvutit",
                     "title": "Side"
                 },
                 {
-                    "internal_links": [
-                        {
-                            "end": 37,
-                            "label": "Albaania lekk",
-                            "start": 22,
-                            "title": "Albaania lekk",
-                            "url": "http://et.wikipedia.org/wiki/Albaania_lekk"
-                        }
-                    ],
-                    "text": "\nAlbaania raha\u00fchik on Albaania lekk",
+                    "text": "\nAlbaania raha\u00fchik on [[Albaania lekk]].",
                     "title": "Raha\u00fchik"
                 },
                 {
                     "internal_links": [
                         {
                             "end": 27,
-                            "label": "riigikaitse",
-                            "start": 14,
+                            "label": "riigikaitsele",
+                            "start": 15,
                             "title": "riigikaitse",
                             "url": "http://et.wikipedia.org/wiki/riigikaitse"
                         },
                         {
-                            "end": 41,
-                            "label": "haridus",
-                            "start": 32,
+                            "end": 42,
+                            "label": "haridusele",
+                            "start": 33,
                             "title": "haridus",
                             "url": "http://et.wikipedia.org/wiki/haridus"
                         },
                         {
-                            "end": 63,
+                            "end": 61,
                             "label": "tervishoiule",
-                            "start": 49,
+                            "start": 50,
                             "title": "tervishoid",
                             "url": "http://et.wikipedia.org/wiki/tervishoid"
                         }
@@ -679,20 +593,20 @@
                     "title": "Riigieelarve"
                 }
             ],
-            "text": "\n\nAlbaania pindala on 28 748 km\u00b2 (27 398 km\u00b2 maad, 1350 km\u00b2 (4,7%) vett). Albaania on maailma riikide seas pindalalt 139. Albaania maksimaalne pikkus p\u00f5hja-l\u00f5una suunas on umbes 340 km ja maksimaalne laius ida-l\u00e4\u00e4ne suunas umbes 145 km.\n\nPeale rannikujoone on k\u00f5ik Albaania piirid kunstlikud. Need m\u00e4\u00e4rati p\u00f5him\u00f5tteliselt kindlaks suursaadikute konverentsil Londonis 1912\u20131913. Esimese maailmas\u00f5ja ajal okupeerisid Albaania, Itaalia, Serbia, Kreeka ja Prantsuse v\u00e4ed, kuid v\u00f5itjariigid kinnitasid 1921 uuesti enam-v\u00e4hem 1913. aasta piire. Algne p\u00f5him\u00f5te oli m\u00e4\u00e4rata piirid vastavalt albaania rahva ja naaberrahvaste huvidele. P\u00f5hja- ja idapiir pidid, nii palju kui v\u00f5imalik, eraldama albaanlased serblastest ja montenegrolastest; kagupiir pidi eraldama albaanlased ja kreeklased. V\u00e4\u00e4rtuslik L\u00e4\u00e4ne-Makedoonia j\u00e4rvede piirkond tuli jaotada vastavalt seal elavale kolmele rahvale Albaania, Kreeka ja Jugoslaavia vahel. Kui ei olnud teisi kompromissi n\u00f5udvaid tegureid, valiti piirid nii, et rahvad oleksid k\u00f5ige paremini eraldatud, kasutades looduslikke piire.\n\nV\u00f5eti arvesse kohalikku majandusliku olukorda, et mitte n\u00e4iteks l\u00f5igata \u00e4ra k\u00fcla oma karjamaadest ja turgudest. Poliitiline surve l\u00e4htus j\u00f5udude tasakaalu kaalutlustest, mitte majanduslikest huvidest.\n\nJ\u00e4rvede piirkonna jagamine kolme riigi vahel n\u00f5udis, et igal riigil oleks osa j\u00e4rve\u00e4\u00e4rsetest madalmikest. See jaotus m\u00f5jutas ka piire p\u00f5hja ja l\u00f5una pool. Piir, mis kulgeb \u00fcldiselt j\u00e4rvedest p\u00f5hja poole, kuigi j\u00e4rgib idapoolsete m\u00e4gismaade m\u00e4eahelikke, j\u00e4\u00e4b veelahkmest 16\u201332 km l\u00e4\u00e4ne poole. Et Londoni konverentsi l\u00e4bir\u00e4\u00e4kijad kaldusid kasutama Albaania riigi piiride m\u00e4\u00e4ramisel veelahet, siis j\u00e4i suur osa albaanlastest Kosovos Serbia territooriumile.\n\nAlbaania kaugetest p\u00f5hja- ja kirdepoolsetest m\u00e4gedes \u00fchendab piire k\u00f5rgeid tippe ning j\u00e4rgib m\u00e4eahelikke suurelt jaolt ligip\u00e4\u00e4smatutes P\u00f5hja-Albaania Alpides. M\u00e4gismaast Aadria mereni looduslikku piiri ei ole, kuigi Albaania loodepiiri m\u00e4rkimiseks kasutati Shkod\u00ebri j\u00e4rve ja osa Bun\u00eb j\u00f5est. J\u00e4rvede piirkonnast Joonia mereni",
-            "title": "Suurus  ja piirid"
+            "text": "\nAlbaania pindala on 28 748 km\u00b2 (27 398 km\u00b2 maad, 1350 km\u00b2 (4,7%) vett). Albaania on maailma riikide seas pindalalt 139. Albaania maksimaalne pikkus p\u00f5hja-l\u00f5una suunas on umbes 340 km ja maksimaalne laius ida-l\u00e4\u00e4ne suunas umbes 145 km.\nPeale rannikujoone on k\u00f5ik Albaania piirid kunstlikud. Need m\u00e4\u00e4rati p\u00f5him\u00f5tteliselt kindlaks suursaadikute konverentsil Londonis 1912\u20131913]]. Esimese maailmas\u00f5jaajal okupeerisid Albaania, Itaalia, Serbia, Kreeka ja Prantsusev\u00e4ed, kuid v\u00f5itjariigid kinnitasid 1921uuesti enam-v\u00e4hem 1913. aasta piire. Algne p\u00f5him\u00f5te oli m\u00e4\u00e4rata piirid vastavalt albaaniarahva ja naaberrahvaste huvidele. P\u00f5hja- ja idapiir pidid, nii palju kui v\u00f5imalik, eraldama albaanlased serblastestja montenegrolastestkagupiir pidi eraldama albaanlased ja kreeklasedV\u00e4\u00e4rtuslik L\u00e4\u00e4ne-Makedoonia j\u00e4rvede piirkond tuli jaotada vastavalt seal elavale kolmele rahvale Albaania, Kreeka ja Jugoslaaviavahel. Kui ei olnud teisi kompromissi n\u00f5udvaid tegureid, valiti piirid nii, et rahvad oleksid k\u00f5ige paremini eraldatud, kasutades looduslikke piire.\nV\u00f5eti arvesse kohalikku majandusliku olukorda, et mitte n\u00e4iteks l\u00f5igata \u00e4ra k\u00fcla oma karjamaadest ja turgudest. Poliitiline surve l\u00e4htus j\u00f5udude tasakaalu kaalutlustest, mitte majanduslikest huvidest.\nJ\u00e4rvede piirkonna jagamine kolme riigi vahel n\u00f5udis, et igal riigil oleks osa j\u00e4rve\u00e4\u00e4rsetest madalmikest. See jaotus m\u00f5jutas ka piire p\u00f5hja ja l\u00f5una pool. Piir, mis kulgeb \u00fcldiselt j\u00e4rvedest p\u00f5hja poole, kuigi j\u00e4rgib idapoolsete m\u00e4gismaade m\u00e4eahelikke, j\u00e4\u00e4b veelahkmest 16\u201332 km l\u00e4\u00e4ne poole. Et Londoni konverentsi l\u00e4bir\u00e4\u00e4kijad kaldusid kasutama Albaania riigi piiride m\u00e4\u00e4ramisel veelahet, siis j\u00e4i suur osa albaanlastest Kosovos Serbia territooriumile.\nAlbaania kaugetest p\u00f5hja- ja kirdepoolsetest m\u00e4gedes \u00fchendab piire k\u00f5rgeid tippe ning j\u00e4rgib m\u00e4eahelikke suurelt jaolt ligip\u00e4\u00e4smatutes P\u00f5hja-Albaania Alpides. M\u00e4gismaast Aadria mereni looduslikku piiri ei ole, kuigi Albaania loodepiiri m\u00e4rkimiseks kasutati Shkod\u00ebri j\u00e4rve ja osa Bun\u00eb j\u00f5estJ\u00e4rvede piirkonnast Joonia mereni",
+            "title": "Suurus ja piirid"
         },
         {
             "internal_links": [
                 {
                     "end": 52,
-                    "label": "Shkod\u00ebr",
-                    "start": 43,
+                    "label": "Shkod\u00ebris",
+                    "start": 44,
                     "title": "Shkod\u00ebr",
                     "url": "http://et.wikipedia.org/wiki/Shkod\u00ebr"
                 }
             ],
-            "text": "\nTiranas on riiklik \u00fclikool. \u00dclikool on ka Shkod\u00ebr",
+            "text": "\nTiranas on riiklik \u00fclikool. \u00dclikool on ka Shkod\u00ebris",
             "title": "Haridus"
         },
         {
@@ -700,87 +614,75 @@
                 {
                     "internal_links": [
                         {
-                            "end": 103,
-                            "label": "geegid",
-                            "start": 95,
+                            "end": 76,
+                            "label": "geegide",
+                            "start": 70,
                             "title": "geegid",
                             "url": "http://et.wikipedia.org/wiki/geegid"
                         },
                         {
-                            "end": 123,
-                            "label": "toskid",
-                            "start": 115,
+                            "end": 96,
+                            "label": "toskide",
+                            "start": 90,
                             "title": "toskid",
                             "url": "http://et.wikipedia.org/wiki/toskid"
                         }
                     ],
                     "related_articles": [
-                        [
-                            "|Albaania muusika",
-                            [
-                                1,
-                                27
-                            ]
-                        ]
+                        "Albaania muusika"
                     ],
-                    "text": "\n{{vaata|Albaania muusika}}\nAlbaania rahvamuusika erineb regiooniti, k\u00f5ige silmapaistavamad on geegide (p\u00f5hjas) ja toskid",
+                    "text": "\n\nAlbaania rahvamuusika erineb regiooniti, k\u00f5ige silmapaistavamad on geegide (p\u00f5hjas) ja toskide",
                     "title": "Muusika"
                 },
                 {
                     "internal_links": [
                         {
-                            "end": 91,
+                            "end": 61,
                             "label": "geegi",
-                            "start": 84,
+                            "start": 57,
                             "title": "geegi murder\u00fchm",
                             "url": "http://et.wikipedia.org/wiki/geegi_murder\u00fchm"
                         },
                         {
-                            "end": 100,
+                            "end": 69,
                             "label": "toski",
-                            "start": 93,
+                            "start": 65,
                             "title": "toski murder\u00fchm",
                             "url": "http://et.wikipedia.org/wiki/toski_murder\u00fchm"
                         },
                         {
-                            "end": 147,
+                            "end": 115,
                             "label": "T\u00fcrgi",
-                            "start": 140,
+                            "start": 111,
                             "title": "T\u00fcrgi",
                             "url": "http://et.wikipedia.org/wiki/T\u00fcrgi"
                         },
                         {
-                            "end": 192,
+                            "end": 159,
                             "label": "albaaniakeelset",
-                            "start": 175,
+                            "start": 145,
                             "title": "albaania keel",
                             "url": "http://et.wikipedia.org/wiki/albaania_keel"
                         },
                         {
-                            "end": 267,
+                            "end": 233,
                             "label": "Rahvaluule",
-                            "start": 255,
+                            "start": 224,
                             "title": "Rahvaluule",
                             "url": "http://et.wikipedia.org/wiki/Rahvaluule"
                         },
                         {
-                            "end": 327,
-                            "label": "kreeka m\u00fctoloogia",
-                            "start": 308,
+                            "end": 294,
+                            "label": "kreeka m\u00fctoloogiaga",
+                            "start": 276,
                             "title": "kreeka m\u00fctoloogia",
                             "url": "http://et.wikipedia.org/wiki/kreeka_m\u00fctoloogia"
                         }
                     ],
                     "related_articles": [
-                        [
-                            "|Albaania kirjandus",
-                            [
-                                1,
-                                29
-                            ]
-                        ]
+                        "Albaania kirjandus"
                     ],
-                    "text": "\n{{vaata|Albaania kirjandus}}\nAlbaania kirjandusteosed on kirjutatud albaania keele geegi ja toski murdes. Kirjanduse arengut on takistatud T\u00fcrgi v\u00f5im, mille ajal ei tohtinud albaaniakeelset kirjandust v\u00e4lja anda, ning regionaalne ja usuline killustatus. Rahvaluule on rikkalik. Rahvajuttudes on tunda seost kreeka m\u00fctoloogia",
+                    "text": "\n\nAlbaania kirjandusteosed on kirjutatud albaania keele geegija toskimurdes. Kirjanduse arengut on takistatud T\u00fcrgiv\u00f5im, mille ajal ei tohtinud albaaniakeelsetkirjandust v\u00e4lja anda, ning regionaalne ja usuline killustatus. Rahvaluuleon rikkalik. Rahvajuttudes on tunda seost kreeka m\u00fctoloogiaga",
                     "title": "Kirjandus"
                 }
             ],
@@ -790,783 +692,673 @@
         {
             "internal_links": [
                 {
-                    "end": 93,
+                    "end": 65,
                     "label": "ill\u00fc\u00fcrlased",
-                    "start": 80,
+                    "start": 55,
                     "title": "ill\u00fc\u00fcrlased",
                     "url": "http://et.wikipedia.org/wiki/ill\u00fc\u00fcrlased"
                 },
                 {
-                    "end": 109,
+                    "end": 79,
                     "label": "627 eKr",
-                    "start": 100,
+                    "start": 73,
                     "title": "627 eKr",
                     "url": "http://et.wikipedia.org/wiki/627_eKr"
                 },
                 {
-                    "end": 123,
+                    "end": 92,
                     "label": "kreeka",
-                    "start": 115,
+                    "start": 87,
                     "title": "Vana-Kreeka",
                     "url": "http://et.wikipedia.org/wiki/Vana-Kreeka"
                 },
                 {
-                    "end": 134,
-                    "label": "kolooniaid",
-                    "start": 122,
-                    "title": "kolooniaid",
-                    "url": "http://et.wikipedia.org/wiki/kolooniaid"
-                },
-                {
-                    "end": 150,
+                    "end": 120,
                     "label": "167 eKr",
-                    "start": 141,
+                    "start": 114,
                     "title": "167 eKr",
                     "url": "http://et.wikipedia.org/wiki/167_eKr"
                 },
                 {
-                    "end": 175,
-                    "label": "Illyricum",
-                    "start": 164,
+                    "end": 144,
+                    "label": "Illyricum\"",
+                    "start": 135,
                     "title": "Illyricum",
                     "url": "http://et.wikipedia.org/wiki/Illyricum"
                 },
                 {
-                    "end": 187,
-                    "label": "provints",
-                    "start": 177,
+                    "end": 157,
+                    "label": "provintsina",
+                    "start": 147,
                     "title": "provints",
                     "url": "http://et.wikipedia.org/wiki/provints"
                 },
                 {
-                    "end": 196,
+                    "end": 163,
                     "label": "Rooma",
-                    "start": 189,
+                    "start": 159,
                     "title": "Vana-Rooma",
                     "url": "http://et.wikipedia.org/wiki/Vana-Rooma"
                 },
                 {
-                    "end": 329,
-                    "label": "4. sajand",
-                    "start": 318,
+                    "end": 294,
+                    "label": "4. sajandi",
+                    "start": 285,
                     "title": "4. sajand",
                     "url": "http://et.wikipedia.org/wiki/4._sajand"
                 },
                 {
-                    "end": 369,
-                    "label": "B\u00fctsants",
-                    "start": 359,
+                    "end": 334,
+                    "label": "B\u00fctsantsi",
+                    "start": 326,
                     "title": "B\u00fctsants",
                     "url": "http://et.wikipedia.org/wiki/B\u00fctsants"
                 },
                 {
-                    "end": 425,
+                    "end": 389,
                     "label": "l\u00e4\u00e4negoodid",
-                    "start": 412,
+                    "start": 379,
                     "title": "l\u00e4\u00e4negoodid",
                     "url": "http://et.wikipedia.org/wiki/l\u00e4\u00e4negoodid"
                 },
                 {
-                    "end": 433,
-                    "label": "hunnid",
-                    "start": 425,
-                    "title": "hunnid",
-                    "url": "http://et.wikipedia.org/wiki/hunnid"
-                },
-                {
-                    "end": 446,
+                    "end": 410,
                     "label": "bulgaarid",
-                    "start": 435,
+                    "start": 402,
                     "title": "bulgaarid",
                     "url": "http://et.wikipedia.org/wiki/bulgaarid"
                 },
                 {
-                    "end": 458,
-                    "label": "Albaanlasi",
-                    "start": 446,
-                    "title": "Albaanlased",
-                    "url": "http://et.wikipedia.org/wiki/Albaanlased"
-                },
-                {
-                    "end": 484,
+                    "end": 460,
                     "label": "1078",
-                    "start": 478,
+                    "start": 457,
                     "title": "1078",
                     "url": "http://et.wikipedia.org/wiki/1078"
                 },
                 {
-                    "end": 490,
-                    "label": "1085",
-                    "start": 484,
-                    "title": "1085",
-                    "url": "http://et.wikipedia.org/wiki/1085"
-                },
-                {
-                    "end": 505,
-                    "label": "normann",
-                    "start": 496,
+                    "end": 484,
+                    "label": "normannide",
+                    "start": 475,
                     "title": "normann",
                     "url": "http://et.wikipedia.org/wiki/normann"
                 },
                 {
-                    "end": 523,
+                    "end": 499,
                     "label": "1282",
-                    "start": 517,
+                    "start": 496,
                     "title": "1282",
                     "url": "http://et.wikipedia.org/wiki/1282"
                 },
                 {
-                    "end": 546,
+                    "end": 521,
                     "label": "Anjou",
-                    "start": 539,
+                    "start": 517,
                     "title": "Anjou",
                     "url": "http://et.wikipedia.org/wiki/Anjou"
                 },
                 {
-                    "end": 566,
+                    "end": 540,
                     "label": "1345",
-                    "start": 560,
+                    "start": 537,
                     "title": "1345",
                     "url": "http://et.wikipedia.org/wiki/1345"
                 },
                 {
-                    "end": 604,
+                    "end": 577,
                     "label": "Serbia",
-                    "start": 596,
+                    "start": 572,
                     "title": "Serbia",
                     "url": "http://et.wikipedia.org/wiki/Serbia"
                 },
                 {
-                    "end": 626,
+                    "end": 597,
                     "label": "Savra",
-                    "start": 619,
+                    "start": 593,
                     "title": "Savra",
                     "url": "http://et.wikipedia.org/wiki/Savra"
                 },
                 {
-                    "end": 651,
+                    "end": 621,
                     "label": "18. septembril",
-                    "start": 635,
+                    "start": 608,
                     "title": "18. september",
                     "url": "http://et.wikipedia.org/wiki/18._september"
                 },
                 {
-                    "end": 656,
-                    "label": "1385",
-                    "start": 650,
-                    "title": "1385",
-                    "url": "http://et.wikipedia.org/wiki/1385"
-                },
-                {
-                    "end": 668,
+                    "end": 639,
                     "label": "T\u00fcrgi",
-                    "start": 661,
+                    "start": 635,
                     "title": "T\u00fcrgi",
                     "url": "http://et.wikipedia.org/wiki/T\u00fcrgi"
                 },
                 {
-                    "end": 689,
-                    "label": "Skanderbeg",
-                    "start": 677,
+                    "end": 660,
+                    "label": "Skanderbegi",
+                    "start": 650,
                     "title": "Skanderbeg",
                     "url": "http://et.wikipedia.org/wiki/Skanderbeg"
                 },
                 {
-                    "end": 727,
-                    "label": "1443",
-                    "start": 721,
+                    "end": 698,
+                    "label": "1443\u2013",
+                    "start": 694,
                     "title": "1443",
                     "url": "http://et.wikipedia.org/wiki/1443"
                 },
                 {
-                    "end": 732,
-                    "label": "1468",
-                    "start": 726,
-                    "title": "1468",
-                    "url": "http://et.wikipedia.org/wiki/1468"
-                },
-                {
-                    "end": 738,
+                    "end": 710,
                     "label": "1444",
-                    "start": 732,
+                    "start": 707,
                     "title": "1444",
                     "url": "http://et.wikipedia.org/wiki/1444"
                 },
                 {
-                    "end": 761,
+                    "end": 732,
                     "label": "Lezh\u00eb liiga",
-                    "start": 748,
+                    "start": 722,
                     "title": "Lezh\u00eb liiga",
                     "url": "http://et.wikipedia.org/wiki/Lezh\u00eb_liiga"
                 },
                 {
-                    "end": 790,
-                    "label": "17. jaanuar",
-                    "start": 777,
+                    "end": 761,
+                    "label": "17. jaanuaril",
+                    "start": 749,
                     "title": "17. jaanuar",
                     "url": "http://et.wikipedia.org/wiki/17._jaanuar"
                 },
                 {
-                    "end": 803,
+                    "end": 772,
                     "label": "1478",
-                    "start": 797,
+                    "start": 769,
                     "title": "1478",
                     "url": "http://et.wikipedia.org/wiki/1478"
                 },
                 {
-                    "end": 852,
+                    "end": 820,
                     "label": "1501",
-                    "start": 846,
+                    "start": 817,
                     "title": "1501",
                     "url": "http://et.wikipedia.org/wiki/1501"
                 },
                 {
-                    "end": 954,
-                    "label": "islam",
-                    "start": 947,
+                    "end": 922,
+                    "label": "islami",
+                    "start": 917,
                     "title": "islam",
                     "url": "http://et.wikipedia.org/wiki/islam"
                 },
                 {
-                    "end": 1059,
-                    "label": "19. sajand",
-                    "start": 1047,
+                    "end": 1026,
+                    "label": "19. sajandi",
+                    "start": 1016,
                     "title": "19. sajand",
                     "url": "http://et.wikipedia.org/wiki/19._sajand"
                 },
                 {
-                    "end": 1123,
-                    "label": "1788",
-                    "start": 1117,
+                    "end": 1089,
+                    "label": "1788\u2013",
+                    "start": 1085,
                     "title": "1788",
                     "url": "http://et.wikipedia.org/wiki/1788"
                 },
                 {
-                    "end": 1128,
-                    "label": "1822",
-                    "start": 1122,
-                    "title": "1822",
-                    "url": "http://et.wikipedia.org/wiki/1822"
-                },
-                {
-                    "end": 1162,
-                    "label": "Ipiros",
-                    "start": 1154,
+                    "end": 1130,
+                    "label": "Ipirost",
+                    "start": 1124,
                     "title": "Ipiros",
                     "url": "http://et.wikipedia.org/wiki/Ipiros"
                 },
                 {
-                    "end": 1189,
-                    "label": "Konstantinoopol",
-                    "start": 1172,
+                    "end": 1157,
+                    "label": "Konstantinoopoli",
+                    "start": 1142,
                     "title": "Konstantinoopol",
                     "url": "http://et.wikipedia.org/wiki/Konstantinoopol"
                 },
                 {
-                    "end": 1215,
+                    "end": 1182,
                     "label": "1830",
-                    "start": 1209,
+                    "start": 1179,
                     "title": "1830",
                     "url": "http://et.wikipedia.org/wiki/1830"
                 },
                 {
-                    "end": 1267,
-                    "label": "10. juuni",
-                    "start": 1256,
+                    "end": 1232,
+                    "label": "10. juunil",
+                    "start": 1223,
                     "title": "10. juuni",
                     "url": "http://et.wikipedia.org/wiki/10._juuni"
                 },
                 {
-                    "end": 1273,
+                    "end": 1237,
                     "label": "1878",
-                    "start": 1267,
+                    "start": 1234,
                     "title": "1878",
                     "url": "http://et.wikipedia.org/wiki/1878"
                 },
                 {
-                    "end": 1299,
+                    "end": 1262,
                     "label": "Prizreni liiga",
-                    "start": 1283,
+                    "start": 1249,
                     "title": "Prizreni liiga",
                     "url": "http://et.wikipedia.org/wiki/Prizreni_liiga"
                 },
                 {
-                    "end": 1347,
-                    "label": "Berliini kongress",
-                    "start": 1328,
+                    "end": 1310,
+                    "label": "Berliini kongressil",
+                    "start": 1292,
                     "title": "Berliini kongress",
                     "url": "http://et.wikipedia.org/wiki/Berliini_kongress"
                 },
                 {
-                    "end": 1402,
-                    "label": "1899",
-                    "start": 1396,
+                    "end": 1364,
+                    "label": "1899/",
+                    "start": 1360,
                     "title": "1899",
                     "url": "http://et.wikipedia.org/wiki/1899"
                 },
                 {
-                    "end": 1407,
-                    "label": "1900",
-                    "start": 1401,
-                    "title": "1900",
-                    "url": "http://et.wikipedia.org/wiki/1900"
-                },
-                {
-                    "end": 1435,
+                    "end": 1398,
                     "label": "1912",
-                    "start": 1429,
+                    "start": 1395,
                     "title": "1912",
                     "url": "http://et.wikipedia.org/wiki/1912"
                 },
                 {
-                    "end": 1463,
+                    "end": 1425,
                     "label": "Esimene Balkani s\u00f5da",
-                    "start": 1441,
+                    "start": 1406,
                     "title": "Esimene Balkani s\u00f5da",
                     "url": "http://et.wikipedia.org/wiki/Esimene_Balkani_s\u00f5da"
                 },
                 {
-                    "end": 1491,
+                    "end": 1451,
                     "label": "28. novembril",
-                    "start": 1476,
+                    "start": 1439,
                     "title": "28. november",
                     "url": "http://et.wikipedia.org/wiki/28._november"
                 },
                 {
-                    "end": 1512,
-                    "label": "Vlor\u00eb",
-                    "start": 1505,
+                    "end": 1472,
+                    "label": "Vlor\u00ebs",
+                    "start": 1467,
                     "title": "Vlor\u00eb",
                     "url": "http://et.wikipedia.org/wiki/Vlor\u00eb"
                 },
                 {
-                    "end": 1550,
-                    "label": "31. juuli",
-                    "start": 1539,
+                    "end": 1510,
+                    "label": "31. juulil",
+                    "start": 1501,
                     "title": "31. juuli",
                     "url": "http://et.wikipedia.org/wiki/31._juuli"
                 },
                 {
-                    "end": 1584,
+                    "end": 1543,
                     "label": "Londoni konverents",
-                    "start": 1564,
+                    "start": 1526,
                     "title": "Londoni konverents",
                     "url": "http://et.wikipedia.org/wiki/Londoni_konverents"
                 },
                 {
-                    "end": 1779,
-                    "label": "Wilhelm zu Wied",
-                    "start": 1762,
-                    "title": "Wilhelm (Albaania)",
-                    "url": "http://et.wikipedia.org/wiki/Wilhelm_(Albaania)"
-                },
-                {
-                    "end": 1803,
+                    "end": 1783,
                     "label": "Esimeses maailmas\u00f5jas",
-                    "start": 1780,
+                    "start": 1763,
                     "title": "Esimene maailmas\u00f5da",
                     "url": "http://et.wikipedia.org/wiki/Esimene_maailmas\u00f5da"
                 },
                 {
-                    "end": 1839,
+                    "end": 1818,
                     "label": "Austria-Ungari",
-                    "start": 1823,
+                    "start": 1805,
                     "title": "Austria-Ungari",
                     "url": "http://et.wikipedia.org/wiki/Austria-Ungari"
                 },
                 {
-                    "end": 1848,
-                    "label": "Itaalia",
-                    "start": 1839,
-                    "title": "Itaalia",
-                    "url": "http://et.wikipedia.org/wiki/Itaalia"
-                },
-                {
-                    "end": 1856,
+                    "end": 1835,
                     "label": "Serbia",
-                    "start": 1848,
+                    "start": 1830,
                     "title": "Serbia",
                     "url": "http://et.wikipedia.org/wiki/Serbia"
                 },
                 {
-                    "end": 1868,
-                    "label": "Montenegro",
-                    "start": 1856,
-                    "title": "Montenegro",
-                    "url": "http://et.wikipedia.org/wiki/Montenegro"
-                },
-                {
-                    "end": 1876,
+                    "end": 1855,
                     "label": "Kreeka",
-                    "start": 1868,
+                    "start": 1850,
                     "title": "Kreeka",
                     "url": "http://et.wikipedia.org/wiki/Kreeka"
                 },
                 {
-                    "end": 1889,
+                    "end": 1867,
                     "label": "Prantsuse",
-                    "start": 1878,
+                    "start": 1859,
                     "title": "Prantsusmaa",
                     "url": "http://et.wikipedia.org/wiki/Prantsusmaa"
                 },
                 {
-                    "end": 1900,
+                    "end": 1876,
                     "label": "28.",
-                    "start": 1895,
+                    "start": 1874,
                     "title": "28. jaanuar",
                     "url": "http://et.wikipedia.org/wiki/28._jaanuar"
                 },
                 {
-                    "end": 1912,
-                    "label": "31. jaanuar",
-                    "start": 1899,
-                    "title": "31. jaanuar",
-                    "url": "http://et.wikipedia.org/wiki/31._jaanuar"
-                },
-                {
-                    "end": 2004,
+                    "end": 1981,
                     "label": "Tirana",
-                    "start": 1996,
+                    "start": 1976,
                     "title": "Tirana",
                     "url": "http://et.wikipedia.org/wiki/Tirana"
                 },
                 {
-                    "end": 2037,
+                    "end": 2013,
                     "label": "1920",
-                    "start": 2031,
+                    "start": 2010,
                     "title": "1920",
                     "url": "http://et.wikipedia.org/wiki/1920"
                 },
                 {
-                    "end": 2085,
+                    "end": 2060,
                     "label": "17. detsembril",
-                    "start": 2069,
+                    "start": 2047,
                     "title": "17. detsember",
                     "url": "http://et.wikipedia.org/wiki/17._detsember"
                 },
                 {
-                    "end": 2119,
-                    "label": "Rahvasteliit",
-                    "start": 2105,
+                    "end": 2094,
+                    "label": "Rahvasteliitu",
+                    "start": 2082,
                     "title": "Rahvasteliit",
                     "url": "http://et.wikipedia.org/wiki/Rahvasteliit"
                 },
                 {
-                    "end": 2255,
+                    "end": 2228,
                     "label": "Ahmed Zogu",
-                    "start": 2243,
+                    "start": 2219,
                     "title": "Ahmed Zogu",
                     "url": "http://et.wikipedia.org/wiki/Ahmed_Zogu"
                 },
                 {
-                    "end": 2272,
-                    "label": "31. jaanuar",
-                    "start": 2259,
+                    "end": 2245,
+                    "label": "31. jaanuaril",
+                    "start": 2233,
                     "title": "31. jaanuar",
                     "url": "http://et.wikipedia.org/wiki/31._jaanuar"
                 },
                 {
-                    "end": 2279,
+                    "end": 2250,
                     "label": "1925",
-                    "start": 2273,
+                    "start": 2247,
                     "title": "1925",
                     "url": "http://et.wikipedia.org/wiki/1925"
                 },
                 {
-                    "end": 2374,
+                    "end": 2344,
                     "label": "1. septembril",
-                    "start": 2359,
+                    "start": 2332,
                     "title": "1. september",
                     "url": "http://et.wikipedia.org/wiki/1._september"
                 },
                 {
-                    "end": 2379,
-                    "label": "1928",
-                    "start": 2373,
-                    "title": "1928",
-                    "url": "http://et.wikipedia.org/wiki/1928"
-                },
-                {
-                    "end": 2422,
-                    "label": "27. aprill",
-                    "start": 2410,
+                    "end": 2395,
+                    "label": "27. aprillil",
+                    "start": 2384,
                     "title": "27. aprill",
                     "url": "http://et.wikipedia.org/wiki/27._aprill"
                 },
                 {
-                    "end": 2429,
+                    "end": 2400,
                     "label": "1938",
-                    "start": 2423,
+                    "start": 2397,
                     "title": "1938",
                     "url": "http://et.wikipedia.org/wiki/1938"
                 },
                 {
-                    "end": 2476,
-                    "label": "Geraldine Apponyi",
-                    "start": 2457,
+                    "end": 2448,
+                    "label": "Geraldine Apponyiga",
+                    "start": 2430,
                     "title": "Geraldine Apponyi",
                     "url": "http://et.wikipedia.org/wiki/Geraldine_Apponyi"
                 },
                 {
-                    "end": 2482,
+                    "end": 2452,
                     "label": "7.",
-                    "start": 2478,
+                    "start": 2451,
                     "title": "7. aprill",
                     "url": "http://et.wikipedia.org/wiki/7._aprill"
                 },
                 {
-                    "end": 2495,
-                    "label": "8. aprill",
-                    "start": 2484,
+                    "end": 2466,
+                    "label": "8. aprillil",
+                    "start": 2456,
                     "title": "8. aprill",
                     "url": "http://et.wikipedia.org/wiki/8._aprill"
                 },
                 {
-                    "end": 2502,
+                    "end": 2471,
                     "label": "1939",
-                    "start": 2496,
+                    "start": 2468,
                     "title": "1939",
                     "url": "http://et.wikipedia.org/wiki/1939"
                 },
                 {
-                    "end": 2622,
-                    "label": "12. aprill",
-                    "start": 2610,
+                    "end": 2592,
+                    "label": "12. aprillil",
+                    "start": 2581,
                     "title": "12. aprill",
                     "url": "http://et.wikipedia.org/wiki/12._aprill"
                 },
                 {
-                    "end": 2662,
-                    "label": "personaalunioon",
-                    "start": 2645,
+                    "end": 2631,
+                    "label": "personaaluniooni",
+                    "start": 2616,
                     "title": "personaalunioon",
                     "url": "http://et.wikipedia.org/wiki/personaalunioon"
                 },
                 {
-                    "end": 2685,
-                    "label": "16. aprill",
-                    "start": 2673,
+                    "end": 2655,
+                    "label": "16. aprillil",
+                    "start": 2644,
                     "title": "16. aprill",
                     "url": "http://et.wikipedia.org/wiki/16._aprill"
                 },
                 {
-                    "end": 2732,
+                    "end": 2700,
                     "label": "Vittorio Emmanuele III",
-                    "start": 2708,
+                    "start": 2679,
                     "title": "Vittorio Emmanuele III",
                     "url": "http://et.wikipedia.org/wiki/Vittorio_Emmanuele_III"
                 },
                 {
-                    "end": 2865,
-                    "label": "Enver Hoxha",
-                    "start": 2852,
-                    "title": "Enver Hoxha",
-                    "url": "http://et.wikipedia.org/wiki/Enver_Hoxha"
-                },
-                {
-                    "end": 2885,
-                    "label": "1990",
-                    "start": 2879,
+                    "end": 2856,
+                    "label": "1990 (",
+                    "start": 2851,
                     "title": "1990",
                     "url": "http://et.wikipedia.org/wiki/1990"
                 },
                 {
-                    "end": 2945,
+                    "end": 2914,
                     "label": "isolatsionistlik",
-                    "start": 2927,
+                    "start": 2899,
                     "title": "isolatsionism",
                     "url": "http://et.wikipedia.org/wiki/isolatsionism"
                 },
                 {
-                    "end": 3051,
-                    "label": "majandus",
-                    "start": 3041,
+                    "end": 3030,
+                    "label": "majandusprobleemide",
+                    "start": 3012,
                     "title": "majandus",
                     "url": "http://et.wikipedia.org/wiki/majandus"
                 },
                 {
-                    "end": 3090,
-                    "label": "organiseeritud kuritegevus",
-                    "start": 3062,
+                    "end": 3059,
+                    "label": "organiseeritud kuritegevuse",
+                    "start": 3033,
                     "title": "organiseeritud kuritegevus",
                     "url": "http://et.wikipedia.org/wiki/organiseeritud_kuritegevus"
                 },
                 {
-                    "end": 3118,
+                    "end": 3086,
                     "label": "Kosovo",
-                    "start": 3110,
+                    "start": 3081,
                     "title": "Kosovo",
                     "url": "http://et.wikipedia.org/wiki/Kosovo"
                 }
             ],
             "related_articles": [
-                [
-                    "|Albaania ajalugu",
-                    [
-                        1,
-                        27
-                    ]
-                ]
+                "Albaania ajalugu"
             ],
             "sections": [
                 {
                     "internal_links": [
                         {
-                            "end": 51,
+                            "end": 19,
                             "label": "Teise maailmas\u00f5ja",
-                            "start": 32,
+                            "start": 3,
                             "title": "Teine maailmas\u00f5da",
                             "url": "http://et.wikipedia.org/wiki/Teine_maailmas\u00f5da"
                         },
                         {
-                            "end": 180,
+                            "end": 147,
                             "label": "Jugoslaavia",
-                            "start": 167,
+                            "start": 137,
                             "title": "Jugoslaavia",
                             "url": "http://et.wikipedia.org/wiki/Jugoslaavia"
                         },
                         {
-                            "end": 355,
+                            "end": 320,
                             "label": "Mehmet Shehu",
-                            "start": 341,
+                            "start": 309,
                             "title": "Mehmet Shehu",
                             "url": "http://et.wikipedia.org/wiki/Mehmet_Shehu"
                         },
                         {
-                            "end": 500,
+                            "end": 464,
                             "label": "stalinistlikel",
-                            "start": 484,
+                            "start": 451,
                             "title": "stalinism",
                             "url": "http://et.wikipedia.org/wiki/stalinism"
                         },
                         {
-                            "end": 570,
+                            "end": 533,
                             "label": "N\u00f5ukogude Liidule",
-                            "start": 551,
+                            "start": 517,
                             "title": "N\u00f5ukogude Liit",
                             "url": "http://et.wikipedia.org/wiki/N\u00f5ukogude_Liit"
                         },
                         {
-                            "end": 586,
-                            "label": "Hiina",
-                            "start": 579,
+                            "end": 550,
+                            "label": "Hiinale",
+                            "start": 544,
                             "title": "Hiina",
                             "url": "http://et.wikipedia.org/wiki/Hiina"
                         },
                         {
-                            "end": 833,
+                            "end": 795,
                             "label": "autarkia",
-                            "start": 823,
+                            "start": 788,
                             "title": "autarkia",
                             "url": "http://et.wikipedia.org/wiki/autarkia"
                         },
                         {
-                            "end": 890,
+                            "end": 850,
                             "label": "1985",
-                            "start": 884,
+                            "start": 847,
                             "title": "1985",
                             "url": "http://et.wikipedia.org/wiki/1985"
                         },
                         {
-                            "end": 920,
+                            "end": 879,
                             "label": "Ramiz Alia",
-                            "start": 908,
+                            "start": 870,
                             "title": "Ramiz Alia",
                             "url": "http://et.wikipedia.org/wiki/Ramiz_Alia"
                         },
                         {
-                            "end": 1166,
+                            "end": 1124,
                             "label": "1991",
-                            "start": 1160,
+                            "start": 1121,
                             "title": "1991",
                             "url": "http://et.wikipedia.org/wiki/1991"
                         },
                         {
-                            "end": 1238,
+                            "end": 1194,
                             "label": "1998",
-                            "start": 1232,
+                            "start": 1191,
                             "title": "1998",
                             "url": "http://et.wikipedia.org/wiki/1998"
                         }
                     ],
                     "related_articles": [
-                        [
-                            "|Albaania l\u00e4hiajalugu",
-                            [
-                                1,
-                                31
-                            ]
-                        ]
+                        "Albaania l\u00e4hiajalugu"
                     ],
-                    "text": "\n{{vaata|Albaania l\u00e4hiajalugu}}\nTeise maailmas\u00f5ja ajal v\u00f5itlesid Albaania kommunistid ja natsionalistid nii teineteisega kui ka Itaalia ja Saksa okupatsiooniv\u00e4gedega. Jugoslaavia ning liitlasv\u00e4gede abiga saavutasid kommunistid v\u00f5idu.\n\nP\u00e4rast s\u00f5da sai kommunismist j\u00e4rgmiseks 45 aastaks valitsev ideoloogia. Kommunistide juhid Enver Hoxha ja Mehmet Shehu likvideerisid oma rivaalid partei sees ning likvideerisid antikommunistliku opositsiooni. Nad korraldasid majanduse \u00fcmber rangelt stalinistlikel p\u00f5him\u00f5tetel, toetudes algul Jugoslaaviale, seej\u00e4rel N\u00f5ukogude Liidule ja l\u00f5puks Hiinale. Neid eesm\u00e4rke ellu viies allutasid kommunistid Albaania rahva isolatsioonile, propagandale ja julmadele poliitilistele meetmetele. Kui Hiina 1970. aastatel avanes L\u00e4\u00e4nele, p\u00f6\u00f6rasid Albaania juhid Pekingile selja ning viisid ellu range autarkia poliitikat, mis laostas riigi majanduse.\n\nKui Hoxha 1985 suri, v\u00f5imule tuli Ramiz Alia ja sotsialistlikud re\u017eiimid kogu piirkonnas langesid, toimusid Albaaniaski ulatuslikud muutused. Albaania valitsus hakkas olude parandamiseks s\u00f5lmima sidemeid L\u00e4\u00e4nega. Algasid demokraatlikud reformid, mis viisid mitmeparteiliste valimisteni 1991. Vastavalt 1991. aasta ajutisele p\u00f5hiseadusele kiitsid albaanlased 1998",
+                    "text": "\n\nTeise maailmas\u00f5jaajal v\u00f5itlesid Albaania kommunistid ja natsionalistid nii teineteisega kui ka Itaalia ja Saksa okupatsiooniv\u00e4gedega. Jugoslaavianing liitlasv\u00e4gede abiga saavutasid kommunistid v\u00f5idu.\nP\u00e4rast s\u00f5da sai kommunismist j\u00e4rgmiseks 45 aastaks valitsev ideoloogia. Kommunistide juhid Enver Hoxha ja Mehmet Shehulikvideerisid oma rivaalid partei sees ning likvideerisid antikommunistliku opositsiooni. Nad korraldasid majanduse \u00fcmber rangelt stalinistlikelp\u00f5him\u00f5tetel, toetudes algul Jugoslaaviale, seej\u00e4rel N\u00f5ukogude Liiduleja l\u00f5puks Hiinale. Neid eesm\u00e4rke ellu viies allutasid kommunistid Albaania rahva isolatsioonile, propagandale ja julmadele poliitilistele meetmetele. Kui Hiina 1970. aastatel avanes L\u00e4\u00e4nele, p\u00f6\u00f6rasid Albaania juhid Pekingile selja ning viisid ellu range autarkiapoliitikat, mis laostas riigi majanduse.\nKui Hoxha 1985suri, v\u00f5imule tuli Ramiz Aliaja sotsialistlikud re\u017eiimid kogu piirkonnas langesid, toimusid Albaaniaski ulatuslikud muutused. Albaania valitsus hakkas olude parandamiseks s\u00f5lmima sidemeid L\u00e4\u00e4nega. Algasid demokraatlikud reformid, mis viisid mitmeparteiliste valimisteni 1991Vastavalt 1991. aasta ajutisele p\u00f5hiseadusele kiitsid albaanlased 1998",
                     "title": "L\u00e4hiajaloo kokkuv\u00f5te"
                 }
             ],
-            "text": "\n{{vaata|Albaania ajalugu}}\n1. aastatuhandel eKr elasid Albaania territooriumil ill\u00fc\u00fcrlased. Alates 627 eKr leidub kreeka kolooniaid. Alates 167 eKr oli Albaania ''Illyricum''i provintsina Rooma v\u00f5imu all.\n\nAsukoha t\u00f5ttu Aadria mere rannikul on Albaania pikka aega olnud vallutuste sillapeaks.\n\nAlbaania kuulus alates 4. sajandi l\u00f5pust Ida-Rooma keisririigi (B\u00fctsantsi) alla. Vallutajatena k\u00e4isid Albaaniast \u00fcle l\u00e4\u00e4negoodid, hunnid ja bulgaarid. Albaanlasi mainiti esmakordselt 1078. 1085 toimus normannide vallutus. 1282 vallutas ranniku\nAnjou krahv Charles. 1345 paiku oli Albaania mitu aastat Serbia \u00fclemv\u00f5imu all.\n\nSavra lahinguga 18. septembril 1385 algas T\u00fcrgi \u00fclemv\u00f5im. Skanderbegi \u00fclest\u00f5us t\u00fcrklaste vastu kestis 1443\u20131468. 1444 moodustati Lezh\u00eb liiga. Skanderbeg suri 17. jaanuaril 1468. 1478 liideti Albaania T\u00fcrgi impeeriumiga. Alates 1501 oli kogu Albaania T\u00fcrgi v\u00f5imu all. Paljud albaanlased p\u00f5genesid Itaaliasse, teised v\u00f5tsid vastu islami.\n\nT\u00fcrgi v\u00f5im l\u00f5ikas Albaania rohkem kui neljaks sajandiks l\u00e4\u00e4ne tsivilisatsioonist \u00e4ra, kuid 19. sajandi l\u00f5pus hakkas Albaania taasavastama oma l\u00e4hedust l\u00e4\u00e4nele.\n\n1788\u20131822 valitses Ali Pa\u0161a Tepelena Ipirost, allumata Konstantinoopoli kontrollile. Alates 1830 toimus ''Rilindja'' (rahvuslik \u00e4rkamine). 10. juunil 1878 moodustati Prizreni liiga, mis esindas albaanlaste huve Berliini kongressil, mis Balkani poolsaarel piirid \u00fcmber korraldas. 1899/1900 moodustati Pej\u00eb liiga. 1912 toimus Esimene Balkani s\u00f5da T\u00fcrgi vastu.\n\n28. novembril 1912 kuulutati Vlor\u00ebs v\u00e4lja Albaania iseseisvus. 31. juulil 1913 otsustas Londoni konverents teha Albaaniast iseseisva v\u00fcrstiriigi. Albaania piirid m\u00e4\u00e4rati suurriikide poolt kindlaks nii, et umbes kolmandik albaanlasi j\u00e4i v\u00f5\u00f5rv\u00f5imu alla. 1914 sai Albaania v\u00fcrstiks prints Wilhelm zu Wied.\n\nEsimeses maailmas\u00f5jas okupeerisid Albaania Austria-Ungari, Itaalia, Serbia, Montenegro, Kreeka ja Prantsuse v\u00e4ed.\n\n28.-31. jaanuaril toimus Albaania jagamise plaanide vastane Lushnj\u00eb kongress. Moodustati valitsus ja Tirana nimetati pealinnaks. Juunis 1920 aeti Itaalia v\u00e4ed Vlor\u00ebst v\u00e4lja. 17. detsembril v\u00f5eti Albaania vastu Rahvasteliitu.\n\nS\u00f5dadevaheline aeg algas valitsuste kiire vaheldumise, riigip\u00f6\u00f6rete ja v\u00f5\u00f5rv\u00e4gede sissemarssimistega. L\u00f5puks tuli v\u00f5imule Ahmed Zogu, kes 31. jaanuaril 1925 sai presidendiks. Majanduslikult sattus Albaania tugevasse s\u00f5ltuvusse Itaaliast. 1. septembril 1928 sai Zogu albaanlaste kuningaks. 27. aprillil 1938 abiellus ta ungari krahvinna Geraldine Apponyiga. 7. ja 8. aprillil 1939 okupeeris Itaalia Albaania praktiliselt vastupanuta. Zogu ning tema abikaasa ja paarip\u00e4evane poeg p\u00f5genesid. 12. aprillil 1939 otsustati astuda personaaluniooni Itaaliaga, 16. aprillil sai Itaalia kuningast Vittorio Emmanuele III-st Albaania kuningas.\n\nP\u00e4rast okupatsiooni haaras v\u00f5imu peamiselt kommunistidest koosnev vastupanuliikumine, mida juhtis Enver Hoxha.\n\nKuni aastani 1990 (5 aastat p\u00e4rast Hoxha surma) oli Albaania isolatsionistlik sotsialistlik riik. Praegu on tekkimas mitmeparteiline demokraatlik riik, kuid Albaania kannatab majandusprobleemide, organiseeritud kuritegevuse ning rohkearvuliste Kosovo",
+            "text": "\n\n1. aastatuhandel eKr elasid Albaania territooriumil ill\u00fc\u00fcrlasedAlates 627 eKrleidub kreekakolooniaid]]. Alates 167 eKroli Albaania \"Illyricum\"i provintsina Roomav\u00f5imu all.\nAsukoha t\u00f5ttu Aadria mere rannikul on Albaania pikka aega olnud vallutuste sillapeaks.\nAlbaania kuulus alates 4. sajandi l\u00f5pust Ida-Rooma keisririigi (B\u00fctsantsi) alla. Vallutajatena k\u00e4isid Albaaniast \u00fcle l\u00e4\u00e4negoodidhunnid]] ja bulgaaridAlbaanlased|Albaanlasi]] mainiti esmakordselt 10781085]] toimus normannide vallutus. 1282vallutas ranniku\nAnjoukrahv Charles. 1345paiku oli Albaania mitu aastat Serbia\u00fclemv\u00f5imu all.\nSavralahinguga 18. septembril1385]] algas T\u00fcrgi\u00fclemv\u00f5im. Skanderbegi \u00fclest\u00f5us t\u00fcrklaste vastu kestis 1443\u20131468]]. 1444moodustati Lezh\u00eb liigaSkanderbeg suri 17. jaanuaril 1468. 1478liideti Albaania T\u00fcrgi impeeriumiga. Alates 1501oli kogu Albaania T\u00fcrgi v\u00f5imu all. Paljud albaanlased p\u00f5genesid Itaaliasse, teised v\u00f5tsid vastu islami.\nT\u00fcrgi v\u00f5im l\u00f5ikas Albaania rohkem kui neljaks sajandiks l\u00e4\u00e4ne tsivilisatsioonist \u00e4ra, kuid 19. sajandi l\u00f5pus hakkas Albaania taasavastama oma l\u00e4hedust l\u00e4\u00e4nele.\n1788\u20131822]] valitses Ali Pa\u0161a Tepelena Ipirost, allumata Konstantinoopoli kontrollile. Alates 1830toimus \"Rilindja\" (rahvuslik \u00e4rkamine). 10. juunil 1878moodustati Prizreni liigamis esindas albaanlaste huve Berliini kongressil, mis Balkani poolsaarel piirid \u00fcmber korraldas. 1899/1900]] moodustati Pej\u00eb liiga. 1912toimus Esimene Balkani s\u00f5daT\u00fcrgi vastu.\n28. novembril1912 kuulutati Vlor\u00ebs v\u00e4lja Albaania iseseisvus. 31. juulil 1913 otsustas Londoni konverentsteha Albaaniast iseseisva v\u00fcrstiriigi. Albaania piirid m\u00e4\u00e4rati suurriikide poolt kindlaks nii, et umbes kolmandik albaanlasi j\u00e4i v\u00f5\u00f5rv\u00f5imu alla. 1914 sai Albaania v\u00fcrstiks prints [[Wilhelm (Albaania)|Wilhelm zu Wied]].\nEsimeses maailmas\u00f5jasokupeerisid Albaania Austria-UngariItaalia]], SerbiaMontenegro]], Kreekaja Prantsusev\u00e4ed.\n28.31. jaanuar]]il toimus Albaania jagamise plaanide vastane Lushnj\u00eb kongress. Moodustati valitsus ja Tirananimetati pealinnaks. Juunis 1920aeti Itaalia v\u00e4ed Vlor\u00ebst v\u00e4lja. 17. detsembrilv\u00f5eti Albaania vastu Rahvasteliitu.\nS\u00f5dadevaheline aeg algas valitsuste kiire vaheldumise, riigip\u00f6\u00f6rete ja v\u00f5\u00f5rv\u00e4gede sissemarssimistega. L\u00f5puks tuli v\u00f5imule Ahmed Zogukes 31. jaanuaril 1925sai presidendiks. Majanduslikult sattus Albaania tugevasse s\u00f5ltuvusse Itaaliast. 1. septembril1928]] sai Zogu albaanlaste kuningaks. 27. aprillil 1938abiellus ta ungari krahvinna Geraldine Apponyiga. 7.ja 8. aprillil 1939okupeeris Itaalia Albaania praktiliselt vastupanuta. Zogu ning tema abikaasa ja paarip\u00e4evane poeg p\u00f5genesid. 12. aprillil 1939 otsustati astuda personaaluniooni Itaaliaga, 16. aprillil sai Itaalia kuningast Vittorio Emmanuele IIIst Albaania kuningas.\nP\u00e4rast okupatsiooni haaras v\u00f5imu peamiselt kommunistidest koosnev vastupanuliikumine, mida juhtis [[Enver Hoxha]].\nKuni aastani 1990 (5 aastat p\u00e4rast Hoxha surma) oli Albaania isolatsionistliksotsialistlik riik. Praegu on tekkimas mitmeparteiline demokraatlik riik, kuid Albaania kannatab majandusprobleemide, organiseeritud kuritegevuse ning rohkearvuliste Kosovo",
             "title": "Ajaloo l\u00fchikokkuv\u00f5te"
         },
         {
-            "text": "\n{{viited}}\n",
+            "text": "\n{{viited}}",
             "title": "Viited"
         },
         {
             "external links": [
                 {
-                    "end": 127,
+                    "end": 126,
                     "label": "Rahvusvaheline Turismiorganisatsioon: Albaania turism ja reisimine",
-                    "start": 61,
+                    "start": 60,
                     "url": "http://www.albaniantourism.com/"
                 },
                 {
-                    "end": 165,
+                    "end": 163,
                     "label": "Albaania v\u00e4lisministeeriumi koduleht",
-                    "start": 129,
+                    "start": 127,
                     "url": "http://www.mfa.gov.al/english/"
                 },
                 {
-                    "end": 185,
+                    "end": 182,
                     "label": "Olukirjeldus, 2003",
-                    "start": 167,
+                    "start": 164,
                     "url": "http://www.epl.ee/artikkel_239135.html"
                 },
                 {
-                    "end": 205,
+                    "end": 201,
                     "label": "Olukirjeldus, 1999",
-                    "start": 187,
+                    "start": 183,
                     "url": "http://www.postimees.ee:8080/leht/99/09/11e/lugu4.html"
                 },
                 {
-                    "end": 222,
+                    "end": 217,
                     "label": "Turisti pilguga",
-                    "start": 207,
+                    "start": 202,
                     "url": "http://www.sloleht.ee/index.aspx?d=06.12.03&r=27&id=149978"
                 },
                 {
-                    "end": 232,
+                    "end": 226,
                     "label": "Referaat",
-                    "start": 224,
+                    "start": 218,
                     "url": "http://www.vabaeuroopa.org/artiklid/2002/09/euro.20020920120654.asp"
                 },
                 {
-                    "end": 265,
+                    "end": 258,
                     "label": "Kreekast k\u00fc\u00fcditatud albaanlased",
-                    "start": 234,
+                    "start": 227,
                     "url": "http://www.vabaeuroopa.org/artiklid/2002/09/euro.20020920120654.asp"
                 },
                 {
-                    "end": 292,
+                    "end": 284,
                     "label": "Fotod reisilt Albaaniasse",
-                    "start": 267,
+                    "start": 259,
                     "url": "http://www.hot.ee/qnnep/"
                 },
                 {
-                    "end": 303,
+                    "end": 294,
                     "label": "Royal Ark",
-                    "start": 294,
+                    "start": 285,
                     "url": "http://www.4dw.net/royalark/Albania/albania.htm"
                 }
             ],
-            "text": "\n{{vikis\u00f5naraamatus}}\n{{commons|Category:Albania|Albaania}}\n*Rahvusvaheline Turismiorganisatsioon: Albaania turism ja reisimine\n*Albaania v\u00e4lisministeeriumi koduleht\n*Olukirjeldus, 2003\n*Olukirjeldus, 1999\n*Turisti pilguga\n*Referaat\n*Kreekast k\u00fc\u00fcditatud albaanlased\n*Fotod reisilt Albaaniasse\n*Royal Ark\n\n\n{{NATOriigid}}\n{{Euroopariigid}}\n\n{{Coordinate|NS=41.35|EW=19.98333333|type=country|region=AL}}\n\n\n",
+            "text": "\n{{vikis\u00f5naraamatus}}\n{{commons|Category:Albania|Albaania}}\nRahvusvaheline Turismiorganisatsioon: Albaania turism ja reisimine\nAlbaania v\u00e4lisministeeriumi koduleht\nOlukirjeldus, 2003\nOlukirjeldus, 1999\nTuristi pilguga\nReferaat\nKreekast k\u00fc\u00fcditatud albaanlased\nFotod reisilt Albaaniasse\nRoyal Ark\n{{NATOriigid}}\n{{Euroopariigid}}\n{{Coordinate|NS=41.35|EW=19.98333333|type=country|region=AL}}\n",
             "title": "V\u00e4lislingid"
         }
     ],

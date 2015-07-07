@@ -24,195 +24,160 @@
             "images": [
                 {
                     "text": "Anguilla asendikaart",
-                    "url": "http://et.wikipedia.org/wiki/Pilt:Anguilla in its region.svg"
+                    "url": "http://et.wikipedia.org/wiki/Pilt:Anguilla_in_its_region.svg"
                 }
             ],
             "internal_links": [
                 {
-                    "end": 85,
+                    "end": 81,
                     "label": "angerja",
-                    "start": 76,
+                    "start": 75,
                     "title": "angerjas (perekond)",
                     "url": "http://et.wikipedia.org/wiki/angerjas_(perekond)"
                 },
                 {
-                    "end": 157,
-                    "label": "The Valley",
-                    "start": 145,
-                    "title": "The Valley",
-                    "url": "http://et.wikipedia.org/wiki/The_Valley"
-                },
-                {
-                    "end": 232,
+                    "end": 219,
                     "label": "Suurbritannia meretagune ala",
-                    "start": 202,
+                    "start": 192,
                     "title": "Suurbritannia meretagused alad",
                     "url": "http://et.wikipedia.org/wiki/Suurbritannia_meretagused_alad"
                 },
                 {
-                    "end": 280,
-                    "label": "Anguilla saar",
-                    "start": 265,
+                    "end": 266,
+                    "label": "Anguilla saare",
+                    "start": 253,
                     "title": "Anguilla saar",
                     "url": "http://et.wikipedia.org/wiki/Anguilla_saar"
                 },
                 {
-                    "end": 291,
+                    "end": 276,
                     "label": "Sombrero",
-                    "start": 281,
+                    "start": 269,
                     "title": "Sombrero",
                     "url": "http://et.wikipedia.org/wiki/Sombrero"
                 },
                 {
-                    "end": 378,
+                    "end": 362,
                     "label": "V\u00e4ikeste Antillide",
-                    "start": 358,
+                    "start": 345,
                     "title": "V\u00e4ikesed Antillid",
                     "url": "http://et.wikipedia.org/wiki/V\u00e4ikesed_Antillid"
                 },
                 {
-                    "end": 403,
-                    "label": "Tuulepealsetest saartest",
-                    "start": 377,
-                    "title": "Tuulepealsed saared (L\u00f5una-Ameerika)",
-                    "url": "http://et.wikipedia.org/wiki/Tuulepealsed_saared_(L\u00f5una-Ameerika)"
-                },
-                {
-                    "end": 416,
+                    "end": 438,
                     "label": "Kariibi mere",
-                    "start": 402,
+                    "start": 427,
                     "title": "Kariibi meri",
                     "url": "http://et.wikipedia.org/wiki/Kariibi_meri"
                 },
                 {
-                    "end": 434,
-                    "label": "Atlandi ookean",
-                    "start": 418,
+                    "end": 456,
+                    "label": "Atlandi ookeani",
+                    "start": 442,
                     "title": "Atlandi ookean",
                     "url": "http://et.wikipedia.org/wiki/Atlandi_ookean"
                 },
                 {
-                    "end": 469,
-                    "label": "ajav\u00f6\u00f6nd",
-                    "start": 459,
+                    "end": 493,
+                    "label": "ajav\u00f6\u00f6ndisse",
+                    "start": 482,
                     "title": "ajav\u00f6\u00f6nd",
                     "url": "http://et.wikipedia.org/wiki/ajav\u00f6\u00f6nd"
                 },
                 {
-                    "end": 484,
+                    "end": 504,
                     "label": "maailmaaeg",
-                    "start": 472,
+                    "start": 495,
                     "title": "maailmaaeg",
                     "url": "http://et.wikipedia.org/wiki/maailmaaeg"
                 },
                 {
-                    "end": 487,
-                    "label": "\u20134",
-                    "start": 483,
-                    "title": "maailmaaeg \u20134",
-                    "url": "http://et.wikipedia.org/wiki/maailmaaeg_\u20134"
-                },
-                {
-                    "end": 515,
+                    "end": 549,
                     "label": "Suurbritannia",
-                    "start": 500,
+                    "start": 537,
                     "title": "Suurbritannia",
                     "url": "http://et.wikipedia.org/wiki/Suurbritannia"
                 },
                 {
-                    "end": 540,
-                    "label": "Riigipea",
-                    "start": 530,
+                    "end": 575,
+                    "label": "Riigipeaks",
+                    "start": 566,
                     "title": "Riigipea",
                     "url": "http://et.wikipedia.org/wiki/Riigipea"
                 },
                 {
-                    "end": 566,
-                    "label": "Suurbritannia monarh",
-                    "start": 544,
+                    "end": 601,
+                    "label": "Suurbritannia monarh (",
+                    "start": 580,
                     "title": "Suurbritannia monarh",
                     "url": "http://et.wikipedia.org/wiki/Suurbritannia_monarh"
                 },
                 {
-                    "end": 587,
-                    "label": "Elizabeth II",
-                    "start": 573,
+                    "end": 621,
+                    "label": "Elizabeth II)",
+                    "start": 609,
                     "title": "Elizabeth II",
                     "url": "http://et.wikipedia.org/wiki/Elizabeth_II"
                 },
                 {
-                    "end": 618,
-                    "label": "kuberner",
-                    "start": 608,
-                    "title": "Anguilla kuberner",
-                    "url": "http://et.wikipedia.org/wiki/Anguilla_kuberner"
-                },
-                {
-                    "end": 665,
-                    "label": "peaminister",
-                    "start": 652,
+                    "end": 720,
+                    "label": "peaminister (\"",
+                    "start": 707,
                     "title": "Anguilla peaminister",
                     "url": "http://et.wikipedia.org/wiki/Anguilla_peaminister"
                 },
                 {
-                    "end": 701,
+                    "end": 750,
                     "label": "Ametlik keel",
-                    "start": 687,
+                    "start": 739,
                     "title": "Ametlik keel",
                     "url": "http://et.wikipedia.org/wiki/Ametlik_keel"
-                },
-                {
-                    "end": 717,
-                    "label": "inglise keel",
-                    "start": 703,
-                    "title": "inglise keel",
-                    "url": "http://et.wikipedia.org/wiki/inglise_keel"
                 }
             ],
-            "text": "{{See artikkel| r\u00e4\u00e4gib Suurbritannia meretagusest alast; ''Anguilla'' on ka angerja perekonna teaduslik nimi.}}\n04.2015.</ref>\n|  keskuse_nimi = The Valley\n|  asendikaardi_pilt = \n}}\n\n'''Anguilla''' on Suurbritannia meretagune ala, millel on omavalitsus. Ta h\u00f5lmab Anguilla saare, Sombrero ning hulga teisi saarekesi, mis moodustavad k\u00f5ige p\u00f5hjapoolsema osa V\u00e4ikeste Antillide Tuulepealsetest saartest Kariibi mere ja Atlandi ookeani vahel. \n\nAnguilla kuulub ajav\u00f6\u00f6ndisse maailmaaeg \u20134.\n\nAnguilla on Suurbritannia meretagune ala. Riigipeaks on Suurbritannia monarh (praegu Elizabeth II), keda esindab saarel kuberner.\n\nValitsusjuht on kohapeal valitav peaminister (''chief minister'').\n\nAmetlik keel on inglise keel"
+            "text": "{{See artikkel| r\u00e4\u00e4gib Suurbritannia meretagusest alast; \"Anguilla\" on ka angerjaperekonna teaduslik nimi.}}\n04.2015.</ref>\n| keskuse_nimi = [[The Valley]]\n| asendikaardi_pilt = \nAnguilla on Suurbritannia meretagune alamillel on omavalitsus. Ta h\u00f5lmab Anguilla saare, Sombreroning hulga teisi saarekesi, mis moodustavad k\u00f5ige p\u00f5hjapoolsema osa V\u00e4ikeste AntillideTuulepealsed saared (L\u00f5una-Ameerika)|Tuulepealsetest saartest]] Kariibi mereja Atlandi ookeani vahel. \nAnguilla kuulub ajav\u00f6\u00f6ndisse maailmaaegmaailmaaeg \u20134|\u20134]].\nAnguilla on Suurbritanniameretagune ala. Riigipeaks on Suurbritannia monarh (praegu Elizabeth II)keda esindab saarel [[Anguilla kuberner|kuberner]].\nValitsusjuht on kohapeal valitav peaminister (\"chief minister\").\nAmetlik keel"
         },
         {
             "internal_links": [
                 {
-                    "end": 19,
+                    "end": 16,
                     "label": "Anguilla deviis",
                     "start": 2,
                     "title": "Anguilla deviis",
                     "url": "http://et.wikipedia.org/wiki/Anguilla_deviis"
                 },
                 {
-                    "end": 72,
+                    "end": 65,
                     "label": "\u00dcladomeen",
-                    "start": 61,
+                    "start": 57,
                     "title": "\u00dcladomeen",
                     "url": "http://et.wikipedia.org/wiki/\u00dcladomeen"
                 }
             ],
-            "text": "\n\nAnguilla deviis on ''Each Endeavouring, All Achieving''. \n\n\u00dcladomeen",
+            "text": "\nAnguilla deviison \"Each Endeavouring, All Achieving\". \n\u00dcladomeen",
             "title": "S\u00fcmbolid ja t\u00e4hised"
         },
         {
             "internal_links": [
                 {
-                    "end": 12,
+                    "end": 9,
                     "label": "Raha\u00fchik",
                     "start": 2,
                     "title": "Raha\u00fchik",
                     "url": "http://et.wikipedia.org/wiki/Raha\u00fchik"
                 },
                 {
-                    "end": 34,
-                    "label": "Ida-Kariibi dollar",
-                    "start": 14,
+                    "end": 32,
+                    "label": "Ida-Kariibi dollar (",
+                    "start": 13,
                     "title": "Ida-Kariibi dollar",
                     "url": "http://et.wikipedia.org/wiki/Ida-Kariibi_dollar"
                 }
             ],
-            "text": "\n\nRaha\u00fchik on Ida-Kariibi dollar",
+            "text": "\nRaha\u00fchikon Ida-Kariibi dollar (",
             "title": "Majandus"
         },
         {
-            "text": "\n{{viited}}\n\n{{GBR2}}\n{{Ameerikariigid}}\n\n{{koord |NS=18.25 |EW=-63.06666667 |type=isle |region=AI}}\n\n\n\n\n",
+            "text": "\n{{viited}}\n{{GBR2}}\n{{Ameerikariigid}}\n{{koord |NS=18.25 |EW=-63.06666667 |type=isle |region=AI}}\n",
             "title": "Viited"
         }
     ],
