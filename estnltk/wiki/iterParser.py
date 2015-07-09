@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from estnltk.wiki.iterParser import totalTime
+#from estnltk.wiki.iterParser import totalTime
 
 __author__ = 'Andres'
 
@@ -90,9 +90,9 @@ for tag, text in data:
 
 
     if 'text' in tag:
-        if '#REDIRECT' or '#suuna' in text:
+        #if '#REDIRECT' or '#suuna' in text:
         #print('REDIRECT')
-            continue
+        #    continue
         compStart = time.time()
         #TOdO: remove junk from text
         m = re.search(ib, text)
@@ -128,7 +128,7 @@ for tag, text in data:
         totalComp += thisComp
         #print('Progtime : ',thisComp , totalComp)
         timestart = time.time()
-        jsonWriter(pageObj)
+        jsonWriter(pageObj, 'G:\Json\\')
         thisWrite = time.time()-timestart
         totalwriter += thisWrite
         #print('Writetime: ' , thisWrite ,totalwriter)
@@ -139,13 +139,6 @@ for tag, text in data:
         print('Totaltime: ' , totalTime)
 #TODO.  pudi-padi, special pages
 
-def writejson(pageObj, title):
-    """
-
-    :param pageObj:
-    :param title:
-    :return:
-    """
 
 """
 Go through dictionary

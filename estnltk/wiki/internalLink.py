@@ -19,7 +19,8 @@ ExtLinkBracketedRegex = re.compile('\[(((?i)' + '|'.join(wgUrlProtocols) + ')' +
                                    EXT_LINK_URL_CLASS + r'+)\s*([^\]\x00-\x08\x0a-\x1F]*?)\]', re.S | re.U)
 
 relatedRegEx = re.compile(r'\{\{vaata(.+?)\}\}', re.IGNORECASE)
-intLinkRegex = re.compile(r'\[\[.+?\|?.+?\]\].+?\b')
+intLinkRegex = re.compile(r'\[\[.+?\|?.+?\]\]\w*')
+
 def relatedArticles(sectionObject):
     text = sectionObject['text']
     related = [x.group(1).strip('|') for x in relatedRegEx.finditer(text)]
@@ -147,7 +148,6 @@ def findBalanced(text, openDelim, closeDelim):
         cur = next.end()
 
 def addIntLinks(sectionObj):
-#TODO: FULL LABEL ISSUE
 
     t = sectionObj['text']
     spans = [(m.start(), m.end()) for m in intLinkRegex.finditer(t)]
@@ -166,7 +166,7 @@ def addIntLinks(sectionObj):
             except IndexError:
                 nextStart = None
 
-            linktext = t[start:end].replace('[', '').strip('{:;-., ')
+            linktext = t[start:end].replace('[', '').strip('{}:;-., ')
             if '|' in linktext:
                 linktext = linktext.split('|')
                 label = linktext[1].replace(']', '')
@@ -183,14 +183,15 @@ def addIntLinks(sectionObj):
 
 
             text+=t[lastEnd:start]+label
-            #text+=t[end:nextStart]
             lastEnd = end
-            link['start'] =1+ len(text)- len(label)
+            link['start'] =len(text)- len(label)
             link['end'] = len(text)
             link['label'] = label
             link['title'] = title
             link['url'] = url.replace(' ', '_')
             links.append(link.copy())
+            if nextStart == None:
+                text+=t[end:nextStart]
 
 
         sectionObj['text'] = text

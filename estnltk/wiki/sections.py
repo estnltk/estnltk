@@ -23,7 +23,7 @@ def sectionsParser(text, title, refsdict):
 """
     textStartRE = re.compile(r"""\'\'\'""")
     #TODO:needs fixing. logic should be different.
-    #TODO: this method should reveive text w shit cut out.
+    #TODO: this method should reveive text w crap cut out.
 
 
         #textStart = textStartRE.search(text).start()
