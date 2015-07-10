@@ -7,8 +7,10 @@ section = {'title': 'Nimi', 'text': "[[File:example.jpg|frameless|border|caption
 from pprint import pprint
 import internalLink
 from externalLink import addExternalLinks, ExtLinkBracketedRegex
+from wikiextra import balancedSlicer
+from cleaner import dropSpans
 
-imageRegEx = re.compile(r'\[\[(Pilt|File|Image)\:(.+?)\]\]')
+imageRegEx = re.compile(r'\[\[(Pilt|File|Image)\:.+?\]\]')
 
 def imageParser(sectionObj):
     """return a sectionObj with image data added
@@ -20,24 +22,29 @@ def imageParser(sectionObj):
              links: [ ...] // sama loogika nagu sektsiooni tasemel lingid.
        }
    ]"""
-
-    imageMatches = [x for x in imageRegEx.finditer(sectionObj['text'])]
-
-    if imageMatches:
+    text = ''
+    lastEnd = 0
+    ends = []
+    text = sectionObj['text']
+    imageStarts = [x.start() for x in imageRegEx.finditer(text)]
+    if imageStarts:
         images =  []
-        for image in imageMatches:
-            imgText = image.group(0).replace('[[', '').replace(']]', '')
+        for start in imageStarts:
+
+            imgText, end = balancedSlicer(text[start:])
+            end = start + end
+            ends.append(end)
+
+            #imgText = image.group(0).replace('[[', '').replace(']]', '')
             img =  {'text':imgText}
-
-
-
             imgText = imgText.split('|')
-            text= imgText[-1]
-            url = internalLink.urlBegin + imgText[0].replace(' ', '_')
-            img['text'] = text
+
+            t= imgText[-1].replace(']]', '')
+            url = internalLink.urlBegin + imgText[0].replace(' ', '_').replace('[[', '')
+            img['text'] = t
             img['url'] = url
 
-            if ExtLinkBracketedRegex.search(text):
+            if ExtLinkBracketedRegex.search(t):
                 img = addExternalLinks(img)
 
             intlinks = [x for x in internalLink.findBalanced(text, openDelim='[[', closeDelim=']]')]
@@ -47,9 +54,13 @@ def imageParser(sectionObj):
 
             images.append(img)
 
-        sectionObj['text'] = re.sub(imageRegEx, '', sectionObj['text'])
-        sectionObj['images'] = images
 
+        sectionObj['images'] = images
+        spans = []
+        for i, j in zip(imageStarts, ends):
+            spans.append((i, j))
+
+        sectionObj['text'] = dropSpans(spans, text)
     return sectionObj
 
 

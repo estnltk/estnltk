@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from pandas.core.common import _ABCGeneric
 
 __author__ = 'Andres'
 import re

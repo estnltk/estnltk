@@ -8,7 +8,7 @@ import re
 import os
 #from estnltk import Text
 
-fileCleanerRegEx = re.compile(r'[:\)[\(\?\*\\/]+')
+fileCleanerRegEx = re.compile(r'[:\)[\(\?\*\\/\"]+')
 
 def jsonWriter(jsonObj, dir):
 
@@ -46,7 +46,8 @@ def jsonReader_internalLinksTest(dir):
                             print(tlabel, llabel, file=sys.stderr)
                 except KeyError:
                     #print(f, sections[i])
-                    print(KeyError)
+                    #print(KeyError)
+                    pass
             #print(tObj.named_entities)
 
 if __name__ == '__main__':
