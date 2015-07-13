@@ -58,7 +58,17 @@ The basic structure of an article.json::
                     "start": 95,
                     "title": "alliteratsioon",
                     "url": "http://et.wikipedia.org/wiki/alliteratsioon"
-                },}
+                },
+                
+             "external links": [
+                {
+                    "end": 125,
+                    "label": "Suvine sats sõdurpoisse sõitis sõjaväkke",
+                    "start": 85,
+                    "url": "http://www.tartupostimees.ee/901454/suvine-sats-sodurpoisse-soitis-sojavakke/"
+                }
+            ],
+                }
 
 A section is a nested structure, if a section has subsections, they can be accessed obj['sections'][0]['sections']
 Other elements include objects like wikipedia templates in the form of {{something | other }}
