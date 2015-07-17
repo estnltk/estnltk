@@ -11,7 +11,7 @@ The easiest way to use the program is from the command line::
 	
 Output directory for .json files as #1 argument. The wikipedia articles dump file as #2 argument.
 
-Optional flag -v or --verbose for printing Article Title and article count everytime.
+Optional flag -v or --verbose for printing Article Title and article count, dropped page and drop count everytime.
 
 Without the -v or --verbose option after every 50th article the count is printed without the titles.
 
@@ -183,7 +183,7 @@ Bold/italics/bulletlists are marked in the dump, but are reformated as plain-tex
 
 Tables
 -------------------
-Tables are separeted from text although unparsed (Json has /n instead of an actual newline)::
+Tables are under the corresponding section, separeted from text although unparsed (Json has /n instead of an actual newline)::
 
  "tables": [
 		 
@@ -203,3 +203,36 @@ Tables are separeted from text although unparsed (Json has /n instead of an actu
 		
 		"{| class="wikitable"\n! colspan="8" |Armeenia peamised asulad<br />2012. aasta andmed<ref>[http://www.armstat.am/file/doc/99471428.pdf www.armstat.am - GENERAL DESCRIPTION - ОБЩИЙ ОБЗОР]</ref>\n|-\n! # !! Linn !! Maakond !! Elanikke !! # !! Linn !! Maakond !! Elanikke \n|-\n! 1 \n| [[Jerevan]] || – || 1&#160;127&#160;300 \n! 11\n| Charentsavan || [[Kotajkhi maakond|Kotajkh]] || 25&#160;200 \n|-\n! 2\n| [[Gjumri]] || [[Širaki maakond|Širak]] || 145&#160;900 \n! 12\n| [[Sevan]] || [[Gegharkhunikhi maakond|Gegharkhunikh]] || 23&#160;500 \n|-\n! 3\n| [[Vanadzor]] || [[Lori maakond|Lori]] || 104&#160;900 \n! 13\n| [[Goris]] || [[Sjunikhi maakond|Sjunikh]] || 23&#160;100 \n|-\n! 4\n| [[Vagharšapat]] || [[Armaviri maakond|Armavir]] || 57&#160;800 \n! 14\n| [[Masis]] || [[Ararati maakond|Ararat]] || 22&#160;700 \n|-\n! 5\n| [[Hrazdan]] || [[Kotajkhi maakond|Kotajkh]] || 53&#160;700 \n! 15\n| [[Aštarak]] || [[Aragatsotni maakond|Aragatsotn]] || 21&#160;700 \n|-\n! 6\n| [[Abovjan]] || [[Kotajkhi maakond|Kotajkh]] || 47&#160;200 \n! 16\n| [[Ararat]] || [[Ararati maakond|Ararat]] || 21&#160;000 \n|-\n! 7\n| [[Kapan]] || [[Sjunikhi maakond|Sjunikh]] || 45&#160;500 \n! 17\n| [[Idževan]] || [[Tavuši maakond|Tavuš]] || 20&#160;700 \n|-\n! 8\n| [[Armavir]] || [[Armaviri maakond|Armavir]] || 34&#160;000 \n! 18\n| [[Arthik]] || [[Širaki maakond|Širak]] || 17&#160;400 \n|-\n! 9\n| [[Gavar]] || [[Gegharkhunikhi maakond|Gegharkhunikh]] || 25&#160;700 \n! 19\n| [[Sisian]] || [[Sjunikhi maakond|Sjunikh]] || 16&#160;800 \n|-\n! 10\n| [[Artašat]] || [[Ararati maakond|Ararat]] || 25&#160;600 \n! 20\n| [[Alaverdi]] || [[Lori maakond|Lori]] || 16&#160;400 \n|-\n|}"]
 
+Images
+-------------------
+Images are also under the corresponding section. From the image text links (both internal, external) are extracted::
+            
+                    "images": [
+                {
+                    "internal_links": [
+                        {
+                            "end": 9,
+                            "label": "Dareios I",
+                            "start": 0,
+                            "title": "Dareios I",
+                            "url": "http://et.wikipedia.org/wiki/Dareios_I"
+                        },
+                        {
+                            "end": 28,
+                            "label": "Behistuni raidkiri",
+                            "start": 10,
+                            "title": "Behistuni raidkiri",
+                            "url": "http://et.wikipedia.org/wiki/Behistuni_raidkiri"
+                        },
+                        {
+                            "end": 72,
+                            "label": "6. sajand eKr",
+                            "start": 59,
+                            "title": "6. sajand eKr",
+                            "url": "http://et.wikipedia.org/wiki/6._sajand_eKr"
+                        }
+                    ],
+                    "text": "Dareios I Behistuni raidkiri, millel mainitakse Armeeniat. 6. sajand eKr.",
+                    "url": "http://et.wikipedia.org/wiki/Pilt:Darius_I_the_Great's_inscription.jpg"
+                }
+            ],
