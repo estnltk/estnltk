@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Andres'
 
-# -*- coding: utf-8 -*-
-
 
 
 import re
@@ -32,22 +30,29 @@ infob = """iygyugyugyugyugyugyugyuyg{{See artikkel| on Altamira koopast Hispaani
 }}yuguibguihuihiuih"""
 
 def infoBoxParser(text):
-    infobStartRegEx = re.compile(r'\{\{[A-Za-zÄÖÕÜäöõ\\ü ]+\n')
-    #FIXME:regex matches some weird stuff.
-    infobStart = re.search(infobStartRegEx, text).start()
-    infobContent = bSB(text[infobStart:], opendelim='{', closedelim='}')
+    t = ''
+    infobStartRegEx = re.compile(r"(?!\<ref>)\{\{[^\}]+?\n ?\|.+?=" , re.DOTALL)
+    infob = [x for x in re.finditer(infobStartRegEx, text)]
+    if infob:
+        for i in infob:
+            start = i.start()
+            infobContent, end = bSB(text[start:], openDelim='{', closeDelim='}')
+            #print('Infobox:', text[start:end])
+            t = text[:start]+text[end:]
+            if infobContent:
+                infobContent = infobContent.replace('[', '').replace(']', '').splitlines()  #.replace('|', '').split('\n'))
+                infobDict = {}
+                for line in infobContent:
+                    line = line.strip('|  ').strip(' ')
+                    line = line.split('=')
+                    if len(line) == 2:
+                        if line[0] and line[1]:
+                            l = line[1].strip('[').strip(']').strip()
+                            if '|' in l:
+                                l = l.split('|')[1]
+                            infobDict[line[0].strip()]= l
 
-    if infobContent:
-        infobContent = infobContent.replace('[', '').replace(']', '').splitlines()  #.replace('|', '').split('\n'))
-        infobDict = {}
-        for line in infobContent:
-            line = line.strip('|  ').strip(' ')
-            line = line.split('=')
-            if len(line) == 2:
-                if line[0] and line[1]:
-                    infobDict[line[0].strip()]=line[1].strip('[').strip(']').strip()
-
-        return infobDict
+        return t, infobDict
 
     return None
 

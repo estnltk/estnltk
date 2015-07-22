@@ -2,8 +2,13 @@
 __author__ = 'Andres'
 import re
 from pprint import pprint
-
-def sectionsParser(text, title):
+from externalLink  import addExternalLinks
+from internalLink import addIntLinks
+from references import reffinder
+import images
+from categoryParser import categoryParser
+from internalLink import relatedArticles
+def sectionsParser(text, title, refsdict):
     """
     :param text: the whole text of an wikipedia article
     :return:  a list of nested section objects
@@ -17,37 +22,49 @@ def sectionsParser(text, title):
                     text: "..."}],],
 """
     textStartRE = re.compile(r"""\'\'\'""")
-    #FIXME:if ''' in infobox, code breaks
-    textStart = textStartRE.search(text).start()
+    #TODO:needs fixing. logic should be different.
+    #TODO: this method should reveive text w crap cut out.
+
+
+        #textStart = textStartRE.search(text).start()
+
+
+    textStart = 0
     entries = re.split("\n=", text[textStart:])
     stack = [[]]
     intro = {}
     sectionTitleRegEx = re.compile(r'={1,}.+={2,}')
-    intro['intro']= entries[0]
+    section = {}
+    section['text'] = entries[0]
     counts = []
     counts.append(3)
     sections = []
-    sections.append(intro)
+    sections.append(section)
     for i in entries[1:]:
         section = {}
-
         title = re.match(sectionTitleRegEx, i)
         if title:
             titleEnd = title.end()
             title = title.group()
             text = i[titleEnd:]
-            count =  title.count('=')
+            level =  title.count('=')
             section['title']=title.strip('= ')
             section['text']=text
 
-            sections.append(section)
-            counts.append(count)
+            sections.append(section.copy())
+            counts.append(level)
 
-    #TODO:
-    #for section in sections:
     #add images, links, references,
-    #map(linkParser, section)
-    #
+
+
+    for section in sections:
+        section = relatedArticles(section)
+        section = reffinder(section, refsdict)
+        section = images.imageParser(section)
+        section = addExternalLinks(section)
+        section = addIntLinks(section)
+
+
 
     #datastructure nesting thanks to Timo!
     if counts:
@@ -69,12 +86,12 @@ def sectionsParser(text, title):
                 group = stack.pop()
                 stack[-1][-1]['sections'] = group
                 levels.pop()
-                continue
+
             pos += 1
 
         while len(stack) > 1:
             group = stack.pop()
-            stack[-1].append(group)
+            stack[-1][-1]['sections'] = group
 
     stack = stack[0]
 
