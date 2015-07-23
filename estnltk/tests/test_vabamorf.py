@@ -5,4 +5,4 @@ from __future__ import unicode_literals, print_function, absolute_import
 from ..vabamorf.tests.test_analyze import *
 from ..vabamorf.tests.test_multi import *
 from ..vabamorf.tests.test_synthesize import *
-
+from ..vabamorf.tests.test_disambiguate import *

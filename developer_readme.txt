@@ -47,6 +47,9 @@ First, modify your .git/setup configuration to look like following:
 [gui]
     wmstate = normal
     geometry = 844x391+0+0 189 177
+[branch "devel"]
+    remote = origin
+    merge = refs/heads/devel
 
 
 

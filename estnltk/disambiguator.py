@@ -3,24 +3,79 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 from .names import *
 from .text import Text
-
+from .vabamorf.morf import disambiguate
 import re
 
 class Disambiguator(object):
-
+    ''' Class for merging together different morphological disambiguation steps:
+        *) pre-disambiguation of proper names based on lemma counts in the corpus;
+        *) vabamorf's statistical disambiguation;
+        *) post-disambiguation of analyses based on lemma counts in the corpus;
+    '''
+    
     def disambiguate(self, docs, **kwargs):
-        # convert input
-        kwargs = kwargs
-        kwargs['disambiguate'] = False # do not use disambiguation right now
-        kwargs['guess']      = True  # should be set for the morph analyzer
-        kwargs['propername'] = True  # should be set for the morph analyzer
+        ''' Performs morphological analysis along with different morphological 
+            disambiguation steps (pre-disambiguation, vabamorf's disambiguation
+            and post-disambiguation) in the input document collection `docs`.
         
-        use_pre_disambiguation    = kwargs.get('pre_disambiguate', True)
-        use_post_disambiguation   = kwargs.get('post_disambiguate', True)
-        # For testing purposes, morph analysis and morph disambiguation can also 
+        Note
+        ----
+             It is assumed that the documents in the input document collection `docs`
+            have some similarities, e.g. they are parts of the same story, they are 
+            on the same topic etc., so that morphologically ambiguous words (for 
+            example: proper names) reoccur in different parts of the collection. 
+            The information about reoccurring ambiguous words is then used in 
+            pre-disambiguation and post-disambiguation steps for improving the overall
+            quality of morphological disambiguation.
+            
+             Additionally, the input collection `docs` can have two levels: it can be
+            list of list of estnltk.text.Text . For example, if we have a corpus of
+            daily newspaper issues from one month, and each issue consists of articles
+            (published on a single day), we can place the issues to the outer list, 
+            and the articles of the issues to the inner lists. 
+        
+        Parameters
+        ----------
+        docs: list of estnltk.text.Text
+              List of texts (documents) in which the morphological disambiguation
+              is performed. Additionally, the list can have two levels: it can be
+              list of list of estnltk.text.Text (this can improve quality of the
+              post-disambiguation);
+        post_disambiguate : boolean, optional
+              Applies the lemma-based post-disambiguation on the collection. 
+              Default: True;
+        disambiguate : boolean, optional
+              Applies vabamorf's statistical disambiguation on the collection. 
+              Default: True;
+              Note: this step shouldn't be turned off, unless for testing purposes;
+        pre_disambiguate : boolean, optional
+              Applies the pre-disambiguation of proper names on the collection. 
+              Default: True;
+        vabamorf : boolean, optional
+              Applies vabamorf's morphological analyzer on the collection. 
+              Default: True;
+              Note: this step shouldn't be turned off, unless for testing purposes.
+              
+        Returns
+        -------
+        list of estnltk.text.Text
+          List of morphologically disambiguated texts (documents). Preserves the
+          structure, if the input was  list of list of estnltk.text.Text;
+          
+        '''
+        # For testing purposes, morph analysis and morph disambiguation can both
         # be switched off:
         use_vabamorf              = kwargs.get('vabamorf', True)
-        use_vabamorf_disambiguate = kwargs.get('vabamorf_disambiguate', True)
+        use_vabamorf_disambiguate = kwargs.get('disambiguate', True)
+        # Configuration for pre- and post disambiguation:
+        use_pre_disambiguation    = kwargs.get('pre_disambiguate', True)
+        use_post_disambiguation   = kwargs.get('post_disambiguate', True)
+
+        kwargs = kwargs
+        # Inner/default configuration for text objects:
+        kwargs['disambiguate'] = False # do not use vabamorf disambiguation at first place
+        kwargs['guess']        = True  # should be set for the morph analyzer
+        kwargs['propername']   = True  # should be set for the morph analyzer
         
         # Check, whether the input is a list of lists of docs, or just a list of docs
         if not self.__isListOfLists( docs ):
@@ -31,8 +86,8 @@ class Disambiguator(object):
         #  I. perform morphological analysis, pre_disambiguation, and 
         #     statistical (vabamorf) disambiguation with-in a single 
         #     document collection;
-        for docs in collections:
-            docs = [Text(doc, **kwargs) for doc in docs]
+        for i in range(len(collections)):
+            docs = [Text(doc, **kwargs) for doc in collections[i]]
 
             # morf.analysis without disambiguation
             if use_vabamorf:
@@ -43,6 +98,8 @@ class Disambiguator(object):
 
             if use_vabamorf_disambiguate:
                 docs = self.__vabamorf_disambiguate(docs)
+            
+            collections[i] = docs
 
         #
         #  II. perform post disambiguation over all document collections;
@@ -53,7 +110,13 @@ class Disambiguator(object):
 
 
     def __vabamorf_disambiguate(self, docs):
-        # TODO for Timo: extract vabamorf disambiguator from analyzer and apply it here
+        for doc in docs:
+            sentences = doc.divide()
+            for sentence in sentences:
+                disambiguated = disambiguate(sentence)
+                # replace the analysis
+                for orig, new in zip(sentence, disambiguated):
+                    orig[ANALYSIS] = new[ANALYSIS]
         return docs
 
 
@@ -343,8 +406,8 @@ class Disambiguator(object):
 
     # =========================================================
     # =========================================================
-    #    Korpusepõhine lemmade järelühestamine 
-    #    ( corpus-based post-disambiguation of lemmas )
+    #    Lemmade-põhine järelühestamine korpusele
+    #    ( lemma-based post-disambiguation for the corpus )
     #
     #     Algne algoritm ja teostus:  Heiki-Jaan Kaalep
     #     Python-i implementatsioon:  Siim Orasmaa
@@ -465,7 +528,7 @@ class Disambiguator(object):
         return hidden
 
 
-    def __create_lemma_frequency_lexicon(self, docs, hiddenWords, lexicon, amb_lexicon):
+    def __supplement_lemma_frequency_lexicon(self, docs, hiddenWords, lexicon, amb_lexicon):
         ''' Täiendab etteantud sagedusleksikone antud korpuse (docs) põhjal:
             *) yldist sagedusleksikoni, kus on k6ik lemmad, v.a. lemmad, 
                mis kuuluvad nn peidetud sõnade hulka (hiddenWords); 
@@ -533,9 +596,10 @@ class Disambiguator(object):
 
 
     def post_disambiguate(self, collections):
-        '''  Teostab mitmeste lemmade järelühestamise. Järelühestamine toimub kahes etapis:
-            kõigepealt ühe dokumendikollektsiooni piires ning seejärel üle kõigi
-            dokumendikollektsioonide (kui sisendis on rohkem kui 1 dokumendikollektsioon);
+        '''  Teostab mitmeste analüüside lemma-põhise järelühestamise. Järelühestamine 
+            toimub kahes etapis: kõigepealt ühe dokumendikollektsiooni piires ning 
+            seejärel üle kõigi dokumendikollektsioonide (kui sisendis on rohkem kui 1
+            dokumendikollektsioon);
              Sisuliselt kasutatakse ühestamisel "üks tähendus teksti kohta" idee laiendust:
             kui mitmeseks jäänud lemma esineb ka mujal (samas kollektsioonis või kõigis
             kollektsioonides) ning lõppkokkuvõttes esineb sagedamini kui alternatiivsed
@@ -557,7 +621,7 @@ class Disambiguator(object):
             #    sagedus korpuses (kuhu arvatud ka sagedus ühestatud sõnades);
             genLemmaLex = dict()
             ambLemmaLex = dict()
-            self.__create_lemma_frequency_lexicon(docs, hiddenWords, ambLemmaLex, genLemmaLex)
+            self.__supplement_lemma_frequency_lexicon(docs, hiddenWords, ambLemmaLex, genLemmaLex)
             # 4) Teostame lemmade-p6hise yhestamise: mitmeseks j22nud analyyside 
             #    puhul j2tame alles analyysid, mille lemma esinemisagedus on suurim
             #    (ja kui k6igi esinemissagedus on v6rdne, siis ei tee midagi)
@@ -576,7 +640,7 @@ class Disambiguator(object):
                 hiddenWords = self.__find_hidden_analyses(docs)
                 # *) Täiendame üldist lemmade sagedusleksikoni ja mitmeseks jäänud
                 #    lemmade sagedusleksikoni;
-                self.__create_lemma_frequency_lexicon(docs, hiddenWords, ambLemmaLex, genLemmaLex)
+                self.__supplement_lemma_frequency_lexicon(docs, hiddenWords, ambLemmaLex, genLemmaLex)
             # Teostame järelühestamise
             for docs in collections:
                 # *) Leiame sõnad, mis sisaldavad nn ignoreeritavaid mitmesusi
