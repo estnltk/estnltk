@@ -5,6 +5,8 @@ Estnltk prettyprinter module.
 Deals with rendering Text instances as HTML.
 
 TODO: ülesande 2.a jaoks teha unittestid
+TODO: kuigi estnltk ise seda praegu 100% ei järgi, proovime koodi stiili teha
+      Pythoni tavade järgi: https://www.python.org/dev/peps/pep-0008/
 """
 from __future__ import unicode_literals, print_function, absolute_import
 
