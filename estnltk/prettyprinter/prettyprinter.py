@@ -30,17 +30,17 @@ class PrettyPrinter(object):
     <head>
         <link rel="stylesheet" type="text/css" href="prettyprinter.css">
         <meta charset="utf-8">
-        <title>{0}</title>
+        <title>PrettyPrinter</title>
     </head>
     <body>\n"""
         self.FOOTER = """\t</body>\n</html>"""
         return
 
-#function render
-
     def render(self, text):
+        #Jagamiseks kasutan praegu jsoni infot, kui tahan hiljem lisada kihi vormingu, siis selle plaanin htmli kihis eraldi ifiga välja tuua
         text = Text(text)
         file_json = text.get.word_texts.lemmas.postag_descriptions.as_dict
+        #print(file_json)
         temporary = file_json['postag_descriptions']
         descriptions = list(set(temporary))
         dictionary = {}
@@ -57,8 +57,8 @@ class PrettyPrinter(object):
     def css(self):
         """The CSS of the prettyprinter"""
         rendered = self.render(self.text)
-        words = rendered['word_texts']
         postags = list(set(rendered['postag_descriptions']))
+        #cssContent on nö base values, miskipärast pidin backgroundi eraldi dubleerima, et see töötaks iga sõnatüübi juures
         cssContent = """p {
     color: black;
     background-color: white;
@@ -69,9 +69,12 @@ class PrettyPrinter(object):
     font-size: 30px;
     letter-spacing: 2px;
     }\n"""
+        #Erinevad fonti suuruse ja tähevahede väärtused vastavalt small, normal ja large
         font = {'small':'20', 'normal':'30', 'large':'40'}
         spacing = {'small':'1', 'normal':'2', 'large':'4'}
 
+        #siin genereeritakse kõik erinevad mark tüübi väärtused. Näeb natukene ebaotstarbekas välja, kuid katab 100% juhtudest.
+        #Kui sul on ettepanekuid parendamiseks, siis ootan huviga
         for el in range(len(postags)):
             try:
                 cssContent += 'mark.'+postags[el]+' {\n'
@@ -117,6 +120,8 @@ class PrettyPrinter(object):
         return
 
     def createHTML(self):
+        #Kogu vormistus on tehtud mark funktsiooni abil, kus erinevad sõnatüübid on mark.sõnatüüp abil kättesaadavad.
+        #<stile> tüüpi vormistust ma ei kasutanud, kuna mark tundus otstarbekam(saab automaatselt genereerida igale sõnatüübile)
         rendered = self.render(self.text)
         words = rendered['word_texts']
         postags = rendered['postag_descriptions']
@@ -133,19 +138,19 @@ class PrettyPrinter(object):
         return
 
 """Current test protocols"""
-
+#Testi koht, sellisel kujul peaks olema info sõnatüüpide ja nende vormingu kohta. Sel/järgmisel nädalal teen juurde funktsiooni, mis kasutaja info muudab selliseks dictionaryks
 kwargs = {'text': "Mis siin  praegu siin toimub?", 'asesõna': {'color': 'red', 'size': 'large'},
           'tegusõna': {'color': 'green', 'background':'white', 'size': 'small'}}
 p2 = PrettyPrinter(**kwargs)
 p2Render = p2.render(p2.text)
 p2.createHTML()
 
-print(p2Render['word_texts'])
-print(p2Render['postag_descriptions'])
+"""
+#print(p2Render['word_texts'])
+#print(p2Render['postag_descriptions'])
+#print(p2.properties)
 
-print(p2.properties)
-
-"""for tag in list(set(p2Render['postag_descriptions'])):
+for tag in list(set(p2Render['postag_descriptions'])):
     print()
     print(tag)
     print()
