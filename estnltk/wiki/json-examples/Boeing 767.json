@@ -1,0 +1,60 @@
+{
+    "categories": [
+        "Boeing",
+        "Reisilennukid"
+    ],
+    "other": [
+        "{{Boeing}}"
+    ],
+    "sections": [
+        {
+            "images": [
+                {
+                    "text": "Boeing 767-300ER",
+                    "url": "http://et.wikipedia.org/wiki/Pilt:Condor_B767_D-ABUA_FRA_2011-09-01_01klein.jpg"
+                }
+            ],
+            "internal_links": [
+                {
+                    "end": 17,
+                    "label": "USA",
+                    "start": 14,
+                    "title": "Ameerika \u00dchendriigid",
+                    "url": "http://et.wikipedia.org/wiki/Ameerika_\u00dchendriigid"
+                },
+                {
+                    "end": 69,
+                    "label": "reisilennuk",
+                    "start": 58,
+                    "title": "reisilennuk",
+                    "url": "http://et.wikipedia.org/wiki/reisilennuk"
+                },
+                {
+                    "end": 111,
+                    "label": "Boeingi",
+                    "start": 104,
+                    "title": "Boeing",
+                    "url": "http://et.wikipedia.org/wiki/Boeing"
+                },
+                {
+                    "end": 144,
+                    "label": "Airbus A310",
+                    "start": 133,
+                    "title": "Airbus A310",
+                    "url": "http://et.wikipedia.org/wiki/Airbus_A310"
+                },
+                {
+                    "end": 201,
+                    "label": "757",
+                    "start": 198,
+                    "title": "Boeing 757",
+                    "url": "http://et.wikipedia.org/wiki/Boeing_757"
+                }
+            ],
+            "text": "Boeing 767 on USA-s toodetav kahemootoriline laiakereline reisilennuk.\nBoeing 767 tootmise ajendiks oli Boeingi vajadus konkureerida Airbus A310-ga. Esimene tootmisse l\u00e4inud mudel oli 767-200 (nagu 757 puhul, j\u00e4eti ka siin \u00e4ra l\u00fchim versioon 100). 767-300 oli pikendatud kerega versioon. Uusimal versioonil 767-400 on uuendatud tiivad ja parandatud tehnika."
+        }
+    ],
+    "timestamp": "2015-04-19T15:39:13Z",
+    "title": "Boeing 767",
+    "url": "http://et.wikipedia.org/wiki/Boeing_767"
+}

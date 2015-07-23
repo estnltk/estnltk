@@ -30,7 +30,7 @@ discardElements = [
 
 comment = re.compile(r'<!--.*?-->', re.DOTALL)
 
-selfClosingTags = [ 'br', 'hr', 'nobr', 'ref', 'references', 'nowiki' ]
+selfClosingTags = [ 'br', 'hr', 'nobr', 'references', 'nowiki' ]
 
 # These tags are dropped, keeping their content.
 # handle 'a' separately, depending on keepLinks
