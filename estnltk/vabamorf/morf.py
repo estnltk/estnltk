@@ -24,7 +24,7 @@ compound_regex: regex
 """
 from __future__ import unicode_literals, print_function, absolute_import
 
-#from . import vabamorf as vm
+from . import vabamorf as vm
 import os
 import six
 import re

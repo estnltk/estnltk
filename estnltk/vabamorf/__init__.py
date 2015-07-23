@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals, print_function, absolute_import
-#from . import vabamorf as vm
+from . import vabamorf as vm
 import atexit
 
 if not vm.FSCInit():
