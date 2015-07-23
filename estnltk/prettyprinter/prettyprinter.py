@@ -40,7 +40,7 @@ class PrettyPrinter(object):
         #Jagamiseks kasutan praegu jsoni infot, kui tahan hiljem lisada kihi vormingu, siis selle plaanin htmli kihis eraldi ifiga välja tuua
         text = Text(text)
         file_json = text.get.word_texts.lemmas.postag_descriptions.as_dict
-        #print(file_json)
+        # print(file_json)
         temporary = file_json['postag_descriptions']
         descriptions = list(set(temporary))
         dictionary = {}
