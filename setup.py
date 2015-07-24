@@ -72,7 +72,8 @@ setup(
         'pandas==0.15.2',                   # Panel Data Analysis library for Python
         'python-crfsuite==0.8.1',           # Conditional random fields library
         'cached-property==1.2.0',           # Simple property for caching results
-        'beautifulsoup4==4.3.2'             # HTML parsing library
+        'beautifulsoup4==4.3.2',            # HTML parsing library
+        'elasticsearch==1.6.0'              # database support
         ],
 
     classifiers = ['Intended Audience :: Developers',
