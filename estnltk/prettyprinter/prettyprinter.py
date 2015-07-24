@@ -3,6 +3,10 @@
 Estnltk prettyprinter module.
 
 Deals with rendering Text instances as HTML.
+
+TODO: ülesande 2.a jaoks teha unittestid
+TODO: kuigi estnltk ise seda praegu 100% ei järgi, proovime koodi stiili teha
+      Pythoni tavade järgi: https://www.python.org/dev/peps/pep-0008/
 """
 from __future__ import unicode_literals, print_function, absolute_import
 
@@ -18,13 +22,18 @@ except ImportError:
 
 from estnltk import Text
 
-class PrettyPrinter(object):
 
+class PrettyPrinter(object):
     """Class for formatting Text instances as HTML & CSS."""
 
     def __init__(self, **kwargs):
         self.text = kwargs['text']
-        self.list = kwargs
+        self.list = kwargs # TODO: self.list asemel võiks olla self.kwargs
+        # TODO: ülesande 2.a (aesteetikute ja kihtide mappingu parsimine) võiks enne edasi liikumist
+        # valmis teha, kuna see aitab läbi mõelda kuidas koodi paremini struktureerida
+
+        # TODO: HEADER ja FOOTER lihtsuse mõttes tõsta klassist välja mooduli tasemele või
+        # isegi eraldi moodulisse, näiteks teha moodul nimega templates.py ja sealt need importida
         self.HEADER = """<!DOCTYPE html>
 <html>
     <head>
@@ -34,14 +43,19 @@ class PrettyPrinter(object):
     </head>
     <body>\n"""
         self.FOOTER = """\t</body>\n</html>"""
+        # TODO: return pole vajalik kuna vaikimisi ilma returnita meetodid alati väljastavad None
+        # (sama tähelepanek ka allpool olevate meetodite kohta)
         return
 
     def render(self, text):
         #Jagamiseks kasutan praegu jsoni infot, kui tahan hiljem lisada kihi vormingu, siis selle plaanin htmli kihis eraldi ifiga välja tuua
+        # TODO: tähelepanek, et siin meetodis tuleb kindlasti abstraheerida konkreetsed kihid
         text = Text(text)
         file_json = text.get.word_texts.lemmas.postag_descriptions.as_dict
         # print(file_json)
         temporary = file_json['postag_descriptions']
+        # TODO: märgendamine võiks töötada kihtide start/end positsioonide peal.
+        # kuigi sõnatasemel on praegune näide küll lihtsam, siis üld
         descriptions = list(set(temporary))
         dictionary = {}
         for el in range(0,len(descriptions),1):
@@ -51,14 +65,18 @@ class PrettyPrinter(object):
                 asi = {}
             dictionary[descriptions[el]] = asi
         self.properties = dictionary
+        # TODO: render meetod peaks väljastama stringi HTML sisuga, põhimõtteliselt mida createHTMl teeb,
+        # aga ilma eraldi faili kirjutamata
         return text.get.word_texts.lemmas.postag_descriptions.as_dict
 
     @property
     def css(self):
         """The CSS of the prettyprinter"""
         rendered = self.render(self.text)
+        # TODO: märkus, css renderdamine ei tohiks sõltuda tekstist
         postags = list(set(rendered['postag_descriptions']))
         #cssContent on nö base values, miskipärast pidin backgroundi eraldi dubleerima, et see töötaks iga sõnatüübi juures
+        # TODO: suured eeldefineeritud mallid/tekstiblokid võiks tõsta mooduli tasemele või eraldi moodulisse (nt templates.py)
         cssContent = """p {
     color: black;
     background-color: white;
@@ -75,6 +93,16 @@ class PrettyPrinter(object):
 
         #siin genereeritakse kõik erinevad mark tüübi väärtused. Näeb natukene ebaotstarbekas välja, kuid katab 100% juhtudest.
         #Kui sul on ettepanekuid parendamiseks, siis ootan huviga
+        # TODO: kas try/except on IndexErrori tuvastamiseks?
+        # sel juhul võib teha seda if direktiiviga, nt
+        # if el in postags:
+        #      cssContent ...
+        # või default väärtuse saamiseks kasutada
+        #    mydict.get('key', default_value)
+
+        # TODO: += stringide liitmisel võiks asendada stringIO klassiga või siis
+        # panna stringi osad listi ning kasutada join meetodit nende ühendamiseks.
+        # += teeb iga kord tervest juba koostatud sõnest koopia ning on ebaefektiivne
         for el in range(len(postags)):
             try:
                 cssContent += 'mark.'+postags[el]+' {\n'
@@ -122,6 +150,12 @@ class PrettyPrinter(object):
     def createHTML(self):
         #Kogu vormistus on tehtud mark funktsiooni abil, kus erinevad sõnatüübid on mark.sõnatüüp abil kättesaadavad.
         #<stile> tüüpi vormistust ma ei kasutanud, kuna mark tundus otstarbekam(saab automaatselt genereerida igale sõnatüübile)
+        # TODO: märkus. CSS klasside genereerimisel tuleb hiljem arvestada ka seda, et erinevad märgendused võivad kattuda,
+        # näiteks teksti värv ja taustavärv. Selliste juhtude lahendamiseks peaks olema üks CSS klass iga aesteetik-väärtuse paari jaoks.
+
+        # TODO: märkus. testimiseks ei pea faili kirjutamist tegema otse koodis, vaid võib ka lihtsalt trükkide ekraanile
+        # sõne, ning käsurealt see suunata mõnda faili.
+
         rendered = self.render(self.text)
         words = rendered['word_texts']
         postags = rendered['postag_descriptions']

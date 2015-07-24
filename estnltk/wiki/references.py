@@ -26,14 +26,22 @@ def refsParser(refsDict):
         if intlinks:
             value = addIntLinks(value)
 
-
-
         refsDict[key]=value
-    return refsDict
+
+    newRefs = []
+    for key in sorted(refsDict.keys()):
+        newRefs.append(refsDict[key])
+
+    return newRefs
 
 refTagRegEx = re.compile('<ref (\d)+/>')
 
-def reffinder(sectionObj, refsDict):
+def reffinder(sectionObj):
+    """
+    add reference indeces to sectionobj['references']
+    :param sectionObj
+    :return: a section obj w references: field
+    """
     text = sectionObj['text']
     reftags = [x for x in refTagRegEx.finditer(text)]
     if reftags:
@@ -89,6 +97,16 @@ def referencesFinder(text):
         firstindex = refs[i].index('>')+1
         refs[i]=refs[i][firstindex:lastindex]
 
+    #Handle cite-references
+    for i in range(len(refs)):
+        if 'cite' in refs[i] or 'Cite' in refs[i]:
+            newText = ''
+            values = refs[i].split('|')
+            for j in values:
+                if '=' in j:
+                    first = j.index('=')
+                    newText += j[first+1:].strip() + ';'
+            refs[i] = newText
     #a ref string:position int dictionary
     refspos = {}
     c = 0
@@ -116,6 +134,9 @@ def referencesFinder(text):
     #switch keys:values in the dictionary for use in sectionsParser
     #positiontag:ref
     newDict  = {y:x for x,y in refspos.items()}
+
+
+
 
     return newText, newDict
 
