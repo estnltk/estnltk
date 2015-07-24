@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+from __future__ import unicode_literals, print_function, absolute_import
 import sys
 __author__ = 'Andres'
 
 import json
 import re
 import os
-#from estnltk import Text
+#from estnltk.text import Text
 
 fileCleanerRegEx = re.compile(r'[:\)[\(\?\*\\/\"]+')
 count = 0

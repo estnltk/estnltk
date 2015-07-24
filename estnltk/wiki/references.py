@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals, print_function, absolute_import
+
 __author__ = 'Andres'
 import re
-from itertools import chain
-from pprint import pprint
 from externalLink import addExternalLinks, ExtLinkBracketedRegex
 from internalLink import findBalanced, addIntLinks
 

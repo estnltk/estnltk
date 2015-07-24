@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-#TODO: TEXT IMPORTs
+from __future__ import unicode_literals, print_function, absolute_import
+
 __author__ = 'Andres'
 
+import core
 import re
 from xml.etree.ElementTree import iterparse
 import argparse
@@ -85,15 +87,16 @@ def etWikiParser(data, outputdir, verbose = False):
     totalTime = 0
     pageObj = {}
     for tag, text in data:
-        tag, text = str(tag), str(text)
-
-
+        if tag and text:
+            tag, text = core.as_unicode(tag), core.as_unicode(text)
+            #print(tag, text)
+    #FIXME: py2 unicode issue
         if 'title' in tag:
 
         #Drop wikipedia internal pages.
 
-            for i in dropPages:
-                if i in text:
+            for page in dropPages:
+                if page in text:
                     if verbose:
                         dropcount += 1
                         print('Dropped Page count', dropcount, text.strip())
@@ -187,7 +190,7 @@ def main():
 
     if inputFile[-3:] == 'bz2':
         print('BZ2', inputFile)
-        with BZ2File(inputFile) as xml_file:
+        with BZ2File(inputFile, 'utf-8') as xml_file:
             data = parse_and_remove(xml_file, "wikimedia/wikimedia")
             etWikiParser(data, outputDir, verbose)
     elif inputFile[-3:] == 'xml':
