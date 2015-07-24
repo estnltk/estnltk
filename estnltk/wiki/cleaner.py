@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals, print_function, absolute_import
 __author__ = 'Andres'
+
+
 import re
 
 # Matches tags
@@ -30,7 +33,7 @@ discardElements = [
 
 comment = re.compile(r'<!--.*?-->', re.DOTALL)
 
-selfClosingTags = [ 'br', 'hr', 'nobr', 'ref', 'references', 'nowiki' ]
+selfClosingTags = [ 'br', 'hr', 'nobr', 'references', 'nowiki' ]
 
 # These tags are dropped, keeping their content.
 # handle 'a' separately, depending on keepLinks

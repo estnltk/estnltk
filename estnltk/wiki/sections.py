@@ -1,14 +1,19 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals, print_function, absolute_import
+
 __author__ = 'Andres'
 import re
 from pprint import pprint
-from externalLink  import addExternalLinks
+from externalLink  import addExternalLinks, ExtLinkBracketedRegex
 from internalLink import addIntLinks
 from references import reffinder
 import images
 from categoryParser import categoryParser
 from internalLink import relatedArticles
-def sectionsParser(text, title, refsdict):
+from tableCollector import  tableCollector
+from images import imageRegEx
+
+def sectionsParser(text, refsdict):
     """
     :param text: the whole text of an wikipedia article
     :return:  a list of nested section objects
@@ -22,14 +27,10 @@ def sectionsParser(text, title, refsdict):
                     text: "..."}],],
 """
     textStartRE = re.compile(r"""\'\'\'""")
-    #TODO:needs fixing. logic should be different.
-    #TODO: this method should reveive text w crap cut out.
-
-
-        #textStart = textStartRE.search(text).start()
-
 
     textStart = 0
+
+    #Split the text in sections. Hackish part, but seems to work fine.
     entries = re.split("\n=", text[textStart:])
     stack = [[]]
     intro = {}
@@ -37,6 +38,11 @@ def sectionsParser(text, title, refsdict):
     section = {}
     section['text'] = entries[0]
     counts = []
+
+    #Presumes the first section is always marked with 2 =
+    #First count is always 3. (\n=)= First Section of an Article ==
+    #Parens is omitted. Leaves three = marks.
+
     counts.append(3)
     sections = []
     sections.append(section)
@@ -54,20 +60,35 @@ def sectionsParser(text, title, refsdict):
             sections.append(section.copy())
             counts.append(level)
 
-    #add images, links, references,
+    #add images, links, references, tables
 
 
     for section in sections:
-        section = relatedArticles(section)
-        section = reffinder(section, refsdict)
-        section = images.imageParser(section)
-        section = addExternalLinks(section)
-        section = addIntLinks(section)
+        text = section['text']
+        if 'wikitable' in text or '<table>' in text.lower():
+            section['text'], section['tables'] = tableCollector(text)
 
+        section = relatedArticles(section)
+
+        if '<ref' in text:
+            section = reffinder(section)
+
+        if imageRegEx.search(text):
+            section = images.imageParser(section)
+
+        section['text'] = section['text'].strip()
+
+        if ExtLinkBracketedRegex.search(text):
+            section = addExternalLinks(section)
+
+        if '[[' in text:
+            section = addIntLinks(section)
 
 
     #datastructure nesting thanks to Timo!
     if counts:
+        assert len(counts) == len(sections)
+
         n = len(sections)
         pos = 0
 
@@ -86,6 +107,7 @@ def sectionsParser(text, title, refsdict):
                 group = stack.pop()
                 stack[-1][-1]['sections'] = group
                 levels.pop()
+                continue
 
             pos += 1
 

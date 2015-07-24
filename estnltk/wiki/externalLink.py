@@ -1,19 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals, print_function, absolute_import
 __author__ = 'Andres'
+
+
 import re
 from pprint import pprint
-text = """* [http://www.armenia.ee Armenia.EE Armeenia portaal Eestis] (''vene ja eesti keeles'')
-* [http://www.armeniapedia.org Armeniapedia – Armeenia wiki]
-*fghfghghfgh [http://www.armenica.org Armenica.org]
-[[Pilt:Armenian Qarhunj01.jpg|pisi|
-Esiaegne [[megaliit]]ide kompleks [[Zoratsh Kharer]] [[Sjunikhi maakond|Sjunikhi maakonnas]]]]
-Ürgasustuse jälgi on leitud mitmes [[Armeenia mägismaa]] piirkonnas: [[Arzni]]st, [[Nurnus]]ist ja mujalt on leitud peatuspaiku kivist tööriistadega. [[Hrazdani jõgi|Hrazdani jõe]] kuristikust, [[Lusakert]]ist ja mujalt on leitud koobaseluasemeid. Kõige vanemad leitud kivist tööriistad on 800 000 aastat vanad.
-* [http://www.preSHIIIIEEITE    sident.am/eng/]
-* [http://www.president.am/eng/ Armeenia president]
-* [http://www.gov.am/ Armeenia valitsus]
-* [http://www.haias.net/armenien.html virtuaal-Armeenia]
-* [http://www.haylife.ru/ Armeenia kultuuri sait, eeskätt Venemaa armeenlaste kultuurist (vene keeles)]
-* [http://www.armeniainfo.am/ Armeenia turismiportaal]"""
 
 #From wikiextractor
 urlBegin = "http://et.wikipedia.org/wiki/"
@@ -44,7 +35,7 @@ def addExternalLinks(sectionObj):
             label = m.group(3)
 
             s += label
-            #s.append((url, label))
+
             obj = {}
             obj['start'] = len(s)-len(label)
             obj['end']= len(s)
@@ -56,4 +47,4 @@ def addExternalLinks(sectionObj):
     return sectionObj
 
 if __name__ == '__main__':
-    pprint(addExternalLinks({'text': text}))
+    pass

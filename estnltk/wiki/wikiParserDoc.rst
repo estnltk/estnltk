@@ -37,7 +37,6 @@ The basic structure of an article.json::
           "Foneetika",
           "Kirjandusteadus"
     ],
-        "other": [],
         "sections": [ 
         {
             "text": "Algriim on sõnade algushäälikute koosõla, mida...",

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals, print_function, absolute_import
 
 __author__ = 'Andres'
 import re
@@ -10,7 +11,7 @@ from externalLink import addExternalLinks, ExtLinkBracketedRegex
 from wikiextra import balancedSlicer
 from cleaner import dropSpans
 
-imageRegEx = re.compile(r'\[\[(Pilt|File|Image)\:.+?\]\]')
+imageRegEx = re.compile(r'\[\[(Pilt|File|Image)\:.+?\]\]', re.IGNORECASE)
 
 def imageParser(sectionObj):
     """return a sectionObj with image data added
@@ -39,7 +40,8 @@ def imageParser(sectionObj):
             img =  {'text':imgText}
             imgText = imgText.split('|')
 
-            t= imgText[-1].replace(']]', '')
+            #t= imgText[-1].replace(']]', '')
+            t = imgText[-1][:-2]
             url = internalLink.urlBegin + imgText[0].replace(' ', '_').replace('[[', '')
             img['text'] = t
             img['url'] = url
@@ -47,7 +49,7 @@ def imageParser(sectionObj):
             if ExtLinkBracketedRegex.search(t):
                 img = addExternalLinks(img)
 
-            intlinks = [x for x in internalLink.findBalanced(text, openDelim='[[', closeDelim=']]')]
+            intlinks = [x for x in internalLink.findBalanced(t, openDelim='[[', closeDelim=']]')]
 
             if intlinks:
                 img = internalLink.addIntLinks(img)

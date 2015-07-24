@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch as es
 
 
 def prepare_text(text):
