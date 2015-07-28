@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
-from elasticsearch import Elasticsearch as es
+from elasticsearch import Elasticsearch
 
 
 def prepare_text(text):
@@ -25,9 +25,36 @@ def prepare_text(text):
 
 class Database(object):
 
-
     def __init__(self, index, type='document'):
         self.__es = Elasticsearch(index=index, type=type)
+        self.__index_name = index
+        self.__doc_type = type
+
+    @property
+    def index_name(self):
+        return self.__index_name
+
+    @property
+    def doc_type(self):
+        return self.__doc_type
+
+    @property
+    def es(self):
+        return self.__es
+
+    def delete(self):
+        self.es.delete(index=self.index_name, doc_type=self.doc_type, id=None)
+
+    def count(self):
+        return self.__es.count(index=self.index_name)['count']
+
+    def index(self, text, id=None):
+        converted = prepare_text(text)
+        self.__es.index(index=self.__index_name, doc_type=self.doc_type, id=id, body=converted)
+
+    def update(self, text, id=None):
+        pass
+
 
 
     def keyword_documents(self, keywords, layer=None, n=None):
@@ -48,6 +75,7 @@ class Database(object):
         -------
         Iterable of Text instances.
         """
+        pass
 
     def keyword_matches(self, keywords, layer=None):
         """Find all Text documents and matched regions for given keywords.
@@ -69,13 +97,3 @@ class Database(object):
         """
         pass
 
-# prepare_text näide
-from ..text import Text
-from pprint import pprint
-
-text = Text('Mees, keda seal kohtasime, oli tuttav ja teretas meid.')
-text.tag_clauses().tag_named_entities()
-
-converted = prepare_text(text)
-pprint(converted)
-pprint(converted['layers'])

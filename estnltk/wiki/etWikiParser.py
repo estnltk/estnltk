@@ -3,21 +3,21 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 __author__ = 'Andres'
 
-import core
+from ..core import as_unicode
 import re
 from xml.etree.ElementTree import iterparse
 import argparse
 from bz2 import BZ2File
 import time
-from infoBox import infoBoxParser
-from sections import sectionsParser
-from references import referencesFinder,refsParser
-from categoryParser import categoryParser
-from jsonWriter import jsonWriter
-from cleaner import clean
-from internalLink import findBalanced
-from cleaner import dropSpans
-from tableCollector import tableCollector
+from .infoBox import infoBoxParser
+from .sections import sectionsParser
+from .references import referencesFinder,refsParser
+from .categoryParser import categoryParser
+from .jsonWriter import jsonWriter
+from .cleaner import clean
+from .internalLink import findBalanced
+from .cleaner import dropSpans
+
 # Matches bold/italic
 bold_italic = re.compile(r"'''''(.*?)'''''")
 bold = re.compile(r"'''(.*?)'''")
@@ -62,19 +62,23 @@ def parse_and_remove(filename, path):
             except IndexError:
                 pass
 
-
-
 def templatesCollector(text, open, close):
+    """leaves related articles and wikitables in place"""
     others = []
     spans = [i for i in findBalanced(text, open, close)]
-    for start, end in spans:
+    spanscopy = spans.copy()
+    for i in range(len(spans)):
+        start, end = spans[i]
+
         o = text[start:end]
+        ol = o.lower()
+        if 'vaata|' in ol or 'wikitable' in ol:
+            spanscopy.remove(spans[i])
+            continue
         others.append(o)
-    text = dropSpans(spans, text)
+    text = dropSpans(spanscopy, text)
 
     return text, others
-
-
 
 def etWikiParser(data, outputdir, verbose = False):
     global dropcount
@@ -88,9 +92,9 @@ def etWikiParser(data, outputdir, verbose = False):
     pageObj = {}
     for tag, text in data:
         if tag and text:
-            tag, text = core.as_unicode(tag), core.as_unicode(text)
+            tag, text = as_unicode(tag), as_unicode(text)
             #print(tag, text)
-    #FIXME: py2 unicode issue
+
         if 'title' in tag:
 
         #Drop wikipedia internal pages.
@@ -137,13 +141,14 @@ def etWikiParser(data, outputdir, verbose = False):
                 refsDict = refsParser(refsDict)
                 pageObj['references'] = refsDict
 #Categories, cleaning, and other element.
+            if '{' in text:
+                text, pageObj['other'] = templatesCollector(text, '{', '}')
 
             text, catList = categoryParser(text)
             text = clean(text)
             pageObj['categories'] = catList
 
-            if '{' in text:
-                text, pageObj['other'] = templatesCollector(text, '{', '}')
+
 
 
 #SectionParser is where all the work with links, images etc gets done
@@ -190,7 +195,7 @@ def main():
 
     if inputFile[-3:] == 'bz2':
         print('BZ2', inputFile)
-        with BZ2File(inputFile, 'utf-8') as xml_file:
+        with BZ2File(inputFile) as xml_file:
             data = parse_and_remove(xml_file, "wikimedia/wikimedia")
             etWikiParser(data, outputDir, verbose)
     elif inputFile[-3:] == 'xml':

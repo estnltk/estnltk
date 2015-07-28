@@ -1,0 +1,599 @@
+{
+    "data": {
+        "categories": [
+            "Eesti n\u00e4itlejad",
+            "Eesti filmin\u00e4itlejad",
+            "Eesti NSV rahvakunstnikud",
+            "Valget\u00e4he IV klassi teenetem\u00e4rgi kavalerid",
+            "Riigivapi IV klassi teenetem\u00e4rgi kavalerid",
+            "S\u00fcndinud 1937",
+            "Eesti teatripedagoogid"
+        ],
+        "other": [
+            "{{viited}}",
+            "{{filmiveebi nimi|215}}",
+            "{{J\u00c4RJESTA:\u00dcksk\u00fcla, Aarne}}"
+        ],
+        "references": [
+            {
+                "external_links": [
+                    {
+                        "end": 49,
+                        "label": "Aarne \u00dcksk\u00fcla: mul ei ole nii suurt preemiat vaja",
+                        "start": 0,
+                        "url": "http://www.postimees.ee/?id=87037"
+                    }
+                ],
+                "text": "Aarne \u00dcksk\u00fcla: mul ei ole nii suurt preemiat vaja. Postimees, 25. veebruar 2009."
+            }
+        ],
+        "timestamp": "2012-09-21T17:06:35Z",
+        "title": "Aarne \u00dcksk\u00fcla",
+        "url": "http://et.wikipedia.org/wiki/Aarne_\u00dcksk\u00fcla"
+    },
+    "external_links": [
+        {
+            "end": 2886,
+            "label": "Tabamatu Aarne \u00dcksk\u00fcla, vastumeelne juubilar",
+            "start": 2842,
+            "url": "http://www.postimees.ee/220907/esileht/siseuudised/284617.php"
+        },
+        {
+            "end": 2999,
+            "label": "Aarne \u00dcksk\u00fcla: ma ei salli raha, aga olen r\u00f5\u00f5mus, et saan jagada",
+            "start": 2935,
+            "url": "http://www.postimees.ee/?id=78371"
+        },
+        {
+            "end": 3077,
+            "label": "\u00dcksk\u00fcla \u2013 maailma parim k\u00fcla",
+            "start": 3049,
+            "url": "http://www.sirp.ee/index.php?option=com_content&view=article&id=8198:uekskuela--maailma-parim-kuela&catid=3:teater&Itemid=2&issue=3240"
+        },
+        {
+            "end": 3156,
+            "label": "P\u00e4rdile, \u00dcksk\u00fclale ja Niidule anti \u00fcle elut\u00f6\u00f6preemiad",
+            "start": 3103,
+            "url": "http://uudised.err.ee/index.php?06155744"
+        }
+    ],
+    "internal_links": [
+        {
+            "end": 56,
+            "label": "21. september",
+            "start": 43,
+            "title": "21. september",
+            "url": "http://et.wikipedia.org/wiki/21._september"
+        },
+        {
+            "end": 61,
+            "label": "1937",
+            "start": 57,
+            "title": "1937",
+            "url": "http://et.wikipedia.org/wiki/1937"
+        },
+        {
+            "end": 69,
+            "label": "Tallinn",
+            "start": 62,
+            "title": "Tallinn",
+            "url": "http://et.wikipedia.org/wiki/Tallinn"
+        },
+        {
+            "end": 79,
+            "label": "eesti",
+            "start": 74,
+            "title": "eestlased",
+            "url": "http://et.wikipedia.org/wiki/eestlased"
+        },
+        {
+            "end": 88,
+            "label": "n\u00e4itleja",
+            "start": 80,
+            "title": "n\u00e4itleja",
+            "url": "http://et.wikipedia.org/wiki/n\u00e4itleja"
+        },
+        {
+            "end": 210,
+            "label": "Wikmani poisid",
+            "start": 196,
+            "title": "Wikmani poisid (seriaal)",
+            "url": "http://et.wikipedia.org/wiki/Wikmani_poisid_(seriaal)"
+        },
+        {
+            "end": 222,
+            "label": "V.E.R.I.",
+            "start": 214,
+            "title": "V.E.R.I.",
+            "url": "http://et.wikipedia.org/wiki/V.E.R.I."
+        },
+        {
+            "end": 234,
+            "label": "M Klubi",
+            "start": 227,
+            "title": "M Klubi",
+            "url": "http://et.wikipedia.org/wiki/M_Klubi"
+        },
+        {
+            "end": 245,
+            "label": "\u00d5nne 13",
+            "start": 238,
+            "title": "\u00d5nne 13",
+            "url": "http://et.wikipedia.org/wiki/\u00d5nne_13"
+        },
+        {
+            "end": 279,
+            "label": "\u00dche suve akvarellid",
+            "start": 260,
+            "title": "\u00dche suve akvarellid",
+            "url": "http://et.wikipedia.org/wiki/\u00dche_suve_akvarellid"
+        },
+        {
+            "end": 444,
+            "label": "1980",
+            "start": 440,
+            "title": "1980",
+            "url": "http://et.wikipedia.org/wiki/1980"
+        },
+        {
+            "end": 472,
+            "label": "40 kirjale",
+            "start": 462,
+            "title": "40 kiri",
+            "url": "http://et.wikipedia.org/wiki/40_kiri"
+        },
+        {
+            "end": 551,
+            "label": "Tallinna Pedagoogilises lnstituudis",
+            "start": 516,
+            "title": "Tallinna \u00dclikool",
+            "url": "http://et.wikipedia.org/wiki/Tallinna_\u00dclikool"
+        },
+        {
+            "end": 557,
+            "label": "1961",
+            "start": 553,
+            "title": "1961",
+            "url": "http://et.wikipedia.org/wiki/1961"
+        },
+        {
+            "end": 611,
+            "label": "Tallinna Riikliku Konservatooriumi",
+            "start": 577,
+            "title": "Eesti Muusika- ja Teatriakadeemia",
+            "url": "http://et.wikipedia.org/wiki/Eesti_Muusika-_ja_Teatriakadeemia"
+        },
+        {
+            "end": 620,
+            "label": "n\u00e4itleja",
+            "start": 612,
+            "title": "n\u00e4itleja",
+            "url": "http://et.wikipedia.org/wiki/n\u00e4itleja"
+        },
+        {
+            "end": 674,
+            "label": "Rakvere Teatris",
+            "start": 659,
+            "title": "Rakvere Teater",
+            "url": "http://et.wikipedia.org/wiki/Rakvere_Teater"
+        },
+        {
+            "end": 728,
+            "label": "Lydia Koidula nimeline P\u00e4rnu Draamateatris",
+            "start": 686,
+            "title": "Endla (teater)",
+            "url": "http://et.wikipedia.org/wiki/Endla_(teater)"
+        },
+        {
+            "end": 759,
+            "label": "Eesti Draamateatris",
+            "start": 740,
+            "title": "Eesti Draamateater",
+            "url": "http://et.wikipedia.org/wiki/Eesti_Draamateater"
+        },
+        {
+            "end": 788,
+            "label": "Vanalinnastuudios",
+            "start": 771,
+            "title": "Vanalinnastuudio",
+            "url": "http://et.wikipedia.org/wiki/Vanalinnastuudio"
+        },
+        {
+            "end": 821,
+            "label": "Eesti Draamateatris",
+            "start": 802,
+            "title": "Eesti Draamateater",
+            "url": "http://et.wikipedia.org/wiki/Eesti_Draamateater"
+        },
+        {
+            "end": 870,
+            "label": "Theatrum",
+            "start": 862,
+            "title": "Theatrum",
+            "url": "http://et.wikipedia.org/wiki/Theatrum"
+        },
+        {
+            "end": 956,
+            "label": "Eesti Muusika- ja Teatriakadeemia lavakunstikoolis",
+            "start": 906,
+            "title": "Eesti Muusika- ja Teatriakadeemia lavakunstikool",
+            "url": "http://et.wikipedia.org/wiki/Eesti_Muusika-_ja_Teatriakadeemia_lavakunstikool"
+        },
+        {
+            "end": 1035,
+            "label": "professor",
+            "start": 1026,
+            "title": "professor",
+            "url": "http://et.wikipedia.org/wiki/professor"
+        },
+        {
+            "end": 1091,
+            "label": "Eesti Humanitaarinstituudi",
+            "start": 1065,
+            "title": "Eesti Humanitaarinstituut",
+            "url": "http://et.wikipedia.org/wiki/Eesti_Humanitaarinstituut"
+        },
+        {
+            "end": 1160,
+            "label": "Aleksandr Suhhovo-Kob\u00f5lini",
+            "start": 1134,
+            "title": "Aleksandr Suhhovo-Kob\u00f5lin",
+            "url": "http://et.wikipedia.org/wiki/Aleksandr_Suhhovo-Kob\u00f5lin"
+        },
+        {
+            "end": 1177,
+            "label": "Kret\u0161inski pulm",
+            "start": 1162,
+            "title": "Kretshinski pulm",
+            "url": "http://et.wikipedia.org/wiki/Kretshinski_pulm"
+        },
+        {
+            "end": 1201,
+            "label": "Berold Brechti",
+            "start": 1187,
+            "title": "Berold Brecht",
+            "url": "http://et.wikipedia.org/wiki/Berold_Brecht"
+        },
+        {
+            "end": 1224,
+            "label": "Hea inimene Sezuanist",
+            "start": 1203,
+            "title": "Hea inimene Sezuanist",
+            "url": "http://et.wikipedia.org/wiki/Hea_inimene_Sezuanist"
+        },
+        {
+            "end": 1249,
+            "label": "Max Frischi",
+            "start": 1238,
+            "title": "Max Frisch",
+            "url": "http://et.wikipedia.org/wiki/Max_Frisch"
+        },
+        {
+            "end": 1289,
+            "label": "Don Juan ehk Armastus geomeetria vastu",
+            "start": 1251,
+            "title": "Don Juan ehk Armastus geomeetria vastu",
+            "url": "http://et.wikipedia.org/wiki/Don_Juan_ehk_Armastus_geomeetria_vastu"
+        },
+        {
+            "end": 1307,
+            "label": "Choi\u00f1ski",
+            "start": 1299,
+            "title": "Krzysztof Choi\u00f1ski",
+            "url": "http://et.wikipedia.org/wiki/Krzysztof_Choi\u00f1ski"
+        },
+        {
+            "end": 1339,
+            "label": "Peet Vallaku",
+            "start": 1327,
+            "title": "Peet Vallak",
+            "url": "http://et.wikipedia.org/wiki/Peet_Vallak"
+        },
+        {
+            "end": 1352,
+            "label": "Mati Undi",
+            "start": 1343,
+            "title": "Mati Unt",
+            "url": "http://et.wikipedia.org/wiki/Mati_Unt"
+        },
+        {
+            "end": 1387,
+            "label": "Epp Pillarpardi Punjaba potitehas",
+            "start": 1354,
+            "title": "Epp Pillarpardi Punjaba potitehas",
+            "url": "http://et.wikipedia.org/wiki/Epp_Pillarpardi_Punjaba_potitehas"
+        },
+        {
+            "end": 1413,
+            "label": "Eduard Vilde",
+            "start": 1401,
+            "title": "Eduard Vilde",
+            "url": "http://et.wikipedia.org/wiki/Eduard_Vilde"
+        },
+        {
+            "end": 1423,
+            "label": "Pisuh\u00e4nd",
+            "start": 1415,
+            "title": "Pisuh\u00e4nd",
+            "url": "http://et.wikipedia.org/wiki/Pisuh\u00e4nd"
+        },
+        {
+            "end": 1448,
+            "label": "Edward Albee",
+            "start": 1436,
+            "title": "Edward Albee",
+            "url": "http://et.wikipedia.org/wiki/Edward_Albee"
+        },
+        {
+            "end": 1478,
+            "label": "Kes kardab Virginia Woolfi?",
+            "start": 1451,
+            "title": "Kes kardab Virginia Woolfi?",
+            "url": "http://et.wikipedia.org/wiki/Kes_kardab_Virginia_Woolfi?"
+        },
+        {
+            "end": 1503,
+            "label": "Arnold Weskeri",
+            "start": 1489,
+            "title": "Arnold Wesker",
+            "url": "http://et.wikipedia.org/wiki/Arnold_Wesker"
+        },
+        {
+            "end": 1561,
+            "label": "Neil Simoni",
+            "start": 1550,
+            "title": "Neil Simon",
+            "url": "http://et.wikipedia.org/wiki/Neil_Simon"
+        },
+        {
+            "end": 1576,
+            "label": "P\u00e4ikesepoisid",
+            "start": 1563,
+            "title": "P\u00e4ikesepoisid",
+            "url": "http://et.wikipedia.org/wiki/P\u00e4ikesepoisid"
+        },
+        {
+            "end": 1599,
+            "label": "Jean Anouilh",
+            "start": 1587,
+            "title": "Jean Anouilh",
+            "url": "http://et.wikipedia.org/wiki/Jean_Anouilh"
+        },
+        {
+            "end": 1623,
+            "label": "Jean Anouilh Antigone",
+            "start": 1602,
+            "title": "Jean Anouilh Antigone",
+            "url": "http://et.wikipedia.org/wiki/Jean_Anouilh_Antigone"
+        },
+        {
+            "end": 1649,
+            "label": "Yves Jamiaque",
+            "start": 1636,
+            "title": "Yves Jamiaque",
+            "url": "http://et.wikipedia.org/wiki/Yves_Jamiaque"
+        },
+        {
+            "end": 1693,
+            "label": "Jaan Kruusvalli",
+            "start": 1678,
+            "title": "Jaan Kruusvall",
+            "url": "http://et.wikipedia.org/wiki/Jaan_Kruusvall"
+        },
+        {
+            "end": 1712,
+            "label": "Vaikuse vallamaja",
+            "start": 1695,
+            "title": "Vaikuse vallamaja",
+            "url": "http://et.wikipedia.org/wiki/Vaikuse_vallamaja"
+        },
+        {
+            "end": 1752,
+            "label": "Patrick S\u00fcskindi",
+            "start": 1736,
+            "title": "Patrick S\u00fcskind",
+            "url": "http://et.wikipedia.org/wiki/Patrick_S\u00fcskind"
+        },
+        {
+            "end": 1787,
+            "label": "Lars Noreni",
+            "start": 1776,
+            "title": "Lars Noren",
+            "url": "http://et.wikipedia.org/wiki/Lars_Noren"
+        },
+        {
+            "end": 1843,
+            "label": "Eugene O'Neilli",
+            "start": 1828,
+            "title": "Eugene O'Neill",
+            "url": "http://et.wikipedia.org/wiki/Eugene_O'Neill"
+        },
+        {
+            "end": 1869,
+            "label": "Pikk p\u00e4evatee kaob \u00f6\u00f6sse",
+            "start": 1845,
+            "title": "Pikk p\u00e4evatee kaob \u00f6\u00f6sse",
+            "url": "http://et.wikipedia.org/wiki/Pikk_p\u00e4evatee_kaob_\u00f6\u00f6sse"
+        },
+        {
+            "end": 1896,
+            "label": "A. H. Tammsaare",
+            "start": 1881,
+            "title": "A. H. Tammsaare",
+            "url": "http://et.wikipedia.org/wiki/A._H._Tammsaare"
+        },
+        {
+            "end": 1914,
+            "label": "Priit Pedajase",
+            "start": 1900,
+            "title": "Priit Pedajas",
+            "url": "http://et.wikipedia.org/wiki/Priit_Pedajas"
+        },
+        {
+            "end": 1969,
+            "label": "Anton T\u0161ehhovi",
+            "start": 1955,
+            "title": "Anton T\u0161ehhov",
+            "url": "http://et.wikipedia.org/wiki/Anton_T\u0161ehhov"
+        },
+        {
+            "end": 1979,
+            "label": "Kolm \u00f5de",
+            "start": 1971,
+            "title": "Kolm \u00f5de",
+            "url": "http://et.wikipedia.org/wiki/Kolm_\u00f5de"
+        },
+        {
+            "end": 2010,
+            "label": "Thomas Bernhardi",
+            "start": 1994,
+            "title": "Thomas Bernhard",
+            "url": "http://et.wikipedia.org/wiki/Thomas_Bernhard"
+        },
+        {
+            "end": 2055,
+            "label": "Andrus Kivir\u00e4ha",
+            "start": 2040,
+            "title": "Andrus Kivir\u00e4hk",
+            "url": "http://et.wikipedia.org/wiki/Andrus_Kivir\u00e4hk"
+        },
+        {
+            "end": 2065,
+            "label": "Rehepapp",
+            "start": 2057,
+            "title": "Rehepapp (Kivir\u00e4hk)",
+            "url": "http://et.wikipedia.org/wiki/Rehepapp_(Kivir\u00e4hk)"
+        },
+        {
+            "end": 2114,
+            "label": "Wojciech Tomczyki",
+            "start": 2097,
+            "title": "Wojciech Tomczyk",
+            "url": "http://et.wikipedia.org/wiki/Wojciech_Tomczyk"
+        },
+        {
+            "end": 2137,
+            "label": "VAT Teater",
+            "start": 2127,
+            "title": "VAT Teater",
+            "url": "http://et.wikipedia.org/wiki/VAT_Teater"
+        },
+        {
+            "end": 2160,
+            "label": "Aare Toikka",
+            "start": 2149,
+            "title": "Aare Toikka",
+            "url": "http://et.wikipedia.org/wiki/Aare_Toikka"
+        },
+        {
+            "end": 2207,
+            "label": "Siina \u00dcksk\u00fclaga",
+            "start": 2192,
+            "title": "Siina \u00dcksk\u00fcla",
+            "url": "http://et.wikipedia.org/wiki/Siina_\u00dcksk\u00fcla"
+        },
+        {
+            "end": 2378,
+            "label": "Maria Klenskaja",
+            "start": 2363,
+            "title": "Maria Klenskaja",
+            "url": "http://et.wikipedia.org/wiki/Maria_Klenskaja"
+        },
+        {
+            "end": 2517,
+            "label": "Theodor Altermanni preemia",
+            "start": 2491,
+            "title": "Theodor Altermanni preemia",
+            "url": "http://et.wikipedia.org/wiki/Theodor_Altermanni_preemia"
+        },
+        {
+            "end": 2547,
+            "label": "Eesti NSV rahvakunstnik",
+            "start": 2524,
+            "title": "Eesti NSV rahvakunstnik",
+            "url": "http://et.wikipedia.org/wiki/Eesti_NSV_rahvakunstnik"
+        },
+        {
+            "end": 2666,
+            "label": "Valget\u00e4he IV klassi teenetem\u00e4rk",
+            "start": 2635,
+            "title": "Valget\u00e4he IV klassi teenetem\u00e4rk",
+            "url": "http://et.wikipedia.org/wiki/Valget\u00e4he_IV_klassi_teenetem\u00e4rk"
+        },
+        {
+            "end": 2685,
+            "label": "Eesti Raadio",
+            "start": 2673,
+            "title": "Eesti Raadio",
+            "url": "http://et.wikipedia.org/wiki/Eesti_Raadio"
+        },
+        {
+            "end": 2732,
+            "label": "Eesti Kultuurkapitali",
+            "start": 2711,
+            "title": "Eesti Kultuurkapital",
+            "url": "http://et.wikipedia.org/wiki/Eesti_Kultuurkapital"
+        },
+        {
+            "end": 2783,
+            "label": "Riigivapi IV klassi teenetem\u00e4rk",
+            "start": 2752,
+            "title": "Riigivapi IV klassi teenetem\u00e4rk",
+            "url": "http://et.wikipedia.org/wiki/Riigivapi_IV_klassi_teenetem\u00e4rk"
+        },
+        {
+            "end": 2929,
+            "label": "Eva K\u00fcbar",
+            "start": 2920,
+            "title": "Eva K\u00fcbar",
+            "url": "http://et.wikipedia.org/wiki/Eva_K\u00fcbar"
+        },
+        {
+            "end": 3039,
+            "label": "Margot Visnap",
+            "start": 3026,
+            "title": "Margot Visnap",
+            "url": "http://et.wikipedia.org/wiki/Margot_Visnap"
+        }
+    ],
+    "sections": [
+        {
+            "end": 473,
+            "references": [
+                0
+            ],
+            "start": 0
+        },
+        {
+            "end": 1107,
+            "start": 475,
+            "title": "Eluk\u00e4ik"
+        },
+        {
+            "end": 2161,
+            "start": 1109,
+            "title": "Osat\u00e4itmised"
+        },
+        {
+            "end": 2472,
+            "start": 2163,
+            "title": "Isiklikku"
+        },
+        {
+            "end": 2819,
+            "start": 2474,
+            "title": "Tunnustused"
+        },
+        {
+            "end": 2828,
+            "start": 2821,
+            "title": "Viited"
+        },
+        {
+            "end": 3181,
+            "start": 2830,
+            "title": "V\u00e4lislingid"
+        }
+    ],
+    "text": "Aarne \u00dcksk\u00fcla\nAarne-Mati \u00dcksk\u00fcla (s\u00fcndinud 21. september 1937 Tallinn) on eesti n\u00e4itleja ja teatripedagoog. Ta on lavastanud teatrit\u00fckke ja m\u00e4nginud telelavastustes (\"Truu naine\"), telesarjades (\"Wikmani poisid\", \"V.E.R.I.\" , \"M Klubi\", \"\u00d5nne 13\"), filmides (\"\u00dche suve akvarellid\", \"Pisuh\u00e4nd\", \"Peata ratsanik\") ja kuuldem\u00e4ngudes. 2009. aastal riigi kultuuripreemia saades oli \u00dcksk\u00fcla m\u00e4nginud enam kui 130 teatri- ja ekraanirollis.\nAastal 1980 kirjutas ta alla 40 kirjale.\n\nEluk\u00e4ik\nAastatel 1956\u20131957 \u00f5ppis \u00dcksk\u00fcla Tallinna Pedagoogilises lnstituudis. 1961. aastal l\u00f5petas ta Tallinna Riikliku Konservatooriumi n\u00e4itleja erialal.\nAastatel 1961\u20131968 t\u00f6\u00f6tas ta Rakvere Teatris, 1968\u20131978 Lydia Koidula nimeline P\u00e4rnu Draamateatris, 1985\u20131988 Eesti Draamateatris, 1988\u20131993 Vanalinnastuudios ja 1993\u20132002 Eesti Draamateatris. \u00dcksk\u00fcla on m\u00e4nginud ka stuudioteatris \"Theatrum\".\nVaheaegadega on \u00dcksk\u00fcla t\u00f6\u00f6tanud Eesti Muusika- ja Teatriakadeemia lavakunstikoolis, kus ta oli aastatel 1978\u20131982 kateedri juhataja ja on 1998. aastast professor. Lisaks oli ta 1997. aastast Eesti Humanitaarinstituudi teatri\u00f5ppej\u00f5ud.\n\nOsat\u00e4itmised\nKret\u0161inski (Aleksandr Suhhovo-Kob\u00f5lini \"Kret\u0161inski pulm\")\n Wang (Berold Brechti \"Hea inimene Sezuanist\")\n don Juan (Max Frischi \"Don Juan ehk Armastus geomeetria vastu\")\n Mees (Choi\u00f1ski \"Alarm\") \n Niilas (Peet Vallaku ja Mati Undi \"Epp Pillarpardi Punjaba potitehas\") \n Vestman (Eduard Vilde \"Pisuh\u00e4nd\") \n George (Edward Albee' \"Kes kardab Virginia Woolfi?\") \n Adam (Arnold Weskeri \"Neli aastaaega\") \n Al Lewis ja Willie Clark (Neil Simoni \"P\u00e4ikesepoisid\")\n Kreon (Jean Anouilh' \"Jean Anouilh Antigone\")\n Amilcar (Yves Jamiaque'i \"H\u00e4rra Amilcar\")\n Kaljas (Jaan Kruusvalli \"Vaikuse vallamaja\")\n Mees kontrabassiga (Patrick S\u00fcskindi \"Kontrabass\")\n Eugene (Lars Noreni \"Ja anna meile varjud\") \n James Tyrone (Eugene O'Neilli \"Pikk p\u00e4evatee kaob \u00f6\u00f6sse\")\n Maurus (A. H. Tammsaare ja Priit Pedajase \"Mauruse kool\")\n Kul\u00f5gin ja T\u0161ebut\u00f5kin (Anton T\u0161ehhovi \"Kolm \u00f5de\")\n Caribaldi (Thomas Bernhardi \"Harjumuse j\u00f5ud\")\n Rehepapp (Andrus Kivir\u00e4ha \"Rehepapp\")\n Polkovnik Stefan Kolodziej (Wojciech Tomczyki \"N\u00fcrnberg\", VAT Teater, lavastaja Aare Toikka)\n\nIsiklikku\nEsimesest abielust Siina \u00dcksk\u00fclaga on Aarne \u00dcksk\u00fclal \npoeg Sander \u00dcksk\u00fcla, \nkellel on t\u00e4isealised t\u00fctar ja poeg. \nP\u00e4rast esimese abielu lagunemist 1978. aastal \non Aarne \u00dcksk\u00fcla elukaaslane Maria Klenskaja. Koos on nad t\u00e4isealiseks kasvatanud \u00fchise t\u00fctre \nMari-Leen \u00dcksk\u00fcla, kellel on poeg ja t\u00fctar.\n\nTunnustused\n1985 Theodor Altermanni preemia\n 1986 Eesti NSV rahvakunstnik\n 1986 parima k\u00f5rvalosat\u00e4itja aastapreemia\n 1987 parima meesn\u00e4itleja aastapreemia\n 1998 Valget\u00e4he IV klassi teenetem\u00e4rk\n 1998 Eesti Raadio kuuldem\u00e4ngupreemia\n 1998 Eesti Kultuurkapitali aastapreemia\n 2006 Riigivapi IV klassi teenetem\u00e4rk\n 2009 Eesti Riiklik Kultuuripreemia\n\nViited\n\n\nV\u00e4lislingid\nTabamatu Aarne \u00dcksk\u00fcla, vastumeelne juubilar. Postimees, 22. september 2007.\n Eva K\u00fcbar. Aarne \u00dcksk\u00fcla: ma ei salli raha, aga olen r\u00f5\u00f5mus, et saan jagada Postimees, 5. veebruar 2009.\n Margot Visnap. \u00dcksk\u00fcla \u2013 maailma parim k\u00fcla Sirp, 19. veebruar 2009.\nP\u00e4rdile, \u00dcksk\u00fclale ja Niidule anti \u00fcle elut\u00f6\u00f6preemiad. ERR Uudised, 23. veebruar 2009.\n\n"
+}

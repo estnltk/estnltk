@@ -1,0 +1,522 @@
+{
+    "data": {
+        "categories": [],
+        "other": [
+            "{{lisa viide}}"
+        ],
+        "timestamp": "2015-04-03T20:25:06Z",
+        "title": "Aabrahamlik religioon",
+        "url": "http://et.wikipedia.org/wiki/Aabrahamlik_religioon"
+    },
+    "internal_links": [
+        {
+            "end": 58,
+            "label": "judaism",
+            "start": 51,
+            "title": "judaism",
+            "url": "http://et.wikipedia.org/wiki/judaism"
+        },
+        {
+            "end": 68,
+            "label": "kristlus",
+            "start": 60,
+            "title": "kristlus",
+            "url": "http://et.wikipedia.org/wiki/kristlus"
+        },
+        {
+            "end": 77,
+            "label": "islam",
+            "start": 72,
+            "title": "islam",
+            "url": "http://et.wikipedia.org/wiki/islam"
+        },
+        {
+            "end": 145,
+            "label": "Aabrahami",
+            "start": 136,
+            "title": "Aabraham",
+            "url": "http://et.wikipedia.org/wiki/Aabraham"
+        },
+        {
+            "end": 159,
+            "label": "religioossest",
+            "start": 146,
+            "title": "religioon",
+            "url": "http://et.wikipedia.org/wiki/religioon"
+        },
+        {
+            "end": 174,
+            "label": "traditsioonist",
+            "start": 160,
+            "title": "traditsioon",
+            "url": "http://et.wikipedia.org/wiki/traditsioon"
+        },
+        {
+            "end": 293,
+            "label": "Raamatu-rahvaks",
+            "start": 278,
+            "title": "Raamatu-rahvas",
+            "url": "http://et.wikipedia.org/wiki/Raamatu-rahvas"
+        },
+        {
+            "end": 360,
+            "label": "Aadam",
+            "start": 355,
+            "title": "Aadam",
+            "url": "http://et.wikipedia.org/wiki/Aadam"
+        },
+        {
+            "end": 368,
+            "label": "Eeva",
+            "start": 364,
+            "title": "Eeva",
+            "url": "http://et.wikipedia.org/wiki/Eeva"
+        },
+        {
+            "end": 386,
+            "label": "Kain",
+            "start": 382,
+            "title": "Kain",
+            "url": "http://et.wikipedia.org/wiki/Kain"
+        },
+        {
+            "end": 395,
+            "label": "Aabel",
+            "start": 390,
+            "title": "Aabel",
+            "url": "http://et.wikipedia.org/wiki/Aabel"
+        },
+        {
+            "end": 402,
+            "label": "Eenok",
+            "start": 397,
+            "title": "Eenok",
+            "url": "http://et.wikipedia.org/wiki/Eenok"
+        },
+        {
+            "end": 415,
+            "label": "Jumal",
+            "start": 410,
+            "title": "Jumal",
+            "url": "http://et.wikipedia.org/wiki/Jumal"
+        },
+        {
+            "end": 434,
+            "label": "Noa",
+            "start": 431,
+            "title": "Noa",
+            "url": "http://et.wikipedia.org/wiki/Noa"
+        },
+        {
+            "end": 511,
+            "label": "Noa laevas",
+            "start": 501,
+            "title": "Noa laev",
+            "url": "http://et.wikipedia.org/wiki/Noa_laev"
+        },
+        {
+            "end": 580,
+            "label": "moraalikoodeksid",
+            "start": 564,
+            "title": "moraalikoodeks",
+            "url": "http://et.wikipedia.org/wiki/moraalikoodeks"
+        },
+        {
+            "end": 654,
+            "label": "religioonis",
+            "start": 643,
+            "title": "religioon",
+            "url": "http://et.wikipedia.org/wiki/religioon"
+        },
+        {
+            "end": 720,
+            "label": "Islam",
+            "start": 715,
+            "title": "Islam",
+            "url": "http://et.wikipedia.org/wiki/Islam"
+        },
+        {
+            "end": 733,
+            "label": "Aadamat",
+            "start": 726,
+            "title": "Aadam",
+            "url": "http://et.wikipedia.org/wiki/Aadam"
+        },
+        {
+            "end": 741,
+            "label": "Noad",
+            "start": 737,
+            "title": "Noa",
+            "url": "http://et.wikipedia.org/wiki/Noa"
+        },
+        {
+            "end": 754,
+            "label": "prohvetiteks",
+            "start": 742,
+            "title": "prohvet (Islam)",
+            "url": "http://et.wikipedia.org/wiki/prohvet_(Islam)"
+        },
+        {
+            "end": 808,
+            "label": "Kong Fuzi",
+            "start": 799,
+            "title": "Kong Fuzi",
+            "url": "http://et.wikipedia.org/wiki/Kong_Fuzi"
+        },
+        {
+            "end": 818,
+            "label": "Hiawatha",
+            "start": 810,
+            "title": "Hiawatha",
+            "url": "http://et.wikipedia.org/wiki/Hiawatha"
+        },
+        {
+            "end": 1031,
+            "label": "20. sajandini",
+            "start": 1018,
+            "title": "20. sajand",
+            "url": "http://et.wikipedia.org/wiki/20._sajand"
+        },
+        {
+            "end": 1071,
+            "label": "usundeid",
+            "start": 1063,
+            "title": "usund",
+            "url": "http://et.wikipedia.org/wiki/usund"
+        },
+        {
+            "end": 1104,
+            "label": "ebajumalakummardajateks",
+            "start": 1081,
+            "title": "ebajumalakummardaja",
+            "url": "http://et.wikipedia.org/wiki/ebajumalakummardaja"
+        },
+        {
+            "end": 1116,
+            "label": "paganateks",
+            "start": 1106,
+            "title": "pagan",
+            "url": "http://et.wikipedia.org/wiki/pagan"
+        },
+        {
+            "end": 1129,
+            "label": "ketseriteks",
+            "start": 1118,
+            "title": "ketser",
+            "url": "http://et.wikipedia.org/wiki/ketser"
+        },
+        {
+            "end": 1148,
+            "label": "jumalateotajateks",
+            "start": 1131,
+            "title": "jumalateotaja",
+            "url": "http://et.wikipedia.org/wiki/jumalateotaja"
+        },
+        {
+            "end": 1282,
+            "label": "1. Moosese raamatus",
+            "start": 1263,
+            "title": "1. Moosese raamat",
+            "url": "http://et.wikipedia.org/wiki/1._Moosese_raamat"
+        },
+        {
+            "end": 1459,
+            "label": "tsivilisatsiooni",
+            "start": 1443,
+            "title": "tsivilisatsioon",
+            "url": "http://et.wikipedia.org/wiki/tsivilisatsioon"
+        },
+        {
+            "end": 1617,
+            "label": "Noodimaalt",
+            "start": 1607,
+            "title": "Noodimaa",
+            "url": "http://et.wikipedia.org/wiki/Noodimaa"
+        },
+        {
+            "end": 1786,
+            "label": "Kaldea Uurist",
+            "start": 1773,
+            "title": "Kaldea Uur",
+            "url": "http://et.wikipedia.org/wiki/Kaldea_Uur"
+        },
+        {
+            "end": 1892,
+            "label": "Burton Visotzky",
+            "start": 1877,
+            "title": "Burton Visotzky",
+            "url": "http://et.wikipedia.org/wiki/Burton_Visotzky"
+        },
+        {
+            "end": 1933,
+            "label": "Genesis of Ethics",
+            "start": 1916,
+            "title": "Genesis of Ethics",
+            "url": "http://et.wikipedia.org/wiki/Genesis_of_Ethics"
+        },
+        {
+            "end": 1994,
+            "label": "eetikale",
+            "start": 1986,
+            "title": "eetika",
+            "url": "http://et.wikipedia.org/wiki/eetika"
+        },
+        {
+            "end": 2080,
+            "label": "Ismael",
+            "start": 2074,
+            "title": "Ismael",
+            "url": "http://et.wikipedia.org/wiki/Ismael"
+        },
+        {
+            "end": 2111,
+            "label": "Haagarilt",
+            "start": 2102,
+            "title": "Haagar",
+            "url": "http://et.wikipedia.org/wiki/Haagar"
+        },
+        {
+            "end": 2120,
+            "label": "Iisak",
+            "start": 2115,
+            "title": "Iisak",
+            "url": "http://et.wikipedia.org/wiki/Iisak"
+        },
+        {
+            "end": 2142,
+            "label": "Saarailt",
+            "start": 2134,
+            "title": "Saarai",
+            "url": "http://et.wikipedia.org/wiki/Saarai"
+        },
+        {
+            "end": 2177,
+            "label": "juudid",
+            "start": 2171,
+            "title": "juudid",
+            "url": "http://et.wikipedia.org/wiki/juudid"
+        },
+        {
+            "end": 2201,
+            "label": "Jaakobist",
+            "start": 2192,
+            "title": "Jaakob",
+            "url": "http://et.wikipedia.org/wiki/Jaakob"
+        },
+        {
+            "end": 2227,
+            "label": "Iisrael",
+            "start": 2220,
+            "title": "Iisrael",
+            "url": "http://et.wikipedia.org/wiki/Iisrael"
+        },
+        {
+            "end": 2237,
+            "label": "Judaism",
+            "start": 2230,
+            "title": "Judaism",
+            "url": "http://et.wikipedia.org/wiki/Judaism"
+        },
+        {
+            "end": 2330,
+            "label": "Siinail",
+            "start": 2323,
+            "title": "Siinai",
+            "url": "http://et.wikipedia.org/wiki/Siinai"
+        },
+        {
+            "end": 2359,
+            "label": "Jeesust",
+            "start": 2352,
+            "title": "Jeesus Kristus",
+            "url": "http://et.wikipedia.org/wiki/Jeesus_Kristus"
+        },
+        {
+            "end": 2403,
+            "label": "messiaks",
+            "start": 2395,
+            "title": "messias",
+            "url": "http://et.wikipedia.org/wiki/messias"
+        },
+        {
+            "end": 2418,
+            "label": "Jumala pojaks",
+            "start": 2405,
+            "title": "Jumala poeg",
+            "url": "http://et.wikipedia.org/wiki/Jumala_poeg"
+        },
+        {
+            "end": 2492,
+            "label": "prohvetid",
+            "start": 2483,
+            "title": "prohvet",
+            "url": "http://et.wikipedia.org/wiki/prohvet"
+        },
+        {
+            "end": 2523,
+            "label": "Moosese",
+            "start": 2516,
+            "title": "Mooses",
+            "url": "http://et.wikipedia.org/wiki/Mooses"
+        },
+        {
+            "end": 2620,
+            "label": "Mu\u1e29ammadi",
+            "start": 2611,
+            "title": "Mu\u1e29ammad",
+            "url": "http://et.wikipedia.org/wiki/Mu\u1e29ammad"
+        },
+        {
+            "end": 2661,
+            "label": "Baha'i usku",
+            "start": 2650,
+            "title": "Baha'i usk",
+            "url": "http://et.wikipedia.org/wiki/Baha'i_usk"
+        },
+        {
+            "end": 2771,
+            "label": "Bah\u00e1'u'll\u00e1'hi",
+            "start": 2758,
+            "title": "Bahaullah",
+            "url": "http://et.wikipedia.org/wiki/Bahaullah"
+        },
+        {
+            "end": 2788,
+            "label": "rastafarism",
+            "start": 2777,
+            "title": "rastafarism",
+            "url": "http://et.wikipedia.org/wiki/rastafarism"
+        },
+        {
+            "end": 2935,
+            "label": "Haile Selassiet",
+            "start": 2920,
+            "title": "Haile Selassie",
+            "url": "http://et.wikipedia.org/wiki/Haile_Selassie"
+        },
+        {
+            "end": 2953,
+            "label": "Marcus Garveyt",
+            "start": 2939,
+            "title": "Marcus Garvey",
+            "url": "http://et.wikipedia.org/wiki/Marcus_Garvey"
+        },
+        {
+            "end": 3059,
+            "label": "vodu",
+            "start": 3055,
+            "title": "vodu",
+            "url": "http://et.wikipedia.org/wiki/vodu"
+        },
+        {
+            "end": 3082,
+            "label": "s\u00fcnkretistlik",
+            "start": 3069,
+            "title": "s\u00fcnkretism",
+            "url": "http://et.wikipedia.org/wiki/s\u00fcnkretism"
+        },
+        {
+            "end": 3110,
+            "label": "Aafrika",
+            "start": 3103,
+            "title": "Aafrika",
+            "url": "http://et.wikipedia.org/wiki/Aafrika"
+        },
+        {
+            "end": 3122,
+            "label": "paganlikest",
+            "start": 3111,
+            "title": "paganlus",
+            "url": "http://et.wikipedia.org/wiki/paganlus"
+        },
+        {
+            "end": 3161,
+            "label": "unitaaruniversalism",
+            "start": 3142,
+            "title": "unitaaruniversalism",
+            "url": "http://et.wikipedia.org/wiki/unitaaruniversalism"
+        },
+        {
+            "end": 3182,
+            "label": "monoteism",
+            "start": 3173,
+            "title": "monoteism",
+            "url": "http://et.wikipedia.org/wiki/monoteism"
+        },
+        {
+            "end": 3191,
+            "label": "judaism",
+            "start": 3184,
+            "title": "judaism",
+            "url": "http://et.wikipedia.org/wiki/judaism"
+        },
+        {
+            "end": 3201,
+            "label": "kristlus",
+            "start": 3193,
+            "title": "kristlus",
+            "url": "http://et.wikipedia.org/wiki/kristlus"
+        },
+        {
+            "end": 3208,
+            "label": "islam",
+            "start": 3203,
+            "title": "islam",
+            "url": "http://et.wikipedia.org/wiki/islam"
+        },
+        {
+            "end": 3224,
+            "label": "Aabrahami Jumal",
+            "start": 3209,
+            "title": "Aabrahami Jumal",
+            "url": "http://et.wikipedia.org/wiki/Aabrahami_Jumal"
+        },
+        {
+            "end": 3250,
+            "label": "juudikristlik traditsioon",
+            "start": 3225,
+            "title": "juudikristlik traditsioon",
+            "url": "http://et.wikipedia.org/wiki/juudikristlik_traditsioon"
+        },
+        {
+            "end": 3278,
+            "label": "kristlik-islami traditsioon",
+            "start": 3251,
+            "title": "kristlik-islami traditsioon",
+            "url": "http://et.wikipedia.org/wiki/kristlik-islami_traditsioon"
+        },
+        {
+            "end": 3294,
+            "label": "maailma usundid",
+            "start": 3279,
+            "title": "maailma usundid",
+            "url": "http://et.wikipedia.org/wiki/maailma_usundid"
+        },
+        {
+            "end": 3310,
+            "label": "vedade usundid",
+            "start": 3296,
+            "title": "vedade usundid",
+            "url": "http://et.wikipedia.org/wiki/vedade_usundid"
+        },
+        {
+            "end": 3329,
+            "label": "Category:Monoteism",
+            "start": 3311,
+            "title": "Category:Monoteism",
+            "url": "http://et.wikipedia.org/wiki/Category:Monoteism"
+        }
+    ],
+    "sections": [
+        {
+            "end": 3162,
+            "start": 0
+        },
+        {
+            "end": 3329,
+            "start": 3164,
+            "title": "Vaata ka"
+        }
+    ],
+    "text": "Aabrahamlik religioon\nAabrahamlikud religioonid on judaism, kristlus ja islam, mida nimetatakse n\u00f5nda sellep\u00e4rast, et nad k\u00f5ik on p\u00e4rit Aabrahami religioossest traditsioonist. Alternatiivne nimetus on prohvetlik religioon. Islam nimetab kaht \u00fclej\u00e4\u00e4nud monoteistlikku religiooni Raamatu-rahvaks. \nPiiblis on enne Aabrahami kuus t\u00e4helepanuv\u00e4\u00e4rset tegelast: Aadam ja Eeva, nende pojad Kain ja Aabel, Eenok, kelle Jumal v\u00f5ttis \u00e4ra, ja Noa, tema pojapojapoeg, kes p\u00e4\u00e4stis oma perekonna ja k\u00f5ik loomaliigid Noa laevas. Ent nendest inimestest ei j\u00e4\u00e4nud maha kirja pandud moraalikoodeksid. Nad on lihtsalt head ja halvad k\u00e4itumiseeskujud, kuid \u00fcheski religioonis pole konkreetset osutust, kuidas nende tegusid t\u00f5lgendada. \nIslam peab Aadamat ja Noad prohvetiteks ning peab ka teiste rahvaste seadusandjaid (Kong Fuzi, Hiawatha) prohvetiteks, kui nad ei kuuluta iseennast jumalaks. \nJudaism on ajalooliselt aktsepteerinud, et igal rahval on oma jumal, kellest nende oma on lihtsalt k\u00f5ige v\u00e4gevam. \nPaljud kristluse suunad kuni 20. sajandini on pidanud m\u00f5ningaid v\u00f5i k\u00f5iki usundeid lihtsalt ebajumalakummardajateks, paganateks, ketseriteks, jumalateotajateks v\u00f5i lihtsalt eksinuteks. \nSeega on \u00f5igem \u00f6elda, et Aabraham ei ole mitte religiooni rajaja, vaid esimene tegelane 1. Moosese raamatus, 1) kes ei ole selgelt jumalikku p\u00e4ritolu, nagu Aadam ja Eeva v\u00e4idetavalt olid, 2) kes kolme suurema monoteistlikku usundi j\u00e4rgi m\u00e4ngis suurt rolli nende \u00fchise tsivilisatsiooni kujunemises, 3) keda ei peeta k\u00f5ikide maa peal elavate inimeste esiisaks (nagu s\u00f5nas\u00f5nalisemates t\u00f5lgendustes Noad; Kain seevastu abiellus naisega Noodimaalt, kes ei olnud tema ega Aadama sugulane) ja 4) kes on piisavalt h\u00e4sti dokumenteeritud. \n1. Moosese raamatus antakse Aabrahamile konkreetne juhtn\u00f6\u00f6r lahkuda Kaldea Uurist, et Jumal teeks ta suureks rahvaks, ja sellep\u00e4rast on tema tegevus h\u00e4sti dokumenteeritud. Burton Visotzky on kirjutanud raamatu \"Genesis of Ethics\", kus on juttu nende s\u00fcndmuste t\u00e4htsusest t\u00e4nap\u00e4eva eetikale. \nPiibli j\u00e4rgi oli patriarh Aabrahamil (araabiap\u00e4raselt \"Ibrahim\") kaks poega: Ismael tema naise teenijalt Haagarilt ja Iisak tema naiselt Saarailt. Selle jutu j\u00e4rgi p\u00e4rinevad juudid Iisaki pojast Jaakobist, keda h\u00fc\u00fctakse ka Iisrael. \nJudaism p\u00f5hineb lepingul Jumala ning \"Iisraeli laste\" (Iisraeli 12 poja j\u00e4reltulijate) vahel Siinail. \nKristlus tunnistab Jeesust, kellel oli v\u00e4hemalt ema juut, oma messiaks, Jumala pojaks ning osaks Jumalusest endast. \nIslam tunnistab Jeesuse ja juudi prohvetid p\u00e4rast Aabrahami (nagu Moosese) Jumalast inspireerituks (kuigi mitte Jumalast s\u00fcndinuks) ning tunnistab islami rajaja Mu\u1e29ammadi viimaseks prohvetiks. \nKuigi Baha'i usku ei arvata traditsiooniliste aabrahamlike religioonide hulka, tunnistab ta samu prohveteid pluss Bah\u00e1'u'll\u00e1'hi. \nKa rastafarism tunnistab Piibli autoriteeti ning peab end tulenevast Aabrahami religioonist. Ta tunnistab enamikku Piibli prohveteid pluss keiser Haile Selassiet ja Marcus Garveyt.\nOn ka teisi religioone, mis suuremal v\u00f5i v\u00e4hemal m\u00e4\u00e4ral tunnistavad Piibli prohveteid; mitmesugused vodu usundid (s\u00fcnkretistlik segu kristlusest ja Aafrika paganlikest religioonidest) ja unitaaruniversalism.\n\nVaata ka\nmonoteism \njudaism \nkristlus \nislam\nAabrahami Jumal\njuudikristlik traditsioon\nkristlik-islami traditsioon\nmaailma usundid \nvedade usundid\nCategory:Monoteism\n\n"
+}

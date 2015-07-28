@@ -3,15 +3,12 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 __author__ = 'Andres'
 import re
-from pprint import pprint
-from externalLink  import addExternalLinks, ExtLinkBracketedRegex
-from internalLink import addIntLinks
-from references import reffinder
-import images
-from categoryParser import categoryParser
-from internalLink import relatedArticles
-from tableCollector import  tableCollector
-from images import imageRegEx
+from .externalLink  import addExternalLinks, ExtLinkBracketedRegex
+from .internalLink import addIntLinks
+from .references import reffinder
+from .internalLink import relatedArticles
+from .tableCollector import  tableCollector
+from .images import imageRegEx, imageParser
 
 def sectionsParser(text, refsdict):
     """
@@ -26,7 +23,6 @@ def sectionsParser(text, refsdict):
                     {title: "Ajalugu",
                     text: "..."}],],
 """
-    textStartRE = re.compile(r"""\'\'\'""")
 
     textStart = 0
 
@@ -62,7 +58,6 @@ def sectionsParser(text, refsdict):
 
     #add images, links, references, tables
 
-
     for section in sections:
         text = section['text']
         if 'wikitable' in text or '<table>' in text.lower():
@@ -74,7 +69,7 @@ def sectionsParser(text, refsdict):
             section = reffinder(section)
 
         if imageRegEx.search(text):
-            section = images.imageParser(section)
+            section = imageParser(section)
 
         section['text'] = section['text'].strip()
 

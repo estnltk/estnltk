@@ -1,0 +1,1471 @@
+{
+    "data": {
+        "categories": [],
+        "other": [
+            "{{See artikkel|r\u00e4\u00e4gib keemia ja f\u00fc\u00fcsika m\u00f5istest; filosoofia m\u00f5iste kohta vaata artiklit [[Aatom (filosoofia)]]; matemaatika m\u00f5iste kohta vaata artiklit [[Aatom (matemaatika)]]; teiste t\u00e4henduste kohta vaata lehek\u00fclge [[Aatom (t\u00e4psustus)]]}}"
+        ],
+        "timestamp": "2015-03-02T20:20:07Z",
+        "title": "Aatom",
+        "url": "http://et.wikipedia.org/wiki/Aatom"
+    },
+    "external_links": [
+        {
+            "end": 14709,
+            "label": "",
+            "start": 14709,
+            "url": "http://www.videoneat.com/documentaries/1810/astronomy/how-small-is-the-universe-2012-bbc-horizon-watch-online"
+        }
+    ],
+    "internal_links": [
+        {
+            "end": 213,
+            "label": "Heeliumi",
+            "start": 205,
+            "title": "Heelium",
+            "url": "http://et.wikipedia.org/wiki/Heelium"
+        },
+        {
+            "end": 246,
+            "label": "aatomituum",
+            "start": 236,
+            "title": "aatomituum",
+            "url": "http://et.wikipedia.org/wiki/aatomituum"
+        },
+        {
+            "end": 288,
+            "label": "elektronkate",
+            "start": 276,
+            "title": "elektronkate",
+            "url": "http://et.wikipedia.org/wiki/elektronkate"
+        },
+        {
+            "end": 472,
+            "label": "ongstr\u00f6m",
+            "start": 464,
+            "title": "ongstr\u00f6m",
+            "url": "http://et.wikipedia.org/wiki/ongstr\u00f6m"
+        },
+        {
+            "end": 486,
+            "label": "m",
+            "start": 485,
+            "title": "meeter",
+            "url": "http://et.wikipedia.org/wiki/meeter"
+        },
+        {
+            "end": 506,
+            "label": "fm",
+            "start": 504,
+            "title": "Femto-",
+            "url": "http://et.wikipedia.org/wiki/Femto-"
+        },
+        {
+            "end": 604,
+            "label": "keemilise elemendi",
+            "start": 586,
+            "title": "keemiline element",
+            "url": "http://et.wikipedia.org/wiki/keemiline_element"
+        },
+        {
+            "end": 672,
+            "label": "Massivahemik",
+            "start": 660,
+            "title": "aatommass",
+            "url": "http://et.wikipedia.org/wiki/aatommass"
+        },
+        {
+            "end": 735,
+            "label": "kilogrammi",
+            "start": 725,
+            "title": "kilogramm",
+            "url": "http://et.wikipedia.org/wiki/kilogramm"
+        },
+        {
+            "end": 750,
+            "label": "Elektrilaeng",
+            "start": 738,
+            "title": "Elektrilaeng",
+            "url": "http://et.wikipedia.org/wiki/Elektrilaeng"
+        },
+        {
+            "end": 793,
+            "label": "ioniseerimata aatom",
+            "start": 774,
+            "title": "ioniseerimine",
+            "url": "http://et.wikipedia.org/wiki/ioniseerimine"
+        },
+        {
+            "end": 806,
+            "label": "Diameetri",
+            "start": 797,
+            "title": "Diameeter",
+            "url": "http://et.wikipedia.org/wiki/Diameeter"
+        },
+        {
+            "end": 829,
+            "label": "pm",
+            "start": 827,
+            "title": "pm",
+            "url": "http://et.wikipedia.org/wiki/pm"
+        },
+        {
+            "end": 833,
+            "label": "He",
+            "start": 831,
+            "title": "Heelium",
+            "url": "http://et.wikipedia.org/wiki/Heelium"
+        },
+        {
+            "end": 855,
+            "label": "Cs",
+            "start": 853,
+            "title": "Tseesium",
+            "url": "http://et.wikipedia.org/wiki/Tseesium"
+        },
+        {
+            "end": 870,
+            "label": "Koostisosad",
+            "start": 859,
+            "title": "Elementaarosake",
+            "url": "http://et.wikipedia.org/wiki/Elementaarosake"
+        },
+        {
+            "end": 885,
+            "label": "Elektronid",
+            "start": 875,
+            "title": "Elektron",
+            "url": "http://et.wikipedia.org/wiki/Elektron"
+        },
+        {
+            "end": 911,
+            "label": "nukleonidest",
+            "start": 899,
+            "title": "nukleon",
+            "url": "http://et.wikipedia.org/wiki/nukleon"
+        },
+        {
+            "end": 922,
+            "label": "prootonid",
+            "start": 913,
+            "title": "prooton",
+            "url": "http://et.wikipedia.org/wiki/prooton"
+        },
+        {
+            "end": 935,
+            "label": "neutronid",
+            "start": 926,
+            "title": "neutron",
+            "url": "http://et.wikipedia.org/wiki/neutron"
+        },
+        {
+            "end": 949,
+            "label": "tuum",
+            "start": 945,
+            "title": "aatomituum",
+            "url": "http://et.wikipedia.org/wiki/aatomituum"
+        },
+        {
+            "end": 973,
+            "label": "vanakreeka",
+            "start": 963,
+            "title": "vanakreeka keel",
+            "url": "http://et.wikipedia.org/wiki/vanakreeka_keel"
+        },
+        {
+            "end": 1090,
+            "label": "keemilise elemendi",
+            "start": 1072,
+            "title": "keemiline element",
+            "url": "http://et.wikipedia.org/wiki/keemiline_element"
+        },
+        {
+            "end": 1110,
+            "label": "keemilised omadused",
+            "start": 1091,
+            "title": "keemilised omadused",
+            "url": "http://et.wikipedia.org/wiki/keemilised_omadused"
+        },
+        {
+            "end": 1132,
+            "label": "aines",
+            "start": 1127,
+            "title": "keemiline aine",
+            "url": "http://et.wikipedia.org/wiki/keemiline_aine"
+        },
+        {
+            "end": 1166,
+            "label": "molekulideks",
+            "start": 1154,
+            "title": "molekul",
+            "url": "http://et.wikipedia.org/wiki/molekul"
+        },
+        {
+            "end": 1185,
+            "label": "Keemia",
+            "start": 1179,
+            "title": "Keemia",
+            "url": "http://et.wikipedia.org/wiki/Keemia"
+        },
+        {
+            "end": 1282,
+            "label": "elementaarosakesteks",
+            "start": 1262,
+            "title": "elementaarosakesed",
+            "url": "http://et.wikipedia.org/wiki/elementaarosakesed"
+        },
+        {
+            "end": 1338,
+            "label": "radioaktiivsed",
+            "start": 1324,
+            "title": "radioaktiivsus",
+            "url": "http://et.wikipedia.org/wiki/radioaktiivsus"
+        },
+        {
+            "end": 1443,
+            "label": "klassikalise mehaanika",
+            "start": 1421,
+            "title": "klassikaline mehaanika",
+            "url": "http://et.wikipedia.org/wiki/klassikaline_mehaanika"
+        },
+        {
+            "end": 1504,
+            "label": "kvantmehaanika",
+            "start": 1490,
+            "title": "kvantmehaanika",
+            "url": "http://et.wikipedia.org/wiki/kvantmehaanika"
+        },
+        {
+            "end": 1555,
+            "label": "elektrilaenguga",
+            "start": 1540,
+            "title": "elektrilaeng",
+            "url": "http://et.wikipedia.org/wiki/elektrilaeng"
+        },
+        {
+            "end": 1563,
+            "label": "tuumast",
+            "start": 1556,
+            "title": "aatomituum",
+            "url": "http://et.wikipedia.org/wiki/aatomituum"
+        },
+        {
+            "end": 1640,
+            "label": "elektronkattest",
+            "start": 1625,
+            "title": "elektronkate",
+            "url": "http://et.wikipedia.org/wiki/elektronkate"
+        },
+        {
+            "end": 1830,
+            "label": "ioniseeritud aatomeid",
+            "start": 1809,
+            "title": "ioniseeritud aatom",
+            "url": "http://et.wikipedia.org/wiki/ioniseeritud_aatom"
+        },
+        {
+            "end": 1938,
+            "label": "absoluutv\u00e4\u00e4rtus",
+            "start": 1923,
+            "title": "absoluutv\u00e4\u00e4rtus",
+            "url": "http://et.wikipedia.org/wiki/absoluutv\u00e4\u00e4rtus"
+        },
+        {
+            "end": 2040,
+            "label": "ioonide",
+            "start": 2033,
+            "title": "ioon",
+            "url": "http://et.wikipedia.org/wiki/ioon"
+        },
+        {
+            "end": 2103,
+            "label": "elektrilaenguga",
+            "start": 2088,
+            "title": "elektrilaeng",
+            "url": "http://et.wikipedia.org/wiki/elektrilaeng"
+        },
+        {
+            "end": 2117,
+            "label": "aatomituumast",
+            "start": 2104,
+            "title": "aatomituum",
+            "url": "http://et.wikipedia.org/wiki/aatomituum"
+        },
+        {
+            "end": 2166,
+            "label": "elektronkate",
+            "start": 2154,
+            "title": "elektronkate",
+            "url": "http://et.wikipedia.org/wiki/elektronkate"
+        },
+        {
+            "end": 2218,
+            "label": "elektronkihtideks",
+            "start": 2201,
+            "title": "elektronkiht",
+            "url": "http://et.wikipedia.org/wiki/elektronkiht"
+        },
+        {
+            "end": 2272,
+            "label": "elementaarlaenguga",
+            "start": 2254,
+            "title": "elementaarlaeng",
+            "url": "http://et.wikipedia.org/wiki/elementaarlaeng"
+        },
+        {
+            "end": 2286,
+            "label": "elektronidest",
+            "start": 2273,
+            "title": "elektron",
+            "url": "http://et.wikipedia.org/wiki/elektron"
+        },
+        {
+            "end": 2331,
+            "label": "massist",
+            "start": 2324,
+            "title": "mass",
+            "url": "http://et.wikipedia.org/wiki/mass"
+        },
+        {
+            "end": 2476,
+            "label": "ongstr\u00f6m",
+            "start": 2468,
+            "title": "ongstr\u00f6m",
+            "url": "http://et.wikipedia.org/wiki/ongstr\u00f6m"
+        },
+        {
+            "end": 2501,
+            "label": "Aatomituum",
+            "start": 2491,
+            "title": "Aatomituum",
+            "url": "http://et.wikipedia.org/wiki/Aatomituum"
+        },
+        {
+            "end": 2546,
+            "label": "nukleonidest",
+            "start": 2534,
+            "title": "nukleon",
+            "url": "http://et.wikipedia.org/wiki/nukleon"
+        },
+        {
+            "end": 2575,
+            "label": "elektrilaenguga",
+            "start": 2560,
+            "title": "Elektrilaeng",
+            "url": "http://et.wikipedia.org/wiki/Elektrilaeng"
+        },
+        {
+            "end": 2588,
+            "label": "prootonitest",
+            "start": 2576,
+            "title": "prooton",
+            "url": "http://et.wikipedia.org/wiki/prooton"
+        },
+        {
+            "end": 2637,
+            "label": "neutronitest",
+            "start": 2625,
+            "title": "neutron",
+            "url": "http://et.wikipedia.org/wiki/neutron"
+        },
+        {
+            "end": 2774,
+            "label": "nukliidideks",
+            "start": 2762,
+            "title": "nukliid",
+            "url": "http://et.wikipedia.org/wiki/nukliid"
+        },
+        {
+            "end": 2828,
+            "label": "tuumaj\u00f5ud",
+            "start": 2819,
+            "title": "tuumaj\u00f5ud",
+            "url": "http://et.wikipedia.org/wiki/tuumaj\u00f5ud"
+        },
+        {
+            "end": 3140,
+            "label": "laguneda",
+            "start": 3132,
+            "title": "tuumalagunemine",
+            "url": "http://et.wikipedia.org/wiki/tuumalagunemine"
+        },
+        {
+            "end": 3176,
+            "label": "radioaktiivsed",
+            "start": 3162,
+            "title": "radioaktiivsus",
+            "url": "http://et.wikipedia.org/wiki/radioaktiivsus"
+        },
+        {
+            "end": 3237,
+            "label": "keemilisest elemendist",
+            "start": 3215,
+            "title": "keemilised elemendid",
+            "url": "http://et.wikipedia.org/wiki/keemilised_elemendid"
+        },
+        {
+            "end": 3355,
+            "label": "fermionid",
+            "start": 3346,
+            "title": "fermion",
+            "url": "http://et.wikipedia.org/wiki/fermion"
+        },
+        {
+            "end": 3413,
+            "label": "Pauli keeluprintsiip",
+            "start": 3393,
+            "title": "Pauli keeluprintsiip",
+            "url": "http://et.wikipedia.org/wiki/Pauli_keeluprintsiip"
+        },
+        {
+            "end": 3501,
+            "label": "kvantolekus",
+            "start": 3490,
+            "title": "kvantolek",
+            "url": "http://et.wikipedia.org/wiki/kvantolek"
+        },
+        {
+            "end": 3566,
+            "label": "kvantarvudega",
+            "start": 3553,
+            "title": "kvantarv",
+            "url": "http://et.wikipedia.org/wiki/kvantarv"
+        },
+        {
+            "end": 3610,
+            "label": "tuumaorbitaalideks",
+            "start": 3592,
+            "title": "tuumaorbitaal",
+            "url": "http://et.wikipedia.org/wiki/tuumaorbitaal"
+        },
+        {
+            "end": 3729,
+            "label": "Prootonite",
+            "start": 3719,
+            "title": "Prooton",
+            "url": "http://et.wikipedia.org/wiki/Prooton"
+        },
+        {
+            "end": 3751,
+            "label": "laenguarv",
+            "start": 3742,
+            "title": "laenguarv",
+            "url": "http://et.wikipedia.org/wiki/laenguarv"
+        },
+        {
+            "end": 3767,
+            "label": "aatomnumber",
+            "start": 3756,
+            "title": "aatomnumber",
+            "url": "http://et.wikipedia.org/wiki/aatomnumber"
+        },
+        {
+            "end": 3805,
+            "label": "keemilise elemendi",
+            "start": 3787,
+            "title": "Keemiline element",
+            "url": "http://et.wikipedia.org/wiki/Keemiline_element"
+        },
+        {
+            "end": 3911,
+            "label": "ioniseerimata",
+            "start": 3898,
+            "title": "ioniseerimine",
+            "url": "http://et.wikipedia.org/wiki/ioniseerimine"
+        },
+        {
+            "end": 3995,
+            "label": "keemilised omadused",
+            "start": 3976,
+            "title": "keemiline omadus",
+            "url": "http://et.wikipedia.org/wiki/keemiline_omadus"
+        },
+        {
+            "end": 4107,
+            "label": "isotoobid",
+            "start": 4098,
+            "title": "isotoop",
+            "url": "http://et.wikipedia.org/wiki/isotoop"
+        },
+        {
+            "end": 4193,
+            "label": "vesiniku",
+            "start": 4185,
+            "title": "vesinik",
+            "url": "http://et.wikipedia.org/wiki/vesinik"
+        },
+        {
+            "end": 4234,
+            "label": "isotoopide eristamise",
+            "start": 4213,
+            "title": "isotoopide eristamine",
+            "url": "http://et.wikipedia.org/wiki/isotoopide_eristamine"
+        },
+        {
+            "end": 4310,
+            "label": "massiarv",
+            "start": 4302,
+            "title": "massiarv",
+            "url": "http://et.wikipedia.org/wiki/massiarv"
+        },
+        {
+            "end": 4354,
+            "label": "f\u00fc\u00fcsikalised omadused",
+            "start": 4333,
+            "title": "f\u00fc\u00fcsikalised omadused",
+            "url": "http://et.wikipedia.org/wiki/f\u00fc\u00fcsikalised_omadused"
+        },
+        {
+            "end": 4573,
+            "label": "seoseenergiaga",
+            "start": 4559,
+            "title": "seoseenergia",
+            "url": "http://et.wikipedia.org/wiki/seoseenergia"
+        },
+        {
+            "end": 4658,
+            "label": "radioaktiivse isotoobiga",
+            "start": 4634,
+            "title": "radioaktiivne isotoop",
+            "url": "http://et.wikipedia.org/wiki/radioaktiivne_isotoop"
+        },
+        {
+            "end": 4715,
+            "label": "radioaktiivset kiirgust",
+            "start": 4692,
+            "title": "radioaktiivne kiirgus",
+            "url": "http://et.wikipedia.org/wiki/radioaktiivne_kiirgus"
+        },
+        {
+            "end": 4739,
+            "label": "mass",
+            "start": 4735,
+            "title": "mass",
+            "url": "http://et.wikipedia.org/wiki/mass"
+        },
+        {
+            "end": 4947,
+            "label": "elektronidest",
+            "start": 4934,
+            "title": "elektron",
+            "url": "http://et.wikipedia.org/wiki/elektron"
+        },
+        {
+            "end": 4982,
+            "label": "elektrilaeng",
+            "start": 4970,
+            "title": "elektrilaeng",
+            "url": "http://et.wikipedia.org/wiki/elektrilaeng"
+        },
+        {
+            "end": 5082,
+            "label": "elektronpilve",
+            "start": 5069,
+            "title": "elektronpilv",
+            "url": "http://et.wikipedia.org/wiki/elektronpilv"
+        },
+        {
+            "end": 5297,
+            "label": "iooniga",
+            "start": 5290,
+            "title": "ioon",
+            "url": "http://et.wikipedia.org/wiki/ioon"
+        },
+        {
+            "end": 5344,
+            "label": "anioon",
+            "start": 5338,
+            "title": "anioon",
+            "url": "http://et.wikipedia.org/wiki/anioon"
+        },
+        {
+            "end": 5397,
+            "label": "katioon",
+            "start": 5390,
+            "title": "katioon",
+            "url": "http://et.wikipedia.org/wiki/katioon"
+        },
+        {
+            "end": 5565,
+            "label": "ioniseerimine",
+            "start": 5552,
+            "title": "ioniseerimine",
+            "url": "http://et.wikipedia.org/wiki/ioniseerimine"
+        },
+        {
+            "end": 5692,
+            "label": "elektrilaeng",
+            "start": 5680,
+            "title": "elektrilaeng",
+            "url": "http://et.wikipedia.org/wiki/elektrilaeng"
+        },
+        {
+            "end": 5898,
+            "label": "molekuli",
+            "start": 5890,
+            "title": "molekul",
+            "url": "http://et.wikipedia.org/wiki/molekul"
+        },
+        {
+            "end": 6191,
+            "label": "vesinik",
+            "start": 6184,
+            "title": "vesinik",
+            "url": "http://et.wikipedia.org/wiki/vesinik"
+        },
+        {
+            "end": 6224,
+            "label": "prootonid",
+            "start": 6215,
+            "title": "prooton",
+            "url": "http://et.wikipedia.org/wiki/prooton"
+        },
+        {
+            "end": 6239,
+            "label": "neutronidki",
+            "start": 6228,
+            "title": "neutron",
+            "url": "http://et.wikipedia.org/wiki/neutron"
+        },
+        {
+            "end": 6250,
+            "label": "fermionid",
+            "start": 6241,
+            "title": "fermionid",
+            "url": "http://et.wikipedia.org/wiki/fermionid"
+        },
+        {
+            "end": 6300,
+            "label": "Pauli keeluprintsiip",
+            "start": 6280,
+            "title": "Pauli keeluprintsiip",
+            "url": "http://et.wikipedia.org/wiki/Pauli_keeluprintsiip"
+        },
+        {
+            "end": 6392,
+            "label": "kvantolekus",
+            "start": 6381,
+            "title": "kvantolek",
+            "url": "http://et.wikipedia.org/wiki/kvantolek"
+        },
+        {
+            "end": 6527,
+            "label": "aatomorbitaali",
+            "start": 6513,
+            "title": "aatomorbitaal",
+            "url": "http://et.wikipedia.org/wiki/aatomorbitaal"
+        },
+        {
+            "end": 6584,
+            "label": "kvantarvudega",
+            "start": 6571,
+            "title": "kvantarv",
+            "url": "http://et.wikipedia.org/wiki/kvantarv"
+        },
+        {
+            "end": 6611,
+            "label": "Elektronkatte peakvantarv",
+            "start": 6586,
+            "title": "Elektronkatte peakvantarv",
+            "url": "http://et.wikipedia.org/wiki/Elektronkatte_peakvantarv"
+        },
+        {
+            "end": 6639,
+            "label": "elektronkihi",
+            "start": 6627,
+            "title": "elektronkiht",
+            "url": "http://et.wikipedia.org/wiki/elektronkiht"
+        },
+        {
+            "end": 6730,
+            "label": "asimuudi kvantarvu",
+            "start": 6712,
+            "title": "asimuudi kvantarv",
+            "url": "http://et.wikipedia.org/wiki/asimuudi_kvantarv"
+        },
+        {
+            "end": 6757,
+            "label": "magnetilise kvantarvu",
+            "start": 6736,
+            "title": "magnetiline kvantarv",
+            "url": "http://et.wikipedia.org/wiki/magnetiline_kvantarv"
+        },
+        {
+            "end": 6784,
+            "label": "spinniga",
+            "start": 6776,
+            "title": "spinn",
+            "url": "http://et.wikipedia.org/wiki/spinn"
+        },
+        {
+            "end": 6873,
+            "label": "kvantolekutes",
+            "start": 6860,
+            "title": "kvantolek",
+            "url": "http://et.wikipedia.org/wiki/kvantolek"
+        },
+        {
+            "end": 6899,
+            "label": "p\u00f5hiolekus",
+            "start": 6889,
+            "title": "p\u00f5hiolek",
+            "url": "http://et.wikipedia.org/wiki/p\u00f5hiolek"
+        },
+        {
+            "end": 6933,
+            "label": "footoni",
+            "start": 6926,
+            "title": "footon",
+            "url": "http://et.wikipedia.org/wiki/footon"
+        },
+        {
+            "end": 7054,
+            "label": "ergastatud olekusse",
+            "start": 7035,
+            "title": "ergastatud olek",
+            "url": "http://et.wikipedia.org/wiki/ergastatud_olek"
+        },
+        {
+            "end": 7104,
+            "label": "footoni",
+            "start": 7097,
+            "title": "footon",
+            "url": "http://et.wikipedia.org/wiki/footon"
+        },
+        {
+            "end": 7170,
+            "label": "kvantolekusse",
+            "start": 7157,
+            "title": "kvantolek",
+            "url": "http://et.wikipedia.org/wiki/kvantolek"
+        },
+        {
+            "end": 7482,
+            "label": "lainepikkusega",
+            "start": 7468,
+            "title": "lainepikkus",
+            "url": "http://et.wikipedia.org/wiki/lainepikkus"
+        },
+        {
+            "end": 7544,
+            "label": "spekter",
+            "start": 7537,
+            "title": "aatomispekter",
+            "url": "http://et.wikipedia.org/wiki/aatomispekter"
+        },
+        {
+            "end": 7560,
+            "label": "kiirgusspekter",
+            "start": 7546,
+            "title": "kiirgusspekter",
+            "url": "http://et.wikipedia.org/wiki/kiirgusspekter"
+        },
+        {
+            "end": 7809,
+            "label": "neeldumisspekter",
+            "start": 7793,
+            "title": "neeldumisspekter",
+            "url": "http://et.wikipedia.org/wiki/neeldumisspekter"
+        },
+        {
+            "end": 7874,
+            "label": "mass",
+            "start": 7870,
+            "title": "mass",
+            "url": "http://et.wikipedia.org/wiki/mass"
+        },
+        {
+            "end": 7954,
+            "label": "promilli",
+            "start": 7946,
+            "title": "promill",
+            "url": "http://et.wikipedia.org/wiki/promill"
+        },
+        {
+            "end": 8214,
+            "label": "aatommassiks",
+            "start": 8202,
+            "title": "aatommass",
+            "url": "http://et.wikipedia.org/wiki/aatommass"
+        },
+        {
+            "end": 8258,
+            "label": "vesiniku",
+            "start": 8250,
+            "title": "vesinik",
+            "url": "http://et.wikipedia.org/wiki/vesinik"
+        },
+        {
+            "end": 8269,
+            "label": "hapniku",
+            "start": 8262,
+            "title": "hapnik",
+            "url": "http://et.wikipedia.org/wiki/hapnik"
+        },
+        {
+            "end": 8290,
+            "label": "1961",
+            "start": 8286,
+            "title": "1961",
+            "url": "http://et.wikipedia.org/wiki/1961"
+        },
+        {
+            "end": 8332,
+            "label": "s\u00fcsinik-12",
+            "start": 8322,
+            "title": "s\u00fcsinik-12",
+            "url": "http://et.wikipedia.org/wiki/s\u00fcsinik-12"
+        },
+        {
+            "end": 8419,
+            "label": "aatommassi\u00fchikuks",
+            "start": 8402,
+            "title": "aatommassi\u00fchik",
+            "url": "http://et.wikipedia.org/wiki/aatommassi\u00fchik"
+        },
+        {
+            "end": 8692,
+            "label": "v\u00e4\u00e4vli",
+            "start": 8686,
+            "title": "v\u00e4\u00e4vel",
+            "url": "http://et.wikipedia.org/wiki/v\u00e4\u00e4vel"
+        },
+        {
+            "end": 8745,
+            "label": "Heelium",
+            "start": 8738,
+            "title": "Heelium",
+            "url": "http://et.wikipedia.org/wiki/Heelium"
+        },
+        {
+            "end": 8985,
+            "label": "massidefektist",
+            "start": 8971,
+            "title": "massidefekt",
+            "url": "http://et.wikipedia.org/wiki/massidefekt"
+        },
+        {
+            "end": 9005,
+            "label": "seoseenergia",
+            "start": 8993,
+            "title": "seoseenergia",
+            "url": "http://et.wikipedia.org/wiki/seoseenergia"
+        },
+        {
+            "end": 9036,
+            "label": "Termotuumareaktsioonis",
+            "start": 9014,
+            "title": "Termotuumareaktsioon",
+            "url": "http://et.wikipedia.org/wiki/Termotuumareaktsioon"
+        },
+        {
+            "end": 9233,
+            "label": "massispektroskoopiat",
+            "start": 9213,
+            "title": "massispektroskoopia",
+            "url": "http://et.wikipedia.org/wiki/massispektroskoopia"
+        },
+        {
+            "end": 9442,
+            "label": "Atomistika",
+            "start": 9432,
+            "title": "Atomistika",
+            "url": "http://et.wikipedia.org/wiki/Atomistika"
+        },
+        {
+            "end": 9474,
+            "label": "vanakreeka filosoofiast",
+            "start": 9451,
+            "title": "vanakreeka filosoofia",
+            "url": "http://et.wikipedia.org/wiki/vanakreeka_filosoofia"
+        },
+        {
+            "end": 9488,
+            "label": "Aine ehitust",
+            "start": 9476,
+            "title": "Aine ehitus",
+            "url": "http://et.wikipedia.org/wiki/Aine_ehitus"
+        },
+        {
+            "end": 9543,
+            "label": "Anaxagoras",
+            "start": 9533,
+            "title": "Anaxagoras",
+            "url": "http://et.wikipedia.org/wiki/Anaxagoras"
+        },
+        {
+            "end": 9575,
+            "label": "l\u00f5putult jagatavaks",
+            "start": 9556,
+            "title": "l\u00f5putu jagatavus",
+            "url": "http://et.wikipedia.org/wiki/l\u00f5putu_jagatavus"
+        },
+        {
+            "end": 9587,
+            "label": "Leukippos",
+            "start": 9578,
+            "title": "Leukippos",
+            "url": "http://et.wikipedia.org/wiki/Leukippos"
+        },
+        {
+            "end": 9614,
+            "label": "Demokritos",
+            "start": 9604,
+            "title": "Demokritos",
+            "url": "http://et.wikipedia.org/wiki/Demokritos"
+        },
+        {
+            "end": 9768,
+            "label": "aatomiteks",
+            "start": 9758,
+            "title": "aatom (filosoofia)",
+            "url": "http://et.wikipedia.org/wiki/aatom_(filosoofia)"
+        },
+        {
+            "end": 9820,
+            "label": "t\u00fchjusest",
+            "start": 9811,
+            "title": "t\u00fchjus",
+            "url": "http://et.wikipedia.org/wiki/t\u00fchjus"
+        },
+        {
+            "end": 9863,
+            "label": "liikumine",
+            "start": 9854,
+            "title": "liikumine",
+            "url": "http://et.wikipedia.org/wiki/liikumine"
+        },
+        {
+            "end": 10216,
+            "label": "kuju",
+            "start": 10212,
+            "title": "kuju",
+            "url": "http://et.wikipedia.org/wiki/kuju"
+        },
+        {
+            "end": 10433,
+            "label": "epikuurlased",
+            "start": 10421,
+            "title": "epikuurlased",
+            "url": "http://et.wikipedia.org/wiki/epikuurlased"
+        },
+        {
+            "end": 10467,
+            "label": "Lucretius",
+            "start": 10458,
+            "title": "Lucretius",
+            "url": "http://et.wikipedia.org/wiki/Lucretius"
+        },
+        {
+            "end": 10497,
+            "label": "De rerum naturae",
+            "start": 10481,
+            "title": "De rerum naturae",
+            "url": "http://et.wikipedia.org/wiki/De_rerum_naturae"
+        },
+        {
+            "end": 10512,
+            "label": "Aristoteles",
+            "start": 10501,
+            "title": "Aristoteles",
+            "url": "http://et.wikipedia.org/wiki/Aristoteles"
+        },
+        {
+            "end": 10769,
+            "label": "Pierre Gassendi",
+            "start": 10754,
+            "title": "Pierre Gassendi",
+            "url": "http://et.wikipedia.org/wiki/Pierre_Gassendi"
+        },
+        {
+            "end": 10788,
+            "label": "Joachim Jungius",
+            "start": 10773,
+            "title": "Joachim Jungius",
+            "url": "http://et.wikipedia.org/wiki/Joachim_Jungius"
+        },
+        {
+            "end": 10830,
+            "label": "Robert Boyle",
+            "start": 10818,
+            "title": "Robert Boyle",
+            "url": "http://et.wikipedia.org/wiki/Robert_Boyle"
+        },
+        {
+            "end": 10846,
+            "label": "Isaac Newton",
+            "start": 10834,
+            "title": "Isaac Newton",
+            "url": "http://et.wikipedia.org/wiki/Isaac_Newton"
+        },
+        {
+            "end": 10883,
+            "label": "1807",
+            "start": 10879,
+            "title": "1807",
+            "url": "http://et.wikipedia.org/wiki/1807"
+        },
+        {
+            "end": 10901,
+            "label": "John Dalton",
+            "start": 10890,
+            "title": "John Dalton",
+            "url": "http://et.wikipedia.org/wiki/John_Dalton"
+        },
+        {
+            "end": 10952,
+            "label": "keemilised elemendid",
+            "start": 10932,
+            "title": "keemiline element",
+            "url": "http://et.wikipedia.org/wiki/keemiline_element"
+        },
+        {
+            "end": 11008,
+            "label": "kaal",
+            "start": 11004,
+            "title": "kaal",
+            "url": "http://et.wikipedia.org/wiki/kaal"
+        },
+        {
+            "end": 11023,
+            "label": "m\u00f5\u00f5tmed",
+            "start": 11016,
+            "title": "m\u00f5\u00f5tmed",
+            "url": "http://et.wikipedia.org/wiki/m\u00f5\u00f5tmed"
+        },
+        {
+            "end": 11205,
+            "label": "molekulideks",
+            "start": 11193,
+            "title": "molekul",
+            "url": "http://et.wikipedia.org/wiki/molekul"
+        },
+        {
+            "end": 11352,
+            "label": "keemilistes reaktsioonides",
+            "start": 11326,
+            "title": "keemiline reaktsioon",
+            "url": "http://et.wikipedia.org/wiki/keemiline_reaktsioon"
+        },
+        {
+            "end": 11551,
+            "label": "1811",
+            "start": 11547,
+            "title": "1811",
+            "url": "http://et.wikipedia.org/wiki/1811"
+        },
+        {
+            "end": 11574,
+            "label": "Amadeo Avogadro",
+            "start": 11559,
+            "title": "Amadeo Avogadro",
+            "url": "http://et.wikipedia.org/wiki/Amadeo_Avogadro"
+        },
+        {
+            "end": 11875,
+            "label": "Michael Faraday",
+            "start": 11860,
+            "title": "Michael Faraday",
+            "url": "http://et.wikipedia.org/wiki/Michael_Faraday"
+        },
+        {
+            "end": 11888,
+            "label": "elektrol\u00fc\u00fcsi",
+            "start": 11876,
+            "title": "elektrol\u00fc\u00fcs",
+            "url": "http://et.wikipedia.org/wiki/elektrol\u00fc\u00fcs"
+        },
+        {
+            "end": 11913,
+            "label": "elektrivoolu",
+            "start": 11901,
+            "title": "elektrivool",
+            "url": "http://et.wikipedia.org/wiki/elektrivool"
+        },
+        {
+            "end": 11922,
+            "label": "lahustes",
+            "start": 11914,
+            "title": "lahus",
+            "url": "http://et.wikipedia.org/wiki/lahus"
+        },
+        {
+            "end": 11956,
+            "label": "elektrilaenguga",
+            "start": 11941,
+            "title": "elektrilaeng",
+            "url": "http://et.wikipedia.org/wiki/elektrilaeng"
+        },
+        {
+            "end": 12023,
+            "label": "elementaarlaeng",
+            "start": 12008,
+            "title": "elementaarlaeng",
+            "url": "http://et.wikipedia.org/wiki/elementaarlaeng"
+        },
+        {
+            "end": 12037,
+            "label": "1897",
+            "start": 12033,
+            "title": "1897",
+            "url": "http://et.wikipedia.org/wiki/1897"
+        },
+        {
+            "end": 12064,
+            "label": "Joseph John Thomson",
+            "start": 12045,
+            "title": "Joseph John Thomson",
+            "url": "http://et.wikipedia.org/wiki/Joseph_John_Thomson"
+        },
+        {
+            "end": 12075,
+            "label": "gaasis",
+            "start": 12069,
+            "title": "gaas",
+            "url": "http://et.wikipedia.org/wiki/gaas"
+        },
+        {
+            "end": 12227,
+            "label": "elektronideks",
+            "start": 12214,
+            "title": "elektron",
+            "url": "http://et.wikipedia.org/wiki/elektron"
+        },
+        {
+            "end": 12240,
+            "label": "1898",
+            "start": 12236,
+            "title": "1898",
+            "url": "http://et.wikipedia.org/wiki/1898"
+        },
+        {
+            "end": 12260,
+            "label": "Wilhelm Wien",
+            "start": 12248,
+            "title": "Wilhelm Wien",
+            "url": "http://et.wikipedia.org/wiki/Wilhelm_Wien"
+        },
+        {
+            "end": 12358,
+            "label": "prootoniteks",
+            "start": 12346,
+            "title": "prooton",
+            "url": "http://et.wikipedia.org/wiki/prooton"
+        },
+        {
+            "end": 12455,
+            "label": "Ernest Rutherford",
+            "start": 12438,
+            "title": "Ernest Rutherford",
+            "url": "http://et.wikipedia.org/wiki/Ernest_Rutherford"
+        },
+        {
+            "end": 12472,
+            "label": "alfaosakesed",
+            "start": 12460,
+            "title": "alfaosake",
+            "url": "http://et.wikipedia.org/wiki/alfaosake"
+        },
+        {
+            "end": 12631,
+            "label": "1911",
+            "start": 12627,
+            "title": "1911",
+            "url": "http://et.wikipedia.org/wiki/1911"
+        },
+        {
+            "end": 12930,
+            "label": "P\u00e4ikeses\u00fcsteemi",
+            "start": 12915,
+            "title": "P\u00e4ikeses\u00fcsteem",
+            "url": "http://et.wikipedia.org/wiki/P\u00e4ikeses\u00fcsteem"
+        },
+        {
+            "end": 12959,
+            "label": "P\u00e4ikesele",
+            "start": 12950,
+            "title": "P\u00e4ike",
+            "url": "http://et.wikipedia.org/wiki/P\u00e4ike"
+        },
+        {
+            "end": 12986,
+            "label": "planeetidele",
+            "start": 12974,
+            "title": "planeet",
+            "url": "http://et.wikipedia.org/wiki/planeet"
+        },
+        {
+            "end": 13065,
+            "label": "Rutherfordi aatomimudel",
+            "start": 13042,
+            "title": "Rutherfordi aatomimudel",
+            "url": "http://et.wikipedia.org/wiki/Rutherfordi_aatomimudel"
+        },
+        {
+            "end": 13098,
+            "label": "elektrod\u00fcnaamikaga",
+            "start": 13080,
+            "title": "elektrod\u00fcnaamika",
+            "url": "http://et.wikipedia.org/wiki/elektrod\u00fcnaamika"
+        },
+        {
+            "end": 13192,
+            "label": "elektromagnetkiirgust",
+            "start": 13171,
+            "title": "elektromagnetkiirgus",
+            "url": "http://et.wikipedia.org/wiki/elektromagnetkiirgus"
+        },
+        {
+            "end": 13316,
+            "label": "1913",
+            "start": 13312,
+            "title": "1913",
+            "url": "http://et.wikipedia.org/wiki/1913"
+        },
+        {
+            "end": 13327,
+            "label": "Niels Bohr",
+            "start": 13317,
+            "title": "Niels Bohr",
+            "url": "http://et.wikipedia.org/wiki/Niels_Bohr"
+        },
+        {
+            "end": 13346,
+            "label": "Bohri aatomimudel",
+            "start": 13329,
+            "title": "Bohri aatomimudel",
+            "url": "http://et.wikipedia.org/wiki/Bohri_aatomimudel"
+        },
+        {
+            "end": 13537,
+            "label": "loodusseadustest",
+            "start": 13521,
+            "title": "loodusseadus",
+            "url": "http://et.wikipedia.org/wiki/loodusseadus"
+        },
+        {
+            "end": 13855,
+            "label": "energiahulk",
+            "start": 13844,
+            "title": "energia",
+            "url": "http://et.wikipedia.org/wiki/energia"
+        },
+        {
+            "end": 13889,
+            "label": "vahega",
+            "start": 13883,
+            "title": "vahe",
+            "url": "http://et.wikipedia.org/wiki/vahe"
+        },
+        {
+            "end": 13930,
+            "label": "elektromagnetkiirgusena",
+            "start": 13907,
+            "title": "elektromagnetkiirgus",
+            "url": "http://et.wikipedia.org/wiki/elektromagnetkiirgus"
+        },
+        {
+            "end": 13943,
+            "label": "footonitena",
+            "start": 13932,
+            "title": "footon",
+            "url": "http://et.wikipedia.org/wiki/footon"
+        },
+        {
+            "end": 13986,
+            "label": "kvantidena",
+            "start": 13976,
+            "title": "kvant",
+            "url": "http://et.wikipedia.org/wiki/kvant"
+        },
+        {
+            "end": 14362,
+            "label": "keemiliste elementide perioodilisuss\u00fcsteemis",
+            "start": 14318,
+            "title": "keemiliste elementide perioodilisuss\u00fcsteem",
+            "url": "http://et.wikipedia.org/wiki/keemiliste_elementide_perioodilisuss\u00fcsteem"
+        },
+        {
+            "end": 14376,
+            "label": "1919",
+            "start": 14372,
+            "title": "1919",
+            "url": "http://et.wikipedia.org/wiki/1919"
+        },
+        {
+            "end": 14435,
+            "label": "tuumareaktsiooni",
+            "start": 14419,
+            "title": "tuumareaktsioon",
+            "url": "http://et.wikipedia.org/wiki/tuumareaktsioon"
+        },
+        {
+            "end": 14459,
+            "label": "l\u00e4mmastikku",
+            "start": 14448,
+            "title": "l\u00e4mmastik",
+            "url": "http://et.wikipedia.org/wiki/l\u00e4mmastik"
+        },
+        {
+            "end": 14474,
+            "label": "alfaosakestega",
+            "start": 14460,
+            "title": "alfaosake",
+            "url": "http://et.wikipedia.org/wiki/alfaosake"
+        },
+        {
+            "end": 14485,
+            "label": "Neutroni",
+            "start": 14477,
+            "title": "Neutron",
+            "url": "http://et.wikipedia.org/wiki/Neutron"
+        },
+        {
+            "end": 14504,
+            "label": "1932",
+            "start": 14500,
+            "title": "1932",
+            "url": "http://et.wikipedia.org/wiki/1932"
+        },
+        {
+            "end": 14519,
+            "label": "James Chadwick",
+            "start": 14505,
+            "title": "James Chadwick",
+            "url": "http://et.wikipedia.org/wiki/James_Chadwick"
+        },
+        {
+            "end": 14552,
+            "label": "aatomimudelini",
+            "start": 14538,
+            "title": "aatomimudel",
+            "url": "http://et.wikipedia.org/wiki/aatomimudel"
+        },
+        {
+            "end": 14576,
+            "label": "aatomituum",
+            "start": 14566,
+            "title": "aatomituum",
+            "url": "http://et.wikipedia.org/wiki/aatomituum"
+        },
+        {
+            "end": 14613,
+            "label": "neutronitest",
+            "start": 14601,
+            "title": "neutron",
+            "url": "http://et.wikipedia.org/wiki/neutron"
+        },
+        {
+            "end": 14655,
+            "label": "Aatomimudel",
+            "start": 14644,
+            "title": "Aatomimudel",
+            "url": "http://et.wikipedia.org/wiki/Aatomimudel"
+        },
+        {
+            "end": 14678,
+            "label": "Category:Aatomif\u00fc\u00fcsika",
+            "start": 14656,
+            "title": "Category:Aatomif\u00fc\u00fcsika",
+            "url": "http://et.wikipedia.org/wiki/Category:Aatomif\u00fc\u00fcsika"
+        },
+        {
+            "end": 14694,
+            "label": "Category:Keemia",
+            "start": 14679,
+            "title": "Category:Keemia",
+            "url": "http://et.wikipedia.org/wiki/Category:Keemia"
+        }
+    ],
+    "sections": [
+        {
+            "end": 2047,
+            "images": [
+                {
+                    "text": "Heeliumi aatom p\u00f5hiolekus",
+                    "url": "http://et.wikipedia.org/wiki/Pilt:Heeliumi_aatom.svg"
+                }
+            ],
+            "start": 0
+        },
+        {
+            "end": 2478,
+            "start": 2049,
+            "title": "Aatomi ehitus"
+        },
+        {
+            "end": 4871,
+            "related_articles": [
+                "Aatomituum"
+            ],
+            "start": 2480,
+            "title": "Aatomituum"
+        },
+        {
+            "end": 7810,
+            "related_articles": [
+                "Elektronkate"
+            ],
+            "start": 4873,
+            "title": "Elektronkate, ioonid ja spektrid"
+        },
+        {
+            "end": 9234,
+            "related_articles": [
+                "Aatomi mass",
+                "Aatommass",
+                "Isotoop",
+                "Massidefekt"
+            ],
+            "start": 7812,
+            "title": "Aatomi mass, isotoobid ja massidefekt"
+        },
+        {
+            "end": 9399,
+            "start": 9236,
+            "title": "Aatomi m\u00f5\u00f5tmed"
+        },
+        {
+            "end": 9409,
+            "related_articles": [
+                "Atomistika",
+                "Aatomimudel"
+            ],
+            "start": 9401,
+            "title": "Ajalugu"
+        },
+        {
+            "end": 10677,
+            "start": 9411,
+            "title": "Antiikaja atomistika"
+        },
+        {
+            "end": 11818,
+            "start": 10679,
+            "title": "Uusaja atomistika"
+        },
+        {
+            "end": 14614,
+            "related_articles": [
+                "Aatomif\u00fc\u00fcsika"
+            ],
+            "start": 11820,
+            "title": "Aatomif\u00fc\u00fcsika"
+        },
+        {
+            "end": 14633,
+            "start": 14616,
+            "title": "Viited"
+        },
+        {
+            "end": 14694,
+            "start": 14635,
+            "title": "Vaata ka"
+        },
+        {
+            "end": 14737,
+            "start": 14696,
+            "title": "V\u00e4lislingid"
+        }
+    ],
+    "text": "Aatom\n{| border=\"1\" cellspacing=\"0\" align=\"right\" cellpadding=\"2\" style=\"margin-left:1em\" width=300\n! bgcolor=gray | Heeliumi aatom\n| align=\"center\" | \n| style=\"font-size: smaller; text-align: justify;\" | Heeliumi aatomi joonis, millel aatomituum on kujutatud roosa t\u00e4pina ja elektronkate halli pilvena. Tuum (vt. \u00fclal paremal) on tegelikkuses sf\u00e4\u00e4riliselt s\u00fcmmeetriline, kuigi suuremate aatomite tuumad ei pruugi sellised olla. Must m\u00f5\u00f5tejoon n\u00e4itab pikkus\u00fchikut ongstr\u00f6m (10\u221210&nbsp;m ehk 100\u00a0000&nbsp;fm) v\u00f5rreldes aatomiga.\n! bgcolor=gray | Definitsioon\n|\n{| align=\"center\"\n| V\u00e4him keemilise elemendi osa\n|-\n! bgcolor=gray | Omadused\n|\n{| align=\"center\"\n| Massivahemik: || 1,67 &times; 10\u221227 kuni 4,52 &times; 10\u221225&nbsp;kilogrammi\n| Elektrilaeng: || null (neutraalne) (ioniseerimata aatom)\n| Diameetri vahemik: || 62&nbsp;pm (He) kuni 520&nbsp;pm (Cs)\n| Koostisosad: || Elektronid ja kompaktne nukleonidest (prootonid ja neutronid) koosnev tuum\n|}\nAatomiks (vanakreeka s\u00f5nast \"\u1f04\u03c4\u03bf\u03bc\u03bf\u03c2\" (\"\u00e1tomos\") 'jagamatu') nimetatakse v\u00e4ikseimat osakest, mis s\u00e4ilitab talle vastava keemilise elemendi keemilised omadused. Aatomid v\u00f5ivad aines esineda \u00fcksikuna v\u00f5i molekulideks liitununa. \nKeemia piirides on aatom jagamatu, f\u00fc\u00fcsikaliste vahenditega aga saab teda lahutada elementaarosakesteks. Aatomi ehitust v\u00f5ivad muuta looduslikud radioaktiivsed protsessid ja aatomite pommitamine elementaarosakestega. \nAatomite puhul ei kehti klassikalise mehaanika seadused; nende kirjeldamiseks tuleb kasutada kvantmehaanika m\u00f5isteid.\nAatom koosneb positiivse elektrilaenguga tuumast ning seda \u00fcmbritsevast sama suure negatiivse elektrilaenguga elektronkattest. Tema summaarne elektrilaeng on null. Niiviisi m\u00f5istetud aatomit nimetatakse neutraalseks aatomiks ehk ioniseerimata aatomiks. Laiemas m\u00f5ttes nimetatakse aatomiteks ka ioniseeritud aatomeid; need erinevad ioniseerimata aatomitest selle poolest, et nende elektronkatte elektrilaengu absoluutv\u00e4\u00e4rtus erineb tuuma elektronkatte omast; nende summaarne elektrilaeng erineb nullist ja nad kuuluvad ioonide hulka.\n\nAatomi ehitus\nAatom koosneb positiivse elektrilaenguga aatomituumast, mida \u00fcmbritseb negatiivselt laetud elektronkate ehk elektronkest. Viimane jaguneb elektronkihtideks, mis omakorda koosnevad negatiivse elementaarlaenguga elektronidest. Aatomi tuum annab 99,9% kogu aatomi massist; aatomi elektronkate m\u00e4\u00e4rab \u00e4ra aatomi l\u00e4bim\u00f5\u00f5du. V\u00e4hima aatomi mass on suurusj\u00e4rgus 10\u221227 kg ja l\u00e4bim\u00f5\u00f5t suurusj\u00e4rgus 10\u221210 m (ehk \u00fcks ongstr\u00f6m).\n\nAatomituum\nAatomituum koosneb l\u00e4hestikku asetsevatest nukleonidest \u2013 positiivse elektrilaenguga prootonitest ja elektrilaenguta (neutraalsetest) neutronitest. Prootoni ja neutroni mass on ligikaudu v\u00f5rdsed. S\u00f5ltuvalt tuuma koostisest ja energiatasemest jagunevad tuumad erinevateks nukliidideks. Prootoneid ja neutroneid hoiab tuumas koos tuumaj\u00f5ud, mis on positiivselt laetud prootonite omavahelisest elektrostaatilisest t\u00f5ukej\u00f5ust umbes 100 korda suurem. Et tuumaj\u00f5udude m\u00f5juulatus on v\u00e4ga v\u00e4ike (efektiivselt m\u00f5jub see vaid k\u00f5rvuti asetsevate nukleonide vahel), siis \u00fclisuurtes aatomituumades ei suuda tuumaj\u00f5ud tuuma enam koos hoida ning tuum v\u00f5ib laguneda. Sellised aatomid on radioaktiivsed. Planeedi Maa looduses leiduvatest 94 keemilisest elemendist on esimesed 80 stabiilsete aatomituumadega, \u00fclej\u00e4\u00e4nud aga radioaktiivsed.\nNii prootonid kui ka neutronid on fermionid, mis t\u00e4hendab, et nende kohta kehtib Pauli keeluprintsiip \u2013 kaks samas ruumiosas asuvat sama t\u00fc\u00fcpi fermioni ei saa korraga olla samas kvantolekus. Prootonite ja neutronite olekud on m\u00e4\u00e4ratud tuuma kvantarvudega ning neid nimetatakse ka tuumaorbitaalideks. Et prootonid ja neutronid on erinevad osakesed, siis nemad \u00fcksteist Pauli keeluprintsiibi kaudu ei m\u00f5juta.\nProotonite arv tuumas (laenguarv ehk aatomnumber Z) m\u00e4\u00e4rab, millise keemilise elemendi aatomiga on tegemist. Et prootonite arv tuumas v\u00f5rdub ka elektronide arvuga elektronkattes (ioniseerimata aatomi korral), on erineva prootonite arvuga aatomitel erinevad keemilised omadused ja optilised omadused.\nSama prootonite arvu, kuid erineva neutronite arvuga (N) aatomid on teineteise isotoobid. Eri isotoopide keemilised omadused on reeglina v\u00e4ga sarnased (v\u00e4lja arvatud vesiniku puhul), mis muudab isotoopide eristamise keeruliseks. Et eri isotoopide aatomitel on erinev nukleonide arv (massiarv A), on eri isotoopide f\u00fc\u00fcsikalised omadused erinevad. Isotoopi massiarvuga A ja laenguarvuga Z t\u00e4histatakse formula_1, kus X on keemilise elemendi s\u00fcmbol. Kui neutronite arv aatomis erineb oluliselt energeetiliselt k\u00f5ige soodsamast (k\u00f5ige madalama seoseenergiaga) neutronite arvust, on tuum ebastabiilne; sel juhul on tegu radioaktiivse isotoobiga. Viimane v\u00f5ib laguneda, kiirates radioaktiivset kiirgust.\nEhkki aatomituuma mass moodustab valdava osa aatomi massist, on tuuma l\u00e4bim\u00f5\u00f5t umbes 100 000 korda v\u00e4iksem kui aatomil tervikuna, st suurusj\u00e4rgus 10\u221215 m.\n\nElektronkate, ioonid ja spektrid\nAatomi elektronkate koosneb elektronidest, millel on negatiivne elektrilaeng. Elektronid ei tiirle \u00fcmber aatomi selle s\u00f5na klassikalises m\u00f5istes, vaid moodustavad elektronpilve. Elektronpilve l\u00e4bim\u00f5\u00f5t on mitu suurusj\u00e4rku suurem aatomituuma l\u00e4bim\u00f5\u00f5dust, seega m\u00e4\u00e4rab elektronpilve l\u00e4bim\u00f5\u00f5t \u00e4ra aatomi m\u00f5\u00f5tmed.\nKui aatomis on elektrone rohkem v\u00f5i v\u00e4hem kui prootoneid, siis on tegemist iooniga. Liigse elektroniga on negatiivne ioon (anioon), puuduv elektron on aga positiivsel ioonil (katioon). Kui aatomis ei ole \u00fchtegi elektroni, siis on tegemist t\u00e4ielikult ioniseeritud aatomiga. Elektronide aatomist lahtirebimine v\u00f5i juurdelisamine on aatomi ioniseerimine. K\u00f5ige kergemini on aatomist lahti rebitavad need elektronid, mis on aatomiga k\u00f5ige n\u00f5rgemini seotud. Ioonidel on elektrilaeng, mille m\u00e4\u00e4rab neutraalsest aatomist v\u00e4lja rebitud v\u00f5i sellele lisandunud elektronide arv; seet\u00f5ttu reageerivad ioonid \u00fcmbritsevate aatomitega palju tugevamalt kui neutraalsed aatomid.\nKui aatom on molekuli koosseisus, tekib tal selle molekuli teiste aatomitega \u00fchine, uute omadustega elektronkate. Keemiliste elementide keemilised omadused s\u00f5ltuvad elektronide arvust ja nende energeetilisest jaotusest; aatomituum m\u00f5jutab neid ainult elektronide arvu kaudu neutraalses aatomis (erandiks on vesinik). \nElektronid on (nagu prootonid ja neutronidki) fermionid, seega kehtib ka nende kohta Pauli keeluprintsiip, mis ei luba kahel elektronil olla samas ruumiosas samas energeetilises olekus (kvantolekus). Iga elektron, mis lisandub aatomi elektronkattesse, peab valima endale teistest elektronidest erineva energiatasemega aatomorbitaali; aatomorbitaalid on m\u00e4\u00e4ratud elektronkatte kvantarvudega.\nElektronkatte peakvantarv (n) m\u00e4\u00e4rab \u00e4ra elektronkihi, millel elektron asub. T\u00e4pse orbitaali m\u00e4\u00e4ramiseks tuleb arvestada veel asimuudi kvantarvu (l), magnetilise kvantarvu (ml) ja elektroni spinniga.\nKui k\u00f5ik aatomi elektronid asuvad madalaimates (v\u00e4hima energiaga) lubatud kvantolekutes, siis on aatom p\u00f5hiolekus. Kui m\u00f5ni elektron neelab footoni (saab endale footoni energia), siis t\u00f5useb ta m\u00f5nele k\u00f5rgemale vabale energiatasemele ja aatom l\u00e4heb ergastatud olekusse. Tagasi p\u00f5hiolekusse minnes kiirgab aatom footoni; sellega naaseb elektron v\u00e4hima v\u00f5imaliku energiaga kvantolekusse. \nSellisel moel kiiratud footon omab energiat, mis v\u00f5rdub elektroni algse ja kiirgamisj\u00e4rgse energeetilise taseme energia vahega. Et erinevates aatomites on erinevate kvantolekute energiatasemete vahed erinevad, siis iga aatom kiirgab ergastatud olekust p\u00f5hiolekusse naastes erineva energiaga (st lainepikkusega) footoneid. Sellest tuleneb erinevate aatomite erinev spekter (kiirgusspekter). Sama efekti v\u00f5ib t\u00e4heldada ka valguse neeldumist uurides. T\u00e4ielikult neelduvad ainult need footonid, mille energia (lainepikkus) vastab t\u00e4pselt aatomi p\u00f5hioleku ja m\u00f5ne ergastatud oleku energiatasemete vahele. Sellisel moel tekib neeldumisspekter.\n\nAatomi mass, isotoobid ja massidefekt\nPeaaegu kogu aatomi mass on koondunud tuuma. Elektronide mass moodustab aatomi massist alla \u00fche promilli. \nAatomi mass on suurusj\u00e4rgus 10\u221227 kg kuni 10\u221225 kg. Et nii v\u00e4ikeste arvudega on t\u00fclikas opereerida, siis v\u00e4ljendatakse aatomi massi suhtena teatud kindla aatomi massiga. Seet\u00f5ttu v\u00e4ljendatakse aatomi massi dimensioonita arvuga, mida nimetatakse aatommassiks. V\u00f5rdlusalusena on varem kasutatud vesiniku ja hapniku aatomit; aastal 1961 lepiti kokku kasutada isotoobi s\u00fcsinik-12 aatomit. Selle aatomi aatommassiks on definitsiooni j\u00e4rgi 12, nii et aatommassi\u00fchikuks (am\u00fc) on 1/12 s\u00fcsinik-12 aatomi massist. \nEnamik keemilisi elemente esineb looduses mitme isotoobina, mist\u00f5ttu antud keemilise elemendi aatommass antakse isotoopide loodusliku segu keskmisena. Enamasti isotoopide looduslikud proportsioonid ei varieeru, kuid n\u00e4iteks v\u00e4\u00e4vli puhul on see siiski eri leiukohtades erinev.\nHeelium esineb ainult isotoobina formula_2. Heeliumiaatomi tuum koosneb kahest prootonist ja kahest neutronist, mille summaarne mass on 4,034 am\u00fc; heeliumi aatomi mass on aga k\u00f5igest 4,003 am\u00fc. See masside erinevus, mida nimetatakse massidefektist, l\u00e4heb seoseenergia arvele. Termotuumareaktsioonis, milles vesinikuaatomi tuumade liitumisel moodustub heeliumiaatomi tuum, see energia vabaneb.\nAatomite (ja isotoopide) ning molekulide massi m\u00e4\u00e4ramiseks kasutatakse t\u00e4nap\u00e4eval massispektroskoopiat.\n\nAatomi m\u00f5\u00f5tmed\nAatomi m\u00f5\u00f5tmed m\u00e4\u00e4rab elektronkate. \nAatomi l\u00e4bim\u00f5\u00f5du suurusj\u00e4rk on 10\u221210 m. \n\u00dchte sentimeetrisse mahuks ritta asetatuna umbes 100 miljonit aatomit.\n\nAjalugu\n\n\nAntiikaja atomistika\nAtomistika p\u00e4rineb vanakreeka filosoofiast. Aine ehitust p\u00fc\u00fcti kindlaks teha arutluste teel. N\u00e4iteks Anaxagoras pidas ainet l\u00f5putult jagatavaks. \nLeukippos ja tema \u00f5pilane Demokritos aga leidsid, et see on loogiliselt v\u00f5imatu. Seet\u00f5ttu nad oletasid, et aine koosneb v\u00e4ikestest jagamatutest osadest, mida nad hakkasid nimetama aatomiteks ning mida nad eristasid neid \u00fcmbritsevast t\u00fchjusest. Leukippos l\u00e4htus t\u00f5siasjast, et liikumine on olemas. J\u00e4relikult peab olema koht, milles liigutakse, ja see peabki olema t\u00fchjus. Aine osad peavad aga t\u00fchjusest erinema. Kui aine oleks l\u00f5putult jagatav, peaks aine osakeste vahel olema t\u00fchjus ning osakesed ise oleksid l\u00f5pmata v\u00e4ikesed, mis ei ole v\u00f5imalik. \nKuigi aatomid on f\u00fc\u00fcsiliselt jagamatud, on nad matemaatiliselt jagatavad ja neil on kuju. Leukippose j\u00e4rgi koosnevad k\u00f5ik aatomid \u00fchest ja samast ainest ning erinevad ainult kuju poolest. \nDemokritose j\u00e4rgi erinevad aatomid peale kuju ka m\u00f5\u00f5tmete pooles. \nDemokritose \u00f5petuse v\u00f5tsid osalt \u00fcle epikuurlased. Seda esitab muu hulgas Lucretius oma poeemis \"De rerum naturae\". \nAristoteles atomistikat ei pooldanud. Seet\u00f5ttu ei olnud atomistika antiikajal v\u00e4ga m\u00f5jukas ning vajus keskajal kristlikus maailmas (kuid mitte islamimaailmas) hoopis unustusse.\n\nUusaja atomistika\nAtomistika juurde p\u00f6\u00f6rdusid tagasi 17. sajandi \u00f5petlased Pierre Gassendi ja Joachim Jungius. Aatomi m\u00f5istet kasutasid ka Robert Boyle ja Isaac Newton. \nMoodsale aatomiteooriale pani 1807 aluse John Dalton. Daltoni j\u00e4rgi koosnevad k\u00f5ik keemilised elemendid aatomitest. \u00dche ja sama elemendi aatomitel on sama kaal, samad m\u00f5\u00f5tmed ja sama kuju ning eri elementide aatomitel on erinev kaal, m\u00f5\u00f5tmed ja kuju. Aatomid ei ole jagatavad v\u00e4iksemateks osadeks. Elementide aatomit \u00fchinevad \"liitaatomiteks\" (molekulideks). Edasine keemia areng l\u00e4htus nendest postulaatideks. Daltoni aatomiteooria seletas muu hulgas, miks elemendid osalevad keemilistes reaktsioonides kindlates proportsioonides. Juba Dalton p\u00fc\u00fcdis m\u00e4\u00e4rata aatomite massi, kuid esialgu ei \u00f5nnestunud seda \u00f5igesti teha muu hulgas sellep\u00e4rast, et molekulide koostis ei olnud t\u00e4pselt teada. \nAastal 1811 esitas Amadeo Avogadro h\u00fcpoteesi, et \u00fche ja sama ruumalaga gaasid \u00fche ja sama r\u00f5hu juures sisaldavad \u00fchepalju molekule. See aitas kaasa molekulide koostise ning aatomite ja molekulide massi \u00f5igele m\u00e4\u00e4ramisele. \nEsialgu k\u00e4sitati aatomeid struktuurita k\u00f5vade keradena.\n\nAatomif\u00fc\u00fcsika\nAastatel 1833\u20131834 leidis Michael Faraday elektrol\u00fc\u00fcsi uurides, et elektrivoolu lahustes peavad p\u00f5hjustama elektrilaenguga aatomid ning peab eksisteerima v\u00e4him elektrilaeng (elementaarlaeng). Aastal 1897 n\u00e4itas Joseph John Thomson, et gaasis v\u00f5ivad esineda \u00fche ja sama negatiivse elektrilaenguga osakesed, ning oletas, et see ongi v\u00e4him elektrilaeng. Neid osakesi hakati nimetama elektronideks. Aastal 1898 n\u00e4itas Wilhelm Wien, et peavad eksisteerima ka positiivse elektrilaenguga osakesed. Neid hakati nimetama prootoniteks. \nPommitades aatomeid radioaktiivsetest ainetest p\u00e4rinevate osakestega, leidis Ernest Rutherford, et alfaosakesed tungivad aatomi sisemusse ning aatomisisesed j\u00f5ud kallutavad neid k\u00f5rvale. Ta m\u00f5\u00f5tis alfakiirguse k\u00f5rvalekaldumist \u00f5hukese ainekihi l\u00e4bimisel ning j\u00f5udis 1911 j\u00e4reldusele, et aatomid peavad koosnema raskest positiivse elektrilaenguga tuumast, mida \u00fcmbritsevad kerged negatiivse elektrilaenguga elektronid (ainsad tollal tuntud negatiivse elektrilaengu kandjad), mis tiirlevad \u00fcmber tuuma sellest suhteliselt v\u00e4ga kaugel. N\u00f5nda meenutab aatom P\u00e4ikeses\u00fcsteemi: aatomituum vastab P\u00e4ikesele ja elektronid planeetidele. Aatomit hoiab koos elektriline k\u00fclget\u00f5mbej\u00f5ud. See nn Rutherfordi aatomimudel oli vastuolus elektrod\u00fcnaamikaga, mille j\u00e4rgi kiirust v\u00f5i liikumissuunda muutev elektron peab emiteerima elektromagnetkiirgust ning sellega energiat \u00e4ra andma, nii et elektron peab l\u00f5puks langema tuumale. \nRutherfordi aatomimudelit modifitseeris 1913 Niels Bohr (Bohri aatomimudel). Bohr v\u00f5ttis aluseks h\u00fcpoteesi, et aatomitel on statsionaarsed olekud ning elektrod\u00fcnaamika ei ole nende puhul rakendatav. Elektronide stabiilsus peab tulenema tundmatutest loodusseadustest. Bohri esimese postulaadi j\u00e4rgi saab aatom eksisteerida \u00fcksnes \u00fches v\u00f5i mitmes kindlas statsionaarses olekus. Igale olekule on iseloomulik teatud energianivoo. Bohri teise postulaadi j\u00e4rgi saab aatom \u00fcle minna \u00fchelt energianivoolt teisele ning selle \u00fclemineku k\u00e4igus vabaneb aatomist v\u00f5i seotakse aatomiga energiahulk, mis v\u00f5rdub energianivoode vahega. Energia vabaneb elektromagnetkiirgusena, footonitena; see toimub kindlate annustena (kvantidena); sageduse m\u00e4\u00e4rab Einsteini sagedustingimus. Sel alusel \u00f5nnestus Bohril arvutada vesiniku spektrijoontele vastavad sagedused; seda peeti tema teooria tugevaks t\u00f5endiks. Bohri teooriat p\u00fc\u00fcti rakendada ka teiste elementide aatomitele, kuid rakendatavaid tulemusi ei saadud. K\u00fcll aga \u00f5nnestus rahuldavalt seletada aatomite j\u00e4rjestust keemiliste elementide perioodilisuss\u00fcsteemis. \nAastal 1919 tekitas Rutherford esmakordselt kunstliku tuumareaktsiooni, pommitades l\u00e4mmastikku alfaosakestega. \nNeutroni avastas alles 1932 James Chadwick. Alles siis j\u00f5uti aatomimudelini, mille j\u00e4rgi aatomituum koosneb prootonitest ja neutronitest.\n\nViited\n{{viited}}\n\nVaata ka\nAatomimudel\nCategory:Aatomif\u00fc\u00fcsika\nCategory:Keemia\n\nV\u00e4lislingid\n[] (Ingliskeelne dokumentaal)\n\n"
+}

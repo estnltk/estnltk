@@ -1,0 +1,836 @@
+{
+    "data": {
+        "categories": [
+            "Filosoofiateosed"
+        ],
+        "other": [
+            "{{keeletoimeta}}"
+        ],
+        "timestamp": "2013-07-26T13:09:27Z",
+        "title": "A causal account of knowing",
+        "url": "http://et.wikipedia.org/wiki/A_causal_account_of_knowing"
+    },
+    "external_links": [
+        {
+            "end": 29696,
+            "label": "Artikli tekst",
+            "start": 29683,
+            "url": "http://hume.ucdavis.edu/mattey/phi102f03/goldman1.html"
+        }
+    ],
+    "internal_links": [
+        {
+            "end": 110,
+            "label": "Alvin Goldmani",
+            "start": 96,
+            "title": "Alvin Goldman",
+            "url": "http://et.wikipedia.org/wiki/Alvin_Goldman"
+        },
+        {
+            "end": 162,
+            "label": "kausaalse teadmisteooria",
+            "start": 138,
+            "title": "kausaalne teadmisteooria",
+            "url": "http://et.wikipedia.org/wiki/kausaalne_teadmisteooria"
+        },
+        {
+            "end": 227,
+            "label": "Journal of Philosophy",
+            "start": 206,
+            "title": "Journal of Philosophy",
+            "url": "http://et.wikipedia.org/wiki/Journal_of_Philosophy"
+        },
+        {
+            "end": 263,
+            "label": "22. juunil",
+            "start": 253,
+            "title": "22. juuni",
+            "url": "http://et.wikipedia.org/wiki/22._juuni"
+        },
+        {
+            "end": 268,
+            "label": "1967",
+            "start": 264,
+            "title": "1967",
+            "url": "http://et.wikipedia.org/wiki/1967"
+        },
+        {
+            "end": 376,
+            "label": "1992",
+            "start": 372,
+            "title": "1992",
+            "url": "http://et.wikipedia.org/wiki/1992"
+        },
+        {
+            "end": 418,
+            "label": "Edmund Gettier",
+            "start": 404,
+            "title": "Edmund Gettier",
+            "url": "http://et.wikipedia.org/wiki/Edmund_Gettier"
+        },
+        {
+            "end": 438,
+            "label": "1963",
+            "start": 434,
+            "title": "1963",
+            "url": "http://et.wikipedia.org/wiki/1963"
+        },
+        {
+            "end": 461,
+            "label": "teab",
+            "start": 457,
+            "title": "teadmine",
+            "url": "http://et.wikipedia.org/wiki/teadmine"
+        },
+        {
+            "end": 495,
+            "label": "anal\u00fc\u00fcs",
+            "start": 488,
+            "title": "m\u00f5isteanal\u00fc\u00fcs",
+            "url": "http://et.wikipedia.org/wiki/m\u00f5isteanal\u00fc\u00fcs"
+        },
+        {
+            "end": 538,
+            "label": "Gettieri probleem",
+            "start": 521,
+            "title": "Gettieri probleem",
+            "url": "http://et.wikipedia.org/wiki/Gettieri_probleem"
+        },
+        {
+            "end": 578,
+            "label": "Bertrand Russell",
+            "start": 562,
+            "title": "Bertrand Russell",
+            "url": "http://et.wikipedia.org/wiki/Bertrand_Russell"
+        },
+        {
+            "end": 640,
+            "label": "Filosoofia probleemid",
+            "start": 619,
+            "title": "Filosoofia probleemid",
+            "url": "http://et.wikipedia.org/wiki/Filosoofia_probleemid"
+        },
+        {
+            "end": 647,
+            "label": "1912",
+            "start": 643,
+            "title": "1912",
+            "url": "http://et.wikipedia.org/wiki/1912"
+        },
+        {
+            "end": 720,
+            "label": "Michael Clark",
+            "start": 707,
+            "title": "Michael Clark",
+            "url": "http://et.wikipedia.org/wiki/Michael_Clark"
+        },
+        {
+            "end": 789,
+            "label": "Analysis",
+            "start": 781,
+            "title": "Analysis",
+            "url": "http://et.wikipedia.org/wiki/Analysis"
+        },
+        {
+            "end": 795,
+            "label": "1963",
+            "start": 791,
+            "title": "1963",
+            "url": "http://et.wikipedia.org/wiki/1963"
+        },
+        {
+            "end": 808,
+            "label": "Ernest Sosa",
+            "start": 797,
+            "title": "Ernest Sosa",
+            "url": "http://et.wikipedia.org/wiki/Ernest_Sosa"
+        },
+        {
+            "end": 880,
+            "label": "Keith Lehrer",
+            "start": 868,
+            "title": "Keith Lehrer",
+            "url": "http://et.wikipedia.org/wiki/Keith_Lehrer"
+        },
+        {
+            "end": 930,
+            "label": "1965",
+            "start": 926,
+            "title": "1965",
+            "url": "http://et.wikipedia.org/wiki/1965"
+        },
+        {
+            "end": 1031,
+            "label": "Gettieri probleemi",
+            "start": 1013,
+            "title": "Gettieri probleem",
+            "url": "http://et.wikipedia.org/wiki/Gettieri_probleem"
+        },
+        {
+            "end": 1073,
+            "label": "empiiriliste",
+            "start": 1061,
+            "title": "empiiriline propositsioon",
+            "url": "http://et.wikipedia.org/wiki/empiiriline_propositsioon"
+        },
+        {
+            "end": 1092,
+            "label": "propositsioonidega",
+            "start": 1074,
+            "title": "propositsioon",
+            "url": "http://et.wikipedia.org/wiki/propositsioon"
+        },
+        {
+            "end": 1136,
+            "label": "mitteenpiiriliste t\u00f5dede",
+            "start": 1112,
+            "title": "aprioorne t\u00f5de",
+            "url": "http://et.wikipedia.org/wiki/aprioorne_t\u00f5de"
+        },
+        {
+            "end": 1245,
+            "label": "Gettieri probleem",
+            "start": 1228,
+            "title": "Gettieri probleem",
+            "url": "http://et.wikipedia.org/wiki/Gettieri_probleem"
+        },
+        {
+            "end": 1275,
+            "label": "usub",
+            "start": 1271,
+            "title": "uskumus",
+            "url": "http://et.wikipedia.org/wiki/uskumus"
+        },
+        {
+            "end": 1351,
+            "label": "t\u00f5endmaterjal",
+            "start": 1338,
+            "title": "t\u00f5endmaterjal",
+            "url": "http://et.wikipedia.org/wiki/t\u00f5endmaterjal"
+        },
+        {
+            "end": 1565,
+            "label": "propositsiooni",
+            "start": 1551,
+            "title": "propositsioon",
+            "url": "http://et.wikipedia.org/wiki/propositsioon"
+        },
+        {
+            "end": 1644,
+            "label": "j\u00e4reldub",
+            "start": 1636,
+            "title": "j\u00e4reldumine",
+            "url": "http://et.wikipedia.org/wiki/j\u00e4reldumine"
+        },
+        {
+            "end": 1684,
+            "label": "j\u00e4reldab",
+            "start": 1676,
+            "title": "j\u00e4reldamine",
+            "url": "http://et.wikipedia.org/wiki/j\u00e4reldamine"
+        },
+        {
+            "end": 1701,
+            "label": "t\u00f5ene",
+            "start": 1696,
+            "title": "t\u00f5esus",
+            "url": "http://et.wikipedia.org/wiki/t\u00f5esus"
+        },
+        {
+            "end": 1747,
+            "label": "t\u00f5endmaterjal",
+            "start": 1734,
+            "title": "t\u00f5endmaterjal",
+            "url": "http://et.wikipedia.org/wiki/t\u00f5endmaterjal"
+        },
+        {
+            "end": 2056,
+            "label": "tea",
+            "start": 2053,
+            "title": "teadmine",
+            "url": "http://et.wikipedia.org/wiki/teadmine"
+        },
+        {
+            "end": 2172,
+            "label": "Michael Clark",
+            "start": 2159,
+            "title": "Michael Clark",
+            "url": "http://et.wikipedia.org/wiki/Michael_Clark"
+        },
+        {
+            "end": 2202,
+            "label": "v\u00e4\u00e4r",
+            "start": 2198,
+            "title": "v\u00e4\u00e4rus",
+            "url": "http://et.wikipedia.org/wiki/v\u00e4\u00e4rus"
+        },
+        {
+            "end": 2381,
+            "label": "alused",
+            "start": 2375,
+            "title": "alus (epistemoloogia)",
+            "url": "http://et.wikipedia.org/wiki/alus_(epistemoloogia)"
+        },
+        {
+            "end": 2785,
+            "label": "p\u00f5hjuslik seos",
+            "start": 2771,
+            "title": "p\u00f5hjuslik seos",
+            "url": "http://et.wikipedia.org/wiki/p\u00f5hjuslik_seos"
+        },
+        {
+            "end": 3246,
+            "label": "fakti",
+            "start": 3241,
+            "title": "fakt",
+            "url": "http://et.wikipedia.org/wiki/fakt"
+        },
+        {
+            "end": 3594,
+            "label": "kausaalne ahel",
+            "start": 3580,
+            "title": "kausaalne ahel",
+            "url": "http://et.wikipedia.org/wiki/kausaalne_ahel"
+        },
+        {
+            "end": 3667,
+            "label": "taju",
+            "start": 3663,
+            "title": "taju",
+            "url": "http://et.wikipedia.org/wiki/taju"
+        },
+        {
+            "end": 3709,
+            "label": "kausaalsest tajuteooriast",
+            "start": 3684,
+            "title": "kausaalne tajuteooria",
+            "url": "http://et.wikipedia.org/wiki/kausaalne_tajuteooria"
+        },
+        {
+            "end": 3745,
+            "label": "Paul Grice",
+            "start": 3735,
+            "title": "Paul Grice",
+            "url": "http://et.wikipedia.org/wiki/Paul_Grice"
+        },
+        {
+            "end": 3773,
+            "label": "kausaalsele tajuteooriale",
+            "start": 3748,
+            "title": "kausaalne tajuteooria",
+            "url": "http://et.wikipedia.org/wiki/kausaalne_tajuteooria"
+        },
+        {
+            "end": 3807,
+            "label": "The Causal Theory of Perception",
+            "start": 3776,
+            "title": "The Causal Theory of Perception",
+            "url": "http://et.wikipedia.org/wiki/The_Causal_Theory_of_Perception"
+        },
+        {
+            "end": 3849,
+            "label": "Proceedings of the Aristotelian Society",
+            "start": 3810,
+            "title": "Proceedings of the Aristotelian Society",
+            "url": "http://et.wikipedia.org/wiki/Proceedings_of_the_Aristotelian_Society"
+        },
+        {
+            "end": 3855,
+            "label": "1961",
+            "start": 3851,
+            "title": "1961",
+            "url": "http://et.wikipedia.org/wiki/1961"
+        },
+        {
+            "end": 3878,
+            "label": "n\u00e4eb",
+            "start": 3874,
+            "title": "n\u00e4gemine",
+            "url": "http://et.wikipedia.org/wiki/n\u00e4gemine"
+        },
+        {
+            "end": 4006,
+            "label": "tarvilik tungimus",
+            "start": 3989,
+            "title": "tarvilik tungimus",
+            "url": "http://et.wikipedia.org/wiki/tarvilik_tungimus"
+        },
+        {
+            "end": 4254,
+            "label": "filosoofia",
+            "start": 4244,
+            "title": "filosoofia",
+            "url": "http://et.wikipedia.org/wiki/filosoofia"
+        },
+        {
+            "end": 4272,
+            "label": "eriteaduste",
+            "start": 4261,
+            "title": "eriteadus",
+            "url": "http://et.wikipedia.org/wiki/eriteadus"
+        },
+        {
+            "end": 4512,
+            "label": "p\u00f5hjuslikkusen",
+            "start": 4498,
+            "title": "p\u00f5hjuslikkus",
+            "url": "http://et.wikipedia.org/wiki/p\u00f5hjuslikkus"
+        },
+        {
+            "end": 4679,
+            "label": "hologramm",
+            "start": 4670,
+            "title": "hologramm",
+            "url": "http://et.wikipedia.org/wiki/hologramm"
+        },
+        {
+            "end": 4774,
+            "label": "laser",
+            "start": 4769,
+            "title": "laser",
+            "url": "http://et.wikipedia.org/wiki/laser"
+        },
+        {
+            "end": 5340,
+            "label": "kausaalne eellane",
+            "start": 5323,
+            "title": "kausaalne eellane",
+            "url": "http://et.wikipedia.org/wiki/kausaalne_eellane"
+        },
+        {
+            "end": 5591,
+            "label": "faktide",
+            "start": 5584,
+            "title": "fakt",
+            "url": "http://et.wikipedia.org/wiki/fakt"
+        },
+        {
+            "end": 5611,
+            "label": "tajumuslik teadmine",
+            "start": 5592,
+            "title": "tajumuslik teadmine",
+            "url": "http://et.wikipedia.org/wiki/tajumuslik_teadmine"
+        },
+        {
+            "end": 5631,
+            "label": "mittej\u00e4relduslik",
+            "start": 5615,
+            "title": "mittej\u00e4relduslik teadmine",
+            "url": "http://et.wikipedia.org/wiki/mittej\u00e4relduslik_teadmine"
+        },
+        {
+            "end": 5702,
+            "label": "j\u00e4relda",
+            "start": 5695,
+            "title": "j\u00e4reldamine",
+            "url": "http://et.wikipedia.org/wiki/j\u00e4reldamine"
+        },
+        {
+            "end": 5734,
+            "label": "f\u00fc\u00fcsiliste esemete",
+            "start": 5716,
+            "title": "f\u00fc\u00fcsiline ese",
+            "url": "http://et.wikipedia.org/wiki/f\u00fc\u00fcsiline_ese"
+        },
+        {
+            "end": 5748,
+            "label": "aju",
+            "start": 5745,
+            "title": "aju",
+            "url": "http://et.wikipedia.org/wiki/aju"
+        },
+        {
+            "end": 5781,
+            "label": "meeleelundite",
+            "start": 5768,
+            "title": "meeleelund",
+            "url": "http://et.wikipedia.org/wiki/meeleelund"
+        },
+        {
+            "end": 5883,
+            "label": "epistemoloogid v\u00e4idavad",
+            "start": 5860,
+            "title": "epistemoloogia",
+            "url": "http://et.wikipedia.org/wiki/epistemoloogia"
+        },
+        {
+            "end": 5920,
+            "label": "meelteandmeid",
+            "start": 5907,
+            "title": "meelteandmed",
+            "url": "http://et.wikipedia.org/wiki/meelteandmed"
+        },
+        {
+            "end": 6278,
+            "label": "m\u00e4lul",
+            "start": 6273,
+            "title": "m\u00e4lu",
+            "url": "http://et.wikipedia.org/wiki/m\u00e4lu"
+        },
+        {
+            "end": 8407,
+            "label": "j\u00e4reldamisel",
+            "start": 8395,
+            "title": "j\u00e4reldamine",
+            "url": "http://et.wikipedia.org/wiki/j\u00e4reldamine"
+        },
+        {
+            "end": 9245,
+            "label": "laavat",
+            "start": 9239,
+            "title": "laava",
+            "url": "http://et.wikipedia.org/wiki/laava"
+        },
+        {
+            "end": 9440,
+            "label": "induktiivne",
+            "start": 9429,
+            "title": "induktsioon",
+            "url": "http://et.wikipedia.org/wiki/induktsioon"
+        },
+        {
+            "end": 10567,
+            "label": "Tarvilik tingimus",
+            "start": 10550,
+            "title": "Tarvilik tingimus",
+            "url": "http://et.wikipedia.org/wiki/Tarvilik_tingimus"
+        },
+        {
+            "end": 11696,
+            "label": "tunnistusel",
+            "start": 11685,
+            "title": "tunnistus (epistemoloogia)",
+            "url": "http://et.wikipedia.org/wiki/tunnistus_(epistemoloogia)"
+        },
+        {
+            "end": 11877,
+            "label": "v\u00e4idab",
+            "start": 11871,
+            "title": "v\u00e4itmine",
+            "url": "http://et.wikipedia.org/wiki/v\u00e4itmine"
+        },
+        {
+            "end": 12333,
+            "label": "kausaalse ahela",
+            "start": 12318,
+            "title": "kausaalse ahela",
+            "url": "http://et.wikipedia.org/wiki/kausaalse_ahela"
+        },
+        {
+            "end": 13534,
+            "label": "deduktiivselt",
+            "start": 13521,
+            "title": "deduktsioon",
+            "url": "http://et.wikipedia.org/wiki/deduktsioon"
+        },
+        {
+            "end": 13552,
+            "label": "induktiivselt",
+            "start": 13539,
+            "title": "indiktsioon",
+            "url": "http://et.wikipedia.org/wiki/indiktsioon"
+        },
+        {
+            "end": 13873,
+            "label": "Michael Clark",
+            "start": 13860,
+            "title": "Michael Clark",
+            "url": "http://et.wikipedia.org/wiki/Michael_Clark"
+        },
+        {
+            "end": 15649,
+            "label": "kavatseb",
+            "start": 15641,
+            "title": "kavatsus",
+            "url": "http://et.wikipedia.org/wiki/kavatsus"
+        },
+        {
+            "end": 15996,
+            "label": "tuleviku",
+            "start": 15988,
+            "title": "tulevik",
+            "url": "http://et.wikipedia.org/wiki/tulevik"
+        },
+        {
+            "end": 17510,
+            "label": "kaminas",
+            "start": 17503,
+            "title": "kamin",
+            "url": "http://et.wikipedia.org/wiki/kamin"
+        },
+        {
+            "end": 18551,
+            "label": "John Turk Saunders",
+            "start": 18533,
+            "title": "John Turk Saunders",
+            "url": "http://et.wikipedia.org/wiki/John_Turk_Saunders"
+        },
+        {
+            "end": 18572,
+            "label": "Narayan Champawat",
+            "start": 18555,
+            "title": "Narayan Champawat",
+            "url": "http://et.wikipedia.org/wiki/Narayan_Champawat"
+        },
+        {
+            "end": 18674,
+            "label": "Analysis",
+            "start": 18666,
+            "title": "Analysis",
+            "url": "http://et.wikipedia.org/wiki/Analysis"
+        },
+        {
+            "end": 18680,
+            "label": "1964",
+            "start": 18676,
+            "title": "1964",
+            "url": "http://et.wikipedia.org/wiki/1964"
+        },
+        {
+            "end": 20108,
+            "label": "Keith Lehrer",
+            "start": 20096,
+            "title": "Keith Lehrer",
+            "url": "http://et.wikipedia.org/wiki/Keith_Lehrer"
+        },
+        {
+            "end": 21187,
+            "label": "konjunktsiooni",
+            "start": 21173,
+            "title": "konjunktsioon (loogika)",
+            "url": "http://et.wikipedia.org/wiki/konjunktsioon_(loogika)"
+        },
+        {
+            "end": 22035,
+            "label": "loogilisi",
+            "start": 22026,
+            "title": "loogika",
+            "url": "http://et.wikipedia.org/wiki/loogika"
+        },
+        {
+            "end": 22509,
+            "label": "&",
+            "start": 22508,
+            "title": "konjunktsioon (loogika)",
+            "url": "http://et.wikipedia.org/wiki/konjunktsioon_(loogika)"
+        },
+        {
+            "end": 23391,
+            "label": "vigast ringi",
+            "start": 23379,
+            "title": "vigane ring",
+            "url": "http://et.wikipedia.org/wiki/vigane_ring"
+        },
+        {
+            "end": 23482,
+            "label": "rekursiivne definitsioon",
+            "start": 23458,
+            "title": "rekursiivne definitsioon",
+            "url": "http://et.wikipedia.org/wiki/rekursiivne_definitsioon"
+        },
+        {
+            "end": 24258,
+            "label": "Abraham Lincoln",
+            "start": 24243,
+            "title": "Abraham Lincoln",
+            "url": "http://et.wikipedia.org/wiki/Abraham_Lincoln"
+        },
+        {
+            "end": 24270,
+            "label": "1809",
+            "start": 24266,
+            "title": "1809",
+            "url": "http://et.wikipedia.org/wiki/1809"
+        },
+        {
+            "end": 24323,
+            "label": "Gilbert Harmani",
+            "start": 24308,
+            "title": "Gilbert Harman",
+            "url": "http://et.wikipedia.org/wiki/Gilbert_Harman"
+        },
+        {
+            "end": 24416,
+            "label": "ents\u00fcklopeediast",
+            "start": 24400,
+            "title": "ents\u00fcklopeedia",
+            "url": "http://et.wikipedia.org/wiki/ents\u00fcklopeedia"
+        },
+        {
+            "end": 24451,
+            "label": "ents\u00fcklopeedia",
+            "start": 24437,
+            "title": "ents\u00fcklopeedia",
+            "url": "http://et.wikipedia.org/wiki/ents\u00fcklopeedia"
+        },
+        {
+            "end": 25681,
+            "label": "meeltev\u00e4line taju",
+            "start": 25664,
+            "title": "meeltev\u00e4line taju",
+            "url": "http://et.wikipedia.org/wiki/meeltev\u00e4line_taju"
+        },
+        {
+            "end": 25855,
+            "label": "vaimuseisundute",
+            "start": 25840,
+            "title": "vaimuseisund",
+            "url": "http://et.wikipedia.org/wiki/vaimuseisund"
+        },
+        {
+            "end": 26572,
+            "label": "samasust",
+            "start": 26564,
+            "title": "samasus (filosoofia)",
+            "url": "http://et.wikipedia.org/wiki/samasus_(filosoofia)"
+        },
+        {
+            "end": 26610,
+            "label": "piirjuhuna",
+            "start": 26600,
+            "title": "piirjuht",
+            "url": "http://et.wikipedia.org/wiki/piirjuht"
+        },
+        {
+            "end": 26631,
+            "label": "k\u00f5dunud juhuna",
+            "start": 26617,
+            "title": "k\u00f5dunud juht",
+            "url": "http://et.wikipedia.org/wiki/k\u00f5dunud_juht"
+        },
+        {
+            "end": 26648,
+            "label": "nulli",
+            "start": 26643,
+            "title": "null",
+            "url": "http://et.wikipedia.org/wiki/null"
+        },
+        {
+            "end": 26667,
+            "label": "arvu",
+            "start": 26663,
+            "title": "arv",
+            "url": "http://et.wikipedia.org/wiki/arv"
+        },
+        {
+            "end": 27417,
+            "label": "t\u00f5esustingimustest",
+            "start": 27399,
+            "title": "t\u00f5esustingimused",
+            "url": "http://et.wikipedia.org/wiki/t\u00f5esustingimused"
+        },
+        {
+            "end": 27657,
+            "label": "pesapallim",
+            "start": 27647,
+            "title": "pesapall",
+            "url": "http://et.wikipedia.org/wiki/pesapall"
+        },
+        {
+            "end": 28187,
+            "label": "verifitseerimistingimustega",
+            "start": 28160,
+            "title": "verifitseerimistingimused",
+            "url": "http://et.wikipedia.org/wiki/verifitseerimistingimused"
+        },
+        {
+            "end": 28940,
+            "label": "skeptilistele",
+            "start": 28927,
+            "title": "skeptitsism",
+            "url": "http://et.wikipedia.org/wiki/skeptitsism"
+        },
+        {
+            "end": 29030,
+            "label": "kogemuse",
+            "start": 29022,
+            "title": "kogemus",
+            "url": "http://et.wikipedia.org/wiki/kogemus"
+        },
+        {
+            "end": 29054,
+            "label": "t\u00f5estan",
+            "start": 29047,
+            "title": "t\u00f5estus",
+            "url": "http://et.wikipedia.org/wiki/t\u00f5estus"
+        },
+        {
+            "end": 29099,
+            "label": "materiaalne maailm",
+            "start": 29081,
+            "title": "materiaalne maailm",
+            "url": "http://et.wikipedia.org/wiki/materiaalne_maailm"
+        },
+        {
+            "end": 29108,
+            "label": "minevik",
+            "start": 29101,
+            "title": "minevik",
+            "url": "http://et.wikipedia.org/wiki/minevik"
+        },
+        {
+            "end": 29249,
+            "label": "epistemoloogia",
+            "start": 29235,
+            "title": "epistemoloogia",
+            "url": "http://et.wikipedia.org/wiki/epistemoloogia"
+        }
+    ],
+    "sections": [
+        {
+            "end": 378,
+            "start": 0
+        },
+        {
+            "end": 3559,
+            "start": 380,
+            "title": "\u00dcmberjutustus artiklist"
+        },
+        {
+            "end": 6220,
+            "start": 3561,
+            "title": "Taju"
+        },
+        {
+            "end": 7928,
+            "start": 6222,
+            "title": "M\u00e4lu"
+        },
+        {
+            "end": 11659,
+            "start": 7930,
+            "title": "J\u00e4reldamine"
+        },
+        {
+            "end": 13631,
+            "start": 11661,
+            "title": "Tunnistus"
+        },
+        {
+            "end": 14825,
+            "start": 13633,
+            "title": "Clarki anal\u00fc\u00fcs"
+        },
+        {
+            "end": 18360,
+            "start": 14827,
+            "title": "Hargnevad ahelad"
+        },
+        {
+            "end": 22832,
+            "start": 18362,
+            "title": "Clarke'i anal\u00fc\u00fcsi raskused, mille minu anal\u00fc\u00fcs \u00fcletab"
+        },
+        {
+            "end": 29669,
+            "start": 22834,
+            "title": "\u00dcldistus"
+        },
+        {
+            "end": 29696,
+            "start": 29671,
+            "title": "V\u00e4lislingid"
+        }
+    ],
+    "text": "A causal account of knowing\n\"A causal account of knowing\" (\"\u00dcks kausaalne teadmise teooria\") on Alvin Goldmani artikkel, milles ta esitab kausaalse teadmisteooria esimese variandi. \nArtikkel ilmus ajakirja Journal of Philosophy k\u00f6ites LXIV, numbris 12, 22. juunil 1967. Hiljem on see ilmunud autori raamatus \"Liaisons: Philosophy Meets the Cognitive and Social Sciences\" (1992).\n\n\u00dcmberjutustus artiklist\nEdmund Gettier meenutas meile 1963, et v\u00e4ljendi \"\"S\" teab, et \"p\"\" traditsiooniline anal\u00fc\u00fcs ei ole adekvaatne (vaata Gettieri probleem). (Sellele osutas juba Bertrand Russell raamatus \"The Problems of Philosophy\" (\"Filosoofia probleemid\" (1912).)\nSeda anal\u00fc\u00fcsi on hiljem mitu korda p\u00fc\u00fctud korrigeerida: Michael Clark, \"Knowledge and Grounds: A Comment on Mr. Gettier's Paper\", Analysis, 1963; Ernest Sosa, \"The Analysis of 'Knowledge that \"p\" ' \", Analysis, 1964; Keith Lehrer, \"Knowledge, Truth, and Evidence\", Analysis, 1965. \nSelles artiklis ma p\u00fc\u00fcan pakkuda v\u00e4ljendile \"\"S\" teab, et \"p\" uue anal\u00fc\u00fcsi, mis Gettieri probleemi \u00e4ra hoiab. Ma tegelen ainult empiiriliste propositsioonidega, sest ma arvan, et mitteenpiiriliste t\u00f5dede korral on traditsiooniline anal\u00fc\u00fcs adekvaatne. \nVaatleme Gettieri teist vastun\u00e4idet (vaata Gettieri probleem) l\u00fchendatud kujul. Smith usub, et \n(\"q\") Jonesil on Ford, \nja tal on selle kohta v\u00e4ga tugev t\u00f5endmaterjal. N\u00e4iteks: Jonesil on aastaid Ford olnud ja ta \u00e4sja s\u00f5idutas Jonesi Fordiga. Smithil on \u00fcks tuttav, kelle nimi on Brown ja kelle asukohast tal pole aimugi. Smith valib huupi \u00fche linna ja konstrueerib propositsiooni \n(\"p\") Jonesil on Ford v\u00f5i Brown on Barcelonas. \nPropositsioonist \"q\" j\u00e4reldub propositsioon \"p\". Smith j\u00f5uab j\u00e4reldab, et \"p\" on t\u00f5ene. Et tal on \"q\" kohta adekvaatne t\u00f5endmaterjal, siis tal on adekvaatne t\u00f5endmaterjal ka \"p\" kohta. Oletame aga, et Jonesil tegelikult Fordi ei ole (ta s\u00f5idutas Smithi \u00fc\u00fcritud autoga), aga Brown ongi juhuslikult Barcelonas. Siis propositsioon \"p\" on t\u00f5ene, Smith usub propositsiooni \"p\" ja Smithil on \"p\" kohta adekvaatne t\u00f5endusmaterjal. Kuid Smith ei tea, et \"p\".\nSelle seletamiseks, et Smith ei tea, et \"p\", saab p\u00fcstitada mitmesuguseid h\u00fcpoteese. N\u00e4iteks Michael Clark osutab asjaolule, \"q\" on v\u00e4\u00e4r, ning oletab, et sellep\u00e4rast ei saagi \u00f6elda, et Smith teab, et \"p\". Seda juhtumit \u00fcldistades \u00fctleb Clark, et selleks, et \"S\" mingit propositsiooni teaks, peavad \"S\"-i k\u00f5ik alused olema t\u00f5esed, samuti nende aluste k\u00f5ik alused jne. Mina esitan teise h\u00fcpoteesi selle seletamiseks, et ei saa \u00f6elda, et Smith teab, et \"p\", ja \u00fcldistan selle h\u00fcpoteesi v\u00e4ljendi \"S\" teab, et \"p\"\" uueks anal\u00fc\u00fcsiks.\nP\u00f6\u00f6rake t\u00e4helepanu sellele, et propositsiooni \"p\" teeb t\u00f5eseks asjaolu, et Brown on Barcelonas, kuid sel asjaolul ei ole sellega, et Smith usub, et \"p\", mingit pistmist. Puudub p\u00f5hjuslik seos Browni Barcelonas olemise ja Smithi uskumise vahel, et \"p\". Kui Smith oleks hakanud propositsiooni \"p\" uskuma sellep\u00e4rast, et ta luges Browni kirja, millel on Barcelona postitempel, siis me saaksime \u00f6elda, et Smith teab, et \"p\". V\u00f5i kui Jonesil oleks olnud Ford ja ta siis oleks Smithi s\u00f5idutanud ja see oleks pannud Smithi uskuma, et \"p\", siis me \u00fctleksime, et Smith, teab, et \"p\". Nii et \u00fcks asi, mis paistab Gettieri n\u00e4ites puuduvat, on p\u00f5hjuslik seos fakti vahel, mis teeb \"p\" t\u00f5eseks (ehk: fakti vahel, et \"p\"), ja Smithi uskumuse vahel, et \"p\". S\u00e4\u00e4rase p\u00f5hjusliku seose n\u00f5ude ma tahangi traditsioonilisele anal\u00fc\u00fcsile lisada. \nSelleks, et n\u00e4idata, et k\u00f5ikidel (empiirilise) teadmise juhtudel on see n\u00f5ue rahuldatud, tuleb s\u00e4\u00e4raseid p\u00f5hjuslikke seoseid l\u00e4hemalt uurida.\n\nTaju\nK\u00f5ige lihtsam kausaalne ahel, mis seob mingit fakti, et \"p\", kellegi uskumusega, et \"p\", on vast taju. Ma l\u00e4htun siin kausaalsest tajuteooriast, mis on l\u00e4hedane Herbert Paul Grice'i kausaalsele tajuteooriale (\"The Causal Theory of Perception\", Proceedings of the Aristotelian Society, 1961). Oletame, et \"S\" n\u00e4eb, et tema ees on vaas. Kuidas on see m\u00f5isteliselt anal\u00fc\u00fcsitav? Ma ei p\u00fc\u00fca seda t\u00e4ielikult anal\u00fc\u00fcsida, kuid \u00fcks tarvilik tungimus selleks, et \"S\" n\u00e4eks, et tema ees on laud, on see, et vaasi kohaloleku ja \"S\"-i uskumise vahel, et vaas on kohal, oleks teatavat t\u00fc\u00fcpi p\u00f5hjuslik seos. Ma ei p\u00fc\u00fca seda p\u00f5hjuslikku seost t\u00e4pselt kirjeldada. Suurelt jaolt ei ole see mitte filosoofia, vaid eriteaduste \u00fclesanne. Aga mingi kausaalne protsess seal aset leiab, nimelt see, mis tavaliselt aset leiab, kui me \u00fctleme, et keegi midagi n\u00e4eb. Seda, et meie tavaline n\u00e4gemisem\u00f5iste (n\u00e4gemise abil saadud teadmise m\u00f5iste) sisaldab mingit p\u00f5hjuslikkusen\u00f5uet, n\u00e4itab asjaolu, et kui asjakohane p\u00f5hjuslik seos puudub, siis me n\u00e4gemisest ei r\u00e4\u00e4gi. Oletame, et kuigi vaas on otse \"S\"-i ees, on vaasi ja \"S\"-i vahel hologramm, mis varjab vaasi \"S\"-i pilgu eest \u00e4ra. Ent hologrammil on vaas (\u00fcks teine vaas), ja kui laser seda valgustab, paistab ta \"S\"-ile t\u00e4pselt samasugusena nagu p\u00e4ris vaas. \"S\" hakkab valgustatud hologrammi n\u00e4hes uskuma, et tema ees on vaas. Me ei \u00fctleks sel juhul, et \"S\" n\u00e4eb, et tema ees on vaas, sest p\u00e4ris vaas on tema pilgu eest t\u00e4ielikult varjul, nii et tal pole \"S\"-i uskumuse kujunemises mingit kausaalset rolli. Muidugi v\u00f5ib S seda, et tema ees on vaas, teada ka siis, kui hologramm selle tema pilgu eest \u00e4ra varjab. Keegi teine, kes vaasi n\u00e4eb, v\u00f5ib \"S\"-ile \u00f6elda, et tema ees on vaas. Sel juhul v\u00f5ib vaasi kohalolek olla \"S\"-i uskumuse kausaalne eellane, kuid kausaalne protsess ei ole (puht)tajuline. Ei saaks \u00f6elda, et \"S\" n\u00e4eb, et tema ees on vaas. Et viimane oleks t\u00f5si, selleks on tarvis erilist t\u00fc\u00fcpi kausaalset protsessi, mis seob vaasi kohalolekut \"S\"-i uskumusega. \nMa eeldan allpool, et faktide tajumuslik teadmine on mittej\u00e4relduslik. See on lihtsustus, mis minu teooriat ei kitsenda. Igatahes ei j\u00e4relda tajuja fakte f\u00fc\u00fcsiliste esemete kohta oma aju seisundist ega oma meeleelundite stimuleeritusest. Ta ei pruugi nendest asjadest \u00fcldse midagi teada. Aga m\u00f5ned epistemoloogid v\u00e4idavad, et me tajume vahetult meelteandmeid ning j\u00e4reldame nendest f\u00fc\u00fcsiliste esemetega seotud fakte. Minu anal\u00fc\u00fcsi saaks sellise arusaamaga kohandada. Ma v\u00f5iksin \u00f6elda, et f\u00fc\u00fcsiliste esemetega seotud faktid p\u00f5hjustavad meelteandmeid, inimesed tajuvad otseselt meelteandmeid ja nad j\u00e4reldavad f\u00fc\u00fcsiliste esemetega seotud fakte meelteandmetest.\n\nM\u00e4lu\nVaatleme n\u00fc\u00fcd teadmist, mis osaliselt p\u00f5hineb m\u00e4lul. Nagu taju, nii ka m\u00e4letamist tuleb vaadelda kausaalse protsessina. \"S\" m\u00e4letab propositsiooni \"p\" ajahetkel \"t\" ainult juhul, kui \"S\"-i uskumine, et \"p\", mingil varasemal ajahetkel p\u00f5hjustas tema uskumise, et \"p\", ajahetkel \"t\". Muidugi ei ole igasuguse p\u00f5hjusliku seose puhul varasema ja hilisema uskumuse vahel tegemist m\u00e4letamisega. Kuid ma ei hakka seda protsessi t\u00e4psemalt kirjeldama. Selle asemel viitame lihtsalt m\u00e4letamise n\u00e4idisjuhtudele ja \u00fctleme, et m\u00e4letamine on seda t\u00fc\u00fcpi protsess. \nP\u00f5hjuslik seos propositsiooni \"p\" mingi varasema uskumise (v\u00f5i teadmise) ja selle mingi hilisema uskumise (teadmise) vahel on igatahes m\u00e4letamise olemuslik koostisosa. Mingi fakti m\u00e4letamine ei ole lihtsalt selle uskumine hetkel \"t\"0 pluss selle uskumine hetkel \"t\"1. Samuti ei j\u00e4reldu sellest, et keegi teab mingit fakti hetkel \"t\"0 ning teab seda hetkel \"t\"1, et ta seda hetkel \"t\"1 m\u00e4letab. V\u00f5ib ju olla nii, et hetkel \"t\"0 ta tajus seda fakti, siis unustas \u00e4ra ja hetkel \"t\"1 sai selle uuesti teada, sest keegi \u00fctles talle seda. Samuti ei taga see, et kellelgi on m\u00e4letamisetunne v\u00f5i -mulje, et ta t\u00f5esti m\u00e4letab. Oletame, et \"S\" tajub hetkel \"t\"0, et \"p\", kuid hetkel \"t\"1 unustab selle. Hetkel \"t\"2 hakkab ta uuesti uskuma, et \"p\", sest keegi \u00fctleb talle, et \"p\", kuid hetkel \"t\"2 tal ei ole muljet, et \"p\". Hetkel \"t\"3 kutsutakse \"S\"-il kunstlikult esile mulje, et ta m\u00e4letab, et \"p\". Sellest ei j\u00e4reldu, nagu \"S\" hetkel \"t\"3 m\u00e4letaks, et \"p\". Selle juhtumi kirjelduse j\u00e4rgi ei ole sellel, et \"S\" hetkel \"t\"0 usub, et \"p\", mingit kausaalset m\u00f5ju sellele, et ta hetkel \"t\"3 usub, et \"p\". Seet\u00f5ttu me ei \u00fctleks, et ta hetkel \"t\"3 m\u00e4letab, et \"p\".\n\nJ\u00e4reldamine\nTeadmiseni on v\u00f5imalik j\u00f5uda taju ja m\u00e4lu koostoimel. Hetkel \"t\"0 p\u00f5hjustab fakt, et \"p\", taju kaudu selle, et \"S\" usub, et \"p\". \"S\"-i uskumine hetkel \"t\"0, et \"p\", p\u00f5hjustab m\u00e4lu kaudu selle, et \"S\" usub hetkel \"t\"1, et \"p\". N\u00f5nda osaleb fakt, et \"p\", selle p\u00f5hjustamisel, et \"S\" hetkel \"t\"1 usub, et \"p\", ning v\u00f5ib \u00f6elda, et \"S\" hetkel teab, et \"p\". Aga mitte igasugune teadmine ei s\u00fcnni \u00fcksnes tajust ja m\u00e4lust. Muuhulgas p\u00f5hineb suur osa teadmisest j\u00e4reldamisel. \nMa kasutan s\u00f5na \"j\u00e4reldamine\" siin niisuguses t\u00e4henduses, et see, et \"S\" teab, et \"p\", j\u00e4reldamise kaudu, ei t\u00e4henda tingimata, et \"S\" oleks l\u00e4bi teinud eksplitsiitse, teadvustatud j\u00e4reldamisprotsessi. Ta ei pea tingimata olema \"iseendaga r\u00e4\u00e4kinud\", \u00f6eldes midagi taolist: \"Et see ja see on t\u00f5si, siis ka \"p\" peab olema t\u00f5ene.\" Minu uskumus, et kuskil l\u00e4hedal on tulekahju, p\u00f5hineb minu uskumusel (on j\u00e4reldatud minu uskumusest), et ma kuulen tulet\u00f5rjeauto sireeni. Kuid ma ei ole l\u00e4bi teinud eksplitsiitset arutlemisprotsessi, \u00f6eldes: \"Seal on tulet\u00f5rje auto; j\u00e4relikult peab kuskil siin olema tulekahju.\" Kui s\u00f5na \"j\u00e4reldamine\" tavaliselt kasutatakse ainult siis, kui on tegemist eksplitsiitse j\u00e4reldamisega, siis mina kasutan seda terminit m\u00f5nev\u00f5rra laiemas t\u00e4henduses. \nOletame, et \"S\" tajub, et mitmel pool maal on hangunud laavat. Toetudes sellele uskumusele pluss taustuskumustele laava tekkimise kohta, j\u00f5uab \"S\" j\u00e4reldusele, et l\u00e4hedal asuv tulem\u00e4gi on sajandeid tagasi pursanud. Oletame, et see on v\u00e4ga tugev induktiivne j\u00e4reldus, mis annab \"S\"-ile adekvaatse t\u00f5endmaterjali uskumiseks, et sajandeid tagasi t\u00f5esti oli vulkaanipurse. Oletame ka, et see propositsioon on t\u00f5ene. Kas siis \"S\" teab seda? See s\u00f5ltub selle kausaalse protsessi iseloomust, mis selle uskumuseni viis. Kui on olemas katkematu kausaalne ahel, mis tema meelest seob fakti, et vulkaan purskas, sellega, et tema seda fakti usub, siis \"S\" teab seda. Kui aga s\u00e4\u00e4rast kausaalset ahelat ei ole, siis \"S\" seda propositsiooni ei tea. \nOletame, et m\u00e4gi purskab, j\u00e4ttes \u00fcmbrusesse laavat. Laava j\u00e4\u00e4b sinna, kuni \"S\" tajub seda ja j\u00e4reldab, et m\u00e4gi purskas. Aga oletame n\u00fc\u00fcd, et p\u00e4rast vulkaanipurset keegi kuidagi koristas kogu laava \u00e4ra. Sajand hiljem otsustab \u00fcks teine inimene (kes ei teagi, et seal vulkaanipurse oli) j\u00e4tta mulje, nagu seal oleks olnud vulkaan, ja paneb sellep\u00e4rast siia-sinna laavat. Veel hiljem satub \"S\" selle laava peale ning teeb j\u00e4relduse, et sajandeid varem on seal olnud vulkaanipurse. Sel juhul ei saa \u00f6elda, et \"S\" propositsiooni teab. Asi on selles, et vulkaanipurse ei olnud selle p\u00f5hjuseks, et \"S\" usub, et vulkaanipurse aset leidis. Tarvilik tingimus selleks, et \"S\" teaks, et \"p\", on see, et tema uskumus, et \"p\" oleks kausaalse ahela kaudu \"p\"-ga seotud.\nTekib aga k\u00fcsimus, kas ahela j\u00e4relduslik osa on ise kausaalne ahel. Teiste s\u00f5nadega, kas \"S\"-i uskumine, et \"q\", on p\u00f5hjuseks tema uskumisele, et \"p\"? Sellele k\u00fcsimusele ma ei p\u00fc\u00fca \u00fcheselt vastata. Ma kaldun \u00fctlema, et j\u00e4reldamine on kausaalne protsess, kuid ma ei taha, et minu tees s\u00f5ltuks sellest v\u00e4itest. Seet\u00f5ttu ma v\u00e4idan \u00fcksnes seda, et kui kausaalsele ahelale on \"liidetud\" j\u00e4relduste ahel, siis kogu ahel on kausaalne.\n(Mingi fakt v\u00f5ib olla mingi uskumuse p\u00f5hjuseks ka juhul, kui uskumus ei ole sellest faktist alguse saanud. Oletame, et ma usun, et teatud maakohas on j\u00e4rv, ning see uskumus sai alguse nii, et sellel polnud seost j\u00e4rve olemasoluga. Mul on ikka veel see uskumus, ja ma l\u00e4hen kohale ning tajun seal j\u00e4rve. N\u00fc\u00fcd muutub j\u00e4rve olemasolu selle p\u00f5hjuseks, et ma j\u00e4rve olemasolu usun. See on nagu lauaplaadiga, mis toetub neljale jalale. Kui lisada viies sama pikk jalg, saab ka sellest jalast p\u00f5hjus, miks lauaplaat ei kuku, kuigi plaadil oli ka varem kindel tugi.)\n\nTunnistus\nVaatleme n\u00fc\u00fcd tunnistusel p\u00f5hinevat teadmist. Ka seda saab kausaalselt anal\u00fc\u00fcsida. Fakt, et \"p\", p\u00f5hjustab taju kaudu selle, et isik \"p\" usub, et \"p\". See, et \"T\" usub, et \"p\", p\u00f5hjustab selle, et ta v\u00e4idab, et \"p\". See, et \"T\" v\u00e4idab, et \"p\", p\u00f5hjustab kuulmistaju kaudu selle, et \"S\" usub, et \"T\" v\u00e4idab, et \"p\". \"S\" j\u00e4reldab, et \"T\" usub, et \"p\", millest ta omakorda j\u00e4reldab, et \"p\" on fakt. On olemas pidev kausaalne ahel \"p\"-lt \"S\"-i uskumisele, et \"p\", ja kui eeldada, et \"S\"-i j\u00e4reldused on iga kord \u00f5igustatud, siis v\u00f5ib \u00f6elda, et \"S\" teab, et \"p\". \nSiin, nagu ka laava n\u00e4ites, teab \"S\", et \"p\", sellep\u00e4rast, et ta rekonstrueeris \u00f5igesti kausaalse ahela, mis viib \"p\"-lt t\u00f5endmaterjalini \"p\" kohta, mida \"S\" tajub, k\u00e4esoleval juhul selleni, et \"T\" v\u00e4idab, et \"p\". S\u00e4\u00e4rane \u00f5ige rekonstruktsioon on j\u00e4reldamisel p\u00f5hineva teadmise tarvilik tungimus. Et seda m\u00f5ista, vaatleme j\u00e4rgmist n\u00e4idet. Ajakirjanik vaatleb \"p\"-d ja teatab sellest oma ajalehele. Aga tr\u00fckkimisel tehti viga, nii ajalehes v\u00e4idetakse \"p\" eitust. Ent lugeja ei pane s\u00f5na \"ei\" t\u00e4hele, ja arvab, et ajaleht v\u00e4idab, et \"p\". Usaldades ajalehte, j\u00e4reldab ta, et \"p\" on t\u00f5ene. Siin on meil pidev kausaalne ahel, mis viib \"p\"-lt \"S\"-i uskumiseni, et \"p\". Ometi \"S\" ei tea, et \"p\". \"S\" arvab, et \"p\" p\u00f5hjustas selle, et ajalehele teatati \"p\"-st, ja see omakorda p\u00f5hjustas selle, et v\u00e4ide \"p\" tr\u00fckiti lehes \u00e4ra. Seega ta rekonstrueerib kausaalse ahela valesti. Selleks aga, et ta teaks, et \"p\", ei tohi tema rekonstruktsioonis vigu olla. Ta ei pea k\u00fcll rekonstrueerima kausaalse ahela k\u00f5iki \u00fcksikasju, kuid ta peab rekonstrueerima k\u00f5ik t\u00e4htsad seosed. Lisan\u00f5ue j\u00e4reldamisel p\u00f5hinevale teadmisele on see, et teadja j\u00e4reldused oleksid \u00f5igustatud: propositsioonid, millele tema uskumus, et \"p\", tugineb, peavad \"p\"-d t\u00f5esti v\u00e4ga tugevalt [kinnitus (epistemoloogia)|kinnitama]], olgu siis deduktiivselt v\u00f5i induktiivselt. Kausaalse ahela rekonstrueerimine lihtsalt \u00e4raarvamise teel ei anna teadmist.\n\nClarki anal\u00fc\u00fcs\nTeadmise traditsiooniline anal\u00fc\u00fcs esitab teadmisele kolm n\u00f5uet. Esiteks, \"p\" peab olema t\u00f5ene. Teiseks, \"S\" peab uskuma, et \"p\". Kolmandaks, kui \"S\" midagi j\u00e4reldab, siis need j\u00e4reldused peavad olema \u00f5igustatud. Michael Clark esitab teadmisele veel \u00fche n\u00f5ude. Ta n\u00f5uab, et iga uskumus \"S\"-i j\u00e4reldamisahelas peab olema t\u00f5ene. Teiste s\u00f5nadega, kui traditsiooniline anal\u00fc\u00fcs n\u00f5uab, et \"S\"-i uskumusele, et \"p\", vastaks mingi fakt, siis Clark n\u00f5uab, et igale \"S\"-i uskumusele, millele tema uskumus, et \"p\", toetub, vastaks mingi fakt. \nClarki anal\u00fc\u00fcs j\u00e4tab v\u00e4lja kausaalsed seosed. Kuid ta saaks oma anal\u00fc\u00fcsi niiviisi \u00fcmber s\u00f5nastada, et ta implitsiitselt nendele p\u00f5hjuslikele seostele osutaks. Kui ta n\u00f5uaks, et teadja uskumuste seas oleksid (asjakohast t\u00fc\u00fcpi) kausaalsed uskumused, siis tema n\u00f5ue, et need uskumused oleksid t\u00f5esed, taanduks n\u00f5udele, et oleksid olemas seda t\u00fc\u00fcpi kausaalsed ahelad, mida mina n\u00f5uan. Clarki anal\u00fc\u00fcsi selline t\u00f5lgendus teeks ta minu omaga peaaegu ekvivalentseks ning v\u00f5imaldaks tal v\u00e4ltida m\u00f5ningaid vastuv\u00e4iteid, mis talle on esitatud. Kuid ta ei ole oma anal\u00fc\u00fcsi eksplitsiitselt niimoodi s\u00f5nastanud, ja seet\u00f5ttu j\u00e4\u00e4b see selles suhtes puudulikuks.\n\nHargnevad ahelad\nEnne kui hakkame vaatama raskusi, mis Clarki anal\u00fc\u00fcsi puhul tekivad, tuleb \u00f6elda veel midagi minu enda anal\u00fc\u00fcsi kohta. Seni on minu n\u00e4idetest j\u00e4\u00e4nud mulje, et kui \"S\" teab, et \"p\", siis fakt, et \"p\" p\u00f5hjustab tema uskumust, et \"p\". Ent see ei peaks ilmselt paika. Oletame, et mul on v\u00f5imalik teada tuleviku fakte. Kui sel juhul n\u00f5uda, et fakt, mida teatakse, p\u00f5hjustaks teadja uskumust, siis meil tuleks tegemist teha \"tagurpidi\" p\u00f5hjuslikkusega. Minu anal\u00fc\u00fcsil aga seda raskust ei teki. Anal\u00fc\u00fcs n\u00f5uab, et \"p\" ja \"S\"-i uskumise vahel oleks kausaalne seos, mitte tingimata seda, et \"p\" oleks \"S\"-i uskumuse p\u00f5hjus. \"p\" ja \"S\"-i uskumus, et \"p\", v\u00f5ivad olla kausaalselt seotud viisil, mis annab teadmise juhul, kui \"p\"-l ja \"S\"-i uskumisel, et \"p\", on \u00fchine p\u00f5hjus. Seda v\u00f5ib illustreerida nii.\n\"T\" kavatseb esmasp\u00e4eval linna minna. P\u00fchap\u00e4eval r\u00e4\u00e4gib \"T\" \"S\"-ile oma kavatsusest. \"S\" kuuleb, et \"T\" \u00fctleb, et ta l\u00e4heb linna, ja j\u00e4reldab, et \"T\" t\u00f5esti kavatseb linna minna. Ja sellest teeb \"S\" j\u00e4relduse, et \"T\" l\u00e4heb esmasp\u00e4eval linna. Oletame n\u00fc\u00fcd, et \"T\" teeb oma kavatsuse teoks ja l\u00e4hebki esmasp\u00e4eval linna. Kui \u00fcldse v\u00f5ib \u00f6elda, et meil on tuleviku kohta teadmine, siis siin on tegemist niisuguse teadmise m\u00f5istliku kandidaadiga. Nii et \u00fctleme, et \"S\" t\u00f5esti teadis seda propositsiooni. Kuidas minu anal\u00fc\u00fcs saab \"S\"-i teadmist seletada? See, et \"T\" l\u00e4heb esmasp\u00e4eval linna, ei saa muidugi olla selle p\u00f5hjuseks, et \"S\" p\u00fchap\u00e4eval usub, et \"T\" esmasp\u00e4eval linna l\u00e4heb. Aga sellel, et \"T\" l\u00e4heb linna, ja sellel, et \"S\" usub, et \"T\" linna l\u00e4heb, on \u00fchine p\u00f5hjus, nimelt see, et \"T\" p\u00fchap\u00e4eval kavatseb linna minna. Selle kavatsuse t\u00f5ttu \"T\" l\u00e4ks linna ja \"S\" uskus, et \"T\" l\u00e4heb linna. See p\u00f5hjuslik seos \"S\"-i uskumuse ja fakti vahel, mida ta usub, v\u00f5imaldab meil \u00f6elda, et \"S\" teab, et \"T\" l\u00e4heb linna. \nP\u00f5hjuslikul seosel \"q\" ja \"p\" vahel on oluline roll selles, et \"S\" teab, et \"p\". Oletame, et \"T\" p\u00fchap\u00e4evane kavatsus linna minna ei p\u00f5hjusta seda, et ta esmasp\u00e4eval linna l\u00e4heb. Oletame, et \"T\" \u00fctleb \"S\"-ile, et l\u00e4heb linna, aga p\u00e4rast m\u00f5tleb \u00fcmber. Aga esmasp\u00e4eval sunnitakse ta relva \u00e4hvardusel linna minema. Selles n\u00e4ites leiavad aset nii \"q\" kui ka \"p\", kuid nende vahel puudub p\u00f5hjuslik seos. Kui muud asjaolud on samad mis eelmises n\u00e4ites, siis ei saa \u00f6elda, et \"S\" teab, et \"p\". Oleks v\u00e4\u00e4r \u00f6elda, et \"T\" l\u00e4heb esmasp\u00e4eval linna. \nSirge kausaalse ahela korral r\u00e4\u00e4gime teadmise esimest t\u00fc\u00fcpi (\"Pattern 1\") juhtudest , hargneva ahela korral teist t\u00fc\u00fcpi (\"Pattern 2\") juhtudest. Viimased ei piirdu teadmisega tuleviku kohta. Ma tean, et eelmisel \u00f5htul tuli minu korstnast suitsu. Ma tean seda sellep\u00e4rast, et m\u00e4letan, et tajusin eelmisel \u00f5htul oma kaminas tuld, ning ma j\u00e4reldan, et tuli p\u00f5hjustas selle, et korstnast tuli suitsu. Siin on tegemist teist t\u00fc\u00fcpi teadmise juhuga. See, et korstnast suitsu tuli, ei osalenud minu uskumuse p\u00f5hjustamises. Ent fakt, et kaminas oli tuli, oli p\u00f5hjuseks nii minu uskumusele, et korstnast tuli suitsu, kui ka faktile, et korstnast tuli suitsu. Kui me seda juhtumit pisut t\u00e4iendame, siis me v\u00f5ime siin r\u00e4\u00e4kida nii esimest kui ka teist t\u00fc\u00fcpi teadmisest. Oletame, et s\u00f5ber \u00fctles mulle t\u00e4na, et tema tajus, et eelmisel \u00f5htul, tuli minu korstnast suitsu, ja ma toetan, selle, et ma seda fakti j\u00e4tkuvalt usun, tema tunnistusele. Siis oli see fakt p\u00f5hjuseks sellele, et ma seda parajasti uskusin, aga ka \u00fche teise, minu uskumust p\u00f5hjustanud fakti tagaj\u00e4rg. \u00dcldjuhul v\u00f5ib antud fakti ja selle vahel, et antud isik seda fakti usub, olla mitmesugust t\u00fc\u00fcpi p\u00f5hjuslikke seoseid.\n\nClarke'i anal\u00fc\u00fcsi raskused, mille minu anal\u00fc\u00fcs \u00fcletab\nVaatleme n\u00fc\u00fcd m\u00f5ningaid vastuv\u00e4iteid Clarki anal\u00fc\u00fcsile ja vaatame, kuidas siin esitatud anal\u00fc\u00fcs nendega toime tuleb. John Turk Saunders ja Narayan Champawat on esitanud Clarki anal\u00fc\u00fcsile j\u00e4rgmise vastuv\u00e4ite (\"Mr. Clark's Definition of 'Knowledge' \", Analysis, 1964).\nOletame, et Smith usub, et\n(\"p\") Jonesil on Ford,\nsest Smithi s\u00f5ber Brown, kellest ta teab, et ta on \u00fcldiselt usaldusv\u00e4\u00e4rne ja aus, \u00fctles eile Smithile, et Jonesil on alati Ford olnud. Browni informatsioon oli \u00f5ige, aga t\u00e4na m\u00fc\u00fcb Jones oma Fordi \u00e4ra ja asendab selle Volkswageniga. Tund aega hiljem leiab Jones oma suureks r\u00f5\u00f5muks, et ta on kahe auto omanik: tal vedas ja ta v\u00f5itis loteriil Fordi. Smithi uskumus, et \"p\" ei ole mitte \u00fcksnes \u00f5igustatud ja t\u00f5ene, vaid ka k\u00f5ik l\u00fclid Smithi aluste ahelas on t\u00f5esed. Selge, et Smith ei tea, et \"p\". Ometi tundub, et Clarki anal\u00fc\u00fcsi j\u00e4rgi peaks teadmine olemas olema. \nSeda, miks Smithil teadmist ei ole, saab minu anal\u00fc\u00fcsi p\u00f5hjal seletada. Smith ei tea, et \"p\", sest sellel, et ta usub, et \"p\", puudub p\u00f5hjuslik seos sellega, et \"p\" (et Jonesil on praegu Ford). \nKui me Clarki anal\u00fc\u00fcsi \u00fclalpool toodud viisil t\u00e4iendame, siis saab seda tollest vastun\u00e4itest p\u00e4\u00e4sta. Kuigi Saunders ja Champawat seda otseselt ei maini, on eeldatavasti \u00fcks Smithi uskumustest see, et kui Jonesil eile oli Ford, siis see p\u00f5hjustab seda, et tal praegu on Ford. Kahtlemata oli see \u00fcks aluseid, miks ta uskus, et Jonesil on praegu Ford. Et aga see uskumus on v\u00e4\u00e4r, siis annaks Clarki anal\u00fc\u00fcs \u00f5ige tulemuse, et Smith ei tea, et \"p\". Kahjuks ei pannud Clark ise seda n\u00e4htavasti t\u00e4hele, sest Saundersi ja Champawati oletatavatele vastuv\u00e4itele pole vastu vaieldud. \nSaunders ja Champawat ning ka Keith Lehrer on esitanud \u00fche teistsuguse vastun\u00e4ite, millele Clarki anal\u00fc\u00fcs vastu ei pane. Esitan sellest probleemist Lehreri n\u00e4ite \u00fclalmainitud n\u00e4itest. Oletame, et Smithi uskumus \n(\"p\") Kellelgi Smithi t\u00f6\u00f6kaaslastest on Ford \ntugineb neljale propositsioonile:\n(\"q\") Jonesil on Ford \n(\"r\") Jones on Smithi t\u00f6\u00f6kaaslane \n(\"s\") Brownil on Fordil \n(\"t\") Brown on Smithi t\u00f6\u00f6kaaslane\nTegelikult Smith teab propositsioone \"q\", \"r\" ja \"t\", kuid ta ei tea propositsiooni \"s\", sest \"s\" on v\u00e4\u00e4r. Et \"s\" on v\u00e4\u00e4r, siis ei ole mitte k\u00f5ik Smithi alused uskunisele, et \"p\", t\u00f5esed, ja seet\u00f5ttu Clarki anal\u00fc\u00fcsi j\u00e4rgi Smith ei tea, et \"p\". Ometi on selge, et Smith teab, et \"p\". Nii et Clarki anal\u00fc\u00fcs on liiga tugev.\nP\u00f5hjuslikke ahelaid arvestades on lihtne Clarki n\u00f5udeid korrigeerida, nii et liiga n\u00f5rgaks ei muutu. Pole vaja n\u00f5uda, et k\u00f5ik \"S\"-i alused oleksid t\u00f5esed. Ainult nii paljud neist peavad t\u00f5esed olema, et \"p\" ja \"S\"-i uskumuse vahel, et \"p\", oleks v\u00e4hemalt \u00fcks p\u00f5hjuslik seos. Lehreri n\u00e4ites arvab Smith, et tal on kaks viisi, kuidas ta teab, et \"p\": propositsioonide \"q\" ja \"r\" konjunktsiooni teadmise kaudu ja propositsioonide \"q\" ja \"r\" konjunktsiooni teadmise kaudu. Tegelikult tal on ainult \u00fcks p\u00f5hjuslik seos, kuid sellest piisab. \nTeine t\u00fc\u00fcp juhtumeid, mille puhul m\u00f5ni \"S\"-i alustest uskumiseks, et \"p\" v\u00f5ib olla v\u00e4\u00e4r, ilma et see takistaks \"S\"-il teadmist, et \"p\", on need, kus v\u00e4\u00e4r propositsioon on m\u00f5ni ebaoluline tausteeldus. Oletame, et \"S\" toetab oma uskumuse, et \"p\", 17 tausteeldusele, kuid ainult 16 neist on t\u00f5esed. Kui need 16 on k\u00fcllalt tugevad, et \"p\"-d kinnitada, siis seitsmeteistk\u00fcmnes on ebaoluline. V\u00f5ib \u00f6elda, et \"S\" teab, et \"p\", kuigi \u00fcks tema alustest on v\u00e4\u00e4r. \nSellest n\u00e4itest on n\u00e4ha, et kausaalse ahela m\u00f5istet tuleb t\u00e4iendavalt selgitada. Varem ma \u00fctlesin, et kausaalsed ahelad, millele on liidetud j\u00e4reldamist, on kausaalsed ahelad. N\u00fc\u00fcd ma tahan lisada, et kausaalsed ahelad, millele on liidetud loogilisi seoseid, on kausaalsed ahelad. Muidu on raske m\u00f5ista, kuidas sellised faktid nagu \"M\u00f5nel Smithi t\u00f6\u00f6kaaslasel on Ford\" ja \"K\u00f5ik inimesed on surelikud\" saavad nende faktide uskumisega kausaalses seoses olla. \nKasulik on j\u00e4rgmine printsiip: Kui \"x\" on \"y\"-iga loogilises seoses ja \"y\" on \"z\"-i p\u00f5hjus, siis \"x\" on \"z\"-i p\u00f5hjus. Oletame, et \"q\" p\u00f5hjustab selle, et \"S\" usub, et \"q\", ja \"r\" p\u00f5hjustab selle, et \"S\" usub, et \"r\". Oletame veel, et \"S\" j\u00e4reldab propositsiooni \"q\"&\"r\" oma uskumusest, et \"q\" ja oma uskumusest, et \"r\". Siis faktid \"q\" ja \"r\" on p\u00f5hjuseks \"S\"-i uskumisele, et \"q\"&\"r\". Ent fakt, et \"q\"&\"r\", on loogilises seoses faktiga, et \"q\", ja faktiga \"r\". Seet\u00f5ttu v\u00f5ib \u00fclalpool s\u00f5nastatud printsiipi kasutades \u00f6elda, et fakt, et \"q\"&\"r\", on selle p\u00f5hjuseks, et \"S\" usub, et \"q\"&\"r\".\n\n\u00dcldistus\nTeadmise anal\u00fc\u00fcsi v\u00f5ib n\u00fc\u00fcd s\u00f5nastada nii:\n\"\"'S\" teab, et \"p\", siis ja ainult siis, kui<br> \nfakt, et \"p\" on \"\u00f5iget t\u00fc\u00fcpi\" (\"appropriate\") viisil p\u00f5hjuslikus seoses sellega, et \"S\" usub, et \"p\".\nTeadmisele viivad \"\u00f5iget t\u00fc\u00fcpi\" kausaalsete protsesside seas on j\u00e4rgmised: \n1) taju \n2) m\u00e4lu \n3) esimest v\u00f5i teist t\u00fc\u00fcpi kausaalne ahel, mis on \u00f5igesti rekonstrueeritud j\u00e4relduste abil, mis on \u00f5igustatud<br> \n(taustpropositsioonid aitavad j\u00e4reldust \u00f5igustada ainult juhul, kui nad on t\u00f5esed; tuleb vist n\u00f5uda, et neid teatakse; siin ei teki vigast ringi, sest jutt ei ole propositsiooni \"p\" teadmisest; nii v\u00f5ib tekkida rekursiivne definitsioon)\n4) kolme esimese kombinatsioonid \nN\u00e4gime, et see anal\u00fc\u00fcs on teatud m\u00f5ttes rangem kui traditsiooniline anal\u00fc\u00fcs: vanemas anal\u00fc\u00fcsis p\u00f5hjusliku seose ja \u00f5ige rekonstruktsiooni n\u00f5uet ei ole. Need lisan\u00f5uded v\u00f5imaldavad v\u00e4ltida Gettieri vastun\u00e4iteid traditsioonilisele anal\u00fc\u00fcsile. Kuid m\u00f5nes m\u00f5ttes on ta traditsioonilisest anal\u00fc\u00fcsist leebem. V\u00e4hemalt traditsioonilise anal\u00fc\u00fcsi \u00fche populaarse t\u00f5lgenduse j\u00e4rgi peab teadja oskama \u00f5igustada iga propositsiooni, mida ta teab. Selleks et \"S\" hetkel \"t\" teaks, et \"p\", peab \"S\" hetkel \"t\" oskama \u00f6elda, mis \u00f5igustab seda, et ta usub, et \"p\". Minu anal\u00fc\u00fcs seda ei n\u00f5ua, ja selle n\u00f5ude puudumine v\u00f5imaldab mul seletada teadmise juhtumeid, mille traditsiooniline anal\u00fc\u00fcs ekslikult v\u00e4lja j\u00e4taks. \nN\u00e4iteks ma tean praegu, et Abraham Lincoln s\u00fcndis 1809. aastal. (Seda t\u00fc\u00fcpi juhtum on p\u00e4rit Gilbert Harmani k\u00e4sikirjalisest artiklist.) Oletame, et ma sain sellest esimest korda teada ents\u00fcklopeediast. Ma uskusin, et see ents\u00fcklopeedia on usaldusv\u00e4\u00e4rne ning et selle p\u00f5hjuseks, et seal on \u00f6eldud, et Lincoln s\u00fcndis 1809. aastal, on see, et ta s\u00fcndiski 1809. aastal. Nii et ma sain selle fakti alguses teada \u00f5igustatud j\u00e4reldamise teel. Aga n\u00fc\u00fcd ma seda j\u00e4reldust enam ei m\u00e4leta. Ma m\u00e4letan, et Lincoln s\u00fcndis 1809, kuid mitte seda, et see m\u00f5nes kindlas ents\u00fcklopeedias kirjas on. Mul ei ole enam mingeid asjakohaseid uskumusi, mis tugevalt kinnitaksid propositsiooni, et Lincoln s\u00fcndis 1809. Sellegipoolest ma praegu tean seda propositsiooni. Minu algse teadmise on praeguseni s\u00e4ilitanud m\u00e4lu kausaalne protsess.\nTraditsioonilise anal\u00fc\u00fcsi pooldajad kahtlemata eitaksid, et ma t\u00f5esti tean Lincolni s\u00fcnniaastat. Aga paistab k\u00fcll, et nad tahavad sellega lihtsalt oma anal\u00fc\u00fcsi kaitsta. Tundub igatahes ilmne, et paljude asjade puhul, mida me teame, me ei m\u00e4leta, kuidas me selle algselt teada saime. Kui eitada, et nendel puhkudel on tegemist teadmisega, siis j\u00e4\u00e4b meil teadmist k\u00fcll hulga v\u00e4hemaks. \nMinu anal\u00fc\u00fcs lubaks ka muud laadi teadmist ilma eksplitsiitse t\u00f5endmaterjalita. Ma ei sulgenud \"\u00f5iget t\u00fc\u00fcpi\" kausaalsete protsesside nimekirja. M\u00f5ned praegu vaieldavad kausaalsed protsessid v\u00f5ivad hiljem osutuda \"\u00f5iget t\u00fc\u00fcpi\" olevat. \u00dcheks n\u00e4iteks on meeltev\u00e4line taju. Ka sellisel juhul oleks tegemist teadmisega, mille puhul teadja ei oska oma uskumust \u00f5igustada ega kaitsta. \nSpetsiaalset kommentaari vajab teadmine omaenda vaimuseisundute kohta. See on v\u00e4ga keeruline ja vaidlusalune teema. T\u00f5en\u00e4oliselt on selliseid vaimuseisundeid, mis selgelt erinevad subjekti uskumusest, et ta on selles vaimuseisundis. Sellisel juhul on eeldatavalt olemas kausaalne protsess, mis seob nende seisundite olemasolu sellega, et subjekt neid usub. Seda laadi protsessi v\u00f5ib lisada \"\u00f5iget t\u00fc\u00fcpi\" kausaalsete protsesside hulka. Keerulisemad juhtumid on need, mille puhul seisund on vaevalt eristatav subjekti uskumisest, et ta selles seisundis on. See, et mul on valus, ja see, et ma usun, et mul on valus, on vaevalt erinevad asjad. Kui siin ei ole erinevust uskumise ja usutava vahel, siis kuidas saab nende vahel olla p\u00f5hjuslik seos? Siinse anal\u00fc\u00fcsi puhuks v\u00f5ib samasust vaadelda p\u00f5hjusliku seose \"piirjuhuna\" v\u00f5i \"k\u00f5dunud juhuna\", nii nagu nulli v\u00f5ib vaadelda arvu piirjuhuna. Ei ole \u00fcllatav, kui iseenda vaimuseisundi teadmine osutub teadmise piir- v\u00f5i k\u00f5dunud juhuks. Filosoofid on selle ise\u00e4ralikku staatust ammu tunnistanud. M\u00f5ned filosoofid on pidanud seda teadmise paradigmaatiliseks juhtumiks, teised on v\u00e4itnud, et meil ei ole \u00fcldse omaenda vaimuseisundite \"teadmist\". Teadmisteooria, mis teeb omaenda vaimuseisundite teadmise erinevaks m\u00f5ne aiataimesordi teadmisest, on seet\u00f5ttu aktsepteeritav ja isegi teretulnud. \nL\u00f5petuseks tahaksin vastata m\u00f5nele v\u00f5imalikule vastuv\u00e4itele oma anal\u00fc\u00fcsile. V\u00f5idakse kahelda, kas kausaalne anal\u00fc\u00fcs v\u00e4ljendab \u00f5igesti s\u00f5na \"teab\" v\u00f5i lause(skeemi) \"\"S\" teab, et \"p\" t\u00e4hendust. Aga ma ei r\u00e4\u00e4gigi lauseskeemi \"S\" teab, et \"p\" t\u00e4hendusest, vaid \u00fcksnes selle t\u00f5esustingimustest. Ma v\u00e4idan, et ma andsin lauseskeemi \"S\" teab, et \"p\"\" t\u00f5esustingimuste \u00fche \u00f5ige komplekti. Lause t\u00f5esustingimused ei anna alati selle t\u00e4hendust. Vaatleme n\u00e4iteks j\u00e4rgmist t\u00f5esustingimuste s\u00f5nastust: \"Lause \"V\u00f5istkond \"T\" v\u00f5idab pesapallim\u00e4ngu siis ja ainult siis, kui v\u00f5istkonnal \"T\" on m\u00e4ngu l\u00f5pus rohkem punkte kui vastasv\u00f5istkonnal.\" See s\u00f5nastus ei \u00fctle, mis t\u00e4hendab \"V\u00f5istkond \"T\" v\u00f5idab pesapallim\u00e4ngu\", sest ta j\u00e4tab v\u00e4lja selle lause t\u00e4henduse olulise osa, nimelt et m\u00e4ngu v\u00f5itmine t\u00e4hendab selle m\u00e4ngu m\u00e4ngimise eeldatava eesm\u00e4rgi t\u00e4itmist. Keegi v\u00f5ib \u00fclaltoodud t\u00f5esustingimusi k\u00fcll t\u00e4ielikult m\u00f5ista, ent lause t\u00e4hendusest ikkagi mitte aru saada, sest ta ei saa aru \u00fcldisest v\u00f5itmisem\u00f5istest. \nT\u00f5esustingimusi ei tohi segi ajada verifitseerimistingimustega. Minu anal\u00fc\u00fcs lauseskeemile \"\"S\" teab, et \"p\", ei p\u00fc\u00fca anda protseduure selleks, et v\u00e4lja selgitada, kas \u00fcks v\u00f5i teine isik (seal hulgas ise) antud propositsiooni teab. Kahtlemata me m\u00f5nikord ikkagi teame, et inimesed teavad teatud propositsioone, sest m\u00f5nikord me teame, et nende uskumused on (\u00f5iget t\u00fc\u00fcpi) p\u00f5hjuslikus seoses faktidega, mida nad usuvad. Teiselt poolt v\u00f5ib sageli olla raske v\u00f5i isegi v\u00f5imatu kindlaks teha, kas see tingimus antud propositsiooni ja antud isiku puhul on t\u00e4idetud. N\u00e4iteks v\u00f5ib mul olla v\u00f5imatu limdlaks teha, kas ma t\u00f5esti m\u00e4letan teatud fakti, mille puhul mulle tundub, et ma seda m\u00e4letan. Kuid need raskused ei ole minu anal\u00fc\u00fcsi raskused. \nSamas vaimus tuleb m\u00e4rkida, et ma ei teinud katset anda vastust skeptilistele probleemidele. Minu anal\u00fc\u00fcs ei anna vastust skeptikule, kes k\u00fcsib, kuidas ma oma kogemuse sisust l\u00e4htudes t\u00f5estan, et ma tean, et on olemas materiaalne maailm, minevik jne. Ma ei leia, et see kuuluks lauseskeemi \"S\" teab, et \"p\" t\u00f5etingimuste andmise juurde.\nSiin esitatud anal\u00fc\u00fcs hakkab vastu epistemoloogia juurdunud traditsioonile, mille kohaselt epistemoloogia k\u00fcsimused on loogika v\u00f5i \u00f5igustuse k\u00fcsimused, mitte kausaalsed ega geneetilised k\u00fcsimused. Ent see traditsiooniline arusaam ei tohi j\u00e4\u00e4da v\u00e4ljakutseta. Ma leian, et minu anal\u00fc\u00fcs n\u00e4itab, et k\u00fcsimus, kas keegi teatud propositsiooni teab, on osalt kausaalne k\u00fcsimus, kuigi muidugi k\u00fcsimus, mis on lauseskeemi \"S\" teab, et \"p\"\" \u00f5ige anal\u00fc\u00fcs, ei ole kausaalne k\u00fcsimus.\n\nV\u00e4lislingid\nArtikli tekst\n\n"
+}
