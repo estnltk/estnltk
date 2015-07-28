@@ -41,9 +41,9 @@ def addExternalLinks(sectionObj):
             obj['end']= len(s)
             obj['url']= url
             obj['label']= label
-            sectionObj['text'] = str(s) + text[cur:]
+            sectionObj['text'] = s + text[cur:]
             extLinks.append(obj)
-        sectionObj['external links'] = extLinks
+        sectionObj['external_links'] = extLinks
     return sectionObj
 
 if __name__ == '__main__':

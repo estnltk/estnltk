@@ -1,0 +1,852 @@
+{
+    "data": {
+        "categories": [
+            "Baden-W\u00fcrttembergi linnad"
+        ],
+        "infobox": [
+            {
+                "elanikke": "2175 (2010)",
+                "lat_deg": "47",
+                "lat_ik": "N",
+                "lat_min": "51",
+                "lon_deg": "8",
+                "lon_ik": "E",
+                "lon_min": "51",
+                "nimi": "Aach",
+                "omakeelne_nimi_1": " Aach",
+                "pindala": "10,7",
+                "vapi_link": "Aachi vapp",
+                "vapi_pilt": "120px"
+            }
+        ],
+        "other": [
+            "{{See artikkel| r\u00e4\u00e4gib Aachi linnast Hegaus; teiste samanimeliste kohtade kohta vaata lehek\u00fclge [[Aach (t\u00e4psustus)]].}}",
+            "{{ToimetaAeg|kuu=oktoober|aasta=2012}}",
+            "{{Commonscat|Aach (Hegau)|Aach}}"
+        ],
+        "timestamp": "2014-08-25T02:06:24Z",
+        "title": "Aach",
+        "url": "http://et.wikipedia.org/wiki/Aach"
+    },
+    "external_links": [
+        {
+            "end": 5143,
+            "label": "Vapp, fotod, ajaloolised pildid, aastap\u00e4evapidustused, Konstanzi ringkonna asukoht, linnapea ja teised ametnikud, autoteede plaan, vanalinna plaan",
+            "start": 4997,
+            "url": "http://www.aach.de/"
+        },
+        {
+            "end": 5166,
+            "label": "Foto, autoteede plaan",
+            "start": 5145,
+            "url": "http://www.aachquelle.de/anreise.htm"
+        },
+        {
+            "end": 5173,
+            "label": "Fotod",
+            "start": 5168,
+            "url": "http://www.meinestadt.de/aach-im-hegau/bilder/pix/"
+        }
+    ],
+    "internal_links": [
+        {
+            "end": 45,
+            "label": "Saksamaal",
+            "start": 36,
+            "title": "Saksamaa",
+            "url": "http://et.wikipedia.org/wiki/Saksamaa"
+        },
+        {
+            "end": 64,
+            "label": "Baden-W\u00fcrttembergi",
+            "start": 46,
+            "title": "Baden-W\u00fcrttemberg",
+            "url": "http://et.wikipedia.org/wiki/Baden-W\u00fcrttemberg"
+        },
+        {
+            "end": 82,
+            "label": "Badenis",
+            "start": 75,
+            "title": "Baden (piirkond)",
+            "url": "http://et.wikipedia.org/wiki/Baden_(piirkond)"
+        },
+        {
+            "end": 89,
+            "label": "Hegaus",
+            "start": 83,
+            "title": "Hegau",
+            "url": "http://et.wikipedia.org/wiki/Hegau"
+        },
+        {
+            "end": 107,
+            "label": "Konstanzi kreisis",
+            "start": 90,
+            "title": "Konstanzi kreis",
+            "url": "http://et.wikipedia.org/wiki/Konstanzi_kreis"
+        },
+        {
+            "end": 117,
+            "label": "Stockachi",
+            "start": 108,
+            "title": "Stockach",
+            "url": "http://et.wikipedia.org/wiki/Stockach"
+        },
+        {
+            "end": 262,
+            "label": "Aachi allika",
+            "start": 250,
+            "title": "Aachi allikas",
+            "url": "http://et.wikipedia.org/wiki/Aachi_allikas"
+        },
+        {
+            "end": 332,
+            "label": "Aa j\u00f5gi",
+            "start": 325,
+            "title": "Aa j\u00f5gi",
+            "url": "http://et.wikipedia.org/wiki/Aa_j\u00f5gi"
+        },
+        {
+            "end": 737,
+            "label": "Bodeni j\u00e4rv",
+            "start": 726,
+            "title": "Bodeni j\u00e4rv",
+            "url": "http://et.wikipedia.org/wiki/Bodeni_j\u00e4rv"
+        },
+        {
+            "end": 751,
+            "label": "Stei\u00dflingeni",
+            "start": 739,
+            "title": "Stei\u00dflingen",
+            "url": "http://et.wikipedia.org/wiki/Stei\u00dflingen"
+        },
+        {
+            "end": 770,
+            "label": "B\u00f6hringeni",
+            "start": 760,
+            "title": "B\u00f6hringen",
+            "url": "http://et.wikipedia.org/wiki/B\u00f6hringen"
+        },
+        {
+            "end": 789,
+            "label": "Langensteini",
+            "start": 777,
+            "title": "Langenstein",
+            "url": "http://et.wikipedia.org/wiki/Langenstein"
+        },
+        {
+            "end": 845,
+            "label": "Singeni",
+            "start": 838,
+            "title": "Singen",
+            "url": "http://et.wikipedia.org/wiki/Singen"
+        },
+        {
+            "end": 863,
+            "label": "Engeni",
+            "start": 857,
+            "title": "Engen",
+            "url": "http://et.wikipedia.org/wiki/Engen"
+        },
+        {
+            "end": 926,
+            "label": "Volkertshausen",
+            "start": 912,
+            "title": "Volkertshausen",
+            "url": "http://et.wikipedia.org/wiki/Volkertshausen"
+        },
+        {
+            "end": 955,
+            "label": "M\u00fchlhausen-Ehinge",
+            "start": 938,
+            "title": "M\u00fchlhausen-Ehinge",
+            "url": "http://et.wikipedia.org/wiki/M\u00fchlhausen-Ehinge"
+        },
+        {
+            "end": 984,
+            "label": "Emmingen-Liptinge",
+            "start": 967,
+            "title": "Emmingen-Liptinge",
+            "url": "http://et.wikipedia.org/wiki/Emmingen-Liptinge"
+        },
+        {
+            "end": 1013,
+            "label": "Orsingen-Nenzinge",
+            "start": 996,
+            "title": "Orsingen-Nenzinge",
+            "url": "http://et.wikipedia.org/wiki/Orsingen-Nenzinge"
+        },
+        {
+            "end": 1036,
+            "label": "Stei\u00dflingen",
+            "start": 1025,
+            "title": "Steisslingen",
+            "url": "http://et.wikipedia.org/wiki/Steisslingen"
+        },
+        {
+            "end": 1057,
+            "label": "Hilzingen",
+            "start": 1048,
+            "title": "Hilzingen",
+            "url": "http://et.wikipedia.org/wiki/Hilzingen"
+        },
+        {
+            "end": 1087,
+            "label": "Rielasingen-Worbl",
+            "start": 1070,
+            "title": "Rielasingen-Worbl",
+            "url": "http://et.wikipedia.org/wiki/Rielasingen-Worbl"
+        },
+        {
+            "end": 1119,
+            "label": "Radolfzell am Bod",
+            "start": 1102,
+            "title": "Radolfzell am Bod",
+            "url": "http://et.wikipedia.org/wiki/Radolfzell_am_Bod"
+        },
+        {
+            "end": 1169,
+            "label": "Sihtnumber",
+            "start": 1159,
+            "title": "Sihtnumber",
+            "url": "http://et.wikipedia.org/wiki/Sihtnumber"
+        },
+        {
+            "end": 1245,
+            "label": "1596",
+            "start": 1241,
+            "title": "1596",
+            "url": "http://et.wikipedia.org/wiki/1596"
+        },
+        {
+            "end": 1291,
+            "label": "Napoleoni s\u00f5dades",
+            "start": 1274,
+            "title": "Napoleoni s\u00f5jad",
+            "url": "http://et.wikipedia.org/wiki/Napoleoni_s\u00f5jad"
+        },
+        {
+            "end": 1308,
+            "label": "1796",
+            "start": 1304,
+            "title": "1796",
+            "url": "http://et.wikipedia.org/wiki/1796"
+        },
+        {
+            "end": 1448,
+            "label": "1951",
+            "start": 1444,
+            "title": "1951",
+            "url": "http://et.wikipedia.org/wiki/1951"
+        },
+        {
+            "end": 1471,
+            "label": "tammeristiga",
+            "start": 1459,
+            "title": "tamm",
+            "url": "http://et.wikipedia.org/wiki/tamm"
+        },
+        {
+            "end": 1525,
+            "label": "1966",
+            "start": 1521,
+            "title": "1966",
+            "url": "http://et.wikipedia.org/wiki/1966"
+        },
+        {
+            "end": 1560,
+            "label": "1984",
+            "start": 1556,
+            "title": "1984",
+            "url": "http://et.wikipedia.org/wiki/1984"
+        },
+        {
+            "end": 1628,
+            "label": "1150",
+            "start": 1624,
+            "title": "1150",
+            "url": "http://et.wikipedia.org/wiki/1150"
+        },
+        {
+            "end": 1752,
+            "label": "vangla",
+            "start": 1746,
+            "title": "vangla",
+            "url": "http://et.wikipedia.org/wiki/vangla"
+        },
+        {
+            "end": 1809,
+            "label": "1525",
+            "start": 1805,
+            "title": "1525",
+            "url": "http://et.wikipedia.org/wiki/1525"
+        },
+        {
+            "end": 1876,
+            "label": "1559",
+            "start": 1872,
+            "title": "1559",
+            "url": "http://et.wikipedia.org/wiki/1559"
+        },
+        {
+            "end": 1896,
+            "label": "magistraat",
+            "start": 1886,
+            "title": "raad",
+            "url": "http://et.wikipedia.org/wiki/raad"
+        },
+        {
+            "end": 1928,
+            "label": "linnapea",
+            "start": 1920,
+            "title": "linnapea",
+            "url": "http://et.wikipedia.org/wiki/linnapea"
+        },
+        {
+            "end": 1934,
+            "label": "1668",
+            "start": 1930,
+            "title": "1668",
+            "url": "http://et.wikipedia.org/wiki/1668"
+        },
+        {
+            "end": 1942,
+            "label": "1978",
+            "start": 1938,
+            "title": "1978",
+            "url": "http://et.wikipedia.org/wiki/1978"
+        },
+        {
+            "end": 1968,
+            "label": "1987",
+            "start": 1964,
+            "title": "1987",
+            "url": "http://et.wikipedia.org/wiki/1987"
+        },
+        {
+            "end": 2093,
+            "label": "1494",
+            "start": 2089,
+            "title": "1494",
+            "url": "http://et.wikipedia.org/wiki/1494"
+        },
+        {
+            "end": 2118,
+            "label": "juudi",
+            "start": 2113,
+            "title": "juudid",
+            "url": "http://et.wikipedia.org/wiki/juudid"
+        },
+        {
+            "end": 2190,
+            "label": "1945",
+            "start": 2186,
+            "title": "1945",
+            "url": "http://et.wikipedia.org/wiki/1945"
+        },
+        {
+            "end": 2244,
+            "label": "raekoda",
+            "start": 2237,
+            "title": "raekoda",
+            "url": "http://et.wikipedia.org/wiki/raekoda"
+        },
+        {
+            "end": 2261,
+            "label": "16. sajandist",
+            "start": 2248,
+            "title": "16. sajand",
+            "url": "http://et.wikipedia.org/wiki/16._sajand"
+        },
+        {
+            "end": 2280,
+            "label": "renessanss",
+            "start": 2270,
+            "title": "renessanssarhitektuur",
+            "url": "http://et.wikipedia.org/wiki/renessanssarhitektuur"
+        },
+        {
+            "end": 2349,
+            "label": "1306",
+            "start": 2345,
+            "title": "1306",
+            "url": "http://et.wikipedia.org/wiki/1306"
+        },
+        {
+            "end": 2398,
+            "label": "linnapitsat",
+            "start": 2387,
+            "title": "linnapitsat",
+            "url": "http://et.wikipedia.org/wiki/linnapitsat"
+        },
+        {
+            "end": 2420,
+            "label": "14. sajandist",
+            "start": 2407,
+            "title": "14. sajand",
+            "url": "http://et.wikipedia.org/wiki/14._sajand"
+        },
+        {
+            "end": 2426,
+            "label": "1461",
+            "start": 2422,
+            "title": "1461",
+            "url": "http://et.wikipedia.org/wiki/1461"
+        },
+        {
+            "end": 2460,
+            "label": "foogt",
+            "start": 2455,
+            "title": "foogt",
+            "url": "http://et.wikipedia.org/wiki/foogt"
+        },
+        {
+            "end": 2527,
+            "label": "1467",
+            "start": 2523,
+            "title": "1467",
+            "url": "http://et.wikipedia.org/wiki/1467"
+        },
+        {
+            "end": 2533,
+            "label": "1673",
+            "start": 2529,
+            "title": "1673",
+            "url": "http://et.wikipedia.org/wiki/1673"
+        },
+        {
+            "end": 2553,
+            "label": "prefekt",
+            "start": 2546,
+            "title": "prefekt",
+            "url": "http://et.wikipedia.org/wiki/prefekt"
+        },
+        {
+            "end": 2586,
+            "label": "18. sajandist",
+            "start": 2573,
+            "title": "18. sajand",
+            "url": "http://et.wikipedia.org/wiki/18._sajand"
+        },
+        {
+            "end": 2645,
+            "label": "1924",
+            "start": 2641,
+            "title": "1924",
+            "url": "http://et.wikipedia.org/wiki/1924"
+        },
+        {
+            "end": 2714,
+            "label": "1933",
+            "start": 2710,
+            "title": "1933",
+            "url": "http://et.wikipedia.org/wiki/1933"
+        },
+        {
+            "end": 2925,
+            "label": "1261",
+            "start": 2921,
+            "title": "1261",
+            "url": "http://et.wikipedia.org/wiki/1261"
+        },
+        {
+            "end": 2956,
+            "label": "Me\u00dfkirchist",
+            "start": 2945,
+            "title": "Me\u00dfkirch",
+            "url": "http://et.wikipedia.org/wiki/Me\u00dfkirch"
+        },
+        {
+            "end": 2962,
+            "label": "1340",
+            "start": 2958,
+            "title": "1340",
+            "url": "http://et.wikipedia.org/wiki/1340"
+        },
+        {
+            "end": 3055,
+            "label": "1424",
+            "start": 3051,
+            "title": "1424",
+            "url": "http://et.wikipedia.org/wiki/1424"
+        },
+        {
+            "end": 3088,
+            "label": "Konstanzi",
+            "start": 3079,
+            "title": "Konstanz",
+            "url": "http://et.wikipedia.org/wiki/Konstanz"
+        },
+        {
+            "end": 3102,
+            "label": "toompraostile",
+            "start": 3089,
+            "title": "toompraost",
+            "url": "http://et.wikipedia.org/wiki/toompraost"
+        },
+        {
+            "end": 3108,
+            "label": "1565",
+            "start": 3104,
+            "title": "1565",
+            "url": "http://et.wikipedia.org/wiki/1565"
+        },
+        {
+            "end": 3133,
+            "label": "aadli",
+            "start": 3128,
+            "title": "aadel",
+            "url": "http://et.wikipedia.org/wiki/aadel"
+        },
+        {
+            "end": 3150,
+            "label": "1622",
+            "start": 3146,
+            "title": "1622",
+            "url": "http://et.wikipedia.org/wiki/1622"
+        },
+        {
+            "end": 3175,
+            "label": "orelit",
+            "start": 3169,
+            "title": "orel",
+            "url": "http://et.wikipedia.org/wiki/orel"
+        },
+        {
+            "end": 3211,
+            "label": "1727",
+            "start": 3207,
+            "title": "1727",
+            "url": "http://et.wikipedia.org/wiki/1727"
+        },
+        {
+            "end": 3278,
+            "label": "barokkstiilis",
+            "start": 3265,
+            "title": "barokk",
+            "url": "http://et.wikipedia.org/wiki/barokk"
+        },
+        {
+            "end": 3305,
+            "label": "1885",
+            "start": 3301,
+            "title": "1885",
+            "url": "http://et.wikipedia.org/wiki/1885"
+        },
+        {
+            "end": 3368,
+            "label": "1970",
+            "start": 3364,
+            "title": "1970",
+            "url": "http://et.wikipedia.org/wiki/1970"
+        },
+        {
+            "end": 3420,
+            "label": "1998",
+            "start": 3416,
+            "title": "1998",
+            "url": "http://et.wikipedia.org/wiki/1998"
+        },
+        {
+            "end": 3484,
+            "label": "1540",
+            "start": 3480,
+            "title": "1540",
+            "url": "http://et.wikipedia.org/wiki/1540"
+        },
+        {
+            "end": 3499,
+            "label": "1700",
+            "start": 3495,
+            "title": "1700",
+            "url": "http://et.wikipedia.org/wiki/1700"
+        },
+        {
+            "end": 3605,
+            "label": "1763",
+            "start": 3601,
+            "title": "1763",
+            "url": "http://et.wikipedia.org/wiki/1763"
+        },
+        {
+            "end": 3651,
+            "label": "1973",
+            "start": 3647,
+            "title": "1973",
+            "url": "http://et.wikipedia.org/wiki/1973"
+        },
+        {
+            "end": 3672,
+            "label": "lasteaed",
+            "start": 3664,
+            "title": "lasteaed",
+            "url": "http://et.wikipedia.org/wiki/lasteaed"
+        },
+        {
+            "end": 3735,
+            "label": "k\u00fc\u00fcniga",
+            "start": 3728,
+            "title": "k\u00fc\u00fcn",
+            "url": "http://et.wikipedia.org/wiki/k\u00fc\u00fcn"
+        },
+        {
+            "end": 3764,
+            "label": "1581",
+            "start": 3760,
+            "title": "1581",
+            "url": "http://et.wikipedia.org/wiki/1581"
+        },
+        {
+            "end": 3793,
+            "label": "1614",
+            "start": 3789,
+            "title": "1614",
+            "url": "http://et.wikipedia.org/wiki/1614"
+        },
+        {
+            "end": 3831,
+            "label": "vapikivi",
+            "start": 3823,
+            "title": "vapikivi",
+            "url": "http://et.wikipedia.org/wiki/vapikivi"
+        },
+        {
+            "end": 3878,
+            "label": "Salzburgi",
+            "start": 3869,
+            "title": "Salzburg",
+            "url": "http://et.wikipedia.org/wiki/Salzburg"
+        },
+        {
+            "end": 3891,
+            "label": "v\u00fcrstpiiskop",
+            "start": 3879,
+            "title": "v\u00fcrstpiiskop",
+            "url": "http://et.wikipedia.org/wiki/v\u00fcrstpiiskop"
+        },
+        {
+            "end": 3951,
+            "label": "kelder",
+            "start": 3945,
+            "title": "kelder",
+            "url": "http://et.wikipedia.org/wiki/kelder"
+        },
+        {
+            "end": 4007,
+            "label": "1100",
+            "start": 4003,
+            "title": "1100",
+            "url": "http://et.wikipedia.org/wiki/1100"
+        },
+        {
+            "end": 4083,
+            "label": "1283",
+            "start": 4079,
+            "title": "1283",
+            "url": "http://et.wikipedia.org/wiki/1283"
+        },
+        {
+            "end": 4124,
+            "label": "Rudolf von Habsburgilt",
+            "start": 4102,
+            "title": "Rudolf von Habsburg",
+            "url": "http://et.wikipedia.org/wiki/Rudolf_von_Habsburg"
+        },
+        {
+            "end": 4144,
+            "label": "1488",
+            "start": 4140,
+            "title": "1488",
+            "url": "http://et.wikipedia.org/wiki/1488"
+        },
+        {
+            "end": 4179,
+            "label": "Friedrich III",
+            "start": 4166,
+            "title": "Friedrich III (Saksa-Rooma keiser)",
+            "url": "http://et.wikipedia.org/wiki/Friedrich_III_(Saksa-Rooma_keiser)"
+        },
+        {
+            "end": 4185,
+            "label": "1499",
+            "start": 4181,
+            "title": "1499",
+            "url": "http://et.wikipedia.org/wiki/1499"
+        },
+        {
+            "end": 4214,
+            "label": "\u0160vaabi s\u00f5da",
+            "start": 4203,
+            "title": "\u0160vaabi s\u00f5da",
+            "url": "http://et.wikipedia.org/wiki/\u0160vaabi_s\u00f5da"
+        },
+        {
+            "end": 4347,
+            "label": "Ferdinand I",
+            "start": 4336,
+            "title": "Ferdinand I (Saksa-Rooma keiser)",
+            "url": "http://et.wikipedia.org/wiki/Ferdinand_I_(Saksa-Rooma_keiser)"
+        },
+        {
+            "end": 4368,
+            "label": "linnaraamatu",
+            "start": 4356,
+            "title": "linnaraamat",
+            "url": "http://et.wikipedia.org/wiki/linnaraamat"
+        },
+        {
+            "end": 4398,
+            "label": "1632",
+            "start": 4394,
+            "title": "1632",
+            "url": "http://et.wikipedia.org/wiki/1632"
+        },
+        {
+            "end": 4423,
+            "label": "Rootsi",
+            "start": 4417,
+            "title": "Rootsi",
+            "url": "http://et.wikipedia.org/wiki/Rootsi"
+        },
+        {
+            "end": 4443,
+            "label": "1750",
+            "start": 4439,
+            "title": "1750",
+            "url": "http://et.wikipedia.org/wiki/1750"
+        },
+        {
+            "end": 4477,
+            "label": "Maria Theresia",
+            "start": 4463,
+            "title": "Maria Theresia",
+            "url": "http://et.wikipedia.org/wiki/Maria_Theresia"
+        },
+        {
+            "end": 4501,
+            "label": "1770",
+            "start": 4497,
+            "title": "1770",
+            "url": "http://et.wikipedia.org/wiki/1770"
+        },
+        {
+            "end": 4538,
+            "label": "ertshertsoginna",
+            "start": 4523,
+            "title": "ertshertsog",
+            "url": "http://et.wikipedia.org/wiki/ertshertsog"
+        },
+        {
+            "end": 4555,
+            "label": "Marie Antoinette",
+            "start": 4539,
+            "title": "Marie Antoinette",
+            "url": "http://et.wikipedia.org/wiki/Marie_Antoinette"
+        },
+        {
+            "end": 4591,
+            "label": "Louis XVI",
+            "start": 4582,
+            "title": "Louis XVI",
+            "url": "http://et.wikipedia.org/wiki/Louis_XVI"
+        },
+        {
+            "end": 4598,
+            "label": "1799",
+            "start": 4594,
+            "title": "1799",
+            "url": "http://et.wikipedia.org/wiki/1799"
+        },
+        {
+            "end": 4624,
+            "label": "Prantsuse",
+            "start": 4615,
+            "title": "Prantsusmaa",
+            "url": "http://et.wikipedia.org/wiki/Prantsusmaa"
+        },
+        {
+            "end": 4654,
+            "label": "25. m\u00e4rtsil",
+            "start": 4643,
+            "title": "25. m\u00e4rts",
+            "url": "http://et.wikipedia.org/wiki/25._m\u00e4rts"
+        },
+        {
+            "end": 4698,
+            "label": "Austria",
+            "start": 4691,
+            "title": "Austria",
+            "url": "http://et.wikipedia.org/wiki/Austria"
+        },
+        {
+            "end": 4727,
+            "label": "1805",
+            "start": 4723,
+            "title": "1805",
+            "url": "http://et.wikipedia.org/wiki/1805"
+        },
+        {
+            "end": 4750,
+            "label": "W\u00fcrttembergi",
+            "start": 4738,
+            "title": "W\u00fcrttemberg",
+            "url": "http://et.wikipedia.org/wiki/W\u00fcrttemberg"
+        },
+        {
+            "end": 4781,
+            "label": "Badeni",
+            "start": 4775,
+            "title": "Badeni suurhertsogkond",
+            "url": "http://et.wikipedia.org/wiki/Badeni_suurhertsogkond"
+        },
+        {
+            "end": 4792,
+            "label": "1884",
+            "start": 4788,
+            "title": "1884",
+            "url": "http://et.wikipedia.org/wiki/1884"
+        },
+        {
+            "end": 4891,
+            "label": "1985",
+            "start": 4887,
+            "title": "1985",
+            "url": "http://et.wikipedia.org/wiki/1985"
+        },
+        {
+            "end": 4943,
+            "label": "1997",
+            "start": 4939,
+            "title": "1997",
+            "url": "http://et.wikipedia.org/wiki/1997"
+        },
+        {
+            "end": 4950,
+            "label": "2000",
+            "start": 4946,
+            "title": "2000",
+            "url": "http://et.wikipedia.org/wiki/2000"
+        }
+    ],
+    "sections": [
+        {
+            "end": 1179,
+            "start": 0
+        },
+        {
+            "end": 3952,
+            "start": 1181,
+            "title": "Vaatamisv\u00e4\u00e4rsused"
+        },
+        {
+            "end": 4983,
+            "start": 3954,
+            "title": "Ajalugu"
+        },
+        {
+            "end": 5173,
+            "start": 4985,
+            "title": "V\u00e4lislingid"
+        }
+    ],
+    "text": "Aach\nAach ehk Aach im Hegau on linn Saksamaal Baden-W\u00fcrttembergi liidumaal Badenis Hegaus Konstanzi kreisis Stockachi l\u00e4hedal.\nLinna nime t\u00e4psustatakse asukohaga Hegaus, et eristada seda teistest samanimelistest kohtadest. Linn v\u00f5ib olla nime saanud Aachi allika j\u00e4rgi, kuid kohanimi v\u00f5ib olla ka vanem. Nime kohta vaata ka: Aa j\u00f5gi. \nLinn on merepinnast 474 m k\u00f5rgusel. \nPindala on 1069 hektarit. Aach koosneb kolmest linnaosast: Stadt, Dorf ja Oberdorf. Linn asub j\u00e4rsu m\u00e4e otsas, seda kaitsevad m\u00fc\u00fcrid ja v\u00e4ravatorn.\nElanike arv on olnud: \n1890: 947 \n1997: 2093 (sealhulgas 1079 meessoost)\n2003: 2221 (30.4.)\n2004: 2200\n2008: 2127 (31.12.) \nAachi allikas (\"Aachquelle\") on Saksamaa suurim allikas.\nL\u00e4heduses on Hegau m\u00e4ed, Bodeni j\u00e4rv, Stei\u00dflingeni j\u00e4rv ja B\u00f6hringeni j\u00e4rv. Langensteini lossis on vastlamuuseum.\nAachil on bussi\u00fchendus Singeni (6,69 km), Engeni (12,13 km) ja Stockachiga. Naaberlinnad on veel Volkertshausen (3,00 km), M\u00fchlhausen-Ehinge (5,87 km), Emmingen-Liptinge (7,47 km), Orsingen-Nenzinge (9,24 km), Stei\u00dflingen (9,42 km), Hilzingen (10,19 km), Rielasingen-Worbl (11,91 km) ja Radolfzell am Bod (14,82 km). \nLinnapea on Severin Graf. Sihtnumber on 78267.\n\nVaatamisv\u00e4\u00e4rsused\nMartini kabeli (St.Martinskapelle) ehitas 1596 ehitusmeister Peter M\u00fcller. Napoleoni s\u00f5dades kabel h\u00e4vis 1796. Aachi kodanikud ehitasid selle \"eestpalvekabelina\" uuesti \u00fcles. Kabeli l\u00f5unak\u00fcljel asunud kivirist, mis oli kokku varisenud, asendati 1951 massiivse tammeristiga. \u00dcleriikliku t\u00e4htsusega maantee ehitamise k\u00e4igus 1966 kabel lammutati, kuid ehitati 1984 Aachi kodanike aktiivsel kaasabil uuesti \u00fcles. \nAlumine v\u00e4rav. 1150 on mainitud kindlustatud kohta \"Vesti ze Ahe\", millel oli m\u00fc\u00fcr, v\u00e4rav, v\u00e4lis\u00f5u ja eellinnus. Linna v\u00e4rav oli \u00fchtlasi vangla. Linnam\u00fc\u00fcris oli v\u00e4ravamajake, kus elas v\u00e4ravavaht. 1525 avati alumine v\u00e4rav \u00fclest\u00f5usnud talupoegadele vabatahtlikult. 1559 otsustas magistraat, et v\u00e4rava v\u00f5tit hoiab linnapea. 1668 ja 1978 v\u00e4ravat renoveeriti. 1987 Stadtstrasse (t\u00e4nav) sillutati.\n\u00dclemise v\u00e4ravaga l\u00f5ppes lossi\u00f5u. L\u00e4\u00e4neseina juures asus oletatavasti linna ainuke kaev. 1494. aastast asus seal juudi kool. Lossi\u00f5uel olid k\u00fctimajakesed ja maakaitsev\u00e4e harjutusv\u00e4ljak. 1945 sai v\u00e4rav pommi l\u00e4bi r\u00e4ngalt vigastada. \nVana raekoda on 16. sajandist p\u00e4rinev renessanss-stiilis astmelise viiluga ehitis. Raadi mainitakse esmakordselt 1306 (\"Consules civitatis in Ahe\"). Vanim linnapitsat p\u00e4rineb 14. sajandist. 1461 nimetati Aachi raetuba, kus foogt kohut pidas. Aachi linnapead mainitakse \u00fcrikutes esmakordselt 1467. 1673 olid ametis prefekt ja linnakirjutaja. 18. sajandist oli hoones raekoda ning kool koos \u00f5petaja eluasemega. 1924 ehitati Dorfi linnaossa uus raekoda. Vanasse hoonesse paigutati 1933 noortekodu. P\u00e4rast 1945. aastat oli see vahepeal elumaja. \nP\u00fcha Nikolaose kirik. 1150 oli kindluses kabel. 1184/89 on mainitud ilmikpreestrit Plebanus de Hahet. Esimese kirikh\u00e4rrana (\"Rector ecclesiae\") on 1261 mainitud Heinrichi Me\u00dfkirchist. 1340. aastast on teada \u00f5igust\u00fcli Remigiuse ja Nikolaose kiriku vahel surnuaia kabeli p\u00e4rast. 1424 allutati Aachi kogudus Konstanzi toompraostile. 1565 sai kirikust Hegau aadli matmispaik. 1622 mainitakse kiriku orelit. Remigiuse kiriku \u00f5igused anti 1727 \u00fcle Nikolaose kirikule. 1736/38 kujundati gooti l\u00f6\u00f6v barokkstiilis (v\u00e4lja arvatud torn). 1885 barokne kujundus k\u00f5rvaldati. 1930/31 tehti sisemaalingud. 1970 kirik renoveeriti ja sisemaalingud k\u00f5rvaldati. 1998 renoveeriti kirik v\u00e4ljastpoolt. \nEsimene koolimaja p\u00e4rineb 1540. aastast. 1700 kurtsid Aachi foogtid ebakorrap\u00e4rase koolisk\u00e4imise \u00fcle. Esimene teadaolev \u00f5petaja oli Franz Thurner (1763). 1902/03 ehitati uus koolimaja. Aastani 1973 asus hoones lasteaed. \nPreestrimaja. Kiriku juures olevat preestrimaja koos k\u00fc\u00fcniga mainitakse esmakordselt 1581. Praegune hoone ehitati 1614. Sissek\u00e4igu kohal on ehitaja vapikivi. See on Marcus Sittich von Hohenems, Salzburgi v\u00fcrstpiiskop, Konstanzi toompraost. Hoone juurde kuulusid k\u00fc\u00fcn ja kelder.\n\nAjalugu\nAachi on \u00fcrikutes esimest korda mainitud 1100. aastal. 1150 on juttu kindlustatud kohast (\"Oppidum Ach in Hegovia\").\n1283 sai Aach kuningas Rudolf von Habsburgilt linna\u00f5igused. \n1488 viibis Aachis keiser Friedrich III.\n1499 k\u00e4is linnast \u00fcle \u0160vaabi s\u00f5da. \n1525 otsis Hegau aadel Aachi linnast varju \u00fclest\u00f5usnud talupoegade eest. Talupojad vallutasid linna.\n1559 andis keiser Ferdinand I Aachile linnaraamatu k\u00f5ikide privileegidega. \n1632 h\u00f5ivas linna 5000 Rootsi ratsav\u00e4elast. \n1750 kinnitas keisrinna Maria Theresia linna privileege. \n1770 s\u00f5itsid linnast l\u00e4bi ertshertsoginna Marie Antoinette ja tema tulevane abikaasa Louis XVI. \n1799 peatusid linnas Prantsuse okupatsiooniv\u00e4ed. 25. m\u00e4rtsil toimus Aachi l\u00e4hedal Prantsusmaa ja Austria v\u00e4gede vaheline lahing.\n1805 l\u00e4ks linn W\u00fcrttembergi alla, m\u00f5ni aasta hiljem Badeni alla.\n1884 h\u00e4vis suures tulekahjus 14 hoonet.\n1945 Aachi pommitati ja linna okupeerisid Prantsuse v\u00e4ed. \n1985 hakati kogu vanalinna saneerima. T\u00f6\u00f6d l\u00f5ppesid 1997. \n2000 t\u00e4histati linna 900. aastap\u00e4eva.\n\nV\u00e4lislingid\nVapp, fotod, ajaloolised pildid, aastap\u00e4evapidustused, Konstanzi ringkonna asukoht, linnapea ja teised ametnikud, autoteede plaan, vanalinna plaan\n Foto, autoteede plaan\n Fotod\n\n"
+}

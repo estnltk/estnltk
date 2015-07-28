@@ -3,21 +3,21 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 __author__ = 'Andres'
 
-import core
+from ..core import as_unicode
 import re
 from xml.etree.ElementTree import iterparse
 import argparse
 from bz2 import BZ2File
 import time
-from infoBox import infoBoxParser
-from sections import sectionsParser
-from references import referencesFinder,refsParser
-from categoryParser import categoryParser
-from jsonWriter import jsonWriter
-from cleaner import clean
-from internalLink import findBalanced
-from cleaner import dropSpans
-from tableCollector import tableCollector
+from .infoBox import infoBoxParser
+from .sections import sectionsParser
+from .references import referencesFinder,refsParser
+from .categoryParser import categoryParser
+from .jsonWriter import jsonWriter
+from .cleaner import clean
+from .internalLink import findBalanced
+from .cleaner import dropSpans
+from .tableCollector import tableCollector
 # Matches bold/italic
 bold_italic = re.compile(r"'''''(.*?)'''''")
 bold = re.compile(r"'''(.*?)'''")
@@ -88,7 +88,7 @@ def etWikiParser(data, outputdir, verbose = False):
     pageObj = {}
     for tag, text in data:
         if tag and text:
-            tag, text = core.as_unicode(tag), core.as_unicode(text)
+            tag, text = as_unicode(tag), as_unicode(text)
             #print(tag, text)
     #FIXME: py2 unicode issue
         if 'title' in tag:
@@ -212,3 +212,21 @@ def myprint(d):
 
 if __name__ == '__main__':
     main()
+    t = """&lt;center&gt;&lt;div style=&quot;text-align: center; margin: 0 10% 1em 10%;&quot;&gt;
+{| align=center class=&quot;disputeabout&quot; style=&quot;background: beige; border: 1px solid #aaa; padding: .2em; margin-bottom: 3px; font-size: 95%; width: auto;&quot;
+| valign=&quot;top&quot; style=&quot;padding: .2em&quot; | [[Pilt:Stop_hand.png|45px|Vaidlustatud]]
+| style=&quot;padding: 0.1em&quot; width = 320| '''Artikli selle osa faktiline õigsus on vaieldav.'''&lt;br&gt;
+''Vaieldav on allikate selline liigitus.''
+|-
+|colspan=2 align=center|&lt;div style=&quot;font-size: 90%;&quot;&gt;Vaata lähemalt selle artikli [[:{{NAMESPACE}} talk:{{PAGENAME}}|aruteluleheküljelt]].&lt;/div&gt;
+|}
+&lt;/div&gt;&lt;/center&gt;
+*[[Esemelised ajalooallikad]] ehk [[muistis]]ed: [[kinnismuistis]]ed ja [[irdmuistis]]ed
+*[[Kirjalikud ajalooallikad]]: [[ürik]]ud, [[kroonika]]d, [[seadus]]ed, [[memuaarid]], [[statistilised materjalid]] jne
+*[[Suulised ajalooallikad]]: [[pärimus]]ed, [[rahvaluule]] ([[legend]]id, [[müüt|müüdid]], [[muinasjutt|muinasjutud]])
+*[[Etnoloogilised ajalooallikad]]: [[tava]]d, [[komme|kombed]] ja [[traditsioon]]id
+*[[Lingvistilised ajalooallikad]]: [[Keel (keeleteadus)|keel]] ja [[murre|murded]]
+*[[Audiovisuaalsed ajalooallikad]]: [[foto]]d, [[film]]id ja [[helisalvestis]]ed"""
+
+    text, other = templatesCollector(t, '{', '}')
+    #print(text, ' OTHER ',  other)

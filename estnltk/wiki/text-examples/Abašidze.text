@@ -1,0 +1,340 @@
+{
+    "data": {
+        "categories": [
+            "Aadlisuguv\u00f5sad",
+            "Gruusia"
+        ],
+        "timestamp": "2013-03-06T23:33:47Z",
+        "title": "Aba\u0161idze",
+        "url": "http://et.wikipedia.org/wiki/Aba\u0161idze"
+    },
+    "external_links": [
+        {
+            "end": 1759,
+            "label": "Aba\u0161idzede genealoogia",
+            "start": 1737,
+            "url": "http://www.4dw.net/royalark/Georgia/abashidze.htm"
+        }
+    ],
+    "internal_links": [
+        {
+            "end": 33,
+            "label": "gruusia keeles",
+            "start": 19,
+            "title": "gruusia keel",
+            "url": "http://et.wikipedia.org/wiki/gruusia_keel"
+        },
+        {
+            "end": 53,
+            "label": "Gruusia",
+            "start": 46,
+            "title": "Gruusia",
+            "url": "http://et.wikipedia.org/wiki/Gruusia"
+        },
+        {
+            "end": 62,
+            "label": "Imerethi",
+            "start": 54,
+            "title": "Imerethi",
+            "url": "http://et.wikipedia.org/wiki/Imerethi"
+        },
+        {
+            "end": 74,
+            "label": "v\u00fcrstisuguv",
+            "start": 63,
+            "title": "v\u00fcrst",
+            "url": "http://et.wikipedia.org/wiki/v\u00fcrst"
+        },
+        {
+            "end": 105,
+            "label": "17.",
+            "start": 102,
+            "title": "17. sajand",
+            "url": "http://et.wikipedia.org/wiki/17._sajand"
+        },
+        {
+            "end": 121,
+            "label": "18. sajandil",
+            "start": 109,
+            "title": "18. sajand",
+            "url": "http://et.wikipedia.org/wiki/18._sajand"
+        },
+        {
+            "end": 130,
+            "label": "Legendi",
+            "start": 123,
+            "title": "Legend",
+            "url": "http://et.wikipedia.org/wiki/Legend"
+        },
+        {
+            "end": 167,
+            "label": "Abessiinia",
+            "start": 157,
+            "title": "Abessiinia",
+            "url": "http://et.wikipedia.org/wiki/Abessiinia"
+        },
+        {
+            "end": 179,
+            "label": "ohvitserist",
+            "start": 168,
+            "title": "ohvitser",
+            "url": "http://et.wikipedia.org/wiki/ohvitser"
+        },
+        {
+            "end": 208,
+            "label": "8. sajandil",
+            "start": 197,
+            "title": "8. sajand",
+            "url": "http://et.wikipedia.org/wiki/8._sajand"
+        },
+        {
+            "end": 252,
+            "label": "Marwan ibn Muhammadi",
+            "start": 232,
+            "title": "Marwan ibn Muhammad",
+            "url": "http://et.wikipedia.org/wiki/Marwan_ibn_Muhammad"
+        },
+        {
+            "end": 317,
+            "label": "aadliseisusse",
+            "start": 304,
+            "title": "aadliseisus",
+            "url": "http://et.wikipedia.org/wiki/aadliseisus"
+        },
+        {
+            "end": 364,
+            "label": "hundi",
+            "start": 359,
+            "title": "hunt",
+            "url": "http://et.wikipedia.org/wiki/hunt"
+        },
+        {
+            "end": 443,
+            "label": "15. sajandi",
+            "start": 432,
+            "title": "15. sajand",
+            "url": "http://et.wikipedia.org/wiki/15._sajand"
+        },
+        {
+            "end": 532,
+            "label": "1540. aastateks",
+            "start": 517,
+            "title": "1540. aastad",
+            "url": "http://et.wikipedia.org/wiki/1540._aastad"
+        },
+        {
+            "end": 570,
+            "label": "feoodi",
+            "start": 564,
+            "title": "feood",
+            "url": "http://et.wikipedia.org/wiki/feood"
+        },
+        {
+            "end": 579,
+            "label": "Imerethi",
+            "start": 571,
+            "title": "Imerethi",
+            "url": "http://et.wikipedia.org/wiki/Imerethi"
+        },
+        {
+            "end": 663,
+            "label": "Saaba\u0161idzo",
+            "start": 653,
+            "title": "Saaba\u0161idzo",
+            "url": "http://et.wikipedia.org/wiki/Saaba\u0161idzo"
+        },
+        {
+            "end": 713,
+            "label": "Sapalavando",
+            "start": 702,
+            "title": "Sapalavando",
+            "url": "http://et.wikipedia.org/wiki/Sapalavando"
+        },
+        {
+            "end": 739,
+            "label": "Paata Aba\u0161idzest",
+            "start": 723,
+            "title": "Paata Aba\u0161idze",
+            "url": "http://et.wikipedia.org/wiki/Paata_Aba\u0161idze"
+        },
+        {
+            "end": 758,
+            "label": "1658",
+            "start": 754,
+            "title": "1658",
+            "url": "http://et.wikipedia.org/wiki/1658"
+        },
+        {
+            "end": 845,
+            "label": "k\u00fcla",
+            "start": 841,
+            "title": "k\u00fcla",
+            "url": "http://et.wikipedia.org/wiki/k\u00fcla"
+        },
+        {
+            "end": 852,
+            "label": "losse",
+            "start": 847,
+            "title": "loss",
+            "url": "http://et.wikipedia.org/wiki/loss"
+        },
+        {
+            "end": 862,
+            "label": "kindlusi",
+            "start": 854,
+            "title": "kindlus",
+            "url": "http://et.wikipedia.org/wiki/kindlus"
+        },
+        {
+            "end": 886,
+            "label": "kloostreid",
+            "start": 876,
+            "title": "klooster",
+            "url": "http://et.wikipedia.org/wiki/klooster"
+        },
+        {
+            "end": 911,
+            "label": "p\u00e4risorjade",
+            "start": 900,
+            "title": "p\u00e4risorjus",
+            "url": "http://et.wikipedia.org/wiki/p\u00e4risorjus"
+        },
+        {
+            "end": 955,
+            "label": "Giorgi-Malakia Aba\u0161idze",
+            "start": 932,
+            "title": "Giorgi-Malakia Aba\u0161idze",
+            "url": "http://et.wikipedia.org/wiki/Giorgi-Malakia_Aba\u0161idze"
+        },
+        {
+            "end": 1005,
+            "label": "vasall",
+            "start": 999,
+            "title": "vasall",
+            "url": "http://et.wikipedia.org/wiki/vasall"
+        },
+        {
+            "end": 1023,
+            "label": "1702",
+            "start": 1019,
+            "title": "1702",
+            "url": "http://et.wikipedia.org/wiki/1702"
+        },
+        {
+            "end": 1057,
+            "label": "1707",
+            "start": 1053,
+            "title": "1707",
+            "url": "http://et.wikipedia.org/wiki/1707"
+        },
+        {
+            "end": 1183,
+            "label": "Irakli",
+            "start": 1177,
+            "title": "Irakli",
+            "url": "http://et.wikipedia.org/wiki/Irakli"
+        },
+        {
+            "end": 1200,
+            "label": "1774",
+            "start": 1196,
+            "title": "1774",
+            "url": "http://et.wikipedia.org/wiki/1774"
+        },
+        {
+            "end": 1232,
+            "label": "Zaal Aba\u0161idzele",
+            "start": 1217,
+            "title": "Zaal Aba\u0161idze",
+            "url": "http://et.wikipedia.org/wiki/Zaal_Aba\u0161idze"
+        },
+        {
+            "end": 1329,
+            "label": "Ottomani impeeriumi",
+            "start": 1310,
+            "title": "Ottomani impeerium",
+            "url": "http://et.wikipedia.org/wiki/Ottomani_impeerium"
+        },
+        {
+            "end": 1355,
+            "label": "Batumisse",
+            "start": 1346,
+            "title": "Batumi",
+            "url": "http://et.wikipedia.org/wiki/Batumi"
+        },
+        {
+            "end": 1398,
+            "label": "sand\u017eak-bei",
+            "start": 1387,
+            "title": "sand\u017eak-bei",
+            "url": "http://et.wikipedia.org/wiki/sand\u017eak-bei"
+        },
+        {
+            "end": 1446,
+            "label": "kuberneri",
+            "start": 1437,
+            "title": "kuberner",
+            "url": "http://et.wikipedia.org/wiki/kuberner"
+        },
+        {
+            "end": 1467,
+            "label": "Venemaa",
+            "start": 1460,
+            "title": "Venemaa",
+            "url": "http://et.wikipedia.org/wiki/Venemaa"
+        },
+        {
+            "end": 1482,
+            "label": "1810",
+            "start": 1478,
+            "title": "1810",
+            "url": "http://et.wikipedia.org/wiki/1810"
+        },
+        {
+            "end": 1620,
+            "label": "20. septembril",
+            "start": 1606,
+            "title": "20. september",
+            "url": "http://et.wikipedia.org/wiki/20._september"
+        },
+        {
+            "end": 1625,
+            "label": "1825",
+            "start": 1621,
+            "title": "1825",
+            "url": "http://et.wikipedia.org/wiki/1825"
+        },
+        {
+            "end": 1703,
+            "label": "Tiflisi kubermangu",
+            "start": 1685,
+            "title": "Tiflisi kubermang",
+            "url": "http://et.wikipedia.org/wiki/Tiflisi_kubermang"
+        },
+        {
+            "end": 1717,
+            "label": "aadlimatrikli",
+            "start": 1704,
+            "title": "aadlimatrikkel",
+            "url": "http://et.wikipedia.org/wiki/aadlimatrikkel"
+        }
+    ],
+    "sections": [
+        {
+            "end": 1725,
+            "images": [
+                {
+                    "text": "Aba\u0161idzede vapp",
+                    "url": "http://et.wikipedia.org/wiki/Pilt:\u0410\u0431\u0430\u0448\u0438\u0434\u0437\u0435-\u0413\u043e\u0440\u043b\u0435\u043d\u043a\u043e.png"
+                }
+            ],
+            "start": 0
+        },
+        {
+            "end": 1759,
+            "start": 1727,
+            "title": "V\u00e4lislink"
+        }
+    ],
+    "text": "Aba\u0161idze\nAba\u0161idze (gruusia keeles \u10d0\u10d1\u10d0\u10e8\u10d8\u10eb\u10d4) on Gruusia Imerethi v\u00fcrstisuguv\u00f5sa. Eriti kuulsaks sai see 17. ja 18. sajandil.\nLegendi j\u00e4rgi p\u00e4rinevad Aba\u0161idzed Abessiinia ohvitserist nimega Aba\u0161, kes 8. sajandil saabus Gruusiasse koos Marwan ibn Muhammadi araablaste armeega. Aba\u0161 j\u00e4i Gruusiasse ja t\u00f5steti aadliseisusse p\u00e4rast seda, kui ta Gruusia kroonprintsi hundi k\u00e4est p\u00e4\u00e4stis. Kuna esimesed \u00fclest\u00e4hendused Aba\u0161idzedest p\u00e4rinevad 15. sajandi teisest poolest, on alust arvata, et see legend on igasuguse t\u00f5ep\u00f5hjata.\n1540. aastateks olid Aba\u0161idzed omandanud suure feoodi Imerethi idaosas. Seda feoodi kutsuti Saaba\u0161idzeoks 'Aba\u0161idzele kuuluvaks maaks'.\nSaaba\u0161idzo v\u00fcrste hakatakse lugema Saaba\u0161idzo ja Sapalavando v\u00fcrstist Paata Aba\u0161idzest (17. sajand \u2013 1658).\nAba\u0161idzed j\u00f5udsid oma v\u00f5imsuse tippu 18. sajandi vahetusel, kui neile kuulus 78 k\u00fcla, losse, kindlusi, kirikuid ja kloostreid, samuti 1500 p\u00e4risorjade majapidamist. V\u00fcrst Giorgi-Malakia Aba\u0161idze oli mitte \u00fcksnes Imerethi kuninga m\u00f5jukaim vasall, vaid laskis 1702 kuninga kukutada ja valitses 1707. aastani ise Imerethi kuningana Giorgi VI nime all.\n18. sajandil omandasid Aba\u0161idzed valdusi ka Ida-Gruusias: kuningas Irakli andis selle 1774 oma \u00e4iale v\u00fcrst Zaal Aba\u0161idzele ja tema meessoost j\u00e4reltulijatele. \u00dcks Aba\u0161idzede haru l\u00e4ks 18. sajandil \u00fcle Ottomani impeeriumi poolele ja asus Batumisse, kus nende j\u00e4rglased omandasid sand\u017eak-bei (s\u00f5jav\u00e4e k\u00f5rge ohvitseri ja piirkonna kuberneri) tiitli.\nKui Venemaa liidendas 1810 Imerethi, siis kaotasid Aba\u0161idzed Saaba\u0161idzeo ja neid hakati k\u00e4sitlema samadel alustel kui teisi Venemaa aadlisuguv\u00f5sasid. 20. septembril 1825 tunnistas Venemaa Aba\u0161idzede v\u00fcrstistaatust ning nad kanti Tiflisi kubermangu aadlimatrikli V ossa.\n\nV\u00e4lislink\nAba\u0161idzede genealoogia\n\n"
+}

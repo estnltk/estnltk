@@ -8,7 +8,7 @@ __author__ = 'Andres'
 import re
 import json
 from pprint import pprint
-from wikiextra import balancedSlicer as bSB
+from .wikiextra import balancedSlicer as bSB
 
 linkBegin = "http://et.wikipedia.org/wiki/"
 clean = re.compile(r'(\<br\>|\&nbsp\;)')

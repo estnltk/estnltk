@@ -1,0 +1,400 @@
+{
+    "data": {
+        "categories": [
+            "Karelehelised",
+            "Eesti kultuurtaimed"
+        ],
+        "infobox": [
+            {
+                "binaarne": "''Myosotis alpestris''",
+                "binaarse_autor": "F.W.Schmidt",
+                "h\u00f5imkond": "\u00d5istaimed ''Magnoliophyta''",
+                "klass": "Kaheidulehelised ''Magnoliopsida''",
+                "liik": "'''Aed-l\u00f5osilm'''",
+                "nimi": "Aed-l\u00f5osilm",
+                "perekond": "L\u00f5osilm ''Myosotis''",
+                "pildi_laius": "250 px",
+                "pilt": "Myosotis alpestris.jpg",
+                "riik": "Taimed ''Plantae''",
+                "selts": "m\u00e4\u00e4ratlemata",
+                "sugukond": "Karelehelised ''Boraginaceae''",
+                "s\u00fcnon\u00fc\u00fcmid": "*''Myosotis sylvatica'' subsp. ''alpestris'' (F.W.Schmidt) Gams",
+                "v\u00e4rv": "taimed}}"
+            }
+        ],
+        "timestamp": "2013-12-10T15:14:47Z",
+        "title": "Aed-l\u00f5osilm",
+        "url": "http://et.wikipedia.org/wiki/Aed-l\u00f5osilm"
+    },
+    "external_links": [
+        {
+            "end": 2518,
+            "label": "Foto",
+            "start": 2514,
+            "url": "http://www.wfg-bluebonnet.com/database/WFDB/e_htm/e_067.htm"
+        },
+        {
+            "end": 2544,
+            "label": "Sort \"Royal Bleu\"; k\u00e4\u00e4bus",
+            "start": 2519,
+            "url": "http://www.plantes-et-jardins.com/catalogue/catalogue4.asp?id_variations=2636&w1="
+        },
+        {
+            "end": 2549,
+            "label": "Foto",
+            "start": 2545,
+            "url": "http://www.csdl.tamu.edu/FLORA/imaxxbor.htm"
+        },
+        {
+            "end": 2554,
+            "label": "Foto",
+            "start": 2550,
+            "url": "http://pharm1.pharmazie.uni-greifswald.de/gallery/gal-bora.htm"
+        }
+    ],
+    "internal_links": [
+        {
+            "end": 95,
+            "label": "kaheaastane taim",
+            "start": 79,
+            "title": "kaheaastane taim",
+            "url": "http://et.wikipedia.org/wiki/kaheaastane_taim"
+        },
+        {
+            "end": 109,
+            "label": "kareleheliste",
+            "start": 96,
+            "title": "karelehelised",
+            "url": "http://et.wikipedia.org/wiki/karelehelised"
+        },
+        {
+            "end": 121,
+            "label": "sugukonnast",
+            "start": 110,
+            "title": "sugukond (bioloogia)",
+            "url": "http://et.wikipedia.org/wiki/sugukond_(bioloogia)"
+        },
+        {
+            "end": 130,
+            "label": "l\u00f5osilma",
+            "start": 122,
+            "title": "l\u00f5osilm",
+            "url": "http://et.wikipedia.org/wiki/l\u00f5osilm"
+        },
+        {
+            "end": 142,
+            "label": "perekonnast",
+            "start": 131,
+            "title": "perekond (bioloogia)",
+            "url": "http://et.wikipedia.org/wiki/perekond_(bioloogia)"
+        },
+        {
+            "end": 202,
+            "label": "ladina keeles",
+            "start": 189,
+            "title": "ladina keel",
+            "url": "http://et.wikipedia.org/wiki/ladina_keel"
+        },
+        {
+            "end": 255,
+            "label": "inglise keeles",
+            "start": 241,
+            "title": "inglise keel",
+            "url": "http://et.wikipedia.org/wiki/inglise_keel"
+        },
+        {
+            "end": 363,
+            "label": "saksa keeles",
+            "start": 351,
+            "title": "saksa keel",
+            "url": "http://et.wikipedia.org/wiki/saksa_keel"
+        },
+        {
+            "end": 466,
+            "label": "hollandi keeles",
+            "start": 451,
+            "title": "hollandi keel",
+            "url": "http://et.wikipedia.org/wiki/hollandi_keel"
+        },
+        {
+            "end": 509,
+            "label": "prantsuse keeles",
+            "start": 493,
+            "title": "prantsuse keel",
+            "url": "http://et.wikipedia.org/wiki/prantsuse_keel"
+        },
+        {
+            "end": 547,
+            "label": "hispaania keeles",
+            "start": 531,
+            "title": "hispaania keel",
+            "url": "http://et.wikipedia.org/wiki/hispaania_keel"
+        },
+        {
+            "end": 593,
+            "label": "itaalia keeles",
+            "start": 579,
+            "title": "itaalia keel",
+            "url": "http://et.wikipedia.org/wiki/itaalia_keel"
+        },
+        {
+            "end": 664,
+            "label": "rootsi keeles",
+            "start": 651,
+            "title": "rootsi keel",
+            "url": "http://et.wikipedia.org/wiki/rootsi_keel"
+        },
+        {
+            "end": 733,
+            "label": "horvaadi keeles",
+            "start": 718,
+            "title": "horvaadi keel",
+            "url": "http://et.wikipedia.org/wiki/horvaadi_keel"
+        },
+        {
+            "end": 768,
+            "label": "poola keeles",
+            "start": 756,
+            "title": "poola keel",
+            "url": "http://et.wikipedia.org/wiki/poola_keel"
+        },
+        {
+            "end": 810,
+            "label": "sloveeni keeles",
+            "start": 795,
+            "title": "sloveeni keel",
+            "url": "http://et.wikipedia.org/wiki/sloveeni_keel"
+        },
+        {
+            "end": 848,
+            "label": "jaapani keeles",
+            "start": 834,
+            "title": "jaapani keel",
+            "url": "http://et.wikipedia.org/wiki/jaapani_keel"
+        },
+        {
+            "end": 894,
+            "label": "soome keeles",
+            "start": 882,
+            "title": "soome keel",
+            "url": "http://et.wikipedia.org/wiki/soome_keel"
+        },
+        {
+            "end": 923,
+            "label": "vene keeles",
+            "start": 912,
+            "title": "vene keel",
+            "url": "http://et.wikipedia.org/wiki/vene_keel"
+        },
+        {
+            "end": 959,
+            "label": "leedu keeles",
+            "start": 947,
+            "title": "leedu keel",
+            "url": "http://et.wikipedia.org/wiki/leedu_keel"
+        },
+        {
+            "end": 996,
+            "label": "Ladinakeelne",
+            "start": 984,
+            "title": "ladina keel",
+            "url": "http://et.wikipedia.org/wiki/ladina_keel"
+        },
+        {
+            "end": 1061,
+            "label": "ladinakeelne",
+            "start": 1049,
+            "title": "ladina keel",
+            "url": "http://et.wikipedia.org/wiki/ladina_keel"
+        },
+        {
+            "end": 1178,
+            "label": "Jaapanis",
+            "start": 1170,
+            "title": "Jaapan",
+            "url": "http://et.wikipedia.org/wiki/Jaapan"
+        },
+        {
+            "end": 1237,
+            "label": "p\u00f5\u00f5sastena",
+            "start": 1227,
+            "title": "p\u00f5\u00f5sas",
+            "url": "http://et.wikipedia.org/wiki/p\u00f5\u00f5sas"
+        },
+        {
+            "end": 1244,
+            "label": "Lehed",
+            "start": 1239,
+            "title": "Leht",
+            "url": "http://et.wikipedia.org/wiki/Leht"
+        },
+        {
+            "end": 1256,
+            "label": "ovaalsed",
+            "start": 1248,
+            "title": "ovaalne leht",
+            "url": "http://et.wikipedia.org/wiki/ovaalne_leht"
+        },
+        {
+            "end": 1267,
+            "label": "m\u00f5lajad",
+            "start": 1260,
+            "title": "m\u00f5lajas leht",
+            "url": "http://et.wikipedia.org/wiki/m\u00f5lajas_leht"
+        },
+        {
+            "end": 1302,
+            "label": "\u00d5iekroon",
+            "start": 1294,
+            "title": "\u00d5iekroon",
+            "url": "http://et.wikipedia.org/wiki/\u00d5iekroon"
+        },
+        {
+            "end": 1532,
+            "label": "Euroopas",
+            "start": 1524,
+            "title": "Euroopa",
+            "url": "http://et.wikipedia.org/wiki/Euroopa"
+        },
+        {
+            "end": 1560,
+            "label": "Alpides",
+            "start": 1553,
+            "title": "Alpid",
+            "url": "http://et.wikipedia.org/wiki/Alpid"
+        },
+        {
+            "end": 1574,
+            "label": "Apenniinides",
+            "start": 1562,
+            "title": "Apenniinid",
+            "url": "http://et.wikipedia.org/wiki/Apenniinid"
+        },
+        {
+            "end": 1590,
+            "label": "Stara planinal",
+            "start": 1576,
+            "title": "Stara planina",
+            "url": "http://et.wikipedia.org/wiki/Stara_planina"
+        },
+        {
+            "end": 1604,
+            "label": "P\u00fcreneedes",
+            "start": 1594,
+            "title": "P\u00fcreneed",
+            "url": "http://et.wikipedia.org/wiki/P\u00fcreneed"
+        },
+        {
+            "end": 1639,
+            "label": "V\u00e4ike-Aasias",
+            "start": 1627,
+            "title": "V\u00e4ike-Aasia",
+            "url": "http://et.wikipedia.org/wiki/V\u00e4ike-Aasia"
+        },
+        {
+            "end": 1677,
+            "label": "Alaskal",
+            "start": 1670,
+            "title": "Alaska",
+            "url": "http://et.wikipedia.org/wiki/Alaska"
+        },
+        {
+            "end": 1687,
+            "label": "Jaapanis",
+            "start": 1679,
+            "title": "Jaapan",
+            "url": "http://et.wikipedia.org/wiki/Jaapan"
+        },
+        {
+            "end": 1760,
+            "label": "Aianduses",
+            "start": 1751,
+            "title": "Aiandus",
+            "url": "http://et.wikipedia.org/wiki/Aiandus"
+        },
+        {
+            "end": 1791,
+            "label": "p\u00fcsikuks",
+            "start": 1783,
+            "title": "p\u00fcsik",
+            "url": "http://et.wikipedia.org/wiki/p\u00fcsik"
+        },
+        {
+            "end": 1887,
+            "label": "kirikakarde",
+            "start": 1876,
+            "title": "kirikakar",
+            "url": "http://et.wikipedia.org/wiki/kirikakar"
+        },
+        {
+            "end": 1902,
+            "label": "aedkannikeste",
+            "start": 1889,
+            "title": "aedkannike",
+            "url": "http://et.wikipedia.org/wiki/aedkannike"
+        },
+        {
+            "end": 1916,
+            "label": "nurmenukkude",
+            "start": 1904,
+            "title": "nurmenukk",
+            "url": "http://et.wikipedia.org/wiki/nurmenukk"
+        },
+        {
+            "end": 1934,
+            "label": "sibullilledega",
+            "start": 1920,
+            "title": "sibullill",
+            "url": "http://et.wikipedia.org/wiki/sibullill"
+        },
+        {
+            "end": 2483,
+            "label": "Alaska",
+            "start": 2477,
+            "title": "Alaska",
+            "url": "http://et.wikipedia.org/wiki/Alaska"
+        }
+    ],
+    "sections": [
+        {
+            "end": 143,
+            "start": 0
+        },
+        {
+            "end": 1127,
+            "start": 145,
+            "title": "Nimi"
+        },
+        {
+            "end": 1502,
+            "start": 1129,
+            "title": "Kirjeldus"
+        },
+        {
+            "end": 1738,
+            "start": 1504,
+            "title": "Levila ja kasvukoht"
+        },
+        {
+            "end": 2291,
+            "start": 1740,
+            "title": "Kasutamine"
+        },
+        {
+            "end": 2452,
+            "start": 2293,
+            "title": "Sordid"
+        },
+        {
+            "end": 2500,
+            "start": 2454,
+            "title": "Kultuur"
+        },
+        {
+            "end": 2554,
+            "start": 2502,
+            "title": "V\u00e4lislingid"
+        }
+    ],
+    "text": "Aed-l\u00f5osilm\nAed-l\u00f5osilm ehk meelislill ehk meelespea (\"Myosotis alpestris\") on kaheaastane taim kareleheliste sugukonnast l\u00f5osilma perekonnast.\n\nNimi\nAed-l\u00f5osilma nimi erinevates keeltes: \nladina keeles \"Myosotis alpestris\" 'alpi-hiirek\u00f5rv'\ninglise keeles \"wood forget-me-not\" 'mets-\u00e4ra-unusta-mind', \"alpine forget-me-not\" 'alpiinne \u00e4ra-unusta-mind'\nsaksa keeles \"Alpen-Vergissmeinnicht\" 'alpi-\u00e4raunustamind', \"Blau-M\u00e4use\u00f6hrlein\" 'sini-hiirek\u00f5rvake'\nhollandi keeles \"alpenvergeet-mij-nietje\"\nprantsuse keeles \"myosotis des Alpes\"\nhispaania keeles \"nomeolvides\" '\u00e4raunustamind' \nitaalia keeles \"nontiscordardim\u00e8 alpino\", \"nontiscordardim\u00e8 dei boschi\"\nrootsi keeles \"alpin fj\u00e4llf\u00f6rg\u00e4tmigej\" 'alpiiinne \u00e4ra-unusta mind'\nhorvaadi keeles \"poto\u010dnica mje\u0161avina\"\npoola keeles \"niezapominajka alpejska\"\nsloveeni keeles \"planinska spomin\u010dica\"\njaapani keeles \u30ce\u30cf\u30e9\u30ef\u30b9\u30ec\u30ca\u30b0\u30b5 \"nohara-wasurena-gusa\"\nsoome keeles \"alppilemmikki\" \nvene keeles \"\u041d\u0435\u0437\u0430\u0431\u0443\u0434\u043a\u0430 \u0430\u043b\u044c\u043f\u0438\u0439\u0441\u043a\u0430\u044f\"\nleedu keeles \"alpin\u0117 neu\u017emir\u0161tuol\u0117\" \nLadinakeelne nimi p\u00e4rineb F. W. Schmidtilt (1794). Alternatiivne ladinakeelne nimi on \"Myosotis sylvatica ssp. alpestris\" Gams (bonnier, 1926).\n\nKirjeldus\nKasvab 5 kuni 25 cm k\u00f5rguseks, Jaapanis 30 kuni 50 cm k\u00f5rguseks. Sageli kasvab tihedate p\u00f5\u00f5sastena. Lehed on ovaalsed ja m\u00f5lajad, alumine pool on karvane. \u00d5iekroon on ratasjas, l\u00e4bim\u00f5\u00f5t 6-9 mm. \u00d5ied on tasased. \u00d5ied on intensiivselt eresinised, m\u00f5nikord valkjad. V\u00f5ivad olla ka valged, punakasvioletsed v\u00f5i roosad. \u00d5itseb kevadel ja suvel (aprill kuni september).\n\nLevila ja kasvukoht\nEuroopas kasvab looduslikult Alpides, Apenniinides, Stara planinal ja P\u00fcreneedes (alpiinne kasvukoht), V\u00e4ike-Aasias rohumaal ja metsas. Kasvab ka Alaskal, Jaapanis k\u00f5ikjal sage. M\u00e4gedes kasvab 1500\u20132800 m k\u00f5rgusel.\n\nKasutamine\nAianduses loetakse aed-l\u00f5osilma p\u00fcsikuks v\u00f5i kaheaastaseks taimeks. Kevadise aia kaunistamiseks pannakse aed-l\u00f5osilmad kokku kirikakarde, aedkannikeste, nurmenukkude ja sibullilledega. Kasvab varjus v\u00f5i poolvarjus, niiskuselembene, eelistab viljakat mulda. K\u00fclmakindluse klass on 3A kuni 9A.\nK\u00fclvatakse kevadel v\u00f5i juunist augustini poolvarju, jaotatakse p\u00e4rast \u00f5itsemist. Raske l\u00f5imisega muldadel istutatakse kevadel, mujal v\u00f5ib istutada ka s\u00fcgisel. Isutamisel peaks taimevahe olema 15 cm. Hooldamine seisneb \u00e4ra\u00f5itsenud \u00f5ite eemaldamises.\n\nSordid\n'Indigo' on helesiniste \u00f5itega \n'Victoria' on s\u00fcgavsiniste \u00f5itega \n'Victoria rosea' on roosade \u00f5itega \n'Bobo Mix' \n'Blue Bird' \n'Blue Boy' \n'Riyal Bleu'\n\nKultuur\nAed-l\u00f5osilm on Alaska osariigi s\u00fcmbol.\n\nV\u00e4lislingid\nFoto\nSort \"Royal Bleu\"; k\u00e4\u00e4bus\nFoto\nFoto\n\n"
+}

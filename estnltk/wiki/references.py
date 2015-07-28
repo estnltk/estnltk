@@ -3,8 +3,8 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 __author__ = 'Andres'
 import re
-from externalLink import addExternalLinks, ExtLinkBracketedRegex
-from internalLink import findBalanced, addIntLinks
+from .externalLink import addExternalLinks, ExtLinkBracketedRegex
+from .internalLink import findBalanced, addIntLinks
 
 referencesRegEx = re.compile(r'&lt;ref(.+?)(/&gt|/ref&gt);', re.DOTALL|re.IGNORECASE)
 referencesRegEx = re.compile(r'<ref>?(.+?)<?(/>|/ref>)', re.DOTALL|re.IGNORECASE)
@@ -75,7 +75,7 @@ def referencesFinder(text):
 
     for index, obj in enumerate(refs):
 
-        if str(obj).startswith('<ref name='):
+        if obj.startswith('<ref name='):
                 nameTag = re.escape(nameRegEx.search(obj).group(1))
 
                 if nameTag not in done:
@@ -85,7 +85,7 @@ def referencesFinder(text):
                     full = max(matches, key=len)
 
                     for i in indeces:
-                        refs[i]= full
+                        refs[i] = full
 
                     done.add(nameTag)
 
@@ -98,8 +98,9 @@ def referencesFinder(text):
         refs[i]=refs[i][firstindex:lastindex]
 
     #Handle cite-references
+
     for i in range(len(refs)):
-        if 'cite' in refs[i] or 'Cite' in refs[i]:
+        if 'cite' in refs[i].lower():
             newText = ''
             values = refs[i].split('|')
             for j in values:

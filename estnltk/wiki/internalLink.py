@@ -6,7 +6,7 @@ __author__ = 'Andres'
 import re
 #from images import imageRegEx
 #from images import imageParser
-from externalLink import addExternalLinks
+from .externalLink import addExternalLinks
 from pprint import pprint
 
 urlBegin = "http://et.wikipedia.org/wiki/"
@@ -110,7 +110,7 @@ def linkParser(textInBrackets, start, end):
 
 def findBalanced(text, openDelim, closeDelim):
     """
-    Assuming that text contains a properly balanced expression using
+    Assuming that text contains a properly balanced expression
     :param openDelim: as opening delimiters and
     :param closeDelim: as closing delimiters.
     :return: an iterator producing pairs (start, end) of start and end

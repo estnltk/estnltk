@@ -1,0 +1,395 @@
+{
+    "data": {
+        "categories": [
+            "Islam",
+            "Vana Testamendi inimesed"
+        ],
+        "other": [
+            "{{vikis\u00f5naraamatus}}",
+            "{{Vikis\u00f5naraamatus|Aabram}}",
+            "{{Commons|Category:Abraham}}"
+        ],
+        "timestamp": "2013-06-30T20:44:01Z",
+        "title": "Aabraham",
+        "url": "http://et.wikipedia.org/wiki/Aabraham"
+    },
+    "internal_links": [
+        {
+            "end": 33,
+            "label": "heebrea keeles",
+            "start": 19,
+            "title": "heebrea keel",
+            "url": "http://et.wikipedia.org/wiki/heebrea_keel"
+        },
+        {
+            "end": 60,
+            "label": "araabia keeles",
+            "start": 46,
+            "title": "araabia keel",
+            "url": "http://et.wikipedia.org/wiki/araabia_keel"
+        },
+        {
+            "end": 120,
+            "label": "Piibli",
+            "start": 114,
+            "title": "Piibel",
+            "url": "http://et.wikipedia.org/wiki/Piibel"
+        },
+        {
+            "end": 129,
+            "label": "patriarh",
+            "start": 121,
+            "title": "patriarh",
+            "url": "http://et.wikipedia.org/wiki/patriarh"
+        },
+        {
+            "end": 144,
+            "label": "Terahi",
+            "start": 138,
+            "title": "Terah",
+            "url": "http://et.wikipedia.org/wiki/Terah"
+        },
+        {
+            "end": 191,
+            "label": "heebreakeelne",
+            "start": 178,
+            "title": "heebrea keel",
+            "url": "http://et.wikipedia.org/wiki/heebrea_keel"
+        },
+        {
+            "end": 229,
+            "label": "heebrealased",
+            "start": 217,
+            "title": "juudid",
+            "url": "http://et.wikipedia.org/wiki/juudid"
+        },
+        {
+            "end": 327,
+            "label": "Esimene Moosese raamat",
+            "start": 305,
+            "title": "Esimene Moosese raamat",
+            "url": "http://et.wikipedia.org/wiki/Esimene_Moosese_raamat"
+        },
+        {
+            "end": 330,
+            "label": "15",
+            "start": 328,
+            "title": "Esimene Moosese raamat 15",
+            "url": "http://et.wikipedia.org/wiki/Esimene_Moosese_raamat_15"
+        },
+        {
+            "end": 346,
+            "label": "araabia keeles",
+            "start": 332,
+            "title": "araabia keel",
+            "url": "http://et.wikipedia.org/wiki/araabia_keel"
+        },
+        {
+            "end": 355,
+            "label": "Ibrahim",
+            "start": 348,
+            "title": "Ibrahim",
+            "url": "http://et.wikipedia.org/wiki/Ibrahim"
+        },
+        {
+            "end": 413,
+            "label": "aabrahamlikes religioonides",
+            "start": 386,
+            "title": "aabrahamlik religioon",
+            "url": "http://et.wikipedia.org/wiki/aabrahamlik_religioon"
+        },
+        {
+            "end": 423,
+            "label": "judaismis",
+            "start": 414,
+            "title": "judaism",
+            "url": "http://et.wikipedia.org/wiki/judaism"
+        },
+        {
+            "end": 435,
+            "label": "kristluses",
+            "start": 425,
+            "title": "kristlus",
+            "url": "http://et.wikipedia.org/wiki/kristlus"
+        },
+        {
+            "end": 446,
+            "label": "islamis",
+            "start": 439,
+            "title": "islam",
+            "url": "http://et.wikipedia.org/wiki/islam"
+        },
+        {
+            "end": 517,
+            "label": "religiooni",
+            "start": 507,
+            "title": "religioon",
+            "url": "http://et.wikipedia.org/wiki/religioon"
+        },
+        {
+            "end": 571,
+            "label": "L\u00e4his-Ida",
+            "start": 562,
+            "title": "L\u00e4his-Ida",
+            "url": "http://et.wikipedia.org/wiki/L\u00e4his-Ida"
+        },
+        {
+            "end": 582,
+            "label": "araablaste",
+            "start": 572,
+            "title": "araablased",
+            "url": "http://et.wikipedia.org/wiki/araablased"
+        },
+        {
+            "end": 598,
+            "label": "iisraellaste",
+            "start": 586,
+            "title": "iisraellased",
+            "url": "http://et.wikipedia.org/wiki/iisraellased"
+        },
+        {
+            "end": 617,
+            "label": "edomiitide",
+            "start": 607,
+            "title": "edomiidid",
+            "url": "http://et.wikipedia.org/wiki/edomiidid"
+        },
+        {
+            "end": 641,
+            "label": "Euraasia",
+            "start": 633,
+            "title": "Euraasia",
+            "url": "http://et.wikipedia.org/wiki/Euraasia"
+        },
+        {
+            "end": 679,
+            "label": "Iisraeli rahva",
+            "start": 665,
+            "title": "Iisraeli rahvas",
+            "url": "http://et.wikipedia.org/wiki/Iisraeli_rahvas"
+        },
+        {
+            "end": 719,
+            "label": "patriarhiks",
+            "start": 708,
+            "title": "patriarh",
+            "url": "http://et.wikipedia.org/wiki/patriarh"
+        },
+        {
+            "end": 763,
+            "label": "Jaakobiga",
+            "start": 754,
+            "title": "Jaakob",
+            "url": "http://et.wikipedia.org/wiki/Jaakob"
+        },
+        {
+            "end": 794,
+            "label": "patriarhi",
+            "start": 785,
+            "title": "patriarh",
+            "url": "http://et.wikipedia.org/wiki/patriarh"
+        },
+        {
+            "end": 864,
+            "label": "Esimesest Moosese raamatust",
+            "start": 837,
+            "title": "Esimene Moosese raamat",
+            "url": "http://et.wikipedia.org/wiki/Esimene_Moosese_raamat"
+        },
+        {
+            "end": 891,
+            "label": "kohanimede",
+            "start": 881,
+            "title": "kohanimi",
+            "url": "http://et.wikipedia.org/wiki/kohanimi"
+        },
+        {
+            "end": 906,
+            "label": "etnon\u00fc\u00fcmide",
+            "start": 895,
+            "title": "etnon\u00fc\u00fcm",
+            "url": "http://et.wikipedia.org/wiki/etnon\u00fc\u00fcm"
+        },
+        {
+            "end": 1021,
+            "label": "arheoloogiliste",
+            "start": 1006,
+            "title": "arheoloogia",
+            "url": "http://et.wikipedia.org/wiki/arheoloogia"
+        },
+        {
+            "end": 1115,
+            "label": "2. aastatuhandel eKr",
+            "start": 1095,
+            "title": "2. aastatuhat eKr",
+            "url": "http://et.wikipedia.org/wiki/2._aastatuhat_eKr"
+        },
+        {
+            "end": 1170,
+            "label": "Uuri",
+            "start": 1166,
+            "title": "Uur",
+            "url": "http://et.wikipedia.org/wiki/Uur"
+        },
+        {
+            "end": 1203,
+            "label": "Mesopotaamiast",
+            "start": 1189,
+            "title": "Mesopotaamia",
+            "url": "http://et.wikipedia.org/wiki/Mesopotaamia"
+        },
+        {
+            "end": 1245,
+            "label": "nomaadliku",
+            "start": 1235,
+            "title": "nomaad",
+            "url": "http://et.wikipedia.org/wiki/nomaad"
+        },
+        {
+            "end": 1255,
+            "label": "sugukonna",
+            "start": 1246,
+            "title": "sugukond",
+            "url": "http://et.wikipedia.org/wiki/sugukond"
+        },
+        {
+            "end": 1326,
+            "label": "Haarani",
+            "start": 1319,
+            "title": "Haaran",
+            "url": "http://et.wikipedia.org/wiki/Haaran"
+        },
+        {
+            "end": 1369,
+            "label": "Jumala",
+            "start": 1363,
+            "title": "Jumal",
+            "url": "http://et.wikipedia.org/wiki/Jumal"
+        },
+        {
+            "end": 1822,
+            "label": "S\u00fc\u00fcria",
+            "start": 1816,
+            "title": "S\u00fc\u00fcria",
+            "url": "http://et.wikipedia.org/wiki/S\u00fc\u00fcria"
+        },
+        {
+            "end": 1835,
+            "label": "Kaananimaale",
+            "start": 1823,
+            "title": "Kaananimaa",
+            "url": "http://et.wikipedia.org/wiki/Kaananimaa"
+        },
+        {
+            "end": 1884,
+            "label": "Iisraeliks",
+            "start": 1874,
+            "title": "Iisrael",
+            "url": "http://et.wikipedia.org/wiki/Iisrael"
+        },
+        {
+            "end": 1919,
+            "label": "t\u00f5otatud maa",
+            "start": 1907,
+            "title": "t\u00f5otatud maa",
+            "url": "http://et.wikipedia.org/wiki/t\u00f5otatud_maa"
+        },
+        {
+            "end": 2244,
+            "label": "Elieseri",
+            "start": 2236,
+            "title": "Elieser",
+            "url": "http://et.wikipedia.org/wiki/Elieser"
+        },
+        {
+            "end": 2256,
+            "label": "Damaskusest",
+            "start": 2245,
+            "title": "Damaskus",
+            "url": "http://et.wikipedia.org/wiki/Damaskus"
+        },
+        {
+            "end": 2325,
+            "label": "Ismaeli",
+            "start": 2318,
+            "title": "Ismael",
+            "url": "http://et.wikipedia.org/wiki/Ismael"
+        },
+        {
+            "end": 2524,
+            "label": "Iisaki",
+            "start": 2518,
+            "title": "Iisak",
+            "url": "http://et.wikipedia.org/wiki/Iisak"
+        },
+        {
+            "end": 2657,
+            "label": "Ketuuraga",
+            "start": 2648,
+            "title": "Ketuura",
+            "url": "http://et.wikipedia.org/wiki/Ketuura"
+        },
+        {
+            "end": 3208,
+            "label": "Uues Testamendis",
+            "start": 3192,
+            "title": "Uus Testament",
+            "url": "http://et.wikipedia.org/wiki/Uus_Testament"
+        },
+        {
+            "end": 3424,
+            "label": "Jeesuses",
+            "start": 3416,
+            "title": "Jeesus",
+            "url": "http://et.wikipedia.org/wiki/Jeesus"
+        },
+        {
+            "end": 3556,
+            "label": "Kaabat",
+            "start": 3550,
+            "title": "Kaabat",
+            "url": "http://et.wikipedia.org/wiki/Kaabat"
+        },
+        {
+            "end": 3570,
+            "label": "Meka",
+            "start": 3566,
+            "title": "Meka",
+            "url": "http://et.wikipedia.org/wiki/Meka"
+        },
+        {
+            "end": 3672,
+            "label": "kategooria:Judaism",
+            "start": 3654,
+            "title": "kategooria:Judaism",
+            "url": "http://et.wikipedia.org/wiki/kategooria:Judaism"
+        }
+    ],
+    "sections": [
+        {
+            "end": 3640,
+            "images": [
+                {
+                    "internal_links": [
+                        {
+                            "end": 24,
+                            "label": "Iisaki",
+                            "start": 18,
+                            "title": "Iisak",
+                            "url": "http://et.wikipedia.org/wiki/Iisak"
+                        }
+                    ],
+                    "text": "ingli]] sekkumist Iisaki ohverdamisesse Aabrahami poolt",
+                    "url": "http://et.wikipedia.org/wiki/Pilt:Rembrandt_Harmensz._van_Rijn_035.jpg"
+                }
+            ],
+            "start": 0
+        },
+        {
+            "end": 3672,
+            "start": 3642,
+            "title": "V\u00e4lislingid"
+        }
+    ],
+    "text": "Aabraham\nAabraham (heebrea keeles \u05d0\u05b7\u05d1\u05b0\u05e8\u05b8\u05d4\u05b8\u05dd ; araabia keeles \u0627\u0628\u0631\u0627\u0647\u064a\u0645 ; algne nimi Aabram) oli esimene ja t\u00e4htsaim Piibli patriarh. Ta oli Terahi poeg.\nNimi \"Aabram\" (\"Abram\") on heebreakeelne s\u00f5nam\u00e4ng s\u00f5nast \"Ibrim\" 'heebrealased' ning ta k\u00f5lab nagu \"\u00dclistatud Isa\". \nHiljem sai Aabram nimeks \"Aabraham\" (Esimene Moosese raamat 15; araabia keeles \"Ibrahim\"). \nAabrahamil on t\u00e4htis koht aabrahamlikes religioonides judaismis, kristluses ja islamis, kus teda peetakse usuisaks. Ta oli \u00fcks t\u00e4htsamaid tegelasi religiooni ajaloos. \nLegendi j\u00e4rgi on Aabraham paljude L\u00e4his-Ida araablaste ja iisraellaste, samuti edomiitide ja mitme teise Euraasia rahva esiisa. Et ta on Iisraeli rahva esiisa, nimetatakse teda ka patriarhiks. Koos oma poja Iisaki ja pojapoja Jaakobiga moodustavad nad kolm patriarhi. \nAndmed Aabrahami kohta p\u00e4rinevad ainult Esimesest Moosese raamatust. Otsustada v\u00f5ib kohanimede ja etnon\u00fc\u00fcmide j\u00e4rgi ning 1. Moosese raamatus kirjeldatud juriidiliste ja sotsiaalsete praktikate j\u00e4rgi v\u00f5rdluses arheoloogiliste leidudega. \nM\u00f5ned uurijad on j\u00e4reldanud, et Aabraham pidi elama millalgi 2. aastatuhandel eKr. Esimese Moosese raamatu j\u00e4rgi oli Aabraham p\u00e4rit Uuri piirkonnast L\u00f5una-Mesopotaamiast. T\u00f5en\u00e4oliselt oli ta suure poolnomaadliku sugukonna pea. Millegip\u00e4rast liikus sugukond p\u00f5hja poole ning asus elama Haarani l\u00e4hedale. Haaranis tuli Aabrahamile Jumala kutse j\u00e4tta kodumaa ning minna uude kohta, mida Jumal pidi talle n\u00e4itama.\nJumal t\u00f5otas Aabrahamile: \"Ma teen sinust suure rahva.\" See oli Jumala leping Aabrahamiga, et t\u00f5otus l\u00e4heb t\u00e4ide, kui Aabraham kuuletub Jumalale ja asub uude kohta. See oli esimene leping, mille Jumal Iisraeli rahvaga tegi. Sellest lepingust sai Iisraeli rahvas alguse. \nAabraham pidas oma lepingutingimusest kinni. Tema ja tema sugukond lahkus Haaranist ning r\u00e4ndas l\u00e4bi S\u00fc\u00fcria Kaananimaale ehk piirkonda, mida praegu kutsutakse Iisraeliks. Sellest sai Iisraeli t\u00f5otatud maa k\u00f5ikideks tulevasteks aegadeks.\nKui Aabraham ja tema sugukond olid Kaananisse elama asunud, uuendas Jumal oma lepingut ning t\u00f5otas, et annab Aabrahamile j\u00e4rglasi. Et Aabraham ja tema \u00f5de ja naine Saara, kes oli lastetu, olid juba \u00fcsna vanad, kahtlesid nad, kas nad kunagi lapse saavad. Aabraham nimetas oma p\u00e4rijaks Elieseri Damaskusest. Seej\u00e4rel v\u00f5ttis Saara talle \u00fcmmardaja Haagari, kes s\u00fcnnitas Ismaeli. Kuid Saara n\u00f5udel ajas Aabraham nii Haagari kui Ismaeli minema. Kui Ismael oli s\u00fcndinud, sai Saara, kellel oli juba lakanud olemast see, mis naistele muidu on omane, k\u00e4ima peale, ja s\u00fcnnitas Iisaki. See poeg pidi Esimese Moosese raamatu j\u00e4rgi olema p\u00e4rija, kelle l\u00e4bi leping j\u00e4tkub. \nP\u00e4rast Saara surma abiellus Aabraham Ketuuraga, kellel s\u00fcndis veel palju lapsi. Need teised lapsed said oma p\u00e4randiosa, kui nad suureks kasvasid, ja nad saadeti Kaananimaalt \u00e4ra, et nad elaksid mujal. Ainult Iisak p\u00e4ris t\u00f5otatud maa. P\u00e4rast Iisaki surma l\u00e4ks maa tema pojale Jaakobile, kelle nime Jumal muutis Iisraeliks. Aabraham suri 175-aastaselt. Ta maeti Saara k\u00f5rvale. \nJumala lepingut Aabrahamiga taaskinnitati Iisaki ja Jaakobiga. Sellep\u00e4rast pidas Iisraeli rahvas end Jumalaga erilises vahekorras olevaks: iisraellased olid Aabrahami, Iisaki ja Jaakobi Jumala rahvas. \nKa Uues Testamendis austatakse Aabrahami v\u00e4ga, kuid tema t\u00e4htsust n\u00e4hakse teisiti. Teda peetakse k\u00f5ikide Jumalasse uskujate isaks, kuuluvad nad siis Iisraeli v\u00f5i mitte. Aabrahamile antud t\u00f5otused on kristlaste meelest t\u00e4idetud Jeesuses Kristuses ning Jeesuse j\u00e4rgijaid h\u00fc\u00fctakse uueks Iisraeliks. \nIslami p\u00e4rimuse j\u00e4rgi aitas Aabraham oma pojal Ismaelil ehitada Kaabat, p\u00fchamut Meka Suure mo\u0161ee keskmes. Islami j\u00e4rgijatele on Kaaba p\u00fchim paik maa peal.\n\nV\u00e4lislingid\nkategooria:Judaism\n\n"
+}
