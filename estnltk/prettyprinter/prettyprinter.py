@@ -33,10 +33,6 @@ class PrettyPrinter(object):
 
         # TODO: ülesande 2.a (aesteetikute ja kihtide mappingu parsimine) võiks enne edasi liikumist valmis teha, kuna see aitab läbi mõelda kuidas koodi paremini struktureerida
 
-        # TODO: HEADER ja FOOTER lihtsuse mõttes tõsta klassist välja mooduli tasemele või isegi eraldi moodulisse, näiteks teha moodul nimega templates.py ja sealt need importida
-
-        # TODO: return pole vajalik kuna vaikimisi ilma returnita meetodid alati väljastavad None (sama tähelepanek ka allpool olevate meetodite kohta)
-
     @property
     def css(self):
         """The CSS of the prettyprinter"""
@@ -73,7 +69,6 @@ class PrettyPrinter(object):
 
     def createHTML(self, text):
         # TODO: märkus. CSS klasside genereerimisel tuleb hiljem arvestada ka seda, et erinevad märgendused võivad kattuda, näiteks teksti värv ja taustavärv. Selliste juhtude lahendamiseks peaks olema üks CSS klass iga aesteetik-väärtuse paari jaoks.
-        # TODO: märkus. testimiseks ei pea faili kirjutamist tegema otse koodis, vaid võib ka lihtsalt trükkide ekraanile sõne, ning käsurealt see suunata mõnda faili.
 
         originalValue = str(text)
         htmlContent = StringIO()
@@ -83,12 +78,14 @@ class PrettyPrinter(object):
         text.tokenize_words()
 
         a="\t\t\t<mark "
+
         for key in self.kwargs:
             a+='class=\"'+key+'\"'+', '
         a = a[:-2]
 
         for el in range(len(text['words'])):
             htmlContent.write(a+'>'+originalValue[text['words'][el]['start']:text['words'][el]['end']]+'</mark>\n')
+
         htmlContent.write('\t\t</p>\n')
         htmlContent.write(Templates.Footer())
         content = htmlContent.getvalue()
@@ -105,17 +102,5 @@ class PrettyPrinter(object):
         content.close()
         print(html)
 
-
-        # TODO: märgendamine võiks töötada kihtide start/end positsioonide peal. kuigi sõnatasemel on praegune näide küll lihtsam, siis üld
-
-        # TODO: render meetod peaks väljastama stringi HTML sisuga, põhimõtteliselt mida createHTMl teeb,
-        # aga ilma eraldi faili kirjutamata
-
-
 a = PrettyPrinter(background = 'Red', size = 'large')
 PrettyPrinter.render(a, "Mis asi see siin on nüüd praegu?")
-
-
-# TODO: Text('jklafh')
-# TODO: PrettyPrinter(bacground = 'white')
-# TODO: pp.render(Text)
