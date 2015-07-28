@@ -3,13 +3,13 @@ from __future__ import unicode_literals, print_function, absolute_import
 __author__ = 'Andres'
 
 from estnltk import Text
-from jsonWriter import fileCleanerRegEx
+from .jsonWriter import fileCleanerRegEx
 import argparse
 import codecs
 import json
 import os
 import re
-from pprint import pprint
+
 count = 0
 printcount = 0
 
@@ -91,7 +91,7 @@ def json_format(j_obj):
     return new
 
 
-def json_2_text(inp, out):
+def json_2_text(inp, out, verbose):
     for root, dirs, filenames in os.walk(inp):
         for f in filenames:
             log = open(os.path.join(root, f), 'r')
@@ -100,7 +100,7 @@ def json_2_text(inp, out):
 
             text = Text(j_obj)
             #pprint(text.analysis)
-            textWriter(j_obj, out, True)
+            textWriter(j_obj, out, verbose)
 
 def textWriter(jsonObj, dir, verbose):
     global count
@@ -115,7 +115,7 @@ def textWriter(jsonObj, dir, verbose):
     printcount +=1
 
     if verbose:
-        print('Count:', count)
+        print(jsonObj['data']['title'], 'Count:', count)
     elif printcount == 50:
         print(count)
         printcount = 0
@@ -138,9 +138,13 @@ def main():
     parser.add_argument('output', metavar='O', type=str,
                        help='wikipedia dump file relative or full path')
 
+    parser.add_argument("-v", "--verbose", action="store_true",
+                        help='Print written article titles and count.')
+
     args = parser.parse_args()
     inp = args.input
     out = args.output
+    verbose = args.verbose
 
     if not os.path.exists(inp):
         print('Input directory does not exist!')
@@ -148,7 +152,7 @@ def main():
     if not os.path.exists(out):
         os.mkdir(out)
 
-    json_2_text(inp, out)
+    json_2_text(inp, out, verbose)
     print('Done!')
 
 

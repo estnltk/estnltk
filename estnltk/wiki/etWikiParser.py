@@ -17,7 +17,7 @@ from .jsonWriter import jsonWriter
 from .cleaner import clean
 from .internalLink import findBalanced
 from .cleaner import dropSpans
-from .tableCollector import tableCollector
+
 # Matches bold/italic
 bold_italic = re.compile(r"'''''(.*?)'''''")
 bold = re.compile(r"'''(.*?)'''")
@@ -62,19 +62,23 @@ def parse_and_remove(filename, path):
             except IndexError:
                 pass
 
-
-
 def templatesCollector(text, open, close):
+    """leaves related articles and wikitables in place"""
     others = []
     spans = [i for i in findBalanced(text, open, close)]
-    for start, end in spans:
+    spanscopy = spans.copy()
+    for i in range(len(spans)):
+        start, end = spans[i]
+
         o = text[start:end]
+        ol = o.lower()
+        if 'vaata|' in ol or 'wikitable' in ol:
+            spanscopy.remove(spans[i])
+            continue
         others.append(o)
-    text = dropSpans(spans, text)
+    text = dropSpans(spanscopy, text)
 
     return text, others
-
-
 
 def etWikiParser(data, outputdir, verbose = False):
     global dropcount
@@ -90,7 +94,7 @@ def etWikiParser(data, outputdir, verbose = False):
         if tag and text:
             tag, text = as_unicode(tag), as_unicode(text)
             #print(tag, text)
-    #FIXME: py2 unicode issue
+
         if 'title' in tag:
 
         #Drop wikipedia internal pages.
@@ -137,13 +141,14 @@ def etWikiParser(data, outputdir, verbose = False):
                 refsDict = refsParser(refsDict)
                 pageObj['references'] = refsDict
 #Categories, cleaning, and other element.
+            if '{' in text:
+                text, pageObj['other'] = templatesCollector(text, '{', '}')
 
             text, catList = categoryParser(text)
             text = clean(text)
             pageObj['categories'] = catList
 
-            if '{' in text:
-                text, pageObj['other'] = templatesCollector(text, '{', '}')
+
 
 
 #SectionParser is where all the work with links, images etc gets done
@@ -190,7 +195,7 @@ def main():
 
     if inputFile[-3:] == 'bz2':
         print('BZ2', inputFile)
-        with BZ2File(inputFile, 'utf-8') as xml_file:
+        with BZ2File(inputFile) as xml_file:
             data = parse_and_remove(xml_file, "wikimedia/wikimedia")
             etWikiParser(data, outputDir, verbose)
     elif inputFile[-3:] == 'xml':
@@ -212,21 +217,3 @@ def myprint(d):
 
 if __name__ == '__main__':
     main()
-    t = """&lt;center&gt;&lt;div style=&quot;text-align: center; margin: 0 10% 1em 10%;&quot;&gt;
-{| align=center class=&quot;disputeabout&quot; style=&quot;background: beige; border: 1px solid #aaa; padding: .2em; margin-bottom: 3px; font-size: 95%; width: auto;&quot;
-| valign=&quot;top&quot; style=&quot;padding: .2em&quot; | [[Pilt:Stop_hand.png|45px|Vaidlustatud]]
-| style=&quot;padding: 0.1em&quot; width = 320| '''Artikli selle osa faktiline õigsus on vaieldav.'''&lt;br&gt;
-''Vaieldav on allikate selline liigitus.''
-|-
-|colspan=2 align=center|&lt;div style=&quot;font-size: 90%;&quot;&gt;Vaata lähemalt selle artikli [[:{{NAMESPACE}} talk:{{PAGENAME}}|aruteluleheküljelt]].&lt;/div&gt;
-|}
-&lt;/div&gt;&lt;/center&gt;
-*[[Esemelised ajalooallikad]] ehk [[muistis]]ed: [[kinnismuistis]]ed ja [[irdmuistis]]ed
-*[[Kirjalikud ajalooallikad]]: [[ürik]]ud, [[kroonika]]d, [[seadus]]ed, [[memuaarid]], [[statistilised materjalid]] jne
-*[[Suulised ajalooallikad]]: [[pärimus]]ed, [[rahvaluule]] ([[legend]]id, [[müüt|müüdid]], [[muinasjutt|muinasjutud]])
-*[[Etnoloogilised ajalooallikad]]: [[tava]]d, [[komme|kombed]] ja [[traditsioon]]id
-*[[Lingvistilised ajalooallikad]]: [[Keel (keeleteadus)|keel]] ja [[murre|murded]]
-*[[Audiovisuaalsed ajalooallikad]]: [[foto]]d, [[film]]id ja [[helisalvestis]]ed"""
-
-    text, other = templatesCollector(t, '{', '}')
-    #print(text, ' OTHER ',  other)
