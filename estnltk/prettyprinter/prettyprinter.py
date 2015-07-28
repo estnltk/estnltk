@@ -23,7 +23,16 @@ except ImportError:
 from estnltk import Text
 import sys
 sys.path.insert(0, '/path/to/estnltk/estnltk/prettyprinter')
-import Templates
+
+# muutsin seda, sest sain importerrori:
+from . import templates
+
+# Parem on koodi käivitada estnltk juurkataloogist, nt.
+# python -m estnltk.prettyprinter.prettyprinter
+#
+# siis pole tarvis sys.path muutujat muuta, mis pole ka alati hea mõte
+# PyCharmis saab ka run configurationis seda teha kui working directory panna estnltk juureks
+# ning käivitamise käsk anna -m argumendina. Ainus puudus, et nii ei saa debugida.
 
 class PrettyPrinter(object):
     """Class for formatting Text instances as HTML & CSS."""
@@ -41,7 +50,7 @@ class PrettyPrinter(object):
         spacing = {'small':'1', 'normal':'2', 'large':'4'}
 
         cssList = []
-        cssList.append(Templates.CssHeader())
+        cssList.append(templates.CssHeader())
 
         for el in self.kwargs:
             cssTemporary = StringIO()
@@ -72,9 +81,9 @@ class PrettyPrinter(object):
 
         originalValue = str(text)
         htmlContent = StringIO()
-        htmlContent.write(Templates.Header())
+        htmlContent.write(templates.Header())
         htmlContent.write(self.css)
-        htmlContent.write(Templates.Middle())
+        htmlContent.write(templates.Middle())
         text.tokenize_words()
 
         a="\t\t\t<mark "
@@ -87,7 +96,7 @@ class PrettyPrinter(object):
             htmlContent.write(a+'>'+originalValue[text['words'][el]['start']:text['words'][el]['end']]+'</mark>\n')
 
         htmlContent.write('\t\t</p>\n')
-        htmlContent.write(Templates.Footer())
+        htmlContent.write(templates.Footer())
         content = htmlContent.getvalue()
         htmlContent.close()
 
@@ -104,3 +113,38 @@ class PrettyPrinter(object):
 
 a = PrettyPrinter(background = 'Red', size = 'large')
 PrettyPrinter.render(a, "Mis asi see siin on nüüd praegu?")
+
+# lihtne näide, mida ma ise silmas pidasin
+text = Text({
+    'text': 'Selles tekstis on mitu märgendust, üks siin ja teine on siin',
+    'annotations': [
+        {'start': 35,
+         'end': 43},
+        {'start': 47,
+         'end': 60
+         }
+    ]
+})
+
+pp = PrettyPrinter(background='annotations')
+pp.render(text)
+
+# tulemus peaks olema midagi sellist:
+"""
+...
+<style>
+    mark.background {
+        background-color:blue;
+    }
+</style>
+...
+<p>
+    Selles tekstis on mitu märgendust, <mark class="background">üks siin</mark> ja <mark class="background">teine on siin</mark>
+</p>
+...
+"""
+
+# üks tähelepanek veel, et võiksid kasutada Pythoni koodistiili standarti:
+# https://www.python.org/dev/peps/pep-0008/
+#
+# peamine erinevus on see, et meetodiNimed muutuvad meetodi_nimedeks
