@@ -14,6 +14,7 @@ count = 0
 printcount = 0
 
 def parse_data(j_obj):
+    """generate the data: elements"""
     data = {}
     keys = j_obj.keys()
     for key in keys:
@@ -25,6 +26,18 @@ def parse_data(j_obj):
 
 
 def parse_text(sections, title):
+    """Separate stuff from the sections
+    Links and other elements with start and end positions are annotated
+    as layers.
+
+    Parameters
+    ----------
+    list of nested sections, article title
+
+    Returns
+    -------
+    text, section, links"""
+
     text = ''
     internal_links = []
     external_links = []
@@ -62,11 +75,12 @@ def parse_text(sections, title):
         section.pop(el, None)
 
 
-
+    #TODO: Should there be text = Text(text) ?
     return text, flats, internal_links, external_links
 
 
 def flatten(l, new=[]):
+    """Flatten the nested list of sections"""
     for i in l:
         new.append(i)
         if 'sections' in i.keys():
@@ -76,6 +90,10 @@ def flatten(l, new=[]):
 
 
 def json_format(j_obj):
+    """Restructure the article
+        TODO: return new['text'] as a Text obj?
+
+    """
     new = {}
     new['data'] = parse_data(j_obj)
     title = new['data']['title']
@@ -103,6 +121,7 @@ def json_2_text(inp, out, verbose):
             textWriter(j_obj, out, verbose)
 
 def textWriter(jsonObj, dir, verbose):
+    """Write .text files"""
     global count
     global printcount
     if not os.path.exists(dir):
