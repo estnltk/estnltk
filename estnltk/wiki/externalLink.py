@@ -2,9 +2,7 @@
 from __future__ import unicode_literals, print_function, absolute_import
 __author__ = 'Andres'
 
-
 import re
-from pprint import pprint
 
 #From wikiextractor
 urlBegin = "http://et.wikipedia.org/wiki/"
@@ -41,9 +39,9 @@ def addExternalLinks(sectionObj):
             obj['end']= len(s)
             obj['url']= url
             obj['label']= label
-            sectionObj['text'] = str(s) + text[cur:]
+            sectionObj['text'] = s + text[cur:]
             extLinks.append(obj)
-        sectionObj['external links'] = extLinks
+        sectionObj['external_links'] = extLinks
     return sectionObj
 
 if __name__ == '__main__':

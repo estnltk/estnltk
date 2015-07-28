@@ -1,0 +1,484 @@
+{
+    "data": {
+        "categories": [
+            "Aeg",
+            "Metroloogia"
+        ],
+        "timestamp": "2014-01-24T23:23:12Z",
+        "title": "Aja m\u00f5\u00f5tmine",
+        "url": "http://et.wikipedia.org/wiki/Aja_m\u00f5\u00f5tmine"
+    },
+    "external_links": [
+        {
+            "end": 2856,
+            "label": "Astronoomiline aeg",
+            "start": 2838,
+            "url": "http://opik.obs.ee/osa1/ptk03/box02.html"
+        },
+        {
+            "end": 2942,
+            "label": "6. oktoober 2003, Anto Veldre, Ajaarvestuse keeruline kunst (ajakirjas Arvutimaailm)",
+            "start": 2858,
+            "url": "http://www.ria.ee/lib/am-2001-2005/8682_4EC.HTM"
+        },
+        {
+            "end": 2978,
+            "label": "",
+            "start": 2978,
+            "url": "http://mehaanika8kl.wordpress.com/uhikute-teisendamine/aeg/"
+        }
+    ],
+    "internal_links": [
+        {
+            "end": 43,
+            "label": "ajavahemikkude",
+            "start": 29,
+            "title": "ajavahemik",
+            "url": "http://et.wikipedia.org/wiki/ajavahemik"
+        },
+        {
+            "end": 52,
+            "label": "kestuste",
+            "start": 44,
+            "title": "kestus",
+            "url": "http://et.wikipedia.org/wiki/kestus"
+        },
+        {
+            "end": 61,
+            "label": "m\u00f5\u00f5tmine",
+            "start": 53,
+            "title": "m\u00f5\u00f5tmine",
+            "url": "http://et.wikipedia.org/wiki/m\u00f5\u00f5tmine"
+        },
+        {
+            "end": 76,
+            "label": "Tehnikaeelsel",
+            "start": 63,
+            "title": "Tehnika",
+            "url": "http://et.wikipedia.org/wiki/Tehnika"
+        },
+        {
+            "end": 144,
+            "label": "Kuu faasid",
+            "start": 134,
+            "title": "Kuu faasid",
+            "url": "http://et.wikipedia.org/wiki/Kuu_faasid"
+        },
+        {
+            "end": 157,
+            "label": "aastaaegade",
+            "start": 146,
+            "title": "aastaajad",
+            "url": "http://et.wikipedia.org/wiki/aastaajad"
+        },
+        {
+            "end": 204,
+            "label": "\u00f6\u00f6p\u00e4ev",
+            "start": 198,
+            "title": "\u00f6\u00f6p\u00e4ev",
+            "url": "http://et.wikipedia.org/wiki/\u00f6\u00f6p\u00e4ev"
+        },
+        {
+            "end": 209,
+            "label": "kuu",
+            "start": 206,
+            "title": "kuu (kalender)",
+            "url": "http://et.wikipedia.org/wiki/kuu_(kalender)"
+        },
+        {
+            "end": 219,
+            "label": "aasta",
+            "start": 214,
+            "title": "aasta",
+            "url": "http://et.wikipedia.org/wiki/aasta"
+        },
+        {
+            "end": 248,
+            "label": "kellad",
+            "start": 242,
+            "title": "kell",
+            "url": "http://et.wikipedia.org/wiki/kell"
+        },
+        {
+            "end": 304,
+            "label": "astronoomilisi vaatlusi",
+            "start": 281,
+            "title": "astronoomilised vaatlused",
+            "url": "http://et.wikipedia.org/wiki/astronoomilised_vaatlused"
+        },
+        {
+            "end": 337,
+            "label": "tundideks",
+            "start": 328,
+            "title": "tund",
+            "url": "http://et.wikipedia.org/wiki/tund"
+        },
+        {
+            "end": 349,
+            "label": "minutiteks",
+            "start": 339,
+            "title": "minut",
+            "url": "http://et.wikipedia.org/wiki/minut"
+        },
+        {
+            "end": 364,
+            "label": "sekunditeks",
+            "start": 353,
+            "title": "sekund",
+            "url": "http://et.wikipedia.org/wiki/sekund"
+        },
+        {
+            "end": 538,
+            "label": "Maa",
+            "start": 535,
+            "title": "planeet Maa",
+            "url": "http://et.wikipedia.org/wiki/planeet_Maa"
+        },
+        {
+            "end": 559,
+            "label": "p\u00f6\u00f6rlemine",
+            "start": 549,
+            "title": "p\u00f6\u00f6rlemine",
+            "url": "http://et.wikipedia.org/wiki/p\u00f6\u00f6rlemine"
+        },
+        {
+            "end": 645,
+            "label": "taevakehade",
+            "start": 634,
+            "title": "taevakeha",
+            "url": "http://et.wikipedia.org/wiki/taevakeha"
+        },
+        {
+            "end": 705,
+            "label": "astronoomiliste vaatluste",
+            "start": 680,
+            "title": "astronoomilised vaatlused",
+            "url": "http://et.wikipedia.org/wiki/astronoomilised_vaatlused"
+        },
+        {
+            "end": 768,
+            "label": "kinnist\u00e4htede",
+            "start": 755,
+            "title": "kinnist\u00e4ht",
+            "url": "http://et.wikipedia.org/wiki/kinnist\u00e4ht"
+        },
+        {
+            "end": 816,
+            "label": "t\u00e4he\u00f6\u00f6p\u00e4ev",
+            "start": 806,
+            "title": "t\u00e4he\u00f6\u00f6p\u00e4ev",
+            "url": "http://et.wikipedia.org/wiki/t\u00e4he\u00f6\u00f6p\u00e4ev"
+        },
+        {
+            "end": 840,
+            "label": "t\u00e4heaeg",
+            "start": 833,
+            "title": "t\u00e4heaeg",
+            "url": "http://et.wikipedia.org/wiki/t\u00e4heaeg"
+        },
+        {
+            "end": 900,
+            "label": "P\u00e4ikese",
+            "start": 893,
+            "title": "P\u00e4ike",
+            "url": "http://et.wikipedia.org/wiki/P\u00e4ike"
+        },
+        {
+            "end": 934,
+            "label": "keskp\u00e4evade",
+            "start": 923,
+            "title": "t\u00f5eline keskp\u00e4ev",
+            "url": "http://et.wikipedia.org/wiki/t\u00f5eline_keskp\u00e4ev"
+        },
+        {
+            "end": 972,
+            "label": "p\u00e4ikese\u00f6\u00f6p\u00e4ev",
+            "start": 959,
+            "title": "p\u00e4ikese\u00f6\u00f6p\u00e4ev",
+            "url": "http://et.wikipedia.org/wiki/p\u00e4ikese\u00f6\u00f6p\u00e4ev"
+        },
+        {
+            "end": 999,
+            "label": "p\u00e4ikeseaeg",
+            "start": 989,
+            "title": "p\u00e4ikeseaeg",
+            "url": "http://et.wikipedia.org/wiki/p\u00e4ikeseaeg"
+        },
+        {
+            "end": 1015,
+            "label": "tiirleb",
+            "start": 1008,
+            "title": "tiirlemine",
+            "url": "http://et.wikipedia.org/wiki/tiirlemine"
+        },
+        {
+            "end": 1033,
+            "label": "orbiiti",
+            "start": 1026,
+            "title": "orbiit",
+            "url": "http://et.wikipedia.org/wiki/orbiit"
+        },
+        {
+            "end": 1048,
+            "label": "P\u00e4ikesse",
+            "start": 1040,
+            "title": "P\u00e4ikes",
+            "url": "http://et.wikipedia.org/wiki/P\u00e4ikes"
+        },
+        {
+            "end": 1091,
+            "label": "kinnist\u00e4htede",
+            "start": 1078,
+            "title": "kinnist\u00e4ht",
+            "url": "http://et.wikipedia.org/wiki/kinnist\u00e4ht"
+        },
+        {
+            "end": 1102,
+            "label": "ida",
+            "start": 1099,
+            "title": "ida",
+            "url": "http://et.wikipedia.org/wiki/ida"
+        },
+        {
+            "end": 1172,
+            "label": "taevameridiaanile",
+            "start": 1155,
+            "title": "taevameridiaan",
+            "url": "http://et.wikipedia.org/wiki/taevameridiaan"
+        },
+        {
+            "end": 1238,
+            "label": "Taevameridiaan",
+            "start": 1224,
+            "title": "Taevameridiaan",
+            "url": "http://et.wikipedia.org/wiki/Taevameridiaan"
+        },
+        {
+            "end": 1253,
+            "label": "taevasf\u00e4\u00e4ri",
+            "start": 1242,
+            "title": "taevasf\u00e4\u00e4r",
+            "url": "http://et.wikipedia.org/wiki/taevasf\u00e4\u00e4r"
+        },
+        {
+            "end": 1266,
+            "label": "suurringjoon",
+            "start": 1254,
+            "title": "suurringjoon",
+            "url": "http://et.wikipedia.org/wiki/suurringjoon"
+        },
+        {
+            "end": 1298,
+            "label": "p\u00f5hjapooluse",
+            "start": 1286,
+            "title": "p\u00f5hjapoolus",
+            "url": "http://et.wikipedia.org/wiki/p\u00f5hjapoolus"
+        },
+        {
+            "end": 1318,
+            "label": "seniidi",
+            "start": 1311,
+            "title": "seniit",
+            "url": "http://et.wikipedia.org/wiki/seniit"
+        },
+        {
+            "end": 1459,
+            "label": "taevaekvaatori",
+            "start": 1445,
+            "title": "taevaekvaator",
+            "url": "http://et.wikipedia.org/wiki/taevaekvaator"
+        },
+        {
+            "end": 1695,
+            "label": "p\u00e4ikeseaeg",
+            "start": 1685,
+            "title": "p\u00e4ikeseaeg",
+            "url": "http://et.wikipedia.org/wiki/p\u00e4ikeseaeg"
+        },
+        {
+            "end": 1727,
+            "label": "p\u00e4ikesekellaga",
+            "start": 1713,
+            "title": "p\u00e4ikesekell",
+            "url": "http://et.wikipedia.org/wiki/p\u00e4ikesekell"
+        },
+        {
+            "end": 1978,
+            "label": "tsiviilaega",
+            "start": 1967,
+            "title": "tsiviilaeg",
+            "url": "http://et.wikipedia.org/wiki/tsiviilaeg"
+        },
+        {
+            "end": 2079,
+            "label": "p\u00f6\u00f6rlemist",
+            "start": 2069,
+            "title": "p\u00f6\u00f6rlemine",
+            "url": "http://et.wikipedia.org/wiki/p\u00f6\u00f6rlemine"
+        },
+        {
+            "end": 2112,
+            "label": "looded",
+            "start": 2106,
+            "title": "looded",
+            "url": "http://et.wikipedia.org/wiki/looded"
+        },
+        {
+            "end": 2151,
+            "label": "Gravitatsiooniseadus",
+            "start": 2131,
+            "title": "Gravitatsiooniseadus",
+            "url": "http://et.wikipedia.org/wiki/Gravitatsiooniseadus"
+        },
+        {
+            "end": 2175,
+            "label": "Kuu",
+            "start": 2172,
+            "title": "Kuu",
+            "url": "http://et.wikipedia.org/wiki/Kuu"
+        },
+        {
+            "end": 2378,
+            "label": "efemeriidiajaks",
+            "start": 2363,
+            "title": "efemeriidiaeg",
+            "url": "http://et.wikipedia.org/wiki/efemeriidiaeg"
+        },
+        {
+            "end": 2537,
+            "label": "ajastandardi",
+            "start": 2525,
+            "title": "ajastandard",
+            "url": "http://et.wikipedia.org/wiki/ajastandard"
+        },
+        {
+            "end": 2554,
+            "label": "aatomite",
+            "start": 2546,
+            "title": "aatom",
+            "url": "http://et.wikipedia.org/wiki/aatom"
+        },
+        {
+            "end": 2568,
+            "label": "molekulide",
+            "start": 2558,
+            "title": "molekul",
+            "url": "http://et.wikipedia.org/wiki/molekul"
+        },
+        {
+            "end": 2583,
+            "label": "v\u00f5nkesagedused",
+            "start": 2569,
+            "title": "v\u00f5nkesagedus",
+            "url": "http://et.wikipedia.org/wiki/v\u00f5nkesagedus"
+        },
+        {
+            "end": 2596,
+            "label": "Aatomkellad",
+            "start": 2585,
+            "title": "Aatomkell",
+            "url": "http://et.wikipedia.org/wiki/Aatomkell"
+        },
+        {
+            "end": 2625,
+            "label": "masereid",
+            "start": 2617,
+            "title": "maser",
+            "url": "http://et.wikipedia.org/wiki/maser"
+        },
+        {
+            "end": 2637,
+            "label": "lasereid",
+            "start": 2629,
+            "title": "laser",
+            "url": "http://et.wikipedia.org/wiki/laser"
+        },
+        {
+            "end": 2766,
+            "label": "aeg",
+            "start": 2763,
+            "title": "aeg",
+            "url": "http://et.wikipedia.org/wiki/aeg"
+        },
+        {
+            "end": 2783,
+            "label": "maailmastandard",
+            "start": 2768,
+            "title": "maailmastandard",
+            "url": "http://et.wikipedia.org/wiki/maailmastandard"
+        },
+        {
+            "end": 2793,
+            "label": "kalender",
+            "start": 2785,
+            "title": "kalender",
+            "url": "http://et.wikipedia.org/wiki/kalender"
+        },
+        {
+            "end": 2799,
+            "label": "tempo",
+            "start": 2794,
+            "title": "tempo",
+            "url": "http://et.wikipedia.org/wiki/tempo"
+        },
+        {
+            "end": 2804,
+            "label": "ITU",
+            "start": 2801,
+            "title": "International Telecommunication Union",
+            "url": "http://et.wikipedia.org/wiki/International_Telecommunication_Union"
+        },
+        {
+            "end": 2809,
+            "label": "GMT",
+            "start": 2806,
+            "title": "Greenwich Mean Time",
+            "url": "http://et.wikipedia.org/wiki/Greenwich_Mean_Time"
+        },
+        {
+            "end": 2814,
+            "label": "GPS",
+            "start": 2811,
+            "title": "GPS",
+            "url": "http://et.wikipedia.org/wiki/GPS"
+        },
+        {
+            "end": 2819,
+            "label": "TAI",
+            "start": 2816,
+            "title": "International Atomic Time",
+            "url": "http://et.wikipedia.org/wiki/International_Atomic_Time"
+        },
+        {
+            "end": 2824,
+            "label": "UTC",
+            "start": 2821,
+            "title": "Universal Time (Coordinated)",
+            "url": "http://et.wikipedia.org/wiki/Universal_Time_(Coordinated)"
+        },
+        {
+            "end": 2968,
+            "label": "Riigi Infos\u00fcsteemi Ameti",
+            "start": 2944,
+            "title": "Riigi Infos\u00fcsteemi Amet",
+            "url": "http://et.wikipedia.org/wiki/Riigi_Infos\u00fcsteemi_Amet"
+        }
+    ],
+    "sections": [
+        {
+            "end": 2752,
+            "start": 0
+        },
+        {
+            "end": 2824,
+            "start": 2754,
+            "title": "Vaata ka"
+        },
+        {
+            "end": 2974,
+            "start": 2826,
+            "title": "V\u00e4lislingid"
+        }
+    ],
+    "text": "Aja m\u00f5\u00f5tmine\nAja m\u00f5\u00f5tmine on ajavahemikkude kestuste m\u00f5\u00f5tmine.\nTehnikaeelsel ajastul on looduslike ts\u00fcklite (\u00f6\u00f6 ja p\u00e4eva vaheldumine, Kuu faasid, aastaaegade vaheldumine) p\u00f5hjal kujunenud aja\u00fchikud \u00f6\u00f6p\u00e4ev, kuu, ja aasta. Kui v\u00f5eti kasutusele kellad ja hakati tegema s\u00fcstemaatilisi astronoomilisi vaatlusi, hakati \u00f6\u00f6p\u00e4eva jagama tundideks, minutiteks ja sekunditeks. \nIgasugune aja m\u00f5\u00f5tmine p\u00f5hineb mingi regulaarselt korduva n\u00e4htuse ts\u00fcklite loendamisel ja selle murdosade t\u00e4psel m\u00f5\u00f5tmisel. Sobivaks regulaarseks n\u00e4htuseks on osutunud Maa \u00f6\u00f6p\u00e4evane p\u00f6\u00f6rlemine \u00fcmber oma telje, mille kiirus on v\u00e4ga p\u00fcsiv. \u00d6\u00f6p\u00e4evats\u00fcklit saab vaadelda taevakehade n\u00e4ivate asendite kaudu, mida saab astronoomiliste vaatluste teel \u00fcsna t\u00e4pselt m\u00e4\u00e4rata. \nMaa p\u00f6\u00f6rlemisperiood kinnist\u00e4htede suhtes (tegelik p\u00f6\u00f6rlemisperiood) on t\u00e4he\u00f6\u00f6p\u00e4ev, millel p\u00f5hineb t\u00e4heaeg. T\u00e4he\u00f6\u00f6p\u00e4evad on \u00fchepikkused. \nMaa p\u00f6\u00f6rlemisperiood P\u00e4ikese suhtes (j\u00e4rjestikuste keskp\u00e4evade vaheline ajavahemik) on p\u00e4ikese\u00f6\u00f6p\u00e4ev, millel p\u00f5hineb p\u00e4ikeseaeg. Et Maa tiirleb m\u00f6\u00f6da oma orbiiti \u00fcmber P\u00e4ikesse, siis P\u00e4ike liigub n\u00e4iliselt kinnist\u00e4htede suhtes ida poole ning selleks, et P\u00e4ike j\u00f5uaks tagasi vaatleja taevameridiaanile, peab Maa tegema pisut rohkem kui \u00fche t\u00e4isp\u00f6\u00f6rde. (Taevameridiaan on taevasf\u00e4\u00e4ri suurringjoon, mis l\u00e4bib maailma p\u00f5hjapooluse ja vaatleja seniidi; P\u00e4ike \u00fcletab taevameridiaani t\u00f5elisel keskp\u00e4eval.) Ent Maa liikumine orbiidil ei ole \u00fchtlane ning tiirlemisorbiidi tasand on taevaekvaatori suhtes 23,12 \u00b0 v\u00f5rra kaldu. Seet\u00f5ttu ei ole P\u00e4ikese liikumine kinnist\u00e4htede suhtes ida poole \u00fchtlane ning t\u00f5elise p\u00e4ikese\u00f6\u00f6p\u00e4eva kestus oleneb aastaajast, kuid p\u00e4ikese\u00f6\u00f6p\u00e4ev on t\u00e4he\u00f6\u00f6p\u00e4evast nelja minuti v\u00f5rra pikem. T\u00f5eline p\u00e4ikeseaeg, mida saab m\u00f5\u00f5ta p\u00e4ikesekellaga, ei kulge \u00fchtlase kiirusega. Seet\u00f5ttu on keskmise p\u00e4ikeseaja p\u00f5hjal kasutusele v\u00f5etud keskmine p\u00e4ikese\u00f6\u00f6p\u00e4ev, mis v\u00f5rdub tegeliku p\u00e4ikese\u00f6\u00f6p\u00e4eva aastakeskmisega. \nKeskmine p\u00e4ikeseaeg kulgeb \u00fchtlase kiirusega ning selle alusel arvestatakse tsiviilaega, mida n\u00e4itavad kellad. Tegelikult ei ole ka keskmine p\u00e4ikeseaeg t\u00e4pselt \u00fchtlane, sest Maa p\u00f6\u00f6rlemist pidutdavad v\u00e4hesel m\u00e4\u00e4ral looded ja muud tegurid. \nGravitatsiooniseadus v\u00f5imaldab ennustada Kuu asendit orbiidil igal antud ajahetkel. Teiselt poolt, Kuu t\u00e4pne asend v\u00f5imaldab usaldatavalt aega m\u00e4\u00e4rata, sest Kuu liikumine ei aeglustu. Kuu asendi p\u00f5hjal arvestatavat aega nimetatakse efemeriidiajaks. See kulgeb \u00fcsna \u00fchtlaselt. 20. sajandi jooksul kogunenud erinevus keskmise p\u00e4ikeseaja ja efemeriidiaja vahel on \u00fcle poole minuti. \nK\u00f5ige t\u00e4psema ajastandardi annavad aatomite ja molekulide v\u00f5nkesagedused. Aatomkellad, milles kasutatakse masereid ja lasereid, eksivad ainult umbes 3 millisekundit 1000 aasta kohta.\nAja m\u00f5\u00f5tmine on tehniliselt v\u00e4ga komplitseeritud \u00fclesanne.\n\nVaata ka\naeg \nmaailmastandard \nkalender\ntempo\n ITU, GMT, GPS, TAI, UTC\n\nV\u00e4lislingid\nAstronoomiline aeg\n 6. oktoober 2003, Anto Veldre, Ajaarvestuse keeruline kunst (ajakirjas Arvutimaailm), Riigi Infos\u00fcsteemi Ameti veeb\n\n\n"
+}

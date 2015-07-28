@@ -3,7 +3,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 __author__ = 'Andres'
 import re
-from wikiextra import balancedSlicer as bSB
+from .wikiextra import balancedSlicer as bSB
 
 wikitableStartRegEx = re.compile(r'\{.+?wikitable')
 tableRegEx = re.compile(r'<table>.+?</table>', re.IGNORECASE|re.DOTALL)
