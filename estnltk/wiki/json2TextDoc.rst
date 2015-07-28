@@ -3,8 +3,8 @@ Estonian wikipedia dump json to estnltk.Text object importer
 ============
 
 Usage
--------------------
-::
+-------------------::
+
     usage: json2Text.py [-h] [-v] I O
 
     Import etWikiParsed wikipedia json files to estnltk.Text objects
