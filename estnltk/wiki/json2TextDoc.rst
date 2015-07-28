@@ -3,7 +3,9 @@ Estonian wikipedia dump json to estnltk.Text object importer
 ============
 
 Usage
--------------------::
+-------------------
+
+Again, the program is intended to be run from command line::
 
     usage: json2Text.py [-h] [-v] I O
 
