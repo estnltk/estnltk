@@ -1,0 +1,784 @@
+{
+    "categories": [
+        "P\u00f5hjagermaani keeled",
+        "Rootsi"
+    ],
+    "infobox": [
+        {
+            "kaardi allkiri": "Rootsi keele leviala.",
+            "kaart": "Distribution-sv.png",
+            "keelkond": "indoeuroopa keeledgermaani keeledp\u00f5hjagermaani keeledidaskandinaavia keeled'''rootsi keel'''",
+            "keelkonnav\u00e4rv": "indo-euroopa",
+            "kood 1": "sv",
+            "kood 2": "swe",
+            "piirkond": "P\u00f5hja-Euroopa",
+            "riigid": "Rootsis, Soomes",
+            "riik": "{{PisiLipp",
+            "r\u00e4\u00e4kijad": "8,3 miljonit <ref 0/>"
+        }
+    ],
+    "other": [
+        "{{ToimetaAeg|kuu=september|aasta=2006}}",
+        "{{Vikipeedia/keel|code=sv|keel=Rootsikeelne}}",
+        "{{viited}}",
+        "{{EuroopaLiiduAmetlikudKeeled}}"
+    ],
+    "references": [
+        {
+            "external links": [
+                {
+                    "end": 0,
+                    "label": "",
+                    "start": 0,
+                    "url": "http://www.ethnologue.com/show_language.asp?code=swe"
+                }
+            ],
+            "text": "Rootsi keel]. ''Ethnologue.com'', {{v\u00e4iksem|Kasutatud 24.07.2009 {{v\u00e4iksem|(inglise)}}}}"
+        }
+    ],
+    "sections": [
+        {
+            "internal_links": [
+                {
+                    "end": 66,
+                    "label": "indoeuroopa keelkonna",
+                    "start": 45,
+                    "title": "indoeuroopa keelkond",
+                    "url": "http://et.wikipedia.org/wiki/indoeuroopa_keelkond"
+                },
+                {
+                    "end": 117,
+                    "label": "taani",
+                    "start": 112,
+                    "title": "taani keel",
+                    "url": "http://et.wikipedia.org/wiki/taani_keel"
+                },
+                {
+                    "end": 134,
+                    "label": "norra keelega",
+                    "start": 121,
+                    "title": "norra keel",
+                    "url": "http://et.wikipedia.org/wiki/norra_keel"
+                },
+                {
+                    "end": 241,
+                    "label": "vanap\u00f5hja keelest",
+                    "start": 224,
+                    "title": "Vanap\u00f5hja keel",
+                    "url": "http://et.wikipedia.org/wiki/Vanap\u00f5hja_keel"
+                },
+                {
+                    "end": 287,
+                    "label": "Rootsi",
+                    "start": 281,
+                    "title": "Rootsi",
+                    "url": "http://et.wikipedia.org/wiki/Rootsi"
+                },
+                {
+                    "end": 300,
+                    "label": "ametlik keel",
+                    "start": 288,
+                    "title": "ametlik keel",
+                    "url": "http://et.wikipedia.org/wiki/ametlik_keel"
+                },
+                {
+                    "end": 339,
+                    "label": "de iure",
+                    "start": 332,
+                    "title": "de iure",
+                    "url": "http://et.wikipedia.org/wiki/de_iure"
+                },
+                {
+                    "end": 346,
+                    "label": "Soome",
+                    "start": 341,
+                    "title": "Soome",
+                    "url": "http://et.wikipedia.org/wiki/Soome"
+                },
+                {
+                    "end": 356,
+                    "label": "riigikeel",
+                    "start": 347,
+                    "title": "riigikeel",
+                    "url": "http://et.wikipedia.org/wiki/riigikeel"
+                },
+                {
+                    "end": 368,
+                    "label": "soome keele",
+                    "start": 357,
+                    "title": "soome keel",
+                    "url": "http://et.wikipedia.org/wiki/soome_keel"
+                },
+                {
+                    "end": 422,
+                    "label": "Eestis",
+                    "start": 416,
+                    "title": "Eesti",
+                    "url": "http://et.wikipedia.org/wiki/Eesti"
+                },
+                {
+                    "end": 434,
+                    "label": "Aibolandis",
+                    "start": 424,
+                    "title": "Aiboland",
+                    "url": "http://et.wikipedia.org/wiki/Aiboland"
+                },
+                {
+                    "end": 464,
+                    "label": "Hiiumaal",
+                    "start": 456,
+                    "title": "Hiiumaa",
+                    "url": "http://et.wikipedia.org/wiki/Hiiumaa"
+                },
+                {
+                    "end": 475,
+                    "label": "Saaremaal",
+                    "start": 466,
+                    "title": "Saaremaa",
+                    "url": "http://et.wikipedia.org/wiki/Saaremaa"
+                },
+                {
+                    "end": 484,
+                    "label": "Vormsil",
+                    "start": 477,
+                    "title": "Vormsi",
+                    "url": "http://et.wikipedia.org/wiki/Vormsi"
+                },
+                {
+                    "end": 494,
+                    "label": "Ruhnus",
+                    "start": 488,
+                    "title": "Ruhnu",
+                    "url": "http://et.wikipedia.org/wiki/Ruhnu"
+                },
+                {
+                    "end": 652,
+                    "label": "1781",
+                    "start": 648,
+                    "title": "1781",
+                    "url": "http://et.wikipedia.org/wiki/1781"
+                },
+                {
+                    "end": 720,
+                    "label": "Ukrainasse",
+                    "start": 710,
+                    "title": "Ukraina",
+                    "url": "http://et.wikipedia.org/wiki/Ukraina"
+                },
+                {
+                    "end": 753,
+                    "label": "Gammalsvenskby",
+                    "start": 739,
+                    "title": "Gammalsvenskby",
+                    "url": "http://et.wikipedia.org/wiki/Gammalsvenskby"
+                },
+                {
+                    "end": 844,
+                    "label": "Rootsi",
+                    "start": 838,
+                    "title": "Rootsi",
+                    "url": "http://et.wikipedia.org/wiki/Rootsi"
+                },
+                {
+                    "end": 910,
+                    "label": "Eestisse",
+                    "start": 902,
+                    "title": "Eesti",
+                    "url": "http://et.wikipedia.org/wiki/Eesti"
+                },
+                {
+                    "end": 954,
+                    "label": "Esimese",
+                    "start": 947,
+                    "title": "Esimene maailmas\u00f5da",
+                    "url": "http://et.wikipedia.org/wiki/Esimene_maailmas\u00f5da"
+                },
+                {
+                    "end": 975,
+                    "label": "Teise maailmas\u00f5ja",
+                    "start": 958,
+                    "title": "Teine maailmas\u00f5da",
+                    "url": "http://et.wikipedia.org/wiki/Teine_maailmas\u00f5da"
+                },
+                {
+                    "end": 1091,
+                    "label": "Eesti-Rootsi",
+                    "start": 1079,
+                    "title": "Rannarootslased",
+                    "url": "http://et.wikipedia.org/wiki/Rannarootslased"
+                },
+                {
+                    "end": 1178,
+                    "label": "Teise maailmas\u00f5ja",
+                    "start": 1161,
+                    "title": "Teine maailmas\u00f5da",
+                    "url": "http://et.wikipedia.org/wiki/Teine_maailmas\u00f5da"
+                },
+                {
+                    "end": 1203,
+                    "label": "Rootsisse",
+                    "start": 1194,
+                    "title": "Rootsi",
+                    "url": "http://et.wikipedia.org/wiki/Rootsi"
+                },
+                {
+                    "end": 1214,
+                    "label": "Eesti",
+                    "start": 1209,
+                    "title": "Eesti",
+                    "url": "http://et.wikipedia.org/wiki/Eesti"
+                },
+                {
+                    "end": 1240,
+                    "label": "N\u00f5ukogude Liiduga",
+                    "start": 1223,
+                    "title": "N\u00f5ukogude Liit",
+                    "url": "http://et.wikipedia.org/wiki/N\u00f5ukogude_Liit"
+                }
+            ],
+            "text": "Rootsi keel (rootsi keeles \"svenska\") kuulub indoeuroopa keelkonna germaani keelte skandinaavia idar\u00fchma, ta on taani ja norra keelega l\u00e4hedalt suguluses ning on nii k\u00f5nes kui kirjas vastastikku m\u00f5istetav. Keel arenes v\u00e4lja vanap\u00f5hja keelest.\nRootsi keel on alates 1. juulist 2009 Rootsi ametlik keel (seaduses: \"peamine keel\") ja \"de iure\" Soome riigikeel soome keele k\u00f5rval.\nVarem olid rootsikeelsed kogukonnad ka Eestis (Aibolandis), peamiselt saartel (Hiiumaal, Saaremaal, Vormsil ja Ruhnus). Rootsi keelt kasutavad v\u00e4hemused olid esindatud parlamendis ning neil oli \u00f5igus kasutada emakeelt parlamentaarsetel debattidel. Venemaa \u00fclemv\u00f5imu ajal 1781 sunniti umbes tuhandet rootsi keele r\u00e4\u00e4kijat \u00fcmber asuma Ukrainasse, kus nad asutasid Gammalsvenskby ('Vana-Rootsi') k\u00fcla. M\u00f5ned k\u00fcla vanurid r\u00e4\u00e4givad siiani rootsi keelt ning j\u00e4rgivad Rootsi kalendrip\u00fchi, kuigi keelemurre on ilmselt v\u00e4lja suremas.\nEestisse j\u00e4\u00e4nud rootslaste kogukonda koheldi Esimese ja Teise maailmas\u00f5ja vahel v\u00e4ga h\u00e4sti. Rootslaste enamusega piirkonnad kasutasid administratiivse keelena rootsi keelt ning Eesti-Rootsi kultuur oli t\u00f5usmas. Paljud rootsi keelt r\u00e4\u00e4kivad inimesed pidid aga Teise maailmas\u00f5ja l\u00f5pus p\u00f5genema Rootsisse, kui Eesti liideti N\u00f5ukogude Liiduga. T\u00e4nap\u00e4eval on alles j\u00e4\u00e4nud v\u00e4he vanemaid r\u00e4\u00e4kijaid."
+        },
+        {
+            "images": [
+                {
+                    "text": "Rootsi t\u00e4hestik",
+                    "url": "http://et.wikipedia.org/wiki/Pilt:Swedish_alphabet.png"
+                }
+            ],
+            "text": "Rootsi keele grammatiline struktuur on k\u00fcll veidi raskem norra ja taani keele omast, ent ei valmista \u00f5ppijaile kunagi suuremaid raskusi. N\u00e4iteks on verbil \u00fches kindlas ajavormis vaid \u00fcks vorm, mis k\u00f5ikides p\u00f6\u00f6retes on sama (nt \"arbeta\" (t\u00f6\u00f6tama) olevikus \"arbetar\": jag arbetar, du arbetar, han arbetar, vi arbetar, ni arbetar, de arbetar, lihtminevikus \"arbetade\": jag arbetade, du arbetade jne).\nRootsi keel jagab 100% skandinaavia s\u00f5navara taani ning norra keelega. Kuid samas sarnaneb rootsi s\u00f5navara kuni 90% ka l\u00f5una-germaani keelte omaga, nt saksa ja hollandi s\u00f5navaraga, niisiis ei valmista n\u00e4iteks saksa v\u00f5i hollandi keelt oskavale \u00f5ppurile erilisi raskusi; kui probleeme tekib, siis tavaliselt puudutavad need rootsi keele puhul vaid h\u00e4\u00e4ldust \u2013 grammatika ja s\u00f5navara probleemiks ei kujune.",
+            "title": "Struktuurist ja s\u00f5navarast"
+        },
+        {
+            "external links": [
+                {
+                    "end": 270,
+                    "label": "",
+                    "start": 270,
+                    "url": "http://swedia.ling.umu.se/Norrland/Norrbotten/Overkalix/yw.html"
+                },
+                {
+                    "end": 320,
+                    "label": "",
+                    "start": 320,
+                    "url": "http://swedia.ling.umu.se/Norrland/Vasterbotten/Burtrask/ow.html"
+                },
+                {
+                    "end": 362,
+                    "label": "",
+                    "start": 362,
+                    "url": "http://swedia.ling.umu.se/Norrland/Jamtland/Aspas/yw.html"
+                },
+                {
+                    "end": 409,
+                    "label": "",
+                    "start": 409,
+                    "url": "http://swedia.ling.umu.se/Norrland/Halsingland/Farila/om.html"
+                },
+                {
+                    "end": 493,
+                    "label": "",
+                    "start": 493,
+                    "url": "http://swedia.ling.umu.se/Svealand/Dalarna/Alvdalen/ow.html"
+                },
+                {
+                    "end": 534,
+                    "label": "",
+                    "start": 534,
+                    "url": "http://swedia.ling.umu.se/Svealand/Uppland/Graso/om.html"
+                },
+                {
+                    "end": 581,
+                    "label": "",
+                    "start": 581,
+                    "url": "http://swedia.ling.umu.se/Svealand/Sodermanland/Sorunda/ym.html"
+                },
+                {
+                    "end": 622,
+                    "label": "",
+                    "start": 622,
+                    "url": "http://swedia.ling.umu.se/Svealand/Varmland/Kola/yw.html"
+                },
+                {
+                    "end": 661,
+                    "label": "",
+                    "start": 661,
+                    "url": "http://swedia.ling.umu.se/Svealand/Narke/Viby/om.html"
+                },
+                {
+                    "end": 730,
+                    "label": "",
+                    "start": 730,
+                    "url": "http://swedia.ling.umu.se/Gotaland/Gotland/Sproge/yw.html"
+                },
+                {
+                    "end": 822,
+                    "label": "",
+                    "start": 822,
+                    "url": "http://swedia.ling.umu.se/Finland/Osterbotten/Narpes/yw.html"
+                },
+                {
+                    "end": 870,
+                    "label": "",
+                    "start": 870,
+                    "url": "http://swedia.ling.umu.se/Finland/Aboland/Dragsfjard/om.html"
+                },
+                {
+                    "end": 916,
+                    "label": "",
+                    "start": 916,
+                    "url": "http://swedia.ling.umu.se/Finland/Nyland/Borga/ym.html"
+                },
+                {
+                    "end": 1034,
+                    "label": "",
+                    "start": 1034,
+                    "url": "http://swedia.ling.umu.se/Gotaland/Bohuslan/Orust/om.html"
+                },
+                {
+                    "end": 1081,
+                    "label": "",
+                    "start": 1081,
+                    "url": "http://swedia.ling.umu.se/Gotaland/Vastergotland/Floby/ow.html"
+                },
+                {
+                    "end": 1153,
+                    "label": "",
+                    "start": 1153,
+                    "url": "http://swedia.ling.umu.se/Gotaland/Ostergotland/Rimforsa/ow.html"
+                },
+                {
+                    "end": 1203,
+                    "label": "",
+                    "start": 1203,
+                    "url": "http://swedia.ling.umu.se/Gotaland/Halland/Arstad/ym.html"
+                },
+                {
+                    "end": 1249,
+                    "label": "",
+                    "start": 1249,
+                    "url": "http://swedia.ling.umu.se/Gotaland/Smaland/Stenberga/yw.html"
+                },
+                {
+                    "end": 1412,
+                    "label": "",
+                    "start": 1412,
+                    "url": "http://swedia.ling.umu.se/Gotaland/Blekinge/Jamshog/ow.html"
+                },
+                {
+                    "end": 1464,
+                    "label": "",
+                    "start": 1464,
+                    "url": "http://swedia.ling.umu.se/Gotaland/Skane/Bara/om.html"
+                }
+            ],
+            "images": [
+                {
+                    "text": "Erinevate murrete kaart.",
+                    "url": "http://et.wikipedia.org/wiki/Pilt:Map_of_Swedish_dialects.png"
+                }
+            ],
+            "internal_links": [
+                {
+                    "end": 18,
+                    "label": "murde",
+                    "start": 13,
+                    "title": "Murre",
+                    "url": "http://et.wikipedia.org/wiki/Murre"
+                },
+                {
+                    "end": 59,
+                    "label": "murret",
+                    "start": 53,
+                    "title": "murre",
+                    "url": "http://et.wikipedia.org/wiki/murre"
+                },
+                {
+                    "end": 163,
+                    "label": "vanap\u00f5hja keeleni",
+                    "start": 146,
+                    "title": "vanap\u00f5hja keel",
+                    "url": "http://et.wikipedia.org/wiki/vanap\u00f5hja_keel"
+                },
+                {
+                    "end": 195,
+                    "label": "Norrland",
+                    "start": 187,
+                    "title": "Norrland",
+                    "url": "http://et.wikipedia.org/wiki/Norrland"
+                },
+                {
+                    "end": 226,
+                    "label": "\u00d6verkalix",
+                    "start": 217,
+                    "title": "\u00d6verkalix",
+                    "url": "http://et.wikipedia.org/wiki/\u00d6verkalix"
+                },
+                {
+                    "end": 238,
+                    "label": "Norrbotten",
+                    "start": 228,
+                    "title": "Norrbotten",
+                    "url": "http://et.wikipedia.org/wiki/Norrbotten"
+                },
+                {
+                    "end": 266,
+                    "label": "Burtr\u00e4sk",
+                    "start": 258,
+                    "title": "Burtr\u00e4sk",
+                    "url": "http://et.wikipedia.org/wiki/Burtr\u00e4sk"
+                },
+                {
+                    "end": 280,
+                    "label": "V\u00e4sterbotten",
+                    "start": 268,
+                    "title": "V\u00e4sterbotten",
+                    "url": "http://et.wikipedia.org/wiki/V\u00e4sterbotten"
+                },
+                {
+                    "end": 304,
+                    "label": "Asp\u00e5s",
+                    "start": 299,
+                    "title": "Asp\u00e5s",
+                    "url": "http://et.wikipedia.org/wiki/Asp\u00e5s"
+                },
+                {
+                    "end": 314,
+                    "label": "J\u00e4mtland",
+                    "start": 306,
+                    "title": "J\u00e4mtland",
+                    "url": "http://et.wikipedia.org/wiki/J\u00e4mtland"
+                },
+                {
+                    "end": 340,
+                    "label": "F\u00e4rila",
+                    "start": 334,
+                    "title": "F\u00e4rila",
+                    "url": "http://et.wikipedia.org/wiki/F\u00e4rila"
+                },
+                {
+                    "end": 353,
+                    "label": "H\u00e4lsingland",
+                    "start": 342,
+                    "title": "H\u00e4lsingland",
+                    "url": "http://et.wikipedia.org/wiki/H\u00e4lsingland"
+                },
+                {
+                    "end": 387,
+                    "label": "Svealand",
+                    "start": 379,
+                    "title": "Svealand",
+                    "url": "http://et.wikipedia.org/wiki/Svealand"
+                },
+                {
+                    "end": 400,
+                    "label": "\u00c4lvdalen",
+                    "start": 392,
+                    "title": "\u00c4lvdalen",
+                    "url": "http://et.wikipedia.org/wiki/\u00c4lvdalen"
+                },
+                {
+                    "end": 409,
+                    "label": "Dalarna",
+                    "start": 402,
+                    "title": "Dalarna maakond",
+                    "url": "http://et.wikipedia.org/wiki/Dalarna_maakond"
+                },
+                {
+                    "end": 433,
+                    "label": "Gr\u00e4s\u00f6",
+                    "start": 428,
+                    "title": "Gr\u00e4s\u00f6",
+                    "url": "http://et.wikipedia.org/wiki/Gr\u00e4s\u00f6"
+                },
+                {
+                    "end": 442,
+                    "label": "Uppland",
+                    "start": 435,
+                    "title": "Uppland",
+                    "url": "http://et.wikipedia.org/wiki/Uppland"
+                },
+                {
+                    "end": 467,
+                    "label": "Sorunda",
+                    "start": 460,
+                    "title": "Sorunda",
+                    "url": "http://et.wikipedia.org/wiki/Sorunda"
+                },
+                {
+                    "end": 481,
+                    "label": "S\u00f6dermanland",
+                    "start": 469,
+                    "title": "S\u00f6dermanland",
+                    "url": "http://et.wikipedia.org/wiki/S\u00f6dermanland"
+                },
+                {
+                    "end": 505,
+                    "label": "K\u00f6la",
+                    "start": 501,
+                    "title": "K\u00f6la",
+                    "url": "http://et.wikipedia.org/wiki/K\u00f6la"
+                },
+                {
+                    "end": 515,
+                    "label": "V\u00e4rmland",
+                    "start": 507,
+                    "title": "V\u00e4rmland",
+                    "url": "http://et.wikipedia.org/wiki/V\u00e4rmland"
+                },
+                {
+                    "end": 538,
+                    "label": "Viby",
+                    "start": 534,
+                    "title": "Viby",
+                    "url": "http://et.wikipedia.org/wiki/Viby"
+                },
+                {
+                    "end": 545,
+                    "label": "N\u00e4rke",
+                    "start": 540,
+                    "title": "N\u00e4rke",
+                    "url": "http://et.wikipedia.org/wiki/N\u00e4rke"
+                },
+                {
+                    "end": 585,
+                    "label": "Gotland",
+                    "start": 578,
+                    "title": "Gotland",
+                    "url": "http://et.wikipedia.org/wiki/Gotland"
+                },
+                {
+                    "end": 597,
+                    "label": "Sproge",
+                    "start": 591,
+                    "title": "Sproge",
+                    "url": "http://et.wikipedia.org/wiki/Sproge"
+                },
+                {
+                    "end": 650,
+                    "label": "Ahvenamaa",
+                    "start": 641,
+                    "title": "Ahvenamaa",
+                    "url": "http://et.wikipedia.org/wiki/Ahvenamaa"
+                },
+                {
+                    "end": 659,
+                    "label": "Soome",
+                    "start": 654,
+                    "title": "Soome",
+                    "url": "http://et.wikipedia.org/wiki/Soome"
+                },
+                {
+                    "end": 671,
+                    "label": "N\u00e4rpes",
+                    "start": 665,
+                    "title": "N\u00e4rpes",
+                    "url": "http://et.wikipedia.org/wiki/N\u00e4rpes"
+                },
+                {
+                    "end": 682,
+                    "label": "Pohjanmaa",
+                    "start": 673,
+                    "title": "Pohjanmaa",
+                    "url": "http://et.wikipedia.org/wiki/Pohjanmaa"
+                },
+                {
+                    "end": 713,
+                    "label": "Dragsfj\u00e4rd",
+                    "start": 703,
+                    "title": "Dragsfj\u00e4rd",
+                    "url": "http://et.wikipedia.org/wiki/Dragsfj\u00e4rd"
+                },
+                {
+                    "end": 722,
+                    "label": "\u00c5boland",
+                    "start": 715,
+                    "title": "\u00c5boland",
+                    "url": "http://et.wikipedia.org/wiki/\u00c5boland"
+                },
+                {
+                    "end": 747,
+                    "label": "Porvoo",
+                    "start": 741,
+                    "title": "Porvoo",
+                    "url": "http://et.wikipedia.org/wiki/Porvoo"
+                },
+                {
+                    "end": 760,
+                    "label": "Ida-Uusimaa",
+                    "start": 749,
+                    "title": "Ida-Uusimaa",
+                    "url": "http://et.wikipedia.org/wiki/Ida-Uusimaa"
+                },
+                {
+                    "end": 796,
+                    "label": "G\u00f6talandi",
+                    "start": 787,
+                    "title": "G\u00f6taland",
+                    "url": "http://et.wikipedia.org/wiki/G\u00f6taland"
+                },
+                {
+                    "end": 841,
+                    "label": "V\u00e4sterg\u00f6tland",
+                    "start": 828,
+                    "title": "V\u00e4sterg\u00f6tland",
+                    "url": "http://et.wikipedia.org/wiki/V\u00e4sterg\u00f6tland"
+                },
+                {
+                    "end": 852,
+                    "label": "Orust",
+                    "start": 847,
+                    "title": "Orust",
+                    "url": "http://et.wikipedia.org/wiki/Orust"
+                },
+                {
+                    "end": 862,
+                    "label": "Bohusl\u00e4n",
+                    "start": 854,
+                    "title": "Bohusl\u00e4n",
+                    "url": "http://et.wikipedia.org/wiki/Bohusl\u00e4n"
+                },
+                {
+                    "end": 886,
+                    "label": "Floby",
+                    "start": 881,
+                    "title": "Floby",
+                    "url": "http://et.wikipedia.org/wiki/Floby"
+                },
+                {
+                    "end": 901,
+                    "label": "V\u00e4sterg\u00f6tland",
+                    "start": 888,
+                    "title": "V\u00e4sterg\u00f6tland",
+                    "url": "http://et.wikipedia.org/wiki/V\u00e4sterg\u00f6tland"
+                },
+                {
+                    "end": 929,
+                    "label": "Rimforsa",
+                    "start": 921,
+                    "title": "Rimforsa",
+                    "url": "http://et.wikipedia.org/wiki/Rimforsa"
+                },
+                {
+                    "end": 943,
+                    "label": "\u00d6sterg\u00f6tland",
+                    "start": 931,
+                    "title": "\u00d6sterg\u00f6tlandi maakond",
+                    "url": "http://et.wikipedia.org/wiki/\u00d6sterg\u00f6tlandi_maakond"
+                },
+                {
+                    "end": 976,
+                    "label": "\u00c5rstad-Heberg",
+                    "start": 963,
+                    "title": "\u00c5rstad-Heberg",
+                    "url": "http://et.wikipedia.org/wiki/\u00c5rstad-Heberg"
+                },
+                {
+                    "end": 985,
+                    "label": "Halland",
+                    "start": 978,
+                    "title": "Halland",
+                    "url": "http://et.wikipedia.org/wiki/Halland"
+                },
+                {
+                    "end": 1014,
+                    "label": "Stenberga",
+                    "start": 1005,
+                    "title": "Stenberga",
+                    "url": "http://et.wikipedia.org/wiki/Stenberga"
+                },
+                {
+                    "end": 1023,
+                    "label": "Sm\u00e5land",
+                    "start": 1016,
+                    "title": "Sm\u00e5land",
+                    "url": "http://et.wikipedia.org/wiki/Sm\u00e5land"
+                },
+                {
+                    "end": 1094,
+                    "label": "Blekinge",
+                    "start": 1086,
+                    "title": "Blekinge",
+                    "url": "http://et.wikipedia.org/wiki/Blekinge"
+                },
+                {
+                    "end": 1109,
+                    "label": "Halland",
+                    "start": 1102,
+                    "title": "Halland",
+                    "url": "http://et.wikipedia.org/wiki/Halland"
+                },
+                {
+                    "end": 1126,
+                    "label": "Sm\u00e5land",
+                    "start": 1119,
+                    "title": "Sm\u00e5land",
+                    "url": "http://et.wikipedia.org/wiki/Sm\u00e5land"
+                },
+                {
+                    "end": 1139,
+                    "label": "J\u00e4msh\u00f6g",
+                    "start": 1132,
+                    "title": "J\u00e4msh\u00f6g",
+                    "url": "http://et.wikipedia.org/wiki/J\u00e4msh\u00f6g"
+                },
+                {
+                    "end": 1149,
+                    "label": "Blekinge",
+                    "start": 1141,
+                    "title": "Blekinge maakond",
+                    "url": "http://et.wikipedia.org/wiki/Blekinge_maakond"
+                },
+                {
+                    "end": 1173,
+                    "label": "Bara",
+                    "start": 1169,
+                    "title": "Bara Hundred",
+                    "url": "http://et.wikipedia.org/wiki/Bara_Hundred"
+                },
+                {
+                    "end": 1180,
+                    "label": "Sk\u00e5ne",
+                    "start": 1175,
+                    "title": "Sk\u00e5ne",
+                    "url": "http://et.wikipedia.org/wiki/Sk\u00e5ne"
+                }
+            ],
+            "text": "Rootsi keele murde lingvistiline definitsioon on, et murret ei ole m\u00f5jutanud tavap\u00e4rane rootsi keel ning selle eraldiseisvat arengut saab j\u00e4lgida vanap\u00f5hja keeleni. \n\n\"Norrl\u00e4ndska m\u00e5l\" \u2013 Norrland, Rootsi p\u00f5hjaosa\n:1. \u00d6verkalix, Norrbotten; noorem naine]\n:2. Burtr\u00e4sk, V\u00e4sterbotten; vanem naine]\n:3. Asp\u00e5s, J\u00e4mtland; noorem naine]\n:4. F\u00e4rila, H\u00e4lsingland; vanem mees]\n\"Sveam\u00e5l\" \u2013 Svealand\n:5. \u00c4lvdalen, Dalarna; vanem naine]\n:6. Gr\u00e4s\u00f6, Uppland; vanem mees]\n:7. Sorunda, S\u00f6dermanland; noorem naine]\n:8. K\u00f6la, V\u00e4rmland noorem naine]\n:9. Viby, N\u00e4rke; vanem mees]\n\"Gotl\u00e4ndska m\u00e5l\" \u2013 Gotland\n:10. Sproge, Gotland; noorem naine]\n\"\u00d6stsvenska m\u00e5l\" \u2013 Ahvenamaa ja Soome\n:11. N\u00e4rpes, Pohjanmaa; noorem naine]\n:12. Dragsfj\u00e4rd, \u00c5boland; vanem mees]\n:13. Porvoo, Ida-Uusimaa; noorem mees]\n\"G\u00f6tam\u00e5l\" \u2013 G\u00f6talandi l\u00e4\u00e4ne- ja p\u00f5hjapool, keskosaks V\u00e4sterg\u00f6tland\n:14. Orust, Bohusl\u00e4n; vanem mees]\n:15. Floby, V\u00e4sterg\u00f6tland; vanem naine]\n:16. Rimforsa, \u00d6sterg\u00f6tland; vanem naine]\n:17. \u00c5rstad-Heberg, Halland; noorem mees]\n:18. Stenberga, Sm\u00e5land; noorem naine]\n\"Sydsvenska m\u00e5l\" \u2013 Rootsi l\u00f5unaosa, sealhulgas Blekinge, L\u00f5una-Halland ja L\u00f5una-Sm\u00e5land\n:19. J\u00e4msh\u00f6g, Blekinge; vanem naine]\n:20. Bara, Sk\u00e5ne; vanem mees]",
+            "title": "Murded"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 23,
+                    "label": "Rootsikeelne Vikipeedia",
+                    "start": 0,
+                    "title": "Rootsikeelne Vikipeedia",
+                    "url": "http://et.wikipedia.org/wiki/Rootsikeelne_Vikipeedia"
+                },
+                {
+                    "end": 50,
+                    "label": "Rootsi laenud eesti keeles",
+                    "start": 24,
+                    "title": "Rootsi laenud eesti keeles",
+                    "url": "http://et.wikipedia.org/wiki/Rootsi_laenud_eesti_keeles"
+                },
+                {
+                    "end": 67,
+                    "label": "Eestirootsi keel",
+                    "start": 51,
+                    "title": "Eestirootsi keel",
+                    "url": "http://et.wikipedia.org/wiki/Eestirootsi_keel"
+                }
+            ],
+            "text": "Rootsikeelne Vikipeedia\nRootsi laenud eesti keeles\nEestirootsi keel",
+            "title": "Vaata ka"
+        },
+        {
+            "text": "",
+            "title": "Viited"
+        }
+    ],
+    "timestamp": "2015-03-03T16:48:52Z",
+    "title": "Rootsi keel",
+    "url": "http://et.wikipedia.org/wiki/Rootsi_keel"
+}

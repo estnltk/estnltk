@@ -106,7 +106,8 @@ def json_format(j_obj):
         new['internal_links'] = il
     if el:
         new['external_links'] = el
-    return new
+
+    return Text(new)
 
 
 def json_2_text(inp, out, verbose):
