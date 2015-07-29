@@ -1,0 +1,1799 @@
+{
+    "categories": [
+        "Meditsiin"
+    ],
+    "other": [
+        "{{lisa viide}}",
+        "{{Portaal|Meditsiin}}"
+    ],
+    "sections": [
+        {
+            "internal_links": [
+                {
+                    "end": 31,
+                    "label": "ladina keeles",
+                    "start": 18,
+                    "title": "ladina keel",
+                    "url": "http://et.wikipedia.org/wiki/ladina_keel"
+                },
+                {
+                    "end": 194,
+                    "label": "tervise",
+                    "start": 187,
+                    "title": "tervis",
+                    "url": "http://et.wikipedia.org/wiki/tervis"
+                },
+                {
+                    "end": 226,
+                    "label": "haiguste",
+                    "start": 218,
+                    "title": "haigus",
+                    "url": "http://et.wikipedia.org/wiki/haigus"
+                },
+                {
+                    "end": 247,
+                    "label": "diagnoosimise",
+                    "start": 234,
+                    "title": "diagnoos",
+                    "url": "http://et.wikipedia.org/wiki/diagnoos"
+                },
+                {
+                    "end": 273,
+                    "label": "prof\u00fclaktika",
+                    "start": 261,
+                    "title": "prof\u00fclaktika",
+                    "url": "http://et.wikipedia.org/wiki/prof\u00fclaktika"
+                },
+                {
+                    "end": 281,
+                    "label": "ravi",
+                    "start": 277,
+                    "title": "ravi",
+                    "url": "http://et.wikipedia.org/wiki/ravi"
+                },
+                {
+                    "end": 306,
+                    "label": "eluea pikendamisega",
+                    "start": 287,
+                    "title": "eluea pikendamine",
+                    "url": "http://et.wikipedia.org/wiki/eluea_pikendamine"
+                },
+                {
+                    "end": 378,
+                    "label": "loodus-",
+                    "start": 371,
+                    "title": "loodusteadused",
+                    "url": "http://et.wikipedia.org/wiki/loodusteadused"
+                },
+                {
+                    "end": 404,
+                    "label": "sotsiaalteadustele",
+                    "start": 386,
+                    "title": "sotsiaalteadused",
+                    "url": "http://et.wikipedia.org/wiki/sotsiaalteadused"
+                },
+                {
+                    "end": 537,
+                    "label": "anatoomia",
+                    "start": 528,
+                    "title": "loomade anatoomia",
+                    "url": "http://et.wikipedia.org/wiki/loomade_anatoomia"
+                },
+                {
+                    "end": 635,
+                    "label": "bakterioloogia",
+                    "start": 621,
+                    "title": "bakterioloogia",
+                    "url": "http://et.wikipedia.org/wiki/bakterioloogia"
+                },
+                {
+                    "end": 645,
+                    "label": "biokeemia",
+                    "start": 636,
+                    "title": "biokeemia",
+                    "url": "http://et.wikipedia.org/wiki/biokeemia"
+                },
+                {
+                    "end": 658,
+                    "label": "deontoloogia",
+                    "start": 646,
+                    "title": "deontoloogia",
+                    "url": "http://et.wikipedia.org/wiki/deontoloogia"
+                },
+                {
+                    "end": 670,
+                    "label": "diagnostika",
+                    "start": 659,
+                    "title": "diagnostika",
+                    "url": "http://et.wikipedia.org/wiki/diagnostika"
+                },
+                {
+                    "end": 683,
+                    "label": "embr\u00fcoloogia",
+                    "start": 671,
+                    "title": "embr\u00fcoloogia",
+                    "url": "http://et.wikipedia.org/wiki/embr\u00fcoloogia"
+                },
+                {
+                    "end": 698,
+                    "label": "farmakognoosia",
+                    "start": 684,
+                    "title": "farmakognoosia",
+                    "url": "http://et.wikipedia.org/wiki/farmakognoosia"
+                },
+                {
+                    "end": 712,
+                    "label": "farmakoloogia",
+                    "start": 699,
+                    "title": "farmakoloogia",
+                    "url": "http://et.wikipedia.org/wiki/farmakoloogia"
+                },
+                {
+                    "end": 724,
+                    "label": "f\u00fcsioloogia",
+                    "start": 713,
+                    "title": "loomade f\u00fcsioloogia",
+                    "url": "http://et.wikipedia.org/wiki/loomade_f\u00fcsioloogia"
+                },
+                {
+                    "end": 817,
+                    "label": "geneetika",
+                    "start": 808,
+                    "title": "geneetika",
+                    "url": "http://et.wikipedia.org/wiki/geneetika"
+                },
+                {
+                    "end": 829,
+                    "label": "histoloogia",
+                    "start": 818,
+                    "title": "histoloogia",
+                    "url": "http://et.wikipedia.org/wiki/histoloogia"
+                },
+                {
+                    "end": 842,
+                    "label": "immunoloogia",
+                    "start": 830,
+                    "title": "immunoloogia",
+                    "url": "http://et.wikipedia.org/wiki/immunoloogia"
+                },
+                {
+                    "end": 860,
+                    "label": "inimese anatoomia",
+                    "start": 843,
+                    "title": "inimese anatoomia",
+                    "url": "http://et.wikipedia.org/wiki/inimese_anatoomia"
+                },
+                {
+                    "end": 880,
+                    "label": "inimese f\u00fcsioloogia",
+                    "start": 861,
+                    "title": "inimese f\u00fcsioloogia",
+                    "url": "http://et.wikipedia.org/wiki/inimese_f\u00fcsioloogia"
+                },
+                {
+                    "end": 895,
+                    "label": "mikrobioloogia",
+                    "start": 881,
+                    "title": "mikrobioloogia",
+                    "url": "http://et.wikipedia.org/wiki/mikrobioloogia"
+                },
+                {
+                    "end": 908,
+                    "label": "prof\u00fclaktika",
+                    "start": 896,
+                    "title": "prof\u00fclaktika",
+                    "url": "http://et.wikipedia.org/wiki/prof\u00fclaktika"
+                },
+                {
+                    "end": 928,
+                    "label": "eelravi",
+                    "start": 921,
+                    "title": "eelravi",
+                    "url": "http://et.wikipedia.org/wiki/eelravi"
+                },
+                {
+                    "end": 960,
+                    "label": "ps\u00fchholoogia",
+                    "start": 948,
+                    "title": "ps\u00fchholoogia",
+                    "url": "http://et.wikipedia.org/wiki/ps\u00fchholoogia"
+                },
+                {
+                    "end": 972,
+                    "label": "radioloogia",
+                    "start": 961,
+                    "title": "radioloogia",
+                    "url": "http://et.wikipedia.org/wiki/radioloogia"
+                },
+                {
+                    "end": 977,
+                    "label": "ravi",
+                    "start": 973,
+                    "title": "ravi",
+                    "url": "http://et.wikipedia.org/wiki/ravi"
+                },
+                {
+                    "end": 991,
+                    "label": "taastusravika",
+                    "start": 978,
+                    "title": "taastusravi",
+                    "url": "http://et.wikipedia.org/wiki/taastusravi"
+                },
+                {
+                    "end": 1011,
+                    "label": "palliatiivse raviga",
+                    "start": 992,
+                    "title": "palliatiivne ravi",
+                    "url": "http://et.wikipedia.org/wiki/palliatiivne_ravi"
+                },
+                {
+                    "end": 1025,
+                    "label": "toksikoloogia",
+                    "start": 1012,
+                    "title": "toksikoloogia",
+                    "url": "http://et.wikipedia.org/wiki/toksikoloogia"
+                },
+                {
+                    "end": 1037,
+                    "label": "ts\u00fctoloogia",
+                    "start": 1026,
+                    "title": "ts\u00fctoloogia",
+                    "url": "http://et.wikipedia.org/wiki/ts\u00fctoloogia"
+                },
+                {
+                    "end": 1107,
+                    "label": "humaanmeditsiin",
+                    "start": 1092,
+                    "title": "humaanmeditsiin",
+                    "url": "http://et.wikipedia.org/wiki/humaanmeditsiin"
+                },
+                {
+                    "end": 1126,
+                    "label": "veterinaameditsiin",
+                    "start": 1108,
+                    "title": "veterinaameditsiin",
+                    "url": "http://et.wikipedia.org/wiki/veterinaameditsiin"
+                }
+            ],
+            "text": "Meditsiiniteadus (ladina keeles \"ars medicina\" 'ravimise kunst'; samat\u00fcveline \"medeor\" 'ravin, arstin'), t\u00e4nap\u00e4eval ka lihtsalt arstiteadus, on teadusharu , mis uurib ja rakendab inimese tervise kaitse ja tugevdamise, haiguste, nende diagnoosimise, ennetamise, prof\u00fclaktika ja ravi ning eluea pikendamisega seotut.\nMeditsiiniteadus on interdistsiplinaarne, tuginedes nii loodus- kui ka sotsiaalteadustele. Pidevalt integreeruva ja t\u00e4ieneva teadusdistsipliinina on tihedates seostes teiste teaduse p\u00f5hivaldkondade ja erialadega \nanatoomia (m\u00f5eldud loomkatsed on ka aluseks inimkatsetel p\u00f5hinevatele ravimipreparaatidele) \nbakterioloogia\nbiokeemia\ndeontoloogia\ndiagnostika\nembr\u00fcoloogia\nfarmakognoosia\nfarmakoloogia\nf\u00fcsioloogia (m\u00f5eldud loomkatsed on ka aluseks inimkatsetel p\u00f5hinevatele ravimipreparaatidele) \ngeneetika\nhistoloogia\nimmunoloogia\ninimese anatoomia\ninimese f\u00fcsioloogia\nmikrobioloogia\nprof\u00fclaktika (sealhulgas eelravi ehk metaf\u00fclaktika)\nps\u00fchholoogia\nradioloogia\nravi\ntaastusravika palliatiivse raviga\ntoksikoloogia\nts\u00fctoloogia jpt.\nMeditsiiniteadus jaotakse lihtsustatult kaheks: \nhumaanmeditsiin\nveterinaameditsiin"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 309,
+                    "label": "Euroopa N\u00f5ukogu",
+                    "start": 294,
+                    "title": "Euroopa N\u00f5ukogu",
+                    "url": "http://et.wikipedia.org/wiki/Euroopa_N\u00f5ukogu"
+                },
+                {
+                    "end": 384,
+                    "label": "Euroopa Farmakop\u00f6asse",
+                    "start": 363,
+                    "title": "Euroopa Farmakop\u00f6a",
+                    "url": "http://et.wikipedia.org/wiki/Euroopa_Farmakop\u00f6a"
+                }
+            ],
+            "sections": [
+                {
+                    "internal_links": [
+                        {
+                            "end": 94,
+                            "label": "solidaarsel kindlustusel",
+                            "start": 70,
+                            "title": "solidaarne kindlustus",
+                            "url": "http://et.wikipedia.org/wiki/solidaarne_kindlustus"
+                        },
+                        {
+                            "end": 309,
+                            "label": "Sotsiaalministeeriumi",
+                            "start": 288,
+                            "title": "Sotsiaalministeerium",
+                            "url": "http://et.wikipedia.org/wiki/Sotsiaalministeerium"
+                        }
+                    ],
+                    "text": "Eesti Vabariigis kehtiv tervishoius\u00fcsteem ja sellega seonduv baseerub solidaarsel kindlustusel. Tervishoius\u00fcsteemi majandab EV Sotsiaalministeerium koos Haigekassaga, juhindudes riigieelarve seaduses etten\u00e4htud kuludest ning tuludest (2012. aasta riigieelarve seadus s\u00e4testas jaotises 11.Sotsiaalministeeriumi eelarve tulude osaks 57,18 milj eurot ning kuludeks 2,770 milj eurot.",
+                    "title": "Eesti Vabariigi meditsiini- ja tervishoius\u00fcsteem"
+                }
+            ],
+            "text": "Eesti \u00fchinemine Euroopa Liiduga m\u00f5jutas ka meie tervishoius\u00fcsteemi, sh akadeemilisele meditsiini personalile esitatavaid hariduslikke n\u00f5udmisi (hambaarstide \u00f5dede k\u00f5rghariduse n\u00f5ue jm). Seadusandlikus, majanduslikus ning meditsiiniseadmete ja protseduuride ning ravimitega seonduvat reguleerib Euroopa N\u00f5ukogu ning detailsemalt on m\u00e4\u00e4rustiku \u00fcldjuhised koondatud Euroopa Farmakop\u00f6asse.",
+            "title": "Euroopa Liidu Meditsiinis\u00fcsteem"
+        },
+        {
+            "sections": [
+                {
+                    "external links": [
+                        {
+                            "end": 258,
+                            "label": "",
+                            "start": 258,
+                            "url": "http://www.terviseamet.ee/tervishoid/tervishoiutootaja-registreerimine.html."
+                        }
+                    ],
+                    "text": "Tasustatavaid ning akrediteeritud meditsiiniteenuseid ja -vahendeid v\u00f5ivad meil pakkuda \u00fcksnes Tervishoiuametis registreeritud asutused ning arstina ehk \u00f5ena (ka erialaarstina ning eriala\u00f5ena) registreerinud isikud. Isikute register on avalik ja k\u00e4ttesaadav:",
+                    "title": "Akadeemilise meditsiini erialad"
+                },
+                {
+                    "internal_links": [
+                        {
+                            "end": 492,
+                            "label": "alternatiivmeditsiini",
+                            "start": 471,
+                            "title": "alternatiivmeditsiin",
+                            "url": "http://et.wikipedia.org/wiki/alternatiivmeditsiin"
+                        }
+                    ],
+                    "sections": [
+                        {
+                            "internal_links": [
+                                {
+                                    "end": 166,
+                                    "label": "Ajurveeda",
+                                    "start": 157,
+                                    "title": "Ajurveeda",
+                                    "url": "http://et.wikipedia.org/wiki/Ajurveeda"
+                                },
+                                {
+                                    "end": 182,
+                                    "label": "Hiina meditsiin",
+                                    "start": 167,
+                                    "title": "Hiina meditsiin",
+                                    "url": "http://et.wikipedia.org/wiki/Hiina_meditsiin"
+                                },
+                                {
+                                    "end": 194,
+                                    "label": "Hom\u00f6opaatia",
+                                    "start": 183,
+                                    "title": "Hom\u00f6opaatia",
+                                    "url": "http://et.wikipedia.org/wiki/Hom\u00f6opaatia"
+                                },
+                                {
+                                    "end": 203,
+                                    "label": "Taimravi",
+                                    "start": 195,
+                                    "title": "Taimravi",
+                                    "url": "http://et.wikipedia.org/wiki/Taimravi"
+                                },
+                                {
+                                    "end": 222,
+                                    "label": "Tiibeti meditsiin",
+                                    "start": 205,
+                                    "title": "Tiibeti meditsiin",
+                                    "url": "http://et.wikipedia.org/wiki/Tiibeti_meditsiin"
+                                },
+                                {
+                                    "end": 255,
+                                    "label": "Eesti traditsiooniline meditsiin",
+                                    "start": 223,
+                                    "title": "Eesti traditsiooniline meditsiin",
+                                    "url": "http://et.wikipedia.org/wiki/Eesti_traditsiooniline_meditsiin"
+                                }
+                            ],
+                            "text": "Lihtsustatult v\u00f5ib alternatiivmeditsiini kuuluvaiks lugeda m\u00e4rkimisv\u00e4\u00e4rse hulga praktiseerijate, vahendite, meetodite, teadmiste ja tarbijate olemasolul ka:\nAjurveeda\nHiina meditsiin\nHom\u00f6opaatia\nTaimravi \nTiibeti meditsiin\nEesti traditsiooniline meditsiin",
+                            "title": "Alternatiivmeditsiini harud"
+                        }
+                    ],
+                    "text": "Patsientide n\u00f5ustamine,prof\u00fclaktika, diagnoosimine ning ravimine kehtivaid arstina/farmatseudina jms registreerimisn\u00f5udeid ja protseduuri ning teadmusreegelid ning eriaalaseid andmebaase, meetodeid, statistilisi anal\u00fc\u00fcse ning teadusuuringuid kasutamata v\u00f5i omak\u00e4elisel kasutamisel, kuid inimesi/loomi/linde haiguslike seisundite ennetamisel, ravimisel ja m\u00f5istliku, teadvustatud n\u00f5usoleku olemasolul, siiski avitavad inimesed, kellel on piisav hulk hoolealuseid loetakse alternatiivmeditsiini eriala juurde kuuluvaks. Siiski pensionip\u00f5lve pidav endine arst, kes n\u00f5ustab oma l\u00e4hedasi, ei tegele alternatiivmeditsiiniga, nagu ka oma l\u00e4hedaste tervislikku seisundit j\u00e4lgiv ja ravimteesid kasutav lapsevanem ei tegele alternatiivmeditsiiniga.",
+                    "title": "Alternatiivmeditsiini eriala"
+                }
+            ],
+            "text": "Eesti kaudu koolitatakse akadeemilisega k\u00f5rgharidusega arste ja eriarste peamiselt Tartu \u00dclikooli Arstiteaduskonnas ning akadeemilise k\u00f5rg-, eri-kesk jne meditsiinipersonali vastavates asutustes. Eeskirjade kohaselt loeb Tartu \u00dclikooli Arstiteaduskond oma eesm\u00e4rkideks pakkuda arstidele t\u00f6\u00f6ks vajalikke teoreetilisi teadmisi ning praktilisi oskusi, mis v\u00f5imaldaksid eriala l\u00f5petanuil arstiks kujuneda.",
+            "title": "Meditsiini erialad Eesti Teaduss\u00fcsteemis"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 227,
+                    "label": "suu-, n\u00e4o- ja l\u00f5ualuukirurgia",
+                    "start": 198,
+                    "title": "suu-, n\u00e4o- ja l\u00f5ualuukirurgia",
+                    "url": "http://et.wikipedia.org/wiki/suu-,_n\u00e4o-_ja_l\u00f5ualuukirurgia"
+                },
+                {
+                    "end": 238,
+                    "label": "ortodontia",
+                    "start": 228,
+                    "title": "ortodontia",
+                    "url": "http://et.wikipedia.org/wiki/ortodontia"
+                },
+                {
+                    "end": 263,
+                    "label": "restauratiivne hambaravi",
+                    "start": 239,
+                    "title": "restauratiivne hambaravi",
+                    "url": "http://et.wikipedia.org/wiki/restauratiivne_hambaravi"
+                },
+                {
+                    "end": 302,
+                    "label": "anestesioloogia",
+                    "start": 287,
+                    "title": "anestesioloogia",
+                    "url": "http://et.wikipedia.org/wiki/anestesioloogia"
+                },
+                {
+                    "end": 322,
+                    "label": "dermatoveneroloogia",
+                    "start": 303,
+                    "title": "dermatoveneroloogia",
+                    "url": "http://et.wikipedia.org/wiki/dermatoveneroloogia"
+                },
+                {
+                    "end": 338,
+                    "label": "endokrinoloogia",
+                    "start": 323,
+                    "title": "endokrinoloogia",
+                    "url": "http://et.wikipedia.org/wiki/endokrinoloogia"
+                },
+                {
+                    "end": 361,
+                    "label": "erakorraline meditsiin",
+                    "start": 339,
+                    "title": "erakorraline meditsiin",
+                    "url": "http://et.wikipedia.org/wiki/erakorraline_meditsiin"
+                },
+                {
+                    "end": 380,
+                    "label": "gastroenteroloogia",
+                    "start": 362,
+                    "title": "gastroenteroloogia",
+                    "url": "http://et.wikipedia.org/wiki/gastroenteroloogia"
+                },
+                {
+                    "end": 393,
+                    "label": "hematoloogia",
+                    "start": 381,
+                    "title": "hematoloogia",
+                    "url": "http://et.wikipedia.org/wiki/hematoloogia"
+                },
+                {
+                    "end": 413,
+                    "label": "infektsioonhaigused",
+                    "start": 394,
+                    "title": "infektsioonhaigused",
+                    "url": "http://et.wikipedia.org/wiki/infektsioonhaigused"
+                },
+                {
+                    "end": 426,
+                    "label": "kardioloogia",
+                    "start": 414,
+                    "title": "kardioloogia",
+                    "url": "http://et.wikipedia.org/wiki/kardioloogia"
+                },
+                {
+                    "end": 450,
+                    "label": "kardiovaskulaarkirurgia",
+                    "start": 427,
+                    "title": "kardiovaskulaarkirurgia",
+                    "url": "http://et.wikipedia.org/wiki/kardiovaskulaarkirurgia"
+                },
+                {
+                    "end": 466,
+                    "label": "laborimeditsiin",
+                    "start": 451,
+                    "title": "laborimeditsiin",
+                    "url": "http://et.wikipedia.org/wiki/laborimeditsiin"
+                },
+                {
+                    "end": 480,
+                    "label": "lastekirurgia",
+                    "start": 467,
+                    "title": "lastekirurgia",
+                    "url": "http://et.wikipedia.org/wiki/lastekirurgia"
+                },
+                {
+                    "end": 502,
+                    "label": "meditsiinigeneetika",
+                    "start": 483,
+                    "title": "meditsiinigeneetika",
+                    "url": "http://et.wikipedia.org/wiki/meditsiinigeneetika"
+                },
+                {
+                    "end": 514,
+                    "label": "nefroloogia",
+                    "start": 503,
+                    "title": "nefroloogia",
+                    "url": "http://et.wikipedia.org/wiki/nefroloogia"
+                },
+                {
+                    "end": 528,
+                    "label": "neurokirurgia",
+                    "start": 515,
+                    "title": "neurokirurgia",
+                    "url": "http://et.wikipedia.org/wiki/neurokirurgia"
+                },
+                {
+                    "end": 540,
+                    "label": "neuroloogia",
+                    "start": 529,
+                    "title": "neuroloogia",
+                    "url": "http://et.wikipedia.org/wiki/neuroloogia"
+                },
+                {
+                    "end": 554,
+                    "label": "oftalmoloogia",
+                    "start": 541,
+                    "title": "oftalmoloogia",
+                    "url": "http://et.wikipedia.org/wiki/oftalmoloogia"
+                },
+                {
+                    "end": 602,
+                    "label": "onkoloogia (kiiritus- ja keemiaravi t\u00e4henduses)",
+                    "start": 555,
+                    "title": "onkoloogia (kiiritus- ja keemiaravi t\u00e4henduses)",
+                    "url": "http://et.wikipedia.org/wiki/onkoloogia_(kiiritus-_ja_keemiaravi_t\u00e4henduses)"
+                },
+                {
+                    "end": 613,
+                    "label": "ortopeedia",
+                    "start": 603,
+                    "title": "ortopeedia",
+                    "url": "http://et.wikipedia.org/wiki/ortopeedia"
+                },
+                {
+                    "end": 634,
+                    "label": "otorinolar\u00fcngoloogia",
+                    "start": 614,
+                    "title": "otorinolar\u00fcngoloogia",
+                    "url": "http://et.wikipedia.org/wiki/otorinolar\u00fcngoloogia"
+                },
+                {
+                    "end": 645,
+                    "label": "patoloogia",
+                    "start": 635,
+                    "title": "patoloogia",
+                    "url": "http://et.wikipedia.org/wiki/patoloogia"
+                },
+                {
+                    "end": 656,
+                    "label": "pediaatria",
+                    "start": 646,
+                    "title": "pediaatria",
+                    "url": "http://et.wikipedia.org/wiki/pediaatria"
+                },
+                {
+                    "end": 670,
+                    "label": "peremeditsiin",
+                    "start": 657,
+                    "title": "peremeditsiin",
+                    "url": "http://et.wikipedia.org/wiki/peremeditsiin"
+                },
+                {
+                    "end": 706,
+                    "label": "plastika- ja rekonstruktiivkirurgia",
+                    "start": 671,
+                    "title": "plastika- ja rekonstruktiivkirurgia",
+                    "url": "http://et.wikipedia.org/wiki/plastika-_ja_rekonstruktiivkirurgia"
+                },
+                {
+                    "end": 719,
+                    "label": "ps\u00fchhiaatria",
+                    "start": 707,
+                    "title": "ps\u00fchhiaatria",
+                    "url": "http://et.wikipedia.org/wiki/ps\u00fchhiaatria"
+                },
+                {
+                    "end": 733,
+                    "label": "pulmonoloogia",
+                    "start": 720,
+                    "title": "pulmonoloogia",
+                    "url": "http://et.wikipedia.org/wiki/pulmonoloogia"
+                },
+                {
+                    "end": 745,
+                    "label": "radioloogia",
+                    "start": 734,
+                    "title": "radioloogia",
+                    "url": "http://et.wikipedia.org/wiki/radioloogia"
+                },
+                {
+                    "end": 759,
+                    "label": "reumatoloogia",
+                    "start": 746,
+                    "title": "reumatoloogia",
+                    "url": "http://et.wikipedia.org/wiki/reumatoloogia"
+                },
+                {
+                    "end": 772,
+                    "label": "sisehaigused",
+                    "start": 760,
+                    "title": "sisehaigused",
+                    "url": "http://et.wikipedia.org/wiki/sisehaigused"
+                },
+                {
+                    "end": 800,
+                    "label": "s\u00fcnnitusabi ja g\u00fcnekoloogia",
+                    "start": 773,
+                    "title": "s\u00fcnnitusabi ja g\u00fcnekoloogia",
+                    "url": "http://et.wikipedia.org/wiki/s\u00fcnnitusabi_ja_g\u00fcnekoloogia"
+                },
+                {
+                    "end": 826,
+                    "label": "taastusravi ja f\u00fcsiaatria",
+                    "start": 801,
+                    "title": "taastusravi ja f\u00fcsiaatria",
+                    "url": "http://et.wikipedia.org/wiki/taastusravi_ja_f\u00fcsiaatria"
+                },
+                {
+                    "end": 843,
+                    "label": "torakaalkirurgia",
+                    "start": 827,
+                    "title": "torakaalkirurgia",
+                    "url": "http://et.wikipedia.org/wiki/torakaalkirurgia"
+                },
+                {
+                    "end": 857,
+                    "label": "t\u00f6\u00f6tervishoid",
+                    "start": 844,
+                    "title": "t\u00f6\u00f6tervishoid",
+                    "url": "http://et.wikipedia.org/wiki/t\u00f6\u00f6tervishoid"
+                },
+                {
+                    "end": 867,
+                    "label": "uroloogia",
+                    "start": 858,
+                    "title": "uroloogia",
+                    "url": "http://et.wikipedia.org/wiki/uroloogia"
+                },
+                {
+                    "end": 879,
+                    "label": "\u00fcldkirurgia",
+                    "start": 868,
+                    "title": "\u00fcldkirurgia",
+                    "url": "http://et.wikipedia.org/wiki/\u00fcldkirurgia"
+                }
+            ],
+            "text": "EV Sotsiaalministeeriumi m\u00e4\u00e4rus nr 110, 28.11.2001 on kehtestanud tervishoiuteenuste korraldamise seaduse \u00a7 20 l\u00f5ike 2 alusel \neriarstiabi erialade loetelu allj\u00e4rgnevalt:\nErihambaarsti erialad on :\nsuu-, n\u00e4o- ja l\u00f5ualuukirurgia\nortodontia\nrestauratiivne hambaravi\nEriarstide erialad on:\nanestesioloogia\ndermatoveneroloogia\nendokrinoloogia\nerakorraline meditsiin\ngastroenteroloogia\nhematoloogia\ninfektsioonhaigused\nkardioloogia\nkardiovaskulaarkirurgia\nlaborimeditsiin\nlastekirurgia - meditsiinigeneetika\nnefroloogia\nneurokirurgia\nneuroloogia\noftalmoloogia\nonkoloogia (kiiritus- ja keemiaravi t\u00e4henduses)\nortopeedia\notorinolar\u00fcngoloogia\npatoloogia\npediaatria\nperemeditsiin\nplastika- ja rekonstruktiivkirurgia\nps\u00fchhiaatria\npulmonoloogia\nradioloogia\nreumatoloogia\nsisehaigused\ns\u00fcnnitusabi ja g\u00fcnekoloogia\ntaastusravi ja f\u00fcsiaatria\ntorakaalkirurgia\nt\u00f6\u00f6tervishoid\nuroloogia\n\u00fcldkirurgia.",
+            "title": "Haridusj\u00e4rgsete arsti erialade klassifikatsioon"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 9,
+                    "label": "Biokeemia",
+                    "start": 0,
+                    "title": "Biokeemia",
+                    "url": "http://et.wikipedia.org/wiki/Biokeemia"
+                },
+                {
+                    "end": 19,
+                    "label": "Bioloogia",
+                    "start": 10,
+                    "title": "Bioloogia",
+                    "url": "http://et.wikipedia.org/wiki/Bioloogia"
+                },
+                {
+                    "end": 38,
+                    "label": "Parasitoloogia",
+                    "start": 24,
+                    "title": "Parasitoloogia",
+                    "url": "http://et.wikipedia.org/wiki/Parasitoloogia"
+                },
+                {
+                    "end": 55,
+                    "label": "Arengubioloogia",
+                    "start": 40,
+                    "title": "Arengubioloogia",
+                    "url": "http://et.wikipedia.org/wiki/Arengubioloogia"
+                },
+                {
+                    "end": 70,
+                    "label": "Evolutsioon",
+                    "start": 59,
+                    "title": "Evolutsioon",
+                    "url": "http://et.wikipedia.org/wiki/Evolutsioon"
+                },
+                {
+                    "end": 84,
+                    "label": "Biostatistika",
+                    "start": 71,
+                    "title": "Biostatistika",
+                    "url": "http://et.wikipedia.org/wiki/Biostatistika"
+                },
+                {
+                    "end": 97,
+                    "label": "Embr\u00fcoloogia",
+                    "start": 85,
+                    "title": "Embr\u00fcoloogia",
+                    "url": "http://et.wikipedia.org/wiki/Embr\u00fcoloogia"
+                },
+                {
+                    "end": 112,
+                    "label": "Epidemioloogia",
+                    "start": 98,
+                    "title": "Epidemioloogia",
+                    "url": "http://et.wikipedia.org/wiki/Epidemioloogia"
+                },
+                {
+                    "end": 126,
+                    "label": "Farmakoloogia",
+                    "start": 113,
+                    "title": "Farmakoloogia",
+                    "url": "http://et.wikipedia.org/wiki/Farmakoloogia"
+                },
+                {
+                    "end": 141,
+                    "label": "Retseptuur",
+                    "start": 131,
+                    "title": "Retseptuur",
+                    "url": "http://et.wikipedia.org/wiki/Retseptuur"
+                },
+                {
+                    "end": 158,
+                    "label": "Toksikoloogia",
+                    "start": 145,
+                    "title": "Toksikoloogia",
+                    "url": "http://et.wikipedia.org/wiki/Toksikoloogia"
+                },
+                {
+                    "end": 170,
+                    "label": "F\u00fcsioloogia",
+                    "start": 159,
+                    "title": "F\u00fcsioloogia",
+                    "url": "http://et.wikipedia.org/wiki/F\u00fcsioloogia"
+                },
+                {
+                    "end": 180,
+                    "label": "Geneetika",
+                    "start": 171,
+                    "title": "Geneetika",
+                    "url": "http://et.wikipedia.org/wiki/Geneetika"
+                },
+                {
+                    "end": 192,
+                    "label": "Histoloogia",
+                    "start": 181,
+                    "title": "Histoloogia",
+                    "url": "http://et.wikipedia.org/wiki/Histoloogia"
+                },
+                {
+                    "end": 208,
+                    "label": "Ts\u00fctoloogia",
+                    "start": 197,
+                    "title": "Ts\u00fctoloogia",
+                    "url": "http://et.wikipedia.org/wiki/Ts\u00fctoloogia"
+                },
+                {
+                    "end": 221,
+                    "label": "Immunoloogia",
+                    "start": 209,
+                    "title": "Immunoloogia",
+                    "url": "http://et.wikipedia.org/wiki/Immunoloogia"
+                },
+                {
+                    "end": 236,
+                    "label": "Mikrobioloogia",
+                    "start": 222,
+                    "title": "Mikrobioloogia",
+                    "url": "http://et.wikipedia.org/wiki/Mikrobioloogia"
+                },
+                {
+                    "end": 251,
+                    "label": "Viroloogia",
+                    "start": 241,
+                    "title": "Viroloogia",
+                    "url": "http://et.wikipedia.org/wiki/Viroloogia"
+                },
+                {
+                    "end": 263,
+                    "label": "M\u00fckoloogia",
+                    "start": 253,
+                    "title": "M\u00fckoloogia",
+                    "url": "http://et.wikipedia.org/wiki/M\u00fckoloogia"
+                },
+                {
+                    "end": 281,
+                    "label": "Bakterioloogia",
+                    "start": 267,
+                    "title": "Bakterioloogia",
+                    "url": "http://et.wikipedia.org/wiki/Bakterioloogia"
+                },
+                {
+                    "end": 293,
+                    "label": "Patoloogia",
+                    "start": 283,
+                    "title": "Patoloogia",
+                    "url": "http://et.wikipedia.org/wiki/Patoloogia"
+                },
+                {
+                    "end": 322,
+                    "label": "\u00fcldpatoloogiat",
+                    "start": 308,
+                    "title": "\u00fcldpatoloogia",
+                    "url": "http://et.wikipedia.org/wiki/\u00fcldpatoloogia"
+                },
+                {
+                    "end": 341,
+                    "label": "eripatoloogiat",
+                    "start": 327,
+                    "title": "eripatoloogia",
+                    "url": "http://et.wikipedia.org/wiki/eripatoloogia"
+                },
+                {
+                    "end": 382,
+                    "label": "Patoloogiline anatoomia",
+                    "start": 359,
+                    "title": "Patoloogiline anatoomia",
+                    "url": "http://et.wikipedia.org/wiki/Patoloogiline_anatoomia"
+                },
+                {
+                    "end": 408,
+                    "label": "Patoloogiline f\u00fcsioloogia",
+                    "start": 383,
+                    "title": "Patoloogiline f\u00fcsioloogia",
+                    "url": "http://et.wikipedia.org/wiki/Patoloogiline_f\u00fcsioloogia"
+                },
+                {
+                    "end": 424,
+                    "label": "Terviseedendus",
+                    "start": 410,
+                    "title": "Terviseedendus",
+                    "url": "http://et.wikipedia.org/wiki/Terviseedendus"
+                }
+            ],
+            "sections": [
+                {
+                    "internal_links": [
+                        {
+                            "end": 13,
+                            "label": "Allergoloogia",
+                            "start": 0,
+                            "title": "Allergoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Allergoloogia"
+                        },
+                        {
+                            "end": 25,
+                            "label": "Androloogia",
+                            "start": 14,
+                            "title": "Androloogia",
+                            "url": "http://et.wikipedia.org/wiki/Androloogia"
+                        },
+                        {
+                            "end": 41,
+                            "label": "Anestesioloogia",
+                            "start": 26,
+                            "title": "Anestesioloogia",
+                            "url": "http://et.wikipedia.org/wiki/Anestesioloogia"
+                        },
+                        {
+                            "end": 55,
+                            "label": "Dermatoloogia",
+                            "start": 42,
+                            "title": "Dermatoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Dermatoloogia"
+                        },
+                        {
+                            "end": 67,
+                            "label": "Dietoloogia",
+                            "start": 56,
+                            "title": "Dietoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Dietoloogia"
+                        },
+                        {
+                            "end": 83,
+                            "label": "Endokrinoloogia",
+                            "start": 68,
+                            "title": "Endokrinoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Endokrinoloogia"
+                        },
+                        {
+                            "end": 98,
+                            "label": "Epidemioloogia",
+                            "start": 84,
+                            "title": "Epidemioloogia",
+                            "url": "http://et.wikipedia.org/wiki/Epidemioloogia"
+                        },
+                        {
+                            "end": 121,
+                            "label": "Erakorraline meditsiin",
+                            "start": 99,
+                            "title": "Erakorraline meditsiin",
+                            "url": "http://et.wikipedia.org/wiki/Erakorraline_meditsiin"
+                        },
+                        {
+                            "end": 135,
+                            "label": "F\u00fcsioteraapia",
+                            "start": 122,
+                            "title": "F\u00fcsioteraapia",
+                            "url": "http://et.wikipedia.org/wiki/F\u00fcsioteraapia"
+                        },
+                        {
+                            "end": 154,
+                            "label": "Gastroenteroloogia",
+                            "start": 136,
+                            "title": "Gastroenteroloogia",
+                            "url": "http://et.wikipedia.org/wiki/Gastroenteroloogia"
+                        },
+                        {
+                            "end": 165,
+                            "label": "Geriaatria",
+                            "start": 155,
+                            "title": "Geriaatria",
+                            "url": "http://et.wikipedia.org/wiki/Geriaatria"
+                        },
+                        {
+                            "end": 179,
+                            "label": "G\u00fcnekoloogia",
+                            "start": 167,
+                            "title": "G\u00fcnekoloogia",
+                            "url": "http://et.wikipedia.org/wiki/G\u00fcnekoloogia"
+                        },
+                        {
+                            "end": 192,
+                            "label": "Hematoloogia",
+                            "start": 180,
+                            "title": "Hematoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Hematoloogia"
+                        },
+                        {
+                            "end": 206,
+                            "label": "Intensiivravi",
+                            "start": 193,
+                            "title": "Intensiivravi",
+                            "url": "http://et.wikipedia.org/wiki/Intensiivravi"
+                        },
+                        {
+                            "end": 219,
+                            "label": "Kardioloogia",
+                            "start": 207,
+                            "title": "Kardioloogia",
+                            "url": "http://et.wikipedia.org/wiki/Kardioloogia"
+                        },
+                        {
+                            "end": 228,
+                            "label": "Kirurgia",
+                            "start": 220,
+                            "title": "Kirurgia",
+                            "url": "http://et.wikipedia.org/wiki/Kirurgia"
+                        },
+                        {
+                            "end": 243,
+                            "label": "Nakkushaigused",
+                            "start": 229,
+                            "title": "Nakkushaigused",
+                            "url": "http://et.wikipedia.org/wiki/Nakkushaigused"
+                        },
+                        {
+                            "end": 255,
+                            "label": "Narkoloogia",
+                            "start": 244,
+                            "title": "Narkoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Narkoloogia"
+                        },
+                        {
+                            "end": 267,
+                            "label": "Nefroloogia",
+                            "start": 256,
+                            "title": "Nefroloogia",
+                            "url": "http://et.wikipedia.org/wiki/Nefroloogia"
+                        },
+                        {
+                            "end": 279,
+                            "label": "Neuroloogia",
+                            "start": 268,
+                            "title": "Neuroloogia",
+                            "url": "http://et.wikipedia.org/wiki/Neuroloogia"
+                        },
+                        {
+                            "end": 293,
+                            "label": "Oftalmoloogia",
+                            "start": 280,
+                            "title": "Oftalmoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Oftalmoloogia"
+                        },
+                        {
+                            "end": 304,
+                            "label": "Onkoloogia",
+                            "start": 294,
+                            "title": "Onkoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Onkoloogia"
+                        },
+                        {
+                            "end": 315,
+                            "label": "Ortopeedia",
+                            "start": 305,
+                            "title": "Ortopeedia",
+                            "url": "http://et.wikipedia.org/wiki/Ortopeedia"
+                        },
+                        {
+                            "end": 326,
+                            "label": "Ortodontia",
+                            "start": 316,
+                            "title": "Ortodontia",
+                            "url": "http://et.wikipedia.org/wiki/Ortodontia"
+                        },
+                        {
+                            "end": 348,
+                            "label": "Otorinolar\u00fcngoloogia",
+                            "start": 328,
+                            "title": "Otorinolar\u00fcngoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Otorinolar\u00fcngoloogia"
+                        },
+                        {
+                            "end": 359,
+                            "label": "Pediaatria",
+                            "start": 349,
+                            "title": "Pediaatria",
+                            "url": "http://et.wikipedia.org/wiki/Pediaatria"
+                        },
+                        {
+                            "end": 372,
+                            "label": "Proktoloogia",
+                            "start": 360,
+                            "title": "Proktoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Proktoloogia"
+                        },
+                        {
+                            "end": 385,
+                            "label": "Ps\u00fchhiaatria",
+                            "start": 373,
+                            "title": "Ps\u00fchhiaatria",
+                            "url": "http://et.wikipedia.org/wiki/Ps\u00fchhiaatria"
+                        },
+                        {
+                            "end": 400,
+                            "label": "Pulmonoloogia",
+                            "start": 387,
+                            "title": "Pulmonoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Pulmonoloogia"
+                        },
+                        {
+                            "end": 415,
+                            "label": "Peremeditsiiin",
+                            "start": 401,
+                            "title": "Peremeditsiiin",
+                            "url": "http://et.wikipedia.org/wiki/Peremeditsiiin"
+                        },
+                        {
+                            "end": 429,
+                            "label": "Reumatoloogia",
+                            "start": 416,
+                            "title": "Reumatoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Reumatoloogia"
+                        },
+                        {
+                            "end": 443,
+                            "label": "Stomatoloogia",
+                            "start": 430,
+                            "title": "Stomatoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Stomatoloogia"
+                        },
+                        {
+                            "end": 455,
+                            "label": "S\u00fcnnitusabi",
+                            "start": 444,
+                            "title": "S\u00fcnnitusabi",
+                            "url": "http://et.wikipedia.org/wiki/S\u00fcnnitusabi"
+                        },
+                        {
+                            "end": 470,
+                            "label": "Traumatoloogia",
+                            "start": 456,
+                            "title": "Traumatoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Traumatoloogia"
+                        },
+                        {
+                            "end": 484,
+                            "label": "T\u00f6\u00f6tervishoid",
+                            "start": 471,
+                            "title": "T\u00f6\u00f6tervishoid",
+                            "url": "http://et.wikipedia.org/wiki/T\u00f6\u00f6tervishoid"
+                        },
+                        {
+                            "end": 494,
+                            "label": "Uroloogia",
+                            "start": 485,
+                            "title": "Uroloogia",
+                            "url": "http://et.wikipedia.org/wiki/Uroloogia"
+                        },
+                        {
+                            "end": 507,
+                            "label": "Veneroloogia",
+                            "start": 495,
+                            "title": "Veneroloogia",
+                            "url": "http://et.wikipedia.org/wiki/Veneroloogia"
+                        }
+                    ],
+                    "text": "Allergoloogia\nAndroloogia\nAnestesioloogia\nDermatoloogia\nDietoloogia\nEndokrinoloogia\nEpidemioloogia\nErakorraline meditsiin\nF\u00fcsioteraapia\nGastroenteroloogia\nGeriaatria \nG\u00fcnekoloogia\nHematoloogia\nIntensiivravi\nKardioloogia\nKirurgia\nNakkushaigused\nNarkoloogia\nNefroloogia\nNeuroloogia\nOftalmoloogia\nOnkoloogia\nOrtopeedia\nOrtodontia \nOtorinolar\u00fcngoloogia\nPediaatria\nProktoloogia\nPs\u00fchhiaatria \nPulmonoloogia\nPeremeditsiiin\nReumatoloogia\nStomatoloogia\nS\u00fcnnitusabi\nTraumatoloogia\nT\u00f6\u00f6tervishoid\nUroloogia\nVeneroloogia",
+                    "title": "Kliinilised erialad"
+                }
+            ],
+            "text": "Biokeemia\nBioloogia, sh Parasitoloogia, Arengubioloogia ja Evolutsioon\nBiostatistika\nEmbr\u00fcoloogia\nEpidemioloogia\nFarmakoloogia, sh Retseptuur ja Toksikoloogia\nF\u00fcsioloogia\nGeneetika\nHistoloogia, sh Ts\u00fctoloogia\nImmunoloogia\nMikrobioloogia, sh Viroloogia, M\u00fckoloogia ja Bakterioloogia.\nPatoloogia (sisaldab nii \u00fcldpatoloogiat kui eripatoloogiat) jaguneb kaheks:\nPatoloogiline anatoomia\nPatoloogiline f\u00fcsioloogia \nTerviseedendus",
+            "title": "Meditsiinierialade loetelu mujal maailmas"
+        },
+        {
+            "sections": [
+                {
+                    "internal_links": [
+                        {
+                            "end": 9,
+                            "label": "Anatoomia",
+                            "start": 0,
+                            "title": "Anatoomia",
+                            "url": "http://et.wikipedia.org/wiki/Anatoomia"
+                        },
+                        {
+                            "end": 19,
+                            "label": "Biokeemia",
+                            "start": 10,
+                            "title": "Biokeemia",
+                            "url": "http://et.wikipedia.org/wiki/Biokeemia"
+                        },
+                        {
+                            "end": 29,
+                            "label": "Bioloogia",
+                            "start": 20,
+                            "title": "Bioloogia",
+                            "url": "http://et.wikipedia.org/wiki/Bioloogia"
+                        },
+                        {
+                            "end": 48,
+                            "label": "Parasitoloogia",
+                            "start": 34,
+                            "title": "Parasitoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Parasitoloogia"
+                        },
+                        {
+                            "end": 65,
+                            "label": "Arengubioloogia",
+                            "start": 50,
+                            "title": "Arengubioloogia",
+                            "url": "http://et.wikipedia.org/wiki/Arengubioloogia"
+                        },
+                        {
+                            "end": 80,
+                            "label": "Evolutsioon",
+                            "start": 69,
+                            "title": "Evolutsioon",
+                            "url": "http://et.wikipedia.org/wiki/Evolutsioon"
+                        },
+                        {
+                            "end": 94,
+                            "label": "Biostatistika",
+                            "start": 81,
+                            "title": "Biostatistika",
+                            "url": "http://et.wikipedia.org/wiki/Biostatistika"
+                        },
+                        {
+                            "end": 107,
+                            "label": "Embr\u00fcoloogia",
+                            "start": 95,
+                            "title": "Embr\u00fcoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Embr\u00fcoloogia"
+                        },
+                        {
+                            "end": 122,
+                            "label": "Epidemioloogia",
+                            "start": 108,
+                            "title": "Epidemioloogia",
+                            "url": "http://et.wikipedia.org/wiki/Epidemioloogia"
+                        },
+                        {
+                            "end": 136,
+                            "label": "Farmakoloogia",
+                            "start": 123,
+                            "title": "Farmakoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Farmakoloogia"
+                        },
+                        {
+                            "end": 151,
+                            "label": "Retseptuur",
+                            "start": 141,
+                            "title": "Retseptuur",
+                            "url": "http://et.wikipedia.org/wiki/Retseptuur"
+                        },
+                        {
+                            "end": 168,
+                            "label": "Toksikoloogia",
+                            "start": 155,
+                            "title": "Toksikoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Toksikoloogia"
+                        },
+                        {
+                            "end": 180,
+                            "label": "F\u00fcsioloogia",
+                            "start": 169,
+                            "title": "F\u00fcsioloogia",
+                            "url": "http://et.wikipedia.org/wiki/F\u00fcsioloogia"
+                        },
+                        {
+                            "end": 190,
+                            "label": "Geneetika",
+                            "start": 181,
+                            "title": "Geneetika",
+                            "url": "http://et.wikipedia.org/wiki/Geneetika"
+                        },
+                        {
+                            "end": 202,
+                            "label": "Histoloogia",
+                            "start": 191,
+                            "title": "Histoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Histoloogia"
+                        },
+                        {
+                            "end": 218,
+                            "label": "Ts\u00fctoloogia",
+                            "start": 207,
+                            "title": "Ts\u00fctoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Ts\u00fctoloogia"
+                        },
+                        {
+                            "end": 231,
+                            "label": "Immunoloogia",
+                            "start": 219,
+                            "title": "Immunoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Immunoloogia"
+                        },
+                        {
+                            "end": 246,
+                            "label": "Mikrobioloogia",
+                            "start": 232,
+                            "title": "Mikrobioloogia",
+                            "url": "http://et.wikipedia.org/wiki/Mikrobioloogia"
+                        },
+                        {
+                            "end": 261,
+                            "label": "Viroloogia",
+                            "start": 251,
+                            "title": "Viroloogia",
+                            "url": "http://et.wikipedia.org/wiki/Viroloogia"
+                        },
+                        {
+                            "end": 273,
+                            "label": "M\u00fckoloogia",
+                            "start": 263,
+                            "title": "M\u00fckoloogia",
+                            "url": "http://et.wikipedia.org/wiki/M\u00fckoloogia"
+                        },
+                        {
+                            "end": 291,
+                            "label": "Bakterioloogia",
+                            "start": 277,
+                            "title": "Bakterioloogia",
+                            "url": "http://et.wikipedia.org/wiki/Bakterioloogia"
+                        },
+                        {
+                            "end": 303,
+                            "label": "Patoloogia",
+                            "start": 293,
+                            "title": "Patoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Patoloogia"
+                        },
+                        {
+                            "end": 332,
+                            "label": "\u00fcldpatoloogiat",
+                            "start": 318,
+                            "title": "\u00fcldpatoloogia",
+                            "url": "http://et.wikipedia.org/wiki/\u00fcldpatoloogia"
+                        },
+                        {
+                            "end": 351,
+                            "label": "eripatoloogiat",
+                            "start": 337,
+                            "title": "eripatoloogia",
+                            "url": "http://et.wikipedia.org/wiki/eripatoloogia"
+                        },
+                        {
+                            "end": 392,
+                            "label": "Patoloogiline anatoomia",
+                            "start": 369,
+                            "title": "Patoloogiline anatoomia",
+                            "url": "http://et.wikipedia.org/wiki/Patoloogiline_anatoomia"
+                        },
+                        {
+                            "end": 418,
+                            "label": "Patoloogiline f\u00fcsioloogia",
+                            "start": 393,
+                            "title": "Patoloogiline f\u00fcsioloogia",
+                            "url": "http://et.wikipedia.org/wiki/Patoloogiline_f\u00fcsioloogia"
+                        },
+                        {
+                            "end": 434,
+                            "label": "Terviseedendus",
+                            "start": 420,
+                            "title": "Terviseedendus",
+                            "url": "http://et.wikipedia.org/wiki/Terviseedendus"
+                        }
+                    ],
+                    "text": "Anatoomia\nBiokeemia\nBioloogia, sh Parasitoloogia, Arengubioloogia ja Evolutsioon\nBiostatistika\nEmbr\u00fcoloogia\nEpidemioloogia\nFarmakoloogia, sh Retseptuur ja Toksikoloogia\nF\u00fcsioloogia\nGeneetika\nHistoloogia, sh Ts\u00fctoloogia\nImmunoloogia\nMikrobioloogia, sh Viroloogia, M\u00fckoloogia ja Bakterioloogia.\nPatoloogia (sisaldab nii \u00fcldpatoloogiat kui eripatoloogiat) jaguneb kaheks:\nPatoloogiline anatoomia\nPatoloogiline f\u00fcsioloogia \nTerviseedendus",
+                    "title": "Meditsiini alustalad/baasteadmised ehk prekliinilised erialad"
+                },
+                {
+                    "internal_links": [
+                        {
+                            "end": 13,
+                            "label": "Allergoloogia",
+                            "start": 0,
+                            "title": "Allergoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Allergoloogia"
+                        },
+                        {
+                            "end": 25,
+                            "label": "Androloogia",
+                            "start": 14,
+                            "title": "Androloogia",
+                            "url": "http://et.wikipedia.org/wiki/Androloogia"
+                        },
+                        {
+                            "end": 41,
+                            "label": "Anestesioloogia",
+                            "start": 26,
+                            "title": "Anestesioloogia",
+                            "url": "http://et.wikipedia.org/wiki/Anestesioloogia"
+                        },
+                        {
+                            "end": 55,
+                            "label": "Dermatoloogia",
+                            "start": 42,
+                            "title": "Dermatoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Dermatoloogia"
+                        },
+                        {
+                            "end": 67,
+                            "label": "Dietoloogia",
+                            "start": 56,
+                            "title": "Dietoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Dietoloogia"
+                        },
+                        {
+                            "end": 83,
+                            "label": "Endokrinoloogia",
+                            "start": 68,
+                            "title": "Endokrinoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Endokrinoloogia"
+                        },
+                        {
+                            "end": 98,
+                            "label": "Epidemioloogia",
+                            "start": 84,
+                            "title": "Epidemioloogia",
+                            "url": "http://et.wikipedia.org/wiki/Epidemioloogia"
+                        },
+                        {
+                            "end": 121,
+                            "label": "Erakorraline meditsiin",
+                            "start": 99,
+                            "title": "Erakorraline meditsiin",
+                            "url": "http://et.wikipedia.org/wiki/Erakorraline_meditsiin"
+                        },
+                        {
+                            "end": 135,
+                            "label": "F\u00fcsioteraapia",
+                            "start": 122,
+                            "title": "F\u00fcsioteraapia",
+                            "url": "http://et.wikipedia.org/wiki/F\u00fcsioteraapia"
+                        },
+                        {
+                            "end": 154,
+                            "label": "Gastroenteroloogia",
+                            "start": 136,
+                            "title": "Gastroenteroloogia",
+                            "url": "http://et.wikipedia.org/wiki/Gastroenteroloogia"
+                        },
+                        {
+                            "end": 165,
+                            "label": "Geriaatria",
+                            "start": 155,
+                            "title": "Geriaatria",
+                            "url": "http://et.wikipedia.org/wiki/Geriaatria"
+                        },
+                        {
+                            "end": 179,
+                            "label": "G\u00fcnekoloogia",
+                            "start": 167,
+                            "title": "G\u00fcnekoloogia",
+                            "url": "http://et.wikipedia.org/wiki/G\u00fcnekoloogia"
+                        },
+                        {
+                            "end": 192,
+                            "label": "Hematoloogia",
+                            "start": 180,
+                            "title": "Hematoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Hematoloogia"
+                        },
+                        {
+                            "end": 206,
+                            "label": "Intensiivravi",
+                            "start": 193,
+                            "title": "Intensiivravi",
+                            "url": "http://et.wikipedia.org/wiki/Intensiivravi"
+                        },
+                        {
+                            "end": 219,
+                            "label": "Kardioloogia",
+                            "start": 207,
+                            "title": "Kardioloogia",
+                            "url": "http://et.wikipedia.org/wiki/Kardioloogia"
+                        },
+                        {
+                            "end": 228,
+                            "label": "Kirurgia",
+                            "start": 220,
+                            "title": "Kirurgia",
+                            "url": "http://et.wikipedia.org/wiki/Kirurgia"
+                        },
+                        {
+                            "end": 243,
+                            "label": "Nakkushaigused",
+                            "start": 229,
+                            "title": "Nakkushaigused",
+                            "url": "http://et.wikipedia.org/wiki/Nakkushaigused"
+                        },
+                        {
+                            "end": 255,
+                            "label": "Narkoloogia",
+                            "start": 244,
+                            "title": "Narkoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Narkoloogia"
+                        },
+                        {
+                            "end": 267,
+                            "label": "Nefroloogia",
+                            "start": 256,
+                            "title": "Nefroloogia",
+                            "url": "http://et.wikipedia.org/wiki/Nefroloogia"
+                        },
+                        {
+                            "end": 279,
+                            "label": "Neuroloogia",
+                            "start": 268,
+                            "title": "Neuroloogia",
+                            "url": "http://et.wikipedia.org/wiki/Neuroloogia"
+                        },
+                        {
+                            "end": 293,
+                            "label": "Oftalmoloogia",
+                            "start": 280,
+                            "title": "Oftalmoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Oftalmoloogia"
+                        },
+                        {
+                            "end": 304,
+                            "label": "Onkoloogia",
+                            "start": 294,
+                            "title": "Onkoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Onkoloogia"
+                        },
+                        {
+                            "end": 315,
+                            "label": "Ortopeedia",
+                            "start": 305,
+                            "title": "Ortopeedia",
+                            "url": "http://et.wikipedia.org/wiki/Ortopeedia"
+                        },
+                        {
+                            "end": 326,
+                            "label": "Ortodontia",
+                            "start": 316,
+                            "title": "Ortodontia",
+                            "url": "http://et.wikipedia.org/wiki/Ortodontia"
+                        },
+                        {
+                            "end": 348,
+                            "label": "Otorinolar\u00fcngoloogia",
+                            "start": 328,
+                            "title": "Otorinolar\u00fcngoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Otorinolar\u00fcngoloogia"
+                        },
+                        {
+                            "end": 359,
+                            "label": "Pediaatria",
+                            "start": 349,
+                            "title": "Pediaatria",
+                            "url": "http://et.wikipedia.org/wiki/Pediaatria"
+                        },
+                        {
+                            "end": 372,
+                            "label": "Proktoloogia",
+                            "start": 360,
+                            "title": "Proktoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Proktoloogia"
+                        },
+                        {
+                            "end": 385,
+                            "label": "Ps\u00fchhiaatria",
+                            "start": 373,
+                            "title": "Ps\u00fchhiaatria",
+                            "url": "http://et.wikipedia.org/wiki/Ps\u00fchhiaatria"
+                        },
+                        {
+                            "end": 400,
+                            "label": "Pulmonoloogia",
+                            "start": 387,
+                            "title": "Pulmonoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Pulmonoloogia"
+                        },
+                        {
+                            "end": 415,
+                            "label": "Peremeditsiiin",
+                            "start": 401,
+                            "title": "Peremeditsiiin",
+                            "url": "http://et.wikipedia.org/wiki/Peremeditsiiin"
+                        },
+                        {
+                            "end": 429,
+                            "label": "Reumatoloogia",
+                            "start": 416,
+                            "title": "Reumatoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Reumatoloogia"
+                        },
+                        {
+                            "end": 443,
+                            "label": "Stomatoloogia",
+                            "start": 430,
+                            "title": "Stomatoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Stomatoloogia"
+                        },
+                        {
+                            "end": 455,
+                            "label": "S\u00fcnnitusabi",
+                            "start": 444,
+                            "title": "S\u00fcnnitusabi",
+                            "url": "http://et.wikipedia.org/wiki/S\u00fcnnitusabi"
+                        },
+                        {
+                            "end": 470,
+                            "label": "Traumatoloogia",
+                            "start": 456,
+                            "title": "Traumatoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Traumatoloogia"
+                        },
+                        {
+                            "end": 484,
+                            "label": "T\u00f6\u00f6tervishoid",
+                            "start": 471,
+                            "title": "T\u00f6\u00f6tervishoid",
+                            "url": "http://et.wikipedia.org/wiki/T\u00f6\u00f6tervishoid"
+                        },
+                        {
+                            "end": 494,
+                            "label": "Uroloogia",
+                            "start": 485,
+                            "title": "Uroloogia",
+                            "url": "http://et.wikipedia.org/wiki/Uroloogia"
+                        },
+                        {
+                            "end": 507,
+                            "label": "Veneroloogia",
+                            "start": 495,
+                            "title": "Veneroloogia",
+                            "url": "http://et.wikipedia.org/wiki/Veneroloogia"
+                        }
+                    ],
+                    "text": "Allergoloogia\nAndroloogia\nAnestesioloogia\nDermatoloogia\nDietoloogia\nEndokrinoloogia\nEpidemioloogia\nErakorraline meditsiin\nF\u00fcsioteraapia\nGastroenteroloogia\nGeriaatria \nG\u00fcnekoloogia\nHematoloogia\nIntensiivravi\nKardioloogia\nKirurgia\nNakkushaigused\nNarkoloogia\nNefroloogia\nNeuroloogia\nOftalmoloogia\nOnkoloogia\nOrtopeedia\nOrtodontia \nOtorinolar\u00fcngoloogia\nPediaatria\nProktoloogia\nPs\u00fchhiaatria \nPulmonoloogia\nPeremeditsiiin\nReumatoloogia\nStomatoloogia\nS\u00fcnnitusabi\nTraumatoloogia\nT\u00f6\u00f6tervishoid\nUroloogia\nVeneroloogia",
+                    "title": "Kliinilised erialad"
+                },
+                {
+                    "internal_links": [
+                        {
+                            "end": 21,
+                            "label": "Kliiniline patoloogia",
+                            "start": 0,
+                            "title": "Kliiniline patoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Kliiniline_patoloogia"
+                        },
+                        {
+                            "end": 44,
+                            "label": "Kliiniline f\u00fcsioloogia",
+                            "start": 22,
+                            "title": "Kliiniline f\u00fcsioloogia",
+                            "url": "http://et.wikipedia.org/wiki/Kliiniline_f\u00fcsioloogia"
+                        },
+                        {
+                            "end": 65,
+                            "label": "Keemiline patoloogia",
+                            "start": 45,
+                            "title": "Keemiline patoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Keemiline_patoloogia"
+                        },
+                        {
+                            "end": 81,
+                            "label": "Laborimeditsiin",
+                            "start": 66,
+                            "title": "Laborimeditsiin",
+                            "url": "http://et.wikipedia.org/wiki/Laborimeditsiin"
+                        },
+                        {
+                            "end": 93,
+                            "label": "Radioloogia",
+                            "start": 82,
+                            "title": "Radioloogia",
+                            "url": "http://et.wikipedia.org/wiki/Radioloogia"
+                        },
+                        {
+                            "end": 116,
+                            "label": "Geneetiline patoloogia",
+                            "start": 94,
+                            "title": "Geneetiline patoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Geneetiline_patoloogia"
+                        },
+                        {
+                            "end": 143,
+                            "label": "Hematoloogiline patoloogia",
+                            "start": 117,
+                            "title": "Hematoloogiline patoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Hematoloogiline_patoloogia"
+                        },
+                        {
+                            "end": 160,
+                            "label": "Immunopatoloogia",
+                            "start": 144,
+                            "title": "Immunopatoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Immunopatoloogia"
+                        }
+                    ],
+                    "text": "Kliiniline patoloogia\nKliiniline f\u00fcsioloogia\nKeemiline patoloogia\nLaborimeditsiin\nRadioloogia\nGeneetiline patoloogia\nHematoloogiline patoloogia\nImmunopatoloogia",
+                    "title": "Diagnostilised erialad"
+                },
+                {
+                    "internal_links": [
+                        {
+                            "end": 8,
+                            "label": "E-tervis",
+                            "start": 0,
+                            "title": "E-tervis",
+                            "url": "http://et.wikipedia.org/wiki/E-tervis"
+                        },
+                        {
+                            "end": 38,
+                            "label": "Endokrino-immuno-veneroloogia",
+                            "start": 9,
+                            "title": "Endokrino-immuno-veneroloogia",
+                            "url": "http://et.wikipedia.org/wiki/Endokrino-immuno-veneroloogia"
+                        },
+                        {
+                            "end": 49,
+                            "label": "Logopeedia",
+                            "start": 39,
+                            "title": "Logopeedia",
+                            "url": "http://et.wikipedia.org/wiki/Logopeedia"
+                        },
+                        {
+                            "end": 64,
+                            "label": "Ps\u00fchhoteraapia",
+                            "start": 50,
+                            "title": "Ps\u00fchhoteraapia",
+                            "url": "http://et.wikipedia.org/wiki/Ps\u00fchhoteraapia"
+                        },
+                        {
+                            "end": 77,
+                            "label": "Seksuoloogia",
+                            "start": 65,
+                            "title": "Seksuoloogia",
+                            "url": "http://et.wikipedia.org/wiki/Seksuoloogia"
+                        },
+                        {
+                            "end": 92,
+                            "label": "Terviseedendus",
+                            "start": 78,
+                            "title": "Terviseedendus",
+                            "url": "http://et.wikipedia.org/wiki/Terviseedendus"
+                        }
+                    ],
+                    "text": "E-tervis\nEndokrino-immuno-veneroloogia\nLogopeedia\nPs\u00fchhoteraapia\nSeksuoloogia\nTerviseedendus",
+                    "title": "Interdistsiplinaarsed teemad"
+                }
+            ],
+            "text": "",
+            "title": "Meditsiiniharud arstidele"
+        },
+        {
+            "internal_links": [
+                {
+                    "end": 13,
+                    "label": "arstide loend",
+                    "start": 0,
+                    "title": "arstide loend",
+                    "url": "http://et.wikipedia.org/wiki/arstide_loend"
+                },
+                {
+                    "end": 40,
+                    "label": "farmakoloogiline meditsiin",
+                    "start": 14,
+                    "title": "farmakoloogiline meditsiin",
+                    "url": "http://et.wikipedia.org/wiki/farmakoloogiline_meditsiin"
+                },
+                {
+                    "end": 65,
+                    "label": "laboratoorne diagnostika",
+                    "start": 41,
+                    "title": "laboratoorne diagnostika",
+                    "url": "http://et.wikipedia.org/wiki/laboratoorne_diagnostika"
+                },
+                {
+                    "end": 85,
+                    "label": "meditsiini m\u00f5isteid",
+                    "start": 66,
+                    "title": "meditsiini m\u00f5isteid",
+                    "url": "http://et.wikipedia.org/wiki/meditsiini_m\u00f5isteid"
+                },
+                {
+                    "end": 113,
+                    "label": "meditsiiniline entomoloogia",
+                    "start": 86,
+                    "title": "meditsiiniline entomoloogia",
+                    "url": "http://et.wikipedia.org/wiki/meditsiiniline_entomoloogia"
+                },
+                {
+                    "end": 137,
+                    "label": "t\u00f5endusp\u00f5hine meditsiin",
+                    "start": 114,
+                    "title": "t\u00f5endusp\u00f5hine meditsiin",
+                    "url": "http://et.wikipedia.org/wiki/t\u00f5endusp\u00f5hine_meditsiin"
+                },
+                {
+                    "end": 150,
+                    "label": "veterinaaria",
+                    "start": 138,
+                    "title": "veterinaaria",
+                    "url": "http://et.wikipedia.org/wiki/veterinaaria"
+                },
+                {
+                    "end": 157,
+                    "label": "\u00f5endus",
+                    "start": 151,
+                    "title": "\u00f5endus",
+                    "url": "http://et.wikipedia.org/wiki/\u00f5endus"
+                }
+            ],
+            "text": "arstide loend\nfarmakoloogiline meditsiin\nlaboratoorne diagnostika\nmeditsiini m\u00f5isteid\nmeditsiiniline entomoloogia\nt\u00f5endusp\u00f5hine meditsiin\nveterinaaria\n\u00f5endus",
+            "title": "Vaata ka"
+        },
+        {
+            "external links": [
+                {
+                    "end": 55,
+                    "label": "",
+                    "start": 55,
+                    "url": "https://books.google.ee/books?id=vp1hAAAAIAAJ&pg=PA694&lpg=PA694&dq=Die+Blutmenge+in+der+Lunge+und+in+der+Niere+der+Schlangen&source=bl&ots=AkHt74XDtA&sig=HiR_BiB2isVAfgE4LfzNPHFDXNk&hl=et&sa=X&ei=o6EbVdv8OY2zae2MgYgJ&ved=0CEMQ6AEwBw#v=onepage&q&f=false"
+                },
+                {
+                    "end": 168,
+                    "label": "",
+                    "start": 168,
+                    "url": "https://www.riigiteataja.ee/akt/13212185"
+                },
+                {
+                    "end": 198,
+                    "label": "",
+                    "start": 198,
+                    "url": "https://www.riigiteataja.ee/akt/123122011001"
+                },
+                {
+                    "end": 231,
+                    "label": "",
+                    "start": 231,
+                    "url": "http://www.terviseamet.ee/tervishoid/tervishoiutootaja-registreerimine.html"
+                },
+                {
+                    "end": 278,
+                    "label": "",
+                    "start": 278,
+                    "url": "http://et.wikipedia.org/wiki/Tartu_%C3%9Clikooli_arstiteaduskond"
+                },
+                {
+                    "end": 310,
+                    "label": "",
+                    "start": 310,
+                    "url": "http://koodikeskus.ravimiamet.ee/Default.aspx?pv=Pakendid."
+                },
+                {
+                    "end": 333,
+                    "label": "",
+                    "start": 333,
+                    "url": "http://www.sam.ee/konventsioon"
+                },
+                {
+                    "end": 386,
+                    "label": "",
+                    "start": 386,
+                    "url": "http://books.google.ee/books?id=DGxdVKRBgpUC&pg=PA808&dq=Anomalies+and+curiosities+of+medicine&hl=en&sa=X&ei=ATWlU9-QOYyM7Ab6kYGoDQ&ved=0CCQQ6AEwAQ#v=onepage&q=Anomalies%20and%20curiosities%20of%20medicine&f=false"
+                }
+            ],
+            "text": "Carl Ferdinand Gr\u00e4fe, Dietrich Wilhelm Heinrich Busch, \"Encyclop\u00e4disches w\u00f6rterbuch der medicinischen wissenschaften\"], 7. k\u00f6ide, Berliin, J. W. Boike kirjastus, 1831 \nEriarstiabi erialade loetelu]\n2012. aasta riigieelarve seadus]\nTervishoiut\u00f6\u00f6tajate registreerimise andmebaas]\nTartu \u00dclikooli Arstiteaduskond]\nATC puu \u2013 eestikeelne]\nEuroopa Farmakop\u00f6a konventsioon]\nFred Aschley White, Physical Signs in Medicine and Surgery: An Atlas of Rare, Lost and Forgotten Physical Signs], 2009, Google'i raamatu veebiversioon </small>",
+            "title": "V\u00e4lislingid"
+        }
+    ],
+    "timestamp": "2015-04-01T15:45:27Z",
+    "title": "Meditsiin",
+    "url": "http://et.wikipedia.org/wiki/Meditsiin"
+}

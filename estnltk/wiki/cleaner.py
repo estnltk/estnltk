@@ -41,7 +41,7 @@ ignoredTags = [
     'abbr', 'b', 'big', 'blockquote', 'center', 'cite', 'div', 'em',
     'font', 'h1', 'h2', 'h3', 'h4', 'hiero', 'i', 'kbd', 'nowiki',
     'p', 'plaintext', 's', 'span', 'strike', 'strong',
-    'sub', 'sup', 'tt', 'u', 'var'
+    'sub', 'sup', 'tt', 'u', 'var',
 ]
 
 placeholder_tags = {'math':'formula', 'code':'codice'}
