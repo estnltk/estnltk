@@ -4,14 +4,22 @@ Text classification tool
 
 Estnltk classifier is *machine learning* software for organizing data into categories.
 It is a separate tool from estnltk, although it depends on it.
-To install it, type::
+See the repository https://github.com/estnltk/textclassifier .
 
-    pip install textclassifier
+To install it from the PyPi repository, type::
+
+    pip install estnltk-textclassifier
     
 And run unit tests::
 
     python -m unittest discover textclassifier
 
+::
+
+    Ran 40 tests in 16.088s
+
+    OK
+    
 
 Usage
 =====
@@ -59,32 +67,33 @@ Step 2. Building the classification model
 In this example, we use the command line training program to build a model for Hinnavaatlus.ee user review classification.
 We can see the possible parameters by issuing command::
 
-    python3 -m estnltk.testclassifier.train -h
+    python3 -m textclassifier.train -h
     
 That will output::
 
-    usage: estnltk.textclassifier.train [-h] [--synonyms SYNONYMS] [-r REPORT] [--sheet SHEET]
-                          [--sep SEP]
-                          settings dataset model
+    usage: textclassifier.train [-h] [--synonyms SYNONYMS] [-r REPORT]
+                                [--sheet SHEET] [--sep SEP]
+                                settings dataset model
 
     positional arguments:
-      settings              Settings definitions containing features columns,
+    settings              Settings definitions containing features columns,
                             label column and confidence column.
-      dataset               Dataset to use for training. Must contain columns
+    dataset               Dataset to use for training. Must contain columns
                             defined in settings file. It is possible to load .csv
                             and .xlsx files.
-      model                 The path to store the trained model.
+    model                 The path to store the trained model.
 
     optional arguments:
-      -h, --help            show this help message and exit
-      --synonyms SYNONYMS   File containing a set of technical synonyms, one set
+    -h, --help            show this help message and exit
+    --synonyms SYNONYMS   File containing a set of technical synonyms, one set
                             per line.
-      -r REPORT, --report REPORT
+    -r REPORT, --report REPORT
                             The name of the report. The report is written as two
                             files [name].html and [name]_misclassified_data.html
-      --sheet SHEET         Sheet name if loading data from Excel file (default
+    --sheet SHEET         Sheet name if loading data from Excel file (default
                             read the first sheet).
-      --sep SEP             Column separator for CSV files (default is ,).
+    --sep SEP             Column separator for CSV files (default is ,).
+
 
 
 There are two parameters we need to discuss separately.
@@ -102,7 +111,7 @@ The report can be used to improve the categories of the data, to increase the te
 
 However, we currently ignore this extra functionality and just train the classifier by issuing command::
 
-    python3 -m estnltk.testclassifier.train definitions/hinnavaatlus.def data/hinnavaatlus.csv models/hinnavaatlus.bin
+    python3 -m textclassifier.train definitions/hinnavaatlus.def data/hinnavaatlus.csv models/hinnavaatlus.bin
 
 Often the log outputs warnings related to ``numpy``, ``sckikit-learn`` and other dependencies, but these can be ingored until no specific errors are generated.
 The reason is that the dependencies are constantly being developed and upgraded and most warnings are related to their development::
@@ -129,8 +138,8 @@ Step 3. Using the model to categorize data
 
 The classification command line program accepts following arguments::
 
-    $ python3 -m estnltk.testclassifier.classify -h
-    usage: estnltk.testclassifier.classify [-h] [--insheet INSHEET] [--insep INSEP]
+    $ python3 -m textclassifier.classify -h
+    usage: textclassifier.classify [-h] [--insheet INSHEET] [--insep INSEP]
                              [--outsheet OUTSHEET] [--outsep OUTSEP]
                              indata outdata model
 
@@ -171,7 +180,7 @@ Consider these four example reviews I have written (``data/hinnavaatlus_test.csv
 
 Let's classify the dataset::
 
-    $ python3 -m Estnltk.classify data/hinnavaatlus_test.csv result.csv models/hinnavaatlus.bin 
+    $ python3 -m textclassifier.classify data/hinnavaatlus_test.csv result.csv models/hinnavaatlus.bin 
     INFO:root:Reading dataset data/hinnavaatlus_test.csv
     INFO:root:Loading classifier from models/hinnavaatlus.bin
     INFO:classify:Performing classification on 4 examples.
@@ -212,7 +221,7 @@ As it uses statistical reasoning to make its decision, there will be errors. Few
 During the model building step, we can optionally generate report that gives detailed information about how many errors the classifier is expected to make and what categories are most troublesome.
 Let's use our hinnavaatlus.ee example dataset and build a model now with a generated report::
 
-    $ python3 -m Estnltk.train definitions/hinnavaatlus.def data/hinnavaatlus.csv models/hinnavaatlus.bin --report hinnavaatlus
+    $ python3 -m textclassifier.train definitions/hinnavaatlus.def data/hinnavaatlus.csv models/hinnavaatlus.bin --report hinnavaatlus
     INFO:train:Loading settings from definitions/hinnavaatlus.def and techsynonyms from None .
     ...
     INFO:root:Saving classifier to models/hinnavaatlus.bin
