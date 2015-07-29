@@ -8,7 +8,7 @@ Duplicates the functionality of pure-Python divide module.
 
 // define values representing None
 const Span none(-1,-1);
-const SpanVector<Span>(1, none) vec_none;
+const SpanVector vec_none(1, none);
 
 
 /// return the first element of a simple span
@@ -33,7 +33,7 @@ int last(SpanVector const& spans) {
 
 /// Remove duplicate integers.
 /// Resulting list might not be sorted.
-IntVector unique(IntVector& const vec) {
+IntVector unique(IntVector const& vec) {
     std::unordered_set<int> seen;
     IntVector unique_vec;
     unique_vec.reserve(vec.size());
@@ -175,20 +175,20 @@ IntVectors spans_collect_spans(SpanVector const& outer_spans, SpanVector const& 
             continue;
         }
         if (ospan.second >= ispan.second) {
-            current_bin.append(j);
+            current_bin.push_back(j);
             j += 1;
         } else {
-            intvectors.append(current_bin);
+            intvectors.push_back(current_bin);
             current_bin.clear();
             i += 1;
         }
     }
     if (intvectors.size() < n) {
-        intvectors.append(current_bin);
+        intvectors.push_back(current_bin);
         current_bin.clear();
     }
     while (intvectors.size() < n) {
-        intvectors.append(current_bin);
+        intvectors.push_back(current_bin);
     }
     return intvectors;
 }
@@ -201,7 +201,7 @@ IntVectors spans_collect_lists(SpanVector const& outer_spans, SpanVectors const&
     flattened_spans.reserve(n);
 
     for (int i = 0 ; i < n ; ++i) {
-        SpanVector& spans = inner_spans[i];
+        SpanVector const& spans = inner_spans[i];
         const int m = spans.size();
         for (int j = 0; j < m ; ++j) {
             flattened_spans.push_back(IndexedSpan(spans[j], i));
@@ -277,3 +277,25 @@ IntVectors lists_collect_lists(SpanVectors const& outer_spans, SpanVector const&
     }
     return bins;
 }
+
+/// proxy functions for span collection functions under a single name.
+/// we need original names in order to reuse tests
+IntVectors get_bins(SpanVector const& outer_spans, SpanVector const& outer_spans) {
+    return spans_collect_spans(outer_spans, inner_spans);
+}
+
+IntVectors get_bins(SpanVectors const& outer_spans, SpanVector const& outer_spans) {
+    return lists_collect_spans(outer_spans, inner_spans);
+}
+
+IntVectors get_bins(SpanVector const& outer_spans, SpanVectors const& outer_spans) {
+    return spans_collect_lists(outer_spans, inner_spans);
+}
+
+IntVectors get_bins(SpanVector const& outer_spans, SpanVector const& outer_spans) {
+    return list_collect_lists(outer_spans, inner_spans);
+}
+
+/// proxy functions for span translation functions under a single name.
+/// we need original names in order to reuse tests
+

@@ -3,6 +3,13 @@ from setuptools import setup, find_packages, Extension
 import os
 import sys
 
+try:
+    from Cython.Distutils import build_ext
+except ImportError:
+    use_cython = False
+else:
+    use_cython = True
+
 os.environ['CC'] = 'g++'
 os.environ['CXX'] = 'g++'
 
@@ -61,6 +68,7 @@ setup(
                   [swig_interface, vabamorf_src] + lib_sources,
                   swig_opts = swig_opts,
                   include_dirs=include_dirs)
+        Extension
         ],
 
     # we have fixed dependency versions to guarantee, what works

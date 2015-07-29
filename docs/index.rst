@@ -118,6 +118,13 @@ Tutorials
    tutorials/text
    tutorials/morf_tables
 
+Tools for linguists
+-------------------
+
+.. toctree::
+   :maxdepth: 3
+   
+   tutorials/textclassifier
 
 API reference
 =============

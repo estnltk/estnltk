@@ -5,7 +5,7 @@ Has optimized code for both simple and multi layers.
 Duplicates the functionality of pure-Python divide module.
 */
 
-#include <pair>
+#include <utility>
 #include <vector>
 #include <string>
 #include <unordered_set>
