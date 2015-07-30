@@ -91,7 +91,7 @@ def json_format(j_obj):
     return new
 
 
-def json_2_text(inp, out, verbose):
+def json_2_text(inp, out, verbose = False):
     for root, dirs, filenames in os.walk(inp):
         for f in filenames:
             log = open(os.path.join(root, f), 'r')
@@ -119,9 +119,6 @@ def textWriter(jsonObj, dir, verbose):
     elif printcount == 50:
         print(count)
         printcount = 0
-
-
-
 
 
 def main():

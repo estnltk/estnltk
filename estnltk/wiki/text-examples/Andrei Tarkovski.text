@@ -1,0 +1,717 @@
+{
+    "data": {
+        "categories": [
+            "Venemaa filmilavastajad", 
+            "S\u00fcndinud 1932", 
+            "Surnud 1986"
+        ], 
+        "other": [
+            "{{keeletoimeta}}", 
+            "{{commons|Category:Andrej Tarkovskij}}", 
+            "{{J\u00c4RJESTA:Tarkovski, Andrei}}"
+        ], 
+        "timestamp": "2015-02-18T16:48:59Z", 
+        "title": "Andrei Tarkovski", 
+        "url": "http://et.wikipedia.org/wiki/Andrei_Tarkovski"
+    }, 
+    "external_links": [
+        {
+            "end": 3426, 
+            "label": "IMDb: Andrei Tarkovski", 
+            "start": 3404, 
+            "url": "http://www.imdb.com/name/nm0001789/"
+        }, 
+        {
+            "end": 3466, 
+            "label": "\"Peegel\" (TMK 2001/12)", 
+            "start": 3444, 
+            "url": "http://www.temuki.ee/arhiiv/arhiiv_vana/Kino/01dets_k07.html"
+        }, 
+        {
+            "end": 3531, 
+            "label": "\"Suur Tarkovski ja v\u00e4ike Tarkovski\" (PM 4. 4. 2002)", 
+            "start": 3480, 
+            "url": "http://vana.www.postimees.ee/index.html?op=lugu&id=53580&number=468&rubriik=7"
+        }
+    ], 
+    "internal_links": [
+        {
+            "end": 58, 
+            "label": "vene keeles", 
+            "start": 47, 
+            "title": "vene keel", 
+            "url": "http://et.wikipedia.org/wiki/vene_keel"
+        }, 
+        {
+            "end": 100, 
+            "label": "4. aprill", 
+            "start": 91, 
+            "title": "4. aprill", 
+            "url": "http://et.wikipedia.org/wiki/4._aprill"
+        }, 
+        {
+            "end": 105, 
+            "label": "1932", 
+            "start": 101, 
+            "title": "1932", 
+            "url": "http://et.wikipedia.org/wiki/1932"
+        }, 
+        {
+            "end": 121, 
+            "label": "29. detsember", 
+            "start": 108, 
+            "title": "29. detsember", 
+            "url": "http://et.wikipedia.org/wiki/29._detsember"
+        }, 
+        {
+            "end": 126, 
+            "label": "1986", 
+            "start": 122, 
+            "title": "1986", 
+            "url": "http://et.wikipedia.org/wiki/1986"
+        }, 
+        {
+            "end": 136, 
+            "label": "vene", 
+            "start": 132, 
+            "title": "Venemaa", 
+            "url": "http://et.wikipedia.org/wiki/Venemaa"
+        }, 
+        {
+            "end": 176, 
+            "label": "1932", 
+            "start": 172, 
+            "title": "1932", 
+            "url": "http://et.wikipedia.org/wiki/1932"
+        }, 
+        {
+            "end": 201, 
+            "label": "Ivanovo oblastis", 
+            "start": 185, 
+            "title": "Ivanovo oblast", 
+            "url": "http://et.wikipedia.org/wiki/Ivanovo_oblast"
+        }, 
+        {
+            "end": 207, 
+            "label": "Volga", 
+            "start": 202, 
+            "title": "Volga", 
+            "url": "http://et.wikipedia.org/wiki/Volga"
+        }, 
+        {
+            "end": 223, 
+            "label": "Zavra\u017ejes", 
+            "start": 214, 
+            "title": "Zavra\u017eje", 
+            "url": "http://et.wikipedia.org/wiki/Zavra\u017eje"
+        }, 
+        {
+            "end": 245, 
+            "label": "Arseni Tarkovski", 
+            "start": 229, 
+            "title": "Arseni Tarkovski", 
+            "url": "http://et.wikipedia.org/wiki/Arseni_Tarkovski"
+        }, 
+        {
+            "end": 288, 
+            "label": "1935", 
+            "start": 284, 
+            "title": "1935", 
+            "url": "http://et.wikipedia.org/wiki/1935"
+        }, 
+        {
+            "end": 519, 
+            "label": "Andrei Voznessenski", 
+            "start": 500, 
+            "title": "Andrei Voznessenski", 
+            "url": "http://et.wikipedia.org/wiki/Andrei_Voznessenski"
+        }, 
+        {
+            "end": 574, 
+            "label": "1951", 
+            "start": 570, 
+            "title": "1951", 
+            "url": "http://et.wikipedia.org/wiki/1951"
+        }, 
+        {
+            "end": 721, 
+            "label": "1954", 
+            "start": 717, 
+            "title": "1954", 
+            "url": "http://et.wikipedia.org/wiki/1954"
+        }, 
+        {
+            "end": 775, 
+            "label": "\u00dcleliidulisse Kinematograafia Instituuti", 
+            "start": 735, 
+            "title": "\u00dclevenemaaline Riiklik Kinematograafia Instituut", 
+            "url": "http://et.wikipedia.org/wiki/\u00dclevenemaaline_Riiklik_Kinematograafia_Instituut"
+        }, 
+        {
+            "end": 796, 
+            "label": "Mihhail Rommi", 
+            "start": 783, 
+            "title": "Mihhail Romm", 
+            "url": "http://et.wikipedia.org/wiki/Mihhail_Romm"
+        }, 
+        {
+            "end": 1009, 
+            "label": "Luis Bu\u00f1uel", 
+            "start": 998, 
+            "title": "Luis Bu\u00f1uel", 
+            "url": "http://et.wikipedia.org/wiki/Luis_Bu\u00f1uel"
+        }, 
+        {
+            "end": 1027, 
+            "label": "Ingmar Bergman", 
+            "start": 1013, 
+            "title": "Ingmar Bergman", 
+            "url": "http://et.wikipedia.org/wiki/Ingmar_Bergman"
+        }, 
+        {
+            "end": 1050, 
+            "label": "Akira Kurosawa", 
+            "start": 1036, 
+            "title": "Akira Kurosawa", 
+            "url": "http://et.wikipedia.org/wiki/Akira_Kurosawa"
+        }, 
+        {
+            "end": 1066, 
+            "label": "Robert Bresson", 
+            "start": 1052, 
+            "title": "Robert Bresson", 
+            "url": "http://et.wikipedia.org/wiki/Robert_Bresson"
+        }, 
+        {
+            "end": 1086, 
+            "label": "Federico Fellini", 
+            "start": 1070, 
+            "title": "Federico Fellini", 
+            "url": "http://et.wikipedia.org/wiki/Federico_Fellini"
+        }, 
+        {
+            "end": 1132, 
+            "label": "Michelangelo Antonioni", 
+            "start": 1110, 
+            "title": "Michelangelo Antonioni", 
+            "url": "http://et.wikipedia.org/wiki/Michelangelo_Antonioni"
+        }, 
+        {
+            "end": 1293, 
+            "label": "Andrei Mihhalkov-Kont\u0161alovski", 
+            "start": 1264, 
+            "title": "Andrei Mihhalkov-Kont\u0161alovski", 
+            "url": "http://et.wikipedia.org/wiki/Andrei_Mihhalkov-Kont\u0161alovski"
+        }, 
+        {
+            "end": 1299, 
+            "label": "1960", 
+            "start": 1295, 
+            "title": "1960", 
+            "url": "http://et.wikipedia.org/wiki/1960"
+        }, 
+        {
+            "end": 1392, 
+            "label": "1982", 
+            "start": 1388, 
+            "title": "1982", 
+            "url": "http://et.wikipedia.org/wiki/1982"
+        }, 
+        {
+            "end": 1410, 
+            "label": "Itaaliasse", 
+            "start": 1400, 
+            "title": "Itaalia", 
+            "url": "http://et.wikipedia.org/wiki/Itaalia"
+        }, 
+        {
+            "end": 1445, 
+            "label": "1984", 
+            "start": 1441, 
+            "title": "1984", 
+            "url": "http://et.wikipedia.org/wiki/1984"
+        }, 
+        {
+            "end": 1509, 
+            "label": "1986", 
+            "start": 1505, 
+            "title": "1986", 
+            "url": "http://et.wikipedia.org/wiki/1986"
+        }, 
+        {
+            "end": 1526, 
+            "label": "Pariisis", 
+            "start": 1518, 
+            "title": "Pariis", 
+            "url": "http://et.wikipedia.org/wiki/Pariis"
+        }, 
+        {
+            "end": 1557, 
+            "label": "M\u00f5rtsukad", 
+            "start": 1548, 
+            "title": "M\u00f5rtsukad (film)", 
+            "url": "http://et.wikipedia.org/wiki/M\u00f5rtsukad_(film)"
+        }, 
+        {
+            "end": 1575, 
+            "label": "1958", 
+            "start": 1571, 
+            "title": "1958", 
+            "url": "http://et.wikipedia.org/wiki/1958"
+        }, 
+        {
+            "end": 1583, 
+            "label": "NSVL", 
+            "start": 1579, 
+            "title": "NSVL", 
+            "url": "http://et.wikipedia.org/wiki/NSVL"
+        }, 
+        {
+            "end": 1602, 
+            "label": "Teerull ja viiul", 
+            "start": 1586, 
+            "title": "Teerull ja viiul (film)", 
+            "url": "http://et.wikipedia.org/wiki/Teerull_ja_viiul_(film)"
+        }, 
+        {
+            "end": 1629, 
+            "label": "1961", 
+            "start": 1625, 
+            "title": "1961", 
+            "url": "http://et.wikipedia.org/wiki/1961"
+        }, 
+        {
+            "end": 1637, 
+            "label": "NSVL", 
+            "start": 1633, 
+            "title": "NSVL", 
+            "url": "http://et.wikipedia.org/wiki/NSVL"
+        }, 
+        {
+            "end": 1655, 
+            "label": "Ivani lapsep\u00f5lv", 
+            "start": 1640, 
+            "title": "Ivani lapsep\u00f5lv", 
+            "url": "http://et.wikipedia.org/wiki/Ivani_lapsep\u00f5lv"
+        }, 
+        {
+            "end": 1682, 
+            "label": "1962", 
+            "start": 1678, 
+            "title": "1962", 
+            "url": "http://et.wikipedia.org/wiki/1962"
+        }, 
+        {
+            "end": 1690, 
+            "label": "NSVL", 
+            "start": 1686, 
+            "title": "NSVL", 
+            "url": "http://et.wikipedia.org/wiki/NSVL"
+        }, 
+        {
+            "end": 1712, 
+            "label": "Kuldl\u00f5vi", 
+            "start": 1704, 
+            "title": "Kuldl\u00f5vi", 
+            "url": "http://et.wikipedia.org/wiki/Kuldl\u00f5vi"
+        }, 
+        {
+            "end": 1752, 
+            "label": "Venezia rahvusvahelisel filmifestivalil", 
+            "start": 1713, 
+            "title": "Venezia filmifestival", 
+            "url": "http://et.wikipedia.org/wiki/Venezia_filmifestival"
+        }, 
+        {
+            "end": 1757, 
+            "label": "1962", 
+            "start": 1753, 
+            "title": "1962", 
+            "url": "http://et.wikipedia.org/wiki/1962"
+        }, 
+        {
+            "end": 1774, 
+            "label": "Andrei Rubljov", 
+            "start": 1760, 
+            "title": "Andrei Rubljov (film)", 
+            "url": "http://et.wikipedia.org/wiki/Andrei_Rubljov_(film)"
+        }, 
+        {
+            "end": 1799, 
+            "label": "1966", 
+            "start": 1795, 
+            "title": "1966", 
+            "url": "http://et.wikipedia.org/wiki/1966"
+        }, 
+        {
+            "end": 1807, 
+            "label": "NSVL", 
+            "start": 1803, 
+            "title": "NSVL", 
+            "url": "http://et.wikipedia.org/wiki/NSVL"
+        }, 
+        {
+            "end": 1872, 
+            "label": "Andrei Mihhalkov-Kont\u0161alovski", 
+            "start": 1843, 
+            "title": "Andrei Mihhalkov-Kont\u0161alovski", 
+            "url": "http://et.wikipedia.org/wiki/Andrei_Mihhalkov-Kont\u0161alovski"
+        }, 
+        {
+            "end": 1901, 
+            "label": "1971", 
+            "start": 1897, 
+            "title": "1971", 
+            "url": "http://et.wikipedia.org/wiki/1971"
+        }, 
+        {
+            "end": 1940, 
+            "label": "Rahvusvahelise Filmikriitikute \u00dchingu", 
+            "start": 1903, 
+            "title": "Rahvusvaheline Filmikriitikute \u00dching", 
+            "url": "http://et.wikipedia.org/wiki/Rahvusvaheline_Filmikriitikute_\u00dching"
+        }, 
+        {
+            "end": 1979, 
+            "label": "Cannes'i filmifestivalil", 
+            "start": 1955, 
+            "title": "Cannes'i filmifestival", 
+            "url": "http://et.wikipedia.org/wiki/Cannes'i_filmifestival"
+        }, 
+        {
+            "end": 1989, 
+            "label": "Solaris", 
+            "start": 1982, 
+            "title": "Solaris (Tarkovski)", 
+            "url": "http://et.wikipedia.org/wiki/Solaris_(Tarkovski)"
+        }, 
+        {
+            "end": 2008, 
+            "label": "1972", 
+            "start": 2004, 
+            "title": "1972", 
+            "url": "http://et.wikipedia.org/wiki/1972"
+        }, 
+        {
+            "end": 2016, 
+            "label": "NSVL", 
+            "start": 2012, 
+            "title": "NSVL", 
+            "url": "http://et.wikipedia.org/wiki/NSVL"
+        }, 
+        {
+            "end": 2033, 
+            "label": "Stanis\u0142aw Lemi", 
+            "start": 2019, 
+            "title": "Stanis\u0142aw Lem", 
+            "url": "http://et.wikipedia.org/wiki/Stanis\u0142aw_Lem"
+        }, 
+        {
+            "end": 2041, 
+            "label": "romaani", 
+            "start": 2034, 
+            "title": "romaan", 
+            "url": "http://et.wikipedia.org/wiki/romaan"
+        }, 
+        {
+            "end": 2057, 
+            "label": "Peegel", 
+            "start": 2051, 
+            "title": "Peegel (film)", 
+            "url": "http://et.wikipedia.org/wiki/Peegel_(film)"
+        }, 
+        {
+            "end": 2076, 
+            "label": "1975", 
+            "start": 2072, 
+            "title": "1975", 
+            "url": "http://et.wikipedia.org/wiki/1975"
+        }, 
+        {
+            "end": 2083, 
+            "label": "NSVL", 
+            "start": 2079, 
+            "title": "NSVL", 
+            "url": "http://et.wikipedia.org/wiki/NSVL"
+        }, 
+        {
+            "end": 2094, 
+            "label": "Stalker", 
+            "start": 2087, 
+            "title": "Stalker (film)", 
+            "url": "http://et.wikipedia.org/wiki/Stalker_(film)"
+        }, 
+        {
+            "end": 2113, 
+            "label": "1979", 
+            "start": 2109, 
+            "title": "1979", 
+            "url": "http://et.wikipedia.org/wiki/1979"
+        }, 
+        {
+            "end": 2121, 
+            "label": "NSVL", 
+            "start": 2117, 
+            "title": "NSVL", 
+            "url": "http://et.wikipedia.org/wiki/NSVL"
+        }, 
+        {
+            "end": 2138, 
+            "label": "Arkadi", 
+            "start": 2132, 
+            "title": "Arkadi Strugatski", 
+            "url": "http://et.wikipedia.org/wiki/Arkadi_Strugatski"
+        }, 
+        {
+            "end": 2159, 
+            "label": "Boriss Strugatski", 
+            "start": 2142, 
+            "title": "Boriss Strugatski", 
+            "url": "http://et.wikipedia.org/wiki/Boriss_Strugatski"
+        }, 
+        {
+            "end": 2213, 
+            "label": "Reisihetked", 
+            "start": 2202, 
+            "title": "Reisihetked\" (film)", 
+            "url": "http://et.wikipedia.org/wiki/Reisihetked\"_(film)"
+        }, 
+        {
+            "end": 2241, 
+            "label": "1982", 
+            "start": 2237, 
+            "title": "1982", 
+            "url": "http://et.wikipedia.org/wiki/1982"
+        }, 
+        {
+            "end": 2252, 
+            "label": "Itaalia", 
+            "start": 2245, 
+            "title": "Itaalia", 
+            "url": "http://et.wikipedia.org/wiki/Itaalia"
+        }, 
+        {
+            "end": 2339, 
+            "label": "Nostalgia", 
+            "start": 2330, 
+            "title": "Nostalgia (film)", 
+            "url": "http://et.wikipedia.org/wiki/Nostalgia_(film)"
+        }, 
+        {
+            "end": 2361, 
+            "label": "1983", 
+            "start": 2357, 
+            "title": "1983", 
+            "url": "http://et.wikipedia.org/wiki/1983"
+        }, 
+        {
+            "end": 2372, 
+            "label": "Itaalia", 
+            "start": 2365, 
+            "title": "Itaalia", 
+            "url": "http://et.wikipedia.org/wiki/Itaalia"
+        }, 
+        {
+            "end": 2383, 
+            "label": "Ohverdus", 
+            "start": 2375, 
+            "title": "Ohverdus (film)", 
+            "url": "http://et.wikipedia.org/wiki/Ohverdus_(film)"
+        }, 
+        {
+            "end": 2401, 
+            "label": "1986", 
+            "start": 2397, 
+            "title": "1986", 
+            "url": "http://et.wikipedia.org/wiki/1986"
+        }, 
+        {
+            "end": 2411, 
+            "label": "Rootsi", 
+            "start": 2405, 
+            "title": "Rootsi", 
+            "url": "http://et.wikipedia.org/wiki/Rootsi"
+        }, 
+        {
+            "end": 2466, 
+            "label": "Leninliku Komsomoli nimelises teatris", 
+            "start": 2429, 
+            "title": "Leninliku Komsomoli nimeline teater", 
+            "url": "http://et.wikipedia.org/wiki/Leninliku_Komsomoli_nimeline_teater"
+        }, 
+        {
+            "end": 2486, 
+            "label": "William Shakespeare", 
+            "start": 2467, 
+            "title": "William Shakespeare", 
+            "url": "http://et.wikipedia.org/wiki/William_Shakespeare"
+        }, 
+        {
+            "end": 2506, 
+            "label": "Hamlet", 
+            "start": 2500, 
+            "title": "Hamlet", 
+            "url": "http://et.wikipedia.org/wiki/Hamlet"
+        }, 
+        {
+            "end": 2526, 
+            "label": "Londonis", 
+            "start": 2518, 
+            "title": "London", 
+            "url": "http://et.wikipedia.org/wiki/London"
+        }, 
+        {
+            "end": 2542, 
+            "label": "Covent Gardenis", 
+            "start": 2527, 
+            "title": "Covent Garden", 
+            "url": "http://et.wikipedia.org/wiki/Covent_Garden"
+        }, 
+        {
+            "end": 2560, 
+            "label": "Modest Mussorgski", 
+            "start": 2543, 
+            "title": "Modest Mussorgski", 
+            "url": "http://et.wikipedia.org/wiki/Modest_Mussorgski"
+        }, 
+        {
+            "end": 2567, 
+            "label": "ooperi", 
+            "start": 2561, 
+            "title": "ooper", 
+            "url": "http://et.wikipedia.org/wiki/ooper"
+        }, 
+        {
+            "end": 2583, 
+            "label": "Boriss Godunov", 
+            "start": 2569, 
+            "title": "Boriss Godunov (ooper)", 
+            "url": "http://et.wikipedia.org/wiki/Boriss_Godunov_(ooper)"
+        }, 
+        {
+            "end": 2949, 
+            "label": "Tatjana Elmanovit\u0161", 
+            "start": 2931, 
+            "title": "Tatjana Elmanovit\u0161", 
+            "url": "http://et.wikipedia.org/wiki/Tatjana_Elmanovit\u0161"
+        }, 
+        {
+            "end": 3001, 
+            "label": "Eesti Raamat", 
+            "start": 2989, 
+            "title": "Eesti Raamat", 
+            "url": "http://et.wikipedia.org/wiki/Eesti_Raamat"
+        }, 
+        {
+            "end": 3010, 
+            "label": "Tallinn", 
+            "start": 3003, 
+            "title": "Tallinn", 
+            "url": "http://et.wikipedia.org/wiki/Tallinn"
+        }, 
+        {
+            "end": 3015, 
+            "label": "1980", 
+            "start": 3011, 
+            "title": "1980", 
+            "url": "http://et.wikipedia.org/wiki/1980"
+        }, 
+        {
+            "end": 3038, 
+            "label": "Aleksandr Sol\u017eenits\u00f5n", 
+            "start": 3017, 
+            "title": "Aleksandr Sol\u017eenits\u00f5n", 
+            "url": "http://et.wikipedia.org/wiki/Aleksandr_Sol\u017eenits\u00f5n"
+        }, 
+        {
+            "end": 3078, 
+            "label": "Arvo Pesti", 
+            "start": 3068, 
+            "title": "Arvo Pesti", 
+            "url": "http://et.wikipedia.org/wiki/Arvo_Pesti"
+        }, 
+        {
+            "end": 3084, 
+            "label": "TMK", 
+            "start": 3081, 
+            "title": "Teater. Muusika. Kino", 
+            "url": "http://et.wikipedia.org/wiki/Teater._Muusika._Kino"
+        }, 
+        {
+            "end": 3089, 
+            "label": "1990", 
+            "start": 3085, 
+            "title": "1990", 
+            "url": "http://et.wikipedia.org/wiki/1990"
+        }, 
+        {
+            "end": 3116, 
+            "label": "J\u00fcri Lina", 
+            "start": 3107, 
+            "title": "J\u00fcri Lina", 
+            "url": "http://et.wikipedia.org/wiki/J\u00fcri_Lina"
+        }, 
+        {
+            "end": 3338, 
+            "label": "Riina Schutting", 
+            "start": 3323, 
+            "title": "Riina Schutting", 
+            "url": "http://et.wikipedia.org/wiki/Riina_Schutting"
+        }, 
+        {
+            "end": 3385, 
+            "label": "Tallinn", 
+            "start": 3378, 
+            "title": "Tallinn", 
+            "url": "http://et.wikipedia.org/wiki/Tallinn"
+        }, 
+        {
+            "end": 3390, 
+            "label": "2001", 
+            "start": 3386, 
+            "title": "2001", 
+            "url": "http://et.wikipedia.org/wiki/2001"
+        }, 
+        {
+            "end": 3442, 
+            "label": "Peter von Bagh", 
+            "start": 3428, 
+            "title": "Peter von Bagh", 
+            "url": "http://et.wikipedia.org/wiki/Peter_von_Bagh"
+        }, 
+        {
+            "end": 3478, 
+            "label": "Sven Vabar", 
+            "start": 3468, 
+            "title": "Sven Vabar", 
+            "url": "http://et.wikipedia.org/wiki/Sven_Vabar"
+        }
+    ], 
+    "sections": [
+        {
+            "end": 152, 
+            "start": 0
+        }, 
+        {
+            "end": 1538, 
+            "start": 154, 
+            "title": "Biograafia"
+        }, 
+        {
+            "end": 2919, 
+            "start": 1540, 
+            "title": "Filmid"
+        }, 
+        {
+            "end": 3390, 
+            "start": 2921, 
+            "title": "Kirjandus"
+        }, 
+        {
+            "end": 3531, 
+            "start": 3392, 
+            "title": "V\u00e4lislingid"
+        }
+    ], 
+    "text": "Andrei Tarkovski\nAndrei Arsenjevit\u0161 Tarkovski (vene keeles \"\u0410\u043d\u0434\u0440\u0435\u0439 \u0410\u0440\u0441\u0435\u043d\u044c\u0435\u0432\u0438\u0447 \u0422\u0430\u0440\u043a\u043e\u0432\u0441\u043a\u0438\u0439\", 4. aprill 1932 \u2013 29. detsember 1986) oli vene filmilavastaja.\n\nBiograafia\nS\u00fcndis 1932. aastal Ivanovo oblastis Volga \u00e4\u00e4res Zavra\u017ejes. Isa Arseni Tarkovski (oli poeet ja t\u00f5lkija), j\u00e4ttis aastal 1935 naise, poja ja t\u00fctre maha. Ema t\u00f6\u00f6tas kuni pensioniikka j\u00f5udmiseni Moskva N\u00e4idistr\u00fckikojas. \nS\u00f5ja ajal olid lapsed sugulaste juures Volga \u00e4\u00e4res. P\u00e4rast s\u00f5da naasid nad Moskvasse, Andrei Tarkovski klassivend oli Andrei Voznessenski. Tarkovski k\u00e4is nii muusika- kui ka kunstikoolis.\n1951 astus Idamaade instituuti. \u00d5nnetusjuhtumi tagaj\u00e4rjel sai ajuvapustuse ja tervise taastamise v\u00e4ltel osales Kaug-Ida ekspeditsioonides. \nAastal 1954 astus \u00f5ppima \u00dcleliidulisse Kinematograafia Instituuti. \u00d5ppis Mihhail Rommi k\u00e4e all.\n\u00d5pinguaastail lavastas ta l\u00fchifilmid \"M\u00f5rvarid\" (\u0423\u0431\u0438\u0439\u0446\u044b, 1958), \"Kontsentraat\" (1958) ja \"T\u00e4na veel ei vallandata\" (\u0421\u0435\u0433\u043e\u0434\u043d\u044f \u0443\u0432\u043e\u043b\u044c\u043d\u0435\u043d\u0438\u044f \u043d\u0435 \u0431\u0443\u0434\u0435\u0442, 1959). \nTarkovskile avaldasid \u00f5piaastatel m\u00f5ju Luis Bu\u00f1uel ja Ingmar Bergman, hiljem Akira Kurosawa, Robert Bresson ja Federico Fellini.\nHiljem hindas k\u00f5rgelt Michelangelo Antonioni ja Sergei Paradzhanovi loomingut.\n\u00dcleliidulises Kinematograafia Instituudi leidis Tarkovski endale m\u00f5ttekaaslase \u2013 re\u017eii\u00fcli\u00f5pilase Andrei Mihhalkov-Kont\u0161alovski.\n1960 l\u00f5petas instituudi kiitusega. Diplomit\u00f6\u00f6na valmis lastefilm \"Teerull ja viiul\".\nM\u00e4rtsis 1982 s\u00f5itis Itaaliasse filmi \"Nostalgia\" v\u00f5tetele ja 1984 otsustas N\u00f5ukogude Liitu mitte enam tagasi p\u00f6\u00f6rduda. \nSuri 1986. aastal Pariisis kopsuv\u00e4hki.\n\nFilmid\n\"M\u00f5rtsukad\" (\"\u0423\u0431\u0438\u0439\u0446\u044b\") (1958) \u2013 NSVL.\n\"Teerull ja viiul\" (\"\u041a\u0430\u0442\u043e\u043a \u0438 \u0441\u043a\u0440\u0438\u043f\u043a\u0430\") (1961) \u2013 NSVL.\n\"Ivani lapsep\u00f5lv\" (\"\u0418\u0432\u0430\u043d\u043e\u0432\u043e \u0434\u0435\u0442\u0441\u0442\u0432\u043e\") (1962) \u2013 NSVL \u2013 peapreemia Kuldl\u00f5vi Venezia rahvusvahelisel filmifestivalil 1962.\n\"Andrei Rubljov\" (\"\u0410\u043d\u0434\u0440\u0435\u0439 \u0420\u0443\u0431\u043b\u0451\u0432\") (1966) \u2013 NSVL \u2013 stsenaristid Andrei Tarkovski ja Andrei Mihhalkov-Kont\u0161alovski. Lubati ekraanile alles 1971. Rahvusvahelise Filmikriitikute \u00dchingu \u017e\u00fcrii auhinna Cannes'i filmifestivalil.\n\"Solaris\" (\"\u0421\u043e\u043b\u044f\u0440\u0438\u0441\") (1972) \u2013 NSVL \u2013 Stanis\u0142aw Lemi romaani j\u00e4rgi. \n\"Peegel\" (\"\u0417\u0435\u0440\u043a\u0430\u043b\u043e\") (1975)- NSVL. \n\"Stalker\" (\"\u0421\u0442\u0430\u043b\u043a\u0435\u0440\") (1979) \u2013 NSVL \u2013 vendade Arkadi ja Boriss Strugatski jutustuse \"V\u00e4ljas\u00f5it rohelisse\" ainetel.\n\"Reisihetked\"\"(\"Tempo di viaggio\") (1982) \u2013 Itaalia, koost\u00f6\u00f6s Tonino Guerraga. Esimest korda n\u00e4idati Eestis 26. oktoobril 2008.\n\"Nostalgia\" (\"Nostalghia\") (1983) \u2013 Itaalia.\n\"Ohverdus\" (\"Offret\") (1986) \u2013 Rootsi.\nLavastas Moskva Leninliku Komsomoli nimelises teatris William Shakespeare'i trag\u00f6\u00f6dia \"Hamlet\" (1977) ja Londonis Covent Gardenis Modest Mussorgski ooperi \"Boriss Godunov\" (1984).\nTema sulest on ilmunud kaks raamatut: \"Pitseeritud aeg\" (Zapetshatljonnoje vremja, 1984), mis k\u00e4sitleb Tarkovski n\u00e4gemust filmikunstist ja kunstist \u00fcldse, ning \"Mart\u00fcroloogia\" (Mart\u00f5rolog, 1989), p\u00e4evik 1970\u201381.\nTarkovskist on tehtud hulk dokumentaalfilme, sealhulgas tema poja Andrei Tarkovski juuniori film \"Venemaa\" (1996).\n\nKirjandus\nTatjana Elmanovit\u0161, \"Ajapeegel. Andrei Tarkovski filmid\". Eesti Raamat, Tallinn 1980\n Aleksandr Sol\u017eenits\u00f5n, \"Film Rubljovist\". T\u00f5lkinud Arvo Pesti \u2013 TMK 1990, nr 12, lk 44\u201350\nJ\u00fcri Lina, \"Filmikunsti v\u00e4ljenduslikkusest. Filmikujundi struktuurist ja d\u00fcnaamikast\", peat\u00fckk \"V\u00e4ljapaistvaid lavastajaid\", Tarkovski fenomen, Stockholm, 1998.\n \"Kummardus Andrei Tarkovskile\". Koostanud ja t\u00f5lkinud Riina Schutting. P\u00fcha Issidori \u00d5igeusu Kirjastusselts, Tallinn 2001\n\nV\u00e4lislingid\nIMDb: Andrei Tarkovski\n Peter von Bagh, \"Peegel\" (TMK 2001/12)\n Sven Vabar, \"Suur Tarkovski ja v\u00e4ike Tarkovski\" (PM 4. 4. 2002)\n\n"
+}

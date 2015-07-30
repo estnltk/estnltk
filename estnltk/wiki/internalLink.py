@@ -27,34 +27,6 @@ def relatedArticles(sectionObject):
     return sectionObject
 
 
-#function from wikiextractor.py
-
-def linkParser(textInBrackets, start, end):
-    """
-
-    :param textInBrackets:
-    :return:
-    """
-
-    if '|' in textInBrackets:
-        textInBrackets = textInBrackets.split('|')
-        #print(len(textInBrackets))
-        text = textInBrackets[1]
-        title = textInBrackets[0]
-        url = urlBegin + textInBrackets[0]
-
-    else:
-
-        text = textInBrackets
-        title = textInBrackets
-        url = urlBegin+textInBrackets
-
-    start = start + 2
-    end = end - 2
-    return {'start':start, 'end':end, 'text':text, 'title':title,'url':url}
-
-    #if len(textInBrackets)>
-
 
 def findBalanced(text, openDelim, closeDelim):
     """

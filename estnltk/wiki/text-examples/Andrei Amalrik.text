@@ -1,0 +1,443 @@
+{
+    "data": {
+        "categories": [
+            "Venemaa ajaloolased", 
+            "Venemaa dissidendid", 
+            "S\u00fcndinud 1938", 
+            "Surnud 1980"
+        ], 
+        "other": [
+            "{{J\u00c4RJESTA:Amalrik, Andrei}}"
+        ], 
+        "timestamp": "2015-02-23T10:16:32Z", 
+        "title": "Andrei Amalrik", 
+        "url": "http://et.wikipedia.org/wiki/Andrei_Amalrik"
+    }, 
+    "internal_links": [
+        {
+            "end": 79, 
+            "label": "12. mai", 
+            "start": 72, 
+            "title": "12. mai", 
+            "url": "http://et.wikipedia.org/wiki/12._mai"
+        }, 
+        {
+            "end": 84, 
+            "label": "1938", 
+            "start": 80, 
+            "title": "1938", 
+            "url": "http://et.wikipedia.org/wiki/1938"
+        }, 
+        {
+            "end": 91, 
+            "label": "Moskva", 
+            "start": 85, 
+            "title": "Moskva", 
+            "url": "http://et.wikipedia.org/wiki/Moskva"
+        }, 
+        {
+            "end": 106, 
+            "label": "12. november", 
+            "start": 94, 
+            "title": "12. november", 
+            "url": "http://et.wikipedia.org/wiki/12._november"
+        }, 
+        {
+            "end": 111, 
+            "label": "1980", 
+            "start": 107, 
+            "title": "1980", 
+            "url": "http://et.wikipedia.org/wiki/1980"
+        }, 
+        {
+            "end": 121, 
+            "label": "Hispaania", 
+            "start": 112, 
+            "title": "Hispaania", 
+            "url": "http://et.wikipedia.org/wiki/Hispaania"
+        }, 
+        {
+            "end": 203, 
+            "label": "Moskvas", 
+            "start": 196, 
+            "title": "Moskva", 
+            "url": "http://et.wikipedia.org/wiki/Moskva"
+        }, 
+        {
+            "end": 253, 
+            "label": "1962", 
+            "start": 249, 
+            "title": "1962", 
+            "url": "http://et.wikipedia.org/wiki/1962"
+        }, 
+        {
+            "end": 290, 
+            "label": "Moskva Riikliku \u00dclikooli", 
+            "start": 266, 
+            "title": "Moskva Riiklik \u00dclikool", 
+            "url": "http://et.wikipedia.org/wiki/Moskva_Riiklik_\u00dclikool"
+        }, 
+        {
+            "end": 323, 
+            "label": "1963", 
+            "start": 319, 
+            "title": "1963", 
+            "url": "http://et.wikipedia.org/wiki/1963"
+        }, 
+        {
+            "end": 384, 
+            "label": "normannide teooriat", 
+            "start": 365, 
+            "title": "normannide teooria", 
+            "url": "http://et.wikipedia.org/wiki/normannide_teooria"
+        }, 
+        {
+            "end": 468, 
+            "label": "avangardkunstnike", 
+            "start": 451, 
+            "title": "avangardkunst", 
+            "url": "http://et.wikipedia.org/wiki/avangardkunst"
+        }, 
+        {
+            "end": 510, 
+            "label": "absurditeatri", 
+            "start": 497, 
+            "title": "absurditeater", 
+            "url": "http://et.wikipedia.org/wiki/absurditeater"
+        }, 
+        {
+            "end": 555, 
+            "label": "Moskvas", 
+            "start": 548, 
+            "title": "Moskva", 
+            "url": "http://et.wikipedia.org/wiki/Moskva"
+        }, 
+        {
+            "end": 643, 
+            "label": "1965", 
+            "start": 639, 
+            "title": "1965", 
+            "url": "http://et.wikipedia.org/wiki/1965"
+        }, 
+        {
+            "end": 699, 
+            "label": "asumisele", 
+            "start": 690, 
+            "title": "asumine", 
+            "url": "http://et.wikipedia.org/wiki/asumine"
+        }, 
+        {
+            "end": 769, 
+            "label": "Siberis", 
+            "start": 762, 
+            "title": "Siber", 
+            "url": "http://et.wikipedia.org/wiki/Siber"
+        }, 
+        {
+            "end": 782, 
+            "label": "1966", 
+            "start": 778, 
+            "title": "1966", 
+            "url": "http://et.wikipedia.org/wiki/1966"
+        }, 
+        {
+            "end": 818, 
+            "label": "Moskvasse", 
+            "start": 809, 
+            "title": "Moskva", 
+            "url": "http://et.wikipedia.org/wiki/Moskva"
+        }, 
+        {
+            "end": 858, 
+            "label": "Novosti", 
+            "start": 851, 
+            "title": "Novosti", 
+            "url": "http://et.wikipedia.org/wiki/Novosti"
+        }, 
+        {
+            "end": 946, 
+            "label": "1969", 
+            "start": 942, 
+            "title": "1969", 
+            "url": "http://et.wikipedia.org/wiki/1969"
+        }, 
+        {
+            "end": 1071, 
+            "label": "samizdati", 
+            "start": 1062, 
+            "title": "samizdat", 
+            "url": "http://et.wikipedia.org/wiki/samizdat"
+        }, 
+        {
+            "end": 1126, 
+            "label": "Pavel Litvinoviga", 
+            "start": 1109, 
+            "title": "Pavel Litvinov", 
+            "url": "http://et.wikipedia.org/wiki/Pavel_Litvinov"
+        }, 
+        {
+            "end": 1224, 
+            "label": "Aleksandr Ginzburgi", 
+            "start": 1205, 
+            "title": "Aleksandr Ginzburg", 
+            "url": "http://et.wikipedia.org/wiki/Aleksandr_Ginzburg"
+        }, 
+        {
+            "end": 1239, 
+            "label": "Juri Galanski", 
+            "start": 1226, 
+            "title": "Juri Galanski", 
+            "url": "http://et.wikipedia.org/wiki/Juri_Galanski"
+        }, 
+        {
+            "end": 1336, 
+            "label": "1968", 
+            "start": 1332, 
+            "title": "1968", 
+            "url": "http://et.wikipedia.org/wiki/1968"
+        }, 
+        {
+            "end": 1449, 
+            "label": "Andrei Sahharovi", 
+            "start": 1433, 
+            "title": "Andrei Sahharov", 
+            "url": "http://et.wikipedia.org/wiki/Andrei_Sahharov"
+        }, 
+        {
+            "end": 1643, 
+            "label": "1968", 
+            "start": 1639, 
+            "title": "1968", 
+            "url": "http://et.wikipedia.org/wiki/1968"
+        }, 
+        {
+            "end": 1975, 
+            "label": "nelja protsessiga", 
+            "start": 1958, 
+            "title": "nelja protsess", 
+            "url": "http://et.wikipedia.org/wiki/nelja_protsess"
+        }, 
+        {
+            "end": 2108, 
+            "label": "1969", 
+            "start": 2104, 
+            "title": "1969", 
+            "url": "http://et.wikipedia.org/wiki/1969"
+        }, 
+        {
+            "end": 2217, 
+            "label": "samizdati", 
+            "start": 2208, 
+            "title": "samizdat", 
+            "url": "http://et.wikipedia.org/wiki/samizdat"
+        }, 
+        {
+            "end": 2315, 
+            "label": "sovetoloogide", 
+            "start": 2302, 
+            "title": "sovetoloogia", 
+            "url": "http://et.wikipedia.org/wiki/sovetoloogia"
+        }, 
+        {
+            "end": 2424, 
+            "label": "samizdatis", 
+            "start": 2414, 
+            "title": "samizdat", 
+            "url": "http://et.wikipedia.org/wiki/samizdat"
+        }, 
+        {
+            "end": 2577, 
+            "label": "Anatoli Kuznetsovile", 
+            "start": 2557, 
+            "title": "Anatoli Kuznetsov (kirjanik)", 
+            "url": "http://et.wikipedia.org/wiki/Anatoli_Kuznetsov_(kirjanik)"
+        }, 
+        {
+            "end": 2591, 
+            "label": "1970", 
+            "start": 2587, 
+            "title": "1970", 
+            "url": "http://et.wikipedia.org/wiki/1970"
+        }, 
+        {
+            "end": 2656, 
+            "label": "21. mail", 
+            "start": 2648, 
+            "title": "21. mai", 
+            "url": "http://et.wikipedia.org/wiki/21._mai"
+        }, 
+        {
+            "end": 2694, 
+            "label": "tapiga", 
+            "start": 2688, 
+            "title": "vangitapp", 
+            "url": "http://et.wikipedia.org/wiki/vangitapp"
+        }, 
+        {
+            "end": 2709, 
+            "label": "Sverdlovskisse", 
+            "start": 2695, 
+            "title": "Jekaterinburg", 
+            "url": "http://et.wikipedia.org/wiki/Jekaterinburg"
+        }, 
+        {
+            "end": 2768, 
+            "label": "11. novembril", 
+            "start": 2755, 
+            "title": "11. november", 
+            "url": "http://et.wikipedia.org/wiki/11._november"
+        }, 
+        {
+            "end": 2784, 
+            "label": "12.novembril", 
+            "start": 2772, 
+            "title": "12. november", 
+            "url": "http://et.wikipedia.org/wiki/12._november"
+        }, 
+        {
+            "end": 2867, 
+            "label": "Sverdlovski", 
+            "start": 2856, 
+            "title": "Jekaterinburg", 
+            "url": "http://et.wikipedia.org/wiki/Jekaterinburg"
+        }, 
+        {
+            "end": 2888, 
+            "label": "Lev Ubo\u017ekot", 
+            "start": 2877, 
+            "title": "Lev Ubo\u017eko", 
+            "url": "http://et.wikipedia.org/wiki/Lev_Ubo\u017eko"
+        }, 
+        {
+            "end": 3550, 
+            "label": "Novosibirski", 
+            "start": 3538, 
+            "title": "Novosibirski oblast", 
+            "url": "http://et.wikipedia.org/wiki/Novosibirski_oblast"
+        }, 
+        {
+            "end": 3571, 
+            "label": "Magadani oblastis", 
+            "start": 3554, 
+            "title": "Magadani oblast", 
+            "url": "http://et.wikipedia.org/wiki/Magadani_oblast"
+        }, 
+        {
+            "end": 3594, 
+            "label": "21. mail", 
+            "start": 3586, 
+            "title": "21. mai", 
+            "url": "http://et.wikipedia.org/wiki/21._mai"
+        }, 
+        {
+            "end": 3599, 
+            "label": "1973", 
+            "start": 3595, 
+            "title": "1973", 
+            "url": "http://et.wikipedia.org/wiki/1973"
+        }, 
+        {
+            "end": 3763, 
+            "label": "n\u00e4ljastreiki", 
+            "start": 3751, 
+            "title": "n\u00e4ljastreik", 
+            "url": "http://et.wikipedia.org/wiki/n\u00e4ljastreik"
+        }, 
+        {
+            "end": 3836, 
+            "label": "Magadanist", 
+            "start": 3826, 
+            "title": "Magadan", 
+            "url": "http://et.wikipedia.org/wiki/Magadan"
+        }, 
+        {
+            "end": 3846, 
+            "label": "Moskvasse", 
+            "start": 3837, 
+            "title": "Moskva", 
+            "url": "http://et.wikipedia.org/wiki/Moskva"
+        }, 
+        {
+            "end": 3877, 
+            "label": "1976", 
+            "start": 3873, 
+            "title": "1976", 
+            "url": "http://et.wikipedia.org/wiki/1976"
+        }, 
+        {
+            "end": 3914, 
+            "label": "N\u00f5ukogude Liidust", 
+            "start": 3897, 
+            "title": "N\u00f5ukogude Liit", 
+            "url": "http://et.wikipedia.org/wiki/N\u00f5ukogude_Liit"
+        }, 
+        {
+            "end": 4119, 
+            "label": "1982", 
+            "start": 4115, 
+            "title": "1982", 
+            "url": "http://et.wikipedia.org/wiki/1982"
+        }, 
+        {
+            "end": 4174, 
+            "label": "1980", 
+            "start": 4170, 
+            "title": "1980", 
+            "url": "http://et.wikipedia.org/wiki/1980"
+        }, 
+        {
+            "end": 4185, 
+            "label": "Hispaanias", 
+            "start": 4175, 
+            "title": "Hispaania", 
+            "url": "http://et.wikipedia.org/wiki/Hispaania"
+        }, 
+        {
+            "end": 4197, 
+            "label": "Guadalajara", 
+            "start": 4186, 
+            "title": "Guadalajara (Hispaania)", 
+            "url": "http://et.wikipedia.org/wiki/Guadalajara_(Hispaania)"
+        }, 
+        {
+            "end": 4223, 
+            "label": "Pariisi", 
+            "start": 4216, 
+            "title": "Pariis", 
+            "url": "http://et.wikipedia.org/wiki/Pariis"
+        }, 
+        {
+            "end": 4270, 
+            "label": "Sainte-Genevi\u00e8ve-des-Bois' kalmistule", 
+            "start": 4233, 
+            "title": "Sainte-Genevi\u00e8ve-des-Bois' kalmistu", 
+            "url": "http://et.wikipedia.org/wiki/Sainte-Genevi\u00e8ve-des-Bois'_kalmistu"
+        }, 
+        {
+            "end": 4292, 
+            "label": "1990. aastast", 
+            "start": 4279, 
+            "title": "1990. aasta", 
+            "url": "http://et.wikipedia.org/wiki/1990._aasta"
+        }, 
+        {
+            "end": 4340, 
+            "label": "Venemaal", 
+            "start": 4332, 
+            "title": "Venemaa", 
+            "url": "http://et.wikipedia.org/wiki/Venemaa"
+        }
+    ], 
+    "sections": [
+        {
+            "end": 4353, 
+            "start": 0
+        }, 
+        {
+            "end": 4963, 
+            "start": 4355, 
+            "title": "Teosed"
+        }
+    ], 
+    "text": "Andrei Amalrik\nAndrei Aleksejevit\u0161 Amalrik (\u0410\u043d\u0434\u0440\u0435\u0439 \u0410\u043b\u0435\u043a\u0441\u0435\u0435\u0432\u0438\u0447 \u0410\u043c\u0430\u043b\u044c\u0440\u0438\u043a; 12. mai 1938 Moskva \u2013 12. november 1980 Hispaania) oli ajaloolane, publitsist, dramaturg ja dissident.\nS\u00fcndis 12. mail 1938 Moskvas tuntud ajaloolase ja arheoloogi perekonnas. \n1962 asus \u00f5ppima Moskva Riikliku \u00dclikooli ajalooteaduskonnas. Heideti 1963 sealt v\u00e4lja kursuset\u00f6\u00f6 eest, mis kaitses normannide teooriat, mida N\u00f5ukogude ajalooteadus ei tunnustanud. \nAmalrik sai tuntuks avangardkunstnike kollektsion\u00e4\u00e4rina. Kirjutas absurditeatri laadis n\u00e4idendeid. Ta s\u00f5lmis tutvusi Moskvas t\u00f6\u00f6tavate v\u00e4lismaa ajakirjanike ja diplomaatidega. \nSelle eest arreteeriti ta mais 1965 ning m\u00f5isteti kaheks aastaks ja kuueks kuusks asumisele (ametlikult s\u00fc\u00fcdistati teda mittet\u00f6\u00f6tamises). Viibis asumisel Siberis. Juunis 1966 ta vabastati ning ta l\u00e4ks Moskvasse tagasi. T\u00f6\u00f6tas Pressiagentuuri \"Novosti\" mittekoosseisulise t\u00f6\u00f6tajana. \nAmalrik oli \u00f5iguskaitsjate esimene alaline ja 1966-1969 peaaegu ainuke sidepidaja L\u00e4\u00e4nega (ajakirjanikega). Tema kaudu liikusid nii kohtuprotsesside \u00fcleskirjutused kui ka samizdati ilukirjandus ja publitsistika. \nKoos Pavel Litvinoviga t\u00f6\u00f6tas ta kogumiku \"\u041f\u0440\u043e\u0446\u0435\u0441\u0441 \u0447\u0435\u0442\u044b\u0440\u0435\u0445\" (\"Nelja protsess\") kallal, kus oli juttu Aleksandr Ginzburgi, Juri Galanski jt protsessist. P\u00e4rast Litvinovi arreteerimist viis ta kogumiku l\u00f5pule ning andis oktoobris 1968 selle v\u00e4lismaa korrespondentidele \u00fcle.\nAmalrik oli ka nende seas, kes aitasid L\u00e4\u00e4nde edasi anda Andrei Sahharovi k\u00e4sikirja \"M\u00f5tisklused progressist, rahulikust kooseksisteerimisest ja intellektuaalsest vabadusest\". \n1968. aasta l\u00f5pus Amalrik vallandati ning ta asus t\u00f6\u00f6le postiljonina.\nAprillis\u2013juunis 1968 kirjutas Amalrik v\u00e4ikese traktaadi \"\u041f\u0440\u043e\u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u0435\u0442 \u043b\u0438 \u0421\u043e\u0432\u0435\u0442\u0441\u043a\u0438\u0439 \u0421\u043e\u044e\u0437 \u0434\u043e 1984 \u0433\u043e\u0434\u0430?\" (\"Kas N\u00f5ukogude Liit p\u00fcsib 1984. aastani?\"). Ta oli skeptiline N\u00f5ukogude Liidu stabiilsuse suhtes, kuid suhtus ka oletatavasse N\u00f5ukogude-j\u00e4rgsesse tulevikku v\u00e4ga pessimistlikult. Oma arutluste kinnituseks anal\u00fc\u00fcsis ta 1968 seoses \"nelja protsessiga\" vallandunud protestikampaanias osalejate arvu, sotsiaalset koosseisu ja vaadete skaalat. \nSee kirjutis, mis avaldati v\u00e4lismaal 1969. aasta l\u00f5pus ning t\u00f5lgiti paljudesse keeltesse, tegi Amalriki maailmakuulsaks. Ta erines tolle aja samizdati publitsistikast anal\u00fc\u00fctilise, r\u00f5hutatult akadeemilise stiili poolest, mis j\u00e4ljendas sovetoloogide esituslaadi. T\u00f6\u00f6 kutsus esile hulga vastukajasid v\u00e4lismaa ajakirjanduses ning tormilise poleemika samizdatis. \nV\u00e4lismaal ja samizdatis \u00e4ratasid t\u00e4helepanu ka teised tema kirjutised, n\u00e4iteks \"\u041e\u0442\u043a\u0440\u044b\u0442\u043e\u0435 \u043f\u0438\u0441\u044c\u043c\u043e \u0410\u043d\u0430\u0442\u043e\u043b\u0438\u044e \u041a\u0443\u0437\u043d\u0435\u0446\u043e\u0432\u0443\" (\"Avalik kiri Anatoli Kuznetsovile\"). \n1968\u20131970 peeti Amalrikki mitu korda kinni ja tehti l\u00e4biotsimisi. 21. mail 1970 ta arreteeriti ning viidi tapiga Sverdlovskisse, kus toimus uurimine ja kohus. Kohtuistungil 11. novembril ja 12.novembril 1970 pandi talle s\u00fc\u00fcks tema teoseid ja intervjuusid. Teist kohtualust, Sverdlovski inseneri Lev Ubo\u017ekot s\u00fc\u00fcdistati Amalriki t\u00f6\u00f6de levitamises. \nAmalrik ei tunnistanud end s\u00fc\u00fcdi ja keeldus kohtulikul arutelul osalemast. Oma viimases s\u00f5nas lausus ta: \"...Ei re\u017eiimi poolt peetav \"n\u00f5iajaht\" ega selle konkreetne n\u00e4ide \u2013 praegune kohtupidamine \u2013 ei tekita minus v\u00e4himatki austust ega isegi mitte hirmu. Ma saan muide aru, et selletaolised kohtupidamised on m\u00f5eldud paljude hirmutamiseks, ja paljud kohkuvadki \u00e4ra \u2013 ja ometi ma arvan, et alanud ideelise vabanemise protsess on p\u00f6\u00f6rdumatu!\" \nKohus m\u00f5istis ta kolmeks aastaks laagrisse \"n\u00f5ukogude korda laimavate v\u00e4ljam\u00f5eldiste levitamise\" eest (Vene NFSV Kriminaalkodeksi \u00a7 190, l\u00f5ige 1). Karistuse kandis ta Novosibirski ja Magadani oblastis. Kui karistus 21. mail 1973 l\u00f5ppes, algatati Amalriki vastu uus kriminaalasi sama paragrahvi alusel ning juulis 1973 m\u00f5isteti ta veel kolmeks aastaks laagrisse. P\u00e4rast neljakuist n\u00e4ljastreiki asendati see karistus kolme aastaga asumisel. \nAmalrik j\u00f5udis Magadanist Moskvasse tagasi mais 1973. \nJuulis 1976 emigreerus Amalrik N\u00f5ukogude Liidust. Emigratsioonis tegeles ta \u00fchiskondlik-poliitilise tegevusega ning avaldas palju. Muuhulgas kirjutas ta teise m\u00e4lestusteraamatu \"\u0417\u0430\u043f\u0438\u0441\u043a\u0438 \u0434\u0438\u0441\u0441\u0438\u0434\u0435\u043d\u0442\u0430\" (\"Dissidendi m\u00e4rkmed\"), mis anti v\u00e4lja postuumselt 1982. \nAndrei Amalrik hukkus autoavariis 12. novembril 1980 Hispaanias Guadalajara l\u00e4hedal. Ta maeti Pariisi l\u00e4hedale Sainte-Genevi\u00e8ve-des-Bois' kalmistule.\nAlates 1990. aastast hakati Amalriki raamatuid ja artikleid Venemaal v\u00e4lja andma.\n\nTeosed\n\"\u041d\u0435\u0436\u0435\u043b\u0430\u043d\u043d\u043e\u0435 \u043f\u0443\u0442\u0435\u0448\u0435\u0441\u0442\u0432\u0438\u0435 \u0432 \u0421\u0438\u0431\u0438\u0440\u044c\" (\"Soovimatu reis Siberisse\"; m\u00e4lestused esimesest asumiseperioodist Siberis)\n\"\u041f\u0440\u043e\u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u0435\u0442 \u043b\u0438 \u0421\u043e\u0432\u0435\u0442\u0441\u043a\u0438\u0439 \u0421\u043e\u044e\u0437 \u0434\u043e 1984 \u0433\u043e\u0434\u0430?\" (\"Kas N\u00f5ukogude Liit p\u00fcsib 1984. aastani?\")\n\"\u0417\u0430\u043f\u0430\u0434\u043d\u044b\u0435 (v\u00f5i: \u0418\u043d\u043e\u0441\u0442\u0440\u0430\u043d\u043d\u044b\u0435) \u043a\u043e\u0440\u0440\u0435\u0441\u043f\u043e\u043d\u0434\u0435\u043d\u0442\u044b \u0432 \u041c\u043e\u0441\u043a\u0432\u0435\" (\"L\u00e4\u00e4ne (v\u00f5i: \"V\u00e4lismaa\") korrespondendid Moskvas\"; artikkel; 1970; uuris L\u00e4\u00e4ne korrespondentide \u00f5iguslikku seisundit ning nende normaalset t\u00f6\u00f6d segavaid asjaolusid)\n\"\u041e\u0442\u043a\u0440\u044b\u0442\u043e\u0435 \u043f\u0438\u0441\u044c\u043c\u043e \u0410\u043d\u0430\u0442\u043e\u043b\u0438\u044e \u041a\u0443\u0437\u043d\u0435\u0446\u043e\u0432\u0443\" (\"Avalik kiri Anatoli Kuznetsovile\")\n\"\u0417\u0430\u043f\u0438\u0441\u043a\u0438 \u0434\u0438\u0441\u0441\u0438\u0434\u0435\u043d\u0442\u0430\" (\"Dissidendi m\u00e4rkmed\"; 1982; m\u00e4lestused tegevusest dissidendina; ilmus postuumselt)\n\n"
+}

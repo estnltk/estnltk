@@ -1,0 +1,75 @@
+{
+    "data": {
+        "categories": [
+            "L\u00f5una-Korea linnad"
+        ], 
+        "other": [
+            "{{Coordinate |NS=36.56666667 |EW=128.71666667 |type=city |region=KR-47}}"
+        ], 
+        "timestamp": "2014-10-18T23:00:42Z", 
+        "title": "Andong", 
+        "url": "http://et.wikipedia.org/wiki/Andong"
+    }, 
+    "external_links": [
+        {
+            "end": 139, 
+            "label": "Andongi linna koduleht", 
+            "start": 117, 
+            "url": "http://www.andong.go.kr/eng/index.asp"
+        }
+    ], 
+    "internal_links": [
+        {
+            "end": 34, 
+            "label": "L\u00f5una-Koreas", 
+            "start": 22, 
+            "title": "L\u00f5una-Korea", 
+            "url": "http://et.wikipedia.org/wiki/L\u00f5una-Korea"
+        }, 
+        {
+            "end": 48, 
+            "label": "Linna\u00f5igused", 
+            "start": 36, 
+            "title": "Linna\u00f5igus", 
+            "url": "http://et.wikipedia.org/wiki/Linna\u00f5igus"
+        }, 
+        {
+            "end": 65, 
+            "label": "1. jaanuaril", 
+            "start": 53, 
+            "title": "1. jaanuar", 
+            "url": "http://et.wikipedia.org/wiki/1._jaanuar"
+        }, 
+        {
+            "end": 70, 
+            "label": "1963", 
+            "start": 66, 
+            "title": "1963", 
+            "url": "http://et.wikipedia.org/wiki/1963"
+        }, 
+        {
+            "end": 105, 
+            "label": "Andongi Riiklik \u00fclikool", 
+            "start": 82, 
+            "title": "Andongi Riiklik \u00fclikool", 
+            "url": "http://et.wikipedia.org/wiki/Andongi_Riiklik_\u00fclikool"
+        }
+    ], 
+    "sections": [
+        {
+            "end": 71, 
+            "start": 0
+        }, 
+        {
+            "end": 105, 
+            "start": 73, 
+            "title": "Vaata ka"
+        }, 
+        {
+            "end": 139, 
+            "start": 107, 
+            "title": "V\u00e4lislink"
+        }
+    ], 
+    "text": "Andong\nAndong on linn L\u00f5una-Koreas. Linna\u00f5igused sai 1. jaanuaril 1963.\n\nVaata ka\nAndongi Riiklik \u00fclikool\n\nV\u00e4lislink\nAndongi linna koduleht\n\n"
+}

@@ -18,3 +18,16 @@ Again, the program is intended to be run from command line::
     optional arguments:
       -h, --help     show this help message and exit
       -v, --verbose  Print written article titles and count.
+
+
+
+From code you can do::
+    from estnltk.wiki.json_2_text import json_2_text
+
+    in = #input directory w parsed wikipedia .json files
+    out = #output directory of Text objects with somewhat restructured layers
+
+    json_2_text(in, out)
+
+Structure
+-------------------
