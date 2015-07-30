@@ -6,7 +6,6 @@ import re
 from .externalLink import addExternalLinks, ExtLinkBracketedRegex
 from .internalLink import findBalanced, addIntLinks
 
-referencesRegEx = re.compile(r'&lt;ref(.+?)(/&gt|/ref&gt);', re.DOTALL|re.IGNORECASE)
 referencesRegEx = re.compile(r'<ref>?(.+?)<?(/>|/ref>)', re.DOTALL|re.IGNORECASE)
 
 referencesEndRegEx = re.compile(r'&lt;/ref&gt;', re.IGNORECASE)
@@ -25,6 +24,10 @@ def refsParser(refsDict):
         #internal links
         if intlinks:
             value = addIntLinks(value)
+
+        #handle unbracketed links
+        if value['text'].startswith('http'):
+            value['link'] = value['text']
 
         refsDict[key]=value
 
@@ -136,31 +139,7 @@ def referencesFinder(text):
     #positiontag:ref
     newDict  = {y:x for x,y in refspos.items()}
 
-
-
-
     return newText, newDict
 
-
-
 if __name__ == '__main__':
-    with open("armeenia.txt", encoding='utf-8') as f:
-        data = f.read()
-
-    newText, newDict = referencesFinder(data)
-    for i in newDict:
-        print(i)
-"""
-    referencesRegEx = re.compile(r'&lt;ref(.+?)(/&gt|/ref&gt);', re.DOTALL|re.IGNORECASE)
-    references = referencesRegEx.finditer(data)
-    refend = referencesEndRegEx.finditer(data)
-    count = 0
-    ends = []
-    for i in references:
-       # print(i.end())
-       print(i.group())
-       print('--------------------------')
-       count += 1
-    print('sss', referencesParser(data))
-    print(count)
-"""
+    pass

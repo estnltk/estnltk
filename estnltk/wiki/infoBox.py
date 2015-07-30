@@ -3,10 +3,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 __author__ = 'Andres'
 
-
-
 import re
-import json
 from pprint import pprint
 from .wikiextra import balancedSlicer as bSB
 

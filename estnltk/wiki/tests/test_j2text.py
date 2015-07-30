@@ -11,18 +11,19 @@ import os
 
 #Tests the files in .json-examples
 
+def yield_json():
+    for root, dirs, filenames in os.walk('G:\Jsonf'):
+        for f in filenames:
+            log = open(os.path.join(root, f), 'r')
+            j_obj = json.load(log)
+            j_obj = json_format(j_obj)
+            yield j_obj
+            log.close()
+
 class testj2Text(unittest.TestCase):
 
-    def yield_json(self):
-        for root, dirs, filenames in os.walk('.\json-examples'):
-            for f in filenames:
-                log = open(os.path.join(root, f), 'r')
-                j_obj = json.load(log)
-                j_obj = json_format(j_obj)
-                yield j_obj
-
     def test_links(self):
-        for j_obj in self.yield_json():
+        for j_obj in yield_json():
             el = 'external_links'
             il = 'internal_links'
 
@@ -37,12 +38,14 @@ class testj2Text(unittest.TestCase):
                 for ilink in j_obj[il]:
                     start = ilink['start']
                     end = ilink['end']
-                    self.assertEqual(j_obj['text'][start:end], ilink['label'])
-
+                    try:
+                        self.assertEqual(j_obj['text'][start:end], ilink['label'])
+                    except:
+                        print(j_obj)
 
 
     def test_sections(self):
-        for j_obj in self.yield_json():
+        for j_obj in yield_json():
             if 'sections' in j_obj.keys():
                 for sec in j_obj['sections']:
                     start = sec['start']
@@ -54,8 +57,9 @@ class testj2Text(unittest.TestCase):
 
 
     def test_textobj_init(self):
-        for j_obj in self.yield_json():
+        for j_obj in yield_json():
             self.assertIsInstance(j_obj, Text)
 
 
-
+if __name__ == '__main__':
+    unittest.main()

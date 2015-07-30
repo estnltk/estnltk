@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
-__author__ = 'Andres'
-
+__author__ = 'Andres andresmt [at] ut [dot] ee'
 
 import re
 
-categoryRegEx = re.compile(r'\[\[Kategooria:(.+?)\]\]')
+categoryRegEx = re.compile(r'\[\[Kategooria:(.+?)\]\]', re.I)
+
 def categoryParser(text):
     kat = []
     #[[K:Antsla|Antsla, Antsla|

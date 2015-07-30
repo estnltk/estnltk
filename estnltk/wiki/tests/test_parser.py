@@ -3,52 +3,71 @@ __author__ = 'Andres'
 import os
 import json
 import sys
+import unittest
 
-def jsonReader_TextImportTest(dir):
-    indir = dir
+def flatten(l, new=[]):
+    """Flatten the nested list of sections"""
+    for i in l:
+        new.append(i)
+        if 'sections' in i.keys():
+            flatten(i['sections'], new)
+            i.pop('sections', None)
+    return new
+
+def jsonReader():
+    indir = 'G:\Jsonf'
+
     for root, dirs, filenames in os.walk(indir):
         for f in filenames:
             log = open(os.path.join(root, f), 'r')
             #print(f)
             jObj = json.load(log)
-            #print(jObj['sections'][0]['text'])
-            print(jObj['title'])
-            print('---------------')
+            yield jObj
+            log.close()
 
-            printer(jObj['sections'])
-            """sections = (jObj['sections'])
-            for i in range(len(sections)):
+class testParser(unittest.TestCase):
 
-                    tObj = Text(jObj['sections'][i]['text'])"""
+    def test_internal_links(self):
 
-def jsonReader_internalLinksTest(dir):
-    indir = dir
-    for root, dirs, filenames in os.walk(indir):
-        for f in filenames:
-            log = open(os.path.join(root, f), 'r')
-            #print(f)
-            jObj = json.load(log)
-            #print(jObj['sections'][0]['text'])
-            sections = (jObj['sections'])
-            for i in range(len(sections)):
-                try:
-                    lObj = (jObj['sections'][i]['internal_links'])
-                    tObj = (jObj['sections'][i]['text'])
-                    for link in lObj:
-                        end = int(link['end'])
-                        start = int(link['start'])
-                        tlabel = tObj[start:end]
-                        llabel = link['label']
-                        #print(tlabel, llabel)
-                        try:
-                            assert tlabel == llabel
-                        except AssertionError:
-                            print(tlabel, llabel, file=sys.stderr)
-                except KeyError:
-                    #print(f, sections[i])
-                    #print(KeyError)
-                    pass
-            #print(tObj.named_entities)
+            for jObj in jsonReader():
+                new = []
+                sections = (jObj['sections'])
+                sections = flatten(sections, new)
+                for sec in sections:
+                    try:
+                        lObj = (sec['internal_links'])
+                        tObj = (sec['text'])
+                        for link in lObj:
+                            end = int(link['end'])
+                            start = int(link['start'])
+                            tlabel = tObj[start:end]
+                            llabel = link['label']
+
+                            self.assertEqual(tlabel, llabel)
+                    except KeyError:
+                        pass
+
+    def test_external_links(self):
+
+            for jObj in jsonReader():
+                new = []
+                sections = (jObj['sections'])
+                sections = flatten(sections, new)
+                for sec in sections:
+                    try:
+                        lObj = (sec['external_links'])
+                        tObj = (sec['text'])
+                        for link in lObj:
+                            end = int(link['end'])
+                            start = int(link['start'])
+                            tlabel = tObj[start:end]
+                            llabel = link['label']
+
+                            self.assertEqual(tlabel, llabel)
+                    except KeyError:
+                        pass
+
+
 
 
 def printer(flist):
@@ -67,3 +86,6 @@ def myprint(list):
       myprint(i['sections'])
     if i['text']:
       print(i['text'])
+
+if __name__ == '__main__':
+    unittest.main()

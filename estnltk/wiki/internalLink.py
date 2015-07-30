@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
-
-
 __author__ = 'Andres'
 import re
-from .images import imageRegEx
-from .images import imageParser
-from .externalLink import addExternalLinks
-from pprint import pprint
 
 urlBegin = "http://et.wikipedia.org/wiki/"
 wgUrlProtocols = [
@@ -32,52 +26,6 @@ def relatedArticles(sectionObject):
         sectionObject['text'] = text
     return sectionObject
 
-def bracketsParser(sectionObject):
-    """
-    call it after the images have been parsed
-    :param sectionObject:
-    :return: a list of link objects
-    links = [
-        { ... etünonüüm ... },
-        {
-              start: 32.
-              end: 41
-              text: "Pytheasel" # lilngi tekst ( text[start:end] )
-              title: "Pytheas" # lingi pealkiri
-              url: "http://et.wikipedia.org/wiki/Pytheas" # lingi wikipedia URL
-        }, ....
-    ]
-     #linkRegEx = re.compile(r'\[\[\(A-Za-z0-9äöüõÄÖÕÜ\| \]\]')
-
-    """
-    text = sectionObject['text']
-    spans = findBalanced(text, '[[', ']]')
-    obj = {}
-    links = []
-    images = []
-    for start, end in spans:
-        balanced = text[start:end]
-        print(balanced)
-
-
-
-        if re.match(imageRegEx, balanced):
-            obj = imageParser(balanced)
-            images.append(obj)
-
-        else:
-            obj = linkParser(balanced, start, end)
-            links.append(obj)
-
-
-    if images:
-        sectionObject['images'] = images
-    if links:
-        sectionObject['links'] = links
-
-
-
-    return sectionObject
 
 #function from wikiextractor.py
 
@@ -171,13 +119,13 @@ def addIntLinks(sectionObj):
             linktext = t[start:end].replace('[', '').strip('{}:;-., ')
             if '|' in linktext:
                 linktext = linktext.split('|')
-                label = linktext[1].replace(']', '')
+                label = linktext[1].replace(']', '').replace('[', '')
                 title = linktext[0]
                 url = urlBegin + title
 
             else:
 
-                label = linktext.replace(']', '')
+                label = linktext.replace(']', '').replace('[', '')
 
                 title = linktext[:linktext.index(']')]
 
@@ -201,3 +149,5 @@ def addIntLinks(sectionObj):
 
     return sectionObj
 
+if __name__ == '__main__':
+    pass

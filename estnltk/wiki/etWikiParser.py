@@ -3,12 +3,13 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 __author__ = 'Andres'
 
-from ..core import as_unicode
+from .core import as_unicode
 import re
 from xml.etree.ElementTree import iterparse
 import argparse
 from bz2 import BZ2File
 import time
+from copy import copy
 from .infoBox import infoBoxParser
 from .sections import sectionsParser
 from .references import referencesFinder,refsParser
@@ -66,7 +67,7 @@ def templatesCollector(text, open, close):
     """leaves related articles and wikitables in place"""
     others = []
     spans = [i for i in findBalanced(text, open, close)]
-    spanscopy = spans.copy()
+    spanscopy = copy(spans)
     for i in range(len(spans)):
         start, end = spans[i]
 
@@ -99,14 +100,10 @@ def etWikiParser(data, outputdir, verbose = False):
 
         #Drop wikipedia internal pages.
 
-            for page in dropPages:
-                if page in text:
-                    if verbose:
-                        dropcount += 1
-                        print('Dropped Page count', dropcount, text.strip())
-                    continue
+
 
             pageObj['title'] = text
+
             pageObj['url'] = linkBegin+text.replace(' ', '_')
 
             if verbose:
@@ -119,12 +116,23 @@ def etWikiParser(data, outputdir, verbose = False):
     #Drop redirects
 
         if 'text' in tag:
-            if '#REDIRECT' in text or '#suuna' in text:
-                if verbose:
-                    dropcount += 1
-                    print('Dropped Page count:', dropcount, text.strip())
-                continue
 
+            for page in dropPages:
+                if page in pageObj['title']:
+                    if verbose:
+                        dropcount += 1
+                        print('Dropped Page count', dropcount, text.strip())
+                    continue
+
+            try:
+                if '#REDIRECT' in text or '#suuna' in text:
+                    if verbose:
+                        dropcount += 1
+                        print('Dropped Page count:', dropcount, text.strip())
+                    continue
+            except TypeError:
+                print(pageObj)
+                continue
             compStart = time.time()
 
     #Finds and marks nicely all the references in the article, returns a tag:reference dictionary
@@ -205,15 +213,6 @@ def main():
     else:
         print("WRONG FILE FORMAT! \nTry etwiki-latest-pages-articles.xml.bz2 from https://dumps.wikimedia.org/etwiki/latest/")
 
-"""
-Go through dictionary
-def myprint(d):
-  for k, v in d.iteritems():
-    if isinstance(v, dict):
-      myprint(v)
-    else:
-      print "{0} : {1}".format(k, v)
-"""
 
 if __name__ == '__main__':
     main()
