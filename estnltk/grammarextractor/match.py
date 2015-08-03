@@ -1,6 +1,26 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
+
 from .common import htmlescape
+from copy import copy
+
+
+def encapsulate_match(parent_name, match):
+    """Encapsulate a match in a parent with same start, end positions and content.
+
+    Parameters
+    ----------
+    parent_name: str
+        The name for tha parent match.
+    match: Match
+        The match that will be encapsulated and becomes the submatch of the new parent.
+
+    Returns
+    -------
+    Match
+        Original match encapsulated in parent.
+    """
+    return Match(parent_name, match.start, match.chain_end, match.chain_content, match)
 
 
 class Match(object):
@@ -10,7 +30,7 @@ class Match(object):
     Attributes
     ----------
     name: str
-        The name of the matched element.
+        The name of the matched symbol.
     start: int
         The starting position of the match of this element.
     end: int
@@ -21,11 +41,14 @@ class Match(object):
         The matched string.
     sub_match: Match
         First submatch within this match. Usually the first matched child in the production.
+        Submatch is contained within the boundaries if this match.
     next_match: Match
         Match following this match and is out of this match.
     """
 
     def __init__(self, name, start, end, content, sub_match=None, next_match=None):
+        assert start <= end
+        assert len(content) == end-start
         self.name = name
         self.start = start
         self.end = end
@@ -35,20 +58,19 @@ class Match(object):
         self.sub_match = sub_match
         self.next_match = next_match
 
-    @staticmethod
-    def encapsulate(name, match):
-        """Encapsulate a submatch."""
-        return Match(name, match.start, match.chain_end, match.chain_content, match)
-
     def link(self, match):
         """Link this match with a next match.
         Note that this method assumes that the chain_end attribute of the linked
         match is already updated correctly.
         """
-        self.next_match = match
-        self.chain_end = match.chain_end
-        self.chain_content += match.chain_content
-        return self
+        result = copy(self)
+        result.next_match = match
+        result.chain_end = match.chain_end
+        result.chain_content += match.chain_content
+        return result
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
 
     def to_list(self):
         sub_match = None
