@@ -92,14 +92,36 @@ def json_format(j_obj):
 
 
 def json_2_text(inp, out, verbose = False):
-    for root, dirs, filenames in os.walk(inp):
+    """Convert a Wikipedia article to Text object.
+    Concatenates the sections in wikipedia file and rearranges other information so it
+    can be interpreted as a Text object.
+
+    Links and other elements with start and end positions are annotated
+    as layers.
+
+    Parameters
+    ----------
+    inp: directory of parsed et.wikipedia articles in json format
+
+    out: output directory of .txt files
+
+    verbose: if True, prints every article title and total count of converted files
+             if False prints every 50th count
+    Returns
+    -------
+    estnltk.text.Text
+        The Text object.
+    """
+
+    for root, dirs, filenames in os.walk(ur''+inp):
         for f in filenames:
-            log = open(os.path.join(root, f), 'r')
+            log = codecs.open(os.path.join(root, f), 'r')
             j_obj = json.load(log)
             j_obj = json_format(j_obj)
 
-            text = Text(j_obj)
-            #pprint(text.analysis)
+            #not needed, cause the json_format takes care of the right structuring
+            #text = Text(j_obj)
+
             textWriter(j_obj, out, verbose)
 
 def textWriter(jsonObj, dir, verbose):
@@ -108,7 +130,7 @@ def textWriter(jsonObj, dir, verbose):
     if not os.path.exists(dir):
         os.makedirs(dir)
 
-    with codecs.open(dir+re.sub(fileCleanerRegEx,'',jsonObj['data']['title']+".text"), 'w', encoding='utf-8') as outfile:
+    with codecs.open(dir+re.sub(fileCleanerRegEx,'',jsonObj['data']['title']+".txt"), 'w', encoding='utf-8') as outfile:
         json.dump(jsonObj, outfile, sort_keys = True, indent = 4)
 
     count += 1

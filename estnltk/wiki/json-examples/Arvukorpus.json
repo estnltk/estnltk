@@ -1,0 +1,57 @@
+{
+    "categories": [
+        "Matemaatika"
+    ], 
+    "sections": [
+        {
+            "internal_links": [
+                {
+                    "end": 36, 
+                    "label": "kompleksarvude korpuse", 
+                    "start": 14, 
+                    "title": "kompleksarvude korpus", 
+                    "url": "http://et.wikipedia.org/wiki/kompleksarvude_korpus"
+                }, 
+                {
+                    "end": 59, 
+                    "label": "alamkorpus", 
+                    "start": 49, 
+                    "title": "alamkorpus", 
+                    "url": "http://et.wikipedia.org/wiki/alamkorpus"
+                }, 
+                {
+                    "end": 111, 
+                    "label": "ratsionaalarvude korpus", 
+                    "start": 88, 
+                    "title": "ratsionaalarvude korpus", 
+                    "url": "http://et.wikipedia.org/wiki/ratsionaalarvude_korpus"
+                }, 
+                {
+                    "end": 148, 
+                    "label": "reaalarvude korpus", 
+                    "start": 130, 
+                    "title": "reaalarvude korpus", 
+                    "url": "http://et.wikipedia.org/wiki/reaalarvude_korpus"
+                }, 
+                {
+                    "end": 177, 
+                    "label": "algebralised arvukorpused", 
+                    "start": 152, 
+                    "title": "algebraline arvukorpus", 
+                    "url": "http://et.wikipedia.org/wiki/algebraline_arvukorpus"
+                }, 
+                {
+                    "end": 217, 
+                    "label": "transtsendentsed arvukorpused", 
+                    "start": 188, 
+                    "title": "transtsendentne arvukorpus", 
+                    "url": "http://et.wikipedia.org/wiki/transtsendentne_arvukorpus"
+                }
+            ], 
+            "text": "Arvukorpus on kompleksarvude korpuse C mis tahes alamkorpus. Arvukorpused on n\u00e4iteks C, ratsionaalarvude korpus Q (k\u00f5ige kitsam), reaalarvude korpus R, algebralised arvukorpused Q(\"\u00b5\") ja transtsendentsed arvukorpused, nagu n\u00e4iteks Q(\"&pi;\")."
+        }
+    ], 
+    "timestamp": "2010-02-06T15:17:49Z", 
+    "title": "Arvukorpus", 
+    "url": "http://et.wikipedia.org/wiki/Arvukorpus"
+}
