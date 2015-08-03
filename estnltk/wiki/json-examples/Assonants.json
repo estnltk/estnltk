@@ -1,0 +1,106 @@
+{
+    "categories": [
+        "Folkloristika", 
+        "Foneetika"
+    ], 
+    "sections": [
+        {
+            "internal_links": [
+                {
+                    "end": 26, 
+                    "label": "keeleteaduses", 
+                    "start": 13, 
+                    "title": "keeleteadus", 
+                    "url": "http://et.wikipedia.org/wiki/keeleteadus"
+                }, 
+                {
+                    "end": 31, 
+                    "label": "s\u00f5na", 
+                    "start": 27, 
+                    "title": "s\u00f5na", 
+                    "url": "http://et.wikipedia.org/wiki/s\u00f5na"
+                }, 
+                {
+                    "end": 45, 
+                    "label": "silbi", 
+                    "start": 40, 
+                    "title": "silp", 
+                    "url": "http://et.wikipedia.org/wiki/silp"
+                }, 
+                {
+                    "end": 57, 
+                    "label": "t\u00e4ish\u00e4\u00e4liku", 
+                    "start": 46, 
+                    "title": "t\u00e4ish\u00e4\u00e4lik", 
+                    "url": "http://et.wikipedia.org/wiki/t\u00e4ish\u00e4\u00e4lik"
+                }, 
+                {
+                    "end": 80, 
+                    "label": "v\u00e4rsis", 
+                    "start": 74, 
+                    "title": "v\u00e4rss", 
+                    "url": "http://et.wikipedia.org/wiki/v\u00e4rss"
+                }, 
+                {
+                    "end": 91, 
+                    "label": "lauses", 
+                    "start": 85, 
+                    "title": "lause", 
+                    "url": "http://et.wikipedia.org/wiki/lause"
+                }, 
+                {
+                    "end": 163, 
+                    "label": "regiv\u00e4rsi", 
+                    "start": 154, 
+                    "title": "regiv\u00e4rss", 
+                    "url": "http://et.wikipedia.org/wiki/regiv\u00e4rss"
+                }, 
+                {
+                    "end": 204, 
+                    "label": "vanas\u00f5nades", 
+                    "start": 193, 
+                    "title": "vanas\u00f5na", 
+                    "url": "http://et.wikipedia.org/wiki/vanas\u00f5na"
+                }, 
+                {
+                    "end": 219, 
+                    "label": "k\u00f5nek\u00e4\u00e4ndudes", 
+                    "start": 206, 
+                    "title": "k\u00f5nek\u00e4\u00e4nd", 
+                    "url": "http://et.wikipedia.org/wiki/k\u00f5nek\u00e4\u00e4nd"
+                }, 
+                {
+                    "end": 253, 
+                    "label": "alliteratsiooniga", 
+                    "start": 236, 
+                    "title": "alliteratsioon", 
+                    "url": "http://et.wikipedia.org/wiki/alliteratsioon"
+                }
+            ], 
+            "text": "Assonants on keeleteaduses s\u00f5na esimese silbi t\u00e4ish\u00e4\u00e4liku kordumine samas v\u00e4rsis v\u00f5i lauses, nt: \"Ostsin Otilt ma hobuse\" (rahvalaul). Assonants on eesti regiv\u00e4rsi kujundusv\u00f5te, seda leidub ka vanas\u00f5nades, k\u00f5nek\u00e4\u00e4ndudes jm, sageli koos alliteratsiooniga."
+        }, 
+        {
+            "internal_links": [
+                {
+                    "end": 7, 
+                    "label": "Algriim", 
+                    "start": 0, 
+                    "title": "Algriim", 
+                    "url": "http://et.wikipedia.org/wiki/Algriim"
+                }, 
+                {
+                    "end": 22, 
+                    "label": "Alliteratsioon", 
+                    "start": 8, 
+                    "title": "Alliteratsioon", 
+                    "url": "http://et.wikipedia.org/wiki/Alliteratsioon"
+                }
+            ], 
+            "text": "Algriim\nAlliteratsioon", 
+            "title": "Vaata ka"
+        }
+    ], 
+    "timestamp": "2014-12-28T16:08:43Z", 
+    "title": "Assonants", 
+    "url": "http://et.wikipedia.org/wiki/Assonants"
+}

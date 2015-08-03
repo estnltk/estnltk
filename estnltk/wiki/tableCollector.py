@@ -6,7 +6,7 @@ import re
 from .wikiextra import balancedSlicer as bSB
 
 wikitableStartRegEx = re.compile(r'\{.+?wikitable')
-tableRegEx = re.compile(r'<table>.+?</table>', re.IGNORECASE|re.DOTALL)
+tableRegEx = re.compile(r'<table>?.+?</table>', re.IGNORECASE|re.DOTALL)
 
 def tableCollector(text):
     t = ''
@@ -19,7 +19,7 @@ def tableCollector(text):
             t += text[:start]+text[end+start:]
             tables.append(tableContent)
 
-    if '<table>' in text.lower():
+    if '</table>' in text.lower():
         tab = [x.group() for x in tableRegEx.finditer(text)]
         t = tableRegEx.sub('', text)
         tables.extend(tab)

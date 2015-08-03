@@ -1,0 +1,165 @@
+{
+    "data": {
+        "categories": [
+            "Folkloristika", 
+            "Foneetika", 
+            "Kirjandusteadus"
+        ], 
+        "timestamp": "2015-03-22T08:25:09Z", 
+        "title": "Algriim", 
+        "url": "http://et.wikipedia.org/wiki/Algriim"
+    }, 
+    "external_links": [
+        {
+            "end": 653, 
+            "label": "Suvine sats s\u00f5durpoisse s\u00f5itis s\u00f5jav\u00e4kke", 
+            "start": 613, 
+            "url": "http://www.tartupostimees.ee/901454/suvine-sats-sodurpoisse-soitis-sojavakke/"
+        }
+    ], 
+    "internal_links": [
+        {
+            "end": 40, 
+            "label": "h\u00e4\u00e4likute", 
+            "start": 31, 
+            "title": "h\u00e4\u00e4lik", 
+            "url": "http://et.wikipedia.org/wiki/h\u00e4\u00e4lik"
+        }, 
+        {
+            "end": 120, 
+            "label": "alliteratsiooniks", 
+            "start": 103, 
+            "title": "alliteratsioon", 
+            "url": "http://et.wikipedia.org/wiki/alliteratsioon"
+        }, 
+        {
+            "end": 152, 
+            "label": "kaash\u00e4\u00e4likud", 
+            "start": 140, 
+            "title": "kaash\u00e4\u00e4lik", 
+            "url": "http://et.wikipedia.org/wiki/kaash\u00e4\u00e4lik"
+        }, 
+        {
+            "end": 196, 
+            "label": "assonantsiks", 
+            "start": 184, 
+            "title": "assonants", 
+            "url": "http://et.wikipedia.org/wiki/assonants"
+        }, 
+        {
+            "end": 223, 
+            "label": "t\u00e4ish\u00e4\u00e4likud", 
+            "start": 211, 
+            "title": "t\u00e4ish\u00e4\u00e4lik", 
+            "url": "http://et.wikipedia.org/wiki/t\u00e4ish\u00e4\u00e4lik"
+        }, 
+        {
+            "end": 326, 
+            "label": "P\u00f5hja-Euroopa", 
+            "start": 313, 
+            "title": "P\u00f5hja-Euroopa", 
+            "url": "http://et.wikipedia.org/wiki/P\u00f5hja-Euroopa"
+        }, 
+        {
+            "end": 338, 
+            "label": "rahvalaulus", 
+            "start": 327, 
+            "title": "rahvalaul", 
+            "url": "http://et.wikipedia.org/wiki/rahvalaul"
+        }, 
+        {
+            "end": 395, 
+            "label": "anglosaksi", 
+            "start": 385, 
+            "title": "anglosaksi kirjandus", 
+            "url": "http://et.wikipedia.org/wiki/anglosaksi_kirjandus"
+        }, 
+        {
+            "end": 405, 
+            "label": "Beowulf", 
+            "start": 398, 
+            "title": "Beowulf", 
+            "url": "http://et.wikipedia.org/wiki/Beowulf"
+        }, 
+        {
+            "end": 421, 
+            "label": "skandinaavia", 
+            "start": 409, 
+            "title": "Skandinaavia rahvaluule", 
+            "url": "http://et.wikipedia.org/wiki/Skandinaavia_rahvaluule"
+        }, 
+        {
+            "end": 434, 
+            "label": "Vanem Edda", 
+            "start": 424, 
+            "title": "Vanem Edda", 
+            "url": "http://et.wikipedia.org/wiki/Vanem_Edda"
+        }, 
+        {
+            "end": 465, 
+            "label": "Kalevala", 
+            "start": 457, 
+            "title": "Kalevala", 
+            "url": "http://et.wikipedia.org/wiki/Kalevala"
+        }, 
+        {
+            "end": 512, 
+            "label": "regiv\u00e4rsile", 
+            "start": 501, 
+            "title": "Regiv\u00e4rss", 
+            "url": "http://et.wikipedia.org/wiki/Regiv\u00e4rss"
+        }, 
+        {
+            "end": 525, 
+            "label": "Kalevipoeg", 
+            "start": 515, 
+            "title": "Kalevipoeg", 
+            "url": "http://et.wikipedia.org/wiki/Kalevipoeg"
+        }, 
+        {
+            "end": 598, 
+            "label": "Tartu Postimees", 
+            "start": 583, 
+            "title": "Tartu Postimees", 
+            "url": "http://et.wikipedia.org/wiki/Tartu_Postimees"
+        }, 
+        {
+            "end": 610, 
+            "label": "Martin Pau", 
+            "start": 600, 
+            "title": "Martin Pau", 
+            "url": "http://et.wikipedia.org/wiki/Martin_Pau"
+        }, 
+        {
+            "end": 673, 
+            "label": "L\u00f5ppriim", 
+            "start": 665, 
+            "title": "L\u00f5ppriim", 
+            "url": "http://et.wikipedia.org/wiki/L\u00f5ppriim"
+        }, 
+        {
+            "end": 678, 
+            "label": "Riim", 
+            "start": 674, 
+            "title": "Riim", 
+            "url": "http://et.wikipedia.org/wiki/Riim"
+        }
+    ], 
+    "sections": [
+        {
+            "end": 528, 
+            "start": 0
+        }, 
+        {
+            "end": 654, 
+            "start": 530, 
+            "title": "N\u00e4ide"
+        }, 
+        {
+            "end": 678, 
+            "start": 656, 
+            "title": "Vaata ka"
+        }
+    ], 
+    "text": "Algriim\nAlgriim on s\u00f5nade algush\u00e4\u00e4likute koosk\u00f5la, mida kasutatakse poeetilise v\u00f5ttena.\nAlgriim jaotub alliteratsiooniks, mispuhul korduvad kaash\u00e4\u00e4likud (\"Siniseida sugrusida...\"), ja assonantsiks, kus korduvad t\u00e4ish\u00e4\u00e4likud koosesinemisel (\"Oleks minu olemine...\"; \"Kalevite kangem poega...\").\nAlgriim on levinud P\u00f5hja-Euroopa rahvalaulus ja vanemas luules. N\u00e4iteks on see iseloomulik anglosaksi (\"Beowulf\"), skandinaavia (\"Vanem Edda\") ja l\u00e4\u00e4nemeresoome (\"Kalevala\") traditsioonile, sealhulgas eesti regiv\u00e4rsile (\"Kalevipoeg\").\n\nN\u00e4ide\nAlgriimi kasutamine ajaleheartikli pealkirjas: Tartu Postimees, Martin Pau: \"Suvine sats s\u00f5durpoisse s\u00f5itis s\u00f5jav\u00e4kke\"\n\nVaata ka\nL\u00f5ppriim\nRiim\n\n"
+}

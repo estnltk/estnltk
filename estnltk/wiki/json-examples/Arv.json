@@ -1,0 +1,611 @@
+{
+    "categories": [
+        "Arvuteooria", 
+        "Elementaarmatemaatika"
+    ], 
+    "other": [
+        "{{See artikkel| tegeleb arvu m\u00f5istega matemaatikas. Lingvistilise arvum\u00f5iste kohta vaata artiklit [[Arv (keeleteadus)]].}}", 
+        "{{ToimetaAeg|kuu=september|aasta=2012}}", 
+        "{N}", 
+        "{Z}", 
+        "{Q}", 
+        "{R}", 
+        "{C}", 
+        "{R}", 
+        "{{lisa viide}}", 
+        "{{lisa viide}}", 
+        "{{lisa viide}}", 
+        "{{lisa viide}}", 
+        "{-243}", 
+        "{{lisa viide}}", 
+        "{{viited}}"
+    ], 
+    "references": [
+        {
+            "text": " Kaasik, \u00dc. (2002). ''Matemaatikaleksikon''. Tartu. "
+        }
+    ], 
+    "sections": [
+        {
+            "internal_links": [
+                {
+                    "end": 22, 
+                    "label": "matemaatika", 
+                    "start": 11, 
+                    "title": "matemaatika", 
+                    "url": "http://et.wikipedia.org/wiki/matemaatika"
+                }, 
+                {
+                    "end": 34, 
+                    "label": "algm\u00f5isteid", 
+                    "start": 23, 
+                    "title": "algm\u00f5iste", 
+                    "url": "http://et.wikipedia.org/wiki/algm\u00f5iste"
+                }, 
+                {
+                    "end": 58, 
+                    "label": "loendamisel", 
+                    "start": 47, 
+                    "title": "loendamine", 
+                    "url": "http://et.wikipedia.org/wiki/loendamine"
+                }, 
+                {
+                    "end": 78, 
+                    "label": "l\u00f5plike hulkade", 
+                    "start": 63, 
+                    "title": "l\u00f5plik hulk", 
+                    "url": "http://et.wikipedia.org/wiki/l\u00f5plik_hulk"
+                }, 
+                {
+                    "end": 111, 
+                    "label": "naturaalarvu", 
+                    "start": 99, 
+                    "title": "naturaalarv", 
+                    "url": "http://et.wikipedia.org/wiki/naturaalarv"
+                }, 
+                {
+                    "end": 174, 
+                    "label": "t\u00e4isarv", 
+                    "start": 167, 
+                    "title": "t\u00e4isarv", 
+                    "url": "http://et.wikipedia.org/wiki/t\u00e4isarv"
+                }, 
+                {
+                    "end": 189, 
+                    "label": "ratsionaalarv", 
+                    "start": 176, 
+                    "title": "ratsionaalarv", 
+                    "url": "http://et.wikipedia.org/wiki/ratsionaalarv"
+                }, 
+                {
+                    "end": 204, 
+                    "label": "kompleksarv", 
+                    "start": 193, 
+                    "title": "kompleksarv", 
+                    "url": "http://et.wikipedia.org/wiki/kompleksarv"
+                }
+            ], 
+            "references": [
+                0
+            ], 
+            "text": "Arv on \u00fcks matemaatika algm\u00f5isteid; see h\u00f5lmab loendamisel ehk l\u00f5plike hulkade v\u00f5rdlemisel saadava naturaalarvu m\u00f5istet ning selle mitmesuguseid \u00fcldistusi, sealhulgas t\u00e4isarv, ratsionaalarv ja kompleksarv."
+        }, 
+        {
+            "internal_links": [
+                {
+                    "end": 20, 
+                    "label": "arvuvallad", 
+                    "start": 10, 
+                    "title": "arvuvald", 
+                    "url": "http://et.wikipedia.org/wiki/arvuvald"
+                }, 
+                {
+                    "end": 69, 
+                    "label": "naturaalarvud", 
+                    "start": 56, 
+                    "title": "naturaalarv", 
+                    "url": "http://et.wikipedia.org/wiki/naturaalarv"
+                }, 
+                {
+                    "end": 85, 
+                    "label": "t\u00e4isarvud", 
+                    "start": 76, 
+                    "title": "t\u00e4isarv", 
+                    "url": "http://et.wikipedia.org/wiki/t\u00e4isarv"
+                }, 
+                {
+                    "end": 118, 
+                    "label": "ratsionaalarvud", 
+                    "start": 103, 
+                    "title": "ratsionaalarv", 
+                    "url": "http://et.wikipedia.org/wiki/ratsionaalarv"
+                }
+            ], 
+            "sections": [
+                {
+                    "internal_links": [
+                        {
+                            "end": 37, 
+                            "label": "naturaalarvud", 
+                            "start": 24, 
+                            "title": "naturaalarv", 
+                            "url": "http://et.wikipedia.org/wiki/naturaalarv"
+                        }, 
+                        {
+                            "end": 81, 
+                            "label": "loendamiseks", 
+                            "start": 69, 
+                            "title": "loendamine", 
+                            "url": "http://et.wikipedia.org/wiki/loendamine"
+                        }, 
+                        {
+                            "end": 106, 
+                            "label": "hulga", 
+                            "start": 101, 
+                            "title": "hulk", 
+                            "url": "http://et.wikipedia.org/wiki/hulk"
+                        }
+                    ], 
+                    "related_articles": [
+                        "Naturaalarv"
+                    ], 
+                    "text": "K\u00f5ige tuntumad arvud on naturaalarvud 0, 1, 2, ..., mida kasutatakse loendamiseks ja mis moodustavad hulga formula_1 (m\u00f5nikord j\u00e4etakse 0 naturaalarvude hulgast v\u00e4lja).", 
+                    "title": "Naturaalarvud"
+                }, 
+                {
+                    "internal_links": [
+                        {
+                            "end": 45, 
+                            "label": "negatiivsed arvud", 
+                            "start": 28, 
+                            "title": "negatiivne arv", 
+                            "url": "http://et.wikipedia.org/wiki/negatiivne_arv"
+                        }, 
+                        {
+                            "end": 65, 
+                            "label": "t\u00e4isarvud", 
+                            "start": 56, 
+                            "title": "t\u00e4isarv", 
+                            "url": "http://et.wikipedia.org/wiki/t\u00e4isarv"
+                        }
+                    ], 
+                    "related_articles": [
+                        "T\u00e4isarv"
+                    ], 
+                    "text": "Kui naturaalarvudele lisada negatiivsed arvud, saadakse t\u00e4isarvud, mis moodustavad hulga formula_1.", 
+                    "title": "T\u00e4isarvud"
+                }, 
+                {
+                    "internal_links": [
+                        {
+                            "end": 10, 
+                            "label": "T\u00e4isarvude", 
+                            "start": 0, 
+                            "title": "T\u00e4isarv", 
+                            "url": "http://et.wikipedia.org/wiki/T\u00e4isarv"
+                        }, 
+                        {
+                            "end": 19, 
+                            "label": "jagatisi", 
+                            "start": 11, 
+                            "title": "jagatis", 
+                            "url": "http://et.wikipedia.org/wiki/jagatis"
+                        }, 
+                        {
+                            "end": 50, 
+                            "label": "ratsionaalarvudeks", 
+                            "start": 32, 
+                            "title": "ratsionaalarv", 
+                            "url": "http://et.wikipedia.org/wiki/ratsionaalarv"
+                        }
+                    ], 
+                    "related_articles": [
+                        "Ratsionaalarv"
+                    ], 
+                    "text": "T\u00e4isarvude jagatisi nimetatakse ratsionaalarvudeks, mis moodustavad hulga formula_1.", 
+                    "title": "Ratsionaalarvud"
+                }, 
+                {
+                    "internal_links": [
+                        {
+                            "end": 52, 
+                            "label": "mitteperioodilised l\u00f5pmatud k\u00fcmnendmurrud", 
+                            "start": 11, 
+                            "title": "mitteperioodiline l\u00f5pmatu k\u00fcmnendmurd", 
+                            "url": "http://et.wikipedia.org/wiki/mitteperioodiline_l\u00f5pmatu_k\u00fcmnendmurd"
+                        }, 
+                        {
+                            "end": 73, 
+                            "label": "reaalarvud", 
+                            "start": 63, 
+                            "title": "reaalarv", 
+                            "url": "http://et.wikipedia.org/wiki/reaalarv"
+                        }, 
+                        {
+                            "end": 163, 
+                            "label": "irratsionaalarvudeks", 
+                            "start": 143, 
+                            "title": "irratsionaalarv", 
+                            "url": "http://et.wikipedia.org/wiki/irratsionaalarv"
+                        }
+                    ], 
+                    "related_articles": [
+                        "Reaalarv"
+                    ], 
+                    "text": "Kui lisada mitteperioodilised l\u00f5pmatud k\u00fcmnendmurrud, saadakse reaalarvud, mis moodustavad hulga formula_1. Reaalarvud jagunevad ratsionaal ja irratsionaalarvudeks.", 
+                    "title": "Reaalarvud"
+                }, 
+                {
+                    "internal_links": [
+                        {
+                            "end": 24, 
+                            "label": "reaalarvudele", 
+                            "start": 11, 
+                            "title": "reaalarv", 
+                            "url": "http://et.wikipedia.org/wiki/reaalarv"
+                        }, 
+                        {
+                            "end": 47, 
+                            "label": "reaalarvuliste", 
+                            "start": 33, 
+                            "title": "reaalarv", 
+                            "url": "http://et.wikipedia.org/wiki/reaalarv"
+                        }, 
+                        {
+                            "end": 64, 
+                            "label": "koefitsientidega", 
+                            "start": 48, 
+                            "title": "koefitsient", 
+                            "url": "http://et.wikipedia.org/wiki/koefitsient"
+                        }, 
+                        {
+                            "end": 88, 
+                            "label": "algebraliste v\u00f5rrandite", 
+                            "start": 65, 
+                            "title": "algebraline v\u00f5rrand", 
+                            "url": "http://et.wikipedia.org/wiki/algebraline_v\u00f5rrand"
+                        }, 
+                        {
+                            "end": 97, 
+                            "label": "lahendid", 
+                            "start": 89, 
+                            "title": "lahend", 
+                            "url": "http://et.wikipedia.org/wiki/lahend"
+                        }, 
+                        {
+                            "end": 118, 
+                            "label": "kompleksarvud", 
+                            "start": 105, 
+                            "title": "kompleksarv", 
+                            "url": "http://et.wikipedia.org/wiki/kompleksarv"
+                        }
+                    ], 
+                    "related_articles": [
+                        "Kompleksarv"
+                    ], 
+                    "text": "Kui lisada reaalarvudele k\u00f5ikide reaalarvuliste koefitsientidega algebraliste v\u00f5rrandite lahendid, saame kompleksarvud, mis moodustavad hulga formula_1.", 
+                    "title": "Kompleksarvud"
+                }
+            ], 
+            "text": "T\u00e4htsamad arvuvallad paigutuvad \u00fcksteise sisse, n\u00e4iteks naturaalarvud on ka t\u00e4isarvud, t\u00e4isarvud on ka ratsionaalarvud jne.", 
+            "title": "Arvuvallad"
+        }, 
+        {
+            "internal_links": [
+                {
+                    "end": 55, 
+                    "label": "abstraktseid objekte", 
+                    "start": 35, 
+                    "title": "abstraktne objekt", 
+                    "url": "http://et.wikipedia.org/wiki/abstraktne_objekt"
+                }, 
+                {
+                    "end": 104, 
+                    "label": "kvantiteediga", 
+                    "start": 91, 
+                    "title": "kvantiteet", 
+                    "url": "http://et.wikipedia.org/wiki/kvantiteet"
+                }
+            ], 
+            "sections": [
+                {
+                    "internal_links": [
+                        {
+                            "end": 49, 
+                            "label": "h\u00fcperkompleksarv", 
+                            "start": 33, 
+                            "title": "h\u00fcperkompleksarv", 
+                            "url": "http://et.wikipedia.org/wiki/h\u00fcperkompleksarv"
+                        }, 
+                        {
+                            "end": 82, 
+                            "label": "\u00fchikelemendiga", 
+                            "start": 68, 
+                            "title": "\u00fchikelement", 
+                            "url": "http://et.wikipedia.org/wiki/\u00fchikelement"
+                        }, 
+                        {
+                            "end": 101, 
+                            "label": "l\u00f5plikum\u00f5\u00f5tmelisse", 
+                            "start": 83, 
+                            "title": "l\u00f5plikum\u00f5\u00f5tmeline algebra", 
+                            "url": "http://et.wikipedia.org/wiki/l\u00f5plikum\u00f5\u00f5tmeline_algebra"
+                        }, 
+                        {
+                            "end": 112, 
+                            "label": "algebrasse", 
+                            "start": 102, 
+                            "title": "algebra", 
+                            "url": "http://et.wikipedia.org/wiki/algebra"
+                        }
+                    ], 
+                    "text": "\u00dcheks arvu m\u00f5iste \u00fcldistuseks on h\u00fcperkompleksarv, mis kuulub m\u00f5nda \u00fchikelemendiga l\u00f5plikum\u00f5\u00f5tmelisse algebrasse \u00fcle [[reaa\nlarvude korpus]]e formula_1.", 
+                    "title": "H\u00fcperkompleksarvud"
+                }, 
+                {
+                    "internal_links": [
+                        {
+                            "end": 12, 
+                            "label": "Kardinaalarv", 
+                            "start": 0, 
+                            "title": "Kardinaalarv", 
+                            "url": "http://et.wikipedia.org/wiki/Kardinaalarv"
+                        }, 
+                        {
+                            "end": 27, 
+                            "label": "hulkade", 
+                            "start": 20, 
+                            "title": "hulk", 
+                            "url": "http://et.wikipedia.org/wiki/hulk"
+                        }, 
+                        {
+                            "end": 36, 
+                            "label": "v\u00f5imsust", 
+                            "start": 28, 
+                            "title": "v\u00f5imsus (matemaatika)", 
+                            "url": "http://et.wikipedia.org/wiki/v\u00f5imsus_(matemaatika)"
+                        }
+                    ], 
+                    "text": "Kardinaalarv m\u00f5\u00f5dab hulkade v\u00f5imsust.", 
+                    "title": "Kardinaalarvud"
+                }
+            ], 
+            "text": "\u00dcldistades v\u00f5ib arve k\u00e4sitelda kui abstraktseid objekte, mida seostatakse mingi konkreetse kvantiteediga.", 
+            "title": "\u00dcldistused"
+        }, 
+        {
+            "internal_links": [
+                {
+                    "end": 30, 
+                    "label": "Aritmeetilisi tehteid arvudega", 
+                    "start": 0, 
+                    "title": "Aritmeetiline tehe", 
+                    "url": "http://et.wikipedia.org/wiki/Aritmeetiline_tehe"
+                }, 
+                {
+                    "end": 53, 
+                    "label": "liitmist", 
+                    "start": 45, 
+                    "title": "liitmine", 
+                    "url": "http://et.wikipedia.org/wiki/liitmine"
+                }, 
+                {
+                    "end": 68, 
+                    "label": "korrutamist", 
+                    "start": 57, 
+                    "title": "korrutamine", 
+                    "url": "http://et.wikipedia.org/wiki/korrutamine"
+                }, 
+                {
+                    "end": 97, 
+                    "label": "abstraktne algebra", 
+                    "start": 79, 
+                    "title": "abstraktne algebra", 
+                    "url": "http://et.wikipedia.org/wiki/abstraktne_algebra"
+                }, 
+                {
+                    "end": 138, 
+                    "label": "algebraliste struktuuridega", 
+                    "start": 111, 
+                    "title": "algebraline struktuur", 
+                    "url": "http://et.wikipedia.org/wiki/algebraline_struktuur"
+                }, 
+                {
+                    "end": 155, 
+                    "label": "r\u00fchmade", 
+                    "start": 148, 
+                    "title": "r\u00fchm (matemaatika)", 
+                    "url": "http://et.wikipedia.org/wiki/r\u00fchm_(matemaatika)"
+                }, 
+                {
+                    "end": 164, 
+                    "label": "ringide", 
+                    "start": 157, 
+                    "title": "ring (algebra)", 
+                    "url": "http://et.wikipedia.org/wiki/ring_(algebra)"
+                }, 
+                {
+                    "end": 178, 
+                    "label": "korpustega", 
+                    "start": 168, 
+                    "title": "korpus (matemaatika)", 
+                    "url": "http://et.wikipedia.org/wiki/korpus_(matemaatika)"
+                }
+            ], 
+            "text": "Aritmeetilisi tehteid arvudega, nagu n\u00e4iteks liitmist ja korrutamist, \u00fcldistab abstraktne algebra, mis tegeleb algebraliste struktuuridega, n\u00e4iteks r\u00fchmade, ringide ja korpustega.", 
+            "title": "Aritmeetika"
+        }, 
+        {
+            "internal_links": [
+                {
+                    "end": 42, 
+                    "label": "matemaatikaga", 
+                    "start": 29, 
+                    "title": "matemaatika", 
+                    "url": "http://et.wikipedia.org/wiki/matemaatika"
+                }, 
+                {
+                    "end": 56, 
+                    "label": "Naturaalarvu", 
+                    "start": 44, 
+                    "title": "Naturaalarv", 
+                    "url": "http://et.wikipedia.org/wiki/Naturaalarv"
+                }, 
+                {
+                    "end": 98, 
+                    "label": "loendada", 
+                    "start": 90, 
+                    "title": "loendamine", 
+                    "url": "http://et.wikipedia.org/wiki/loendamine"
+                }, 
+                {
+                    "end": 133, 
+                    "label": "kirja", 
+                    "start": 128, 
+                    "title": "kiri (lingvistika)", 
+                    "url": "http://et.wikipedia.org/wiki/kiri_(lingvistika)"
+                }, 
+                {
+                    "end": 159, 
+                    "label": "naturaalarvu", 
+                    "start": 147, 
+                    "title": "naturaalarv", 
+                    "url": "http://et.wikipedia.org/wiki/naturaalarv"
+                }, 
+                {
+                    "end": 167, 
+                    "label": "m\u00f5istet", 
+                    "start": 160, 
+                    "title": "m\u00f5iste", 
+                    "url": "http://et.wikipedia.org/wiki/m\u00f5iste"
+                }, 
+                {
+                    "end": 200, 
+                    "label": "arvutamiss", 
+                    "start": 190, 
+                    "title": "arvutamine", 
+                    "url": "http://et.wikipedia.org/wiki/arvutamine"
+                }, 
+                {
+                    "end": 578, 
+                    "label": "R. Descartesi", 
+                    "start": 565, 
+                    "title": "Ren\u00e9 Descartes", 
+                    "url": "http://et.wikipedia.org/wiki/Ren\u00e9_Descartes"
+                }, 
+                {
+                    "end": 912, 
+                    "label": "imaginaararvu", 
+                    "start": 899, 
+                    "title": "imaginaararv", 
+                    "url": "http://et.wikipedia.org/wiki/imaginaararv"
+                }, 
+                {
+                    "end": 1248, 
+                    "label": "L. Euler", 
+                    "start": 1240, 
+                    "title": "Leonhard Euler", 
+                    "url": "http://et.wikipedia.org/wiki/Leonhard_Euler"
+                }, 
+                {
+                    "end": 1317, 
+                    "label": "imagnaar\u00fchiku", 
+                    "start": 1304, 
+                    "title": "imagnaar\u00fchik", 
+                    "url": "http://et.wikipedia.org/wiki/imagnaar\u00fchik"
+                }
+            ], 
+            "text": "Arvu m\u00f5iste on arenenud koos matemaatikaga. Naturaalarvu m\u00f5iste tekkis vajadusest esemeid loendada. K\u00f5ik rahvad, kes on tundnud kirja, on vallanud naturaalarvu m\u00f5istet ning kasutanud mingit arvutamiss\u00fcsteemi. Ratsionaalarvude kasutamise kohta on andmeid perioodist enam kui 3000 aastat tagasi.\nNegatiivsete arvude kasutamise kohta on teateid II sajandist ekr. Hiina matemaatikute t\u00f6\u00f6dest. Euroopasse j\u00f5udsid negatiivsed arvud n\u00e4htavasti araablaste vahendusel Indiast. Neid hakati Euroopa matemaatikute hulgas laialdaselt kasutama alles p\u00e4rast prantsuse matemaatiku R. Descartesi (1596\u20131650) t\u00f6\u00f6de ilmumist. \u00dcksikuid irrratsionaalarve tunti ja kasutati juba antiikajal. Seda mitmetest geomeetrilistest \u00fclesannetest l\u00e4htudes. Reaalarvude matemaatiliselt korrektse k\u00e4sitluse andsid 19. sajandi teisel poolel R. Dedekind (1831\u20131916), G. Cantor (1845\u20131918) ja K. Weierstrass (1815\u20131897).\nEsimesed teated imaginaararvu kasutamisest ulatuvad 16. sajandisse. On teada, et 1545. aastal avaldas Itaalia matemaatik G. Cardano (1501\u20131576) t\u00f6\u00f6, milles vaadeldi v\u00f5rrandit x3-12x+16=0. Lahendamisel kasutas ta avaldist formula_7 ning leidis selle abil lahendid formula_8, formula_9. Laialdaselt kasutas kompleksarve Peterburi Teaduste akadeemia akadeemik L. Euler (1707\u20131783), kes muuhulgas v\u00f5ttis kasutusele s\u00fcmboli i imagnaar\u00fchiku t\u00e4hisena. Alles 18. sajandi l\u00f5pus anti kompleksarvude geomeetriline t\u00f5lgendus.", 
+            "title": "Ajalugu"
+        }, 
+        {
+            "internal_links": [
+                {
+                    "end": 1, 
+                    "label": "0", 
+                    "start": 0, 
+                    "title": "null", 
+                    "url": "http://et.wikipedia.org/wiki/null"
+                }, 
+                {
+                    "end": 3, 
+                    "label": "2", 
+                    "start": 2, 
+                    "title": "kaks", 
+                    "url": "http://et.wikipedia.org/wiki/kaks"
+                }, 
+                {
+                    "end": 9, 
+                    "label": "gross", 
+                    "start": 4, 
+                    "title": "gross", 
+                    "url": "http://et.wikipedia.org/wiki/gross"
+                }, 
+                {
+                    "end": 26, 
+                    "label": "ruutjuur kahest", 
+                    "start": 11, 
+                    "title": "ruutjuur kahest", 
+                    "url": "http://et.wikipedia.org/wiki/ruutjuur_kahest"
+                }, 
+                {
+                    "end": 44, 
+                    "label": "kuldl\u00f5ike suhtarv", 
+                    "start": 27, 
+                    "title": "kuldl\u00f5ike suhtarv", 
+                    "url": "http://et.wikipedia.org/wiki/kuldl\u00f5ike_suhtarv"
+                }, 
+                {
+                    "end": 53, 
+                    "label": "\"\u03c0\"", 
+                    "start": 50, 
+                    "title": "Pii", 
+                    "url": "http://et.wikipedia.org/wiki/Pii"
+                }, 
+                {
+                    "end": 57, 
+                    "label": "\"e\"", 
+                    "start": 54, 
+                    "title": "e (arv)", 
+                    "url": "http://et.wikipedia.org/wiki/e_(arv)"
+                }, 
+                {
+                    "end": 64, 
+                    "label": "googol", 
+                    "start": 58, 
+                    "title": "googol", 
+                    "url": "http://et.wikipedia.org/wiki/googol"
+                }
+            ], 
+            "text": "0\n2\ngross \nruutjuur kahest\nkuldl\u00f5ike suhtarv \"\u03c6\" \n\"\u03c0\"\n\"e\"\ngoogol", 
+            "title": "Arve"
+        }, 
+        {
+            "internal_links": [
+                {
+                    "end": 11, 
+                    "label": "Arvus\u00fcsteem", 
+                    "start": 0, 
+                    "title": "Arvus\u00fcsteem", 
+                    "url": "http://et.wikipedia.org/wiki/Arvus\u00fcsteem"
+                }, 
+                {
+                    "end": 29, 
+                    "label": "Arvu standardkuju", 
+                    "start": 12, 
+                    "title": "Arvu standardkuju", 
+                    "url": "http://et.wikipedia.org/wiki/Arvu_standardkuju"
+                }
+            ], 
+            "text": "Arvus\u00fcsteem\nArvu standardkuju", 
+            "title": "Vaata ka"
+        }, 
+        {
+            "text": "", 
+            "title": "Viited"
+        }
+    ], 
+    "timestamp": "2015-01-04T00:24:36Z", 
+    "title": "Arv", 
+    "url": "http://et.wikipedia.org/wiki/Arv"
+}

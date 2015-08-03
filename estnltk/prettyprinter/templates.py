@@ -1,4 +1,4 @@
-def Header():
+def header():
     return """<!DOCTYPE html>
 <html>
     <head>
@@ -7,15 +7,15 @@ def Header():
         <title>PrettyPrinter</title>
     </head>
     <style>\n"""
-def Middle():
+def middle():
     return """
     </style>
     <body>
         <p>
 """
-def Footer():
+def footer():
     return """\t</body>\n</html>"""
-def CssHeader():
+def cssHeader():
     return """mark {
     color: black;
     background-color: white;

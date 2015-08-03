@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
 __author__ = 'Andres'
@@ -10,7 +10,7 @@ from .internalLink import relatedArticles
 from .tableCollector import  tableCollector
 from .images import imageRegEx, imageParser
 
-def sectionsParser(text, refsdict):
+def sectionsParser(text):
     """
     :param text: the whole text of an wikipedia article
     :return:  a list of nested section objects
@@ -60,7 +60,7 @@ def sectionsParser(text, refsdict):
 
     for section in sections:
         text = section['text']
-        if 'wikitable' in text or '<table>' in text.lower():
+        if 'wikitable' in text or '</table>' in text.lower():
             section['text'], section['tables'] = tableCollector(text)
 
         section = relatedArticles(section)
@@ -76,8 +76,36 @@ def sectionsParser(text, refsdict):
         if ExtLinkBracketedRegex.search(text):
             section = addExternalLinks(section)
 
+
         if '[[' in text:
             section = addIntLinks(section)
+
+        #clean uneven brackets and whatnot
+
+        #take extlink start:end w regex.
+        el = 'external_links'
+        if el in section.keys():
+
+            #section['text'] = section['text'].replace('[', '').replace(']', '')
+            text = section['text']
+
+            for link in section[el]:
+
+                label = link['label']
+                label = re.compile(re.escape(label))
+                m = label.search(text)
+                #if there are unbalanced brackets in the external
+                #links label inside text then it fails to mark the start and end
+                try:
+                    link['start'] = m.start()
+                    link['end'] = m.end()
+                except AttributeError:
+                    print('Problem with external links start:end position!')
+                    print(label)
+                    print(text)
+
+
+
 
 
     #datastructure nesting thanks to Timo!
@@ -114,92 +142,3 @@ def sectionsParser(text, refsdict):
 
 
     return stack
-"""
-if __name__ == '__main__':
-    with open("armeenia.txt", encoding='utf-8') as f:
-        text = f.read()
-
-    
-    entries = re.split("\n=", text)
-    #pprint(entries)
-    print(len(entries))
-    titles = []
-    textDict = {}
-    sectionTitleRegEx = re.compile(r'={1,}.+={2,}')
-    intro = entries[0]
-    print('intro ', intro)
-    textDict['intro']=intro
-    counts = []
-    sections = []
-    objects = []
-    #pprint(entries[1:])
-    for i in entries[1:]:
-        section = {}
-
-        title = re.match(sectionTitleRegEx, i)
-        if title:
-            titleEnd = title.end()
-            print(title)
-            title = title.group()
-            text = i[titleEnd:]
-            count =  title.count('=')
-            section['title']=title.strip('= ')
-            section['text']=text
-			#Hetkel obj tuple (taseme nr, dict)
-            obj = count, section
-            print(obj)
-            objects.append(obj)
-            sections.append(section)
-            #print(title, count)
-            counts.append(count)
-    print(counts)
-    print(len(counts))
-    print(counts[47])
-
-"""
-if __name__ == '__main__':
-    with open("bathumi.txt", encoding='utf-8') as f:
-        text = f.read()
-
-    print(sectionsParser(text, ''))
-
-    #datastructure nesting thanks to Timo!
-"""
-    n = len(sections)
-    pos = 0
-    stack = [[]]
-    levels = [counts[0]]
-
-    while pos < n:
-        count = counts[pos]
-        elem = sections[pos]
-        level = levels[-1]
-        if count == level:
-            stack[-1].append(elem)
-        elif count >= level:
-            stack.append([elem])
-            levels.append(count)
-        else:
-            group = stack.pop()
-            #print(stack[-1][-1])
-            stack[-1][-1]['sections'] = group
-            levels.pop()
-            continue
-        pos += 1
-
-    while len(stack) > 1:
-        group = stack.pop()
-        stack[-1].append(group)
-
-    stack = stack[0]
-    print(stack)
-    #print (elems)
-    #test
-    for i in stack:
-        pprint(i['title'])
-        try:
-            for j in i['sections']:
-                pprint('     '+ j['title'])
-        except:
-            pass
-            """
