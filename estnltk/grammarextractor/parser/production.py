@@ -4,9 +4,8 @@ This module contains functions for parsing and working with productions.
 """
 from __future__ import unicode_literals, print_function, absolute_import
 
-from .symbols import Name, Or, List, Regex, Optional
-
-from .exceptions import ParseException
+from ..grammar.production_nodes import Name, Or, List, Regex, Optional
+from ..exceptions import ParseException
 
 
 def tokenize(line, lineno=0):

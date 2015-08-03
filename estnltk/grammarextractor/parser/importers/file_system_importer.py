@@ -52,7 +52,7 @@ class FileSystemImporter(Importer):
             The grammar text.
         """
 
-        fnm = os.path.join(grammarname.split('.'))
+        fnm = os.path.join(*grammarname.split('.'))
         paths = [os.getcwd()] + self.__paths
         for path in paths:
             full_path = os.path.join(path, fnm)

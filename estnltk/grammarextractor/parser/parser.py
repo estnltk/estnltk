@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
-import regex as re
 import logging
-import itertools
 
-from .grammar import Grammar
+from ..common import re
+from ..exceptions import ParseException
+from ..grammar.grammar import Grammar
+from ..grammar.production_nodes import Name, Optional, Or, List, Regex
+from . import production
 
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
@@ -29,10 +30,6 @@ def splitblocks(text):
     if len(current_block) > 0:
         blocks.append(current_block)
     return blocks
-
-
-class ParseException(Exception):
-    pass
 
 
 class GrammarParser(object):
@@ -102,22 +99,12 @@ class GrammarParser(object):
             for production in self.productions.get(symbol, []):
                 self.check_production(symbol, production)
 
-    def check_production(self, symbol, production):
-        if len(production) > 0:
-            name, elems = production
-            if name in ['list', 'or']:
-                for elem in elems:
-                    self.check_production(symbol, elem)
-            elif name == 'optional':
-                self.check_production(symbol, elems)
-            elif name == 'symbol':
-                if elems not in self.symbols:
-                    raise ParseException('Undefined symbol <{0}> in a production of <{1}>'.format(elems, symbol))
-            elif name == 'regex':
-                try:
-                    re.compile(elems)
-                except Exception:
-                    raise ParseException('Could not parse regex <{0}> in a production of <{1}>'.format(elems, symbol))
+    def check_production(self, symbol_name, production):
+        if isinstance(production, Name):
+            if production.name not in self.symbols:
+                raise ParseException('Undefined symbol <{0}> in a production of <{1}>'.format(production.name, symbol_name))
+        for child in production.children:
+            self.check_production(symbol_name, child)
 
     def check_exports(self):
         for k, v in self.exports.items():
@@ -142,7 +129,7 @@ class GrammarParser(object):
             raise ParseException('Programming error: importer not defined!')
         if len(tokens) == 2:
             grammarname = tokens[1].strip()
-            parser = self.imported_grammars.get(grammarname, self.importer.get(grammarname))
+            parser = self.imported_grammars.get(grammarname, GrammarParser(self.importer.import_grammar(grammarname), self.importer))
             if parser is None:
                 raise ParseException('Grammar with name {0} not found with current importer'.format(grammarname))
             for symbol, data in parser.regexes.items():
@@ -234,7 +221,6 @@ class GrammarParser(object):
 
     def parse_postags(self, block):
         lineno, line = block[0]
-        case_sensitive = False
         if len(line.split()) != 1:
             raise ParseException('Wrong number of tokens on line {0}'.format(lineno))
         postags = []
@@ -305,142 +291,12 @@ class GrammarParser(object):
         for lineno, line in block[1:]:
             line = line[4:].strip()
             if len(line) > 0:
-                productions.append(parse_production(lineno, line))
+                productions.append(production.parse(line, lineno))
         symbol_productions = self.productions.get(self.current_symbol, [])
         symbol_productions.extend(productions)
         logger.debug('Parsed {0} productions for symbol <{1}>'.format(len(productions), self.current_symbol))
         self.productions[self.current_symbol] = symbol_productions
 
-
-def tokenize_production(lineno, line):
-    tokens = []
-    token = ''
-    i = 0
-    while i < len(line):
-        c = line[i]
-        if c in ' ()?|':
-            if len(token) > 0:
-                tokens.append(token)
-                token = ''
-            if c != ' ':
-                tokens.append(c)
-            i += 1
-        elif c == "'":
-            j = i+1
-            found = False
-            while j < len(line):
-                if line[j] == "'":
-                    found = True
-                    tokens.append(line[i:j+1])
-                    i = j+1
-                    break
-                j += 1
-            if not found:
-                raise ParseException('Could not find regex end on line {0}'.format(lineno))
-        else:
-            token += c
-            i += 1
-    if len(token) > 0:
-        tokens.append(token)
-    return tokens
-
-
-def isplit(iterable, splitters):
-    return [list(g) for k,g in itertools.groupby(iterable,lambda x:x in splitters) if not k]
-
-
-def create_or_elements(stack):
-    name, elems = stack
-    if name == 'list':
-        # compute the number of clauses
-        clauses = []
-        for clause in isplit(elems, ('|',)):
-            if len(clause) == 1:
-                clauses.append(create_or_elements(clause[0]))
-            else:
-                clause = [create_or_elements(clauseelem) for clauseelem in clause]
-                clauses.append(('list', clause))
-        if len(clauses) == 1:
-            return clauses[0]
-        else:
-            return ('or', clauses)
-    elif name in ['symbol', 'regex']:
-        return stack
-    return (name, create_or_elements(elems))
-
-
-    """if len(stack) > 0:
-        if stack[0] == 'list':
-            listelems = [create_or_elements(listelem) for listelem in stack[1]]
-            clauses = []
-            for clause in isplit(listelems, ('|',)):
-                if len(clause) == 1:
-                    clauses.append(clause[0])
-                else:
-                    clauses.append(('list', clause))
-            if len(clauses) > 1:
-                if stack[0] == 'list':
-                    return ('or', clauses)
-                return (stack[0], ('or', clauses))
-        elif stack[0] == 'optional':
-            return (stack[0], create_or_elements(stack[1]))"""
-    return stack
-
-
-def parse_production(lineno, line):
-    tokens = tokenize_production(lineno, line)
-    stack = []
-    for token in tokens:
-        if token == '(':
-            stack.append(token)
-        elif token == ')':
-            found = False
-            for pos, stackelem in reversed(list(enumerate(stack))):
-                if stackelem == '(':
-                    listelem = ('list', stack[pos+1:])
-                    stack = stack[:pos]
-                    stack.append(listelem)
-                    found = True
-                    break
-            if not found:
-                raise ParseException('Could not match parenthesis on line {0}'.format(lineno))
-        elif token == '?':
-            if len(stack) > 0 and len(stack[-1]) == 2 and stack[-1][0] == 'optional':
-                raise ParseException('Double ?? in production on line {0}'.format(lineno))
-            stack.append(('optional', stack.pop()))
-        elif token == '|':
-            stack.append('|')
-        elif token.startswith("'"):
-            stack.append(('regex', token[1:-1]))
-        else:
-            stack.append(('symbol', token))
-    if len(stack) > 1:
-        stack = ('list', stack)
-    else:
-        stack = stack[0]
-    stack = create_or_elements(stack)
-    return stack
-
-
-class Importer(object):
-    """Base class for importers."""
-
-    def get(self, grammarname):
-        """Get the parser.GrammarParser instance for given grammar."""
-        raise NotImplementedError()
-
-
-class DatabaseImporter(Importer):
-
-    def __init__(self, database):
-        self.database = database
-
-    def get(self, grammarname):
-        """Get the parser.GrammarParser instance for given grammar."""
-        logger.info('Loading grammar {0} from database'.format(grammarname))
-        grammar = self.database.load_grammar(grammarname)['text']
-        logger.info('Parsing imported grammar {0}'.format(grammarname))
-        return GrammarParser(grammar)
 
 
 if __name__ == '__main__':
@@ -458,5 +314,5 @@ export any
 """
     parser = GrammarParser(source)
     grammar = parser.get_grammar()
-    grammar.match('25 on number')
+    #grammar.match('25 on number')
 

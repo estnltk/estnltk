@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
-from cmath import exp
 
 import unittest
-from ..production import tokenize, parse
+from ..parser.production import tokenize, parse
 from ..exceptions import ParseException
-from ..symbols import Name, Or, Regex, Optional, List
+from ..grammar.production_nodes import Name, Or, Regex, Optional, List
 
 
 class TokenizeTest(unittest.TestCase):

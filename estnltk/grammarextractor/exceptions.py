@@ -9,3 +9,8 @@ class ParseException(Exception):
     """Exception that should be used for any kind of parsing problem in grammarextractor."""
     pass
 
+
+class GrammarImportError(Exception):
+    """Exception for grammar import failures."""
+    pass
+

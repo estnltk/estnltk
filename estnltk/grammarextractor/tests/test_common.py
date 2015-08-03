@@ -3,8 +3,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 import unittest
 
-from ..symbols import is_valid_symbol_name
-from ..symbols import Name
+from ..common import is_valid_symbol_name
 
 
 class TestSymbolNameValidation(unittest.TestCase):
@@ -29,7 +28,8 @@ class TestSymbolNameValidation(unittest.TestCase):
             'symbols should not contain spaces',
             '',
             'no\nshitespace\r',
-            'wierd-characters-$%^&$^-are*%^*&not_#$%^#$%^allowed'
+            'wierd-characters-$%^&$^-are*%^*&not_#$%^#$%^allowed',
+            'no.punctuation'
         ]
         for name in invalid_names:
             self.assertFalse(is_valid_symbol_name(name), name)
