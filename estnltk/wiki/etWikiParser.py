@@ -157,7 +157,7 @@ def etWikiParser(data, outputdir, verbose = False):
             pageObj['categories'] = catList
 
 #SectionParser is where all the work with links, images etc gets done
-            sectionobj = (sectionsParser(text, refsDict))
+            sectionobj = (sectionsParser(text))
             pageObj['sections'] = sectionobj
 
 
