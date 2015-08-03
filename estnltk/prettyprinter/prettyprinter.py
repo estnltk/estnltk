@@ -9,6 +9,7 @@ TODO: kuigi estnltk ise seda praegu 100% ei järgi, proovime koodi stiili teha
       Pythoni tavade järgi: https://www.python.org/dev/peps/pep-0008/
 """
 from __future__ import unicode_literals, print_function, absolute_import
+#from estnltk.prettyprinter.templates import cssHeader, middle, header, footer
 
 try:
     from StringIO import cStringIO as StringIO
@@ -21,11 +22,13 @@ except ImportError:
     from cgi import escape as htmlescape
 
 from estnltk import Text
+
 import sys
-sys.path.insert(0, '/path/to/estnltk/estnltk/prettyprinter')
+sys.path.insert(0, '/path/to/estnltk/prettyprinter')
+import templates
 
 # muutsin seda, sest sain importerrori:
-from . import templates
+#TODO from . import templates
 
 # Parem on koodi käivitada estnltk juurkataloogist, nt.
 # python -m estnltk.prettyprinter.prettyprinter
@@ -50,7 +53,7 @@ class PrettyPrinter(object):
         spacing = {'small':'1', 'normal':'2', 'large':'4'}
 
         cssList = []
-        cssList.append(templates.CssHeader())
+        cssList.append(templates.cssHeader())
 
         for el in self.kwargs:
             cssTemporary = StringIO()
@@ -76,27 +79,38 @@ class PrettyPrinter(object):
         cssContent = "\n".join(cssList)
         return cssContent
 
-    def createHTML(self, text):
+    def create_HTML(self, text, annotations):
         # TODO: märkus. CSS klasside genereerimisel tuleb hiljem arvestada ka seda, et erinevad märgendused võivad kattuda, näiteks teksti värv ja taustavärv. Selliste juhtude lahendamiseks peaks olema üks CSS klass iga aesteetik-väärtuse paari jaoks.
 
+        annotations = annotations
         originalValue = str(text)
         htmlContent = StringIO()
-        htmlContent.write(templates.Header())
+        htmlContent.write(templates.header())
         htmlContent.write(self.css)
-        htmlContent.write(templates.Middle())
+        htmlContent.write(templates.middle())
         text.tokenize_words()
 
-        a="\t\t\t<mark "
+        a = "\t\t\t<mark"
 
         for key in self.kwargs:
-            a+='class=\"'+key+'\"'+', '
+                a+=' class=\"'+key+'\"'+', '
         a = a[:-2]
 
+        b = "\t\t\t<mark"
+        written = False
+
         for el in range(len(text['words'])):
-            htmlContent.write(a+'>'+originalValue[text['words'][el]['start']:text['words'][el]['end']]+'</mark>\n')
+            for nr in range(len(annotations)):
+                if text['words'][el]['start'] >= annotations[nr]['start'] and text['words'][el]['end'] <= annotations[nr]['end']:
+                    htmlContent.write(a + '>' + originalValue[text['words'][el]['start']:text['words'][el]['end']] + '</mark>\n')
+                    written = True
+            if written == False:
+                htmlContent.write(b + '>' + originalValue[text['words'][el]['start']:text['words'][el]['end']] + '</mark>\n')
+            else:
+                written = False
 
         htmlContent.write('\t\t</p>\n')
-        htmlContent.write(templates.Footer())
+        htmlContent.write(templates.footer())
         content = htmlContent.getvalue()
         htmlContent.close()
 
@@ -104,17 +118,14 @@ class PrettyPrinter(object):
 
     def render(self, inputText):
         # TODO: tähelepanek, et siin meetodis tuleb kindlasti abstraheerida konkreetsed kihid
-        text = Text(inputText)
+        text = Text(inputText['text'])
+        annotations = inputText['annotations']
         content = StringIO()
-        content.write(self.createHTML(text))
+        content.write(self.create_HTML(text, annotations))
         html = content.getvalue()
         content.close()
         print(html)
 
-a = PrettyPrinter(background = 'Red', size = 'large')
-PrettyPrinter.render(a, "Mis asi see siin on nüüd praegu?")
-
-# lihtne näide, mida ma ise silmas pidasin
 text = Text({
     'text': 'Selles tekstis on mitu märgendust, üks siin ja teine on siin',
     'annotations': [
@@ -126,8 +137,14 @@ text = Text({
     ]
 })
 
-pp = PrettyPrinter(background='annotations')
+pp = PrettyPrinter(background = 'annotations')
 pp.render(text)
+
+# lihtne näide, mida ma ise silmas pidasin
+
+
+#pp = PrettyPrinter(background='annotations')
+#pp.render(text)
 
 # tulemus peaks olema midagi sellist:
 """
