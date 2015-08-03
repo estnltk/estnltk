@@ -10,7 +10,7 @@ from .internalLink import relatedArticles
 from .tableCollector import  tableCollector
 from .images import imageRegEx, imageParser
 
-def sectionsParser(text, refsdict):
+def sectionsParser(text):
     """
     :param text: the whole text of an wikipedia article
     :return:  a list of nested section objects
@@ -60,7 +60,7 @@ def sectionsParser(text, refsdict):
 
     for section in sections:
         text = section['text']
-        if 'wikitable' in text or '<table>' in text.lower():
+        if 'wikitable' in text or '</table>' in text.lower():
             section['text'], section['tables'] = tableCollector(text)
 
         section = relatedArticles(section)
@@ -100,6 +100,7 @@ def sectionsParser(text, refsdict):
                     link['start'] = m.start()
                     link['end'] = m.end()
                 except AttributeError:
+                    print('Problem with external links start:end position!')
                     print(label)
                     print(text)
 
