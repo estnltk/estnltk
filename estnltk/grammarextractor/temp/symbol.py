@@ -6,7 +6,7 @@ import logging
 import regex as re
 from copy import copy
 
-from .match import Match
+from .match import Match, encapsulate_match
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ class SymbolNode(object):
                 matches.append(Match(self.name, mo.start()+offset, mo.end()+offset, mo.group()))
         for production in self.productions:
             for match in self.match_production(production, text, offset):
-                matches.append(Match.encapsulate(self.name, match))
+                matches.append(encapsulate_match(self.name, match))
         return matches
 
     def match_production(self, production, text, offset):
@@ -141,7 +141,7 @@ class SymbolNode(object):
         #logger.debug('Matching optional <{0}>'.format(elems))
         matches = []
         for match in self.match_production(elems, text, offset):
-            matches.append(Match.encapsulate('__optional', match))
+            matches.append(encapsulate_match('__optional', match))
         matches.append(Match('__optional', offset, offset, ''))
         return matches
 
@@ -151,5 +151,5 @@ class SymbolNode(object):
         matches = []
         for clause in elems:
             for match in self.match_production(clause, text, offset):
-                matches.append(Match.encapsulate('__or', match))
+                matches.append(encapsulate_match('__or', match))
         return matches

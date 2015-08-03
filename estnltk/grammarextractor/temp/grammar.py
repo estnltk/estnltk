@@ -1,8 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
+import logging
+from pprint import pprint
+
 from .symbol import SymbolNode
 from .common import StringIO
+from ..text import Text
+
+logger = logging.getLogger(__name__)
+
 
 class Grammar(object):
 
@@ -123,7 +130,7 @@ class Grammar(object):
         matches = []
         for symbol in symbols:
             node = self.symbolnodes[symbol]
-            for start, end in text.spans:
+            for start, end in text.word_spans:
                 matches.extend(node.match(text, start))
         return matches
 

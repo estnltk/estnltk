@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
 """
-This module defines symbols in the grammarextractor.
-
-The symbols do not fall into 'terminal' and 'non-terminal' categories, but
-rather combine the properties of both.
+This module defines a number of nodes used in grammar productions.
+Productions help to express matching logic quite simply and clearly.
 """
+
 from __future__ import unicode_literals, print_function, absolute_import
-
-import regex as re
-
-from .common import is_valid_symbol_name, is_valid_regex
+from ..common import is_valid_symbol_name, is_valid_regex
 
 
-class Symbol(object):
+class ProductionNode(object):
+    """Common subclass for all nodes that can appear in a production."""
 
     def optimize(self):
         """Optimize redundant nodes: zero to one element lists and one elements Or."""
         return self
 
 
-class Name(Symbol):
+class Name(ProductionNode):
+    """Name symbol refers to another symbol defined in this or one of the imported grammars."""
 
     def __init__(self, name):
         assert is_valid_symbol_name(name)
@@ -40,7 +38,8 @@ class Name(Symbol):
         return self.name
 
 
-class Optional(Symbol):
+class Optional(ProductionNode):
+    """Optional encapsulates another node and makes matching it optional."""
 
     def __init__(self, symbol):
         self.__symbol = symbol
@@ -66,7 +65,9 @@ class Optional(Symbol):
         return '(optional, {0})'.format(self.symbol)
 
 
-class List(Symbol):
+class List(ProductionNode):
+    """List denotes a sequence of nodes that have to matched in
+    order for the full list to match."""
 
     def __init__(self, symbols):
         self.__symbols = symbols
@@ -96,7 +97,8 @@ class List(Symbol):
         return '(list {0})'.format(symbols)
 
 
-class Regex(Symbol):
+class Regex(ProductionNode):
+    """Regex nodes used in a production work as fillers between other symbols and rules."""
 
     def __init__(self, regex):
         assert is_valid_regex(regex)
@@ -120,7 +122,8 @@ class Regex(Symbol):
         return 'regex {0})'.format(self.__regex)
 
 
-class Or(Symbol):
+class Or(ProductionNode):
+    """Or nodes represents a list of clauses that can match independently."""
 
     def __init__(self, clauses):
         self.__clauses = clauses
@@ -148,4 +151,3 @@ class Or(Symbol):
     def __str__(self):
         clauses = ' '.join(str(s) for s in self.clauses)
         return '(or {0})'.format(clauses)
-

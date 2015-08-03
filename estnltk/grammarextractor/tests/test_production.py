@@ -7,6 +7,7 @@ from ..production import tokenize, parse
 from ..exceptions import ParseException
 from ..symbols import Name, Or, Regex, Optional, List
 
+
 class TokenizeTest(unittest.TestCase):
     """Test production tokenization."""
 
@@ -89,6 +90,9 @@ class ParseTest(unittest.TestCase):
         actual = parse('symbol?')
         expected = Optional(Name('symbol'))
         self.assertEqual(expected, actual)
+
+    def test_invalid_optional(self):
+        self.assertRaises(ParseException, parse, 'a??')
 
     def test_list(self):
         actual = parse('a b c')
