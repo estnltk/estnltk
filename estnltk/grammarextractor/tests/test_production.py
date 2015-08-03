@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
+from cmath import exp
 
 import unittest
-from ..production import tokenize
+from ..production import tokenize, parse
 from ..exceptions import ParseException
-
+from ..symbols import Name, Or, Regex, Optional, List
 
 class TokenizeTest(unittest.TestCase):
     """Test production tokenization."""
@@ -62,3 +63,64 @@ class TokenizeTest(unittest.TestCase):
         expected = ['first', '|', 'second']
         self.assertListEqual(expected, actual1)
         self.assertListEqual(expected, actual2)
+
+    def test_full_example(self):
+        actual = tokenize("a_symbol|(b_symbol 'optional_regex'? c_symbol)")
+        expected = ['a_symbol', '|', '(', 'b_symbol', "'optional_regex'", '?', 'c_symbol', ')']
+        self.assertListEqual(expected, actual)
+
+
+class ParseTest(unittest.TestCase):
+
+    def test_empty(self):
+        self.assertRaises(ParseException, parse, '     ')
+
+    def test_name(self):
+        actual = parse('symbol')
+        expected = Name('symbol')
+        self.assertEqual(expected, actual)
+
+    def test_regex(self):
+        actual = parse("'regex'")
+        expected = Regex('regex')
+        self.assertEqual(expected, actual)
+
+    def test_optional(self):
+        actual = parse('symbol?')
+        expected = Optional(Name('symbol'))
+        self.assertEqual(expected, actual)
+
+    def test_list(self):
+        actual = parse('a b c')
+        expected = List([Name('a'), Name('b'), Name('c')])
+        self.assertEqual(expected, actual)
+
+    def test_or(self):
+        actual = parse('a|b|c')
+        expected = Or([Name('a'), Name('b'), Name('c')])
+        self.assertEqual(expected, actual)
+
+    def test_unbalanced_parenthesis(self):
+        self.assertRaises(ParseException, parse, '(')
+        self.assertRaises(ParseException, parse, ')')
+
+    def test_redundant_parenthesis_removed(self):
+        actual = parse('(((((a)))))')
+        expected = Name('a')
+        self.assertEqual(expected, actual)
+
+    def test_invalid_parenthesis(self):
+        self.assertRaises(ParseException, parse, '(())')
+
+    def test_complex(self):
+        actual = parse('''(a|b 'regex' c)? d''')
+        expected = List([
+            Optional(
+                Or([
+                    Name('a'),
+                    List([Name('b'), Regex('regex'), Name('c')])
+                ])
+            ),
+            Name('d')
+        ])
+        self.assertEqual(expected, actual)
