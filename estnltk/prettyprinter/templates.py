@@ -26,3 +26,9 @@ def cssHeader():
     font-size: 30px;
     letter-spacing: 2px;
     }\n"""
+
+def safe_get(dictList, key, default):
+    if key in dictList:
+        return dictList[key]
+    else:
+        return default

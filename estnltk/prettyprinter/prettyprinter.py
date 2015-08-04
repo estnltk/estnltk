@@ -57,22 +57,23 @@ class PrettyPrinter(object):
 
         for key, value in self.kwargs.items():
             cssTemporary = StringIO()
+
             if key == 'color':
-                cssTemporary.write('mark.'+key+' {\n\tcolor: '+self.kwargs.get(key, 'default value')+';\n')
+                cssTemporary.write('mark.'+key+' {\n\tcolor: '+templates.safe_get(textFormat[value], key, 'default value')+';\n')
             elif key == 'background':
-                cssTemporary.write('mark.'+key+' {\n\tbackground-color: '+self.kwargs.get(key, 'default value')+';\n')
+                cssTemporary.write('mark.'+key+' {\n\tbackground-color: '+templates.safe_get(textFormat[value], key, 'default value')+';\n')
             elif key == 'font':
-                cssTemporary.write('mark.'+key+' {\n\tfont-family: '+self.kwargs.get(key, 'default value')+';\n')
+                cssTemporary.write('mark.'+key+' {\n\tfont-family: '+templates.safe_get(textFormat[value], key, 'default value')+';\n')
             elif key == 'weight':
-                cssTemporary.write('mark.'+key+' {\n\tfont-weight: '+self.kwargs.get(key, 'default value')+';\n')
+                cssTemporary.write('mark.'+key+' {\n\tfont-weight: '+templates.safe_get(textFormat[value], key, 'default value')+';\n')
             elif key == 'italics':
-                cssTemporary.write('mark.'+key+' {\n\tfont-style: '+self.kwargs.get(key, 'default value')+';\n')
+                cssTemporary.write('mark.'+key+' {\n\tfont-style: '+templates.safe_get(textFormat[value], key, 'default value')+';\n')
             elif key == 'underline':
-                cssTemporary.write('mark.'+key+' {\n\tfont-decoration: '+self.kwargs.get(key, 'default value')+';\n')
+                cssTemporary.write('mark.'+key+' {\n\tfont-decoration: '+templates.safe_get(textFormat[value], key, 'default value')+';\n')
             elif key == 'size':
-                cssTemporary.write('mark.'+key+' {\n\tfont-size: '+font[self.kwargs.get(key, 'default value')]+';\n')
+                cssTemporary.write('mark.'+key+' {\n\tfont-size: '+font[templates.safe_get(textFormat[value], key, 'default value')]+';\n')
             elif key == 'tracking':
-                cssTemporary.write('mark.'+key+' {\n\tletter-spacing: '+spacing[self.kwargs.get(key, 'default value')]+';\n')
+                cssTemporary.write('mark.'+key+' {\n\tletter-spacing: '+spacing[templates.safe_get(textFormat[value], key, 'default value')]+';\n')
             cssTemporary.write('}\n')
             cssList.append(cssTemporary.getvalue())
             cssTemporary.close()
@@ -83,6 +84,8 @@ class PrettyPrinter(object):
         # TODO: märkus. CSS klasside genereerimisel tuleb hiljem arvestada ka seda, et erinevad märgendused võivad kattuda, näiteks teksti värv ja taustavärv. Selliste juhtude lahendamiseks peaks olema üks CSS klass iga aesteetik-väärtuse paari jaoks.
         text = Text(inputText['text'])
         annotations = inputText['annotations']
+        global textFormat
+        textFormat = inputText['textFormat']
 
         originalValue = str(text)
         htmlContent = StringIO()
@@ -94,7 +97,7 @@ class PrettyPrinter(object):
         a = "\t\t\t<mark"
 
         for key, value in self.kwargs.items():
-                a+=' class=\"'+value+'\"'+', '
+                a+=' class=\"'+key+'\"'+', '
         a = a[:-2]
 
         b = "\t\t\t<mark"
@@ -134,13 +137,13 @@ text = Text({
          'end': 60
          }
     ],
-    'format': [
-        {'background': 'blue'},
-        {'color': 'green'}
-    ]
+    'textFormat': {'annotations':
+        {'background': 'blue',
+        'color': 'green'}
+    }
 })
 
-pp = PrettyPrinter(background = 'annotations')
+pp = PrettyPrinter(background = 'annotations', color = 'annotations')
 pp.render(text)
 
 # lihtne näide, mida ma ise silmas pidasin
