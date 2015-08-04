@@ -112,7 +112,9 @@ Each section has (if it has references) has a reference field in the form of::
 Internal Links
 -------------------
 
-Internal links point to articles in et.wikipedia.org/wiki/.::
+Internal links point to articles in et.wikipedia.org/wiki/.
+Link parsing works if the brackets are balanced 99.99% of the time they are, on rare occasions (1/15000 files) can happen that internal links inside external link labels are not balanced correctly. Parser just ignores this.
+::
 
             "internal_links": [
                 {

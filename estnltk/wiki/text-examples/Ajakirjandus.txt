@@ -1,0 +1,171 @@
+{
+    "data": {
+        "categories": [
+            "Ajakirjandus"
+        ], 
+        "timestamp": "2014-10-07T10:34:18Z", 
+        "title": "Ajakirjandus", 
+        "url": "http://et.wikipedia.org/wiki/Ajakirjandus"
+    }, 
+    "internal_links": [
+        {
+            "end": 50, 
+            "label": "s\u00fcndmuste", 
+            "start": 41, 
+            "title": "s\u00fcndmus", 
+            "url": "http://et.wikipedia.org/wiki/s\u00fcndmus"
+        }, 
+        {
+            "end": 71, 
+            "label": "informatsiooni", 
+            "start": 57, 
+            "title": "informatsioon", 
+            "url": "http://et.wikipedia.org/wiki/informatsioon"
+        }, 
+        {
+            "end": 163, 
+            "label": "ajakirjanik", 
+            "start": 152, 
+            "title": "ajakirjanik", 
+            "url": "http://et.wikipedia.org/wiki/ajakirjanik"
+        }, 
+        {
+            "end": 201, 
+            "label": "Prantsuse revolutsioon", 
+            "start": 179, 
+            "title": "Prantsuse revolutsioon", 
+            "url": "http://et.wikipedia.org/wiki/Prantsuse_revolutsioon"
+        }, 
+        {
+            "end": 227, 
+            "label": "ajakirjanduse", 
+            "start": 214, 
+            "title": "ajakirjandus", 
+            "url": "http://et.wikipedia.org/wiki/ajakirjandus"
+        }, 
+        {
+            "end": 384, 
+            "label": "Eesti ajakirjanduse ajalugu", 
+            "start": 357, 
+            "title": "Eesti ajakirjanduse ajalugu", 
+            "url": "http://et.wikipedia.org/wiki/Eesti_ajakirjanduse_ajalugu"
+        }, 
+        {
+            "end": 405, 
+            "label": "Kollane ajakirjandus", 
+            "start": 385, 
+            "title": "Kollane ajakirjandus", 
+            "url": "http://et.wikipedia.org/wiki/Kollane_ajakirjandus"
+        }, 
+        {
+            "end": 414, 
+            "label": "Tsensuur", 
+            "start": 406, 
+            "title": "Tsensuur", 
+            "url": "http://et.wikipedia.org/wiki/Tsensuur"
+        }, 
+        {
+            "end": 433, 
+            "label": "Ajakirjanike loend", 
+            "start": 415, 
+            "title": "Ajakirjanike loend", 
+            "url": "http://et.wikipedia.org/wiki/Ajakirjanike_loend"
+        }, 
+        {
+            "end": 456, 
+            "label": "Eesti ajalehtede loend", 
+            "start": 434, 
+            "title": "Eesti ajalehtede loend", 
+            "url": "http://et.wikipedia.org/wiki/Eesti_ajalehtede_loend"
+        }, 
+        {
+            "end": 482, 
+            "label": "V\u00e4lismaa ajalehtede loend", 
+            "start": 457, 
+            "title": "V\u00e4lismaa ajalehtede loend", 
+            "url": "http://et.wikipedia.org/wiki/V\u00e4lismaa_ajalehtede_loend"
+        }, 
+        {
+            "end": 505, 
+            "label": "Eesti ajakirjade loend", 
+            "start": 483, 
+            "title": "Eesti ajakirjade loend", 
+            "url": "http://et.wikipedia.org/wiki/Eesti_ajakirjade_loend"
+        }, 
+        {
+            "end": 531, 
+            "label": "V\u00e4lismaa ajakirjade loend", 
+            "start": 506, 
+            "title": "V\u00e4lismaa ajakirjade loend", 
+            "url": "http://et.wikipedia.org/wiki/V\u00e4lismaa_ajakirjade_loend"
+        }, 
+        {
+            "end": 543, 
+            "label": "Ringh\u00e4\u00e4ling", 
+            "start": 532, 
+            "title": "Ringh\u00e4\u00e4ling", 
+            "url": "http://et.wikipedia.org/wiki/Ringh\u00e4\u00e4ling"
+        }, 
+        {
+            "end": 555, 
+            "label": "Televisioon", 
+            "start": 544, 
+            "title": "Televisioon", 
+            "url": "http://et.wikipedia.org/wiki/Televisioon"
+        }, 
+        {
+            "end": 563, 
+            "label": "Ajaleht", 
+            "start": 556, 
+            "title": "Ajaleht", 
+            "url": "http://et.wikipedia.org/wiki/Ajaleht"
+        }, 
+        {
+            "end": 571, 
+            "label": "Ajakiri", 
+            "start": 564, 
+            "title": "Ajakiri", 
+            "url": "http://et.wikipedia.org/wiki/Ajakiri"
+        }, 
+        {
+            "end": 590, 
+            "label": "Teadusajakirjandus", 
+            "start": 572, 
+            "title": "Teadusajakirjandus", 
+            "url": "http://et.wikipedia.org/wiki/Teadusajakirjandus"
+        }, 
+        {
+            "end": 600, 
+            "label": "Intervjuu", 
+            "start": 591, 
+            "title": "Intervjuu", 
+            "url": "http://et.wikipedia.org/wiki/Intervjuu"
+        }, 
+        {
+            "end": 618, 
+            "label": "Osaluseksperiment", 
+            "start": 601, 
+            "title": "Osaluseksperiment", 
+            "url": "http://et.wikipedia.org/wiki/Osaluseksperiment"
+        }, 
+        {
+            "end": 635, 
+            "label": "Fotoajakirjandus", 
+            "start": 619, 
+            "title": "Fotoajakirjandus", 
+            "url": "http://et.wikipedia.org/wiki/Fotoajakirjandus"
+        }
+    ], 
+    "sections": [
+        {
+            "end": 346, 
+            "start": 0
+        }, 
+        {
+            "end": 635, 
+            "start": 348, 
+            "title": "Vaata ka"
+        }
+    ], 
+    "text": "Ajakirjandus\nAjakirjandus on aktuaalsete s\u00fcndmuste kohta informatsiooni kogumine, kontrollimine, anal\u00fc\u00fcsimine ja esitamine. Ajakirjandusega tegeleja on ajakirjanik.\nArvatakse, et Prantsuse revolutsioon toimus t\u00e4nu ajakirjanduse kaudu vaba teabe levitamisele. 1850ndate Inglismaal sai ajakirjandusest valitsuse ja rahva vahetalitaja - neljas v\u00f5im.\n\nVaata ka\nEesti ajakirjanduse ajalugu\nKollane ajakirjandus\nTsensuur\nAjakirjanike loend\nEesti ajalehtede loend\nV\u00e4lismaa ajalehtede loend\nEesti ajakirjade loend\nV\u00e4lismaa ajakirjade loend\nRingh\u00e4\u00e4ling\nTelevisioon\nAjaleht\nAjakiri\nTeadusajakirjandus\nIntervjuu\nOsaluseksperiment\nFotoajakirjandus\n\n"
+}

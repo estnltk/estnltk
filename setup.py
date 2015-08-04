@@ -45,7 +45,7 @@ swig_opts.append('-c++')
 
 setup(
     name = "estnltk",
-    version = "1.2.2",
+    version = "1.3",
 
     packages = find_packages(),
     include_package_data=True,
@@ -55,7 +55,8 @@ setup(
         'estnltk.estner': ['gazetteer/*', 'models/py2_default/*', 'models/py3_default/*'],
         'estnltk.wordnet': ['*.cnf', 'data/*.txt', 'data/*.soi', 'data/*.cnf', 'data/scripts/*.py'],
         'estnltk.mw_verbs': ['res/*'],
-        'estnltk.converters': ['*.mrf']
+        'estnltk.converters': ['*.mrf'],
+        'estnltk.grammarextractor': ['grammars/*']
     },
 
     author       = "University of Tartu",
