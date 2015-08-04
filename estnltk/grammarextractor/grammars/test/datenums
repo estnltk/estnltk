@@ -1,0 +1,21 @@
+# this simple grammar defines day, month and year symbols
+# and also uses export directives
+
+symbol Day
+regexes
+    [0-2]\d
+    3[012]
+
+symbol Month
+regexes
+    0\d
+    1[012]
+
+symbol Year
+regexes
+    \d\d\d\d
+
+
+export Day
+export Month
+export Year
