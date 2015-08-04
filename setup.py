@@ -68,7 +68,6 @@ setup(
                   [swig_interface, vabamorf_src] + lib_sources,
                   swig_opts = swig_opts,
                   include_dirs=include_dirs)
-        Extension
         ],
 
     # we have fixed dependency versions to guarantee, what works
