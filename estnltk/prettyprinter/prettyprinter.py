@@ -55,34 +55,35 @@ class PrettyPrinter(object):
         cssList = []
         cssList.append(templates.cssHeader())
 
-        for el in self.kwargs:
+        for key, value in self.kwargs.items():
             cssTemporary = StringIO()
-            if el == 'color':
-                cssTemporary.write('mark.'+el+' {\n\tcolor: '+self.kwargs.get(el, 'default value')+';\n')
-            elif el == 'background':
-                cssTemporary.write('mark.'+el+' {\n\tbackground-color: '+self.kwargs.get(el, 'default value')+';\n')
-            elif el == 'font':
-                cssTemporary.write('mark.'+el+' {\n\tfont-family: '+self.kwargs.get(el, 'default value')+';\n')
-            elif el == 'weight':
-                cssTemporary.write('mark.'+el+' {\n\tfont-weight: '+self.kwargs.get(el, 'default value')+';\n')
-            elif el == 'italics':
-                cssTemporary.write('mark.'+el+' {\n\tfont-style: '+self.kwargs.get(el, 'default value')+';\n')
-            elif el == 'underline':
-                cssTemporary.write('mark.'+el+' {\n\tfont-decoration: '+self.kwargs.get(el, 'default value')+';\n')
-            elif el == 'size':
-                cssTemporary.write('mark.'+el+' {\n\tfont-size: '+font[self.kwargs.get(el, 'default value')]+';\n')
-            elif el == 'tracking':
-                cssTemporary.write('mark.'+el+' {\n\tletter-spacing: '+spacing[self.kwargs.get(el, 'default value')]+';\n')
+            if key == 'color':
+                cssTemporary.write('mark.'+key+' {\n\tcolor: '+self.kwargs.get(key, 'default value')+';\n')
+            elif key == 'background':
+                cssTemporary.write('mark.'+key+' {\n\tbackground-color: '+self.kwargs.get(key, 'default value')+';\n')
+            elif key == 'font':
+                cssTemporary.write('mark.'+key+' {\n\tfont-family: '+self.kwargs.get(key, 'default value')+';\n')
+            elif key == 'weight':
+                cssTemporary.write('mark.'+key+' {\n\tfont-weight: '+self.kwargs.get(key, 'default value')+';\n')
+            elif key == 'italics':
+                cssTemporary.write('mark.'+key+' {\n\tfont-style: '+self.kwargs.get(key, 'default value')+';\n')
+            elif key == 'underline':
+                cssTemporary.write('mark.'+key+' {\n\tfont-decoration: '+self.kwargs.get(key, 'default value')+';\n')
+            elif key == 'size':
+                cssTemporary.write('mark.'+key+' {\n\tfont-size: '+font[self.kwargs.get(key, 'default value')]+';\n')
+            elif key == 'tracking':
+                cssTemporary.write('mark.'+key+' {\n\tletter-spacing: '+spacing[self.kwargs.get(key, 'default value')]+';\n')
             cssTemporary.write('}\n')
             cssList.append(cssTemporary.getvalue())
             cssTemporary.close()
         cssContent = "\n".join(cssList)
         return cssContent
 
-    def create_HTML(self, text, annotations):
+    def create_HTML(self, inputText):
         # TODO: märkus. CSS klasside genereerimisel tuleb hiljem arvestada ka seda, et erinevad märgendused võivad kattuda, näiteks teksti värv ja taustavärv. Selliste juhtude lahendamiseks peaks olema üks CSS klass iga aesteetik-väärtuse paari jaoks.
+        text = Text(inputText['text'])
+        annotations = inputText['annotations']
 
-        annotations = annotations
         originalValue = str(text)
         htmlContent = StringIO()
         htmlContent.write(templates.header())
@@ -92,8 +93,8 @@ class PrettyPrinter(object):
 
         a = "\t\t\t<mark"
 
-        for key in self.kwargs:
-                a+=' class=\"'+key+'\"'+', '
+        for key, value in self.kwargs.items():
+                a+=' class=\"'+value+'\"'+', '
         a = a[:-2]
 
         b = "\t\t\t<mark"
@@ -118,10 +119,8 @@ class PrettyPrinter(object):
 
     def render(self, inputText):
         # TODO: tähelepanek, et siin meetodis tuleb kindlasti abstraheerida konkreetsed kihid
-        text = Text(inputText['text'])
-        annotations = inputText['annotations']
         content = StringIO()
-        content.write(self.create_HTML(text, annotations))
+        content.write(self.create_HTML(inputText))
         html = content.getvalue()
         content.close()
         print(html)
@@ -134,6 +133,10 @@ text = Text({
         {'start': 47,
          'end': 60
          }
+    ],
+    'format': [
+        {'background': 'blue'},
+        {'color': 'green'}
     ]
 })
 
