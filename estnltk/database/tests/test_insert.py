@@ -21,6 +21,6 @@ class InsertTest(unittest.TestCase):
 
     def test_insert(self):
         db = database()
-        db.delete()
+
         db.index(text(), id=100)
         self.assertEqual(1, db.count())
