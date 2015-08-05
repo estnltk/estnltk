@@ -83,7 +83,10 @@ class PrettyPrinter(object):
     def create_HTML(self, inputText):
         # TODO: märkus. CSS klasside genereerimisel tuleb hiljem arvestada ka seda, et erinevad märgendused võivad kattuda, näiteks teksti värv ja taustavärv. Selliste juhtude lahendamiseks peaks olema üks CSS klass iga aesteetik-väärtuse paari jaoks.
         text = Text(inputText['text'])
-        annotations = inputText['annotations']
+        annots = []
+        for el in inputText:
+            if el != 'text' and el!= 'textFormat':
+                annots.append(el)
         global textFormat
         textFormat = inputText['textFormat']
 
@@ -95,19 +98,20 @@ class PrettyPrinter(object):
         text.tokenize_words()
 
         a = "\t\t\t<mark"
-
-        for key, value in self.kwargs.items():
-                a+=' class=\"'+key+'\"'+', '
-        a = a[:-2]
-
         b = "\t\t\t<mark"
         written = False
 
         for el in range(len(text['words'])):
-            for nr in range(len(annotations)):
-                if text['words'][el]['start'] >= annotations[nr]['start'] and text['words'][el]['end'] <= annotations[nr]['end']:
-                    htmlContent.write(a + '>' + originalValue[text['words'][el]['start']:text['words'][el]['end']] + '</mark>\n')
-                    written = True
+            for annot in annots:
+                for nr in range(len(inputText[annot])):
+                    if text['words'][el]['start'] >= inputText[annot][nr]['start'] and text['words'][el]['end'] <= inputText[annot][nr]['end']:
+                        for key, value in self.kwargs.items():
+                            if value == annot:
+                                a+=' class=\"'+key+'\"'+', '
+                        a = a[:-2]
+                        htmlContent.write(a + '>' + originalValue[text['words'][el]['start']:text['words'][el]['end']] + '</mark>\n')
+                        a = "\t\t\t<mark"
+                        written = True
             if written == False:
                 htmlContent.write(b + '>' + originalValue[text['words'][el]['start']:text['words'][el]['end']] + '</mark>\n')
             else:
@@ -137,13 +141,18 @@ text = Text({
          'end': 60
          }
     ],
+    'word': [
+        {'start': 0,
+        'end': 6
+        }
+    ],
     'textFormat': {'annotations':
-        {'background': 'blue',
-        'color': 'green'}
+        {'background': 'blue'},
+        'word': {'weight': 'bold'}
     }
 })
 
-pp = PrettyPrinter(background = 'annotations', color = 'annotations')
+pp = PrettyPrinter(background = 'annotations', weight = 'word')
 pp.render(text)
 
 # lihtne näide, mida ma ise silmas pidasin
