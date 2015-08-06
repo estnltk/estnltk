@@ -2,6 +2,7 @@
 from __future__ import unicode_literals, print_function, absolute_import
 
 from .symbol import Symbol
+from .prefilter import PreFilter
 
 
 class Grammar(object):
@@ -27,4 +28,13 @@ class Grammar(object):
     @property
     def exports(self):
         return self.__exports
+
+    @property
+    def examples(self):
+        return self.__examples
+
+    @property
+    def constraints(self):
+        prefilter = PreFilter(self)
+        return prefilter.constraints
 

@@ -16,30 +16,39 @@ CASE_INSENSITIVE = False
 class WordDictionary(object):
 
     def __init__(self):
-        self.__words = set()
-        self.__case_sensitivity = dict()
+        self.__case_sensitive_words = set()
+        self.__case_insensitive_words = set()
+
+    @property
+    def case_sensitive_words(self):
+        return self.__case_sensitive_words
+
+    @property
+    def case_insensitive_words(self):
+        return self.__case_insensitive_words
 
     def add_word(self, word, case_sensitive):
-        self.__words.add(word)
-        self.__case_sensitivity[word] = case_sensitive
+        if case_sensitive:
+            self.__case_sensitive_words.add(word)
+        self.__case_insensitive_words.add(word)
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
     def __or__(self, other):
-        words = self.__words | other.__words
-        case_sensitivity = self.__case_sensitivity | other.__case_sensitivity
+        case_sensitive_words = self.case_sensitive_words | other.case_sensitive_words
+        case_insensitive_words = self.case_insensitive_words | other.case_insensitive_words
         wd = WordDictionary()
-        wd.__words = words
-        wd.__case_sensitivity = case_sensitivity
+        wd.__case_sensitive_Words = case_sensitive_words
+        wd.__case_insensitive_words = case_insensitive_words
         return wd
 
     def __and__(self, other):
-        words = self.__words & other.__words
-        case_sensitivity = self.__case_sensitivity & other.__case_sensitivity
+        case_sensitive_words = self.case_sensitive_words & other.case_sensitive_words
+        case_insensitive_words = self.case_insensitive_words & other.case_insensitive_words
         wd = WordDictionary()
-        wd.__words = words
-        wd.__case_sensitivity = case_sensitivity
+        wd.__case_sensitive_Words = case_sensitive_words
+        wd.__case_insensitive_words = case_insensitive_words
         return wd
 
 
@@ -47,6 +56,10 @@ class LemmaDictionary(object):
 
     def __init__(self):
         self.__lemmas = set()
+
+    @property
+    def lemmas(self):
+        return self.__lemmas
 
     def add_lemma(self, lemma):
         self.__lemmas.add(lemma)

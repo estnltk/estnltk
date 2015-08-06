@@ -10,8 +10,6 @@ from functools import reduce
 from .constraints import Constraints
 from .dictionaries import CASE_INSENSITIVE, CASE_SENSITIVE, WordDictionary, LemmaDictionary
 from ..production_nodes import Name, Optional, Or, List, Regex
-from ..symbol import Symbol
-from ..grammar import Grammar
 
 
 def unite_constraints(c1, c2):
@@ -41,7 +39,7 @@ def build_regex(regex_node, grammar):
 
 
 def build_name(name_node, grammar):
-    cb = ConstraintsBuilder(grammar.get_symbol(name_node.name))
+    cb = ConstraintsBuilder(grammar.get_symbol(name_node.name), grammar)
     return cb.constraints
 
 
@@ -55,15 +53,22 @@ BUILDERS = {
 
 
 def build_node(node, grammar):
-    f = BUILDERS[type(node)]
-    return f(node, grammar)
+    if isinstance(node, List):
+        return build_list(node, grammar)
+    if isinstance(node, Or):
+        return build_or(node, grammar)
+    if isinstance(node, Optional):
+        return build_optional(node, grammar)
+    if isinstance(node, Regex):
+        return build_regex(node, grammar)
+    if isinstance(node, Name):
+        return build_name(node, grammar)
+    assert False, 'Code should not reach here!'
 
 
 class ConstraintsBuilder(object):
 
     def __init__(self, symbol, grammar):
-        assert isinstance(symbol, Symbol)
-        assert isinstance(grammar, Grammar)
         self.__symbol = symbol
         self.__grammar = grammar
         self.__constraints = self.__build()
@@ -84,9 +89,9 @@ class ConstraintsBuilder(object):
         symbol = self.symbol
         word_dict = WordDictionary()
         for word in symbol.words:
-            word_dict.add(word, CASE_SENSITIVE)
+            word_dict.add_word(word, CASE_SENSITIVE)
         for word in symbol.iwords:
-            word_dict.add(word, CASE_INSENSITIVE)
+            word_dict.add_word(word, CASE_INSENSITIVE)
         return word_dict
 
     def __lemma_dict(self):
@@ -98,7 +103,7 @@ class ConstraintsBuilder(object):
 
     def __build(self):
         # in case there are regexes, we need to match all documents
-        if self.symbol.regexes.size() > 0:
+        if len(self.symbol.regexes) > 0 or len(self.symbol.iregexes) > 0:
             return Constraints(all=True)
         # build word and lemma dictionaries
         word_dict = self.__word_dict()

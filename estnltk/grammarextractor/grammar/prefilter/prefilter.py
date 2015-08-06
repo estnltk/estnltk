@@ -33,6 +33,8 @@ class PreFilter(object):
 
     @property
     def constraints(self):
-        symbols = list(self.__grammar.exports.keys())
+        grammar = self.grammar
+        symbol_names = list(self.__grammar.exports.keys())
+        symbols = (grammar.get_symbol(name) for name in symbol_names)
         constraints = (ConstraintsBuilder(symbol, self.grammar).constraints for symbol in symbols)
         return reduce(unite_constraints, constraints)

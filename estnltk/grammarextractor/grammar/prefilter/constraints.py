@@ -22,6 +22,26 @@ class Constraints(object):
     def word_dict(self):
         return self.__word_dict
 
+    @property
+    def lemma_dict(self):
+        return self.__lemma_dict
+
+    @property
+    def all(self):
+        return self.__all
+
+    @property
+    def case_sensitive_words(self):
+        return self.__word_dict.case_sensitive_words
+
+    @property
+    def case_insensitive_words(self):
+        return self.__word_dict.case_insensitive_words
+
+    @property
+    def lemmas(self):
+        return self.__lemma_dict.lemmas
+
     def __or__(self, other):
         all = self.__all or other.__all
         if all:
@@ -31,7 +51,7 @@ class Constraints(object):
         return Constraints(word_dict, lemma_dict, False)
 
     def __and__(self, other):
-        all = self._all and other.__all
+        all = self.__all and other.__all
         if all:
             return Constraints(all=True)
         word_dict = self.__word_dict & other.__word_dict

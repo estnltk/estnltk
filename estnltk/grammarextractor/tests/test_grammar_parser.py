@@ -32,6 +32,8 @@ class GrammarParserTest(unittest.TestCase):
         expected_exports = {'Month': [], 'Year': [], 'Day': []}
         self.assertDictEqual(expected_exports, grammar.exports)
 
+        self.assertEqual(0, len(grammar.examples))
+
     def test_date(self):
         importer = FileSystemImporter([TEST_GRAMMARS_PATH])
         parser = GrammarParser(load_grammar('date'), importer)
@@ -40,3 +42,4 @@ class GrammarParserTest(unittest.TestCase):
         expected_exports = {'Date': [('Day', 'integer'), ('Month', 'real'), ('Year', 'string')]}
         self.assertDictEqual(expected_exports, grammar.exports)
 
+        self.assertEqual(2, len(grammar.examples['Date']))
