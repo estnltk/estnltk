@@ -90,32 +90,43 @@ class PrettyPrinter(object):
         global textFormat
         textFormat = inputText['textFormat']
 
+        letters = list(inputText['text'])
+        print(letters)
+
         originalValue = str(text)
         htmlContent = StringIO()
         htmlContent.write(templates.header())
         htmlContent.write(self.css)
         htmlContent.write(templates.middle())
         text.tokenize_words()
+        print(text['words'])
 
         a = "\t\t\t<mark"
         b = "\t\t\t<mark"
         written = False
+        el=0
 
-        for el in range(len(text['words'])):
+        while el < len(letters):
             for annot in annots:
                 for nr in range(len(inputText[annot])):
-                    if text['words'][el]['start'] >= inputText[annot][nr]['start'] and text['words'][el]['end'] <= inputText[annot][nr]['end']:
+                    if el >= inputText[annot][nr]['start'] and el <= inputText[annot][nr]['end']:
                         for key, value in self.kwargs.items():
                             if value == annot:
                                 a+=' class=\"'+key+'\"'+', '
                         a = a[:-2]
-                        htmlContent.write(a + '>' + originalValue[text['words'][el]['start']:text['words'][el]['end']] + '</mark>\n')
+                        htmlContent.write(a + '>')
+                        while el >= inputText[annot][nr]['start'] and el <= inputText[annot][nr]['end']:
+                            htmlContent.write(letters[el])
+                            el=el+1
+                        htmlContent.write('</mark>\n')
                         a = "\t\t\t<mark"
                         written = True
-            if written == False:
-                htmlContent.write(b + '>' + originalValue[text['words'][el]['start']:text['words'][el]['end']] + '</mark>\n')
-            else:
-                written = False
+                        print(htmlContent.getvalue())
+                if written == False:
+                    htmlContent.write(b + '>' + letters[el] + '</mark>\n')
+                else:
+                    written = False
+                    el += 1
 
         htmlContent.write('\t\t</p>\n')
         htmlContent.write(templates.footer())
