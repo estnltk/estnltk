@@ -1,0 +1,16 @@
+# this grammar is for testing constraint extraction from
+# single symbol dictionaries
+
+symbol MySymbol
+words
+    pihlakad
+    mustsõstrad
+case sensitive words
+    Õunad
+    Kapsad
+lemmas
+    porgand
+    peet
+
+export MySymbol
+

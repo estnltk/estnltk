@@ -20,8 +20,7 @@ def concat_regexes(regexes, name):
     return '(?P<{0}>('.format(name) + ')|('.join(regexes) + '))'
 
 
-def get_word_patterns(name, words):
-    words, iwords = split_by_case_sensitive(words)
+def get_word_patterns(name, words, iwords):
     patterns = []
     if len(words) > 0:
         regex = re.compile('(?P<{0}>\L<words>)'.format(name), words=words, flags=re.UNICODE)
@@ -32,8 +31,7 @@ def get_word_patterns(name, words):
     return patterns
 
 
-def get_regex_patterns(name, regexes):
-    regexes, iregexes = split_by_case_sensitive(regexes)
+def get_regex_patterns(name, regexes, iregexes):
     patterns = []
     if len(regexes) > 0:
         regex = re.compile(concat_regexes(regexes, name), re.UNICODE)
@@ -44,8 +42,8 @@ def get_regex_patterns(name, regexes):
     return patterns
 
 
-def get_patterns(name, words, regexes):
-    return get_word_patterns(name, words) + get_regex_patterns(name, regexes)
+def get_patterns(name, words, iwords, regexes, iregexes):
+    return get_word_patterns(name, words, iwords) + get_regex_patterns(name, regexes, iregexes)
 
 
 def get_lemma_regex(name, lemmas):
@@ -81,8 +79,11 @@ class Symbol(object):
         assert is_valid_symbol_name(name)
         self.__name = name
         self.__productions = kwargs.get('productions', [])
-        self.__patterns = get_patterns(self.name, kwargs.get('words', []), kwargs.get('regexes', []))
-        self.__lemma_regex = get_lemma_regex(self.name, kwargs.get('lemmas', []))
+        self.__words, self.__iwords = split_by_case_sensitive(kwargs.get('words', []))
+        self.__regexes, self.__iregexes = split_by_case_sensitive(kwargs.get('regexes', []))
+        self.__patterns = get_patterns(self.name, self.__words, self.__iwords, self.__regexes, self.__iregexes)
+        self.__lemmas = kwargs.get('lemmas', [])
+        self.__lemma_regex = get_lemma_regex(self.name, self.__lemmas)
         self.__postag_regex = get_postag_regex(self.name, kwargs.get('postags', []))
 
     @property
@@ -94,8 +95,28 @@ class Symbol(object):
         return self.__productions
 
     @property
+    def words(self):
+        return self.__words
+
+    @property
+    def iwords(self):
+        return self.__iwords
+
+    @property
+    def regexes(self):
+        return self.__regexes
+
+    @property
+    def iregexes(self):
+        return self.__iregexes
+
+    @property
     def patterns(self):
         return self.__patterns
+
+    @property
+    def lemmas(self):
+        return self.__lemmas
 
     @property
     def lemma_regex(self):

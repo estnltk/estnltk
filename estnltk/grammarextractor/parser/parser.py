@@ -81,7 +81,8 @@ class GrammarParser(object):
         self.check_productions()
         self.check_exports()
 
-    def get_grammar(self):
+    @property
+    def grammar(self):
         return Grammar(self.symbols, self.exports, self.words, self.regexes, self.lemmas, self.postags, self.productions, self.examples)
 
     def check_nonempty_symbols(self):
