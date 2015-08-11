@@ -9,46 +9,38 @@ TODO: kuigi estnltk ise seda praegu 100% ei järgi, proovime koodi stiili teha
       Pythoni tavade järgi: https://www.python.org/dev/peps/pep-0008/
 """
 from __future__ import unicode_literals, print_function, absolute_import
-#from estnltk.prettyprinter.templates import cssHeader, middle, header, footer
-
-try:
-    from StringIO import cStringIO as StringIO
-except ImportError: # Py3
-    from io import StringIO
-
-try:
-    from html import escape as htmlescape
-except ImportError:
-    from cgi import escape as htmlescape
-
-from estnltk import Text
 
 import sys
 sys.path.insert(0, '/path/to/estnltk/prettyprinter')
-#import templates
-from . import templates
 
-# muutsin seda, sest sain importerrori:
-#TODO from . import templates
+from .values import AESTHETICS, LEGAL_ARGUMENTS
 
-# Parem on koodi käivitada estnltk juurkataloogist, nt.
-# python -m estnltk.prettyprinter.prettyprinter
-#
-# siis pole tarvis sys.path muutujat muuta, mis pole ka alati hea mõte
-# PyCharmis saab ka run configurationis seda teha kui working directory panna estnltk juureks
-# ning käivitamise käsk anna -m argumendina. Ainus puudus, et nii ei saa debugida.
+
+def assert_correct_arguments(kwargs):
+    """Function that checks if kwargs contains legal arguments.
+    Raises ValueError in case there are unknown arguments.
+    """
+    seen_layers = set()
+    for k, v in kwargs.items():
+        if k not in LEGAL_ARGUMENTS:
+            raise ValueError('Illegal argument <{0}>!'.format(k))
+        if k in AESTHETICS:
+            if v in seen_layers:
+                raise ValueError('Layer <{0}> mapped for more than a single aesthetic!'.format(v))
+            seen_layers.add(v)
+
 
 class PrettyPrinter(object):
     """Class for formatting Text instances as HTML & CSS."""
 
     def __init__(self, **kwargs):
+        assert_correct_arguments(kwargs)
         self.kwargs = kwargs
 
-        # TODO: ülesande 2.a (aesteetikute ja kihtide mappingu parsimine) võiks enne edasi liikumist valmis teha, kuna see aitab läbi mõelda kuidas koodi paremini struktureerida
 
+"""
     @property
     def css(self):
-        """The CSS of the prettyprinter"""
 
         font = {'small':'20', 'normal':'30', 'large':'40'}
         spacing = {'small':'1', 'normal':'2', 'large':'4'}
@@ -171,6 +163,7 @@ class PrettyPrinter(object):
         content.close()
         print(html)
 """
+"""
     def create_HTML(self, inputText):
         # TODO: märkus. CSS klasside genereerimisel tuleb hiljem arvestada ka seda, et erinevad märgendused võivad kattuda, näiteks teksti värv ja taustavärv. Selliste juhtude lahendamiseks peaks olema üks CSS klass iga aesteetik-väärtuse paari jaoks.
         text = Text(inputText['text'])
@@ -240,6 +233,7 @@ class PrettyPrinter(object):
         return content
 """
 
+"""
 text = Text({
     'text': 'Selles tekstis on mitu märgendust, üks siin ja teine on siin',
     'annotations': [
@@ -259,9 +253,10 @@ text = Text({
         'word': {'weight': 'bold'}
     }
 })
+"""
 
-pp = PrettyPrinter(background = 'annotations')
-pp.render(text)
+#pp = PrettyPrinter(background = 'annotations')
+#pp.render(text)
 
 # üks tähelepanek veel, et võiksid kasutada Pythoni koodistiili standarti:
 # https://www.python.org/dev/peps/pep-0008/
