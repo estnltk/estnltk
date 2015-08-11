@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Estnltk prettyprinter module.
-
 Deals with rendering Text instances as HTML.
-
-TODO: ülesande 2.a jaoks teha unittestid
-TODO: kuigi estnltk ise seda praegu 100% ei järgi, proovime koodi stiili teha
-      Pythoni tavade järgi: https://www.python.org/dev/peps/pep-0008/
 """
 from __future__ import unicode_literals, print_function, absolute_import
 
@@ -15,6 +10,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 from .values import AESTHETICS, AES_VALUE_MAP, DEFAULT_VALUE_MAP, LEGAL_ARGUMENTS
 from .templates import get_mark_css
+from .marker import mark_text
 
 from cached_property import cached_property
 
@@ -90,42 +86,11 @@ class PrettyPrinter(object):
             css_list.append(mark_css)
         return '\n'.join(css_list)
 
+    def render(self, text):
+        return mark_text(text, self.aesthetics)
+
 
 """
-    @property
-    def css(self):
-
-        font = {'small':'20', 'normal':'30', 'large':'40'}
-        spacing = {'small':'1', 'normal':'2', 'large':'4'}
-
-        cssList = []
-        cssList.append(templates.cssHeader())
-
-        for key, value in self.kwargs.items():
-            cssTemporary = StringIO()
-
-            if key == 'color':
-                cssTemporary.write('mark.'+key+' {\n\tcolor: '+templates.safe_get(textFormat[value], key, 'default value')+';\n')
-            elif key == 'background':
-                cssTemporary.write('mark.'+key+' {\n\tbackground-color: '+templates.safe_get(textFormat[value], key, 'default value')+';\n')
-            elif key == 'font':
-                cssTemporary.write('mark.'+key+' {\n\tfont-family: '+templates.safe_get(textFormat[value], key, 'default value')+';\n')
-            elif key == 'weight':
-                cssTemporary.write('mark.'+key+' {\n\tfont-weight: '+templates.safe_get(textFormat[value], key, 'default value')+';\n')
-            elif key == 'italics':
-                cssTemporary.write('mark.'+key+' {\n\tfont-style: '+templates.safe_get(textFormat[value], key, 'default value')+';\n')
-            elif key == 'underline':
-                cssTemporary.write('mark.'+key+' {\n\tfont-decoration: '+templates.safe_get(textFormat[value], key, 'default value')+';\n')
-            elif key == 'size':
-                cssTemporary.write('mark.'+key+' {\n\tfont-size: '+font[templates.safe_get(textFormat[value], key, 'default value')]+';\n')
-            elif key == 'tracking':
-                cssTemporary.write('mark.'+key+' {\n\tletter-spacing: '+spacing[templates.safe_get(textFormat[value], key, 'default value')]+';\n')
-            cssTemporary.write('}\n')
-            cssList.append(cssTemporary.getvalue())
-            cssTemporary.close()
-        cssContent = "\n".join(cssList)
-        return cssContent
-
     def create_html(self, inputText):
         text = Text(inputText['text'])
         annots = []

@@ -1062,6 +1062,30 @@ class Text(dict):
         return Text(self.__text_cleaner.clean(self[TEXT]), **self.__kwargs)
 
     # ///////////////////////////////////////////////////////////////////
+    # LAYERS
+    # ///////////////////////////////////////////////////////////////////
+
+    def is_simple(self, layer):
+        elems = self[layer]
+        if len(elems) > 0:
+            return isinstance(elems[0][START], int)
+        return False
+
+    def is_multi(self, layer):
+        elems = self[layer]
+        if len(elems) > 0:
+            return isinstance(elems[0][START], list)
+        return False
+
+    def annotate_with_regex(self, name, pattern, flags=0):
+        if name in self:
+            raise ValueError('Layer or attribute with name <{0}> already exists!'.format(name))
+        if isinstance(pattern, six.string_types):
+            pattern = re.compile(pattern, flags)
+        self[name] = [{START: mo.start(), END: mo.end()} for mo in pattern.finditer(self[TEXT])]
+        return self
+
+    # ///////////////////////////////////////////////////////////////////
     # SPLITTING
     # ///////////////////////////////////////////////////////////////////
 
