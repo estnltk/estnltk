@@ -37,19 +37,18 @@ FOOTER = "\t</body>\n</html>"
 
 MARK_CSS = """mark.{aes_name} {{
     {css_prop}: {css_value};
-}}\n"""
+}}"""
 
 
-def mark_css(aes_name, user_value=None):
+def get_mark_css(aes_name, css_value):
     """Generate CSS class for <mark> tag.
 
     Parameters
     ----------
     aes_name: str
         The name of the class.
-    user_value: str
-        Depending on the aesthetic, the value that will be put in the class.
-        If the user provides no value itself, we use default value.
+    css_value: str
+        The value for the CSS property defined by aes_name.
 
     Returns
     -------
@@ -57,5 +56,4 @@ def mark_css(aes_name, user_value=None):
         The CSS code
     """
     css_prop = AES_CSS_MAP[aes_name]
-    css_value = AES_VALUE_MAP[aes_name] if user_value is not None else user_value
-    MARK_CSS.format(aes_name, css_prop, css_value)
+    return MARK_CSS.format(aes_name=aes_name, css_prop=css_prop, css_value=css_value)

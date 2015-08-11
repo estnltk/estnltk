@@ -14,9 +14,19 @@ from __future__ import unicode_literals, print_function, absolute_import
 #sys.path.insert(0, '/path/to/estnltk/prettyprinter')
 
 from .values import AESTHETICS, AES_VALUE_MAP, DEFAULT_VALUE_MAP, LEGAL_ARGUMENTS
+from .templates import get_mark_css
+
+from cached_property import cached_property
 
 
 def assert_legal_arguments(kwargs):
+    """Assert that PrettyPrinter arguments are correct.
+
+    Raises
+    ------
+    ValueError
+        In case there are unknown arguments or a single layer is mapped to more than one aesthetic.
+    """
     seen_layers = set()
     for k, v in kwargs.items():
         if k not in LEGAL_ARGUMENTS:
@@ -37,11 +47,6 @@ def parse_arguments(kwargs):
     kwargs: dict
         The keyword arguments to PrettyPrinter.
 
-    Raises
-    ------
-    ValueError
-        In case there are unknown arguments or a single layer is mapped to more than one aesthetic.
-
     Returns
     -------
     dict, dict
@@ -54,6 +59,7 @@ def parse_arguments(kwargs):
         if aes in kwargs:
             aesthetics[aes] = kwargs[aes]
             val_name = AES_VALUE_MAP[aes]
+            # map the user-provided CSS value or use the default
             values[aes] = kwargs.get(val_name, DEFAULT_VALUE_MAP[aes])
     return aesthetics, values
 
@@ -65,18 +71,24 @@ class PrettyPrinter(object):
         assert_legal_arguments(kwargs)
         self.__aesthetics, self.__values = parse_arguments(kwargs)
 
-    @property
+    @cached_property
     def aesthetics(self):
+        """Mapping of aesthetics mapped to layers."""
         return self.__aesthetics
 
-    @property
+    @cached_property
     def values(self):
+        """Mapping of aesthetic values."""
         return self.__values
 
-    @property
+    @cached_property
     def css(self):
         """Get the CSS of the PrettyPrinter."""
-        pass
+        css_list = []
+        for aes in self.aesthetics:
+            mark_css = get_mark_css(aes, self.values[aes])
+            css_list.append(mark_css)
+        return '\n'.join(css_list)
 
 
 """
