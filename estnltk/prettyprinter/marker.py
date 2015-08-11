@@ -35,12 +35,15 @@ class Tag(object):
             return True
         if self.pos == other.pos:
             # end tags should come before opening tags
-            if self.is_opening_tag > other.start_tag:
+            if self.is_opening_tag > other.is_opening_tag:
                 return True
             # otherwise, tags should be sorted by css_class name
-            if self.is_opening_tag == other.start_tag:
+            if self.is_opening_tag == other.is_opening_tag:
                 return self.css_class < other.css_class
         return False
+
+    def __repr__(self):
+        return '({0}, {1}, {2})'.format(self.pos, self.is_opening_tag, self.css_class)
 
 
 def create_tags(start, end, css_class):
@@ -81,10 +84,21 @@ def group_tags_at_same_position(tags):
         if tag.pos == last_pos:
             group.append(tag)
         else:
-            yield group
+            yield last_pos, group
             group = [tag]
+            last_pos = tag.pos
     if len(group) > 0:
-        yield group
+        yield last_pos, group
+
+
+def get_opening_closing_tags(group):
+    opening, closing = [], []
+    for tag in group:
+        if tag.is_opening_tag:
+            opening.append(tag)
+        else:
+            closing.append(tag)
+    return opening, closing
 
 
 def create_tags_with_concatenated_css_classes(tags):
@@ -94,23 +108,30 @@ def create_tags_with_concatenated_css_classes(tags):
     """
     current_classes = set()
     result = []
-    for group in group_tags_at_same_position(tags):
-        opening, closing = [], []
-        for tag in group:
-            if tag.is_opening_tag:
-                opening.append(tag)
-            else:
-                closing.append(tag)
+    for pos, group in group_tags_at_same_position(tags):
+        opening, closing = get_opening_closing_tags(group)
+        # handle closing tags at current position
+        closing_added = False
         if len(closing) > 0:
-            # ' '.join is not really needed here, but we use it for consistency of Tag information.
-            closing_tag = Tag(tag.pos, False, ' '.join(sorted(current_classes)))
+            closing_tag = Tag(pos, False, '')
             for tag in closing:
                 current_classes.remove(tag.css_class)
             result.append(closing_tag)
+            closing_added = True
+        # handle opening tags at current position
+        opening_added = False
         if len(opening) > 0:
+            # handle the begin of an overlap
+            if not closing_added and len(current_classes) > 0:
+                result.append(Tag(pos, False, ''))
             for tag in opening:
                 current_classes.add(tag.css_class)
-            opening_tag = Tag(tag.pos, True, ' '.join(sorted(current_classes)))
+            opening_tag = Tag(pos, True, ' '.join(sorted(current_classes)))
+            result.append(opening_tag)
+            opening_added = True
+        # handle the end of an overlap
+        if closing_added and not opening_added and len(current_classes) > 0:
+            opening_tag = Tag(pos, True, ' '.join(sorted(current_classes)))
             result.append(opening_tag)
     return result
 

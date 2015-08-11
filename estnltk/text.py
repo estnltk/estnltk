@@ -1077,7 +1077,7 @@ class Text(dict):
             return isinstance(elems[0][START], list)
         return False
 
-    def annotate_with_regex(self, name, pattern, flags=0):
+    def tag_with_regex(self, name, pattern, flags=0):
         if name in self:
             raise ValueError('Layer or attribute with name <{0}> already exists!'.format(name))
         if isinstance(pattern, six.string_types):
