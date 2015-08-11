@@ -45,6 +45,9 @@ AES_VALUE_MAP = {
     TRACKING: TRACKING_VALUE
 }
 
+# value to aesthetic mapping
+VALUE_AES_MAP = dict((v, k) for k, v in AES_VALUE_MAP.items())
+
 # here we define mapping from aesthetic names to actual CSS properties
 AES_CSS_MAP = {
     COLOR: 'color',

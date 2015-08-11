@@ -10,16 +10,13 @@ TODO: kuigi estnltk ise seda praegu 100% ei järgi, proovime koodi stiili teha
 """
 from __future__ import unicode_literals, print_function, absolute_import
 
-import sys
-sys.path.insert(0, '/path/to/estnltk/prettyprinter')
+#import sys
+#sys.path.insert(0, '/path/to/estnltk/prettyprinter')
 
-from .values import AESTHETICS, LEGAL_ARGUMENTS
+from .values import AESTHETICS, AES_VALUE_MAP, DEFAULT_VALUE_MAP, LEGAL_ARGUMENTS
 
 
-def assert_correct_arguments(kwargs):
-    """Function that checks if kwargs contains legal arguments.
-    Raises ValueError in case there are unknown arguments.
-    """
+def assert_legal_arguments(kwargs):
     seen_layers = set()
     for k, v in kwargs.items():
         if k not in LEGAL_ARGUMENTS:
@@ -30,12 +27,56 @@ def assert_correct_arguments(kwargs):
             seen_layers.add(v)
 
 
+def parse_arguments(kwargs):
+    """Function that parses PrettyPrinter arguments.
+    Detects which aesthetics are mapped to which layers
+    and collects user-provided values.
+
+    Parameters
+    ----------
+    kwargs: dict
+        The keyword arguments to PrettyPrinter.
+
+    Raises
+    ------
+    ValueError
+        In case there are unknown arguments or a single layer is mapped to more than one aesthetic.
+
+    Returns
+    -------
+    dict, dict
+        First dictionary is aesthetic to layer mapping.
+        Second dictionary is aesthetic to user value mapping.
+    """
+    aesthetics = {}
+    values = {}
+    for aes in AESTHETICS:
+        if aes in kwargs:
+            aesthetics[aes] = kwargs[aes]
+            val_name = AES_VALUE_MAP[aes]
+            values[aes] = kwargs.get(val_name, DEFAULT_VALUE_MAP[aes])
+    return aesthetics, values
+
+
 class PrettyPrinter(object):
     """Class for formatting Text instances as HTML & CSS."""
 
     def __init__(self, **kwargs):
-        assert_correct_arguments(kwargs)
-        self.kwargs = kwargs
+        assert_legal_arguments(kwargs)
+        self.__aesthetics, self.__values = parse_arguments(kwargs)
+
+    @property
+    def aesthetics(self):
+        return self.__aesthetics
+
+    @property
+    def values(self):
+        return self.__values
+
+    @property
+    def css(self):
+        """Get the CSS of the PrettyPrinter."""
+        pass
 
 
 """
