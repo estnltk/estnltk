@@ -25,7 +25,8 @@ from estnltk import Text
 
 import sys
 sys.path.insert(0, '/path/to/estnltk/prettyprinter')
-import templates
+#import templates
+from . import templates
 
 # muutsin seda, sest sain importerrori:
 #TODO from . import templates
@@ -152,7 +153,7 @@ text = Text({
     }
 })
 
-pp = PrettyPrinter(background = 'annotations', weight = 'word')
+pp = PrettyPrinter(background = 'annotations')
 pp.render(text)
 
 # lihtne näide, mida ma ise silmas pidasin
