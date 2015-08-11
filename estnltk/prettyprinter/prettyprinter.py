@@ -81,17 +81,17 @@ class PrettyPrinter(object):
         cssContent = "\n".join(cssList)
         return cssContent
 
-    def create_HTML(self, inputText):
-        # TODO: märkus. CSS klasside genereerimisel tuleb hiljem arvestada ka seda, et erinevad märgendused võivad kattuda, näiteks teksti värv ja taustavärv. Selliste juhtude lahendamiseks peaks olema üks CSS klass iga aesteetik-väärtuse paari jaoks.
+    def create_html(self, inputText):
         text = Text(inputText['text'])
         annots = []
+
         for el in inputText:
             if el != 'text' and el!= 'textFormat':
                 annots.append(el)
         global textFormat
-        textFormat = inputText['textFormat']
 
-        originalValue = str(text)
+        textFormat = inputText['textFormat']
+        letters = list(inputText['text'])
         htmlContent = StringIO()
         htmlContent.write(templates.header())
         htmlContent.write(self.css)
@@ -99,24 +99,62 @@ class PrettyPrinter(object):
         text.tokenize_words()
 
         a = "\t\t\t<mark"
-        b = "\t\t\t<mark"
-        written = False
+        b = "\t\t\t<mark>"
+        temporaryValue = []
+        stringBeingWritten = ""
+        helpfulDictionary = {}
+        element = 0
 
-        for el in range(len(text['words'])):
-            for annot in annots:
-                for nr in range(len(inputText[annot])):
-                    if text['words'][el]['start'] >= inputText[annot][nr]['start'] and text['words'][el]['end'] <= inputText[annot][nr]['end']:
-                        for key, value in self.kwargs.items():
-                            if value == annot:
-                                a+=' class=\"'+key+'\"'+', '
-                        a = a[:-2]
-                        htmlContent.write(a + '>' + originalValue[text['words'][el]['start']:text['words'][el]['end']] + '</mark>\n')
-                        a = "\t\t\t<mark"
-                        written = True
-            if written == False:
-                htmlContent.write(b + '>' + originalValue[text['words'][el]['start']:text['words'][el]['end']] + '</mark>\n')
+        for el in annots:
+            for occurrance in range(len(inputText[el])):
+                while element < len(letters):
+                    if element >= inputText[el][occurrance]['start'] and element <= inputText[el][occurrance]['end']:
+                        if helpfulDictionary.get(element, 'pass') != 'pass':
+                            for previousValue in helpfulDictionary[element]:
+                                temporaryValue.append(previousValue)
+                            temporaryValue.append(el)
+                            helpfulDictionary[element] = temporaryValue
+                            temporaryValue = []
+                        else:
+                            temporaryValue.append(el)
+                            helpfulDictionary[element] = temporaryValue
+                            temporaryValue = []
+                    element += 1
+                element = 0
+        print(helpfulDictionary)
+
+        while element < len(letters):
+            if element in helpfulDictionary:
+                a += ' class="'
+                for property in helpfulDictionary[element]:
+                    for key, value in self.kwargs.items():
+                        if value ==property:
+                            a += key + ' '
+                a = a[:len(a)-1] + '">'
+                htmlContent.write(a)
+                a = "\t\t\t<mark"
+                while True:
+                    stringBeingWritten += letters[element]
+                    if element + 1 in helpfulDictionary and helpfulDictionary[element] == helpfulDictionary[element + 1]:
+                        element += 1
+                    else:
+                        stringBeingWritten += '</mark>\n'
+                        htmlContent.write(stringBeingWritten)
+                        stringBeingWritten = ""
+                        break
+                element += 1
             else:
-                written = False
+                htmlContent.write(b)
+                while True:
+                    stringBeingWritten += letters[element]
+                    if element + 1 not in helpfulDictionary:
+                        element += 1
+                    else:
+                        stringBeingWritten += '</mark>\n'
+                        htmlContent.write(stringBeingWritten)
+                        stringBeingWritten = ""
+                        break
+                element += 1
 
         htmlContent.write('\t\t</p>\n')
         htmlContent.write(templates.footer())
@@ -128,10 +166,79 @@ class PrettyPrinter(object):
     def render(self, inputText):
         # TODO: tähelepanek, et siin meetodis tuleb kindlasti abstraheerida konkreetsed kihid
         content = StringIO()
-        content.write(self.create_HTML(inputText))
+        content.write(self.create_html(inputText))
         html = content.getvalue()
         content.close()
         print(html)
+"""
+    def create_HTML(self, inputText):
+        # TODO: märkus. CSS klasside genereerimisel tuleb hiljem arvestada ka seda, et erinevad märgendused võivad kattuda, näiteks teksti värv ja taustavärv. Selliste juhtude lahendamiseks peaks olema üks CSS klass iga aesteetik-väärtuse paari jaoks.
+        text = Text(inputText['text'])
+        annots = []
+        for el in inputText:
+            if el != 'text' and el!= 'textFormat':
+                annots.append(el)
+        global textFormat
+        textFormat = inputText['textFormat']
+
+        letters = list(inputText['text'])
+        print(letters)
+
+        htmlContent = StringIO()
+        htmlContent.write(templates.header())
+        htmlContent.write(self.css)
+        htmlContent.write(templates.middle())
+        text.tokenize_words()
+
+        a = "\t\t\t<mark"
+        b = "\t\t\t<mark>"
+        writtenMarked = False
+        tempBoolean = False
+        el=0
+        temporaryHTML = ""
+        previous = ""
+        breakVariable = False
+
+        while el < len(letters):
+            for annot in annots:
+                if breakVariable == True:
+                    breakVariable = False
+                    break
+                for nr in range(len(inputText[annot])):
+                    if el >= len(letters):
+                        breakVariable = True
+                        break
+                    if el >= inputText[annot][nr]['start'] and el <= inputText[annot][nr]['end']:
+                        while el <= inputText[annot][nr]['end'] and el < len(letters):
+                            if annot != previous:
+                                for key, value in self.kwargs.items():
+                                    if value == annot:
+                                        a+=' class=\"'+key+'\"'+', '
+                                a = a[:-2]
+                                htmlContent.write(a + '>' + letters[el])
+                                previous = annot
+                                writtenMarked = True
+                                el += 1
+                            else:
+                                htmlContent.write(letters[el])
+                                el += 1
+                    else:
+                        if nr == len(inputText[annot])-1:
+                            if writtenMarked == True:
+                                writtenMarked =False
+                                htmlContent.write('</mark>\n')
+                            if previous != 'null':
+                                htmlContent.write(b + letters[el])
+                            else:
+                                htmlContent.write(letters[el])
+                        el += 1
+        htmlContent.write('\t\t</p>\n')
+        htmlContent.write(templates.footer())
+        content = htmlContent.getvalue()
+        htmlContent.close()
+
+        return content
+"""
 
 text = Text({
     'text': 'Selles tekstis on mitu märgendust, üks siin ja teine on siin',
@@ -144,7 +251,7 @@ text = Text({
     ],
     'word': [
         {'start': 0,
-        'end': 6
+        'end': 5
         }
     ],
     'textFormat': {'annotations':
@@ -155,27 +262,6 @@ text = Text({
 
 pp = PrettyPrinter(background = 'annotations')
 pp.render(text)
-
-# lihtne näide, mida ma ise silmas pidasin
-
-
-#pp = PrettyPrinter(background='annotations')
-#pp.render(text)
-
-# tulemus peaks olema midagi sellist:
-"""
-...
-<style>
-    mark.background {
-        background-color:blue;
-    }
-</style>
-...
-<p>
-    Selles tekstis on mitu märgendust, <mark class="background">üks siin</mark> ja <mark class="background">teine on siin</mark>
-</p>
-...
-"""
 
 # üks tähelepanek veel, et võiksid kasutada Pythoni koodistiili standarti:
 # https://www.python.org/dev/peps/pep-0008/
