@@ -64,6 +64,21 @@ class PrettyPrinter(object):
     """Class for formatting Text instances as HTML & CSS."""
 
     def __init__(self, **kwargs):
+        """Initialize a new PrettyPrinter class.
+
+        Keyword arguments
+        -----------------
+        color: str
+            Layer that corresponds to color aesthetic.
+        background: str
+            Layer that corresponds to background.
+        ...
+
+        color_value: str
+            The alternative value for the color.
+        background_value: str
+            The background value for the color.
+        """
         assert_legal_arguments(kwargs)
         self.__aesthetics, self.__values = parse_arguments(kwargs)
 
