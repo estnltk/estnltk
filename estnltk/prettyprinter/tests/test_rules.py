@@ -40,7 +40,7 @@ class SimpleTest(unittest.TestCase):
     def test_postag_rules(self):
         text = self.text
 
-        pp = PrettyPrinter(background='words', background_values=self.rules)
+        pp = PrettyPrinter(background='words', background_value=self.rules)
         html = pp.render(text)
 
         self.assertEqual(self.expected, html)
@@ -67,7 +67,7 @@ class ComplexTest(unittest.TestCase):
     def test_postag_rules(self):
         text = self.text
 
-        pp = PrettyPrinter(background=postags, background_values=self.rules)
+        pp = PrettyPrinter(background=postags, background_value=self.rules)
         html = pp.render(text)
 
         self.assertEqual(self.expected, html)
