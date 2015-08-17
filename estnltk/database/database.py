@@ -13,7 +13,7 @@ def prepare_text(text):
     layers = {}
     for layer, values in text.items():
         # all list elements in Text should be considered as layers
-        if layer == 'words': # do not index "words" layer separately
+        if layer == 'words':  # do not index "words" layer separately
             continue
         if isinstance(values, list):
             elements = text.split_by(layer)
@@ -24,11 +24,11 @@ def prepare_text(text):
 
 
 class Database(object):
-
-    def __init__(self, index, type='document'):
-        self.__es = Elasticsearch(index=index, type=type)
+    def __init__(self, index, id, type='document'):
+        self.__es = Elasticsearch(index=index, type=type, id=id)
         self.__index_name = index
         self.__doc_type = type
+        self.__id = id
 
     @property
     def index_name(self):
@@ -39,23 +39,28 @@ class Database(object):
         return self.__doc_type
 
     @property
+    def id(self):
+        return self.__id
+
+    @property
     def es(self):
         return self.__es
 
-    def delete(self):
-        self.es.delete(index=self.index_name, doc_type=self.doc_type, id=None)
+    def delete(self, index, id):
+        self.es.delete(index=index, doc_type=self.doc_type, id=id)
 
-    def count(self):
-        return self.__es.count(index=self.index_name)['count']
+    def count(self, index):
+        return self.__es.count(index=index)['count']
 
-    def index(self, text, id=None):
-        converted = prepare_text(text)
-        self.__es.index(index=self.__index_name, doc_type=self.doc_type, id=id, body=converted)
+    def insert(self, id, text):
+        con = prepare_text(text)
+        #print(con)
+        self.es.index(index=self.__index_name, doc_type=self.doc_type, id=id, body=con)
 
     def update(self, text, id=None):
         pass
 
-
+    #def return_entry(self, )
 
     def keyword_documents(self, keywords, layer=None, n=None):
         """Find all Text documents that match given keywords.
@@ -96,4 +101,3 @@ class Database(object):
         Iterable of {"text": document, "matches": layer}
         """
         pass
-
