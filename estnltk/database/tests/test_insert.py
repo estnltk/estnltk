@@ -13,14 +13,21 @@ def text():
     return text
 
 
-def database():
-    return Database('test')
+def database(name, id):
+    return Database(name, id)
 
+class DeleteTest(unittest.TestCase):
+    def test_delete(self):
+        db  = database('test_delete', 100)
+        #db.insert(100, text())
+        #db.delete('test_delete', 100)
+        self.assertAlmostEquals(0, db.count('test_delete'))
 
 class InsertTest(unittest.TestCase):
-
     def test_insert(self):
-        db = database()
-
-        db.index(text(), id=100)
-        self.assertEqual(1, db.count())
+        db = database('test_insert', 100)
+        print(text())
+        print(db.count('test_insert'))
+        #db.delete()
+        db.insert(100, text())
+        self.assertEqual(1, db.count('test_insert'))

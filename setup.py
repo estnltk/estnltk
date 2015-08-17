@@ -56,7 +56,7 @@ setup(
         'estnltk.wordnet': ['*.cnf', 'data/*.txt', 'data/*.soi', 'data/*.cnf', 'data/scripts/*.py'],
         'estnltk.mw_verbs': ['res/*'],
         'estnltk.converters': ['*.mrf'],
-        'estnltk.grammarextractor': ['grammars/*']
+        #'estnltk.grammarextractor': ['grammars/*']
     },
 
     author       = "University of Tartu",
