@@ -25,9 +25,11 @@ class PrefilterTest(unittest.TestCase):
 
         # expected values
         case_sensitive_words = {'Õunad', 'Kapsad'}
-        case_insensitive_words = {'pihlakad', 'mustsõstrad', 'Kapsad', 'Õunad'}
+        case_insensitive_words = {'pihlakad', 'mustsõstrad'}
+        lemmas = {'peet', 'porgand'}
         self.assertSetEqual(case_sensitive_words, constraints.case_sensitive_words)
         self.assertSetEqual(case_insensitive_words, constraints.case_insensitive_words)
+        self.assertSetEqual(lemmas, constraints.lemmas)
         self.assertEqual(False, constraints.all)
 
     def test_regex(self):

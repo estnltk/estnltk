@@ -30,7 +30,8 @@ class WordDictionary(object):
     def add_word(self, word, case_sensitive):
         if case_sensitive:
             self.__case_sensitive_words.add(word)
-        self.__case_insensitive_words.add(word)
+        else:
+            self.__case_insensitive_words.add(word)
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__

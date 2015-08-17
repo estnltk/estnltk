@@ -22,6 +22,10 @@ def intersect_constraints(c1, c2):
 
 def build_list(list_node, grammar):
     constraints = (build_node(child, grammar) for child in list_node.children)
+    print ('Constraints from list subnodes')
+    constraints = list(constraints)
+    for child, constr in zip(list_node.children, constraints):
+        print (repr(child) + ' ' + repr(constr.dict))
     return reduce(intersect_constraints, constraints)
 
 
@@ -53,6 +57,7 @@ BUILDERS = {
 
 
 def build_node(node, grammar):
+    print ('Building node ' + repr(node))
     if isinstance(node, List):
         return build_list(node, grammar)
     if isinstance(node, Or):
@@ -102,14 +107,19 @@ class ConstraintsBuilder(object):
         return lemma_dict
 
     def __build(self):
+        print ('Building ' + self.symbol.name)
         # in case there are regexes, we need to match all documents
         if len(self.symbol.regexes) > 0 or len(self.symbol.iregexes) > 0:
+            print (self.symbol.name + ' has regex, so all=True')
             return Constraints(all=True)
         # build word and lemma dictionaries
         word_dict = self.__word_dict()
         lemma_dict = self.__lemma_dict()
         # and get the default constraints
         self_constraints = Constraints(word_dict, lemma_dict, False)
+        print ('Default ' + self.symbol.name + ' constraints ' + repr(self_constraints.dict))
         # get the constraints from productions
         constraints = (build_node(production, self.grammar) for production in self.symbol.productions)
-        return reduce(unite_constraints, constraints, self_constraints)
+        constraints = reduce(unite_constraints, constraints, self_constraints)
+        print ('Result constraints for ' + self.symbol.name + ': ' + repr(constraints.dict))
+        return constraints

@@ -35,3 +35,8 @@ def is_valid_regex(regex):
         return True
     except sre_constants.error:
         return False
+
+
+class GrammarException(Exception):
+    """Exception that should be used for any kind of parsing problem in grammarextractor."""
+    pass

@@ -18,7 +18,8 @@ regexes
 
 symbol Relation
 productions
-    Name '\w+' Verb '\w+' Object
+#    Name '\w+' Verb '\w+' Object
+    Name Verb
 examples
     Teadsime, et >>Tartu on Eesti suuruselt teine linn.<<
     Kas teadsite, et >>Tallinn tähendas vanasti Revalat,<< nagu kirjutatakse ajalooraamatutes.
@@ -27,5 +28,5 @@ examples
 export Relation
     Name    string
     Verb    string
-    Object  string
+#    Object  string
 
