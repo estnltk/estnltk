@@ -8,16 +8,19 @@ NAME = 'name'
 START = 'start'
 END = 'end'
 MATCHES = 'matches'
+TEXT = 'text'
 
 
 class Match(dict):
 
-    def __init__(self, start, end, name=None):
+    def __init__(self, start, end, text, name=None):
         super(Match, self).__init__()
         self[START] = int(start)
         self[END] = int(end)
+        self[TEXT] = text
         self[MATCHES] = {}
-        assert self[START] < self[END]
+        assert self[START] <= self[END]
+        assert len(text) == end - start
         if name is not None:
             self[NAME] = name
 
@@ -34,26 +37,44 @@ class Match(dict):
         return self[END]
 
     @property
+    def text(self):
+        return self[TEXT]
+
+    @property
     def matches(self):
         return self[MATCHES]
+
+    @property
+    def dict(self):
+        res = copy(self)
+        del res[MATCHES]
+        del res[NAME]
+        res = {self.name: res}
+        for k, v in self.matches.items():
+            res[k] = v
+            if NAME in res[k]:
+                del res[k][NAME]
+        return res
 
     def __lt__(self, other):
         return (self.start, self.end) < (other.start, other.end)
 
-    def __repr__(self):
-        return repr((self.start, self.end, self.name, self.matches))
 
-
-def concatenate_matches(a, b, name):
-    match = Match(a.start, b.end, name)
+def concatenate_matches(a, b, text, name):
+    print ('concat', a.text, b.text)
+    match = Match(a.start, b.end, text[a.start:b.end], name)
     for k, v in a.matches.items():
         match.matches[k] = v
     for k, v in b.matches.items():
         match.matches[k] = v
     if a.name is not None:
-        match.matches[a.name] = a
+        aa = copy(a)
+        del aa[MATCHES]
+        match.matches[a.name] = aa
     if b.name is not None:
-        match.matches[b.name] = b
+        bb = copy(b)
+        del bb[MATCHES]
+        match.matches[b.name] = bb
     return match
 
 

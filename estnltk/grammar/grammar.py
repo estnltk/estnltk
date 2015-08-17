@@ -35,7 +35,7 @@ class Symbol(object):
 class Regex(Symbol):
     """Regular expression symbol."""
 
-    def __init__(self, pattern, flags=re.UNICODE, name=None):
+    def __init__(self, pattern, flags=re.UNICODE | re.MULTILINE, name=None):
         super(Regex, self).__init__(name)
         self.__pattern = re.compile(pattern, flags=flags)
 
@@ -46,14 +46,15 @@ class Regex(Symbol):
     def get_matches_without_cache(self, text, **env):
         matches = []
         for mo in self.pattern.finditer(text.text):
-            matches.append(Match(mo.start(), mo.end(), self.name))
+            start, end = mo.start(), mo.end()
+            matches.append(Match(start, end, text.text[start:end], self.name))
         return matches
 
 
 class IRegex(Regex):
     """Case insensitive regular expression symbol."""
 
-    def __init__(self, pattern, flags=re.UNICODE | re.IGNORECASE, name=None):
+    def __init__(self, pattern, flags=re.UNICODE | re.MULTILINE | re.IGNORECASE, name=None):
         super(IRegex, self).__init__(pattern, flags, name)
 
 
@@ -79,7 +80,7 @@ class Lemmas(Symbol):
         for word_lemmas, (start, end) in zip(lemmas, spans):
             for word_lemma in word_lemmas:
                 if self.pattern.match(word_lemma):
-                    matches.append(Match(start, end, self.name))
+                    matches.append(Match(start, end, text.text[start:end], self.name))
         return matches
 
 
@@ -105,7 +106,7 @@ class Postags(Symbol):
         for word_postags, (start, end) in zip(postags, spans):
             for word_postag in word_postags:
                 if self.pattern.match(word_postag):
-                    matches.append(Match(start, end, self.name))
+                    matches.append(Match(start, end, text.text[start:end], self.name))
         return matches
 
 
@@ -119,7 +120,7 @@ class Layer(Symbol):
         return self.__layer_name
 
     def get_matches_without_cache(self, text, **env):
-        return [Match(start, end, self.name) for start, end in text.spans(self.layer_name)]
+        return [Match(start, end, text.text[start:end], self.name) for start, end in text.spans(self.layer_name)]
 
 
 class Union(Symbol):
@@ -141,15 +142,15 @@ class Union(Symbol):
         return matches
 
 
-def concat(matches_a, matches_b, name=None):
+def concat(matches_a, matches_b, text, name=None):
     i, j = 0, 0
     n, m = len(matches_a), len(matches_b)
     matches = []
     while i < n and j < m:
         a, b = matches_a[i], matches_b[j]
         if a.end == b.start:
-            matches.append(concatenate_matches(a, b, name))
-            i, j = i+1, j+1
+            matches.append(concatenate_matches(a, b, text.text, name))
+            j += 1
         elif a.end < b.start:
             i += 1
         else:
@@ -165,7 +166,7 @@ class Concatenation(Symbol):
 
     def get_matches_without_cache(self, text, **env):
         symbol_matches = [e.get_matches(text, **env) for e in self.__elements]
-        matches = list(reduce(concat, symbol_matches))
+        matches = list(reduce(lambda a, b: concat(a, b, text), symbol_matches))
         if self.name is not None:
             matches = [copy_rename(m, self.name) for m in matches]
         return matches
