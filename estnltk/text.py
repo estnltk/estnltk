@@ -567,6 +567,16 @@ class Text(dict):
         return self.get_analysis_element(LEMMA)
 
     @cached_property
+    def lemma_lists(self):
+        """Lemma lists.
+
+        Ambiguous cases are separate list elements.
+        """
+        if not self.is_tagged(ANALYSIS):
+            self.tag_analysis()
+        return [[an[LEMMA] for an in word[ANALYSIS]] for word in self[WORDS]]
+
+    @cached_property
     def endings(self):
         """The list of word endings.
 
@@ -598,6 +608,12 @@ class Text(dict):
         if not self.is_tagged(ANALYSIS):
             self.tag_analysis()
         return self.get_analysis_element(POSTAG)
+
+    @cached_property
+    def postag_lists(self):
+        if not self.is_tagged(ANALYSIS):
+            self.tag_analysis()
+        return [[an[POSTAG] for an in word[ANALYSIS]] for word in self[WORDS]]
 
     @cached_property
     def postag_descriptions(self):
