@@ -7,8 +7,7 @@ from copy import copy
 NAME = 'name'
 START = 'start'
 END = 'end'
-MATCHES = 'groups'
-TEXT = 'text'
+MATCHES = 'matches'
 
 
 class Match(dict):
@@ -47,14 +46,14 @@ class Match(dict):
 
 def concatenate_matches(a, b, name):
     match = Match(a.start, b.end, name)
-    for k, v in a.matches:
+    for k, v in a.matches.items():
         match.matches[k] = v
-    for k, v in b.matches:
+    for k, v in b.matches.items():
         match.matches[k] = v
     if a.name is not None:
         match.matches[a.name] = a
     if b.name is not None:
-        match.matces[b.name] = b
+        match.matches[b.name] = b
     return match
 
 

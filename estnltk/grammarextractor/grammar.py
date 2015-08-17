@@ -4,7 +4,6 @@ from __future__ import unicode_literals, print_function, absolute_import
 import regex as re
 from functools import reduce
 from itertools import chain
-from copy import copy
 
 from .match import Match, concatenate_matches, copy_rename
 
@@ -86,7 +85,8 @@ class Lemmas(Symbol):
 
 class Postags(Symbol):
 
-    def __init__(self, *postags):
+    def __init__(self, *postags, name=None):
+        super(Postags, self).__init__(name)
         self.__postags = postags
         self.__pattern = re.compile('\L<postags>', postags=postags, flags=re.UNICODE | re.IGNORECASE)
 
@@ -124,7 +124,8 @@ class Layer(Symbol):
 
 class Union(Symbol):
 
-    def __init__(self, *symbols):
+    def __init__(self, *symbols, name=None):
+        super(Union, self).__init__(name)
         self.__symbols = symbols
 
     @property
@@ -158,7 +159,8 @@ def concat(matches_a, matches_b, name=None):
 
 class Concatenation(Symbol):
 
-    def __init__(self, *elements):
+    def __init__(self, *elements, name=None):
+        super(Concatenation, self).__init__(name)
         self.__elements = elements
 
     def get_matches_without_cache(self, text, **env):

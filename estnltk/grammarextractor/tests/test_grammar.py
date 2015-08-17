@@ -4,93 +4,107 @@ import unittest
 
 from ..grammar import Regex, IRegex, Lemmas, Postags, Layer
 from ..grammar import Union, Concatenation
+from ..match import Match
 from ...text import Text
-
-
-class RegexTest(unittest.TestCase):
-
-    def test_regex_cover(self):
-        r = Regex('RR \d\d\d?')
-        t = Text('RR 120 RR 50 rr 30')
-
-        cover = r.get_cover(t)
-        expected = [(0, 6), (7, 12)]
-
-        self.assertListEqual(expected, cover)
-
-    def test_iregex_cover(self):
-        r = IRegex('RR \d\d\d?')
-        t = Text('RR 120 RR 50 rr 30')
-
-        cover = r.get_cover(t)
-        expected = [(0, 6), (7, 12), (13, 18)]
-
-        self.assertListEqual(expected, cover)
-
-
-class LemmaTest(unittest.TestCase):
-
-    def test_lemma_cover(self):
-        l = Lemmas('jooksma', 'kargama', 'hüppama')
-        t = Text('Kass kargas ja hiir hüppas')
-
-        cover = l.get_cover(t)
-        expected = [(5, 11), (20, 26)]
-
-        self.assertListEqual(expected, cover)
-
-
-class PostagTest(unittest.TestCase):
-
-    def test_postag_cover(self):
-        p = Postags('V')
-        t = Text('Kass kargas ja hiir hüppas')
-
-        cover = p.get_cover(t)
-        expected = [(5, 11), (20, 26)]
-
-        self.assertListEqual(expected, cover)
-
-
-class LayerTest(unittest.TestCase):
-
-    def test_layer_cover(self):
-        l = Layer('annotation')
-        t = Text('123 on annoteeritud')
-        t.tag_with_regex('annotation', '\d+')
-
-        cover = l.get_cover(t)
-        expected = [(0, 3)]
-
-        self.assertListEqual(expected, cover)
 
 
 class UnionTest(unittest.TestCase):
 
-    def test_union_cover(self):
-        t = Text('Kass kargas ja hiir hüppas')
+    def text(self):
+        return Text('Kass hüppas ja hiir kargas!')
+
+    def a(self):
+        return Lemmas('Kass')
+
+    def b(self):
+        return Postags('V')
+
+    def test_union_without_names(self):
         u = Union(
-            Postags('S'),
-            Lemmas('kargama', 'hüppama')
+            self.a(),
+            self.b()
+        )
+        matches = u.get_matches(self.text())
+        expected = [Match(0, 4), Match(5, 11), Match(20, 26)]
+
+        self.assertListEqual(expected, matches)
+
+    def a_with_name(self):
+        return Lemmas('kass', name='kaslane')
+
+    def b_with_name(self):
+        return Postags('V', name='tegevus')
+
+    def test_union_with_names(self):
+        u = Union(
+            self.a_with_name(),
+            self.b_with_name()
+        )
+        matches = u.get_matches(self.text())
+        expected = [Match(0, 4, name='kaslane'), Match(5, 11, name='tegevus'), Match(20, 26, name='tegevus')]
+
+        self.assertListEqual(expected, matches)
+
+    def test_union_renaming(self):
+        u = Union(
+            self.a_with_name(),
+            self.b_with_name(),
+            name='ühend'
+        )
+        matches = u.get_matches(self.text())
+        expected = [Match(0, 4, name='ühend'), Match(5, 11, name='ühend'), Match(20, 26, name='ühend')]
+
+        self.assertListEqual(expected, matches)
+
+
+class ConcatTest(unittest.TestCase):
+
+    def text(self):
+        return Text('Kass hüppas ja hiir kargas!')
+
+    def space(self):
+        return IRegex('\s+')
+
+    def a(self):
+        return Lemmas('Kass')
+
+    def b(self):
+        return Postags('V')
+
+    def a_with_name(self):
+        return Lemmas('kass', name='kaslane')
+
+    def b_with_name(self):
+        return Postags('V', name='tegevus')
+
+    def test_concat_without_names(self):
+        c = Concatenation(
+            self.a(),
+            self.space(),
+            self.b()
         )
 
-        cover = u.get_cover(t)
-        expected = [(0, 4), (5, 11), (15, 19), (20, 26)]
+        matches = c.get_matches(self.text())
+        expected = [Match(0, 11)]
 
-        self.assertListEqual(expected, cover)
+        self.assertListEqual(expected, matches)
 
-
-class ConcatenationTest(unittest.TestCase):
-
-    def test_concatenation(self):
-        t = Text('Kass kargas ja hiir hüppas')
-        space = Regex('\s+')
-        concat = Concatenation(
-            Lemmas('kass'),
-            space,
-            Lemmas('kargama')
+    def test_concat_with_names(self):
+        c = Concatenation(
+            self.a_with_name(),
+            self.space(),
+            self.b_with_name(),
+            name='fraas'
         )
-        cover = concat.get_cover(t)
-        expected = [(0, 11)]
 
-        self.assertListEqual(expected, cover)
+        matches = c.get_matches(self.text())
+        expected = [self.c_with_names()]
+
+        self.assertListEqual(expected, matches)
+
+    def c_with_names(self):
+        match = Match(0, 11, 'fraas')
+        match.matches['kaslane'] = Match(0, 4, 'kaslane')
+        match.matches['tegevus'] = Match(5, 11, 'tegevus')
+        return match
+
