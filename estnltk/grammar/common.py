@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-This module defines some common imports and functions for grammarextractor package.
+This module defines some common imports and functions for grammar package.
 """
 from __future__ import unicode_literals, print_function, absolute_import
 
@@ -38,5 +38,5 @@ def is_valid_regex(regex):
 
 
 class GrammarException(Exception):
-    """Exception that should be used for any kind of parsing problem in grammarextractor."""
+    """Exception that should be used for any kind of parsing problem in grammar."""
     pass
