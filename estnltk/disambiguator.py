@@ -7,14 +7,14 @@ from .vabamorf.morf import disambiguate
 import re
 
 class Disambiguator(object):
-    ''' Class for merging together different morphological disambiguation steps:
+    """ Class for merging together different morphological disambiguation steps:
         *) pre-disambiguation of proper names based on lemma counts in the corpus;
         *) vabamorf's statistical disambiguation;
         *) post-disambiguation of analyses based on lemma counts in the corpus;
-    '''
+    """
     
     def disambiguate(self, docs, **kwargs):
-        ''' Performs morphological analysis along with different morphological 
+        """ Performs morphological analysis along with different morphological 
             disambiguation steps (pre-disambiguation, vabamorf's disambiguation
             and post-disambiguation) in the input document collection `docs`.
         
@@ -62,7 +62,7 @@ class Disambiguator(object):
           List of morphologically disambiguated texts (documents). Preserves the
           structure, if the input was  list of list of estnltk.text.Text;
           
-        '''
+        """
         # For testing purposes, morph analysis and morph disambiguation can both
         # be switched off:
         use_vabamorf              = kwargs.get('vabamorf', True)
@@ -121,10 +121,10 @@ class Disambiguator(object):
 
 
     def __isListOfLists(self, docs):
-        ''' Checks whether the input is a list of list of X, where X is either a
+        """ Checks whether the input is a list of list of X, where X is either a
             string or a Text; 
               TODO: is it compatible with Python 2.7 ???
-        '''
+        """
         return isinstance(docs, list) and \
                 all(isinstance(d1, list) and \
                   all(isinstance(d11, str) or isinstance(d11, Text) for d11 in d1) for d1 in docs)
@@ -140,9 +140,9 @@ class Disambiguator(object):
     # =========================================================
 
     def __create_proper_names_lexicon(self, docs):
-        ''' Moodustab dokumendikollektsiooni põhjal pärisnimede sagedussõnastiku
+        """ Moodustab dokumendikollektsiooni põhjal pärisnimede sagedussõnastiku
             (mis kirjeldab, mitu korda iga pärisnimelemma esines);
-        '''
+        """
         lemmaFreq = dict()
         for doc in docs:
             for word in doc[WORDS]:
@@ -162,10 +162,10 @@ class Disambiguator(object):
 
 
     def __disambiguate_proper_names_1(self, docs, lexicon):
-        ''' Teeme esmase yleliigsete analyyside kustutamise: kui sõnal on mitu 
+        """ Teeme esmase yleliigsete analyyside kustutamise: kui sõnal on mitu 
             erineva sagedusega pärisnimeanalüüsi, siis jätame alles vaid
             suurima sagedusega analyysi(d) ...
-        '''
+        """
         for doc in docs:
             for word in doc[WORDS]:
                 # Vaatame vaid s6nu, millele on pakutud rohkem kui yks analyys:
@@ -194,10 +194,10 @@ class Disambiguator(object):
 
 
     def __find_certain_proper_names(self, docs):
-        ''' Moodustame kindlate pärisnimede loendi: vaatame sõnu, millel ongi
+        """ Moodustame kindlate pärisnimede loendi: vaatame sõnu, millel ongi
             ainult pärisnimeanalüüsid ning võtame sealt loendisse  unikaalsed
             pärisnimed;
-        '''
+        """
         certainNames = set()
         for doc in docs:
             for word in doc[WORDS]:
@@ -210,11 +210,11 @@ class Disambiguator(object):
 
 
     def __find_sentence_initial_proper_names(self, docs):
-        ''' Moodustame lausealguliste pärisnimede loendi: vaatame sõnu, millel nii
+        """ Moodustame lausealguliste pärisnimede loendi: vaatame sõnu, millel nii
             pärisnimeanalüüs(id) kui ka mittepärisnimeanalüüs(id) ning mis esinevad 
             lause või nummerdatud loendi alguses - jäädvustame selliste sõnade 
             unikaalsed lemmad;
-        '''
+        """
         sentInitialNames = set()
         for doc in docs:
             for sentence in doc.divide( layer=WORDS, by=SENTENCES ): 
@@ -250,10 +250,10 @@ class Disambiguator(object):
 
 
     def __find_sentence_central_proper_names(self, docs):
-        ''' Moodustame lausesiseste pärisnimede loendi: vaatame sõnu, millel on 
+        """ Moodustame lausesiseste pärisnimede loendi: vaatame sõnu, millel on 
             pärisnimeanalüüse ning mis esinevad lause keskel (st ei esine lause
             alguses või nummerdatud loendi alguses vms);
-        '''
+        """
         sentCentralNames = set()
         for doc in docs:
             for sentence in doc.divide( layer=WORDS, by=SENTENCES ): 
@@ -287,9 +287,9 @@ class Disambiguator(object):
 
 
     def __remove_redundant_proper_names(self, docs, lemma_set):
-        ''' Eemaldame yleliigsed pärisnimeanalüüsid etteantud sõnalemmade
+        """ Eemaldame yleliigsed pärisnimeanalüüsid etteantud sõnalemmade
             loendi (hulga) põhjal;
-        '''
+        """
         for doc in docs:
             for word in doc[WORDS]:
                 # Vaatame vaid s6nu, millele on pakutud rohkem kui yks analyys:
@@ -306,13 +306,13 @@ class Disambiguator(object):
 
 
     def __disambiguate_proper_names_2(self, docs, lexicon):
-        ''' Kustutame üleliigsed mitte-pärisnimeanalüüsid: 
+        """ Kustutame üleliigsed mitte-pärisnimeanalüüsid: 
             -- kui lause keskel on pärisnimeanalüüsiga sõna, jätamegi alles vaid
                pärisnimeanalyys(id);
             -- kui lause alguses on pärisnimeanalüüsiga s6na, ning pärisnimelemma
                esineb korpuses suurema sagedusega kui 1, jätamegi alles vaid
                pärisnimeanalyys(id); vastasel juhul ei kustuta midagi;
-        '''
+        """
         for doc in docs:
             for sentence in doc.divide( layer=WORDS, by=SENTENCES ): 
                 sentencePos = 0 # Tavaline lausealgus
@@ -362,10 +362,10 @@ class Disambiguator(object):
 
 
     def pre_disambiguate(self, docs):
-        '''  Teostab pärisnimede eelühestamine. Üldiseks eesmärgiks on vähendada mitmesust 
+        """  Teostab pärisnimede eelühestamine. Üldiseks eesmärgiks on vähendada mitmesust 
              suurtähega algavate sonade morf analüüsil, nt eemaldada pärisnime analüüs, kui
              suurtäht tähistab tõenäoliselt lausealgust.
-        '''
+        """
         # 1) Leiame pärisnimelemmade sagedusleksikoni
         lexicon = self.__create_proper_names_lexicon(docs)
         # 2) Teeme esialgse kustutamise: kui sõnal on mitu erineva korpuse-
@@ -415,8 +415,8 @@ class Disambiguator(object):
     # =========================================================
 
     def __analyses_match(self, analysisA, analysisB):
-        ''' Leiame, kas tegu on duplikaatidega ehk täpselt üht ja sama
-            morfoloogilist infot sisaldavate analüüsidega. '''
+        """ Leiame, kas tegu on duplikaatidega ehk täpselt üht ja sama
+            morfoloogilist infot sisaldavate analüüsidega. """
         return POSTAG in analysisA and POSTAG in analysisB and \
                analysisA[POSTAG]==analysisB[POSTAG] and \
                ROOT in analysisA and ROOT in analysisB and \
@@ -430,13 +430,13 @@ class Disambiguator(object):
 
 
     def __remove_duplicate_and_problematic_analyses(self, docs):
-        ''' 1) Eemaldab sisendkorpuse kõigi sõnade morf analüüsidest duplikaadid 
+        """ 1) Eemaldab sisendkorpuse kõigi sõnade morf analüüsidest duplikaadid 
                ehk siis korduvad analüüsid; Nt sõna 'palk' saab kaks analyysi: 
                'palk' (mis käändub 'palk\palgi') ja 'palk' (mis käändub 'palk\palga'),
                aga pärast duplikaatide eemaldamist jääb alles vaid üks;
             2) Kui verbi analüüside hulgas on alles nii '-tama' kui ka '-ma', siis
                jätta alles vaid '-ma' analüüsid;
-        '''
+        """
         for doc in docs:
             for word in doc[WORDS]:
                 # 1) Leiame k6ik analyysi-duplikaadid (kui neid on)
@@ -472,7 +472,7 @@ class Disambiguator(object):
 
 
     def __find_hidden_analyses(self, docs):
-        ''' Jätab meelde, millised analüüsid on nn peidetud ehk siis mida ei 
+        """ Jätab meelde, millised analüüsid on nn peidetud ehk siis mida ei 
             tule arvestada lemmade järelühestamisel:
              *) kesksõnade nud, dud, tud mitmesused; 
              *) muutumatute sõnade sõnaliigi mitmesus;
@@ -480,7 +480,7 @@ class Disambiguator(object):
              *) asesõnade ainsuse-mitmuse mitmesus;
              *) arv- ja asesõnade vaheline mitmesus; 
             Tagastab sõnastiku peidetud analüüse sisaldanud sõnade asukohtadega, 
-            iga võti kujul (doc_index, word_index); '''
+            iga võti kujul (doc_index, word_index); """
         hidden = dict()
         nudTudLopud = re.compile('^.*[ntd]ud$')
         for d in range(len(docs)):
@@ -529,13 +529,13 @@ class Disambiguator(object):
 
 
     def __supplement_lemma_frequency_lexicon(self, docs, hiddenWords, lexicon, amb_lexicon):
-        ''' Täiendab etteantud sagedusleksikone antud korpuse (docs) põhjal:
+        """ Täiendab etteantud sagedusleksikone antud korpuse (docs) põhjal:
             *) yldist sagedusleksikoni, kus on k6ik lemmad, v.a. lemmad, 
                mis kuuluvad nn peidetud sõnade hulka (hiddenWords); 
             *) mitmeste sagedusleksikoni, kus on vaid mitmeste analyysidega
                s6nades esinenud lemmad, v.a. (hiddenWords) lemmad, koos
                nende yldiste esinemissagedustega (esimesest leksikonist);
-        '''
+        """
         for d in range(len(docs)):
             for w in range(len(docs[d][WORDS])):
                 word = docs[d][WORDS][w]
@@ -561,13 +561,13 @@ class Disambiguator(object):
 
 
     def __disambiguate_with_lexicon(self, docs, lexicon, hiddenWords):
-        ''' Teostab lemmade leksikoni järgi mitmeste morf analüüside 
+        """ Teostab lemmade leksikoni järgi mitmeste morf analüüside 
             ühestamise - eemaldab üleliigsed analüüsid;
             Toetub ideele "üks tähendus teksti kohta": kui mitmeseks jäänud 
             lemma esineb tekstis/korpuses ka mujal ning lõppkokkuvõttes 
             esineb sagedamini kui alternatiivsed analüüsid, siis tõenäoliselt
             see ongi õige lemma/analüüs;
-        '''
+        """
         for d in range(len(docs)):
             for w in range(len(docs[d][WORDS])):
                 word = docs[d][WORDS][w]
@@ -596,7 +596,7 @@ class Disambiguator(object):
 
 
     def post_disambiguate(self, collections):
-        '''  Teostab mitmeste analüüside lemma-põhise järelühestamise. Järelühestamine 
+        """  Teostab mitmeste analüüside lemma-põhise järelühestamise. Järelühestamine 
             toimub kahes etapis: kõigepealt ühe dokumendikollektsiooni piires ning 
             seejärel üle kõigi dokumendikollektsioonide (kui sisendis on rohkem kui 1
             dokumendikollektsioon);
@@ -604,7 +604,7 @@ class Disambiguator(object):
             kui mitmeseks jäänud lemma esineb ka mujal (samas kollektsioonis või kõigis
             kollektsioonides) ning lõppkokkuvõttes esineb sagedamini kui alternatiivsed
             analüüsid, siis tõenäoliselt see ongi õige lemma/analüüs;
-        '''
+        """
         #
         #  I etapp: ühestame ühe dokumendikollektsiooni piires 
         #           (nt üle kõigi samal päeval ilmunud ajaleheartiklite);

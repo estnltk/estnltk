@@ -17,7 +17,6 @@ def resolve_using_maximal_coverage(matches):
     list of Match
     """
     matches.sort()
-    print ("Resolving conflicts")
     N = len(matches)
     scores = [len(match) for match in matches]
     prev = [-1] * N

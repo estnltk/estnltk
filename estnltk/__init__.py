@@ -8,3 +8,4 @@ from .disambiguator import Disambiguator
 from .ner import NerTrainer, NerTagger
 from .timex import TimexTagger
 from .clausesegmenter import ClauseSegmenter
+from .disambiguator import Disambiguator

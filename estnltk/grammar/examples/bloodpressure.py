@@ -29,7 +29,7 @@ value = Union(
 
 unit = IRegex('mm[ -/]?hg')
 
-bp_expression = Union(
+bp_measurement = Union(
     Concatenation(
         bp_name,
         opt_space,
@@ -48,7 +48,7 @@ bp_expression = Union(
 example = '''22.05.2000 - Patsient niisama.
 RR 130/80 mmHg. Kontakti patsiendiga ei saa
 RR 120 / 80 mmHg
-kõrvalkahinateta , RR 120 mmHg , fr 76 xminutis
+kõrvalkahinateta , RR 120 mm/Hg , fr 76 xminutis
 V/R115/100 mm Hg
 RR 106/70 mmhg
 '''
@@ -56,6 +56,6 @@ RR 106/70 mmhg
 if __name__ == '__main__':
     text = Text(example)
     print (text.text)
-    matches = bp_expression.get_matches(text)
+    matches = bp_measurement.get_matches(text)
     for match in matches:
         pprint (match.dict)
