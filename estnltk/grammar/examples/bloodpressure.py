@@ -48,8 +48,8 @@ bp_expression = Union(
 example = '''22.05.2000 - Patsient niisama.
 RR 130/80 mmHg. Kontakti patsiendiga ei saa
 RR 120 / 80 mmHg
-kõrvalkahinateta , RR mmHg , fr 76 xminutis
-RR 115/100 mm Hg
+kõrvalkahinateta , RR 120 mmHg , fr 76 xminutis
+V/R115/100 mm Hg
 RR 106/70 mmhg
 '''
 

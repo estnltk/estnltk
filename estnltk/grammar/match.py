@@ -56,12 +56,17 @@ class Match(dict):
                 del res[k][NAME]
         return res
 
+    def is_before(self, other):
+        return self.end <= other.start
+
     def __lt__(self, other):
         return (self.start, self.end) < (other.start, other.end)
 
+    def __len__(self):
+        return self.end - self.start
+
 
 def concatenate_matches(a, b, text, name):
-    print ('concat', a.text, b.text)
     match = Match(a.start, b.end, text[a.start:b.end], name)
     for k, v in a.matches.items():
         match.matches[k] = v

@@ -6,6 +6,7 @@ from functools import reduce
 from itertools import chain
 
 from .match import Match, concatenate_matches, copy_rename
+from .conflictresolver import resolve_using_maximal_coverage
 
 
 class Symbol(object):
@@ -18,14 +19,20 @@ class Symbol(object):
     def name(self):
         return self.__name
 
-    def get_matches(self, text, cache=None):
+    def get_matches(self, text, cache=None, conflict_resolver=resolve_using_maximal_coverage):
         """Get the matches of the symbol on given text."""
+        is_root_node = False
         if cache is None:
             cache = {}
+            is_root_node = True
         if id(self) in cache:
             return cache[id(self)]
         matches = self.get_matches_without_cache(text, cache=cache)
         cache[id(self)] = matches
+
+        # if this is the root node, resolve the matches
+        if is_root_node and conflict_resolver is not None:
+            return conflict_resolver(matches)
         return matches
 
     def get_matches_without_cache(self, text, **env):
