@@ -4,6 +4,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 import regex as re
 from functools import reduce
 from itertools import chain
+from collections import defaultdict
 
 from .match import Match, concatenate_matches, copy_rename
 from .conflictresolver import resolve_using_maximal_coverage
@@ -18,6 +19,18 @@ class Symbol(object):
     @property
     def name(self):
         return self.__name
+
+    def annotate(self, text, conflict_resolver=resolve_using_maximal_coverage):
+        matches = self.get_matches(text, conflict_resolver=conflict_resolver)
+        layers = defaultdict(list)
+        for m in matches:
+            md = m.dict
+            for k, v in md.items():
+                layers[k].append(v)
+        for k, v in layers.items():
+            v.sort()
+            text[k] = v
+        return text
 
     def get_matches(self, text, cache=None, conflict_resolver=resolve_using_maximal_coverage):
         """Get the matches of the symbol on given text."""

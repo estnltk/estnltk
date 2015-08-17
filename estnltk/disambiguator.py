@@ -6,6 +6,7 @@ from .text import Text
 from .vabamorf.morf import disambiguate
 import re
 
+
 class Disambiguator(object):
     """ Class for merging together different morphological disambiguation steps:
         *) pre-disambiguation of proper names based on lemma counts in the corpus;

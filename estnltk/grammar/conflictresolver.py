@@ -12,7 +12,7 @@ def resolve_using_maximal_coverage(matches):
     ----------
     matches: list of Match
 
-    Resturns
+    Returns
     --------
     list of Match
     """
