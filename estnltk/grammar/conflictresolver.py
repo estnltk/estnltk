@@ -16,6 +16,8 @@ def resolve_using_maximal_coverage(matches):
     --------
     list of Match
     """
+    if len(matches) == 0:
+        return matches
     matches.sort()
     N = len(matches)
     scores = [len(match) for match in matches]

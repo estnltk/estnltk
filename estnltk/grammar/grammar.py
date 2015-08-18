@@ -180,54 +180,73 @@ def concat(matches_a, matches_b, text, name=None):
 
 class Concatenation(Symbol):
 
-    def __init__(self, *elements, name=None):
+    def __init__(self, *symbols, name=None):
         super(Concatenation, self).__init__(name)
-        self.__elements = elements
+        self.__symbols = symbols
+
+    @property
+    def symbols(self):
+        return self.__symbols
 
     def get_matches_without_cache(self, text, **env):
-        symbol_matches = [e.get_matches(text, **env) for e in self.__elements]
+        symbol_matches = [e.get_matches(text, **env) for e in self.symbols]
         matches = list(reduce(lambda a, b: concat(a, b, text), symbol_matches))
         if self.name is not None:
             matches = [copy_rename(m, self.name) for m in matches]
         return matches
 
-"""
-def fullstar(cover_a, cover_b):
-    cover = []
-    for a in cover_a:
-        for b in cover_b:
-            if a[1] <= b[0]:
-                cover.append(a[0], b[1])
-    return cover
+
+def allgaps(matches_a, matches_b, text, name=None):
+    matches = []
+    for a in matches_a:
+        for b in matches_b:
+            if a.end <= b.start:
+                matches.append(concatenate_matches(a, b, text.text, name))
+    return matches
 
 
-class FullStar(Symbol):
+class AllGaps(Symbol):
 
-    def __init__(self, *elements):
-        self.__elements = elements
+    def __init__(self, *symbols, name=None):
+        super(AllGaps, self).__init__(name)
+        self.__symbols = symbols
 
-    def get_cover(self, text):
-        covers = [e.get_cover(text) for e in self.__elements]
-        return list(reduce(fullstar, covers))
+    @property
+    def symbols(self):
+        return self.__symbols
+
+    def get_matches_without_cache(self, text, **env):
+        symbol_matches = [e.get_matches(text, **env) for e in self.symbols]
+        matches = list(reduce(lambda a, b: allgaps(a, b, text), symbol_matches))
+        if self.name is not None:
+            matches = [copy_rename(m, self.name) for m in matches]
+        return matches
 
 
-def star(cover_a, cover_b):
-    cover = []
-    for a in cover_a:
-        for b in cover_b:
-            if a[1] <= b[0]:
-                cover.append(a[0], b[1])
+def gaps(matches_a, matches_b, text, name=None):
+    matches = []
+    for a in matches_a:
+        for b in matches_b:
+            if a.end <= b.start:
+                matches.append(concatenate_matches(a, b, text.text, name))
                 break
-    return cover
+    return matches
 
 
-class Star(Symbol):
+class Gaps(Symbol):
 
-    def __init__(self, *elements):
-        self.__elements = elements
+    def __init__(self, *symbols, name=None):
+        super(Gaps, self).__init__(name)
+        self.__symbols = symbols
 
-    def get_cover(self, text):
-        covers = [e.get_cover(text) for e in self.__elements]
-        return list(reduce(star, covers))
+    @property
+    def symbols(self):
+        return self.__symbols
 
-"""
+    def get_matches_without_cache(self, text, **env):
+        symbol_matches = [e.get_matches(text, **env) for e in self.symbols]
+        matches = list(reduce(lambda a, b: gaps(a, b, text), symbol_matches))
+        if self.name is not None:
+            matches = [copy_rename(m, self.name) for m in matches]
+        return matches
+

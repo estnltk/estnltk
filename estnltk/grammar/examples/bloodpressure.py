@@ -68,8 +68,9 @@ if __name__ == '__main__':
     # annotate the text and print it as html
     bp_measurement.annotate(text)
     pp = PrettyPrinter(background='bloodpressure', color='systolic', italics='diastolic')
-    html = pp.render(text)
     print ('CSS:')
     print (pp.css)
+
     print ('HTML:')
+    html = pp.render(text)
     print (html)
