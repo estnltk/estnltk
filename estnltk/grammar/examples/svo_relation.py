@@ -34,10 +34,10 @@ Ta tõi esile, et süüasjas on kaheksa toimikut ja 45 raamatupidamiskausta.
 if __name__ == '__main__':
     sentences = Text(example).split_by('clauses', 'sentences')
     for sentence in sentences:
-        print ('TEXT:', list(zip(sentence.word_texts, sentence.postags)))
-        for m in phrase.get_matches(sentence):
+        print ('TEXT:', sentence, ' ', ' '.join(sentence.postags))
+        for m in phrase.get_matches(sentence, conflict_resolver=None):
             m = m.dict
-            print ('\tA:', m['subject']['text'], m['verb']['text'], m['object']['text'])
-        for m in distant_phrase.get_matches(sentence):
+            print ('\tGaps:', m['subject']['text'], m['verb']['text'], m['object']['text'])
+        for m in distant_phrase.get_matches(sentence, conflict_resolver=None):
             m = m.dict
-            print ('\tB:', m['subject']['text'], m['verb']['text'], m['object']['text'])
+            print ('\tAllGaps:', m['subject']['text'], m['verb']['text'], m['object']['text'])
