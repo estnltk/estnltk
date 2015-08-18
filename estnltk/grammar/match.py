@@ -65,6 +65,9 @@ class Match(dict):
     def __len__(self):
         return self.end - self.start
 
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
 
 def concatenate_matches(a, b, text, name):
     match = Match(a.start, b.end, text[a.start:b.end], name)

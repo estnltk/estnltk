@@ -25,7 +25,7 @@ class UnionTest(unittest.TestCase):
             self.b()
         )
         matches = u.get_matches(self.text())
-        expected = [Match(0, 4), Match(5, 11), Match(20, 26)]
+        expected = [Match(0, 4, 'Kass'), Match(5, 11, 'hüppas'), Match(20, 26, 'kargas')]
 
         self.assertListEqual(expected, matches)
 
@@ -41,7 +41,7 @@ class UnionTest(unittest.TestCase):
             self.b_with_name()
         )
         matches = u.get_matches(self.text())
-        expected = [Match(0, 4, name='kaslane'), Match(5, 11, name='tegevus'), Match(20, 26, name='tegevus')]
+        expected = [Match(0, 4, 'Kass', name='kaslane'), Match(5, 11, 'hüppas', name='tegevus'), Match(20, 26, 'kargas', name='tegevus')]
 
         self.assertListEqual(expected, matches)
 
@@ -52,7 +52,7 @@ class UnionTest(unittest.TestCase):
             name='ühend'
         )
         matches = u.get_matches(self.text())
-        expected = [Match(0, 4, name='ühend'), Match(5, 11, name='ühend'), Match(20, 26, name='ühend')]
+        expected = [Match(0, 4, 'Kass', name='ühend'), Match(5, 11, 'hüppas', name='ühend'), Match(20, 26, 'kargas', name='ühend')]
 
         self.assertListEqual(expected, matches)
 
@@ -85,7 +85,7 @@ class ConcatTest(unittest.TestCase):
         )
 
         matches = c.get_matches(self.text())
-        expected = [Match(0, 11)]
+        expected = [Match(0, 11, 'Kass hüppas')]
 
         self.assertListEqual(expected, matches)
 
@@ -103,8 +103,8 @@ class ConcatTest(unittest.TestCase):
         self.assertListEqual(expected, matches)
 
     def c_with_names(self):
-        match = Match(0, 11, 'fraas')
-        match.matches['kaslane'] = Match(0, 4, 'kaslane')
-        match.matches['tegevus'] = Match(5, 11, 'tegevus')
+        match = Match(0, 11, 'Kass hüppas', 'fraas')
+        match.matches['kaslane'] = Match(0, 4, 'Kass', 'kaslane')
+        match.matches['tegevus'] = Match(5, 11, 'hüppas', 'tegevus')
         return match
 
