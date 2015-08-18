@@ -50,7 +50,7 @@ class Database(object):
         text: estnltk.text.Text
             The text instance to be inserted.
         id: str
-            Optional id for the document, if omitted, a default value is generated.
+            Optional id for the document, if not omitted, a default value is generated.
 
         Returns
         -------

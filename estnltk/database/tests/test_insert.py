@@ -24,6 +24,7 @@ class InsertTest(unittest.TestCase):
     def setUp(self):
         self.db = Database('test')
         self.db.delete_index()
+        self.db.refresh()
 
     def test_insert_default_ids(self):
         db = self.db
