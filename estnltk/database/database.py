@@ -24,38 +24,69 @@ def prepare_text(text):
 
 
 class Database(object):
-    def __init__(self, index, id, type='document'):
-        self.__es = Elasticsearch(index=index, type=type, id=id)
-        self.__index_name = index
-        self.__doc_type = type
-        self.__id = id
+
+    def __init__(self, index, doc_type='document', **kwargs):
+        self.__es = Elasticsearch(maxKeepAliveTime=0, **kwargs)
+        self.__index = index
+        self.__doc_type = doc_type
 
     @property
-    def index_name(self):
-        return self.__index_name
+    def index(self):
+        return self.__index
 
     @property
     def doc_type(self):
         return self.__doc_type
 
     @property
-    def id(self):
-        return self.__id
-
-    @property
     def es(self):
         return self.__es
+
+    def insert(self, text, id=None):
+        """Insert a document to index.
+
+        Parameters
+        ----------
+        text: estnltk.text.Text
+            The text instance to be inserted.
+        id: str
+            Optional id for the document, if omitted, a default value is generated.
+
+        Returns
+        -------
+        str
+            The id of the created document.
+        """
+        prepared_text = prepare_text(text)
+        kwargs = {
+            'index': self.index,
+            'doc_type': self.doc_type,
+            'body': prepared_text
+        }
+        if id is not None:
+            kwargs['id'] = int(id)
+        doc_id = self.es.create(**kwargs)['_id']
+        self.refresh()
+        return doc_id
+
+    def insert_many(self, texts):
+        pass # TODO
+
+    def get(self, doc_id):
+        return self.es.get(index=self.index, doc_type=self.doc_type, id=doc_id)['_source']['text']
+
+    def refresh(self):
+        """Commit all changes to the index."""
+        self.es.indices.refresh(index=self.index)
+
+    def delete_index(self):
+        self.es.indices.delete(index=self.index)
 
     def delete(self, index, id):
         self.es.delete(index=index, doc_type=self.doc_type, id=id)
 
-    def count(self, index):
-        return self.__es.count(index=index)['count']
-
-    def insert(self, id, text):
-        con = prepare_text(text)
-        #print(con)
-        self.es.index(index=self.__index_name, doc_type=self.doc_type, id=id, body=con)
+    def count(self):
+        return self.es.count(index=self.index, doc_type=self.doc_type)['count']
 
     def update(self, text, id=None):
         pass

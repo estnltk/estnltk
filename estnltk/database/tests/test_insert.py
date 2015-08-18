@@ -7,27 +7,34 @@ from ...text import Text
 from pprint import pprint
 
 
-def text():
-    text = Text('Mees, keda seal kohtasime, oli tuttav ja teretas meid.')
-    text.tag_clauses().tag_named_entities()
-    return text
-
-
-def database(name, id):
-    return Database(name, id)
-
-#class DeleteTest(unittest.TestCase):
-    # def test_delete(self):
-    #     db  = database('test_delete', 100)
-    #     #db.insert(100, text())
-    #     #db.delete('test_delete', 100)
-    #     self.assertAlmostEquals(0, db.count('test_delete'))
-
 class InsertTest(unittest.TestCase):
-    def test_insert(self):
-        db = database('test_insert', 100)
-        print(text())
-        print(db.count('test_insert'))
-        #db.delete()
-        db.insert(100, text())
-        self.assertEqual(1, db.count('test_insert'))
+
+    @property
+    def first(self):
+        text = Text('Mees, keda seal kohtasime, oli tuttav ja teretas meid.')
+        text.tag_clauses().tag_named_entities()
+        return text
+
+    @property
+    def second(self):
+        text = Text('Üle oja jõele. Läbi oru mäele. Usjas kaslane ründas künklikul maanteel tünjat Tallinnfilmi režissööri.')
+        text.tag_clauses().tag_named_entities()
+        return text
+
+    def setUp(self):
+        self.db = Database('test')
+        self.db.delete_index()
+
+    def test_insert_default_ids(self):
+        db = self.db
+
+        # insert the documents
+        id_first = db.insert(self.first)
+        id_second = db.insert(self.second)
+
+        # check the count
+        self.assertEqual(2, db.count())
+
+        # check the document retrieval
+        self.assertDictEqual(self.first, db.get(id_first))
+        self.assertDictEqual(self.second, db.get(id_second))
