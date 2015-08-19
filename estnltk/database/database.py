@@ -77,10 +77,10 @@ class Database(object):
 
     def refresh(self):
         """Commit all changes to the index."""
-        self.es.indices.refresh(index=self.index)
+        self.es.indices.refresh(index=self.index, ignore=[400,404])
 
     def delete_index(self):
-        self.es.indices.delete(index=self.index)
+        self.es.indices.delete(index=self.index, ignore=[400,404])
 
     def delete(self, index, id):
         self.es.delete(index=index, doc_type=self.doc_type, id=id)
