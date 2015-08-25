@@ -80,8 +80,8 @@ class IRegex(Regex):
 
 class Lemmas(Symbol):
 
-    def __init__(self, *lemmas, name=None):
-        super(Lemmas, self).__init__(name)
+    def __init__(self, *lemmas, **kwargs):
+        super(Lemmas, self).__init__(kwargs.get('name'))
         self.__lemmas = lemmas
         self.__pattern = re.compile('\L<lemmas>', lemmas=lemmas, flags=re.UNICODE | re.IGNORECASE)
 
@@ -106,8 +106,8 @@ class Lemmas(Symbol):
 
 class Postags(Symbol):
 
-    def __init__(self, *postags, name=None):
-        super(Postags, self).__init__(name)
+    def __init__(self, *postags, **kwargs):
+        super(Postags, self).__init__(kwargs.get('name'))
         self.__postags = postags
         self.__pattern = re.compile('\L<postags>', postags=postags, flags=re.UNICODE | re.IGNORECASE)
 
@@ -145,8 +145,8 @@ class Layer(Symbol):
 
 class Union(Symbol):
 
-    def __init__(self, *symbols, name=None):
-        super(Union, self).__init__(name)
+    def __init__(self, *symbols, **kwargs):
+        super(Union, self).__init__(kwargs.get('name'))
         self.__symbols = symbols
 
     @property
@@ -180,8 +180,8 @@ def concat(matches_a, matches_b, text, name=None):
 
 class Concatenation(Symbol):
 
-    def __init__(self, *symbols, name=None):
-        super(Concatenation, self).__init__(name)
+    def __init__(self, *symbols, **kwargs):
+        super(Concatenation, self).__init__(kwargs.get('name'))
         self.__symbols = symbols
 
     @property
@@ -207,8 +207,8 @@ def allgaps(matches_a, matches_b, text, name=None):
 
 class AllGaps(Symbol):
 
-    def __init__(self, *symbols, name=None):
-        super(AllGaps, self).__init__(name)
+    def __init__(self, *symbols, **kwargs):
+        super(AllGaps, self).__init__(kwargs.get('name'))
         self.__symbols = symbols
 
     @property
@@ -235,8 +235,8 @@ def gaps(matches_a, matches_b, text, name=None):
 
 class Gaps(Symbol):
 
-    def __init__(self, *symbols, name=None):
-        super(Gaps, self).__init__(name)
+    def __init__(self, *symbols, **kwargs):
+        super(Gaps, self).__init__(kwargs.get('name'))
         self.__symbols = symbols
 
     @property
