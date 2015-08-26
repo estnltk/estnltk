@@ -52,29 +52,41 @@ def create_tags(start, end, css_class):
     return start_tag, end_tag
 
 
-def create_tags_for_simple_layer(elems, css_class):
+def create_tags_for_simple_layer(elems, css_class, values):
     tags = []
+    number = 0
     for elem in elems:
-        start_tag, end_tag = create_tags(elem[START], elem[END], css_class)
+        if len(values[css_class])>1:
+            css_class_modified = css_class + '_' + str(number)
+            number += 1
+        else:
+            css_class_modified = css_class
+        start_tag, end_tag = create_tags(elem[START], elem[END], css_class_modified)
         tags.append(start_tag)
         tags.append(end_tag)
     return tags
 
 
-def create_tags_for_multi_layer(elems, css_class):
+def create_tags_for_multi_layer(elems, css_class, values):
     tags = []
+    number = 0
     for elem in elems:
+        if len(values[css_class])>1:
+            css_class_modified = css_class + '_' + str(number)
+            number += 1
+        else:
+            css_class_modified = css_class
         for start, end in zip(elem[START], elem[END]):
-            start_tag, end_tag = create_tags(start, end, css_class)
+            start_tag, end_tag = create_tags(start, end, css_class_modified)
             tags.append(start_tag)
             tags.append(end_tag)
     return tags
 
 
-def create_tags_for_layer(text, layer, css_class):
+def create_tags_for_layer(text, layer, css_class, values):
     if text.is_simple(layer):
-        return create_tags_for_simple_layer(text[layer], css_class)
-    return create_tags_for_multi_layer(text[layer], css_class)
+        return create_tags_for_simple_layer(text[layer], css_class, values)
+    return create_tags_for_multi_layer(text[layer], css_class, values)
 
 
 def group_tags_at_same_position(tags):
@@ -136,15 +148,15 @@ def create_tags_with_concatenated_css_classes(tags):
     return result
 
 
-def create_tags_for_text(text, aesthetics):
+def create_tags_for_text(text, aesthetics, values):
     tags = []
     for aes, layer in aesthetics.items():
-        tags.extend(create_tags_for_layer(text, layer, aes))
+        tags.extend(create_tags_for_layer(text, layer, aes, values))
     return create_tags_with_concatenated_css_classes(sorted(tags))
 
 
-def mark_text(text, aesthetics):
-    tags = create_tags_for_text(text, aesthetics)
+def mark_text(text, aesthetics, values):
+    tags = create_tags_for_text(text, aesthetics, values)
     spans = []
     last_pos = 0
     for tag in tags:
