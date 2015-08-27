@@ -57,6 +57,10 @@ class Database(object):
         str
             The id of the created document.
         """
+        #if self.__es.indices.exists(self.index):
+        #    print("deleting '%s' index..." % (self.index))
+        #    print(self.__es.indices.delete(index = self.index, ignore=[400, 404]))
+
         prepared_text = prepare_text(text)
         kwargs = {
             'index': self.index,
@@ -69,11 +73,40 @@ class Database(object):
         self.refresh()
         return doc_id
 
-    def insert_many(self, texts):
-        pass # TODO
+    def insert_many(self, list_of_texts):
+        """
+        Generator to use for bulk inserts
+        """
+        #if self.es.indices.exists(self.index):
+        #    print("deleting '%s' index..." % (self.index))
+        #    print(self.es.indices.delete(index = self.index, ignore=[400, 404]))
+
+        for n, text in enumerate(list_of_texts):
+            print(n+1)
+            print(text)
+            prepared_text = prepare_text(text)
+            print(prepared_text)
+            kwargs = {
+                'index': self.index,
+                'doc_type': self.doc_type,
+                'body': prepared_text
+            }
+
+            if id is not None:
+                kwargs['id'] = int(id)
+                doc_id = self.es.create(**kwargs)['_id']
+                self.refresh()
+
+        print("bulk indexing...")
+        result = self.es.bulk(**kwargs)
+        print(result)
+
+        print("results:")
+        for doc_id in self.es.search(index=self.index)['hits']['hits']:
+            print(doc_id)
 
     def get(self, doc_id):
-        return self.es.get(index=self.index, doc_type=self.doc_type, id=doc_id)['_source']['text']
+        return self.es.get(index=self.index, doc_type=self.doc_type, id=doc_id, ignore=[400,404])['_source']['text']
 
     def refresh(self):
         """Commit all changes to the index."""
@@ -88,7 +121,7 @@ class Database(object):
     def count(self):
         return self.es.count(index=self.index, doc_type=self.doc_type)['count']
 
-    def update(self, text, id=None):
+    def update(self):
         pass
 
     #def return_entry(self, )
