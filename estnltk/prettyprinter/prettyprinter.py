@@ -62,7 +62,6 @@ def parse_arguments(kwargs):
 
 class PrettyPrinter(object):
     """Class for formatting Text instances as HTML & CSS."""
-
     def __init__(self, **kwargs):
         """Initialize a new PrettyPrinter class.
 
@@ -102,4 +101,4 @@ class PrettyPrinter(object):
         return '\n'.join(css_list)
 
     def render(self, text):
-        return mark_text(text, self.aesthetics)
+        return mark_text(text, self.aesthetics, self.values)

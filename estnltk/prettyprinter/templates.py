@@ -50,6 +50,7 @@ def get_mark_css(aes_name, css_value):
     str
         The CSS code
     """
+
     css_prop = AES_CSS_MAP[aes_name]
     return MARK_CSS.format(aes_name=aes_name, css_prop=css_prop, css_value=css_value)
 

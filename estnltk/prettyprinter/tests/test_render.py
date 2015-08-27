@@ -8,7 +8,6 @@ from ...names import CLAUSES
 from ...text import Text
 from ..prettyprinter import PrettyPrinter
 
-
 class TestRender(unittest.TestCase):
 
     def test_no_aesthetics(self):
