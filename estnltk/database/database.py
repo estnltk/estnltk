@@ -73,7 +73,7 @@ class Database(object):
         self.refresh()
         return doc_id
 
-    def insert_many(self, list_of_texts):
+    def insert_many(self, list_of_texts, id=None):
         """
         Generator to use for bulk inserts
         """
@@ -82,31 +82,42 @@ class Database(object):
         #    print(self.es.indices.delete(index = self.index, ignore=[400, 404]))
 
         for n, text in enumerate(list_of_texts):
-            print(n+1)
-            print(text)
+
             prepared_text = prepare_text(text)
-            print(prepared_text)
+
+            bulk_text = []
+
             kwargs = {
                 'index': self.index,
                 'doc_type': self.doc_type,
                 'body': prepared_text
             }
 
+            bulk_text.append({
+                'index': {
+                'doc_type': self.doc_type,
+                'body': prepared_text,
+                'id': id
+                }
+            })
+
             if id is not None:
                 kwargs['id'] = int(id)
-                doc_id = self.es.create(**kwargs)['_id']
+                id = self.es.create(**kwargs)['_id']
                 self.refresh()
 
+
+
         print("bulk indexing...")
-        result = self.es.bulk(**kwargs)
+        result = self.es.bulk(index=self.index, body=bulk_text,refresh=True)
         print(result)
 
         print("results:")
         for doc_id in self.es.search(index=self.index)['hits']['hits']:
             print(doc_id)
 
-    def get(self, doc_id):
-        return self.es.get(index=self.index, doc_type=self.doc_type, id=doc_id, ignore=[400,404])['_source']['text']
+    def get(self, id):
+        return self.es.get(index=self.index, doc_type=self.doc_type, id=id, ignore=[400,404])['_source']['text']
 
     def refresh(self):
         """Commit all changes to the index."""
@@ -116,12 +127,15 @@ class Database(object):
         self.es.indices.delete(index=self.index, ignore=[400,404])
 
     def delete(self, index, id):
-        self.es.delete(index=index, doc_type=self.doc_type, id=id)
+        self.es.delete(index=index, doc_type=self.doc_type, id=id, ignore=[400,404])
 
     def count(self):
-        return self.es.count(index=self.index, doc_type=self.doc_type)['count']
+        return self.es.count(index=self.index, doc_type=self.doc_type, ignore=[400,404])['count']
 
     def update(self):
+        pass
+
+    def close_connection(self):
         pass
 
     #def return_entry(self, )
