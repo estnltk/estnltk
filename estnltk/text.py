@@ -18,12 +18,13 @@ from .wordnet_tagger import WordnetTagger
 from .clausesegmenter import ClauseSegmenter
 from .mw_verbs.verbchain_detector import VerbChainDetector
 from .textcleaner import TextCleaner
+from .tokenizers import EstWordTokenizer
 
 import six
 import pandas
 import nltk.data
 import regex as re
-from nltk.tokenize.regexp import WordPunctTokenizer, RegexpTokenizer
+from nltk.tokenize.regexp import RegexpTokenizer
 
 from cached_property import cached_property
 from copy import deepcopy
@@ -34,7 +35,7 @@ from pprint import pprint
 # default functionality
 paragraph_tokenizer = RegexpTokenizer('\n\n', gaps=True, discard_empty=True)
 sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
-word_tokenizer = WordPunctTokenizer()
+word_tokenizer = EstWordTokenizer()
 nertagger = None
 timextagger = None
 textcleaner = TextCleaner()
