@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, helpers
 
 
 def prepare_text(text):
@@ -87,23 +87,23 @@ class Database(object):
 
             bulk_text = []
 
-            kwargs = {
-                'index': self.index,
-                'doc_type': self.doc_type,
-                'body': prepared_text
-            }
+            # kwargs = {
+            #     'index': self.index,
+            #     'doc_type': self.doc_type,
+            #     'body': prepared_text
+            # }
 
             bulk_text.append({
-                'index': {
-                'doc_type': self.doc_type,
-                'body': prepared_text,
-                'id': id
+                '_index': {
+                '_doc_type': self.doc_type,
+                '_body': prepared_text,
+                '_id': id
                 }
             })
 
             if id is not None:
-                kwargs['id'] = int(id)
-                id = self.es.create(**kwargs)['_id']
+                bulk_text['id'] = int(id)
+                id = self.es.create(bulk_text)['_id']
                 self.refresh()
 
 

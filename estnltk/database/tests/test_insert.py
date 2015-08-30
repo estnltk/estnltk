@@ -43,11 +43,9 @@ class InsertTest(unittest.TestCase):
 
 class BulkInsertTest(unittest.TestCase):
 
-    def setUp(self):
+    def test_bulk_insert(self):
         self.db = Database('bulk_test')
         self.db.delete_index()
-
-    def test_bulk_insert(self):
         print('bulk_insert')
         # create a bulk_test database
         self.db = Database('bulk_test')
