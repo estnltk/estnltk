@@ -6,7 +6,7 @@ from ..names import *
 # TODO: define extractor and create the architecture
 def postags(elem, values):
     #print(elem['analysis'][0])
-    #print(values)
+    #print(values )
     variable = elem['analysis'][0]
     for values_key, values_value in dict(values).items():
         if isinstance(elem['text'], list):
