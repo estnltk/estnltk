@@ -175,6 +175,11 @@ class Text(dict):
         """Is the given element tokenized/tagged?"""
         return layer in self.__tagged
 
+    def tag_all(self):
+        """Tag all layers"""
+        self.tag_analysis().tag_timexes().tag_named_entities().tag_verb_chains()
+        return self
+
     def texts(self, layer, sep=' '):
         """Retrieve texts for given layer.
 

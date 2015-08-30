@@ -56,7 +56,7 @@ class BulkInsertTest(unittest.TestCase):
         # insert many (bulk) into db bulk_test
         it = InsertTest()
         text_lists = [it.first, it.second]
-        id_bulk = db.insert_many(text_lists)
+        id_bulk = db.bulk_insert(text_lists)
         print(id_bulk)
 
         # check the document retrieval

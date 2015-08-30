@@ -2,6 +2,7 @@
 from __future__ import unicode_literals, print_function, absolute_import
 
 from elasticsearch import Elasticsearch, helpers
+import json
 
 
 def prepare_text(text):
@@ -73,7 +74,7 @@ class Database(object):
         self.refresh()
         return doc_id
 
-    def insert_many(self, list_of_texts, id=None):
+    def bulk_insert(self, list_of_texts, id=None):
         """
         Generator to use for bulk inserts
         """
@@ -81,11 +82,11 @@ class Database(object):
         #    print("deleting '%s' index..." % (self.index))
         #    print(self.es.indices.delete(index = self.index, ignore=[400, 404]))
 
+        bulk_text = []
+
         for n, text in enumerate(list_of_texts):
 
             prepared_text = prepare_text(text)
-
-            bulk_text = []
 
             # kwargs = {
             #     'index': self.index,
@@ -94,22 +95,24 @@ class Database(object):
             # }
 
             bulk_text.append({
-                '_index': {
-                '_doc_type': self.doc_type,
-                '_body': prepared_text,
-                '_id': id
-                }
+                'index': {
+                    }
             })
 
-            if id is not None:
-                bulk_text['id'] = int(id)
-                id = self.es.create(bulk_text)['_id']
-                self.refresh()
+            bulk_text.append(prepared_text)
+
+            # if id is not None:
+            #     bulk_text['id'] = int(id)
+            #     id = self.es.create(bulk_text)['_id']
+            #     self.refresh()
 
 
+
+        insert_data =  '\n'.join([json.dumps(x) for x in bulk_text])
+        print(insert_data)
 
         print("bulk indexing...")
-        result = self.es.bulk(index=self.index, body=bulk_text,refresh=True)
+        result = self.es.bulk(index= self.index,doc_type= self.doc_type, body=insert_data,refresh=True)
         print(result)
 
         print("results:")
