@@ -8,6 +8,8 @@ following cases:
 - ordinal numbers: 1. 2. 3.
 - ranges, compund words: 25-28, D-vitamiin
 - fractions: 3.14 ; 3,14 ; 3/4
+
+See https://github.com/estnltk/estnltk/issues/25 for more info.
 """
 from __future__ import unicode_literals, print_function, absolute_import
 
