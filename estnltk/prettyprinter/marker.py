@@ -5,7 +5,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 from ..core import as_unicode
 from ..names import START, END
 from .templates import htmlescape, get_opening_mark, CLOSING_MARK
-
+from .extractors import postags, lemmas, timex_types
 
 class Tag(object):
 
@@ -53,23 +53,40 @@ def create_tags(start, end, css_class):
 
 
 def create_tags_for_simple_layer(elems, css_class, values):
+    #print(len(elems))
+    #print(css_class)
+    #print(values)
     tags = []
     number = 0
+    css_layers = {}
     for elem in elems:
-        if len(values[css_class])>1:
-            css_class_modified = css_class + '_' + str(number)
-            number += 1
+        layer_number = 0
+        if len(values[css_class]) > 1 and number < len(elems):
+            css_value = postags(elems[number], values[css_class])
+            if css_class + '_' + str(layer_number) in css_layers:
+                if css_layers[css_class + '_' + str(layer_number)] == css_value:
+                    css_class_modified = css_class + '_' + str(layer_number)
+                else:
+                    layer_number += 1
+                    css_layers[css_class + '_' + str(layer_number)] = css_value
+                    css_class_modified = css_class + '_' + str(layer_number)
+            else:
+                css_layers[css_class + '_' + str(layer_number)] = css_value
+                css_class_modified = css_class + '_' + str(layer_number)
         else:
-            css_class_modified = css_class
+            css_class_modified = css_class + '_' + str(0)
         start_tag, end_tag = create_tags(elem[START], elem[END], css_class_modified)
         tags.append(start_tag)
         tags.append(end_tag)
+        number += 1
     return tags
 
 
 def create_tags_for_multi_layer(elems, css_class, values):
     tags = []
     number = 0
+    layer_number = 0
+    css_layers = {}
     for elem in elems:
         if len(values[css_class])>1:
             css_class_modified = css_class + '_' + str(number)
@@ -80,6 +97,7 @@ def create_tags_for_multi_layer(elems, css_class, values):
             start_tag, end_tag = create_tags(start, end, css_class_modified)
             tags.append(start_tag)
             tags.append(end_tag)
+        number += 1
     return tags
 
 

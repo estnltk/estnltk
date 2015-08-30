@@ -5,9 +5,6 @@ Deals with rendering Text instances as HTML.
 """
 from __future__ import unicode_literals, print_function, absolute_import
 
-#import sys
-#sys.path.insert(0, '/path/to/estnltk/prettyprinter')
-
 from .values import AESTHETICS, AES_VALUE_MAP, DEFAULT_VALUE_MAP, LEGAL_ARGUMENTS
 from .templates import get_mark_css
 from .marker import mark_text
