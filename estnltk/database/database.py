@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, helpers
+import json
 
 
 def prepare_text(text):
@@ -24,7 +25,6 @@ def prepare_text(text):
 
 
 class Database(object):
-
     def __init__(self, index, doc_type='document', **kwargs):
         self.__es = Elasticsearch(maxKeepAliveTime=0, **kwargs)
         self.__index = index
@@ -57,7 +57,7 @@ class Database(object):
         str
             The id of the created document.
         """
-        #if self.__es.indices.exists(self.index):
+        # if self.__es.indices.exists(self.index):
         #    print("deleting '%s' index..." % (self.index))
         #    print(self.__es.indices.delete(index = self.index, ignore=[400, 404]))
 
@@ -73,58 +73,71 @@ class Database(object):
         self.refresh()
         return doc_id
 
-    def insert_many(self, list_of_texts):
+    def bulk_insert(self, list_of_texts, id=None):
         """
         Generator to use for bulk inserts
         """
-        #if self.es.indices.exists(self.index):
+        # if self.es.indices.exists(self.index):
         #    print("deleting '%s' index..." % (self.index))
         #    print(self.es.indices.delete(index = self.index, ignore=[400, 404]))
 
-        for n, text in enumerate(list_of_texts):
-            print(n+1)
-            print(text)
-            prepared_text = prepare_text(text)
-            print(prepared_text)
-            kwargs = {
-                'index': self.index,
-                'doc_type': self.doc_type,
-                'body': prepared_text
-            }
+        bulk_text = []
 
-            if id is not None:
-                kwargs['id'] = int(id)
-                doc_id = self.es.create(**kwargs)['_id']
-                self.refresh()
+        for n, text in enumerate(list_of_texts):
+            prepared_text = prepare_text(text)
+
+            # kwargs = {
+            #     'index': self.index,
+            #     'doc_type': self.doc_type,
+            #     'body': prepared_text
+            # }
+
+            bulk_text.append({
+                'index': {
+                }
+            })
+
+            bulk_text.append(prepared_text)
+
+            # if id is not None:
+            #     bulk_text['id'] = int(id)
+            #     id = self.es.create(bulk_text)['_id']
+            #     self.refresh()
+
+        insert_data = '\n'.join([json.dumps(x) for x in bulk_text])
+        print(insert_data)
 
         print("bulk indexing...")
-        result = self.es.bulk(**kwargs)
+        result = self.es.bulk(index=self.index, doc_type=self.doc_type, body=insert_data, refresh=True)
         print(result)
 
         print("results:")
         for doc_id in self.es.search(index=self.index)['hits']['hits']:
             print(doc_id)
 
-    def get(self, doc_id):
-        return self.es.get(index=self.index, doc_type=self.doc_type, id=doc_id, ignore=[400,404])['_source']['text']
+    def get(self, id):
+        return self.es.get(index=self.index, doc_type=self.doc_type, id=id, ignore=[400, 404])['_source']['text']
 
     def refresh(self):
         """Commit all changes to the index."""
-        self.es.indices.refresh(index=self.index, ignore=[400,404])
+        self.es.indices.refresh(index=self.index, ignore=[400, 404])
 
     def delete_index(self):
-        self.es.indices.delete(index=self.index, ignore=[400,404])
+        self.es.indices.delete(index=self.index, ignore=[400, 404])
 
     def delete(self, index, id):
-        self.es.delete(index=index, doc_type=self.doc_type, id=id)
+        self.es.delete(index=index, doc_type=self.doc_type, id=id, ignore=[400, 404])
 
     def count(self):
-        return self.es.count(index=self.index, doc_type=self.doc_type)['count']
+        return self.es.count(index=self.index, doc_type=self.doc_type, ignore=[400, 404])['count']
 
     def update(self):
         pass
 
-    #def return_entry(self, )
+    def close_connection(self):
+        pass
+
+    # def return_entry(self, )
 
     def keyword_documents(self, keywords, layer=None, n=None):
         """Find all Text documents that match given keywords.
