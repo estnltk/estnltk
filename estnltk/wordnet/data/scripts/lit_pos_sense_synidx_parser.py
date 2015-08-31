@@ -4,7 +4,7 @@ from sys import argv,exit
 
 
 if len(argv) < 2:
-	print "Usage: python lit-pos-synidx_parser.py wordnet_file"
+	print("Usage: python lit-pos-synidx_parser.py wordnet_file")
 	exit()
 
 OUTPUT = "../sense.txt"
