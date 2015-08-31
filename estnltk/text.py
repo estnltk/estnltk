@@ -177,9 +177,8 @@ class Text(dict):
         return layer in self.__tagged
 
     def tag_all(self):
-        """Tag all layers"""
-        self.tag_analysis().tag_timexes().tag_named_entities().tag_verb_chains()
-        return self
+        """Tag all layers."""
+        return self.tag_timexes().tag_named_entities().tag_verb_chains()
 
     def texts(self, layer, sep=' '):
         """Retrieve texts for given layer.
