@@ -67,7 +67,7 @@ def parse_tei_corpus(path, target=['artikkel']):
     """
     with open(path, 'rb') as f:
         html_doc = f.read()
-    soup = BeautifulSoup(html_doc)
+    soup = BeautifulSoup(html_doc, 'html5lib')
     title = soup.find_all('title')[0].string
     
     documents = []
