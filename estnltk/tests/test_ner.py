@@ -1,13 +1,14 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals, print_function, absolute_import
 import unittest
 
 import estnltk
-from estnltk.estner.featureextraction import MorphFeatureExtractor,\
+from ..estner.featureextraction import MorphFeatureExtractor,\
     LocalFeatureExtractor, GazetteerFeatureExtractor
-from estnltk.estner.ner import Token
-from estnltk.core import as_unicode
-from estnltk.text import Text
-from estnltk.ner import json_document_to_estner_document, NerTagger
+from ..estner.ner import Token
+from ..core import as_unicode
+from ..text import Text
+from ..ner import json_document_to_estner_document, NerTagger
 
 
 class TestGazetteerFeatureExtractor(unittest.TestCase):
@@ -124,7 +125,6 @@ class TestLocalFeatureExtractor(unittest.TestCase):
     
 class TestNer(unittest.TestCase):
 
-    
     def test(self):
         t = Text('Alexander Tkachenko elab Pärnus')
         self.assertEqual(t.named_entities, ['Alexander Tkachenko', as_unicode('Pärnu')])

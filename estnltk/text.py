@@ -116,7 +116,6 @@ class Text(dict):
             self[TEXT] = as_unicode(text_or_instance, encoding)
         self.__kwargs = kwargs
         self.__load_functionality(**kwargs)
-        self.__find_what_is_tagged()
 
     def __load_functionality(self, **kwargs):
         self.__paragraph_tokenizer = kwargs.get(
@@ -143,38 +142,26 @@ class Text(dict):
         """Get the keyword arguments that were passed to the :py:class:`~estnltk.text.Text` when it was constructed."""
         return self.__kwargs
 
-    def __find_what_is_tagged(self):
-        """Find out what kind of information is already tagged.
-
-        It uses existing layers to decide what information is present.
-        Note that this is not bullet-proof and in certain situations the user should call
-        tokenize_X, tag_X methods manually.
-        It does not perform extensive checks to see if the values of these keys are actually valid.
-        """
-        tagged = set()
-        if PARAGRAPHS in self:
-            tagged.add(PARAGRAPHS)
-        if SENTENCES in self:
-            tagged.add(SENTENCES)
-        if WORDS in self:
-            tagged.add(WORDS)
-            if len(self[WORDS]) > 0:
-                if ANALYSIS in self[WORDS][0]:
-                    tagged.add(ANALYSIS)
-                    if len(self[WORDS][0][ANALYSIS]) and WORDNET in self[WORDS][0][ANALYSIS][0]:
-                        tagged.add(WORDNET)
-                if LABEL in self:
-                    tagged.add(LABEL)
-        if NAMED_ENTITIES in self:
-            tagged.add(NAMED_ENTITIES)
-        if CLAUSES in self:
-            tagged.add(CLAUSES)
-        self.__tagged = tagged
-        return tagged
-
     def is_tagged(self, layer):
         """Is the given element tokenized/tagged?"""
-        return layer in self.__tagged
+        # we have a number of special names that are not layers but instead
+        # attributes of "words" layer
+        if layer == ANALYSIS:
+            if WORDS in self and len(self[WORDS]) > 0:
+                return ANALYSIS in self[WORDS][0]
+        elif layer == LABEL:
+            if WORDS in self and len(self[WORDS]) > 0:
+                return LABEL in self[WORDS][0]
+        elif layer == CLAUSE_ANNOTATION:
+            if WORDS in self and len(self[WORDS]) > 0:
+                return CLAUSE_ANNOTATION in self[WORDS][0]
+        elif layer == WORDNET:
+            if WORDS in self and len(self[WORDS]) > 0:
+                if ANALYSIS in self[WORDS][0] and len(self[WORDS][0][ANALYSIS]) > 0:
+                    return WORDNET in self[WORDS][0][ANALYSIS][0]
+        else:
+            return layer in self
+        return False  # do not remove False
 
     def tag_all(self):
         """Tag all layers."""
@@ -356,7 +343,6 @@ class Text(dict):
         for start, end in spans:
             dicts.append({'start': start, 'end': end})
         self[PARAGRAPHS] = dicts
-        self.__tagged.add(PARAGRAPHS)
         return self
 
     @cached_property
@@ -409,7 +395,6 @@ class Text(dict):
             for start, end in spans:
                 dicts.append({'start': start+para_start, 'end': end+para_start})
         self[SENTENCES] = dicts
-        self.__tagged.add(SENTENCES)
         return self
 
     @cached_property
@@ -464,7 +449,6 @@ class Text(dict):
             for start, end in spans:
                 dicts.append({START: start+sent_start, END: end+sent_start, TEXT: sent_text[start:end]})
         self[WORDS] = dicts
-        self.__tagged.add(WORDS)
         return self
 
     def tag_analysis(self):
@@ -478,7 +462,6 @@ class Text(dict):
             for word, analysis in zip(sentence, all_analysis):
                 word[ANALYSIS] = analysis[ANALYSIS]
                 word[TEXT] = analysis[TEXT]
-        self.__tagged.add(ANALYSIS)
         return self
 
     @cached_property
@@ -661,7 +644,6 @@ class Text(dict):
         if self.__ner_tagger is None:
             self.__ner_tagger = load_default_ner_tagger()
         self.__ner_tagger.tag_document(self)
-        self.__tagged.add(LABEL)
         return self
 
     @cached_property
@@ -676,7 +658,7 @@ class Text(dict):
 
         This automatically performs morphological analysis along with all dependencies.
         """
-        if self.is_tagged(ANALYSIS):
+        if not self.is_tagged(LABEL):
             self.tag_labels()
         nes = []
         word_start = -1
@@ -695,7 +677,6 @@ class Text(dict):
                 else:
                     word_start = -1
         self[NAMED_ENTITIES] = nes
-        self.__tagged.add(NAMED_ENTITIES)
         return self
 
     @cached_property
@@ -737,7 +718,6 @@ class Text(dict):
             if self.__timex_tagger is None:
                 self.__timex_tagger = load_default_timex_tagger()
             self.__timex_tagger.tag_document(self, **self.__kwargs)
-            self.__tagged.add(TIMEXES)
         return self
 
     @cached_property
@@ -796,7 +776,6 @@ class Text(dict):
             self.tag_analysis()
         if self.__clause_segmenter is None:
             self.__clause_segmenter = load_default_clausesegmenter()
-        self.__tagged.add(CLAUSE_ANNOTATION)
         return self.__clause_segmenter.tag(self)
 
     @cached_property
@@ -843,7 +822,6 @@ class Text(dict):
             clauses.extend(from_sentence(sentence))
 
         self[CLAUSES] = clauses
-        self.__tagged.add(CLAUSES)
         return self
 
     @cached_property
@@ -883,7 +861,6 @@ class Text(dict):
             offset += len(sentence)
             verbchains.extend(chains)
         self[VERB_CHAINS] = verbchains
-        self.__tagged.add(VERB_CHAINS)
         return self
 
     @cached_property
@@ -969,7 +946,6 @@ class Text(dict):
         if wordnet_tagger is None: # cached wn tagger
             wordnet_tagger = WordnetTagger()
         self.__wordnet_tagger = wordnet_tagger
-        self.__tagged.add(WORDNET)
         if len(kwargs) > 0:
             return self.__wordnet_tagger.tag_text(self, **kwargs)
         return self.__wordnet_tagger.tag_text(self, **self.__kwargs)
