@@ -44,14 +44,14 @@ LINEBREAK = '\n\n'
 INTERNAL_RELATION_FILE = os.path.join(os.path.dirname(__file__ ), 'semrel.cnf')
 EXTERNAL_RELATION_FILE = os.path.join(os.path.dirname(__file__ ), 'eqsemrel.cnf')
 
+INTERNAL_RELATION_NAMES = []
+with open(INTERNAL_RELATION_FILE, 'rb') as f:
+    INTERNAL_RELATION_NAMES = list(map(lambda x: x.strip(),f.readlines()))
 
-f = open(INTERNAL_RELATION_FILE, 'rb')
-INTERNAL_RELATION_NAMES = list(map(lambda x: x.strip(),f.readlines()))
-f.close()
+EQ_RELATION_NAMES = []
+with open(EXTERNAL_RELATION_FILE, 'rb') as f:
+    EQ_RELATION_NAMES = list(map(lambda x: x.strip(),f.readlines()))
 
-f = open(EXTERNAL_RELATION_FILE, 'rb')
-EQ_RELATION_NAMES = list(map(lambda x: x.strip(),f.readlines()))
-f.close()
 
 
 RELATION_NAMES = INTERNAL_RELATION_NAMES + EQ_RELATION_NAMES
@@ -1104,6 +1104,10 @@ class Parser(object):
         self.targetType = None
         self.variant_to_variant_source = None
         self.variant_to_variant_target = None
+
+    def __del__(self):
+        if self.file is not None:
+            self.file.close()
 
     def fileName():
         doc = "FileName to read from"

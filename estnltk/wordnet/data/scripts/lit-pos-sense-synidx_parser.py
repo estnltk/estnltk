@@ -3,7 +3,7 @@ from sys import argv,exit
 
 
 if len(argv) < 3:
-	print "Usage: python lit-pos-synidx_parser.py wordnet_file output_dir"
+	print("Usage: python lit-pos-synidx_parser.py wordnet_file output_dir")
 
 synset_idx_regexp = re.compile("0\s+@(\d+)@\s+WORD_MEANING") 
 pos_regexp = re.compile("\s+1\s+PART_OF_SPEECH\s+\"(.+)\"")

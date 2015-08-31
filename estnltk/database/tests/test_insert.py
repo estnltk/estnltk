@@ -41,6 +41,7 @@ class InsertTest(unittest.TestCase):
         self.assertDictEqual(self.first, db.get(id_first))
         self.assertDictEqual(self.second, db.get(id_second))
 
+
 class BulkInsertTest(unittest.TestCase):
 
     def test_bulk_insert(self):

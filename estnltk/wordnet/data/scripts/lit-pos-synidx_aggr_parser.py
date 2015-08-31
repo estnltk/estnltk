@@ -3,7 +3,7 @@ from sys import argv,exit
 
 
 if len(argv) < 3:
-	print "Usage: python lit-pos-synidx_parser.py ordered_lit-pos-synidx_dir output_dir"
+	print ("Usage: python lit-pos-synidx_parser.py ordered_lit-pos-synidx_dir output_dir")
 
 with open("%s/lit-pos-synidx.txt"%argv[1],'r') as fin, open("%s/lit-pos-synidx2.txt"%argv[2],'w') as fout:
 	posses = set()
@@ -21,4 +21,4 @@ with open("%s/lit-pos-synidx.txt"%argv[1],'r') as fin, open("%s/lit-pos-synidx2.
 			prev_literal_synsets = [split_line[2]]
 	fout.write("%s:%s:%s\n"%(prev_split_line[0],prev_split_line[1],' '.join(prev_literal_synsets)))
 
-print posses
+print (posses)
