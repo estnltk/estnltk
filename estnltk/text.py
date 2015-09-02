@@ -34,7 +34,18 @@ from pprint import pprint
 
 # default functionality
 paragraph_tokenizer = RegexpTokenizer('\n\n', gaps=True, discard_empty=True)
-sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+
+# use NLTK-s sentence tokenizer for Estonian, in case it is not downloaded, try to download it first
+sentence_tokenizer = None
+try:
+    sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+except LookupError:
+    import nltk.downloader
+    nltk.downloader.download('punkt')
+finally:
+    if sentence_tokenizer is None:
+        sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+
 word_tokenizer = EstWordTokenizer()
 nertagger = None
 timextagger = None
