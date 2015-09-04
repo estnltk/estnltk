@@ -6,8 +6,10 @@ In a nutshell, it is exactly the same as NLTK-s WordPunctTokenizer, but it conca
 following cases:
 
 - ordinal numbers: 1. 2. 3.
-- ranges, compund words: 25-28, D-vitamiin
+- ranges, compund words: 25-28, 1.-3., D-vitamiin
 - fractions: 3.14 ; 3,14 ; 3/4
+- abbreviations:  v.a ; e.Kr ; e.m.a
+- name abbreviations:  E. Talvik ; M. Unt
 
 See https://github.com/estnltk/estnltk/issues/25 for more info.
 """
@@ -15,6 +17,9 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 from nltk.tokenize.regexp import WordPunctTokenizer
 from nltk.tokenize.api import StringTokenizer
+
+from estnltk.textcleaner import EST_ALPHA
+
 import regex as re
 
 wptokenizer = WordPunctTokenizer()
@@ -29,16 +34,24 @@ def join_hyphen(left, right):
     return left == '-' or right == '-'
 
 
+def join_name_abbreviation(left, right):
+    return left.isupper() and len(left)==1 and left in EST_ALPHA and right == '.'
+
+
 def join_range(left, middle, right):
-    return middle == '-'
+    return middle == '-' or middle == '.-'
+
+
+def join_abbreviation(left, middle, right):
+    return len(left)>0 and left[-1] in EST_ALPHA and middle == '.' and len(right)>0 and right[0] in EST_ALPHA
 
 
 def join_fraction(left, middle, right):
     return digits.match(left) is not None and middle in [',', '.', '/'] and digits.match(right) is not None
 
 
-bi_rules = [join_ordinals, join_hyphen]
-tri_rules = [join_range, join_fraction]
+bi_rules = [join_ordinals, join_hyphen, join_name_abbreviation]
+tri_rules = [join_range, join_fraction, join_abbreviation]
 
 
 def apply_rules(tokens, spans, n, rules):
