@@ -45,8 +45,6 @@ class InsertTest(unittest.TestCase):
 class BulkInsertTest(unittest.TestCase):
 
     def test_bulk_insert(self):
-        self.db = Database('bulk_test')
-        self.db.delete_index()
         print('bulk_insert')
         # create a bulk_test database
         self.db = Database('bulk_test')
@@ -61,7 +59,13 @@ class BulkInsertTest(unittest.TestCase):
         print(id_bulk)
 
         # check the document retrieval
-        #self.assertEqual(2, db.count())
+        self.assertEqual(2, db.count())
         print("Bulk count test OK")
-        # check the document retrieval
-        # self.assertAlmostEquals
+
+class SearchTest(unittest.TestCase):
+
+    def test_search_keyword_documents(self):
+        self.db = Database('test')
+        keywords = ["Aegna"]
+        search = Database.keyword_documents(self.db, keywords=keywords)
+        print(search)
