@@ -3,6 +3,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 from elasticsearch import Elasticsearch
 import json
+
 try:
     import urllib.request as urllib2
 except ImportError:
@@ -93,7 +94,6 @@ class Database(object):
 
         print("bulk indexing...")
         result = self.es.bulk(index=self.index, doc_type=self.doc_type, body=insert_data, refresh=True)
-        print(result)
 
     def get(self, id):
         return self.es.get(index=self.index, doc_type=self.doc_type, id=id, ignore=[400, 404])['_source']['text']
@@ -136,24 +136,16 @@ class Database(object):
         Iterable of Text instances.
         """
 
-        url = '(endpoint)'
-        data = {
-            'layers': keywords
-        }
+        es = self.__es
+        for keyword in keywords:
+            search = es.search(index='test', doc_type=self.__doc_type, body={"query": {"match_all": {"content": "Aegna"}}})
+            print("%d documents found" % search['hits']['total'])
+        print("%d documents found" % search['hits']['total'])
 
-        data = json.dumps(data)
+        for doc in search['hits']['hits']:
+            print("%s) %s" % (doc['_id'], doc['_source']['content']))
 
-        #print("search results:")
-        #for doc_id in self.es.search(index=self.index)['hits']['hits']:
-        #     print(doc_id)
 
-        request = urllib2.Request(url, data)
-        recived_data = urllib2.urlopen(request)
-        print(recived_data.read())
-
-        data_out = json.loads(data)
-        print(data_out)
-        print(data_out['hits']['total'])
 
     def keyword_matches(self, keywords, layer=None):
         """Find all Text documents and matched regions for given keywords.
