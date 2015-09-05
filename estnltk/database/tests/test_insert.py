@@ -28,7 +28,6 @@ class InsertTest(unittest.TestCase):
 
     def test_insert_default_ids(self):
         warnings.simplefilter("ignore")
-        print('test_insert_default_ids')
         self.db.refresh()
         db = self.db
 
