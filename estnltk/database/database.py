@@ -138,12 +138,19 @@ class Database(object):
 
         es = self.__es
         for keyword in keywords:
-            search = es.search(index='test', doc_type=self.__doc_type, body={"query": {"match_all": {"content": "Aegna"}}})
-            print("%d documents found" % search['hits']['total'])
+            search = es.search(index='test', doc_type=self.__doc_type, body={
+                "query": {
+                    "match": {
+                        "text":keyword,
+                    }
+                }
+            })
+
+
         print("%d documents found" % search['hits']['total'])
 
-        for doc in search['hits']['hits']:
-            print("%s) %s" % (doc['_id'], doc['_source']['content']))
+        #for doc in search['hits']['hits']:
+        #    print("%s) %s" % (doc['_id'], doc['_source']['text']))
 
 
 
