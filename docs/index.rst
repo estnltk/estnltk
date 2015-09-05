@@ -116,6 +116,8 @@ Tutorials
 
    tutorials/installation
    tutorials/text
+   tutorials/wikipedia
+   tutorials/devel
    tutorials/morf_tables
 
 Tools for linguists
@@ -125,6 +127,7 @@ Tools for linguists
    :maxdepth: 3
    
    tutorials/textclassifier
+
 
 API reference
 =============
