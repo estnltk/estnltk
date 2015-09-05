@@ -27,6 +27,7 @@ class InsertTest(unittest.TestCase):
         self.db.delete_index()
 
     def test_insert_default_ids(self):
+        warnings.simplefilter("ignore")
         print('test_insert_default_ids')
         self.db.refresh()
         db = self.db
@@ -46,6 +47,7 @@ class InsertTest(unittest.TestCase):
 class BulkInsertTest(unittest.TestCase):
 
     def test_bulk_insert(self):
+        warnings.simplefilter("ignore")
         # create a bulk_test database
         self.db = Database('bulk_test')
         self.db.delete_index()
@@ -60,10 +62,9 @@ class BulkInsertTest(unittest.TestCase):
 class SearchTest(unittest.TestCase):
 
     def test_search_keyword_documents(self):
+        warnings.simplefilter("ignore")
         self.db = Database('test')
         keywords = ["aegna"]
         search = Database.keyword_documents(self.db, keywords=keywords)
 
 
-if __name__ == '__main__':
-    unittest.main(warnings='ignore')
