@@ -59,3 +59,19 @@ def write_json_corpus(documents, fnm):
         for document in documents:
             f.write(json.dumps(document) + '\n')
     return documents
+
+
+def read_document(fnm):
+    """Read a document that is stored in a text file as JSON.
+
+    Parameters
+    ----------
+    fnm: str
+        The path of the document.
+
+    Returns
+    -------
+    Text
+    """
+    with codecs.open(fnm, 'rb', 'ascii') as f:
+        return Text(json.loads(f.read()))

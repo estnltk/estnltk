@@ -1,13 +1,13 @@
-===============================
-Working with Estonian wikipedia
-===============================
+========================================
+Working with Estonian and Võru wikipedia
+========================================
 
 Wikipedia is a free-access, free-content Internet encyclopedia, supported and hosted by the non-profit Wikimedia Foundation.
 Those who can access the site can edit most of its articles, with the expectation that they follow the website's policies.
 Wikipedia is ranked among the ten most popular websites and constitutes the Internet's largest and most popular general reference work.
 
-Estonian version of the Wikipedia has over 180 000 articles as of 2015.
-Võru dialect has also its own version containing about 8000 articles.
+Estonian version of the Wikipedia has over 130 000 articles as of 2015.
+Võru dialect has also its own version containing about 5000 articles.
 
 
 Downloading the Wikipedia dumps
@@ -21,13 +21,14 @@ Latest Võru dialect wikipedia:
 
 http://dumps.wikimedia.org/fiu_vrowiki/latest/fiu_vrowiki-latest-pages-articles.xml.bz2
 
-It takes some steps to turn the dumps into usable form, so if you don't want to do all of this by yourself,
-you can download fully processed (but older) articles under Section :ref:`links_to_processed_wiki_dumps`.
+It takes some work to turn the dumps into usable form, so if you don't want to do all of this by yourself,
+you can download fully prepared (but older) articles (see :ref:`links_to_processed_wiki_dumps`).
+
+
+.. _extracting_xml_articles:
 
 Extracting artiles from XML files
 =================================
-
-.. _extracting_xml_articles:
 
 Let's assume you have downloaded both the Estonian and Võru wikipedia into ``wikidump`` subfolder and extracted the ``.xml`` files,
 so that you have two files::
@@ -64,13 +65,14 @@ And run the parser::
     python3 -m estnltk.wiki.parser wikidump/voru/ wikidump/fiu_vrowiki-latest-pages-articles.xml.bz2
 
 
-As a result, there will be many ``.json`` files with structure described in Section :ref:`wiki_json_structure`.
-NB! See Section :ref:`wiki_convert` on how to access the articles using Estnltk.
+As a result, there will be many ``.json`` files with structure described in section :ref:`wiki_json_structure`.
+NB! See section :ref:`wiki_convert` on how to access the articles using Estnltk.
+
+
+.. _wiki_json_structure:
 
 Json structure
 --------------
-
-.. _wiki_json_structure:
 
 The basic structure of an article.json::
 
@@ -285,10 +287,10 @@ Images are also under the corresponding section. From the image text links (both
             ],
 
 
+.. _wiki_convert:
+
 Converting articles to Estnltk JSON
 ===================================
-
-.. _wiki_convert:
 
 The JSON files produced by ``estnltk.wiki.parser`` contains more structural data that can be
 represented by Estnltk-s :py:class:`~estnltk.text.Text` class, thus you cannot directly use this JSON
@@ -309,7 +311,7 @@ where we will store the converted JSON files.
 The script ``estnltk.wiki.convert`` can be used for the job::
 
     python3 -m estnltk.wiki.convert wikidump/voru/ corpora/voru/
-    python3 -m estnltk.wiki.convert wikidump/eesti corpora/eesti
+    python3 -m estnltk.wiki.convert wikidump/eesti corpora/eesti/
 
 
 As a result, the folders contain large number of files in JSON format that can be used with Estnltk
@@ -384,27 +386,27 @@ Sections contains start and end point of sections, title, images, references, bu
         },
 
 Text is a separate layer all the sections concatenated with section titles.
-{start}Title
-SectionText{end}
-
-{start}Title2
-Section2Text{end}
 ::
+
+    {start}Title
+    SectionText{end}
+
+    {start}Title2
+    Section2Text{end}
+
 
        "text": "Aserbaid\u017eaani keel\nAserbaid\u017eaani keel kuulub turgi keelte hulka. Peale Aserbaid\u017eaani k\u00f5neldakse seda Gruusias, Armeenias, Iraanis, Iraagis ja T\u00fcrgis.\nAserbaid\u017eaani keel kuulub oguusi keelte hulka,
 
-Downloading the processed dumps
--------------------------------
 
 .. _links_to_processed_wiki_dumps:
+
+Downloading the processed dumps
+===============================
 
 Just in case you do not want to extract the articles yourself, here are the links to processed files
 from dumps downloaded on Sep 7 2015.
 
-TODO: add links
+Estonian Wikipedia articles: http://ats.cs.ut.ee/keeletehnoloogia/estnltk/wiki_articles/eesti.zip
 
+Võru dialect Wikipedia articles: http://ats.cs.ut.ee/keeletehnoloogia/estnltk/wiki_articles/voru.zip
 
-Example usage
-=============
-
-asdf
