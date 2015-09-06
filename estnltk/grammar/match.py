@@ -70,6 +70,8 @@ class Match(dict):
 
 
 def concatenate_matches(a, b, text, name):
+    """Concatenate matches a and b.
+    All submatches will be copied to result."""
     match = Match(a.start, b.end, text[a.start:b.end], name)
     for k, v in a.matches.items():
         match.matches[k] = v
@@ -90,3 +92,21 @@ def copy_rename(match, name):
     m = copy(match)
     m[NAME] = name
     return m
+
+
+def intersect(lefts, rights):
+    n, m = len(lefts), len(rights)
+    i, j = 0, 0
+    result = []
+    while i < n and j < m:
+        left = lefts[i]
+        right = rights[j]
+        if left.start == right.start and left.end == right.end:
+            i += 1
+            j += 1
+            result.append(left)
+        elif left < right:
+            i += 1
+        else:
+            j += 1
+    return result

@@ -44,20 +44,20 @@ class DisambiguatorTest(unittest.TestCase):
         texts = [ text.tag_analysis() for text in texts ]
         # 1) Count morph analyses without any disambiguation
         [countTotal, countH, countNonH] = self.__debug_count_analyses(texts)
-        self.assertListEqual([countTotal, countH, countNonH], [93, 20, 73])
+        self.assertListEqual([countTotal, countH, countNonH], [91, 20, 71])
         #print ([countTotal, countH, countNonH])
         texts = [ Text(text, disambiguate=True, guess=True, propername=True) for text in corpus ]
         texts = [ text.tag_analysis() for text in texts ]
         # 2) Count morph analyses before post-disambiguation step,
         #    without pre-disambiguation, but with vabamorf disambiguation
         [countTotal, countH, countNonH] = self.__debug_count_analyses(texts)
-        self.assertListEqual([countTotal, countH, countNonH], [53, 0, 53])
+        self.assertListEqual([countTotal, countH, countNonH], [51, 0, 51])
         #print ([countTotal, countH, countNonH])
         disambuator = Disambiguator()
         texts = disambuator.disambiguate( corpus, disambiguate=True, post_disambiguate=True, pre_disambiguate=False )
         # 3) Count morph analyses after post-disambiguation step
         [countTotal, countH, countNonH] = self.__debug_count_analyses(texts)
-        self.assertListEqual([countTotal, countH, countNonH], [49, 0, 49])
+        self.assertListEqual([countTotal, countH, countNonH], [47, 0, 47])
         #print ([countTotal, countH, countNonH])
 
 
@@ -73,18 +73,18 @@ class DisambiguatorTest(unittest.TestCase):
         texts = [ text.tag_analysis() for text in texts ]
         # 1) Count morph analyses without any disambiguation
         [countTotal, countH, countNonH] = self.__debug_count_analyses(texts)
-        self.assertListEqual([countTotal, countH, countNonH], [93, 20, 73])
+        self.assertListEqual([countTotal, countH, countNonH], [91, 20, 71])
         #print ([countTotal, countH, countNonH])
         disambuator = Disambiguator()
         texts = disambuator.disambiguate(corpus, pre_disambiguate=True, disambiguate=False, post_disambiguate=False)
         # 2) Count morph analyses after pre-disambiguation step
         [countTotal, countH, countNonH] = self.__debug_count_analyses(texts)
         #print ([countTotal, countH, countNonH])
-        self.assertListEqual([countTotal, countH, countNonH], [76, 7, 69])
+        self.assertListEqual([countTotal, countH, countNonH], [74, 7, 67])
         texts = disambuator.disambiguate(corpus, pre_disambiguate=True, disambiguate=True, post_disambiguate=True)
         # 3) Count morph analyses after all disambiguation steps have been applied
         [countTotal, countH, countNonH] = self.__debug_count_analyses(texts)
-        self.assertListEqual([countTotal, countH, countNonH], [49, 4, 45])
+        self.assertListEqual([countTotal, countH, countNonH], [47, 4, 43])
         #print ([countTotal, countH, countNonH])
 
 
@@ -95,7 +95,7 @@ class DisambiguatorTest(unittest.TestCase):
         disambuator = Disambiguator()
         texts = disambuator.disambiguate(corpus, pre_disambiguate=False, disambiguate=True, post_disambiguate=True)
         [countTotal, countH, countNonH] = self.__debug_count_analyses_2(texts)
-        self.assertListEqual([countTotal, countH, countNonH], [49, 0, 49])
+        self.assertListEqual([countTotal, countH, countNonH], [47, 0, 47])
         #print ([countTotal, countH, countNonH])
 
 
@@ -107,13 +107,13 @@ class DisambiguatorTest(unittest.TestCase):
         texts = [ text.tag_analysis() for text in texts ]
         # 1) Count morph analyses without any disambiguation
         [countTotal, countH, countNonH] = self.__debug_count_analyses(texts)
-        self.assertListEqual([countTotal, countH, countNonH], [93, 20, 73])
+        self.assertListEqual([countTotal, countH, countNonH], [91, 20, 71])
         #print ([countTotal, countH, countNonH])
         disambuator = Disambiguator()
         texts = disambuator.disambiguate(corpus, disambiguate=True, pre_disambiguate=False, post_disambiguate=False)
         # 2) Count morph analyses when only vabamorf disambiguation was applied
         [countTotal, countH, countNonH] = self.__debug_count_analyses(texts)
-        self.assertListEqual([countTotal, countH, countNonH], [53, 0, 53])
+        self.assertListEqual([countTotal, countH, countNonH], [51, 0, 51])
         #print ([countTotal, countH, countNonH])
 
 

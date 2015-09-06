@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
-import unittest
+import unittest, warnings
 from ..database import Database
 from ...text import Text
 from pprint import pprint
+
 
 
 class InsertTest(unittest.TestCase):
@@ -26,7 +27,7 @@ class InsertTest(unittest.TestCase):
         self.db.delete_index()
 
     def test_insert_default_ids(self):
-        print('test_insert_default_ids')
+        warnings.simplefilter("ignore")
         self.db.refresh()
         db = self.db
 
@@ -45,9 +46,7 @@ class InsertTest(unittest.TestCase):
 class BulkInsertTest(unittest.TestCase):
 
     def test_bulk_insert(self):
-        self.db = Database('bulk_test')
-        self.db.delete_index()
-        print('bulk_insert')
+        warnings.simplefilter("ignore")
         # create a bulk_test database
         self.db = Database('bulk_test')
         self.db.delete_index()
@@ -58,10 +57,13 @@ class BulkInsertTest(unittest.TestCase):
         it = InsertTest()
         text_lists = [it.first, it.second]
         id_bulk = db.bulk_insert(text_lists)
-        print(id_bulk)
 
-        # check the document retrieval
-        #self.assertEqual(2, db.count())
-        print("Bulk count test OK")
-        # check the document retrieval
-        # self.assertAlmostEquals
+class SearchTest(unittest.TestCase):
+
+    def test_search_keyword_documents(self):
+        warnings.simplefilter("ignore")
+        self.db = Database('test')
+        keywords = ["aegna"]
+        search = Database.keyword_documents(self.db, keywords=keywords)
+
+

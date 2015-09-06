@@ -6,7 +6,7 @@ from functools import reduce
 from itertools import chain
 from collections import defaultdict
 
-from .match import Match, concatenate_matches, copy_rename
+from .match import Match, concatenate_matches, copy_rename, intersect
 from .conflictresolver import resolve_using_maximal_coverage
 
 
@@ -130,9 +130,31 @@ class Postags(Symbol):
         return matches
 
 
+class Suffix(Symbol):
+
+    def __init__(self, suffix, **kwargs):
+        super(Suffix, self).__init__(kwargs.get('name'))
+        self.__suffix = suffix.lower()
+
+    @property
+    def suffix(self):
+        return self.__suffix
+
+    def get_matches_without_cache(self, text, **env):
+        matches = []
+        word_texts = text.word_texts
+        spans = text.word_spans
+        suffix = self.suffix
+        for word_text, (start, end) in zip(word_texts, spans):
+            if word_text.lower().endswith(suffix):
+                matches.append(Match(start, end, text.text[start:end], self.name))
+        return matches
+
+
 class Layer(Symbol):
 
-    def __init__(self, layer_name):
+    def __init__(self, layer_name, **kwargs):
+        super(Layer, self).__init__(kwargs.get('name'))
         self.__layer_name = layer_name
 
     @property
@@ -141,6 +163,32 @@ class Layer(Symbol):
 
     def get_matches_without_cache(self, text, **env):
         return [Match(start, end, text.text[start:end], self.name) for start, end in text.spans(self.layer_name)]
+
+
+class LayerRegex(Symbol):
+
+    def __init__(self, layer_name, regex, **kwargs):
+        super(LayerRegex, self).__init__(kwargs.get('name'))
+        flags = kwargs.get('flags', re.IGNORECASE)
+        self.__layer_name = layer_name
+        self.__regex = re.compile(regex, flags)
+
+    @property
+    def layer_name(self):
+        return self.__layer_name
+
+    @property
+    def regex(self):
+        return self.__regex
+
+    def get_matches_without_cache(self, text, **env):
+        regex = self.regex
+        matches = []
+        for start, end in text.spans(self.layer_name):
+            elem_text = text.text[start:end]
+            if regex.match(elem_text) is not None:
+                matches.append(Match(start, end, elem_text, self.name))
+        return matches
 
 
 class Union(Symbol):
@@ -157,6 +205,24 @@ class Union(Symbol):
         symbols_matches = [e.get_matches(text, **env) for e in self.symbols]
         matches = list(sorted(chain(*symbols_matches)))
         # if the union has a name, then name all the matches after this
+        if self.name is not None:
+            matches = [copy_rename(m, self.name) for m in matches]
+        return matches
+
+
+class Intersection(Symbol):
+
+    def __init__(self, *symbols, **kwargs):
+        super(Intersection, self).__init__(kwargs.get('name'))
+        self.__symbols = symbols
+
+    @property
+    def symbols(self):
+        return self.__symbols
+
+    def get_matches_without_cache(self, text, **env):
+        symbols_matches = [list(e.get_matches(text, **env)) for e in self.symbols]
+        matches = reduce(intersect, symbols_matches)
         if self.name is not None:
             matches = [copy_rename(m, self.name) for m in matches]
         return matches

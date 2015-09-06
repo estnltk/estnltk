@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
-
-from elasticsearch import Elasticsearch, helpers
+import warnings
 import json
+
+from elasticsearch import Elasticsearch
+
+try:
+    import urllib.request as urllib2
+except ImportError:
+    import urllib2
 
 
 def prepare_text(text):
@@ -57,9 +63,6 @@ class Database(object):
         str
             The id of the created document.
         """
-        # if self.__es.indices.exists(self.index):
-        #    print("deleting '%s' index..." % (self.index))
-        #    print(self.__es.indices.delete(index = self.index, ignore=[400, 404]))
 
         prepared_text = prepare_text(text)
         kwargs = {
@@ -77,43 +80,19 @@ class Database(object):
         """
         Generator to use for bulk inserts
         """
-        # if self.es.indices.exists(self.index):
-        #    print("deleting '%s' index..." % (self.index))
-        #    print(self.es.indices.delete(index = self.index, ignore=[400, 404]))
 
         bulk_text = []
 
         for n, text in enumerate(list_of_texts):
             prepared_text = prepare_text(text)
-
-            # kwargs = {
-            #     'index': self.index,
-            #     'doc_type': self.doc_type,
-            #     'body': prepared_text
-            # }
-
             bulk_text.append({
                 'index': {
                 }
             })
-
             bulk_text.append(prepared_text)
 
-            # if id is not None:
-            #     bulk_text['id'] = int(id)
-            #     id = self.es.create(bulk_text)['_id']
-            #     self.refresh()
-
         insert_data = '\n'.join([json.dumps(x) for x in bulk_text])
-        print(insert_data)
-
-        print("bulk indexing...")
         result = self.es.bulk(index=self.index, doc_type=self.doc_type, body=insert_data, refresh=True)
-        print(result)
-
-        print("results:")
-        for doc_id in self.es.search(index=self.index)['hits']['hits']:
-            print(doc_id)
 
     def get(self, id):
         return self.es.get(index=self.index, doc_type=self.doc_type, id=id, ignore=[400, 404])['_source']['text']
@@ -137,8 +116,6 @@ class Database(object):
     def close_connection(self):
         pass
 
-    # def return_entry(self, )
-
     def keyword_documents(self, keywords, layer=None, n=None):
         """Find all Text documents that match given keywords.
 
@@ -157,7 +134,22 @@ class Database(object):
         -------
         Iterable of Text instances.
         """
-        pass
+
+        es = self.__es
+        for keyword in keywords:
+            search = es.search(index='test', doc_type=self.__doc_type, body={
+                "query": {
+                    "match": {
+                        "text":keyword,
+                    }
+                }
+            })
+
+
+        print("%d documents found" % search['hits']['total'])
+
+        #for doc in search['hits']['hits']:
+        #    print("%s) %s" % (doc['_id'], doc['_source']['text']))
 
     def keyword_matches(self, keywords, layer=None):
         """Find all Text documents and matched regions for given keywords.
