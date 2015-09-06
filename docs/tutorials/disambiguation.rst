@@ -1,6 +1,8 @@
 =========================================================
 Morphological disambiguation on a collection of documents
 =========================================================
+.. highlight:: python
+
 
 Estnltk does basic disambiguation without assuming anything about the content.
 This works well enough for any type of texts: news articles, comments, mixed content etc.

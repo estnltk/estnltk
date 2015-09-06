@@ -1,6 +1,7 @@
 ========================================
 Working with Estonian and Võru wikipedia
 ========================================
+.. highlight:: python
 
 Wikipedia is a free-access, free-content Internet encyclopedia, supported and hosted by the non-profit Wikimedia Foundation.
 Those who can access the site can edit most of its articles, with the expectation that they follow the website's policies.
