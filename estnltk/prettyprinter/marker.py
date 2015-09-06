@@ -5,7 +5,9 @@ from __future__ import unicode_literals, print_function, absolute_import
 from ..core import as_unicode
 from ..names import START, END
 from .templates import htmlescape, get_opening_mark, CLOSING_MARK
-from .extractors import check_word_tags, lemmas, timex_types
+from .extractors import postags, lemmas, timex_types
+
+css_layers = {}
 
 class Tag(object):
 
@@ -51,14 +53,33 @@ def create_tags(start, end, css_class):
     end_tag = Tag(end, False, css_class)
     return start_tag, end_tag
 
+def check_word_tags(elem, values):
+    # Perfoms a check if current word has any tags
+    variable = elem['analysis'][0]
+    # If tags are name based
+    for values_key, values_value in dict(values).items():
+        if isinstance(elem['text'], list):
+            for el in elem['text']:
+                if values_key == el:
+                    return values_value
+        else:
+            if values_key == elem['text']:
+                return values_value
+    # If Tags are anything alse
+    for key, value in variable.items():
+        for values_key, values_value in values.items():
+            if isinstance(value, list):
+                for el in value:
+                    if values_key == el:
+                        return values_value
+            else:
+                if values_key == value:
+                    return values_value
 
 def create_tags_for_simple_layer(elems, css_class, values):
-    #print(len(elems))
-    #print(css_class)
-    #print(values)
     tags = []
     number = 0
-    css_layers = {}
+    global css_layers
     for elem in elems:
         layer_number = 0
         if len(values[css_class]) > 1 and number < len(elems):
@@ -178,7 +199,6 @@ def create_tags_with_concatenated_css_classes(tags):
 def create_tags_for_text(text, aesthetics, values):
     tags = []
     for aes, layer in aesthetics.items():
-        print(aesthetics[aes])
         if isinstance(layer, dict):
             tags.extend(create_tags_for_layer(text, layer, aes, values))
 

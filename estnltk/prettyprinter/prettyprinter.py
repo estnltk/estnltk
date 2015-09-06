@@ -6,8 +6,8 @@ Deals with rendering Text instances as HTML.
 from __future__ import unicode_literals, print_function, absolute_import
 
 from .values import AESTHETICS, AES_VALUE_MAP, DEFAULT_VALUE_MAP, LEGAL_ARGUMENTS
-from .templates import get_mark_css
-from .marker import mark_text
+from .templates import get_mark_css, HEADER, MIDDLE, FOOTER, MARK_CSS, OPENING_MARK, CLOSING_MARK
+from .marker import mark_text, css_layers
 
 from cached_property import cached_property
 
@@ -92,10 +92,19 @@ class PrettyPrinter(object):
     def css(self):
         """Get the CSS of the PrettyPrinter."""
         css_list = []
-        for aes in self.aesthetics:
-            mark_css = get_mark_css(aes, self.values[aes])
+        print(self.values)
+        for tag, value in css_layers.items():
+            mark_css = get_mark_css(tag, value)
             css_list.append(mark_css)
-        return '\n'.join(css_list)
+        return "\t\t"+'\n'.join(css_list)
 
     def render(self, text):
-        return mark_text(text, self.aesthetics, self.values)
+        html = mark_text(text, self.aesthetics, self.values)
+        alist = []
+        alist.append(HEADER)
+        alist.append(self.css)
+        alist.append(MIDDLE + "\t\t\t" + html)
+        alist.append("\n\t\t" + "<\p>")
+        alist.append("\n" + FOOTER)
+        print("".join(alist))
+        return html
