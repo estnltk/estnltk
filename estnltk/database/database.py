@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
+import warnings
+import json
 
 from elasticsearch import Elasticsearch
-import json
 
 try:
     import urllib.request as urllib2
@@ -91,8 +92,6 @@ class Database(object):
             bulk_text.append(prepared_text)
 
         insert_data = '\n'.join([json.dumps(x) for x in bulk_text])
-
-        print("bulk indexing...")
         result = self.es.bulk(index=self.index, doc_type=self.doc_type, body=insert_data, refresh=True)
 
     def get(self, id):
@@ -151,8 +150,6 @@ class Database(object):
 
         #for doc in search['hits']['hits']:
         #    print("%s) %s" % (doc['_id'], doc['_source']['text']))
-
-
 
     def keyword_matches(self, keywords, layer=None):
         """Find all Text documents and matched regions for given keywords.
