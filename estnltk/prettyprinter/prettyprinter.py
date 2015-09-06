@@ -92,7 +92,6 @@ class PrettyPrinter(object):
     def css(self):
         """Get the CSS of the PrettyPrinter."""
         css_list = []
-        print(self.values)
         for tag, value in css_layers.items():
             mark_css = get_mark_css(tag, value)
             css_list.append(mark_css)
@@ -100,11 +99,11 @@ class PrettyPrinter(object):
 
     def render(self, text):
         html = mark_text(text, self.aesthetics, self.values)
-        alist = []
-        alist.append(HEADER)
-        alist.append(self.css)
-        alist.append(MIDDLE + "\t\t\t" + html)
-        alist.append("\n\t\t" + "<\p>")
-        alist.append("\n" + FOOTER)
-        print("".join(alist))
+        final_content = []
+        final_content.append(HEADER)
+        final_content.append(self.css)
+        final_content.append(MIDDLE + "\t\t\t" + html)
+        final_content.append("\n\t\t" + "</p>")
+        final_content.append("\n" + FOOTER)
+        #return "".join(final_content)
         return html
