@@ -76,7 +76,7 @@ class Database(object):
         self.refresh()
         return doc_id
 
-    def bulk_insert(self, list_of_texts, id=None):
+    def bulk_insert(self, list_of_texts, id=None, refresh=True):
         """
         Generator to use for bulk inserts
         """
@@ -92,7 +92,7 @@ class Database(object):
             bulk_text.append(prepared_text)
 
         insert_data = '\n'.join([json.dumps(x) for x in bulk_text])
-        result = self.es.bulk(index=self.index, doc_type=self.doc_type, body=insert_data, refresh=True)
+        result = self.es.bulk(index=self.index, doc_type=self.doc_type, body=insert_data, refresh=refresh)
 
     def get(self, id):
         return self.es.get(index=self.index, doc_type=self.doc_type, id=id, ignore=[400, 404])['_source']['text']
@@ -140,7 +140,7 @@ class Database(object):
             search = es.search(index='test', doc_type=self.__doc_type, body={
                 "query": {
                     "match": {
-                        "text":keyword,
+                        "text": keyword,
                     }
                 }
             })
