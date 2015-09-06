@@ -116,6 +116,13 @@ Tutorials
 
    tutorials/installation
    tutorials/text
+   tutorials/disambiguation
+   tutorials/ner
+   tutorials/prettyprinter
+   tutorials/wikipedia
+   tutorials/grammar
+   tutorials/database
+   tutorials/devel
    tutorials/morf_tables
 
 Tools for linguists
@@ -125,6 +132,7 @@ Tools for linguists
    :maxdepth: 3
    
    tutorials/textclassifier
+
 
 API reference
 =============

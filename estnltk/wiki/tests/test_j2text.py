@@ -3,7 +3,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 __author__ = 'Andres'
 
 import unittest
-from ..json_2_text import json_format
+from ..convert import json_format
 import json
 from ... import Text
 import os

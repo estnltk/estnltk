@@ -50,8 +50,9 @@ def parse_text(sections, title):
                 internal_links.append(j)
         if el in section.keys():
             for j in section[el]:
-                j['start'] += offset
-                j['end'] += offset
+                if 'start' in j: # TODO: Timo added the "if" construct, because some articles failed processing with python3, confirm it is okay
+                    j['start'] += offset
+                    j['end'] += offset
                 external_links.append(j)
 
         text += section['text']+nl
@@ -113,7 +114,7 @@ def json_2_text(inp, out, verbose = False):
         The Text object.
     """
 
-    for root, dirs, filenames in os.walk(ur''+inp):
+    for root, dirs, filenames in os.walk(inp):
         for f in filenames:
             log = codecs.open(os.path.join(root, f), 'r')
             j_obj = json.load(log)
@@ -146,16 +147,14 @@ def textWriter(jsonObj, dir, verbose):
 def main():
 
 
-    parser = argparse.ArgumentParser(description='Import etWikiParsed wikipedia json files to '
-                                                 'estnltk.Text '
-                                                 'objects')
+    parser = argparse.ArgumentParser(description='Convert Wikipedia .json files to Text .json files.')
 
 
     parser.add_argument('input', metavar='I', type=str,
-                       help='directory of json files')
+                       help='Input folder containing extracted Wikipedia articles (in JSON format)')
 
     parser.add_argument('output', metavar='O', type=str,
-                       help='wikipedia dump file relative or full path')
+                       help='Output folder for converted JSON files')
 
     parser.add_argument("-v", "--verbose", action="store_true",
                         help='Print written article titles and count.')
