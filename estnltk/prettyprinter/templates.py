@@ -30,9 +30,9 @@ MIDDLE = '''
 
 FOOTER = '\t</body>\n</html>'
 
-MARK_CSS = '''mark.{aes_name} {{
-    {css_prop}: {css_value};
-}}'''
+MARK_CSS = '''      mark.{aes_name} {{
+            {css_prop}: {css_value};
+            }}'''
 
 
 def get_mark_css(aes_name, css_value):

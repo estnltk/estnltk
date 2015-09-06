@@ -96,7 +96,7 @@ class PrettyPrinter(object):
         for tag, value in css_layers.items():
             mark_css = get_mark_css(tag, value)
             css_list.append(mark_css)
-        return "\t\t"+'\n'.join(css_list)
+        return '\n'.join(css_list)
 
     def render(self, text):
         html = mark_text(text, self.aesthetics, self.values)
