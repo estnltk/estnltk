@@ -116,7 +116,12 @@ Tutorials
 
    tutorials/installation
    tutorials/text
+   tutorials/disambiguation
+   tutorials/ner
+   tutorials/prettyprinter
    tutorials/wikipedia
+   tutorials/grammar
+   tutorials/database
    tutorials/devel
    tutorials/morf_tables
 

@@ -27,8 +27,8 @@ you can download fully prepared (but older) articles (see :ref:`links_to_process
 
 .. _extracting_xml_articles:
 
-Extracting artiles from XML files
-=================================
+Extracting articles from XML files
+==================================
 
 Let's assume you have downloaded both the Estonian and Võru wikipedia into ``wikidump`` subfolder and extracted the ``.xml`` files,
 so that you have two files::
