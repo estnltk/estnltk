@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 from ..text import Text
 from ..core import as_unicode
 
+import argparse
+
 
 class Importer(object):
     def __init__(self, path):
@@ -30,20 +32,27 @@ class Importer(object):
                 data_list.append(text)
 
             if i % 100 == 0:
-                database.bulk_insert(data_list)
+                database.bulk_insert(data_list, refresh=False)
                 data_list = []
                 logger.info("{0:.1f} percent completed".format(float(i) / n * 100))
 
         if len(data_list) > 0:
             database.bulk_insert(data_list)
+        database.refresh()
 
 
 from .database import Database
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 if __name__ == '__main__':
-    importer = Importer('/home/annett/keeletehnoloogia/estnltk/estnltk/wiki/text-examples')
+    parser = argparse.ArgumentParser(description='Import documents to elasticsearch database')
+    parser.add_argument('index', type=str, help='The name of the index')
+    parser.add_argument('directory', type=str, help='The directory containing JSON files that need to be imported')
 
-    db = Database('test')
+    args = parser.parse_args()
+
+    importer = Importer(args.directory)
+    db = Database(args.index)
     importer.import_data(db)
+

@@ -22,7 +22,7 @@ def get_target(fnm):
         return 'seadus'
     if 'EestiArst' in fnm:
         return 'ajakirjanumber'
-    if 'foorum' in fnm:
+    if 'foorumid' in fnm:
         return 'teema'
     if 'kommentaarid' in fnm:
         return 'kommentaarid'

@@ -23,7 +23,6 @@ On my computer, I have the following list of files::
     foorum_uudisgrupp_kommentaar.zip
     Horisont.zip
     Ilukirjandus.zip
-    jututoad_xml.zip
     Kroonika.zip
     LaaneElu.zip
     Luup.zip
@@ -134,12 +133,8 @@ Anyway, here is a script that tries its best at doing some basic conversion::
 
         process(args.startdir, args.outdir)
 
-Create an output directory for the results and run the scripts with appropriate parameters::
+Create an output directory ``corpora/converted`` for the results and run the scripts with appropriate parameters::
 
     python3 -m estnltk.examples.convert_koondkorpus corpora/koond corpora/converted
 
-You can also download a batch of converted files from here: TODO: add link.
-Note: if you are doing something serious with the files, then make sure you double check everything, because we
-cannot guarantee correctness of the conversions.
-Also, if you have better scripts for conversion and would like to share them with the world, please send them to
-use so we can include them in the examples.
+The results can be downloaded from here: http://ats.cs.ut.ee/keeletehnoloogia/estnltk/koond.zip .
