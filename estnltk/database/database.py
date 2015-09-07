@@ -1,38 +1,53 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
-import warnings
 import json
 
 from elasticsearch import Elasticsearch
+from ..names import *
 
-try:
-    import urllib.request as urllib2
-except ImportError:
-    import urllib2
+
+# define a list of standard layers we will not be indexing
+STANDARD_LAYERS = frozenset([
+    WORDS,
+    PARAGRAPHS,
+    SENTENCES,
+    CLAUSES
+])
+
+# we need a way to index lemmas, postags and possibly other complicated data
+# maybe it would be better to define it in code, but just in case, let's create a
+# data structure that can be used to dynamically change the behaviour
+
+# text.is_tagged(what?), destination layer name, function for value extraction
+METALAYERS = [
+    (ANALYSIS, 'lemmas', lambda text: ' '.join(text.lemmas)),
+    (ANALYSIS, 'postags', lambda text: ' '.join(text.postags))
+]
 
 
 def prepare_text(text):
     """Function that converts Text instance to format that can be easily indexed
     with ES database.
-
-    TODO: seda koodi tuleb tõenõoliselt kohandada lähtuvalt ülesannetest.
     """
     layers = {}
     for layer, values in text.items():
-        # all list elements in Text should be considered as layers
-        if layer == 'words':  # do not index "words" layer separately
+        if layer in STANDARD_LAYERS:
             continue
         if isinstance(values, list):
             elements = text.split_by(layer)
             texts = [elem.text for elem in elements]
             lemmas = [' '.join(elem.lemmas) for elem in elements]
             layers[layer] = {'texts': texts, 'lemmas': lemmas}
+    # process metalayers
+    for tag, layer, extractor in METALAYERS:
+        if text.is_tagged(tag):
+            layers[layer] = extractor(text)
     return {'text': text, 'layers': layers}
 
 
 class Database(object):
     def __init__(self, index, doc_type='document', **kwargs):
-        self.__es = Elasticsearch(maxKeepAliveTime=0, **kwargs)
+        self.__es = Elasticsearch(maxKeepAliveTime=0, timeout=30, **kwargs)
         self.__index = index
         self.__doc_type = doc_type
 
