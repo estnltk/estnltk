@@ -7,7 +7,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 from .values import AESTHETICS, AES_VALUE_MAP, DEFAULT_VALUE_MAP, LEGAL_ARGUMENTS
 from .templates import get_mark_css, HEADER, MIDDLE, FOOTER, MARK_CSS, OPENING_MARK, CLOSING_MARK
-from .marker import mark_text, css_layers
+from .marker import mark_text
 
 from cached_property import cached_property
 
@@ -88,8 +88,8 @@ class PrettyPrinter(object):
         """Mapping of aesthetic values."""
         return self.__values
 
-    @cached_property
-    def css(self):
+
+    def css(self, css_layers):
         """Get the CSS of the PrettyPrinter."""
         css_list = []
         for tag, value in css_layers.items():
@@ -98,10 +98,11 @@ class PrettyPrinter(object):
         return '\n'.join(css_list)
 
     def render(self, text):
-        html = mark_text(text, self.aesthetics, self.values)
+        html, css_layers = mark_text(text, self.aesthetics, self.values)
         final_content = []
         final_content.append(HEADER)
-        final_content.append(self.css)
+        thisThing = self.css(css_layers)
+        final_content.append(thisThing)
         final_content.append(MIDDLE + "\t\t\t" + html)
         final_content.append("\n\t\t" + "</p>")
         final_content.append("\n" + FOOTER)

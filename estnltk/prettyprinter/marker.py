@@ -7,8 +7,6 @@ from ..names import START, END
 from .templates import htmlescape, get_opening_mark, CLOSING_MARK
 from .extractors import postags, lemmas, timex_types
 
-css_layers = {}
-
 class Tag(object):
 
     def __init__(self, pos, is_opening_tag, css_class):
@@ -79,7 +77,7 @@ def check_word_tags(elem, values):
 def create_tags_for_simple_layer(elems, css_class, values):
     tags = []
     number = 0
-    global css_layers
+    css_layers = {}
     for elem in elems:
         layer_number = 0
         if len(values[css_class]) > 1 and number < len(elems):
@@ -100,7 +98,7 @@ def create_tags_for_simple_layer(elems, css_class, values):
         tags.append(start_tag)
         tags.append(end_tag)
         number += 1
-    return tags
+    return tags, css_layers
 
 
 def create_tags_for_multi_layer(elems, css_class, values):
@@ -200,15 +198,17 @@ def create_tags_for_text(text, aesthetics, values):
     tags = []
     for aes, layer in aesthetics.items():
         if isinstance(layer, dict):
-            tags.extend(create_tags_for_layer(text, layer, aes, values))
+            created_tags, css_layers = create_tags_for_layer(text, layer, aes, values)
+            tags.extend(created_tags)
 
         else:
-            tags.extend(create_tags_for_layer((text), layer, aes, values))
-    return create_tags_with_concatenated_css_classes(sorted(tags))
+            created_tags, css_layers = create_tags_for_layer((text), layer, aes, values)
+            tags.extend(created_tags)
+    return create_tags_with_concatenated_css_classes(sorted(tags)), css_layers
 
 
 def mark_text(text, aesthetics, values):
-    tags = create_tags_for_text(text, aesthetics, values)
+    tags, css_layers = create_tags_for_text(text, aesthetics, values)
     spans = []
     last_pos = 0
     for tag in tags:
@@ -220,4 +220,4 @@ def mark_text(text, aesthetics, values):
             spans.append(CLOSING_MARK)
     if last_pos < len(text.text):
         spans.append(htmlescape(text.text[last_pos:]))
-    return ''.join(spans)
+    return ''.join(spans), css_layers
