@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 from ..text import Text
 from ..core import as_unicode
 
+from elasticsearch.exceptions import ElasticsearchException
+
 import argparse
 
 
@@ -31,8 +33,11 @@ class Importer(object):
                 text.tag_analysis()
                 data_list.append(text)
 
-            if i % 100 == 0:
-                database.bulk_insert(data_list, refresh=False)
+            if i % 10 == 0:
+                try:
+                    database.bulk_insert(data_list, refresh=False)
+                except ElasticsearchException as e:
+                    logger.error(e)
                 data_list = []
                 logger.info("{0:.1f} percent completed".format(float(i) / n * 100))
 
