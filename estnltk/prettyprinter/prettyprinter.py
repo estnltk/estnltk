@@ -7,7 +7,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 
 from .values import AESTHETICS, AES_VALUE_MAP, DEFAULT_VALUE_MAP, LEGAL_ARGUMENTS
 from .templates import get_mark_css, HEADER, MIDDLE, FOOTER, MARK_CSS, OPENING_MARK, CLOSING_MARK
-from .marker import mark_text, css_layers
+from .marker import mark_text
 
 from cached_property import cached_property
 
@@ -100,10 +100,10 @@ class PrettyPrinter(object):
     def render(self, text, add_header=False):
         # TODO: lisada boolean parameeter, millega saab headeri/footeri lisamist kontrollida
         # vaikimisi võiks kood headerit mitte lisada (nagu preagu lihtsalt return html)
-        html = mark_text(text, self.aesthetics, self.values)
+        html, css_layers = mark_text(text, self.aesthetics, self.values)
         final_content = []
         final_content.append(HEADER)
-        final_content.append(self.css)
+        final_content.append(self.css(css_layers))
         final_content.append(MIDDLE + "\t\t\t" + html)
         final_content.append("\n\t\t" + "</p>")
         final_content.append("\n" + FOOTER)
