@@ -98,6 +98,8 @@ class PrettyPrinter(object):
         return '\n'.join(css_list)
 
     def render(self, text):
+        # TODO: lisada boolean parameeter, millega saab headeri/footeri lisamist kontrollida
+        # TODO: vaikimisi võiks olla lisatud nagu praegu
         html = mark_text(text, self.aesthetics, self.values)
         final_content = []
         final_content.append(HEADER)
