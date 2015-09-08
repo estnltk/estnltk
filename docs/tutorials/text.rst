@@ -1120,7 +1120,7 @@ Temporal expression (TIMEX) tagging
 ===================================
 
 Temporal expressions tagger identifies temporal expressions (timexes) in text and normalizes these expressions, providing corresponding calendrical dates and times.
-The current version of the temporal expressions tagger is tuned for processing news texts (the quality of the analysis may be suboptimal in other domains).
+The current version of the temporal expressions tagger is tuned for processing news texts (so the quality of the analysis may be suboptimal in other domains).
 The program outputs an annotation in a format similar to TimeML's TIMEX3 (more detailed description can be found in `annotation guidelines`_, which are currently only in Estonian).
 
 .. _annotation guidelines: https://github.com/soras/EstTimeMLCorpus/blob/master/docs-et/ajav2ljendite_m2rgendamine_06.pdf?raw=true
@@ -1232,7 +1232,7 @@ Document creation date
 ----------------------
 
 Relative temporal expressions often depend on document creation date, which can be supplied as ``creation_date`` parameter.
-If no ``creation_date`` argument is passed, it is set as the date the code is run (June 8 2015 in the example)::
+If no ``creation_date`` argument is passed, it is set as the date the code is run (June 8, 2015 in the example)::
 
     from estnltk import Text
     Text('Täna on ilus ilm').timexes
@@ -1268,69 +1268,65 @@ We see that word "today" (*täna*) refers to to December 21 1986::
 TIMEX examples
 --------------
 
-Here are some example of time expressions and fields that the tagger can extract.
-The document creation date is fixed to Dec 21 1986 in the examples below.
+Here are some examples of temporal expressions and fields that the tagger can extract.
+The document creation date is fixed to Dec 21, 1986 in the examples below.
 See `annotation guidelines`_ for more detailed explanations.
 
 .. _annotation guidelines: https://github.com/soras/EstTimeMLCorpus/blob/master/docs-et/ajav2ljendite_m2rgendamine_06.pdf?raw=true
 
 
-========================================================================= ============================= ======== ================ ==========
-Example                                                                   Time expression               Type     Value            Modifier
-========================================================================= ============================= ======== ================ ==========
-Järgmisel reedel, 2004. aastal                                            Järgmisel reedel              DATE     1986-12-26
-Järgmisel reedel, 2004. aastal                                            2004                          DATE     2004
-esmaspäeva hommikul, järgmisel reedel kell 14.00                          esmaspäeva hommikul           TIME     1986-12-15TMO
-esmaspäeva hommikul, järgmisel reedel kell 14.00                          järgmisel reedel kell 14.00   TIME     1986-12-26T14:00
-neljapäeviti, hommikuti                                                   neljapäeviti                  SET      XXXX-WXX-XX
-neljapäeviti, hommikuti                                                   hommikuti                     SET      XXXX-XX-XXTMO
-selle kuu alguses                                                         selle kuu alguses             DATE     1986-12          START
-1990ndate lõpus                                                           1990ndate lõpus               DATE     199              END
-VI sajandist e. m. a                                                      VI sajandist                  DATE     05
+========================================================================= ============================= ======== ================= ==========
+Example                                                                   Temporal expression           Type     Value             Modifier
+========================================================================= ============================= ======== ================= ==========
+Järgmisel reedel                                                          Järgmisel reedel              DATE     1986-12-26
+2004. aastal                                                              2004. aastal                  DATE     2004
+esmaspäeva hommikul                                                       esmaspäeva hommikul           TIME     1986-12-15TMO
+järgmisel reedel kell 14.00                                               järgmisel reedel kell 14. 00  TIME     1986-12-26T14:00
+neljapäeviti                                                              neljapäeviti                  SET      XXXX-WXX-XX
+hommikuti                                                                 hommikuti                     SET      XXXX-XX-XXTMO
+selle kuu alguses                                                         selle kuu alguses             DATE     1986-12           START
+1990ndate lõpus                                                           1990ndate lõpus               DATE     199               END
+VI sajandist e.m.a                                                        VI sajandist e.m.a            DATE     BC05
 kolm tundi                                                                kolm tundi                    DURATION PT3H
 viis kuud                                                                 viis kuud                     DURATION P5M
 kaks minutit                                                              kaks minutit                  DURATION PT2M
 teisipäeviti                                                              teisipäeviti                  SET      XXXX-WXX-XX
 kolm päeva igas kuus                                                      kolm päeva                    DURATION P3D
 kolm päeva igas kuus                                                      igas kuus                     SET      P1M
-kolm korda igas kuus                                                      igas kuus                     SET      P1M
 Ühel kenal päeval                                                         päeval                        TIME     TDT
 Ühel märtsikuu päeval                                                     märtsikuu                     DATE     1987-03
 Ühel märtsikuu päeval                                                     päeval                        TIME     TDT
 hiljuti                                                                   hiljuti                       DATE     PAST_REF
 tulevikus                                                                 tulevikus                     DATE     FUTURE_REF
-2009. aasta alguses                                                       2009                          DATE     2009
-2009. aasta alguses                                                       aasta alguses                 DATE     XXXX             START
-juuni alguseks 2007. aastal                                               juuni alguseks                DATE     1986-06          START
-juuni alguseks 2007. aastal                                               2007                          DATE     2007
-2009. aasta esimesel poolel                                               2009                          DATE     2009
-2009. aasta esimesel poolel                                               aasta esimesel poolel         DATE     XXXX             FIRST_HALF
-umbes 4 aastat                                                            umbes 4 aastat                DURATION P4Y              APPROX
-peaaegu 4 aastat                                                          peaaegu 4 aastat              DURATION P4Y              LESS_THAN
+2009. aasta alguses                                                       2009. aasta alguses           DATE     2009              START
+juuni alguseks 2007. aastal                                               juuni alguseks                DATE     1986-06           START
+juuni alguseks 2007. aastal                                               2007. aastal                  DATE     2007
+2009. aasta esimesel poolel                                               2009. aasta esimesel poolel   DATE     2009              FIRST_HALF
+umbes 4 aastat                                                            umbes 4 aastat                DURATION P4Y               APPROX
+peaaegu 4 aastat                                                          peaaegu 4 aastat              DURATION P4Y               LESS_THAN
+12-15 märts 2009                                                          12-                           DATE     2009-03-12
 12-15 märts 2009                                                          15 märts 2009                 DATE     2009-03-15
-eelmise kuu lõpus                                                         eelmise kuu lõpus             DATE     1986-11          END
-2004. aasta suvel                                                         2004                          DATE     2004
-2004. aasta suvel                                                         aasta                         DATE     XXXX
-2004. aasta suvel                                                         suvel                         DATE     1986-SU
+12-15 märts 2009                                                                                        DURATION PXXD
+eelmise kuu lõpus                                                         eelmise kuu lõpus             DATE     1986-11           END
+2004. aasta suvel                                                         2004. aasta suvel             DATE     2004-SU
 Detsembris oli keskmine temperatuur kaks korda madalam kui kuu aega varem Detsembris                    DATE     1986-12
 Detsembris oli keskmine temperatuur kaks korda madalam kui kuu aega varem kuu aega varem                DATE     1986-11
-neljapäeval, 17. juunil                                                   neljapäeval                   DATE     1986-12-18
-neljapäeval, 17. juunil                                                   17. juunil                    DATE     1986-06-17
+neljapäeval, 17. juunil                                                   neljapäeval , 17. juunil      DATE     1986-06-17
 täna, 100 aastat tagasi                                                   täna                          DATE     1986-12-21
 täna, 100 aastat tagasi                                                   100 aastat tagasi             DATE     1886
 neljapäeva öösel vastu reedet                                             neljapäeva öösel vastu reedet TIME     1986-12-19TNI
 aasta esimestel kuudel                                                    aasta                         DATE     XXXX
 viimase aasta jooksul                                                     viimase aasta jooksul         DURATION P1Y
-viimase aasta jooksul                                                     jooksul                       DATE     1985
+viimase aasta jooksul                                                                                   DATE     1985
 viimase kolme aasta jooksul                                               viimase kolme aasta jooksul   DURATION P3Y
-viimase kolme aasta jooksul                                               jooksul                       DATE     1983
+viimase kolme aasta jooksul                                                                             DATE     1983
 varasemad aastad, hilisemad aastad                                        varasemad aastad              DATE     PAST_REF
 varasemad aastad, hilisemad aastad                                        aastad                        DURATION PXY
-viie-kuue aasta pärast, kahe-kolme aasta tagune                           kuue aasta pärast             DATE     1992
-viie-kuue aasta pärast, kahe-kolme aasta tagune                           kolme aasta tagune            DATE     1983
+viie-kuue aasta pärast, kahe-kolme aasta tagune                           aasta pärast                  DATE     1987
+viie-kuue aasta pärast, kahe-kolme aasta tagune                           aasta tagune                  DATE     1985
 aastaid tagasi                                                            aastaid tagasi                DATE     PAST_REF
 aastate pärast                                                            aastate pärast                DATE     FUTURE_REF
-========================================================================= ============================= ======== ================ ==========
+========================================================================= ============================= ======== ================= ==========
 
 
 Tagging clauses
