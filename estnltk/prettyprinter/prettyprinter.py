@@ -100,6 +100,7 @@ class PrettyPrinter(object):
     def render(self, text, add_header=False):
         # TODO: lisada boolean parameeter, millega saab headeri/footeri lisamist kontrollida
         # vaikimisi võiks kood headerit mitte lisada (nagu preagu lihtsalt return html)
+        add_format = False
         html, css_layers = mark_text(text, self.aesthetics, self.values)
         final_content = []
         final_content.append(HEADER)
@@ -108,5 +109,8 @@ class PrettyPrinter(object):
         final_content.append("\n\t\t" + "</p>")
         final_content.append("\n" + FOOTER)
         #return "".join(final_content)
-        return html
+        if add_format == True:
+            return "".join(final_content)
+        else:
+            return html
 
