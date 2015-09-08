@@ -68,6 +68,7 @@ class BulkInsertTest(unittest.TestCase):
         id_bulk = db.bulk_insert(text_lists)
 
         # TODO: missing actual assertions
+        self.assertTrue(False)
 
 
 class SearchTest(unittest.TestCase):
@@ -79,6 +80,7 @@ class SearchTest(unittest.TestCase):
         search = Database.query_documents(self.db, query=keywords)
 
         # TODO: missing actual assertions
+        self.assertTrue(False)
 
 
     # TODO: add a test that uses layer argument
