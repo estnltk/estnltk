@@ -73,6 +73,13 @@ class BulkInsertTest(unittest.TestCase):
 class SearchTest(unittest.TestCase):
 
     def test_search_keyword_documents(self):
-        self.db = Database('test')
+        # TODO: move Database setup and initialization to def setUp() method
+        self.db = Database(TEST_INDEX)
         keywords = ["aegna"]
         search = Database.query_documents(self.db, query=keywords)
+
+        # TODO: missing actual assertions
+
+
+    # TODO: add a test that uses layer argument
+

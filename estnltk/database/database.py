@@ -4,7 +4,7 @@ import json
 
 from elasticsearch import Elasticsearch
 from ..names import *
-
+from ..text import Text
 
 # define a list of standard layers we will not be indexing
 STANDARD_LAYERS = frozenset([
@@ -23,6 +23,9 @@ METALAYERS = [
     (ANALYSIS, 'lemmas', lambda text: ' '.join(text.lemmas)),
     (ANALYSIS, 'postags', lambda text: ' '.join(text.postags))
 ]
+
+# set of layers actually used in metalayers
+METALAYER_NAMES = frozenset([dst for src, dst, func in METALAYERS])
 
 
 def prepare_text(text):
@@ -131,57 +134,66 @@ class Database(object):
     def close_connection(self):
         pass
 
-    def keyword_documents(self, keywords, layer=None, n=None):
-        """Find all Text documents that match given keywords.
+    def query_documents(self, query, layer=None, size=10, es_result=False):
+        """Find all Text documents that match keywords in the query.
+
+        Check elasticsearch documentation for more information:
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+
+        Example queries:
+
+        krokodill Gena
+            Find documents containing "krokodill" or "gena" or both
+        +venemaa -eesti
+            Find documents containing word/lemma about venemaa, but not eesti
+        "suur pauk"
+            Find documents containing exact phrase "suur pauk"
 
         Parameters
         ----------
-        keywords: str
+        query: str
             The keywords to use for search.
         layer: str
             The layer to search the text from (for example words, sentences, clauses, verb_phrases etc).
             If layer is None (default), then use the full document text for search.
-        n: int (default: None)
-            If None, then return all matching documents.
-            If integer, return only n best matches.
-
+        size: int (default: 10)
+            Return size matches.
+        es_result: boolean (default: False)
+            if True, return the elasticsearch results, otherwise return a list of Text instances.
         Returns
         -------
-        Iterable of Text instances.
+        list of Text instances if es_result is False
+        dict if es_result is True
         """
 
-        es = self.__es
-        for keyword in keywords:
-            search = es.search(index='test', doc_type=self.__doc_type, body={
-                "query": {
-                    "match": {
-                        "text": keyword,
+        query_string = {
+            'query': query
+        }
+
+        if layer is not None:
+            # if layer is one of the metalayers, then no need to match both text and lemmas
+            if layer in METALAYER_NAMES:
+                query_string['default_field'] = 'document.layers.' + layer
+            else:
+                query_string['fields'] = ['document.layers.' + 'lemmas', 'document.layers.' + 'text']
+
+        body = {
+            'query': {
+                'bool': {
+                    'must': {
+                        'query_string': query_string
                     }
                 }
-            })
+            }
+        }
+
+        results = self.es.search(index=self.index, doc_type=self.doc_type, body=body, size=size)
+        if es_result:
+            return results
+        else:
+            return [Text(doc['_source']['text']) for doc in results['hits']['hits']]
 
 
-        print("%d documents found" % search['hits']['total'])
-
-        #for doc in search['hits']['hits']:
-        #    print("%s) %s" % (doc['_id'], doc['_source']['text']))
-
-    def keyword_matches(self, keywords, layer=None):
-        """Find all Text documents and matched regions for given keywords.
-
-        Parameters
-        ----------
-        keywords: str
-            The keywords to use for search.
-        layer: str
-            The layer to search the text from (for example words, sentences, clauses, verb_phrases etc).
-            If layer is None (default), then use the full document text for search.
-        n: int (default: None)
-            If None, then return all matching documents.
-            If integer, return only n best matches.
-
-        Returns
-        -------
-        Iterable of {"text": document, "matches": layer}
-        """
+    def query_matches(self, uqwy, layer=None):
         pass
+
