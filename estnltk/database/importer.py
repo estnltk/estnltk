@@ -13,6 +13,9 @@ from elasticsearch.exceptions import ElasticsearchException
 
 import argparse
 
+# max batch size in total text length (not accounting layers etc)
+MAX_BATCH_CHARS = 20000
+
 
 class Importer(object):
     def __init__(self, path):
@@ -25,6 +28,7 @@ class Importer(object):
         logger.info('Inserting {0} documents'.format(len(file_list)))
         n = len(file_list)
 
+        num_chars = 0
         for i, name in enumerate(file_list):
             full_path = os.path.join(self.path, name)
 
@@ -32,8 +36,9 @@ class Importer(object):
                 text = Text(json.loads(as_unicode(f.read())))
                 text.tag_analysis()
                 data_list.append(text)
-
-            if i % 10 == 0:
+                num_chars += len(text.text)
+            if num_chars > MAX_BATCH_CHARS:
+                num_chars = 0
                 try:
                     database.bulk_insert(data_list, refresh=False)
                 except ElasticsearchException as e:
