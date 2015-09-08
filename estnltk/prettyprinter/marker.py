@@ -53,6 +53,7 @@ def create_tags(start, end, css_class):
 
 def check_word_tags(elem, values):
     # Perfoms a check if current word has any tags
+    # TODO: "analysis" atribuut on ainult "words" kihi elementidel, iga teise kihi puhul crashib, nt. background="sentences"
     variable = elem['analysis'][0]
     # If tags are name based
     for values_key, values_value in dict(values).items():

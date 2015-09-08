@@ -75,3 +75,17 @@ def read_document(fnm):
     """
     with codecs.open(fnm, 'rb', 'ascii') as f:
         return Text(json.loads(f.read()))
+
+
+def write_document(doc, fnm):
+    """Write a Text document to file.
+
+    Parameters
+    ----------
+    doc: Text
+        The document to save.
+    fnm: str
+        The filename to save the document
+    """
+    with codecs.open(fnm, 'wb', 'ascii') as f:
+        f.write(json.dumps(doc, indent=2))

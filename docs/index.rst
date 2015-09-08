@@ -119,8 +119,9 @@ Tutorials
    tutorials/disambiguation
    tutorials/ner
    tutorials/prettyprinter
-   tutorials/wikipedia
    tutorials/grammar
+   tutorials/wikipedia
+   tutorials/tei
    tutorials/database
    tutorials/devel
    tutorials/morf_tables

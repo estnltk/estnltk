@@ -1,38 +1,56 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
-import warnings
 import json
 
 from elasticsearch import Elasticsearch
+from ..names import *
+from ..text import Text
 
-try:
-    import urllib.request as urllib2
-except ImportError:
-    import urllib2
+# define a list of standard layers we will not be indexing
+STANDARD_LAYERS = frozenset([
+    WORDS,
+    PARAGRAPHS,
+    SENTENCES,
+    CLAUSES
+])
+
+# we need a way to index lemmas, postags and possibly other complicated data
+# maybe it would be better to define it in code, but just in case, let's create a
+# data structure that can be used to dynamically change the behaviour
+
+# text.is_tagged(what?), destination layer name, function for value extraction
+METALAYERS = [
+    (ANALYSIS, 'lemmas', lambda text: ' '.join(text.lemmas)),
+    (ANALYSIS, 'postags', lambda text: ' '.join(text.postags))
+]
+
+# set of layers actually used in metalayers
+METALAYER_NAMES = frozenset([dst for src, dst, func in METALAYERS])
 
 
 def prepare_text(text):
     """Function that converts Text instance to format that can be easily indexed
     with ES database.
-
-    TODO: seda koodi tuleb tõenõoliselt kohandada lähtuvalt ülesannetest.
     """
     layers = {}
     for layer, values in text.items():
-        # all list elements in Text should be considered as layers
-        if layer == 'words':  # do not index "words" layer separately
+        if layer in STANDARD_LAYERS:
             continue
         if isinstance(values, list):
             elements = text.split_by(layer)
             texts = [elem.text for elem in elements]
             lemmas = [' '.join(elem.lemmas) for elem in elements]
             layers[layer] = {'texts': texts, 'lemmas': lemmas}
+    # process metalayers
+    for tag, layer, extractor in METALAYERS:
+        if text.is_tagged(tag):
+            layers[layer] = extractor(text)
     return {'text': text, 'layers': layers}
 
 
 class Database(object):
     def __init__(self, index, doc_type='document', **kwargs):
-        self.__es = Elasticsearch(maxKeepAliveTime=0, **kwargs)
+        self.__es = Elasticsearch(maxKeepAliveTime=0, timeout=30, **kwargs)
         self.__index = index
         self.__doc_type = doc_type
 
@@ -76,7 +94,7 @@ class Database(object):
         self.refresh()
         return doc_id
 
-    def bulk_insert(self, list_of_texts, id=None):
+    def bulk_insert(self, list_of_texts, id=None, refresh=True):
         """
         Generator to use for bulk inserts
         """
@@ -92,7 +110,7 @@ class Database(object):
             bulk_text.append(prepared_text)
 
         insert_data = '\n'.join([json.dumps(x) for x in bulk_text])
-        result = self.es.bulk(index=self.index, doc_type=self.doc_type, body=insert_data, refresh=True)
+        result = self.es.bulk(index=self.index, doc_type=self.doc_type, body=insert_data, refresh=refresh)
 
     def get(self, id):
         return self.es.get(index=self.index, doc_type=self.doc_type, id=id, ignore=[400, 404])['_source']['text']
@@ -116,57 +134,66 @@ class Database(object):
     def close_connection(self):
         pass
 
-    def keyword_documents(self, keywords, layer=None, n=None):
-        """Find all Text documents that match given keywords.
+    def query_documents(self, query, layer=None, size=10, es_result=False):
+        """Find all Text documents that match keywords in the query.
+
+        Check elasticsearch documentation for more information:
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+
+        Example queries:
+
+        krokodill Gena
+            Find documents containing "krokodill" or "gena" or both
+        +venemaa -eesti
+            Find documents containing word/lemma about venemaa, but not eesti
+        "suur pauk"
+            Find documents containing exact phrase "suur pauk"
 
         Parameters
         ----------
-        keywords: str
+        query: str
             The keywords to use for search.
         layer: str
             The layer to search the text from (for example words, sentences, clauses, verb_phrases etc).
             If layer is None (default), then use the full document text for search.
-        n: int (default: None)
-            If None, then return all matching documents.
-            If integer, return only n best matches.
-
+        size: int (default: 10)
+            Return size matches.
+        es_result: boolean (default: False)
+            if True, return the elasticsearch results, otherwise return a list of Text instances.
         Returns
         -------
-        Iterable of Text instances.
+        list of Text instances if es_result is False
+        dict if es_result is True
         """
 
-        es = self.__es
-        for keyword in keywords:
-            search = es.search(index='test', doc_type=self.__doc_type, body={
-                "query": {
-                    "match": {
-                        "text":keyword,
+        query_string = {
+            'query': query
+        }
+
+        if layer is not None:
+            # if layer is one of the metalayers, then no need to match both text and lemmas
+            if layer in METALAYER_NAMES:
+                query_string['default_field'] = 'document.layers.' + layer
+            else:
+                query_string['fields'] = ['document.layers.' + 'lemmas', 'document.layers.' + 'text']
+
+        body = {
+            'query': {
+                'bool': {
+                    'must': {
+                        'query_string': query_string
                     }
                 }
-            })
+            }
+        }
+
+        results = self.es.search(index=self.index, doc_type=self.doc_type, body=body, size=size)
+        if es_result:
+            return results
+        else:
+            return [Text(doc['_source']['text']) for doc in results['hits']['hits']]
 
 
-        print("%d documents found" % search['hits']['total'])
-
-        #for doc in search['hits']['hits']:
-        #    print("%s) %s" % (doc['_id'], doc['_source']['text']))
-
-    def keyword_matches(self, keywords, layer=None):
-        """Find all Text documents and matched regions for given keywords.
-
-        Parameters
-        ----------
-        keywords: str
-            The keywords to use for search.
-        layer: str
-            The layer to search the text from (for example words, sentences, clauses, verb_phrases etc).
-            If layer is None (default), then use the full document text for search.
-        n: int (default: None)
-            If None, then return all matching documents.
-            If integer, return only n best matches.
-
-        Returns
-        -------
-        Iterable of {"text": document, "matches": layer}
-        """
+    def query_matches(self, uqwy, layer=None):
         pass
+
