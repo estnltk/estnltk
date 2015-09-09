@@ -23,7 +23,7 @@ class TestRender(unittest.TestCase):
         pp = PrettyPrinter(background='annotations')
         html = pp.render(text)
 
-        expected = 'Siin tekstis on märgend <mark class="background">siin</mark> ja teine on <mark class="background">siin</mark>'
+        expected = 'Siin tekstis on märgend <mark class="background_0">siin</mark> ja teine on <mark class="background_0">siin</mark>'
         self.assertEqual(expected, html)
 
     def test_multi_annotations(self):
@@ -34,7 +34,7 @@ class TestRender(unittest.TestCase):
         pp = PrettyPrinter(background='annotations')
         html = pp.render(text)
 
-        expected = '<mark class="background">Mees</mark>, kes oli tuttav, <mark class="background">teretas meid.</mark>'
+        expected = '<mark class="background_0">Mees</mark>, kes oli tuttav, <mark class="background_0">teretas meid.</mark>'
         self.assertEqual(expected, html)
 
     def test_two_layers_simple(self):
@@ -45,7 +45,7 @@ class TestRender(unittest.TestCase):
         pp = PrettyPrinter(color='A', background='B')
         html = pp.render(text)
 
-        expected = '<mark class="color">Esimene</mark> ja <mark class="background">teine</mark> märgend'
+        expected = '<mark class="color_0">Esimene</mark> ja <mark class="background_0">teine</mark> märgend'
         self.assertEqual(expected, html)
 
     def test_two_layers_overlapping(self):
@@ -56,7 +56,7 @@ class TestRender(unittest.TestCase):
         pp = PrettyPrinter(color='A', background='B')
         html = pp.render(text)
 
-        expected = '<mark class="color">Esimene </mark><mark class="background color">ja</mark><mark class="background"> teine</mark> märgend'
+        expected = '<mark class="color_0">Esimene </mark><mark class="background_0 color_0">ja</mark><mark class="background_0"> teine</mark> märgend'
         self.assertEqual(expected, html)
 
     def test_complex_overlapping(self):
@@ -77,12 +77,12 @@ class TestRender(unittest.TestCase):
         html = pp.render(text)
 
         expected = ['a ',
-                    '<mark class="background color">b </mark>',
-                    '<mark class="background color font size">c d e</mark>',
-                    '<mark class="color font"> </mark>',
-                    '<mark class="color font tracking">f g</mark>',
-                    '<mark class="font tracking"> h</mark>',
-                    '<mark class="tracking"> i</mark>',
+                    '<mark class="background_0 color_0">b </mark>',
+                    '<mark class="background_0 color_0 font_0 size_0">c d e</mark>',
+                    '<mark class="color_0 font_0"> </mark>',
+                    '<mark class="color_0 font_0 tracking_0">f g</mark>',
+                    '<mark class="font_0 tracking_0"> h</mark>',
+                    '<mark class="tracking_0"> i</mark>',
                     ' j ',
-                    '<mark class="italics">k</mark>']
+                    '<mark class="italics_0">k</mark>']
         self.assertEqual(''.join(expected), html)

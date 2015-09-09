@@ -54,26 +54,29 @@ def create_tags(start, end, css_class):
 def check_word_tags(elem, values):
     # Perfoms a check if current word has any tags
     # TODO: "analysis" atribuut on ainult "words" kihi elementidel, iga teise kihi puhul crashib, nt. background="sentences"
-    variable = elem['analysis'][0]
-    # If tags are name based
-    for values_key, values_value in dict(values).items():
-        if isinstance(elem['text'], list):
-            for el in elem['text']:
-                if values_key == el:
-                    return values_value
-        else:
-            if values_key == elem['text']:
-                return values_value
-    # If Tags are anything alse
-    for key, value in variable.items():
-        for values_key, values_value in values.items():
-            if isinstance(value, list):
-                for el in value:
+    try:
+        variable = elem['analysis'][0]
+        # If tags are name based
+        for values_key, values_value in dict(values).items():
+            if isinstance(elem['text'], list):
+                for el in elem['text']:
                     if values_key == el:
                         return values_value
             else:
-                if values_key == value:
+                if values_key == elem['text']:
                     return values_value
+        # If Tags are anything alse
+        for key, value in variable.items():
+            for values_key, values_value in values.items():
+                if isinstance(value, list):
+                    for el in value:
+                        if values_key == el:
+                            return values_value
+                else:
+                    if values_key == value:
+                        return values_value
+    except:
+        return values
 
 def create_tags_for_simple_layer(elems, css_class, values):
     tags = []
@@ -127,7 +130,7 @@ def create_tags_for_multi_layer(elems, css_class, values):
             tags.append(start_tag)
             tags.append(end_tag)
         number += 1
-    return tags
+    return tags, css_layers
 
 
 def create_tags_for_layer(text, layer, css_class, values):
@@ -197,6 +200,7 @@ def create_tags_with_concatenated_css_classes(tags):
 
 def create_tags_for_text(text, aesthetics, values):
     tags = []
+    css_layers = {}
     for aes, layer in aesthetics.items():
         if isinstance(layer, dict):
             created_tags, css_layers = create_tags_for_layer(text, layer, aes, values)

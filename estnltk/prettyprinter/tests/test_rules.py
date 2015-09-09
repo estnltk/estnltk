@@ -46,7 +46,7 @@ class SimpleTest(unittest.TestCase):
 
         self.assertEqual(self.expected, html)
 
-"""
+
 class ComplexTest(unittest.TestCase):
 
     @property
@@ -71,5 +71,5 @@ class ComplexTest(unittest.TestCase):
         pp = PrettyPrinter(background=postags, background_value=self.rules)
         html = pp.render(text)
 
-        self.assertEqual(self.expected, html)"""
+        self.assertEqual(self.expected, html)
 
