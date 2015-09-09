@@ -7,6 +7,15 @@ from .vabamorf.morf import disambiguate
 import re
 
 
+# A hack for defining a string type common in Py 2 and Py 3
+try:
+    # Check whether basestring is supported (should be in Py 2.7)
+    basestring
+except NameError as e:
+    # If not supported (in Py 3.x), redefine it as str
+    basestring = str
+
+
 class Disambiguator(object):
     """ Class for merging together different morphological disambiguation steps:
         *) pre-disambiguation of proper names based on lemma counts in the corpus;
@@ -124,11 +133,10 @@ class Disambiguator(object):
     def __isListOfLists(self, docs):
         """ Checks whether the input is a list of list of X, where X is either a
             string or a Text; 
-              TODO: is it compatible with Python 2.7 ???
         """
         return isinstance(docs, list) and \
                 all(isinstance(d1, list) and \
-                  all(isinstance(d11, str) or isinstance(d11, Text) for d11 in d1) for d1 in docs)
+                  all(isinstance(d11, (str, basestring, Text)) for d11 in d1) for d1 in docs)
 
     # =========================================================
     # =========================================================
