@@ -14,7 +14,7 @@ def lemmas(elem, values):
 def postags(elem, values):
     pass
 
-...
+
 
 # TODO: come up with stuff that could be useful for users.
 # Just make a best guess what might be useful.

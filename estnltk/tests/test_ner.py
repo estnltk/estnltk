@@ -144,7 +144,7 @@ class TestNer(unittest.TestCase):
         self.assertEqual(t.named_entity_labels, ['PER'])
         
         t = Text(as_unicode('Inimestelt saadud vihjed pole veel politseil aidanud leida 43-aastast Kajar Paasi, kes tema naise sõnul Ardus maanteel rööviti.'))
-        self.assertEqual(t.named_entities, ['Kajar Paasi', 'Ardu'])
+        self.assertEqual(t.named_entities, ['Kajar Paas', 'Ardu'])
         self.assertEqual(t.named_entity_labels, ['PER', 'LOC'])
         
         t = Text(as_unicode('Tuhanded Šotimaa kodud on lääneranniku piirkondi tabanud „ilmapommi“-tormi tõttu elektrita'))
