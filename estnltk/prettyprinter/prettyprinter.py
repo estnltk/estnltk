@@ -5,11 +5,12 @@ Deals with rendering Text instances as HTML.
 """
 from __future__ import unicode_literals, print_function, absolute_import
 
-from .values import AESTHETICS, AES_VALUE_MAP, DEFAULT_VALUE_MAP, LEGAL_ARGUMENTS
-from .templates import get_mark_css, HEADER, MIDDLE, FOOTER, MARK_CSS, OPENING_MARK, CLOSING_MARK
+from .values import AESTHETICS, VALUES, AES_VALUE_MAP, DEFAULT_VALUE_MAP, LEGAL_ARGUMENTS
+from .templates import get_mark_css
 from .marker import mark_text
 
 from cached_property import cached_property
+import six
 
 
 def assert_legal_arguments(kwargs):
@@ -28,7 +29,15 @@ def assert_legal_arguments(kwargs):
             if v in seen_layers:
                 raise ValueError('Layer <{0}> mapped for more than a single aesthetic!'.format(v))
             seen_layers.add(v)
-
+        if k in VALUES:
+            if not isinstance(v, six.string_types) and not isinstance(v, list):
+                raise ValueError('Value <{0}> must be either string or list'.format(k))
+            if isinstance(v, list):
+                if len(v) == 0:
+                    raise ValueError('Rules cannot be empty list')
+                for rule_matcher, rule_value in v:
+                    if not isinstance(rule_matcher, six.string_types) or not isinstance(rule_value, six.string_types):
+                        raise ValueError('Rule tuple elements must be strings')
 
 def parse_arguments(kwargs):
     """Function that parses PrettyPrinter arguments.
@@ -70,9 +79,9 @@ class PrettyPrinter(object):
             Layer that corresponds to background.
         ...
 
-        color_value: str
+        color_value: str or list
             The alternative value for the color.
-        background_value: str
+        background_value: str or list
             The background value for the color.
         """
         assert_legal_arguments(kwargs)
@@ -88,19 +97,19 @@ class PrettyPrinter(object):
         """Mapping of aesthetic values."""
         return self.__values
 
-
-    def css(self, css_layers):
+    @cached_property
+    def css(self):
         """Get the CSS of the PrettyPrinter."""
         css_list = []
-        for tag, value in css_layers.items():
-            mark_css = get_mark_css(tag, value)
-            css_list.append(mark_css)
+        for aes in self.aesthetics:
+            css_list.extend(get_mark_css(aes, self.values[aes]))
         return '\n'.join(css_list)
 
     def render(self, text, add_header=False):
         # TODO: lisada boolean parameeter, millega saab headeri/footeri lisamist kontrollida
         # vaikimisi võiks kood headerit mitte lisada (nagu preagu lihtsalt return html)
-        add_format = False
+        return mark_text(text, self.aesthetics)
+        '''add_format = False
         html, css_layers = mark_text(text, self.aesthetics, self.values)
         final_content = []
         final_content.append(HEADER)
@@ -112,5 +121,5 @@ class PrettyPrinter(object):
         if add_format == True:
             return "".join(final_content)
         else:
-            return html
+            return html'''
 

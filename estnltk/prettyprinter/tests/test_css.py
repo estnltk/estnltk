@@ -19,24 +19,29 @@ AESTHETICS = {
 
 class CssTest(unittest.TestCase):
 
-    def test_full_css(self):
-        a ={'background_0': 'rgb(102, 204, 255)'}
+    def test_one_layer_css(self):
+        pp = PrettyPrinter(color='layer')
+        self.assertTrue('mark.color' in pp.css)
+        self.assertTrue('mark.background' not in pp.css)
 
+    def test_color_value_supplied_by_user(self):
+        pp = PrettyPrinter(color='layer', color_value='color_you_have_never_seen')
+        self.assertTrue('color: color_you_have_never_seen' in pp.css)
+
+    def test_full_css_without_rules(self):
         pp = PrettyPrinter(**AESTHETICS)
-        css = pp.css(a)
+        css = pp.css
         # just check that CSS is generated for all aesthetics
         for aes in AESTHETICS:
             css_fragment = 'mark.' + aes + ' {'
-            self.assertTrue(css_fragment in css(a))
+            self.assertTrue(css_fragment in css)
 
-    def test_one_layer_css(self):
-        a = {'background_0': 'rgb(102, 204, 255)'}
-        pp = PrettyPrinter(color='layer')
-        self.assertTrue('mark.color' in pp.css(a))
-        self.assertTrue('mark.background' not in pp.css(a))
-
-    def test_color_value_supplied_by_user(self):
-        a = {'background_0': 'rgb(102, 204, 255)'}
-        pp = PrettyPrinter(color='layer', color_value='color_you_have_never_seen')
-        self.assertTrue('color: color_you_have_never_seen' in pp.css(a))
-
+    def test_color_css_with_rules(self):
+        rules = [
+            ('Nimisõnad', 'green'),
+            ('värvitakse', 'blue')
+        ]
+        pp = PrettyPrinter(color='layer', color_value=rules)
+        css = pp.css
+        self.assertTrue('mark.color_0: green' in css)
+        self.assertTrue('mark.color_1: blue' in css)

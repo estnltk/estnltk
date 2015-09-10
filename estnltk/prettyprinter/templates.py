@@ -30,7 +30,11 @@ MIDDLE = '''
 
 FOOTER = '\t</body>\n</html>'
 
-MARK_CSS = '''      mark.{aes_name} {{
+MARK_SIMPLE_CSS = '''      mark.{aes_name} {{
+            {css_prop}: {css_value};
+            }}'''
+
+MARK_RULE_CSS = '''      mark.{aes_name}_{rule_index} {{
             {css_prop}: {css_value};
             }}'''
 
@@ -47,15 +51,24 @@ def get_mark_css(aes_name, css_value):
 
     Returns
     -------
-    str
-        The CSS code
+    list of str
+        The CSS codeblocks
     """
-    if "_" in aes_name:
-        original_aes = aes_name[0:aes_name.find("_")]
+    css_prop = AES_CSS_MAP[aes_name]
+    if isinstance(css_value, list):
+        get_mark_css_for_rules(aes_name, css_prop, css_value)
     else:
-        original_aes = aes_name
-    css_prop = AES_CSS_MAP[original_aes]
-    return MARK_CSS.format(aes_name=aes_name, css_prop=css_prop, css_value=css_value)
+        return get_mark_simple_css(aes_name, css_prop, css_value)
+
+
+def get_mark_simple_css(aes_name, css_prop, css_value):
+    return [MARK_SIMPLE_CSS.format(aes_name=aes_name, css_prop=css_prop, css_value=css_value)]
+
+
+def get_mark_css_for_rules(aes_name, css_prop, css_value):
+    for rule_idx, (rule_key, rule_value) in enumerate(css_value.items()):
+        yield MARK_RULE_CSS.format(aes_name=aes_name, rule_index=rule_idx, css_prop=css_prop, css_value=rule_value)
+
 
 OPENING_MARK = '<mark class="{classes}">'
 CLOSING_MARK = '</mark>'

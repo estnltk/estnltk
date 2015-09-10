@@ -19,6 +19,11 @@ class InvalidArgumentsTest(unittest.TestCase):
     def test_layer_mapped_multiple_times_throws_error(self):
         self.assertRaises(ValueError, PrettyPrinter, color='layer', background='layer')
 
+    def test_invalid_rules_initialization(self):
+        self.assertRaises(ValueError, PrettyPrinter, color='layer', color_value=[('A', 0), ('B', 1)])
+        self.assertRaises(ValueError, PrettyPrinter, color='layer', color_value={})
+        self.assertRaises(ValueError, PrettyPrinter, color='layer', color_value=[])
+
 
 # data for second testcase
 AESTHETICS = {
