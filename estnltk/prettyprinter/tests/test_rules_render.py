@@ -19,6 +19,7 @@ from ...text import Text
 from ..prettyprinter import PrettyPrinter
 from ..extractors import postags
 
+
 class SimpleTest(unittest.TestCase):
 
     @property

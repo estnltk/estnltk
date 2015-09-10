@@ -25,7 +25,6 @@ HEADER = '''<!DOCTYPE html>
 MIDDLE = '''
     </style>
     <body>
-        <p>
 '''
 
 FOOTER = '\t</body>\n</html>'

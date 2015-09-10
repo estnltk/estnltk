@@ -39,6 +39,7 @@ def assert_legal_arguments(kwargs):
                     if not isinstance(rule_matcher, six.string_types) or not isinstance(rule_value, six.string_types):
                         raise ValueError('Rule tuple elements must be strings')
 
+
 def parse_arguments(kwargs):
     """Function that parses PrettyPrinter arguments.
     Detects which aesthetics are mapped to which layers

@@ -5,7 +5,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 from ..core import as_unicode
 from ..names import START, END
 from .templates import htmlescape, get_opening_mark, CLOSING_MARK
-from .extractors import postags, lemmas, timex_types
+
 
 class Tag(object):
 
@@ -51,92 +51,30 @@ def create_tags(start, end, css_class):
     end_tag = Tag(end, False, css_class)
     return start_tag, end_tag
 
-def check_word_tags(elem, values):
-    # Perfoms a check if current word has any tags
-    # TODO: "analysis" atribuut on ainult "words" kihi elementidel, iga teise kihi puhul crashib, nt. background="sentences"
-    try:
-        variable = elem['analysis'][0]
-        # If tags are name based
-        for values_key, values_value in dict(values).items():
-            if isinstance(elem['text'], list):
-                for el in elem['text']:
-                    if values_key == el:
-                        return values_value
-            else:
-                if values_key == elem['text']:
-                    return values_value
-        # If Tags are anything alse
-        for key, value in variable.items():
-            for values_key, values_value in values.items():
-                if isinstance(value, list):
-                    for el in value:
-                        if values_key == el:
-                            return values_value
-                else:
-                    if values_key == value:
-                        return values_value
-    except:
-        return values
 
-def create_tags_for_simple_layer(elems, css_class, values):
+def create_tags_for_simple_layer(elems, css_class):
     tags = []
-    number = 0
-    css_layers = {}
     for elem in elems:
-        layer_number = 0
-        if len(values[css_class]) > 1 and number < len(elems):
-            css_value = check_word_tags(elems[number], values[css_class])
-            if css_class + '_' + str(layer_number) in css_layers:
-                if css_layers[css_class + '_' + str(layer_number)] == css_value:
-                    css_class_modified = css_class + '_' + str(layer_number)
-                else:
-                    layer_number += 1
-                    css_layers[css_class + '_' + str(layer_number)] = css_value
-                    css_class_modified = css_class + '_' + str(layer_number)
-            else:
-                css_layers[css_class + '_' + str(layer_number)] = css_value
-                css_class_modified = css_class + '_' + str(layer_number)
-        else:
-            css_class_modified = css_class + '_' + str(0)
-        start_tag, end_tag = create_tags(elem[START], elem[END], css_class_modified)
+        start_tag, end_tag = create_tags(elem[START], elem[END], css_class)
         tags.append(start_tag)
         tags.append(end_tag)
-        number += 1
-    return tags, css_layers
+    return tags
 
 
-def create_tags_for_multi_layer(elems, css_class, values):
+def create_tags_for_multi_layer(elems, css_class):
     tags = []
-    number = 0
-    layer_number = 0
-    css_layers = {}
     for elem in elems:
-        if len(values[css_class])>1 and number < len(elems):
-            css_value = check_word_tags(elems[number], values[css_class])
-            if css_class + '_' + str(layer_number) in css_layers:
-                if css_layers[css_class + '_' + str(layer_number)] == css_value:
-                    css_class_modified = css_class + '_' + str(layer_number)
-                else:
-                    layer_number += 1
-                    css_layers[css_class + '_' + str(layer_number)] = css_value
-                    css_class_modified = css_class + '_' + str(layer_number)
-            else:
-                css_layers[css_class + '_' + str(layer_number)] = css_value
-                css_class_modified = css_class + '_' + str(layer_number)
-        else:
-            css_class_modified = css_class + '_' + str(0)
         for start, end in zip(elem[START], elem[END]):
-            start_tag, end_tag = create_tags(start, end, css_class_modified)
+            start_tag, end_tag = create_tags(start, end, css_class)
             tags.append(start_tag)
             tags.append(end_tag)
-        number += 1
-    return tags, css_layers
+    return tags
 
 
-def create_tags_for_layer(text, layer, css_class, values):
+def create_tags_for_layer(text, layer, css_class):
     if text.is_simple(layer):
-        return create_tags_for_simple_layer(text[layer], css_class, values)
-    return create_tags_for_multi_layer(text[layer], css_class, values)
+        return create_tags_for_simple_layer(text[layer], css_class)
+    return create_tags_for_multi_layer(text[layer], css_class)
 
 
 def group_tags_at_same_position(tags):
@@ -198,22 +136,15 @@ def create_tags_with_concatenated_css_classes(tags):
     return result
 
 
-def create_tags_for_text(text, aesthetics, values):
+def create_tags_for_text(text, aesthetics):
     tags = []
-    css_layers = {}
     for aes, layer in aesthetics.items():
-        if isinstance(layer, dict):
-            created_tags, css_layers = create_tags_for_layer(text, layer, aes, values)
-            tags.extend(created_tags)
-
-        else:
-            created_tags, css_layers = create_tags_for_layer((text), layer, aes, values)
-            tags.extend(created_tags)
-    return create_tags_with_concatenated_css_classes(sorted(tags)), css_layers
+        tags.extend(create_tags_for_layer(text, layer, aes))
+    return create_tags_with_concatenated_css_classes(sorted(tags))
 
 
-def mark_text(text, aesthetics, values):
-    tags, css_layers = create_tags_for_text(text, aesthetics, values)
+def mark_text(text, aesthetics):
+    tags = create_tags_for_text(text, aesthetics)
     spans = []
     last_pos = 0
     for tag in tags:
@@ -225,4 +156,4 @@ def mark_text(text, aesthetics, values):
             spans.append(CLOSING_MARK)
     if last_pos < len(text.text):
         spans.append(htmlescape(text.text[last_pos:]))
-    return ''.join(spans), css_layers
+    return ''.join(spans)
