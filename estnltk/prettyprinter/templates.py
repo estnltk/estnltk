@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-'''This module defines HTML and CSS templates and markup-generating functions
+"""This module defines HTML and CSS templates and markup-generating functions
 that are required by PrettyPrinter to generate full HTML and CSS output.
-'''
+"""
 from __future__ import unicode_literals, print_function, absolute_import
 
 try:
@@ -9,8 +9,7 @@ try:
 except ImportError:
     from cgi import escape as htmlescape
 
-from .values import AES_CSS_MAP, AES_VALUE_MAP
-
+from .values import AES_CSS_MAP
 
 HEADER = '''<!DOCTYPE html>
 <html>
@@ -29,13 +28,13 @@ MIDDLE = '''
 
 FOOTER = '\t</body>\n</html>'
 
-MARK_SIMPLE_CSS = '''      mark.{aes_name} {{
-            {css_prop}: {css_value};
-            }}'''
+MARK_SIMPLE_CSS = '''mark.{aes_name} {{
+    {css_prop}: {css_value};
+}}'''
 
-MARK_RULE_CSS = '''      mark.{aes_name}_{rule_index} {{
-            {css_prop}: {css_value};
-            }}'''
+MARK_RULE_CSS = '''mark.{aes_name}_{rule_index} {{
+    {css_prop}: {css_value};
+}}'''
 
 
 def get_mark_css(aes_name, css_value):
@@ -55,7 +54,7 @@ def get_mark_css(aes_name, css_value):
     """
     css_prop = AES_CSS_MAP[aes_name]
     if isinstance(css_value, list):
-        get_mark_css_for_rules(aes_name, css_prop, css_value)
+        return get_mark_css_for_rules(aes_name, css_prop, css_value)
     else:
         return get_mark_simple_css(aes_name, css_prop, css_value)
 
@@ -65,7 +64,7 @@ def get_mark_simple_css(aes_name, css_prop, css_value):
 
 
 def get_mark_css_for_rules(aes_name, css_prop, css_value):
-    for rule_idx, (rule_key, rule_value) in enumerate(css_value.items()):
+    for rule_idx, (rule_key, rule_value) in enumerate(css_value):
         yield MARK_RULE_CSS.format(aes_name=aes_name, rule_index=rule_idx, css_prop=css_prop, css_value=rule_value)
 
 

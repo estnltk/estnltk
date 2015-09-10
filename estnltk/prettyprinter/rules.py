@@ -3,6 +3,7 @@
 from __future__ import unicode_literals, print_function, absolute_import
 
 import regex as re
+import six
 
 
 class Rules(object):
@@ -42,3 +43,23 @@ class Rules(object):
             if pattern.match(value) is not None:
                 return self.__css_classes[idx]
         return self.__default
+
+
+def create_rules(aes, value):
+    """Create a Rules instance for a single aesthetic value.
+
+    Parameter
+    ---------
+    aes: str
+        The name of the aesthetic
+    value: str or list
+        The value associated with any aesthetic
+    """
+    if isinstance(value, six.string_types):
+        return Rules(aes)
+    else:
+        rules = Rules()
+        for idx, (pattern, css_value) in enumerate(value):
+            rules.add_rule(pattern, '{0}_{1}'.format(aes, idx))
+        return rules
+

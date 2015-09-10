@@ -43,5 +43,8 @@ class CssTest(unittest.TestCase):
         ]
         pp = PrettyPrinter(color='layer', color_value=rules)
         css = pp.css
-        self.assertTrue('mark.color_0: green' in css)
-        self.assertTrue('mark.color_1: blue' in css)
+        print(css)
+        self.assertTrue('mark.color_0' in css)
+        self.assertTrue('color: green;' in css)
+        self.assertTrue('mark.color_1' in css)
+        self.assertTrue('color: blue;' in css)

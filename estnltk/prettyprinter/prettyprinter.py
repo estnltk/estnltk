@@ -8,6 +8,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 from .values import AESTHETICS, VALUES, AES_VALUE_MAP, DEFAULT_VALUE_MAP, LEGAL_ARGUMENTS
 from .templates import get_mark_css
 from .marker import mark_text
+from .rules import create_rules
 
 from cached_property import cached_property
 import six
@@ -87,6 +88,7 @@ class PrettyPrinter(object):
         """
         assert_legal_arguments(kwargs)
         self.__aesthetics, self.__values = parse_arguments(kwargs)
+        self.__rules = dict((aes, create_rules(aes, values)) for aes, values in zip(self.aesthetics, self.values))
 
     @cached_property
     def aesthetics(self):
@@ -97,6 +99,10 @@ class PrettyPrinter(object):
     def values(self):
         """Mapping of aesthetic values."""
         return self.__values
+
+    @cached_property
+    def rules(self):
+        return self.__rules
 
     @cached_property
     def css(self):
