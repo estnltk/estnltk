@@ -28,7 +28,7 @@ value = Union(
     systolic
 )
 
-unit = IRegex('mm[ -/]?hg')
+unit = IRegex('mm[ -/]?hg', name='unit')
 
 bp_measurement = Union(
     Concatenation(
@@ -56,21 +56,18 @@ RR 106/70 mmhg
 
 if __name__ == '__main__':
     text = Text(example)
-    print ('Text:')
-    print (text.text)
+    #print ('Text:')
+    #print (text.text)
 
     # just print the matches
-    print ('Matches:')
-    matches = bp_measurement.get_matches(text)
-    for match in matches:
-        pprint(match.dict)
+    #print ('Matches:')
+    #matches = bp_measurement.get_matches(text)
+    #for match in matches:
+    #    pprint(match.dict)
 
     # annotate the text and print it as html
     bp_measurement.annotate(text)
-    pp = PrettyPrinter(background='bloodpressure', color='systolic', italics='diastolic')
-    print ('CSS:')
-    print (pp.css)
+    pp = PrettyPrinter(background='bloodpressure', color='systolic', italics='diastolic', font='unit')
 
-    print ('HTML:')
-    html = pp.render(text)
+    html = pp.render(text, add_header=True)
     print (html)
