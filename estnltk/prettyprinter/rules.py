@@ -32,6 +32,7 @@ class Rules(object):
         css_class: str
             The class that will corresponds to given pattern.
         """
+        #print('adding rule <{0}> <{1}>'.format(pattern, css_class))
         self.__patterns.append(re.compile(pattern, flags=re.U | re.M))
         self.__css_classes.append(css_class)
 
@@ -39,8 +40,10 @@ class Rules(object):
         """Return the css class of first pattern that matches given value.
         If no rules match, the default css class will be returned (see the constructor)
         """
+        #print ('get_css_class for {0}'.format(value))
         for idx, pattern in enumerate(self.__patterns):
             if pattern.match(value) is not None:
+                #print ('matched rule {0} and returning {1}'.format(idx, self.__css_classes[idx]))
                 return self.__css_classes[idx]
         return self.__default
 

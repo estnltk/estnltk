@@ -52,29 +52,33 @@ def create_tags(start, end, css_class):
     return start_tag, end_tag
 
 
-def create_tags_for_simple_layer(elems, css_class):
+def create_tags_for_simple_layer(text, layer, rules):
     tags = []
-    for elem in elems:
-        start_tag, end_tag = create_tags(elem[START], elem[END], css_class)
+    plain_text = text.text
+    for elem in text[layer]:
+        elem_text = plain_text[elem[START]:elem[END]]
+        start_tag, end_tag = create_tags(elem[START], elem[END], rules.get_css_class(elem_text))
         tags.append(start_tag)
         tags.append(end_tag)
     return tags
 
 
-def create_tags_for_multi_layer(elems, css_class):
+def create_tags_for_multi_layer(text, layer, rules):
     tags = []
-    for elem in elems:
+    plain_text = text.text
+    for elem in text[layer]:
         for start, end in zip(elem[START], elem[END]):
-            start_tag, end_tag = create_tags(start, end, css_class)
+            elem_text = plain_text[start:end]
+            start_tag, end_tag = create_tags(start, end, rules.get_css_class(elem_text))
             tags.append(start_tag)
             tags.append(end_tag)
     return tags
 
 
-def create_tags_for_layer(text, layer, css_class):
+def create_tags_for_layer(text, layer, rules):
     if text.is_simple(layer):
-        return create_tags_for_simple_layer(text[layer], css_class)
-    return create_tags_for_multi_layer(text[layer], css_class)
+        return create_tags_for_simple_layer(text, layer, rules)
+    return create_tags_for_multi_layer(text, layer, rules)
 
 
 def group_tags_at_same_position(tags):
@@ -136,15 +140,15 @@ def create_tags_with_concatenated_css_classes(tags):
     return result
 
 
-def create_tags_for_text(text, aesthetics):
+def create_tags_for_text(text, aesthetics, rules):
     tags = []
     for aes, layer in aesthetics.items():
-        tags.extend(create_tags_for_layer(text, layer, aes))
+        tags.extend(create_tags_for_layer(text, layer, rules[aes]))
     return create_tags_with_concatenated_css_classes(sorted(tags))
 
 
-def mark_text(text, aesthetics):
-    tags = create_tags_for_text(text, aesthetics)
+def mark_text(text, aesthetics, rules):
+    tags = create_tags_for_text(text, aesthetics, rules)
     spans = []
     last_pos = 0
     for tag in tags:

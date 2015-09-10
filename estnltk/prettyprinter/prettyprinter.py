@@ -70,14 +70,15 @@ def parse_arguments(kwargs):
 
 class PrettyPrinter(object):
     """Class for formatting Text instances as HTML & CSS."""
+
     def __init__(self, **kwargs):
         """Initialize a new PrettyPrinter class.
 
         Keyword arguments
         -----------------
-        color: str
+        color: str or callable
             Layer that corresponds to color aesthetic.
-        background: str
+        background: str or callable
             Layer that corresponds to background.
         ...
 
@@ -88,7 +89,7 @@ class PrettyPrinter(object):
         """
         assert_legal_arguments(kwargs)
         self.__aesthetics, self.__values = parse_arguments(kwargs)
-        self.__rules = dict((aes, create_rules(aes, values)) for aes, values in zip(self.aesthetics, self.values))
+        self.__rules = dict((aes, create_rules(aes, self.values[aes])) for aes in self.aesthetics)
 
     @cached_property
     def aesthetics(self):
@@ -115,7 +116,7 @@ class PrettyPrinter(object):
     def render(self, text, add_header=False):
         # TODO: lisada boolean parameeter, millega saab headeri/footeri lisamist kontrollida
         # vaikimisi võiks kood headerit mitte lisada (nagu preagu lihtsalt return html)
-        return mark_text(text, self.aesthetics)
+        return mark_text(text, self.aesthetics, self.rules)
         '''add_format = False
         html, css_layers = mark_text(text, self.aesthetics, self.values)
         final_content = []
