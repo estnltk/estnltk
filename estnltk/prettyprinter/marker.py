@@ -3,8 +3,9 @@
 from __future__ import unicode_literals, print_function, absolute_import
 
 from ..core import as_unicode
-from ..names import START, END
+from ..names import TEXT, START, END
 from .templates import htmlescape, get_opening_mark, CLOSING_MARK
+from .extractors import texts_simple, texts_multi
 
 
 class Tag(object):
@@ -52,33 +53,24 @@ def create_tags(start, end, css_class):
     return start_tag, end_tag
 
 
-def create_tags_for_simple_layer(text, layer, rules):
+def create_tags_for_layer(text, layer, rules):
+    # decide which extractor to use
+    # first just assume we need to use a multi layer text extractor
+    extractor = lambda t: texts_multi(t, layer)
+    # if user has specified his/her own callable, use it
+    if hasattr(layer, '__call__'):
+        extractor = layer
+    elif text.is_simple(layer):
+        # the given layer is simple, so use simple text extractor
+        extractor = lambda t: texts_simple(t, layer)
     tags = []
-    plain_text = text.text
-    for elem in text[layer]:
-        elem_text = plain_text[elem[START]:elem[END]]
-        start_tag, end_tag = create_tags(elem[START], elem[END], rules.get_css_class(elem_text))
-        tags.append(start_tag)
-        tags.append(end_tag)
-    return tags
-
-
-def create_tags_for_multi_layer(text, layer, rules):
-    tags = []
-    plain_text = text.text
-    for elem in text[layer]:
-        for start, end in zip(elem[START], elem[END]):
-            elem_text = plain_text[start:end]
-            start_tag, end_tag = create_tags(start, end, rules.get_css_class(elem_text))
+    for elem in extractor(text):
+        css_class = rules.get_css_class(elem[TEXT])
+        if css_class is not None:
+            start_tag, end_tag = create_tags(elem[START], elem[END], css_class)
             tags.append(start_tag)
             tags.append(end_tag)
     return tags
-
-
-def create_tags_for_layer(text, layer, rules):
-    if text.is_simple(layer):
-        return create_tags_for_simple_layer(text, layer, rules)
-    return create_tags_for_multi_layer(text, layer, rules)
 
 
 def group_tags_at_same_position(tags):

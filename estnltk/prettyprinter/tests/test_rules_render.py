@@ -46,24 +46,24 @@ class SimpleTest(unittest.TestCase):
 
         self.assertEqual(self.expected, html)
 
-'''
+
 class ComplexTest(unittest.TestCase):
 
     @property
     def text(self):
-        text = Text('Nimisõnad värvitakse siniseks ja tegusõnad võõbatakse roheliseks')
+        text = Text('Suured kollased kõrvad ja')
         return text.tag_analysis()
 
     @property
     def rules(self):
         return [
-            ('V', 'green'),
-            ('S', 'blue')
+            ('A', 'blue'),
+            ('S', 'green')
         ]
 
     @property
     def expected(self):
-        return '<mark class="background_0">Nimisõnad</mark> <mark class="background_1">värvitakse</mark> siniseks ja <mark class="background_0">tegusõnad</mark> <mark class="background_1">võõbatakse</mark> roheliseks'
+        return '<mark class="background_0">Suured</mark> <mark class="background_0">kollased</mark> <mark class="background_1">kõrvad</mark> ja'
 
     def test_postag_rules(self):
         text = self.text
@@ -72,5 +72,3 @@ class ComplexTest(unittest.TestCase):
         html = pp.render(text)
 
         self.assertEqual(self.expected, html)
-
-'''
