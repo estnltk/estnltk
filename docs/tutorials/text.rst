@@ -1178,12 +1178,17 @@ There are a number of mandatory attributes present in the dictionaries:
 * **start, end** - the expression start and end positions in the text.
 * **tid** - TimeML format *id* of the expression.
 * **id** - the zero-based *id* of the expressions, matches the position of the respective dictionary in the resulting list.
-* **temporal_function** - *true*, if the expression is relative and exact date has to be computed from anchor points.
-* **type** - according to TimeML, four types of temporal expressions are distinguished:
+* **type** - following the TimeML specification, four types of temporal expressions are distinguished:
     * *DATE expressions*, e.g. *järgmisel kolmapäeval* (*on next Wednesday*)
     * *TIME expressions*, e.g. *kell 18.00* (*at 18 o’clock*)
     * *DURATIONs*, e.g. *viis päeva* (*five days*)
     * *SETs of times*, e.g. *igal aastal* (*on every year*)
+* **temporal_function** - boolean value indicating whether the semantics of the expression are relative to the context. 
+    * For DATE and TIME expressions:
+        * *True* indicates that the expression is relative and semantics have been computed by heuristics;
+        * *False* indicates that the expression is absolute and semantics haven't been computed by heuristics;
+    * For DURATION expressions, *temporal_function* is mostly *False*, except for vague durations;
+    * For SET expressions, *temporal_function* is always *True*;
 
 The **value** is a mandatory attribute containing the semantics and has four possible formats:
 
@@ -1254,7 +1259,7 @@ However, when passing ``creation_date=datetime.datetime(1986, 12, 21)``::
     import datetime
     Text('Täna on ilus ilm', creation_date=datetime.datetime(1986, 12, 21)).timexes
 
-We see that word "today" (*täna*) refers to to December 21 1986::
+We see that word "today" (*täna*) refers to to December 21, 1986::
 
     [{'end': 4,
       'id': 0,
