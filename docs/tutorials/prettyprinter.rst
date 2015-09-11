@@ -57,11 +57,11 @@ The result of this short program will be:
 </embed>
 
 Class Text('...') is what does all the analysis. If we are looking to mark a specific word as in this case is the word
-"here" then we must bind the annotation to the word "here" with the help of a function of Text('...') called
+'here' then we must bind the annotation to the word 'here' with the help of a function of Text('...') called
 tags_with_regex('annotations', 'here') that tags the value of 'annotations' to the word 'here'. This will later be used
 to find the exact index where to start and end the selected formating.
 
-When we create a new class PrettyPrinter variable by "pp = PrettyPrinter(background='annotations')", we add arguments
+When we create a new class PrettyPrinter variable by 'pp = PrettyPrinter(background='annotations')', we add arguments
 describing what property will be added to which tag, in our case, everything that is tagged as 'annotations' will get a
 different background color. The rgb(102, 204, 255) is a stock value that is added as background color if no other color
 is specified during initiation of the PrettyPrinter class object.
@@ -111,8 +111,8 @@ The result of this program will be:
 This time we gave the PrettyPrinter class object two arguments: background='words', background_value=rules. The background
 value 'words' means that we will not be adding any specific tags as in the previous case, but instead use the original
 tag that is used in case of every word. PrettyPrinter will check itself what words match the rules specified in the list
-"rules". Now the second argument background_value=rules shows PrettyPrinter what values will be given to what tag values.
-Basically what our "rules" say to the PrettyPrinter is that each word 'Nimisõnad' will be given a green background
+'rules'. Now the second argument background_value=rules shows PrettyPrinter what values will be given to what tag values.
+Basically what our 'rules' say to the PrettyPrinter is that each word 'Nimisõnad' will be given a green background
 color and the word 'värvitakse' will be given a blue background color. Because different words can have different visual
 properties of the same type(eg. background color, font color, font size etc.) the css marks are numbered based on the
 number of overlapping values.
@@ -159,7 +159,29 @@ OK
 </embed>
 
 As we can see from the results, all adjectives have been marked with a css background mark tag for color blue and the
-noun in the sentence has been marked with a css background mark tag for color green.
+noun in the sentence has been marked with a css background mark tag for color green. In this way it is possible to
+visually separate all words that are of a specific type simply and effectively.
 
+Example #4 Using different category visual representation dor different parts of text
+
+text = Text('Esimene ja teine märgend')
+        text.tag_with_regex('A', 'Esimene ja')
+        text.tag_with_regex('B', 'ja teine')
+
+        pp = PrettyPrinter(color='A', background='B')
+        html = pp.render(text, False)
+
+This time we want to highlight two different word types with different properties, font color and background color. To
+do this, we have to both layers as PrettyPrinter class parameters and tie those to a certain value. With
+text.tag_with_regex('A', 'Esimene ja') we bind the formating option in PerttyPrinter parameters 'color='A'' applies to
+'Esimene ja' part of the text. What happens is that we will have two different css formats, each changing different
+things. Here we can also see that the formatting works with overlapping layers, because the word 'ja' is in both 'A' and
+'B'. The output with 'False' as the second parameter in render, will be the following:
+
+<mark class="color">Esimene </mark><mark class="background color">ja</mark><mark class="background"> teine</mark> märgend
+
+Here we can see, that the word 'ja' has two class tags, 'background' and 'color'.
+
+Example #5
 ... content ...
 

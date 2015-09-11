@@ -56,6 +56,7 @@ class TestRender(unittest.TestCase):
 
         pp = PrettyPrinter(color='A', background='B')
         html = pp.render(text, False)
+        print(html)
 
         expected = '<mark class="color">Esimene </mark><mark class="background color">ja</mark><mark class="background"> teine</mark> märgend'
         self.assertEqual(expected, html)
