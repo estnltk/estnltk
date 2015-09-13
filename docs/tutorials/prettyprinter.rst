@@ -9,7 +9,7 @@ Estnltk comes with HTML PrettyPrinter that can help building Web applications an
 text processing.
 
 PrettyPrinter is capable of very different types of visualization. From  visualization of simple given word to multiple
-and overlapping word types and even parts of whole sentences. Here is a list of porperties that can be modified with the
+and overlapping word types and even parts of whole sentences. Here is a list of properties that can be modified with the
 help of PrettyPrinter and the matching name of the value that the module is expecting:
 
     Change font color - 'color'
@@ -127,8 +127,28 @@ rules =[
 pp = PrettyPrinter(background='words', background_value=rules)
 html = pp.render(text, True)
 
-This time the defining parameters are 'A' and 'S' which stand for different word types. 'A' stands for 'Adjective' and
-'S' stands for '...'. PrettyPrinter will sort everything else out by itself. The result of this will be:
+This time the defining parameters are 'A' and 'S' which stand for different word types. The list of different tags can
+be found below:
+
+A - adjective
+C - comparing adjective
+D - adverb
+G - non declinable adjective
+H - real name
+I - interjection
+J - conjunction
+K - co-expression
+N - cardinal numeral
+O - ordinal numeral
+P - pronoun
+S - noun
+U - superlative adjective
+V - verb
+X -
+Y - abbreviation
+Z - sign
+
+PrettyPrinter will sort everything else out by itself. The result of this will be:
 
 <embed>
 <!DOCTYPE html>
@@ -164,7 +184,7 @@ visually separate all words that are of a specific type simply and effectively.
 
 Example #4 Using different category visual representation dor different parts of text
 
-text = Text('Esimene ja teine märgend')
+        text = Text('Esimene ja teine märgend')
         text.tag_with_regex('A', 'Esimene ja')
         text.tag_with_regex('B', 'ja teine')
 
@@ -172,7 +192,7 @@ text = Text('Esimene ja teine märgend')
         html = pp.render(text, False)
 
 This time we want to highlight two different word types with different properties, font color and background color. To
-do this, we have to both layers as PrettyPrinter class parameters and tie those to a certain value. With
+do this, we have to add both layers as PrettyPrinter class parameters and tie those to a certain value. With
 text.tag_with_regex('A', 'Esimene ja') we bind the formating option in PerttyPrinter parameters 'color='A'' applies to
 'Esimene ja' part of the text. What happens is that we will have two different css formats, each changing different
 things. Here we can also see that the formatting works with overlapping layers, because the word 'ja' is in both 'A' and
@@ -182,6 +202,101 @@ things. Here we can also see that the formatting works with overlapping layers, 
 
 Here we can see, that the word 'ja' has two class tags, 'background' and 'color'.
 
-Example #5
-... content ...
+Generating just the css
+
+It is possible, to use PrettyPrinter to generate just the css formatting without the HTML or the actual word content. In
+this case we just supply the PrettyPrinter class object with the necessary parameters and additional rules(if needed)
+and the class will generate the required css mark tags.
+
+Example #5 generating one layer css
+
+pp = PrettyPrinter(color='layer')
+css_format = pp.css
+
+This is the simplest form and the result will be:
+
+<embed>
+        mark.color {
+			color: rgb(0, 0, 102);
+		}
+</embed>
+
+Example #6 generating css with user defined color value
+
+pp = PrettyPrinter(color='layer', color_value='color_you_have_never_seen')
+css_format = pp.css
+
+Similar to last one, the result will be simple color marking, but with the user define value.
+
+<embed>
+        mark.color {
+			color: color_you_have_never_seen;
+		}
+</embed>
+
+Example #7 generating css with rules
+
+        rules = [
+            ('Nimisõnad', 'green'),
+            ('värvitakse', 'blue')
+        ]
+        pp = PrettyPrinter(color='layer', color_value=rules)
+        css_format = pp.css
+
+This simple program generates two mark color classes that define two sets of font color.
+
+<embed>
+        mark.color_0 {
+			color: green;
+
+		}
+        mark.color_1 {
+			color: blue;
+		}
+</embed>
+
+Example #8 generating full css without rules
+
+AESTHETICS = {
+    'color': 'layer1',
+    'background': 'layer2',
+    'font': 'layer3',
+    'weight': 'layer4',
+    'italics': 'layer5',
+    'underline': 'layer6',
+    'size': 'layer7',
+    'tracking': 'layer8'
+}
+pp = PrettyPrinter(**AESTHETICS)
+css_format = pp.css
+
+This program returns the css default formatting for all the properties in AESTHETICS.
+
+<embed>
+		mark.background {
+			background-color: rgb(102, 204, 255);
+		}
+		mark.size {
+			font-size: 120%;
+		}
+		mark.color {
+			color: rgb(0, 0, 102);
+		}
+		mark.tracking {
+			letter-spacing: 0.03em;
+		}
+		mark.weight {
+			font-weight: bold;
+		}
+		mark.underline {
+			font-decoration: underline;
+		}
+		mark.font {
+			font-family: sans-serif;
+		}
+		mark.italics {
+			font-style: italic;
+		}
+</embed>
+
 
