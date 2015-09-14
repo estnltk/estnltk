@@ -140,11 +140,3 @@ However, for more serious tasks, a custom NER model is crucial to guarantee bett
   trainer = NerTrainer(estnltk.estner.settings)
   trainer.train(ds, '<output directory>')
 
-Evaluation
-==========
-asdf
-
-Serialization
-=============
-
-asdf
