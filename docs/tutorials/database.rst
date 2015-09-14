@@ -16,6 +16,7 @@ Bulk importing data
 
 Estnltk comes with an importer script that can be used to store a folder of JSON files to database::
 
+
     python3 -m estnltk.database.importer -h
     usage: importer.py [-h] index directory
 
