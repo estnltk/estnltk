@@ -55,6 +55,74 @@ The `Text` instance provides a number of useful methods to get more information 
 Advanced NER
 ============
 
+--------------
+Tagging scheme
+--------------
+
+The default models are trained to recognize names on people, organizations and locations respecivelly tagged as PER, ORG and LOC. Named entity tags are encoded using a widely accepted BIO annotation scheme, where each label is prefixed with B or I, or the entire label is given as O. B- denotes the beginning and I- inside of an entity, while O means omitted. 
+  
+Tokens with named entity labels::
+
+  
+  pprint(list(zip(text.word_texts, text.labels)))
+  [('Eesti', 'B-LOC'),
+   ('Vabariik', 'I-LOC'),
+   ('on', 'O'),
+   ('riik', 'O'),
+   ('Põhja', 'B-ORG'),
+   ('-', 'O'),
+   ('Euroopas', 'B-LOC'),
+   ('.', 'O'),
+   ('Eesti', 'B-LOC'),
+   ('piirneb', 'O'),
+   ('põhjas', 'O'),
+   ('üle', 'O'),
+   ('Soome', 'B-LOC'),
+   ('lahe', 'I-LOC'),
+   ('Soome', 'B-LOC'),
+   ('Vabariigiga', 'I-LOC'),
+   ('.', 'O'),
+   ('Riigikogu', 'B-ORG'),
+   ('on', 'O'),
+   ('Eesti', 'B-LOC'),
+   ('Vabariigi', 'I-LOC'),
+   ('parlament', 'O'),
+   ('.', 'O'),
+   ('Riigikogule', 'B-ORG'),
+   ('kuulub', 'O'),
+   ('Eestis', 'B-LOC'),
+   ('seadusandlik', 'O'),
+   ('võim', 'O'),
+   ('.', 'O'),
+   ('2005', 'O'),
+   ('.', 'O'),
+   ('aastal', 'O'),
+   ('sai', 'O'),
+   ('peaministriks', 'O'),
+   ('Andrus', 'B-PER'),
+   ('Ansip', 'I-PER'),
+   (',', 'O'),
+   ('kes', 'O'),
+   ('püsis', 'O'),
+   ('sellel', 'O'),
+   ('kohal', 'O'),
+   ('2014', 'O'),
+   ('.', 'O'),
+   ('aastani', 'O'),
+   ('.', 'O'),
+   ('2006', 'O'),
+   ('.', 'O'),
+   ('aastal', 'O'),
+   ('valiti', 'O'),
+   ('presidendiks', 'O'),
+   ('Toomas', 'B-PER'),
+   ('Hendrik', 'I-PER'),
+   ('Ilves', 'I-PER'),
+   ('.', 'O')]
+
+
+
+
 Default models that come with Estnltk are good enough for basic tasks.
 However, for more serious tasks, a custom NER model is crucial to guarantee better accuracy.
 
