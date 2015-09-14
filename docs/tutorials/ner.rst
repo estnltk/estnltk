@@ -122,8 +122,29 @@ Tokens with named entity labels::
 
 
 
+Training custom models
+======================
+
 
 Default models that come with Estnltk are good enough for basic tasks.
 However, for more serious tasks, a custom NER model is crucial to guarantee better accuracy.
+::
 
-... content ...
+  from estnltk.corpus import read_json_corpus 
+  from estnltk.ner import NerTrainer
+  
+  # Read the corpus
+  ds = read_json_corpus('projects/estnltk/estnltk/corpora/estner.json')
+  
+  # Read ner settings and initialize the trainer
+  trainer = NerTrainer(estnltk.estner.settings)
+  trainer.train(ds, '<output directory>')
+
+Evaluation
+==========
+asdf
+
+Serialization
+=============
+
+asdf
