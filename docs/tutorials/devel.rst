@@ -4,18 +4,48 @@ Estnltk developer guide
 
 This document is for everyone who is working on Estnltk project (or wishes to work), but do not know how to get started.
 
-
 Version control and branches
 ============================
 
+We have three repositories where we store Estnltk code: you should push/pull every time from all of them
+ to make them synced.
 
+First, modify your ``.git/setup`` configuration to look like following::
 
-Setting up development environment
-==================================
+    [core]
+        repositoryformatversion = 0
+        filemode = true
+        bare = false
+        logallrefupdates = true
+    [remote "github"]
+        url = git@github.com:estnltk/estnltk.git
+        fetch = +refs/heads/*:refs/remotes/github/*
+    [remote "ut"]
+        url = git@estnltk.cs.ut.ee:timo/estnltk.git
+        fetch = +refs/heads/*:refs/remotes/ut/*
+    [remote "keeleressursid"]
+        url = git@gitlab.keeleressursid.ee:timo-petmanson/estnltk.git
+        fetch = +refs/heads/*:refs/remotes/keeleressursid/*
+    [remote "origin"]
+        url = git@github.com:estnltk/estnltk.git
+        url = git@estnltk.cs.ut.ee:timo/estnltk.git
+        url = git@gitlab.keeleressursid.ee:timo-petmanson/estnltk.git
+    [branch "master"]
+        remote = origin
+        merge = refs/heads/master
+    [branch "devel"]
+        remote = origin
+        merge = refs/heads/devel
 
+Second, use commands
 
-Unit testing
-============
+git push origin master
+git pull origin master
+
+to perform pulls and pushes to both repositories without no extra hassel.
+
+Third, your're done! ;)
+
 
 Writing documentation
 =====================
@@ -61,4 +91,4 @@ Then, create a subfolder with the appropriate estnltk version and copy the new d
 Creating releases
 =================
 
-
+TODO
