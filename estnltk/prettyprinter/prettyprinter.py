@@ -111,6 +111,7 @@ class PrettyPrinter(object):
         css_list = []
         for aes in self.aesthetics:
             css_list.extend(get_mark_css(aes, self.values[aes]))
+        print('\n'.join(css_list))
         return '\n'.join(css_list)
 
     def render(self, text, add_header=False):
@@ -118,6 +119,7 @@ class PrettyPrinter(object):
         html = html.replace('\n', '<br/>')
         if add_header:
             html = '\n'.join([HEADER, self.css, MIDDLE, html, FOOTER])
+        print('\n'.join((HEADER, self.css, MIDDLE, html, FOOTER)))
         return html
 
 

@@ -42,7 +42,7 @@ class SimpleTest(unittest.TestCase):
         text = self.text
 
         pp = PrettyPrinter(background='words', background_value=self.rules)
-        html = pp.render(text)
+        html = pp.render(text, False)
 
         self.assertEqual(self.expected, html)
 

@@ -31,13 +31,14 @@ class InsertTest(unittest.TestCase):
 
     def test_insert_default_ids(self):
         # see pole warningu eemaldamiseks sobiv viis, sest warning lihtsalt peidetakse. Pigem las ta olla nähtav.
-        # TODO: delete me: warnings.simplefilter("ignore")
         self.db.refresh()
         db = self.db
 
         # insert the documents
         id_first = db.insert(first())
+        print(id_first)
         id_second = db.insert(second())
+        print(id_second)
 
         # check the count
         self.assertEqual(2, db.count())
@@ -51,18 +52,11 @@ class BulkInsertTest(unittest.TestCase):
 
     def setUp(self):
         self.db = Database(TEST_INDEX)
-        self.db.delete()
+        #self.db.delete()
 
     def test_bulk_insert(self):
         db = self.db
         db.refresh()
-
-        # parem on tõsta first ja second InsertTestist lihtsalt välja (tegin juba selle ära).
-        # uue instantsi tegemine on ebavajalik.
-        # TODO: delete me.
-        # insert many (bulk) into db bulk_test
-        # it = InsertTest()
-        # text_lists = [it.first, it.second]
 
         text_lists = [first(), second()]
         id_bulk = db.bulk_insert(text_lists)
@@ -74,7 +68,6 @@ class BulkInsertTest(unittest.TestCase):
 class SearchTest(unittest.TestCase):
 
     def test_search_keyword_documents(self):
-        # TODO: move Database setup and initialization to def setUp() method
         self.db = Database(TEST_INDEX)
         keywords = ["aegna"]
         search = Database.query_documents(self.db, query=keywords)

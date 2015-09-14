@@ -14,7 +14,7 @@ class TestRender(unittest.TestCase):
     def test_no_aesthetics(self):
         text = Text('See tekst on lihtsalt tühi')
         pp = PrettyPrinter()
-        html = pp.render(text)
+        html = pp.render(text, False)
         self.assertEqual(text.text, html)
 
     def test_simple_annotations(self):
@@ -22,7 +22,7 @@ class TestRender(unittest.TestCase):
         text.tag_with_regex('annotations', 'siin')
 
         pp = PrettyPrinter(background='annotations')
-        html = pp.render(text)
+        html = pp.render(text, False)
 
         expected = 'Siin tekstis on märgend <mark class="background">siin</mark> ja teine on <mark class="background">siin</mark>'
         self.assertEqual(expected, html)
@@ -33,7 +33,7 @@ class TestRender(unittest.TestCase):
         text['annotations'] = [text[CLAUSES][0]] # use the first clause only
 
         pp = PrettyPrinter(background='annotations')
-        html = pp.render(text)
+        html = pp.render(text, False)
 
         expected = '<mark class="background">Mees</mark>, kes oli tuttav, <mark class="background">teretas meid.</mark>'
         self.assertEqual(expected, html)
@@ -44,7 +44,7 @@ class TestRender(unittest.TestCase):
         text.tag_with_regex('B', 'teine')
 
         pp = PrettyPrinter(color='A', background='B')
-        html = pp.render(text)
+        html = pp.render(text, False)
 
         expected = '<mark class="color">Esimene</mark> ja <mark class="background">teine</mark> märgend'
         self.assertEqual(expected, html)
@@ -55,7 +55,8 @@ class TestRender(unittest.TestCase):
         text.tag_with_regex('B', 'ja teine')
 
         pp = PrettyPrinter(color='A', background='B')
-        html = pp.render(text)
+        html = pp.render(text, False)
+        print(html)
 
         expected = '<mark class="color">Esimene </mark><mark class="background color">ja</mark><mark class="background"> teine</mark> märgend'
         self.assertEqual(expected, html)
@@ -75,7 +76,7 @@ class TestRender(unittest.TestCase):
                            size='size',
                            tracking='tracking',
                            italics='italics')
-        html = pp.render(text)
+        html = pp.render(text, False)
 
         expected = ['a ',
                     '<mark class="background color">b </mark>',
