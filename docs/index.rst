@@ -152,3 +152,11 @@ API reference
    api/wordnet_tagger
    api/wn
 
+Authors
+=======
+
+.. toctree::
+   :maxdepth: 1
+
+   authors
+

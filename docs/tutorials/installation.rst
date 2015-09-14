@@ -2,18 +2,41 @@
 Installation
 ============
 
+Before installation, we need to make sure all required dependencies are installed on a system.
+
+Linux dependencies
+------------------
+
+In Linux, installing dependencies is easy.
+
+Linux Mint, Python 2.7::
+
+    sudo apt-get install g++ python-dev python-pip python-numpy swig
+
+Linux Mint, Python 3.4::
+
+    sudo apt-get install g++ python3-dev python3-pip python3-numpy swig
+
+Windows dependencies
+--------------------
+
+Install Python3.4.
+
+Download PyCrfsuite wheel.
+Download Estnltk wheel.
+
+Install them/.
+
 Quick installation with pip
 ===========================
 
-The easiest way to install Estnltk is using the standard ``pip`` tool, which downloads
-the latest Estnltk version from PyPi repository, builds it and installs it::
+After dealing with dependencies, the easiest way to install Estnltk is using the standard ``pip`` tool,
+which downloads the latest Estnltk version from PyPi repository, builds it and installs it::
 
-    pip install estnltk
+    sudo pip install estnltk
 
 However, in order the command to succeed, you need to have the necessary dependencies installed your system,
 regardless of the OS you run.
-
-**NB! Check section about post-installation steps as well.**
 
 Dependencies
 ============

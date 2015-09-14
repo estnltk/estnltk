@@ -3,13 +3,6 @@ from setuptools import setup, find_packages, Extension
 import os
 import sys
 
-try:
-    from Cython.Distutils import build_ext
-except ImportError:
-    use_cython = False
-else:
-    use_cython = True
-
 os.environ['CC'] = 'g++'
 os.environ['CXX'] = 'g++'
 
@@ -60,7 +53,7 @@ setup(
     },
 
     author       = "University of Tartu",
-    author_email = "tpetmanson@gmail.com, alex.tk.fb@gmail.com, siim.orasmaa@gmail.com, swen@math.ut.ee",
+    author_email = "siim.orasmaa@gmail.com, alex.tk.fb@gmail.com, tpetmanson@gmail.com, swen@math.ut.ee",
     description  = "Estnltk — open source tools for Estonian natural language processing",
     license      = "GPLv2",
     url          = "https://github.com/estnltk/estnltk",

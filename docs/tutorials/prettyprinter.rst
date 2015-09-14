@@ -2,7 +2,6 @@
 HTML Prettyprinter
 ==================
 .. highlight:: python
-.. raw:: html
 
 Visualizing information is one of the most crucial steps in text processing software and arises in many uses cases.
 Estnltk comes with HTML PrettyPrinter that can help building Web applications and custom tools that deal with
@@ -10,7 +9,7 @@ text processing.
 
 PrettyPrinter is capable of very different types of visualization. From  visualization of simple given word to multiple
 and overlapping word types and even parts of whole sentences. Here is a list of properties that can be modified with the
-help of PrettyPrinter and the matching name of the value that the module is expecting:
+help of PrettyPrinter and the matching name of the value that the module is expecting::
 
     Change font color - 'color'
     Change background color - 'background'
@@ -22,39 +21,40 @@ help of PrettyPrinter and the matching name of the value that the module is expe
     Change letter spacing - 'tracking'
 
 
-Example #1 Formating specific word in all of text with different visual format.
+Example #1 Formating specific word in all of text with different visual format.::
 
-from ...text import Text
-from ..prettyprinter import PrettyPrinter
+    from ...text import Text
+    from ..prettyprinter import PrettyPrinter
 
-text = Text('This must be formatted here and here')
-text.tag_with_regex('annotations', 'here')
+    text = Text('This must be formatted here and here')
+    text.tag_with_regex('annotations', 'here')
 
-pp = PrettyPrinter(background='annotations')
-print(pp.render(text, True))
+    pp = PrettyPrinter(background='annotations')
+    print(pp.render(text, True))
 
-The result of this short program will be:
-<embed>
-<!DOCTYPE html>
-<html>
-    <head>
-        <link rel="stylesheet" type="text/css" href="prettyprinter.css">
-        <meta charset="utf-8">
-        <title>PrettyPrinter</title>
-    </head>
-    <style>
+The result of this short program will be::
+.. raw:: html
+    <embed>
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <link rel="stylesheet" type="text/css" href="prettyprinter.css">
+            <meta charset="utf-8">
+            <title>PrettyPrinter</title>
+        </head>
+        <style>
 
-      mark.background{
-            background-color: rgb(102, 204, 255);
-            }
-    </style>
-    <body>
-        <p>
-            This must be formated <mark class="background">here</mark> and <mark class="background">here</mark>
-        </p>
-    </body>
-</html>
-</embed>
+          mark.background{
+                background-color: rgb(102, 204, 255);
+                }
+        </style>
+        <body>
+            <p>
+                This must be formated <mark class="background">here</mark> and <mark class="background">here</mark>
+            </p>
+        </body>
+    </html>
+    </embed>
 
 Class Text('...') is what does all the analysis. If we are looking to mark a specific word as in this case is the word
 'here' then we must bind the annotation to the word 'here' with the help of a function of Text('...') called
@@ -71,10 +71,10 @@ will not be the full HTML text, but only the formatted text inside the HTML body
 
 Example #2 Formating the same property with different visual format depending on the specific word
 
-text = Text('Nimisõnad värvitakse').tag_analysis()
+text = Text('Nimisï¿½nad vï¿½rvitakse').tag_analysis()
 rules =[
-            ('Nimisõnad', 'green'),
-            ('värvitakse', 'blue')
+            ('Nimisï¿½nad', 'green'),
+            ('vï¿½rvitakse', 'blue')
         ]
 pp = PrettyPrinter(background='words', background_value=rules)
 html = pp.render(text, True)
@@ -103,7 +103,7 @@ The result of this program will be:
     </style>
     <body>
 
-<mark class="background_0">Nimisõnad</mark> <mark class="background_1">värvitakse</mark>
+<mark class="background_0">Nimisï¿½nad</mark> <mark class="background_1">vï¿½rvitakse</mark>
     </body>
 </html>
 </embed>
@@ -112,14 +112,14 @@ This time we gave the PrettyPrinter class object two arguments: background='word
 value 'words' means that we will not be adding any specific tags as in the previous case, but instead use the original
 tag that is used in case of every word. PrettyPrinter will check itself what words match the rules specified in the list
 'rules'. Now the second argument background_value=rules shows PrettyPrinter what values will be given to what tag values.
-Basically what our 'rules' say to the PrettyPrinter is that each word 'Nimisõnad' will be given a green background
-color and the word 'värvitakse' will be given a blue background color. Because different words can have different visual
+Basically what our 'rules' say to the PrettyPrinter is that each word 'Nimisï¿½nad' will be given a green background
+color and the word 'vï¿½rvitakse' will be given a blue background color. Because different words can have different visual
 properties of the same type(eg. background color, font color, font size etc.) the css marks are numbered based on the
 number of overlapping values.
 
 Example #3 Using word type tags as rule parameters
 
-text = Text('Suured kollased kõrvad ja').tag_analysis()
+text = Text('Suured kollased kï¿½rvad ja').tag_analysis()
 rules =[
             ('A', 'blue'),
             ('S', 'green')
@@ -173,7 +173,7 @@ OK
     </style>
     <body>
 
-        <mark class="background_0">Suured</mark> <mark class="background_0">kollased</mark> <mark class="background_1">kõrvad</mark> ja
+        <mark class="background_0">Suured</mark> <mark class="background_0">kollased</mark> <mark class="background_1">kï¿½rvad</mark> ja
     </body>
 </html>
 </embed>
@@ -184,7 +184,7 @@ visually separate all words that are of a specific type simply and effectively.
 
 Example #4 Using different category visual representation dor different parts of text
 
-        text = Text('Esimene ja teine märgend')
+        text = Text('Esimene ja teine mï¿½rgend')
         text.tag_with_regex('A', 'Esimene ja')
         text.tag_with_regex('B', 'ja teine')
 
@@ -198,7 +198,7 @@ text.tag_with_regex('A', 'Esimene ja') we bind the formating option in PerttyPri
 things. Here we can also see that the formatting works with overlapping layers, because the word 'ja' is in both 'A' and
 'B'. The output with 'False' as the second parameter in render, will be the following:
 
-<mark class="color">Esimene </mark><mark class="background color">ja</mark><mark class="background"> teine</mark> märgend
+<mark class="color">Esimene </mark><mark class="background color">ja</mark><mark class="background"> teine</mark> mï¿½rgend
 
 Here we can see, that the word 'ja' has two class tags, 'background' and 'color'.
 
@@ -237,8 +237,8 @@ Similar to last one, the result will be simple color marking, but with the user 
 Example #7 generating css with rules
 
         rules = [
-            ('Nimisõnad', 'green'),
-            ('värvitakse', 'blue')
+            ('Nimisï¿½nad', 'green'),
+            ('vï¿½rvitakse', 'blue')
         ]
         pp = PrettyPrinter(color='layer', color_value=rules)
         css_format = pp.css
