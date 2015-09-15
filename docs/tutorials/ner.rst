@@ -32,7 +32,7 @@ A quick example below demonstrates how to extract named entities from the raw te
    'Toomas Hendrik Ilves']
   
 
-When calling a property `text.named_entities`, `estnltk` executes on the background the whole text processing pipeline, including tokenization, morphological analysis and named entity extraction.
+When calling a property :py:attr:`estnltk.text.Text.named_entities`, `estnltk` executes on the background the whole text processing pipeline, including tokenization, morphological analysis and named entity extraction.
 
 A class :class:`estnltk.text.Text` additionally provides a number of useful methods to get more information on the extracted entities::
   
@@ -56,7 +56,7 @@ Advanced NER
 Tagging scheme
 --------------
 
-The default models use tags PER, ORG and LOC to denote person names, organizations and locations respectively. Entity tags are encoded using a widely accepted BIO annotation scheme, where each label is prefixed with B or I, or the entire label is given as O. B- denotes the beginning and I- inside of an entity, while O means omitted. This can be used to detect multiword entities, as shown in the example example above. The raw labels are accessible via a property `labels` in a class :class:`estnltk.text.Text`::
+The default models use tags PER, ORG and LOC to denote person names, organizations and locations respectively. Entity tags are encoded using a widely accepted BIO annotation scheme, where each label is prefixed with B or I, or the entire label is given as O. B- denotes the beginning and I- inside of an entity, while O means omitted. This can be used to detect multiword entities, as shown in the example example above. The raw labels are accessible via :py:attr:`estnltk.text.Text.labels` property::
 
   pprint(list(zip(text.word_texts, text.labels)))
   [('Eesti', 'B-LOC'),
@@ -119,7 +119,7 @@ The default models use tags PER, ORG and LOC to denote person names, organizatio
 Training custom models
 ----------------------
 
-Default models that come with `estnltk` are good enough for basic tasks. However, for some specific tasks, a custom NER model might be needed. To train a new model, you need to provide a training corpus and custom configuration settings. Training is done using a class :class:`estnltk.ner.NerTrainer`. The following example demonstrates how to train a model using a default training dataset `/home/projects/estnltk/estnltk/corpora/estner.json` and a settings module :mod:`estnltk.estner.settings`::
+Default models that come with `estnltk` are good enough for basic tasks. However, for some specific tasks, a custom NER model might be needed. To train your own model, you need to provide a training corpus and custom configuration settings. Training is done using a class :class:`estnltk.ner.NerTrainer`. The following example demonstrates how to train a ner model using a default training dataset `/home/projects/estnltk/estnltk/corpora/estner.json` and a settings module :py:mod:`estnltk.estner.settings`::
 
   from estnltk.corpus import read_json_corpus 
   from estnltk.ner import NerTrainer
