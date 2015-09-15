@@ -5,7 +5,7 @@ Named-entity recognition (NER) (also known as entity identification, entity chun
 
 The `estnltk` package comes with the pre-trained NER-models for Python 2.7/Python 3.4.
 
-A quick example of how to extract named entities from the raw text::
+A quick example below demonstrates how to extract named entities from the raw text::
 
   from estnltk import Text
   
@@ -32,9 +32,9 @@ A quick example of how to extract named entities from the raw text::
    'Toomas Hendrik Ilves']
   
 
-When calling `text.named_entities`, `estnltk` runs the whole text processing pipeline on the background, including  tokenization, morphological analysis and named entity extraction.
+When calling a property `text.named_entities`, `estnltk` executes on the background the whole text processing pipeline, including tokenization, morphological analysis and named entity extraction.
 
-The `Text` instance provides a number of useful methods to get more information on the extracted entities::
+A class :class:`estnltk.text.Text` additionally provides a number of useful methods to get more information on the extracted entities::
   
   pprint(list(zip(text.named_entities, text.named_entity_labels, text.named_entity_spans)))
   [('Eesti vabariik', 'LOC', (0, 14)),
@@ -56,9 +56,7 @@ Advanced NER
 Tagging scheme
 --------------
 
-The default models use tags PER, ORG and LOC to denote person names, organizations and locations respectively. Named entity tags are encoded using a widely accepted BIO annotation scheme, where each label is prefixed with B or I, or the entire label is given as O. B- denotes the beginning and I- inside of an entity, while O means omitted. This can be used to detect entities which span several words as can be seen in example above.
-
-List tokens' raw entity labels::
+The default models use tags PER, ORG and LOC to denote person names, organizations and locations respectively. Entity tags are encoded using a widely accepted BIO annotation scheme, where each label is prefixed with B or I, or the entire label is given as O. B- denotes the beginning and I- inside of an entity, while O means omitted. This can be used to detect multiword entities, as shown in the example example above. The raw labels are accessible via a property `labels` in a class :class:`estnltk.text.Text`::
 
   pprint(list(zip(text.word_texts, text.labels)))
   [('Eesti', 'B-LOC'),
@@ -121,15 +119,13 @@ List tokens' raw entity labels::
 Training custom models
 ----------------------
 
-Default models that come with `Estnltk` are good enough for basic tasks. However, for some specific tasks, a custom NER model might be needed.
-
-To train a new model, you need to provide a ne-tagged corpus and custom settings::
+Default models that come with `estnltk` are good enough for basic tasks. However, for some specific tasks, a custom NER model might be needed. To train a new model, you need to provide a training corpus and custom configuration settings. Training is done using a class :class:`estnltk.ner.NerTrainer`. The following example demonstrates how to train a model using a default training dataset `/home/projects/estnltk/estnltk/corpora/estner.json` and a settings module :mod:`estnltk.estner.settings`::
 
   from estnltk.corpus import read_json_corpus 
-  from estnltk.ner import NerTrainer, NerTagger
+  from estnltk.ner import NerTrainer
   
   # Read the corpus
-  corpus = read_json_corpus('/projects/estnltk/estnltk/corpora/estner.jso'n)
+  corpus = read_json_corpus('/home/projects/estnltk/estnltk/corpora/estner.json')
   
   # Read ner settings
   ner_settings = estnltk.estner.settings
@@ -141,17 +137,55 @@ To train a new model, you need to provide a ne-tagged corpus and custom settings
   trainer = NerTrainer(ner_settings)
   trainer.train(corpus, model_dir)
   
-  # Load the model
+
+The specified output directory will contain the resulting model file `model.bin` and a copy of a settings module used for training. Now, this model can be used to ne-tag text using a class :class:`estnltk.ner.NerTagger`::
+
+  from estnltk.ner import NerTagger
+  
+  document = Text(u'Eesti koeraspordiliidu ( EKL ) presidendi Piret Laanetu intervjuu Eesti Päevalehele.')
+  
+  # Load the model and settings
   tagger = NerTagger(model_dir)
   
-  # Ne-tag document
-  tagger.tag_document()
-
+  # ne-tag the document
+  tagger.tag_document(document)
+  
+  pprint(list(zip(document.word_texts, document.labels)))
+  [('Eesti', 'B-ORG'),
+     ('koeraspordiliidu', 'I-ORG'),
+     ('(', 'O'),
+     ('EKL', 'B-ORG'),
+     (')', 'O'),
+     ('presidendi', 'O'),
+     ('Piret', 'B-PER'),
+     ('Laanetu', 'I-PER'),
+     ('intervjuu', 'O'),
+     ('Eesti', 'B-ORG'),
+     ('Päevalehele', 'I-ORG'),
+     ('.', 'O')]
+  
+  
 Training dataset
 --------------------
-`Estnltk` includes the default training dataset in a file `estnltk/estnltk/corpora/estner.json`.
+`Estnltk` includes a training dataset used to train original models in `estnltk/estnltk/corpora/estner.json`.
+
 
 Ner settings
 -------------
-By default, `estnltk` uses settings module :mod:`estnltk.estner.settings`. It defines entity categories, feature extractors and feature templates. 
+By default, `estnltk` uses configuration from a module :mod:`estnltk.estner.settings`. A settings module defines training algorithm parameters, entity categories, feature extractors and feature templates. The simplest way to create a custom configuration is to make a new settings module, e.g. `custom_settings.py`, import the default settings and override necessary parts. For example, a custom minimalistic configuration module could look like this::
 
+    from estnltk.estner.settings import *
+
+    # Override feature templates
+    TEMPLATES = [
+        (('lem', 0),),
+    ]
+    
+    # Override feature extractors
+    FEATURE_EXTRACTORS = (
+        "estnltk.estner.featureextraction.MorphFeatureExtractor",
+    )
+
+Now, the :class:`estnltk.ner.NerTrainer` instance can be initialized using `custom_settings` module (make sure `custom_settings.py` is on python path)::
+
+  trainer = NerTrainer(custom_settings)  
