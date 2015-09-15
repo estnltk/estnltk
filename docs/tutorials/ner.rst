@@ -1,10 +1,9 @@
-========================
 Named entity recognition
 ========================
 
 Named-entity recognition (NER) (also known as entity identification, entity chunking and entity extraction) is a subtask of information extraction that seeks to locate and classify elements in text into pre-defined categories such as the names of persons, organizations, locations.
 
-The `estnltk` package comes with the pretrained NER-models for Python 2.7/Python 3.4.
+The `estnltk` package comes with the pre-trained NER-models for Python 2.7/Python 3.4.
 
 A quick example of how to extract named entities from the raw text::
 
@@ -33,7 +32,7 @@ A quick example of how to extract named entities from the raw text::
    'Toomas Hendrik Ilves']
   
 
-When calling `text.named_entities`, `estnltk` runs the whole text processing pileline on the background, including  tokenization, morphological analysis and named entity extraction.
+When calling `text.named_entities`, `estnltk` runs the whole text processing pipeline on the background, including  tokenization, morphological analysis and named entity extraction.
 
 The `Text` instance provides a number of useful methods to get more information on the extracted entities::
   
@@ -51,19 +50,16 @@ The `Text` instance provides a number of useful methods to get more information 
    ('Toomas Hendrik Ilves', 'PER', (320, 340))]
 
 
-============
 Advanced NER
 ============
 
---------------
 Tagging scheme
 --------------
 
-The default models are trained to recognize names on people, organizations and locations respecivelly tagged as PER, ORG and LOC. Named entity tags are encoded using a widely accepted BIO annotation scheme, where each label is prefixed with B or I, or the entire label is given as O. B- denotes the beginning and I- inside of an entity, while O means omitted. 
-  
-Tokens with named entity labels::
+The default models use tags PER, ORG and LOC to denote person names, organizations and locations respectively. Named entity tags are encoded using a widely accepted BIO annotation scheme, where each label is prefixed with B or I, or the entire label is given as O. B- denotes the beginning and I- inside of an entity, while O means omitted. This can be used to detect entities which span several words as can be seen in example above.
 
-  
+List tokens' raw entity labels::
+
   pprint(list(zip(text.word_texts, text.labels)))
   [('Eesti', 'B-LOC'),
    ('Vabariik', 'I-LOC'),
@@ -123,20 +119,39 @@ Tokens with named entity labels::
 
 
 Training custom models
-======================
+----------------------
 
+Default models that come with `Estnltk` are good enough for basic tasks. However, for some specific tasks, a custom NER model might be needed.
 
-Default models that come with Estnltk are good enough for basic tasks.
-However, for more serious tasks, a custom NER model is crucial to guarantee better accuracy.
-::
+To train a new model, you need to provide a ne-tagged corpus and custom settings::
 
   from estnltk.corpus import read_json_corpus 
-  from estnltk.ner import NerTrainer
+  from estnltk.ner import NerTrainer, NerTagger
   
   # Read the corpus
-  ds = read_json_corpus('projects/estnltk/estnltk/corpora/estner.json')
+  corpus = read_json_corpus('/projects/estnltk/estnltk/corpora/estner.jso'n)
   
-  # Read ner settings and initialize the trainer
-  trainer = NerTrainer(estnltk.estner.settings)
-  trainer.train(ds, '<output directory>')
+  # Read ner settings
+  ner_settings = estnltk.estner.settings
+  
+  # Direcrory to save the model
+  model_dir = '<output model directory>'
+  
+  # Train and save the model
+  trainer = NerTrainer(ner_settings)
+  trainer.train(corpus, model_dir)
+  
+  # Load the model
+  tagger = NerTagger(model_dir)
+  
+  # Ne-tag document
+  tagger.tag_document()
+
+Training dataset
+--------------------
+`Estnltk` includes the default training dataset in a file `estnltk/estnltk/corpora/estner.json`.
+
+Ner settings
+-------------
+By default, `estnltk` uses settings module :mod:`estnltk.estner.settings`. It defines entity categories, feature extractors and feature templates. 
 
