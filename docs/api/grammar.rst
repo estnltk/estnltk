@@ -1,6 +1,7 @@
-estnltk.grammar module
-======================
+estnltk.grammar.grammar module
+==============================
 
 .. automodule:: estnltk.grammar.grammar
     :members:
+
 

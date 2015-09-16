@@ -143,8 +143,11 @@ API reference
 
    api/clausesegmenter
    api/core
+   api/database
    api/grammar
+   api/match
    api/ner
+   api/prettyprinter
    api/teicorpus
    api/text
    api/textcleaner

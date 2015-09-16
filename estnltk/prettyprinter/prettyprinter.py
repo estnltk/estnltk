@@ -107,7 +107,11 @@ class PrettyPrinter(object):
 
     @cached_property
     def css(self):
-        """Get the CSS of the PrettyPrinter."""
+        """Returns
+        -------
+        str
+            The CSS.
+        """
         css_list = []
         for aes in self.aesthetics:
             css_list.extend(get_mark_css(aes, self.values[aes]))
@@ -115,6 +119,19 @@ class PrettyPrinter(object):
         return '\n'.join(css_list)
 
     def render(self, text, add_header=False):
+        """Render the HTML.
+
+        Parameters
+        ----------
+        add_header: boolean (default: False)
+            If True, add HTML5 header and footer.
+
+        Returns
+        -------
+        str
+            The rendered HTML.
+        """
+
         html = mark_text(text, self.aesthetics, self.rules)
         html = html.replace('\n', '<br/>')
         if add_header:

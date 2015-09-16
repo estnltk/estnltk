@@ -12,6 +12,7 @@ TEXT = 'text'
 
 
 class Match(dict):
+    """Match of a grammar symbol."""
 
     def __init__(self, start, end, text, name=None):
         super(Match, self).__init__()
@@ -26,26 +27,32 @@ class Match(dict):
 
     @property
     def name(self):
+        """The name of the match."""
         return self.get(NAME, None)
 
     @property
     def start(self):
+        """The start position of the match."""
         return self[START]
 
     @property
     def end(self):
+        """The end position of the match."""
         return self[END]
 
     @property
     def text(self):
+        """Matched text."""
         return self[TEXT]
 
     @property
     def matches(self):
+        """Matches of child symbols."""
         return self[MATCHES]
 
     @property
     def dict(self):
+        """Dictionary representing this match and all child symbol matches."""
         res = copy(self)
         if MATCHES in res:
             del res[MATCHES]

@@ -19,6 +19,7 @@ class Symbol(object):
 
     @property
     def name(self):
+        """The name of the symbol. If there is no name, this is None"""
         return self.__name
 
     def annotate(self, text, conflict_resolver=resolve_using_maximal_coverage):
@@ -82,6 +83,7 @@ class IRegex(Regex):
 
 
 class Lemmas(Symbol):
+    """Symbol that matches a list of lemmas."""
 
     def __init__(self, *lemmas, **kwargs):
         super(Lemmas, self).__init__(kwargs.get('name'))
@@ -108,6 +110,7 @@ class Lemmas(Symbol):
 
 
 class Postags(Symbol):
+    """Symbol that matches a list of part-of-speech tags."""
 
     def __init__(self, *postags, **kwargs):
         super(Postags, self).__init__(kwargs.get('name'))
@@ -134,6 +137,7 @@ class Postags(Symbol):
 
 
 class Suffix(Symbol):
+    """Symbol that matches word suffixes."""
 
     def __init__(self, suffix, **kwargs):
         super(Suffix, self).__init__(kwargs.get('name'))
@@ -155,6 +159,7 @@ class Suffix(Symbol):
 
 
 class Layer(Symbol):
+    """Symbol that matches elements of given layer."""
 
     def __init__(self, layer_name, **kwargs):
         super(Layer, self).__init__(kwargs.get('name'))
@@ -169,6 +174,7 @@ class Layer(Symbol):
 
 
 class LayerRegex(Symbol):
+    """Symbol that matches regular expressions on texts of the given layer."""
 
     def __init__(self, layer_name, regex, **kwargs):
         super(LayerRegex, self).__init__(kwargs.get('name'))
@@ -195,6 +201,7 @@ class LayerRegex(Symbol):
 
 
 class Union(Symbol):
+    """Symbol that unions two other symbols."""
 
     def __init__(self, *symbols, **kwargs):
         super(Union, self).__init__(kwargs.get('name'))
@@ -214,6 +221,7 @@ class Union(Symbol):
 
 
 class Intersection(Symbol):
+    """Symbol that intersects two different symbols."""
 
     def __init__(self, *symbols, **kwargs):
         super(Intersection, self).__init__(kwargs.get('name'))
@@ -248,6 +256,7 @@ def concat(matches_a, matches_b, text, name=None):
 
 
 class Concatenation(Symbol):
+    """Concatenate symbols."""
 
     def __init__(self, *symbols, **kwargs):
         """
@@ -289,6 +298,7 @@ def allgaps(matches_a, matches_b, text, name=None):
 
 
 class AllGaps(Symbol):
+    """Concatenate symbols, but allow gaps of any size between the symbols."""
 
     def __init__(self, *symbols, **kwargs):
         super(AllGaps, self).__init__(kwargs.get('name'))

@@ -49,6 +49,10 @@ def prepare_text(text):
 
 
 class Database(object):
+    """Database class represents a single index in Elastic
+    and helps with inserting and querying Estnltk documents.
+    """
+
     def __init__(self, index, doc_type='document', **kwargs):
         self.__es = Elasticsearch(maxKeepAliveTime=0, timeout=30, **kwargs)
         self.__index = index
