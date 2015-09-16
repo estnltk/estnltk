@@ -143,6 +143,7 @@ API reference
 
    api/clausesegmenter
    api/core
+   api/grammar
    api/ner
    api/teicorpus
    api/text

@@ -25,6 +25,12 @@ Example of using the memory switch::
 
     ./elasticsearch --ES_MAX_MEM=4g
 
+
+Connecting to the server
+========================
+
+By default, Elastic tries to connect to localhost 127.0.0.1:9200 .
+
 Bulk importing data
 ===================
 

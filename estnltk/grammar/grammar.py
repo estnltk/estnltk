@@ -5,7 +5,8 @@ import regex as re
 from functools import reduce
 from itertools import chain
 from collections import defaultdict
-
+import six
+from ..text import Text
 from .match import Match, concatenate_matches, copy_rename, intersect
 from .conflictresolver import resolve_using_maximal_coverage
 
@@ -21,6 +22,8 @@ class Symbol(object):
         return self.__name
 
     def annotate(self, text, conflict_resolver=resolve_using_maximal_coverage):
+        if isinstance(text, six.string_types):
+            text = Text(text)
         matches = self.get_matches(text, conflict_resolver=conflict_resolver)
         layers = defaultdict(list)
         for m in matches:
@@ -247,8 +250,22 @@ def concat(matches_a, matches_b, text, name=None):
 class Concatenation(Symbol):
 
     def __init__(self, *symbols, **kwargs):
+        """
+
+        Parameters
+        ----------
+        symbol.. : list of :py:class:`~estnltk.grammar.Symbol`
+            The symbols that are coing to be concatenated.
+        sep: :py:class:`~estnltk.grammar.Symbol`
+            The optional separator symbol.
+        """
         super(Concatenation, self).__init__(kwargs.get('name'))
-        self.__symbols = symbols
+        sep = kwargs.get('sep', None)
+        self.__symbols = []
+        for idx, sym in enumerate(symbols):
+            if idx > 0:
+                self.__symbols.append(sep)
+            self.__symbols.append(sym)
 
     @property
     def symbols(self):

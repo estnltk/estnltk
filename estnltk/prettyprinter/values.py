@@ -55,7 +55,7 @@ AES_CSS_MAP = {
     FONT: 'font-family',
     WEIGHT: 'font-weight',
     ITALICS: 'font-style',
-    UNDERLINE: 'font-decoration',
+    UNDERLINE: 'text-decoration',
     SIZE: 'font-size',
     TRACKING: 'letter-spacing'
 }

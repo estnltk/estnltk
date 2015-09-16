@@ -47,8 +47,10 @@ class Match(dict):
     @property
     def dict(self):
         res = copy(self)
-        del res[MATCHES]
-        del res[NAME]
+        if MATCHES in res:
+            del res[MATCHES]
+        if NAME in res:
+            del res[NAME]
         res = {self.name: res}
         for k, v in self.matches.items():
             res[k] = v
