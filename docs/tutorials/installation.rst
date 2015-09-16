@@ -4,7 +4,6 @@ Installation
 
 Estnltk works with Python versions 2.7 and 3.4 on Windows and Linux.
 
-===============================
 Installation on Linux Mint 17.2
 ===============================
 
@@ -39,13 +38,14 @@ These tutorials will help you out::
 http://community.linuxmint.com/tutorial/view/1372 ,
 http://community.linuxmint.com/tutorial/view/1091 .
 
-=======================
+
 Installation on Windows
 =======================
 
+TODO
 
-Dependencies
-============
+Full list of dependencies
+=========================
 
 **Python with development headers.** https://www.python.org/ .
 The most obvious dependency of course is Python itself.
@@ -78,6 +78,10 @@ The ``java`` virtual machine must be in the system ``PATH``.
 We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html,
 although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
 
+**Elasticsearch server**.
+Estnltk database module has a wrapper around Elastic database.
+In order to use Elastic, see https://www.elastic.co/products/elasticsearch .
+
 **setuptools**. https://pypi.python.org/pypi/setuptools .
 A popular toolchain to build Python packages. In Linux package managers, typically called ``python-setuptools`` .
 
@@ -85,7 +89,7 @@ A popular toolchain to build Python packages. In Linux package managers, typical
 We include numpy/scipy in this list as it is quite difficult to build it from scratch
 due to ATLAS/BLAS dependencies. Thus, we recommend installing a pre-built binaries (see http://www.scipy.org/install.html).
 
-**python-crfsuite (version 0.8.1)**. Conditional random field library. There should be no problems building it automatically,
+**python-crfsuite (version 0.8.3)**. Conditional random field library. There should be no problems building it automatically,
 but just in case we have included pre-built binaries in our repository:
 https://github.com/estnltk/estnltk/tree/master/dist/python-crfsuite .
 
@@ -97,12 +101,13 @@ here is the list of their names and precise version required by Estnltk.
 Windows users should check out Christoph Gohlke's website: http://www.lfd.uci.edu/~gohlke/pythonlibs/ ,
 that contains an marvellous list of pre-built binaries, including the ones required by Estnltk.
 
-* **regex (version 2015.03.18)**
+* **regex (version 2015.07.19)**
 * **six (version 1.9.0)**
-* **nltk (version 3.0.2)**
-* **pandas (version 0.15.2)**
+* **nltk (version 3.0.4)**
+* **pandas (version 0.16.2)**
 * **cached-property (version 1.2.0)**
-* **beautifulsoup4 (version 4.3.2)**
+* **beautifulsoup4 (version 4.4.0)**
+* **elasticsearch (1.6.0)**
 
 
 Running the tests
