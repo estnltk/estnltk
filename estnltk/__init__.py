@@ -12,3 +12,4 @@ from .disambiguator import Disambiguator
 from .prettyprinter import PrettyPrinter
 from .database import Database
 from .grammar import *
+from .tokenizers.word_tokenizer import EstWordTokenizer

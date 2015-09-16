@@ -1,3 +1,5 @@
+.. _tei_tutorial:
+
 =================================
 Working with Estonian Koondkorpus
 =================================

@@ -4,16 +4,21 @@
 Handling large text collections with Elastic database
 =====================================================
 
-.. content ..
+Estnltk has database module that simplifies working with large corpora.
+Check out :ref:`wikipedia_tutorial`, :ref:`tei_tutorial` for more information
+about getting started with larger text document collections.
 
-The activate Elastic (formerly Elasticsearch) carry out the guide from the Elastic team
-at webpage `https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html`_.
+Estnltk database integrates with `Elastic`_, which is a distributed RESTful schema-free
+JSON database, based on `Apache Lucene`_.
+See this `guide`_ for installation.
 
-.. _https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html: https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html/
+.. _Elastic: https://www.elastic.co/downloads/elasticsearch
+.. _Apache Lucene: https://lucene.apache.org/
+.. _guide: https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html
 
 When the installation is complete you can run Elastic (from Elastic folder) with the command::
 
-    ./elasticsearch
+    ./bin/elasticsearch
 
 Elastic has a visualization plugin that can be accessed through a browser of your choosing.
 To do this you need to write  `http://localhost:9200/_plugin/head/`_ to the URL bar in your browser.
@@ -23,13 +28,77 @@ To do this you need to write  `http://localhost:9200/_plugin/head/`_ to the URL 
 For simple testing purposes one can increase the memory by using --ES_MAX_MEM switch.
 Example of using the memory switch::
 
-    ./elasticsearch --ES_MAX_MEM=4g
+    ./bin/elasticsearch --ES_MAX_MEM=4g
+
+.. hint::
+  If you have trouble running Elastic, please refer to `Elastic guide`_.
+  Do your research before asking us. Estnltk has only a very thin wrapper around the `Elastic Python API`_ .
+
+.. _Elastic guide: https://www.elastic.co/guide/index.html
+.. _Elastic Python API: https://elasticsearch-py.readthedocs.org/en/master/
 
 
-Connecting to the server
-========================
+Estnltk Elastic wrapper
+=======================
 
-By default, Elastic tries to connect to localhost 127.0.0.1:9200 .
+Estnlt has :py:class:`~estnltk.database.database.Database` class that represents a single index of Elastic.
+The most important thing to know is the constructor signature::
+
+    def __init__(self, index, doc_type='document', **kwargs):
+        """
+        Parameters
+        ----------
+        index: str
+            The name of the Elastic index.
+        doc_type:
+            The document type to use (default: 'document')
+        keyword_argument:
+            All keyword arguments will be passed to Python Elasticsearch constructor.
+        """
+
+So, for instance, if you instead of default http://127.0.0.1:9200 want to connect to
+http://myserver.com:12345, you need to use::
+
+    from estnltk import Database
+
+    hosts = [{
+        'host': 'http://myserver.com',
+        'port': 443
+    }]
+    db = Database('test', hosts=hosts)
+
+Check the `Elastic Python docs`_ for more details.
+If Elastic server runs in a certain machine you can access over SSH, you might also want to read about
+`SSH tunneling`_ .
+Another important property is the actual ElasticSearch instance that Estnltk wraps,
+which can be retrieved via :py:meth:`~estnltk.database.database.Database.es` property.
+Use this for **complete control over the connection**.
+
+.. _`Elastic Python docs`: https://elasticsearch-py.readthedocs.org/en/master/api.html#elasticsearch.Elasticsearch
+.. _`SSH tunneling`: http://blog.trackets.com/2014/05/17/ssh-tunnel-local-and-remote-port-forwarding-explained-with-examples.html
+
+
+Inserting Text objects to database
+==================================
+
+Estnltk has a python function for inserting Text objects to Elastic database for further analysis.
+It is important that you create a database before inserting.
+In the example there is a database created named 'test'.
+After that the Text object is created with a sentence.
+Then the :py:meth:`~estnltk.database.database.Database.insert` method is being called.
+
+Example for using the text insert::
+
+    from ..database import Database
+    from ...text import Text
+
+    db = Database('test')
+
+    text = Text('Mees, keda seal kohtasime, oli tuttav ja ta teretas meid.')
+
+    db.insert(text)
+
+
 
 Bulk importing data
 ===================
@@ -57,26 +126,8 @@ Eesti Koondkorpus, you can insert them using commands::
     python3 -m estnltk.database.importer eesti corpora/eesti
 
 
-Insert Text object to database
-==============================
-
-Estnltk has a python function for inserting Text objects to Elastic database for further analysis.
-
-It is important that you create a database before inserting. In the example there is a database created named 'test'.
-
-After that the Text object is created with a sentence. Then the insert() function is being called.
-
-Example for using the text insert::
-
-    from ..database import Database
-    from ...text import Text
-
-    db = Database('test')
-
-    text = Text('Mees, keda seal kohtasime, oli tuttav ja ta teretas meid.')
-
-    db.insert(text)
-
+Check out :ref:`wikipedia_tutorial`, :ref:`tei_tutorial` for more information
+if you want to download some large and useful datasets to work with.
 
 Searching the database for keywords
 ===================================
@@ -93,3 +144,4 @@ The example search is from the 'test' database and the search word is 'aegna'::
     search = Database.query_documents(db, "aegna")
 
 The search will return a json format query with the full text of the successful search result.
+

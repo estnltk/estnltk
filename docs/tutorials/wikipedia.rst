@@ -1,3 +1,5 @@
+.. _wikipedia_tutorial:
+
 ========================================
 Working with Estonian and Võru wikipedia
 ========================================

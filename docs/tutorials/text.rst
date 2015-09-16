@@ -177,7 +177,7 @@ Only difference is that by using :py:attr:`~estnltk.text.Text.word_texts` proper
 Second call would use the ``start`` and ``end`` attributes already stored in the :py:class:`~estnltk.text.Text` instance.
 
 
-The default word tokenizer is NLTK-s `WordPunctTokenizer`_::
+The default word tokenizer is a modification of `WordPunctTokenizer`_ ::
 
     from nltk.tokenize.regexp import WordPunctTokenizer
     tok = WordPunctTokenizer()

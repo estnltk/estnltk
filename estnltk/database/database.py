@@ -51,6 +51,15 @@ def prepare_text(text):
 class Database(object):
     """Database class represents a single index in Elastic
     and helps with inserting and querying Estnltk documents.
+
+    Parameters
+    ----------
+    index: str
+        The name of the Elastic index.
+    doc_type:
+        The document type to use (default: 'document')
+    keyword_argument:
+        All keyword arguments will be passed to Python Elasticsearch constructor.
     """
 
     def __init__(self, index, doc_type='document', **kwargs):
@@ -60,14 +69,17 @@ class Database(object):
 
     @property
     def index(self):
+        """The name of the index."""
         return self.__index
 
     @property
     def doc_type(self):
+        """The doc_type property"""
         return self.__doc_type
 
     @property
     def es(self):
+        """The ElasticSearch instance."""
         return self.__es
 
     def insert(self, text, id=None):
@@ -117,6 +129,7 @@ class Database(object):
         result = self.es.bulk(index=self.index, doc_type=self.doc_type, body=insert_data, refresh=refresh)
 
     def get(self, id):
+        """Retrieve a document with given id."""
         return self.es.get(index=self.index, doc_type=self.doc_type, id=id, ignore=[400, 404])['_source']['text']
 
     def refresh(self):
@@ -124,6 +137,7 @@ class Database(object):
         self.es.indices.refresh(index=self.index, ignore=[400, 404])
 
     def delete_index(self):
+        """Delete the index."""
         self.es.indices.delete(index=self.index, ignore=[400, 404])
 
     def delete(self, index, id):
