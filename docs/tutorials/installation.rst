@@ -2,41 +2,47 @@
 Installation
 ============
 
-Before installation, we need to make sure all required dependencies are installed on a system.
+Estnltk works with Python versions 2.7 and 3.4 on Windows and Linux.
 
-Linux dependencies
-------------------
+===============================
+Installation on Linux Mint 17.2
+===============================
 
-In Linux, installing dependencies is easy.
-
-Linux Mint, Python 2.7::
-
-    sudo apt-get install g++ python-dev python-pip python-numpy swig
-
-Linux Mint, Python 3.4::
+In Linux, install dependences, install estnltk and test the installation::
 
     sudo apt-get install g++ python3-dev python3-pip python3-numpy swig
+    sudo pip3 install estnltk
 
-Windows dependencies
---------------------
+As a first test, try to run this line of code in your terminal::
 
-Install Python3.4.
+    python3 -c "import estnltk; print( estnltk.Text('Tere estnltk').lemmas )"
 
-Download PyCrfsuite wheel.
-Download Estnltk wheel.
+It should print::
 
-Install them/.
+    ['tere', 'estnltk']
 
-Quick installation with pip
-===========================
+The run the unittest suite::
 
-After dealing with dependencies, the easiest way to install Estnltk is using the standard ``pip`` tool,
-which downloads the latest Estnltk version from PyPi repository, builds it and installs it::
+    python3 -m estnltk.run_tests
 
-    sudo pip install estnltk
+This should report the number of tests run and the status. If it is "OK", then you are good to go::
 
-However, in order the command to succeed, you need to have the necessary dependencies installed your system,
-regardless of the OS you run.
+    Ran 157 tests in 35.207s
+
+    OK
+
+Although this is Linux Mint 17.2 specific, it should also work in Ubuntu.
+
+
+(Optional) You might want to use Oracle JDK instead of OpenJDK, because Estnltk uses Java for some tasks.
+These tutorials will help you out::
+http://community.linuxmint.com/tutorial/view/1372 ,
+http://community.linuxmint.com/tutorial/view/1091 .
+
+=======================
+Installation on Windows
+=======================
+
 
 Dependencies
 ============

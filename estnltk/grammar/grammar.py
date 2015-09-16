@@ -272,7 +272,7 @@ class Concatenation(Symbol):
         sep = kwargs.get('sep', None)
         self.__symbols = []
         for idx, sym in enumerate(symbols):
-            if idx > 0:
+            if idx > 0 and sep is not None:
                 self.__symbols.append(sep)
             self.__symbols.append(sym)
 
