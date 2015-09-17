@@ -149,26 +149,6 @@ that contains an marvellous list of pre-built binaries, including the ones requi
 * **html5lib (0.9999999)**
 
 
-Building
---------
-
-Open Visual Studio SDK terminal and type::
-
-    python3.4 -m pip build estnltk
-
-
-Running the tests
-=================
-
-After you have installed the library, you should run the unit tests::
-
-    python -m estnltk.run_tests
-
-Note that when you built directly from cloned Estnltk repository, navigate away from it as
-running the command in the same directory can cause problems.
-
-When unit tests pass, you know you have installed all necessary dependencies of the library.
-
 Building from source
 ====================
 
