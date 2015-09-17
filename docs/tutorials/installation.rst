@@ -50,13 +50,40 @@ We assume you have Python3.4 installed and run a 64-bit operating system.
 
 Head out to Christoph Gohlke's website: http://www.lfd.uci.edu/~gohlke/pythonlibs/ and download following files:
 
-numpy‑1.10.0b1+mkl‑cp34‑none‑win_amd64.whl
+numpy-1.10.0b1+mkl-cp34-none-win_amd64.whl
 
+Also download Pycrfsuite from https://github.com/estnltk/estnltk/blob/version1.3/dist/python-crfsuite/python_crfsuite-0.8.3-cp34-none-win_amd64.whl .
 
+Install the dependencies::
 
+    python.exe -m pip install "numpy-1.10.0b1+mkl-cp34-none-win_amd64.whl"
+    python.exe -m pip install python_crfsuite-0.8.3-cp34-none-win_amd64.whl
+    
+Now, download the Estnltk Wheel file: 
+
+As a first test, try to run this line of code in your terminal::
+
+    python.exe -c "import estnltk; print( estnltk.Text('Tere estnltk').lemmas )"
+
+It should print::
+
+    [nltk_data] Downloading package punkt to /home/user/nltk_data...
+    [nltk_data]   Unzipping tokenizers/punkt.zip.
+    ['tere', 'estnltk']
+
+You see that NLTK data is being dowloaded on first use of the library.
+Then, run the unittest suite::
+
+    python3 -m estnltk.run_tests
+
+This should report the number of tests run and the status. If it is "OK", then you are good to go::
+
+    Ran 157 tests in 35.207s
+
+    OK
 
 Full list of dependencies
--------------------------
+=========================
 
 **Python with development headers.** https://www.python.org/ .
 The most obvious dependency of course is Python itself.
@@ -119,6 +146,7 @@ that contains an marvellous list of pre-built binaries, including the ones requi
 * **cached-property (version 1.2.0)**
 * **beautifulsoup4 (version 4.4.0)**
 * **elasticsearch (1.6.0)**
+* **html5lib (0.9999999)**
 
 
 Building
@@ -126,7 +154,7 @@ Building
 
 Open Visual Studio SDK terminal and type::
 
-    python3.4 -m pip install estnltk
+    python3.4 -m pip build estnltk
 
 
 Running the tests
@@ -134,7 +162,7 @@ Running the tests
 
 After you have installed the library, you should run the unit tests::
 
-    python -m unittest discover estnltk.tests
+    python -m estnltk.run_tests
 
 Note that when you built directly from cloned Estnltk repository, navigate away from it as
 running the command in the same directory can cause problems.
@@ -160,23 +188,6 @@ Usually, you can also use more specific versions by replacing ``python`` with ``
 Note that the same commands work when building in Windows, but you need to execute them in Visual Studio SDK command prompt.
 
 If you want to set up estnltk for development, see :ref:`developer_guide`.
-
-Windows installers
-==================
-
-You can use pre-built windows installers for Estnltk.
-Note that you still need to install the dependencies separately.
-
-32-bit:
-
-* https://github.com/estnltk/estnltk/blob/master/dist/estnltk-1.2.win32-py2.7.msi
-* https://github.com/estnltk/estnltk/blob/master/dist/estnltk-1.2.win32-py3.4.msi
-
-64-bit:
-
-* https://github.com/estnltk/estnltk/blob/master/dist/estnltk-1.2.win-amd64-py2.7.msi
-* https://github.com/estnltk/estnltk/blob/master/dist/estnltk-1.2.win-amd64-py3.4.msi
-    
 
 
 Post-installation steps

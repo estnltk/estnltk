@@ -73,6 +73,7 @@ setup(
         'python-crfsuite==0.8.3',           # Conditional random fields library
         'cached-property==1.2.0',           # Simple property for caching results
         'beautifulsoup4==4.4.0',            # HTML parsing library
+        'html5lib==0.9999999',              # HTML parsing library
         'elasticsearch==1.6.0'              # database support
         ],
 
