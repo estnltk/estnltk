@@ -1,3 +1,5 @@
+.. _installation_tutorial:
+
 ============
 Installation
 ============
@@ -9,7 +11,7 @@ Installation on Linux Mint 17.2
 
 In Linux, install dependences, install estnltk and test the installation::
 
-    sudo apt-get install g++ python3-dev python3-pip python3-numpy swig
+    sudo apt-get install g++ python3-dev python3-pip python3-wheel python3-numpy swig
     sudo pip3 install estnltk
 
 As a first test, try to run this line of code in your terminal::
@@ -34,15 +36,14 @@ Although this is Linux Mint 17.2 specific, it should also work in Ubuntu.
 
 
 (Optional) You might want to use Oracle JDK instead of OpenJDK, because Estnltk uses Java for some tasks.
-These tutorials will help you out::
-http://community.linuxmint.com/tutorial/view/1372 ,
+These tutorials will help you install it: http://community.linuxmint.com/tutorial/view/1372 ,
 http://community.linuxmint.com/tutorial/view/1091 .
 
 
 Installation on Windows
 =======================
 
-TODO
+Installation on Windows is little bit more difficult than in Linux.
 
 Full list of dependencies
 =========================
@@ -129,24 +130,18 @@ First thing after installing the dependencies is to get the source.
 One option is cloing the repository using latest code::
 
     git clone https://github.com/estnltk/estnltk estnltk
+
     
-or from mirror repository::
+Then, issue following commands in the cloned folder to build and install::
 
-    git clone https://estnltk.cs.ut.ee/timo/estnltk.git estnltk
-
-or download it as a compressed zip::    
-
-    https://estnltk.cs.ut.ee/estnltk/estnltk/repository/archive.zip
-    
-Then, extract the sources and issue following commands in the downloaded/cloned folder to build and install::
-
-    python setup.py build
-    sudo python setup.py install
+    python3 setup.py build
+    sudo python3 setup.py install
     
 Note that ``python`` usually refers to default Python version installed with the system.
 Usually, you can also use more specific versions by replacing ``python`` with ``python2.7`` or ``python3.4``.
 Note that the same commands work when building in Windows, but you need to execute them in Visual Studio SDK command prompt.
 
+If you want to set up estnltk for development, see :ref:`developer_guide`.
 
 Windows installers
 ==================
@@ -169,12 +164,13 @@ Note that you still need to install the dependencies separately.
 Post-installation steps
 =======================
 
-Downloading NLTK tokenizers for Estonian. These are necessary for tokenization::
+Downloading NLTK tokenizers for Estonian. These are necessary for tokenization.
+This should happen automatically, but if it does not, use this command to download them::
 
-    python -m nltk.downloader punkt
+    python3 -m nltk.downloader punkt
 
 Estnltk comes with pre-built named entity taggers, but you can optionally rebuild them if you have lost them for some reason.
 The command to build the default named entity tagger for Estonian::
 
-    python -m estnltk.tools.train_default_ner_model
+    python3 -m estnltk.tools.train_default_ner_model
 

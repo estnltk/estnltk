@@ -1,8 +1,21 @@
+.. _developer_guide:
+
 =======================
 Estnltk developer guide
 =======================
 
 This document is for everyone who is working on Estnltk project (or wishes to work), but do not know how to get started.
+
+
+
+Compiling estnltk
+=================
+
+::
+
+    python setup.py build
+    python3 setup.py build
+
 
 Version control and branches
 ============================
@@ -37,15 +50,43 @@ First, modify your ``.git/setup`` configuration to look like following::
         remote = origin
         merge = refs/heads/devel
 
-Second, use commands
+Second, use commands::
 
-git push origin master
-git pull origin master
+    git push origin master
+    git pull origin master
 
 to perform pulls and pushes to both repositories without no extra hassel.
 
 Third, your're done! ;)
 
+
+Checking out devel branch
+-------------------------
+
+Try this::
+
+    git branch -a
+    git checkout -t devel origin/devel
+    git pull
+    git checkout devel
+    git branch -a
+
+You should see something similar as output::
+
+    * devel
+      master
+      timo_dev
+      remotes/github/devel
+      remotes/github/gh-pages
+      remotes/github/master
+      remotes/github/timo_dev
+      remotes/keeleressursid/devel
+      remotes/keeleressursid/master
+      remotes/origin/master
+      remotes/ut/devel
+      remotes/ut/master
+
+Important thing is that you see ``"* devel"`` .
 
 Writing documentation
 =====================
@@ -91,4 +132,14 @@ Then, create a subfolder with the appropriate estnltk version and copy the new d
 Creating releases
 =================
 
-TODO
+Uploading source tarball::
+
+    ./clean.sh
+    python setup.py build
+    python setup.py sdist
+    python setup.py upload
+
+Uploading Windows wheels::
+
+    TODO
+

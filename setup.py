@@ -48,8 +48,7 @@ setup(
         'estnltk.estner': ['gazetteer/*', 'models/py2_default/*', 'models/py3_default/*'],
         'estnltk.wordnet': ['*.cnf', 'data/*.txt', 'data/*.soi', 'data/*.cnf', 'data/scripts/*.py'],
         'estnltk.mw_verbs': ['res/*'],
-        'estnltk.converters': ['*.mrf'],
-        #'estnltk.grammarextractor': ['grammars/*']
+        'estnltk.converters': ['*.mrf']
     },
 
     author       = "University of Tartu",
