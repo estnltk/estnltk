@@ -59,7 +59,11 @@ Install the dependencies::
     python.exe -m pip install "numpy-1.10.0b1+mkl-cp34-none-win_amd64.whl"
     python.exe -m pip install python_crfsuite-0.8.3-cp34-none-win_amd64.whl
     
-Now, download the Estnltk Wheel file: 
+Now, download the Estnltk Wheel file:
+https://github.com/estnltk/estnltk/blob/version1.3/dist/estnltk-1.3-cp34-none-win_amd64.whl
+and install using::
+
+    python.exe -m pip install estnltk-1.3-cp34-none-win_amd64.whl
 
 As a first test, try to run this line of code in your terminal::
 
@@ -74,7 +78,7 @@ It should print::
 You see that NLTK data is being dowloaded on first use of the library.
 Then, run the unittest suite::
 
-    python3 -m estnltk.run_tests
+    python.exe -m estnltk.run_tests
 
 This should report the number of tests run and the status. If it is "OK", then you are good to go::
 
