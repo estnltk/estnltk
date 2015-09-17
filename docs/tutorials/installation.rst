@@ -60,7 +60,7 @@ Install the dependencies::
     python.exe -m pip install python_crfsuite-0.8.3-cp34-none-win_amd64.whl
     
 Then, download the Estnltk Wheel file: https://github.com/estnltk/estnltk/blob/version1.3/dist/estnltk-1.3-cp34-none-win_amd64.whl
-and install it::
+and install it (or just run ``python.exe -m pip install estnltk`` that does both of the steps for you)::
 
     python.exe -m pip install estnltk-1.3-cp34-none-win_amd64.whl
 
