@@ -20,9 +20,12 @@ As a first test, try to run this line of code in your terminal::
 
 It should print::
 
+    [nltk_data] Downloading package punkt to /home/user/nltk_data...
+    [nltk_data]   Unzipping tokenizers/punkt.zip.
     ['tere', 'estnltk']
 
-The run the unittest suite::
+You see that NLTK data is being dowloaded on first use of the library.
+Then, run the unittest suite::
 
     python3 -m estnltk.run_tests
 
@@ -43,10 +46,12 @@ http://community.linuxmint.com/tutorial/view/1091 .
 Installation on Windows
 =======================
 
-Installation on Windows is little bit more difficult than in Linux.
+Installation on Windows is little bit more difficult than in Linux,
+because you have more dependencies that you have to install manually.
+
 
 Full list of dependencies
-=========================
+-------------------------
 
 **Python with development headers.** https://www.python.org/ .
 The most obvious dependency of course is Python itself.
@@ -109,6 +114,14 @@ that contains an marvellous list of pre-built binaries, including the ones requi
 * **cached-property (version 1.2.0)**
 * **beautifulsoup4 (version 4.4.0)**
 * **elasticsearch (1.6.0)**
+
+
+Building
+--------
+
+Open Visual Studio SDK terminal and type::
+
+    python3.4 -m pip install estnltk
 
 
 Running the tests
