@@ -46,8 +46,13 @@ http://community.linuxmint.com/tutorial/view/1091 .
 Installation on Windows
 =======================
 
-Installation on Windows is little bit more difficult than in Linux,
-because you have more dependencies that you have to install manually.
+We assume you have Python3.4 installed and run a 64-bit operating system.
+
+Head out to Christoph Gohlke's website: http://www.lfd.uci.edu/~gohlke/pythonlibs/ and download following files:
+
+numpy‑1.10.0b1+mkl‑cp34‑none‑win_amd64.whl
+
+
 
 
 Full list of dependencies
