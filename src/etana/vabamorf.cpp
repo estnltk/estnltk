@@ -1,5 +1,5 @@
 /*
-Copyright 2015 Filosoft OÜ
+Copyright 2015 University of Tartu and Author(s): Timo Petmanson
 
 This file is part of Estnltk. It is available under the license of GPLv2 found
 in the top-level directory of this distribution and
