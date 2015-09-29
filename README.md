@@ -17,3 +17,7 @@ Documentation:
 1.3 (latest)
 http://estnltk.github.io/estnltk/1.3/index.html
 
+Courses:
+
+NLP course offered by University of Tartu, covering many aspects of the library
+https://courses.cs.ut.ee/2015/pynlp/fall

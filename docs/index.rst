@@ -8,10 +8,11 @@ Estnltk is licensed under `GNU GPL version 2`_.
 
 To get started right now, see :ref:`installation_tutorial`.
 
+University of Tartu has a course that covers many aspects of the library: https://courses.cs.ut.ee/2015/pynlp/fall .
+
 .. _Eesti Keeletehnoloogia Riiklik Programm: https://www.keeletehnoloogia.ee/
 .. _EKT57: https://www.keeletehnoloogia.ee/et/ekt-projektid/estnltk-pythoni-teegid-eestikeelsete-vabatektside-lihtsamaks-tootlemiseks
 .. _GNU GPL version 2: http://www.gnu.org/licenses/gpl-2.0.html
-
 Quick example
 =============
 

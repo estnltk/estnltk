@@ -59,8 +59,9 @@ Install the dependencies::
     python.exe -m pip install "numpy-1.10.0b1+mkl-cp34-none-win_amd64.whl"
     python.exe -m pip install python_crfsuite-0.8.3-cp34-none-win_amd64.whl
     
-Then, download the Estnltk Wheel file: https://github.com/estnltk/estnltk/blob/version1.3/dist/estnltk-1.3-cp34-none-win_amd64.whl
-and install it (or just run ``python.exe -m pip install estnltk`` that does both of the steps for you)::
+Now, download the Estnltk Wheel file:
+https://github.com/estnltk/estnltk/blob/version1.3/dist/estnltk-1.3-cp34-none-win_amd64.whl
+and install using::
 
     python.exe -m pip install estnltk-1.3-cp34-none-win_amd64.whl
 
@@ -151,26 +152,6 @@ that contains an marvellous list of pre-built binaries, including the ones requi
 * **elasticsearch (1.6.0)**
 * **html5lib (0.9999999)**
 
-
-Building
---------
-
-Open Visual Studio SDK terminal and type::
-
-    python3.4 -m pip build estnltk
-
-
-Running the tests
-=================
-
-After you have installed the library, you should run the unit tests::
-
-    python -m estnltk.run_tests
-
-Note that when you built directly from cloned Estnltk repository, navigate away from it as
-running the command in the same directory can cause problems.
-
-When unit tests pass, you know you have installed all necessary dependencies of the library.
 
 Building from source
 ====================
