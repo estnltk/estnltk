@@ -63,7 +63,7 @@ class Database(object):
     """
 
     def __init__(self, index, doc_type='document', **kwargs):
-        self.__es = Elasticsearch(maxKeepAliveTime=0, timeout=30, **kwargs)
+        self.__es = Elasticsearch(maxKeepAliveTime=0, **kwargs)
         self.__index = index
         self.__doc_type = doc_type
 
