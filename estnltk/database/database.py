@@ -152,7 +152,7 @@ class Database(object):
     def close_connection(self):
         pass
 
-    def query_documents(self, query, layer=None, size=10, es_result=False):
+    def query_documents(self, query, layer=None, es_result=False, start=0, size=10):
         """Find all Text documents that match keywords in the query.
 
         Check elasticsearch documentation for more information:
@@ -174,6 +174,9 @@ class Database(object):
         layer: str
             The layer to search the text from (for example words, sentences, clauses, verb_phrases etc).
             If layer is None (default), then use the full document text for search.
+        start: int (default: 0),
+            The start index of the results. Same as "from" in Elastic, but
+            we cannot use this name as it is reseved in Python.
         size: int (default: 10)
             Return size matches.
         es_result: boolean (default: False)
@@ -191,11 +194,13 @@ class Database(object):
         if layer is not None:
             # if layer is one of the metalayers, then no need to match both text and lemmas
             if layer in METALAYER_NAMES:
-                query_string['default_field'] = 'document.layers.' + layer
+                   query_string['default_field'] = 'document.layers.' + layer
             else:
                 query_string['fields'] = ['document.layers.' + 'lemmas', 'document.layers.' + 'text']
 
         body = {
+            'from': int(start),
+            'size': int(size),
             'query': {
                 'bool': {
                     'must': {
@@ -205,7 +210,7 @@ class Database(object):
             }
         }
 
-        results = self.es.search(index=self.index, doc_type=self.doc_type, body=body, size=size)
+        results = self.es.search(index=self.index, doc_type=self.doc_type, body=body)
         if es_result:
             return results
         else:
@@ -214,4 +219,3 @@ class Database(object):
 
     def query_matches(self, uqwy, layer=None):
         pass
-

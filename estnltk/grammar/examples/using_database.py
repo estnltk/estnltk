@@ -28,7 +28,15 @@ grammar = Concatenation(
 
 if __name__ == '__main__':
     db = Database('koond')
-    docs = db.query_documents('"A A A S"', size=10)
+    start = 0
+    size = 10
+    while True:
+        docs = db.query_documents('"A A A S"', start=start, size=size)
+        if len(docs) > 0:
+            print ('töötleme dokumendid', start, 'kuni', start+size)
+            start += size
+
+    docs = db.query_documents('"A A A S"', start=0, size=5)
     #docs = db.query_documents('universum', size=10)
     for doc in docs:
         grammar.annotate(doc)
