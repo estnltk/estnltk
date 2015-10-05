@@ -28,6 +28,10 @@ MIDDLE = '''
 
 FOOTER = '\t</body>\n</html>'
 
+DEFAULT_MARK_CSS = '''\t\tmark {
+\t\t\tbackground:none;
+\t\t}'''
+
 MARK_SIMPLE_CSS = '''\t\tmark.{aes_name} {{
 \t\t\t{css_prop}: {css_value};
 \t\t}}'''

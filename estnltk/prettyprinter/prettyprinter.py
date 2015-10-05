@@ -6,7 +6,7 @@ Deals with rendering Text instances as HTML.
 from __future__ import unicode_literals, print_function, absolute_import
 
 from .values import AESTHETICS, VALUES, AES_VALUE_MAP, DEFAULT_VALUE_MAP, LEGAL_ARGUMENTS
-from .templates import get_mark_css, HEADER, MIDDLE, FOOTER
+from .templates import get_mark_css, HEADER, MIDDLE, FOOTER, DEFAULT_MARK_CSS
 from .marker import mark_text
 from .rules import create_rules
 
@@ -112,7 +112,7 @@ class PrettyPrinter(object):
         str
             The CSS.
         """
-        css_list = []
+        css_list = [DEFAULT_MARK_CSS]
         for aes in self.aesthetics:
             css_list.extend(get_mark_css(aes, self.values[aes]))
         #print('\n'.join(css_list))
