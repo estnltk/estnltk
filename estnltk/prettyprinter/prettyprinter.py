@@ -74,8 +74,8 @@ class PrettyPrinter(object):
     def __init__(self, **kwargs):
         """Initialize a new PrettyPrinter class.
 
-        Keyword arguments
-        -----------------
+        Parameters
+        ----------
         color: str or callable
             Layer that corresponds to color aesthetic.
         background: str or callable
