@@ -1455,7 +1455,7 @@ Note that this mode is experimental and compared to the basic mode, it may intro
 Verb chain tagging
 ==================
 
-Verb chain tagger identifies multiword verb units from text.
+Verb chain tagger identifies main verbs (predicates) in clauses. 
 The current version of the program aims to detect following verb chain constructions:
 
 * basic main verbs:
