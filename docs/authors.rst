@@ -6,6 +6,8 @@ Sven Laur *(project manager)*
 
 Karl-Oskar Masing *(wordnet module)*
 
+Karl Valliste *(prettyprinter module)*
+
 Heiki-Jaan Kaalep *(vabamorf library, language engineering)*
 
 Neeme Kahusk *(eurowordnet module)*

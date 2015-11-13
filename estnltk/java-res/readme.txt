@@ -292,6 +292,8 @@
   lists multiple timex objects.
 
 
-  For more details on temporal expression annotation, see TimeML TIMEX3 specification:
-    http://www.timeml.org/site/publications/timeMLdocs/timeml_1.2.1.html#timex3
+  Source code
+ ----------------
+ https://github.com/soras/Ajavt/
+
 

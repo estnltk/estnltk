@@ -1123,7 +1123,7 @@ Temporal expressions tagger identifies temporal expressions (timexes) in text an
 The current version of the temporal expressions tagger is tuned for processing news texts (so the quality of the analysis may be suboptimal in other domains).
 The program outputs an annotation in a format similar to TimeML's TIMEX3 (more detailed description can be found in `annotation guidelines`_, which are currently only in Estonian).
 
-.. _annotation guidelines: https://github.com/soras/EstTimeMLCorpus/blob/master/docs-et/ajav2ljendite_m2rgendamine_06.pdf?raw=true
+.. _annotation guidelines: https://github.com/soras/Ajavt/blob/master/doc/margendusformaat_et.pdf?raw=true
 
 The :py:class:`~estnltk.text.Text` class has property :py:attr:`~estnltk.text.Text.timexes`, which returns a list of time expressions found in the text::
 
@@ -1298,9 +1298,6 @@ kaks minutit                                                              kaks m
 teisipäeviti                                                              teisipäeviti                  SET      XXXX-WXX-XX
 kolm päeva igas kuus                                                      kolm päeva                    DURATION P3D
 kolm päeva igas kuus                                                      igas kuus                     SET      P1M
-Ühel kenal päeval                                                         päeval                        TIME     TDT
-Ühel märtsikuu päeval                                                     märtsikuu                     DATE     1987-03
-Ühel märtsikuu päeval                                                     päeval                        TIME     TDT
 hiljuti                                                                   hiljuti                       DATE     PAST_REF
 tulevikus                                                                 tulevikus                     DATE     FUTURE_REF
 2009. aasta alguses                                                       2009. aasta alguses           DATE     2009              START
@@ -1320,15 +1317,10 @@ neljapäeval, 17. juunil                                                   nelja
 täna, 100 aastat tagasi                                                   täna                          DATE     1986-12-21
 täna, 100 aastat tagasi                                                   100 aastat tagasi             DATE     1886
 neljapäeva öösel vastu reedet                                             neljapäeva öösel vastu reedet TIME     1986-12-19TNI
-aasta esimestel kuudel                                                    aasta                         DATE     XXXX
 viimase aasta jooksul                                                     viimase aasta jooksul         DURATION P1Y
 viimase aasta jooksul                                                                                   DATE     1985
 viimase kolme aasta jooksul                                               viimase kolme aasta jooksul   DURATION P3Y
 viimase kolme aasta jooksul                                                                             DATE     1983
-varasemad aastad, hilisemad aastad                                        varasemad aastad              DATE     PAST_REF
-varasemad aastad, hilisemad aastad                                        aastad                        DURATION PXY
-viie-kuue aasta pärast, kahe-kolme aasta tagune                           aasta pärast                  DATE     1987
-viie-kuue aasta pärast, kahe-kolme aasta tagune                           aasta tagune                  DATE     1985
 aastaid tagasi                                                            aastaid tagasi                DATE     PAST_REF
 aastate pärast                                                            aastate pärast                DATE     FUTURE_REF
 ========================================================================= ============================= ======== ================= ==========
@@ -1455,7 +1447,7 @@ Note that this mode is experimental and compared to the basic mode, it may intro
 Verb chain tagging
 ==================
 
-Verb chain tagger identifies multiword verb units from text.
+Verb chain tagger identifies main verbs (predicates) in clauses. 
 The current version of the program aims to detect following verb chain constructions:
 
 * basic main verbs:
