@@ -1093,6 +1093,66 @@ class Text(dict):
         self[name] = [{START: mo.start(), END: mo.end()} for mo in pattern.finditer(self[TEXT])]
         return self
 
+    #
+    #
+    #
+
+    def simple(self, layer='', restriction=''):
+        """Creates a layer with the options from user input. """
+        dicts = []
+        if layer == None:
+             raise ValueError('Layer attribute cannot be empty.')
+        else:
+            if layer not in self.keys():
+                raise ValueError('Layer not in Text instance.')
+            else:
+                if restriction == '':
+                    print('Notice: restriction left empty.')
+                    return self[layer]
+                else:
+                    layer_data = self[layer]
+                    for elem in layer_data:
+                        if restriction in elem.values():
+                            dicts.append(elem)
+                        #else:
+                        #    raise ValueError('No such type in Text instance.')
+        self[layer] = dicts
+        return self
+
+    def new_layer(self, name='', pattern=[], flags = 0):
+        """Creates new layer to the Text instance with the name the user inputs."""
+        dicts = []
+        for elem in pattern:
+            matches = re.finditer(elem, self['text'])
+            for match in matches:
+                start = match.span()[0]
+                end = match.span()[1]
+                text = match.group()
+                dicts.append({'start': start, 'end': end, 'text': text})
+        self[name] = dicts
+        return self
+
+    def delete_layer(self, layer=[]):
+        """Deletes layers in input list."""
+        keys = self.keys()
+        for l in layer:
+            if l in keys:
+                del self[l]
+            else:
+                print("Layer %s not found." % l)
+        return self
+
+    def keep_layer(self, layer=[]):
+        """Keeps layers in input list."""
+        keys = self.keys()
+        for l in layer:
+            if l not in keys:
+                print("Layer %s no found." % l)
+        for key in list(keys):
+            if key not in layer:
+                del self[key]
+        return self
+
     # ///////////////////////////////////////////////////////////////////
     # SPLITTING
     # ///////////////////////////////////////////////////////////////////
