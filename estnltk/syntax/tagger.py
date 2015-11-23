@@ -20,7 +20,6 @@ import os
 from subprocess import Popen, PIPE
 
 from ..core import PACKAGE_PATH, as_unicode
-from ..text import Text
 from ..names import *
 
 
@@ -163,15 +162,3 @@ def add_layer(text, result):
         w[SYNTAX] = r
     return text
 
-
-t = '''Kes tasa sõuab, see võibolla jõuab kaugele, kui tema aerud ära ei mädane.
-See teine lause on siin niisama.
-Kuid mis siin ikka pikalt mõtiskleda, on nende asjadega nagu on.'''
-
-tagger = SyntaxTagger()
-text = Text(t)
-text.tag_analysis()
-tagger.tag_text(text)
-
-from pprint import pprint
-pprint(text)
