@@ -44,6 +44,8 @@ class SyntaxTagger(object):
 
     def tag_text(self, text):
         """ Tag the given text instance. """
+        if len(text[TEXT]) == 0:
+            return text
         with tempfile.TemporaryFile(mode='w+', encoding='utf-8') as fp:
             # convert the text to old format and save it as a temporary file
             convert_to_old(fp, text)
