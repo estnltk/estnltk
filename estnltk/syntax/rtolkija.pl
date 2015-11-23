@@ -1,7 +1,11 @@
 #!/usr/bin/perl -w
+use File::Basename;
+use Cwd 'abs_path';
 
-open(TABLE,"< ".$ARGV[0])
-  or die "rtolkija.pl probleem: ${ARGV[0]}!\n";
+my $dirname = dirname(__FILE__);
+
+open(TABLE,"< ".abs_path($dirname)."/morftrtabel.txt")
+  or die "rtolkija.pl probleem: $!\n";
 while(<TABLE>){
   if (/^[^¤]+/) {
    chomp;
