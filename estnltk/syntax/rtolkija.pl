@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
-open(TABLE,"< tmorftrtabel.txt")
-  or die "$!\n";
+open(TABLE,"< ".$ARGV[0])
+  or die "rtolkija.pl probleem: ${ARGV[0]}!\n";
 while(<TABLE>){
   if (/^[^¤]+/) {
    chomp;
