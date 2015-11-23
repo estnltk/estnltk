@@ -10,7 +10,6 @@ import tempfile
 import codecs
 import os
 from subprocess import Popen, PIPE
-import pipes
 
 from ..core import PACKAGE_PATH, as_unicode
 from ..text import Text
@@ -36,7 +35,7 @@ prog12 = ['./vislcg3', '-o', '-g', os.path.join(PATH, 'strukt_ub.rle')]
 class SyntaxTagger(object):
 
     def tag_text(self, text):
-        with codecs.open('tmp.txt', 'w+b', 'utf-8') as fp:
+        with tempfile.TemporaryFile(mode='w+', encoding='utf-8') as fp:
             convert_to_old(fp, text)
             fp.seek(0)
             p1 = Popen(prog01, stdin=fp, stdout=PIPE)
