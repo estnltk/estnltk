@@ -25,7 +25,7 @@ def convert():
         sys.stderr.write(" %d \n" % rows)
         sys.exit(1)
     pars["paragraphs"].append(sens) 
-    print json.dumps(pars, ensure_ascii = False, indent=4)
+    print (json.dumps(pars, ensure_ascii = False, indent=4))
 
 
 def usage():
