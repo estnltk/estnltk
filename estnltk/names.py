@@ -2,7 +2,7 @@
 """Module that defines the attribute names and constants used througout the library
 and in corpora."""
 
-from __future__ import unicode_literals, print_function
+from __future__ import unicode_literals, print_function, absolute_import
 
 # commonly required attributes
 START = 'start'
