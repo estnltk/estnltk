@@ -1,0 +1,11 @@
+Eesti keele Kitsenduste Grammatika (CG) süntaksianalüsaator
+
+Kasutamise näidis: rada.sh sisend_fail 
+
+kus sisend - sisendfaili nimi (fail sisaldab puhast teksti ilma lisamärgenduseta, utf8 kodeeringus).
+
+Väljund kirjutatakse faili sisend.cg3, väljundi seletus: https://korpused.keeleressursid.ee/syntaks/dokumendid/syntaksiliides_ee.pdf. Põhjalikumat märgenduspõhimõtete kirjeldust leiab Eesti keele sõltuvuspuude panga dokumentatsioonis: https://www.keeletehnoloogia.ee/et/ekt-projektid/vahendid-teksti-mitmekihiliseks-margendamiseks-rakendatuna-koondkorpusele/soltuvussuntaktiliselt-analuusitud-korpus.
+
+Süntaktilise analüüsi jaoks on vajalik eesti keele morfoloogiline analüsaator, nt Vabamorf: https://github.com/Filosoft/vabamorf/blob/master/doc/readme.html (rada.sh-s on vajalik paika panna installeeritud Vabamorfi programmi ja sõnastiku teed) ning VISL CG3 Kitsenduste Grammatika analüsaator: http://beta.visl.sdu.dk/constraint_grammar.html. Grammatikad ühilduvad VISL CG3 versiooniga 0.9.9.10993.
+
+Analüsaatori demot saab kasutada ka veebiliidese kaudu: https://korpused.keeleressursid.ee/syntaks/index.php.
