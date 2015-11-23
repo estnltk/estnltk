@@ -37,6 +37,10 @@ FORM = 'form'
 SPELLING = 'spelling'
 SUGGESTIONS = 'suggestions'
 
+# syntax related
+SYNTAX = 'syntax'
+LINK = 'link'
+INTERMEDIATE = 'intermediate'
 
 # clause segmenter related
 CLAUSE_ANNOTATION = 'clause_annotation'
