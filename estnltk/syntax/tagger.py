@@ -2,12 +2,19 @@
 """ This module uses Kaili's and Tiina's syntax tagger and adds relevant layers to the Text objects.
 Note that the vislcg3, perl, awk and tagger09 programs must be installed and should be referenced via PATH
 environment variable.
+
+Check out these resources:
+
+* https://korpused.keeleressursid.ee/syntaks/index.php?keel=ee
+* http://kodu.ut.ee/~kaili/grammatika/
+* http://math.ut.ee/~tiinapl/CGParser.tar.gz
+* http://kodu.ut.ee/~kaili/thesis/pt3_4.html
+
 """
 from __future__ import unicode_literals, print_function, absolute_import
 
-import sys
+
 import tempfile
-import codecs
 import os
 from subprocess import Popen, PIPE
 
@@ -33,8 +40,10 @@ prog12 = ['./vislcg3', '-o', '-g', os.path.join(PATH, 'strukt_ub.rle')]
 
 
 class SyntaxTagger(object):
+    """Kaili-s and Tiinas syntax tagger wrapper."""
 
     def tag_text(self, text):
+        """ Tag the given text instance. """
         with tempfile.TemporaryFile(mode='w+', encoding='utf-8') as fp:
             convert_to_old(fp, text)
             fp.seek(0)
@@ -64,7 +73,45 @@ class SyntaxTagger(object):
             p11.stdout.close()
 
             result = as_unicode(p12.communicate()[0])
-            print (result)
+            from pprint import pprint
+            print(result)
+            pprint (parse_result(result))
+
+
+def parse_variant(line):
+    syntax = set()
+    phrase = None
+    form = []
+    intermediate = set()
+    for tok in line.split():
+        if tok.startswith('@'):
+            syntax.add(tok)
+        elif tok.startswith('<') and tok.endswith('>'):
+            intermediate.add(tok)
+        elif tok.startswith('#'):
+            phrase = tok
+        else:
+            form.append(tok)
+    return {'syntax': list(sorted(syntax)),
+            'intermediate': list(sorted(intermediate)),
+            'form': ' '.join(form[3:]),
+            'phrase': phrase}
+
+
+def parse_result(result):
+    words = []
+    variants = []
+    for line in result.splitlines():
+        print (line)
+        if len(line) > 1 and line[0] == '\t': # this is some kind of variant
+            variants.append(parse_variant(line))
+        else:
+            if len(variants) > 0:
+                words.append(variants)
+                variants = []
+    if len(variants) > 0:
+        words.append(variants)
+    return words
 
 
 def convert_to_old(fp, text):
@@ -92,8 +139,12 @@ def convert_to_old(fp, text):
         fp.write('</s>\n\n')
 
 
+t = '''Kes tasa sõuab, see võibolla jõuab kaugele, kui tema aerud ära ei mädane.
+See teine lause on siin niisama.
+Kuid mis siin ikka pikalt mõtiskleda, on nende asjadega nagu on.'''
+
 tagger = SyntaxTagger()
-text = Text('Kes tasa sõuab, see võibolla jõuab kaugele, kui tema aerud ära ei mädane. See teine lause on siin niisama. Kuid mis siin ikka pikalt mõtiskleda, on nende asjadega nagu on.')
+text = Text(t)
 text.tag_analysis()
 tagger.tag_text(text)
 
