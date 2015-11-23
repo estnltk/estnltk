@@ -3,12 +3,13 @@
 Note that the vislcg3, perl, awk and tagger09 programs must be installed and should be referenced via PATH
 environment variable.
 
-Check out these resources:
+Check out these resources if you have no idea what this file is about:
 
 * https://korpused.keeleressursid.ee/syntaks/index.php?keel=ee
 * http://kodu.ut.ee/~kaili/grammatika/
 * http://math.ut.ee/~tiinapl/CGParser.tar.gz
 * http://kodu.ut.ee/~kaili/thesis/pt3_4.html
+* http://kodu.ut.ee/~kaili/Korpus/pindmine/labels.pdf
 
 """
 from __future__ import unicode_literals, print_function, absolute_import
@@ -20,7 +21,7 @@ from subprocess import Popen, PIPE
 
 from ..core import PACKAGE_PATH, as_unicode
 from ..text import Text
-from ..names import SENTENCES, WORDS, ANALYSIS, TEXT, ENDING, ROOT, FORM, POSTAG
+from ..names import *
 
 
 PATH = os.path.join(PACKAGE_PATH, 'syntax')
@@ -45,8 +46,11 @@ class SyntaxTagger(object):
     def tag_text(self, text):
         """ Tag the given text instance. """
         with tempfile.TemporaryFile(mode='w+', encoding='utf-8') as fp:
+            # convert the text to old format and save it as a temporary file
             convert_to_old(fp, text)
             fp.seek(0)
+
+            # execute all the programs on the input
             p1 = Popen(prog01, stdin=fp, stdout=PIPE)
             p2 = Popen(prog02, stdin=p1.stdout, stdout=PIPE)
             p3 = Popen(prog03, stdin=p2.stdout, stdout=PIPE)
@@ -72,15 +76,26 @@ class SyntaxTagger(object):
             p10.stdout.close()
             p11.stdout.close()
 
+            # parse the output
             result = as_unicode(p12.communicate()[0])
-            from pprint import pprint
-            print(result)
-            pprint (parse_result(result))
+            tokens = parse_result(result)
+
+            # add it to the words and return the text
+            return add_layer(text, tokens)
 
 
 def parse_variant(line):
+    """ Every syntax analysis result variant is stored on a seprate line.
+    This function parses the file and creates a dictionary of the parsed results.
+
+    Keys:
+    syntax - list of syntactic tokens
+    intermediate - list of GC intermediate tokens (might be relevant?)
+    link - the dependency grammar style link between two words
+    form - as there can be ambiguity, this is the form outputted by the script.
+    """
     syntax = set()
-    phrase = None
+    link = None
     form = []
     intermediate = set()
     for tok in line.split():
@@ -89,20 +104,22 @@ def parse_variant(line):
         elif tok.startswith('<') and tok.endswith('>'):
             intermediate.add(tok)
         elif tok.startswith('#'):
-            phrase = tok
+            link = tok
         else:
             form.append(tok)
-    return {'syntax': list(sorted(syntax)),
-            'intermediate': list(sorted(intermediate)),
-            'form': ' '.join(form[3:]),
-            'phrase': phrase}
+    return {SYNTAX: list(sorted(syntax)),
+            INTERMEDIATE: list(sorted(intermediate)),
+            FORM: ' '.join(form[3:]),
+            LINK: link}
 
 
 def parse_result(result):
+    """ Parse the result into a list of elements.
+    The number of elements should match the number of words in the input.
+    """
     words = []
     variants = []
     for line in result.splitlines():
-        print (line)
         if len(line) > 1 and line[0] == '\t': # this is some kind of variant
             variants.append(parse_variant(line))
         else:
@@ -139,6 +156,14 @@ def convert_to_old(fp, text):
         fp.write('</s>\n\n')
 
 
+def add_layer(text, result):
+    if len(text[WORDS]) != len(result):
+        raise Exception('The number of parsed results <{0}> does not match the number of words <{1}>!'.format(len(result), len(text[WORDS])))
+    for w, r in zip(text[WORDS], result):
+        w[SYNTAX] = r
+    return text
+
+
 t = '''Kes tasa sõuab, see võibolla jõuab kaugele, kui tema aerud ära ei mädane.
 See teine lause on siin niisama.
 Kuid mis siin ikka pikalt mõtiskleda, on nende asjadega nagu on.'''
@@ -148,4 +173,5 @@ text = Text(t)
 text.tag_analysis()
 tagger.tag_text(text)
 
-
+from pprint import pprint
+pprint(text)
