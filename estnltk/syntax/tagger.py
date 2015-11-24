@@ -110,7 +110,7 @@ def parse_variant(line):
             form.append(tok)
     return {SYNTAX: list(sorted(syntax)),
             INTERMEDIATE: list(sorted(intermediate)),
-            FORM: ' '.join(form[3:]),
+            FORM: ' '.join(form[2:]),
             LINK: link}
 
 
