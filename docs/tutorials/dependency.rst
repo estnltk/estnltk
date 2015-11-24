@@ -1,5 +1,5 @@
-Dependency parser
-=================
+Syntax and dependency parser
+============================
 
 Estnltk has a wrapper for Estonian `dependency parser`_, which tags syntactic and dependency markers every word.
 Make sure to check out the `documentation`_.
