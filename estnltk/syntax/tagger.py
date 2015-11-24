@@ -24,19 +24,21 @@ from ..names import *
 
 
 PATH = os.path.join(PACKAGE_PATH, 'syntax')
+VISLCG = os.path.join(PATH, 'vislcg3')
+TAGGER09 = os.path.join(PATH, 'tagger09')
 
 prog01 = ['perl', os.path.join(PATH, 'rtolkija.pl')]
 prog02 = ['perl', os.path.join(PATH, 'tpron.pl')]
 prog03 = ['perl', os.path.join(PATH, 'tcopyremover.pl')]
 prog04 = ['awk', '-f', os.path.join(PATH, 'TTRELLID.AWK')]
-prog05 = ['./tagger09', os.path.join(PATH, 'abileksikon06utf.lx'), 'stdin', 'stdout']
+prog05 = [TAGGER09, os.path.join(PATH, 'abileksikon06utf.lx'), 'stdin', 'stdout']
 prog06 = ['perl', os.path.join(PATH, 'tcopyremover.pl')]
 prog07 = ['perl', os.path.join(PATH, 'tkms2cg3.pl')]
-prog08 = ['./vislcg3', '-o', '-g', os.path.join(PATH, 'clo_ub.rle')]
-prog09 = ['./vislcg3', '-o', '-g', os.path.join(PATH, 'morfyhe_ub.rle')]
-prog10 = ['./vislcg3', '-o', '-g', os.path.join(PATH, 'PhVerbs_ub.rle')]
-prog11 = ['./vislcg3', '-o', '-g', os.path.join(PATH, 'pindsyn_ub.rle')]
-prog12 = ['./vislcg3', '-o', '-g', os.path.join(PATH, 'strukt_ub.rle')]
+prog08 = [VISLCG, '-o', '-g', os.path.join(PATH, 'clo_ub.rle')]
+prog09 = [VISLCG, '-o', '-g', os.path.join(PATH, 'morfyhe_ub.rle')]
+prog10 = [VISLCG, '-o', '-g', os.path.join(PATH, 'PhVerbs_ub.rle')]
+prog11 = [VISLCG, '-o', '-g', os.path.join(PATH, 'pindsyn_ub.rle')]
+prog12 = [VISLCG, '-o', '-g', os.path.join(PATH, 'strukt_ub.rle')]
 
 
 class SyntaxTagger(object):
