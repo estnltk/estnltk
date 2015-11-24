@@ -23,7 +23,7 @@ from ..core import PACKAGE_PATH, as_unicode
 from ..names import *
 
 
-PATH = os.path.join(PACKAGE_PATH, 'syntax')
+PATH = os.path.join(PACKAGE_PATH, 'syntax', 'files')
 VISLCG = os.path.join(PATH, 'vislcg3')
 TAGGER09 = os.path.join(PATH, 'tagger09')
 
