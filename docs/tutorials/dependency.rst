@@ -29,7 +29,7 @@ Ever list element has four attributes:
 
 This is the output for the word ``ilus`` in above example::
 
-     'syntax': [{'form': 'pos sg nom cap',
+     'syntax': [{'form': 'A pos sg nom cap',
                  'intermediate': [],
                  'link': '#1->4',
                  'syntax': ['@AN>']}],
