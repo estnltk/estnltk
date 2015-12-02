@@ -166,7 +166,7 @@ def _executeMaltparser( input_string, maltparser_dir, maltparser_jar, model_name
               directory;
         
         Few of the ideas were also borrowed from NLTK's MaltParser class,
-        see https://github.com/nltk/nltk/blob/dbc7fd18b296ad76e642f4e1b79b5862715472cd/nltk/parse/malt.py  for the reference;
+        see  http://www.nltk.org/_modules/nltk/parse/malt.html   for the reference;
     '''
 
     temp_input_file = \
@@ -182,8 +182,13 @@ def _executeMaltparser( input_string, maltparser_dir, maltparser_jar, model_name
     temp_output_file.close()
     
     current_dir = os.getcwd()
-    os.chdir(maltparser_dir) 
-    cmd = 'java -jar '+maltparser_jar+' -c '+model_name+' -i '+temp_input_file.name+' -o '+temp_output_file.name+' -m parse '
+    os.chdir(maltparser_dir)
+    #cmd = 'java -jar '+maltparser_jar+' -c '+model_name+' -i '+temp_input_file.name+' -o '+temp_output_file.name+' -m parse '
+    cmd = ['java', '-jar', os.path.join(MALTPARSER_PATH, maltparser_jar), \
+           '-c', model_name, \
+           '-i', temp_input_file.name, \
+           '-o', temp_output_file.name, \
+           '-m', 'parse' ]
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if p.wait() != 0: 
         raise Exception(' Error on running Maltparser: ', p.stderr.read() )
