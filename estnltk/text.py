@@ -19,6 +19,7 @@ from .clausesegmenter import ClauseSegmenter
 from .mw_verbs.verbchain_detector import VerbChainDetector
 from .textcleaner import TextCleaner
 from .tokenizers import EstWordTokenizer
+from .syntax import SyntaxTagger
 
 import six
 import pandas
@@ -53,6 +54,7 @@ textcleaner = TextCleaner()
 clausesegmenter = None
 verbchain_detector = None
 wordnet_tagger = None
+syntax_tagger = SyntaxTagger()
 
 
 def load_default_ner_tagger():
@@ -117,6 +119,8 @@ class Text(dict):
             Tagger for synsets and relations.
         text_cleaner: estnltk.textcleaner.TextCleaner
             TextCleaner class.
+        syntax_tagger: estnltk.syntax.tagger.SyntaxTagger
+            Kaili's and Tiina's syntax tagger wrapper.
         """
         encoding = kwargs.get('encoding', 'utf-8')
         if isinstance(text_or_instance, dict):
@@ -148,6 +152,7 @@ class Text(dict):
             'wordnet_tagger', None # lazy loading
         )
         self.__text_cleaner = kwargs.get('text_cleaner', textcleaner)
+        self.__syntax_tagger = kwargs.get('syntax_tagger', syntax_tagger)
 
     def get_kwargs(self):
         """Get the keyword arguments that were passed to the :py:class:`~estnltk.text.Text` when it was constructed."""
@@ -160,6 +165,9 @@ class Text(dict):
         if layer == ANALYSIS:
             if WORDS in self and len(self[WORDS]) > 0:
                 return ANALYSIS in self[WORDS][0]
+        elif layer == SYNTAX:
+            if WORDS in self and len(self[WORDS]) > 0:
+                return SYNTAX in self[WORDS][0]
         elif layer == LABEL:
             if WORDS in self and len(self[WORDS]) > 0:
                 return LABEL in self[WORDS][0]
@@ -332,6 +340,7 @@ class Text(dict):
             SENTENCES: self.tokenize_sentences,
             WORDS: self.tokenize_words,
             ANALYSIS: self.tag_analysis,
+            SYNTAX: self.tag_syntax,
             TIMEXES: self.tag_timexes,
             NAMED_ENTITIES: self.tag_named_entities,
             CLAUSE_ANNOTATION: self.tag_clause_annotations,
@@ -647,6 +656,23 @@ class Text(dict):
                     desc = ' '.join(toks)
             descs.append(desc)
         return descs
+
+    def tag_syntax(self):
+        """Tag syntax attribute in the ``words`` layer."""
+        if not self.is_tagged(ANALYSIS):
+            self.tag_analysis()
+        return self.__syntax_tagger.tag_text(self)
+
+    @cached_property
+    def syntax_lists(self):
+        """Return syntax annotation variants for every word."""
+        if not self.is_tagged(SYNTAX):
+            self.tag_syntax()
+        tokens = []
+        for w in self[WORDS]:
+            wl = [variant[SYNTAX] for variant in w[SYNTAX]]
+            tokens.append(wl)
+        return tokens
 
     def tag_labels(self):
         """Tag named entity labels in the ``words`` layer."""

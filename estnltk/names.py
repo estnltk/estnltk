@@ -2,7 +2,7 @@
 """Module that defines the attribute names and constants used througout the library
 and in corpora."""
 
-from __future__ import unicode_literals, print_function
+from __future__ import unicode_literals, print_function, absolute_import
 
 # commonly required attributes
 START = 'start'
@@ -37,6 +37,10 @@ FORM = 'form'
 SPELLING = 'spelling'
 SUGGESTIONS = 'suggestions'
 
+# syntax related
+SYNTAX = 'syntax'
+LINK = 'link'
+INTERMEDIATE = 'intermediate'
 
 # clause segmenter related
 CLAUSE_ANNOTATION = 'clause_annotation'

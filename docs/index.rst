@@ -13,6 +13,7 @@ University of Tartu has a course that covers many aspects of the library: https:
 .. _Eesti Keeletehnoloogia Riiklik Programm: https://www.keeletehnoloogia.ee/
 .. _EKT57: https://www.keeletehnoloogia.ee/et/ekt-projektid/estnltk-pythoni-teegid-eestikeelsete-vabatektside-lihtsamaks-tootlemiseks
 .. _GNU GPL version 2: http://www.gnu.org/licenses/gpl-2.0.html
+
 Quick example
 =============
 
@@ -121,6 +122,7 @@ Tutorials
    tutorials/text
    tutorials/disambiguation
    tutorials/ner
+   tutorials/dependency
    tutorials/prettyprinter
    tutorials/grammar
    tutorials/wikipedia
@@ -166,4 +168,3 @@ Authors
    :maxdepth: 1
 
    authors
-
