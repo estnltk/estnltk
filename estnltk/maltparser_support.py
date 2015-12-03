@@ -5,10 +5,10 @@
 #
 
 from __future__ import unicode_literals, print_function
-from estnltk.names import *
-from estnltk.text import Text
+from .names import *
+from .text import Text
 
-from estnltk.core import PACKAGE_PATH
+from .core import PACKAGE_PATH
 
 import re, json
 import os, os.path
@@ -19,9 +19,6 @@ import subprocess
 MALTPARSER_PATH  = os.path.join(PACKAGE_PATH, 'java-res', 'maltparser')
 MALTPARSER_MODEL = 'estnltkBasedDep'
 MALTPARSER_JAR   = 'maltparser-1.8.jar'
-
-SYNTAX_LABEL = 's_label'
-SYNTAX_HEAD  = 's_head'
 
 # =============================================================================
 # =============================================================================
@@ -183,8 +180,7 @@ def _executeMaltparser( input_string, maltparser_dir, maltparser_jar, model_name
     
     current_dir = os.getcwd()
     os.chdir(maltparser_dir)
-    #cmd = 'java -jar '+maltparser_jar+' -c '+model_name+' -i '+temp_input_file.name+' -o '+temp_output_file.name+' -m parse '
-    cmd = ['java', '-jar', os.path.join(MALTPARSER_PATH, maltparser_jar), \
+    cmd = ['java', '-jar', os.path.join(maltparser_dir, maltparser_jar), \
            '-c', model_name, \
            '-i', temp_input_file.name, \
            '-o', temp_output_file.name, \
@@ -398,12 +394,42 @@ class MaltParser:
 
 
     def parse_text( self, text, **kwargs ):
-        ''' Parse given text with Maltparser. 
+        ''' Parses given text with Maltparser. 
+        
+            As a result of parsing, attributes indicating the dependency tree 
+            structure will be attached to each word token in text: 
+            the attribute SYNTAX_LABEL is the index of the token in the 
+            tree, and 
+            the attribute SYNTAX_HEAD is the index of token's parent in the 
+            tree;
+            
+            Parameters
+            -----------
+            text : estnltk.text.Text
+               The input text that should be analysed for dependency relations;
+            
+            return_type : string
+               If return_type=="text" (Default), 
+                    returns the input Text object;
+               If return_type=="conll", 
+                    returns Maltparser's results as list of CONLL format strings, 
+                    each element in the list corresponding to one line in 
+                    MaltParser's output;
+               If return_type=="dep_graphs", 
+                    returns Maltparser's results as list of NLTK's DependencyGraph 
+                    objects (nltk.parse.dependencygraph.DependencyGraph);
+               Regardless the return type, words in the input Text will be 
+               augmented with syntactic dependency information;
+
         '''
-        return_conll = False
+        all_return_types = ["text", "conll", "dep_graphs"]
+        return_type      = all_return_types[0]
         for argName, argVal in kwargs.items():
-            if argName == 'return_conll':
-                return_conll = bool(argVal)
+            if argName == 'return_type':
+                if argVal.lower() in all_return_types:
+                    return_type = argVal.lower()
+                else:
+                    raise Exception(' Unexpected return type: ', argVal)
             else:
                 raise Exception(' Unsupported argument given: '+argName)
         # If text has not been morphologically analysed yet, add the 
@@ -422,9 +448,19 @@ class MaltParser:
         # obtained from MaltParser
         augmentTextWithCONLLstr( resultsConllStr, text )
         
-        if return_conll:
+        if return_type == "conll":
+            # Return CONLL
             return resultsConllStr
+        elif return_type == "dep_graphs":
+            # Return DependencyGraphs
+            from nltk.parse.dependencygraph import DependencyGraph
+            all_trees = []
+            for tree_str in ("\n".join(resultsConllStr)).split('\n\n'):
+                t = DependencyGraph(tree_str)
+                all_trees.append(t)
+            return all_trees
         else:
+            # Return Text
             return text
 
 

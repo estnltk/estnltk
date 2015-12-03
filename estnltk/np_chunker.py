@@ -13,8 +13,6 @@ from .text  import Text
 
 from .mw_verbs.utils import WordTemplate
 
-from .maltparser_support import SYNTAX_LABEL
-from .maltparser_support import SYNTAX_HEAD
 from .maltparser_support import MaltParser
 
 NP_LABEL = 'np_label'
@@ -73,7 +71,7 @@ class NounPhraseChunker:
             If True, all phrases exceeding the cutMaxThreshold will be 
             cut into single word phrases, consisting only of part-of-speech 
             categories 'S', 'Y', 'H';
-            (default: False)
+            (default: True)
 
         cutMaxThreshold: int
             Threshold indicating the maximum number of words allowed in a 
@@ -104,7 +102,7 @@ class NounPhraseChunker:
         # 1) Analyze text with Maltparser to obtain dependency syntactic relations
         #    (if required)
         if not textIsParsed:
-            self.maltparser.parse_text(text, return_conll=False)
+            self.maltparser.parse_text( text )
 
         # 2) Process text sentence by sentence
         for sentence in text.divide( layer=WORDS, by=SENTENCES ):

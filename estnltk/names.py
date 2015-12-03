@@ -41,6 +41,8 @@ SUGGESTIONS = 'suggestions'
 SYNTAX = 'syntax'
 LINK = 'link'
 INTERMEDIATE = 'intermediate'
+SYNTAX_LABEL = 's_label' # from dependency link: index of the current token in the syntactic tree
+SYNTAX_HEAD  = 's_head'  # from dependency link: index of current token's parent in the syntactic tree
 
 # clause segmenter related
 CLAUSE_ANNOTATION = 'clause_annotation'
