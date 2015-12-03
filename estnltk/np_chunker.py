@@ -797,7 +797,7 @@ class NounPhraseChunker:
             list of string
                 Returns a list of phrase texts;
         '''
-        phrases = self.extract_phrases_from_annotations(text)
+        phrases = self.get_phrases(text)
         texts = []
         for phrase in phrases:
             phrase_str = ' '.join([word[TEXT] for word in phrase])
