@@ -2,18 +2,17 @@
 from __future__ import unicode_literals, print_function, absolute_import
 
 import copy
+import elasticsearch
+import elasticsearch.helpers
 import itertools
 import json
 
-import elasticsearch
-import elasticsearch.helpers
-
+from .mapping import mapping
 from ..text import Text
 
 
 def create_index(index_name, **kwargs):
     """
-
     Parameters
     ----------
     index_name : str
@@ -25,9 +24,7 @@ def create_index(index_name, **kwargs):
     -------
 
     Index
-
     """
-    mapping = json.load(open('mapping.json'))
     es = elasticsearch.Elasticsearch(**kwargs)
     es.indices.create(index=index_name, body=mapping)
     return connect(index_name, **kwargs)
@@ -54,14 +51,13 @@ def connect(index_name, **kwargs):
 
 
 class Index:
-    def __init__(self, client, index_name):
+    def __init__(self, index_name):
         """
 
         Parameters
         ----------
-        client : elasticsearch.Elasticsearch
+        client : Elasticsearch
         index_name : str
-
         """
         self.index_name = index_name
         self.client = client
@@ -70,16 +66,6 @@ class Index:
     def sentences(self, exclude_ids=None, query=None, **kwargs):
         if exclude_ids is None:
             for document in elasticsearch.helpers.scan(self.client, query=query, doc_type='sentence', **kwargs):
-                # text = Text(document['estnltk_text'])
-                # text.__db_meta = document['meta']
-                # yield text
-
-                # for i in index.sentences(query={
-                #
-                #         'fields':['estnltk_text_object']
-                #     }):
-                #     print(i)
-
                 yield Text(json.loads(document['fields']['estnltk_text_object'][0]))
         else:
             raise NotImplementedError('ID exclusion is not implemented')
@@ -125,12 +111,27 @@ class Index:
             }
             yield json.dumps(sentence)
 
-    def save(self, document):
+    def save(self, document, meta=None):
         if getattr(document, '__db_meta', None):
             # we should overwrite a previous object
-            raise NotImplementedError
+            raise NotImplementedError('Changing objects in the database has not been implemented.')
         else:
             # we should create a new object
-            document_in_es = self.client.index(self.index_name, 'document', {})
+            document_in_es = self.client.index(self.index_name, 'document', {} if meta is None else meta)
             for sent in self._get_indexable_sentences(document):
-                self.client.index(self.index_name, 'sentence', sent, parent=document_in_es['_id'])
+                self.client.index(self.index_name,
+                    'sentence',
+                    sent,
+                    parent=document_in_es['_id'])
+
+    def get_iter(self, document, meta=None):
+        if getattr(document, '__db_meta', None):
+            # we should overwrite a previous object
+            raise NotImplementedError('Changing objects in the database has not been implemented.')
+        else:
+            # we should create a new
+            yield ('document', {} if meta is None else meta)
+            for sent in self._get_indexable_sentences(document):
+                yield ('sentence',
+                       sent
+                       )

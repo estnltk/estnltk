@@ -1,7 +1,9 @@
 # -*- coding:utf-8 -*-
+from __future__ import print_function, absolute_import
 
-from estnltk import Text
-from estnltk.database import elastic
+import elastic
+
+from ..text import Text
 
 try:
     index = elastic.create_index('example_index')
