@@ -345,6 +345,7 @@ class Text(dict):
             NAMED_ENTITIES: self.tag_named_entities,
             CLAUSE_ANNOTATION: self.tag_clause_annotations,
             CLAUSES: self.tag_clauses,
+            SYNTAX: self.tag_syntax,
             WORDNET: self.tag_wordnet
         }
 
