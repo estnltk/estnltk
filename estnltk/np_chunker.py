@@ -12,10 +12,8 @@ from .names import *
 from .text  import Text
 
 from .mw_verbs.utils import WordTemplate
-
 from .maltparser_support import MaltParser
 
-NP_LABEL = 'np_label'
 
 # =============================================================================
 #   The Main Class
@@ -50,8 +48,13 @@ class NounPhraseChunker:
     def analyze_text( self, text, **kwargs ):
         ''' 
         Analyzes given Text for noun phrase chunks. 
-            
-        Note that in order to obtain a decent performance, it is advisable to analyse 
+        
+         As result of analysis, each word token in Text will be annotated for its 
+        place in noun phrases: token's attribute NP_LABEL will indicate whether it 
+        is at the beginning of a phrase ('B'), inside a phrase ('I') or does not 
+        belong to a phrase phrase ('O').
+        
+         Note that in order to obtain a decent performance, it is advisable to analyse 
         texts at their full extent with this method. Splitting a text into smaller 
         chunks, such as clauses or sentences, and analysing one-small-chunk-at-time 
         may be rather demanding in terms of performance, because a file-based 
@@ -84,8 +87,22 @@ class NounPhraseChunker:
             the default threshold is set to 3;
             (default value: 3)
         
+        return_type: string
+            If return_type=="text" (Default), 
+                returns the input Text object;
+            If return_type=="tokens", 
+                returns a list of phrases, where each phrase is a list of
+                tokens, and each token is a dictionary representing word;
+            If return_type=="strings", 
+                returns a list of text strings, where each string is phrase's 
+                text;
+            Regardless the return type, words in the input Text will be augmented 
+            with NP_LABEL attributes;
+        
         '''
         # 0) Parse given arguments
+        all_return_types = ["text", "tokens", "strings"]
+        return_type     = all_return_types[0]
         textIsParsed    = False
         cutPhrases      = True
         cutMaxThreshold = 3
@@ -96,6 +113,11 @@ class NounPhraseChunker:
                 cutPhrases = bool(argVal)
             elif argName == 'cutMaxThreshold':
                 cutMaxThreshold = int(argVal)
+            elif argName == 'return_type':
+                if argVal.lower() in all_return_types:
+                    return_type = argVal.lower()
+                else:
+                    raise Exception(' Unexpected return type: ', argVal)
             else:
                 raise Exception(' Unsupported argument given: '+argName)
 
@@ -106,10 +128,21 @@ class NounPhraseChunker:
 
         # 2) Process text sentence by sentence
         for sentence in text.divide( layer=WORDS, by=SENTENCES ):
-            npLabels = self.find_phrases( sentence, cutPhrases, cutMaxThreshold )
+            npLabels = self._find_phrases( sentence, cutPhrases, cutMaxThreshold )
             for i in range(len(sentence)):
                 word = sentence[i]
+                # Change  from  B-I-''  to  B-I-O
+                if npLabels[i] not in ['B', 'I']:
+                    npLabels[i] = 'O'
                 word[NP_LABEL] = npLabels[i]
+
+        # 3) Return input text, phrases or phrase texts
+        if return_type == "text":
+            return text
+        elif return_type == "tokens":
+            return self.get_phrases(text)
+        else:
+            return self.get_phrase_texts(text)
 
 
     # =============================================================
@@ -195,7 +228,7 @@ class NounPhraseChunker:
     #   Detect NP phrases based on the local dependency relations
     # =============================================================
     
-    def find_phrases( self, sentence, cutPhrases, cutMaxThreshold ):
+    def _find_phrases( self, sentence, cutPhrases, cutMaxThreshold ):
         ''' Detects NP phrases by relying on local dependency relations:
             1) Identifies potential heads of NP phrases;
             2) Identifies consecutive words that can form an NP phrase:
@@ -547,14 +580,14 @@ class NounPhraseChunker:
         #
         #   Viimane faas: rakendame nn j2relparandusi, proovime pahna v2lja visata ...
         #
-        self.applyPostFixes( sentence, NPlabels, cutPhrases, cutMaxThreshold )
+        self._apply_post_fixes( sentence, NPlabels, cutPhrases, cutMaxThreshold )
         return NPlabels
 
 
     _verbEi  = WordTemplate({ROOT:'^ei$',POSTAG:'[DV]'})  
     _verbOle = WordTemplate({ROOT:'^ole$',POSTAG:'V'})
 
-    def applyPostFixes( self, sentence, NPlabels, cutPhrases, cutMaxThreshold ):
+    def _apply_post_fixes( self, sentence, NPlabels, cutPhrases, cutMaxThreshold ):
         '''  Fraasituvastaja j2relparandused:
             *) Tekstis6renduste eemaldamine (s6rendatud tekst ei pruugi olla 
                 fraas, v6ib olla nt terve lause);
@@ -704,6 +737,73 @@ class NounPhraseChunker:
 
 
 
+    # ===========================================================
+    #   Extracting phrases from annotations
+    # ===========================================================
+
+    def get_phrases(self, text):
+        ''' Given a Text or a list of words annotated for NP chunks, extracts 
+            phrases and returns as a list of phrases, where each phrase is a 
+            list of word tokens belonging to the phrase;
+            
+            Parameters
+            ----------
+            text:  estnltk.text.Text or a list of word tokens
+                The input text, which is annotated for NP chunks, or a list 
+                consecutive words, where each word is annotated for NP chunks.
+                It is assumed that the annotation has been performed via
+                method NounPhraseChunker.analyze_text();
+                The method attempts to automatically determine the type of the 
+                input;
+                
+            Returns
+            -------
+            list of (list of tokens)
+                List of phrases, where each phrase is a list of word tokens 
+                belonging to the phrase;
+        '''
+        # 1) Take different inputs to common list of words format:
+        input_words = []
+        if isinstance(text, Text):
+            # input is Text
+            input_words = text.words
+        elif isinstance(text, list) and len(text)>0 and isinstance(text[0], dict) and \
+             TEXT in text[0] and NP_LABEL in text[0]:
+            # input is a list of words
+            input_words = text
+        elif text:
+            raise Exception('Unexpected input text:', text)
+        # 2) Extract phrases from input words:
+        phrases = []
+        for word in input_words:
+            if NP_LABEL not in word:
+                raise Exception('Attribute '+str(NP_LABEL)+' missing from token: ', word)
+            if word[NP_LABEL] == 'B':
+                phrases.append([])
+            if word[NP_LABEL] in ['B', 'I']:
+                phrases[-1].append( word )
+        return phrases
+
+
+    def get_phrase_texts(self, text):
+        ''' Given a Text annotated for NP chunks, extracts phrases and 
+            returns as a list of phrase texts;
+            
+            Assumes that the input is same as the input acceptable for 
+            the method NounPhraseChunker.get_phrases();
+            
+            Returns
+            -------
+            list of string
+                Returns a list of phrase texts;
+        '''
+        phrases = self.extract_phrases_from_annotations(text)
+        texts = []
+        for phrase in phrases:
+            phrase_str = ' '.join([word[TEXT] for word in phrase])
+            texts.append( phrase_str )
+        return texts
+
 
     # ===========================================================
     #   Debugging stuff
@@ -740,3 +840,4 @@ class NounPhraseChunker:
             text = text+' '+post
             return text
         return ''
+
