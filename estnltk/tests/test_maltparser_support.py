@@ -43,13 +43,13 @@ class MaltParserSupportTest(unittest.TestCase):
         
     def test_maltparser_dep_graph1(self):
         mparser = MaltParser()
-        text = Text('Suur hunt tegi kurja häält. Tubli väike jänes jooksis peitu.')
+        text = Text('Kohtusid suur hunt ja kuri lammas. Auhinnaks oli ilus valge tekk.')
         text.tag_analysis()
         dep_graphs = mparser.parse_text(text, return_type="dep_graphs")
         
         treeStr = str(dep_graphs[0]._tree(0)).strip()
-        self.assertEqual(treeStr, '(None (tegi (hunt Suur) (häält kurja .)))')
+        self.assertEqual(treeStr, '(None (Kohtusid (hunt suur) (lammas ja kuri .)))')
         
         treeStr = str(dep_graphs[1]._tree(0)).strip()
-        self.assertEqual(treeStr, '(None (jooksis (jänes Tubli väike) (peitu .)))')
+        self.assertEqual(treeStr, '(None (oli Auhinnaks (tekk ilus valge .)))')
 

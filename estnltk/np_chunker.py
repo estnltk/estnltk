@@ -52,7 +52,7 @@ class NounPhraseChunker:
          As result of analysis, each word token in Text will be annotated for its 
         place in noun phrases: token's attribute NP_LABEL will indicate whether it 
         is at the beginning of a phrase ('B'), inside a phrase ('I') or does not 
-        belong to a phrase phrase ('O').
+        belong to any phrase ('O').
         
          Note that in order to obtain a decent performance, it is advisable to analyse 
         texts at their full extent with this method. Splitting a text into smaller 
@@ -777,7 +777,7 @@ class NounPhraseChunker:
         phrases = []
         for word in input_words:
             if NP_LABEL not in word:
-                raise Exception('Attribute '+str(NP_LABEL)+' missing from token: ', word)
+                raise Exception('Attribute "'+str(NP_LABEL)+'" missing from token: ', word)
             if word[NP_LABEL] == 'B':
                 phrases.append([])
             if word[NP_LABEL] in ['B', 'I']:
