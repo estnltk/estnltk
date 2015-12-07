@@ -4,6 +4,9 @@ Experimental NP chunking
 
 Estnltk includes an experimental noun phrase chunker, which can be used to detect non-overlapping noun phrases from the text.
 
+Basic usage
+=============
+
 The class :py:class:`~estnltk.np_chunker.NounPhraseChunker` provides method :py:meth:`~estnltk.np_chunker.NounPhraseChunker.analyze_text`, which takes a :py:class:`~estnltk.text.Text` object as an input, and provides a tagging of phrases in a BIO annotation scheme::
 
     from estnltk import Text
@@ -59,4 +62,33 @@ The above example produces following output::
 
     ['Autojuhi lapitekk', 'linna koduleheküljel', 'paljude kodanike tähelepanu']
 
+
+Cutting phrases
+=================
+
+By default, the chunker does not allow tagging phrases longer than 3 words, as the quality of tagging longer phrases is likely suboptimal, and the coverage of these phrases is also likely  low [#]_ .
+So, phrases longer than 3 words will be cut into one word phrases.
+This default setting can be turned off by specifying ``cutPhrases=False`` as an input argument for the method :py:meth:`~estnltk.np_chunker.NounPhraseChunker.analyze_text`::
+
+    from estnltk import Text
+    from estnltk.np_chunker import NounPhraseChunker
+
+    # initialise the chunker
+    chunker = NounPhraseChunker()
+
+    text = Text('Kõige väiksemate tassidega serviis toodi kusagilt vanast tolmusest kapist välja.')
     
+    # chunk the input text while allowing phrases longer than 3 words
+    phrase_strings = chunker.analyze_text( text, cutPhrases=False, return_type="strings" )
+    # output phrases
+    print( phrase_strings )
+
+The output is following::
+
+    ['Kõige väiksemate tassidega serviis', 'vanast tolmusest kapist']
+
+
+
+.. rubric:: Notes
+
+.. [#] An automatic analysis of the Balanced Corpus of Estonian suggests that only 3% of all NP chunks are longer than 3 words.
