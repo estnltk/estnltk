@@ -1,14 +1,14 @@
-Using Maltparser
+Using MaltParser
 ==================================
 
-Estnltk provides a wrapper for Maltparser `maltparser link`_, which has been trained [#]_ for annotating syntactic dependency relations between words.
+Estnltk provides a wrapper for MaltParser `maltparser link`_, which has been trained [#]_ for annotating syntactic dependency relations.
 
 .. _maltparser link: http://www.maltparser.org/
 
 Basic usage
 =============
 
-The class :py:class:`~estnltk.maltparser_support.MaltParser` provides method :py:meth:`~estnltk.maltparser_support.MaltParser.parse_text`, which takes a :py:class:`~estnltk.text.Text` object as an input, parses the text with Maltparser, and assigns dependency links to all the words in the text::
+The class :py:class:`~estnltk.maltparser_support.MaltParser` provides method :py:meth:`~estnltk.maltparser_support.MaltParser.parse_text`, which takes a :py:class:`~estnltk.text.Text` object as an input, parses the text with MaltParser, and assigns dependency links to all the words in the text::
 
     from estnltk import Text
     from estnltk.maltparser_support import MaltParser
@@ -70,8 +70,9 @@ The above example will output a parenthesized representation of the dependency t
       (murdvargaga (juhtum kummaline) ,)
       (kutsus kes endale ise (politsei .)))
 
+Regardless the ``return_type``, words in the input text will always be annotated for dependency links (attributes ``SYNTAX_LABEL`` and ``SYNTAX_HEAD``).
 
 
 .. rubric:: Notes
 
-.. [#] Currently, a non-optimized version of the system is provided, which achieves the accuracy (UAS) of 78%. It is likely that the parser needs to be optimized for more specialized goals, see http://lepo.it.da.ut.ee/~kaili/Syntax/maltparser.html for details about training and optimizing the parser on Estonian data.
+.. [#] Currently, a non-optimized version of the system is provided, which achieves accuracy (UAS) of 78%. It is likely that the parser needs to be optimized for more specialized goals, see http://lepo.it.da.ut.ee/~kaili/Syntax/maltparser.html for details about training and optimizing the parser on Estonian data.

@@ -47,9 +47,9 @@ class MaltParserSupportTest(unittest.TestCase):
         text.tag_analysis()
         dep_graphs = mparser.parse_text(text, return_type="dep_graphs")
         
-        treeStr = str(dep_graphs[0]._tree(0)).strip()
-        self.assertEqual(treeStr, '(None (Kohtusid (hunt suur) (lammas ja kuri .)))')
+        treeStr = str(dep_graphs[0].tree()).strip()
+        self.assertEqual(treeStr, '(Kohtusid (hunt suur) (lammas ja kuri .))')
         
-        treeStr = str(dep_graphs[1]._tree(0)).strip()
-        self.assertEqual(treeStr, '(None (oli Auhinnaks (tekk ilus valge .)))')
+        treeStr = str(dep_graphs[1].tree()).strip()
+        self.assertEqual(treeStr, '(oli Auhinnaks (tekk ilus valge .))')
 
