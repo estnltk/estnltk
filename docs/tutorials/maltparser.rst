@@ -1,5 +1,7 @@
-Using MaltParser
 ==================================
+MaltParser support
+==================================
+.. highlight:: python
 
 Estnltk provides a wrapper for MaltParser `maltparser link`_, which has been trained [#]_ for annotating syntactic dependency relations.
 
