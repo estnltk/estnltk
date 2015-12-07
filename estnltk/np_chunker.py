@@ -230,14 +230,18 @@ class NounPhraseChunker:
     
     def _find_phrases( self, sentence, cutPhrases, cutMaxThreshold ):
         ''' Detects NP phrases by relying on local dependency relations:
+        
             1) Identifies potential heads of NP phrases;
             2) Identifies consecutive words that can form an NP phrase:
                2.1) potential attribute + potential head;
                2.2) quantity word or phrase + nominal;
             3) Identifies non-consecutive words (word1 __ wordN) that
-               potentially form a complete phrase (including the gap
-               part);
+               can form a complete phrase (including the gap part);
             4) Applies post-corrections;
+            
+            Returns a list of tags, which contains a B-I-O style phrase 
+            tag for each word in the sentence ('B'-begins phrase, 'I'-
+            inside phrase, or ''-not in phrase);
         '''
         NPattribPos = [ 'Y', 'S', 'A', 'C', 'G', 'H', 'N', 'O', 'K', 'D', 'P' ]
         NPheadPos   = [ 'S', 'Y', 'H' ]
