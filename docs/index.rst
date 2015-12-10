@@ -123,6 +123,8 @@ Tutorials
    tutorials/disambiguation
    tutorials/ner
    tutorials/dependency
+   tutorials/maltparser
+   tutorials/np_chunker
    tutorials/prettyprinter
    tutorials/grammar
    tutorials/wikipedia

@@ -62,6 +62,37 @@ The above example produces following output::
 
     ['Autojuhi lapitekk', 'linna koduleheküljel', 'paljude kodanike tähelepanu']
 
+If ``return_type="tokens"`` is set, the chunker returns a list of lists of tokens, where each token is given as a dictonary containing analyses of the word::
+
+    from estnltk import Text
+    from estnltk.np_chunker import NounPhraseChunker
+    from estnltk.names import NP_LABEL, TEXT, ANALYSIS, LEMMA
+
+    # initialise the chunker
+    chunker = NounPhraseChunker()
+
+    text = Text('Autojuhi lapitekk pälvis linna koduleheküljel paljude kodanike tähelepanu.')
+    # chunk the input text
+    phrases = chunker.analyze_text( text, return_type="tokens" )
+    # output phrases word by word
+    for phrase in phrases:
+        print()
+        for token in phrase:
+            # output text, first lemma, and NP label
+            print( token[TEXT], token[ANALYSIS][0][LEMMA], token[NP_LABEL] )
+
+The output::
+
+    Autojuhi autojuht B
+    lapitekk lapitekk I
+    
+    linna linn B
+    koduleheküljel kodulehekülg I
+    
+    paljude palju B
+    kodanike kodanik I
+    tähelepanu tähelepanu I
+
 
 Cutting phrases
 =================

@@ -26,8 +26,8 @@ The class :py:class:`~estnltk.maltparser_support.MaltParser` provides method :py
     # output dependency relations for each word
     for word in text.words:
         print( word[TEXT]+'  '+str(word[SYNTAX_LABEL])+' -> '+str(word[SYNTAX_HEAD]) )
-    
-The above example adds attributes ``SYNTAX_LABEL`` and ``SYNTAX_HEAD`` to every word in the text: the attribute ``SYNTAX_LABEL`` indicates the index of the word in the syntactic tree, and the attribute ``SYNTAX_HEAD`` indicates the index of word's governor in the syntactic tree. Running the above example produces following output::
+
+As the result of parsing, attributes ``SYNTAX_LABEL`` and ``SYNTAX_HEAD`` are added to every word in the text: the attribute ``SYNTAX_LABEL`` indicates the index of the word in the syntactic tree, and the attribute ``SYNTAX_HEAD`` indicates the index of word's governor in the syntactic tree. Running the above example produces following output::
 
     Saksamaal  1 -> 2
     Bonnis  2 -> 3
