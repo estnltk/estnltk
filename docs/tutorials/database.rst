@@ -1,42 +1,6 @@
 .. _database_tutorial:
 
-=====================================================
-Handling large text collections with Elastic database
-=====================================================
-
-Estnltk has database module that simplifies working with large corpora.
-Check out :ref:`wikipedia_tutorial`, :ref:`tei_tutorial` for more information
-about getting started with larger text document collections.
-
-Estnltk database integrates with `Elastic`_, which is a distributed RESTful schema-free
-JSON database, based on `Apache Lucene`_.
-See this `guide`_ for installation.
-
-.. _Elastic: https://www.elastic.co/downloads/elasticsearch
-.. _Apache Lucene: https://lucene.apache.org/
-.. _guide: https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html
-
-When the installation is complete you can run Elastic (from Elastic folder) with the command::
-
-    ./bin/elasticsearch
-
-Elastic has a visualization plugin that can be accessed through a browser of your choosing.
-To do this you need to write  `http://localhost:9200/_plugin/head/`_ to the URL bar in your browser.
-
-.. _http://localhost:9200/_plugin/head/: http://localhost:9200/_plugin/head/
-
-For simple testing purposes one can increase the memory by using --ES_MAX_MEM switch.
-Example of using the memory switch::
-
-    ./bin/elasticsearch --ES_MAX_MEM=4g
-
-.. hint::
-  If you have trouble running Elastic, please refer to `Elastic guide`_.
-  Do your research before asking us. Estnltk has only a very thin wrapper around the `Elastic Python API`_ .
-
-.. _Elastic guide: https://www.elastic.co/guide/index.html
-.. _Elastic Python API: https://elasticsearch-py.readthedocs.org/en/master/
-
+Note! The interface described here should be considered deprecated. See the code and documentation for estnltk.database.elastic.
 
 Estnltk Elastic wrapper
 =======================

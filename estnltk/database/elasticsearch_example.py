@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 from __future__ import print_function, absolute_import
 
-import elastic
+from estnltk import database
 
 from ..text import Text
 

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
+__all__ = ['Index', 'create_index', 'connect', 'query_grammar']
+
 import copy
 import elasticsearch
 import elasticsearch.helpers
@@ -8,7 +10,7 @@ import itertools
 import json
 
 from .mapping import mapping
-from ..text import Text
+from estnltk.text import Text
 
 
 def create_index(index_name, **kwargs):
@@ -51,7 +53,7 @@ def connect(index_name, **kwargs):
 
 
 class Index:
-    def __init__(self, index_name):
+    def __init__(self, client, index_name):
         """
 
         Parameters
@@ -63,10 +65,26 @@ class Index:
         self.client = client
         assert client.indices.exists(index=index_name), 'Index "{}" does not exist'.format(index_name)
 
-    def sentences(self, exclude_ids=None, query=None, **kwargs):
+    def sentences(self, exclude_ids=None, query=None, return_estnltk_object=True, **kwargs):
+        if query is None:
+            query = {}
+
+        if return_estnltk_object:
+            if query.get('fields', None) is None:
+                query['fields'] = ['estnltk_text_object']
+            else:
+                print(query)
+                if 'estnltk_text_object' not in query['fields']:
+                    raise AssertionError('Query contained the "fields" parameter without the "estnltk_text_object" argument'
+                                         'Consider setting the "return_estnltk_object" parameter to False to disable respose handling')
+                pass
+
         if exclude_ids is None:
             for document in elasticsearch.helpers.scan(self.client, query=query, doc_type='sentence', **kwargs):
-                yield Text(json.loads(document['fields']['estnltk_text_object'][0]))
+                if return_estnltk_object:
+                    yield Text(json.loads(document['fields']['estnltk_text_object'][0]))
+                else:
+                    yield json.loads(document)
         else:
             raise NotImplementedError('ID exclusion is not implemented')
 
