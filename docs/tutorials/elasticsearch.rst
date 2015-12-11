@@ -71,14 +71,14 @@ Iterating over query results
 
 To iterate over query results, pass the elasticsearch query to the sentences generator as the "query" parameter. The query should be a dictionary as expected by elasticsearch python API. It will be transformed into json before being transmitted.
 
- To simplify writing some queries, see the query_helper module. It defines the Word class that maps well to estnltk morphological analysis results.
- The general workflow is:
+To simplify writing some queries, see the query_helper module. It defines the Word class that maps well to estnltk morphological analysis results.
+The general workflow is:
 
- 1. Define words to match with the Word class.
- 2. Combine them with boolean operators "&" and "|"
- 3. Wrap them in a Grammar object
- 4. Get the query via the Grammar.query() method.
- 5. Annotate the results with the Grammar.annotate() method that creates a layer that marks the matching words.
+1. Define words to match with the Word class.
+2. Combine them with boolean operators "&" and "|"
+3. Wrap them in a Grammar object
+4. Get the query via the Grammar.query() method.
+5. Annotate the results with the Grammar.annotate() method that creates a layer that marks the matching words.
 
 For example::
 
