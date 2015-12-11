@@ -129,7 +129,7 @@ Tutorials
    tutorials/grammar
    tutorials/wikipedia
    tutorials/tei
-   tutorials/database
+   tutorials/elasticsearch
    tutorials/devel
    tutorials/morf_tables
 

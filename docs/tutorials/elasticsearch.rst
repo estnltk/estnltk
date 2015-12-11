@@ -31,7 +31,7 @@ If you have trouble running Elastic, please refer to `Elastic guide`_.
 Estnltk Elastic wrapper
 =======================
 
-To access estnlkt elasticsearch wrappers::
+To access estnltk elasticsearch wrappers::
 
     from estnlkt.database.elastic import *
 
@@ -56,3 +56,34 @@ These methods return an index object that has two important methods: save and se
 
 To see the mapping and data structure in the elasticsearch index, refer to the mappings.py file.
 
+Iterating over corpora
+======================
+
+To iterate over the entire corpus use the Index.sentences generator. In the general case it is enough to do::
+
+    index = connect('demo_index')
+    for sentence in index.sentences():
+        print(index)
+
+
+Iterating over query results
+============================
+
+To iterate over query results, pass the elasticsearch query to the sentences generator as the "query" parameter. The query should be a dictionary as expected by elasticsearch python API. It will be transformed into json before being transmitted.
+
+ To simplify writing some queries, see the query_helper module. It defines the Word class that maps well to estnltk morphological analysis results.
+ The general workflow is:
+
+ 1. Define words to match with the Word class.
+ 2. Combine them with boolean operators "&" and "|"
+ 3. Wrap them in a Grammar object
+ 4. Get the query via the Grammar.query() method.
+ 5. Annotate the results with the Grammar.annotate() method that creates a layer that marks the matching words.
+
+For example::
+
+    grammar = Grammar(Word(lemma='karu') & Word(lemma='jahimees') & Word(partofspeech='V'))
+    for sentence in index.sentences(query=grammar.query()):
+        grammar.annotate(sentence, 'result')
+
+The results can be visualised with the PrettyPrinter class or worked on using any other standard tools that work on estnltk layers.
