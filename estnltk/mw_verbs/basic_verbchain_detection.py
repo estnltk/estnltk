@@ -32,11 +32,19 @@ _breakerAgaKuidVaid  = WordTemplate({ROOT:'^(aga|kuid|vaid)$',POSTAG:'[DJ]'})
 _breakerKomaLopus    = WordTemplate({TEXT:'^.*,$'})
 _breakerPunktuats    = WordTemplate({TEXT:'^(\.\.\.|:|;|-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015)+$'})
 
-def _isSeparatedByPossibleClauseBreakers( tokens, wordID1, wordID2, onlyPunctForbidden = False ):
+def _isSeparatedByPossibleClauseBreakers( tokens, wordID1, wordID2, punctForbidden = True, \
+                                                                    commaForbidden = True, \
+                                                                    conjWordsForbidden = True ):
     '''
          Teeb kindlaks, kas j2rjendi tokens s6naindeksite vahemikus [wordID1, wordID2) (vahemiku 
-        algus on inklusiivne) leidub sides6nu (ja/ning/ega/v6i), punktuatsiooni (koma, sidekriipsud, 
-        koolon, kolm j2rjestikkust punkti) v6i adverbe-sidendeid aga/kuid/vaid;
+        algus on inklusiivne) leidub sides6nu (ja/ning/ega/v6i), punktuatsiooni (koma, 
+        sidekriipsud, koolon, kolm j2rjestikkust punkti) v6i adverbe-sidendeid aga/kuid/vaid;
+         Lippudega saab kontrolli l6dvendada:
+          *) punctForbidden=False lylitab v2lja punktuatsiooni ( kirjavahem2rgid v.a koma ) 
+             kontrolli;
+          *) commaForbidden=False lylitab v2lja koma kontrolli ( ei puuduta teisi kirjavahem2rke ) 
+             kontrolli;
+          *) conjWordsForbidden=False lylitab v2lja sides6nade ja adverb-sidendite kontrolli;
          Tagastab True, kui leidub kasv6i yks eelnimetatud juhtudest, vastasel juhul False;
     '''
     global _breakerJaNingEgaVoi, _breakerAgaKuidVaid, _breakerKomaLopus, _breakerPunktuats
@@ -50,13 +58,13 @@ def _isSeparatedByPossibleClauseBreakers( tokens, wordID1, wordID2, onlyPunctFor
         if token[WORD_ID] >= maxWID:
             insideCheckArea = False
         if insideCheckArea:
-            if onlyPunctForbidden and (_breakerKomaLopus.matches(token) or \
-               _breakerPunktuats.matches(token)):
-               return True
-            elif not onlyPunctForbidden and (_breakerAgaKuidVaid.matches(token) or \
-               _breakerJaNingEgaVoi.matches(token) or _breakerKomaLopus.matches(token) or \
-               _breakerPunktuats.matches(token)):
-               return True
+            if punctForbidden and _breakerPunktuats.matches(token):
+                return True
+            if commaForbidden and _breakerKomaLopus.matches(token):
+                return True
+            if conjWordsForbidden and (_breakerAgaKuidVaid.matches(token) or \
+               _breakerJaNingEgaVoi.matches(token)):
+                return True
     return False
 
 def _isClauseFinal( wordID, clauseTokens ):
@@ -644,7 +652,7 @@ def _extractBasicPredicateFromClause( clauseTokens, clauseID ):
                                 #        Mina olen_0 päritolult põhjaeestlane , 50 aastat Põhja-Eestis elanud_0 .
                                 #   J2tame sellistel puhkudel yhtse verbifraasina eraldamata ...
                                 #
-                                if not _isSeparatedByPossibleClauseBreakers( clauseTokens, tokenJson[WORD_ID], otherVerb[WORD_ID]):
+                                if not _isSeparatedByPossibleClauseBreakers( clauseTokens, tokenJson[WORD_ID], otherVerb[WORD_ID], True, True, True):
                                     matchobj = { PHRASE: [wid1, wid2], PATTERN: ["ole", "verb"] }
                                     matchobj[CLAUSE_IDX] = clauseID
                                     if verbOle.matches(otherVerb):
@@ -885,7 +893,7 @@ def _expandOlemaVerbChains( clauseTokens, clauseID, foundChains ):
                         #
                         if _isClauseFinal(tokenWID, clauseTokens ) and \
                            not _isSeparatedByPossibleClauseBreakers( clauseTokens, verbObj[PHRASE][-1], \
-                           tokenWID, False):
+                           tokenWID, True, True, True):
                            expansion = token
                            #   Veakoht: kui -mas j2rel on da/ma, pole kindel, et tegu otsese rektsiooniseosega:
                            #      Islamlannale on_0 harjumatu näha meest midagi maast korjamas_0 ,
@@ -912,7 +920,7 @@ def _expandOlemaVerbChains( clauseTokens, clauseID, foundChains ):
                         #
                         if _isClauseFinal(tokenWID, clauseTokens ) and \
                            not _isSeparatedByPossibleClauseBreakers( clauseTokens, verbObj[PHRASE][-1], \
-                           tokenWID, False):
+                           tokenWID, True, True, True):
                             expansion = token
                             break
                             #   Veakoht: kui vahel on 'ilma', siis see heuristik eksib t6en2oliselt:
@@ -1106,7 +1114,7 @@ def _expandSaamaWithTud( clauseTokens, clauseID, foundChains ):
                         token = clauseTokens[i]
                         tokenWID = token[WORD_ID]
                         if verbTud.matches(token) and _isClauseFinal(tokenWID, clauseTokens ) and \
-                           not _isSeparatedByPossibleClauseBreakers( clauseTokens, verbObj[PHRASE][-1], tokenWID, True):
+                           not _isSeparatedByPossibleClauseBreakers( clauseTokens, verbObj[PHRASE][-1], tokenWID, True, True, False):
                             expansion = token
                             break
                 elif lastIndex-1 > -1:
@@ -1123,7 +1131,9 @@ def _expandSaamaWithTud( clauseTokens, clauseID, foundChains ):
 
 
 
-def _expandVerbChainsBySubcat( clauseTokens, clauseID, foundChains, verbSubcat, skipQuestionable=False ):
+def _expandVerbChainsBySubcat( clauseTokens, clauseID, foundChains, verbSubcat, \
+                                                        skipQuestionable=False, \
+                                                        breakOnPunctuation=True ):
     ''' 
         Meetod, mis proovib laiendada (mitte-'olema') verbidega l6ppevaid predikaadifraase, 
         lisades nende lõppu rektsiooniseoste järgi uusi infiniitverbe, 
@@ -1190,7 +1200,7 @@ def _expandVerbChainsBySubcat( clauseTokens, clauseID, foundChains, verbSubcat, 
                         #  *) satume punktuatsioonile;
                         if tokenWID in annotatedWords:
                             break
-                        if _breakerPunktuats.matches(token):
+                        if breakOnPunctuation and _breakerPunktuats.matches(token):
                             break
                         #  Lisame kui:
                         #  *) satume konjunktsioonile;
@@ -1229,7 +1239,7 @@ def _expandVerbChainsBySubcat( clauseTokens, clauseID, foundChains, verbSubcat, 
                             #  *) satume s6nale, mis on k6ige esimesest fraasiliikmest tagapool kui 2 s6na;
                             if tokenWID in annotatedWords and tokenWID not in verbObj[PHRASE]:
                                 break
-                            if _breakerKomaLopus.matches(token) or _breakerPunktuats.matches(token):
+                            if _breakerKomaLopus.matches(token) or (breakOnPunctuation and _breakerPunktuats.matches(token)):
                                 break
                             if token[WORD_ID]+1 < minWid:
                                 break
@@ -1488,7 +1498,7 @@ def _extractEgaNegFromSent( sentTokens, clausesDict, foundChains ):
                         minWID = min(followingPos[PHRASE])
                         phraseTokens = [t for t in sentTokens if t[WORD_ID] in followingPos[PHRASE]]
                         if any( [verbEiJarel.matches( t ) for t in phraseTokens] ) and \
-                           not _isSeparatedByPossibleClauseBreakers( sentTokens, token[WORD_ID], minWID, True):
+                           not _isSeparatedByPossibleClauseBreakers( sentTokens, token[WORD_ID], minWID, True, True, False):
                             followingPos[PHRASE].insert(0, token[WORD_ID])
                             followingPos[PATTERN].insert(0, 'ega')
                             followingPos[POLARITY] = 'NEG'

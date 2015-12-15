@@ -5,6 +5,9 @@ import unittest
 
 from ..text import Text
 
+from ..core import VERB_CHAIN_RES_PATH
+from ..mw_verbs.verbchain_detector import VerbChainDetector
+
 
 class VerbchainTest(unittest.TestCase):
 
@@ -25,3 +28,12 @@ class VerbchainTest(unittest.TestCase):
         self.assertListEqual(foundChains[0]['roots'], ['ole'])
         self.assertListEqual(foundChains[1]['roots'], ['ei', 'saa', 'jätku'])
         
+    def test_verbchain_3(self):
+        text = Text('Londoni lend pidi täna hommikul kell 4:30 Tallinna saabuma.')
+        text.tag_clauses()
+        vc_detector = VerbChainDetector(resourcesPath=VERB_CHAIN_RES_PATH)
+        firstSentence = text.divide()[0]
+        chains = vc_detector.detectVerbChainsFromSent(firstSentence, breakOnPunctuation=True)
+        self.assertListEqual(chains[0]['roots'], ['pida'])
+        chains = vc_detector.detectVerbChainsFromSent(firstSentence)
+        self.assertListEqual(chains[0]['roots'], ['pida', 'saabu'])

@@ -3,10 +3,10 @@ Morphological disambiguation on a collection of documents
 =========================================================
 .. highlight:: python
 
-Estnltk does basic morphological disambiguation by using a probabilistic disambiguator which relies on the local (sentence) context. _[KA01]
+Estnltk does basic morphological disambiguation by using a probabilistic disambiguator which relies on the local (sentence) context. [KA01]_
 This works well enough for any type of texts: news articles, comments, mixed content etc.
 
-However, the quality of the disambiguation can be further improved if a broader context (e.g. the whole text, or a collection of texts) is considered in the process. If morphologically ambiguous words (for example: proper names) reoccur in other parts of the text or in other related texts, one can use the assumption "one lemma per discourse" (inspired by the observation "one sense per discourse" from Word Sense Disambiguation) and choose the right analysis based on the most frequently occurring lemma candidate. _[KA12]
+However, the quality of the disambiguation can be further improved if a broader context (e.g. the whole text, or a collection of texts) is considered in the process. If morphologically ambiguous words (for example: proper names) reoccur in other parts of the text or in other related texts, one can use the assumption "one lemma per discourse" (inspired by the observation "one sense per discourse" from Word Sense Disambiguation) and choose the right analysis based on the most frequently occurring lemma candidate. [KA12]_
 
 .. [KA01] Kaalep, Heiki-Jaan, and Vaino, Tarmo. "Complete morphological analysis in the linguist's toolbox." Congressus Nonus Internationalis Fenno-Ugristarum Pars V (2001): 9-16.
 .. [KA12] Kaalep, Heiki Jaan, Riin Kirt, and Kadri Muischnek. "A trivial method for choosing the right lemma." Baltic HLT. 2012.

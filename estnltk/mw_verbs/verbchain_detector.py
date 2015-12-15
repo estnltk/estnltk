@@ -471,13 +471,16 @@ class VerbChainDetector:
         expand2ndTime: boolean
             If True, regular verb chains (chains not ending with 'olema') are expanded twice.
             (default: False)
+        breakOnPunctuation: boolean
+            If True, expansion of regular verb chains will be broken in case of intervening punctuation.
+            (default: False)
         removeSingleAraEi: boolean
             if True, verb chains consisting of a single word, 'ära' or 'ei', will be removed.
             (default: True)
         removeOverlapping: boolean
             If True, overlapping verb chains will be removed.
             (default: True)
-        
+
         Returns
         -------
         list of dict
@@ -514,8 +517,9 @@ class VerbChainDetector:
         '''
         # 0) Parse given arguments
         expand2ndTime = False
-        removeOverlapping = True
-        removeSingleAraEi = True
+        removeOverlapping  = True
+        removeSingleAraEi  = True
+        breakOnPunctuation = False
         for argName, argVal in kwargs.items():
             if argName == 'expand2ndTime':
                 expand2ndTime = bool(argVal)
@@ -523,6 +527,8 @@ class VerbChainDetector:
                 removeOverlapping = bool(argVal)
             elif argName == 'removeSingleAraEi':
                 removeSingleAraEi = bool(argVal)
+            elif argName == 'breakOnPunctuation':
+                breakOnPunctuation = bool(argVal)
             else:
                 raise Exception(' Unsupported argument given: '+argName)
 
@@ -546,7 +552,7 @@ class VerbChainDetector:
             _expandOlemaVerbChains( clause, clauseID, allDetectedVerbChains )
             
             # 2.4) Expand non-olema verb chains inside the clause where possible (verb+verb chains)
-            _expandVerbChainsBySubcat( clause, clauseID, allDetectedVerbChains, self.verbInfSubcatLexicon, False)
+            _expandVerbChainsBySubcat( clause, clauseID, allDetectedVerbChains, self.verbInfSubcatLexicon, False, breakOnPunctuation)
 
             # 2.5) Determine for which verb chains the context should be clear
             #    (no additional verbs can be added to the phrase)
@@ -557,7 +563,7 @@ class VerbChainDetector:
             #       seems to be a critical length: longer chains are rare and thus making longer 
             #       chains will likely lead to errors);
             if expand2ndTime:
-                _expandVerbChainsBySubcat( clause, clauseID, allDetectedVerbChains, self.verbInfSubcatLexicon, False)
+                _expandVerbChainsBySubcat( clause, clauseID, allDetectedVerbChains, self.verbInfSubcatLexicon, False, breakOnPunctuation)
             
         # 3) Extract 'ega' negations (considering the whole sentence context)
         expandableEgaFound = _extractEgaNegFromSent( sentence, clauses, allDetectedVerbChains )
@@ -566,7 +572,7 @@ class VerbChainDetector:
             for clauseID in clauses:
                 clause = clauses[clauseID]
                 # 3.1) Expand non-olema 'ega' verb chains inside the clause, if possible;
-                _expandVerbChainsBySubcat( clause, clauseID, allDetectedVerbChains, self.verbInfSubcatLexicon, False)
+                _expandVerbChainsBySubcat( clause, clauseID, allDetectedVerbChains, self.verbInfSubcatLexicon, False, breakOnPunctuation)
             
             #_debugPrint(' | '+getJsonAsTextString(sentence, markTokens = [ verbObj[PHRASE] for verbObj in allDetectedVerbChains ]))
 
