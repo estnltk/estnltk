@@ -42,6 +42,26 @@ class TokenizationTest(unittest.TestCase):
         text.tag_analysis()
 
 
+
+    def test_pretokenized_text(self):
+        '''
+
+        testib, et ettesõnestatud teksti lausestamisel ei tehtaks lauseid, mille piir jookseb mõne sõna keskelt.
+        '''
+        text = Text({
+              'text': 'Viga!!',
+              'words': [{
+                         'end': 4,
+                         'start': 0,
+                         'text': 'Viga'},
+                        {'end': 6, 'start': 4, 'text': '!!'}]}
+        )
+
+        for sentence_end in text.sentence_ends:
+            for s, e in text.word_spans:
+                self.assertFalse(s < sentence_end < e )
+
+
 class TextSplittingTest(unittest.TestCase):
 
     def test_split_by_sentences(self):
