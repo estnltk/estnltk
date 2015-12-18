@@ -403,18 +403,56 @@ class Text(dict):
 
     def tokenize_sentences(self):
         """Apply sentence tokenization to this Text instance. Creates ``sentences`` layer.
-        Automatically tokenizes paragraphs, if they are not already tokenized."""
+           Automatically tokenizes paragraphs, if they are not already tokenized.
+           Also, if word tokenization has already been performed, tries to fit 
+           the sentence tokenization into the existing word tokenization;
+        """
         if not self.is_tagged(PARAGRAPHS):
             self.tokenize_paragraphs()
-        tok = self.__sentence_tokenizer
+        tok  = self.__sentence_tokenizer
         text = self.text
         dicts = []
         for paragraph in self[PARAGRAPHS]:
             para_start, para_end = paragraph[START], paragraph[END]
             para_text = text[para_start:para_end]
-            spans = tok.span_tokenize(para_text)
-            for start, end in spans:
-                dicts.append({'start': start+para_start, 'end': end+para_start})
+            if not self.is_tagged(WORDS):
+                # Non-hack variant: word tokenization has not been applied yet,
+                # so we proceed in natural order (first sentences, then words)
+                spans = tok.span_tokenize(para_text)
+                for start, end in spans:
+                    dicts.append({'start': start+para_start, 'end': end+para_start})
+            else:
+                # A hack variant: word tokenization has already been made, so
+                # we try to use existing word tokenization (first words, then sentences)
+                para_words = \
+                    [ w for w in self[WORDS] if w[START]>=para_start and w[END]<=para_end ]
+                para_word_texts = \
+                    [ w[TEXT] for w in para_words ]
+                try:
+                    # Apply sentences_from_tokens method (if available)
+                    sents = tok.sentences_from_tokens( para_word_texts )
+                except AttributeError as e:
+                    raise
+                # Align result of the sentence tokenization with the initial word tokenization
+                # in order to determine the sentence boundaries
+                i = 0
+                for sentence in sents:
+                    j = 0
+                    firstToken = None
+                    lastToken  = None
+                    while i < len(para_words):
+                        if para_words[i][TEXT] != sentence[j]:
+                            raise Exception('Error on aligning: ', para_word_texts,' and ',sentence,' at positions ',i,j)
+                        if j == 0:
+                            firstToken = para_words[i]
+                        if j == len(sentence) - 1:
+                            lastToken = para_words[i]
+                            break
+                        j+=1
+                        i+=1
+                    sentenceDict = \
+                        {'start': firstToken[START]+para_start, 'end': lastToken[END]+para_start}
+                    dicts.append( sentenceDict )
         self[SENTENCES] = dicts
         return self
 
