@@ -451,7 +451,7 @@ class Text(dict):
                         j+=1
                         i+=1
                     sentenceDict = \
-                        {'start': firstToken[START]+para_start, 'end': lastToken[END]+para_start}
+                        {'start': firstToken[START], 'end': lastToken[END]}
                     dicts.append( sentenceDict )
         self[SENTENCES] = dicts
         return self
