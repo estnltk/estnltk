@@ -919,7 +919,7 @@ class Text(dict):
 
     def tag_verb_chains(self):
         """Create ``verb_chains`` layer.
-        Depends on ``clauses`` layer.
+           Depends on ``clauses`` layer.
         """
         if not self.is_tagged(CLAUSES):
             self.tag_clauses()
@@ -928,13 +928,14 @@ class Text(dict):
         sentences = self.divide()
         verbchains = []
         for sentence in sentences:
-            chains = self.__verbchain_detector.detectVerbChainsFromSent(sentence)
-            offset = 0
+            chains = self.__verbchain_detector.detectVerbChainsFromSent( sentence )
             for chain in chains:
-                chain[PHRASE] = [idx+offset for idx in chain[PHRASE]]
-                chain[START] = self[WORDS][chain[PHRASE][0]][START]
-                chain[END] = self[WORDS][chain[PHRASE][-1]][END]
-            offset += len(sentence)
+                # 1) Get spans for all words of the phrase
+                word_spans = [ ( sentence[idx][START], sentence[idx][END] ) \
+                                 for idx in sorted( chain[PHRASE] ) ]
+                # 2) Assign to the chain
+                chain[START] = [ span[0] for span in word_spans ]
+                chain[END]   = [ span[1] for span in word_spans ]
             verbchains.extend(chains)
         self[VERB_CHAINS] = verbchains
         return self
