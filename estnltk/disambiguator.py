@@ -89,6 +89,8 @@ class Disambiguator(object):
         
         # Check, whether the input is a list of lists of docs, or just a list of docs
         if not self.__isListOfLists( docs ):
+            if not self.__isListOfTexts( docs ):
+                raise Exception("Unexpected input argument 'docs': should be a list of strings or Text-s;")
             collections = [ docs ]
         else:
             collections = docs
@@ -130,13 +132,19 @@ class Disambiguator(object):
         return docs
 
 
-    def __isListOfLists(self, docs):
-        """ Checks whether the input is a list of list of X, where X is either a
-            string or a Text; 
+    def __isListOfTexts(self, docs):
+        """ Checks whether the input is a list of strings or Text-s; 
         """
         return isinstance(docs, list) and \
-                all(isinstance(d1, list) and \
-                  all(isinstance(d11, (str, basestring, Text)) for d11 in d1) for d1 in docs)
+               all(isinstance(d, (basestring, Text)) for d in docs)
+
+
+    def __isListOfLists(self, docs):
+        """ Checks whether the input is a list of list of strings/Text-s; 
+        """
+        return isinstance(docs, list) and \
+               all(self.__isListOfTexts(ds) for ds in docs)
+
 
     # =========================================================
     # =========================================================
