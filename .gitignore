@@ -1,1 +1,4 @@
 *.pyc
+.idea/
+build/
+estnltk.egg-info/
