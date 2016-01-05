@@ -1,0 +1,64 @@
+package:
+  name: estnltk
+  version: "1.3"
+
+source:
+  fn: estnltk-master.zip
+  url: https://github.com/stacc-ee/estnltk/archive/master.zip
+
+build:
+ number: 0
+
+requirements:
+  build:
+    - python >=3.3.0,<3.5.0
+    - gcc 
+    - libgcc
+    - six ==1.9.0
+    - nltk ==3.0.4
+    - regex ==2015.07.19
+    - pandas ==0.16.2
+    - python-crfsuite ==0.8.3
+    - cached-property ==1.2.0
+    - beautifulsoup4 ==4.4.0
+    - elasticsearch ==1.6.0
+    - html5lib
+  run:
+    - python
+    - six ==1.9.0
+    - nltk ==3.0.4
+    - regex ==2015.07.19
+    - pandas ==0.16.2
+    - python-crfsuite ==0.8.3
+    - cached-property ==1.2.0
+    - beautifulsoup4 ==4.4.0
+    - elasticsearch ==1.6.0
+    - html5lib
+test:
+  # Python imports
+  imports:
+    - estnltk
+    - estnltk.database
+    - estnltk.database.tests
+    - estnltk.estner
+    - estnltk.examples
+    - estnltk.grammar
+    - estnltk.grammar.examples
+    - estnltk.grammar.tests
+    - estnltk.mw_verbs
+    - estnltk.prettyprinter
+    - estnltk.prettyprinter.tests
+    - estnltk.tests
+    - estnltk.tokenizers
+    - estnltk.tokenizers.tests
+    - estnltk.tools
+    - estnltk.vabamorf
+    - estnltk.vabamorf.tests
+    - estnltk.wiki
+    - estnltk.wiki.tests
+    - estnltk.wordnet
+
+about:
+  home: https://github.com/estnltk/estnltk
+  license: GPLv2
+  summary: 'Estnltk open source tools for Estonian natural language processing'
