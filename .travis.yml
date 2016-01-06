@@ -3,6 +3,10 @@ python:
   # We don't actually use the Travis Python, but this keeps it organized.
   - "3.5"
 
+env:
+  - GIT_DESCRIBE_NUMBER=$TRAVIS_BUILD_NUMBER
+  - GIT_BUILD_STR=$TRAVIS_COMMIT
+
 install:
   - sudo apt-get update
   - sudo apt-get -y remove swig
