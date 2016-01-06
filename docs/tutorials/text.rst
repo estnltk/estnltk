@@ -1471,7 +1471,7 @@ Verb chains are stored as a simple layer named ``verb_chains``::
 
     [{'analysis_ids': [[0], [0], [0]],
       'clause_index': 0,
-      'end': 29,
+      'end': [8, 16, 29],
       'mood': 'condit',
       'morph': ['V_ks', 'V_nud', 'V_ma'],
       'other_verbs': False,
@@ -1479,12 +1479,12 @@ Verb chains are stored as a simple layer named ``verb_chains``::
       'phrase': [1, 2, 4],
       'pol': 'POS',
       'roots': ['ole', 'pida', 'mine'],
-      'start': 3,
+      'start': [3, 9, 23],
       'tense': 'past',
       'voice': 'personal'},
      {'analysis_ids': [[0], [3]],
       'clause_index': 1,
-      'end': 44,
+      'end': [37, 44],
       'mood': 'indic',
       'morph': ['V_neg', 'V_nud'],
       'other_verbs': False,
@@ -1492,7 +1492,7 @@ Verb chains are stored as a simple layer named ``verb_chains``::
       'phrase': [7, 8],
       'pol': 'NEG',
       'roots': ['ei', 'mine'],
-      'start': 35,
+      'start': [35, 38],
       'tense': 'imperfect',
       'voice': 'personal'}]
 
@@ -1511,10 +1511,11 @@ Following is a brief description of the attributes:
 * ``tense`` - tense of the finite verb. Possible values depend on the mood value. Tenses of indicative: *'present'*, *'imperfect'*, *'perfect'*, *'pluperfect'*; tense of imperative: *'present'*; tenses of conditional and quotative: *'present'* and *'past'*. Additionally, the tense may remain undetermined (*'??'*).
 * ``voice`` - voice of the finite verb. Possible values: *'personal'*, *'impersonal'*, *'??'* (undetermined).
 
-Note that the words in the verb chain are ordered by the order of the grammatical relations (the order which may not coincide with the word order in text).
+Note that the words in the verb chain (in ``phrase``, ``pattern``, ``morph`` and ``roots``) are ordered by the order of the grammatical relations - the order which may not coincide with the word order in text.
 The first word is the finite verb (main verb) of the clause (except in case of the negation constructions, where the first word is typically a negation word), and each following word is governed by the previous word in the chain.
 An exception: the chain may end with a conjunction of two infinite verbs (general pattern *verb & verb*), in this case, both infinite verbs can be considered as being governed by the preceding word in the chain.
 
+Attributes ``start`` and ``end`` contain start and end positions for each token in the phrase, and these token positions are listed in the ascending order, regardless the order of the grammatical relations.
 
 Estonian wordnet
 ================
