@@ -18,7 +18,7 @@ install:
   - conda info -a
 
   - conda install conda-build anaconda-client
-  - anaconda login --host travis --username estnltk --password $ESTNLTK_ANACONDA_PASSWORD
+  - anaconda login --host travis --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
     
   - conda create -q  -n test-environment python>=3.5.0
   - source activate test-environment
