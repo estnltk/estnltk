@@ -12,11 +12,14 @@ install:
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda config --add channels stacc
+  - conda config --set anaconda_upload True
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
 
-  - conda install conda-build
+  - conda install conda-build anaconda
+  - anaconda login --host travis --username estnltk --password $ESTNLTK_ANACONDA_PASSWORD
+    
   - conda create -q  -n test-environment python>=3.5.0
   - source activate test-environment
   - conda build conda-recipe
