@@ -23,4 +23,4 @@ install:
   - conda install estnltk --use-local
 
 script:
-  #test script
+  echo 'imports were run by conda, full tests out of scope right now'
