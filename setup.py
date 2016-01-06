@@ -38,7 +38,7 @@ swig_opts.append('-c++')
 
 setup(
     name = "estnltk",
-    version = "1.3",
+    version = "1.4dev",
 
     packages = find_packages(),
     include_package_data=True,
@@ -64,18 +64,16 @@ setup(
                   include_dirs=include_dirs)
         ],
 
-    # we have fixed dependency versions to guarantee, what works
-    # however, you can probably safely install newer versions of the dependencies
     install_requires = [
         'six==1.9.0',                       # helps to build Py2/Py3 compatible programs
         'nltk>=3.0.4',                      # NLTK mainly used for English
         'regex>=2015.07.19',                # improved Python regular expressions
-        'pandas==0.16.2',                   # Panel Data Analysis library for Python
-        'python-crfsuite==0.8.4',           # Conditional random fields library
-        'cached-property==1.2.0',           # Simple property for caching results
+        'pandas>=0.17.1',                   # Panel Data Analysis library for Python
+        'python-crfsuite>=0.8.4',           # Conditional random fields library
+        'cached-property>=1.2.0',           # Simple property for caching results
         'beautifulsoup4==4.4.0',            # HTML parsing library
-        'html5lib==0.9999999',              # HTML parsing library
-        'elasticsearch==1.6.0'              # database support
+        'html5lib',              # HTML parsing library
+        'elasticsearch>=2.0.0'              # database support
         ],
 
     classifiers = ['Intended Audience :: Developers',
@@ -84,7 +82,7 @@ setup(
                    'Intended Audience :: Information Technology',
                    'Operating System :: OS Independent',
                    'Programming Language :: Python :: 2.7',
-                   'Programming Language :: Python :: 3.4',
+                   'Programming Language :: Python :: 3.5',
                    'Topic :: Scientific/Engineering',
                    'Topic :: Scientific/Engineering :: Artificial Intelligence',
                    'Topic :: Scientific/Engineering :: Information Analysis',
