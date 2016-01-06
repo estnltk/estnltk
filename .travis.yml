@@ -22,8 +22,8 @@ install:
     
   - conda create -q  -n test-environment python>=3.5.0
   - source activate test-environment
-  - conda build conda-recipe
-  - conda install estnltk --use-local
+  - conda build conda-recipe #implicitly uploads to anaconda.org/estnltk.
+  - anaconda logout #Otherwise consecutive builds might fail.
 
 script:
   echo 'imports were run by conda, full tests out of scope right now'
