@@ -4,8 +4,8 @@ python:
   - "3.5"
 
 env:
-  - GIT_DESCRIBE_NUMBER=$TRAVIS_BUILD_NUMBER
-  - GIT_BUILD_STR=$TRAVIS_COMMIT
+  global:
+    - GIT_DESCRIBE_NUMBER=$TRAVIS_BUILD_NUMBER 
 
 install:
   - sudo apt-get update
