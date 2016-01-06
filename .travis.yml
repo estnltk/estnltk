@@ -23,6 +23,9 @@ install:
   - conda create -q  -n test-environment python>=3.5.0
   - source activate test-environment
   - conda build conda-recipe #implicitly uploads to anaconda.org/estnltk.
+
+    #cleanup
+  - source deactivate
   - anaconda logout #Otherwise consecutive builds might fail.
 
 script:
