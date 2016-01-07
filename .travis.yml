@@ -4,8 +4,12 @@ python:
   - "3.5"
 
 env:
-  - GIT_DESCRIBE_NUMBER=$TRAVIS_BUILD_NUMBER
-  - GIT_BUILD_STR=$TRAVIS_COMMIT
+  global:
+    - GIT_DESCRIBE_NUMBER=$TRAVIS_BUILD_NUMBER
+    - GIT_BUILD_STR=$TRAVIS_COMMIT
+  matrix:
+    - PYTHON_TARGET=2.7
+    - PYTHON_TARGET=3.5
 
 install:
   - sudo apt-get update
@@ -25,9 +29,9 @@ install:
   - conda 
   - anaconda login --host travis$TRAVIS_BUILD_ID --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
     
-  - conda create -q  -n test-environment python>=3.5.0
+  - conda create -q  -n test-environment python $PYTHON_TARGET
   - source activate test-environment
-  - conda build conda-recipe #implicitly uploads to anaconda.org/estnltk.
+  - conda build --py $PYTHON_TARGET conda-recipe #implicitly uploads to anaconda.org/estnltk.
 
     #cleanup
   - source deactivate
