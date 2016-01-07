@@ -11,10 +11,6 @@ env:
     - PYTHON_TARGET=2.7
     - PYTHON_TARGET=3.5
 
-addons:
-  hosts:
-    - "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET"
-
 install:
   - sudo apt-get update
   - sudo apt-get -y remove swig
@@ -31,7 +27,7 @@ install:
 
   - conda install conda-build anaconda-client
   - conda 
-  - anaconda login --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
+  - anaconda login -h "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET" --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
     
   - conda create -q  -n test-environment python="$PYTHON_TARGET"
   - source activate test-environment
