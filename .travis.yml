@@ -29,12 +29,8 @@ install:
   - conda 
   - anaconda login -h "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET" --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
     
-  - conda create -q  -n test-environment python="$PYTHON_TARGET"
-  - source activate test-environment
   - conda build --py "$PYTHON_TARGET" conda-recipe #implicitly uploads to anaconda.org/estnltk.
 
-    #cleanup
-  - source deactivate
   - anaconda logout #Otherwise consecutive builds might fail.
 
 script:
