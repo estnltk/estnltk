@@ -27,7 +27,7 @@ install:
 
   - conda install conda-build anaconda-client
   - conda 
-  - anaconda login -h "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET" --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
+  - anaconda login --hostname "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET" --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
     
   - conda build --py "$PYTHON_TARGET" conda-recipe #implicitly uploads to anaconda.org/estnltk.
 
