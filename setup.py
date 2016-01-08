@@ -63,6 +63,7 @@ setup(
                   swig_opts = swig_opts,
                   include_dirs=include_dirs)
         ],
+    py_modules = ['vabamorf'],
 
     install_requires = [
         'six==1.9.0',                       # helps to build Py2/Py3 compatible programs
