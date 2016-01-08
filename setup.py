@@ -63,6 +63,7 @@ setup(
                   swig_opts = swig_opts,
                   include_dirs=include_dirs)
         ],
+    py_modules = ['vabamorf'],
 
     # we have fixed dependency versions to guarantee, what works
     # however, you can probably safely install newer versions of the dependencies
