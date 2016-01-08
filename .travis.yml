@@ -33,5 +33,6 @@ install:
 
   - anaconda logout #Otherwise consecutive builds might fail.
 
-script:
-  echo 'imports were run by conda, full tests out of scope right now'
+script: 
+  - python -c "import estnltk; print( estnltk.Text('Tere estnltk').lemmas )"
+  - python3 -m estnltk.run_tests
