@@ -17,7 +17,6 @@ install:
   - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p "$HOME/miniconda"
   - export PATH="$HOME/miniconda/bin:$PATH"
-  - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda config --add channels estnltk
   - conda config --set anaconda_upload True
@@ -29,8 +28,8 @@ install:
   - anaconda login --hostname "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET" --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
   - conda build --py "$PYTHON_TARGET" conda-recipe #implicitly uploads to anaconda.org/estnltk.
   - anaconda logout #Otherwise consecutive builds might fail.
+  - conda install --use-local estnltk
 
 script: 
-  - conda install --use-local estnltk
   - python -c "import estnltk; print( estnltk.Text('Tere estnltk').lemmas )"
   - python -m estnltk.run_tests
