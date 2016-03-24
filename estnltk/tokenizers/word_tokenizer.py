@@ -18,7 +18,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 from nltk.tokenize.regexp import WordPunctTokenizer
 from nltk.tokenize.api import StringTokenizer
 
-from estnltk.textcleaner import EST_ALPHA
+from estnltk.textcleaner import EST_ALPHA, EST_ALPHA_UPPER
 
 import regex as re
 
@@ -43,7 +43,25 @@ def join_range(left, middle, right):
 
 
 def join_abbreviation(left, middle, right):
-    return len(left)>0 and left[-1] in EST_ALPHA and middle == '.' and len(right)>0 and right[0] in EST_ALPHA
+    if middle == '.':
+        #
+        #   If left and right side strings have length at least 2, and the right side begins with
+        #   uppercase, it is likely that end of a sentence and a beginning of another have been 
+        #   mistakenly conjoined, e.g.
+        #       ... ei tahaks ma tõsiselt võtta.Mul jääb puudu tehnikast ...
+        #       ... Iga päev teeme valikuid.Valime kõike alates pesupulbrist ja ...
+        #       ... Ja siis veel ühe.Ta paistab olevat mekkija-tüüpi mees ...
+        #
+        #   Discard joining in such cases.
+        #
+        if len(left)>1 and len(right)>1 and left[0] in EST_ALPHA and left[1] in EST_ALPHA and \
+           right[0] in EST_ALPHA_UPPER and right[1] in EST_ALPHA:
+           return False
+        #
+        #   Otherwise: join if the period is between letters (heuristic)
+        #
+        return len(left)>0 and len(right)>0 and left[-1] in EST_ALPHA and right[0] in EST_ALPHA
+    return False
 
 
 def join_fraction(left, middle, right):
