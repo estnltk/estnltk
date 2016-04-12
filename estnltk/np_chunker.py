@@ -808,6 +808,57 @@ class NounPhraseChunker:
             texts.append( phrase_str )
         return texts
 
+    # ===========================================================
+    #   Annotate Text for NPs
+    # ===========================================================
+
+    def annotateText(self, text, layer):
+        ''' Applies this chunker on given Text, and adds results of the 
+            chunking as a new annotation layer to the text.
+            If the input text has already been analyzed for NPs (the
+            first word contains NP_LABEL), uses the existing NP_LABEL
+            annotations, otherwise produces new NP_LABEL annotations
+            via method self.analyze_text();
+            
+            Parameters
+            ----------
+            text:  estnltk.text.Text
+                The input text where the new layer of NP chunking 
+                annotations is to be added;
+            layer: str
+                Name of the new layer;
+                
+            Returns
+            -------
+            text
+                The input text where a new layer (containing NP 
+                annotations) has been added;
+        ''' 
+        input_words = None
+        if isinstance(text, Text):
+            # input is Text
+            input_words = text.words
+        else:
+            raise Exception(' Input text should be of type Text, but it is ', text)
+        phrases = []
+        if input_words and NP_LABEL not in input_words[0]:
+            #  If NP_LABEL-s are missing, text needs to be analyzed first
+            phrases = self.analyze_text( text, return_type="tokens" )
+        elif input_words:
+            #  Use existing NP chunk annotation
+            phrases = self.get_phrases( text )
+        if phrases:
+            # Create and attach annotations to the Text object
+            annotations = []
+            for phrase in phrases: 
+                phrase_annotation = {}
+                phrase_annotation[START] = phrase[0][START]
+                phrase_annotation[END]   = phrase[-1][END]
+                phrase_annotation[TEXT]  = ' '.join([word[TEXT] for word in phrase ])
+                annotations.append( phrase_annotation )
+            text[layer] = annotations
+        return text
+
 
     # ===========================================================
     #   Debugging stuff

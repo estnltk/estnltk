@@ -112,8 +112,8 @@ def preformat(text, layer, markup_settings):
         # Make start tag
         graphicFormatting = False
         # -- Underlining
-        if ('u' in markup_settings or 'underline' in markup_settings) and \
-           (markup_settings['u'] or markup_settings['underline']):
+        if ('u' in markup_settings and markup_settings['u']) or \
+           ('underline' in markup_settings and markup_settings['underline']):
            tags[elem[START]] += '\033[4m'
            graphicFormatting = True
         colorName = markup_settings['c'] if 'c' in markup_settings else None
@@ -126,8 +126,8 @@ def preformat(text, layer, markup_settings):
                tags[elem[START]] += color
         # -- Bracketing
         add_brackets = False
-        if ('b' in markup_settings or 'bracket' in markup_settings) and \
-            (markup_settings['b'] or markup_settings['bracket']):
+        if ('b' in markup_settings and markup_settings['b']) or \
+           ('bracket' in markup_settings and markup_settings['bracket']):
             tags[elem[START]] += '['
             add_brackets = True
         # Make end-tag
