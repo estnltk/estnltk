@@ -25,13 +25,17 @@ import regex as re
 wptokenizer = WordPunctTokenizer()
 digits = re.compile('\d+')
 
+#  Listing of different hypen/minus/dash symbols in utf8;
+#  It is likely that these symbols are used interchangeably with the regular hypen symbol;
+hypens_dashes = re.compile('^(-|\xad|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|\u2212)$')
+
 
 def join_ordinals(left, right):
     return right == '.' and digits.match(left) is not None
 
 
 def join_hyphen(left, right):
-    return left == '-' or right == '-'
+    return hypens_dashes.match(left) or hypens_dashes.match(right)
 
 
 def join_name_abbreviation(left, right):
@@ -39,7 +43,8 @@ def join_name_abbreviation(left, right):
 
 
 def join_range(left, middle, right):
-    return middle == '-' or middle == '.-'
+    return hypens_dashes.match(middle) or middle == '.-' or \
+           ( len(middle)==2 and middle[0] == '.' and hypens_dashes.match(middle[1]) )
 
 
 def join_abbreviation(left, middle, right):

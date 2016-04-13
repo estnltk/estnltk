@@ -29,6 +29,18 @@ class WordTokenizerTest(unittest.TestCase):
         self.assertListEqual(expected_tokens, tokens)
         self.assertListEqual(expected_spans, spans)
 
+    def test_unusual_hyphens(self):
+        # Tests for utf8 minus, dash and other hypen-like symbols, which can be used 
+        # instead of the regular hypen symbol
+        text = '25­26 D—vitaamini esma– ja −järel 8.—12.'
+        expected_tokens = ['25­26', 'D—vitaamini', 'esma–', 'ja', '−järel', '8.—12.']
+        expected_spans = [(0, 5), (6, 17), (18, 23), (24, 26), (27, 33), (34, 40)]
+        
+        tokens, spans = tokenizer.tokenize(text), tokenizer.span_tokenize(text)
+        
+        self.assertListEqual(expected_tokens, tokens)
+        self.assertListEqual(expected_spans, spans)
+
     def test_fractions(self):
         text = '3.14 3,14 3/4'
         expected_tokens = ['3.14', '3,14', '3/4']
