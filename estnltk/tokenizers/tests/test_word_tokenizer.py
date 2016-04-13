@@ -61,3 +61,17 @@ class WordTokenizerTest(unittest.TestCase):
         self.assertListEqual(expected_tokens, tokens)
         self.assertListEqual(expected_spans, spans)
 
+    def test_mistakenly_conjoined_sentences(self):
+        text1 = 'Iga päev teeme valikuid.Valime kõike.'
+        expected_tokens = ['Iga', 'päev', 'teeme', 'valikuid', '.', 'Valime', 'kõike', '.']
+        expected_spans  = [(0, 3), (4, 8), (9, 14), (15, 23), (23, 24), (24, 30), (31, 36), (36, 37)]
+        tokens, spans = tokenizer.tokenize(text1), tokenizer.span_tokenize(text1)
+        self.assertListEqual(expected_tokens, tokens)
+        self.assertListEqual(expected_spans, spans)
+        
+        text2 = 'Ja siis veel ühe.Ja veel ühe.'
+        expected_tokens = ['Ja', 'siis', 'veel', 'ühe', '.', 'Ja', 'veel', 'ühe', '.'] 
+        expected_spans  = [(0, 2), (3, 7), (8, 12), (13, 16), (16, 17), (17, 19), (20, 24), (25, 28), (28, 29)]
+        tokens, spans = tokenizer.tokenize(text2), tokenizer.span_tokenize(text2)
+        self.assertListEqual(expected_tokens, tokens)
+        self.assertListEqual(expected_spans, spans)
