@@ -100,6 +100,34 @@ class TimexTest(unittest.TestCase):
         # in subsequent Java processing
         timextagger._process.terminate()
 
+
+    def test_sentence_splitting_preserves_timexes(self):
+        timextagger = TimexTagger()
+        text_str = \
+        '''
+        Valitsus otsustas tänasel istungil kolmapäevase eelnõu üle vaadata, neljapäevasel ja teisipäevasel tagasi lükata, homsel vastu võtta ja eilsel kõrvale jätta. Samas on teada, et laupäevasel ei toimu midagi ja kaks kuud tagasi vastuvõetud pühapäevane eelnõu ei toimi kolmapäeviti.
+        '''
+        text = Text( text_str, timex_tagger=timextagger )
+        # 1) Tag timexes before splitting the text; Remember the result;
+        text.tag_timexes()
+        timexesBeforeSplit = text.timexes
+        # 2) Split the text by sentences and count timexes once again;
+        timexesAfterSplit  = []
+        for sentence in text.split_by('sentences'):
+            if sentence.timexes:
+               timexesAfterSplit.extend( sentence.timexes )
+        # 3) Both countings should give same amount of timexes:
+        self.assertEqual( len(timexesBeforeSplit), len(timexesAfterSplit) )
+        # And there should be exactly the same timexes, in exactly the same order
+        for i in range( len(timexesBeforeSplit) ):
+            self.assertEqual( timexesBeforeSplit[i]['tid'],  timexesAfterSplit[i]['tid'] )
+            self.assertEqual( timexesBeforeSplit[i]['text'], timexesAfterSplit[i]['text'] )
+        # Terminate Java process in order to avoid "OSError: [WinError 6] The handle is invalid"
+        # in subsequent Java processing
+        timextagger._process.terminate()
+
+
+
 def timex_to_row(example, timex):
     toks = [example]
     toks.append(timex.get('text'))
