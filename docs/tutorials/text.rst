@@ -1277,9 +1277,6 @@ Here are some examples of temporal expressions and fields that the tagger can ex
 The document creation date is fixed to Dec 21, 1986 in the examples below.
 See `annotation guidelines`_ for more detailed explanations.
 
-.. _annotation guidelines: https://github.com/soras/EstTimeMLCorpus/blob/master/docs-et/ajav2ljendite_m2rgendamine_06.pdf?raw=true
-
-
 ========================================================================= ============================= ======== ================= ==========
 Example                                                                   Temporal expression           Type     Value             Modifier
 ========================================================================= ============================= ======== ================= ==========
