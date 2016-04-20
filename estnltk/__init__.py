@@ -10,6 +10,6 @@ from .timex import TimexTagger
 from .clausesegmenter import ClauseSegmenter
 from .disambiguator import Disambiguator
 from .prettyprinter import PrettyPrinter
-from .database import Database
+from .database.database import Database
 from .grammar import *
 from .tokenizers.word_tokenizer import EstWordTokenizer
