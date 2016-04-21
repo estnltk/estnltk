@@ -38,7 +38,7 @@ swig_opts.append('-c++')
 
 setup(
     name = "estnltk",
-    version = "1.3",
+    version = "1.4",
 
     packages = find_packages(),
     include_package_data=True,
