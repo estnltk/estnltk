@@ -1,0 +1,80 @@
+==================================
+MaltParser support
+==================================
+.. highlight:: python
+
+Estnltk provides a wrapper for MaltParser `maltparser link`_, which has been trained [#]_ for annotating syntactic dependency relations.
+
+.. _maltparser link: http://www.maltparser.org/
+
+Basic usage
+=============
+
+The class :py:class:`~estnltk.maltparser_support.MaltParser` provides method :py:meth:`~estnltk.maltparser_support.MaltParser.parse_text`, which takes a :py:class:`~estnltk.text.Text` object as an input, parses the text with MaltParser, and assigns dependency links to all the words in the text::
+
+    from estnltk import Text
+    from estnltk.maltparser_support import MaltParser
+    from estnltk.names import SYNTAX_LABEL, SYNTAX_HEAD, TEXT
+
+    # initialise Maltparser
+    parser = MaltParser()
+
+    # parse text
+    text = Text('Saksamaal Bonnis leidis aset kummaline juhtum murdvargaga, kes kutsus endale ise politsei.')
+    parser.parse_text(text)
+
+    # output dependency relations for each word
+    for word in text.words:
+        print( word[TEXT]+'  '+str(word[SYNTAX_LABEL])+' -> '+str(word[SYNTAX_HEAD]) )
+
+As the result of parsing, attributes ``SYNTAX_LABEL`` and ``SYNTAX_HEAD`` are added to every word in the text: the attribute ``SYNTAX_LABEL`` indicates the index of the word in the syntactic tree, and the attribute ``SYNTAX_HEAD`` indicates the index of word's governor in the syntactic tree. Running the above example produces following output::
+
+    Saksamaal  1 -> 2
+    Bonnis  2 -> 3
+    leidis  3 -> 0
+    aset  4 -> 3
+    kummaline  5 -> 6
+    juhtum  6 -> 7
+    murdvargaga  7 -> 3
+    ,  8 -> 7
+    kes  9 -> 10
+    kutsus  10 -> 3
+    endale  11 -> 10
+    ise  12 -> 10
+    politsei  13 -> 10
+    .  14 -> 13
+
+Dependency graphs
+==================
+
+By default, the method :py:meth:`~estnltk.maltparser_support.MaltParser.parse_text` returns the input text. 
+If the input argument ``return_type="dep_graphs"`` is passed to the method, the method returns parsing results as a list of NLTK's :py:class:`~nltk.parse.dependencygraph.DependencyGraph` objects::
+
+    from estnltk import Text
+    from estnltk.maltparser_support import MaltParser
+
+    # initialise Maltparser
+    parser = MaltParser()
+
+    # parse text
+    text = Text('Saksamaal Bonnis leidis aset kummaline juhtum murdvargaga, kes kutsus endale ise politsei.')
+    dep_graphs = parser.parse_text(text, return_type="dep_graphs")
+    
+    # output dependency graphs as NLTK's trees
+    for dep_graph in dep_graphs:
+        print ( dep_graph.tree() )
+
+The above example will output a parenthesized representation of the dependency tree::
+
+    (leidis
+      (Bonnis Saksamaal)
+      aset
+      (murdvargaga (juhtum kummaline) ,)
+      (kutsus kes endale ise (politsei .)))
+
+Regardless the ``return_type``, words in the input text will always be annotated for dependency links (attributes ``SYNTAX_LABEL`` and ``SYNTAX_HEAD``).
+
+
+.. rubric:: Notes
+
+.. [#] Currently, a non-optimized version of the system is provided, which achieves accuracy (UAS) of 78%. It is likely that the parser needs to be optimized for more specialized goals, see http://lepo.it.da.ut.ee/~kaili/Syntax/maltparser.html for details about training and optimizing the parser on Estonian data.

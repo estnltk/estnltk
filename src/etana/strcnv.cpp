@@ -1,3 +1,15 @@
+/*
+Copyright 2015 Filosoft OÃœ
+
+This file is part of Estnltk. It is available under the license of GPLv2 found
+in the top-level directory of this distribution and
+at http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html .
+No part of this file, may be copied, modified, propagated, or distributed
+except according to the terms contained in the license.
+
+This software is distributed on an "AS IS" basis, without warranties or conditions
+of any kind, either express or implied.
+*/
 #include "post-fsc.h"
 
 //---------------------------------------------------------
@@ -10,12 +22,12 @@ void CONV_HTML_UC2::Start(
     {
     ignoramp=_ignoramp_;
     autosgml=_autosgml_;
-    if(path!=NULL) // võtame loendi failist
+    if(path!=NULL) // vï¿½tame loendi failist
         {
         CFSString tabeliFailiNimi(FSTSTR("sgml-uc-cnv.txt"));
         CFSString tabeliFailiPikkNimi;
         CFSString p(path);
-        // Otsime üles, millises kataloogis teisendustabel
+        // Otsime ï¿½les, millises kataloogis teisendustabel
         if(Which(&tabeliFailiPikkNimi, &p, &tabeliFailiNimi)==false)
             throw VEAD(ERR_X_TYKK, ERR_OPN, __FILE__,__LINE__, "$Revision: 557 $",
                                     "Ei leia SGML olemite faili sgml-uc-cnv.txt");
@@ -28,7 +40,7 @@ void CONV_HTML_UC2::Start(
                             ,(const char*)tabeliFailiPikkNimi
 #endif
                              );
-        // Loeme failist teisendustabeli mällu
+        // Loeme failist teisendustabeli mï¿½llu
         SGML_UC* rec;
         sgml2uc.Start(100,10);
         uc2sgml.Start(100,10);
@@ -40,9 +52,9 @@ void CONV_HTML_UC2::Start(
             if((n=(int)strlen(rec->sgml))>sgml_stringi_max_pikkus)
                 sgml_stringi_max_pikkus=n;
             }
-        sgml2uc.Del(); // kustutame  viimase, sest sinna ei õnnestunud lugeda
-        sgml2uc.Sort(SGML_UC::sortBySGMLStr);   // selle massiivi järjestame SGML olemite järgi
-        uc2sgml.Sort(SGML_UC::sortByUCchar);    // selle massiivi järjestame UNICODEi sümbolite järgi
+        sgml2uc.Del(); // kustutame  viimase, sest sinna ei ï¿½nnestunud lugeda
+        sgml2uc.Sort(SGML_UC::sortBySGMLStr);   // selle massiivi jï¿½rjestame SGML olemite jï¿½rgi
+        uc2sgml.Sort(SGML_UC::sortByUCchar);    // selle massiivi jï¿½rjestame UNICODEi sï¿½mbolite jï¿½rgi
         }
     }
 
@@ -53,15 +65,15 @@ void CONV_HTML_UC2::ConvToUc(
     )
     {
     wStr.Empty();
-    if(koodiTabel!=PFSCP_HTMLEXT) // Krutime Renee algoritmi järgi
+    if(koodiTabel!=PFSCP_HTMLEXT) // Krutime Renee algoritmi jï¿½rgi
         {
-        wStr = FSStrAtoW(aStr, koodiTabel); // Kui teisendus käib Rene tabelite järgi, siis teeme ära ja valmis
+        wStr = FSStrAtoW(aStr, koodiTabel); // Kui teisendus kï¿½ib Rene tabelite jï¿½rgi, siis teeme ï¿½ra ja valmis
         return;
         }
     assert(koodiTabel==PFSCP_HTMLEXT); // Kasutame teisendamiseks failist loetud tabelit
     if(sgml2uc.idxLast<=0)
             throw VEAD(ERR_X_TYKK, ERR_ARGVAL, __FILE__,__LINE__, "$Revision: 557 $",
-                "SGML olemite tabel mällu lugemata, progeja peaks manuali lugema");
+                "SGML olemite tabel mï¿½llu lugemata, progeja peaks manuali lugema");
     int l, n=aStr.GetLength();
     for(l=0; l < n; l++)
         {
@@ -70,19 +82,19 @@ void CONV_HTML_UC2::ConvToUc(
                             "String peab koosnema ASCII (7bitistest) koodidest", (const char*)aStr+l);
         if(aStr[l]!='&') // ei alusta SGML olemit...
             {
-tryki:      wStr += ((FSWCHAR)(aStr[l])) & 0x7F; // ...läheb niisama
+tryki:      wStr += ((FSWCHAR)(aStr[l])) & 0x7F; // ...lï¿½heb niisama
             continue;
             }
-        // Võib alustada mingit SGML olemit - &blah;
+        // Vï¿½ib alustada mingit SGML olemit - &blah;
         int lSemiPos=(int)aStr.Find(";", l+1);
-        if(lSemiPos<0) // see ampersand ilma lõpetava semita
+        if(lSemiPos<0) // see ampersand ilma lï¿½petava semita
             {
             if(ignoramp==true)
                 goto tryki;
             throw VEAD(ERR_X_TYKK, ERR_ARGVAL, __FILE__,__LINE__, "$Revision: 557 $",
                                 "Ampersandi tagant semi puudu", (const char*)aStr+l);
             }
-        if(autosgml==true && aStr[l+1]=='#') // teisenda &#[{x|X}]12345; sümbolid
+        if(autosgml==true && aStr[l+1]=='#') // teisenda &#[{x|X}]12345; sï¿½mbolid
             {
             int tmp=0, j=l+2;
             if(aStr[j]=='x' || aStr[j]=='X')    // teisenda &#x12345; ja &#X12345; hexakoodid
@@ -105,7 +117,7 @@ tryki:      wStr += ((FSWCHAR)(aStr[l])) & 0x7F; // ...läheb niisama
                     throw VEAD(ERR_X_TYKK, ERR_ARGVAL, __FILE__,__LINE__, "$Revision: 557 $",
                                 "Vigane SGML olem (peab mahtuma 2 baidi peale)", (const char*)aStr+l);
                 }
-            else                                // teisenda &#12345; ja &#12345; kümnendkoodid
+            else                                // teisenda &#12345; ja &#12345; kï¿½mnendkoodid
                 {
                 //for(; j<lSemiPos; j++)
                 //    {
@@ -135,7 +147,7 @@ tryki:      wStr += ((FSWCHAR)(aStr[l])) & 0x7F; // ...läheb niisama
             throw VEAD(ERR_X_TYKK, ERR_ARGVAL, __FILE__,__LINE__, "$Revision: 557 $",
                                 "Puudub SGML olemite tabelist", (const char*)aStr+l);
             }
-		CFSAString szSymbol=aStr.Mid(l, lSemiPos-l+1); // lõikame &bla; sisendstringist välja
+		CFSAString szSymbol=aStr.Mid(l, lSemiPos-l+1); // lï¿½ikame &bla; sisendstringist vï¿½lja
         SGML_UC* rec;
         if((rec=sgml2uc.Get(&szSymbol))==NULL) // ei leidnud kahendtabelist - jama lahti
             {
@@ -156,15 +168,15 @@ void CONV_HTML_UC2::ConvFromUc(
     )
     {
     aStr.Empty();
-    if(koodiTabel!=PFSCP_HTMLEXT) // Krutime Renee algoritmi järgi
+    if(koodiTabel!=PFSCP_HTMLEXT) // Krutime Renee algoritmi jï¿½rgi
         {
-        aStr = FSStrWtoA(wStr, koodiTabel); // Kui teisendus käib Rene tabelite järgi, siis teeme ära ja valmis
+        aStr = FSStrWtoA(wStr, koodiTabel); // Kui teisendus kï¿½ib Rene tabelite jï¿½rgi, siis teeme ï¿½ra ja valmis
         return;
         }
     assert(koodiTabel==PFSCP_HTMLEXT); // Kasutame teisendamiseks failist loetud tabelit
     if(sgml2uc.idxLast<=0)
             throw VEAD(ERR_X_TYKK, ERR_ARGVAL, __FILE__,__LINE__, "$Revision: 557 $",
-                "SGML olemite tabel mällu lugemata, progeja peaks manuali lugema");
+                "SGML olemite tabel mï¿½llu lugemata, progeja peaks manuali lugema");
     FSWCHAR wc;
     for(int i=0; (wc=wStr[i])!=0; i++)
         {
@@ -173,7 +185,7 @@ void CONV_HTML_UC2::ConvFromUc(
             if(ignoramp==false && wc==(FSWCHAR)'&') // Ampersand SGML olemiks
                 aStr += "&amp;";
             else
-                aStr += (char)(wc & 0x7F); // Muud ASCII koodid niisama üle
+                aStr += (char)(wc & 0x7F); // Muud ASCII koodid niisama ï¿½le
             continue;
             }
         // Polnud ASCII kood, peab olema  SGML olemite loendis
@@ -199,7 +211,7 @@ void CONV_HTML_UC2::ConvFromUc(
             char tmpBuf[128];
             sprintf(tmpBuf, "%d", (unsigned int)(wStr[i]));
             throw VEAD(ERR_X_TYKK, ERR_ARGVAL, __FILE__,__LINE__, "$Revision: 557 $",
-                        "UniCode sümbol programmi SGML olemite tabelist puudu, kood", tmpBuf);
+                        "UniCode sï¿½mbol programmi SGML olemite tabelist puudu, kood", tmpBuf);
             }
         //autosgml==true;
         CFSAString revSgml;
@@ -227,7 +239,7 @@ void CONV_HTML_UC2::ConvFromTo(
     {
     if(sgml2uc.idxLast<=0 && (vKoodiTabel==PFSCP_HTMLEXT || sKoodiTabel==PFSCP_HTMLEXT))
         throw VEAD(ERR_X_TYKK, ERR_ARGVAL, __FILE__,__LINE__, "$Revision: 557 $",
-                    "SGML olemite tabel mällu lugemata, progeja peaks manuali lugema");
+                    "SGML olemite tabel mï¿½llu lugemata, progeja peaks manuali lugema");
     CFSWString wStr;
     ConvToUc(wStr,sStr, sKoodiTabel);
     ConvFromUc(vStr,vKoodiTabel,wStr);
@@ -252,13 +264,13 @@ void CONV_HTML_UC2::Stop(void)
     }
 
 void ConvFile(
-    CPFSFile &out,                  ///< Väljundfail
-    const PFSCODEPAGE outKoodiTabel,///< Väljundfaili kooditabel
+    CPFSFile &out,                  ///< Vï¿½ljundfail
+    const PFSCODEPAGE outKoodiTabel,///< Vï¿½ljundfaili kooditabel
     CPFSFile &in,                   ///< Sisendfail
     const PFSCODEPAGE inKoodiTabel, ///< Sisendfaili kooditabel
     CONV_HTML_UC2 &cnv,             ///< Stringiteisendaja
-    const bool feff,                ///< UNICODE'i korral määrab BOMi käsitlemise viidi
-    PROGRESSIMOOTJA progr ///< Määrab edenemise kuvamise viisi
+    const bool feff,                ///< UNICODE'i korral mï¿½ï¿½rab BOMi kï¿½sitlemise viidi
+    PROGRESSIMOOTJA progr ///< Mï¿½ï¿½rab edenemise kuvamise viisi
     )
     {
     CFSAString aStr;
@@ -267,10 +279,10 @@ void ConvFile(
 
     if(outKoodiTabel==inKoodiTabel)
         throw VEAD(ERR_X_TYKK, ERR_ARGVAL, __FILE__,__LINE__, "$Revision: 557 $",
-                   "Sisendfaili kooditabel == Väljundfaili kooditabel -- Midagi targemat pole teha?");
+                   "Sisendfaili kooditabel == Vï¿½ljundfaili kooditabel -- Midagi targemat pole teha?");
     if(outKoodiTabel==PFSCP_UC) // mitteUNICODE --> UNICODE
         {
-        if(feff)                            // BOM tuleb failipäisesse lisada
+        if(feff)                            // BOM tuleb failipï¿½isesse lisada
             out.WriteStringB(FSWSTR("\xFEFF")); 
         while(in.ReadLine(&aStr)==true)
             {
@@ -282,17 +294,17 @@ void ConvFile(
         }
    if(inKoodiTabel==PFSCP_UC)  // UNICODE --> mitteUNICODE
         {
-        if(feff)                                // BOMi olemasolul kontrolli baidijärge
+        if(feff)                                // BOMi olemasolul kontrolli baidijï¿½rge
             {
             FSWCHAR wc;
             if(in.ReadChar(&wc)==true)
                 {
                 if(wc==0xFFFE)
                     throw VEAD(ERR_X_TYKK, ERR_ARGVAL, __FILE__,__LINE__, "$Revision: 557 $",
-                                                        "Sisendfailis vale baidijärjega UNICODE");
+                                                        "Sisendfailis vale baidijï¿½rjega UNICODE");
                 if(wc!=0xFEFF)
                     in.Seek(0L); // polnud BOM, kerime faili algusesse tagasi
-                // ok, sobilik baidijärjekord
+                // ok, sobilik baidijï¿½rjekord
                 }
             }
         while(in.ReadLine(&wStr)==true)

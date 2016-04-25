@@ -6,16 +6,17 @@ import datetime
 import codecs
 
 from ..text import Text
+from ..timex import TimexTagger
 
 class TimexTest(unittest.TestCase):
 
     def test_tag_separately(self):
-        text = self.document
+        timextagger = TimexTagger()
+        text = Text('3. detsembril 2014 oli näiteks ilus ilm. Aga kaks päeva varem jälle ei olnud.', timex_tagger=timextagger)
         self.assertListEqual(text.timexes, self.timexes)
-
-    @property
-    def document(self):
-        return Text('3. detsembril 2014 oli näiteks ilus ilm. Aga kaks päeva varem jälle ei olnud.')
+        # Terminate Java process in order to avoid "OSError: [WinError 6] The handle is invalid"
+        # in subsequent Java processing
+        timextagger._process.terminate()
 
     @property
     def timexes(self):
@@ -23,7 +24,7 @@ class TimexTest(unittest.TestCase):
                   'id': 0,
                   'start': 0,
                   'temporal_function': False,
-                  'text': '3 . detsembril 2014',
+                  'text': '3. detsembril 2014',
                   'tid': 't1',
                   'type': 'DATE',
                   'value': '2014-12-03'},
@@ -39,8 +40,12 @@ class TimexTest(unittest.TestCase):
                   'value': '2014-12-01'}]
 
     def test_document_creation_date(self):
-        text = Text('Täna on ilus ilm', creation_date=datetime.datetime(1986, 12, 21))
+        timextagger = TimexTagger()
+        text = Text('Täna on ilus ilm', creation_date=datetime.datetime(1986, 12, 21), timex_tagger=timextagger)
         self.assertEqual(text.timexes[0]['value'], '1986-12-21')
+        # Terminate Java process in order to avoid "OSError: [WinError 6] The handle is invalid"
+        # in subsequent Java processing
+        timextagger._process.terminate()
 
     @property
     def examples(self):
@@ -84,12 +89,44 @@ class TimexTest(unittest.TestCase):
                 'aastate pärast']
 
     def test_various_examples(self):
+        timextagger = TimexTagger()
         creation = datetime.datetime(1986, 12, 21)
         for example in self.examples:
-            text = Text(example, creation_date=creation)
+            text = Text(example, creation_date=creation, timex_tagger=timextagger)
             for timex in text.timexes:
                 pass
                 #print(timex_to_row(example, timex))
+        # Terminate Java process in order to avoid "OSError: [WinError 6] The handle is invalid"
+        # in subsequent Java processing
+        timextagger._process.terminate()
+
+
+    def test_sentence_splitting_preserves_timexes(self):
+        timextagger = TimexTagger()
+        text_str = \
+        '''
+        Valitsus otsustas tänasel istungil kolmapäevase eelnõu üle vaadata, neljapäevasel ja teisipäevasel tagasi lükata, homsel vastu võtta ja eilsel kõrvale jätta. Samas on teada, et laupäevasel ei toimu midagi ja kaks kuud tagasi vastuvõetud pühapäevane eelnõu ei toimi kolmapäeviti.
+        '''
+        text = Text( text_str, timex_tagger=timextagger )
+        # 1) Tag timexes before splitting the text; Remember the result;
+        text.tag_timexes()
+        timexesBeforeSplit = text.timexes
+        # 2) Split the text by sentences and count timexes once again;
+        timexesAfterSplit  = []
+        for sentence in text.split_by('sentences'):
+            if sentence.timexes:
+               timexesAfterSplit.extend( sentence.timexes )
+        # 3) Both countings should give same amount of timexes:
+        self.assertEqual( len(timexesBeforeSplit), len(timexesAfterSplit) )
+        # And there should be exactly the same timexes, in exactly the same order
+        for i in range( len(timexesBeforeSplit) ):
+            self.assertEqual( timexesBeforeSplit[i]['tid'],  timexesAfterSplit[i]['tid'] )
+            self.assertEqual( timexesBeforeSplit[i]['text'], timexesAfterSplit[i]['text'] )
+        # Terminate Java process in order to avoid "OSError: [WinError 6] The handle is invalid"
+        # in subsequent Java processing
+        timextagger._process.terminate()
+
+
 
 def timex_to_row(example, timex):
     toks = [example]

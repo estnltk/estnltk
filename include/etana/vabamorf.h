@@ -1,3 +1,15 @@
+/*
+Copyright 2015 University of Tartu and Author(s): Timo Petmanson
+
+This file is part of Estnltk. It is available under the license of GPLv2 found
+in the top-level directory of this distribution and
+at http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html .
+No part of this file, may be copied, modified, propagated, or distributed
+except according to the terms contained in the license.
+
+This software is distributed on an "AS IS" basis, without warranties or conditions
+of any kind, either express or implied.
+*/
 /**
  * This file defines interface used for generating Python wrapper of the
  * vabamorf library. The code is based on command line programs coming with vabamorf.
@@ -33,6 +45,7 @@ public:
 
     Analysis() {}
     Analysis(const char* root, const char* ending, const char* clitic, const char* partofspeech, const char* form);
+    Analysis(std::string const& root, std::string const& ending, std::string const& clitic, std::string const& partofspeech, std::string const& form);
     Analysis(Analysis const& analysis);
 };
 
@@ -91,6 +104,16 @@ public:
         const bool guess,
         const bool phonetic,
         const bool propername);
+
+    /**
+     * Disambiguate a sentence that is already analyzed.
+     * This method is a single step in a more complex
+     * disambiguation method.
+     * When you don't care or don't know what it means, just
+     * use analyze method with disambiguate=true .
+     * @param sentence The morphologically analyzed word vector,
+     */
+    std::vector<WordAnalysis> disambiguate(std::vector<WordAnalysis> &sentence);
 
     /**
      * Spellcheck words.

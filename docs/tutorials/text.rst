@@ -177,7 +177,7 @@ Only difference is that by using :py:attr:`~estnltk.text.Text.word_texts` proper
 Second call would use the ``start`` and ``end`` attributes already stored in the :py:class:`~estnltk.text.Text` instance.
 
 
-The default word tokenizer is NLTK-s `WordPunctTokenizer`_::
+The default word tokenizer is a modification of `WordPunctTokenizer`_ ::
 
     from nltk.tokenize.regexp import WordPunctTokenizer
     tok = WordPunctTokenizer()
@@ -1120,9 +1120,10 @@ Temporal expression (TIMEX) tagging
 ===================================
 
 Temporal expressions tagger identifies temporal expressions (timexes) in text and normalizes these expressions, providing corresponding calendrical dates and times.
+The current version of the temporal expressions tagger is tuned for processing news texts (so the quality of the analysis may be suboptimal in other domains).
 The program outputs an annotation in a format similar to TimeML's TIMEX3 (more detailed description can be found in `annotation guidelines`_, which are currently only in Estonian).
 
-.. _annotation guidelines: https://github.com/soras/EstTimeMLCorpus/blob/master/docs-et/ajav2ljendite_m2rgendamine_06.pdf?raw=true
+.. _annotation guidelines: https://github.com/soras/Ajavt/blob/master/doc/margendusformaat_et.pdf?raw=true
 
 The :py:class:`~estnltk.text.Text` class has property :py:attr:`~estnltk.text.Text.timexes`, which returns a list of time expressions found in the text::
 
@@ -1177,12 +1178,17 @@ There are a number of mandatory attributes present in the dictionaries:
 * **start, end** - the expression start and end positions in the text.
 * **tid** - TimeML format *id* of the expression.
 * **id** - the zero-based *id* of the expressions, matches the position of the respective dictionary in the resulting list.
-* **temporal_function** - *true*, if the expression is relative and exact date has to be computed from anchor points.
-* **type** - according to TimeML, four types of temporal expressions are distinguished:
+* **type** - following the TimeML specification, four types of temporal expressions are distinguished:
     * *DATE expressions*, e.g. *järgmisel kolmapäeval* (*on next Wednesday*)
-    * *TIME expressions*, e.g. *kell 18.00* (*at 18.00 o’clock*)
+    * *TIME expressions*, e.g. *kell 18.00* (*at 18 o’clock*)
     * *DURATIONs*, e.g. *viis päeva* (*five days*)
     * *SETs of times*, e.g. *igal aastal* (*on every year*)
+* **temporal_function** - boolean value indicating whether the semantics of the expression are relative to the context. 
+    * For DATE and TIME expressions:
+        * *True* indicates that the expression is relative and semantics have been computed by heuristics;
+        * *False* indicates that the expression is absolute and semantics haven't been computed by heuristics;
+    * For DURATION expressions, *temporal_function* is mostly *False*, except for vague durations;
+    * For SET expressions, *temporal_function* is always *True*;
 
 The **value** is a mandatory attribute containing the semantics and has four possible formats:
 
@@ -1230,8 +1236,8 @@ In addition, there are dedicated markers for special time notions:
 Document creation date
 ----------------------
 
-Relatime temporal expressions often depend on document creation date, which can be supplied as ``creation_date`` parameter.
-If no ``creation_date`` argument is passed, it is set as the date the code is run (June 8 2015 in the example)::
+Relative temporal expressions often depend on document creation date, which can be supplied as ``creation_date`` parameter.
+If no ``creation_date`` argument is passed, it is set as the date the code is run (June 8, 2015 in the example)::
 
     from estnltk import Text
     Text('Täna on ilus ilm').timexes
@@ -1253,7 +1259,7 @@ However, when passing ``creation_date=datetime.datetime(1986, 12, 21)``::
     import datetime
     Text('Täna on ilus ilm', creation_date=datetime.datetime(1986, 12, 21)).timexes
 
-We see that word "today" (*täna*) refers to to December 21 1986::
+We see that word "today" (*täna*) refers to to December 21, 1986::
 
     [{'end': 4,
       'id': 0,
@@ -1267,73 +1273,61 @@ We see that word "today" (*täna*) refers to to December 21 1986::
 TIMEX examples
 --------------
 
-Here are some example of time expressions and fields that Estnltk can extract.
-The document creation date is fixed to Dec 21 1986 in the examples below.
+Here are some examples of temporal expressions and fields that the tagger can extract.
+The document creation date is fixed to Dec 21, 1986 in the examples below.
 See `annotation guidelines`_ for more detailed explanations.
 
-.. _annotation guidelines: https://github.com/soras/EstTimeMLCorpus/blob/master/docs-et/ajav2ljendite_m2rgendamine_06.pdf?raw=true
-
-
-========================================================================= ============================= ======== ================ ==========
-Example                                                                   Time expression               Type     Value            Modifier
-========================================================================= ============================= ======== ================ ==========
-Järgmisel reedel, 2004. aastal                                            Järgmisel reedel              DATE     1986-12-26
-Järgmisel reedel, 2004. aastal                                            2004                          DATE     2004
-esmaspäeva hommikul, järgmisel reedel kell 14.00                          esmaspäeva hommikul           TIME     1986-12-15TMO
-esmaspäeva hommikul, järgmisel reedel kell 14.00                          järgmisel reedel kell 14.00   TIME     1986-12-26T14:00
-neljapäeviti, hommikuti                                                   neljapäeviti                  SET      XXXX-WXX-XX
-neljapäeviti, hommikuti                                                   hommikuti                     SET      XXXX-XX-XXTMO
-selle kuu alguses                                                         selle kuu alguses             DATE     1986-12          START
-1990ndate lõpus                                                           1990ndate lõpus               DATE     199              END
-VI sajandist e. m. a                                                      VI sajandist                  DATE     05
+========================================================================= ============================= ======== ================= ==========
+Example                                                                   Temporal expression           Type     Value             Modifier
+========================================================================= ============================= ======== ================= ==========
+Järgmisel reedel                                                          Järgmisel reedel              DATE     1986-12-26
+2004. aastal                                                              2004. aastal                  DATE     2004
+esmaspäeva hommikul                                                       esmaspäeva hommikul           TIME     1986-12-15TMO
+järgmisel reedel kell 14.00                                               järgmisel reedel kell 14. 00  TIME     1986-12-26T14:00
+neljapäeviti                                                              neljapäeviti                  SET      XXXX-WXX-XX
+hommikuti                                                                 hommikuti                     SET      XXXX-XX-XXTMO
+selle kuu alguses                                                         selle kuu alguses             DATE     1986-12           START
+1990ndate lõpus                                                           1990ndate lõpus               DATE     199               END
+VI sajandist e.m.a                                                        VI sajandist e.m.a            DATE     BC05
 kolm tundi                                                                kolm tundi                    DURATION PT3H
 viis kuud                                                                 viis kuud                     DURATION P5M
 kaks minutit                                                              kaks minutit                  DURATION PT2M
 teisipäeviti                                                              teisipäeviti                  SET      XXXX-WXX-XX
 kolm päeva igas kuus                                                      kolm päeva                    DURATION P3D
 kolm päeva igas kuus                                                      igas kuus                     SET      P1M
-kolm korda igas kuus                                                      igas kuus                     SET      P1M
-Ühel kenal päeval                                                         päeval                        TIME     TDT
-Ühel märtsikuu päeval                                                     märtsikuu                     DATE     1987-03
-Ühel märtsikuu päeval                                                     päeval                        TIME     TDT
 hiljuti                                                                   hiljuti                       DATE     PAST_REF
 tulevikus                                                                 tulevikus                     DATE     FUTURE_REF
-2009. aasta alguses                                                       2009                          DATE     2009
-2009. aasta alguses                                                       aasta alguses                 DATE     XXXX             START
-juuni alguseks 2007. aastal                                               juuni alguseks                DATE     1986-06          START
-juuni alguseks 2007. aastal                                               2007                          DATE     2007
-2009. aasta esimesel poolel                                               2009                          DATE     2009
-2009. aasta esimesel poolel                                               aasta esimesel poolel         DATE     XXXX             FIRST_HALF
-umbes 4 aastat                                                            umbes 4 aastat                DURATION P4Y              APPROX
-peaaegu 4 aastat                                                          peaaegu 4 aastat              DURATION P4Y              LESS_THAN
+2009. aasta alguses                                                       2009. aasta alguses           DATE     2009              START
+juuni alguseks 2007. aastal                                               juuni alguseks                DATE     1986-06           START
+juuni alguseks 2007. aastal                                               2007. aastal                  DATE     2007
+2009. aasta esimesel poolel                                               2009. aasta esimesel poolel   DATE     2009              FIRST_HALF
+umbes 4 aastat                                                            umbes 4 aastat                DURATION P4Y               APPROX
+peaaegu 4 aastat                                                          peaaegu 4 aastat              DURATION P4Y               LESS_THAN
+12-15 märts 2009                                                          12-                           DATE     2009-03-12
 12-15 märts 2009                                                          15 märts 2009                 DATE     2009-03-15
-eelmise kuu lõpus                                                         eelmise kuu lõpus             DATE     1986-11          END
-2004. aasta suvel                                                         2004                          DATE     2004
-2004. aasta suvel                                                         aasta                         DATE     XXXX
-2004. aasta suvel                                                         suvel                         DATE     1986-SU
+12-15 märts 2009                                                                                        DURATION PXXD
+eelmise kuu lõpus                                                         eelmise kuu lõpus             DATE     1986-11           END
+2004. aasta suvel                                                         2004. aasta suvel             DATE     2004-SU
 Detsembris oli keskmine temperatuur kaks korda madalam kui kuu aega varem Detsembris                    DATE     1986-12
 Detsembris oli keskmine temperatuur kaks korda madalam kui kuu aega varem kuu aega varem                DATE     1986-11
-neljapäeval, 17. juunil                                                   neljapäeval                   DATE     1986-12-18
-neljapäeval, 17. juunil                                                   17. juunil                    DATE     1986-06-17
+neljapäeval, 17. juunil                                                   neljapäeval , 17. juunil      DATE     1986-06-17
 täna, 100 aastat tagasi                                                   täna                          DATE     1986-12-21
 täna, 100 aastat tagasi                                                   100 aastat tagasi             DATE     1886
 neljapäeva öösel vastu reedet                                             neljapäeva öösel vastu reedet TIME     1986-12-19TNI
-aasta esimestel kuudel                                                    aasta                         DATE     XXXX
 viimase aasta jooksul                                                     viimase aasta jooksul         DURATION P1Y
-viimase aasta jooksul                                                     jooksul                       DATE     1985
+viimase aasta jooksul                                                                                   DATE     1985
 viimase kolme aasta jooksul                                               viimase kolme aasta jooksul   DURATION P3Y
-viimase kolme aasta jooksul                                               jooksul                       DATE     1983
-varasemad aastad, hilisemad aastad                                        varasemad aastad              DATE     PAST_REF
-varasemad aastad, hilisemad aastad                                        aastad                        DURATION PXY
-viie-kuue aasta pärast, kahe-kolme aasta tagune                           kuue aasta pärast             DATE     1992
-viie-kuue aasta pärast, kahe-kolme aasta tagune                           kolme aasta tagune            DATE     1983
+viimase kolme aasta jooksul                                                                             DATE     1983
 aastaid tagasi                                                            aastaid tagasi                DATE     PAST_REF
 aastate pärast                                                            aastate pärast                DATE     FUTURE_REF
-========================================================================= ============================= ======== ================ ==========
+========================================================================= ============================= ======== ================= ==========
 
 
 Tagging clauses
 ===============
+
+Basic usage
+--------------
 
 A simple sentence, also called an independent clause, typically contains a finite verb, and expresses a complete thought.
 However, natural language sentences can also be long and complex, consisting of two or more clauses joined together.
@@ -1343,7 +1337,7 @@ The clause structure can be made even more complex due to embedded clauses, whic
     text = Text('Mees, keda seal kohtasime, oli tuttav ja teretas meid.')
     text.get.word_texts.clause_indices.clause_annotations.as_dataframe
 
-The clause annotations defien embedded clauses and clause boundaries.
+The clause annotations define embedded clauses and clause boundaries.
 Additionally, each word in a sentence is associated with a clause index::
 
        word_texts  clause_indices     clause_annotations
@@ -1421,19 +1415,43 @@ It might be useful to process each clause of the sentence independently::
     , keda seal kohtasime,
     teretas meid.
 
+The 'ignore_missing_commas' mode
+----------------------------------
+
+Because commas are important clause delimiters in Estonian, the quality of the clause segmentation may suffer due to accidentially missing commas in the input text. To address this issue, the clause segmenter can be initialized in a mode in which the program tries to be less sensitive to missing commas while detecting clause boundaries.
+
+Example::
+
+    from estnltk import ClauseSegmenter
+    from estnltk import Text
+    
+    segmenter = ClauseSegmenter( ignore_missing_commas=True )
+    text = Text('Keegi teine ka siin ju kirjutas et ütles et saab ise asjadele järgi minna aga vastust seepeale ei tulnudki.', clause_segmenter = segmenter)
+    
+    for clause in text.split_by('clauses'):
+        print (clause.text)
+    
+will produce following output::
+
+    Keegi teine ka siin ju kirjutas
+    et ütles
+    et saab ise asjadele järgi minna
+    aga vastust seepeale ei tulnudki.
+    
+Note that this mode is experimental and compared to the basic mode, it may introduce additional incorrect clause boundaries, although it also improves clause boundary detection in texts with (a lot of) missing commas.
 
 
 Verb chain tagging
 ==================
 
-Verb chain tagger identifies multiword verb units from text.
+Verb chain tagger identifies main verbs (predicates) in clauses. 
 The current version of the program aims to detect following verb chain constructions:
 
 * basic main verbs:
 
-  * negated main verbs: *ei/ära/pole/ega* + verb (e.g. Helistasin korraks Carmenile, kuid ta **ei vastanud.**);
-  * (affirmative) single *olema* main verbs (e.g. Raha **on** alati vähe) and two word *olema* verb chains (**Oleme** sellist kino ennegi **näinud**);
   * (affirmative) single non-*olema* main verbs (example: Pidevalt **uurivad** asjade seisu ka hollandlased);
+  * (affirmative) single *olema* main verbs (e.g. Raha **on** alati vähe) and two word *olema* verb chains (**Oleme** sellist kino ennegi **näinud**);
+  * negated main verbs: *ei/ära/pole/ega* + verb (e.g. Helistasin korraks Carmenile, kuid ta **ei vastanud.**);
 
 * verb chain extensions:
 
@@ -1450,7 +1468,7 @@ Verb chains are stored as a simple layer named ``verb_chains``::
 
     [{'analysis_ids': [[0], [0], [0]],
       'clause_index': 0,
-      'end': 29,
+      'end': [8, 16, 29],
       'mood': 'condit',
       'morph': ['V_ks', 'V_nud', 'V_ma'],
       'other_verbs': False,
@@ -1458,12 +1476,12 @@ Verb chains are stored as a simple layer named ``verb_chains``::
       'phrase': [1, 2, 4],
       'pol': 'POS',
       'roots': ['ole', 'pida', 'mine'],
-      'start': 3,
+      'start': [3, 9, 23],
       'tense': 'past',
       'voice': 'personal'},
      {'analysis_ids': [[0], [3]],
       'clause_index': 1,
-      'end': 44,
+      'end': [37, 44],
       'mood': 'indic',
       'morph': ['V_neg', 'V_nud'],
       'other_verbs': False,
@@ -1471,7 +1489,7 @@ Verb chains are stored as a simple layer named ``verb_chains``::
       'phrase': [7, 8],
       'pol': 'NEG',
       'roots': ['ei', 'mine'],
-      'start': 35,
+      'start': [35, 38],
       'tense': 'imperfect',
       'voice': 'personal'}]
 
@@ -1480,20 +1498,21 @@ Following is a brief description of the attributes:
 
 * ``analysis_ids`` - the indices of analysis ids of the words in the phrase of this chain.
 * ``clause_index`` - the clause id this chain was tagged in.
-* ``mood``  - mood of the finite verb. Possible values: *'indic'* (indicative), *'imper'* (imperative), *'condit'* (conditional), *'quotat'* (quotative) või *'??'* (undetermined);
+* ``mood``  - mood of the finite verb. Possible values: *'indic'* (indicative), *'imper'* (imperative), *'condit'* (conditional), *'quotat'* (quotative) or *'??'* (undetermined);
 * ``morph`` - for each word in the chain, lists its morphological features: part of speech tag and form (in one string, separated by '_', and multiple variants of the pos/form are separated by '/');
 * ``other_verbs`` - boolean, marks whether there are other verbs in the context, which can be potentially added to the verb chain; if ``True``,then it is uncertain whether the chain is complete or not;
 * ``pattern`` - the general pattern of the chain: for each word in the chain, lists whether it is *'ega'*, *'ei'*, *'ära'*, *'pole'*, *'ole'*, *'&'* (conjunction: ja/ning/ega/või), *'verb'* (verb different than *'ole'*) or *'nom/adv'* (nominal/adverb);
 * ``phrase`` - the word indices of the sentence that make up the verb chain phrase.
 * ``pol`` - grammatical polarity of the finite verb. Possible values: *'POS'*, *'NEG'* or *'??'*. *'NEG'* means that the chain begins with a negation word *ei/pole/ega/ära*; *'??'* is reserved for cases where it is uncertain whether *ära* forms a negated verb chain or not;
 * ``roots`` - for each word in the chain, lists its corresponding 'root' value from the morphological analysis;
-* ``tense`` - tense of the finite verb. Possible values depend on the mood value. Tenses of indicative: *'present'*, *'imperfect'*, *'perfect'*, *'pluperfect'*; tense of imperative: *'present'*; tenses of conditional and quotative: *'present'* ja *'past'*. Additionally, the tense may remain undetermined (*'??'*).
+* ``tense`` - tense of the finite verb. Possible values depend on the mood value. Tenses of indicative: *'present'*, *'imperfect'*, *'perfect'*, *'pluperfect'*; tense of imperative: *'present'*; tenses of conditional and quotative: *'present'* and *'past'*. Additionally, the tense may remain undetermined (*'??'*).
 * ``voice`` - voice of the finite verb. Possible values: *'personal'*, *'impersonal'*, *'??'* (undetermined).
 
-Note that the words in the verb chain are ordered by the order of the grammatical relations (the order which may not coincide with the word order in text).
+Note that the words in the verb chain (in ``phrase``, ``pattern``, ``morph`` and ``roots``) are ordered by the order of the grammatical relations - the order which may not coincide with the word order in text.
 The first word is the finite verb (main verb) of the clause (except in case of the negation constructions, where the first word is typically a negation word), and each following word is governed by the previous word in the chain.
 An exception: the chain may end with a conjunction of two infinite verbs (general pattern *verb & verb*), in this case, both infinite verbs can be considered as being governed by the preceding word in the chain.
 
+Attributes ``start`` and ``end`` contain start and end positions for each token in the phrase, and these token positions are listed in the ascending order, regardless the order of the grammatical relations.
 
 Estonian wordnet
 ================

@@ -1,22 +1,86 @@
+.. _installation_tutorial:
+
 ============
 Installation
 ============
 
-Quick installation with pip
-===========================
+Estnltk works with Python versions 2.7 and 3.4 on Windows and Linux.
 
-The easiest way to install Estnltk is using the standard ``pip`` tool, which downloads
-the latest Estnltk version from PyPi repository, builds it and installs it::
+Installation on Linux Mint 17.2
+===============================
 
-    pip install estnltk
+In Linux, install dependences, install estnltk and test the installation::
 
-However, in order the command to succeed, you need to have the necessary dependencies installed your system,
-regardless of the OS you run.
+    sudo apt-get install g++ python3-dev python3-pip python3-wheel python3-numpy swig
+    sudo pip3 install estnltk
 
-**NB! Check section about post-installation steps as well.**
+As a first test, try to run this line of code in your terminal::
 
-Dependencies
-============
+    python3 -c "import estnltk; print( estnltk.Text('Tere estnltk').lemmas )"
+
+It should print::
+
+    [nltk_data] Downloading package punkt to /home/user/nltk_data...
+    [nltk_data]   Unzipping tokenizers/punkt.zip.
+    ['tere', 'estnltk']
+
+You see that NLTK data is being dowloaded on first use of the library.
+Then, run the unittest suite::
+
+    python3 -m estnltk.run_tests
+
+This should report the number of tests run and the status. If it is "OK", then you are good to go::
+
+    Ran 157 tests in 35.207s
+
+    OK
+
+Although this is Linux Mint 17.2 specific, it should also work in Ubuntu.
+
+
+(Optional) You might want to use Oracle JDK instead of OpenJDK, because Estnltk uses Java for some tasks.
+These tutorials will help you install it: http://community.linuxmint.com/tutorial/view/1372 ,
+http://community.linuxmint.com/tutorial/view/1091 .
+
+
+Installation on Windows
+=======================
+The process involves installation of the pre-compiled version of estnltk and its dependencies so that no compiler is required. We assume you have python 3.4 installed and run a 64-bit Windows OS. Installation on a 32-bit platform is identical.
+
+First, obtain the required packages:
+
+* numpy-1.10.0b1+mkl-cp34-none-win_amd64.whl from http://www.lfd.uci.edu/~gohlke/pythonlibs/ 
+* python_crfsuite-0.8.3-cp34-none-win_amd64.whl from https://github.com/estnltk/estnltk/blob/version1.4/dist/python-crfsuite
+* estnltk-1.4-cp34-cp34m-win_amd64.whl from https://github.com/estnltk/estnltk/releases
+
+Next, install the dependencies and estnltk::
+
+    python.exe -m pip install numpy-1.10.0b1+mkl-cp34-none-win_amd64.whl
+    python.exe -m pip install python_crfsuite-0.8.3-cp34-none-win_amd64.whl
+    python.exe -m pip install estnltk-1.4-cp34-cp34m-win_amd64.whl
+    
+Make sure the installation was successfull by running::
+
+    python.exe -c "import estnltk; print( estnltk.Text('Tere estnltk').lemmas )"
+
+which should output::
+
+    [nltk_data] Downloading package punkt to /home/user/nltk_data...
+    [nltk_data] Unzipping tokenizers/punkt.zip.
+    ['tere', 'estnltk']
+
+Finally, run the unittests::
+
+    python.exe -m estnltk.run_tests
+
+This should report the number of tests run and the status. If the status is "OK", then you are good to go::
+
+    Ran 157 tests in 35.207s
+
+    OK
+
+Full list of dependencies
+=========================
 
 **Python with development headers.** https://www.python.org/ .
 The most obvious dependency of course is Python itself.
@@ -49,6 +113,10 @@ The ``java`` virtual machine must be in the system ``PATH``.
 We recommend using Oracle Java http://www.oracle.com/technetwork/java/javase/downloads/index.html,
 although alternatives such as OpenJDK (http://openjdk.java.net/) should also work.
 
+**Elasticsearch server**.
+Estnltk database module has a wrapper around Elastic database.
+In order to use Elastic, see https://www.elastic.co/products/elasticsearch .
+
 **setuptools**. https://pypi.python.org/pypi/setuptools .
 A popular toolchain to build Python packages. In Linux package managers, typically called ``python-setuptools`` .
 
@@ -56,7 +124,7 @@ A popular toolchain to build Python packages. In Linux package managers, typical
 We include numpy/scipy in this list as it is quite difficult to build it from scratch
 due to ATLAS/BLAS dependencies. Thus, we recommend installing a pre-built binaries (see http://www.scipy.org/install.html).
 
-**python-crfsuite (version 0.8.1)**. Conditional random field library. There should be no problems building it automatically,
+**python-crfsuite (version 0.8.3)**. Conditional random field library. There should be no problems building it automatically,
 but just in case we have included pre-built binaries in our repository:
 https://github.com/estnltk/estnltk/tree/master/dist/python-crfsuite .
 
@@ -68,25 +136,15 @@ here is the list of their names and precise version required by Estnltk.
 Windows users should check out Christoph Gohlke's website: http://www.lfd.uci.edu/~gohlke/pythonlibs/ ,
 that contains an marvellous list of pre-built binaries, including the ones required by Estnltk.
 
-* **regex (version 2015.03.18)**
+* **regex (version 2015.07.19)**
 * **six (version 1.9.0)**
-* **nltk (version 3.0.2)**
-* **pandas (version 0.15.2)**
+* **nltk (version 3.0.4)**
+* **pandas (version 0.16.2)**
 * **cached-property (version 1.2.0)**
-* **beautifulsoup4 (version 4.3.2)**
+* **beautifulsoup4 (version 4.4.0)**
+* **elasticsearch (1.6.0)**
+* **html5lib (0.9999999)**
 
-
-Running the tests
-=================
-
-After you have installed the library, you should run the unit tests::
-
-    python -m unittest discover estnltk.tests
-
-Note that when you built directly from cloned Estnltk repository, navigate away from it as
-running the command in the same directory can cause problems.
-
-When unit tests pass, you know you have installed all necessary dependencies of the library.
 
 Building from source
 ====================
@@ -95,52 +153,30 @@ First thing after installing the dependencies is to get the source.
 One option is cloing the repository using latest code::
 
     git clone https://github.com/estnltk/estnltk estnltk
+
     
-or from mirror repository::
+Then, issue following commands in the cloned folder to build and install::
 
-    git clone https://estnltk.cs.ut.ee/timo/estnltk.git estnltk
-
-or download it as a compressed zip::    
-
-    https://estnltk.cs.ut.ee/estnltk/estnltk/repository/archive.zip
-    
-Then, extract the sources and issue following commands in the downloaded/cloned folder to build and install::
-
-    python setup.py build
-    sudo python setup.py install
+    python3 setup.py build
+    sudo python3 setup.py install
     
 Note that ``python`` usually refers to default Python version installed with the system.
 Usually, you can also use more specific versions by replacing ``python`` with ``python2.7`` or ``python3.4``.
 Note that the same commands work when building in Windows, but you need to execute them in Visual Studio SDK command prompt.
 
-
-Windows installers
-==================
-
-You can use pre-built windows installers for Estnltk.
-Note that you still need to install the dependencies separately.
-
-32-bit:
-
-* https://github.com/estnltk/estnltk/blob/master/dist/estnltk-1.2.win32-py2.7.msi
-* https://github.com/estnltk/estnltk/blob/master/dist/estnltk-1.2.win32-py3.4.msi
-
-64-bit:
-
-* https://github.com/estnltk/estnltk/blob/master/dist/estnltk-1.2.win-amd64-py2.7.msi
-* https://github.com/estnltk/estnltk/blob/master/dist/estnltk-1.2.win-amd64-py3.4.msi
-    
+If you want to set up estnltk for development, see :ref:`developer_guide`.
 
 
 Post-installation steps
 =======================
 
-Downloading NLTK tokenizers for Estonian. These are necessary for tokenization::
+Downloading NLTK tokenizers for Estonian. These are necessary for tokenization.
+This should happen automatically, but if it does not, use this command to download them::
 
-    python -m nltk.downloader punkt
+    python3 -m nltk.downloader punkt
 
 Estnltk comes with pre-built named entity taggers, but you can optionally rebuild them if you have lost them for some reason.
 The command to build the default named entity tagger for Estonian::
 
-    python -m estnltk.tools.train_default_ner_model
+    python3 -m estnltk.tools.train_default_ner_model
 

@@ -137,6 +137,7 @@ VERB_TYPES = {
     'vat': 'kaudne kõneviis olevik aktiiv jaatav kõne',
 }
 
+
 def as_unicode(s, encoding='utf-8'):
     """Force conversion of given string to unicode type.
     Unicode is ``str`` type for Python 3.x and ``unicode`` for Python 2.x .

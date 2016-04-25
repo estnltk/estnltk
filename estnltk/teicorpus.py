@@ -7,6 +7,11 @@ documents, paragraphs, sentences and words with some additional metadata found i
 
 The implementation is currently quite simplistic, though. But it should
 be sufficient for simpler use cases.
+The resulting documents have paragraphs separated by two newlines and sentences by single newline.
+The original plain text is not known for XML TEI files.
+Note that all punctuation has been separated from words in the TEI files.
+
+TODO: Make this module faster, it is dead slow, probably due to BeautifulSoup4.
 """
 from __future__ import unicode_literals, print_function, absolute_import
 
@@ -67,7 +72,7 @@ def parse_tei_corpus(path, target=['artikkel']):
     """
     with open(path, 'rb') as f:
         html_doc = f.read()
-    soup = BeautifulSoup(html_doc)
+    soup = BeautifulSoup(html_doc, 'html5lib')
     title = soup.find_all('title')[0].string
     
     documents = []
@@ -75,7 +80,12 @@ def parse_tei_corpus(path, target=['artikkel']):
         documents.extend(parse_div(div1, dict(), target))
     return tokenize_documents(documents)
 
-        
+
+def get_subdiv(div):
+    n = div[3:]
+    return 'div' + str(int(n) + 1)
+
+
 def parse_div(soup, metadata, target):
     """Parse a <div> tag from the file.
     
@@ -121,7 +131,7 @@ def parse_div(soup, metadata, target):
         metadata[div_type] = div_title
 
         # recurse subdivs
-        subdiv_name = {'div1': 'div2', 'div2': 'div3'}.get(soup.name, None)
+        subdiv_name = get_subdiv(soup.name)
         subdivs = []
         if subdiv_name is not None:
             subdivs = soup.find_all(subdiv_name)
@@ -170,8 +180,8 @@ def tokenize_documents(docs):
     sep = '\n\n'
     texts = []
     for doc in docs:
-        text = '\n\n'.join([' '.join(para[SENTENCES]) for para in doc[PARAGRAPHS]])
+        text = '\n\n'.join(['\n'.join(para[SENTENCES]) for para in doc[PARAGRAPHS]])
         doc[TEXT] = text
         del doc[PARAGRAPHS]
-        texts.append(Text(doc).tokenize_paragraphs().tokenize_words())
+        texts.append(Text(doc))
     return texts

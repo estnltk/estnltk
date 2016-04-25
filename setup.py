@@ -3,6 +3,8 @@ from setuptools import setup, find_packages, Extension
 import os
 import sys
 
+os.environ['CC'] = 'g++'
+os.environ['CXX'] = 'g++'
 
 def get_sources(src_dir='src', ending='.cpp'):
     """Function to get a list of files ending with `ending` in `src_dir`."""
@@ -36,21 +38,22 @@ swig_opts.append('-c++')
 
 setup(
     name = "estnltk",
-    version = "1.2.2",
+    version = "1.4",
 
     packages = find_packages(),
     include_package_data=True,
     package_data = {
-        'estnltk': ['corpora/arvutustehnika_ja_andmetootlus/*.xml', 'corpora/*.json', 'java-res/*'],
+        'estnltk': ['corpora/arvutustehnika_ja_andmetootlus/*.xml', 'corpora/*.json', 'java-res/*.*'],
         'estnltk.vabamorf': ['dct/*.dct'],
         'estnltk.estner': ['gazetteer/*', 'models/py2_default/*', 'models/py3_default/*'],
         'estnltk.wordnet': ['*.cnf', 'data/*.txt', 'data/*.soi', 'data/*.cnf', 'data/scripts/*.py'],
         'estnltk.mw_verbs': ['res/*'],
-        'estnltk.converters': ['*.mrf']
+        'estnltk.converters': ['*.mrf'],
+        'estnltk.syntax': ['files/*']
     },
 
     author       = "University of Tartu",
-    author_email = "tpetmanson@gmail.com, alex.tk.fb@gmail.com, siim.orasmaa@gmail.com, swen@math.ut.ee",
+    author_email = "siim.orasmaa@gmail.com, alex.tk.fb@gmail.com, tpetmanson@gmail.com, swen@math.ut.ee",
     description  = "Estnltk — open source tools for Estonian natural language processing",
     license      = "GPLv2",
     url          = "https://github.com/estnltk/estnltk",
@@ -65,12 +68,14 @@ setup(
     # however, you can probably safely install newer versions of the dependencies
     install_requires = [
         'six==1.9.0',                       # helps to build Py2/Py3 compatible programs
-        'nltk==3.0.2',                      # NLTK mainly used for English
-        'regex==2015.03.18',                # improved Python regular expressions
-        'pandas==0.15.2',                   # Panel Data Analysis library for Python
-        'python-crfsuite==0.8.1',           # Conditional random fields library
+        'nltk==3.0.4',                      # NLTK mainly used for English
+        'regex==2015.07.19',                # improved Python regular expressions
+        'pandas==0.16.2',                   # Panel Data Analysis library for Python
+        'python-crfsuite==0.8.3',           # Conditional random fields library
         'cached-property==1.2.0',           # Simple property for caching results
-        'beautifulsoup4==4.3.2'             # HTML parsing library
+        'beautifulsoup4==4.4.0',            # HTML parsing library
+        'html5lib==0.9999999',              # HTML parsing library
+        'elasticsearch==1.6.0'              # database support
         ],
 
     classifiers = ['Intended Audience :: Developers',

@@ -2,7 +2,7 @@
 
 import re, codecs
 from sys import argv
-from pyvabamorf import analyze_sentence
+from estnltk import analyze
 
 syn_idx_regexp = re.compile("0\s+@(\d+)@\s+WORD_MEANING")
 pos_regexp = re.compile("\s+1\s+PART_OF_SPEECH\s+\"(\w+)\"")
@@ -29,7 +29,7 @@ with codecs.open('%s'%argv[1],'r',encoding='utf-8') as fin, codecs.open("../syns
 		result = sense_regexp.match(line)
 		if result:
 			sense = result.group(1)
-			lemma_product = analyze_sentence([literal])[0]
+			lemma_product = analyze([literal])[0]
 			for candidate in lemma_product['analysis']:
 				form = candidate['form']
 				lemma = candidate['lemma']

@@ -1,3 +1,15 @@
+/*
+Copyright 2015 Filosoft OÜ
+
+This file is part of Estnltk. It is available under the license of GPLv2 found
+in the top-level directory of this distribution and
+at http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html .
+No part of this file, may be copied, modified, propagated, or distributed
+except according to the terms contained in the license.
+
+This software is distributed on an "AS IS" basis, without warranties or conditions
+of any kind, either express or implied.
+*/
 #if !defined _STDFSC_H_
 #define _STDFSC_H_
 
@@ -22,11 +34,14 @@
 #endif
 
 #if defined (unix) && !defined (UNIX) // gcc 3.x / 2.95 for Solaris
+//	#pragma message("UNIX and Solaris");
 	#define UNIX
 #endif
 
 #if defined (macintosh) && !defined (MAC) // CodeWarrior 6|8
+//	#pragma message("Codewarrior macintosh");
 	#define MAC
+	//#define UNIX
 #endif
 
 #if defined (_UNICODE) && !defined (UNICODE)
@@ -37,9 +52,11 @@
 #endif
 
 #if defined (WIN32CE)
+//	#pragma message("WIN32CE block")
 	#include <windows.h>
 	#include <stdio.h>
 #elif defined (WIN32)
+//	#pragma message("WIN32 block")
 	#include <windows.h>
 	#include <stdio.h>
 	#include <math.h>
@@ -54,7 +71,9 @@
 			#define WINRT
 		#endif
 	#endif
-#elif defined (UNIX)
+#else
+//#elif defined (UNIX)
+	#pragma message("UNIX block")
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <stdarg.h>
@@ -66,16 +85,17 @@
 	#include <signal.h>
 	#include <dlfcn.h>
 	#include <sys/time.h>
-#elif defined (MAC)
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <stdarg.h>
-	#include <string.h>
-	#include <ctype.h>
-	#include <wchar.h>
-	#include <dlfcn.h>
-#else
-	#error Only Win32(CE), Unix and Mac are currently supported.
+//#elif defined (MAC)
+//	#pragma message("MAC block")
+//	#include <stdio.h>
+//	#include <stdlib.h>
+//	#include <stdarg.h>
+//	#include <string.h>
+//	#include <ctype.h>
+//	#include <wchar.h>
+//	#include <dlfcn.h>
+//#else
+//	#error Only Win32(CE), Unix and Mac are currently supported.
 #endif
 
 #if (_MSC_VER >= 1600) || defined (__GXX_EXPERIMENTAL_CXX0X__)

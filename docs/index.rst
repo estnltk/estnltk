@@ -6,6 +6,10 @@ Estnltk --- Open source tools for Estonian natural language processing
 Estnltk is a Python 2.7/Python 3.4 library for performing common language processing tasks in Estonian, funded by `Eesti Keeletehnoloogia Riiklik Programm`_ under the project `EKT57`_.
 Estnltk is licensed under `GNU GPL version 2`_.
 
+To get started right now, see :ref:`installation_tutorial`.
+
+University of Tartu has a course that covers many aspects of the library: https://courses.cs.ut.ee/2015/pynlp/fall .
+
 .. _Eesti Keeletehnoloogia Riiklik Programm: https://www.keeletehnoloogia.ee/
 .. _EKT57: https://www.keeletehnoloogia.ee/et/ekt-projektid/estnltk-pythoni-teegid-eestikeelsete-vabatektside-lihtsamaks-tootlemiseks
 .. _GNU GPL version 2: http://www.gnu.org/licenses/gpl-2.0.html
@@ -116,7 +120,26 @@ Tutorials
 
    tutorials/installation
    tutorials/text
+   tutorials/disambiguation
+   tutorials/ner
+   tutorials/dependency
+   tutorials/maltparser
+   tutorials/np_chunker
+   tutorials/prettyprinter
+   tutorials/grammar
+   tutorials/wikipedia
+   tutorials/tei
+   tutorials/elasticsearch
+   tutorials/devel
    tutorials/morf_tables
+
+Tools for linguists
+-------------------
+
+.. toctree::
+   :maxdepth: 3
+   
+   tutorials/textclassifier
 
 
 API reference
@@ -127,7 +150,11 @@ API reference
 
    api/clausesegmenter
    api/core
+   api/database
+   api/grammar
+   api/match
    api/ner
+   api/prettyprinter
    api/teicorpus
    api/text
    api/textcleaner
@@ -136,3 +163,10 @@ API reference
    api/wordnet_tagger
    api/wn
 
+Authors
+=======
+
+.. toctree::
+   :maxdepth: 1
+
+   authors

@@ -1,13 +1,14 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals, print_function, absolute_import
 import unittest
 
 import estnltk
-from estnltk.estner.featureextraction import MorphFeatureExtractor,\
+from ..estner.featureextraction import MorphFeatureExtractor,\
     LocalFeatureExtractor, GazetteerFeatureExtractor
-from estnltk.estner.ner import Token
-from estnltk.core import as_unicode
-from estnltk.text import Text
-from estnltk.ner import json_document_to_estner_document, NerTagger
+from ..estner.ner import Token
+from ..core import as_unicode
+from ..text import Text
+from ..ner import json_document_to_estner_document, NerTagger
 
 
 class TestGazetteerFeatureExtractor(unittest.TestCase):
@@ -124,7 +125,6 @@ class TestLocalFeatureExtractor(unittest.TestCase):
     
 class TestNer(unittest.TestCase):
 
-    
     def test(self):
         t = Text('Alexander Tkachenko elab Pärnus')
         self.assertEqual(t.named_entities, ['Alexander Tkachenko', as_unicode('Pärnu')])
@@ -144,7 +144,7 @@ class TestNer(unittest.TestCase):
         self.assertEqual(t.named_entity_labels, ['PER'])
         
         t = Text(as_unicode('Inimestelt saadud vihjed pole veel politseil aidanud leida 43-aastast Kajar Paasi, kes tema naise sõnul Ardus maanteel rööviti.'))
-        self.assertEqual(t.named_entities, ['Kajar Paasi', 'Ardu'])
+        self.assertEqual(t.named_entities, ['Kajar Paas', 'Ardu'])
         self.assertEqual(t.named_entity_labels, ['PER', 'LOC'])
         
         t = Text(as_unicode('Tuhanded Šotimaa kodud on lääneranniku piirkondi tabanud „ilmapommi“-tormi tõttu elektrita'))

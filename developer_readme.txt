@@ -29,7 +29,7 @@ First, modify your .git/setup configuration to look like following:
     bare = false
     logallrefupdates = true
 [remote "github"]
-    url = git@github.com:tpetmanson/estnltk.git
+    url = git@github.com:estnltk/estnltk.git
     fetch = +refs/heads/*:refs/remotes/github/*
 [remote "ut"]
     url = git@estnltk.cs.ut.ee:timo/estnltk.git
@@ -38,15 +38,15 @@ First, modify your .git/setup configuration to look like following:
     url = git@gitlab.keeleressursid.ee:timo-petmanson/estnltk.git
     fetch = +refs/heads/*:refs/remotes/keeleressursid/*
 [remote "origin"]
-    url = git@github.com:tpetmanson/estnltk.git
+    url = git@github.com:estnltk/estnltk.git
     url = git@estnltk.cs.ut.ee:timo/estnltk.git
     url = git@gitlab.keeleressursid.ee:timo-petmanson/estnltk.git
 [branch "master"]
     remote = origin
     merge = refs/heads/master
-[gui]
-    wmstate = normal
-    geometry = 844x391+0+0 189 177
+[branch "devel"]
+    remote = origin
+    merge = refs/heads/devel
 
 
 

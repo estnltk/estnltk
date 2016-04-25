@@ -18,12 +18,14 @@ from .wordnet_tagger import WordnetTagger
 from .clausesegmenter import ClauseSegmenter
 from .mw_verbs.verbchain_detector import VerbChainDetector
 from .textcleaner import TextCleaner
+from .tokenizers import EstWordTokenizer
+from .syntax import SyntaxTagger
 
 import six
 import pandas
 import nltk.data
 import regex as re
-from nltk.tokenize.regexp import WordPunctTokenizer, RegexpTokenizer
+from nltk.tokenize.regexp import RegexpTokenizer
 
 from cached_property import cached_property
 from copy import deepcopy
@@ -33,14 +35,26 @@ from pprint import pprint
 
 # default functionality
 paragraph_tokenizer = RegexpTokenizer('\n\n', gaps=True, discard_empty=True)
-sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
-word_tokenizer = WordPunctTokenizer()
+
+# use NLTK-s sentence tokenizer for Estonian, in case it is not downloaded, try to download it first
+sentence_tokenizer = None
+try:
+    sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+except LookupError:
+    import nltk.downloader
+    nltk.downloader.download('punkt')
+finally:
+    if sentence_tokenizer is None:
+        sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+
+word_tokenizer = EstWordTokenizer()
 nertagger = None
 timextagger = None
 textcleaner = TextCleaner()
 clausesegmenter = None
 verbchain_detector = None
 wordnet_tagger = None
+syntax_tagger = SyntaxTagger()
 
 
 def load_default_ner_tagger():
@@ -105,6 +119,8 @@ class Text(dict):
             Tagger for synsets and relations.
         text_cleaner: estnltk.textcleaner.TextCleaner
             TextCleaner class.
+        syntax_tagger: estnltk.syntax.tagger.SyntaxTagger
+            Kaili's and Tiina's syntax tagger wrapper.
         """
         encoding = kwargs.get('encoding', 'utf-8')
         if isinstance(text_or_instance, dict):
@@ -115,7 +131,6 @@ class Text(dict):
             self[TEXT] = as_unicode(text_or_instance, encoding)
         self.__kwargs = kwargs
         self.__load_functionality(**kwargs)
-        self.__find_what_is_tagged()
 
     def __load_functionality(self, **kwargs):
         self.__paragraph_tokenizer = kwargs.get(
@@ -137,43 +152,39 @@ class Text(dict):
             'wordnet_tagger', None # lazy loading
         )
         self.__text_cleaner = kwargs.get('text_cleaner', textcleaner)
+        self.__syntax_tagger = kwargs.get('syntax_tagger', syntax_tagger)
 
     def get_kwargs(self):
         """Get the keyword arguments that were passed to the :py:class:`~estnltk.text.Text` when it was constructed."""
         return self.__kwargs
 
-    def __find_what_is_tagged(self):
-        """Find out what kind of information is already tagged.
-
-        It uses existing layers to decide what information is present.
-        Note that this is not bullet-proof and in certain situations the user should call
-        tokenize_X, tag_X methods manually.
-        It does not perform extensive checks to see if the values of these keys are actually valid.
-        """
-        tagged = set()
-        if PARAGRAPHS in self:
-            tagged.add(PARAGRAPHS)
-        if SENTENCES in self:
-            tagged.add(SENTENCES)
-        if WORDS in self:
-            tagged.add(WORDS)
-            if len(self[WORDS]) > 0:
-                if ANALYSIS in self[WORDS][0]:
-                    tagged.add(ANALYSIS)
-                    if len(self[WORDS][0][ANALYSIS]) and WORDNET in self[WORDS][0][ANALYSIS][0]:
-                        tagged.add(WORDNET)
-                if LABEL in self:
-                    tagged.add(LABEL)
-        if NAMED_ENTITIES in self:
-            tagged.add(NAMED_ENTITIES)
-        if CLAUSES in self:
-            tagged.add(CLAUSES)
-        self.__tagged = tagged
-        return tagged
-
     def is_tagged(self, layer):
         """Is the given element tokenized/tagged?"""
-        return layer in self.__tagged
+        # we have a number of special names that are not layers but instead
+        # attributes of "words" layer
+        if layer == ANALYSIS:
+            if WORDS in self and len(self[WORDS]) > 0:
+                return ANALYSIS in self[WORDS][0]
+        elif layer == SYNTAX:
+            if WORDS in self and len(self[WORDS]) > 0:
+                return SYNTAX in self[WORDS][0]
+        elif layer == LABEL:
+            if WORDS in self and len(self[WORDS]) > 0:
+                return LABEL in self[WORDS][0]
+        elif layer == CLAUSE_ANNOTATION:
+            if WORDS in self and len(self[WORDS]) > 0:
+                return CLAUSE_ANNOTATION in self[WORDS][0]
+        elif layer == WORDNET:
+            if WORDS in self and len(self[WORDS]) > 0:
+                if ANALYSIS in self[WORDS][0] and len(self[WORDS][0][ANALYSIS]) > 0:
+                    return WORDNET in self[WORDS][0][ANALYSIS][0]
+        else:
+            return layer in self
+        return False  # do not remove False
+
+    def tag_all(self):
+        """Tag all layers."""
+        return self.tag_timexes().tag_named_entities().tag_verb_chains()
 
     def texts(self, layer, sep=' '):
         """Retrieve texts for given layer.
@@ -329,10 +340,12 @@ class Text(dict):
             SENTENCES: self.tokenize_sentences,
             WORDS: self.tokenize_words,
             ANALYSIS: self.tag_analysis,
+            SYNTAX: self.tag_syntax,
             TIMEXES: self.tag_timexes,
             NAMED_ENTITIES: self.tag_named_entities,
             CLAUSE_ANNOTATION: self.tag_clause_annotations,
             CLAUSES: self.tag_clauses,
+            SYNTAX: self.tag_syntax,
             WORDNET: self.tag_wordnet
         }
 
@@ -351,7 +364,6 @@ class Text(dict):
         for start, end in spans:
             dicts.append({'start': start, 'end': end})
         self[PARAGRAPHS] = dicts
-        self.__tagged.add(PARAGRAPHS)
         return self
 
     @cached_property
@@ -391,20 +403,70 @@ class Text(dict):
 
     def tokenize_sentences(self):
         """Apply sentence tokenization to this Text instance. Creates ``sentences`` layer.
-        Automatically tokenizes paragraphs, if they are not already tokenized."""
+           Automatically tokenizes paragraphs, if they are not already tokenized.
+           Also, if word tokenization has already been performed, tries to fit 
+           the sentence tokenization into the existing word tokenization;
+        """
         if not self.is_tagged(PARAGRAPHS):
             self.tokenize_paragraphs()
-        tok = self.__sentence_tokenizer
+        tok  = self.__sentence_tokenizer
         text = self.text
         dicts = []
         for paragraph in self[PARAGRAPHS]:
             para_start, para_end = paragraph[START], paragraph[END]
             para_text = text[para_start:para_end]
-            spans = tok.span_tokenize(para_text)
-            for start, end in spans:
-                dicts.append({'start': start+para_start, 'end': end+para_start})
+            if not self.is_tagged(WORDS):
+                # Non-hack variant: word tokenization has not been applied yet,
+                # so we proceed in natural order (first sentences, then words)
+                spans = tok.span_tokenize(para_text)
+                for start, end in spans:
+                    dicts.append({'start': start+para_start, 'end': end+para_start})
+            else:
+                # A hack variant: word tokenization has already been made, so
+                # we try to use existing word tokenization (first words, then sentences)
+                para_words = \
+                    [ w for w in self[WORDS] if w[START]>=para_start and w[END]<=para_end ]
+                para_word_texts = \
+                    [ w[TEXT] for w in para_words ]
+                try:
+                    # Apply sentences_from_tokens method (if available)
+                    sents = tok.sentences_from_tokens( para_word_texts )
+                except AttributeError as e:
+                    raise
+                # Align result of the sentence tokenization with the initial word tokenization
+                # in order to determine the sentence boundaries
+                i = 0
+                for sentence in sents:
+                    j = 0
+                    firstToken = None
+                    lastToken  = None
+                    while i < len(para_words):
+                        if para_words[i][TEXT] != sentence[j]:
+                            raise Exception('Error on aligning: ', para_word_texts,' and ',sentence,' at positions ',i,j)
+                        if j == 0:
+                            firstToken = para_words[i]
+                        if j == len(sentence) - 1:
+                            lastToken = para_words[i]
+                            i+=1
+                            break
+                        j+=1
+                        i+=1
+                    sentenceDict = \
+                        {'start': firstToken[START], 'end': lastToken[END]}
+                    dicts.append( sentenceDict )
+                # Note: We also need to invalidate the cached properties providing the
+                #       sentence information, as otherwise, if the properties have been
+                #       called already, new calls would return the old state of sentence 
+                #       tokenization;
+                for sentence_attrib in ['sentences', 'sentence_texts', 'sentence_spans', \
+                                        'sentence_starts', 'sentence_ends']:
+                    try:
+                        # invalidate the cache
+                        delattr(self, sentence_attrib)
+                    except AttributeError:
+                        # it's ok, if the cached property has not been called yet
+                        pass
         self[SENTENCES] = dicts
-        self.__tagged.add(SENTENCES)
         return self
 
     @cached_property
@@ -459,7 +521,6 @@ class Text(dict):
             for start, end in spans:
                 dicts.append({START: start+sent_start, END: end+sent_start, TEXT: sent_text[start:end]})
         self[WORDS] = dicts
-        self.__tagged.add(WORDS)
         return self
 
     def tag_analysis(self):
@@ -473,7 +534,6 @@ class Text(dict):
             for word, analysis in zip(sentence, all_analysis):
                 word[ANALYSIS] = analysis[ANALYSIS]
                 word[TEXT] = analysis[TEXT]
-        self.__tagged.add(ANALYSIS)
         return self
 
     @cached_property
@@ -567,6 +627,16 @@ class Text(dict):
         return self.get_analysis_element(LEMMA)
 
     @cached_property
+    def lemma_lists(self):
+        """Lemma lists.
+
+        Ambiguous cases are separate list elements.
+        """
+        if not self.is_tagged(ANALYSIS):
+            self.tag_analysis()
+        return [[an[LEMMA] for an in word[ANALYSIS]] for word in self[WORDS]]
+
+    @cached_property
     def endings(self):
         """The list of word endings.
 
@@ -598,6 +668,12 @@ class Text(dict):
         if not self.is_tagged(ANALYSIS):
             self.tag_analysis()
         return self.get_analysis_element(POSTAG)
+
+    @cached_property
+    def postag_lists(self):
+        if not self.is_tagged(ANALYSIS):
+            self.tag_analysis()
+        return [[an[POSTAG] for an in word[ANALYSIS]] for word in self[WORDS]]
 
     @cached_property
     def postag_descriptions(self):
@@ -633,6 +709,23 @@ class Text(dict):
             descs.append(desc)
         return descs
 
+    def tag_syntax(self):
+        """Tag syntax attribute in the ``words`` layer."""
+        if not self.is_tagged(ANALYSIS):
+            self.tag_analysis()
+        return self.__syntax_tagger.tag_text(self)
+
+    @cached_property
+    def syntax_lists(self):
+        """Return syntax annotation variants for every word."""
+        if not self.is_tagged(SYNTAX):
+            self.tag_syntax()
+        tokens = []
+        for w in self[WORDS]:
+            wl = [variant[SYNTAX] for variant in w[SYNTAX]]
+            tokens.append(wl)
+        return tokens
+
     def tag_labels(self):
         """Tag named entity labels in the ``words`` layer."""
         if not self.is_tagged(ANALYSIS):
@@ -640,7 +733,6 @@ class Text(dict):
         if self.__ner_tagger is None:
             self.__ner_tagger = load_default_ner_tagger()
         self.__ner_tagger.tag_document(self)
-        self.__tagged.add(LABEL)
         return self
 
     @cached_property
@@ -655,7 +747,7 @@ class Text(dict):
 
         This automatically performs morphological analysis along with all dependencies.
         """
-        if self.is_tagged(ANALYSIS):
+        if not self.is_tagged(LABEL):
             self.tag_labels()
         nes = []
         word_start = -1
@@ -674,7 +766,6 @@ class Text(dict):
                 else:
                     word_start = -1
         self[NAMED_ENTITIES] = nes
-        self.__tagged.add(NAMED_ENTITIES)
         return self
 
     @cached_property
@@ -716,7 +807,6 @@ class Text(dict):
             if self.__timex_tagger is None:
                 self.__timex_tagger = load_default_timex_tagger()
             self.__timex_tagger.tag_document(self, **self.__kwargs)
-            self.__tagged.add(TIMEXES)
         return self
 
     @cached_property
@@ -775,7 +865,6 @@ class Text(dict):
             self.tag_analysis()
         if self.__clause_segmenter is None:
             self.__clause_segmenter = load_default_clausesegmenter()
-        self.__tagged.add(CLAUSE_ANNOTATION)
         return self.__clause_segmenter.tag(self)
 
     @cached_property
@@ -822,7 +911,6 @@ class Text(dict):
             clauses.extend(from_sentence(sentence))
 
         self[CLAUSES] = clauses
-        self.__tagged.add(CLAUSES)
         return self
 
     @cached_property
@@ -844,7 +932,7 @@ class Text(dict):
 
     def tag_verb_chains(self):
         """Create ``verb_chains`` layer.
-        Depends on ``clauses`` layer.
+           Depends on ``clauses`` layer.
         """
         if not self.is_tagged(CLAUSES):
             self.tag_clauses()
@@ -853,16 +941,16 @@ class Text(dict):
         sentences = self.divide()
         verbchains = []
         for sentence in sentences:
-            chains = self.__verbchain_detector.detectVerbChainsFromSent(sentence)
-            offset = 0
+            chains = self.__verbchain_detector.detectVerbChainsFromSent( sentence )
             for chain in chains:
-                chain[PHRASE] = [idx+offset for idx in chain[PHRASE]]
-                chain[START] = self[WORDS][chain[PHRASE][0]][START]
-                chain[END] = self[WORDS][chain[PHRASE][-1]][END]
-            offset += len(sentence)
+                # 1) Get spans for all words of the phrase
+                word_spans = [ ( sentence[idx][START], sentence[idx][END] ) \
+                                 for idx in sorted( chain[PHRASE] ) ]
+                # 2) Assign to the chain
+                chain[START] = [ span[0] for span in word_spans ]
+                chain[END]   = [ span[1] for span in word_spans ]
             verbchains.extend(chains)
         self[VERB_CHAINS] = verbchains
-        self.__tagged.add(VERB_CHAINS)
         return self
 
     @cached_property
@@ -948,7 +1036,6 @@ class Text(dict):
         if wordnet_tagger is None: # cached wn tagger
             wordnet_tagger = WordnetTagger()
         self.__wordnet_tagger = wordnet_tagger
-        self.__tagged.add(WORDNET)
         if len(kwargs) > 0:
             return self.__wordnet_tagger.tag_text(self, **kwargs)
         return self.__wordnet_tagger.tag_text(self, **self.__kwargs)
@@ -1060,6 +1147,30 @@ class Text(dict):
     def clean(self):
         """Return a copy of this Text instance with invalid characters removed."""
         return Text(self.__text_cleaner.clean(self[TEXT]), **self.__kwargs)
+
+    # ///////////////////////////////////////////////////////////////////
+    # LAYERS
+    # ///////////////////////////////////////////////////////////////////
+
+    def is_simple(self, layer):
+        elems = self[layer]
+        if len(elems) > 0:
+            return isinstance(elems[0][START], int)
+        return False
+
+    def is_multi(self, layer):
+        elems = self[layer]
+        if len(elems) > 0:
+            return isinstance(elems[0][START], list)
+        return False
+
+    def tag_with_regex(self, name, pattern, flags=0):
+        if name in self:
+            raise ValueError('Layer or attribute with name <{0}> already exists!'.format(name))
+        if isinstance(pattern, six.string_types):
+            pattern = re.compile(pattern, flags)
+        self[name] = [{START: mo.start(), END: mo.end()} for mo in pattern.finditer(self[TEXT])]
+        return self
 
     # ///////////////////////////////////////////////////////////////////
     # SPLITTING

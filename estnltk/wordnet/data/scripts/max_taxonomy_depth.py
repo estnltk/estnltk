@@ -4,7 +4,7 @@ _MY_DIR = os.path.dirname(__file__)
 
 sys.path.insert(1,os.path.join(_MY_DIR,'..','..'))
 
-import wn
+from estnltk.wordnet import wn
 
 FILE_ = os.path.join(_MY_DIR,'..','max_tax_depths.cnf')
 

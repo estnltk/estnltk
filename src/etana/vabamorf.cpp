@@ -1,3 +1,15 @@
+/*
+Copyright 2015 University of Tartu and Author(s): Timo Petmanson
+
+This file is part of Estnltk. It is available under the license of GPLv2 found
+in the top-level directory of this distribution and
+at http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html .
+No part of this file, may be copied, modified, propagated, or distributed
+except according to the terms contained in the license.
+
+This software is distributed on an "AS IS" basis, without warranties or conditions
+of any kind, either express or implied.
+*/
 #include "vabamorf.h"
 
 
@@ -6,6 +18,10 @@
 //////////////////////////////////////////////////////////////////////
 
 Analysis::Analysis(const char* root, const char* ending, const char* clitic, const char* partofspeech, const char* form)
+    : root(root), ending(ending), clitic(clitic), partofspeech(partofspeech), form(form) {
+}
+
+Analysis::Analysis(std::string const& root, std::string const& ending, std::string const& clitic, std::string const& partofspeech, std::string const& form)
     : root(root), ending(ending), clitic(clitic), partofspeech(partofspeech), form(form) {
 }
 
@@ -117,6 +133,91 @@ std::vector<WordAnalysis> Vabamorf::analyze(
     CFSArray<CFSVar> words = convertInput(sentence);
     addAnalysis(linguistic, disambiguator, words, disambiguate);
     return convertOutput(words);
+}
+
+//////////////////////////////////////////////////////////////////////
+// DISAMBIGUATOR
+//////////////////////////////////////////////////////////////////////
+
+CFSWString asWStr(std::string const& s) {
+    CFSVar var(s.c_str());
+    CFSWString ws = var.GetWString();
+    return ws;
+}
+
+CMorphInfos convertWordAnalysis(const WordAnalysis& wordAnalysis) {
+    AnalysisVector const& analysisVec = wordAnalysis.second;
+    CMorphInfos infos;
+    infos.m_szWord = asWStr(wordAnalysis.first);
+    const int n = analysisVec.size();
+    for (int i=0 ; i<n ; ++i) {
+        Analysis const& analysis = analysisVec[i];
+        CMorphInfo info;
+        info.m_szRoot = asWStr(analysis.root);
+        info.m_szEnding = asWStr(analysis.ending);
+        info.m_szClitic = asWStr(analysis.clitic);
+        if (analysis.partofspeech.size() > 0) {
+            info.m_cPOS = analysis.partofspeech[0];
+        }
+        info.m_szForm = asWStr(analysis.form);
+        infos.m_MorphInfo.AddItem(info);
+    }
+    return infos;
+}
+
+CFSArray<CMorphInfos> convertDisambInput(std::vector<WordAnalysis> const& words) {
+    CFSArray<CMorphInfos> infosarray;
+    const int n = words.size();
+    for (int i=0 ; i<n ; ++i) {
+        WordAnalysis const& word = words[i];
+        infosarray.AddItem(convertWordAnalysis(word));
+    }
+    return infosarray;
+}
+
+std::string asString(CFSWString const& ws) {
+    CFSVar var(ws);
+    return std::string(var.GetAString());
+}
+
+WordAnalysis convertMorphInfos(CMorphInfos const& infos) {
+    AnalysisVector vec;
+    const int n = infos.m_MorphInfo.GetSize();
+    vec.reserve(n);
+    for (int i=0 ; i<n ; ++i) {
+        CMorphInfo const& info = infos.m_MorphInfo[i];
+        char pos = info.m_cPOS;
+        std::string posString;
+        posString.push_back(pos);
+        Analysis analysis(
+            asString(info.m_szRoot),
+            asString(info.m_szEnding),
+            asString(info.m_szClitic),
+            posString,
+            asString(info.m_szForm));
+        vec.push_back(analysis);
+    }
+    return WordAnalysis(asString(infos.m_szWord), vec);
+}
+
+std::vector<WordAnalysis> convertDisambOutput(CFSArray<CMorphInfos> const& morphInfos) {
+    std::vector<WordAnalysis> output;
+    const int n = morphInfos.GetSize();
+    output.reserve(n);
+    for (int i=0 ; i<n ; ++i) {
+        CMorphInfos const& infos = morphInfos[i];
+        output.push_back(convertMorphInfos(infos));
+    }
+    return output;
+}
+
+
+std::vector<WordAnalysis> Vabamorf::disambiguate(std::vector<WordAnalysis> &sentence) {
+    CFSArray<CMorphInfos> infos = convertDisambInput(sentence);
+    infos = disambiguator.Disambiguate(infos);
+    std::vector<WordAnalysis> output = convertDisambOutput(infos);
+    assert(output.size() == sentence.size());
+    return output;
 }
 
 //////////////////////////////////////////////////////////////////////

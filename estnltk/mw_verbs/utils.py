@@ -257,3 +257,40 @@ class WordTemplate:
                 matchingTok.append( token )
         return matchingTok
 
+    # =============================================
+    #    Matches on an EstNLTK Text object
+    #    and produces annotations
+    # =============================================
+    
+    def annotateText(self, text, layer, addEmptyAnnotations = True):
+        ''' Applies this WordTemplate ( more specifically: its method self.matchingTokens() )
+            on all words of given text, and adds results of the matching to the text as 
+            a new annotation layer. Returns the input text (which is augmented with a new 
+            layer).
+
+            Parameters
+            ----------
+            text: Text;
+                 A text where matching should be performed;
+            layer: str;
+                 name of the new layer;
+            addEmptyAnnotations: boolean, optional
+                 Whether the new layer should be added, if no match has been found?
+                 default: True
+        '''
+        from estnltk.text import Text
+        assert isinstance(text, Text), "the input should be Text, but it is: "+str(text)
+        #  1) Find words in text that match the given pattern
+        tokens = self.matchingTokens( text[WORDS] )
+        if not addEmptyAnnotations and not tokens:
+             # if we are not interested in empty annotations
+             return text
+        #  2) Annotated given text with found matches
+        if tokens:
+            # Matches found: add to the layer
+            text[layer] = [{START: t[START], END: t[END], TEXT:t[TEXT]} for t in tokens]
+        else:
+            # No matches found: add an empty layer
+            text[layer] = []
+        return text
+
