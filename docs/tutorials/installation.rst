@@ -45,42 +45,35 @@ http://community.linuxmint.com/tutorial/view/1091 .
 
 Installation on Windows
 =======================
+The process involves installation of the pre-compiled version of estnltk and its dependencies so that no compiler is required. We assume you have python 3.4 installed and run a 64-bit Windows OS. Installation on a 32-bit platform is identical.
 
-We assume you have Python3.4 installed and run a 64-bit operating system.
+First, obtain the required packages:
 
-Head out to Christoph Gohlke's website: http://www.lfd.uci.edu/~gohlke/pythonlibs/ and download following files:
+    * numpy-1.10.0b1+mkl-cp34-none-win_amd64.whl from http://www.lfd.uci.edu/~gohlke/pythonlibs/ 
+    * python_crfsuite-0.8.3-cp34-none-win_amd64.whl from https://github.com/estnltk/estnltk/blob/version1.4/dist/python-crfsuite
+    * estnltk-1.4-cp34-cp34m-win_amd64.whl from https://github.com/estnltk/estnltk/releases
 
-numpy-1.10.0b1+mkl-cp34-none-win_amd64.whl
+Next, install the dependencies and estnltk::
 
-Also download Pycrfsuite from https://github.com/estnltk/estnltk/blob/version1.3/dist/python-crfsuite/python_crfsuite-0.8.3-cp34-none-win_amd64.whl .
-
-Install the dependencies::
-
-    python.exe -m pip install "numpy-1.10.0b1+mkl-cp34-none-win_amd64.whl"
+    python.exe -m pip install numpy-1.10.0b1+mkl-cp34-none-win_amd64.whl
     python.exe -m pip install python_crfsuite-0.8.3-cp34-none-win_amd64.whl
+    python.exe -m pip install estnltk-1.4-cp34-cp34m-win_amd64.whl
     
-Now, download the Estnltk Wheel file:
-https://github.com/estnltk/estnltk/blob/version1.3/dist/estnltk-1.3-cp34-none-win_amd64.whl
-and install using::
-
-    python.exe -m pip install estnltk-1.3-cp34-none-win_amd64.whl
-
-As a first test, try to run this line of code in your terminal::
+Make sure the installation was successfull by running::
 
     python.exe -c "import estnltk; print( estnltk.Text('Tere estnltk').lemmas )"
 
-It should print::
+which should output::
 
     [nltk_data] Downloading package punkt to /home/user/nltk_data...
-    [nltk_data]   Unzipping tokenizers/punkt.zip.
+    [nltk_data] Unzipping tokenizers/punkt.zip.
     ['tere', 'estnltk']
 
-You see that NLTK data is being dowloaded on first use of the library.
-Then, run the unittest suite::
+Finally, run the unittests::
 
     python.exe -m estnltk.run_tests
 
-This should report the number of tests run and the status. If it is "OK", then you are good to go::
+This should report the number of tests run and the status. If the status is "OK", then you are good to go::
 
     Ran 157 tests in 35.207s
 
