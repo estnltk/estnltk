@@ -49,9 +49,9 @@ The process involves installation of the pre-compiled version of estnltk and its
 
 First, obtain the required packages:
 
-    * numpy-1.10.0b1+mkl-cp34-none-win_amd64.whl from http://www.lfd.uci.edu/~gohlke/pythonlibs/ 
-    * python_crfsuite-0.8.3-cp34-none-win_amd64.whl from https://github.com/estnltk/estnltk/blob/version1.4/dist/python-crfsuite
-    * estnltk-1.4-cp34-cp34m-win_amd64.whl from https://github.com/estnltk/estnltk/releases
+* numpy-1.10.0b1+mkl-cp34-none-win_amd64.whl from http://www.lfd.uci.edu/~gohlke/pythonlibs/ 
+* python_crfsuite-0.8.3-cp34-none-win_amd64.whl from https://github.com/estnltk/estnltk/blob/version1.4/dist/python-crfsuite
+* estnltk-1.4-cp34-cp34m-win_amd64.whl from https://github.com/estnltk/estnltk/releases
 
 Next, install the dependencies and estnltk::
 
