@@ -132,14 +132,87 @@ Then, create a subfolder with the appropriate estnltk version and copy the new d
 Creating releases
 =================
 
-Uploading source tarball::
+Linux
+-----
+::
 
     ./clean.sh
     python setup.py build
+    python setup.py build # yes, two times for now!
+    python setup.py bdist_wheel
     python setup.py sdist
     python setup.py upload
 
-Uploading Windows wheels::
+Windows
+-------
 
-    TODO
+To be able to build on Windows, you will need to install a compatible Microsoft Visual C++ compiler for each version of Python. For more details please refer to https://wiki.python.org/moin/WindowsCompilers.
+
+### Compiling with Python 2.7:
+
+Install Microsoft Visual C++ Compiler for Python 2.7 from https://www.microsoft.com/en-us/download/details.aspx?id=44266
+
+32-bit::
+    
+    call "C:\Users\distorti\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\vcvarsall.bat" x86
+    
+64-bit::
+
+    call "C:\Users\distorti\AppData\Local\Programs\Common\Microsoft\Visual C++ for Python\9.0\vcvarsall.bat x64
+
+Then build as usual::
+
+    python setup.py build
+    python setup.py build
+    python setup.py install
+    python setup.py bdist_wheel
+
+### Compiling with Python 3.4
+
+Install Microsoft Visual C++ 10.0 compiler as described at https://wiki.python.org/moin/WindowsCompilers
+
+32-bits::
+    
+    call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x86
+
+64-bits::
+
+    call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64
+
+If you stumble across an error like
+
+    ... c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\INCLUDE\intrin.h(26) : fatal error C1083: Cannot open include file: 'ammintrin.h': No such file or ...
+
+you are missing a file "ammintrin.h" in "c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\INCLUDE".
+As a quick fix, download it from http://se.mathworks.com/matlabcentral/answers/90383-fix-problem-when-mex-cpp-file.
+
+Then build as usual::
+
+    python setup.py build
+    python setup.py build
+    python setup.py install
+    python setup.py bdist_wheel
+
+
+### Compiling with Python 3.5
+
+Install Microsoft Visual C++ 14.0 compiler as described at https://wiki.python.org/moin/WindowsCompilers
+
+32-bit::
+
+    call "C:\Program Files (x86)\Microsoft Visual C++ Build Tools\vcbuildtools.bat" x86
+
+64-bit::
+
+    call "C:\Program Files (x86)\Microsoft Visual C++ Build Tools\vcbuildtools.bat" x64
+
+TODO: Currently this fails for some reason
+
+Then build as usual::
+    
+    python setup.py build
+    python setup.py build
+    python setup.py install
+    python setup.py bdist_wheel
+
 
