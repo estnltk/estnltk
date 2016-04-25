@@ -10,7 +10,7 @@ Installation:
 
 ```python -m pip install estnltk```
 
-http://estnltk.github.io/estnltk/1.2/tutorials/installation.html
+http://estnltk.github.io/estnltk/1.2/tutorials/installation.html.
 
 Documentation:
 
