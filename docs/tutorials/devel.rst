@@ -148,7 +148,7 @@ Windows
 
 To be able to build on Windows, you will need to install a compatible Microsoft Visual C++ compiler for each version of Python. For more details please refer to https://wiki.python.org/moin/WindowsCompilers.
 
-### Compiling with Python 2.7:
+**Compiling with Python 2.7**
 
 Install Microsoft Visual C++ Compiler for Python 2.7 from https://www.microsoft.com/en-us/download/details.aspx?id=44266
 
@@ -167,7 +167,8 @@ Then build as usual::
     python setup.py install
     python setup.py bdist_wheel
 
-### Compiling with Python 3.4
+
+**Compiling with Python 3.4**
 
 Install Microsoft Visual C++ 10.0 compiler as described at https://wiki.python.org/moin/WindowsCompilers
 
@@ -194,7 +195,7 @@ Then build as usual::
     python setup.py bdist_wheel
 
 
-### Compiling with Python 3.5
+**Compiling with Python 3.5**
 
 Install Microsoft Visual C++ 14.0 compiler as described at https://wiki.python.org/moin/WindowsCompilers
 
