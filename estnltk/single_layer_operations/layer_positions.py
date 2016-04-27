@@ -143,15 +143,19 @@ def pop_first_by_identity(lst, ob):
     return lst.pop(i)
 
 
+
 def iterate_intersecting_pairs(layer):
     """
     Given a layer of estntltk objects, yields pairwise intersecting elements.
-
     Breaks when the layer is changed or deleted after initializing the iterator.
     """
+    yielded = set()
     ri = layer[:]  # Shallow copy the layer
     for i1, elem1 in enumerate(ri):
         for i2, elem2 in enumerate(ri):
             if i1 != i2 and elem1['start'] <= elem2['start'] < elem1['end']:
-                if in_by_identity(layer, elem1) and in_by_identity(layer, elem2):
+                inds = (i1, i2) if i1 < i2 else (i2, i1)
+                if inds not in yielded and in_by_identity(layer, elem1) and in_by_identity(layer, elem2):
+                    yielded.add(inds)
                     yield elem1, elem2
+
