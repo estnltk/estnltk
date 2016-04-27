@@ -9,9 +9,11 @@ All notable changes to this project will be documented in this file.
 Added
 -----
 
+* Syntax and dependency parser
 * Support for parsing EstNLTK texts with Java-based Maltparser; Maltparser can be used for obtaining syntactic dependencies between words
 * Experimental NP chunker for Estonian; The chunker picks up NP chunks from the output of Maltparser
 * Disambiguator: added checking for input parameters;
+
 
 Changed
 -------
