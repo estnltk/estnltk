@@ -110,7 +110,7 @@ def delete_left(elem1, elem2):
     xxx
        yyyyy
     """
-    assert not (nested(elem1, elem2) or nested(elem2, elem1)), 'deletion not defined for nested elements'
+    # assert not (nested(elem1, elem2) or nested(elem2, elem1)), 'deletion not defined for nested elements'
     if overlapping_right(elem1, elem2):
         elem1['end'] = elem2['start']
     return elem1, elem2
@@ -124,7 +124,7 @@ def delete_right(elem1, elem2):
     xxxxx
          yyy
     """
-    assert not (nested(elem1, elem2) or nested(elem2, elem1)), 'deletion not defined for nested elements'
+    # assert not (nested(elem1, elem2) or nested(elem2, elem1)), 'deletion not defined for nested elements'
     if overlapping_left(elem1, elem2):
         elem2['start'] = elem1['end']
     return elem1, elem2
