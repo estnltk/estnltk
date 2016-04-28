@@ -1,6 +1,7 @@
 """
 Lihtkihi elementidega opereerimise tööriistad.
 """
+import copy
 
 
 def touching_right(x, y):
@@ -91,6 +92,11 @@ def overlapping_right(x, y):
     return y['start'] < x['end'] < y['end']
 
 
+def conflict(x, y):
+    return nested(x, y) or nested(y, x) or overlapping_left(x, y) or overlapping_right(x, y)
+
+
+
 ########################################################################################################################
 ########################################################################################################################
 ########################################################################################################################
@@ -160,6 +166,115 @@ def iterate_intersecting_pairs(layer):
                     yield elem1, elem2
 
 
+
+
+def discard(a, b, **kwargs):
+    return {}
+
+def merge(a, b, func, **kwargs):
+    assert equal(a, b)
+    return dict(start=a['start'], end=a['end'], **func(a, b, **kwargs))
+
+
+def difference(x, y):
+    assert nested(x, y)
+
+    if nested_aligned_left(x, y):
+        a, b = union(copy.deepcopy(x), copy.deepcopy(y))
+        rest = copy.deepcopy(x)
+        rest['start'] = a['end']
+        res = [a,b,rest]
+    elif nested_aligned_right(x, y):
+        a, b = union(copy.deepcopy(x), copy.deepcopy(y))
+        rest = copy.deepcopy(x)
+        rest['end'] = a['start']
+        res = [a,b,rest]
+    else:
+        r1, r2, middle = copy.deepcopy(x), copy.deepcopy(x), copy.deepcopy(x)
+        r1['end'] = y['start']
+        r2['start'] = y['end']
+
+        middle['start'] = y['start']
+        middle['end'] = y['end']
+
+        res = [r1, r2, middle, y]
+
+    return res
+
+
+
+
+def union(x, y):
+    flip = x['start'] > y['start']
+    if flip:
+        x, y = y, x
+
+
+    if nested(x, y):
+        #choose y coords
+        x['start'] = y['start']
+        x['end'] = y['end']
+
+    elif overlapping_left(x, y):
+        y['start'] = x['start']
+        x['end'] = y['end']
+
+    elif overlapping_right(x, y):
+        x['start'] = y['start']
+        y['end'] = x['end']
+    else:
+        raise AssertionError('should not happen')
+
+    return (x, y) if not flip else (y, x)
+
+
+def make_layer_nonconflicting(layer, merge_func):
+    #funktsiooni loogika:
+    #iga konflikti korral:
+    #    kui elemendid on võrdsed, kombineeri need
+    #    kui üks element on teise sees, jaga nad kolmeks või neljaks
+    #    kui elemendid on ülekattega, jaga need kolmeks
+    #korda funktsiooni kuni konflikte pole
+
+    # On ilmne, et elemendi tükeldamine ei tekita uusi konflikte, küll võib see põhjustada, et ühe tsükliga kõiki üles ei leita
+    # On ilmne, et kahe võrdse elemendi ühendamine ei tekita uusi konflikte
+    # Seega peavad konfliktid minema nulli.
+
+    while True:
+        while True:
+            if not list(iterate_intersecting_pairs(layer)):
+                break
+
+            for a, b in iterate_intersecting_pairs(layer):
+                a, b = (a, b) if a['start'] <= b['start'] else (b, a)
+
+                if equal(a, b):
+                    if a is not b:
+                        layer.append(merge(pop_first_by_identity(layer, a),
+                            pop_first_by_identity(layer, b), merge_func, value='equal'))
+                    continue
+
+                elif nested(a, b) or nested(b, a):
+                    if nested(b, a):
+                        a, b = b, a
+
+                    pop_first_by_identity(layer, b)
+                    pop_first_by_identity(layer, a)
+                    diff = difference(a, b)
+                    layer.extend(diff)
+                    continue
+
+                elif overlapping_right(a, b):
+                    mida, midb = union(copy.deepcopy(a), copy.deepcopy(b))
+                    layer.append(merge(mida, midb, merge_func, value='overlapping_right'))
+
+                    a_m = copy.deepcopy(a)
+                    a, b = delete_left(a, mida)
+                    _, b = delete_right(midb, b)
+                    continue
+
+                else:
+                    print('should not happen')
 
 
 '''
