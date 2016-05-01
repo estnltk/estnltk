@@ -120,7 +120,47 @@ def _construct_start_index(text, layer, markup_settings, spansStartingFrom=None)
     '''
     if not markup_settings or not isinstance(markup_settings, dict):
        raise Exception('Error: markup_settings should be a dict containing markup specification;')
-    
+    # ----------------------------
+    # 1) Construct start and end tags, considering the formatting settings
+    startTags = ''
+    endTags   = ''
+    graphicFormatting = False
+    bracketing        = False
+    # -- Underlining
+    if ('u' in markup_settings and markup_settings['u']) or \
+       ('underline' in markup_settings and markup_settings['underline']):
+       startTags += '\033[4m'
+       endTags   += '\033[0m'
+       graphicFormatting = True
+    colorName = markup_settings['c'] if 'c' in markup_settings else None
+    colorName = markup_settings['color'] if 'color' in markup_settings else colorName
+    # -- Coloring
+    if colorName:
+       color = _get_ANSI_colored_font( colorName )
+       if color:
+          startTags += color
+          endTags   += '\033[0m'
+          graphicFormatting = True
+       else:
+          raise Exception('Unknown color:', colorName)
+    # -- Bracketing
+    if ('b' in markup_settings and markup_settings['b']) or \
+       ('bracket' in markup_settings and markup_settings['bracket']):
+       startTags += '['
+       # Add ending bracket before graphics ends (otherwise the 
+       # graphics have no effect on the ending bracket)
+       endTags    = ']'+endTags
+       bracketing = True
+    # Hack: if both bracketing and graphic formatting are used, add graphic
+    #       formatting before the closing bracket of the endTag (to ensure
+    #       that graphic formatting of the ending bracket is not overwritten
+    #       mistakenly);
+    if graphicFormatting and bracketing:
+       startTags2 = startTags.rstrip('[')
+       endTags    = startTags2+endTags
+
+    # ----------------------------
+    # 2) Get extractor for the elements of given layer
     # >>> The following code borrows from estnltk.prettyprinter.marker :
     # decide which extractor to use
     # first just assume we need to use a multi layer text extractor
@@ -131,47 +171,15 @@ def _construct_start_index(text, layer, markup_settings, spansStartingFrom=None)
     elif text.is_simple(layer):
         # the given layer is simple, so use simple text extractor
         extractor = lambda t: texts_simple(t, layer)
-    # >>> 
+    # >>>
+
+    # ----------------------------
+    # 3) Store an annotation for each span of given layer
     if not spansStartingFrom:
         spansStartingFrom = {}
     for elem in extractor(text):
-        startTags = ''
-        endTags   = ''
-        # Make start and end tag
-        graphicFormatting = False
-        bracketing = False
-        # -- Underlining
-        if ('u' in markup_settings and markup_settings['u']) or \
-           ('underline' in markup_settings and markup_settings['underline']):
-           startTags += '\033[4m'
-           endTags   += '\033[0m'
-           graphicFormatting = True
-        colorName = markup_settings['c'] if 'c' in markup_settings else None
-        colorName = markup_settings['color'] if 'color' in markup_settings else colorName
-        # -- Coloring
-        if colorName:
-           color = _get_ANSI_colored_font( colorName )
-           if color:
-               startTags += color
-               endTags   += '\033[0m'
-               graphicFormatting = True
-        # -- Bracketing
-        if ('b' in markup_settings and markup_settings['b']) or \
-           ('bracket' in markup_settings and markup_settings['bracket']):
-            startTags += '['
-            # Add ending bracket before graphics ends (otherwise the 
-            # graphics have no effect on the ending bracket)
-            endTags    = ']'+endTags
-            bracketing = True
         if elem[START] not in spansStartingFrom:
            spansStartingFrom[elem[START]] = []
-        # Hack: if both bracketing and graphic formatting are used, add graphic
-        #       formatting before the closing bracket of the endTag (to ensure
-        #       that graphic formatting of the ending bracket is not overwritten
-        #       mistakenly);
-        if graphicFormatting and bracketing:
-           startTags2 = startTags.rstrip('[')
-           endTags    = startTags2+endTags
         span1 = [elem[START], elem[END], layer, startTags, endTags, graphicFormatting, bracketing]
         # Insert the span into the index
         if not spansStartingFrom[elem[START]]:
