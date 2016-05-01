@@ -18,7 +18,7 @@
     ANSI escape codes for formatting the output. Not all terminals support such formatting,
     e.g. Python's IDLE environment lacks the support. In this case, the only viable 
     visualization option is to surround the annotations with brackets, and other options 
-    will produce unexecuted formatting codes to the output.
+    will produce unexecuted escape sequences into the textual output.
     
 """
 from __future__ import unicode_literals, print_function, absolute_import
@@ -216,8 +216,8 @@ def _construct_end_index( spansStartingFrom ):
    endIndex = {}
    for i in spansStartingFrom:
        for span1 in spansStartingFrom[i]:
-           # keep the record of endTags, start positions and layer names
-           # (for determining the length)
+           # keep the record of endTags, start positions (for determining the length)
+           # and layer names
            endSpan1 = [ span1[4], span1[0], span1[2] ]
            endLoc1 = span1[1]
            if endLoc1 not in endIndex:
@@ -370,12 +370,23 @@ def _preformat( text, layers, markup_settings = None ):
    return_str = []
    for i in range( len(text[TEXT]) ):
        c = text[TEXT][i]
+       emptyTags = []
        if i in endTags:
           for tag in endTags[i]:
-              return_str.append( tag[0] )
+              if tag[1] != i:
+                 # Non-empty tag
+                 return_str.append( tag[0] )
+              else:
+                 # Empty tag
+                 emptyTags.append( tag )
        if i in spansStartingFrom:
           for span in spansStartingFrom[i]:
               return_str.append( span[3] )
+              if span[0] == span[1]:
+                 # Empty tag: Add the closing tag
+                 for emptyEndTag in emptyTags:
+                     if span[2] == emptyEndTag[2]:
+                        return_str.append( emptyEndTag[0] )
        return_str.append( c )
    if len(text[TEXT]) in spansStartingFrom:
        for span in spansStartingFrom[len(text[TEXT])]:
