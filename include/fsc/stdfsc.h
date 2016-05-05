@@ -74,6 +74,7 @@ of any kind, either express or implied.
 #else
 //#elif defined (UNIX)
 	#pragma message("UNIX block")
+    #define UNIX
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <stdarg.h>
