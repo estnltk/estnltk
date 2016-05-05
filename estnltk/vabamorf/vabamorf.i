@@ -50,4 +50,4 @@ namespace std {
     %template(SpellingSuggestions) vector<SpellingResults>;
 }
 
-%include "include/etana/vabamorf.h"
+%include "include/estnltk/vabamorf.h"
