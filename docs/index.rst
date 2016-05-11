@@ -126,6 +126,7 @@ Tutorials
    tutorials/maltparser
    tutorials/np_chunker
    tutorials/prettyprinter
+   tutorials/terminalprettyprinter
    tutorials/grammar
    tutorials/wikipedia
    tutorials/tei
