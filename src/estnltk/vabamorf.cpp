@@ -77,7 +77,7 @@ void addAnalysis(CLinguistic& linguistic, CDisambiguator& disambiguator, CFSArra
         PTWords.AddItem(words[ip]["text"].GetWString());
     }
     // perform analysis and optional disambiguation
-    CFSArray<CMorphInfos> MorphResults=linguistic.AnalyzeSentense(PTWords);
+    CFSArray<CMorphInfos> MorphResults=linguistic.AnalyzeSentence(PTWords);
     if (disambiguate) {
         MorphResults=disambiguator.Disambiguate(MorphResults);
     }
