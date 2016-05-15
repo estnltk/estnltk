@@ -574,6 +574,6 @@ def syllabify_word(word, as_dict=True):
     return [syllable_as_tuple(syllable) for syllable in syllables]
 
 
-def syllabify_sentence(words, as_dict=True):
+def syllabify_words(words, as_dict=True):
     return [syllabify_word(w, as_dict) for w in words]
 
