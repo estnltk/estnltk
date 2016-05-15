@@ -1,7 +1,7 @@
 Vabamorf wrapper in Estnltk
 ===========================
 
-Current version of vabamorf in Estnltk is https://github.com/Filosoft/vabamorf/commit/b81556875e9f949e0900a3d54dfc0c3ef0ad55e4 .
+Current version of vabamorf in Estnltk is https://github.com/estnltk/estnltk/commit/3b0c6d1c7a8d0ed875d1ab5dddc081bee1d9bf66
 
 Current setup requires migrating changes in vabamorf into estnltk manually, going through commits in vabamorf library and
 copying relevant parts of relevant files. Fortunately, the number of updates and commits is small and the manual approach is feasible.
