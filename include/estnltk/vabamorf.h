@@ -60,6 +60,26 @@ typedef std::vector<std::string> StringVector;
 
 
 /**
+ * Class that represents a syllable.
+ * This is basically a mockoff of SILBISTR
+ */
+class Syllable {
+public:
+    std::string syllable;
+    int quantity; // välde
+    int accent; // rõhk
+
+    Syllable() {};
+    Syllable(std::string const& syllable, const int quantity, const int accent);
+};
+
+// syllables of a single word
+typedef std::vector<Syllable> Syllables;
+
+// syllables of every word of a sentence
+typedef std::vector<Syllables> SentenceSyllables;
+
+/**
  * Class for storing spelling results.
  */
 class SpellingResults {
@@ -142,5 +162,10 @@ private:
     CLinguistic linguistic;
     CDisambiguator disambiguator;
 };
+
+
+// syllabification functions
+Syllables syllabify(std::string word);
+SentenceSyllables syllabifySentence(const StringVector& sentence);
 
 #endif

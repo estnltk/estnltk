@@ -33,6 +33,10 @@ SpellingResults::SpellingResults(std::string const& word, const bool spelling, c
     : word(word), spelling(spelling), suggestions(suggestions) {
 }
 
+Syllable::Syllable(std::string const& syllable, const int quantity, const int accent)
+    : syllable(syllable), quantity(quantity), accent(accent) {
+}
+
 //////////////////////////////////////////////////////////////////////
 // COMMON FUNCTIONS
 //////////////////////////////////////////////////////////////////////
@@ -336,4 +340,24 @@ StringVector Vabamorf::synthesize(
     applyMorfSettings(linguistic, guess, phonetic, false);
     synthesizeWord(linguistic, data);
     return convertStringVectorOutput(data);
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// SYLLABIFICATION
+//////////////////////////////////////////////////////////////////////
+
+Syllables syllabify(std::string word) {
+    Syllables syllables;
+    return syllables;
+}
+
+
+SentenceSyllables syllabifySentence(const StringVector& sentence) {
+    SentenceSyllables ss;
+    ss.reserve(sentence.size());
+    for (int idx=0 ; idx<sentence.size ; ++idx) {
+        ss.push_back(syllabify(sentence[idx]));
+    }
+    return ss;
 }
