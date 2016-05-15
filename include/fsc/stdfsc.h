@@ -73,7 +73,7 @@ of any kind, either express or implied.
 	#endif
 #else
 //#elif defined (UNIX)
-	#pragma message("UNIX block")
+	//#pragma message("UNIX block")
     #define UNIX
 	#include <stdio.h>
 	#include <stdlib.h>
