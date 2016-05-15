@@ -11,6 +11,7 @@ This software is distributed on an "AS IS" basis, without warranties or conditio
 of any kind, either express or implied.
 */
 #include "vabamorf.h"
+#include "silp.h"
 
 
 //////////////////////////////////////////////////////////////////////
@@ -348,7 +349,21 @@ StringVector Vabamorf::synthesize(
 //////////////////////////////////////////////////////////////////////
 
 Syllables syllabify(std::string word) {
+    // syllabify the word
+    SILP silp;
+    FSXSTRING fsxWord(asWStr(word));
+    size_t n = silp.silbita(&fsxWord);
+    silp.silbivalted();
+
+    // create the wrapper data structure
     Syllables syllables;
+    syllables.reserve(n);
+
+    // copy results
+    for (int idx=0 ; idx<n ; ++idx) {
+        const SILBISTR *silbistr = silp.silbid[idx];
+        syllables.push_back(Syllable(asString(silbistr->silp), silbistr->valde, silbistr->rohk));
+    }
     return syllables;
 }
 
@@ -356,7 +371,7 @@ Syllables syllabify(std::string word) {
 SentenceSyllables syllabifySentence(const StringVector& sentence) {
     SentenceSyllables ss;
     ss.reserve(sentence.size());
-    for (int idx=0 ; idx<sentence.size ; ++idx) {
+    for (int idx=0 ; idx<sentence.size() ; ++idx) {
         ss.push_back(syllabify(sentence[idx]));
     }
     return ss;
