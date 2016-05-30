@@ -1,7 +1,7 @@
 from estnltk import Text
 
 measurement_adjs = ['paksune', 'pikkune', 'ealine', 'aegne', 'suurune', 'jämedune', 'vanune', 'kõrgune',
-                    'raskune', 'ajaline', 'ajane', 'sügavune', 'tagune', 'täis', 'tunnine', 'meetrine', 'päevane',
+                    'raskune', 'ajaline', 'ajane', 'sügavune', 'tagune', 'täis', 'tunnine', 'meetrine',
                     'laiune', 'kuuline', 'protsendine', 'tonnine', 'süllane', 'liitrine', 'hektarine',
                     'sekundine', 'kilomeetrine', 'minutine', 'nädalane', 'grammine', 'kilogrammine', 'kilone',
                     'tolline']
@@ -10,10 +10,11 @@ measurement_adjs = ['paksune', 'pikkune', 'ealine', 'aegne', 'suurune', 'jämedu
 def is_measurement(word):
     if word in measurement_adjs:
         return True
-        # kilogrammiline -> kilogrammine
-    word2 = word[0:-4] + 'ne'
-    if word2 in measurement_adjs:
-        return True
+    # kilogrammiline -> kilogrammine
+    if word[0:-4] == 'line':
+        word2 = word[0:-4] + 'ne'
+        if word2 in measurement_adjs:
+            return True
     return False
 
 
@@ -25,10 +26,11 @@ def is_number(word):
     else:
         try:
             # Check if the adjective has been derived from a number
-            pos1 = Text(word[0:-2], disambiguate=False).postags[0].split('|')  # kuuene - > kuue
-            pos2 = Text(word[0:-4], disambiguate=False).postags[0].split('|')  # kümneline -> kümne
-            if 'N' in pos1 or 'N' in pos2:
-                return True
+            if word[0:-2] == 'ne':
+                pos1 = Text(word[0:-2], disambiguate=False).postags[0].split('|')  # kuuene - > kuue
+                pos2 = Text(word[0:-4], disambiguate=False).postags[0].split('|')  # kümneline -> kümne
+                if 'N' in pos1 or 'N' in pos2:
+                    return True
         except IndexError:
             pass
     return False

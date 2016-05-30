@@ -26,7 +26,7 @@ class AdjectivePhraseTagger:
         if self.layer_name in text:
             for idx, adj_ph in enumerate(text[self.layer_name]):
                 adj_ph['lemmas'] = Text(adj_ph['text'], disambiguate=False).lemmas
-                if 'C' in Text(adj_ph['lemmas'][1]).postags:
+                if 'C' in Text(adj_ph['lemmas'][-1]).postags:
                     adj_ph['type'] = 'comparative'
                 else:
                     adj_ph['type'] = 'adjective'
@@ -144,7 +144,7 @@ class AdjectivePhraseTagger:
                     for idx, adj_ph in enumerate(text[self.layer_name]):
                         adj_ph = (dict(adj_ph))
                         # Finds whether the adjective is a measurement adjective
-                        if is_measurement_adjective(adj_ph['lemmas'][1]) == True:
+                        if is_measurement_adjective(adj_ph['lemmas'][-1]) == True:
                             text[self.layer_name][idx]['measurement_adj'] = True
                         else:
                             text[self.layer_name][idx]['measurement_adj'] = False

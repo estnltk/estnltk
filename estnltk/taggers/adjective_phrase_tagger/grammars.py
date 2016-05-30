@@ -48,6 +48,8 @@ adjective_phrases = Union(
         comp_phrase_ja,
         comp_phrase,
         adj_phrase,
+        adjective,
+        comparative,
         name='adjective_phrases'
 )
 
