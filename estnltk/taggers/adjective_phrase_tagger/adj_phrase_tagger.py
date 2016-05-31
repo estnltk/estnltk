@@ -26,6 +26,7 @@ class AdjectivePhraseTagger:
         if self.layer_name in text:
             for idx, adj_ph in enumerate(text[self.layer_name]):
                 adj_ph['lemmas'] = Text(adj_ph['text'], disambiguate=False).lemmas
+                
                 if 'C' in Text(adj_ph['lemmas'][-1]).postags:
                     adj_ph['type'] = 'comparative'
                 else:
@@ -67,7 +68,6 @@ class AdjectivePhraseTagger:
         if 'participle_phrases' in text:
             for part_ph in text['participle_phrases']:
                 part_ph['lemmas'] = Text(part_ph['text'], disambiguate=False).lemmas
-
                 if self.__is_participle_phrase(part_ph['lemmas'][1]):
                     part_ph['type'] = 'participle'
                     if part_ph['lemmas'][0] in NOT_ADJ_MODIFIERS:
@@ -75,8 +75,8 @@ class AdjectivePhraseTagger:
                     else:
                         if self.layer_name in text:
                             for idx, adj_ph in enumerate(text[self.layer_name]):
-                                # If participle phrase was also tagged as a usual adjective phrase, the latter is removed
-                                if adj_ph['start'] == part_ph['start'] and adj_ph['end'] == part_ph['end']:
+                                # If participle phrase was also (partially) tagged as a usual adjective phrase, the latter is removed
+                                if adj_ph['end'] == part_ph['end']:
                                     text[self.layer_name][idx]['to_delete'] = True
                             # Participle phrases included into adjective_phraes layer
                             text[self.layer_name].append(part_ph)
@@ -110,7 +110,7 @@ class AdjectivePhraseTagger:
                     return True
         else:
             return False
-
+            
 
     # Deletes phrases marked as 'to_delete'
     def __delete_wrong_phrases(self, text):
