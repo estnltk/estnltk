@@ -58,6 +58,6 @@ part_phrase = Union(
         Concatenation(
                 adverb,
                 space,
-                adjective,
-                name='participle_phrases')
+                adjective),
+                name='participle_phrases'
 )

@@ -44,8 +44,9 @@ def is_measurement_adjective(adj):
         for i in root_tokens:
             # If at least one token is a number, adjective derived from number
             # or a measurement adjective, the adjective is a measurement adjective
-            if is_measurement(i) == True or is_number(i) == True:
-                decision = 1
+            if len(i) > 0: ### To avoid the issue with negative numbers: -17 root tokens are ['', '17']
+                if is_measurement(i) == True or is_number(i) == True:
+                    decision = 1
     if decision == 0:
         return False
     else:

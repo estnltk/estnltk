@@ -19,13 +19,57 @@ class AdjectivePhraseTagger:
         self.layer_name = layer_name
         self.return_layer = return_layer
 
+
+    def __extract_lemmas(self, doc, m, phrase):
+        """
+        :param sent: sentence from which the match was found
+        :param m: the found match
+        :phrase: name of the phrase
+        :return: tuple of the lemmas in the match
+        """
+
+        ph_start = m['start']
+        ph_end = m['end']
+        start_index = None
+        for ind, word in enumerate(doc['words']):
+            if word['start'] == ph_start:
+                start_index = ind
+                break
+        end_index = None
+        for ind, word in enumerate(doc['words']):
+            if word['end'] == ph_end:
+                end_index = ind
+                break
+        if start_index is not None and end_index is not None:
+            
+            lem = []
+            #for i in doc['words'][start_index:end_index + 1]:
+            #    lem = tuple([i['analysis'][0]['lemma'] for i in doc['words'][start_index:end_index + 1]])
+                
+            for i in doc['words'][start_index:end_index + 1]:
+                word_lem = []
+                for idx, j in enumerate(i['analysis']):
+                    if i['analysis'][idx]['partofspeech'] in ['A', 'D', 'C', 'J']:
+                        if i['analysis'][idx]['lemma'] not in word_lem:
+                            word_lem.append(i['analysis'][idx]['lemma'])
+                word_lem_str = '|'.join(word_lem)          
+                lem.append(word_lem_str)
+
+        else:
+            raise Exception('Something went really wrong')
+        return lem
+
+
+
     # Tags (normal) adjective phrases and comparative phrases in text, adds lemmas and type (adjective or comparative)
     def __tag_adj_phrases(self, text):
         adjective_phrases.name = self.layer_name
         adjective_phrases.annotate(text)
         if self.layer_name in text:
             for idx, adj_ph in enumerate(text[self.layer_name]):
-                adj_ph['lemmas'] = Text(adj_ph['text'], disambiguate=False).lemmas
+                phrase_lemmas = self.__extract_lemmas(text, text[self.layer_name][idx], self.layer_name)
+                #adj_ph['lemmas'] = Text(adj_ph['text'], disambiguate=False).lemmas
+                adj_ph['lemmas'] = phrase_lemmas
                 
                 if 'C' in Text(adj_ph['lemmas'][-1]).postags:
                     adj_ph['type'] = 'comparative'
@@ -66,8 +110,10 @@ class AdjectivePhraseTagger:
     def __tag_participle_phrases(self, text):
         part_phrase.annotate(text)
         if 'participle_phrases' in text:
-            for part_ph in text['participle_phrases']:
-                part_ph['lemmas'] = Text(part_ph['text'], disambiguate=False).lemmas
+            for idx, part_ph in enumerate(text['participle_phrases']):
+                #part_ph['lemmas'] = Text(part_ph['text'], disambiguate=False).lemmas
+                phrase_lemmas = self.__extract_lemmas(text, text['participle_phrases'][idx], 'participle_phrases')
+                part_ph['lemmas'] = phrase_lemmas
                 if self.__is_participle_phrase(part_ph['lemmas'][1]):
                     part_ph['type'] = 'participle'
                     if part_ph['lemmas'][0] in NOT_ADJ_MODIFIERS:
@@ -76,7 +122,7 @@ class AdjectivePhraseTagger:
                         if self.layer_name in text:
                             for idx, adj_ph in enumerate(text[self.layer_name]):
                                 # If participle phrase was also (partially) tagged as a usual adjective phrase, the latter is removed
-                                if adj_ph['end'] == part_ph['end']:
+                                if adj_ph['end'] == part_ph['end'] or adj_ph['start'] == part_ph['start']:
                                     text[self.layer_name][idx]['to_delete'] = True
                             # Participle phrases included into adjective_phraes layer
                             text[self.layer_name].append(part_ph)
@@ -130,7 +176,11 @@ class AdjectivePhraseTagger:
             t2 = copy(text)
             a2 = AdjectivePhraseTagger()
             a2.tag(t2)
-            return t2[a2.layer_name]
+            
+            try:
+                return t2[a2.layer_name]
+            except KeyError:
+                return '[]'  
             
         else:
             if self.layer_name in text:
@@ -139,7 +189,6 @@ class AdjectivePhraseTagger:
             else:
                 text = self.__tag_adj_phrases(text)
                 text = self.__tag_participle_phrases(text)
-
                 if self.layer_name in text:
                     for idx, adj_ph in enumerate(text[self.layer_name]):
                         adj_ph = (dict(adj_ph))
