@@ -158,16 +158,13 @@ def _executeMaltparser( input_string, maltparser_dir, maltparser_jar, model_name
               name of the model that should be used;
         maltparser_dir: string
               the directory containing Maltparser's jar and the model file; 
-              this directory is also used for creating temporary input and output 
-              files, so it is assumed that it is permissible to write into that 
-              directory;
         
         Few of the ideas were also borrowed from NLTK's MaltParser class,
         see  http://www.nltk.org/_modules/nltk/parse/malt.html   for the reference;
     '''
 
     temp_input_file = \
-      tempfile.NamedTemporaryFile(prefix='malt_in.', dir=maltparser_dir, mode='w', delete=False)
+      tempfile.NamedTemporaryFile(prefix='malt_in.', mode='w', delete=False)
     temp_input_file.close()
     # We have to open separately here for writing, because Py 2.7 does not support
     # passing parameter   encoding='utf-8'    to the NamedTemporaryFile;
@@ -175,7 +172,7 @@ def _executeMaltparser( input_string, maltparser_dir, maltparser_jar, model_name
     out_f.write( input_string )
     out_f.close()
 
-    temp_output_file = tempfile.NamedTemporaryFile(prefix='malt_out.', dir=maltparser_dir, mode='w', delete=False)
+    temp_output_file = tempfile.NamedTemporaryFile(prefix='malt_out.', mode='w', delete=False)
     temp_output_file.close()
     
     current_dir = os.getcwd()
