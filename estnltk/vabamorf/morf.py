@@ -43,7 +43,7 @@ compound_markers = frozenset('_+=')
 all_markers = phonetic_markers | compound_markers
 
 def regex_from_markers(markers):
-    '''Given a string of characters, construct a regex that matches them.
+    """Given a string of characters, construct a regex that matches them.
 
     Parameters
     ----------
@@ -54,7 +54,7 @@ def regex_from_markers(markers):
     -------
     regex
         The regular expression matching the given markers.
-    '''
+    """
     return re.compile('|'.join([re.escape(c) for c in markers]))
 
 phonetic_regex = regex_from_markers(phonetic_markers)
@@ -555,3 +555,25 @@ def synthesize(lemma, form, partofspeech='', hint='', guess=True, phonetic=False
         List of synthesized words.
     """
     return Vabamorf.instance().synthesize(lemma, form, partofspeech, hint, guess, phonetic)
+
+
+def syllable_as_dict(syllable):
+    return dict(syllable=syllable.syllable,
+                quantity=syllable.quantity,
+                accent=syllable.accent)
+
+
+def syllable_as_tuple(syllable):
+    return syllable.syllable, syllable.quantity, syllable.accent
+
+
+def syllabify_word(word, as_dict=True):
+    syllables = vm.syllabify(convert(word))
+    if as_dict:
+        return [syllable_as_dict(syllable) for syllable in syllables]
+    return [syllable_as_tuple(syllable) for syllable in syllables]
+
+
+def syllabify_words(words, as_dict=True):
+    return [syllabify_word(w, as_dict) for w in words]
+

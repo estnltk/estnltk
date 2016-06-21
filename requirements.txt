@@ -1,0 +1,12 @@
+# copy of requirements from setup.py install_requires
+# if you have cloned the repo, then you can issue
+# pip install -r requirements.txt
+six==1.9.0
+nltk==3.0.4
+regex==2015.07.19
+pandas==0.16.2
+python-crfsuite==0.8.3
+cached-property==1.2.0
+beautifulsoup4==4.4.0
+html5lib==0.9999999
+elasticsearch==1.6.0
