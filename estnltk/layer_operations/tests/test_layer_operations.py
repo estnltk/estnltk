@@ -4,11 +4,11 @@ from pprint import pprint
 
 import unittest
 from ...text import Text
-from ..operations import keep_layer
-from ..operations import delete_layer
-from ..operations import new_layer_with_regex
-from ..operations import apply_simple_filter
-from ..operations import compute_layer_intersection
+from ..layer_operations import keep_layer
+from ..layer_operations import delete_layer
+from ..layer_operations import new_layer_with_regex
+from ..layer_operations import apply_simple_filter
+from ..layer_operations import compute_layer_intersection
 
 
 def first_text():
