@@ -4,6 +4,7 @@
 Low-level layer operations for Estnltk Text object.
 
 """
+from operator import eq
 from numpy import sort
 from pandas import DataFrame
 
@@ -168,9 +169,8 @@ def compute_layer_intersection(text, layer1, layer2, method='union'):
 ###############################################################
 
 
-def unique_sorted_texts(text, layer, sep=' ', reverse=False):
-    """
-    Retrive unique sorted texts of layer.
+def unique_texts(text, layer, sep=' ', order=None):
+    """Retrive unique texts of layer optionally ordered.
         
     Parameters
     ----------
@@ -180,19 +180,66 @@ def unique_sorted_texts(text, layer, sep=' ', reverse=False):
         Name of layer.
     sep: str (default: ' ')
         Separator for multilayer elements.
-    reverse: boolean (default: False)
-        If True, then the texts are returned in descending order.
+    order: {None, 'asc', 'desc'} (default: None)
+        If 'asc', then the texts are returned in ascending order by unicode lowercase.
+        If 'desc', then the texts are returned in descending order by unicode lowercase.
+        Else, the texts returned have no particular order.
     
     Returns
     -------
     list of str
-        List of unique strings in given layer sorted by UTF-8 lowercase.
+        List of unique texts of given layer.
     """
     texts = text.texts(layer, sep)
-    return sorted(set(texts), reverse=reverse, key=str.lower)
+    if order == 'asc':
+        return sorted(set(texts), reverse=False, key=str.lower)
+    if order == 'desc':
+        return sorted(set(texts), reverse=True, key=str.lower)
+    return list(set(texts))
 
 
-def tabulate_attribute_values(text, layer, attributes):
+def count_by(text, layer, attributes, table):
+    """Create table of *layer*'s *attributes* value counts.
+    
+    Parameters
+    ----------
+    text: Text
+        Text that has the layer.
+    layer: str
+        Name of the layer that has the keys *attributes*.
+    attributes: list of str or str
+        Name of *layer*'s key or list of *layer*'s key names.
+        If *attributes* contains 'text', then the *layer*'s text is found using spans.
+    table: dict of dicts, default: {}
+    
+    Returns
+    -------
+    DataFrame
+        DataFrame table. The column indexes are attributes plus 'count'.
+        The rows contain values of attributes and corresponding count.
+    """
+    if not isinstance(attributes, list):
+        attributes = [attributes]
+    
+    if 'text' in attributes:
+        for entry, span_text in zip(text[layer], text.texts_from_spans(text.spans(layer))):
+            key = []
+            for a in attributes:
+                if a == 'text':
+                    key.append(span_text)
+                else:
+                    key.append(entry[a])
+            key = tuple(key)
+            table[key] = table.setdefault(key, 0) + 1
+    else:
+        for entry in text[layer]:
+            key = tuple(entry[a] for a in attributes)        
+            table[key] = table.setdefault(key, 0) + 1
+
+    return table
+
+
+def count_by_as_df(text, layer, attributes):
     """Create table of *layer*'s *attributes* value counts.
     
     Parameters
@@ -211,41 +258,23 @@ def tabulate_attribute_values(text, layer, attributes):
         DataFrame table. The column indexes are attributes plus 'count'.
         The rows contain values of attributes and corresponding count.
     """
-    if not isinstance(attributes, list):
-        attributes = [attributes]
-    table = {}
-    
-    if 'text' in attributes:
-        for entry, span_text in zip(text[layer], text.texts_from_spans(text.spans(layer))):
-            key = []
-            for a in attributes:
-                if a == 'text':
-                    key.append(span_text)
-                else:
-                    key.append(entry[a])
-            key = tuple(key)
-            table[key] = table.setdefault(key, 0) + 1
-    else:
-        for entry in text[layer]:
-            key = tuple(entry[a] for a in attributes)        
-            table[key] = table.setdefault(key, 0) + 1
 
-    table = DataFrame.from_records((a+(count,) for a,count in table.items()), columns=attributes+['count'])
-
-    return table
+    table = count_by(text, layer, attributes, {})
+    return DataFrame.from_records((a+(count,) for a,count in table.items()), columns=attributes+['count'])
 
 
-def diff_layer(a, b):
+def diff_layer(a, b, comp=eq):
     """Generator of layer differences.
     
     Parameters
     ----------
     a and b: list of dict
-        Estnltk layer. Must be sorted by *start* value. *start* value may not repeat.
+        Estnltk layer. Must be sorted by *start* and *end* values. 
+        No (start, end) dublicates may exist.
     
     Returns
     -------
-    generator
+    Generator of different pairs.
     """
     i = 0
     j = 0
@@ -254,15 +283,15 @@ def diff_layer(a, b):
             yield (a[i], None)
             i += 1
             continue
-        if a[i] == b[j]:
+        if comp(a[i], b[j]):
             i += 1
             j += 1
             continue
-        if a[i]['start'] < b[j]['start']:
+        if a[i]['start'] < b[j]['start'] or a[i]['start'] == b[j]['start'] and a[i]['end'] < b[j]['end']:
             yield (a[i], None)
             i += 1
             continue
-        if a[i]['start'] > b[j]['start']:
+        if a[i]['start'] > b[j]['start'] or a[i]['start'] == b[j]['start'] and a[i]['end'] > b[j]['end']:
             yield (None, b[j])
             j += 1
             continue
@@ -275,7 +304,21 @@ def diff_layer(a, b):
         
         
 def merge_layer(a, b, fun):
-    # pooleli
+    """Generator of layer merge.
+        
+    Parameters
+    ----------
+    a and b: list of dict
+        Estnltk layer. Must be sorted by *start* value. *start* value may not repeat.
+    
+    fun: merge function
+        
+    
+    Returns
+    -------
+    generator
+        Generator of merged layers.
+    """
     i = 0
     j = 0
     while i < len(a):
@@ -283,8 +326,8 @@ def merge_layer(a, b, fun):
             yield a[i]
             i += 1
             continue
-        if a[i] == b[j]:
-            yield a[i]
+        if a[i]['start'] == b[j]['start'] and a[i]['end'] == b[j]['end']:
+            yield fun(a[i], b[j])
             i += 1
             j += 1
             continue
@@ -297,3 +340,59 @@ def merge_layer(a, b, fun):
     while j < len(b):
         yield b[j]
         j += 1
+
+
+def duplicates_of(head, layer):
+    """ Generator of all duplicates (by (start, end) values) of head[0] in layer.
+    
+    Parameters
+    ----------
+        head: list
+            head[0] is a layer element
+        layer: list of dict
+            Must be sorted by (start, end) values.
+    
+    Yields
+    ------
+        head[0] and all duplicates of head[0] in layer.
+    """
+    
+    old_head = head[0]
+    yield old_head
+    head[0] = next(layer)
+    while head[0]['start'] == old_head['start'] and head[0]['end'] == old_head['end']:
+        old_head = head[0]
+        yield old_head
+        head[0] = next(layer)
+
+
+def merge_duplicates(layer, merge_fun):
+    """ Generate a new layer with no duplicates.
+    
+    Parameters
+    ----------
+        layer: iterable
+            Must be in order by (start, end) values.
+        
+        merge_fun: function merge_fun(duplicates)
+            duplicates: generator of one or more layer elements
+
+            merge_fun returns merge of duplicates
+            
+            Example:
+                def merge_fun(duplicates):
+                    result = {}
+                    for d in duplicates:
+                        result.update(d)
+                    return result
+    Yields
+    ------
+        Layer elements with no (start, end) duplicates. 
+        Duplicates of input are merged by merge_fun.
+    """
+    head = [next(layer)]
+    while True:
+        start, end = head[0]['start'], head[0]['end']
+        yield merge_fun(duplicates_of(head, layer))
+        while (start, end) == (head[0]['start'], head[0]['end']):
+            head = [next(layer)]
