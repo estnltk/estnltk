@@ -11,10 +11,10 @@ from pandas import DataFrame
 import regex as re
 from collections import Counter
 
-#? Sven palus üles kirjutada küsimused, mis koodi silmitsedes tekivad.
-#? Kas kõik järgmised konstandid on mõttekad? 
-#? UNION on allpool ainult osaliselt kasutusel.
-#? ehk võiks enamlevinud konstandid importida
+# ? Sven palus üles kirjutada küsimused, mis koodi silmitsedes tekivad.
+# ? Kas kõik järgmised konstandid on mõttekad? 
+# ? UNION on allpool ainult osaliselt kasutusel.
+# ? ehk võiks enamlevinud konstandid importida
 
 TEXT = 'text'
 AND = 'AND'
@@ -33,22 +33,23 @@ def apply_simple_filter(text, layer='', restriction='', option=OR):
     dicts = []
     if layer == '':
         raise ValueError('Layer attribute cannot be empty.')
-#? milleks siin else
+# ? milleks siin else
     else:
         if layer not in text.keys():
-#? milleks else
+# ? milleks else
             raise ValueError('Layer not in Text instance.')
         else:
             if restriction == '':
+# ? kas sihuke printimene on hea asi
                 print('Notice: restriction left empty.')
                 return text[layer]
-#? milleks else
+# ? milleks else
             else:
                 text_layer = text[layer]
                 if option == OR:
                     for list_elem in text_layer:
                         for rule_key, rule_value in restriction.items():
-#? miks rule_value kasutusel pole
+# ? miks rule_value kasutusel pole
                             if rule_key in list_elem and restriction[rule_key] == list_elem[rule_key]:
                                 if list_elem not in dicts:
                                     dicts.append(list_elem)
@@ -59,7 +60,7 @@ def apply_simple_filter(text, layer='', restriction='', option=OR):
                     for list_elem in text_layer:
                         condition = True
                         for rule_key, rule_value in restriction.items():
-#? miks rule_value kasutusel pole
+# ? miks rule_value kasutusel pole
                             if rule_key not in list_elem or restriction[rule_key] != list_elem[rule_key]:
                                 condition = False
                                 break
@@ -110,7 +111,7 @@ def sort_layer(text, layer, update=False):
     print('Layer to sort: ', layer_to_sort)
     if update:
         layer_sorted = sort(layer_to_sort, key=lambda e: (e[START], e[END]))
-#? miks layer_sorted kasutusel pole. ehk võiks selle return-ida? või on siin tahetud kasutada ühel juhul meetodit 'sorted'?
+# ? miks layer_sorted kasutusel pole. ehk võiks selle return-ida? või on siin tahetud kasutada ühel juhul meetodit 'sorted'?
     else:
         return sort(layer_to_sort, key=lambda e: (e[START], e[END]))
 
@@ -130,7 +131,7 @@ def compute_layer_intersection(text, layer1, layer2, method='union'):
                 end2 = element2[END]
                 if start1 == start2 and end1 == end2:
                     result.append({START: start2, END: end2})
-#? kui meetodi nimes on intersection, siis miks siin äkki union
+# ? kui meetodi nimes on intersection, siis miks siin äkki union
     if method == UNION:
         for element1 in first:
             start1 = element1[START]
@@ -204,8 +205,8 @@ def get_text(text, start=None, end=None, layer_element=None, span=None, marginal
         start = 0
     if end == None:
         end = len(text.text)
-    start = max(0, start-marginal)
-    end = min(len(text.text), end+marginal)
+    start = max(0, start - marginal)
+    end = min(len(text.text), end + marginal)
     return text.text[start:end]
 
 
@@ -320,7 +321,7 @@ def count_by_document(text, layer, attributes, counter=None):
             else:
                 key.append(entry[a])
         key = tuple(key)
-        keys.update(key)
+        keys.update({key})
     counter.update(keys)
 
     return counter
@@ -346,8 +347,8 @@ def count_by_as_df(text, layer, attributes):
         DataFrame table. The column indexes are attributes plus 'count'.
         The rows contain values of attributes and corresponding count.
     """
-    table = count_by(text, layer, attributes, {})
-    return DataFrame.from_records((a+(count,) for a,count in table.items()), columns=attributes+['count'])
+    table = count_by(text, layer, attributes)
+    return DataFrame.from_records((a + (count,) for a, count in table.items()), columns=attributes + ['count'])
 
         
 def diff_layer(a, b, comp=eq):
@@ -362,9 +363,11 @@ def diff_layer(a, b, comp=eq):
         Function that returns True if layer elements are equal and False otherwise.
         Only layer elements with equal spans are compared.
     
-    Returns
-    -------
-    Generator of different pairs.
+    Yields
+    ------
+    tuple(dict)
+        Pairs of different layer elements. In place of missing layer element, 
+        None is returned.
     """
     a = iter(a)
     b = iter(b)
@@ -405,6 +408,9 @@ def diff_layer(a, b, comp=eq):
         except StopIteration:
             b_end = True
     
+    if a_end and b_end:
+        return
+    
     if a_end:
         while True:
             yield (None, y)
@@ -435,8 +441,8 @@ def merge_layer(a, b, fun):
             
     Yields
     ------
-    generator
-        Generator of merged layer elements.
+    dict
+        Merged layer elements.
     """
     a = iter(a)
     b = iter(b)
@@ -502,9 +508,10 @@ def duplicates_of(head, layer):
     
     Yields
     ------
-    head[0] and all duplicates of head[0] in layer.
+    dict
+        head[0] and all duplicates of head[0] in layer.
     """
-    
+
     old_head = head[0]
     yield old_head
     head[0] = next(layer)
@@ -514,7 +521,7 @@ def duplicates_of(head, layer):
         head[0] = next(layer)
 
 
-def groub_by_spans(layer, merge_fun):
+def groub_by_spans(layer, fun):
     """ Generate a new layer with no duplicate spans.
     
     Parameters
@@ -522,26 +529,28 @@ def groub_by_spans(layer, merge_fun):
     layer: iterable
         Must be ordered by *(start, end)* values.
         
-    merge_fun: function merge_fun(duplicates)
+    fun: function fun(duplicates)
         duplicates: generator of one or more layer elements
 
-        merge_fun returns merge of duplicates
+        fun returns merge of duplicates
             
         Example::
-            def merge_fun(duplicates):
+            def fun(duplicates):
                 result = {}
                 for d in duplicates:
                     result.update(d)
                 return result
     Yields
     ------
-    Layer elements with no span duplicates. 
-    Duplicates of input are merged by *merge_fun*.
+    dict
+        Layer elements with no span duplicates. 
+        Duplicates of input are merged by *merge_fun*.
     """
+    layer = iter(layer)
     head = [next(layer)]
     while True:
         start, end = head[0][START], head[0][END]
-        yield merge_fun(duplicates_of(head, layer))
+        yield fun(duplicates_of(head, layer))
         while (start, end) == (head[0][START], head[0][END]):
             head = [next(layer)]
 
@@ -554,7 +563,7 @@ def conflicts(text, layer):
     
     Yields
     ------
-        dict
+    dict
         Description of the problem as a multilayer element.
     """
     if isinstance(layer, str):
