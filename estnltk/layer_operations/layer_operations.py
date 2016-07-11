@@ -33,13 +33,16 @@ def apply_simple_filter(text, layer='', restriction='', option=OR):
     dicts = []
     if layer == '':
         raise ValueError('Layer attribute cannot be empty.')
+#? milleks siin else
     else:
         if layer not in text.keys():
+#? milleks else
             raise ValueError('Layer not in Text instance.')
         else:
             if restriction == '':
                 print('Notice: restriction left empty.')
                 return text[layer]
+#? milleks else
             else:
                 text_layer = text[layer]
                 if option == OR:
@@ -168,19 +171,23 @@ def compute_layer_intersection(text, layer1, layer2, method='union'):
 
 ###############################################################
 
-def get_text(text, start=None, end=None, layer_element=None, span=None):
+def get_text(text, start=None, end=None, layer_element=None, span=None, marginal=0):
     """Get text by start and end or by layer_element or by span.
 
     Parameters
     ----------
-    start: int, default: None
+    start: int, default: 0
     
-    end: int, default: None
+    end: int, default: len(text.text)
     
     layer_element: dict, default: None
         dict that contains 'start' and 'end'.
     
     span: (int, int), default: None
+
+    marginal: int, default: 0
+        The number of extra characters at the beginning and at end of the 
+        returned text.
     
     Returns
     -------
@@ -188,13 +195,18 @@ def get_text(text, start=None, end=None, layer_element=None, span=None):
         Strings that corresponds to given *(start, end)* span. 
         Default values return the whole text.
     """
-    if start != None and end != None:
-        return text.text[start:end]
     if layer_element != None:
-        return text.text[layer_element[START]:layer_element[END]]
-    if span != None:
-        return text.text[span[0]:span[1]]
-    return text.text
+        start = layer_element[START]
+        end = layer_element[END]
+    elif span != None:
+        start, end = span
+    if start == None:
+        start = 0
+    if end == None:
+        end = len(text.text)
+    start = max(0, start-marginal)
+    end = min(len(text.text), end+marginal)
+    return text.text[start:end]
 
 
 def unique_texts(text, layer, sep=' ', order=None):
@@ -268,6 +280,51 @@ def count_by(text, layer, attributes, counter=None):
         counter[key] += 1
 
     return counter
+
+def count_by_document(text, layer, attributes, counter=None):
+    """Create table of counts for every *layer* *attributes* value combination.
+    The result is 1 if the combination appears in the document and 0 otherwise.
+    
+    Parameters
+    ----------
+    text: Text
+        Text that has the layer.
+    layer: iterable, str
+        The layer or the name of the layer which elements have the keys listed in *attributes*.
+    attributes: list of str or str
+        Name of *layer*'s key or list of *layer*'s key names.
+        If *attributes* contains 'text', then the *layer*'s text is found using spans.
+    table: collections.defaultdict(int), None, default: None
+        If table==None, then new 
+        If table!=None, then the table is updated and returned.
+    
+    Returns
+    -------
+    collections.Counter
+        The keys are tuples of values of attributes. 
+        The values are corresponding counts.
+    """
+    if isinstance(layer, str):
+        layer = text[layer]
+    if not isinstance(attributes, list):
+        attributes = [attributes]
+    if counter == None:
+        counter = Counter()
+    
+    keys = set()
+    for entry in layer:
+        key = []
+        for a in attributes:
+            if a == TEXT:
+                key.append(get_text(text, layer_element=entry))
+            else:
+                key.append(entry[a])
+        key = tuple(key)
+        keys.update(key)
+    counter.update(keys)
+
+    return counter
+
 
 
 def count_by_as_df(text, layer, attributes):
@@ -457,8 +514,8 @@ def duplicates_of(head, layer):
         head[0] = next(layer)
 
 
-def merge_duplicates(layer, merge_fun):
-    """ Generate a new layer with no duplicates.
+def groub_by_spans(layer, merge_fun):
+    """ Generate a new layer with no duplicate spans.
     
     Parameters
     ----------
@@ -498,7 +555,7 @@ def conflicts(text, layer):
     Yields
     ------
         dict
-        Description of the problem.
+        Description of the problem as a multilayer element.
     """
     if isinstance(layer, str):
         layer = text[layer]
@@ -510,16 +567,16 @@ def conflicts(text, layer):
     while True:
         if x['start'] not in text.word_starts:
             if x['end'] not in text.word_ends:
-                yield dict(start=x['start'], end=x['end'], problem='B1')
+                yield dict(start=[x['start']], end=[x['end']], problem='B1')
             else:
-                yield dict(start=x['start'], end=x['end'], problem='B2')
+                yield dict(start=[x['start']], end=[x['end']], problem='B2')
         elif x['end'] not in text.word_ends:
-            yield dict(start=x['start'], end=x['end'], problem='A')
+            yield dict(start=[x['start']], end=[x['end']], problem='A')
 
         try:
             y = next(layer)
         except StopIteration:
             return
         if x['end'] > y['start']:
-            yield dict(start=x['start'], end=y['end'], problem='overlap')
+            yield dict(start=[x['start'], y['start']], end=[x['end'], y['end']], problem='overlap')
         x = y
