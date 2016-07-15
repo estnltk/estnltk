@@ -6,8 +6,8 @@ from .layer_operations import get_text
 from .layer_operations import unique_texts
 from .layer_operations import count_by
 from .layer_operations import count_by_document
-from .layer_operations import count_by_as_df
+from .layer_operations import dict_to_df
 from .layer_operations import diff_layer
 from .layer_operations import merge_layer
-from .layer_operations import groub_by_spans
+from .layer_operations import group_by_spans
 from .layer_operations import conflicts

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
-#from pprint import pprint
 
 
 import unittest
+
 from ...text import Text
 from ..layer_operations import keep_layer
 from ..layer_operations import delete_layer
@@ -14,10 +14,10 @@ from ..layer_operations import get_text
 from ..layer_operations import unique_texts
 from ..layer_operations import count_by
 from ..layer_operations import count_by_document
-from ..layer_operations import count_by_as_df
+from ..layer_operations import dict_to_df
 from ..layer_operations import diff_layer
 from ..layer_operations import merge_layer
-from ..layer_operations import groub_by_spans
+from ..layer_operations import group_by_spans
 from ..layer_operations import conflicts
 
 
@@ -285,14 +285,17 @@ class LayerOperationTest(unittest.TestCase):
         result = unique_texts(text, 'words', sep=' ', order=None)
         expected = {'.', 'kaks', 'kolm', 'neli', 'Neli', 'üks', 'Üks'}
         self.assertSetEqual(set(result), expected)
+
+        text = Text('Üks kaks kolm neli.')
+        text.tokenize_words()
         
         result = unique_texts(text, 'words', sep=' ', order='asc')
-        expected = ['.', 'kaks', 'kolm', 'neli', 'Neli', 'üks', 'Üks']
-        #self.assertListEqual(result, expected)
+        expected = ['.', 'kaks', 'kolm', 'neli', 'Üks']
+        self.assertListEqual(result, expected)
 
         result = unique_texts(text, 'words', sep=' ', order='desc')
-        expected = ['Üks', 'üks', 'Neli', 'neli', 'kolm', 'kaks', '.']
-        #self.assertListEqual(result, expected)
+        expected = ['Üks', 'neli', 'kolm', 'kaks', '.']
+        self.assertListEqual(result, expected)
         
     def test_count_by(self):
         text_1 = Text('Üks kaks kolm neli kaks.')
@@ -351,7 +354,17 @@ class LayerOperationTest(unittest.TestCase):
         counter = count_by_document(text_2, 'test', ['text', 'label'], counter=counter)
         expected = {('üks', 1): 1, ('Üks', 1): 1, ('kaks', 2): 2, ('kolm', 3): 2, ('neli', 4): 1, ('Neli', 4): 1}
         self.assertDictEqual(counter, expected)
-    
+
+    def test_dict_to_df(self):
+        counter = {(2, 3): 4, (5, 6): 7}
+        result = dict_to_df(counter, table_type='keyvalue', attributes=[0,1]).to_dict()
+        expected = {0: {0: 5, 1: 2}, 1: {0: 6, 1: 3}, 'count': {0: 7, 1: 4}}
+        self.assertDictEqual(result, expected)
+
+        result = dict_to_df(counter, table_type='cross').to_dict()
+        expected = {3: {2: 4.0, 5: 0.0}, 6: {2: 0.0, 5: 7.0}}
+        self.assertDictEqual(result, expected)
+
     def test_diff_layer(self):
         a = []
         b = []
@@ -448,7 +461,7 @@ class LayerOperationTest(unittest.TestCase):
             return result
 
         a = []
-        result = list(groub_by_spans(a, fun))
+        result = list(group_by_spans(a, fun))
         expected = []
         self.assertListEqual(result, expected)
 
@@ -461,7 +474,7 @@ class LayerOperationTest(unittest.TestCase):
              {'start':  6, 'end': 10, 'label':7},
              {'start': 18, 'end': 20, 'label':8},
              {'start': 18, 'end': 20, 'label':9}]
-        result = list(groub_by_spans(a, fun))
+        result = list(group_by_spans(a, fun))
         expected = [{'start':  0, 'end':  2, 'label':1},
                     {'start':  0, 'end':  3, 'label':5},
                     {'start':  6, 'end':  9, 'label':6},
@@ -469,6 +482,48 @@ class LayerOperationTest(unittest.TestCase):
                     {'start': 18, 'end': 20, 'label':9}]
         self.assertListEqual(result, expected)
 
+    def test_conflicts(self):
+        text = Text('Üks kaks kolm neli viis kuus seitse.')
+                    #012345678901234567890123456789012345
+                    #          1         2         3
+        a = {}
+        result = list(conflicts(text, a, multilayer=True))
+        expected = []
+        self.assertListEqual(result, expected)
+
+        a = [{'start':  1, 'end':  3}, # S
+             {'start':  4, 'end':  7}, # E
+             {'start':  9, 'end': 18}, # O M
+             {'start': 14, 'end': 23}, # O M
+             {'start': 25, 'end': 33}, # S E O M
+             {'start': 29, 'end': 35}] # O
+        result = list(conflicts(text, a))
+        expected = [{'start': [1], 'end': [3], 'syndrome': 'S'}, 
+                    {'start': [4], 'end': [7], 'syndrome': 'E'}, 
+                    {'start': [9, 14], 'end': [18, 23], 'syndrome': 'OM'}, 
+                    {'start': [14, 9], 'end': [23, 18], 'syndrome': 'OM'}, 
+                    {'start': [25, 29], 'end': [33, 35], 'syndrome': 'SEOM'}, 
+                    {'start': [29, 25], 'end': [35, 33], 'syndrome': 'O'}]
+        self.assertListEqual(result, expected)
  
+        text = Text('Üks kaks')
+                    #01234567
+        a = [{'start':  0, 'end':  2}, # E O
+             {'start':  1, 'end':  3}, # S O
+             {'start':  4, 'end':  6}, # E O
+             {'start':  5, 'end':  8}] # S O
+        result = list(conflicts(text, a))
+        expected = [{'start': [0, 1], 'end': [2, 3], 'syndrome': 'EO'}, 
+                    {'start': [1, 0], 'end': [3, 2], 'syndrome': 'SO'}, 
+                    {'start': [4, 5], 'end': [6, 8], 'syndrome': 'EO'}, 
+                    {'start': [5, 4], 'end': [8, 6], 'syndrome': 'SO'}]
+        self.assertListEqual(result, expected)
+
+        a = [{'start':  1, 'end':  6}] # S E M
+        result = list(conflicts(text, a, multilayer=False))
+        expected = [{'start': 1, 'end': 6, 'syndrome': 'SEM'}]
+        self.assertListEqual(result, expected)
+
+
 if __name__ == '__main__':
     unittest.main()

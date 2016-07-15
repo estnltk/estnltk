@@ -9,7 +9,7 @@ from numpy import sort
 from pandas import DataFrame
 
 import regex as re
-from collections import Counter
+from collections import Counter, defaultdict
 
 # ? Sven palus üles kirjutada küsimused, mis koodi silmitsedes tekivad.
 # ? Kas kõik järgmised konstandid on mõttekad? 
@@ -224,6 +224,8 @@ def unique_texts(text, layer, sep=' ', order=None):
     order: {None, 'asc', 'desc'} (default: None)
         If 'asc', then the texts are returned in ascending order by unicode lowercase.
         If 'desc', then the texts are returned in descending order by unicode lowercase.
+        The ordering is nondeterministic if the lowercase versions of words are equal. 
+        For example the list ['On', 'on'] is both in ascending and descending order. 
         Else, the texts returned have no particular order.
     
     Returns
@@ -327,30 +329,34 @@ def count_by_document(text, layer, attributes, counter=None):
     return counter
 
 
-
-def count_by_as_df(text, layer, attributes):
-    """Create table of *layer*'s *attributes* value counts.
+def dict_to_df(counter, table_type='keyvalue', attributes=[0, 1]):
+    """Convert dict to pandas DataFrame table.
     
     Parameters
     ----------
-    text: Text
-        Text that has the layer.
-    layer: str
-        Name of the layer that has the keys *attributes*.
-    attributes: list of str or str
-        Name of *layer*'s key or list of *layer*'s key names.
-        If *attributes* contains 'text', then the *layer*'s text is found using spans.
+    counter: dict
+
+    table_type: {'keyvalue', 'cross'}
+
+    attributes: list
+        List of key names. Used if table_type=='keyvalue'.
     
     Returns
     -------
     DataFrame
-        DataFrame table. The column indexes are attributes plus 'count'.
-        The rows contain values of attributes and corresponding count.
+        If table_type=='keyvalue', then the column indexes are attributes plus 
+        'count' and the rows contain values of attributes and corresponding count.
     """
-    table = count_by(text, layer, attributes)
-    return DataFrame.from_records((a + (count,) for a, count in table.items()), columns=attributes + ['count'])
 
-        
+    if table_type == 'keyvalue':
+        return DataFrame.from_records((a + (count,) for a, count in counter.items()), columns=attributes + ['count'])
+    if table_type == 'cross':
+        table = defaultdict(dict)
+        for (a, b), c in counter.items():
+            table[a][b] = c
+        return DataFrame.from_dict(table, orient='index').fillna(value=0)
+
+
 def diff_layer(a, b, comp=eq):
     """Generator of layer differences.
         
@@ -420,7 +426,7 @@ def diff_layer(a, b, comp=eq):
         while True:
             yield (x, None)
             x = next(a)
-                
+
 
 def merge_layer(a, b, fun):
     """Generator of merged layers.
@@ -521,8 +527,8 @@ def duplicates_of(head, layer):
         head[0] = next(layer)
 
 
-def groub_by_spans(layer, fun):
-    """ Generate a new layer with no duplicate spans.
+def group_by_spans(layer, fun):
+    """ Merge elements with equal spans. Generate a new layer with no duplicate spans.
     
     Parameters
     ----------
@@ -554,38 +560,80 @@ def groub_by_spans(layer, fun):
         while (start, end) == (head[0][START], head[0][END]):
             head = [next(layer)]
 
-def conflicts(text, layer):
+def conflicts(text, layer, multilayer=True):
     """Find conflicts in layer.
     The conflicts are:
-    1. The start of the layer element is not a start of a word.
-    2. The end of the layer element is not an end of a word.
-    3. The layer element ends after the next element starts. This method does not find overlaps between all layer elements.
+    S: The start of the layer element is not a start of a word.
+    E: The end of the layer element is not an end of a word.
+    O: The layer element starts before the previous element ends or the layer 
+       element ends after the next element starts. This method does not find 
+       overlaps between all layer elements.
+    M: There is a word start or word end inside the layer element. This is 
+       checked if S, E or O is found.
+
+    Parameters
+    ----------
+    text: Text
+        Text that has the layer.
+    layer: iterable, str
+        The layer or the name of the layer in which the conflicts are searched for.
+    multilayer: bool, default True
+        If True, yields multilayer elements. First span is the current 
+        trouble-maker, rest of the spans are left and right overlap if exist. 
+        If False, yields simple layer elements, the span is not affected by 
+        overlaps.
     
     Yields
     ------
     dict
-        Description of the problem as a multilayer element.
+        Description of the problem as a layer element. It has keys START, 
+        END and 'syndreme'. 'syndrome' is a non-empty subsequence of 
+        ['S', 'E', 'O', 'M'].
     """
     if isinstance(layer, str):
         layer = text[layer]
     layer = iter(layer)
+    x = None
     try:
-        x = next(layer)
+        y = next(layer)
     except StopIteration:
         return
+    try:
+        z = next(layer)
+    except StopIteration:
+        z = None
     while True:
-        if x['start'] not in text.word_starts:
-            if x['end'] not in text.word_ends:
-                yield dict(start=[x['start']], end=[x['end']], problem='B1')
-            else:
-                yield dict(start=[x['start']], end=[x['end']], problem='B2')
-        elif x['end'] not in text.word_ends:
-            yield dict(start=[x['start']], end=[x['end']], problem='A')
+        syndrome = []
+        start = [y[START]]
+        end = [y[END]]
+        if y[START] not in text.word_starts:
+            syndrome.append('S')
+        if y[END] not in text.word_ends:
+            syndrome.append('E')
 
-        try:
-            y = next(layer)
-        except StopIteration:
+        if x!=None and x[END]>y[START]:
+            syndrome.append('O')
+            start.append(x[START])
+            end.append(x[END])
+        if z!=None and y[END] > z[START]:
+            if 'O' not in syndrome:
+                syndrome.append('O')
+            start.append(z[START])
+            end.append(z[END])
+        if len(syndrome) != 0:
+            for span in text.word_spans:
+                if y[START] < span[0] < y[END] or y[START] < span[1] < y[END]:
+                    syndrome.append('M')
+                    break
+            if multilayer:
+                yield {START:start, END:end, 'syndrome':''.join(syndrome)}
+            else:
+                yield {START:start[0], END:end[0], 'syndrome':''.join(syndrome)}
+
+        if z == None:
             return
-        if x['end'] > y['start']:
-            yield dict(start=[x['start'], y['start']], end=[x['end'], y['end']], problem='overlap')
-        x = y
+        x, y = y, z
+        try:
+            z = next(layer)
+        except StopIteration:
+            z = None
