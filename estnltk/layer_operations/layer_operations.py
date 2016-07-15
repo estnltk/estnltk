@@ -28,92 +28,308 @@ START = 'start'
 END = 'end'
 
 
-def apply_simple_filter(text, layer='', restriction='', option=OR):
-    """Creates a layer with the options from user input. """
-    dicts = []
-    if layer == '':
-        raise ValueError('Layer attribute cannot be empty.')
-# ? milleks siin else
-    else:
-        if layer not in text.keys():
-# ? milleks else
-            raise ValueError('Layer not in Text instance.')
-        else:
-            if restriction == '':
-# ? kas sihuke printimene on hea asi
-                print('Notice: restriction left empty.')
-                return text[layer]
-# ? milleks else
-            else:
-                text_layer = text[layer]
-                if option == OR:
-                    for list_elem in text_layer:
-                        for rule_key, rule_value in restriction.items():
-# ? miks rule_value kasutusel pole
-                            if rule_key in list_elem and restriction[rule_key] == list_elem[rule_key]:
-                                if list_elem not in dicts:
-                                    dicts.append(list_elem)
-                    if dicts == []:
-                        print('No results.')
-                    return dicts
-                if option == AND:
-                    for list_elem in text_layer:
-                        condition = True
-                        for rule_key, rule_value in restriction.items():
-# ? miks rule_value kasutusel pole
-                            if rule_key not in list_elem or restriction[rule_key] != list_elem[rule_key]:
-                                condition = False
-                                break
-                        if condition:
-                            dicts.append(list_elem)
-                    if dicts == []:
-                        print('No results.')
-                    return dicts
 
-
-def new_layer_with_regex(text, name='', pattern=[], flags=0):
+#NEW API
+def new_layer_with_regex(text, name='', patterns=[], flags=0):
     """Creates new layer to the Text instance with the name the user inputs."""
-    text_copy = {k: v for k, v in text.items()}
-    dicts = []
-    for elem in pattern:
-        matches = re.finditer(elem, text_copy['text'])
-        for match in matches:
-            start = match.span()[0]
-            end = match.span()[1]
-            text = match.group()
-            dicts.append({START: start, END: end, 'text': text})
-    text_copy[name] = dicts
-    return text_copy
-
-
-def delete_layer(text, layers):
-    """Deletes layers in input list but except the 'text' layer. Modifies the *text*."""
-    delete = set(text.keys())
-    delete.intersection_update(set(layers))
-    delete.difference_update({TEXT})
-    for layer in delete:
-        del text[layer]
+    spans = []
+    for elem in patterns:
+        for match in re.finditer(elem, text.text, flags=flags):
+            spans.append(match.span())
+    layer = Layer.from_span_tuples(name=name, spans=spans)
+    text.add_layer(layer)
     return text
 
 
-def keep_layer(text, layers):
-    """Keeps layers in input list and the 'text' layer. Modifies the *text*."""
-    delete = set(text.keys())
-    delete.difference_update(layers)
-    delete.difference_update({TEXT})
-    for layer in delete:
-        del text[layer]
-    return text
+# def delete_layer(text, layers):
+    # """Deletes layers in input list but except the 'text' layer. Modifies the *text*."""
+    # delete = set(text.keys())
+    # delete.intersection_update(set(layers))
+    # delete.difference_update({TEXT})
+    # for layer in delete:
+        # del text[layer]
+    # return text
 
 
-def sort_layer(text, layer, update=False):
-    layer_to_sort = text[layer]
-    print('Layer to sort: ', layer_to_sort)
-    if update:
-        layer_sorted = sort(layer_to_sort, key=lambda e: (e[START], e[END]))
-# ? miks layer_sorted kasutusel pole. ehk võiks selle return-ida? või on siin tahetud kasutada ühel juhul meetodit 'sorted'?
-    else:
-        return sort(layer_to_sort, key=lambda e: (e[START], e[END]))
+# def keep_layer(text, layers):
+    # """Keeps layers in input list and the 'text' layer. Modifies the *text*."""
+    # delete = set(text.keys())
+    # delete.difference_update(layers)
+    # delete.difference_update({TEXT})
+    # for layer in delete:
+        # del text[layer]
+    # return text
+
+
+# def sort_layer(text, layer, update=False):
+    # layer_to_sort = text[layer]
+    # print('Layer to sort: ', layer_to_sort)
+    # if update:
+        # layer_sorted = sort(layer_to_sort, key=lambda e: (e[START], e[END]))
+# # ? miks layer_sorted kasutusel pole. ehk võiks selle return-ida? või on siin tahetud kasutada ühel juhul meetodit 'sorted'?
+    # else:
+        # return sort(layer_to_sort, key=lambda e: (e[START], e[END]))
+
+
+
+###############################################################
+
+# def get_text(text, start=None, end=None, layer_element=None, span=None, marginal=0):
+    # """Get text by start and end or by layer_element or by span.
+
+    # Parameters
+    # ----------
+    # start: int, default: 0
+    
+    # end: int, default: len(text.text)
+    
+    # layer_element: dict, default: None
+        # dict that contains 'start' and 'end'.
+    
+    # span: (int, int), default: None
+
+    # marginal: int, default: 0
+        # The number of extra characters at the beginning and at end of the 
+        # returned text.
+    
+    # Returns
+    # -------
+    # str
+        # Strings that corresponds to given *(start, end)* span. 
+        # Default values return the whole text.
+    # """
+    # if layer_element != None:
+        # start = layer_element[START]
+        # end = layer_element[END]
+    # elif span != None:
+        # start, end = span
+    # if start == None:
+        # start = 0
+    # if end == None:
+        # end = len(text.text)
+    # start = max(0, start - marginal)
+    # end = min(len(text.text), end + marginal)
+    # return text.text[start:end]
+
+
+#NEW API
+def unique_texts(layer, order=None):
+    """Retrive unique texts of layer optionally ordered.
+
+    Parameters
+    ----------
+    layer: Text Layer
+    order: {None, 'asc', 'desc'} (default: None)
+        If 'asc', then the texts are returned in ascending order by unicode lowercase.
+        If 'desc', then the texts are returned in descending order by unicode lowercase.
+        The ordering is nondeterministic if the lowercase versions of words are equal. 
+        For example the list ['On', 'on'] is both in ascending and descending order. 
+        Else, the texts returned have no particular order.
+
+    Returns
+    -------
+    list of str
+        List of unique texts of given layer.
+    """
+    texts = layer.text
+    if order == None:
+        return list(set(texts))
+    if order == 'asc':
+        return sorted(set(texts), reverse=False, key=str.lower)
+    if order == 'desc':
+        return sorted(set(texts), reverse=True, key=str.lower)
+    raise ValueError('Incorrect order type.')
+
+
+#NEW API
+def count_by(layer, attributes, counter=None):
+    """Create table of counts for every *layer* *attributes* value combination.
+    
+    Parameters
+    ----------
+    layer: Layer
+        The layer which elements have the keys listed in *attributes*.
+    attributes: list of str or str
+        Name of *layer*'s key or list of *layer*'s key names.
+        If *attributes* contains 'text', then the *layer*'s text is found using spans.
+    table: collections.defaultdict(int), None, default: None
+        If table==None, then new 
+        If table!=None, then the table is updated and returned.
+    
+    Returns
+    -------
+    collections.Counter
+        The keys are tuples of values of attributes. 
+        The values are corresponding counts.
+    """
+
+    if counter is None:
+        counter = Counter()
+
+    for span in layer:
+        key = []
+        for a in attributes:
+            if a == 'text':
+                key.append(span.text)
+            else:
+                key.append(getattr(span, a))
+        key = tuple(key)
+        counter[key] += 1
+
+    return counter
+
+
+
+#NEW API
+def diff_layer(a, b, comp=eq):
+    """Generator of layer differences.
+
+    Parameters
+    ----------
+    a and b:
+        Layer.
+        No (start, end) duplicates may exist.
+    comp: compare function, default: operator.eq
+        Function that returns True if layer elements are equal and False otherwise.
+        Only layer elements with equal spans are compared.
+
+    Yields
+    ------
+    tuple(dict)
+        Pairs of different layer elements. In place of missing layer element,
+        None is returned.
+    """
+    a = iter(a)
+    b = iter(b)
+    a_end = False
+    b_end = False
+    try:
+        x = next(a)
+    except StopIteration:
+        a_end = True
+    try:
+        y = next(b)
+    except StopIteration:
+        b_end = True
+
+    while not a_end and not b_end:
+        if x.start < y.start or x.start == y.start and x.end < y.end:
+            yield (x, None)
+            try:
+                x = next(a)
+            except StopIteration:
+                a_end = True
+            continue
+        if x.start == y.start and x.end == y.end:
+            if not comp(x, y):
+                yield (x, y)
+            try:
+                x = next(a)
+            except StopIteration:
+                a_end = True
+            try:
+                y = next(b)
+            except StopIteration:
+                b_end = True
+            continue
+        yield (None, y)
+        try:
+            y = next(b)
+        except StopIteration:
+            b_end = True
+
+    if a_end and b_end:
+        return
+
+    if a_end:
+        while True:
+            yield (None, y)
+            y = next(b)
+
+    if b_end:
+        while True:
+            yield (x, None)
+            x = next(a)
+
+
+
+#NEW API
+def merge_layer(a, b, fun):
+    """Generator of merged layers.
+
+    Parameters
+    ----------
+    a and b: iterable of dict
+        Iterable of Estnltk layer elements. Must be ordered by *(start, end)*.
+
+    fun: merge function
+        Function that merges two layer elements. Must accept one None value.
+        Example::
+
+            def fun(x, y):
+                if x == None:
+                    return y
+                return x
+
+    Yields
+    ------
+    dict
+        Merged layer elements.
+    """
+    a = iter(a)
+    b = iter(b)
+    a_end = False
+    b_end = False
+    try:
+        x = next(a)
+    except StopIteration:
+        a_end = True
+    try:
+        y = next(b)
+    except StopIteration:
+        b_end = True
+
+    while not a_end and not b_end:
+        if x.start < y.start or x.start == y.start and x.end < y.end:
+            yield fun(x, None)
+            try:
+                x = next(a)
+            except StopIteration:
+                a_end = True
+            continue
+        if x.start == y.start and x.end == y.end:
+            yield fun(x, y)
+            try:
+                x = next(a)
+            except StopIteration:
+                a_end = True
+            try:
+                y = next(b)
+            except StopIteration:
+                b_end = True
+            continue
+        yield fun(None, y)
+        try:
+            y = next(b)
+        except StopIteration:
+            b_end = True
+
+    if a_end and b_end:
+        return
+
+    if a_end:
+        while True:
+            yield fun(None, y)
+            y = next(b)
+
+    if b_end:
+        while True:
+            yield fun(x, None)
+            x = next(a)
+
+############################################################
+####### OLD API BELOW ######################################
+############################################################
 
 
 def compute_layer_intersection(text, layer1, layer2, method='union'):
@@ -170,119 +386,48 @@ def compute_layer_intersection(text, layer1, layer2, method='union'):
     return result
 
 
-###############################################################
 
-def get_text(text, start=None, end=None, layer_element=None, span=None, marginal=0):
-    """Get text by start and end or by layer_element or by span.
-
-    Parameters
-    ----------
-    start: int, default: 0
-    
-    end: int, default: len(text.text)
-    
-    layer_element: dict, default: None
-        dict that contains 'start' and 'end'.
-    
-    span: (int, int), default: None
-
-    marginal: int, default: 0
-        The number of extra characters at the beginning and at end of the 
-        returned text.
-    
-    Returns
-    -------
-    str
-        Strings that corresponds to given *(start, end)* span. 
-        Default values return the whole text.
-    """
-    if layer_element != None:
-        start = layer_element[START]
-        end = layer_element[END]
-    elif span != None:
-        start, end = span
-    if start == None:
-        start = 0
-    if end == None:
-        end = len(text.text)
-    start = max(0, start - marginal)
-    end = min(len(text.text), end + marginal)
-    return text.text[start:end]
-
-
-def unique_texts(text, layer, sep=' ', order=None):
-    """Retrive unique texts of layer optionally ordered.
-        
-    Parameters
-    ----------
-    text: Text
-        Text that has the layer.
-    layer: str
-        Name of layer.
-    sep: str (default: ' ')
-        Separator for multilayer elements.
-    order: {None, 'asc', 'desc'} (default: None)
-        If 'asc', then the texts are returned in ascending order by unicode lowercase.
-        If 'desc', then the texts are returned in descending order by unicode lowercase.
-        The ordering is nondeterministic if the lowercase versions of words are equal. 
-        For example the list ['On', 'on'] is both in ascending and descending order. 
-        Else, the texts returned have no particular order.
-    
-    Returns
-    -------
-    list of str
-        List of unique texts of given layer.
-    """
-    texts = text.texts(layer, sep)
-    if order == None:
-        return list(set(texts))
-    if order == 'asc':
-        return sorted(set(texts), reverse=False, key=str.lower)
-    if order == 'desc':
-        return sorted(set(texts), reverse=True, key=str.lower)
-    raise ValueError('Incorrect order type.')
-
-
-def count_by(text, layer, attributes, counter=None):
-    """Create table of counts for every *layer* *attributes* value combination.
-    
-    Parameters
-    ----------
-    text: Text
-        Text that has the layer.
-    layer: iterable, str
-        The layer or the name of the layer which elements have the keys listed in *attributes*.
-    attributes: list of str or str
-        Name of *layer*'s key or list of *layer*'s key names.
-        If *attributes* contains 'text', then the *layer*'s text is found using spans.
-    table: collections.defaultdict(int), None, default: None
-        If table==None, then new 
-        If table!=None, then the table is updated and returned.
-    
-    Returns
-    -------
-    collections.Counter
-        The keys are tuples of values of attributes. 
-        The values are corresponding counts.
-    """
-    if isinstance(layer, str):
-        layer = text[layer]
-    if not isinstance(attributes, list):
-        attributes = [attributes]
-    if counter == None:
-        counter = Counter()
-    
-    for entry in layer:
-        key = []
-        for a in attributes:
-            if a == TEXT:
-                key.append(get_text(text, layer_element=entry))
+def apply_simple_filter(text, layer='', restriction='', option=OR):
+    """Creates a layer with the options from user input. """
+    dicts = []
+    if layer == '':
+        raise ValueError('Layer attribute cannot be empty.')
+# ? milleks siin else
+    else:
+        if layer not in text.keys():
+# ? milleks else
+            raise ValueError('Layer not in Text instance.')
+        else:
+            if restriction == '':
+# ? kas sihuke printimene on hea asi
+                print('Notice: restriction left empty.')
+                return text[layer]
+# ? milleks else
             else:
-                key.append(entry[a])
-        key = tuple(key)
-        counter[key] += 1
-
-    return counter
+                text_layer = text[layer]
+                if option == OR:
+                    for list_elem in text_layer:
+                        for rule_key, rule_value in restriction.items():
+# ? miks rule_value kasutusel pole
+                            if rule_key in list_elem and restriction[rule_key] == list_elem[rule_key]:
+                                if list_elem not in dicts:
+                                    dicts.append(list_elem)
+                    if dicts == []:
+                        print('No results.')
+                    return dicts
+                if option == AND:
+                    for list_elem in text_layer:
+                        condition = True
+                        for rule_key, rule_value in restriction.items():
+# ? miks rule_value kasutusel pole
+                            if rule_key not in list_elem or restriction[rule_key] != list_elem[rule_key]:
+                                condition = False
+                                break
+                        if condition:
+                            dicts.append(list_elem)
+                    if dicts == []:
+                        print('No results.')
+                    return dicts
 
 def count_by_document(text, layer, attributes, counter=None):
     """Create table of counts for every *layer* *attributes* value combination.
@@ -355,151 +500,6 @@ def dict_to_df(counter, table_type='keyvalue', attributes=[0, 1]):
         for (a, b), c in counter.items():
             table[a][b] = c
         return DataFrame.from_dict(table, orient='index').fillna(value=0)
-
-
-def diff_layer(a, b, comp=eq):
-    """Generator of layer differences.
-        
-    Parameters
-    ----------
-    a and b: list of dict
-        Estnltk layer. Must be sorted by *start* and *end* values. 
-        No (start, end) dublicates may exist.
-    comp: compare function, default: operator.eq
-        Function that returns True if layer elements are equal and False otherwise.
-        Only layer elements with equal spans are compared.
-    
-    Yields
-    ------
-    tuple(dict)
-        Pairs of different layer elements. In place of missing layer element, 
-        None is returned.
-    """
-    a = iter(a)
-    b = iter(b)
-    a_end = False
-    b_end = False
-    try:
-        x = next(a)
-    except StopIteration:
-        a_end = True
-    try:
-        y = next(b)
-    except StopIteration:
-        b_end = True
-    
-    while not a_end and not b_end:
-        if x[START] < y[START] or x[START] == y[START] and x[END] < y[END]:
-            yield (x, None)
-            try:
-                x = next(a)
-            except StopIteration:
-                a_end = True
-            continue
-        if x[START] == y[START] and x[END] == y[END]:
-            if not comp(x, y):
-                yield (x, y)
-            try:
-                x = next(a)
-            except StopIteration:
-                a_end = True
-            try:
-                y = next(b)
-            except StopIteration:
-                b_end = True
-            continue
-        yield (None, y)
-        try:
-            y = next(b)
-        except StopIteration:
-            b_end = True
-    
-    if a_end and b_end:
-        return
-    
-    if a_end:
-        while True:
-            yield (None, y)
-            y = next(b)
-
-    if b_end:
-        while True:
-            yield (x, None)
-            x = next(a)
-
-
-def merge_layer(a, b, fun):
-    """Generator of merged layers.
-        
-    Parameters
-    ----------
-    a and b: iterable of dict
-        Iterable of Estnltk layer elements. Must be ordered by *(start, end)*.
-    
-    fun: merge function
-        Function that merges two layer elements. Must accept one None value.
-        Example::
-
-            def fun(x, y):
-                if x == None:
-                    return y
-                return x
-            
-    Yields
-    ------
-    dict
-        Merged layer elements.
-    """
-    a = iter(a)
-    b = iter(b)
-    a_end = False
-    b_end = False
-    try:
-        x = next(a)
-    except StopIteration:
-        a_end = True
-    try:
-        y = next(b)
-    except StopIteration:
-        b_end = True
-    
-    while not a_end and not b_end:
-        if x[START] < y[START] or x[START] == y[START] and x[END] < y[END]:
-            yield fun(x, None)
-            try:
-                x = next(a)
-            except StopIteration:
-                a_end = True
-            continue
-        if x[START] == y[START] and x[END] == y[END]:
-            yield fun(x, y)
-            try:
-                x = next(a)
-            except StopIteration:
-                a_end = True
-            try:
-                y = next(b)
-            except StopIteration:
-                b_end = True
-            continue
-        yield fun(None, y)
-        try:
-            y = next(b)
-        except StopIteration:
-            b_end = True
-
-    if a_end and b_end:
-        return
-    
-    if a_end:
-        while True:
-            yield fun(None, y)
-            y = next(b)
-
-    if b_end:
-        while True:
-            yield fun(x, None)
-            x = next(a)
 
 
 def duplicates_of(head, layer):
