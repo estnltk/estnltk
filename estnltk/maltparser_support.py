@@ -1,8 +1,26 @@
 # -*- coding: utf-8 -*- 
 #
-#      Support for parsing estnltk texts with Java-based Maltparser
+#      Support for parsing EstNLTK texts with Java-based Maltparser
 #     with the goal of obtaining syntactic dependencies between words;
 #
+#     Current performance:
+#     1) model 'estnltkBasedDep2' (default):
+#      (adds both dependency relations, and surface syntactic labels)
+#      accuracy / Metric:LA   accuracy / Metric:UAS   accuracy / Metric:LAS   Token
+#      --------------------------------------------------------------------------------
+#      0.789                  0.801                   0.72                    Row mean
+#      24208                  24208                   24208                   Row count
+#      --------------------------------------------------------------------------------
+#
+#     2) model 'estnltkBasedDep' (former model):
+#      (only adds dependency relations, no syntactic labels)
+#      accuracy / Metric:UAS     Token
+#      -------------------------------------
+#      0.786                     Row mean
+#      24208                     Row count
+#      -------------------------------------
+#
+
 
 from __future__ import unicode_literals, print_function
 from .names import *
@@ -17,8 +35,9 @@ import tempfile
 import subprocess
 
 MALTPARSER_PATH  = os.path.join(PACKAGE_PATH, 'java-res', 'maltparser')
-MALTPARSER_MODEL = 'estnltkBasedDep'
+MALTPARSER_MODEL = 'estnltkBasedDep2'
 MALTPARSER_JAR   = 'maltparser-1.8.jar'
+
 
 # =============================================================================
 # =============================================================================
@@ -35,7 +54,7 @@ def __sort_analyses(sentence):
             raise Exception( '(!) Error: no analysis found from word: '+str(word) )
         else:
             word[ANALYSIS] = sorted(word[ANALYSIS], \
-                key=lambda x : x[ROOT]+"_"+x[POSTAG]+"_"+x[FORM]+"_"+x[CLITIC] )
+                key=lambda x : "_".join( [x[ROOT],x[POSTAG],x[FORM],x[CLITIC]] ))
     return sentence
 
 
@@ -48,8 +67,10 @@ def convertTextToCONLLstr( text, addDepLabels = False, addAmbiguousPos = False, 
         -----------
         addDepLabels : bool
             If True, adds information about the syntactic parent of each token 
-            to the data (required for training). The parent's index should be 
-            accessible from estnltkWord[SYNTAX_HEAD].
+            to the data (required for training). 
+            The parent's index should be accessible from estnltkWord[SYNTAX_HEAD].
+            Also adds the name of the syntactic relation, if it is accessible 
+            via  estnltkWord[DEPREL];
         addAmbiguousPos : bool
             If True, additional feature (fine-grained POS tag) will be added to 
             tokens with ambiguous POS, which contains contatenation of all POS 
@@ -127,7 +148,10 @@ def convertTextToCONLLstr( text, addDepLabels = False, addAmbiguousPos = False, 
                 strForm.append( 'ROOT' )
                 strForm.append( '\t' )
             else:
-                strForm.append( 'xxx' )
+                if addDepLabels and DEPREL in estnltkWord:
+                   strForm.append( estnltkWord[DEPREL] )
+                else:
+                   strForm.append( 'xxx' )
                 strForm.append( '\t' )
             # Last features, PHEAD and PDEPREL, are not available:
             strForm.append( '_' )
@@ -216,11 +240,14 @@ def _executeMaltparser( input_string, maltparser_dir, maltparser_jar, model_name
 # =============================================================================
 # =============================================================================
 
-def loadCONLLannotations( in_file, splitIntoSentences = True ):
+def loadCONLLannotations( in_file, addDepRels = False, splitIntoSentences = True ):
     ''' Loads syntactically annotated text from CONLL format input file and 
         returns as an array of tokens, where each token is represented as 
         an array in the format:
            [sentenceID, wordID, tokenString, morphInfo, selfID, parentID]
+        If addDepRels == True, then the dependency relation label is also extracted
+        and added to the end of the array:
+           [sentenceID, wordID, tokenString, morphInfo, selfID, parentID, depRel]
         If splitIntoSentences == True, the array of tokens is further divided
         into subarrays representing sentences.
         
@@ -256,6 +283,8 @@ def loadCONLLannotations( in_file, splitIntoSentences = True ):
         parentLabel = features[6]
         tokens.append( [ str(sentenceCount), str(wordCountInSent), \
                          token, lemma+" "+pos+" "+form, selfLabel, parentLabel ] )
+        if addDepRels:
+            tokens[-1].append( features[7] )
         wordCountInSent += 1
     in_f.close()
     if not splitIntoSentences:
@@ -271,15 +300,20 @@ def loadCONLLannotations( in_file, splitIntoSentences = True ):
         return sentences
 
 
-def convertCONLLtoText( in_file, verbose = False, **kwargs ):
+def convertCONLLtoText( in_file, addDepRels = False, verbose = False, **kwargs ):
     ''' Loads CONLL format data from given input file, and creates
         estnltk Text objects from the data, one Text per each 
         sentence. Returns a list of Text objects.
         
         By default, applies estnltk's morphological analysis, clause 
         detection, and verb chain detection to each input sentence.
+        
+        If addDepRels == True, in addition to SYNTAX_LABEL and SYNTAX_HEAD,
+        surface syntactic function (DEPREL) is also attributed to each 
+        token;
     '''
-    sentences = loadCONLLannotations( in_file, splitIntoSentences = True )
+    sentences = loadCONLLannotations( in_file, addDepRels = addDepRels, \
+                                               splitIntoSentences = True )
     if verbose:
         print( str(len(sentences))+' sentences loaded. ')
     estnltkSentTexts = []
@@ -298,6 +332,8 @@ def convertCONLLtoText( in_file, verbose = False, **kwargs ):
                 depSyntaxWord = s[j]
                 estnltkWord[SYNTAX_LABEL] = depSyntaxWord[4]
                 estnltkWord[SYNTAX_HEAD]  = depSyntaxWord[5]
+                if addDepRels:
+                   estnltkWord[DEPREL] = depSyntaxWord[6]
             estnltkSentTexts.append( sentText )
             if verbose:
                 print ('*', end = '')
@@ -309,8 +345,8 @@ def convertCONLLtoText( in_file, verbose = False, **kwargs ):
 
 def augmentTextWithCONLLstr( conll_str_array, text ):
     ''' Augments given Text object with the information from Maltparser's output.
-        More specifically, adds information about SYNTAX_LABEL and SYNTAX_HEAD
-        to each token in the Text object;
+        More specifically, adds information about SYNTAX_LABEL, SYNTAX_HEAD and
+        DEPREL to each token in the Text object;
     '''
     j = 0
     for sentence in text.divide( layer=WORDS, by=SENTENCES ):
@@ -324,6 +360,8 @@ def augmentTextWithCONLLstr( conll_str_array, text ):
                     # Fetch information about the syntactic relation:
                     estnltkToken[SYNTAX_LABEL] = maltParserAnalysis[0]
                     estnltkToken[SYNTAX_HEAD]  = maltParserAnalysis[6]
+                    # Fetch the name of the surface syntactic relation
+                    estnltkToken[DEPREL]       = maltParserAnalysis[7]
                 else:
                     raise Exception("A misalignment between Text and Maltparser's output: ",\
                         estnltkToken, maltparserToken )
@@ -396,9 +434,11 @@ class MaltParser:
             As a result of parsing, attributes indicating the dependency tree 
             structure will be attached to each word token in text: 
             the attribute SYNTAX_LABEL is the index of the token in the 
-            tree, and 
+            tree, 
             the attribute SYNTAX_HEAD is the index of token's parent in the 
-            tree;
+            tree, and 
+            the attribute DEPREL is the name of the dependency relation 
+            (ROOT, @SUBJ, @OBJ, @ADVL etc.);
             
             Parameters
             -----------
