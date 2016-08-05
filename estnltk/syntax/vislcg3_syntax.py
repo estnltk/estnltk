@@ -55,7 +55,7 @@ from estnltk.core import as_unicode
 from syntax_preprocessing import SyntaxPreprocessing
 
 import re
-import os, os.path
+import os, os.path, sys
 import codecs
 import tempfile
 from subprocess import Popen, PIPE
@@ -193,6 +193,10 @@ class VISLCG3Pipeline:
         ''' Executes the pipeline of subsequent VISL_CG3 commands. The first process
             in pipeline gets input_lines as an input, and each subsequent process gets
             the output of the previous process as an input.
+            
+            The idea of how to construct the pipeline borrows from:
+              https://github.com/estnltk/estnltk/blob/1.4.0/estnltk/syntax/tagger.py
+            
             Returns the result of the last process in the pipeline, either as a string 
             or, alternatively, as a list of strings (if split_result == True);
  
@@ -294,7 +298,6 @@ def cleanup_lines( lines, **kwargs ):
         -- If remove_clo==True , removes CLO CLC CLB markings from analysis;
         
         Returns the input list, which has been cleaned from additional information;
-        
     '''
     remove_caps       = False
     esc_double_quotes = False
@@ -347,14 +350,196 @@ def cleanup_lines( lines, **kwargs ):
            if remove_caps:
               lines[i] = lines[i].replace(' cap ', ' ')
            #  Escape double quotes
-           if esc_double_quotes:
-              lines[i] = lines[i].replace('\t""" Z', '\t"\\"" Z')
-              lines[i] = lines[i].replace('\t"""" Z', '\t"\\"\\"" Z')
+           if esc_double_quotes and '"' in lines[i]:
+              lines[i] = lines[i].replace('\t""" Z',   '\t"\\"" Z')
+              lines[i] = lines[i].replace('\t"""" Z',  '\t"\\"\\"" Z')
               lines[i] = lines[i].replace('\t""""" Z', '\t"\\"\\"\\"" Z')
+              lines[i] = lines[i].replace(' """ Z',   ' "\\"" Z')
+              lines[i] = lines[i].replace(' """" Z',  ' "\\"\\"" Z')
+              lines[i] = lines[i].replace(' """"" Z', ' "\\"\\"\\"" Z')
            #  Remove CLO CLC CLB markings
            if remove_clo and 'CL' in lines[i]:
               lines[i] = re.sub('\sCL[OCB]', ' ', lines[i])
               lines[i] = re.sub('\s{2,}', ' ', lines[i])
         i += 1
     return lines
+
+
+# ==================================================================================
+#   Convert VISLCG format annotations to CONLL format
+# ==================================================================================
+
+def convert_cg3_to_conll( lines, **kwargs ):
+    ''' Converts the output of VISL_CG3 based syntactic parsing into CONLL format.
+        Expects that the output has been cleaned ( via method cleanup_lines() ).
+        Returns a list of CONLL format lines;
+        
+        Parameters
+        -----------
+        lines : list of str
+            The input text for the pipeline; Should be in same format as the output
+            of VISLCG3Pipeline;
+
+        fix_selfrefs : bool
+            Optional argument specifying  whether  self-references  in  syntactic 
+            dependencies should be fixed;
+            Default:True
+        
+        fix_open_punct : bool
+            Optional argument specifying  whether  opening punctuation marks should 
+            be made dependents of the following token;
+            Default:True
+        
+        error_on_unexp : bool
+            Optional argument specifying  whether an exception should be raised in 
+            case of unexpected analysis line; if not, only prints warnings in case of 
+            such lines;
+            Default:False
+
+        Example input
+        --------------
+        "<s>"
+
+        "<Öö>"
+                "öö" L0 S com sg nom @SUBJ #1->2
+        "<oli>"
+                "ole" Li V main indic impf ps3 sg ps af @FMV #2->0
+        "<täiesti>"
+                "täiesti" L0 D @ADVL #3->4
+        "<tuuletu>"
+                "tuuletu" L0 A pos sg nom @PRD #4->2
+        "<.>"
+                "." Z Fst CLB #5->5
+        "</s>"
+
+
+        Example output
+        ---------------
+        1       Öö      öö      S       S       com|sg|nom      2       @SUBJ   _       _
+        2       oli     ole     V       V       main|indic|impf|ps3|sg|ps|af    0       @FMV    _       _
+        3       täiesti täiesti D       D       _       4       @ADVL   _       _
+        4       tuuletu tuuletu A       A       pos|sg|nom      2       @PRD    _       _
+        5       .       .       Z       Z       Fst|CLB 4               _       _
+
+
+    '''
+    fix_selfrefs   = True
+    fix_open_punct = True
+    error_on_unexp = False
+    for argName, argVal in kwargs.items() :
+        if argName in ['selfrefs', 'fix_selfrefs'] and argVal in [True, False]:
+           fix_selfrefs = argVal
+        if argName in ['fix_open_punct'] and argVal in [True, False]:
+           fix_open_punct = argVal
+        if argName in ['error_on_unexp'] and argVal in [True, False]:
+           error_on_unexp = argVal
+    pat_empty_line    = re.compile('^\s+$')
+    pat_token_line    = re.compile('^"<(.+)>"$')
+    pat_analysis_line = re.compile('^\s+"(.+)"\s([^"]+)$')
+    # 3 types of analyses: 
+    pat_ending_pos_form = re.compile('^L\S+\s+\S\s+([^#@]+).+$')
+    pat_pos_form        = re.compile('^\S\s+([^#@]+).+$')
+    pat_ending_pos      = re.compile('^(L\S+\s+)?\S\s+[#@].+$')
+    pat_opening_punct   = re.compile('.+\s(Opr|Oqu|Quo)\s')
+    analyses_added = 0
+    conll_lines = []
+    word_id = 1
+    i = 0
+    while ( i < len(lines) ):
+        line = lines[i]
+        # Check, whether it is an analysis line or not
+        if not (line.startswith('  ') or line.startswith('\t')):
+            # ******  TOKEN
+            if len(line)>0 and not (line.startswith('"<s>"') or \
+               line.startswith('"</s>"')) and not pat_empty_line.match(line):
+               # Broken stuff: if previous word was without analysis
+               if analyses_added == 0 and word_id > 1:
+                  print('(!) Analysis missing at line '+str(i)+': '+\
+                        '\n'+lines[i-1], file=sys.stderr)
+                  # Add an empty analysis
+                  conll_lines[-1] += '\t_'
+                  conll_lines[-1] += '\tX'
+                  conll_lines[-1] += '\tX'
+                  conll_lines[-1] += '\t_'
+                  conll_lines[-1] += '\t'+str(word_id-2)
+                  conll_lines[-1] += '\txxx'
+                  conll_lines[-1] += '\t_'
+                  conll_lines[-1] += '\t_'
+               # Start of a new token/word
+               token_match = pat_token_line.match( line.rstrip() )
+               if token_match:
+                  word = token_match.group(1)
+               else:
+                  raise Exception('(!) Unexpected token format: ', line)
+               # Replace spaces in the token with '_' marks
+               if re.search('\s', word):
+                    word = re.sub('\s+', '_', word)
+               conll_lines.append( str(word_id) + '\t' + word )
+               analyses_added = 0
+               word_id += 1
+            # End of a sentence
+            if line.startswith('"</s>"'):
+                conll_lines.append('')
+                word_id = 1
+        else:
+            # ******  ANALYSIS
+            # If there is more than one pair of "", we have some kind of
+            # inconsistency: try to remove extra quotation marks from the 
+            # end of the analysis line ...
+            if line.count('"') > 2:
+                new_line = []
+                q_count = 0
+                for j in range( len(line) ):
+                    if line[j]=='"' and (j==0 or line[j-1]!='\\'):
+                        q_count += 1
+                        if q_count < 3:
+                            new_line.append(line[j])
+                    else:
+                        new_line.append(line[j])
+                line = ''.join( new_line )
+            analysis_match = pat_analysis_line.match( line )
+            # Analysis line; in case of multiple analyses, pick the first one;
+            if analysis_match and analyses_added==0:
+                lemma = analysis_match.group(1)
+                cats  = analysis_match.group(2)
+                postag = 'Z' if cats.startswith('Z ') else (cats.split())[1]
+                deprels = re.findall( '(@\S+)', cats )
+                deprel  = deprels[0] if deprels else 'xxx'
+                heads   = re.findall( '#\d+\s*->\s*(\d+)', cats )
+                head    = heads[0] if heads else str(word_id-2)
+                m1 = pat_ending_pos_form.match(cats)
+                m2 = pat_pos_form.match(cats)
+                m3 = pat_ending_pos.match(cats)
+                if m1:
+                    forms = (m1.group(1)).split()
+                elif m2:
+                    forms = (m2.group(1)).split()
+                elif m3:
+                    forms = ['_']  # no form (in case of adpositions and adverbs)
+                else:
+                    # Unexpected format of analysis line
+                    if error_on_unexp:
+                        raise Exception('(!) Unexpected format of analysis line: '+line)
+                    else:
+                        postag = 'X'
+                        forms = ['_']
+                        print('(!) Unexpected format of analysis line: '+line, file=sys.stderr)
+                # If required, fix self-references (in punctuation):
+                if fix_selfrefs and int(head) == word_id-1 and word_id-2>0:
+                    head = str(word_id-2) # add link to the previous word
+                # Fix opening punctuation
+                if fix_open_punct and pat_opening_punct.match(line):
+                    head = str(word_id)   # add link to the following word
+                conll_lines[-1] += '\t'+lemma
+                conll_lines[-1] += '\t'+postag
+                conll_lines[-1] += '\t'+postag
+                conll_lines[-1] += '\t'+('|'.join(forms))
+                conll_lines[-1] += '\t'+head
+                conll_lines[-1] += '\t'+deprel
+                conll_lines[-1] += '\t_'
+                conll_lines[-1] += '\t_'
+                analyses_added += 1
+        i += 1
+    return conll_lines
+
 
