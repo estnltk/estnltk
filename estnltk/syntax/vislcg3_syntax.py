@@ -4,6 +4,10 @@
 #
 #   A reimplementation of the Estonian VISL-CG3 based syntax processing 
 #   pipeline from  https://github.com/EstSyntax/EstCG 
+#   ( all files, except 'strukt_parand.rul', are from the EstCG snapshot: 
+#   https://github.com/EstSyntax/EstCG/tree/467f0746ae870169776b0ed7aef8825730fea671 
+#   'strukt_parand.rul' is currently distributed separately )
+#   
 #
 #   Developed and tested under Python's versions:  2.7.11,  3.4.4
 #

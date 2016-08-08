@@ -1,0 +1,975 @@
+DELIMITERS = "</s>" "<s>" "<p>" "</p>";
+
+PARENTHESES = ("<(>" "<)>") ("<[>" "<]>") ("<{>" "<}>") (CLO CLC) ; 
+
+
+SECTION
+
+LIST CLB = CLB CLB-C;
+LIST CLBC = CLB CLB-C CLBC >>>;
+LIST >>> = >>>;
+LIST <<< = <<<;
+LIST LLZ = Fst Int Exc;
+LIST FinV = <FinV>;
+LIST Adj = A;
+LIST SP = S P;
+LIST SPN = S P N;
+LIST SPA = S P A;
+LIST Subst = S;
+LIST Verb = V;
+LIST DaInf = (V inf);
+LIST MaInf = (V sup ps ill);
+LIST Kvm = Z;
+LIST Quo = Quo Oqu Cqu;
+LIST Oqu = Quo Oqu;
+LIST Cqu = Quo Cqu;
+LIST Koma = Com ;
+LIST SPAN = S P A N Y ;
+LIST SPAND = S P A N D Y ;
+LIST NaguKui = "nagu" "kui";
+LIST Oeldis = @FMV @IMV;
+LIST NudTud = partic <nud> <tud> <dud> <nu> <tu> <du>; 
+
+LIST case = nom gen part adit in (sg ill) (pl ill) el all ad abl tr term es abes kom;
+LIST NGP =  nom gen part;
+LIST NiNaTaGa =  term es abes kom;
+LIST Koord = @<Q @NN> @<NN @AN> @P> @<P @ADVL @SUBJ @OBJ; 
+LIST NGPP = <NGP> <NGP-P> <Part> <Part-P>;
+
+LIST Infinitiiv  = ger inf sup partic <nud> <tud> <dud> <nu> <tu> <du>;
+LIST AlustavAlistav = "kuigi" "et" "kuna" "kui" "kes" "kas"; 
+LIST KomRekts = "soostu" "nõustu" "konkureeri" <Kom>;
+LIST InRekts = "esine" <In>;
+LIST AdvN = "väga" "liialt" "liiga" "üsna" ("päris" D);
+LIST ProAdv = "mitu";
+LIST KvAdvMod = "umbes" "ligi" "ligi_kaudu";
+LIST Ütlema = "ennusta" "ütle" "rääki" "maini" "kinnita" "tunnista" "väit" "konstateeri" "kommenteeri" "kirjelda" ("tõde" V) "oleta" 
+  "lausu" "nenti" "märki" "kiit" "soovita" "meenu" "meenuta" "arutle" "leid" "muiga" "muhele" "kost" "põhjenda" "täpsusta" "vasta"
+  "selgita" "sõnasta" "loetle" "venita" "mõist" "möön" ("sead" V) ("lisa" V) ("ava" V) ("sõna" V) ("kurt" V) "ohka" "poeta" "ole";
+LIST Rada = "tee" "tee_kond" "rada" "reis" "maan_tee" "küla_tee" "tänav" ;
+LIST OnCLB = "kes" "mis" "milline" "missugune" "et" "kui" "kuni" "sest" "siis" "siiski" "kuna" "nagu" "justkui"
+ "otsekui"  "kus" "kust" "kuhu" "kustkaudu" "kuidas" "muidu" "mil" "millal" "miks" "mispärast"  "mistõttu" "mismoodi"
+ "misjaoks"  "mistarvis" "seepärast" "sellepärast" "sest" "seetõttu" "selletõttu" "kas" "kuidas" "seega" "järelikult"
+ "mis_sugune" "just_kui" "otse_kui" "kust_kaudu" "mis_pärast"  "mis_tõttu" "mis_moodi"
+ "mis_jaoks"  "mis_tarvis" "see_pärast" "selle_pärast" "see_tõttu" "selle_tõttu" "selmet";
+
+LIST NaguCLB = "nii" "nõnda" "just" "justkui" "otsekui" "samuti" "niisamuti" "niisama" "just_kui" "otse_kui" "nii_samuti" "nii_sama" ;
+LIST EtCLB = "ilma" "olgugi" "selleks" "vaid" "nii" "nõnda" "just" "niisamuti" "niisama" "nii_samuti" "nii_sama" ;
+LIST KuiCLB = "enne" "niipea" "niivõrd" "seni" "senikaua" "sestsaadik" "sestpeale" "parajasti" "sellal" "nii" "nõnda"
+ "just" "samuti" "niisamuti" "niisama"  "nii_pea" "nii_võrd" "seni_kaua" "sest_saadik" "sest_peale" "nii_samuti" "nii_sama";
+
+LIST Ajamäärus = "aeg" "aasta" "kuu" "nädal" "päev" ("tund" S) "minut" "hetk" "sekund" "moment" "kevad" "talv" "suvi" "kell"
+ "sügis" "kuupäev" "kuu_päev" ("nädala_päev" pl) ("aasta_päev" pl) "õhtu_poolik" "öö" "õhtu" "hommik" "jaanuar" "veebruar" "märts" 
+ "märtsikuu" "märtsi_kuu" "aprill" "aprillikuu" "aprilli_kuu" "mai" "maikuu" "mai_kuu" 
+ "juuni" "juunikuu" "juuni_kuu" "juuli" "juulikuu" "juuli_kuu" "august" "september" "oktoober" "november"  "detsember" 
+ "esmaspäev" "teisipäev" "kolmapäev" "neljapäev" "reede" "laupäev" "pühapäev" "aastakümme"
+ "esmas_päev" "teisi_päev" "kolma_päev" "nelja_päev" "lau_päev" "püha_päev" "aasta_kümme"
+ "sajand" "aasta_sajand" "kord" "samm" "aste" ("ulatus" S) "algus" "lõpp" "elu" "igavik" "aja_vahemik" "nüüd"
+ "üle_eile" "eile" "täna" "homme" "üle_homme" "eelmine" "järgmine"; 
+
+LIST Hulk = "protsent" "enam" "enim" "rohkem" "vähem" "terve" ("kogu" P) "paljud" "mõlemad" "muist" "mitu" "mi=tu"
+	"liiter" "meeter" "kilo_meeter" "tonn" ("tund" S) "aasta" "tükk" "natuke" "ivake" "veidike" "korv" "viil" "kott" "ämber" "pudel" "klaas" "pott" "poti_täis" "pann" "panni_täis" "kilo" "kübe" "komplekt" "killu~ke" "m2" "m3" "km2" "km3" 
+	"hulk" "rühm" "paar" "kimp" "kari" "virn" "polk" "trobi_kond" "osa" "enamik" "enamus" "raasuke" "kamp" "punt" "kamakas" "rida" "kuhi" "pakk" "kuu" "nädal" "ohtralt" ("jagu" S) "oma_jagu" "kiht"
+	"täis" "tulvil" ("palju" D) "vähe" "pisut" "veidi" "küllalt" "rohkesti" "täis" "tulvil" "peo_täis" "rohkem" "vähem" "enamik" "enamus" "ohtralt" "arvukalt" ("jagu" S) "oma_jagu" "kiht" "patakas"
+	(N card) "mitu" "mi=tu" "mitu_setu" "paar" "tosin" "mitu_kümmend" "mitu_sada" "kümmekond" "sadakond" "pool_teist" "tuh" "milj" "null" "veerand" "kolm_veerand";
+
+LIST Liityhing = "liit" "ühing" "as" "AS" "oü" "OÜ" "mtü" "MTÜ" "ab" "AB" "instituut" "üli_kool" "tehnikum" "kool" "gümnaasium" "kogu" "selts"
+ "partei" "parlament" "ühendus"  "komitee" "föderatsioon" "konföderatsioon" "komisjon"
+ "ette_võte" "keskus" "klubi" "asutus" "organisatsioon" "rahvas" "rahvus" "riik" "maa" "linn" "vald" "küla" "mõis" 
+ "töö_andja" "leht" "kiri" "kanal" "jaam" "osalus" "osakond" "divisjon" ;
+ # ("(.*)_liit"r) ("(.*)_ühing"r) ("(.*)_instituut"r) 
+ # ("(.*)_tehnikum"r) ("(.*)_kool"r) ("(.*)_gümnaasium"r) ("(.*)_kogu"r) ("(.*)_selts"r)
+ # ("(.*)_partei"r) ("(.*)_parlament"r) ("(.*)_ühendus"r)  ("(.*)_komitee"r) ("(.*)_föderatsioon"r) ("(.*)_konföderatsioon"r) 
+ # ("(.*)_komisjon"r) ("(.*)_ette_võte"r) ("(.*)_keskus"r) ("(.*)_klubi"r) ("(.*)_asutus"r) ("(.*)_organisatsioon"r) 
+ # ("(.*)_rahvas"r) ("(.*)_rahvus"r) ("(.*)_riik"r) ("(.*)_maa"r) ("(.*)_linn"r)  ("(.*)_vald"r)  ("(.*)_kond"r)  ("(.*)_küla"r)  ("(.*)_mõis"r)("(.*)_töö_andja"r) ("(.*)_leht"r) ("(.*)_kiri"r) 
+ # ("(.*)_kanal"r) ("(.*)_jaam"r) ("(.*)_osalus"r) ("(.*)_osakond"r) ("(.*)_divisjon"r) ;
+
+LIST ADVLH1 = "ainult" "mitte" "ilgelt" "ligi" "ligi_kaudu" "pea" "peaaegu" "pigem" "pisut" "päris" "täiesti" 
+              "umbes" "umb_kaudu" "väga" "vähemalt" "üha" "üksnes" "üpris" "üsna" "kusagil" ("ei" D);
+
+LIST DaVerb = ("või" V) "saa" "ole" "mine" "tege" "valmista" "tekita" "sünnita" "soovi"
+	"pakku" ("too" V) ("jää" V) "kujune" "muutu" "saa" "tekki" "aita" "tohti" <InfP>;
+LIST MaVerb = "pida" "asu" "hakka" ("jää" V) "kippu" "mine" "puhke" "sattu" "sundi" "sunni" "sõit" "tule";
+
+LIST Tr2Intr = "aitama" "andma" "haarama" "hakkama" "hammustama" "hauduma" "heitma" "hoidma" "jooma" "jõllitama" "kiiluma" "kiitma" "kirjutama" "laskma" "litsuma" "lööma" "maksma" "murdma" "mõtlema" "mängima" "nägema" "pakkuma" "paluma" "panema" "passima" "pidama" "pingutama" "pistma" "pressima" "raiuma" "rebima" "rõõmustama" "rääkima" "saama" "tundma" "ulatama" "vaatama" "vahtima" "vedama" "viskama" "ütlema" ;
+LIST Intr = <Intr>;
+SET IYV = Tr2Intr + (<PhVerb>);
+SET Intr&YV = Intr OR IYV;
+
+LIST Nous = "nõus" "valmis" "päri";
+LIST Vaja = "vaja" "tarvis";
+
+LIST DNlist = "ainult" "vaid" "umbes" "pea_aegu" "peamiselt" "just" "eriti" 
+	"väga" "kuni" "kühmus" "pesu_väel" "käest";
+LIST DNlist2 =  "mitte" "vähe" "vähemalt" "eile" "täna" "homme" "üle_eile" "üle_homme";
+LIST Kaa = "ka" "näiteks" "ainult" "vaid" "umbes" "pea_aegu" "peamiselt" "just" "eriti" "mitte" "väga";
+LIST KesMis = "mis" "kes" ;
+LIST KesMisMil = "mis" "kes" "milline" "mis_sugune";
+LIST SNAPD = S N A P D;
+LIST Arv = (N card);
+LIST Periood = "arv" "number" "nr" "joonis" "joon" "tabel" "skeem" "periood" "vahemik" "aja_vahemik";
+
+
+SUBSTITUTE (CLB) (*) (CLB) IF (1 ("ehkki"))(NOT *-1 Verb OR NudTud);
+SUBSTITUTE (CLB) (*) (CLB) IF (*-1 ("ehkki"))(NOT *-1 Verb OR NudTud);
+SUBSTITUTE (CLBC) (*) (CLBC) IF (0 SPAND OR Verb);
+SUBSTITUTE (CLBC) (*) (CLBC) IF (0 (crd))(-1 $$case)(1 $$case);
+SUBSTITUTE (CLBC) (*) (CLBC) IF (0 (crd))(-1 (gen))(1 NiNaTaGa);
+SUBSTITUTE (CLBC) (*) (CLBC) IF (0 (crd))(-1 (A <mata>))(1 (A <mata>));
+SUBSTITUTE (CLBC) (*) (CLBC) IF (0 (crd))(-1 (A <mata>))(2 (A <mata>));
+
+SUBSTITUTE (CLB) (*) (CLB) IF (0 (crd))(-1 ("<juures>"))(1 (in));
+SUBSTITUTE (CLBC) (*) (CLBC) IF (0 (crd))(-1 ("<juures>"))(1 (in));
+
+SUBSTITUTE (J crd sub) (J crd) ("ja") OR ("või") OR ("ning") OR ("aga") OR ("ega") OR ("kuid") OR ("ent") OR ("vaid") OR ("saati") OR ("elik") OR ("ja/või") ;
+
+SUBSTITUTE (J crd sub) (J sub) ("et") OR ("kuna") OR ("nagu") OR ("sest") OR ("olgugi") OR ("ehkki") OR ("kuigi") OR ("otsekui") OR ("otse_kui") OR ("justkui") OR ("just_kui") OR ("selmet") ; 
+
+SUBSTITUTE (J crd sub) (J crd) (J crd sub) IF (-1 SPAN)(1 SPAND);
+SUBSTITUTE (J crd sub) (J crd) (J crd sub) IF (NOT -1 CLBC)(NOT -2 CLBC)(1 SPAND);
+SUBSTITUTE (J crd sub) (J sub) (J crd sub) ;
+
+
+SUBSTITUTE (@FCV) (@FMV) ("saa") OR ("või") IF (NOT *-1 (@IMV) BARRIER CLB)(NOT *1 (@IMV) BARRIER CLB);
+SUBSTITUTE (@FMV) (@IMV) (V sup ill) OR (V inf) ;
+SUBSTITUTE (@NN>) (@OBJ) (N card nom l) IF (*0 (@SUBJ) BARRIER CLB)
+	(NOT *-1 (@OBJ) BARRIER CLB)(NOT *1 (@OBJ) BARRIER CLB);
+SELECT (N card nom l @OBJ) (*0 (@SUBJ) BARRIER CLB)(NOT *-1 (J crd) OR Koma LINK *-1C (N card @OBJ) BARRIER CLB);
+SUBSTITUTE (@SUBJ) (@NN>) NudTud IF (1 SP OR (Oqu));
+
+
+SELECT (@<Q) (-1 Arv);
+
+
+SELECT:XX0A (N @ADVL) (1 Ajamäärus);
+SELECT:XX00 (@DN>) (0 DNlist);
+SELECT:XX01 (@DN>) (0 DNlist)(1 SNAPD);
+REMOVE:XX02 (@DN>) (NOT 1 SNAPD) ;
+REMOVE:XX03 (@ADVL) (0 (P pers nom)) ;
+REMOVE:XX04 (@SUBJ) (0 (P pers gen)) ;
+
+SELECT (@<Q) (-1 (J) OR Koma) (-2 (@<Q) OR (<->))(-3 Ajamäärus OR Hulk);
+REMOVE:XX10 (@DN>) OR (@KN>) OR (@Q>) (NOT 0 ("ei"));
+REMOVE:XX10 (@<Q) (NOT *-1 (card) OR Hulk BARRIER CLBC OR Verb OR (K)) ;
+REMOVE:XX20 (@PRD) (0 (prop) + (@SUBJ)) ;
+REMOVE:XX21 (@PRD) (0 KesMisMil + (@SUBJ)) (*-1 (@PRD) BARRIER (J));
+REMOVE:XX30 (@SUBJ) (0 KesMisMil + (@PRD)) (*1 (@SUBJ) BARRIER (J) OR (Z));
+REMOVE:XX40 (@PRD) (0 (@SUBJ)) (*1 (@PRD) BARRIER (J));
+REMOVE:XX50 (@SUBJ) (0 (@PRD)) (*-1 (@SUBJ) BARRIER (J) OR (Z));
+
+
+SUBSTITUTE (@ADVL) (@<Q) (S part) IF (-1 (N card));
+SUBSTITUTE (@OBJ) (@<Q) (S part) IF (-1 (N card));
+
+
+SELECT ("tänav" S abl @<NN) (-1 ("inimene") OR ("mees")); 
+
+REMOVE (@AN>) (0 $$case - (gen))(1 (crd))(NOT 1 CLBC)(2 (S) + $$case) ;
+
+
+SELECT (@OBJ) (0 SP)(NOT 0 (gen))(*0C NGPP BARRIER CLBC)(*0C (@SUBJ) BARRIER CLBC)(NOT *1 (@OBJ) BARRIER CLB)(NOT *-1 (@OBJ) BARRIER CLB);
+SELECT (@OBJ) (0 SP)(NOT 0 (gen))(*0C NGPP BARRIER CLBC)(*0 SP + (@SUBJ) BARRIER CLBC)(NOT *1 (@OBJ) BARRIER CLB)(NOT *-1 (@OBJ) BARRIER CLB);
+SELECT (@OBJ) (0 SP)(NOT 1 SPAN)(*0C NGPP BARRIER CLBC)(*0C (@SUBJ) BARRIER CLBC)(NOT *1 (@OBJ) BARRIER CLB)(NOT *-1 (@OBJ) BARRIER CLB);
+SELECT (@OBJ) (0 SP)(NOT 1 SPAN)(*0C NGPP BARRIER CLBC)(*0 SP + (@SUBJ) BARRIER CLBC)(NOT *1 (@OBJ) BARRIER CLB)(NOT *-1 (@OBJ) BARRIER CLB);
+
+SUBSTITUTE (@ADVL) (@AN>) TARGET (A) (1 (crd) OR Koma)(NOT 1 CLB)(2 (A @AN>));
+SUBSTITUTE (@ADVL) (@AN>) TARGET (A) (-1 (crd) OR Koma)(NOT -1 CLB)(-2 (A @AN>));
+
+SUBSTITUTE (@<Q) (@<P) TARGET (@<Q) (-1C (K pre))(1 CLB OR LLZ);
+
+SELECT (V inf @ADVL) (*0 Vaja BARRIER CLB);
+SELECT (V sup ill @ADVL) (*0 Nous BARRIER CLB);
+
+SELECT (@NN>) (0 (prop) OR (Y))(1 (ad)); 
+SELECT (@NN>) (0 (prop) OR (Y))(1 (prop) OR (Y))(2 (ad)); 
+SELECT (@NN>) (0 (prop) OR (Y))(-1 (prop) OR (Y))(1 (ad)); 
+
+SELECT (@Vpart) OR (VpartN); 
+
+REMOVE:obj1 (gen @OBJ) (0 (@NN>))(NOT 0 KesMisMil)(-1 CLB OR >>>)(1C SP);
+REMOVE:obj1 (gen @OBJ) (0 (@NN>))(NOT 1 (@SUBJ))(-1 CLB OR >>>)(1C SP);
+
+REMOVE (gen @OBJ) (0 (@NN>))(NOT 0 KesMisMil)(NOT *-1 (@OBJ) BARRIER CLB LINK 1 Kvm OR (J))
+	(*1 (@OBJ) OR (@SUBJ) BARRIER CLB OR Kvm OR (V) OR NudTud OR (<mine>) OR (D) OR NiNaTaGa); 
+REMOVE (gen @OBJ) (0 (@NN>))(NOT 0 KesMisMil)
+	(*1 (@OBJ) OR (@SUBJ) BARRIER CLB OR Kvm OR (V) OR NudTud OR (<mine>) OR (D) OR NiNaTaGa); 
+
+SELECT (inf @SUBJ) OR (inf @<INFN) (*-1 ("ole") BARRIER CLB)(NOT *-1 (mod) BARRIER CLB)(NOT *1 (mod) BARRIER CLB) ; 
+SETPARENT:subjole (inf @SUBJ) OR (inf @<INFN) TO (*-1 ("ole") BARRIER CLB) ; 
+SELECT:inf1 (inf @SUBJ) (-1 (crd) OR (Com)) (*-2 (inf @SUBJ) BARRIER CLB); 
+SETPARENT:inf2 (inf @SUBJ) (-1 (crd) OR (Com)) TO (*-2 (inf @SUBJ) BARRIER CLB); 
+
+SELECT ("hakka" sup @ADVL) (*0 ("saa")) ;
+SELECT ("hakka" inf @IMV) (*0 DaVerb) ;
+SELECT (@IMV inf) (*0C (mod)) ;
+
+REMOVE (N @SUBJ) (*-1 (@SUBJ) + SP BARRIER CLBC); 
+
+
+SETPARENT (@J crd) TO (1C Verb);
+SETPARENT (@J crd) (NOT 0 CLBC)(-1 $$Koord + $$case)(NOT 1 (D) OR (prop)) TO (1 $$Koord + $$case); 
+SETPARENT (@J crd) (NOT 0 CLBC)(-1 $$Koord + $$case)(NOT 2 (D) OR (prop))(1 ("ka")) TO (2 $$Koord + $$case); 
+SETPARENT (@J crd) (NOT 0 CLBC)(-1 $$Koord)(NOT -1 $$case)(NOT 1 (D) OR (prop)) TO (1 $$Koord); 
+SETPARENT (@J crd) (NOT 0 CLBC)(-1 $$Koord)(NOT -1 $$case)(NOT 2 (D) OR (prop))(1 ("ka")) TO (2 $$Koord); 
+SETPARENT (@J crd) (NOT 0 CLBC)(-1 $$Koord + $$case)(NOT 1 (D) OR (prop))(NOT 2 $$Koord + $$case) TO (1 $$Koord); 
+
+SETPARENT (@J crd) (NOT 0 CLBC)(-1 $$Koord + $$case)(1 (P dem) + $$case OR (@AN>))(NOT 2 (D) OR (cap)) TO (2 $$Koord + $$case); 
+SETPARENT (@J crd) (NOT 0 CLBC)(-1 $$Koord)(NOT -1 $$case)(1 (P dem) + $$case OR (@AN>))(NOT 2 (D) OR (cap)) TO (2 $$Koord); 
+SETPARENT (@J crd) (NOT 0 CLBC)(-1 $$Koord + $$case)(1 (P dem) + $$case OR (@AN>))(NOT 2 (D) OR (cap)) 
+	(NOT 3 $$Koord + $$case) TO (2 $$Koord); 
+SETPARENT (@J crd) (NOT 0 CLBC)(-1 $$Koord + $$case)(1 (P dem) + $$case OR (@AN>))(NOT 3 (D) OR (cap)) 
+	(2 (P dem) + $$case OR (@AN>)) TO (3 $$Koord + $$case); 
+SETPARENT (@J crd) (NOT 0 CLBC)(-1 $$Koord)(NOT -1 $$case)(1 (P dem) + $$case OR (@AN>))(NOT 3 (D) OR (cap)) 
+	(2 (P dem) + $$case OR (@AN>)) TO (3 $$Koord); 
+
+SETPARENT (*) (0 $$Koord + $$case)(NOT 0 (D) OR (cap))(-1 (@J crd) OR Koma)(NOT -1 CLBC) TO (-2 $$Koord + $$case); 
+SETPARENT (*) (0 $$Koord)(NOT 0 $$case)(NOT 0 (D) OR (cap))(-1 (@J crd) OR Koma)(NOT -1 CLBC) TO (-2 $$Koord); 
+SETPARENT (*) (0 $$Koord)(NOT 0 (D) OR (cap))(-1 (@J crd) OR Koma)(NOT -1 CLBC)(NOT 1 $$Koord + $$case) TO (-2 $$Koord + $$case); 
+
+SETPARENT (*) (0 $$Koord + $$case)(NOT 0 (D) OR (cap))(-1 (P dem) + $$case OR (@AN>))(-2 (@J crd) OR Koma)(NOT -2 CLBC) TO (-3 $$Koord + $$case); 
+SETPARENT (*) (0 $$Koord)(NOT 0 $$case)(NOT 0 (D) OR (cap))(-1 (P dem) OR (@AN>))(-2 (@J crd) OR Koma)(NOT -2 CLBC) TO (-3 $$Koord); 
+SETPARENT (*) (0 $$Koord)(NOT 0 (D) OR (cap))(-1 (P dem) OR (@AN>) OR (D))(-2 (@J crd) OR Koma)(NOT -2 CLBC) 
+	(NOT 1 $$Koord + $$case) TO (-3 $$Koord + $$case); 
+
+SETPARENT (*) (0 $$Koord + $$case)(NOT 0 (D) OR (cap))(-1 (P dem) OR (@AN>) OR ("ka"))(-3 (@J crd) OR Koma)(NOT -3 CLBC) 
+	(-2 (P dem) OR (@AN>) OR (D)) TO (-4 $$Koord + $$case); 
+SETPARENT (*) (0 $$Koord)(NOT 0 $$case)(NOT 0 (D) OR (cap))(-1 (P dem) OR (@AN>) OR ("ka"))(-3 (@J crd) OR Koma)(NOT -3 CLBC) 
+	(-2 (P dem) OR (@AN>) OR (D)) TO (-4 $$Koord); 
+
+SETPARENT (@J crd) (NOT 0 CLBC)(-1C (@<Q) OR (@<NN))(*-2 (N card @OBJ) OR Hulk + (@OBJ) BARRIER Verb OR CLBC OR (K))(NOT 1 (D) OR (prop)) TO (1 (@OBJ)); 
+SETPARENT (@OBJ) (NOT 0 (D) OR (prop))(-1 (@J crd) OR Koma)(NOT -1 CLBC) (-2C (@<Q) OR (@<NN))
+	TO (*-3 (N card @OBJ) OR Hulk + (@OBJ) BARRIER Verb OR CLBC OR (K)); 
+SETPARENT (@J crd) (NOT 0 CLBC)(-1C (@<Q) OR (@<NN))(*-2 (N card @OBJ) OR Hulk + (@OBJ) BARRIER Verb OR CLBC OR (K))(1C (gen @NN>) OR (@AN>))(NOT 2 (D) OR (prop)) TO (2 (@OBJ)); 
+SETPARENT (@OBJ) (NOT 0 (D) OR (prop))(-1C (gen @NN>) OR (@AN>))(-2 (@J crd) OR Koma)(NOT -2 CLBC) (-3C (@<Q) OR (@<NN))
+	TO (*-4 (N card @OBJ) OR Hulk + (@OBJ) BARRIER Verb OR CLBC OR (K)); 
+
+SETPARENT (@J crd) (NOT 0 CLBC)(-1 Koma)(-2 $$Koord + $$case)(NOT 1 (D) OR (prop)) TO (*1 $$Koord + $$case BARRIER CLBC OR Oeldis); 
+SETPARENT (*) (0 $$Koord + $$case)(NOT 0 (D) OR (cap))(c (@J crd) LINK NOT 0 CLBC) TO (c (@J crd) LINK -1 Koma LINK NOT 0 CLBC LINK -1 $$Koord + $$case); 
+
+
+LIST Kava = "kava" "kavatsus" "eesmärk" "ees_märk" "plaan" "programm" "strateegia" "võimalus" "valmidus" "valmis_olek" "aeg" "välja_vaade" "vajadus" "oskus" "õigus" "luba" "mõte" "idee" "luba"
+    "huvi" "soov" "tahe" "lootus" <mine> "nõue" "korraldus" "otsus" "määrus" "alus" "direktiiv" "võim" "kohtustus" "põhjus" "tõenäosus" "ette_panek" "teade";
+
+SELECT (@<INFN) (*-1 Kava BARRIER CLB)(NOT *-1 ("ole") BARRIER CLB); 
+SELECT (@<INFN) (*-1 Kava + (nom) BARRIER CLB); 
+SETPARENT (@<INFN) TO (*-1 Kava BARRIER CLB); 
+SETPARENT (@<INFN) (NOT 0 (@IMV))(NONE p (*)) TO (*-1 (@OBJ) OR (@SUBJ) BARRIER CLB); 
+SUBSTITUTE (@INFN>) (@<INFN) (@INFN>) (-1 (crd) OR (Com)) (*-2C (@<INFN) BARRIER CLB);
+SELECT:inf3 (@<INFN) (NOT 0 (@IMV))(-1 (crd) OR (Com)) (*-2 (@<INFN) BARRIER CLB); 
+SELECT:inf3 (@<INFN) (-1 (crd) OR (Com)) (*-2C (@<INFN) BARRIER CLB); 
+SETPARENT (@<INFN) (-1 (crd) OR (Com)) TO (*-2C (@<INFN) BARRIER CLB); 
+
+
+REMOVE (@<NN) (1C FinV OR (@NEG))(-1C (@NN>))(NOT *-2 (S) BARRIER CLB);
+REMOVE (@<NN) (1C FinV OR (@NEG))(-1C (@AN>))(-2C (@NN>))(NOT *-3 (S) BARRIER CLB);
+REMOVE (@NN> prop) (-1C (prop @NN>))(1 (crd))(2C (prop @NN>))(3C (prop))(NOT 3 (@NN>)); 
+REMOVE (<Intr>) (*0C (@OBJ) BARRIER CLB)(NOT *0 (V) OR NudTud BARRIER CLB);
+
+SUBSTITUTE (@ADVL) (@<KN) ("pärast") IF (*-1 ("võitlus") BARRIER CLB);
+SELECT (@ADVL el) (*0 (<El>) OR Rada BARRIER CLB); 
+SELECT (@ADVL kom) (*0 KomRekts BARRIER CLB);
+SELECT (@ADVL in) (*0 InRekts BARRIER CLB);
+SELECT (@ADVL adit) OR (@ADVL ill) (*0 (<Ill>) OR Rada BARRIER CLB); 
+
+SELECT (@ADVL N card) (1 (Z) OR (<<<))(-1 (S nom)); 
+SELECT (@ADVL tr) (NOT 0 (cond))(NOT 1 (tr)); 
+
+REMOVE (@SUBJ) (0 (nom))(1C (S nom))(1 (@SUBJ)); 
+SETPARENT (@NN>) (0 (nom)) TO (1C (@SUBJ)); 
+
+SETPARENT (@P>) TO (*1 (K post)); 
+SETPARENT (@<P) TO (*-1 (K pre)); 
+
+REMOVE (@OBJ) (-1C (@OBJ)); 
+REMOVE (@OBJ) (-1C (part))(-1C (@OBJ) OR (@SUBJ)); 
+
+SELECT (@ADVL sup) (1 (inf)); 
+REMOVE (@SUBJ inf) (*0C (@SUBJ) BARRIER CLB);
+REMOVE (@PRD) (NEGATE *0 ("ole"));
+REMOVE (@OBJ) (1C (@OBJ)); 
+REMOVE (@<NN) (0 $$case)(-1 Subst OR (P) LINK 0 $$case)(NOT *-2 (@SUBJ) OR (@OBJ) OR (@ADVL)); 
+REMOVE (@NN> N card nom); 
+REMOVE (@NN> S com nom) (NOT 0 (prop cap))(NOT 1 (cap)); 
+REMOVE ("kahi"); 
+
+REMOVE (@KN>) (NOT 1 NudTud OR (<v>) OR (<tav>)); 
+REMOVE (@ADVL) (0 (@KN>) OR (@<KN))(NOT *1 ("<{>"))(NOT *1 (V) OR NudTud BARRIER CLB)(NOT *-1 (V) OR NudTud BARRIER CLB); 
+SETPARENT (@KN>) TO (*1 (@SUBJ) OR (@OBJ)); 
+SETPARENT (@<KN) (NOT 0 (@ADVL) OR (@KN>)) TO (*-1 (@SUBJ) OR (@OBJ)); 
+
+SETPARENT (@<NN) (-1 Oqu)(1 Cqu)(NOT -2 Ajamäärus OR (cap)) TO (-2C (S com)); 
+SETPARENT (@<NN) (-1 (@NN>))(-2 Oqu)(1 Cqu)(NOT -3 Ajamäärus OR (cap)) TO (-3C (S com)); 
+
+SETPARENT NaguCLB TO (1 ("nagu")); 
+SETPARENT KuiCLB TO (1 ("kui")); 
+SETPARENT EtCLB TO (1 ("et")); 
+SETPARENT (*) (0 $$Koord)(-1 ("ka"))(-2 ("kui")) TO (-3 $$Koord); 
+SETPARENT ("ka") (-1 ("kui")) TO (1 (*)); 
+SETPARENT ("kui") (-1 $$case) TO (1 $$case); 
+SETPARENT ("kui") (-1 $$case)(1 (S gen) OR (P gen) OR (@AN>)) TO (2 $$case); 
+SETPARENT ("üks") OR ("1" card) TO (1 SP); 
+SETPARENT ("üks") OR ("1" card) (NOT 0 (gen))(1 (A part) OR SP + (gen)) TO (2 SP + (nom) OR SP + (part)); 
+SETPARENT ("üks") OR ("1" card) (NOT 0 (gen))(NOT 2 SP + (part) OR SP + (part)) TO (1 (A nom) OR (A part)); 
+SETPARENT ("üks" nom) OR ("1" card) (1 SP + (gen cap) OR SP + (part cap)) TO (2 SP + (nom)); 
+SETPARENT ("üks") OR ("1" card) (0 $$case) TO (1 SP + $$case); 
+SETPARENT ("üks") OR ("1" card) (0 $$case)(1 (A) OR SP + (gen)) TO (2 SP + $$case); 
+SETPARENT ("üks") OR ("1" card) (0 $$case)(1 (D))(2 (A) OR SP + (gen)) TO (3 SP + $$case); 
+
+
+
+
+SETPARENT (inf) OR (sup ill) (NOT 0 (@IMV) OR (@<INFN)) TO (*0 (@FMV) BARRIER CLB); 
+SETPARENT (inf) OR (sup ill) (NOT 0 (@IMV) OR (@<INFN)) TO (*0 (@IMV) BARRIER CLB); 
+
+SUBSTITUTE (@IMV) (@IMV <0>) (@IMV) (p (@FCV) OR (@FMV)); 
+SETPARENT (@IMV) (p (@FCV) OR (@FMV)) TO (@0 (*));
+
+SETPARENT (@NEG) TO (1 (@FMV) OR (@FCV));
+SETPARENT (@FCV) OR (@FMV) TO (*-1 (@IMV) BARRIER CLB OR (@FMV) OR (@FCV));
+SETPARENT (@FCV) OR (@FMV) TO (*1 (@IMV) BARRIER CLB OR (@FMV) OR (@FCV));
+
+SETPARENT (@SUBJ) (NOT 0 ("üks") OR ("1" card))(NONE p (@SUBJ)) TO (*0 Oeldis BARRIER CLB); 
+SETPARENT (@PRD) (NOT 0 ("üks") OR ("1" card))(NONE p (@PRD)) TO (*0 Oeldis BARRIER CLB)(NONE p (@IMV));
+
+SETPARENT (@P>) (NONE p (@P>)) TO (1 (post));
+SETPARENT (@P>) TO (c** (@P>) LINK 1 (post));
+SETPARENT (@<P) TO (-1 (pre));
+SETPARENT (@X) TO (*0 (V)); 
+
+
+SETPARENT (@ADVL) OR (@DN>) (0 ADVLH1) (1 (@NN>) OR (@AN>)) (2 (@NN>) OR (@AN>))(3 (@NN>) OR (@AN>)) TO (4 (@ADVL) OR (@SUBJ) OR (@OBJ) OR (<mine>) OR (@PRD));
+SETPARENT (@ADVL) OR (@DN>) (0 ADVLH1) (1 (@NN>) OR (@AN>)) (2 (@NN>) OR (@AN>)) TO (3 (@ADVL) OR (@SUBJ) OR (@OBJ) OR (<mine>) OR (@PRD));
+SETPARENT (@ADVL) OR (@DN>) (0 ADVLH1) (1 (@NN>) OR (@AN>) OR (@P>)) TO (2 (@ADVL) OR (@SUBJ) OR (@OBJ) OR (<mine>) OR (@PRD));
+SETPARENT (@ADVL) OR (@DN>) (0 ADVLH1) TO (1 (@ADVL) OR (@SUBJ) OR (@OBJ) OR (@NN>) OR (@DN>) OR (@<NN) OR (@AN>) OR (@PRD));
+SETPARENT (@ADVL) OR (@DN>) (0 ADVLH1) (1 ADVLH1 OR ("kuigi") OR ("päris") OR ("päriselt") OR ("ka"))(NOT 2 Kvm) TO (2 (*));
+SETPARENT (@ADVL) OR (@DN>) (0 ADVLH1) (1 (@NN>) OR (@AN>) OR (@P>)) TO (*2 (<mine>) BARRIER (V) OR CLB OR (J));
+SETPARENT (@ADVL) OR (@DN>) (0 ADVLH1) TO (1 (P) OR Hulk);
+
+SETPARENT (@DN>) (0C (@DN>)) (1 (@NN>) OR (@AN>)) (2 (@NN>) OR (@AN>))(3 (@NN>) OR (@AN>)) TO (4 (@ADVL) OR (@SUBJ) OR (@OBJ) OR (<mine>) OR (@PRD));
+SETPARENT (@DN>) (0C (@DN>)) (1 (@NN>) OR (@AN>)) (2 (@NN>) OR (@AN>)) TO (3 (@ADVL) OR (@SUBJ) OR (@OBJ) OR (<mine>) OR (@PRD));
+SETPARENT (@DN>) (0C (@DN>)) (1 (@NN>) OR (@AN>) OR (@P>)) TO (2 (@ADVL) OR (@SUBJ) OR (@OBJ) OR (<mine>) OR (@PRD));
+SETPARENT (@DN>) (0C (@DN>)) TO (1 (@ADVL) OR (@SUBJ) OR (@OBJ) OR (@NN>) OR (@DN>) OR (@<NN) OR (@AN>) OR (@PRD));
+SETPARENT (@DN>) (0C (@DN>)) (1 ADVLH1 OR ("kuigi") OR ("päris") OR ("päriselt") OR ("ka"))(NOT 2 Kvm) TO (2 (*));
+SETPARENT (@DN>) (0C (@DN>)) (1 (@NN>) OR (@AN>) OR (@P>)) TO (*2 (<mine>) BARRIER (V) OR CLB OR (J));
+SETPARENT (@DN>) (0C (@DN>)) TO (1 (P) OR Hulk);
+
+SETPARENT ("mitte") TO (1 ("ainult") OR ("terve") OR (mingi)); 
+SETPARENT ("ka") (-1 ("mitte")) TO (1 (*)); 
+SETPARENT ("ka")  TO (*-1 (@FMV) BARRIER CLB); 
+SETPARENT ("ka")  TO (*1 (@FMV) BARRIER CLB); 
+SETPARENT ("ka")  TO (*-1 (@IMV) BARRIER CLB); 
+SETPARENT ("ka")  TO (*1 (@IMV) BARRIER CLB); 
+
+SETPARENT (@ADVL tr) TO (*0 (@FMV) BARRIER CLB); 
+SETPARENT (@ADVL tr) TO (*0 (@IMV) BARRIER CLB); 
+SETPARENT (S tr @ADVL) TO (-1 (<mine>));
+
+SETPARENT (S gen) TO (1 ("tekitatud") OR ("juhitav") OR ("tingitud") OR ("esile_kutsutud"));
+SETPARENT (S part) OR (P part) TO (1 ("tekitav") OR ("juhtiv") OR ("võimaldav"));
+SETPARENT (S in) OR (S ad) TO (1 ("toimuv"));
+SETPARENT (S all) OR (S ill) OR (S adit) TO (1 ("suunatud") OR ("suunduv") OR ("läinud"));
+SETPARENT (N card) (NOT 0 (@<Q)) TO (1 ("ulatus" in));
+SETPARENT (N card) (NOT 0 (@<Q))(1 (@<Q)) TO (2 ("ulatus" in));
+SETPARENT (N card) (NOT 0 (@<Q))(1 (@<Q))(2 (@<Q)) TO (3 ("ulatus" in));
+
+
+SETPARENT (@<Q) (NOT 0 (@SUBJ))(*-1 (card) OR Hulk - Ajamäärus OR ProAdv BARRIER CLB LINK NOT -1 ("<aastal>")) TO (*-1 (card) OR Hulk - Ajamäärus OR ProAdv BARRIER CLB OR (sub) OR Verb); 
+SETPARENT (@<Q) (*-1 (card) OR Hulk OR ProAdv BARRIER CLB LINK -1 ("<aastal>") LINK -1 (N)) TO (*-1 (card) OR Hulk OR ProAdv BARRIER CLB OR (sub) OR Verb); 
+SETPARENT (S part) TO (-1 (card) OR Hulk OR ProAdv LINK NOT 0 (pl));
+
+LIST Varem = "hiljem" "varem" "rohkem" "enam" "vähem" "pikem" "laiem" "lühem" "kitsam" "kõrgem" "madalam";
+SETPARENT (@ADVL) (0 Hulk + (nom) OR (N card nom))(NOT 0 SP)(NOT p (@IMV))(*1 (@<Q) BARRIER CLB OR Kvm) TO (*0 (V main) BARRIER CLBC OR (K) LINK NOT 0 (@<Q) OR case);
+SETPARENT (@ADVL) (0 Hulk + (D))(*1 (@<Q) BARRIER CLB OR Kvm) TO (*0 (V main) BARRIER CLBC OR (K) LINK NOT 0 (@<Q) OR case);
+SETPARENT (@ADVL) (0 Hulk + (nom) OR (N card nom))(NOT 0 SP)(NOT p (@IMV))(*1 (@<Q) BARRIER CLB OR Kvm) TO (*1 DaInf OR NudTud BARRIER CLBC OR (K <nom>) LINK NOT 0 (@<Q) OR case);
+SETPARENT (@ADVL) (0 Hulk + (D))(*1 (@<Q) BARRIER CLB OR Kvm) TO (*1 DaInf OR NudTud BARRIER CLBC OR (K <nom>) LINK NOT 0 (@<Q) OR case);
+SETPARENT (@ADVL part) (0 Hulk OR (N card))(*1 (@<Q) BARRIER CLBC OR Kvm) TO (-1 (K pre <part>));
+SETPARENT (@ADVL) (0 Hulk OR (N card))(NOT -1 (<part>))(*1 (@<Q) BARRIER CLBC OR Kvm) TO (-1 (K pre));
+SETPARENT (@ADVL) (0 Hulk OR (N card)) TO (*1 (@<Q) BARRIER CLBC OR Kvm LINK 1 (K post) OR (A comp) OR Varem);
+SETPARENT (@ADVL) (0 Hulk OR (N card)) TO (1 (K post) OR (A comp) OR Varem);
+
+SETPARENT (@ADVL N) OR (@<NN N) TO (-1 (N card)); 
+SETPARENT (@ADVL N card) OR (@<NN N card) TO (-1 (@SUBJ S nom)); 
+SETPARENT (@ADVL N card) OR (@<NN N card) (-1 (Col) OR (Opr)) TO (-2 SP); 
+SETPARENT (@ADVL N card) OR (@<NN N card) (-1 Kvm OR (crd)) TO (-2 (@ADVL N card)); 
+SETPARENT (@ADVL N card) OR (@<NN N card) TO (*-1 Periood BARRIER CLB OR (V)); 
+LIST Suurune = "kõrge" "kõrgus" "kõrgune" "lai" "laius" "laiune" "pikk" "pikkus" "pikkune" "kaugus" "kauguselt" "kauguse=lt" "kaugel"
+	"suur" "suurus" "suurune" "sügav" "sügavus" "sügavune" "madal" "kroonine" "aastane", "ette" "ette_poole" "edasi" "tagasi" "taga_poole", "vasakule" "vasemale" "paremale";
+SETPARENT (@ADVL N card) OR ("pool") TO (*0 Suurune BARRIER CLBC OR (V) OR (Z) OR (J));
+
+LIST Koige = "kõige" "mida" "ilmselt" "oluliselt" "palju" "seda" "veelgi" "vähe" "veidi" "õnneks";
+SETPARENT (@ADVL) (0 Koige) TO (1 (A comp) OR (D)); 
+LIST Eriti = "eriti" "nii" "veidi" "vähem" "rohkem" "õnneks";
+SETPARENT (@ADVL) (0 Eriti) TO (1 (A) OR (P) OR (D)); 
+SETPARENT ("juba") TO (1 (@AN>) OR (@PRD) OR (@ADVL)); 
+SETPARENT ("kuni") OR ("alates") OR ("ligikaudu") OR ("umbes") OR ("ca") TO (1 (N) OR ProAdv OR (term) OR Ajamäärus); 
+SETPARENT ("kuni") TO (1 (*))(2 Kvm OR (J) OR (V) OR NudTud OR (<mine>)); 
+SETPARENT ("ikka") OR ("isegi") OR ("ligemale") TO (1 SPAND); 
+SETPARENT ("piisavalt") TO (1 (A)); 
+SETPARENT ("järjest") TO (1 (A comp)); 
+SETPARENT ("järjest") TO (-1 ("korda") OR Ajamäärus); 
+SETPARENT ("taas") TO (1 ("kord")); 
+SETPARENT (A comp) TO (1 (A) OR (S) OR (P)); 
+SETPARENT ("vaid") OR ("ainult") TO (1 ("siis") OR (V)); 
+LIST Veel = "midagi" "sama_palju" "üks" "1" "kord" "rohkem";
+SETPARENT ("veel") TO (1 Veel OR (A comp)); 
+
+SETPARENT (K) TO (*-1 (@FMV) BARRIER CLB); 
+SETPARENT (K) TO (*1 (@FMV) BARRIER CLB); 
+SETPARENT (K) TO (*-1 (@IMV) BARRIER CLB); 
+SETPARENT (K) TO (*1 (@IMV) BARRIER CLB); 
+SETPARENT (S gen) OR (S part) TO (1 ("<kaela>")); 
+SETPARENT ("oma") TO (*1 SP);
+
+
+SETPARENT Ajamäärus TO (1 Ajamäärus OR (V) OR NudTud)(NOT -1 Ajamäärus OR Hulk); 
+
+SETPARENT (@ADVL) (0 AdvN) TO (1 Adj);
+SETPARENT (@ADVL) (0 KvAdvMod) TO (1 (N));
+SETPARENT (@ADVL)(0C (@ADVL))(NONE p (*)) TO (-1 Oeldis)(NONE p (@IMV));
+SETPARENT (@ADVL)(0C (@ADVL))(NONE p (*)) TO (*1 Oeldis BARRIER CLB OR (sub) LINK c DaInf)(NONE p (@IMV));
+SETPARENT (@ADVL)(0C (@ADVL))(NOT 0 CLB)(NONE p (*)) TO (*-1 Oeldis BARRIER CLB OR (sub) LINK c DaInf)(NONE p (@IMV));
+SETPARENT (@ADVL)(0C (@ADVL))(NONE p (*)) TO (*1 (inf) BARRIER CLB OR (sub) OR (@SUBJ) OR (@OBJ) OR (<FinV>));
+SETPARENT (@ADVL)(0C (@ADVL))(NONE p (*)) TO (1 Oeldis)(NONE p (@IMV));
+SETPARENT (@ADVL)(0C (@ADVL))(NONE p (*)) TO (*1 (V) OR NudTud BARRIER CLB OR (sub) OR (@SUBJ) OR (@OBJ) LINK NOT 0 (@NEG))(NONE p (@IMV));
+SETPARENT (@ADVL)(0C (@ADVL))(NONE p (*)) TO (*0 Oeldis BARRIER CLB OR (sub))(NONE p (@IMV));
+SETPARENT (@ADVL)(0C (@ADVL))(NONE p (*)) TO (*0 (<0>) BARRIER CLB OR (sub)); 
+SETPARENT (@ADVL) (NOT 0 (inf) OR (pre))(NOT 1C (@<Q)) TO (1 (V ger) OR (V inf) OR (V sup ill) OR NudTud);
+SETPARENT (@ADVL) (NOT 1C (@<Q)) TO (1 (V ger) OR (V inf) OR (V sup ill) OR (partic past)); 
+SETPARENT (@ADVL) (NOT 0 ADVLH1)(NOT 1 (V) OR (partic)) TO (-1 (V ger) OR (V inf) OR (V sup ill)); 
+
+
+SETPARENT (@NN> gen) (NOT 0 ("üks") OR ("1" card)) TO (1 SPN); 
+SETPARENT (@NN>) (0C (@NN>))(NOT 0 ("üks") OR ("1" card)) TO (1 SPN); 
+SETPARENT (@NN>) (0C (@NN>))(NOT 0 ("üks") OR ("1" card)) TO (*1 SPN BARRIER CLB OR (Opr)); 
+SETPARENT (@NN>) (0C (@NN>))(NOT 0 ("üks") OR ("1" card))(NONE p (@NN>)) TO (c** (@NN>) LINK *1 SPN BARRIER CLB OR (Opr)); 
+SETPARENT (@NN>) (2 Kvm) TO (1 SPN);
+
+SETPARENT (S com @NN>) (1 (prop)) TO (2 (prop)); 
+
+SELECT (@NN>) (1 (crd) LINK pC (@NN>)); 
+SETPARENT (@NN>) TO (1 (crd) LINK pC (@NN>) LINK *1 SPN); 
+SELECT (@NN>) (1 Koma)(2 (crd) LINK p (@NN>)); 
+SELECT (@NN>) (pC (@NN>) LINK 1 Koma OR (crd)); 
+SETPARENT (@NN>) (1 Koma) TO (cC (@NN>) LINK *1 SPN); 
+
+SETPARENT (@NN> nom) (1 (prop) OR (cap)) TO (1 (S));
+SETPARENT (@NN> nom) (1 (prop) OR (cap))(2 (prop) OR (cap)) TO (2 (S));
+
+SETPARENT (@NN> gen) (1 Cqu) TO (2 (S));
+
+SETPARENT (@<AN) (0C (@<AN)) TO (*-1 (<mine>) OR (@SUBJ) OR (@OBJ) OR (@PRD) OR (S @ADVL)); 
+SETPARENT (@<AN) (0C (@<AN)) TO (*-1 ("nagu") OR ("kui") BARRIER Verb OR Kvm LINK *-1 (<mine>) OR (@SUBJ) OR (@OBJ) OR (@PRD) OR (S @ADVL)); 
+SETCHILD (@<AN) (0C (@<AN)) TO (*-1 ("nagu") OR ("kui") BARRIER Verb OR Kvm); 
+
+SETPARENT (@AN>) (NOT 0 (sg) OR (pl)) TO (1 Subst); 
+SETPARENT (@AN>) (NOT 0 (sg) OR (pl))(1 (@AN>) OR (Y)) TO (2 Subst); 
+SETPARENT (@AN>) (0 $$case) TO (*1 SP BARRIER CLB)(0 $$case); 
+SETPARENT (@AN>) TO (p (S cap) LINK 1 (cap)); 
+SETPARENT (@AN>) (0 (gen)) TO (*1 SP BARRIER CLB)(0 (gen) OR NiNaTaGa); 
+SETPARENT (@AN>) (0 (ill)) TO (*1 SP BARRIER CLB)(0 (adit)); 
+SETPARENT (@AN>) (0 (adit)) TO (*1 SP BARRIER CLB)(0 (ill)); 
+SETPARENT (@AN> gen) TO (1C Subst);
+
+SETCHILD (S) (1 (Com))(2 (P inter rel)) TO (*2 Oeldis BARRIER CLB)(NONE p (@IMV));
+
+SETPARENT:obj1 (@OBJ) (NOT 1 (@FCV)) TO (1C (V) OR NudTud OR (<v>)); 
+
+SETPARENT (@NN>) (NOT 0 ("üks") OR ("1" card))(1 (@AN>)) TO (*2 Subst BARRIER CLB);
+
+SETPARENT (@<AN) (NOT 0 (sg) OR (pl)) TO (1 Subst); 
+SETPARENT (@<AN) (0 $$case) TO (*-1 Subst OR (P) BARRIER CLB)(0 $$case); 
+
+SETPARENT:prop1 (prop) (0 $$case) TO (1 (S) + $$case) ; 
+SETPARENT:prop2 (prop) (0 (gen)) TO (1 (S) + NiNaTaGa) ; 
+SETPARENT:prop3 (prop @NN>) (0 (gen) OR (nom)) TO (1 (S cap) OR (prop) OR Liityhing) ; 
+
+
+
+SETPARENT (@J) TO (1 (@J));
+
+SETPARENT (@J sub) TO (*1 Oeldis BARRIER CLB); 
+SETPARENT (@J sub) (NOT *1 Oeldis BARRIER CLB) TO (*1 (@SUBJ) BARRIER CLB); 
+SETPARENT (@J sub) (NOT *1 Oeldis BARRIER CLB) 
+	TO (*1 (@PRD) OR (@OBJ) BARRIER CLB); 
+SETPARENT (@J crd CLB) TO (*1 Oeldis BARRIER CLB);
+SETPARENT (@J crd) (-1 CLB) TO (*1 Oeldis BARRIER CLB);
+
+
+SETPARENT (@J crd) (-1C (@SUBJ)) TO (*1 (@SUBJ) BARRIER FinV OR CLB);
+SETPARENT (@J crd) (-1C (@<AN) OR (@<NN)) TO (*1 (@SUBJ) OR (@OBJ) OR (@PRD) BARRIER FinV OR CLB);
+SETCHILD (@SUBJ) (0C (@SUBJ)) (1 (@J crd) OR Koma)(NOT 1 CLB) TO (*2 (@SUBJ) BARRIER FinV OR CLB);
+
+SETPARENT (@J crd) (-1C (@SUBJ)) TO (*1 (@SUBJ) BARRIER FinV OR CLB);
+SETPARENT (@J crd) (-1 Koma)(NOT -1 CLBC)(-2C (@SUBJ)) TO (*1 (@SUBJ) BARRIER FinV OR CLB);
+SETPARENT (@J crd) (-1C (@OBJ)) TO (*1 (@OBJ) BARRIER FinV OR CLB);
+SETPARENT (@J crd) (-1 Koma)(NOT -1 CLBC)(-2C (@OBJ)) TO (*1 (@OBJ) BARRIER FinV OR CLB);
+SETCHILD (@SUBJ) (0C (@SUBJ) OR (@OBJ)) (1 (@J crd) OR Koma)(NOT 1 CLB) TO (*2 (@SUBJ) OR (@OBJ) BARRIER FinV OR CLB);
+
+
+SETPARENT (@J crd) (-1C (@OBJ)) TO (*1 (@OBJ) BARRIER FinV OR CLB);
+SETCHILD (@OBJ) (0C (@OBJ)) (1 (@J crd) OR Koma)(NOT 1 CLB) TO (*2 (@OBJ) BARRIER FinV);
+SETPARENT (@J crd) (-1 (el))(-2C (@OBJ)) TO (*1 (@OBJ) BARRIER FinV OR CLB);
+SETCHILD (@OBJ) (0C (@OBJ)) (1 (el))(2 (@J crd) OR Koma)(NOT 1 CLB) TO (*2 (@OBJ) BARRIER FinV);
+
+SETPARENT (@J crd) (-1C (@PRD)) TO (*1 (@PRD) BARRIER FinV OR CLB);
+SETCHILD (@PRD) (0C (@PRD)) (1 (@J crd) OR Koma)(NOT 1 CLB) TO (*2 (@PRD) BARRIER FinV);
+SETPARENT (@J crd) (-1C (@ADVL))(NOT -1 (A)) TO (*1 (@ADVL) BARRIER FinV OR CLB LINK NOT 0 (A));
+SETCHILD (@ADVL) (0C (@ADVL)) (1 (@J crd) OR Koma)(NOT 1 CLB) TO (*2 (@ADVL) BARRIER FinV);
+
+
+
+SETPARENT (@J crd) (-1C (gen @NN>)) TO (**1 (gen @NN>) OR (@AN>) OR (gen @P>) BARRIER FinV) ; 
+SETPARENT (@J crd) (-1C (@NN>) OR (@AN>) LINK 0 $$case) TO (**1 (@NN>) OR (@AN>) OR (@P>) BARRIER FinV) (0 $$case) ; 
+SETPARENT (@J crd) (-1 (@NN>) OR (@AN>) LINK 0 $$case) TO (1C (@NN>) OR (@AN>)) (0 $$case) ; 
+SETPARENT (@J crd) (-1 (@NN>) OR (@AN>) LINK 0 $$case)(1 (P gen)) TO (2 (@NN>) OR (@AN>) OR (@P>)) (0 $$case) ; 
+SETPARENT (@J crd) (-1 Koma)(-2 (@NN>) OR (@AN>) LINK 0 $$case) TO (1 (@NN>) OR (@AN>)) (0 $$case) ; 
+SETPARENT (@J crd) (-1C (@NN>) OR (@AN>) LINK 0 $$case LINK p (@NN>) OR (@AN>)) TO (**1 (@NN>) OR (@AN>) OR (@P>) BARRIER FinV) (0 $$case);
+SETPARENT (@J crd) (-1 (<mine>)) TO (*1 (<mine>) BARRIER CLB OR (V) OR (@SUBJ) OR (@OBJ)); 
+SETPARENT (<mine>) TO (c (@J crd) LINK -1 (<mine>));
+SETPARENT (@NN>) (NONE p (*)) TO (**1 (S) BARRIER CLB OR FinV)(-1 (@NN>) LINK c (@J crd));
+SETPARENT (@J crd) (-1C (abes) OR (<mata>)) TO (*1 (abes) OR (<mata>) BARRIER FinV) ; 
+
+SETPARENT (@J "aga") OR (@J "ega") TO (*1 (@OBJ) OR (@SUBJ) OR Oeldis BARRIER CLB); 
+SETPARENT (@SUBJ) TO (c (@J crd) LINK -1 (@SUBJ));
+SETPARENT (@OBJ) TO (c (@J crd) LINK -1 (@OBJ));
+SETPARENT (@J cap) TO (*1 (@FMV) BARRIER CLB); 
+SETPARENT (@J cap) TO (*1 (@IMV) BARRIER CLB); 
+SETPARENT (@J "aga") TO (-1 (V)); 
+
+SETPARENT (@J crd) (-1 (@<NN)) TO (*1 (@<NN) BARRIER CLB OR (V) OR (K) OR (@SUBJ) OR (@OBJ)); 
+SETPARENT (@<NN) TO (c (@J crd) LINK -1 (@<NN));
+SETPARENT (@J crd) (-1C (A nom)) TO (*1 (A nom) BARRIER CLB OR (V) OR (K)); 
+SETPARENT (A nom) TO (c (@J crd) LINK -1 (A nom));
+SETPARENT (@J crd) (-1C (S nom)) TO (*1 (S nom) BARRIER CLB OR (V) OR (K)); 
+SETPARENT (S nom) TO (c (@J crd) LINK -1 (S nom));
+SETPARENT (@J crd) (-1C (prop)) TO (*1 (prop) BARRIER CLB OR (V) OR (K))(NOT 1 (prop)); 
+SETPARENT (prop) TO (c (@J crd) LINK -1 (prop));
+
+SETPARENT (@J crd) (-1 (N)) TO (1 (N)); 
+SETPARENT (@J crd) (-1 (N))(1 (@ADVL)) TO (2 (N)); 
+SETPARENT (N) TO (p (@J crd) LINK -1 (N)); 
+
+SETPARENT (@J crd) (-1 (part))(-2 (N)) TO (1 (N)); 
+SETPARENT (@J crd) (-1 (part))(-2 (N))(1 (@ADVL)) TO (2 (N)); 
+SETPARENT (N) TO (p (@J crd) LINK -1 (part) LINK -1 (N)); 
+
+SETPARENT (@J crd) (NOT 0 CLBC)(-1 (@ADVL))(NOT -1 (A)) TO (1 (@ADVL)); 
+SETPARENT (@J crd) (NOT 0 CLBC)(-1 (@ADVL))(NOT -1 (A))(1 (A) OR (S gen)) TO (2 (@ADVL)); 
+SETPARENT (@ADVL) TO (c (@J crd) LINK -1 (@ADVL)); 
+
+SETPARENT (@J crd) (NOT 0 CLBC)(-1 (ger))(NOT -1 (A)) TO (1 (ger)); 
+SETPARENT (@J crd) (NOT 0 CLBC)(-1 (ger))(NOT -1 (A))(1 (A) OR (S)) TO (2 (ger)); 
+SETPARENT (ger) TO (c (@J crd) LINK -1 (ger)); 
+
+
+
+SETPARENT (@J crd) (-1C (@P>)) TO (*1 (@P>) BARRIER FinV OR CLB);
+SETPARENT (@P>) TO (c (@J crd) LINK -1 (@P>));
+SETPARENT (@J crd) (-1 (inf)) TO (*1 (inf) BARRIER CLB); 
+SETPARENT (inf) TO (c (@J crd) LINK -1 (inf));
+SETPARENT (@J crd) (*-1 (inf) BARRIER CLB) TO (1 (inf)); 
+SETPARENT (inf) TO (c (@J crd) LINK *-1 (inf) BARRIER CLB);
+SETPARENT (@J crd) (-1 (partic past @IMV)) TO (*1 (partic past @IMV) BARRIER CLB); 
+SETPARENT (partic past @IMV) TO (c (@J crd) LINK -1 (partic past @IMV));
+
+
+SETPARENT (N card) TO (-1 (S prop))(1 Kvm OR (J)); 
+
+SETPARENT (@J crd) (2 Kvm OR <<<) TO (1 (*)); 
+SETPARENT (@J CLB) TO (*1 (@FMV) BARRIER CLB); 
+SETPARENT (@FMV) (NOT *-1 (@IMV) BARRIER CLB)(NOT *1 (@IMV) BARRIER CLB) TO (c (@J crd) LINK *-1 (@FMV));
+SETPARENT (@FMV) (NOT *-1 (@IMV) BARRIER CLB)(NOT *1 (@IMV) BARRIER CLB) TO (c (@J crd) LINK *-1 (@IMV) BARRIER CLB);
+SETPARENT (@J CLB) TO (*1 (@IMV) BARRIER CLB); 
+SETPARENT (@IMV) TO (c (@J crd) LINK *-1 (@FMV) BARRIER CLB);
+SETPARENT (@IMV) TO (c (@J crd) LINK *-1 (@IMV) BARRIER CLB);
+
+SETPARENT:ANcrd (@J crd) (NONE p (*))(-1 (@AN>) OR (A))(-1 $$case) TO (1 (@AN>)) (0 $$case) ; 
+SETPARENT:ANcrd (@J crd) (NONE p (*))(-1 (@AN>) OR (G) OR (partic)) TO (1 (@AN>)) ; 
+SETPARENT (@AN>) TO (c (@J crd) LINK -1 (@AN>));
+SETPARENT:Scrd (@J crd) (NONE p (*))(-1 (S))(NOT -1 (gen))(-1 $$case) TO (1 (S)) (0 $$case) ; 
+SETPARENT (S) TO (c (@J crd) LINK -1 (S)); 
+SETPARENT (@J crd) (-1C (gen)) TO (1 NiNaTaGa); 
+SETPARENT NiNaTaGa TO (c (@J crd) LINK -1 (gen));
+SETPARENT ("kui" crd) (-1 (D)) TO (*1 (@ADVL) OR (@SUBJ) OR (@OBJ)); 
+
+SETPARENT:ANX (@AN>) (NONE p (@AN>)) TO (c** (@AN>) LINK 1 SP);
+SETPARENT:ANX (@AN>) (NONE p (@AN>))(NONE c (@AN>))(2 Kvm OR (J) OR Verb OR (K)) TO (1 SP);
+
+SETPARENT:>J (@J) OR (@I) (-1 >>>) TO (*1 (@IMV) BARRIER CLB) ; 
+SETPARENT:>J (@J) OR (@I) (-1 >>>)(NONE p (@IMV)) TO (*1 (@FMV) BARRIER CLB) ; 
+SETPARENT:>J (@J) OR (@I) (-1 >>>)(NONE p (*)) TO (*1 (@SUBJ) BARRIER CLB) ; 
+SETPARENT:>J (@J) OR (@I) (-1 >>>)(NONE p (*)) TO (*1 (@OBJ) BARRIER CLB) ; 
+SETPARENT:>J (@J) OR (@I) (-1 >>>)(NONE p (*)) TO (*1 (@ADVL) BARRIER CLB) ; 
+
+SETPARENT:Jlast (*) (NONE p (*))(c (@J crd))(-1 (@J)) TO (-2 (*)) ; 
+
+SETPARENT (@NN>) OR (@P>) (-1 Koma OR (crd))(NOT -1 CLB)(0 $$case LINK NONE p (@NN>)) TO (-2 (@NN>) OR (@P>) LINK 0 $$case) ; 
+SETPARENT (@NN>) OR (@P>) (-1 (@AN>) OR (@NN>))(-2 Koma OR (crd))(NOT -2 CLB)(0 $$case) TO (-3 (@NN>) OR (@P>) LINK 0 $$case);
+
+
+SETPARENT (@<NN) (0C (@<NN)) TO (*-1 (@SUBJ) OR (@OBJ) OR (@ADVL) OR (@P>) OR (card) OR Hulk); 
+
+
+REMOVE (@<NN) (-1 (V) OR NaguKui); 
+SETPARENT (N card) (1 (part)) TO (*2 (A comp) BARRIER (V) OR CLB); 
+SETPARENT (@J) (0 NaguKui)(NOT 0 CLB)(-1 (comp)) TO (*1 SPAN BARRIER (V) OR CLB)(1 (Z)); 
+SETCHILD (A comp) (1 NaguKui) TO (*2 SPAN BARRIER (V) OR CLB)(1 (Z)); 
+
+
+
+
+
+SETPARENT (V sup ill) TO (*-1 FinV BARRIER CLB);
+SETPARENT (@ADVL sup) TO (1 (inf)); 
+
+SELECT (sg nom @SUBJ) (1 (indic ps3 sg ps)); 
+SELECT (pl nom @SUBJ) (1 (indic ps3 pl ps)); 
+SELECT (prop sg @SUBJ) (1 (indic ps3 sg ps))(NOT 2 (@SUBJ)); 
+
+SETPARENT ("aga") (NOT -1 Kvm) TO (*0 (@FMV) BARRIER CLB);
+SETPARENT ("aga") (NOT -1 Kvm) TO (*0 (@IMV) BARRIER CLB);
+
+
+REMOVE (@OBJ) (0 (gen))(1 (@OBJ))(2 LLZ OR CLB); 
+REMOVE (P @OBJ) (1 (@OBJ))(NOT 1 (nom)); 
+REMOVE (@<NN) (0 (@OBJ))(1 LLZ OR CLB)(NOT *-1 (@OBJ) BARRIER CLB OR (J)); 
+SELECT (P @NN>) (1 (@NN>))(2 (@OBJ)); 
+
+SETPARENT (@OBJ) (NONE c (@J crd))(0C (@OBJ))(NOT 1 (V)) TO (*0 (V) BARRIER CLB)(NOT 0C Intr&YV OR (@FCV)); 
+SETPARENT (@OBJ) (NONE c (@J crd))(0C (@OBJ)) TO (*1 (inf) BARRIER CLB)(NOT 0C Intr&YV OR (@FCV)); 
+SETPARENT (@OBJ) (NONE c (@J crd))(0C (@OBJ))(1 (@FCV)) TO (*0 (V) BARRIER CLB)(NOT 0C Intr&YV OR (@FCV))(NONE c (@OBJ)); 
+SETPARENT (@OBJ) (NONE c (@J crd))(0C (@OBJ)) TO (*1 (@IMV) BARRIER CLB OR (@OBJ))(NOT 0C Intr&YV)(NONE c (@OBJ)); 
+SETPARENT (@OBJ) (NONE c (@J crd)) TO (*-1 Oeldis OR (inf) BARRIER CLB OR (@OBJ))(NOT 0C Intr&YV)(NONE c (@OBJ)); 
+SETPARENT (@OBJ) (NONE c (@J crd))(1 (tr)) TO (2 (V) OR NudTud OR (<v>) OR (<tav>)); 
+SETPARENT (@OBJ) (NONE c (@J crd)) TO (1 (V) OR NudTud OR (<v>) OR (<tav>)); 
+SETPARENT (@OBJ) (0C (@OBJ)) TO (c* (@OBJ) LINK *1 (@FMV) BARRIER CLB OR (@OBJ))(NOT 0C Intr&YV)(NONE c (@OBJ)); 
+SETPARENT (@OBJ) (0C (@OBJ)) TO (c* (@OBJ) LINK *1 (@IMV) BARRIER CLB OR (@OBJ))(NOT 0C Intr&YV)(NONE c (@OBJ)); 
+
+SETCHILD:ytle Oeldis (0 Ütlema)(-1 Cqu)(-2 Kvm) TO (**-3 (ger) BARRIER Oqu LINK NONE p (*));
+SETCHILD:ytle Oeldis (0 Ütlema)(-1 Cqu)(-2 Kvm) TO (**-3 Oeldis BARRIER Oqu LINK NONE p (*)); 
+SETCHILD:ytle0 Oeldis (0 Ütlema)(-1 Cqu)(-2 Kvm) TO (**-3 Oeldis + (<0>) BARRIER Oqu); 
+SETCHILD Oeldis (0 Ütlema)(NOT *-1 Oqu)(*1 Oqu LINK -1 Kvm) 
+	TO (*1 Oqu LINK *1 (@IMV) BARRIER Cqu);
+SETCHILD Oeldis (0 Ütlema)(NOT *-1 Oqu)(*1 Oqu LINK -1 Kvm) 
+	TO (*1 Oqu LINK *1 (@FMV) BARRIER Cqu OR (@IMV))(NOT *1 (@IMV));
+
+SETPARENT:z0 Oeldis (NONE p Oeldis)(NOT *-1 AlustavAlistav)(NOT *0 (@IMV) BARRIER CLB)
+	TO (*-1 CLBC BARRIER ("<}>") OR Cqu LINK **-1 (@IMV) OR (inf) BARRIER CLB LINK 0C (V));
+SETPARENT:z0 Oeldis (NONE p Oeldis)(NOT *-1 AlustavAlistav)(NOT *0 (@IMV) BARRIER CLB)
+	TO (*-1 CLBC BARRIER ("<}>") OR Cqu LINK NOT 0 (Cpr) LINK **-1 (@FMV) BARRIER CLB LINK 0C (V));
+
+SETPARENT:z1 Oeldis (NONE p Oeldis)(*-1 AlustavAlistav BARRIER CLB) 
+	TO (*1 CLB BARRIER ("<}>") OR Cqu LINK *1 (@FMV) BARRIER CLB);
+SETPARENT:z2 Oeldis (NONE c (@J))(NONE p (@IMV))(*-1 AlustavAlistav BARRIER CLB) 
+	TO (*1 CLB BARRIER ("<}>") OR Cqu LINK *1 (@IMV) BARRIER CLB);
+
+SETPARENT:z2x Oeldis (NONE c (@J crd))(NONE p (@IMV))(*-1 AlustavAlistav BARRIER CLB) 
+	TO (c Oeldis LINK c (crd) LINK *1 CLB BARRIER ("<}>") OR Cqu LINK *1 (@IMV) BARRIER CLB);
+
+SETPARENT:z3 Oeldis (NONE p Oeldis)(*-1 AlustavAlistav BARRIER CLB LINK -1 AlustavAlistav OR ("nii") LINK -1 >>> OR CLB) 
+	TO (*1 CLB BARRIER ("<}>") LINK *1 (@FMV) BARRIER CLB);
+SETPARENT:z4 Oeldis (NONE p (@IMV))(*-1 AlustavAlistav BARRIER CLB LINK -1 AlustavAlistav OR ("nii") LINK -1 >>> OR CLB) 
+	TO (*1 CLB BARRIER ("<}>") LINK *1 (@IMV) BARRIER CLB);
+
+SETPARENT:z5 Oeldis (NONE c (@J crd))(NONE p Oeldis)(*-1 (J CLB) OR (J sub) OR OnCLB OR (Z CLB) BARRIER CLB OR Cqu) (NOT *-1 AlustavAlistav BARRIER CLB)
+	TO (*-1 CLB OR CLBC BARRIER ("<}>") OR Quo LINK NOT 0 (Cpr) LINK *-1 (@FMV) BARRIER ("<}>") OR Cqu); 
+SETPARENT:z6 Oeldis (NONE c (@J crd))(NONE p (@IMV))(*-1 (J CLB) OR (J sub) OR OnCLB OR (Z CLB) BARRIER CLB OR Cqu) (NOT *-1 AlustavAlistav BARRIER CLB)
+	TO (*-1 CLB OR CLBC BARRIER ("<}>") OR Quo LINK NOT 0 (Cpr) LINK *-1 (@IMV) BARRIER ("<}>") OR Cqu); 
+
+SETPARENT:z7 Oeldis (NONE p Oeldis)(*-1 (J) BARRIER CLB LINK -1 CLB) 
+	TO (*-1 CLB BARRIER ("<}>") OR Cqu LINK NOT 0 (Cpr) LINK *-1 (@FMV) BARRIER CLB); 
+SETPARENT:z8 Oeldis (NONE p (@IMV))(*-1 (J) BARRIER CLB LINK -1 CLB) 
+	TO (*-1 CLB BARRIER ("<}>") OR Cqu LINK NOT 0 (Cpr) LINK *-1 (@IMV) BARRIER CLB); 
+
+
+SETPARENT Oeldis OR (ger) (-1 CLBC)(NOT -1 (crd))(*-2 (J sub) OR OnCLB BARRIER CLB OR Cqu OR ("kui") OR ("kuigi") OR ("kuna")) 
+	TO (*-2 CLB LINK *-1 (@FMV) OR (@IMV) OR DaInf OR MaInf);
+
+LIST SeeM = "see" "miski";
+SETPARENT Oeldis (NOT *1 (@IMV) BARRIER CLB)(NOT *-1 (@IMV) BARRIER CLB)
+	(*-1 KesMis BARRIER CLB LINK -1 CLB) TO (*-1 CLB LINK -1 SPA);
+SETPARENT Oeldis (NOT *1 (@IMV) BARRIER CLB)(NOT *-1 (@IMV) BARRIER CLB)
+	(*-1 KesMis BARRIER CLB LINK -1 CLB) TO (*-1 CLB LINK -1 ("<{>") LINK -1 SPA);
+SETPARENT Oeldis (NOT *1 (@IMV) BARRIER CLB)(NOT *-1 (@IMV) BARRIER CLB)
+	(*-1 ("et") BARRIER CLB LINK -1 CLB) TO (*-1 CLB LINK -1 SeeM);
+SETPARENT Oeldis (NOT *1 (@IMV) BARRIER CLB)(NOT *-1 (@IMV) BARRIER CLB)
+	(*-1 ("et") BARRIER CLB LINK -1 CLB) TO (*-1 CLB LINK -1 ("<{>") LINK -1 SeeM);
+SETPARENT Oeldis (NOT *1 (@IMV) BARRIER CLB)(NOT *-1 (@IMV) BARRIER CLB)
+	(*-1 ("et") BARRIER CLB LINK -1 CLB) TO (*-1 CLB LINK -2 SeeM);
+SETPARENT Oeldis (NOT *1 (@IMV) BARRIER CLB)(NOT *-1 (@IMV) BARRIER CLB)
+	(*-1 ("et") BARRIER CLB LINK -1 CLB) TO (*-1 CLB LINK -1 ("<{>") LINK -2 SeeM);
+
+SETPARENT (@IMV) (-1 (J) OR Koma) TO (*-1 (@IMV) BARRIER CLB);
+SETPARENT (@FMV) (p (@FMV) OR (<0>)) TO (*0 (@IMV) BARRIER CLB);
+SETPARENT (@J) (0 CLBC)(NONE p (*)) TO (*1 (@FMV) BARRIER CLB);
+SETPARENT (@J) (0 CLBC)(p (@FMV)) TO (*1 (@IMV) BARRIER CLB);
+SETPARENT (@J) (-1 CLBC)(NONE p (*)) TO (*1 (@FMV) BARRIER CLB);
+SETPARENT (@J) (-1 CLBC)(p (@FMV)) TO (*1 (@IMV) BARRIER CLB);
+
+SETPARENT (@FCV) TO (*0 (@ICV) BARRIER CLB); 
+SETPARENT (@ICV) TO (*0 (@IMV) BARRIER CLB);
+
+SETPARENT (sup ps abes) OR (<mata>) TO (*0 (@FMV) BARRIER CLB);
+SETPARENT (sup ps abes) OR (<mata>) TO (*0C (@IMV) BARRIER CLB);
+SETPARENT (sup ps abes) OR (<mata>) TO (*0 ("jät") BARRIER CLB);
+SETPARENT (sup ps abes) OR (<mata> @AN>) TO (1 (S));
+SETPARENT (sup ps abes) OR (<mata> @AN>) (1 (A)) TO (2 (S));
+SETPARENT (sup ps abes) OR (<mata> @AN>) (-1 (crd) OR Koma) TO (-2 (abes));
+SETPARENT (J crd) (-1 (sup ps abes) OR (<mata> @AN>)) TO (1 (sup ps abes) OR (<mata> @AN>));
+SETPARENT ("<hoolimata>") TO (*0 ("otsus") OR ("otsusta") BARRIER CLB);
+
+SUBSTITUTE (@IMV) (@ADVL) (sup ill @IMV) (*0 ("ole") BARRIER CLB)(*0 Nous BARRIER CLB);
+SETPARENT (V inf) TO (*0 Vaja BARRIER CLB);
+SETPARENT (V sup ill @ADVL) TO (*0 Nous BARRIER CLB);
+
+SETPARENT (@OBJ) (NONE p (*)) TO (1 Verb OR NudTud OR (<v>) OR (<tav>)); 
+SETPARENT (@OBJ) (NONE p (*)) (1 (A tr)) TO (2 Verb OR NudTud OR (<v>) OR (<tav>)); 
+
+SUBSTITUTE (@AN>) (@<AN) (<-> @AN>) (2 (@<AN));
+SUBSTITUTE (@AN>) (@ADVL) (<-> @AN>) (2 (@ADVL));
+SUBSTITUTE (@ADVL) (@AN>) (<-> @ADVL) (2 (@AN>));
+SUBSTITUTE (@ADVL) (@SUBJ) (<-> @ADVL) (2 (@SUBJ));
+SUBSTITUTE (@ADVL) (@NN>) (<-> @ADVL) (2 (@NN>));
+SUBSTITUTE (@NN>) (@<Q) (<-> @NN>) (2 (@<Q));
+SETPARENT (@J crd) (-1 (<->)) TO (1 SPAN); 
+SETPARENT SPAN (1 (J) OR Kvm) TO (-2 (<->)); 
+
+
+
+
+SETPARENT (@SUBJ) (NONE p (*))(NOT *1 Oeldis BARRIER CLB)(NOT *-1 Oeldis BARRIER CLB) TO (*-1 CLB LINK *-1 (@IMV)); 
+SETPARENT (@SUBJ) (NONE p (*))(NOT *1 Oeldis BARRIER CLB)(NOT *-1 Oeldis BARRIER CLB) TO (*-1 CLB LINK *-1 (@FMV)); 
+
+
+SETPARENT Oeldis (NONE p (*)) TO (*-1 (sub) OR ("<{>") OR AlustavAlistav BARRIER ("<}>") LINK *-1 Oeldis OR (<0>)); 
+SETPARENT Oeldis (NONE p (*)) (*-1 (sub) OR ("<{>") OR AlustavAlistav BARRIER ("<}>") LINK NOT *-1 Oeldis OR (<0>))
+	TO (*1 ("<}>") BARRIER ("<{>") LINK *1 (@FMV) BARRIER CLB); 
+SETPARENT Oeldis (NONE p (*)) (*-1 (sub) OR ("<{>") OR AlustavAlistav BARRIER ("<}>") LINK NOT *-1 Oeldis OR (<0>))
+	TO (*1 ("<}>") BARRIER ("<{>") LINK *1 (@IMV) BARRIER CLB); 
+
+SETPARENT Oeldis (NONE p (*)) TO (*-1 CLB LINK *-1 (<0>)); 
+
+SETPARENT (ger) (NONE p (*)) TO (*-1 Oeldis); 
+SETPARENT (ger) (NONE p (*)) TO (*1 Oeldis); 
+SETPARENT (ger) (-1 (crd) OR Koma) TO (*-2 (ger) BARRIER CLB); 
+SETPARENT (crd) (*-1 (ger) BARRIER CLB) TO (1 (ger)); 
+
+SETPARENT Oeldis (NONE p (*))(*-1 (Opr))(*1 (Cpr)) TO (*0 (@FMV)); 
+SETPARENT Oeldis (NONE p (*))(*-1 (Opr))(*1 (Cpr)) TO (*0 (@IMV)); 
+
+SUBSTITUTE (@ADVL) (@ADVL <0>) (ger) (NONE p Oeldis OR (<0>))(NOT *1 Oeldis)(NOT *-1 Oeldis); 
+SETPARENT (ger <0>) (NONE p (*)) TO (@0 (*)); 
+
+SUBSTITUTE (@IMV) (@IMV <0>) (@IMV) (NONE p (*)); 
+SUBSTITUTE (@FMV) (@FMV <0>) (@FMV) (NONE p Oeldis OR (<0>)); 
+SETPARENT Oeldis (NONE p (*)) TO (@0 (*)); 
+SETPARENT Oeldis (-1 Cqu)(-2 Koma)(NOT *1 (@IMV) BARRIER CLB) TO (@0 (*)); 
+
+
+SUBSTITUTE (S) (S <0>) (S) IF (NONE p (*))(-1 (>>>))(1C CLB); 
+SUBSTITUTE (A) (A <0>) (A) IF (NONE p (*))(-1 (>>>))(1C CLB); 
+SUBSTITUTE (V main partic past ps) (V main partic past ps <0>) (V main partic past ps) IF (NOT 2 (nom))(NONE p (*))(NOT *1 ("<{>"))
+	(NOT *1 (@FMV) OR (@IMV) OR (@FCV) OR ( @ICV) BARRIER CLB) 
+	(NOT *-1 (@FMV) OR (@IMV) OR (@FCV) OR ( @ICV)); 
+SUBSTITUTE (@SUBJ) (@SUBJ <0>) (@SUBJ) IF (NONE p (*)); 
+SUBSTITUTE (@OBJ) (@OBJ <0>) (@OBJ) IF (NOT *1 ("<{>"))(NOT *1 (@FMV) OR (@IMV) OR (@FCV) OR ( @ICV) OR (@SUBJ) BARRIER (sub)) 
+	(NOT *-1 (@FMV) OR (@IMV) OR (@FCV) OR ( @ICV) OR (@SUBJ)); 
+SUBSTITUTE (@ADVL) (@ADVL <0>) (@ADVL) IF (NOT 0 ("ka") OR ("siis"))(NOT *1 ("<{>")) (NOT *1 (@FMV) OR (@IMV) OR (@FCV) OR ( @ICV) OR (@SUBJ) OR (@OBJ) OR (<0>) BARRIER (sub)) 
+	(NOT *-1 (@FMV) OR (@IMV) OR (@FCV) OR ( @ICV) OR (@SUBJ) OR (@OBJ) OR (<0>)); 
+SUBSTITUTE (V) (V <0>) (@ADVL) IF (NOT *1 ("<{>"))(NOT *1 (@FMV) OR (@IMV) OR (@FCV) OR ( @ICV) OR (@SUBJ) BARRIER (sub)) 
+	(NOT *-1 (@FMV) OR (@IMV) OR (@FCV) OR ( @ICV) OR (@SUBJ)); 
+
+SETPARENT (S <0>) (NONE p (*))(-1 (>>>))(1C CLB) TO (@0 (*)); 
+SETPARENT (A <0>) (NONE p (*))(-1 (>>>))(1C CLB) TO (@0 (*)); 
+SETPARENT (V main partic past ps) (NOT 2 (nom))(NONE p (*)) (NOT *1 ("<{>"))(NOT *1 (@FMV) OR (@IMV) OR (@FCV) OR ( @ICV) BARRIER CLB) 
+	(NOT *-1 (@FMV) OR (@IMV) OR (@FCV) OR ( @ICV)) TO (@0 (*)); 
+SETPARENT (@SUBJ) (NONE p (*)) TO (@0 (*)); 
+SETPARENT (@OBJ) (NOT *1 ("<{>"))(NOT *1 (@FMV) OR (@IMV) OR (@FCV) OR ( @ICV) OR (@SUBJ) BARRIER (sub)) 
+	(NOT *-1 (@FMV) OR (@IMV) OR (@FCV) OR ( @ICV) OR (@SUBJ)) TO (@0 (*)); 
+SETPARENT (@ADVL) (NOT 0 ("ka") OR ("siis")) (NOT *1 ("<{>"))(NOT *1 (@FMV) OR (@IMV) OR (@FCV) OR ( @ICV) OR (@SUBJ) OR (@OBJ) OR (<0>) BARRIER (sub)) 
+	(NOT *-1 (@FMV) OR (@IMV) OR (@FCV) OR ( @ICV) OR (@SUBJ) OR (@OBJ) OR (<0>)) TO (@0 (*)); 
+SETPARENT (V) (NOT *1 ("<{>"))(NOT *1 (@FMV) OR (@IMV) OR (@FCV) OR ( @ICV) OR (@SUBJ) BARRIER (sub)) 
+	(NOT *-1 (@FMV) OR (@IMV) OR (@FCV) OR ( @ICV) OR (@SUBJ)) TO (@0 (*)); 
+
+
+LIST ID = "jah" ("ei" D) "muidugi";
+SETPARENT (@ADVL) OR ID (NONE p (*)) TO (*0 (@IMV) BARRIER CLB); 
+SETPARENT (@ADVL) OR ID (NONE p (*)) TO (*0 (@FMV) BARRIER CLB); 
+SETPARENT (@ADVL) OR ID (NONE p (*)) TO (*0 (<0>) BARRIER CLB); 
+
+SETPARENT (@NONE) (NOT 0 Kvm) TO (1 (@NONE)); 
+SETPARENT (@NONE) (NOT 0 Kvm) (1 Kvm) TO (2 (@NONE)); 
+SETPARENT (@NONE) (NOT 0 Kvm) (1 Kvm)(2 Kvm) TO (3 (@NONE)); 
+SETPARENT (@NONE) (NOT 0 Kvm) (1 (Cpr)) TO (*-1 (Opr) BARRIER (Cpr) LINK -1 (*)); 
+SETPARENT (@NONE) (NOT 0 Kvm) (1 (Cpr)) TO (*-1 (Opr) BARRIER (Cpr) LINK -1 Kvm LINK -1 (*)); 
+
+
+
+SETPARENT (@Vpart "alla" D) TO (*0 (<alla>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "alt" D) TO (*0 (<alt>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "edasi" D) TO (*0 (<edasi>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "eemale" D) TO (*0 (<eemale>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "esile" D) TO (*0 (<esile>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "ette" D) TO (*0 (<ette>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "ilma" D) TO (*0 (<ilma>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "juurde" D) TO (*0 (<juurde>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "järel" D) TO (*0 (<järel>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "järele" D) TO (*0 (<järele>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "kaasa" D) TO (*0 (<kaasa>) BARRIER CLB); 
+
+SETPARENT (@Vpart "kaasas" D) TO (*0 (<kaasas>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "kallale" D) TO (*0 (<kallale>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "kinni" D) TO (*0 (<kinni>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "kokku" D) TO (*0 (<kokku>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "koos" D) TO (*0 (<koos>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "kõrvale" D) TO (*0 (<kõrvale>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "kõrvalt" D) TO (*0 (<kõrvalt>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "kätte" D) TO (*0 (<kätte>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "külge" D) TO (*0 (<külge>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "lahku" D) TO (*0 (<lahku>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "lahti" D) TO (*0 (<lahti>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "laiali" D) TO (*0 (<laiali>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "ligi" D) TO (*0 (<ligi>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "läbi" D) TO (*0 (<läbi>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "maha" D) TO (*0 (<maha>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "mööda" D) TO (*0 (<mööda>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "otsa" D) TO (*0 (<otsa>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "peal" D) TO (*0 (<peal>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "peale" D) TO (*0 (<peale>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "pealt" D) TO (*0 (<pealt>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "pihta" D) TO (*0 (<pihta>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "pärale" D) TO (*0 (<pärale>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "püsti" D) TO (*0 (<püsti>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "ringi" D) TO (*0 (<ringi>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "sekka" D) TO (*0 (<sekka>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "sisse" D) TO (*0 (<sisse>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "taga" D) TO (*0 (<taga>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "tagant" D) TO (*0 (<tagant>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "tagasi" D) TO (*0 (<tagasi>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "taha" D) TO (*0 (<taha>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "takka" D) TO (*0 (<takka>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "tasa" D) TO (*0 (<tasa>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "täis" D) TO (*0 (<täis>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "vahele" D) TO (*0 (<vahele>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "vahelt" D) TO (*0 (<vahelt>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "valla" D) TO (*0 (<valla>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "valmis" D) TO (*0 (<valmis>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "vastu" D) TO (*0 (<vastu>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "välja" D) TO (*0 (<välja>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "ühes" D) TO (*0 (<ühes>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "ühte" D) TO (*0 (<ühte>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "ülal" D) TO (*0 (<ülal>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "üle" D) TO (*0 (<üle>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "üles" D) TO (*0 (<üles>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "üleval" D) TO (*0 (<üleval>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "ümber" D) TO (*0 (<ümber>) BARRIER CLBC); 
+
+
+SETPARENT (@Vpart "ära") TO (*0 (<ära>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "tulema") TO (*0 (<tulema>) BARRIER CLBC); 
+
+SETPARENT (@Vpart "minema") TO (*0 (<minema>) BARRIER CLBC);
+
+SETPARENT (@Vpart) (NONE p (<PhVerb>)) TO (*0 (<PhVerb>) BARRIER CLBC)(NONE c (@Vpart));
+SETPARENT (@VpartN) (NONE p (<PhVerb>)) TO (*0 (<mine> <PhVerb>) BARRIER CLBC)(NONE c (@Vpart));
+
+SETPARENT (@Vpart D) TO (1 (inf)); 
+SETPARENT (@Vpart D) (1 ("ole") OR ("või" V) OR ("saa" V) OR ("pida" V) OR ("jõud" V)) TO (2 (inf)); 
+SETPARENT (@Vpart D) (c (S)) TO (-1 (<FinV>) OR (inf)); 
+SETPARENT (@Vpart D) (-1 (ger))(-2 (S)) TO (*-3 (@FMV) OR (<FinV>) OR (inf)); 
+ 
+LIST OlemaVerb = "ole"; 
+LIST OlemaAdverb = "alles" "ära" "kinni" "kohal" "käsil" "lahti" "nõus" "päri" "rahul" "tarvis" "vaja" "valmis" "võlgu" "üle" ;
+SETPARENT (@Vpart) (NONE p (<PhVerb>))(0 OlemaAdverb) TO (*0 OlemaVerb);
+
+
+SELECT (@OBJ part) (*-1 ("heit") LINK c ("ette"));
+SETPARENT (@OBJ) TO (*-1 ("heit") LINK c ("ette"));
+SELECT (@ADVL all) (*-1 ("heit") LINK c ("ette"));
+SETPARENT (@ADVL all) TO (*-1 ("heit") LINK c ("ette"));
+
+SETPARENT (@ADVL) (NONE c (@J))(1 (@Vpart))(NOT 2 Intr&YV) TO (2 (<PhVerb>));
+
+SETPARENT (S part) OR (S gen) (0 (@OBJ) OR (@NN>)) TO (1 (<mine>));
+SETPARENT (@ADVL) (1 CLB OR LLZ)(NONE p (V)) TO (*-1 (@IMV) BARRIER CLB OR (crd));
+SETPARENT (@ADVL) (1 CLB OR LLZ)(NONE p (V)) TO (*-1 (@FMV) BARRIER CLB OR (crd));
+
+SETPARENT (D @ADVL) (NONE p (*))(-1 (@FCV) OR (@FMV))(NONE p (V)) TO (*0 (@IMV) BARRIER CLB);
+SETPARENT (D @ADVL) (NONE p (*))(-1 (@FCV) OR (@FMV))(NONE p (V)) TO (*0 (@FMV) BARRIER CLB);
+
+SETPARENT (@ADVL) (NONE p (*)) TO (*-1 (V) OR (<mine>) BARRIER CLB);
+SETPARENT (@ADVL) (NONE p (*)) TO (*1 (V) OR (<mine>) BARRIER CLB);
+
+SETPARENT (@ADVL) (NONE p (*))(0C (@<NN)) TO (*-1 (@SUBJ) OR (@OBJ) OR (@ADVL) BARRIER CLB);
+
+SETPARENT ("<kõige>") TO (1 (A comp));
+SETPARENT ("<kõik>") TO (*1 (S pl nom));
+
+
+SETPARENT (@ADVL) OR (@OBJ) (NONE p (*))(1 (@ADVL) OR (@OBJ))(2 (@Vpart) OR (@VpartN)) TO (2 (D) LINK p (*));
+SETPARENT (@ADVL) OR (@OBJ) (NONE c (@J))(1 (@Vpart) OR (@VpartN)) TO (1 (D) LINK p (*));
+
+LIST Keel = "keel" "rahvus" "maa" "pärit_olu" "riik" "kodakondsus";
+SETPARENT (@J crd) (NONE p (*)) TO (1 (*));
+SETPARENT (S prop nom) (NONE p (*)) TO (-1 (S com nom));
+SETPARENT (G @AN>) (NONE p (*)) TO (*1 Keel BARRIER CLBC OR (V));
+SETPARENT (nom @AN>) (NONE p (*)) TO (*1 (A nom) BARRIER CLBC OR (V) OR (K))(NOT 1 (nom) OR (gen));
+SETPARENT (@AN>) (NONE p (*)) TO (*1 (S com) BARRIER CLBC OR (V) OR (K) LINK NOT 0 (@NN>));
+
+END

@@ -3,7 +3,9 @@
 #   Preprocessing methods for VISL-CG3 based syntactic analysis of Estonian;
 #
 #   Contains Python reimplementation for the pre-processing pipeline introduced
-#   in  https://github.com/EstSyntax/EstCG 
+#   in  https://github.com/EstSyntax/EstCG  
+#   ( from the EstCG snapshot: 
+#   https://github.com/EstSyntax/EstCG/tree/467f0746ae870169776b0ed7aef8825730fea671 )
 #   
 #   The pipeline:
 #   1) convert_vm_json_to_mrf( )
