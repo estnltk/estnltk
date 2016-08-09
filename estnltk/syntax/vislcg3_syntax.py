@@ -394,10 +394,20 @@ def convert_cg3_to_conll( lines, **kwargs ):
             be made dependents of the following token;
             Default:True
         
+        unesc_quotes : bool
+            Optional argument specifying  whether double quotes should be unescaped
+            in the output, i.e.  converted from '\"' to '"';
+            Default:True
+        
+        rep_spaces : bool
+            Optional argument specifying  whether spaces in a multiword token (e.g. 
+            'Rio de Janeiro') should be replaced with underscores ('Rio_de_Janeiro');
+            Default:False
+            
         error_on_unexp : bool
             Optional argument specifying  whether an exception should be raised in 
-            case of unexpected analysis line; if not, only prints warnings in case of 
-            such lines;
+            case of missing or unexpected analysis line; if not, only prints warnings 
+            in case of such lines;
             Default:False
 
         Example input
@@ -429,6 +439,8 @@ def convert_cg3_to_conll( lines, **kwargs ):
     '''
     fix_selfrefs   = True
     fix_open_punct = True
+    unesc_quotes   = True
+    rep_spaces     = False
     error_on_unexp = False
     for argName, argVal in kwargs.items() :
         if argName in ['selfrefs', 'fix_selfrefs'] and argVal in [True, False]:
@@ -437,6 +449,10 @@ def convert_cg3_to_conll( lines, **kwargs ):
            fix_open_punct = argVal
         if argName in ['error_on_unexp'] and argVal in [True, False]:
            error_on_unexp = argVal
+        if argName in ['unesc_quotes'] and argVal in [True, False]:
+           unesc_quotes = argVal
+        if argName in ['rep_spaces'] and argVal in [True, False]:
+           rep_spaces = argVal
     pat_empty_line    = re.compile('^\s+$')
     pat_token_line    = re.compile('^"<(.+)>"$')
     pat_analysis_line = re.compile('^\s+"(.+)"\s([^"]+)$')
@@ -456,10 +472,20 @@ def convert_cg3_to_conll( lines, **kwargs ):
             # ******  TOKEN
             if len(line)>0 and not (line.startswith('"<s>"') or \
                line.startswith('"</s>"')) and not pat_empty_line.match(line):
+               # Convert double quotes back to normal form (if requested)
+               if unesc_quotes:
+                  line = line.replace( '\\"\\"\\"', '"""' )
+                  line = line.replace( '\\"\\"',    '""' )
+                  line = line.replace( '\\"',       '"' )
                # Broken stuff: if previous word was without analysis
                if analyses_added == 0 and word_id > 1:
-                  print('(!) Analysis missing at line '+str(i)+': '+\
-                        '\n'+lines[i-1], file=sys.stderr)
+                  # Missing analysis line
+                  if error_on_unexp:
+                      raise Exception('(!) Analysis missing at line '+str(i)+': '+\
+                                      '\n'+lines[i-1])
+                  else:
+                      print('(!) Analysis missing at line '+str(i)+': '+\
+                            '\n'+lines[i-1], file=sys.stderr)
                   # Add an empty analysis
                   conll_lines[-1] += '\t_'
                   conll_lines[-1] += '\tX'
@@ -475,9 +501,9 @@ def convert_cg3_to_conll( lines, **kwargs ):
                   word = token_match.group(1)
                else:
                   raise Exception('(!) Unexpected token format: ', line)
-               # Replace spaces in the token with '_' marks
-               if re.search('\s', word):
-                    word = re.sub('\s+', '_', word)
+               if rep_spaces and re.search('\s', word):
+                  # Replace spaces in the token with '_' symbols
+                  word = re.sub('\s+', '_', word)
                conll_lines.append( str(word_id) + '\t' + word )
                analyses_added = 0
                word_id += 1
@@ -501,6 +527,11 @@ def convert_cg3_to_conll( lines, **kwargs ):
                     else:
                         new_line.append(line[j])
                 line = ''.join( new_line )
+            # Convert double quotes back to normal form (if requested)
+            if unesc_quotes:
+                line = line.replace( '\\"\\"\\"', '"""' )
+                line = line.replace( '\\"\\"',    '""' )
+                line = line.replace( '\\"',       '"' )
             analysis_match = pat_analysis_line.match( line )
             # Analysis line; in case of multiple analyses, pick the first one;
             if analysis_match and analyses_added==0:
