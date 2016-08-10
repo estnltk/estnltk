@@ -288,6 +288,7 @@ class VISLCG3Pipeline:
 
 # ==================================================================================
 #   Post-processing/clean-up steps for VISLCG3 based syntactic analysis
+#   ( former 'inforemover.pl' )
 # ==================================================================================
 
 
@@ -298,21 +299,26 @@ def cleanup_lines( lines, **kwargs ):
         -- Removes additional information between < and > from analysis;
         -- Removes additional information between " and " from analysis;
         -- If remove_caps==True , removes 'cap' annotations from analysis;
-        -- If esc_double_quotes==True , " will be overwritten with \\";
         -- If remove_clo==True , removes CLO CLC CLB markings from analysis;
+        -- If double_quotes=='esc'   then "   will be overwritten with \\";
+           and 
+           if double_quotes=='unesc' then \\" will be overwritten with ";
         
         Returns the input list, which has been cleaned from additional information;
     '''
-    remove_caps       = False
-    esc_double_quotes = False
-    remove_clo        = False
+    remove_caps   = False
+    remove_clo    = False
+    double_quotes = None
     for argName, argVal in kwargs.items() :
         if argName in ['remove_caps', 'remove_cap'] and argVal in [True, False]:
            remove_caps = argVal
-        if argName in ['esc_double_quotes', 'esc_quotes'] and argVal in [True, False]:
-           esc_double_quotes = argVal
         if argName == 'remove_clo' and argVal in [True, False]:
            remove_clo = argVal
+        if argName in ['double_quotes', 'quotes'] and argVal and \
+           argVal.lower() in ['esc', 'escape', 'unesc', 'unescape']:
+           double_quotes = argVal.lower()
+    pat_token_line     = re.compile('^"<(.+)>"\s*$')
+    pat_analysis_start = re.compile('^(\s+)"(.+)"(\s[LZT].*)$')
     i = 0
     to_delete = []
     while ( i < len(lines) ):
@@ -338,11 +344,18 @@ def cleanup_lines( lines, **kwargs ):
                  else:
                     break
               continue
-           #  Escape double quotes
-           if esc_double_quotes:
-              lines[i] = lines[i].replace('"<">"', '"<\\">"')
-              lines[i] = lines[i].replace('"<"">"', '"<\\"\\">"')
-              lines[i] = lines[i].replace('"<""">"', '"<\\"\\"\\">"')
+           #  2) Convert double quotes (if required)
+           if double_quotes:
+              #  '^"<(.+)>"\s*$'
+              if pat_token_line.match( lines[i] ):
+                 token_cleaned = (pat_token_line.match(lines[i])).group(1)
+                 # Escape or unescape double quotes
+                 if double_quotes in ['esc', 'escape']:
+                    token_cleaned = token_cleaned.replace('"', '\\"')
+                    lines[i] = '"<'+token_cleaned+'>"'
+                 elif double_quotes in ['unesc', 'unescape']:
+                    token_cleaned = token_cleaned.replace('\\"', '"')
+                    lines[i] = '"<'+token_cleaned+'>"'
         else:
            #  Normalize analysis line
            lines[i] = re.sub('^\s{4,}', '\t', lines[i])
@@ -353,14 +366,18 @@ def cleanup_lines( lines, **kwargs ):
            #  Remove 'cap' tags
            if remove_caps:
               lines[i] = lines[i].replace(' cap ', ' ')
-           #  Escape double quotes
-           if esc_double_quotes and '"' in lines[i]:
-              lines[i] = lines[i].replace('\t""" Z',   '\t"\\"" Z')
-              lines[i] = lines[i].replace('\t"""" Z',  '\t"\\"\\"" Z')
-              lines[i] = lines[i].replace('\t""""" Z', '\t"\\"\\"\\"" Z')
-              lines[i] = lines[i].replace(' """ Z',   ' "\\"" Z')
-              lines[i] = lines[i].replace(' """" Z',  ' "\\"\\"" Z')
-              lines[i] = lines[i].replace(' """"" Z', ' "\\"\\"\\"" Z')
+           #  Convert double quotes (if required)
+           if double_quotes and double_quotes in ['unesc', 'unescape']:
+              lines[i] = lines[i].replace('\\"', '"')
+           elif double_quotes and double_quotes in ['esc', 'escape']:
+              m = pat_analysis_start.match( lines[i] )
+              if m:
+                 # '^(\s+)"(.+)"(\s[LZT].*)$'
+                 start   = m.group(1)
+                 content = m.group(2)
+                 end     = m.group(3)
+                 content = content.replace('"', '\\"')
+                 lines[i] = ''.join([start, '"', content, '"', end])
            #  Remove CLO CLC CLB markings
            if remove_clo and 'CL' in lines[i]:
               lines[i] = re.sub('\sCL[OCB]', ' ', lines[i])
@@ -433,7 +450,7 @@ def convert_cg3_to_conll( lines, **kwargs ):
         2       oli     ole     V       V       main|indic|impf|ps3|sg|ps|af    0       @FMV    _       _
         3       täiesti täiesti D       D       _       4       @ADVL   _       _
         4       tuuletu tuuletu A       A       pos|sg|nom      2       @PRD    _       _
-        5       .       .       Z       Z       Fst|CLB 4               _       _
+        5       .       .       Z       Z       Fst|CLB 4       xxx     _       _
 
 
     '''
@@ -474,9 +491,7 @@ def convert_cg3_to_conll( lines, **kwargs ):
                line.startswith('"</s>"')) and not pat_empty_line.match(line):
                # Convert double quotes back to normal form (if requested)
                if unesc_quotes:
-                  line = line.replace( '\\"\\"\\"', '"""' )
-                  line = line.replace( '\\"\\"',    '""' )
-                  line = line.replace( '\\"',       '"' )
+                  line = line.replace( '\\"', '"' )
                # Broken stuff: if previous word was without analysis
                if analyses_added == 0 and word_id > 1:
                   # Missing analysis line
@@ -529,9 +544,7 @@ def convert_cg3_to_conll( lines, **kwargs ):
                 line = ''.join( new_line )
             # Convert double quotes back to normal form (if requested)
             if unesc_quotes:
-                line = line.replace( '\\"\\"\\"', '"""' )
-                line = line.replace( '\\"\\"',    '""' )
-                line = line.replace( '\\"',       '"' )
+                line = line.replace( '\\"', '"' )
             analysis_match = pat_analysis_line.match( line )
             # Analysis line; in case of multiple analyses, pick the first one;
             if analysis_match and analyses_added==0:
