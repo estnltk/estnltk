@@ -381,7 +381,7 @@ def align_CONLL_with_Text( lines, text, **kwargs ):
            word_ID     - index of the word in the sentence, starting from 0;
 
         Returns a list of lists, having the following structure:
-           [ general_WID, sentence_ID, word_ID, token_string, list_of_conll_analysis_lines ]
+           [ general_WID, sentence_ID, word_ID, list_of_conll_analysis_lines ]
 
         Parameters
         -----------

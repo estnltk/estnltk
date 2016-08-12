@@ -403,7 +403,7 @@ def align_cg3_with_Text( lines, text, **kwargs ):
            word_ID     - index of the word in the sentence, starting from 0;
 
         Returns a list of lists, having the following structure:
-           [ general_WID, sentence_ID, word_ID, token_string, list_of_vislcg3_analyses ]
+           [ general_WID, sentence_ID, word_ID, list_of_vislcg3_analyses ]
 
         Parameters
         -----------
@@ -423,13 +423,13 @@ def align_cg3_with_Text( lines, text, **kwargs ):
 
         Example output (for text 'Jah . Öö oli täiesti tuuletu .'):
         -----------------------------------------------------------
-        [0, 0, 0, 'Jah', ['\t"jah" L0 D @ADVL #1->0']]
-        [1, 0, 1, '.', ['\t"." Z Fst CLB #2->2']]
-        [2, 1, 0, 'Öö', ['\t"öö" L0 S com sg nom @SUBJ #1->2']]
-        [3, 1, 1, 'oli', ['\t"ole" Li V main indic impf ps3 sg ps af @FMV #2->0']]
-        [4, 1, 2, 'täiesti', ['\t"täiesti" L0 D @ADVL #3->4']]
-        [5, 1, 3, 'tuuletu', ['\t"tuuletu" L0 A pos sg nom @PRD #4->2']]
-        [6, 1, 4, '.', ['\t"." Z Fst CLB #5->5']]
+        [0, 0, 0, ['\t"jah" L0 D @ADVL #1->0']]
+        [1, 0, 1, ['\t"." Z Fst CLB #2->2']]
+        [2, 1, 0, ['\t"öö" L0 S com sg nom @SUBJ #1->2']]
+        [3, 1, 1, ['\t"ole" Li V main indic impf ps3 sg ps af @FMV #2->0']]
+        [4, 1, 2, ['\t"täiesti" L0 D @ADVL #3->4']]
+        [5, 1, 3, ['\t"tuuletu" L0 A pos sg nom @PRD #4->2']]
+        [6, 1, 4, ['\t"." Z Fst CLB #5->5']]
 
     '''
     if not isinstance( text, Text ):
@@ -483,7 +483,7 @@ def align_cg3_with_Text( lines, text, **kwargs ):
                 if check_tokens and wordStr != cg3word: 
                     raise Exception('(!) Unable to align EstNLTK\'s token nr ',generalWID,\
                                     ':',wordStr,' vs ',cg3word)
-                results.append([generalWID, sentenceID, sentWID, cg3word, cg3analyses])
+                results.append([generalWID, sentenceID, sentWID, cg3analyses])
             else:
                 if j >= len(lines):
                     print('(!) End of VISLCG3 analysis reached: '+str(j)+' '+str(len(lines)),\
