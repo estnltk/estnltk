@@ -369,6 +369,65 @@ def augmentTextWithCONLLstr( conll_str_array, text ):
         j += 1
 
 
+def align_CONLL_with_Text( lines, text, **kwargs ):
+    ''' Aligns CONLL format syntactic analysis (a list of strings) with given EstNLTK's Text 
+        object.
+        Basically, for each word position in the Text object, finds corresponding line(s) in
+        the CONLL format output;
+
+        A word position is given as a triple:
+           general_WID - word index in the whole Text, starting from 0;
+           sentence_ID - index of the sentence in Text, starting from 0;
+           word_ID     - index of the word in the sentence, starting from 0;
+
+        Returns a list of lists, having the following structure:
+           [ general_WID, sentence_ID, word_ID, token_string, list_of_conll_analysis_lines ]
+
+        Parameters
+        -----------
+        lines : list of str
+            The input text for the pipeline; Should be the CONLL format syntactic analysis;
+
+        text : Text
+            EstNLTK Text object containing the original text that was analysed with
+            MaltParser;
+
+        check_tokens : bool
+            Optional argument specifying whether tokens should be checked for match 
+            during the alignment. In case of a mismatch, an exception is raised.
+            Default:False
+    
+    ''' 
+    if not isinstance( text, Text ):
+        raise Exception('(!) Unexpected type of input argument! Expected EstNLTK\'s Text. ')
+    if not isinstance( lines, list ):
+        raise Exception('(!) Unexpected type of input argument! Expected a list of strings.')
+    check_tokens = False
+    for argName, argVal in kwargs.items() :
+        if argName in ['check_tokens', 'check'] and argVal in [True, False]:
+           check_tokens = argVal
+    generalWID = 0
+    sentenceID = 0
+    # Iterate over the sentences and perform the alignment
+    results = []
+    j = 0
+    for sentence in text.divide( layer=WORDS, by=SENTENCES ):
+        for i in range(len(sentence)):
+            estnltkToken    = sentence[i]
+            maltparserToken = lines[j]
+            if len( maltparserToken ) > 1:
+                maltParserAnalysis = maltparserToken.split('\t')
+                if check_tokens and estnltkToken[TEXT] != maltParserAnalysis[1]:
+                    raise Exception("(!) A misalignment between Text and CONLL: ",\
+                                    estnltkToken, maltparserToken )
+                results.append( [generalWID, sentenceID, i, [maltparserToken] ] )
+            j += 1
+            generalWID += 1
+        sentenceID += 1
+        j += 1
+    return results
+
+
 # =============================================================================
 # =============================================================================
 #   The Main Class
