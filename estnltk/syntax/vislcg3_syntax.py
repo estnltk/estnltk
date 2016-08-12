@@ -52,8 +52,8 @@
 
 from __future__ import unicode_literals, print_function
 
-#from estnltk.names import *
-#from estnltk.text import Text
+from estnltk.names import *
+from estnltk.text import Text
 from estnltk.core import as_unicode
 
 from syntax_preprocessing import SyntaxPreprocessing
@@ -306,6 +306,8 @@ def cleanup_lines( lines, **kwargs ):
         
         Returns the input list, which has been cleaned from additional information;
     '''
+    if not isinstance( lines, list ):
+        raise Exception('(!) Unexpected type of input argument! Expected a list of strings.')
     remove_caps   = False
     remove_clo    = False
     double_quotes = None
@@ -387,6 +389,114 @@ def cleanup_lines( lines, **kwargs ):
 
 
 # ==================================================================================
+#   Align VISLCG3 output lines with words in EstNLTK Text
+# ==================================================================================
+
+def align_cg3_with_Text( lines, text, **kwargs ):
+    ''' Aligns VISLCG3's output (a list of strings) with given EstNLTK\'s Text object.
+        Basically, for each word position in the Text object, finds corresponding VISLCG3's
+        analyses;
+
+        A word position is given as a triple:
+           general_WID - word index in the whole Text, starting from 0;
+           sentence_ID - index of the sentence in Text, starting from 0;
+           word_ID     - index of the word in the sentence, starting from 0;
+
+        Returns a list of lists, having the following structure:
+           [ general_WID, sentence_ID, word_ID, token_string, list_of_vislcg3_analyses ]
+
+        Parameters
+        -----------
+        lines : list of str
+            The input text for the pipeline; Should be in same format as the output
+            of VISLCG3Pipeline;
+
+        text : Text
+            EstNLTK Text object containing the original text that was analysed via 
+            VISLCG3Pipeline;
+
+        check_tokens : bool
+            Optional argument specifying whether tokens should be checked for match 
+            during the alignment. In case of a mismatch, an exception is raised.
+            Default:False
+
+
+        Example output (for text 'Jah . Öö oli täiesti tuuletu .'):
+        -----------------------------------------------------------
+        [0, 0, 0, 'Jah', ['\t"jah" L0 D @ADVL #1->0']]
+        [1, 0, 1, '.', ['\t"." Z Fst CLB #2->2']]
+        [2, 1, 0, 'Öö', ['\t"öö" L0 S com sg nom @SUBJ #1->2']]
+        [3, 1, 1, 'oli', ['\t"ole" Li V main indic impf ps3 sg ps af @FMV #2->0']]
+        [4, 1, 2, 'täiesti', ['\t"täiesti" L0 D @ADVL #3->4']]
+        [5, 1, 3, 'tuuletu', ['\t"tuuletu" L0 A pos sg nom @PRD #4->2']]
+        [6, 1, 4, '.', ['\t"." Z Fst CLB #5->5']]
+
+    '''
+    if not isinstance( text, Text ):
+        raise Exception('(!) Unexpected type of input argument! Expected EstNLTK\'s Text. ')
+    if not isinstance( lines, list ):
+        raise Exception('(!) Unexpected type of input argument! Expected a list of strings.')
+    check_tokens = False
+    for argName, argVal in kwargs.items() :
+        if argName in ['check_tokens', 'check'] and argVal in [True, False]:
+           check_tokens = argVal
+    pat_empty_line     = re.compile('^\s+$')
+    pat_token_line     = re.compile('^"<(.+)>"$')
+    pat_analysis_start = re.compile('^(\s+)"(.+)"(\s[LZT].*)$')
+    pat_sent_bound     = re.compile('^("<s>"|"</s>"|<s>|</s>)\s*$')
+    generalWID  = 0
+    sentWID     = 0
+    sentenceID  = 0
+    j = 0
+    # Iterate over the sentences and perform the alignment
+    results = []
+    for sentence in text.divide( layer=WORDS, by=SENTENCES ):
+        sentWID = 0
+        for i in range(len(sentence)):
+            # 1) take the next word in Text
+            wordJson = sentence[i]
+            wordStr  = wordJson[TEXT]
+            cg3word     = None
+            cg3analyses = []
+            # 2) find next word in the VISLCG3's output
+            while (j < len(lines)):
+                # a) a sentence boundary: skip it entirely
+                if pat_sent_bound.match( lines[j] ) and j+1 < len(lines) and \
+                   (len(lines[j+1])==0 or pat_empty_line.match(lines[j+1])):
+                    j += 2
+                    continue
+                # b) a word token: collect the analyses
+                token_match = pat_token_line.match( lines[j].rstrip() )
+                if token_match:
+                    cg3word = token_match.group(1)
+                    j += 1
+                    while (j < len(lines)):
+                        if pat_analysis_start.match(lines[j]):
+                            cg3analyses.append(lines[j])
+                        else:
+                            break
+                        j += 1
+                    break
+                j += 1
+            # 3) Check whether two tokens match (if requested)
+            if cg3word:
+                if check_tokens and wordStr != cg3word: 
+                    raise Exception('(!) Unable to align EstNLTK\'s token nr ',generalWID,\
+                                    ':',wordStr,' vs ',cg3word)
+                results.append([generalWID, sentenceID, sentWID, cg3word, cg3analyses])
+            else:
+                if j >= len(lines):
+                    print('(!) End of VISLCG3 analysis reached: '+str(j)+' '+str(len(lines)),\
+                          file = sys.stderr)
+                raise Exception ('(!) Unable to find matching syntactic analysis ',\
+                                 'for EstNLTK\'s token nr ', generalWID, ':', wordStr)
+            sentWID    += 1
+            generalWID += 1
+        sentenceID += 1
+    return results
+
+
+# ==================================================================================
 #   Convert VISLCG format annotations to CONLL format
 # ==================================================================================
 
@@ -454,6 +564,8 @@ def convert_cg3_to_conll( lines, **kwargs ):
 
 
     '''
+    if not isinstance( lines, list ):
+        raise Exception('(!) Unexpected type of input argument! Expected a list of strings.')
     fix_selfrefs   = True
     fix_open_punct = True
     unesc_quotes   = True
@@ -589,5 +701,4 @@ def convert_cg3_to_conll( lines, **kwargs ):
                 analyses_added += 1
         i += 1
     return conll_lines
-
 
