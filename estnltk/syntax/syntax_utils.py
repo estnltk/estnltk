@@ -31,8 +31,8 @@ pat_cg3_dep_rel     = re.compile('#(\d+)\s*->\s*(\d+)')
 
 def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
     ''' Normalises dependency syntactic information in the given list of alignments.
-        *) Translates tree node indices from the syntax format (counting starting 
-           from 1), to EstNLTK format (counting starting from 0);
+        *) Translates tree node indices from the syntax format (indices starting 
+           from 1), to EstNLTK format (indices starting from 0);
         *) Removes redundant information (morphological analyses) and keeps only 
            syntactic information, in the most compact format;
         *) Brings MaltParser and VISLCG3 info into common format;
@@ -76,8 +76,9 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
             Optional argument specifying  whether  self-references  in  syntactic 
             dependencies should be fixed;
             A self-reference link is firstly re-oriented as a link to the previous word
-            in the sentence, and if the previous word does not exist, it is re-oriented 
-            as the next word in the sentence (regardless whether it exists or not);
+            in the sentence, and if the previous word does  not  exist,  the  link  is 
+            re-oriented as the next word in the sentence (regardless whether the next 
+            word exists or not);
             Default:True
         
         keep_old : bool
@@ -87,7 +88,7 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
                [ general_WID, sentence_ID, word_ID, new_analyses, old_analyses ]
             Default:False
         
-        mark_root
+        mark_root : bool
             Optional argument specifying whether the root node in the dependency tree 
             (the node pointing to -1) should be assigned the label 'ROOT' (regardless
             its current label).
@@ -98,7 +99,7 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
 
 
         (Example text: 'Millega pitsat tellida? Hea küsimus.')
-        Example input (VISLC3)
+        Example input (VISLC3):
         -----------------------
         [0, 0, 0, ['\t"mis" Lga P inter rel sg kom @NN> @ADVL #1->3\r']]
         [1, 0, 1, ['\t"pitsa" Lt S com sg part @OBJ #2->3\r']]
@@ -148,18 +149,19 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
     for i in range(len(alignments)):
         alignment = alignments[i]
         wordID = alignment[2]
-        firstInSent = (i == 0) or (i>0 and alignments[i-1][1]!=alignments[i][1]);
-        lastInSent  = (i==len(alignments)-1) or \
-                      (i<len(alignments)-1 and alignments[i+1][1]!=alignments[i][1])
+        #firstInSent = (i == 0) or (i>0 and alignments[i-1][1]!=alignments[i][1]);
+        #lastInSent  = (i==len(alignments)-1) or \
+        #              (i<len(alignments)-1 and alignments[i+1][1]!=alignments[i][1])
         # 1) Extract syntactic information
         foundRelations = []
         if type == 1:
             # *****************  VISLCG3 format
             for line in alignment[3]:
-                # Extract info from vislcg3 format analysis:
+                # Extract info from VISLCG3 format analysis:
                 sfuncs  = pat_cg3_surface_rel.findall( line )
                 deprels = pat_cg3_dep_rel.findall( line )
-                # Generate an empty syntactic function (e.g. for punctuation)
+                # If sfuncs is empty, generate an empty syntactic function (e.g. for 
+                # punctuation)
                 sfuncs = ['xxx'] if not sfuncs else sfuncs
                 # Generate all pairs of labels vs dependency
                 for func in sfuncs:
@@ -193,7 +195,7 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
                     # and if the previous one does not exist, make it to point
                     # to the next word (regardless whether it exists or not);
                     foundRelations[r][1] = \
-                        wordID-1 if not firstInSent else wordID+1
+                        wordID-1 if wordID-1 > -1 else wordID+1
         # Mark the root node in the syntactic tree with the label ROOT ( if requested )
         if mark_root:
             for r in range(len(foundRelations)):
@@ -209,3 +211,11 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
         alignments[i] = alignment
     return alignments
 
+
+
+class SyntacticParser(object):
+    """ TODO: add implementation here."""
+    
+    def parse_text(self, text):
+        """ TODO: Tag the given text instance. """
+        pass
