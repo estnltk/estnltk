@@ -662,7 +662,10 @@ def convert_cg3_to_conll( lines, **kwargs ):
             if analysis_match and analyses_added==0:
                 lemma = analysis_match.group(1)
                 cats  = analysis_match.group(2)
-                postag = 'Z' if cats.startswith('Z ') else (cats.split())[1]
+                if cats.startswith('Z '):
+                    postag = 'Z'
+                else:
+                    postag = (cats.split())[1] if len(cats.split())>1 else 'X'
                 deprels = re.findall( '(@\S+)', cats )
                 deprel  = deprels[0] if deprels else 'xxx'
                 heads   = re.findall( '#\d+\s*->\s*(\d+)', cats )
