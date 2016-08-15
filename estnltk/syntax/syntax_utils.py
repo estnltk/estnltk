@@ -77,7 +77,7 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
             dependencies should be fixed;
             A self-reference link is firstly re-oriented as a link to the previous word
             in the sentence, and if the previous word does  not  exist,  the  link  is 
-            re-oriented as the next word in the sentence (regardless whether the next 
+            re-oriented to the next word in the sentence (regardless whether the next 
             word exists or not);
             Default:True
         

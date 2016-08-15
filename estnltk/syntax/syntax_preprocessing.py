@@ -520,7 +520,7 @@ def convert_pronouns( mrf_lines ):
 # ==================================================================================
 # ==================================================================================
 
-def remove_duplicate_analyses( mrf_lines ):
+def remove_duplicate_analyses( mrf_lines, allow_to_delete_all = True ):
     ''' Removes duplicate analysis lines from mrf_lines. 
         
         Uses special logic for handling adposition analyses ('_K_ pre' && '_K_ post')
@@ -530,13 +530,21 @@ def remove_duplicate_analyses( mrf_lines ):
         Note that '_K_ pre' and '_K_ post' with subcategorization information will
         be kept.
         
+        The parameter  allow_to_delete_all  specifies whether it is allowed to delete
+        all analysis or not. If allow_to_delete_all == False, then one last analysis
+        won't be deleted, regardless whether it should be deleted considering the 
+        adposition-deletion rules;
+        The original implementation corresponds to the settings allow_to_delete_all=True 
+        (and this is also the default value of the parameter);
+        
         Returns the input list where the removals have been applied;
     ''' 
     i = 0
-    seen_analyses = []
-    to_delete     = []
-    Kpre_index    = -1
-    Kpost_index   = -1
+    seen_analyses  = []
+    analyses_count = 0
+    to_delete      = []
+    Kpre_index     = -1
+    Kpost_index    = -1
     while ( i < len(mrf_lines) ):
         line = mrf_lines[i]
         if not line.startswith('  '): 
@@ -548,15 +556,25 @@ def remove_duplicate_analyses( mrf_lines ):
               to_delete.append( Kpost_index )
            # Delete found duplicates
            if to_delete:
-              for j in sorted(to_delete, reverse=True):
+              for k, j in enumerate(sorted(to_delete, reverse=True)):
+                  # If we must preserve at least one analysis, and
+                  # it has been found that all should be deleted, then 
+                  # keep the last one
+                  if not allow_to_delete_all and \
+                     analyses_count == len(to_delete) and \
+                     k == len(to_delete) - 1:
+                     continue
+                  # Delete the analysis line
                   del mrf_lines[j]
                   i -= 1
            # Reset the memory for each new word/token
            seen_analyses = []
+           analyses_count = 0
            to_delete     = []
            Kpre_index    = -1
            Kpost_index   = -1
         elif line.startswith('  '):   # the line of analysis 
+           analyses_count += 1
            if line in seen_analyses:
               # Remember line that has been already seen as a duplicate
               to_delete.append( i )
@@ -865,11 +883,12 @@ class SyntaxPreprocessing:
 
     fs_to_synt_rules = None
     subcat_rules     = None
-
+    
+    allow_to_remove_all = False
     
     def __init__( self, **kwargs):
         ''' Initializes VISL CG3 based syntax preprocessing pipeline. 
-        
+            
             Parameters
             -----------
             fs_to_synt_rules : str
@@ -877,12 +896,20 @@ class SyntaxPreprocessing:
                 format to syntactic analyzer's preprocessing mrf format;
                 Required parameter;
                 (~~'tmorftrtabel.txt')
-                
+            
             subcat_rules : str
                 Name of the file containing rules for adding subcategorization information
                 to verbs/adpositions;
                 Required parameter;
                 (~~'abileksikon06utf.lx')
+            
+            allow_to_remove_all : bool
+                Specifies whether the method remove_duplicate_analyses() is allowed to 
+                remove all analysis of a word token (due to the specific _K_-removal rules).
+                The original implementation allowed this, but we are now restricting it
+                in order to avoid words without any analyses;
+                Default: False
+            
         '''
         for argName, argVal in kwargs.items():
             if argName in ['fs_to_synt_rules_file', 'fs_to_synt_rules', 'fs_to_synt']:
@@ -890,6 +917,8 @@ class SyntaxPreprocessing:
                      load_fs_mrf_to_syntax_mrf_translation_rules( argVal )
             elif argName in ['subcat_rules_file', 'subcat_rules', 'subcat']:
                 self.subcat_rules = load_subcat_info( argVal )
+            elif argName in ['allow_to_remove_all','allow_to_remove'] and argVal in [True,False]:
+                self.allow_to_remove_all = argVal
             else:
                 raise Exception(' Unsupported argument given: '+argName)
         if not self.fs_to_synt_rules:
@@ -926,10 +955,10 @@ class SyntaxPreprocessing:
         '''
         converted1 = convert_mrf_to_syntax_mrf( mrf_lines, self.fs_to_synt_rules )
         converted2 = convert_pronouns( converted1 )
-        converted3 = remove_duplicate_analyses( converted2 )
+        converted3 = remove_duplicate_analyses( converted2, allow_to_delete_all=self.allow_to_remove_all )
         converted4 = add_hashtag_info( converted3 )
         converted5 = tag_subcat_info( converted4, self.subcat_rules )
-        converted6 = remove_duplicate_analyses( converted5 )
+        converted6 = remove_duplicate_analyses( converted5, allow_to_delete_all=self.allow_to_remove_all )
         converted7 = convert_to_cg3_input( converted6 )
         return converted7
 
