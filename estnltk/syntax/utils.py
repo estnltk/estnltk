@@ -28,7 +28,7 @@ from vislcg3_syntax import VISLCG3Pipeline, cleanup_lines, align_cg3_with_Text
 
 # ==================================================================================
 # ==================================================================================
-#   Normalises dependency syntactic information in the alignments
+#   Normalising  dependency syntactic information in the alignments
 # ==================================================================================
 # ==================================================================================
 
@@ -230,7 +230,7 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
 
 # ==================================================================================
 # ==================================================================================
-#   Importing syntactically parsed text from file
+#   Importing  syntactically parsed text from file
 # ==================================================================================
 # ==================================================================================
 
@@ -413,7 +413,63 @@ def read_text_from_conll_file( file_name, layer_name='conll_syntax', **kwargs ):
 
 # ==================================================================================
 # ==================================================================================
+#   Building  syntactic trees from the syntactic analyses
+# ==================================================================================
+# ==================================================================================
 
+
+class Tree(object):
+    word_id     = None    # -> int    # tipule vastava sõna indeks lauses
+    gen_word_id = None    # -> int    # tipule vastava sõna indeks tekstis
+
+    labels      = None    # -> [str]  # tipu süntaksimärgendite (nt "@SUBJ", "@OBJ" jne) list; 
+                          #           # mitmesuse korral võib tipul olla mitu märgendit;
+
+    parent      = None    # -> Tree   # ülem lauses (Tree objekt)
+    children    = None    # -> [Tree] # list kõigist otsestest alamatest (Tree objektid)
+
+    token       = None    # -> dict   # Sõnale vastav EstNLTK token
+    text        = None    # -> str    # Sõnale vastav TEXT ( EstNLTK  token[TEXT] )
+    morph       = None    # -> [dict] # Sõnale vastav EstNLTK token[ANALYSIS] 
+
+    parser        = None  # -> str    # Kasutatud parseri nimi: 'maltparser' või 'vislcg3'
+    parser_output = None  # -> [str]  # Parseri poolt väljastatud analüüsiread (kui on säilitatud);
+                          #           # mitmesuse korral võib olla mitu analüüsirida;
+
+    def __init__( self, token, word_id, labels, parser, **kwargs ):
+        self.token   = token
+        self.word_id = word_id
+        self.labels  = labels
+        self.parser  = parser
+        # TODO
+        self.parent   = None
+        self.children = None
+
+    def add_child_to_self(self, tree):
+        # TODO
+        pass
+
+
+    def add_child_to_subtree(self, word_id, tree):
+        # TODO
+        pass
+
+
+    def get_root( self, **kwargs ):
+        # TODO
+        pass
+
+
+    def get_children( self, **kwargs ):
+        # TODO
+        pass
+    
+    
+
+        
+
+# ==================================================================================
+# ==================================================================================
 
 class SyntacticParser(object):
     """ TODO: add implementation here."""
