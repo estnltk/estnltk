@@ -130,18 +130,20 @@ class VISLCG3Pipeline:
                 PATH variable, full path can be omitted, otherwise, the name must contain full 
                 path to the executable.
                 Default: 'vislcg3'
-
+            
+            rules_dir : str
+                A default directory from where to find rules that are executed on the 
+                pipeline.
+                If a file name listed in *pipeline* does not contain path, it is assumed 
+                to reside within *rules_dir*;
+                Required parameter.
+            
             pipeline : list of str
                 List of VISLCG3 rule file names. In the processing phase, these rules
                 are executed exactly the same order as in the list.
-                NB! Do not add path to the name of rules, instead ensure that all the rules
-                are in one directory, and provide the name of the directory as parameter 
-                rules_dir.
-                
-            rules_dir : str
-                Directory from where to find rules that are executed on the pipeline.
-                All files listed in pipeline must be in that directory.
-                Required parameter.
+                NB! If the rule file is given without path, it is assumed that the file
+                resides in the directory *rules_dir*; Otherwise, a full path to the rule
+                file must be provided within the name;
 
         '''
         cmd_changed = False
@@ -164,7 +166,12 @@ class VISLCG3Pipeline:
         if not os.path.exists( self.rules_dir ):
             raise Exception('Invalid rules directory:',self.rules_dir)
         for rule_file in self.rules_pipeline:
-            rule_path = os.path.join( self.rules_dir, rule_file )
+            if rule_file == os.path.basename(rule_file):
+                # if the rule is without a path, assume it is located in the rules dir
+                rule_path = os.path.join( self.rules_dir, rule_file )
+            else:
+                # otherwise, assume that the path is provided within the rule
+                rule_path = rule_file
             if not os.path.exists( rule_path ):
                raise Exception('Rules file not found:', rule_path)
         # Check for existence of VISLCG3 executable
