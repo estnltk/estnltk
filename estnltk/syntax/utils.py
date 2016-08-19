@@ -9,16 +9,22 @@
 
 from __future__ import unicode_literals, print_function
 
+import re, json
+import os, os.path
+import codecs, sys
+
+#from nltk.tokenize.regexp import WhitespaceTokenizer
+from nltk.tokenize.simple import LineTokenizer
+from nltk.tokenize.regexp import RegexpTokenizer
+
 from estnltk.names import *
-from estnltk.text import Text
+from estnltk.text  import Text
 
 from estnltk.maltparser_support import MaltParser, align_CONLL_with_Text
 from syntax_preprocessing import SyntaxPreprocessing
 from vislcg3_syntax import VISLCG3Pipeline, cleanup_lines, align_cg3_with_Text
 
-import re, json
-import os, os.path
-import codecs
+
 
 # ==================================================================================
 # ==================================================================================
@@ -158,9 +164,6 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
         if prev_sent_id != alignment['sent_id']:
             # Start of a new sentence: reset word id
             wordID = 0
-        #firstInSent = (i == 0) or (i>0 and alignments[i-1][1]!=alignments[i][1]);
-        #lastInSent  = (i==len(alignments)-1) or \
-        #              (i<len(alignments)-1 and alignments[i+1][1]!=alignments[i][1])
         # 1) Extract syntactic information
         foundRelations = []
         if type == 1:
@@ -223,6 +226,112 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
         # Increase word id 
         wordID += 1
     return alignments
+
+
+# ==================================================================================
+# ==================================================================================
+#   Importing syntactically parsed text from file
+# ==================================================================================
+# ==================================================================================
+
+pat_double_quoted  = re.compile('^".*"$')
+pat_cg3_word_token = re.compile('^"<(.+)>"$')
+
+def read_text_from_cg3_file( file_name, layer_name='vislcg3_syntax', **kwargs ):
+    ''' Reads the output of VISLCG3 syntactic analysis from given file, and 
+        returns as a Text object.
+        
+        The Text object has been tokenized for paragraphs, sentences, words, and it 
+        contains syntactic analyses aligned with word spans, in the layer *layer_name* 
+        (by default: 'vislcg3_syntax');
+        
+        Attached syntactic analyses are in the format as is the output of 
+          utils.normalise_alignments();
+        
+        Parameters
+        -----------
+        file_name : str
+            Name of the input file; Should contain syntactically analysed text,
+            following the format of the output of VISLCG3 syntactic analyser;
+        
+        clean_up : bool
+            Optional argument specifying whether the vislcg3_syntax.cleanup_lines()
+            should be applied in the lines of syntactic analyses read from the 
+            file;
+            Default: False
+        
+        layer_name : str
+            Name of the Text's layer in which syntactic analyses are stored; 
+            Defaults to 'vislcg3_syntax';
+        
+            For other parameters, see optional parameters of the methods:
+            
+             utils.normalise_alignments():          "rep_miss_w_dummy", "fix_selfrefs",
+                                                    "keep_old", "mark_root";
+             vislcg3_syntax.align_cg3_with_Text():  "check_tokens", "add_word_ids";
+             vislcg3_syntax.cleanup_lines():        "remove_caps", "remove_clo",
+                                                    "double_quotes";
+        
+        
+    '''
+    clean_up = False
+    for argName, argVal in kwargs.items():
+        if argName in ['clean_up', 'cleanup'] and argVal in [True, False]:
+           #  Clean up lines
+           clean_up = argVal
+    # 1) Load vislcg3 analysed text from file
+    cg3_lines = []
+    in_f = codecs.open(file_name, mode='r', encoding='utf-8')
+    for line in in_f:
+        cg3_lines.append( line.rstrip() )
+    in_f.close()
+    # Clean up lines of syntactic analyses (if requested)
+    if clean_up:
+        cg3_lines = cleanup_lines( cg3_lines, **kwargs )
+
+    # 2) Extract sentences and word tokens
+    sentences = []
+    sentence  = []
+    for i, line in enumerate( cg3_lines ):
+        if line == '"<s>"':
+            if sentence:
+                print('(!) Sentence begins before previous ends at line: '+str(i), \
+                      file=sys.stderr)
+            sentence  = []
+        elif pat_double_quoted.match( line ) and line != '"<s>"' and line != '"</s>"':
+            token_match = pat_cg3_word_token.match( line )
+            if token_match:
+                line = token_match.group(1)
+            else:
+                raise Exception('(!) Unexpected token format: ', line)
+            sentence.append( line )
+        elif line == '"</s>"':
+            if not sentence:
+                print('(!) Empty sentence at line: '+str(i), \
+                      file=sys.stderr)
+            # (!) Use double space instead of single space in order to distinguish
+            #     word-tokenizing space from the single space in the multiwords
+            #     (e.g. 'Rio de Janeiro);
+            sentences.append( '  '.join(sentence) )
+            sentence = []
+
+    # 3) Construct the estnltk's Text
+    kwargs4text = {
+      # Use custom tokenization utils in order to preserve exactly the same 
+      # tokenization as was in the input;
+      "word_tokenizer": RegexpTokenizer("  ", gaps=True),
+      "sentence_tokenizer": LineTokenizer()
+    }
+    text = Text( '\n'.join(sentences), **kwargs4text )
+    # Tokenize up to the words layer
+    text.tokenize_words()
+    
+    # 4) Align syntactic analyses with the Text
+    alignments = align_cg3_with_Text( cg3_lines, text, **kwargs )
+    normalise_alignments( alignments, type='VISLCG3', **kwargs )
+    # Attach alignments to the text
+    text[ layer_name ] = alignments
+    return text
 
 
 
