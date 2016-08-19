@@ -311,7 +311,7 @@ def read_text_from_cg3_file( file_name, layer_name='vislcg3_syntax', **kwargs ):
                       file=sys.stderr)
             # (!) Use double space instead of single space in order to distinguish
             #     word-tokenizing space from the single space in the multiwords
-            #     (e.g. 'Rio de Janeiro);
+            #     (e.g. 'Rio de Janeiro' as a single word);
             sentences.append( '  '.join(sentence) )
             sentence = []
 
@@ -333,6 +333,86 @@ def read_text_from_cg3_file( file_name, layer_name='vislcg3_syntax', **kwargs ):
     text[ layer_name ] = alignments
     return text
 
+
+def read_text_from_conll_file( file_name, layer_name='conll_syntax', **kwargs ):
+    ''' Reads the CONLL format syntactic analysis from given file, and returns as 
+        a Text object.
+        
+        The Text object has been tokenized for paragraphs, sentences, words, and it 
+        contains syntactic analyses aligned with word spans, in the layer *layer_name* 
+        (by default: 'conll_syntax');
+        
+        Attached syntactic analyses are in the format as is the output of 
+          utils.normalise_alignments();
+        
+        Parameters
+        -----------
+        file_name : str
+            Name of the input file; Should contain syntactically analysed text,
+            following the CONLL format;
+        
+        layer_name : str
+            Name of the Text's layer in which syntactic analyses are stored; 
+            Defaults to 'conll_syntax';
+        
+            For other parameters, see optional parameters of the methods:
+            
+             utils.normalise_alignments():          "rep_miss_w_dummy", "fix_selfrefs",
+                                                    "keep_old", "mark_root";
+             maltparser_support.align_CONLL_with_Text():  "check_tokens", "add_word_ids";
+
+    '''
+    # 1) Load conll analysed text from file
+    conll_lines = []
+    in_f = codecs.open(file_name, mode='r', encoding='utf-8')
+    for line in in_f:
+        conll_lines.append( line.rstrip() )
+    in_f.close()
+    
+    # 2) Extract sentences and word tokens
+    sentences = []
+    sentence  = []
+    for i, line in enumerate( conll_lines ):
+        if len(line) > 0 and '\t' in line:
+            features = line.split('\t')
+            if len(features) != 10:
+                raise Exception(' In file '+in_file+', line '+str(i)+\
+                                ' with unexpected format: "'+line+'" ')
+            word_id = features[0]
+            token   = features[1]
+            sentence.append( token )
+        elif len(line)==0 or re.match('^\s+$', line):
+            # End of a sentence 
+            if sentence:
+               # (!) Use double space instead of single space in order to distinguish
+               #     word-tokenizing space from the single space in the multiwords
+               #     (e.g. 'Rio de Janeiro' as a single word);
+               sentences.append( '  '.join(sentence) )
+            sentence = []
+    if sentence:
+        sentences.append( '  '.join(sentence) )
+    
+    # 3) Construct the estnltk's Text
+    kwargs4text = {
+      # Use custom tokenization utils in order to preserve exactly the same 
+      # tokenization as was in the input;
+      "word_tokenizer": RegexpTokenizer("  ", gaps=True),
+      "sentence_tokenizer": LineTokenizer()
+    }
+    text = Text( '\n'.join(sentences), **kwargs4text )
+    # Tokenize up to the words layer
+    text.tokenize_words()
+    
+    # 4) Align syntactic analyses with the Text
+    alignments = align_CONLL_with_Text( conll_lines, text, **kwargs )
+    normalise_alignments( alignments, type='CONLL', **kwargs )
+    # Attach alignments to the text
+    text[ layer_name ] = alignments
+    return text
+
+
+# ==================================================================================
+# ==================================================================================
 
 
 class SyntacticParser(object):
