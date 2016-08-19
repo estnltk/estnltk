@@ -404,13 +404,11 @@ def align_cg3_with_Text( lines, text, **kwargs ):
         Basically, for each word position in the Text object, finds corresponding VISLCG3's
         analyses;
 
-        A word position is given as a triple:
-           general_WID - word index in the whole Text, starting from 0;
-           sentence_ID - index of the sentence in Text, starting from 0;
-           word_ID     - index of the word in the sentence, starting from 0;
-
-        Returns a list of lists, having the following structure:
-           [ general_WID, sentence_ID, word_ID, list_of_vislcg3_analyses ]
+        Returns a list of dicts, where each dict has following attributes:
+          'start'   -- start index of the word in Text;
+          'end'     -- end index of the word in Text;
+          'sent_id' -- index of the sentence in Text, starting from 0;
+          'parser_out' -- lines of analyses from the output of the syntactic parser;
 
         Parameters
         -----------
@@ -426,17 +424,23 @@ def align_cg3_with_Text( lines, text, **kwargs ):
             Optional argument specifying whether tokens should be checked for match 
             during the alignment. In case of a mismatch, an exception is raised.
             Default:False
+        
+        add_word_ids : bool
+            Optional argument specifying whether each alignment should include attributes:
+            * 'text_word_id' - current word index in the whole Text, starting from 0;
+            * 'sent_word_id' - index of the current word in the sentence, starting from 0;
+            Default:False
 
 
         Example output (for text 'Jah . Öö oli täiesti tuuletu .'):
         -----------------------------------------------------------
-        [0, 0, 0, ['\t"jah" L0 D @ADVL #1->0']]
-        [1, 0, 1, ['\t"." Z Fst CLB #2->2']]
-        [2, 1, 0, ['\t"öö" L0 S com sg nom @SUBJ #1->2']]
-        [3, 1, 1, ['\t"ole" Li V main indic impf ps3 sg ps af @FMV #2->0']]
-        [4, 1, 2, ['\t"täiesti" L0 D @ADVL #3->4']]
-        [5, 1, 3, ['\t"tuuletu" L0 A pos sg nom @PRD #4->2']]
-        [6, 1, 4, ['\t"." Z Fst CLB #5->5']]
+        {'sent_id': 0, 'start': 0, 'end': 3, 'parser_out': ['\t"jah" L0 D @ADVL #1->0\r']}
+        {'sent_id': 0, 'start': 4, 'end': 5, 'parser_out': ['\t"." Z Fst CLB #2->2\r']}
+        {'sent_id': 1, 'start': 6, 'end': 8, 'parser_out': ['\t"öö" L0 S com sg nom @SUBJ #1->2\r']}
+        {'sent_id': 1, 'start': 9, 'end': 12, 'parser_out': ['\t"ole" Li V main indic impf ps3 sg ps af @FMV #2->0\r']}
+        {'sent_id': 1, 'start': 13, 'end': 20, 'parser_out': ['\t"täiesti" L0 D @ADVL #3->4\r']}
+        {'sent_id': 1, 'start': 21, 'end': 28, 'parser_out': ['\t"tuuletu" L0 A pos sg nom @PRD #4->2\r']}
+        {'sent_id': 1, 'start': 29, 'end': 30, 'parser_out': ['\t"." Z Fst CLB #5->5\r']}
 
     '''
     if not isinstance( text, Text ):
@@ -444,9 +448,12 @@ def align_cg3_with_Text( lines, text, **kwargs ):
     if not isinstance( lines, list ):
         raise Exception('(!) Unexpected type of input argument! Expected a list of strings.')
     check_tokens = False
+    add_word_ids = False
     for argName, argVal in kwargs.items() :
         if argName in ['check_tokens', 'check'] and argVal in [True, False]:
            check_tokens = argVal
+        if argName in ['add_word_ids', 'word_ids'] and argVal in [True, False]:
+           add_word_ids = argVal
     pat_empty_line     = re.compile('^\s+$')
     pat_token_line     = re.compile('^"<(.+)>"$')
     pat_analysis_start = re.compile('^(\s+)"(.+)"(\s[LZT].*)$')
@@ -490,7 +497,13 @@ def align_cg3_with_Text( lines, text, **kwargs ):
                 if check_tokens and wordStr != cg3word: 
                     raise Exception('(!) Unable to align EstNLTK\'s token nr ',generalWID,\
                                     ':',wordStr,' vs ',cg3word)
-                results.append([generalWID, sentenceID, sentWID, cg3analyses])
+                # Populate the alignment
+                result_dict = { START:wordJson[START], END:wordJson[END], \
+                                'sent_id':sentenceID, 'parser_out': cg3analyses }
+                if add_word_ids:
+                    result_dict['text_word_id'] = generalWID # word id in the text
+                    result_dict['sent_word_id'] = sentWID    # word id in the sentence
+                results.append( result_dict )
             else:
                 if j >= len(lines):
                     print('(!) End of VISLCG3 analysis reached: '+str(j)+' '+str(len(lines)),\

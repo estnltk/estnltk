@@ -375,13 +375,11 @@ def align_CONLL_with_Text( lines, text, **kwargs ):
         Basically, for each word position in the Text object, finds corresponding line(s) in
         the CONLL format output;
 
-        A word position is given as a triple:
-           general_WID - word index in the whole Text, starting from 0;
-           sentence_ID - index of the sentence in Text, starting from 0;
-           word_ID     - index of the word in the sentence, starting from 0;
-
-        Returns a list of lists, having the following structure:
-           [ general_WID, sentence_ID, word_ID, list_of_conll_analysis_lines ]
+        Returns a list of dicts, where each dict has following attributes:
+          'start'   -- start index of the word in Text;
+          'end'     -- end index of the word in Text;
+          'sent_id' -- index of the sentence in Text, starting from 0;
+          'parser_out' -- list of analyses from the output of the syntactic parser;
 
         Parameters
         -----------
@@ -396,16 +394,25 @@ def align_CONLL_with_Text( lines, text, **kwargs ):
             Optional argument specifying whether tokens should be checked for match 
             during the alignment. In case of a mismatch, an exception is raised.
             Default:False
-    
+            
+        add_word_ids : bool
+            Optional argument specifying whether each alignment should include attributes:
+            * 'text_word_id' - current word index in the whole Text, starting from 0;
+            * 'sent_word_id' - index of the current word in the sentence, starting from 0;
+            Default:False
+        
     ''' 
     if not isinstance( text, Text ):
         raise Exception('(!) Unexpected type of input argument! Expected EstNLTK\'s Text. ')
     if not isinstance( lines, list ):
         raise Exception('(!) Unexpected type of input argument! Expected a list of strings.')
     check_tokens = False
+    add_word_ids = False
     for argName, argVal in kwargs.items() :
         if argName in ['check_tokens', 'check'] and argVal in [True, False]:
            check_tokens = argVal
+        if argName in ['add_word_ids', 'word_ids'] and argVal in [True, False]:
+           add_word_ids = argVal
     generalWID = 0
     sentenceID = 0
     # Iterate over the sentences and perform the alignment
@@ -420,7 +427,13 @@ def align_CONLL_with_Text( lines, text, **kwargs ):
                 if check_tokens and estnltkToken[TEXT] != maltParserAnalysis[1]:
                     raise Exception("(!) A misalignment between Text and CONLL: ",\
                                     estnltkToken, maltparserToken )
-                results.append( [generalWID, sentenceID, i, [maltparserToken] ] )
+                # Populate the alignment
+                result_dict = { START:estnltkToken[START], END:estnltkToken[END], \
+                                'sent_id':sentenceID, 'parser_out': [maltparserToken] }
+                if add_word_ids:
+                    result_dict['text_word_id'] = generalWID # word id in the text
+                    result_dict['sent_word_id'] = i          # word id in the sentence
+                results.append( result_dict )
             j += 1
             generalWID += 1
         sentenceID += 1

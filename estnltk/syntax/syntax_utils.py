@@ -37,17 +37,22 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
            syntactic information, in the most compact format;
         *) Brings MaltParser and VISLCG3 info into common format;
         
-        Expects that the input list of alignments contains elements with the following 
-        structure:
-        [ general_WID, sentence_ID, word_ID, list_of_analysis_lines ]
-        ( as in the output of methods align_CONLL_with_Text() and align_cg3_with_Text() )
+        Expects that the list of alignments contains dicts, where each dict has 
+        following attributes (at minimum):
+          'start'   -- start index of the word in Text;
+          'end'     -- end index of the word in Text;
+          'sent_id' -- index of the sentence in Text, starting from 0;
+          'parser_out' -- list of analyses from the output of the syntactic parser;
+        Assumes that dicts are listed in the order of words appearance in the text;
+        ( basically, assumes the output of methods align_CONLL_with_Text() and 
+          align_cg3_with_Text() )
         
-        Returns the input list (alignments), where old analysis lines have been replaced 
-        with the new compact form of analyses (if keep_old == False), or where new analysis 
-        lines have been added just before the old analysis lines, so that the structure of 
-        an alignment becomes:
-        [ general_WID, sentence_ID, word_ID, list_of_compact_analyses, list_of_old_analyses ]
-        
+        Returns the input list (alignments), where old analysis lines ('parser_out') have 
+        been replaced with the new compact form of analyses (if keep_old == False), or where 
+        old analysis lines ('parser_out') have been replaced the new compact form of analyses,
+        and the old analysis lines are preserved under a separate key: 'init_parser_out' (if 
+        keep_old == True);
+
         In the compact list of analyses, each item has the following structure:
            [ syntactic_label, index_of_the_head ]
          *) syntactic_label
@@ -59,8 +64,8 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
         Parameters
         -----------
         alignments : list of items
-            A list of alignments, where each item is in the format:
-            [ general_WID, sentence_ID, word_ID, list_of_analysis_lines ]
+            A list of dicts, where each item/dict has following attributes:
+            'start', 'end', 'sent_id', 'parser_out'
 
         type : str
             Type of data in list_of_analysis_lines; Possible types: 'VISLCG3'
@@ -82,10 +87,10 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
             Default:True
         
         keep_old : bool
-            Optional argument specifying  whether the new analysis lines should be added
-            before the old analysis lines, instead of overwriting the old lines;
-            If True, each item in the (returned) list of alignments obtains a form:
-               [ general_WID, sentence_ID, word_ID, new_analyses, old_analyses ]
+            Optional argument specifying  whether the old analysis lines should be 
+            preserved after overwriting 'parser_out' with new analysis lines;
+            If True, each dict will be augmented with key 'init_parser_out' which
+            contains the initial/old analysis lines;
             Default:False
         
         mark_root : bool
@@ -98,26 +103,26 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
             Default:False
 
 
-        (Example text: 'Millega pitsat tellida? Hea küsimus.')
+        (Example text: 'Millega pitsat tellida ? Hea küsimus .')
         Example input (VISLC3):
         -----------------------
-        [0, 0, 0, ['\t"mis" Lga P inter rel sg kom @NN> @ADVL #1->3\r']]
-        [1, 0, 1, ['\t"pitsa" Lt S com sg part @OBJ #2->3\r']]
-        [2, 0, 2, ['\t"telli" Lda V main inf @IMV #3->0\r']]
-        [3, 0, 3, ['\t"?" Z Int CLB #4->4\r']]
-        [4, 1, 0, ['\t"hea" L0 A pos sg nom @AN> #1->2\r']]
-        [5, 1, 1, ['\t"küsimus" L0 S com sg nom @SUBJ #2->0\r']]
-        [6, 1, 2, ['\t"." Z Fst CLB #3->3\r']]
+        {'end': 7, 'sent_id': 0, 'start': 0, 'parser_out': ['\t"mis" Lga P inter rel sg kom @NN> @ADVL #1->3\r']}
+        {'end': 14, 'sent_id': 0, 'start': 8, 'parser_out': ['\t"pitsa" Lt S com sg part @OBJ #2->3\r']}
+        {'end': 22, 'sent_id': 0, 'start': 15, 'parser_out': ['\t"telli" Lda V main inf @IMV #3->0\r']}
+        {'end': 23, 'sent_id': 0, 'start': 22, 'parser_out': ['\t"?" Z Int CLB #4->4\r']}
+        {'end': 27, 'sent_id': 1, 'start': 24, 'parser_out': ['\t"hea" L0 A pos sg nom @AN> #1->2\r']}
+        {'end': 35, 'sent_id': 1, 'start': 28, 'parser_out': ['\t"küsimus" L0 S com sg nom @SUBJ #2->0\r']}
+        {'end': 36, 'sent_id': 1, 'start': 35, 'parser_out': ['\t"." Z Fst CLB #3->3\r']}
 
         Example output:
         ---------------
-        [0, 0, 0, [['@NN>', 2], ['@ADVL', 2]]]
-        [1, 0, 1, [['@OBJ', 2]]]
-        [2, 0, 2, [['@IMV', -1]]]
-        [3, 0, 3, [['xxx', 2]]]
-        [4, 1, 0, [['@AN>', 1]]]
-        [5, 1, 1, [['@SUBJ', -1]]]
-        [6, 1, 2, [['xxx', 1]]]
+        {'sent_id': 0, 'start': 0, 'end': 7, 'parser_out': [['@NN>', 2], ['@ADVL', 2]]}
+        {'sent_id': 0, 'start': 8, 'end': 14, 'parser_out': [['@OBJ', 2]]}
+        {'sent_id': 0, 'start': 15, 'end': 22, 'parser_out': [['@IMV', -1]]}
+        {'sent_id': 0, 'start': 22, 'end': 23, 'parser_out': [['xxx', 2]]}
+        {'sent_id': 1, 'start': 24, 'end': 27, 'parser_out': [['@AN>', 1]]}
+        {'sent_id': 1, 'start': 28, 'end': 35, 'parser_out': [['@SUBJ', -1]]}
+        {'sent_id': 1, 'start': 35, 'end': 36, 'parser_out': [['xxx', 1]]}
 
     '''
     if not isinstance( alignments, list ):
@@ -146,9 +151,13 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
            #  Mark the root node in the syntactic tree with the label ROOT;
            mark_root = argVal
     # Iterate over the alignments and normalise information
+    prev_sent_id = -1
+    wordID = 0
     for i in range(len(alignments)):
         alignment = alignments[i]
-        wordID = alignment[2]
+        if prev_sent_id != alignment['sent_id']:
+            # Start of a new sentence: reset word id
+            wordID = 0
         #firstInSent = (i == 0) or (i>0 and alignments[i-1][1]!=alignments[i][1]);
         #lastInSent  = (i==len(alignments)-1) or \
         #              (i<len(alignments)-1 and alignments[i+1][1]!=alignments[i][1])
@@ -156,7 +165,7 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
         foundRelations = []
         if type == 1:
             # *****************  VISLCG3 format
-            for line in alignment[3]:
+            for line in alignment['parser_out']:
                 # Extract info from VISLCG3 format analysis:
                 sfuncs  = pat_cg3_surface_rel.findall( line )
                 deprels = pat_cg3_dep_rel.findall( line )
@@ -171,7 +180,7 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
                         foundRelations.append( [func, relT] )
         elif type == 2:
             # *****************  CONLL format
-            for line in alignment[3]:
+            for line in alignment['parser_out']:
                 parts = line.split('\t')
                 if len(parts) != 10:
                     raise Exception('(!) Unexpected line format for CONLL data:', line)
@@ -204,11 +213,15 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
         # 2) Replace existing syntactic info with more compact info
         if not keep_old:
             # Overwrite old info
-            alignment[3] = foundRelations
+            alignment['parser_out'] = foundRelations
         else: 
-            # or add compact information as an addition
-            alignment.insert(3, foundRelations)
+            # or preserve the initial information, and add new compact information
+            alignment['init_parser_out'] = alignment['parser_out']
+            alignment['parser_out']      = foundRelations
         alignments[i] = alignment
+        prev_sent_id = alignment['sent_id']
+        # Increase word id 
+        wordID += 1
     return alignments
 
 
