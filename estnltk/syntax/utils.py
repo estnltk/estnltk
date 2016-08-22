@@ -424,52 +424,143 @@ def read_text_from_conll_file( file_name, layer_name='conll_syntax', **kwargs ):
 
 
 class Tree(object):
-    word_id     = None    # -> int    # tipule vastava sõna indeks lauses
-    gen_word_id = None    # -> int    # tipule vastava sõna indeks tekstis
+    word_id     = None    # -> int    # index of the word/node in the sentence
+    gen_word_id = None    # -> int    # index of the word/node in the text
 
-    labels      = None    # -> [str]  # tipu süntaksimärgendite (nt "@SUBJ", "@OBJ" jne) list; 
-                          #           # mitmesuse korral võib tipul olla mitu märgendit;
+    labels      = None    # -> [str]  # list of syntactic functions (e.g. "@SUBJ", "@OBJ"); 
+                          #           # associated with the node; in case of unsolved ambiguities,
+                          #           # multiple functions can be associated with the node;
 
-    parent      = None    # -> Tree   # ülem lauses (Tree objekt)
-    children    = None    # -> [Tree] # list kõigist otsestest alamatest (Tree objektid)
+    parent      = None    # -> Tree   # direct parent / head (Tree object)
+    children    = None    # -> [Tree] # list of all direct children (Tree objects)
 
-    token       = None    # -> dict   # Sõnale vastav EstNLTK token
-    text        = None    # -> str    # Sõnale vastav TEXT ( EstNLTK  token[TEXT] )
-    morph       = None    # -> [dict] # Sõnale vastav EstNLTK token[ANALYSIS] 
+    token       = None    # -> dict   # EstNLTK token corresponding to the node / tree
+    text        = None    # -> str    # token's TEXT ( token[TEXT] )
+    morph       = None    # -> [dict] # token's morphological analysis (token[ANALYSIS])
 
-    parser        = None  # -> str    # Kasutatud parseri nimi: 'maltparser' või 'vislcg3'
-    parser_output = None  # -> [str]  # Parseri poolt väljastatud analüüsiread (kui on säilitatud);
-                          #           # mitmesuse korral võib olla mitu analüüsirida;
+    parser        = None  # -> str    # used parser: 'maltparser' or 'vislcg3'
+    parser_output = None  # -> [str]  # analysis lines from the output of the parser (if have been 
+                          #           # preserved); in case of unsolved ambiguities, there can be 
+                          #           # multiple analysis lines associated with the node;
 
     def __init__( self, token, word_id, labels, parser, **kwargs ):
+        #  Acquire mandatory input arguments 
         self.token   = token
         self.word_id = word_id
         self.labels  = labels
         self.parser  = parser
-        # TODO
-        self.parent   = None
-        self.children = None
+        #  Acquire optional input arguments  
+        for argName, argVal in kwargs.items():
+            if argName in ['parent', 'head']:
+                assert isinstance(argVal, Tree), \
+                       '(!) Unexpected type of argument for '+argName+'! Should be Tree.'
+                self.parent = argVal
+            elif argName in ['children', 'subtrees']:
+                assert isinstance(argVal, list), \
+                       '(!) Unexpected type of argument for '+argName+'! Should be list of Trees.'
+                if len(argVal) > 0:
+                    assert all(isinstance(argVal, Tree) for t in argVal), \
+                       '(!) Unexpected type of argument for '+argName+'! Should be list of Trees.'
+                self.children = argVal
+            elif argName in ['gen_word_id', 'text_word_id']:
+                assert isinstance(argVal, int), \
+                       '(!) Unexpected type of argument for '+argName+'! Should be int.'
+                self.gen_word_id = argVal
+            elif argName in ['parser_output', 'parser_out']:
+                assert isinstance(argVal, list), \
+                       '(!) Unexpected type of argument for '+argName+'! Should be list of str.'
+                self.parser_output = argVal
+        assert self.token != None, '(!) Please provide a link to the estnltk\'s token!'
+        self.text  = self.token[TEXT]
+        self.morph = self.token[ANALYSIS]
 
-    def add_child_to_self(self, tree):
-        # TODO
-        pass
+
+    def add_child_to_self( self, tree ):
+        ''' Adds given *tree* as a child of the current tree. '''
+        assert isinstance(tree, Tree), \
+               '(!) Unexpected type of argument for '+argName+'! Should be Tree.'
+        if (not self.children):
+            self.children = []
+        tree.parent = self
+        self.children.append(tree)
 
 
-    def add_child_to_subtree(self, word_id, tree):
-        # TODO
-        pass
+    def add_child_to_subtree( self, parent_word_id, tree ):
+        ''' Searches for the tree with *parent_word_id* from the current subtree 
+            (from this tree and from all of its subtrees). If the parent tree is 
+            found, attaches the given *tree* as its child. If the parent tree is
+            not found, nothing will be added and the current tree stays the same. 
+        '''
+        if (self.word_id == parent_word_id):
+            self.add_child_to_self( tree )
+        elif (self.children):
+            for child in self.children:
+                child.add_child_to_subtree(parent_word_id, tree)
 
 
     def get_root( self, **kwargs ):
-        # TODO
-        pass
+        ''' Returns this tree if it has no parents, or, alternatively, moves
+            up via the parent links of this tree until reaching the tree with
+            no parents, and returnes the parentless tree as the root.
+        '''
+        if self.parent == None:
+            return self
+        else:
+            return self.parent.get_root( kwargs )
 
 
     def get_children( self, **kwargs ):
+        ''' Recursively collects and returns all subtrees of given tree (if no 
+            arguments are given), or, alternatively, collects and returns subtrees 
+            satisfying some specific criteria (pre-specified in the arguments);
+            
+            Parameters
+            -----------
+            depth_limit : int
+                Specifies how deep into the subtrees of this tree the search goes;
+                Examples:
+                 depth_limit=2 -- children of this node, and also children's
+                                  direct children are considered as collectibles;
+                 depth_limit=1 -- only children of this node are considered;
+                 depth_limit=0 -- the end of search (only this node is considered);
+                Default: unbounded ( the search is not limited by depth )
+            
+            include_self : bool 
+                Specifies whether this tree should also be included as a collectible
+                subtree. If this tree is includes, it still must satisfy all the 
+                criteria before it is included in the collection;
+                Default: False
+                
+        '''
+        depth_limit  = kwargs.get('depth_limit', 922337203685477580) # Just a nice big number to
+                                                                     # assure that by default, 
+                                                                     # there is no depth limit ...
+        include_self = kwargs.get('include_self', False)
+        subtrees = []
+        if include_self:
+            # TODO: add here condition checking
+            subtrees.append( self )
+        if depth_limit >= 1 and self.children:
+            # 1) Add children of given tree
+            for child in self.children:
+                # TODO: add here condition checking
+                subtrees.append(child)
+            # 2) Collect children of given tree's children
+            kwargs2 = kwargs[:]
+            kwargs2['include_self'] = False
+            kwargs2['depth_limit']  = depth_limit - 1 
+            for child in self.children:
+                childs_results = child.get_children( kwargs2 )
+                if childs_results:
+                    subtrees.extend(childs_results)
+        # TODO: add sorting of the subtrees
+        return subtrees
+
+
+    def as_dependencygraph( self, **kwargs ):
+        from nltk.parse.dependencygraph import DependencyGraph
         # TODO
         pass
-    
-    
 
         
 
