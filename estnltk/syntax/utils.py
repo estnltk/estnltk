@@ -519,7 +519,7 @@ class Tree(object):
         if self.parent == None:
             return self
         else:
-            return self.parent.get_root( kwargs )
+            return self.parent.get_root( **kwargs )
 
 
     def get_children( self, **kwargs ):
@@ -563,7 +563,7 @@ class Tree(object):
             kwargs2['include_self'] = False
             kwargs2['depth_limit']  = depth_limit - 1 
             for child in self.children:
-                childs_results = child.get_children( kwargs2 )
+                childs_results = child.get_children( **kwargs2 )
                 if childs_results:
                     subtrees.extend(childs_results)
         # TODO: add sorting of the subtrees
@@ -598,10 +598,59 @@ class Tree(object):
 
 
 
-def build_dependency_trees( text, layer, **kwargs ):
+def build_trees_from_sentence( sentence, syntactic_relations, layer='vislcg3', \
+                               sentence_id=0, **kwargs ):
+    ''' Given a sentence ( a list of EstNLTK's word tokens ), and a list of 
+        dependency syntactic relations ( output of normalise_alignments() ),
+        builds trees ( estnltk.syntax.utils.Tree objects ) from the sentence,
+        and returns as a list of Trees (roots of trees).
+        
+        Note that  there  is  one-to-many  correspondence  between  EstNLTK's 
+        sentences and dependency syntactic trees, so the resulting list can 
+        contain more than one tree (root);
+    '''
+    trees_of_sentence = []
+    nodes = [ -1 ]
+    while( len(nodes) > 0 ):
+        node = nodes.pop(0)
+        # Find tokens in the sentence that take this node as their parent
+        for i, syntax_token in enumerate( syntactic_relations ):
+            parents = [ o[1] for o in syntax_token['parser_out'] ]
+            # There should be only one parent node; If there is more than one, take the 
+            # first node;
+            parent = parents[0]
+            if parent == node:
+                labels  = [ o[0] for o in syntax_token['parser_out'] ]
+                estnltk_token = sentence[i]
+                tree1 = Tree( estnltk_token, i, sentence_id, labels, parser=layer )
+                if 'init_parser_out' in syntax_token:
+                    tree1.parser_output = syntax_token['init_parser_out']
+                tree1.syntax_token = syntax_token
+                if parent == -1:
+                    # Add the root node
+                    trees_of_sentence.append( tree1 )
+                elif parent == i:
+                    # If, for some strange reason, the node is unnormalised and is still 
+                    # linked to itself, add it as a singleton tree
+                    trees_of_sentence.append( tree1 )
+                else:
+                    # For each root node, attempt to add the child
+                    for root_node in trees_of_sentence:
+                        root_node.add_child_to_subtree( parent, tree1 )
+                if parent != i:
+                   # Add the current node as a future parent to be examined
+                   nodes.append( i )
+    return trees_of_sentence
+
+
+
+def build_trees_from_text( text, layer, **kwargs ):
     ''' Given a text object and the name of the layer where dependency syntactic 
         relations are stored, builds trees ( estnltk.syntax.utils.Tree objects )
         from all the sentences of the text and returns as a list of Trees.
+        
+        Uses the method  build_trees_from_sentence()  for acquiring trees of each
+        sentence;
         
         Note that there is one-to-many correspondence between EstNLTK's sentences
         and dependency syntactic trees: one sentence can evoke multiple trees;
@@ -617,41 +666,15 @@ def build_dependency_trees( text, layer, **kwargs ):
     k = 0
     while k < len( text[layer] ):
         node_desc = text[layer][k]
-        if (prev_sent_id != node_desc['sent_id'] or k+1==len(text[layer])) and current_sentence:
-            # If the index of the sentence has changed or we have reached to the end, and we have 
-            # collected a sentence, then build tree(s) from this sentence
+        if prev_sent_id != node_desc['sent_id'] and current_sentence:
+            # If the index of the sentence has changed, and we have collected a sentence, 
+            # then build tree(s) from this sentence
             assert prev_sent_id<len(text_sentences), '(!) Sentence with the index '+str(prev_sent_id)+\
                                                      ' not found from the input text.'
             sentence = text_sentences[prev_sent_id]
-            if k+1 == len(text[layer]):
-                # if we have reached to the end, also add the last word
-                current_sentence.append( node_desc )
-            trees_of_sentence = []
-            nodes = [ -1 ]
-            while( len(nodes) > 0 ):
-                node = nodes.pop(0)
-                # Find tokens in the sentence that take this node as their parent
-                for i, syntax_token in enumerate( current_sentence ):
-                    labels  = [ o[0] for o in syntax_token['parser_out'] ]
-                    parents = [ o[1] for o in syntax_token['parser_out'] ]
-                    # There should be only one parent node; If there is more than one, take the 
-                    # first node;
-                    parent = parents[0]
-                    if parent == node and parent != i:
-                        estnltk_token = sentence[i]
-                        tree1 = Tree( estnltk_token, i, prev_sent_id, labels, layer )
-                        if 'init_parser_out' in syntax_token:
-                            tree1.parser_output = syntax_token['init_parser_out']
-                        tree1.syntax_token = syntax_token
-                        if parent == -1:
-                            # Add the root node
-                            trees_of_sentence.append( tree1 )
-                        else:
-                            # For each root node, attempt to add the child
-                            for root_node in trees_of_sentence:
-                                root_node.add_child_to_subtree( parent, tree1 )
-                        # Add the current node as a future parent to be examined
-                        nodes.append( i )
+            trees_of_sentence = \
+                build_trees_from_sentence( sentence, current_sentence, layer, sentence_id=prev_sent_id, \
+                                           **kwargs )
             # Record trees constructed from this sentence
             all_sentence_trees.extend( trees_of_sentence )
             # Reset the sentence collector
@@ -660,7 +683,18 @@ def build_dependency_trees( text, layer, **kwargs ):
         current_sentence.append( node_desc )
         prev_sent_id = node_desc['sent_id']
         k += 1
+    if current_sentence:
+        assert prev_sent_id<len(text_sentences), '(!) Sentence with the index '+str(prev_sent_id)+\
+                                                 ' not found from the input text.'
+        sentence = text_sentences[prev_sent_id]
+        # If we have collected a sentence, then build tree(s) from this sentence
+        trees_of_sentence = \
+            build_trees_from_sentence( sentence, current_sentence, layer, sentence_id=prev_sent_id, \
+                                       **kwargs )
+        # Record trees constructed from this sentence
+        all_sentence_trees.extend( trees_of_sentence )
     return all_sentence_trees
+
 
 
 # ==================================================================================
