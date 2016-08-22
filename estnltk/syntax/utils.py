@@ -559,11 +559,10 @@ class Tree(object):
                 # TODO: add here condition checking
                 subtrees.append(child)
             # 2) Collect children of given tree's children
-            kwargs2 = kwargs[:]
-            kwargs2['include_self'] = False
-            kwargs2['depth_limit']  = depth_limit - 1 
+            kwargs['include_self'] = False
+            kwargs['depth_limit']  = depth_limit - 1 
             for child in self.children:
-                childs_results = child.get_children( **kwargs2 )
+                childs_results = child.get_children( **kwargs )
                 if childs_results:
                     subtrees.extend(childs_results)
         # TODO: add sorting of the subtrees
@@ -571,9 +570,65 @@ class Tree(object):
 
 
     def as_dependencygraph( self, **kwargs ):
+        ''' Returns this tree as a NLTK's DependencyGraph object.
+            
+            For more information about NLTK's DependencyGraph, see:
+             http://www.nltk.org/_modules/nltk/parse/dependencygraph.html
+        '''
         from nltk.parse.dependencygraph import DependencyGraph
-        # TODO
-        pass
+        graph = DependencyGraph( zero_based = True )
+        all_tree_nodes = [self] + self.get_children( **kwargs )
+        #
+        # 0) Fix the root
+        #
+        #  Note: we have to re-construct the root node manually, as 
+        #        DependencyGraph's current interface seems to provide
+        #        no easy/convenient means for fixing the root node;
+        graph.nodes[-1] = graph.nodes[0]
+        graph.nodes[-1].update( { 'address': -1 } )
+        del graph.nodes[0]
+        graph.root = graph.nodes[-1]
+        #
+        # 1) Update / Add nodes of the graph 
+        #
+        for child in all_tree_nodes:
+            rel  = 'xxx' if not child.labels else '|'.join(child.labels)
+            address = child.word_id
+            word    = child.text
+            graph.nodes[address].update(
+            {
+                'address': address,
+                'word':  child.text,
+                'rel':   rel,
+            } )
+        #
+        # 2) Update / Add arcs of the graph 
+        #
+        for child in all_tree_nodes:
+            #  Connect children of given word
+            deps = [] if not child.children else [c.word_id for c in child.children]
+            head_address = child.word_id
+            for dep in deps:
+                graph.add_arc( head_address, dep )
+            if child.parent == None:
+                graph.add_arc( -1, head_address )
+            #  Connect the parent of given node
+            head = -1 if not child.parent else child.parent.word_id
+            graph.nodes[head_address].update(
+            {
+                'head':  head,
+            } )
+        return graph
+
+
+    def as_nltk_tree( self, **kwargs ):
+        ''' Returns this tree as a NLTK's Tree object.
+        
+            For more information about NLTK's Tree, see:
+              http://www.nltk.org/_modules/nltk/tree.html
+        ''' 
+        #from nltk.tree import Tree as NLTK_Tree
+        return self.as_dependencygraph(**kwargs).tree()
 
 
     def get_tree_depth( self ):
