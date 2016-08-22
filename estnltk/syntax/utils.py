@@ -426,6 +426,7 @@ def read_text_from_conll_file( file_name, layer_name='conll_syntax', **kwargs ):
 class Tree(object):
     word_id     = None    # -> int    # index of the word/node in the sentence
     gen_word_id = None    # -> int    # index of the word/node in the text
+    sent_id     = None    # -> int    # index of the sentence this word/node belongs to
 
     labels      = None    # -> [str]  # list of syntactic functions (e.g. "@SUBJ", "@OBJ"); 
                           #           # associated with the node; in case of unsolved ambiguities,
@@ -437,16 +438,24 @@ class Tree(object):
     token       = None    # -> dict   # EstNLTK token corresponding to the node / tree
     text        = None    # -> str    # token's TEXT ( token[TEXT] )
     morph       = None    # -> [dict] # token's morphological analysis (token[ANALYSIS])
+    
+    syntax_token = None   # -> dict   # Token in the layer of EstNLTK's syntactic analysis that
+                          #           # this node is based on;
 
     parser        = None  # -> str    # used parser: 'maltparser' or 'vislcg3'
     parser_output = None  # -> [str]  # analysis lines from the output of the parser (if have been 
                           #           # preserved); in case of unsolved ambiguities, there can be 
                           #           # multiple analysis lines associated with the node;
 
-    def __init__( self, token, word_id, labels, parser, **kwargs ):
+    def __init__( self, token, word_id, sent_id, labels, parser, **kwargs ):
+        ''' Creates a new tree node / subtree, corresponding to the given EstNLTK's 
+            *token*, which has word index *word_id*, which is from the sentence 
+            *sent_id*, and which bears syntactic functions listed in *labels*.
+        '''
         #  Acquire mandatory input arguments 
         self.token   = token
         self.word_id = word_id
+        self.sent_id = sent_id
         self.labels  = labels
         self.parser  = parser
         #  Acquire optional input arguments  
@@ -470,6 +479,10 @@ class Tree(object):
                 assert isinstance(argVal, list), \
                        '(!) Unexpected type of argument for '+argName+'! Should be list of str.'
                 self.parser_output = argVal
+            elif argName in ['syntax_token']:
+                assert isinstance(argVal, dict), \
+                       '(!) Unexpected type of argument for '+argName+'! Should be dict.'
+                self.syntax_token = argVal
         assert self.token != None, '(!) Please provide a link to the estnltk\'s token!'
         self.text  = self.token[TEXT]
         self.morph = self.token[ANALYSIS]
@@ -489,7 +502,7 @@ class Tree(object):
         ''' Searches for the tree with *parent_word_id* from the current subtree 
             (from this tree and from all of its subtrees). If the parent tree is 
             found, attaches the given *tree* as its child. If the parent tree is
-            not found, nothing will be added and the current tree stays the same. 
+            not found, the current tree is not changed.
         '''
         if (self.word_id == parent_word_id):
             self.add_child_to_self( tree )
@@ -562,7 +575,93 @@ class Tree(object):
         # TODO
         pass
 
+
+    def get_tree_depth( self ):
+        ''' Finds depth of this tree. '''
+        if (self.children):
+            depth = 1
+            childDepths = []
+            for child in self.children:
+                childDepths.append( child.get_tree_depth() )
+            return depth + max(childDepths)
+        else:
+            return 0
+
+
+    def debug_print_tree( self, spacing='' ):
+        ''' *Debug only* method for outputting the tree. '''
+        print (spacing+" "+str(self.word_id)+" "+str(self.text))
+        if (self.children):
+            spacing=spacing+"  "
+            for child in self.children:
+                child.debug_print_tree(spacing)
+
+
+
+def build_dependency_trees( text, layer, **kwargs ):
+    ''' Given a text object and the name of the layer where dependency syntactic 
+        relations are stored, builds trees ( estnltk.syntax.utils.Tree objects )
+        from all the sentences of the text and returns as a list of Trees.
         
+        Note that there is one-to-many correspondence between EstNLTK's sentences
+        and dependency syntactic trees: one sentence can evoke multiple trees;
+    '''
+    assert isinstance(text, Text), \
+           '(!) Unexpected text argument! Should be Estnltk\'s Text object.'
+    assert layer in text, \
+           '(!) The layer '+str(layer)+' is missing from the input text.'
+    text_sentences = list( text.divide( layer=WORDS, by=SENTENCES ) )
+    all_sentence_trees = []  # Collected sentence trees
+    prev_sent_id       = -1
+    current_sentence   = []
+    k = 0
+    while k < len( text[layer] ):
+        node_desc = text[layer][k]
+        if (prev_sent_id != node_desc['sent_id'] or k+1==len(text[layer])) and current_sentence:
+            # If the index of the sentence has changed or we have reached to the end, and we have 
+            # collected a sentence, then build tree(s) from this sentence
+            assert prev_sent_id<len(text_sentences), '(!) Sentence with the index '+str(prev_sent_id)+\
+                                                     ' not found from the input text.'
+            sentence = text_sentences[prev_sent_id]
+            if k+1 == len(text[layer]):
+                # if we have reached to the end, also add the last word
+                current_sentence.append( node_desc )
+            trees_of_sentence = []
+            nodes = [ -1 ]
+            while( len(nodes) > 0 ):
+                node = nodes.pop(0)
+                # Find tokens in the sentence that take this node as their parent
+                for i, syntax_token in enumerate( current_sentence ):
+                    labels  = [ o[0] for o in syntax_token['parser_out'] ]
+                    parents = [ o[1] for o in syntax_token['parser_out'] ]
+                    # There should be only one parent node; If there is more than one, take the 
+                    # first node;
+                    parent = parents[0]
+                    if parent == node and parent != i:
+                        estnltk_token = sentence[i]
+                        tree1 = Tree( estnltk_token, i, prev_sent_id, labels, layer )
+                        if 'init_parser_out' in syntax_token:
+                            tree1.parser_output = syntax_token['init_parser_out']
+                        tree1.syntax_token = syntax_token
+                        if parent == -1:
+                            # Add the root node
+                            trees_of_sentence.append( tree1 )
+                        else:
+                            # For each root node, attempt to add the child
+                            for root_node in trees_of_sentence:
+                                root_node.add_child_to_subtree( parent, tree1 )
+                        # Add the current node as a future parent to be examined
+                        nodes.append( i )
+            # Record trees constructed from this sentence
+            all_sentence_trees.extend( trees_of_sentence )
+            # Reset the sentence collector
+            current_sentence = []
+        # Collect sentence
+        current_sentence.append( node_desc )
+        prev_sent_id = node_desc['sent_id']
+        k += 1
+    return all_sentence_trees
+
 
 # ==================================================================================
 # ==================================================================================
