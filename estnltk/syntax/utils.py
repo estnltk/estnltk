@@ -79,7 +79,7 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
 
         rep_miss_w_dummy : bool
             Optional argument specifying whether missing analyses should be replaced
-            with dummy analyses (in the form ['xxx', link_to_self]); If False,
+            with dummy analyses ( in the form ['xxx', link_to_self] ); If False,
             an Exception is raised in case of a missing analysis;
             Default:True
             
@@ -88,8 +88,8 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
             dependencies should be fixed;
             A self-reference link is firstly re-oriented as a link to the previous word
             in the sentence, and if the previous word does  not  exist,  the  link  is 
-            re-oriented to the next word in the sentence (regardless whether the next 
-            word exists or not);
+            re-oriented to the next word in the sentence; If the self-linked word is
+            the only word in the sentence, it is made the root of the sentence;
             Default:True
         
         keep_old : bool
@@ -205,9 +205,14 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
                 if foundRelations[r][1] == wordID:
                     # Make it to point to the previous word in the sentence,
                     # and if the previous one does not exist, make it to point
-                    # to the next word (regardless whether it exists or not);
+                    # to the next word;
                     foundRelations[r][1] = \
                         wordID-1 if wordID-1 > -1 else wordID+1
+                    # If the self-linked token is the only token in the sentence, 
+                    # mark it as the root of the sentence:
+                    if wordID-1 == -1 and (i+1 == len(alignments) or \
+                       alignments[i]['sent_id'] != alignments[i+1]['sent_id']):
+                        foundRelations[r][1] = -1
         # Mark the root node in the syntactic tree with the label ROOT ( if requested )
         if mark_root:
             for r in range(len(foundRelations)):
