@@ -38,6 +38,8 @@ MALTPARSER_PATH  = os.path.join(PACKAGE_PATH, 'java-res', 'maltparser')
 MALTPARSER_MODEL = 'estnltkBasedDep2'
 MALTPARSER_JAR   = 'maltparser-1.8.jar'
 
+SENT_ID          = 'sent_id'
+PARSER_OUT       = 'parser_out'
 
 # =============================================================================
 # =============================================================================
@@ -429,7 +431,7 @@ def align_CONLL_with_Text( lines, text, **kwargs ):
                                     estnltkToken, maltparserToken )
                 # Populate the alignment
                 result_dict = { START:estnltkToken[START], END:estnltkToken[END], \
-                                'sent_id':sentenceID, 'parser_out': [maltparserToken] }
+                                SENT_ID:sentenceID, PARSER_OUT: [maltparserToken] }
                 if add_word_ids:
                     result_dict['text_word_id'] = generalWID # word id in the text
                     result_dict['sent_word_id'] = i          # word id in the sentence

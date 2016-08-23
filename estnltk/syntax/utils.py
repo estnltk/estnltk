@@ -24,7 +24,15 @@ from estnltk.maltparser_support import MaltParser, align_CONLL_with_Text
 from syntax_preprocessing import SyntaxPreprocessing
 from vislcg3_syntax import VISLCG3Pipeline, cleanup_lines, align_cg3_with_Text
 
+# Used constants
+CONLL_DATA    = 'conll'
+VISLCG3_DATA  = 'vislcg3'
+LAYER_CONLL   = 'conll_syntax'
+LAYER_VISLCG3 = 'vislcg3_syntax'
 
+SENT_ID         = 'sent_id'
+PARSER_OUT      = 'parser_out'
+INIT_PARSER_OUT = 'init_parser_out'
 
 # ==================================================================================
 # ==================================================================================
@@ -35,7 +43,7 @@ from vislcg3_syntax import VISLCG3Pipeline, cleanup_lines, align_cg3_with_Text
 pat_cg3_surface_rel = re.compile('(@\S+)')
 pat_cg3_dep_rel     = re.compile('#(\d+)\s*->\s*(\d+)')
 
-def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
+def normalise_alignments( alignments, type=VISLCG3_DATA, **kwargs ):
     ''' Normalises dependency syntactic information in the given list of alignments.
         *) Translates tree node indices from the syntax format (indices starting 
            from 1), to EstNLTK format (indices starting from 0);
@@ -74,8 +82,8 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
             'start', 'end', 'sent_id', 'parser_out'
 
         type : str
-            Type of data in list_of_analysis_lines; Possible types: 'VISLCG3'
-            (default), and 'CONLL';
+            Type of data in list_of_analysis_lines; Possible types: 'vislcg3'
+            (default), and 'conll';
 
         rep_miss_w_dummy : bool
             Optional argument specifying whether missing analyses should be replaced
@@ -133,10 +141,10 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
     '''
     if not isinstance( alignments, list ):
         raise Exception('(!) Unexpected type of input argument! Expected a list of strings.')
-    if type.lower() in ['vislcg3','cg3']:
-       type = 1
-    elif type.lower() in ['conll', 'malt', 'maltparser']:
-       type = 2
+    if type.lower() == VISLCG3_DATA:
+       type = VISLCG3_DATA
+    elif type.lower() == CONLL_DATA:
+       type = CONLL_DATA
     else: 
        raise Exception('(!) Unexpected type of data: ', type)
     keep_old         = False
@@ -161,14 +169,14 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
     wordID = 0
     for i in range(len(alignments)):
         alignment = alignments[i]
-        if prev_sent_id != alignment['sent_id']:
+        if prev_sent_id != alignment[SENT_ID]:
             # Start of a new sentence: reset word id
             wordID = 0
         # 1) Extract syntactic information
         foundRelations = []
-        if type == 1:
+        if type == VISLCG3_DATA:
             # *****************  VISLCG3 format
-            for line in alignment['parser_out']:
+            for line in alignment[PARSER_OUT]:
                 # Extract info from VISLCG3 format analysis:
                 sfuncs  = pat_cg3_surface_rel.findall( line )
                 deprels = pat_cg3_dep_rel.findall( line )
@@ -181,9 +189,9 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
                         relS = int(relS)-1
                         relT = int(relT)-1
                         foundRelations.append( [func, relT] )
-        elif type == 2:
+        elif type == CONLL_DATA:
             # *****************  CONLL format
-            for line in alignment['parser_out']:
+            for line in alignment[PARSER_OUT]:
                 parts = line.split('\t')
                 if len(parts) != 10:
                     raise Exception('(!) Unexpected line format for CONLL data:', line)
@@ -211,7 +219,7 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
                     # If the self-linked token is the only token in the sentence, 
                     # mark it as the root of the sentence:
                     if wordID-1 == -1 and (i+1 == len(alignments) or \
-                       alignments[i]['sent_id'] != alignments[i+1]['sent_id']):
+                       alignments[i][SENT_ID] != alignments[i+1][SENT_ID]):
                         foundRelations[r][1] = -1
         # Mark the root node in the syntactic tree with the label ROOT ( if requested )
         if mark_root:
@@ -221,13 +229,13 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
         # 2) Replace existing syntactic info with more compact info
         if not keep_old:
             # Overwrite old info
-            alignment['parser_out'] = foundRelations
+            alignment[PARSER_OUT] = foundRelations
         else: 
             # or preserve the initial information, and add new compact information
-            alignment['init_parser_out'] = alignment['parser_out']
-            alignment['parser_out']      = foundRelations
+            alignment[INIT_PARSER_OUT] = alignment[PARSER_OUT]
+            alignment[PARSER_OUT]      = foundRelations
         alignments[i] = alignment
-        prev_sent_id = alignment['sent_id']
+        prev_sent_id = alignment[SENT_ID]
         # Increase word id 
         wordID += 1
     return alignments
@@ -242,13 +250,13 @@ def normalise_alignments( alignments, type='VISLCG3', **kwargs ):
 pat_double_quoted  = re.compile('^".*"$')
 pat_cg3_word_token = re.compile('^"<(.+)>"$')
 
-def read_text_from_cg3_file( file_name, layer_name='vislcg3_syntax', **kwargs ):
+def read_text_from_cg3_file( file_name, layer_name=LAYER_VISLCG3, **kwargs ):
     ''' Reads the output of VISLCG3 syntactic analysis from given file, and 
         returns as a Text object.
         
         The Text object has been tokenized for paragraphs, sentences, words, and it 
         contains syntactic analyses aligned with word spans, in the layer *layer_name* 
-        (by default: 'vislcg3_syntax');
+        (by default: LAYER_VISLCG3);
         
         Attached syntactic analyses are in the format as is the output of 
           utils.normalise_alignments();
@@ -333,19 +341,19 @@ def read_text_from_cg3_file( file_name, layer_name='vislcg3_syntax', **kwargs ):
     
     # 4) Align syntactic analyses with the Text
     alignments = align_cg3_with_Text( cg3_lines, text, **kwargs )
-    normalise_alignments( alignments, type='VISLCG3', **kwargs )
+    normalise_alignments( alignments, type=VISLCG3_DATA, **kwargs )
     # Attach alignments to the text
     text[ layer_name ] = alignments
     return text
 
 
-def read_text_from_conll_file( file_name, layer_name='conll_syntax', **kwargs ):
+def read_text_from_conll_file( file_name, layer_name=LAYER_CONLL, **kwargs ):
     ''' Reads the CONLL format syntactic analysis from given file, and returns as 
         a Text object.
         
         The Text object has been tokenized for paragraphs, sentences, words, and it 
         contains syntactic analyses aligned with word spans, in the layer *layer_name* 
-        (by default: 'conll_syntax');
+        (by default: LAYER_CONLL);
         
         Attached syntactic analyses are in the format as is the output of 
           utils.normalise_alignments();
@@ -410,7 +418,7 @@ def read_text_from_conll_file( file_name, layer_name='conll_syntax', **kwargs ):
     
     # 4) Align syntactic analyses with the Text
     alignments = align_CONLL_with_Text( conll_lines, text, **kwargs )
-    normalise_alignments( alignments, type='CONLL', **kwargs )
+    normalise_alignments( alignments, type=CONLL_DATA, **kwargs )
     # Attach alignments to the text
     text[ layer_name ] = alignments
     return text
@@ -476,7 +484,7 @@ class Tree(object):
                 assert isinstance(argVal, int), \
                        '(!) Unexpected type of argument for '+argName+'! Should be int.'
                 self.gen_word_id = argVal
-            elif argName in ['parser_output', 'parser_out']:
+            elif argName.lower() == PARSER_OUT:
                 assert isinstance(argVal, list), \
                        '(!) Unexpected type of argument for '+argName+'! Should be list of str.'
                 self.parser_output = argVal
@@ -675,8 +683,7 @@ class Tree(object):
 
 # ===========================================
 
-
-def build_trees_from_sentence( sentence, syntactic_relations, layer='vislcg3', \
+def build_trees_from_sentence( sentence, syntactic_relations, layer=LAYER_VISLCG3, \
                                sentence_id=0, **kwargs ):
     ''' Given a sentence ( a list of EstNLTK's word tokens ), and a list of 
         dependency syntactic relations ( output of normalise_alignments() ),
@@ -693,16 +700,16 @@ def build_trees_from_sentence( sentence, syntactic_relations, layer='vislcg3', \
         node = nodes.pop(0)
         # Find tokens in the sentence that take this node as their parent
         for i, syntax_token in enumerate( syntactic_relations ):
-            parents = [ o[1] for o in syntax_token['parser_out'] ]
+            parents = [ o[1] for o in syntax_token[PARSER_OUT] ]
             # There should be only one parent node; If there is more than one, take the 
             # first node;
             parent = parents[0]
             if parent == node:
-                labels  = [ o[0] for o in syntax_token['parser_out'] ]
+                labels  = [ o[0] for o in syntax_token[PARSER_OUT] ]
                 estnltk_token = sentence[i]
                 tree1 = Tree( estnltk_token, i, sentence_id, labels, parser=layer )
-                if 'init_parser_out' in syntax_token:
-                    tree1.parser_output = syntax_token['init_parser_out']
+                if INIT_PARSER_OUT in syntax_token:
+                    tree1.parser_output = syntax_token[INIT_PARSER_OUT]
                 tree1.syntax_token = syntax_token
                 if parent == -1:
                     # Add the root node
@@ -744,7 +751,7 @@ def build_trees_from_text( text, layer, **kwargs ):
     k = 0
     while k < len( text[layer] ):
         node_desc = text[layer][k]
-        if prev_sent_id != node_desc['sent_id'] and current_sentence:
+        if prev_sent_id != node_desc[SENT_ID] and current_sentence:
             # If the index of the sentence has changed, and we have collected a sentence, 
             # then build tree(s) from this sentence
             assert prev_sent_id<len(text_sentences), '(!) Sentence with the index '+str(prev_sent_id)+\
@@ -759,7 +766,7 @@ def build_trees_from_text( text, layer, **kwargs ):
             current_sentence = []
         # Collect sentence
         current_sentence.append( node_desc )
-        prev_sent_id = node_desc['sent_id']
+        prev_sent_id = node_desc[SENT_ID]
         k += 1
     if current_sentence:
         assert prev_sent_id<len(text_sentences), '(!) Sentence with the index '+str(prev_sent_id)+\

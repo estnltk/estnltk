@@ -64,6 +64,8 @@ import codecs
 import tempfile
 from subprocess import Popen, PIPE
 
+SENT_ID         = 'sent_id'
+PARSER_OUT      = 'parser_out'
 
 # ==================================================================================
 # ==================================================================================
@@ -408,7 +410,7 @@ def align_cg3_with_Text( lines, text, **kwargs ):
           'start'   -- start index of the word in Text;
           'end'     -- end index of the word in Text;
           'sent_id' -- index of the sentence in Text, starting from 0;
-          'parser_out' -- lines of analyses from the output of the syntactic parser;
+          'parser_out' -- list of analyses from the output of the syntactic parser;
 
         Parameters
         -----------
@@ -499,7 +501,7 @@ def align_cg3_with_Text( lines, text, **kwargs ):
                                     ':',wordStr,' vs ',cg3word)
                 # Populate the alignment
                 result_dict = { START:wordJson[START], END:wordJson[END], \
-                                'sent_id':sentenceID, 'parser_out': cg3analyses }
+                                SENT_ID:sentenceID, PARSER_OUT: cg3analyses }
                 if add_word_ids:
                     result_dict['text_word_id'] = generalWID # word id in the text
                     result_dict['sent_word_id'] = sentWID    # word id in the sentence
