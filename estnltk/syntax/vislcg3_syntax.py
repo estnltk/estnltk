@@ -54,7 +54,7 @@ from __future__ import unicode_literals, print_function
 
 from estnltk.names import *
 from estnltk.text import Text
-from estnltk.core import as_unicode
+from estnltk.core import PACKAGE_PATH, as_unicode
 
 from syntax_preprocessing import SyntaxPreprocessing
 
@@ -66,6 +66,12 @@ from subprocess import Popen, PIPE
 
 SENT_ID         = 'sent_id'
 PARSER_OUT      = 'parser_out'
+
+SYNTAX_PATH = os.path.join(PACKAGE_PATH, 'syntax', 'files')
+SYNTAX_PIPELINE_1_4 = \
+    ['clo_ub.rle', 'morfyhe_ub.rle', 'PhVerbs_ub.rle', 'pindsyn_ub.rle', 'strukt_ub.rle']
+SYNTAX_PIPELINE_ESTCG = \
+    ['clo.rul', 'morfyhe.rul', 'PhVerbs.rul', 'pindsyn.rul', 'strukt_parand.rul']
 
 # ==================================================================================
 # ==================================================================================
@@ -118,8 +124,8 @@ class VISLCG3Pipeline:
 
     '''
 
-    rules_pipeline = ['clo.rul', 'morfyhe.rul', 'PhVerbs.rul', 'pindsyn.rul', 'strukt_parand.rul']
-    rules_dir      = None
+    rules_pipeline = SYNTAX_PIPELINE_1_4
+    rules_dir      = SYNTAX_PATH
     vislcg_cmd     = 'vislcg3'
     
     def __init__( self, **kwargs):
@@ -138,7 +144,6 @@ class VISLCG3Pipeline:
                 pipeline.
                 If a file name listed in *pipeline* does not contain path, it is assumed 
                 to reside within *rules_dir*;
-                Required parameter.
             
             pipeline : list of str
                 List of VISLCG3 rule file names. In the processing phase, these rules

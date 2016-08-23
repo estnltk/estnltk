@@ -59,11 +59,16 @@ from __future__ import unicode_literals, print_function
 
 from estnltk.names import *
 from estnltk.text import Text
+from estnltk.core import PACKAGE_PATH
 
 import re, json
 import os, os.path
 import codecs
 
+
+SYNTAX_PATH      = os.path.join(PACKAGE_PATH, 'syntax', 'files')
+FS_TO_SYNT_RULES_FILE = os.path.join(SYNTAX_PATH,  'tmorftrtabel.txt')
+SUBCAT_RULES_FILE     = os.path.join(SYNTAX_PATH,  'abileksikon06utf.lx')
 
 # ==================================================================================
 #   Utils
@@ -881,6 +886,9 @@ class SyntaxPreprocessing:
 
     '''
 
+    fs_to_synt_rules_file = FS_TO_SYNT_RULES_FILE
+    subcat_rules_file     = SUBCAT_RULES_FILE
+    
     fs_to_synt_rules = None
     subcat_rules     = None
     
@@ -894,13 +902,11 @@ class SyntaxPreprocessing:
             fs_to_synt_rules : str
                 Name of the file containing rules for mapping from Filosoft's old mrf 
                 format to syntactic analyzer's preprocessing mrf format;
-                Required parameter;
                 (~~'tmorftrtabel.txt')
             
             subcat_rules : str
                 Name of the file containing rules for adding subcategorization information
                 to verbs/adpositions;
-                Required parameter;
                 (~~'abileksikon06utf.lx')
             
             allow_to_remove_all : bool
@@ -913,18 +919,27 @@ class SyntaxPreprocessing:
         '''
         for argName, argVal in kwargs.items():
             if argName in ['fs_to_synt_rules_file', 'fs_to_synt_rules', 'fs_to_synt']:
-                self.fs_to_synt_rules = \
-                     load_fs_mrf_to_syntax_mrf_translation_rules( argVal )
+                self.fs_to_synt_rules_file = argVal
             elif argName in ['subcat_rules_file', 'subcat_rules', 'subcat']:
-                self.subcat_rules = load_subcat_info( argVal )
+                self.subcat_rules_file = argVal
             elif argName in ['allow_to_remove_all','allow_to_remove'] and argVal in [True,False]:
                 self.allow_to_remove_all = argVal
             else:
-                raise Exception(' Unsupported argument given: '+argName)
-        if not self.fs_to_synt_rules:
-            raise Exception('Missing input argument: fs_to_synt_rules')
-        if not self.subcat_rules:
-            raise Exception('Missing input argument: subcat_rules')
+                raise Exception('(!) Unsupported argument given: '+argName)
+        #  fs_to_synt_rules_file:
+        if not self.fs_to_synt_rules_file or not os.path.exists( self.fs_to_synt_rules_file ):
+            raise Exception('(!) Unable to find *fs_to_synt_rules_file* from location:', \
+                            self.fs_to_synt_rules_file)
+        else:
+            self.fs_to_synt_rules = \
+                load_fs_mrf_to_syntax_mrf_translation_rules( self.fs_to_synt_rules_file )
+        #  subcat_rules_file:
+        if not self.subcat_rules_file or not os.path.exists( self.subcat_rules_file ):
+            raise Exception('(!) Unable to find *subcat_rules* from location:', \
+                            self.subcat_rules_file)
+        else:
+            self.subcat_rules = load_subcat_info( self.subcat_rules_file )
+
 
 
     def process_vm_json( self, json_dict, **kwargs ):
