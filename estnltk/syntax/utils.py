@@ -425,7 +425,7 @@ def read_text_from_conll_file( file_name, layer_name='conll_syntax', **kwargs ):
 
 class Tree(object):
     word_id     = None    # -> int    # index of the word/node in the sentence
-    gen_word_id = None    # -> int    # index of the word/node in the text
+    gen_word_id = None    # -> int    # index of the word/node in the text (if provided)
     sent_id     = None    # -> int    # index of the sentence this word/node belongs to
 
     labels      = None    # -> [str]  # list of syntactic functions (e.g. "@SUBJ", "@OBJ"); 
@@ -438,6 +438,7 @@ class Tree(object):
     token       = None    # -> dict   # EstNLTK token corresponding to the node / tree
     text        = None    # -> str    # token's TEXT ( token[TEXT] )
     morph       = None    # -> [dict] # token's morphological analysis (token[ANALYSIS])
+                          #           # (if the Text object was analysed morphologically);
     
     syntax_token = None   # -> dict   # Token in the layer of EstNLTK's syntactic analysis that
                           #           # this node is based on;
@@ -485,7 +486,8 @@ class Tree(object):
                 self.syntax_token = argVal
         assert self.token != None, '(!) Please provide a link to the estnltk\'s token!'
         self.text  = self.token[TEXT]
-        self.morph = self.token[ANALYSIS]
+        if ANALYSIS in self.token:
+            self.morph = self.token[ANALYSIS]
 
 
     def add_child_to_self( self, tree ):
@@ -580,11 +582,10 @@ class Tree(object):
             -----------
             keep_dummy_root : bool
                 Specifies whether the graph should include a dummy
-                TOP / ROOT node, which does not refer to any words,
-                but is the topmost node of the tree. 
+                TOP / ROOT node, which does not refer to any word,
+                and yet is the topmost node of the tree.
                 If the dummy root node is not used, then the root 
-                node is the word node referring to the root node
-                (-1) in the tree;
+                node is the word node headed by the root node (-1);
                 Default: False
             
             For more information about NLTK's DependencyGraph, see:
