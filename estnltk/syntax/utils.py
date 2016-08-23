@@ -43,7 +43,7 @@ INIT_PARSER_OUT = 'init_parser_out'
 pat_cg3_surface_rel = re.compile('(@\S+)')
 pat_cg3_dep_rel     = re.compile('#(\d+)\s*->\s*(\d+)')
 
-def normalise_alignments( alignments, type=VISLCG3_DATA, **kwargs ):
+def normalise_alignments( alignments, data_type=VISLCG3_DATA, **kwargs ):
     ''' Normalises dependency syntactic information in the given list of alignments.
         *) Translates tree node indices from the syntax format (indices starting 
            from 1), to EstNLTK format (indices starting from 0);
@@ -81,7 +81,7 @@ def normalise_alignments( alignments, type=VISLCG3_DATA, **kwargs ):
             A list of dicts, where each item/dict has following attributes:
             'start', 'end', 'sent_id', 'parser_out'
 
-        type : str
+        data_type : str
             Type of data in list_of_analysis_lines; Possible types: 'vislcg3'
             (default), and 'conll';
 
@@ -141,12 +141,12 @@ def normalise_alignments( alignments, type=VISLCG3_DATA, **kwargs ):
     '''
     if not isinstance( alignments, list ):
         raise Exception('(!) Unexpected type of input argument! Expected a list of strings.')
-    if type.lower() == VISLCG3_DATA:
-       type = VISLCG3_DATA
-    elif type.lower() == CONLL_DATA:
-       type = CONLL_DATA
+    if data_type.lower() == VISLCG3_DATA:
+       data_type = VISLCG3_DATA
+    elif data_type.lower() == CONLL_DATA:
+       data_type = CONLL_DATA
     else: 
-       raise Exception('(!) Unexpected type of data: ', type)
+       raise Exception('(!) Unexpected type of data: ', data_type)
     keep_old         = False
     rep_miss_w_dummy = True
     mark_root        = False
@@ -174,7 +174,7 @@ def normalise_alignments( alignments, type=VISLCG3_DATA, **kwargs ):
             wordID = 0
         # 1) Extract syntactic information
         foundRelations = []
-        if type == VISLCG3_DATA:
+        if data_type == VISLCG3_DATA:
             # *****************  VISLCG3 format
             for line in alignment[PARSER_OUT]:
                 # Extract info from VISLCG3 format analysis:
@@ -189,7 +189,7 @@ def normalise_alignments( alignments, type=VISLCG3_DATA, **kwargs ):
                         relS = int(relS)-1
                         relT = int(relT)-1
                         foundRelations.append( [func, relT] )
-        elif type == CONLL_DATA:
+        elif data_type == CONLL_DATA:
             # *****************  CONLL format
             for line in alignment[PARSER_OUT]:
                 parts = line.split('\t')
@@ -341,7 +341,7 @@ def read_text_from_cg3_file( file_name, layer_name=LAYER_VISLCG3, **kwargs ):
     
     # 4) Align syntactic analyses with the Text
     alignments = align_cg3_with_Text( cg3_lines, text, **kwargs )
-    normalise_alignments( alignments, type=VISLCG3_DATA, **kwargs )
+    normalise_alignments( alignments, data_type=VISLCG3_DATA, **kwargs )
     # Attach alignments to the text
     text[ layer_name ] = alignments
     return text
@@ -418,7 +418,7 @@ def read_text_from_conll_file( file_name, layer_name=LAYER_CONLL, **kwargs ):
     
     # 4) Align syntactic analyses with the Text
     alignments = align_CONLL_with_Text( conll_lines, text, **kwargs )
-    normalise_alignments( alignments, type=CONLL_DATA, **kwargs )
+    normalise_alignments( alignments, data_type=CONLL_DATA, **kwargs )
     # Attach alignments to the text
     text[ layer_name ] = alignments
     return text
@@ -784,10 +784,117 @@ def build_trees_from_text( text, layer, **kwargs ):
 
 # ==================================================================================
 # ==================================================================================
+#   Applying  syntactic analyser / parser on Text
+# ==================================================================================
+# ==================================================================================
 
-class SyntacticParser(object):
-    """ TODO: add implementation here."""
+class VISLCG3Parser(object):
+    ''' A wrapper for Estonian VISLCG3 based syntactic parsing pipeline. 
     
-    def parse_text(self, text):
-        """ TODO: Tag the given text instance. """
-        pass
+        Unifies processing done in SyntaxPreprocessing() and VISLCG3Pipeline(), and 
+        post-processing done in  align_cg3_with_Text() and normalise_alignments() 
+        into a common analysis pipeline, which produces a syntactic analyses for
+        a Text object.
+        
+        WIP
+        
+    '''
+    
+    preprocessor      = None 
+    vislcg3_processor = None
+
+    def __init__( self, **kwargs):
+       ''' TODO: '''
+       for argName, argVal in kwargs.items():
+            if argName.lower in ['preprocessor', 'preproc']:
+                assert isinstance(argVal, SyntaxPreprocessing), \
+                    '(!) "preprocessor" must be from SyntaxPreprocessing class.'
+                self.preprocessor = argVal
+            elif argName.lower in ['vislcg3_processor', 'vislcg3_proc']:
+                assert isinstance(argVal, VISLCG3Pipeline), \
+                    '(!) "vislcg3_processor" must be from VISLCG3Pipeline class.'
+                self.vislcg3_processor = argVal
+       # initialize pre-processing pipeline
+       if not self.preprocessor:
+            new_kwargs = self._filter_kwargs( \
+                ['subcat_rules','fs_to_synt_rules','allow_to_remove'], **kwargs )
+            self.preprocessor = SyntaxPreprocessing( **new_kwargs )
+       # initialize vislcg3 pipeline
+       if not self.vislcg3_processor:
+            new_kwargs = self._filter_kwargs( \
+                ['pipeline','rules_dir','vislcg_cmd','vislcg'], **kwargs )
+            self.vislcg3_processor = VISLCG3Pipeline( **new_kwargs )
+        
+        
+    def parse_text(self, text, **kwargs):
+        """ TODO: Tag the given text instance. 
+        
+            return_type : string
+               If return_type=="text" (Default), 
+                    returns the input Text object;
+               If return_type=="vislcg3", 
+                    returns VISLCG3's output: a list of strings, each element in 
+                    the list corresponding to a line from VISLCG3's output;
+               If return_type=="trees", 
+                    returns all syntactic trees of the text as a list of 
+                    EstNLTK's Tree objects (estnltk.syntax.utils.Tree);
+               If return_type=="dep_graphs", 
+                    returns all syntactic trees of the text as a list of NLTK's 
+                    DependencyGraph objects 
+                    (nltk.parse.dependencygraph.DependencyGraph);
+               Regardless the return type, the layer containing dependency syntactic
+               information ( LAYER_VISLCG3 ) will be attached to the text object;
+        """
+        # a) get the configuration:
+        all_return_types = ["text","vislcg3","trees","dep_graphs"]
+        return_type      = all_return_types[0]
+        for argName, argVal in kwargs.items():
+            if argName.lower() == 'return_type':
+                if argVal.lower() in all_return_types:
+                    return_type = argVal.lower()
+                else:
+                    raise Exception(' Unexpected return type: ', argVal)
+        kwargs['split_result']  = True
+        kwargs['clean_up']      = True
+        kwargs['remove_clo']    = kwargs.get('remove_clo', True)
+        kwargs['remove_cap']    = kwargs.get('remove_cap', True)
+        kwargs['keep_old']      = kwargs.get('keep_old',  False)
+        kwargs['double_quotes'] = 'unesc'
+        
+        # b) process:
+        result_lines1 = \
+            self.preprocessor.process_Text(text, **kwargs)
+        result_lines2 = \
+            self.vislcg3_processor.process_lines(result_lines1, **kwargs)
+        alignments = \
+            align_cg3_with_Text(result_lines2, text, **kwargs)
+        alignments = \
+            normalise_alignments( alignments, data_type=VISLCG3_DATA, **kwargs )
+            
+        # c) attach & return results
+        text[LAYER_VISLCG3] = alignments
+        if return_type   == "vislcg3":
+            return result_lines2
+        elif return_type == "trees":
+            return build_trees_from_text( text, layer=LAYER_VISLCG3, **kwargs )
+        elif return_type == "dep_graphs":
+            trees = build_trees_from_text( text, layer=LAYER_VISLCG3, **kwargs )
+            graphs = [tree.as_dependencygraph() for tree in trees]
+            return graphs
+        else:
+            return text
+    
+
+    def _filter_kwargs(self, keep_list, **kwargs):
+        ''' Filters the dict of *kwargs*, keeping only arguments 
+            whose keys are in *keep_list* and discarding all other
+            arguments.
+            
+            Based on the filtring, constructs and returns a new 
+            dict.
+        '''
+        new_kwargs = {}
+        for argName, argVal in kwargs.items():
+            if argName.lower() in keep_list:
+                new_kwargs[argName.lower()] = argVal
+        return new_kwargs
