@@ -569,25 +569,41 @@ class Tree(object):
         return subtrees
 
 
-    def as_dependencygraph( self, **kwargs ):
-        ''' Returns this tree as a NLTK's DependencyGraph object.
+    def as_dependencygraph( self, keep_dummy_root=False ):
+        ''' Returns this tree as NLTK's DependencyGraph object.
+            
+            Note that this method constructs 'zero_based' graph,
+            where counting of the words starts from 0 and the 
+            root index is -1 (not 0, as in Malt-TAB format);
+            
+            Parameters
+            -----------
+            keep_dummy_root : bool
+                Specifies whether the graph should include a dummy
+                TOP / ROOT node, which does not refer to any words,
+                but is the topmost node of the tree. 
+                If the dummy root node is not used, then the root 
+                node is the word node referring to the root node
+                (-1) in the tree;
+                Default: False
             
             For more information about NLTK's DependencyGraph, see:
              http://www.nltk.org/_modules/nltk/parse/dependencygraph.html
         '''
         from nltk.parse.dependencygraph import DependencyGraph
         graph = DependencyGraph( zero_based = True )
-        all_tree_nodes = [self] + self.get_children( **kwargs )
+        all_tree_nodes = [self] + self.get_children()
         #
         # 0) Fix the root
         #
-        #  Note: we have to re-construct the root node manually, as 
-        #        DependencyGraph's current interface seems to provide
-        #        no easy/convenient means for fixing the root node;
-        graph.nodes[-1] = graph.nodes[0]
-        graph.nodes[-1].update( { 'address': -1 } )
+        if keep_dummy_root:
+            #  Note: we have to re-construct  the root node manually, 
+            #  as DependencyGraph's current interface seems to provide
+            #  no easy/convenient means for fixing the root node;
+            graph.nodes[-1] = graph.nodes[0]
+            graph.nodes[-1].update( { 'address': -1 } )
+            graph.root = graph.nodes[-1]
         del graph.nodes[0]
-        graph.root = graph.nodes[-1]
         #
         # 1) Update / Add nodes of the graph 
         #
@@ -601,6 +617,10 @@ class Tree(object):
                 'word':  child.text,
                 'rel':   rel,
             } )
+            if not keep_dummy_root and child == self:
+                # If we do not keep the dummy root node, set this tree
+                # as the root node
+                graph.root = graph.nodes[address]
         #
         # 2) Update / Add arcs of the graph 
         #
@@ -610,7 +630,7 @@ class Tree(object):
             head_address = child.word_id
             for dep in deps:
                 graph.add_arc( head_address, dep )
-            if child.parent == None:
+            if child.parent == None and keep_dummy_root:
                 graph.add_arc( -1, head_address )
             #  Connect the parent of given node
             head = -1 if not child.parent else child.parent.word_id
@@ -621,14 +641,14 @@ class Tree(object):
         return graph
 
 
-    def as_nltk_tree( self, **kwargs ):
-        ''' Returns this tree as a NLTK's Tree object.
+    def as_nltk_tree( self ):
+        ''' Returns this tree as NLTK's Tree object.
         
             For more information about NLTK's Tree, see:
               http://www.nltk.org/_modules/nltk/tree.html
         ''' 
         #from nltk.tree import Tree as NLTK_Tree
-        return self.as_dependencygraph(**kwargs).tree()
+        return self.as_dependencygraph().tree()
 
 
     def get_tree_depth( self ):
@@ -651,6 +671,8 @@ class Tree(object):
             for child in self.children:
                 child.debug_print_tree(spacing)
 
+
+# ===========================================
 
 
 def build_trees_from_sentence( sentence, syntactic_relations, layer='vislcg3', \
