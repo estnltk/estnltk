@@ -38,6 +38,15 @@ SPELLING = 'spelling'
 SUGGESTIONS = 'suggestions'
 
 # syntax related
+SENT_ID         = 'sent_id'
+PARSER_OUT      = 'parser_out'
+INIT_PARSER_OUT = 'init_parser_out'
+CONLL_DATA    = 'conll'
+VISLCG3_DATA  = 'vislcg3'
+LAYER_CONLL   = 'conll_syntax'
+LAYER_VISLCG3 = 'vislcg3_syntax'
+
+# syntax related (!!these are old names and will be deprecated in future versions!!)
 SYNTAX = 'syntax'
 LINK = 'link'
 INTERMEDIATE = 'intermediate'

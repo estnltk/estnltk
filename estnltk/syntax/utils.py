@@ -33,15 +33,6 @@ from estnltk.text  import Text
 from estnltk.syntax.maltparser_support import align_CONLL_with_Text
 from estnltk.syntax.vislcg3_syntax import cleanup_lines, align_cg3_with_Text
 
-# Used constants
-CONLL_DATA    = 'conll'
-VISLCG3_DATA  = 'vislcg3'
-LAYER_CONLL   = 'conll_syntax'
-LAYER_VISLCG3 = 'vislcg3_syntax'
-
-SENT_ID         = 'sent_id'
-PARSER_OUT      = 'parser_out'
-INIT_PARSER_OUT = 'init_parser_out'
 
 # ==================================================================================
 # ==================================================================================

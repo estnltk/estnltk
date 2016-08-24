@@ -62,14 +62,12 @@ import codecs
 import tempfile
 from subprocess import Popen, PIPE
 
-SENT_ID         = 'sent_id'
-PARSER_OUT      = 'parser_out'
-
 SYNTAX_PATH = os.path.join(PACKAGE_PATH, 'syntax', 'files')
 SYNTAX_PIPELINE_1_4 = \
     ['clo_ub.rle', 'morfyhe_ub.rle', 'PhVerbs_ub.rle', 'pindsyn_ub.rle', 'strukt_ub.rle']
 SYNTAX_PIPELINE_ESTCG = \
     ['clo.rul', 'morfyhe.rul', 'PhVerbs.rul', 'pindsyn.rul', 'strukt_parand.rul']
+
 
 # ==================================================================================
 # ==================================================================================

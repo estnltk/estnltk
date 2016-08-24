@@ -20,15 +20,6 @@ from estnltk.syntax.vislcg3_syntax import VISLCG3Pipeline, cleanup_lines, align_
 
 from estnltk.syntax.utils import normalise_alignments, build_trees_from_text
 
-# Used constants
-CONLL_DATA    = 'conll'
-VISLCG3_DATA  = 'vislcg3'
-LAYER_CONLL   = 'conll_syntax'
-LAYER_VISLCG3 = 'vislcg3_syntax'
-
-SENT_ID         = 'sent_id'
-PARSER_OUT      = 'parser_out'
-INIT_PARSER_OUT = 'init_parser_out'
 
 # ==================================================================================
 # ==================================================================================

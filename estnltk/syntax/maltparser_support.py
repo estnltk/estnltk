@@ -40,8 +40,6 @@ MALTPARSER_PATH  = os.path.join(PACKAGE_PATH, 'java-res', 'maltparser')
 MALTPARSER_MODEL = 'estnltkBasedDep2'
 MALTPARSER_JAR   = 'maltparser-1.8.jar'
 
-SENT_ID          = 'sent_id'
-PARSER_OUT       = 'parser_out'
 
 # =============================================================================
 # =============================================================================
