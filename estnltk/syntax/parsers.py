@@ -11,9 +11,9 @@ import os.path
 
 from estnltk.names import *
 
-from estnltk.maltparser_support import MALTPARSER_PATH, MALTPARSER_MODEL, MALTPARSER_JAR
-from estnltk.maltparser_support import convertTextToCONLLstr, _executeMaltparser, augmentTextWithCONLLstr
-from estnltk.maltparser_support import align_CONLL_with_Text
+from estnltk.syntax.maltparser_support import MALTPARSER_PATH, MALTPARSER_MODEL, MALTPARSER_JAR
+from estnltk.syntax.maltparser_support import convertTextToCONLLstr, _executeMaltparser, augmentTextWithCONLLstr
+from estnltk.syntax.maltparser_support import align_CONLL_with_Text
 
 from estnltk.syntax.syntax_preprocessing import SyntaxPreprocessing
 from estnltk.syntax.vislcg3_syntax import VISLCG3Pipeline, cleanup_lines, align_cg3_with_Text

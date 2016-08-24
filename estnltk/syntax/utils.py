@@ -30,7 +30,7 @@ from nltk.tokenize.regexp import RegexpTokenizer
 from estnltk.names import *
 from estnltk.text  import Text
 
-from estnltk.maltparser_support import align_CONLL_with_Text
+from estnltk.syntax.maltparser_support import align_CONLL_with_Text
 from estnltk.syntax.vislcg3_syntax import cleanup_lines, align_cg3_with_Text
 
 # Used constants
