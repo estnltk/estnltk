@@ -56,8 +56,6 @@ from estnltk.names import *
 from estnltk.text import Text
 from estnltk.core import PACKAGE_PATH, as_unicode
 
-from syntax_preprocessing import SyntaxPreprocessing
-
 import re
 import os, os.path, sys
 import codecs
