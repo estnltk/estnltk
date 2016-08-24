@@ -12,7 +12,7 @@ from .names import *
 from .text  import Text
 
 from .mw_verbs.utils import WordTemplate
-from .maltparser_support import MaltParser
+from .syntax.parsers import MaltParser
 
 
 # =============================================================================
@@ -124,7 +124,7 @@ class NounPhraseChunker:
         # 1) Analyze text with Maltparser to obtain dependency syntactic relations
         #    (if required)
         if not textIsParsed:
-            self.maltparser.parse_text( text )
+            self.maltparser.parse_text( text, augment_words=True )
 
         # 2) Process text sentence by sentence
         for sentence in text.divide( layer=WORDS, by=SENTENCES ):

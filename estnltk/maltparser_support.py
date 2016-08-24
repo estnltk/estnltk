@@ -20,6 +20,8 @@
 #      24208                     Row count
 #      -------------------------------------
 #
+#    Note: The MaltParser's main class is accessible from: estntlk.syntax.parsers.Maltparser
+#
 
 
 from __future__ import unicode_literals, print_function
@@ -441,139 +443,6 @@ def align_CONLL_with_Text( lines, text, **kwargs ):
         sentenceID += 1
         j += 1
     return results
-
-
-# =============================================================================
-# =============================================================================
-#   The Main Class
-# =============================================================================
-# =============================================================================
-
-class MaltParser:
-    '''  A wrapper around Java-based MaltParser. Allows to process estnltk Text
-        objects with Maltparser in order to obtain dependency syntactic relations
-        between the words in the sentence.
-    '''
-
-    maltparser_dir    = MALTPARSER_PATH
-    model_name        = MALTPARSER_MODEL
-    maltparser_jar    = MALTPARSER_JAR
-    add_ambiguous_pos = True
-    
-    def __init__( self, **kwargs):
-        ''' Initializes MaltParser's wrapper. 
-        
-            Parameters
-            -----------
-            maltparser_dir : str
-                Directory that contains Maltparser jar file and model file;
-                This directory is also used for storing temporary files, so 
-                writing should be allowed in it;
-                
-            model_name : str
-                Name of the Maltparser's model;
-                
-            maltparser_jar : str    
-                Name of the Maltparser jar file (e.g. 'maltparser-1.8.jar');
-                
-            add_ambiguous_pos : boolean
-                Whether ambiguous POS tags should be rewritten as a fine-grained 
-                POS tags (see convertTextToCONLLstr() for details);
-                NB! Requires that MaltParser has been trained with this setting;
-        '''
-        for argName, argVal in kwargs.items():
-            if argName == 'maltparser_dir':
-                self.maltparser_dir = argVal
-            elif argName == 'model_name':
-                self.model_name = argVal
-            elif argName == 'maltparser_jar':
-                self.maltparser_jar = argVal
-            elif argName == 'add_ambiguous_pos':
-                self.add_ambiguous_pos = bool(argVal)
-            else:
-                raise Exception(' Unsupported argument given: '+argName)
-        if not self.maltparser_dir:
-            raise Exception('Missing input argument: MaltParser directory')
-        elif not os.path.exists(self.maltparser_dir):
-            raise Exception('Invalid MaltParser directory:',self.maltparser_dir)
-        elif not self.maltparser_jar:
-            raise Exception('Missing input argument: MaltParser jar file name')
-        elif not self.model_name:
-            raise Exception('Missing input argument: MaltParser model name')
-
-
-    def parse_text( self, text, **kwargs ):
-        ''' Parses given text with Maltparser. 
-        
-            As a result of parsing, attributes indicating the dependency tree 
-            structure will be attached to each word token in text: 
-            the attribute SYNTAX_LABEL is the index of the token in the 
-            tree, 
-            the attribute SYNTAX_HEAD is the index of token's parent in the 
-            tree, and 
-            the attribute DEPREL is the name of the dependency relation 
-            (ROOT, @SUBJ, @OBJ, @ADVL etc.);
-            
-            Parameters
-            -----------
-            text : estnltk.text.Text
-               The input text that should be analysed for dependency relations;
-            
-            return_type : string
-               If return_type=="text" (Default), 
-                    returns the input Text object;
-               If return_type=="conll", 
-                    returns Maltparser's results as list of CONLL format strings, 
-                    each element in the list corresponding to one line in 
-                    MaltParser's output;
-               If return_type=="dep_graphs", 
-                    returns Maltparser's results as list of NLTK's DependencyGraph 
-                    objects (nltk.parse.dependencygraph.DependencyGraph);
-               Regardless the return type, words in the input Text will be 
-               augmented with syntactic dependency information;
-
-        '''
-        all_return_types = ["text", "conll", "dep_graphs"]
-        return_type      = all_return_types[0]
-        for argName, argVal in kwargs.items():
-            if argName == 'return_type':
-                if argVal.lower() in all_return_types:
-                    return_type = argVal.lower()
-                else:
-                    raise Exception(' Unexpected return type: ', argVal)
-            else:
-                raise Exception(' Unsupported argument given: '+argName)
-        # If text has not been morphologically analysed yet, add the 
-        # morphological analysis
-        if not text.is_tagged(ANALYSIS):
-            text.tag_analysis()
-        # Obtain CONLL formatted version of the text
-        textConllStr = convertTextToCONLLstr(text, addDepLabels = False, \
-                                                   addAmbiguousPos = self.add_ambiguous_pos)
-        # Execute MaltParser and get results as CONLL formatted string
-        resultsConllStr = \
-            _executeMaltparser( textConllStr, self.maltparser_dir, \
-                                              self.maltparser_jar, \
-                                              self.model_name )
-        # Augment the input text with the dependency relation information 
-        # obtained from MaltParser
-        augmentTextWithCONLLstr( resultsConllStr, text )
-        
-        if return_type == "conll":
-            # Return CONLL
-            return resultsConllStr
-        elif return_type == "dep_graphs":
-            # Return DependencyGraphs
-            from nltk.parse.dependencygraph import DependencyGraph
-            all_trees = []
-            for tree_str in ("\n".join(resultsConllStr)).split('\n\n'):
-                t = DependencyGraph(tree_str)
-                all_trees.append(t)
-            return all_trees
-        else:
-            # Return Text
-            return text
-
 
 # =============================================================================
 # =============================================================================
