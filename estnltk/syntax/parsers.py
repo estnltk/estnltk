@@ -58,6 +58,7 @@ class VISLCG3Parser(object):
                 print(line)
             
             # results are also packed in Text object, on the layer named LAYER_VISLCG3:
+            from estnltk.names import LAYER_VISLCG3, PARSER_OUT
             for word_id_in_text, syntax_analysis in enumerate( text[LAYER_VISLCG3] ):
                 parser_out = syntax_analysis[PARSER_OUT]
                 print(word_id_in_text, parser_out)
@@ -312,9 +313,9 @@ class MaltParser:
         
         Example usage:
             #
-            # text       - EstNLTK Text object to be analysed;
+            # text - EstNLTK Text object to be analysed;
             #
-            parser = MaltParser( vislcg_cmd=vislcg_cmd )
+            parser = MaltParser()
             
             # parse text, and return results as list of lines from maltparser's output
             results1 = parser.parse_text( text, return_type = "conll" )
@@ -322,6 +323,7 @@ class MaltParser:
                 print(line)
             
             # results are also packed in Text object, on the layer named LAYER_CONLL:
+            from estnltk.names import LAYER_CONLL, PARSER_OUT
             for word_id_in_text, syntax_analysis in enumerate( text[LAYER_CONLL] ):
                 parser_out = syntax_analysis[PARSER_OUT]
                 print(word_id_in_text, parser_out)
