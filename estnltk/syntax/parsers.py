@@ -6,6 +6,8 @@
 #    *) VISL-CG3 based syntactic analysis (VISLCG3Parser);
 #    *) MaltParser based syntactic analysis (MaltParser);
 #
+#   Developed and tested under Python's versions:  2.7.11,  3.4.4
+#
 
 import os.path
 
@@ -297,7 +299,7 @@ class VISLCG3Parser(object):
 # ==================================================================================
 # ==================================================================================
 
-class MaltParser:
+class MaltParser(object):
     '''  A wrapper around Java-based MaltParser. Allows to process EstNLTK Text
         objects with Maltparser in order to obtain dependency syntactic relations
         between the words in the sentence.

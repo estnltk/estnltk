@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
-""" This module uses Kaili's and Tiina's syntax tagger and adds relevant layers to the Text objects.
+""" 
+--------------
+(!) Note this is the old version of EstNLTK's syntax, and it will be removed in the future;
+    Please use  syntax.parsers.VISLCG3Parser  or  syntax.parsers.MaltParser  instead of this class;
+--------------
+
+This module uses Kaili's and Tiina's syntax tagger and adds relevant layers to the Text objects.
 Note that the vislcg3, perl, awk and tagger09 programs must be installed and should be referenced via PATH
 environment variable.
 
