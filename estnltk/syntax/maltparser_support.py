@@ -26,7 +26,6 @@
 
 from __future__ import unicode_literals, print_function
 from estnltk.names import *
-from estnltk.text import Text
 
 from estnltk.core import PACKAGE_PATH
 
@@ -314,6 +313,7 @@ def convertCONLLtoText( in_file, addDepRels = False, verbose = False, **kwargs )
         surface syntactic function (DEPREL) is also attributed to each 
         token;
     '''
+    from estnltk.text import Text
     sentences = loadCONLLannotations( in_file, addDepRels = addDepRels, \
                                                splitIntoSentences = True )
     if verbose:
@@ -404,6 +404,7 @@ def align_CONLL_with_Text( lines, text, **kwargs ):
             Default:False
         
     ''' 
+    from estnltk.text import Text
     if not isinstance( text, Text ):
         raise Exception('(!) Unexpected type of input argument! Expected EstNLTK\'s Text. ')
     if not isinstance( lines, list ):

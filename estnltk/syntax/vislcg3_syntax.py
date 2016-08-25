@@ -53,7 +53,6 @@
 from __future__ import unicode_literals, print_function
 
 from estnltk.names import *
-from estnltk.text import Text
 from estnltk.core import PACKAGE_PATH, as_unicode
 
 import re
@@ -446,6 +445,7 @@ def align_cg3_with_Text( lines, text, **kwargs ):
         {'sent_id': 1, 'start': 29, 'end': 30, 'parser_out': ['\t"." Z Fst CLB #5->5\r']}
 
     '''
+    from estnltk.text import Text
     if not isinstance( text, Text ):
         raise Exception('(!) Unexpected type of input argument! Expected EstNLTK\'s Text. ')
     if not isinstance( lines, list ):

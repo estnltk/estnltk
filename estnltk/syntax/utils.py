@@ -28,7 +28,6 @@ from nltk.tokenize.simple import LineTokenizer
 from nltk.tokenize.regexp import RegexpTokenizer
 
 from estnltk.names import *
-from estnltk.text  import Text
 
 from estnltk.syntax.maltparser_support import align_CONLL_with_Text
 from estnltk.syntax.vislcg3_syntax import cleanup_lines, align_cg3_with_Text
@@ -335,6 +334,7 @@ def read_text_from_cg3_file( file_name, layer_name=LAYER_VISLCG3, **kwargs ):
       "word_tokenizer": RegexpTokenizer("  ", gaps=True),
       "sentence_tokenizer": LineTokenizer()
     }
+    from estnltk.text import Text
     text = Text( '\n'.join(sentences), **kwargs4text )
     # Tokenize up to the words layer
     text.tokenize_words()
@@ -412,6 +412,7 @@ def read_text_from_conll_file( file_name, layer_name=LAYER_CONLL, **kwargs ):
       "word_tokenizer": RegexpTokenizer("  ", gaps=True),
       "sentence_tokenizer": LineTokenizer()
     }
+    from estnltk.text import Text
     text = Text( '\n'.join(sentences), **kwargs4text )
     # Tokenize up to the words layer
     text.tokenize_words()
@@ -740,6 +741,7 @@ def build_trees_from_text( text, layer, **kwargs ):
         Note that there is one-to-many correspondence between EstNLTK's sentences
         and dependency syntactic trees: one sentence can evoke multiple trees;
     '''
+    from estnltk.text import Text
     assert isinstance(text, Text), \
            '(!) Unexpected text argument! Should be Estnltk\'s Text object.'
     assert layer in text, \

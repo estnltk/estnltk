@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*- 
 #
-#   Estonian syntactic parsers under a unified interface;
+#   Estonian syntactic parsers under a unified interface.
 #   
-#   Aims to support:
-#    *) VISL-CG3 based syntactic analysis (VISLCG3Parser);
-#    *) MaltParser based syntactic analysis (MaltParser);
+#   Supports the following external parsers:
+#   *) VISLCG3Parser -- VISL CG3 based syntactic analysis (http://beta.visl.sdu.dk/cg3.html);
+#                       VISL CG3 must be installed into the system and the executable 'vislcg3'
+#                       must be accessible via PATH environment variable;
+#   *) MaltParser    -- MaltParser based syntactic analysis (http://www.maltparser.org/);
+#                       Java must be installed into the system;
 #
 #   Developed and tested under Python's versions:  2.7.11,  3.4.4
 #
