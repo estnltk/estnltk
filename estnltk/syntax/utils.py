@@ -424,6 +424,18 @@ def read_text_from_conll_file( file_name, layer_name=LAYER_CONLL, **kwargs ):
     text[ layer_name ] = alignments
     return text
 
+# ==================================================================================
+
+# A hack for defining a string type common in Py 2 and Py 3
+try:
+    # Check whether basestring is supported (should be in Py 2.7)
+    basestring
+except NameError as e:
+    # If not supported (in Py 3.x), redefine it as str
+    basestring = str
+
+# A hack for getting type of the regular expression object
+RE_TYPE = type(re.compile('A'))
 
 # ==================================================================================
 # ==================================================================================
@@ -533,6 +545,48 @@ class Tree(object):
             return self.parent.get_root( **kwargs )
 
 
+    def _satisfies_conditions( self, tree_node, **kwargs ):
+        ''' Check whether given *tree_node* satisfies the conditions given
+            as arguments in *kwargs*. 
+            By default (if no conditions are given in *kwargs*), returns 
+            True.
+            
+            Following conditions are supported:
+            -----------------------------------
+            label : str
+                Syntactic label (e.g. '@SUBJ', '@OBJ' etc.) that the node 
+                must have within its analysis; If the node does not have the
+                label, the node will be discarded;
+                
+            label_regexp : str
+                A regular expression pattern (as string) describing the 
+                syntactic label (e.g. '@SUBJ', '@OBJ' etc.) that the node 
+                must have within its analysis; 
+                If none of the node's labels matches the pattern, the node
+                will be discarded;
+            
+        '''
+        # A) Check syntactic label by matching a string
+        syntactic_label = kwargs.get('label', None)
+        if syntactic_label:
+            return tree_node.labels and syntactic_label in tree_node.labels
+
+        # B) Check syntactic label by matching a regular expression
+        synt_label_regexp = kwargs.get('label_regexp', None)
+        if synt_label_regexp:
+            if isinstance(synt_label_regexp, basestring):
+                # Compile the regexp (if it hasn't been compiled yet)
+                synt_label_regexp = re.compile(synt_label_regexp)
+                kwargs['label_regexp'] = synt_label_regexp
+            if isinstance(synt_label_regexp, RE_TYPE):
+                # Apply the pre-compiled regexp
+                if tree_node.labels:
+                    return any([synt_label_regexp.match(label) != None for label in tree_node.labels])
+                return False
+
+        return True
+
+
     def get_children( self, **kwargs ):
         ''' Recursively collects and returns all subtrees of given tree (if no 
             arguments are given), or, alternatively, collects and returns subtrees 
@@ -554,21 +608,43 @@ class Tree(object):
                 subtree. If this tree is includes, it still must satisfy all the 
                 criteria before it is included in the collection;
                 Default: False
+            
+            sorted : bool
+                Specifies returned trees should be sorted in the ascending order of 
+                word_ids (basically: by the order of words in the text);
+                If sorting is not applied, there is no guarantee that resulting trees
+                follow the order of words in text;
+                Default: False
                 
+            Following parameters can be used to set conditions for subtrees:
+            -----------------------------------------------------------------
+            label : str
+                Syntactic label (e.g. '@SUBJ', '@OBJ' etc.) that the node 
+                must have within its analysis; If the node does not have the
+                label, the node will be discarded;
+            
+            label_regexp : str
+                A regular expression pattern (as string) describing the 
+                syntactic label (e.g. '@SUBJ', '@OBJ' etc.) that the node 
+                must have within its analysis; 
+                If none of the node's labels matches the pattern, the node
+                will be discarded;
+            
         '''
         depth_limit  = kwargs.get('depth_limit', 922337203685477580) # Just a nice big number to
                                                                      # assure that by default, 
                                                                      # there is no depth limit ...
         include_self = kwargs.get('include_self', False)
+        sorted_by_word_ids = kwargs.get('sorted', False)
         subtrees = []
         if include_self:
-            # TODO: add here condition checking
-            subtrees.append( self )
+            if self._satisfies_conditions( self, **kwargs ):
+                subtrees.append( self )
         if depth_limit >= 1 and self.children:
             # 1) Add children of given tree
             for child in self.children:
-                # TODO: add here condition checking
-                subtrees.append(child)
+                if self._satisfies_conditions( child, **kwargs ):
+                    subtrees.append(child)
             # 2) Collect children of given tree's children
             kwargs['include_self'] = False
             kwargs['depth_limit']  = depth_limit - 1 
@@ -576,7 +652,9 @@ class Tree(object):
                 childs_results = child.get_children( **kwargs )
                 if childs_results:
                     subtrees.extend(childs_results)
-        # TODO: add sorting of the subtrees
+        if sorted_by_word_ids:
+            # Sort by word_id-s, in ascending order
+            subtrees = sorted(subtrees, key=lambda x: x.word_id)
         return subtrees
 
 
