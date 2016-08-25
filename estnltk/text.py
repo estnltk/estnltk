@@ -762,7 +762,7 @@ class Text(dict):
             
             If the input argument *layer* is not specified, the type of the
             syntactic parser is used to decide, which syntactic analysis layer 
-            should be produced and taken as basis for syntactic analysis;
+            should be produced and taken as basis for building syntactic trees;
             Otherwise, the *layer* must be either LAYER_CONLL or LAYER_CONLL. 
         """
         # If no layer specified, decide the layer based on the type of syntactic

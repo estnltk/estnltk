@@ -459,7 +459,7 @@ def align_cg3_with_Text( lines, text, **kwargs ):
            add_word_ids = argVal
     pat_empty_line     = re.compile('^\s+$')
     pat_token_line     = re.compile('^"<(.+)>"$')
-    pat_analysis_start = re.compile('^(\s+)"(.+)"(\s[LZT].*)$')
+    pat_analysis_start = re.compile('^(\s+)"(.+)"(\s[LZTS].*)$')
     pat_sent_bound     = re.compile('^("<s>"|"</s>"|<s>|</s>)\s*$')
     generalWID  = 0
     sentWID     = 0

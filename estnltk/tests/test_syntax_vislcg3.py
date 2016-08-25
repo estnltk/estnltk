@@ -62,7 +62,7 @@ class VislCG3ParserTest(unittest.TestCase):
     def test_vislcg3parser_sent1_with_text_trees(self):
         parser = VISLCG3Parser( vislcg_cmd = self.get_vislcg_cmd() )
         text = Text('Jänes oli parajasti põllu peal.', syntactic_parser=parser )
-        trees = text.syntax_trees() # Assuming MaltParser is set as the default parser
+        trees = text.syntax_trees()
         self.assertEqual( len(trees), 1 )
         self.assertDictEqual( trees[0].syntax_token, \
             {'end': 9, 'sent_id': 0, 'parser_out': [['@FMV', -1]], 'start': 6} )
