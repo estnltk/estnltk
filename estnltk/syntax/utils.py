@@ -827,18 +827,26 @@ def build_trees_from_text( text, layer, **kwargs ):
     text_sentences = list( text.divide( layer=WORDS, by=SENTENCES ) )
     all_sentence_trees = []  # Collected sentence trees
     prev_sent_id       = -1
+    #  (!) Note: if the Text object has been split into smaller Texts with split_by(),
+    #      SENT_ID-s still refer to old text, and thus are not useful as indices
+    #      anymore; 
+    #      Therefore, we also use another variable -- norm_prev_sent_id -- that always
+    #      counts sentences starting from 0, and use  SENT_ID / prev_sent_id  only for 
+    #      deciding whether one sentence ends and another begins;
+    norm_prev_sent_id  = -1
     current_sentence   = []
     k = 0
     while k < len( text[layer] ):
         node_desc = text[layer][k]
         if prev_sent_id != node_desc[SENT_ID] and current_sentence:
+            norm_prev_sent_id += 1
             # If the index of the sentence has changed, and we have collected a sentence, 
             # then build tree(s) from this sentence
-            assert prev_sent_id<len(text_sentences), '(!) Sentence with the index '+str(prev_sent_id)+\
-                                                     ' not found from the input text.'
-            sentence = text_sentences[prev_sent_id]
+            assert norm_prev_sent_id<len(text_sentences), '(!) Sentence with the index '+str(norm_prev_sent_id)+\
+                                                          ' not found from the input text.'
+            sentence = text_sentences[norm_prev_sent_id]
             trees_of_sentence = \
-                build_trees_from_sentence( sentence, current_sentence, layer, sentence_id=prev_sent_id, \
+                build_trees_from_sentence( sentence, current_sentence, layer, sentence_id=norm_prev_sent_id, \
                                            **kwargs )
             # Record trees constructed from this sentence
             all_sentence_trees.extend( trees_of_sentence )
@@ -849,12 +857,13 @@ def build_trees_from_text( text, layer, **kwargs ):
         prev_sent_id = node_desc[SENT_ID]
         k += 1
     if current_sentence:
-        assert prev_sent_id<len(text_sentences), '(!) Sentence with the index '+str(prev_sent_id)+\
-                                                 ' not found from the input text.'
-        sentence = text_sentences[prev_sent_id]
+        norm_prev_sent_id += 1
+        assert norm_prev_sent_id<len(text_sentences), '(!) Sentence with the index '+str(norm_prev_sent_id)+\
+                                                      ' not found from the input text.'
+        sentence = text_sentences[norm_prev_sent_id]
         # If we have collected a sentence, then build tree(s) from this sentence
         trees_of_sentence = \
-            build_trees_from_sentence( sentence, current_sentence, layer, sentence_id=prev_sent_id, \
+            build_trees_from_sentence( sentence, current_sentence, layer, sentence_id=norm_prev_sent_id, \
                                        **kwargs )
         # Record trees constructed from this sentence
         all_sentence_trees.extend( trees_of_sentence )

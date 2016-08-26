@@ -61,6 +61,20 @@ class MaltParserSupportTest(unittest.TestCase):
             {'end': 9, 'start': 6, 'analysis': [{'form': 's', 'root_tokens': ['ole'], 'lemma': 'olema', 'partofspeech': 'V', 'root': 'ole', 'clitic': '', 'ending': 'i'}], 'text': 'oli'} )
 
 
+    def test_maltparser_text_splitting_and_trees(self):
+        text = Text('Jänes oli põllu peal. Hunt jooksis metsas. Karuott magas laanes.')
+        trees = text.syntax_trees() # Assuming MaltParser is set as the default parser
+        self.assertEqual( len(trees), 3 )
+        
+        # Split the input text into smaller texts by sentences:
+        trees_from_small_texts = []
+        for sentence in text.split_by( SENTENCES ):
+            # Try to make trees also from the smaller text
+            sent_trees = sentence.syntax_trees()
+            trees_from_small_texts.extend( sent_trees )
+        self.assertEqual( len(trees_from_small_texts), 3 )
+
+
     def test_maltparser_oldformat_sent1(self):
         # (!) This test addresses MaltParser's old output format and will be removed in future
         mparser = MaltParser( )
