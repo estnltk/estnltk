@@ -29,6 +29,8 @@ from nltk.tokenize.regexp import RegexpTokenizer
 
 from estnltk.names import *
 
+from estnltk.mw_verbs.utils import WordTemplate
+
 from estnltk.syntax.maltparser_support import align_CONLL_with_Text
 from estnltk.syntax.vislcg3_syntax import cleanup_lines, align_cg3_with_Text
 
@@ -547,9 +549,14 @@ class Tree(object):
 
     def _satisfies_conditions( self, tree_node, **kwargs ):
         ''' Check whether given *tree_node* satisfies the conditions given
-            as arguments in *kwargs*. 
+            as arguments in *kwargs*.
+            
             By default (if no conditions are given in *kwargs*), returns 
             True.
+            
+            If there are multiple conditions listed  (e.g.  'label_regexp'
+            and 'word_template'),  *True*  is returned only when the node 
+            satisfies all the conditions.
             
             Following conditions are supported:
             -----------------------------------
@@ -565,11 +572,18 @@ class Tree(object):
                 If none of the node's labels matches the pattern, the node
                 will be discarded;
             
+            word_template : estnltk.mw_verbs.utils.WordTemplate
+                A WordTemplate describing morphological constraints imposed
+                to the word of the node;
+                If the word's morphological features do not match the template, 
+                the node will be discarded;
+            
         '''
+        matches = []
         # A) Check syntactic label by matching a string
         syntactic_label = kwargs.get('label', None)
         if syntactic_label:
-            return tree_node.labels and syntactic_label in tree_node.labels
+            matches.append( bool(tree_node.labels and syntactic_label in tree_node.labels) )
 
         # B) Check syntactic label by matching a regular expression
         synt_label_regexp = kwargs.get('label_regexp', None)
@@ -581,10 +595,18 @@ class Tree(object):
             if isinstance(synt_label_regexp, RE_TYPE):
                 # Apply the pre-compiled regexp
                 if tree_node.labels:
-                    return any([synt_label_regexp.match(label) != None for label in tree_node.labels])
-                return False
+                    matches.append( any([synt_label_regexp.match(label) != None for label in tree_node.labels]) )
+                else:
+                    matches.append( False )
 
-        return True
+        # C) Check whether the word token of the node matches a word template
+        word_template = kwargs.get('word_template', None)
+        if word_template:
+            if isinstance(word_template, WordTemplate):
+                matches.append( word_template.matches( tree_node.token ) )
+            else:
+                raise Exception('(!) Unexpected word_template. Should be from class WordTemplate.')
+        return len(matches) == 0 or all(matches)
 
 
     def get_children( self, **kwargs ):
@@ -629,6 +651,12 @@ class Tree(object):
                 must have within its analysis; 
                 If none of the node's labels matches the pattern, the node
                 will be discarded;
+            
+            word_template : estnltk.mw_verbs.utils.WordTemplate
+                A WordTemplate describing morphological constraints imposed
+                to the word of the node;
+                If the word's morphological features do not match the template, 
+                the node will be discarded;
             
         '''
         depth_limit  = kwargs.get('depth_limit', 922337203685477580) # Just a nice big number to

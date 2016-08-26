@@ -4,7 +4,8 @@ from __future__ import unicode_literals, print_function, absolute_import
 import unittest
 
 from ..text import Text
-from ..syntax.utils import Tree, build_trees_from_sentence
+from ..mw_verbs.utils import WordTemplate
+from ..syntax.utils   import Tree, build_trees_from_sentence
 from ..names import *
 
 
@@ -149,3 +150,40 @@ class SyntacticTreesTest(unittest.TestCase):
         
         deprels = [ t.labels[0] for t in results ]
         self.assertListEqual(deprels, ['@SUBJ', '@FMV', '@OBJ'])
+
+
+    def test_get_children_by_label_wordtemplate_1(self):
+        syntax = self.sentence_2_syntax()
+        morhp  = self.sentence_2_morphology()
+        trees = \
+            build_trees_from_sentence( morhp, syntax, layer=LAYER_VISLCG3, sentence_id=0 )
+        root = trees[0]
+        
+        word_template = WordTemplate({ POSTAG:'[SH]'})  # get all nouns (proper and common)
+        # Test getting children by word templates describing the words
+        results = root.get_children( word_template=word_template, include_self=True, sorted=True )
+        self.assertEqual(len(results), 3)
+        
+        deprels = [ t.labels[0] for t in results ]
+        words   = [ t.text for t in results ]
+        self.assertListEqual(deprels, ['@SUBJ', '@<NN', '@OBJ'])
+        self.assertListEqual(words, ['Naabritalu', 'Teele', 'kooki'])
+
+
+    def test_get_children_by_label_wordtemplate_2(self):
+        syntax = self.sentence_2_syntax()
+        morhp  = self.sentence_2_morphology()
+        trees = \
+            build_trees_from_sentence( morhp, syntax, layer=LAYER_VISLCG3, sentence_id=0 )
+        root = trees[0]
+        
+        word_template = WordTemplate({FORM:'^(sg|pl) n$'})  # get all nominals
+        # Test getting children by word templates describing the words && by syntactic label descriptions
+        results = root.get_children( word_template=word_template, label_regexp="(@SUBJ|@OBJ)", include_self=True, sorted=True )
+        self.assertEqual(len(results), 1)
+        
+        deprels = [ t.labels[0] for t in results ]
+        words   = [ t.text for t in results ]
+        self.assertListEqual(deprels, ['@SUBJ'])
+        self.assertListEqual(words, ['Naabritalu'])
+
