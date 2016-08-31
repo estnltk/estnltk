@@ -12,6 +12,8 @@ Both analysers are using a common syntactic analysis tagset, which is introduced
 
 .. _documentation: https://korpused.keeleressursid.ee/syntaks/dokumendid/syntaksiliides_en.pdf
 
+.. _ref-basic-usage:
+
 Basic usage
 =============
 
@@ -63,8 +65,8 @@ VISLCG3 based syntactic analysis
 
 .. _ref-vislcg-install:
 
-Installation & usage
----------------------
+Installation & configuration
+----------------------------
 
 In order to use VISLCG3 based syntactic analysis, the VISLCG3 parser must be installed into the system. The information about the parser is distributed in the `Constraint Grammar's Google Group`_, and this is also the place to look for the most compact guide about getting & installing `the latest version of the parser`_.
 
@@ -73,7 +75,7 @@ In order to use VISLCG3 based syntactic analysis, the VISLCG3 parser must be ins
 
 By default, EstNLTK expects that the directory containing VISLCG3 parser's executable (``vislcg3`` in UNIX, ``vislcg3.exe`` in Windows) is accessible from system's environment variable ``PATH``. If this requirement is satisfied, the EstNLTK should always be able to execute the parser.
 
-Alternatively ( if the parser's directory is not in system's ``PATH`` ), the full path to the VISLCG3 executable can be provided via the input argument ``vislcg_cmd`` of the parser's class :class:`~estnltk.syntax.vislcg3_syntax.VISLCG3Pipeline`. Then the parser instance can be added as a custom parser of a :class:`~estnltk.text.Text` object via the input argument ``syntactic_parser``::
+Alternatively ( if the parser's directory is not in system's ``PATH`` ), the full path to the VISLCG3 executable can be provided via the input argument ``vislcg_cmd`` of the parser's class :class:`~estnltk.syntax.parsers.VISLCG3Parser`. Then the parser instance can be added as a custom parser of a :class:`~estnltk.text.Text` object via the input argument ``syntactic_parser``::
 
     from estnltk.syntax.parsers import VISLCG3Parser
     from estnltk.names import LAYER_VISLCG3
@@ -101,13 +103,137 @@ This example should produce the following output::
      {'end': 20, 'parser_out': [['@SUBJ', 1]], 'sent_id': 0, 'start': 16}]
 
 Note that the root node (the node with governing word index ``-1``) has a syntactic label ``'@FMV'`` instead of ``'ROOT'``, indicating that the VISLCG3Parser was used instead of the MaltParser.
-    
 
 Text interface
 --------------
 
-Stand-alone parser
-------------------
+:class:`~estnltk.text.Text` object provides the method :py:meth:`~estnltk.text.Text.tag_syntax_vislcg3`, which changes the default parser to a new instance of :class:`~estnltk.syntax.parsers.VISLCG3Parser`, and parses the text. The results of the parsing are stored in the layer ``LAYER_VISLCG3``::
+
+    from estnltk.names import LAYER_VISLCG3
+    from estnltk import Text
+    from pprint import pprint
+    
+    text = Text( 'Valge jänes jooksis metsas' )
+    
+    # Tag text with VISLCG3 parser
+    text.tag_syntax_vislcg3()
+
+    pprint( text[LAYER_VISLCG3] )
+
+This example should produce the following output::
+
+    [{'end': 5, 'parser_out': [['@AN>', 1]], 'sent_id': 0, 'start': 0},
+     {'end': 11, 'parser_out': [['@SUBJ', 2]], 'sent_id': 0, 'start': 6},
+     {'end': 19, 'parser_out': [['@FMV', -1]], 'sent_id': 0, 'start': 12},
+     {'end': 26, 'parser_out': [['@ADVL', 2]], 'sent_id': 0, 'start': 20}]
+
+For each word in the text, the layer ``LAYER_VISLCG3`` contains a ``dict`` storing the syntactic analysis of the word (see :ref:`ref-basic-usage` for details).
+The method :py:meth:`~estnltk.text.Text.syntax_trees` can be used to build queryable syntactic trees from  ``LAYER_VISLCG3``, see :ref:`ref-tree-structure` for details.
+
+    Note that the method :py:meth:`~estnltk.text.Text.tag_syntax_vislcg3` can only be used if the VISLCG3's directory is in system's environment variable ``PATH``.
+    For an alternative way of providing the parser with the location of the VISLCG3's directory, see :ref:`ref-vislcg-install`.
+
+VISLCG3Parser class
+-------------------
+
+The class :class:`~estnltk.syntax.parsers.VISLCG3Parser` can be used to customize the settings of VISLCG3 based syntactic analysis (e.g. provide the location of the parser, and the pipeline of rules), to parse the text with the custom settings, and to get a custom output (e.g. the original output of the parser).
+
+:class:`~estnltk.syntax.parsers.VISLCG3Parser` can be initiated with the following keyword arguments:
+
+* ``vislcg_cmd`` -- a full path to the VISLCG3 installation directory;
+* ``pipeline`` -- a list of rule file names that are executed by the VISLCG3Parser, in the order of execution;
+* ``rules_dir`` -- a default directory from where to find rules that are executed on the pipeline (used for rule files without path);
+
+After the :class:`~estnltk.syntax.parsers.VISLCG3Parser` has been initiated, its method  :py:meth:`~estnltk.syntax.parsers.VISLCG3Parser.parse_text` can be used to parse a :class:`~estnltk.text.Text` object. 
+In addition to the Text, the method can take the following keyword arguments:
+
+* ``return_type`` -- specifies the format of the data returned of the method. Can be one of the following: ``'text'`` (default), ``'vislcg3'``, ``'trees'``, ``'dep_graphs'``.
+* ``keep_old`` -- a boolean specifying whether the initial analysis lines from the output of VISLCG3's should be preserved in the ``LAYER_VISLCG3``. If ``True``, each ``dict`` in the layer will be augmented with attribute ``'init_parser_out'`` containing the initial/old analysis lines (a list of strings);
+
+In the following, some of the usage possibilities of these arguments are introduced in detail.
+
+
+The initial output of the parser
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want to see the initial/original output of the VISLCG3 parser, you can execute the method :py:meth:`~estnltk.syntax.parsers.VISLCG3Parser.parse_text` with the setting ``return_type='vislcg3'`` -- in this case, the method returns a list of lines (strings) from the initial output::
+
+    from estnltk.syntax.parsers import VISLCG3Parser
+    from estnltk import Text
+
+    text = Text('Maril oli väike tall')
+    parser = VISLCG3Parser()
+    initial_output = parser.parse_text(text, return_type='vislcg3')
+    
+    print( '\n'.join( initial_output) )
+    
+the code above produces the following output::
+
+    "<s>"
+    
+    "<Maril>"
+            "mari" Ll S com sg ad @ADVL #1->2
+    "<oli>"
+            "ole" Li V main indic impf ps3 sg ps af @FMV #2->0
+    "<väike>"
+            "väike" L0 A pos sg nom @AN> #3->4
+    "<tall>"
+            "tall" L0 S com sg nom @SUBJ #4->2
+    "</s>"
+    
+
+
+Note that the results of the analysis are also stored in the input Text object on the layer ``LAYER_VISLCG3``, but the layer does not preserve the original/initial output of the VISLCG3 parser.
+
+.. and changing the ``return_type`` does not change the format of the layer.
+
+In order to preserve the original/initial analysis in the layer ``LAYER_VISLCG3``, the method :py:meth:`~estnltk.syntax.parsers.VISLCG3Parser.parse_text` needs to be executed with the setting ``keep_old=True`` -- in this case, the initial syntactic analysis lines are also stored in the layer, providing each ``dict`` in the layer with the attribute ``'init_parser_out'``::
+
+    from estnltk.syntax.parsers import VISLCG3Parser
+    from estnltk.names import LAYER_VISLCG3
+    from estnltk import Text
+    from pprint import pprint
+
+    text = Text('Maril oli väike tall')
+    parser = VISLCG3Parser()
+    parser.parse_text(text, keep_old=True)
+    
+    pprint( text[LAYER_VISLCG3] )
+
+the code above produces the following output::
+
+    [{'end': 5,
+      'init_parser_out': ['\t"mari" Ll S com sg ad @ADVL #1->2'],
+      'parser_out': [['@ADVL', 1]],
+      'sent_id': 0,
+      'start': 0},
+     {'end': 9,
+      'init_parser_out': ['\t"ole" Li V main indic impf ps3 sg ps af @FMV '
+                          '#2->0'],
+      'parser_out': [['@FMV', -1]],
+      'sent_id': 0,
+      'start': 6},
+     {'end': 15,
+      'init_parser_out': ['\t"väike" L0 A pos sg nom @AN> #3->4'],
+      'parser_out': [['@AN>', 3]],
+      'sent_id': 0,
+      'start': 10},
+     {'end': 20,
+      'init_parser_out': ['\t"tall" L0 S com sg nom @SUBJ #4->2'],
+      'parser_out': [['@SUBJ', 1]],
+      'sent_id': 0,
+      'start': 16}]
+
+The attribute ``'init_parser_out'`` contains a list of analysis lines associated the word, as in case of ambiguities, there can be more than one analysis for a word.
+
+
+Using a custom pipeline
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+
 
 MaltParser based syntactic analysis
 ====================================
