@@ -297,6 +297,9 @@ def read_text_from_cg3_file( file_name, layer_name=LAYER_VISLCG3, **kwargs ):
     cg3_lines = []
     in_f = codecs.open(file_name, mode='r', encoding='utf-8')
     for line in in_f:
+        # Skip comment lines
+        if line.startswith('#'):
+            continue
         cg3_lines.append( line.rstrip() )
     in_f.close()
     # Clean up lines of syntactic analyses (if requested)
@@ -381,6 +384,9 @@ def read_text_from_conll_file( file_name, layer_name=LAYER_CONLL, **kwargs ):
     conll_lines = []
     in_f = codecs.open(file_name, mode='r', encoding='utf-8')
     for line in in_f:
+        # Skip comment lines
+        if line.startswith('#'):
+            continue
         conll_lines.append( line.rstrip() )
     in_f.close()
     
