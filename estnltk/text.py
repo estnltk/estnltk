@@ -734,10 +734,9 @@ class Text(dict):
         return self.tag_syntax()
 
     def tag_syntax(self):
-        """ Parses this text with a syntactic analyzer (``self.__syntactic_parser``), 
-            and stores the found syntactic analyses:
-                into the layer LAYER_CONLL   (if MaltParser is used, default), or 
-                into the layer LAYER_VISLCG3 (if VISLCG3Parser is used).
+        """ Parses this text with the syntactic analyzer (``self.__syntactic_parser``), 
+            and stores the found syntactic analyses: into the layer LAYER_CONLL (if MaltParser 
+            is used, default), or into the layer LAYER_VISLCG3 (if VISLCG3Parser is used).
         """
         # Load default Syntactic tagger:
         if self.__syntactic_parser is None:

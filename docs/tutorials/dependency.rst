@@ -1,6 +1,9 @@
 Syntax and dependency parser
 ============================
 
+    *Note:* This page describes the old version of syntactic parser's interface. Please do not use the old version, as it will be removed from the future versions of EstNLTK.
+    
+
 Estnltk has a wrapper for Estonian `dependency parser`_, which tags syntactic and dependency markers every word.
 Make sure to check out the `documentation`_.
 
