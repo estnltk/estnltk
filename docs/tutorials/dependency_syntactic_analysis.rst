@@ -43,8 +43,8 @@ The layer contains a ``dict`` for each word in the text, indicating the location
     The attribute ``parser_out`` contains a list of dependency syntactic relations. 
     Each relation is a list where:
 
-    * the first item is the *syntactic function label* (e.g. ``'@SUBJ'`` stands for *subject* and ``'@OBJ'`` for *object*, see `documentation`_ for details), and 
-    * the second item (the integer) is the index of its governing word in the sentence. 
+    * the first item is the **syntactic function label** (e.g. ``'@SUBJ'`` stands for *subject* and ``'@OBJ'`` for *object*, see `documentation`_ for details), and 
+    * the second item (the integer) is the index of its **governing word** in the sentence. 
 
     The governing word index ``-1`` marks that the current word is the root node of the tree, and this is also supported by syntactic function label ``'ROOT'`` from MaltParser output. VISLCG3 does not use the label ``'ROOT'``, and only governing word index ``-1`` is used for marking the root in VISLCG3's output.
 
@@ -130,7 +130,9 @@ This example should produce the following output::
 For each word in the text, the layer ``LAYER_VISLCG3`` contains a ``dict`` storing the syntactic analysis of the word (see :ref:`ref-basic-usage` for details).
 The method :py:meth:`~estnltk.text.Text.syntax_trees` can be used to build queryable syntactic trees from  ``LAYER_VISLCG3``, see :ref:`ref-tree-structure` for details.
 
-    Note that the method :py:meth:`~estnltk.text.Text.tag_syntax_vislcg3` can only be used if the VISLCG3's directory is in system's environment variable ``PATH``.
+.. note::
+
+    The method :py:meth:`~estnltk.text.Text.tag_syntax_vislcg3` can only be used if the VISLCG3's directory is in system's environment variable ``PATH``.
     For an alternative way of providing the parser with the location of the VISLCG3's directory, see :ref:`ref-vislcg-install`.
 
 VISLCG3Parser class
@@ -156,7 +158,7 @@ In the following, some of the usage possibilities of these arguments are introdu
 The initial output of the parser
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you want to see the initial/original output of the VISLCG3 parser, you can execute the method :py:meth:`~estnltk.syntax.parsers.VISLCG3Parser.parse_text` with the setting ``return_type='vislcg3'`` -- in this case, the method returns a list of lines (strings) from the initial output::
+If you want to see the **initial / original output** of the VISLCG3 parser, you can execute the method :py:meth:`~estnltk.syntax.parsers.VISLCG3Parser.parse_text` with the setting ``return_type='vislcg3'`` -- in this case, the method returns a list of lines (strings) from the initial output::
 
     from estnltk.syntax.parsers import VISLCG3Parser
     from estnltk import Text
@@ -224,16 +226,56 @@ the code above produces the following output::
       'sent_id': 0,
       'start': 16}]
 
-The attribute ``'init_parser_out'`` contains a list of analysis lines associated the word, as in case of ambiguities, there can be more than one analysis for a word.
+The attribute ``'init_parser_out'`` contains a list of analysis lines associated the word -- in case of unsolved ambiguities, there is more than one analysis line for the word.
 
 
 Using a custom pipeline
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
+If you want to make a custom pipeline based on the **default pipeline**, you can make a copy of the list in the variable ``estnltk.syntax.vislcg3_syntax.SYNTAX_PIPELINE_1_4``, modify some of the rule file names listed there, and then pass the new list as ``pipeline`` argument to the constructor of :class:`~estnltk.syntax.parsers.VISLCG3Parser`::
 
+    from estnltk.syntax.vislcg3_syntax import SYNTAX_PIPELINE_1_4
+    from estnltk.syntax.parsers import VISLCG3Parser
+    from estnltk.names import LAYER_VISLCG3
+    from estnltk import Text
+    from pprint import pprint
+    
+    my_pipeline = SYNTAX_PIPELINE_1_4[:] # make a copy from the default pipeline
+    del my_pipeline[-1]                  # remove the last rule file 
+    
+    text = Text('Konn hüppas kivilt kivile')
+    # Initialize the parser with a custom pipeline:
+    parser = VISLCG3Parser( pipeline=my_pipeline )
+    # Parse the text
+    initial_output = parser.parse_text(text, return_type='vislcg3')
+    
+    print( '\n'.join( initial_output) )
+    
+the code above produces the following output::
 
+    "<s>"
+    
+    "<Konn>"
+            "konn" L0 S com sg nom @SUBJ
+    "<hüppas>"
+            "hüppa" Ls V main indic impf ps3 sg ps af @FMV
+    "<kivilt>"
+            "kivi" Llt S com sg abl @ADVL
+    "<kivile>"
+            "kivi" Lle S com sg all @<NN @ADVL
+    "</s>"
+    
 
+Note that because the last rule file (containing the rules for dependency relations) was removed from the pipeline, the results contain only morphological information and surface-syntactic information (syntactic function labels), but no dependency information (the information in the form *#Number->Number*).
 
+.. note:: About the default pipeline 
+
+    ``estnltk.syntax.vislcg3_syntax.SYNTAX_PIPELINE_1_4`` refers to the rules (\*.rle files) that are stored in EstNLTK's installation directory, at the location pointed by the variable ``estnltk.syntax.vislcg3_syntax.SYNTAX_PATH``.
+    
+    The original source of the rules is:  http://math.ut.ee/~tiinapl/CGParser.tar.gz 
+
+If you want to provide your own, **alternative pipeline**, you can construct *a list of rule file names with full paths*, and pass them as ``pipeline`` argument to the constructor of :class:`~estnltk.syntax.parsers.VISLCG3Parser`.
+Alternatively, you can put only file names to the ``pipeline`` argument, and use the ``rules_dir`` argument to indicate the default directory from which all rules files can be found.
 
 MaltParser based syntactic analysis
 ====================================
