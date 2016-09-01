@@ -75,7 +75,7 @@ In order to use VISLCG3 based syntactic analysis, the VISLCG3 parser must be ins
 
 By default, EstNLTK expects that the directory containing VISLCG3 parser's executable (``vislcg3`` in UNIX, ``vislcg3.exe`` in Windows) is accessible from system's environment variable ``PATH``. If this requirement is satisfied, the EstNLTK should always be able to execute the parser.
 
-Alternatively ( if the parser's directory is not in system's ``PATH`` ), the full path to the VISLCG3 executable can be provided via the input argument ``vislcg_cmd`` of the parser's class :class:`~estnltk.syntax.parsers.VISLCG3Parser`. Then the parser instance can be added as a custom parser of a :class:`~estnltk.text.Text` object via the input argument ``syntactic_parser``::
+Alternatively ( if the parser's directory is not in system's ``PATH`` ), the full path to the VISLCG3 executable can be provided via the input argument ``vislcg_cmd`` of the parser's class :class:`~estnltk.syntax.parsers.VISLCG3Parser`. Then the parser instance can be added as a custom parser of a :class:`~estnltk.text.Text` object via the keyword argument ``syntactic_parser``::
 
     from estnltk.syntax.parsers import VISLCG3Parser
     from estnltk.names import LAYER_VISLCG3
@@ -286,19 +286,73 @@ Text interface
 Stand-alone parser
 ------------------
 
-
 .. _ref-tree-structure:
 
 Tree datastructure
 ===================
 
-.. a :class:`~estnltk.syntax.utils.Tree` datastructure
+Syntactic information stored in layers ``LAYER_CONLL`` and ``LAYER_VISLCG3`` can also be processed in the form of :class:`~estnltk.syntax.utils.Tree` objects. This datastructure provides an interface for making queries over the data, e.g. one can find all children of a tree node that satisfy a certain morphological or syntactic constraint. 
 
-Dependency graphs
+The method :py:meth:`~estnltk.text.Text.syntax_trees` can be used to build syntactic trees from a syntactic analysis layer. This method builds trees from all the sentences of the text (note: there can be more than one tree per sentence), and returns a list of :class:`~estnltk.syntax.utils.Tree` objects (see :ref:`ref-tree-object` for details), representing root nodes of these trees. 
+
+In the following example, all the subject nodes, along with the words they govern, are retrieved from the text::
+
+    from estnltk import Text
+
+    text = Text('Hiir hüppas ja kass kargas. Ja vana karu lõi trummi.')
+    
+    # Tag syntactic analysis (the prerequisite for trees)
+    text.tag_syntax()
+    # Get syntactic trees (root nodes) of the text
+    trees = text.syntax_trees()
+
+    # Analyse trees
+    for root in trees:
+        # Retrieve nodes labelled SUBJECT
+        subject_nodes = root.get_children( label="@SUBJ" )
+        for subj_node in subject_nodes:
+            # Retrieve children of the subject node (include node itself):
+            subject_and_children = subj_node.get_children( include_self=True, sorted=True )
+            # Print SUBJ phrases (texts) and their syntactic labels
+            print( [(node.text, node.labels) for node in subject_and_children] )
+
+the example above produces the following output::
+
+    [('Hiir', ['@SUBJ'])]
+    [('kass', ['@SUBJ'])]
+    [('vana', ['@AN>']), ('karu', ['@SUBJ'])]
+
+Note: By default, the method :py:meth:`~estnltk.text.Text.syntax_trees` builds trees from the layer corresponding to the current syntactic parser (a parser that can be passed to the Text object via the keyword argument ``syntactic_parser``), or, if no syntactic parser has been set, builds trees from the first layer available, checking firstly for ``LAYER_CONLL`` and secondly for ``LAYER_VISLCG3``. If the current parser has not been specified, and there is no syntactic layer available, you should pass the name of the layer to the method (``LAYER_CONLL`` or ``LAYER_VISLCG3``) via keyword argument ``layer``, in order to direct which syntactic parser should be used for analysing the text.
+
+.. _ref-tree-object:
+
+Tree object
+----------------
+
+Each :class:`~estnltk.syntax.utils.Tree` object represents a node in the syntactic tree, and allows an access to its governing node (parent), its children, and to morphological and syntactic information associated with the word token.
+The object has following fields:
+
+* ``word_id`` -- integer : index of the corresponding word in the sentence;
+* ``sent_id`` -- integer : index of the sentence (that the word belongs to) in the text;
+* ``labels`` -- list of syntactic function labels associated with the node (e.g. ``'@SUBJ'`` stands for *subject*, see `documentation`_ for details); in case of unsolved ambiguities, multiple functions can be associated with the node;
+* ``parent``   -- Tree object : direct parent / head of this node (``None`` if this node is the root node);
+* ``children`` -- list of Tree objects : list of all direct children of this node (``None`` if this node is a leaf node);
+* ``token`` -- dict : an element from the ``'words'`` layer associated with this node. Can be used to access morphological information associated with the node, e.g. part-of-speech associated with the node can be accessed via  ``thisnode.token['analysis'][0]['partofspeech']``;
+* ``text`` -- string : text corresponding to the node; same as ``thisnode.token['text']``;
+* ``syntax_token`` -- dict : an element from the syntactic analysis layer (``LAYER_CONLL`` or ``LAYER_VISLCG3``) associated with this node;
+* ``parser_output`` -- list of strings : list of analysis lines from the initial output of the parser corresponding to the this node; (``None`` if the initial output has not been preserved (a default setting));
+
+
+.. _ref-nltk-interface:
+
+The NLTK interface
 ------------------
 
+Dependency graphs
+~~~~~~~~~~~~~~~~~~~
+
 NLTK's Tree objects
---------------------
+~~~~~~~~~~~~~~~~~~~
 
 Input from corpus
 ===================
