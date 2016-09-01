@@ -18,7 +18,7 @@ class Text:
     def layers(self) -> Dict[str, 'Layer']:
         return self._layers
 
-    def add_layer(self, layer: 'Layer') -> None:
+    def add_layer(self, layer: 'BaseLayer') -> None:
         name = layer.name
 
         # Making sure we have an unused name for the layer
@@ -49,6 +49,8 @@ class Text:
             layers='\n'.join(str(i) for i in self.layers.values())
         )
 
+    def __repr__(self):
+        return str(self)
 
 class AbstractLayer(Sequence, metaclass=abc.ABCMeta):
     @property
@@ -124,7 +126,7 @@ class AbstractSpan(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def bind(self, layer: 'AbstactLayer') -> None:
+    def bind(self, layer: 'AbstractLayer') -> None:
         pass
 
     @abc.abstractmethod
@@ -158,7 +160,8 @@ class BaseSpan(AbstractSpan):
     # ORDERING
 
     def __validate_ordering(self, other: 'Span') -> None:
-        assert isinstance(other, BaseSpan)
+        pass
+        # assert isinstance(other, BaseSpan)
 
     def __lt__(self, other: Any) -> bool:
         self.__validate_ordering(other)
@@ -171,6 +174,22 @@ class BaseSpan(AbstractSpan):
     def __le__(self, other: Any) -> bool:
         self.__validate_ordering(other)
         return self < other or self == other
+
+
+    def __str__(self):
+        return '{name}({text}, {rest})'.format(
+            name=self.__class__.__name__,
+            text=self.text,
+            rest=', '.join('{key}={value}'.format(
+
+                key=k,
+                value=getattr(self, k, None)
+            ) for k in self.__slots__ if not k.startswith('_'))
+        )
+
+
+    def __repr__(self):
+        return str(self)
 
 
 class DependantSpan(BaseSpan):
@@ -246,19 +265,8 @@ class Span(BaseSpan):
                     for span in layer.spans:
                         if span.parent == self:
                             return getattr(span, item)
-            raise AttributeError
+            raise KeyError
 
-    def __str__(self):
-        return 'Span({text}, {rest})'.format(
-            text=self.text,
-            rest=', '.join('{key}={value}'.format(
-                key=k,
-                value=getattr(self, k, None)
-            ) for k in self.__slots__ if not k.startswith('_'))
-        )
-
-    def __repr__(self):
-        return str(self)
 
     # TODO: think up a better name.
     def mark(self, name: str):
@@ -278,7 +286,7 @@ class Span(BaseSpan):
 
 class SpanList(collections.Sequence):
     def __init__(self, frozen: bool = False) -> None:
-        self.spans = []  # type: list[AbstractSpan]
+        self.spans = []  # type: List[AbstractSpan]
         self._frozen = frozen
         self._bound = False
 
@@ -298,6 +306,7 @@ class SpanList(collections.Sequence):
     def start(self):
         return self.spans[0].start
 
+    @property
     def end(self):
         return self.spans[-1].end
 
@@ -312,22 +321,48 @@ class SpanList(collections.Sequence):
     def __getattr__(self, item: str) -> List[Any]:
         self.spans  # type: List[DependantSpan]
 
-        text = self.spans[0].layer.text_object
+
+        #this is the general case
+        try:
+            base_layer = self.spans[0].layer
+
+        except KeyError:
+            #this solves for one nesting deep
+            base_layer = self.spans[0][0].layer
+
+        text = base_layer.text_object
+
         try:
             layer = text.layers[item]
         except KeyError:
             # we are trying to access 'item' that is not a layer.
             # I'd guess that it is an attribute of the main span then
-            if item in self.spans[0].parent.layer.attributes:
+
+            parent = getattr(self.spans[0], 'parent', None)
+
+            #bad case: parent is dependant layer:
+            if isinstance(parent, DependantLayer):
+                #this solves for depth of 1
+                return [[getattr(span, item) for span in spanlist] for spanlist in self.spans]
+                #TODO: general solution
+
+
+
+
+            if parent and item in parent.layer.attributes:
                 return [getattr(span.parent, item) for span in self.spans]
             else:
                 #we guessed wrong. Is it an attribute of a dependant layer?
                 for layer in self.spans[0].layer.text_object.layers.values():
-                    print(self.spans[0].layer.name)
-                    if isinstance(layer, DependantLayer) and layer.parent == self.spans[0].layer and item in layer.attributes:
+                    if item in layer.attributes and getattr(layer, 'parent', None) == self.spans[0].layer and isinstance(layer, DependantLayer):
                         # check if the layer has a span that corresponds to this span
                         #TODO: speedup
                         return [getattr(span, item) for span in self.spans if span in [i.parent for i in layer.spans]]
+
+                #Nope, but are we perhaps in an enveloping layer?
+                if (self.parent.__class__) is EnvelopingLayer:
+                    return ([getattr(span.parent, item) for span in self.spans if span in [i.parent for i in self.spans]])
+
                 raise KeyError
 
 
@@ -373,6 +408,8 @@ class SpanList(collections.Sequence):
     def __str__(self):
         return 'SpanList({spans})'.format(spans=','.join(str(i) for i in self.spans))
 
+    def __repr__(self):
+        return str(self)
 
 class BaseLayer(AbstractLayer):
     @property
@@ -418,22 +455,40 @@ class BaseLayer(AbstractLayer):
         self._bound = True
         self._text_object = text_object
 
+    def layer_get_attr(self, item):
+        return None
+
     def __getitem__(self, item):
         return self.spans[item]
 
     def __getattr__(self, item):
-        if item in self.attributes:
+        if item in getattr(self, '_attributes'):
             return [getattr(span, item) for span in self.spans]
         else:
             try:
-
-                if item in getattr(self.parent, '_attributes'):
+                parent = getattr(self, 'parent', None)
+                if parent and item in getattr(self.parent, '_attributes'):
                     return [getattr(span, item) for span in self.spans]
-            except Exception as e:
-                # print(e)
-                raise AttributeError('{item} not in layer {layer}'.format(item=item, layer=self.name))
+                else:
+                    #this should be on  layer level
+                    res = self.layer_get_attr(item)
+                    if res is not None:
+                        return res
 
-        raise AttributeError
+            except Exception as e:
+                raise AttributeError('{item} not in layer {layer}'.format(item=item, layer=self.name))
+        raise AttributeError(item)
+
+
+    def __str__(self):
+        return 'Layer(name={name}, spans=[{spans}])'.format(
+            name=self.name,
+            spans=', '.join(str(i) for i in self.spans)
+        )
+
+
+    def __repr__(self):
+        return str(self)
 
 
 class Layer(BaseLayer):
@@ -473,6 +528,22 @@ class Layer(BaseLayer):
         if frozen:
             self._spans.freeze()
 
+    def layer_get_attr(self, item):
+        # layer = getattr(
+        #             getattr(self, 'text_object'),
+        #                 'layers').get(item, None)
+        # if layer is None:
+        #     return None
+        # else:
+        #     #we found a layer by name item
+        #     if layer.parent is self:
+        #         #TODO: fix for recursive parentage
+        #
+        #         return None
+        #     return None
+
+        return None
+
     @classmethod
     def from_span_tuples(cls, name: str, spans: List[Tuple[int, int]], attributes=None) -> 'Layer':
         layer = Layer(name=name, attributes=attributes)
@@ -482,7 +553,7 @@ class Layer(BaseLayer):
         return layer
 
     @classmethod
-    def from_span_dict(cls, name: str, spans: Dict, attributes=None) -> 'Layer':
+    def from_span_dict(cls, name: str, spans: List[Dict], attributes=None) -> 'Layer':
         layer = Layer(name=name, attributes=attributes)
         for span in spans:
             new = layer.add_span(Span(span['start'], span['end']))
@@ -498,11 +569,6 @@ class Layer(BaseLayer):
         self.spans.add(span)
         return span
 
-    def __str__(self):
-        return 'Layer(name={name}, spans=[{spans}])'.format(
-            name=self.name,
-            spans=', '.join(str(i) for i in self.spans)
-        )
 
 
 class DependantLayer(BaseLayer):
@@ -595,6 +661,25 @@ class EnvelopingLayer(BaseLayer):
 
         self._spans = SpanList()
 
+    def layer_get_attr(self, item):
+        layers = self.text_object.layers.keys()
+
+        if item in layers:
+            layer = self.text_object.layers[item]
+            res = []
+            for span in self.spans:
+                x = SpanList(frozen=False)
+                x.bind(layer)
+                x.spans = (getattr(span, item))
+                res.append(x)
+
+            rr = SpanList(frozen=False)
+            rr.bind(layer)
+            rr.spans = res
+            return rr
+
+        return None
+
     @property
     def parent(self):
         return self._envelops
@@ -623,14 +708,12 @@ class EnvelopingLayer(BaseLayer):
         raise NotImplementedError('add_span not implemented EnvelopingLayer')
 
 
-
 def words_sentences(text):
     from estnltk import Text as OldText
     old = OldText(text)
     old.sentences
     old.words
     old.paragraphs
-    # print(dict(old))
     new = Text(text)
     words = Layer.from_span_tuples(spans=old.spans('words'), name='words')
     new.add_layer(words)
@@ -647,4 +730,13 @@ def words_sentences(text):
     for sentence in new_sentences:
         sentences.add_spans(sentence)
     new.add_layer(sentences)
+
     return new
+
+
+# t = words_sentences('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?')
+#
+# print(123)
+# print(2123)
+#
+# t.words.nonsense

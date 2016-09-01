@@ -1,7 +1,8 @@
 import pytest
-from text import Text as OldText
 
-from text2 import *
+# from .text2 import *
+from estnltk.text2 import  *
+from estnltk.text import  Text as OldText
 
 
 def test_spans():
@@ -350,7 +351,7 @@ def test_various():
         #     print(word.text)
         word.mark('uppercase').upper = word.text.upper()
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(KeyError):
         for word in text.words:
             word.nonsense
 
@@ -370,6 +371,46 @@ def test_various():
     assert text.uppercase.text == text.words.text
     assert text.uppercase.upper == ['asd' for _ in text.words]
 
-    #TODO:FIX! (This gives KeyError, expected result - list of strings)
-    # for sentence in text.sentences:
-    #     print(sentence.upper)
+    for sentence in text.sentences:
+        print(sentence.words)
+        print(sentence.upper)
+
+
+def test_words_sentences():
+    t = words_sentences('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?')
+
+    assert t.sentences.text == [['Minu', 'nimi', 'on', 'Uku', ',', 'mis', 'sinu', 'nimi', 'on', '?'], ['Miks', 'me', 'seda', 'arutame', '?']]
+    assert t.words.text == ['Minu', 'nimi', 'on', 'Uku', ',', 'mis', 'sinu', 'nimi', 'on', '?', 'Miks', 'me', 'seda', 'arutame', '?']
+    assert t.text == 'Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?'
+
+    assert [sentence.text for sentence in t.sentences] == t.sentences.text
+
+    with pytest.raises(AttributeError):
+        t.nonsense
+
+    with pytest.raises(AttributeError):
+        t.sentences.nonsense
+
+    with pytest.raises(AttributeError):
+        t.nonsense.nonsense
+
+    with pytest.raises(AttributeError):
+        t.words.nonsense
+
+    dep = DependantLayer(name='uppercase',
+                         text_object=t,
+                         frozen=False,
+                         parent=t.words,
+                         attributes=['upper']
+                         )
+    t.add_layer(dep)
+    for word in t.words:
+        word.mark('uppercase').upper = word.text.upper()
+
+    assert t.uppercase.upper == ['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']
+
+    assert t.sentences.uppercase.upper == [['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', ],[ 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']]
+
+
+    #TODO
+    #assert t.words.uppercase.upper == ['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']
