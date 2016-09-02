@@ -3,6 +3,7 @@
 ===============================
 
 EstNLTK provides wrappers for two syntactic analysers: `MaltParser`_ and `VISLCG3 based syntactic analyser of Estonian`_. 
+
 MaltParser based syntactic analysis is distributed with EstNLTK and can be applied by default. VISLCG3 based syntactic analysis has a requirement that VISLCG3 must be installed into the system first (see :ref:`ref-vislcg-install` for further instructions).
 
 .. _MaltParser: http://www.maltparser.org/
@@ -324,14 +325,14 @@ the example above produces the following output::
     [('kass', ['@SUBJ'])]
     [('vana', ['@AN>']), ('karu', ['@SUBJ'])]
 
-Note: By default, the method :py:meth:`~estnltk.text.Text.syntax_trees` builds trees from the layer corresponding to the current syntactic parser (a parser that can be passed to the Text object via the keyword argument ``syntactic_parser``), or, if no syntactic parser has been set, builds trees from the first layer available, checking firstly for ``LAYER_CONLL`` and secondly for ``LAYER_VISLCG3``. If the current parser has not been specified, and there is no syntactic layer available, you should pass the name of the layer to the method (``LAYER_CONLL`` or ``LAYER_VISLCG3``) via keyword argument ``layer``, in order to direct which syntactic parser should be used for analysing the text.
+Note: By default, the method :py:meth:`~estnltk.text.Text.syntax_trees` builds trees from the layer corresponding to the current syntactic parser (a parser that can be passed to the Text object via the keyword argument ``syntactic_parser``). If no syntactic parser has been set, it builds trees from the first layer available, checking firstly for ``LAYER_CONLL`` and secondly for ``LAYER_VISLCG3``. If the current parser has not been specified, and there is no syntactic layer available, you should pass the name of the layer to the method (``LAYER_CONLL`` or ``LAYER_VISLCG3``) via keyword argument ``layer``, in order to direct which syntactic parser should be used for analysing the text.
 
 .. _ref-tree-object:
 
-Tree object
-----------------
+Tree object and queries
+-----------------------
 
-Each :class:`~estnltk.syntax.utils.Tree` object represents a node in the syntactic tree, and allows an access to its governing node (parent), its children, and to morphological and syntactic information associated with the word token.
+Each :class:`~estnltk.syntax.utils.Tree` object represents a node in the syntactic tree, and allows an access to its governing node (parent), to its children, and to morphological and syntactic information associated with the word token.
 The object has following fields:
 
 * ``word_id`` -- integer : index of the corresponding word in the sentence;
@@ -339,10 +340,69 @@ The object has following fields:
 * ``labels`` -- list of syntactic function labels associated with the node (e.g. ``'@SUBJ'`` stands for *subject*, see `documentation`_ for details); in case of unsolved ambiguities, multiple functions can be associated with the node;
 * ``parent``   -- Tree object : direct parent / head of this node (``None`` if this node is the root node);
 * ``children`` -- list of Tree objects : list of all direct children of this node (``None`` if this node is a leaf node);
-* ``token`` -- dict : an element from the ``'words'`` layer associated with this node. Can be used to access morphological information associated with the node, e.g. part-of-speech associated with the node can be accessed via  ``thisnode.token['analysis'][0]['partofspeech']``;
+* ``token`` -- dict : an element from the ``'words'`` layer associated with this node. Can be used to access morphological information associated with the node, e.g. morphological analyses are available from ``thisnode.token['analysis']``, and part-of-speech associated with the node can be accessed via ``thisnode.token['analysis'][0]['partofspeech']``;
 * ``text`` -- string : text corresponding to the node; same as ``thisnode.token['text']``;
 * ``syntax_token`` -- dict : an element from the syntactic analysis layer (``LAYER_CONLL`` or ``LAYER_VISLCG3``) associated with this node;
 * ``parser_output`` -- list of strings : list of analysis lines from the initial output of the parser corresponding to the this node; (``None`` if the initial output has not been preserved (a default setting));
+
+In addition to fields ``parent`` and ``children``, each tree node also provides methods :py:meth:`~estnltk.syntax.utils.Tree.get_root` and :py:meth:`~estnltk.syntax.utils.Tree.get_children` which can be used perform more complex queries on the tree:
+
+* :py:meth:`~estnltk.syntax.utils.Tree.get_root` -- Moves up via the parent links of this tree until reaching the tree with no parents, and returns the parentless tree as the root. Otherwise, (if this tree has no parents) returns this tree.
+* :py:meth:`~estnltk.syntax.utils.Tree.get_children` -- Recursively collects and returns all subtrees of this tree (if no  arguments are given), or, alternatively, collects and returns subtrees of this tree satisfying some specific criteria (pre-specified in the keyword arguments);
+
+If called without any keyword arguments, the method :py:meth:`~estnltk.syntax.utils.Tree.get_children` returns a list of all subtrees of this tree, including both direct children, grand-children, and ...-grand-children from unrestricted depth. Specific keyword arguments can used to expand or restrict the returned list.
+
+The query can be limited by tree depth using the keyword argument ``depth_limit``::
+
+    # Get all direct children of the tree
+    children = tree.get_children( depth_limit=1 )
+    
+Note that this is the same as::
+
+    # All direct children of the tree
+    children = tree.children
+
+They query can be restricted to retrieving only trees that have a specific syntactic function label. The keyword argument ``label`` is used for that::
+
+    # Retrieve all nodes labelled @SUBJ
+    subjects = tree.get_children( label="@SUBJ" )
+
+If you want to allow multiple syntactic labels (e.g. ``@SUBJ`` and ``@SUBJ``), you can use ``label_regexp`` which allows to describe the syntactic function label with a regular expression::
+
+    # Retrieve all nodes labelled @SUBJ and @OBJ
+    subjects_objects = tree.get_children( label_regexp="(@SUBJ|@OBJ)" )
+
+Constraints can be added also at the morphological level: the :class:`~estnltk.mw_verbs.utils.WordTemplate` object can be used to describe desirable morphological features that the returned words (tree nodes) should have, and can be passed as the keyword argument ``word_template``::
+
+    from estnltk.mw_verbs.utils import WordTemplate
+    from estnltk.names import POSTAG, FORM, ROOT
+    
+    # word template matching all infinite verbs
+    verb_inf = WordTemplate({POSTAG:'V', FORM:'^(da|des|ma|tama|ta|maks|mas|mast|nud|tud|v|mata)$'})
+    
+    # retrieve all infinite verbs from the children of this tree
+    inf_verbs = tree.get_children( word_template=verb_inf )
+
+If both morphological and syntactic constraints are used in a query, only nodes satisfying all the constraints are returned::
+
+    from estnltk.mw_verbs.utils import WordTemplate
+    from estnltk.names import POSTAG, FORM, ROOT
+    
+    # word template matching all infinite verbs
+    verb_inf = WordTemplate({POSTAG:'V', FORM:'^(da|des|ma|tama|ta|maks|mas|mast|nud|tud|v|mata)$'})
+    
+    # retrieve all infinite verbs that function as objects
+    inf_verbs = tree.get_children( word_template=verb_inf, label="@OBJ" )
+
+Sometimes it is desirable that the tree itself is also checked for and, in case of the match, included in the list of returned trees. The keyword argument ``include_self=True`` can be used for that purpose::
+
+    # Retrieve all nodes labelled @SUBJ, @OBJ or ROOT
+    subjects_objects_roots = tree.get_children( label_regexp="(@SUBJ|ROOT|@OBJ)", include_self=True )
+
+And finally, to ensure that all the returned trees appear in the list in the word order in text, the keyword argument ``sorted=True`` can be used to force sorting the results according to ``word_id``-s::
+
+    # Retrieve all nodes labelled @SUBJ, ROOT, @OBJ, and sort them according to word order in text
+    subj_verb_obj = tree.get_children( label_regexp="(@SUBJ|ROOT|@OBJ)", include_self=True, sorted=True )
 
 
 .. _ref-nltk-interface:
