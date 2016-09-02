@@ -732,11 +732,3 @@ def words_sentences(text):
     new.add_layer(sentences)
 
     return new
-
-
-# t = words_sentences('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?')
-#
-# print(123)
-# print(2123)
-#
-# t.words.nonsense

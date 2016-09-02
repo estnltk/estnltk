@@ -1,8 +1,8 @@
 import pytest
 
 # from .text2 import *
-from estnltk.text2 import  *
-from estnltk.text import  Text as OldText
+from estnltk.text2 import *
+from estnltk.text import Text as OldText
 
 
 def test_spans():
