@@ -762,7 +762,11 @@ class Text(dict):
             If the input argument *layer* is not specified, the type of the
             syntactic parser is used to decide, which syntactic analysis layer 
             should be produced and taken as basis for building syntactic trees;
-            Otherwise, the *layer* must be either LAYER_CONLL or LAYER_CONLL. 
+            If a syntactic parser is not available, then a missing *layer* name 
+            is replaced by the first syntactic layer available (1st LAYER_CONLL,
+            then LAYER_VISLCG3);
+            Otherwise, the *layer* must be provided by the user and it must be 
+            either LAYER_CONLL or LAYER_VISLCG3. 
         """
         # If no layer specified, decide the layer based on the type of syntactic
         # analyzer used:
@@ -771,6 +775,12 @@ class Text(dict):
                 layer = LAYER_CONLL
             elif isinstance(self.__syntactic_parser, VISLCG3Parser):
                 layer = LAYER_VISLCG3
+        # If no syntactic analyzer available, pick the layer as the first syntactic
+        # layer available:
+        if not layer and self.is_tagged(LAYER_CONLL):
+            layer = LAYER_CONLL
+        elif not layer and self.is_tagged(LAYER_VISLCG3):
+            layer = LAYER_VISLCG3
         # Based on the chosen layer, perform the syntactic analysis (if necessary)
         # and return the results packaged as tree objects;
         if layer:

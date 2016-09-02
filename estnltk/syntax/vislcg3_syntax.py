@@ -312,6 +312,9 @@ def cleanup_lines( lines, **kwargs ):
         -- If double_quotes=='esc'   then "   will be overwritten with \\";
            and 
            if double_quotes=='unesc' then \\" will be overwritten with ";
+        -- If fix_sent_tags=True, then sentence tags (<s> and </s>) will be
+           checked for mistakenly added analysis, and found analysis will be
+           removed;
         
         Returns the input list, which has been cleaned from additional information;
     '''
@@ -320,11 +323,14 @@ def cleanup_lines( lines, **kwargs ):
     remove_caps   = False
     remove_clo    = False
     double_quotes = None
+    fix_sent_tags = False
     for argName, argVal in kwargs.items() :
-        if argName in ['remove_caps', 'remove_cap'] and argVal in [True, False]:
-           remove_caps = argVal
-        if argName == 'remove_clo' and argVal in [True, False]:
-           remove_clo = argVal
+        if argName in ['remove_caps', 'remove_cap']:
+           remove_caps = bool(argVal)
+        if argName == 'remove_clo':
+           remove_clo = bool(argVal)
+        if argName == 'fix_sent_tags':
+           fix_sent_tags = bool(argVal)
         if argName in ['double_quotes', 'quotes'] and argVal and \
            argVal.lower() in ['esc', 'escape', 'unesc', 'unescape']:
            double_quotes = argVal.lower()
@@ -393,6 +399,10 @@ def cleanup_lines( lines, **kwargs ):
            if remove_clo and 'CL' in lines[i]:
               lines[i] = re.sub('\sCL[OCB]', ' ', lines[i])
               lines[i] = re.sub('\s{2,}', ' ', lines[i])
+           #  Fix sentence tags that mistakenly could have analysis (in EDT corpus)
+           if fix_sent_tags:
+              if i-1 > -1 and ('"</s>"' in lines[i-1] or '"<s>"' in lines[i-1]):
+                 lines[i] = ''
         i += 1
     return lines
 

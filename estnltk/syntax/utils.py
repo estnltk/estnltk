@@ -284,7 +284,7 @@ def read_text_from_cg3_file( file_name, layer_name=LAYER_VISLCG3, **kwargs ):
                                                     "keep_old", "mark_root";
              vislcg3_syntax.align_cg3_with_Text():  "check_tokens", "add_word_ids";
              vislcg3_syntax.cleanup_lines():        "remove_caps", "remove_clo",
-                                                    "double_quotes";
+                                                    "double_quotes", "fix_sent_tags"
         
         
     '''
