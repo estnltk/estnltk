@@ -150,7 +150,9 @@ After the :class:`~estnltk.syntax.parsers.VISLCG3Parser` has been initiated, its
 In addition to the Text, the method can take the following keyword arguments:
 
 * ``return_type`` -- specifies the format of the data returned of the method. Can be one of the following: ``'text'`` (default), ``'vislcg3'``, ``'trees'``, ``'dep_graphs'``.
-* ``keep_old`` -- a boolean specifying whether the initial analysis lines from the output of VISLCG3's should be preserved in the ``LAYER_VISLCG3``. If ``True``, each ``dict`` in the layer will be augmented with attribute ``'init_parser_out'`` containing the initial/old analysis lines (a list of strings);
+* ``keep_old`` -- a boolean specifying whether the initial analysis lines from the output of VISLCG3's should be preserved in the ``LAYER_VISLCG3``. If ``True``, each ``dict`` in the layer will be augmented with attribute ``'init_parser_out'`` containing the initial/old analysis lines (a list of strings); Default: ``False``
+* ``mark_root`` -- a boolean specifying whether the root node should be renamed to ``ROOT`` (in order to get an output comparable with MaltParser's output); Default: ``False``
+
 
 In the following, some of the usage possibilities of these arguments are introduced in detail.
 

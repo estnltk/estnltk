@@ -133,7 +133,7 @@ def normalise_alignments( alignments, data_type=VISLCG3_DATA, **kwargs ):
             (the parent index exceeds the sentence boundaries) should be fixed; 
             The logic used in fixing out-of-sentence links is the same as the logic for 
             fix_selfrefs;
-            Default:True
+            Default:False
         
         keep_old : bool
             Optional argument specifying  whether the old analysis lines should be 
