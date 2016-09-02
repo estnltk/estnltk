@@ -44,6 +44,33 @@ from estnltk.syntax.vislcg3_syntax import cleanup_lines, align_cg3_with_Text
 pat_cg3_surface_rel = re.compile('(@\S+)')
 pat_cg3_dep_rel     = re.compile('#(\d+)\s*->\s*(\d+)')
 
+def _fix_out_of_sentence_links( alignments, sent_start, sent_end ):
+    ''' Fixes out-of-the-sentence links in the given sentence.
+        The sentence is a sublist of *alignments*, starting from 
+        *sent_start* and ending one token before *sent_end*;
+    ''' 
+    sent_len = sent_end - sent_start
+    j = sent_start
+    while j < sent_start + sent_len:
+        for rel_id, rel in enumerate( alignments[j][PARSER_OUT] ):
+            if int( rel[1] ) >= sent_len:
+                # If the link points out-of-the-sentence, fix
+                # the link so that it points inside the sentence
+                # boundaries:
+                wid = j - sent_start
+                if sent_len == 1:
+                    # a single word becomes a root
+                    rel[1] = -1
+                elif wid-1 > -1:
+                    # word at the middle/end is linked to the previous
+                    rel[1] = wid - 1
+                elif wid-1 == -1:
+                    # word at the beginning is linked to the next
+                    rel[1] = wid + 1
+                alignments[j][PARSER_OUT][rel_id] = rel
+        j += 1
+
+
 def normalise_alignments( alignments, data_type=VISLCG3_DATA, **kwargs ):
     ''' Normalises dependency syntactic information in the given list of alignments.
         *) Translates tree node indices from the syntax format (indices starting 
@@ -101,6 +128,13 @@ def normalise_alignments( alignments, data_type=VISLCG3_DATA, **kwargs ):
             the only word in the sentence, it is made the root of the sentence;
             Default:True
         
+        fix_out_of_sent : bool
+            Optional argument specifying whether references pointing out of the sentence
+            (the parent index exceeds the sentence boundaries) should be fixed; 
+            The logic used in fixing out-of-sentence links is the same as the logic for 
+            fix_selfrefs;
+            Default:True
+        
         keep_old : bool
             Optional argument specifying  whether the old analysis lines should be 
             preserved after overwriting 'parser_out' with new analysis lines;
@@ -152,6 +186,7 @@ def normalise_alignments( alignments, data_type=VISLCG3_DATA, **kwargs ):
     rep_miss_w_dummy = True
     mark_root        = False
     fix_selfrefs     = True
+    fix_out_of_sent  = False
     for argName, argVal in kwargs.items():
         if argName in ['selfrefs', 'fix_selfrefs'] and argVal in [True, False]:
            #  Fix self-references
@@ -165,14 +200,22 @@ def normalise_alignments( alignments, data_type=VISLCG3_DATA, **kwargs ):
         if argName in ['mark_root', 'root'] and argVal in [True, False]:
            #  Mark the root node in the syntactic tree with the label ROOT;
            mark_root = argVal
+        if argName in ['fix_out_of_sent']:
+           #  Fix links pointing out of the sentence;
+           fix_out_of_sent = bool(argVal)
     # Iterate over the alignments and normalise information
     prev_sent_id = -1
-    wordID = 0
+    wordID       = 0
+    sentStart    = -1
     for i in range(len(alignments)):
         alignment = alignments[i]
         if prev_sent_id != alignment[SENT_ID]:
+            # Detect and fix out-of-the-sentence links in the previous sentence (if required)
+            if fix_out_of_sent and sentStart > -1:
+                _fix_out_of_sentence_links( alignments, sentStart, i )
             # Start of a new sentence: reset word id
             wordID = 0
+            sentStart = i
         # 1) Extract syntactic information
         foundRelations = []
         if data_type == VISLCG3_DATA:
@@ -239,6 +282,9 @@ def normalise_alignments( alignments, data_type=VISLCG3_DATA, **kwargs ):
         prev_sent_id = alignment[SENT_ID]
         # Increase word id 
         wordID += 1
+    # Detect and fix out-of-the-sentence links in the last sentence (if required)
+    if fix_out_of_sent and sentStart > -1:
+        _fix_out_of_sentence_links( alignments, sentStart, len(alignments) )
     return alignments
 
 
@@ -261,6 +307,11 @@ def read_text_from_cg3_file( file_name, layer_name=LAYER_VISLCG3, **kwargs ):
         
         Attached syntactic analyses are in the format as is the output of 
           utils.normalise_alignments();
+        
+        Note: when loading data from  https://github.com/EstSyntax/EDT  corpus,
+        it  is  advisable  to  add  flags:  clean_up=True,  fix_sent_tags=True, 
+        fix_out_of_sent=True  in order to ensure that well-formed data will be
+        read from the corpus;
         
         Parameters
         -----------
