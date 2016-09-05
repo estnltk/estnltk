@@ -42,8 +42,7 @@ class VISLCG3Parser(object):
         
         Example usage:
             #
-            # vislcg_cmd - provide full path to vislcg3 executable 
-            #              ('vislcg3' or 'vislcg3.exe')
+            # vislcg_cmd - vislcg3 executable ('vislcg3' or 'vislcg3.exe') with full path;
             # text       - EstNLTK Text object to be analysed;
             #
             parser = VISLCG3Parser( vislcg_cmd=vislcg_cmd )
@@ -96,7 +95,7 @@ class VISLCG3Parser(object):
             vislcg_cmd : str
                 Name of visl_cg3 binary executable. If the executable is accessible from 
                 system's PATH variable, full path can be omitted, otherwise, the name must 
-                contain full path to the executable.
+                be given with the full path.
                 This argument is used in initiating VISLCG3Pipeline (vislcg3_processor).
                 Default: 'vislcg3'
             

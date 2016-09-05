@@ -4,22 +4,26 @@
 #
 #   A reimplementation of the Estonian VISL-CG3 based syntax processing 
 #   pipeline from  https://github.com/EstSyntax/EstCG 
-#   ( all files, except 'strukt_parand.rul', are from the EstCG snapshot: 
-#   https://github.com/EstSyntax/EstCG/tree/467f0746ae870169776b0ed7aef8825730fea671 
-#   'strukt_parand.rul' is currently distributed separately )
-#   
+#
+#   Note that 
+#    In the pipeline SYNTAX_PIPELINE_ESTCG:
+#      all files, except 'strukt_parand.rul', are from the EstCG snapshot: 
+#      https://github.com/EstSyntax/EstCG/tree/467f0746ae870169776b0ed7aef8825730fea671 
+#      ('strukt_parand.rul' is currently distributed separately)
+#    In the pipeline SYNTAX_PIPELINE_1_4:
+#      rule files (*._ub.rle) are from: http://math.ut.ee/~tiinapl/CGParser.tar.gz
 #
 #   Developed and tested under Python's versions:  2.7.11,  3.4.4
 #
 #   VISLCG3Pipeline executes a pipeline of VISLCG3 based analysis steps.
 #   *) Default steps in the pipeline:
-#      1) 'clo.rul'     -- disambiguates finite/main verbs, and adds
+#      1) 'clo.*'     -- disambiguates finite/main verbs, and adds
 #                          clause boundary information;
-#      2) 'morfyhe.rul' -- rule-based morphological disambiguation;
-#      3) 'PhVerbs.rul' -- detects phrasal verbs;
-#      4) 'pindsyn.rul' -- adds surface-syntactic analyses (syntactic 
+#      2) 'morfyhe.*' -- rule-based morphological disambiguation;
+#      3) 'PhVerbs.*' -- detects phrasal verbs;
+#      4) 'pindsyn.*' -- adds surface-syntactic analyses (syntactic 
 #                          functions of the words);
-#      5) 'strukt_parand.rul' -- adds dependency syntactic relations;
+#      5) 'strukt.*'  -- adds dependency syntactic relations;
 #   *) VISLCG3Pipeline assumes input in the same format as the output of 
 #      SyntaxPreprocessing;
 #
@@ -34,7 +38,7 @@
 #      #    subcatFile        -- path to 'abileksikon06utf.lx'
 #      #    vislcgRulesDir    -- path to dir containing *.rul files for VISLCG3;
 #      #    text              -- the text to be analyzed, estnltk Text object;
-#      #    vislcg_path       -- name of the VISLCG3 executable, full path;
+#      #    vislcg_path       -- name of the VISLCG3 executable with full path;
 # 
 #      # Preprocessing for the syntax
 #      pipeline1 = SyntaxPreprocessing( fs_to_synt=fsToSyntFulesFile, subcat=subcatFile )
@@ -79,13 +83,13 @@ class VISLCG3Pipeline:
     ''' A pipeline for VISL CG3 based syntactic analysis.
 
         *) Default steps in the pipeline:
-              1) 'clo.rul'     -- disambiguates finite/main verbs, and adds
+              1) 'clo.*'     -- disambiguates finite/main verbs, and adds
                                   clause boundary information;
-              2) 'morfyhe.rul' -- rule-based morphological disambiguation;
-              3) 'PhVerbs.rul' -- detects phrasal verbs;
-              4) 'pindsyn.rul' -- adds surface-syntactic analyses (syntactic 
+              2) 'morfyhe.*' -- rule-based morphological disambiguation;
+              3) 'PhVerbs.*' -- detects phrasal verbs;
+              4) 'pindsyn.*' -- adds surface-syntactic analyses (syntactic 
                                   functions of words);
-              5) 'strukt_parand.rul' -- adds dependency syntactic relations;
+              5) 'strukt.*'  -- adds dependency syntactic relations;
 
                  ( The complete Estonian VISL-CG3 based syntax processing pipeline
                    is available at https://github.com/EstSyntax/EstCG )

@@ -76,7 +76,7 @@ In order to use VISLCG3 based syntactic analysis, the VISLCG3 parser must be ins
 
 By default, EstNLTK expects that the directory containing VISLCG3 parser's executable (``vislcg3`` in UNIX, ``vislcg3.exe`` in Windows) is accessible from system's environment variable ``PATH``. If this requirement is satisfied, the EstNLTK should always be able to execute the parser.
 
-Alternatively ( if the parser's directory is not in system's ``PATH`` ), the full path to the VISLCG3 executable can be provided via the input argument ``vislcg_cmd`` of the parser's class :class:`~estnltk.syntax.parsers.VISLCG3Parser`. Then the parser instance can be added as a custom parser of a :class:`~estnltk.text.Text` object via the keyword argument ``syntactic_parser``::
+Alternatively ( if the parser's directory is not in system's ``PATH`` ), the name of the VISLCG3 executable with full path can be provided via the input argument ``vislcg_cmd`` of the parser's class :class:`~estnltk.syntax.parsers.VISLCG3Parser`. Then the parser instance can be added as a custom parser of a :class:`~estnltk.text.Text` object via the keyword argument ``syntactic_parser``::
 
     from estnltk.syntax.parsers import VISLCG3Parser
     from estnltk.names import LAYER_VISLCG3
@@ -84,8 +84,8 @@ Alternatively ( if the parser's directory is not in system's ``PATH`` ), the ful
     from pprint import pprint
     
     # Create a new VISLCG3 parser instance, and provide 
-    # the exact path of the VISLCG3's installation directory
-    parser = VISLCG3Parser( vislcg_cmd='C:\\Program Files\\vislcg3' )
+    # the name of the VISLCG3 executable with full path 
+    parser = VISLCG3Parser( vislcg_cmd='C:\\cg3\\bin\\vislcg3.exe' )
     
     # Create a new text object and override the default
     # parser with the VISLCG3 parser
@@ -96,14 +96,14 @@ Alternatively ( if the parser's directory is not in system's ``PATH`` ), the ful
 
     pprint( text[LAYER_VISLCG3] )
     
-This example should produce the following output::
+Provided that you are using a Windows machine, and VISLCG3 is installed into the directory ``C:\\cg3\\bin``, the previous example should execute successfully and should produce the following output::
 
     [{'end': 5, 'parser_out': [['@ADVL', 1]], 'sent_id': 0, 'start': 0},
      {'end': 9, 'parser_out': [['@FMV', -1]], 'sent_id': 0, 'start': 6},
      {'end': 15, 'parser_out': [['@AN>', 3]], 'sent_id': 0, 'start': 10},
      {'end': 20, 'parser_out': [['@SUBJ', 1]], 'sent_id': 0, 'start': 16}]
 
-Note that the root node (the node with governing word index ``-1``) has a syntactic label ``'@FMV'`` instead of ``'ROOT'``, indicating that the VISLCG3Parser was used instead of the MaltParser.
+In the output: note that the root node (the node with governing word index ``-1``) has a syntactic label ``'@FMV'`` instead of ``'ROOT'``, indicating that the VISLCG3Parser was used instead of the MaltParser.
 
 Text interface
 --------------
@@ -143,7 +143,7 @@ The class :class:`~estnltk.syntax.parsers.VISLCG3Parser` can be used to customiz
 
 :class:`~estnltk.syntax.parsers.VISLCG3Parser` can be initiated with the following keyword arguments:
 
-* ``vislcg_cmd`` -- a full path to the VISLCG3 installation directory;
+* ``vislcg_cmd`` -- the name of VISLCG3 executable with full path (e.g. ``'C:\\cg3\\bin\\vislcg3.exe'``);
 * ``pipeline`` -- a list of rule file names that are executed by the VISLCG3Parser, in the order of execution;
 * ``rules_dir`` -- a default directory from where to find rules that are executed on the pipeline (used for rule files without path);
 
