@@ -122,6 +122,7 @@ Tutorials
    tutorials/text
    tutorials/disambiguation
    tutorials/ner
+   tutorials/dependency_syntax
    tutorials/dependency
    tutorials/maltparser
    tutorials/np_chunker

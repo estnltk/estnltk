@@ -287,11 +287,79 @@ Alternatively, you can put only file names to the ``pipeline`` argument, and use
 MaltParser based syntactic analysis
 ====================================
 
+No installation steps are required to set up the MaltParser.
+
 Text interface
 --------------
 
-Stand-alone parser
-------------------
+As EstNLTK uses :class:`~estnltk.syntax.parsers.MaltParser` as a default parsing method, you can get the syntactic analysis from MaltParser via :class:`~estnltk.text.Text` object's method :py:meth:`~estnltk.text.Text.tag_syntax`.
+
+When you have changed the default parser, e.g. to :class:`~estnltk.syntax.parsers.VISLCG3Parser`, you can change it back to the :class:`~estnltk.syntax.parsers.MaltParser` and add the layer of MaltParser's analyses (``LAYER_CONLL``) via method :py:meth:`~estnltk.text.Text.tag_syntax_maltparser`::
+
+    from estnltk.names import LAYER_CONLL
+    from estnltk import Text
+    from pprint import pprint
+    
+    text = Text( 'Valge jänes jooksis metsas' )
+    
+    # Tag text with VISLCG3 parser (change default parser to VISLCG3)
+    text.tag_syntax_vislcg3()
+    
+    # Tag text with MaltParser (change default parser back to MaltParser)
+    text.tag_syntax_maltparser()
+
+    pprint( text[LAYER_CONLL] )
+
+This example should produce the following output::
+
+    [{'end': 5, 'parser_out': [['@AN>', 1]], 'sent_id': 0, 'start': 0},
+     {'end': 11, 'parser_out': [['@SUBJ', 2]], 'sent_id': 0, 'start': 6},
+     {'end': 19, 'parser_out': [['ROOT', -1]], 'sent_id': 0, 'start': 12},
+     {'end': 26, 'parser_out': [['@ADVL', 2]], 'sent_id': 0, 'start': 20}]
+
+For each word in the text, the layer ``LAYER_CONLL`` contains a ``dict`` storing the syntactic analysis of the word (see :ref:`ref-basic-usage` for details).
+The method :py:meth:`~estnltk.text.Text.syntax_trees` can be used to build queryable syntactic trees from  ``LAYER_CONLL``, see :ref:`ref-tree-structure` for details.
+
+MaltParser class
+----------------
+
+The class :class:`~estnltk.syntax.parsers.MaltParser` can be used to customize the settings of MaltParser based syntactic analysis (e.g. to provide a different MaltParser's jar file, or a different model), and to get a custom output (e.g. the original output of the parser).
+
+:class:`~estnltk.syntax.parsers.MaltParser` can be initiated with the following keyword arguments:
+
+* ``maltparser_dir`` -- the path to the directory containing Maltparser's jar file and the model file;
+* ``model_name`` -- name of the Maltparser's model used in parsing, should be located in ``maltparser_dir``;
+* ``maltparser_jar`` -- name of the Maltparser jar file, which is to be executed and which is located in ``maltparser_dir`` (defaults to ``'maltparser-1.8.jar'``);
+
+After the :class:`~estnltk.syntax.parsers.MaltParser` has been initiated, its method  :py:meth:`~estnltk.syntax.parsers.MaltParser.parse_text` can be used to parse a :class:`~estnltk.text.Text` object. 
+In addition to the Text, the method can take the following keyword arguments:
+
+* ``return_type`` -- specifies the format of the data returned of the method. Can be one of the following: ``'text'`` (default), ``'conll'``, ``'trees'``, ``'dep_graphs'``.
+* ``keep_old`` -- a boolean specifying whether the initial analysis lines from the output of MaltParser should be preserved in the ``LAYER_CONLL``. If ``True``, each ``dict`` in the layer will be augmented with attribute ``'init_parser_out'`` containing the initial/old analysis lines (a list of strings); Default: ``False``
+
+.. In the following, some of the usage possibilities of these arguments are introduced in detail.
+
+The initial output of the parser
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want to see the **initial / original output** of the MaltParser, you can execute the method :py:meth:`~estnltk.syntax.parsers.MaltParser.parse_text` with the setting ``return_type='conll'`` -- in this case, the method returns a list of lines (strings) from the initial output::
+
+    from estnltk.syntax.parsers import MaltParser
+    from estnltk import Text
+
+    text = Text('Maril oli väike tall')
+    parser = MaltParser()
+    initial_output = parser.parse_text(text, return_type='conll')
+    
+    print( '\n'.join( initial_output) )
+    
+the code above should produce the following output::
+
+    1       Maril   mari    S       S       sg|ad   2       @SUBJ   _       _
+    2       oli     ole     V       V       s       0       ROOT    _       _
+    3       väike   väike   A       A       sg|n    4       @AN>    _       _
+    4       tall    tall    S       S       sg|n    2       @PRD    _       _
+
 
 .. _ref-tree-structure:
 
@@ -560,8 +628,13 @@ Provided that you have the file ``'ilu_indrikson.inforem'`` ( from `Estonian Dep
      (('kõlanud', None), '@ADVL', ('erakordselt', None)),
      (('erakordselt', None), 'xxx', ('.', None))]
 
-
 .. _Estonian Dependency Treebank: https://github.com/EstSyntax/EDT
+
+**Specifying the layer name.** If you want to store syntactic analyses under a different layer name, you can provide a  custom name via the keyword argument ``layer``::
+
+    from estnltk.syntax.utils import read_text_from_cg3_file
+    
+    text = read_text_from_cg3_file( 'ilu_indrikson.inforem', layer='my_syntax_layer' )
 
 .. note:: **Quirks of the import method**
 
@@ -642,6 +715,11 @@ Provided that you have the file ``'et-ud-dev.conllu'`` ( from `The Estonian UD t
 .. _CONLL-U: http://universaldependencies.org/format.html
 .. _The Estonian UD treebank: https://github.com/UniversalDependencies/UD_Estonian
 
+**Specifying the layer name.** If you want to store syntactic analyses under a different layer name, you can provide a  custom name via the keyword argument ``layer``::
+
+    from estnltk.syntax.utils import read_text_from_conll_file
+    
+    text = read_text_from_conll_file( 'et-ud-dev.conllu', layer='my_syntax_layer' )
 
 .. note:: **Quirks of the import method**
 
