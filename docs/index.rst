@@ -123,8 +123,6 @@ Tutorials
    tutorials/disambiguation
    tutorials/ner
    tutorials/dependency_syntax
-   tutorials/dependency
-   tutorials/maltparser
    tutorials/np_chunker
    tutorials/prettyprinter
    tutorials/terminalprettyprinter
