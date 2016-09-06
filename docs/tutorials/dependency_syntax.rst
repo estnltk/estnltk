@@ -522,7 +522,7 @@ Importing corpus from a file
 Import CG3 format file
 ----------------------
 
-The method :py:meth:`~estnltk.syntax.utils.read_text_from_cg3_file` can be used to import :class:`~estnltk.text.Text` object from a file containing VISLCG3 format syntactic annotations::
+The method :py:meth:`~estnltk.syntax.utils.read_text_from_cg3_file` can be used to import a :class:`~estnltk.text.Text` object from a file containing VISLCG3 format syntactic annotations::
 
     from estnltk.syntax.utils import read_text_from_cg3_file
     
@@ -563,13 +563,22 @@ Provided that you have the file ``'ilu_indrikson.inforem'`` ( from `Estonian Dep
 
 .. _Estonian Dependency Treebank: https://github.com/EstSyntax/EDT
 
-.. note::
+.. note:: **Quirks of the import method**
 
-    1) The method converts word indices in the syntactic annotation to EstNLTK's format: word indices start at ``0``, and the root node has the parent index ``-1``;
+    1) The import method assumes that the input file is in ``UTF-8`` encoding;
     
-    2) By default, words that have parent index referring to theirselves (self-links) are fixed so that they refer to a previous word in the sentence; if there is no previous word, then to the next word in the sentence; and if the word is the only word in the sentence, the link will obtain the value ``-1``;
+    2) The import method converts word indices in the syntactic annotation to EstNLTK's format: word indices will start at ``0``, and the root node will have the parent index ``-1``;
     
-    3) When importing the corpus from a manually annotated file (for instance, from `Estonian Dependency Treebank`_), it could be useful to apply several post-correction steps in order to ensure validity of the data. This can be done by passing flags ``clean_up=True``, ``fix_sent_tags=True`` and ``fix_out_of_sent=True`` to the method :py:meth:`~estnltk.syntax.utils.read_text_from_cg3_file`:
+    3) Be aware that the import method *does not* import *morphological annotations*. As there is no guarantee that morphological annotations in the file are compatible with EstNLTK's format of morphological analysis (e.g. annotations from `Estonian Dependency Treebank`_ are not), these annotations will be skipped and the resulting Text object has no layer of morphological analyses. If you want to make queries involving morphological constraints, you should first add the layer via method :py:func:`~estnltk.text.Text.tag_analysis`.
+    
+    4) When reconstructing the text, the method :py:meth:`~estnltk.syntax.utils.read_text_from_cg3_file` tries to preserve the original tokenization used in the file. In order to distinguish multiword tokens (e.g. ``'Rio de Jainero'`` as a single word) from ordinary tokens, the method re-constructs the text in a way that words are separated by double space (``'  '``), and a single space (``' '``) is reserved for marking the space in a multiword. In order to preserve sentence boundaries, sentence endings are marked with newlines (``'\n'``).
+    
+
+.. note:: **Fixing the input**
+
+    1) By default, words that have parent index referring to theirselves (self-links) are fixed: they will be linked to a previous word in the sentence; if there is no previous word, then to the next word in the sentence; and if the word is the only word in the sentence, the link will obtain the value ``-1``;
+    
+    2) When importing the corpus from a manually annotated file (for instance, from `Estonian Dependency Treebank`_), it could be useful to apply several post-correction steps in order to ensure validity of the data. This can be done by passing flags ``clean_up=True``, ``fix_sent_tags=True`` and ``fix_out_of_sent=True`` to the method :py:meth:`~estnltk.syntax.utils.read_text_from_cg3_file`:
     
         * ``clean_up=True`` -- switches on the clean-up method, which contains routines for handling ``fix_sent_tags=True`` and ``fix_out_of_sent=True``;
         
@@ -577,16 +586,69 @@ Provided that you have the file ``'ilu_indrikson.inforem'`` ( from `Estonian Dep
         
         * ``fix_out_of_sent=True`` -- fixes syntactic links pointing out-of-the-sentence; employs a similar logic as is used for fixing self-links;
 
-    4) When reconstructing the text, the method :py:meth:`~estnltk.syntax.utils.read_text_from_cg3_file` tries to preserve the original tokenization used in the file. In order to distinguish multiword tokens (e.g. ``'Rio de Jainero'`` as a single word) from ordinary tokens, the method re-constructs the text in a way that words are separated by double space (``'  '``), and a single space (``' '``) is reserved for marking the space in a multiword. In order to preserve sentence boundaries, sentence endings are marked with newlines (``'\n'``).
-    
-
-
-    
-
-
-
 
 Import CONLL format file
 ------------------------
 
+The method :py:meth:`~estnltk.syntax.utils.read_text_from_conll_file` can be used to import a :class:`~estnltk.text.Text` object from a file containing syntactic annotations in the CONLL format::
 
+    from estnltk.syntax.utils import read_text_from_conll_file
+    
+    text = read_text_from_conll_file( 'et-ud-dev.conllu' )
+
+The format of the input file is expected to be either `CONLL-X`_ or `CONLL-U`_. The method imports information about the sentence boundaries, the word tokenization (the field ``FORM``), and dependency syntactic information (from fields ``HEAD`` and ``DEPREL``), and reconstructs a :class:`~estnltk.text.Text` object based on that information. The resulting :class:`~estnltk.text.Text` object has the layer ``LAYER_CONLL`` containing the syntactic information::
+
+    from pprint import pprint
+    
+    from estnltk.names import LAYER_CONLL
+    from estnltk.syntax.utils import read_text_from_conll_file
+
+    # re-construct text from file
+    text = read_text_from_conll_file( 'et-ud-dev.conllu' )
+    
+    # Print the first sentence of the text
+    print( text.sentence_texts[0] )
+
+    # Represent syntactic relations as PARENT-RELATION-CHILD triples
+    trees = text.syntax_trees(layer=LAYER_CONLL)
+    pprint( list(trees[0].as_dependencygraph().triples()) )
+
+Provided that you have the file ``'et-ud-dev.conllu'`` ( from `The Estonian UD treebank`_ ) available at the same directory as the script above, the script should produce the following output::
+
+    Ta  oli  tulnud  jala  juba  üle  viie  kilomeetri  ,  sest  siia  ,  selle  lossi  juurde  ,  ei  viinud  ühtegi  autoteed  .
+    [(('tulnud', None), 'nsubj', ('Ta', None)),
+     (('tulnud', None), 'aux', ('oli', None)),
+     (('tulnud', None), 'advmod', ('jala', None)),
+     (('tulnud', None), 'advmod', ('juba', None)),
+     (('tulnud', None), 'nmod', ('kilomeetri', None)),
+     (('kilomeetri', None), 'case', ('üle', None)),
+     (('kilomeetri', None), 'nummod', ('viie', None)),
+     (('tulnud', None), 'dep', ('viinud', None)),
+     (('viinud', None), 'punct', (',', None)),
+     (('viinud', None), 'mark', ('sest', None)),
+     (('viinud', None), 'advmod', ('siia', None)),
+     (('siia', None), 'nmod', ('lossi', None)),
+     (('lossi', None), 'det', ('selle', None)),
+     (('lossi', None), 'case', ('juurde', None)),
+     (('juurde', None), 'punct', (',', None)),
+     (('viinud', None), 'punct', (',', None)),
+     (('viinud', None), 'neg', ('ei', None)),
+     (('viinud', None), 'nsubj', ('autoteed', None)),
+     (('autoteed', None), 'nummod', ('ühtegi', None)),
+     (('tulnud', None), 'punct', ('.', None))]
+
+
+.. _CONLL-X: http://ilk.uvt.nl/conll/#dataformat
+.. _CONLL-U: http://universaldependencies.org/format.html
+.. _The Estonian UD treebank: https://github.com/UniversalDependencies/UD_Estonian
+
+
+.. note:: **Quirks of the import method**
+
+    1) The import method assumes that the input file is in ``UTF-8`` encoding;
+    
+    2) The import method converts word indices in the syntactic annotation to EstNLTK's format: word indices will start at ``0``, and the root node will have the parent index ``-1``;
+    
+    3) Be aware that the import method *does not* import *morphological annotations*. As there is no guarantee that morphological annotations in the file are compatible with EstNLTK's format of morphological analysis (e.g. annotations from `The Estonian UD treebank`_ are not), these annotations will be skipped and the resulting Text object has no layer of morphological analyses. If you want to make queries involving morphological constraints, you should first add the layer via method :py:func:`~estnltk.text.Text.tag_analysis`.
+    
+    4) When reconstructing the text, the method :py:meth:`~estnltk.syntax.utils.read_text_from_conll_file` tries to preserve the original tokenization used in the file. In order to distinguish multiword tokens (e.g. ``'Rio de Jainero'`` as a single word) from ordinary tokens, the method re-constructs the text in a way that words are separated by double space (``'  '``), and a single space (``' '``) is reserved for marking the space in a multiword. In order to preserve sentence boundaries, sentence endings are marked with newlines (``'\n'``).
