@@ -743,7 +743,7 @@ class Tree(object):
         return subtrees
 
 
-    def as_dependencygraph( self, keep_dummy_root=False ):
+    def as_dependencygraph( self, keep_dummy_root=False, add_morph=True ):
         ''' Returns this tree as NLTK's DependencyGraph object.
             
             Note that this method constructs 'zero_based' graph,
@@ -752,6 +752,14 @@ class Tree(object):
             
             Parameters
             -----------
+            add_morph : bool
+                Specifies whether the morphological information 
+                (information about word lemmas, part-of-speech, and 
+                features) should be added to graph nodes.
+                Note that even if **add_morph==True**, morphological
+                information is only added if it is available via
+                estnltk's layer  token['analysis'];
+                Default: True
             keep_dummy_root : bool
                 Specifies whether the graph should include a dummy
                 TOP / ROOT node, which does not refer to any word,
@@ -794,6 +802,22 @@ class Tree(object):
                 # If we do not keep the dummy root node, set this tree
                 # as the root node
                 graph.root = graph.nodes[address]
+            if add_morph and child.morph:
+                # Add morphological information, if possible
+                lemmas  = set([analysis[LEMMA] for analysis in child.morph])
+                postags = set([analysis[POSTAG] for analysis in child.morph])
+                feats   = set([analysis[FORM] for analysis in child.morph])
+                lemma  = ('|'.join( list(lemmas)  )).replace(' ','_')
+                postag = ('|'.join( list(postags) )).replace(' ','_')
+                feats  = ('|'.join( list(feats) )).replace(' ','_')
+                graph.nodes[address].update(
+                {
+                    'tag  ': postag,
+                    'ctag' : postag,
+                    'feats': feats,
+                    'lemma': lemma
+                } )
+
         #
         # 2) Update / Add arcs of the graph 
         #

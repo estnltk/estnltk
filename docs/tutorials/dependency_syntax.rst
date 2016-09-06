@@ -477,13 +477,13 @@ Dependency graphs
 
 ::
 
-    [(('lõi', None), '@J', ('Ja', None)),
-     (('lõi', None), '@SUBJ', ('karu', None)),
-     (('karu', None), '@AN>', ('vana', None)),
-     (('lõi', None), '@OBJ', ('trummi', None)),
-     (('trummi', None), 'xxx', ('.', None))]
+     [(('lõi', 'V'), '@J', ('Ja', 'J')),
+      (('lõi', 'V'), '@SUBJ', ('karu', 'S')),
+      (('karu', 'S'), '@AN>', ('vana', 'A')),
+      (('lõi', 'V'), '@OBJ', ('trummi', 'S')),
+      (('trummi', 'S'), 'xxx', ('.', 'Z'))]
 
-Note: by default, the returned dependencygraph contains only syntactic information, and no morphological level information. 
+.. Note: by default, the returned dependencygraph contains only syntactic information, and no morphological level information. 
 
 .. _DependencyGraph: http://www.nltk.org/_modules/nltk/parse/dependencygraph.html
 
@@ -578,7 +578,7 @@ Provided that you have the file ``'ilu_indrikson.inforem'`` ( from `Estonian Dep
 
     1) By default, words that have parent index referring to theirselves (self-links) are fixed: they will be linked to a previous word in the sentence; if there is no previous word, then to the next word in the sentence; and if the word is the only word in the sentence, the link will obtain the value ``-1``;
     
-    2) When importing the corpus from a manually annotated file (for instance, from `Estonian Dependency Treebank`_), it could be useful to apply several post-correction steps in order to ensure validity of the data. This can be done by passing flags ``clean_up=True``, ``fix_sent_tags=True`` and ``fix_out_of_sent=True`` to the method :py:meth:`~estnltk.syntax.utils.read_text_from_cg3_file`:
+    2) When importing the corpus from a manually annotated file (for instance, from `Estonian Dependency Treebank`_), it could be useful to apply several post-correction steps in order to ensure validity of the data. This can be done by passing keyword argument settings ``clean_up=True``, ``fix_sent_tags=True`` and ``fix_out_of_sent=True`` to the method :py:meth:`~estnltk.syntax.utils.read_text_from_cg3_file`:
     
         * ``clean_up=True`` -- switches on the clean-up method, which contains routines for handling ``fix_sent_tags=True`` and ``fix_out_of_sent=True``;
         
