@@ -283,11 +283,11 @@ class VISLCG3Parser(object):
                     if len( vislcg3Token[PARSER_OUT] ) > 0:
                         firstParse = vislcg3Token[PARSER_OUT][0]
                         # Fetch information about the syntactic relation:
-                        estnltkToken[SYNTAX_LABEL] = str(i)
-                        estnltkToken[SYNTAX_HEAD]  = str(firstParse[1])
+                        estnltkToken['s_label'] = str(i)
+                        estnltkToken['s_head']  = str(firstParse[1])
                         # Fetch the name of the surface syntactic relation
                         deprels = '|'.join( [p[0] for p in vislcg3Token[PARSER_OUT]] )
-                        estnltkToken[DEPREL]       = deprels
+                        estnltkToken['s_rel']       = deprels
                         parse_found = True
                 if not parse_found:
                     raise Exception("(!) Unable to retrieve syntactic analysis for the ",\

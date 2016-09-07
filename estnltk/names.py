@@ -46,17 +46,8 @@ VISLCG3_DATA  = 'vislcg3'
 LAYER_CONLL   = 'conll_syntax'
 LAYER_VISLCG3 = 'vislcg3_syntax'
 
-# syntax related (!!these are old names and will be deprecated in future versions!!)
-SYNTAX = 'syntax'
-LINK = 'link'
-INTERMEDIATE = 'intermediate'
-SYNTAX_LABEL = 's_label' # from dependency link: index of the current token in the syntactic tree
-SYNTAX_HEAD  = 's_head'  # from dependency link: index of current token's parent in the syntactic tree
-DEPREL       = 's_rel'   # from dependency link: surface-syntactic label of the relation
-
 # noun phrase chunks (B-I-O labels)
 NOUN_CHUNKS = 'noun_chunks'
-NP_LABEL = 'np_label'
 
 # clause segmenter related
 CLAUSE_ANNOTATION = 'clause_annotation'
