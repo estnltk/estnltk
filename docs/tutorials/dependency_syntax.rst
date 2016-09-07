@@ -191,8 +191,12 @@ the code above produces the following output:
     "<tall>"
             "tall" L0 S com sg nom @SUBJ #4->2
     "</s>"
-    
 
+
+.. note::  Format of the initial output
+
+    A more detailed description of the format and categories used by the parser is available in Estonian: https://korpused.keeleressursid.ee/syntaks/dokumendid/syntaksiliides_ee.pdf (2016-09-07)
+    and there is also a detailed description of the annotation principles available in Estonian: https://www.keeletehnoloogia.ee/et/ekt-projektid/vahendid-teksti-mitmekihiliseks-margendamiseks-rakendatuna-koondkorpusele/soltuvussuntaktiliselt-analuusitud-korpus. (2016-09-07)
 
 Note that the results of the analysis are also stored in the input Text object on the layer ``LAYER_VISLCG3``, but the layer does not preserve the original/initial output of the VISLCG3 parser.
 
