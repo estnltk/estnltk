@@ -174,6 +174,9 @@ def convert_Text_to_mrf( text ):
        kwargs['disambiguate'] = False
        text = Text(text, **kwargs)
        text = text.tag_analysis()
+       # TODO: Here we create a new Text object and add an ANALYSIS layer to it,
+       #       but the old Text object will be left without any analysis. Could this
+       #       cause problems in later processing??
     # Iterate over sentences and perform conversion
     results = []
     for sentence in text.divide( layer=WORDS, by=SENTENCES ):

@@ -33,3 +33,20 @@ class NP_ChunkerTest(unittest.TestCase):
         self.assertListEqual(phrase_texts, \
             ['Saksamaal Bonnis', 'aset', 'kummaline juhtum murdvargaga', 'kes', 'endale', 'ise', 'politsei'])
 
+
+    def test_np_chunker_4(self):
+        chunker = NounPhraseChunker()
+        text = Text('Maril oli väike tall. Talle nimi oli Mall.')
+        labels = chunker.analyze_text( text, return_type="labels" )
+        self.assertListEqual(labels, \
+             ['B', 'O', 'B', 'I', 'O', 'B', 'I', 'O', 'B', 'O'])
+
+
+    def test_np_chunker_5(self):
+        chunker = NounPhraseChunker()
+        text = Text('Maril oli väike tall. Talle nimi oli Mall.')
+        text = chunker.analyze_text( text, return_type="text" )
+        self.assertTrue( NOUN_CHUNKS in text )
+        phrase_texts = [ p[TEXT] for p in text[NOUN_CHUNKS] ]
+        self.assertListEqual(phrase_texts, ['Maril', 'väike tall', 'Talle nimi', 'Mall'])
+        

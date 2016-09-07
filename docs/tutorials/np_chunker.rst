@@ -7,25 +7,50 @@ Estnltk includes an experimental noun phrase chunker, which can be used to detec
 Basic usage
 =============
 
-The class :py:class:`~estnltk.np_chunker.NounPhraseChunker` provides method :py:meth:`~estnltk.np_chunker.NounPhraseChunker.analyze_text`, which takes a :py:class:`~estnltk.text.Text` object as an input, and provides a tagging of phrases in a BIO annotation scheme::
+The class :py:class:`~estnltk.np_chunker.NounPhraseChunker` provides method :py:meth:`~estnltk.np_chunker.NounPhraseChunker.analyze_text`, which takes a :py:class:`~estnltk.text.Text` object as an input, detects potential noun phrases, and stores in the layer ``NOUN_CHUNKS``::
 
     from estnltk import Text
     from estnltk.np_chunker import NounPhraseChunker
-    from estnltk.names import NP_LABEL, TEXT
+    from estnltk.names import TEXT, NOUN_CHUNKS
+    from pprint import pprint
 
     # initialise the chunker
     chunker = NounPhraseChunker()
 
     text = Text('Suur karvane kass nurrus punasel diivanil, väike hiir aga hiilis temast mööda.')
     # chunk the input text
-    chunker.analyze_text( text )
+    text = chunker.analyze_text( text )
+    
+    # output the results (found phrases)
+    pprint( text[NOUN_CHUNKS] )
 
-    # output results of the chunking in BIO annotation scheme
-    for word in text.words:
-        print( word[TEXT]+'  '+str(word[NP_LABEL]) )
+::
 
-As a result of chunking, attribute ``NP_LABEL`` will be added to every word in the input text. 
-Attribute's value indicates word's position in phrase: ``"B"`` denotes that the word begins a phrase, ``"I"`` indicates that the word is inside a phrase, and ``"O"`` indicates that the word does not belong to any noun phrase.
+    [{'end': 17, 'start': 0, 'text': 'Suur karvane kass'},
+     {'end': 41, 'start': 25, 'text': 'punasel diivanil'},
+     {'end': 53, 'start': 43, 'text': 'väike hiir'},
+     {'end': 71, 'start': 65, 'text': 'temast'}]
+
+By default, the method :py:meth:`~estnltk.np_chunker.NounPhraseChunker.analyze_text` returns the input text. 
+The keyword argument ``return_type`` can be used to change the type of data returned. If ``return_type='labels'``, the method returns results of chunking in a BIO annotation scheme::
+
+    from estnltk import Text
+    from estnltk.np_chunker import NounPhraseChunker
+    from estnltk.names import TEXT
+
+    # initialise the chunker
+    chunker = NounPhraseChunker()
+
+    text = Text('Suur karvane kass nurrus punasel diivanil, väike hiir aga hiilis temast mööda.')
+    
+    # chunk the input text, get the results in BIO annotation format
+    np_labels = chunker.analyze_text( text, return_type='labels' )
+
+    # output results of the chunking in BIO annotation format
+    for word, np_label in zip(text.words, np_labels):
+        print( word[TEXT]+'  '+str(np_label) )
+
+In the above example, the resulting list ``np_labels`` contains a label for each word in the input text, indicating word's position in phrase: ``"B"`` denotes that the word begins a phrase, ``"I"`` indicates that the word is inside a phrase, and ``"O"`` indicates that the word does not belong to any noun phrase.
 Running the above example will produce following output::
 
     Suur  B
@@ -43,7 +68,6 @@ Running the above example will produce following output::
     mööda  O
     .  O
 
-By default, the method :py:meth:`~estnltk.np_chunker.NounPhraseChunker.analyze_text` returns the input text. 
 If the input argument ``return_type="strings"`` is passed to the method, the method returns only results of the chunking as a list of phrase strings::
 
     from estnltk import Text
@@ -66,7 +90,7 @@ If ``return_type="tokens"`` is set, the chunker returns a list of lists of token
 
     from estnltk import Text
     from estnltk.np_chunker import NounPhraseChunker
-    from estnltk.names import NP_LABEL, TEXT, ANALYSIS, LEMMA
+    from estnltk.names import TEXT, ANALYSIS, LEMMA
 
     # initialise the chunker
     chunker = NounPhraseChunker()
@@ -78,21 +102,22 @@ If ``return_type="tokens"`` is set, the chunker returns a list of lists of token
     for phrase in phrases:
         print()
         for token in phrase:
-            # output text, first lemma, and NP label
-            print( token[TEXT], token[ANALYSIS][0][LEMMA], token[NP_LABEL] )
+            # output text and first lemma
+            print( token[TEXT], token[ANALYSIS][0][LEMMA] )
 
 The output::
 
-    Autojuhi autojuht B
-    lapitekk lapitekk I
+    Autojuhi autojuht
+    lapitekk lapitekk
     
-    linna linn B
-    koduleheküljel kodulehekülg I
+    linna linn
+    koduleheküljel kodulehekülg
     
-    paljude palju B
-    kodanike kodanik I
-    tähelepanu tähelepanu I
+    paljude palju
+    kodanike kodanik
+    tähelepanu tähelepanu
 
+Note that, regardless the ``return_type``, the layer ``NOUN_CHUNKS`` will always be added to the input Text.
 
 Cutting phrases
 =================
@@ -118,6 +143,30 @@ The output is following::
 
     ['Kõige väiksemate tassidega serviis', 'vanast tolmusest kapist']
 
+Using a custom syntactic parser
+================================
+
+By default, the MaltParser is used for obtaining the syntactic annotation, which is used as a basis in the chunking. 
+Using the keyword argument ``parser`` in the initialization of the :py:class:`~estnltk.np_chunker.NounPhraseChunker` , you can specify a custom parser to be used during the preprocessing::
+
+    from estnltk import Text
+    from estnltk.np_chunker import NounPhraseChunker
+    from estnltk.syntax.parsers import VISLCG3Parser
+
+    # initialise the chunker using VISLCG3Parser instead of MaltParser
+    chunker = NounPhraseChunker( parser = VISLCG3Parser() )
+    
+    text = Text('Maril oli väike tall.')
+    # chunk the input text
+    text = chunker.analyze_text( text )
+    
+    # output the results (found phrases)
+    pprint( text[NOUN_CHUNKS] )
+    
+::
+
+    [{'end': 5, 'start': 0, 'text': 'Maril'},
+     {'end': 20, 'start': 10, 'text': 'väike tall'}]
 
 
 .. rubric:: Notes

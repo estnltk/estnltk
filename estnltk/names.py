@@ -55,6 +55,7 @@ SYNTAX_HEAD  = 's_head'  # from dependency link: index of current token's parent
 DEPREL       = 's_rel'   # from dependency link: surface-syntactic label of the relation
 
 # noun phrase chunks (B-I-O labels)
+NOUN_CHUNKS = 'noun_chunks'
 NP_LABEL = 'np_label'
 
 # clause segmenter related
