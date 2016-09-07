@@ -176,7 +176,9 @@ If you want to see the **initial / original output** of the VISLCG3 parser, you 
     
     print( '\n'.join( initial_output) )
     
-the code above produces the following output::
+the code above produces the following output:
+
+.. code-block:: none
 
     "<s>"
     
@@ -258,7 +260,9 @@ If you want to make a custom pipeline based on the **default pipeline**, you can
     
     print( '\n'.join( initial_output) )
     
-the code above produces the following output::
+the code above produces the following output:
+
+.. code-block:: none
 
     "<s>"
     
@@ -287,7 +291,7 @@ Alternatively, you can put only file names to the ``pipeline`` argument, and use
 MaltParser based syntactic analysis
 ====================================
 
-No installation steps are required to set up the MaltParser.
+.. No installation steps are required to set up the MaltParser.
 
 Text interface
 --------------
@@ -353,7 +357,9 @@ If you want to see the **initial / original output** of the MaltParser, you can 
     
     print( '\n'.join( initial_output) )
     
-the code above should produce the following output::
+the code above should produce the following output:
+
+.. code-block:: none
 
     1       Maril   mari    S       S       sg|ad   2       @SUBJ   _       _
     2       oli     ole     V       V       s       0       ROOT    _       _
@@ -499,7 +505,7 @@ If both morphological and syntactic constraints are used in a query, only nodes 
     # retrieve all infinite verbs that function as objects
     inf_verbs = tree.get_children( word_template=verb_inf, label="@OBJ" )
 
-Sometimes it is desirable that the tree itself is also checked for and, in case of the match, included in the list of returned trees. The keyword argument ``include_self=True`` can be used for that purpose::
+Sometimes it is desirable that the tree itself is also checked for and, in case of the match, included in the list of returned trees. The keyword argument ``include_self=True`` can be used to enable this::
 
     # Retrieve all nodes labelled @SUBJ, @OBJ or ROOT
     subjects_objects_roots = tree.get_children( label_regexp="(@SUBJ|ROOT|@OBJ)", include_self=True )

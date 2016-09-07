@@ -39,8 +39,11 @@ class SyntacticTreesTest(unittest.TestCase):
         self.assertListEqual([1, 2, 3, 4, 5, 6, 7], children)
 
         # Children of the node (a) at depth 1 - direct children
-        children = sorted([c.word_id for c in a.get_children(depth_limit=1)])
-        self.assertListEqual([1, 2], children)
+        children1  = sorted([c.word_id for c in a.get_children(depth_limit=1)])
+        self.assertListEqual([1, 2], children1)
+        # Another way of getting direct children
+        children2 = sorted([c.word_id for c in a.children])
+        self.assertListEqual(children1, children2)
         
         # Children of the node (a) at depth 2 - direct children and grandchildren
         children = sorted([c.word_id for c in a.get_children(depth_limit=2)])
