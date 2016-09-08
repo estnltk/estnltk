@@ -17,7 +17,9 @@ import os.path
 from estnltk.names import *
 
 from estnltk.syntax.maltparser_support import MALTPARSER_PATH, MALTPARSER_MODEL, MALTPARSER_JAR
-from estnltk.syntax.maltparser_support import convertTextToCONLLstr, _executeMaltparser, augmentTextWithCONLLstr
+from estnltk.syntax.maltparser_support import CONLLFeatGenerator
+from estnltk.syntax.maltparser_support import convert_text_to_CONLL, _executeMaltparser
+from estnltk.syntax.maltparser_support import augmentTextWithCONLLstr
 from estnltk.syntax.maltparser_support import align_CONLL_with_Text
 
 from estnltk.syntax.syntax_preprocessing import SyntaxPreprocessing
@@ -171,8 +173,12 @@ class VISLCG3Parser(object):
                 the syntactic analysis.
                 Note that the syntactic analyser does its own morphological 
                 disambiguation, but results of that disambiguation do not reach 
-                back to the Text object, so the Text object contain a layer of 
-                ambiguous morphological analyses at the end of the parsing step;
+                back to the Text object, so the Text object will contain a layer 
+                of ambiguous morphological analyses at the end of the parsing 
+                step;
+                You can use *apply_tag_analysis=True* to ensure that at the 
+                end of the parsing step, the input Text is both morphologically 
+                analysed and disambiguated;
                 Default: False
 
             return_type : string
@@ -343,7 +349,7 @@ class MaltParser(object):
     maltparser_dir    = MALTPARSER_PATH
     model_name        = MALTPARSER_MODEL
     maltparser_jar    = MALTPARSER_JAR
-    add_ambiguous_pos = True
+    feature_generator = None
     
     def __init__( self, **kwargs):
         ''' Initializes MaltParser's wrapper. 
@@ -361,10 +367,11 @@ class MaltParser(object):
             maltparser_jar : str    
                 Name of the Maltparser jar file (e.g. 'maltparser-1.8.jar');
                 
-            add_ambiguous_pos : boolean
-                Whether ambiguous POS tags should be rewritten as a fine-grained 
-                POS tags (see convertTextToCONLLstr() for details);
-                NB! Requires that MaltParser has been trained with this setting;
+            feature_generator : estnltk.syntax.maltparser_support.CONLLFeatGenerator
+                The feature generator to be used for generating morphological features
+                for tokens.
+                NB! This must be the same feature generator that was used for training 
+                the model of MaltParser;
         '''
         for argName, argVal in kwargs.items():
             if argName == 'maltparser_dir':
@@ -373,8 +380,8 @@ class MaltParser(object):
                 self.model_name = argVal
             elif argName == 'maltparser_jar':
                 self.maltparser_jar = argVal
-            elif argName == 'add_ambiguous_pos':
-                self.add_ambiguous_pos = bool(argVal)
+            elif argName == 'feature_generator':
+               self.feature_generator = argVal
             else:
                 raise Exception(' Unsupported argument given: '+argName)
         if not self.maltparser_dir:
@@ -385,6 +392,9 @@ class MaltParser(object):
             raise Exception('Missing input argument: MaltParser jar file name')
         elif not self.model_name:
             raise Exception('Missing input argument: MaltParser model name')
+        if not self.feature_generator:
+            # Initialize the default feature generator
+            self.feature_generator = MaltParser.load_default_feature_generator()
 
 
     def parse_text( self, text, **kwargs ):
@@ -470,8 +480,8 @@ class MaltParser(object):
         if not text.is_tagged(ANALYSIS):
             text.tag_analysis()
         # Obtain CONLL formatted version of the text
-        textConllStr = convertTextToCONLLstr(text, addDepLabels = False, \
-                                                   addAmbiguousPos = self.add_ambiguous_pos)
+        textConllStr = convert_text_to_CONLL( text, self.feature_generator )
+
         # Execute MaltParser and get results as CONLL formatted string
         resultsConllStr = \
             _executeMaltparser( textConllStr, self.maltparser_dir, \
@@ -508,4 +518,11 @@ class MaltParser(object):
             #return all_trees
         else:
             return text
+
+
+
+    @staticmethod
+    def load_default_feature_generator():
+        ''' Initialize CONLLFeatGenerator with default settings. '''
+        return CONLLFeatGenerator( addAmbiguousPos = True )
 

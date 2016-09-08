@@ -48,6 +48,124 @@ DEPREL       = 's_rel'   # from dependency link: surface-syntactic label of the 
 
 # =============================================================================
 # =============================================================================
+#  Generating features to be used in CONLL
+# =============================================================================
+# =============================================================================
+
+class CONLLFeatGenerator(object):
+    ''' Class for generating "features" parts of CONLL format lines  based on
+        EstNLTK's sentences.
+    
+        More specifically, the "features" part includes fields ID, FORM, LEMMA,
+        CPOSTAG, POSTAG, FEATS of an analysis line. This class takes an EstNLTK's 
+        sentence and a word id as an input, and generates features of the word
+        as an output;
+    ''' 
+    
+    addAmbiguousPos = False
+    kSubCatRelsLex  = None
+    kFeatures       = None
+    
+    def __init__( self, **kwargs):
+       ''' Initializes CONLLFeatGenerator with the configuration given in 
+           the keyword arguments;
+           
+           Parameters
+           -----------
+           addAmbiguousPos : bool
+                If True, the words having an ambiguous part-of-speech will have
+                their POSTAG field (fine-grained POS tag) filled with a 
+                contatenation of all ambiguous POS tags; If False, POSTAG field
+                is the same as CPOSTAG;
+                Default: True
+           addKSubCatRels : string 
+                If used, the argument value should contain a location of the 
+                _K_ subcategorization relations file -- a file that can be loaded 
+                via method _loadKSubcatRelations();
+                Then the dictionary loaded from file is used to provide more 
+                fine-grained information about postposition/preposition tokens 
+                (K tokens); 
+                Default: None
+       '''
+       self.addAmbiguousPos = False
+       # ** Parse keyword arguments
+       for argName, argVal in kwargs.items():
+            if argName.lower in ['addAmbiguousPos']:
+                self.addAmbiguousPos = bool(argVal)
+            elif argName.lower in ['addKSubCatRels', 'kSubCatRels']:
+                if os.path.isfile(argVal):
+                    # Load K subcategorization lexicon from file
+                    self.kSubCatRelsLex = _loadKSubcatRelations( argVal )
+                else:
+                    raise Exception('(!) Lexicon file not found: ',argVal)
+
+
+    def generate_features( self, sentence, wid ):
+        ''' Generates and returns a list of strings, containing tab-separated 
+            features ID, FORM, LEMMA, CPOSTAG, POSTAG, FEATS of the word
+            (the word with index *wid* from the given *sentence*).
+            
+            Parameters
+            -----------
+            sentence : list of dict
+                List of words in the sentence, where each word is given as
+                dict, containing morphological features in ANALYSIS part;
+            
+            wid : int
+                Index of the word/token, whose features need to be generated;
+
+        '''
+        assert -1 < wid and wid < len(sentence), ' (!) Invalid word id: '+str(wid)
+        
+        # 1) Pre-process (if required)
+        if wid == 0 and self.kSubCatRelsLex:
+            self.kFeatures = \
+                _findKsubcatFeatures( sentence, self.kSubCatRelsLex, addFeaturesToK = True )
+
+        # 2) Generate the features
+        estnltkWord = sentence[wid]
+        # Pick the first analysis
+        firstAnalysis = estnltkWord[ANALYSIS][0]
+        strForm = []
+        # *** ID
+        strForm.append( str(wid+1) )
+        strForm.append( '\t' )
+        # *** FORM
+        word_text = estnltkWord[TEXT]
+        word_text = word_text.replace(' ', '_')
+        strForm.append( word_text )
+        strForm.append( '\t' )
+        # *** LEMMA
+        word_root = firstAnalysis[ROOT]
+        word_root = word_root.replace(' ', '_')
+        if len(word_root) == 0:
+            word_root = "??"
+        strForm.append( word_root )
+        strForm.append( '\t' )
+        # *** CPOSTAG
+        strForm.append( firstAnalysis[POSTAG] )
+        strForm.append( '\t' )
+        # *** POSTAG
+        finePos = firstAnalysis[POSTAG]
+        if self.addAmbiguousPos and len(estnltkWord[ANALYSIS]) > 1:
+            pos_tags = sorted(list(set([ a[POSTAG] for a in estnltkWord[ANALYSIS] ])))
+            finePos  = '_'.join(pos_tags)
+        if self.kFeatures and i in self.kFeatures:
+            finePos += '|'+self.kFeatures[i]
+        strForm.append( finePos )
+        strForm.append( '\t' )
+        # *** FEATS  (grammatical categories)
+        grammCats = '_'
+        if len(firstAnalysis[FORM]) != 0:
+            forms = firstAnalysis[FORM].split()
+            grammCats = '|'.join(forms)
+        strForm.append( grammCats )
+        strForm.append( '\t' )
+        return strForm
+
+
+# =============================================================================
+# =============================================================================
 #  Converting data from estnltk JSON to CONLL
 # =============================================================================
 # =============================================================================
@@ -65,108 +183,124 @@ def __sort_analyses(sentence):
     return sentence
 
 
-def convertTextToCONLLstr( text, addDepLabels = False, addAmbiguousPos = False, \
-                                 addKSubCatRels = None ):
-    ''' Converts given estnltk Text object into CONLL format data and
-        returns as a string.
+def convert_text_to_CONLL( text, feature_generator ):
+    ''' Converts given estnltk Text object into CONLL format and returns as a 
+        string.
+        Uses given *feature_generator* to produce fields ID, FORM, LEMMA, CPOSTAG, 
+        POSTAG, FEATS for each token.
+        Fields to predict (HEAD, DEPREL) will be left empty.
+        This method is used in preparing parsing&testing data for MaltParser.
         
         Parameters
         -----------
-        addDepLabels : bool
-            If True, adds information about the syntactic parent of each token 
-            to the data (required for training). 
-            The parent's index should be accessible from estnltkWord[SYNTAX_HEAD].
-            Also adds the name of the syntactic relation, if it is accessible 
-            via  estnltkWord[DEPREL];
-        addAmbiguousPos : bool
-            If True, additional feature (fine-grained POS tag) will be added to 
-            tokens with ambiguous POS, which contains contatenation of all POS 
-            tags;
-        addKSubCatRels : dict
-            This should point to the dictionary loaded with the method
-            _loadKSubcatRelations(), which is used to provide more fine-grained 
-            information about postposition/preposition tokens (K tokens); 
-            If None, then the functionality is not used;
+        text : estnltk.text.Text
+            Morphologically analysed text from which the CONLL file is generated;
             
+        feature_generator : CONLLFeatGenerator
+            An instance of CONLLFeatGenerator, which has method *generate_features()* 
+            for generating morphological features for a single token;
+            
+        
+        The aimed format looks something like this:
+        1	Öö	öö	S	S	sg|nom	_	xxx	_	_
+        2	oli	ole	V	V	indic|impf|ps3|sg	_	xxx	_	_
+        3	täiesti	täiesti	D	D	_	_	xxx	_	_
+        4	tuuletu	tuuletu	A	A	sg|nom	_	xxx	_	_
+        5	.	.	Z	Z	Fst	_	xxx	_	_
+
     '''
+    from estnltk.text import Text
+    if not isinstance( text, Text ):
+        raise Exception('(!) Unexpected type of input argument! Expected EstNLTK\'s Text. ')
     sentenceStrs = []
     for sentence in text.divide( layer=WORDS, by=SENTENCES ):
         sentence  = __sort_analyses(sentence)
-        kFeatures = dict()
-        if addKSubCatRels:
-            kFeatures = \
-                _findKsubcatFeatures( sentence, addKSubCatRels, addFeaturesToK = True )
         for i in range(len(sentence)):
-            #
-            #  Aimed CONLL format:
-            # 1	Öö	öö	S	S	sg|nom	2	xxx	_	_
-            # 2	oli	ole	V	V	indic|impf|ps3|sg	0	ROOT	_	_
-            # 3	täiesti	täiesti	D	D	_	4	xxx	_	_
-            # 4	tuuletu	tuuletu	A	A	sg|nom	2	xxx	_	_
-            # 5	.	.	Z	Z	Fst	4	xxx	_	_
-            #          
-            estnltkWord = sentence[i]
-            strForm = []
-            if addDepLabels:
-                strForm.append( estnltkWord[SYNTAX_LABEL] )
-            else:
-                strForm.append( str(i+1) )
-            strForm.append( '\t' )
-            strForm.append( estnltkWord[TEXT] )
-            strForm.append( '\t' )
-            
-            # Pick the first analysis
-            firstAnalysis = estnltkWord[ANALYSIS][0]
-            # Root
-            wordRoot = firstAnalysis[ROOT]
-            if len(wordRoot) == 0:
-                wordRoot = "??"
-            strForm.append( wordRoot )
-            strForm.append( '\t' )
-            # Part of speech
-            strForm.append( firstAnalysis[POSTAG] )
-            strForm.append( '\t' )
-            finePos = firstAnalysis[POSTAG]
-            if addAmbiguousPos and len(estnltkWord[ANALYSIS]) > 1:
-                pos_tags = sorted(list(set([ a[POSTAG] for a in estnltkWord[ANALYSIS] ])))
-                finePos  = '_'.join(pos_tags)
-            if i in kFeatures:
-                finePos += '|'+kFeatures[i]
-            strForm.append( finePos )
-            strForm.append( '\t' )
-            # Grammatical categories
-            grammCats = '_'
-            if len(firstAnalysis[FORM]) != 0:
-                forms = firstAnalysis[FORM].split()
-                grammCats = '|'.join(forms)
-            strForm.append( grammCats )
-            strForm.append( '\t' )
-            # Syntactic parent
-            parentLabel = ''
-            if addDepLabels:
-                parentLabel = (estnltkWord[SYNTAX_HEAD]).strip()
-                strForm.append( parentLabel )
-                strForm.append( '\t' )
-            else:
-                strForm.append( '_' )
-                strForm.append( '\t' )
-            # Label of the syntactic relation
-            if parentLabel == '0':
-                strForm.append( 'ROOT' )
-                strForm.append( '\t' )
-            else:
-                if addDepLabels and DEPREL in estnltkWord:
-                   strForm.append( estnltkWord[DEPREL] )
-                else:
-                   strForm.append( 'xxx' )
-                strForm.append( '\t' )
-            # Last features, PHEAD and PDEPREL, are not available:
+            # Generate features  ID, FORM, LEMMA, CPOSTAG, POSTAG, FEATS
+            strForm = feature_generator.generate_features( sentence, i )
+            # *** HEAD  (syntactic parent)
             strForm.append( '_' )
             strForm.append( '\t' )
+            # *** DEPREL  (label of the syntactic relation)
+            strForm.append( 'xxx' )
+            strForm.append( '\t' )
+            # *** PHEAD
+            strForm.append( '_' )
+            strForm.append( '\t' )
+            # *** PDEPREL
             strForm.append( '_' )
             sentenceStrs.append( ''.join( strForm ) )
         sentenceStrs.append( '' )
     return '\n'.join( sentenceStrs )
+
+
+def convert_text_w_syntax_to_CONLL( text, feature_generator, layer=LAYER_CONLL ):
+    ''' Converts given estnltk Text object into CONLL format and returns as a 
+        string.
+        Uses given *feature_generator* to produce fields ID, FORM, LEMMA, CPOSTAG, 
+        POSTAG, FEATS for each token.
+        Fills fields to predict (HEAD, DEPREL) with the syntactic information from
+        given *layer* (default: LAYER_CONLL).
+        This method is used in preparing training data for MaltParser.
+        
+        Parameters
+        -----------
+        text : estnltk.text.Text
+            Morphologically analysed text from which the CONLL file is generated;
+            
+        feature_generator : CONLLFeatGenerator
+            An instance of CONLLFeatGenerator, which has method *generate_features()* 
+            for generating morphological features for a single token;
+        
+        layer : str
+            Name of the *text* layer from which syntactic information is to be taken.
+            Defaults to LAYER_CONLL.
+        
+        The aimed format looks something like this:
+        1	Öö	öö	S	S	sg|n	2	@SUBJ	_	_
+        2	oli	ole	V	V	s	0	ROOT	_	_
+        3	täiesti	täiesti	D	D	_	4	@ADVL	_	_
+        4	tuuletu	tuuletu	A	A	sg|n	2	@PRD	_	_
+        5	.	.	Z	Z	_	4	xxx	_	_
+
+    '''
+    from estnltk.text import Text
+    if not isinstance( text, Text ):
+        raise Exception('(!) Unexpected type of input argument! Expected EstNLTK\'s Text. ')
+    assert layer in text, ' (!) The layer "'+layer+'" is missing form the Text object.'
+    sentenceStrs = []
+    divided_sentences = list( text.divide( layer=WORDS, by=SENTENCES ) )
+    divided_syntax    = list( text.divide( layer=layer, by=SENTENCES ) )
+    for sid, sentence in enumerate( divided_sentences ):
+        sentence        = __sort_analyses( sentence )
+        sentence_syntax = divided_syntax[sid]
+        roots_deprels   = 0
+        for i in range( len(sentence) ):
+            # Generate features  ID, FORM, LEMMA, CPOSTAG, POSTAG, FEATS
+            strForm = feature_generator.generate_features( sentence, i )
+            # Get syntactic analysis
+            syntaxToken    = sentence_syntax[i]
+            firstSyntaxRel = syntaxToken[PARSER_OUT][0]
+            # *** HEAD  (syntactic parent)
+            parentLabel = str( firstSyntaxRel[1] + 1 )
+            strForm.append( parentLabel )
+            strForm.append( '\t' )
+            # *** DEPREL  (label of the syntactic relation)
+            if parentLabel == '0':
+                strForm.append( 'ROOT' )
+                strForm.append( '\t' )
+            else:
+                strForm.append( firstSyntaxRel[0] )
+                strForm.append( '\t' )
+            # *** PHEAD
+            strForm.append( '_' )
+            strForm.append( '\t' )
+            # *** PDEPREL
+            strForm.append( '_' )
+            sentenceStrs.append( ''.join( strForm ) )
+        sentenceStrs.append( '' )
+    return '\n'.join( sentenceStrs )
+
 
 # =============================================================================
 # =============================================================================
