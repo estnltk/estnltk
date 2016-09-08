@@ -140,6 +140,7 @@ The method :py:meth:`~estnltk.text.Text.syntax_trees` can be used to build query
     The method :py:meth:`~estnltk.text.Text.tag_syntax_vislcg3` can only be used if the VISLCG3's directory is in system's environment variable ``PATH``.
     For an alternative way of providing the parser with the location of the VISLCG3's directory, see :ref:`ref-vislcg-install`.
 
+
 VISLCG3Parser class
 -------------------
 
@@ -154,13 +155,20 @@ The class :class:`~estnltk.syntax.parsers.VISLCG3Parser` can be used to customiz
 After the :class:`~estnltk.syntax.parsers.VISLCG3Parser` has been initiated, its method  :py:meth:`~estnltk.syntax.parsers.VISLCG3Parser.parse_text` can be used to parse a :class:`~estnltk.text.Text` object. 
 In addition to the Text, the method can take the following keyword arguments:
 
-* ``return_type`` -- specifies the format of the data returned of the method. Can be one of the following: ``'text'`` (default), ``'vislcg3'``, ``'trees'``, ``'dep_graphs'``.
+* ``return_type`` -- specifies the format of the data returned of the method. Can be one of the following: ``'text'`` (default), ``'vislcg3'``, ``'trees'``, ``'dep_graphs'``
+    
+    * ``'text'`` -- returns the input Text object;
+    * ``'vislcg3'`` -- returns a list of lines (strings) -- the initial output of the parser. See for :ref:`ref-vislcg-initial-output` details;
+    * ``'trees'`` -- returns a list of syntactic trees generated from the results of the syntactic analysis. See for :ref:`ref-tree-structure` details;
+    * ``'dep_graphs'`` -- returns a list of NLTK's DependencyGraph objects generated from the results of the syntactic analysis. See for :ref:`ref-nltk-interface` details;
+
 * ``keep_old`` -- a boolean specifying whether the initial analysis lines from the output of VISLCG3's should be preserved in the ``LAYER_VISLCG3``. If ``True``, each ``dict`` in the layer will be augmented with attribute ``'init_parser_out'`` containing the initial/old analysis lines (a list of strings); Default: ``False``
 * ``mark_root`` -- a boolean specifying whether the label of the root node should be renamed to ``ROOT`` (in order to get an output comparable with MaltParser's output); Default: ``False``
 
 
 In the following, some of the usage possibilities of these arguments are introduced in detail.
 
+.. _ref-vislcg-initial-output:
 
 The initial output of the parser
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -342,10 +350,18 @@ The class :class:`~estnltk.syntax.parsers.MaltParser` can be used to customize t
 After the :class:`~estnltk.syntax.parsers.MaltParser` has been initiated, its method  :py:meth:`~estnltk.syntax.parsers.MaltParser.parse_text` can be used to parse a :class:`~estnltk.text.Text` object. 
 In addition to the Text, the method can take the following keyword arguments:
 
-* ``return_type`` -- specifies the format of the data returned of the method. Can be one of the following: ``'text'`` (default), ``'conll'``, ``'trees'``, ``'dep_graphs'``.
+* ``return_type`` -- specifies the format of the data returned of the method. Can be one of the following: ``'text'`` (default), ``'conll'``, ``'trees'``, ``'dep_graphs'``
+
+    * ``'text'`` -- returns the input Text object;
+    * ``'conll'`` -- returns a list of lines (strings) -- the initial output of the parser. See for :ref:`ref-maltparser-initial-output` details;
+    * ``'trees'`` -- returns a list of syntactic trees generated from the results of the syntactic analysis. See for :ref:`ref-tree-structure` details;
+    * ``'dep_graphs'`` -- returns a list of NLTK's DependencyGraph objects generated from the results of the syntactic analysis. See for :ref:`ref-nltk-interface` details;
+
 * ``keep_old`` -- a boolean specifying whether the initial analysis lines from the output of MaltParser should be preserved in the ``LAYER_CONLL``. If ``True``, each ``dict`` in the layer will be augmented with attribute ``'init_parser_out'`` containing the initial/old analysis lines (a list of strings); Default: ``False``
 
 .. In the following, some of the usage possibilities of these arguments are introduced in detail.
+
+.. _ref-maltparser-initial-output:
 
 The initial output of the parser
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

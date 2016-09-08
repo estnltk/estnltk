@@ -42,6 +42,15 @@ class SyntaxPreprocessingTest(unittest.TestCase):
                            '"</s>"'], result_lines )
 
 
+    def test_process_Text_2(self):
+        text = Text('Mitmekesisus on elu vaieldamatu voorus.')
+        preprocessor = SyntaxPreprocessing()
+        result_lines = preprocessor.process_Text(text)
+        # Text object should have an analysis layer after syntactic pre-processing
+        # (Note: this layer still contains morph annotations that need a disambiguation)
+        self.assertTrue( text.is_tagged(ANALYSIS) )
+
+
     def test_process_mrf_lines_1(self):
         mrf_lines = [ '<s>',\
         'Kolmandaks',\

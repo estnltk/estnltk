@@ -46,7 +46,7 @@ VISLCG3_DATA  = 'vislcg3'
 LAYER_CONLL   = 'conll_syntax'
 LAYER_VISLCG3 = 'vislcg3_syntax'
 
-# noun phrase chunks (B-I-O labels)
+# noun phrase chunks
 NOUN_CHUNKS = 'noun_chunks'
 
 # clause segmenter related

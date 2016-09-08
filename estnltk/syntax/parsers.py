@@ -163,7 +163,18 @@ class VISLCG3Parser(object):
             -----------
             text : estnltk.text.Text
                The input text that should be analysed for dependency relations;
-               
+            
+            apply_tag_analysis : bool
+                Specifies whether, in case of a missing morphological ANALYSIS 
+                layer, the text is morphologically analysed and disambiguated
+                via the method *text.tag_analysis*  before  proceeding  with 
+                the syntactic analysis.
+                Note that the syntactic analyser does its own morphological 
+                disambiguation, but results of that disambiguation do not reach 
+                back to the Text object, so the Text object contain a layer of 
+                ambiguous morphological analyses at the end of the parsing step;
+                Default: False
+
             return_type : string
                 If return_type=="text" (Default), 
                     returns the input Text object;
@@ -203,7 +214,8 @@ class VISLCG3Parser(object):
             
         """
         # a) get the configuration:
-        augment_words    = False
+        apply_tag_analysis = False
+        augment_words      = False
         all_return_types = ["text","vislcg3","trees","dep_graphs"]
         return_type      = all_return_types[0]
         for argName, argVal in kwargs.items():
@@ -212,8 +224,10 @@ class VISLCG3Parser(object):
                     return_type = argVal.lower()
                 else:
                     raise Exception(' Unexpected return type: ', argVal)
-            elif argName.lower() == 'augment_words' and argVal in [True, False]:
-                augment_words = argVal
+            elif argName.lower() == 'augment_words':
+                augment_words = bool(argVal)
+            elif argName.lower() == 'apply_tag_analysis':
+                apply_tag_analysis = bool(argVal)
         kwargs['split_result']  = True
         kwargs['clean_up']      = True
         kwargs['remove_clo']    = kwargs.get('remove_clo', True)
@@ -222,6 +236,8 @@ class VISLCG3Parser(object):
         kwargs['double_quotes'] = 'unesc'
         
         # b) process:
+        if apply_tag_analysis:
+            text = text.tag_analysis()
         result_lines1 = \
             self.preprocessor.process_Text(text, **kwargs)
         result_lines2 = \
