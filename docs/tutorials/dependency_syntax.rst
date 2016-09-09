@@ -39,7 +39,21 @@ Results of the analysis are stored in the layer named ``LAYER_CONLL`` ( note tha
      {'end': 37, 'parser_out': [['@AN>', 6]], 'sent_id': 0, 'start': 30},
      {'end': 46, 'parser_out': [['@ADVL', 4]], 'sent_id': 0, 'start': 38}]
 
-The layer contains a ``dict`` for each word in the text, indicating the location of the word (in ``start`` and ``end`` attributes, and in the sentence identifier ``sent_id``), and dependency syntactic relations associated with the word (in the attribute ``parser_out``).
+The layer contains a ``dict`` for each word in the text. In order to get an idea which word has which syntactic analysis, you can ``zip`` words and syntactic layer elements::
+     
+    pprint( list( zip(text.word_texts, text[LAYER_CONLL]) ) )
+    
+::
+
+    [('Ilus', {'end': 4, 'parser_out': [['@AN>', 3]], 'sent_id': 0, 'start': 0}),
+     ('suur', {'end': 9, 'parser_out': [['@AN>', 3]], 'sent_id': 0, 'start': 5}),
+     ('karvane', {'end': 17, 'parser_out': [['@AN>', 3]], 'sent_id': 0, 'start': 10}),
+     ('kass', {'end': 22, 'parser_out': [['@SUBJ', 4]], 'sent_id': 0, 'start': 18}),
+     ('nurrus', {'end': 29, 'parser_out': [['ROOT', -1]], 'sent_id': 0, 'start': 23}),
+     ('punasel', {'end': 37, 'parser_out': [['@AN>', 6]], 'sent_id': 0, 'start': 30}),
+     ('diivanil', {'end': 46, 'parser_out': [['@ADVL', 4]], 'sent_id': 0, 'start': 38})]
+
+The ``dict`` representing word's syntactic analysis specifies the location of the word (in ``start`` and ``end`` attributes, and in the sentence identifier ``sent_id``), and dependency syntactic relations associated with the word (in the attribute ``parser_out``).
 
     The attribute ``parser_out`` contains a list of dependency syntactic relations. 
     Each relation is a list where:
