@@ -168,6 +168,10 @@ class VISLCG3Pipeline:
             raise Exception('Missing input argument: rules_dir')
         if not self.rules_pipeline or len( self.rules_pipeline ) == 0:
             raise Exception('(!) Pipeline is missing or empty. Please provide correct pipeline!')
+        else:
+            # Make a local copy of the pipeline to ensure that, if anyone changes the local 
+            # pipeline, the global one will remain the same:
+            self.rules_pipeline = self.rules_pipeline[:]
         # Check for the existence of rules
         if not os.path.exists( self.rules_dir ):
             raise Exception('Invalid rules directory:',self.rules_dir)

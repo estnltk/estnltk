@@ -87,12 +87,11 @@ class CONLLFeatGenerator(object):
                 (K tokens); 
                 Default: None
        '''
-       self.addAmbiguousPos = False
        # ** Parse keyword arguments
        for argName, argVal in kwargs.items():
-            if argName.lower in ['addAmbiguousPos']:
+            if argName in ['addAmbiguousPos']:
                 self.addAmbiguousPos = bool(argVal)
-            elif argName.lower in ['addKSubCatRels', 'kSubCatRels']:
+            elif argName in ['addKSubCatRels', 'kSubCatRels']:
                 if os.path.isfile(argVal):
                     # Load K subcategorization lexicon from file
                     self.kSubCatRelsLex = _loadKSubcatRelations( argVal )
