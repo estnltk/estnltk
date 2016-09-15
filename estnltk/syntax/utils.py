@@ -765,7 +765,7 @@ class Tree(object):
                 TOP / ROOT node, which does not refer to any word,
                 and yet is the topmost node of the tree.
                 If the dummy root node is not used, then the root 
-                node is the word node headed by the root node (-1);
+                node is the word node headed by -1;
                 Default: False
             
             For more information about NLTK's DependencyGraph, see:

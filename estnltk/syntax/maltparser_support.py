@@ -53,13 +53,13 @@ DEPREL       = 's_rel'   # from dependency link: surface-syntactic label of the 
 # =============================================================================
 
 class CONLLFeatGenerator(object):
-    ''' Class for generating "features" parts of CONLL format lines  based on
-        EstNLTK's sentences.
+    ''' Class for generating CONLL format "features" from EstNLTK's sentences.
     
-        More specifically, the "features" part includes fields ID, FORM, LEMMA,
-        CPOSTAG, POSTAG, FEATS of an analysis line. This class takes an EstNLTK's 
-        sentence and a word id as an input, and generates features of the word
-        as an output;
+         More specifically, the generated "features" include fields ID, FORM, 
+        LEMMA, CPOSTAG, POSTAG, FEATS of a CONLL format line.
+         At each feature-generation step, the generator gets a word and a 
+        sentence the word belongs to as an input, and generates features of the 
+        given word as an output;
     ''' 
     
     addAmbiguousPos = False
@@ -99,21 +99,27 @@ class CONLLFeatGenerator(object):
                     raise Exception('(!) Lexicon file not found: ',argVal)
 
 
-    def generate_features( self, sentence, wid ):
+    def generate_features( self, sentence_text, wid ):
         ''' Generates and returns a list of strings, containing tab-separated 
             features ID, FORM, LEMMA, CPOSTAG, POSTAG, FEATS of the word
-            (the word with index *wid* from the given *sentence*).
+            (the word with index *wid* from the given *sentence_text*).
             
             Parameters
             -----------
-            sentence : list of dict
-                List of words in the sentence, where each word is given as
-                dict, containing morphological features in ANALYSIS part;
+            sentence_text : estnltk.text.Text
+                Text object corresponding to a single sentence. 
+                Words of the sentence, along with their morphological analyses, 
+                should be accessible via the layer WORDS.
+                And each word should be a dict, containing morphological features 
+                in ANALYSIS part;
             
             wid : int
                 Index of the word/token, whose features need to be generated;
 
         '''
+        assert WORDS in sentence_text and len(sentence_text[WORDS])>0, \
+               " (!) 'words' layer missing or empty in given Text!"
+        sentence = sentence_text[WORDS]
         assert -1 < wid and wid < len(sentence), ' (!) Invalid word id: '+str(wid)
         
         # 1) Pre-process (if required)
@@ -188,7 +194,7 @@ def convert_text_to_CONLL( text, feature_generator ):
         Uses given *feature_generator* to produce fields ID, FORM, LEMMA, CPOSTAG, 
         POSTAG, FEATS for each token.
         Fields to predict (HEAD, DEPREL) will be left empty.
-        This method is used in preparing parsing&testing data for MaltParser.
+        This method is used in preparing parsing & testing data for MaltParser.
         
         Parameters
         -----------
@@ -212,11 +218,11 @@ def convert_text_to_CONLL( text, feature_generator ):
     if not isinstance( text, Text ):
         raise Exception('(!) Unexpected type of input argument! Expected EstNLTK\'s Text. ')
     sentenceStrs = []
-    for sentence in text.divide( layer=WORDS, by=SENTENCES ):
-        sentence  = __sort_analyses(sentence)
-        for i in range(len(sentence)):
+    for sentence_text in text.split_by( SENTENCES ):
+        sentence_text[WORDS] = __sort_analyses( sentence_text[WORDS] )
+        for i in range(len( sentence_text[WORDS] )):
             # Generate features  ID, FORM, LEMMA, CPOSTAG, POSTAG, FEATS
-            strForm = feature_generator.generate_features( sentence, i )
+            strForm = feature_generator.generate_features( sentence_text, i )
             # *** HEAD  (syntactic parent)
             strForm.append( '_' )
             strForm.append( '\t' )
@@ -268,17 +274,13 @@ def convert_text_w_syntax_to_CONLL( text, feature_generator, layer=LAYER_CONLL )
         raise Exception('(!) Unexpected type of input argument! Expected EstNLTK\'s Text. ')
     assert layer in text, ' (!) The layer "'+layer+'" is missing form the Text object.'
     sentenceStrs = []
-    divided_sentences = list( text.divide( layer=WORDS, by=SENTENCES ) )
-    divided_syntax    = list( text.divide( layer=layer, by=SENTENCES ) )
-    for sid, sentence in enumerate( divided_sentences ):
-        sentence        = __sort_analyses( sentence )
-        sentence_syntax = divided_syntax[sid]
-        roots_deprels   = 0
-        for i in range( len(sentence) ):
+    for sentence_text in text.split_by( SENTENCES ):
+        sentence_text[WORDS] = __sort_analyses( sentence_text[WORDS] )
+        for i in range(len( sentence_text[WORDS] )):
             # Generate features  ID, FORM, LEMMA, CPOSTAG, POSTAG, FEATS
-            strForm = feature_generator.generate_features( sentence, i )
-            # Get syntactic analysis
-            syntaxToken    = sentence_syntax[i]
+            strForm = feature_generator.generate_features( sentence_text, i )
+            # Get syntactic analysis of the token
+            syntaxToken    = sentence_text[layer][i]
             firstSyntaxRel = syntaxToken[PARSER_OUT][0]
             # *** HEAD  (syntactic parent)
             parentLabel = str( firstSyntaxRel[1] + 1 )
