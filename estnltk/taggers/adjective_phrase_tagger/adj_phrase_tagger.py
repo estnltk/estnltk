@@ -2,7 +2,7 @@ from copy import copy
 
 from estnltk import Text
 
-from .adverbs import NOT_ADJ_MODIFIERS
+from .adverbs import NOT_ADJ_MODIFIERS, CLASSES
 from .grammars import adjective_phrases, part_phrase
 from .measurement_adjectives import is_measurement_adjective
 
@@ -43,8 +43,6 @@ class AdjectivePhraseTagger:
         if start_index is not None and end_index is not None:
             
             lem = []
-            #for i in doc['words'][start_index:end_index + 1]:
-            #    lem = tuple([i['analysis'][0]['lemma'] for i in doc['words'][start_index:end_index + 1]])
                 
             for i in doc['words'][start_index:end_index + 1]:
                 word_lem = []
@@ -75,6 +73,13 @@ class AdjectivePhraseTagger:
                     adj_ph['type'] = 'comparative'
                 else:
                     adj_ph['type'] = 'adjective'
+                    
+                if len(adj_ph['lemmas']) > 1:
+                    if adj_ph['lemmas'][0] in CLASSES:
+                        adj_ph['adverb_class'] = CLASSES[adj_ph['lemmas'][0]]
+                    else:
+                        adj_ph['adverb_class'] = 'unknown'
+                    
                 if len(adj_ph['lemmas']) == 4:
                     if self.__is_ja_phrase(adj_ph['text']):
                         pass
@@ -119,11 +124,19 @@ class AdjectivePhraseTagger:
                     if part_ph['lemmas'][0] in NOT_ADJ_MODIFIERS:
                         pass
                     else:
+                        if len(part_ph['lemmas']) > 1:
+                            if part_ph['lemmas'][0] in CLASSES:
+                                part_ph['adverb_class'] = CLASSES[part_ph['lemmas'][0]]
+                            else:
+                                part_ph['adverb_class'] = 'unknown'  
+                        
                         if self.layer_name in text:
                             for idx, adj_ph in enumerate(text[self.layer_name]):
                                 # If participle phrase was also (partially) tagged as a usual adjective phrase, the latter is removed
                                 if adj_ph['end'] == part_ph['end'] or adj_ph['start'] == part_ph['start']:
                                     text[self.layer_name][idx]['to_delete'] = True
+                                  
+                                    
                             # Participle phrases included into adjective_phraes layer
                             text[self.layer_name].append(part_ph)
                         else:
@@ -180,7 +193,7 @@ class AdjectivePhraseTagger:
             try:
                 return t2[a2.layer_name]
             except KeyError:
-                return '[]'  
+                return []  
             
         else:
             if self.layer_name in text:
