@@ -2,3 +2,4 @@
 .idea/
 build/
 estnltk.egg-info/
+/estnltk/.ipynb_checkpoints/

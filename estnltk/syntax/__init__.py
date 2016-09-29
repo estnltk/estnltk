@@ -1,1 +1,0 @@
-from .tagger import SyntaxTagger

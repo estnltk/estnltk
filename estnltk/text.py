@@ -1,1379 +1,904 @@
-# -*- coding: utf-8 -*-
-"""
-Text module contains central functionality of Estnltk.
-It sets up standard functionality for tokenziation and tagging and hooks it up with
-:py:class:`~estnltk.text.Text` class.
-
-"""
-from __future__ import unicode_literals, print_function, absolute_import
-
-from .core import as_unicode, POSTAG_DESCRIPTIONS, CASES, PLURALITY, VERB_TYPES
-from .core import VERB_CHAIN_RES_PATH
-from .names import *
-from .dividing import divide, divide_by_spans
-from .vabamorf import morf as vabamorf
-from .ner import NerTagger
-from .timex import TimexTagger
-from .wordnet_tagger import WordnetTagger
-from .clausesegmenter import ClauseSegmenter
-from .mw_verbs.verbchain_detector import VerbChainDetector
-from .textcleaner import TextCleaner
-from .tokenizers import EstWordTokenizer
-from .syntax import SyntaxTagger
-
-import six
-import pandas
-import nltk.data
-import regex as re
-from nltk.tokenize.regexp import RegexpTokenizer
-
-from cached_property import cached_property
-from copy import deepcopy
-from collections import defaultdict
-from pprint import pprint
+import abc
+import bisect
+import collections
+import keyword  # type: ignore
+from typing import Tuple, List, Dict, Any, Sequence
 
 
-# default functionality
-paragraph_tokenizer = RegexpTokenizer('\n\n', gaps=True, discard_empty=True)
+from .legacy.text import Text as OldText
 
-# use NLTK-s sentence tokenizer for Estonian, in case it is not downloaded, try to download it first
-sentence_tokenizer = None
-try:
-    sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
-except LookupError:
-    import nltk.downloader
-    nltk.downloader.download('punkt')
-finally:
-    if sentence_tokenizer is None:
-        sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+class Text:
+    def __init__(self, text: str) -> None:
+        self._text = text
+        self._layers = {}  # type: dict
 
-word_tokenizer = EstWordTokenizer()
-nertagger = None
-timextagger = None
-textcleaner = TextCleaner()
-clausesegmenter = None
-verbchain_detector = None
-wordnet_tagger = None
-syntax_tagger = SyntaxTagger()
+    @property
+    def text(self) -> str:
+        return self._text
 
+    @property
+    def layers(self) -> Dict[str, 'Layer']:
+        return self._layers
 
-def load_default_ner_tagger():
-    global nertagger
-    if nertagger is None:
-        nertagger = NerTagger()
-    return nertagger
+    def add_layer(self, layer: 'BaseLayer') -> None:
+        name = layer.name
 
+        # Making sure we have an unused name for the layer
+        assert (name not in self.layers.keys()  # name not already used for a layer in this object
+                and name not in self.__dict__.keys()  # name not in use for the Text instance
+                and name not in self.__class__.__dict__.keys())  # name not in use for the Text class
+        layer.bind(self)
+        self._layers[name] = layer
 
-def load_default_timex_tagger():
-    global timextagger
-    if timextagger is None:
-        timextagger = TimexTagger()
-    return timextagger
+    def __getattr__(self, item):  # type: ignore
+        try:
+            return collections.ChainMap(
+                self.__class__.__dict__,
+                self.__dict__,
+                self.layers
+            )[item]
+        except KeyError as e:
+            # AttributeError is more appropriate here.
+            raise AttributeError(*e.args)
 
-
-def load_default_clausesegmenter():
-    global clausesegmenter
-    if clausesegmenter is None:
-        clausesegmenter = ClauseSegmenter()
-    return clausesegmenter
-
-
-def load_default_verbchain_detector():
-    global verbchain_detector
-    if verbchain_detector is None:
-        verbchain_detector = VerbChainDetector(resourcesPath=VERB_CHAIN_RES_PATH)
-    return verbchain_detector
-
-
-class Text(dict):
-    """Central class of Estnltk that is the main interface of performing
-    all NLP operations.
-    """
-
-    def __init__(self, text_or_instance, **kwargs):
-        """Initialize a new text instance.
-
-        Parameters
-        ----------
-        text_or_instance: dict, Text, str, unicode
-            If ``str`` or ``unicode``, creates a new Text object.
-            If ``Text`` or ``dict``, acts essentially as a copy constructor.
-            However, it does not create a deep copy.
-        paragraph_tokenizer: nltk.tokenize.api.StringTokenizer
-            Tokenizer for paragraphs.
-        sentence_tokenizer: nltk.tokenize.api.StringTokenizer
-            Tokenizer for sentences.
-        word_tokenizer: nltk.tokenize.api.StringTokenizer
-            Tokenizer for words.
-        ner_tagger: estnltk.ner.NerTagger
-            Tagger for annotating named entities.
-        timex_tagger: estnltk.timex.TimexTagger
-            Tagger for temporal expressions.
-        creation_date: datetime.datetime
-            The date the document was created. Relevant for temporal expressions tagging.
-        clause_segmenter: estnltk.clausesegmenter.ClauseSegmenter
-            Class for detecting clauses.
-        verbchain_detector: estnltk.mw_verbs.verbchain_detector.VerbChainDetector
-            Verb chain tagger.
-        wordnet_tagger: estnltk.wordnet_tagger.WordnetTagger
-            Tagger for synsets and relations.
-        text_cleaner: estnltk.textcleaner.TextCleaner
-            TextCleaner class.
-        syntax_tagger: estnltk.syntax.tagger.SyntaxTagger
-            Kaili's and Tiina's syntax tagger wrapper.
-        """
-        encoding = kwargs.get('encoding', 'utf-8')
-        if isinstance(text_or_instance, dict):
-            super(Text, self).__init__(text_or_instance)
-            self[TEXT] = as_unicode(self[TEXT], encoding)
-        else:
-            super(Text, self).__init__()
-            self[TEXT] = as_unicode(text_or_instance, encoding)
-        self.__kwargs = kwargs
-        self.__load_functionality(**kwargs)
-
-    def __load_functionality(self, **kwargs):
-        self.__paragraph_tokenizer = kwargs.get(
-            'paragraph_tokenizer', paragraph_tokenizer)
-        self.__sentence_tokenizer = kwargs.get(
-            'sentence_tokenizer', sentence_tokenizer)
-        self.__word_tokenizer = kwargs.get(
-            'word_tokenizer', word_tokenizer)
-        self.__ner_tagger = kwargs.get( # ner models take time to load, load only when needed
-            'ner_tagger', None)
-        self.__timex_tagger = kwargs.get( # lazy loading for timex tagger
-            'timex_tagger', None)
-        self.__clause_segmenter = kwargs.get(
-            'clause_segmenter', None)
-        self.__verbchain_detector = kwargs.get(
-            'verbchain_detector', None # lazy loading
-        )
-        self.__wordnet_tagger = kwargs.get(
-            'wordnet_tagger', None # lazy loading
-        )
-        self.__text_cleaner = kwargs.get('text_cleaner', textcleaner)
-        self.__syntax_tagger = kwargs.get('syntax_tagger', syntax_tagger)
-
-    def get_kwargs(self):
-        """Get the keyword arguments that were passed to the :py:class:`~estnltk.text.Text` when it was constructed."""
-        return self.__kwargs
-
-    def is_tagged(self, layer):
-        """Is the given element tokenized/tagged?"""
-        # we have a number of special names that are not layers but instead
-        # attributes of "words" layer
-        if layer == ANALYSIS:
-            if WORDS in self and len(self[WORDS]) > 0:
-                return ANALYSIS in self[WORDS][0]
-        elif layer == SYNTAX:
-            if WORDS in self and len(self[WORDS]) > 0:
-                return SYNTAX in self[WORDS][0]
-        elif layer == LABEL:
-            if WORDS in self and len(self[WORDS]) > 0:
-                return LABEL in self[WORDS][0]
-        elif layer == CLAUSE_ANNOTATION:
-            if WORDS in self and len(self[WORDS]) > 0:
-                return CLAUSE_ANNOTATION in self[WORDS][0]
-        elif layer == WORDNET:
-            if WORDS in self and len(self[WORDS]) > 0:
-                if ANALYSIS in self[WORDS][0] and len(self[WORDS][0][ANALYSIS]) > 0:
-                    return WORDNET in self[WORDS][0][ANALYSIS][0]
-        else:
-            return layer in self
-        return False  # do not remove False
-
-    def tag_all(self):
-        """Tag all layers."""
-        return self.tag_timexes().tag_named_entities().tag_verb_chains()
-
-    def texts(self, layer, sep=' '):
-        """Retrieve texts for given layer.
-
-        Parameters
-        ----------
-
-        sep: str
-            Separator for multilayer elements (default: ' ').
-
-        Returns
-        -------
-        list of str
-            List of strings that make up given layer.
-        """
-        return self.texts_from_spans(self.spans(layer), sep)
-
-    def texts_from_spans(self, spans, sep=' '):
-        """Retrieve texts from a list of (start, end) position spans.
-
-        Parameters
-        ----------
-
-        sep: str
-            Separator for multilayer elements (default: ' ').
-
-        Returns
-        -------
-        list of str
-            List of strings that correspond to given spans.
-        """
-        text = self.text
-        texts = []
-        for start, end in spans:
-            if isinstance(start, list):
-                texts.append(sep.join(text[s:e] for s, e in zip(start, end)))
-            else:
-                texts.append(text[start:end])
-        return texts
-
-    def spans(self, layer):
-        """Retrieve (start, end) tuples denoting the spans of given layer elements.
-
-        Returns
-        -------
-        list of (int, int)
-            List of (start, end) tuples.
-        """
-        spans = []
-        for data in self[layer]:
-            spans.append((data[START], data[END]))
-        return spans
-
-    def starts(self, layer):
-        """Retrieve start positions of elements if given layer."""
-        starts = []
-        for data in self[layer]:
-            starts.append(data[START])
-        return starts
-
-    def ends(self, layer):
-        """Retrieve end positions of elements if given layer."""
-        ends = []
-        for data in self[layer]:
-            ends.append(data[END])
-        return ends
+    def __delattr__(self, item):
+        assert item in self.layers.keys()
+        del self.layers[item]
 
     def __str__(self):
-        return self[TEXT]
+        return 'Text(text="{text}", \n\tlayers=[{layers}]\n)'.format(
+            text=self.text,
+            layers='\n'.join(str(i) for i in self.layers.values())
+        )
 
-    def __unicode__(self):
-        return self[TEXT]
+    def __repr__(self):
+        return str(self)
 
-    # ///////////////////////////////////////////////////////////////////
-    # STRING METHODS
-    # ///////////////////////////////////////////////////////////////////
+class AbstractLayer(Sequence, metaclass=abc.ABCMeta):
+    @property
+    @abc.abstractmethod
+    def text(self) -> str:
+        pass
 
-    def capitalize(self):
-        return Text(self[TEXT].capitalize(), **self.__kwargs)
+    @property
+    @abc.abstractmethod
+    def bound(self) -> bool:
+        pass
 
-    def count(self, sub, *args):
-        return self[TEXT].count(sub, *args)
+    @property
+    @abc.abstractmethod
+    def bind(self, text_object: Text) -> None:
+        pass
 
-    def endswith(self, suffix, *args):
-        return self[TEXT].endswith(suffix, *args)
+    @property
+    @abc.abstractmethod
+    def text_object(self):
+        pass
 
-    def find(self, sub, *args):
-        return self[TEXT].find(sub, *args)
+    @property
+    @abc.abstractmethod
+    def frozen(self) -> bool:
+        pass
 
-    def index(self, sub, *args):
-        return self[TEXT].index(sub, *args)
+    @abc.abstractmethod
+    def freeze(self) -> None:
+        pass
 
-    def isalnum(self):
-        return self[TEXT].isalnum()
+    @property
+    @abc.abstractmethod
+    def name(self) -> str:
+        pass
 
-    def isalpha(self):
-        return self[TEXT].isalpha()
+    @property
+    @abc.abstractmethod
+    def text(self) -> List[str]:
+        pass
 
-    def isdigit(self):
-        return self[TEXT].isdigit()
-
-    def islower(self):
-        return self[TEXT].islower()
-
-    def isspace(self):
-        return self[TEXT].isspace()
-
-    def istitle(self):
-        return self[TEXT].istitle()
-
-    def isupper(self):
-        return self[TEXT].isupper()
-
-    def lower(self):
-        return Text(self[TEXT].lower(), **self.__kwargs)
-
-    def lstrip(self, *args):
-        return Text(self[TEXT].lstrip(*args), **self.__kwargs)
-
-    def replace(self, old, new, *args):
-        return Text(self[TEXT].replace(old, new, *args), **self.__kwargs)
-
-    def rfind(self, sub, *args):
-        return self[TEXT].rfind(sub, *args)
-
-    def rindex(self, sub, *args):
-        return self[TEXT].rindex(sub, *args)
-
-    def rstrip(self, *args):
-        return Text(self[TEXT].rstrip(*args), **self.__kwargs)
-
-    def startswith(self, prefix, *args):
-        return self[TEXT].startswith(prefix, *args)
-
-    def strip(self, *args):
-        return Text(self[TEXT].strip(*args), **self.__kwargs)
+    @abc.abstractmethod
+    def add_span(self, span: 'Span') -> None:
+        pass
 
 
-    # ///////////////////////////////////////////////////////////////////
-    # RETRIEVING AND COMPUTING PROPERTIES
-    # ///////////////////////////////////////////////////////////////////
+class AbstractSpan(metaclass=abc.ABCMeta):
+    __slots__ = []
 
-    @cached_property
+    @property
+    @abc.abstractmethod
+    def start(self) -> int:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def end(self) -> int:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def bound(self) -> bool:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def text(self) -> str:
+        pass
+
+    @property
+    @abc.abstractmethod
+    def layer(self):
+        pass
+
+    @abc.abstractmethod
+    def bind(self, layer: 'AbstractLayer') -> None:
+        pass
+
+    @abc.abstractmethod
+    def __lt__(self, other: Any) -> bool:
+        pass
+
+    @abc.abstractmethod
+    def __eq__(self, other: Any) -> bool:
+        pass
+
+    @abc.abstractmethod
+    def __le__(self, other: Any) -> bool:
+        pass
+
+
+class BaseSpan(AbstractSpan):
+    __slots__ = ['_layer', '_bound']
+
+    @property
+    def layer(self) -> 'BaseLayer':
+        return self._layer
+
+    @property
+    def bound(self) -> bool:
+        return self._bound
+
+    def bind(self, layer: 'Layer') -> None:
+        self._bound = True
+        self._layer = layer
+
+    # ORDERING
+
+    def __validate_ordering(self, other: 'Span') -> None:
+        pass
+        # assert isinstance(other, BaseSpan)
+
+    def __lt__(self, other: Any) -> bool:
+        self.__validate_ordering(other)
+        return (self.start, self.end) < (other.start, other.end)
+
+    def __eq__(self, other: Any) -> bool:
+        self.__validate_ordering(other)
+        try:
+            return (self.start, self.end) == (other.start, other.end)
+        except AttributeError:
+            return False
+
+    def __le__(self, other: Any) -> bool:
+        self.__validate_ordering(other)
+        return self < other or self == other
+
+
+    def __str__(self):
+        return '{name}({text}, {rest})'.format(
+            name=self.__class__.__name__,
+            text=self.text,
+            rest=', '.join('{key}={value}'.format(
+
+                key=k,
+                value=getattr(self, k, None)
+            ) for k in self.__slots__ if not k.startswith('_'))
+        )
+
+
+    def __repr__(self):
+        return str(self)
+
+
+class DependantSpan(BaseSpan):
+    __slots__ = ['_parent']
+
+    def __init__(self, parent: AbstractSpan):
+        self._bound = False
+        self._parent = parent
+
+    @property
+    def end(self):
+        return self.parent.end
+
+    @property
+    def start(self):
+        return self.parent.start
+
+    @property
     def text(self):
-        """The raw underlying text that was used to initialize the Text instance."""
-        return self[TEXT]
+        return self.parent.text
 
-    @cached_property
-    def layer_tagger_mapping(self):
-        """Dictionary that maps layer names to taggers that can create that layer."""
-        return {
-            PARAGRAPHS: self.tokenize_paragraphs,
-            SENTENCES: self.tokenize_sentences,
-            WORDS: self.tokenize_words,
-            ANALYSIS: self.tag_analysis,
-            SYNTAX: self.tag_syntax,
-            TIMEXES: self.tag_timexes,
-            NAMED_ENTITIES: self.tag_named_entities,
-            CLAUSE_ANNOTATION: self.tag_clause_annotations,
-            CLAUSES: self.tag_clauses,
-            SYNTAX: self.tag_syntax,
-            WORDNET: self.tag_wordnet
-        }
+    @property
+    def parent(self):
+        return self._parent
 
-    def tag(self, layer):
-        """Tag the annotations of given layer. It can automatically tag any built-in layer type."""
-        mapping = self.layer_tagger_mapping
-        if layer in mapping:
-            mapping[layer]()
-        return self
+    def __getattr__(self, item):
+        try:
+            print(item)
+            return getattr(self.parent, item)
+        except AttributeError:
+            raise AttributeError(item)
 
-    def tokenize_paragraphs(self):
-        """Apply paragraph tokenization to this Text instance. Creates ``paragraphs`` layer."""
-        tok = self.__paragraph_tokenizer
-        spans = tok.span_tokenize(self.text)
-        dicts = []
-        for start, end in spans:
-            dicts.append({'start': start, 'end': end})
-        self[PARAGRAPHS] = dicts
-        return self
 
-    @cached_property
-    def paragraphs(self):
-        """Return the list of ``paragraphs`` layer elements."""
-        if not self.is_tagged(PARAGRAPHS):
-            self.tokenize_paragraphs()
-        return self[PARAGRAPHS]
+class Span(BaseSpan):
+    __slots__ = ['_start', '_end', '_layer', '_bound']
 
-    @cached_property
-    def paragraph_texts(self):
-        """The list of texts representing ``paragraphs`` layer elements."""
-        if not self.is_tagged(PARAGRAPHS):
-            self.tokenize_paragraphs()
-        return self.texts(PARAGRAPHS)
+    def __init__(self, start: int, end: int, layer: 'Layer' = None) -> None:
+        assert start < end
+        self._start = start
+        self._end = end
 
-    @cached_property
-    def paragraph_spans(self):
-        """The list of spans representing ``paragraphs`` layer elements."""
-        if not self.is_tagged(PARAGRAPHS):
-            self.tokenize_paragraphs()
-        return self.spans(PARAGRAPHS)
+        if layer is None:
+            # If a layer has not been explicitly given, we consider the Span unbound until it has been added to a layer.
+            self._bound = False
+        else:
+            self._bound = True
+        self._layer = layer
 
-    @cached_property
-    def paragraph_starts(self):
-        """The start positions of ``paragraphs`` layer elements."""
-        if not self.is_tagged(PARAGRAPHS):
-            self.tokenize_paragraphs()
-        return self.starts(PARAGRAPHS)
+    @property
+    def start(self) -> int:
+        return self._start
 
-    @cached_property
-    def paragraph_ends(self):
-        """The end positions of ``paragraphs`` layer elements."""
-        if not self.is_tagged(PARAGRAPHS):
-            self.tokenize_paragraphs()
-        return self.ends(PARAGRAPHS)
+    @property
+    def end(self) -> int:
+        return self._end
 
-    def tokenize_sentences(self):
-        """Apply sentence tokenization to this Text instance. Creates ``sentences`` layer.
-           Automatically tokenizes paragraphs, if they are not already tokenized.
-           Also, if word tokenization has already been performed, tries to fit 
-           the sentence tokenization into the existing word tokenization;
-        """
-        if not self.is_tagged(PARAGRAPHS):
-            self.tokenize_paragraphs()
-        tok  = self.__sentence_tokenizer
-        text = self.text
-        dicts = []
-        for paragraph in self[PARAGRAPHS]:
-            para_start, para_end = paragraph[START], paragraph[END]
-            para_text = text[para_start:para_end]
-            if not self.is_tagged(WORDS):
-                # Non-hack variant: word tokenization has not been applied yet,
-                # so we proceed in natural order (first sentences, then words)
-                spans = tok.span_tokenize(para_text)
-                for start, end in spans:
-                    dicts.append({'start': start+para_start, 'end': end+para_start})
+    @property
+    def text(self) -> str:
+        return self.layer.text_object.text[self.start:self.end]
+
+    def __getattr__(self, item):
+        if item == 'text':
+            if not self.bound:
+                raise AttributeError('No text for unbound Spans')
             else:
-                # A hack variant: word tokenization has already been made, so
-                # we try to use existing word tokenization (first words, then sentences)
-                para_words = \
-                    [ w for w in self[WORDS] if w[START]>=para_start and w[END]<=para_end ]
-                para_word_texts = \
-                    [ w[TEXT] for w in para_words ]
-                try:
-                    # Apply sentences_from_tokens method (if available)
-                    sents = tok.sentences_from_tokens( para_word_texts )
-                except AttributeError as e:
-                    raise
-                # Align result of the sentence tokenization with the initial word tokenization
-                # in order to determine the sentence boundaries
-                i = 0
-                for sentence in sents:
-                    j = 0
-                    firstToken = None
-                    lastToken  = None
-                    while i < len(para_words):
-                        if para_words[i][TEXT] != sentence[j]:
-                            raise Exception('Error on aligning: ', para_word_texts,' and ',sentence,' at positions ',i,j)
-                        if j == 0:
-                            firstToken = para_words[i]
-                        if j == len(sentence) - 1:
-                            lastToken = para_words[i]
-                            i+=1
-                            break
-                        j+=1
-                        i+=1
-                    sentenceDict = \
-                        {'start': firstToken[START], 'end': lastToken[END]}
-                    dicts.append( sentenceDict )
-                # Note: We also need to invalidate the cached properties providing the
-                #       sentence information, as otherwise, if the properties have been
-                #       called already, new calls would return the old state of sentence 
-                #       tokenization;
-                for sentence_attrib in ['sentences', 'sentence_texts', 'sentence_spans', \
-                                        'sentence_starts', 'sentence_ends']:
-                    try:
-                        # invalidate the cache
-                        delattr(self, sentence_attrib)
-                    except AttributeError:
-                        # it's ok, if the cached property has not been called yet
-                        pass
-        self[SENTENCES] = dicts
-        return self
+                raise AttributeError('We are bound but have no text? The layer we are bound to must be unbound.')
+        if item in self.__slots__:
+            return None
+        else:
+            #we haven't found the attribute.Is it a dependant?
+            layer = self.layer.text_object.layers.get(item, None)
+            if layer is not None and layer.parent is self.layer:
+                for span in layer.spans:
+                    if span.parent is self:
+                        return span
 
-    @cached_property
-    def sentences(self):
-        """The list of ``sentences`` layer elements."""
-        if not self.is_tagged(SENTENCES):
-            self.tokenize_sentences()
-        return self[SENTENCES]
+            #we haven't found the attribute. Do we have dependants that have it?
+            for layer in self.layer.text_object.layers.values():
+                if isinstance(layer, DependantLayer) and layer.parent == self.layer and item in layer.attributes:
+                    #check if the layer has a span that corresponds to this span
+                    for span in layer.spans:
+                        if span.parent is self:
+                            return getattr(span, item)
+            raise KeyError
 
-    @cached_property
-    def sentence_texts(self):
-        """The list of texts representing ``sentences`` layer elements."""
-        if not self.is_tagged(SENTENCES):
-            self.tokenize_sentences()
-        return self.texts(SENTENCES)
 
-    @cached_property
-    def sentence_spans(self):
-        """The list of spans representing ``sentences`` layer elements."""
-        if not self.is_tagged(SENTENCES):
-            self.tokenize_sentences()
-        return self.spans(SENTENCES)
+    # TODO: think up a better name.
+    def mark(self, name: str):
+        assert self.bound and self.layer.bound, 'Span must be bound to a bound layer to have dependants'
 
-    @cached_property
-    def sentence_starts(self):
-        """The list of start positions representing ``sentences`` layer elements."""
-        if not self.is_tagged(SENTENCES):
-            self.tokenize_sentences()
-        return self.starts(SENTENCES)
+        layer = self.layer.text_object.layers[name]
+        assert layer.parent is self.layer, 'We must be accessing a layer that is dependant on this one'
 
-    @cached_property
-    def sentence_ends(self):
-        """The list of end positions representing ``sentences`` layer elements."""
-        if not self.is_tagged(SENTENCES):
-            self.tokenize_sentences()
-        return self.ends(SENTENCES)
-
-    def tokenize_words(self):
-        """Apply word tokenization and create ``words`` layer.
-
-        Automatically creates ``paragraphs`` and ``sentences`` layers.
-        """
-        if not self.is_tagged(SENTENCES):
-            self.tokenize_sentences()
-        tok = self.__word_tokenizer
-        text = self.text
-        dicts = []
-        for sentence in self[SENTENCES]:
-            sent_start, sent_end = sentence[START], sentence[END]
-            sent_text = text[sent_start:sent_end]
-            spans = tok.span_tokenize(sent_text)
-            for start, end in spans:
-                dicts.append({START: start+sent_start, END: end+sent_start, TEXT: sent_text[start:end]})
-        self[WORDS] = dicts
-        return self
-
-    def tag_analysis(self):
-        """Tag ``words`` layer with morphological analysis attributes."""
-        if not self.is_tagged(WORDS):
-            self.tokenize_words()
-        sentences = self.divide(WORDS, SENTENCES)
-        for sentence in sentences:
-            texts = [word[TEXT] for word in sentence]
-            all_analysis = vabamorf.analyze(texts, **self.__kwargs)
-            for word, analysis in zip(sentence, all_analysis):
-                word[ANALYSIS] = analysis[ANALYSIS]
-                word[TEXT] = analysis[TEXT]
-        return self
-
-    @cached_property
-    def words(self):
-        """The list of word elements in ``words`` layer."""
-        if not self.is_tagged(WORDS):
-            self.tokenize_words()
-        return self[WORDS]
-
-    @cached_property
-    def word_texts(self):
-        """The list of words representing ``words`` layer elements."""
-        if not self.is_tagged(WORDS):
-            self.tokenize_words()
-        return [word[TEXT] for word in self[WORDS]]
-
-    @cached_property
-    def word_spans(self):
-        """The list of spans representing ``words`` layer elements."""
-        if not self.is_tagged(WORDS):
-            self.tokenize_words()
-        return self.spans(WORDS)
-
-    @cached_property
-    def word_starts(self):
-        """The list of start positions representing ``words`` layer elements."""
-        if not self.is_tagged(WORDS):
-            self.tokenize_words()
-        return self.starts(WORDS)
-
-    @cached_property
-    def word_ends(self):
-        """The list of end positions representing ``words`` layer elements."""
-        if not self.is_tagged(WORDS):
-            self.tokenize_words()
-        return self.ends(WORDS)
-
-    @cached_property
-    def analysis(self):
-        """The list of analysis of ``words`` layer elements."""
-        if not self.is_tagged(ANALYSIS):
-            self.tag_analysis()
-        return [word[ANALYSIS] for word in self.words]
-
-    def __get_key(self, dicts, element, sep):
-        matches = []
-        for dict in dicts:
-            if element in dict:
-                matches.append(dict[element])
-        if len(matches) == 1:
-            return matches[0]
-        elif len(matches) > 1:
-            if element == ROOT_TOKENS:
-                return matches
-            return sep.join(sorted(set(matches)))
-
-    def get_analysis_element(self, element, sep='|'):
-        """The list of analysis elements of ``words`` layer.
-
-        Parameters
-        ----------
-        element: str
-            The name of the element, for example "lemma", "postag".
-        sep: str
-            The separator for ambiguous analysis (default: "|").
-            As morphological analysis cannot always yield unambiguous results, we
-            return ambiguous values separated by the pipe character as default.
-        """
-        return [self.__get_key(word[ANALYSIS], element, sep) for word in self.words]
-
-    @cached_property
-    def roots(self):
-        """The list of word roots.
-
-        Ambiguous cases are separated with pipe character by default.
-        Use :py:meth:`~estnltk.text.Text.get_analysis_element` to specify custom separator for ambiguous entries.
-        """
-        if not self.is_tagged(ANALYSIS):
-            self.tag_analysis()
-        return self.get_analysis_element(ROOT)
-
-    @cached_property
-    def lemmas(self):
-        """The list of lemmas.
-
-        Ambiguous cases are separated with pipe character by default.
-        Use :py:meth:`~estnltk.text.Text.get_analysis_element` to specify custom separator for ambiguous entries.
-        """
-        if not self.is_tagged(ANALYSIS):
-            self.tag_analysis()
-        return self.get_analysis_element(LEMMA)
-
-    @cached_property
-    def lemma_lists(self):
-        """Lemma lists.
-
-        Ambiguous cases are separate list elements.
-        """
-        if not self.is_tagged(ANALYSIS):
-            self.tag_analysis()
-        return [[an[LEMMA] for an in word[ANALYSIS]] for word in self[WORDS]]
-
-    @cached_property
-    def endings(self):
-        """The list of word endings.
-
-        Ambiguous cases are separated with pipe character by default.
-        Use :py:meth:`~estnltk.text.Text.get_analysis_element` to specify custom separator for ambiguous entries.
-        """
-        if not self.is_tagged(ANALYSIS):
-            self.tag_analysis()
-        return self.get_analysis_element(ENDING)
-
-    @cached_property
-    def forms(self):
-        """Tthe list of word forms.
-
-        Ambiguous cases are separated with pipe character by default.
-        Use :py:meth:`~estnltk.text.Text.get_analysis_element` to specify custom separator for ambiguous entries.
-        """
-        if not self.is_tagged(ANALYSIS):
-            self.tag_analysis()
-        return self.get_analysis_element(FORM)
-
-    @cached_property
-    def postags(self):
-        """The list of word part-of-speech tags.
-
-        Ambiguous cases are separated with pipe character by default.
-        Use :py:meth:`~estnltk.text.Text.get_analysis_element` to specify custom separator for ambiguous entries.
-        """
-        if not self.is_tagged(ANALYSIS):
-            self.tag_analysis()
-        return self.get_analysis_element(POSTAG)
-
-    @cached_property
-    def postag_lists(self):
-        if not self.is_tagged(ANALYSIS):
-            self.tag_analysis()
-        return [[an[POSTAG] for an in word[ANALYSIS]] for word in self[WORDS]]
-
-    @cached_property
-    def postag_descriptions(self):
-        """Human-readable POS-tag descriptions."""
-        if not self.is_tagged(ANALYSIS):
-            self.tag_analysis()
-        return [POSTAG_DESCRIPTIONS.get(tag, '') for tag in self.get_analysis_element(POSTAG)]
-
-    @cached_property
-    def root_tokens(self):
-        """Root tokens of word roots."""
-        if not self.is_tagged(ANALYSIS):
-            self.tag_analysis()
-        return self.get_analysis_element(ROOT_TOKENS)
-
-    @cached_property
-    def descriptions(self):
-        """Human readable word descriptions."""
-        descs = []
-        for postag, form in zip(self.postags, self.forms):
-            desc = VERB_TYPES.get(form, '')
-            if len(desc) == 0:
-                toks = form.split(' ')
-                if len(toks) == 2:
-                    plur_desc = PLURALITY.get(toks[0], None)
-                    case_desc = CASES.get(toks[1], None)
-                    toks = []
-                    if plur_desc is not None:
-                        toks.append(plur_desc)
-                    if case_desc is not None:
-                        toks.append(case_desc)
-                    desc = ' '.join(toks)
-            descs.append(desc)
-        return descs
-
-    def tag_syntax(self):
-        """Tag syntax attribute in the ``words`` layer."""
-        if not self.is_tagged(ANALYSIS):
-            self.tag_analysis()
-        return self.__syntax_tagger.tag_text(self)
-
-    @cached_property
-    def syntax_lists(self):
-        """Return syntax annotation variants for every word."""
-        if not self.is_tagged(SYNTAX):
-            self.tag_syntax()
-        tokens = []
-        for w in self[WORDS]:
-            wl = [variant[SYNTAX] for variant in w[SYNTAX]]
-            tokens.append(wl)
-        return tokens
-
-    def tag_labels(self):
-        """Tag named entity labels in the ``words`` layer."""
-        if not self.is_tagged(ANALYSIS):
-            self.tag_analysis()
-        if self.__ner_tagger is None:
-            self.__ner_tagger = load_default_ner_tagger()
-        self.__ner_tagger.tag_document(self)
-        return self
-
-    @cached_property
-    def labels(self):
-        """Named entity labels."""
-        if not self.is_tagged(LABEL):
-            self.tag_labels()
-        return [word[LABEL] for word in self.words]
-
-    def tag_named_entities(self):
-        """Tag ``named_entities`` layer.
-
-        This automatically performs morphological analysis along with all dependencies.
-        """
-        if not self.is_tagged(LABEL):
-            self.tag_labels()
-        nes = []
-        word_start = -1
-        labels = self.labels + ['O'] # last is sentinel
-        words = self.words
-        label = 'O'
-        for i, l in enumerate(labels):
-            if l.startswith('B-') or l == 'O':
-                if word_start != -1:
-                    nes.append({START: words[word_start][START],
-                                END: words[i-1][END],
-                                LABEL: label})
-                if l.startswith('B-'):
-                    word_start = i
-                    label = l[2:]
+        # TODO: Speedup. Remove iteration.
+        for span in layer.spans:
+            if span.parent is self:
+                if isinstance(span, AmbiguousSpan):
+                    depspan = layer.Span(parent=self)
+                    return span.add(depspan)
                 else:
-                    word_start = -1
-        self[NAMED_ENTITIES] = nes
-        return self
+                    return span
 
-    @cached_property
-    def named_entities(self):
-        """The elements of ``named_entities`` layer."""
-        if not self.is_tagged(NAMED_ENTITIES):
-            self.tag_named_entities()
-        phrases = self.split_by(NAMED_ENTITIES)
-        return [' '.join(phrase.lemmas) for phrase in phrases]
+        depspan = layer.Span(parent=self)
+        return layer.add_span(depspan)
 
-    @cached_property
-    def named_entity_texts(self):
-        """The texts representing named entities."""
-        if not self.is_tagged(NAMED_ENTITIES):
-            self.tag_named_entities()
-        return self.texts(NAMED_ENTITIES)
 
-    @cached_property
-    def named_entity_spans(self):
-        """The spans of named entities."""
-        if not self.is_tagged(NAMED_ENTITIES):
-            self.tag_named_entities()
-        return self.spans(NAMED_ENTITIES)
+class AmbiguousSpan(BaseSpan, collections.Sequence):
 
-    @cached_property
-    def named_entity_labels(self):
-        """The named entity labels without BIO prefixes."""
-        if not self.is_tagged(NAMED_ENTITIES):
-            self.tag_named_entities()
-        return [ne[LABEL] for ne in self[NAMED_ENTITIES]]
+    def __getitem__(self, index):
+        return self.items[index]
 
-    def tag_timexes(self):
-        """Create ``timexes`` layer.
-        Depends on morphological analysis data in ``words`` layer
-        and tags it automatically, if it is not present."""
-        if not self.is_tagged(ANALYSIS):
-            self.tag_analysis()
-        if not self.is_tagged(TIMEXES):
-            if self.__timex_tagger is None:
-                self.__timex_tagger = load_default_timex_tagger()
-            self.__timex_tagger.tag_document(self, **self.__kwargs)
-        return self
-
-    @cached_property
-    def timexes(self):
-        """The list of elements in ``timexes`` layer."""
-        if not self.is_tagged(TIMEXES):
-            self.tag_timexes()
-        return self[TIMEXES]
-
-    @cached_property
-    def timex_texts(self):
-        """The list of texts representing ``timexes`` layer elements."""
-        return [timex.get(TEXT, '') for timex in self.timexes]
-
-    @cached_property
-    def timex_values(self):
-        """The list of timex values of ``timexes`` layer elements."""
-        return [timex[TMX_VALUE] for timex in self.timexes]
-
-    @cached_property
-    def timex_types(self):
-        """The list of timex types of ``timexes`` layer elements."""
-        return [timex[TMX_TYPE] for timex in self.timexes]
-
-    @cached_property
-    def timex_ids(self):
-        """The list of timex id-s of ``timexes`` layer elements."""
-        return [timex[TMX_ID] for timex in self.timexes]
-
-    @cached_property
-    def timex_starts(self):
-        """The list of start positions of ``timexes`` layer elements."""
-        if not self.is_tagged(TIMEXES):
-            self.tag_timexes()
-        return self.starts(TIMEXES)
-
-    @cached_property
-    def timex_ends(self):
-        """The list of end positions of ``timexes`` layer elements."""
-        if not self.is_tagged(TIMEXES):
-            self.tag_timexes()
-        return self.ends(TIMEXES)
-
-    @cached_property
-    def timex_spans(self):
-        """The list of spans of ``timexes`` layer elements."""
-        if not self.is_tagged(TIMEXES):
-            self.tag_timexes()
-        return self.spans(TIMEXES)
-
-    def tag_clause_annotations(self):
-        """Tag clause annotations in ``words`` layer.
-        Depends on morphological analysis.
-        """
-        if not self.is_tagged(ANALYSIS):
-            self.tag_analysis()
-        if self.__clause_segmenter is None:
-            self.__clause_segmenter = load_default_clausesegmenter()
-        return self.__clause_segmenter.tag(self)
-
-    @cached_property
-    def clause_annotations(self):
-        """The list of clause annotations in ``words`` layer."""
-        if not self.is_tagged(CLAUSE_ANNOTATION):
-            self.tag_clause_annotations()
-        return [word.get(CLAUSE_ANNOTATION, None) for word in self[WORDS]]
-
-    @cached_property
-    def clause_indices(self):
-        """The list of clause indices in ``words`` layer.
-        The indices are unique only in the boundary of a single sentence.
-        """
-        if not self.is_tagged(CLAUSE_ANNOTATION):
-            self.tag_clause_annotations()
-        return [word.get(CLAUSE_IDX, None) for word in self[WORDS]]
-
-    def tag_clauses(self):
-        """Create ``clauses`` multilayer.
-
-        Depends on clause annotations."""
-        if not self.is_tagged(CLAUSE_ANNOTATION):
-            self.tag_clause_annotations()
-
-        def from_sentence(words):
-            """Function that extracts clauses from a signle sentence."""
-            clauses = defaultdict(list)
-            start = words[0][START]
-            end = words[0][END]
-            clause = words[0][CLAUSE_IDX]
-            for word in words:
-                if word[CLAUSE_IDX] != clause:
-                    clauses[clause].append((start, end))
-                    start, clause = word[START], word[CLAUSE_IDX]
-                end = word[END]
-            clauses[clause].append((start, words[-1][END]))
-            clauses = [(key, {START: [s for s, e in clause], END: [e for s, e in clause]}) for key, clause in clauses.items()]
-            return [v for k, v in sorted(clauses)]
-
-        clauses = []
-        sentences = self.divide()
-        for sentence in sentences:
-            clauses.extend(from_sentence(sentence))
-
-        self[CLAUSES] = clauses
-        return self
-
-    @cached_property
-    def clauses(self):
-        """The elements of ``clauses`` multilayer."""
-        if not self.is_tagged(CLAUSES):
-            self.tag_clauses()
-        return self[CLAUSES]
-
-    @cached_property
-    def clause_texts(self):
-        """The texts of ``clauses`` multilayer elements.
-        Non-consequent spans are concatenated with space character by default.
-        Use :py:meth:`~estnltk.text.Text.texts` method to supply custom separators.
-        """
-        if not self.is_tagged(CLAUSES):
-            self.tag_clauses()
-        return self.texts(CLAUSES)
-
-    def tag_verb_chains(self):
-        """Create ``verb_chains`` layer.
-           Depends on ``clauses`` layer.
-        """
-        if not self.is_tagged(CLAUSES):
-            self.tag_clauses()
-        if self.__verbchain_detector is None:
-            self.__verbchain_detector = load_default_verbchain_detector()
-        sentences = self.divide()
-        verbchains = []
-        for sentence in sentences:
-            chains = self.__verbchain_detector.detectVerbChainsFromSent( sentence )
-            for chain in chains:
-                # 1) Get spans for all words of the phrase
-                word_spans = [ ( sentence[idx][START], sentence[idx][END] ) \
-                                 for idx in sorted( chain[PHRASE] ) ]
-                # 2) Assign to the chain
-                chain[START] = [ span[0] for span in word_spans ]
-                chain[END]   = [ span[1] for span in word_spans ]
-            verbchains.extend(chains)
-        self[VERB_CHAINS] = verbchains
-        return self
-
-    @cached_property
-    def verb_chains(self):
-        """The list of elements of ``verb_chains`` layer."""
-        if not self.is_tagged(VERB_CHAINS):
-            self.tag_verb_chains()
-        return self[VERB_CHAINS]
-
-    @cached_property
-    def verb_chain_texts(self):
-        """The list of texts of ``verb_chains`` layer elements."""
-        if not self.is_tagged(VERB_CHAINS):
-            self.tag_verb_chains()
-        return self.texts(VERB_CHAINS)
-
-    @cached_property
-    def verb_chain_patterns(self):
-        """The patterns of ``verb_chains`` elements."""
-        return [vc[PATTERN] for vc in self.verb_chains]
-
-    @cached_property
-    def verb_chain_roots(self):
-        """The chain roots of ``verb_chains`` elements."""
-        return [vc[ROOTS] for vc in self.verb_chains]
-
-    @cached_property
-    def verb_chain_morphs(self):
-        """The morph attributes of ``verb_chains`` elements."""
-        return [vc[MORPH] for vc in self.verb_chains]
-
-    @cached_property
-    def verb_chain_polarities(self):
-        """The polarities of ``verb_chains`` elements."""
-        return [vc[POLARITY] for vc in self.verb_chains]
-
-    @cached_property
-    def verb_chain_tenses(self):
-        """The tense attributes of ``verb_chains`` elements."""
-        return [vc[TENSE] for vc in self.verb_chains]
-
-    @cached_property
-    def verb_chain_moods(self):
-        """The mood attributes of ``verb_chains`` elements."""
-        return [vc[MOOD] for vc in self.verb_chains]
-
-    @cached_property
-    def verb_chain_voices(self):
-        """The voice attributes of ``verb_chains`` elements."""
-        return [vc[VOICE] for vc in self.verb_chains]
-
-    @cached_property
-    def verb_chain_clause_indices(self):
-        """The clause indices of ``verb_chains`` elements."""
-        return [vc[CLAUSE_IDX] for vc in self.verb_chains]
-
-    @cached_property
-    def verb_chain_starts(self):
-        """The start positions of ``verb_chains`` elements."""
-        if not self.is_tagged(VERB_CHAINS):
-            self.tag_verb_chains()
-        return self.starts(VERB_CHAINS)
-
-    @cached_property
-    def verb_chain_ends(self):
-        """The end positions of ``verb_chains`` elements."""
-        if not self.is_tagged(VERB_CHAINS):
-            self.tag_verb_chains()
-        return self.ends(VERB_CHAINS)
-
-    @cached_property
-    def verb_chain_other_verbs(self):
-        """The other verb attributes of ``verb_chains`` elements."""
-        return [vc[OTHER_VERBS] for vc in self.verb_chains]
-
-    def tag_wordnet(self, **kwargs):
-        """Create wordnet attribute in ``words`` layer.
-
-        See :py:meth:`~estnltk.text.wordnet_tagger.WordnetTagger.tag_text` method
-        for applicable keyword arguments.
-        """
-        global wordnet_tagger
-        if wordnet_tagger is None: # cached wn tagger
-            wordnet_tagger = WordnetTagger()
-        self.__wordnet_tagger = wordnet_tagger
-        if len(kwargs) > 0:
-            return self.__wordnet_tagger.tag_text(self, **kwargs)
-        return self.__wordnet_tagger.tag_text(self, **self.__kwargs)
-
-    @cached_property
-    def wordnet_annotations(self):
-        """The list of wordnet annotations of ``words`` layer."""
-        if not self.is_tagged(WORDNET):
-            self.tag_wordnet()
-        return [[a[WORDNET] for a in analysis] for analysis in self.analysis]
-
-    @cached_property
-    def synsets(self):
-        """The list of annotated synsets of ``words`` layer."""
-        synsets = []
-        for wn_annots in self.wordnet_annotations:
-            word_synsets = []
-            for wn_annot in wn_annots:
-                for synset in wn_annot.get(SYNSETS, []):
-                    word_synsets.append(deepcopy(synset))
-            synsets.append(word_synsets)
-        return synsets
-
-    @cached_property
-    def word_literals(self):
-        """The list of literals per word in ``words`` layer."""
-        literals = []
-        for word_synsets in self.synsets:
-            word_literals = set()
-            for synset in word_synsets:
-                for variant in synset.get(SYN_VARIANTS):
-                    if LITERAL in variant:
-                        word_literals.add(variant[LITERAL])
-            literals.append(list(sorted(word_literals)))
-        return literals
-
-    # ///////////////////////////////////////////////////////////////////
-    # SPELLCHECK
-    # ///////////////////////////////////////////////////////////////////
-
-    @cached_property
-    def spelling(self):
-        """Flag incorrectly spelled words.
-        Returns a list of booleans, where element at each position denotes, if the word at the same position
-        is spelled correctly.
-        """
-        if not self.is_tagged(WORDS):
-            self.tokenize_words()
-        return [data[SPELLING] for data in vabamorf.spellcheck(self.word_texts, suggestions=False)]
-
-    @cached_property
-    def spelling_suggestions(self):
-        """The list of spelling suggestions per misspelled word."""
-        if not self.is_tagged(WORDS):
-            self.tokenize_words()
-        return [data[SUGGESTIONS] for data in vabamorf.spellcheck(self.word_texts, suggestions=True)]
-
-    @cached_property
-    def spellcheck_results(self):
-        """The list of True/False values denoting the correct spelling of words."""
-        if not self.is_tagged(WORDS):
-            self.tokenize_words()
-        return vabamorf.spellcheck(self.word_texts, suggestions=True)
-
-    def fix_spelling(self):
-        """Fix spelling of the text.
-
-        Note that this method uses the first suggestion that is given for each misspelled word.
-        It does not perform any sophisticated analysis to determine which one of the suggestions
-        fits best into the context.
-
-        Returns
-        -------
-        Text
-            A copy of this instance with automatically fixed spelling.
-        """
-        if not self.is_tagged(WORDS):
-            self.tokenize_words()
-        text = self.text
-        fixed = vabamorf.fix_spelling(self.word_texts, join=False)
-        spans = self.word_spans
-        assert len(fixed) == len(spans)
-        if len(spans) > 0:
-            newtoks = []
-            lastend = 0
-            for fix, (start, end) in zip(fixed, spans):
-                newtoks.append(text[lastend:start])
-                newtoks.append(fix)
-                lastend = end
-            newtoks.append(text[lastend:])
-            return Text(''.join(newtoks), **self.__kwargs)
-        return self
-
-    # ///////////////////////////////////////////////////////////////////
-    # TEXTCLEANER
-    # ///////////////////////////////////////////////////////////////////
-
-    def is_valid(self):
-        """Does this text contain allowed/valid characters as defined by
-        the :py:class:`~estnltk.textcleaner.TextCleaner` instances supplied
-        to this Text."""
-        return self.__text_cleaner.is_valid(self[TEXT])
-
-    @cached_property
-    def invalid_characters(self):
-        """List of invalid characters found in this text."""
-        return self.__text_cleaner.invalid_characters(self[TEXT])
-
-    def clean(self):
-        """Return a copy of this Text instance with invalid characters removed."""
-        return Text(self.__text_cleaner.clean(self[TEXT]), **self.__kwargs)
-
-    # ///////////////////////////////////////////////////////////////////
-    # LAYERS
-    # ///////////////////////////////////////////////////////////////////
-
-    def is_simple(self, layer):
-        elems = self[layer]
-        if len(elems) > 0:
-            return isinstance(elems[0][START], int)
-        return False
-
-    def is_multi(self, layer):
-        elems = self[layer]
-        if len(elems) > 0:
-            return isinstance(elems[0][START], list)
-        return False
-
-    def tag_with_regex(self, name, pattern, flags=0):
-        if name in self:
-            raise ValueError('Layer or attribute with name <{0}> already exists!'.format(name))
-        if isinstance(pattern, six.string_types):
-            pattern = re.compile(pattern, flags)
-        self[name] = [{START: mo.start(), END: mo.end()} for mo in pattern.finditer(self[TEXT])]
-        return self
-
-    # ///////////////////////////////////////////////////////////////////
-    # SPLITTING
-    # ///////////////////////////////////////////////////////////////////
-
-    def split_given_spans(self, spans, sep=' '):
-        """Split the text into several pieces.
-
-        Resulting texts have all the layers that are present in the text instance that is splitted.
-        The elements are copied to resulting pieces that are covered by their spans.
-        However, this can result in empty layers if no element of a splitted layer fits into
-        a span of a particular output piece.
-
-        The positions of layer elements that are copied are translated according to the container span,
-        so they are consistent with returned text lengths.
-
-        Parameters
-        ----------
-
-        spans: list of spans.
-            The positions determining the regions that will end up as individual pieces.
-            Spans themselves can be lists of spans, which denote multilayer-style text regions.
-        sep: str
-            The separator that is used to join together text pieces of multilayer spans.
-
-        Returns
-        -------
-        list of Text
-            One instance of text per span.
-        """
-        N = len(spans)
-        results = [{TEXT: text} for text in self.texts_from_spans(spans, sep=sep)]
-        for elem in self:
-            if isinstance(self[elem], list):
-                splits = divide_by_spans(self[elem], spans, translate=True, sep=sep)
-                for idx in range(N):
-                    results[idx][elem] = splits[idx]
-        return [Text(res) for res in results]
-
-    def split_by(self, layer, sep=' '):
-        """Split the text into multiple instances defined by elements of given layer.
-
-        The spans for layer elements are extracted and feed to :py:meth:`~estnltk.text.Text.split_given_spans`
-        method.
-
-        Parameters
-        ----------
-        layer: str
-            String determining the layer that is used to define the start and end positions of resulting splits.
-        sep: str (default: ' ')
-            The separator to use to join texts of multilayer elements.
-
-        Returns
-        -------
-        list of Text
-        """
-        if not self.is_tagged(layer):
-            self.tag(layer)
-        return self.split_given_spans(self.spans(layer), sep=sep)
-
-    def split_by_sentences(self):
-        """Split the text into individual sentences."""
-        return self.split_by(SENTENCES)
-
-    def split_by_words(self):
-        """Split the text into individual words."""
-        return self.split_by(WORDS)
-
-    def split_by_regex(self, regex_or_pattern, flags=re.U, gaps=True):
-        """Split the text into multiple instances using a regex.
-
-        Parameters
-        ----------
-        regex_or_pattern: str or compiled pattern
-            The regular expression to use for splitting.
-        flags: int (default: re.U)
-            The regular expression flags (only used, when user has not supplied compiled regex).
-        gaps: boolean (default: True)
-            If True, then regions matched by the regex are not included in the resulting Text instances, which
-            is expected behaviour.
-            If False, then only regions matched by the regex are included in the result.
-
-        Returns
-        -------
-        list of Text
-            The Text instances obtained by splitting.
-        """
-
-        text = self[TEXT]
-        regex = regex_or_pattern
-        if isinstance(regex, six.string_types):
-            regex = re.compile(regex_or_pattern, flags=flags)
-        # else is assumed pattern
-        last_end = 0
-        spans = []
-        if gaps: # tag cap spans
-            for mo in regex.finditer(text):
-                start, end = mo.start(), mo.end()
-                if start > last_end:
-                    spans.append((last_end, start))
-                last_end = end
-            if last_end < len(text):
-                spans.append((last_end, len(text)))
-        else: # use matched regions
-            spans = [(mo.start(), mo.end()) for mo in regex.finditer(text)]
-        return self.split_given_spans(spans)
-
-    # ///////////////////////////////////////////////////////////////////
-    # DIVIDING
-    # ///////////////////////////////////////////////////////////////////
-
-    def divide(self, layer=WORDS, by=SENTENCES):
-        """Divide the Text into pieces by keeping references to original elements, when possible.
-        This is not possible only, if the _element_ is a multispan.
-
-        Parameters
-        ----------
-
-        element: str
-            The element to collect and distribute in resulting bins.
-        by: str
-            Each resulting bin is defined by spans of this element.
-
-        Returns
-        -------
-        list of (list of dict)
-        """
-        if not self.is_tagged(layer):
-            self.tag(layer)
-        if not self.is_tagged(by):
-            self.tag(by)
-        return divide(self[layer], self[by])
-
-    # ///////////////////////////////////////////////////////////////////
-    # FILTERING
-    # ///////////////////////////////////////////////////////////////////
-
-    def get_elements_in_span(self, element, span):
-        items = []
-        if element in self:
-            for item in self[element]:
-                if item[START] >= span[0] and item[END] <= span[1]:
-                    items.append(item)
-        return items
-
-
-    # ///////////////////////////////////////////////////////////////////
-    # AGGREGATE GETTER
-    # ///////////////////////////////////////////////////////////////////
+    def __len__(self):
+        return len(self.items)
 
     @property
-    def get(self):
-        return ZipBuilder(self)
-
-
-class ZipBuilder(object):
-    """Helper class to aggregate various :py:class:`~estnltk.text.Text` properties in a simple way.
-    Uses builder pattern.
-
-    Example::
-
-        text = Text('Alles see oli, kui käisin koolis')
-        text.get.word_texts.lemmas.postags.as_dataframe
-
-    test.get - this initiates a new :py:class:`~estnltk.text.ZipBuilder` instance on the Text object.
-
-    .word_texts - adds word texts
-    .postags - adds postags
-
-    .as_dataframe - builds the final object and returns a dataframe
-    """
-
-    def __init__(self, text):
-        self.__text = text
-        self.__keys = []
-        self.__values = []
-
-    def __getattribute__(self, item):
-        if not item.startswith('__') and item not in dir(self):
-            self.__keys.append(item)
-            self.__values.append(object.__getattribute__(self.__text, item))
-            return self
-        return object.__getattribute__(self, item)
-
-    def __call__(self, props):
-        for prop in props:
-            self.__getattribute__(prop)
-        return self
+    def start(self) -> int:
+        return self.items[0].start
 
     @property
-    def as_dataframe(self):
-        df = pandas.DataFrame.from_dict(self.as_dict)
-        return df[self.__keys]
+    def end(self) -> int:
+        return self.items[0].end
 
     @property
-    def as_zip(self):
-        return zip(*self.__values)
+    def text(self) -> str:
+        return self.items[0].text
 
     @property
-    def as_list(self):
-        return self.__values
+    def parent(self) -> Span:
+        return self.items[0].parent
+
+    def __init__(self, *, attributes=None):
+        assert attributes is not None
+        self.attributes = attributes
+        self.items = []
+
+    def add(self, item):
+        self.items.append(item)
+        return item
+
+    def __getattr__(self, item):
+        if item in self.attributes:
+            return [getattr(i, item) for i in self.items]
+
+    def __lt__(self, other: Any) -> bool:
+        return (self.start, self.end) < (other.start, other.end)
+
+    def __eq__(self, other: Any) -> bool:
+        return (self.start, self.end) == (other.start, other.end)
+
+    def __le__(self, other: Any) -> bool:
+        return self < other or self == other
+
+    def __str__(self):
+        return str(getattr(self, 'items'))
+
+
+class SpanList(collections.Sequence):
+    def __init__(self, frozen: bool = False, ambiguous=False, layer=None) -> None:
+        assert layer is not None
+        self.spans = []  # type: List[AbstractSpan]
+        self._layer = layer
+        self._frozen = frozen
+        self._bound = False
+        self._ambiguous = ambiguous
+
+    def bind(self, parent: 'Layer') -> None:
+        assert self._layer is parent
+        self._parent = parent
+        self._bound = True
 
     @property
-    def as_dict(self):
-        return dict(zip(self.__keys, self.__values))
+    def ambiguous(self):
+        return self._ambiguous
 
+    @property
+    def parent(self):
+        return self._layer
+
+    @property
+    def bound(self):
+        return self._bound
+
+    @property
+    def start(self):
+        return self.spans[0].start
+
+    @property
+    def end(self):
+        return self.spans[-1].end
+
+    @property
+    def text(self):
+        return [span.text for span in self.spans]
+
+    def defer(self, item):
+        return [span.mark(item) for span in self.spans]
+
+
+    def __getattr__(self, item: str) -> List[Any]:
+        self.spans  # type: List[DependantSpan]
+
+        base_layer = self._layer
+        text = base_layer.text_object
+
+        try:
+            layer = text.layers[item]
+        except KeyError:
+            # we are trying to access 'item' that is not a layer.
+            # I'd guess that it is an attribute of the main span then
+
+            parent = self._layer.parent
+
+            #bad case: parent is dependant layer:
+            if isinstance(parent, DependantLayer):
+                #this solves for depth of 1
+
+                return [[getattr(span, item) for span in spanlist] for spanlist in self.spans]
+                #TODO: general solution
+
+
+            #nested two deep and in a child
+
+            for maybe_layer in text.layers.values():
+                if item in maybe_layer.attributes and maybe_layer.parent is self._layer:
+                    if isinstance(self.spans[0], SpanList):
+                        res = []
+                        for i in self.spans:
+                            res.append(
+                               getattr(i, item))
+                        return res
+
+
+
+            if parent and item in parent.attributes:
+                return [getattr(span.parent, item) for span in self.spans]
+
+            else:
+                #we guessed wrong. Is it an attribute of a dependant layer?
+
+                for layer in self._layer.text_object.layers.values():
+                    if item in layer.attributes and getattr(layer, 'parent', None) == self._layer and isinstance(layer, DependantLayer):
+                        # check if the layer has a span that corresponds to this span
+                        #TODO: speedup
+                        return [getattr(span, item) for span in self.spans if span in [i.parent for i in layer.spans]]
+
+                #Nope, but are we perhaps in an enveloping layer?
+                if (self.parent.__class__) is EnvelopingLayer:
+                    return ([getattr(span.parent, item) for span in self.spans if span in [i.parent for i in self.spans]])
+
+        #not found yer
+            try:
+                return [getattr(span, item) for span in self.spans]
+            except AttributeError:
+                raise
+
+            raise KeyError(item)
+
+
+
+        try:
+
+            if not isinstance(self.spans[0], SpanList):
+                parents = [i.parent for i in self.spans]
+                return [span for span in layer.spans if span in parents]
+            else:#spanlist two deep
+                res = SpanList(layer = layer)
+                for spl in self.spans:
+                    spl2 = SpanList(layer=layer)
+                    parents = [i.parent for i in spl]
+                    for span in layer.spans:
+                        if span in parents:
+                            spl2.add(span)
+                    res.add(spl2)
+                return res
+
+
+
+        except AttributeError:
+            raise
+
+    @property
+    def frozen(self) -> bool:
+        return self._frozen
+
+    def freeze(self) -> None:
+        self._frozen = True
+
+    def add(self, span: Span) -> None:
+        if self.frozen:
+            raise AssertionError('Can not add to frozen SpanList')
+        if self._ambiguous:
+            for i in self.spans:
+                if i.start is not None and (i.start == span.start and i.end == span.end):
+                    i.add(span)
+                    break
+            else:#no correct place made yet
+                new = AmbiguousSpan(attributes=span.layer.attributes)
+                new.add(span)
+                bisect.insort(self.spans, new)
+
+        else:
+            bisect.insort(self.spans, span)
+
+    def __iter__(self):
+        yield from self.spans
+
+    def __len__(self) -> int:
+        return len(self.spans)
+
+    def __contains__(self, item: Any) -> bool:
+        return item in self.spans
+
+    def __getitem__(self, idx: int) -> Span:
+        return self.spans[idx]
+
+    def __lt__(self, other: Any) -> bool:
+        return (self.start, self.end) < (other.start, other.end)
+
+    def __eq__(self, other: Any) -> bool:
+        try:
+            return (self.start, self.end) == (other.start, other.end)
+        except AttributeError:
+            return False
+
+    def __le__(self, other: Any) -> bool:
+        return self < other or self == other
+
+    def __str__(self):
+        return 'SpanList({spans})'.format(spans=',\n'.join(str(i) for i in self.spans))
+
+    def __repr__(self):
+        return str(self)
+
+class BaseLayer(AbstractLayer):
+    parent=None
+
+    @property
+    def attributes(self):
+        return self._attributes
+
+    def __len__(self):
+        return len(self.spans)
+
+    def __iter__(self):
+        yield from self.spans
+
+    @property
+    def bound(self) -> bool:
+        return self._bound
+
+    @property
+    def text_object(self) -> Text:
+        return getattr(self, '_text_object')
+
+    @property
+    def spans(self) -> SpanList:
+        return self._spans
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def frozen(self) -> bool:
+        return self._frozen
+
+    def freeze(self) -> None:
+        if not self.frozen:
+            self.spans.freeze()
+            self._frozen = True
+
+    @property
+    def text(self) -> List[str]:
+        return [span.text for span in self.spans]
+
+    def bind(self, text_object: Text) -> None:
+        self._bound = True
+        self._text_object = text_object
+
+    def layer_get_attr(self, item):
+        return None
+
+    def __getitem__(self, item):
+        if isinstance(item, int):
+            return self.spans[item]
+        elif isinstance(item, slice):
+            res = SpanList(layer=self)
+            for i in self.spans[item]:
+                res.add(i)
+            return res
+
+    def __getattr__(self, item):
+        if item in getattr(self, '_attributes'):
+            return [getattr(span, item) for span in self.spans]
+        else:
+            try:
+                #kas atribuut on mõne vanema oma?
+                parent = getattr(self, 'parent', None)
+                if parent and item in getattr(self.parent, '_attributes'):
+                    return [getattr(span, item) for span in self.spans]
+                else:
+                    #layers should override "layer_get_attr"
+                    res = self.layer_get_attr(item)
+                    if res is not None:
+                        return res
+
+                #kas atribuut on mõne järglase oma?
+                for cl_name, child_layer in [i for i in
+                                             (self.__dict__['_text_object']).layers.items()
+                                             if i[1].parent == self]:
+                    if item in getattr(child_layer, '_attributes'):
+                        return getattr(child_layer, item)
+
+
+
+                # kas atribuut on vanema mõne järglase oma?
+                for cl_name, child_layer in [i for i in
+                                             (self.__dict__['_text_object']).layers.items()
+                                             if i[1].parent == self.parent]:
+                    if item in getattr(child_layer, '_attributes'):
+                        return [getattr(i, item) for i in getattr(self, self.parent.name)]
+
+
+
+            except Exception as e:
+                if isinstance(e, RecursionError):
+                    raise e
+                if isinstance(e, AssertionError):
+                    raise e
+
+                raise AttributeError('{item} not in layer {layer}'.format(item=item, layer=self.name))
+        raise AttributeError(item)
+
+
+    def __str__(self):
+        return 'Layer(name={name}, spans=[{spans}])'.format(
+            name=self.name,
+            spans=', '.join(str(i) for i in self.spans)
+        )
+
+
+    def __repr__(self):
+        return str(self)
+
+
+class Layer(BaseLayer):
+    def __init__(self, *, text_object: Text = None,
+                 name: str,
+                 frozen: bool = False,
+                 spans=None,
+                 attributes: List[str] = None
+                 ) -> None:
+        assert name.isidentifier() and not keyword.iskeyword(name), 'Layer name must be a valid python identifier'
+        self._name = name
+
+        if attributes is not None:
+            for attribute in attributes:
+                assert attribute.isidentifier() and not keyword.iskeyword(
+                    attribute), 'Layer name must be a valid python identifier'
+                assert attribute not in Span.__slots__
+                assert attribute not in Span.__class__.__dict__.keys()
+
+            self.Span = type('Span', (Span,), {'__slots__': attributes})
+            self._attributes = attributes
+        else:
+            self._attributes = tuple()
+
+        if text_object is None:
+            self._bound = False
+        else:
+            assert isinstance(text_object, Text)
+            self._bound = True
+            self._text_object = text_object
+
+        self._spans = SpanList(layer=self)
+        if spans:
+            for span in spans:
+                self._spans.add(span)
+        self._frozen = frozen
+        if frozen:
+            self._spans.freeze()
+
+    def layer_get_attr(self, item):
+        # layer = getattr(
+        #             getattr(self, 'text_object'),
+        #                 'layers').get(item, None)
+        # if layer is None:
+        #     return None
+        # else:
+        #     #we found a layer by name item
+        #     if layer.parent is self:
+        #         #TODO: fix for recursive parentage
+        #
+        #         return None
+        #     return None
+
+        return None
+
+    @classmethod
+    def from_span_tuples(cls, name: str, spans: List[Tuple[int, int]], attributes=None) -> 'Layer':
+        layer = Layer(name=name, attributes=attributes)
+        _spans = [Span(start, end) for start, end in spans]
+        for span in _spans:
+            layer.add_span(span)
+        return layer
+
+    @classmethod
+    def from_span_dict(cls, name: str, spans: List[Dict], attributes=None) -> 'Layer':
+        layer = Layer(name=name, attributes=attributes)
+        for span in spans:
+            new = layer.add_span(Span(span['start'], span['end']))
+            for k, v in span.items():
+                if k in attributes:
+                    setattr(new, k, v)
+        return layer
+
+    def add_span(self, span: Span) -> Span:
+        if hasattr(self, 'Span'):
+            span = self.Span(span.start, span.end)
+        span.bind(self)
+        self.spans.add(span)
+        return span
+
+
+
+class DependantLayer(BaseLayer):
+    def __init__(self, *, text_object: Text = None,
+                 name: str,
+                 frozen: bool = False,
+                 spans=None,
+                 attributes: List[str] = None,
+                 ambiguous=False,
+                 parent: AbstractLayer
+                 ) -> None:
+
+        # Let's not allow chains of dependancies for now
+        assert not isinstance(parent, DependantLayer)
+        assert isinstance(parent, Layer)
+
+        assert name.isidentifier() and not keyword.iskeyword(name), 'Layer name must be a valid python identifier'
+        self._name = name
+
+        if attributes is not None:
+            for attribute in attributes:
+                assert attribute.isidentifier() and not keyword.iskeyword(
+                    attribute), 'Layer name must be a valid python identifier'
+                assert attribute not in Span.__slots__
+                assert attribute not in Span.__class__.__dict__.keys()
+
+            self.Span = type('Span', (DependantSpan,), {'__slots__': attributes})
+            self._attributes = attributes
+        else:
+            self._attributes = tuple()
+
+        if text_object is None:
+            self._bound = False
+        else:
+            assert isinstance(text_object, Text)
+            self._bound = True
+            self._text_object = text_object
+
+        self._spans = SpanList(ambiguous=ambiguous, layer=self)
+        if spans:
+            for span in spans:
+                self._spans.add(span)
+        self._frozen = frozen
+        if frozen:
+            self._spans.freeze()
+        self._parent = parent
+
+    @property
+    def ambiguous(self):
+        return self.spans.ambiguous
+
+    @property
+    def parent(self):
+        return self._parent
+
+    def add_span(self, span: DependantSpan) -> None:
+        if hasattr(self, 'Span'):
+            span = self.Span(span.parent)
+        span.bind(self)
+        self.spans.add(span)
+        return span
+
+
+class EnvelopingLayer(BaseLayer):
+    def __init__(self, *,
+                 text_object: Text = None,
+                 name: str,
+                 envelops: Layer,
+                 attributes: List[str] = None
+                 ) -> None:
+        assert name.isidentifier() and not keyword.iskeyword(name), 'Layer name must be a valid python identifier'
+        self._name = name
+
+        self._envelops = envelops
+
+        if attributes is not None:
+            for attribute in attributes:
+                assert attribute.isidentifier() and not keyword.iskeyword(
+                    attribute), 'Layer name must be a valid python identifier'
+                assert attribute not in Span.__slots__
+                assert attribute not in Span.__class__.__dict__.keys()
+
+            self.Span = type('Span', (DependantSpan,), {'__slots__': attributes})
+            self._attributes = attributes
+        else:
+            self.Span = type('Span', (DependantSpan,), {'__slots__': []})
+            self._attributes = tuple()
+
+        if text_object is None:
+            self._bound = False
+        else:
+            assert isinstance(text_object, Text)
+            self._bound = True
+            self._text_object = text_object
+
+        self._spans = SpanList(layer=self)
+
+    def layer_get_attr(self, item):
+        layers = self.text_object.layers.keys()
+
+        if item in layers:
+            layer = self.text_object.layers[item]
+            res = []
+            for span in self.spans:
+                x = SpanList(frozen=False, layer=layer)
+                x.bind(layer)
+                x.spans = (getattr(span, item))
+                res.append(x)
+
+            rr = SpanList(frozen=False, layer=layer)
+            rr.bind(layer)
+            rr.spans = res
+            return rr
+        return None
+
+
+    @property
+    def parent(self):
+        return self._envelops
+
+    def add_spans(self, spans):
+        if hasattr(self, 'Span'):
+            wrapper = self.Span
+        else:
+            wrapper = lambda x: x
+
+        sl = SpanList(layer=self)
+        sl.bind(parent=self)
+
+        for span in spans:
+            sp = wrapper(span)
+            sp.bind(self)
+            sl.add(
+                sp
+            )
+        sl.freeze()
+        self.spans.add(
+            sl
+        )
+
+    def add_span(self, spans):
+        raise NotImplementedError('add_span not implemented EnvelopingLayer')
+
+
+def words_sentences(text):
+    old = OldText(text)
+    old.sentences
+    old.words
+    old.paragraphs
+    new = Text(text)
+    words = Layer.from_span_tuples(spans=old.spans('words'), name='words')
+    new.add_layer(words)
+    old_sentences = old.split_by('sentences')
+    sentences = EnvelopingLayer(envelops=words, name='sentences')
+    i = 0
+    new_sentences = []
+    for sentence in old_sentences:
+        sent = []
+        for word in sentence.words:
+            sent.append(words[i])
+            i += 1
+        new_sentences.append(sent)
+    for sentence in new_sentences:
+        sentences.add_spans(sentence)
+    new.add_layer(sentences)
+
+    morf_attributes = ['form', 'root_tokens', 'clitic', 'partofspeech', 'ending', 'root', 'lemma']
+
+    dep = DependantLayer(name='morf_analysis',
+                         text_object=new,
+                         frozen=False,
+                         parent=new.words,
+                         ambiguous=True,
+                         attributes=morf_attributes
+                         )
+    new.add_layer(dep)
+
+    for word, analysises in zip(new.words, old.analysis):
+        for analysis in analysises:
+
+            m = word.mark('morf_analysis')
+            for attr in morf_attributes:
+                setattr(m, attr, analysis[attr])
+    return new

@@ -1,1 +1,0 @@
-from .adjective_phrase_tagger.adj_phrase_tagger import AdjectivePhraseTagger

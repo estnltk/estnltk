@@ -18,7 +18,6 @@ from __future__ import unicode_literals, print_function, absolute_import
 from nltk.tokenize.regexp import WordPunctTokenizer
 from nltk.tokenize.api import StringTokenizer
 
-from estnltk.textcleaner import EST_ALPHA, EST_ALPHA_UPPER
 
 import regex as re
 
@@ -38,43 +37,43 @@ def join_hyphen(left, right):
     return hypens_dashes.match(left) or hypens_dashes.match(right)
 
 
-def join_name_abbreviation(left, right):
-    return left.isupper() and len(left)==1 and left in EST_ALPHA and right == '.'
+# def join_name_abbreviation(left, right):
+#     return left.isupper() and len(left)==1 and left in EST_ALPHA and right == '.'
 
 
 def join_range(left, middle, right):
     return hypens_dashes.match(middle) or middle == '.-' or \
            ( len(middle)==2 and middle[0] == '.' and hypens_dashes.match(middle[1]) )
 
-
-def join_abbreviation(left, middle, right):
-    if middle == '.':
-        #
-        #   If left and right side strings have length at least 2, and the right side begins with
-        #   uppercase, it is likely that end of a sentence and a beginning of another have been 
-        #   mistakenly conjoined, e.g.
-        #       ... ei tahaks ma tõsiselt võtta.Mul jääb puudu tehnikast ...
-        #       ... Iga päev teeme valikuid.Valime kõike alates pesupulbrist ja ...
-        #       ... Ja siis veel ühe.Ta paistab olevat mekkija-tüüpi mees ...
-        #
-        #   Discard joining in such cases.
-        #
-        if len(left)>1 and len(right)>1 and left[0] in EST_ALPHA and left[1] in EST_ALPHA and \
-           right[0] in EST_ALPHA_UPPER and right[1] in EST_ALPHA:
-           return False
-        #
-        #   Otherwise: join if the period is between letters (heuristic)
-        #
-        return len(left)>0 and len(right)>0 and left[-1] in EST_ALPHA and right[0] in EST_ALPHA
-    return False
+#
+# def join_abbreviation(left, middle, right):
+#     if middle == '.':
+#         #
+#         #   If left and right side strings have length at least 2, and the right side begins with
+#         #   uppercase, it is likely that end of a sentence and a beginning of another have been
+#         #   mistakenly conjoined, e.g.
+#         #       ... ei tahaks ma tõsiselt võtta.Mul jääb puudu tehnikast ...
+#         #       ... Iga päev teeme valikuid.Valime kõike alates pesupulbrist ja ...
+#         #       ... Ja siis veel ühe.Ta paistab olevat mekkija-tüüpi mees ...
+#         #
+#         #   Discard joining in such cases.
+#         #
+#         if len(left)>1 and len(right)>1 and left[0] in EST_ALPHA and left[1] in EST_ALPHA and \
+#            right[0] in EST_ALPHA_UPPER and right[1] in EST_ALPHA:
+#            return False
+#         #
+#         #   Otherwise: join if the period is between letters (heuristic)
+#         #
+#         return len(left)>0 and len(right)>0 and left[-1] in EST_ALPHA and right[0] in EST_ALPHA
+#     return False
 
 
 def join_fraction(left, middle, right):
     return digits.match(left) is not None and middle in [',', '.', '/'] and digits.match(right) is not None
 
 
-bi_rules = [join_ordinals, join_hyphen, join_name_abbreviation]
-tri_rules = [join_range, join_fraction, join_abbreviation]
+bi_rules = [join_ordinals, join_hyphen]
+tri_rules = [join_range, join_fraction]
 
 
 def apply_rules(tokens, spans, n, rules):

@@ -1,6 +1,3 @@
-# copy of requirements from setup.py install_requires
-# if you have cloned the repo, then you can issue
-# pip install -r requirements.txt
 six==1.9.0
 nltk==3.0.4
 regex==2015.07.19

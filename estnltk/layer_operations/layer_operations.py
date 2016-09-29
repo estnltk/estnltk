@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Low-level layer operations for Estnltk Text object.
 
@@ -11,10 +9,12 @@ from pandas import DataFrame
 import regex as re
 from collections import Counter, defaultdict
 
+
 # ? Sven palus üles kirjutada küsimused, mis koodi silmitsedes tekivad.
 # ? Kas kõik järgmised konstandid on mõttekad? 
 # ? UNION on allpool ainult osaliselt kasutusel.
 # ? ehk võiks enamlevinud konstandid importida
+from estnltk.text import Layer
 
 TEXT = 'text'
 AND = 'AND'
