@@ -319,6 +319,12 @@ MaltParser based syntactic analysis
 
 .. No installation steps are required to set up the MaltParser.
 
+Training MaltParser models
+--------------------------
+
+Instructions and scripts for training and evaluating MaltParser models for EstNLTK can be found from the repository: https://github.com/estnltk/maltparser_training
+
+
 Text interface
 --------------
 
