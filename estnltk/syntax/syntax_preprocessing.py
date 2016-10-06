@@ -63,6 +63,7 @@ from __future__ import unicode_literals, print_function
 import re
 import os.path
 import codecs
+from collections import defaultdict
 
 from estnltk.legacy.core import PACKAGE_PATH
 SYNTAX_PATH      = os.path.join(PACKAGE_PATH, 'syntax', 'files')
@@ -165,7 +166,7 @@ def convert_Text_to_mrf( text ):
     for sentence in text.sentences:
         results.append('<s>')
         for word in sentence.words:
-            results.append(word.text)
+            results.append(_esc_double_quotes(word.text))
             for root, ending, pos, clitic, form in zip(word.root, word.ending, word.partofspeech, word.clitic, word.form):
                 root = _esc_double_quotes( root )
                 #   NB! ending="0" erineb ending=""-st:
@@ -207,7 +208,7 @@ def load_fs_mrf_to_syntax_mrf_translation_rules( rulesFile ):
         Lines that have ¤ in the beginning of the line will be skipped;
       
     '''
-    rules = {}
+    rules = defaultdict(list)
     in_f = codecs.open(rulesFile, mode='r', encoding='utf-8')
     for line in in_f:
         line = line.rstrip()
@@ -216,8 +217,8 @@ def load_fs_mrf_to_syntax_mrf_translation_rules( rulesFile ):
         parts = line.split('@')
         if len(parts) < 4:
             raise Exception(' Unexpected format of the line: ', line)
-        if parts[1] not in rules:
-            rules[parts[1]] = []
+        #if parts[1] not in rules:
+        #    rules[parts[1]] = []
         rules[parts[1]].append( parts[3] )
     in_f.close()
     return rules
