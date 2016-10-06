@@ -29,6 +29,29 @@ digits = re.compile('\d+')
 hypens_dashes = re.compile('^(-|\xad|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|\u2212)$')
 
 
+## TODO: remove?
+import string
+# estonian alphabet with foreign characters
+EST_ALPHA_LOWER = 'abcdefghijklmnoprsšzžtuvwõäöüxyz'
+EST_ALPHA_UPPER = EST_ALPHA_LOWER.upper()
+EST_ALPHA = EST_ALPHA_LOWER + EST_ALPHA_UPPER
+
+# cyrillic alphabet
+RUS_ALPHA_LOWER = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'
+RUS_ALPHA_UPPER = RUS_ALPHA_LOWER.upper()
+RUS_ALPHA = RUS_ALPHA_LOWER + RUS_ALPHA_UPPER
+
+DIGITS = string.digits
+PUNCTUATION = string.punctuation + '–'
+WHITESPACE = string.whitespace
+
+# some common alphabets
+ESTONIAN = EST_ALPHA + DIGITS + WHITESPACE + PUNCTUATION
+RUSSIAN = RUS_ALPHA + DIGITS + WHITESPACE + PUNCTUATION
+
+## /end TODO
+
+
 def join_ordinals(left, right):
     return right == '.' and digits.match(left) is not None
 
@@ -37,8 +60,8 @@ def join_hyphen(left, right):
     return hypens_dashes.match(left) or hypens_dashes.match(right)
 
 
-# def join_name_abbreviation(left, right):
-#     return left.isupper() and len(left)==1 and left in EST_ALPHA and right == '.'
+def join_name_abbreviation(left, right):
+    return left.isupper() and len(left)==1 and left in EST_ALPHA and right == '.'
 
 
 def join_range(left, middle, right):
@@ -46,34 +69,34 @@ def join_range(left, middle, right):
            ( len(middle)==2 and middle[0] == '.' and hypens_dashes.match(middle[1]) )
 
 #
-# def join_abbreviation(left, middle, right):
-#     if middle == '.':
-#         #
-#         #   If left and right side strings have length at least 2, and the right side begins with
-#         #   uppercase, it is likely that end of a sentence and a beginning of another have been
-#         #   mistakenly conjoined, e.g.
-#         #       ... ei tahaks ma tõsiselt võtta.Mul jääb puudu tehnikast ...
-#         #       ... Iga päev teeme valikuid.Valime kõike alates pesupulbrist ja ...
-#         #       ... Ja siis veel ühe.Ta paistab olevat mekkija-tüüpi mees ...
-#         #
-#         #   Discard joining in such cases.
-#         #
-#         if len(left)>1 and len(right)>1 and left[0] in EST_ALPHA and left[1] in EST_ALPHA and \
-#            right[0] in EST_ALPHA_UPPER and right[1] in EST_ALPHA:
-#            return False
-#         #
-#         #   Otherwise: join if the period is between letters (heuristic)
-#         #
-#         return len(left)>0 and len(right)>0 and left[-1] in EST_ALPHA and right[0] in EST_ALPHA
-#     return False
+def join_abbreviation(left, middle, right):
+    if middle == '.':
+        #
+        #   If left and right side strings have length at least 2, and the right side begins with
+        #   uppercase, it is likely that end of a sentence and a beginning of another have been
+        #   mistakenly conjoined, e.g.
+        #       ... ei tahaks ma tõsiselt võtta.Mul jääb puudu tehnikast ...
+        #       ... Iga päev teeme valikuid.Valime kõike alates pesupulbrist ja ...
+        #       ... Ja siis veel ühe.Ta paistab olevat mekkija-tüüpi mees ...
+        #
+        #   Discard joining in such cases.
+        #
+        if len(left)>1 and len(right)>1 and left[0] in EST_ALPHA and left[1] in EST_ALPHA and \
+           right[0] in EST_ALPHA_UPPER and right[1] in EST_ALPHA:
+           return False
+        #
+        #   Otherwise: join if the period is between letters (heuristic)
+        #
+        return len(left)>0 and len(right)>0 and left[-1] in EST_ALPHA and right[0] in EST_ALPHA
+    return False
 
 
 def join_fraction(left, middle, right):
     return digits.match(left) is not None and middle in [',', '.', '/'] and digits.match(right) is not None
 
 
-bi_rules = [join_ordinals, join_hyphen]
-tri_rules = [join_range, join_fraction]
+bi_rules = [join_ordinals, join_hyphen, join_name_abbreviation]
+tri_rules = [join_range, join_fraction, join_abbreviation]
 
 
 def apply_rules(tokens, spans, n, rules):
