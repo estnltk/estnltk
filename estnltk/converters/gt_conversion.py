@@ -603,4 +603,63 @@ def read_text_from_idx_file( file_name, layer_name=WORDS, keep_init_lines=False 
 
 
 
+def get_original_vs_converted_diff( original ,converted ):
+    '''  Compares the *original* text to *converted* text, and detects changes/differences in 
+        morphological annotations. 
+
+        The method constructs line-by-line comparison string, where lines are separated by 
+        newline, and '***' at the beginning of the line indicates the difference.
+
+        Returns a pair: results of the line-by-line comparison as a string, and boolean value
+        indicating whether there were any differences.
+    '''
+    from estnltk.syntax.syntax_preprocessing import convert_Text_to_mrf
+    old_layer_mrf = convert_Text_to_mrf( original )
+    new_layer_mrf = convert_Text_to_mrf( converted )
+    max_len_1 = max([len(l) for l in old_layer_mrf ])
+    max_len_2 = max([len(l) for l in new_layer_mrf ])
+    max_len   = max( max_len_1, max_len_2 )
+    format_str = '{:<'+str(max_len+1)+'}'
+    i = 0
+    j = 0
+    comp_lines = []
+    diff_found = False
+    while(i < len(old_layer_mrf) or j < len(new_layer_mrf)):
+         l1 = old_layer_mrf[i]
+         l2 = new_layer_mrf[j]
+         # 1) Output line containing tokens
+         if not l1.startswith(' ') and not l2.startswith(' '):
+            diff = '*** ' if format_str.format(l1) != format_str.format(l2) else '    '
+            comp_lines.append( diff+format_str.format(l1)+format_str.format(l2) )
+            if diff == '*** ':
+                 diff_found = True
+            i += 1
+            j += 1
+         else:
+            # 2) Output analysis line(s)
+            while(i < len(old_layer_mrf) or j < len(new_layer_mrf)):
+                 l1 = old_layer_mrf[i]
+                 l2 = new_layer_mrf[j]
+                 if l1.startswith(' ') and l2.startswith(' '):
+                    diff = '*** ' if format_str.format(l1) != format_str.format(l2) else '    '
+                    comp_lines.append( diff+format_str.format(l1)+format_str.format(l2) )
+                    if diff == '*** ':
+                       diff_found = True
+                    i += 1
+                    j += 1
+                 elif l1.startswith(' ') and not l2.startswith(' '):
+                    diff = '*** '
+                    comp_lines.append( diff+format_str.format(l1)+format_str.format(' ') )
+                    diff_found = True
+                    i += 1
+                 elif not l1.startswith(' ') and l2.startswith(' '):
+                    diff = '*** '
+                    comp_lines.append( diff+format_str.format(' ')+format_str.format(l2) )
+                    diff_found = True
+                    j += 1
+                 else:
+                    break
+    return '\n'.join( comp_lines ), diff_found
+
+
 
