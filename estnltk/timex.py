@@ -39,7 +39,11 @@ class TimexTagger(JavaProcess):
             timexes = remove_unnormalized(timexes)
 
         text = document.text
-        document[TIMEXES] = [convert_timex(timex, text) for tid, timex in sorted(timexes.items())]
+        #  (!) Timexes need to be sorted in the order of their appearance in text;
+        #  text splitting/dividing methods assume such order, and if this is not 
+        #  provided, we may lose some timexes in the process of dividing ...
+        sortedTidsAndTimexes = sorted( timexes.items(),key=lambda x:x[1][START] )
+        document[TIMEXES] = [ convert_timex(timex, text) for tid, timex in sortedTidsAndTimexes ]
         return document
 
 

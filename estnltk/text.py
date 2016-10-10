@@ -447,12 +447,25 @@ class Text(dict):
                             firstToken = para_words[i]
                         if j == len(sentence) - 1:
                             lastToken = para_words[i]
+                            i+=1
                             break
                         j+=1
                         i+=1
                     sentenceDict = \
                         {'start': firstToken[START], 'end': lastToken[END]}
                     dicts.append( sentenceDict )
+                # Note: We also need to invalidate the cached properties providing the
+                #       sentence information, as otherwise, if the properties have been
+                #       called already, new calls would return the old state of sentence 
+                #       tokenization;
+                for sentence_attrib in ['sentences', 'sentence_texts', 'sentence_spans', \
+                                        'sentence_starts', 'sentence_ends']:
+                    try:
+                        # invalidate the cache
+                        delattr(self, sentence_attrib)
+                    except AttributeError:
+                        # it's ok, if the cached property has not been called yet
+                        pass
         self[SENTENCES] = dicts
         return self
 

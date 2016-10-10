@@ -55,6 +55,7 @@ setup(
     author       = "University of Tartu",
     author_email = "siim.orasmaa@gmail.com, alex.tk.fb@gmail.com, tpetmanson@gmail.com, swen@math.ut.ee",
     description  = "Estnltk — open source tools for Estonian natural language processing",
+    long_description = open('README.rst').read(),
     license      = "GPLv2",
     url          = "https://github.com/estnltk/estnltk",
     ext_modules = [
@@ -65,6 +66,8 @@ setup(
         ],
     py_modules = ['vabamorf'],
 
+    # we have fixed dependency versions to guarantee, what works
+    # however, you can probably safely install newer versions of the dependencies
     install_requires = [
         'six==1.9.0',                       # helps to build Py2/Py3 compatible programs
         'nltk>=3.0.4',                      # NLTK mainly used for English

@@ -18,12 +18,16 @@ from __future__ import unicode_literals, print_function, absolute_import
 from nltk.tokenize.regexp import WordPunctTokenizer
 from nltk.tokenize.api import StringTokenizer
 
-from estnltk.textcleaner import EST_ALPHA
+from estnltk.textcleaner import EST_ALPHA, EST_ALPHA_UPPER
 
 import regex as re
 
 wptokenizer = WordPunctTokenizer()
 digits = re.compile('\d+')
+
+#  Listing of different hypen/minus/dash symbols in utf8;
+#  It is likely that these symbols are used interchangeably with the regular hypen symbol;
+hypens_dashes = re.compile('^(-|\xad|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|\u2212)$')
 
 
 def join_ordinals(left, right):
@@ -31,7 +35,7 @@ def join_ordinals(left, right):
 
 
 def join_hyphen(left, right):
-    return left == '-' or right == '-'
+    return hypens_dashes.match(left) or hypens_dashes.match(right)
 
 
 def join_name_abbreviation(left, right):
@@ -39,11 +43,30 @@ def join_name_abbreviation(left, right):
 
 
 def join_range(left, middle, right):
-    return middle == '-' or middle == '.-'
+    return hypens_dashes.match(middle) or middle == '.-' or \
+           ( len(middle)==2 and middle[0] == '.' and hypens_dashes.match(middle[1]) )
 
 
 def join_abbreviation(left, middle, right):
-    return len(left)>0 and left[-1] in EST_ALPHA and middle == '.' and len(right)>0 and right[0] in EST_ALPHA
+    if middle == '.':
+        #
+        #   If left and right side strings have length at least 2, and the right side begins with
+        #   uppercase, it is likely that end of a sentence and a beginning of another have been 
+        #   mistakenly conjoined, e.g.
+        #       ... ei tahaks ma tõsiselt võtta.Mul jääb puudu tehnikast ...
+        #       ... Iga päev teeme valikuid.Valime kõike alates pesupulbrist ja ...
+        #       ... Ja siis veel ühe.Ta paistab olevat mekkija-tüüpi mees ...
+        #
+        #   Discard joining in such cases.
+        #
+        if len(left)>1 and len(right)>1 and left[0] in EST_ALPHA and left[1] in EST_ALPHA and \
+           right[0] in EST_ALPHA_UPPER and right[1] in EST_ALPHA:
+           return False
+        #
+        #   Otherwise: join if the period is between letters (heuristic)
+        #
+        return len(left)>0 and len(right)>0 and left[-1] in EST_ALPHA and right[0] in EST_ALPHA
+    return False
 
 
 def join_fraction(left, middle, right):
