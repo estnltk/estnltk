@@ -208,6 +208,12 @@ class DependantSpan(BaseSpan):
     def end(self):
         return self.parent.end
 
+
+
+    def delete(self):
+        self.layer.spans.spans[0].remove(self)
+
+
     @property
     def start(self):
         return self.parent.start
@@ -221,11 +227,17 @@ class DependantSpan(BaseSpan):
         return self._parent
 
     def __getattr__(self, item):
+        # try:
+        #     if item == 'delete': return self.__dict__[item]
+        # except KeyError:
+        #     pass
+
+
         try:
-            print(item)
             return getattr(self.parent, item)
         except AttributeError:
             raise AttributeError(item)
+
 
 
 class Span(BaseSpan):
@@ -242,6 +254,7 @@ class Span(BaseSpan):
         else:
             self._bound = True
         self._layer = layer
+
 
     @property
     def start(self) -> int:
@@ -308,6 +321,10 @@ class AmbiguousSpan(BaseSpan, collections.Sequence):
 
     def __len__(self):
         return len(self.items)
+
+    def remove(self, item):
+        self.items.remove(item)
+
 
     @property
     def start(self) -> int:

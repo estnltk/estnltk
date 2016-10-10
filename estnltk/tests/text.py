@@ -456,3 +456,12 @@ def test_morf():
 
     #TODO
     # text.words[0:2].morf_analysis
+
+
+def test_delete_morf():
+    text = words_sentences('Olnud aeg.')
+    prelen = len(text.words[0].morf_analysis)
+    text.words[0].morf_analysis[0].delete()
+
+    assert len(text.words[0].morf_analysis) == prelen - 1
+
