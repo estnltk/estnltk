@@ -22,4 +22,4 @@ with open(test_data, 'r') as f:
                 if r != e:
                     print(r, e)
                     break
-            continue  
+            continue
