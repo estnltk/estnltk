@@ -67,6 +67,7 @@ from collections import defaultdict
 
 from estnltk.text import DependantLayer
 from estnltk.legacy.core import PACKAGE_PATH
+from estnltk.vabamorf import morf
 SYNTAX_PATH      = os.path.join(PACKAGE_PATH, 'syntax', 'files')
 FS_TO_SYNT_RULES_FILE = os.path.join(SYNTAX_PATH,  'tmorftrtabel.txt')
 SUBCAT_RULES_FILE     = os.path.join(SYNTAX_PATH,  'abileksikon06utf.lx')
@@ -175,15 +176,24 @@ def convert_Text_to_mrf(text):
         *) If the input has not been analysed, performs the analysis with required settings:
             word quessing is turned on, proper-name analyses are turned off;
     '''
-    
-    dep = DependantLayer(name='syntax_pp',
+
+    dep = DependantLayer(name='syntax_pp_1',
                      text_object=text,
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
                      attributes=['mrf_lines', 'root', 'ending', 'clitic', 'pos', 'form']
                      )
-    text.add_layer(dep)    
+    text.add_layer(dep)
+
+    dep = DependantLayer(name='syntax_pp_2',
+                     text_object=text,
+                     frozen=False,
+                     parent=text.words,
+                     ambiguous=True,
+                     attributes=['mrf_lines', 'root', 'ending', 'clitic', 'pos', 'form']
+                     )
+    text.add_layer(dep)
 
     for sentence in text.sentences:
         for word in sentence.words:
@@ -196,7 +206,7 @@ def convert_Text_to_mrf(text):
                     mrf_line = ''.join(['    ',root,' //_Z_ //'])
                 else:
                     mrf_line = ''.join(['    ',root,'+',ending,clitic,' //', '_',pos,'_ ',form,' //'])
-                m = word.mark('syntax_pp')
+                m = word.mark('syntax_pp_1')
                 m.mrf_lines = mrf_line
                 m.root = root
                 m.ending = ending
@@ -331,13 +341,7 @@ def _convert_punctuation( line ):
         if lastline != line:
             break
     return line 
-    
-# ================================================
 
-_morfWithForm    = re.compile('^\s*(\S.*)\s+//\s*(_._)\s+(\S[^/]*)//')
-_morfWithoutForm = re.compile('^\s*(\S.*)\s+//\s*(_._)\s+//')
-
-# ================================================
 
 def convert_mrf_to_syntax_mrf(text, conversion_rules):
     ''' Converts given lines from Filosoft's mrf format to syntactic analyzer's 
@@ -366,40 +370,50 @@ def convert_mrf_to_syntax_mrf(text, conversion_rules):
     #    mrf_lines.append('</s>')
 
 
-    mrf_lines_new = []
     for sentence in text.sentences:
-        mrf_lines_new.append('<s>')
         for word in sentence:
-            mrf_lines_new.append(_esc_double_quotes(word.text))
             mrf_lines_word = []
-            #for line, _root in zip(word.syntax_pp.mrf_lines, word.syntax_pp.root):
-            for line, _root, _ending, _clitic, _pos, _form in zip(word.syntax_pp.mrf_lines, 
-                                                                  word.syntax_pp.root, 
-                                                                  word.syntax_pp.ending, 
-                                                                  word.syntax_pp.clitic,
-                                                                  word.syntax_pp.pos, 
-                                                                  word.syntax_pp.form):
+            for line, _root, _ending, _clitic, _pos, _form in zip(word.syntax_pp_1.mrf_lines, 
+                                                                  word.syntax_pp_1.root, 
+                                                                  word.syntax_pp_1.ending, 
+                                                                  word.syntax_pp_1.clitic,
+                                                                  word.syntax_pp_1.pos, 
+                                                                  word.syntax_pp_1.form):
                 # 1) Convert punctuation
-                if _punctOrAbbrev.search(line):
+                if _pos == 'Z':
                     line = _convert_punctuation(line)
-                    if '_Y_' not in line:
-                        mrf_lines_word.append(line)
-                        continue
+                    mrf_lines_word.append(line)
+                    m = word.mark('syntax_pp_2')
+                    m.mrf_lines = line
+                    m.root = _root
+                    m.ending = _ending
+                    m.clitic = _clitic
+                    m.pos = _pos
+                    m.form = _form
+                    continue
+                if _pos == 'Y':
+                    # järgmine rida on kasutu, siin tuleb _form muuta, kui _root=='…'
+                    line = _convert_punctuation(line)
+
                 # 2) Convert morphological analyses that have a form specified
-                root    = _root + '+' + _ending + _clitic
-                pos     = '_' + _pos + '_'
+                root = _root + '+' + _ending + _clitic
+                pos = '_' + _pos + '_'
                 if _form == '':
                     morphKeys = [pos]
                 else:
                     morphKeys = [' '.join((pos, form.strip())) for form in _form.split(',')]
-                all_new_lines = []
-                for morphKey in morphKeys:
-                    newlines = [ '    '+root+' //'+_esc_que_mark(r)+' //' for r in conversion_rules.get(morphKey, [])]
-                    all_new_lines.extend( newlines )
-                mrf_lines_word.extend(all_new_lines[::-1])
-            mrf_lines_new.extend(mrf_lines_word)
-        mrf_lines_new.append('</s>')
-    return mrf_lines_new, text
+                for morphKey in morphKeys[::-1]: # [::-1] is for equivalence with old version 
+                    newlines = ['    '+root+' //'+_esc_que_mark(r)+' //' for r in conversion_rules.get(morphKey, [])]
+                    mrf_lines_word.extend( newlines[::-1] ) # [::-1] is for equivalence with old version 
+            for morph_line in mrf_lines_word:
+                m = word.mark('syntax_pp_2')
+                m.mrf_lines = morph_line
+                m.root = _root
+                m.ending = _ending
+                m.clitic = _clitic
+                m.pos = _pos
+                m.form = _form
+    return text
 
 
 # ==================================================================================
@@ -523,7 +537,7 @@ _pronConversions = [ ["(emb\+.* //\s*_P_)\s+([sp])",             "\\1 det \\2"],
 ]
 
 
-def convert_pronouns(mrf_lines, text):
+def convert_pronouns(text):
     ''' Converts pronouns (analysis lines with '_P_') from Filosoft's mrf to 
         syntactic analyzer's mrf format;
         Uses the set of predefined pronoun conversion rules from _pronConversions;
@@ -536,18 +550,28 @@ def convert_pronouns(mrf_lines, text):
         Returns the input mrf list, with the lines converted from one format
         to another;
     ''' 
+    
+    morph_lines = []
+    for sentence in text.sentences:
+        morph_lines.append('<s>')
+        for word in sentence.words:
+            morph_lines.append(_esc_double_quotes(word.text))
+            for line in word.syntax_pp_2.mrf_lines:
+                morph_lines.append(line)
+        morph_lines.append('</s>')    
+    
     i = 0
-    while ( i < len(mrf_lines) ):
-        line = mrf_lines[i]
+    while ( i < len(morph_lines) ):
+        line = morph_lines[i]
         if '_P_' in line:  # only consider lines containing pronoun analyses
             for [pattern, replacement] in _pronConversions:
                 lastline = line
                 line = re.sub(pattern, replacement, line)
                 if lastline != line:
-                    mrf_lines[i] = line
+                    morph_lines[i] = line
                     break
         i += 1
-    return mrf_lines, text
+    return morph_lines, text
 
 
 # ==================================================================================
@@ -998,8 +1022,8 @@ class SyntaxPreprocessing:
             Returns the input list, where elements (tokens/analyses) have been converted
             into the new format;
         '''
-        mrf_lines, text = convert_mrf_to_syntax_mrf(text, self.fs_to_synt_rules )
-        mrf_lines, text = convert_pronouns(mrf_lines, text)
+        text = convert_mrf_to_syntax_mrf(text, self.fs_to_synt_rules )
+        mrf_lines, text = convert_pronouns(text)
         mrf_lines, text = remove_duplicate_analyses(mrf_lines, text, allow_to_delete_all=self.allow_to_remove_all )
         mrf_lines, text = add_hashtag_info(mrf_lines, text)
         mrf_lines, text = tag_subcat_info(mrf_lines, text, self.subcat_rules )
