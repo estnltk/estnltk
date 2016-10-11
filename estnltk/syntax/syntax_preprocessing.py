@@ -167,7 +167,7 @@ def syntax_pp_to_mrf_lines(text):
     return mrf_lines
 
 
-def convert_Text_to_mrf( text ):
+def convert_Text_to_mrf(text):
     ''' Converts from Text object into pre-syntactic mrf format, given as a list of 
         lines, as in the output of etmrf.
         *) If the input Text has already been morphologically analysed, uses the existing
@@ -181,13 +181,13 @@ def convert_Text_to_mrf( text ):
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
-                     attributes=['mrf_lines_1', 'mrf_lines_2', 'mrf_lines_3', 'mrf_lines_4']
+                     attributes=['mrf_lines', 'root', 'ending', 'clitic', 'pos', 'form']
                      )
     text.add_layer(dep)    
 
     for sentence in text.sentences:
         for word in sentence.words:
-            for root, ending, pos, clitic, form in zip(word.root, word.ending, word.partofspeech, word.clitic, word.form):
+            for root, ending, clitic, pos, form in zip(word.root, word.ending, word.clitic, word.partofspeech, word.form):
                 root = _esc_double_quotes( root )
                 #   NB! ending="0" erineb ending=""-st:
                 #     1) eestlane (ending="0");
@@ -196,7 +196,13 @@ def convert_Text_to_mrf( text ):
                     mrf_line = ''.join(['    ',root,' //_Z_ //'])
                 else:
                     mrf_line = ''.join(['    ',root,'+',ending,clitic,' //', '_',pos,'_ ',form,' //'])
-                word.mark('syntax_pp').mrf_lines_1 = mrf_line
+                m = word.mark('syntax_pp')
+                m.mrf_lines = mrf_line
+                m.root = root
+                m.ending = ending
+                m.clitic = clitic
+                m.pos = pos
+                m.form = form
     return text
 
 
@@ -350,51 +356,49 @@ def convert_mrf_to_syntax_mrf(text, conversion_rules):
         suitable for the syntactic analyzer;
     ''' 
 
-    mrf_lines = []
-    for sentence in text.sentences:
-        mrf_lines.append('<s>')
-        for word in sentence.words:
-            mrf_lines.append(_esc_double_quotes(word.text))
-            for line in word.mrf_lines_1:
-                mrf_lines.append(line)
-        mrf_lines.append('</s>')
+    #mrf_lines = []
+    #for sentence in text.sentences:
+    #    mrf_lines.append('<s>')
+    #    for word in sentence.words:
+    #        mrf_lines.append(_esc_double_quotes(word.text))
+    #        for line in word.mrf_lines:
+    #            mrf_lines.append(line)
+    #    mrf_lines.append('</s>')
 
 
     mrf_lines_new = []
-    for line in mrf_lines:
-        if not line.startswith('  '):  # only consider lines of analysis
-            mrf_lines_new.append(line)
-            continue 
-        # 1) Convert punctuation
-        if _punctOrAbbrev.search(line):
-            line = _convert_punctuation(line)
-            if '_Y_' not in line:
-                mrf_lines_new.append(line)
-                continue
-        # 2) Convert morphological analyses that have a form specified
-        withFormMatch = _morfWithForm.search(line)
-        if withFormMatch:
-            root    = withFormMatch.group(1)
-            pos     = withFormMatch.group(2)
-            formStr = withFormMatch.group(3)
-            forms   = formStr.split(',')
-            all_new_lines = []
-            for form in forms:
-                morphKey = pos+' '+form.strip()
-                newlines = [ '    '+root+' //'+_esc_que_mark(r)+' //' for r in conversion_rules.get(morphKey, [])]
-                all_new_lines.extend( newlines )
-            mrf_lines_new.extend(all_new_lines[::-1]) # reverse [::-1] is for compatibility with previous version
-            continue
-        withoutFormMatch = _morfWithoutForm.search(line)
-        if withoutFormMatch:
-            # 3) Convert morphological analyses that have only POS specified
-            root = withoutFormMatch.group(1)
-            pos  = withoutFormMatch.group(2)
-            morphKey = pos
-            all_new_lines = [ '    '+root+' //'+_esc_que_mark(r)+' //' for r in conversion_rules.get(morphKey, [])]
-            mrf_lines_new.extend(all_new_lines[::-1]) # reverse [::-1] is for compatibility with previous version
-            continue
-        mrf_lines_new.append(line)
+    for sentence in text.sentences:
+        mrf_lines_new.append('<s>')
+        for word in sentence:
+            mrf_lines_new.append(_esc_double_quotes(word.text))
+            mrf_lines_word = []
+            #for line, _root in zip(word.syntax_pp.mrf_lines, word.syntax_pp.root):
+            for line, _root, _ending, _clitic, _pos, _form in zip(word.syntax_pp.mrf_lines, 
+                                                                  word.syntax_pp.root, 
+                                                                  word.syntax_pp.ending, 
+                                                                  word.syntax_pp.clitic,
+                                                                  word.syntax_pp.pos, 
+                                                                  word.syntax_pp.form):
+                # 1) Convert punctuation
+                if _punctOrAbbrev.search(line):
+                    line = _convert_punctuation(line)
+                    if '_Y_' not in line:
+                        mrf_lines_word.append(line)
+                        continue
+                # 2) Convert morphological analyses that have a form specified
+                root    = _root + '+' + _ending + _clitic
+                pos     = '_' + _pos + '_'
+                if _form == '':
+                    morphKeys = [pos]
+                else:
+                    morphKeys = [' '.join((pos, form.strip())) for form in _form.split(',')]
+                all_new_lines = []
+                for morphKey in morphKeys:
+                    newlines = [ '    '+root+' //'+_esc_que_mark(r)+' //' for r in conversion_rules.get(morphKey, [])]
+                    all_new_lines.extend( newlines )
+                mrf_lines_word.extend(all_new_lines[::-1])
+            mrf_lines_new.extend(mrf_lines_word)
+        mrf_lines_new.append('</s>')
     return mrf_lines_new, text
 
 
