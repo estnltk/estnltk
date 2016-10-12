@@ -67,7 +67,7 @@ from collections import defaultdict
 
 from estnltk.text import DependantLayer
 from estnltk.legacy.core import PACKAGE_PATH
-from estnltk.vabamorf import morf
+#from estnltk.vabamorf import morf
 SYNTAX_PATH      = os.path.join(PACKAGE_PATH, 'syntax', 'files')
 FS_TO_SYNT_RULES_FILE = os.path.join(SYNTAX_PATH,  'tmorftrtabel.txt')
 SUBCAT_RULES_FILE     = os.path.join(SYNTAX_PATH,  'abileksikon06utf.lx')
@@ -191,7 +191,7 @@ def convert_Text_to_mrf(text):
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
-                     attributes=['mrf_lines', 'root', 'ending', 'clitic', 'pos', 'form']
+                     attributes=['morph_line', 'root', 'ending', 'clitic', 'pos', 'form']
                      )
     text.add_layer(dep)
 
@@ -360,16 +360,6 @@ def convert_mrf_to_syntax_mrf(text, conversion_rules):
         suitable for the syntactic analyzer;
     ''' 
 
-    #mrf_lines = []
-    #for sentence in text.sentences:
-    #    mrf_lines.append('<s>')
-    #    for word in sentence.words:
-    #        mrf_lines.append(_esc_double_quotes(word.text))
-    #        for line in word.mrf_lines:
-    #            mrf_lines.append(line)
-    #    mrf_lines.append('</s>')
-
-
     for sentence in text.sentences:
         for word in sentence:
             mrf_lines_word = []
@@ -384,7 +374,7 @@ def convert_mrf_to_syntax_mrf(text, conversion_rules):
                     line = _convert_punctuation(line)
                     mrf_lines_word.append(line)
                     m = word.mark('syntax_pp_2')
-                    m.mrf_lines = line
+                    m.morph_line = line
                     m.root = _root
                     m.ending = _ending
                     m.clitic = _clitic
@@ -407,7 +397,7 @@ def convert_mrf_to_syntax_mrf(text, conversion_rules):
                     mrf_lines_word.extend( newlines[::-1] ) # [::-1] is for equivalence with old version 
             for morph_line in mrf_lines_word:
                 m = word.mark('syntax_pp_2')
-                m.mrf_lines = morph_line
+                m.morph_line = morph_line
                 m.root = _root
                 m.ending = _ending
                 m.clitic = _clitic
@@ -553,13 +543,13 @@ def convert_pronouns(text):
 
     for word in text.words:
         for morph in word.syntax_pp_2:
-            line = morph.mrf_lines
+            line = morph.morph_line
             if '_P_' in line:  # only consider lines containing pronoun analyses
                 for [pattern, replacement] in _pronConversions:
                     lastline = line
                     line = re.sub(pattern, replacement, line)
                     if lastline != line:
-                        morph.mrf_lines = line
+                        morph.morph_line = line
                         break    
     return text
 
@@ -641,7 +631,7 @@ def remove_duplicate_analyses(mrf_lines, text, allow_to_delete_all = True):
     return mrf_lines, text
 
 
-def remove_duplicate_analyses_text(text, allow_to_delete_all = True):
+def remove_duplicate_analyses_text(text, allow_to_delete_all=True):
     ''' Removes duplicate analysis lines from mrf_lines. 
         
         Uses special logic for handling adposition analyses ('_K_ pre' && '_K_ post')
@@ -660,50 +650,15 @@ def remove_duplicate_analyses_text(text, allow_to_delete_all = True):
         
         Returns the input list where the removals have been applied;
     ''' 
-    morph_lines = []
-    for sentence in text.sentences:
-        morph_lines.append('<s>')
-        for word in sentence.words:
-            morph_lines.append(_esc_double_quotes(word.text))
-            for line in word.syntax_pp_2.mrf_lines:
-                morph_lines.append(line)
-        morph_lines.append('</s>')
 
-    i = 0
-    seen_analyses  = []
-    analyses_count = 0
-    to_delete      = []
-    Kpre_index     = -1
-    Kpost_index    = -1
-    while (i < len(morph_lines)):
-        line = morph_lines[i]
-        if not line.startswith('  '): 
-            if Kpre_index != -1 and Kpost_index != -1:
-                # If there was both _K_pre and _K_post, add _K_pre to removables;
-                to_delete.append( Kpre_index )
-            elif Kpost_index != -1:
-                # If there was only _K_post, add _K_post to removables;
-                to_delete.append( Kpost_index )
-            # Delete found duplicates
-            for k, j in enumerate(sorted(to_delete, reverse=True)):
-                # If we must preserve at least one analysis, and
-                # it has been found that all should be deleted, then 
-                # keep the last one
-                if not allow_to_delete_all and \
-                    analyses_count == len(to_delete) and \
-                    k == len(to_delete) - 1:
-                    continue
-                # Delete the analysis line
-                del morph_lines[j]
-                i -= 1
-            # Reset the memory for each new word/token
-            seen_analyses = []
-            analyses_count = 0
-            to_delete     = []
-            Kpre_index    = -1
-            Kpost_index   = -1
-        else:   # the line of analysis 
-            analyses_count += 1
+    for word in text.words:
+        seen_analyses  = []
+        to_delete      = []
+        Kpre_index     = -1
+        Kpost_index    = -1
+
+        for i, morph in enumerate(word.syntax_pp_2):
+            line = morph.morph_line
             if line in seen_analyses:
                 # Remember line that has been already seen as a duplicate
                 to_delete.append( i )
@@ -714,8 +669,33 @@ def remove_duplicate_analyses_text(text, allow_to_delete_all = True):
                 elif re.search('/_K_\s+post\s+//', line):
                     Kpost_index = i
                 # Remember that the line has already been seen
-                seen_analyses.append( line )
-        i += 1
+                seen_analyses.append(line)
+
+        if Kpre_index != -1 and Kpost_index != -1:
+            # If there was both _K_pre and _K_post, add _K_pre to removables;
+            to_delete.append( Kpre_index )
+        elif Kpost_index != -1:
+            # If there was only _K_post, add _K_post to removables;
+            to_delete.append( Kpost_index )
+        # Delete found duplicates
+        for j in sorted(to_delete, reverse=True):
+            # If we must preserve at least one analysis, and
+            # it has been found that all should be deleted, then 
+            # keep the last one
+            if not allow_to_delete_all and len(word.syntax_pp_2) < 2:
+                continue
+            # Delete the analysis line
+            word.syntax_pp_2.items.pop(j)
+
+    morph_lines = []
+    for sentence in text.sentences:
+        morph_lines.append('<s>')
+        for word in sentence.words:
+            morph_lines.append(_esc_double_quotes(word.text))
+            for line in word.syntax_pp_2.morph_line:
+                morph_lines.append(line)
+        morph_lines.append('</s>')
+
     return morph_lines, text
 
 
