@@ -195,6 +195,15 @@ def convert_Text_to_mrf(text):
                      )
     text.add_layer(dep)
 
+    dep = DependantLayer(name='syntax_pp_3',
+                     text_object=text,
+                     frozen=False,
+                     parent=text.words,
+                     ambiguous=True,
+                     attributes=['morph_line']
+                     )
+    text.add_layer(dep)
+
     for sentence in text.sentences:
         for word in sentence.words:
             for root, ending, clitic, pos, form in zip(word.root, word.ending, word.clitic, word.partofspeech, word.form):
@@ -360,49 +369,48 @@ def convert_mrf_to_syntax_mrf(text, conversion_rules):
         suitable for the syntactic analyzer;
     ''' 
 
-    for sentence in text.sentences:
-        for word in sentence:
-            mrf_lines_word = []
-            for line, _root, _ending, _clitic, _pos, _form in zip(word.syntax_pp_1.mrf_lines, 
-                                                                  word.syntax_pp_1.root, 
-                                                                  word.syntax_pp_1.ending, 
-                                                                  word.syntax_pp_1.clitic,
-                                                                  word.syntax_pp_1.pos, 
-                                                                  word.syntax_pp_1.form):
-                # 1) Convert punctuation
-                if _pos == 'Z':
-                    line = _convert_punctuation(line)
-                    mrf_lines_word.append(line)
-                    m = word.mark('syntax_pp_2')
-                    m.morph_line = line
-                    m.root = _root
-                    m.ending = _ending
-                    m.clitic = _clitic
-                    m.pos = _pos
-                    m.form = _form
-                    continue
-                if _pos == 'Y':
-                    # järgmine rida on kasutu, siin tuleb _form muuta, kui _root=='…'
-                    line = _convert_punctuation(line)
-
-                # 2) Convert morphological analyses that have a form specified
-                root = _root + '+' + _ending + _clitic
-                pos = '_' + _pos + '_'
-                if _form == '':
-                    morphKeys = [pos]
-                else:
-                    morphKeys = [' '.join((pos, form.strip())) for form in _form.split(',')]
-                for morphKey in morphKeys[::-1]: # [::-1] is for equivalence with old version 
-                    newlines = ['    '+root+' //'+_esc_que_mark(r)+' //' for r in conversion_rules.get(morphKey, [])]
-                    mrf_lines_word.extend( newlines[::-1] ) # [::-1] is for equivalence with old version 
-            for morph_line in mrf_lines_word:
+    for word in text.words:
+        mrf_lines_word = []
+        for line, _root, _ending, _clitic, _pos, _form in zip(word.syntax_pp_1.mrf_lines, 
+                                                              word.syntax_pp_1.root, 
+                                                              word.syntax_pp_1.ending, 
+                                                              word.syntax_pp_1.clitic,
+                                                              word.syntax_pp_1.pos, 
+                                                              word.syntax_pp_1.form):
+            # 1) Convert punctuation
+            if _pos == 'Z':
+                line = _convert_punctuation(line)
+                mrf_lines_word.append(line)
                 m = word.mark('syntax_pp_2')
-                m.morph_line = morph_line
+                m.morph_line = line
                 m.root = _root
                 m.ending = _ending
                 m.clitic = _clitic
                 m.pos = _pos
                 m.form = _form
+                continue
+            if _pos == 'Y':
+                # järgmine rida on kasutu, siin tuleb _form muuta, kui _root=='…'
+                line = _convert_punctuation(line)
+
+            # 2) Convert morphological analyses that have a form specified
+            root = _root + '+' + _ending + _clitic
+            pos = '_' + _pos + '_'
+            if _form == '':
+                morphKeys = [pos]
+            else:
+                morphKeys = [' '.join((pos, form.strip())) for form in _form.split(',')]
+            for morphKey in morphKeys[::-1]: # [::-1] is for equivalence with old version 
+                newlines = ['    '+root+' //'+_esc_que_mark(r)+' //' for r in conversion_rules.get(morphKey, [])]
+                mrf_lines_word.extend( newlines[::-1] ) # [::-1] is for equivalence with old version 
+        for morph_line in mrf_lines_word:
+            m = word.mark('syntax_pp_2')
+            m.morph_line = morph_line
+            m.root = _root
+            m.ending = _ending
+            m.clitic = _clitic
+            m.pos = _pos
+            m.form = _form
     return text
 
 
@@ -562,76 +570,7 @@ def convert_pronouns(text):
 # ==================================================================================
 # ==================================================================================
 
-def remove_duplicate_analyses(mrf_lines, text, allow_to_delete_all = True):
-    ''' Removes duplicate analysis lines from mrf_lines. 
-        
-        Uses special logic for handling adposition analyses ('_K_ pre' && '_K_ post')
-        that do not have subcategorization information:
-         *) If a word has both adposition analyses, removes '_K_ pre';
-         *) If a word has '_K_ post', removes it;
-        Note that '_K_ pre' and '_K_ post' with subcategorization information will
-        be kept.
-        
-        The parameter  allow_to_delete_all  specifies whether it is allowed to delete
-        all analysis or not. If allow_to_delete_all == False, then one last analysis
-        won't be deleted, regardless whether it should be deleted considering the 
-        adposition-deletion rules;
-        The original implementation corresponds to the settings allow_to_delete_all=True 
-        (and this is also the default value of the parameter);
-        
-        Returns the input list where the removals have been applied;
-    ''' 
-    i = 0
-    seen_analyses  = []
-    analyses_count = 0
-    to_delete      = []
-    Kpre_index     = -1
-    Kpost_index    = -1
-    while (i < len(mrf_lines)):
-        line = mrf_lines[i]
-        if not line.startswith('  '): 
-            if Kpre_index != -1 and Kpost_index != -1:
-                # If there was both _K_pre and _K_post, add _K_pre to removables;
-                to_delete.append( Kpre_index )
-            elif Kpost_index != -1:
-                # If there was only _K_post, add _K_post to removables;
-                to_delete.append( Kpost_index )
-            # Delete found duplicates
-            for k, j in enumerate(sorted(to_delete, reverse=True)):
-                # If we must preserve at least one analysis, and
-                # it has been found that all should be deleted, then 
-                # keep the last one
-                if not allow_to_delete_all and \
-                    analyses_count == len(to_delete) and \
-                    k == len(to_delete) - 1:
-                    continue
-                # Delete the analysis line
-                del mrf_lines[j]
-                i -= 1
-            # Reset the memory for each new word/token
-            seen_analyses = []
-            analyses_count = 0
-            to_delete     = []
-            Kpre_index    = -1
-            Kpost_index   = -1
-        else:   # the line of analysis 
-            analyses_count += 1
-            if line in seen_analyses:
-                # Remember line that has been already seen as a duplicate
-                to_delete.append( i )
-            else:
-                # Remember '_K pre' and '_K_ post' indices
-                if re.search('/_K_\s+pre\s+//', line):
-                    Kpre_index  = i
-                elif re.search('/_K_\s+post\s+//', line):
-                    Kpost_index = i
-                # Remember that the line has already been seen
-                seen_analyses.append( line )
-        i += 1
-    return mrf_lines, text
-
-
-def remove_duplicate_analyses_text(text, allow_to_delete_all=True):
+def remove_duplicate_analyses(text, allow_to_delete_all=True):
     ''' Removes duplicate analysis lines from mrf_lines. 
         
         Uses special logic for handling adposition analyses ('_K_ pre' && '_K_ post')
@@ -686,18 +625,7 @@ def remove_duplicate_analyses_text(text, allow_to_delete_all=True):
                 continue
             # Delete the analysis line
             word.syntax_pp_2.items.pop(j)
-
-    morph_lines = []
-    for sentence in text.sentences:
-        morph_lines.append('<s>')
-        for word in sentence.words:
-            morph_lines.append(_esc_double_quotes(word.text))
-            for line in word.syntax_pp_2.morph_line:
-                morph_lines.append(line)
-        morph_lines.append('</s>')
-
-    return morph_lines, text
-
+    return text
 
 
 # ==================================================================================
@@ -724,7 +652,7 @@ _mrfHashTagConversions = [ ["(=[td]ud.+//.+)(\s+//)",   "\\1 partic #tud //"], \
 ]
 
 
-def add_hashtag_info(mrf_lines, text):
+def add_hashtag_info(text):
     ''' Augments analysis lines with various hashtag information:
           *) marks words with capital beginning with #cap;
           *) marks finite verbs with #FinV;
@@ -734,22 +662,18 @@ def add_hashtag_info(mrf_lines, text):
 
         Returns the input list where the augmentation has been applied;
     ''' 
-    i   = 0
-    cap = False
-    while ( i < len(mrf_lines) ):
-        line = mrf_lines[i]
-        if not line.startswith('  ') and len(line) > 0:
-            cap = (line[0]).isupper()
-        elif line.startswith('  '): 
+    for word in text.words:
+        cap = _esc_double_quotes(word.text)[0].isupper()
+        for morph in word.syntax_pp_2:
+            line = morph.morph_line
             if cap:
                 line = re.sub('(//.+\S)\s+//', '\\1 #cap //', line)
             if _morfFinV.search( line ) and not _morfNotFinV.search( line ):
                 line = re.sub('(//.+\S)\s+//', '\\1 #FinV //', line)
             for [pattern, replacement] in _mrfHashTagConversions:
                 line = re.sub(pattern, replacement, line)
-            mrf_lines[i] = line
-        i += 1
-    return mrf_lines, text
+            morph.morph_line = line
+    return text
 
 
 # ==================================================================================
@@ -821,7 +745,7 @@ analysisLemmaPat = re.compile('^\s+([^+ ]+)\+')
 analysisPat      = re.compile('//([^/]+)//')
 
 
-def tag_subcat_info(mrf_lines, text, subcat_rules):
+def tag_subcat_info(text, subcat_rules):
     ''' Adds subcategorization information (hashtags) to verbs and adpositions;
         
         Argument subcat_rules must be a dict containing subcategorization information,
@@ -835,11 +759,12 @@ def tag_subcat_info(mrf_lines, text, subcat_rules):
         Returns the input list where verb/adposition analyses have been augmented 
         with available subcategorization information;
     ''' 
-    i = 0
-    while ( i < len(mrf_lines) ):
-        line = mrf_lines[i]
-        if line.startswith('  '):
+
+    for word in text.words:
+        for morph in word.syntax_pp_2:
+            line = morph.morph_line
             lemma_match = analysisLemmaPat.match(line)
+            match = False
             if lemma_match:
                 lemma = lemma_match.group(1)
                 # Find whether there is subcategorization info associated 
@@ -864,27 +789,24 @@ def tag_subcat_info(mrf_lines, text, subcat_rules):
                             #      lines;
                             #
                             additions = addition.split('|')
-                            j = i
                             # Add new line or lines
+                            all_new_lines = []
                             for a in additions:
-                                line_copy = line if i == j else line[:] 
                                 items_to_add = a.split()
+                                line_new = line
                                 for item in items_to_add:
                                     if not _check_condition(item, analysis):
-                                        line_copy = \
-                                           re.sub('(//.+\S)\s+//', '\\1 '+item+' //', line_copy)
-                                if j == i:
-                                    # 1) replace the existing line
-                                    mrf_lines[i] = line_copy
-                                else:
-                                    # 2) add a new line 
-                                    mrf_lines.insert(i, line_copy)
-                                j += 1
-                            i = j - 1
+                                        line_new = re.sub('(//.+\S)\s+//', '\\1 '+item+' //', line_new)
+                                all_new_lines.append(line_new)
+                            for morph_line in all_new_lines[::-1]:
+                                match = True
+                                m = word.mark('syntax_pp_3')
+                                m.morph_line = morph_line
                             # No need to search forward
                             break
-        i += 1
-    return mrf_lines, text
+            if not match:
+                word.mark('syntax_pp_3').morph_line = line
+    return text
 
 
 # ==================================================================================
@@ -894,7 +816,7 @@ def tag_subcat_info(mrf_lines, text, subcat_rules):
 # ==================================================================================
 # ==================================================================================
 
-def convert_to_cg3_input(mrf_lines, text):
+def convert_to_cg3_input(text):
     ''' Converts given mrf lines from syntax preprocessing format to cg3 input
         format:
           *) surrounds words/tokens with "< and >"
@@ -907,19 +829,19 @@ def convert_to_cg3_input(mrf_lines, text):
         Returns the input list, where elements (tokens/analyses) have been converted
         into the new format;
     ''' 
+    morph_lines = []
+    for sentence in text.sentences:
+        morph_lines.append('"<s>"')
+        for word in sentence.words:
+            morph_lines.append('"<'+_esc_double_quotes(word.text)+'>"')
+            for line in word.syntax_pp_3.morph_line:
+                morph_lines.append(line)
+        morph_lines.append('"</s>"')
+
     i = 0
-    while ( i < len(mrf_lines) ):
-        line = mrf_lines[i]
-        if not line.startswith('  ') and len(line) > 0:
-            #
-            # A line containing word/token
-            #
-            #  a. surround the word with "< and >"
-            line = re.sub('^(\S.*)([\n\r]*)$','"<\\1>"\\2', line)
-            #  b. fix the sentence begin/end tags
-            line = re.sub('<<(s|/s)>>', '<\\1>', line)
-            mrf_lines[i] = line
-        elif line.startswith('  '):
+    while ( i < len(morph_lines) ):
+        line = morph_lines[i]
+        if line.startswith('  '):
             #
             # A line containing analysis
             #
@@ -941,9 +863,9 @@ def convert_to_cg3_input(mrf_lines, text):
             #  3. convert analysis line \wo word ending
             line = re.sub('^\s+(\S+)(.*)\s+//_(\S)_ (.*)//(.*)$', \
                          '    "\\1\\2" \\3 \\4 \\5', line)
-            mrf_lines[i] = line
+            morph_lines[i] = line
         i += 1
-    return mrf_lines, text
+    return morph_lines, text
 
 
 # ==================================================================================
@@ -1073,9 +995,9 @@ class SyntaxPreprocessing:
         '''
         text = convert_mrf_to_syntax_mrf(text, self.fs_to_synt_rules )
         text = convert_pronouns(text)
-        mrf_lines, text = remove_duplicate_analyses_text(text, allow_to_delete_all=self.allow_to_remove_all )
-        mrf_lines, text = add_hashtag_info(mrf_lines, text)
-        mrf_lines, text = tag_subcat_info(mrf_lines, text, self.subcat_rules )
-        mrf_lines, text = remove_duplicate_analyses(mrf_lines, text, allow_to_delete_all=self.allow_to_remove_all )
-        mrf_lines, text = convert_to_cg3_input(mrf_lines, text)
+        text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all )
+        text = add_hashtag_info(text)
+        text = tag_subcat_info(text, self.subcat_rules )
+        text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all )
+        mrf_lines, text = convert_to_cg3_input(text)
         return mrf_lines
