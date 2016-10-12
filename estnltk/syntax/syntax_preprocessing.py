@@ -156,18 +156,6 @@ def convert_vm_json_to_mrf( vabamorf_json ):
     return results
 
 
-def syntax_pp_to_mrf_lines(text):
-    mrf_lines = []
-    for sentence in text.sentences:
-        mrf_lines.append('<s>')
-        for word in sentence.words:
-            mrf_lines.append(_esc_double_quotes(word.text))
-            for line in word.mrf_lines:
-                mrf_lines.append(line)
-        mrf_lines.append('</s>')
-    return mrf_lines
-
-
 def convert_Text_to_mrf(text):
     ''' Converts from Text object into pre-syntactic mrf format, given as a list of 
         lines, as in the output of etmrf.
@@ -835,37 +823,27 @@ def convert_to_cg3_input(text):
         for word in sentence.words:
             morph_lines.append('"<'+_esc_double_quotes(word.text)+'>"')
             for line in word.syntax_pp_3.morph_line:
+                line = re.sub('#cap #cap','cap', line)
+                line = re.sub('#cap','cap', line)
+                line = re.sub('\*\*CLB','CLB', line)
+                line = re.sub('#Correct!','<Correct!>', line)
+                line = re.sub('####','', line)
+                line = re.sub('#(\S+)','<\\1>', line)
+                line = re.sub('\$([,.;!?:<]+)','\\1', line)
+                line = re.sub('_Y_\s+\? _Z_','_Z_', line)
+                line = re.sub('_Y_\s+\?\s+_Z_','_Z_', line)
+                line = re.sub('_Y_\s+_Z_','_Z_', line)
+                line = re.sub('_Z_\s+\?','_Z_', line)
+                #  2. convert analysis line \w word ending
+                line = re.sub('^\s+(\S+)(.*)\+(\S+)\s*//_(\S)_ (.*)//(.*)$', \
+                              '    "\\1\\2" L\\3 \\4 \\5 \\6', line)
+                #  3. convert analysis line \wo word ending
+                line = re.sub('^\s+(\S+)(.*)\s+//_(\S)_ (.*)//(.*)$', \
+                             '    "\\1\\2" \\3 \\4 \\5', line)
                 morph_lines.append(line)
         morph_lines.append('"</s>"')
 
-    i = 0
-    while ( i < len(morph_lines) ):
-        line = morph_lines[i]
-        if line.startswith('  '):
-            #
-            # A line containing analysis
-            #
-            #  1. perform various fixes:
-            line = re.sub('#cap #cap','cap', line)
-            line = re.sub('#cap','cap', line)
-            line = re.sub('\*\*CLB','CLB', line)
-            line = re.sub('#Correct!','<Correct!>', line)
-            line = re.sub('####','', line)
-            line = re.sub('#(\S+)','<\\1>', line)
-            line = re.sub('\$([,.;!?:<]+)','\\1', line)
-            line = re.sub('_Y_\s+\? _Z_','_Z_', line)
-            line = re.sub('_Y_\s+\?\s+_Z_','_Z_', line)
-            line = re.sub('_Y_\s+_Z_','_Z_', line)
-            line = re.sub('_Z_\s+\?','_Z_', line)
-            #  2. convert analysis line \w word ending
-            line = re.sub('^\s+(\S+)(.*)\+(\S+)\s*//_(\S)_ (.*)//(.*)$', \
-                          '    "\\1\\2" L\\3 \\4 \\5 \\6', line)
-            #  3. convert analysis line \wo word ending
-            line = re.sub('^\s+(\S+)(.*)\s+//_(\S)_ (.*)//(.*)$', \
-                         '    "\\1\\2" \\3 \\4 \\5', line)
-            morph_lines[i] = line
-        i += 1
-    return morph_lines, text
+    return morph_lines
 
 
 # ==================================================================================
@@ -999,5 +977,5 @@ class SyntaxPreprocessing:
         text = add_hashtag_info(text)
         text = tag_subcat_info(text, self.subcat_rules )
         text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all )
-        mrf_lines, text = convert_to_cg3_input(text)
-        return mrf_lines
+        morph_lines = convert_to_cg3_input(text)
+        return morph_lines
