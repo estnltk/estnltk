@@ -69,13 +69,13 @@ setup(
     # we have fixed dependency versions to guarantee, what works
     # however, you can probably safely install newer versions of the dependencies
     install_requires = [
-        'six==1.9.0',                       # helps to build Py2/Py3 compatible programs
+        'six>=1.9.0',                       # helps to build Py2/Py3 compatible programs
         'nltk>=3.0.4',                      # NLTK mainly used for English
         'regex>=2015.07.19',                # improved Python regular expressions
         'pandas>=0.17.1',                   # Panel Data Analysis library for Python
         'python-crfsuite>=0.8.4',           # Conditional random fields library
         'cached-property>=1.2.0',           # Simple property for caching results
-        'beautifulsoup4==4.4.0',            # HTML parsing library
+        'beautifulsoup4>=4.4.0',            # HTML parsing library
         'html5lib',              # HTML parsing library
         'elasticsearch>=2.0.0'              # database support
         ],

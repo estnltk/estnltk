@@ -11,9 +11,20 @@ from __future__ import unicode_literals, print_function
 from estnltk.core import PACKAGE_PATH, as_unicode, as_binary
 import subprocess
 import os
+import sys
+import platform
 
 JAVARES_PATH = os.path.join(PACKAGE_PATH, 'java-res')
 
+def find_java():
+    if platform.system() == 'Windows':
+        if 'Continuum' in sys.version or 'conda' in sys.version:
+            #we think we are in an anaconda install in a windows machine.
+            #java process usually fails in this case
+            #perhaps we have packaged and downloaded jre1.7 along with the install?
+
+            return os.path.join(sys.exec_prefix, r'pkgs\java-jre-7-0\Library\bin\java.exe')
+    return 'java' #nope, we found nothing special. Let's hope 'java' will work
 
 class JavaProcess(object):
     """Base class for Java-based components.
@@ -44,7 +55,7 @@ class JavaProcess(object):
         args: list of str
             The list of arguments given to the Java program.
         """
-        self._process = subprocess.Popen(['java', '-jar', os.path.join(JAVARES_PATH, runnable_jar)] + args,
+        self._process = subprocess.Popen([find_java(), '-jar', os.path.join(JAVARES_PATH, runnable_jar)] + args,
                                          stdin=subprocess.PIPE,
                                          stdout=subprocess.PIPE,
                                          stderr=subprocess.PIPE)
