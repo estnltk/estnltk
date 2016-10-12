@@ -550,28 +550,18 @@ def convert_pronouns(text):
         Returns the input mrf list, with the lines converted from one format
         to another;
     ''' 
-    
-    morph_lines = []
-    for sentence in text.sentences:
-        morph_lines.append('<s>')
-        for word in sentence.words:
-            morph_lines.append(_esc_double_quotes(word.text))
-            for line in word.syntax_pp_2.mrf_lines:
-                morph_lines.append(line)
-        morph_lines.append('</s>')    
-    
-    i = 0
-    while ( i < len(morph_lines) ):
-        line = morph_lines[i]
-        if '_P_' in line:  # only consider lines containing pronoun analyses
-            for [pattern, replacement] in _pronConversions:
-                lastline = line
-                line = re.sub(pattern, replacement, line)
-                if lastline != line:
-                    morph_lines[i] = line
-                    break
-        i += 1
-    return morph_lines, text
+
+    for word in text.words:
+        for morph in word.syntax_pp_2:
+            line = morph.mrf_lines
+            if '_P_' in line:  # only consider lines containing pronoun analyses
+                for [pattern, replacement] in _pronConversions:
+                    lastline = line
+                    line = re.sub(pattern, replacement, line)
+                    if lastline != line:
+                        morph.mrf_lines = line
+                        break    
+    return text
 
 
 # ==================================================================================
@@ -649,6 +639,85 @@ def remove_duplicate_analyses(mrf_lines, text, allow_to_delete_all = True):
                 seen_analyses.append( line )
         i += 1
     return mrf_lines, text
+
+
+def remove_duplicate_analyses_text(text, allow_to_delete_all = True):
+    ''' Removes duplicate analysis lines from mrf_lines. 
+        
+        Uses special logic for handling adposition analyses ('_K_ pre' && '_K_ post')
+        that do not have subcategorization information:
+         *) If a word has both adposition analyses, removes '_K_ pre';
+         *) If a word has '_K_ post', removes it;
+        Note that '_K_ pre' and '_K_ post' with subcategorization information will
+        be kept.
+        
+        The parameter  allow_to_delete_all  specifies whether it is allowed to delete
+        all analysis or not. If allow_to_delete_all == False, then one last analysis
+        won't be deleted, regardless whether it should be deleted considering the 
+        adposition-deletion rules;
+        The original implementation corresponds to the settings allow_to_delete_all=True 
+        (and this is also the default value of the parameter);
+        
+        Returns the input list where the removals have been applied;
+    ''' 
+    morph_lines = []
+    for sentence in text.sentences:
+        morph_lines.append('<s>')
+        for word in sentence.words:
+            morph_lines.append(_esc_double_quotes(word.text))
+            for line in word.syntax_pp_2.mrf_lines:
+                morph_lines.append(line)
+        morph_lines.append('</s>')
+
+    i = 0
+    seen_analyses  = []
+    analyses_count = 0
+    to_delete      = []
+    Kpre_index     = -1
+    Kpost_index    = -1
+    while (i < len(morph_lines)):
+        line = morph_lines[i]
+        if not line.startswith('  '): 
+            if Kpre_index != -1 and Kpost_index != -1:
+                # If there was both _K_pre and _K_post, add _K_pre to removables;
+                to_delete.append( Kpre_index )
+            elif Kpost_index != -1:
+                # If there was only _K_post, add _K_post to removables;
+                to_delete.append( Kpost_index )
+            # Delete found duplicates
+            for k, j in enumerate(sorted(to_delete, reverse=True)):
+                # If we must preserve at least one analysis, and
+                # it has been found that all should be deleted, then 
+                # keep the last one
+                if not allow_to_delete_all and \
+                    analyses_count == len(to_delete) and \
+                    k == len(to_delete) - 1:
+                    continue
+                # Delete the analysis line
+                del morph_lines[j]
+                i -= 1
+            # Reset the memory for each new word/token
+            seen_analyses = []
+            analyses_count = 0
+            to_delete     = []
+            Kpre_index    = -1
+            Kpost_index   = -1
+        else:   # the line of analysis 
+            analyses_count += 1
+            if line in seen_analyses:
+                # Remember line that has been already seen as a duplicate
+                to_delete.append( i )
+            else:
+                # Remember '_K pre' and '_K_ post' indices
+                if re.search('/_K_\s+pre\s+//', line):
+                    Kpre_index  = i
+                elif re.search('/_K_\s+post\s+//', line):
+                    Kpost_index = i
+                # Remember that the line has already been seen
+                seen_analyses.append( line )
+        i += 1
+    return morph_lines, text
+
 
 
 # ==================================================================================
@@ -1023,8 +1092,8 @@ class SyntaxPreprocessing:
             into the new format;
         '''
         text = convert_mrf_to_syntax_mrf(text, self.fs_to_synt_rules )
-        mrf_lines, text = convert_pronouns(text)
-        mrf_lines, text = remove_duplicate_analyses(mrf_lines, text, allow_to_delete_all=self.allow_to_remove_all )
+        text = convert_pronouns(text)
+        mrf_lines, text = remove_duplicate_analyses_text(text, allow_to_delete_all=self.allow_to_remove_all )
         mrf_lines, text = add_hashtag_info(mrf_lines, text)
         mrf_lines, text = tag_subcat_info(mrf_lines, text, self.subcat_rules )
         mrf_lines, text = remove_duplicate_analyses(mrf_lines, text, allow_to_delete_all=self.allow_to_remove_all )
