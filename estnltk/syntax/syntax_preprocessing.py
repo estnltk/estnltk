@@ -90,71 +90,10 @@ def _esc_que_mark( analysis ):
 
 # ==================================================================================
 # ==================================================================================
-#   1)  Convert from vabamorf JSON/estnltk Text to Filosoft's mrf
+#   1)  Convert from estnltk Text to Filosoft's mrf
 #       (former 'json2mrf.pl')
 # ==================================================================================
 # ==================================================================================
-
-def convert_vm_json_to_mrf( vabamorf_json ):
-    ''' Converts from vabamorf's JSON output, given as dict, into pre-syntactic mrf
-        format, given as a list of lines, as in the output of etmrf. 
-        The aimed format looks something like this:
-        <s>
-        Kolmandaks
-            kolmandaks+0 //_D_  //
-            kolmas+ks //_O_ sg tr //
-        kihutas
-            kihuta+s //_V_ s //
-        end
-            end+0 //_Y_ ? //
-            ise+0 //_P_ sg p //
-        soomlane
-            soomlane+0 //_S_ sg n //
-        </s>
-    '''
-    if not isinstance( vabamorf_json, dict ):
-        raise Exception(' Expected dict as an input argument! ')
-    json_sentences = []
-    # 1) flatten paragraphs
-    if 'paragraphs' in vabamorf_json:
-        for pr in vabamorf_json['paragraphs']:
-            if 'sentences' in pr:
-                for sent in pr['sentences']:
-                    json_sentences.append( sent )
-    # 2) flatten sentences
-    elif 'sentences' in vabamorf_json:
-        for sent in vabamorf_json['sentences']:
-            json_sentences.append( sent )
-    # 3) Iterate over sentences and perform conversion
-    results = []
-    for sentJson in json_sentences:
-        results.append('<s>')
-        for wordJson in sentJson['words']:
-            if wordJson['text'] == '<s>' or wordJson['text'] == '</s>':
-                continue
-            wordStr = wordJson['text']
-            # Escape double quotation marks
-            wordStr = _esc_double_quotes( wordStr )
-            results.append( wordStr )
-            for analysisJson in wordJson['analysis']:
-                root   = analysisJson['root']
-                root   = _esc_double_quotes( root )
-                #   NB! ending="0" erineb ending=""-st:
-                #     1) eestlane (ending="0");
-                #     2) Rio (ending="") de (ending="") Jaineros;
-                ending = analysisJson['ending']
-                pos    = analysisJson['partofspeech']
-                clitic = analysisJson['clitic']
-                form   = analysisJson['form']
-                if pos == 'Z':
-                    results.append( ''.join(['    ',root,' //_Z_ //']) )
-                else:
-                    results.append( ''.join(['    ',root,'+',ending,clitic,' //', '_',pos,'_ ',form,' //']) )
-            if 'analysis' not in wordJson:
-                results.append( '    '+'####' )
-        results.append('</s>')
-    return results
-
 
 def convert_Text_to_mrf(text):
     ''' Converts from Text object into pre-syntactic mrf format, given as a list of 
