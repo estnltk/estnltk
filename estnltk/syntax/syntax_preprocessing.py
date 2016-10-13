@@ -69,8 +69,8 @@ from estnltk.text import DependantLayer
 from estnltk.legacy.core import PACKAGE_PATH
 #from estnltk.vabamorf import morf
 SYNTAX_PATH      = os.path.join(PACKAGE_PATH, 'syntax', 'files')
-FS_TO_SYNT_RULES_FILE = os.path.join(SYNTAX_PATH,  'tmorftrtabel.txt')
-SUBCAT_RULES_FILE     = os.path.join(SYNTAX_PATH,  'abileksikon06utf.lx')
+FS_TO_SYNT_RULES_FILE = os.path.join(SYNTAX_PATH, 'tmorftrtabel.txt')
+SUBCAT_RULES_FILE     = os.path.join(SYNTAX_PATH, 'abileksikon06utf.lx')
 
 # ==================================================================================
 #   Utils

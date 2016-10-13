@@ -9,17 +9,25 @@ subcatFile = '/home/paul/workspace/estnltk/estnltk/syntax/files/abileksikon06utf
 
 pipeline = SyntaxPreprocessing( fs_to_synt=fsToSyntFulesFile, subcat=subcatFile )
 
-test_data = 'test_data.json'
+test_data = 'test_data_998.json'
 
+not_ok = []
 with open(test_data, 'r') as f:
-    for line in f:
+    for i, line in enumerate(f):
         t, expected = json.loads(line)
         t = words_sentences(t)
         result = pipeline.process_Text(t)
-        print(result == expected)
-        if result != expected:
+        if result == expected:
+            print(i, 'OK')
+        else:
+            not_ok.append(i)
+            print(i, 'Not OK. First mismatching line:')
             for r, e in zip(result, expected):
                 if r != e:
                     print(r, e)
                     break
             continue
+if not_ok:
+    print('not ok lines:', not_ok)
+else:
+    print('Success!')
