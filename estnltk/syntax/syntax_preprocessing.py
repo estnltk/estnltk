@@ -883,16 +883,6 @@ class SyntaxPreprocessing:
             self.subcat_rules = load_subcat_info( self.subcat_rules_file )
 
 
-
-    def process_vm_json( self, json_dict, **kwargs ):
-        ''' Executes the preprocessing pipeline on vabamorf's JSON, given as a dict;
-
-            Returns a list: lines of analyses in the VISL CG3 input format;
-        ''' 
-        mrf_lines = convert_vm_json_to_mrf( json_dict )
-        return self.process_mrf_lines( mrf_lines, **kwargs )
-
-
     def process_Text( self, text, **kwargs ):
         ''' Executes the preprocessing pipeline on estnltk's Text object.
 
