@@ -109,7 +109,7 @@ def convert_Text_to_mrf(text):
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
-                     attributes=['mrf_lines', 'root', 'ending', 'clitic', 'pos', 'form']
+                     attributes=['morph_line', 'root', 'ending', 'clitic', 'pos', 'form']
                      )
     text.add_layer(dep)
 
@@ -118,7 +118,7 @@ def convert_Text_to_mrf(text):
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
-                     attributes=['morph_line', 'root', 'ending', 'clitic', 'pos', 'form']
+                     attributes=['morph_line', 'root', 'ending', 'clitic', 'pos', 'form', 'root_ec', 'morph']
                      )
     text.add_layer(dep)
 
@@ -139,11 +139,11 @@ def convert_Text_to_mrf(text):
                 #     1) eestlane (ending="0");
                 #     2) Rio (ending="") de (ending="") Jaineros;
                 if pos == 'Z':
-                    mrf_line = ''.join(['    ',root,' //_Z_ //'])
+                    morph_line = ''.join(['    ',root,' //_Z_ //'])
                 else:
-                    mrf_line = ''.join(['    ',root,'+',ending,clitic,' //', '_',pos,'_ ',form,' //'])
+                    morph_line = ''.join(['    ',root,'+',ending,clitic,' //', '_',pos,'_ ',form,' //'])
                 m = word.mark('syntax_pp_1')
-                m.mrf_lines = mrf_line
+                m.morph_line = morph_line
                 m.root = root
                 m.ending = ending
                 m.clitic = clitic
@@ -298,12 +298,14 @@ def convert_mrf_to_syntax_mrf(text, conversion_rules):
 
     for word in text.words:
         mrf_lines_word = []
-        for line, _root, _ending, _clitic, _pos, _form in zip(word.syntax_pp_1.mrf_lines, 
-                                                              word.syntax_pp_1.root, 
-                                                              word.syntax_pp_1.ending, 
-                                                              word.syntax_pp_1.clitic,
-                                                              word.syntax_pp_1.pos, 
-                                                              word.syntax_pp_1.form):
+        all_new_attrs = []
+        for syntax_pp in word.syntax_pp_1:
+            line = syntax_pp.morph_line
+            _root = syntax_pp.root
+            _ending = syntax_pp.ending
+            _clitic = syntax_pp.clitic
+            _pos = syntax_pp.pos
+            _form = syntax_pp.form
             # 1) Convert punctuation
             if _pos == 'Z':
                 line = _convert_punctuation(line)
@@ -315,22 +317,27 @@ def convert_mrf_to_syntax_mrf(text, conversion_rules):
                 m.clitic = _clitic
                 m.pos = _pos
                 m.form = _form
+                m.root_ec = None #pole vaja täpsustada
+                m.morph = None #pole vaja täpsustada
                 continue
             if _pos == 'Y':
                 # järgmine rida on kasutu, siin tuleb _form muuta, kui _root=='…'
                 line = _convert_punctuation(line)
 
             # 2) Convert morphological analyses that have a form specified
-            root = _root + '+' + _ending + _clitic
+            root_ec = _root + '+' + _ending + _clitic
             pos = '_' + _pos + '_'
             if _form == '':
                 morphKeys = [pos]
             else:
-                morphKeys = [' '.join((pos, form.strip())) for form in _form.split(',')]
+                morphKeys = [' '.join((pos, form.strip())) for form in _form.split(',')]#kas _form.split(',')==[_form] sageli või alati?
             for morphKey in morphKeys[::-1]: # [::-1] is for equivalence with old version 
-                newlines = ['    '+root+' //'+_esc_que_mark(r)+' //' for r in conversion_rules.get(morphKey, [])]
+                newlines = ['    '+root_ec+' //'+_esc_que_mark(r)+' //' for r in conversion_rules.get(morphKey, [])]
                 mrf_lines_word.extend( newlines[::-1] ) # [::-1] is for equivalence with old version 
-        for morph_line in mrf_lines_word:
+
+                new_attrs = [(root_ec, _esc_que_mark(r)) for r in conversion_rules.get(morphKey, [])]
+                all_new_attrs.extend(new_attrs[::-1]) # [::-1] is for equivalence with old version             
+        for morph_line, (root_ec, morph) in zip(mrf_lines_word, all_new_attrs):
             m = word.mark('syntax_pp_2')
             m.morph_line = morph_line
             m.root = _root
@@ -338,6 +345,8 @@ def convert_mrf_to_syntax_mrf(text, conversion_rules):
             m.clitic = _clitic
             m.pos = _pos
             m.form = _form
+            m.root_ec = root_ec
+            m.morph = morph
     return text
 
 
@@ -347,6 +356,119 @@ def convert_mrf_to_syntax_mrf(text, conversion_rules):
 #       (former 'tpron.pl')
 # ==================================================================================
 # ==================================================================================
+
+# miks ma, sa, ta tühikuga? Et sõna algus klapiks? 
+_pronConversions_new = [ ["emb\+.*",             "det"], \
+                     ["enda\+.*",            "pos refl"], \
+                     ["enese\+.*",           "pos refl"], \
+                     ["eikeegi.*",           "indef"], \
+                     ["eimiski.*",           "indef"], \
+                     ["emb-kumb.*",          "det"], \
+                     ["esimene.*",           "dem"], \
+                     ["iga\+.*",             "det"], \
+                     ["iga_sugune.*",        "indef"], \
+                     ["iga_.ks\+.*",         "det"], \
+                     ["ise\+.*",             "pos det refl"], \
+                     ["ise_enese.*",         "refl"], \
+                     ["ise_sugune.*",        "dem"], \
+                     ["keegi.*",             "indef"], \
+                     ["kes.*",               "inter rel"], \
+                     ["kumb\+.*",            "rel"], \
+                     ["kumbki.*",            "det"], \
+                     ["kõik.*",              "det"], \
+                     ["k.ik.*",              "det"], \
+                     ["meie_sugune.*",       "dem"], \
+                     ["meie_taoline.*",      "dem"], \
+                     ["mihuke\+.*",          "inter rel"], \
+                     ["mihukene\+.*",        "inter rel"], \
+                     ["mille_taoline.*",     "dem"], \
+                     ["milli=?ne.*",         "rel"], \
+                     ["mina\+.*",            "pers ps1"], \
+                     [" ma\+.*",             "pers ps1"], \
+                     ["mina=?kene\+.*",      "dem"], \
+                     ["mina=?ke\+.*",        "dem"], \
+                     ["mingi\+.*",           "indef"], \
+                     ["mingi_sugune.*",      "indef"], \
+                     ["minu_sugune.*",       "dem"], \
+                     ["minu_taoline.*",      "dem"], \
+                     ["miski.*",             "indef"], \
+                     ["mis\+.*",             "inter rel"], \
+                     ["mis_sugune.*",        "inter rel"], \
+                     ["miski\+.*",           "inter rel"], \
+                     ["miski_sugune.*",      "inter rel"], \
+                     ["misu=?ke(ne)?\+.*",   "dem"], \
+                     ["mitme_sugune.*",      "indef"], \
+                     ["mitme_taoline.*",     "indef"], \
+                     ["mitmendik\+.*",       "inter rel"], \
+                     ["mitmes\+.*",          "inter rel indef"], \
+                     ["mi=?tu.*",            "indef"], \
+                     ["miuke(ne)?\+.*",      "inter rel"], \
+                     ["muist\+.*",           "indef"], \
+                     ["muu.*",               "indef"], \
+                     ["m.lema.*",            "det"], \
+                     ["m.ne_sugune\+.*",     "indef"], \
+                     ["m.ni\+.*",            "indef"], \
+                     ["m.ningane\+.*",       "indef"], \
+                     ["m.ningas.*",          "indef"], \
+                     ["m.herdune\+.*",       "indef rel"], \
+                     ["määntne\+.*",         "dem"], \
+                     ["na_sugune.*",         "dem"], \
+                     ["nende_sugune.*",      "dem"], \
+                     ["nende_taoline.*",     "dem"], \
+                     ["nihuke(ne)?\+.*",     "dem"], \
+                     ["nii_mi=?tu\+.*",      "indef inter rel"], \
+                     ["nii_sugune.*",        "dem"], \
+                     ["niisama_sugune.*",    "dem"], \
+                     ["nii?su=?ke(ne)?\+.*", "dem"], \
+                     ["niuke(ne)?\+.*",      "dem"], \
+                     ["oma\+.*",             "pos det refl"], \
+                     ["oma_enese\+.*",       "pos"], \
+                     ["oma_sugune\+.*",      "dem"], \
+                     ["oma_taoline\+.*",     "dem"], \
+                     ["palju.*",             "indef"], \
+                     ["sama\+.*",            "dem"], \
+                     ["sama_sugune\+.*",     "dem"], \
+                     ["sama_taoline\+.*",    "dem"], \
+                     ["samune\+.*",          "dem"], \
+                     ["see\+.*",             "dem"], \
+                     ["see_sama\+.*",        "dem"], \
+                     ["see_sam[au]ne\+.*",   "dem"], \
+                     ["see_sinane\+.*",      "dem"], \
+                     ["see_sugune\+.*",      "dem"], \
+                     ["selle_taoline\+.*",   "dem"], \
+                     ["selli=?ne\+.*",       "dem"], \
+                     ["setu\+.*",            "indef"], \
+                     ["setmes\+.*",          "indef"], \
+                     ["sihuke\+.*",          "dem"], \
+                     ["sina\+.*",            "pers ps2"], \
+                     [" sa\+.*",             "pers ps2"], \
+                     ["sinu_sugune\+.*",     "dem"], \
+                     ["sinu_taoline\+.*",    "dem"], \
+                     ["siuke(ne)?\+.*",      "dem"], \
+                     ["säherdune\+.*",       "dem"], \
+                     ["s.herdune\+.*",       "dem"], \
+                     ["säärane\+.*",         "dem"], \
+                     ["s..rane\+.*",         "dem"], \
+                     ["taoline\+.*",         "dem"], \
+                     ["teie_sugune\+.*",     "dem"], \
+                     ["teie_taoline\+.*",    "dem"], \
+                     ["teine\+.*",           "dem"], \
+                     ["teine_teise\+.*",     "rec"], \
+                     ["teist?_sugune\+.*",   "dem"], \
+                     ["tema\+.*",            "pers ps3"], \
+                     [" ta\+.*",             "pers ps3"], \
+                     ["temake(ne)?\+.*",     "pers ps3"], \
+                     ["tema_sugune\+.*",     "dem"], \
+                     ["tema_taoline\+.*",    "dem"], \
+                     ["too\+.*",             "dem"], \
+                     ["too_sama\+.*",        "dem"], \
+                     ["üks.*",               "dem indef"], \
+                     [".ks.*",               "dem indef"], \
+                     ["ükski.*",             "dem indef"], \
+                     [".kski.*",             "dem indef"], \
+                     ["üks_teise.*",         "rec indef"], \
+                     [".ks_teise.*",         "rec"], \
+]
 
 _pronConversions = [ ["(emb\+.* //\s*_P_)\s+([sp])",             "\\1 det \\2"], \
                      ["(enda\+.* //\s*_P_)\s+([sp])",            "\\1 pos refl \\2"], \
@@ -479,14 +601,42 @@ def convert_pronouns(text):
     for word in text.words:
         for morph in word.syntax_pp_2:
             line = morph.morph_line
-            if '_P_' in line:  # only consider lines containing pronoun analyses
-                for [pattern, replacement] in _pronConversions:
+            if morph.pos == 'P':  # only consider lines containing pronoun analyses
+                for pattern, replacement in _pronConversions:
                     lastline = line
                     line = re.sub(pattern, replacement, line)
                     if lastline != line:
                         morph.morph_line = line
                         break    
     return text
+
+def convert_pronouns_new(text):
+    ''' Converts pronouns (analysis lines with '_P_') from Filosoft's mrf to 
+        syntactic analyzer's mrf format;
+        Uses the set of predefined pronoun conversion rules from _pronConversions;
+        
+        _pronConversions should be a list of lists, where each outer list stands 
+        for a single conversion rule and inner list contains a pair of elements:
+        first is the regexp pattern and the second is the replacement, used in
+           re.sub( pattern, replacement, line )
+        
+        Returns the input mrf list, with the lines converted from one format
+        to another;
+    ''' 
+
+    for word in text.words:
+        for syntax_pp in word.syntax_pp_2:
+            root_ec = syntax_pp.root_ec
+            morph = syntax_pp.morph
+            if syntax_pp.pos == 'P':  # only consider lines containing pronoun analyses
+                for pattern, replacement in _pronConversions_new:
+                    if re.match(pattern, root_ec):
+                        morph = re.sub("(\s*_P_)\s+([sp])", "\\1 " + replacement + " \\2", morph)
+                        syntax_pp.morph = morph
+                        syntax_pp.morph_line = ''.join(['    ',root_ec,' //', morph,' //'])
+                        break    
+    return text
+
 
 
 # ==================================================================================
@@ -782,7 +932,7 @@ def convert_to_cg3_input(text):
                 morph_lines.append(line)
         morph_lines.append('"</s>"')
 
-    return morph_lines
+    return text, morph_lines
 
 
 # ==================================================================================
@@ -901,10 +1051,10 @@ class SyntaxPreprocessing:
             into the new format;
         '''
         text = convert_mrf_to_syntax_mrf(text, self.fs_to_synt_rules )
-        text = convert_pronouns(text)
+        text = convert_pronouns_new(text)
         text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all )
         text = add_hashtag_info(text)
         text = tag_subcat_info(text, self.subcat_rules )
         text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all )
-        morph_lines = convert_to_cg3_input(text)
-        return morph_lines
+        text, morph_lines = convert_to_cg3_input(text)
+        return text, morph_lines

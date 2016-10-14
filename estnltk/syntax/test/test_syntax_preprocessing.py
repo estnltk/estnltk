@@ -18,7 +18,7 @@ with open(test_data, 'r') as f:
         file, t, expected = json.loads(line)
         print(file, end=' ' * (40 - len(file)), flush=True)
         t = words_sentences(t)
-        result = pipeline.process_Text(t)
+        _, result = pipeline.process_Text(t)
         if result == expected:
             print('OK')
         else:
