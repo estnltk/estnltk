@@ -11,12 +11,12 @@ def get_sources(src_dir='src', ending='.cpp'):
     return [os.path.join(src_dir, fnm) for fnm in os.listdir(src_dir) if fnm.endswith(ending)]
 
 # define directories for vabamorf source directories
-dirs = ['etana', 'etyhh', 'fsc', 'json', 'proof']
+dirs = ['etana', 'etyhh', 'fsc', 'json', 'proof', 'estnltk']
 src_dirs = [os.path.join('src', d) for d in dirs]
 
 # define a list of C++ source files
 lib_sources = []
-vabamorf_src = os.path.join('src', 'etana', 'vabamorf.cpp')
+vabamorf_src = os.path.join('src', 'estnltk', 'vabamorf.cpp')
 for d in src_dirs:
     lib_sources.extend(get_sources(d))
 lib_sources.remove(vabamorf_src) # we add it later as the first file to compile

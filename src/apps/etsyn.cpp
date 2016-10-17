@@ -170,8 +170,8 @@ int main(int argc, char* argv[])
 		iRes=0;
 	} catch (const CJSONException &e) {
 		fprintf(stderr, "JSON error: %s\n", (const char *)FSStrTtoA(e.GetText()));
-	} catch (const VEAD &e) {
-		fprintf(stderr, "Morph engine error: "); e.Print();
+	} catch (const CLinguisticException &e) {
+		fprintf(stderr, "Linguistic engine error: %s\n", (const char *)FSStrTtoA(e.GetText()));
 	} catch (const CFSFileException &e) {
 		fprintf(stderr, "I/O error: %d\n", e.m_nError);
 	} catch (const CFSException &) {

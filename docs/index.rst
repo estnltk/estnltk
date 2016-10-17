@@ -122,10 +122,10 @@ Tutorials
    tutorials/text
    tutorials/disambiguation
    tutorials/ner
-   tutorials/dependency
-   tutorials/maltparser
+   tutorials/dependency_syntax
    tutorials/np_chunker
    tutorials/prettyprinter
+   tutorials/terminalprettyprinter
    tutorials/grammar
    tutorials/wikipedia
    tutorials/tei

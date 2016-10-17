@@ -19,7 +19,7 @@ from .clausesegmenter import ClauseSegmenter
 from .mw_verbs.verbchain_detector import VerbChainDetector
 from .textcleaner import TextCleaner
 from .tokenizers import EstWordTokenizer
-from .syntax import SyntaxTagger
+from .syntax import MaltParser, VISLCG3Parser, build_trees_from_text
 
 import six
 import pandas
@@ -54,7 +54,7 @@ textcleaner = TextCleaner()
 clausesegmenter = None
 verbchain_detector = None
 wordnet_tagger = None
-syntax_tagger = SyntaxTagger()
+syntactic_parser = None
 
 
 def load_default_ner_tagger():
@@ -83,6 +83,13 @@ def load_default_verbchain_detector():
     if verbchain_detector is None:
         verbchain_detector = VerbChainDetector(resourcesPath=VERB_CHAIN_RES_PATH)
     return verbchain_detector
+
+
+def load_default_syntactic_parser():
+    global syntactic_parser
+    if syntactic_parser is None:
+        syntactic_parser = MaltParser()
+    return syntactic_parser
 
 
 class Text(dict):
@@ -119,8 +126,8 @@ class Text(dict):
             Tagger for synsets and relations.
         text_cleaner: estnltk.textcleaner.TextCleaner
             TextCleaner class.
-        syntax_tagger: estnltk.syntax.tagger.SyntaxTagger
-            Kaili's and Tiina's syntax tagger wrapper.
+        syntactic_parser: estnltk.syntax.parsers.MaltParser|estnltk.syntax.parsers.VISLCG3Parser
+            Either VISLCG3 based syntactic analyser or MaltParser.
         """
         encoding = kwargs.get('encoding', 'utf-8')
         if isinstance(text_or_instance, dict):
@@ -152,7 +159,7 @@ class Text(dict):
             'wordnet_tagger', None # lazy loading
         )
         self.__text_cleaner = kwargs.get('text_cleaner', textcleaner)
-        self.__syntax_tagger = kwargs.get('syntax_tagger', syntax_tagger)
+        self.__syntactic_parser = kwargs.get('syntactic_parser', syntactic_parser)
 
     def get_kwargs(self):
         """Get the keyword arguments that were passed to the :py:class:`~estnltk.text.Text` when it was constructed."""
@@ -165,9 +172,12 @@ class Text(dict):
         if layer == ANALYSIS:
             if WORDS in self and len(self[WORDS]) > 0:
                 return ANALYSIS in self[WORDS][0]
-        elif layer == SYNTAX:
-            if WORDS in self and len(self[WORDS]) > 0:
-                return SYNTAX in self[WORDS][0]
+        elif layer == LAYER_CONLL:
+            if LAYER_CONLL in self and len(self[LAYER_CONLL]) > 0:
+                return PARSER_OUT in self[LAYER_CONLL][0]
+        elif layer == LAYER_VISLCG3:
+            if LAYER_VISLCG3 in self and len(self[LAYER_VISLCG3]) > 0:
+                return PARSER_OUT in self[LAYER_VISLCG3][0]
         elif layer == LABEL:
             if WORDS in self and len(self[WORDS]) > 0:
                 return LABEL in self[WORDS][0]
@@ -340,12 +350,12 @@ class Text(dict):
             SENTENCES: self.tokenize_sentences,
             WORDS: self.tokenize_words,
             ANALYSIS: self.tag_analysis,
-            SYNTAX: self.tag_syntax,
             TIMEXES: self.tag_timexes,
             NAMED_ENTITIES: self.tag_named_entities,
             CLAUSE_ANNOTATION: self.tag_clause_annotations,
             CLAUSES: self.tag_clauses,
-            SYNTAX: self.tag_syntax,
+            LAYER_CONLL:   self.tag_syntax_vislcg3,
+            LAYER_VISLCG3: self.tag_syntax_maltparser,
             WORDNET: self.tag_wordnet
         }
 
@@ -709,22 +719,95 @@ class Text(dict):
             descs.append(desc)
         return descs
 
+    def tag_syntax_vislcg3(self):
+        """ Changes default syntactic parser to VISLCG3Parser, performs syntactic analysis,
+            and stores the results in the layer named LAYER_VISLCG3."""
+        if not self.__syntactic_parser or not isinstance(self.__syntactic_parser, VISLCG3Parser):
+            self.__syntactic_parser = VISLCG3Parser()
+        return self.tag_syntax()
+
+    def tag_syntax_maltparser(self):
+        """ Changes default syntactic parser to MaltParser, performs syntactic analysis,
+            and stores the results in the layer named LAYER_CONLL."""
+        if not self.__syntactic_parser or not isinstance(self.__syntactic_parser, MaltParser):
+            self.__syntactic_parser = MaltParser()
+        return self.tag_syntax()
+
     def tag_syntax(self):
-        """Tag syntax attribute in the ``words`` layer."""
+        """ Parses this text with the syntactic analyzer (``self.__syntactic_parser``), 
+            and stores the found syntactic analyses: into the layer LAYER_CONLL (if MaltParser 
+            is used, default), or into the layer LAYER_VISLCG3 (if VISLCG3Parser is used).
+        """
+        # Load default Syntactic tagger:
+        if self.__syntactic_parser is None:
+            self.__syntactic_parser = load_default_syntactic_parser()
         if not self.is_tagged(ANALYSIS):
-            self.tag_analysis()
-        return self.__syntax_tagger.tag_text(self)
+            if isinstance(self.__syntactic_parser, MaltParser):
+                # By default: Use disambiguation for MaltParser's input
+                if 'disambiguate' not in self.__kwargs:
+                    self.__kwargs['disambiguate'] = True
+                self.tag_analysis()
+            elif isinstance(self.__syntactic_parser, VISLCG3Parser):
+                # By default: Do not use disambiguation for VISLCG3Parser's input
+                #   (VISLCG3 already does its own rule-based disambiguation)
+                if 'disambiguate' not in self.__kwargs:
+                    self.__kwargs['disambiguate'] = False
+                self.tag_analysis()
+        return self.__syntactic_parser.parse_text( self, **self.__kwargs )
+
+    def syntax_trees( self, layer=None ):
+        """ Builds syntactic trees (estnltk.syntax.utils.Tree objects) from 
+            syntactic annotations and returns as a list. 
+            
+            If the input argument *layer* is not specified, the type of the
+            syntactic parser is used to decide, which syntactic analysis layer 
+            should be produced and taken as basis for building syntactic trees;
+            If a syntactic parser is not available, then a missing *layer* name 
+            is replaced by the first syntactic layer available (1st LAYER_CONLL,
+            then LAYER_VISLCG3);
+            Otherwise, the *layer* must be provided by the user and it must be 
+            either LAYER_CONLL or LAYER_VISLCG3. 
+        """
+        # If no layer specified, decide the layer based on the type of syntactic
+        # analyzer used:
+        if not layer and self.__syntactic_parser:
+            if isinstance(self.__syntactic_parser, MaltParser):
+                layer = LAYER_CONLL
+            elif isinstance(self.__syntactic_parser, VISLCG3Parser):
+                layer = LAYER_VISLCG3
+        # If no syntactic analyzer available, pick the layer as the first syntactic
+        # layer available:
+        if not layer and self.is_tagged(LAYER_CONLL):
+            layer = LAYER_CONLL
+        elif not layer and self.is_tagged(LAYER_VISLCG3):
+            layer = LAYER_VISLCG3
+        # Based on the chosen layer, perform the syntactic analysis (if necessary)
+        # and return the results packaged as tree objects;
+        if layer:
+            if layer==LAYER_CONLL:
+                if not self.is_tagged(layer):
+                    self.tag_syntax_maltparser()
+                return self.syntax_trees_conll
+            elif layer==LAYER_VISLCG3:
+                if not self.is_tagged(layer):
+                    self.tag_syntax_vislcg3()
+                return self.syntax_trees_vislcg3
+            else:
+                raise ValueError('(!) Unexpected layer name: '+str(layer))
+        else:
+            raise ValueError('(!) Missing layer name! ')
 
     @cached_property
-    def syntax_lists(self):
-        """Return syntax annotation variants for every word."""
-        if not self.is_tagged(SYNTAX):
-            self.tag_syntax()
-        tokens = []
-        for w in self[WORDS]:
-            wl = [variant[SYNTAX] for variant in w[SYNTAX]]
-            tokens.append(wl)
-        return tokens
+    def syntax_trees_conll(self):
+        """ Return syntactic trees built from CONLL (MaltParser's) syntactic annotation. """
+        assert LAYER_CONLL in self, '(!) Missing syntactic annotations layer: '+LAYER_CONLL+'!'
+        return build_trees_from_text( self, layer=LAYER_CONLL )
+
+    @cached_property
+    def syntax_trees_vislcg3(self):
+        """ Return syntactic trees built from VISL CG3's syntactic annotations. """
+        assert LAYER_VISLCG3 in self, '(!) Missing syntactic annotations layer: '+LAYER_VISLCG3+'!'
+        return build_trees_from_text( self, layer=LAYER_VISLCG3 )
 
     def tag_labels(self):
         """Tag named entity labels in the ``words`` layer."""

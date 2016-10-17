@@ -18,6 +18,18 @@ of any kind, either express or implied.
 #include "linguistic.h"
 #include "suggestor.h"
 
+CFSString CLinguisticException::GetText() const
+{
+	CFSString szResult=FSTSTR("Undefined");
+	switch (m_lMajor) {
+		case MAINDICT:
+			szResult=FSTSTR("Dictionary");
+			if (m_lMinor==OPEN) szResult+=FSTSTR(" open");
+		break;
+	};
+	return szResult;
+};
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -208,7 +220,7 @@ CFSArray<CMorphInfo> CLinguistic::Analyze(const CFSWString &szWord)
 	}
 }
 
-CFSArray<CMorphInfos> CLinguistic::AnalyzeSentense(const CPTWordArray &Words)
+CFSArray<CMorphInfos> CLinguistic::AnalyzeSentence(const CPTWordArray &Words)
 {
 	try {
 		if (!m_pMorph) {
