@@ -109,7 +109,7 @@ def convert_Text_to_mrf(text):
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
-                     attributes=['morph_line', 'root', 'ending', 'clitic', 'pos', 'form']
+                     attributes=['morph_line', 'root', 'pos', 'form', 'root_ec', 'morph']
                      )
     text.add_layer(dep)
 
@@ -118,7 +118,7 @@ def convert_Text_to_mrf(text):
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
-                     attributes=['morph_line', 'root', 'ending', 'clitic', 'pos', 'form', 'root_ec', 'morph']
+                     attributes=['morph_line', 'root', 'pos', 'form', 'root_ec', 'morph']
                      )
     text.add_layer(dep)
 
@@ -139,16 +139,18 @@ def convert_Text_to_mrf(text):
                 #     1) eestlane (ending="0");
                 #     2) Rio (ending="") de (ending="") Jaineros;
                 if pos == 'Z':
-                    morph_line = ''.join(['    ',root,' //_Z_ //'])
+                    root_ec = root
+                    morph = '_Z_'
                 else:
-                    morph_line = ''.join(['    ',root,'+',ending,clitic,' //', '_',pos,'_ ',form,' //'])
+                    root_ec = ''.join((root,'+',ending,clitic))
+                    morph = ''.join(('_', pos,  '_ ', form))
                 m = word.mark('syntax_pp_1')
-                m.morph_line = morph_line
+                m.morph_line = ''.join(('    ', root_ec, ' //', morph, ' //'))
                 m.root = root
-                m.ending = ending
-                m.clitic = clitic
                 m.pos = pos
                 m.form = form
+                m.root_ec = root_ec
+                m.morph = morph
     return text
 
 
@@ -197,6 +199,34 @@ def load_fs_mrf_to_syntax_mrf_translation_rules( rulesFile ):
     
 _punctOrAbbrev = re.compile('//\s*_[ZY]_')
 
+
+_punctConversions_new = [ ["…([\+0]*) //\s*_[ZY]_ //",   "Ell"], \
+                      ["…([\+0]*)",      "Ell"], \
+                      ["\.\.\.([\+0]*)", "Ell"], \
+                      ["\.\.([\+0]*)",   "Els"], \
+                      ["\.([\+0]*)",     "Fst"], \
+                      [",([\+0]*)",      "Com"], \
+                      [":([\+0]*)",      "Col"], \
+                      [";([\+0]*)",      "Scl"], \
+                      ["(\?+)([\+0]*)",  "Int"], \
+                      ["(\!+)([\+0]*)",  "Exc"], \
+                      ["(---?)([\+0]*)", "Dsd"], \
+                      ["(-)([\+0]*)",    "Dsh"], \
+                      ["\(([\+0]*)",     "Opr"], \
+                      ["\)([\+0]*)",     "Cpr"], \
+                      ['\\\\"([\+0]*)',  "Quo"], \
+                      ["«([\+0]*)",      "Oqu"], \
+                      ["»([\+0]*)",      "Cqu"], \
+                      ["“([\+0]*)",      "Oqu"], \
+                      ["”([\+0]*)",      "Cqu"], \
+                      ["<([\+0]*)",      "Grt"], \
+                      [">([\+0]*)",      "Sml"], \
+                      ["\[([\+0]*)",     "Osq"], \
+                      ["\]([\+0]*)",     "Csq"], \
+                      ["/([\+0]*)",      "Sla"], \
+                      ["\+([\+0]*)",     "crd"], \
+]# double quotes are escaped by \
+
 _punctConversions = [ ["…([\+0]*) //\s*_[ZY]_ //",   "…\\1 //_Z_ Ell //"], \
                       ["\.\.\.([\+0]*) //\s*_Z_ //", "...\\1 //_Z_ Ell //"], \
                       ["\.\.([\+0]*) //\s*_Z_ //",   "..\\1 //_Z_ Els //"], \
@@ -223,40 +253,6 @@ _punctConversions = [ ["…([\+0]*) //\s*_[ZY]_ //",   "…\\1 //_Z_ Ell //"], \
                       ["\+([\+0]*) //\s*_Z_ //",     "+\\1 //_Z_ crd //"], \
 ]
 
-_punctNames = { "…":     "Ell",
-                "...":   "Ell",
-                "..":    "Els",
-                ".":     "Fst",
-                ",":     "Com",
-                ":":     "Col",
-                ";":     "Scl",
-                "?":     "Int",
-                "??":    "Int",
-                "???":   "Int",
-                "????":  "Int",
-                "?????": "Int",
-                "!":     "Exc",
-                "!!":    "Exc",
-                "!!!":   "Exc",
-                "!!!!":  "Exc",
-                "!!!!!": "Exc",
-                "-":     "Dsh",
-                "--":    "Dsd",
-                "---":   "Dsd",
-                "(":     "Opr",
-                ")":     "Cpr",
-                '"':     "Quo",
-                "«":     "Oqu",
-                "»":     "Cqu",
-                "“":     "Oqu",
-                "”":     "Cqu",
-                "<":     "Grt",
-                ">":     "Sml",
-                "[":     "Osq",
-                "]":     "Csq",
-                "/":     "Sla",
-                "+":     "crd",
-}
 
 
 def _convert_punctuation( line ):
@@ -277,6 +273,28 @@ def _convert_punctuation( line ):
         if lastline != line:
             break
     return line 
+
+
+def _convert_punctuation_new(syntax_pp):
+    ''' Converts given analysis line if it describes punctuation; Uses the set 
+        of predefined punctuation conversion rules from _punctConversions;
+        
+        _punctConversions should be a list of lists, where each outer list stands 
+        for a single conversion rule and inner list contains a pair of elements:
+        first is the regexp pattern and the second is the replacement, used in
+           re.sub( pattern, replacement, line )
+        
+        Returns the converted line (same as input, if no conversion was 
+        performed);
+    ''' 
+    root_ec = syntax_pp.root_ec
+    morph = syntax_pp.morph
+    for pattern, replacement in _punctConversions_new:
+        if re.match(pattern, root_ec):
+            morph = re.sub("(\s*_Z_$)", "\\1 " + replacement, morph)
+            syntax_pp.morph = morph
+            syntax_pp.morph_line = ''.join(('    ',root_ec,' //', morph,' //'))
+            break
 
 
 def convert_mrf_to_syntax_mrf(text, conversion_rules):
@@ -302,50 +320,46 @@ def convert_mrf_to_syntax_mrf(text, conversion_rules):
         for syntax_pp in word.syntax_pp_1:
             line = syntax_pp.morph_line
             _root = syntax_pp.root
-            _ending = syntax_pp.ending
-            _clitic = syntax_pp.clitic
             _pos = syntax_pp.pos
             _form = syntax_pp.form
+            _root_ec = syntax_pp.root_ec
+            _morph = syntax_pp.morph
             # 1) Convert punctuation
             if _pos == 'Z':
-                line = _convert_punctuation(line)
+                _convert_punctuation_new(syntax_pp)
+                line = syntax_pp.morph_line
                 mrf_lines_word.append(line)
                 m = word.mark('syntax_pp_2')
                 m.morph_line = line
                 m.root = _root
-                m.ending = _ending
-                m.clitic = _clitic
                 m.pos = _pos
                 m.form = _form
-                m.root_ec = None #pole vaja täpsustada
-                m.morph = None #pole vaja täpsustada
+                m.root_ec = _root_ec
+                m.morph = _morph
                 continue
             if _pos == 'Y':
                 # järgmine rida on kasutu, siin tuleb _form muuta, kui _root=='…'
                 line = _convert_punctuation(line)
 
             # 2) Convert morphological analyses that have a form specified
-            root_ec = _root + '+' + _ending + _clitic
             pos = '_' + _pos + '_'
             if _form == '':
                 morphKeys = [pos]
             else:
                 morphKeys = [' '.join((pos, form.strip())) for form in _form.split(',')]#kas _form.split(',')==[_form] sageli või alati?
             for morphKey in morphKeys[::-1]: # [::-1] is for equivalence with old version 
-                newlines = ['    '+root_ec+' //'+_esc_que_mark(r)+' //' for r in conversion_rules.get(morphKey, [])]
+                newlines = ['    '+_root_ec+' //'+_esc_que_mark(r)+' //' for r in conversion_rules.get(morphKey, [])]
                 mrf_lines_word.extend( newlines[::-1] ) # [::-1] is for equivalence with old version 
 
-                new_attrs = [(root_ec, _esc_que_mark(r)) for r in conversion_rules.get(morphKey, [])]
+                new_attrs = [(_root_ec, _esc_que_mark(r)) for r in conversion_rules.get(morphKey, [])]
                 all_new_attrs.extend(new_attrs[::-1]) # [::-1] is for equivalence with old version             
-        for morph_line, (root_ec, morph) in zip(mrf_lines_word, all_new_attrs):
+        for morph_line, (_root_ec, morph) in zip(mrf_lines_word, all_new_attrs):
             m = word.mark('syntax_pp_2')
             m.morph_line = morph_line
             m.root = _root
-            m.ending = _ending
-            m.clitic = _clitic
             m.pos = _pos
             m.form = _form
-            m.root_ec = root_ec
+            m.root_ec = _root_ec
             m.morph = morph
     return text
 
@@ -357,7 +371,7 @@ def convert_mrf_to_syntax_mrf(text, conversion_rules):
 # ==================================================================================
 # ==================================================================================
 
-# miks ma, sa, ta tühikuga? Et sõna algus klapiks? 
+# ma, sa, ta ei lähe kunagi mängu, sest ma -> mina, sa -> sina, ta-> tema
 _pronConversions_new = [ ["emb\+.*",             "det"], \
                      ["enda\+.*",            "pos refl"], \
                      ["enese\+.*",           "pos refl"], \
@@ -912,17 +926,17 @@ def convert_to_cg3_input(text):
         for word in sentence.words:
             morph_lines.append('"<'+_esc_double_quotes(word.text)+'>"')
             for line in word.syntax_pp_3.morph_line:
-                line = re.sub('#cap #cap','cap', line)
+                line = re.sub('#cap #cap','cap', line) # kas on vaja?
                 line = re.sub('#cap','cap', line)
-                line = re.sub('\*\*CLB','CLB', line)
-                line = re.sub('#Correct!','<Correct!>', line)
-                line = re.sub('####','', line)
+                line = re.sub('\*\*CLB','CLB', line) # kas on vaja?
+                line = re.sub('#Correct!','<Correct!>', line) # kas on vaja?
+                line = re.sub('####','', line) # kas on vaja?
                 line = re.sub('#(\S+)','<\\1>', line)
-                line = re.sub('\$([,.;!?:<]+)','\\1', line)
-                line = re.sub('_Y_\s+\? _Z_','_Z_', line)
-                line = re.sub('_Y_\s+\?\s+_Z_','_Z_', line)
-                line = re.sub('_Y_\s+_Z_','_Z_', line)
-                line = re.sub('_Z_\s+\?','_Z_', line)
+                line = re.sub('\$([,.;!?:<]+)','\\1', line) # kas on vaja?
+                line = re.sub('_Y_\s+\? _Z_','_Z_', line) # kas on vaja?
+                line = re.sub('_Y_\s+\?\s+_Z_','_Z_', line) # kas on vaja?
+                line = re.sub('_Y_\s+_Z_','_Z_', line) # kas on vaja?
+                line = re.sub('_Z_\s+\?','_Z_', line) # kas on vaja?
                 #  2. convert analysis line \w word ending
                 line = re.sub('^\s+(\S+)(.*)\+(\S+)\s*//_(\S)_ (.*)//(.*)$', \
                               '    "\\1\\2" L\\3 \\4 \\5 \\6', line)
