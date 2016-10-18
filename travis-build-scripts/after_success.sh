@@ -11,5 +11,5 @@ echo "install done"
 
 
 echo "running tests"
-python -m estnltk.run_tests
+python -c 'from estnltk import *'
 echo "tests ran"

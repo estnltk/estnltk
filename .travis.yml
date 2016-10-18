@@ -21,5 +21,10 @@ script:
 after_success:
   - ./travis-build-scripts/after_success.sh
 
-after_script:
- - ./travis-build-scripts/deploy_.sh
+deploy:
+  provider: script
+  script: deploy.sh
+
+
+#after_script:
+# - ./travis-build-scripts/deploy_.sh
