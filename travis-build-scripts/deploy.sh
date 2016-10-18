@@ -3,4 +3,4 @@
 
 #deploy here
 
-cat /outfile.txt
+cat $HOME/outfile.txt
