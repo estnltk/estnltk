@@ -2,3 +2,12 @@
 .idea/
 build/
 estnltk.egg-info/
+*egg
+
+*/.ipynb_checkpoints/
+/.cache/
+
+#these are generated files, we don't want to include them by accident
+/estnltk/vabamorf/vabamorf.py
+/estnltk/vabamorf/vabamorf_wrap.cpp
+

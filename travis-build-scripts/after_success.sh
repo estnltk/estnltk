@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-
-echo $BUILT_FILE
-#Build succeeded
-#anaconda upload $BUILT_FILE
+#run tests here
+x=`cat /outfile.txt`
+conda install -y -c conda-forge -c estnltk $x
+python -m estnltk.run_tests

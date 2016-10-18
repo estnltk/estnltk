@@ -38,6 +38,8 @@ requirements:
     - html5lib
 test:
   # Python imports
+  requires:
+    - pytest
   imports:
     - estnltk
     - estnltk.database
@@ -59,6 +61,9 @@ test:
     - estnltk.wiki
     - estnltk.wiki.tests
     - estnltk.wordnet
+
+  test:
+    pytest
 
 about:
   home: https://github.com/estnltk/estnltk
