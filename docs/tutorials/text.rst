@@ -644,6 +644,8 @@ analysis results:
     Disambiguate the output and remove incosistent analysis.
 * guess: boolean (default: True)
      Use guessing in case of unknown words
+     
+     NB! In order to switch guessing off, disambiguation and proper name analysis have to be set to False as well.
 * propername: boolean (default: True)
     Perform additional analysis of proper names.
 * compound: boolean (default: True)
