@@ -5,6 +5,11 @@ package:
 source:
     path: ../..
 
+os:
+  - linux
+  - osx
+
+
 build:
  number: {{ environ.get('GIT_DESCRIBE_NUMBER', 0) }}
  string: {{ environ.get('PY_VER', '') }}
