@@ -5,9 +5,7 @@ package:
 source:
     path: ../..
 
-os:
-  - linux
-  - osx
+
 
 
 build:
