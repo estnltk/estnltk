@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#In the install step we install the dependencies for building esntltk.
+#In the install step we install the dependencies for building estnltk.
 
 sudo apt-get update
 sudo apt-get -y remove swig
@@ -20,4 +20,4 @@ conda install conda-build anaconda-client
 #Useful for debugging any issues with conda
 conda info -a
 conda install conda-build anaconda-client
-anaconda login --hostname "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET" --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
+#anaconda login --hostname "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET" --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"

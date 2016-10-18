@@ -14,8 +14,8 @@ requirements:
   build:
     - python 
     - swig >=3.0.8
-    - gcc #[linux]
-    - libgcc #[linux]
+    - gcc
+    - libgcc
     - six >=1.9.0
     - nltk >=3.0.4
     - regex >=2015.11.22
