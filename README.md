@@ -8,8 +8,21 @@ The project is funded by EKT (Eesti Keeletehnoloogia Riiklik Programm, https://w
 
 
 ## Installation
+The recommended way of installing estnltk is by using the [anaconda python distribution](https://www.continuum.io/downloads) and python 3.5+.
 
-```python -m pip install estnltk```
+We have installable packages built for windows-64 and linux-64.
+
+The command for installing esntltk is:
+```
+conda install -c estnltk -c conda-forge estnltk
+```
+
+
+The alternative way for installing if you are unable to use the anaconda distribution is:
+
+`python -m pip install estnltk`
+
+This is slower, more error-prone and requires you to have the appropriate compilers for building the scientific computation packages for your platform. 
 
 Find more details in the [installation tutorial](http://estnltk.github.io/estnltk/1.4/tutorials/installation.html).
 
