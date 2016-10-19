@@ -4,7 +4,7 @@ import collections
 import keyword  # type: ignore
 from typing import Tuple, List, Dict, Any, Sequence
 
-
+from estnltk.rewriting.rewriting import Rewritable
 from .legacy.text import Text as OldText
 
 class Text:
@@ -144,7 +144,7 @@ class AbstractSpan(metaclass=abc.ABCMeta):
         pass
 
 
-class BaseSpan(AbstractSpan):
+class BaseSpan(AbstractSpan, Rewritable):
     __slots__ = ['_layer', '_bound']
 
     @property
@@ -239,6 +239,22 @@ class DependantSpan(BaseSpan):
             raise AttributeError(item)
 
 
+class Dictish():
+    def __init__(self, ob):
+        self.ob = ob
+
+    def __getitem__(self, item):
+        return self.ob.__class__.__getattribute__(self.ob, item)
+
+    def get(self, item, other=None):
+        try:
+            return self.__getitem__(item)
+        except AttributeError:
+            return other
+
+    def keys(self):
+        return self.ob.__slots__
+
 
 class Span(BaseSpan):
     __slots__ = ['_start', '_end', '_layer', '_bound']
@@ -276,6 +292,11 @@ class Span(BaseSpan):
                 raise AttributeError('We are bound but have no text? The layer we are bound to must be unbound.')
         if item in self.__slots__:
             return None
+
+
+        if item == '__dict__':
+            return Dictish(self)
+
         else:
             #we haven't found the attribute.Is it a dependant?
             layer = self.layer.text_object.layers.get(item, None)
@@ -634,8 +655,6 @@ class BaseLayer(AbstractLayer):
                     if item in getattr(child_layer, '_attributes'):
                         return [getattr(i, item) for i in getattr(self, self.parent.name)]
 
-
-
             except Exception as e:
                 if isinstance(e, RecursionError):
                     raise e
@@ -643,6 +662,7 @@ class BaseLayer(AbstractLayer):
                     raise e
 
                 raise AttributeError('{item} not in layer {layer}'.format(item=item, layer=self.name))
+
         raise AttributeError(item)
 
 

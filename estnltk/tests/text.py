@@ -1,6 +1,7 @@
 import pytest
 
 from estnltk.legacy.text import Text as OldText
+from estnltk.rewriting import RegexRewriter
 from estnltk.text import *
 
 
@@ -470,3 +471,34 @@ def test_change_lemma():
     text = words_sentences('Olnud aeg.')
     setattr(text.morf_analysis[0][0], 'lemma', 'blabla')
     assert text.morf_analysis[0][0].lemma == 'blabla'
+
+
+
+def test_rewrite():
+    text = Text('Kui mitu kuud on aastas?')
+
+    words = Layer.from_span_dict('words', [{'end': 3, 'test': 'kui', 'start': 0},
+                                           {'end': 8, 'test': 'mitu', 'start': 4},
+                                           {'end': 13, 'test': 'kuu', 'start': 9},
+                                           {'end': 16, 'test': 'olema', 'start': 14},
+                                           {'end': 23, 'test': 'aasta', 'start': 17},
+                                           {'end': 24, 'test': '?', 'start': 23}],
+                                  attributes=['test']
+                                  )
+    text.add_layer(words)
+    rewriter = RegexRewriter(
+        [('kui', 'siis_kui')]
+    )
+
+    text.words[0].rewrite_attribute('test', rewriter)
+
+    assert text.words[0].test == 'siis_kui'
+
+    rewriter = RegexRewriter(
+        [('.', 'X')]
+    )
+    for i in text.words:
+        i.rewrite_attribute('test', rewriter)
+
+    for i in text.words:
+        assert set(i.test) == set('X')
