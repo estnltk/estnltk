@@ -17,6 +17,7 @@ env:
 
 install:
   - export PATH="$HOME/miniconda/bin:$PATH"
+  - rvm get stable --auto-dotfiles #fixes PATH for osx builds
   - ./travis-build-scripts/install.sh
 
 script: 
