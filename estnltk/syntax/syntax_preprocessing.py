@@ -57,8 +57,6 @@
 
 from __future__ import unicode_literals, print_function
 
-#from estnltk.names import *
-
 
 import re
 import os.path
@@ -67,7 +65,6 @@ from collections import defaultdict
 
 from estnltk.text import DependantLayer
 from estnltk.legacy.core import PACKAGE_PATH
-#from estnltk.vabamorf import morf
 SYNTAX_PATH      = os.path.join(PACKAGE_PATH, 'syntax', 'files')
 FS_TO_SYNT_RULES_FILE = os.path.join(SYNTAX_PATH, 'tmorftrtabel.txt')
 SUBCAT_RULES_FILE     = os.path.join(SYNTAX_PATH, 'abileksikon06utf.lx')
@@ -949,6 +946,56 @@ def convert_to_cg3_input(text):
     return text, morph_lines
 
 
+def apply_regex(layer, attribute, rules):
+    ''' Applies regex to layer attribute.
+    '''
+    for word_data in layer:
+        for layer in word_data:
+            line = getattr(layer, attribute)
+            for rule in rules:
+                line = re.sub(*rule, line)
+            setattr(layer, attribute, line)
+
+def convert_to_cg3_input_new(text):
+    ''' Converts given mrf lines from syntax preprocessing format to cg3 input
+        format:
+          *) surrounds words/tokens with "< and >"
+          *) surrounds word lemmas with " in analysis;
+          *) separates word endings from lemmas in analysis, and adds prefix 'L';
+          *) removes '//' and '//' from analysis;
+          *) converts hashtags to tags surrounded by < and >;
+          ... and provides other various fix-ups;
+
+        Returns the input list, where elements (tokens/analyses) have been converted
+        into the new format;
+    '''
+
+    rules = (('#cap #cap','cap'),
+             ('#cap','cap'),
+             ('\*\*CLB','CLB'),
+             ('#Correct!','<Correct!>'),
+             ('####',''),
+             ('#(\S+)','<\\1>'),
+             ('\$([,.;!?:<]+)','\\1'),
+             ('_Y_\s+\? _Z_','_Z_'),
+             ('_Y_\s+\?\s+_Z_','_Z_'),
+             ('_Y_\s+_Z_','_Z_'),
+             ('_Z_\s+\?','_Z_'),
+             ('^\s+(\S+)(.*)\+(\S+)\s*//_(\S)_ (.*)//(.*)$', '    "\\1\\2" L\\3 \\4 \\5 \\6'),
+             ('^\s+(\S+)(.*)\s+//_(\S)_ (.*)//(.*)$', '    "\\1\\2" \\3 \\4 \\5'))
+
+    apply_regex(text.syntax_pp_3, 'morph_line', rules)
+    morph_lines = []
+    for sentence in text.sentences:
+        morph_lines.append('"<s>"')
+        for word in sentence.words:
+            morph_lines.append('"<'+_esc_double_quotes(word.text)+'>"')
+            for line in word.syntax_pp_3.morph_line:
+                morph_lines.append(line)
+        morph_lines.append('"</s>"')
+    return text, morph_lines
+
+
 # ==================================================================================
 # ==================================================================================
 #   Syntax  preprocessing  pipeline
@@ -1070,5 +1117,5 @@ class SyntaxPreprocessing:
         text = add_hashtag_info(text)
         text = tag_subcat_info(text, self.subcat_rules )
         text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all )
-        text, morph_lines = convert_to_cg3_input(text)
+        text, morph_lines = convert_to_cg3_input_new(text)
         return text, morph_lines
