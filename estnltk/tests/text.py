@@ -465,3 +465,8 @@ def test_delete_morf():
 
     assert len(text.words[0].morf_analysis) == prelen - 1
 
+
+def test_change_lemma():
+    text = words_sentences('Olnud aeg.')
+    setattr(text.morf_analysis[0][0], 'lemma', 'blabla')
+    assert text.morf_analysis[0][0].lemma == 'blabla'
