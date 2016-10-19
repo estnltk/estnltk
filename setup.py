@@ -55,7 +55,7 @@ setup(
     author       = "University of Tartu",
     author_email = "siim.orasmaa@gmail.com, alex.tk.fb@gmail.com, tpetmanson@gmail.com, swen@math.ut.ee",
     description  = "Estnltk — open source tools for Estonian natural language processing",
-    long_description = open('README.rst').read(),
+    long_description = open('README.md').read(),
     license      = "GPLv2",
     url          = "https://github.com/estnltk/estnltk",
     ext_modules = [
