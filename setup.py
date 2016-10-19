@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import setuptools
 from setuptools import setup, find_packages, Extension
 import os
 import sys
@@ -36,9 +37,28 @@ if sys.version_info[0] == 3:
     swig_opts.append('-py3')
 swig_opts.append('-c++')
 
+from setuptools import setup, Extension
+from distutils.command.build import build as _build
+
+
+#By default "setup.py build" would first copy the python sources, then build external code
+#As swig generates python sources, we want to flip this order.
+#see http://stackoverflow.com/a/26556654
+#Define custom build order, so that the python interface module
+#created by SWIG is staged in build_py.
+class build(_build):
+    # different order: build_ext *before* build_py
+    sub_commands = [('build_ext',     _build.has_ext_modules),
+                    ('build_py',      _build.has_pure_modules),
+                    ('build_clib',    _build.has_c_libraries),
+                    ('build_scripts', _build.has_scripts),
+                   ]
+
 setup(
-    name = "estnltk",
+
+name = "estnltk",
     version = "1.4dev",
+    cmdclass={'build': build},  # Use your own build class
 
     packages = find_packages(),
     include_package_data=True,
