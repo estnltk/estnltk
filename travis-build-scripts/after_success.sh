@@ -5,7 +5,7 @@ filename=`cat $HOME/outfile.txt`
 
 
 echo "Starting install from $filename"
-conda install -y -c conda-forge -c estnltk $filename
+conda install -y -c conda-forge -c estnltk --use-local estnltk
 echo "install done"
 
 

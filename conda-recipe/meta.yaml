@@ -3,7 +3,7 @@ package:
   version: "1.4dev"
 
 source:
-    path: ../..
+    path: ..
 
 
 

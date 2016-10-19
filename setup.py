@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import setuptools
 from setuptools import setup, find_packages, Extension
 import os
 import sys
@@ -37,9 +36,7 @@ if sys.version_info[0] == 3:
     swig_opts.append('-py3')
 swig_opts.append('-c++')
 
-from setuptools import setup, Extension
 from distutils.command.build import build as _build
-
 
 #By default "setup.py build" would first copy the python sources, then build external code
 #As swig generates python sources, we want to flip this order.
@@ -84,7 +81,6 @@ name = "estnltk",
                   swig_opts = swig_opts,
                   include_dirs=include_dirs)
         ],
-    py_modules = ['vabamorf'],
 
     # we have fixed dependency versions to guarantee, what works
     # however, you can probably safely install newer versions of the dependencies
