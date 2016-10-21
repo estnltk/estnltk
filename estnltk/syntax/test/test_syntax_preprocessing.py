@@ -28,7 +28,6 @@ with open(test_data, 'r') as f:
                 if r != e:
                     print(r, e)
                     break
-            continue
 if not_ok:
     print('not ok lines:', not_ok)
 else:
