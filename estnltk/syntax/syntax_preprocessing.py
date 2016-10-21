@@ -106,7 +106,7 @@ def convert_Text_to_mrf(text):
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
-                     attributes=['morph_line', 'root', 'pos', 'form', 'root_ec', 'morph']
+                     attributes=['root', 'ending_clitic', 'pos', 'form']
                      )
     text.add_layer(dep)
 
@@ -135,19 +135,11 @@ def convert_Text_to_mrf(text):
                 #   NB! ending="0" erineb ending=""-st:
                 #     1) eestlane (ending="0");
                 #     2) Rio (ending="") de (ending="") Jaineros;
-                if pos == 'Z':
-                    root_ec = root
-                    morph = '_Z_'
-                else:
-                    root_ec = ''.join((root,'+',ending,clitic))
-                    morph = ''.join(('_', pos,  '_ ', form))
                 m = word.mark('syntax_pp_1')
-                m.morph_line = ''.join(('    ', root_ec, ' //', morph, ' //'))
                 m.root = root
+                m.ending_clitic = ending + clitic
                 m.pos = pos
                 m.form = form
-                m.root_ec = root_ec
-                m.morph = morph
     return text
 
 
@@ -241,30 +233,30 @@ _punctOrAbbrev = re.compile('//\s*_[ZY]_')
 
 
 _punctConversions_new = [ ["…([\+0]*) //\s*_[ZY]_ //",   "Ell"], \
-                      ["…([\+0]*)",      "Ell"], \
-                      ["\.\.\.([\+0]*)", "Ell"], \
-                      ["\.\.([\+0]*)",   "Els"], \
-                      ["\.([\+0]*)",     "Fst"], \
-                      [",([\+0]*)",      "Com"], \
-                      [":([\+0]*)",      "Col"], \
-                      [";([\+0]*)",      "Scl"], \
-                      ["(\?+)([\+0]*)",  "Int"], \
-                      ["(\!+)([\+0]*)",  "Exc"], \
-                      ["(---?)([\+0]*)", "Dsd"], \
-                      ["(-)([\+0]*)",    "Dsh"], \
-                      ["\(([\+0]*)",     "Opr"], \
-                      ["\)([\+0]*)",     "Cpr"], \
-                      ['\\\\"([\+0]*)',  "Quo"], \
-                      ["«([\+0]*)",      "Oqu"], \
-                      ["»([\+0]*)",      "Cqu"], \
-                      ["“([\+0]*)",      "Oqu"], \
-                      ["”([\+0]*)",      "Cqu"], \
-                      ["<([\+0]*)",      "Grt"], \
-                      [">([\+0]*)",      "Sml"], \
-                      ["\[([\+0]*)",     "Osq"], \
-                      ["\]([\+0]*)",     "Csq"], \
-                      ["/([\+0]*)",      "Sla"], \
-                      ["\+([\+0]*)",     "crd"], \
+                      ["…",      "Ell"], \
+                      ["\.\.\.", "Ell"], \
+                      ["\.\.",   "Els"], \
+                      ["\.",     "Fst"], \
+                      [",",      "Com"], \
+                      [":",      "Col"], \
+                      [";",      "Scl"], \
+                      ["(\?+)",  "Int"], \
+                      ["(\!+)",  "Exc"], \
+                      ["(---?)", "Dsd"], \
+                      ["(-)",    "Dsh"], \
+                      ["\(",     "Opr"], \
+                      ["\)",     "Cpr"], \
+                      ['\\\\"',  "Quo"], \
+                      ["«",      "Oqu"], \
+                      ["»",      "Cqu"], \
+                      ["“",      "Oqu"], \
+                      ["”",      "Cqu"], \
+                      ["<",      "Grt"], \
+                      [">",      "Sml"], \
+                      ["\[",     "Osq"], \
+                      ["\]",     "Csq"], \
+                      ["/",      "Sla"], \
+                      ["\+",     "crd"], \
 ]# double quotes are escaped by \
 
 _punctConversions = [ ["…([\+0]*) //\s*_[ZY]_ //",   "…\\1 //_Z_ Ell //"], \
@@ -327,13 +319,9 @@ def _convert_punctuation_new(syntax_pp):
         Returns the converted line (same as input, if no conversion was 
         performed);
     ''' 
-    root_ec = syntax_pp.root_ec
-    morph = syntax_pp.morph
     for pattern, replacement in _punctConversions_new:
-        if re.match(pattern, root_ec):
-            morph = re.sub("(\s*_Z_$)", "\\1 " + replacement, morph)
-            syntax_pp.morph = morph
-            syntax_pp.morph_line = ''.join(('    ',root_ec,' //', morph,' //'))
+        if re.match(pattern, syntax_pp.root):
+            syntax_pp.form = replacement
             break
 
 
@@ -422,26 +410,27 @@ def convert_mrf_to_syntax_mrf_new(text, fs_to_synt_rules):
     '''
     for word in text.words:
         for syntax_pp in word.syntax_pp_1:
-            morph_line = syntax_pp.morph_line
             root = syntax_pp.root
             pos = syntax_pp.pos
             form = syntax_pp.form
-            root_ec = syntax_pp.root_ec
-            morph = syntax_pp.morph
+            if pos == 'Z':
+                root_ec = root
+            else:
+                root_ec = ''.join((root,'+',syntax_pp.ending_clitic))
             # 1) Convert punctuation
             if pos == 'Z':
                 _convert_punctuation_new(syntax_pp)
                 m = word.mark('syntax_pp_2')
-                m.morph_line = syntax_pp.morph_line
+                m.morph_line = '    '+root_ec+' //_'+syntax_pp.pos+'_ '+_esc_que_mark(syntax_pp.form)+' //'
                 m.root = syntax_pp.root
                 m.pos = syntax_pp.pos
                 m.form = syntax_pp.form
-                m.root_ec = syntax_pp.root_ec
-                m.morph = syntax_pp.morph
+                m.root_ec = root_ec
+                m.morph = '_'+pos+'_ '+_esc_que_mark(form)
             else:
                 if pos == 'Y':
                     # järgmine rida on kasutu, siin tuleb _form muuta, kui _root=='…'
-                    line = _convert_punctuation(morph_line)
+                    line = _convert_punctuation_new(syntax_pp)
 
             # 2) Convert morphological analyses that have a form specified
                 if form == '':
@@ -743,7 +732,6 @@ def convert_pronouns_new(text):
         Returns the input mrf list, with the lines converted from one format
         to another;
     ''' 
-
     for word in text.words:
         for syntax_pp in word.syntax_pp_2:
             root_ec = syntax_pp.root_ec
