@@ -115,7 +115,7 @@ def convert_Text_to_mrf(text):
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
-                     attributes=['morph_line', 'root', 'pos', 'form', 'root_ec', 'morph']
+                     attributes=['root', 'ending_clitic', 'pos', 'form', 'morph_line']
                      )
     text.add_layer(dep)
 
@@ -325,73 +325,6 @@ def _convert_punctuation_new(syntax_pp):
             break
 
 
-def convert_mrf_to_syntax_mrf(text, conversion_rules):
-    ''' Converts given lines from Filosoft's mrf format to syntactic analyzer's
-        format, using the morph-category conversion rules from conversion_rules,
-        and punctuation via method _convert_punctuation();
-        As a result of conversion, the input list  mrf_lines  will be modified,
-        and also returned after a successful conversion;
-
-        Morph-category conversion rules should be loaded via method 
-            load_fs_mrf_to_syntax_mrf_translation_rules( rulesFile ),
-        usually from a file named 'tmorftrtabel.txt';
-
-        Note that the resulting list of lines likely has more lines than the 
-        original list had, because the conversion often requires that the
-        original Filosoft's analysis is expanded into multiple analyses
-        suitable for the syntactic analyzer;
-    ''' 
-
-    for word in text.words:
-        mrf_lines_word = []
-        all_new_attrs = []
-        for syntax_pp in word.syntax_pp_1:
-            line = syntax_pp.morph_line
-            _root = syntax_pp.root
-            _pos = syntax_pp.pos
-            _form = syntax_pp.form
-            _root_ec = syntax_pp.root_ec
-            _morph = syntax_pp.morph
-            # 1) Convert punctuation
-            if _pos == 'Z':
-                _convert_punctuation_new(syntax_pp)
-                line = syntax_pp.morph_line
-                mrf_lines_word.append(line)
-                m = word.mark('syntax_pp_2')
-                m.morph_line = line
-                m.root = _root
-                m.pos = _pos
-                m.form = _form
-                m.root_ec = _root_ec
-                m.morph = _morph
-                continue
-            if _pos == 'Y':
-                # järgmine rida on kasutu, siin tuleb _form muuta, kui _root=='…'
-                line = _convert_punctuation(line)
-
-            # 2) Convert morphological analyses that have a form specified
-            pos = '_' + _pos + '_'
-            if _form == '':
-                morphKeys = [pos]
-            else:
-                morphKeys = [' '.join((pos, form.strip())) for form in _form.split(',')]#kas _form.split(',')==[_form] sageli või alati?
-            for morphKey in morphKeys[::-1]: # [::-1] is for equivalence with old version
-                newlines = ['    '+_root_ec+' //'+_esc_que_mark(r)+' //' for r in conversion_rules.get(morphKey, [])]
-                mrf_lines_word.extend( newlines[::-1] ) # [::-1] is for equivalence with old version
-
-                new_attrs = [(_root_ec, _esc_que_mark(r)) for r in conversion_rules.get(morphKey, [])]
-                all_new_attrs.extend(new_attrs[::-1]) # [::-1] is for equivalence with old version
-        for morph_line, (_root_ec, morph) in zip(mrf_lines_word, all_new_attrs):
-            m = word.mark('syntax_pp_2')
-            m.morph_line = morph_line
-            m.root = _root
-            m.pos = _pos
-            m.form = _form
-            m.root_ec = _root_ec
-            m.morph = morph
-    return text
-
-
 def convert_mrf_to_syntax_mrf_new(text, fs_to_synt_rules):
     ''' Converts given lines from Filosoft's mrf format to syntactic analyzer's
         format, using the morph-category conversion rules from conversion_rules,
@@ -423,10 +356,9 @@ def convert_mrf_to_syntax_mrf_new(text, fs_to_synt_rules):
                 m = word.mark('syntax_pp_2')
                 m.morph_line = '    '+root_ec+' //_'+syntax_pp.pos+'_ '+_esc_que_mark(syntax_pp.form)+' //'
                 m.root = syntax_pp.root
+                m.ending_clitic = syntax_pp.ending_clitic
                 m.pos = syntax_pp.pos
                 m.form = syntax_pp.form
-                m.root_ec = root_ec
-                m.morph = '_'+pos+'_ '+_esc_que_mark(form)
             else:
                 if pos == 'Y':
                     # järgmine rida on kasutu, siin tuleb _form muuta, kui _root=='…'
@@ -450,10 +382,9 @@ def convert_mrf_to_syntax_mrf_new(text, fs_to_synt_rules):
                         else:
                             m.morph_line = '    '+root_ec+' //_'+pos+'_ '+_esc_que_mark(form)+' //'
                         m.root = root
+                        m.ending_clitic = syntax_pp.ending_clitic
                         m.pos = pos
                         m.form = _esc_que_mark(form)
-                        m.root_ec = root_ec
-                        m.morph = '_'+pos+'_ '+_esc_que_mark(form)
                 if len(new_poses) == 0:
                     print(pos, form)
     return text
@@ -734,13 +665,12 @@ def convert_pronouns_new(text):
     ''' 
     for word in text.words:
         for syntax_pp in word.syntax_pp_2:
-            root_ec = syntax_pp.root_ec
-            morph = syntax_pp.morph
+            root_ec = ''.join((syntax_pp.root,'+',syntax_pp.ending_clitic))
+            morph = '_'+syntax_pp.pos+'_ '+_esc_que_mark(syntax_pp.form)
             if syntax_pp.pos == 'P':  # only consider lines containing pronoun analyses
                 for pattern, replacement in _pronConversions_new:
                     if re.match(pattern, root_ec):
                         morph = re.sub("(\s*_P_)\s+([sp])", "\\1 " + replacement + " \\2", morph)
-                        syntax_pp.morph = morph
                         syntax_pp.morph_line = ''.join(['    ',root_ec,' //', morph,' //'])
                         break    
     return text
