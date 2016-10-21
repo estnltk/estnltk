@@ -26,7 +26,7 @@ with open(test_data, 'r') as f:
             print('Not OK. First mismatching line:')
             for r, e in zip(result, expected):
                 if r != e:
-                    print(r, e)
+                    print(r, e, sep='\n')
                     break
 if not_ok:
     print('not ok lines:', not_ok)
