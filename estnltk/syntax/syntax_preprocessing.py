@@ -192,6 +192,49 @@ def load_fs_mrf_to_syntax_mrf_translation_rules( rulesFile ):
     in_f.close()
     return rules
 
+
+def load_fs_mrf_to_syntax_mrf_translation_rules_new( fs_to_synt_rules_file ):
+    ''' Loads rules that can be used to convert from Filosoft's mrf format to
+        syntactic analyzer's format. Returns a dict containing rules.
+
+        Expects that each line in the input file contains a single rule, and that
+        different parts of the rule are separated by @ symbols, e.g.
+
+            1@_S_ ?@Substantiiv apellatiiv@_S_ com @Noun common@Nc@NCSX@kesk-
+            32@_H_ ?@Substantiiv prooprium@_S_ prop @Noun proper@Np@NPCSX@Kesk-
+            313@_A_@Adjektiiv positiiv@_A_ pos@Adjective positive@A-p@ASX@salkus
+
+        Only the 2nd element and the 4th element are extracted from each line.
+        Both are treated as a pair of strings. The 2nd element will be the key
+        of the dict entry, and 4th element will be added to the value of the
+        dict entry:
+        {('S', '?'): [('S', 'com ')],
+         ('H', '?'): [('S', 'prop ')],
+         ('A', ''): [('A', 'pos')]
+        }
+
+        A list is used for storing values because one Filosoft's analysis could
+        be mapped to multiple syntactic analyzer's analyses;
+
+        Lines that have ¤ in the beginning of the line will be skipped;
+    '''
+    rules = defaultdict(list)
+    rules_pattern = re.compile('(¤?)[^@]*@(_(.)_\s*([^@]*)|####)@[^@]*@_(.)_\s*([^@]*)')
+    in_f = codecs.open(fs_to_synt_rules_file, mode='r', encoding='utf-8')
+    for line in in_f:
+        m = rules_pattern.match(line)
+        if m == None:
+            raise Exception(' Unexpected format of the line: ', line)
+        if m.group(1): #line starts with '¤'
+            continue
+        rules[(m.group(3), m.group(4))].append((m.group(5), m.group(6)))
+        # siin tekib korduvaid reegleid, mille võiks siinsamas välja filtreerida
+        # näiteks P, sg n -> P, sg nom
+        # ja kasutuid reegleid Z, '' -> Z, Fst
+        # võiks olla ka m.group(6).strip()
+    in_f.close()
+    return rules
+
 # ================================================
     
 _punctOrAbbrev = re.compile('//\s*_[ZY]_')
@@ -295,19 +338,19 @@ def _convert_punctuation_new(syntax_pp):
 
 
 def convert_mrf_to_syntax_mrf(text, conversion_rules):
-    ''' Converts given lines from Filosoft's mrf format to syntactic analyzer's 
+    ''' Converts given lines from Filosoft's mrf format to syntactic analyzer's
         format, using the morph-category conversion rules from conversion_rules,
         and punctuation via method _convert_punctuation();
         As a result of conversion, the input list  mrf_lines  will be modified,
         and also returned after a successful conversion;
-        
+
         Morph-category conversion rules should be loaded via method 
             load_fs_mrf_to_syntax_mrf_translation_rules( rulesFile ),
         usually from a file named 'tmorftrtabel.txt';
-        
+
         Note that the resulting list of lines likely has more lines than the 
-        original list had, because the conversion often requires that the 
-        original Filosoft's analysis is expanded into multiple analyses 
+        original list had, because the conversion often requires that the
+        original Filosoft's analysis is expanded into multiple analyses
         suitable for the syntactic analyzer;
     ''' 
 
@@ -344,12 +387,12 @@ def convert_mrf_to_syntax_mrf(text, conversion_rules):
                 morphKeys = [pos]
             else:
                 morphKeys = [' '.join((pos, form.strip())) for form in _form.split(',')]#kas _form.split(',')==[_form] sageli või alati?
-            for morphKey in morphKeys[::-1]: # [::-1] is for equivalence with old version 
+            for morphKey in morphKeys[::-1]: # [::-1] is for equivalence with old version
                 newlines = ['    '+_root_ec+' //'+_esc_que_mark(r)+' //' for r in conversion_rules.get(morphKey, [])]
-                mrf_lines_word.extend( newlines[::-1] ) # [::-1] is for equivalence with old version 
+                mrf_lines_word.extend( newlines[::-1] ) # [::-1] is for equivalence with old version
 
                 new_attrs = [(_root_ec, _esc_que_mark(r)) for r in conversion_rules.get(morphKey, [])]
-                all_new_attrs.extend(new_attrs[::-1]) # [::-1] is for equivalence with old version             
+                all_new_attrs.extend(new_attrs[::-1]) # [::-1] is for equivalence with old version
         for morph_line, (_root_ec, morph) in zip(mrf_lines_word, all_new_attrs):
             m = word.mark('syntax_pp_2')
             m.morph_line = morph_line
@@ -358,6 +401,72 @@ def convert_mrf_to_syntax_mrf(text, conversion_rules):
             m.form = _form
             m.root_ec = _root_ec
             m.morph = morph
+    return text
+
+
+def convert_mrf_to_syntax_mrf_new(text, fs_to_synt_rules):
+    ''' Converts given lines from Filosoft's mrf format to syntactic analyzer's
+        format, using the morph-category conversion rules from conversion_rules,
+        and punctuation via method _convert_punctuation();
+        As a result of conversion, the input list  mrf_lines  will be modified,
+        and also returned after a successful conversion;
+
+        Morph-category conversion rules should be loaded via method
+            load_fs_mrf_to_syntax_mrf_translation_rules( rulesFile ),
+        usually from a file named 'tmorftrtabel.txt';
+
+        Note that the resulting list of lines likely has more lines than the
+        original list had, because the conversion often requires that the
+        original Filosoft's analysis is expanded into multiple analyses
+        suitable for the syntactic analyzer;
+    '''
+    for word in text.words:
+        for syntax_pp in word.syntax_pp_1:
+            morph_line = syntax_pp.morph_line
+            root = syntax_pp.root
+            pos = syntax_pp.pos
+            form = syntax_pp.form
+            root_ec = syntax_pp.root_ec
+            morph = syntax_pp.morph
+            # 1) Convert punctuation
+            if pos == 'Z':
+                _convert_punctuation_new(syntax_pp)
+                m = word.mark('syntax_pp_2')
+                m.morph_line = syntax_pp.morph_line
+                m.root = syntax_pp.root
+                m.pos = syntax_pp.pos
+                m.form = syntax_pp.form
+                m.root_ec = syntax_pp.root_ec
+                m.morph = syntax_pp.morph
+            else:
+                if pos == 'Y':
+                    # järgmine rida on kasutu, siin tuleb _form muuta, kui _root=='…'
+                    line = _convert_punctuation(morph_line)
+
+            # 2) Convert morphological analyses that have a form specified
+                if form == '':
+                    morphKeys = [(pos, form)]
+                else:
+                    morphKeys = [(pos, _form.strip()) for _form in form.split(',')]#kas form.split(',')==[form] sageli või alati?
+                for morphKey in morphKeys[::-1]: # [::-1] is for equivalence with old version
+                    new_poses = []
+                    new_forms = []
+                    for pos, form in fs_to_synt_rules[morphKey]:
+                        new_poses.append(pos)
+                        new_forms.append(form)
+                    for pos, form in zip(new_poses[::-1], new_forms[::-1]):
+                        m = word.mark('syntax_pp_2')
+                        if form == '':
+                            m.morph_line = '    '+root_ec+' //_'+pos+'_ //'
+                        else:
+                            m.morph_line = '    '+root_ec+' //_'+pos+'_ '+_esc_que_mark(form)+' //'
+                        m.root = root
+                        m.pos = pos
+                        m.form = _esc_que_mark(form)
+                        m.root_ec = root_ec
+                        m.morph = '_'+pos+'_ '+_esc_que_mark(form)
+                if len(new_poses) == 0:
+                    print(pos, form)
     return text
 
 
@@ -956,6 +1065,7 @@ def apply_regex(layer, attribute, rules):
                 line = re.sub(*rule, line)
             setattr(layer, attribute, line)
 
+
 def convert_to_cg3_input_new(text):
     ''' Converts given mrf lines from syntax preprocessing format to cg3 input
         format:
@@ -1086,6 +1196,8 @@ class SyntaxPreprocessing:
         else:
             self.fs_to_synt_rules = \
                 load_fs_mrf_to_syntax_mrf_translation_rules( self.fs_to_synt_rules_file )
+            self.fs_to_synt_rules_new = \
+                load_fs_mrf_to_syntax_mrf_translation_rules_new( self.fs_to_synt_rules_file )
         #  subcat_rules_file:
         if not self.subcat_rules_file or not os.path.exists( self.subcat_rules_file ):
             raise Exception('(!) Unable to find *subcat_rules* from location:', \
@@ -1111,7 +1223,8 @@ class SyntaxPreprocessing:
             Returns the input list, where elements (tokens/analyses) have been converted
             into the new format;
         '''
-        text = convert_mrf_to_syntax_mrf(text, self.fs_to_synt_rules )
+#        text = convert_mrf_to_syntax_mrf(text, self.fs_to_synt_rules )
+        text = convert_mrf_to_syntax_mrf_new(text, self.fs_to_synt_rules_new )
         text = convert_pronouns_new(text)
         text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all )
         text = add_hashtag_info(text)
