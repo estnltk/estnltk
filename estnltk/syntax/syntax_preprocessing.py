@@ -106,7 +106,7 @@ def convert_Text_to_mrf(text):
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
-                     attributes=['root', 'ending_clitic', 'pos', 'form']
+                     attributes=['root', 'ending_clitic', 'pos', 'form_list']
                      )
     text.add_layer(dep)
 
@@ -115,31 +115,35 @@ def convert_Text_to_mrf(text):
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
-                     attributes=['root', 'ending_clitic', 'pos', 'form', 'morph_line']
+                     attributes=['root', 'ending_clitic', 'pos', 'form_list']
                      )
     text.add_layer(dep)
 
-    dep = DependantLayer(name='syntax_pp_3',
+    dep =  DependantLayer(name='syntax_pp_3',
                      text_object=text,
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
-                     attributes=['morph_line']
+                     attributes=['root', 'ending_clitic', 'pos', 'form_list']
                      )
     text.add_layer(dep)
 
-    for sentence in text.sentences:
-        for word in sentence.words:
-            for root, ending, clitic, pos, form in zip(word.root, word.ending, word.clitic, word.partofspeech, word.form):
-                root = _esc_double_quotes( root )
-                #   NB! ending="0" erineb ending=""-st:
-                #     1) eestlane (ending="0");
-                #     2) Rio (ending="") de (ending="") Jaineros;
-                m = word.mark('syntax_pp_1')
-                m.root = root
-                m.ending_clitic = ending + clitic
-                m.pos = pos
-                m.form = form
+    for word in text.words:
+        for analysis in word.morf_analysis:
+            m = word.mark('syntax_pp_1')
+            #   NB! ending="0" erineb ending=""-st:
+            #     1) eestlane (ending="0");
+            #     2) Rio (ending="") de (ending="") Jaineros;
+            m.root = _esc_double_quotes( analysis.root )
+            m.ending_clitic = analysis.ending + analysis.clitic
+            m.pos = analysis.partofspeech
+            m.form_list = []
+            for _form in analysis.form.split(',')[::-1]:
+                #kas form.split(',')==[form] sageli või alati?
+                # [::-1] on eelmise versiooniga ühildumiseks
+                _form = _form.strip()
+                if _form:
+                    m.form_list.append(_form)
     return text
 
 
@@ -225,6 +229,9 @@ def load_fs_mrf_to_syntax_mrf_translation_rules_new( fs_to_synt_rules_file ):
         # ja kasutuid reegleid Z, '' -> Z, Fst
         # võiks olla ka m.group(6).strip()
     in_f.close()
+    for key, value in rules.items():
+        # eelmise versiooniga ühildumise jaoks
+        rules[key] = tuple(value[::-1])
     return rules
 
 # ================================================
@@ -233,30 +240,30 @@ _punctOrAbbrev = re.compile('//\s*_[ZY]_')
 
 
 _punctConversions_new = [ ["…([\+0]*) //\s*_[ZY]_ //",   "Ell"], \
-                      ["…",      "Ell"], \
-                      ["\.\.\.", "Ell"], \
-                      ["\.\.",   "Els"], \
-                      ["\.",     "Fst"], \
-                      [",",      "Com"], \
-                      [":",      "Col"], \
-                      [";",      "Scl"], \
-                      ["(\?+)",  "Int"], \
-                      ["(\!+)",  "Exc"], \
-                      ["(---?)", "Dsd"], \
-                      ["(-)",    "Dsh"], \
-                      ["\(",     "Opr"], \
-                      ["\)",     "Cpr"], \
-                      ['\\\\"',  "Quo"], \
-                      ["«",      "Oqu"], \
-                      ["»",      "Cqu"], \
-                      ["“",      "Oqu"], \
-                      ["”",      "Cqu"], \
-                      ["<",      "Grt"], \
-                      [">",      "Sml"], \
-                      ["\[",     "Osq"], \
-                      ["\]",     "Csq"], \
-                      ["/",      "Sla"], \
-                      ["\+",     "crd"], \
+                      ["…$",      "Ell"], \
+                      ["\.\.\.$", "Ell"], \
+                      ["\.\.$",   "Els"], \
+                      ["\.$",     "Fst"], \
+                      [",$",      "Com"], \
+                      [":$",      "Col"], \
+                      [";$",      "Scl"], \
+                      ["(\?+)$",  "Int"], \
+                      ["(\!+)$",  "Exc"], \
+                      ["(---?)$", "Dsd"], \
+                      ["(-)$",    "Dsh"], \
+                      ["\($",     "Opr"], \
+                      ["\)$",     "Cpr"], \
+                      ['\\\\"$',  "Quo"], \
+                      ["«$",      "Oqu"], \
+                      ["»$",      "Cqu"], \
+                      ["“$",      "Oqu"], \
+                      ["”$",      "Cqu"], \
+                      ["<$",      "Grt"], \
+                      [">$",      "Sml"], \
+                      ["\[$",     "Osq"], \
+                      ["\]$",     "Csq"], \
+                      ["/$",      "Sla"], \
+                      ["\+$",     "crd"], \
 ]# double quotes are escaped by \
 
 _punctConversions = [ ["…([\+0]*) //\s*_[ZY]_ //",   "…\\1 //_Z_ Ell //"], \
@@ -320,8 +327,11 @@ def _convert_punctuation_new(syntax_pp):
         performed);
     ''' 
     for pattern, replacement in _punctConversions_new:
-        if re.match(pattern, syntax_pp.root):
-            syntax_pp.form = replacement
+        if re.search(pattern, syntax_pp.root):
+            # kas match või search?     "//", ".-"
+            # või hoopis pattern==syntax_pp.root?
+            # praegu on search, sest see klapib eelmise versiooniga
+            syntax_pp.form_list = [replacement]
             break
 
 
@@ -346,6 +356,7 @@ def convert_mrf_to_syntax_mrf_new(text, fs_to_synt_rules):
             root = syntax_pp.root
             pos = syntax_pp.pos
             form = syntax_pp.form
+            form_list = syntax_pp.form_list[:]#ka son siin koopiat vaja?
             if pos == 'Z':
                 root_ec = root
             else:
@@ -354,39 +365,31 @@ def convert_mrf_to_syntax_mrf_new(text, fs_to_synt_rules):
             if pos == 'Z':
                 _convert_punctuation_new(syntax_pp)
                 m = word.mark('syntax_pp_2')
-                m.morph_line = '    '+root_ec+' //_'+syntax_pp.pos+'_ '+_esc_que_mark(syntax_pp.form)+' //'
+                #m.morph_line = '    '+root_ec+' //_'+syntax_pp.pos+'_ '+ ' '.join(syntax_pp.form_list+['//'])
                 m.root = syntax_pp.root
                 m.ending_clitic = syntax_pp.ending_clitic
                 m.pos = syntax_pp.pos
-                m.form = syntax_pp.form
+                m.form_list = syntax_pp.form_list[:]
             else:
                 if pos == 'Y':
                     # järgmine rida on kasutu, siin tuleb _form muuta, kui _root=='…'
                     line = _convert_punctuation_new(syntax_pp)
 
             # 2) Convert morphological analyses that have a form specified
-                if form == '':
-                    morphKeys = [(pos, form)]
+                if not form_list:
+                    morphKeys = [(pos, '')]
                 else:
-                    morphKeys = [(pos, _form.strip()) for _form in form.split(',')]#kas form.split(',')==[form] sageli või alati?
-                for morphKey in morphKeys[::-1]: # [::-1] is for equivalence with old version
-                    new_poses = []
-                    new_forms = []
+                    morphKeys = [(pos, _form) for _form in form_list]#kas form.split(',')==[form] sageli või alati?
+                for morphKey in morphKeys: # tsüklit pole vaja, kui alati len(form_list)==1
                     for pos, form in fs_to_synt_rules[morphKey]:
-                        new_poses.append(pos)
-                        new_forms.append(form)
-                    for pos, form in zip(new_poses[::-1], new_forms[::-1]):
                         m = word.mark('syntax_pp_2')
                         if form == '':
-                            m.morph_line = '    '+root_ec+' //_'+pos+'_ //'
+                            m.form_list = []
                         else:
-                            m.morph_line = '    '+root_ec+' //_'+pos+'_ '+_esc_que_mark(form)+' //'
-                        m.root = root
+                            m.form_list = [_esc_que_mark(form).strip()]
+                        m.root = syntax_pp.root
                         m.ending_clitic = syntax_pp.ending_clitic
                         m.pos = pos
-                        m.form = _esc_que_mark(form)
-                if len(new_poses) == 0:
-                    print(pos, form)
     return text
 
 
@@ -665,13 +668,12 @@ def convert_pronouns_new(text):
     ''' 
     for word in text.words:
         for syntax_pp in word.syntax_pp_2:
-            root_ec = ''.join((syntax_pp.root,'+',syntax_pp.ending_clitic))
-            morph = '_'+syntax_pp.pos+'_ '+_esc_que_mark(syntax_pp.form)
             if syntax_pp.pos == 'P':  # only consider lines containing pronoun analyses
+                root_ec = ''.join((syntax_pp.root,'+',syntax_pp.ending_clitic))
                 for pattern, replacement in _pronConversions_new:
-                    if re.match(pattern, root_ec):
-                        morph = re.sub("(\s*_P_)\s+([sp])", "\\1 " + replacement + " \\2", morph)
-                        syntax_pp.morph_line = ''.join(['    ',root_ec,' //', morph,' //'])
+                    if re.search(pattern, root_ec):
+                        # kas search või match? "enese" vs "iseenese"
+                        syntax_pp.form_list.insert(0, replacement)
                         break    
     return text
 
@@ -711,26 +713,29 @@ def remove_duplicate_analyses(text, allow_to_delete_all=True):
         Kpre_index     = -1
         Kpost_index    = -1
 
-        for i, morph in enumerate(word.syntax_pp_2):
-            line = morph.morph_line
-            if line in seen_analyses:
+        for i, syntax_pp in enumerate(word.syntax_pp_2):
+
+            analysis = (syntax_pp.root, syntax_pp.ending_clitic, syntax_pp.pos, syntax_pp.form_list)
+
+            if analysis in seen_analyses:
                 # Remember line that has been already seen as a duplicate
-                to_delete.append( i )
+                to_delete.append(i)
             else:
-                # Remember '_K pre' and '_K_ post' indices
-                if re.search('/_K_\s+pre\s+//', line):
-                    Kpre_index  = i
-                elif re.search('/_K_\s+post\s+//', line):
-                    Kpost_index = i
+                # Remember '_K_ pre' and '_K_ post' indices
+                if analysis[2] == 'K':
+                    if analysis[3][0] == 'pre':
+                        Kpre_index  = i
+                    elif analysis[3][0] == 'post':
+                        Kpost_index = i
                 # Remember that the line has already been seen
-                seen_analyses.append(line)
+                seen_analyses.append(analysis)
 
         if Kpre_index != -1 and Kpost_index != -1:
             # If there was both _K_pre and _K_post, add _K_pre to removables;
-            to_delete.append( Kpre_index )
+            to_delete.append(Kpre_index)
         elif Kpost_index != -1:
             # If there was only _K_post, add _K_post to removables;
-            to_delete.append( Kpost_index )
+            to_delete.append(Kpost_index)
         # Delete found duplicates
         for j in sorted(to_delete, reverse=True):
             # If we must preserve at least one analysis, and
@@ -751,19 +756,31 @@ def remove_duplicate_analyses(text, allow_to_delete_all=True):
 # ==================================================================================
 
 # Information about verb finite forms
-_morfFinV    = re.compile('//\s*(_V_).*\s+(ps.|neg|quot|impf imps|pres imps)\s')
-_morfNotFinV = re.compile('//\s*(_V_)\s+(aux neg)\s+//')
+_morfFinV        = re.compile('//\s*(_V_).*\s+(ps.|neg|quot|impf imps|pres imps)\s')
+_morfNotFinV     = re.compile('//\s*(_V_)\s+(aux neg)\s+//')
+#_morfFinV_new    = re.compile('(ps.|neg|quot|impf imps|pres imps)')
+#_morfNotFinV_new = re.compile('^(aux neg)$')
 
 # Various information about word endings
-_mrfHashTagConversions = [ ["(=[td]ud.+//.+)(\s+//)",   "\\1 partic #tud //"], \
-                           ["(=nud.+//.+)(\s+//)",      "\\1 partic #nud //"], \
-                           ["(=mine.+//.+)(\s+//)",     "\\1 #mine //"], \
-                           ["(=nu[+].+//.+)(\s+//)",    "\\1 #nu //"], \
-                           ["(=[td]u[+].+//.+)(\s+//)", "\\1 #tu //"], \
-                           ["(=v[+].+//.+)(\s+//)",     "\\1 partic #v //"], \
-                           ["(=[td]av.+//.+)(\s+//)",   "\\1 partic #tav //"], \
-                           ["(=mata.+//.+)(\s+//)",     "\\1 partic #mata //"], \
-                           ["(=ja.+//.+)(\s+//)",       "\\1 #ja //"], \
+_mrfHashTagConversions = [ ["(=[td]ud.+//.+)(\s+//)",   "\\1 partic <tud> //"], \
+                           ["(=nud.+//.+)(\s+//)",      "\\1 partic <nud> //"], \
+                           ["(=mine.+//.+)(\s+//)",     "\\1 <mine> //"], \
+                           ["(=nu[+].+//.+)(\s+//)",    "\\1 <nu> //"], \
+                           ["(=[td]u[+].+//.+)(\s+//)", "\\1 <tu> //"], \
+                           ["(=v[+].+//.+)(\s+//)",     "\\1 partic <v> //"], \
+                           ["(=[td]av.+//.+)(\s+//)",   "\\1 partic <tav> //"], \
+                           ["(=mata.+//.+)(\s+//)",     "\\1 partic <mata> //"], \
+                           ["(=ja.+//.+)(\s+//)",       "\\1 <ja> //"], \
+]
+_mrfHashTagConversions_new = [ ["=[td]ud",   "partic <tud>"], \
+                               ["=nud",      "partic <nud>"], \
+                               ["=mine",     "<mine>"], \
+                               ["=nu$",       "<nu>"], \
+                               ["=[td]u$",    "<tu>"], \
+                               ["=v$",        "partic <v>"], \
+                               ["=[td]av",   "partic <tav>"], \
+                               ["=mata",     "partic <mata>"], \
+                               ["=ja",       "<ja>"], \
 ]
 
 
@@ -779,15 +796,18 @@ def add_hashtag_info(text):
     ''' 
     for word in text.words:
         cap = _esc_double_quotes(word.text)[0].isupper()
-        for morph in word.syntax_pp_2:
-            line = morph.morph_line
+        for syntax_pp in word.syntax_pp_2:            
             if cap:
-                line = re.sub('(//.+\S)\s+//', '\\1 #cap //', line)
-            if _morfFinV.search( line ) and not _morfNotFinV.search( line ):
-                line = re.sub('(//.+\S)\s+//', '\\1 #FinV //', line)
-            for [pattern, replacement] in _mrfHashTagConversions:
-                line = re.sub(pattern, replacement, line)
-            morph.morph_line = line
+                syntax_pp.form_list.append('cap')
+            if syntax_pp.pos == 'V':
+                line = '//_V_ ' + ' '.join(syntax_pp.form_list)+' //'
+                if _morfFinV.search( line ) and not _morfNotFinV.search( line ):
+                    syntax_pp.form_list.append('<FinV>')
+
+            for pattern, hashtag in _mrfHashTagConversions_new:
+                if re.search(pattern, syntax_pp.root):
+                    syntax_pp.form_list.append(hashtag)
+                    break
     return text
 
 
@@ -831,10 +851,10 @@ def load_subcat_info(subcat_lex_file):
     subcatRules = ''
     for line in in_f:
         line = line.rstrip()
-        if nonSpacePattern.match(line) and not posTagPattern.search(line):
-            lemma = line
-        elif posTagPattern.search(line):
+        if posTagPattern.search(line):
             subcatRules = line
+        elif nonSpacePattern.match(line):
+            lemma = line
         if len(lemma) > 0 and len(subcatRules) > 0:
             parts = subcatRules.split('&')
             for part in parts:
@@ -845,6 +865,55 @@ def load_subcat_info(subcat_lex_file):
     in_f.close()
     #print( len(rules.keys()) )   # 4484
     return rules
+
+def load_subcat_info_new(subcat_lex_file):
+    ''' Loads subcategorization rules (for verbs and adpositions) from a text 
+        file. 
+        
+        It is expected that the rules are given as pairs, where the first item is 
+        the lemma (of verb/adposition), followed on the next line by the 
+        subcategorization rule, in the following form: 
+           on the left side of '>' is the condition (POS-tag requirement for the 
+           lemma), 
+         and 
+           on the right side is the listing of subcategorization settings (hashtag 
+           items, e.g. names of morphological cases of nominals);
+        If there are multiple subcategorization rules to be associated with a
+        single lemma, different rules are separated by '&'.
+        
+        Example, an excerpt from the rules file:
+          läbi
+          _V_ >#Part &_K_ post >#gen |#nom |#el &_K_ pre >#gen 
+          läbista
+          _V_ >#NGP-P 
+          läbistu
+          _V_ >#Intr 
+
+        Returns a dict of root to a-list-of-subcatrules mappings.
+    '''
+    rules = defaultdict(list)
+    nonSpacePattern = re.compile('^\S+$')
+    posTagPattern   = re.compile('_._')
+    in_f = codecs.open(subcat_lex_file, mode='r', encoding='utf-8')
+    root = None
+    subcatRules = None
+    for line in in_f:
+        # seda võib kirjutada lihtsamaks, kui võib eeldada, et faili vormaat on range
+        line = line.rstrip()
+        if posTagPattern.search(line) and root:
+            subcatRules = line
+            parts = subcatRules.split('&')
+            for part in parts:
+                part = part.strip()
+                rules[root].append(part)
+            root = None
+            subcatRules = None
+        elif nonSpacePattern.match(line):
+            root = line
+    in_f.close()
+    #print( len(rules.keys()) )   # 4484
+    return rules
+
 
 
 def _check_condition(cond_string, target_string):
@@ -876,8 +945,8 @@ def tag_subcat_info(text, subcat_rules):
     ''' 
 
     for word in text.words:
-        for morph in word.syntax_pp_2:
-            line = morph.morph_line
+        for syntax_pp in word.syntax_pp_2:
+            line = syntax_pp.morph_line
             lemma_match = analysisLemmaPat.match(line)
             match = False
             if lemma_match:
@@ -905,22 +974,88 @@ def tag_subcat_info(text, subcat_rules):
                             #
                             additions = addition.split('|')
                             # Add new line or lines
-                            all_new_lines = []
-                            for a in additions:
+                            for a in additions[::-1]:
                                 items_to_add = a.split()
                                 line_new = line
                                 for item in items_to_add:
                                     if not _check_condition(item, analysis):
                                         line_new = re.sub('(//.+\S)\s+//', '\\1 '+item+' //', line_new)
-                                all_new_lines.append(line_new)
-                            for morph_line in all_new_lines[::-1]:
                                 match = True
                                 m = word.mark('syntax_pp_3')
-                                m.morph_line = morph_line
+                                m.root = syntax_pp.root
+                                m.ending_clitic = syntax_pp.ending_clitic
+                                m.pos = syntax_pp.pos
+                                m.form_list = syntax_pp.form_list[:] # kas on vaja kopeerida?
+                                m.form_list.extend(items_to_add)
+                                m.morph_line = line_new
                             # No need to search forward
                             break
             if not match:
                 word.mark('syntax_pp_3').morph_line = line
+    return text
+
+def tag_subcat_info_new(text, subcat_rules):
+    ''' Adds subcategorization information (hashtags) to verbs and adpositions;
+        
+        Argument subcat_rules must be a dict containing subcategorization information,
+        loaded via method load_subcat_info();
+
+        Performs word lemma lookups in subcat_rules, and in case of a match, checks 
+        word part-of-speech conditions. If the POS conditions match, adds subcategorization
+        information either to a single analysis line, or to multiple analysis lines 
+        (depending on the exact conditions in the rule);
+
+        Returns the input list where verb/adposition analyses have been augmented 
+        with available subcategorization information;
+    ''' 
+
+    for word in text.words:
+        for syntax_pp in word.syntax_pp_2:
+            match = False
+
+            root = syntax_pp.root
+            # Find whether there is subcategorization info associated 
+            # with the root
+            if root in subcat_rules:
+                analysis = ['_'+syntax_pp.pos+'_'] + syntax_pp.form_list
+                for rule in subcat_rules[root]:
+                    condition, addition = rule.split('>')
+                    # Check the condition string; If there are multiple conditions, 
+                    # all must be satisfied for the rule to fire
+                    condition  = condition.strip()
+                    conditions = condition.split()
+                    satisfied = [c in analysis for c in conditions]
+                    if all(satisfied):
+                        #
+                        # There can be multiple additions:
+                        #   1) additions without '|' must be added to a single analysis line;
+                        #   2) additions separated by '|' must be placed on separate analysis 
+                        #      lines;
+                        #
+                        additions = addition.split('|')
+                        # Add new line or lines
+                        for a in additions[::-1]:
+                            m = word.mark('syntax_pp_3')
+                            m.root = syntax_pp.root
+                            m.ending_clitic = syntax_pp.ending_clitic
+                            m.pos = syntax_pp.pos
+                            items_to_add = a.split()
+
+                            form_list_new = syntax_pp.form_list[:]
+                            for item in items_to_add:
+                                if not item in form_list_new:
+                                    form_list_new.append(item)
+                            m.form_list = form_list_new
+                            
+                            match = True
+                        # No need to search forward
+                        break
+            if not match:
+                m = word.mark('syntax_pp_3')
+                m.root = syntax_pp.root
+                m.ending_clitic = syntax_pp.ending_clitic
+                m.pos = syntax_pp.pos
+                m.form_list = syntax_pp.form_list
     return text
 
 
@@ -949,25 +1084,51 @@ def convert_to_cg3_input(text):
         morph_lines.append('"<s>"')
         for word in sentence.words:
             morph_lines.append('"<'+_esc_double_quotes(word.text)+'>"')
-            for line in word.syntax_pp_3.morph_line:
-                line = re.sub('#cap #cap','cap', line) # kas on vaja?
-                line = re.sub('#cap','cap', line)
-                line = re.sub('\*\*CLB','CLB', line) # kas on vaja?
-                line = re.sub('#Correct!','<Correct!>', line) # kas on vaja?
-                line = re.sub('####','', line) # kas on vaja?
-                line = re.sub('#(\S+)','<\\1>', line)
-                line = re.sub('\$([,.;!?:<]+)','\\1', line) # kas on vaja?
-                line = re.sub('_Y_\s+\? _Z_','_Z_', line) # kas on vaja?
-                line = re.sub('_Y_\s+\?\s+_Z_','_Z_', line) # kas on vaja?
-                line = re.sub('_Y_\s+_Z_','_Z_', line) # kas on vaja?
-                line = re.sub('_Z_\s+\?','_Z_', line) # kas on vaja?
-                #  2. convert analysis line \w word ending
-                line = re.sub('^\s+(\S+)(.*)\+(\S+)\s*//_(\S)_ (.*)//(.*)$', \
-                              '    "\\1\\2" L\\3 \\4 \\5 \\6', line)
-                #  3. convert analysis line \wo word ending
-                line = re.sub('^\s+(\S+)(.*)\s+//_(\S)_ (.*)//(.*)$', \
-                             '    "\\1\\2" \\3 \\4 \\5', line)
-                morph_lines.append(line)
+            for syntax_pp in word.syntax_pp_3:
+                for i, f in enumerate(syntax_pp.form_list):
+                    syntax_pp.form_list[i] = re.sub('#(\S+)','<\\1>', f)
+
+                if syntax_pp.ending_clitic:
+                    line_new = '    "'+syntax_pp.root+'" L'+syntax_pp.ending_clitic+' ' + ' '.join([syntax_pp.pos]+syntax_pp.form_list+[' '])
+                else:
+                    if syntax_pp.pos == 'Z':
+                        line_new = '    "'+syntax_pp.root+'" '+' '.join([syntax_pp.pos]+syntax_pp.form_list+[' '])
+                    else:
+                        line_new = '    "'+syntax_pp.root+'+" '+' '.join([syntax_pp.pos]+syntax_pp.form_list+[' '])
+
+                if syntax_pp.root == '':
+                    line_new = '     //_Z_ //'  
+                if syntax_pp.root == '#':
+                    line_new = '    "<" L0> Y nominal   '
+                line_new = re.sub('digit  $','digit   ', line_new)
+                line_new = re.sub('nominal  $','nominal   ', line_new)
+                line_new = re.sub('prop  $','prop   ', line_new)
+                line_new = re.sub('com  $','com   ', line_new)
+                m = re.match('(\s+"tead\+a-tund".*\S)\s*$', line_new)
+                if m:
+                    line_new = m.group(1) + ' <NGP-P> <InfP>  '
+                if word.morf_analysis[0].form == '?':
+                    line_new = re.sub('pos  $','pos   ', line_new)
+                #312 Paevakajaline_valiidne.xml_145.txt      Not OK. First mismatching line:
+                #result:   '    "oota+me-vaata+me-jälgi" Lme V mod indic pres ps1 pl ps af <FinV>  '
+                #expected: '    "oota+me-vaata+me-jälgi" Lme V mod indic pres ps1 pl ps af <FinV> <Part-P>  '
+                #376 aja_ee_1996_48.xml_26.txt               ----------------------------------
+                #result:        '    "öel=nu+d-kirjuta" Lnud V mod indic impf ps neg <FinV>  '
+                #expected:      '    "öel=nu+d-kirjuta" Lnud V mod indic impf ps neg <FinV> <nu>  '
+                #718 aja_EPL_1998_06_02.xml_14.txt           Not OK. First mismatching line:
+                #result:   '    "vali+des-katseta" Ldes V mod ger  '
+                #expected: '    "vali+des-katseta" Ldes V mod ger <NGP-P> <All>  '
+                #973 aja_EPL_1998_06_18.xml_5.txt            ----------------------------------
+                #result:        '    "viha=tu+d-armasta" Ltud V mod indic impf imps neg <FinV>  '
+                #expected:      '    "viha=tu+d-armasta" Ltud V mod indic impf imps neg <FinV> <tu>  '
+
+                if False:
+                    print('----------------------------------')
+                    print("ending_clitic: '", syntax_pp.ending_clitic, "'", sep="")
+                    print('form_list:', syntax_pp.form_list)
+                    print("morf_analysis[0].form:'",  word.morf_analysis[0].form, "'", sep='')
+                    print("result:        '", line_new,                "'", sep="")
+                morph_lines.append(line_new)
         morph_lines.append('"</s>"')
 
     return text, morph_lines
@@ -983,23 +1144,8 @@ def apply_regex(layer, attribute, rules):
                 line = re.sub(*rule, line)
             setattr(layer, attribute, line)
 
-
-def convert_to_cg3_input_new(text):
-    ''' Converts given mrf lines from syntax preprocessing format to cg3 input
-        format:
-          *) surrounds words/tokens with "< and >"
-          *) surrounds word lemmas with " in analysis;
-          *) separates word endings from lemmas in analysis, and adds prefix 'L';
-          *) removes '//' and '//' from analysis;
-          *) converts hashtags to tags surrounded by < and >;
-          ... and provides other various fix-ups;
-
-        Returns the input list, where elements (tokens/analyses) have been converted
-        into the new format;
-    '''
-
     rules = (('#cap #cap','cap'),
-             ('#cap','cap'),
+             #('#cap','cap'),
              ('\*\*CLB','CLB'),
              ('#Correct!','<Correct!>'),
              ('####',''),
@@ -1011,17 +1157,6 @@ def convert_to_cg3_input_new(text):
              ('_Z_\s+\?','_Z_'),
              ('^\s+(\S+)(.*)\+(\S+)\s*//_(\S)_ (.*)//(.*)$', '    "\\1\\2" L\\3 \\4 \\5 \\6'),
              ('^\s+(\S+)(.*)\s+//_(\S)_ (.*)//(.*)$', '    "\\1\\2" \\3 \\4 \\5'))
-
-    apply_regex(text.syntax_pp_3, 'morph_line', rules)
-    morph_lines = []
-    for sentence in text.sentences:
-        morph_lines.append('"<s>"')
-        for word in sentence.words:
-            morph_lines.append('"<'+_esc_double_quotes(word.text)+'>"')
-            for line in word.syntax_pp_3.morph_line:
-                morph_lines.append(line)
-        morph_lines.append('"</s>"')
-    return text, morph_lines
 
 
 # ==================================================================================
@@ -1121,7 +1256,7 @@ class SyntaxPreprocessing:
             raise Exception('(!) Unable to find *subcat_rules* from location:', \
                             self.subcat_rules_file)
         else:
-            self.subcat_rules = load_subcat_info( self.subcat_rules_file )
+            self.subcat_rules = load_subcat_info_new( self.subcat_rules_file )
 
 
     def process_Text( self, text, **kwargs ):
@@ -1141,12 +1276,11 @@ class SyntaxPreprocessing:
             Returns the input list, where elements (tokens/analyses) have been converted
             into the new format;
         '''
-#        text = convert_mrf_to_syntax_mrf(text, self.fs_to_synt_rules )
         text = convert_mrf_to_syntax_mrf_new(text, self.fs_to_synt_rules_new )
         text = convert_pronouns_new(text)
         text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all )
         text = add_hashtag_info(text)
-        text = tag_subcat_info(text, self.subcat_rules )
-        text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all )
-        text, morph_lines = convert_to_cg3_input_new(text)
+        text = tag_subcat_info_new(text, self.subcat_rules )
+        text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all ) # kas omab efekti?
+        text, morph_lines = convert_to_cg3_input(text)
         return text, morph_lines
