@@ -10,7 +10,7 @@ subcatFile = '/home/paul/workspace/estnltk/estnltk/syntax/files/abileksikon06utf
 pipeline = SyntaxPreprocessing( fs_to_synt=fsToSyntFulesFile, subcat=subcatFile )
 
 test_data = 'test_data_10.json'
-test_data = 'test_data_998.json'
+#test_data = 'test_data_998.json'
 
 not_ok = []
 with open(test_data, 'r') as f:

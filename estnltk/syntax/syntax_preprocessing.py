@@ -106,7 +106,7 @@ def convert_Text_to_mrf(text):
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
-                     attributes=['root', 'ending_clitic', 'pos', 'form_list']
+                     attributes=['root', 'ending', 'clitic', 'pos', 'form_list']
                      )
     text.add_layer(dep)
 
@@ -115,7 +115,7 @@ def convert_Text_to_mrf(text):
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
-                     attributes=['root', 'ending_clitic', 'pos', 'form_list']
+                     attributes=['root', 'ending', 'clitic', 'pos', 'form_list']
                      )
     text.add_layer(dep)
 
@@ -124,7 +124,7 @@ def convert_Text_to_mrf(text):
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
-                     attributes=['root', 'ending_clitic', 'pos', 'form_list']
+                     attributes=['root', 'ending', 'clitic', 'pos', 'form_list']
                      )
     text.add_layer(dep)
 
@@ -135,7 +135,8 @@ def convert_Text_to_mrf(text):
             #     1) eestlane (ending="0");
             #     2) Rio (ending="") de (ending="") Jaineros;
             m.root = _esc_double_quotes( analysis.root )
-            m.ending_clitic = analysis.ending + analysis.clitic
+            m.ending = analysis.ending
+            m.clitic = analysis.clitic
             m.pos = analysis.partofspeech
             m.form_list = []
             for _form in analysis.form.split(',')[::-1]:
@@ -233,6 +234,7 @@ def load_fs_mrf_to_syntax_mrf_translation_rules_new( fs_to_synt_rules_file ):
         # eelmise versiooniga ühildumise jaoks
         rules[key] = tuple(value[::-1])
     return rules
+
 
 # ================================================
     
@@ -360,14 +362,15 @@ def convert_mrf_to_syntax_mrf_new(text, fs_to_synt_rules):
             if pos == 'Z':
                 root_ec = root
             else:
-                root_ec = ''.join((root,'+',syntax_pp.ending_clitic))
+                root_ec = ''.join((root, '+', syntax_pp.ending, syntax_pp.clitic))
             # 1) Convert punctuation
             if pos == 'Z':
                 _convert_punctuation_new(syntax_pp)
                 m = word.mark('syntax_pp_2')
                 #m.morph_line = '    '+root_ec+' //_'+syntax_pp.pos+'_ '+ ' '.join(syntax_pp.form_list+['//'])
                 m.root = syntax_pp.root
-                m.ending_clitic = syntax_pp.ending_clitic
+                m.ending = syntax_pp.ending
+                m.clitic = syntax_pp.clitic
                 m.pos = syntax_pp.pos
                 m.form_list = syntax_pp.form_list[:]
             else:
@@ -388,7 +391,8 @@ def convert_mrf_to_syntax_mrf_new(text, fs_to_synt_rules):
                         else:
                             m.form_list = [_esc_que_mark(form).strip()]
                         m.root = syntax_pp.root
-                        m.ending_clitic = syntax_pp.ending_clitic
+                        m.ending = syntax_pp.ending
+                        m.clitic = syntax_pp.clitic
                         m.pos = pos
     return text
 
@@ -669,7 +673,7 @@ def convert_pronouns_new(text):
     for word in text.words:
         for syntax_pp in word.syntax_pp_2:
             if syntax_pp.pos == 'P':  # only consider lines containing pronoun analyses
-                root_ec = ''.join((syntax_pp.root,'+',syntax_pp.ending_clitic))
+                root_ec = ''.join((syntax_pp.root, '+', syntax_pp.ending, syntax_pp.clitic))
                 for pattern, replacement in _pronConversions_new:
                     if re.search(pattern, root_ec):
                         # kas search või match? "enese" vs "iseenese"
@@ -715,17 +719,17 @@ def remove_duplicate_analyses(text, allow_to_delete_all=True):
 
         for i, syntax_pp in enumerate(word.syntax_pp_2):
 
-            analysis = (syntax_pp.root, syntax_pp.ending_clitic, syntax_pp.pos, syntax_pp.form_list)
+            analysis = (syntax_pp.root, syntax_pp.ending, syntax_pp.clitic, syntax_pp.pos, syntax_pp.form_list)
 
             if analysis in seen_analyses:
                 # Remember line that has been already seen as a duplicate
                 to_delete.append(i)
             else:
                 # Remember '_K_ pre' and '_K_ post' indices
-                if analysis[2] == 'K':
-                    if analysis[3][0] == 'pre':
+                if analysis[3] == 'K':
+                    if analysis[4][0] == 'pre':
                         Kpre_index  = i
-                    elif analysis[3][0] == 'post':
+                    elif analysis[4][0] == 'post':
                         Kpost_index = i
                 # Remember that the line has already been seen
                 seen_analyses.append(analysis)
@@ -983,7 +987,8 @@ def tag_subcat_info(text, subcat_rules):
                                 match = True
                                 m = word.mark('syntax_pp_3')
                                 m.root = syntax_pp.root
-                                m.ending_clitic = syntax_pp.ending_clitic
+                                m.ending = syntax_pp.ending
+                                m.clitic = syntax_pp.clitic
                                 m.pos = syntax_pp.pos
                                 m.form_list = syntax_pp.form_list[:] # kas on vaja kopeerida?
                                 m.form_list.extend(items_to_add)
@@ -1037,7 +1042,8 @@ def tag_subcat_info_new(text, subcat_rules):
                         for a in additions[::-1]:
                             m = word.mark('syntax_pp_3')
                             m.root = syntax_pp.root
-                            m.ending_clitic = syntax_pp.ending_clitic
+                            m.ending = syntax_pp.ending
+                            m.clitic = syntax_pp.clitic
                             m.pos = syntax_pp.pos
                             items_to_add = a.split()
 
@@ -1053,7 +1059,8 @@ def tag_subcat_info_new(text, subcat_rules):
             if not match:
                 m = word.mark('syntax_pp_3')
                 m.root = syntax_pp.root
-                m.ending_clitic = syntax_pp.ending_clitic
+                m.ending = syntax_pp.ending
+                m.clitic = syntax_pp.clitic
                 m.pos = syntax_pp.pos
                 m.form_list = syntax_pp.form_list
     return text
@@ -1088,8 +1095,8 @@ def convert_to_cg3_input(text):
                 for i, f in enumerate(syntax_pp.form_list):
                     syntax_pp.form_list[i] = re.sub('#(\S+)','<\\1>', f)
 
-                if syntax_pp.ending_clitic:
-                    line_new = '    "'+syntax_pp.root+'" L'+syntax_pp.ending_clitic+' ' + ' '.join([syntax_pp.pos]+syntax_pp.form_list+[' '])
+                if syntax_pp.ending + syntax_pp.clitic:
+                    line_new = '    "'+syntax_pp.root+'" L'+syntax_pp.ending+syntax_pp.clitic+' ' + ' '.join([syntax_pp.pos]+syntax_pp.form_list+[' '])
                 else:
                     if syntax_pp.pos == 'Z':
                         line_new = '    "'+syntax_pp.root+'" '+' '.join([syntax_pp.pos]+syntax_pp.form_list+[' '])
@@ -1124,7 +1131,7 @@ def convert_to_cg3_input(text):
 
                 if False:
                     print('----------------------------------')
-                    print("ending_clitic: '", syntax_pp.ending_clitic, "'", sep="")
+                    print("ending+clitic: '", syntax_pp.ending+syntax_pp.clitic, "'", sep="")
                     print('form_list:', syntax_pp.form_list)
                     print("morf_analysis[0].form:'",  word.morf_analysis[0].form, "'", sep='')
                     print("result:        '", line_new,                "'", sep="")
@@ -1276,11 +1283,18 @@ class SyntaxPreprocessing:
             Returns the input list, where elements (tokens/analyses) have been converted
             into the new format;
         '''
+        print('c', end='', flush=True)
         text = convert_mrf_to_syntax_mrf_new(text, self.fs_to_synt_rules_new )
+        print('p', end='', flush=True)
         text = convert_pronouns_new(text)
+        print('d', end='', flush=True)
         text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all )
+        print('h', end='', flush=True)
         text = add_hashtag_info(text)
+        print('s', end='', flush=True)
         text = tag_subcat_info_new(text, self.subcat_rules )
+        print('d', end='', flush=True)
         text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all ) # kas omab efekti?
+        print('c ', end='', flush=True)
         text, morph_lines = convert_to_cg3_input(text)
         return text, morph_lines
