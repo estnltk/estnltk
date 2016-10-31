@@ -10,9 +10,9 @@ The project is funded by EKT (Eesti Keeletehnoloogia Riiklik Programm, https://w
 ## Installation
 The recommended way of installing estnltk is by using the [anaconda python distribution](https://www.continuum.io/downloads) and python 3.5+.
 
-We have installable packages built for windows-64 and linux-64.
+We have installable packages built for osx, windows-64, and linux-64.
 
-The command for installing esntltk is:
+The command for installing estnltk is:
 ```
 conda install -c estnltk -c conda-forge estnltk
 ```
