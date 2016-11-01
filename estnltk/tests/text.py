@@ -466,7 +466,6 @@ def test_words_sentences():
 
     assert t.uppercase.upper == ['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']
     print(t.sentences)
-    print('asd')
     print(t.sentences.uppercase)
 
     print(t.sentences.uppercase.upper)

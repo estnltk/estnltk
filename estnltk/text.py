@@ -1,9 +1,9 @@
 import bisect
+import collections
 import keyword
 from typing import *
 
 import ipywidgets
-import collections
 import networkx as nx
 
 
@@ -37,11 +37,12 @@ class Span:
             assert end is None
             self.is_dependant = True
 
-        self._attributes = {}
+        # self._attributes = {}
 
         for k, v in attributes.items():
             if k in legal_attributes:
-                self._attributes[k] = v
+                self.__setattr__(k, v)
+                # self._attributes[k] = v
 
 
 
@@ -82,7 +83,11 @@ class Span:
         legal_attribute_names = self.__getattribute__('layer').__getattribute__('attributes')
 
         if item in legal_attribute_names:
-            return self.__getattribute__('_attributes').get(item, None)
+            try:
+                return self.__getattribute__(item)#get(item, None)
+            except AttributeError:
+                return None
+
         elif self.layer.text_object._path_exists(self.layer.name, item):
             #there exists an unambiguous path from this span to the target (attribute)
             target_layer_name  = self.text_object._get_path(self.layer.name, item)[-2]
@@ -494,25 +499,33 @@ class Text:
 
             if from_layer.enveloping == to_layer.name:
                 if sofar:
-                    res = [
-
-                    ]
+                    res = []
                     for i in sofar.spans:
-                        res.append(
-                            i.__getattr__(to)
-                        )
+                        res.append(i.__getattr__(to))
                     return res
                 else:
-                    res = [
-
-                    ]
+                    res = []
                     for i in to_layer.spans:
                         res.append(
                             i.__getattr__(to)
                         )
                     return res
 
-
+            if (to_layer.parent == from_layer.enveloping):
+                if sofar:
+                    res = []
+                    for i in sofar.spans:
+                        print('iiiii', i, i.layer.name, to, i.__getattr__(to))
+                        res.append(i.__getattr__(to))
+                    return res
+                else:
+                    print('asdasdasdasdas')
+                    res = []
+                    for i in to_layer.spans:
+                        res.append(
+                            i.__getattr__(to)
+                        )
+                    return res
 
                 # attributes of a (direct) parent
             # if to in self.layers[self.layers[frm].parent].attributes:
@@ -528,24 +541,14 @@ class Text:
 
 
     def _path_exists(self, frm, to):
-        attributes = []
-        for i in self.layers_to_attributes.values():
-            attributes.extend(i)
+        paths = self._get_all_paths(frm, to)
+
         try:
             # should never happen
             assert len(list(nx.all_simple_paths(self._g, frm, to))) == 1, 'ambiguous path'
         except nx.NetworkXError:
             pass
 
-        tos = []
-        if to in attributes:
-            for k, v in self.layers_to_attributes.items():
-                for i in v:
-                    if i == to:
-                        tos.append(k + '.' + i)
-        paths = []
-        for to_ in tos:
-            paths.extend(list(nx.all_simple_paths(self._g, frm, to_)))
         assert len(paths) in (0, 1), 'ambiguous path to attribute {}'.format(to)
 
         try:
@@ -554,24 +557,41 @@ class Text:
             raise KeyError
         return res
 
+    def _get_all_paths(self, frm, to):
+        attributes = self._get_relevant_attributes()
+        tos = self._get_attribute_node_names(attributes, to)
+        paths = self._get_relevant_paths(frm, tos)
+        return paths
+
     def _get_path(self, frm, to):
         if self._path_exists(frm, to):
-            attributes = []
+            paths = self._get_all_paths(frm, to)
+            try:
+                return paths[0]
+            except IndexError:
+                res = nx.shortest_path(self._g, frm, to)
+                return res
 
-            for i in self.layers_to_attributes.values():
-                attributes.extend(i)
+    def _get_relevant_paths(self, frm, tos):
+        paths = []
+        for to_ in tos:
+            paths.extend(list(nx.all_simple_paths(self._g, frm, to_)))
+        return paths
 
-            tos = []
-            if to in attributes:
-                for k, v in self.layers_to_attributes.items():
-                    for i in v:
-                        if i == to:
-                            tos.append(k + '.' + i)
-            paths = []
-            for to_ in tos:
-                paths.extend(list(nx.all_simple_paths(self._g, frm, to_)))
+    def _get_relevant_attributes(self):
+        attributes = []
+        for i in self.layers_to_attributes.values():
+            attributes.extend(i)
+        return attributes
 
-            return paths[0]
+    def _get_attribute_node_names(self, attributes, to):
+        tos = []
+        if to in attributes:
+            for k, v in self.layers_to_attributes.items():
+                for i in v:
+                    if i == to:
+                        tos.append(k + '.' + i)
+        return tos
 
     def _draw_graph(self):
         return draw_graph(self._g)
