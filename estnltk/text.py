@@ -133,9 +133,12 @@ class SpanList(collections.Sequence):
 
         self.layer = layer
         self.ambiguous = ambiguous
+        self.parent = None #placeholder for ambiguous layer
 
 
     def add_span(self, span) -> None:
+
+
 
         if not self.ambiguous:
             span.layer = self.layer
@@ -215,9 +218,12 @@ class SpanList(collections.Sequence):
         res = SpanList()
         res.layer = self.layer
         wrapped = self.spans.__getitem__(idx)
-        if isinstance(wrapped, Span):
+        if isinstance(idx, int):
             return wrapped
+
         res.spans = wrapped
+        res.ambiguous = self.ambiguous
+        res.parent = self.parent
 
         return res
 

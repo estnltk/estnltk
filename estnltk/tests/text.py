@@ -29,7 +29,8 @@ def test_general():
     assert t.words.morf_analysis.lemma == t.words.lemma
     assert len(t.sentences[1:].words) == len(t.sentences[1:].text)
 
-
+    print('mrf', (t.sentences[1:].morf_analysis))
+    print(t.sentences[1:].text)
     assert len(t.sentences[1:].morf_analysis) == len(t.sentences[1:].text)
 
 
