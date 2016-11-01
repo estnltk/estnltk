@@ -12,6 +12,7 @@ def draw_graph(g):
     return ipywidgets.HTML(p.create_svg())
 
 
+
 class Span:
     # __slots__ = ['_start', '_end', 'layer', '_attributes']
 
@@ -110,22 +111,57 @@ class Span:
         return self < other or self == other
 
     def __str__(self):
-        return 'Span({self.text})'.format(self=self)
+        return 'Span({text})'.format(text=self.text)
 
     def __repr__(self):
         return str(self)
 
 
+class AmbiguousSpan(Span):
+    def __init__(self, *args, **kwargs):
+        super().__init__(self, *args, **kwargs)
+
+
 class SpanList(collections.Sequence):
     def __init__(self,
-                 layer=None) -> None:
-        self.spans = []  # type: List[AbstractSpan]
+                 layer=None,
+                 ambiguous:bool=False) -> None:
+        if ambiguous:
+            self.spans = SpanList(layer=layer, ambiguous=False)
+        else:
+            self.spans = []  # type: List[AbstractSpan]
+
         self.layer = layer
+        self.ambiguous = ambiguous
+
 
     def add_span(self, span) -> None:
-        span.layer = self.layer
-        bisect.insort(self.spans, span)
-        return span
+
+        if not self.ambiguous:
+            span.layer = self.layer
+            bisect.insort(self.spans, span)
+            return span
+        else:
+            span.layer = self.layer
+
+            # we should keep stuff in spanlists
+            if span.parent:
+                equality_check = lambda span1, span2: span1.parent == span2.parent
+            elif isinstance(span.start, int) and isinstance(span.end, int):
+                equality_check = lambda span1, span2: span1.start == span2.start and span1.end == span2.end
+            else:
+                raise NotImplementedError
+
+            for spn_lst in self.spans:
+                if equality_check(span, spn_lst[0]):
+                    spn_lst.spans.append(span)
+                    return spn_lst
+
+            new = SpanList(layer=self.layer)
+            new.add_span(span)
+            self.spans.spans.append(new)
+            new.parent = span.parent
+            return new
 
     @property
     def layer(self):
@@ -153,7 +189,9 @@ class SpanList(collections.Sequence):
         yield from self.spans
 
     def __len__(self) -> int:
-        return len(self.spans)
+        return len(self.__getattribute__(
+            'spans'
+        ))
 
     def __contains__(self, item: Any) -> bool:
         return item in self.spans
@@ -163,6 +201,9 @@ class SpanList(collections.Sequence):
         if item in layer.attributes:
             return [getattr(span, item) for span in self.spans]
         else:
+            if item in self.__dict__:
+                return self.__dict__[item]
+
             target = layer.text_object._resolve(
                 layer.name, item, sofar = self
             )
@@ -201,10 +242,11 @@ class SpanList(collections.Sequence):
 
 class Layer:
     def __init__(self,
-                 name=None,
+                 name:str=None,
                  attributes=tuple(),
-                 parent=None,
-                 enveloping=None
+                 parent:str=None,
+                 enveloping:str=None,
+                 ambiguous:bool=None
                  ):
         assert not ((parent is not None) and (enveloping is not None)), 'Cant be derived AND enveloping'
         assert name is not None, 'Layer must have a name'
@@ -213,7 +255,10 @@ class Layer:
         self.parent = parent
         self.enveloping = enveloping
 
-        self.spans = SpanList(layer=self)
+        self.spans = SpanList(layer=self, ambiguous=ambiguous)
+
+        self.ambiguous = ambiguous
+
 
         #  placeholder, is set when `add_layer` is called on text object
         self.text_object = None # type:Text
@@ -229,16 +274,14 @@ class Layer:
     def from_tuples(self, spans):
         return self.from_dict(
             [{'start':start,
-             'end':end} for start,end in spans]
+                'end':end} for start,end in spans]
         )
-
-    # def from_span_dict(self, dict):
-    #     self.from_dict(dict)
 
     def add_span(self, span):
         return self.spans.add_span(span)
 
     def add_spans(self, spans):
+        assert self.ambiguous or self.enveloping
         container = SpanList(layer=self)
         container.spans = spans
         return self.spans.add_span(
@@ -363,11 +406,16 @@ class Text:
 
 
 
-        GENERAL_KEYS = ['text']
-        path_exists = False
-        if (self._path_exists(frm, to) or (to in GENERAL_KEYS)) and to in self.layers.keys():
-            path_exists = True
+        GENERAL_KEYS = ['text', 'parent']
+        if to in GENERAL_KEYS:
+            if sofar:
+                return sofar.__getattribute__(to)
+            else:
+                return self.layers[frm].spans.__getattribute__(to)
 
+
+        path_exists = self._path_exists(frm, to)
+        if (path_exists) and to in self.layers.keys():
             if frm in self.layers.keys():
                 #from layer to its attribute
                 if to in self.layers[frm].attributes  or (to in GENERAL_KEYS):
@@ -411,9 +459,8 @@ class Text:
                     return res
 
 
-
         #attribute access
-        elif self._path_exists(frm, to):
+        elif path_exists:
 
             path = self._get_path(frm, to)
             to_layer_name = path[-2]
@@ -429,16 +476,44 @@ class Text:
                         if i.parent in sofar.spans:
                             res.append(getattr(i, to))
                     return res
-
                 else:
                     print('nope')
 
-            #attributes of a (direct) parent
-            if to in self.layers[self.layers[frm].parent].attributes:
+
+            #attributes of an (directly) enveloped object
+            to_layer_name = path[-2]
+            to_layer = self.layers[to_layer_name]
+            from_layer_name = path[0]
+            from_layer = self.layers[from_layer_name]
+
+            if from_layer.enveloping == to_layer.name:
                 if sofar:
-                    print('asdasd')
+                    res = [
+
+                    ]
+                    for i in sofar.spans:
+                        res.append(
+                            i.__getattr__(to)
+                        )
+                    return res
                 else:
-                    print('123124')
+                    res = [
+
+                    ]
+                    for i in to_layer.spans:
+                        res.append(
+                            i.__getattr__(to)
+                        )
+                    return res
+
+
+
+                # attributes of a (direct) parent
+            # if to in self.layers[self.layers[frm].parent].attributes:
+            #     if sofar:
+            #         print('asdasd')
+            #     else:
+            #         print('123124')
 
 
         raise NotImplementedError('{} -> {} not implemented'.format(frm, to) +
@@ -455,7 +530,6 @@ class Text:
             assert len(list(nx.all_simple_paths(self._g, frm, to))) == 1, 'ambiguous path'
         except nx.NetworkXError:
             pass
-            # print('nxerror')
 
         tos = []
         if to in attributes:
@@ -472,7 +546,6 @@ class Text:
             res = len(paths) == 1 or nx.has_path(self._g, frm, to)
         except nx.NetworkXError:
             raise KeyError
-
         return res
 
     def _get_path(self, frm, to):
@@ -519,26 +592,6 @@ class Text:
 
 from estnltk.legacy.text import Text as OldText
 #
-# ttt = 'Minu nimi on Uku, mis sinu nimi on?'
-# t = Text(ttt)
-# l = Layer(name='words')
-#
-# old = OldText(ttt)
-# old.words
-# l.from_dict(old.words)
-# t.add_layer(l)
-#
-# print(t.words.name)
-#
-# l2 = Layer(parent='words', attributes=['test'], name='testlayer')
-# t.add_layer(l2)
-# print(t)
-#
-# for i in t.words:
-#     i.mark('testlayer').test = 'asd'
-#
-# for i in t.testlayer:
-#     print(i)
 
 def words_sentences(text):
     old = OldText(text)
@@ -576,7 +629,9 @@ def words_sentences(text):
     #
     dep = Layer(name='morf_analysis',
                 parent='words',
-                attributes=morf_attributes)
+                ambiguous=True,
+                attributes=morf_attributes
+                )
     new.add_layer(dep)
 
     for word, analysises in zip(new.words, old.analysis):
@@ -584,7 +639,6 @@ def words_sentences(text):
             m = word.mark('morf_analysis')
             for attr in morf_attributes:
                 setattr(m, attr, analysis[attr])
-            break #no ambiguous stuff yet
     return new
 
 

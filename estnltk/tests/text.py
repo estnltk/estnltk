@@ -195,22 +195,23 @@ def test_layer_from_spans():
     assert all([isinstance(i, Span) for i in t.test])
 #
 #
-def test_unbound_layer():
-    text = 'Öösel on kõik kassid hallid.'
-    t = Text(text)
-
-    l = Layer(name='test')
-
-    l.add_span(Span(1, 2))
-
-    with pytest.raises(AttributeError):
-        for i in l:
-            (i.text)
-
-    t.add_layer(l)
-    #does not raise AttributeError after having been added to text object
-    for i in l:
-        (i.text)
+## "Unbound" is not a concept right now
+# def test_unbound_layer():
+#     text = 'Öösel on kõik kassid hallid.'
+#     t = Text(text)
+#
+#     l = Layer(name='test')
+#
+#     l.add_span(Span(1, 2))
+#
+#     with pytest.raises(AttributeError):
+#         for i in l:
+#             (i.text)
+#
+#     t.add_layer(l)
+#     #does not raise AttributeError after having been added to text object
+#     for i in l:
+#         (i.text)
 
 
 #
@@ -326,51 +327,56 @@ def test_delete_layer():
 #
 #
 #
-# def test_enveloping_layer():
-#     t = Text('Kui mitu kuud on aastas?')
-#     words = Layer.from_span_dict('words', [{'end': 3, 'lemma': 'kui', 'start': 0},
-#                                            {'end': 8, 'lemma': 'mitu', 'start': 4},
-#                                            {'end': 13, 'lemma': 'kuu', 'start': 9},
-#                                            {'end': 16, 'lemma': 'olema', 'start': 14},
-#                                            {'end': 23, 'lemma': 'aasta', 'start': 17},
-#                                            {'end': 24, 'lemma': '?', 'start': 23}],
-#                                   attributes=['lemma']
-#                                   )
-#     t.add_layer(words)
-#     wordpairs = EnvelopingLayer(name='wordpairs', envelops=words)
-#
-#
-#     wordpairs.add_spans(t.words.spans[0:2])
-#     wordpairs.add_spans(t.words.spans[2:4])
-#     wordpairs.add_spans(t.words.spans[4:6])
-#
-#     assert (wordpairs.text == [['Kui', 'mitu'], ['kuud', 'on'], ['aastas', '?']])
-#
-#     wordpairs.add_spans(t.words.spans[1:3])
-#     wordpairs.add_spans(t.words.spans[3:5])
-#     assert (wordpairs.text == [['Kui', 'mitu'], ['mitu', 'kuud'], ['kuud', 'on'], ['on', 'aastas'], ['aastas', '?']])
-#
-#     t.add_layer(wordpairs)
-#
-#     for wordpair in t.wordpairs:
-#         for word in wordpair.words:
-#             assert (word)
-#
-#
-#
-#     for wordpair in t.wordpairs:
-#         (wordpair.lemma) #this should not give a keyerror
-#
-#     with pytest.raises(KeyError):
-#         for wordpair in t.wordpairs:
-#             (wordpair.nonsense)  # this SHOULD give a keyerror
-#
-#     assert (words.lemma == ['kui', 'mitu', 'kuu', 'olema', 'aasta', '?'])
-#     print(t.wordpairs.lemma)
-#     assert (t.wordpairs.lemma == [['kui', 'mitu'], ['mitu', 'kuu'], ['kuu', 'olema'], ['olema', 'aasta'], ['aasta', '?']])
-#
-#     with pytest.raises(AttributeError):
-#         (wordpairs.test)
+def test_enveloping_layer():
+    t = Text('Kui mitu kuud on aastas?')
+    words = Layer(
+    name='words',
+    attributes = ['lemma']
+
+    ).from_dict([{'end': 3, 'lemma': 'kui', 'start': 0},
+                                           {'end': 8, 'lemma': 'mitu', 'start': 4},
+                                           {'end': 13, 'lemma': 'kuu', 'start': 9},
+                                           {'end': 16, 'lemma': 'olema', 'start': 14},
+                                           {'end': 23, 'lemma': 'aasta', 'start': 17},
+                                           {'end': 24, 'lemma': '?', 'start': 23}],
+                                  )
+    t.add_layer(words)
+    wordpairs = Layer(name='wordpairs', enveloping='words')
+    t.add_layer(wordpairs)
+
+    wordpairs.add_spans(t.words.spans[0:2])
+    wordpairs.add_spans(t.words.spans[2:4])
+    wordpairs.add_spans(t.words.spans[4:6])
+
+    assert (wordpairs.text == [['Kui', 'mitu'], ['kuud', 'on'], ['aastas', '?']])
+
+    wordpairs.add_spans(t.words.spans[1:3])
+    wordpairs.add_spans(t.words.spans[3:5])
+    assert (wordpairs.text == [['Kui', 'mitu'], ['mitu', 'kuud'], ['kuud', 'on'], ['on', 'aastas'], ['aastas', '?']])
+
+
+    for wordpair in t.wordpairs:
+        for word in wordpair.words:
+            assert (word)
+
+
+    print(t._g.nodes(), t._g.edges())
+    for wordpair in t.wordpairs:
+        (wordpair.lemma) #this should not give a keyerror
+
+
+    #I have changed my mind about what this should raise so much, I'm leaving it free at the moment
+    with pytest.raises(Exception):
+        for wordpair in t.wordpairs:
+            (wordpair.nonsense)  # this SHOULD give a --keyerror--
+
+    assert (t.words.lemma == ['kui', 'mitu', 'kuu', 'olema', 'aasta', '?'])
+    print(t.wordpairs.lemma)
+    assert (t.wordpairs.lemma == [['kui', 'mitu'], ['mitu', 'kuu'], ['kuu', 'olema'], ['olema', 'aasta'], ['aasta', '?']])
+
+    print(t.wordpairs.text)
+    with pytest.raises(Exception):
+        (wordpairs.test)
 #
 def test_oldtext_to_new():
 
@@ -469,29 +475,27 @@ def test_words_sentences():
 #     #TODO
 #     # assert t.words.uppercase.upper == ['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']
 #
-#
-# def test_ambiguous_layer():
-#     t = words_sentences('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?')
-#
-#     dep = DependantLayer(name='test',
-#                          text_object=t,
-#                          frozen=False,
-#                          parent=t.words,
-#                          ambiguous=True,
-#                          attributes=['asd']
-#                          )
-#     t.add_layer(dep)
-#
-#     t.words[0].mark('test').asd = 'asd'
-#     print('mark', t.words[0], t.words[0].asd)
-#
-#     t.words[1].mark('test').asd = '123'
-#     t.words[0].mark('test').asd = '123'
-#
-#     print(t.morf_analysis)
-#
-#
-#     print(t.words[0].asd)
+
+def test_ambiguous_layer():
+    t = words_sentences('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?')
+
+    dep = Layer(name='test',
+                         parent='words',
+                         ambiguous=True,
+                         attributes=['asd']
+                         )
+    t.add_layer(dep)
+
+    t.words[0].mark('test').asd = 'asd'
+    print('mark', t.words[0], t.words[0].asd)
+
+    t.words[1].mark('test').asd = '123'
+    t.words[0].mark('test').asd = '123'
+
+    print(t.test)
+
+
+    print(t.words[0].asd)
 #
 # def test_morf():
 #     text = words_sentences('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?')
@@ -520,10 +524,14 @@ def test_words_sentences():
 #     assert len(text.words[0].morf_analysis) == prelen - 1
 #
 
-# def test_change_lemma():
-#     text = words_sentences('Olnud aeg.')
-#     setattr(text.morf_analysis[0][0], 'lemma', 'blabla')
-#     assert text.morf_analysis[0][0].lemma == 'blabla'
+def test_change_lemma():
+    text = words_sentences('Olnud aeg.')
+    setattr(text.morf_analysis[0][0], 'lemma', 'blabla')
+    assert text.morf_analysis[0][0].lemma == 'blabla'
+
+    setattr(text.morf_analysis[0][1], 'lemma', 'blabla2')
+    assert text.morf_analysis[0][1].lemma == 'blabla2'
+
 #
 # #
 #
