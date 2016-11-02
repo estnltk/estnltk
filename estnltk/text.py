@@ -1,16 +1,17 @@
 import bisect
-import collections
 import keyword
+import collections
 from typing import *
 
+# noinspection PyPackageRequirements
 import ipywidgets
+# noinspection PyPackageRequirements
 import networkx as nx
 
 
 def draw_graph(g):
     p = nx.drawing.nx_pydot.to_pydot(g)
     return ipywidgets.HTML(p.create_svg())
-
 
 
 class Span:
@@ -29,7 +30,6 @@ class Span:
             self._end = end
             self.is_dependant = False
 
-
         #parent is a Span of dependant Layer
         elif parent is not None:
             assert isinstance(parent, Span)
@@ -37,18 +37,18 @@ class Span:
             assert end is None
             self.is_dependant = True
 
-        # self._attributes = {}
-
         for k, v in attributes.items():
             if k in legal_attributes:
                 self.__setattr__(k, v)
-                # self._attributes[k] = v
 
 
 
-    def mark(self, mark_layer):
-        assert self.text_object.layers[mark_layer].parent == self.layer.name
-        res = self.text_object.layers[mark_layer].add_span(
+    def mark(self, mark_layer: str) -> 'Span':
+        base_layer = self.text_object.layers[mark_layer] #type: Layer
+        parent = base_layer.parent
+
+        assert  parent == self.layer.name, "Expected '{self.layer.name}' got '{parent}'".format(self=self, parent=parent)
+        res = base_layer.add_span(
             Span(
                 parent=self
             )
@@ -84,7 +84,7 @@ class Span:
 
         if item in legal_attribute_names:
             try:
-                return self.__getattribute__(item)#get(item, None)
+                return self.__getattribute__(item)
             except AttributeError:
                 return None
 
@@ -121,30 +121,21 @@ class Span:
     def __repr__(self):
         return str(self)
 
-
-class AmbiguousSpan(Span):
-    def __init__(self, *args, **kwargs):
-        super().__init__(self, *args, **kwargs)
-
-
 class SpanList(collections.Sequence):
     def __init__(self,
                  layer=None,
                  ambiguous:bool=False) -> None:
         if ambiguous:
-            self.spans = SpanList(layer=layer, ambiguous=False)
+            self.spans = SpanList(layer=layer, ambiguous=False)  #type: Union[List[Span], SpanList]
         else:
-            self.spans = []  # type: List[AbstractSpan]
+            self.spans = []  #type: Union[List[Span], SpanList]
 
-        self.layer = layer
+        self._layer = layer
         self.ambiguous = ambiguous
         self.parent = None #placeholder for ambiguous layer
 
 
-    def add_span(self, span) -> None:
-
-
-
+    def add_span(self, span:Span) -> Span:
         if not self.ambiguous:
             span.layer = self.layer
             bisect.insort(self.spans, span)
@@ -163,13 +154,13 @@ class SpanList(collections.Sequence):
             for spn_lst in self.spans:
                 if equality_check(span, spn_lst[0]):
                     spn_lst.spans.append(span)
-                    return spn_lst
+                    return span
 
             new = SpanList(layer=self.layer)
             new.add_span(span)
             self.spans.spans.append(new)
             new.parent = span.parent
-            return new
+            return span
 
     @property
     def layer(self):
@@ -177,7 +168,7 @@ class SpanList(collections.Sequence):
 
     @layer.setter
     def layer(self, value):
-        assert isinstance(value, Layer) or value == None
+        assert isinstance(value, Layer) or value is None
         self._layer = value
 
 
@@ -254,7 +245,7 @@ class SpanList(collections.Sequence):
 class Layer:
     def __init__(self,
                  name:str=None,
-                 attributes=tuple(),
+                 attributes:Union[Tuple, List]=tuple(),
                  parent:str=None,
                  enveloping:str=None,
                  ambiguous:bool=None
@@ -288,16 +279,22 @@ class Layer:
                 'end':end} for start,end in spans]
         )
 
-    def add_span(self, span):
+    def add_span(self, span: Span) -> Span:
         return self.spans.add_span(span)
 
-    def add_spans(self, spans):
-        assert self.ambiguous or self.enveloping
-        container = SpanList(layer=self)
-        container.spans = spans
-        return self.spans.add_span(
-            container
+    def add_spans_to_enveloping(self, spans):
+        spanlist = SpanList(
+            layer=self
         )
+        spanlist.spans = spans
+        bisect.insort(self.spans.spans, spanlist)
+
+    def add_spans(self, spans:List[Span]) -> List[Span]:
+        assert self.ambiguous or self.enveloping
+        res = []
+        for span in spans:
+            res.append(self.add_span(span))
+        return res
 
 
     def _resolve(self, target):
@@ -323,13 +320,13 @@ class Layer:
 
 
 class Text:
-    def __init__(self, text):
+    def __init__(self, text:str):
 
         self._text = text
-        self.layers = {}
-        self.layers_to_attributes = collections.defaultdict(list)
-        self.base_to_dependant = collections.defaultdict(list)
-        self.enveloping_to_enveloped = collections.defaultdict(list)
+        self.layers = {} # type: Mapping[str, Layer]
+        self.layers_to_attributes = collections.defaultdict(list)  # type: Mapping[str, List[str]]
+        self.base_to_dependant = collections.defaultdict(list) # type: Mapping[str, List[str]]
+        self.enveloping_to_enveloped = collections.defaultdict(list)  # type: Mapping[str, List[str]]
 
         self._setup_structure()
 
@@ -426,7 +423,7 @@ class Text:
 
 
         path_exists = self._path_exists(frm, to)
-        if (path_exists) and to in self.layers.keys():
+        if path_exists and to in self.layers.keys():
             if frm in self.layers.keys():
                 #from layer to its attribute
                 if to in self.layers[frm].attributes  or (to in GENERAL_KEYS):
@@ -511,7 +508,7 @@ class Text:
                         )
                     return res
 
-            if (to_layer.parent == from_layer.enveloping):
+            if to_layer.parent == from_layer.enveloping:
                 if sofar:
                     res = []
                     for i in sofar.spans:
@@ -526,14 +523,6 @@ class Text:
                             i.__getattr__(to)
                         )
                     return res
-
-                # attributes of a (direct) parent
-            # if to in self.layers[self.layers[frm].parent].attributes:
-            #     if sofar:
-            #         print('asdasd')
-            #     else:
-            #         print('123124')
-
 
         raise NotImplementedError('{} -> {} not implemented'.format(frm, to) +
                                   (' but path exists' if path_exists else ' - path does not exist')
@@ -621,8 +610,12 @@ from estnltk.legacy.text import Text as OldText
 
 def words_sentences(text):
     old = OldText(text)
+
+    # noinspection PyStatementEffect
     old.sentences
+    # noinspection PyStatementEffect
     old.words
+    # noinspection PyStatementEffect
     old.paragraphs
 
 
@@ -637,22 +630,26 @@ def words_sentences(text):
 
     old_sentences = old.split_by('sentences')
     sentences = Layer(enveloping='words', name='sentences')
+    new.add_layer(sentences)
+
+    #TODO fix dumb manual loop
     i = 0
     new_sentences = []
     for sentence in old_sentences:
         sent = []
-        for word in sentence.words:
+        for _ in sentence.words:
             sent.append(words[i])
             i += 1
         new_sentences.append(sent)
 
 
+
     for sentence in new_sentences:
-        sentences.add_spans(sentence)
-    new.add_layer(sentences)
+        sentences.add_spans_to_enveloping(sentence)
+
 
     morf_attributes = ['form', 'root_tokens', 'clitic', 'partofspeech', 'ending', 'root', 'lemma']
-    #
+
     dep = Layer(name='morf_analysis',
                 parent='words',
                 ambiguous=True,
@@ -661,10 +658,16 @@ def words_sentences(text):
     new.add_layer(dep)
 
     for word, analysises in zip(new.words, old.analysis):
+        assert isinstance(word, Span)
         for analysis in analysises:
             m = word.mark('morf_analysis')
+            assert isinstance(m, Span), 'Was hoping for Span, found {}'.format(type(m).__name__)
+
+
             for attr in morf_attributes:
                 setattr(m, attr, analysis[attr])
     return new
+
+
 
 

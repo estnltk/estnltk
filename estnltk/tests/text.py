@@ -23,7 +23,10 @@ def test_general():
     assert len(t.words) == len(t.words.text)
     assert len(t.sentences) == len(t.sentences.text)
     assert len(t.sentences.words.text) == len(t.sentences.text)
-    assert t.morf_analysis.lemma == ['mina', 'nimi', 'olema', 'Uku', '.',  'mis', 'sina', 'nimi', 'olema', '?', 'miks', 'mina', 'see', 'arutama', '?']
+    print(t.morf_analysis.lemma )
+    assert t.morf_analysis.lemma == [['mina'], ['nimi'], ['olema', 'olema'], ['Uku'], ['.'], ['mis', 'mis'], ['sina'], ['nimi'], ['olema', 'olema'], ['?'], ['miks'], ['mina'], ['see'], ['arutama'], ['?']]
+
+
     assert len(t.morf_analysis.lemma) == len(t.words)
     assert len(t.morf_analysis) == len(t.words)
     assert t.words.morf_analysis.lemma == t.words.lemma
@@ -215,7 +218,7 @@ def test_layer_from_spans():
 #         (i.text)
 
 
-#
+
 def test_annotated_layer():
     text = 'Öösel on kõik kassid hallid.'
     t = Text(text)
@@ -230,8 +233,7 @@ def test_annotated_layer():
     # with pytest.raises(AttributeError):
     #     for i in t.test:
     #         i.test2 = 'mock'
-#
-#
+
 def test_count_by():
     def count_by(layer, attributes, counter=None):
         from collections import Counter
@@ -345,14 +347,16 @@ def test_enveloping_layer():
     wordpairs = Layer(name='wordpairs', enveloping='words')
     t.add_layer(wordpairs)
 
-    wordpairs.add_spans(t.words.spans[0:2])
-    wordpairs.add_spans(t.words.spans[2:4])
-    wordpairs.add_spans(t.words.spans[4:6])
+    wordpairs.add_spans_to_enveloping(t.words.spans[0:2])
+    wordpairs.add_spans_to_enveloping(t.words.spans[2:4])
+    wordpairs.add_spans_to_enveloping(t.words.spans[4:6])
 
+    print(t.wordpairs.text)
     assert (wordpairs.text == [['Kui', 'mitu'], ['kuud', 'on'], ['aastas', '?']])
 
-    wordpairs.add_spans(t.words.spans[1:3])
-    wordpairs.add_spans(t.words.spans[3:5])
+    wordpairs.add_spans_to_enveloping(t.words.spans[1:3])
+    wordpairs.add_spans_to_enveloping(t.words.spans[3:5])
+    print(t.wordpairs.text)
     assert (wordpairs.text == [['Kui', 'mitu'], ['mitu', 'kuud'], ['kuud', 'on'], ['on', 'aastas'], ['aastas', '?']])
 
 
@@ -563,3 +567,23 @@ def test_change_lemma():
 #
 #     for i in text.words:
 #         assert set(i.test) == set('X')
+
+
+def test_morf():
+    text = words_sentences('''
+    Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.
+    Seni vaid soome keelde tõlgitud teos ilmus äsja ka itaalia keeles
+    ning seda esitleti Rooma reisikirjanduse festivalil.
+    Tuntud reisikrijanduse festival valis tänavu peakülaliseks Eesti,
+    Ultima Thule ning Iidse-Põhjala ja Vahemere endisaegsed kultuurikontaktid j
+    ust seetõttu, et eelmisel nädalal avaldas kirjastus Gangemi "Hõbevalge"
+    itaalia keeles, vahendas "Aktuaalne kaamera".''')
+
+
+    assert len(text.morf_analysis[5]) == 2
+    print(text.morf_analysis[5])
+    print(text.morf_analysis[5].lemma)
+    assert len(text.morf_analysis[5].lemma) == 2
+    assert (text.morf_analysis[5].lemma) == ['olema', 'olema']
+    assert (text.morf_analysis.lemma == [['Lennart'], ['Meri'], ['"'], ['hõbevalge'], ['"'], ['olema', 'olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['rahvusvaheline'], ['lugejaskond'], ['.'], ['seni'], ['vaid'], ['soome'], ['keel'], ['tõlkima', 'tõlgitud', 'tõlgitud', 'tõlgitud'], ['teos'], ['ilmuma'], ['äsja'], ['ka'], ['itaalia'], ['keel'], ['ning'], ['see'], ['esitlema'], ['Rooma'], ['reisikirjandus'], ['festival'], ['.'], ['tundma', 'tuntud', 'tuntud', 'tuntud'], ['reisikrijandus'], ['festival'], ['valima'], ['tänavu'], ['peakülaline'], ['Eesti'], [','], ['Ultima'], ['Thule'], ['ning'], ['Iidse-Põhjala', 'Iidse-Põhjala'], ['ja'], ['Vahemeri'], ['endisaegne'], ['kultuurikontakt'], ['j'], ['uks'], ['seetõttu'], [','], ['et'], ['eelmine'], ['nädal'], ['avaldama'], ['kirjastus'], ['Gangemi'], ['"'], ['hõbevalge'], ['"'], ['itaalia'], ['keel'], [','], ['vahendama'], ['"'], ['aktuaalne'], ['kaamera'], ['".']]
+)
