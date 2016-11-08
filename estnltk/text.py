@@ -289,6 +289,10 @@ class Layer:
         #has this layer been added to a text object?
         self._bound = False
 
+        #marker for creating a lazy layer
+        #used in Text.add_layer to check if additional work needs to be done
+        self._is_lazy = False
+
         self._base = name if ((not enveloping) and (not parent)) else None #This is a placeholder for the base layer.
         #_base is None if parent is None
         #_base is self.name if ((not self.enveloping) and (not self.parent))
@@ -315,6 +319,8 @@ class Layer:
         self.text_object = None # type:Text
 
     def from_dict(self, records):
+        if self.parent is not None and not self._bound:
+            self._is_lazy = True
         for record in records:
             self.add_span(Span(
                 **record, legal_attributes=self.attributes
@@ -366,6 +372,13 @@ class Layer:
 
     def __str__(self):
         return 'Layer(name={self.name}, spans={self.spans})'.format(self=self)
+
+
+def _get_span_by_start_and_end(spans:SpanList, start:int, end:int) -> Span:
+    for span in spans:
+        if span.start == start and span.end == end:
+            return span
+    return None
 
 
 class Text:
@@ -452,7 +465,6 @@ class Text:
         ## Let's feel free to change the layer we have been handed.
         ##
 
-        layer._bound = True
 
         if layer.parent:
             layer._base = self.layers[layer.parent]._base
@@ -469,8 +481,22 @@ class Text:
         if layer.enveloping:
             self.enveloping_to_enveloped[name].append(layer.enveloping)
 
+
+        if layer._is_lazy:
+            #this means the layer might already have spans, and the spans might need to have their parents reset
+            if layer.parent is not None:
+                for span in layer:
+                    span.parent = _get_span_by_start_and_end(
+                        self.layers[layer._base].spans,
+                        span.start,
+                        span.end
+                    )
+                    span._base = span.parent
+
         self.layers[name] = layer
         layer.text_object = self
+        layer._bound = True
+
 
         self._setup_structure()
 
