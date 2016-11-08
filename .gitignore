@@ -1,6 +1,20 @@
 *.pyc
 .idea/
-build/
 estnltk.egg-info/
-/estnltk/.ipynb_checkpoints/
 .ipynb_checkpoints
+
+#files generated at build time
+/estnltk/vabamorf/vabamorf.py
+/estnltk/vabamorf/vabamorf_wrap.cpp
+/estnltk/vabamorf/_vabamorf*so
+
+
+#testing cache
+.cache
+
+#we should use some other channel to handle distributions - the repo has grown too large
+#binary files can be added to github releases
+dist/
+
+#we never want to commit build
+build/
