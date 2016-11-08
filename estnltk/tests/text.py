@@ -29,6 +29,7 @@ def test_general():
 
     assert len(t.morf_analysis.lemma) == len(t.words)
     assert len(t.morf_analysis) == len(t.words)
+
     print(t.words.morf_analysis)
     print(t.words.lemma)
     assert t.words.morf_analysis.lemma == t.words.lemma
@@ -307,6 +308,7 @@ def test_dependant_span():
     for word in t.words:
         word.mark('reverse_lemmas').revlemma = word.lemma[::-1]
 
+    print(t.layers['words']._base)
 
     for i in t.reverse_lemmas:
         assert (i.revlemma == i.lemma[::-1])

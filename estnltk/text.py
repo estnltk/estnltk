@@ -22,7 +22,7 @@ class Span:
         # Placeholder, set when span added to spanlist
         self.layer = None #type:Layer
 
-        self.parent = parent
+        self.parent = parent #type: Span
 
         if isinstance(start, int) and isinstance(end, int):
             assert start < end
@@ -222,9 +222,7 @@ class SpanList(collections.Sequence):
             if item in self.__dict__:
                 return self.__dict__[item]
 
-            target = layer.text_object._resolve(
-                layer.name, item, sofar = self
-            )
+            target = layer.text_object._resolve(layer.name, item, sofar = self)
             return target
 
 
@@ -271,9 +269,29 @@ class Layer:
                  ):
         assert not ((parent is not None) and (enveloping is not None)), 'Cant be derived AND enveloping'
         assert name is not None, 'Layer must have a name'
+
+        #name of the layer
         self.name = name
+
+        #list of legal attribute names for the layer
         self.attributes = attributes
+
+        #the name of the parent layer.
         self.parent = parent
+
+
+        #has this layer been added to a text object?
+        self._bound = False
+
+        self._base = name if ((not enveloping) and (not parent)) else None #This is a placeholder for the base layer.
+        #_base is None if parent is None
+        #_base is self.name if ((not self.enveloping) and (not self.parent))
+        #_base is parent._base otherwise
+        #We can't assign the value yet, because we have no access to the parent layer
+        #The goal is to swap the use of the "parent" attribute to the new "_base" attribute for all
+        #layer inheritance purposes. As the idea about new-style text objects has evolved, it has been decided that
+        #it is more sensible to keep the tree short and pruned. I'm hoping to avoid a rewrite though.
+
         self.enveloping = enveloping
 
         self.spans = SpanList(layer=self, ambiguous=ambiguous)
@@ -396,14 +414,20 @@ class Text:
         else:
             return self.__getattribute__(item)
 
-    def add_layer(self, layer):
+    def add_layer(self, layer:Layer):
         name = layer.name
         attributes = layer.attributes
 
+
+        ##
+        ## ASSERTS
+        ##
+
+        assert not layer._bound
         assert name not in ['text'], 'Restricted for layer name'
         assert name.isidentifier() and not keyword.iskeyword(name), 'Layer name must be a valid python identifier'
-
         assert name not in self.layers.keys(), 'Layer with name {name} already exists'.format(name=name)
+
 
         if layer.parent:
             assert layer.parent in self.layers.keys(), 'Cant add a layer before adding its parent'
@@ -411,9 +435,23 @@ class Text:
         if layer.enveloping:
             assert layer.enveloping in self.layers.keys(), 'Cant add an enveloping layer before adding the layer it envelops'
 
-        self.layers_to_attributes[name] = attributes
+        ##
+        ## ASSERTS DONE,
+        ## Let's feel free to change the layer we have been handed.
+        ##
+
+        layer._bound = True
+
         if layer.parent:
-            self.base_to_dependant[layer.parent].append(name)
+            layer._base = self.layers[layer.parent]._base
+
+        self.layers_to_attributes[name] = attributes
+
+
+        if layer.parent:
+            ## This is a change to accommodate pruning of the layer tree.
+            # self.base_to_dependant[layer.parent].append(name)
+            self.base_to_dependant[layer._base].append(name)
 
 
         if layer.enveloping:
@@ -474,7 +512,7 @@ class Text:
                     return res
 
                 #from layer to strictly dependant layer
-                elif frm == self.layers[to].parent:
+                elif frm == self.layers[to]._base:
 
                     # if sofar is None:
                     sofar = self.layers[to].spans
@@ -564,13 +602,6 @@ class Text:
 
     def _path_exists(self, frm, to):
         paths = self._get_all_paths(frm, to)
-
-        try:
-            # should never happen
-            assert len(list(nx.all_simple_paths(self._g, frm, to))) == 1, 'ambiguous path'
-        except nx.NetworkXError:
-            pass
-
         assert len(paths) in (0, 1), 'ambiguous path to attribute {}'.format(to)
 
         try:
