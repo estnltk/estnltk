@@ -46,7 +46,40 @@ def test_general():
     assert (t.words[:].lemma) == (t.words.lemma)
     assert (t.words[:].text) == (t.words.text)
 
+def test_new_span_hierarchy():
+    text = words_sentences('''
+    Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.
+    Seni vaid soome keelde tõlgitud teos ilmus äsja ka itaalia keeles
+    ning seda esitleti Rooma reisikirjanduse festivalil.
+    Tuntud reisikrijanduse festival valis tänavu peakülaliseks Eesti,
+    Ultima Thule ning Iidse-Põhjala ja Vahemere endisaegsed kultuurikontaktid j
+    ust seetõttu, et eelmisel nädalal avaldas kirjastus Gangemi "Hõbevalge"
+    itaalia keeles, vahendas "Aktuaalne kaamera".''')
+    l = Layer(
+        name='layer1',
+        parent='words',
+        attributes=['test1']
+    )
 
+    text.add_layer(l)
+
+    for i in text.words:
+        i.mark('layer1').test1 = '1234'
+
+
+    l = Layer(
+        name='layer2',
+        parent='layer1',
+        attributes=['test2']
+    )
+    text.add_layer(l)
+
+    for i in text.layer1:
+        i.mark('layer2').test2 = '1234'
+
+    #the parent is now changed to "words"
+    #it is confusing, but it stays right now to save me from a rewrite
+    assert text.layer2[0].parent.layer.name == 'words'
 
 # def test_spans():
 #     text = Text('Mingi tekst')

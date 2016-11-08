@@ -37,6 +37,10 @@ class Span:
             assert start is None
             assert end is None
             self.is_dependant = True
+            self._base = parent._base
+
+        if not self.is_dependant:
+            self._base = self
 
         for k, v in attributes.items():
             if k in legal_attributes:
@@ -51,7 +55,8 @@ class Span:
         assert  parent == self.layer.name, "Expected '{self.layer.name}' got '{parent}'".format(self=self, parent=parent)
         res = base_layer.add_span(
             Span(
-                parent=self
+                # parent=self
+                parent = self._base #this is the base span
             )
         )
         return res
@@ -77,7 +82,6 @@ class Span:
     @property
     def text_object(self):
         return self.layer.text_object
-
 
 
     def __getattr__(self, item):
@@ -145,9 +149,11 @@ class SpanList(collections.Sequence):
         self._layer = layer
         self.ambiguous = ambiguous
         self.parent = None #placeholder for ambiguous layer
+        self._base = None  #placeholder for dependant layer
 
 
     def add_span(self, span:Span) -> Span:
+        #the assumption is that this method is called by Layer.add_span
         if not self.ambiguous:
             span.layer = self.layer
             bisect.insort(self.spans, span)
@@ -292,14 +298,20 @@ class Layer:
         #layer inheritance purposes. As the idea about new-style text objects has evolved, it has been decided that
         #it is more sensible to keep the tree short and pruned. I'm hoping to avoid a rewrite though.
 
+        #the name of the layer this class envelops
+        #sentences envelop words
+        #paragraphs envelop sentences
+        #...
         self.enveloping = enveloping
 
+        #Container for spans
         self.spans = SpanList(layer=self, ambiguous=ambiguous)
 
-        self.ambiguous = ambiguous
+        #boolean for if this is an ambiguous layer
+        #if True, add_span will behave differently and add a SpanList instead.
+        self.ambiguous = ambiguous #type: bool
 
-
-        #  placeholder, is set when `add_layer` is called on text object
+        #placeholder. is set when `add_layer` is called on text object
         self.text_object = None # type:Text
 
     def from_dict(self, records):
@@ -583,7 +595,6 @@ class Text:
                 if sofar:
                     res = []
                     for i in sofar.spans:
-                        print('iiiii', i, i.layer.name, to, i.__getattr__(to))
                         res.append(i.__getattr__(to))
                     return res
                 else:
@@ -734,4 +745,5 @@ def words_sentences(text):
             for attr in morf_attributes:
                 setattr(m, attr, analysis[attr])
     return new
+
 
