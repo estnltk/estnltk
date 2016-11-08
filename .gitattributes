@@ -1,0 +1,4 @@
+older_docs/* linguist-documentation
+docs/* linguist-documentation
+include/* linguist-vendored
+src/* linguist-vendored
