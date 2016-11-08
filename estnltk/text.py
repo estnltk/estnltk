@@ -319,6 +319,9 @@ class Layer:
         self.text_object = None # type:Text
 
     def from_dict(self, records):
+        if self.ambiguous:
+            raise NotImplementedError
+
         if self.parent is not None and not self._bound:
             self._is_lazy = True
         for record in records:
