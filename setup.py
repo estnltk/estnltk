@@ -55,7 +55,15 @@ setup(
     author       = "University of Tartu",
     author_email = "siim.orasmaa@gmail.com, alex.tk.fb@gmail.com, tpetmanson@gmail.com, swen@math.ut.ee",
     description  = "Estnltk — open source tools for Estonian natural language processing",
-    long_description = open('README.rst').read(),
+    long_description = '''
+Estnltk -- Open source tools for Estonian natural language processing
+=====================================================================
+
+Estnltk provides common natural language processing functionality such as paragraph, sentence and word tokenization,
+morphological analysis, named entity recognition, etc. for the Estonian language.
+
+
+    ''',
     license      = "GPLv2",
     url          = "https://github.com/estnltk/estnltk",
     ext_modules = [
