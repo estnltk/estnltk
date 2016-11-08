@@ -3,6 +3,11 @@ from setuptools import setup, find_packages, Extension
 import os
 import sys
 
+__version__ = None #placeholder, will be filled by exec
+with open('estnltk/__about__.py', 'r') as about_file:
+    exec(about_file.read())
+assert __version__ is not None, 'Reading version number from file failed'
+
 os.environ['CC'] = 'g++'
 os.environ['CXX'] = 'g++'
 
@@ -38,7 +43,7 @@ swig_opts.append('-c++')
 
 setup(
     name = "estnltk",
-    version = "1.4.1.dev0",
+    version = __version__,
 
     packages = find_packages(),
     include_package_data=True,
