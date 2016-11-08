@@ -1,5 +1,6 @@
 import bisect
 import keyword
+# noinspection PyUnresolvedReferences
 import collections
 from typing import *
 
@@ -88,6 +89,9 @@ class Span:
             except AttributeError:
                 return None
 
+        elif item == getattr(self.layer, 'parent', None):
+            return self.parent
+
         elif self.layer.text_object._path_exists(self.layer.name, item):
             #there exists an unambiguous path from this span to the target (attribute)
             target_layer_name  = self.text_object._get_path(self.layer.name, item)[-2]
@@ -116,7 +120,15 @@ class Span:
         return self < other or self == other
 
     def __str__(self):
-        return 'Span({text})'.format(text=self.text)
+        legal_attribute_names = self.__getattribute__('layer').__getattribute__('attributes')
+
+        mapping = {}
+
+        for k in legal_attribute_names:
+            mapping[k] = self.__getattribute__(k)
+
+
+        return 'Span({text}, {attributes})'.format(text=self.text, attributes=mapping)
 
     def __repr__(self):
         return str(self)
@@ -139,7 +151,6 @@ class SpanList(collections.Sequence):
         if not self.ambiguous:
             span.layer = self.layer
             bisect.insort(self.spans, span)
-            return span
         else:
             span.layer = self.layer
 
@@ -154,13 +165,15 @@ class SpanList(collections.Sequence):
             for spn_lst in self.spans:
                 if equality_check(span, spn_lst[0]):
                     spn_lst.spans.append(span)
-                    return span
+                    break
+            else:
+                new = SpanList(layer=self.layer)
+                new.add_span(span)
+                bisect.insort(self.spans.spans, new)
+                new.parent = span.parent
 
-            new = SpanList(layer=self.layer)
-            new.add_span(span)
-            self.spans.spans.append(new)
-            new.parent = span.parent
-            return span
+
+        return span
 
     @property
     def layer(self):
@@ -199,6 +212,12 @@ class SpanList(collections.Sequence):
         layer = self.__getattribute__('layer') #type: Layer
         if item in layer.attributes:
             return [getattr(span, item) for span in self.spans]
+        elif item in self.__dict__.keys():
+            return self.__dict__[item]
+
+        elif item == getattr(self.layer, 'parent', None):
+            return self.parent
+
         else:
             if item in self.__dict__:
                 return self.__dict__[item]
@@ -236,7 +255,7 @@ class SpanList(collections.Sequence):
         return self < other or self == other
 
     def __str__(self):
-        return 'SpanList({spans})'.format(spans=',\n'.join(str(i) for i in self.spans))
+        return 'SL[{spans}]'.format(spans=',\n'.join(str(i) for i in self.spans))
 
     def __repr__(self):
         return str(self)
@@ -304,10 +323,10 @@ class Layer:
             return self.text_object._resolve(self.name, target)
 
     def __getattr__(self, item):
-        if item in self.__getattribute__('attributes'):
-            return item  # TODO!
-        elif item in self.__getattribute__('__dict__').keys():
+        if item in self.__getattribute__('__dict__').keys():
             return self.__getattribute__('__dict__')[item]
+        elif item in self.__getattribute__('attributes'):
+            return self.spans.__getattr__(item)
         else:
             return self.__getattribute__('_resolve')(item)
 
@@ -323,10 +342,10 @@ class Text:
     def __init__(self, text:str):
 
         self._text = text
-        self.layers = {} # type: Mapping[str, Layer]
-        self.layers_to_attributes = collections.defaultdict(list)  # type: Mapping[str, List[str]]
-        self.base_to_dependant = collections.defaultdict(list) # type: Mapping[str, List[str]]
-        self.enveloping_to_enveloped = collections.defaultdict(list)  # type: Mapping[str, List[str]]
+        self.layers = {} # type: MutableMapping[str, Layer]
+        self.layers_to_attributes = collections.defaultdict(list)  # type: MutableMapping[str, List[str]]
+        self.base_to_dependant = collections.defaultdict(list) # type: MutableMapping[str, List[str]]
+        self.enveloping_to_enveloped = collections.defaultdict(list)  # type: MutableMapping[str, List[str]]
 
         self._setup_structure()
 
@@ -457,6 +476,7 @@ class Text:
                 #from layer to strictly dependant layer
                 elif frm == self.layers[to].parent:
 
+                    # if sofar is None:
                     sofar = self.layers[to].spans
 
                     spans = []
@@ -465,6 +485,19 @@ class Text:
                     res = SpanList(layer=self.layers[to])
                     res.spans = spans
                     return res
+
+                # #from layer to direct parent layer
+                # elif to == self.layers[frm].parent:
+                #     if sofar is None:
+                #         sofar = self.layers[frm].spans
+                #
+                #     spans = []
+                #     for i in sofar:
+                #         spans.append(i.parent)
+                #     res = SpanList(layer=self.layers[to])
+                #     res.spans = spans
+                #     return res
+                #
 
 
         #attribute access
@@ -543,7 +576,8 @@ class Text:
         try:
             res = len(paths) == 1 or nx.has_path(self._g, frm, to)
         except nx.NetworkXError:
-            raise KeyError
+            res = False
+            # raise KeyError('No path found {} {}'.format(frm, to))
         return res
 
     def _get_all_paths(self, frm, to):
@@ -586,18 +620,20 @@ class Text:
         return draw_graph(self._g)
 
     def __delattr__(self, item):
-        if item in self.layers.keys():
+        raise NotImplementedError('deleting not implemented')
 
-            layer = self.layers[item]
-
-            if layer.parent or layer.enveloping:
-                raise NotImplementedError('deleting base or envleoping layers not implemented')
-
-            del self.layers[item]
-            del self.layers_to_attributes[item]
-            self._setup_structure()
-        else:
-            raise NotImplementedError('deleting attributes not implemented')
+        # if item in self.layers.keys():
+        #
+        #     layer = self.layers[item]
+        #
+        #     if layer.parent or layer.enveloping:
+        #         raise NotImplementedError('deleting base or envleoping layers not implemented')
+        #
+        #     del self.layers[item]
+        #     del self.layers_to_attributes[item]
+        #     self._setup_structure()
+        # else:
+        #     raise NotImplementedError('deleting attributes not implemented')
 
 
 
@@ -667,7 +703,4 @@ def words_sentences(text):
             for attr in morf_attributes:
                 setattr(m, attr, analysis[attr])
     return new
-
-
-
 

@@ -5,11 +5,12 @@ from abc import ABC, abstractmethod
 
 
 class Rewriter(ABC):
-    def if_(self, _bool):
-        if _bool:
-            return self
-        else:
-            return DummyRewriter()
+    pass
+    # def if_(self, _bool):
+    #     if _bool:
+    #         return self
+    #     else:
+    #         return DummyRewriter()
 
     @abstractmethod
     def rewrite(self, _str):
@@ -55,12 +56,12 @@ class RegexRewriter(Rewriter):
         return result
 
 
-class DummyRewriter(Rewriter):
-    def __init__(self, **kwargs):
-        pass
-
-    def rewrite(self, _str):
-        return _str
+# class DummyRewriter(Rewriter):
+#     def __init__(self, **kwargs):
+#         pass
+#
+#     def rewrite(self, _str):
+#         return _str
 
 
 class Rewritable:
