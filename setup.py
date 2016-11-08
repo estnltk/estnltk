@@ -43,6 +43,8 @@ swig_opts.append('-c++')
 
 setup(
     name = "estnltk",
+
+    #change the version in file `estnltk/__about__.py`
     version = __version__,
 
     packages = find_packages(),
@@ -98,7 +100,7 @@ morphological analysis, named entity recognition, etc. for the Estonian language
                    'Intended Audience :: Information Technology',
                    'Operating System :: OS Independent',
                    'Programming Language :: Python :: 2.7',
-                   'Programming Language :: Python :: 3.4',
+                   'Programming Language :: Python :: 3.5',
                    'Topic :: Scientific/Engineering',
                    'Topic :: Scientific/Engineering :: Artificial Intelligence',
                    'Topic :: Scientific/Engineering :: Information Analysis',
