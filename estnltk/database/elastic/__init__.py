@@ -73,7 +73,6 @@ class Index:
             if query.get('fields', None) is None:
                 query['fields'] = ['estnltk_text_object']
             else:
-                print(query)
                 if 'estnltk_text_object' not in query['fields']:
                     raise AssertionError('Query contained the "fields" parameter without the "estnltk_text_object" argument'
                                          'Consider setting the "return_estnltk_object" parameter to False to disable respose handling')
