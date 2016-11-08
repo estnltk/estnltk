@@ -3,6 +3,11 @@ from setuptools import setup, find_packages, Extension
 import os
 import sys
 
+__version__ = None #placeholder, will be filled by exec
+with open('estnltk/__about__.py', 'r') as about_file:
+    exec(about_file.read())
+assert __version__ is not None, 'Reading version number from file failed'
+
 os.environ['CC'] = 'g++'
 os.environ['CXX'] = 'g++'
 
@@ -36,26 +41,11 @@ if sys.version_info[0] == 3:
     swig_opts.append('-py3')
 swig_opts.append('-c++')
 
-from distutils.command.build import build as _build
-
-#By default "setup.py build" would first copy the python sources, then build external code
-#As swig generates python sources, we want to flip this order.
-#see http://stackoverflow.com/a/26556654
-#Define custom build order, so that the python interface module
-#created by SWIG is staged in build_py.
-class build(_build):
-    # different order: build_ext *before* build_py
-    sub_commands = [('build_ext',     _build.has_ext_modules),
-                    ('build_py',      _build.has_pure_modules),
-                    ('build_clib',    _build.has_c_libraries),
-                    ('build_scripts', _build.has_scripts),
-                   ]
-
 setup(
+    name = "estnltk",
 
-name = "estnltk",
-    version = "1.4dev",
-    cmdclass={'build': build},  # Use your own build class
+    #change the version in file `estnltk/__about__.py`
+    version = __version__,
 
     packages = find_packages(),
     include_package_data=True,
@@ -72,7 +62,15 @@ name = "estnltk",
     author       = "University of Tartu",
     author_email = "siim.orasmaa@gmail.com, alex.tk.fb@gmail.com, tpetmanson@gmail.com, swen@math.ut.ee",
     description  = "Estnltk — open source tools for Estonian natural language processing",
-    long_description = open('README.rst').read(),
+    long_description = '''
+Estnltk -- Open source tools for Estonian natural language processing
+=====================================================================
+
+Estnltk provides common natural language processing functionality such as paragraph, sentence and word tokenization,
+morphological analysis, named entity recognition, etc. for the Estonian language.
+
+
+    ''',
     license      = "GPLv2",
     url          = "https://github.com/estnltk/estnltk",
     ext_modules = [
@@ -86,14 +84,14 @@ name = "estnltk",
     # however, you can probably safely install newer versions of the dependencies
     install_requires = [
         'six>=1.9.0',                       # helps to build Py2/Py3 compatible programs
-        'nltk>=3.0.4',                      # NLTK mainly used for English
+        'nltk>=3.1',                        # NLTK mainly used for English
         'regex>=2015.07.19',                # improved Python regular expressions
-        'pandas>=0.17.1',                   # Panel Data Analysis library for Python
+        'pandas>=0.18',                     # Panel Data Analysis library for Python
         'python-crfsuite>=0.8.4',           # Conditional random fields library
         'cached-property>=1.2.0',           # Simple property for caching results
         'beautifulsoup4>=4.4.0',            # HTML parsing library
-        'html5lib',              # HTML parsing library
-        'elasticsearch>=2.0.0'              # database support
+        'html5lib>=0.9999999',              # HTML parsing library
+        'elasticsearch>=2'                  # database support
         ],
 
     classifiers = ['Intended Audience :: Developers',
