@@ -1,12 +1,9 @@
 import bisect
-import keyword
-# noinspection PyUnresolvedReferences
 import collections
+import keyword
 from typing import *
 
-# noinspection PyPackageRequirements
 import ipywidgets
-# noinspection PyPackageRequirements
 import networkx as nx
 
 
@@ -19,9 +16,18 @@ class Span:
     # __slots__ = ['_start', '_end', 'layer', '_attributes']
 
     def __init__(self, start: int = None, end: int = None, parent=None,  *, legal_attributes=None, **attributes) -> None:
+
+        #this is set up first, because attribute access depends on knowing attribute names as earley as possible
+        if legal_attributes is not None:
+            self._legal_attribute_names = legal_attributes
+        else:
+            self._legal_attribute_names = legal_attributes
+
+        self.is_dependant = parent is None #best guess right now, we'll
+
+
         # Placeholder, set when span added to spanlist
         self.layer = None #type:Layer
-
         self.parent = parent #type: Span
 
         if isinstance(start, int) and isinstance(end, int):
@@ -39,14 +45,30 @@ class Span:
             self.is_dependant = True
             self._base = parent._base
 
+        else:
+            assert 0, 'What?'
+
+
         if not self.is_dependant:
             self._base = self
+
 
         for k, v in attributes.items():
             if k in legal_attributes:
                 self.__setattr__(k, v)
 
 
+    @property
+    def legal_attribute_names(self):
+        if self.__getattribute__('_legal_attribute_names') is not None:
+            return self.__getattribute__('_legal_attribute_names')
+        else:
+            return self.__getattribute__('layer').__getattribute__('attributes')
+
+
+    def to_record(self):
+        return {**{k:self.__getattribute__(k) for k in self.legal_attribute_names},
+                **{'start':self.start, 'end':self.end}}
 
     def mark(self, mark_layer: str) -> 'Span':
         base_layer = self.text_object.layers[mark_layer] #type: Layer
@@ -75,6 +97,17 @@ class Span:
         else:
             return self.parent.end
 
+    @start.setter
+    def start(self, value:int):
+        assert not self.is_bound, 'setting start is allowed on special occasions only'
+        self._start = value
+
+    @end.setter
+    def end(self, value:int):
+        assert not self.is_bound, 'setting end is allowed on special occasions only'
+        self._end = value
+
+
     @property
     def text(self):
         return self.text_object.text[self.start:self.end]
@@ -85,9 +118,7 @@ class Span:
 
 
     def __getattr__(self, item):
-        legal_attribute_names = self.__getattribute__('layer').__getattribute__('attributes')
-
-        if item in legal_attribute_names:
+        if item in self.__getattribute__('legal_attribute_names'):
             try:
                 return self.__getattribute__(item)
             except AttributeError:
@@ -96,7 +127,7 @@ class Span:
         elif item == getattr(self.layer, 'parent', None):
             return self.parent
 
-        elif self.layer.text_object._path_exists(self.layer.name, item):
+        elif self.layer is not None and self.layer.text_object is not None and  self.layer.text_object._path_exists(self.layer.name, item):
             #there exists an unambiguous path from this span to the target (attribute)
             target_layer_name  = self.text_object._get_path(self.layer.name, item)[-2]
             #siin on kala
@@ -151,6 +182,9 @@ class SpanList(collections.Sequence):
         self.parent = None #placeholder for ambiguous layer
         self._base = None  #placeholder for dependant layer
 
+
+    def to_record(self):
+        return [i.to_record() for i in self.spans]
 
     def add_span(self, span:Span) -> Span:
         #the assumption is that this method is called by Layer.add_span
@@ -265,6 +299,21 @@ class SpanList(collections.Sequence):
         return str(self)
 
 
+def whitelist_record(record, source_attributes):
+    #the goal is to only keep the keys explicitly listed in source_attributes
+
+    #record might be a dict:
+    if isinstance(record, dict):
+        res = {}
+        for k in source_attributes:
+            res[k] = record.get(k, None)
+        return res
+
+    else:
+    #record might be nested
+        return [whitelist_record(i, source_attributes) for i in record]
+
+
 class Layer:
     def __init__(self,
                  name:str=None,
@@ -319,7 +368,7 @@ class Layer:
         #placeholder. is set when `_add_layer` is called on text object
         self.text_object = None # type:Text
 
-    def from_dict(self, records):
+    def from_records(self, records):
         if self.parent is not None and not self._bound:
             self._is_lazy = True
 
@@ -334,8 +383,35 @@ class Layer:
 
         return self
 
+    def to_records(self):
+        records = []
+
+        for item in self.spans:
+            records.append(item.to_record())
+
+        return records
+
+
     def add_span(self, span: Span) -> Span:
         return self.spans.add_span(span)
+
+
+    def rewrite(self, source_attributes, target_attributes, rules, **kwargs):
+        assert 'name' in kwargs.keys(), '"name" must currently be an argument to layer'
+
+        res = [whitelist_record(record, source_attributes + ['start', 'end']) for record in self.to_records()]
+        print(source_attributes)
+        print(res)
+        rewritten = [rules.rewrite(j) for j in res]
+        print(rewritten)
+        resulting_layer = Layer(
+            **kwargs,
+            attributes=target_attributes
+        ).from_records(
+            rewritten
+        )
+
+        return resulting_layer
 
     def _add_spans_to_enveloping(self, spans):
         spanlist = SpanList(
@@ -384,7 +460,7 @@ def _get_span_by_start_and_end(spans:SpanList, start:int, end:int) -> Span:
 class Text:
     def __init__(self, text:str):
 
-        self._text = text
+        self._text = text #type: str
         self.layers = {} # type: MutableMapping[str, Layer]
         self.layers_to_attributes = collections.defaultdict(list)  # type: MutableMapping[str, List[str]]
         self.base_to_dependant = collections.defaultdict(list) # type: MutableMapping[str, List[str]]
@@ -709,7 +785,7 @@ def words_sentences(text):
 
 
     new = Text(text)
-    words = Layer(name='words').from_dict([{
+    words = Layer(name='words').from_records([{
         'start':start,
         'end':end
                                            } for start, end in old.spans('words')])

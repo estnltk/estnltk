@@ -1,8 +1,8 @@
 import pytest
 
 from estnltk.legacy.text import Text as OldText
-from estnltk.rewriting import RegexRewriter
 from estnltk.text import *
+from estnltk.rewriting import ReverseRewriter
 #
 
 
@@ -297,13 +297,13 @@ def test_from_dict():
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(name='words', attributes=['lemma'])
     t._add_layer(words)
-    words.from_dict([{'end': 3, 'lemma': 'kui', 'start': 0},
-                                           {'end': 8, 'lemma': 'mitu', 'start': 4},
-                                           {'end': 13, 'lemma': 'kuu', 'start': 9},
-                                           {'end': 16, 'lemma': 'olema', 'start': 14},
-                                           {'end': 23, 'lemma': 'aasta', 'start': 17},
-                                           {'end': 24, 'lemma': '?', 'start': 23}]
-                    )
+    words.from_records([{'end': 3, 'lemma': 'kui', 'start': 0},
+                        {'end': 8, 'lemma': 'mitu', 'start': 4},
+                        {'end': 13, 'lemma': 'kuu', 'start': 9},
+                        {'end': 16, 'lemma': 'olema', 'start': 14},
+                        {'end': 23, 'lemma': 'aasta', 'start': 17},
+                        {'end': 24, 'lemma': '?', 'start': 23}]
+                       )
 
     for span, lemma in zip(t.words, ['kui', 'mitu', 'kuu', 'olema', 'aasta', '?']):
         print(span.lemma, lemma)
@@ -315,7 +315,7 @@ def test_ambiguous_from_dict():
     t['words'] = words
 
 
-    words.from_dict([
+    words.from_records([
                      [{'end': 3, 'lemma': 'kui', 'start': 0}, {'end': 3, 'lemma': 'KUU', 'start': 0}] ,
                        [{'end': 8, 'lemma': 'mitu', 'start': 4}],
                        [{'end': 13, 'lemma': 'kuu', 'start': 9}],
@@ -331,7 +331,7 @@ def test_ambiguous_from_dict_unbound():
     words = Layer(name='words', attributes=['lemma'], ambiguous = True)
 
     #We create the layer
-    words.from_dict([
+    words.from_records([
                      [{'end': 3, 'lemma': 'kui', 'start': 0}, {'end': 3, 'lemma': 'KUU', 'start': 0}] ,
                        [{'end': 8, 'lemma': 'mitu', 'start': 4}],
                        [{'end': 13, 'lemma': 'kuu', 'start': 9}],
@@ -350,7 +350,7 @@ def test_ambiguous_from_dict_unbound():
 
     words2 = Layer(name='words2', attributes=['lemma2'], ambiguous = True, parent='words')
     #We create the layer
-    words2.from_dict([
+    words2.from_records([
                      [{'end': 3, 'lemma2': 'kui', 'start': 0}, {'end': 3, 'lemma2': 'KUU', 'start': 0}] ,
                        [{'end': 8, 'lemma2': 'mitu', 'start': 4}],
                        [{'end': 13, 'lemma2': 'kuu', 'start': 9}],
@@ -368,13 +368,13 @@ def test_dependant_span():
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(name='words',
                   attributes=['lemma']
-                  ).from_dict([{'end': 3, 'lemma': 'kui', 'start': 0},
-                                           {'end': 8, 'lemma': 'mitu', 'start': 4},
-                                           {'end': 13, 'lemma': 'kuu', 'start': 9},
-                                           {'end': 16, 'lemma': 'olema', 'start': 14},
-                                           {'end': 23, 'lemma': 'aasta', 'start': 17},
-                                           {'end': 24, 'lemma': '?', 'start': 23}],
-                                  )
+                  ).from_records([{'end': 3, 'lemma': 'kui', 'start': 0},
+                                  {'end': 8, 'lemma': 'mitu', 'start': 4},
+                                  {'end': 13, 'lemma': 'kuu', 'start': 9},
+                                  {'end': 16, 'lemma': 'olema', 'start': 14},
+                                  {'end': 23, 'lemma': 'aasta', 'start': 17},
+                                  {'end': 24, 'lemma': '?', 'start': 23}],
+                                 )
     t._add_layer(words)
 
     dep = Layer(name='reverse_lemmas',
@@ -397,7 +397,7 @@ def test_dependant_span():
 #
 # def test_delete_layer():
 #     t = Text('Kui mitu kuud on aastas?')
-#     words = Layer('words', attributes=['lemma']).from_dict([{'end': 3, 'lemma': 'kui', 'start': 0},
+#     words = Layer('words', attributes=['lemma']).from_records([{'end': 3, 'lemma': 'kui', 'start': 0},
 #                                            {'end': 8, 'lemma': 'mitu', 'start': 4},
 #                                            {'end': 13, 'lemma': 'kuu', 'start': 9},
 #                                            {'end': 16, 'lemma': 'olema', 'start': 14},
@@ -418,13 +418,13 @@ def test_enveloping_layer():
     name='words',
     attributes = ['lemma']
 
-    ).from_dict([{'end': 3, 'lemma': 'kui', 'start': 0},
-                                           {'end': 8, 'lemma': 'mitu', 'start': 4},
-                                           {'end': 13, 'lemma': 'kuu', 'start': 9},
-                                           {'end': 16, 'lemma': 'olema', 'start': 14},
-                                           {'end': 23, 'lemma': 'aasta', 'start': 17},
-                                           {'end': 24, 'lemma': '?', 'start': 23}],
-                                  )
+    ).from_records([{'end': 3, 'lemma': 'kui', 'start': 0},
+                    {'end': 8, 'lemma': 'mitu', 'start': 4},
+                    {'end': 13, 'lemma': 'kuu', 'start': 9},
+                    {'end': 16, 'lemma': 'olema', 'start': 14},
+                    {'end': 23, 'lemma': 'aasta', 'start': 17},
+                    {'end': 24, 'lemma': '?', 'start': 23}],
+                   )
     t._add_layer(words)
     wordpairs = Layer(name='wordpairs', enveloping='words')
     t._add_layer(wordpairs)
@@ -580,7 +580,6 @@ def test_ambiguous_layer():
 
     print(t.test)
 
-
     print(t.words[0].asd)
 #
 # def test_morf():
@@ -617,6 +616,21 @@ def test_change_lemma():
 
     setattr(text.morf_analysis[0][1], 'lemma', 'blabla2')
     assert text.morf_analysis[0][1].lemma == 'blabla2'
+
+
+def test_to_records():
+    text = words_sentences('Olnud aeg.')
+
+    #ambiguous
+    assert (text['morf_analysis'].to_records()) == [[{'root': 'ol=nud', 'lemma': 'olnud', 'form': '', 'ending': '0', 'root_tokens': ['olnud'], 'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''}, {'root': 'ol=nud', 'lemma': 'olnud', 'form': 'sg n', 'ending': '0', 'root_tokens': ['olnud'], 'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''}, {'root': 'ol=nud', 'lemma': 'olnud', 'form': 'pl n', 'ending': 'd', 'root_tokens': ['olnud'], 'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''}, {'root': 'ole', 'lemma': 'olema', 'form': 'nud', 'ending': 'nud', 'root_tokens': ['ole'], 'partofspeech': 'V', 'start': 0, 'end': 5, 'clitic': ''}], [{'root': 'aeg', 'lemma': 'aeg', 'form': 'sg n', 'ending': '0', 'root_tokens': ['aeg'], 'partofspeech': 'S', 'start': 6, 'end': 9, 'clitic': ''}], [{'root': '.', 'lemma': '.', 'form': '', 'ending': '', 'root_tokens': ['.'], 'partofspeech': 'Z', 'start': 9, 'end': 10, 'clitic': ''}]]
+
+    #base
+    assert (text['words'].to_records() == [{'start': 0, 'end': 5}, {'start': 6, 'end': 9}, {'start': 9, 'end': 10}])
+
+    #enveloping (note nested lists)
+    assert (text['sentences'].to_records() == [[{'end': 5, 'start': 0}, {'end': 9, 'start': 6}, {'end': 10, 'start': 9}]])
+
+
 
 #
 # #
@@ -819,3 +833,28 @@ def test_rewrite_access():
     ## TODO
     # for i in text.com_type:
     #     print(i, i.lemma)
+
+
+def test_rewriting_api():
+    text = words_sentences('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''')
+
+    text['test'] = Layer(name='test', attributes=['reverse'], parent='words')
+
+
+    for word in text.words:
+        word.mark('test').reverse = word.text[::-1]
+
+    rewriter = ReverseRewriter()
+    layer = text['test'].rewrite(
+        source_attributes = ['reverse'],
+        target_attributes = ['esrever'],
+        rules = rewriter,
+        name = 'plain'
+    )
+
+    #assign to layer
+    text['plain'] = layer
+
+
+    #double reverse is plaintext
+    assert (text.plain.esrever == text.words.text)
