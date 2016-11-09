@@ -115,7 +115,7 @@ def convert_Text_to_mrf(text):
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
-                     attributes=['root', 'ending', 'clitic', 'pos', 'form_list']
+                     attributes=['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case' , 'form_list', 'initial_form', 'fin']
                      )
     text.add_layer(dep)
 
@@ -124,7 +124,7 @@ def convert_Text_to_mrf(text):
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
-                     attributes=['root', 'ending', 'clitic', 'pos', 'form_list']
+                     attributes=['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case' ,'form_list', 'initial_form', 'fin', 'abileksikon']
                      )
     text.add_layer(dep)
 
@@ -155,42 +155,7 @@ def convert_Text_to_mrf(text):
 # ==================================================================================
 # ==================================================================================
 
-def load_fs_mrf_to_syntax_mrf_translation_rules( rulesFile ):
-    ''' Loads rules that can be used to convert from Filosoft's mrf format to 
-        syntactic analyzer's format. Returns a dict containing rules.
-
-        Expects that each line in the input file contains a single rule, and that 
-        different parts of the rule separated by @ symbols, e.g.
-        
-            1@_S_ ?@Substantiiv apellatiiv@_S_ com @Noun common@Nc@NCSX@kesk-
-            32@_H_ ?@Substantiiv prooprium@_S_ prop @Noun proper@Np@NPCSX@Kesk-
-            313@_A_@Adjektiiv positiiv@_A_ pos@Adjective positive@A-p@ASX@salkus
-        
-        Only 2nd element and 4th element are extracted from each line; 2nd element
-        will be the key of the dict entry, and 4th element will be added to the 
-        value of the dict entry (the value is a list of strings);
-
-        A list is used for storing values because one Filosoft's analysis could
-        be mapped to multiple syntactic analyzer's analyses;
-        
-        Lines that have ¤ in the beginning of the line will be skipped;
-      
-    '''
-    rules = defaultdict(list)
-    in_f = codecs.open(rulesFile, mode='r', encoding='utf-8')
-    for line in in_f:
-        line = line.rstrip()
-        if line.startswith('¤'):
-            continue
-        parts = line.split('@')
-        if len(parts) < 4:
-            raise Exception(' Unexpected format of the line: ', line)
-        rules[parts[1]].append( parts[3] )
-    in_f.close()
-    return rules
-
-
-def load_fs_mrf_to_syntax_mrf_translation_rules_new( fs_to_synt_rules_file ):
+def load_fs_mrf_to_syntax_mrf_translation_rules(fs_to_synt_rules_file):
     ''' Loads rules that can be used to convert from Filosoft's mrf format to
         syntactic analyzer's format. Returns a dict containing rules.
 
@@ -240,8 +205,7 @@ def load_fs_mrf_to_syntax_mrf_translation_rules_new( fs_to_synt_rules_file ):
     
 _punctOrAbbrev = re.compile('//\s*_[ZY]_')
 
-
-_punctConversions_new = [ ["…([\+0]*) //\s*_[ZY]_ //",   "Ell"], \
+_punctConversions = [ ["…([\+0]*) //\s*_[ZY]_ //",   "Ell"], \
                       ["…$",      "Ell"], \
                       ["\.\.\.$", "Ell"], \
                       ["\.\.$",   "Els"], \
@@ -268,35 +232,8 @@ _punctConversions_new = [ ["…([\+0]*) //\s*_[ZY]_ //",   "Ell"], \
                       ["\+$",     "crd"], \
 ]# double quotes are escaped by \
 
-_punctConversions = [ ["…([\+0]*) //\s*_[ZY]_ //",   "…\\1 //_Z_ Ell //"], \
-                      ["\.\.\.([\+0]*) //\s*_Z_ //", "...\\1 //_Z_ Ell //"], \
-                      ["\.\.([\+0]*) //\s*_Z_ //",   "..\\1 //_Z_ Els //"], \
-                      ["\.([\+0]*) //\s*_Z_ //",     ".\\1 //_Z_ Fst //"], \
-                      [",([\+0]*) //\s*_Z_ //",      ",\\1 //_Z_ Com //"], \
-                      [":([\+0]*) //\s*_Z_ //",      ":\\1 //_Z_ Col //"], \
-                      [";([\+0]*) //\s*_Z_ //",      ";\\1 //_Z_ Scl //"], \
-                      ["(\?+)([\+0]*) //\s*_Z_ //",  "\\1\\2 //_Z_ Int //"], \
-                      ["(\!+)([\+0]*) //\s*_Z_ //",  "\\1\\2 //_Z_ Exc //"], \
-                      ["(---?)([\+0]*) //\s*_Z_ //", "\\1\\2 //_Z_ Dsd //"], \
-                      ["(-)([\+0]*) //\s*_Z_ //",    "\\1\\2 //_Z_ Dsh //"], \
-                      ["\(([\+0]*) //\s*_Z_ //",     "(\\1 //_Z_ Opr //"], \
-                      ["\)([\+0]*) //\s*_Z_ //",     ")\\1 //_Z_ Cpr //"], \
-                      ["\"([\+0]*) //\s*_Z_ //",     "\"\\1 //_Z_ Quo //"], \
-                      ["«([\+0]*) //\s*_Z_ //",      "«\\1 //_Z_ Oqu //"], \
-                      ["»([\+0]*) //\s*_Z_ //",      "»\\1 //_Z_ Cqu //"], \
-                      ["“([\+0]*) //\s*_Z_ //",      "“\\1 //_Z_ Oqu //"], \
-                      ["”([\+0]*) //\s*_Z_ //",      "”\\1 //_Z_ Cqu //"], \
-                      ["<([\+0]*) //\s*_Z_ //",      "<\\1 //_Z_ Grt //"], \
-                      [">([\+0]*) //\s*_Z_ //",      ">\\1 //_Z_ Sml //"], \
-                      ["\[([\+0]*) //\s*_Z_ //",     "[\\1 //_Z_ Osq //"], \
-                      ["\]([\+0]*) //\s*_Z_ //",     "]\\1 //_Z_ Csq //"], \
-                      ["/([\+0]*) //\s*_Z_ //",      "/\\1 //_Z_ Sla //"], \
-                      ["\+([\+0]*) //\s*_Z_ //",     "+\\1 //_Z_ crd //"], \
-]
 
-
-
-def _convert_punctuation( line ):
+def _convert_punctuation(syntax_pp):
     ''' Converts given analysis line if it describes punctuation; Uses the set 
         of predefined punctuation conversion rules from _punctConversions;
         
@@ -307,28 +244,8 @@ def _convert_punctuation( line ):
         
         Returns the converted line (same as input, if no conversion was 
         performed);
-    ''' 
-    for [pattern, replacement] in _punctConversions:
-        lastline = line
-        line = re.sub(pattern, replacement, line)
-        if lastline != line:
-            break
-    return line 
-
-
-def _convert_punctuation_new(syntax_pp):
-    ''' Converts given analysis line if it describes punctuation; Uses the set 
-        of predefined punctuation conversion rules from _punctConversions;
-        
-        _punctConversions should be a list of lists, where each outer list stands 
-        for a single conversion rule and inner list contains a pair of elements:
-        first is the regexp pattern and the second is the replacement, used in
-           re.sub( pattern, replacement, line )
-        
-        Returns the converted line (same as input, if no conversion was 
-        performed);
-    ''' 
-    for pattern, replacement in _punctConversions_new:
+    '''
+    for pattern, replacement in _punctConversions:
         if re.search(pattern, syntax_pp.root):
             # kas match või search?     "//", ".-"
             # või hoopis pattern==syntax_pp.root?
@@ -336,8 +253,27 @@ def _convert_punctuation_new(syntax_pp):
             syntax_pp.form_list = [replacement]
             break
 
+def _get_punctuation_type(syntax_pp):
+    ''' Converts given analysis line if it describes punctuation; Uses the set 
+        of predefined punctuation conversion rules from _punctConversions;
+        
+        _punctConversions should be a list of lists, where each outer list stands 
+        for a single conversion rule and inner list contains a pair of elements:
+        first is the regexp pattern and the second is the replacement, used in
+           re.sub( pattern, replacement, line )
+        
+        Returns the converted line (same as input, if no conversion was 
+        performed);
+    ''' 
+    for pattern, punct_type in _punctConversions:
+        if re.search(pattern, syntax_pp.root):
+            # kas match või search?     "//", ".-"
+            # või hoopis pattern==syntax_pp.root?
+            # praegu on search, sest see klapib eelmise versiooniga
+            return punct_type
 
-def convert_mrf_to_syntax_mrf_new(text, fs_to_synt_rules):
+
+def convert_mrf_to_syntax_mrf(text, fs_to_synt_rules):
     ''' Converts given lines from Filosoft's mrf format to syntactic analyzer's
         format, using the morph-category conversion rules from conversion_rules,
         and punctuation via method _convert_punctuation();
@@ -355,28 +291,26 @@ def convert_mrf_to_syntax_mrf_new(text, fs_to_synt_rules):
     '''
     for word in text.words:
         for syntax_pp in word.syntax_pp_1:
-            root = syntax_pp.root
             pos = syntax_pp.pos
-            form = syntax_pp.form
             form_list = syntax_pp.form_list[:]#ka son siin koopiat vaja?
-            if pos == 'Z':
-                root_ec = root
-            else:
-                root_ec = ''.join((root, '+', syntax_pp.ending, syntax_pp.clitic))
             # 1) Convert punctuation
             if pos == 'Z':
-                _convert_punctuation_new(syntax_pp)
+                # üsne kasutu, sest see töö on varem morf_analysis sees ära tehtud, 
+                # omab mingit efekti vaid " jaoks
+                _convert_punctuation(syntax_pp)
                 m = word.mark('syntax_pp_2')
-                #m.morph_line = '    '+root_ec+' //_'+syntax_pp.pos+'_ '+ ' '.join(syntax_pp.form_list+['//'])
                 m.root = syntax_pp.root
                 m.ending = syntax_pp.ending
                 m.clitic = syntax_pp.clitic
                 m.pos = syntax_pp.pos
+                m.punctuation_type = _get_punctuation_type(syntax_pp)
+                m.pronoun_type = None
                 m.form_list = syntax_pp.form_list[:]
+                m.initial_form = syntax_pp.form_list[:]
             else:
                 if pos == 'Y':
                     # järgmine rida on kasutu, siin tuleb _form muuta, kui _root=='…'
-                    line = _convert_punctuation_new(syntax_pp)
+                    line = _convert_punctuation(syntax_pp)
 
             # 2) Convert morphological analyses that have a form specified
                 if not form_list:
@@ -394,6 +328,9 @@ def convert_mrf_to_syntax_mrf_new(text, fs_to_synt_rules):
                         m.ending = syntax_pp.ending
                         m.clitic = syntax_pp.clitic
                         m.pos = pos
+                        m.punctuation_type = None
+                        m.pronoun_type = None
+                        m.initial_form = m.form_list[:]
     return text
 
 
@@ -405,7 +342,7 @@ def convert_mrf_to_syntax_mrf_new(text, fs_to_synt_rules):
 # ==================================================================================
 
 # ma, sa, ta ei lähe kunagi mängu, sest ma -> mina, sa -> sina, ta-> tema
-_pronConversions_new = [ ["emb\+.*",             "det"], \
+_pronConversions = [ ["emb\+.*",             "det"], \
                      ["enda\+.*",            "pos refl"], \
                      ["enese\+.*",           "pos refl"], \
                      ["eikeegi.*",           "indef"], \
@@ -517,147 +454,8 @@ _pronConversions_new = [ ["emb\+.*",             "det"], \
                      [".ks_teise.*",         "rec"], \
 ]
 
-_pronConversions = [ ["(emb\+.* //\s*_P_)\s+([sp])",             "\\1 det \\2"], \
-                     ["(enda\+.* //\s*_P_)\s+([sp])",            "\\1 pos refl \\2"], \
-                     ["(enese\+.* //\s*_P_)\s+([sp])",           "\\1 pos refl \\2"], \
-                     ["(eikeegi.* //\s*_P_)\s+([sp])",           "\\1 indef \\2"], \
-                     ["(eimiski.* //\s*_P_)\s+([sp])",           "\\1 indef \\2"], \
-                     ["(emb-kumb.* //\s*_P_)\s+([sp])",          "\\1 det \\2"], \
-                     ["(esimene.* //\s*_P_)\s+([sp])",           "\\1 dem \\2"], \
-                     ["(iga\+.* //\s*_P_)\s+([sp])",             "\\1 det \\2"], \
-                     ["(iga_sugune.* //\s*_P_)\s+([sp])",        "\\1 indef \\2"], \
-                     ["(iga_.ks\+.* //\s*_P_)\s+([sp])",         "\\1 det \\2"], \
-                     ["(ise\+.* //\s*_P_)\s+([sp])",             "\\1 pos det refl \\2"], \
-                     ["(ise_enese.* //\s*_P_)\s+([sp])",         "\\1 refl \\2"], \
-                     ["(ise_sugune.* //\s*_P_)\s+([sp])",        "\\1 dem \\2"], \
-                     ["(keegi.* //\s*_P_)\s+([sp])",             "\\1 indef \\2"], \
-                     ["(kes.* //\s*_P_)\s+([sp])",               "\\1 inter rel \\2"], \
-                     ["(kumb\+.* //\s*_P_)\s+([sp])",            "\\1 rel \\2"], \
-                     ["(kumbki.* //\s*_P_)\s+([sp])",            "\\1 det \\2"], \
-                     ["(kõik.* //\s*_P_)\s+([sp])",              "\\1 det \\2"], \
-                     ["(k.ik.* //\s*_P_)\s+([sp])",              "\\1 det \\2"], \
-                     ["(meie_sugune.* //\s*_P_)\s+([sp])",       "\\1 dem \\2"], \
-                     ["(meie_taoline.* //\s*_P_)\s+([sp])",      "\\1 dem \\2"], \
-                     ["(mihuke\+.* //\s*_P_)\s+([sp])",          "\\1 inter rel \\2"], \
-                     ["(mihukene\+.* //\s*_P_)\s+([sp])",        "\\1 inter rel \\2"], \
-                     ["(mille_taoline.* //\s*_P_)\s+([sp])",     "\\1 dem \\2"], \
-                     ["(milli=?ne.* //\s*_P_)\s+([sp])",         "\\1 rel \\2"], \
-                     ["(mina\+.* //\s*_P_)\s+([sp])",            "\\1 pers ps1 \\2"], \
-                     ["( ma\+.* //\s*_P_)\s+([sp])",             "\\1 pers ps1 \\2"], \
-                     ["(mina=?kene\+.* //\s*_P_)\s+([sp])",      "\\1 dem \\2"], \
-                     ["(mina=?ke\+.* //\s*_P_)\s+([sp])",        "\\1 dem \\2"], \
-                     ["(mingi\+.* //\s*_P_)\s+([sp])",           "\\1 indef \\2"], \
-                     ["(mingi_sugune.* //\s*_P_)\s+([sp])",      "\\1 indef \\2"], \
-                     ["(minu_sugune.* //\s*_P_)\s+([sp])",       "\\1 dem \\2"], \
-                     ["(minu_taoline.* //\s*_P_)\s+([sp])",      "\\1 dem \\2"], \
-                     ["(miski.* //\s*_P_)\s+([sp])",             "\\1 indef \\2"], \
-                     ["(mis\+.* //\s*_P_)\s+([sp])",             "\\1 inter rel \\2"], \
-                     ["(mis_sugune.* //\s*_P_)\s+([sp])",        "\\1 inter rel \\2"], \
-                     ["(miski\+.* //\s*_P_)\s+([sp])",           "\\1 inter rel \\2"], \
-                     ["(miski_sugune.* //\s*_P_)\s+([sp])",      "\\1 inter rel \\2"], \
-                     ["(misu=?ke(ne)?\+.* //\s*_P_)\s+([sp])",   "\\1 dem \\3"], \
-                     ["(mitme_sugune.* //\s*_P_)\s+([sp])",      "\\1 indef \\2"], \
-                     ["(mitme_taoline.* //\s*_P_)\s+([sp])",     "\\1 indef \\2"], \
-                     ["(mitmendik\+.* //\s*_P_)\s+([sp])",       "\\1 inter rel \\2"], \
-                     ["(mitmes\+.* //\s*_P_)\s+([sp])",          "\\1 inter rel indef \\2"], \
-                     ["(mi=?tu.* //\s*_P_)\s+([sp])",            "\\1 indef \\2"], \
-                     ["(miuke(ne)?\+.* //\s*_P_)\s+([sp])",      "\\1 inter rel \\3"], \
-                     ["(muist\+.* //\s*_P_)\s+([sp])",           "\\1 indef \\2"], \
-                     ["(muu.* //\s*_P_)\s+([sp])",               "\\1 indef \\2"], \
-                     ["(m.lema.* //\s*_P_)\s+([sp])",            "\\1 det \\2"], \
-                     ["(m.ne_sugune\+.* //\s*_P_)\s+([sp])",     "\\1 indef \\2"], \
-                     ["(m.ni\+.* //\s*_P_)\s+([sp])",            "\\1 indef \\2"], \
-                     ["(m.ningane\+.* //\s*_P_)\s+([sp])",       "\\1 indef \\2"], \
-                     ["(m.ningas.* //\s*_P_)\s+([sp])",          "\\1 indef \\2"], \
-                     ["(m.herdune\+.* //\s*_P_)\s+([sp])",       "\\1 indef rel \\2"], \
-                     ["(määntne\+.* //\s*_P_)\s+([sp])",         "\\1 dem \\2"], \
-                     ["(na_sugune.* //\s*_P_)\s+([sp])",         "\\1 dem \\2"], \
-                     ["(nende_sugune.* //\s*_P_)\s+([sp])",      "\\1 dem \\2"], \
-                     ["(nende_taoline.* //\s*_P_)\s+([sp])",     "\\1 dem \\2"], \
-                     ["(nihuke(ne)?\+.* //\s*_P_)\s+([sp])",     "\\1 dem \\3"], \
-                     ["(nii_mi=?tu\+.* //\s*_P_)\s+([sp])",      "\\1 indef inter rel \\2"], \
-                     ["(nii_sugune.* //\s*_P_)\s+([sp])",        "\\1 dem \\2"], \
-                     ["(niisama_sugune.* //\s*_P_)\s+([sp])",    "\\1 dem \\2"], \
-                     ["(nii?su=?ke(ne)?\+.* //\s*_P_)\s+([sp])", "\\1 dem \\3"], \
-                     ["(niuke(ne)?\+.* //\s*_P_)\s+([sp])",      "\\1 dem \\3"], \
-                     ["(oma\+.* //\s*_P_)\s+([sp])",             "\\1 pos det refl \\2"], \
-                     ["(oma_enese\+.* //\s*_P_)\s+([sp])",       "\\1 pos \\2"], \
-                     ["(oma_sugune\+.* //\s*_P_)\s+([sp])",      "\\1 dem \\2"], \
-                     ["(oma_taoline\+.* //\s*_P_)\s+([sp])",     "\\1 dem \\2"], \
-                     ["(palju.* //\s*_P_)\s+([sp])",             "\\1 indef \\2"], \
-                     ["(sama\+.* //\s*_P_)\s+([sp])",            "\\1 dem \\2"], \
-                     ["(sama_sugune\+.* //\s*_P_)\s+([sp])",     "\\1 dem \\2"], \
-                     ["(sama_taoline\+.* //\s*_P_)\s+([sp])",    "\\1 dem \\2"], \
-                     ["(samune\+.* //\s*_P_)\s+([sp])",          "\\1 dem \\2"], \
-                     ["(see\+.* //\s*_P_)\s+([sp])",             "\\1 dem \\2"], \
-                     ["(see_sama\+.* //\s*_P_)\s+([sp])",        "\\1 dem \\2"], \
-                     ["(see_sam[au]ne\+.* //\s*_P_)\s+([sp])",   "\\1 dem \\2"], \
-                     ["(see_sinane\+.* //\s*_P_)\s+([sp])",      "\\1 dem \\2"], \
-                     ["(see_sugune\+.* //\s*_P_)\s+([sp])",      "\\1 dem \\2"], \
-                     ["(selle_taoline\+.* //\s*_P_)\s+([sp])",   "\\1 dem \\2"], \
-                     ["(selli=?ne\+.* //\s*_P_)\s+([sp])",       "\\1 dem \\2"], \
-                     ["(setu\+.* //\s*_P_)\s+([sp])",            "\\1 indef \\2"], \
-                     ["(setmes\+.* //\s*_P_)\s+([sp])",          "\\1 indef \\2"], \
-                     ["(sihuke\+.* //\s*_P_)\s+([sp])",          "\\1 dem \\2"], \
-                     ["(sina\+.* //\s*_P_)\s+([sp])",            "\\1 pers ps2 \\2"], \
-                     ["( sa\+.* //\s*_P_)\s+([sp])",             "\\1 pers ps2 \\2"], \
-                     ["(sinu_sugune\+.* //\s*_P_)\s+([sp])",     "\\1 dem \\2"], \
-                     ["(sinu_taoline\+.* //\s*_P_)\s+([sp])",    "\\1 dem \\2"], \
-                     ["(siuke(ne)?\+.* //\s*_P_)\s+([sp])",      "\\1 dem \\3"], \
-                     ["(säherdune\+.* //\s*_P_)\s+([sp])",       "\\1 dem \\2"], \
-                     ["(s.herdune\+.* //\s*_P_)\s+([sp])",       "\\1 dem \\2"], \
-                     ["(säärane\+.* //\s*_P_)\s+([sp])",         "\\1 dem \\2"], \
-                     ["(s..rane\+.* //\s*_P_)\s+([sp])",         "\\1 dem \\2"], \
-                     ["(taoline\+.* //\s*_P_)\s+([sp])",         "\\1 dem \\2"], \
-                     ["(teie_sugune\+.* //\s*_P_)\s+([sp])",     "\\1 dem \\2"], \
-                     ["(teie_taoline\+.* //\s*_P_)\s+([sp])",    "\\1 dem \\2"], \
-                     ["(teine\+.* //\s*_P_)\s+([sp])",           "\\1 dem \\2"], \
-                     ["(teine_teise\+.* //\s*_P_)\s+([sp])",     "\\1 rec \\2"], \
-                     ["(teist?_sugune\+.* //\s*_P_)\s+([sp])",   "\\1 dem \\2"], \
-                     ["(tema\+.* //\s*_P_)\s+([sp])",            "\\1 pers ps3 \\2"], \
-                     ["( ta\+.* //\s*_P_)\s+([sp])",             "\\1 pers ps3 \\2"], \
-                     ["(temake(ne)?\+.* //\s*_P_)\s+([sp])",     "\\1 pers ps3 \\3"], \
-                     ["(tema_sugune\+.* //\s*_P_)\s+([sp])",     "\\1 dem \\2"], \
-                     ["(tema_taoline\+.* //\s*_P_)\s+([sp])",    "\\1 dem \\2"], \
-                     ["(too\+.* //\s*_P_)\s+([sp])",             "\\1 dem \\2"], \
-                     ["(too_sama\+.* //\s*_P_)\s+([sp])",        "\\1 dem \\2"], \
-                     ["(üks.* //\s*_P_)\s+([sp])",               "\\1 dem indef \\2"], \
-                     ["(.ks.* //\s*_P_)\s+([sp])",               "\\1 dem indef \\2"], \
-                     ["(ükski.* //\s*_P_)\s+([sp])",             "\\1 dem indef \\2"], \
-                     ["(.kski.* //\s*_P_)\s+([sp])",             "\\1 dem indef \\2"], \
-                     ["(üks_teise.* //\s*_P_)\s+([sp])",         "\\1 rec indef \\2"], \
-                     ["(.ks_teise.* //\s*_P_)\s+([sp])",         "\\1 rec \\2"], \
-
-]
-
 
 def convert_pronouns(text):
-    ''' Converts pronouns (analysis lines with '_P_') from Filosoft's mrf to 
-        syntactic analyzer's mrf format;
-        Uses the set of predefined pronoun conversion rules from _pronConversions;
-        
-        _pronConversions should be a list of lists, where each outer list stands 
-        for a single conversion rule and inner list contains a pair of elements:
-        first is the regexp pattern and the second is the replacement, used in
-           re.sub( pattern, replacement, line )
-        
-        Returns the input mrf list, with the lines converted from one format
-        to another;
-    ''' 
-
-    for word in text.words:
-        for morph in word.syntax_pp_2:
-            line = morph.morph_line
-            if morph.pos == 'P':  # only consider lines containing pronoun analyses
-                for pattern, replacement in _pronConversions:
-                    lastline = line
-                    line = re.sub(pattern, replacement, line)
-                    if lastline != line:
-                        morph.morph_line = line
-                        break    
-    return text
-
-def convert_pronouns_new(text):
     ''' Converts pronouns (analysis lines with '_P_') from Filosoft's mrf to 
         syntactic analyzer's mrf format;
         Uses the set of predefined pronoun conversion rules from _pronConversions;
@@ -674,10 +472,11 @@ def convert_pronouns_new(text):
         for syntax_pp in word.syntax_pp_2:
             if syntax_pp.pos == 'P':  # only consider lines containing pronoun analyses
                 root_ec = ''.join((syntax_pp.root, '+', syntax_pp.ending, syntax_pp.clitic))
-                for pattern, replacement in _pronConversions_new:
+                for pattern, pron_type in _pronConversions:
                     if re.search(pattern, root_ec):
                         # kas search või match? "enese" vs "iseenese"
-                        syntax_pp.form_list.insert(0, replacement)
+                        #syntax_pp.form_list.insert(0, pron_type)
+                        syntax_pp.pronoun_type = pron_type
                         break    
     return text
 
@@ -710,17 +509,13 @@ def remove_duplicate_analyses(text, allow_to_delete_all=True):
         
         Returns the input list where the removals have been applied;
     ''' 
-
     for word in text.words:
         seen_analyses  = []
         to_delete      = []
         Kpre_index     = -1
         Kpost_index    = -1
-
         for i, syntax_pp in enumerate(word.syntax_pp_2):
-
             analysis = (syntax_pp.root, syntax_pp.ending, syntax_pp.clitic, syntax_pp.pos, syntax_pp.form_list)
-
             if analysis in seen_analyses:
                 # Remember line that has been already seen as a duplicate
                 to_delete.append(i)
@@ -766,25 +561,15 @@ _morfNotFinV     = re.compile('//\s*(_V_)\s+(aux neg)\s+//')
 #_morfNotFinV_new = re.compile('^(aux neg)$')
 
 # Various information about word endings
-_mrfHashTagConversions = [ ["(=[td]ud.+//.+)(\s+//)",   "\\1 partic <tud> //"], \
-                           ["(=nud.+//.+)(\s+//)",      "\\1 partic <nud> //"], \
-                           ["(=mine.+//.+)(\s+//)",     "\\1 <mine> //"], \
-                           ["(=nu[+].+//.+)(\s+//)",    "\\1 <nu> //"], \
-                           ["(=[td]u[+].+//.+)(\s+//)", "\\1 <tu> //"], \
-                           ["(=v[+].+//.+)(\s+//)",     "\\1 partic <v> //"], \
-                           ["(=[td]av.+//.+)(\s+//)",   "\\1 partic <tav> //"], \
-                           ["(=mata.+//.+)(\s+//)",     "\\1 partic <mata> //"], \
-                           ["(=ja.+//.+)(\s+//)",       "\\1 <ja> //"], \
-]
-_mrfHashTagConversions_new = [ ["=[td]ud",   "partic <tud>"], \
-                               ["=nud",      "partic <nud>"], \
-                               ["=mine",     "<mine>"], \
-                               ["=nu$",       "<nu>"], \
-                               ["=[td]u$",    "<tu>"], \
-                               ["=v$",        "partic <v>"], \
-                               ["=[td]av",   "partic <tav>"], \
-                               ["=mata",     "partic <mata>"], \
-                               ["=ja",       "<ja>"], \
+_mrfHashTagConversions = [ ["=[td]ud",   "partic <tud>"], \
+                           ["=nud",      "partic <nud>"], \
+                           ["=mine",     "<mine>"], \
+                           ["=nu$",      "<nu>"], \
+                           ["=[td]u$",   "<tu>"], \
+                           ["=v$",       "partic <v>"], \
+                           ["=[td]av",   "partic <tav>"], \
+                           ["=mata",     "partic <mata>"], \
+                           ["=ja",       "<ja>"], \
 ]
 
 
@@ -801,16 +586,23 @@ def add_hashtag_info(text):
     for word in text.words:
         cap = _esc_double_quotes(word.text)[0].isupper()
         for syntax_pp in word.syntax_pp_2:            
+            syntax_pp.letter_case = None
             if cap:
                 syntax_pp.form_list.append('cap')
+                syntax_pp.letter_case = 'cap'
+
+            syntax_pp.fin = None
             if syntax_pp.pos == 'V':
                 line = '//_V_ ' + ' '.join(syntax_pp.form_list)+' //'
                 if _morfFinV.search( line ) and not _morfNotFinV.search( line ):
                     syntax_pp.form_list.append('<FinV>')
+                    syntax_pp.fin = '<FinV>'
 
-            for pattern, hashtag in _mrfHashTagConversions_new:
+            syntax_pp.partic = None
+            for pattern, value in _mrfHashTagConversions:
                 if re.search(pattern, syntax_pp.root):
-                    syntax_pp.form_list.append(hashtag)
+                    syntax_pp.form_list.append(value)
+                    syntax_pp.partic = value
                     break
     return text
 
@@ -823,54 +615,6 @@ def add_hashtag_info(text):
 # ==================================================================================
 
 def load_subcat_info(subcat_lex_file):
-    ''' Loads subcategorization rules (for verbs and adpositions) from a text 
-        file. 
-        
-        It is expected that the rules are given as pairs, where the first item is 
-        the lemma (of verb/adposition), followed on the next line by the 
-        subcategorization rule, in the following form: 
-           on the left side of '>' is the condition (POS-tag requirement for the 
-           lemma), 
-         and 
-           on the right side is the listing of subcategorization settings (hashtag 
-           items, e.g. names of morphological cases of nominals);
-        If there are multiple subcategorization rules to be associated with a
-        single lemma, different rules are separated by '&'.
-        
-        Example, an excerpt from the rules file:
-          läbi
-          _V_ >#Part &_K_ post >#gen |#nom |#el &_K_ pre >#gen 
-          läbista
-          _V_ >#NGP-P 
-          läbistu
-          _V_ >#Intr 
-
-        Returns a dict of lemma to a-list-of-subcatrules mappings.
-    '''
-    rules = defaultdict(list)
-    nonSpacePattern = re.compile('^\S+$')
-    posTagPattern   = re.compile('_._')
-    in_f = codecs.open(subcat_lex_file, mode='r', encoding='utf-8')
-    lemma = ''
-    subcatRules = ''
-    for line in in_f:
-        line = line.rstrip()
-        if posTagPattern.search(line):
-            subcatRules = line
-        elif nonSpacePattern.match(line):
-            lemma = line
-        if len(lemma) > 0 and len(subcatRules) > 0:
-            parts = subcatRules.split('&')
-            for part in parts:
-                part = part.strip()
-                rules[lemma].append( part )
-            lemma = ''
-            subcatRules = ''
-    in_f.close()
-    #print( len(rules.keys()) )   # 4484
-    return rules
-
-def load_subcat_info_new(subcat_lex_file):
     ''' Loads subcategorization rules (for verbs and adpositions) from a text 
         file. 
         
@@ -919,16 +663,6 @@ def load_subcat_info_new(subcat_lex_file):
     return rules
 
 
-
-def _check_condition(cond_string, target_string):
-    ''' Checks whether cond_string is at the beginning of target_string, or
-        whether cond_string is within target_string, preceded by whitespace.
-
-        Returns boolean indicating the result of the check-up;
-    '''
-    return ((target_string.startswith(cond_string)) or (' '+cond_string in target_string))
-
-
 analysisLemmaPat = re.compile('^\s+([^+ ]+)\+')
 analysisPat      = re.compile('//([^/]+)//')
 
@@ -947,73 +681,6 @@ def tag_subcat_info(text, subcat_rules):
         Returns the input list where verb/adposition analyses have been augmented 
         with available subcategorization information;
     ''' 
-
-    for word in text.words:
-        for syntax_pp in word.syntax_pp_2:
-            line = syntax_pp.morph_line
-            lemma_match = analysisLemmaPat.match(line)
-            match = False
-            if lemma_match:
-                lemma = lemma_match.group(1)
-                # Find whether there is subcategorization info associated 
-                # with the lemma
-                if lemma in subcat_rules:
-                    analysis_match = analysisPat.search(line)
-                    if not analysis_match:
-                        raise Exception(' Could not find analysis from the line:',line)
-                    analysis = analysis_match.group(1)
-                    for rule in subcat_rules[lemma]:
-                        condition, addition = rule.split('>')
-                        # Check the condition string; If there are multiple conditions, 
-                        # all must be satisfied for the rule to fire
-                        condition  = condition.strip()
-                        conditions = condition.split()
-                        satisfied1 = [ _check_condition(c, analysis) for c in conditions ]
-                        if all( satisfied1 ):
-                            #
-                            # There can be multiple additions:
-                            #   1) additions without '|' must be added to a single analysis line;
-                            #   2) additions separated by '|' must be placed on separate analysis 
-                            #      lines;
-                            #
-                            additions = addition.split('|')
-                            # Add new line or lines
-                            for a in additions[::-1]:
-                                items_to_add = a.split()
-                                line_new = line
-                                for item in items_to_add:
-                                    if not _check_condition(item, analysis):
-                                        line_new = re.sub('(//.+\S)\s+//', '\\1 '+item+' //', line_new)
-                                match = True
-                                m = word.mark('syntax_pp_3')
-                                m.root = syntax_pp.root
-                                m.ending = syntax_pp.ending
-                                m.clitic = syntax_pp.clitic
-                                m.pos = syntax_pp.pos
-                                m.form_list = syntax_pp.form_list[:] # kas on vaja kopeerida?
-                                m.form_list.extend(items_to_add)
-                                m.morph_line = line_new
-                            # No need to search forward
-                            break
-            if not match:
-                word.mark('syntax_pp_3').morph_line = line
-    return text
-
-def tag_subcat_info_new(text, subcat_rules):
-    ''' Adds subcategorization information (hashtags) to verbs and adpositions;
-        
-        Argument subcat_rules must be a dict containing subcategorization information,
-        loaded via method load_subcat_info();
-
-        Performs word lemma lookups in subcat_rules, and in case of a match, checks 
-        word part-of-speech conditions. If the POS conditions match, adds subcategorization
-        information either to a single analysis line, or to multiple analysis lines 
-        (depending on the exact conditions in the rule);
-
-        Returns the input list where verb/adposition analyses have been augmented 
-        with available subcategorization information;
-    ''' 
-
     for word in text.words:
         for syntax_pp in word.syntax_pp_2:
             match = False
@@ -1045,13 +712,22 @@ def tag_subcat_info_new(text, subcat_rules):
                             m.ending = syntax_pp.ending
                             m.clitic = syntax_pp.clitic
                             m.pos = syntax_pp.pos
+                            m.punctuation_type = syntax_pp.punctuation_type
+                            m.pronoun_type = syntax_pp.pronoun_type
+                            m.partic = syntax_pp.partic
+                            m.letter_case = syntax_pp.letter_case
                             items_to_add = a.split()
 
                             form_list_new = syntax_pp.form_list[:]
+                            abileksikon = []
                             for item in items_to_add:
                                 if not item in form_list_new:
                                     form_list_new.append(item)
+                                    abileksikon.append(item)
                             m.form_list = form_list_new
+                            m.initial_form = syntax_pp.initial_form
+                            m.fin = syntax_pp.fin
+                            m.abileksikon = abileksikon
                             
                             match = True
                         # No need to search forward
@@ -1062,7 +738,14 @@ def tag_subcat_info_new(text, subcat_rules):
                 m.ending = syntax_pp.ending
                 m.clitic = syntax_pp.clitic
                 m.pos = syntax_pp.pos
+                m.punctuation_type = syntax_pp.punctuation_type
+                m.pronoun_type = syntax_pp.pronoun_type
+                m.partic = syntax_pp.partic
+                m.letter_case = syntax_pp.letter_case
                 m.form_list = syntax_pp.form_list
+                m.initial_form = syntax_pp.initial_form
+                m.fin = syntax_pp.fin
+                m.abileksikon = None
     return text
 
 
@@ -1092,8 +775,31 @@ def convert_to_cg3_input(text):
         for word in sentence.words:
             morph_lines.append('"<'+_esc_double_quotes(word.text)+'>"')
             for syntax_pp in word.syntax_pp_3:
-                for i, f in enumerate(syntax_pp.form_list):
-                    syntax_pp.form_list[i] = re.sub('#(\S+)','<\\1>', f)
+                new_form_list = []
+                if syntax_pp.pronoun_type:
+                    new_form_list.append(syntax_pp.pronoun_type)
+                if syntax_pp.initial_form:
+                    new_form_list.extend(syntax_pp.initial_form)
+                if syntax_pp.punctuation_type:
+                    # kasutu
+                    if syntax_pp.punctuation_type not in new_form_list:
+                        new_form_list.append(syntax_pp.punctuation_type)
+                if syntax_pp.letter_case:
+                    new_form_list.append(syntax_pp.letter_case)
+                if syntax_pp.partic:
+                    new_form_list.append(syntax_pp.partic)
+                if syntax_pp.fin:
+                    new_form_list.append(syntax_pp.fin)
+                if syntax_pp.abileksikon:
+                    new_form_list.extend(syntax_pp.abileksikon)
+
+                #if syntax_pp.form_list != new_form_list:
+                #    print('-----------------------------------')
+                #    print(syntax_pp.form_list)
+                #    print(new_form_list)
+                #    print(syntax_pp.initial_form, syntax_pp.fin, syntax_pp.abileksikon, syntax_pp.punctuation_type, syntax_pp.pronoun_type, syntax_pp.partic, syntax_pp.letter_case)
+                #syntax_pp.form_list = [re.sub('#(\S+)','<\\1>', f) for f in syntax_pp.form_list]
+                syntax_pp.form_list = [re.sub('#(\S+)','<\\1>', f) for f in new_form_list]
 
                 if syntax_pp.ending + syntax_pp.clitic:
                     line_new = '    "'+syntax_pp.root+'" L'+syntax_pp.ending+syntax_pp.clitic+' ' + ' '.join([syntax_pp.pos]+syntax_pp.form_list+[' '])
@@ -1171,7 +877,6 @@ def apply_regex(layer, attribute, rules):
 #   Syntax  preprocessing  pipeline
 # ==================================================================================
 # ==================================================================================
-
 
 class SyntaxPreprocessing:
     ''' A preprocessing pipeline for VISL CG3 based syntactic analysis.
@@ -1256,14 +961,12 @@ class SyntaxPreprocessing:
         else:
             self.fs_to_synt_rules = \
                 load_fs_mrf_to_syntax_mrf_translation_rules( self.fs_to_synt_rules_file )
-            self.fs_to_synt_rules_new = \
-                load_fs_mrf_to_syntax_mrf_translation_rules_new( self.fs_to_synt_rules_file )
         #  subcat_rules_file:
         if not self.subcat_rules_file or not os.path.exists( self.subcat_rules_file ):
             raise Exception('(!) Unable to find *subcat_rules* from location:', \
                             self.subcat_rules_file)
         else:
-            self.subcat_rules = load_subcat_info_new( self.subcat_rules_file )
+            self.subcat_rules = load_subcat_info(self.subcat_rules_file)
 
 
     def process_Text( self, text, **kwargs ):
@@ -1284,17 +987,17 @@ class SyntaxPreprocessing:
             into the new format;
         '''
         print('c', end='', flush=True)
-        text = convert_mrf_to_syntax_mrf_new(text, self.fs_to_synt_rules_new )
+        text = convert_mrf_to_syntax_mrf(text, self.fs_to_synt_rules)
         print('p', end='', flush=True)
-        text = convert_pronouns_new(text)
+        text = convert_pronouns(text)
         print('d', end='', flush=True)
-        text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all )
+        text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all)
         print('h', end='', flush=True)
         text = add_hashtag_info(text)
         print('s', end='', flush=True)
-        text = tag_subcat_info_new(text, self.subcat_rules )
+        text = tag_subcat_info(text, self.subcat_rules )
         print('d', end='', flush=True)
-        text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all ) # kas omab efekti?
+        text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all) # kas omab efekti?
         print('c ', end='', flush=True)
         text, morph_lines = convert_to_cg3_input(text)
         return text, morph_lines
