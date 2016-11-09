@@ -37,7 +37,7 @@ def new_layer_with_regex(text, name='', patterns=[], flags=0):
         for match in re.finditer(elem, text.text, flags=flags):
             spans.append(match.span())
     layer = Layer.from_span_tuples(name=name, spans=spans)
-    text.add_layer(layer)
+    text._add_layer(layer)
     return text
 
 

@@ -63,8 +63,9 @@ import os.path
 import codecs
 from collections import defaultdict
 
-from estnltk.text import DependantLayer
 from estnltk.legacy.core import PACKAGE_PATH
+from estnltk.text import Layer
+
 SYNTAX_PATH      = os.path.join(PACKAGE_PATH, 'syntax', 'files')
 FS_TO_SYNT_RULES_FILE = os.path.join(SYNTAX_PATH, 'tmorftrtabel.txt')
 SUBCAT_RULES_FILE     = os.path.join(SYNTAX_PATH, 'abileksikon06utf.lx')
@@ -101,32 +102,26 @@ def convert_Text_to_mrf(text):
             word quessing is turned on, proper-name analyses are turned off;
     '''
 
-    dep = DependantLayer(name='syntax_pp_1',
-                     text_object=text,
-                     frozen=False,
-                     parent=text.words,
+    dep = Layer(name='syntax_pp_1',
+                     parent='words',
                      ambiguous=True,
                      attributes=['root', 'ending_clitic', 'pos', 'form_list']
                      )
-    text.add_layer(dep)
+    text._add_layer(dep)
 
-    dep = DependantLayer(name='syntax_pp_2',
-                     text_object=text,
-                     frozen=False,
-                     parent=text.words,
+    dep = Layer(name='syntax_pp_2',
+                     parent='words',
                      ambiguous=True,
                      attributes=['root', 'ending_clitic', 'pos', 'form_list']
                      )
-    text.add_layer(dep)
+    text._add_layer(dep)
 
-    dep =  DependantLayer(name='syntax_pp_3',
-                     text_object=text,
-                     frozen=False,
-                     parent=text.words,
+    dep =  Layer(name='syntax_pp_3',
+                     parent='words',
                      ambiguous=True,
                      attributes=['root', 'ending_clitic', 'pos', 'form_list']
                      )
-    text.add_layer(dep)
+    text._add_layer(dep)
 
     for word in text.words:
         for analysis in word.morf_analysis:
@@ -239,31 +234,32 @@ def load_fs_mrf_to_syntax_mrf_translation_rules_new( fs_to_synt_rules_file ):
 _punctOrAbbrev = re.compile('//\s*_[ZY]_')
 
 
-_punctConversions_new = [ ["…([\+0]*) //\s*_[ZY]_ //",   "Ell"], \
-                      ["…$",      "Ell"], \
-                      ["\.\.\.$", "Ell"], \
-                      ["\.\.$",   "Els"], \
-                      ["\.$",     "Fst"], \
-                      [",$",      "Com"], \
-                      [":$",      "Col"], \
-                      [";$",      "Scl"], \
-                      ["(\?+)$",  "Int"], \
-                      ["(\!+)$",  "Exc"], \
-                      ["(---?)$", "Dsd"], \
-                      ["(-)$",    "Dsh"], \
-                      ["\($",     "Opr"], \
-                      ["\)$",     "Cpr"], \
-                      ['\\\\"$',  "Quo"], \
-                      ["«$",      "Oqu"], \
-                      ["»$",      "Cqu"], \
-                      ["“$",      "Oqu"], \
-                      ["”$",      "Cqu"], \
-                      ["<$",      "Grt"], \
-                      [">$",      "Sml"], \
-                      ["\[$",     "Osq"], \
-                      ["\]$",     "Csq"], \
-                      ["/$",      "Sla"], \
-                      ["\+$",     "crd"], \
+_punctConversions_new = [ 
+                      ["…$",      "Ell"],
+                      ["\.\.\.$", "Ell"],
+                      ["\.\.$",   "Els"],
+                      ["\.$",     "Fst"],
+                      [",$",      "Com"],
+                      [":$",      "Col"],
+                      [";$",      "Scl"],
+                      ["(\?+)$",  "Int"],
+                      ["(\!+)$",  "Exc"],
+                      ["(---?)$", "Dsd"],
+                      ["(-)$",    "Dsh"],
+                      ["\($",     "Opr"],
+                      ["\)$",     "Cpr"],
+                      ['\\\\"$',  "Quo"],
+                      ["«$",      "Oqu"],
+                      ["»$",      "Cqu"],
+                      ["“$",      "Oqu"],
+                      ["”$",      "Cqu"],
+                      ["<$",      "Grt"],
+                      [">$",      "Sml"],
+                      ["\[$",     "Osq"],
+                      ["\]$",     "Csq"],
+                      ["/$",      "Sla"],
+                      ["\+$",     "crd"],
+
 ]# double quotes are escaped by \
 
 _punctConversions = [ ["…([\+0]*) //\s*_[ZY]_ //",   "…\\1 //_Z_ Ell //"], \
