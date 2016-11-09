@@ -274,6 +274,7 @@ class Layer:
                  ambiguous:bool=None
                  ):
         assert not ((parent is not None) and (enveloping is not None)), 'Cant be derived AND enveloping'
+
         assert name is not None, 'Layer must have a name'
 
         #name of the layer
@@ -290,7 +291,7 @@ class Layer:
         self._bound = False
 
         #marker for creating a lazy layer
-        #used in Text.add_layer to check if additional work needs to be done
+        #used in Text._add_layer to check if additional work needs to be done
         self._is_lazy = False
 
         self._base = name if ((not enveloping) and (not parent)) else None #This is a placeholder for the base layer.
@@ -315,39 +316,35 @@ class Layer:
         #if True, add_span will behave differently and add a SpanList instead.
         self.ambiguous = ambiguous #type: bool
 
-        #placeholder. is set when `add_layer` is called on text object
+        #placeholder. is set when `_add_layer` is called on text object
         self.text_object = None # type:Text
 
     def from_dict(self, records):
-        if self.ambiguous:
-            raise NotImplementedError
-
         if self.parent is not None and not self._bound:
             self._is_lazy = True
-        for record in records:
-            self.add_span(Span(
-                **record, legal_attributes=self.attributes
-            ))
+
+        if self.ambiguous:
+            for record_line in records:
+                self._add_spans([Span(**record, legal_attributes=self.attributes) for record in record_line])
+        else:
+            for record in records:
+                self.add_span(Span(
+                    **record, legal_attributes=self.attributes
+                ))
 
         return self
-
-    def from_tuples(self, spans):
-        return self.from_dict(
-            [{'start':start,
-                'end':end} for start,end in spans]
-        )
 
     def add_span(self, span: Span) -> Span:
         return self.spans.add_span(span)
 
-    def add_spans_to_enveloping(self, spans):
+    def _add_spans_to_enveloping(self, spans):
         spanlist = SpanList(
             layer=self
         )
         spanlist.spans = spans
         bisect.insort(self.spans.spans, spanlist)
 
-    def add_spans(self, spans:List[Span]) -> List[Span]:
+    def _add_spans(self, spans:List[Span]) -> List[Span]:
         assert self.ambiguous or self.enveloping
         res = []
         for span in spans:
@@ -442,7 +439,7 @@ class Text:
         else:
             return self.__getattribute__(item)
 
-    def add_layer(self, layer:Layer):
+    def _add_layer(self, layer:Layer):
         name = layer.name
         attributes = layer.attributes
 
@@ -565,20 +562,6 @@ class Text:
                     res.spans = spans
                     return res
 
-                # #from layer to direct parent layer
-                # elif to == self.layers[frm].parent:
-                #     if sofar is None:
-                #         sofar = self.layers[frm].spans
-                #
-                #     spans = []
-                #     for i in sofar:
-                #         spans.append(i.parent)
-                #     res = SpanList(layer=self.layers[to])
-                #     res.spans = spans
-                #     return res
-                #
-
-
         #attribute access
         elif path_exists:
 
@@ -687,26 +670,25 @@ class Text:
                         tos.append(k + '.' + i)
         return tos
 
+
+    def __setitem__(self, key, value):
+        #always sets layer
+        assert key not in self.layers.keys(), 'Re-adding a layer not implemented yet'
+        assert value.name == key, 'Name mismatch between layer name and value'
+        return self._add_layer(
+            value
+        )
+
+    def __getitem__(self, item):
+        #always returns layer
+        return self.layers[item]
+
+
     def _draw_graph(self):
         return draw_graph(self._g)
 
     def __delattr__(self, item):
         raise NotImplementedError('deleting not implemented')
-
-        # if item in self.layers.keys():
-        #
-        #     layer = self.layers[item]
-        #
-        #     if layer.parent or layer.enveloping:
-        #         raise NotImplementedError('deleting base or envleoping layers not implemented')
-        #
-        #     del self.layers[item]
-        #     del self.layers_to_attributes[item]
-        #     self._setup_structure()
-        # else:
-        #     raise NotImplementedError('deleting attributes not implemented')
-
-
 
     def __str__(self):
         return 'Text(text="{self.text}")'.format(self=self)
@@ -732,12 +714,12 @@ def words_sentences(text):
         'end':end
                                            } for start, end in old.spans('words')])
 
-    new.add_layer(words)
+    new._add_layer(words)
 
 
     old_sentences = old.split_by('sentences')
     sentences = Layer(enveloping='words', name='sentences')
-    new.add_layer(sentences)
+    new._add_layer(sentences)
 
     #TODO fix dumb manual loop
     i = 0
@@ -752,7 +734,7 @@ def words_sentences(text):
 
 
     for sentence in new_sentences:
-        sentences.add_spans_to_enveloping(sentence)
+        sentences._add_spans_to_enveloping(sentence)
 
 
     morf_attributes = ['form', 'root_tokens', 'clitic', 'partofspeech', 'ending', 'root', 'lemma']
@@ -762,7 +744,7 @@ def words_sentences(text):
                 ambiguous=True,
                 attributes=morf_attributes
                 )
-    new.add_layer(dep)
+    new._add_layer(dep)
 
     for word, analysises in zip(new.words, old.analysis):
         assert isinstance(word, Span)

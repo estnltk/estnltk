@@ -61,7 +61,7 @@ def test_new_span_hierarchy():
         attributes=['test1']
     )
 
-    text.add_layer(l)
+    text._add_layer(l)
 
     for i in text.words:
         i.mark('layer1').test1 = '1234'
@@ -72,7 +72,7 @@ def test_new_span_hierarchy():
         parent='layer1',
         attributes=['test2']
     )
-    text.add_layer(l)
+    text._add_layer(l)
 
     for i in text.layer1:
         i.mark('layer2').test2 = '1234'
@@ -84,7 +84,7 @@ def test_new_span_hierarchy():
 # def test_spans():
 #     text = Text('Mingi tekst')
 #     layer = Layer(name='test')
-#     text.add_layer(layer)
+#     text._add_layer(layer)
 #     a = Span(1, 2)
 #     layer.add_span(a)
 #
@@ -113,7 +113,7 @@ def test_new_span_hierarchy():
 # def test_span_ordering():
 #     text = Text('Mingi tekst')
 #     layer = Layer(name='test')
-#     text.add_layer(layer)
+#     text._add_layer(layer)
 #     a = Span(1, 2)
 #     b = Span(2, 3)
 #     c = Span(2, 3)
@@ -148,7 +148,7 @@ def test_spanList():
     text = Text('')
 
     layer = Layer(name='test')
-    text.add_layer(layer)
+    text._add_layer(layer)
     sl = SpanList(layer=layer)
     span = Span(0, 1)
     sl.add_span(span)
@@ -178,25 +178,25 @@ def test_layer():
     text = 'Öösel on kõik kassid hallid.'
     t = Text(text)
     l = Layer(name='test')
-    t.add_layer(l)
+    t._add_layer(l)
 
     with pytest.raises(AssertionError):
-        t.add_layer(Layer(name='text'))
+        t._add_layer(Layer(name='text'))
 
     with pytest.raises(AssertionError):
-        t.add_layer(Layer(name='test'))
+        t._add_layer(Layer(name='test'))
 
     with pytest.raises(AssertionError):
-        t.add_layer(Layer(name=' '))
+        t._add_layer(Layer(name=' '))
 
     with pytest.raises(AssertionError):
-        t.add_layer(Layer(name='3'))
+        t._add_layer(Layer(name='3'))
 
     with pytest.raises(AssertionError):
-        t.add_layer(Layer(name='assert'))
+        t._add_layer(Layer(name='assert'))
 
     with pytest.raises(AssertionError):
-        t.add_layer(Layer(name='is'))
+        t._add_layer(Layer(name='is'))
 
     assert t.layers['test'] is l
     assert t.test is l.spans
@@ -222,18 +222,9 @@ def test_layer():
     #     t.test.add_span(
     #         Span(start=2, end=4)
     #     )
-#
-#
-def test_layer_from_spans():
-    text = 'Öösel on kõik kassid hallid.'
-    t = Text(text)
-    t.add_layer(
-        Layer(name='test').from_tuples(spans=[(1, 2), (0, 3), (0, 2)]))
 
-    assert t.test.spans[0].start == 0 and t.test.spans[0].end == 2
-    assert len(t.test) == 3
-    assert all([isinstance(i, Span) for i in t.test])
-#
+
+
 #
 ## "Unbound" is not a concept right now
 # def test_unbound_layer():
@@ -248,7 +239,7 @@ def test_layer_from_spans():
 #         for i in l:
 #             (i.text)
 #
-#     t.add_layer(l)
+#     t._add_layer(l)
 #     #does not raise AttributeError after having been added to text object
 #     for i in l:
 #         (i.text)
@@ -259,7 +250,7 @@ def test_annotated_layer():
     text = 'Öösel on kõik kassid hallid.'
     t = Text(text)
     l = Layer(name='test', attributes=['test', 'asd'])
-    t.add_layer(l)
+    t._add_layer(l)
     l.add_span(Span(1, 5))
 
     for i in t.test:
@@ -291,7 +282,7 @@ def test_count_by():
     text = 'Öösel on kõik kassid hallid.'
     t = Text(text)
     l = Layer(name='test', attributes=['test', 'asd'])
-    t.add_layer(l)
+    t._add_layer(l)
     l.add_span(Span(1, 5))
     l.add_span(Span(2, 6))
 
@@ -305,7 +296,7 @@ def test_count_by():
 def test_from_dict():
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(name='words', attributes=['lemma'])
-    t.add_layer(words)
+    t._add_layer(words)
     words.from_dict([{'end': 3, 'lemma': 'kui', 'start': 0},
                                            {'end': 8, 'lemma': 'mitu', 'start': 4},
                                            {'end': 13, 'lemma': 'kuu', 'start': 9},
@@ -317,8 +308,62 @@ def test_from_dict():
     for span, lemma in zip(t.words, ['kui', 'mitu', 'kuu', 'olema', 'aasta', '?']):
         print(span.lemma, lemma)
         assert span.lemma == lemma
-#
-#
+
+def test_ambiguous_from_dict():
+    t = Text('Kui mitu kuud on aastas?')
+    words = Layer(name='words', attributes=['lemma'], ambiguous = True)
+    t['words'] = words
+
+
+    words.from_dict([
+                     [{'end': 3, 'lemma': 'kui', 'start': 0}, {'end': 3, 'lemma': 'KUU', 'start': 0}] ,
+                       [{'end': 8, 'lemma': 'mitu', 'start': 4}],
+                       [{'end': 13, 'lemma': 'kuu', 'start': 9}],
+                       [{'end': 16, 'lemma': 'olema', 'start': 14}],
+                       [{'end': 23, 'lemma': 'aasta', 'start': 17}],
+                       [{'end': 24, 'lemma': '?', 'start': 23}]
+                       ]
+                    )
+
+    assert t.words[0].lemma == ['kui', 'KUU']
+
+def test_ambiguous_from_dict_unbound():
+    words = Layer(name='words', attributes=['lemma'], ambiguous = True)
+
+    #We create the layer
+    words.from_dict([
+                     [{'end': 3, 'lemma': 'kui', 'start': 0}, {'end': 3, 'lemma': 'KUU', 'start': 0}] ,
+                       [{'end': 8, 'lemma': 'mitu', 'start': 4}],
+                       [{'end': 13, 'lemma': 'kuu', 'start': 9}],
+                       [{'end': 16, 'lemma': 'olema', 'start': 14}],
+                       [{'end': 23, 'lemma': 'aasta', 'start': 17}],
+                       [{'end': 24, 'lemma': '?', 'start': 23}]
+                       ]
+                    )
+
+    #then we bind it to an object
+    t = Text('Kui mitu kuud on aastas?')
+    t['words'] = words
+
+    assert t.words[0].lemma == ['kui', 'KUU']
+
+
+    words2 = Layer(name='words2', attributes=['lemma2'], ambiguous = True, parent='words')
+    #We create the layer
+    words2.from_dict([
+                     [{'end': 3, 'lemma2': 'kui', 'start': 0}, {'end': 3, 'lemma2': 'KUU', 'start': 0}] ,
+                       [{'end': 8, 'lemma2': 'mitu', 'start': 4}],
+                       [{'end': 13, 'lemma2': 'kuu', 'start': 9}],
+                       [{'end': 16, 'lemma2': 'olema', 'start': 14}],
+                       [{'end': 23, 'lemma2': 'aasta', 'start': 17}],
+                       [{'end': 24, 'lemma2': '?', 'start': 23}]
+                       ]
+                    )
+    t['words2'] = words2
+    assert t.words2[0].lemma2 == ['kui', 'KUU']
+
+    assert t.words2[0].parent is t.words[0]
+
 def test_dependant_span():
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(name='words',
@@ -330,13 +375,13 @@ def test_dependant_span():
                                            {'end': 23, 'lemma': 'aasta', 'start': 17},
                                            {'end': 24, 'lemma': '?', 'start': 23}],
                                   )
-    t.add_layer(words)
+    t._add_layer(words)
 
     dep = Layer(name='reverse_lemmas',
                    parent='words',
                    attributes=['revlemma']
                    )
-    t.add_layer(dep)
+    t._add_layer(dep)
 
     for word in t.words:
         word.mark('reverse_lemmas').revlemma = word.lemma[::-1]
@@ -359,7 +404,7 @@ def test_dependant_span():
 #                                            {'end': 23, 'lemma': 'aasta', 'start': 17},
 #                                            {'end': 24, 'lemma': '?', 'start': 23}]
 #                                   )
-#     t.add_layer(words)
+#     t._add_layer(words)
 #
 #     assert len(t.layers) == 1
 #     del t.words
@@ -380,19 +425,19 @@ def test_enveloping_layer():
                                            {'end': 23, 'lemma': 'aasta', 'start': 17},
                                            {'end': 24, 'lemma': '?', 'start': 23}],
                                   )
-    t.add_layer(words)
+    t._add_layer(words)
     wordpairs = Layer(name='wordpairs', enveloping='words')
-    t.add_layer(wordpairs)
+    t._add_layer(wordpairs)
 
-    wordpairs.add_spans_to_enveloping(t.words.spans[0:2])
-    wordpairs.add_spans_to_enveloping(t.words.spans[2:4])
-    wordpairs.add_spans_to_enveloping(t.words.spans[4:6])
+    wordpairs._add_spans_to_enveloping(t.words.spans[0:2])
+    wordpairs._add_spans_to_enveloping(t.words.spans[2:4])
+    wordpairs._add_spans_to_enveloping(t.words.spans[4:6])
 
     print(t.wordpairs.text)
     assert (wordpairs.text == [['Kui', 'mitu'], ['kuud', 'on'], ['aastas', '?']])
 
-    wordpairs.add_spans_to_enveloping(t.words.spans[1:3])
-    wordpairs.add_spans_to_enveloping(t.words.spans[3:5])
+    wordpairs._add_spans_to_enveloping(t.words.spans[1:3])
+    wordpairs._add_spans_to_enveloping(t.words.spans[3:5])
     print(t.wordpairs.text)
     assert (wordpairs.text == [['Kui', 'mitu'], ['mitu', 'kuud'], ['kuud', 'on'], ['on', 'aastas'], ['aastas', '?']])
 
@@ -442,7 +487,7 @@ def test_various():
     upper = Layer(parent='words',
                            name='uppercase',
                            attributes=['upper'])
-    text.add_layer(upper)
+    text._add_layer(upper)
 
     for word in text.words:
         #     print(word.text)
@@ -501,7 +546,7 @@ def test_words_sentences():
                          parent='words',
                          attributes=['upper']
                          )
-    t.add_layer(dep)
+    t._add_layer(dep)
     for word in t.words:
         word.mark('uppercase').upper = word.text.upper()
 
@@ -525,7 +570,7 @@ def test_ambiguous_layer():
                          ambiguous=True,
                          attributes=['asd']
                          )
-    t.add_layer(dep)
+    t._add_layer(dep)
 
     t.words[0].mark('test').asd = 'asd'
     print('mark', t.words[0], t.words[0].asd)
@@ -587,7 +632,7 @@ def test_change_lemma():
 #                                            {'end': 24, 'test': '?', 'start': 23}],
 #                                   attributes=['test']
 #                                   )
-#     text.add_layer(words)
+#     text._add_layer(words)
 #     rewriter = RegexRewriter(
 #         [('kui', 'siis_kui')]
 #     )
@@ -625,6 +670,22 @@ def test_morf():
     assert (text.morf_analysis.lemma == [['Lennart'], ['Meri'], ['"'], ['hõbevalge'], ['"'], ['olema', 'olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['rahvusvaheline'], ['lugejaskond'], ['.'], ['seni'], ['vaid'], ['soome'], ['keel'], ['tõlkima', 'tõlgitud', 'tõlgitud', 'tõlgitud'], ['teos'], ['ilmuma'], ['äsja'], ['ka'], ['itaalia'], ['keel'], ['ning'], ['see'], ['esitlema'], ['Rooma'], ['reisikirjandus'], ['festival'], ['.'], ['tundma', 'tuntud', 'tuntud', 'tuntud'], ['reisikrijandus'], ['festival'], ['valima'], ['tänavu'], ['peakülaline'], ['Eesti'], [','], ['Ultima'], ['Thule'], ['ning'], ['Iidse-Põhjala', 'Iidse-Põhjala'], ['ja'], ['Vahemeri'], ['endisaegne'], ['kultuurikontakt'], ['j'], ['uks'], ['seetõttu'], [','], ['et'], ['eelmine'], ['nädal'], ['avaldama'], ['kirjastus'], ['Gangemi'], ['"'], ['hõbevalge'], ['"'], ['itaalia'], ['keel'], [','], ['vahendama'], ['"'], ['aktuaalne'], ['kaamera'], ['".']]
 )
 
+
+
+def test_text_setitem():
+    text = words_sentences('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''')
+    l = Layer(name='test', attributes=['test1'])
+    text['test'] = l
+
+    assert text['test'] is l
+
+    #assigning something that is not a layer
+    with pytest.raises(AssertionError):
+        text['test'] = '123'
+
+    #getting something that is not in the dict
+    with pytest.raises(KeyError):
+        text['nothing']
 
 
 
@@ -721,7 +782,7 @@ def test_rewrite_access():
         ambiguous=True
     )
 
-    text.add_layer(com_type)
+    text._add_layer(com_type)
 
     def rewrite(source_layer, target_layer, rules):
         assert target_layer.layer.parent == source_layer.layer.name

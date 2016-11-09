@@ -33,7 +33,7 @@ newlayer = Layer(name='layer1',
                  parent='words',
                  attributes = ['rewrite_from']
                  )
-text.add_layer(newlayer)
+text._add_layer(newlayer)
 for word in text.words:
     word.mark('layer1').rewrite_from = ')'
 

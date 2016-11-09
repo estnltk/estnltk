@@ -83,7 +83,7 @@ com_type = Layer(
     ambiguous = True
 )
 
-text.add_layer(com_type)
+text._add_layer(com_type)
 def rewrite(source_layer, src_attrs, target_layer, target_attr, rules):
     assert target_layer.layer.parent == source_layer.layer.name
     for i in src_attrs:

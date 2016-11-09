@@ -107,21 +107,21 @@ def convert_Text_to_mrf(text):
                      ambiguous=True,
                      attributes=['root', 'ending_clitic', 'pos', 'form_list']
                      )
-    text.add_layer(dep)
+    text._add_layer(dep)
 
     dep = Layer(name='syntax_pp_2',
                      parent='words',
                      ambiguous=True,
                      attributes=['root', 'ending_clitic', 'pos', 'form_list']
                      )
-    text.add_layer(dep)
+    text._add_layer(dep)
 
     dep =  Layer(name='syntax_pp_3',
                      parent='words',
                      ambiguous=True,
                      attributes=['root', 'ending_clitic', 'pos', 'form_list']
                      )
-    text.add_layer(dep)
+    text._add_layer(dep)
 
     for word in text.words:
         for analysis in word.morf_analysis:
