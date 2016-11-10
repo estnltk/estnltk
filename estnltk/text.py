@@ -400,10 +400,7 @@ class Layer:
         assert 'name' in kwargs.keys(), '"name" must currently be an argument to layer'
 
         res = [whitelist_record(record, source_attributes + ['start', 'end']) for record in self.to_records()]
-        print(source_attributes)
-        print(res)
         rewritten = [rules.rewrite(j) for j in res]
-        print(rewritten)
         resulting_layer = Layer(
             **kwargs,
             attributes=target_attributes
