@@ -264,7 +264,7 @@ class GazetteerFeatureExtractor(BaseFeatureExtractor):
                 self.data[word].add(lbl)
 
     def process(self, doc):
-        tokens = doc.tokens
+        tokens = list(doc.tokens)
         look_ahead = self.look_ahead
         for i in range(len(tokens)):
             if "iu" in tokens[i]:  # Only capitalised strings
@@ -366,7 +366,7 @@ class SentenceFeatureExtractor(BaseFeatureExtractor):
     def process(self, doc):
         FSNT = "fsnt"
         LSNT = "lsnt"
-        for snt in doc.snts:
+        for snt in doc.sentences:
             if snt:
                 snt[0][FSNT] = 'y'
                 snt[-1][LSNT] = 'y'
@@ -579,7 +579,7 @@ class FeatureExtractor(object):
 
         # apply the feature templates.
         for doc in docs:
-            for snt in doc.snts:
+            for snt in doc.sentences:
                 apply_templates(snt, self.settings.TEMPLATES)
 
     @staticmethod

@@ -41,7 +41,7 @@ class Trainer(object):
                                      verbose=self.verbose)
 
         for doc in nerdocs:
-            for snt in doc.snts:
+            for snt in doc.sentences:
                 xseq = [t.feature_list() for t in snt]
                 yseq = [t.label for t in snt]
                 trainer.append(xseq, yseq)
@@ -80,7 +80,7 @@ class Tagger():
         """
 
         labels = []
-        for snt in nerdoc.snts:
+        for snt in nerdoc.sentences:
             xseq = [t.feature_list() for t in snt]
             yseq = self.tagger.tag(xseq)
             labels.append(yseq)

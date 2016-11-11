@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function
+
 """
 Module containing functionality for training and using NER models.
 
@@ -29,12 +30,10 @@ DEFAULT_NER_MODEL_DIR = DEFAULT_PY3_NER_MODEL_DIR if six.PY3 else DEFAULT_PY2_NE
 
 
 class ModelStorageUtil(object):
-
     def __init__(self, model_dir):
         self.model_dir = model_dir
         self.model_filename = os.path.join(model_dir, 'model.bin')
         self.settings_filename = os.path.join(model_dir, 'settings.py')
-
 
     def makedir(self):
         """ Create model_dir directory """
@@ -44,13 +43,11 @@ class ModelStorageUtil(object):
             if exception.errno != errno.EEXIST:
                 raise
 
-
     def copy_settings(self, settings_module):
         """ Copy settings module to the model_dir directory """
         source = inspect.getsourcefile(settings_module)
         dest = os.path.join(self.model_dir, 'settings.py')
         shutil.copyfile(source, dest)
-
 
     def load_settings(self):
         """Load settings module from the model_dir directory."""
@@ -77,7 +74,7 @@ def json_document_to_estner_document(jsondoc):
     estnltk.estner.ner.Document
         A ner document.
     """
-    estnerdoc = Document()
+    sentences = []
     for json_sent in jsondoc.split_by_sentences():
         snt = Sentence()
         zipped = list(zip(
@@ -96,13 +93,12 @@ def json_document_to_estner_document(jsondoc):
         for json_tok in json_toks:
             token = json_token_to_estner_token(json_tok)
             snt.append(token)
-            estnerdoc.tokens.append(token)
         if snt:
             for i in range(1, len(snt)):
-                snt[i-1].next = snt[i]
-                snt[i].prew = snt[i-1]
-            estnerdoc.snts.append(snt)
-    return estnerdoc
+                snt[i - 1].next = snt[i]
+                snt[i].prew = snt[i - 1]
+            sentences.append(snt)
+    return Document(sentences=sentences)
 
 
 def json_token_to_estner_token(json_token):
@@ -135,16 +131,11 @@ def json_token_to_estner_token(json_token):
     morph += ' ' + json_token[FORM]
     if LABEL in json_token:
         label = json_token[LABEL]
-    token.word = word
-    token.lemma = lemma
-    token.morph = morph
-    token.label = label
-    return token
+    return Token(word, lemma, morph, label)
 
 
 class NerTrainer(object):
     """The class for training NER models. Uses crfsuite implementation."""
-
 
     def __init__(self, nersettings):
         """Initialize a new NerTrainer.
@@ -158,7 +149,6 @@ class NerTrainer(object):
         self.fex = FeatureExtractor(nersettings)
         self.trainer = CrfsuiteTrainer(algorithm=nersettings.CRFSUITE_ALGORITHM,
                                        c2=nersettings.CRFSUITE_C2)
-
 
     def train(self, jsondocs, model_dir):
         """ Train a NER model using given documents.
@@ -178,7 +168,7 @@ class NerTrainer(object):
         modelUtil.copy_settings(self.settings)
 
         # Convert json documents to ner documents
-        nerdocs = [json_document_to_estner_document(jsondoc) 
+        nerdocs = [json_document_to_estner_document(jsondoc)
                    for jsondoc in jsondocs]
 
         self.fex.prepare(nerdocs)
@@ -189,7 +179,6 @@ class NerTrainer(object):
 
 class NerTagger(object):
     """The class for tagging named entities."""
-
 
     def __init__(self, model_dir=DEFAULT_NER_MODEL_DIR):
         """Initialize a new NerTagger instance.
