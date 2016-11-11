@@ -1,14 +1,52 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 import unittest
+from copy import deepcopy
 
 import estnltk
-from ..estner.featureextraction import MorphFeatureExtractor, \
-    LocalFeatureExtractor, GazetteerFeatureExtractor
+from ..estner.featureextraction import MorphFeatureExtractor, LocalFeatureExtractor, GazetteerFeatureExtractor, \
+    apply_templates
 from ..estner.ner import Token
 from ..core import as_unicode
 from ..text import Text
 from ..ner import json_document_to_estner_document, NerTagger
+
+
+class TestFeatureExtractor(unittest.TestCase):
+    def test__apply_templates(self):
+        # case 1
+        templates = [(('lem', 0),), ]
+        t = Token()
+        t.word = 'Rahvusvahelistega'
+        t.lemma = 'rahvus_vaheline+tega'
+        t.morph = '_A_ pl kom'
+        t['lem'] = 'rahvusvaheline'
+        apply_templates([t], templates)
+        self.assertEqual(len(t['F']), 1)
+        self.assertTrue('lem[0]=rahvusvaheline' in t['F'])
+
+        # case 2
+        t['F'][:] = []
+        t['lem'] = ['a', 'b']
+        apply_templates([t], templates)
+        self.assertEqual(len(t['F']), 2)
+        self.assertTrue('lem[0]=a' in t['F'])
+        self.assertTrue('lem[0]=b' in t['F'])
+
+        # case 3
+        templates = [(('lem', 0), ('lem', 1)), ]
+        t['F'][:] = []
+        t['lem'] = ['a', 'b']
+
+        t2 = deepcopy(t)
+        t2['lem'] = ['c', 'd']
+
+        apply_templates([t, t2], templates)
+        self.assertEqual(len(t['F']), 4)
+        self.assertTrue('lem[0]|lem[1]=a|c' in t['F'])
+        self.assertTrue('lem[0]|lem[1]=a|d' in t['F'])
+        self.assertTrue('lem[0]|lem[1]=b|c' in t['F'])
+        self.assertTrue('lem[0]|lem[1]=b|d' in t['F'])
 
 
 class TestGazetteerFeatureExtractor(unittest.TestCase):
@@ -30,6 +68,7 @@ class TestGazetteerFeatureExtractor(unittest.TestCase):
         self.assertTrue('gaz' not in t)
 
         t = tokens[1]
+
         self.assertEqual(t.word, 'Alexander')
         self.assertTrue('gaz' in t)
         self.assertTrue('peop' in t['gaz'])

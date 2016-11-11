@@ -7,6 +7,7 @@ import codecs
 
 from ..text import Text
 from ..timex import TimexTagger
+from ..names import *
 
 class TimexTest(unittest.TestCase):
 
@@ -42,7 +43,7 @@ class TimexTest(unittest.TestCase):
     def test_document_creation_date(self):
         timextagger = TimexTagger()
         text = Text('Täna on ilus ilm', creation_date=datetime.datetime(1986, 12, 21), timex_tagger=timextagger)
-        self.assertEqual(text.timexes[0]['value'], '1986-12-21')
+        self.assertEqual(text.timexes[0][TMX_VALUE], '1986-12-21')
         # Terminate Java process in order to avoid "OSError: [WinError 6] The handle is invalid"
         # in subsequent Java processing
         timextagger._process.terminate()
@@ -105,7 +106,7 @@ class TimexTest(unittest.TestCase):
         timextagger = TimexTagger()
         text_str = \
         '''
-        Valitsus otsustas tänasel istungil kolmapäevase eelnõu üle vaadata, neljapäevasel ja teisipäevasel tagasi lükata, homsel vastu võtta ja eilsel kõrvale jätta. Samas on teada, et laupäevasel ei toimu midagi ja kaks kuud tagasi vastuvõetud pühapäevane eelnõu ei toimi kolmapäeviti.
+        Valitsus otsustas tänasel istungil kolmapäevase eelnõu üle vaadata, neljapäevasel ja teisipäevasel tagasi lükata, homsel vastu võtta ja eilsel kõrvale jätta. Samas on teada, et laupäevasel ei toimu midagi ja kaks kuud tagasi vastuvõetud pühapäevane eelnõu ei toimi kolmapäeviti. Viimase aasta jooksul pole midagi sellist veel juhtunud.
         '''
         text = Text( text_str, timex_tagger=timextagger )
         # 1) Tag timexes before splitting the text; Remember the result;
@@ -113,15 +114,18 @@ class TimexTest(unittest.TestCase):
         timexesBeforeSplit = text.timexes
         # 2) Split the text by sentences and count timexes once again;
         timexesAfterSplit  = []
-        for sentence in text.split_by('sentences'):
+        for sentence in text.split_by( SENTENCES ):
             if sentence.timexes:
                timexesAfterSplit.extend( sentence.timexes )
         # 3) Both countings should give same amount of timexes:
         self.assertEqual( len(timexesBeforeSplit), len(timexesAfterSplit) )
         # And there should be exactly the same timexes, in exactly the same order
         for i in range( len(timexesBeforeSplit) ):
-            self.assertEqual( timexesBeforeSplit[i]['tid'],  timexesAfterSplit[i]['tid'] )
-            self.assertEqual( timexesBeforeSplit[i]['text'], timexesAfterSplit[i]['text'] )
+            self.assertEqual( timexesBeforeSplit[i][TMX_TID], timexesAfterSplit[i][TMX_TID] )
+            tmx_text1 = timexesBeforeSplit[i].get(TEXT, '')
+            tmx_text2 = timexesAfterSplit[i].get(TEXT, '')
+            self.assertEqual( tmx_text1, tmx_text2 )
+            #print( timexesAfterSplit[i][START], timexesAfterSplit[i][END] )
         # Terminate Java process in order to avoid "OSError: [WinError 6] The handle is invalid"
         # in subsequent Java processing
         timextagger._process.terminate()
@@ -130,8 +134,8 @@ class TimexTest(unittest.TestCase):
 
 def timex_to_row(example, timex):
     toks = [example]
-    toks.append(timex.get('text'))
-    toks.append(timex.get('type'))
-    toks.append(timex.get('value', ''))
-    toks.append(timex.get('mod', ''))
+    toks.append(timex.get(TEXT))
+    toks.append(timex.get(TMX_TYPE))
+    toks.append(timex.get(TMX_VALUE, ''))
+    toks.append(timex.get(TMX_MOD, ''))
     return '\t'.join(toks)

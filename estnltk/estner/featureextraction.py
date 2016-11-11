@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
-"""Module containing various feature extractors including local and global features."""
+"""
+Module contains various feature extractors.
+"""
 from __future__ import unicode_literals, print_function
 
 import re
 import codecs
 from collections import defaultdict
 from functools import reduce
+from itertools import product
 
 # Separator of field values.
 separator = ' '
@@ -245,17 +248,17 @@ class GazetteerFeatureExtractor(BaseFeatureExtractor):
     """
 
     def __init__(self, settings, look_ahead=3):
-        '''Loads a gazetteer file. Can take some time!
-        
+        """Loads a gazetteer file. Can take some time!
+
         Parameters
         -----------
-        
+
         settings: dict
             Global configuration dictionary.
         look_ahead: int
             A number of tokens to check to compose phrases.
 
-        '''
+        """
         self.look_ahead = look_ahead
         self.data = defaultdict(set)
         with codecs.open(settings.GAZETTEER_FILE, 'rb', encoding="utf8") as f:
@@ -517,18 +520,6 @@ def apply_templates(toks, templates):
         where name and offset specify a field name and offset from which
         the template extracts a feature value.
     """
-
-    def product(values_list):
-        res = []
-        if values_list:
-            values = values_list[0]
-            for head in values:
-                for tail in product(values_list[1:]):
-                    res.append([head] + tail)
-        else:
-            return [[]]
-        return res
-
     for template in templates:
         name = '|'.join(['%s[%d]' % (f, o) for f, o in template])
         for t in range(len(toks)):
@@ -540,9 +531,9 @@ def apply_templates(toks, templates):
                     break
                 if field in toks[p]:
                     value = toks[p][field]
-                    values_list.append(value if hasattr(value, "__iter__") else [value])
+                    values_list.append(value if isinstance(value, (set, list)) else [value])
             if len(template) == len(values_list):
-                for values in product(values_list):
+                for values in product(*values_list):
                     toks[t]['F'].append('%s=%s' % (name, '|'.join(values)))
 
 

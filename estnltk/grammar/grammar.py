@@ -22,6 +22,12 @@ class Symbol(object):
         """The name of the symbol. If there is no name, this is None"""
         return self.__name
 
+
+    @name.setter
+    def name(self, value):
+        assert isinstance(value, str)
+        self.__name = value
+
     def annotate(self, text, conflict_resolver=resolve_using_maximal_coverage):
         if isinstance(text, six.string_types):
             text = Text(text)

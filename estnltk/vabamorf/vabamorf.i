@@ -48,6 +48,8 @@ namespace std {
     %template(SentenceAnalysis) vector<pair<string, vector<Analysis> > >;
     %template(StringVector) vector<std::string>;
     %template(SpellingSuggestions) vector<SpellingResults>;
+    %template(Syllables) vector<Syllable>;
+    %template(SentenceSyllables) vector<vector<Syllable> >;
 }
 
-%include "include/etana/vabamorf.h"
+%include "include/estnltk/vabamorf.h"

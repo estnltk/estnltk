@@ -12,18 +12,19 @@ from .names import *
 from .text  import Text
 
 from .mw_verbs.utils import WordTemplate
-from .maltparser_support import MaltParser
+from .syntax.parsers import MaltParser
+from .syntax.parsers import VISLCG3Parser
 
 
 # =============================================================================
 #   The Main Class
 # =============================================================================
 
-class NounPhraseChunker:
+class NounPhraseChunker(object):
     ''' An experimental noun phrase chunker for Estonian. Attempts to detect 
         non-overlapping phrases from the text. 
         Uses a hybrid approach:
-        *) First, it applies a statistical dependency syntactic parser (Maltparser)
+        *) First, it applies a dependency syntactic parser (MaltParser or VISLCG3Parser)
            to obtain dependency relations between words;
         *) Then it builds NP phrases by joining together consecutive words sharing
            a dependency relation: mostly in the direction from left to right, 
@@ -32,29 +33,29 @@ class NounPhraseChunker:
            correct the obtained phrases;
     '''
 
-    maltparser = None
+    parser = None
 
-    def __init__( self, maltparser = None, **kwargs):
-        if not maltparser:
-            # Initialize MaltParser automatically
-            self.maltparser = MaltParser()
-        elif maltparser and type(maltparser) is MaltParser:
-            # Use given MaltParser
-            self.maltparser = maltparser
+    def __init__( self, parser = None, **kwargs):
+        if not parser:
+            # Initialize the default parser -- MaltParser -- automatically
+            self.parser = MaltParser()
+        elif parser and (isinstance(parser, MaltParser) or \
+                         isinstance(parser, VISLCG3Parser)):
+            # Use given parser
+            self.parser = parser
         else:
-            raise Exception('Unspecified input argument: MaltParser class')
+            raise Exception(' (!) Unexpected "parser" argument: should be an instance of (MaltParser or VISLCG3Parser)')
 
 
     def analyze_text( self, text, **kwargs ):
         ''' 
         Analyzes given Text for noun phrase chunks. 
+
+         As result of analysis, a layer NOUN_CHUNKS will be attached to the input
+        Text object, containing a noun phrases detected from the Text;
         
-         As result of analysis, each word token in Text will be annotated for its 
-        place in noun phrases: token's attribute NP_LABEL will indicate whether it 
-        is at the beginning of a phrase ('B'), inside a phrase ('I') or does not 
-        belong to any phrase ('O').
-        
-         Note that in order to obtain a decent performance, it is advisable to analyse 
+         Note: for preprocessing the Text, MaltParser is used by default. In order 
+        to obtain a decent performance with MaltParser, it is advisable to analyse 
         texts at their full extent with this method. Splitting a text into smaller 
         chunks, such as clauses or sentences, and analysing one-small-chunk-at-time 
         may be rather demanding in terms of performance, because a file-based 
@@ -65,12 +66,20 @@ class NounPhraseChunker:
         text:  estnltk.text.Text
             The input text that should be analysed for noun phrases; 
 
-        textIsParsed: boolean
-            If True, the input text has already been parsed for dependency 
-            relations, so the parsing step will be skipped;
+        force_parsing : bool 
+            If True, uses the *self.parser* to parse the given *text*, and overrides
+            the syntactic annotations in *text* with the new layer obtained from the 
+            parser;
             (default: False)
+        
+        syntax_layer : str
+            Specifies which layer of syntactic annotations should be used as a
+            basis for NP chunking; If the *syntax_layer* exists within the *text*
+            (and force_parsing==False), uses the syntactic annotations from 
+            *text[syntax_layer]*;
+            (default: LAYER_CONLL)
 
-        cutPhrases: boolean
+        cutPhrases: bool
             If True, all phrases exceeding the cutMaxThreshold will be 
             cut into single word phrases, consisting only of part-of-speech 
             categories 'S', 'Y', 'H';
@@ -90,27 +99,39 @@ class NounPhraseChunker:
         return_type: string
             If return_type=="text" (Default), 
                 returns the input Text object;
+            If return_type=="labels", 
+                returns a list of NP labels (strings), containing a label for 
+                each word token in Text, indicating whether the word is at the 
+                beginning of a phrase ('B'), inside a phrase ('I') or does 
+                not belong to any phrase ('O').
             If return_type=="tokens", 
                 returns a list of phrases, where each phrase is a list of
                 tokens, and each token is a dictionary representing word;
             If return_type=="strings", 
                 returns a list of text strings, where each string is phrase's 
                 text;
-            Regardless the return type, words in the input Text will be augmented 
-            with NP_LABEL attributes;
+            Regardless the return type, a layer named NOUN_CHUNKS will be added 
+            to the input Text containing noun phrase annotations;
         
         '''
         # 0) Parse given arguments
-        all_return_types = ["text", "tokens", "strings"]
+        #
+        # Output specifics
+        all_return_types = ["text", "labels", "tokens", "strings"]
         return_type     = all_return_types[0]
-        textIsParsed    = False
         cutPhrases      = True
         cutMaxThreshold = 3
+        annotate_text   = True
+        # Syntax layer & Parsing specifics
+        syntax_layer_name = LAYER_CONLL
+        force_parsing     = False
         for argName, argVal in kwargs.items():
-            if argName == 'textIsParsed':
-                textIsParsed = bool(argVal)
-            elif argName == 'cutPhrases':
+            if argName == 'cutPhrases':
                 cutPhrases = bool(argVal)
+            elif argName == 'force_parsing':
+                force_parsing = bool(argVal)
+            elif argName == 'syntax_layer':
+                syntax_layer_name = argVal
             elif argName == 'cutMaxThreshold':
                 cutMaxThreshold = int(argVal)
             elif argName == 'return_type':
@@ -121,28 +142,46 @@ class NounPhraseChunker:
             else:
                 raise Exception(' Unsupported argument given: '+argName)
 
-        # 1) Analyze text with Maltparser to obtain dependency syntactic relations
-        #    (if required)
-        if not textIsParsed:
-            self.maltparser.parse_text( text )
+        #
+        # 1) Acquire the layers of morphological & syntactic annotations:
+        #
+        if not syntax_layer_name in text or force_parsing:
+            # No existing layer found: produce a new layer with the parser
+            self.parser.parse_text( text )
+            if isinstance(self.parser, MaltParser):
+                syntax_layer_name = LAYER_CONLL
+            elif isinstance(self.parser, VISLCG3Parser):
+                syntax_layer_name = LAYER_VISLCG3
+            else:
+                raise Exception(' (!) Unknown type of syntactic parser: ',self.parser)
+
+        if not text.is_tagged(ANALYSIS):
+            # If missing, add the layer of morphological analyses
+            text = text.tag_analysis()
 
         # 2) Process text sentence by sentence
-        for sentence in text.divide( layer=WORDS, by=SENTENCES ):
-            npLabels = self._find_phrases( sentence, cutPhrases, cutMaxThreshold )
-            for i in range(len(sentence)):
-                word = sentence[i]
-                # Change  from  B-I-''  to  B-I-O
-                if npLabels[i] not in ['B', 'I']:
-                    npLabels[i] = 'O'
-                word[NP_LABEL] = npLabels[i]
+        all_np_labels = []
+        for sentence_text in text.split_by( SENTENCES ):
+            tokens       = sentence_text[WORDS]
+            syntax_layer = sentence_text[syntax_layer_name]
+            # Find phrases
+            np_labels = self._find_phrases( tokens, syntax_layer, cutPhrases, cutMaxThreshold )
+            # Normalize labels
+            np_labels = [ 'O' if not l in ['B', 'I'] else l for l in np_labels ]
+            # Collect results
+            all_np_labels.extend( np_labels )
 
-        # 3) Return input text, phrases or phrase texts
+        # 3) Return input text, labels, phrases or phrase texts
+        if annotate_text:
+            self.annotateText( text, NOUN_CHUNKS, all_np_labels )
         if return_type == "text":
             return text
+        elif return_type == "labels":
+            return all_np_labels
         elif return_type == "tokens":
-            return self.get_phrases(text)
+            return self.get_phrases(text, all_np_labels)
         else:
-            return self.get_phrase_texts(text)
+            return self.get_phrase_texts(text, all_np_labels)
 
 
     # =============================================================
@@ -228,7 +267,7 @@ class NounPhraseChunker:
     #   Detect NP phrases based on the local dependency relations
     # =============================================================
     
-    def _find_phrases( self, sentence, cutPhrases, cutMaxThreshold ):
+    def _find_phrases( self, sentence, syntax_layer, cutPhrases, cutMaxThreshold ):
         ''' Detects NP phrases by relying on local dependency relations:
         
             1) Identifies potential heads of NP phrases;
@@ -269,11 +308,15 @@ class NounPhraseChunker:
         #        [Eelmise nädala reedel] , [19. septembril] leidsid [kolleegid] ...
         #        
         for i in range(len(sentence)):
-            label1  = sentence[i][SYNTAX_LABEL]
-            parent1 = sentence[i][SYNTAX_HEAD]
+            label1  = i
+            parent1 = syntax_layer[i][PARSER_OUT][0][1]
+            #label1  = sentence[i][SYNTAX_LABEL]
+            #parent1 = sentence[i][SYNTAX_HEAD]
             if i+1 < len(sentence):
-                label2  = sentence[i+1][SYNTAX_LABEL]
-                parent2 = sentence[i+1][SYNTAX_HEAD]
+                label2  = i+1
+                parent2 = syntax_layer[i+1][PARSER_OUT][0][1]
+                #label2  = sentence[i+1][SYNTAX_LABEL]
+                #parent2 = sentence[i+1][SYNTAX_HEAD]
                 pos1 = self._getPOS(sentence[i])
                 pos2 = self._getPOS(sentence[i+1])
                 if int(parent1) == int(label2) and pos1 in NPattribPos and \
@@ -313,12 +356,16 @@ class NounPhraseChunker:
         #       [kaheksa miljardit]
         #     
         for i in range(len(sentence)):
-            label1  = sentence[i][SYNTAX_LABEL]
-            parent1 = sentence[i][SYNTAX_HEAD]
+            label1  = i
+            parent1 = syntax_layer[i][PARSER_OUT][0][1]
+            #label1  = sentence[i][SYNTAX_LABEL]
+            #parent1 = sentence[i][SYNTAX_HEAD]
             pos1 = self._getPOS(sentence[i])
             if pos1 in ['N', 'O']  and  i+1 < len(sentence):
-                label2  = sentence[i+1][SYNTAX_LABEL]
-                parent2 = sentence[i+1][SYNTAX_HEAD]
+                label2  = i+1
+                parent2 = syntax_layer[i+1][PARSER_OUT][0][1]
+                #label2  = sentence[i+1][SYNTAX_LABEL]
+                #parent2 = sentence[i+1][SYNTAX_HEAD]
                 pos2 = self._getPOS(sentence[i+1])
                 if pos2 in ['N', 'O'] and ( int(parent2) == int(label1) or \
                    int(parent1) == int(label2) ):
@@ -334,12 +381,16 @@ class NounPhraseChunker:
         #        [Perioodil 1997-2001] oli neid rohkem , [vt tabel 1.]
         #
         for i in range(len(sentence)):
-            label1  = sentence[i][SYNTAX_LABEL]
-            parent1 = sentence[i][SYNTAX_HEAD]
+            label1  = i
+            parent1 = syntax_layer[i][PARSER_OUT][0][1]
+            #label1  = sentence[i][SYNTAX_LABEL]
+            #parent1 = sentence[i][SYNTAX_HEAD]
             pos1 = self._getPOS(sentence[i])
             if pos1 in ['N', 'O']  and  i-1 > -1:
-                label2  = sentence[i-1][SYNTAX_LABEL]
-                parent2 = sentence[i-1][SYNTAX_HEAD]
+                label2  = i-1
+                parent2 = syntax_layer[i-1][PARSER_OUT][0][1]
+                #label2  = sentence[i-1][SYNTAX_LABEL]
+                #parent2 = sentence[i-1][SYNTAX_HEAD]
                 if int(parent1) == int(label2) and NPlabels[i-1] != '':
                     NPlabels[i] = 'I'
         #
@@ -353,12 +404,16 @@ class NounPhraseChunker:
         #        Kujutlesin [kaheksa miljonit aastat] vana küpressimetsa [mitukümmend aastat] nooremana .
         #
         for i in range(len(sentence)):
-            label1  = sentence[i][SYNTAX_LABEL]
-            parent1 = sentence[i][SYNTAX_HEAD]
+            label1  = i
+            parent1 = syntax_layer[i][PARSER_OUT][0][1]
+            #label1  = sentence[i][SYNTAX_LABEL]
+            #parent1 = sentence[i][SYNTAX_HEAD]
             pos1 = self._getPOS(sentence[i])
             if pos1 in ['N', 'O']  and  i+1 < len(sentence):
-                label2  = sentence[i+1][SYNTAX_LABEL]
-                parent2 = sentence[i+1][SYNTAX_HEAD]
+                label2  = i+1
+                parent2 = syntax_layer[i+1][PARSER_OUT][0][1]
+                #label2  = sentence[i+1][SYNTAX_LABEL]
+                #parent2 = sentence[i+1][SYNTAX_HEAD]
                 pos2    = self._getPOS(sentence[i+1])
                 if int(parent2) == int(label1) and NPlabels[i+1] != '' and pos2 != 'P':
                     if NPlabels[i]=='':
@@ -411,14 +466,18 @@ class NounPhraseChunker:
         #                ... soojendades ja [suures] soojaks [köetud telgis] kuuma teed ...
         #
         for i in range(len(sentence)-1, -1, -1):
-            label1  = sentence[i][SYNTAX_LABEL]
-            parent1 = sentence[i][SYNTAX_HEAD]
+            label1  = i
+            parent1 = syntax_layer[i][PARSER_OUT][0][1]
+            #label1  = sentence[i][SYNTAX_LABEL]
+            #parent1 = sentence[i][SYNTAX_HEAD]
             pos1 = self._getPOS(sentence[i])
             parentRelativeLoc = int(parent1) - int(label1)
             if pos1 in NPattribPos and NPlabels[i]=='' and parentRelativeLoc > 1 and \
                i+parentRelativeLoc < len(sentence):
-                label2  = sentence[i+parentRelativeLoc][SYNTAX_LABEL]
-                parent2 = sentence[i+parentRelativeLoc][SYNTAX_HEAD]
+                label2  = i+parentRelativeLoc
+                parent2 = syntax_layer[i+parentRelativeLoc][PARSER_OUT][0][1]
+                #label2  = sentence[i+parentRelativeLoc][SYNTAX_LABEL]
+                #parent2 = sentence[i+parentRelativeLoc][SYNTAX_HEAD]
                 if int(parent1) == int(label2) and NPlabels[i+parentRelativeLoc] != '':
                     #
                     #   Kogume kokku k6ik kahe s6na vahele j22vad token'id:
@@ -745,20 +804,21 @@ class NounPhraseChunker:
     #   Extracting phrases from annotations
     # ===========================================================
 
-    def get_phrases(self, text):
-        ''' Given a Text or a list of words annotated for NP chunks, extracts 
-            phrases and returns as a list of phrases, where each phrase is a 
-            list of word tokens belonging to the phrase;
+    def get_phrases(self, text, np_labels):
+        ''' Given a Text and a BIO labels (one label for each word in Text) , 
+            extracts phrases and returns as a list of phrases, where each phrase 
+            is a list of word tokens belonging to the phrase;
             
             Parameters
             ----------
-            text:  estnltk.text.Text or a list of word tokens
-                The input text, which is annotated for NP chunks, or a list 
-                consecutive words, where each word is annotated for NP chunks.
-                It is assumed that the annotation has been performed via
-                method NounPhraseChunker.analyze_text();
-                The method attempts to automatically determine the type of the 
-                input;
+            text:  estnltk.text.Text
+                The input Text, or a list consecutive words (dict objects).
+                The method attempts to automatically determine the type of 
+                the input;
+                
+            np_labels : list of str
+                A list of strings, containing a B-I-O label for each word in 
+                *text*;
                 
             Returns
             -------
@@ -772,26 +832,30 @@ class NounPhraseChunker:
             # input is Text
             input_words = text.words
         elif isinstance(text, list) and len(text)>0 and isinstance(text[0], dict) and \
-             TEXT in text[0] and NP_LABEL in text[0]:
+             TEXT in text[0]:
             # input is a list of words
             input_words = text
         elif text:
             raise Exception('Unexpected input text:', text)
+        if len(input_words) != len(np_labels):
+            raise Exception(' (!) Number of words ('+str(len(input_words))+\
+                            ') does not match number of labels '+str(len(np_labels)))
+
         # 2) Extract phrases from input words:
         phrases = []
-        for word in input_words:
-            if NP_LABEL not in word:
-                raise Exception('Attribute "'+str(NP_LABEL)+'" missing from token: ', word)
-            if word[NP_LABEL] == 'B':
+        for i, word in enumerate(input_words):
+            label = np_labels[i]
+            if label == 'B':
                 phrases.append([])
-            if word[NP_LABEL] in ['B', 'I']:
+            if label in ['B', 'I']:
                 phrases[-1].append( word )
         return phrases
 
 
-    def get_phrase_texts(self, text):
-        ''' Given a Text annotated for NP chunks, extracts phrases and 
-            returns as a list of phrase texts;
+    def get_phrase_texts(self, text, np_labels):
+        ''' Given a Text, and a list describing text annotations in the 
+            B-I-O format (*np_label*), extracts phrases and returns as a
+            list of phrase texts;
             
             Assumes that the input is same as the input acceptable for 
             the method NounPhraseChunker.get_phrases();
@@ -801,7 +865,7 @@ class NounPhraseChunker:
             list of string
                 Returns a list of phrase texts;
         '''
-        phrases = self.get_phrases(text)
+        phrases = self.get_phrases(text, np_labels)
         texts = []
         for phrase in phrases:
             phrase_str = ' '.join([word[TEXT] for word in phrase])
@@ -812,13 +876,13 @@ class NounPhraseChunker:
     #   Annotate Text for NPs
     # ===========================================================
 
-    def annotateText(self, text, layer):
-        ''' Applies this chunker on given Text, and adds results of the 
-            chunking as a new annotation layer to the text.
-            If the input text has already been analyzed for NPs (the
-            first word contains NP_LABEL), uses the existing NP_LABEL
-            annotations, otherwise produces new NP_LABEL annotations
-            via method self.analyze_text();
+    def annotateText(self, text, layer, np_labels = None):
+        ''' Applies this chunker on given Text, and adds results of 
+            the chunking as a new annotation layer to the text.
+            If the NP annotations are provided (via the input list 
+            *np_labels*), uses the given NP annotations, otherwise 
+            produces new NP_LABEL annotations via the method 
+            self.analyze_text();
             
             Parameters
             ----------
@@ -827,6 +891,11 @@ class NounPhraseChunker:
                 annotations is to be added;
             layer: str
                 Name of the new layer;
+            np_labels : list of str
+                Optional: A list of strings, containing a B-I-O label 
+                for each word in *text*; If provided, uses annotations
+                from *np_labels*, otherwise creates new annotations 
+                with this chunker;
                 
             Returns
             -------
@@ -841,22 +910,24 @@ class NounPhraseChunker:
         else:
             raise Exception(' Input text should be of type Text, but it is ', text)
         phrases = []
-        if input_words and NP_LABEL not in input_words[0]:
-            #  If NP_LABEL-s are missing, text needs to be analyzed first
-            phrases = self.analyze_text( text, return_type="tokens" )
-        elif input_words:
-            #  Use existing NP chunk annotation
-            phrases = self.get_phrases( text )
+        #  If NP_LABEL-s are not provided, text needs to be analyzed first:
+        if not np_labels:
+            np_labels = self.analyze_text( text, return_type="labels" )
+        if len(input_words) != len(np_labels):
+            raise Exception(' (!) Number of words ('+str(len(input_words))+\
+                            ') does not match number of labels '+str(len(np_labels)))
+        #  Fetch NP chunks
+        phrases = self.get_phrases( text, np_labels )
+        # Create and attach annotations to the Text object
+        annotations = []
         if phrases:
-            # Create and attach annotations to the Text object
-            annotations = []
             for phrase in phrases: 
                 phrase_annotation = {}
                 phrase_annotation[START] = phrase[0][START]
                 phrase_annotation[END]   = phrase[-1][END]
                 phrase_annotation[TEXT]  = ' '.join([word[TEXT] for word in phrase ])
                 annotations.append( phrase_annotation )
-            text[layer] = annotations
+        text[layer] = annotations
         return text
 
 

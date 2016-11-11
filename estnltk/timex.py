@@ -92,7 +92,11 @@ def remove_unnormalized(timexes):
 
 
 def convert_timex(timex, text):
-    #timex[TEXT] = text[timex[START]:timex[END]]
+    # if TEXT is not provided (the case of empty TIMEX3 tag), also 
+    # make the length of TIMEX zero
+    if TEXT not in timex:
+        # make start and end equal
+        timex[START] = timex[END]
     if TMX_TEMP_FUNCTION in timex:
         tmp = timex[TMX_TEMP_FUNCTION].upper()
         if tmp.startswith('T'):

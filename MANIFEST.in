@@ -6,3 +6,4 @@ graft estnltk/vabamorf/dct
 graft estnltk/mw_verbs/res
 graft estnltk/converters
 graft estnltk/estner
+graft estnltk/odds_and_ends
