@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-'''
-Module containing various feature extractors including local and global
-features.
-'''
+"""Module containing various feature extractors including local and global features."""
 from __future__ import unicode_literals, print_function
 
 import re
@@ -10,12 +7,12 @@ import codecs
 from collections import defaultdict
 from functools import reduce
 
-
 # Separator of field values.
 separator = ' '
 
 # Field names of the input data.
 fields = 'y w pos chk'
+
 
 # local features
 def get_shape(token):
@@ -148,7 +145,7 @@ def get_lemma(morph_lemma):
             morph_lemma = morph_lemma[:ridx]
         lemma = re.sub(r'(?<=[^\W_])_(?=[^\W_])', '', morph_lemma)
     else:
-        lemma = morph_lemma 
+        lemma = morph_lemma
     return lemma.lower()
 
 
@@ -173,7 +170,7 @@ def get_case(morph):
         except ValueError:
             case = None
     else:
-        case = None  
+        case = None
     return case
 
 
@@ -198,57 +195,54 @@ def is_prop(morph):
 
 
 class BaseFeatureExtractor(object):
-    '''Base class for all feature extractors.'''
+    """Base class for all feature extractors."""
 
     def __init__(self, *args, **kwargs):
         pass
-
 
     def prepare(self, docs):
         ''' Called before feature extraction actually happens. Can be used to 
         collect global statistics on the corpus. '''
         pass
 
-
     def process(self, doc):
         for token in doc.tokens:
             self._process(token)
-
 
     def _process(self, token):
         raise NotImplementedError("Not implemented!")
 
 
 class MorphFeatureExtractor(BaseFeatureExtractor):
-    '''Extracts features provided by the morphological analyser pyvabamorf. '''
+    """Extracts features provided by the morphological analyser pyvabamorf. """
 
     def _process(self, t):
-        LEM  = "lem"
-        POS  = "pos"
+        LEM = "lem"
+        POS = "pos"
         PROP = "prop"
         PREF = "pref"
         POST = "post"
         CASE = "case"
-        END  = "end"
-        PUN  = "pun"
-        t[LEM]  = get_lemma(t.lemma)
-        t[POS]  = get_pos(t.morph)
+        END = "end"
+        PUN = "pun"
+        t[LEM] = get_lemma(t.lemma)
+        t[POS] = get_pos(t.morph)
         t[PROP] = b(is_prop(t.morph))
         t[PREF], t[POST] = get_word_parts(t.lemma)
         t[CASE] = get_case(t.morph)
-        t[END]  = get_ending(t.lemma)
-        t[PUN]  = b(t[POS] == '_Z_')
+        t[END] = get_ending(t.lemma)
+        t[PUN] = b(t[POS] == '_Z_')
 
 
 class GazetteerFeatureExtractor(BaseFeatureExtractor):
-    '''Generates features indicating whether the token is present in a precompiled 
-    list of organisations, geographical locations or person names. For instance, 
-    if a token t occurs both in the list of person names (PER) and organisations (ORG), 
-    assign t['gaz'] = ['PER', 'ORG']. With the parameter look_ahead, it is possible to 
-    compose multi-token phrases for dictionary lookup. When look_ahead=N, phrases 
+    """Generates features indicating whether the token is present in a precompiled
+    list of organisations, geographical locations or person names. For instance,
+    if a token t occurs both in the list of person names (PER) and organisations (ORG),
+    assign t['gaz'] = ['PER', 'ORG']. With the parameter look_ahead, it is possible to
+    compose multi-token phrases for dictionary lookup. When look_ahead=N, phrases
     (t[i], ..., t[i+N]) will be composed. If the phrase matches the dictionary, each
-    token will be assigned the corresponding value. 
-    '''
+    token will be assigned the corresponding value.
+    """
 
     def __init__(self, settings, look_ahead=3):
         '''Loads a gazetteer file. Can take some time!
@@ -269,12 +263,11 @@ class GazetteerFeatureExtractor(BaseFeatureExtractor):
                 word, lbl = ln.strip().rsplit("\t", 1)
                 self.data[word].add(lbl)
 
-
     def process(self, doc):
         tokens = doc.tokens
         look_ahead = self.look_ahead
         for i in range(len(tokens)):
-            if "iu" in tokens[i]: # Only capitalised strings
+            if "iu" in tokens[i]:  # Only capitalised strings
                 for j in range(i + 1, i + 1 + look_ahead):
                     phrase = " ".join(token["lem"] for token in tokens[i:j])
                     if phrase in self.data:
@@ -287,16 +280,15 @@ class GazetteerFeatureExtractor(BaseFeatureExtractor):
 
 
 class GlobalContextFeatureExtractor(BaseFeatureExtractor):
-
     def process(self, doc):
         IUOC = 'iuoc'
         NPROP = 'nprop'
         PPROP = 'pprop'
-        NGAZ = 'ngaz' 
+        NGAZ = 'ngaz'
         PGAZ = 'pgaz'
         ui_lems = set([t['lem'] for t in doc.tokens
-                                    if ('iu' in t and 'fsnt' not in t and
-                                        t.prew.word not in set([u'\u201d', u'\u201e', u'\u201c']))]) 
+                       if ('iu' in t and 'fsnt' not in t and
+                           t.prew.word not in set([u'\u201d', u'\u201e', u'\u201c']))])
         sametoks_dict = defaultdict(list)
         for t in doc.tokens:
             if t['lem'] in ui_lems:
@@ -315,7 +307,7 @@ class GlobalContextFeatureExtractor(BaseFeatureExtractor):
                     t[NPROP] = 'y'
 
             pgaz_set = reduce(set.union, [t.prew["gaz"] for t in sametoks if t.prew and 'gaz' in t.prew], set([]))
-            if pgaz_set: 
+            if pgaz_set:
                 for t in sametoks:
                     t[PGAZ] = pgaz_set
 
@@ -323,7 +315,6 @@ class GlobalContextFeatureExtractor(BaseFeatureExtractor):
             if ngaz_set:
                 for t in sametoks:
                     t[NGAZ] = ngaz_set
-
 
     def __process(self, doc):
         sametoks_dict = defaultdict(list)
@@ -336,7 +327,7 @@ class GlobalContextFeatureExtractor(BaseFeatureExtractor):
         NLEM = 'nlem'
         NPROP = 'nprop'
         PPROP = 'pprop'
-        NGAZ = 'ngaz' 
+        NGAZ = 'ngaz'
         PGAZ = 'pgaz'
 
         def add_feature(toks, fname, fvalue):
@@ -370,7 +361,7 @@ class GlobalContextFeatureExtractor(BaseFeatureExtractor):
 
 
 class SentenceFeatureExtractor(BaseFeatureExtractor):
-    ''' Generates features for the first and last tokens in a sentence.'''
+    """Generates features for the first and last tokens in a sentence."""
 
     def process(self, doc):
         FSNT = "fsnt"
@@ -382,11 +373,11 @@ class SentenceFeatureExtractor(BaseFeatureExtractor):
 
 
 class LocalFeatureExtractor(BaseFeatureExtractor):
-    ''' Generates features for a token based on its character makeup '''
+    """Generates features for a token based on its character makeup."""
 
     def _process(self, t):
-        W = "w" # token
-        WL = "wl" # Lowercased token.
+        W = "w"  # token
+        WL = "wl"  # Lowercased token.
         SHAPE = "shape"
         SHAPED = "shaped"
 
@@ -423,13 +414,13 @@ class LocalFeatureExtractor(BaseFeatureExtractor):
         t[S3] = t[FEAT][-3:] if len(t[FEAT]) >= 3 else None
         t[S4] = t[FEAT][-4:] if len(t[FEAT]) >= 4 else None
 
-        DIG2 = "2d" # Two digits
-        DIG4 = "4d" # Four digits.
-        DIG_DASH = "d&-" # Digits and '-'.
-        DIG_SLASH = "d&/" # Digits and '/'.
-        DIG_COMA = "d&," # Digits and ','.
-        DIG_DOT = "d&." # Digits and '.'.
-        UP_DOT = "up" # A uppercase letter followed by '.'
+        DIG2 = "2d"  # Two digits
+        DIG4 = "4d"  # Four digits.
+        DIG_DASH = "d&-"  # Digits and '-'.
+        DIG_SLASH = "d&/"  # Digits and '/'.
+        DIG_COMA = "d&,"  # Digits and ','.
+        DIG_DOT = "d&."  # Digits and '.'.
+        UP_DOT = "up"  # A uppercase letter followed by '.'
 
         # Two digits
         t[DIG2] = b(get_2d(t[W]))
@@ -498,7 +489,7 @@ class LocalFeatureExtractor(BaseFeatureExtractor):
         ADOT = "adot"
 
         # Before, after dash
-        t[BDASH], t[ADASH] = split_char(t[FEAT], '-')  
+        t[BDASH], t[ADASH] = split_char(t[FEAT], '-')
 
         # Before, after dot
         t[BDOT], t[ADOT] = split_char(t[FEAT], '.')
@@ -526,6 +517,7 @@ def apply_templates(toks, templates):
         where name and offset specify a field name and offset from which
         the template extracts a feature value.
     """
+
     def product(values_list):
         res = []
         if values_list:
@@ -555,18 +547,18 @@ def apply_templates(toks, templates):
 
 
 class FeatureExtractor(object):
-    '''Feature extractor is used for decorating tokens of the documents
+    """Feature extractor is used for decorating tokens of the documents
     with features specified in configuration files.
-    '''
+    """
 
     def __init__(self, settings):
-        '''Initialize the feature extractor.
+        """Initialize the feature extractor.
 
         Parameters
         ----------
         settings: estnltk.estner.settings.Settings
             The settings and configuration of the NER system.
-        '''
+        """
         self.settings = settings
         self.fex_list = []
         for fex_name in settings.FEATURE_EXTRACTORS:
@@ -574,12 +566,10 @@ class FeatureExtractor(object):
             fex_obj = fex_class(settings)
             self.fex_list.append(fex_obj)
 
-
     def prepare(self, docs):
         # init extractors
         for fex in self.fex_list:
             fex.prepare(docs)
-
 
     def process(self, docs):
         # extract features
@@ -592,12 +582,11 @@ class FeatureExtractor(object):
             for snt in doc.snts:
                 apply_templates(snt, self.settings.TEMPLATES)
 
-
     @staticmethod
     def _get_class(kls):
         parts = kls.split('.')
         module = ".".join(parts[:-1])
-        m = __import__( module )
+        m = __import__(module)
         for comp in parts[1:]:
             m = getattr(m, comp)
         return m

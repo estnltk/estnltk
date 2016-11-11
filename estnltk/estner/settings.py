@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-''' NER settings '''
+"""NER settings """
 
 from __future__ import unicode_literals, print_function
 import os
 
 from estnltk.core import PACKAGE_PATH
-
 
 NER_PACKAGE_PATH = os.path.join(PACKAGE_PATH, 'estner')
 
@@ -14,7 +13,6 @@ CLASSES = ['PER', 'ORG', 'LOC']
 # Crfsuite settings
 CRFSUITE_ALGORITHM = 'l2sgd'
 CRFSUITE_C2 = 0.001
-
 
 # FeatureExtraction settings
 
@@ -42,7 +40,7 @@ TEMPLATES = [
     (('cp', 0),),
     (('cds', 0),),
     (('cdt', 0),),
-    
+
     (('iu', -1),),
     (('au', -1),),
     (('au', -1),),
@@ -55,7 +53,7 @@ TEMPLATES = [
     (('cdt', -1),),
     (('adash', -1),),
     (('fsnt', -1),),
-    
+
     (('iu', -2),),
     (('au', -2),),
     (('au', -2),),
@@ -68,7 +66,7 @@ TEMPLATES = [
     (('cdt', -2),),
     (('adash', -2),),
     (('fsnt', -2),),
-    
+
     (('iu', 1),),
     (('au', 1),),
     (('au', 1),),
@@ -81,7 +79,7 @@ TEMPLATES = [
     (('cdt', 1),),
     (('adash', 1),),
     (('fsnt', 1),),
-    
+
     (('iu', 2),),
     (('au', 2),),
     (('au', 2),),
@@ -94,7 +92,7 @@ TEMPLATES = [
     (('cdt', 2),),
     (('adash', 2),),
     (('fsnt', 2),),
-    
+
     # morphological features
     (('lem', 0),),
     (('pos', 0),),
@@ -103,55 +101,55 @@ TEMPLATES = [
     (('pun', 0),),
     (('case', 0),),
     (('end', 0),),
-    
+
     (('lem', -1),),
     (('prop', -1),),
     (('pos', -1),),
     (('pun', -1),),
     (('post', -1),),
-    
+
     (('lem', -2),),
     (('prop', -2),),
     (('pos', -2),),
     (('pun', -2),),
     (('post', -2),),
-    
+
     (('lem', 1),),
     (('prop', 1),),
     (('pos', 1),),
     (('pun', 1),),
     (('post', 1),),
-    
+
     (('lem', 2),),
     (('prop', 2),),
     (('pos', 2),),
     (('pun', 2),),
     (('post', 2),),
-    
+
     # global context aggregation
     (('iuoc', 0),),
     (('nprop', 0),),
     (('pprop', 0),),
     (('ngaz', 0),),
     (('pgaz', 0),),
-    
+
     # gazeteers
     (('gaz', 0),),
     (('gaz', -1),),
     (('gaz', -2),),
     (('gaz', 1),),
     (('gaz', 2),),
-    
+
     # composite features
-    (('iu', 0),('fsnt', 0),),
-    (('lem', 0),('lem', -1),),
-    (('lem', 0),('lem', 1),),
-    (('pos', 0),('pos', -1),),
-    (('pos', 0),('pos', 1),),
-    (('iu', 0),('iu', 1),),
-    (('iu', 0),('iu', -1),),
-    (('gaz', 0),('gaz', 1),),
-    (('gaz', -1),('gaz', 0),),
+    (('iu', 0), ('fsnt', 0),),
+    (('lem', 0), ('lem', -1),),
+    (('lem', 0), ('lem', 1),),
+    (('pos', 0), ('pos', -1),),
+    (('pos', 0), ('pos', 1),),
+    (('iu', 0), ('iu', 1),),
+    (('iu', 0), ('iu', -1),),
+    (('gaz', 0), ('gaz', 1),),
+    (('gaz', -1), ('gaz', 0),),
 ]
 
 FEATURE_EXTRACTORS = (
