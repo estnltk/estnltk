@@ -124,7 +124,7 @@ def convert_Text_to_mrf(text):
                      frozen=False,
                      parent=text.words,
                      ambiguous=True,
-                     attributes=['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case' ,'form_list', 'initial_form', 'fin', 'abileksikon']
+                     attributes=['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case', 'initial_form', 'fin', 'abileksikon']
                      )
     text.add_layer(dep)
 
@@ -134,7 +134,7 @@ def convert_Text_to_mrf(text):
             #   NB! ending="0" erineb ending=""-st:
             #     1) eestlane (ending="0");
             #     2) Rio (ending="") de (ending="") Jaineros;
-            m.root = _esc_double_quotes( analysis.root )
+            m.root = _esc_double_quotes(analysis.root)
             m.ending = analysis.ending
             m.clitic = analysis.clitic
             m.pos = analysis.partofspeech
@@ -292,11 +292,9 @@ def convert_mrf_to_syntax_mrf(text, fs_to_synt_rules):
     for word in text.words:
         for syntax_pp in word.syntax_pp_1:
             pos = syntax_pp.pos
-            form_list = syntax_pp.form_list[:]#ka son siin koopiat vaja?
+            form_list = syntax_pp.form_list[:]#kas siin on koopiat vaja?
             # 1) Convert punctuation
             if pos == 'Z':
-                # üsne kasutu, sest see töö on varem morf_analysis sees ära tehtud, 
-                # omab mingit efekti vaid " jaoks
                 _convert_punctuation(syntax_pp)
                 m = word.mark('syntax_pp_2')
                 m.root = syntax_pp.root
@@ -475,7 +473,6 @@ def convert_pronouns(text):
                 for pattern, pron_type in _pronConversions:
                     if re.search(pattern, root_ec):
                         # kas search või match? "enese" vs "iseenese"
-                        #syntax_pp.form_list.insert(0, pron_type)
                         syntax_pp.pronoun_type = pron_type
                         break    
     return text
@@ -515,7 +512,8 @@ def remove_duplicate_analyses(text, allow_to_delete_all=True):
         Kpre_index     = -1
         Kpost_index    = -1
         for i, syntax_pp in enumerate(word.syntax_pp_2):
-            analysis = (syntax_pp.root, syntax_pp.ending, syntax_pp.clitic, syntax_pp.pos, syntax_pp.form_list)
+            #analysis = (syntax_pp.root, syntax_pp.ending, syntax_pp.clitic, syntax_pp.pos, syntax_pp.form_list)
+            analysis = (syntax_pp.root, syntax_pp.ending, syntax_pp.clitic, syntax_pp.pos, syntax_pp.initial_form)
             if analysis in seen_analyses:
                 # Remember line that has been already seen as a duplicate
                 to_delete.append(i)
@@ -588,7 +586,6 @@ def add_hashtag_info(text):
         for syntax_pp in word.syntax_pp_2:            
             syntax_pp.letter_case = None
             if cap:
-                syntax_pp.form_list.append('cap')
                 syntax_pp.letter_case = 'cap'
 
             syntax_pp.fin = None
@@ -689,7 +686,12 @@ def tag_subcat_info(text, subcat_rules):
             # Find whether there is subcategorization info associated 
             # with the root
             if root in subcat_rules:
-                analysis = ['_'+syntax_pp.pos+'_'] + syntax_pp.form_list
+                #analysis = ['_'+syntax_pp.pos+'_'] + syntax_pp.form_list
+                #analysis = {'_'+syntax_pp.pos+'_', syntax_pp.punctuation_type, syntax_pp.pronoun_type, syntax_pp.partic, syntax_pp.letter_case, *syntax_pp.initial_form, syntax_pp.fin}
+                # kas eelneva asemel piisab järgnevast?
+                analysis = {'_'+syntax_pp.pos+'_'}
+                analysis.update(syntax_pp.initial_form)
+
                 for rule in subcat_rules[root]:
                     condition, addition = rule.split('>')
                     # Check the condition string; If there are multiple conditions, 
@@ -724,11 +726,11 @@ def tag_subcat_info(text, subcat_rules):
                                 if not item in form_list_new:
                                     form_list_new.append(item)
                                     abileksikon.append(item)
-                            m.form_list = form_list_new
+                            #m.form_list = form_list_new
                             m.initial_form = syntax_pp.initial_form
                             m.fin = syntax_pp.fin
                             m.abileksikon = abileksikon
-                            
+                                                        
                             match = True
                         # No need to search forward
                         break
@@ -742,7 +744,7 @@ def tag_subcat_info(text, subcat_rules):
                 m.pronoun_type = syntax_pp.pronoun_type
                 m.partic = syntax_pp.partic
                 m.letter_case = syntax_pp.letter_case
-                m.form_list = syntax_pp.form_list
+                #m.form_list = syntax_pp.form_list
                 m.initial_form = syntax_pp.initial_form
                 m.fin = syntax_pp.fin
                 m.abileksikon = None
@@ -780,10 +782,10 @@ def convert_to_cg3_input(text):
                     new_form_list.append(syntax_pp.pronoun_type)
                 if syntax_pp.initial_form:
                     new_form_list.extend(syntax_pp.initial_form)
-                if syntax_pp.punctuation_type:
+                #if syntax_pp.punctuation_type:
                     # kasutu
-                    if syntax_pp.punctuation_type not in new_form_list:
-                        new_form_list.append(syntax_pp.punctuation_type)
+                #    if syntax_pp.punctuation_type not in new_form_list:
+                #        new_form_list.append(syntax_pp.punctuation_type)
                 if syntax_pp.letter_case:
                     new_form_list.append(syntax_pp.letter_case)
                 if syntax_pp.partic:
@@ -799,15 +801,15 @@ def convert_to_cg3_input(text):
                 #    print(new_form_list)
                 #    print(syntax_pp.initial_form, syntax_pp.fin, syntax_pp.abileksikon, syntax_pp.punctuation_type, syntax_pp.pronoun_type, syntax_pp.partic, syntax_pp.letter_case)
                 #syntax_pp.form_list = [re.sub('#(\S+)','<\\1>', f) for f in syntax_pp.form_list]
-                syntax_pp.form_list = [re.sub('#(\S+)','<\\1>', f) for f in new_form_list]
+                new_form_list = [re.sub('#(\S+)','<\\1>', f) for f in new_form_list]
 
                 if syntax_pp.ending + syntax_pp.clitic:
-                    line_new = '    "'+syntax_pp.root+'" L'+syntax_pp.ending+syntax_pp.clitic+' ' + ' '.join([syntax_pp.pos]+syntax_pp.form_list+[' '])
+                    line_new = '    "'+syntax_pp.root+'" L'+syntax_pp.ending+syntax_pp.clitic+' ' + ' '.join([syntax_pp.pos]+new_form_list+[' '])
                 else:
                     if syntax_pp.pos == 'Z':
-                        line_new = '    "'+syntax_pp.root+'" '+' '.join([syntax_pp.pos]+syntax_pp.form_list+[' '])
+                        line_new = '    "'+syntax_pp.root+'" '+' '.join([syntax_pp.pos]+new_form_list+[' '])
                     else:
-                        line_new = '    "'+syntax_pp.root+'+" '+' '.join([syntax_pp.pos]+syntax_pp.form_list+[' '])
+                        line_new = '    "'+syntax_pp.root+'+" '+' '.join([syntax_pp.pos]+new_form_list+[' '])
 
                 if syntax_pp.root == '':
                     line_new = '     //_Z_ //'  
@@ -996,8 +998,8 @@ class SyntaxPreprocessing:
         text = add_hashtag_info(text)
         print('s', end='', flush=True)
         text = tag_subcat_info(text, self.subcat_rules )
-        print('d', end='', flush=True)
-        text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all) # kas omab efekti?
+        #print('d', end='', flush=True)
+        #text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all) # kas omab efekti?
         print('c ', end='', flush=True)
         text, morph_lines = convert_to_cg3_input(text)
         return text, morph_lines
