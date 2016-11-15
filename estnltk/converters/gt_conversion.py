@@ -420,7 +420,14 @@ def convert_text( text, layer_name=WORDS ):
     _disambiguate_sid_ksid( new_words_layer, text, scope=SENTENCES )
     _make_postfixes_2( new_words_layer )
     # 3) Attach the layer
-    text[layer_name] = new_words_layer
+    if layer_name != WORDS:
+        #  Simply attach the new layer
+        text[layer_name] = new_words_layer
+    else:
+        #  Perform word-by-word replacements
+        # (because simple attaching won't work here)
+        for wid, new_word in enumerate( new_words_layer ):
+            text[WORDS][wid] = new_word
     return text
 
 

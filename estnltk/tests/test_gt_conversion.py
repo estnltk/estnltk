@@ -13,8 +13,8 @@ class GTconverterTest(unittest.TestCase):
     def test_gt_conversion_1(self):
         text = Text('Rändur võttis seljakotist vilepilli ja tõstis huultele.')
         text.tag_analysis()
-        text2 = Text( convert_text(text) )
-        results = (text2.get.word_texts.postags.forms.as_dataframe).to_string().split('\n')
+        convert_text(text)
+        results = (text.get.word_texts.postags.forms.as_dataframe).to_string().split('\n')
         self.assertListEqual(results, ['    word_texts postags                  forms', \
                                        '0       Rändur       S                 Sg Nom', \
                                        '1       võttis       V  Pers Prt Ind Sg 3 Aff', \
@@ -28,8 +28,8 @@ class GTconverterTest(unittest.TestCase):
     def test_gt_conversion_2(self):
         text = Text('Ärge peatuge: siin ei tohi kiirust vähendada!')
         text.tag_analysis()
-        text2 = Text( convert_text(text) )
-        results = (text2.get.word_texts.postags.forms.as_dataframe).to_string().split('\n')
+        convert_text(text)
+        results = (text.get.word_texts.postags.forms.as_dataframe).to_string().split('\n')
         self.assertListEqual(results, ['  word_texts postags                    forms',\
                                        '0       Ärge       V  Pers Prs Imprt Pl 2 Neg',\
                                        '1    peatuge       V      Pers Prs Imprt Pl 2',\
@@ -44,8 +44,8 @@ class GTconverterTest(unittest.TestCase):
     def test_gt_conversion_3(self):
         text = Text('Oleksid Sa siin olnud, siis oleksid nad ära läinud.')
         text.tag_analysis()
-        text2 = Text( convert_text(text) )
-        results = (text2.get.word_texts.postags.forms.as_dataframe).to_string().split('\n')
+        convert_text(text)
+        results = (text.get.word_texts.postags.forms.as_dataframe).to_string().split('\n')
         self.assertListEqual(results, ['   word_texts postags                        forms',\
                                        '0     Oleksid       V       Pers Prs Cond Sg 2 Aff',\
                                        '1          Sa       P                       Sg Nom',\
@@ -63,8 +63,8 @@ class GTconverterTest(unittest.TestCase):
     def test_gt_conversion_4(self):
         text = Text('Mine sa tea!')
         text.tag_analysis()
-        text2 = Text( convert_text(text) )
-        results = (text2.get.word_texts.postags.forms.as_dataframe).to_string().split('\n')
+        convert_text(text)
+        results = (text.get.word_texts.postags.forms.as_dataframe).to_string().split('\n')
         self.assertListEqual(results, ['  word_texts postags                forms',\
                                        '0       Mine       V  Pers Prs Imprt Sg 2',\
                                        '1         sa       P               Sg Nom',\
@@ -74,8 +74,8 @@ class GTconverterTest(unittest.TestCase):
     def test_gt_conversion_5(self):
         text = Text('Sellist asja ei olnud.')
         text.tag_analysis()
-        text2 = Text( convert_text(text) )
-        results = (text2.get.word_texts.postags.forms.as_dataframe).to_string().split('\n')
+        convert_text(text)
+        results = (text.get.word_texts.postags.forms.as_dataframe).to_string().split('\n')
         self.assertListEqual(results, ['  word_texts postags                            forms',\
                                        '0    Sellist       P                           Sg Par',\
                                        '1       asja       S                           Sg Par',\
