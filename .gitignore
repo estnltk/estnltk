@@ -18,3 +18,15 @@ dist/
 
 #we never want to commit build
 build/
+
+#all tutorials should be jupyter notebooks
+/docs/tutorials/*rst
+
+#do not commit build log
+docs/error.log
+
+#do not commit sphinx documentation build results
+_build
+
+#this is the wrong tutorial se
+/tutorials

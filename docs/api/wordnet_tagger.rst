@@ -5,3 +5,5 @@ estnltk.wordnet_tagger module
 
 .. autoclass:: WordnetTagger
     :members:
+
+
