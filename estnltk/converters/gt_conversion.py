@@ -5,12 +5,12 @@
 #
 #    Example usage:
 #
-#      from estnltk.converters.gt_conversion import convert_text
+#      from estnltk.converters.gt_conversion import convert_to_gt
 #
 #      text=Text('Rändur võttis seljakotist vilepilli ja tõstis huultele.')
 #      text.tag_analysis()
-#      text2 = Text( convert_text(text) )
-#      print( text2.get.word_texts.postags.forms.as_dataframe )
+#      convert_to_gt( text )
+#      print( text.get.word_texts.postags.forms.as_dataframe )
 #
 
 from __future__ import unicode_literals, print_function
@@ -387,11 +387,11 @@ def convert_analysis( analyses ):
     return resulting_analyses
 
 
-def convert_text( text, layer_name=WORDS ):
-    ''' Converts all words in a morphologically analysed text from FS format to 
-        giellatekno (GT) format. By default, overwrites the old 'words' layer with the 
-        new layer containing GT format annotations. If the keyword argument *layer_name* 
-        is provided, keeps the old layer and attaches the results as a new layer.
+def convert_to_gt( text, layer_name=GT_WORDS ):
+    ''' Converts all words in a morphologically analysed Text from FS format to 
+        giellatekno (GT) format, and stores in a new layer named GT_WORDS. 
+        If the keyword argument *layer_name=='words'* , overwrites the old 'words' 
+        layer with the new layer containing GT format annotations. 
 
         Parameters
         -----------
@@ -402,7 +402,7 @@ def convert_text( text, layer_name=WORDS ):
         layer_name : str
             Name of the Text's layer in which GT format morphological annotations 
             are stored; 
-            Defaults to WORDS;
+            Defaults to GT_WORDS;
     '''
     assert WORDS in text, \
         '(!) The input text should contain "'+str(WORDS)+'" layer.'
@@ -420,7 +420,14 @@ def convert_text( text, layer_name=WORDS ):
     _disambiguate_sid_ksid( new_words_layer, text, scope=SENTENCES )
     _make_postfixes_2( new_words_layer )
     # 3) Attach the layer
-    text[layer_name] = new_words_layer
+    if layer_name != WORDS:
+        #  Simply attach the new layer
+        text[layer_name] = new_words_layer
+    else:
+        #  Perform word-by-word replacements
+        # (because simple attaching won't work here)
+        for wid, new_word in enumerate( new_words_layer ):
+            text[WORDS][wid] = new_word
     return text
 
 

@@ -36,6 +36,7 @@ ENDING = 'ending'
 FORM = 'form'
 SPELLING = 'spelling'
 SUGGESTIONS = 'suggestions'
+GT_WORDS = 'gt_words'  # words and morph analyses in gt format;
 
 # syntax related
 SENT_ID         = 'sent_id'
