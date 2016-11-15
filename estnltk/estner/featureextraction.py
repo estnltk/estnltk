@@ -198,7 +198,7 @@ def is_prop(morph):
 
 
 class BaseFeatureExtractor(object):
-    '''Base class for all feature extractors.'''
+    """Base class for all feature extractors."""
 
     def __init__(self, *args, **kwargs):
         pass
@@ -217,7 +217,7 @@ class BaseFeatureExtractor(object):
 
 
 class MorphFeatureExtractor(BaseFeatureExtractor):
-    '''Extracts features provided by the morphological analyser pyvabamorf. '''
+    """Extracts features provided by the morphological analyser pyvabamorf. """
 
     def _process(self, t):
         LEM = "lem"
@@ -267,7 +267,7 @@ class GazetteerFeatureExtractor(BaseFeatureExtractor):
                 self.data[word].add(lbl)
 
     def process(self, doc):
-        tokens = doc.tokens
+        tokens = list(doc.tokens)
         look_ahead = self.look_ahead
         for i in range(len(tokens)):
             if "iu" in tokens[i]:  # Only capitalised strings
@@ -364,12 +364,12 @@ class GlobalContextFeatureExtractor(BaseFeatureExtractor):
 
 
 class SentenceFeatureExtractor(BaseFeatureExtractor):
-    ''' Generates features for the first and last tokens in a sentence.'''
+    """Generates features for the first and last tokens in a sentence."""
 
     def process(self, doc):
         FSNT = "fsnt"
         LSNT = "lsnt"
-        for snt in doc.snts:
+        for snt in doc.sentences:
             if snt:
                 snt[0][FSNT] = 'y'
                 snt[-1][LSNT] = 'y'
@@ -538,18 +538,18 @@ def apply_templates(toks, templates):
 
 
 class FeatureExtractor(object):
-    '''Feature extractor is used for decorating tokens of the documents
+    """Feature extractor is used for decorating tokens of the documents
     with features specified in configuration files.
-    '''
+    """
 
     def __init__(self, settings):
-        '''Initialize the feature extractor.
+        """Initialize the feature extractor.
 
         Parameters
         ----------
         settings: estnltk.estner.settings.Settings
             The settings and configuration of the NER system.
-        '''
+        """
         self.settings = settings
         self.fex_list = []
         for fex_name in settings.FEATURE_EXTRACTORS:
@@ -570,7 +570,7 @@ class FeatureExtractor(object):
 
         # apply the feature templates.
         for doc in docs:
-            for snt in doc.snts:
+            for snt in doc.sentences:
                 apply_templates(snt, self.settings.TEMPLATES)
 
     @staticmethod

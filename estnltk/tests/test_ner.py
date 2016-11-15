@@ -4,8 +4,8 @@ import unittest
 from copy import deepcopy
 
 import estnltk
-from ..estner.featureextraction import MorphFeatureExtractor, \
-    LocalFeatureExtractor, GazetteerFeatureExtractor, apply_templates
+from ..estner.featureextraction import MorphFeatureExtractor, LocalFeatureExtractor, GazetteerFeatureExtractor, \
+    apply_templates
 from ..estner.ner import Token
 from ..core import as_unicode
 from ..text import Text
@@ -55,33 +55,35 @@ class TestGazetteerFeatureExtractor(unittest.TestCase):
 
         text = Text(as_unicode('Mr Alexander Graham Bell on tuntud teadlane.'))
         doc = json_document_to_estner_document(text)
+        tokens = list(doc.tokens)
 
-        self.assertEqual(len(doc.tokens), 8)
+        self.assertEqual(len(tokens), 8)
 
         MorphFeatureExtractor().process(doc)
         LocalFeatureExtractor().process(doc)
         fex.process(doc)
 
-        t = doc.tokens[0]
+        t = tokens[0]
         self.assertEqual(t.word, 'Mr')
         self.assertTrue('gaz' not in t)
 
-        t = doc.tokens[1]
+        t = tokens[1]
+
         self.assertEqual(t.word, 'Alexander')
         self.assertTrue('gaz' in t)
         self.assertTrue('peop' in t['gaz'])
 
-        t = doc.tokens[2]
+        t = tokens[2]
         self.assertEqual(t.word, 'Graham')
         self.assertTrue('gaz' in t)
         self.assertTrue('peop' in t['gaz'])
 
-        t = doc.tokens[3]
+        t = tokens[3]
         self.assertEqual(t.word, 'Bell')
         self.assertTrue('gaz' in t)
         self.assertTrue('peop' in t['gaz'])
 
-        t = doc.tokens[4]
+        t = tokens[4]
         self.assertEqual(t.word, 'on')
         self.assertTrue('gaz' not in t)
 
