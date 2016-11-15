@@ -387,11 +387,11 @@ def convert_analysis( analyses ):
     return resulting_analyses
 
 
-def convert_to_gt( text, layer_name=WORDS ):
+def convert_to_gt( text, layer_name=GT_WORDS ):
     ''' Converts all words in a morphologically analysed Text from FS format to 
-        giellatekno (GT) format. By default, overwrites the old 'words' layer with the 
-        new layer containing GT format annotations. If the keyword argument *layer_name* 
-        is provided, keeps the old layer and attaches the results as a new layer.
+        giellatekno (GT) format, and stores in a new layer named GT_WORDS. 
+        If the keyword argument *layer_name=='words'* , overwrites the old 'words' 
+        layer with the new layer containing GT format annotations. 
 
         Parameters
         -----------
@@ -402,7 +402,7 @@ def convert_to_gt( text, layer_name=WORDS ):
         layer_name : str
             Name of the Text's layer in which GT format morphological annotations 
             are stored; 
-            Defaults to WORDS;
+            Defaults to GT_WORDS;
     '''
     assert WORDS in text, \
         '(!) The input text should contain "'+str(WORDS)+'" layer.'

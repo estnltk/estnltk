@@ -10,10 +10,31 @@ from ..converters.gt_conversion import convert_to_gt
 
 class GTconverterTest(unittest.TestCase):
 
+    def test_gt_conversion_0(self):
+        text = Text('Rändur võttis istet.')
+        text.tag_analysis()
+        convert_to_gt(text)
+        results = (text.get.word_texts.postags.forms.as_dataframe).to_string().split('\n')
+        # By default, original FS morph format is preserved:
+        self.assertListEqual(results, ['  word_texts postags forms', \
+                                       '0     Rändur       S  sg n', \
+                                       '1     võttis       V     s', \
+                                       '2      istet       S  sg p', \
+                                       '3          .       Z      '])
+        # GT analyses are stored in the text object in separate layer
+        self.assertTrue( GT_WORDS in text )
+        gt_analyses = [w[ANALYSIS] for w in text[GT_WORDS]]
+        self.assertListEqual(gt_analyses, [ \
+          [{'form': 'Sg Nom', 'root': 'rändur', 'clitic': '', 'root_tokens': ['rändur'], 'lemma': 'rändur', 'ending': '0', 'partofspeech': 'S'}], \
+          [{'form': 'Pers Prt Ind Sg 3 Aff', 'root': 'võt', 'clitic': '', 'root_tokens': ['võt'], 'lemma': 'võtma', 'ending': 'is', 'partofspeech': 'V'}], \
+          [{'form': 'Sg Par', 'root': 'iste', 'clitic': '', 'root_tokens': ['iste'], 'lemma': 'iste', 'ending': 't', 'partofspeech': 'S'}], \
+          [{'form': '', 'root': '.', 'clitic': '', 'root_tokens': ['.'], 'lemma': '.', 'ending': '', 'partofspeech': 'Z'}]] )
+
+
     def test_gt_conversion_1(self):
         text = Text('Rändur võttis seljakotist vilepilli ja tõstis huultele.')
         text.tag_analysis()
-        convert_to_gt(text)
+        convert_to_gt(text, layer_name=WORDS)
         results = (text.get.word_texts.postags.forms.as_dataframe).to_string().split('\n')
         self.assertListEqual(results, ['    word_texts postags                  forms', \
                                        '0       Rändur       S                 Sg Nom', \
@@ -28,7 +49,7 @@ class GTconverterTest(unittest.TestCase):
     def test_gt_conversion_2(self):
         text = Text('Ärge peatuge: siin ei tohi kiirust vähendada!')
         text.tag_analysis()
-        convert_to_gt(text)
+        convert_to_gt(text, layer_name=WORDS)
         results = (text.get.word_texts.postags.forms.as_dataframe).to_string().split('\n')
         self.assertListEqual(results, ['  word_texts postags                    forms',\
                                        '0       Ärge       V  Pers Prs Imprt Pl 2 Neg',\
@@ -44,7 +65,7 @@ class GTconverterTest(unittest.TestCase):
     def test_gt_conversion_3(self):
         text = Text('Oleksid Sa siin olnud, siis oleksid nad ära läinud.')
         text.tag_analysis()
-        convert_to_gt(text)
+        convert_to_gt(text, layer_name=WORDS)
         results = (text.get.word_texts.postags.forms.as_dataframe).to_string().split('\n')
         self.assertListEqual(results, ['   word_texts postags                        forms',\
                                        '0     Oleksid       V       Pers Prs Cond Sg 2 Aff',\
@@ -63,7 +84,7 @@ class GTconverterTest(unittest.TestCase):
     def test_gt_conversion_4(self):
         text = Text('Mine sa tea!')
         text.tag_analysis()
-        convert_to_gt(text)
+        convert_to_gt(text, layer_name=WORDS)
         results = (text.get.word_texts.postags.forms.as_dataframe).to_string().split('\n')
         self.assertListEqual(results, ['  word_texts postags                forms',\
                                        '0       Mine       V  Pers Prs Imprt Sg 2',\
@@ -74,7 +95,7 @@ class GTconverterTest(unittest.TestCase):
     def test_gt_conversion_5(self):
         text = Text('Sellist asja ei olnud.')
         text.tag_analysis()
-        convert_to_gt(text)
+        convert_to_gt(text, layer_name=WORDS)
         results = (text.get.word_texts.postags.forms.as_dataframe).to_string().split('\n')
         self.assertListEqual(results, ['  word_texts postags                            forms',\
                                        '0    Sellist       P                           Sg Par',\
