@@ -5,12 +5,12 @@
 #
 #    Example usage:
 #
-#      from estnltk.converters.gt_conversion import convert_text
+#      from estnltk.converters.gt_conversion import convert_to_gt
 #
 #      text=Text('Rändur võttis seljakotist vilepilli ja tõstis huultele.')
 #      text.tag_analysis()
-#      text2 = Text( convert_text(text) )
-#      print( text2.get.word_texts.postags.forms.as_dataframe )
+#      convert_to_gt( text )
+#      print( text.get.word_texts.postags.forms.as_dataframe )
 #
 
 from __future__ import unicode_literals, print_function
@@ -387,8 +387,8 @@ def convert_analysis( analyses ):
     return resulting_analyses
 
 
-def convert_text( text, layer_name=WORDS ):
-    ''' Converts all words in a morphologically analysed text from FS format to 
+def convert_to_gt( text, layer_name=WORDS ):
+    ''' Converts all words in a morphologically analysed Text from FS format to 
         giellatekno (GT) format. By default, overwrites the old 'words' layer with the 
         new layer containing GT format annotations. If the keyword argument *layer_name* 
         is provided, keeps the old layer and attaches the results as a new layer.
