@@ -2,7 +2,8 @@
 from __future__ import unicode_literals, print_function, absolute_import
 
 import unittest
-from ..match import Match, concatenate_matches, copy_rename
+
+from estnltk import Match, concatenate_matches
 
 
 class MatchConcatTest(unittest.TestCase):

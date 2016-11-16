@@ -93,7 +93,6 @@ morphological analysis, named entity recognition, etc. for the Estonian language
         'html5lib>=0.9999999',              # HTML parsing library
         'elasticsearch>=2',                 # database support
         'pyahocorasick>=1.4'                # fast pattern matching NOTE: we might have to make this an optional dep if we fail to install it on windows.
-
     ],
 
     classifiers = ['Intended Audience :: Developers',

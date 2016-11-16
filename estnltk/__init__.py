@@ -12,6 +12,6 @@ from .timex import TimexTagger
 from .clausesegmenter import ClauseSegmenter
 from .disambiguator import Disambiguator
 from .prettyprinter import PrettyPrinter
-from .database.database import Database
 from .grammar import *
+from .database import elastic
 from .tokenizers.word_tokenizer import EstWordTokenizer
