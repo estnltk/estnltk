@@ -10,3 +10,4 @@ cached-property>=1.2.0
 beautifulsoup4>=4.4.0
 html5lib>=0.9999999
 elasticsearch==2
+pyahocorasick>=1.4
