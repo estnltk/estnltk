@@ -24,7 +24,6 @@ class SyllabificationTest(unittest.TestCase):
     def test_lasteaialaps(self):
         # ilmselt toimiks kui iga liits6na komponent eraldi silbitada
         actual = syllabify_word('lasteaialaps')
-        pprint (actual)
         expected = [{'accent': 1, 'quantity': 1, 'syllable': 'e'},
                      {'accent': 0, 'quantity': 1, 'syllable': 'la'},
                      {'accent': 0, 'quantity': 1, 'syllable': 'gu'}]

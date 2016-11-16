@@ -155,8 +155,8 @@ class LayerRegexTest(unittest.TestCase):
     def test_layer_regex(self):
         text = Text('Janne ja Hendrik käisid Ilvese rabas jalutamas')
         text.tag_named_entities()
-        lr = LayerRegex('named_entities', 'Ilv.*')
+        lr = LayerRegex('named_entities', 'Jan.*')
         matches = lr.get_matches(text)
-        expected = [Match(24, 30, 'Ilvese')]
+        expected = [Match(0, 5, 'Janne')]
         self.assertListEqual(expected, matches)
 
