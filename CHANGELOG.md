@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 TODO: What else should be here?
 TODO: move items from this list to Added/Changed/Fixed. Expand to full sentences.
 
+* Taggers (event, regex, keyword)
 * GT morf
 * slots in estner
 * adjective phrase tagger
