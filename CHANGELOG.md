@@ -3,6 +3,24 @@ Change Log
 
 All notable changes to this project will be documented in this file.
 
+[1.4.1]
+=======
+
+Added
+-----
+
+* ...
+
+Changed
+-------
+
+* ...
+
+Fixed
+-----
+
+* ...
+
 [1.4.0] - 2016-04-25
 ====================
 
