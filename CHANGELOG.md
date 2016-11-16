@@ -6,6 +6,28 @@ All notable changes to this project will be documented in this file.
 [1.4.1]
 =======
 
+TODO: What else should be here?
+TODO: move items from this list to Added/Changed/Fixed. Expand to full sentences.
+
+* GT morf
+* slots in estner
+* adjective phrase tagger
+* file tree cleanup and removed cruft
+* relaxed version requirements
+* converted tutorials to notebooks
+* Updated and improved tutorials
+* updated osalausestaja to java 8
+* koondkorpus sentence tokenizer
+* conll?
+* updated nounphrasechunker?
+* updated syntaxtagger
+* updated vabamorf
+* improved osx installs
+* terminalprettyprinter
+* vislcg3
+* basic syllable support
+
+
 Added
 -----
 
