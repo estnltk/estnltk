@@ -11,7 +11,6 @@ TODO: move items from this list to Added/Changed/Fixed. Expand to full sentences
 
 * Taggers (event, regex, keyword)
 * GT morf
-* slots in estner
 * adjective phrase tagger
 * file tree cleanup and removed cruft
 * relaxed version requirements
@@ -31,7 +30,7 @@ TODO: move items from this list to Added/Changed/Fixed. Expand to full sentences
 
 Added
 -----
-
+*  Improved NER performance using `__slots__` in estner data model.
 * ...
 
 Changed
@@ -42,6 +41,7 @@ Changed
 Fixed
 -----
 
+* Fix a bug in NER feature extraction module with python 3.4.
 * ...
 
 [1.4.0] - 2016-04-25
