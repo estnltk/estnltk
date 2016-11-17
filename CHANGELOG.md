@@ -16,6 +16,7 @@ Added
 * Added `gt_conversion.py` module that can be used for converting morphological analysis categories from Vabamorf's format to the Giellatekno's (gt) format;
 * Added basic [support for syllable extraction](https://github.com/estnltk/estnltk/issues/57#issuecomment-219297186)
 * Added EventTagger, KeywordTagger and RegexTagger and fixed basic Tagger API for creating new layers;
+* Added adjective phrase tagger (marks fragments such as "väga hea" and "küllalt tore")
 
 Changed
 -------
