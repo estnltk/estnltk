@@ -10,39 +10,48 @@ TODO: What else should be here?
 TODO: move items from this list to Added/Changed/Fixed. Expand to full sentences.
 
 * Taggers (event, regex, keyword)
-* GT morf
 * adjective phrase tagger
 * file tree cleanup and removed cruft
 * relaxed version requirements
 * converted tutorials to notebooks
 * Updated and improved tutorials
-* updated osalausestaja to java 8
-* koondkorpus sentence tokenizer
-* conll?
-* updated nounphrasechunker?
-* updated syntaxtagger
 * updated vabamorf
 * improved osx installs
-* terminalprettyprinter
-* vislcg3
 * basic syllable support
 
 
 Added
 -----
-*  Improved NER performance using `__slots__` in estner data model.
-* ...
+* Improved NER performance using `__slots__` in estner data model;
+* Added `sent_tokenizer_for_koond.py` : a sentence tokenizer for processing 'koondkorpus' text files ( as found in http://ats.cs.ut.ee/keeletehnoloogia/estnltk/koond.zip ), which provides several post-processing fixes to known sentence-splitting problems;
+* Updated 'koondkorpus' processing scripts `teicorpus.py` and `convert_koondkorpus.py`: added the option to specify the encoding of the input files;
+* Added `terminalprettyprinter.py` module, which provides a pretty-printer method that can be used for graphically formatting annotated texts in terminal;
+* Added `gt_conversion.py` module that can be used for converting morphological analysis categories from Vabamorf's format to the Giellatekno's (gt) format;
+* 
 
 Changed
 -------
 
-* ...
+* Updated Temporal expression tagger's and Clause segmenter's jar files to Java version 1.8;
+* A major change: re-implementation of syntactic parser's interface:
+	* pre-processing scripts of the the VISLCG3-based syntactic analyser were rewritten in Python to ensure platform-independent processing;
+	* "estnltk.syntax.tagger.SyntaxTagger" was re-implemented as "estnltk.syntax.parsers.VISLCG3Parser";
+	* added a possibility to use custom rules in VISLCG3Parser, or to load rules from a custom location;
+	* updated MaltParser's model so that surface-syntactic labels are now also generated during the parsing;
+	* moved MaltParser-based syntactic analysis, and VISLCG3-based syntactic analysis under a common interface (to the module "estnltk.syntax.parsers");
+	* changed how syntactic information is stored in Text: syntactic analyses are now attached in a separate layer (and different layers are created for MaltParser's analyses and VISLCG3's analyses);
+	* added "estnltk.syntax.utils.Tree" datastructure, which can be used for making queries over syntactic analyses, and for exporting syntactic analyses as nltk's DependencyGraphs and Trees;
+	* added methods for importing syntactically analysed Texts from CG3 and CONLL format files;
+* Improved NounPhraseChunker: made it compatible with the new interface of the syntactic parser;
 
 Fixed
 -----
 
-* Fix a bug in NER feature extraction module with python 3.4.
-* ...
+* Fix a bug in NER feature extraction module with python 3.4;
+* Fix in MaltParser's interface: temporary files are now maintained in system specific temp files dir (to avoid permission errors);
+* Updated temporal expression tagger:
+	* fixed a TIMEX normalization bug: verb tense information is now properly used;
+	* improved TIMEX extraction: re-implemented phrase level joining in order to increase accuracy in the extraction of long phrases;
 
 [1.4.0] - 2016-04-25
 ====================
