@@ -2,7 +2,7 @@ from copy import copy
 
 from estnltk import Text
 
-from .adverbs import NOT_ADJ_MODIFIERS, CLASSES
+from .adverbs import NOT_ADJ_MODIFIERS, CLASSES, WEIGHTS
 from .grammars import adjective_phrases, part_phrase
 from .measurement_adjectives import is_measurement_adjective
 
@@ -77,6 +77,7 @@ class AdjectivePhraseTagger:
                 if len(adj_ph['lemmas']) > 1:
                     if adj_ph['lemmas'][0] in CLASSES:
                         adj_ph['adverb_class'] = CLASSES[adj_ph['lemmas'][0]]
+                        adj_ph['adverb_weight'] = WEIGHTS[adj_ph['adverb_class']]
                     else:
                         adj_ph['adverb_class'] = 'unknown'
                     
@@ -127,6 +128,7 @@ class AdjectivePhraseTagger:
                         if len(part_ph['lemmas']) > 1:
                             if part_ph['lemmas'][0] in CLASSES:
                                 part_ph['adverb_class'] = CLASSES[part_ph['lemmas'][0]]
+                                part_ph['adverb_weight'] = WEIGHTS[part_ph['adverb_class']]
                             else:
                                 part_ph['adverb_class'] = 'unknown'  
                         
