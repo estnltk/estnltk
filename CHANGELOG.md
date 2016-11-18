@@ -22,16 +22,16 @@ Changed
 -------
 
 * Updated Temporal expression tagger's and Clause segmenter's jar files to Java version 1.8;
-* A major change: re-implementation of syntactic parser's interface:
+* A major change: re-implementation of syntactic parsing interface:
 	* pre-processing scripts of the the VISLCG3-based syntactic analyser were rewritten in Python to ensure platform-independent processing;
-	* "estnltk.syntax.tagger.SyntaxTagger" was re-implemented as "estnltk.syntax.parsers.VISLCG3Parser";
+	* "estnltk.syntax.tagger.SyntaxTagger" was reimplemented in two modules ("SyntaxPreprocessing" and "VISLCG3Pipeline"), and the modules were made available as a common pipeline in "estnltk.syntax.parsers.VISLCG3Parser";
 	* added a possibility to use custom rules in VISLCG3Parser, or to load rules from a custom location;
 	* updated MaltParser's model so that surface-syntactic labels are now also generated during the parsing;
-	* moved MaltParser-based syntactic analysis, and VISLCG3-based syntactic analysis under a common interface (to the module "estnltk.syntax.parsers");
+	* moved MaltParser-based syntactic analysis and VISLCG3-based syntactic analysis to a common interface; both parsers are now available in the module "estnltk.syntax.parsers";
 	* changed how syntactic information is stored in Text: syntactic analyses are now attached in a separate layer (and different layers are created for MaltParser's analyses and VISLCG3's analyses);
-	* added "estnltk.syntax.utils.Tree" datastructure, which can be used for making queries over syntactic analyses, and for exporting syntactic analyses as nltk's DependencyGraphs and Trees;
+	* added "estnltk.syntax.utils.Tree", which provides an interface for making queries over a syntactic tree, and allows to export syntactic analyses as nltk's DependencyGraphs and Trees;
 	* added methods for importing syntactically analysed Texts from CG3 and CONLL format files;
-* Improved NounPhraseChunker: made it compatible with the new interface of the syntactic parser;
+* Improved NounPhraseChunker: made it compatible with the new interface of syntactic parsing;
 * Converted tutorials to jupyter notebooks to make them runnable and testable;
 * Tested and validated tutorials;
 
@@ -40,9 +40,9 @@ Fixed
 
 * Fix a bug in NER feature extraction module with python 3.4;
 * Fix in MaltParser's interface: temporary files are now maintained in system specific temp files dir (to avoid permission errors);
-* Updated temporal expression tagger:
+* Updated Temporal expression tagger:
 	* fixed a TIMEX normalization bug: verb tense information is now properly used;
-	* improved TIMEX extraction: re-implemented phrase level joining in order to increase accuracy in the extraction of long phrases;
+	* improved TIMEX extraction: re-implemented phrase level joining to provide more accurate extraction of long phrases;
 * Fixed [osx installs](https://github.com/estnltk/estnltk/issues/61);
 * Updated Vabamorf to fix #55;
 * Fixed too restrictive package dependencies;
@@ -63,7 +63,7 @@ Added
 Changed
 -------
 
-* VerbChainDetector: intervening punctuation is now ignored during the construction of regular verb chains. See "test_verbchain_3" in "test_verbchains.py" for a detailed example.
+* VerbChainDetector: intervening punctuation is now ignored during the construction of regular verb chains. See `"test_verbchain_3"` in `"test_verbchains.py"` for a detailed example.
 * Improved EstWordTokenizer: made it more aware of utf8 minus, dash and other hyphen-like symbols used instead of the regular hyphen symbol;
 
 Fixed
