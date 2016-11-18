@@ -6,19 +6,6 @@ All notable changes to this project will be documented in this file.
 [1.4.1]
 =======
 
-TODO: What else should be here?
-TODO: move items from this list to Added/Changed/Fixed. Expand to full sentences.
-
-* Taggers (event, regex, keyword)
-* adjective phrase tagger
-* file tree cleanup and removed cruft
-* relaxed version requirements
-* converted tutorials to notebooks
-* Updated and improved tutorials
-* updated vabamorf
-* improved osx installs
-* basic syllable support
-
 
 Added
 -----
@@ -27,7 +14,9 @@ Added
 * Updated 'koondkorpus' processing scripts `teicorpus.py` and `convert_koondkorpus.py`: added the option to specify the encoding of the input files;
 * Added `terminalprettyprinter.py` module, which provides a pretty-printer method that can be used for graphically formatting annotated texts in terminal;
 * Added `gt_conversion.py` module that can be used for converting morphological analysis categories from Vabamorf's format to the Giellatekno's (gt) format;
-* 
+* Added basic [support for syllable extraction](https://github.com/estnltk/estnltk/issues/57#issuecomment-219297186)
+* Added EventTagger, KeywordTagger and RegexTagger and fixed basic Tagger API for creating new layers;
+* Added adjective phrase tagger (marks fragments such as "väga hea" and "küllalt tore")
 
 Changed
 -------
@@ -43,6 +32,8 @@ Changed
 	* added "estnltk.syntax.utils.Tree" datastructure, which can be used for making queries over syntactic analyses, and for exporting syntactic analyses as nltk's DependencyGraphs and Trees;
 	* added methods for importing syntactically analysed Texts from CG3 and CONLL format files;
 * Improved NounPhraseChunker: made it compatible with the new interface of the syntactic parser;
+* Converted tutorials to jupyter notebooks to make them runnable and testable;
+* Tested and validated tutorials;
 
 Fixed
 -----
@@ -52,6 +43,10 @@ Fixed
 * Updated temporal expression tagger:
 	* fixed a TIMEX normalization bug: verb tense information is now properly used;
 	* improved TIMEX extraction: re-implemented phrase level joining in order to increase accuracy in the extraction of long phrases;
+* Fixed [osx installs](https://github.com/estnltk/estnltk/issues/61);
+* Updated Vabamorf to fix #55;
+* Fixed too restrictive package dependencies;
+
 
 [1.4.0] - 2016-04-25
 ====================
@@ -59,9 +54,9 @@ Fixed
 Added
 -----
 
-* Syntax and dependency parser
-* Support for parsing EstNLTK texts with Java-based Maltparser; Maltparser can be used for obtaining syntactic dependencies between words
-* Experimental NP chunker for Estonian; The chunker picks up NP chunks from the output of Maltparser
+* Syntax and dependency parser;
+* Support for parsing EstNLTK texts with Java-based Maltparser; Maltparser can be used for obtaining syntactic dependencies between words;
+* Experimental NP chunker for Estonian; The chunker picks up NP chunks from the output of Maltparser;
 * Disambiguator: added checking for input parameters;
 
 
