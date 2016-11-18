@@ -32,5 +32,10 @@ Heli Uibo *(dependency grammar parser)*
 
 Kadri Muischnek *(dependency grammar parser, advanced disambiguator)*
 
+Heli Uibo *(dependency grammar parser)*
+
+Paul Tammo *(Episode-miner, keywordtagger)*
+
+Uku Raudvere *(Elastic support)*
 
 If someone is missing, please let us know!
