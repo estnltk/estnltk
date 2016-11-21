@@ -91,7 +91,7 @@ morphological analysis, named entity recognition, etc. for the Estonian language
         'cached-property>=1.2.0',           # Simple property for caching results
         'beautifulsoup4>=4.4.0',            # HTML parsing library
         'html5lib>=0.9999999',              # HTML parsing library
-        'elasticsearch>=2',                 # database support
+        'elasticsearch==2',                 # database support
         'pyahocorasick>=1.4'                # fast pattern matching NOTE: we might have to make this an optional dep if we fail to install it on windows.
     ],
 
