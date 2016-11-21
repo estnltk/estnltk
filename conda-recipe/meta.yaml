@@ -42,34 +42,23 @@ requirements:
     - html5lib
     - pyahocorasick >=1.1
 #
-#test:
-#  # Python imports
-#  requires:
-#    - pytest
-#  imports:
-#    - estnltk
-#    - estnltk.database
-#    - estnltk.database.tests
-#    - estnltk.estner
-#    - estnltk.examples
-#    - estnltk.grammar
-#    - estnltk.grammar.examples
-#    - estnltk.grammar.tests
-#    - estnltk.mw_verbs
-#    - estnltk.prettyprinter
-#    - estnltk.prettyprinter.tests
-#    - estnltk.tests
-#    - estnltk.tokenizers
-#    - estnltk.tokenizers.tests
-#    - estnltk.tools
-#    - estnltk.vabamorf
-#    - estnltk.vabamorf.tests
-#    - estnltk.wiki
-#    - estnltk.wiki.tests
-#    - estnltk.wordnet
-#
-#  test:
-#    pytest
+test:
+  # Python imports
+  imports:
+    - estnltk
+    - estnltk.database
+    - estnltk.database.elastic
+    - estnltk.estner
+    - estnltk.examples
+    - estnltk.grammar
+    - estnltk.mw_verbs
+    - estnltk.prettyprinter
+    - estnltk.tokenizers
+    - estnltk.tools
+    - estnltk.vabamorf
+    - estnltk.wiki
+    - estnltk.wordnet
+    - estnltk.taggers
 
 about:
   home: https://github.com/estnltk/estnltk
