@@ -11,4 +11,4 @@ On version numbers
     When making a release, remove the suffix (1.4.1.dev0 -> 1.4.1)
 '''
 
-__version__ = '1.4.1.dev0'
+__version__ = '1.4.1.rc'
