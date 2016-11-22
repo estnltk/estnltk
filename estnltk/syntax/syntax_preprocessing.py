@@ -63,8 +63,9 @@ import os.path
 import codecs
 from collections import defaultdict
 
-from estnltk.text import DependantLayer
 from estnltk.legacy.core import PACKAGE_PATH
+from estnltk.text import Layer
+
 SYNTAX_PATH      = os.path.join(PACKAGE_PATH, 'syntax', 'files')
 FS_TO_SYNT_RULES_FILE = os.path.join(SYNTAX_PATH, 'tmorftrtabel.txt')
 SUBCAT_RULES_FILE     = os.path.join(SYNTAX_PATH, 'abileksikon06utf.lx')
@@ -92,6 +93,23 @@ def _esc_que_mark( analysis ):
 # ==================================================================================
 # ==================================================================================
 
+class MorphRewriter():
+
+    def rewrite(self, record):
+        result = []
+        for rec in record:
+            rec['root'] = _esc_double_quotes(rec['root'])
+            rec['pos'] = rec['partofspeech']
+            rec['form_list'] = []
+            for _form in rec['form'].split(',')[::-1]:
+                #kas form.split(',')==[form] sageli või alati?
+                # [::-1] on eelmise versiooniga ühildumiseks
+                _form = _form.strip()
+                if _form:
+                    rec['form_list'].append(_form)
+            result.append(rec)
+        return result
+
 def convert_Text_to_mrf(text):
     ''' Converts from Text object into pre-syntactic mrf format, given as a list of 
         lines, as in the output of etmrf.
@@ -101,51 +119,57 @@ def convert_Text_to_mrf(text):
             word quessing is turned on, proper-name analyses are turned off;
     '''
 
-    dep = DependantLayer(name='syntax_pp_1',
-                     text_object=text,
-                     frozen=False,
-                     parent=text.words,
-                     ambiguous=True,
-                     attributes=['root', 'ending', 'clitic', 'pos', 'form_list']
-                     )
-    text.add_layer(dep)
+#    dep = Layer(name='syntax_pp_1',
+#                     parent='words',
+#                     ambiguous=True,
+#                     attributes=['root', 'ending', 'clitic', 'pos', 'form_list']
+#                     )
+#    text._add_layer(dep)
 
-    dep = DependantLayer(name='syntax_pp_2',
-                     text_object=text,
-                     frozen=False,
-                     parent=text.words,
+    dep = Layer(name='syntax_pp_2',
+                     parent='words',
                      ambiguous=True,
                      attributes=['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case' , 'form_list', 'initial_form', 'fin']
                      )
-    text.add_layer(dep)
+    text._add_layer(dep)
 
-    dep =  DependantLayer(name='syntax_pp_3',
-                     text_object=text,
-                     frozen=False,
-                     parent=text.words,
+    dep =  Layer(name='syntax_pp_3',
+                     parent='words',
                      ambiguous=True,
                      attributes=['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case', 'initial_form', 'fin', 'abileksikon']
                      )
-    text.add_layer(dep)
+    text._add_layer(dep)
 
-    for word in text.words:
-        for analysis in word.morf_analysis:
-            m = word.mark('syntax_pp_1')
+
+    text['syntax_pp_1'] = text['morf_analysis'].rewrite(
+        source_attributes = ['root', 'ending', 'clitic', 'partofspeech', 'form'],
+        target_attributes = ['root', 'ending', 'clitic', 'pos',          'form_list'],
+        rules = MorphRewriter(),
+        name = 'syntax_pp_1',
+        ambiguous = True
+    )
+    
+    return text
+
+
+#    for word in text.words:
+#        for analysis in word.morf_analysis:
+#            m = word.mark('syntax_pp_1')
             #   NB! ending="0" erineb ending=""-st:
             #     1) eestlane (ending="0");
             #     2) Rio (ending="") de (ending="") Jaineros;
-            m.root = _esc_double_quotes(analysis.root)
-            m.ending = analysis.ending
-            m.clitic = analysis.clitic
-            m.pos = analysis.partofspeech
-            m.form_list = []
-            for _form in analysis.form.split(',')[::-1]:
+#            m.root = _esc_double_quotes(analysis.root)
+#            m.ending = analysis.ending
+#            m.clitic = analysis.clitic
+#            m.pos = analysis.partofspeech
+#            m.form_list = []
+#            for _form in analysis.form.split(',')[::-1]:
                 #kas form.split(',')==[form] sageli või alati?
                 # [::-1] on eelmise versiooniga ühildumiseks
-                _form = _form.strip()
-                if _form:
-                    m.form_list.append(_form)
-    return text
+#                _form = _form.strip()
+#                if _form:
+#                    m.form_list.append(_form)
+#    return text
 
 
 # ==================================================================================
@@ -205,31 +229,32 @@ def load_fs_mrf_to_syntax_mrf_translation_rules(fs_to_synt_rules_file):
     
 _punctOrAbbrev = re.compile('//\s*_[ZY]_')
 
-_punctConversions = [ ["…([\+0]*) //\s*_[ZY]_ //",   "Ell"], \
-                      ["…$",      "Ell"], \
-                      ["\.\.\.$", "Ell"], \
-                      ["\.\.$",   "Els"], \
-                      ["\.$",     "Fst"], \
-                      [",$",      "Com"], \
-                      [":$",      "Col"], \
-                      [";$",      "Scl"], \
-                      ["(\?+)$",  "Int"], \
-                      ["(\!+)$",  "Exc"], \
-                      ["(---?)$", "Dsd"], \
-                      ["(-)$",    "Dsh"], \
-                      ["\($",     "Opr"], \
-                      ["\)$",     "Cpr"], \
-                      ['\\\\"$',  "Quo"], \
-                      ["«$",      "Oqu"], \
-                      ["»$",      "Cqu"], \
-                      ["“$",      "Oqu"], \
-                      ["”$",      "Cqu"], \
-                      ["<$",      "Grt"], \
-                      [">$",      "Sml"], \
-                      ["\[$",     "Osq"], \
-                      ["\]$",     "Csq"], \
-                      ["/$",      "Sla"], \
-                      ["\+$",     "crd"], \
+
+_punctConversions = [ 
+                      ["…$",      "Ell"],
+                      ["\.\.\.$", "Ell"],
+                      ["\.\.$",   "Els"],
+                      ["\.$",     "Fst"],
+                      [",$",      "Com"],
+                      [":$",      "Col"],
+                      [";$",      "Scl"],
+                      ["(\?+)$",  "Int"],
+                      ["(\!+)$",  "Exc"],
+                      ["(---?)$", "Dsd"],
+                      ["(-)$",    "Dsh"],
+                      ["\($",     "Opr"],
+                      ["\)$",     "Cpr"],
+                      ['\\\\"$',  "Quo"],
+                      ["«$",      "Oqu"],
+                      ["»$",      "Cqu"],
+                      ["“$",      "Oqu"],
+                      ["”$",      "Cqu"],
+                      ["<$",      "Grt"],
+                      [">$",      "Sml"],
+                      ["\[$",     "Osq"],
+                      ["\]$",     "Csq"],
+                      ["/$",      "Sla"],
+                      ["\+$",     "crd"]
 ]# double quotes are escaped by \
 
 
@@ -289,8 +314,8 @@ def convert_mrf_to_syntax_mrf(text, fs_to_synt_rules):
         original Filosoft's analysis is expanded into multiple analyses
         suitable for the syntactic analyzer;
     '''
-    for word in text.words:
-        for syntax_pp in word.syntax_pp_1:
+    for word, syntax_pps in zip(text.words, text.syntax_pp_1):
+        for syntax_pp in syntax_pps:
             pos = syntax_pp.pos
             form_list = syntax_pp.form_list[:]#kas siin on koopiat vaja?
             # 1) Convert punctuation
@@ -466,8 +491,8 @@ def convert_pronouns(text):
         Returns the input mrf list, with the lines converted from one format
         to another;
     ''' 
-    for word in text.words:
-        for syntax_pp in word.syntax_pp_2:
+    for word, syntax_pps in zip(text.words, text.syntax_pp_2):
+        for syntax_pp in syntax_pps:
             if syntax_pp.pos == 'P':  # only consider lines containing pronoun analyses
                 root_ec = ''.join((syntax_pp.root, '+', syntax_pp.ending, syntax_pp.clitic))
                 for pattern, pron_type in _pronConversions:
@@ -506,12 +531,12 @@ def remove_duplicate_analyses(text, allow_to_delete_all=True):
         
         Returns the input list where the removals have been applied;
     ''' 
-    for word in text.words:
+    for word, syntax_pps in zip(text.words, text.syntax_pp_2):
         seen_analyses  = []
         to_delete      = []
         Kpre_index     = -1
         Kpost_index    = -1
-        for i, syntax_pp in enumerate(word.syntax_pp_2):
+        for i, syntax_pp in enumerate(syntax_pps):
             #analysis = (syntax_pp.root, syntax_pp.ending, syntax_pp.clitic, syntax_pp.pos, syntax_pp.form_list)
             analysis = (syntax_pp.root, syntax_pp.ending, syntax_pp.clitic, syntax_pp.pos, syntax_pp.initial_form)
             if analysis in seen_analyses:
@@ -538,10 +563,11 @@ def remove_duplicate_analyses(text, allow_to_delete_all=True):
             # If we must preserve at least one analysis, and
             # it has been found that all should be deleted, then 
             # keep the last one
-            if not allow_to_delete_all and len(word.syntax_pp_2) < 2:
+            if not allow_to_delete_all and len(syntax_pps) < 2:
                 continue
             # Delete the analysis line
-            word.syntax_pp_2.items.pop(j)
+            #syntax_pps.items.pop(j)
+            del syntax_pps.spans[j]
     return text
 
 
@@ -581,9 +607,9 @@ def add_hashtag_info(text):
 
         Returns the input list where the augmentation has been applied;
     ''' 
-    for word in text.words:
+    for word, syntax_pps in zip(text.words, text.syntax_pp_2):
         cap = _esc_double_quotes(word.text)[0].isupper()
-        for syntax_pp in word.syntax_pp_2:            
+        for syntax_pp in syntax_pps:
             syntax_pp.letter_case = None
             if cap:
                 syntax_pp.letter_case = 'cap'
@@ -678,8 +704,8 @@ def tag_subcat_info(text, subcat_rules):
         Returns the input list where verb/adposition analyses have been augmented 
         with available subcategorization information;
     ''' 
-    for word in text.words:
-        for syntax_pp in word.syntax_pp_2:
+    for word, syntax_pps in zip(text.words, text.syntax_pp_2):
+        for syntax_pp in syntax_pps:
             match = False
 
             root = syntax_pp.root
@@ -772,11 +798,13 @@ def convert_to_cg3_input(text):
         into the new format;
     ''' 
     morph_lines = []
+    word_index = -1
     for sentence in text.sentences:
         morph_lines.append('"<s>"')
         for word in sentence.words:
+            word_index += 1
             morph_lines.append('"<'+_esc_double_quotes(word.text)+'>"')
-            for syntax_pp in word.syntax_pp_3:
+            for syntax_pp in text.syntax_pp_3[word_index]:# word.syntax_pp_3:
                 new_form_list = []
                 if syntax_pp.pronoun_type:
                     new_form_list.append(syntax_pp.pronoun_type)
@@ -822,7 +850,7 @@ def convert_to_cg3_input(text):
                 m = re.match('(\s+"tead\+a-tund".*\S)\s*$', line_new)
                 if m:
                     line_new = m.group(1) + ' <NGP-P> <InfP>  '
-                if word.morf_analysis[0].form == '?':
+                if text.morf_analysis[word_index][0].form == '?':
                     line_new = re.sub('pos  $','pos   ', line_new)
                 #312 Paevakajaline_valiidne.xml_145.txt      Not OK. First mismatching line:
                 #result:   '    "oota+me-vaata+me-jälgi" Lme V mod indic pres ps1 pl ps af <FinV>  '
