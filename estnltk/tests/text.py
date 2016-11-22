@@ -858,3 +858,43 @@ def test_rewriting_api():
 
     #double reverse is plaintext
     assert (text.plain.esrever == text.words.text)
+
+
+def test_delete_ambig_span():
+    text = words_sentences('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''')
+    l = Layer(name='test',
+              parent='words',
+              ambiguous=True,
+              attributes=['test1'])
+
+    text['test'] = l
+
+    c = 0
+    for word in text.words:
+        word.mark('test').test1 = c
+        c += 1
+
+    for word in text.words:
+        word.mark('test').test1 = c
+        c += 1
+
+    assert len(text['test'].spans.spans[0]) == 2
+
+    (text['test'].spans.spans[0].spans
+            .remove(
+        text['test'].spans.spans[0] #this is the span we want to remove
+    )
+          )
+    assert len(text['test'].spans.spans[0]) == 1
+
+
+
+    #removing the second
+    assert len(text['test'].spans.spans[1]) == 2
+
+    (text['test'].spans.spans[1].spans
+            .remove(
+        text['test'].spans.spans[1] #this is the span we want to remove
+    )
+          )
+    assert len(text['test'].spans.spans[1]) == 1
