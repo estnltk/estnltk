@@ -1,5 +1,6 @@
 import pytest
 
+
 from estnltk.legacy.text import Text as OldText
 from estnltk.text import *
 from estnltk.rewriting import ReverseRewriter
