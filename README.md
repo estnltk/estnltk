@@ -28,7 +28,7 @@ Find more details in the [installation tutorial](http://estnltk.github.io/estnlt
 
 ## Documentation
 
-Release 1.4 documentation is available at http://estnltk.github.io/estnltk/1.4/index.html.
+Release 1.4.1 documentation is available at http://estnltk.github.io/estnltk/1.4.1/index.html.
 For previous versions refer to http://estnltk.github.io/estnltk.
 
 Additional educational materials on estnltk are available on the web page of the NLP course taught at the University of Tartu: https://courses.cs.ut.ee/2015/pynlp/fall.
