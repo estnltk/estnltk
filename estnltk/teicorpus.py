@@ -24,7 +24,7 @@ from copy import deepcopy
 import os
 
 
-def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel']):
+def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel'], encoding=None):
     """Parse documents from TEI style XML files.
     
     Gives each document FILE attribute that denotes the original filename.
@@ -39,6 +39,9 @@ def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel']):
         The suffix of filenames to include (default: '.xml')
     target: list of str
         List of <div> types, that are considered documents in the XML files (default: ["artikkel"]).
+    encoding: str
+        Encoding to be used for decoding the content of the XML file. If not specified (default), 
+        then no separate decoding step is applied.
         
     Returns
     -------
@@ -49,14 +52,14 @@ def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel']):
     documents = []
     for fnm in get_filenames(root, prefix, suffix):
         path = os.path.join(root, fnm)
-        docs = parse_tei_corpus(path, target)
+        docs = parse_tei_corpus(path, target, encoding)
         for doc in docs:
             doc[FILE] = fnm
         documents.extend(docs)
     return documents
 
 
-def parse_tei_corpus(path, target=['artikkel']):
+def parse_tei_corpus(path, target=['artikkel'], encoding=None):
     """Parse documents from a TEI style XML file.
     
     Parameters
@@ -65,13 +68,18 @@ def parse_tei_corpus(path, target=['artikkel']):
         The path of the XML file.
     target: list of str
         List of <div> types, that are considered documents in the XML files (default: ["artikkel"]).
-        
+    encoding: str
+        Encoding to be used for decoding the content of the XML file. If not specified (default), 
+        then no separate decoding step is applied.
+
     Returns
     -------
     list of esnltk.text.Text
     """
     with open(path, 'rb') as f:
         html_doc = f.read()
+    if encoding:
+        html_doc = html_doc.decode( encoding )
     soup = BeautifulSoup(html_doc, 'html5lib')
     title = soup.find_all('title')[0].string
     

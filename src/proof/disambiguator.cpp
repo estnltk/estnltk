@@ -17,6 +17,19 @@ of any kind, either express or implied.
 #include "ptword.h"
 #include "disambiguator.h"
 
+CFSString CDisambiguatorException::GetText() const
+{
+	CFSString szResult=FSTSTR("Undefined");
+	switch (m_lMajor) {
+		case MAINDICT:
+			szResult=FSTSTR("Dictionary");
+			if (m_lMinor==OPEN) szResult+=FSTSTR(" open");
+		break;
+	};
+	return szResult;
+};
+
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////

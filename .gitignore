@@ -1,4 +1,32 @@
 *.pyc
 .idea/
-build/
 estnltk.egg-info/
+.ipynb_checkpoints
+
+#files generated at build time
+/estnltk/vabamorf/vabamorf.py
+/estnltk/vabamorf/vabamorf_wrap.cpp
+/estnltk/vabamorf/_vabamorf*so
+
+
+#testing cache
+.cache
+
+#we should use some other channel to handle distributions - the repo has grown too large
+#binary files can be added to github releases
+dist/
+
+#we never want to commit build
+build/
+
+#all tutorials should be jupyter notebooks
+/docs/tutorials/*rst
+
+#do not commit build log
+docs/error.log
+
+#do not commit sphinx documentation build results
+_build
+
+#this is the wrong tutorial se
+/tutorials

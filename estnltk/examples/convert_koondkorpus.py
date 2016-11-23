@@ -35,7 +35,7 @@ def get_target(fnm):
     return 'artikkel'
 
 
-def process(start_dir, out_dir):
+def process(start_dir, out_dir, encoding=None):
     for dirpath, dirnames, filenames in os.walk(start_dir):
         if len(dirnames) > 0 or len(filenames) == 0 or 'bin' in dirpath:
             continue
@@ -47,7 +47,7 @@ def process(start_dir, out_dir):
                 logger.info('Skipping file {0}, because it seems to be already processed'.format(full_fnm))
                 continue
             logger.info('Processing file {0} with target {1}'.format(full_fnm, target))
-            docs = parse_tei_corpus(full_fnm, target=target)
+            docs = parse_tei_corpus(full_fnm, target=target, encoding=encoding)
             for doc_id, doc in enumerate(docs):
                 out_fnm = '{0}_{1}.txt'.format(out_prefix, doc_id)
                 logger.info('Writing document {0}'.format(out_fnm))
@@ -58,6 +58,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Convert a bunch of TEI XML files to Estnltk JSON files")
     parser.add_argument('startdir', type=str, help='The path of the downloaded and extracted koondkorpus files')
     parser.add_argument('outdir', type=str, help='The directory to store output results')
+    parser.add_argument('-e', '--encoding', type=str, default=None, help='Encoding of the TEI XML files')
     args = parser.parse_args()
 
-    process(args.startdir, args.outdir)
+    process(args.startdir, args.outdir, args.encoding)

@@ -36,16 +36,19 @@ ENDING = 'ending'
 FORM = 'form'
 SPELLING = 'spelling'
 SUGGESTIONS = 'suggestions'
+GT_WORDS = 'gt_words'  # words and morph analyses in gt format;
 
 # syntax related
-SYNTAX = 'syntax'
-LINK = 'link'
-INTERMEDIATE = 'intermediate'
-SYNTAX_LABEL = 's_label' # from dependency link: index of the current token in the syntactic tree
-SYNTAX_HEAD  = 's_head'  # from dependency link: index of current token's parent in the syntactic tree
+SENT_ID         = 'sent_id'
+PARSER_OUT      = 'parser_out'
+INIT_PARSER_OUT = 'init_parser_out'
+CONLL_DATA    = 'conll'
+VISLCG3_DATA  = 'vislcg3'
+LAYER_CONLL   = 'conll_syntax'
+LAYER_VISLCG3 = 'vislcg3_syntax'
 
-# noun phrase chunks (B-I-O labels)
-NP_LABEL = 'np_label'
+# noun phrase chunks
+NOUN_CHUNKS = 'noun_chunks'
 
 # clause segmenter related
 CLAUSE_ANNOTATION = 'clause_annotation'

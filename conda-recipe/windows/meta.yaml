@@ -1,0 +1,64 @@
+{% set data = load_setup_py_data() %}
+
+
+package:
+  name: estnltk
+  version: {{ data.get('version')  }}
+
+source:
+    path: ../..
+
+build:
+ number: {{ environ.get('GIT_DESCRIBE_NUMBER', '0') }}
+ string: {{ environ.get('PY_VER', '') }}
+
+
+requirements:
+  build:
+    - python
+    - swig >=3.0.8
+    - six >=1.9.0
+    - nltk >=3.0.4
+    - regex >=2015.11.22
+    - pandas >=0.17.1
+    - python-crfsuite >=0.8.4
+    - cached-property >=1.2.0
+    - beautifulsoup4 >=4.4.0
+    - elasticsearch ==2.4
+    - html5lib
+    - pyahocorasick >=1.1
+  run:
+    - python
+    - six >=1.9.0
+    - nltk >=3.0.4
+    - regex >=2015.11.22
+    - pandas >=0.17.1
+    - python-crfsuite >=0.8.4
+    - cached-property >=1.2.0
+    - beautifulsoup4 >=4.4.0
+    - elasticsearch ==2.4
+    - html5lib
+    - pyahocorasick >=1.1
+#
+#test:
+#  # Python imports
+#  imports:
+#    - estnltk
+#    - estnltk.database
+#    - estnltk.database.elastic
+#    - estnltk.estner
+#    - estnltk.examples
+#    - estnltk.grammar
+#    - estnltk.mw_verbs
+#    - estnltk.prettyprinter
+#    - estnltk.tokenizers
+#    - estnltk.tools
+#    - estnltk.vabamorf
+#    - estnltk.wiki
+#    - estnltk.wordnet
+#    - estnltk.taggers
+
+about:
+  home: https://github.com/estnltk/estnltk
+  license: GPLv2
+  summary: 'Estnltk open source tools for Estonian natural language processing'

@@ -105,7 +105,7 @@
  -----------------
   Ajavt.jar
   javax.json-1.0.4.jar
-  joda-time-1.6.jar
+  joda-time-2.9.4.jar
   reeglid.xml
 
 
