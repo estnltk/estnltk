@@ -1,18 +1,21 @@
+{% set data = load_setup_py_data() %}
+
+
 package:
   name: estnltk
-  version: "1.4dev"
+  version: {{ data.get('version')  }}
 
 source:
     path: ../..
 
 build:
- number: {{ environ.get('GIT_DESCRIBE_NUMBER', 0) }}
+ number: {{ environ.get('GIT_DESCRIBE_NUMBER', '0') }}
  string: {{ environ.get('PY_VER', '') }}
 
 
 requirements:
   build:
-    - python 
+    - python
     - swig >=3.0.8
     - six >=1.9.0
     - nltk >=3.0.4
@@ -21,14 +24,11 @@ requirements:
     - python-crfsuite >=0.8.4
     - cached-property >=1.2.0
     - beautifulsoup4 >=4.4.0
-    - elasticsearch >=2.0.0
+    - elasticsearch ==2.4
     - html5lib
+    - pyahocorasick >=1.1
   run:
-    #jre7 on vajalik sest osalausestaja on selle peale bulditud.
-    # kui osalausestaja saab vahetatud, ei ole jre lisamine ilmselt vajalik.
-    #vt /estnltk/javaprocess.py/find_java
-    - java-jre ==7 #[win-64]
-    - python 
+    - python
     - six >=1.9.0
     - nltk >=3.0.4
     - regex >=2015.11.22
@@ -36,31 +36,27 @@ requirements:
     - python-crfsuite >=0.8.4
     - cached-property >=1.2.0
     - beautifulsoup4 >=4.4.0
-    - elasticsearch >=2.0.0
+    - elasticsearch ==2.4
     - html5lib
-test:
-  # Python imports
-  imports:
-    - estnltk
-    - estnltk.database
-    - estnltk.database.tests
-    - estnltk.estner
-    - estnltk.examples
-    - estnltk.grammar
-    - estnltk.grammar.examples
-    - estnltk.grammar.tests
-    - estnltk.mw_verbs
-    - estnltk.prettyprinter
-    - estnltk.prettyprinter.tests
-    - estnltk.tests
-    - estnltk.tokenizers
-    - estnltk.tokenizers.tests
-    - estnltk.tools
-    - estnltk.vabamorf
-    - estnltk.vabamorf.tests
-    - estnltk.wiki
-    - estnltk.wiki.tests
-    - estnltk.wordnet
+    - pyahocorasick >=1.1
+#
+#test:
+#  # Python imports
+#  imports:
+#    - estnltk
+#    - estnltk.database
+#    - estnltk.database.elastic
+#    - estnltk.estner
+#    - estnltk.examples
+#    - estnltk.grammar
+#    - estnltk.mw_verbs
+#    - estnltk.prettyprinter
+#    - estnltk.tokenizers
+#    - estnltk.tools
+#    - estnltk.vabamorf
+#    - estnltk.wiki
+#    - estnltk.wordnet
+#    - estnltk.taggers
 
 about:
   home: https://github.com/estnltk/estnltk

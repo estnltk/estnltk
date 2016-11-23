@@ -90,7 +90,7 @@ morphological analysis, named entity recognition, etc. for the Estonian language
         'python-crfsuite>=0.8.4',           # Conditional random fields library
         'cached-property>=1.2.0',           # Simple property for caching results
         'beautifulsoup4>=4.4.0',            # HTML parsing library
-        'html5lib>=0.9999999',              # HTML parsing library
+        'html5lib',                         # HTML parsing library
         'elasticsearch==2.4',                 # database support
         'pyahocorasick>=1.1'                # fast pattern matching NOTE: we might have to make this an optional dep if we fail to install it on windows.
     ],
