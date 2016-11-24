@@ -17,6 +17,12 @@ The command for installing estnltk is:
 conda install -c estnltk -c conda-forge estnltk
 ```
 
+If you want to use EstNLTK in an interactive web application, type the command
+
+```
+jupyter notebook
+```
+
 
 The alternative way for installing if you are unable to use the anaconda distribution is:
 
