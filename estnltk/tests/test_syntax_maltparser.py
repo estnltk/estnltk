@@ -89,3 +89,45 @@ class MaltParserSupportTest(unittest.TestCase):
         treeStr = str(dep_graphs[1].tree()).strip()
         self.assertEqual(treeStr, '(oli Auhinnaks (tekk ilus valge .))')
 
+
+    def test_reading_from_conll_file_1(self):
+        test_conll_string = \
+'''1	Ken	Ken	H	H	sg|n	4	@SUBJ	_	_
+2	ja	ja	J	J	_	3	@J	_	_
+3	Tolk	Tolk	H	H	sg|n	1	@SUBJ	_	_
+4	käivad	käi	V	V	vad	0	ROOT	_	_
+5	närviliselt	närviliselt	D	D	_	4	@ADVL	_	_
+6	ringi	ringi	D	D	_	4	@Vpart	_	_
+7	.	.	Z	Z	_	6	xxx	_	_
+
+1	Ken	Ken	H	H	sg|n	4	@SUBJ	_	_
+2	ja	ja	J	J	_	3	@J	_	_
+3	Tolk	Tolk	H	H	sg|n	1	@SUBJ	_	_
+4	lähevad	mine	V	V	vad	0	ROOT	_	_
+5	edasi	edasi	D	D	_	4	@Vpart	_	_
+6	Spiritisse	Spirit	H	H	sg|ill	4	@ADVL	_	_
+7	.	.	Z	Z	_	6	xxx	_	_
+'''
+        # Create a temporary file (with conll format content)
+        import codecs
+        import tempfile
+        import os
+        temp_input_file = \
+            tempfile.NamedTemporaryFile(prefix='malt_in.', mode='w', delete=False)
+        temp_input_file.close()
+        # We have to open separately here for writing, because Py 2.7 does not support
+        # passing parameter   encoding='utf-8'    to the NamedTemporaryFile;
+        out_f = codecs.open(temp_input_file.name, mode='w', encoding='utf-8')
+        out_f.write( test_conll_string )
+        out_f.close()
+        
+        from estnltk.syntax.utils import read_text_from_conll_file
+        text = read_text_from_conll_file( temp_input_file.name )
+        os.remove(temp_input_file.name)
+        self.assertTrue( LAYER_CONLL in text )
+        self.assertTrue( len(text.sentence_texts) == 2 )
+        conll_layer    = [ w[PARSER_OUT] for w in text[LAYER_CONLL] ]
+        expected_layer = [[['@SUBJ', 3]], [['@J', 2]], [['@SUBJ', 0]], [['ROOT', -1]], [['@ADVL', 3]], [['@Vpart', 3]], [['xxx', 5]], [['@SUBJ', 3]], [['@J', 2]], [['@SUBJ', 0]], [['ROOT', -1]], [['@Vpart', 3]], [['@ADVL', 3]], [['xxx', 5]]]
+        #print(conll_layer)
+        self.assertListEqual( conll_layer, expected_layer )
+        
