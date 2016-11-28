@@ -489,7 +489,7 @@ class MaltParser(object):
                                               self.model_name )
         # Align the results with the initial text
         alignments = \
-            align_CONLL_with_Text( resultsConllStr, text, **kwargs )
+            align_CONLL_with_Text( resultsConllStr, text, self.feature_generator, **kwargs )
         alignments = \
             normalise_alignments( alignments, data_type=CONLL_DATA, **kwargs )
         

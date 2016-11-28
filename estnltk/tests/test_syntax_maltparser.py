@@ -28,7 +28,8 @@ class MaltParserSupportTest(unittest.TestCase):
         parsing_results = [ w[PARSER_OUT] for w in text_parsed[LAYER_CONLL] ]
         #print(parsing_results)
         self.assertListEqual( parsing_results, \
-            [[['@AN>', 1]], [['@ADVL', 2]], [['ROOT', -1]], [['@SUBJ', 2]], [['@ADVL', 2]], [['@J', 6]], [['@FMV', 2]], [['@ADVL', 6]], [['xxx', 7]]] )
+            [[['@AN>', 1]], [['@OBJ', 2]], [['@FMV', 4]], [['@SUBJ', 2]], [['ROOT', -1]], [['@J', 6]], [['@FMV', 4]], [['@ADVL', 6]], [['xxx', 7]]] )
+            
 
     def test_maltparser_sent3(self):
         mparser = MaltParser()
@@ -38,7 +39,8 @@ class MaltParserSupportTest(unittest.TestCase):
         parsing_results = [ w[PARSER_OUT] for w in text_parsed[LAYER_CONLL] ]
         #print(parsing_results)
         self.assertListEqual( parsing_results, \
-            [[['@NN>', 1]], [['@SUBJ', 2]], [['ROOT', -1]], [['@NN>', 5]], [['@AN>', 5]], [['@NN>', 6]], [['@OBJ', 2]], [['xxx', 6]], [['@SUBJ', 9]], [['@FMV', 2]], [['@ADVL', 9]], [['@<NN', 10]], [['@ADVL', 9]], [['xxx', 12]]] )
+            [[['@NN>', 1]], [['@ADVL', 2]], [['ROOT', -1]], [['@OBJ', 2]], [['@AN>', 5]], [['@SUBJ', 2]], [['@ADVL', 2]], [['xxx', 6]], [['@SUBJ', 9]], [['@FMV', 2]], [['@ADVL', 9]], [['@<NN', 10]], [['@OBJ', 9]], [['xxx', 12]]] )
+            
 
     def test_maltparser_sent1_with_text(self):
         text = Text('Jänes oli parajasti põllu peal.')
@@ -68,7 +70,7 @@ class MaltParserSupportTest(unittest.TestCase):
         
         # Split the input text into smaller texts by sentences:
         trees_from_small_texts = []
-        for sentence in text.split_by( SENTENCES ):
+        for sid, sentence in enumerate( list( text.split_by( SENTENCES ) ) ):
             # Try to make trees also from the smaller text
             sent_trees = sentence.syntax_trees()
             trees_from_small_texts.extend( sent_trees )

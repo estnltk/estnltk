@@ -477,7 +477,7 @@ def read_text_from_conll_file( file_name, layer_name=LAYER_CONLL, **kwargs ):
     text.tokenize_words()
     
     # 4) Align syntactic analyses with the Text
-    alignments = align_CONLL_with_Text( conll_lines, text, **kwargs )
+    alignments = align_CONLL_with_Text( conll_lines, text, None, **kwargs )
     normalise_alignments( alignments, data_type=CONLL_DATA, **kwargs )
     # Attach alignments to the text
     text[ layer_name ] = alignments

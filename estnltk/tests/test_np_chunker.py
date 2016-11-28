@@ -30,8 +30,9 @@ class NP_ChunkerTest(unittest.TestCase):
         chunker = NounPhraseChunker()
         text = Text('Saksamaal Bonnis leidis aset kummaline juhtum murdvargaga, kes kutsus endale ise politsei.')
         phrase_texts = chunker.analyze_text( text, return_type="strings" )
+        #print( phrase_texts )
         self.assertListEqual(phrase_texts, \
-            ['Saksamaal Bonnis', 'aset', 'kummaline juhtum murdvargaga', 'kes', 'endale', 'ise', 'politsei'])
+            ['Saksamaal Bonnis', 'aset', 'kummaline juhtum', 'murdvargaga', 'kes', 'endale', 'ise', 'politsei'])
 
 
     def test_np_chunker_4(self):
