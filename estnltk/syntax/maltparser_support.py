@@ -37,7 +37,7 @@ import subprocess
 
 MALTPARSER_PATH  = os.path.join(PACKAGE_PATH, 'java-res', 'maltparser')
 MALTPARSER_MODEL = 'estnltkBasedDep2'
-MALTPARSER_JAR   = 'maltparser-1.8.jar'
+MALTPARSER_JAR   = 'maltparser-1.9.0.jar'
 
 
 # (!) Note: using these constants will be deprecated in the future versions of the parser:
