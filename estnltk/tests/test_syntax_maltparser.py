@@ -113,7 +113,7 @@ class MaltParserSupportTest(unittest.TestCase):
         import tempfile
         import os
         temp_input_file = \
-            tempfile.NamedTemporaryFile(prefix='malt_in.', mode='w', delete=False)
+            tempfile.NamedTemporaryFile(prefix='test_conll_in.', mode='w', delete=False)
         temp_input_file.close()
         # We have to open separately here for writing, because Py 2.7 does not support
         # passing parameter   encoding='utf-8'    to the NamedTemporaryFile;

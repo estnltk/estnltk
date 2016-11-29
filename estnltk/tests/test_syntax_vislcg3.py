@@ -80,3 +80,63 @@ class VislCG3ParserTest(unittest.TestCase):
 
         treeStr = str(dep_graphs[1].tree()).strip()
         self.assertEqual(treeStr, '(oli Auhinnaks (tekk ilus valge .))')
+
+
+    def test_reading_from_cg3_file_1(self):
+        test_cg3_string = \
+'''"<s>"
+
+"<Keni>"
+	"Ken" L0 S prop sg gen @ADVL #1->4
+"<&amp;>"
+	"&" L0 J crd @J #2->3
+"<Tolgiga>"
+	"Tolk" Lga S prop sg kom @ADVL #3->1
+"<saab>"
+	"saa" Lb V main indic pres ps3 sg ps af @FMV #4->0
+"<alati>"
+	"alati" L0 D @ADVL #5->4
+"<kõvasti>"
+	"kõvasti" L0 D @OBJ #6->4
+"<pulli>"
+	"pull" L0 S com sg part @<Q #7->6
+"<.>"
+	"." Z Fst #8->8
+"</s>"
+
+"<s>"
+
+"<Nüüd>"
+	"nüüd" L0 D @ADVL #1->0
+"<tagasi>"
+	"tagasi" L0 D @ADVL #2->1
+"<Decoltesse>"
+	"Decolte" Lsse S prop sg ill @ADVL #3->1
+"<.>"
+	"." Z Fst #4->4
+"</s>"
+
+'''
+        # Create a temporary file (with cg3 format content)
+        import codecs
+        import tempfile
+        import os
+        temp_input_file = \
+            tempfile.NamedTemporaryFile(prefix='test_cg3_in.', mode='w', delete=False)
+        temp_input_file.close()
+        # We have to open separately here for writing, because Py 2.7 does not support
+        # passing parameter   encoding='utf-8'    to the NamedTemporaryFile;
+        out_f = codecs.open(temp_input_file.name, mode='w', encoding='utf-8')
+        out_f.write( test_cg3_string )
+        out_f.close()
+        
+        from estnltk.syntax.utils import read_text_from_cg3_file
+        text = read_text_from_cg3_file( temp_input_file.name )
+        os.remove(temp_input_file.name)
+        self.assertTrue( LAYER_VISLCG3 in text )
+        self.assertTrue( len(text.sentence_texts) == 2 )
+        cg3_layer    = [ w[PARSER_OUT] for w in text[LAYER_VISLCG3] ]
+        #print(cg3_layer)
+        expected_layer = [[['@ADVL', 3]], [['@J', 2]], [['@ADVL', 0]], [['@FMV', -1]], [['@ADVL', 3]], [['@OBJ', 3]], [['@<Q', 5]], [['xxx', 6]], [['@ADVL', -1]], [['@ADVL', 0]], [['@ADVL', 0]], [['xxx', 2]]]
+        self.assertListEqual( cg3_layer, expected_layer )
+
