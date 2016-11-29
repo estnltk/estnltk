@@ -93,7 +93,7 @@ def _esc_que_mark( analysis ):
 # ==================================================================================
 # ==================================================================================
 
-class MorphRewriter():
+class InitialMorphRewriter():
 
     def rewrite(self, record):
         result = []
@@ -110,6 +110,21 @@ class MorphRewriter():
             result.append(rec)
         return result
 
+class InitialMorphTagger():
+
+    def __init__(self):
+        self.rules = InitialMorphRewriter()
+
+    def tag(self, text):        
+        text['syntax_pp_1'] = text['morf_analysis'].rewrite(
+            source_attributes = ['root', 'ending', 'clitic', 'partofspeech', 'form'],
+            target_attributes = ['root', 'ending', 'clitic', 'pos',          'form_list'],
+            rules = self.rules,
+            name = 'syntax_pp_1',
+            ambiguous = True
+            )
+
+
 def convert_Text_to_mrf(text):
     ''' Converts from Text object into pre-syntactic mrf format, given as a list of 
         lines, as in the output of etmrf.
@@ -119,13 +134,6 @@ def convert_Text_to_mrf(text):
             word quessing is turned on, proper-name analyses are turned off;
     '''
 
-#    dep = Layer(name='syntax_pp_1',
-#                     parent='words',
-#                     ambiguous=True,
-#                     attributes=['root', 'ending', 'clitic', 'pos', 'form_list']
-#                     )
-#    text._add_layer(dep)
-
     dep = Layer(name='syntax_pp_2',
                      parent='words',
                      ambiguous=True,
@@ -133,43 +141,16 @@ def convert_Text_to_mrf(text):
                      )
     text._add_layer(dep)
 
-    dep =  Layer(name='syntax_pp_3',
-                     parent='words',
-                     ambiguous=True,
-                     attributes=['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case', 'initial_form', 'fin', 'abileksikon']
-                     )
-    text._add_layer(dep)
+    #dep =  Layer(name='syntax_pp_3',
+    #                 parent='words',
+    #                 ambiguous=True,
+    #                 attributes=['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case', 'initial_form', 'fin', 'abileksikon']
+    #                 )
+    #text._add_layer(dep)
 
-
-    text['syntax_pp_1'] = text['morf_analysis'].rewrite(
-        source_attributes = ['root', 'ending', 'clitic', 'partofspeech', 'form'],
-        target_attributes = ['root', 'ending', 'clitic', 'pos',          'form_list'],
-        rules = MorphRewriter(),
-        name = 'syntax_pp_1',
-        ambiguous = True
-    )
-    
+    initial_morph_tagger = InitialMorphTagger()
+    initial_morph_tagger.tag(text)
     return text
-
-
-#    for word in text.words:
-#        for analysis in word.morf_analysis:
-#            m = word.mark('syntax_pp_1')
-            #   NB! ending="0" erineb ending=""-st:
-            #     1) eestlane (ending="0");
-            #     2) Rio (ending="") de (ending="") Jaineros;
-#            m.root = _esc_double_quotes(analysis.root)
-#            m.ending = analysis.ending
-#            m.clitic = analysis.clitic
-#            m.pos = analysis.partofspeech
-#            m.form_list = []
-#            for _form in analysis.form.split(',')[::-1]:
-                #kas form.split(',')==[form] sageli või alati?
-                # [::-1] on eelmise versiooniga ühildumiseks
-#                _form = _form.strip()
-#                if _form:
-#                    m.form_list.append(_form)
-#    return text
 
 
 # ==================================================================================
@@ -690,35 +671,27 @@ analysisLemmaPat = re.compile('^\s+([^+ ]+)\+')
 analysisPat      = re.compile('//([^/]+)//')
 
 
-def tag_subcat_info(text, subcat_rules):
-    ''' Adds subcategorization information (hashtags) to verbs and adpositions;
-        
-        Argument subcat_rules must be a dict containing subcategorization information,
-        loaded via method load_subcat_info();
+class SubcatRewriter():
+    
+    def __init__(self, subcat_rules):
+        self.subcat_rules = subcat_rules
 
-        Performs word lemma lookups in subcat_rules, and in case of a match, checks 
-        word part-of-speech conditions. If the POS conditions match, adds subcategorization
-        information either to a single analysis line, or to multiple analysis lines 
-        (depending on the exact conditions in the rule);
-
-        Returns the input list where verb/adposition analyses have been augmented 
-        with available subcategorization information;
-    ''' 
-    for word, syntax_pps in zip(text.words, text.syntax_pp_2):
-        for syntax_pp in syntax_pps:
+    def rewrite(self, record):
+        result = []
+        for rec in record:
             match = False
 
-            root = syntax_pp.root
+            root = rec['root']
             # Find whether there is subcategorization info associated 
             # with the root
-            if root in subcat_rules:
+            if root in self.subcat_rules:
                 #analysis = ['_'+syntax_pp.pos+'_'] + syntax_pp.form_list
                 #analysis = {'_'+syntax_pp.pos+'_', syntax_pp.punctuation_type, syntax_pp.pronoun_type, syntax_pp.partic, syntax_pp.letter_case, *syntax_pp.initial_form, syntax_pp.fin}
                 # kas eelneva asemel piisab järgnevast?
-                analysis = {'_'+syntax_pp.pos+'_'}
-                analysis.update(syntax_pp.initial_form)
-
-                for rule in subcat_rules[root]:
+                analysis = {'_'+rec['pos']+'_'}
+                analysis.update(rec['initial_form'])
+    
+                for rule in self.subcat_rules[root]:
                     condition, addition = rule.split('>')
                     # Check the condition string; If there are multiple conditions, 
                     # all must be satisfied for the rule to fire
@@ -734,46 +707,53 @@ def tag_subcat_info(text, subcat_rules):
                         #
                         additions = addition.split('|')
                         # Add new line or lines
-                        for a in additions[::-1]:
-                            m = word.mark('syntax_pp_3')
-                            m.root = syntax_pp.root
-                            m.ending = syntax_pp.ending
-                            m.clitic = syntax_pp.clitic
-                            m.pos = syntax_pp.pos
-                            m.punctuation_type = syntax_pp.punctuation_type
-                            m.pronoun_type = syntax_pp.pronoun_type
-                            m.partic = syntax_pp.partic
-                            m.letter_case = syntax_pp.letter_case
+                        for a in additions[::-1]:    
                             items_to_add = a.split()
-
-                            form_list_new = syntax_pp.form_list[:]
                             abileksikon = []
                             for item in items_to_add:
-                                if not item in form_list_new:
-                                    form_list_new.append(item)
+                                if not item in rec['form_list']:
                                     abileksikon.append(item)
-                            #m.form_list = form_list_new
-                            m.initial_form = syntax_pp.initial_form
-                            m.fin = syntax_pp.fin
-                            m.abileksikon = abileksikon
-                                                        
+                            rec['abileksikon'] = abileksikon
+                            result.append(rec)
                             match = True
                         # No need to search forward
                         break
             if not match:
-                m = word.mark('syntax_pp_3')
-                m.root = syntax_pp.root
-                m.ending = syntax_pp.ending
-                m.clitic = syntax_pp.clitic
-                m.pos = syntax_pp.pos
-                m.punctuation_type = syntax_pp.punctuation_type
-                m.pronoun_type = syntax_pp.pronoun_type
-                m.partic = syntax_pp.partic
-                m.letter_case = syntax_pp.letter_case
-                #m.form_list = syntax_pp.form_list
-                m.initial_form = syntax_pp.initial_form
-                m.fin = syntax_pp.fin
-                m.abileksikon = None
+                rec['abileksikon'] = None
+                result.append(rec)
+        return result
+
+
+class SubcatTagger():
+
+    def __init__(self, subcat_rules):
+        self.rules = SubcatRewriter(subcat_rules)
+
+    def tag(self, text):        
+        text['syntax_pp_3'] = text['syntax_pp_2'].rewrite(
+            source_attributes = ['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case' , 'form_list', 'initial_form', 'fin'],
+            target_attributes = ['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case' ,              'initial_form', 'fin', 'abileksikon'],
+            rules = self.rules,
+            name = 'syntax_pp_3',
+            ambiguous = True
+            )
+
+def tag_subcat_info(text, subcat_rules):
+    ''' Adds subcategorization information (hashtags) to verbs and adpositions;
+        
+        Argument subcat_rules must be a dict containing subcategorization information,
+        loaded via method load_subcat_info();
+
+        Performs word lemma lookups in subcat_rules, and in case of a match, checks 
+        word part-of-speech conditions. If the POS conditions match, adds subcategorization
+        information either to a single analysis line, or to multiple analysis lines 
+        (depending on the exact conditions in the rule);
+
+        Returns the input list where verb/adposition analyses have been augmented 
+        with available subcategorization information;
+    ''' 
+    subcat_tagger = SubcatTagger(subcat_rules)
+    subcat_tagger.tag(text)
     return text
 
 
