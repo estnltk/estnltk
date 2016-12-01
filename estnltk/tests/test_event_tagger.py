@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 
 from estnltk import Text
@@ -136,7 +137,7 @@ class EventTaggerTest(unittest.TestCase):
         self.assertListEqual(expected, result)
         
     def test_event_tagger_naive_equals_ahocorasick(self):
-        event_vocabulary = [{'term': 'üks'}, 
+        event_vocabulary = [{'term': 'üks'},
                             {'term': 'kaks'},
                             {'term': 'kaks kolm'},
                             {'term': 's k'}]
@@ -160,17 +161,17 @@ class EventTaggerTest(unittest.TestCase):
         self.assertListEqual(naive, ahocorasick)
 
     def test_event_tagger_case_insensitive(self):
-        event_vocabulary = [{'term': 'üKs'}, 
+        event_vocabulary = [{'term': u'üKs'},
                             {'term': 'KaKs'}]
-        text = Text('ÜkS kAkS üks KAKS.')
+        text = Text(u'ÜkS kAkS üks KAKS.')
         event_tagger = EventTagger(event_vocabulary, 
                                    case_sensitive=False,
                                    conflict_resolving_strategy='ALL', 
                                    return_layer=True)
         result = event_tagger.tag(text)
-        expected = [{'term': 'üKs',  'start':  0, 'end':  3, 'wstart_raw': 0, 'wend_raw': 1, 'cstart':  0, 'wstart': 0},
+        expected = [{'term': u'üKs',  'start':  0, 'end':  3, 'wstart_raw': 0, 'wend_raw': 1, 'cstart':  0, 'wstart': 0},
                     {'term': 'KaKs', 'start':  4, 'end':  8, 'wstart_raw': 1, 'wend_raw': 2, 'cstart':  2, 'wstart': 1},
-                    {'term': 'üKs',  'start':  9, 'end': 12, 'wstart_raw': 2, 'wend_raw': 3, 'cstart':  4, 'wstart': 2},
+                    {'term': u'üKs',  'start':  9, 'end': 12, 'wstart_raw': 2, 'wend_raw': 3, 'cstart':  4, 'wstart': 2},
                     {'term': 'KaKs', 'start': 13, 'end': 17, 'wstart_raw': 3, 'wend_raw': 4, 'cstart':  6, 'wstart': 3}]
 
         self.assertListEqual(expected, result)
