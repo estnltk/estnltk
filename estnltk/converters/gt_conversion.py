@@ -9,7 +9,7 @@
 #
 #      text=Text('Rändur võttis seljakotist vilepilli ja tõstis huultele.')
 #      text.tag_analysis()
-#      convert_to_gt( text )
+#      convert_to_gt( text, layer_name='words' )
 #      print( text.get.word_texts.postags.forms.as_dataframe )
 #
 
