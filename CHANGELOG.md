@@ -3,6 +3,21 @@ Change Log
 
 All notable changes to this project will be documented in this file.
 
+[1.4.1.1]
+=========
+
+Changed
+-------
+
+* Removed estner/estner.json file
+* Removed unnecessary resource /maltparser/estnltkBasedDep2.mco
+
+Fixed
+-----
+
+* Fix encoding bug in event_tagger when runing tests on windows;
+
+
 [1.4.1]
 =======
 
