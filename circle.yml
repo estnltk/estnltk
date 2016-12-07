@@ -1,0 +1,12 @@
+dependencies:
+  override:
+    - git clone git@github.com:estnltk/tutorials.git ~/estnltk_tutorials
+    - rm -rf ~/estnltk_tutorials/*
+    - cp -r ~/estnltk/docs/tutorials/* ~/estnltk_tutorials
+    - git config --global user.email "you@example.com"
+    - git config --global user.name "circleci build"
+    - cd ~/estnltk_tutorials;git add .;git commit -m "automatic";git push
+
+test:
+  override:
+    - python -m "this"
