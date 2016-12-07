@@ -1,0 +1,19 @@
+
+machine:
+  services:
+    - elasticsearch
+  java:
+    version: openjdk8
+
+
+general:
+  artifacts:
+    - "~/estnltk/docs/tutorials.zip"
+
+dependencies:
+  override:
+    - bash -c 'cd docs;zip -r tutorials.zip  tutorials/*'
+
+test:
+  override:
+    - python -m "import this"
