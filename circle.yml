@@ -4,7 +4,12 @@ general:
 
 dependencies:
   override:
-    - bash -c 'cd docs;zip -r tutorials.zip  tutorials/*'
+    - git clone git@github.com:estnltk/tutorials.git ~/estnltk_tutorials
+    - cp -r ~/estnltk/docs/tutorials/* ~/estnltk_tutorials
+    - cd ~/estnltk_tutorials
+    - git add .
+    - git commit -m "automatic"
+    - git push
 
 test:
   override:
