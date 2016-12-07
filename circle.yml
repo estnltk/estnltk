@@ -1,0 +1,11 @@
+general:
+  artifacts:
+    - "~/estnltk/docs/tutorials.zip"
+
+dependencies:
+  override:
+    - bash -c 'cd docs;zip -r tutorials.zip  tutorials/*'
+
+test:
+  override:
+    - python -m "this"
