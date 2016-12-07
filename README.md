@@ -22,7 +22,9 @@ If you want to use EstNLTK in an interactive web application, type the command
 ```
 jupyter notebook
 ```
+To run our tutorials, [download them as a zip file](https://github.com/estnltk/tutorials/archive/master.zip), unpack them to a directory and run the command `jupyter notebook` in that directory.  
 
+---------
 
 The alternative way for installing if you are unable to use the anaconda distribution is:
 
@@ -36,6 +38,7 @@ Find more details in the [installation tutorial](http://estnltk.github.io/estnlt
 
 Release 1.4.1 documentation is available at http://estnltk.github.io/estnltk/1.4.1/index.html.
 For previous versions refer to http://estnltk.github.io/estnltk.
+For more tools see http://estnltk.github.io.
 
 Additional educational materials on estnltk are available on the web page of the NLP course taught at the University of Tartu: https://courses.cs.ut.ee/2015/pynlp/fall.
 
