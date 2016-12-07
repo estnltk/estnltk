@@ -4,7 +4,19 @@ import ahocorasick
 from sys import version_info
 
 import regex as re
-import unicodecsv as csv
+
+import six
+if six.PY2:
+    try:
+        import unicodecsv as csv
+    except ImportError as e:
+        #event tagger depends on unicodecsv on python2
+        #it is not in setup.py/requirements/meta.yaml, because it would have to be installed on python3 as well
+        raise e
+else:
+    import csv
+
+
 from estnltk.names import START, END
 from pandas import DataFrame
 
