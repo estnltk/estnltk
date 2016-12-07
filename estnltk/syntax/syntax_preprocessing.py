@@ -86,6 +86,107 @@ def _esc_que_mark( analysis ):
     return (analysis.replace(' ?', ' #?')).replace(' ?', ' #?')
 
 
+class SuperTagger():
+
+    def __init__(self, fs_to_synt_rules, allow_to_remove_all, subcat_rules):
+        self.initial_morph_rewriter = InitialMorphRewriter()
+        self.morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules)
+        self.pronoun_rewriter = PronounRewriter()
+        self.remove_duplicate_analyses_rewriter = RemoveDuplicateAnalysesRewriter(allow_to_remove_all)
+        self.letter_case_rewriter = LetterCaseRewriter()
+        self.finite_form_rewriter = FiniteFormRewriter()
+        self.partic_rewriter = ParticRewriter()
+        self.subcat_rules = SubcatRewriter(subcat_rules)
+
+
+    def tag(self, text):
+        
+        #syntax_pp = text['morf_analysis']
+
+        dep = Layer(name='syntax_pp_0',
+                         parent='words',
+                         ambiguous=True,
+                         attributes=['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form']
+                         )
+        text._add_layer(dep)
+        for word, morf_anal in zip(text.words, text.morf_analysis):
+            for analysis in morf_anal:
+                m = word.mark('syntax_pp_0')
+                m.word_text = analysis.text
+                m.root = _esc_double_quotes(analysis.root)
+                m.ending = analysis.ending
+                m.clitic = analysis.clitic
+                m.partofspeech = analysis.partofspeech
+                m.form = analysis.form
+        syntax_pp = text['syntax_pp_0']
+
+        syntax_pp = syntax_pp.rewrite(
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos',          'form_list'],
+            rules = self.initial_morph_rewriter,
+            name = 'syntax_pp',
+            ambiguous = True
+            )
+
+        syntax_pp = syntax_pp.rewrite(
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos',                                                               'form_list'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
+            rules = self.morph_to_syntax_morph_rewriter,
+            name = 'syntax_pp',
+            ambiguous = True
+            )
+
+        syntax_pp = syntax_pp.rewrite(
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
+            rules = self.pronoun_rewriter,
+            name = 'syntax_pp',
+            ambiguous = True
+            )
+
+        syntax_pp = syntax_pp.rewrite(
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
+            rules = self.remove_duplicate_analyses_rewriter,
+            name = 'syntax_pp',
+            ambiguous = True
+            )
+
+        syntax_pp = syntax_pp.rewrite(
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case'],
+            rules = self.letter_case_rewriter,
+            name = 'syntax_pp',
+            ambiguous = True
+            )
+
+        syntax_pp = syntax_pp.rewrite(
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin'],
+            rules = self.finite_form_rewriter,
+            name = 'syntax_pp',
+            ambiguous = True
+            )
+
+        syntax_pp = syntax_pp.rewrite(
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin', 'partic'],
+            rules = self.partic_rewriter,
+            name = 'syntax_pp',
+            ambiguous = True
+            )
+
+        syntax_pp = syntax_pp.rewrite(
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin', 'partic'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin', 'partic', 'abileksikon'],
+            rules = self.subcat_rules,
+            name = 'syntax_pp',
+            ambiguous = True
+            )
+
+        text['syntax_pp'] = syntax_pp
+
+
 # ==================================================================================
 # ==================================================================================
 #   1)  Convert from estnltk Text to Filosoft's mrf
@@ -93,8 +194,15 @@ def _esc_que_mark( analysis ):
 # ==================================================================================
 # ==================================================================================
 
-class InitialMorphRewriter():
 
+class InitialMorphRewriter():
+    ''' Converts from Text object into pre-syntactic mrf format, given as a list of 
+        lines, as in the output of etmrf.
+        *) If the input Text has already been morphologically analysed, uses the existing
+            analysis;
+        *) If the input has not been analysed, performs the analysis with required settings:
+            word quessing is turned on, proper-name analyses are turned off;
+    '''
     def rewrite(self, record):
         result = []
         for rec in record:
@@ -109,48 +217,6 @@ class InitialMorphRewriter():
                     rec['form_list'].append(_form)
             result.append(rec)
         return result
-
-class InitialMorphTagger():
-
-    def __init__(self):
-        self.rules = InitialMorphRewriter()
-
-    def tag(self, text):        
-        text['syntax_pp_1'] = text['morf_analysis'].rewrite(
-            source_attributes = ['root', 'ending', 'clitic', 'partofspeech', 'form'],
-            target_attributes = ['root', 'ending', 'clitic', 'pos',          'form_list'],
-            rules = self.rules,
-            name = 'syntax_pp_1',
-            ambiguous = True
-            )
-
-
-def convert_Text_to_mrf(text):
-    ''' Converts from Text object into pre-syntactic mrf format, given as a list of 
-        lines, as in the output of etmrf.
-        *) If the input Text has already been morphologically analysed, uses the existing
-            analysis;
-        *) If the input has not been analysed, performs the analysis with required settings:
-            word quessing is turned on, proper-name analyses are turned off;
-    '''
-
-    dep = Layer(name='syntax_pp_2',
-                     parent='words',
-                     ambiguous=True,
-                     attributes=['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case' , 'form_list', 'initial_form', 'fin']
-                     )
-    text._add_layer(dep)
-
-    #dep =  Layer(name='syntax_pp_3',
-    #                 parent='words',
-    #                 ambiguous=True,
-    #                 attributes=['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case', 'initial_form', 'fin', 'abileksikon']
-    #                 )
-    #text._add_layer(dep)
-
-    initial_morph_tagger = InitialMorphTagger()
-    initial_morph_tagger.tag(text)
-    return text
 
 
 # ==================================================================================
@@ -239,26 +305,6 @@ _punctConversions = [
 ]# double quotes are escaped by \
 
 
-def _convert_punctuation(syntax_pp):
-    ''' Converts given analysis line if it describes punctuation; Uses the set 
-        of predefined punctuation conversion rules from _punctConversions;
-        
-        _punctConversions should be a list of lists, where each outer list stands 
-        for a single conversion rule and inner list contains a pair of elements:
-        first is the regexp pattern and the second is the replacement, used in
-           re.sub( pattern, replacement, line )
-        
-        Returns the converted line (same as input, if no conversion was 
-        performed);
-    '''
-    for pattern, replacement in _punctConversions:
-        if re.search(pattern, syntax_pp.root):
-            # kas match või search?     "//", ".-"
-            # või hoopis pattern==syntax_pp.root?
-            # praegu on search, sest see klapib eelmise versiooniga
-            syntax_pp.form_list = [replacement]
-            break
-
 def _get_punctuation_type(syntax_pp):
     ''' Converts given analysis line if it describes punctuation; Uses the set 
         of predefined punctuation conversion rules from _punctConversions;
@@ -272,14 +318,14 @@ def _get_punctuation_type(syntax_pp):
         performed);
     ''' 
     for pattern, punct_type in _punctConversions:
-        if re.search(pattern, syntax_pp.root):
+        if re.search(pattern, syntax_pp['root']):
             # kas match või search?     "//", ".-"
             # või hoopis pattern==syntax_pp.root?
             # praegu on search, sest see klapib eelmise versiooniga
             return punct_type
 
 
-def convert_mrf_to_syntax_mrf(text, fs_to_synt_rules):
+class MorphToSyntaxMorphRewriter():
     ''' Converts given lines from Filosoft's mrf format to syntactic analyzer's
         format, using the morph-category conversion rules from conversion_rules,
         and punctuation via method _convert_punctuation();
@@ -294,48 +340,48 @@ def convert_mrf_to_syntax_mrf(text, fs_to_synt_rules):
         original list had, because the conversion often requires that the
         original Filosoft's analysis is expanded into multiple analyses
         suitable for the syntactic analyzer;
-    '''
-    for word, syntax_pps in zip(text.words, text.syntax_pp_1):
-        for syntax_pp in syntax_pps:
-            pos = syntax_pp.pos
-            form_list = syntax_pp.form_list[:]#kas siin on koopiat vaja?
+    '''    
+    def __init__(self, fs_to_synt_rules):
+        self.fs_to_synt_rules = fs_to_synt_rules
+    
+    def rewrite(self, record):
+        result = []
+        for rec in record:
+            pos = rec['pos']
+            form_list = rec['form_list'][:]#kas siin on koopiat vaja?
             # 1) Convert punctuation
             if pos == 'Z':
-                _convert_punctuation(syntax_pp)
-                m = word.mark('syntax_pp_2')
-                m.root = syntax_pp.root
-                m.ending = syntax_pp.ending
-                m.clitic = syntax_pp.clitic
-                m.pos = syntax_pp.pos
-                m.punctuation_type = _get_punctuation_type(syntax_pp)
-                m.pronoun_type = None
-                m.form_list = syntax_pp.form_list[:]
-                m.initial_form = syntax_pp.form_list[:]
+                rec['punctuation_type'] = _get_punctuation_type(rec)
+                rec['pronoun_type'] = None
+                rec['form_list'] = [rec['punctuation_type']]
+                rec['initial_form'] = [rec['punctuation_type']]
+                #if rec['root'] == '.':
+                #    print(rec)
+                result.append(rec)
             else:
                 if pos == 'Y':
                     # järgmine rida on kasutu, siin tuleb _form muuta, kui _root=='…'
-                    line = _convert_punctuation(syntax_pp)
+                    #line = _convert_punctuation(rec)
+                    pass
 
             # 2) Convert morphological analyses that have a form specified
                 if not form_list:
+                    # võiks if ja else ära vahetada ja not'ist lahti saada
                     morphKeys = [(pos, '')]
                 else:
                     morphKeys = [(pos, _form) for _form in form_list]#kas form.split(',')==[form] sageli või alati?
                 for morphKey in morphKeys: # tsüklit pole vaja, kui alati len(form_list)==1
-                    for pos, form in fs_to_synt_rules[morphKey]:
-                        m = word.mark('syntax_pp_2')
+                    for pos, form in self.fs_to_synt_rules[morphKey]:
                         if form == '':
-                            m.form_list = []
+                            rec['form_list'] = []
                         else:
-                            m.form_list = [_esc_que_mark(form).strip()]
-                        m.root = syntax_pp.root
-                        m.ending = syntax_pp.ending
-                        m.clitic = syntax_pp.clitic
-                        m.pos = pos
-                        m.punctuation_type = None
-                        m.pronoun_type = None
-                        m.initial_form = m.form_list[:]
-    return text
+                            rec['form_list'] = [_esc_que_mark(form).strip()]
+                        rec['pos'] = pos
+                        rec['punctuation_type'] = None
+                        rec['pronoun_type'] = None
+                        rec['initial_form'] = rec['form_list'][:]
+                        result.append(rec.copy())
+        return result
 
 
 # ==================================================================================
@@ -345,121 +391,7 @@ def convert_mrf_to_syntax_mrf(text, fs_to_synt_rules):
 # ==================================================================================
 # ==================================================================================
 
-# ma, sa, ta ei lähe kunagi mängu, sest ma -> mina, sa -> sina, ta-> tema
-_pronConversions = [ ["emb\+.*",             "det"], \
-                     ["enda\+.*",            "pos refl"], \
-                     ["enese\+.*",           "pos refl"], \
-                     ["eikeegi.*",           "indef"], \
-                     ["eimiski.*",           "indef"], \
-                     ["emb-kumb.*",          "det"], \
-                     ["esimene.*",           "dem"], \
-                     ["iga\+.*",             "det"], \
-                     ["iga_sugune.*",        "indef"], \
-                     ["iga_.ks\+.*",         "det"], \
-                     ["ise\+.*",             "pos det refl"], \
-                     ["ise_enese.*",         "refl"], \
-                     ["ise_sugune.*",        "dem"], \
-                     ["keegi.*",             "indef"], \
-                     ["kes.*",               "inter rel"], \
-                     ["kumb\+.*",            "rel"], \
-                     ["kumbki.*",            "det"], \
-                     ["kõik.*",              "det"], \
-                     ["k.ik.*",              "det"], \
-                     ["meie_sugune.*",       "dem"], \
-                     ["meie_taoline.*",      "dem"], \
-                     ["mihuke\+.*",          "inter rel"], \
-                     ["mihukene\+.*",        "inter rel"], \
-                     ["mille_taoline.*",     "dem"], \
-                     ["milli=?ne.*",         "rel"], \
-                     ["mina\+.*",            "pers ps1"], \
-                     [" ma\+.*",             "pers ps1"], \
-                     ["mina=?kene\+.*",      "dem"], \
-                     ["mina=?ke\+.*",        "dem"], \
-                     ["mingi\+.*",           "indef"], \
-                     ["mingi_sugune.*",      "indef"], \
-                     ["minu_sugune.*",       "dem"], \
-                     ["minu_taoline.*",      "dem"], \
-                     ["miski.*",             "indef"], \
-                     ["mis\+.*",             "inter rel"], \
-                     ["mis_sugune.*",        "inter rel"], \
-                     ["miski\+.*",           "inter rel"], \
-                     ["miski_sugune.*",      "inter rel"], \
-                     ["misu=?ke(ne)?\+.*",   "dem"], \
-                     ["mitme_sugune.*",      "indef"], \
-                     ["mitme_taoline.*",     "indef"], \
-                     ["mitmendik\+.*",       "inter rel"], \
-                     ["mitmes\+.*",          "inter rel indef"], \
-                     ["mi=?tu.*",            "indef"], \
-                     ["miuke(ne)?\+.*",      "inter rel"], \
-                     ["muist\+.*",           "indef"], \
-                     ["muu.*",               "indef"], \
-                     ["m.lema.*",            "det"], \
-                     ["m.ne_sugune\+.*",     "indef"], \
-                     ["m.ni\+.*",            "indef"], \
-                     ["m.ningane\+.*",       "indef"], \
-                     ["m.ningas.*",          "indef"], \
-                     ["m.herdune\+.*",       "indef rel"], \
-                     ["määntne\+.*",         "dem"], \
-                     ["na_sugune.*",         "dem"], \
-                     ["nende_sugune.*",      "dem"], \
-                     ["nende_taoline.*",     "dem"], \
-                     ["nihuke(ne)?\+.*",     "dem"], \
-                     ["nii_mi=?tu\+.*",      "indef inter rel"], \
-                     ["nii_sugune.*",        "dem"], \
-                     ["niisama_sugune.*",    "dem"], \
-                     ["nii?su=?ke(ne)?\+.*", "dem"], \
-                     ["niuke(ne)?\+.*",      "dem"], \
-                     ["oma\+.*",             "pos det refl"], \
-                     ["oma_enese\+.*",       "pos"], \
-                     ["oma_sugune\+.*",      "dem"], \
-                     ["oma_taoline\+.*",     "dem"], \
-                     ["palju.*",             "indef"], \
-                     ["sama\+.*",            "dem"], \
-                     ["sama_sugune\+.*",     "dem"], \
-                     ["sama_taoline\+.*",    "dem"], \
-                     ["samune\+.*",          "dem"], \
-                     ["see\+.*",             "dem"], \
-                     ["see_sama\+.*",        "dem"], \
-                     ["see_sam[au]ne\+.*",   "dem"], \
-                     ["see_sinane\+.*",      "dem"], \
-                     ["see_sugune\+.*",      "dem"], \
-                     ["selle_taoline\+.*",   "dem"], \
-                     ["selli=?ne\+.*",       "dem"], \
-                     ["setu\+.*",            "indef"], \
-                     ["setmes\+.*",          "indef"], \
-                     ["sihuke\+.*",          "dem"], \
-                     ["sina\+.*",            "pers ps2"], \
-                     [" sa\+.*",             "pers ps2"], \
-                     ["sinu_sugune\+.*",     "dem"], \
-                     ["sinu_taoline\+.*",    "dem"], \
-                     ["siuke(ne)?\+.*",      "dem"], \
-                     ["säherdune\+.*",       "dem"], \
-                     ["s.herdune\+.*",       "dem"], \
-                     ["säärane\+.*",         "dem"], \
-                     ["s..rane\+.*",         "dem"], \
-                     ["taoline\+.*",         "dem"], \
-                     ["teie_sugune\+.*",     "dem"], \
-                     ["teie_taoline\+.*",    "dem"], \
-                     ["teine\+.*",           "dem"], \
-                     ["teine_teise\+.*",     "rec"], \
-                     ["teist?_sugune\+.*",   "dem"], \
-                     ["tema\+.*",            "pers ps3"], \
-                     [" ta\+.*",             "pers ps3"], \
-                     ["temake(ne)?\+.*",     "pers ps3"], \
-                     ["tema_sugune\+.*",     "dem"], \
-                     ["tema_taoline\+.*",    "dem"], \
-                     ["too\+.*",             "dem"], \
-                     ["too_sama\+.*",        "dem"], \
-                     ["üks.*",               "dem indef"], \
-                     [".ks.*",               "dem indef"], \
-                     ["ükski.*",             "dem indef"], \
-                     [".kski.*",             "dem indef"], \
-                     ["üks_teise.*",         "rec indef"], \
-                     [".ks_teise.*",         "rec"], \
-]
-
-
-def convert_pronouns(text):
+class PronounRewriter():
     ''' Converts pronouns (analysis lines with '_P_') from Filosoft's mrf to 
         syntactic analyzer's mrf format;
         Uses the set of predefined pronoun conversion rules from _pronConversions;
@@ -471,18 +403,132 @@ def convert_pronouns(text):
         
         Returns the input mrf list, with the lines converted from one format
         to another;
-    ''' 
-    for word, syntax_pps in zip(text.words, text.syntax_pp_2):
-        for syntax_pp in syntax_pps:
-            if syntax_pp.pos == 'P':  # only consider lines containing pronoun analyses
-                root_ec = ''.join((syntax_pp.root, '+', syntax_pp.ending, syntax_pp.clitic))
-                for pattern, pron_type in _pronConversions:
+    '''
+    # ma, sa, ta ei lähe kunagi mängu, sest ma -> mina, sa -> sina, ta-> tema
+    _pronConversions = [ ["emb\+.*",             "det"], \
+                         ["enda\+.*",            "pos refl"], \
+                         ["enese\+.*",           "pos refl"], \
+                         ["eikeegi.*",           "indef"], \
+                         ["eimiski.*",           "indef"], \
+                         ["emb-kumb.*",          "det"], \
+                         ["esimene.*",           "dem"], \
+                         ["iga\+.*",             "det"], \
+                         ["iga_sugune.*",        "indef"], \
+                         ["iga_.ks\+.*",         "det"], \
+                         ["ise\+.*",             "pos det refl"], \
+                         ["ise_enese.*",         "refl"], \
+                         ["ise_sugune.*",        "dem"], \
+                         ["keegi.*",             "indef"], \
+                         ["kes.*",               "inter rel"], \
+                         ["kumb\+.*",            "rel"], \
+                         ["kumbki.*",            "det"], \
+                         ["kõik.*",              "det"], \
+                         ["k.ik.*",              "det"], \
+                         ["meie_sugune.*",       "dem"], \
+                         ["meie_taoline.*",      "dem"], \
+                         ["mihuke\+.*",          "inter rel"], \
+                         ["mihukene\+.*",        "inter rel"], \
+                         ["mille_taoline.*",     "dem"], \
+                         ["milli=?ne.*",         "rel"], \
+                         ["mina\+.*",            "pers ps1"], \
+                         [" ma\+.*",             "pers ps1"], \
+                         ["mina=?kene\+.*",      "dem"], \
+                         ["mina=?ke\+.*",        "dem"], \
+                         ["mingi\+.*",           "indef"], \
+                         ["mingi_sugune.*",      "indef"], \
+                         ["minu_sugune.*",       "dem"], \
+                         ["minu_taoline.*",      "dem"], \
+                         ["miski.*",             "indef"], \
+                         ["mis\+.*",             "inter rel"], \
+                         ["mis_sugune.*",        "inter rel"], \
+                         ["miski\+.*",           "inter rel"], \
+                         ["miski_sugune.*",      "inter rel"], \
+                         ["misu=?ke(ne)?\+.*",   "dem"], \
+                         ["mitme_sugune.*",      "indef"], \
+                         ["mitme_taoline.*",     "indef"], \
+                         ["mitmendik\+.*",       "inter rel"], \
+                         ["mitmes\+.*",          "inter rel indef"], \
+                         ["mi=?tu.*",            "indef"], \
+                         ["miuke(ne)?\+.*",      "inter rel"], \
+                         ["muist\+.*",           "indef"], \
+                         ["muu.*",               "indef"], \
+                         ["m.lema.*",            "det"], \
+                         ["m.ne_sugune\+.*",     "indef"], \
+                         ["m.ni\+.*",            "indef"], \
+                         ["m.ningane\+.*",       "indef"], \
+                         ["m.ningas.*",          "indef"], \
+                         ["m.herdune\+.*",       "indef rel"], \
+                         ["määntne\+.*",         "dem"], \
+                         ["na_sugune.*",         "dem"], \
+                         ["nende_sugune.*",      "dem"], \
+                         ["nende_taoline.*",     "dem"], \
+                         ["nihuke(ne)?\+.*",     "dem"], \
+                         ["nii_mi=?tu\+.*",      "indef inter rel"], \
+                         ["nii_sugune.*",        "dem"], \
+                         ["niisama_sugune.*",    "dem"], \
+                         ["nii?su=?ke(ne)?\+.*", "dem"], \
+                         ["niuke(ne)?\+.*",      "dem"], \
+                         ["oma\+.*",             "pos det refl"], \
+                         ["oma_enese\+.*",       "pos"], \
+                         ["oma_sugune\+.*",      "dem"], \
+                         ["oma_taoline\+.*",     "dem"], \
+                         ["palju.*",             "indef"], \
+                         ["sama\+.*",            "dem"], \
+                         ["sama_sugune\+.*",     "dem"], \
+                         ["sama_taoline\+.*",    "dem"], \
+                         ["samune\+.*",          "dem"], \
+                         ["see\+.*",             "dem"], \
+                         ["see_sama\+.*",        "dem"], \
+                         ["see_sam[au]ne\+.*",   "dem"], \
+                         ["see_sinane\+.*",      "dem"], \
+                         ["see_sugune\+.*",      "dem"], \
+                         ["selle_taoline\+.*",   "dem"], \
+                         ["selli=?ne\+.*",       "dem"], \
+                         ["setu\+.*",            "indef"], \
+                         ["setmes\+.*",          "indef"], \
+                         ["sihuke\+.*",          "dem"], \
+                         ["sina\+.*",            "pers ps2"], \
+                         [" sa\+.*",             "pers ps2"], \
+                         ["sinu_sugune\+.*",     "dem"], \
+                         ["sinu_taoline\+.*",    "dem"], \
+                         ["siuke(ne)?\+.*",      "dem"], \
+                         ["säherdune\+.*",       "dem"], \
+                         ["s.herdune\+.*",       "dem"], \
+                         ["säärane\+.*",         "dem"], \
+                         ["s..rane\+.*",         "dem"], \
+                         ["taoline\+.*",         "dem"], \
+                         ["teie_sugune\+.*",     "dem"], \
+                         ["teie_taoline\+.*",    "dem"], \
+                         ["teine\+.*",           "dem"], \
+                         ["teine_teise\+.*",     "rec"], \
+                         ["teist?_sugune\+.*",   "dem"], \
+                         ["tema\+.*",            "pers ps3"], \
+                         [" ta\+.*",             "pers ps3"], \
+                         ["temake(ne)?\+.*",     "pers ps3"], \
+                         ["tema_sugune\+.*",     "dem"], \
+                         ["tema_taoline\+.*",    "dem"], \
+                         ["too\+.*",             "dem"], \
+                         ["too_sama\+.*",        "dem"], \
+                         ["üks.*",               "dem indef"], \
+                         [".ks.*",               "dem indef"], \
+                         ["ükski.*",             "dem indef"], \
+                         [".kski.*",             "dem indef"], \
+                         ["üks_teise.*",         "rec indef"], \
+                         [".ks_teise.*",         "rec"], \
+    ]
+    
+    def rewrite(self, record):
+        result = []
+        for rec in record:
+            if rec['pos'] == 'P':  # only consider lines containing pronoun analyses
+                root_ec = ''.join((rec['root'], '+', rec['ending'], rec['clitic']))
+                for pattern, pron_type in self._pronConversions:
                     if re.search(pattern, root_ec):
                         # kas search või match? "enese" vs "iseenese"
-                        syntax_pp.pronoun_type = pron_type
-                        break    
-    return text
-
+                        rec['pronoun_type'] = pron_type
+                        break
+            result.append(rec)
+        return result
 
 
 # ==================================================================================
@@ -493,7 +539,7 @@ def convert_pronouns(text):
 # ==================================================================================
 # ==================================================================================
 
-def remove_duplicate_analyses(text, allow_to_delete_all=True):
+class RemoveDuplicateAnalysesRewriter():
     ''' Removes duplicate analysis lines from mrf_lines. 
         
         Uses special logic for handling adposition analyses ('_K_ pre' && '_K_ post')
@@ -511,15 +557,18 @@ def remove_duplicate_analyses(text, allow_to_delete_all=True):
         (and this is also the default value of the parameter);
         
         Returns the input list where the removals have been applied;
-    ''' 
-    for word, syntax_pps in zip(text.words, text.syntax_pp_2):
+    '''     
+    def __init__(self, allow_to_delete_all=True):
+        self.allow_to_delete_all = allow_to_delete_all
+
+    def rewrite(self, record):
         seen_analyses  = []
         to_delete      = []
         Kpre_index     = -1
         Kpost_index    = -1
-        for i, syntax_pp in enumerate(syntax_pps):
+        for i, rec in enumerate(record):
             #analysis = (syntax_pp.root, syntax_pp.ending, syntax_pp.clitic, syntax_pp.pos, syntax_pp.form_list)
-            analysis = (syntax_pp.root, syntax_pp.ending, syntax_pp.clitic, syntax_pp.pos, syntax_pp.initial_form)
+            analysis = (rec['root'], rec['ending'], rec['clitic'], rec['pos'], rec['initial_form'])
             if analysis in seen_analyses:
                 # Remember line that has been already seen as a duplicate
                 to_delete.append(i)
@@ -544,12 +593,13 @@ def remove_duplicate_analyses(text, allow_to_delete_all=True):
             # If we must preserve at least one analysis, and
             # it has been found that all should be deleted, then 
             # keep the last one
-            if not allow_to_delete_all and len(syntax_pps) < 2:
+            if not self.allow_to_delete_all and len(record) < 2:
                 continue
             # Delete the analysis line
             #syntax_pps.items.pop(j)
-            del syntax_pps.spans[j]
-    return text
+            del record[j]
+
+        return record
 
 
 # ==================================================================================
@@ -559,56 +609,69 @@ def remove_duplicate_analyses(text, allow_to_delete_all=True):
 # ==================================================================================
 # ==================================================================================
 
-# Information about verb finite forms
-_morfFinV        = re.compile('//\s*(_V_).*\s+(ps.|neg|quot|impf imps|pres imps)\s')
-_morfNotFinV     = re.compile('//\s*(_V_)\s+(aux neg)\s+//')
-#_morfFinV_new    = re.compile('(ps.|neg|quot|impf imps|pres imps)')
-#_morfNotFinV_new = re.compile('^(aux neg)$')
 
-# Various information about word endings
-_mrfHashTagConversions = [ ["=[td]ud",   "partic <tud>"], \
-                           ["=nud",      "partic <nud>"], \
-                           ["=mine",     "<mine>"], \
-                           ["=nu$",      "<nu>"], \
-                           ["=[td]u$",   "<tu>"], \
-                           ["=v$",       "partic <v>"], \
-                           ["=[td]av",   "partic <tav>"], \
-                           ["=mata",     "partic <mata>"], \
-                           ["=ja",       "<ja>"], \
-]
-
-
-def add_hashtag_info(text):
-    ''' Augments analysis lines with various hashtag information:
-          *) marks words with capital beginning with #cap;
-          *) marks finite verbs with #FinV;
-          *) marks nud/tud/mine/nu/tu/v/tav/mata/ja forms;
-        Hashtags are added at the end of the analysis content (just before the 
-        last '//');
-
-        Returns the input list where the augmentation has been applied;
-    ''' 
-    for word, syntax_pps in zip(text.words, text.syntax_pp_2):
-        cap = _esc_double_quotes(word.text)[0].isupper()
-        for syntax_pp in syntax_pps:
-            syntax_pp.letter_case = None
+class LetterCaseRewriter():
+    ''' Marks words with capital beginning with #cap.
+    '''
+    def rewrite(self, record):
+        result = []
+        for rec in record:
+            # cap võib for alt välja tõsta
+            cap = _esc_double_quotes(rec['word_text'][0]).isupper()
             if cap:
-                syntax_pp.letter_case = 'cap'
+                rec['letter_case'] = 'cap'
+            else:
+                rec['letter_case'] = None
+            result.append(rec)
+        return result
 
-            syntax_pp.fin = None
-            if syntax_pp.pos == 'V':
-                line = '//_V_ ' + ' '.join(syntax_pp.form_list)+' //'
-                if _morfFinV.search( line ) and not _morfNotFinV.search( line ):
-                    syntax_pp.form_list.append('<FinV>')
-                    syntax_pp.fin = '<FinV>'
 
-            syntax_pp.partic = None
-            for pattern, value in _mrfHashTagConversions:
-                if re.search(pattern, syntax_pp.root):
-                    syntax_pp.form_list.append(value)
-                    syntax_pp.partic = value
+class FiniteFormRewriter():
+    ''' Marks finite verbs with #FinV.
+    '''
+    # Information about verb finite forms
+    _morfFinV        = re.compile('//\s*(_V_).*\s+(ps.|neg|quot|impf imps|pres imps)\s')
+    _morfNotFinV     = re.compile('//\s*(_V_)\s+(aux neg)\s+//')
+
+    def rewrite(self, record):
+        result = []
+        for rec in record:
+            rec['fin'] = None
+            if rec['pos'] == 'V':
+                line = '//_V_ ' + ' '.join(rec['form_list'])+' //'
+                if self._morfFinV.search(line) and not self._morfNotFinV.search(line):
+                    rec['form_list'].append('<FinV>')
+                    rec['fin'] = '<FinV>'
+            result.append(rec)
+        return result
+
+
+class ParticRewriter():
+    ''' Marks nud/tud/mine/nu/tu/v/tav/mata/ja forms.
+    '''
+    # Various information about word endings
+    _mrfHashTagConversions = [ ["=[td]ud",   "partic <tud>"], \
+                               ["=nud",      "partic <nud>"], \
+                               ["=mine",     "<mine>"], \
+                               ["=nu$",      "<nu>"], \
+                               ["=[td]u$",   "<tu>"], \
+                               ["=v$",       "partic <v>"], \
+                               ["=[td]av",   "partic <tav>"], \
+                               ["=mata",     "partic <mata>"], \
+                               ["=ja",       "<ja>"], \
+    ]
+    
+    def rewrite(self, record):
+        result = []
+        for rec in record:
+            rec['partic'] = None
+            for pattern, value in self._mrfHashTagConversions:
+                if re.search(pattern, rec['root']):
+                    rec['form_list'].append(value)
+                    rec['partic'] = value
                     break
-    return text
+            result.append(rec)
+        return result
 
 
 # ==================================================================================
@@ -663,6 +726,7 @@ def load_subcat_info(subcat_lex_file):
         elif nonSpacePattern.match(line):
             root = line
     in_f.close()
+
     #print( len(rules.keys()) )   # 4484
     return rules
 
@@ -731,8 +795,8 @@ class SubcatTagger():
 
     def tag(self, text):        
         text['syntax_pp_3'] = text['syntax_pp_2'].rewrite(
-            source_attributes = ['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case' , 'form_list', 'initial_form', 'fin'],
-            target_attributes = ['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case' ,              'initial_form', 'fin', 'abileksikon'],
+            source_attributes = ['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case' , 'form_list', 'initial_form', 'fin', 'letter_case'],
+            target_attributes = ['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case' ,              'initial_form', 'fin', 'letter_case', 'abileksikon'],
             rules = self.rules,
             name = 'syntax_pp_3',
             ambiguous = True
@@ -784,7 +848,7 @@ def convert_to_cg3_input(text):
         for word in sentence.words:
             word_index += 1
             morph_lines.append('"<'+_esc_double_quotes(word.text)+'>"')
-            for syntax_pp in text.syntax_pp_3[word_index]:# word.syntax_pp_3:
+            for syntax_pp in text.syntax_pp[word_index]:# word.syntax_pp_3:
                 new_form_list = []
                 if syntax_pp.pronoun_type:
                     new_form_list.append(syntax_pp.pronoun_type)
@@ -855,31 +919,6 @@ def convert_to_cg3_input(text):
         morph_lines.append('"</s>"')
 
     return text, morph_lines
-
-
-def apply_regex(layer, attribute, rules):
-    ''' Applies regex to layer attribute.
-    '''
-    for word_data in layer:
-        for layer in word_data:
-            line = getattr(layer, attribute)
-            for rule in rules:
-                line = re.sub(*rule, line)
-            setattr(layer, attribute, line)
-
-    rules = (('#cap #cap','cap'),
-             #('#cap','cap'),
-             ('\*\*CLB','CLB'),
-             ('#Correct!','<Correct!>'),
-             ('####',''),
-             ('#(\S+)','<\\1>'),
-             ('\$([,.;!?:<]+)','\\1'),
-             ('_Y_\s+\? _Z_','_Z_'),
-             ('_Y_\s+\?\s+_Z_','_Z_'),
-             ('_Y_\s+_Z_','_Z_'),
-             ('_Z_\s+\?','_Z_'),
-             ('^\s+(\S+)(.*)\+(\S+)\s*//_(\S)_ (.*)//(.*)$', '    "\\1\\2" L\\3 \\4 \\5 \\6'),
-             ('^\s+(\S+)(.*)\s+//_(\S)_ (.*)//(.*)$', '    "\\1\\2" \\3 \\4 \\5'))
 
 
 # ==================================================================================
@@ -983,29 +1022,25 @@ class SyntaxPreprocessing:
         ''' Executes the preprocessing pipeline on estnltk's Text object.
 
             Returns a list: lines of analyses in the VISL CG3 input format;
-        ''' 
-        text = convert_Text_to_mrf( text )
-        return self.process_mrf_lines(text, **kwargs )
-
-
-    def process_mrf_lines(self, text, **kwargs):
-        ''' Executes the preprocessing pipeline on mrf_lines.
+            Executes the preprocessing pipeline on mrf_lines.
 
             The input should be an analysis of the text in Filosoft's old mrf format;
 
             Returns the input list, where elements (tokens/analyses) have been converted
             into the new format;
         '''
-        print('c', end='', flush=True)
-        text = convert_mrf_to_syntax_mrf(text, self.fs_to_synt_rules)
-        print('p', end='', flush=True)
-        text = convert_pronouns(text)
-        print('d', end='', flush=True)
-        text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all)
-        print('h', end='', flush=True)
-        text = add_hashtag_info(text)
-        print('s', end='', flush=True)
-        text = tag_subcat_info(text, self.subcat_rules )
+        super_tagger = SuperTagger(self.fs_to_synt_rules, self.allow_to_remove_all, self.subcat_rules)
+        super_tagger.tag(text)
+        #print('c', end='', flush=True)
+        #text = convert_mrf_to_syntax_mrf(text, self.fs_to_synt_rules)
+        #print('p', end='', flush=True)
+        #text = convert_pronouns(text)
+        #print('d', end='', flush=True)
+        #text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all)
+        #print('h', end='', flush=True)
+        #text = add_hashtag_info(text)
+        #print('s', end='', flush=True)
+        #text = tag_subcat_info(text, self.subcat_rules )
         #print('d', end='', flush=True)
         #text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all) # kas omab efekti?
         print('c ', end='', flush=True)
