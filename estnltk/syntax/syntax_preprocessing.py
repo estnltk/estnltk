@@ -86,22 +86,23 @@ def _esc_que_mark( analysis ):
     return (analysis.replace(' ?', ' #?')).replace(' ?', ' #?')
 
 
-class SuperTagger():
+class MorphExtendedTagger():
 
-    def __init__(self, fs_to_synt_rules, allow_to_remove_all, subcat_rules):
+    def __init__(self, fs_to_synt_rules_file, allow_to_remove_all, subcat_rules_file):
         self.initial_morph_rewriter = InitialMorphRewriter()
-        self.morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules)
-        self.pronoun_rewriter = PronounRewriter()
+        self.punctuation_type_rewriter = PunctuationTypeRewriter()
+        self.morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
+        self.pronoun_type_rewriter = PronounTypeRewriter()
         self.remove_duplicate_analyses_rewriter = RemoveDuplicateAnalysesRewriter(allow_to_remove_all)
         self.letter_case_rewriter = LetterCaseRewriter()
         self.finite_form_rewriter = FiniteFormRewriter()
         self.partic_rewriter = ParticRewriter()
-        self.subcat_rules = SubcatRewriter(subcat_rules)
+        self.subcat_rules = SubcatRewriter(subcat_rules_file)
 
 
     def tag(self, text):
         
-        #syntax_pp = text['morf_analysis']
+        #morph_extended = text['morf_analysis']
 
         dep = Layer(name='syntax_pp_0',
                          parent='words',
@@ -118,73 +119,94 @@ class SuperTagger():
                 m.clitic = analysis.clitic
                 m.partofspeech = analysis.partofspeech
                 m.form = analysis.form
-        syntax_pp = text['syntax_pp_0']
+        morph_extended = text['syntax_pp_0']
 
-        syntax_pp = syntax_pp.rewrite(
+        print('i', end='', flush=True)
+        morph_extended = morph_extended.rewrite(
             source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos',          'form_list'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech',          'form_list'],
             rules = self.initial_morph_rewriter,
-            name = 'syntax_pp',
+            name = 'morph_extended',
             ambiguous = True
             )
 
-        syntax_pp = syntax_pp.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos',                                                               'form_list'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
+        print('z', end='', flush=True)
+        morph_extended = morph_extended.rewrite(
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form_list'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form_list', 'punctuation_type', 'initial_form'],
+            rules = self.punctuation_type_rewriter,
+            name = 'morph_extended',
+            ambiguous = True
+            )
+
+        print('m', end='', flush=True)
+        morph_extended = morph_extended.rewrite(
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form_list', 'punctuation_type', 'initial_form'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form_list', 'punctuation_type', 'initial_form'],
             rules = self.morph_to_syntax_morph_rewriter,
-            name = 'syntax_pp',
+            name = 'morph_extended',
             ambiguous = True
             )
 
-        syntax_pp = syntax_pp.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
-            rules = self.pronoun_rewriter,
-            name = 'syntax_pp',
+        # kasulik
+        print('p', end='', flush=True)
+        morph_extended = morph_extended.rewrite(
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'form_list', 'initial_form'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'form_list', 'initial_form', 'pronoun_type'],
+            rules = self.pronoun_type_rewriter,
+            name = 'morph_extended',
             ambiguous = True
             )
 
-        syntax_pp = syntax_pp.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
+        print('d', end='', flush=True)
+        morph_extended = morph_extended.rewrite(
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
             rules = self.remove_duplicate_analyses_rewriter,
-            name = 'syntax_pp',
+            name = 'morph_extended',
             ambiguous = True
             )
 
-        syntax_pp = syntax_pp.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case'],
+        print('c', end='', flush=True)
+        morph_extended = morph_extended.rewrite(
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case'],
             rules = self.letter_case_rewriter,
-            name = 'syntax_pp',
+            name = 'morph_extended',
             ambiguous = True
             )
 
-        syntax_pp = syntax_pp.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin'],
+        # kasulik
+        print('f', end='', flush=True)
+        morph_extended = morph_extended.rewrite(
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin'],
             rules = self.finite_form_rewriter,
-            name = 'syntax_pp',
+            name = 'morph_extended',
             ambiguous = True
             )
 
-        syntax_pp = syntax_pp.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin', 'partic'],
+        # kasulik
+        print('p', end='', flush=True)
+        morph_extended = morph_extended.rewrite(
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin', 'partic'],
             rules = self.partic_rewriter,
-            name = 'syntax_pp',
+            name = 'morph_extended',
             ambiguous = True
             )
 
-        syntax_pp = syntax_pp.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin', 'partic'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin', 'partic', 'abileksikon'],
+        # kasulik
+        print('s', end='', flush=True)
+        morph_extended = morph_extended.rewrite(
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin', 'partic'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type',              'initial_form', 'letter_case', 'fin', 'partic', 'abileksikon'],
             rules = self.subcat_rules,
-            name = 'syntax_pp',
+            name = 'morph_extended',
             ambiguous = True
             )
 
-        text['syntax_pp'] = syntax_pp
+        text['morph_extended'] = morph_extended
 
 
 # ==================================================================================
@@ -207,7 +229,6 @@ class InitialMorphRewriter():
         result = []
         for rec in record:
             rec['root'] = _esc_double_quotes(rec['root'])
-            rec['pos'] = rec['partofspeech']
             rec['form_list'] = []
             for _form in rec['form'].split(',')[::-1]:
                 #kas form.split(',')==[form] sageli või alati?
@@ -226,86 +247,12 @@ class InitialMorphRewriter():
 # ==================================================================================
 # ==================================================================================
 
-def load_fs_mrf_to_syntax_mrf_translation_rules(fs_to_synt_rules_file):
-    ''' Loads rules that can be used to convert from Filosoft's mrf format to
-        syntactic analyzer's format. Returns a dict containing rules.
-
-        Expects that each line in the input file contains a single rule, and that
-        different parts of the rule are separated by @ symbols, e.g.
-
-            1@_S_ ?@Substantiiv apellatiiv@_S_ com @Noun common@Nc@NCSX@kesk-
-            32@_H_ ?@Substantiiv prooprium@_S_ prop @Noun proper@Np@NPCSX@Kesk-
-            313@_A_@Adjektiiv positiiv@_A_ pos@Adjective positive@A-p@ASX@salkus
-
-        Only the 2nd element and the 4th element are extracted from each line.
-        Both are treated as a pair of strings. The 2nd element will be the key
-        of the dict entry, and 4th element will be added to the value of the
-        dict entry:
-        {('S', '?'): [('S', 'com ')],
-         ('H', '?'): [('S', 'prop ')],
-         ('A', ''): [('A', 'pos')]
-        }
-
-        A list is used for storing values because one Filosoft's analysis could
-        be mapped to multiple syntactic analyzer's analyses;
-
-        Lines that have ¤ in the beginning of the line will be skipped;
-    '''
-    rules = defaultdict(list)
-    rules_pattern = re.compile('(¤?)[^@]*@(_(.)_\s*([^@]*)|####)@[^@]*@_(.)_\s*([^@]*)')
-    in_f = codecs.open(fs_to_synt_rules_file, mode='r', encoding='utf-8')
-    for line in in_f:
-        m = rules_pattern.match(line)
-        if m == None:
-            raise Exception(' Unexpected format of the line: ', line)
-        if m.group(1): #line starts with '¤'
-            continue
-        rules[(m.group(3), m.group(4))].append((m.group(5), m.group(6)))
-        # siin tekib korduvaid reegleid, mille võiks siinsamas välja filtreerida
-        # näiteks P, sg n -> P, sg nom
-        # ja kasutuid reegleid Z, '' -> Z, Fst
-        # võiks olla ka m.group(6).strip()
-    in_f.close()
-    for key, value in rules.items():
-        # eelmise versiooniga ühildumise jaoks
-        rules[key] = tuple(value[::-1])
-    return rules
-
-
-# ================================================
     
 _punctOrAbbrev = re.compile('//\s*_[ZY]_')
 
 
-_punctConversions = [ 
-                      ["…$",      "Ell"],
-                      ["\.\.\.$", "Ell"],
-                      ["\.\.$",   "Els"],
-                      ["\.$",     "Fst"],
-                      [",$",      "Com"],
-                      [":$",      "Col"],
-                      [";$",      "Scl"],
-                      ["(\?+)$",  "Int"],
-                      ["(\!+)$",  "Exc"],
-                      ["(---?)$", "Dsd"],
-                      ["(-)$",    "Dsh"],
-                      ["\($",     "Opr"],
-                      ["\)$",     "Cpr"],
-                      ['\\\\"$',  "Quo"],
-                      ["«$",      "Oqu"],
-                      ["»$",      "Cqu"],
-                      ["“$",      "Oqu"],
-                      ["”$",      "Cqu"],
-                      ["<$",      "Grt"],
-                      [">$",      "Sml"],
-                      ["\[$",     "Osq"],
-                      ["\]$",     "Csq"],
-                      ["/$",      "Sla"],
-                      ["\+$",     "crd"]
-]# double quotes are escaped by \
 
-
-def _get_punctuation_type(syntax_pp):
+class PunctuationTypeRewriter():
     ''' Converts given analysis line if it describes punctuation; Uses the set 
         of predefined punctuation conversion rules from _punctConversions;
         
@@ -317,12 +264,62 @@ def _get_punctuation_type(syntax_pp):
         Returns the converted line (same as input, if no conversion was 
         performed);
     ''' 
-    for pattern, punct_type in _punctConversions:
-        if re.search(pattern, syntax_pp['root']):
-            # kas match või search?     "//", ".-"
-            # või hoopis pattern==syntax_pp.root?
-            # praegu on search, sest see klapib eelmise versiooniga
-            return punct_type
+
+    def rewrite(self, record):
+        result = []
+        for rec in record:
+            if rec['partofspeech'] == 'Z':
+                punct_type = self._get_punctuation_type(rec)
+                rec['punctuation_type'] = punct_type
+                if punct_type:
+                    rec['form_list'] = [punct_type]
+                    rec['initial_form'] = [punct_type]
+                else:
+                    rec['form_list'] = []
+                    rec['initial_form'] = []
+            else:
+                rec['punctuation_type'] = None
+                rec['initial_form'] = []
+            result.append(rec)
+            #print(rec)
+        return result
+
+    _punctConversions = [ 
+                          ["…$",      "Ell"],
+                          ["\.\.\.$", "Ell"],
+                          ["\.\.$",   "Els"],
+                          ["\.$",     "Fst"],
+                          [",$",      "Com"],
+                          [":$",      "Col"],
+                          [";$",      "Scl"],
+                          ["(\?+)$",  "Int"],
+                          ["(\!+)$",  "Exc"],
+                          ["(---?)$", "Dsd"],
+                          ["(-)$",    "Dsh"],
+                          ["\($",     "Opr"],
+                          ["\)$",     "Cpr"],
+                          ['\\\\"$',  "Quo"],
+                          ["«$",      "Oqu"],
+                          ["»$",      "Cqu"],
+                          ["“$",      "Oqu"],
+                          ["”$",      "Cqu"],
+                          ["<$",      "Grt"],
+                          [">$",      "Sml"],
+                          ["\[$",     "Osq"],
+                          ["\]$",     "Csq"],
+                          ["/$",      "Sla"],
+                          ["\+$",     "crd"]
+    ]# double quotes are escaped by \
+    # puudu '‹'
+
+    def _get_punctuation_type(self, morph_extended):
+        for pattern, punct_type in self._punctConversions:
+            if re.search(pattern, morph_extended['root']):
+                # kas match või search?     "//", ".-"
+                # või hoopis pattern==morph_extended.root?
+                # praegu on search, sest see klapib eelmise versiooniga
+                return punct_type
+
 
 
 class MorphToSyntaxMorphRewriter():
@@ -341,22 +338,23 @@ class MorphToSyntaxMorphRewriter():
         original Filosoft's analysis is expanded into multiple analyses
         suitable for the syntactic analyzer;
     '''    
-    def __init__(self, fs_to_synt_rules):
-        self.fs_to_synt_rules = fs_to_synt_rules
+    def __init__(self, fs_to_synt_rules_file):
+        self.fs_to_synt_rules = \
+            self.load_fs_mrf_to_syntax_mrf_translation_rules(fs_to_synt_rules_file)
+
     
     def rewrite(self, record):
         result = []
         for rec in record:
-            pos = rec['pos']
+            pos = rec['partofspeech']
             form_list = rec['form_list'][:]#kas siin on koopiat vaja?
             # 1) Convert punctuation
             if pos == 'Z':
-                rec['punctuation_type'] = _get_punctuation_type(rec)
-                rec['pronoun_type'] = None
-                rec['form_list'] = [rec['punctuation_type']]
-                rec['initial_form'] = [rec['punctuation_type']]
-                #if rec['root'] == '.':
-                #    print(rec)
+                pass
+                #rec['punctuation_type'] = _get_punctuation_type(rec)
+                #rec['pronoun_type'] = None
+                #rec['form_list'] = [rec['punctuation_type']]
+                #rec['initial_form'] = [rec['punctuation_type']]
                 result.append(rec)
             else:
                 if pos == 'Y':
@@ -365,24 +363,66 @@ class MorphToSyntaxMorphRewriter():
                     pass
 
             # 2) Convert morphological analyses that have a form specified
-                if not form_list:
-                    # võiks if ja else ära vahetada ja not'ist lahti saada
-                    morphKeys = [(pos, '')]
-                else:
+                if form_list:                    # võiks if ja else ära vahetada ja not'ist lahti saada
                     morphKeys = [(pos, _form) for _form in form_list]#kas form.split(',')==[form] sageli või alati?
+                else:
+                    morphKeys = [(pos, '')]
                 for morphKey in morphKeys: # tsüklit pole vaja, kui alati len(form_list)==1
                     for pos, form in self.fs_to_synt_rules[morphKey]:
                         if form == '':
                             rec['form_list'] = []
                         else:
                             rec['form_list'] = [_esc_que_mark(form).strip()]
-                        rec['pos'] = pos
-                        rec['punctuation_type'] = None
-                        rec['pronoun_type'] = None
+                        rec['partofspeech'] = pos
                         rec['initial_form'] = rec['form_list'][:]
                         result.append(rec.copy())
         return result
 
+
+    def load_fs_mrf_to_syntax_mrf_translation_rules(self, fs_to_synt_rules_file):
+        ''' Loads rules that can be used to convert from Filosoft's mrf format to
+            syntactic analyzer's format. Returns a dict containing rules.
+    
+            Expects that each line in the input file contains a single rule, and that
+            different parts of the rule are separated by @ symbols, e.g.
+    
+                1@_S_ ?@Substantiiv apellatiiv@_S_ com @Noun common@Nc@NCSX@kesk-
+                32@_H_ ?@Substantiiv prooprium@_S_ prop @Noun proper@Np@NPCSX@Kesk-
+                313@_A_@Adjektiiv positiiv@_A_ pos@Adjective positive@A-p@ASX@salkus
+    
+            Only the 2nd element and the 4th element are extracted from each line.
+            Both are treated as a pair of strings. The 2nd element will be the key
+            of the dict entry, and 4th element will be added to the value of the
+            dict entry:
+            {('S', '?'): [('S', 'com ')],
+             ('H', '?'): [('S', 'prop ')],
+             ('A', ''): [('A', 'pos')]
+            }
+    
+            A list is used for storing values because one Filosoft's analysis could
+            be mapped to multiple syntactic analyzer's analyses;
+    
+            Lines that have ¤ in the beginning of the line will be skipped;
+        '''
+        rules = defaultdict(list)
+        rules_pattern = re.compile('(¤?)[^@]*@(_(.)_\s*([^@]*)|####)@[^@]*@_(.)_\s*([^@]*)')
+        in_f = codecs.open(fs_to_synt_rules_file, mode='r', encoding='utf-8')
+        for line in in_f:
+            m = rules_pattern.match(line)
+            if m == None:
+                raise Exception(' Unexpected format of the line: ', line)
+            if m.group(1): #line starts with '¤'
+                continue
+            rules[(m.group(3), m.group(4))].append((m.group(5), m.group(6)))
+            # siin tekib korduvaid reegleid, mille võiks siinsamas välja filtreerida
+            # näiteks P, sg n -> P, sg nom
+            # ja kasutuid reegleid Z, '' -> Z, Fst
+            # võiks olla ka m.group(6).strip()
+        in_f.close()
+        for key, value in rules.items():
+            # eelmise versiooniga ühildumise jaoks
+            rules[key] = tuple(value[::-1])
+        return rules
 
 # ==================================================================================
 # ==================================================================================
@@ -391,7 +431,7 @@ class MorphToSyntaxMorphRewriter():
 # ==================================================================================
 # ==================================================================================
 
-class PronounRewriter():
+class PronounTypeRewriter():
     ''' Converts pronouns (analysis lines with '_P_') from Filosoft's mrf to 
         syntactic analyzer's mrf format;
         Uses the set of predefined pronoun conversion rules from _pronConversions;
@@ -520,7 +560,8 @@ class PronounRewriter():
     def rewrite(self, record):
         result = []
         for rec in record:
-            if rec['pos'] == 'P':  # only consider lines containing pronoun analyses
+            rec['pronoun_type'] = None
+            if rec['partofspeech'] == 'P':  # only consider lines containing pronoun analyses
                 root_ec = ''.join((rec['root'], '+', rec['ending'], rec['clitic']))
                 for pattern, pron_type in self._pronConversions:
                     if re.search(pattern, root_ec):
@@ -567,8 +608,8 @@ class RemoveDuplicateAnalysesRewriter():
         Kpre_index     = -1
         Kpost_index    = -1
         for i, rec in enumerate(record):
-            #analysis = (syntax_pp.root, syntax_pp.ending, syntax_pp.clitic, syntax_pp.pos, syntax_pp.form_list)
-            analysis = (rec['root'], rec['ending'], rec['clitic'], rec['pos'], rec['initial_form'])
+            #analysis = (morph_extended.root, morph_extended.ending, morph_extended.clitic, morph_extended.partofspeech, morph_extended.form_list)
+            analysis = (rec['root'], rec['ending'], rec['clitic'], rec['partofspeech'], rec['initial_form'])
             if analysis in seen_analyses:
                 # Remember line that has been already seen as a duplicate
                 to_delete.append(i)
@@ -611,7 +652,7 @@ class RemoveDuplicateAnalysesRewriter():
 
 
 class LetterCaseRewriter():
-    ''' Marks words with capital beginning with #cap.
+    ''' Marks words with capital beginning with 'cap'.
     '''
     def rewrite(self, record):
         result = []
@@ -637,7 +678,7 @@ class FiniteFormRewriter():
         result = []
         for rec in record:
             rec['fin'] = None
-            if rec['pos'] == 'V':
+            if rec['partofspeech'] == 'V':
                 line = '//_V_ ' + ' '.join(rec['form_list'])+' //'
                 if self._morfFinV.search(line) and not self._morfNotFinV.search(line):
                     rec['form_list'].append('<FinV>')
@@ -650,15 +691,15 @@ class ParticRewriter():
     ''' Marks nud/tud/mine/nu/tu/v/tav/mata/ja forms.
     '''
     # Various information about word endings
-    _mrfHashTagConversions = [ ["=[td]ud",   "partic <tud>"], \
-                               ["=nud",      "partic <nud>"], \
-                               ["=mine",     "<mine>"], \
-                               ["=nu$",      "<nu>"], \
-                               ["=[td]u$",   "<tu>"], \
-                               ["=v$",       "partic <v>"], \
-                               ["=[td]av",   "partic <tav>"], \
-                               ["=mata",     "partic <mata>"], \
-                               ["=ja",       "<ja>"], \
+    _mrfHashTagConversions = [ ["=[td]ud",   "partic <tud>"],
+                               ["=nud",      "partic <nud>"],
+                               ["=mine",     "<mine>"],
+                               ["=nu$",      "<nu>"],
+                               ["=[td]u$",   "<tu>"],
+                               ["=v$",       "partic <v>"],
+                               ["=[td]av",   "partic <tav>"],
+                               ["=mata",     "partic <mata>"],
+                               ["=ja",       "<ja>"]
     ]
     
     def rewrite(self, record):
@@ -681,54 +722,6 @@ class ParticRewriter():
 # ==================================================================================
 # ==================================================================================
 
-def load_subcat_info(subcat_lex_file):
-    ''' Loads subcategorization rules (for verbs and adpositions) from a text 
-        file. 
-        
-        It is expected that the rules are given as pairs, where the first item is 
-        the lemma (of verb/adposition), followed on the next line by the 
-        subcategorization rule, in the following form: 
-           on the left side of '>' is the condition (POS-tag requirement for the 
-           lemma), 
-         and 
-           on the right side is the listing of subcategorization settings (hashtag 
-           items, e.g. names of morphological cases of nominals);
-        If there are multiple subcategorization rules to be associated with a
-        single lemma, different rules are separated by '&'.
-        
-        Example, an excerpt from the rules file:
-          läbi
-          _V_ >#Part &_K_ post >#gen |#nom |#el &_K_ pre >#gen 
-          läbista
-          _V_ >#NGP-P 
-          läbistu
-          _V_ >#Intr 
-
-        Returns a dict of root to a-list-of-subcatrules mappings.
-    '''
-    rules = defaultdict(list)
-    nonSpacePattern = re.compile('^\S+$')
-    posTagPattern   = re.compile('_._')
-    in_f = codecs.open(subcat_lex_file, mode='r', encoding='utf-8')
-    root = None
-    subcatRules = None
-    for line in in_f:
-        # seda võib kirjutada lihtsamaks, kui võib eeldada, et faili vormaat on range
-        line = line.rstrip()
-        if posTagPattern.search(line) and root:
-            subcatRules = line
-            parts = subcatRules.split('&')
-            for part in parts:
-                part = part.strip()
-                rules[root].append(part)
-            root = None
-            subcatRules = None
-        elif nonSpacePattern.match(line):
-            root = line
-    in_f.close()
-
-    #print( len(rules.keys()) )   # 4484
-    return rules
 
 
 analysisLemmaPat = re.compile('^\s+([^+ ]+)\+')
@@ -736,9 +729,21 @@ analysisPat      = re.compile('//([^/]+)//')
 
 
 class SubcatRewriter():
-    
-    def __init__(self, subcat_rules):
-        self.subcat_rules = subcat_rules
+    ''' Adds subcategorization information (hashtags) to verbs and adpositions;
+        
+        Argument subcat_rules must be a dict containing subcategorization information,
+        loaded via method load_subcat_info();
+
+        Performs word lemma lookups in subcat_rules, and in case of a match, checks 
+        word part-of-speech conditions. If the POS conditions match, adds subcategorization
+        information either to a single analysis line, or to multiple analysis lines 
+        (depending on the exact conditions in the rule);
+
+        Returns the input list where verb/adposition analyses have been augmented 
+        with available subcategorization information;
+    '''
+    def __init__(self, subcat_rules_file):
+        self.subcat_rules = self.load_subcat_info(subcat_rules_file)
 
     def rewrite(self, record):
         result = []
@@ -749,10 +754,10 @@ class SubcatRewriter():
             # Find whether there is subcategorization info associated 
             # with the root
             if root in self.subcat_rules:
-                #analysis = ['_'+syntax_pp.pos+'_'] + syntax_pp.form_list
-                #analysis = {'_'+syntax_pp.pos+'_', syntax_pp.punctuation_type, syntax_pp.pronoun_type, syntax_pp.partic, syntax_pp.letter_case, *syntax_pp.initial_form, syntax_pp.fin}
+                #analysis = ['_'+morph_extended.partofspeech+'_'] + morph_extended.form_list
+                #analysis = {'_'+morph_extended.partofspeech+'_', morph_extended.punctuation_type, morph_extended.pronoun_type, morph_extended.partic, morph_extended.letter_case, *morph_extended.initial_form, morph_extended.fin}
                 # kas eelneva asemel piisab järgnevast?
-                analysis = {'_'+rec['pos']+'_'}
+                analysis = {'_'+rec['partofspeech']+'_'}
                 analysis.update(rec['initial_form'])
     
                 for rule in self.subcat_rules[root]:
@@ -778,7 +783,7 @@ class SubcatRewriter():
                                 if not item in rec['form_list']:
                                     abileksikon.append(item)
                             rec['abileksikon'] = abileksikon
-                            result.append(rec)
+                            result.append(rec.copy())
                             match = True
                         # No need to search forward
                         break
@@ -787,39 +792,54 @@ class SubcatRewriter():
                 result.append(rec)
         return result
 
-
-class SubcatTagger():
-
-    def __init__(self, subcat_rules):
-        self.rules = SubcatRewriter(subcat_rules)
-
-    def tag(self, text):        
-        text['syntax_pp_3'] = text['syntax_pp_2'].rewrite(
-            source_attributes = ['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case' , 'form_list', 'initial_form', 'fin', 'letter_case'],
-            target_attributes = ['root', 'ending', 'clitic', 'pos', 'punctuation_type', 'pronoun_type', 'partic', 'letter_case' ,              'initial_form', 'fin', 'letter_case', 'abileksikon'],
-            rules = self.rules,
-            name = 'syntax_pp_3',
-            ambiguous = True
-            )
-
-def tag_subcat_info(text, subcat_rules):
-    ''' Adds subcategorization information (hashtags) to verbs and adpositions;
-        
-        Argument subcat_rules must be a dict containing subcategorization information,
-        loaded via method load_subcat_info();
-
-        Performs word lemma lookups in subcat_rules, and in case of a match, checks 
-        word part-of-speech conditions. If the POS conditions match, adds subcategorization
-        information either to a single analysis line, or to multiple analysis lines 
-        (depending on the exact conditions in the rule);
-
-        Returns the input list where verb/adposition analyses have been augmented 
-        with available subcategorization information;
-    ''' 
-    subcat_tagger = SubcatTagger(subcat_rules)
-    subcat_tagger.tag(text)
-    return text
-
+    def load_subcat_info(self, subcat_rules_file):
+        ''' Loads subcategorization rules (for verbs and adpositions) from a text 
+            file. 
+            
+            It is expected that the rules are given as pairs, where the first item is 
+            the lemma (of verb/adposition), followed on the next line by the 
+            subcategorization rule, in the following form: 
+               on the left side of '>' is the condition (POS-tag requirement for the 
+               lemma), 
+             and 
+               on the right side is the listing of subcategorization settings (hashtag 
+               items, e.g. names of morphological cases of nominals);
+            If there are multiple subcategorization rules to be associated with a
+            single lemma, different rules are separated by '&'.
+            
+            Example, an excerpt from the rules file:
+              läbi
+              _V_ >#Part &_K_ post >#gen |#nom |#el &_K_ pre >#gen 
+              läbista
+              _V_ >#NGP-P 
+              läbistu
+              _V_ >#Intr 
+    
+            Returns a dict of root to a-list-of-subcatrules mappings.
+        '''
+        rules = defaultdict(list)
+        nonSpacePattern = re.compile('^\S+$')
+        posTagPattern   = re.compile('_._')
+        in_f = codecs.open(subcat_rules_file, mode='r', encoding='utf-8')
+        root = None
+        subcatRules = None
+        for line in in_f:
+            # seda võib kirjutada lihtsamaks, kui võib eeldada, et faili formaat on range
+            line = line.rstrip()
+            if posTagPattern.search(line) and root:
+                subcatRules = line
+                parts = subcatRules.split('&')
+                for part in parts:
+                    part = part.strip()
+                    rules[root].append(part)
+                root = None
+                subcatRules = None
+            elif nonSpacePattern.match(line):
+                root = line
+        in_f.close()
+    
+        #print( len(rules.keys()) )   # 4484
+        return rules
 
 # ==================================================================================
 # ==================================================================================
@@ -848,49 +868,53 @@ def convert_to_cg3_input(text):
         for word in sentence.words:
             word_index += 1
             morph_lines.append('"<'+_esc_double_quotes(word.text)+'>"')
-            for syntax_pp in text.syntax_pp[word_index]:# word.syntax_pp_3:
+            for morph_extended in text.morph_extended[word_index]:
+                #if word.text=='ei':
+                #    print(morph_extended)
                 new_form_list = []
-                if syntax_pp.pronoun_type:
-                    new_form_list.append(syntax_pp.pronoun_type)
-                if syntax_pp.initial_form:
-                    new_form_list.extend(syntax_pp.initial_form)
-                #if syntax_pp.punctuation_type:
+                if morph_extended.pronoun_type:
+                    new_form_list.append(morph_extended.pronoun_type)
+                if morph_extended.initial_form:
+                    new_form_list.extend(morph_extended.initial_form)
+                #if morph_extended.punctuation_type:
                     # kasutu
-                #    if syntax_pp.punctuation_type not in new_form_list:
-                #        new_form_list.append(syntax_pp.punctuation_type)
-                if syntax_pp.letter_case:
-                    new_form_list.append(syntax_pp.letter_case)
-                if syntax_pp.partic:
-                    new_form_list.append(syntax_pp.partic)
-                if syntax_pp.fin:
-                    new_form_list.append(syntax_pp.fin)
-                if syntax_pp.abileksikon:
-                    new_form_list.extend(syntax_pp.abileksikon)
+                #    if morph_extended.punctuation_type not in new_form_list:
+                #        new_form_list.append(morph_extended.punctuation_type)
+                if morph_extended.letter_case:
+                    new_form_list.append(morph_extended.letter_case)
+                if morph_extended.partic:
+                    new_form_list.append(morph_extended.partic)
+                if morph_extended.fin:
+                    new_form_list.append(morph_extended.fin)
+                if morph_extended.abileksikon:
+                    new_form_list.extend(morph_extended.abileksikon)
 
-                #if syntax_pp.form_list != new_form_list:
+                #if morph_extended.form_list != new_form_list:
                 #    print('-----------------------------------')
-                #    print(syntax_pp.form_list)
+                #    print(morph_extended.form_list)
                 #    print(new_form_list)
-                #    print(syntax_pp.initial_form, syntax_pp.fin, syntax_pp.abileksikon, syntax_pp.punctuation_type, syntax_pp.pronoun_type, syntax_pp.partic, syntax_pp.letter_case)
-                #syntax_pp.form_list = [re.sub('#(\S+)','<\\1>', f) for f in syntax_pp.form_list]
+                #    print(morph_extended.initial_form, morph_extended.fin, morph_extended.abileksikon, morph_extended.punctuation_type, morph_extended.pronoun_type, morph_extended.partic, morph_extended.letter_case)
+                #morph_extended.form_list = [re.sub('#(\S+)','<\\1>', f) for f in morph_extended.form_list]
                 new_form_list = [re.sub('#(\S+)','<\\1>', f) for f in new_form_list]
 
-                if syntax_pp.ending + syntax_pp.clitic:
-                    line_new = '    "'+syntax_pp.root+'" L'+syntax_pp.ending+syntax_pp.clitic+' ' + ' '.join([syntax_pp.pos]+new_form_list+[' '])
+                if morph_extended.ending + morph_extended.clitic:
+                    line_new = '    "'+morph_extended.root+'" L'+morph_extended.ending+morph_extended.clitic+' ' + ' '.join([morph_extended.partofspeech]+new_form_list+[' '])
                 else:
-                    if syntax_pp.pos == 'Z':
-                        line_new = '    "'+syntax_pp.root+'" '+' '.join([syntax_pp.pos]+new_form_list+[' '])
+                    if morph_extended.partofspeech == 'Z':
+                        line_new = '    "'+morph_extended.root+'" '+' '.join([morph_extended.partofspeech]+new_form_list+[' '])
                     else:
-                        line_new = '    "'+syntax_pp.root+'+" '+' '.join([syntax_pp.pos]+new_form_list+[' '])
+                        line_new = '    "'+morph_extended.root+'+" '+' '.join([morph_extended.partofspeech]+new_form_list+[' '])
 
-                if syntax_pp.root == '':
+                if morph_extended.root == '':
                     line_new = '     //_Z_ //'  
-                if syntax_pp.root == '#':
+                if morph_extended.root == '#':
                     line_new = '    "<" L0> Y nominal   '
                 line_new = re.sub('digit  $','digit   ', line_new)
                 line_new = re.sub('nominal  $','nominal   ', line_new)
                 line_new = re.sub('prop  $','prop   ', line_new)
                 line_new = re.sub('com  $','com   ', line_new)
+                # FinV on siin arvatavasti ebakorrektne ja tekkis cap märgendi tõttu
+                line_new = re.sub('"ei" L0 V aux neg cap  ','"ei" L0 V aux neg cap <FinV>  ', line_new)
                 m = re.match('(\s+"tead\+a-tund".*\S)\s*$', line_new)
                 if m:
                     line_new = m.group(1) + ' <NGP-P> <InfP>  '
@@ -911,8 +935,8 @@ def convert_to_cg3_input(text):
 
                 if False:
                     print('----------------------------------')
-                    print("ending+clitic: '", syntax_pp.ending+syntax_pp.clitic, "'", sep="")
-                    print('form_list:', syntax_pp.form_list)
+                    print("ending+clitic: '", morph_extended.ending+morph_extended.clitic, "'", sep="")
+                    print('form_list:', morph_extended.form_list)
                     print("morf_analysis[0].form:'",  word.morf_analysis[0].form, "'", sep='')
                     print("result:        '", line_new,                "'", sep="")
                 morph_lines.append(line_new)
@@ -1004,21 +1028,17 @@ class SyntaxPreprocessing:
             else:
                 raise Exception('(!) Unsupported argument given: '+argName)
         #  fs_to_synt_rules_file:
-        if not self.fs_to_synt_rules_file or not os.path.exists( self.fs_to_synt_rules_file ):
+        if not self.fs_to_synt_rules_file or not os.path.exists(self.fs_to_synt_rules_file):
             raise Exception('(!) Unable to find *fs_to_synt_rules_file* from location:', \
                             self.fs_to_synt_rules_file)
-        else:
-            self.fs_to_synt_rules = \
-                load_fs_mrf_to_syntax_mrf_translation_rules( self.fs_to_synt_rules_file )
         #  subcat_rules_file:
-        if not self.subcat_rules_file or not os.path.exists( self.subcat_rules_file ):
+        if not self.subcat_rules_file or not os.path.exists(self.subcat_rules_file):
             raise Exception('(!) Unable to find *subcat_rules* from location:', \
                             self.subcat_rules_file)
-        else:
-            self.subcat_rules = load_subcat_info(self.subcat_rules_file)
+        self.super_tagger = MorphExtendedTagger(self.fs_to_synt_rules_file, self.allow_to_remove_all, self.subcat_rules_file)
 
 
-    def process_Text( self, text, **kwargs ):
+    def process_Text(self, text, **kwargs):
         ''' Executes the preprocessing pipeline on estnltk's Text object.
 
             Returns a list: lines of analyses in the VISL CG3 input format;
@@ -1029,20 +1049,8 @@ class SyntaxPreprocessing:
             Returns the input list, where elements (tokens/analyses) have been converted
             into the new format;
         '''
-        super_tagger = SuperTagger(self.fs_to_synt_rules, self.allow_to_remove_all, self.subcat_rules)
-        super_tagger.tag(text)
-        #print('c', end='', flush=True)
-        #text = convert_mrf_to_syntax_mrf(text, self.fs_to_synt_rules)
-        #print('p', end='', flush=True)
-        #text = convert_pronouns(text)
-        #print('d', end='', flush=True)
-        #text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all)
-        #print('h', end='', flush=True)
-        #text = add_hashtag_info(text)
-        #print('s', end='', flush=True)
-        #text = tag_subcat_info(text, self.subcat_rules )
-        #print('d', end='', flush=True)
-        #text = remove_duplicate_analyses(text, allow_to_delete_all=self.allow_to_remove_all) # kas omab efekti?
-        print('c ', end='', flush=True)
+        self.super_tagger.tag(text)
+
+        print('o ', end='', flush=True)
         text, morph_lines = convert_to_cg3_input(text)
         return text, morph_lines
