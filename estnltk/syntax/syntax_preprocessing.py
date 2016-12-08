@@ -124,7 +124,7 @@ class MorphExtendedTagger():
         print('i', end='', flush=True)
         morph_extended = morph_extended.rewrite(
             source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech',          'form_list'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form'],
             rules = self.initial_morph_rewriter,
             name = 'morph_extended',
             ambiguous = True
@@ -132,8 +132,8 @@ class MorphExtendedTagger():
 
         print('z', end='', flush=True)
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form_list'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form_list', 'punctuation_type', 'initial_form'],
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type'],
             rules = self.punctuation_type_rewriter,
             name = 'morph_extended',
             ambiguous = True
@@ -141,8 +141,8 @@ class MorphExtendedTagger():
 
         print('m', end='', flush=True)
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form_list', 'punctuation_type', 'initial_form'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form_list', 'punctuation_type', 'initial_form'],
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type'],
             rules = self.morph_to_syntax_morph_rewriter,
             name = 'morph_extended',
             ambiguous = True
@@ -151,8 +151,8 @@ class MorphExtendedTagger():
         # kasulik
         print('p', end='', flush=True)
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'form_list', 'initial_form'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'form_list', 'initial_form', 'pronoun_type'],
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type'],
             rules = self.pronoun_type_rewriter,
             name = 'morph_extended',
             ambiguous = True
@@ -160,8 +160,8 @@ class MorphExtendedTagger():
 
         print('d', end='', flush=True)
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type'],
             rules = self.remove_duplicate_analyses_rewriter,
             name = 'morph_extended',
             ambiguous = True
@@ -169,8 +169,8 @@ class MorphExtendedTagger():
 
         print('c', end='', flush=True)
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case'],
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case'],
             rules = self.letter_case_rewriter,
             name = 'morph_extended',
             ambiguous = True
@@ -179,8 +179,8 @@ class MorphExtendedTagger():
         # kasulik
         print('f', end='', flush=True)
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin'],
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin'],
             rules = self.finite_form_rewriter,
             name = 'morph_extended',
             ambiguous = True
@@ -189,8 +189,8 @@ class MorphExtendedTagger():
         # kasulik
         print('p', end='', flush=True)
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin', 'partic'],
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin', 'partic'],
             rules = self.partic_rewriter,
             name = 'morph_extended',
             ambiguous = True
@@ -199,8 +199,8 @@ class MorphExtendedTagger():
         # kasulik
         print('s', end='', flush=True)
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type', 'form_list', 'initial_form', 'letter_case', 'fin', 'partic'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'punctuation_type', 'pronoun_type',              'initial_form', 'letter_case', 'fin', 'partic', 'abileksikon'],
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin', 'partic'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin', 'partic', 'abileksikon'],
             rules = self.subcat_rules,
             name = 'morph_extended',
             ambiguous = True
@@ -217,7 +217,7 @@ class MorphExtendedTagger():
 # ==================================================================================
 
 
-class InitialMorphRewriter():
+class InitialMorphRewriter_old():
     ''' Converts from Text object into pre-syntactic mrf format, given as a list of 
         lines, as in the output of etmrf.
         *) If the input Text has already been morphologically analysed, uses the existing
@@ -240,6 +240,31 @@ class InitialMorphRewriter():
         return result
 
 
+class InitialMorphRewriter():
+    ''' Converts from Text object into pre-syntactic mrf format, given as a list of 
+        lines, as in the output of etmrf.
+        *) If the input Text has already been morphologically analysed, uses the existing
+            analysis;
+        *) If the input has not been analysed, performs the analysis with required settings:
+            word quessing is turned on, proper-name analyses are turned off;
+    '''
+    def rewrite(self, record):
+        return record
+        result = []
+        print('rec', record)
+        for rec in record:
+            rec['root'] = _esc_double_quotes(rec['root'])
+            for form in rec['form'].split(',')[::-1]:
+                #kas form.split(',')==[form] sageli või alati?
+                # [::-1] on eelmise versiooniga ühildumiseks
+                form = form.strip()
+                if form:
+                    rec_copy = rec.copy()
+                    rec_copy['form'] = form
+                    result.append(rec_copy)
+        print('res', result)
+        return result
+
 # ==================================================================================
 # ==================================================================================
 #   2)  Convert from Filosoft's mrf to syntactic analyzer's mrf
@@ -249,7 +274,6 @@ class InitialMorphRewriter():
 
     
 _punctOrAbbrev = re.compile('//\s*_[ZY]_')
-
 
 
 class PunctuationTypeRewriter():
@@ -269,19 +293,12 @@ class PunctuationTypeRewriter():
         result = []
         for rec in record:
             if rec['partofspeech'] == 'Z':
-                punct_type = self._get_punctuation_type(rec)
-                rec['punctuation_type'] = punct_type
-                if punct_type:
-                    rec['form_list'] = [punct_type]
-                    rec['initial_form'] = [punct_type]
-                else:
-                    rec['form_list'] = []
-                    rec['initial_form'] = []
+                rec['punctuation_type'] = self._get_punctuation_type(rec)
             else:
                 rec['punctuation_type'] = None
-                rec['initial_form'] = []
             result.append(rec)
-            #print(rec)
+            #if rec['word_text']=='"':
+            #    print(rec)
         return result
 
     _punctConversions = [ 
@@ -344,10 +361,11 @@ class MorphToSyntaxMorphRewriter():
 
     
     def rewrite(self, record):
+        #print('rec', record)
         result = []
         for rec in record:
             pos = rec['partofspeech']
-            form_list = rec['form_list'][:]#kas siin on koopiat vaja?
+            form = rec['form']
             # 1) Convert punctuation
             if pos == 'Z':
                 pass
@@ -363,19 +381,15 @@ class MorphToSyntaxMorphRewriter():
                     pass
 
             # 2) Convert morphological analyses that have a form specified
-                if form_list:                    # võiks if ja else ära vahetada ja not'ist lahti saada
-                    morphKeys = [(pos, _form) for _form in form_list]#kas form.split(',')==[form] sageli või alati?
+                if form:
+                    morphKey = (pos, form)
                 else:
-                    morphKeys = [(pos, '')]
-                for morphKey in morphKeys: # tsüklit pole vaja, kui alati len(form_list)==1
-                    for pos, form in self.fs_to_synt_rules[morphKey]:
-                        if form == '':
-                            rec['form_list'] = []
-                        else:
-                            rec['form_list'] = [_esc_que_mark(form).strip()]
-                        rec['partofspeech'] = pos
-                        rec['initial_form'] = rec['form_list'][:]
-                        result.append(rec.copy())
+                    morphKey = (pos, '')
+                for pos, form in self.fs_to_synt_rules[morphKey]:
+                    rec['partofspeech'] = pos
+                    rec['form'] = _esc_que_mark(form).strip()
+                    result.append(rec.copy())
+        #print('res', result)
         return result
 
 
@@ -423,6 +437,7 @@ class MorphToSyntaxMorphRewriter():
             # eelmise versiooniga ühildumise jaoks
             rules[key] = tuple(value[::-1])
         return rules
+
 
 # ==================================================================================
 # ==================================================================================
@@ -560,6 +575,7 @@ class PronounTypeRewriter():
     def rewrite(self, record):
         result = []
         for rec in record:
+            rec['initial_form'] = rec['form']
             rec['pronoun_type'] = None
             if rec['partofspeech'] == 'P':  # only consider lines containing pronoun analyses
                 root_ec = ''.join((rec['root'], '+', rec['ending'], rec['clitic']))
@@ -609,16 +625,16 @@ class RemoveDuplicateAnalysesRewriter():
         Kpost_index    = -1
         for i, rec in enumerate(record):
             #analysis = (morph_extended.root, morph_extended.ending, morph_extended.clitic, morph_extended.partofspeech, morph_extended.form_list)
-            analysis = (rec['root'], rec['ending'], rec['clitic'], rec['partofspeech'], rec['initial_form'])
+            analysis = (rec['root'], rec['ending'], rec['clitic'], rec['partofspeech'], rec['form'])
             if analysis in seen_analyses:
                 # Remember line that has been already seen as a duplicate
                 to_delete.append(i)
             else:
                 # Remember '_K_ pre' and '_K_ post' indices
                 if analysis[3] == 'K':
-                    if analysis[4][0] == 'pre':
+                    if analysis[4] == 'pre':
                         Kpre_index  = i
-                    elif analysis[4][0] == 'post':
+                    elif analysis[4] == 'post':
                         Kpost_index = i
                 # Remember that the line has already been seen
                 seen_analyses.append(analysis)
@@ -679,9 +695,8 @@ class FiniteFormRewriter():
         for rec in record:
             rec['fin'] = None
             if rec['partofspeech'] == 'V':
-                line = '//_V_ ' + ' '.join(rec['form_list'])+' //'
+                line = '//_V_ ' + rec['form'] + ' //'
                 if self._morfFinV.search(line) and not self._morfNotFinV.search(line):
-                    rec['form_list'].append('<FinV>')
                     rec['fin'] = '<FinV>'
             result.append(rec)
         return result
@@ -708,7 +723,6 @@ class ParticRewriter():
             rec['partic'] = None
             for pattern, value in self._mrfHashTagConversions:
                 if re.search(pattern, rec['root']):
-                    rec['form_list'].append(value)
                     rec['partic'] = value
                     break
             result.append(rec)
@@ -758,7 +772,7 @@ class SubcatRewriter():
                 #analysis = {'_'+morph_extended.partofspeech+'_', morph_extended.punctuation_type, morph_extended.pronoun_type, morph_extended.partic, morph_extended.letter_case, *morph_extended.initial_form, morph_extended.fin}
                 # kas eelneva asemel piisab järgnevast?
                 analysis = {'_'+rec['partofspeech']+'_'}
-                analysis.update(rec['initial_form'])
+                analysis.add(rec['form'])
     
                 for rule in self.subcat_rules[root]:
                     condition, addition = rule.split('>')
@@ -780,7 +794,7 @@ class SubcatRewriter():
                             items_to_add = a.split()
                             abileksikon = []
                             for item in items_to_add:
-                                if not item in rec['form_list']:
+                                if item not in rec['form'] and item != rec['punctuation_type']:
                                     abileksikon.append(item)
                             rec['abileksikon'] = abileksikon
                             result.append(rec.copy())
@@ -869,17 +883,13 @@ def convert_to_cg3_input(text):
             word_index += 1
             morph_lines.append('"<'+_esc_double_quotes(word.text)+'>"')
             for morph_extended in text.morph_extended[word_index]:
-                #if word.text=='ei':
+                #if word.text=='.':
                 #    print(morph_extended)
                 new_form_list = []
                 if morph_extended.pronoun_type:
                     new_form_list.append(morph_extended.pronoun_type)
-                if morph_extended.initial_form:
-                    new_form_list.extend(morph_extended.initial_form)
-                #if morph_extended.punctuation_type:
-                    # kasutu
-                #    if morph_extended.punctuation_type not in new_form_list:
-                #        new_form_list.append(morph_extended.punctuation_type)
+                if morph_extended.form:
+                    new_form_list.append(morph_extended.form)
                 if morph_extended.letter_case:
                     new_form_list.append(morph_extended.letter_case)
                 if morph_extended.partic:
@@ -888,6 +898,10 @@ def convert_to_cg3_input(text):
                     new_form_list.append(morph_extended.fin)
                 if morph_extended.abileksikon:
                     new_form_list.extend(morph_extended.abileksikon)
+                if morph_extended.punctuation_type:
+                    # jama, et abileksikon06utf.lx sisaldab ka punktuation type
+                #    if morph_extended.punctuation_type not in new_form_list:
+                    new_form_list.append(morph_extended.punctuation_type)
 
                 #if morph_extended.form_list != new_form_list:
                 #    print('-----------------------------------')
