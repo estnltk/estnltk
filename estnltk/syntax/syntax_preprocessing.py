@@ -217,29 +217,6 @@ class MorphExtendedTagger():
 # ==================================================================================
 
 
-class InitialMorphRewriter_old():
-    ''' Converts from Text object into pre-syntactic mrf format, given as a list of 
-        lines, as in the output of etmrf.
-        *) If the input Text has already been morphologically analysed, uses the existing
-            analysis;
-        *) If the input has not been analysed, performs the analysis with required settings:
-            word quessing is turned on, proper-name analyses are turned off;
-    '''
-    def rewrite(self, record):
-        result = []
-        for rec in record:
-            rec['root'] = _esc_double_quotes(rec['root'])
-            rec['form_list'] = []
-            for _form in rec['form'].split(',')[::-1]:
-                #kas form.split(',')==[form] sageli või alati?
-                # [::-1] on eelmise versiooniga ühildumiseks
-                _form = _form.strip()
-                if _form:
-                    rec['form_list'].append(_form)
-            result.append(rec)
-        return result
-
-
 class InitialMorphRewriter():
     ''' Converts from Text object into pre-syntactic mrf format, given as a list of 
         lines, as in the output of etmrf.
@@ -249,6 +226,7 @@ class InitialMorphRewriter():
             word quessing is turned on, proper-name analyses are turned off;
     '''
     def rewrite(self, record):
+        # kasutu
         return record
         result = []
         print('rec', record)
@@ -575,7 +553,6 @@ class PronounTypeRewriter():
     def rewrite(self, record):
         result = []
         for rec in record:
-            rec['initial_form'] = rec['form']
             rec['pronoun_type'] = None
             if rec['partofspeech'] == 'P':  # only consider lines containing pronoun analyses
                 root_ec = ''.join((rec['root'], '+', rec['ending'], rec['clitic']))
@@ -687,16 +664,16 @@ class FiniteFormRewriter():
     ''' Marks finite verbs with #FinV.
     '''
     # Information about verb finite forms
-    _morfFinV        = re.compile('//\s*(_V_).*\s+(ps.|neg|quot|impf imps|pres imps)\s')
-    _morfNotFinV     = re.compile('//\s*(_V_)\s+(aux neg)\s+//')
+    #_morfFinV        = re.compile('//\s*(_V_).*\s+(ps.|neg|quot|impf imps|pres imps)\s')
+    #_morfNotFinV     = re.compile('//\s*(_V_)\s+(aux neg)\s+//')
+    _morfFinV        = re.compile('(ps[123]|neg|quot|impf imps|pres imps)')
 
     def rewrite(self, record):
         result = []
         for rec in record:
             rec['fin'] = None
             if rec['partofspeech'] == 'V':
-                line = '//_V_ ' + rec['form'] + ' //'
-                if self._morfFinV.search(line) and not self._morfNotFinV.search(line):
+                if self._morfFinV.search(rec['form']) and rec['form'] != 'aux neg':
                     rec['fin'] = '<FinV>'
             result.append(rec)
         return result
