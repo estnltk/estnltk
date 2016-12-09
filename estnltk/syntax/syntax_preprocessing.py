@@ -190,7 +190,7 @@ class MorphExtendedTagger():
         print('p', end='', flush=True)
         morph_extended = morph_extended.rewrite(
             source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin', 'partic'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin', 'verb_extension_suffix'],
             rules = self.partic_rewriter,
             name = 'morph_extended',
             ambiguous = True
@@ -199,8 +199,8 @@ class MorphExtendedTagger():
         # kasulik
         print('s', end='', flush=True)
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin', 'partic'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin', 'partic', 'abileksikon'],
+            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin', 'verb_extension_suffix'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin', 'verb_extension_suffix', 'abileksikon'],
             rules = self.subcat_rules,
             name = 'morph_extended',
             ambiguous = True
@@ -275,8 +275,6 @@ class PunctuationTypeRewriter():
             else:
                 rec['punctuation_type'] = None
             result.append(rec)
-            #if rec['word_text']=='"':
-            #    print(rec)
         return result
 
     _punctConversions = [ 
@@ -339,7 +337,6 @@ class MorphToSyntaxMorphRewriter():
 
     
     def rewrite(self, record):
-        #print('rec', record)
         result = []
         for rec in record:
             pos = rec['partofspeech']
@@ -367,7 +364,6 @@ class MorphToSyntaxMorphRewriter():
                     rec['partofspeech'] = pos
                     rec['form'] = _esc_que_mark(form).strip()
                     result.append(rec.copy())
-        #print('res', result)
         return result
 
 
@@ -601,7 +597,6 @@ class RemoveDuplicateAnalysesRewriter():
         Kpre_index     = -1
         Kpost_index    = -1
         for i, rec in enumerate(record):
-            #analysis = (morph_extended.root, morph_extended.ending, morph_extended.clitic, morph_extended.partofspeech, morph_extended.form_list)
             analysis = (rec['root'], rec['ending'], rec['clitic'], rec['partofspeech'], rec['form'])
             if analysis in seen_analyses:
                 # Remember line that has been already seen as a duplicate
@@ -630,7 +625,6 @@ class RemoveDuplicateAnalysesRewriter():
             if not self.allow_to_delete_all and len(record) < 2:
                 continue
             # Delete the analysis line
-            #syntax_pps.items.pop(j)
             del record[j]
 
         return record
@@ -650,7 +644,7 @@ class LetterCaseRewriter():
     def rewrite(self, record):
         result = []
         for rec in record:
-            # cap võib for alt välja tõsta
+            # cap võib for alt välja tõsta, kui alati len(record)>0
             cap = _esc_double_quotes(rec['word_text'][0]).isupper()
             if cap:
                 rec['letter_case'] = 'cap'
@@ -673,8 +667,9 @@ class FiniteFormRewriter():
         for rec in record:
             rec['fin'] = None
             if rec['partofspeech'] == 'V':
-                if self._morfFinV.search(rec['form']) and rec['form'] != 'aux neg':
-                    rec['fin'] = '<FinV>'
+                if self._morfFinV.search(rec['form']):
+                    if rec['form'] != 'aux neg':
+                        rec['fin'] = '<FinV>'
             result.append(rec)
         return result
 
@@ -683,28 +678,30 @@ class ParticRewriter():
     ''' Marks nud/tud/mine/nu/tu/v/tav/mata/ja forms.
     '''
     # Various information about word endings
-    _mrfHashTagConversions = [ ["=[td]ud",   "partic <tud>"],
-                               ["=nud",      "partic <nud>"],
+    _mrfHashTagConversions = [ ["=[td]ud",   "<tud>"],
+                               ["=nud",      "<nud>"],
                                ["=mine",     "<mine>"],
                                ["=nu$",      "<nu>"],
                                ["=[td]u$",   "<tu>"],
-                               ["=v$",       "partic <v>"],
-                               ["=[td]av",   "partic <tav>"],
-                               ["=mata",     "partic <mata>"],
+                               ["=v$",       "<v>"],
+                               ["=[td]av",   "<tav>"],
+                               ["=mata",     "<mata>"],
                                ["=ja",       "<ja>"]
     ]
     
     def rewrite(self, record):
         result = []
         for rec in record:
-            rec['partic'] = None
+            rec['verb_extension_suffix'] = None
             for pattern, value in self._mrfHashTagConversions:
                 if re.search(pattern, rec['root']):
-                    rec['partic'] = value
+                    rec['verb_extension_suffix'] = value
                     break
             result.append(rec)
         return result
 
+def is_partic_suffix(suffix):
+    return suffix in {'<tud>', '<nud>', '<v>', '<tav>', '<mata>'} 
 
 # ==================================================================================
 # ==================================================================================
@@ -734,7 +731,7 @@ class SubcatRewriter():
         with available subcategorization information;
     '''
     def __init__(self, subcat_rules_file):
-        self.subcat_rules = self.load_subcat_info(subcat_rules_file)
+        self.subcat_rules = self._load_subcat_info(subcat_rules_file)
 
     def rewrite(self, record):
         result = []
@@ -783,7 +780,7 @@ class SubcatRewriter():
                 result.append(rec)
         return result
 
-    def load_subcat_info(self, subcat_rules_file):
+    def _load_subcat_info(self, subcat_rules_file):
         ''' Loads subcategorization rules (for verbs and adpositions) from a text 
             file. 
             
@@ -869,8 +866,10 @@ def convert_to_cg3_input(text):
                     new_form_list.append(morph_extended.form)
                 if morph_extended.letter_case:
                     new_form_list.append(morph_extended.letter_case)
-                if morph_extended.partic:
-                    new_form_list.append(morph_extended.partic)
+                if is_partic_suffix(morph_extended.verb_extension_suffix):
+                    new_form_list.append('partic')
+                if morph_extended.verb_extension_suffix:
+                    new_form_list.append(morph_extended.verb_extension_suffix)
                 if morph_extended.fin:
                     new_form_list.append(morph_extended.fin)
                 if morph_extended.abileksikon:
