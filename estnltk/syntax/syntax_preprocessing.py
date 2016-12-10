@@ -715,7 +715,6 @@ def is_partic_suffix(suffix):
 analysisLemmaPat = re.compile('^\s+([^+ ]+)\+')
 analysisPat      = re.compile('//([^/]+)//')
 
-
 class SubcatRewriter():
     ''' Adds subcategorization information (hashtags) to verbs and adpositions;
         
@@ -731,59 +730,34 @@ class SubcatRewriter():
         with available subcategorization information;
     '''
     def __init__(self, subcat_rules_file):
-        self.subcat_rules = self._load_subcat_info(subcat_rules_file)
+        self.v_rules, self.k_rules = self._load_subcat_info(subcat_rules_file)
 
     def rewrite(self, record):
         result = []
         for rec in record:
             match = False
-
-            root = rec['root']
-            # Find whether there is subcategorization info associated 
-            # with the root
-            if root in self.subcat_rules:
-                #analysis = ['_'+morph_extended.partofspeech+'_'] + morph_extended.form_list
-                #analysis = {'_'+morph_extended.partofspeech+'_', morph_extended.punctuation_type, morph_extended.pronoun_type, morph_extended.partic, morph_extended.letter_case, *morph_extended.initial_form, morph_extended.fin}
-                # kas eelneva asemel piisab järgnevast?
-                analysis = {'_'+rec['partofspeech']+'_'}
-                analysis.add(rec['form'])
-    
-                for rule in self.subcat_rules[root]:
-                    condition, addition = rule.split('>')
-                    # Check the condition string; If there are multiple conditions, 
-                    # all must be satisfied for the rule to fire
-                    condition  = condition.strip()
-                    conditions = condition.split()
-                    satisfied = [c in analysis for c in conditions]
-                    if all(satisfied):
-                        #
-                        # There can be multiple additions:
-                        #   1) additions without '|' must be added to a single analysis line;
-                        #   2) additions separated by '|' must be placed on separate analysis 
-                        #      lines;
-                        #
-                        additions = addition.split('|')
-                        # Add new line or lines
-                        for a in additions[::-1]:    
-                            items_to_add = a.split()
-                            abileksikon = []
-                            for item in items_to_add:
-                                if item not in rec['form'] and item != rec['punctuation_type']:
-                                    abileksikon.append(item)
-                            rec['abileksikon'] = abileksikon
-                            result.append(rec.copy())
-                            match = True
-                        # No need to search forward
-                        break
+            
+            for subcat in self.v_rules[(rec['root'], rec['partofspeech'])]:
+                match = True
+                rec_copy = rec.copy()
+                rec_copy['abileksikon'] = subcat
+                result.append(rec_copy)
+            if not match:
+                for subcat in self.k_rules[(rec['root'], rec['partofspeech'], rec['form'] )]:
+                    match = True
+                    rec_copy = rec.copy()
+                    rec_copy['abileksikon'] = subcat
+                    result.append(rec_copy)
+            
             if not match:
                 rec['abileksikon'] = None
                 result.append(rec)
+
         return result
 
-    def _load_subcat_info(self, subcat_rules_file):
+    def _load_subcat_info(self,subcat_rules_file):
         ''' Loads subcategorization rules (for verbs and adpositions) from a text 
             file. 
-            
             It is expected that the rules are given as pairs, where the first item is 
             the lemma (of verb/adposition), followed on the next line by the 
             subcategorization rule, in the following form: 
@@ -794,7 +768,7 @@ class SubcatRewriter():
                items, e.g. names of morphological cases of nominals);
             If there are multiple subcategorization rules to be associated with a
             single lemma, different rules are separated by '&'.
-            
+    
             Example, an excerpt from the rules file:
               läbi
               _V_ >#Part &_K_ post >#gen |#nom |#el &_K_ pre >#gen 
@@ -816,7 +790,7 @@ class SubcatRewriter():
             line = line.rstrip()
             if posTagPattern.search(line) and root:
                 subcatRules = line
-                parts = subcatRules.split('&')
+                parts = subcatRules.split('&')#[::-1]#76 tekst 
                 for part in parts:
                     part = part.strip()
                     rules[root].append(part)
@@ -825,9 +799,41 @@ class SubcatRewriter():
             elif nonSpacePattern.match(line):
                 root = line
         in_f.close()
-    
         #print( len(rules.keys()) )   # 4484
-        return rules
+    
+        v_rules = defaultdict(list)
+        k_rules = defaultdict(list)
+        for root, rulelist in rules.items():
+            for rule in rulelist:
+                pos, subcats = rule.split('>')
+                for subcat in subcats.split('|'):
+                    pos = pos.strip()
+                    subcat = subcat.strip()
+                    if pos == '_V_':
+                        if all([subcat not in s for s in v_rules[(root, 'V')]]):
+                        # ei tea, kas see if teeb mõistlikku asja, aga igatahes aitab ühilduda eelmise versiooniga
+                            v_rules[(root, 'V')].append(subcat)
+                    elif pos == '_K_ post':
+                        if all([subcat not in s for s in k_rules[(root, 'K', 'post')]]):
+                            k_rules[(root, 'K', 'post')].append(subcat)
+                    elif pos == '_K_ pre':
+                        if all([subcat not in s for s in k_rules[(root, 'K', 'pre')]]):
+                            k_rules[(root, 'K', 'pre')].append(subcat)
+        # [::-1] eelmise versiooniga ühildumiseks
+        for k, v in v_rules.items():
+            v_rules[k] = v[::-1]
+        for k, v in k_rules.items():
+            k_rules[k] = v[::-1]
+        
+        for key in v_rules:
+            for i, subcat in enumerate(v_rules[key]):
+                v_rules[key][i] = [s.strip(' #') for s in subcat.split()]
+        for key in k_rules:
+            for i, subcat in enumerate(k_rules[key]):
+                k_rules[key][i] = [s.strip(' #') for s in subcat.split()]
+
+        return v_rules, k_rules
+
 
 # ==================================================================================
 # ==================================================================================
@@ -873,7 +879,9 @@ def convert_to_cg3_input(text):
                 if morph_extended.fin:
                     new_form_list.append(morph_extended.fin)
                 if morph_extended.abileksikon:
-                    new_form_list.extend(morph_extended.abileksikon)
+                    subcat = morph_extended.abileksikon
+                    subcat = ' '.join(['<'+s+'>' for s in subcat])
+                    new_form_list.append(subcat)
                 if morph_extended.punctuation_type:
                     # jama, et abileksikon06utf.lx sisaldab ka punktuation type
                 #    if morph_extended.punctuation_type not in new_form_list:
