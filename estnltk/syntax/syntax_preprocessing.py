@@ -277,32 +277,32 @@ class PunctuationTypeRewriter():
             result.append(rec)
         return result
 
-    _punctConversions = [ 
-                          ["…$",      "Ell"],
-                          ["\.\.\.$", "Ell"],
-                          ["\.\.$",   "Els"],
-                          ["\.$",     "Fst"],
-                          [",$",      "Com"],
-                          [":$",      "Col"],
-                          [";$",      "Scl"],
-                          ["(\?+)$",  "Int"],
-                          ["(\!+)$",  "Exc"],
-                          ["(---?)$", "Dsd"],
-                          ["(-)$",    "Dsh"],
-                          ["\($",     "Opr"],
-                          ["\)$",     "Cpr"],
-                          ['\\\\"$',  "Quo"],
-                          ["«$",      "Oqu"],
-                          ["»$",      "Cqu"],
-                          ["“$",      "Oqu"],
-                          ["”$",      "Cqu"],
-                          ["<$",      "Grt"],
-                          [">$",      "Sml"],
-                          ["\[$",     "Osq"],
-                          ["\]$",     "Csq"],
-                          ["/$",      "Sla"],
-                          ["\+$",     "crd"]
-    ]# double quotes are escaped by \
+    _punctConversions = (
+                          ("…$",      "Ell"),
+                          ("\.\.\.$", "Ell"),
+                          ("\.\.$",   "Els"),
+                          ("\.$",     "Fst"),
+                          (",$",      "Com"),
+                          (":$",      "Col"),
+                          (";$",      "Scl"),
+                          ("(\?+)$",  "Int"),
+                          ("(\!+)$",  "Exc"),
+                          ("(---?)$", "Dsd"),
+                          ("(-)$",    "Dsh"),
+                          ("\($",     "Opr"),
+                          ("\)$",     "Cpr"),
+                          ('\\\\"$',  "Quo"),
+                          ("«$",      "Oqu"),
+                          ("»$",      "Cqu"),
+                          ("“$",      "Oqu"),
+                          ("”$",      "Cqu"),
+                          ("<$",      "Grt"),
+                          (">$",      "Sml"),
+                          ("\[$",     "Osq"),
+                          ("\]$",     "Csq"),
+                          ("/$",      "Sla"),
+                          ("\+$",     "crd")
+    )# double quotes are escaped by \
     # puudu '‹'
 
     def _get_punctuation_type(self, morph_extended):
@@ -678,16 +678,16 @@ class ParticRewriter():
     ''' Marks nud/tud/mine/nu/tu/v/tav/mata/ja forms.
     '''
     # Various information about word endings
-    _mrfHashTagConversions = [ ["=[td]ud",   "<tud>"],
-                               ["=nud",      "<nud>"],
-                               ["=mine",     "<mine>"],
-                               ["=nu$",      "<nu>"],
-                               ["=[td]u$",   "<tu>"],
-                               ["=v$",       "<v>"],
-                               ["=[td]av",   "<tav>"],
-                               ["=mata",     "<mata>"],
-                               ["=ja",       "<ja>"]
-    ]
+    _mrfHashTagConversions = ( ("=[td]ud",   "<tud>"),
+                               ("=nud",      "<nud>"),
+                               ("=mine",     "<mine>"),
+                               ("=nu$",      "<nu>"),
+                               ("=[td]u$",   "<tu>"),
+                               ("=v$",       "<v>"),
+                               ("=[td]av",   "<tav>"),
+                               ("=mata",     "<mata>"),
+                               ("=ja",       "<ja>")
+    )
     
     def rewrite(self, record):
         result = []
