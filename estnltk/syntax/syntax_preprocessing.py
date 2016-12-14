@@ -122,27 +122,33 @@ class MorphExtendedTagger():
         morph_extended = text['syntax_pp_0']
 
         print('i', end='', flush=True)
+        source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form']
+        target_attributes = source_attributes
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form'],
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
             rules = self.initial_morph_rewriter,
             name = 'morph_extended',
             ambiguous = True
             )
 
         print('z', end='', flush=True)
+        source_attributes = target_attributes
+        target_attributes = source_attributes + ['punctuation_type']
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type'],
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
             rules = self.punctuation_type_rewriter,
             name = 'morph_extended',
             ambiguous = True
             )
 
         print('m', end='', flush=True)
+        source_attributes = target_attributes
+        #target_attributes = source_attributes
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type'],
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
             rules = self.morph_to_syntax_morph_rewriter,
             name = 'morph_extended',
             ambiguous = True
@@ -150,27 +156,33 @@ class MorphExtendedTagger():
 
         # kasulik
         print('p', end='', flush=True)
+        source_attributes = target_attributes
+        target_attributes = source_attributes + ['pronoun_type']
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type'],
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
             rules = self.pronoun_type_rewriter,
             name = 'morph_extended',
             ambiguous = True
             )
 
         print('d', end='', flush=True)
+        source_attributes = target_attributes
+        #target_attributes = source_attributes
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type'],
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
             rules = self.remove_duplicate_analyses_rewriter,
             name = 'morph_extended',
             ambiguous = True
             )
 
         print('c', end='', flush=True)
+        source_attributes = target_attributes
+        target_attributes = source_attributes + ['letter_case']
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case'],
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
             rules = self.letter_case_rewriter,
             name = 'morph_extended',
             ambiguous = True
@@ -178,9 +190,11 @@ class MorphExtendedTagger():
 
         # kasulik
         print('f', end='', flush=True)
+        source_attributes = target_attributes
+        target_attributes = source_attributes + ['fin']
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin'],
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
             rules = self.finite_form_rewriter,
             name = 'morph_extended',
             ambiguous = True
@@ -188,9 +202,11 @@ class MorphExtendedTagger():
 
         # kasulik
         print('p', end='', flush=True)
+        source_attributes = target_attributes
+        target_attributes = source_attributes + ['verb_extension_suffix']
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin', 'verb_extension_suffix'],
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
             rules = self.partic_rewriter,
             name = 'morph_extended',
             ambiguous = True
@@ -198,9 +214,11 @@ class MorphExtendedTagger():
 
         # kasulik
         print('s', end='', flush=True)
+        source_attributes = target_attributes
+        target_attributes = source_attributes + ['subcat']
         morph_extended = morph_extended.rewrite(
-            source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin', 'verb_extension_suffix'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin', 'verb_extension_suffix', 'subcat'],
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
             rules = self.subcat_rules,
             name = 'morph_extended',
             ambiguous = True
