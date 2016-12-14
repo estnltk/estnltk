@@ -1,0 +1,1 @@
+from estnltk.taggers.syntax_preprocessing.syntax_preprocessing import MorphExtendedTagger
