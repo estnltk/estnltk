@@ -434,117 +434,117 @@ class PronounTypeRewriter():
         to another;
     '''
     # ma, sa, ta ei lähe kunagi mängu, sest ma -> mina, sa -> sina, ta-> tema
-    _pronConversions = [ ["emb\+.*",             "det"], \
-                         ["enda\+.*",            "pos refl"], \
-                         ["enese\+.*",           "pos refl"], \
-                         ["eikeegi.*",           "indef"], \
-                         ["eimiski.*",           "indef"], \
-                         ["emb-kumb.*",          "det"], \
-                         ["esimene.*",           "dem"], \
-                         ["iga\+.*",             "det"], \
-                         ["iga_sugune.*",        "indef"], \
-                         ["iga_.ks\+.*",         "det"], \
-                         ["ise\+.*",             "pos det refl"], \
-                         ["ise_enese.*",         "refl"], \
-                         ["ise_sugune.*",        "dem"], \
-                         ["keegi.*",             "indef"], \
-                         ["kes.*",               "inter rel"], \
-                         ["kumb\+.*",            "rel"], \
-                         ["kumbki.*",            "det"], \
-                         ["kõik.*",              "det"], \
-                         ["k.ik.*",              "det"], \
-                         ["meie_sugune.*",       "dem"], \
-                         ["meie_taoline.*",      "dem"], \
-                         ["mihuke\+.*",          "inter rel"], \
-                         ["mihukene\+.*",        "inter rel"], \
-                         ["mille_taoline.*",     "dem"], \
-                         ["milli=?ne.*",         "rel"], \
-                         ["mina\+.*",            "pers ps1"], \
-                         [" ma\+.*",             "pers ps1"], \
-                         ["mina=?kene\+.*",      "dem"], \
-                         ["mina=?ke\+.*",        "dem"], \
-                         ["mingi\+.*",           "indef"], \
-                         ["mingi_sugune.*",      "indef"], \
-                         ["minu_sugune.*",       "dem"], \
-                         ["minu_taoline.*",      "dem"], \
-                         ["miski.*",             "indef"], \
-                         ["mis\+.*",             "inter rel"], \
-                         ["mis_sugune.*",        "inter rel"], \
-                         ["miski\+.*",           "inter rel"], \
-                         ["miski_sugune.*",      "inter rel"], \
-                         ["misu=?ke(ne)?\+.*",   "dem"], \
-                         ["mitme_sugune.*",      "indef"], \
-                         ["mitme_taoline.*",     "indef"], \
-                         ["mitmendik\+.*",       "inter rel"], \
-                         ["mitmes\+.*",          "inter rel indef"], \
-                         ["mi=?tu.*",            "indef"], \
-                         ["miuke(ne)?\+.*",      "inter rel"], \
-                         ["muist\+.*",           "indef"], \
-                         ["muu.*",               "indef"], \
-                         ["m.lema.*",            "det"], \
-                         ["m.ne_sugune\+.*",     "indef"], \
-                         ["m.ni\+.*",            "indef"], \
-                         ["m.ningane\+.*",       "indef"], \
-                         ["m.ningas.*",          "indef"], \
-                         ["m.herdune\+.*",       "indef rel"], \
-                         ["määntne\+.*",         "dem"], \
-                         ["na_sugune.*",         "dem"], \
-                         ["nende_sugune.*",      "dem"], \
-                         ["nende_taoline.*",     "dem"], \
-                         ["nihuke(ne)?\+.*",     "dem"], \
-                         ["nii_mi=?tu\+.*",      "indef inter rel"], \
-                         ["nii_sugune.*",        "dem"], \
-                         ["niisama_sugune.*",    "dem"], \
-                         ["nii?su=?ke(ne)?\+.*", "dem"], \
-                         ["niuke(ne)?\+.*",      "dem"], \
-                         ["oma\+.*",             "pos det refl"], \
-                         ["oma_enese\+.*",       "pos"], \
-                         ["oma_sugune\+.*",      "dem"], \
-                         ["oma_taoline\+.*",     "dem"], \
-                         ["palju.*",             "indef"], \
-                         ["sama\+.*",            "dem"], \
-                         ["sama_sugune\+.*",     "dem"], \
-                         ["sama_taoline\+.*",    "dem"], \
-                         ["samune\+.*",          "dem"], \
-                         ["see\+.*",             "dem"], \
-                         ["see_sama\+.*",        "dem"], \
-                         ["see_sam[au]ne\+.*",   "dem"], \
-                         ["see_sinane\+.*",      "dem"], \
-                         ["see_sugune\+.*",      "dem"], \
-                         ["selle_taoline\+.*",   "dem"], \
-                         ["selli=?ne\+.*",       "dem"], \
-                         ["setu\+.*",            "indef"], \
-                         ["setmes\+.*",          "indef"], \
-                         ["sihuke\+.*",          "dem"], \
-                         ["sina\+.*",            "pers ps2"], \
-                         [" sa\+.*",             "pers ps2"], \
-                         ["sinu_sugune\+.*",     "dem"], \
-                         ["sinu_taoline\+.*",    "dem"], \
-                         ["siuke(ne)?\+.*",      "dem"], \
-                         ["säherdune\+.*",       "dem"], \
-                         ["s.herdune\+.*",       "dem"], \
-                         ["säärane\+.*",         "dem"], \
-                         ["s..rane\+.*",         "dem"], \
-                         ["taoline\+.*",         "dem"], \
-                         ["teie_sugune\+.*",     "dem"], \
-                         ["teie_taoline\+.*",    "dem"], \
-                         ["teine\+.*",           "dem"], \
-                         ["teine_teise\+.*",     "rec"], \
-                         ["teist?_sugune\+.*",   "dem"], \
-                         ["tema\+.*",            "pers ps3"], \
-                         [" ta\+.*",             "pers ps3"], \
-                         ["temake(ne)?\+.*",     "pers ps3"], \
-                         ["tema_sugune\+.*",     "dem"], \
-                         ["tema_taoline\+.*",    "dem"], \
-                         ["too\+.*",             "dem"], \
-                         ["too_sama\+.*",        "dem"], \
-                         ["üks.*",               "dem indef"], \
-                         [".ks.*",               "dem indef"], \
-                         ["ükski.*",             "dem indef"], \
-                         [".kski.*",             "dem indef"], \
-                         ["üks_teise.*",         "rec indef"], \
-                         [".ks_teise.*",         "rec"], \
-    ]
+    _pronConversions = ( ("emb\+.*",             ("det",)),
+                         ("enda\+.*",            ("pos", "refl")),
+                         ("enese\+.*",           ("pos", "refl")),
+                         ("eikeegi.*",           ("indef",)),
+                         ("eimiski.*",           ("indef",)),
+                         ("emb-kumb.*",          ("det",)),
+                         ("esimene.*",           ("dem",)),
+                         ("iga\+.*",             ("det",)),
+                         ("iga_sugune.*",        ("indef",)),
+                         ("iga_.ks\+.*",         ("det",)),
+                         ("ise\+.*",             ("pos", "det", "refl")),
+                         ("ise_enese.*",         ("refl",)),
+                         ("ise_sugune.*",        ("dem",)),
+                         ("keegi.*",             ("indef",)),
+                         ("kes.*",               ("inter rel",)),
+                         ("kumb\+.*",            ("rel",)),
+                         ("kumbki.*",            ("det",)),
+                         ("kõik.*",              ("det",)),
+                         ("k.ik.*",              ("det",)),
+                         ("meie_sugune.*",       ("dem",)),
+                         ("meie_taoline.*",      ("dem",)),
+                         ("mihuke\+.*",          ("inter rel",)),
+                         ("mihukene\+.*",        ("inter rel",)),
+                         ("mille_taoline.*",     ("dem",)),
+                         ("milli=?ne.*",         ("rel",)),
+                         ("mina\+.*",            ("pers ps1",)),
+                         (" ma\+.*",             ("pers ps1",)),
+                         ("mina=?kene\+.*",      ("dem",)),
+                         ("mina=?ke\+.*",        ("dem",)),
+                         ("mingi\+.*",           ("indef",)),
+                         ("mingi_sugune.*",      ("indef",)),
+                         ("minu_sugune.*",       ("dem",)),
+                         ("minu_taoline.*",      ("dem",)),
+                         ("miski.*",             ("indef",)),
+                         ("mis\+.*",             ("inter rel",)),
+                         ("mis_sugune.*",        ("inter rel",)),
+                         ("miski\+.*",           ("inter rel",)),
+                         ("miski_sugune.*",      ("inter rel",)),
+                         ("misu=?ke(ne)?\+.*",   ("dem",)),
+                         ("mitme_sugune.*",      ("indef",)),
+                         ("mitme_taoline.*",     ("indef",)),
+                         ("mitmendik\+.*",       ("inter rel",)),
+                         ("mitmes\+.*",          ("inter rel", "indef")),
+                         ("mi=?tu.*",            ("indef",)),
+                         ("miuke(ne)?\+.*",      ("inter rel",)),
+                         ("muist\+.*",           ("indef",)),
+                         ("muu.*",               ("indef",)),
+                         ("m.lema.*",            ("det",)),
+                         ("m.ne_sugune\+.*",     ("indef",)),
+                         ("m.ni\+.*",            ("indef",)),
+                         ("m.ningane\+.*",       ("indef",)),
+                         ("m.ningas.*",          ("indef",)),
+                         ("m.herdune\+.*",       ("indef", "rel")),
+                         ("määntne\+.*",         ("dem",)),
+                         ("na_sugune.*",         ("dem",)),
+                         ("nende_sugune.*",      ("dem",)),
+                         ("nende_taoline.*",     ("dem",)),
+                         ("nihuke(ne)?\+.*",     ("dem",)),
+                         ("nii_mi=?tu\+.*",      ("indef", "inter rel")),
+                         ("nii_sugune.*",        ("dem",)),
+                         ("niisama_sugune.*",    ("dem",)),
+                         ("nii?su=?ke(ne)?\+.*", ("dem",)),
+                         ("niuke(ne)?\+.*",      ("dem",)),
+                         ("oma\+.*",             ("pos", "det", "refl")),
+                         ("oma_enese\+.*",       ("pos",)),
+                         ("oma_sugune\+.*",      ("dem",)),
+                         ("oma_taoline\+.*",     ("dem",)),
+                         ("palju.*",             ("indef",)),
+                         ("sama\+.*",            ("dem",)),
+                         ("sama_sugune\+.*",     ("dem",)),
+                         ("sama_taoline\+.*",    ("dem",)),
+                         ("samune\+.*",          ("dem",)),
+                         ("see\+.*",             ("dem",)),
+                         ("see_sama\+.*",        ("dem",)),
+                         ("see_sam[au]ne\+.*",   ("dem",)),
+                         ("see_sinane\+.*",      ("dem",)),
+                         ("see_sugune\+.*",      ("dem",)),
+                         ("selle_taoline\+.*",   ("dem",)),
+                         ("selli=?ne\+.*",       ("dem",)),
+                         ("setu\+.*",            ("indef",)),
+                         ("setmes\+.*",          ("indef",)),
+                         ("sihuke\+.*",          ("dem",)),
+                         ("sina\+.*",            ("pers ps2",)),
+                         (" sa\+.*",             ("pers ps2",)),
+                         ("sinu_sugune\+.*",     ("dem",)),
+                         ("sinu_taoline\+.*",    ("dem",)),
+                         ("siuke(ne)?\+.*",      ("dem",)),
+                         ("säherdune\+.*",       ("dem",)),
+                         ("s.herdune\+.*",       ("dem",)),
+                         ("säärane\+.*",         ("dem",)),
+                         ("s..rane\+.*",         ("dem",)),
+                         ("taoline\+.*",         ("dem",)),
+                         ("teie_sugune\+.*",     ("dem",)),
+                         ("teie_taoline\+.*",    ("dem",)),
+                         ("teine\+.*",           ("dem",)),
+                         ("teine_teise\+.*",     ("rec",)),
+                         ("teist?_sugune\+.*",   ("dem",)),
+                         ("tema\+.*",            ("pers ps3",)),
+                         (" ta\+.*",             ("pers ps3",)),
+                         ("temake(ne)?\+.*",     ("pers ps3",)),
+                         ("tema_sugune\+.*",     ("dem",)),
+                         ("tema_taoline\+.*",    ("dem",)),
+                         ("too\+.*",             ("dem",)),
+                         ("too_sama\+.*",        ("dem",)),
+                         ("üks.*",               ("dem", "indef")),
+                         (".ks.*",               ("dem", "indef")),
+                         ("ükski.*",             ("dem", "indef")),
+                         (".kski.*",             ("dem", "indef")),
+                         ("üks_teise.*",         ("rec", "indef")),
+                         (".ks_teise.*",         ("rec",))
+    )
     
     def rewrite(self, record):
         result = []
@@ -867,7 +867,7 @@ def convert_to_cg3_input(text):
                 #    print(morph_extended)
                 new_form_list = []
                 if morph_extended.pronoun_type:
-                    new_form_list.append(morph_extended.pronoun_type)
+                    new_form_list.extend(morph_extended.pronoun_type)
                 if morph_extended.form:
                     new_form_list.append(morph_extended.form)
                 if morph_extended.letter_case:
