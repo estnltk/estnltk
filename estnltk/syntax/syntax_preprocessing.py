@@ -200,7 +200,7 @@ class MorphExtendedTagger():
         print('s', end='', flush=True)
         morph_extended = morph_extended.rewrite(
             source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin', 'verb_extension_suffix'],
-            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin', 'verb_extension_suffix', 'abileksikon'],
+            target_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'punctuation_type', 'pronoun_type', 'letter_case', 'fin', 'verb_extension_suffix', 'subcat'],
             rules = self.subcat_rules,
             name = 'morph_extended',
             ambiguous = True
@@ -740,17 +740,17 @@ class SubcatRewriter():
             for subcat in self.v_rules[(rec['root'], rec['partofspeech'])]:
                 match = True
                 rec_copy = rec.copy()
-                rec_copy['abileksikon'] = subcat
+                rec_copy['subcat'] = subcat
                 result.append(rec_copy)
             if not match:
                 for subcat in self.k_rules[(rec['root'], rec['partofspeech'], rec['form'] )]:
                     match = True
                     rec_copy = rec.copy()
-                    rec_copy['abileksikon'] = subcat
+                    rec_copy['subcat'] = subcat
                     result.append(rec_copy)
             
             if not match:
-                rec['abileksikon'] = None
+                rec['subcat'] = None
                 result.append(rec)
 
         return result
@@ -878,8 +878,8 @@ def convert_to_cg3_input(text):
                     new_form_list.append(morph_extended.verb_extension_suffix)
                 if morph_extended.fin:
                     new_form_list.append(morph_extended.fin)
-                if morph_extended.abileksikon:
-                    subcat = morph_extended.abileksikon
+                if morph_extended.subcat:
+                    subcat = morph_extended.subcat
                     subcat = ' '.join(['<'+s+'>' for s in subcat])
                     new_form_list.append(subcat)
                 if morph_extended.punctuation_type:
@@ -891,7 +891,7 @@ def convert_to_cg3_input(text):
                 #    print('-----------------------------------')
                 #    print(morph_extended.form_list)
                 #    print(new_form_list)
-                #    print(morph_extended.initial_form, morph_extended.fin, morph_extended.abileksikon, morph_extended.punctuation_type, morph_extended.pronoun_type, morph_extended.partic, morph_extended.letter_case)
+                #    print(morph_extended.initial_form, morph_extended.fin, morph_extended.subcat, morph_extended.punctuation_type, morph_extended.pronoun_type, morph_extended.partic, morph_extended.letter_case)
                 #morph_extended.form_list = [re.sub('#(\S+)','<\\1>', f) for f in morph_extended.form_list]
                 new_form_list = [re.sub('#(\S+)','<\\1>', f) for f in new_form_list]
 
