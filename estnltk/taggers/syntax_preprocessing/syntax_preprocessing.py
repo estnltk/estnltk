@@ -9,6 +9,76 @@ from estnltk.rewriting import FiniteFormRewriter
 from estnltk.rewriting import VerbExtensionSuffixRewriter
 from estnltk.rewriting import SubcatRewriter
 
+
+
+class PronounTypeTagger():
+    def __init__(self):
+        self.pronoun_type_rewriter = PronounTypeRewriter()
+
+    def tag(self, text):
+        morph_extended = text['morf_analysis']
+        source_attributes = morph_extended.attributes
+        target_attributes = source_attributes + ['pronoun_type']
+        morph_extended = morph_extended.rewrite(
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
+            rules = self.pronoun_type_rewriter,
+            name = 'morph_extended',
+            ambiguous = True
+            )
+        text['morph_extended'] = morph_extended
+
+
+class FiniteFormTagger():
+
+    def __init__(self, fs_to_synt_rules_file):
+        self.morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
+        self.finite_form_rewriter = FiniteFormRewriter()
+
+    def tag(self, text):
+        morph_extended = text['morf_analysis']
+        source_attributes = morph_extended.attributes
+        target_attributes = source_attributes
+        morph_extended = morph_extended.rewrite(
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
+            rules = self.morph_to_syntax_morph_rewriter,
+            name = 'morph_extended',
+            ambiguous = True
+            )
+
+        source_attributes = morph_extended.attributes
+        target_attributes = source_attributes + ['fin']
+        morph_extended = morph_extended.rewrite(
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
+            rules = self.finite_form_rewriter,
+            name = 'morph_extended',
+            ambiguous = True
+            )
+        text['morph_extended'] = morph_extended
+
+
+class VerbExtensionSuffixTagger():
+
+    def __init__(self):
+        self.verb_extension_suffix_rewriter = VerbExtensionSuffixRewriter()
+
+    def tag(self, text):
+        morph_extended = text['morf_analysis']
+        source_attributes = morph_extended.attributes
+        target_attributes = source_attributes + ['verb_extension_suffix']
+        morph_extended = morph_extended.rewrite(
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
+            rules = self.verb_extension_suffix_rewriter,
+            name = 'morph_extended',
+            ambiguous = True
+            )
+        text['morph_extended'] = morph_extended
+
+
+
 class MorphExtendedTagger():
 
     def __init__(self, fs_to_synt_rules_file, allow_to_remove_all, subcat_rules_file):
@@ -138,51 +208,4 @@ class MorphExtendedTagger():
             ambiguous = True
             )
 
-        text['morph_extended'] = morph_extended
-
-
-class PronounTypeTagger():
-    def __init__(self):
-        self.pronoun_type_rewriter = PronounTypeRewriter()
-
-    def tag(self, text):
-
-        source_attributes = text.morf_analysis.layer.attributes
-        target_attributes = source_attributes + ['pronoun_type']
-        morph_extended = text['morf_analysis'].rewrite(
-            source_attributes = source_attributes,
-            target_attributes = target_attributes,
-            rules = self.pronoun_type_rewriter,
-            name = 'morph_extended',
-            ambiguous = True
-            )
-        text['morph_extended'] = morph_extended
-
-
-class FiniteFormTagger():
-
-    def __init__(self, fs_to_synt_rules_file):
-        self.morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
-        self.finite_form_rewriter = FiniteFormRewriter()
-
-    def tag(self, text):
-        source_attributes = text.morf_analysis.layer.attributes
-        target_attributes = source_attributes
-        morph_extended = text['morf_analysis'].rewrite(
-            source_attributes = source_attributes,
-            target_attributes = target_attributes,
-            rules = self.morph_to_syntax_morph_rewriter,
-            name = 'morph_extended',
-            ambiguous = True
-            )
-
-        source_attributes = morph_extended.attributes
-        target_attributes = source_attributes + ['fin']
-        morph_extended = morph_extended.rewrite(
-            source_attributes = source_attributes,
-            target_attributes = target_attributes,
-            rules = self.finite_form_rewriter,
-            name = 'morph_extended',
-            ambiguous = True
-            )
         text['morph_extended'] = morph_extended
