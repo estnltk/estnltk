@@ -5,5 +5,5 @@ from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import PronounT
 from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import RemoveDuplicateAnalysesRewriter
 from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import LetterCaseRewriter
 from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import FiniteFormRewriter
-from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import ParticRewriter
+from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import VerbExtensionSuffixRewriter
 from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import SubcatRewriter

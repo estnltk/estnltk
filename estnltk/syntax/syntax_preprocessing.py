@@ -60,8 +60,6 @@ from estnltk.taggers import MorphExtendedTagger
 
 import re
 import os.path
-import codecs
-from collections import defaultdict
 
 from estnltk.legacy.core import PACKAGE_PATH
 
@@ -72,7 +70,7 @@ SUBCAT_RULES_FILE     = os.path.join(SYNTAX_PATH, 'abileksikon06utf.lx')
 
 
 def is_partic_suffix(suffix):
-    return suffix in {'<tud>', '<nud>', '<v>', '<tav>', '<mata>'} 
+    return suffix in {'tud', 'nud', 'v', 'tav', 'mata'} 
 
 # ==================================================================================
 # ==================================================================================
@@ -133,7 +131,7 @@ def convert_to_cg3_input(text):
                 if is_partic_suffix(morph_extended.verb_extension_suffix):
                     new_form_list.append('partic')
                 if morph_extended.verb_extension_suffix:
-                    new_form_list.append(morph_extended.verb_extension_suffix)
+                    new_form_list.append('<'+morph_extended.verb_extension_suffix+'>')
                 if morph_extended.fin:
                     new_form_list.append(morph_extended.fin)
                 if morph_extended.subcat:

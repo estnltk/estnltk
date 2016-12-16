@@ -437,26 +437,26 @@ class FiniteFormRewriter():
         return result
 
 
-class ParticRewriter():
+class VerbExtensionSuffixRewriter():
     ''' Marks nud/tud/mine/nu/tu/v/tav/mata/ja forms.
     '''
     # Various information about word endings
-    _mrfHashTagConversions = ( ("=[td]ud",   "<tud>"),
-                               ("=nud",      "<nud>"),
-                               ("=mine",     "<mine>"),
-                               ("=nu$",      "<nu>"),
-                               ("=[td]u$",   "<tu>"),
-                               ("=v$",       "<v>"),
-                               ("=[td]av",   "<tav>"),
-                               ("=mata",     "<mata>"),
-                               ("=ja",       "<ja>")
+    _suffix_conversions = ( ("=[td]ud",   "tud"),
+                            ("=nud",      "nud"),
+                            ("=mine",     "mine"),
+                            ("=nu$",      "nu"),
+                            ("=[td]u$",   "tu"),
+                            ("=v$",       "v"),
+                            ("=[td]av",   "tav"),
+                            ("=mata",     "mata"),
+                            ("=ja",       "ja")
     )
     
     def rewrite(self, record):
         result = []
         for rec in record:
             rec['verb_extension_suffix'] = None
-            for pattern, value in self._mrfHashTagConversions:
+            for pattern, value in self._suffix_conversions:
                 if re.search(pattern, rec['root']):
                     rec['verb_extension_suffix'] = value
                     break
