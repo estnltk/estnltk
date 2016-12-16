@@ -78,6 +78,38 @@ class VerbExtensionSuffixTagger():
         text['morph_extended'] = morph_extended
 
 
+class SubcatTagger():
+
+    def __init__(self, fs_to_synt_rules_file, subcat_rules_file):
+        self.morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
+        self.subcat_rules = SubcatRewriter(subcat_rules_file)
+
+    def tag(self, text):
+
+        morph_extended = text['morf_analysis']
+
+        source_attributes = morph_extended.attributes
+        target_attributes = source_attributes
+        morph_extended = morph_extended.rewrite(
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
+            rules = self.morph_to_syntax_morph_rewriter,
+            name = 'morph_extended',
+            ambiguous = True
+            )
+
+        source_attributes = morph_extended.attributes
+        target_attributes = source_attributes + ['subcat']
+        morph_extended = morph_extended.rewrite(
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
+            rules = self.subcat_rules,
+            name = 'morph_extended',
+            ambiguous = True
+            )
+
+        text['morph_extended'] = morph_extended
+
 
 class MorphExtendedTagger():
 
