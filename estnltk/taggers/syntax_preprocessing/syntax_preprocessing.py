@@ -47,7 +47,7 @@ class MorphExtendedTagger():
         morph_extended = text['syntax_pp_0']
 
         print('z', end='', flush=True)
-        source_attributes = ['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form']
+        source_attributes = morph_extended.attributes
         target_attributes = source_attributes + ['punctuation_type']
         morph_extended = morph_extended.rewrite(
             source_attributes = source_attributes,
@@ -58,8 +58,8 @@ class MorphExtendedTagger():
             )
 
         print('m', end='', flush=True)
-        source_attributes = target_attributes
-        #target_attributes = source_attributes
+        source_attributes = morph_extended.attributes
+        target_attributes = source_attributes
         morph_extended = morph_extended.rewrite(
             source_attributes = source_attributes,
             target_attributes = target_attributes,
@@ -70,7 +70,7 @@ class MorphExtendedTagger():
 
         # kasulik
         print('p', end='', flush=True)
-        source_attributes = target_attributes
+        source_attributes = morph_extended.attributes
         target_attributes = source_attributes + ['pronoun_type']
         morph_extended = morph_extended.rewrite(
             source_attributes = source_attributes,
@@ -81,8 +81,8 @@ class MorphExtendedTagger():
             )
 
         print('d', end='', flush=True)
-        source_attributes = target_attributes
-        #target_attributes = source_attributes
+        source_attributes = morph_extended.attributes
+        target_attributes = source_attributes
         morph_extended = morph_extended.rewrite(
             source_attributes = source_attributes,
             target_attributes = target_attributes,
@@ -92,7 +92,7 @@ class MorphExtendedTagger():
             )
 
         print('c', end='', flush=True)
-        source_attributes = target_attributes
+        source_attributes = morph_extended.attributes
         target_attributes = source_attributes + ['letter_case']
         morph_extended = morph_extended.rewrite(
             source_attributes = source_attributes,
@@ -104,7 +104,7 @@ class MorphExtendedTagger():
 
         # kasulik
         print('f', end='', flush=True)
-        source_attributes = target_attributes
+        source_attributes = morph_extended.attributes
         target_attributes = source_attributes + ['fin']
         morph_extended = morph_extended.rewrite(
             source_attributes = source_attributes,
@@ -116,7 +116,7 @@ class MorphExtendedTagger():
 
         # kasulik
         print('p', end='', flush=True)
-        source_attributes = target_attributes
+        source_attributes = morph_extended.attributes
         target_attributes = source_attributes + ['verb_extension_suffix']
         morph_extended = morph_extended.rewrite(
             source_attributes = source_attributes,
@@ -128,7 +128,7 @@ class MorphExtendedTagger():
 
         # kasulik
         print('s', end='', flush=True)
-        source_attributes = target_attributes
+        source_attributes = morph_extended.attributes
         target_attributes = source_attributes + ['subcat']
         morph_extended = morph_extended.rewrite(
             source_attributes = source_attributes,
@@ -149,10 +149,40 @@ class PronounTypeTagger():
 
         source_attributes = text.morf_analysis.layer.attributes
         target_attributes = source_attributes + ['pronoun_type']
-        text['morph_extended'] = text['morf_analysis'].rewrite(
+        morph_extended = text['morf_analysis'].rewrite(
             source_attributes = source_attributes,
             target_attributes = target_attributes,
             rules = self.pronoun_type_rewriter,
             name = 'morph_extended',
             ambiguous = True
             )
+        text['morph_extended'] = morph_extended
+
+
+class FiniteFormTagger():
+
+    def __init__(self, fs_to_synt_rules_file):
+        self.morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
+        self.finite_form_rewriter = FiniteFormRewriter()
+
+    def tag(self, text):
+        source_attributes = text.morf_analysis.layer.attributes
+        target_attributes = source_attributes
+        morph_extended = text['morf_analysis'].rewrite(
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
+            rules = self.morph_to_syntax_morph_rewriter,
+            name = 'morph_extended',
+            ambiguous = True
+            )
+
+        source_attributes = morph_extended.attributes
+        target_attributes = source_attributes + ['fin']
+        morph_extended = morph_extended.rewrite(
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
+            rules = self.finite_form_rewriter,
+            name = 'morph_extended',
+            ambiguous = True
+            )
+        text['morph_extended'] = morph_extended

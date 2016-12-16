@@ -440,7 +440,6 @@ class FiniteFormRewriter():
 class VerbExtensionSuffixRewriter():
     ''' Marks nud/tud/mine/nu/tu/v/tav/mata/ja forms.
     '''
-    # Various information about word endings
     _suffix_conversions = ( ("=[td]ud",   "tud"),
                             ("=nud",      "nud"),
                             ("=mine",     "mine"),
