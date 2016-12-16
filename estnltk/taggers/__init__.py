@@ -1,1 +1,2 @@
 from estnltk.taggers.syntax_preprocessing.syntax_preprocessing import MorphExtendedTagger
+from estnltk.taggers.syntax_preprocessing.syntax_preprocessing import PronounTypeTagger

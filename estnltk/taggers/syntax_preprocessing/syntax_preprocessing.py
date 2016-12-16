@@ -6,7 +6,7 @@ from estnltk.rewriting import PronounTypeRewriter
 from estnltk.rewriting import RemoveDuplicateAnalysesRewriter
 from estnltk.rewriting import LetterCaseRewriter
 from estnltk.rewriting import FiniteFormRewriter
-from estnltk.rewriting import ParticRewriter
+from estnltk.rewriting import VerbExtensionSuffixRewriter
 from estnltk.rewriting import SubcatRewriter
 
 class MorphExtendedTagger():
@@ -18,7 +18,7 @@ class MorphExtendedTagger():
         self.remove_duplicate_analyses_rewriter = RemoveDuplicateAnalysesRewriter(allow_to_remove_all)
         self.letter_case_rewriter = LetterCaseRewriter()
         self.finite_form_rewriter = FiniteFormRewriter()
-        self.partic_rewriter = ParticRewriter()
+        self.verb_extension_suffix_rewriter = VerbExtensionSuffixRewriter()
         self.subcat_rules = SubcatRewriter(subcat_rules_file)
 
     @staticmethod
@@ -121,7 +121,7 @@ class MorphExtendedTagger():
         morph_extended = morph_extended.rewrite(
             source_attributes = source_attributes,
             target_attributes = target_attributes,
-            rules = self.partic_rewriter,
+            rules = self.verb_extension_suffix_rewriter,
             name = 'morph_extended',
             ambiguous = True
             )
@@ -139,3 +139,20 @@ class MorphExtendedTagger():
             )
 
         text['morph_extended'] = morph_extended
+
+
+class PronounTypeTagger():
+    def __init__(self):
+        self.pronoun_type_rewriter = PronounTypeRewriter()
+
+    def tag(self, text):
+
+        source_attributes = text.morf_analysis.layer.attributes
+        target_attributes = source_attributes + ['pronoun_type']
+        text['morph_extended'] = text['morf_analysis'].rewrite(
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
+            rules = self.pronoun_type_rewriter,
+            name = 'morph_extended',
+            ambiguous = True
+            )
