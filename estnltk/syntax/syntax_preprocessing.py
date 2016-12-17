@@ -57,6 +57,7 @@
 
 from __future__ import unicode_literals, print_function
 from estnltk.taggers import MorphExtendedTagger
+from estnltk.taggers import QuickMorphExtendedTagger
 
 import re
 import os.path
@@ -289,7 +290,7 @@ class SyntaxPreprocessing:
         if not self.subcat_rules_file or not os.path.exists(self.subcat_rules_file):
             raise Exception('(!) Unable to find *subcat_rules* from location:', \
                             self.subcat_rules_file)
-        self.morph_extended_tagger = MorphExtendedTagger(self.fs_to_synt_rules_file, self.allow_to_remove_all, self.subcat_rules_file)
+        self.morph_extended_tagger = QuickMorphExtendedTagger(self.fs_to_synt_rules_file, self.allow_to_remove_all, self.subcat_rules_file)
 
 
     def process_Text(self, text, **kwargs):

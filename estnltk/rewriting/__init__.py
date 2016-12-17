@@ -7,3 +7,5 @@ from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import LetterCa
 from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import FiniteFormRewriter
 from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import VerbExtensionSuffixRewriter
 from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import SubcatRewriter
+
+from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import QuickExtendedMorphRewriter

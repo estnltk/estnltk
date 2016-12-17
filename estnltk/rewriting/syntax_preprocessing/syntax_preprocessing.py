@@ -18,14 +18,12 @@ class PunctuationTypeRewriter():
     ''' 
 
     def rewrite(self, record):
-        result = []
         for rec in record:
             if rec['partofspeech'] == 'Z':
                 rec['punctuation_type'] = self._get_punctuation_type(rec)
             else:
                 rec['punctuation_type'] = None
-            result.append(rec)
-        return result
+        return record
 
     _punctConversions = (
                           ("…$",      "Ell"),
@@ -303,7 +301,6 @@ class PronounTypeRewriter():
     )
     
     def rewrite(self, record):
-        result = []
         for rec in record:
             rec['pronoun_type'] = None
             if rec['partofspeech'] == 'P':  # only consider lines containing pronoun analyses
@@ -313,8 +310,7 @@ class PronounTypeRewriter():
                         # kas search või match? "enese" vs "iseenese"
                         rec['pronoun_type'] = pron_type
                         break
-            result.append(rec)
-        return result
+        return record
 
 
 # ==================================================================================
@@ -405,7 +401,6 @@ class LetterCaseRewriter():
         return str1.replace('"', '\\"').replace('\\\\\\"', '\\"').replace('\\\\"', '\\"')
     
     def rewrite(self, record):
-        result = []
         for rec in record:
             # cap võib for alt välja tõsta, kui alati len(record)>0
             cap = self._esc_double_quotes(rec['word_text'][0]).isupper()
@@ -413,8 +408,7 @@ class LetterCaseRewriter():
                 rec['letter_case'] = 'cap'
             else:
                 rec['letter_case'] = None
-            result.append(rec)
-        return result
+        return record
 
 
 class FiniteFormRewriter():
@@ -426,15 +420,13 @@ class FiniteFormRewriter():
     _morfFinV        = re.compile('(ps[123]|neg|quot|impf imps|pres imps)')
 
     def rewrite(self, record):
-        result = []
         for rec in record:
             rec['fin'] = None
             if rec['partofspeech'] == 'V':
                 if self._morfFinV.search(rec['form']):
                     if rec['form'] != 'aux neg':
                         rec['fin'] = '<FinV>'
-            result.append(rec)
-        return result
+        return record
 
 
 class VerbExtensionSuffixRewriter():
@@ -452,15 +444,13 @@ class VerbExtensionSuffixRewriter():
     )
     
     def rewrite(self, record):
-        result = []
         for rec in record:
             rec['verb_extension_suffix'] = None
             for pattern, value in self._suffix_conversions:
                 if re.search(pattern, rec['root']):
                     rec['verb_extension_suffix'] = value
                     break
-            result.append(rec)
-        return result
+        return record
 
 
 # ==================================================================================
@@ -492,12 +482,13 @@ class SubcatRewriter():
         for rec in record:
             match = False
             
-            for subcat in self.v_rules[(rec['root'], rec['partofspeech'])]:
-                match = True
-                rec_copy = rec.copy()
-                rec_copy['subcat'] = subcat
-                result.append(rec_copy)
-            if not match:
+            if rec['partofspeech'] == 'V':
+                for subcat in self.v_rules[(rec['root'], rec['partofspeech'])]:
+                    match = True
+                    rec_copy = rec.copy()
+                    rec_copy['subcat'] = subcat
+                    result.append(rec_copy)
+            elif rec['partofspeech'] == 'K':
                 for subcat in self.k_rules[(rec['root'], rec['partofspeech'], rec['form'] )]:
                     match = True
                     rec_copy = rec.copy()
@@ -588,3 +579,41 @@ class SubcatRewriter():
                 k_rules[key][i] = [s.strip(' #') for s in subcat.split()]
 
         return v_rules, k_rules
+
+
+class QuickExtendedMorphRewriter():
+    ''' Converts given analysis line if it describes punctuation; Uses the set 
+        of predefined punctuation conversion rules from _punctConversions;
+        
+        _punctConversions should be a list of lists, where each outer list stands 
+        for a single conversion rule and inner list contains a pair of elements:
+        first is the regexp pattern and the second is the replacement, used in
+           re.sub( pattern, replacement, line )
+        
+        Returns the converted line (same as input, if no conversion was 
+        performed);
+    ''' 
+
+    def __init__(self, punctuation_type_rewriter, morph_to_syntax_morph_rewriter, 
+                 pronoun_type_rewriter, remove_duplicate_analyses_rewriter,
+                 letter_case_rewriter, finite_form_rewriter,
+                 verb_extension_suffix_rewriter, subcat_rewriter):
+        self.punctuation_type_rewriter = punctuation_type_rewriter
+        self.morph_to_syntax_morph_rewriter = morph_to_syntax_morph_rewriter
+        self.pronoun_type_rewriter = pronoun_type_rewriter
+        self.remove_duplicate_analyses_rewriter = remove_duplicate_analyses_rewriter
+        self.letter_case_rewriter = letter_case_rewriter
+        self.finite_form_rewriter = finite_form_rewriter
+        self.verb_extension_suffix_rewriter = verb_extension_suffix_rewriter
+        self.subcat_rewriter = subcat_rewriter
+
+    def rewrite(self, record):
+        record = self.punctuation_type_rewriter.rewrite(record)
+        record = self.morph_to_syntax_morph_rewriter.rewrite(record)
+        record = self.pronoun_type_rewriter.rewrite(record)
+        record = self.remove_duplicate_analyses_rewriter.rewrite(record)
+        record = self.letter_case_rewriter.rewrite(record)
+        record = self.finite_form_rewriter.rewrite(record)
+        record = self.verb_extension_suffix_rewriter.rewrite(record)
+        record = self.subcat_rewriter.rewrite(record)
+        return record

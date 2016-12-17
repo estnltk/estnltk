@@ -8,6 +8,7 @@ from estnltk.rewriting import LetterCaseRewriter
 from estnltk.rewriting import FiniteFormRewriter
 from estnltk.rewriting import VerbExtensionSuffixRewriter
 from estnltk.rewriting import SubcatRewriter
+from estnltk.rewriting import QuickExtendedMorphRewriter
 
 
 
@@ -82,7 +83,7 @@ class SubcatTagger():
 
     def __init__(self, fs_to_synt_rules_file, subcat_rules_file):
         self.morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
-        self.subcat_rules = SubcatRewriter(subcat_rules_file)
+        self.subcat_rewriter = SubcatRewriter(subcat_rules_file)
 
     def tag(self, text):
 
@@ -103,7 +104,7 @@ class SubcatTagger():
         morph_extended = morph_extended.rewrite(
             source_attributes = source_attributes,
             target_attributes = target_attributes,
-            rules = self.subcat_rules,
+            rules = self.subcat_rewriter,
             name = 'morph_extended',
             ambiguous = True
             )
@@ -121,7 +122,7 @@ class MorphExtendedTagger():
         self.letter_case_rewriter = LetterCaseRewriter()
         self.finite_form_rewriter = FiniteFormRewriter()
         self.verb_extension_suffix_rewriter = VerbExtensionSuffixRewriter()
-        self.subcat_rules = SubcatRewriter(subcat_rules_file)
+        self.subcat_rewriter = SubcatRewriter(subcat_rules_file)
 
     @staticmethod
     def _esc_double_quotes(str1):
@@ -235,9 +236,74 @@ class MorphExtendedTagger():
         morph_extended = morph_extended.rewrite(
             source_attributes = source_attributes,
             target_attributes = target_attributes,
-            rules = self.subcat_rules,
+            rules = self.subcat_rewriter,
             name = 'morph_extended',
             ambiguous = True
             )
 
+        text['morph_extended'] = morph_extended
+
+
+class QuickMorphExtendedTagger():
+
+    def __init__(self, fs_to_synt_rules_file, allow_to_remove_all, subcat_rules_file):
+        punctuation_type_rewriter = PunctuationTypeRewriter()
+        morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
+        pronoun_type_rewriter = PronounTypeRewriter()
+        remove_duplicate_analyses_rewriter = RemoveDuplicateAnalysesRewriter(allow_to_remove_all)
+        letter_case_rewriter = LetterCaseRewriter()
+        finite_form_rewriter = FiniteFormRewriter()
+        verb_extension_suffix_rewriter = VerbExtensionSuffixRewriter()
+        subcat_rewriter = SubcatRewriter(subcat_rules_file)
+
+        self.quick_extended_morph_rewriter = QuickExtendedMorphRewriter(
+                                                punctuation_type_rewriter,
+                                                morph_to_syntax_morph_rewriter,
+                                                pronoun_type_rewriter,
+                                                remove_duplicate_analyses_rewriter,
+                                                letter_case_rewriter,
+                                                finite_form_rewriter,
+                                                verb_extension_suffix_rewriter,
+                                                subcat_rewriter)
+        
+
+    @staticmethod
+    def _esc_double_quotes(str1):
+        ''' Escapes double quotes.
+        '''
+        return str1.replace('"', '\\"').replace('\\\\\\"', '\\"').replace('\\\\"', '\\"')
+
+    def tag(self, text):
+
+        dep = Layer(name='syntax_pp_0',
+                         parent='words',
+                         ambiguous=True,
+                         attributes=['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form']
+                         )
+        text._add_layer(dep)
+        for word, morf_anal in zip(text.words, text.morf_analysis):
+            for analysis in morf_anal:
+                m = word.mark('syntax_pp_0')
+                m.word_text = analysis.text
+                m.root = self._esc_double_quotes(analysis.root)
+                m.ending = analysis.ending
+                m.clitic = analysis.clitic
+                m.partofspeech = analysis.partofspeech
+                m.form = analysis.form
+        morph_extended = text['syntax_pp_0']
+
+        source_attributes = morph_extended.attributes
+        target_attributes = source_attributes + ['punctuation_type', 
+                                                 'pronoun_type',
+                                                 'letter_case',
+                                                 'fin',
+                                                 'verb_extension_suffix',
+                                                 'subcat']
+        morph_extended = morph_extended.rewrite(
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
+            rules = self.quick_extended_morph_rewriter,
+            name = 'morph_extended',
+            ambiguous = True
+            )
         text['morph_extended'] = morph_extended
