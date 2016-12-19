@@ -4,7 +4,7 @@ MACROS = {
 	'hour': '[0-2][0-9]',
 	'minute': '[0-5][0-9]',
 	'second': '[0-5][0-9]',
-    'DAY': '[0-3]?[0-9]',
+    'DAY': '(0?[1-9]|[12][0-9]|3[01])',
     'MONTH': '(0?[1-9]|1[0-2])',
     'YEAR': '((19[0-9]{2})|(20[0-9]{2})|([0-9]{2}))',
     'LONGYEAR': '((19[0-9]{2})|(20[0-9]{2}))'
@@ -16,7 +16,7 @@ for k, v in MACROS.items():
  
 
 MACROS['DATE'] = '{DAY}\.\s*{MONTH}\.\s*{YEAR}'.format(**MACROS)
-MACROS['TIME'] = '{hour}[:.]{minute}(:{second})?'.format(**MACROS)
+MACROS['TIME'] = '{hour}[:]{minute}(:{second})?'.format(**MACROS)
 
 
 

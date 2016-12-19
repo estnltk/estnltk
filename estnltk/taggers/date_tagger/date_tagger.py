@@ -5,7 +5,7 @@ from estnltk import Text
 from pprint import pprint
 from regexes_v import regexes
 import datetime
-
+import pandas as pd
 
 class DateTagger:
     def __init__(self, return_layer=False, layer_name='date'):
@@ -51,45 +51,50 @@ class DateTagger:
                     for idx, d in enumerate(text[self.layer_name]):
                         text[self.layer_name][idx]['extracted_values'] = {}
                         if 'YEAR' in d['groups'] or 'LONGYEAR' in d['groups']:
- 
                             if 'YEAR' in d['groups']:
                                 year = self.__clean_year(d['groups']['YEAR'])
                             else:
                                 year = int(d['groups']['LONGYEAR'])
                             if 'DAY' in d['groups']:
-
                                 day = int(d['groups']['DAY'])
                                 if 'hour' in d['groups']:
                                     if d['groups']['second'] == None:
                                         second = 0
                                     else:
                                         second = int(d['groups']['second'])
-                                    t = datetime.datetime(year = year,
+                                    try:    
+                                        t = datetime.datetime(year = year,
                                                           month = int(d['groups']['MONTH']),
                                                           day = day,
                                                           hour = int(d['groups']['hour']),
                                                           minute = int(d['groups']['minute']),
                                                           second = second)
                                     
-                                    text[self.layer_name][idx]['extracted_values']['datetime'] = t
+                                        text[self.layer_name][idx]['extracted_values']['datetime'] = t
+                                    except ValueError:
+                                        text[self.layer_name][idx]['extracted_values']['datetime'] = None   
                                 
                                 else:
-
-                                    t = datetime.date(year = year,
+                                    try:
+                                        t = datetime.date(year = year,
                                                       month = int(d['groups']['MONTH']),
                                                       day = day)
-                                    text[self.layer_name][idx]['extracted_values']['date'] = t
-      
+                                        text[self.layer_name][idx]['extracted_values']['date'] = t
+                                    except ValueError:
+                                        text[self.layer_name][idx]['extracted_values']['date'] = None   
                         else:
                             if 'hour' in d['groups']:
                                 if d['groups']['second'] == None:
                                         second = 0
                                 else:
                                     second = int(d['groups']['second'])
-                                t = datetime.time(hour = int(d['groups']['hour']),
+                                try:    
+                                    t = datetime.time(hour = int(d['groups']['hour']),
                                                   minute = int(d['groups']['minute']),
                                                   second = second)
-                                text[self.layer_name][idx]['extracted_values']['time'] = t
+                                    text[self.layer_name][idx]['extracted_values']['time'] = t
+                                except ValueError:
+                                    text[self.layer_name][idx]['extracted_values']['time'] = None   
 
                                 
                 return text
