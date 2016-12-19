@@ -131,10 +131,10 @@ def convert_to_cg3_input(text):
                     new_form_list.append(morph_extended.letter_case)
                 if is_partic_suffix(morph_extended.verb_extension_suffix):
                     new_form_list.append('partic')
-                if morph_extended.verb_extension_suffix:
-                    new_form_list.append('<'+morph_extended.verb_extension_suffix+'>')
                 if morph_extended.fin:
                     new_form_list.append(morph_extended.fin)
+                if morph_extended.verb_extension_suffix:
+                    new_form_list.append('<'+morph_extended.verb_extension_suffix+'>')
                 if morph_extended.subcat:
                     subcat = morph_extended.subcat
                     subcat = ' '.join(['<'+s+'>' for s in subcat])
@@ -273,11 +273,14 @@ class SyntaxPreprocessing:
                 Default: False
             
         '''
+        self.subcat_rules_extra_file = None
         for argName, argVal in kwargs.items():
             if argName in ['fs_to_synt_rules_file', 'fs_to_synt_rules', 'fs_to_synt']:
                 self.fs_to_synt_rules_file = argVal
             elif argName in ['subcat_rules_file', 'subcat_rules', 'subcat']:
                 self.subcat_rules_file = argVal
+            elif argName in ['subcat_rules_extra_file', 'subcat_rules_extra', 'subcat_extra']:
+                self.subcat_rules_extra_file = argVal
             elif argName in ['allow_to_remove_all','allow_to_remove'] and argVal in [True,False]:
                 self.allow_to_remove_all = argVal
             else:
@@ -290,7 +293,11 @@ class SyntaxPreprocessing:
         if not self.subcat_rules_file or not os.path.exists(self.subcat_rules_file):
             raise Exception('(!) Unable to find *subcat_rules* from location:', \
                             self.subcat_rules_file)
-        self.morph_extended_tagger = QuickMorphExtendedTagger(self.fs_to_synt_rules_file, self.allow_to_remove_all, self.subcat_rules_file)
+        #  subcat_rules_extra_file:
+        if self.subcat_rules_extra_file and not os.path.exists(self.subcat_rules_extra_file):
+                raise Exception('(!) Unable to find *subcat_extra_rules* from location:', \
+                                self.subcat_rules_extra_file)
+        self.morph_extended_tagger = QuickMorphExtendedTagger(self.fs_to_synt_rules_file, self.allow_to_remove_all, self.subcat_rules_file, self.subcat_rules_extra_file)
 
 
     def process_Text(self, text, **kwargs):

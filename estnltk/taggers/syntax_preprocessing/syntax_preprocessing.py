@@ -8,7 +8,7 @@ from estnltk.rewriting import LetterCaseRewriter
 from estnltk.rewriting import FiniteFormRewriter
 from estnltk.rewriting import VerbExtensionSuffixRewriter
 from estnltk.rewriting import SubcatRewriter
-from estnltk.rewriting import QuickExtendedMorphRewriter
+from estnltk.rewriting import QuickMorphExtendedRewriter
 
 
 
@@ -114,7 +114,7 @@ class SubcatTagger():
 
 class MorphExtendedTagger():
 
-    def __init__(self, fs_to_synt_rules_file, allow_to_remove_all, subcat_rules_file):
+    def __init__(self, fs_to_synt_rules_file, allow_to_remove_all, subcat_rules_file, subcat_rules_extra_file):
         self.punctuation_type_rewriter = PunctuationTypeRewriter()
         self.morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
         self.pronoun_type_rewriter = PronounTypeRewriter()
@@ -122,7 +122,7 @@ class MorphExtendedTagger():
         self.letter_case_rewriter = LetterCaseRewriter()
         self.finite_form_rewriter = FiniteFormRewriter()
         self.verb_extension_suffix_rewriter = VerbExtensionSuffixRewriter()
-        self.subcat_rewriter = SubcatRewriter(subcat_rules_file)
+        self.subcat_rewriter = SubcatRewriter(subcat_rules_file, subcat_rules_extra_file)
 
     @staticmethod
     def _esc_double_quotes(str1):
@@ -246,7 +246,7 @@ class MorphExtendedTagger():
 
 class QuickMorphExtendedTagger():
 
-    def __init__(self, fs_to_synt_rules_file, allow_to_remove_all, subcat_rules_file):
+    def __init__(self, fs_to_synt_rules_file, allow_to_remove_all, subcat_rules_file, subcat_rules_extra_file=None):
         punctuation_type_rewriter = PunctuationTypeRewriter()
         morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
         pronoun_type_rewriter = PronounTypeRewriter()
@@ -254,9 +254,9 @@ class QuickMorphExtendedTagger():
         letter_case_rewriter = LetterCaseRewriter()
         finite_form_rewriter = FiniteFormRewriter()
         verb_extension_suffix_rewriter = VerbExtensionSuffixRewriter()
-        subcat_rewriter = SubcatRewriter(subcat_rules_file)
+        subcat_rewriter = SubcatRewriter(subcat_rules_file, subcat_rules_extra_file)
 
-        self.quick_extended_morph_rewriter = QuickExtendedMorphRewriter(
+        self.quick_morph_extended_rewriter = QuickMorphExtendedRewriter(
                                                 punctuation_type_rewriter,
                                                 morph_to_syntax_morph_rewriter,
                                                 pronoun_type_rewriter,
@@ -302,7 +302,7 @@ class QuickMorphExtendedTagger():
         morph_extended = morph_extended.rewrite(
             source_attributes = source_attributes,
             target_attributes = target_attributes,
-            rules = self.quick_extended_morph_rewriter,
+            rules = self.quick_morph_extended_rewriter,
             name = 'morph_extended',
             ambiguous = True
             )

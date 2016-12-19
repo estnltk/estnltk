@@ -8,4 +8,4 @@ from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import FiniteFo
 from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import VerbExtensionSuffixRewriter
 from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import SubcatRewriter
 
-from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import QuickExtendedMorphRewriter
+from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import QuickMorphExtendedRewriter

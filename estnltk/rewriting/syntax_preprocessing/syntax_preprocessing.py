@@ -442,6 +442,20 @@ class VerbExtensionSuffixRewriter():
                             ("=mata",     "mata"),
                             ("=ja",       "ja")
     )
+    # 973 viha=tu+d-armasta: <tu>.   718 "lahti_seleta=tult": no <tu>
+    # öel=nu+d-kirjuta
+    _suffix_conversions = ( ("=[td]ud",   "tud"),
+                            ("=nud",      "nud"),
+                            ("=mine",     "mine"),
+                            ("=nu$",       "nu"),
+                            ("=[td]u$",    "tu"),
+                            ("=nu[+]",       "nu"),
+                            ("=[td]u[+]",    "tu"),
+                            ("=v$",       "v"),
+                            ("=[td]av",   "tav"),
+                            ("=mata",     "mata"),
+                            ("=ja",       "ja")
+    )
     
     def rewrite(self, record):
         for rec in record:
@@ -474,8 +488,8 @@ class SubcatRewriter():
         Returns the input list where verb/adposition analyses have been augmented 
         with available subcategorization information;
     '''
-    def __init__(self, subcat_rules_file):
-        self.v_rules, self.k_rules = self._load_subcat_info(subcat_rules_file)
+    def __init__(self, subcat_rules_file, subcat_rules_extra_file=None):
+        self.v_rules, self.k_rules = self._load_subcat_info(subcat_rules_file, subcat_rules_extra_file)
 
     def rewrite(self, record):
         result = []
@@ -501,7 +515,7 @@ class SubcatRewriter():
 
         return result
 
-    def _load_subcat_info(self,subcat_rules_file):
+    def _load_subcat_info(self, subcat_rules_file, subcat_rules_extra_file):
         ''' Loads subcategorization rules (for verbs and adpositions) from a text 
             file. 
             It is expected that the rules are given as pairs, where the first item is 
@@ -528,32 +542,47 @@ class SubcatRewriter():
         rules = defaultdict(list)
         nonSpacePattern = re.compile('^\S+$')
         posTagPattern   = re.compile('_._')
-        in_f = codecs.open(subcat_rules_file, mode='r', encoding='utf-8')
-        root = None
-        subcatRules = None
-        for line in in_f:
-            # seda võib kirjutada lihtsamaks, kui võib eeldada, et faili formaat on range
-            line = line.rstrip()
-            if posTagPattern.search(line) and root:
-                subcatRules = line
-                parts = subcatRules.split('&')#[::-1]#76 tekst 
-                for part in parts:
-                    part = part.strip()
-                    rules[root].append(part)
-                root = None
-                subcatRules = None
-            elif nonSpacePattern.match(line):
-                root = line
-        in_f.close()
+        def read_lexicon(file, rules):
+            in_f = codecs.open(file, mode='r', encoding='utf-8')
+            root = None
+            subcatRules = None
+            for line in in_f:
+                # seda võib kirjutada lihtsamaks, kui võib eeldada, et faili formaat on range
+                line = line.rstrip()
+                if posTagPattern.search(line) and root:
+                    subcatRules = line
+                    parts = subcatRules.split('&')#[::-1]#76 tekst 
+                    for part in parts:
+                        part = part.strip()
+                        rules[root].append(part)
+                    root = None
+                    subcatRules = None
+                elif nonSpacePattern.match(line):
+                    root = line
+            in_f.close()
+            return rules
+
+        rules = read_lexicon(subcat_rules_file, rules)
         #print( len(rules.keys()) )   # 4484
-    
+        if subcat_rules_extra_file:
+            rules = read_lexicon(subcat_rules_extra_file, rules)
+
         v_rules = defaultdict(list)
         k_rules = defaultdict(list)
         for root, rulelist in rules.items():
             for rule in rulelist:
                 pos, subcats = rule.split('>')
+                pos = pos.strip()
+                #if pos == '_V_':
+                #    v_rules[(root, 'V')] = []
+                if pos == '_K_ post':
+                    if (root, 'K', 'post') in k_rules:
+                        continue
+                if pos == '_K_ pre':
+                    if (root, 'K', 'pre') in k_rules:
+                        continue
+                    #k_rules[(root, 'K', 'pre')] = []
                 for subcat in subcats.split('|'):
-                    pos = pos.strip()
                     subcat = subcat.strip()
                     if pos == '_V_':
                         if all([subcat not in s for s in v_rules[(root, 'V')]]):
@@ -581,7 +610,7 @@ class SubcatRewriter():
         return v_rules, k_rules
 
 
-class QuickExtendedMorphRewriter():
+class QuickMorphExtendedRewriter():
     ''' Converts given analysis line if it describes punctuation; Uses the set 
         of predefined punctuation conversion rules from _punctConversions;
         
