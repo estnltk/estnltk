@@ -21,10 +21,11 @@ from estnltk.names import START, END
 from pandas import DataFrame
 
 TERM = 'term'
-WSTART_RAW = 'wstart_raw'
+WSTART_RAW = 'wstart_raw' # w - word
 WEND_RAW = 'wend_raw'
 WSTART = 'wstart'
-CSTART = 'cstart'
+CSTART = 'cstart' # c - character
+BSTART = 'bstart' # b - block
 
 DEFAULT_METHOD = 'ahocorasick' if version_info.major >= 3 else 'naive'
 
@@ -270,9 +271,10 @@ class EventTagger(KeywordTagger):
         event_vocabulary: list of dict, str, pandas.DataFrame
             Vocabulary of events. There must be one key (column) called 'term' 
             in ``event_vocabulary``. That refers to the strings searched from 
-            the text. Other keys ('type' in the following examples) are optional. 
-            No key may have name 'start', 'end', 'cstart', 'wstart', 
-            'wstart_raw' or 'wend_raw'.
+            the text. Other keys ('type' in the following examples) are optional.
+            No key may have name 'start', 'end', 'wstart_raw', 'wend_raw',
+            'cstart', 'wstart' or 'bstart'.
+            .
 
             If ``list of dict``, then every dict in the list is a vocabulary entry. 
 
@@ -354,11 +356,12 @@ class EventTagger(KeywordTagger):
         if len(event_vocabulary) == 0:
             return []
         if (START in event_vocabulary[0] or
-                    END in event_vocabulary[0] or
-                    WSTART in event_vocabulary[0] or
-                    CSTART in event_vocabulary[0] or
-                    WSTART_RAW in event_vocabulary[0] or
-                    WEND_RAW in event_vocabulary[0]):
+                END in event_vocabulary[0] or
+                WSTART_RAW in event_vocabulary[0] or
+                WEND_RAW in event_vocabulary[0] or
+                CSTART in event_vocabulary[0] or
+                WSTART in event_vocabulary[0] or
+                BSTART in event_vocabulary[0]):
             raise KeyError('Illegal key in event vocabulary.')
         if TERM not in event_vocabulary[0]:
             raise KeyError("Missing key '" + TERM + "' in event vocabulary.")
@@ -410,16 +413,25 @@ class EventTagger(KeywordTagger):
         if not overlapping_events:
             w_shift = 0
             c_shift = 0
+            b_count = -1
+            previous_wend_raw = 0
             for event in events:
                 event[WSTART] = event[WSTART_RAW] - w_shift
                 w_shift += event[WEND_RAW] - event[WSTART_RAW] - 1
 
                 event[CSTART] = event[START] - c_shift
                 c_shift += event[END] - event[START] - 1
+
+                if event[WSTART_RAW] > previous_wend_raw:
+                    b_count += 2
+                else:
+                    b_count += 1
+                event[BSTART] = b_count
+                previous_wend_raw = event[WEND_RAW]
         return events
 
     def tag(self, text):
-        """Retrieves list of events in text.
+        """Retrieves list of events in the text.
         
         Parameters
         ----------

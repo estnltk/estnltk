@@ -108,13 +108,22 @@ class EventTaggerTest(unittest.TestCase):
         self.assertListEqual(expected, result)        
 
     def test_event_tagger_tag_events(self):
-        event_vocabulary = [{'term': 'Harv', 'type': 'sagedus'}, 
+        event_vocabulary = [{'term': 'Harv', 'type': 'sagedus'},
                             {'term': 'peavalu', 'type': 'sümptom'}]
         text = Text('Harva esineb peavalu.')
         event_tagger = EventTagger(event_vocabulary, return_layer=True)
         result = event_tagger.tag(text)
-        expected = [{'term':    'Harv', 'type': 'sagedus', 'start':  0, 'end':  4, 'wstart_raw': 0, 'wend_raw': 1, 'cstart':  0, 'wstart': 0}, 
-                    {'term': 'peavalu', 'type': 'sümptom', 'start': 13, 'end': 20, 'wstart_raw': 2, 'wend_raw': 3, 'cstart': 10, 'wstart': 2}]
+        expected = [{'term':    'Harv', 'type': 'sagedus', 'start':  0, 'end':  4, 'wstart_raw': 0, 'wend_raw': 1, 'cstart':  0, 'wstart': 0, 'bstart': 0},
+                    {'term': 'peavalu', 'type': 'sümptom', 'start': 13, 'end': 20, 'wstart_raw': 2, 'wend_raw': 3, 'cstart': 10, 'wstart': 2, 'bstart': 2}]
+        self.assertListEqual(expected, result)
+
+        event_vocabulary = [{'term': 'harv', 'type': 'sagedus'},
+                            {'term': 'tugev peavalu', 'type': 'sümptom'}]
+        text = Text('Sümptom tugev peavalu esineb valimis harva.')
+        event_tagger = EventTagger(event_vocabulary, return_layer=True)
+        result = event_tagger.tag(text)
+        expected = [{'term': 'tugev peavalu', 'type': 'sümptom', 'start':  8, 'end': 21, 'wstart_raw': 1, 'wend_raw': 3, 'cstart':  8, 'wstart': 1, 'bstart': 1},
+                    {'term': 'harv',          'type': 'sagedus', 'start': 37, 'end': 41, 'wstart_raw': 5, 'wend_raw': 6, 'cstart': 25, 'wstart': 4, 'bstart': 3}]
         self.assertListEqual(expected, result)
 
 
@@ -169,9 +178,9 @@ class EventTaggerTest(unittest.TestCase):
                                    conflict_resolving_strategy='ALL', 
                                    return_layer=True)
         result = event_tagger.tag(text)
-        expected = [{'term': u'üKs',  'start':  0, 'end':  3, 'wstart_raw': 0, 'wend_raw': 1, 'cstart':  0, 'wstart': 0},
-                    {'term': 'KaKs', 'start':  4, 'end':  8, 'wstart_raw': 1, 'wend_raw': 2, 'cstart':  2, 'wstart': 1},
-                    {'term': u'üKs',  'start':  9, 'end': 12, 'wstart_raw': 2, 'wend_raw': 3, 'cstart':  4, 'wstart': 2},
-                    {'term': 'KaKs', 'start': 13, 'end': 17, 'wstart_raw': 3, 'wend_raw': 4, 'cstart':  6, 'wstart': 3}]
+        expected = [{'term': u'üKs',  'start':  0, 'end':  3, 'wstart_raw': 0, 'wend_raw': 1, 'cstart':  0, 'wstart': 0, 'bstart': 0},
+                    {'term': 'KaKs', 'start':  4, 'end':  8, 'wstart_raw': 1, 'wend_raw': 2, 'cstart':  2, 'wstart': 1, 'bstart': 1},
+                    {'term': u'üKs',  'start':  9, 'end': 12, 'wstart_raw': 2, 'wend_raw': 3, 'cstart':  4, 'wstart': 2, 'bstart': 2},
+                    {'term': 'KaKs', 'start': 13, 'end': 17, 'wstart_raw': 3, 'wend_raw': 4, 'cstart':  6, 'wstart': 3, 'bstart': 3}]
 
         self.assertListEqual(expected, result)
