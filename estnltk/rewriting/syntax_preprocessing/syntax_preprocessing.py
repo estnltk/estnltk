@@ -412,8 +412,34 @@ class LetterCaseRewriter():
 
 
 class FiniteFormRewriter():
-    ''' Marks finite verbs with #FinV.
+    ''' 
+		Marks finite verbs with the tag #FinV. 
+    
+		Finite forms are the ones that can act as (part of) a predicate, 
+		e.g in sentence "Mari läheb koju sööma.", 'läheb' is a finite form 
+		and can serve as a predicate by itself ("Mari läheb koju"),
+		while "sööma" is infinite and needs to be combined with a verb 
+		in finite form ("Mari koju sööma" is not a correct sentence).
+		
+		The finiteness of a verb is decided based on its morphological information. 
+		The following morphological tags are used to define the finiteness of the form:
+		* voice (personal - e.g 'tahan'/impersonal - e.g 'tahetakse'): 
+			- if marked (tags 'ps1', 'ps2', 'ps3', 'impf imps', 'pres imps'), the verb is finite
+		* mode (indicative - e.g 'tahan'/conditional - e.g. 'tahaksin'/...): 
+			- if the mode is marked, the verb is finite. Here, only quotative mode ('quot' - e.g 'tahetavat')
+			  is checked because other modes are always accompanied by the voice tags described above
+		* polarity(negation - e.g 'ei'): 
+			- if verb is marked with the tag 'neg' ('pandud' in "Koera ei pandud ketti.") 
+			  AND not with the tag 'aux neg' (auxiliaries like "ei"), it is marked as finite. 
+			  
+		Additional remarks:
+		* Quotative mode is also accompanied by a voice tag 'ps' meaning 'personal' without specifying the person.
+		  This, however, wouldn't be suitable to use in the _morfFinV regex because the string 'ps' can be found inside
+		  other tags as well .
+		* In fact, 'aux neg' forms are a part of a predicate but in the interest of further analysis, it is not useful
+		  to mark them as finite verbs.
     '''
+    
     # Information about verb finite forms
     #_morfFinV        = re.compile('//\s*(_V_).*\s+(ps.|neg|quot|impf imps|pres imps)\s')
     #_morfNotFinV     = re.compile('//\s*(_V_)\s+(aux neg)\s+//')
@@ -430,7 +456,9 @@ class FiniteFormRewriter():
 
 
 class VerbExtensionSuffixRewriter():
-    ''' Marks nud/tud/mine/nu/tu/v/tav/mata/ja forms.
+    ''' 
+    Marks nouns and adjectives that are derived from verbs.
+    
     '''
     _suffix_conversions = ( ("=[td]ud",   "tud"),
                             ("=nud",      "nud"),
@@ -475,7 +503,27 @@ class VerbExtensionSuffixRewriter():
 # ==================================================================================
 
 class SubcatRewriter():
-    ''' Adds subcategorization information (hashtags) to verbs and adpositions;
+    ''' Adds subcategorization information (hashtags) to verbs and adpositions.
+    
+		Subcategorization describes the necessary arguments that are required by the word.
+		
+		In verbs, this is related to both valency and transitivity.
+		
+		Transitivity is a property of verbs that defines whether they take a direct object:
+		 e.g 'vaatama' takes a direct object ("Ma vaatan filmi".)
+			 'suhtlema' does not take a direct object (but it takes other syntactic arguments - "Jüri suhtleb Mariga." 
+		SubcatRewriter adds a tag #Intr to intransitive verbs (verbs that cannot take a direct object)
+		
+		Valency is the number of syntactic arguments required by the predicate:
+		 e.g 'andma' requires three:
+			"Jüri annab Marile raamatu." is a correct sentence, arguments Jüri, Mari and raamat are all necessary
+			"Jüri annab.", "Jüri annab Marile.", "Jüri annab raamatu." are missing some arguments and feel incomplete
+		 e.g 'jooksma' requires one:
+			"Jüri jookseb" is a correct sentence. 
+			"Jüri jookseb Tartus maratoni." is correct as well, but the location and distance are not
+			necessary in the sentence and are therefore not arguments
+		SubcatRewriter specifies the cases of verbs' syntactic arguments
+			
         
         Argument subcat_rules must be a dict containing subcategorization information,
         loaded via method load_subcat_info();
