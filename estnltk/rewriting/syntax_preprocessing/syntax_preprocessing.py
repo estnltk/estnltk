@@ -459,6 +459,13 @@ class VerbExtensionSuffixRewriter():
     ''' 
     Marks nouns and adjectives that are derived from verbs.
     
+    VerbExtensionSuffixRewriter looks at the ending separated by '=' from the root
+    and based on this, adds the suffix information. If the morphological analyser
+    has not separated the ending with '=', no suffix information is added.
+    
+    *It seems that to lexicalised derivations ('surnud', 'õpetaja', 'löömine', 
+    'söödav', etc - the words that are frequently used in the derived form), 
+    morphological analyser does not add the '='. 
     '''
     _suffix_conversions = ( ("=[td]ud",   "tud"),
                             ("=nud",      "nud"),
@@ -522,8 +529,19 @@ class SubcatRewriter():
 			"Jüri jookseb" is a correct sentence. 
 			"Jüri jookseb Tartus maratoni." is correct as well, but the location and distance are not
 			necessary in the sentence and are therefore not arguments
-		SubcatRewriter specifies the cases of verbs' syntactic arguments
-			
+		SubcatRewriter specifies the cases/types of verbs' syntactic arguments:
+			#Part, #NGP-P, #Part-P
+			#Ill illative (ümbrikusse)
+			#In inessive (ümbrikus)
+			#El elative (ümbrikust)
+			#All allative (ümbrikule)
+			#Ad adessive (ümbrikul)
+			#Abl ablative (ümbrikult)
+			#Tr translative (ümbrikuks)
+			#Ter terminative (ümbrikuni)
+			#Es essive (ümbrikuna)
+			#Kom comitative (ümbrikuga)
+			#InfP 
         
         Argument subcat_rules must be a dict containing subcategorization information,
         loaded via method load_subcat_info();
