@@ -526,11 +526,11 @@ class SubcatRewriter():
 			"Jüri annab Marile raamatu." is a correct sentence, arguments Jüri, Mari and raamat are all necessary
 			"Jüri annab.", "Jüri annab Marile.", "Jüri annab raamatu." are missing some arguments and feel incomplete
 		 e.g 'jooksma' requires one:
-			"Jüri jookseb" is a correct sentence. 
+			"Jüri jookseb." is a correct sentence. 
 			"Jüri jookseb Tartus maratoni." is correct as well, but the location and distance are not
 			necessary in the sentence and are therefore not arguments
 		SubcatRewriter specifies the cases/types of verbs' syntactic arguments:
-			#Part, #NGP-P, #Part-P
+			#Part, #NGP-P, #Part-P direct object (can be nominative, genitive, partitive, a clause or construction)
 			#Ill illative (ümbrikusse)
 			#In inessive (ümbrikus)
 			#El elative (ümbrikust)
@@ -541,7 +541,14 @@ class SubcatRewriter():
 			#Ter terminative (ümbrikuni)
 			#Es essive (ümbrikuna)
 			#Kom comitative (ümbrikuga)
-			#InfP 
+			#InfP infinite verb form (saata)
+			
+		For adpositions (laua **peal**, eilsest **saadik**, **mööda** põldu), subcategorization denotes
+		the case of the noun phrase that it appears with: in the previous examples, postposition 'peal'
+		needs a noun phrase in genitive form, 'saadik' needs a noun phrase in elative form and 	preposition
+		'mööda' needs a noun phrase in partitive case.
+        
+        
         
         Argument subcat_rules must be a dict containing subcategorization information,
         loaded via method load_subcat_info();
