@@ -413,31 +413,38 @@ class LetterCaseRewriter():
 
 class FiniteFormRewriter():
     ''' 
-		Marks finite verbs with the tag #FinV. 
+        Marks finite verbs with the tag #FinV. 
     
-		Finite forms are the ones that can act as (part of) a predicate, 
-		e.g in sentence "Mari läheb koju sööma.", 'läheb' is a finite form 
-		and can serve as a predicate by itself ("Mari läheb koju"),
-		while "sööma" is infinite and needs to be combined with a verb 
-		in finite form ("Mari koju sööma" is not a correct sentence).
-		
-		The finiteness of a verb is decided based on its morphological information. 
-		The following morphological tags are used to define the finiteness of the form:
-		* voice (personal - e.g 'tahan'/impersonal - e.g 'tahetakse'): 
-			- if marked (tags 'ps1', 'ps2', 'ps3', 'impf imps', 'pres imps'), the verb is finite
-		* mode (indicative - e.g 'tahan'/conditional - e.g. 'tahaksin'/...): 
-			- if the mode is marked, the verb is finite. Here, only quotative mode ('quot' - e.g 'tahetavat')
-			  is checked because other modes are always accompanied by the voice tags described above
-		* polarity(negation - e.g 'ei'): 
-			- if verb is marked with the tag 'neg' ('pandud' in "Koera ei pandud ketti.") 
-			  AND not with the tag 'aux neg' (auxiliaries like "ei"), it is marked as finite. 
-			  
-		Additional remarks:
-		* Quotative mode is also accompanied by a voice tag 'ps' meaning 'personal' without specifying the person.
-		  This, however, wouldn't be suitable to use in the _morfFinV regex because the string 'ps' can be found inside
-		  other tags as well .
-		* In fact, 'aux neg' forms are a part of a predicate but in the interest of further analysis, it is not useful
-		  to mark them as finite verbs.
+        Finite forms are the ones that can act as (part of) a predicate, 
+        e.g in sentence "Mari läheb koju sööma.", 'läheb' is a finite form 
+        and can serve as a predicate by itself ("Mari läheb koju"),
+        while "sööma" is infinite and needs to be combined with a verb 
+        in finite form ("Mari koju sööma" is not a correct sentence).
+        
+        The finiteness of a verb is decided based on its morphological information. 
+        The following morphological tags are used to define the finiteness of the form:
+        * voice (personal/impersonal) tags - if marked with the following tags, the verb form is finite: 
+          ps1: personal, first person, e.g 'tahan', 'tahtsime', 'tahaksime'...
+          ps2: personal, second person, e.g 'tahad', 'tahtke', 'tahaksite'...
+          ps3: personal, third person, e.g 'tahab', 'tahtis', 'tahetagu'...
+          impf imps: impersonal, imperfect tense, e.g 'taheti'
+          pres imps: impersonal, present tense, e.g 'tahetakse' 
+        * mode (indicative - e.g 'tahan'/conditional - e.g. 'tahaksin'/...): 
+            - if the mode is marked, the verb is finite. Here, only quotative mode ('quot' - e.g 'tahetavat')
+              is checked because other modes are always accompanied by the voice tags described above
+        * polarity(negation - e.g 'ei'): 
+            - if verb is marked with the tag 'neg' ('pandud' in "Koera ei pandud ketti.") 
+              AND not with the tag 'aux neg' (auxiliaries like "ei"), it is marked as finite. 
+              
+        Additional remarks:
+        * Quotative mode is also accompanied by a voice tag 'ps' meaning 'personal' without specifying the person.
+          This, however, wouldn't be suitable to use in the _morfFinV regex because the string 'ps' can be found inside
+          other tags as well.  
+        * In addition to 'impf imps' and 'pres imps' there is also 'past imps' tag that should be considered a
+          finite form. However, these forms ('tahetuvat', etc) occur extremely rarely (if at all) in the language. 
+        * In fact, 'aux neg' forms are a part of a predicate but in the interest of further analysis, it is not useful
+          to mark them as finite verbs.
+ 
     '''
     
     # Information about verb finite forms
@@ -462,6 +469,17 @@ class VerbExtensionSuffixRewriter():
     VerbExtensionSuffixRewriter looks at the ending separated by '=' from the root
     and based on this, adds the suffix information. If the morphological analyser
     has not separated the ending with '=', no suffix information is added.
+    
+    The suffixes that are considered here:
+        - tud/dud (kaevatud/löödud)
+        - nud (leidnud)
+        - mine (leidmine)
+        - nu (kukkunu)
+        - tu/du (joostu, pandu)
+        - v (laulev)
+        - tav/dav (joostav/lauldav)
+        - mata (kaevamata)
+        - ja (kaevaja)
     
     *It seems that to lexicalised derivations ('surnud', 'õpetaja', 'löömine', 
     'söödav', etc - the words that are frequently used in the derived form), 
@@ -512,42 +530,49 @@ class VerbExtensionSuffixRewriter():
 class SubcatRewriter():
     ''' Adds subcategorization information (hashtags) to verbs and adpositions.
     
-		Subcategorization describes the necessary arguments that are required by the word.
-		
-		In verbs, this is related to both valency and transitivity.
-		
-		Transitivity is a property of verbs that defines whether they take a direct object:
-		 e.g 'vaatama' takes a direct object ("Ma vaatan filmi".)
-			 'suhtlema' does not take a direct object (but it takes other syntactic arguments - "Jüri suhtleb Mariga." 
-		SubcatRewriter adds a tag #Intr to intransitive verbs (verbs that cannot take a direct object)
-		
-		Valency is the number of syntactic arguments required by the predicate:
-		 e.g 'andma' requires three:
-			"Jüri annab Marile raamatu." is a correct sentence, arguments Jüri, Mari and raamat are all necessary
-			"Jüri annab.", "Jüri annab Marile.", "Jüri annab raamatu." are missing some arguments and feel incomplete
-		 e.g 'jooksma' requires one:
-			"Jüri jookseb." is a correct sentence. 
-			"Jüri jookseb Tartus maratoni." is correct as well, but the location and distance are not
-			necessary in the sentence and are therefore not arguments
-		SubcatRewriter specifies the cases/types of verbs' syntactic arguments:
-			#Part, #NGP-P, #Part-P direct object (can be nominative, genitive, partitive, a clause or construction)
-			#Ill illative (ümbrikusse)
-			#In inessive (ümbrikus)
-			#El elative (ümbrikust)
-			#All allative (ümbrikule)
-			#Ad adessive (ümbrikul)
-			#Abl ablative (ümbrikult)
-			#Tr translative (ümbrikuks)
-			#Ter terminative (ümbrikuni)
-			#Es essive (ümbrikuna)
-			#Kom comitative (ümbrikuga)
-			#InfP infinite verb form (saata)
-			
-		For adpositions (laua **peal**, eilsest **saadik**, **mööda** põldu), subcategorization denotes
-		the case of the noun phrase that it appears with: in the previous examples, postposition 'peal'
-		needs a noun phrase in genitive form, 'saadik' needs a noun phrase in elative form and 	preposition
-		'mööda' needs a noun phrase in partitive case.
+        Subcategorization describes the necessary arguments that are required by the word.
         
+        In verbs, this is related to both valency and transitivity.
+        
+        Transitivity is a property of verbs that defines whether they take a direct object:
+         e.g 'vaatama' takes a direct object ("Ma vaatan filmi".)
+             'suhtlema' does not take a direct object (but it takes other syntactic arguments - "Jüri suhtleb Mariga." 
+        SubcatRewriter adds a tag #Intr to intransitive verbs (verbs that cannot take a direct object)
+        
+        Valency is the number of syntactic arguments required by the predicate:
+         e.g 'andma' requires three:
+            "Jüri annab Marile raamatu." is a correct sentence, arguments Jüri, Mari and raamat are all necessary
+            "Jüri annab.", "Jüri annab Marile.", "Jüri annab raamatu." are missing some arguments and feel incomplete
+         e.g 'jooksma' requires one:
+            "Jüri jookseb." is a correct sentence. 
+            "Jüri jookseb Tartus maratoni." is correct as well, but the location and distance are not
+            necessary in the sentence and are therefore not arguments
+        SubcatRewriter specifies the cases/types of verbs' syntactic arguments:
+            #Part, #NGP-P, #Part-P direct object (can be nominative, genitive, partitive, a clause or construction)
+            #Ill illative ("Eestlased emigreerusid **Kanadasse**.")
+            #In inessive ("Vanaema kahtleb **müüja jutus**.")
+            #El elative ("Tibu koorus **munast**.")
+            #All allative ("Aasta läheneb **lõpule**.")
+            #Ad adessive ("Järeldused põhinevad **eeldustel**.")
+            #Abl ablative ("Õpilane küsib **õpetajalt** küsimuse.")
+            #Tr translative ("Elevant külmub **kringliks**.")
+            #Ter terminative ("Laps ei küündi **kraanikausini**.")
+            #Es essive ("Jüri käitus **tõelise metslasena**.")
+            #Kom comitative ("Võistleja leppis **tulemusega**.")
+            #InfP infinite verb form ("Laps ei viitsi **õppda**.")
+            
+        For adpositions (laua **peal**, eilsest **saadik**, **mööda** põldu), subcategorization denotes
+        the case of the noun phrase that it appears with: in the previous examples, postposition 'peal'
+        needs a noun phrase in genitive form, 'saadik' needs a noun phrase in elative form and  preposition
+        'mööda' needs a noun phrase in partitive case.
+        The tags used for adpositions:
+            #gen genitive (**laua** peal)
+            #part partitive (mööda **põldu**)
+            #nom nominative (**päev** otsa)
+            #el (**eilsest** saadik)
+            #all (tänu **emale**)
+            #term (kuni **õhtuni**)
+            #abes (ilma **hariduseta**)
         
         
         Argument subcat_rules must be a dict containing subcategorization information,
