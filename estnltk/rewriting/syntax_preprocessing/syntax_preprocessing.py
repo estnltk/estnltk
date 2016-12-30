@@ -464,26 +464,26 @@ class FiniteFormRewriter():
 
 class VerbExtensionSuffixRewriter():
     ''' 
-    Marks nouns and adjectives that are derived from verbs.
+        Marks nouns and adjectives that are derived from verbs.
     
-    VerbExtensionSuffixRewriter looks at the ending separated by '=' from the root
-    and based on this, adds the suffix information. If the morphological analyser
-    has not separated the ending with '=', no suffix information is added.
+        VerbExtensionSuffixRewriter looks at the ending separated by '=' from the root
+        and based on this, adds the suffix information. If the morphological analyser
+        has not separated the ending with '=', no suffix information is added.
     
-    The suffixes that are considered here:
-        - tud/dud (kaevatud/löödud)
-        - nud (leidnud)
-        - mine (leidmine)
-        - nu (kukkunu)
-        - tu/du (joostu, pandu)
-        - v (laulev)
-        - tav/dav (joostav/lauldav)
-        - mata (kaevamata)
-        - ja (kaevaja)
+        The suffixes that are considered here:
+            - tud/dud (kaevatud/löödud)
+            - nud (leidnud)
+            - mine (leidmine)
+            - nu (kukkunu)
+            - tu/du (joostu, pandu)
+            - v (laulev)
+            - tav/dav (joostav/lauldav)
+            - mata (kaevamata)
+            - ja (kaevaja)
     
-    *It seems that to lexicalised derivations ('surnud', 'õpetaja', 'löömine', 
-    'söödav', etc - the words that are frequently used in the derived form), 
-    morphological analyser does not add the '='. 
+        *It seems that to lexicalised derivations ('surnud', 'õpetaja', 'löömine', 
+        'söödav', etc - the words that are frequently used in the derived form), 
+        morphological analyser does not add the '='. 
     '''
     _suffix_conversions = ( ("=[td]ud",   "tud"),
                             ("=nud",      "nud"),
