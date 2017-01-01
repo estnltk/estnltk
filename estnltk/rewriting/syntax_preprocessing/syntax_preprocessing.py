@@ -64,20 +64,16 @@ class PunctuationTypeRewriter():
 
 
 class MorphToSyntaxMorphRewriter():
-    ''' Converts given lines from Filosoft's mrf format to syntactic analyzer's
-        format, using the morph-category conversion rules from conversion_rules,
-        and punctuation via method _convert_punctuation();
-        As a result of conversion, the input list  mrf_lines  will be modified,
-        and also returned after a successful conversion;
+    ''' Converts given analysis from Filosoft's mrf format to syntactic analyzer's
+        format, using the morph-category conversion rules from conversion_rules.
 
         Morph-category conversion rules should be loaded via method
             load_fs_mrf_to_syntax_mrf_translation_rules( rulesFile ),
         usually from a file named 'tmorftrtabel.txt';
 
-        Note that the resulting list of lines likely has more lines than the
-        original list had, because the conversion often requires that the
-        original Filosoft's analysis is expanded into multiple analyses
-        suitable for the syntactic analyzer;
+        Note that the resulting analysis list is likely longer than the
+        original, because the conversion often requires that the
+        original Filosoft's analysis is expanded into multiple analysis.
     '''    
     def __init__(self, fs_to_synt_rules_file):
         self.fs_to_synt_rules = \
@@ -97,18 +93,8 @@ class MorphToSyntaxMorphRewriter():
             form = rec['form']
             # 1) Convert punctuation
             if pos == 'Z':
-                pass
-                #rec['punctuation_type'] = _get_punctuation_type(rec)
-                #rec['pronoun_type'] = None
-                #rec['form_list'] = [rec['punctuation_type']]
-                #rec['initial_form'] = [rec['punctuation_type']]
                 result.append(rec)
             else:
-                if pos == 'Y':
-                    # järgmine rida on kasutu, siin tuleb _form muuta, kui _root=='…'
-                    #line = _convert_punctuation(rec)
-                    pass
-
             # 2) Convert morphological analyses that have a form specified
                 if form:
                     morphKey = (pos, form)
