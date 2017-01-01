@@ -5,16 +5,15 @@ import regex as re
 
 
 class PunctuationTypeRewriter():
-    ''' Converts given analysis line if it describes punctuation; Uses the set 
-        of predefined punctuation conversion rules from _punctConversions;
+    ''' Adds 'punctuation_type' attribute to the analysis.
+        If partofspeech is 'Z', then gets the punctuation type from the 
+        _punctConversions.
+
+        If partofspeech is not 'Z', then punctuation_type is None.
         
-        _punctConversions should be a list of lists, where each outer list stands 
-        for a single conversion rule and inner list contains a pair of elements:
-        first is the regexp pattern and the second is the replacement, used in
-           re.sub( pattern, replacement, line )
-        
-        Returns the converted line (same as input, if no conversion was 
-        performed);
+        _punctConversions is a tuple of tuples, where each inner tuple contains
+        a pair of elements: first is the regexp pattern to match the root and 
+        the second is the punctuation type
     ''' 
 
     def rewrite(self, record):
@@ -60,6 +59,7 @@ class PunctuationTypeRewriter():
                 # või hoopis pattern==morph_extended.root?
                 # praegu on search, sest see klapib eelmise versiooniga
                 return punct_type
+            # mida teha kui matchi pole?
 
 
 
