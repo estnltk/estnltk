@@ -13,7 +13,7 @@ class PunctuationTypeRewriter():
         
         _punctConversions is a tuple of tuples, where each inner tuple contains
         a pair of elements: first is the regexp pattern to match the root and 
-        the second is the punctuation type
+        the second is the punctuation type.
     ''' 
 
     def rewrite(self, record):
@@ -161,19 +161,21 @@ class MorphToSyntaxMorphRewriter():
 # ==================================================================================
 
 class PronounTypeRewriter():
-    ''' Converts pronouns (analysis lines with '_P_') from Filosoft's mrf to 
-        syntactic analyzer's mrf format;
-        Uses the set of predefined pronoun conversion rules from _pronConversions;
+    ''' Adds 'pronoun_type' attribute to the analysis.
+        Converts pronouns from Filosoft's mrf to syntactic analyzer's mrf format.
         
-        _pronConversions should be a list of lists, where each outer list stands 
-        for a single conversion rule and inner list contains a pair of elements:
-        first is the regexp pattern and the second is the replacement, used in
-           re.sub( pattern, replacement, line )
+        If partofspeech is 'P', then gets the pronoun_type from the
+        _pronConversions;
+        If 'partofspeech' is not 'P', then pronoun_type is None.
         
-        Returns the input mrf list, with the lines converted from one format
-        to another;
+        _pronConversions is a tuple of tuples, where each inner tuple contains a 
+        pair of elements: first is the regexp pattern to match the
+        <root>+<ending><clitic> and the second is the pronoun_type (a tuple of 
+        strings).
     '''
+
     # ma, sa, ta ei lähe kunagi mängu, sest ma -> mina, sa -> sina, ta-> tema
+    # pronoun type on tuple, et säiliks järjekord, muidu võiks vist olla set.
     _pronConversions = ( ("emb\+.*",             ("det",)),
                          ("enda\+.*",            ("pos", "refl")),
                          ("enese\+.*",           ("pos", "refl")),
