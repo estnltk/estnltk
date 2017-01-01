@@ -310,21 +310,20 @@ class PronounTypeRewriter():
 # ==================================================================================
 
 class RemoveDuplicateAnalysesRewriter():
-    ''' Removes duplicate analysis lines from mrf_lines. 
+    ''' Removes duplicate analysis elements. 
         
-        Uses special logic for handling adposition analyses ('_K_ pre' && '_K_ post')
-        that do not have subcategorization information:
-         *) If a word has both adposition analyses, removes '_K_ pre';
-         *) If a word has '_K_ post', removes it;
-        Note that '_K_ pre' and '_K_ post' with subcategorization information will
-        be kept.
+        Uses special logic for handling adposition (partofspeech 'K') analysis
+        where form is 'pre' or 'post':
+         *) If the word has analysis elements with form 'pre' and form 'post', 
+            removes the analysis element with the form 'pre';
+         *) If the word has only form 'post', removes that analysis element;
         
-        The parameter  allow_to_delete_all  specifies whether it is allowed to delete
-        all analysis or not. If allow_to_delete_all == False, then one last analysis
-        won't be deleted, regardless whether it should be deleted considering the 
-        adposition-deletion rules;
+        The parameter allow_to_delete_all specifies whether it is allowed to 
+        delete all analysis elements or not. If allow_to_delete_all==False, then
+        one last analysis element is not deleted, regardless whether it should 
+        be deleted considering the adposition-deletion rules;
         The original implementation corresponds to the settings allow_to_delete_all=True 
-        (and this is also the default value of the parameter);
+        (and this is also the default value of the parameter).
         
         Returns the input list where the removals have been applied;
     '''     
