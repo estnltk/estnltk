@@ -157,7 +157,7 @@ _K_ pre >#part
 allu
 _V_ >#Intr #All
 alluta
-_V_ >NGP-P #All
+_V_ >#NGP-P #All
 all_pool
 _K_ pre >#part 
 alpi
@@ -896,7 +896,7 @@ hilbenda
 _V_ >#Intr 
 hilberda
 _V_ >#Intr 
-hiline 
+hiline
 _V_ >#Intr #Ill #All
 hilistu
 _V_ >#Intr 
@@ -1142,8 +1142,6 @@ hülpi
 _V_ >#Intr 
 hüple
 _V_ >#Intr 
-hüple
-_V_ >#Intr 
 hüvita
 _V_ >#NGP-P #All
 hüüata
@@ -1329,8 +1327,6 @@ _V_ >#NGP-P
 isoleeru
 _V_ >#Intr 
 isomeriseeru
-_V_ >#Intr 
-istu
 _V_ >#Intr 
 istu
 _V_ >#Intr 
@@ -1614,8 +1610,6 @@ jättu
 _V_ >#Intr 
 jää
 _V_ >#Intr #Ill #All #Tr
-jää
-_V_ >#Intr 
 jäädvusta
 _V_ >#NGP-P 
 jäädvustu
@@ -1664,8 +1658,6 @@ kabise
 _V_ >#Intr 
 kadesta
 _V_ >#Part 
-kadu
-_V_ >#Intr 
 kadu
 _V_ >#Intr 
 kaeba
@@ -1894,8 +1886,6 @@ kasuta
 _V_ >#Part-P 
 kasva
 _V_ >#Intr 
-kasva
-_V_ >#Intr 
 kasvata
 _V_ >#NGP-P 
 kat
@@ -2032,8 +2022,6 @@ kergita
 _V_ >#NGP-P 
 keri
 _V_ >#NGP-P 
-kerki
-_V_ >#Intr 
 kerki
 _V_ >#Intr 
 keset
@@ -3136,8 +3124,6 @@ kujundu
 _V_ >#Intr 
 kujune
 _V_ >#Intr 
-kujune
-_V_ >#Intr 
 kujuta
 _V_ >#Part 
 kujutle
@@ -3530,8 +3516,6 @@ küürdu
 _V_ >#Intr 
 küüri
 _V_ >#NGP-P 
-küürdu
-_V_ >#Intr 
 küüru
 _V_ >#Intr 
 küüsi
@@ -3795,9 +3779,9 @@ _V_ >#Intr
 lennuta
 _V_ >#NGP-P 
 leondu
-V_ >#Intr
+_V_ >#Intr
 leostu
-V_ >#Intr
+_V_ >#Intr
 leota
 _V_ >#NGP-P 
 lepita
@@ -4152,10 +4136,6 @@ lõhene
 _V_ >#Intr 
 lõhesta
 _V_ >#NGP-P 
-lõhastu
-_V_ >#Intr 
-lõhene
-_V_ >#Intr 
 lõhestu
 _V_ >#Intr 
 lõhise
@@ -4209,10 +4189,6 @@ _V_ >#Intr
 lõõpi
 _V_ >#Intr 
 lõõsata
-_V_ >#Intr 
-lõõska
-_V_ >#Intr 
-lõõtsata
 _V_ >#Intr 
 lõõska
 _V_ >#Intr 
@@ -4311,7 +4287,7 @@ _V_ >#Intr
 luustu
 _V_ >#Intr 
 läbe
-_V_ >InfP 
+_V_ >#InfP 
 läbi
 _V_ >#Part &_K_ post >#gen |#nom |#el &_K_ pre >#gen 
 läbista
@@ -5461,7 +5437,7 @@ _V_ >#Part-P #All
 osutu
 _V_ >#Intr #Tr 
 otsa
-_K_ post >#gen &_K_ post >#nom
+_K_ post >#gen |#nom
 otsas
 _K_ post >#gen
 otsast
@@ -5746,8 +5722,6 @@ pealistu
 _V_ >#Intr 
 pealkirjasta
 _V_ >#NGP-P 
-pealt
-_K_ post >#gen &_K_ pre >#gen
 pealt_poolt
 _K_ pre >#part
 peatu
@@ -5937,8 +5911,6 @@ _V_ >#Intr
 piraaditse
 _V_ >#Intr 
 pirise
-_V_ >#Intr 
-pirtsuta
 _V_ >#Intr 
 pirtsuta
 _V_ >#Intr 
@@ -6909,8 +6881,6 @@ _V_ >#Intr
 räihta
 _V_ >#Intr 
 räksata
-_V_ >#Intr 
-räksu
 _V_ >#Intr 
 räksu
 _V_ >#Intr 
@@ -8476,8 +8446,6 @@ varjust
 _K_ post >#gen 
 varjuta
 _V_ >#NGP-P 
-varjuta
-_V_ >#NGP-P 
 varjutu
 _V_ >#Intr 
 varssu
@@ -8983,8 +8951,6 @@ _V_ >#Intr
 ümahta
 _V_ >#Intr 
 ümardu
-_V_ >#Intr 
-ümata
 _V_ >#Intr 
 ümber
 _K_ post >#gen &_K_ pre >#gen
