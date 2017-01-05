@@ -309,7 +309,7 @@ class PronounTypeRewriter():
 # ==================================================================================
 # ==================================================================================
 
-class RemoveDuplicateAnalysesRewriter():
+class RemoveDuplicateAnalysesRewriter_old():
     ''' Removes duplicate analysis elements. 
         
         Uses special logic for handling adposition (partofspeech 'K') analysis
@@ -367,6 +367,71 @@ class RemoveDuplicateAnalysesRewriter():
             del record[j]
 
         return record
+
+class RemoveDuplicateAnalysesRewriter():
+    ''' Removes duplicate analysis elements. 
+        The elements are duplicate if *root*, *ending*, *clitic*, *partofspeech*
+        and *form* attributes are equal.
+        
+        Returns the input list where the removals have been applied.
+    '''     
+
+    def rewrite(self, record):
+        seen_analyses  = set()
+        to_delete      = []
+        for i, rec in enumerate(record):
+            analysis = (rec['root'], rec['ending'], rec['clitic'], rec['partofspeech'], rec['form'])
+            if analysis in seen_analyses:
+                to_delete.append(i)
+            else:
+                seen_analyses.add(analysis)
+        for i in sorted(to_delete, reverse=True):
+            del record[i]
+
+        return record
+
+class RemoveAdpositionAnalysesRewriter():
+    ''' Removes duplicate analysis elements. 
+        
+        Uses special logic for handling adposition (partofspeech 'K') analysis
+        where form is 'pre' or 'post':
+         *) If the word has analysis elements with form 'pre' and form 'post', 
+            removes the analysis element with the form 'pre';
+         *) If the word has only form 'post', removes that analysis element;
+        
+        The parameter allow_to_delete_all specifies whether it is allowed to 
+        delete all analysis elements or not. If allow_to_delete_all==False, then
+        one last analysis element is not deleted, regardless whether it should 
+        be deleted considering the adposition-deletion rules;
+        The original implementation corresponds to the settings allow_to_delete_all=True 
+        (and this is also the default value of the parameter).
+        
+        Returns the input list where the removals have been applied;
+    '''     
+    def __init__(self, allow_to_delete_all=True):
+        self.allow_to_delete_all = allow_to_delete_all
+
+    def rewrite(self, record):
+        Kpre_index     = None
+        Kpost_index    = None
+        for i, rec in enumerate(record):
+            if rec['partofspeech'] != 'K':
+                continue
+            if rec['form'] == 'pre':
+                Kpre_index  = i
+            elif rec['form'] == 'post':
+                Kpost_index = i
+
+        if Kpre_index != None and Kpost_index != None:
+            # If there was both _K_pre and _K_post, add _K_pre to removables;
+            del record[Kpre_index]
+        elif Kpost_index != None:
+            # If there was only _K_post, add _K_post to removables;
+            del record[Kpost_index]
+        # NB! ainult viimane post või pre analüüs kustutatakse (ajaloolistel põhjustel)
+
+        return record
+
 
 
 # ==================================================================================
@@ -708,13 +773,16 @@ class QuickMorphExtendedRewriter():
     ''' 
 
     def __init__(self, punctuation_type_rewriter, morph_to_syntax_morph_rewriter, 
-                 pronoun_type_rewriter, remove_duplicate_analyses_rewriter,
+                 pronoun_type_rewriter,
+                 remove_duplicate_analyses_rewriter,
+                 remove_adposition_analyses_rewriter,
                  letter_case_rewriter, finite_form_rewriter,
                  verb_extension_suffix_rewriter, subcat_rewriter):
         self.punctuation_type_rewriter = punctuation_type_rewriter
         self.morph_to_syntax_morph_rewriter = morph_to_syntax_morph_rewriter
         self.pronoun_type_rewriter = pronoun_type_rewriter
         self.remove_duplicate_analyses_rewriter = remove_duplicate_analyses_rewriter
+        self.remove_adposition_analyses_rewriter=remove_adposition_analyses_rewriter
         self.letter_case_rewriter = letter_case_rewriter
         self.finite_form_rewriter = finite_form_rewriter
         self.verb_extension_suffix_rewriter = verb_extension_suffix_rewriter
@@ -725,6 +793,7 @@ class QuickMorphExtendedRewriter():
         record = self.morph_to_syntax_morph_rewriter.rewrite(record)
         record = self.pronoun_type_rewriter.rewrite(record)
         record = self.remove_duplicate_analyses_rewriter.rewrite(record)
+        record = self.remove_adposition_analyses_rewriter.rewrite(record)
         record = self.letter_case_rewriter.rewrite(record)
         record = self.finite_form_rewriter.rewrite(record)
         record = self.verb_extension_suffix_rewriter.rewrite(record)

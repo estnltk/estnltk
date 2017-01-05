@@ -4,6 +4,7 @@ from estnltk.rewriting import PunctuationTypeRewriter
 from estnltk.rewriting import MorphToSyntaxMorphRewriter
 from estnltk.rewriting import PronounTypeRewriter
 from estnltk.rewriting import RemoveDuplicateAnalysesRewriter
+from estnltk.rewriting import RemoveAdpositionAnalysesRewriter
 from estnltk.rewriting import LetterCaseRewriter
 from estnltk.rewriting import FiniteFormRewriter
 from estnltk.rewriting import VerbExtensionSuffixRewriter
@@ -115,7 +116,8 @@ class MorphExtendedTagger():
         self.punctuation_type_rewriter = PunctuationTypeRewriter()
         self.morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
         self.pronoun_type_rewriter = PronounTypeRewriter()
-        self.remove_duplicate_analyses_rewriter = RemoveDuplicateAnalysesRewriter(allow_to_remove_all)
+        self.remove_duplicate_analyses_rewriter = RemoveDuplicateAnalysesRewriter()
+        self.remove_adposition_analyses_rewriter = RemoveAdpositionAnalysesRewriter(allow_to_remove_all)
         self.letter_case_rewriter = LetterCaseRewriter()
         self.finite_form_rewriter = FiniteFormRewriter()
         self.verb_extension_suffix_rewriter = VerbExtensionSuffixRewriter()
@@ -146,7 +148,6 @@ class MorphExtendedTagger():
                 m.form = analysis.form
         new_layer = text['syntax_pp_0']
 
-        print('z', end='', flush=True)
         source_attributes = new_layer.attributes
         target_attributes = source_attributes + ['punctuation_type']
         new_layer = new_layer.rewrite(
@@ -157,7 +158,6 @@ class MorphExtendedTagger():
             ambiguous = True
             )
 
-        print('m', end='', flush=True)
         source_attributes = new_layer.attributes
         target_attributes = source_attributes
         new_layer = new_layer.rewrite(
@@ -168,8 +168,6 @@ class MorphExtendedTagger():
             ambiguous = True
             )
 
-        # kasulik
-        print('p', end='', flush=True)
         source_attributes = new_layer.attributes
         target_attributes = source_attributes + ['pronoun_type']
         new_layer = new_layer.rewrite(
@@ -180,7 +178,6 @@ class MorphExtendedTagger():
             ambiguous = True
             )
 
-        print('d', end='', flush=True)
         source_attributes = new_layer.attributes
         target_attributes = source_attributes
         new_layer = new_layer.rewrite(
@@ -191,7 +188,16 @@ class MorphExtendedTagger():
             ambiguous = True
             )
 
-        print('c', end='', flush=True)
+        source_attributes = new_layer.attributes
+        target_attributes = source_attributes
+        new_layer = new_layer.rewrite(
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
+            rules = self.remove_adposition_analyses_rewriter,
+            name = 'morph_extended',
+            ambiguous = True
+            )
+
         source_attributes = new_layer.attributes
         target_attributes = source_attributes + ['letter_case']
         new_layer = new_layer.rewrite(
@@ -202,8 +208,6 @@ class MorphExtendedTagger():
             ambiguous = True
             )
 
-        # kasulik
-        print('f', end='', flush=True)
         source_attributes = new_layer.attributes
         target_attributes = source_attributes + ['fin']
         new_layer = new_layer.rewrite(
@@ -214,8 +218,6 @@ class MorphExtendedTagger():
             ambiguous = True
             )
 
-        # kasulik
-        print('p', end='', flush=True)
         source_attributes = new_layer.attributes
         target_attributes = source_attributes + ['verb_extension_suffix']
         new_layer = new_layer.rewrite(
@@ -226,8 +228,6 @@ class MorphExtendedTagger():
             ambiguous = True
             )
 
-        # kasulik
-        print('s', end='', flush=True)
         source_attributes = new_layer.attributes
         target_attributes = source_attributes + ['subcat']
         new_layer = new_layer.rewrite(
@@ -247,21 +247,23 @@ class QuickMorphExtendedTagger():
         punctuation_type_rewriter = PunctuationTypeRewriter()
         morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
         pronoun_type_rewriter = PronounTypeRewriter()
-        remove_duplicate_analyses_rewriter = RemoveDuplicateAnalysesRewriter(allow_to_remove_all)
+        remove_duplicate_analyses_rewriter = RemoveDuplicateAnalysesRewriter()
+        remove_adposition_analyses_rewriter = RemoveAdpositionAnalysesRewriter(allow_to_remove_all)
         letter_case_rewriter = LetterCaseRewriter()
         finite_form_rewriter = FiniteFormRewriter()
         verb_extension_suffix_rewriter = VerbExtensionSuffixRewriter()
         subcat_rewriter = SubcatRewriter(subcat_rules_file, subcat_rules_extra_file)
 
         self.quick_morph_extended_rewriter = QuickMorphExtendedRewriter(
-                                                punctuation_type_rewriter,
-                                                morph_to_syntax_morph_rewriter,
-                                                pronoun_type_rewriter,
-                                                remove_duplicate_analyses_rewriter,
-                                                letter_case_rewriter,
-                                                finite_form_rewriter,
-                                                verb_extension_suffix_rewriter,
-                                                subcat_rewriter)
+                                                punctuation_type_rewriter=punctuation_type_rewriter,
+                                                morph_to_syntax_morph_rewriter=morph_to_syntax_morph_rewriter,
+                                                pronoun_type_rewriter=pronoun_type_rewriter,
+                                                remove_duplicate_analyses_rewriter=remove_duplicate_analyses_rewriter,
+                                                remove_adposition_analyses_rewriter=remove_adposition_analyses_rewriter,
+                                                letter_case_rewriter=letter_case_rewriter,
+                                                finite_form_rewriter=finite_form_rewriter,
+                                                verb_extension_suffix_rewriter=verb_extension_suffix_rewriter,
+                                                subcat_rewriter=subcat_rewriter)
         
 
     @staticmethod
