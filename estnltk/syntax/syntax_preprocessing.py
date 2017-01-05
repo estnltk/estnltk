@@ -150,7 +150,7 @@ def convert_to_cg3_input(text):
                 #    print(new_form_list)
                 #    print(morph_extended.initial_form, morph_extended.fin, morph_extended.subcat, morph_extended.punctuation_type, morph_extended.pronoun_type, morph_extended.partic, morph_extended.letter_case)
                 #morph_extended.form_list = [re.sub('#(\S+)','<\\1>', f) for f in morph_extended.form_list]
-                new_form_list = [re.sub('#(\S+)','<\\1>', f) for f in new_form_list]
+                #new_form_list = [re.sub('#(\S+)','<\\1>', f) for f in new_form_list]
 
                 if morph_extended.ending + morph_extended.clitic:
                     line_new = '    "'+morph_extended.root+'" L'+morph_extended.ending+morph_extended.clitic+' ' + ' '.join([morph_extended.partofspeech]+new_form_list+[' '])

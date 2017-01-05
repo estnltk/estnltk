@@ -80,11 +80,11 @@ class MorphToSyntaxMorphRewriter():
             self.load_fs_mrf_to_syntax_mrf_translation_rules(fs_to_synt_rules_file)
 
     @staticmethod
-    def _esc_que_mark(analysis):
-        ''' Replaces a question mark in analysis (e.g. '//_N_ ? //')  
-            with an escaped version of the question mark #?
+    def _esc_que_mark(form):
+        ''' Replaces a question mark in form (e.g. 'card ? digit' or 'ord ? roman')  
+            with an escaped version of the question mark <?>
         '''
-        return (analysis.replace(' ?', ' #?')).replace(' ?', ' #?')
+        return form.replace(' ?', ' <?>')
 
     def rewrite(self, record):
         result = []
@@ -102,7 +102,7 @@ class MorphToSyntaxMorphRewriter():
                     morphKey = (pos, '')
                 for pos, form in self.fs_to_synt_rules[morphKey]:
                     rec['partofspeech'] = pos
-                    rec['form'] = self._esc_que_mark(form).strip()
+                    rec['form'] = form
                     result.append(rec.copy())
         return result
 
@@ -141,7 +141,8 @@ class MorphToSyntaxMorphRewriter():
                 raise Exception(' Unexpected format of the line: ', line)
             if m.group(1): #line starts with '¤'
                 continue
-            rules[(m.group(3), m.group(4))].append((m.group(5), m.group(6)))
+            new_form = self._esc_que_mark(m.group(6)).strip()
+            rules[(m.group(3), m.group(4))].append((m.group(5), new_form))
             # siin tekib korduvaid reegleid, mille võiks siinsamas välja filtreerida
             # näiteks P, sg n -> P, sg nom
             # ja kasutuid reegleid Z, '' -> Z, Fst
@@ -304,69 +305,11 @@ class PronounTypeRewriter():
 # ==================================================================================
 # ==================================================================================
 #   4)  Remove duplicate analysis lines;
-#       Remove adpositions (_K_) that do not have subcategorization information;
+#       Remove adpositions (part of speech 'K') that do not have 
+#       subcategorization information;
 #       (former 'tcopyremover.pl')
 # ==================================================================================
 # ==================================================================================
-
-class RemoveDuplicateAnalysesRewriter_old():
-    ''' Removes duplicate analysis elements. 
-        
-        Uses special logic for handling adposition (partofspeech 'K') analysis
-        where form is 'pre' or 'post':
-         *) If the word has analysis elements with form 'pre' and form 'post', 
-            removes the analysis element with the form 'pre';
-         *) If the word has only form 'post', removes that analysis element;
-        
-        The parameter allow_to_delete_all specifies whether it is allowed to 
-        delete all analysis elements or not. If allow_to_delete_all==False, then
-        one last analysis element is not deleted, regardless whether it should 
-        be deleted considering the adposition-deletion rules;
-        The original implementation corresponds to the settings allow_to_delete_all=True 
-        (and this is also the default value of the parameter).
-        
-        Returns the input list where the removals have been applied;
-    '''     
-    def __init__(self, allow_to_delete_all=True):
-        self.allow_to_delete_all = allow_to_delete_all
-
-    def rewrite(self, record):
-        seen_analyses  = []
-        to_delete      = []
-        Kpre_index     = -1
-        Kpost_index    = -1
-        for i, rec in enumerate(record):
-            analysis = (rec['root'], rec['ending'], rec['clitic'], rec['partofspeech'], rec['form'])
-            if analysis in seen_analyses:
-                # Remember line that has been already seen as a duplicate
-                to_delete.append(i)
-            else:
-                # Remember '_K_ pre' and '_K_ post' indices
-                if analysis[3] == 'K':
-                    if analysis[4] == 'pre':
-                        Kpre_index  = i
-                    elif analysis[4] == 'post':
-                        Kpost_index = i
-                # Remember that the line has already been seen
-                seen_analyses.append(analysis)
-
-        if Kpre_index != -1 and Kpost_index != -1:
-            # If there was both _K_pre and _K_post, add _K_pre to removables;
-            to_delete.append(Kpre_index)
-        elif Kpost_index != -1:
-            # If there was only _K_post, add _K_post to removables;
-            to_delete.append(Kpost_index)
-        # Delete found duplicates
-        for j in sorted(to_delete, reverse=True):
-            # If we must preserve at least one analysis, and
-            # it has been found that all should be deleted, then 
-            # keep the last one
-            if not self.allow_to_delete_all and len(record) < 2:
-                continue
-            # Delete the analysis line
-            del record[j]
-
-        return record
 
 class RemoveDuplicateAnalysesRewriter():
     ''' Removes duplicate analysis elements. 
@@ -433,7 +376,6 @@ class RemoveAdpositionAnalysesRewriter():
         return record
 
 
-
 # ==================================================================================
 # ==================================================================================
 #   5)  Add hashtag information to analyses
@@ -443,29 +385,26 @@ class RemoveAdpositionAnalysesRewriter():
 
 
 class LetterCaseRewriter():
-    ''' Marks words with capital beginning with 'cap'.
+    ''' The 'letter_case' attribute gets the value
+            'cap' if the word has capital beginning
+            None otherwise
     '''
     
-    @staticmethod
-    def _esc_double_quotes(str1):
-        ''' Escapes double quotes.
-        '''
-        return str1.replace('"', '\\"').replace('\\\\\\"', '\\"').replace('\\\\"', '\\"')
-    
     def rewrite(self, record):
+        if record and record[0]['word_text'][0].isupper():
+            cap = 'cap'
+        else:
+            cap = None
         for rec in record:
-            # cap võib for alt välja tõsta, kui alati len(record)>0
-            cap = self._esc_double_quotes(rec['word_text'][0]).isupper()
-            if cap:
-                rec['letter_case'] = 'cap'
-            else:
-                rec['letter_case'] = None
+            rec['letter_case'] = cap
         return record
 
 
 class FiniteFormRewriter():
-    ''' 
-        Marks finite verbs with the tag #FinV. 
+    ''' The fin attribute gets the value
+            True, if the word is finite verb
+            False, if word is verb but not finite
+            None, if the word not verb
     
         Finite forms are the ones that can act as (part of) a predicate, 
         e.g in sentence "Mari läheb koju sööma.", 'läheb' is a finite form 
