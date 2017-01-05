@@ -441,11 +441,10 @@ class FiniteFormRewriter():
 
     def rewrite(self, record):
         for rec in record:
-            rec['fin'] = None
             if rec['partofspeech'] == 'V':
-                if self._morfFinV.search(rec['form']):
-                    if rec['form'] != 'aux neg':
-                        rec['fin'] = '<FinV>'
+                rec['fin'] = bool(self._morfFinV.search(rec['form'])) and rec['form'] != 'aux neg'
+            else:
+                rec['fin'] = None
         return record
 
 
