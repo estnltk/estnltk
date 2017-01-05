@@ -26,7 +26,9 @@ def test_abileksikon():
         for l in line.split('&'):
             l = l.strip()
             assert posTagPattern.match(l), 'incorrect pos format on line number {}: "{}"'.format(line_number, line.rstrip())
-            premise, tags = l.split('>')
+            lsplit = l.split('>')
+            assert len(lsplit) == 2, 'missing or extra > on line number {}: "{}"'.format(line_number, line.rstrip())
+            premise, tags = lsplit
             premise = premise.strip()
             assert premise not in premises, 'repetitive premise on line number {}: "{}"'.format(line_number, line.rstrip())
             premises.add(premise)
