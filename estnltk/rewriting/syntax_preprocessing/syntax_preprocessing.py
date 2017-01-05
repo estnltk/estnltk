@@ -430,7 +430,9 @@ class FiniteFormRewriter():
         * In addition to 'impf imps' and 'pres imps' there is also 'past imps' tag that should be considered a
           finite form. However, these forms ('tahetuvat', etc) occur extremely rarely (if at all) in the language. 
         * In fact, 'aux neg' forms are a part of a predicate but in the interest of further analysis, it is not useful
-          to mark them as finite verbs.
+          to mark them as finite verbs. 
+        * Currently, only "ei" is tagged as 'aux neg', but theoretically, there could be other words as well
+          (like historical form "ep")   
  
     '''
     
