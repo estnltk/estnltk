@@ -16,7 +16,7 @@ for k, v in MACROS.items():
  
 
 MACROS['DATE'] = '{DAY}\.\s*{MONTH}\.\s*{YEAR}'.format(**MACROS)
-MACROS['TIME'] = '{hour}[:]{minute}(:{second})?'.format(**MACROS)
+MACROS['TIME'] = '{hour}[.:]{minute}(:{second})?'.format(**MACROS)
 
 
 
@@ -24,13 +24,13 @@ MACROS['TIME'] = '{hour}[:]{minute}(:{second})?'.format(**MACROS)
 	
 regexes = pd.DataFrame([
 	{'regex': 'k(el)?l\s{TIME}'.format(**MACROS), 'type': 'time', 'probability': '1.0', 'example': 'kell 21:30'},
-	{'regex': '(^|[^0-9]){DATE}\s*{TIME}'.format(**MACROS), 'type': 'date_time', 'probability': '0.9', 'example': '21.03.2015 15:30:45'},
-	{'regex': '(^|[^0-9]){DATE}[.a ]+\s*k(el)?l\.*\s*{TIME}'.format(**MACROS), 'type': 'date_time', 'probability': '1.0', 'example':'21.03.2015. kell 15:30'},
-	{'regex': '(^|[^0-9]){DATE}($|[^0-9])'.format(**MACROS), 'type': 'date', 'probability': '0.8', 'example':'12.01.98'},
-	{'regex': '(^|\s){DAY}\.\s?{MONTH}($|[^0-9])($|\s)'.format(**MACROS), 'type': 'partial_date', 'probability': '0.3', 'example': '03.12'},
-	{'regex': '(^|[^0-9]){MONTH}\.\s?{LONGYEAR}($|[^0-9])'.format(**MACROS), 'type': 'partial_date', 'probability': '0.6', 'example': '03.2012'},
-	{'regex': '(^|[^0-9]){DAY}\.\s?{MONTH}\s*k(el)?l\s{TIME}'.format(**MACROS), 'type': 'partial_date', 'probability': '0.8', 'example': '03.01 kell 10.20'},
-	{'regex': '(^|[^0-9]){LONGYEAR}\s*a'.format(**MACROS), 'type': 'partial_date', 'probability': '0.8', 'example': '1998a'},
-	{'regex': '(^|[^0-9]){LONGYEAR}($|[^0-9])'.format(**MACROS), 'type': 'partial_date', 'probability': '0.4', 'example': '1998'}
+	{'regex': '{DATE}\s*{TIME}'.format(**MACROS), 'type': 'date_time', 'probability': '0.9', 'example': '21.03.2015 15:30:45'},
+	{'regex': '{DATE}[.a ]+\s*k(el)?l\.*\s*{TIME}'.format(**MACROS), 'type': 'date_time', 'probability': '1.0', 'example':'21.03.2015. kell 15:30'},
+	{'regex': '{DATE}'.format(**MACROS), 'type': 'date', 'probability': '0.8', 'example':'12.01.98'},
+	{'regex': '{DAY}\.\s?{MONTH}'.format(**MACROS), 'type': 'partial_date', 'probability': '0.3', 'example': '03.12'},
+	{'regex': '{MONTH}\.\s?{LONGYEAR}'.format(**MACROS), 'type': 'partial_date', 'probability': '0.6', 'example': '03.2012'},
+	{'regex': '{DAY}\.\s?{MONTH}\s*k(el)?l\s{TIME}'.format(**MACROS), 'type': 'partial_date', 'probability': '0.8', 'example': '03.01 kell 10.20'},
+	{'regex': '{LONGYEAR}\s*a'.format(**MACROS), 'type': 'partial_date', 'probability': '0.8', 'example': '1998a'},
+	{'regex': '{LONGYEAR}'.format(**MACROS), 'type': 'partial_date', 'probability': '0.4', 'example': '1998'}
 	]).set_index('regex')	
 
