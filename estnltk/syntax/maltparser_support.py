@@ -379,7 +379,7 @@ def convert_text_to_CONLL( text, feature_generator ):
     return '\n'.join( sentenceStrs )
 
 
-def convert_text_w_syntax_to_CONLL( text, feature_generator, layer=LAYER_CONLL ):
+def convert_text_w_syntax_to_CONLL( text, feature_generator, layer=LAYER_CONLL, replace_root=True ):
     ''' Converts given estnltk Text object into CONLL format and returns as a 
         string.
         Uses given *feature_generator* to produce fields ID, FORM, LEMMA, CPOSTAG, 
@@ -401,6 +401,11 @@ def convert_text_w_syntax_to_CONLL( text, feature_generator, layer=LAYER_CONLL )
             Name of the *text* layer from which syntactic information is to be taken.
             Defaults to LAYER_CONLL.
         
+        replace_root : bool
+            Whether the syntactic label of the root node should be replaced with ROOT;
+            Default : True;
+
+
         The aimed format looks something like this:
         1	Öö	öö	S	S	sg|n	2	@SUBJ	_	_
         2	oli	ole	V	V	s	0	ROOT	_	_
@@ -433,7 +438,7 @@ def convert_text_w_syntax_to_CONLL( text, feature_generator, layer=LAYER_CONLL )
             strForm.append( parentLabel )
             strForm.append( '\t' )
             # *** DEPREL  (label of the syntactic relation)
-            if parentLabel == '0':
+            if parentLabel == '0' and replace_root:
                 strForm.append( 'ROOT' )
                 strForm.append( '\t' )
             else:

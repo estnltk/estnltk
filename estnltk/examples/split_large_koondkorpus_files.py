@@ -149,7 +149,7 @@ arg_parser.add_argument('-l', '--limit',  metavar='<max_sentences>', \
 args = arg_parser.parse_args()
 in_dir  = args.in_file_or_dir if os.path.isdir(args.in_file_or_dir) else None
 in_file = args.in_file_or_dir if os.path.isfile(args.in_file_or_dir) else None
-out_dir = args.out_dir if os.path.isfile(args.out_dir) else None
+out_dir = args.out_dir if os.path.isdir(args.out_dir) else None
 max_sentences = args.limit
 
 if (in_dir or in_file) and out_dir:
