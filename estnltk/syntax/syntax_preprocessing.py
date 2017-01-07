@@ -120,8 +120,6 @@ def convert_to_cg3_input(text):
             word_index += 1
             morph_lines.append('"<'+_esc_double_quotes(word.text)+'>"')
             for morph_extended in text.morph_extended[word_index]:
-                #if word.text=='.':
-                #    print(morph_extended)
                 new_form_list = []
                 if morph_extended.pronoun_type:
                     new_form_list.extend(morph_extended.pronoun_type)

@@ -501,14 +501,24 @@ class VerbExtensionSuffixRewriter():
                             ("=mata",     "mata"),
                             ("=ja",       "ja")
     )
-    
+    # eelduse if rec['partofspeech'] in {'A', 'S'}: korral
+    #247 aja_EPL_2007_01_29.xml_71.txt
+    #result:   '    "märga=tavamalt" L0 D  '
+    #expected: '    "märga=tavamalt" L0 D partic <tav>  '  
+    #376 aja_ee_1996_48.xml_26.txt
+    #result:   '    "öel=nu+d-kirjuta" Lnud V mod indic impf ps neg <FinV>  '
+    #expected: '    "öel=nu+d-kirjuta" Lnud V mod indic impf ps neg <FinV> <nu>  '
+    #973 aja_EPL_1998_06_18.xml_5.txt
+    #result:   '    "viha=tu+d-armasta" Ltud V mod indic impf imps neg <FinV>  '
+    #expected: '    "viha=tu+d-armasta" Ltud V mod indic impf imps neg <FinV> <tu>  '
     def rewrite(self, record):
         for rec in record:
             rec['verb_extension_suffix'] = None
-            for pattern, value in self._suffix_conversions:
-                if re.search(pattern, rec['root']):
-                    rec['verb_extension_suffix'] = value
-                    break
+            if '=' in rec['root']:
+                for pattern, value in self._suffix_conversions:
+                    if re.search(pattern, rec['root']):
+                        rec['verb_extension_suffix'] = value
+                        break
         return record
 
 
