@@ -511,6 +511,12 @@ class VerbExtensionSuffixRewriter():
     #973 aja_EPL_1998_06_18.xml_5.txt
     #result:   '    "viha=tu+d-armasta" Ltud V mod indic impf imps neg <FinV>  '
     #expected: '    "viha=tu+d-armasta" Ltud V mod indic impf imps neg <FinV> <tu>  '
+    
+    # Note: in double forms like 'vihatud-armastatud', both components should actually get the same analysis
+    # (the same POS-tag - S, A, or V and corresponding attributes like ending, morph analysis, etc)
+    # which is not the case now ("viha=tu+d-armasta" the first part is currently analysed as a noun, the second
+    # as a verb). 
+    
     def rewrite(self, record):
         for rec in record:
             rec['verb_extension_suffix'] = None
