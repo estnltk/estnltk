@@ -333,7 +333,7 @@ class RemoveDuplicateAnalysesRewriter():
 
         return record
 
-class RemoveAdpositionAnalysesRewriter():
+class RemoveAdpositionAnalysesRewriter_old():
     ''' Removes duplicate analysis elements. 
         
         Uses special logic for handling adposition (partofspeech 'K') analysis
@@ -371,10 +371,50 @@ class RemoveAdpositionAnalysesRewriter():
         elif Kpost_index != None:
             # If there was only _K_post, add _K_post to removables;
             del record[Kpost_index]
+            print(record)
         # NB! ainult viimane post või pre analüüs kustutatakse (ajaloolistel põhjustel)
 
         return record
 
+class RemoveAdpositionAnalysesRewriter():
+    ''' Removes duplicate analysis elements.
+
+        Uses special logic for handling adposition (partofspeech 'K') analysis
+        where form is 'pre' or 'post':
+         *) If the word has analysis elements with form 'pre' and form 'post',
+            removes the analysis element with the form 'pre';
+         *) If the word has only form 'post', removes that analysis element;
+
+        The parameter allow_to_delete_all specifies whether it is allowed to
+        delete all analysis elements or not. If allow_to_delete_all==False, then
+        one last analysis element is not deleted, regardless whether it should
+        be deleted considering the adposition-deletion rules;
+        The original implementation corresponds to the settings allow_to_delete_all=True
+        (and this is also the default value of the parameter).
+
+        Returns the input list where the removals have been applied;
+    '''
+    def __init__(self, allow_to_delete_all=True):
+        self.allow_to_delete_all = allow_to_delete_all
+
+    def rewrite(self, record):
+        Kpre_index = None
+        for i, rec in enumerate(record):
+            if rec['partofspeech'] == 'K' and rec['form'] == 'pre':
+                Kpre_index = i
+
+        if Kpre_index != None:
+            del record[Kpre_index]
+        # Kaassõna (adposition, K) morf analüüsis partofspeech=='K' ja form==''.
+        # tmorftabel.txt põhjal tekib sellisest reast kaks analüüsi, kus
+        # partofspeech=='K', form=='pre'
+        # partofspeech=='K', form=='post'
+        # Ei leia näidet sõnast, mille morf analüüs sisaldaks mitmel real
+        # partofspeech=='K'.
+        # Tundub, et vana kood kustutas ainult viimase analüüsirea,
+        # kus partofspeech=='K', form=='pre'. Sama teeb uus kood.
+        # Seega iga kaassõna analüüsiks jääb partofspeech=='K', form=='post'.
+        return record
 
 # ==================================================================================
 # ==================================================================================
