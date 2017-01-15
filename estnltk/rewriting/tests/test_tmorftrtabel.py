@@ -36,9 +36,9 @@ def test_tmorftrtabel():
             assert len(parts) == 8, 'wrong number of "@" on line number {}: "{}"'.format(line_number, line)
             for part in parts:
                 assert part == part.strip(), 'extra space on line number {}: "{}"'.format(line_number, line) 
-            p_split = parts[1].split()
+            p_split = parts[1].split(' ')
             assert p_split[0] in pos0, 'unexpected form pos tag "{}" on line number {}: "{}"'.format(p_split[0], line_number, line)
             assert set(p_split[1:]) < form0, 'unexpected for tag "{}" on line number {}: "{}"'.format(set(p_split[1:])-form0, line_number, line)
-            p_split = parts[3].split()
+            p_split = parts[3].split(' ')
             assert p_split[0] in pos1, 'unexpected form pos tag "{}" on line number {}: "{}"'.format(p_split[0], line_number, line)
             assert set(p_split[1:]) < form1, 'unexpected for tag {} on line number {}: "{}"'.format(set(p_split[1:])-form1, line_number, line)
