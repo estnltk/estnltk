@@ -106,8 +106,8 @@ class MorphToSyntaxMorphRewriter():
                     result.append(rec.copy())
         return result
 
-
-    def load_fs_mrf_to_syntax_mrf_translation_rules(self, fs_to_synt_rules_file):
+    @staticmethod
+    def load_fs_mrf_to_syntax_mrf_translation_rules(fs_to_synt_rules_file):
         ''' Loads rules that can be used to convert from Filosoft's mrf format to
             syntactic analyzer's format. Returns a dict containing rules.
     
@@ -141,7 +141,7 @@ class MorphToSyntaxMorphRewriter():
                 raise Exception(' Unexpected format of the line: ', line)
             if m.group(1): #line starts with '¤'
                 continue
-            new_form = self._esc_que_mark(m.group(6)).strip()
+            new_form = MorphToSyntaxMorphRewriter._esc_que_mark(m.group(6)).strip()
             rules[(m.group(3), m.group(4))].append((m.group(5), new_form))
             # siin tekib korduvaid reegleid, mille võiks siinsamas välja filtreerida
             # näiteks P, sg n -> P, sg nom
