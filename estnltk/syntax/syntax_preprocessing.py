@@ -99,18 +99,19 @@ def _esc_double_quotes(str1):
     '''
     return str1.replace('"', '\\"').replace('\\\\\\"', '\\"').replace('\\\\"', '\\"')
 
+def word_morph_extended_to_cg3(record):
+    pass
+
 def convert_to_cg3_input(text):
-    ''' Converts given mrf lines from syntax preprocessing format to cg3 input
-        format:
-          *) surrounds words/tokens with "< and >"
+    ''' Converts text with morph_extended layer to cg3 input
+        format.
+          *) 
           *) surrounds word lemmas with " in analysis;
           *) separates word endings from lemmas in analysis, and adds prefix 'L';
           *) removes '//' and '//' from analysis;
           *) converts hashtags to tags surrounded by < and >;
-          ... and provides other various fix-ups;
 
-        Returns the input list, where elements (tokens/analyses) have been converted
-        into the new format;
+        Returns list of strings in new format.
     ''' 
     morph_lines = []
     word_index = -1
@@ -135,20 +136,10 @@ def convert_to_cg3_input(text):
                     new_form_list.append('<'+morph_extended.verb_extension_suffix+'>')
                 if morph_extended.subcat:
                     subcat = morph_extended.subcat
-                    subcat = ' '.join(['<'+s+'>' for s in subcat])
-                    new_form_list.append(subcat)
+                    subcat = [''.join(('<', s, '>')) for s in subcat]
+                    new_form_list.extend(subcat)
                 if morph_extended.punctuation_type:
-                    # jama, et abileksikon06utf.lx sisaldab ka punktuation type
-                #    if morph_extended.punctuation_type not in new_form_list:
                     new_form_list.append(morph_extended.punctuation_type)
-
-                #if morph_extended.form_list != new_form_list:
-                #    print('-----------------------------------')
-                #    print(morph_extended.form_list)
-                #    print(new_form_list)
-                #    print(morph_extended.initial_form, morph_extended.fin, morph_extended.subcat, morph_extended.punctuation_type, morph_extended.pronoun_type, morph_extended.partic, morph_extended.letter_case)
-                #morph_extended.form_list = [re.sub('#(\S+)','<\\1>', f) for f in morph_extended.form_list]
-                #new_form_list = [re.sub('#(\S+)','<\\1>', f) for f in new_form_list]
 
                 if morph_extended.ending + morph_extended.clitic:
                     line_new = '    "'+morph_extended.root+'" L'+morph_extended.ending+morph_extended.clitic+' ' + ' '.join([morph_extended.partofspeech]+new_form_list+[' '])
@@ -173,25 +164,7 @@ def convert_to_cg3_input(text):
                     line_new = m.group(1) + ' <NGP-P> <InfP>  '
                 if text.morf_analysis[word_index][0].form == '?':
                     line_new = re.sub('pos  $','pos   ', line_new)
-                #312 Paevakajaline_valiidne.xml_145.txt      Not OK. First mismatching line:
-                #result:   '    "oota+me-vaata+me-jälgi" Lme V mod indic pres ps1 pl ps af <FinV>  '
-                #expected: '    "oota+me-vaata+me-jälgi" Lme V mod indic pres ps1 pl ps af <FinV> <Part-P>  '
-                #376 aja_ee_1996_48.xml_26.txt               ----------------------------------
-                #result:        '    "öel=nu+d-kirjuta" Lnud V mod indic impf ps neg <FinV>  '
-                #expected:      '    "öel=nu+d-kirjuta" Lnud V mod indic impf ps neg <FinV> <nu>  '
-                #718 aja_EPL_1998_06_02.xml_14.txt           Not OK. First mismatching line:
-                #result:   '    "vali+des-katseta" Ldes V mod ger  '
-                #expected: '    "vali+des-katseta" Ldes V mod ger <NGP-P> <All>  '
-                #973 aja_EPL_1998_06_18.xml_5.txt            ----------------------------------
-                #result:        '    "viha=tu+d-armasta" Ltud V mod indic impf imps neg <FinV>  '
-                #expected:      '    "viha=tu+d-armasta" Ltud V mod indic impf imps neg <FinV> <tu>  '
 
-                if False:
-                    print('----------------------------------')
-                    print("ending+clitic: '", morph_extended.ending+morph_extended.clitic, "'", sep="")
-                    print('form_list:', morph_extended.form_list)
-                    print("morf_analysis[0].form:'",  word.morf_analysis[0].form, "'", sep='')
-                    print("result:        '", line_new,                "'", sep="")
                 morph_lines.append(line_new)
         morph_lines.append('"</s>"')
 
