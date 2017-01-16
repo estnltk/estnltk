@@ -277,7 +277,7 @@ class QuickMorphExtendedTagger():
         dep = Layer(name='syntax_pp_0',
                          parent='words',
                          ambiguous=True,
-                         attributes=['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form']
+                         attributes=['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form', 'initial_form']
                          )
         text._add_layer(dep)
         for word, morf_anal in zip(text.words, text.morf_analysis):
@@ -289,6 +289,7 @@ class QuickMorphExtendedTagger():
                 m.clitic = analysis.clitic
                 m.partofspeech = analysis.partofspeech
                 m.form = analysis.form
+                m.initial_form = analysis.form # see tuleb eemaldada, kui aeg küps
         new_layer = text['syntax_pp_0']
 
         source_attributes = new_layer.attributes

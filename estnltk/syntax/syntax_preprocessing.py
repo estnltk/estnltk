@@ -100,7 +100,54 @@ def _esc_double_quotes(str1):
     return str1.replace('"', '\\"').replace('\\\\\\"', '\\"').replace('\\\\"', '\\"')
 
 def word_morph_extended_to_cg3(record):
-    pass
+    morph_lines = []
+    for morph_extended in record:
+        new_form_list = []
+        if morph_extended.pronoun_type:
+            new_form_list.extend(morph_extended.pronoun_type)
+        if morph_extended.form:
+            new_form_list.append(morph_extended.form)
+        if morph_extended.letter_case:
+            new_form_list.append(morph_extended.letter_case)
+        if is_partic_suffix(morph_extended.verb_extension_suffix):
+            new_form_list.append('partic')
+        if morph_extended.fin:
+            new_form_list.append('<FinV>')
+        if morph_extended.verb_extension_suffix:
+            new_form_list.append('<'+morph_extended.verb_extension_suffix+'>')
+        if morph_extended.subcat:
+            subcat = morph_extended.subcat
+            subcat = [''.join(('<', s, '>')) for s in subcat]
+            new_form_list.extend(subcat)
+        if morph_extended.punctuation_type:
+            new_form_list.append(morph_extended.punctuation_type)
+
+        if morph_extended.ending + morph_extended.clitic:
+            line_new = '    "'+morph_extended.root+'" L'+morph_extended.ending+morph_extended.clitic+' ' + ' '.join([morph_extended.partofspeech]+new_form_list+[' '])
+        else:
+            if morph_extended.partofspeech == 'Z':
+                line_new = '    "'+morph_extended.root+'" '+' '.join([morph_extended.partofspeech]+new_form_list+[' '])
+            else:
+                line_new = '    "'+morph_extended.root+'+" '+' '.join([morph_extended.partofspeech]+new_form_list+[' '])
+
+        if morph_extended.root == '':
+            line_new = '     //_Z_ //'  
+        if morph_extended.root == '#':
+            line_new = '    "<" L0> Y nominal   '
+        line_new = re.sub('digit  $','digit   ', line_new)
+        line_new = re.sub('nominal  $','nominal   ', line_new)
+        line_new = re.sub('prop  $','prop   ', line_new)
+        line_new = re.sub('com  $','com   ', line_new)
+        # FinV on siin arvatavasti ebakorrektne ja tekkis cap märgendi tõttu
+        line_new = re.sub('"ei" L0 V aux neg cap  ','"ei" L0 V aux neg cap <FinV>  ', line_new)
+        m = re.match('(\s+"tead\+a-tund".*\S)\s*$', line_new)
+        if m:
+            line_new = m.group(1) + ' <NGP-P> <InfP>  '
+        if morph_extended.initial_form == '?':
+            line_new = re.sub('pos  $','pos   ', line_new)
+
+        morph_lines.append(line_new)
+    return morph_lines
 
 def convert_to_cg3_input(text):
     ''' Converts text with morph_extended layer to cg3 input
@@ -120,54 +167,9 @@ def convert_to_cg3_input(text):
         for word in sentence.words:
             word_index += 1
             morph_lines.append('"<'+_esc_double_quotes(word.text)+'>"')
-            for morph_extended in text.morph_extended[word_index]:
-                new_form_list = []
-                if morph_extended.pronoun_type:
-                    new_form_list.extend(morph_extended.pronoun_type)
-                if morph_extended.form:
-                    new_form_list.append(morph_extended.form)
-                if morph_extended.letter_case:
-                    new_form_list.append(morph_extended.letter_case)
-                if is_partic_suffix(morph_extended.verb_extension_suffix):
-                    new_form_list.append('partic')
-                if morph_extended.fin:
-                    new_form_list.append('<FinV>')
-                if morph_extended.verb_extension_suffix:
-                    new_form_list.append('<'+morph_extended.verb_extension_suffix+'>')
-                if morph_extended.subcat:
-                    subcat = morph_extended.subcat
-                    subcat = [''.join(('<', s, '>')) for s in subcat]
-                    new_form_list.extend(subcat)
-                if morph_extended.punctuation_type:
-                    new_form_list.append(morph_extended.punctuation_type)
+            morph_lines.extend(word_morph_extended_to_cg3(text.morph_extended[word_index]))
 
-                if morph_extended.ending + morph_extended.clitic:
-                    line_new = '    "'+morph_extended.root+'" L'+morph_extended.ending+morph_extended.clitic+' ' + ' '.join([morph_extended.partofspeech]+new_form_list+[' '])
-                else:
-                    if morph_extended.partofspeech == 'Z':
-                        line_new = '    "'+morph_extended.root+'" '+' '.join([morph_extended.partofspeech]+new_form_list+[' '])
-                    else:
-                        line_new = '    "'+morph_extended.root+'+" '+' '.join([morph_extended.partofspeech]+new_form_list+[' '])
-
-                if morph_extended.root == '':
-                    line_new = '     //_Z_ //'  
-                if morph_extended.root == '#':
-                    line_new = '    "<" L0> Y nominal   '
-                line_new = re.sub('digit  $','digit   ', line_new)
-                line_new = re.sub('nominal  $','nominal   ', line_new)
-                line_new = re.sub('prop  $','prop   ', line_new)
-                line_new = re.sub('com  $','com   ', line_new)
-                # FinV on siin arvatavasti ebakorrektne ja tekkis cap märgendi tõttu
-                line_new = re.sub('"ei" L0 V aux neg cap  ','"ei" L0 V aux neg cap <FinV>  ', line_new)
-                m = re.match('(\s+"tead\+a-tund".*\S)\s*$', line_new)
-                if m:
-                    line_new = m.group(1) + ' <NGP-P> <InfP>  '
-                if text.morf_analysis[word_index][0].form == '?':
-                    line_new = re.sub('pos  $','pos   ', line_new)
-
-                morph_lines.append(line_new)
         morph_lines.append('"</s>"')
-
     return text, morph_lines
 
 
