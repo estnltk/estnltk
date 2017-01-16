@@ -142,7 +142,8 @@ class MorphToSyntaxMorphRewriter():
             if m.group(1): #line starts with '¤'
                 continue
             new_form = MorphToSyntaxMorphRewriter._esc_que_mark(m.group(6)).strip()
-            rules[(m.group(3), m.group(4))].append((m.group(5), new_form))
+            if (m.group(5), new_form) not in rules[(m.group(3), m.group(4))]:
+                rules[(m.group(3), m.group(4))].append((m.group(5), new_form))
             # siin tekib korduvaid reegleid, mille võiks siinsamas välja filtreerida
             # näiteks P, sg n -> P, sg nom
             # ja kasutuid reegleid Z, '' -> Z, Fst
