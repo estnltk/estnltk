@@ -71,6 +71,7 @@ SUBCAT_RULES_FILE     = os.path.join(SYNTAX_PATH, 'abileksikon06utf.lx')
 
 
 def is_partic_suffix(suffix):
+    return suffix in {'tud', 'nud', 'v', 'tav', 'mata', 'nud> <nu'}  #"mõel=nu+d-tei=nud
     return suffix in {'tud', 'nud', 'v', 'tav', 'mata'} 
 
 # ==================================================================================
@@ -286,6 +287,5 @@ class SyntaxPreprocessing:
         '''
         self.morph_extended_tagger.tag(text)
 
-        print('o ', end='', flush=True)
         text, morph_lines = convert_to_cg3_input(text)
         return text, morph_lines
