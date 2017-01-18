@@ -57,8 +57,8 @@
 
 from __future__ import unicode_literals, print_function
 
-from estnltk.names import *
-from estnltk.core import PACKAGE_PATH
+from estnltk.legacy.names import *
+from estnltk.legacy.core import PACKAGE_PATH
 
 import re, json
 import os, os.path
@@ -161,7 +161,7 @@ def convert_Text_to_mrf( text ):
         *) If the input has not been analysed, performs the analysis with required settings:
             word quessing is turned on, proper-name analyses are turned off;
     '''
-    from estnltk.text import Text
+    from estnltk.legacy.text import Text
     if not isinstance( text, Text ):
        raise Exception(' Expected estnltk\'s Text as an input argument! ')
     if not text.is_tagged( ANALYSIS ):
