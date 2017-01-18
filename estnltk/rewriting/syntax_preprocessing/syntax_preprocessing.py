@@ -100,6 +100,8 @@ class MorphToSyntaxMorphRewriter():
                     morphKey = (pos, form)
                 else:
                     morphKey = (pos, '')
+                if not self.fs_to_synt_rules[morphKey]:
+                    self.fs_to_synt_rules[morphKey] = [morphKey]
                 for pos, form in self.fs_to_synt_rules[morphKey]:
                     rec['partofspeech'] = pos
                     rec['form'] = form
@@ -395,22 +397,85 @@ class RemoveAdpositionAnalysesRewriter():
         self.allow_to_delete_all = allow_to_delete_all
 
     def rewrite(self, record):
-        Kpre_index = None
-        for i, rec in enumerate(record):
-            if rec['partofspeech'] == 'K' and rec['form'] == 'pre':
-                Kpre_index = i
+        if not self.allow_to_delete_all and len(record) < 2:
+            return record
 
-        if Kpre_index != None:
-            del record[Kpre_index]
+        Kpre_index = None
+        Kpost_index = None
+        for i, rec in enumerate(record):
+            if rec['partofspeech'] != 'K':
+                continue
+            if rec.get('letter_case', None) or rec.get('subcat', None):
+                continue
+            if rec['form'] == 'pre':
+                Kpre_index = i
+            elif rec['form'] == 'post':
+                Kpost_index = i
+
+        if Kpost_index is not None:
+            if Kpre_index is None:
+                del record[Kpost_index]
+            else:
+                del record[Kpre_index]
+
         # Kaassõna (adposition, K) morf analüüsis partofspeech=='K' ja form==''.
         # tmorftabel.txt põhjal tekib sellisest reast kaks analüüsi, kus
         # partofspeech=='K', form=='pre'
         # partofspeech=='K', form=='post'
-        # Ei leia näidet sõnast, mille morf analüüs sisaldaks mitmel real
+        # Vana kood eemaldas ainult viimase 'pre' või 'post' analüüsi.
+        # Ei leia näidet sõnast, millele vabamorf annaks mitmel real
         # partofspeech=='K'.
-        # Tundub, et vana kood kustutas ainult viimase analüüsirea,
-        # kus partofspeech=='K', form=='pre'. Sama teeb uus kood.
-        # Seega iga kaassõna analüüsiks jääb partofspeech=='K', form=='post'.
+        # Kui disambiguate==False, siis võib esineda lisaks partofspeech=='K' 
+        # muid ridu vabamorfi analüüsi väljundis 
+        # Sõltuvalt algsest analüüsist on kolm võimalikku stsenaariumit:
+        #######################################################################
+#         A
+#         1) vabamorf
+#             partofspeech=='K' ja form==''
+#         2) morph_to_syntax_morph
+#             partofspeech=='K', form=='pre'
+#             partofspeech=='K', form=='post'
+#         3) remove_adposition_analyses
+#             partofspeech=='K', form=='post'
+#         4) letter_case / subcat
+#             partofspeech=='K', form=='post', case=None
+#         5) remove_adposition_analyses, kui allow_to_remove_all==False
+#             partofspeech=='K', form=='post', case=None
+#         #######################################################################
+#         B
+#         1) vabamorf
+#             partofspeech=='V' ja form=='bla'
+#             partofspeech=='K' ja form==''
+#         2) morph_to_syntax_morph
+#             partofspeech=='V' ja form=='bla'
+#             partofspeech=='K', form=='pre'
+#             partofspeech=='K', form=='post'
+#         3) remove_adposition_analyses
+#             partofspeech=='V' ja form=='bla'
+#             partofspeech=='K', form=='post'
+#         4) letter_case / subcat
+#             partofspeech=='V' ja form=='bla', case=None
+#             partofspeech=='K', form=='post', case=None
+#         5) remove_adposition_analyses
+#             partofspeech=='V' ja form=='bla', case=None
+#         #######################################################################
+#         C
+#         1) vabamorf
+#             partofspeech=='V' ja form=='bla'
+#             partofspeech=='K' ja form==''
+#         2) morph_to_syntax_morph
+#             partofspeech=='V' ja form=='bla'
+#             partofspeech=='K', form=='pre'
+#             partofspeech=='K', form=='post'
+#         3) remove_adposition_analyses
+#             partofspeech=='V' ja form=='bla'
+#             partofspeech=='K', form=='post'
+#         4) letter_case / subcat
+#             partofspeech=='V' ja form=='bla', case='cap'
+#             partofspeech=='K', form=='post', case='cap'
+#         5) remove_adposition_analyses
+#             partofspeech=='V' ja form=='bla'
+#             partofspeech=='K', form=='post', case='cap'        
         return record
 
 # ==================================================================================
@@ -526,7 +591,8 @@ class VerbExtensionSuffixRewriter():
     )
     # 973 viha=tu+d-armasta: <tu>.   718 "lahti_seleta=tult": no <tu>
     # öel=nu+d-kirjuta
-    _suffix_conversions = ( ("=[td]ud",   "tud"),
+    _suffix_conversions = ( ("=nu[+]d.*=nud",      "nud> <nu"), #"mõel=nu+d-tei=nud
+                            ("=[td]ud",   "tud"),
                             ("=nud",      "nud"),
                             ("=mine",     "mine"),
                             ("=nu$",       "nu"),
@@ -792,4 +858,7 @@ class QuickMorphExtendedRewriter():
         record = self.finite_form_rewriter.rewrite(record)
         record = self.verb_extension_suffix_rewriter.rewrite(record)
         record = self.subcat_rewriter.rewrite(record)
+
+        record = self.remove_adposition_analyses_rewriter.rewrite(record)
+
         return record
