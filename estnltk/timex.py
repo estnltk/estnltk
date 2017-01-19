@@ -6,22 +6,79 @@ from .names import *
 
 from pprint import pprint
 
-import os
-import json
+import os, os.path
+import json, re
 import datetime
 
 
+# A hack for defining a string type common in Py 2 and Py 3
+try:
+    # Check whether basestring is supported (should be in Py 2.7)
+    basestring
+except NameError as e:
+    # If not supported (in Py 3.x), redefine it as str
+    basestring = str
+
+
 class TimexTagger(JavaProcess):
-    """Class for extracting temporal (TIMEX) expressions."""
+    """ Wrapper class around Java-based temporal expression tagger (Ajavt).
+        Processes whole texts and extracts & normalises temporal expressions (TIMEXes);
+        
+        Usage examples:
+        
+         1) Using a custom rules file:
+         
+              from estnltk import Text
+              from estnltk.timex import TimexTagger
+              mytimextagger = TimexTagger( rules_file = ...path_to_rules_file... )
+              text    = Text('Täna on ilus ilm', timex_tagger = mytimextagger )
+              timexes = text.timexes
+              
+         2) Using an unknown document creation time:
+         
+              from estnltk import Text
+              text = Text('Täna on ilus ilm', creation_date='XXXX-XX-XX')
+              timexes = text.timexes
+            
+            (suppresses normalisation of relative dates)
+        
+    """
     
-    def __init__(self):
-        JavaProcess.__init__(self, 'Ajavt.jar', ['-pyvabamorf', '-r', os.path.join(JAVARES_PATH, 'reeglid.xml')])
+    def __init__(self, rules_file=None):
+        use_rules_file = os.path.join(JAVARES_PATH, 'reeglid.xml') if not rules_file else rules_file
+        if not os.path.exists( use_rules_file ):
+            raise Exception('(!) Unable to find timex tagger rules file from the location:', use_rules_file )
+        JavaProcess.__init__(self, 'Ajavt.jar', ['-pyvabamorf', '-r', use_rules_file])
+
+
+    def _get_creation_date(self, **kwargs):
+        ''' Gets a creation date from arguments or creates new if non given.
+            Throws an exception in case of an unexpected creation date.
+        '''
+        creation_date_from_arg = kwargs.get('creation_date', None)
+        if not creation_date_from_arg:
+            # If document creation time is not given as an argument,
+            # use the default creation time: execution time of the program
+            creation_date = datetime.datetime.now()
+            return creation_date.strftime('%Y-%m-%dT%H:%M')
+        else:
+            # Get creation date according to the type of argument:
+            if isinstance(creation_date_from_arg, datetime.datetime):
+                # Python's datetime object
+                return creation_date_from_arg.strftime('%Y-%m-%dT%H:%M')
+            elif isinstance( creation_date_from_arg, basestring ):
+                # A string following ISO date&time format
+                if re.match("[0-9X]{4}-[0-9X]{2}-[0-9X]{2}$", creation_date_from_arg):
+                    return creation_date_from_arg + "TXX:XX"
+                elif re.match("[0-9X]{4}-[0-9X]{2}-[0-9X]{2}T[0-9X]{2}:[0-9X]{2}$", creation_date_from_arg):
+                    return creation_date_from_arg
+        raise Exception('(!) Unexpected "creation_date" argument: ', creation_date_from_arg)
+
 
     def tag_document(self, document, **kwargs):
         # get the arguments
         remove_unnormalized_timexes = kwargs.get('remove_unnormalized_timexes', True)
-        creation_date = kwargs.get('creation_date', datetime.datetime.now())
-        creation_date = creation_date.strftime('%Y-%m-%dT%H:%M')
+        creation_date = self._get_creation_date( **kwargs )
 
         # add creation date to document
         document[CREATION_DATE] = creation_date
