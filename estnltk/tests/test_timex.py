@@ -4,6 +4,7 @@ from __future__ import unicode_literals, print_function, absolute_import
 import unittest
 import datetime
 import codecs
+import os.path
 
 from ..text import Text
 from ..timex import TimexTagger
@@ -40,10 +41,34 @@ class TimexTest(unittest.TestCase):
                   'type': 'DATE',
                   'value': '2014-12-01'}]
 
-    def test_document_creation_date(self):
+    def test_using_custom_rules_file(self):
+        from ..javaprocess import JAVARES_PATH
+        new_rules_file = os.path.join(JAVARES_PATH, 'reeglid.xml')
+        timextagger = TimexTagger( rules_file = new_rules_file )
+        text = Text('Täna on ilus ilm', creation_date=datetime.datetime(1986, 12, 21), timex_tagger=timextagger)
+        self.assertEqual(text.timexes[0][TMX_VALUE], '1986-12-21')
+        timextagger._process.terminate()
+    
+    def test_document_creation_date_1(self):
         timextagger = TimexTagger()
         text = Text('Täna on ilus ilm', creation_date=datetime.datetime(1986, 12, 21), timex_tagger=timextagger)
         self.assertEqual(text.timexes[0][TMX_VALUE], '1986-12-21')
+        # Terminate Java process in order to avoid "OSError: [WinError 6] The handle is invalid"
+        # in subsequent Java processing
+        timextagger._process.terminate()
+        
+    def test_document_creation_date_2(self):
+        timextagger = TimexTagger()
+        text = Text('Täna on ilus ilm', creation_date='XXXX-XX-XXTXX:XX', timex_tagger=timextagger)
+        self.assertEqual(text.timexes[0][TMX_VALUE], 'XXXX-XX-XX')
+        # Terminate Java process in order to avoid "OSError: [WinError 6] The handle is invalid"
+        # in subsequent Java processing
+        timextagger._process.terminate()
+        
+    def test_document_creation_date_3(self):
+        timextagger = TimexTagger()
+        text = Text('26. juunil oli kena ilm.', creation_date='XXXX-XX-XX', timex_tagger=timextagger)
+        self.assertEqual(text.timexes[0][TMX_VALUE], 'XXXX-XX-XX')
         # Terminate Java process in order to avoid "OSError: [WinError 6] The handle is invalid"
         # in subsequent Java processing
         timextagger._process.terminate()

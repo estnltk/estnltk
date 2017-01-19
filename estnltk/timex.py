@@ -33,14 +33,22 @@ class TimexTagger(JavaProcess):
               mytimextagger = TimexTagger( rules_file = ...path_to_rules_file... )
               text    = Text('Täna on ilus ilm', timex_tagger = mytimextagger )
               timexes = text.timexes
-              
-         2) Using an unknown document creation time:
          
-              from estnltk import Text
-              text = Text('Täna on ilus ilm', creation_date='XXXX-XX-XX')
-              timexes = text.timexes
+         2) Passing the document creation time as a string:
+         
+            *) As a fully specified creation date: 
+              
+                from estnltk import Text
+                text = Text('Täna on ilus ilm', creation_date='2017-01-17')
+                timexes = text.timexes
             
-            (suppresses normalisation of relative dates)
+            *) An unknown/unspecified document creation date:
+         
+                from estnltk import Text
+                text = Text('Eile oli ilus ilm', creation_date='XXXX-XX-XX')
+                timexes = text.timexes
+            
+                (affects normalisation: relative dates will also be unspecified)
         
     """
     
