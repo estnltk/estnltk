@@ -1,4 +1,4 @@
-1@_S_ ?@Substantiiv apellatiiv@_S_ com @Noun common@Nc@NCSX@kesk-
+1@_S_ ?@Substantiiv apellatiiv@_S_ com@Noun common@Nc@NCSX@kesk-
 2@_S_ sg n@Substantiiv apellatiiv singular nominatiiv@_S_ com sg nom@Noun common singular nominative@Nc-sn@NCSN@jalg
 3@_S_ sg g@Substantiiv apellatiiv singular genitiiv@_S_ com sg gen@Noun common singular genitive@Nc-sg@NCSG@jala
 4@_S_ sg p@Substantiiv apellatiiv singular partitiiv@_S_ com sg part@Noun common singular partitive@Nc-s1@NCS1@jalga
@@ -29,7 +29,7 @@
 29@_S_ pl ab@Substantiiv apellatiiv pluural abessiiv@_S_ com pl abes@Noun common plural abessive@Nc-p5@NCS@jalgadeta, jaluta
 30@_S_ pl kom@Substantiiv apellatiiv pluural komitatiiv@_S_ com pl kom@Noun common plural komitative@Nc-pk@NCS@jalgadega, jaluga
 31@_H_ sg n@Substantiiv prooprium singular nominatiiv@_S_ prop sg nom@Noun proper singular nominative@Np-sn@NPSN@London
-32@_H_ ?@Substantiiv prooprium@_S_ prop @Noun proper@Np@NPCSX@Kesk-
+32@_H_ ?@Substantiiv prooprium@_S_ prop@Noun proper@Np@NPCSX@Kesk-
 33@_H_ sg g@Substantiiv prooprium singular genitiiv@_S_ prop sg gen@Noun proper singular genitive@Np-sg@NPSG@Londoni
 34@_H_ sg p@Substantiiv prooprium singular partitiiv@_S_ prop sg part@Noun proper singular partitive@Np-s1@NPS1@Londonit
 35@_H_ sg ill@Substantiiv prooprium singular illatiiv@_S_ prop sg ill@Noun proper singular illative@Np-sx@NPSA@Londonisse
@@ -317,7 +317,7 @@
 311@_V_ nuvat@Modaalverb kvotatiiv preteeritum personaal negatiiv@_V_ mod quot past ps neg@Verb modal quotat past active negative@Voqs---ay@VMQ@(ei) saanuvat
 312@_V_ tuvat@Modaalverb kvotatiiv preteeritum impersonaal negatiiv@_V_ mod quot past imps neg@Verb modal quotat past passive negative@Voqs---py@VMQ@(ei) saaduvat
 313@_A_@Adjektiiv positiiv@_A_ pos@Adjective positive@A-p@ASX@salkus
-314@_A_ ?@Adjektiiv positiiv@_A_ pos @Adjective positive@A-p@ASX@leiutamis-
+314@_A_ ?@Adjektiiv positiiv@_A_ pos@Adjective positive@A-p@ASX@leiutamis-
 315@_A_ sg n@Adjektiiv positiiv singular nominatiiv@_A_ pos sg nom@Adjective positive singular nominative@A-p-sn@ASN@oluline
 316@_A_ sg g@Adjektiiv positiiv singular genitiiv@_A_ pos sg gen@Adjective positive singular genitive@A-p-sg@ASG@olulise
 317@_A_ sg p@Adjektiiv positiiv singular partitiiv@_A_ pos sg part@Adjective positive singular partitive@A-p-s1@AS1@olulist
@@ -467,7 +467,7 @@
 461@_P_ sg in@Pronoomen singular inessiiv@_P_ sg in@Pronoun singular inessive@P---s2@PP3SA@temas
 462@_P_ sg el@Pronoomen singular elatiiv@_P_ sg el@Pronoun singular elative@P---se@PP3SA@temast
 463@_P_ sg all@Pronoomen singular allatiiv@_P_ sg all@Pronoun singular allative@P---st@PP3SA@temale
-464@_P_ sg ad@Pronoomen singular adessiiv@_P_ sg ad@Pronoun singular adessive@P---s3@PP3SA@ temal
+464@_P_ sg ad@Pronoomen singular adessiiv@_P_ sg ad@Pronoun singular adessive@P---s3@PP3SA@temal
 465@_P_ sg abl@Pronoomen singular ablatiiv@_P_ sg abl@Pronoun singular ablative@P---sb@PP3SA@temalt
 466@_P_ sg tr@Pronoomen singular translatiiv@_P_ sg tr@Pronoun singular translative@P---s4@PP3S@temaks
 467@_P_ sg ter@Pronoomen singular terminatiiv@_P_ sg term@Pronoun singular terminative@P---s9@PP3S@temani
@@ -524,7 +524,7 @@
 518@_J_@Rinnastav/alistav sides&otilde;na@_J_ sub crd@Conjunction subordinating/coordinating@Cc@CC@ja 
 ¤518@_J_@Rinnastav sides&otilde;na@_J_ crd@Conjunction coordinating@Cc@CC@ja 
 ¤519@_J_@Alistav sides&otilde;na@_J_ sub@Conjunction subordinating@Cs@CS@et 
-520@_N_ ?@P&otilde;hiarvs&otilde;na number@_N_ card ? digit @Numeral cardinal digit@Mc---d@MCSX@8
+520@_N_ ?@P&otilde;hiarvs&otilde;na number@_N_ card ? digit@Numeral cardinal digit@Mc---d@MCSX@8
 521@_N_ sg n@P&otilde;hiarvs&otilde;na singular nominatiiv s&otilde;na@_N_ card sg nom l@Numeral cardinal singular nominative letter@Mc-snl@MCSN@kaheksa
 522@_N_ sg g@P&otilde;hiarvs&otilde;na singular genitiiv s&otilde;na@_N_ card sg gen l@Numeral cardinal singular genitive letter@Mc-sgl@MCSG@kaheksa
 523@_N_ sg p@P&otilde;hiarvs&otilde;na singular partitiiv s&otilde;na@_N_ card sg part l@Numeral cardinal singular partitive letter@Mc-s1l@MCS1@kaheksat
@@ -554,7 +554,7 @@
 547@_N_ pl es@P&otilde;hiarvs&otilde;na pluural essiiv s&otilde;na@_N_ card pl es l@Numeral cardinal plural essive letter@Mc-pwl@MCS@kaheksatena, kaheksaina
 548@_N_ pl ab@P&otilde;hiarvs&otilde;na pluural abessiiv s&otilde;na@_N_ card pl abes l@Numeral cardinal plural abessive letter@Mc-p5l@MCS@kaheksateta, kaheksaita
 549@_N_ pl kom@P&otilde;hiarvs&otilde;na pluural komitatiiv s&otilde;na@_N_ card pl kom l@Numeral cardinal plural komitative letter@Mc-pkl@MCS@kaheksatega, kaheksaiga
-550@_O_ ?@J&auml;rgarvs&otilde;na number@_N_ ord ? digit @Numeral ordinal digit@Mo---d@MOSX@8.
+550@_O_ ?@J&auml;rgarvs&otilde;na number@_N_ ord ? digit@Numeral ordinal digit@Mo---d@MOSX@8.
 551@_O_ ?@J&auml;rgarvs&otilde;na rooma number@_N_ ord ? roman@Numeral ordinal roman@Mo---r@MOSX@IX
 552@_O_ sg n@J&auml;rgarvs&otilde;na singular nominatiiv s&otilde;na@_N_ ord sg nom l@Numeral ordinal singular nominative letter@Mo-snl@MOSN@kaheksas
 553@_O_ sg g@J&auml;rgarvs&otilde;na singular genitiiv s&otilde;na@_N_ ord sg gen l@Numeral ordinal singular genitive letter@Mo-sgl@MOSG@kaheksanda
@@ -648,7 +648,7 @@
 ¤641@_Y_ ?@M&auml;&auml;rs&otilde;nal&uuml;hend@_Y_ adverbial@Abbreviation adverbial@Yr@YSX@jne
 ¤642@_Y_ ?@Tegus&otilde;nal&uuml;hend@_Y_ verbal@Abbreviation verbal@Yv@YSX@vt
 ¤643@_Y_ ?@Nimis&otilde;nal&uuml;hend@_Y_ nominal ?@Abbreviation nominal@Yn@YSX@A
-643@_Y_ ?@Nimis&otilde;nal&uuml;hend@_Y_ nominal @Abbreviation nominal@Yn@YSX@A
+643@_Y_ ?@Nimis&otilde;nal&uuml;hend@_Y_ nominal@Abbreviation nominal@Yn@YSX@A
 644@_X_@M&auml;&auml;rs&otilde;na@_X_@Adverb@R@RR@plehku
 645@_Z_@Punkt@_Z_ Fst@Punctuation period@Wcp@WCP@.
 646@_Z_@Koma@_Z_ Com@Punctuation comma@Wic@WIC@,
