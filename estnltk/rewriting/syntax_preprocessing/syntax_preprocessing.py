@@ -54,7 +54,7 @@ class PunctuationTypeRewriter():
 
     def _get_punctuation_type(self, morph_extended):
         root = morph_extended['root']
-        if root.rstrip('+0'): 
+        if root.rstrip('+0'):
             # eelmise versiooniga ühildumiseks
             # '0.0000000000000000000000000000000000000000000000000000000000'
             # '!+', '!++'
@@ -69,6 +69,7 @@ class PunctuationTypeRewriter():
                 return punct_type
             # mida teha kui matchi pole?
         if morph_extended['root'].endswith('+'):
+            # eelmise versiooniga ühildumiseks
             return 'crd'
 
 
@@ -83,17 +84,12 @@ class MorphToSyntaxMorphRewriter():
         Note that the resulting analysis list is likely longer than the
         original, because the conversion often requires that the
         original Filosoft's analysis is expanded into multiple analysis.
-    '''    
+    '''
+
     def __init__(self, fs_to_synt_rules_file):
         self.fs_to_synt_rules = \
             self.load_fs_mrf_to_syntax_mrf_translation_rules(fs_to_synt_rules_file)
 
-    @staticmethod
-    def _esc_que_mark(form):
-        ''' Replaces a question mark in form (e.g. 'card ? digit' or 'ord ? roman')  
-            with an escaped version of the question mark <?>
-        '''
-        return form.replace(' ?', ' <?>')
 
     def rewrite(self, record):
         result = []
@@ -109,8 +105,6 @@ class MorphToSyntaxMorphRewriter():
                     morph_key = (pos, form)
                 else:
                     morph_key = (pos, '')
-                #if not self.fs_to_synt_rules[morph_key]:
-                #    self.fs_to_synt_rules[morph_key] = [morph_key]
                 if morph_key in self.fs_to_synt_rules:
                     rules = self.fs_to_synt_rules[morph_key]
                 else:
@@ -121,6 +115,13 @@ class MorphToSyntaxMorphRewriter():
                     rec['form'] = form
                     result.append(rec.copy())
         return result
+
+    @staticmethod
+    def _esc_que_mark(form):
+        ''' Replaces a question mark in form (e.g. 'card ? digit' or 'ord ? roman')  
+            with an escaped version of the question mark <?>
+        '''
+        return form.replace(' ?', ' <?>')
 
     @staticmethod
     def load_fs_mrf_to_syntax_mrf_translation_rules(fs_to_synt_rules_file):
@@ -144,35 +145,26 @@ class MorphToSyntaxMorphRewriter():
             }
     
             A list is used for storing values because one Filosoft's analysis could
-            be mapped to multiple syntactic analyzer's analyses;
+            be mapped to multiple syntactic analyzer's analyses.
     
-            Lines that have ¤ in the beginning of the line will be skipped;
+            Lines that have ¤ in the beginning of the line are skipped.
         '''
         rules = defaultdict(list)
         rules_pattern = re.compile('(¤?)[^@]*@(_(.)_\s*([^@]*)|####)@[^@]*@_(.)_\s*([^@]*)')
-        in_f = codecs.open(fs_to_synt_rules_file, mode='r', encoding='utf-8')
-        for line in in_f:
-            m = rules_pattern.match(line)
-            if m == None:
-                raise Exception(' Unexpected format of the line: ', line)
-            if m.group(1): #line starts with '¤'
-                continue
-            new_form = MorphToSyntaxMorphRewriter._esc_que_mark(m.group(6)).strip()
-            if (m.group(5), new_form) not in rules[(m.group(3), m.group(4))]:
-                rules[(m.group(3), m.group(4))].append((m.group(5), new_form))
-        in_f.close()
+        with codecs.open(fs_to_synt_rules_file, mode='r', encoding='utf-8') as in_f:
+            for line in in_f:
+                m = rules_pattern.match(line)
+                assert m is not None, ' Unexpected format of the line: ' + line
+                if m.group(1): #line starts with '¤'
+                    continue
+                new_form = MorphToSyntaxMorphRewriter._esc_que_mark(m.group(6)).strip()
+                if (m.group(5), new_form) not in rules[(m.group(3), m.group(4))]:
+                    rules[(m.group(3), m.group(4))].append((m.group(5), new_form))
         for key, value in rules.items():
-            # eelmise versiooniga ühildumise jaoks
+            # eelmise versiooniga ühildumiseks
             rules[key] = tuple(value[::-1])
         return rules
 
-
-# ==================================================================================
-# ==================================================================================
-#   3)  Convert pronouns from Filosoft's mrf to syntactic analyzer's mrf
-#       (former 'tpron.pl')
-# ==================================================================================
-# ==================================================================================
 
 class PronounTypeRewriter():
     ''' Adds 'pronoun_type' attribute to the analysis.
@@ -320,26 +312,17 @@ class PronounTypeRewriter():
         return record
 
 
-# ==================================================================================
-# ==================================================================================
-#   4)  Remove duplicate analysis lines;
-#       Remove adpositions (part of speech 'K') that do not have 
-#       subcategorization information;
-#       (former 'tcopyremover.pl')
-# ==================================================================================
-# ==================================================================================
-
 class RemoveDuplicateAnalysesRewriter():
-    ''' Removes duplicate analysis elements. 
-        The elements are duplicate if *root*, *ending*, *clitic*, *partofspeech*
-        and *form* attributes are equal.
+    ''' Removes duplicate analyses. 
+        The analyses are duplicate if the 'root', 'ending', 'clitic', 
+        'partofspeech' and 'form' attributes are equal.
         
         Returns the input list where the removals have been applied.
     '''     
 
     def rewrite(self, record):
-        seen_analyses  = set()
-        to_delete      = []
+        seen_analyses = set()
+        to_delete = []
         for i, rec in enumerate(record):
             analysis = (rec['root'], rec['ending'], rec['clitic'], rec['partofspeech'], rec['form'])
             if analysis in seen_analyses:
@@ -351,64 +334,26 @@ class RemoveDuplicateAnalysesRewriter():
 
         return record
 
-class RemoveAdpositionAnalysesRewriter_old():
-    ''' Removes duplicate analysis elements. 
-        
-        Uses special logic for handling adposition (partofspeech 'K') analysis
-        where form is 'pre' or 'post':
-         *) If the word has analysis elements with form 'pre' and form 'post', 
-            removes the analysis element with the form 'pre';
-         *) If the word has only form 'post', removes that analysis element;
-        
-        The parameter allow_to_delete_all specifies whether it is allowed to 
-        delete all analysis elements or not. If allow_to_delete_all==False, then
-        one last analysis element is not deleted, regardless whether it should 
-        be deleted considering the adposition-deletion rules;
-        The original implementation corresponds to the settings allow_to_delete_all=True 
-        (and this is also the default value of the parameter).
-        
-        Returns the input list where the removals have been applied;
-    '''     
-    def __init__(self, allow_to_delete_all=True):
-        self.allow_to_delete_all = allow_to_delete_all
-
-    def rewrite(self, record):
-        Kpre_index     = None
-        Kpost_index    = None
-        for i, rec in enumerate(record):
-            if rec['partofspeech'] != 'K':
-                continue
-            if rec['form'] == 'pre':
-                Kpre_index  = i
-            elif rec['form'] == 'post':
-                Kpost_index = i
-
-        if Kpre_index != None and Kpost_index != None:
-            # If there was both _K_pre and _K_post, add _K_pre to removables;
-            del record[Kpre_index]
-        elif Kpost_index != None:
-            # If there was only _K_post, add _K_post to removables;
-            del record[Kpost_index]
-            print(record)
-        # NB! ainult viimane post või pre analüüs kustutatakse (ajaloolistel põhjustel)
-
-        return record
 
 class RemoveAdpositionAnalysesRewriter():
-    ''' Removes duplicate analysis elements.
+    ''' Uses special logic for handling adposition (partofspeech 'K') analyses.
 
-        Uses special logic for handling adposition (partofspeech 'K') analysis
-        where form is 'pre' or 'post':
-         *) If the word has analysis elements with form 'pre' and form 'post',
-            removes the analysis element with the form 'pre';
-         *) If the word has only form 'post', removes that analysis element;
+        Finds the last analyses of the word where the 'letter_case' is None,
+        the 'subcat' is None and the 'verb_extension_suffix' is None, but the 
+        'form' is 'pre' or 'post'.
+
+         *) If the word has only an analysis with the form 'post', removes that 
+            analysis.
+         *) If the word has analyses with the form 'pre' and the form 'post',
+            removes the analysis with the form 'pre'.
 
         The parameter allow_to_delete_all specifies whether it is allowed to
-        delete all analysis elements or not. If allow_to_delete_all==False, then
-        one last analysis element is not deleted, regardless whether it should
+        delete all analyses of the word. If allow_to_delete_all==False, then
+        one last analysis is not deleted, regardless whether it should
         be deleted considering the adposition-deletion rules;
-        The original implementation corresponds to the settings allow_to_delete_all=True
-        (and this is also the default value of the parameter).
+        The original implementation corresponds to the settings 
+        allow_to_delete_all=True (and this is also the default value of the 
+        parameter).
 
         Returns the input list where the removals have been applied;
     '''
@@ -424,8 +369,8 @@ class RemoveAdpositionAnalysesRewriter():
         for i, rec in enumerate(record):
             if rec['partofspeech'] != 'K':
                 continue
-            if (rec.get('letter_case', None) or 
-                rec.get('subcat', None) or 
+            if (rec.get('letter_case', None) or
+                rec.get('subcat', None) or
                 rec.get('verb_extension_suffix', None)):
                 continue
             if rec['form'] == 'pre':
@@ -499,13 +444,6 @@ class RemoveAdpositionAnalysesRewriter():
 #             partofspeech=='K', form=='post', case='cap'        
         return record
 
-# ==================================================================================
-# ==================================================================================
-#   5)  Add hashtag information to analyses
-#       (former 'TTRELLID.AWK')
-# ==================================================================================
-# ==================================================================================
-
 
 class LetterCaseRewriter():
     ''' The 'letter_case' attribute gets the value
@@ -525,9 +463,9 @@ class LetterCaseRewriter():
 
 class FiniteFormRewriter():
     ''' The fin attribute gets the value
-            True, if the word is finite verb
-            False, if word is verb but not finite
-            None, if the word not verb
+            True, if the word is a finite verb,
+            False, if word is a verb but not finite,
+            None, if the word is not a verb.
     
         Finite forms are the ones that can act as (part of) a predicate, 
         e.g in sentence "Mari läheb koju sööma.", 'läheb' is a finite form 
@@ -547,9 +485,9 @@ class FiniteFormRewriter():
             - if the mode is marked, the verb is finite. Here, only quotative mode ('quot' - e.g 'tahetavat')
               is checked because other modes are always accompanied by the voice tags described above
         * polarity(negation - e.g 'ei'): 
-            - if verb is marked with the tag 'neg' ('pandud' in "Koera ei pandud ketti.") 
-              AND not with the tag 'aux neg' (auxiliaries like "ei"), it is marked as finite. 
-              
+            - if verb is marked with the tag 'neg' ('pandud' in "Koera ei pandud ketti.")
+              AND not with the tag 'aux neg' (auxiliaries like "ei"), it is marked as finite.
+
         Additional remarks:
         * Quotative mode is also accompanied by a voice tag 'ps' meaning 'personal' without specifying the person.
           This, however, wouldn't be suitable to use in the _morfFinV regex because the string 'ps' can be found inside
@@ -562,11 +500,8 @@ class FiniteFormRewriter():
           (like historical form "ep")   
  
     '''
-    
-    # Information about verb finite forms
-    #_morfFinV        = re.compile('//\s*(_V_).*\s+(ps.|neg|quot|impf imps|pres imps)\s')
-    #_morfNotFinV     = re.compile('//\s*(_V_)\s+(aux neg)\s+//')
-    _morfFinV        = re.compile('(ps[123]|neg|quot|impf imps|pres imps)')
+
+    _morfFinV = re.compile('(ps[123]|neg|quot|impf imps|pres imps)')
 
     def rewrite(self, record):
         for rec in record:
@@ -600,18 +535,6 @@ class VerbExtensionSuffixRewriter():
         'söödav', etc - the words that are frequently used in the derived form), 
         morphological analyser does not add the '='. 
     '''
-    _suffix_conversions = ( ("=[td]ud",   "tud"),
-                            ("=nud",      "nud"),
-                            ("=mine",     "mine"),
-                            ("=nu$",      "nu"),
-                            ("=[td]u$",   "tu"),
-                            ("=v$",       "v"),
-                            ("=[td]av",   "tav"),
-                            ("=mata",     "mata"),
-                            ("=ja",       "ja")
-    )
-    # 973 viha=tu+d-armasta: <tu>.   718 "lahti_seleta=tult": no <tu>
-    # öel=nu+d-kirjuta
 
     _suffix_conversions = ( ("=[td]ud",   "tud"),
                             ("=nud",      "nud"),
@@ -625,17 +548,7 @@ class VerbExtensionSuffixRewriter():
                             ("=mata",     "mata"),
                             ("=ja",       "ja")
     )
-    # eelduse if rec['partofspeech'] in {'A', 'S'}: korral
-    #247 aja_EPL_2007_01_29.xml_71.txt
-    #result:   '    "märga=tavamalt" L0 D  '
-    #expected: '    "märga=tavamalt" L0 D partic <tav>  '  
-    #376 aja_ee_1996_48.xml_26.txt
-    #result:   '    "öel=nu+d-kirjuta" Lnud V mod indic impf ps neg <FinV>  '
-    #expected: '    "öel=nu+d-kirjuta" Lnud V mod indic impf ps neg <FinV> <nu>  '
-    #973 aja_EPL_1998_06_18.xml_5.txt
-    #result:   '    "viha=tu+d-armasta" Ltud V mod indic impf imps neg <FinV>  '
-    #expected: '    "viha=tu+d-armasta" Ltud V mod indic impf imps neg <FinV> <tu>  '
-    
+
     # Note: in double forms like 'vihatud-armastatud', both components should actually get the same analysis
     # (the same POS-tag - S, A, or V and corresponding attributes like ending, morph analysis, etc)
     # which is not the case now ("viha=tu+d-armasta" the first part is currently analysed as a noun, the second
@@ -651,6 +564,7 @@ class VerbExtensionSuffixRewriter():
 #                         break
 #         return record
     def rewrite(self, record):
+        # 'verb_extension_suffix' on siin list (ikka eelmise versiooniga ühildumiseks)
         #mõel=nu+d-tei=nud, või=nu+ks-pida=nud
         #väändu=nu+d-räsi=tu
         #kahjusta=tu+d-lõhene=nu
@@ -666,12 +580,6 @@ class VerbExtensionSuffixRewriter():
                             rec['verb_extension_suffix'].append(value)
         return record
 
-# ==================================================================================
-# ==================================================================================
-#   6) Add subcategorization information to verbs and adpositions;
-#       (former 'tagger08.c')
-# ==================================================================================
-# ==================================================================================
 
 class SubcatRewriter():
     ''' Adds subcategorization information (hashtags) to verbs and adpositions.
@@ -856,18 +764,18 @@ class SubcatRewriter():
 
 
 class QuickMorphExtendedRewriter():
-    ''' Converts given analysis line if it describes punctuation; Uses the set 
-        of predefined punctuation conversion rules from _punctConversions;
-        
-        _punctConversions should be a list of lists, where each outer list stands 
-        for a single conversion rule and inner list contains a pair of elements:
-        first is the regexp pattern and the second is the replacement, used in
-           re.sub( pattern, replacement, line )
-        
-        Returns the converted line (same as input, if no conversion was 
-        performed);
+    ''' Combines the rewrite methods of 
+        PunctuationTypeRewriter
+        MorphToSyntaxMorphRewriter
+        PronounTypeRewriter
+        RemoveDuplicateAnalysesRewriter
+        RemoveAdpositionAnalysesRewriter
+        LetterCaseRewriter
+        FiniteFormRewriter
+        VerbExtensionSuffixRewriter
+        SubcatRewriter
     ''' 
-
+    
     def __init__(self, punctuation_type_rewriter, morph_to_syntax_morph_rewriter, 
                  pronoun_type_rewriter,
                  remove_duplicate_analyses_rewriter,

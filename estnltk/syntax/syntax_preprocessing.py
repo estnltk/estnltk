@@ -134,11 +134,6 @@ def word_morph_extended_to_cg3(record):
             else:
                 line_new = '    "'+morph_extended.root+'+" '+' '.join([morph_extended.partofspeech]+new_form_list+[' '])
 
-        #if morph_extended.root == '':
-            #line_new = '    "+0" Y nominal  ' # {'lemma': '', 'clitic': '', 'root': '', 'root_tokens': [''], 'form': '?', 'ending': '0', 'partofspeech': 'Y'}
-            #line_new = '     //_Z_ //'
-        #if morph_extended.root == '#':
-        #    line_new = '    "<" L0> Y nominal  '
         if line_new == '    "" L0 Y nominal  ':
             line_new = '    "+0" Y nominal  '
         elif line_new == '    "" Z  ':
@@ -194,7 +189,7 @@ def convert_to_cg3_input(text):
         morph_lines.append('"</s>"')
     return text, morph_lines
 
-
+    
 # ==================================================================================
 # ==================================================================================
 #   Syntax  preprocessing  pipeline
