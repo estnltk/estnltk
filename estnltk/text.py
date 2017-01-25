@@ -176,6 +176,7 @@ class SpanList(collections.Sequence):
                  ambiguous:bool=False) -> None:
         if ambiguous:
             self.spans = SpanList(layer=layer, ambiguous=False)  #type: Union[List[Span], SpanList]
+            self.classes = {}
         else:
             self.spans = []  #type: Union[List[Span], SpanList]
 
@@ -185,37 +186,37 @@ class SpanList(collections.Sequence):
         self._base = None  #placeholder for dependant layer
 
 
+
+    def get_equivalence(self, span):
+        return self.classes.get((span.start, span.end), None)
+
+
     def to_record(self):
         return [i.to_record() for i in self.spans]
 
     def add_span(self, span:Span) -> Span:
         #the assumption is that this method is called by Layer.add_span
-        if not self.ambiguous:
+        if self.ambiguous:
             span.layer = self.layer
-            bisect.insort(self.spans, span)
-        else:
-            span.layer = self.layer
-
-            # we should keep stuff in spanlists
-            if span.parent:
-                equality_check = lambda span1, span2: span1.parent == span2.parent
-            elif isinstance(span.start, int) and isinstance(span.end, int):
-                equality_check = lambda span1, span2: span1.start == span2.start and span1.end == span2.end
-            else:
-                raise NotImplementedError
-
-            for spn_lst in self.spans:
-                if equality_check(span, spn_lst[0]):
-                    spn_lst.spans.append(span)
-                    break
+            target = self.get_equivalence(span)
+            if target is not None:
+                target.spans.append(span)
             else:
                 new = SpanList(layer=self.layer)
                 new.add_span(span)
+                self.classes[(span.start, span.end)] = new
+
                 bisect.insort(self.spans.spans, new)
                 new.parent = span.parent
 
+        else:
+            span.layer = self.layer
+            bisect.insort(self.spans, span)
+
+
 
         return span
+
 
     @property
     def layer(self):
@@ -268,13 +269,13 @@ class SpanList(collections.Sequence):
             return target
 
 
-    def __getitem__(self, idx: int) -> Span:
+    def __getitem__(self, idx: int) -> Union[Span, 'SpanList']:
 
-        res = SpanList()
-        res.layer = self.layer
         wrapped = self.spans.__getitem__(idx)
         if isinstance(idx, int):
             return wrapped
+        res = SpanList()
+        res.layer = self.layer
 
         res.spans = wrapped
         res.ambiguous = self.ambiguous
@@ -382,6 +383,7 @@ class Layer:
                     spns = SpanList(layer=self, ambiguous=False)
                     spns.spans = [Span(**{**record, **{'layer':self}}, legal_attributes=self.attributes) for record in record_line]
                     tmpspans.append(spns)
+                    self.spans.classes[(spns.spans[0].start, spns.spans[0].end)] = spns
                 self.spans.spans = tmpspans
             else:
                 for record_line in records:
