@@ -176,6 +176,7 @@ class SpanList(collections.Sequence):
                  ambiguous:bool=False) -> None:
         if ambiguous:
             self.spans = SpanList(layer=layer, ambiguous=False)  #type: Union[List[Span], SpanList]
+            self.classes = {}
         else:
             self.spans = []  #type: Union[List[Span], SpanList]
 
@@ -187,18 +188,7 @@ class SpanList(collections.Sequence):
 
 
     def get_equivalence(self, span):
-        # we should keep stuff in spanlists
-        if span.parent:
-            equality_check = lambda span1, span2: span1.parent == span2.parent
-        elif isinstance(span.start, int) and isinstance(span.end, int):
-            equality_check = lambda span1, span2: span1.start == span2.start and span1.end == span2.end
-        else:
-            raise NotImplementedError
-
-        for spn_lst in self.spans[::-1]:
-            if equality_check(span, spn_lst.spans[0]):
-                return spn_lst
-        return None
+        return self.classes.get((span.start, span.end), None)
 
 
     def to_record(self):
@@ -214,6 +204,8 @@ class SpanList(collections.Sequence):
             else:
                 new = SpanList(layer=self.layer)
                 new.add_span(span)
+                self.classes[(span.start, span.end)] = new
+
                 bisect.insort(self.spans.spans, new)
                 new.parent = span.parent
 
