@@ -2,6 +2,8 @@ import bisect
 import collections
 import keyword
 from typing import *
+from typing import Tuple, List, Any
+from typing import Union
 
 import ipywidgets
 import networkx as nx
@@ -15,7 +17,7 @@ def draw_graph(g):
 class Span:
     # __slots__ = ['_start', '_end', 'layer', '_attributes']
 
-    def __init__(self, start: int = None, end: int = None, parent=None,  *, legal_attributes=None, **attributes) -> None:
+    def __init__(self, start: int = None, end: int = None, parent=None,  *, layer=None, legal_attributes=None, **attributes) -> None:
 
         #this is set up first, because attribute access depends on knowing attribute names as earley as possible
         if legal_attributes is not None:
@@ -27,7 +29,7 @@ class Span:
 
 
         # Placeholder, set when span added to spanlist
-        self.layer = None #type:Layer
+        self.layer = layer #type:Layer
         self.parent = parent #type: Span
 
         if isinstance(start, int) and isinstance(end, int):
@@ -368,19 +370,34 @@ class Layer:
         #placeholder. is set when `_add_layer` is called on text object
         self.text_object = None # type:Text
 
-    def from_records(self, records):
+    def from_records(self, records, rewriting=False):
         if self.parent is not None and not self._bound:
             self._is_lazy = True
 
         if self.ambiguous:
-            for record_line in records:
-                self._add_spans([Span(**record, legal_attributes=self.attributes) for record in record_line])
+            if rewriting:
+                self.spans = SpanList(ambiguous=True, layer=self)
+                tmpspans = []
+                for record_line in records:
+                    spns = SpanList(layer=self, ambiguous=False)
+                    spns.spans = [Span(**{**record, **{'layer':self}}, legal_attributes=self.attributes) for record in record_line]
+                    tmpspans.append(spns)
+                self.spans.spans = tmpspans
+            else:
+                for record_line in records:
+                    self._add_spans([Span(**record, legal_attributes=self.attributes) for record in record_line])
         else:
-            for record in records:
-                self.add_span(Span(
-                    **record, legal_attributes=self.attributes
-                ))
+            if rewriting:
+                spns = SpanList(layer=self, ambiguous=False)
+                spns.spans = [Span(**{**record, **{'layer': self}}, legal_attributes=self.attributes) for record in records]
 
+                self.spans = spns
+            else:
+                for record in records:
+                    self.add_span(Span(
+                        **record,
+                        legal_attributes=self.attributes
+                    ))
         return self
 
     def to_records(self):
@@ -405,7 +422,7 @@ class Layer:
             **kwargs,
             attributes=target_attributes
         ).from_records(
-            rewritten
+            rewritten, rewriting=True
         )
 
         return resulting_layer
@@ -785,7 +802,7 @@ def words_sentences(text):
     words = Layer(name='words').from_records([{
         'start':start,
         'end':end
-                                           } for start, end in old.spans('words')])
+                                              } for start, end in old.spans('words')], rewriting=True)
 
     new._add_layer(words)
 
