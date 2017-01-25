@@ -71,7 +71,6 @@ SUBCAT_RULES_FILE     = os.path.join(SYNTAX_PATH, 'abileksikon06utf.lx')
 
 
 def is_partic_suffix(suffix):
-    return suffix in {'tud', 'nud', 'v', 'tav', 'mata', 'nud> <nu'}  #"mõel=nu+d-tei=nud
     return suffix in {'tud', 'nud', 'v', 'tav', 'mata'} 
 
 # ==================================================================================
@@ -108,20 +107,24 @@ def word_morph_extended_to_cg3(record):
             new_form_list.extend(morph_extended.pronoun_type)
         if morph_extended.form:
             new_form_list.append(morph_extended.form)
+        if morph_extended.punctuation_type:
+            new_form_list.append(morph_extended.punctuation_type)
         if morph_extended.letter_case:
             new_form_list.append(morph_extended.letter_case)
-        if is_partic_suffix(morph_extended.verb_extension_suffix):
-            new_form_list.append('partic')
         if morph_extended.fin:
             new_form_list.append('<FinV>')
-        if morph_extended.verb_extension_suffix:
-            new_form_list.append('<'+morph_extended.verb_extension_suffix+'>')
+#         if is_partic_suffix(morph_extended.verb_extension_suffix):
+#             new_form_list.append('partic')
+#         if morph_extended.verb_extension_suffix:
+#             new_form_list.append('<'+morph_extended.verb_extension_suffix+'>')
+        for ves in morph_extended.verb_extension_suffix:
+            if is_partic_suffix(ves):
+                new_form_list.append('partic')
+            new_form_list.append('<'+ves+'>')
         if morph_extended.subcat:
             subcat = morph_extended.subcat
             subcat = [''.join(('<', s, '>')) for s in subcat]
             new_form_list.extend(subcat)
-        if morph_extended.punctuation_type:
-            new_form_list.append(morph_extended.punctuation_type)
 
         if morph_extended.ending + morph_extended.clitic:
             line_new = '    "'+morph_extended.root+'" L'+morph_extended.ending+morph_extended.clitic+' ' + ' '.join([morph_extended.partofspeech]+new_form_list+[' '])
@@ -131,21 +134,39 @@ def word_morph_extended_to_cg3(record):
             else:
                 line_new = '    "'+morph_extended.root+'+" '+' '.join([morph_extended.partofspeech]+new_form_list+[' '])
 
-        if morph_extended.root == '':
-            line_new = '     //_Z_ //'  
-        if morph_extended.root == '#':
-            line_new = '    "<" L0> Y nominal   '
-        line_new = re.sub('digit  $','digit   ', line_new)
-        line_new = re.sub('nominal  $','nominal   ', line_new)
-        line_new = re.sub('prop  $','prop   ', line_new)
-        line_new = re.sub('com  $','com   ', line_new)
+        #if morph_extended.root == '':
+            #line_new = '    "+0" Y nominal  ' # {'lemma': '', 'clitic': '', 'root': '', 'root_tokens': [''], 'form': '?', 'ending': '0', 'partofspeech': 'Y'}
+            #line_new = '     //_Z_ //'
+        #if morph_extended.root == '#':
+        #    line_new = '    "<" L0> Y nominal  '
+        if line_new == '    "" L0 Y nominal  ':
+            line_new = '    "+0" Y nominal  '
+        elif line_new == '    "" Z  ':
+            line_new = '     //_Z_ //'
         # FinV on siin arvatavasti ebakorrektne ja tekkis cap märgendi tõttu
-        line_new = re.sub('"ei" L0 V aux neg cap  ','"ei" L0 V aux neg cap <FinV>  ', line_new)
-        m = re.match('(\s+"tead\+a-tund".*\S)\s*$', line_new)
-        if m:
-            line_new = m.group(1) + ' <NGP-P> <InfP>  '
-        if morph_extended.initial_form == '?':
-            line_new = re.sub('pos  $','pos   ', line_new)
+        if morph_extended.form == 'aux neg':
+            line_new = re.sub('ei" L0(.*) V aux neg cap ','ei" L0\\1 V aux neg cap <FinV> ', line_new)
+        if morph_extended.partofspeech == 'H':
+            line_new = re.sub(' L0 H  $',' L0 H   ', line_new)
+        if '#' in morph_extended.root:
+            line_new = re.sub('####', '', line_new)
+            if '#' in line_new:
+                line_new = re.sub('#(\S+ L0)','<\\1>', line_new)
+            else:
+                line_new = '    "+0" Y nominal  '
+        if '$' in morph_extended.root:
+            line_new = re.sub('\$([,.;!?:<]+)','\\1', line_new)
+        if '+' in morph_extended.root and not (morph_extended.ending + morph_extended.clitic):
+            line_new = re.sub('(\s+"\S+)\+(\S+)"( .*)', '\\1" L\\2\\3', line_new)
+            if morph_extended.partofspeech == 'Z':
+                if line_new ==   '    "(" L) Z Cpr  ':
+                    line_new =   '    "(" L) Z Cpr Opr  '
+                elif line_new == '    "(" L)- Z Dsh  ':
+                    line_new =   '    "(" L)- Z Dsh Opr  '
+                elif line_new == '    ")" L( Z Opr  ':
+                    line_new =   '    ")" L( Z Opr Cpr  '
+                elif line_new == '    "." L( Z Opr  ':
+                    line_new =   '    "." L( Z Opr Fst  '
 
         morph_lines.append(line_new)
     return morph_lines
@@ -274,18 +295,24 @@ class SyntaxPreprocessing:
         self.morph_extended_tagger = QuickMorphExtendedTagger(self.fs_to_synt_rules_file, self.allow_to_remove_all, self.subcat_rules_file, self.subcat_rules_extra_file)
 
 
-    def process_Text(self, text, **kwargs):
-        ''' Executes the preprocessing pipeline on estnltk's Text object.
+    def process_Text(self, text):
+        ''' Executes the syntax preprocessing pipeline on estnltk's Text object.
+            
+            Parameters
+            ----------
+                text: Text
+                    A Text object with morf_analysis layer (in Filosoft's old 
+                    mrph format).
 
-            Returns a list: lines of analyses in the VISL CG3 input format;
-            Executes the preprocessing pipeline on mrf_lines.
-
-            The input should be an analysis of the text in Filosoft's old mrf format;
-
-            Returns the input list, where elements (tokens/analyses) have been converted
-            into the new format;
+            Returns
+            -------
+                (text, cg3_lines)
+                text: Text
+                    The input Text object with morph_extended layer.
+                cg3_lines: list of str
+                    A list of strings in the VISL CG3 input format.
         '''
         self.morph_extended_tagger.tag(text)
 
-        text, morph_lines = convert_to_cg3_input(text)
-        return text, morph_lines
+        text, cg3_lines = convert_to_cg3_input(text)
+        return text, cg3_lines

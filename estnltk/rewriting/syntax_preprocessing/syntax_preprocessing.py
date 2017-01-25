@@ -50,17 +50,26 @@ class PunctuationTypeRewriter():
                           ("/$",      "Sla"),
                           ("\+$",     "crd")
     )# double quotes are escaped by \
-    # puudu '‹'
+
 
     def _get_punctuation_type(self, morph_extended):
+        root = morph_extended['root']
+        if root.rstrip('+0'): 
+            # eelmise versiooniga ühildumiseks
+            # '0.0000000000000000000000000000000000000000000000000000000000'
+            # '!+', '!++'
+            # '(+'
+            # '/+', '/++'
+            root = root.rstrip('+0')
         for pattern, punct_type in self._punctConversions:
-            if re.search(pattern, morph_extended['root']):
+            if re.search(pattern, root):
                 # kas match või search?     "//", ".-"
                 # või hoopis pattern==morph_extended.root?
                 # praegu on search, sest see klapib eelmise versiooniga
                 return punct_type
             # mida teha kui matchi pole?
-
+        if morph_extended['root'].endswith('+'):
+            return 'crd'
 
 
 class MorphToSyntaxMorphRewriter():
@@ -97,12 +106,17 @@ class MorphToSyntaxMorphRewriter():
             else:
             # 2) Convert morphological analyses that have a form specified
                 if form:
-                    morphKey = (pos, form)
+                    morph_key = (pos, form)
                 else:
-                    morphKey = (pos, '')
-                if not self.fs_to_synt_rules[morphKey]:
-                    self.fs_to_synt_rules[morphKey] = [morphKey]
-                for pos, form in self.fs_to_synt_rules[morphKey]:
+                    morph_key = (pos, '')
+                #if not self.fs_to_synt_rules[morph_key]:
+                #    self.fs_to_synt_rules[morph_key] = [morph_key]
+                if morph_key in self.fs_to_synt_rules:
+                    rules = self.fs_to_synt_rules[morph_key]
+                else:
+                    # parem oleks tmorfttabel.txt täiendada ja võibolla siin hoopis viga visata
+                    rules = [morph_key]
+                for pos, form in rules:
                     rec['partofspeech'] = pos
                     rec['form'] = form
                     result.append(rec.copy())
@@ -292,6 +306,11 @@ class PronounTypeRewriter():
         for rec in record:
             rec['pronoun_type'] = None
             if rec['partofspeech'] == 'P':  # only consider lines containing pronoun analyses
+                if rec['form'] == '':
+                    # eelmise versiooni jäljendamiseks
+                    # miskipärast tahetakse igale asesõnale singulari või pluuralit
+                    # 'muist' on ainus P juur, millel form on tühi 
+                    continue
                 root_ec = ''.join((rec['root'], '+', rec['ending'], rec['clitic']))
                 for pattern, pron_type in self._pronConversions:
                     if re.search(pattern, root_ec):
@@ -405,7 +424,9 @@ class RemoveAdpositionAnalysesRewriter():
         for i, rec in enumerate(record):
             if rec['partofspeech'] != 'K':
                 continue
-            if rec.get('letter_case', None) or rec.get('subcat', None):
+            if (rec.get('letter_case', None) or 
+                rec.get('subcat', None) or 
+                rec.get('verb_extension_suffix', None)):
                 continue
             if rec['form'] == 'pre':
                 Kpre_index = i
@@ -591,13 +612,13 @@ class VerbExtensionSuffixRewriter():
     )
     # 973 viha=tu+d-armasta: <tu>.   718 "lahti_seleta=tult": no <tu>
     # öel=nu+d-kirjuta
-    _suffix_conversions = ( ("=nu[+]d.*=nud",      "nud> <nu"), #"mõel=nu+d-tei=nud
-                            ("=[td]ud",   "tud"),
+
+    _suffix_conversions = ( ("=[td]ud",   "tud"),
                             ("=nud",      "nud"),
                             ("=mine",     "mine"),
                             ("=nu$",       "nu"),
-                            ("=[td]u$",    "tu"),
                             ("=nu[+]",       "nu"),
+                            ("=[td]u$",    "tu"),
                             ("=[td]u[+]",    "tu"),
                             ("=v$",       "v"),
                             ("=[td]av",   "tav"),
@@ -620,16 +641,30 @@ class VerbExtensionSuffixRewriter():
     # which is not the case now ("viha=tu+d-armasta" the first part is currently analysed as a noun, the second
     # as a verb). 
     
+#     def rewrite(self, record):
+#         for rec in record:
+#             rec['verb_extension_suffix'] = None
+#             if '=' in rec['root']:
+#                 for pattern, value in self._suffix_conversions:
+#                     if re.search(pattern, rec['root']):
+#                         rec['verb_extension_suffix'] = value
+#                         break
+#         return record
     def rewrite(self, record):
+        #mõel=nu+d-tei=nud, või=nu+ks-pida=nud
+        #väändu=nu+d-räsi=tu
+        #kahjusta=tu+d-lõhene=nu
+        #kahjusta=tu+d-lõhene=nud
+        #telli=tu+d-taga=tud, õmmel=du+d-tiki=tud
+        #tekki=nu+d-tekita=tud
         for rec in record:
-            rec['verb_extension_suffix'] = None
+            rec['verb_extension_suffix'] = []
             if '=' in rec['root']:
                 for pattern, value in self._suffix_conversions:
                     if re.search(pattern, rec['root']):
-                        rec['verb_extension_suffix'] = value
-                        break
+                        if value not in rec['verb_extension_suffix']:
+                            rec['verb_extension_suffix'].append(value)
         return record
-
 
 # ==================================================================================
 # ==================================================================================
@@ -703,22 +738,22 @@ class SubcatRewriter():
     def rewrite(self, record):
         result = []
         for rec in record:
-            match = False
             
+            rules = None
             if rec['partofspeech'] == 'V':
-                for subcat in self.v_rules[(rec['root'], rec['partofspeech'])]:
-                    match = True
-                    rec_copy = rec.copy()
-                    rec_copy['subcat'] = subcat
-                    result.append(rec_copy)
+                # nii pole õige teha, aga see võimaldab jäljendada eelmist versiooni
+                # kasutamata abileksikon_extrat
+                root = rec['root'].split('+')[0]
+                rules = self.v_rules.get((root, rec['partofspeech']), None)
             elif rec['partofspeech'] == 'K':
-                for subcat in self.k_rules[(rec['root'], rec['partofspeech'], rec['form'] )]:
-                    match = True
+                root = rec['root'].split('+')[0]
+                rules = self.k_rules.get((root, rec['partofspeech'], rec['form']), None)
+            if rules is not None:
+                for subcat in rules: # võib vaadelda eraldi juhtu len(rules) == 1
                     rec_copy = rec.copy()
                     rec_copy['subcat'] = subcat
                     result.append(rec_copy)
-            
-            if not match:
+            else:
                 rec['subcat'] = None
                 result.append(rec)
 
@@ -773,8 +808,9 @@ class SubcatRewriter():
 
         rules = read_lexicon(subcat_rules_file, rules)
         #print( len(rules.keys()) )   # 4484
-        if subcat_rules_extra_file:
-            rules = read_lexicon(subcat_rules_extra_file, rules)
+        # ehk õnnestub abileksikon_extrast lahti saada:
+        #if subcat_rules_extra_file:
+        #    rules = read_lexicon(subcat_rules_extra_file, rules)
 
         v_rules = defaultdict(list)
         k_rules = defaultdict(list)
