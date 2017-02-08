@@ -565,12 +565,7 @@ class VerbExtensionSuffixRewriter():
 #         return record
     def rewrite(self, record):
         # 'verb_extension_suffix' on siin list (ikka eelmise versiooniga ühildumiseks)
-        #mõel=nu+d-tei=nud, või=nu+ks-pida=nud
-        #väändu=nu+d-räsi=tu
-        #kahjusta=tu+d-lõhene=nu
-        #kahjusta=tu+d-lõhene=nud
-        #telli=tu+d-taga=tud, õmmel=du+d-tiki=tud
-        #tekki=nu+d-tekita=tud
+        # 'Kirutud-virisetud'
         for rec in record:
             rec['verb_extension_suffix'] = []
             if '=' in rec['root']:
@@ -651,7 +646,7 @@ class SubcatRewriter():
             if rec['partofspeech'] == 'V':
                 # nii pole õige teha, aga see võimaldab jäljendada eelmist versiooni
                 # kasutamata abileksikon_extrat
-                root = rec['root'].split('+')[0]
+                root = rec['root'].split('+')[0] # 'Avatakse-suletakse'
                 rules = self.v_rules.get((root, rec['partofspeech']), None)
             elif rec['partofspeech'] == 'K':
                 root = rec['root'].split('+')[0]
