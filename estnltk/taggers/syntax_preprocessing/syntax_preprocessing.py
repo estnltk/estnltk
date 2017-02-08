@@ -238,6 +238,16 @@ class MorphExtendedTagger():
             ambiguous = True
             )
 
+        source_attributes = new_layer.attributes
+        target_attributes = source_attributes
+        new_layer = new_layer.rewrite(
+            source_attributes = source_attributes,
+            target_attributes = target_attributes,
+            rules = self.remove_adposition_analyses_rewriter,
+            name = 'morph_extended',
+            ambiguous = True
+            )
+
         text['morph_extended'] = new_layer
 
 
