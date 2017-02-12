@@ -57,12 +57,10 @@
 
 from __future__ import unicode_literals, print_function
 from estnltk.taggers import MorphExtendedTagger
-from estnltk.taggers import QuickMorphExtendedTagger
+from estnltk.taggers import QuickMorphExtendedTagger as MorphExtendedTagger
 
 import re
 import os.path
-
-from estnltk.legacy.core import PACKAGE_PATH
 
 
 
@@ -179,15 +177,9 @@ class Cg3Exporter():
                                 line =   '    ")" L( Z Opr Cpr  ' # ')+('
                             elif line == '    "." L( Z Opr  ':
                                 line =   '    "." L( Z Opr Fst  ' # '.+('
-
                     morph_lines.append(line)
             morph_lines.append('"</s>"')
         return morph_lines
-
-
-SYNTAX_PATH      = os.path.join(PACKAGE_PATH, 'syntax', 'files')
-FS_TO_SYNT_RULES_FILE = os.path.join(SYNTAX_PATH, 'tmorftrtabel.txt')
-SUBCAT_RULES_FILE     = os.path.join(SYNTAX_PATH, 'abileksikon06utf.lx')
 
 
 class SyntaxPreprocessing:
@@ -226,8 +218,6 @@ class SyntaxPreprocessing:
 
     '''
 
-    fs_to_synt_rules_file = FS_TO_SYNT_RULES_FILE
-    subcat_rules_file     = SUBCAT_RULES_FILE
         
     allow_to_remove_all = False
     
@@ -260,8 +250,6 @@ class SyntaxPreprocessing:
                 self.fs_to_synt_rules_file = argVal
             elif argName in ['subcat_rules_file', 'subcat_rules', 'subcat']:
                 self.subcat_rules_file = argVal
-            elif argName in ['subcat_rules_extra_file', 'subcat_rules_extra', 'subcat_extra']:
-                self.subcat_rules_extra_file = argVal
             elif argName in ['allow_to_remove_all','allow_to_remove'] and argVal in [True,False]:
                 self.allow_to_remove_all = argVal
             else:
@@ -274,12 +262,9 @@ class SyntaxPreprocessing:
         if not self.subcat_rules_file or not os.path.exists(self.subcat_rules_file):
             raise Exception('(!) Unable to find *subcat_rules* from location:', \
                             self.subcat_rules_file)
-        #  subcat_rules_extra_file:
-        if self.subcat_rules_extra_file and not os.path.exists(self.subcat_rules_extra_file):
-                raise Exception('(!) Unable to find *subcat_extra_rules* from location:', \
-                                self.subcat_rules_extra_file)
-        self.morph_extended_tagger = QuickMorphExtendedTagger(self.fs_to_synt_rules_file, self.allow_to_remove_all, self.subcat_rules_file, self.subcat_rules_extra_file)
-        
+        self.morph_extended_tagger = MorphExtendedTagger(self.fs_to_synt_rules_file, 
+                                                         self.allow_to_remove_all, 
+                                                         self.subcat_rules_file)
         self.cg3_exporter = Cg3Exporter()
 
 

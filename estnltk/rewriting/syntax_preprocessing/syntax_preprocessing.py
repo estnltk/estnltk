@@ -635,8 +635,8 @@ class SubcatRewriter():
         Returns the input list where verb/adposition analyses have been augmented 
         with available subcategorization information;
     '''
-    def __init__(self, subcat_rules_file, subcat_rules_extra_file=None):
-        self.v_rules, self.k_rules = self._load_subcat_info(subcat_rules_file, subcat_rules_extra_file)
+    def __init__(self, subcat_rules_file):
+        self.v_rules, self.k_rules = self._load_subcat_info(subcat_rules_file)
 
     def rewrite(self, record):
         result = []
@@ -662,7 +662,7 @@ class SubcatRewriter():
 
         return result
 
-    def _load_subcat_info(self, subcat_rules_file, subcat_rules_extra_file):
+    def _load_subcat_info(self, subcat_rules_file):
         ''' Loads subcategorization rules (for verbs and adpositions) from a text 
             file. 
             It is expected that the rules are given as pairs, where the first item is 
@@ -711,9 +711,6 @@ class SubcatRewriter():
 
         rules = read_lexicon(subcat_rules_file, rules)
         #print( len(rules.keys()) )   # 4484
-        # ehk õnnestub abileksikon_extrast lahti saada:
-        #if subcat_rules_extra_file:
-        #    rules = read_lexicon(subcat_rules_extra_file, rules)
 
         v_rules = defaultdict(list)
         k_rules = defaultdict(list)

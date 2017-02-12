@@ -253,7 +253,7 @@ class MorphExtendedTagger():
 
 class QuickMorphExtendedTagger():
 
-    def __init__(self, fs_to_synt_rules_file, allow_to_remove_all, subcat_rules_file, subcat_rules_extra_file=None):
+    def __init__(self, fs_to_synt_rules_file, allow_to_remove_all, subcat_rules_file):
         punctuation_type_rewriter = PunctuationTypeRewriter()
         morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
         pronoun_type_rewriter = PronounTypeRewriter()
@@ -262,7 +262,7 @@ class QuickMorphExtendedTagger():
         letter_case_rewriter = LetterCaseRewriter()
         finite_form_rewriter = FiniteFormRewriter()
         verb_extension_suffix_rewriter = VerbExtensionSuffixRewriter()
-        subcat_rewriter = SubcatRewriter(subcat_rules_file, subcat_rules_extra_file)
+        subcat_rewriter = SubcatRewriter(subcat_rules_file)
 
         self.quick_morph_extended_rewriter = QuickMorphExtendedRewriter(
                                                 punctuation_type_rewriter=punctuation_type_rewriter,
