@@ -12,7 +12,6 @@ from estnltk.rewriting import SubcatRewriter
 from estnltk.rewriting import QuickMorphExtendedRewriter
 
 
-
 class PronounTypeTagger():
     def __init__(self):
         self.pronoun_type_rewriter = PronounTypeRewriter()
@@ -112,7 +111,7 @@ class SubcatTagger():
 
 class MorphExtendedTagger():
 
-    def __init__(self, fs_to_synt_rules_file, allow_to_remove_all, subcat_rules_file, subcat_rules_extra_file):
+    def __init__(self, fs_to_synt_rules_file, allow_to_remove_all, subcat_rules_file):
         self.punctuation_type_rewriter = PunctuationTypeRewriter()
         self.morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
         self.pronoun_type_rewriter = PronounTypeRewriter()
@@ -121,7 +120,7 @@ class MorphExtendedTagger():
         self.letter_case_rewriter = LetterCaseRewriter()
         self.finite_form_rewriter = FiniteFormRewriter()
         self.verb_extension_suffix_rewriter = VerbExtensionSuffixRewriter()
-        self.subcat_rewriter = SubcatRewriter(subcat_rules_file, subcat_rules_extra_file)
+        self.subcat_rewriter = SubcatRewriter(subcat_rules_file)
 
     @staticmethod
     def _esc_double_quotes(str1):

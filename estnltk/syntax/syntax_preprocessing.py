@@ -1,59 +1,4 @@
 # -*- coding: utf-8 -*- 
-#
-#   Preprocessing methods for VISL-CG3 based syntactic analysis of Estonian;
-#
-#   Contains Python reimplementation for the pre-processing pipeline introduced
-#   in  https://github.com/EstSyntax/EstCG  
-#   ( from the EstCG snapshot: 
-#   https://github.com/EstSyntax/EstCG/tree/467f0746ae870169776b0ed7aef8825730fea671 )
-#   
-#   The pipeline:
-#   1) convert_vm_json_to_mrf( )
-#      convert_Text_to_mrf( )
-#       * converts vabamorf's JSON or Estnltk's Text into Filosoft's old mrf 
-#         format;
-#   2) convert_mrf_to_syntax_mrf( )
-#       * converts Filosoft's old mrf format into syntactic analyzer's preprocessing 
-#         mrf format;
-#       * uses built-in rules for punctuation conversion and rules from the file 
-#         'tmorftrtabel.txt' for word analysis conversion;
-#       * this step performs a large part of the conversion, however, subsequent steps
-#         are required for adding specific details;
-#   3) convert_pronouns( )
-#       * adds specific information/categories related to pronouns; uses a list
-#         of built-in conversion rules;
-#   4) remove_duplicate_analyses( )
-#       * removes duplicate analyses;
-#       * removes redundant adposition analyses (specific logic for that);
-#   5) add_hashtag_info( ):
-#       * adds hashtags containing information about capitalization, 
-#                                                      finite verbs, 
-#                                            nud/tud/mine/... forms;
-#   6) tag_subcat_info( ):
-#       * adds hashtags containing information about verb subcategorization;
-#       * adds hashtags containing information about adposition subcategorization;
-#   7) remove_duplicate_analyses( )
-#       * removes duplicate analyses;
-#       * removes redundant adposition analyses (specific logic for that);
-#   8) convert_to_cg3_input( )
-#       * converts from the syntax preprocessing format to cg3 input format;
-#
-#   Example usage:
-#
-#      from estnltk import Text
-#      from syntax_preprocessing import SyntaxPreprocessing
-#
-#      #  Set the variables:
-#      #    fsToSyntFulesFile -- path to 'tmorftrtabel.txt'
-#      #    subcatFile        -- path to 'abileksikon06utf.lx'
-#      #    text              -- the text to be analyzed, estnltk Text object;
-# 
-#      # Preprocessing for the syntax
-#      pipeline1 = SyntaxPreprocessing( fs_to_synt=fsToSyntFulesFile, subcat=subcatFile )
-#      results1  = pipeline1.process_Text( text )
-#
-#      print( results1 )
-#
 
 from __future__ import unicode_literals, print_function
 from estnltk.taggers import MorphExtendedTagger
@@ -62,32 +7,6 @@ from estnltk.taggers import QuickMorphExtendedTagger as MorphExtendedTagger
 import re
 import os.path
 
-
-
-
-# ==================================================================================
-# ==================================================================================
-#   6) Add subcategorization information to verbs and adpositions;
-#       (former 'tagger08.c')
-# ==================================================================================
-# ==================================================================================
-
-
-
-# ==================================================================================
-# ==================================================================================
-#   8) Convert from syntax preprocessing format to cg3 input format;
-#       (former 'tkms2cg3.pl')
-# ==================================================================================
-# ==================================================================================
-
-
-    
-# ==================================================================================
-# ==================================================================================
-#   Syntax  preprocessing  pipeline
-# ==================================================================================
-# ==================================================================================
 class Cg3Exporter():
 
 
@@ -184,56 +103,23 @@ class Cg3Exporter():
 
 class SyntaxPreprocessing:
     ''' A preprocessing pipeline for VISL CG3 based syntactic analysis.
-
-        Contains the following processing steps:
-         1) convert_vm_json_to_mrf( )
-            convert_Text_to_mrf( )
-            * converts vabamorf's JSON or Estnltk's Text into Filosoft's old mrf 
-              format;
-         2) convert_mrf_to_syntax_mrf( )
-            * converts Filosoft's old mrf format into syntactic analyzer's preprocessing 
-              mrf format;
-            * uses built-in rules for punctuation conversion and rules from the file 
-              'tmorftrtabel.txt' for word analysis conversion;
-            * this step performs a large part of the conversion, however, subsequent steps
-              are required for adding specific details;
-         3) convert_pronouns( )
-            * adds specific information/categories related to pronouns; uses a list
-              of built-in conversion rules;
-         4) remove_duplicate_analyses( )
-            * removes duplicate analyses;
-            * removes redundant adposition analyses (specific logic for that);
-         5) add_hashtag_info( ):
-            * adds hashtags containing information about capitalization, 
-                                                           finite verbs, 
-                                                 nud/tud/mine/... forms;
-         6) tag_subcat_info( ):
-            * adds hashtags containing information about verb subcategorization;
-            * adds hashtags containing information about adposition subcategorization;
-         7) remove_duplicate_analyses( )
-            * removes duplicate analyses;
-            * removes redundant adposition analyses (specific logic for that);
-         8) convert_to_cg3_input( )
-            * converts from the syntax preprocessing format to cg3 input format;
-
     '''
 
-        
-    allow_to_remove_all = False
-    
+
     def __init__( self, **kwargs):
-        ''' Initializes VISL CG3 based syntax preprocessing pipeline. 
+        ''' Initializes MorphExtendedTagger and Cg3Exporter for VISL CG3 based
+            syntax preprocessing pipeline. 
             
             Parameters
             -----------
-            fs_to_synt_rules : str
-                Name of the file containing rules for mapping from Filosoft's old mrf 
-                format to syntactic analyzer's preprocessing mrf format;
+            fs_to_synt_rules_file : str
+                Name of the file containing rules for mapping from Filosoft's
+                old mrf format to syntactic analyzer's preprocessing mrf format;
                 (~~'tmorftrtabel.txt')
             
-            subcat_rules : str
-                Name of the file containing rules for adding subcategorization information
-                to verbs/adpositions;
+            subcat_rules_file : str
+                Name of the file containing rules for adding subcategorization
+                information to verbs/adpositions;
                 (~~'abileksikon06utf.lx')
             
             allow_to_remove_all : bool
@@ -242,9 +128,8 @@ class SyntaxPreprocessing:
                 The original implementation allowed this, but we are now restricting it
                 in order to avoid words without any analyses;
                 Default: False
-            
         '''
-        self.subcat_rules_extra_file = None
+        self.allow_to_remove_all = False
         for argName, argVal in kwargs.items():
             if argName in ['fs_to_synt_rules_file', 'fs_to_synt_rules', 'fs_to_synt']:
                 self.fs_to_synt_rules_file = argVal
@@ -255,12 +140,12 @@ class SyntaxPreprocessing:
             else:
                 raise Exception('(!) Unsupported argument given: '+argName)
         #  fs_to_synt_rules_file:
-        if not self.fs_to_synt_rules_file or not os.path.exists(self.fs_to_synt_rules_file):
-            raise Exception('(!) Unable to find *fs_to_synt_rules_file* from location:', \
+        if not os.path.exists(self.fs_to_synt_rules_file):
+            raise Exception('(!) Unable to find *fs_to_synt_rules_file* from location:',
                             self.fs_to_synt_rules_file)
         #  subcat_rules_file:
-        if not self.subcat_rules_file or not os.path.exists(self.subcat_rules_file):
-            raise Exception('(!) Unable to find *subcat_rules* from location:', \
+        if not os.path.exists(self.subcat_rules_file):
+            raise Exception('(!) Unable to find *subcat_rules_file* from location:',
                             self.subcat_rules_file)
         self.morph_extended_tagger = MorphExtendedTagger(self.fs_to_synt_rules_file, 
                                                          self.allow_to_remove_all, 
