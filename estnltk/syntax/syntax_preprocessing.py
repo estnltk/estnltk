@@ -81,8 +81,6 @@ class Cg3Exporter():
                         line = re.sub('####', '', line) # '####'
                         if '#' in line:
                             line = re.sub('#(\S+ L0)','<\\1>', line) # '!#'
-                        else:
-                            line = '    "+0" Y nominal  ' # '####'
                     morph_lines.append(line)
             morph_lines.append('"</s>"')
         return morph_lines
