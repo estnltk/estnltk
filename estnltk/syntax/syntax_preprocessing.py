@@ -77,10 +77,6 @@ class Cg3Exporter():
                         line = re.sub('ei" L0(.*) V aux neg cap ','ei" L0\\1 V aux neg cap <FinV> ', line) # 'Astun-ei'
                     if morph_extended.partofspeech == 'H':
                         line = re.sub(' L0 H  $',' L0 H   ', line)
-                    if '#' in morph_extended.root:
-                        line = re.sub('####', '', line) # '####'
-                        if '#' in line:
-                            line = re.sub('#(\S+ L0)','<\\1>', line) # '!#'
                     morph_lines.append(line)
             morph_lines.append('"</s>"')
         return morph_lines
