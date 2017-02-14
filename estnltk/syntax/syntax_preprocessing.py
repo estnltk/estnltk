@@ -68,8 +68,6 @@ class Cg3Exporter():
                             line = ''.join(('    "',morph_extended.root,'+" ', 
                                             form_list, '  '))
                     
-                    if line == '    "" L0 Y nominal  ':
-                        line = '    "+0" Y nominal  ' # '!~~~'
                     if morph_extended.partofspeech == 'H':
                         line = re.sub(' L0 H  $',' L0 H   ', line)
                     morph_lines.append(line)
