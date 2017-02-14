@@ -72,9 +72,6 @@ class Cg3Exporter():
                         line = '    "+0" Y nominal  ' # '!~~~'
                     if line == '    "" Z  ':
                         line = '     //_Z_ //' # '<<'
-                    # FinV on siin arvatavasti ebakorrektne ja tekkis cap märgendi tõttu
-                    if morph_extended.form == 'aux neg':
-                        line = re.sub('ei" L0(.*) V aux neg cap ','ei" L0\\1 V aux neg cap <FinV> ', line) # 'Astun-ei'
                     if morph_extended.partofspeech == 'H':
                         line = re.sub(' L0 H  $',' L0 H   ', line)
                     morph_lines.append(line)
