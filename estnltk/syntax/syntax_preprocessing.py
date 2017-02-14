@@ -85,17 +85,6 @@ class Cg3Exporter():
                             line = '    "+0" Y nominal  ' # '####'
                     if '$' in morph_extended.root:
                         line = re.sub('\$([,.;!?:<]+)','\\1', line) # '$#!%$#'
-                    if '+' in morph_extended.root and not (morph_extended.ending + morph_extended.clitic):
-                        line = re.sub('(\s+"\S+)\+(\S+)"( .*)', '\\1" L\\2\\3', line) # '!++'
-                        if morph_extended.partofspeech == 'Z':
-                            if line ==   '    "(" L) Z Cpr  ':
-                                line =   '    "(" L) Z Cpr Opr  ' # '(+)'
-                            elif line == '    "(" L)- Z Dsh  ':
-                                line =   '    "(" L)- Z Dsh Opr  ' # '(+)-'
-                            elif line == '    ")" L( Z Opr  ':
-                                line =   '    ")" L( Z Opr Cpr  ' # ')+('
-                            elif line == '    "." L( Z Opr  ':
-                                line =   '    "." L( Z Opr Fst  ' # '.+('
                     morph_lines.append(line)
             morph_lines.append('"</s>"')
         return morph_lines
