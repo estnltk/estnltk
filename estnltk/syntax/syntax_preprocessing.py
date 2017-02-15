@@ -59,17 +59,14 @@ class Cg3Exporter():
                     if morph_extended.ending or morph_extended.clitic:
                         line = ''.join(('    "',morph_extended.root,
                                         '" L', morph_extended.ending, morph_extended.clitic,
-                                        ' ', form_list, '  '))
+                                        ' ', form_list))
                     else:
                         if morph_extended.partofspeech == 'Z':
                             line = ''.join(('    "',morph_extended.root,'" ', 
-                                            form_list, '  '))
+                                            form_list))
                         else:
                             line = ''.join(('    "',morph_extended.root,'+" ', 
-                                            form_list, '  '))
-                    
-                    if morph_extended.partofspeech == 'H':
-                        line = re.sub(' L0 H  $',' L0 H   ', line)
+                                            form_list))
                     morph_lines.append(line)
             morph_lines.append('"</s>"')
         return morph_lines
