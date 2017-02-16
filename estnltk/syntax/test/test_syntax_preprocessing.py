@@ -1,31 +1,39 @@
-import json
+"""Test syntax preprocessing pipeline.
+
+This small test only indicates that the pipeline is not broken.
+For more elaborated testing please refer to 
+koondkorpus-experiments/syntax_preprocessing_diff
+"""
+
 from estnltk.text import words_sentences
 from estnltk.syntax.syntax_preprocessing import SyntaxPreprocessing
 
-def test_syntax_preprocessing():
-
+def test():
     fsToSyntFulesFile = '../../rewriting/syntax_preprocessing/rules_files/tmorftrtabel.txt'
     subcatFile = '../../rewriting/syntax_preprocessing/rules_files/abileksikon06utf.lx'
-
-    syntax_preprocessing = SyntaxPreprocessing(fs_to_synt=fsToSyntFulesFile, 
-                                   subcat=subcatFile)
-
-    test_data = 'test_data_10.json'
-    # this file contains 10 texts from koondkorpus and the output of previous 
-    # version of syntax_preprocessing
-    with open(test_data, 'r') as f:
-        for line in f:
-            _, t, expected = json.loads(line)
-            t = words_sentences(t)
-            result = syntax_preprocessing.process_Text(t)
-            assert result == expected
-
-    test_data = 'test_data_coverage_85.json'
-    # processing the text in this file covers all relevant lines of
-    # previous version of syntax_preprocessing
-    with open(test_data, 'r') as f:
-        for line in f:
-            _, t, expected = json.loads(line)
-            t = words_sentences(t)
-            result = syntax_preprocessing.process_Text(t)
-            assert result == expected
+    
+    syntax_preprocessing = SyntaxPreprocessing(fs_to_synt=fsToSyntFulesFile,
+                                               subcat_rules_file=subcatFile)
+    
+    t = words_sentences('Tere maailm! Kuidas Läheb?')
+    expected = ['"<s>"',
+                '"<Tere>"',
+                '    "tere" L0 I cap',
+                '"<maailm>"',
+                '    "maa_ilm" L0 S com sg nom',
+                '"<!>"',
+                '    "!" Z Exc',
+                '"</s>"',
+                '"<s>"',
+                '"<Kuidas>"',
+                '    "kuidas" L0 D cap',
+                '"<Läheb>"',
+                '    "mine" Lb V mod indic pres ps3 sg ps af cap <FinV>',
+                '    "mine" Lb V aux indic pres ps3 sg ps af cap <FinV>',
+                '    "mine" Lb V main indic pres ps3 sg ps af cap <FinV>',
+                '"<?>"',
+                '    "?" Z Int',
+                '"</s>"']
+    
+    result = syntax_preprocessing.process_Text(t)
+    assert result == expected
