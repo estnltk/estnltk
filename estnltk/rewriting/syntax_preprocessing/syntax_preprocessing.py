@@ -755,7 +755,7 @@ class SubcatRewriter():
         return v_rules, k_rules
 
 
-class QuickMorphExtendedRewriter():
+class MorphExtendedRewriter():
     ''' Combines the rewrite methods of 
         PunctuationTypeRewriter
         MorphToSyntaxMorphRewriter

@@ -9,11 +9,11 @@ from estnltk.text import words_sentences
 from estnltk.syntax.syntax_preprocessing import SyntaxPreprocessing
 
 def test():
-    fsToSyntFulesFile = '../../rewriting/syntax_preprocessing/rules_files/tmorftrtabel.txt'
-    subcatFile = '../../rewriting/syntax_preprocessing/rules_files/abileksikon06utf.lx'
+    fs_to_synt_rules_file = '../../rewriting/syntax_preprocessing/rules_files/tmorftrtabel.txt'
+    subcat_rules_file = '../../rewriting/syntax_preprocessing/rules_files/abileksikon06utf.lx'
     
-    syntax_preprocessing = SyntaxPreprocessing(fs_to_synt=fsToSyntFulesFile,
-                                               subcat_rules_file=subcatFile)
+    syntax_preprocessing = SyntaxPreprocessing(fs_to_synt=fs_to_synt_rules_file,
+                                               subcat_rules_file=subcat_rules_file)
     
     t = words_sentences('Tere maailm! Kuidas Läheb?')
     expected = ['"<s>"',

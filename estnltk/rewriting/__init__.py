@@ -1,4 +1,5 @@
 from .rewriting import ReverseRewriter
+
 from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import PunctuationTypeRewriter
 from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import MorphToSyntaxMorphRewriter
 from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import PronounTypeRewriter
@@ -9,4 +10,4 @@ from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import FiniteFo
 from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import VerbExtensionSuffixRewriter
 from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import SubcatRewriter
 
-from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import QuickMorphExtendedRewriter
+from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import MorphExtendedRewriter
