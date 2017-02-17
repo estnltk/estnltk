@@ -1,5 +1,6 @@
 from collections import defaultdict
 import codecs
+import os
 
 import regex as re
 
@@ -86,7 +87,16 @@ class MorphToSyntaxMorphRewriter():
         original Filosoft's analysis is expanded into multiple analysis.
     '''
 
-    def __init__(self, fs_to_synt_rules_file):
+    def __init__(self, fs_to_synt_rules_file=None):
+        if fs_to_synt_rules_file:
+            assert os.path.exists(fs_to_synt_rules_file),\
+                'Unable to find *fs_to_synt_rules_file* from location ' + fs_to_synt_rules_file
+        else:
+            fs_to_synt_rules_file = os.path.dirname(__file__)
+            fs_to_synt_rules_file = os.path.join(fs_to_synt_rules_file,
+                                                 'rules_files/tmorftrtabel.txt')
+            assert os.path.exists(fs_to_synt_rules_file),\
+                'Missing default *fs_to_synt_rules_file* ' + fs_to_synt_rules_file
         self.fs_to_synt_rules = \
             self.load_fs_mrf_to_syntax_mrf_translation_rules(fs_to_synt_rules_file)
 
@@ -635,7 +645,16 @@ class SubcatRewriter():
         Returns the input list where verb/adposition analyses have been augmented 
         with available subcategorization information;
     '''
-    def __init__(self, subcat_rules_file):
+    def __init__(self, subcat_rules_file=None):
+        if subcat_rules_file:
+            assert os.path.exists(subcat_rules_file),\
+                'Unable to find *subcat_rules_file* from location ' + subcat_rules_file
+        else:
+            subcat_rules_file = os.path.dirname(__file__)
+            subcat_rules_file = os.path.join(subcat_rules_file,
+                                             'rules_files/abileksikon06utf.lx')
+            assert os.path.exists(subcat_rules_file),\
+                'Missing default *subcat_rules_file* ' + subcat_rules_file
         self.v_rules, self.k_rules = self._load_subcat_info(subcat_rules_file)
 
     def rewrite(self, record):

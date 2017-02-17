@@ -98,6 +98,8 @@ class SyntaxPreprocessing:
                 in order to avoid words without any analyses;
                 Default: False
         '''
+        self.fs_to_synt_rules_file = None
+        self.subcat_rules_file = None
         self.allow_to_remove_all = False
         for argName, argVal in kwargs.items():
             if argName in ['fs_to_synt_rules_file', 'fs_to_synt_rules', 'fs_to_synt']:
@@ -107,15 +109,8 @@ class SyntaxPreprocessing:
             elif argName in ['allow_to_remove_all','allow_to_remove'] and argVal in [True,False]:
                 self.allow_to_remove_all = argVal
             else:
-                raise Exception('(!) Unsupported argument given: '+argName)
-        #  fs_to_synt_rules_file:
-        if not os.path.exists(self.fs_to_synt_rules_file):
-            raise Exception('(!) Unable to find *fs_to_synt_rules_file* from location:',
-                            self.fs_to_synt_rules_file)
-        #  subcat_rules_file:
-        if not os.path.exists(self.subcat_rules_file):
-            raise Exception('(!) Unable to find *subcat_rules_file* from location:',
-                            self.subcat_rules_file)
+                raise Exception('Unsupported argument given: '+argName)
+
         self.morph_extended_tagger = MorphExtendedTagger(self.fs_to_synt_rules_file, 
                                                          self.allow_to_remove_all, 
                                                          self.subcat_rules_file)
