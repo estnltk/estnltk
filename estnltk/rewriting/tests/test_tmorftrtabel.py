@@ -1,4 +1,7 @@
-import codecs
+from os.path import dirname, join
+
+import estnltk.rewriting.syntax_preprocessing as syntax_pp
+
 
 # not sure if the following sets are complete
 pos0 = {'####', '_A_', '_C_', '_D_', '_G_', '_H_', '_I_', '_J_', '_K_',
@@ -26,8 +29,8 @@ def test_tmorftrtabel():
     """ Checks the format of tmorftrtabel.txt lines. Includes the lines that
     are marked to be skipped ('¤' in the beginning).
     """
-    file = '../syntax_preprocessing/rules_files/tmorftrtabel.txt'
-    with codecs.open(file, mode='r', encoding='utf-8') as in_f:
+    file = join(dirname(syntax_pp.__file__), 'rules_files', 'tmorftrtabel.txt')
+    with open(file, mode='r', encoding='utf_8') as in_f:
         for line_number, line in enumerate(in_f):
             line_number += 1
             # ei nori realõpu tühikute kallal

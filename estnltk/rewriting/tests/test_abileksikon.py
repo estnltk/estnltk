@@ -1,17 +1,19 @@
-import codecs
 import regex
+from os.path import dirname, join
+
+import estnltk.rewriting.syntax_preprocessing as syntax_pp
 
 def test_abileksikon():
     nonSpacePattern = regex.compile('^\S+$')
     posTagPattern   = regex.compile('_._')
-    file = '../syntax_preprocessing/rules_files/abileksikon06utf.lx'
+    file = join(dirname(syntax_pp.__file__), 'rules_files', 'abileksikon06utf.lx')
     # not sure if this set is complete
     hashtags = {'#Abl', '#Ad', '#All', '#El', '#Es', '#Ill', '#In', '#Inf',
                 '#InfP', '#Int', '#Intr', '#Kom', '#NGP', '#NGP-P', '#Part',
                 '#Part-P', '#Ter', '#Tr', '#abes', '#all', '#el', '#gen',
                 '#kom', '#nom', '#part', '#term'}
     roots = set()
-    in_f = codecs.open(file, mode='r', encoding='utf-8')
+    in_f = open(file, mode='r', encoding='utf_8')
     line_number = 0
     while True:
         line = next(in_f, None)

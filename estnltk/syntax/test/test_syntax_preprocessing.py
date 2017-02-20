@@ -2,7 +2,7 @@
 
     This small test only indicates that the pipeline is not broken.
     For more elaborated testing please refer to
-    koondkorpus-experiments/syntax_preprocessing_diff
+    estnltk/koondkorpus-experiments/syntax_preprocessing_diff
 """
 
 from estnltk.text import words_sentences
