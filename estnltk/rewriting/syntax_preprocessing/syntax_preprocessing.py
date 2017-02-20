@@ -682,54 +682,62 @@ class SubcatRewriter():
         return result
 
     def _load_subcat_info(self, subcat_rules_file):
-        ''' Loads subcategorization rules (for verbs and adpositions) from a text 
-            file. 
-            It is expected that the rules are given as pairs, where the first item is 
-            the lemma (of verb/adposition), followed on the next line by the 
-            subcategorization rule, in the following form: 
-               on the left side of '>' is the condition (POS-tag requirement for the 
-               lemma), 
+        ''' Loads subcategorization rules (for verbs and adpositions) from a
+            text file.
+            It is expected that the rules are given as pairs, where the first
+            item is the root (of verb/adposition), followed on the next line by
+            the subcategorization rule, in the following form:
+               on the left side of '>' is the condition (POS-tag requirement for
+               the lemma),
              and 
-               on the right side is the listing of subcategorization settings (hashtag 
-               items, e.g. names of morphological cases of nominals);
-            If there are multiple subcategorization rules to be associated with a
-            single lemma, different rules are separated by '&'.
+               on the right side is the listing of subcategorization settings
+               (hashtag items, e.g. names of morphological cases of nominals);
+            If there are multiple subcategorization rules to be associated with
+            a single lemma, different rules are separated by '&'.
     
-            Example, an excerpt from the rules file:
-              läbi
-              _V_ >#Part &_K_ post >#gen |#nom |#el &_K_ pre >#gen 
-              läbista
-              _V_ >#NGP-P 
-              läbistu
-              _V_ >#Intr 
+            Example. An excerpt from the rules file:
+
+            läbi
+            _V_ >#Part &_K_ post >#gen |#nom |#el &_K_ pre >#gen
+            läbista
+            _V_ >#NGP-P
+            lähedal
+            _K_ post >#gen
+            lähenda
+            _V_ >#NGP-P #All
     
-            Returns a dict of root to a-list-of-subcatrules mappings.
+            returns a pair of dicts (v_rules, k_rules):
+
+            v_rules = {
+                ('läbi', 'V'): [['Part']],
+                ('läbista', 'V'): [['NGP-P']],
+                ('lähenda', 'V'): [['NGP-P', 'All']]
+            }
+            k_rules = {
+                ('läbi', 'K', 'post'): [['el'], ['nom'], ['gen']],
+                ('läbi', 'K', 'pre'): [['gen']],
+                ('lähedal', 'K', 'post'): [['gen']]
+            }
+
+            If the part of speech is not 'K' or 'V', then the rules are ignored.
+            .
+            _Y_ >_Z_ Fst &_Z_ >Fst
+            ,
+            _Y_ >_Z_ Com &_Z_ >Com
         '''
         rules = defaultdict(list)
-        nonSpacePattern = re.compile('^\S+$')
-        posTagPattern   = re.compile('_._')
-        def read_lexicon(file, rules):
-            in_f = codecs.open(file, mode='r', encoding='utf-8')
-            root = None
-            subcatRules = None
-            for line in in_f:
-                # seda võib kirjutada lihtsamaks, kui võib eeldada, et faili formaat on range
-                line = line.rstrip()
-                if posTagPattern.search(line) and root:
-                    subcatRules = line
-                    parts = subcatRules.split('&')#[::-1]#76 tekst 
-                    for part in parts:
-                        part = part.strip()
-                        rules[root].append(part)
-                    root = None
-                    subcatRules = None
-                elif nonSpacePattern.match(line):
-                    root = line
-            in_f.close()
-            return rules
 
-        rules = read_lexicon(subcat_rules_file, rules)
-        #print( len(rules.keys()) )   # 4484
+        with open(subcat_rules_file, 'r', encoding='utf_8') as in_f:
+            while True:
+                root = next(in_f, None)
+                if root is None:
+                    break
+                root = root.rstrip()
+
+                rule_line = next(in_f).rstrip()
+                parts = rule_line.split('&')
+                for part in parts:
+                    rules[root].append(part)
 
         v_rules = defaultdict(list)
         k_rules = defaultdict(list)
@@ -737,39 +745,24 @@ class SubcatRewriter():
             for rule in rulelist:
                 pos, subcats = rule.split('>')
                 pos = pos.strip()
-                #if pos == '_V_':
-                #    v_rules[(root, 'V')] = []
-                if pos == '_K_ post':
-                    if (root, 'K', 'post') in k_rules:
-                        continue
-                if pos == '_K_ pre':
-                    if (root, 'K', 'pre') in k_rules:
-                        continue
-                    #k_rules[(root, 'K', 'pre')] = []
                 for subcat in subcats.split('|'):
                     subcat = subcat.strip()
                     if pos == '_V_':
-                        if all([subcat not in s for s in v_rules[(root, 'V')]]):
-                        # ei tea, kas see if teeb mõistlikku asja, aga igatahes aitab ühilduda eelmise versiooniga
-                            v_rules[(root, 'V')].append(subcat)
+                        v_rules[(root, 'V')].append(subcat)
                     elif pos == '_K_ post':
-                        if all([subcat not in s for s in k_rules[(root, 'K', 'post')]]):
-                            k_rules[(root, 'K', 'post')].append(subcat)
+                        k_rules[(root, 'K', 'post')].append(subcat)
                     elif pos == '_K_ pre':
-                        if all([subcat not in s for s in k_rules[(root, 'K', 'pre')]]):
-                            k_rules[(root, 'K', 'pre')].append(subcat)
+                        k_rules[(root, 'K', 'pre')].append(subcat)
         # [::-1] eelmise versiooniga ühildumiseks
         for k, v in v_rules.items():
-            v_rules[k] = v[::-1]
+            v_rules[k] = v[::-1] # no effect
         for k, v in k_rules.items():
             k_rules[k] = v[::-1]
         
-        for key in v_rules:
-            for i, subcat in enumerate(v_rules[key]):
-                v_rules[key][i] = [s.strip(' #') for s in subcat.split()]
-        for key in k_rules:
-            for i, subcat in enumerate(k_rules[key]):
-                k_rules[key][i] = [s.strip(' #') for s in subcat.split()]
+        for key, v in v_rules.items():
+            v_rules[key] = [[subcat.lstrip('#') for subcat in u.split()] for u in v]
+        for key, v in k_rules.items():
+            k_rules[key] = [[subcat.lstrip('#') for subcat in u.split()] for u in v]
 
         return v_rules, k_rules
 
