@@ -1,5 +1,6 @@
 from collections import defaultdict
 import codecs
+import os
 
 import regex as re
 
@@ -50,17 +51,27 @@ class PunctuationTypeRewriter():
                           ("/$",      "Sla"),
                           ("\+$",     "crd")
     )# double quotes are escaped by \
-    # puudu '‹'
+
 
     def _get_punctuation_type(self, morph_extended):
+        root = morph_extended['root']
+        if root.rstrip('+0'):
+            # eelmise versiooniga ühildumiseks
+            # '0.0000000000000000000000000000000000000000000000000000000000'
+            # '!+', '!++'
+            # '(+'
+            # '/+', '/++'
+            root = root.rstrip('+0')
         for pattern, punct_type in self._punctConversions:
-            if re.search(pattern, morph_extended['root']):
+            if re.search(pattern, root):
                 # kas match või search?     "//", ".-"
                 # või hoopis pattern==morph_extended.root?
                 # praegu on search, sest see klapib eelmise versiooniga
                 return punct_type
             # mida teha kui matchi pole?
-
+        if morph_extended['root'].endswith('+'):
+            # eelmise versiooniga ühildumiseks
+            return 'crd'
 
 
 class MorphToSyntaxMorphRewriter():
@@ -74,17 +85,21 @@ class MorphToSyntaxMorphRewriter():
         Note that the resulting analysis list is likely longer than the
         original, because the conversion often requires that the
         original Filosoft's analysis is expanded into multiple analysis.
-    '''    
-    def __init__(self, fs_to_synt_rules_file):
+    '''
+
+    def __init__(self, fs_to_synt_rules_file=None):
+        if fs_to_synt_rules_file:
+            assert os.path.exists(fs_to_synt_rules_file),\
+                'Unable to find *fs_to_synt_rules_file* from location ' + fs_to_synt_rules_file
+        else:
+            fs_to_synt_rules_file = os.path.dirname(__file__)
+            fs_to_synt_rules_file = os.path.join(fs_to_synt_rules_file,
+                                                 'rules_files/tmorftrtabel.txt')
+            assert os.path.exists(fs_to_synt_rules_file),\
+                'Missing default *fs_to_synt_rules_file* ' + fs_to_synt_rules_file
         self.fs_to_synt_rules = \
             self.load_fs_mrf_to_syntax_mrf_translation_rules(fs_to_synt_rules_file)
 
-    @staticmethod
-    def _esc_que_mark(form):
-        ''' Replaces a question mark in form (e.g. 'card ? digit' or 'ord ? roman')  
-            with an escaped version of the question mark <?>
-        '''
-        return form.replace(' ?', ' <?>')
 
     def rewrite(self, record):
         result = []
@@ -97,17 +112,29 @@ class MorphToSyntaxMorphRewriter():
             else:
             # 2) Convert morphological analyses that have a form specified
                 if form:
-                    morphKey = (pos, form)
+                    morph_key = (pos, form)
                 else:
-                    morphKey = (pos, '')
-                for pos, form in self.fs_to_synt_rules[morphKey]:
+                    morph_key = (pos, '')
+                if morph_key in self.fs_to_synt_rules:
+                    rules = self.fs_to_synt_rules[morph_key]
+                else:
+                    # parem oleks tmorfttabel.txt täiendada ja võibolla siin hoopis viga visata
+                    rules = [morph_key]
+                for pos, form in rules:
                     rec['partofspeech'] = pos
                     rec['form'] = form
                     result.append(rec.copy())
         return result
 
+    @staticmethod
+    def _esc_que_mark(form):
+        ''' Replaces a question mark in form (e.g. 'card ? digit' or 'ord ? roman')  
+            with an escaped version of the question mark <?>
+        '''
+        return form.replace(' ?', ' <?>')
 
-    def load_fs_mrf_to_syntax_mrf_translation_rules(self, fs_to_synt_rules_file):
+    @staticmethod
+    def load_fs_mrf_to_syntax_mrf_translation_rules(fs_to_synt_rules_file):
         ''' Loads rules that can be used to convert from Filosoft's mrf format to
             syntactic analyzer's format. Returns a dict containing rules.
     
@@ -128,38 +155,26 @@ class MorphToSyntaxMorphRewriter():
             }
     
             A list is used for storing values because one Filosoft's analysis could
-            be mapped to multiple syntactic analyzer's analyses;
+            be mapped to multiple syntactic analyzer's analyses.
     
-            Lines that have ¤ in the beginning of the line will be skipped;
+            Lines that have ¤ in the beginning of the line are skipped.
         '''
         rules = defaultdict(list)
         rules_pattern = re.compile('(¤?)[^@]*@(_(.)_\s*([^@]*)|####)@[^@]*@_(.)_\s*([^@]*)')
-        in_f = codecs.open(fs_to_synt_rules_file, mode='r', encoding='utf-8')
-        for line in in_f:
-            m = rules_pattern.match(line)
-            if m == None:
-                raise Exception(' Unexpected format of the line: ', line)
-            if m.group(1): #line starts with '¤'
-                continue
-            new_form = self._esc_que_mark(m.group(6)).strip()
-            rules[(m.group(3), m.group(4))].append((m.group(5), new_form))
-            # siin tekib korduvaid reegleid, mille võiks siinsamas välja filtreerida
-            # näiteks P, sg n -> P, sg nom
-            # ja kasutuid reegleid Z, '' -> Z, Fst
-            # võiks olla ka m.group(6).strip()
-        in_f.close()
+        with codecs.open(fs_to_synt_rules_file, mode='r', encoding='utf-8') as in_f:
+            for line in in_f:
+                m = rules_pattern.match(line)
+                assert m is not None, ' Unexpected format of the line: ' + line
+                if m.group(1): #line starts with '¤'
+                    continue
+                new_form = MorphToSyntaxMorphRewriter._esc_que_mark(m.group(6)).strip()
+                if (m.group(5), new_form) not in rules[(m.group(3), m.group(4))]:
+                    rules[(m.group(3), m.group(4))].append((m.group(5), new_form))
         for key, value in rules.items():
-            # eelmise versiooniga ühildumise jaoks
+            # eelmise versiooniga ühildumiseks
             rules[key] = tuple(value[::-1])
         return rules
 
-
-# ==================================================================================
-# ==================================================================================
-#   3)  Convert pronouns from Filosoft's mrf to syntactic analyzer's mrf
-#       (former 'tpron.pl')
-# ==================================================================================
-# ==================================================================================
 
 class PronounTypeRewriter():
     ''' Adds 'pronoun_type' attribute to the analysis.
@@ -293,6 +308,11 @@ class PronounTypeRewriter():
         for rec in record:
             rec['pronoun_type'] = None
             if rec['partofspeech'] == 'P':  # only consider lines containing pronoun analyses
+                if rec['form'] == '':
+                    # eelmise versiooni jäljendamiseks
+                    # miskipärast tahetakse igale asesõnale singulari või pluuralit
+                    # 'muist' on ainus P juur, millel form on tühi 
+                    continue
                 root_ec = ''.join((rec['root'], '+', rec['ending'], rec['clitic']))
                 for pattern, pron_type in self._pronConversions:
                     if re.search(pattern, root_ec):
@@ -302,26 +322,17 @@ class PronounTypeRewriter():
         return record
 
 
-# ==================================================================================
-# ==================================================================================
-#   4)  Remove duplicate analysis lines;
-#       Remove adpositions (part of speech 'K') that do not have 
-#       subcategorization information;
-#       (former 'tcopyremover.pl')
-# ==================================================================================
-# ==================================================================================
-
 class RemoveDuplicateAnalysesRewriter():
-    ''' Removes duplicate analysis elements. 
-        The elements are duplicate if *root*, *ending*, *clitic*, *partofspeech*
-        and *form* attributes are equal.
+    ''' Removes duplicate analyses. 
+        The analyses are duplicate if the 'root', 'ending', 'clitic', 
+        'partofspeech' and 'form' attributes are equal.
         
         Returns the input list where the removals have been applied.
     '''     
 
     def rewrite(self, record):
-        seen_analyses  = set()
-        to_delete      = []
+        seen_analyses = set()
+        to_delete = []
         for i, rec in enumerate(record):
             analysis = (rec['root'], rec['ending'], rec['clitic'], rec['partofspeech'], rec['form'])
             if analysis in seen_analyses:
@@ -333,55 +344,115 @@ class RemoveDuplicateAnalysesRewriter():
 
         return record
 
+
 class RemoveAdpositionAnalysesRewriter():
-    ''' Removes duplicate analysis elements. 
-        
-        Uses special logic for handling adposition (partofspeech 'K') analysis
-        where form is 'pre' or 'post':
-         *) If the word has analysis elements with form 'pre' and form 'post', 
-            removes the analysis element with the form 'pre';
-         *) If the word has only form 'post', removes that analysis element;
-        
-        The parameter allow_to_delete_all specifies whether it is allowed to 
-        delete all analysis elements or not. If allow_to_delete_all==False, then
-        one last analysis element is not deleted, regardless whether it should 
+    ''' Uses special logic for handling adposition (partofspeech 'K') analyses.
+
+        Finds the last analyses of the word where the 'letter_case' is None,
+        the 'subcat' is None and the 'verb_extension_suffix' is None, but the 
+        'form' is 'pre' or 'post'.
+
+         *) If the word has only an analysis with the form 'post', removes that 
+            analysis.
+         *) If the word has analyses with the form 'pre' and the form 'post',
+            removes the analysis with the form 'pre'.
+
+        The parameter allow_to_delete_all specifies whether it is allowed to
+        delete all analyses of the word. If allow_to_delete_all==False, then
+        one last analysis is not deleted, regardless whether it should
         be deleted considering the adposition-deletion rules;
-        The original implementation corresponds to the settings allow_to_delete_all=True 
-        (and this is also the default value of the parameter).
-        
+        The original implementation corresponds to the settings 
+        allow_to_delete_all=True (and this is also the default value of the 
+        parameter).
+
         Returns the input list where the removals have been applied;
-    '''     
+    '''
     def __init__(self, allow_to_delete_all=True):
         self.allow_to_delete_all = allow_to_delete_all
 
     def rewrite(self, record):
-        Kpre_index     = None
-        Kpost_index    = None
+        if not self.allow_to_delete_all and len(record) < 2:
+            return record
+
+        Kpre_index = None
+        Kpost_index = None
         for i, rec in enumerate(record):
             if rec['partofspeech'] != 'K':
                 continue
+            if (rec.get('letter_case', None) or
+                rec.get('subcat', None) or
+                rec.get('verb_extension_suffix', None)):
+                continue
             if rec['form'] == 'pre':
-                Kpre_index  = i
+                Kpre_index = i
             elif rec['form'] == 'post':
                 Kpost_index = i
 
-        if Kpre_index != None and Kpost_index != None:
-            # If there was both _K_pre and _K_post, add _K_pre to removables;
-            del record[Kpre_index]
-        elif Kpost_index != None:
-            # If there was only _K_post, add _K_post to removables;
-            del record[Kpost_index]
-        # NB! ainult viimane post või pre analüüs kustutatakse (ajaloolistel põhjustel)
+        if Kpost_index is not None:
+            if Kpre_index is None:
+                del record[Kpost_index]
+            else:
+                del record[Kpre_index]
 
+        # Kaassõna (adposition, K) morf analüüsis partofspeech=='K' ja form==''.
+        # tmorftabel.txt põhjal tekib sellisest reast kaks analüüsi, kus
+        # partofspeech=='K', form=='pre'
+        # partofspeech=='K', form=='post'
+        # Vana kood eemaldas ainult viimase 'pre' või 'post' analüüsi.
+        # Ei leia näidet sõnast, millele vabamorf annaks mitmel real
+        # partofspeech=='K'.
+        # Kui disambiguate==False, siis võib esineda lisaks partofspeech=='K' 
+        # muid ridu vabamorfi analüüsi väljundis 
+        # Sõltuvalt algsest analüüsist on kolm võimalikku stsenaariumit:
+        #######################################################################
+#         A
+#         1) vabamorf
+#             partofspeech=='K' ja form==''
+#         2) morph_to_syntax_morph
+#             partofspeech=='K', form=='pre'
+#             partofspeech=='K', form=='post'
+#         3) remove_adposition_analyses
+#             partofspeech=='K', form=='post'
+#         4) letter_case / subcat
+#             partofspeech=='K', form=='post', case=None
+#         5) remove_adposition_analyses, kui allow_to_remove_all==False
+#             partofspeech=='K', form=='post', case=None
+#         #######################################################################
+#         B
+#         1) vabamorf
+#             partofspeech=='V' ja form=='bla'
+#             partofspeech=='K' ja form==''
+#         2) morph_to_syntax_morph
+#             partofspeech=='V' ja form=='bla'
+#             partofspeech=='K', form=='pre'
+#             partofspeech=='K', form=='post'
+#         3) remove_adposition_analyses
+#             partofspeech=='V' ja form=='bla'
+#             partofspeech=='K', form=='post'
+#         4) letter_case / subcat
+#             partofspeech=='V' ja form=='bla', case=None
+#             partofspeech=='K', form=='post', case=None
+#         5) remove_adposition_analyses
+#             partofspeech=='V' ja form=='bla', case=None
+#         #######################################################################
+#         C
+#         1) vabamorf
+#             partofspeech=='V' ja form=='bla'
+#             partofspeech=='K' ja form==''
+#         2) morph_to_syntax_morph
+#             partofspeech=='V' ja form=='bla'
+#             partofspeech=='K', form=='pre'
+#             partofspeech=='K', form=='post'
+#         3) remove_adposition_analyses
+#             partofspeech=='V' ja form=='bla'
+#             partofspeech=='K', form=='post'
+#         4) letter_case / subcat
+#             partofspeech=='V' ja form=='bla', case='cap'
+#             partofspeech=='K', form=='post', case='cap'
+#         5) remove_adposition_analyses
+#             partofspeech=='V' ja form=='bla'
+#             partofspeech=='K', form=='post', case='cap'        
         return record
-
-
-# ==================================================================================
-# ==================================================================================
-#   5)  Add hashtag information to analyses
-#       (former 'TTRELLID.AWK')
-# ==================================================================================
-# ==================================================================================
 
 
 class LetterCaseRewriter():
@@ -402,9 +473,9 @@ class LetterCaseRewriter():
 
 class FiniteFormRewriter():
     ''' The fin attribute gets the value
-            True, if the word is finite verb
-            False, if word is verb but not finite
-            None, if the word not verb
+            True, if the word is a finite verb,
+            False, if word is a verb but not finite,
+            None, if the word is not a verb.
     
         Finite forms are the ones that can act as (part of) a predicate, 
         e.g in sentence "Mari läheb koju sööma.", 'läheb' is a finite form 
@@ -424,9 +495,9 @@ class FiniteFormRewriter():
             - if the mode is marked, the verb is finite. Here, only quotative mode ('quot' - e.g 'tahetavat')
               is checked because other modes are always accompanied by the voice tags described above
         * polarity(negation - e.g 'ei'): 
-            - if verb is marked with the tag 'neg' ('pandud' in "Koera ei pandud ketti.") 
-              AND not with the tag 'aux neg' (auxiliaries like "ei"), it is marked as finite. 
-              
+            - if verb is marked with the tag 'neg' ('pandud' in "Koera ei pandud ketti.")
+              AND not with the tag 'aux neg' (auxiliaries like "ei"), it is marked as finite.
+
         Additional remarks:
         * Quotative mode is also accompanied by a voice tag 'ps' meaning 'personal' without specifying the person.
           This, however, wouldn't be suitable to use in the _morfFinV regex because the string 'ps' can be found inside
@@ -439,11 +510,8 @@ class FiniteFormRewriter():
           (like historical form "ep")   
  
     '''
-    
-    # Information about verb finite forms
-    #_morfFinV        = re.compile('//\s*(_V_).*\s+(ps.|neg|quot|impf imps|pres imps)\s')
-    #_morfNotFinV     = re.compile('//\s*(_V_)\s+(aux neg)\s+//')
-    _morfFinV        = re.compile('(ps[123]|neg|quot|impf imps|pres imps)')
+
+    _morfFinV = re.compile('(ps[123]|neg|quot|impf imps|pres imps)')
 
     def rewrite(self, record):
         for rec in record:
@@ -477,63 +545,46 @@ class VerbExtensionSuffixRewriter():
         'söödav', etc - the words that are frequently used in the derived form), 
         morphological analyser does not add the '='. 
     '''
-    _suffix_conversions = ( ("=[td]ud",   "tud"),
-                            ("=nud",      "nud"),
-                            ("=mine",     "mine"),
-                            ("=nu$",      "nu"),
-                            ("=[td]u$",   "tu"),
-                            ("=v$",       "v"),
-                            ("=[td]av",   "tav"),
-                            ("=mata",     "mata"),
-                            ("=ja",       "ja")
-    )
-    # 973 viha=tu+d-armasta: <tu>.   718 "lahti_seleta=tult": no <tu>
-    # öel=nu+d-kirjuta
+
     _suffix_conversions = ( ("=[td]ud",   "tud"),
                             ("=nud",      "nud"),
                             ("=mine",     "mine"),
                             ("=nu$",       "nu"),
-                            ("=[td]u$",    "tu"),
                             ("=nu[+]",       "nu"),
+                            ("=[td]u$",    "tu"),
                             ("=[td]u[+]",    "tu"),
                             ("=v$",       "v"),
                             ("=[td]av",   "tav"),
                             ("=mata",     "mata"),
                             ("=ja",       "ja")
     )
-    # eelduse if rec['partofspeech'] in {'A', 'S'}: korral
-    #247 aja_EPL_2007_01_29.xml_71.txt
-    #result:   '    "märga=tavamalt" L0 D  '
-    #expected: '    "märga=tavamalt" L0 D partic <tav>  '  
-    #376 aja_ee_1996_48.xml_26.txt
-    #result:   '    "öel=nu+d-kirjuta" Lnud V mod indic impf ps neg <FinV>  '
-    #expected: '    "öel=nu+d-kirjuta" Lnud V mod indic impf ps neg <FinV> <nu>  '
-    #973 aja_EPL_1998_06_18.xml_5.txt
-    #result:   '    "viha=tu+d-armasta" Ltud V mod indic impf imps neg <FinV>  '
-    #expected: '    "viha=tu+d-armasta" Ltud V mod indic impf imps neg <FinV> <tu>  '
-    
+
     # Note: in double forms like 'vihatud-armastatud', both components should actually get the same analysis
     # (the same POS-tag - S, A, or V and corresponding attributes like ending, morph analysis, etc)
     # which is not the case now ("viha=tu+d-armasta" the first part is currently analysed as a noun, the second
     # as a verb). 
     
+#     def rewrite(self, record):
+#         for rec in record:
+#             rec['verb_extension_suffix'] = None
+#             if '=' in rec['root']:
+#                 for pattern, value in self._suffix_conversions:
+#                     if re.search(pattern, rec['root']):
+#                         rec['verb_extension_suffix'] = value
+#                         break
+#         return record
     def rewrite(self, record):
+        # 'verb_extension_suffix' on siin list (ikka eelmise versiooniga ühildumiseks)
+        # 'Kirutud-virisetud'
         for rec in record:
-            rec['verb_extension_suffix'] = None
+            rec['verb_extension_suffix'] = []
             if '=' in rec['root']:
                 for pattern, value in self._suffix_conversions:
                     if re.search(pattern, rec['root']):
-                        rec['verb_extension_suffix'] = value
-                        break
+                        if value not in rec['verb_extension_suffix']:
+                            rec['verb_extension_suffix'].append(value)
         return record
 
-
-# ==================================================================================
-# ==================================================================================
-#   6) Add subcategorization information to verbs and adpositions;
-#       (former 'tagger08.c')
-# ==================================================================================
-# ==================================================================================
 
 class SubcatRewriter():
     ''' Adds subcategorization information (hashtags) to verbs and adpositions.
@@ -594,84 +645,99 @@ class SubcatRewriter():
         Returns the input list where verb/adposition analyses have been augmented 
         with available subcategorization information;
     '''
-    def __init__(self, subcat_rules_file, subcat_rules_extra_file=None):
-        self.v_rules, self.k_rules = self._load_subcat_info(subcat_rules_file, subcat_rules_extra_file)
+    def __init__(self, subcat_rules_file=None):
+        if subcat_rules_file:
+            assert os.path.exists(subcat_rules_file),\
+                'Unable to find *subcat_rules_file* from location ' + subcat_rules_file
+        else:
+            subcat_rules_file = os.path.dirname(__file__)
+            subcat_rules_file = os.path.join(subcat_rules_file,
+                                             'rules_files/abileksikon06utf.lx')
+            assert os.path.exists(subcat_rules_file),\
+                'Missing default *subcat_rules_file* ' + subcat_rules_file
+        self.v_rules, self.k_rules = self._load_subcat_info(subcat_rules_file)
 
     def rewrite(self, record):
         result = []
         for rec in record:
-            match = False
             
+            rules = None
             if rec['partofspeech'] == 'V':
-                for subcat in self.v_rules[(rec['root'], rec['partofspeech'])]:
-                    match = True
-                    rec_copy = rec.copy()
-                    rec_copy['subcat'] = subcat
-                    result.append(rec_copy)
+                # nii pole õige teha, aga see võimaldab jäljendada eelmist versiooni
+                # kasutamata abileksikon_extrat
+                root = rec['root'].split('+')[0] # 'Avatakse-suletakse'
+                rules = self.v_rules.get((root, rec['partofspeech']), None)
             elif rec['partofspeech'] == 'K':
-                for subcat in self.k_rules[(rec['root'], rec['partofspeech'], rec['form'] )]:
-                    match = True
+                root = rec['root'].split('+')[0]
+                rules = self.k_rules.get((root, rec['partofspeech'], rec['form']), None)
+            if rules is not None:
+                for subcat in rules: # võib vaadelda eraldi juhtu len(rules) == 1
                     rec_copy = rec.copy()
                     rec_copy['subcat'] = subcat
                     result.append(rec_copy)
-            
-            if not match:
+            else:
                 rec['subcat'] = None
                 result.append(rec)
 
         return result
 
-    def _load_subcat_info(self, subcat_rules_file, subcat_rules_extra_file):
-        ''' Loads subcategorization rules (for verbs and adpositions) from a text 
-            file. 
-            It is expected that the rules are given as pairs, where the first item is 
-            the lemma (of verb/adposition), followed on the next line by the 
-            subcategorization rule, in the following form: 
-               on the left side of '>' is the condition (POS-tag requirement for the 
-               lemma), 
+    def _load_subcat_info(self, subcat_rules_file):
+        ''' Loads subcategorization rules (for verbs and adpositions) from a
+            text file.
+            It is expected that the rules are given as pairs, where the first
+            item is the root (of verb/adposition), followed on the next line by
+            the subcategorization rule, in the following form:
+               on the left side of '>' is the condition (POS-tag requirement for
+               the lemma),
              and 
-               on the right side is the listing of subcategorization settings (hashtag 
-               items, e.g. names of morphological cases of nominals);
-            If there are multiple subcategorization rules to be associated with a
-            single lemma, different rules are separated by '&'.
+               on the right side is the listing of subcategorization settings
+               (hashtag items, e.g. names of morphological cases of nominals);
+            If there are multiple subcategorization rules to be associated with
+            a single lemma, different rules are separated by '&'.
     
-            Example, an excerpt from the rules file:
-              läbi
-              _V_ >#Part &_K_ post >#gen |#nom |#el &_K_ pre >#gen 
-              läbista
-              _V_ >#NGP-P 
-              läbistu
-              _V_ >#Intr 
+            Example. An excerpt from the rules file:
+
+            läbi
+            _V_ >#Part &_K_ post >#gen |#nom |#el &_K_ pre >#gen
+            läbista
+            _V_ >#NGP-P
+            lähedal
+            _K_ post >#gen
+            lähenda
+            _V_ >#NGP-P #All
     
-            Returns a dict of root to a-list-of-subcatrules mappings.
+            returns a pair of dicts (v_rules, k_rules):
+
+            v_rules = {
+                ('läbi', 'V'): [['Part']],
+                ('läbista', 'V'): [['NGP-P']],
+                ('lähenda', 'V'): [['NGP-P', 'All']]
+            }
+            k_rules = {
+                ('läbi', 'K', 'post'): [['el'], ['nom'], ['gen']],
+                ('läbi', 'K', 'pre'): [['gen']],
+                ('lähedal', 'K', 'post'): [['gen']]
+            }
+
+            If the part of speech is not 'K' or 'V', then the rules are ignored.
+            .
+            _Y_ >_Z_ Fst &_Z_ >Fst
+            ,
+            _Y_ >_Z_ Com &_Z_ >Com
         '''
         rules = defaultdict(list)
-        nonSpacePattern = re.compile('^\S+$')
-        posTagPattern   = re.compile('_._')
-        def read_lexicon(file, rules):
-            in_f = codecs.open(file, mode='r', encoding='utf-8')
-            root = None
-            subcatRules = None
-            for line in in_f:
-                # seda võib kirjutada lihtsamaks, kui võib eeldada, et faili formaat on range
-                line = line.rstrip()
-                if posTagPattern.search(line) and root:
-                    subcatRules = line
-                    parts = subcatRules.split('&')#[::-1]#76 tekst 
-                    for part in parts:
-                        part = part.strip()
-                        rules[root].append(part)
-                    root = None
-                    subcatRules = None
-                elif nonSpacePattern.match(line):
-                    root = line
-            in_f.close()
-            return rules
 
-        rules = read_lexicon(subcat_rules_file, rules)
-        #print( len(rules.keys()) )   # 4484
-        if subcat_rules_extra_file:
-            rules = read_lexicon(subcat_rules_extra_file, rules)
+        with open(subcat_rules_file, 'r', encoding='utf_8') as in_f:
+            while True:
+                root = next(in_f, None)
+                if root is None:
+                    break
+                root = root.rstrip()
+
+                rule_line = next(in_f).rstrip()
+                parts = rule_line.split('&')
+                for part in parts:
+                    rules[root].append(part)
 
         v_rules = defaultdict(list)
         k_rules = defaultdict(list)
@@ -679,56 +745,41 @@ class SubcatRewriter():
             for rule in rulelist:
                 pos, subcats = rule.split('>')
                 pos = pos.strip()
-                #if pos == '_V_':
-                #    v_rules[(root, 'V')] = []
-                if pos == '_K_ post':
-                    if (root, 'K', 'post') in k_rules:
-                        continue
-                if pos == '_K_ pre':
-                    if (root, 'K', 'pre') in k_rules:
-                        continue
-                    #k_rules[(root, 'K', 'pre')] = []
                 for subcat in subcats.split('|'):
                     subcat = subcat.strip()
                     if pos == '_V_':
-                        if all([subcat not in s for s in v_rules[(root, 'V')]]):
-                        # ei tea, kas see if teeb mõistlikku asja, aga igatahes aitab ühilduda eelmise versiooniga
-                            v_rules[(root, 'V')].append(subcat)
+                        v_rules[(root, 'V')].append(subcat)
                     elif pos == '_K_ post':
-                        if all([subcat not in s for s in k_rules[(root, 'K', 'post')]]):
-                            k_rules[(root, 'K', 'post')].append(subcat)
+                        k_rules[(root, 'K', 'post')].append(subcat)
                     elif pos == '_K_ pre':
-                        if all([subcat not in s for s in k_rules[(root, 'K', 'pre')]]):
-                            k_rules[(root, 'K', 'pre')].append(subcat)
+                        k_rules[(root, 'K', 'pre')].append(subcat)
         # [::-1] eelmise versiooniga ühildumiseks
         for k, v in v_rules.items():
-            v_rules[k] = v[::-1]
+            v_rules[k] = v[::-1] # no effect
         for k, v in k_rules.items():
             k_rules[k] = v[::-1]
         
-        for key in v_rules:
-            for i, subcat in enumerate(v_rules[key]):
-                v_rules[key][i] = [s.strip(' #') for s in subcat.split()]
-        for key in k_rules:
-            for i, subcat in enumerate(k_rules[key]):
-                k_rules[key][i] = [s.strip(' #') for s in subcat.split()]
+        for key, v in v_rules.items():
+            v_rules[key] = [[subcat.lstrip('#') for subcat in u.split()] for u in v]
+        for key, v in k_rules.items():
+            k_rules[key] = [[subcat.lstrip('#') for subcat in u.split()] for u in v]
 
         return v_rules, k_rules
 
 
-class QuickMorphExtendedRewriter():
-    ''' Converts given analysis line if it describes punctuation; Uses the set 
-        of predefined punctuation conversion rules from _punctConversions;
-        
-        _punctConversions should be a list of lists, where each outer list stands 
-        for a single conversion rule and inner list contains a pair of elements:
-        first is the regexp pattern and the second is the replacement, used in
-           re.sub( pattern, replacement, line )
-        
-        Returns the converted line (same as input, if no conversion was 
-        performed);
+class MorphExtendedRewriter():
+    ''' Combines the rewrite methods of 
+        PunctuationTypeRewriter
+        MorphToSyntaxMorphRewriter
+        PronounTypeRewriter
+        RemoveDuplicateAnalysesRewriter
+        RemoveAdpositionAnalysesRewriter
+        LetterCaseRewriter
+        FiniteFormRewriter
+        VerbExtensionSuffixRewriter
+        SubcatRewriter
     ''' 
-
+    
     def __init__(self, punctuation_type_rewriter, morph_to_syntax_morph_rewriter, 
                  pronoun_type_rewriter,
                  remove_duplicate_analyses_rewriter,
@@ -755,4 +806,7 @@ class QuickMorphExtendedRewriter():
         record = self.finite_form_rewriter.rewrite(record)
         record = self.verb_extension_suffix_rewriter.rewrite(record)
         record = self.subcat_rewriter.rewrite(record)
+
+        record = self.remove_adposition_analyses_rewriter.rewrite(record)
+
         return record
