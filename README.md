@@ -44,7 +44,7 @@ Additional educational materials on estnltk are available on the web page of the
 
 ## Citation
 
-Once you use Estnltk in your work, plase cite us as follows:
+Once you use Estnltk in your work, please cite us as follows:
 
     @InProceedings{ORASMAA16.332,
     author = {Siim Orasmaa and Timo Petmanson and Alexander Tkachenko and Sven Laur and Heiki-Jaan Kaalep},
