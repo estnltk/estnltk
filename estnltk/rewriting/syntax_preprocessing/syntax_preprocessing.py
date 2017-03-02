@@ -179,146 +179,60 @@ class MorphToSyntaxMorphRewriter():
 class PronounTypeRewriter():
     ''' Adds 'pronoun_type' attribute to the analysis.
         Converts pronouns from Filosoft's mrf to syntactic analyzer's mrf format.
-        
-        If partofspeech is 'P', then gets the pronoun_type from the
-        _pronConversions;
-        If 'partofspeech' is not 'P', then pronoun_type is None.
-        
-        _pronConversions is a tuple of tuples, where each inner tuple contains a 
-        pair of elements: first is the regexp pattern to match the
-        <root>+<ending><clitic> and the second is the pronoun_type (a tuple of 
-        strings).
+
+        Reads the pronoun types from pronoun_files.
+        By default the pronoun_file is rules_files/pronouns.csv.
+        Each line of the file contains comma separated pair of lemma and type.
+        Example. An excerpt from the file:
+            iga,det
+            igasugune,dem
+            igaüks,det
+            ise,pos
+            ise,det
+            ise,refl
+            iseenese,refl
+
+        results a dict:
+
+            pronoun_type = {'iga': ['det'],
+                            'igasugune': ['dem'],
+                            'igaüks': ['det'],
+                            'ise': ['pos', 'det', 'refl'],
+                            'iseenese': ['refl'],
+                            }
+
+        So, pronoun type is a list of str.
+
+        If 'partofspeech' is not 'P', then pronoun type is None.
+        If partofspeech is 'P', then gets the pronoun type from the dict
+        pronoun_type. If lemma is not in the dict pronoun_type, then the pronoun
+        type is ['invalid'].
     '''
 
-    # ma, sa, ta ei lähe kunagi mängu, sest ma -> mina, sa -> sina, ta-> tema
-    # pronoun type on tuple, et säiliks järjekord, muidu võiks vist olla set.
-    _pronConversions = ( ("emb\+.*",             ("det",)),
-                         ("enda\+.*",            ("pos", "refl")),
-                         ("enese\+.*",           ("pos", "refl")),
-                         ("eikeegi.*",           ("indef",)),
-                         ("eimiski.*",           ("indef",)),
-                         ("emb-kumb.*",          ("det",)),
-                         ("esimene.*",           ("dem",)),
-                         ("iga\+.*",             ("det",)),
-                         ("iga_sugune.*",        ("indef",)),
-                         ("iga_.ks\+.*",         ("det",)),
-                         ("ise\+.*",             ("pos", "det", "refl")),
-                         ("ise_enese.*",         ("refl",)),
-                         ("ise_sugune.*",        ("dem",)),
-                         ("keegi.*",             ("indef",)),
-                         ("kes.*",               ("inter rel",)),
-                         ("kumb\+.*",            ("rel",)),
-                         ("kumbki.*",            ("det",)),
-                         ("kõik.*",              ("det",)),
-                         ("k.ik.*",              ("det",)),
-                         ("meie_sugune.*",       ("dem",)),
-                         ("meie_taoline.*",      ("dem",)),
-                         ("mihuke\+.*",          ("inter rel",)),
-                         ("mihukene\+.*",        ("inter rel",)),
-                         ("mille_taoline.*",     ("dem",)),
-                         ("milli=?ne.*",         ("rel",)),
-                         ("mina\+.*",            ("pers ps1",)),
-                         (" ma\+.*",             ("pers ps1",)),
-                         ("mina=?kene\+.*",      ("dem",)),
-                         ("mina=?ke\+.*",        ("dem",)),
-                         ("mingi\+.*",           ("indef",)),
-                         ("mingi_sugune.*",      ("indef",)),
-                         ("minu_sugune.*",       ("dem",)),
-                         ("minu_taoline.*",      ("dem",)),
-                         ("miski.*",             ("indef",)),
-                         ("mis\+.*",             ("inter rel",)),
-                         ("mis_sugune.*",        ("inter rel",)),
-                         ("miski\+.*",           ("inter rel",)),
-                         ("miski_sugune.*",      ("inter rel",)),
-                         ("misu=?ke(ne)?\+.*",   ("dem",)),
-                         ("mitme_sugune.*",      ("indef",)),
-                         ("mitme_taoline.*",     ("indef",)),
-                         ("mitmendik\+.*",       ("inter rel",)),
-                         ("mitmes\+.*",          ("inter rel", "indef")),
-                         ("mi=?tu.*",            ("indef",)),
-                         ("miuke(ne)?\+.*",      ("inter rel",)),
-                         ("muist\+.*",           ("indef",)),
-                         ("muu.*",               ("indef",)),
-                         ("m.lema.*",            ("det",)),
-                         ("m.ne_sugune\+.*",     ("indef",)),
-                         ("m.ni\+.*",            ("indef",)),
-                         ("m.ningane\+.*",       ("indef",)),
-                         ("m.ningas.*",          ("indef",)),
-                         ("m.herdune\+.*",       ("indef", "rel")),
-                         ("määntne\+.*",         ("dem",)),
-                         ("na_sugune.*",         ("dem",)),
-                         ("nende_sugune.*",      ("dem",)),
-                         ("nende_taoline.*",     ("dem",)),
-                         ("nihuke(ne)?\+.*",     ("dem",)),
-                         ("nii_mi=?tu\+.*",      ("indef", "inter rel")),
-                         ("nii_sugune.*",        ("dem",)),
-                         ("niisama_sugune.*",    ("dem",)),
-                         ("nii?su=?ke(ne)?\+.*", ("dem",)),
-                         ("niuke(ne)?\+.*",      ("dem",)),
-                         ("oma\+.*",             ("pos", "det", "refl")),
-                         ("oma_enese\+.*",       ("pos",)),
-                         ("oma_sugune\+.*",      ("dem",)),
-                         ("oma_taoline\+.*",     ("dem",)),
-                         ("palju.*",             ("indef",)),
-                         ("sama\+.*",            ("dem",)),
-                         ("sama_sugune\+.*",     ("dem",)),
-                         ("sama_taoline\+.*",    ("dem",)),
-                         ("samune\+.*",          ("dem",)),
-                         ("see\+.*",             ("dem",)),
-                         ("see_sama\+.*",        ("dem",)),
-                         ("see_sam[au]ne\+.*",   ("dem",)),
-                         ("see_sinane\+.*",      ("dem",)),
-                         ("see_sugune\+.*",      ("dem",)),
-                         ("selle_taoline\+.*",   ("dem",)),
-                         ("selli=?ne\+.*",       ("dem",)),
-                         ("setu\+.*",            ("indef",)),
-                         ("setmes\+.*",          ("indef",)),
-                         ("sihuke\+.*",          ("dem",)),
-                         ("sina\+.*",            ("pers ps2",)),
-                         (" sa\+.*",             ("pers ps2",)),
-                         ("sinu_sugune\+.*",     ("dem",)),
-                         ("sinu_taoline\+.*",    ("dem",)),
-                         ("siuke(ne)?\+.*",      ("dem",)),
-                         ("säherdune\+.*",       ("dem",)),
-                         ("s.herdune\+.*",       ("dem",)),
-                         ("säärane\+.*",         ("dem",)),
-                         ("s..rane\+.*",         ("dem",)),
-                         ("taoline\+.*",         ("dem",)),
-                         ("teie_sugune\+.*",     ("dem",)),
-                         ("teie_taoline\+.*",    ("dem",)),
-                         ("teine\+.*",           ("dem",)),
-                         ("teine_teise\+.*",     ("rec",)),
-                         ("teist?_sugune\+.*",   ("dem",)),
-                         ("tema\+.*",            ("pers ps3",)),
-                         (" ta\+.*",             ("pers ps3",)),
-                         ("temake(ne)?\+.*",     ("pers ps3",)),
-                         ("tema_sugune\+.*",     ("dem",)),
-                         ("tema_taoline\+.*",    ("dem",)),
-                         ("too\+.*",             ("dem",)),
-                         ("too_sama\+.*",        ("dem",)),
-                         ("üks.*",               ("dem", "indef")),
-                         (".ks.*",               ("dem", "indef")),
-                         ("ükski.*",             ("dem", "indef")),
-                         (".kski.*",             ("dem", "indef")),
-                         ("üks_teise.*",         ("rec", "indef")),
-                         (".ks_teise.*",         ("rec",))
-    )
     
+    def __init__(self, pronoun_file=None):
+        if pronoun_file:
+            assert os.path.exists(pronoun_file),\
+                'Unable to find *pronoun_file* from location ' + pronoun_file
+        else:
+            pronoun_file = os.path.dirname(__file__)
+            pronoun_file = os.path.join(pronoun_file,
+                                             'rules_files/pronouns.csv')
+            assert os.path.exists(pronoun_file),\
+                'Missing default *pronoun_file* ' + pronoun_file
+
+        self.pronoun_type = defaultdict(list)
+        with open(pronoun_file, 'r') as in_f:
+            for l in in_f:
+                pronoun, t = l.split(',')
+                self.pronoun_type[pronoun.strip()].append(t.strip())
+
     def rewrite(self, record):
         for rec in record:
-            rec['pronoun_type'] = None
-            if rec['partofspeech'] == 'P':  # only consider lines containing pronoun analyses
-                if rec['form'] == '':
-                    # eelmise versiooni jäljendamiseks
-                    # miskipärast tahetakse igale asesõnale singulari või pluuralit
-                    # 'muist' on ainus P juur, millel form on tühi 
-                    continue
-                root_ec = ''.join((rec['root'], '+', rec['ending'], rec['clitic']))
-                for pattern, pron_type in self._pronConversions:
-                    if re.search(pattern, root_ec):
-                        # kas search või match? "enese" vs "iseenese"
-                        rec['pronoun_type'] = pron_type
-                        break
+            if rec['partofspeech'] == 'P':
+                rec['pronoun_type'] = self.pronoun_type.get(rec['lemma'], ['invalid'])
+            else:
+                rec['pronoun_type'] = None
         return record
 
 

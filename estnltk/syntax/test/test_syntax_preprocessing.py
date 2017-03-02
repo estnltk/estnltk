@@ -11,7 +11,7 @@ from estnltk.syntax.syntax_preprocessing import SyntaxPreprocessing
 def test():
     syntax_preprocessing = SyntaxPreprocessing()
     
-    t = words_sentences('Tere maailm! Kuidas Läheb?')
+    t = words_sentences('Tere maailm! Kuidas Sul läheb?')
     expected = ['"<s>"',
                 '"<Tere>"',
                 '    "tere" L0 I cap',
@@ -23,10 +23,12 @@ def test():
                 '"<s>"',
                 '"<Kuidas>"',
                 '    "kuidas" L0 D cap',
-                '"<Läheb>"',
-                '    "mine" Lb V mod indic pres ps3 sg ps af cap <FinV>',
-                '    "mine" Lb V aux indic pres ps3 sg ps af cap <FinV>',
-                '    "mine" Lb V main indic pres ps3 sg ps af cap <FinV>',
+                '"<Sul>"',
+                '    "sina" Ll P ps2 sg ad cap',
+                '"<läheb>"',
+                '    "mine" Lb V mod indic pres ps3 sg ps af <FinV>',
+                '    "mine" Lb V aux indic pres ps3 sg ps af <FinV>',
+                '    "mine" Lb V main indic pres ps3 sg ps af <FinV>',
                 '"<?>"',
                 '    "?" Z Int',
                 '"</s>"']

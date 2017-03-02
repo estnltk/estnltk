@@ -3,7 +3,6 @@
 from __future__ import unicode_literals, print_function
 from estnltk.taggers import MorphExtendedTagger
 
-import os.path
 
 class Cg3Exporter():
 

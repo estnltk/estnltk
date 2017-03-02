@@ -145,13 +145,14 @@ class MorphExtendedTagger():
         dep = Layer(name='syntax_pp_0',
                          parent='words',
                          ambiguous=True,
-                         attributes=['word_text', 'root', 'ending', 'clitic', 'partofspeech', 'form']
+                         attributes=['word_text', 'lemma', 'root', 'ending', 'clitic', 'partofspeech', 'form']
                          )
         text._add_layer(dep)
         for word, morf_anal in zip(text.words, text.morf_analysis):
             for analysis in morf_anal:
                 m = word.mark('syntax_pp_0')
                 m.word_text = analysis.text
+                m.lemma = analysis.lemma
                 m.root = self._esc_double_quotes(analysis.root)
                 m.ending = analysis.ending
                 m.clitic = analysis.clitic
