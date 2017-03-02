@@ -13,8 +13,8 @@ class Cg3Exporter():
         '''
         return str1.replace('"', '\\"').replace('\\\\\\"', '\\"').replace('\\\\"', '\\"')
 
-    # miks ma ei oska siia staticmethod kirjutada?
-    def insert_pers(self, pronoun_type):
+    @staticmethod
+    def insert_pers(pronoun_type):
         for i, t in enumerate(pronoun_type):
             if t in {'ps1', 'ps2', 'ps3'}:
                 pronoun_type.insert(i, 'pers')
