@@ -24,7 +24,7 @@ def test():
                 '"<Kuidas>"',
                 '    "kuidas" L0 D cap',
                 '"<Sul>"',
-                '    "sina" Ll P ps2 sg ad cap',
+                '    "sina" Ll P pers ps2 sg ad cap',
                 '"<läheb>"',
                 '    "mine" Lb V mod indic pres ps3 sg ps af <FinV>',
                 '    "mine" Lb V aux indic pres ps3 sg ps af <FinV>',

@@ -13,11 +13,19 @@ class Cg3Exporter():
         '''
         return str1.replace('"', '\\"').replace('\\\\\\"', '\\"').replace('\\\\"', '\\"')
 
+    # miks ma ei oska siia staticmethod kirjutada?
+    def insert_pers(self, pronoun_type):
+        for i, t in enumerate(pronoun_type):
+            if t in {'ps1', 'ps2', 'ps3'}:
+                pronoun_type.insert(i, 'pers')
+                break
+        return pronoun_type
+
     @staticmethod
     def is_partic_suffix(suffix):
         return suffix in {'tud', 'nud', 'v', 'tav', 'mata'}
-    
 
+    
     def export(self, text):
         ''' Converts text with morph_extended layer to cg3 input format.
     
@@ -33,7 +41,7 @@ class Cg3Exporter():
                 for morph_extended in text.morph_extended[word_index]:
                     form_list = [morph_extended.partofspeech]
                     if morph_extended.pronoun_type:
-                        form_list.extend(morph_extended.pronoun_type)
+                        form_list.extend(self.insert_pers(morph_extended.pronoun_type))
                     if morph_extended.form:
                         form_list.append(morph_extended.form)
                     if morph_extended.punctuation_type:
