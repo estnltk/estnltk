@@ -10,11 +10,14 @@ class ReverseRewriter():
         # in practice, you should only implement "rewrite" for the case you are interested in
 
         #in this case, it is a simple dict
+
+
         result = {}
         for k, v in record.items():
             if k in ('start', 'end'):
                 result[k] = v
             else:
-                result[k[::-1]] = v[::-1]
+                result[k] = v[::-1]
+
         return result
 

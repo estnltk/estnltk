@@ -3,3 +3,6 @@ from estnltk.taggers.syntax_preprocessing.syntax_preprocessing import FiniteForm
 from estnltk.taggers.syntax_preprocessing.syntax_preprocessing import VerbExtensionSuffixTagger
 from estnltk.taggers.syntax_preprocessing.syntax_preprocessing import SubcatTagger
 from estnltk.taggers.syntax_preprocessing.syntax_preprocessing import MorphExtendedTagger
+
+from estnltk.taggers.word_tokenizer import WordTokenizer
+

@@ -12,12 +12,12 @@ import pandas
 import regex as re
 import six
 from cached_property import cached_property
-from estnltk.legacy.core import as_unicode, POSTAG_DESCRIPTIONS
-from estnltk.legacy.dividing import divide, divide_by_spans
 from nltk.tokenize.regexp import RegexpTokenizer
 
+from estnltk.legacy.core import as_unicode, POSTAG_DESCRIPTIONS
+from estnltk.legacy.dividing import divide, divide_by_spans
 from estnltk.legacy.names import *
-from estnltk.tokenizers import EstWordTokenizer
+from estnltk.taggers.legacy_tokenizers import EstWordTokenizer
 from estnltk.vabamorf import morf as vabamorf
 
 
