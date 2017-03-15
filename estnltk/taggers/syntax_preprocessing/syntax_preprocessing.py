@@ -1,4 +1,3 @@
-from estnltk.text import Layer
 
 from estnltk.rewriting import PunctuationTypeRewriter
 from estnltk.rewriting import MorphToSyntaxMorphRewriter
@@ -10,6 +9,7 @@ from estnltk.rewriting import FiniteFormRewriter
 from estnltk.rewriting import VerbExtensionSuffixRewriter
 from estnltk.rewriting import SubcatRewriter
 from estnltk.rewriting import MorphExtendedRewriter
+from estnltk.text import Layer
 
 
 class PronounTypeTagger():

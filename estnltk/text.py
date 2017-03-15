@@ -1,17 +1,11 @@
 import bisect
 import collections
 import keyword
-from typing import *
 from typing import Tuple, List, Any
 from typing import Union
 
-import ipywidgets
 import networkx as nx
 
-
-def draw_graph(g):
-    p = nx.drawing.nx_pydot.to_pydot(g)
-    return ipywidgets.HTML(p.create_svg())
 
 
 class Span:
@@ -391,7 +385,7 @@ class Layer:
         else:
             if rewriting:
                 spns = SpanList(layer=self, ambiguous=False)
-                spns.spans = [Span(**{**record, **{'layer': self}}, legal_attributes=self.attributes) for record in records]
+                spns.spans = [Span(**{**record, **{'layer': self}}, legal_attributes=self.attributes) for record in records if record is not None]
 
                 self.spans = spns
             else:
@@ -415,14 +409,16 @@ class Layer:
         return self.spans.add_span(span)
 
 
-    def rewrite(self, source_attributes, target_attributes, rules, **kwargs):
+    def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
         assert 'name' in kwargs.keys(), '"name" must currently be an argument to layer'
 
         res = [whitelist_record(record, source_attributes + ['start', 'end']) for record in self.to_records()]
         rewritten = [rules.rewrite(j) for j in res]
         resulting_layer = Layer(
             **kwargs,
-            attributes=target_attributes
+            attributes=target_attributes,
+            parent=self.name
+
         ).from_records(
             rewritten, rewriting=True
         )
@@ -547,7 +543,7 @@ class Text:
 
 
         if layer.parent:
-            assert layer.parent in self.layers.keys(), 'Cant add a layer before adding its parent'
+            assert layer.parent in self.layers.keys(), 'Cant add a layer "{layer}" before adding its parent "{parent}"'.format(parent = layer.parent, layer= layer.name)
 
         if layer.enveloping:
             assert layer.enveloping in self.layers.keys(), 'Cant add an enveloping layer before adding the layer it envelops'
@@ -776,8 +772,6 @@ class Text:
         return self.layers[item]
 
 
-    def _draw_graph(self):
-        return draw_graph(self._g)
 
     def __delattr__(self, item):
         raise NotImplementedError('deleting not implemented')
@@ -790,24 +784,19 @@ from estnltk.legacy.text import Text as OldText
 #
 
 def words_sentences(text):
+    from estnltk.taggers import WordTokenizer
+    from estnltk.taggers.morf import VabamorfTagger
     old = OldText(text)
 
     # noinspection PyStatementEffect
     old.sentences
     # noinspection PyStatementEffect
-    old.words
-    # noinspection PyStatementEffect
     old.paragraphs
 
 
     new = Text(text)
-    words = Layer(name='words').from_records([{
-        'start':start,
-        'end':end
-                                              } for start, end in old.spans('words')], rewriting=True)
-
-    new._add_layer(words)
-
+    tok = WordTokenizer()
+    tok.tag(new)
 
     old_sentences = old.split_by('sentences')
     sentences = Layer(enveloping='words', name='sentences')
@@ -819,34 +808,15 @@ def words_sentences(text):
     for sentence in old_sentences:
         sent = []
         for _ in sentence.words:
-            sent.append(words[i])
+            sent.append(new.words[i])
             i += 1
         new_sentences.append(sent)
-
-
 
     for sentence in new_sentences:
         sentences._add_spans_to_enveloping(sentence)
 
+    vt = VabamorfTagger()
+    vt.tag(new)
 
-    morf_attributes = ['form', 'root_tokens', 'clitic', 'partofspeech', 'ending', 'root', 'lemma']
-
-    dep = Layer(name='morf_analysis',
-                parent='words',
-                ambiguous=True,
-                attributes=morf_attributes
-                )
-    new._add_layer(dep)
-
-    for word, analysises in zip(new.words, old.analysis):
-        assert isinstance(word, Span)
-        for analysis in analysises:
-            m = word.mark('morf_analysis')
-            assert isinstance(m, Span), 'Was hoping for Span, found {}'.format(type(m).__name__)
-
-
-            for attr in morf_attributes:
-                setattr(m, attr, analysis[attr])
     return new
-
 
