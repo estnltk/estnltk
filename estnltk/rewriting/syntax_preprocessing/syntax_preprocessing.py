@@ -230,7 +230,12 @@ class PronounTypeRewriter():
     def rewrite(self, record):
         for rec in record:
             if rec['partofspeech'] == 'P':
-                rec['pronoun_type'] = self.pronoun_type.get(rec['lemma'], ['invalid']).copy()
+                pronoun_type = self.pronoun_type.get(rec['lemma'])
+                if pronoun_type is None:
+                    pronoun_type = ['invalid']
+                else:
+                    pronoun_type = pronoun_type.copy()
+                rec['pronoun_type'] = pronoun_type
             else:
                 rec['pronoun_type'] = None
         return record
