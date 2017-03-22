@@ -1,6 +1,4 @@
-from estnltk.taggers import WordTokenizer
-from estnltk.taggers.premorf import WordNormalizingTagger, CopyTagger
-from estnltk.text import Text, Layer, words_sentences
+from estnltk.text import Text, Layer
 from estnltk.vabamorf.morf import Vabamorf
 
 
@@ -46,7 +44,6 @@ class VabamorfTagger:
                 if (word.start, word.end) not in substitutions.keys():
                     result.append(word.text)
                 else:
-                    print(substitutions[(word.start, word.end)])
                     result.append(substitutions[(word.start, word.end)].normal)
             return result
 
