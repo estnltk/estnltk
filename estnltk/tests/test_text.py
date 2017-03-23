@@ -381,6 +381,7 @@ def test_enveloping_layer():
         (wordpairs.test)
 #
 def test_oldtext_to_new():
+    from estnltk.legacy.text import Text as OldText
 
     text = 'Tuleb üks neiuke, järelikult tuleb ühelt poolt! Kui tuleks kaks neiukest, siis tuleksid kahelt poolt! Aga seekord tuleb üks, tuleb ühelt poolt!'
     new = words_sentences(text)

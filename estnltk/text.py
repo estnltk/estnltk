@@ -1,7 +1,7 @@
 import bisect
 import collections
 import keyword
-from typing import MutableMapping, Tuple, List, Any, Union, Iterable
+from typing import MutableMapping, Tuple, List, Any, Union
 
 import networkx as nx
 
@@ -348,7 +348,7 @@ class Layer:
         #used in Text._add_layer to check if additional work needs to be done
         self._is_lazy = False
 
-        self._base = name if ((not enveloping) and (not parent)) else None #This is a placeholder for the base layer.
+        self._base = name if (not enveloping) and (not parent) else None #This is a placeholder for the base layer.
         #_base is None if parent is None
         #_base is self.name if ((not self.enveloping) and (not self.parent))
         #_base is parent._base otherwise
@@ -787,19 +787,19 @@ class Text:
         return 'Text(text="{self.text}")'.format(self=self)
 
 
-from estnltk.legacy.text import Text as OldText
 #
 
 def words_sentences(text):
     from estnltk.taggers import WordTokenizer
     from estnltk.taggers.morf import VabamorfTagger
+    from estnltk.legacy.text import Text as OldText
+
     old = OldText(text)
 
     # noinspection PyStatementEffect
     old.sentences
     # noinspection PyStatementEffect
     old.paragraphs
-
 
     new = Text(text)
     tok = WordTokenizer()
