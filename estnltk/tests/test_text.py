@@ -836,6 +836,28 @@ def test_rewrite_access():
 
 
 def test_rewriting_api():
+    class ReverseRewriter():
+        # this is an example of the api
+        # it reverses every key and value it is given
+
+        def rewrite(self, record):
+            # record is a dict (non-ambiguous layer)
+            #            list - of - dicts (ambiguous layer)
+            #            list - of - list - of dicts (enveloping layer)
+            #   ... (and so on, as enveloping layers can be infinitely nested)
+            # in practice, you should only implement "rewrite" for the case you are interested in
+
+            # in this case, it is a simple dict
+
+
+            result = {}
+            for k, v in record.items():
+                if k in ('start', 'end'):
+                    result[k] = v
+                else:
+                    result[k[::-1]] = v[::-1]
+            return result
+
     text = words_sentences('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''')
 
     text['test'] = Layer(name='test', attributes=['reverse'], parent='words')
@@ -853,8 +875,10 @@ def test_rewriting_api():
     )
 
     #assign to layer
-    text['plain'] = layer
+    text._add_layer(layer)
 
+
+    print(text.plain)
 
     #double reverse is plaintext
     assert (text.plain.esrever == text.words.text)

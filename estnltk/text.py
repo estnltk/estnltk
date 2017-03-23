@@ -1,6 +1,7 @@
 import bisect
 import collections
 import keyword
+from typing import MutableMapping
 from typing import Tuple, List, Any
 from typing import Union
 
@@ -206,8 +207,6 @@ class SpanList(collections.Sequence):
         else:
             span.layer = self.layer
             bisect.insort(self.spans, span)
-
-
 
         return span
 
@@ -462,7 +461,7 @@ class Layer:
         return 'Layer(name={self.name}, spans={self.spans})'.format(self=self)
 
 
-def _get_span_by_start_and_end(spans:SpanList, start:int, end:int) -> Span:
+def _get_span_by_start_and_end(spans:SpanList, start:int, end:int) -> Union[Span, None]:
     for span in spans:
         if span.start == start and span.end == end:
             return span
