@@ -8,6 +8,8 @@ from typing import List
 
 import networkx as nx
 
+
+
 class Rule:
     def __init__(self, layer_name: str, tagger, depends_on: List[str]) -> None:
         self.depends_on = depends_on
@@ -817,13 +819,16 @@ class Text:
 #
 
 def words_sentences(text):
-    from estnltk.taggers import WordTokenizer
+    from estnltk.taggers.word_tokenizer import WordTokenizer
     from estnltk.taggers.morf import VabamorfTagger
     from estnltk.legacy.text import Text as OldText
+    from estnltk.taggers.premorf import CopyTagger, WordNormalizingTagger
 
     resolver = Resolver(
         [
             Rule('words', tagger=WordTokenizer(), depends_on=[]),
+            Rule('words_copy', tagger=CopyTagger(), depends_on=['words']),
+            Rule('normalized', tagger=WordNormalizingTagger(), depends_on=['words_copy']),
             Rule('morf_analysis', tagger=VabamorfTagger(), depends_on=['words']),
         ]
     )
@@ -858,5 +863,3 @@ def words_sentences(text):
         sentences._add_spans_to_enveloping(sentence)
 
     return new
-
-

@@ -106,11 +106,8 @@ class WordNormalizingTagger:
                                      name='normalized',
                                      ambiguous=False)
 
-        uku_layer = rewriting_template(rules=FilteringRewriter('u-u-uku'))
-        sven_layer = rewriting_template(rules=FilteringRewriter('s-s-sven'))
-        
         hyphen_removing_layer = rewriting_template(rules=HyphenRemovingRewriter())
 
-        text['normalized'] = merge([uku_layer, sven_layer, hyphen_removing_layer])
+        text['normalized'] = merge([hyphen_removing_layer])
 
         return text
