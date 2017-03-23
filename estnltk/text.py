@@ -1,12 +1,42 @@
 import bisect
 import collections
 import keyword
-from typing import MutableMapping, Tuple, List, Any, Union
+from typing import MutableMapping, Tuple,  Any, Union
+
+
+from typing import List
 
 import networkx as nx
 
+class Rule:
+    def __init__(self, layer_name: str, tagger, depends_on: List[str]) -> None:
+        self.depends_on = depends_on
+        self.tagger = tagger
+        self.layer_name = layer_name
 
 
+class Resolver:
+    def __init__(self, rules: List[Rule]) -> None:
+
+        self.rules = rules
+        graph = nx.DiGraph()
+        graph.add_nodes_from([i.layer_name for i in self.rules])
+        for rule in self.rules:
+            for dep in rule.depends_on:
+                graph.add_edge(dep, rule.layer_name)
+
+        assert nx.is_directed_acyclic_graph(graph)
+        self.graph = graph
+
+    def apply(self, text: 'Text', layer_name: str) -> 'Text':
+        if layer_name in text.layers.keys():
+            return text
+        for prerequisite in self.graph.predecessors(layer_name):
+            self.apply(text, prerequisite)
+
+        rule = [i.tagger for i in self.rules if i.layer_name == layer_name][0]
+        rule.tag(text)
+        return text
 
 class Span:
     def __init__(self, start: int = None, end: int = None, parent=None,  *, layer=None, legal_attributes=None, **attributes) -> None:
@@ -228,7 +258,6 @@ class SpanList(collections.Sequence):
     def layer(self, value):
         assert isinstance(value, Layer) or value is None
         self._layer = value
-
 
     @property
     def start(self):
@@ -792,18 +821,26 @@ def words_sentences(text):
     from estnltk.taggers.morf import VabamorfTagger
     from estnltk.legacy.text import Text as OldText
 
+    resolver = Resolver(
+        [
+            Rule('words', tagger=WordTokenizer(), depends_on=[]),
+            Rule('morf_analysis', tagger=VabamorfTagger(), depends_on=['words']),
+        ]
+    )
+
+
+    new = Text(text)
+    resolver.apply(new, 'morf_analysis')
+
+
     old = OldText(text)
 
     # noinspection PyStatementEffect
     old.sentences
     # noinspection PyStatementEffect
     old.paragraphs
-
-    new = Text(text)
-    tok = WordTokenizer()
-    tok.tag(new)
-
     old_sentences = old.split_by('sentences')
+
     sentences = Layer(enveloping='words', name='sentences')
     new._add_layer(sentences)
 
@@ -820,8 +857,6 @@ def words_sentences(text):
     for sentence in new_sentences:
         sentences._add_spans_to_enveloping(sentence)
 
-    vt = VabamorfTagger()
-    vt.tag(new)
-
     return new
+
 

@@ -418,11 +418,6 @@ def test_various():
     for word in text.words:
         assert (word.upper == word.text.upper())
 
-        #TODO: ban unspecified assignement
-        # with pytest.raises(AttributeError):
-        #     #but we can't assign this way.
-        #     word.upper = 123
-
         #we have to get explicit access
         #TODO: double marking
         word.mark('uppercase').upper = 'asd'
@@ -462,14 +457,10 @@ def test_words_sentences():
     assert t.uppercase.upper == ['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']
     print(t.sentences)
     print(t.sentences.uppercase)
-
     print(t.sentences.uppercase.upper)
     assert t.sentences.uppercase.upper == [['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', ],[ 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']]
+    assert t.words.uppercase.upper == ['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']
 
-#
-#     #TODO
-#     # assert t.words.uppercase.upper == ['MINU', 'NIMI', 'ON', 'UKU', ',', 'MIS', 'SINU', 'NIMI', 'ON', '?', 'MIKS', 'ME', 'SEDA', 'ARUTAME', '?']
-#
 
 def test_ambiguous_layer():
     t = words_sentences('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?')
@@ -498,7 +489,6 @@ def test_morf():
 
 
     text.words.lemma
-
     text.morf_analysis.lemma
 
     assert text.sentences.lemma != text.words.lemma
@@ -531,9 +521,6 @@ def test_to_records():
     assert (text['sentences'].to_records() == [[{'end': 5, 'start': 0}, {'end': 9, 'start': 6}, {'end': 10, 'start': 9}]])
 
 
-
-#
-# #
 
 
 def test_morf():
@@ -696,7 +683,6 @@ def test_rewrite_access():
             print(i.com_type)
             print(i.com_type.main)
             assert i.main == i.com_type.main
-    #
 
     for i in text.com_type:
         print(i, i.morf_analysis)
