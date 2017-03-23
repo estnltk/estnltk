@@ -1,9 +1,6 @@
 import pytest
 
-
 from estnltk.text import *
-from estnltk.rewriting import ReverseRewriter
-#
 
 
 def test_general():
@@ -81,62 +78,7 @@ def test_new_span_hierarchy():
     #it is confusing, but it stays right now to save me from a rewrite
     assert text.layer2[0].parent.layer.name == 'words'
 
-# def test_spans():
-#     text = Text('Mingi tekst')
-#     layer = Layer(name='test')
-#     text._add_layer(layer)
-#     a = Span(1, 2)
-#     layer.add_span(a)
-#
-#
-#     assert a.start == 1
-#     assert a.end == 2
-#     assert a.layer is layer
-#
-#     # with pytest.raises(AssertionError):
-#     #     Span(2, 1)
-#     #
-#
-#     #TODO
-#     with pytest.raises(AttributeError):
-#         # slots should not allow assignement
-#         Span(1, 2).test = 12
-#
-#     assert Span(1, 2).text == 'i'
-#
-#     with pytest.raises(AttributeError):
-#         # Span text should not be assignable
-#         Span(1, 2).text = 'a'
-#
-#
-# #fixed
-# def test_span_ordering():
-#     text = Text('Mingi tekst')
-#     layer = Layer(name='test')
-#     text._add_layer(layer)
-#     a = Span(1, 2)
-#     b = Span(2, 3)
-#     c = Span(2, 3)
-#
-#     layer.add_span(a)
-#     layer.add_span(b)
-#     layer.add_span(c)
-#     assert a < b
-#     assert not a > b
-#     assert a <= b
-#     assert not a >= b
-#     assert b > a
-#     assert not b < a
-#     assert b >= a
-#     assert c == b
-#     assert not a == b
-#
-#     # layer2 = Layer(text_object=text, name='test2')
-#     # x = Span(1, 2, layer2)
-#     # with pytest.raises(AssertionError):
-#     #     x == a
-#
-#
+
 def test_text():
     t = Text('test')
     assert t.text == 'test'
@@ -215,34 +157,6 @@ def test_layer():
     t.test.add_span(
         Span(start=2, end=4)
     )
-
-    #TODO:
-    #Otsusta, mis peaks juhtuma kattuva SPANi korral.
-    # with pytest.raises(AssertionError):
-    #     t.test.add_span(
-    #         Span(start=2, end=4)
-    #     )
-
-
-
-#
-## "Unbound" is not a concept right now
-# def test_unbound_layer():
-#     text = 'Öösel on kõik kassid hallid.'
-#     t = Text(text)
-#
-#     l = Layer(name='test')
-#
-#     l.add_span(Span(1, 2))
-#
-#     with pytest.raises(AttributeError):
-#         for i in l:
-#             (i.text)
-#
-#     t._add_layer(l)
-#     #does not raise AttributeError after having been added to text object
-#     for i in l:
-#         (i.text)
 
 
 
@@ -410,8 +324,9 @@ def test_dependant_span():
 #     del t.words
 #     assert len(t.layers) == 0
 #
-#
-#
+
+
+
 def test_enveloping_layer():
     t = Text('Kui mitu kuud on aastas?')
     words = Layer(
@@ -512,15 +427,9 @@ def test_various():
         #TODO: double marking
         word.mark('uppercase').upper = 'asd'
 
-    # assert text.uppercase.text == text.words.text
-    # print(text.uppercase.upper)
-    # assert text.uppercase.upper == ['asd' for _ in text.words]
-    #
-    # for sentence in text.sentences:
-    #     print(sentence.words)
-    #     print(sentence.upper)
-#
-#
+
+
+
 def test_words_sentences():
     t = words_sentences('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?')
 
@@ -581,33 +490,24 @@ def test_ambiguous_layer():
     print(t.test)
 
     print(t.words[0].asd)
-#
-# def test_morf():
-#     text = words_sentences('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?')
-#     for i in text.words:
-#         i.morf_analysis
-#
-#
-#     text.words.lemma
-#
-#     text.morf_analysis.lemma
-#     assert text.sentences.lemma != text.words.lemma
-#     text.sentences[:1].lemma
-#     text.sentences[:1].words
-#
-#     assert len(text.sentences[:1].words.lemma) > 0
-#
-#     #TODO
-#     # text.words[0:2].morf_analysis
-#
-#
-# def test_delete_morf():
-#     text = words_sentences('Olnud aeg.')
-#     prelen = len(text.words[0].morf_analysis)
-#     text.words[0].morf_analysis[0].delete()
-#
-#     assert len(text.words[0].morf_analysis) == prelen - 1
-#
+
+def test_morf():
+    text = words_sentences('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?')
+    for i in text.words:
+        i.morf_analysis
+
+
+    text.words.lemma
+
+    text.morf_analysis.lemma
+
+    assert text.sentences.lemma != text.words.lemma
+    text.sentences[:1].lemma
+    text.sentences[:1].words
+
+    assert len(text.sentences[:1].words.lemma) > 0
+
+
 
 def test_change_lemma():
     text = words_sentences('Olnud aeg.')
@@ -634,35 +534,6 @@ def test_to_records():
 
 #
 # #
-#
-# def test_rewrite():
-#     text = Text('Kui mitu kuud on aastas?')
-#
-#     words = Layer.from_span_dict('words', [{'end': 3, 'test': 'kui', 'start': 0},
-#                                            {'end': 8, 'test': 'mitu', 'start': 4},
-#                                            {'end': 13, 'test': 'kuu', 'start': 9},
-#                                            {'end': 16, 'test': 'olema', 'start': 14},
-#                                            {'end': 23, 'test': 'aasta', 'start': 17},
-#                                            {'end': 24, 'test': '?', 'start': 23}],
-#                                   attributes=['test']
-#                                   )
-#     text._add_layer(words)
-#     rewriter = RegexRewriter(
-#         [('kui', 'siis_kui')]
-#     )
-#
-#     text.words[0].rewrite_attribute('test', rewriter)
-#
-#     assert text.words[0].test == 'siis_kui'
-#
-#     rewriter = RegexRewriter(
-#         [('.', 'X')]
-#     )
-#     for i in text.words:
-#         i.rewrite_attribute('test', rewriter)
-#
-#     for i in text.words:
-#         assert set(i.test) == set('X')
 
 
 def test_morf():
@@ -819,20 +690,20 @@ def test_rewrite_access():
 
     rewrite(text.morf_analysis, text.com_type, ruleset)
 
-    ##TODO
-    # for i in text.words:
-    #     if i.main:
-    #         print(i.main)
-    #         print(i.com_type)
-    #         print(i.com_type.main)
-    #         assert i.main == i.com_type.main
+    for i in text.words:
+        if i.main:
+            print(i.main)
+            print(i.com_type)
+            print(i.com_type.main)
+            assert i.main == i.com_type.main
     #
 
     for i in text.com_type:
         print(i, i.morf_analysis)
-    ## TODO
-    # for i in text.com_type:
-    #     print(i, i.lemma)
+
+    ## TODO NotImplementedError: com_type -> lemma not implemented but path exists
+    for i in text.com_type:
+        print(i, i.lemma)
 
 
 def test_rewriting_api():
@@ -927,5 +798,3 @@ def test_delete_ambig_span():
 def test_span_morf_access():
     text = words_sentences('Oleme jõudnud kohale. Kus me oleme?')
     assert text.sentences[0].words[0].morf_analysis.lemma == ['olema']
-
-    # print(text.sentences[0].words[0].morf_analysis)
