@@ -450,7 +450,7 @@ class Layer:
 
     def _resolve(self, target):
         if target in self.attributes:
-            print('return attribute ', target)
+            raise AssertionError('This path should not be taken')
         else:
             return self.text_object._resolve(self.name, target)
 
@@ -675,8 +675,6 @@ class Text:
                         if i.parent in sofar.spans:
                             res.append(getattr(i, to))
                     return res
-                else:
-                    print('nope')
 
 
             #attributes of an (directly) enveloped object

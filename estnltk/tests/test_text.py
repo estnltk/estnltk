@@ -406,7 +406,6 @@ def test_various():
     text._add_layer(upper)
 
     for word in text.words:
-        #     print(word.text)
         word.mark('uppercase').upper = word.text.upper()
 
     with pytest.raises(AttributeError):
