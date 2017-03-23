@@ -926,6 +926,6 @@ def test_delete_ambig_span():
     
 def test_span_morf_access():
     text = words_sentences('Oleme jõudnud kohale. Kus me oleme?')
+    assert text.sentences[0].words[0].morf_analysis.lemma == ['olema']
 
-    x = text.sentences[0].words[0]
-    assert x.morf_analysis is not None
+    # print(text.sentences[0].words[0].morf_analysis)

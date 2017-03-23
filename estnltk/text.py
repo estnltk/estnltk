@@ -126,13 +126,23 @@ class Span:
 
         elif self.layer is not None and self.layer.text_object is not None and  self.layer.text_object._path_exists(self.layer.name, item):
             #there exists an unambiguous path from this span to the target (attribute)
-            target_layer_name  = self.text_object._get_path(self.layer.name, item)[-2]
-            #siin on kala
+
+
+            looking_for_layer = False
+            if item in self.layer.text_object.layers.keys():
+                looking_for_layer = True
+                target_layer_name = self.text_object._get_path(self.layer.name, item)[-1]
+            else:
+                target_layer_name = self.text_object._get_path(self.layer.name, item)[-2]
+
+
+
             for i in self.text_object.layers[target_layer_name].spans:
-                if i.__getattribute__('parent') == self:
-                    return getattr(i, item)
-                elif self.__getattribute__('parent')  == i:
-                    return getattr(i, item)
+                if i.__getattribute__('parent') == self or self.__getattribute__('parent') == i:
+                    if looking_for_layer:
+                        return i
+                    else:
+                        return getattr(i, item)
 
 
         else:
