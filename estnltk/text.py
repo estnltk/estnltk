@@ -1,27 +1,19 @@
 import bisect
 import collections
 import keyword
-from typing import MutableMapping
-from typing import Tuple, List, Any
-from typing import Union
+from typing import MutableMapping, Tuple, List, Any, Union, Iterable
 
 import networkx as nx
 
 
 
-class Span:
-    # __slots__ = ['_start', '_end', 'layer', '_attributes']
 
+class Span:
     def __init__(self, start: int = None, end: int = None, parent=None,  *, layer=None, legal_attributes=None, **attributes) -> None:
 
         #this is set up first, because attribute access depends on knowing attribute names as earley as possible
-        if legal_attributes is not None:
-            self._legal_attribute_names = legal_attributes
-        else:
-            self._legal_attribute_names = legal_attributes
-
-        self.is_dependant = parent is None #best guess right now, we'll
-
+        self._legal_attribute_names = legal_attributes
+        self.is_dependant = parent is None
 
         # Placeholder, set when span added to spanlist
         self.layer = layer #type:Layer
@@ -40,15 +32,18 @@ class Span:
             assert start is None
             assert end is None
             self.is_dependant = True
-            self._base = parent._base
+
+            # The _base of a root-layer Span is the span itself.
+            # So, if the parent is a root-layer the following must hold (self._base == self.parent == self.parent._base)
+            # If the parent is not a root-layer Span, (self._base == self.parent._base)
+            self._base = parent._base #type: Span
 
         else:
             assert 0, 'What?'
 
 
         if not self.is_dependant:
-            self._base = self
-
+            self._base = self # type:Span
 
         for k, v in attributes.items():
             if k in legal_attributes:
@@ -56,16 +51,16 @@ class Span:
 
 
     @property
-    def legal_attribute_names(self):
+    def legal_attribute_names(self) -> List[str]:
         if self.__getattribute__('_legal_attribute_names') is not None:
             return self.__getattribute__('_legal_attribute_names')
         else:
             return self.__getattribute__('layer').__getattribute__('attributes')
 
-
-    def to_record(self):
+    def to_record(self) -> MutableMapping[str, Any]:
         return {**{k:self.__getattribute__(k) for k in self.legal_attribute_names},
                 **{'start':self.start, 'end':self.end}}
+
 
     def mark(self, mark_layer: str) -> 'Span':
         base_layer = self.text_object.layers[mark_layer] #type: Layer
@@ -74,7 +69,6 @@ class Span:
         assert  parent == self.layer.name, "Expected '{self.layer.name}' got '{parent}'".format(self=self, parent=parent)
         res = base_layer.add_span(
             Span(
-                # parent=self
                 parent = self._base #this is the base span
             )
         )
@@ -87,17 +81,18 @@ class Span:
         else:
             return self.parent.start
 
+    @start.setter
+    def start(self, value: int):
+        assert not self.is_bound, 'setting start is allowed on special occasions only'
+        self._start = value
+
+
     @property
     def end(self) -> int:
         if not self.is_dependant:
             return self._end
         else:
             return self.parent.end
-
-    @start.setter
-    def start(self, value:int):
-        assert not self.is_bound, 'setting start is allowed on special occasions only'
-        self._start = value
 
     @end.setter
     def end(self, value:int):
@@ -181,14 +176,18 @@ class SpanList(collections.Sequence):
                  ambiguous:bool=False) -> None:
         if ambiguous:
             self.spans = SpanList(layer=layer, ambiguous=False)  #type: Union[List[Span], SpanList]
-            self.classes = {}
+            self.classes = {} # type: MutableMapping[Tuple[int, int], SpanList]
         else:
             self.spans = []  #type: Union[List[Span], SpanList]
 
         self._layer = layer
         self.ambiguous = ambiguous
-        self.parent = None #placeholder for ambiguous layer
-        self._base = None  #placeholder for dependant layer
+
+        # placeholder for ambiguous layer
+        self.parent = None # type:Union[Span, None]
+
+        # placeholder for dependant layer
+        self._base = None  # type:Union[Span, None]
 
 
 
@@ -327,7 +326,7 @@ class Layer:
                  parent:str=None,
                  enveloping:str=None,
                  ambiguous:bool=None
-                 ):
+                 ) -> None:
         assert not ((parent is not None) and (enveloping is not None)), 'Cant be derived AND enveloping'
 
         assert name is not None, 'Layer must have a name'
@@ -342,7 +341,7 @@ class Layer:
         self.parent = parent
 
 
-        #has this layer been added to a text object?
+        #has this layer been added to a text object
         self._bound = False
 
         #marker for creating a lazy layer
@@ -361,7 +360,7 @@ class Layer:
         #the name of the layer this class envelops
         #sentences envelop words
         #paragraphs envelop sentences
-        #...
+        # and so on...
         self.enveloping = enveloping
 
         #Container for spans
@@ -479,7 +478,7 @@ def _get_span_by_start_and_end(spans:SpanList, start:int, end:int) -> Union[Span
 
 
 class Text:
-    def __init__(self, text:str):
+    def __init__(self, text:str) -> None:
 
         self._text = text #type: str
         self.layers = {} # type: MutableMapping[str, Layer]
@@ -597,7 +596,7 @@ class Text:
 
         self._setup_structure()
 
-    def _resolve(self, frm, to, sofar:SpanList = None):
+    def _resolve(self, frm, to, sofar:SpanList = None) -> Union[SpanList, List[None]]:
         #must return the correct object
         #this method is supposed to centralize attribute access
 
@@ -707,7 +706,6 @@ class Text:
                         res.append(i.__getattr__(to))
                     return res
                 else:
-                    print('asdasdasdasdas')
                     res = []
                     for i in to_layer.spans:
                         res.append(
