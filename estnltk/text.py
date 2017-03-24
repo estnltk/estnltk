@@ -1,44 +1,9 @@
 import bisect
 import collections
 import keyword
-from typing import MutableMapping, Tuple,  Any, Union
-
-
-from typing import List
-
+from typing import MutableMapping, Tuple,  Any, Union, List, Sequence
 import networkx as nx
 
-
-
-class Rule:
-    def __init__(self, layer_name: str, tagger, depends_on: List[str]) -> None:
-        self.depends_on = depends_on
-        self.tagger = tagger
-        self.layer_name = layer_name
-
-
-class Resolver:
-    def __init__(self, rules: List[Rule]) -> None:
-
-        self.rules = rules
-        graph = nx.DiGraph()
-        graph.add_nodes_from([i.layer_name for i in self.rules])
-        for rule in self.rules:
-            for dep in rule.depends_on:
-                graph.add_edge(dep, rule.layer_name)
-
-        assert nx.is_directed_acyclic_graph(graph)
-        self.graph = graph
-
-    def apply(self, text: 'Text', layer_name: str) -> 'Text':
-        if layer_name in text.layers.keys():
-            return text
-        for prerequisite in self.graph.predecessors(layer_name):
-            self.apply(text, prerequisite)
-
-        rule = [i.tagger for i in self.rules if i.layer_name == layer_name][0]
-        rule.tag(text)
-        return text
 
 class Span:
     def __init__(self, start: int = None, end: int = None, parent=None,  *, layer=None, legal_attributes=None, **attributes) -> None:
@@ -404,7 +369,7 @@ class Layer:
         #placeholder. is set when `_add_layer` is called on text object
         self.text_object = None # type:Text
 
-    def from_records(self, records, rewriting=False):
+    def from_records(self, records, rewriting=False) -> 'Layer':
         if self.parent is not None and not self._bound:
             self._is_lazy = True
 
@@ -509,6 +474,7 @@ def _get_span_by_start_and_end(spans:SpanList, start:int, end:int) -> Union[Span
 
 
 class Text:
+
     def __init__(self, text:str) -> None:
 
         self._text = text #type: str
@@ -518,6 +484,19 @@ class Text:
         self.enveloping_to_enveloped = collections.defaultdict(list)  # type: MutableMapping[str, List[str]]
 
         self._setup_structure()
+
+
+    def tag_layer(self, layer_names:Sequence[str] = ('morf_analysis',)) -> 'Text':
+        for layer_name in layer_names:
+            RESOLVER.apply(self, layer_name)
+        return self
+
+    def list_registered_layers(self):
+        res = []
+        for layer in RESOLVER.rules:
+            res.append(layer.layer_name)
+        return res
+
 
     @property
     def text(self):
@@ -815,28 +794,34 @@ class Text:
     def __str__(self):
         return 'Text(text="{self.text}")'.format(self=self)
 
+    def __repr__(self):
+        return str(self)
 
-#
+
+
+#RESOLVER is a registry of taggers and names.
+# Taggers must be imported relatively (with a .)
+# This section must be at the end of the file.
+from .taggers.word_tokenizer import WordTokenizer
+from .taggers.morf import VabamorfTagger
+from .taggers.premorf import CopyTagger, WordNormalizingTagger
+from .resolve_layer_dag import Resolver, Rule
+
+RESOLVER = Resolver(
+    [
+        Rule('words', tagger=WordTokenizer(), depends_on=[]),
+        Rule('words_copy', tagger=CopyTagger(), depends_on=['words']),
+        Rule('normalized', tagger=WordNormalizingTagger(), depends_on=['words_copy']),
+        Rule('morf_analysis', tagger=VabamorfTagger(), depends_on=['normalized']),
+    ]
+)
+
+
 
 def words_sentences(text):
-    from estnltk.taggers.word_tokenizer import WordTokenizer
-    from estnltk.taggers.morf import VabamorfTagger
+    txt = Text(text).tag_layer('morf_analysis')
+
     from estnltk.legacy.text import Text as OldText
-    from estnltk.taggers.premorf import CopyTagger, WordNormalizingTagger
-
-    resolver = Resolver(
-        [
-            Rule('words', tagger=WordTokenizer(), depends_on=[]),
-            Rule('words_copy', tagger=CopyTagger(), depends_on=['words']),
-            Rule('normalized', tagger=WordNormalizingTagger(), depends_on=['words_copy']),
-            Rule('morf_analysis', tagger=VabamorfTagger(), depends_on=['words']),
-        ]
-    )
-
-
-    new = Text(text)
-    resolver.apply(new, 'morf_analysis')
-
 
     old = OldText(text)
 
@@ -847,7 +832,7 @@ def words_sentences(text):
     old_sentences = old.split_by('sentences')
 
     sentences = Layer(enveloping='words', name='sentences')
-    new._add_layer(sentences)
+    txt._add_layer(sentences)
 
     #TODO fix dumb manual loop
     i = 0
@@ -855,11 +840,10 @@ def words_sentences(text):
     for sentence in old_sentences:
         sent = []
         for _ in sentence.words:
-            sent.append(new.words[i])
+            sent.append(txt.words[i])
             i += 1
         new_sentences.append(sent)
 
     for sentence in new_sentences:
         sentences._add_spans_to_enveloping(sentence)
-
-    return new
+    return txt
