@@ -2,6 +2,8 @@ import bisect
 import collections
 import keyword
 from typing import MutableMapping, Tuple,  Any, Union, List, Sequence
+
+import itertools
 import networkx as nx
 
 
@@ -191,6 +193,25 @@ class SpanList(collections.Sequence):
     def get_equivalence(self, span):
         return self.classes.get((span.start, span.end), None)
 
+
+    def get_attributes(self, items):
+        r = []
+        for x in zip(*[[i
+                        if isinstance(i, (list, tuple))
+                        else itertools.cycle([i]) for i in getattr(self, item)] for item in items]
+
+                     ):
+
+            quickbreak = all(isinstance(i, itertools.cycle) for i in x)
+
+            tmp = []
+            for pair in zip(*x):
+                tmp.append(pair)
+                if quickbreak:
+                    break
+
+            r.append(tmp)
+        return r
 
     def to_record(self):
         return [i.to_record() for i in self.spans]
