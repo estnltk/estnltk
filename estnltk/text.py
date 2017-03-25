@@ -1,26 +1,18 @@
 import bisect
 import collections
 import keyword
-from typing import Tuple, List, Any
-from typing import Union
+from typing import MutableMapping, Tuple,  Any, Union, List, Sequence
 
+import itertools
 import networkx as nx
 
 
-
 class Span:
-    # __slots__ = ['_start', '_end', 'layer', '_attributes']
-
     def __init__(self, start: int = None, end: int = None, parent=None,  *, layer=None, legal_attributes=None, **attributes) -> None:
 
         #this is set up first, because attribute access depends on knowing attribute names as earley as possible
-        if legal_attributes is not None:
-            self._legal_attribute_names = legal_attributes
-        else:
-            self._legal_attribute_names = legal_attributes
-
-        self.is_dependant = parent is None #best guess right now, we'll
-
+        self._legal_attribute_names = legal_attributes
+        self.is_dependant = parent is None
 
         # Placeholder, set when span added to spanlist
         self.layer = layer #type:Layer
@@ -39,15 +31,18 @@ class Span:
             assert start is None
             assert end is None
             self.is_dependant = True
-            self._base = parent._base
+
+            # The _base of a root-layer Span is the span itself.
+            # So, if the parent is a root-layer the following must hold (self._base == self.parent == self.parent._base)
+            # If the parent is not a root-layer Span, (self._base == self.parent._base)
+            self._base = parent._base #type: Span
 
         else:
             assert 0, 'What?'
 
 
         if not self.is_dependant:
-            self._base = self
-
+            self._base = self # type:Span
 
         for k, v in attributes.items():
             if k in legal_attributes:
@@ -55,16 +50,16 @@ class Span:
 
 
     @property
-    def legal_attribute_names(self):
+    def legal_attribute_names(self) -> List[str]:
         if self.__getattribute__('_legal_attribute_names') is not None:
             return self.__getattribute__('_legal_attribute_names')
         else:
             return self.__getattribute__('layer').__getattribute__('attributes')
 
-
-    def to_record(self):
+    def to_record(self) -> MutableMapping[str, Any]:
         return {**{k:self.__getattribute__(k) for k in self.legal_attribute_names},
                 **{'start':self.start, 'end':self.end}}
+
 
     def mark(self, mark_layer: str) -> 'Span':
         base_layer = self.text_object.layers[mark_layer] #type: Layer
@@ -73,7 +68,6 @@ class Span:
         assert  parent == self.layer.name, "Expected '{self.layer.name}' got '{parent}'".format(self=self, parent=parent)
         res = base_layer.add_span(
             Span(
-                # parent=self
                 parent = self._base #this is the base span
             )
         )
@@ -86,17 +80,18 @@ class Span:
         else:
             return self.parent.start
 
+    @start.setter
+    def start(self, value: int):
+        assert not self.is_bound, 'setting start is allowed on special occasions only'
+        self._start = value
+
+
     @property
     def end(self) -> int:
         if not self.is_dependant:
             return self._end
         else:
             return self.parent.end
-
-    @start.setter
-    def start(self, value:int):
-        assert not self.is_bound, 'setting start is allowed on special occasions only'
-        self._start = value
 
     @end.setter
     def end(self, value:int):
@@ -125,13 +120,23 @@ class Span:
 
         elif self.layer is not None and self.layer.text_object is not None and  self.layer.text_object._path_exists(self.layer.name, item):
             #there exists an unambiguous path from this span to the target (attribute)
-            target_layer_name  = self.text_object._get_path(self.layer.name, item)[-2]
-            #siin on kala
+
+
+            looking_for_layer = False
+            if item in self.layer.text_object.layers.keys():
+                looking_for_layer = True
+                target_layer_name = self.text_object._get_path(self.layer.name, item)[-1]
+            else:
+                target_layer_name = self.text_object._get_path(self.layer.name, item)[-2]
+
+
+
             for i in self.text_object.layers[target_layer_name].spans:
-                if i.__getattribute__('parent') == self:
-                    return getattr(i, item)
-                elif self.__getattribute__('parent')  == i:
-                    return getattr(i, item)
+                if i.__getattribute__('parent') == self or self.__getattribute__('parent') == i:
+                    if looking_for_layer:
+                        return i
+                    else:
+                        return getattr(i, item)
 
 
         else:
@@ -170,20 +175,43 @@ class SpanList(collections.Sequence):
                  ambiguous:bool=False) -> None:
         if ambiguous:
             self.spans = SpanList(layer=layer, ambiguous=False)  #type: Union[List[Span], SpanList]
-            self.classes = {}
+            self.classes = {} # type: MutableMapping[Tuple[int, int], SpanList]
         else:
             self.spans = []  #type: Union[List[Span], SpanList]
 
         self._layer = layer
         self.ambiguous = ambiguous
-        self.parent = None #placeholder for ambiguous layer
-        self._base = None  #placeholder for dependant layer
+
+        # placeholder for ambiguous layer
+        self.parent = None # type:Union[Span, None]
+
+        # placeholder for dependant layer
+        self._base = None  # type:Union[Span, None]
 
 
 
     def get_equivalence(self, span):
         return self.classes.get((span.start, span.end), None)
 
+
+    def get_attributes(self, items):
+        r = []
+        for x in zip(*[[i
+                        if isinstance(i, (list, tuple))
+                        else itertools.cycle([i]) for i in getattr(self, item)] for item in items]
+
+                     ):
+
+            quickbreak = all(isinstance(i, itertools.cycle) for i in x)
+
+            tmp = []
+            for pair in zip(*x):
+                tmp.append(pair)
+                if quickbreak:
+                    break
+
+            r.append(tmp)
+        return r
 
     def to_record(self):
         return [i.to_record() for i in self.spans]
@@ -207,8 +235,6 @@ class SpanList(collections.Sequence):
             span.layer = self.layer
             bisect.insort(self.spans, span)
 
-
-
         return span
 
 
@@ -220,7 +246,6 @@ class SpanList(collections.Sequence):
     def layer(self, value):
         assert isinstance(value, Layer) or value is None
         self._layer = value
-
 
     @property
     def start(self):
@@ -318,7 +343,7 @@ class Layer:
                  parent:str=None,
                  enveloping:str=None,
                  ambiguous:bool=None
-                 ):
+                 ) -> None:
         assert not ((parent is not None) and (enveloping is not None)), 'Cant be derived AND enveloping'
 
         assert name is not None, 'Layer must have a name'
@@ -333,14 +358,14 @@ class Layer:
         self.parent = parent
 
 
-        #has this layer been added to a text object?
+        #has this layer been added to a text object
         self._bound = False
 
         #marker for creating a lazy layer
         #used in Text._add_layer to check if additional work needs to be done
         self._is_lazy = False
 
-        self._base = name if ((not enveloping) and (not parent)) else None #This is a placeholder for the base layer.
+        self._base = name if (not enveloping) and (not parent) else None #This is a placeholder for the base layer.
         #_base is None if parent is None
         #_base is self.name if ((not self.enveloping) and (not self.parent))
         #_base is parent._base otherwise
@@ -352,7 +377,7 @@ class Layer:
         #the name of the layer this class envelops
         #sentences envelop words
         #paragraphs envelop sentences
-        #...
+        # and so on...
         self.enveloping = enveloping
 
         #Container for spans
@@ -365,7 +390,7 @@ class Layer:
         #placeholder. is set when `_add_layer` is called on text object
         self.text_object = None # type:Text
 
-    def from_records(self, records, rewriting=False):
+    def from_records(self, records, rewriting=False) -> 'Layer':
         if self.parent is not None and not self._bound:
             self._is_lazy = True
 
@@ -442,7 +467,7 @@ class Layer:
 
     def _resolve(self, target):
         if target in self.attributes:
-            print('return attribute ', target)
+            raise AssertionError('This path should not be taken')
         else:
             return self.text_object._resolve(self.name, target)
 
@@ -462,7 +487,7 @@ class Layer:
         return 'Layer(name={self.name}, spans={self.spans})'.format(self=self)
 
 
-def _get_span_by_start_and_end(spans:SpanList, start:int, end:int) -> Span:
+def _get_span_by_start_and_end(spans:SpanList, start:int, end:int) -> Union[Span, None]:
     for span in spans:
         if span.start == start and span.end == end:
             return span
@@ -470,7 +495,8 @@ def _get_span_by_start_and_end(spans:SpanList, start:int, end:int) -> Span:
 
 
 class Text:
-    def __init__(self, text:str):
+
+    def __init__(self, text:str) -> None:
 
         self._text = text #type: str
         self.layers = {} # type: MutableMapping[str, Layer]
@@ -479,6 +505,19 @@ class Text:
         self.enveloping_to_enveloped = collections.defaultdict(list)  # type: MutableMapping[str, List[str]]
 
         self._setup_structure()
+
+
+    def tag_layer(self, layer_names:Sequence[str] = ('morf_analysis',)) -> 'Text':
+        for layer_name in layer_names:
+            RESOLVER.apply(self, layer_name)
+        return self
+
+    def list_registered_layers(self):
+        res = []
+        for layer in RESOLVER.rules:
+            res.append(layer.layer_name)
+        return res
+
 
     @property
     def text(self):
@@ -588,7 +627,7 @@ class Text:
 
         self._setup_structure()
 
-    def _resolve(self, frm, to, sofar:SpanList = None):
+    def _resolve(self, frm, to, sofar:SpanList = None) -> Union[SpanList, List[None]]:
         #must return the correct object
         #this method is supposed to centralize attribute access
 
@@ -667,8 +706,6 @@ class Text:
                         if i.parent in sofar.spans:
                             res.append(getattr(i, to))
                     return res
-                else:
-                    print('nope')
 
 
             #attributes of an (directly) enveloped object
@@ -698,7 +735,6 @@ class Text:
                         res.append(i.__getattr__(to))
                     return res
                 else:
-                    print('asdasdasdasdas')
                     res = []
                     for i in to_layer.spans:
                         res.append(
@@ -779,28 +815,45 @@ class Text:
     def __str__(self):
         return 'Text(text="{self.text}")'.format(self=self)
 
+    def __repr__(self):
+        return str(self)
 
-from estnltk.legacy.text import Text as OldText
-#
+
+
+#RESOLVER is a registry of taggers and names.
+# Taggers must be imported relatively (with a .)
+# This section must be at the end of the file.
+from .taggers.word_tokenizer import WordTokenizer
+from .taggers.morf import VabamorfTagger
+from .taggers.premorf import CopyTagger, WordNormalizingTagger
+from .resolve_layer_dag import Resolver, Rule
+
+RESOLVER = Resolver(
+    [
+        Rule('words', tagger=WordTokenizer(), depends_on=[]),
+        Rule('words_copy', tagger=CopyTagger(), depends_on=['words']),
+        Rule('normalized', tagger=WordNormalizingTagger(), depends_on=['words_copy']),
+        Rule('morf_analysis', tagger=VabamorfTagger(), depends_on=['normalized']),
+    ]
+)
+
+
 
 def words_sentences(text):
-    from estnltk.taggers import WordTokenizer
-    from estnltk.taggers.morf import VabamorfTagger
+    txt = Text(text).tag_layer('morf_analysis')
+
+    from estnltk.legacy.text import Text as OldText
+
     old = OldText(text)
 
     # noinspection PyStatementEffect
     old.sentences
     # noinspection PyStatementEffect
     old.paragraphs
-
-
-    new = Text(text)
-    tok = WordTokenizer()
-    tok.tag(new)
-
     old_sentences = old.split_by('sentences')
+
     sentences = Layer(enveloping='words', name='sentences')
-    new._add_layer(sentences)
+    txt._add_layer(sentences)
 
     #TODO fix dumb manual loop
     i = 0
@@ -808,15 +861,10 @@ def words_sentences(text):
     for sentence in old_sentences:
         sent = []
         for _ in sentence.words:
-            sent.append(new.words[i])
+            sent.append(txt.words[i])
             i += 1
         new_sentences.append(sent)
 
     for sentence in new_sentences:
         sentences._add_spans_to_enveloping(sentence)
-
-    vt = VabamorfTagger()
-    vt.tag(new)
-
-    return new
-
+    return txt

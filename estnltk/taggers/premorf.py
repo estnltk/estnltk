@@ -87,10 +87,8 @@ class WordNormalizingTagger:
                                      name='normalized',
                                      ambiguous=False)
 
-        uku_layer = rewriting_template(rules=FilteringRewriter('u-u-uku'))
-        sven_layer = rewriting_template(rules=FilteringRewriter('s-s-sven'))
         normalizing_layer = rewriting_template(rules=NormalizingRewriter())
 
-        text['normalized'] = merge([uku_layer, sven_layer, normalizing_layer])
+        text['normalized'] = merge([normalizing_layer])
 
         return text

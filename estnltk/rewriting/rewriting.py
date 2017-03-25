@@ -1,6 +1,6 @@
 class ReverseRewriter():
     #this is an example of the api
-    #it reverses every key and value it is given
+    #it reverses every value it is given
 
     def rewrite(self, record):
         #record is a dict (non-ambiguous layer)
