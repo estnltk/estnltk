@@ -211,6 +211,7 @@ class PronounTypeRewriter():
 
     
     def __init__(self, pronoun_file=None):
+        # TODO: use method load_pronoun_types
         if pronoun_file:
             assert os.path.exists(pronoun_file),\
                 'Unable to find *pronoun_file* from location ' + pronoun_file
@@ -226,6 +227,25 @@ class PronounTypeRewriter():
             for l in in_f:
                 pronoun, t = l.split(',')
                 self.pronoun_type[pronoun.strip()].append(t.strip())
+
+    @staticmethod
+    def load_pronoun_types(pronoun_file=None):
+        if pronoun_file:
+            assert os.path.exists(pronoun_file),\
+                'Unable to find *pronoun_file* from location ' + pronoun_file
+        else:
+            pronoun_file = os.path.dirname(__file__)
+            pronoun_file = os.path.join(pronoun_file,
+                                             'rules_files/pronouns.csv')
+            assert os.path.exists(pronoun_file),\
+                'Missing default *pronoun_file* ' + pronoun_file
+
+        pronoun_type = defaultdict(list)
+        with open(pronoun_file, 'r') as in_f:
+            for l in in_f:
+                pronoun, t = l.split(',')
+                pronoun_type[pronoun.strip()].append(t.strip())
+        return pronoun_type
 
     def rewrite(self, record):
         for rec in record:
