@@ -840,7 +840,7 @@ RESOLVER = Resolver(
 
 
 def words_sentences(text):
-    txt = Text(text).tag_layer('morf_analysis')
+    txt = Text(text).tag_layer(['morf_analysis'])
 
     from estnltk.legacy.text import Text as OldText
 
