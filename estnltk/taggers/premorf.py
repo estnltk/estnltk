@@ -35,14 +35,14 @@ class FilteringRewriter:
 
         return result
 
-from estnltk.validators.word_validator import Token
+from estnltk.validators.word_validator import MorphAnalyzedToken
 
 class NormalizingRewriter:
     def rewrite(self, record):
-        token = Token(record['text_copy'])
+        token = MorphAnalyzedToken(record['text_copy'])
         if token is token.normal:
             return None
-        record['normal'] = token.normal
+        record['normal'] = token.normal.text
         return record
 
 
