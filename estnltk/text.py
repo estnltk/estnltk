@@ -825,7 +825,7 @@ class Text:
 # This section must be at the end of the file.
 from .taggers.word_tokenizer import WordTokenizer
 from .taggers.morf import VabamorfTagger
-from .taggers.premorf import CopyTagger, WordNormalizingTagger
+from .taggers.premorph.premorf import CopyTagger, WordNormalizingTagger
 from .resolve_layer_dag import Resolver, Rule
 
 RESOLVER = Resolver(
