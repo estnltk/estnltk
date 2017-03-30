@@ -664,18 +664,18 @@ class Text:
                     return getattr(self.layers[frm], to)
 
 
-                #sentences.words takes this path
                 #from enveloping layer to its direct descendant
                 elif to == self.layers[frm].enveloping:
                     return sofar
 
-                #sentences.morf_analysis takes this one
                 #from an enveloping layer to dependant layer (one step only, skipping base layer)
                 elif self.layers[frm].enveloping == self.layers[to].parent:
                     if sofar is None:
                         sofar = self.layers[frm].spans
 
                     spans = []
+
+                    # path taken by text.sentences.lemma
                     if isinstance(sofar[0], SpanList):
                         for envelop in sofar:
                             enveloped_spans = []
@@ -690,6 +690,8 @@ class Text:
                         res = SpanList(layer=self.layers[to])
                         res.spans = spans
                         return res
+
+                    #path taken by text.sentences[0].lemma
                     elif isinstance(sofar[0], Span):
                         enveloped_spans = []
                         for span in self.layers[to]:
@@ -721,10 +723,16 @@ class Text:
         #attribute access
         elif path_exists:
 
-            path = self._get_path(frm, to)
-            to_layer_name = path[-2]
+            # to_layer_name = path[-2]
+            to_layer_name = self.attributes[to][0]
+            path = self._get_path(frm, to_layer_name)
+
             to_layer = self.layers[to_layer_name]
             assert  to_layer_name in self.layers.keys()
+
+
+            if self.layers[frm] == to_layer:
+                raise NotImplementedError('')
 
 
             #attributes of a (direct) dependant

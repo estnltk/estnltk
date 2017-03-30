@@ -677,20 +677,20 @@ def test_rewrite_access():
 
     rewrite(text.morf_analysis, text.com_type, ruleset)
 
-    for i in text.words:
+    for i in text.words[:1]:
         if i.main:
             print(i.main)
             print(i.com_type)
             print(i.com_type.main)
             assert i.main == i.com_type.main
-
-    for i in text.com_type:
+    print()
+    for i in text.com_type[:1]:
         print(i, i.morf_analysis)
+        print(i, i.morf_analysis.lemma)
 
-    ## TODO NotImplementedError: com_type -> lemma not implemented but path exists
     for i in text.com_type:
         print(i, i.lemma)
-
+    print(text.com_type.lemma)
 
 def test_rewriting_api():
     class ReverseRewriter():
