@@ -2,19 +2,44 @@ from estnltk.vabamorf.morf import Vabamorf
 from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import PronounTypeRewriter
 
         
-class Token(str):
+class MorphAnalyzedToken():
+    def __init__(self, token: str) -> None:
+        self.text = token
+
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return self.text == other
+        if isinstance(other, MorphAnalyzedToken):
+            return self.text == other.text
+        return False
+
+    def __contains__(self, s):
+        return s in self.text
+
+    def __len__(self):
+        return len(self.text)
+
     def replace(self, *args):
-        return Token(super().replace(*args))
+        result = self.text.replace(*args)
+        if result is self:
+            return self
+        return MorphAnalyzedToken(result)
 
     def split(self, *args):
-        return [Token(t) for t in super().split(*args)]
+        parts = self.text.split(*args)
+        if len(parts) == 1:
+            return [self]
+        return [MorphAnalyzedToken(part) for part in parts]
+
+    def isalpha(self):
+        return self.text.isalpha()
     
     analyze = Vabamorf.instance().analyze
     pronoun_lemmas = set(PronounTypeRewriter.load_pronoun_types())
 
     @property
     def analysis(self):
-        return Token.analyze([self.normal],
+        return MorphAnalyzedToken.analyze([self.text],
                              guess=False,
                              propername=False,
                              disambiguate=False)[0]['analysis']
@@ -41,11 +66,26 @@ class Token(str):
                 result.update((a['form']).split())
         if {'adt', 'ill'} & result:
             result.add('adt_or_ill')
-        return result & Token.all_cases            
+        return result & MorphAnalyzedToken.all_cases
     
     @property
     def is_word(self):
         return any(a['partofspeech'] not in {'Y', 'Z'} for a in self.analysis)
+
+    @property
+    def is_word_conservative(self):
+        if '-' not in self:
+            return self.is_word
+
+        syllables = frozenset({'ta','te', 'ma', 'va', 'de', 'me', 'ka', 'sa',
+                               'su', 'mu', 'ju', 'era', 'eri', 'eks', 'all',
+                               'esi', 'oma', 'ees'})
+        parts = self.split('-')
+        if parts[0].text in syllables:
+            return False
+        if self.is_word:
+            return all(part.is_word for part in parts)
+        return False
 
     @property
     def is_conjunction(self):
@@ -53,10 +93,12 @@ class Token(str):
 
     @property
     def is_simple_pronoun(self):
-        return bool(Token.pronoun_lemmas & self.lemmas('P'))
+        '''dok kõigi is meetodite kohta'''
+        return bool(MorphAnalyzedToken.pronoun_lemmas & self.lemmas('P'))
     
     @property
     def is_pronoun(self):
+        '''dok'''
         if self.normal.is_simple_pronoun:
             return True
         if '-' in self.normal:
@@ -66,7 +108,7 @@ class Token(str):
             if any('teadma' in part.lemmas() for part in parts):
                 return True
 
-            cases = Token.all_cases
+            cases = MorphAnalyzedToken.all_cases
             for part in parts:
                 if part.is_simple_pronoun:
                     cases &= part.cases('P')
@@ -88,7 +130,7 @@ class Token(str):
     def remove_stammer(self):
         if '-' not in self:
             return self
-        parts = self.split('-')
+        parts = self.text.split('-')
         
         removed = False
         while len(parts) > 1:
@@ -102,11 +144,11 @@ class Token(str):
         if len(parts[0]) < 3:
             return self
         if removed:
-            return Token('-'.join(parts))
+            return MorphAnalyzedToken('-'.join(parts))
         return self
 
     @property
-    def normal(self):
+    def normal_old(self):
         self._is_stammer = False
         self._is_hyphenated = False
         if '-' not in self:
@@ -131,6 +173,48 @@ class Token(str):
                 return new_result
 
         return result
+
+    @property
+    def remove_hyphens_smart(self):
+        if '-' not in self:
+            return self
+        parts = self.text.split('-')
+
+        for i in range(len(parts)-1, 0, -1):
+            if len(parts[i-1]) > 0 and len(parts[i]) > 0:
+                if parts[i-1][-1] == parts[i][0]:
+                    if (len(parts[i-1]) > 1 and parts[i-1][-2] == parts[i-1][-1]
+                        or len(parts[i]) > 1 and parts[i][0] == parts[i][1]):
+                        parts.insert(i,'-')
+        token = ''.join(parts)
+        if self == token:
+            return self
+        return MorphAnalyzedToken(token)
+
+    @property
+    def normal(self):
+        if '-' not in self:
+            return self
+
+        if not self.replace('-', '').isalpha():
+            return self
+
+        result1 = self.remove_stammer
+        if result1.is_word_conservative:
+            return result1
+        result2 = result1.remove_hyphens_smart
+        if result2.is_word_conservative:
+            return result2
+
+        result3 = result2.replace('-', '')
+        if result3.is_word:
+            return result3
+
+        if result1.is_word_conservative:
+            return result1
+
+        return self
+
 
     @property
     def is_stammer(self):
