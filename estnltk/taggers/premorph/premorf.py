@@ -16,17 +16,6 @@ class CopyTagger:
         return text
 
 
-from estnltk.rewriting.premorph.morph_analyzed_token import MorphAnalyzedToken
-
-class NormalizingRewriter:
-    def rewrite(self, record):
-        token = MorphAnalyzedToken(record['text_copy'])
-        if token is token.normal:
-            return None
-        record['normal'] = token.normal.text
-        return record
-
-
 def merge(layers: List[Layer]) -> Layer:
     # all layers must be from the same parent
     assert len(set(i.parent for i in layers)) == 1
@@ -51,6 +40,7 @@ def merge(layers: List[Layer]) -> Layer:
     ).from_records(records=sorted(recs.values(), key=lambda x: x['start']), rewriting=True)
     return result
 
+from estnltk.rewriting.premorph.word_normalizing import WordNormalizingRewriter
 
 class WordNormalizingTagger:
     def __init__(self):
@@ -68,7 +58,7 @@ class WordNormalizingTagger:
                                      name='normalized',
                                      ambiguous=False)
 
-        normalizing_layer = rewriting_template(rules=NormalizingRewriter())
+        normalizing_layer = rewriting_template(rules=WordNormalizingRewriter())
 
         text['normalized'] = merge([normalizing_layer])
 
