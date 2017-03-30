@@ -1,6 +1,7 @@
 import bisect
 import collections
 import keyword
+from collections import defaultdict
 from typing import MutableMapping, Tuple,  Any, Union, List, Sequence
 
 import itertools
@@ -556,15 +557,25 @@ class Text:
 
     @property
     def attributes(self):
-        res = []
-        for i in self.layers.values():
-            res.extend(i.attributes)
-        return set(res)
+        res = defaultdict(list)
+        for k, layer in self.layers.items():
+            for attrib in layer.__getattribute__('attributes'):
+                res[attrib].append(k)
+
+        return res
+
+
 
     def __getattr__(self, item):
         if item in self.layers.keys():
             return self.layers[item].spans
+
+
         else:
+            attributes = self.__getattribute__('attributes')
+            if len(attributes[item]) == 1:
+                return getattr(self.layers[attributes[item][0]], item)
+
             return self.__getattribute__(item)
 
     def _add_layer(self, layer:Layer):

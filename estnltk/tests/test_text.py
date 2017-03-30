@@ -787,8 +787,9 @@ def test_span_morf_access():
 
 
 def test_lemma_access_from_text_object():
+    '''See on oluline, sest Dage tungivalt soovib säärast varianti.'''
     text = Text('Oleme jõudnud kohale. Kus me oleme?').tag_layer()
-    text.lemma
+    assert (text.lemma) == text.words.lemma
 
 
 def test_sentences_morf_analysis_lemma():
