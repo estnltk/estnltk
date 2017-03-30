@@ -4,7 +4,7 @@ from estnltk.text import *
 
 
 def test_general():
-    t = words_sentences('Minu nimi on Uku. Mis Sinu nimi on? Miks me seda arutame?')
+    t = Text('Minu nimi on Uku. Mis Sinu nimi on? Miks me seda arutame?').tag_layer()
 
     assert isinstance(t.sentences, SpanList)
     assert isinstance(t.words, SpanList)
@@ -44,14 +44,14 @@ def test_general():
     assert (t.words[:].text) == (t.words.text)
 
 def test_new_span_hierarchy():
-    text = words_sentences('''
+    text = Text('''
     Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.
     Seni vaid soome keelde tõlgitud teos ilmus äsja ka itaalia keeles
     ning seda esitleti Rooma reisikirjanduse festivalil.
     Tuntud reisikrijanduse festival valis tänavu peakülaliseks Eesti,
     Ultima Thule ning Iidse-Põhjala ja Vahemere endisaegsed kultuurikontaktid j
     ust seetõttu, et eelmisel nädalal avaldas kirjastus Gangemi "Hõbevalge"
-    itaalia keeles, vahendas "Aktuaalne kaamera".''')
+    itaalia keeles, vahendas "Aktuaalne kaamera".''').tag_layer()
     l = Layer(
         name='layer1',
         parent='words',
@@ -384,7 +384,7 @@ def test_oldtext_to_new():
     from estnltk.legacy.text import Text as OldText
 
     text = 'Tuleb üks neiuke, järelikult tuleb ühelt poolt! Kui tuleks kaks neiukest, siis tuleksid kahelt poolt! Aga seekord tuleb üks, tuleb ühelt poolt!'
-    new = words_sentences(text)
+    new = Text(text).tag_layer()
     old = OldText(text)
 
 
@@ -398,7 +398,7 @@ def test_oldtext_to_new():
 #
 #
 def test_various():
-    text = words_sentences('Minu nimi on Joosep, mis sinu nimi on? Miks me seda arutame?')
+    text = Text('Minu nimi on Joosep, mis sinu nimi on? Miks me seda arutame?').tag_layer()
 
     upper = Layer(parent='words',
                            name='uppercase',
@@ -426,7 +426,7 @@ def test_various():
 
 
 def test_words_sentences():
-    t = words_sentences('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?')
+    t = Text('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?').tag_layer()
 
     assert t.sentences.text == [['Minu', 'nimi', 'on', 'Uku', ',', 'mis', 'sinu', 'nimi', 'on', '?'], ['Miks', 'me', 'seda', 'arutame', '?']]
     assert t.words.text == ['Minu', 'nimi', 'on', 'Uku', ',', 'mis', 'sinu', 'nimi', 'on', '?', 'Miks', 'me', 'seda', 'arutame', '?']
@@ -463,7 +463,7 @@ def test_words_sentences():
 
 
 def test_ambiguous_layer():
-    t = words_sentences('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?')
+    t = Text('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?').tag_layer()
 
     dep = Layer(name='test',
                          parent='words',
@@ -483,7 +483,7 @@ def test_ambiguous_layer():
     print(t.words[0].asd)
 
 def test_morf():
-    text = words_sentences('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?')
+    text = Text('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?').tag_layer()
     for i in text.words:
         i.morf_analysis
 
@@ -500,7 +500,7 @@ def test_morf():
 
 
 def test_change_lemma():
-    text = words_sentences('Olnud aeg.')
+    text = Text('Olnud aeg.').tag_layer()
     setattr(text.morf_analysis[0][0], 'lemma', 'blabla')
     assert text.morf_analysis[0][0].lemma == 'blabla'
 
@@ -509,7 +509,7 @@ def test_change_lemma():
 
 
 def test_to_records():
-    text = words_sentences('Olnud aeg.')
+    text = Text('Olnud aeg.').tag_layer()
 
     #ambiguous
     assert (text['morf_analysis'].to_records()) == [[{'root': 'ol=nud', 'lemma': 'olnud', 'form': '', 'ending': '0', 'root_tokens': ['olnud'], 'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''}, {'root': 'ol=nud', 'lemma': 'olnud', 'form': 'sg n', 'ending': '0', 'root_tokens': ['olnud'], 'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''}, {'root': 'ol=nud', 'lemma': 'olnud', 'form': 'pl n', 'ending': 'd', 'root_tokens': ['olnud'], 'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''}, {'root': 'ole', 'lemma': 'olema', 'form': 'nud', 'ending': 'nud', 'root_tokens': ['ole'], 'partofspeech': 'V', 'start': 0, 'end': 5, 'clitic': ''}], [{'root': 'aeg', 'lemma': 'aeg', 'form': 'sg n', 'ending': '0', 'root_tokens': ['aeg'], 'partofspeech': 'S', 'start': 6, 'end': 9, 'clitic': ''}], [{'root': '.', 'lemma': '.', 'form': '', 'ending': '', 'root_tokens': ['.'], 'partofspeech': 'Z', 'start': 9, 'end': 10, 'clitic': ''}]]
@@ -523,15 +523,15 @@ def test_to_records():
 
 
 
-def test_morf():
-    text = words_sentences('''
+def test_morf2():
+    text = Text('''
     Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.
     Seni vaid soome keelde tõlgitud teos ilmus äsja ka itaalia keeles
     ning seda esitleti Rooma reisikirjanduse festivalil.
     Tuntud reisikrijanduse festival valis tänavu peakülaliseks Eesti,
     Ultima Thule ning Iidse-Põhjala ja Vahemere endisaegsed kultuurikontaktid j
     ust seetõttu, et eelmisel nädalal avaldas kirjastus Gangemi "Hõbevalge"
-    itaalia keeles, vahendas "Aktuaalne kaamera".''')
+    itaalia keeles, vahendas "Aktuaalne kaamera".''').tag_layer()
 
 
     assert len(text.morf_analysis[5]) == 2
@@ -545,7 +545,7 @@ def test_morf():
 
 
 def test_text_setitem():
-    text = words_sentences('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''')
+    text = Text('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''').tag_layer()
     l = Layer(name='test', attributes=['test1'])
     text['test'] = l
 
@@ -563,14 +563,14 @@ def test_text_setitem():
 
 def test_rewrite_access():
     import regex as re
-    text = words_sentences('''
+    text = Text('''
     Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.
     Seni vaid soome keelde tõlgitud teos ilmus äsja ka itaalia keeles
     ning seda esitleti Rooma reisikirjanduse festivalil.
     Tuntud reisikrijanduse festival valis tänavu peakülaliseks Eesti,
     Ultima Thule ning Iidse-Põhjala ja Vahemere endisaegsed kultuurikontaktid j
     ust seetõttu, et eelmisel nädalal avaldas kirjastus Gangemi "Hõbevalge"
-    itaalia keeles, vahendas "Aktuaalne kaamera".''')
+    itaalia keeles, vahendas "Aktuaalne kaamera".''').tag_layer()
     rules = [
         ["…$", "Ell"],
         ["\.\.\.$", "Ell"],
@@ -715,7 +715,7 @@ def test_rewriting_api():
                     result[k[::-1]] = v[::-1]
             return result
 
-    text = words_sentences('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''')
+    text = Text('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''').tag_layer()
 
     text['test'] = Layer(name='test', attributes=['reverse'], parent='words')
 
@@ -742,7 +742,7 @@ def test_rewriting_api():
 
 
 def test_delete_ambig_span():
-    text = words_sentences('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''')
+    text = Text('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''').tag_layer()
     l = Layer(name='test',
               parent='words',
               ambiguous=True,
@@ -782,17 +782,17 @@ def test_delete_ambig_span():
     
     
 def test_span_morf_access():
-    text = words_sentences('Oleme jõudnud kohale. Kus me oleme?')
+    text = Text('Oleme jõudnud kohale. Kus me oleme?').tag_layer()
     assert text.sentences[0].words[0].morf_analysis.lemma == ['olema']
 
 
 def test_lemma_access_from_text_object():
-    text = words_sentences('Oleme jõudnud kohale. Kus me oleme?')
+    text = Text('Oleme jõudnud kohale. Kus me oleme?').tag_layer()
     text.lemma
 
 
 def test_sentences_morf_analysis_lemma():
-    text = words_sentences('Oleme jõudnud kohale. Kus me oleme?')
+    text = Text('Oleme jõudnud kohale. Kus me oleme?').tag_layer()
 
     #should not raise exception
     text.sentences[0].morf_analysis.lemma

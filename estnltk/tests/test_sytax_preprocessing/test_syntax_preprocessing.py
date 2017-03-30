@@ -5,13 +5,13 @@
     estnltk/koondkorpus-experiments/syntax_preprocessing_diff
 """
 
-from estnltk.text import words_sentences
+from estnltk.text import Text
 from estnltk.syntax.syntax_preprocessing import SyntaxPreprocessing
 
 def test():
     syntax_preprocessing = SyntaxPreprocessing()
     
-    t = words_sentences('Tere maailm! Kuidas Sul läheb?')
+    t = Text('Tere maailm! Kuidas Sul läheb?').tag_layer()
     expected = ['"<s>"',
                 '"<Tere>"',
                 '    "tere" L0 I cap',
