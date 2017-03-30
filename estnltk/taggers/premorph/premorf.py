@@ -2,7 +2,6 @@ from functools import partial
 from typing import List
 
 from estnltk.text import Layer, Text
-from estnltk.vabamorf.morf import Vabamorf
 
 
 class CopyTagger:
@@ -17,25 +16,7 @@ class CopyTagger:
         return text
 
 
-class FilteringRewriter:
-    def __init__(self, keyword: str):
-        self.keyword = keyword.lower()
-
-    def rewrite(self, record):
-
-        result = {}
-        for k, v in record.items():
-            if k in ('start', 'end'):
-                result[k] = v
-            else:
-                if v.lower() == self.keyword:
-                    result['normal'] = v.split('-')[-1]
-                else:
-                    return None
-
-        return result
-
-from estnltk.validators.word_validator import MorphAnalyzedToken
+from estnltk.taggers.premorph.MorphAnalyzedToken import MorphAnalyzedToken
 
 class NormalizingRewriter:
     def rewrite(self, record):
