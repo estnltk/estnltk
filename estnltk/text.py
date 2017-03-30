@@ -840,9 +840,3 @@ RESOLVER = Resolver(
         Rule('morf_analysis', tagger=VabamorfTagger(), depends_on=['normalized']),
     ]
 )
-
-
-
-def words_sentences(text):
-    txt = Text(text).tag_layer()
-    return txt
