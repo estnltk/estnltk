@@ -20,7 +20,7 @@ def test_general():
     assert len(t.words) == len(t.words.text)
     assert len(t.sentences) == len(t.sentences.text)
     assert len(t.sentences.words.text) == len(t.sentences.text)
-    print(t.morf_analysis.lemma )
+    print(t.morf_analysis.lemma)
     assert t.morf_analysis.lemma == [['mina'], ['nimi'], ['olema', 'olema'], ['Uku'], ['.'], ['mis', 'mis'], ['sina'], ['nimi'], ['olema', 'olema'], ['?'], ['miks'], ['mina'], ['see'], ['arutama'], ['?']]
 
 
@@ -677,20 +677,20 @@ def test_rewrite_access():
 
     rewrite(text.morf_analysis, text.com_type, ruleset)
 
-    for i in text.words:
+    for i in text.words[:1]:
         if i.main:
             print(i.main)
             print(i.com_type)
             print(i.com_type.main)
             assert i.main == i.com_type.main
-
-    for i in text.com_type:
+    print()
+    for i in text.com_type[:1]:
         print(i, i.morf_analysis)
+        print(i, i.morf_analysis.lemma)
 
-    ## TODO NotImplementedError: com_type -> lemma not implemented but path exists
     for i in text.com_type:
         print(i, i.lemma)
-
+    print(text.com_type.lemma)
 
 def test_rewriting_api():
     class ReverseRewriter():
@@ -787,12 +787,25 @@ def test_span_morf_access():
 
 
 def test_lemma_access_from_text_object():
+    '''See on oluline, sest Dage tungivalt soovib säärast varianti.'''
     text = Text('Oleme jõudnud kohale. Kus me oleme?').tag_layer()
-    text.lemma
+    assert (text.lemma) == text.words.lemma
 
 
 def test_sentences_morf_analysis_lemma():
-    text = Text('Oleme jõudnud kohale. Kus me oleme?').tag_layer()
+    text = Text('Oleme jõudnud kohale. Kus me oleme?')
 
-    #should not raise exception
-    text.sentences[0].morf_analysis.lemma
+    text.tag_layer()
+
+    x = text.sentences[0]
+
+    x.words
+
+
+    assert (text.sentences[:1].morf_analysis.lemma == [[['olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['koht', 'koha'], ['.']]])
+    assert text.sentences[:1].morf_analysis.lemma == text.sentences[:1].words.lemma
+    assert text.sentences[:].morf_analysis.lemma == text.sentences[:].words.lemma
+    assert (text.sentences.morf_analysis.lemma == [[['olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['koht', 'koha'], ['.']], [['kus'], ['mina'], ['olema'], ['?']]])
+    assert (text.sentences.morf_analysis.lemma == text.sentences.words.lemma)
+    assert (text.sentences[0].words.lemma == [['olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['koht', 'koha'], ['.']])
+    assert text.sentences[0].morf_analysis.lemma == text.sentences[0].words.lemma

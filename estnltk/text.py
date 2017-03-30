@@ -1,6 +1,7 @@
 import bisect
 import collections
 import keyword
+from collections import defaultdict
 from typing import MutableMapping, Tuple,  Any, Union, List, Sequence
 
 import itertools
@@ -556,15 +557,25 @@ class Text:
 
     @property
     def attributes(self):
-        res = []
-        for i in self.layers.values():
-            res.extend(i.attributes)
-        return set(res)
+        res = defaultdict(list)
+        for k, layer in self.layers.items():
+            for attrib in layer.__getattribute__('attributes'):
+                res[attrib].append(k)
+
+        return res
+
+
 
     def __getattr__(self, item):
         if item in self.layers.keys():
             return self.layers[item].spans
+
+
         else:
+            attributes = self.__getattribute__('attributes')
+            if len(attributes[item]) == 1:
+                return getattr(self.layers[attributes[item][0]], item)
+
             return self.__getattribute__(item)
 
     def _add_layer(self, layer:Layer):
@@ -663,19 +674,38 @@ class Text:
                         sofar = self.layers[frm].spans
 
                     spans = []
-                    for envelop in sofar:
+
+                    # path taken by text.sentences.lemma
+                    if isinstance(sofar[0], SpanList):
+                        for envelop in sofar:
+                            enveloped_spans = []
+                            for span in self.layers[to]:
+                                if span.parent in envelop.spans:
+                                    enveloped_spans.append(span)
+                            if enveloped_spans:
+                                sl = SpanList(layer=self.layers[frm])
+                                sl.spans = enveloped_spans
+                                spans.append(sl)
+
+                        res = SpanList(layer=self.layers[to])
+                        res.spans = spans
+                        return res
+
+                    #path taken by text.sentences[0].lemma
+                    elif isinstance(sofar[0], Span):
                         enveloped_spans = []
                         for span in self.layers[to]:
-                            if span.parent in envelop.spans:
+                            if span.parent in sofar:
                                 enveloped_spans.append(span)
                         if enveloped_spans:
                             sl = SpanList(layer=self.layers[frm])
                             sl.spans = enveloped_spans
                             spans.append(sl)
 
-                    res = SpanList(layer=self.layers[to])
-                    res.spans = spans
-                    return res
+                        res = SpanList(layer=self.layers[to])
+                        res.spans = spans
+                        return res[0]
+
 
                 #from layer to strictly dependant layer
                 elif frm == self.layers[to]._base:
@@ -693,10 +723,16 @@ class Text:
         #attribute access
         elif path_exists:
 
-            path = self._get_path(frm, to)
-            to_layer_name = path[-2]
+            # to_layer_name = path[-2]
+            to_layer_name = self.attributes[to][0]
+            path = self._get_path(frm, to_layer_name)
+
             to_layer = self.layers[to_layer_name]
             assert  to_layer_name in self.layers.keys()
+
+
+            if self.layers[frm] == to_layer:
+                raise NotImplementedError('')
 
 
             #attributes of a (direct) dependant
