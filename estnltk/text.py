@@ -7,6 +7,7 @@ import itertools
 import networkx as nx
 
 
+
 class Span:
     def __init__(self, start: int = None, end: int = None, parent=None,  *, layer=None, legal_attributes=None, **attributes) -> None:
 
@@ -507,7 +508,7 @@ class Text:
         self._setup_structure()
 
 
-    def tag_layer(self, layer_names:Sequence[str] = ('morf_analysis',)) -> 'Text':
+    def tag_layer(self, layer_names:Sequence[str] = ('morf_analysis', 'sentences')) -> 'Text':
         for layer_name in layer_names:
             RESOLVER.apply(self, layer_name)
         return self
@@ -825,11 +826,14 @@ class Text:
 # This section must be at the end of the file.
 from .taggers.word_tokenizer import WordTokenizer
 from .taggers.morf import VabamorfTagger
+from .taggers.sentence_tokenizer import SentenceTokenizer
+
 from .taggers.premorf import CopyTagger, WordNormalizingTagger
 from .resolve_layer_dag import Resolver, Rule
 
 RESOLVER = Resolver(
     [
+        Rule('sentences', tagger=SentenceTokenizer(), depends_on=['words']),
         Rule('words', tagger=WordTokenizer(), depends_on=[]),
         Rule('words_copy', tagger=CopyTagger(), depends_on=['words']),
         Rule('normalized', tagger=WordNormalizingTagger(), depends_on=['words_copy']),
@@ -840,31 +844,5 @@ RESOLVER = Resolver(
 
 
 def words_sentences(text):
-    txt = Text(text).tag_layer(['morf_analysis'])
-
-    from estnltk.legacy.text import Text as OldText
-
-    old = OldText(text)
-
-    # noinspection PyStatementEffect
-    old.sentences
-    # noinspection PyStatementEffect
-    old.paragraphs
-    old_sentences = old.split_by('sentences')
-
-    sentences = Layer(enveloping='words', name='sentences')
-    txt._add_layer(sentences)
-
-    #TODO fix dumb manual loop
-    i = 0
-    new_sentences = []
-    for sentence in old_sentences:
-        sent = []
-        for _ in sentence.words:
-            sent.append(txt.words[i])
-            i += 1
-        new_sentences.append(sent)
-
-    for sentence in new_sentences:
-        sentences._add_spans_to_enveloping(sentence)
+    txt = Text(text).tag_layer()
     return txt
