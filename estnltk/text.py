@@ -653,29 +653,46 @@ class Text:
                     return getattr(self.layers[frm], to)
 
 
+                #sentences.words takes this path
                 #from enveloping layer to its direct descendant
                 elif to == self.layers[frm].enveloping:
                     return sofar
 
+                #sentences.morf_analysis takes this one
                 #from an enveloping layer to dependant layer (one step only, skipping base layer)
                 elif self.layers[frm].enveloping == self.layers[to].parent:
                     if sofar is None:
                         sofar = self.layers[frm].spans
 
                     spans = []
-                    for envelop in sofar:
+                    if isinstance(sofar[0], SpanList):
+                        for envelop in sofar:
+                            enveloped_spans = []
+                            for span in self.layers[to]:
+                                if span.parent in envelop.spans:
+                                    enveloped_spans.append(span)
+                            if enveloped_spans:
+                                sl = SpanList(layer=self.layers[frm])
+                                sl.spans = enveloped_spans
+                                spans.append(sl)
+
+                        res = SpanList(layer=self.layers[to])
+                        res.spans = spans
+                        return res
+                    elif isinstance(sofar[0], Span):
                         enveloped_spans = []
                         for span in self.layers[to]:
-                            if span.parent in envelop.spans:
+                            if span.parent in sofar:
                                 enveloped_spans.append(span)
                         if enveloped_spans:
                             sl = SpanList(layer=self.layers[frm])
                             sl.spans = enveloped_spans
                             spans.append(sl)
 
-                    res = SpanList(layer=self.layers[to])
-                    res.spans = spans
-                    return res
+                        res = SpanList(layer=self.layers[to])
+                        res.spans = spans
+                        return res[0]
+
 
                 #from layer to strictly dependant layer
                 elif frm == self.layers[to]._base:

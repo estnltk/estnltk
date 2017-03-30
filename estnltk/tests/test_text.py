@@ -20,7 +20,7 @@ def test_general():
     assert len(t.words) == len(t.words.text)
     assert len(t.sentences) == len(t.sentences.text)
     assert len(t.sentences.words.text) == len(t.sentences.text)
-    print(t.morf_analysis.lemma )
+    print(t.morf_analysis.lemma)
     assert t.morf_analysis.lemma == [['mina'], ['nimi'], ['olema', 'olema'], ['Uku'], ['.'], ['mis', 'mis'], ['sina'], ['nimi'], ['olema', 'olema'], ['?'], ['miks'], ['mina'], ['see'], ['arutama'], ['?']]
 
 
@@ -792,7 +792,19 @@ def test_lemma_access_from_text_object():
 
 
 def test_sentences_morf_analysis_lemma():
-    text = Text('Oleme jõudnud kohale. Kus me oleme?').tag_layer()
+    text = Text('Oleme jõudnud kohale. Kus me oleme?')
 
-    #should not raise exception
-    text.sentences[0].morf_analysis.lemma
+    text.tag_layer()
+
+    x = text.sentences[0]
+
+    x.words
+
+
+    assert (text.sentences[:1].morf_analysis.lemma == [[['olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['koht', 'koha'], ['.']]])
+    assert text.sentences[:1].morf_analysis.lemma == text.sentences[:1].words.lemma
+    assert text.sentences[:].morf_analysis.lemma == text.sentences[:].words.lemma
+    assert (text.sentences.morf_analysis.lemma == [[['olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['koht', 'koha'], ['.']], [['kus'], ['mina'], ['olema'], ['?']]])
+    assert (text.sentences.morf_analysis.lemma == text.sentences.words.lemma)
+    assert (text.sentences[0].words.lemma == [['olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['koht', 'koha'], ['.']])
+    assert text.sentences[0].morf_analysis.lemma == text.sentences[0].words.lemma
