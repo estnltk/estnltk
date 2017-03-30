@@ -16,7 +16,7 @@ class CopyTagger:
         return text
 
 
-from estnltk.taggers.premorph.MorphAnalyzedToken import MorphAnalyzedToken
+from estnltk.rewriting.premorph.morph_analyzed_token import MorphAnalyzedToken
 
 class NormalizingRewriter:
     def rewrite(self, record):
