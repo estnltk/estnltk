@@ -647,7 +647,6 @@ class Text:
         #going down a level of enveloping layers adds a layer SpanLists
 
 
-
         GENERAL_KEYS = ['text', 'parent']
         if to in GENERAL_KEYS:
             if sofar:
@@ -722,17 +721,15 @@ class Text:
 
         #attribute access
         elif path_exists:
-
-            # to_layer_name = path[-2]
             to_layer_name = self.attributes[to][0]
-            path = self._get_path(frm, to_layer_name)
+            path = self._get_path(frm, to_layer_name) + ['{}.{}'.format(to_layer_name, to)]
 
             to_layer = self.layers[to_layer_name]
             assert  to_layer_name in self.layers.keys()
 
 
             if self.layers[frm] == to_layer:
-                raise NotImplementedError('')
+                raise NotImplementedError('Seda ei tohiks juhtuda.')
 
 
             #attributes of a (direct) dependant

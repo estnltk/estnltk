@@ -43,6 +43,33 @@ def test_general():
     assert (t.words[:].lemma) == (t.words.lemma)
     assert (t.words[:].text) == (t.words.text)
 
+
+
+def test_equivalences():
+    t = Text('Minu nimi on Uku, mis sinu nimi on? Miks see üldse oluline on?')
+
+
+    with pytest.raises(AttributeError):
+        t.morf_analysis
+
+    t.tag_layer()
+    t.morf_analysis.lemma  # nüüd töötab
+
+    #Text object has attribute access if attributes are unique
+    assert t.lemma == t.words.lemma
+
+    assert t.sentences.lemma == [sentence.lemma for sentence in t.sentences] == [[word.lemma for word in sentence] for sentence in t.sentences]
+
+    assert t.words.text == list(itertools.chain(*t.sentences.text))
+
+    assert [list(set(i))[0] for i in t.morf_analysis.text] == t.words.text
+
+    assert t.morf_analysis.get_attributes(['text', 'lemma']) == t.words.get_attributes(['text', 'lemma'])
+
+    assert [[i[0]] for i in t.morf_analysis.get_attributes(['text'])] == t.words.get_attributes(['text'])
+
+
+
 def test_new_span_hierarchy():
     text = Text('''
     Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.
@@ -691,6 +718,7 @@ def test_rewrite_access():
     for i in text.com_type:
         print(i, i.lemma)
     print(text.com_type.lemma)
+    assert 0
 
 def test_rewriting_api():
     class ReverseRewriter():
