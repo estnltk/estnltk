@@ -68,10 +68,19 @@ def test_equivalences():
 
     assert [[i[0]] for i in t.morf_analysis.get_attributes(['text'])] == t.words.get_attributes(['text'])
 
+
 def test_to_record():
+    #is failing
     t = Text('Minu nimi on Uku.').tag_layer()
 
     assert t.words.morf_analysis.to_record() == t.morf_analysis.to_record()
+
+def test_paragraph_tokenizer():
+    t = Text('Minu nimi on Uku.').tag_layer(['paragraphs'])
+
+    #Should not raise NotImplementedError
+    t.paragraphs.words
+
 
 
 
