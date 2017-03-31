@@ -68,6 +68,11 @@ def test_equivalences():
 
     assert [[i[0]] for i in t.morf_analysis.get_attributes(['text'])] == t.words.get_attributes(['text'])
 
+def test_to_record():
+    t = Text('Minu nimi on Uku.').tag_layer()
+
+    assert t.words.morf_analysis.to_record() == t.morf_analysis.to_record()
+
 
 
 def test_new_span_hierarchy():
