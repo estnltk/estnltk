@@ -83,6 +83,21 @@ def test_paragraph_tokenizer():
 
 
 
+def test_delete_layer():
+    t = Text('Minu nimi on Uku.')
+    assert t.layers == {}
+
+    layer_names = 'words sentences morf_analysis'.split()
+    t.tag_layer(layer_names)
+    assert  set(t.layers.keys()).issuperset(set(layer_names))
+
+    #Should not raise NotImplementedError
+    #deleting a root lalyer should also delete all its dependants
+    del t.words
+
+    assert t.layers == {}
+
+
 
 def test_new_span_hierarchy():
     text = Text('''
