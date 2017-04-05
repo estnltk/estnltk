@@ -37,6 +37,12 @@ class MorphAnalyzedToken():
             return [self]
         return [MorphAnalyzedToken(part) for part in parts]
 
+    def _strip(self, *args):
+        result = self.text.strip(*args)
+        if result == self.text:
+            return self
+        return MorphAnalyzedToken(result)
+
     def _isalpha(self):
         return self.text.isalpha()
     
@@ -72,7 +78,7 @@ class MorphAnalyzedToken():
                 result.update((a['form']).split())
         if {'adt', 'ill'} & result:
             result.add('adt_or_ill')
-        return result & MorphAnalyzedToken.all_cases
+        return result & MorphAnalyzedToken._all_cases
     
     @property
     def is_word(self):
@@ -80,10 +86,15 @@ class MorphAnalyzedToken():
 
     @property
     def _is_word_conservative(self):
+        '''
+        Returns True if the token is a word and all hyphen-separated parts are
+        words. The token is not conservative word if the first hyphen-separated
+        part is in the set of special short words ('ta','te', 'ma', ...).
+        '''
         if '-' not in self:
             return self.is_word
 
-        syllables = frozenset({'ta','te', 'ma', 'va', 'de', 'me', 'ka', 'sa',
+        syllables = frozenset({'ta', 'te', 'ma', 'va', 'de', 'me', 'ka', 'sa',
                                'su', 'mu', 'ju', 'era', 'eri', 'eks', 'all',
                                'esi', 'oma', 'ees'})
         parts = self._split('-')
@@ -95,44 +106,83 @@ class MorphAnalyzedToken():
 
     @property
     def is_conjunction(self):
+        '''
+        Returns True if self has at least one analysis where the part of
+        speech is 'J', False otherwise
+        '''
         return any(a['partofspeech']=='J' for a in self._analysis)
 
     @property
     def _is_simple_pronoun(self):
-        '''dok kõigi is meetodite kohta'''
+        '''
+        Returns True if the token has an analysis where the part of speech is
+        'P' and the lemma is listed in
+        estnltk/estnltk/rewriting/syntax_preprocessing/rules_files/pronouns.csv,
+        False otherwise.
+        '''
         return bool(MorphAnalyzedToken._pronoun_lemmas & self._lemmas('P'))
     
     @property
     def is_pronoun(self):
-        '''dok'''
-        if self.normal._is_simple_pronoun:
+        '''
+        Returns true if the token is a word and
+        - it is a simple pronoun
+        or
+        - it consists of hyphen-separated parts such that the last part is
+          a simple pronoun and
+            - one of the parts has a lemma `'teadma'`
+            or
+            - all the parts are either conjunctions or simple pronouns and the
+              simple pronouns have a common case
+            or
+            - the last part has the case 'ter', 'es', 'ab', or 'kom' and the
+              rest of the parts are either conjunctions or simple pronouns with
+              case 'g'.
+        '''
+        if not self.is_word:
+            return False
+        if self._is_simple_pronoun:
             return True
-        if '-' in self.normal:
-            parts = self.normal._split('-')
+        if '-' in self:
+            parts = self._split('-')
             if not parts[-1]._is_simple_pronoun:
                 return False
-            if any('teadma' in part.lemmas() for part in parts):
+            if any('teadma' in part._lemmas() for part in parts):
                 return True
 
-            cases = MorphAnalyzedToken.all_cases
+            cases = MorphAnalyzedToken._all_cases
             for part in parts:
                 if part._is_simple_pronoun:
-                    cases &= part.cases('P')
+                    cases &= part._cases('P')
                 elif not part.is_conjunction:
                     return False
             if cases:
                 return True
 
-            if parts[-1].cases('P') in {'ter', 'es', 'ab', 'kom'}:
+            if parts[-1]._cases('P') & {'ter', 'es', 'ab', 'kom'}:
                 for part in parts[:-1]:
-                    if part._is_simple_pronoun and 'g' not in part.cases('P'):
-                        return False
+                    if part._is_simple_pronoun:
+                        if 'g' not in part._cases('P'):
+                            return False
                     elif not part.is_conjunction:
                         return False
-            return True            
+                return True
         return False
 
     def _remove_stammer(self, max_stammer_length=2):
+        '''
+        Removes the stammer.
+
+        if max_stammer_length==2 (the default)
+            v-v-v-ve-ve-ve-vere-taoline --> vere-taoline
+
+        if max_stammer_length==1
+            k-k-kõik --> kõik
+            kõ-kõ-kõik --> kõ-kõ-kõik
+
+            v-v-v-ve-ve-ve-vere-taoline --> v-v-v-ve-ve-ve-vere-taoline
+            because 've-ve-ve-vere-taoline' is not a word
+        '''
         if '-' not in self or not max_stammer_length:
             return self
         parts = self.text.split('-')
@@ -152,9 +202,18 @@ class MorphAnalyzedToken():
             return MorphAnalyzedToken('-'.join(parts))
         return self
 
-
     @property
     def _remove_hyphens_smart(self):
+        '''
+        Remove all hyphens except those that separate three or more identical
+        consecutive letters.
+
+        -maa-a-lu--ne-      -->     maa-alune
+        -m-a-a-a-l-u-n-e-   -->     maaalune
+
+        -q-q-qqwer-ty-      -->    -q-q-qqwer-ty-
+        because '-q-q-qqwer-ty-' is not a word
+        '''
         if '-' not in self:
             return self
         parts = self.text.split('-')
@@ -172,13 +231,18 @@ class MorphAnalyzedToken():
 
     @property
     def normal(self):
+        '''
+        Return MorphAnalyzedToken without hyphenation and stammer.
+        Return self if nothing changes.
+        '''
         if '-' not in self:
             return self
 
         if not self._replace('-', '')._isalpha():
             return self
 
-        result1 = self._remove_stammer()
+        result1 = self._strip('-')
+        result1 = result1._remove_stammer()
         if result1._is_word_conservative:
             return result1
         result2 = result1._remove_hyphens_smart
