@@ -69,6 +69,35 @@ def test_equivalences():
     assert [[i[0]] for i in t.morf_analysis.get_attributes(['text'])] == t.words.get_attributes(['text'])
 
 
+def test_to_record():
+    #is failing
+    t = Text('Minu nimi on Uku.').tag_layer()
+
+    assert t.words.morf_analysis.to_record() == t.morf_analysis.to_record()
+
+def test_paragraph_tokenizer():
+    t = Text('Minu nimi on Uku.').tag_layer(['paragraphs'])
+
+    #Should not raise NotImplementedError
+    t.paragraphs.words
+
+
+
+def test_delete_layer():
+    t = Text('Minu nimi on Uku.')
+    assert t.layers == {}
+
+    layer_names = 'words sentences morf_analysis'.split()
+    t.tag_layer(layer_names)
+    assert  set(t.layers.keys()).issuperset(set(layer_names))
+
+    #Should not raise NotImplementedError
+    #deleting a root lalyer should also delete all its dependants
+    del t.words
+
+    assert t.layers == {}
+
+
 
 def test_new_span_hierarchy():
     text = Text('''
