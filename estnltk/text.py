@@ -58,8 +58,8 @@ class Span:
         else:
             return self.__getattribute__('layer').__getattribute__('attributes')
 
-    def to_record(self) -> MutableMapping[str, Any]:
-        return {**{k:self.__getattribute__(k) for k in self.legal_attribute_names},
+    def to_record(self, with_text=False) -> MutableMapping[str, Any]:
+        return {**{k:self.__getattribute__(k) for k in list(self.legal_attribute_names) + (['text'] if with_text else [])},
                 **{'start':self.start, 'end':self.end}}
 
 
@@ -111,6 +111,9 @@ class Span:
 
 
     def __getattr__(self, item):
+        if item == 'text':
+            return self.text
+
         if item in self.__getattribute__('legal_attribute_names'):
             try:
                 return self.__getattribute__(item)
@@ -153,6 +156,9 @@ class Span:
             return (self.start, self.end) == (other.start, other.end)
         except AttributeError:
             return False
+
+    def __hash__(self):
+        return hash((self.start, self.end, tuple(self.__getattribute__(i) for i in self.legal_attribute_names)))
 
     def __le__(self, other: Any) -> bool:
         return self < other or self == other
@@ -215,8 +221,8 @@ class SpanList(collections.Sequence):
             r.append(tmp)
         return r
 
-    def to_record(self):
-        return [i.to_record() for i in self.spans]
+    def to_record(self, with_text=False):
+        return [i.to_record(with_text) for i in self.spans]
 
     def add_span(self, span:Span) -> Span:
         #the assumption is that this method is called by Layer.add_span
@@ -423,11 +429,11 @@ class Layer:
                     ))
         return self
 
-    def to_records(self):
+    def to_records(self, with_text=False):
         records = []
 
         for item in self.spans:
-            records.append(item.to_record())
+            records.append(item.to_record(with_text))
 
         return records
 
@@ -439,7 +445,7 @@ class Layer:
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
         assert 'name' in kwargs.keys(), '"name" must currently be an argument to layer'
 
-        res = [whitelist_record(record, source_attributes + ['start', 'end']) for record in self.to_records()]
+        res = [whitelist_record(record, source_attributes + ['start', 'end']) for record in self.to_records(with_text='text' in source_attributes)]
         rewritten = [rules.rewrite(j) for j in res]
         resulting_layer = Layer(
             **kwargs,
@@ -458,6 +464,7 @@ class Layer:
         )
         spanlist.spans = spans
         bisect.insort(self.spans.spans, spanlist)
+        return spanlist
 
     def _add_spans(self, spans:List[Span]) -> List[Span]:
         assert self.ambiguous or self.enveloping
@@ -663,9 +670,15 @@ class Text:
                     return getattr(self.layers[frm], to)
 
 
+
                 #from enveloping layer to its direct descendant
                 elif to == self.layers[frm].enveloping:
                     return sofar
+
+
+
+
+
 
                 #from an enveloping layer to dependant layer (one step only, skipping base layer)
                 elif self.layers[frm].enveloping == self.layers[to].parent:
@@ -718,6 +731,14 @@ class Text:
                     res = SpanList(layer=self.layers[to])
                     res.spans = spans
                     return res
+
+                #through an enveloped layer (enveloping-enveloping-target)
+                elif to == self.layers[self.layers[frm].enveloping].enveloping:
+                    return self._resolve(frm = self.layers[frm].enveloping,
+                                         to = to,
+                                         sofar=sofar
+                                         )
+
 
         #attribute access
         elif path_exists:
@@ -844,7 +865,28 @@ class Text:
 
 
     def __delattr__(self, item):
-        raise NotImplementedError('deleting not implemented')
+        assert item in self.layers.keys(), '{item} is not a valid layer in this Text object'.format(item=item)
+
+        #find all dependencies between layers
+        relations = set()
+        for layer_name, layer in self.layers.items():
+            relations.update((b, a) for a,b in [
+                (layer_name, layer.parent),
+                (layer_name, layer._base),
+                (layer_name, layer.enveloping)] if b is not None and a != b
+            )
+
+        g = nx.DiGraph()
+        g.add_edges_from(relations)
+        g.add_nodes_from(self.layers.keys())
+
+        to_delete = nx.descendants(g, item)
+        to_delete.add(item)
+
+        for item in to_delete:
+            self.layers.pop(item)
+
+        self._setup_structure()
 
     def __str__(self):
         return 'Text(text="{self.text}")'.format(self=self)
@@ -862,7 +904,7 @@ from .taggers.morf import VabamorfTagger
 from .taggers.sentence_tokenizer import SentenceTokenizer
 from .taggers.paragraph_tokenizer import ParagraphTokenizer
 
-from .taggers.premorph.premorf import CopyTagger, WordNormalizingTagger
+from .taggers.premorph.premorf import WordNormalizingTagger
 from .resolve_layer_dag import Resolver, Rule
 
 RESOLVER = Resolver(
@@ -870,8 +912,7 @@ RESOLVER = Resolver(
         Rule('sentences', tagger=SentenceTokenizer(), depends_on=['words']),
         Rule('paragraphs', tagger=ParagraphTokenizer(), depends_on=['sentences']),
         Rule('words', tagger=WordTokenizer(), depends_on=[]),
-        Rule('words_copy', tagger=CopyTagger(), depends_on=['words']),
-        Rule('normalized', tagger=WordNormalizingTagger(), depends_on=['words_copy']),
+        Rule('normalized', tagger=WordNormalizingTagger(), depends_on=['words']),
         Rule('morf_analysis', tagger=VabamorfTagger(), depends_on=['normalized']),
     ]
 )
