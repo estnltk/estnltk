@@ -865,7 +865,7 @@ from .taggers.morf import VabamorfTagger
 from .taggers.sentence_tokenizer import SentenceTokenizer
 from .taggers.paragraph_tokenizer import ParagraphTokenizer
 
-from .taggers.premorph.premorf import CopyTagger, WordNormalizingTagger
+from .taggers.premorph.premorf import WordNormalizingTagger
 from .resolve_layer_dag import Resolver, Rule
 
 RESOLVER = Resolver(
@@ -873,8 +873,7 @@ RESOLVER = Resolver(
         Rule('sentences', tagger=SentenceTokenizer(), depends_on=['words']),
         Rule('paragraphs', tagger=ParagraphTokenizer(), depends_on=['sentences']),
         Rule('words', tagger=WordTokenizer(), depends_on=[]),
-        Rule('words_copy', tagger=CopyTagger(), depends_on=['words']),
-        Rule('normalized', tagger=WordNormalizingTagger(), depends_on=['words_copy']),
+        Rule('normalized', tagger=WordNormalizingTagger(), depends_on=['words']),
         Rule('morf_analysis', tagger=VabamorfTagger(), depends_on=['normalized']),
     ]
 )

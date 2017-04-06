@@ -4,18 +4,6 @@ from typing import List
 from estnltk.text import Layer, Text
 
 
-class CopyTagger:
-    def __init__(self):
-        pass
-
-    def tag(self, text: Text):
-        text['words_copy'] = Layer('words_copy', parent='words', ambiguous=False, attributes=['text_copy'])
-        for i in text.words:
-            i.mark('words_copy').text_copy = i.text
-
-        return text
-
-
 def merge(layers: List[Layer]) -> Layer:
     # all layers must be from the same parent
     assert len(set(i.parent for i in layers)) == 1
@@ -47,9 +35,9 @@ class WordNormalizingTagger:
         pass
 
     def tag(self, text: Text) -> Text:
-        source_layer = text['words_copy']  # type: Layer
+        source_layer = text['words']  # type: Layer
 
-        source_attributes = ['text_copy']
+        source_attributes = ['text']
         target_attributes = ['normal']
 
         rewriting_template = partial(source_layer.rewrite,
