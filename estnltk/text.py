@@ -157,6 +157,9 @@ class Span:
         except AttributeError:
             return False
 
+    def __hash__(self):
+        return hash((self.start, self.end, tuple(self.__getattribute__(i) for i in self.legal_attribute_names)))
+
     def __le__(self, other: Any) -> bool:
         return self < other or self == other
 
@@ -461,6 +464,7 @@ class Layer:
         )
         spanlist.spans = spans
         bisect.insort(self.spans.spans, spanlist)
+        return spanlist
 
     def _add_spans(self, spans:List[Span]) -> List[Span]:
         assert self.ambiguous or self.enveloping
@@ -666,9 +670,21 @@ class Text:
                     return getattr(self.layers[frm], to)
 
 
+
                 #from enveloping layer to its direct descendant
                 elif to == self.layers[frm].enveloping:
                     return sofar
+
+
+                #through an enveloped layer (enveloping-enveloping-target)
+                elif to == self.layers[self.layers[frm].enveloping].enveloping:
+                    return self._resolve(frm = self.layers[frm].enveloping,
+                                         to = to,
+                                         sofar=sofar
+                                         )
+
+
+
 
                 #from an enveloping layer to dependant layer (one step only, skipping base layer)
                 elif self.layers[frm].enveloping == self.layers[to].parent:
