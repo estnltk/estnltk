@@ -86,10 +86,36 @@ def test_to_record():
 
 
 def test_paragraph_tokenizer():
-    t = Text('Minu nimi on Uku.').tag_layer(['paragraphs'])
+    t = Text('''Minu nimi on Uku. Miks?
+
+Mis sinu nimi on?
+    ''').tag_layer(['paragraphs', 'morf_analysis'])
+
+    #Should not raise NotImplementedError
+    t.paragraphs
+    assert (t.paragraphs.text == [[['Minu', 'nimi', 'on', 'Uku', '.'], ['Miks', '?']], [['Mis', 'sinu', 'nimi', 'on', '?']]])
+
+    #Should not raise NotImplementedError
+    t.paragraphs.sentences
+    assert (t.paragraphs.sentences.text == [[['Minu', 'nimi', 'on', 'Uku', '.'], ['Miks', '?']], [['Mis', 'sinu', 'nimi', 'on', '?']]])
+
+    #Should not raise NotImplementedError
+    t.paragraphs.sentences.words
+    assert (t.paragraphs.sentences.words.text == [[['Minu', 'nimi', 'on', 'Uku', '.'], ['Miks', '?']], [['Mis', 'sinu', 'nimi', 'on', '?']]])
 
     #Should not raise NotImplementedError
     t.paragraphs.words
+    assert (t.paragraphs.words.text == [[['Minu', 'nimi', 'on', 'Uku', '.'], ['Miks', '?']], [['Mis', 'sinu', 'nimi', 'on', '?']]])
+
+
+
+    assert t.paragraphs.text == t.paragraphs.sentences.text
+    assert t.paragraphs.sentences.text == t.paragraphs.sentences.words.text
+    assert t.paragraphs.sentences.words.text == t.paragraphs.words.text
+    assert t.paragraphs.words.text == t.paragraphs.text
+
+    #these are not implemented yet
+    # t.paragraphs.sentences.words.morf_analysis.lemma
 
 
 
