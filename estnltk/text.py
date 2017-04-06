@@ -58,8 +58,8 @@ class Span:
         else:
             return self.__getattribute__('layer').__getattribute__('attributes')
 
-    def to_record(self) -> MutableMapping[str, Any]:
-        return {**{k:self.__getattribute__(k) for k in self.legal_attribute_names},
+    def to_record(self, with_text=False) -> MutableMapping[str, Any]:
+        return {**{k:self.__getattribute__(k) for k in list(self.legal_attribute_names) + (['text'] if with_text else [])},
                 **{'start':self.start, 'end':self.end}}
 
 
@@ -111,6 +111,9 @@ class Span:
 
 
     def __getattr__(self, item):
+        if item == 'text':
+            return self.text
+
         if item in self.__getattribute__('legal_attribute_names'):
             try:
                 return self.__getattribute__(item)
@@ -215,8 +218,8 @@ class SpanList(collections.Sequence):
             r.append(tmp)
         return r
 
-    def to_record(self):
-        return [i.to_record() for i in self.spans]
+    def to_record(self, with_text=False):
+        return [i.to_record(with_text) for i in self.spans]
 
     def add_span(self, span:Span) -> Span:
         #the assumption is that this method is called by Layer.add_span
@@ -423,11 +426,11 @@ class Layer:
                     ))
         return self
 
-    def to_records(self):
+    def to_records(self, with_text=False):
         records = []
 
         for item in self.spans:
-            records.append(item.to_record())
+            records.append(item.to_record(with_text))
 
         return records
 
@@ -439,7 +442,7 @@ class Layer:
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
         assert 'name' in kwargs.keys(), '"name" must currently be an argument to layer'
 
-        res = [whitelist_record(record, source_attributes + ['start', 'end']) for record in self.to_records()]
+        res = [whitelist_record(record, source_attributes + ['start', 'end']) for record in self.to_records(with_text='text' in source_attributes)]
         rewritten = [rules.rewrite(j) for j in res]
         resulting_layer = Layer(
             **kwargs,
