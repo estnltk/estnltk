@@ -847,7 +847,28 @@ class Text:
 
 
     def __delattr__(self, item):
-        raise NotImplementedError('deleting not implemented')
+        assert item in self.layers.keys(), '{item} is not a valid layer in this Text object'.format(item=item)
+
+        #find all dependencies between layers
+        relations = set()
+        for layer_name, layer in self.layers.items():
+            relations.update((b, a) for a,b in [
+                (layer_name, layer.parent),
+                (layer_name, layer._base),
+                (layer_name, layer.enveloping)] if b is not None and a != b
+            )
+
+        g = nx.DiGraph()
+        g.add_edges_from(relations)
+        g.add_nodes_from(self.layers.keys())
+
+        to_delete = nx.descendants(g, item)
+        to_delete.add(item)
+
+        for item in to_delete:
+            self.layers.pop(item)
+
+        self._setup_structure()
 
     def __str__(self):
         return 'Text(text="{self.text}")'.format(self=self)

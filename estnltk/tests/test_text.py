@@ -97,6 +97,14 @@ def test_delete_layer():
 
     assert t.layers == {}
 
+    with pytest.raises(AttributeError):
+        t.words
+
+    with pytest.raises(AttributeError):
+        t.sentences
+
+    with pytest.raises(AttributeError):
+        t.morf_analysis
 
 
 def test_new_span_hierarchy():
