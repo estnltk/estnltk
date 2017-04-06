@@ -910,3 +910,53 @@ def test_sentences_morf_analysis_lemma():
     assert (text.sentences.morf_analysis.lemma == text.sentences.words.lemma)
     assert (text.sentences[0].words.lemma == [['olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['koht', 'koha'], ['.']])
     assert text.sentences[0].morf_analysis.lemma == text.sentences[0].words.lemma
+
+
+def test_phrase_layer():
+    class UppercasePhraseTagger:
+        # demo tagger, mis markeerib ära lause piirides järjestikused jooksud suurtähtedega sõnu
+
+        def tag(self, text: Text) -> Text:
+
+            uppercases = []
+            prevstart = 0
+            for sentence in (text.sentences.words):
+                for idx, word in enumerate(sentence.words):
+                    if word.text.upper() == word.text and word.text.lower() != word.text:
+                        uppercases.append((idx + prevstart, word))
+                prevstart += len(sentence)
+
+            from operator import itemgetter
+            from itertools import groupby
+            rs = []
+            for k, g in groupby(enumerate(uppercases), lambda i: i[0] - i[1][0]):
+                r = map(itemgetter(1), g)
+                rs.append(list(r))
+
+            spans = [[j for _, j in i] for i in rs if len(i) > 1]
+            l = Layer(enveloping='words', name='uppercasephrase', attributes=['phrasetext', 'tag'])
+
+            for idx, s in enumerate(spans):
+                sps = l._add_spans_to_enveloping(s)
+                sps.phrasetext = ' '.join([i.text for i in s]).lower()
+                sps.tag = idx
+            text._add_layer(l)
+
+            return text
+
+    w = UppercasePhraseTagger()
+    t = w.tag(Text('Minu KARU ON PUNANE. MIS värvi SINU KARU on? Kuidas PALUN?').tag_layer(['words', 'sentences']))
+    t.tag_layer(['morf_analysis'])
+    assert (t.uppercasephrase.get_attributes(['phrasetext', 'text'])) == [[('karu on punane', 'KARU'), ('karu on punane', 'ON'), ('karu on punane', 'PUNANE')], [('sinu karu', 'SINU'), ('sinu karu', 'KARU')]]
+
+    assert (t.phrasetext) == ['karu on punane', 'sinu karu']
+
+    assert (t.uppercasephrase.lemma) == [[['karu'], ['olema', 'olema'], ['punane']], [['sina'], ['karu']]]
+
+    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase.spans))]) ==  ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
+
+    mapping = {i: [j for j in t.uppercasephrase.spans if i in j][0] for i in
+               list(itertools.chain(*t.uppercasephrase.spans))}
+    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase.spans))]) == ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
+
+    assert ([i.text if i not in mapping.keys() else mapping[i].tag for i in t.words]) == ['Minu', 0, 0, 0, '.', 'MIS', 'värvi', 1, 1, 'on', '?', 'Kuidas', 'PALUN', '?']

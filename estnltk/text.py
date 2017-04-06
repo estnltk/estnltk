@@ -676,12 +676,6 @@ class Text:
                     return sofar
 
 
-                #through an enveloped layer (enveloping-enveloping-target)
-                elif to == self.layers[self.layers[frm].enveloping].enveloping:
-                    return self._resolve(frm = self.layers[frm].enveloping,
-                                         to = to,
-                                         sofar=sofar
-                                         )
 
 
 
@@ -737,6 +731,14 @@ class Text:
                     res = SpanList(layer=self.layers[to])
                     res.spans = spans
                     return res
+
+                #through an enveloped layer (enveloping-enveloping-target)
+                elif to == self.layers[self.layers[frm].enveloping].enveloping:
+                    return self._resolve(frm = self.layers[frm].enveloping,
+                                         to = to,
+                                         sofar=sofar
+                                         )
+
 
         #attribute access
         elif path_exists:
