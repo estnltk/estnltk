@@ -234,6 +234,8 @@ class MorphAnalyzedToken():
         '''
         Return MorphAnalyzedToken without hyphenation and stammer.
         Return self if nothing changes.
+
+        Double application of normal is equivalent with single application.
         '''
         if '-' not in self:
             return self
