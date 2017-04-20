@@ -1,6 +1,7 @@
 from estnltk.text import Text, Layer
 from estnltk.vabamorf.morf import Vabamorf
 
+from estnltk.rewriting.postmorph.vabamorf_corrector import NumericAnalysis
 
 class VabamorfTagger:
     def __init__(self, premorf_layer: str = None, **kwargs):
@@ -8,6 +9,8 @@ class VabamorfTagger:
         self.instance = Vabamorf.instance()
 
         self.premorf_layer = premorf_layer
+        
+        self.numeric_analysis = NumericAnalysis()
 
         # TODO: Think long and hard about the default parameters
         # TODO: See also https://github.com/estnltk/estnltk/issues/66
@@ -63,6 +66,12 @@ class VabamorfTagger:
         text._add_layer(dep)
 
         for word, analysises in zip(text.words, analysis_results):
+            
+            if not word.text.isalpha():
+                nm = self.numeric_analysis.analyze_number(word.text)
+                if nm:
+                    analysises['analysis'] = nm
+
             for analysis in analysises['analysis']:
                 m = word.mark('morf_analysis')
 
