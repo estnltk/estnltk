@@ -16,8 +16,12 @@ class SentenceTokenizer( StringTokenizer ):
             if self.sentence_tokenizer is None:
                 self.sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
 
+
     def tag(self, text: Text) -> Text:
         # Apply sentence tokenization paragraph by paragraph
+        if 'paragraphs' not in text.layers:
+            raise Exception('(!) Missing "paragraphs" layer!'+\
+                            ' Paragraph tokenization should be performed before sentence tokenization!')
         sentence_spans = []
         for paragraph in text['paragraphs']:
             spans = self.sentence_tokenizer.span_tokenize(paragraph.text)
