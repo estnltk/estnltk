@@ -407,10 +407,12 @@ class Layer:
                 self.spans = SpanList(ambiguous=True, layer=self)
                 tmpspans = []
                 for record_line in records:
-                    spns = SpanList(layer=self, ambiguous=False)
-                    spns.spans = [Span(**{**record, **{'layer':self}}, legal_attributes=self.attributes) for record in record_line]
-                    tmpspans.append(spns)
-                    self.spans.classes[(spns.spans[0].start, spns.spans[0].end)] = spns
+                    if record_line is not None:
+                        spns = SpanList(layer=self, ambiguous=False)
+                        spns.spans = [Span(**{**record, **{'layer':self}}, legal_attributes=self.attributes) 
+                                      for record in record_line]
+                        tmpspans.append(spns)
+                        self.spans.classes[(spns.spans[0].start, spns.spans[0].end)] = spns
                 self.spans.spans = tmpspans
             else:
                 for record_line in records:

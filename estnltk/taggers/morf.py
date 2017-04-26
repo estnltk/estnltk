@@ -1,16 +1,18 @@
-from estnltk.text import Text, Layer
+from estnltk.text import Span, Layer, Text
 from estnltk.vabamorf.morf import Vabamorf
 
-from estnltk.rewriting.postmorph.vabamorf_corrector import NumericAnalysis
+from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 
 class VabamorfTagger:
-    def __init__(self, premorf_layer: str = None, **kwargs):
+    def __init__(self, 
+                 premorf_layer:str='normalized',
+                 postmorph_rewriter=VabamorfCorrectionRewriter(),
+                 **kwargs):
         self.kwargs = kwargs
         self.instance = Vabamorf.instance()
 
         self.premorf_layer = premorf_layer
-        
-        self.numeric_analysis = NumericAnalysis()
+        self.postmorph_rewriter = postmorph_rewriter
 
         # TODO: Think long and hard about the default parameters
         # TODO: See also https://github.com/estnltk/estnltk/issues/66
@@ -56,27 +58,40 @@ class VabamorfTagger:
         wordlist = self._get_wordlist(text)
         analysis_results = self.instance.analyze(words=wordlist, **self.kwargs)
 
-        morf_attributes = ['form', 'root_tokens', 'clitic', 'partofspeech', 'ending', 'root', 'lemma']
+        morph_attributes = ['form', 'root_tokens', 'clitic', 'partofspeech', 
+                            'ending', 'root', 'lemma']
 
-        dep = Layer(name='morf_analysis',
-                    parent='words',
-                    ambiguous=True,
-                    attributes=morf_attributes
-                    )
-        text._add_layer(dep)
+        attributes = morph_attributes
+        if self.postmorph_rewriter:
+            attributes = attributes + ['word_normal']
+            morph = Layer(name='words',
+              parent='words',
+              ambiguous=True,
+              attributes=attributes
+              )
+        else:
+            morph = Layer(name='morf_analysis',
+                          parent='words',
+                          ambiguous=True,
+                          attributes=morph_attributes
+                          )
 
-        for word, analysises in zip(text.words, analysis_results):
-            
-            if not word.text.isalpha():
-                nm = self.numeric_analysis.analyze_number(word.text)
-                if nm:
-                    analysises['analysis'] = nm
+        for word, analyses in zip(text.words, analysis_results):
+            for analysis in analyses['analysis']:
+                span = morph.add_span(Span(parent=word))
+                for attr in morph_attributes:
+                    setattr(span, attr, analysis[attr])
+                if self.postmorph_rewriter:
+                    setattr(span, 'word_normal', analyses['text'])
+        #print(morph.parent)
+        if self.postmorph_rewriter:
+            morph = morph.rewrite(source_attributes=attributes,
+                                  target_attributes=morph_attributes, 
+                                  rules=self.postmorph_rewriter,
+                                  name='morf_analysis',
+                                  ambiguous=True)
+        #print(morph.parent)
 
-            for analysis in analysises['analysis']:
-                m = word.mark('morf_analysis')
-
-                for attr in morf_attributes:
-                    setattr(m, attr, analysis[attr])
+        text['morf_analysis'] = morph
 
         return text
-
