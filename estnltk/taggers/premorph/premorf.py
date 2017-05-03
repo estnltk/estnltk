@@ -32,7 +32,8 @@ from estnltk.rewriting.premorph.word_normalizing import WordNormalizingRewriter
 
 class WordNormalizingTagger:
     def __init__(self):
-        pass
+        self.word_normalizing_rewriter = WordNormalizingRewriter()
+
 
     def tag(self, text: Text) -> Text:
         source_layer = text['words']  # type: Layer
@@ -46,7 +47,7 @@ class WordNormalizingTagger:
                                      name='normalized',
                                      ambiguous=False)
 
-        normalizing_layer = rewriting_template(rules=WordNormalizingRewriter())
+        normalizing_layer = rewriting_template(rules=self.word_normalizing_rewriter)
 
         text['normalized'] = merge([normalizing_layer])
 

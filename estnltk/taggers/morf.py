@@ -83,14 +83,12 @@ class VabamorfTagger:
                     setattr(span, attr, analysis[attr])
                 if self.postmorph_rewriter:
                     setattr(span, 'word_normal', analyses['text'])
-        #print(morph.parent)
         if self.postmorph_rewriter:
             morph = morph.rewrite(source_attributes=attributes,
                                   target_attributes=morph_attributes, 
                                   rules=self.postmorph_rewriter,
                                   name='morf_analysis',
                                   ambiguous=True)
-        #print(morph.parent)
 
         text['morf_analysis'] = morph
 
