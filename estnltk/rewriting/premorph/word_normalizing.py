@@ -1,14 +1,15 @@
 from pandas import read_csv
 from pandas.io.common import EmptyDataError
-from os.path import dirname, join
+import os
 
 from estnltk.rewriting.helpers.morph_analyzed_token import MorphAnalyzedToken
 
+DEFAULT_IGNORE_LIST = os.path.join(os.path.dirname(__file__), 'rules_files', 'ignore.csv')
+
 
 class WordNormalizingRewriter:
-    def __init__(self):
-        file = join(dirname(__file__), 'rules_files/ignore.csv')
-        self.ignore = self.load_ignore(file)
+    def __init__(self, ignore_file:str=DEFAULT_IGNORE_LIST):
+        self.ignore = self.load_ignore(ignore_file)
         self.hyphen_removing_rewriter = HyphenRemovingRewriter()
 
 
