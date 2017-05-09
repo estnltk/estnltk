@@ -1,11 +1,15 @@
 import re
 from collections import defaultdict
 from pandas import read_csv
-from os.path import dirname, join
+import os
+import pickle
 
 class VabamorfCorrectionRewriter:
-    
-    def __init__(self, replace:bool=True):
+
+    DEFAULT_RULES = os.path.join(os.path.dirname(__file__),
+                                 'rules_files/number_analysis_rules.csv')
+
+    def __init__(self, replace:bool=True, rules_file:str=DEFAULT_RULES):
         """
         replace: bool (default True)
             If True, replace old analysis with new analysis
@@ -13,18 +17,25 @@ class VabamorfCorrectionRewriter:
             old analysis and new analysis
         """
         self.replace = replace
-        file = join(dirname(__file__), 'rules_files/number_analysis_rules.csv')
-        self.rules = self.load_number_analysis_rules(file)
+        #file = join(dirname(__file__), 'rules_files/number_analysis_rules.csv')
+        self.rules = self.load_number_analysis_rules(rules_file)
 
 
     @staticmethod
     def load_number_analysis_rules(file):
-        df = read_csv(file, na_filter=False)
-        rules = defaultdict(dict)
-        for _, r in df.iterrows():
-            if r.suffix not in rules[r.number]:
-                rules[r.number][r.suffix] = []
-            rules[r.number][r.suffix].append({'partofspeech': r.pos, 'form': r.form, 'ending':r.ending})
+        cache = file + '.pickle'
+        if not os.path.exists(cache) or os.stat(cache).st_mtime < os.stat(file).st_mtime:
+            df = read_csv(file, na_filter=False, index_col=False)
+            rules = defaultdict(dict)
+            for _, r in df.iterrows():
+                if r.suffix not in rules[r.number]:
+                    rules[r.number][r.suffix] = []
+                rules[r.number][r.suffix].append({'partofspeech': r.pos, 'form': r.form, 'ending':r.ending})
+            with open(cache, 'wb') as out_file:
+                pickle.dump(rules, out_file)
+            return rules
+        with open(cache, 'rb') as in_file:
+            rules = pickle.load(in_file)
         return rules
 
 
@@ -32,14 +43,13 @@ class VabamorfCorrectionRewriter:
         m = re.match('-?(\d+\.?)-?(\D*)$', token)
         if not m:
             return []
-        m.group(0), 
         number = m.group(1)
         ordinal_number = number.rstrip('.') + '.'
         ending = m.group(2)
         result = []
         for number_re, analyses in self.rules.items():
             if re.match(number_re, number):
-                for analysis in analyses[ending]:
+                for analysis in analyses.get(ending, []):
                     if analysis['partofspeech'] == 'O':
                         a = {'lemma':ordinal_number, 'root':ordinal_number, 'root_tokens':[ordinal_number], 'clitic':''}
                     else:
