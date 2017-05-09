@@ -1,4 +1,3 @@
-
 from estnltk.rewriting import PunctuationTypeRewriter
 from estnltk.rewriting import MorphToSyntaxMorphRewriter
 from estnltk.rewriting import PronounTypeRewriter
@@ -10,103 +9,6 @@ from estnltk.rewriting import VerbExtensionSuffixRewriter
 from estnltk.rewriting import SubcatRewriter
 from estnltk.rewriting import MorphExtendedRewriter
 from estnltk.text import Layer
-
-
-class PronounTypeTagger():
-    def __init__(self):
-        self.pronoun_type_rewriter = PronounTypeRewriter()
-
-    def tag(self, text):
-        new_layer = text['morf_analysis']
-        source_attributes = new_layer.attributes
-        target_attributes = source_attributes + ['pronoun_type']
-        new_layer = new_layer.rewrite(
-            source_attributes = source_attributes,
-            target_attributes = target_attributes,
-            rules = self.pronoun_type_rewriter,
-            name = 'pronoun_type',
-            ambiguous = True
-            )
-        text['pronoun_type'] = new_layer
-
-
-class FiniteFormTagger():
-
-    def __init__(self, fs_to_synt_rules_file):
-        self.morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
-        self.finite_form_rewriter = FiniteFormRewriter()
-
-    def tag(self, text):
-        new_layer = text['morf_analysis']
-        source_attributes = new_layer.attributes
-        target_attributes = source_attributes
-        new_layer = new_layer.rewrite(
-            source_attributes = source_attributes,
-            target_attributes = target_attributes,
-            rules = self.morph_to_syntax_morph_rewriter,
-            name = 'finite_form',
-            ambiguous = True
-            )
-
-        source_attributes = new_layer.attributes
-        target_attributes = source_attributes + ['fin']
-        new_layer = new_layer.rewrite(
-            source_attributes = source_attributes,
-            target_attributes = target_attributes,
-            rules = self.finite_form_rewriter,
-            name = 'finite_form',
-            ambiguous = True
-            )
-        text['finite_form'] = new_layer
-
-
-class VerbExtensionSuffixTagger():
-
-    def __init__(self):
-        self.verb_extension_suffix_rewriter = VerbExtensionSuffixRewriter()
-
-    def tag(self, text):
-        new_layer = text['morf_analysis']
-        source_attributes = new_layer.attributes
-        target_attributes = source_attributes + ['verb_extension_suffix']
-        new_layer = new_layer.rewrite(
-            source_attributes = source_attributes,
-            target_attributes = target_attributes,
-            rules = self.verb_extension_suffix_rewriter,
-            name = 'verb_extension_suffix',
-            ambiguous = True
-            )
-        text['verb_extension_suffix'] = new_layer
-
-
-class SubcatTagger():
-
-    def __init__(self, fs_to_synt_rules_file, subcat_rules_file):
-        self.morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)
-        self.subcat_rewriter = SubcatRewriter(subcat_rules_file)
-
-    def tag(self, text):
-        new_layer = text['morf_analysis']
-        source_attributes = new_layer.attributes
-        target_attributes = source_attributes
-        new_layer = new_layer.rewrite(
-            source_attributes = source_attributes,
-            target_attributes = target_attributes,
-            rules = self.morph_to_syntax_morph_rewriter,
-            name = 'subcat',
-            ambiguous = True
-            )
-
-        source_attributes = new_layer.attributes
-        target_attributes = source_attributes + ['subcat']
-        new_layer = new_layer.rewrite(
-            source_attributes = source_attributes,
-            target_attributes = target_attributes,
-            rules = self.subcat_rewriter,
-            name = 'subcat',
-            ambiguous = True
-            )
-        text['subcat'] = new_layer
 
 
 class MorphExtendedTagger():

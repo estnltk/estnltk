@@ -1,5 +1,5 @@
 from estnltk.vabamorf.morf import Vabamorf
-from estnltk.rewriting.syntax_preprocessing.syntax_preprocessing import PronounTypeRewriter
+from estnltk.rewriting import PronounTypeRewriter
 
         
 class MorphAnalyzedToken():
