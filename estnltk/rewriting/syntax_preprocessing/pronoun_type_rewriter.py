@@ -1,6 +1,6 @@
 import os
 from collections import defaultdict
-
+from estnltk.rewriting import MorphAnalyzedToken
 
 class PronounTypeRewriter():
     ''' Adds 'pronoun_type' attribute to the analysis.
@@ -36,23 +36,9 @@ class PronounTypeRewriter():
     '''
 
     
-    def __init__(self, pronoun_file=None):
-        # TODO: use method load_pronoun_types
-        if pronoun_file:
-            assert os.path.exists(pronoun_file),\
-                'Unable to find *pronoun_file* from location ' + pronoun_file
-        else:
-            pronoun_file = os.path.dirname(__file__)
-            pronoun_file = os.path.join(pronoun_file,
-                                             'rules_files/pronouns.csv')
-            assert os.path.exists(pronoun_file),\
-                'Missing default *pronoun_file* ' + pronoun_file
+    #def __init__(self, pronoun_file=None):
+        #self.pronoun_type = self.load_pronoun_types(pronoun_file)
 
-        self.pronoun_type = defaultdict(list)
-        with open(pronoun_file, 'r') as in_f:
-            for l in in_f:
-                pronoun, t = l.split(',')
-                self.pronoun_type[pronoun.strip()].append(t.strip())
 
     @staticmethod
     def load_pronoun_types(pronoun_file=None):
@@ -73,15 +59,13 @@ class PronounTypeRewriter():
                 pronoun_type[pronoun.strip()].append(t.strip())
         return pronoun_type
 
+
     def rewrite(self, record):
         for rec in record:
             if rec['partofspeech'] == 'P':
-                pronoun_type = self.pronoun_type.get(rec['lemma'])
-                if pronoun_type is None:
-                    pronoun_type = ['invalid']
-                else:
-                    pronoun_type = pronoun_type.copy()
-                rec['pronoun_type'] = pronoun_type
+                pronoun_type = MorphAnalyzedToken(rec['text']).pronoun_type
+                #pronoun_type = self.pronoun_type.get(rec['lemma'], ['invalid'])
+                rec['pronoun_type'] = pronoun_type.copy()
             else:
                 rec['pronoun_type'] = None
         return record

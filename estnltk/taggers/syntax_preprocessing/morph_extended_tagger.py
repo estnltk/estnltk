@@ -44,10 +44,11 @@ class MorphExtendedTagger():
 
     def tag(self, text):
 
+        # TODO: remove 'word_text'
         dep = Layer(name='syntax_pp_0',
                          parent='words',
                          ambiguous=True,
-                         attributes=['word_text', 'lemma', 'root', 'ending', 'clitic', 'partofspeech', 'form']
+                         attributes=['text', 'word_text', 'lemma', 'root', 'ending', 'clitic', 'partofspeech', 'form']
                          )
         text._add_layer(dep)
         for word, morf_anal in zip(text.words, text.morf_analysis):

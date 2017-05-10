@@ -1,10 +1,36 @@
+import os
+from collections import defaultdict
 from estnltk.vabamorf.morf import Vabamorf
-from estnltk.rewriting import PronounTypeRewriter
+#from estnltk.rewriting import PronounTypeRewriter
+
+
+def load_pronoun_types(self, pronoun_file=None):
+    if pronoun_file:
+        assert os.path.exists(pronoun_file),\
+            'Unable to find *pronoun_file* from location ' + pronoun_file
+    else:
+        pronoun_file = os.path.dirname(__file__)
+        pronoun_file = os.path.join(pronoun_file,
+                                         'rules_files/pronouns.csv')
+        assert os.path.exists(pronoun_file),\
+            'Missing default *pronoun_file* ' + pronoun_file
+
+    pronoun_type = defaultdict(list)
+    with open(pronoun_file, 'r') as in_f:
+        for l in in_f:
+            pronoun, t = l.split(',')
+            pronoun_type[pronoun.strip()].append(t.strip())
+    return pronoun_type
 
         
 class MorphAnalyzedToken():
-    def __init__(self, token: str) -> None:
+    _dir = os.path.dirname(__file__)
+    DEFAULT_PRONOUN_FILE = os.path.join(_dir, 'rules_files/pronouns.csv')
+    
+    
+    def __init__(self, token:str, pronoun_file:str=DEFAULT_PRONOUN_FILE) -> None:
         self.text = token
+        self.pronoun_file = pronoun_file
 
     def __eq__(self, other):
         if isinstance(other, str):
@@ -37,6 +63,10 @@ class MorphAnalyzedToken():
             return [self]
         return [MorphAnalyzedToken(part) for part in parts]
 
+    @property
+    def _split_by_hyphen(self):
+        return self._split('-')
+
     def _strip(self, *args):
         result = self.text.strip(*args)
         if result == self.text:
@@ -47,7 +77,14 @@ class MorphAnalyzedToken():
         return self.text.isalpha()
     
     _analyze = Vabamorf.instance().analyze
-    _pronoun_lemmas = set(PronounTypeRewriter.load_pronoun_types())
+    
+    @property
+    def _pronoun_types(self):
+        return load_pronoun_types(self.DEFAULT_PRONOUN_FILE)
+
+    @property
+    def _pronoun_lemmas(self):
+        return set(self._pronoun_types)
 
     @property
     def _analysis(self):
@@ -97,7 +134,7 @@ class MorphAnalyzedToken():
         syllables = frozenset({'ta', 'te', 'ma', 'va', 'de', 'me', 'ka', 'sa',
                                'su', 'mu', 'ju', 'era', 'eri', 'eks', 'all',
                                'esi', 'oma', 'ees'})
-        parts = self._split('-')
+        parts = self._split_by_hyphen
         if parts[0].text in syllables:
             return False
         if self.is_word:
@@ -113,6 +150,19 @@ class MorphAnalyzedToken():
         return any(a['partofspeech']=='J' for a in self._analysis)
 
     @property
+    def pronoun_types(self):
+        return load_pronoun_types(self.pronoun_file)
+
+    @property
+    def pronoun_type(self):
+        if self.is_pronoun:
+            # TODO: kas lemma_of_last_part on üheselt määratud?
+            lemma_of_last_part = self._split_by_hyphen[-1]._lemmas('P').pop()
+            return self.pronoun_types.get(lemma_of_last_part, ['invalid'])
+        else:
+            return None
+
+    @property
     def _is_simple_pronoun(self):
         '''
         Returns True if the token has an analysis where the part of speech is
@@ -120,12 +170,13 @@ class MorphAnalyzedToken():
         estnltk/estnltk/rewriting/syntax_preprocessing/rules_files/pronouns.csv,
         False otherwise.
         '''
-        return bool(MorphAnalyzedToken._pronoun_lemmas & self._lemmas('P'))
+        return bool(self._pronoun_lemmas & self._lemmas('P'))
+
     
     @property
     def is_pronoun(self):
         '''
-        Returns true if the token is a word and
+        Returns True if the token is a word and
         - it is a simple pronoun
         or
         - it consists of hyphen-separated parts such that the last part is
@@ -144,7 +195,7 @@ class MorphAnalyzedToken():
         if self._is_simple_pronoun:
             return True
         if '-' in self:
-            parts = self._split('-')
+            parts = self._split_by_hyphen
             if not parts[-1]._is_simple_pronoun:
                 return False
             if any('teadma' in part._lemmas() for part in parts):

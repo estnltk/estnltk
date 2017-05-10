@@ -7,8 +7,8 @@ class PronounTypeTagger():
 
     def tag(self, text):
         new_layer = text['morf_analysis']
-        source_attributes = new_layer.attributes
-        target_attributes = source_attributes + ['pronoun_type']
+        source_attributes = new_layer.attributes + ['text']
+        target_attributes = new_layer.attributes + ['pronoun_type']
         new_layer = new_layer.rewrite(
             source_attributes = source_attributes,
             target_attributes = target_attributes,

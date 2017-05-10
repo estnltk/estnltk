@@ -1,5 +1,7 @@
 from .rewriting import ReverseRewriter
 
+from estnltk.rewriting.helpers.morph_analyzed_token import MorphAnalyzedToken
+
 from estnltk.rewriting.syntax_preprocessing.punctuation_type_rewriter import PunctuationTypeRewriter
 from estnltk.rewriting.syntax_preprocessing.morph_to_syntax_morph_rewriter import MorphToSyntaxMorphRewriter
 from estnltk.rewriting.syntax_preprocessing.pronoun_type_rewriter import PronounTypeRewriter
