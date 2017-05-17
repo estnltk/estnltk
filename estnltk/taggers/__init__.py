@@ -4,4 +4,5 @@ from estnltk.taggers.syntax_preprocessing.verb_extension_suffix_tagger import Ve
 from estnltk.taggers.syntax_preprocessing.subcat_tagger import SubcatTagger
 from estnltk.taggers.syntax_preprocessing.morph_extended_tagger import MorphExtendedTagger
 
+from estnltk.taggers.tokenization_hints_tagger import TokenizationHintsTagger
 from estnltk.taggers.word_tokenizer import WordTokenizer
