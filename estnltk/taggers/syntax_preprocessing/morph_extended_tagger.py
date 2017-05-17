@@ -48,7 +48,7 @@ class MorphExtendedTagger():
         dep = Layer(name='syntax_pp_0',
                          parent='words',
                          ambiguous=True,
-                         attributes=['text', 'word_text', 'lemma', 'root', 'ending', 'clitic', 'partofspeech', 'form']
+                         attributes=['word_text', 'lemma', 'root', 'ending', 'clitic', 'partofspeech', 'form']
                          )
         text._add_layer(dep)
         for word, morf_anal in zip(text.words, text.morf_analysis):

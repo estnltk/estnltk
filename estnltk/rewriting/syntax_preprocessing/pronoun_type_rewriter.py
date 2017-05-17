@@ -1,6 +1,7 @@
 import os
+from pandas import read_csv
 from collections import defaultdict
-from estnltk.rewriting import MorphAnalyzedToken
+
 
 class PronounTypeRewriter():
     ''' Adds 'pronoun_type' attribute to the analysis.
@@ -35,37 +36,27 @@ class PronounTypeRewriter():
         type is ['invalid'].
     '''
 
-    
-    #def __init__(self, pronoun_file=None):
-        #self.pronoun_type = self.load_pronoun_types(pronoun_file)
+    _dir = os.path.dirname(__file__)
+    DEFAULT_PRONOUN_FILE = os.path.join(_dir, 'rules_files/pronouns.csv')
 
+    def __init__(self, pronoun_file=DEFAULT_PRONOUN_FILE):
+        self.pronoun_types = self.load_pronoun_types(pronoun_file)
 
     @staticmethod
-    def load_pronoun_types(pronoun_file=None):
-        if pronoun_file:
-            assert os.path.exists(pronoun_file),\
-                'Unable to find *pronoun_file* from location ' + pronoun_file
-        else:
-            pronoun_file = os.path.dirname(__file__)
-            pronoun_file = os.path.join(pronoun_file,
-                                             'rules_files/pronouns.csv')
-            assert os.path.exists(pronoun_file),\
-                'Missing default *pronoun_file* ' + pronoun_file
-
-        pronoun_type = defaultdict(list)
-        with open(pronoun_file, 'r') as in_f:
-            for l in in_f:
-                pronoun, t = l.split(',')
-                pronoun_type[pronoun.strip()].append(t.strip())
-        return pronoun_type
-
+    def load_pronoun_types(pronoun_file):
+        assert os.path.exists(pronoun_file),\
+            'Unable to find *pronoun_file* from location ' + pronoun_file
+        df = read_csv(pronoun_file, header=None, index_col=False)
+        pronoun_types = defaultdict(list)
+        for a in df.iterrows():
+            pronoun_types[a[1][0]].append(a[1][1])
+        return pronoun_types
 
     def rewrite(self, record):
         for rec in record:
             if rec['partofspeech'] == 'P':
-                pronoun_type = MorphAnalyzedToken(rec['text']).pronoun_type
-                #pronoun_type = self.pronoun_type.get(rec['lemma'], ['invalid'])
-                rec['pronoun_type'] = pronoun_type.copy()
+                lemma = rec['lemma'].split('-')[-1]
+                rec['pronoun_type'] = self.pronoun_types.get(lemma, ['invalid']).copy()
             else:
                 rec['pronoun_type'] = None
         return record

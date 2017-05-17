@@ -1,36 +1,30 @@
 import os
-from collections import defaultdict
+from pandas import read_csv
 from estnltk.vabamorf.morf import Vabamorf
-#from estnltk.rewriting import PronounTypeRewriter
 
 
-def load_pronoun_types(self, pronoun_file=None):
-    if pronoun_file:
-        assert os.path.exists(pronoun_file),\
-            'Unable to find *pronoun_file* from location ' + pronoun_file
-    else:
-        pronoun_file = os.path.dirname(__file__)
-        pronoun_file = os.path.join(pronoun_file,
-                                         'rules_files/pronouns.csv')
-        assert os.path.exists(pronoun_file),\
-            'Missing default *pronoun_file* ' + pronoun_file
+def load_pronoun_lemmas(pronoun_file):
+    """
+    Load a set of prnoun lemmas from the first column of a csv file.
+    """
+    assert os.path.exists(pronoun_file),\
+        'Unable to find *pronoun_file* from location ' + pronoun_file
+    df = read_csv(pronoun_file, header=None, index_col=False)
+    return set(df[0])
 
-    pronoun_type = defaultdict(list)
-    with open(pronoun_file, 'r') as in_f:
-        for l in in_f:
-            pronoun, t = l.split(',')
-            pronoun_type[pronoun.strip()].append(t.strip())
-    return pronoun_type
 
-        
 class MorphAnalyzedToken():
+
     _dir = os.path.dirname(__file__)
-    DEFAULT_PRONOUN_FILE = os.path.join(_dir, 'rules_files/pronouns.csv')
+    DEFAULT_PRONOUN_FILE = os.path.join(_dir, '../syntax_preprocessing/rules_files/pronouns.csv')
+    DEFAULT_PRONOUN_LEMMAS = load_pronoun_lemmas(DEFAULT_PRONOUN_FILE)
     
-    
-    def __init__(self, token:str, pronoun_file:str=DEFAULT_PRONOUN_FILE) -> None:
+    def __init__(self, token:str, pronoun_file:str=None) -> None:
         self.text = token
-        self.pronoun_file = pronoun_file
+        if pronoun_file:
+            self._pronoun_lemmas = load_pronoun_lemmas(pronoun_file)
+        else:
+            self._pronoun_lemmas = self.DEFAULT_PRONOUN_LEMMAS
 
     def __eq__(self, other):
         if isinstance(other, str):
@@ -77,14 +71,6 @@ class MorphAnalyzedToken():
         return self.text.isalpha()
     
     _analyze = Vabamorf.instance().analyze
-    
-    @property
-    def _pronoun_types(self):
-        return load_pronoun_types(self.DEFAULT_PRONOUN_FILE)
-
-    @property
-    def _pronoun_lemmas(self):
-        return set(self._pronoun_types)
 
     @property
     def _analysis(self):
@@ -150,19 +136,6 @@ class MorphAnalyzedToken():
         return any(a['partofspeech']=='J' for a in self._analysis)
 
     @property
-    def pronoun_types(self):
-        return load_pronoun_types(self.pronoun_file)
-
-    @property
-    def pronoun_type(self):
-        if self.is_pronoun:
-            # TODO: kas lemma_of_last_part on üheselt määratud?
-            lemma_of_last_part = self._split_by_hyphen[-1]._lemmas('P').pop()
-            return self.pronoun_types.get(lemma_of_last_part, ['invalid'])
-        else:
-            return None
-
-    @property
     def _is_simple_pronoun(self):
         '''
         Returns True if the token has an analysis where the part of speech is
@@ -171,7 +144,6 @@ class MorphAnalyzedToken():
         False otherwise.
         '''
         return bool(self._pronoun_lemmas & self._lemmas('P'))
-
     
     @property
     def is_pronoun(self):
