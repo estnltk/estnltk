@@ -1,0 +1,416 @@
+
+### ========================================
+###   Sõnestamise reeglid
+### ========================================
+
+###   Arvude- ja hulgafraaside mustrid: pigem üldised või teadus
+###   TODO: Mis morf analüsaator nendega teeb?
+    # 1 ... 5 --> 1<+/>...<+/>5
+    PATT_2
+    # 2 ... 3 , 5 --> 2...3,5
+    PATT_47
+    PATT_47_REPLACE
+    # '20 000' --> '20<+/>000'
+    # 40 000-45 000 --> 40<+/>000-45<+/>000
+    # 17± 5 cm
+    PATT_3
+    # 12632 ±<+/>541<
+    PATT_3_4
+    PATT_3_1
+    # –60 000<+/>m³
+    PATT_3_3
+    # "20 %ga " --> "20%ga"
+    PATT_4
+    # 0,20 -protsendilise --> 0,20-protsendilise
+    PATT_4_2
+    PATT_4_3
+    # 60 km / h --> 60<+/>km/h
+    # 2,3 h / m --> 2,3<+/>h/m
+    # 110 m/h   --> 110<+/>m/h
+    PATT_14
+    PATT_14_REPLACE
+    
+    # 8 - 16% --> "8<+/>-<+/>16%
+    PATT_37
+    PATT_37_REPLACE
+    
+    # Mänguseis või mõõtkava?:
+    #  1 , 5 : 0 , 5 --> 1,5<+/>:<+/>0,5
+    PATT_4_4
+    # 0 : 4 --> 0<+/>:<+/>4
+    PATT_48
+    PATT_48_REPLACE
+    
+    # 294 ha-lt --> 294<+/>ha-lt
+    # 1 ha ..> 1<+/>ha
+    # 1,0 mM --> 1,0<+/>mM
+    # 740 kHz-ni
+    # umbes 2 kg tomateid 1 kg paprikaid 1 kg sibula
+    PATT_21
+    PATT_21_REPLACE
+    PATT_21_1
+    PATT_21_1_REPLACE
+    
+    # 5<+/>36-st
+    PATT_46
+    PATT_46_REPLACE
+    
+    # valemilaadsed asjad, nt 
+    #     3 x 15 --> 3<+/>x<+/>15
+    #     3 × 15 --> 3<+/>×<+/>15
+    PATT_65
+    PATT_65_REPLACE
+    # avaldised, nt 2 + 3 = 5 --> 2<+/>+<+/>3<+/>=<+/>5
+    PATT_68 
+    PATT_68_REPLACE
+    # avaldised, nt ' x 12' --> x<+/>12
+    # 1000 x 109/l
+    PATT_69 
+    PATT_69_REPLACE
+    # avaldised, nt n = 122 --> n<+/>=<+/>122
+    PATT_70
+    PATT_70_REPLACE
+
+### Muud tähtede ja numbrite kombinatsioonid:
+    #  I 26 --> I<+/>26; E 961 --> E<+/>961
+    PATT_71
+    PATT_71
+
+###  Käändelõppude mustrid
+    # AS -le --> AS-le
+    # koera" -ga --> koera"-ga
+    # 4000 -le --> 4000-le
+    # 1,75 -ni --> "1,75-ni
+    # (?!ta|on|ja)
+    PATT_5
+    # sõna ja käändelõpp (kas -i, -il, -it, -iks, -ile, -le, -lt, -l, -ga, -iga, -s, -st, -sse,
+    # -is, -ist, -ni, -d, -id, -ed, -u, -e, -ta, -t, -ks)
+    # nt  SKT -st        --> SKT-st
+    #     LinkedIn -ist  --> LinkedIn-ist
+    #     workshop ' e   --> workshop'e
+    PATT_92
+    PATT_92_REPLACE
+
+### Kuupäevamustrid, aastaarvu jm ajaväljendimustrid
+    # 15. 04. 2005 --> 15.04.2005
+    PATT_33
+    # 1884. a." --> "1884.a.
+    # 1884 . a" --> "1884.a
+    PATT_15
+    PATT_15_REPLACE
+    # 2004 a. --> 2004a.
+    PATT_27
+    PATT_27_REPLACE
+    # KUUPÄEVAD (arv ja kuu kokku kleepunud)
+    # 1.jaanuar --> 1. jaanuar
+    # 15.okt    --> 15. okt
+    PATT_81
+    PATT_81_REPLACE
+
+### HTML-entiteet vahel: pigem mustrid veebilehekülgede jaoks?
+    # Simon &amp; Schusteri --> Simon<+/>&amp;<+/>Schusteri
+    PATT_11
+
+### Vahemikud:
+    # 1998. - 2000 --> "1998.<+/>-<+/>2000
+    # 1.- 4. --> 1.<+/>-<+/>4.
+    # Kell 14.00 – 16.30
+    PATT_26
+    PATT_26_REPLACE
+    PATT_26_1
+    PATT_26_1_REPLACE
+
+### Viide 'ibid' (st samas allikas)
+    # ( Ibid . , </s> <s> 1 ) --> ( Ibid. , 1 )
+    PATT_96
+    PATT_96_REPLACE
+
+### Kui lauselõpupunkt on kleepunud sõna külge, tõstetakse see sõnast lahku
+    # ajal. </s> --> ajal . </s>
+    # jne. </s> --> jne . </s>
+    # 50. </s> --> 50 . </s>
+    # 1995.a. </s> --> 1995.a . </s>
+    # Eesti konsulaat Tamperes avati 2000.aastal. </s>
+    # TODO: testida, kas meil on midagi sellist ka vaja?!?
+    _PATT_16_1
+    _PATT_16_2
+    _PATT_16_3
+    PATT_16
+
+### Initisaalid
+    #
+    #  A . H . Tammsaare -->  A.H.<+/>Tammsaare
+    #  A. H. Tammsaare   -->  A.H.<+/>Tammsaare
+    #     Segane:  kui algul on "P." või keskel "S.", jääb välja
+    #
+    PATT_20_1
+    PATT_20_1_REPLACE 
+    #
+    #  N.<+/>Liiduga
+    #  Initsiaalid
+    #  D . Trump  -->  D.<+/>Trump
+    #      Neg: kui punkti ees on (Hr|Pr|Dr|Mrs?|Sm|Nn|Lp|Nt|Jr), 
+    #           siis ei rakenda
+    #      Neg: kui initsiaalile järgneb (Ja|Ei), siis ei rakenda
+    #
+    PATT_20_2
+    PATT_20_2_REPLACE
+
+
+### Emailid && www-aadressid:
+    # piret.eensoo [ -at- ] keskkonnaamet.ee
+    PATT_email_3
+    PATT_email_3_REPLACE
+    #
+    #  http : //www.offa.org/ stats .
+    #  ( sisuliselt: sõnestaja järelparandus )
+    PATT_http
+    PATT_http_REPLACE
+
+
+### ========================================
+###   Ignoreerimise reeglid
+### ========================================
+# TODO: lisatakse, kuna süntaksis pole näiteks mõtet analüüsida sulgudes olevaid viiteid;
+#       infoeraldamise mõttes aga võivad need huvi pakkuda küll;
+#       lasta morfist läbi, aga mitte süntaksist?
+### Sulgudes olevad kuupäevaviited ja tabeliviited -- lisatakse ignoreeri märgend
+    # ( Finck , 1979 ; Kuldkepp , 1994) --> <ignore> ( Finck , 1979 ; Kuldkepp , 1994) </ignore> OTSI RELEVANTSEM
+    # ( vt tabel 2 )" --> <ignore> ( vt tabel 2 ) </ignore>
+    # <ignore> ( nr 5/ 13.1.2012 ) </ignore>
+    PATT_12
+    PATT_12_REPLACE
+    PATT_BRACS
+    PATT_BRACS_REPLACE
+    PATT_REMOVE_NESTED_IGNORES
+    PATT_REMOVE_NESTED_IGNORES_SUB
+    # ( Venemaa ) --> <ignore> ( Venemaa ) </ignore>
+    # ( Jaapan , Subaru ) --> <ignore> ( Jaapan , Subaru ) </ignore>
+    PATT_55
+    PATT_55_REPLACE
+    # ( WTA 210. ) --> <ignore> ( WTA 210. ) </ignore>
+    # Kreekaga ( 57. ) --> Kreekaga <ignore> ( 57. ) </ignore>
+    PATT_62
+    PATT_62_REPLACE
+    # VIITED või ÜLAINDEKSID, nt [ 4 ] --> <ignore> [ 4 ] </ignore>
+    PATT_80 
+    PATT_80_REPLACE
+
+
+### Lühikeste lausejuppide või paragrahvijuppide ignoreerimine:
+    # ülaindeksid: </s> <s> [0-9]\+ </s> </p>'  -->  </s> <s> <ignore>[0-9]\+</ignore> </s> </p>'
+    PATT_77
+    PATT_77_REPLACE
+    # lause ja lõigu sisu: number, nt <p heading="0"> <s> 8 . </s> </p>  -->  <p heading="0"> <s> <ignore> 8 . </ignore> </s> </p>
+    PATT_82
+    PATT_82_REPLACE = r'\1<ignore> \2 <ignore>\3'
+    # Lause koosneb vaid numbrist:
+    #   <s> -0.9% </s> </p>  -->  <s> <ignore> -0.9% <ignore> </s> </p>
+    #   <s> …0 </s>          -->  <s> <ignore>  …0 <ignore> </s> 
+    PATT_97
+    PATT_97_REPLACE
+    PATT_98
+    PATT_98_REPLACE
+
+
+### ========================================
+###   Lausepiiride järelparandused
+### ========================================
+
+### Valesti pandud lausemärgendite parandused:
+###  lausepiiride eemaldamine
+    ### lühendid:
+    # sealh. </s> <s> --> sealh.
+    # sh. </s> <s>    --> sh.
+    PATT_72
+    PATT_72_REPLACE
+    # st. </s> <s>    --> st.
+    PATT_72_1
+    PATT_72_1_REPLACE
+    # s. </s> <s> o.  --> s.o.
+    # s. </s> <s> t.  --> s.t.
+    PATT_73
+    PATT_73_REPLACE
+    # Uus tn . </s> <s> 9 --> Uus tn. 9
+    PATT_74
+    PATT_74_REPLACE
+    # Koost \. </s> <s>           --> Koost. 
+    # <s> Nt . </s> <s> sisendada --> Nt. sisendada
+    PATT_75
+    PATT_75_REPLACE
+    # toim . </s> <s> --> toim.
+    # Tlk . </s> <s>  --> Tlk.
+    PATT_76 = re.compile
+    PATT_76_REPLACE
+    # Mr . </s> <s>  --> Mr.
+    PATT_86
+    PATT_86_REPLACE
+    # so . </s> <s> nautida --> so. nautida
+    PATT_93
+    PATT_93_REPLACE
+    # Vrd . </s> <s> ka nt. --> Vrd. ka ...
+    PATT_94
+    PATT_94_REPLACE
+    # Jr . </s> <s> , USA tennisist --> Jr. ...
+    PATT_103
+    PATT_103_REPLACE
+    # hrl \. </s> <s>  --> hrl. 
+    PATT_102
+    PATT_102_REPLACE
+    
+    # punkt + suurtähega lühendisarnane sõna + lauselõpp + lausealgus + väiketähega sõna
+    # ' [^ ]\+ \. [A-ZÕÜÖÄ][a-zõüöä]\+ <\/s> <s> [a-zõüöä]\+'
+    # maksma . Noh </s> <s> naised  -->  maksma . Noh naised
+    PATT_83 
+    PATT_83_REPLACE
+    # lausestaja viga: hr./dr. vms tiitliga nimele järgnev lauselõpp
+    # Kui pudikeelne hr . Laar </s> <s> veel Rahumäel elas kommunaalmajas  -->  Kui pudikeelne hr. Laar veel Rahumäel elas kommunaalmajas
+    # sm . Kõlvarti </s> <s> tegevus  -->  sm. Kõlvarti tegevus
+    #  NB! Ühtlasi parandatakse ka sõnestust:  hr . Laar --> hr.Laar
+    PATT_84
+    PATT_84_REPLACE
+    # punkt + suurtähega sõna + koma + lauselõpp + lausealgus
+    # ' \. [A-ZÕÜÖÄ][a-zõüöä]\+ , <\/s> <s>'
+    # nt ahjusuu . Eesruumil , </s> <s> nurgatagusel duširuumil ja
+    PATT_85
+    PATT_85_REPLACE
+    
+    ### E-maili aadressid:
+    #  ingrid . </s> <s> vinn [ -at- ] keskkonnaamet.ee
+    # väljund: ingrid.vinn[-at-]keskkonnaamet.ee
+    PATT_email_1
+    PATT_email_1_REPLACE
+    # Kristiina . Abel </s> <s> [ -at- ] fin.ee
+    PATT_email_2
+    PATT_email_2_REPLACE
+    
+    ### WWW-aadressid:
+    # www. </s> <s> esindus.ee/korteriturg --> www.esindus.ee/korteriturg
+    # www. </s> <s> kavkazcenter.com
+    PATT_www
+    PATT_www_REPLACE
+    # http: // www. </s > <s> cavalierklubben
+    PATT_www2
+    PATT_www2_REPLACE
+    # http://www.politsei.ee/dotAsset/225706. ... </s>
+    PATT_www3
+    PATT_www3_REPLACE
+    
+    ### Aastaarvumustrid
+    # 1629 . </s> <s> a. vastu --> 1629.a.
+    PATT_101
+    PATT_101_REPLACE
+    # 1629 . </s> <s> aasta --> 1629.aasta
+    #  !NB! Tegelikult oleks hea, kui säiliks tühik aasta ja punkti vahel
+    PATT_104
+    PATT_104_REPLACE
+    
+    ### Sulgudele järgnev punkt ja valesti määratud lausepiir:
+    # ( 85 . </s> <s> Antonov  --> ( 85. Antonov
+    #   NB! parandavad ka sõnestust
+    PATT_60
+    PATT_60_REPLACE
+    
+    ### Kui lauset lõpetav märk või sulg sattus järgmise lause algusesse, 
+    ### tõstetakse see eelmisesse lausesse tagasi
+    PATT_99
+    PATT_99_REPLACE
+    PATT_99_1
+    PATT_99_1_REPLACE
+    ###  Kui üks lause lõpeb ja järgmise lause alguses on ) ja ,
+    ###  siis eemalda lauselõpp ja -algus ) ja , eest
+    PATT_99_2
+    PATT_99_2_REPLACE
+    ###  </s> <s> </s> --> </s>
+    PATT_99_3
+    PATT_99_3_REPLACE
+    
+    ### Lausestuse jama: Kui ühe lause lõpu ja järgmise algusesse (või paragrahvi
+    ### lõpu vahel) on lausemärkidega katmata ala, siis tõsta lausepiiridest
+    ### välja jäänud asi sinna sisse tagasi ...
+    # Koidula Ameerikas <ignore> ( s . </s> 1927 ) </ignore> . </p>
+    # tänavate olukorraga Võru linnas ? " </s> jne. </p>
+    PATT_95
+    PATT_95_REPLACE
+
+
+### Valesti pandud lausemärgendite parandused:
+###  lausepiiride lisamine
+    ### Väga jäme lausestusreegel:
+    #  kui punktile ei eelne lausepiir aga järgneb suuretäheline sõna,
+    #  lisa lausepiirid:
+    #      [^>] \.[A-ZÕÜÖÄ][a-zõüöä]\+  -->  [^>] </s> <s> \.[A-ZÕÜÖÄ][a-zõüöä]\+
+    #  NB! võimalik, et meil seda vaja pole
+    PATT_100
+    PATT_100_REPLACE
+    #   sõna....SuurtähegaSõna --> sõna ... </s> <s> SuurtähegaSõna
+    #   ehk ('\w+\.\.+[A-ZÕÜÖÄ]+[^ ]+')
+    PATT_lausepiir
+    PATT_lausepiir_REPLACE
+
+
+### ========================================
+###   Valestipandud märgendite parandused
+### ========================================
+### TODO: kas meil on üldse siit midagi vaja?
+
+### Tühjade lausemärgendite ja lõigumärgendite eemaldamine
+    # <s> </s>
+    PATT_tyhjad_laused
+    PATT_tyhjad_laused_REPLACE
+    # <p> </p>\n
+    PATT_tyhjad_loigud
+    PATT_tyhjad_loigud_REPLACE
+    # <p> </p> </doc>
+    PATT_tyhjad_loigud_1
+    PATT_tyhjad_loigud_1_REPLACE
+    # reavahetuse eemaldamine:
+    # </doc>\n
+    PATT_reavahetus
+    PATT_reavahetus_REPLACE
+    
+### Mingi asja ignoreerimine ( ei saa praegu täpselt aru, millega tegu )
+    PATT_34
+    PATT_34_REPLACE
+
+### Valestiläinud ignoreerimismärgendite parandamine:
+    # <ignore> ( 2 . </s> <s> 8) </ignore> --> <ignore> (2 . 8) </ignore>
+    PATT_43
+    PATT_43_REPLACE
+    # <ignore> (FRA) </ignore> <ignore> (13) </ignore> --> <ignore> (FRA) (13) </ignore>
+    PATT_49
+    PATT_49_REPLACE
+    # <ignore> (17) </ignore> , <ignore> (20) </ignore> isa --> <ignore> (17) , (20) </ignore> isa
+    PATT_50
+    PATT_50_REPLACE
+    #    9</ignore> --> 9 </ignore>
+    #    A</ignore> --> A </ignore>
+    PATT_51
+    PATT_51_REPLACE
+    # <ignore> .* </ignore> ja <ignore> .* </ignore> --> <ignore> .* ja .* </ignore>
+    PATT_52
+    PATT_52_REPLACE
+    # <ignore> ( SK Reval Sport spordihoone Aia t . </s> <s> <ignore> 20 ) </ignore> </ignore> ;
+    PATT_91
+    PATT_91_REPLACE 
+    # SISEMISTE IGNOREIDE EEMALDUS
+    # <ignore> ( viimasel päeval võitis Goran Ivanisevic <ignore> ( Horvaatia ) </ignore>
+    #  Thomas Musteri 6<+/>:<+/>7,7<+/>:<+/>5,6<+/>:<+/>7,6<+/>:<+/>2,7<+/>:<+/>5 ) </ignore>
+    PATT_90
+    PATT_90_REPLACE
+    # kokkukleepunud ignore, lausestaja viga
+    PATT_78
+    PATT_78_REPLACE
+    PATT_78_1
+    PATT_78_1_REPLACE
+
+### Muud paranduste järelparandused
+    PATT_57
+    PATT_57_REPLACE
+    # <+/> 24 --> <+/>24
+    PATT_37_1
+    PATT_37_1_REPLACE
+    # 1999<+/>24. --> 1999 24.
+    PATT_37_2
+    PATT_37_2_REPLACE
+
