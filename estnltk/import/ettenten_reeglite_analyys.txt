@@ -3,7 +3,7 @@
 ###   Sõnestamise reeglid
 ### ========================================
 
-###   Arvude- ja hulgafraaside mustrid: pigem üldised või teadus
+###   Arvude- ja hulgafraaside mustrid
 ###   TODO: Mis morf analüsaator nendega teeb?
     # 1 ... 5 --> 1<+/>...<+/>5
     PATT_2
@@ -76,21 +76,6 @@
     PATT_71
     PATT_71
 
-###  Käändelõppude mustrid
-    # AS -le --> AS-le
-    # koera" -ga --> koera"-ga
-    # 4000 -le --> 4000-le
-    # 1,75 -ni --> "1,75-ni
-    # (?!ta|on|ja)
-    PATT_5
-    # sõna ja käändelõpp (kas -i, -il, -it, -iks, -ile, -le, -lt, -l, -ga, -iga, -s, -st, -sse,
-    # -is, -ist, -ni, -d, -id, -ed, -u, -e, -ta, -t, -ks)
-    # nt  SKT -st        --> SKT-st
-    #     LinkedIn -ist  --> LinkedIn-ist
-    #     workshop ' e   --> workshop'e
-    PATT_92
-    PATT_92_REPLACE
-
 ### Kuupäevamustrid, aastaarvu jm ajaväljendimustrid
     # 15. 04. 2005 --> 15.04.2005
     PATT_33
@@ -107,10 +92,6 @@
     PATT_81
     PATT_81_REPLACE
 
-### HTML-entiteet vahel: pigem mustrid veebilehekülgede jaoks?
-    # Simon &amp; Schusteri --> Simon<+/>&amp;<+/>Schusteri
-    PATT_11
-
 ### Vahemikud:
     # 1998. - 2000 --> "1998.<+/>-<+/>2000
     # 1.- 4. --> 1.<+/>-<+/>4.
@@ -120,10 +101,24 @@
     PATT_26_1
     PATT_26_1_REPLACE
 
-### Viide 'ibid' (st samas allikas)
-    # ( Ibid . , </s> <s> 1 ) --> ( Ibid. , 1 )
-    PATT_96
-    PATT_96_REPLACE
+###  Käändelõppude mustrid
+    # AS -le --> AS-le
+    # koera" -ga --> koera"-ga
+    # 4000 -le --> 4000-le
+    # 1,75 -ni --> "1,75-ni
+    # (?!ta|on|ja)
+    PATT_5
+    # sõna ja käändelõpp (kas -i, -il, -it, -iks, -ile, -le, -lt, -l, -ga, -iga, -s, -st, -sse,
+    # -is, -ist, -ni, -d, -id, -ed, -u, -e, -ta, -t, -ks)
+    # nt  SKT -st        --> SKT-st
+    #     LinkedIn -ist  --> LinkedIn-ist
+    #     workshop ' e   --> workshop'e
+    PATT_92
+    PATT_92_REPLACE
+
+### HTML-entiteet vahel: pigem mustrid veebilehekülgede jaoks?
+    # Simon &amp; Schusteri --> Simon<+/>&amp;<+/>Schusteri
+    PATT_11
 
 ### Kui lauselõpupunkt on kleepunud sõna külge, tõstetakse see sõnast lahku
     # ajal. </s> --> ajal . </s>
@@ -166,51 +161,6 @@
     #  ( sisuliselt: sõnestaja järelparandus )
     PATT_http
     PATT_http_REPLACE
-
-
-### ========================================
-###   Ignoreerimise reeglid
-### ========================================
-# TODO: lisatakse, kuna süntaksis pole näiteks mõtet analüüsida sulgudes olevaid viiteid;
-#       infoeraldamise mõttes aga võivad need huvi pakkuda küll;
-#       lasta morfist läbi, aga mitte süntaksist?
-### Sulgudes olevad kuupäevaviited ja tabeliviited -- lisatakse ignoreeri märgend
-    # ( Finck , 1979 ; Kuldkepp , 1994) --> <ignore> ( Finck , 1979 ; Kuldkepp , 1994) </ignore> OTSI RELEVANTSEM
-    # ( vt tabel 2 )" --> <ignore> ( vt tabel 2 ) </ignore>
-    # <ignore> ( nr 5/ 13.1.2012 ) </ignore>
-    PATT_12
-    PATT_12_REPLACE
-    PATT_BRACS
-    PATT_BRACS_REPLACE
-    PATT_REMOVE_NESTED_IGNORES
-    PATT_REMOVE_NESTED_IGNORES_SUB
-    # ( Venemaa ) --> <ignore> ( Venemaa ) </ignore>
-    # ( Jaapan , Subaru ) --> <ignore> ( Jaapan , Subaru ) </ignore>
-    PATT_55
-    PATT_55_REPLACE
-    # ( WTA 210. ) --> <ignore> ( WTA 210. ) </ignore>
-    # Kreekaga ( 57. ) --> Kreekaga <ignore> ( 57. ) </ignore>
-    PATT_62
-    PATT_62_REPLACE
-    # VIITED või ÜLAINDEKSID, nt [ 4 ] --> <ignore> [ 4 ] </ignore>
-    PATT_80 
-    PATT_80_REPLACE
-
-
-### Lühikeste lausejuppide või paragrahvijuppide ignoreerimine:
-    # ülaindeksid: </s> <s> [0-9]\+ </s> </p>'  -->  </s> <s> <ignore>[0-9]\+</ignore> </s> </p>'
-    PATT_77
-    PATT_77_REPLACE
-    # lause ja lõigu sisu: number, nt <p heading="0"> <s> 8 . </s> </p>  -->  <p heading="0"> <s> <ignore> 8 . </ignore> </s> </p>
-    PATT_82
-    PATT_82_REPLACE = r'\1<ignore> \2 <ignore>\3'
-    # Lause koosneb vaid numbrist:
-    #   <s> -0.9% </s> </p>  -->  <s> <ignore> -0.9% <ignore> </s> </p>
-    #   <s> …0 </s>          -->  <s> <ignore>  …0 <ignore> </s> 
-    PATT_97
-    PATT_97_REPLACE
-    PATT_98
-    PATT_98_REPLACE
 
 
 ### ========================================
@@ -310,6 +260,11 @@
     #   NB! parandavad ka sõnestust
     PATT_60
     PATT_60_REPLACE
+    ### Viide 'ibid' (st samas allikas)
+    # ( Ibid . , </s> <s> 1 ) --> ( Ibid. , 1 )
+    #   NB! parandavad ka sõnestust
+    PATT_96
+    PATT_96_REPLACE
     
     ### Kui lauset lõpetav märk või sulg sattus järgmise lause algusesse, 
     ### tõstetakse see eelmisesse lausesse tagasi
@@ -347,6 +302,51 @@
     #   ehk ('\w+\.\.+[A-ZÕÜÖÄ]+[^ ]+')
     PATT_lausepiir
     PATT_lausepiir_REPLACE
+
+
+### ========================================
+###   Ignoreerimise reeglid
+### ========================================
+# TODO: lisatakse, kuna süntaksis pole näiteks mõtet analüüsida sulgudes olevaid viiteid;
+#       infoeraldamise mõttes aga võivad need huvi pakkuda küll;
+#       lasta morfist läbi, aga mitte süntaksist?
+### Sulgudes olevad kuupäevaviited ja tabeliviited -- lisatakse ignoreeri märgend
+    # ( Finck , 1979 ; Kuldkepp , 1994) --> <ignore> ( Finck , 1979 ; Kuldkepp , 1994) </ignore> OTSI RELEVANTSEM
+    # ( vt tabel 2 )" --> <ignore> ( vt tabel 2 ) </ignore>
+    # <ignore> ( nr 5/ 13.1.2012 ) </ignore>
+    PATT_12
+    PATT_12_REPLACE
+    PATT_BRACS
+    PATT_BRACS_REPLACE
+    PATT_REMOVE_NESTED_IGNORES
+    PATT_REMOVE_NESTED_IGNORES_SUB
+    # ( Venemaa ) --> <ignore> ( Venemaa ) </ignore>
+    # ( Jaapan , Subaru ) --> <ignore> ( Jaapan , Subaru ) </ignore>
+    PATT_55
+    PATT_55_REPLACE
+    # ( WTA 210. ) --> <ignore> ( WTA 210. ) </ignore>
+    # Kreekaga ( 57. ) --> Kreekaga <ignore> ( 57. ) </ignore>
+    PATT_62
+    PATT_62_REPLACE
+    # VIITED või ÜLAINDEKSID, nt [ 4 ] --> <ignore> [ 4 ] </ignore>
+    PATT_80 
+    PATT_80_REPLACE
+
+
+### Lühikeste lausejuppide või paragrahvijuppide ignoreerimine:
+    # ülaindeksid: </s> <s> [0-9]\+ </s> </p>'  -->  </s> <s> <ignore>[0-9]\+</ignore> </s> </p>'
+    PATT_77
+    PATT_77_REPLACE
+    # lause ja lõigu sisu: number, nt <p heading="0"> <s> 8 . </s> </p>  -->  <p heading="0"> <s> <ignore> 8 . </ignore> </s> </p>
+    PATT_82
+    PATT_82_REPLACE = r'\1<ignore> \2 <ignore>\3'
+    # Lause koosneb vaid numbrist:
+    #   <s> -0.9% </s> </p>  -->  <s> <ignore> -0.9% <ignore> </s> </p>
+    #   <s> …0 </s>          -->  <s> <ignore>  …0 <ignore> </s> 
+    PATT_97
+    PATT_97_REPLACE
+    PATT_98
+    PATT_98_REPLACE
 
 
 ### ========================================
