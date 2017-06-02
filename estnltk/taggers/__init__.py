@@ -1,3 +1,6 @@
+from estnltk.taggers.raw_text_tagging.keyword_tagger import KeywordTagger
+from estnltk.taggers.raw_text_tagging.regex_tagger import RegexTagger
+
 from estnltk.taggers.syntax_preprocessing.pronoun_type_tagger import PronounTypeTagger
 from estnltk.taggers.syntax_preprocessing.finite_form_tagger import FiniteFormTagger
 from estnltk.taggers.syntax_preprocessing.verb_extension_suffix_tagger import VerbExtensionSuffixTagger
@@ -6,5 +9,5 @@ from estnltk.taggers.syntax_preprocessing.morph_extended_tagger import MorphExte
 
 from estnltk.taggers.premorph.premorf import WordNormalizingTagger
 from estnltk.taggers.morf import VabamorfTagger
-from estnltk.taggers.tokenization_hints_tagger import TokenizationHintsTagger
+from estnltk.taggers.tokenization_hints_tagger.tokenization_hints_tagger import TokenizationHintsTagger
 from estnltk.taggers.word_tokenizer import WordTokenizer
