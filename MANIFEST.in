@@ -6,3 +6,6 @@ graft estnltk/vabamorf/dct
 graft estnltk/mw_verbs/res
 graft estnltk/converters
 graft estnltk/estner
+graft estnltk/rewriting/syntax_preprocessing/rules_files
+graft estnltk/rewriting/postmorph/rules_files
+graft estnltk/rewriting/premorph/rules_files
