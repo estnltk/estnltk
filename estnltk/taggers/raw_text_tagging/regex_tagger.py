@@ -25,8 +25,7 @@ class RegexTagger:
     """ 
     """
     def __init__(self,
-                 vocabulary=None,
-                 vocabularies=None,
+                 vocabulary,
                  attributes=[],
                  conflict_resolving_strategy='MAX',
                  overlapped=False,
@@ -53,14 +52,7 @@ class RegexTagger:
         # attributes needed by tagger 
         self._internal_attributes = self._attributes|{'_group_', '_priority_'}
         
-        if vocabularies:
-            if vocabulary:
-                raise ValueError("Both, vocabulary and vocabularies given.")
-            self._vocabulary = []
-            for v in vocabularies:
-                self._vocabulary.extend(self._read_expression_vocabulary(v))
-        elif vocabulary:
-            self._vocabulary = self._read_expression_vocabulary(vocabulary)
+        self._vocabulary = self._read_expression_vocabulary(vocabulary)
         self._overlapped = overlapped
         self._return_layer = return_layer
         if conflict_resolving_strategy not in ['ALL', 'MIN', 'MAX']:
