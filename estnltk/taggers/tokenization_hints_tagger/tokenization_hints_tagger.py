@@ -11,7 +11,8 @@ class TokenizationHintsTagger:
                  tag_numbers=True, 
                  tag_unit=True, 
                  tag_email=True, 
-                 tag_initials=True):
+                 tag_initials=True,
+                 ):
         '''
         tag_numbers: boolean, default: True
             Tag numbers
@@ -34,7 +35,7 @@ class TokenizationHintsTagger:
         if tag_initials:
             _vocabulary.extend(initial_patterns)
         self._tagger = RegexTagger(vocabulary=_vocabulary,
-                                   attributes={'normalized'},
+                                   attributes={'normalized','_priority_'},
                                    conflict_resolving_strategy=conflict_resolving_strategy,
                                    overlapped=overlapped,
                                    return_layer=return_layer,

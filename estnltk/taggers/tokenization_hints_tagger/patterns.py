@@ -1,5 +1,12 @@
 import regex as re
 
+MACROS = {
+            'LOWERCASE': 'a-zšžõäöü',
+            'UPPERCASE': 'A-ZŠŽÕÄÖÜ',
+            '1,3': '{1,3}'
+         }
+MACROS['LETTERS']  = MACROS['LOWERCASE'] + MACROS['UPPERCASE']
+
 email_patterns = [
      {'_group_': 1,
       '_priority_': (0, 0),
@@ -20,31 +27,30 @@ number_patterns = [
 
 unit_patterns = [
     {
-     '_regex_pattern_': re.compile(r'''            # PATT_14
-                        (^|[^a-zõüöäA-ZÕÜÖÄ])       # algus või mittetäht
-                        (([a-zõüöäA-ZÕÜÖÄ]{1,3})    # kuni 3 tähte
-                        \s?/\s?                     # kaldkriips
-                        ([a-zõüöäA-ZÕÜÖÄ]{1,3}))    # kuni kolm tähte
-                        ([^a-zõüöäA-ZÕÜÖÄ]|$)       # mittetäht või lõpp
-                        ''', re.X),
+     '_regex_pattern_': re.compile(r'''        # PATT_14
+                        (^|[^{LETTERS}])       # algus või mittetäht
+                        (([{LETTERS}]{1,3})    # kuni 3 tähte
+                        \s?/\s?                # kaldkriips
+                        ([{LETTERS}]{1,3}))    # kuni kolm tähte
+                        ([^{LETTERS}]|$)       # mittetäht või lõpp
+                        '''.format(**MACROS), re.X),
      '_group_': 2,
      '_priority_': (2, 0),
      'normalized': "lambda m: re.sub('\s' ,'' , m.group(2))",
      'comment': 'unit of measure',
      'example': 'km / h',
       },
-
                  ]
 
 initial_patterns = [
     {
      '_regex_pattern_': re.compile(r'''
-                        ((?!P\.)[A-ZÕÜÖÄ][a-zõüöä]?)   # initsiaalid, millele võib
+                        ((?!P\.)[{UPPERCASE}][{LOWERCASE}]?)   # initsiaalid, millele võib
                         \s?\.\s?                 # tühikute vahel järgneda punkt
-                        ((?!S\.)[A-ZÕÜÖÄ][a-zõüöä]?)   # initsiaalid, millele võib
+                        ((?!S\.)[{UPPERCASE}][{LOWERCASE}]?)   # initsiaalid, millele võib
                         \s?\.\s?       # tühikute vahel järgneda punkt
-                        ((\.[A-ZÕÜÖÄ]\.)?[A-ZÕÜÖÄ][a-zõüöä]+)   # perekonnanimi
-                        ''', re.X),
+                        ((\.[{UPPERCASE}]\.)?[{UPPERCASE}][{LOWERCASE}]+)   # perekonnanimi
+                        '''.format(**MACROS), re.X),
      '_group_': 0,
      '_priority_': (3, 0),
      'normalized': lambda m: re.sub('\1.\2. \3' ,'' , m.group(0)),
