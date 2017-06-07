@@ -1,4 +1,3 @@
-from estnltk.taggers.raw_text_tagging.keyword_tagger import KeywordTagger
 from estnltk.taggers.raw_text_tagging.regex_tagger import RegexTagger
 
 from estnltk.taggers.syntax_preprocessing.pronoun_type_tagger import PronounTypeTagger
