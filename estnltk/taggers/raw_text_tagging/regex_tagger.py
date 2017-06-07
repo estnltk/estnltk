@@ -2,23 +2,124 @@ import regex as re
 from pandas import DataFrame, read_csv
 
 from estnltk.text import Layer
+from estnltk.text import Span, SpanList
 
 
-class SpanConflict:
-    _id = 0
-    
-    def __init__(self, rec):
-        self.rec = rec
-        self.length = rec['end'] - rec['start']
-        self.conflicting = []
-        self.id = SpanConflict._id
-        SpanConflict._id += 1
+class SpanConflict(Span):
 
-    def __lt__(self, other):
-        return (self.rec['start'], self.rec['end']) < (other.rec['start'], other.rec['end'])
+    def __init__(self, *args, **kwargs):
+        self.conflicting = [] # placeholder for the list of conflicting spans of the same layer
+        super().__init__(*args, **kwargs)
 
-    def __repr__(self):
-        return repr(self.rec)+', with '+str(len(self.conflicting))+' conflicts'
+    @property
+    def length(self):
+        return self.end - self.start
+
+
+class LayerConflict(Layer):
+
+    def __init__(self,
+                 conflict_resolving_strategy='MAX',
+                 *args, **kwargs):
+        assert conflict_resolving_strategy in {'MAX', 'MIN', 'ALL'}, 'unknown conflict_resolving_strategy: ' + conflict_resolving_strategy
+        self._conflict_resolving_strategy = conflict_resolving_strategy
+        super().__init__(*args, **kwargs)
+
+    # copy of Layer.from_records where Span is replaced by SpanConflict
+    def from_records(self, records, rewriting=False) -> 'Layer':
+        if self.parent is not None and not self._bound:
+            self._is_lazy = True
+
+        if self.ambiguous:
+            if rewriting:
+                self.spans = SpanList(ambiguous=True, layer=self)
+                tmpspans = []
+                for record_line in records:
+                    if record_line is not None:
+                        spns = SpanList(layer=self, ambiguous=False)
+                        spns.spans = [SpanConflict(**{**record, **{'layer':self}}, legal_attributes=self.attributes) 
+                                      for record in record_line]
+                        tmpspans.append(spns)
+                        self.spans.classes[(spns.spans[0].start, spns.spans[0].end)] = spns
+                self.spans.spans = tmpspans
+            else:
+                for record_line in records:
+                    self._add_spans([SpanConflict(**record, legal_attributes=self.attributes) for record in record_line])
+        else:
+            if rewriting:
+                spns = SpanList(layer=self, ambiguous=False)
+                spns.spans = [SpanConflict(**{**record, **{'layer': self}}, legal_attributes=self.attributes) for record in records if record is not None]
+
+                self.spans = spns
+            else:
+                for record in records:
+                    self.add_span(SpanConflict(
+                        **record,
+                        legal_attributes=self.attributes
+                    ))
+        return self
+
+    def _delete_conflicting_spans(self, priority_key, delete_equal):
+        '''
+        If delete_equal is False, two spans are in conflict and one of them has
+        a strictly lower priority determined by the priority_key, then that span
+        is removed from the span list self.spans.spans
+        If delete_equal is True, then one of the conflicting spans is removed
+        even if the priorities are equal.
+        Returns
+            True, if some conflicts remained unsolved,
+            False, otherwise.
+        '''
+        conflicts_exist = False
+        span_removed = False
+        span_list = sorted(self.spans.spans, key=priority_key)
+        for obj in span_list:
+            for c in obj.conflicting:
+                if delete_equal or priority_key(obj) < priority_key(c):
+                    # üldjuhul ebaefektiivne
+                    try:
+                        span_list.remove(c)
+                        span_removed = True
+                    except ValueError:
+                        pass
+                elif priority_key(obj) == priority_key(c) and c in span_list:
+                    conflicts_exist = True
+        if span_removed:
+            self.spans.spans = sorted(span_list)
+        return conflicts_exist
+
+
+    def resolve_conflicts(self):
+        priorities = set()
+        self._number_of_conflicts = 0
+        span_conflict_list = self.spans.spans
+        for i, obj in enumerate(span_conflict_list):
+            if '_priority_' in self.attributes:
+                priorities.add(obj._priority_)
+            for j in range(i+1, len(span_conflict_list)):
+                if obj.end <= span_conflict_list[j].start:
+                    break
+                self._number_of_conflicts += 1
+                obj.conflicting.append(span_conflict_list[j])
+                span_conflict_list[j].conflicting.append(obj)
+        if self._number_of_conflicts == 0:
+            return self
+
+        conflicts_exist = True
+        if len(priorities) > 1:
+            priority_key = lambda x: x._priority_
+            conflicts_exist = self._delete_conflicting_spans(priority_key, delete_equal=False)
+
+        if not conflicts_exist or self._conflict_resolving_strategy=='ALL':
+            return self
+        
+        if self._conflict_resolving_strategy == 'MAX':
+            priority_key = lambda x: (-x.length,x.start)
+        elif self._conflict_resolving_strategy == 'MIN':
+            priority_key = lambda x: (x.length,x.start)
+
+        self._delete_conflicting_spans(priority_key, delete_equal=True)
+        return self
 
 
 class RegexTagger:
@@ -61,61 +162,6 @@ class RegexTagger:
         self._layer_name = layer_name
 
 
-    def _delete_conflicting_spans(self, span_conflict_list, priority_key):
-        '''
-        If two spans are in conflict and one of them has a strictly lower 
-        priority determined by the priority_key, then that span is removed from
-        the span_conflict_list.
-        '''
-        conflicts_exist = False
-        span_conflict_list = sorted(span_conflict_list, key=priority_key)
-        for obj in span_conflict_list:
-            for c in obj.conflicting:
-                if priority_key(obj) < priority_key(c):
-                    # üldjuhul ebaefektiivne
-                    try:
-                        span_conflict_list.remove(c)
-                    except ValueError:
-                        pass
-                elif c in span_conflict_list:
-                    conflicts_exist = True
-        return span_conflict_list, conflicts_exist
-
-
-    def _resolve_conflicts(self, records):
-        priorities = set()
-        self._number_of_conflicts = 0
-        span_conflict_list = sorted([SpanConflict(rec) for rec in records])
-        for i, obj in enumerate(span_conflict_list):
-            priorities.add(obj.rec['_priority_'])
-            for j in range(i+1, len(span_conflict_list)):
-                if obj.rec['end'] <= span_conflict_list[j].rec['start']:
-                    break
-                self._number_of_conflicts += 1
-                obj.conflicting.append(span_conflict_list[j])
-                span_conflict_list[j].conflicting.append(obj)
-        if self._number_of_conflicts == 0:
-            return [obj.rec for obj in span_conflict_list]
-
-        conflicts_exist = True
-        if len(priorities) > 1:
-            priority_key = lambda x: x.rec['_priority_']
-            conflicts_exist, span_conflict_list = self._delete_conflicting_spans(span_conflict_list, priority_key)
-
-        if not conflicts_exist or self._conflict_resolving_strategy=='ALL':
-            return [obj.rec for obj in sorted(span_conflict_list)]
-        
-        if self._conflict_resolving_strategy == 'MAX':
-            priority_key = lambda x: (-x.length,x.rec['start'],x.id)
-            _, span_conflict_list = self._delete_conflicting_spans(span_conflict_list, priority_key)
-            return [obj.rec for obj in sorted(span_conflict_list)]
-
-        if self._conflict_resolving_strategy == 'MIN':
-            priority_key = lambda x: (x.length,x.rec['start'],x.id)
-            _, span_conflict_list = self._delete_conflicting_spans(span_conflict_list, priority_key)
-            return [obj.rec for obj in sorted(span_conflict_list)]
-
-
     def _read_expression_vocabulary(self, expression_vocabulary):
         if isinstance(expression_vocabulary, list):
             vocabulary = expression_vocabulary
@@ -152,24 +198,24 @@ class RegexTagger:
         return records
 
 
-    def tag(self, text, status={}):
+    def tag(self, text):
         """Retrieves list of regex_matches in text.
         Parameters
         ----------
         text: Text
-            The estnltk text object to search for events.
-        status: dict
-            A pointer to conflict info. The total number of conflicts before
-            conflict resolving is saved to status['conflicts'].
+            The estnltk text object to search for matches.
         Returns
         -------
-        list of matches
+        Layer, if return_layer is True,
+        None, otherwise.
         """
+        layer = LayerConflict(name=self._layer_name,
+                              attributes=self._attributes,
+                              conflict_resolving_strategy=self._conflict_resolving_strategy
+                              )
         records = self._match(text.text)
-        records = self._resolve_conflicts(records)
-        status['conflicts'] = self._number_of_conflicts
-        layer = Layer(name=self._layer_name,
-                      attributes=self._attributes).from_records(records)
+        layer = layer.from_records(records)
+        layer.resolve_conflicts()
         if self._return_layer:
             return layer
         else:
