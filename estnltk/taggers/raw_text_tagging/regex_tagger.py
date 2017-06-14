@@ -123,7 +123,9 @@ class LayerConflict(Layer):
 
 
 class RegexTagger:
-    """ 
+    """
+    Searches matches for regular expressions in the text, solves the possible
+    conflicts and creates a new layer of the matches.
     """
     def __init__(self,
                  vocabulary,
@@ -134,17 +136,22 @@ class RegexTagger:
                  layer_name='regexes',
                  ):
         """Initialize a new RegexTagger instance.
-        
+
         Parameters
         ----------
-        vocabulary: list-like or dict-like or pandas.DataFrame
+        vocabulary: list of dicts or pandas.DataFrame or csv file name
             regexes and attributes to annotate
-        conflict_resolving_strategy: 'ALL', 'MAX', 'MIN'
-            Strategy to choose between overlapping events (default: 'MAX').
+        conflict_resolving_strategy: 'ALL', 'MAX', 'MIN' (default: 'MAX')
+            Strategy to choose between overlapping events.
+        overlapped: bool (Default: False)
+            If True, the match of a regular expression may overlap with a match
+            of the same regular expression.
         return_layer: bool
-            if True, RegexTagger.tag(text) returns a layer. If False, RegexTagger.tag(text) annotates the text object with the layer instead.
-        layer_name: str
-            if RegexTagger.tag(text) annotates to this layer of the text object. Default 'regexes'
+            If True, RegexTagger.tag(text) returns a layer. 
+            If False, RegexTagger.tag(text) annotates the text object with the
+            layer and returns None.
+        layer_name: str (Default: 'regexes')
+            The name of the new layer.
         """
         self._illegal_keywords = {'start', 'end'}
 
