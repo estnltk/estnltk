@@ -3,23 +3,31 @@ from collections import defaultdict
 from pandas import read_csv
 import os
 import pickle
+from estnltk.rewriting import MorphAnalyzedToken
 
 class VabamorfCorrectionRewriter:
 
     DEFAULT_RULES = os.path.join(os.path.dirname(__file__),
                                  'rules_files/number_analysis_rules.csv')
 
-    def __init__(self, replace:bool=True, rules_file:str=DEFAULT_RULES):
+    def __init__(self, replace:bool=True, rules_file:str=DEFAULT_RULES, pronoun_correction=True):
         """
         replace: bool (default True)
             If True, replace old analysis with new analysis
             If False, filter old analysis, that is, return the intersection of
             old analysis and new analysis
         """
-        self.replace = replace
-        #file = join(dirname(__file__), 'rules_files/number_analysis_rules.csv')
-        self.rules = self.load_number_analysis_rules(rules_file)
+        self._replace = replace
+        self._rules_file = rules_file
+        self.rules = self.load_number_analysis_rules(self._rules_file)
+        self._pronoun_correction = pronoun_correction
 
+    def __repr__(self):
+        return "{}(replace={}, rules_file='{}', pronoun_correction={})".format(
+                                                    self.__class__.__name__, 
+                                                    self._replace, 
+                                                    self._rules_file,
+                                                    self._pronoun_correction)
 
     @staticmethod
     def load_number_analysis_rules(file):
@@ -62,21 +70,32 @@ class VabamorfCorrectionRewriter:
     def rewrite(self, records):        
         # 'word_normal' should be equal for all records, so use the first one
         word_normal = records[0]['word_normal']
-        # no attempt to correct the analysis if the normalized token consists
-        # of letters only
+        start_end = {'start': records[0]['start'], 'end': records[0]['end']}
+
+        # check pronoun analysis
+        token = MorphAnalyzedToken(word_normal)
+        records_new = []
+        for rec in records:
+            if rec['partofspeech'] == 'P':
+                if token.is_pronoun:
+                    records_new.append(rec)
+            else:
+                records_new.append(rec)
+        #records = records_new
+
+        # stop here if the normalized token consists of letters only
         if word_normal.isalpha():
             return records
 
-        start_end = {'start': records[0]['start'], 'end': records[0]['end']}
-        # currently only analysis of numeric tokens is corrected 
+        # check analysis of numeric tokens 
         analysis = self.analyze_number(word_normal)
 
         for a in analysis:
             a.update(start_end)
         if analysis:
-            if self.replace:
-                records =  analysis
+            if self._replace:
+                records = analysis
             else:
-                records =  [rec for rec in records if rec in analysis]
+                records = [rec for rec in records if rec in analysis]
 
         return records
