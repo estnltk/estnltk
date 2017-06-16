@@ -1,102 +1,120 @@
 
-from copy import copy
+from estnltk.taggers.raw_text_tagging.date_tagger.regexes_v import regexes
 from estnltk.taggers import RegexTagger
-from estnltk import Text
-from pprint import pprint
-from regexes_v import regexes
 import datetime
-import pandas as pd
+
+regexes = regexes.reset_index().to_dict('records')
 
 class DateTagger:
-    def __init__(self, return_layer=False, layer_name='date'):
-        """
-        Tags dates
-        Parameters
-        ----------
-        return_layer - do not annotate the text object, return just the resulting layer
-        layer_name - the name of the layer. Does nothing when return_layer is set
-        """
-        self.layer_name = layer_name
-        self.return_layer = return_layer
 
-    # If year is two digits, add 1900 or 2000
-    def __clean_year(self, yearstring):
+    def __init__(self, return_layer=False, layer_name='dates', conflict_resolving_strategy='MAX', overlapped=False):
+        
+        vocabulary = self._create_vocabulary(regexes)
+        
+        self._tagger = RegexTagger(vocabulary=vocabulary,
+                                   attributes={'date_text','type', 'probability', 'groups', 'extracted_values'},
+                                   conflict_resolving_strategy=conflict_resolving_strategy,
+                                   overlapped=overlapped,
+                                   return_layer=return_layer,
+                                   layer_name=layer_name,
+                                   )
+  
+    def tag(self, text):
+        '''
+        Tags dates on text
+        '''
+        self._tagger.tag(text)
+
+        return text.dates
+
+
+
+
+    def _create_vocabulary(self, regexes):
+        '''
+        Creates vocabulary for regex_tagger
+        '''
+        vocabulary = []
+        for record in regexes:
+            rec = {'_regex_pattern_': record['regex'],
+                   '_group_': 0,
+                   '_priority_': (0,0),
+                   'groups': lambda m: m.groupdict(), 
+                   'date_text': lambda m: m.group(0),
+                   'type': record['type'],
+                   'probability': record['probability'],
+                   'example': record['example'],
+                   'extracted_values' : lambda m: self._extract_values(m)
+                  }
+            vocabulary.append(rec)
+        return vocabulary   
+
+    
+    
+    def _clean_year(self, yearstring):
+        '''
+        If year is two digits, adds 1900 or 2000
+        '''
         year = int(yearstring)
         if year < 100:
             if year < 30:
                 year += 2000
             else:
                 year += 1900
-        
         return year
 
 
-    # Tag dates and add extracted_values attribute if date/datetime/time is valid
-    def tag(self, text):
-        if self.return_layer:
-            t2 = copy(text)
-            a2 = DateTagger()
-            a2.tag(t2)
-            return t2[a2.layer_name]
+
+    def _extract_values(self, match):
+        '''
+        Extracts datetime, date or time values from regex matches if possible
+        '''
+        d = match.groupdict()
+        if 'YEAR' in d or 'LONGYEAR' in d:
+            if 'YEAR' in d:
+                year = self._clean_year(d['YEAR'])
+            else:
+                year = int(d['LONGYEAR'])
+            if 'DAY' in d:
+                day = int(d['DAY'])
+                if 'hour' in d:
+                    if d['second'] == None:
+                        second = 0
+                    else:
+                        second = int(d['second'])
+                    try:    
+                        t = datetime.datetime(year = year,
+                                                month = int(d['MONTH']),
+                                                day = day,
+                                                hour = int(d['hour']),
+                                                minute = int(d['minute']),
+                                                second = second)
+                                        
+                        return t
+                    except ValueError:
+                        return None       
+                
+                else:
+                    try:
+                        t = datetime.date(year = year,
+                                            month = int(d['MONTH']),
+                                            day = day)
+                        return t
+                    except ValueError:
+                        return None 
+            else:
+                return None
         
         else:
-            if self.layer_name in text:
-                return text
-            else:
-                tagger = RegexTagger(regexes, return_layer = False, layer_name = self.layer_name, conflict_resolving_strategy='MAX')    
-        
-        
-                tagger.tag(text)
-                if len(text[self.layer_name]) > 0:
-                    for idx, d in enumerate(text[self.layer_name]):
-                        text[self.layer_name][idx]['extracted_values'] = {}
-                        if 'YEAR' in d['groups'] or 'LONGYEAR' in d['groups']:
-                            if 'YEAR' in d['groups']:
-                                year = self.__clean_year(d['groups']['YEAR'])
-                            else:
-                                year = int(d['groups']['LONGYEAR'])
-                            if 'DAY' in d['groups']:
-                                day = int(d['groups']['DAY'])
-                                if 'hour' in d['groups']:
-                                    if d['groups']['second'] == None:
-                                        second = 0
-                                    else:
-                                        second = int(d['groups']['second'])
-                                    try:    
-                                        t = datetime.datetime(year = year,
-                                                          month = int(d['groups']['MONTH']),
-                                                          day = day,
-                                                          hour = int(d['groups']['hour']),
-                                                          minute = int(d['groups']['minute']),
-                                                          second = second)
-                                    
-                                        text[self.layer_name][idx]['extracted_values']['datetime'] = t
-                                    except ValueError:
-                                        text[self.layer_name][idx]['extracted_values']['datetime'] = None   
-                                
-                                else:
-                                    try:
-                                        t = datetime.date(year = year,
-                                                      month = int(d['groups']['MONTH']),
-                                                      day = day)
-                                        text[self.layer_name][idx]['extracted_values']['date'] = t
-                                    except ValueError:
-                                        text[self.layer_name][idx]['extracted_values']['date'] = None   
-                        else:
-                            if 'hour' in d['groups']:
-                                if d['groups']['second'] == None:
-                                        second = 0
-                                else:
-                                    second = int(d['groups']['second'])
-                                try:    
-                                    t = datetime.time(hour = int(d['groups']['hour']),
-                                                  minute = int(d['groups']['minute']),
-                                                  second = second)
-                                    text[self.layer_name][idx]['extracted_values']['time'] = t
-                                except ValueError:
-                                    text[self.layer_name][idx]['extracted_values']['time'] = None   
-
-                                
-                return text
-
-
+            if 'hour' in d:
+                if d['second'] == None:
+                    second = 0
+                else:
+                    second = int(d['second'])
+                try:    
+                    t = datetime.time(hour = int(d['hour']),
+                                        minute = int(d['minute']),
+                                        second = second)
+                    return t
+                except ValueError:
+                    return None 
