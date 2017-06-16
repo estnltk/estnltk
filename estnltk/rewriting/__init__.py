@@ -13,3 +13,5 @@ from estnltk.rewriting.syntax_preprocessing.verb_extension_suffix_rewriter impor
 from estnltk.rewriting.syntax_preprocessing.subcat_rewriter import SubcatRewriter
 
 from estnltk.rewriting.syntax_preprocessing.morph_extended_rewriter import MorphExtendedRewriter
+
+from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter

@@ -14,6 +14,16 @@ class TokenizationHintsTagger:
                  tag_initials=True,
                  ):
         '''
+        return_layer: bool
+            If True, TokenizationHintsTagger.tag(text) returns a layer. 
+            If False,TokenizationHintsTagger.tag(text) annotates the text object
+            with the layer and returns None.
+        conflict_resolving_strategy: 'ALL', 'MAX', 'MIN' (default: 'MAX')
+            Strategy to choose between overlapping events.
+        overlapped: bool (Default: False)
+            If True, the match of a regular expression may overlap with a match
+            of the same regular expression.
+
         tag_numbers: boolean, default: True
             Tag numbers
                 23  ->  23
@@ -24,6 +34,8 @@ class TokenizationHintsTagger:
         tag_email: boolean, default: True
             Tag e-mails.
                 bla@bla.bl
+        tag_initials: boolean, Defaul: True
+            A. H. Tammsaare
         '''
         _vocabulary = []
         if tag_numbers:

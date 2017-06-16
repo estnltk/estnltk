@@ -2,7 +2,7 @@ from pandas import read_csv
 from pandas.io.common import EmptyDataError
 import os
 
-from estnltk.rewriting.helpers.morph_analyzed_token import MorphAnalyzedToken
+from estnltk.rewriting import MorphAnalyzedToken
 
 DEFAULT_IGNORE_LIST = os.path.join(os.path.dirname(__file__), 'rules_files', 'ignore.csv')
 
