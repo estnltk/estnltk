@@ -1,4 +1,5 @@
 from estnltk.taggers.raw_text_tagging.regex_tagger import RegexTagger
+from estnltk.taggers.raw_text_tagging.date_tagger.date_tagger import DateTagger
 
 from estnltk.taggers.syntax_preprocessing.pronoun_type_tagger import PronounTypeTagger
 from estnltk.taggers.syntax_preprocessing.finite_form_tagger import FiniteFormTagger

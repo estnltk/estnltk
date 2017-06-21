@@ -39,9 +39,9 @@ class RegexTagger:
         self._illegal_keywords = {'start', 'end'}
 
         # attributes in output layer
-        self._attributes = set(attributes)
+        self._attributes = attributes
         # attributes needed by tagger 
-        self._internal_attributes = self._attributes|{'_group_', '_priority_'}
+        self._internal_attributes = set(self._attributes)|{'_group_', '_priority_'}
         
         self._vocabulary = self._read_expression_vocabulary(vocabulary)
         self._overlapped = overlapped

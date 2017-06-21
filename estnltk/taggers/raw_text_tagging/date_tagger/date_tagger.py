@@ -1,4 +1,3 @@
-
 from estnltk.taggers.raw_text_tagging.date_tagger.regexes_v import regexes
 from estnltk.taggers import RegexTagger
 import datetime
@@ -12,7 +11,7 @@ class DateTagger:
         vocabulary = self._create_vocabulary(regexes)
         
         self._tagger = RegexTagger(vocabulary=vocabulary,
-                                   attributes={'date_text','type', 'probability', 'groups', 'extracted_values'},
+                                   attributes=['date_text','type', 'probability', 'groups', 'extracted_values'],
                                    conflict_resolving_strategy=conflict_resolving_strategy,
                                    overlapped=overlapped,
                                    return_layer=return_layer,
@@ -28,8 +27,6 @@ class DateTagger:
         return text.dates
 
 
-
-
     def _create_vocabulary(self, regexes):
         '''
         Creates vocabulary for regex_tagger
@@ -39,7 +36,7 @@ class DateTagger:
             rec = {'_regex_pattern_': record['regex'],
                    '_group_': 0,
                    '_priority_': (0,0),
-                   'groups': lambda m: m.groupdict(), 
+                   'groups': lambda m: str(m.groupdict()), 
                    'date_text': lambda m: m.group(0),
                    'type': record['type'],
                    'probability': record['probability'],
@@ -49,8 +46,7 @@ class DateTagger:
             vocabulary.append(rec)
         return vocabulary   
 
-    
-    
+
     def _clean_year(self, yearstring):
         '''
         If year is two digits, adds 1900 or 2000
@@ -62,7 +58,6 @@ class DateTagger:
             else:
                 year += 1900
         return year
-
 
 
     def _extract_values(self, match):
