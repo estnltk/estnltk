@@ -69,3 +69,18 @@ initial_patterns = [
      'example': 'A. H. Tammsaare',
      }
                     ]
+
+abbreviation_patterns = [
+    {
+     '_regex_pattern_': re.compile(r'''
+                        \s                                                              # tühik
+                        ((sealh|sh|lüh|st|s\.t|s\.o|t|tn|nt|Mrs?|Jr|Koost|toim|Vrd|hrl) # lühend
+                        \s?\.)                                                          # punkt
+                        '''.format(**MACROS), re.X),
+     '_group_': 1,
+     '_priority_': (4, 0),
+     'normalized': lambda m: None,
+     'comment': 'abbreviaton',
+     'example': 'sealh.',
+     }
+                    ]

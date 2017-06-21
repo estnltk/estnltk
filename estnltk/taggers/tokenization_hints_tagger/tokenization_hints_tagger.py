@@ -1,5 +1,5 @@
 from estnltk.taggers import RegexTagger
-from .patterns import unit_patterns, email_patterns, number_patterns, initial_patterns
+from .patterns import unit_patterns, email_patterns, number_patterns, initial_patterns, abbreviation_patterns
 
 
 class TokenizationHintsTagger:
@@ -12,6 +12,7 @@ class TokenizationHintsTagger:
                  tag_unit=True, 
                  tag_email=True, 
                  tag_initials=True,
+                 tag_abbreviations=True,
                  ):
         '''
         return_layer: bool
@@ -46,6 +47,8 @@ class TokenizationHintsTagger:
             _vocabulary.extend(email_patterns)
         if tag_initials:
             _vocabulary.extend(initial_patterns)
+        if tag_abbreviations:
+            _vocabulary.extend(abbreviation_patterns)
         self._tagger = RegexTagger(vocabulary=_vocabulary,
                                    attributes={'normalized','_priority_'},
                                    conflict_resolving_strategy=conflict_resolving_strategy,
