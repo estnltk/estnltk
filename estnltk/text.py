@@ -3,7 +3,7 @@ import collections
 import keyword
 from collections import defaultdict
 from typing import MutableMapping, Tuple,  Any, Union, List, Sequence
-
+import pandas
 import itertools
 import networkx as nx
 
@@ -483,6 +483,8 @@ class Layer:
             return self.text_object._resolve(self.name, target)
 
     def __getattr__(self, item):
+        if item == '_ipython_canary_method_should_not_exist_':
+            raise AttributeError
         if item in self.__getattribute__('__dict__').keys():
             return self.__getattribute__('__dict__')[item]
         elif item in self.__getattribute__('attributes'):
@@ -496,6 +498,28 @@ class Layer:
 
     def __str__(self):
         return 'Layer(name={self.name}, spans={self.spans})'.format(self=self)
+
+    def _repr_html_(self):
+        res = []
+        if self.enveloping:
+            if self.ambiguous:
+                pass
+            else:
+                for span in self.spans:
+                    res.append({'text':self.text_object.text[span.start: span.end]})
+        else:
+            if self.ambiguous:
+                for record in self.to_records(True):
+                    first = True
+                    for rec in record:
+                        if not first:
+                            rec['text'] = ''
+                        res.append(rec)
+                        first = False
+            else:
+                res = self.to_records(True)
+        df = pandas.DataFrame.from_records(res, columns=('text',)+tuple(self.attributes))
+        return df.to_html(index = False)
 
 
 def _get_span_by_start_and_end(spans:SpanList, start:int, end:int) -> Union[Span, None]:
