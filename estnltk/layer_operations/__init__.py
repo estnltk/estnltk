@@ -8,3 +8,4 @@ from .layer_operations import diff_layer
 from .layer_operations import merge_layer
 from .layer_operations import group_by_spans
 from .layer_operations import conflicts
+from .conflict_resolver import resolve_conflicts

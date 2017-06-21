@@ -54,5 +54,5 @@ class TokenizationHintsTagger:
                                    layer_name='tokenization_hints',
                                    )
 
-    def tag(self, text):
-        return self._tagger.tag(text)
+    def tag(self, text, status={}):
+        return self._tagger.tag(text, status)
