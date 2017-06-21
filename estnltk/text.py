@@ -8,7 +8,6 @@ import itertools
 import networkx as nx
 
 
-
 class Span:
     def __init__(self, start: int = None, end: int = None, parent=None,  *, layer=None, legal_attributes=None, **attributes) -> None:
 
@@ -519,6 +518,7 @@ class Layer:
             else:
                 res = self.to_records(True)
         df = pandas.DataFrame.from_records(res, columns=('text',)+tuple(self.attributes))
+        pandas.set_option('display.max_colwidth', -1)
         return df.to_html(index = False)
 
 
