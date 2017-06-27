@@ -27,23 +27,31 @@ class SentenceTokenizer:
         sentences = self.sentence_tokenizer.sentences_from_tokens(words)
         return sentences
 
-    def tag(self, text: 'Text') -> 'Text':
+    def tag(self, text: 'Text', fix=True) -> 'Text':
         sentences = Layer(enveloping='words',
                           name='sentences')
 
         text._add_layer(sentences)
 
-        # TODO fix dumb manual loop
-        i = 0
-        new_sentences = []
-        for sentence in self._tokenize(text.words.text):
-            sent = []
-            for _ in sentence:
-                sent.append(text.words[i])
-                i += 1
-            new_sentences.append(sent)
-
-        for sentence in new_sentences:
-            sentences._add_spans_to_enveloping(sentence)
+        sentence_borders = [0]
+        words = text.words.text
+        for sentence in self._tokenize(words):
+            sentence_borders.append(sentence_borders[-1]+len(sentence))
+        if fix:
+            new_sentence_borders = []
+            for i in sentence_borders:
+                if i < 2:
+                    new_sentence_borders.append(i)
+                    continue
+                if words[i-2].lower() in {'a', 'dr', 'hr', 'hrl', 'ibid', 'jr',
+                                          'kod', 'koost', 'lp', 'lüh', 'mr', 'mrs',
+                                          'nn', 'nt', 'pr', 's.o', 's.t', 'saj',
+                                          'sealh', 'sh', 'sm', 'so', 'st', 'tlk',
+                                          'tn', 'toim', 'vrd'}:
+                    continue
+                new_sentence_borders.append(i)
+            sentence_borders = new_sentence_borders
+        for s, e in zip(sentence_borders, sentence_borders[1:]):            
+            sentences._add_spans_to_enveloping(text.words[s:e])
 
         return text
