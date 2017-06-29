@@ -925,12 +925,11 @@ class Text:
 #RESOLVER is a registry of taggers and names.
 # Taggers must be imported relatively (with a .)
 # This section must be at the end of the file.
-from .taggers.word_tokenizer import WordTokenizer
-from .taggers.morf import VabamorfTagger
-from .taggers.sentence_tokenizer import SentenceTokenizer
-from .taggers.paragraph_tokenizer import ParagraphTokenizer
-
+from .taggers import WordTokenizer
+from .taggers import SentenceTokenizer
+from .taggers import ParagraphTokenizer
 from .taggers.premorph.premorf import WordNormalizingTagger
+from .taggers.morf import VabamorfTagger
 from .resolve_layer_dag import Resolver, Rule
 
 RESOLVER = Resolver(

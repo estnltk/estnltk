@@ -65,8 +65,8 @@ class RegexTagger:
         for record in vocabulary:
             if set(record) & self._illegal_keywords:
                 raise KeyError('Illegal keys in expression vocabulary: ' + str(set(record)&self._illegal_keywords))
-            if self._internal_attributes-set(record):
-                raise KeyError('Missing keys in expression vocabulary: ' + str(self._internal_attributes-set(record)))
+            #if self._internal_attributes-set(record):
+            #    raise KeyError('Missing keys in expression vocabulary: ' + str(self._internal_attributes-set(record)))
             
             _regex_pattern_ = record['_regex_pattern_']
             if isinstance(_regex_pattern_, str):
@@ -100,11 +100,12 @@ class RegexTagger:
         None, otherwise.
         """
         layer = Layer(name=self._layer_name,
-                      attributes=self._attributes,
+                      attributes=self._internal_attributes,
                       )
         records = self._match(text.text)
         layer = layer.from_records(records)
         layer = resolve_conflicts(layer, self._conflict_resolving_strategy, status)
+        layer.attributes = self._attributes
         if self._return_layer:
             return layer
         else:
@@ -119,7 +120,7 @@ class RegexTagger:
                     'end': matchobj.span(voc['_group_'])[1],
                 }
                 for a in self._internal_attributes:
-                    v = voc[a]
+                    v = voc.get(a, 0)
                     if callable(v):
                         v = v(matchobj)
                     record[a] = v
