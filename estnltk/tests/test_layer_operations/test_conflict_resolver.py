@@ -16,13 +16,12 @@ def test_resolve_conflicts_MAX():
     assert [(1, 4)] == [(span.start, span.end) for span in layer]
 
     # equal spans
-    # TODO: failing test
     layer = Layer(name='test_layer', attributes=['_priority_'])
     layer = layer.from_records([{'start': 1, 'end':  4, '_priority_': 0},
                                 {'start': 1, 'end':  4, '_priority_': 0},
                                ])
     layer = resolve_conflicts(layer, conflict_resolving_strategy='MAX')
-    #assert [(1, 4)] == [(span.start, span.end) for span in layer]
+    assert [(1, 4)] == [(span.start, span.end) for span in layer]
 
     # common start
     layer = Layer(name='test_layer', attributes=['_priority_'])
@@ -74,13 +73,12 @@ def test_resolve_conflicts_MIN():
     assert [(1, 4)] == [(span.start, span.end) for span in layer]
 
     # equal spans
-    # TODO: failing test
     layer = Layer(name='test_layer', attributes=['_priority_'])
     layer = layer.from_records([{'start': 1, 'end':  4, '_priority_': 0},
                                 {'start': 1, 'end':  4, '_priority_': 0},
                                ])
     layer = resolve_conflicts(layer, conflict_resolving_strategy='MIN')
-    #assert [(1, 4)] == [(span.start, span.end) for span in layer]
+    assert [(1, 4)] == [(span.start, span.end) for span in layer]
 
     # common start
     layer = Layer(name='test_layer', attributes=['_priority_'])
