@@ -502,13 +502,17 @@ class Layer:
         res = []
         if self.enveloping:
             if self.ambiguous:
-                pass
+                # TODO: _repr_html_ for enveloping ambiguous layers
+                return repr(self)
             else:
                 self.attributes
                 for span in self.spans:
-                    res.append({'text':self.text_object.text[span.start: span.end],
-                                **{k:span.__getattribute__(k) for k in self.attributes}
-                                })
+                    # html.escape(span[i].text) TODO?
+                    t = ['<b>', span[0].text, '</b>']
+                    for i in range(1, len(span)):
+                        t.extend([self.text_object.text[span[i-1].end: span[i].start], '<b>', span[i].text, '</b>'])
+                    t = ''.join(t)
+                    res.append({'text': t, **{k:span.__getattribute__(k) for k in self.attributes}})
         else:
             if self.ambiguous:
                 for record in self.to_records(True):
@@ -522,7 +526,7 @@ class Layer:
                 res = self.to_records(True)
         df = pandas.DataFrame.from_records(res, columns=('text',)+tuple(self.attributes))
         pandas.set_option('display.max_colwidth', -1)
-        return df.to_html(index = False)
+        return df.to_html(index = False, escape=False)
 
 
 def _get_span_by_start_and_end(spans:SpanList, start:int, end:int) -> Union[Span, None]:
