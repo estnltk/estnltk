@@ -504,8 +504,11 @@ class Layer:
             if self.ambiguous:
                 pass
             else:
+                self.attributes
                 for span in self.spans:
-                    res.append({'text':self.text_object.text[span.start: span.end]})
+                    res.append({'text':self.text_object.text[span.start: span.end],
+                                **{k:span.__getattribute__(k) for k in self.attributes}
+                                })
         else:
             if self.ambiguous:
                 for record in self.to_records(True):
