@@ -11,8 +11,8 @@ class TokenizationHintsTagger:
                  tag_numbers=True, 
                  tag_unit=True, 
                  tag_email=True, 
-                 tag_initials=True,
-                 tag_abbreviations=True,
+                 tag_initials=False,
+                 tag_abbreviations=False,
                  ):
         '''
         return_layer: bool

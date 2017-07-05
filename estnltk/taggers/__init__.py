@@ -13,3 +13,4 @@ from estnltk.taggers.text_segmentation.tokenization_hints_tagger import Tokeniza
 from estnltk.taggers.text_segmentation.word_tokenizer import WordTokenizer
 from estnltk.taggers.text_segmentation.sentence_tokenizer import SentenceTokenizer
 from estnltk.taggers.text_segmentation.paragraph_tokenizer import ParagraphTokenizer
+from estnltk.taggers.text_segmentation.compound_token_tagger import CompoundTokenTagger

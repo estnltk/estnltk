@@ -1,13 +1,16 @@
 from math import inf
-from estnltk.taggers.legacy_tokenizers import EstWordTokenizer
+#from estnltk.taggers.legacy_tokenizers import EstWordTokenizer
 from estnltk.text import Layer
 
+from nltk.tokenize.regexp import WordPunctTokenizer
+
+Tokenizer = WordPunctTokenizer()
 
 class WordTokenizer:
-    Tokenizer = EstWordTokenizer()
+    #Tokenizer = EstWordTokenizer()
 
     def tag(self, text: 'Text') -> 'Text':        
-        spans = self.Tokenizer.span_tokenize(text.text)
+        spans = list(Tokenizer.span_tokenize(text.text))
         words = Layer(name='words').from_records([{
                                                    'start': start,
                                                    'end': end

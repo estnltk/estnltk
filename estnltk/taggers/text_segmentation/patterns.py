@@ -13,7 +13,8 @@ MACROS = {
             'LOWERCASE': 'a-zšžõäöü',
             'UPPERCASE': 'A-ZŠŽÕÄÖÜ',
             'NUMERIC': '0-9',
-            '1,3': '{1,3}'
+            '1,3': '{1,3}',
+            '2,': '{2,}'
          }
 MACROS['LETTERS'] = MACROS['LOWERCASE'] + MACROS['UPPERCASE']
 MACROS['ALPHANUM'] = MACROS['LETTERS'] + MACROS['NUMERIC']
@@ -84,3 +85,8 @@ abbreviation_patterns = [
      'example': 'sealh.',
      }
                     ]
+
+ABBREVIATIONS = {'a', 'dr', 'Dr', 'hr', 'Hr', 'hrl', 'ibid', 'Ibid', 'jr', 'Jr',
+                 'kod', 'koost', 'krt', 'lp', 'lüh', 'mr', 'mrs', 'nn', 'nt',
+                 'pr', 's.o', 's.t', 'saj', 'sealh', 'sh', 'sm', 'so', 'st',
+                 'tlk', 'tn', 'toim', 'vrd'}

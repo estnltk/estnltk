@@ -321,6 +321,9 @@ class SpanList(collections.Sequence):
     def __le__(self, other: Any) -> bool:
         return self < other or self == other
 
+    def __hash__(self):
+        return hash((tuple(self.spans), self.ambiguous, self.parent))
+
     def __str__(self):
         return 'SL[{spans}]'.format(spans=',\n'.join(str(i) for i in self.spans))
 
@@ -508,9 +511,9 @@ class Layer:
                 self.attributes
                 for span in self.spans:
                     # html.escape(span[i].text) TODO?
-                    t = ['<b>', span[0].text, '</b>']
+                    t = ['<b>', self.text_object.text[span[0].start:span[0].end], '</b>']
                     for i in range(1, len(span)):
-                        t.extend([self.text_object.text[span[i-1].end: span[i].start], '<b>', span[i].text, '</b>'])
+                        t.extend([self.text_object.text[span[i-1].end: span[i].start], '<b>', self.text_object.text[span[i].start:span[i].end], '</b>'])
                     t = ''.join(t)
                     res.append({'text': t, **{k:span.__getattribute__(k) for k in self.attributes}})
         else:
@@ -927,12 +930,19 @@ class Text:
     def __repr__(self):
         return str(self)
 
+    def _repr_html_(self):
+        res = [{'attribute':'text', 'value': self.text.replace('\n', '<br/>')},
+               {'attribute':'layers', 'value': ', '.join(self.layers)}]
+        df = pandas.DataFrame.from_records(res)
+        pandas.set_option('display.max_colwidth', -1)
+        return df.to_html(index = False, escape=False)
 
 
 #RESOLVER is a registry of taggers and names.
 # Taggers must be imported relatively (with a .)
 # This section must be at the end of the file.
 from .taggers import WordTokenizer
+from .taggers import CompoundTokenTagger
 from .taggers import SentenceTokenizer
 from .taggers import ParagraphTokenizer
 from .taggers.premorph.premorf import WordNormalizingTagger
@@ -941,9 +951,10 @@ from .resolve_layer_dag import Resolver, Rule
 
 RESOLVER = Resolver(
     [
-        Rule('sentences', tagger=SentenceTokenizer(), depends_on=['words']),
-        Rule('paragraphs', tagger=ParagraphTokenizer(), depends_on=['sentences']),
         Rule('words', tagger=WordTokenizer(), depends_on=[]),
+        Rule('compound_tokens', tagger=CompoundTokenTagger(), depends_on=['words']),
+        Rule('sentences', tagger=SentenceTokenizer(), depends_on=['compound_tokens']),
+        Rule('paragraphs', tagger=ParagraphTokenizer(), depends_on=['sentences']),
         Rule('normalized', tagger=WordNormalizingTagger(), depends_on=['words']),
         Rule('morf_analysis', tagger=VabamorfTagger(), depends_on=['normalized']),
     ]
