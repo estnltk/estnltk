@@ -931,11 +931,26 @@ class Text:
         return str(self)
 
     def _repr_html_(self):
-        res = [{'attribute':'text', 'value': self.text.replace('\n', '<br/>')},
-               {'attribute':'layers', 'value': ', '.join(self.layers)}]
-        df = pandas.DataFrame.from_records(res)
         pandas.set_option('display.max_colwidth', -1)
-        return df.to_html(index = False, escape=False)
+
+        rec = [{'text': self.text.replace('\n', '<br/>')}]
+        table1 = pandas.DataFrame.from_records(rec)
+        table1 = table1.to_html(index=False, escape=False)
+
+        rec = [{'layer': name,
+                    'attributes': ', '.join(layer.attributes),
+                    'parent': str(layer.parent),
+                    'enveloping': str(layer.enveloping),
+                    'ambiguous': str(layer.ambiguous),
+                    'number of spans': str(len(layer.spans.spans))}
+               for name, layer in self.layers.items()]
+        table2 = pandas.DataFrame.from_records(rec, 
+                                               columns=['layer', 'attributes',
+                                                        'parent', 'enveloping',
+                                                        'ambiguous',
+                                                        'number of spans'])
+        table2 = table2.to_html(index=False, escape=False)
+        return table1 + '\n' + table2
 
 
 #RESOLVER is a registry of taggers and names.
