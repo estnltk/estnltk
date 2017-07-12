@@ -9,6 +9,7 @@ from estnltk.taggers.syntax_preprocessing.morph_extended_tagger import MorphExte
 
 from estnltk.taggers.premorph.premorf import WordNormalizingTagger
 from estnltk.taggers.morf import VabamorfTagger
+from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger
 from estnltk.taggers.text_segmentation.tokenization_hints_tagger import TokenizationHintsTagger
 from estnltk.taggers.text_segmentation.word_tokenizer import WordTokenizer
 from estnltk.taggers.text_segmentation.sentence_tokenizer import SentenceTokenizer

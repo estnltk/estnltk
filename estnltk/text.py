@@ -936,26 +936,28 @@ class Text:
         rec = [{'text': self.text.replace('\n', '<br/>')}]
         table1 = pandas.DataFrame.from_records(rec)
         table1 = table1.to_html(index=False, escape=False)
-
-        rec = [{'layer': name,
-                    'attributes': ', '.join(layer.attributes),
-                    'parent': str(layer.parent),
-                    'enveloping': str(layer.enveloping),
-                    'ambiguous': str(layer.ambiguous),
-                    'number of spans': str(len(layer.spans.spans))}
-               for name, layer in self.layers.items()]
-        table2 = pandas.DataFrame.from_records(rec, 
-                                               columns=['layer', 'attributes',
-                                                        'parent', 'enveloping',
-                                                        'ambiguous',
-                                                        'number of spans'])
-        table2 = table2.to_html(index=False, escape=False)
-        return table1 + '\n' + table2
+        if self.layers:
+            rec = [{'layer': name,
+                        'attributes': ', '.join(layer.attributes),
+                        'parent': str(layer.parent),
+                        'enveloping': str(layer.enveloping),
+                        'ambiguous': str(layer.ambiguous),
+                        'number of spans': str(len(layer.spans.spans))}
+                   for name, layer in self.layers.items()]
+            table2 = pandas.DataFrame.from_records(rec, 
+                                                   columns=['layer', 'attributes',
+                                                            'parent', 'enveloping',
+                                                            'ambiguous',
+                                                            'number of spans'])
+            table2 = table2.to_html(index=False, escape=False)
+            return table1 + '\n' + table2
+        return table1
 
 
 #RESOLVER is a registry of taggers and names.
 # Taggers must be imported relatively (with a .)
 # This section must be at the end of the file.
+from .taggers import TokensTagger
 from .taggers import WordTokenizer
 from .taggers import CompoundTokenTagger
 from .taggers import SentenceTokenizer
@@ -966,8 +968,9 @@ from .resolve_layer_dag import Resolver, Rule
 
 RESOLVER = Resolver(
     [
-        Rule('words', tagger=WordTokenizer(), depends_on=[]),
-        Rule('compound_tokens', tagger=CompoundTokenTagger(), depends_on=['words']),
+        Rule('tokens', tagger=TokensTagger(), depends_on=[]),
+        Rule('compound_tokens', tagger=CompoundTokenTagger(), depends_on=['tokens']),
+        Rule('words', tagger=WordTokenizer(), depends_on=['tokens', 'compound_tokens']),
         Rule('sentences', tagger=SentenceTokenizer(), depends_on=['compound_tokens']),
         Rule('paragraphs', tagger=ParagraphTokenizer(), depends_on=['sentences']),
         Rule('normalized', tagger=WordNormalizingTagger(), depends_on=['words']),
