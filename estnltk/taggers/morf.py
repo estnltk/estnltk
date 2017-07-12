@@ -58,8 +58,8 @@ class VabamorfTagger:
         wordlist = self._get_wordlist(text)
         analysis_results = self.instance.analyze(words=wordlist, **self.kwargs)
 
-        morph_attributes = ['form', 'root_tokens', 'clitic', 'partofspeech', 
-                            'ending', 'root', 'lemma']
+        morph_attributes = ['lemma', 'root', 'root_tokens', 'ending',
+                            'clitic', 'form', 'partofspeech']
 
         attributes = morph_attributes
         if self.postmorph_rewriter:
