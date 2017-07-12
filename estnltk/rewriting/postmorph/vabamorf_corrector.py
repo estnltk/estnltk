@@ -1,6 +1,6 @@
 import re
 from collections import defaultdict
-from pandas import read_csv
+from pandas import read_csv, DataFrame
 import os
 import pickle
 from estnltk.rewriting import MorphAnalyzedToken
@@ -28,6 +28,13 @@ class VabamorfCorrectionRewriter:
                                                     self._replace, 
                                                     self._rules_file,
                                                     self._pronoun_correction)
+    def _repr_html_(self):
+        import pandas
+        pandas.set_option('display.max_colwidth', -1)
+        attributes = ['_replace', '_rules_file', '_pronoun_correction']
+        values = [getattr(self, a) for a in attributes]
+        df = DataFrame.from_items([('class', attributes), (self.__class__.__name__, values)])
+        return df.to_html(index=False)
 
     @staticmethod
     def load_number_analysis_rules(file):
