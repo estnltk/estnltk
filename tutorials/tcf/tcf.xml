@@ -1,0 +1,308 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<D-Spin version="0.4" xmlns="http://www.dspin.de/data">
+  <MetaData xmlns="http://www.dspin.de/data/metadata"/>
+  <TextCorpus lang="ee" xmlns="http://www.dspin.de/data/textcorpus">
+    <text>Karin, kes lendab New Yorki, tahab seal veeta puhkuse. Ta tuleb teisel augustil tagasi.</text>
+    <tc:tokens xmlns:tc="http://www.dspin.de/data/textcorpus">
+      <tc:token ID="t0" end="5" start="0">Karin</tc:token>
+      <tc:token ID="t1" end="6" start="5">,</tc:token>
+      <tc:token ID="t2" end="10" start="7">kes</tc:token>
+      <tc:token ID="t3" end="17" start="11">lendab</tc:token>
+      <tc:token ID="t4" end="21" start="18">New</tc:token>
+      <tc:token ID="t5" end="27" start="22">Yorki</tc:token>
+      <tc:token ID="t6" end="28" start="27">,</tc:token>
+      <tc:token ID="t7" end="34" start="29">tahab</tc:token>
+      <tc:token ID="t8" end="39" start="35">seal</tc:token>
+      <tc:token ID="t9" end="45" start="40">veeta</tc:token>
+      <tc:token ID="t10" end="53" start="46">puhkuse</tc:token>
+      <tc:token ID="t11" end="54" start="53">.</tc:token>
+      <tc:token ID="t12" end="57" start="55">Ta</tc:token>
+      <tc:token ID="t13" end="63" start="58">tuleb</tc:token>
+      <tc:token ID="t14" end="70" start="64">teisel</tc:token>
+      <tc:token ID="t15" end="79" start="71">augustil</tc:token>
+      <tc:token ID="t16" end="86" start="80">tagasi</tc:token>
+      <tc:token ID="t17" end="87" start="86">.</tc:token>
+    </tc:tokens>
+    <tc:sentences xmlns:tc="http://www.dspin.de/data/textcorpus">
+      <tc:sentence tokenIDs="t0 t1 t2 t3 t4 t5 t6 t7 t8 t9 t10 t11" ID="s0"/>
+      <tc:sentence tokenIDs="t12 t13 t14 t15 t16 t17" ID="s1"/>
+    </tc:sentences>
+    <tc:lemmas xmlns:tc="http://www.dspin.de/data/textcorpus">
+      <tc:lemma tokenIDs="t0" ID="l0">Karin</tc:lemma>
+      <tc:lemma tokenIDs="t1" ID="l1">,</tc:lemma>
+      <tc:lemma tokenIDs="t2" ID="l2">kes</tc:lemma>
+      <tc:lemma tokenIDs="t2" ID="l2">kes</tc:lemma>
+      <tc:lemma tokenIDs="t3" ID="l3">lendama</tc:lemma>
+      <tc:lemma tokenIDs="t4" ID="l4">New</tc:lemma>
+      <tc:lemma tokenIDs="t5" ID="l5">York</tc:lemma>
+      <tc:lemma tokenIDs="t6" ID="l6">,</tc:lemma>
+      <tc:lemma tokenIDs="t7" ID="l7">tahtma</tc:lemma>
+      <tc:lemma tokenIDs="t8" ID="l8">seal</tc:lemma>
+      <tc:lemma tokenIDs="t9" ID="l9">veetma</tc:lemma>
+      <tc:lemma tokenIDs="t10" ID="l10">puhkus</tc:lemma>
+      <tc:lemma tokenIDs="t11" ID="l11">.</tc:lemma>
+      <tc:lemma tokenIDs="t12" ID="l12">tema</tc:lemma>
+      <tc:lemma tokenIDs="t13" ID="l13">tulema</tc:lemma>
+      <tc:lemma tokenIDs="t14" ID="l14">teine</tc:lemma>
+      <tc:lemma tokenIDs="t14" ID="l14">teine</tc:lemma>
+      <tc:lemma tokenIDs="t15" ID="l15">august</tc:lemma>
+      <tc:lemma tokenIDs="t16" ID="l16">tagasi</tc:lemma>
+      <tc:lemma tokenIDs="t17" ID="l17">.</tc:lemma>
+    </tc:lemmas>
+    <tc:POStags xmlns:tc="http://www.dspin.de/data/textcorpus" tagset="">
+      <tc:tag tokenIDs="t0">H</tc:tag>
+      <tc:tag tokenIDs="t1">Z</tc:tag>
+      <tc:tag tokenIDs="t2">P</tc:tag>
+      <tc:tag tokenIDs="t2">P</tc:tag>
+      <tc:tag tokenIDs="t3">V</tc:tag>
+      <tc:tag tokenIDs="t4">H</tc:tag>
+      <tc:tag tokenIDs="t5">H</tc:tag>
+      <tc:tag tokenIDs="t6">Z</tc:tag>
+      <tc:tag tokenIDs="t7">V</tc:tag>
+      <tc:tag tokenIDs="t8">D</tc:tag>
+      <tc:tag tokenIDs="t9">V</tc:tag>
+      <tc:tag tokenIDs="t10">S</tc:tag>
+      <tc:tag tokenIDs="t11">Z</tc:tag>
+      <tc:tag tokenIDs="t12">P</tc:tag>
+      <tc:tag tokenIDs="t13">V</tc:tag>
+      <tc:tag tokenIDs="t14">O</tc:tag>
+      <tc:tag tokenIDs="t14">P</tc:tag>
+      <tc:tag tokenIDs="t15">S</tc:tag>
+      <tc:tag tokenIDs="t16">D</tc:tag>
+      <tc:tag tokenIDs="t17">Z</tc:tag>
+    </tc:POStags>
+    <tc:morphology xmlns:tc="http://www.dspin.de/data/textcorpus">
+      <tc:analysis tokenIDs="t0">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form">sg n</tc:f>
+            <tc:f name="root">Karin</tc:f>
+            <tc:f name="root_tokens">Karin</tc:f>
+            <tc:f name="ending">0</tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t1">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form"></tc:f>
+            <tc:f name="root">,</tc:f>
+            <tc:f name="root_tokens">,</tc:f>
+            <tc:f name="ending"></tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t2">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form">pl n</tc:f>
+            <tc:f name="root">kes</tc:f>
+            <tc:f name="root_tokens">kes</tc:f>
+            <tc:f name="ending">0</tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t2">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form">sg n</tc:f>
+            <tc:f name="root">kes</tc:f>
+            <tc:f name="root_tokens">kes</tc:f>
+            <tc:f name="ending">0</tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t3">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form">b</tc:f>
+            <tc:f name="root">lenda</tc:f>
+            <tc:f name="root_tokens">lenda</tc:f>
+            <tc:f name="ending">b</tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t4">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form">?</tc:f>
+            <tc:f name="root">New</tc:f>
+            <tc:f name="root_tokens">New</tc:f>
+            <tc:f name="ending"></tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t5">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form">adt</tc:f>
+            <tc:f name="root">York</tc:f>
+            <tc:f name="root_tokens">York</tc:f>
+            <tc:f name="ending">0</tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t6">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form"></tc:f>
+            <tc:f name="root">,</tc:f>
+            <tc:f name="root_tokens">,</tc:f>
+            <tc:f name="ending"></tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t7">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form">b</tc:f>
+            <tc:f name="root">taht</tc:f>
+            <tc:f name="root_tokens">taht</tc:f>
+            <tc:f name="ending">b</tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t8">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form"></tc:f>
+            <tc:f name="root">seal</tc:f>
+            <tc:f name="root_tokens">seal</tc:f>
+            <tc:f name="ending">0</tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t9">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form">da</tc:f>
+            <tc:f name="root">veet</tc:f>
+            <tc:f name="root_tokens">veet</tc:f>
+            <tc:f name="ending">a</tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t10">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form">sg g</tc:f>
+            <tc:f name="root">puhkus</tc:f>
+            <tc:f name="root_tokens">puhkus</tc:f>
+            <tc:f name="ending">0</tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t11">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form"></tc:f>
+            <tc:f name="root">.</tc:f>
+            <tc:f name="root_tokens">.</tc:f>
+            <tc:f name="ending"></tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t12">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form">sg n</tc:f>
+            <tc:f name="root">tema</tc:f>
+            <tc:f name="root_tokens">tema</tc:f>
+            <tc:f name="ending">0</tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t13">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form">b</tc:f>
+            <tc:f name="root">tule</tc:f>
+            <tc:f name="root_tokens">tule</tc:f>
+            <tc:f name="ending">b</tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t14">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form">sg ad</tc:f>
+            <tc:f name="root">teine</tc:f>
+            <tc:f name="root_tokens">teine</tc:f>
+            <tc:f name="ending">l</tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t14">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form">sg ad</tc:f>
+            <tc:f name="root">teine</tc:f>
+            <tc:f name="root_tokens">teine</tc:f>
+            <tc:f name="ending">l</tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t15">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form">sg ad</tc:f>
+            <tc:f name="root">august</tc:f>
+            <tc:f name="root_tokens">august</tc:f>
+            <tc:f name="ending">l</tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t16">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form"></tc:f>
+            <tc:f name="root">tagasi</tc:f>
+            <tc:f name="root_tokens">tagasi</tc:f>
+            <tc:f name="ending">0</tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+      <tc:analysis tokenIDs="t17">
+        <tc:tag>
+          <tc:fs>
+            <tc:f name="form"></tc:f>
+            <tc:f name="root">.</tc:f>
+            <tc:f name="root_tokens">.</tc:f>
+            <tc:f name="ending"></tc:f>
+            <tc:f name="clitic"></tc:f>
+          </tc:fs>
+        </tc:tag>
+      </tc:analysis>
+    </tc:morphology>
+    <tc:clauses xmlns:tc="http://www.dspin.de/data/textcorpus">
+      <tc:clause tokenIDs="t0 t7 t8 t9 t10"/>
+      <tc:clause tokenIDs="t2 t3 t4 t5"/>
+      <tc:clause tokenIDs="t12 t13 t14 t15 t16"/>
+    </tc:clauses>
+    <tc:chunks xmlns:tc="http://www.dspin.de/data/textcorpus" tagset="">
+      <tc:chunk type="VP" tokenIDs="t3" ID="ch0"/>
+      <tc:chunk type="VP" tokenIDs="t7 t9" ID="ch1"/>
+      <tc:chunk type="VP" tokenIDs="t13 t16" ID="ch2"/>
+      <tc:chunk type="TMP" tokenIDs="t14 t15" ID="ch3"/>
+    </tc:chunks>
+  </TextCorpus>
+</D-Spin>

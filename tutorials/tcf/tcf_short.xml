@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<D-Spin version="0.4" xmlns="http://www.dspin.de/data">
+  <MetaData xmlns="http://www.dspin.de/data/metadata"/>
+  <TextCorpus lang="ee" xmlns="http://www.dspin.de/data/textcorpus">
+    <text>Tere maailm!</text>
+    <tc:tokens xmlns:tc="http://www.dspin.de/data/textcorpus">
+      <tc:token ID="t0" end="4" start="0">Tere</tc:token>
+      <tc:token ID="t1" end="11" start="5">maailm</tc:token>
+      <tc:token ID="t2" end="12" start="11">!</tc:token>
+    </tc:tokens>
+  </TextCorpus>
+</D-Spin>
