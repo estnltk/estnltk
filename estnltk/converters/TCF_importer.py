@@ -34,9 +34,9 @@ def import_TCF(string:str=None, file:str=None):
         layer = Layer(enveloping='words',
                       name='sentences')
         for sentence in element:
-            span_list = SpanList()
+            span_list = SpanList(layer=layer)
             for token_id in sentence.get('tokenIDs').split():
-                span_list.add_span(id_to_token[token_id])
+                span_list.add_span(Span(parent=id_to_token[token_id]))
             layer.add_span(span_list)
         text['sentences'] = layer
 
@@ -46,9 +46,9 @@ def import_TCF(string:str=None, file:str=None):
         layer = Layer(enveloping='words',
                       name='clauses')
         for clause in element:
-            span_list = SpanList()
+            span_list = SpanList(layer=layer)
             for token_id in clause.get('tokenIDs').split():
-                span_list.add_span(id_to_token[token_id])
+                span_list.add_span(Span(parent=id_to_token[token_id]))
             layer.add_span(span_list)
         text['clauses'] = layer
 
@@ -62,14 +62,14 @@ def import_TCF(string:str=None, file:str=None):
         for line in element:
             chunk_type = line.get('type')
             if chunk_type=='VP':
-                span_list = SpanList()
+                span_list = SpanList(layer=layer_vp)
                 for token_id in line.get('tokenIDs').split():
-                    span_list.add_span(id_to_token[token_id])
+                    span_list.add_span(Span(parent=id_to_token[token_id]))
                 layer_vp.add_span(span_list)
             elif chunk_type=='TMP':
-                span_list = SpanList()
+                span_list = SpanList(layer=layer_tmp)
                 for token_id in line.get('tokenIDs').split():
-                    span_list.add_span(id_to_token[token_id])
+                    span_list.add_span(Span(parent=id_to_token[token_id]))
                 layer_tmp.add_span(span_list)
         text['verb_chains'] = layer_vp
         text['time_phrases'] = layer_tmp

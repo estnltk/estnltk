@@ -4,9 +4,9 @@
   <TextCorpus lang="ee" xmlns="http://www.dspin.de/data/textcorpus">
     <text>Tere maailm!</text>
     <tc:tokens xmlns:tc="http://www.dspin.de/data/textcorpus">
-      <tc:token ID="t0" end="4" start="0">Tere</tc:token>
-      <tc:token ID="t1" end="11" start="5">maailm</tc:token>
-      <tc:token ID="t2" end="12" start="11">!</tc:token>
+      <tc:token start="0" ID="t0" end="4">Tere</tc:token>
+      <tc:token start="5" ID="t1" end="11">maailm</tc:token>
+      <tc:token start="11" ID="t2" end="12">!</tc:token>
     </tc:tokens>
   </TextCorpus>
 </D-Spin>
