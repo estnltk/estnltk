@@ -24,7 +24,8 @@ class SentenceTokenizer:
 
     def tag(self, text: 'Text', fix=True) -> 'Text':
         layer = Layer(enveloping='words',
-                      name='sentences')
+                      name='sentences',
+                      ambiguous=False)
 
         sentence_ends = {end for _, end in self._tokenize(text)}
         if fix:

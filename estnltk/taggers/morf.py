@@ -80,7 +80,11 @@ class VabamorfTagger:
             for analysis in analyses['analysis']:
                 span = morph.add_span(Span(parent=word))
                 for attr in morph_attributes:
-                    setattr(span, attr, analysis[attr])
+                    if attr == 'root_tokens':
+                        # make it hashable for Span.__hash__
+                        setattr(span, attr, tuple(analysis[attr]))
+                    else:
+                        setattr(span, attr, analysis[attr])
                 if self.postmorph_rewriter:
                     setattr(span, 'word_normal', analyses['text'])
         if self.postmorph_rewriter:

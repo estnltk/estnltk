@@ -8,10 +8,10 @@ class TokensTagger:
 
     def tag(self, text: 'Text') -> 'Text':        
         spans = list(tokenizer.span_tokenize(text.text))
-        words = Layer(name='tokens').from_records([{
+        tokens = Layer(name='tokens').from_records([{
                                                    'start': start,
                                                    'end': end
                                                   } for start, end in spans],
                                                  rewriting=True)
-        text['tokens'] = words
+        text['tokens'] = tokens
         return text

@@ -313,6 +313,7 @@ class SpanList(collections.Sequence):
         return (self.start, self.end) < (other.start, other.end)
 
     def __eq__(self, other: Any) -> bool:
+        return hash(self) == hash(other)
         try:
             return (self.start, self.end) == (other.start, other.end)
         except AttributeError:
@@ -352,7 +353,7 @@ class Layer:
                  attributes:Union[Tuple, List]=tuple(),
                  parent:str=None,
                  enveloping:str=None,
-                 ambiguous:bool=None
+                 ambiguous:bool=False
                  ) -> None:
         assert not ((parent is not None) and (enveloping is not None)), 'Cant be derived AND enveloping'
 
@@ -531,6 +532,23 @@ class Layer:
         pandas.set_option('display.max_colwidth', -1)
         return df.to_html(index = False, escape=False)
 
+    def __eq__(self, other):
+        if not isinstance(other, Layer):
+            return False
+        if self.name != other.name:
+            return False
+        if self.attributes != other.attributes:
+            return False
+        if self.ambiguous != other.ambiguous:
+            return False
+        if self.parent != other.parent:
+            return False
+        if self.enveloping != other.enveloping:
+            return False
+        if self.spans != other.spans:
+            return False
+        return True
+
 
 def _get_span_by_start_and_end(spans:SpanList, start:int, end:int) -> Union[Span, None]:
     for span in spans:
@@ -552,14 +570,32 @@ class Text:
         self._setup_structure()
 
 
-    def tag_layer(self, layer_names:Sequence[str] = ('morf_analysis', 'sentences')) -> 'Text':
+    def tag_layer(self, layer_names:Sequence[str] = ('morf_analysis', 'sentences'), resolver=None) -> 'Text':
+        if resolver is None:
+            resolver = DEFAULT_RESOLVER
         for layer_name in layer_names:
-            RESOLVER.apply(self, layer_name)
+            resolver.apply(self, layer_name)
+        return self
+
+    def analyse(self, t, resolver=None):
+        if resolver is None:
+            resolver = DEFAULT_RESOLVER
+        if t == 'segmentation':
+            self.tag_layer(['paragraphs'], resolver)
+        elif t == 'morphology':
+            self.tag_layer(['morf_analysis'], resolver)
+        elif t == 'syntax':
+            pass
+        else:
+            raise ValueError("invalid argument: '"+str(t)+
+                             "', use 'segmentation', 'morphology' or 'syntax' instead")
+        if 'tokens' in self.layers:
+            del self.tokens
         return self
 
     def list_registered_layers(self):
         res = []
-        for layer in RESOLVER.rules:
+        for layer in DEFAULT_RESOLVER.rules:
             res.append(layer.layer_name)
         return res
 
@@ -937,13 +973,23 @@ class Text:
         table1 = pandas.DataFrame.from_records(rec)
         table1 = table1.to_html(index=False, escape=False)
         if self.layers:
-            rec = [{'layer': name,
+            # create a list of layers preserving the order of registered layers
+            # can be optimized
+            layers = []
+            for layer_name in self.list_registered_layers():
+                if layer_name in self.layers:
+                    layers.append(self.layers[layer_name])
+            for _, layer in self.layers.items():
+                if layer not in layers:
+                    layers.append(layer)
+
+            rec = [{'layer': layer.name,
                         'attributes': ', '.join(layer.attributes),
                         'parent': str(layer.parent),
                         'enveloping': str(layer.enveloping),
                         'ambiguous': str(layer.ambiguous),
                         'number of spans': str(len(layer.spans.spans))}
-                   for name, layer in self.layers.items()]
+                   for layer in layers]
             table2 = pandas.DataFrame.from_records(rec, 
                                                    columns=['layer', 'attributes',
                                                             'parent', 'enveloping',
@@ -953,27 +999,35 @@ class Text:
             return table1 + '\n' + table2
         return table1
 
+    def __eq__(self, other):
+        if not isinstance(other, Text):
+            return False
+        if self.text != other.text:
+            return False
+        return self.layers == other.layers
+
 
 #RESOLVER is a registry of taggers and names.
 # Taggers must be imported relatively (with a .)
 # This section must be at the end of the file.
-from .taggers import TokensTagger
-from .taggers import WordTokenizer
-from .taggers import CompoundTokenTagger
-from .taggers import SentenceTokenizer
-from .taggers import ParagraphTokenizer
-from .taggers.premorph.premorf import WordNormalizingTagger
-from .taggers.morf import VabamorfTagger
-from .resolve_layer_dag import Resolver, Rule
+#from .taggers import TokensTagger
+#from .taggers import WordTokenizer
+#from .taggers import CompoundTokenTagger
+#from .taggers import SentenceTokenizer
+#from .taggers import ParagraphTokenizer
+#from .taggers.premorph.premorf import WordNormalizingTagger
+#from .taggers.morf import VabamorfTagger
+#from .resolve_layer_dag import Resolver, Rule, DEFAULT_RESOLVER
+from .resolve_layer_dag import DEFAULT_RESOLVER
 
-RESOLVER = Resolver(
-    [
-        Rule('tokens', tagger=TokensTagger(), depends_on=[]),
-        Rule('compound_tokens', tagger=CompoundTokenTagger(), depends_on=['tokens']),
-        Rule('words', tagger=WordTokenizer(), depends_on=['tokens', 'compound_tokens']),
-        Rule('sentences', tagger=SentenceTokenizer(), depends_on=['compound_tokens']),
-        Rule('paragraphs', tagger=ParagraphTokenizer(), depends_on=['sentences']),
-        Rule('normalized', tagger=WordNormalizingTagger(), depends_on=['words']),
-        Rule('morf_analysis', tagger=VabamorfTagger(), depends_on=['normalized']),
-    ]
-)
+#RESOLVER = Resolver(
+#    [
+#        Rule('tokens', tagger=TokensTagger(), depends_on=[]),
+#        Rule('compound_tokens', tagger=CompoundTokenTagger(), depends_on=['tokens']),
+#        Rule('words', tagger=WordTokenizer(), depends_on=['compound_tokens']),
+#        Rule('sentences', tagger=SentenceTokenizer(), depends_on=['words']),
+#        Rule('paragraphs', tagger=ParagraphTokenizer(), depends_on=['sentences']),
+#        Rule('normalized', tagger=WordNormalizingTagger(), depends_on=['words']),
+#        Rule('morf_analysis', tagger=VabamorfTagger(), depends_on=['normalized']),
+#    ]
+#)

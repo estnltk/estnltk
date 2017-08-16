@@ -7,7 +7,7 @@ class WordTokenizer:
         compounds = dict()
         for spl in text.compound_tokens:
             compounds[spl[0]] = Span(start=spl.start, end=spl.end)
-        words = Layer(name='words')
+        words = Layer(name='words', ambiguous=False)
         for span in text.tokens:
             if span in compounds:
                 words.add_span(compounds[span])

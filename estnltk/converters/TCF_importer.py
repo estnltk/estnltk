@@ -107,7 +107,7 @@ def import_TCF(string:str=None, file:str=None):
                 clitic = ''
             rec['form'] = form if form else ''
             rec['root'] = root if root else ''
-            rec['root_tokens'] = root_tokens
+            rec['root_tokens'] = tuple(root_tokens)
             rec['ending'] = ending if ending else ''
             rec['clitic'] = clitic if clitic else ''
 
