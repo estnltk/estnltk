@@ -1007,27 +1007,4 @@ class Text:
         return self.layers == other.layers
 
 
-#RESOLVER is a registry of taggers and names.
-# Taggers must be imported relatively (with a .)
-# This section must be at the end of the file.
-#from .taggers import TokensTagger
-#from .taggers import WordTokenizer
-#from .taggers import CompoundTokenTagger
-#from .taggers import SentenceTokenizer
-#from .taggers import ParagraphTokenizer
-#from .taggers.premorph.premorf import WordNormalizingTagger
-#from .taggers.morf import VabamorfTagger
-#from .resolve_layer_dag import Resolver, Rule, DEFAULT_RESOLVER
 from .resolve_layer_dag import DEFAULT_RESOLVER
-
-#RESOLVER = Resolver(
-#    [
-#        Rule('tokens', tagger=TokensTagger(), depends_on=[]),
-#        Rule('compound_tokens', tagger=CompoundTokenTagger(), depends_on=['tokens']),
-#        Rule('words', tagger=WordTokenizer(), depends_on=['compound_tokens']),
-#        Rule('sentences', tagger=SentenceTokenizer(), depends_on=['words']),
-#        Rule('paragraphs', tagger=ParagraphTokenizer(), depends_on=['sentences']),
-#        Rule('normalized', tagger=WordNormalizingTagger(), depends_on=['words']),
-#        Rule('morf_analysis', tagger=VabamorfTagger(), depends_on=['normalized']),
-#    ]
-#)
