@@ -44,11 +44,11 @@ class WordNormalizingTagger:
         rewriting_template = partial(source_layer.rewrite,
                                      source_attributes=source_attributes,
                                      target_attributes=target_attributes,
-                                     name='normalized',
+                                     name='normalized_words',
                                      ambiguous=False)
 
         normalizing_layer = rewriting_template(rules=self.word_normalizing_rewriter)
 
-        text['normalized'] = merge([normalizing_layer])
+        text['normalized_words'] = merge([normalizing_layer])
 
         return text

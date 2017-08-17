@@ -5,7 +5,7 @@ from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRew
 
 class VabamorfTagger:
     def __init__(self, 
-                 premorf_layer:str='normalized',
+                 premorf_layer:str='normalized_words',
                  postmorph_rewriter=VabamorfCorrectionRewriter(),
                  **kwargs):
         self.kwargs = kwargs
@@ -70,7 +70,7 @@ class VabamorfTagger:
               attributes=attributes
               )
         else:
-            morph = Layer(name='morf_analysis',
+            morph = Layer(name='morph_analysis',
                           parent='words',
                           ambiguous=True,
                           attributes=morph_attributes
@@ -91,9 +91,9 @@ class VabamorfTagger:
             morph = morph.rewrite(source_attributes=attributes,
                                   target_attributes=morph_attributes, 
                                   rules=self.postmorph_rewriter,
-                                  name='morf_analysis',
+                                  name='morph_analysis',
                                   ambiguous=True)
 
-        text['morf_analysis'] = morph
+        text['morph_analysis'] = morph
 
         return text

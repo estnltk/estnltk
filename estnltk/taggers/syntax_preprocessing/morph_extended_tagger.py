@@ -51,7 +51,7 @@ class MorphExtendedTagger():
                          attributes=['word_text', 'lemma', 'root', 'ending', 'clitic', 'partofspeech', 'form']
                          )
         text._add_layer(dep)
-        for word, morf_anal in zip(text.words, text.morf_analysis):
+        for word, morf_anal in zip(text.words, text.morph_analysis):
             for analysis in morf_anal:
                 m = word.mark('syntax_pp_0')
                 m.word_text = analysis.text

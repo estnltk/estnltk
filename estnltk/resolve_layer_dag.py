@@ -62,8 +62,8 @@ def make_resolver(
         Rule('words', tagger=WordTokenizer(), depends_on=['compound_tokens']),
         Rule('sentences', tagger=SentenceTokenizer(), depends_on=['words']),
         Rule('paragraphs', tagger=ParagraphTokenizer(), depends_on=['sentences']),
-        Rule('normalized', tagger=WordNormalizingTagger(), depends_on=['words']),
-        Rule('morf_analysis', tagger=vabamorf_tagger, depends_on=['normalized']),
+        Rule('normalized_words', tagger=WordNormalizingTagger(), depends_on=['words']),
+        Rule('morph_analysis', tagger=vabamorf_tagger, depends_on=['normalized_words']),
         ]
 
     return Resolver(rules)

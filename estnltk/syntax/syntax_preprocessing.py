@@ -132,7 +132,7 @@ class SyntaxPreprocessing:
             Parameters
             ----------
                 text: Text
-                    A Text object with morf_analysis layer (in Filosoft's old 
+                    A Text object with morph_analysis layer (in Filosoft's old 
                     mrph format).
 
             Returns

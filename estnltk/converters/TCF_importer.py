@@ -75,7 +75,7 @@ def import_TCF(string:str=None, file:str=None):
         text['time_phrases'] = layer_tmp
 
 
-    # morf_analysis layer
+    # morph_analysis layer
     morph_analysis_list = []
     element = text_corpus.find('{http://www.dspin.de/data/textcorpus}lemmas')
     if element is not None:
@@ -122,7 +122,7 @@ def import_TCF(string:str=None, file:str=None):
     
         morph_attributes = ['lemma', 'root', 'root_tokens', 'ending',
                             'clitic', 'form', 'partofspeech']
-        morph = Layer(name='morf_analysis',
+        morph = Layer(name='morph_analysis',
                       parent='words',
                       ambiguous=True,
                       attributes=morph_attributes
@@ -133,6 +133,6 @@ def import_TCF(string:str=None, file:str=None):
                 for attr in morph_attributes:
                     setattr(span, attr, analysis[attr])
     
-        text['morf_analysis'] = morph
+        text['morph_analysis'] = morph
 
     return text

@@ -20,24 +20,24 @@ def test_general():
     assert len(t.words) == len(t.words.text)
     assert len(t.sentences) == len(t.sentences.text)
     assert len(t.sentences.words.text) == len(t.sentences.text)
-    print(t.morf_analysis.lemma)
-    assert t.morf_analysis.lemma == [['mina'], ['nimi'], ['olema', 'olema'], ['Uku'], ['.'], ['mis', 'mis'], ['sina'], ['nimi'], ['olema', 'olema'], ['?'], ['miks'], ['mina'], ['see'], ['arutama'], ['?']]
+    print(t.morph_analysis.lemma)
+    assert t.morph_analysis.lemma == [['mina'], ['nimi'], ['olema', 'olema'], ['Uku'], ['.'], ['mis', 'mis'], ['sina'], ['nimi'], ['olema', 'olema'], ['?'], ['miks'], ['mina'], ['see'], ['arutama'], ['?']]
 
 
-    assert len(t.morf_analysis.lemma) == len(t.words)
-    assert len(t.morf_analysis) == len(t.words)
+    assert len(t.morph_analysis.lemma) == len(t.words)
+    assert len(t.morph_analysis) == len(t.words)
 
-    print(t.words.morf_analysis)
+    print(t.words.morph_analysis)
     print(t.words.lemma)
-    assert t.words.morf_analysis.lemma == t.words.lemma
+    assert t.words.morph_analysis.lemma == t.words.lemma
     assert len(t.sentences[1:].words) == len(t.sentences[1:].text)
 
-    print('mrf', (t.sentences[1:].morf_analysis))
+    print('mrf', (t.sentences[1:].morph_analysis))
     print(t.sentences[1:].text)
-    assert len(t.sentences[1:].morf_analysis) == len(t.sentences[1:].text)
+    assert len(t.sentences[1:].morph_analysis) == len(t.sentences[1:].text)
 
 
-    assert len(t.sentences[:].morf_analysis) == len(t.sentences[:].text)
+    assert len(t.sentences[:].morph_analysis) == len(t.sentences[:].text)
     assert (t.sentences[:]) == (t.sentences)
     assert (t.words[:]) == (t.words)
     assert (t.words[:].lemma) == (t.words.lemma)
@@ -50,10 +50,10 @@ def test_equivalences():
 
 
     with pytest.raises(AttributeError):
-        t.morf_analysis
+        t.morph_analysis
 
     t.tag_layer()
-    t.morf_analysis.lemma  # nüüd töötab
+    t.morph_analysis.lemma  # nüüd töötab
 
     #Text object has attribute access if attributes are unique
     assert t.lemma == t.words.lemma
@@ -62,11 +62,11 @@ def test_equivalences():
 
     assert t.words.text == list(itertools.chain(*t.sentences.text))
 
-    assert [list(set(i))[0] for i in t.morf_analysis.text] == t.words.text
+    assert [list(set(i))[0] for i in t.morph_analysis.text] == t.words.text
 
-    assert t.morf_analysis.get_attributes(['text', 'lemma']) == t.words.get_attributes(['text', 'lemma'])
+    assert t.morph_analysis.get_attributes(['text', 'lemma']) == t.words.get_attributes(['text', 'lemma'])
 
-    assert [[i[0]] for i in t.morf_analysis.get_attributes(['text'])] == t.words.get_attributes(['text'])
+    assert [[i[0]] for i in t.morph_analysis.get_attributes(['text'])] == t.words.get_attributes(['text'])
 
 
 def test_to_record():
@@ -75,21 +75,21 @@ def test_to_record():
     # siin on kaks võimalikku (ja põhjendatavat) käitumist.
 
     #esimene
-    assert t.words.morf_analysis.to_record() == t.words.to_record()
+    assert t.words.morph_analysis.to_record() == t.words.to_record()
 
     # või teine
-    # assert t.words.morf_analysis.to_record() == t.morf_analysis.to_record()
+    # assert t.words.morph_analysis.to_record() == t.morph_analysis.to_record()
 
     #teine tundub veidi loogilisem, aga piisavalt harv vajadus ja piisavalt tülikas implementeerida, et valida esimene
     # alati saab teha lihtsalt
-    # t.morf_analysis.to_record()
+    # t.morph_analysis.to_record()
 
 
 def test_paragraph_tokenizer():
     t = Text('''Minu nimi on Uku. Miks?
 
 Mis sinu nimi on?
-    ''').tag_layer(['paragraphs', 'morf_analysis'])
+    ''').tag_layer(['paragraphs', 'morph_analysis'])
 
     #Should not raise NotImplementedError
     t.paragraphs
@@ -115,7 +115,7 @@ Mis sinu nimi on?
     assert t.paragraphs.words.text == t.paragraphs.text
 
     #these are not implemented yet
-    # t.paragraphs.sentences.words.morf_analysis.lemma
+    # t.paragraphs.sentences.words.morph_analysis.lemma
 
 
 
@@ -123,7 +123,7 @@ def test_delete_layer():
     t = Text('Minu nimi on Uku.')
     assert t.layers == {}
 
-    layer_names = 'words sentences morf_analysis'.split()
+    layer_names = 'words sentences morph_analysis'.split()
     t.tag_layer(layer_names)
     assert  set(t.layers.keys()).issuperset(set(layer_names))
 
@@ -141,7 +141,7 @@ def test_delete_layer():
         t.sentences
 
     with pytest.raises(AttributeError):
-        t.morf_analysis
+        t.morph_analysis
 
 
 def test_new_span_hierarchy():
@@ -586,11 +586,11 @@ def test_ambiguous_layer():
 def test_morf():
     text = Text('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?').tag_layer()
     for i in text.words:
-        i.morf_analysis
+        i.morph_analysis
 
 
     text.words.lemma
-    text.morf_analysis.lemma
+    text.morph_analysis.lemma
 
     assert text.sentences.lemma != text.words.lemma
     text.sentences[:1].lemma
@@ -602,18 +602,18 @@ def test_morf():
 
 def test_change_lemma():
     text = Text('Olnud aeg.').tag_layer()
-    setattr(text.morf_analysis[0][0], 'lemma', 'blabla')
-    assert text.morf_analysis[0][0].lemma == 'blabla'
+    setattr(text.morph_analysis[0][0], 'lemma', 'blabla')
+    assert text.morph_analysis[0][0].lemma == 'blabla'
 
-    setattr(text.morf_analysis[0][1], 'lemma', 'blabla2')
-    assert text.morf_analysis[0][1].lemma == 'blabla2'
+    setattr(text.morph_analysis[0][1], 'lemma', 'blabla2')
+    assert text.morph_analysis[0][1].lemma == 'blabla2'
 
 
 def test_to_records():
     text = Text('Olnud aeg.').tag_layer()
 
     #ambiguous
-    assert (text['morf_analysis'].to_records()) == [
+    assert (text['morph_analysis'].to_records()) == [
             [{'root': 'ol=nud', 'lemma': 'olnud', 'form': '', 'ending': '0', 'root_tokens': ('olnud',), 'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''},
              {'root': 'ol=nud', 'lemma': 'olnud', 'form': 'sg n', 'ending': '0', 'root_tokens': ('olnud',), 'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''},
              {'root': 'ol=nud', 'lemma': 'olnud', 'form': 'pl n', 'ending': 'd', 'root_tokens': ('olnud',), 'partofspeech': 'A', 'start': 0, 'end': 5, 'clitic': ''},
@@ -641,12 +641,12 @@ def test_morf2():
     itaalia keeles, vahendas "Aktuaalne kaamera".''').tag_layer()
 
 
-    assert len(text.morf_analysis[5]) == 2
-    print(text.morf_analysis[5])
-    print(text.morf_analysis[5].lemma)
-    assert len(text.morf_analysis[5].lemma) == 2
-    assert (text.morf_analysis[5].lemma) == ['olema', 'olema']
-    assert (text.morf_analysis.lemma == [['Lennart'], ['Meri'], ['"'], ['hõbevalge'], ['"'], ['olema', 'olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['rahvusvaheline'], ['lugejaskond'], ['.'], ['seni'], ['vaid'], ['soome'], ['keel'], ['tõlkima', 'tõlgitud', 'tõlgitud', 'tõlgitud'], ['teos'], ['ilmuma'], ['äsja'], ['ka'], ['itaalia'], ['keel'], ['ning'], ['see'], ['esitlema'], ['Rooma'], ['reisikirjandus'], ['festival'], ['.'], ['tundma', 'tuntud', 'tuntud', 'tuntud'], ['reisikrijandus'], ['festival'], ['valima'], ['tänavu'], ['peakülaline'], ['Eesti'], [','], ['Ultima'], ['Thule'], ['ning'], ['Iidse-Põhjala', 'Iidse-Põhjala'], ['ja'], ['Vahemeri'], ['endisaegne'], ['kultuurikontakt'], ['j'], ['uks'], ['seetõttu'], [','], ['et'], ['eelmine'], ['nädal'], ['avaldama'], ['kirjastus'], ['Gangemi'], ['"'], ['hõbevalge'], ['"'], ['itaalia'], ['keel'], [','], ['vahendama'], ['"'], ['aktuaalne'], ['kaamera'], ['".']]
+    assert len(text.morph_analysis[5]) == 2
+    print(text.morph_analysis[5])
+    print(text.morph_analysis[5].lemma)
+    assert len(text.morph_analysis[5].lemma) == 2
+    assert (text.morph_analysis[5].lemma) == ['olema', 'olema']
+    assert (text.morph_analysis.lemma == [['Lennart'], ['Meri'], ['"'], ['hõbevalge'], ['"'], ['olema', 'olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['rahvusvaheline'], ['lugejaskond'], ['.'], ['seni'], ['vaid'], ['soome'], ['keel'], ['tõlkima', 'tõlgitud', 'tõlgitud', 'tõlgitud'], ['teos'], ['ilmuma'], ['äsja'], ['ka'], ['itaalia'], ['keel'], ['ning'], ['see'], ['esitlema'], ['Rooma'], ['reisikirjandus'], ['festival'], ['.'], ['tundma', 'tuntud', 'tuntud', 'tuntud'], ['reisikrijandus'], ['festival'], ['valima'], ['tänavu'], ['peakülaline'], ['Eesti'], [','], ['Ultima'], ['Thule'], ['ning'], ['Iidse-Põhjala', 'Iidse-Põhjala'], ['ja'], ['Vahemeri'], ['endisaegne'], ['kultuurikontakt'], ['j'], ['uks'], ['seetõttu'], [','], ['et'], ['eelmine'], ['nädal'], ['avaldama'], ['kirjastus'], ['Gangemi'], ['"'], ['hõbevalge'], ['"'], ['itaalia'], ['keel'], [','], ['vahendama'], ['"'], ['aktuaalne'], ['kaamera'], ['".']]
 )
 
 
@@ -756,7 +756,7 @@ def broken_test_rewrite_access():
 
     com_type = Layer(
         name='com_type',
-        parent='morf_analysis',
+        parent='morph_analysis',
         attributes=['main'],
         ambiguous=True
     )
@@ -782,7 +782,7 @@ def broken_test_rewrite_access():
                 for k, v in result.items():
                     setattr(newspan, k, v)
 
-    rewrite(text.morf_analysis, text.com_type, ruleset)
+    rewrite(text.morph_analysis, text.com_type, ruleset)
 
     for i in text.words[:1]:
         if i.main:
@@ -792,8 +792,8 @@ def broken_test_rewrite_access():
             assert i.main == i.com_type.main
     print()
     for i in text.com_type[:1]:
-        print(i, i.morf_analysis)
-        print(i, i.morf_analysis.lemma)
+        print(i, i.morph_analysis)
+        print(i, i.morph_analysis.lemma)
 
     for i in text.com_type:
         print(i, i.lemma)
@@ -891,7 +891,7 @@ def test_delete_ambig_span():
     
 def test_span_morf_access():
     text = Text('Oleme jõudnud kohale. Kus me oleme?').tag_layer()
-    assert text.sentences[0].words[0].morf_analysis.lemma == ['olema']
+    assert text.sentences[0].words[0].morph_analysis.lemma == ['olema']
 
 
 def test_lemma_access_from_text_object():
@@ -900,7 +900,7 @@ def test_lemma_access_from_text_object():
     assert (text.lemma) == text.words.lemma
 
 
-def test_sentences_morf_analysis_lemma():
+def test_sentences_morph_analysis_lemma():
     text = Text('Oleme jõudnud kohale. Kus me oleme?')
 
     text.tag_layer()
@@ -910,13 +910,13 @@ def test_sentences_morf_analysis_lemma():
     x.words
 
 
-    assert (text.sentences[:1].morf_analysis.lemma == [[['olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['koht', 'koha'], ['.']]])
-    assert text.sentences[:1].morf_analysis.lemma == text.sentences[:1].words.lemma
-    assert text.sentences[:].morf_analysis.lemma == text.sentences[:].words.lemma
-    assert (text.sentences.morf_analysis.lemma == [[['olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['koht', 'koha'], ['.']], [['kus'], ['mina'], ['olema'], ['?']]])
-    assert (text.sentences.morf_analysis.lemma == text.sentences.words.lemma)
+    assert (text.sentences[:1].morph_analysis.lemma == [[['olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['koht', 'koha'], ['.']]])
+    assert text.sentences[:1].morph_analysis.lemma == text.sentences[:1].words.lemma
+    assert text.sentences[:].morph_analysis.lemma == text.sentences[:].words.lemma
+    assert (text.sentences.morph_analysis.lemma == [[['olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['koht', 'koha'], ['.']], [['kus'], ['mina'], ['olema'], ['?']]])
+    assert (text.sentences.morph_analysis.lemma == text.sentences.words.lemma)
     assert (text.sentences[0].words.lemma == [['olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['koht', 'koha'], ['.']])
-    assert text.sentences[0].morf_analysis.lemma == text.sentences[0].words.lemma
+    assert text.sentences[0].morph_analysis.lemma == text.sentences[0].words.lemma
 
 
 def test_phrase_layer():
@@ -953,7 +953,7 @@ def test_phrase_layer():
 
     w = UppercasePhraseTagger()
     t = w.tag(Text('Minu KARU ON PUNANE. MIS värvi SINU KARU on? Kuidas PALUN?').tag_layer(['words', 'sentences']))
-    t.tag_layer(['morf_analysis'])
+    t.tag_layer(['morph_analysis'])
     assert (t.uppercasephrase.get_attributes(['phrasetext', 'text'])) == [[('karu on punane', 'KARU'), ('karu on punane', 'ON'), ('karu on punane', 'PUNANE')], [('sinu karu', 'SINU'), ('sinu karu', 'KARU')]]
 
     assert (t.phrasetext) == ['karu on punane', 'sinu karu']

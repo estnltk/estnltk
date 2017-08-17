@@ -570,7 +570,7 @@ class Text:
         self._setup_structure()
 
 
-    def tag_layer(self, layer_names:Sequence[str] = ('morf_analysis', 'sentences'), resolver=None) -> 'Text':
+    def tag_layer(self, layer_names:Sequence[str] = ('morph_analysis', 'sentences'), resolver=None) -> 'Text':
         if resolver is None:
             resolver = DEFAULT_RESOLVER
         for layer_name in layer_names:
@@ -583,7 +583,7 @@ class Text:
         if t == 'segmentation':
             self.tag_layer(['paragraphs'], resolver)
         elif t == 'morphology':
-            self.tag_layer(['morf_analysis'], resolver)
+            self.tag_layer(['morph_analysis'], resolver)
         elif t == 'syntax':
             pass
         else:
