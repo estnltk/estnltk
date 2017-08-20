@@ -71,6 +71,7 @@ from .taggers import SentenceTokenizer
 from .taggers import ParagraphTokenizer
 from .taggers.premorph.premorf import WordNormalizingTagger
 from .taggers.morf import VabamorfTagger
+from .taggers import MorphExtendedTagger
 
 
 def make_resolver(
@@ -89,7 +90,8 @@ def make_resolver(
 
     taggers = Taggers([TokensTagger(), WordTokenizer(), CompoundTokenTagger(),
                        SentenceTokenizer(), ParagraphTokenizer(),
-                       WordNormalizingTagger(), vabamorf_tagger])
+                       WordNormalizingTagger(), vabamorf_tagger,
+                       MorphExtendedTagger()])
     return Resolver(taggers)
 
 

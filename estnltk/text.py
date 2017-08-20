@@ -584,8 +584,8 @@ class Text:
             self.tag_layer(['paragraphs'], resolver)
         elif t == 'morphology':
             self.tag_layer(['morph_analysis'], resolver)
-        elif t == 'syntax':
-            pass
+        elif t == 'syntax_preprocessing':
+            self.tag_layer(['sentences','morph_extended'], resolver)
         else:
             raise ValueError("invalid argument: '"+str(t)+
                              "', use 'segmentation', 'morphology' or 'syntax' instead")
