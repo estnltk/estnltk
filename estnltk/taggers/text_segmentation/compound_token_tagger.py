@@ -10,13 +10,19 @@ class CompoundTokenTagger:
     def __init__(self, 
                  compound_types_to_merge={'abbrevation', 'name'},
                  conflict_resolving_strategy='MAX'):
+        self._layer_name = 'compound_tokens'
+        self._attributes = ['type']
+        self._depends_on = ['tokens']
+        self._conf = ("compound_types_to_merge="+str(compound_types_to_merge)+
+                     ", conflict_resolving_strategy="+conflict_resolving_strategy)
+        
         self._compound_types_to_merge = compound_types_to_merge
         self._conflict_resolving_strategy = conflict_resolving_strategy
 
     def tag(self, text: 'Text') -> 'Text':
-        layer = Layer(name='compound_tokens',
+        layer = Layer(name=self._layer_name,
                       enveloping = 'tokens',
-                      attributes=['type'],
+                      attributes=self._attributes,
                       ambiguous=False)
         tokens = text.tokens.text
         name_status = None
@@ -86,5 +92,19 @@ class CompoundTokenTagger:
         #if self._compound_types_to_merge:
         resolve_conflicts(layer, conflict_resolving_strategy=self._conflict_resolving_strategy)
         
-        text['compound_tokens'] = layer
+        text[self._layer_name] = layer
         return text
+
+    def configuration(self):
+        record = {'name':self.__class__.__name__,
+                  'layer':self._layer_name,
+                  'attributes':self._attributes,
+                  'depends_on': self._depends_on,
+                  'conf':self._conf}
+        return record
+
+    def _repr_html_(self):
+        import pandas
+        pandas.set_option('display.max_colwidth', -1)
+        df = pandas.DataFrame.from_records([self.configuration()], columns=['name', 'layer', 'attributes', 'depends_on', 'conf'])
+        return df.to_html(index=False)

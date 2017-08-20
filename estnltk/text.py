@@ -594,11 +594,7 @@ class Text:
         return self
 
     def list_registered_layers(self):
-        res = []
-        for layer in DEFAULT_RESOLVER.rules:
-            res.append(layer.layer_name)
-        return res
-
+        return DEFAULT_RESOLVER.list_layers()
 
     @property
     def text(self):

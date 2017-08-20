@@ -1,39 +1,69 @@
 from typing import List
 import networkx as nx
 
-class Rule:
-    def __init__(self, layer_name: str, tagger, depends_on: List[str]) -> None:
-        self.depends_on = depends_on
-        self.tagger = tagger
-        self.layer_name = layer_name
+
+class Taggers:
+    """
+    Registry for Taggers and their dependencies.
+    """
+    def __init__(self, taggers: List) -> None:
+        self.rules = {}
+        for tagger in taggers:
+            self.rules[tagger._layer_name] = tagger
+        self.graph = self._make_graph()
+
+    def update(self, tagger):
+        self.rules[tagger._layer_name] = tagger
+        self.graph = self._make_graph()
+
+    def _make_graph(self):
+        graph = nx.DiGraph()
+        graph.add_nodes_from(self.rules)
+        for layer_name, tagger in self.rules.items():
+            for dep in tagger._depends_on:
+                graph.add_edge(dep, layer_name)
+        assert nx.is_directed_acyclic_graph(graph)
+        return graph
+
+    def list_layers(self):
+        return nx.topological_sort(self.graph)
+
+    def _repr_html_(self):
+        records = []
+        for layer_name in self.list_layers():
+            records.append(self.rules[layer_name].configuration())
+        import pandas
+        pandas.set_option('display.max_colwidth', -1)
+        df = pandas.DataFrame.from_records(records, columns=['name', 'layer', 'attributes', 'depends_on', 'conf'])
+        return df.to_html(index=False)
 
 
 class Resolver:
-    def __init__(self, rules: List[Rule]) -> None:
+    """
+    Use Taggers to tag layers.
+    """
+    def __init__(self, taggers: Taggers) -> None:
+        self.taggers = taggers
 
-        self.rules = rules
-        graph = nx.DiGraph()
-        graph.add_nodes_from([i.layer_name for i in self.rules])
-        for rule in self.rules:
-            for dep in rule.depends_on:
-                graph.add_edge(dep, rule.layer_name)
+    def update(self, tagger):
+        self.taggers.update(tagger)
 
-        assert nx.is_directed_acyclic_graph(graph)
-        self.graph = graph
+    def taggers(self):
+        return self.taggers
+
+    def list_layers(self):
+        return self.taggers.list_layers()
 
     def apply(self, text: 'Text', layer_name: str) -> 'Text':
         if layer_name in text.layers.keys():
             return text
-        for prerequisite in self.graph.predecessors(layer_name):
+        for prerequisite in self.taggers.graph.predecessors(layer_name):
             self.apply(text, prerequisite)
 
-        rule = [i.tagger for i in self.rules if i.layer_name == layer_name][0]
-        rule.tag(text)
+        self.taggers.rules[layer_name].tag(text)
         return text
 
-#RESOLVER is a registry of taggers and names.
-# Taggers must be imported relatively (with a .)
-# This section must be at the end of the file.
+
 from .taggers import TokensTagger
 from .taggers import WordTokenizer
 from .taggers import CompoundTokenTagger
@@ -56,16 +86,11 @@ def make_resolver(
                                      phonetic=phonetic,
                                      compound=compound
                                      )
-    rules = [
-        Rule('tokens', tagger=TokensTagger(), depends_on=[]),
-        Rule('compound_tokens', tagger=CompoundTokenTagger(), depends_on=['tokens']),
-        Rule('words', tagger=WordTokenizer(), depends_on=['compound_tokens']),
-        Rule('sentences', tagger=SentenceTokenizer(), depends_on=['words']),
-        Rule('paragraphs', tagger=ParagraphTokenizer(), depends_on=['sentences']),
-        Rule('normalized_words', tagger=WordNormalizingTagger(), depends_on=['words']),
-        Rule('morph_analysis', tagger=vabamorf_tagger, depends_on=['normalized_words']),
-        ]
 
-    return Resolver(rules)
+    taggers = Taggers([TokensTagger(), WordTokenizer(), CompoundTokenTagger(),
+                       SentenceTokenizer(), ParagraphTokenizer(),
+                       WordNormalizingTagger(), vabamorf_tagger])
+    return Resolver(taggers)
+
 
 DEFAULT_RESOLVER = make_resolver()

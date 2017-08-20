@@ -5,14 +5,24 @@ from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRew
 
 class VabamorfTagger:
     def __init__(self, 
-                 premorf_layer:str='normalized_words',
+                 premorph_layer:str='normalized_words',
                  postmorph_rewriter=VabamorfCorrectionRewriter(),
                  **kwargs):
         self.kwargs = kwargs
         self.instance = Vabamorf.instance()
 
-        self.premorf_layer = premorf_layer
+        self.premorph_layer = premorph_layer
         self.postmorph_rewriter = postmorph_rewriter
+
+        self._layer_name = 'morph_analysis'
+        self._attributes = ['lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech']
+        self._depends_on = ['words']
+        self._conf = {'premorph_layer':self.premorph_layer,
+                'postmorph_rewriter':self.postmorph_rewriter.__class__.__name__}
+        self._conf.update(self.kwargs)
+
+        if premorph_layer:
+            self._depends_on.append(premorph_layer)
 
         # TODO: Think long and hard about the default parameters
         # TODO: See also https://github.com/estnltk/estnltk/issues/66
@@ -37,11 +47,25 @@ class VabamorfTagger:
             List of analysis for each word in input.
         """
 
+    def configuration(self):
+        record = {'name':self.__class__.__name__,
+                  'layer':self._layer_name,
+                  'attributes':self._attributes,
+                  'depends_on':self._depends_on,
+                  'conf':self._conf}
+        return record
+
+    def _repr_html_(self):
+        import pandas
+        pandas.set_option('display.max_colwidth', -1)
+        df = pandas.DataFrame.from_records([self.configuration()], columns=['name', 'layer', 'attributes', 'depends_on', 'conf'])
+        return df.to_html(index=False)
+
     def _get_wordlist(self, text:Text):
-        if self.premorf_layer is None:
+        if self.premorph_layer is None:
             return text.words.text
         else:
-            augmenting_layer = text.layers[self.premorf_layer]
+            augmenting_layer = text.layers[self.premorph_layer]
             result = []
             substitutions = {(i.parent.start,i.parent.end):i for i in augmenting_layer.spans}
 
@@ -58,8 +82,7 @@ class VabamorfTagger:
         wordlist = self._get_wordlist(text)
         analysis_results = self.instance.analyze(words=wordlist, **self.kwargs)
 
-        morph_attributes = ['lemma', 'root', 'root_tokens', 'ending',
-                            'clitic', 'form', 'partofspeech']
+        morph_attributes = self._attributes
 
         attributes = morph_attributes
         if self.postmorph_rewriter:
@@ -70,7 +93,7 @@ class VabamorfTagger:
               attributes=attributes
               )
         else:
-            morph = Layer(name='morph_analysis',
+            morph = Layer(name=self._layer,
                           parent='words',
                           ambiguous=True,
                           attributes=morph_attributes
@@ -94,6 +117,6 @@ class VabamorfTagger:
                                   name='morph_analysis',
                                   ambiguous=True)
 
-        text['morph_analysis'] = morph
+        text[self._layer_name] = morph
 
         return text
