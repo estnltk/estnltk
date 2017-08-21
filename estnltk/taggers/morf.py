@@ -93,7 +93,7 @@ class VabamorfTagger:
               attributes=attributes
               )
         else:
-            morph = Layer(name=self._layer,
+            morph = Layer(name=self._layer_name,
                           parent='words',
                           ambiguous=True,
                           attributes=morph_attributes

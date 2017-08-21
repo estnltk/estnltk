@@ -984,13 +984,13 @@ class Text:
                         'parent': str(layer.parent),
                         'enveloping': str(layer.enveloping),
                         'ambiguous': str(layer.ambiguous),
-                        'number of spans': str(len(layer.spans.spans))}
+                        'span count': str(len(layer.spans.spans))}
                    for layer in layers]
             table2 = pandas.DataFrame.from_records(rec, 
                                                    columns=['layer', 'attributes',
                                                             'parent', 'enveloping',
                                                             'ambiguous',
-                                                            'number of spans'])
+                                                            'span count'])
             table2 = table2.to_html(index=False, escape=False)
             return table1 + '\n' + table2
         return table1
