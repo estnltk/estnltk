@@ -14,10 +14,39 @@ import os
 
 
 class MorphExtendedTagger:
+    """
+    Tags text object with morph_extended layer. In order to do so executes
+    consecutively several syntax preprocessing rewriters.
+
+    (Text object with morph_extended layer can be converted to VISL CG3 input
+    format by export_CG3 method.)
+    """
     def __init__(self,
                  fs_to_synt_rules_file=None,
                  allow_to_remove_all=False,
                  subcat_rules_file=None):
+        ''' Initializes MorphExtendedTagger
+
+            Parameters
+            -----------
+            fs_to_synt_rules_file : str
+                Name of the file containing rules for mapping from Filosoft's
+                old mrf format to syntactic analyzer's preprocessing mrf format;
+                (~~'tmorftrtabel.txt')
+
+            subcat_rules_file : str
+                Name of the file containing rules for adding subcategorization
+                information to verbs/adpositions;
+                (~~'abileksikon06utf.lx')
+
+            allow_to_remove_all : bool
+                Specifies whether the method remove_duplicate_analyses() is allowed to
+                remove all analysis of a word token (due to the specific _K_-removal rules).
+                The original implementation allowed this, but we are now restricting it
+                in order to avoid words without any analyses;
+                Default: False
+        '''
+
         if fs_to_synt_rules_file is None:
             fs_to_synt_rules_file = os.path.join(PACKAGE_PATH,
                 'rewriting/syntax_preprocessing/rules_files/tmorftrtabel.txt')
@@ -86,34 +115,16 @@ class MorphExtendedTagger:
         return str1.replace('"', '\\"').replace('\\\\\\"', '\\"').replace('\\\\"', '\\"')
 
     def tag(self, text):
-
-        # TODO: remove 'word_text'
-        dep = Layer(name='syntax_pp_0',
-                         parent='words',
-                         ambiguous=True,
-                         attributes=['word_text', 'lemma', 'root', 'ending', 'clitic', 'partofspeech', 'form']
-                         )
-        text._add_layer(dep)
-        for word, morf_anal in zip(text.words, text.morph_analysis):
-            for analysis in morf_anal:
-                m = word.mark('syntax_pp_0')
-                m.word_text = analysis.text
-                m.lemma = analysis.lemma
-                m.root = self._esc_double_quotes(analysis.root)
-                m.ending = analysis.ending
-                m.clitic = analysis.clitic
-                m.partofspeech = analysis.partofspeech
-                m.form = analysis.form
-        new_layer = text['syntax_pp_0']
-
-        source_attributes = new_layer.attributes
+        source_attributes = ['lemma', 'root', 'ending', 'clitic', 'partofspeech', 'form']
         target_attributes = source_attributes + ['punctuation_type', 
                                                  'pronoun_type',
                                                  'letter_case',
                                                  'fin',
                                                  'verb_extension_suffix',
                                                  'subcat']
-        new_layer = new_layer.rewrite(
+        source_attributes.append('text')
+
+        new_layer = text['morph_analysis'].rewrite(
             source_attributes = source_attributes,
             target_attributes = target_attributes,
             rules = self.quick_morph_extended_rewriter,

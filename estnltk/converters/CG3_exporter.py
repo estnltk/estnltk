@@ -15,9 +15,12 @@ def _is_partic_suffix(suffix):
 
 
 def export_CG3(text):
-    ''' Converts text with morph_extended layer to cg3 input format.
+    '''
+    Converts text with morph_extended layer to cg3 input format.
 
-        Returns list of strings in new format.
+        Returns
+        -------
+            A list of strings in the VISL CG3 input format.
     '''
     assert 'sentences' in text.layers, 'sentences layer required'
     assert 'morph_extended' in text.layers, 'morph_extended layer required'

@@ -5,7 +5,7 @@ class LetterCaseRewriter():
     '''
     
     def rewrite(self, record):
-        if record and record[0]['word_text'][0].isupper():
+        if record and record[0]['text'][0].isupper():
             cap = 'cap'
         else:
             cap = None
