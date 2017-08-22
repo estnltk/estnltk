@@ -972,7 +972,14 @@ class Text:
             # create a list of layers preserving the order of registered layers
             # can be optimized
             layers = []
-            for layer_name in self.list_registered_layers():
+            for layer_name in ['sentences',
+                               'paragraphs',
+                               'tokens',
+                               'compound_tokens',
+                               'normalized_words',
+                               'words',
+                               'morph_analysis',
+                               'morph_extended']:
                 if layer_name in self.layers:
                     layers.append(self.layers[layer_name])
             for _, layer in self.layers.items():
