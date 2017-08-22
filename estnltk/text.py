@@ -972,8 +972,9 @@ class Text:
             # create a list of layers preserving the order of registered layers
             # can be optimized
             layers = []
-            for layer_name in ['sentences',
+            for layer_name in [
                                'paragraphs',
+                               'sentences',
                                'tokens',
                                'compound_tokens',
                                'normalized_words',
