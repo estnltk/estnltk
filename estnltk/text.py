@@ -278,6 +278,8 @@ class SpanList(collections.Sequence):
         return item in self.spans
 
     def __getattr__(self, item):
+        if item in {'__getstate__', '__setstate__'}:
+            raise AttributeError
         layer = self.__getattribute__('layer') #type: Layer
         if item in layer.attributes:
             return [getattr(span, item) for span in self.spans]
@@ -486,7 +488,7 @@ class Layer:
             return self.text_object._resolve(self.name, target)
 
     def __getattr__(self, item):
-        if item == '_ipython_canary_method_should_not_exist_':
+        if item in {'_ipython_canary_method_should_not_exist_', '__getstate__'}:
             raise AttributeError
         if item in self.__getattribute__('__dict__').keys():
             return self.__getattribute__('__dict__')[item]
@@ -642,10 +644,10 @@ class Text:
 
 
     def __getattr__(self, item):
+        if item in {'__getstate__', '__setstate__'}:
+            raise AttributeError
         if item in self.layers.keys():
             return self.layers[item].spans
-
-
         else:
             attributes = self.__getattribute__('attributes')
             if len(attributes[item]) == 1:
