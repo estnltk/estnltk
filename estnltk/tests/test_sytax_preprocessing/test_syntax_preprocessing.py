@@ -6,12 +6,11 @@
 """
 
 from estnltk.text import Text
-from estnltk.syntax.syntax_preprocessing import SyntaxPreprocessing
+from estnltk.converters.CG3_exporter import export_CG3
 
 def test():
-    syntax_preprocessing = SyntaxPreprocessing()
-    
-    t = Text('Tere maailm! Kuidas Sul läheb?').tag_layer()
+    t = Text('Tere maailm! Kuidas Sul läheb?')
+    t.analyse('syntax_preprocessing')
     expected = ['"<s>"',
                 '"<Tere>"',
                 '    "tere" L0 I cap',
@@ -32,6 +31,6 @@ def test():
                 '"<?>"',
                 '    "?" Z Int',
                 '"</s>"']
-    
-    result = syntax_preprocessing.process_Text(t)
+
+    result = export_CG3(t)
     assert result == expected
