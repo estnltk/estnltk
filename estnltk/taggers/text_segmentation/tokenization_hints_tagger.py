@@ -38,6 +38,10 @@ class TokenizationHintsTagger:
         tag_initials: boolean, Defaul: True
             A. H. Tammsaare
         '''
+        self._layer_name = 'tokenization_hints'
+        self._attributes = ('normalized', '_priority_')
+        self._depends_on = ()
+        
         _vocabulary = []
         if tag_numbers:
             _vocabulary.extend(number_patterns)
@@ -50,12 +54,35 @@ class TokenizationHintsTagger:
         if tag_abbreviations:
             _vocabulary.extend(abbreviation_patterns)
         self._tagger = RegexTagger(vocabulary=_vocabulary,
-                                   attributes={'normalized','_priority_'},
+                                   attributes=self._attributes,
                                    conflict_resolving_strategy=conflict_resolving_strategy,
                                    overlapped=overlapped,
                                    return_layer=return_layer,
-                                   layer_name='tokenization_hints',
+                                   layer_name=self._layer_name,
                                    )
+        self._conf = ''.join(('return_layer=', str(return_layer),
+                              ", conflict_resolving_strategy='", conflict_resolving_strategy,"'",
+                              ', overlapped=',str(overlapped),
+                              ', tag_numbers=',str(tag_numbers), 
+                              ', tag_unit=',str(tag_unit), 
+                              ', tag_email=',str(tag_email), 
+                              ', tag_initials=',str(tag_initials),
+                              ', tag_abbreviations=',str(tag_abbreviations)))
+
 
     def tag(self, text, status={}):
         return self._tagger.tag(text, status)
+
+    def configuration(self):
+        record = {'name':self.__class__.__name__,
+                  'layer':self._layer_name,
+                  'attributes':self._attributes,
+                  'depends_on': self._depends_on,
+                  'conf':self._conf}
+        return record
+
+    def _repr_html_(self):
+        import pandas
+        pandas.set_option('display.max_colwidth', -1)
+        df = pandas.DataFrame.from_records([self.configuration()], columns=['name', 'layer', 'attributes', 'depends_on', 'conf'])
+        return df.to_html(index=False)
