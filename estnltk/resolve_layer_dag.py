@@ -9,18 +9,18 @@ class Taggers:
     def __init__(self, taggers: List) -> None:
         self.rules = {}
         for tagger in taggers:
-            self.rules[tagger._layer_name] = tagger
+            self.rules[tagger.layer_name] = tagger
         self.graph = self._make_graph()
 
     def update(self, tagger):
-        self.rules[tagger._layer_name] = tagger
+        self.rules[tagger.layer_name] = tagger
         self.graph = self._make_graph()
 
     def _make_graph(self):
         graph = nx.DiGraph()
         graph.add_nodes_from(self.rules)
         for layer_name, tagger in self.rules.items():
-            for dep in tagger._depends_on:
+            for dep in tagger.depends_on:
                 graph.add_edge(dep, layer_name)
         assert nx.is_directed_acyclic_graph(graph)
         return graph
@@ -34,7 +34,7 @@ class Taggers:
             records.append(self.rules[layer_name].configuration())
         import pandas
         pandas.set_option('display.max_colwidth', -1)
-        df = pandas.DataFrame.from_records(records, columns=['name', 'layer', 'attributes', 'depends_on', 'conf'])
+        df = pandas.DataFrame.from_records(records, columns=['name', 'layer', 'attributes', 'depends_on', 'parameters'])
         return df.to_html(index=False)
 
 

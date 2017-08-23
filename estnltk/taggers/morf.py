@@ -1,9 +1,15 @@
 from estnltk.text import Span, Layer, Text
+from estnltk.taggers import Tagger
 from estnltk.vabamorf.morf import Vabamorf
 
 from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 
-class VabamorfTagger:
+class VabamorfTagger(Tagger):
+    layer_name = 'morph_analysis'
+    attributes = ['lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech']
+    depends_on = ['words']
+    parameters = None
+
     def __init__(self, 
                  premorph_layer:str='normalized_words',
                  postmorph_rewriter=VabamorfCorrectionRewriter(),
@@ -14,15 +20,12 @@ class VabamorfTagger:
         self.premorph_layer = premorph_layer
         self.postmorph_rewriter = postmorph_rewriter
 
-        self._layer_name = 'morph_analysis'
-        self._attributes = ['lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech']
-        self._depends_on = ['words']
-        self._conf = {'premorph_layer':self.premorph_layer,
+        self.parameters = {'premorph_layer':self.premorph_layer,
                 'postmorph_rewriter':self.postmorph_rewriter.__class__.__name__}
-        self._conf.update(self.kwargs)
+        self.parameters.update(self.kwargs)
 
         if premorph_layer:
-            self._depends_on.append(premorph_layer)
+            self.depends_on.append(premorph_layer)
 
         # TODO: Think long and hard about the default parameters
         # TODO: See also https://github.com/estnltk/estnltk/issues/66
@@ -47,20 +50,6 @@ class VabamorfTagger:
             List of analysis for each word in input.
         """
 
-    def configuration(self):
-        record = {'name':self.__class__.__name__,
-                  'layer':self._layer_name,
-                  'attributes':self._attributes,
-                  'depends_on':self._depends_on,
-                  'conf':self._conf}
-        return record
-
-    def _repr_html_(self):
-        import pandas
-        pandas.set_option('display.max_colwidth', -1)
-        df = pandas.DataFrame.from_records([self.configuration()], columns=['name', 'layer', 'attributes', 'depends_on', 'conf'])
-        return df.to_html(index=False)
-
     def _get_wordlist(self, text:Text):
         if self.premorph_layer is None:
             return text.words.text
@@ -82,7 +71,7 @@ class VabamorfTagger:
         wordlist = self._get_wordlist(text)
         analysis_results = self.instance.analyze(words=wordlist, **self.kwargs)
 
-        morph_attributes = self._attributes
+        morph_attributes = self.attributes
 
         attributes = morph_attributes
         if self.postmorph_rewriter:
@@ -93,7 +82,7 @@ class VabamorfTagger:
               attributes=attributes
               )
         else:
-            morph = Layer(name=self._layer_name,
+            morph = Layer(name=self.layer_name,
                           parent='words',
                           ambiguous=True,
                           attributes=morph_attributes
@@ -117,6 +106,6 @@ class VabamorfTagger:
                                   name='morph_analysis',
                                   ambiguous=True)
 
-        text[self._layer_name] = morph
+        text[self.layer_name] = morph
 
         return text

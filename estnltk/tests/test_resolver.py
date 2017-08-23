@@ -1,14 +1,20 @@
 from estnltk.resolve_layer_dag import Resolver, Taggers
 from estnltk.text import Layer, Text
+from estnltk.taggers import Tagger
 
 def test_redefine():
-    class TestTagger():
+    class TestTagger(Tagger):
+        layer_name = None
+        attributes = ()
+        depends_on = None
+        parameters = {}
+        
         def __init__(self, layer_name, depends_on):
-            self._layer_name = layer_name
-            self._depends_on = depends_on
+            self.layer_name = layer_name
+            self.depends_on = depends_on
 
         def tag(self, text):
-            text[self._layer_name] = Layer(self._layer_name)
+            text[self.layer_name] = Layer(self.layer_name)
     
     taggers = Taggers([
                        TestTagger('tokens', depends_on=[]),
