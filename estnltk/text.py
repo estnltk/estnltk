@@ -504,6 +504,21 @@ class Layer:
     def __str__(self):
         return 'Layer(name={self.name}, spans={self.spans})'.format(self=self)
 
+    def metadata(self):
+        """
+        Return DataFrame with layer metadata.
+        """
+        rec = [{'layer': self.name,
+                'attributes': ', '.join(self.attributes),
+                'parent': str(self.parent),
+                'enveloping': str(self.enveloping),
+                'ambiguous': str(self.ambiguous),
+                'span count': str(len(self.spans.spans))}]
+        return pandas.DataFrame.from_records(rec,
+                                             columns=['layer', 'attributes',
+                                                      'parent', 'enveloping',
+                                                      'ambiguous', 'span count'])
+
     def _repr_html_(self):
         res = []
         if self.enveloping:
@@ -532,7 +547,9 @@ class Layer:
                 res = self.to_records(True)
         df = pandas.DataFrame.from_records(res, columns=('text',)+tuple(self.attributes))
         pandas.set_option('display.max_colwidth', -1)
-        return df.to_html(index = False, escape=False)
+        table1 = self.metadata().to_html(index = False, escape=False)
+        table2 = df.to_html(index = False, escape=False)
+        return '\n'.join((table1, table2))
 
     def __eq__(self, other):
         if not isinstance(other, Layer):
@@ -990,19 +1007,18 @@ class Text:
                     layers.append(layer)
 
             rec = [{'layer': layer.name,
-                        'attributes': ', '.join(layer.attributes),
-                        'parent': str(layer.parent),
-                        'enveloping': str(layer.enveloping),
-                        'ambiguous': str(layer.ambiguous),
-                        'span count': str(len(layer.spans.spans))}
+                    'attributes': ', '.join(layer.attributes),
+                    'parent': str(layer.parent),
+                    'enveloping': str(layer.enveloping),
+                    'ambiguous': str(layer.ambiguous),
+                    'span count': str(len(layer.spans.spans))}
                    for layer in layers]
-            table2 = pandas.DataFrame.from_records(rec, 
-                                                   columns=['layer', 'attributes',
-                                                            'parent', 'enveloping',
-                                                            'ambiguous',
-                                                            'span count'])
-            table2 = table2.to_html(index=False, escape=False)
-            return table1 + '\n' + table2
+
+            layer_table = pandas.DataFrame()
+            for layer in layers:
+                layer_table = layer_table.append(layer.metadata())
+            layer_table = layer_table.to_html(index=False, escape=False)
+            return '\n'.join((table1, layer_table))
         return table1
 
     def __eq__(self, other):
