@@ -27,7 +27,7 @@ class CompoundTokenTagger(Tagger):
         self._conflict_resolving_strategy = conflict_resolving_strategy
 
 
-    def tag(self, text: 'Text') -> 'Text':
+    def tag(self, text: 'Text', return_layer=False) -> 'Text':
         layer = Layer(name=self.layer_name,
                       enveloping = 'tokens',
                       attributes=self.attributes,
@@ -99,6 +99,8 @@ class CompoundTokenTagger(Tagger):
         # TODO:
         #if self._compound_types_to_merge:
         resolve_conflicts(layer, conflict_resolving_strategy=self._conflict_resolving_strategy)
-        
+
+        if return_layer:
+            return layer
         text[self.layer_name] = layer
         return text

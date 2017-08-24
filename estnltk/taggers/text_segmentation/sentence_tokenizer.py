@@ -27,7 +27,7 @@ class SentenceTokenizer(Tagger):
     def _tokenize(self, text: 'Text') -> Iterator[Tuple[int, int]]:
         return self.sentence_tokenizer.span_tokenize(text.text)
 
-    def tag(self, text: 'Text', fix=True) -> 'Text':
+    def tag(self, text: 'Text', return_layer=False, fix=True) -> 'Text':
         layer = Layer(enveloping='words',
                       name=self.layer_name,
                       ambiguous=False)
@@ -46,5 +46,7 @@ class SentenceTokenizer(Tagger):
                 layer.add_span(text.words[start:i+1])
                 start = i + 1
 
+        if return_layer:
+            return layer
         text[self.layer_name] = layer
         return text

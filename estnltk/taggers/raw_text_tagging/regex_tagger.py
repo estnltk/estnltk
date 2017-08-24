@@ -1,21 +1,27 @@
 import regex as re
 from pandas import DataFrame, read_csv
 
+from estnltk.taggers import Tagger
 from estnltk.text import Layer
 from estnltk.layer_operations import resolve_conflicts
 
 
-class RegexTagger:
+class RegexTagger(Tagger):
     """
     Searches matches for regular expressions in the text, solves the possible
     conflicts and creates a new layer of the matches.
     """
+    description = 'Tags regular expression matches on the text.'
+    layer_name = None
+    attributes = []
+    depends_on = []
+    configuration = {}
+
     def __init__(self,
                  vocabulary,
                  attributes=[],
                  conflict_resolving_strategy='MAX',
                  overlapped=False,
-                 return_layer=False,
                  layer_name='regexes',
                  ):
         """Initialize a new RegexTagger instance.
@@ -29,27 +35,24 @@ class RegexTagger:
         overlapped: bool (Default: False)
             If True, the match of a regular expression may overlap with a match
             of the same regular expression.
-        return_layer: bool
-            If True, RegexTagger.tag(text) returns a layer. 
-            If False, RegexTagger.tag(text) annotates the text object with the
-            layer and returns None.
         layer_name: str (Default: 'regexes')
             The name of the new layer.
         """
         self._illegal_keywords = {'start', 'end'}
 
         # attributes in output layer
-        self._attributes = attributes
+        self.attributes = attributes
         # attributes needed by tagger 
-        self._internal_attributes = set(self._attributes)|{'_group_', '_priority_'}
+        self._internal_attributes = set(self.attributes)|{'_group_', '_priority_'}
         
         self._vocabulary = self._read_expression_vocabulary(vocabulary)
         self._overlapped = overlapped
-        self._return_layer = return_layer
         if conflict_resolving_strategy not in ['ALL', 'MIN', 'MAX']:
             raise ValueError("Unknown conflict_resolving_strategy '%s'." % conflict_resolving_strategy)
         self._conflict_resolving_strategy = conflict_resolving_strategy
-        self._layer_name = layer_name
+        self.layer_name = layer_name
+        self.configuration['conflict_resolving_strategy'] = conflict_resolving_strategy
+        self.configuration['overlapped'] = overlapped
 
 
     def _read_expression_vocabulary(self, expression_vocabulary):
@@ -76,7 +79,7 @@ class RegexTagger:
                    '_group_': record.get('_group_', 0),
                    '_priority_': record.get('_priority_', 0)
                    }
-            for key in self._attributes:
+            for key in self.attributes:
                 if key not in record:
                     raise KeyError('Missing key in expression vocabulary: ' + key)
                 value = record[key]
@@ -87,8 +90,7 @@ class RegexTagger:
 
         return records
 
-
-    def tag(self, text, status={}):
+    def tag(self, text, return_layer=False, status={}):
         """Retrieves list of regex_matches in text.
         Parameters
         ----------
@@ -99,17 +101,17 @@ class RegexTagger:
         Layer, if return_layer is True,
         None, otherwise.
         """
-        layer = Layer(name=self._layer_name,
+        layer = Layer(name=self.layer_name,
                       attributes=self._internal_attributes,
                       )
         records = self._match(text.text)
         layer = layer.from_records(records)
         layer = resolve_conflicts(layer, self._conflict_resolving_strategy, status)
-        layer.attributes = self._attributes
-        if self._return_layer:
+        layer.attributes = self.attributes
+        if return_layer:
             return layer
         else:
-            text[self._layer_name] = layer
+            text[self.layer_name] = layer
 
     def _match(self, text):
         matches = []

@@ -15,7 +15,7 @@ class ParagraphTokenizer(Tagger):
         self._conf = "regex = '"+regex+"'"
         self._parameters={'regex':regex}
 
-    def tag(self, text: Text) -> Text:
+    def tag(self, text: Text, return_layer=False) -> Text:
         '''
         Tag paragraphs layer.
         
@@ -30,5 +30,7 @@ class ParagraphTokenizer(Tagger):
                 layer.add_span(text.sentences[start:i+1])
                 start = i + 1
 
+        if return_layer:
+            return layer
         text[self.layer_name] = layer
         return text

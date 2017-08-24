@@ -1,11 +1,16 @@
+from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
 from .patterns import unit_patterns, email_patterns, number_patterns, initial_patterns, abbreviation_patterns
 
 
-class TokenizationHintsTagger:
+class TokenizationHintsTagger(Tagger):
+    description = 'Tags tokenization hints.'
+    layer_name = 'tokenization_hints'
+    attributes = ['normalized', '_priority_']
+    depends_on = []
+    configuration = {}
 
     def __init__(self,
-                 return_layer=False,
                  conflict_resolving_strategy='MAX',
                  overlapped=False,
                  tag_numbers=True, 
@@ -15,10 +20,6 @@ class TokenizationHintsTagger:
                  tag_abbreviations=False,
                  ):
         '''
-        return_layer: bool
-            If True, TokenizationHintsTagger.tag(text) returns a layer. 
-            If False,TokenizationHintsTagger.tag(text) annotates the text object
-            with the layer and returns None.
         conflict_resolving_strategy: 'ALL', 'MAX', 'MIN' (default: 'MAX')
             Strategy to choose between overlapping events.
         overlapped: bool (Default: False)
@@ -38,10 +39,6 @@ class TokenizationHintsTagger:
         tag_initials: boolean, Defaul: True
             A. H. Tammsaare
         '''
-        self._layer_name = 'tokenization_hints'
-        self._attributes = ('normalized', '_priority_')
-        self._depends_on = ()
-        
         _vocabulary = []
         if tag_numbers:
             _vocabulary.extend(number_patterns)
@@ -54,35 +51,19 @@ class TokenizationHintsTagger:
         if tag_abbreviations:
             _vocabulary.extend(abbreviation_patterns)
         self._tagger = RegexTagger(vocabulary=_vocabulary,
-                                   attributes=self._attributes,
+                                   attributes=self.attributes,
                                    conflict_resolving_strategy=conflict_resolving_strategy,
                                    overlapped=overlapped,
-                                   return_layer=return_layer,
-                                   layer_name=self._layer_name,
-                                   )
-        self._conf = ''.join(('return_layer=', str(return_layer),
-                              ", conflict_resolving_strategy='", conflict_resolving_strategy,"'",
-                              ', overlapped=',str(overlapped),
-                              ', tag_numbers=',str(tag_numbers), 
-                              ', tag_unit=',str(tag_unit), 
-                              ', tag_email=',str(tag_email), 
-                              ', tag_initials=',str(tag_initials),
-                              ', tag_abbreviations=',str(tag_abbreviations)))
+                                   layer_name=self.layer_name,)
+        self.configuration = dict(conflict_resolving_strategy=conflict_resolving_strategy,
+                                  overlapped=overlapped,
+                                  tag_numbers=tag_numbers, 
+                                  tag_unit=tag_unit, 
+                                  tag_email=tag_email, 
+                                  tag_initials=tag_initials,
+                                  tag_abbreviations=tag_abbreviations)
 
 
-    def tag(self, text, status={}):
-        return self._tagger.tag(text, status)
 
-    def configuration(self):
-        record = {'name':self.__class__.__name__,
-                  'layer':self._layer_name,
-                  'attributes':self._attributes,
-                  'depends_on': self._depends_on,
-                  'conf':self._conf}
-        return record
-
-    def _repr_html_(self):
-        import pandas
-        pandas.set_option('display.max_colwidth', -1)
-        df = pandas.DataFrame.from_records([self.configuration()], columns=['name', 'layer', 'attributes', 'depends_on', 'conf'])
-        return df.to_html(index=False)
+    def tag(self, text, return_layer=False, status={}):
+        return self._tagger.tag(text, return_layer, status)

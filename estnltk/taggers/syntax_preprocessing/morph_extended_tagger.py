@@ -30,7 +30,7 @@ class MorphExtendedTagger(Tagger):
                                               'fin',
                                               'verb_extension_suffix',
                                               'subcat']
-    depends_on = ['words', 'morph_analysis']
+    depends_on = ['morph_analysis']
     configuration = None
 
     def __init__(self,
