@@ -596,7 +596,7 @@ class Text:
             resolver.apply(self, layer_name)
         return self
 
-    def analyse(self, t, resolver=None):
+    def analyse(self, t:str, resolver=None) -> 'Text':
         if resolver is None:
             resolver = DEFAULT_RESOLVER
         if t == 'segmentation':
@@ -605,10 +605,12 @@ class Text:
             self.tag_layer(['morph_analysis'], resolver)
         elif t == 'syntax_preprocessing':
             self.tag_layer(['sentences','morph_extended'], resolver)
+        elif t == 'all':
+            self.tag_layer(['paragraphs','morph_extended'], resolver)
         else:
             raise ValueError("invalid argument: '"+str(t)+
                              "', use 'segmentation', 'morphology' or 'syntax' instead")
-        if 'tokens' in self.layers:
+        if 'tokens' in self.layers and t != 'all':
             del self.tokens
         return self
 
