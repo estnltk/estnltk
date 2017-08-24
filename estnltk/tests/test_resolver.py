@@ -4,10 +4,11 @@ from estnltk.taggers import Tagger
 
 def test_redefine():
     class TestTagger(Tagger):
+        description = 'Test tagger'
         layer_name = None
         attributes = ()
         depends_on = None
-        parameters = {}
+        configuration = {}
         
         def __init__(self, layer_name, depends_on):
             self.layer_name = layer_name
