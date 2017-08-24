@@ -22,6 +22,7 @@ class MorphExtendedTagger(Tagger):
     (Text object with morph_extended layer can be converted to VISL CG3 input
     format by export_CG3 method.)
     """
+    description = "Extends 'morph_analysis' layer with syntax preprocessing attributes."
     layer_name = 'morph_extended'
     attributes = VabamorfTagger.attributes + ['punctuation_type', 
                                               'pronoun_type',
@@ -30,10 +31,7 @@ class MorphExtendedTagger(Tagger):
                                               'verb_extension_suffix',
                                               'subcat']
     depends_on = ['words', 'morph_analysis']
-    parameters = None
-    #['lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form',
-    # 'partofspeech', 'punctuation_type', 'pronoun_type',
-    # 'letter_case', 'fin', 'verb_extension_suffix', 'subcat']
+    configuration = None
 
     def __init__(self,
                  fs_to_synt_rules_file=None,
@@ -67,9 +65,9 @@ class MorphExtendedTagger(Tagger):
         if subcat_rules_file is None:
             subcat_rules_file = os.path.join(PACKAGE_PATH,
                 'rewriting/syntax_preprocessing/rules_files/abileksikon06utf.lx')
-        self.parameters = {'fs_to_synt_rules_file': fs_to_synt_rules_file,
-                           'allow_to_remove_all': allow_to_remove_all,
-                           'subcat_rules_file': subcat_rules_file}
+        self.configuration = {'fs_to_synt_rules_file': fs_to_synt_rules_file,
+                              'allow_to_remove_all': allow_to_remove_all,
+                              'subcat_rules_file': subcat_rules_file}
 
         punctuation_type_rewriter = PunctuationTypeRewriter()
         morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)

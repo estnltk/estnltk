@@ -4,10 +4,11 @@ from estnltk.text import Layer, Text
 from estnltk.taggers import Tagger
 
 class ParagraphTokenizer(Tagger):
+    description = 'Tags adjacent sentences that form a paragraph.'
     layer_name = 'paragraphs'
     attributes = []
     depends_on = ['sentences']
-    parameters = {}
+    configuration = {}
 
     def __init__(self, regex='\s*\n\n'):
         self.paragraph_tokenizer = RegexpTokenizer(regex, gaps=True, discard_empty=True)

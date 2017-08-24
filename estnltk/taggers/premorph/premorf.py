@@ -31,10 +31,11 @@ def merge(layers: List[Layer]) -> Layer:
 from estnltk.rewriting.premorph.word_normalizing import WordNormalizingRewriter
 
 class WordNormalizingTagger(Tagger):
+    description = "Tags words that can be normalized. Writes the normalized form in the 'normal' attribute."
     layer_name = 'normalized_words'
     attributes = ['normal']
     depends_on = ['words']
-    parameters = {}
+    configuration = {}
 
     def __init__(self):
         self.word_normalizing_rewriter = WordNormalizingRewriter()

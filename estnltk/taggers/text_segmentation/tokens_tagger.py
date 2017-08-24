@@ -6,10 +6,11 @@ from nltk.tokenize.regexp import WordPunctTokenizer
 tokenizer = WordPunctTokenizer()
 
 class TokensTagger(Tagger):
+    description = 'Tags tokens in raw text.'
     layer_name = 'tokens'
     attributes = []
     depends_on = []
-    parameters = {}
+    configuration = {}
 
     def tag(self, text: 'Text') -> 'Text':        
         spans = list(tokenizer.span_tokenize(text.text))

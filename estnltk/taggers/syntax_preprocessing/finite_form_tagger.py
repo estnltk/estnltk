@@ -1,8 +1,15 @@
+from estnltk.taggers import Tagger
 from estnltk.rewriting import MorphToSyntaxMorphRewriter
 from estnltk.rewriting import FiniteFormRewriter
+from estnltk.taggers import VabamorfTagger
 
 
-class FiniteFormTagger():
+class FiniteFormTagger(Tagger):
+    description = 'Tags verbs with finite form flag.'
+    layer_name = 'finite_form'
+    attributes = VabamorfTagger.attributes + ['fin']
+    depends_on = ['words', 'morph_analysis']
+    configuration = {}
 
     def __init__(self, fs_to_synt_rules_file):
         self.morph_to_syntax_morph_rewriter = MorphToSyntaxMorphRewriter(fs_to_synt_rules_file)

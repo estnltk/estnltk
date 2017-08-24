@@ -6,10 +6,11 @@ from estnltk.text import Layer
 from estnltk.taggers import Tagger
 
 class SentenceTokenizer(Tagger):
+    description = 'Tags adjacent words that form a sentence.'
     layer_name = 'sentences'
     attributes = []
     depends_on = ['compound_tokens', 'words']
-    parameters = {}
+    configuration = {}
 
     # use NLTK-s sentence tokenizer for Estonian, in case it is not downloaded, try to download it first
     sentence_tokenizer = None

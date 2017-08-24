@@ -2,10 +2,11 @@ from estnltk.text import Layer, Span
 from estnltk.taggers import Tagger
 
 class WordTokenizer(Tagger):
+    description = 'Tags words and punctuation.'
     layer_name = 'words'
     attributes = []
     depends_on = ['compound_tokens']
-    parameters = {}
+    configuration = {}
 
     def tag(self, text: 'Text') -> 'Text':
         compounds = dict()

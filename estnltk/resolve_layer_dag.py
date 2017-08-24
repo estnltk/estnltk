@@ -31,10 +31,14 @@ class Taggers:
     def _repr_html_(self):
         records = []
         for layer_name in self.list_layers():
-            records.append(self.rules[layer_name].configuration())
+            records.append(self.rules[layer_name].parameters())
         import pandas
         pandas.set_option('display.max_colwidth', -1)
-        df = pandas.DataFrame.from_records(records, columns=['name', 'layer', 'attributes', 'depends_on', 'parameters'])
+        df = pandas.DataFrame.from_records(records, columns=['name',
+                                                             'layer',
+                                                             'attributes',
+                                                             'depends_on',
+                                                             'configuration'])
         return df.to_html(index=False)
 
 

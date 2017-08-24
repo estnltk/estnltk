@@ -11,18 +11,20 @@ surname = re.compile(r'[{UPPERCASE}][{LOWERCASE}]{2,}$'.format(**MACROS))
 
 
 class CompoundTokenTagger(Tagger):
+    description = 'Tags adjacent tokens that should be analyzed as one word.'
+    layer_name = 'compound_tokens'
+    attributes = ['type']
+    depends_on = ['tokens']
+    configuration = None
+
     def __init__(self, 
                  compound_types_to_merge={'abbrevation', 'name'},
                  conflict_resolving_strategy='MAX'):
-        self.parameters = {'compound_types_to_merge': compound_types_to_merge,
+        self.configuration = {'compound_types_to_merge': compound_types_to_merge,
                             'conflict_resolving_strategy': conflict_resolving_strategy}
         
         self._compound_types_to_merge = compound_types_to_merge
         self._conflict_resolving_strategy = conflict_resolving_strategy
-    layer_name = 'compound_tokens'
-    attributes = ['type']
-    depends_on = ['tokens']
-    parameters = None
 
 
     def tag(self, text: 'Text') -> 'Text':

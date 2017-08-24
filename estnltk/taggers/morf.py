@@ -5,10 +5,11 @@ from estnltk.vabamorf.morf import Vabamorf
 from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 
 class VabamorfTagger(Tagger):
+    description = 'Tags morphological analysis on words.'
     layer_name = 'morph_analysis'
     attributes = ['lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech']
     depends_on = ['words']
-    parameters = None
+    configuration = None
 
     def __init__(self, 
                  premorph_layer:str='normalized_words',
@@ -20,9 +21,9 @@ class VabamorfTagger(Tagger):
         self.premorph_layer = premorph_layer
         self.postmorph_rewriter = postmorph_rewriter
 
-        self.parameters = {'premorph_layer':self.premorph_layer,
+        self.configuration = {'premorph_layer':self.premorph_layer,
                 'postmorph_rewriter':self.postmorph_rewriter.__class__.__name__}
-        self.parameters.update(self.kwargs)
+        self.configuration.update(self.kwargs)
 
         if premorph_layer:
             self.depends_on.append(premorph_layer)
