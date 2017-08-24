@@ -68,6 +68,26 @@ def test_equivalences():
 
     assert [[i[0]] for i in t.morph_analysis.get_attributes(['text'])] == t.words.get_attributes(['text'])
 
+def test_equal():
+    t_1 = Text('Tekst algab. Tekst lõpeb.')
+    t_2 = Text('Tekst algab.')
+    assert t_1 != t_2
+    t_2 = Text('Tekst algab. Tekst lõpeb.')
+    assert t_1 == t_2
+    t_1.tag_layer()
+    assert t_1 != t_2
+    t_2.tag_layer()
+    assert t_1 == t_2
+    t_1['morph_analysis'][0][0].form = 'x'
+    assert t_1 != t_2
+
+def test_pickle():
+    # Text object can be pickled
+    import pickle
+    t_1 = Text('Tekst algab. Tekst lõpeb.').tag_layer()
+    b = pickle.dumps(t_1)
+    t_2 = pickle.loads(b)
+    assert t_1 == t_2
 
 def test_to_record():
     t = Text('Minu nimi on Uku.').tag_layer()
@@ -583,7 +603,7 @@ def test_ambiguous_layer():
 
     print(t.words[0].asd)
 
-def test_morf():
+def test_morph():
     text = Text('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?').tag_layer()
     for i in text.words:
         i.morph_analysis
@@ -630,7 +650,7 @@ def test_to_records():
 
 
 
-def test_morf2():
+def test_morph2():
     text = Text('''
     Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.
     Seni vaid soome keelde tõlgitud teos ilmus äsja ka itaalia keeles
@@ -889,7 +909,7 @@ def test_delete_ambig_span():
     assert len(text['test'].spans.spans[1]) == 1
     
     
-def test_span_morf_access():
+def test_span_morph_access():
     text = Text('Oleme jõudnud kohale. Kus me oleme?').tag_layer()
     assert text.sentences[0].words[0].morph_analysis.lemma == ['olema']
 
