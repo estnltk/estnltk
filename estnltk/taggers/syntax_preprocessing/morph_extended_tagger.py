@@ -9,6 +9,7 @@ from estnltk.rewriting import FiniteFormRewriter
 from estnltk.rewriting import VerbExtensionSuffixRewriter
 from estnltk.rewriting import SubcatRewriter
 from estnltk.rewriting import MorphExtendedRewriter
+from estnltk.taggers import VabamorfTagger
 from estnltk import PACKAGE_PATH
 import os
 
@@ -22,11 +23,17 @@ class MorphExtendedTagger(Tagger):
     format by export_CG3 method.)
     """
     layer_name = 'morph_extended'
+    attributes = VabamorfTagger.attributes + ['punctuation_type', 
+                                              'pronoun_type',
+                                              'letter_case',
+                                              'fin',
+                                              'verb_extension_suffix',
+                                              'subcat']
     depends_on = ['words', 'morph_analysis']
     parameters = None
-    attributes = ['lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form',
-                  'partofspeech', 'punctuation_type', 'pronoun_type',
-                  'letter_case', 'fin', 'verb_extension_suffix', 'subcat']
+    #['lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form',
+    # 'partofspeech', 'punctuation_type', 'pronoun_type',
+    # 'letter_case', 'fin', 'verb_extension_suffix', 'subcat']
 
     def __init__(self,
                  fs_to_synt_rules_file=None,
@@ -60,7 +67,6 @@ class MorphExtendedTagger(Tagger):
         if subcat_rules_file is None:
             subcat_rules_file = os.path.join(PACKAGE_PATH,
                 'rewriting/syntax_preprocessing/rules_files/abileksikon06utf.lx')
-        
         self.parameters = {'fs_to_synt_rules_file': fs_to_synt_rules_file,
                            'allow_to_remove_all': allow_to_remove_all,
                            'subcat_rules_file': subcat_rules_file}
@@ -76,15 +82,15 @@ class MorphExtendedTagger(Tagger):
         subcat_rewriter = SubcatRewriter(subcat_rules_file)
 
         self.quick_morph_extended_rewriter = MorphExtendedRewriter(
-                                                punctuation_type_rewriter=punctuation_type_rewriter,
-                                                morph_to_syntax_morph_rewriter=morph_to_syntax_morph_rewriter,
-                                                pronoun_type_rewriter=pronoun_type_rewriter,
-                                                remove_duplicate_analyses_rewriter=remove_duplicate_analyses_rewriter,
-                                                remove_adposition_analyses_rewriter=remove_adposition_analyses_rewriter,
-                                                letter_case_rewriter=letter_case_rewriter,
-                                                finite_form_rewriter=finite_form_rewriter,
-                                                verb_extension_suffix_rewriter=verb_extension_suffix_rewriter,
-                                                subcat_rewriter=subcat_rewriter)
+                    punctuation_type_rewriter=punctuation_type_rewriter,
+                    morph_to_syntax_morph_rewriter=morph_to_syntax_morph_rewriter,
+                    pronoun_type_rewriter=pronoun_type_rewriter,
+                    remove_duplicate_analyses_rewriter=remove_duplicate_analyses_rewriter,
+                    remove_adposition_analyses_rewriter=remove_adposition_analyses_rewriter,
+                    letter_case_rewriter=letter_case_rewriter,
+                    finite_form_rewriter=finite_form_rewriter,
+                    verb_extension_suffix_rewriter=verb_extension_suffix_rewriter,
+                    subcat_rewriter=subcat_rewriter)
 
     @staticmethod
     def _esc_double_quotes(str1):
@@ -92,21 +98,16 @@ class MorphExtendedTagger(Tagger):
         '''
         return str1.replace('"', '\\"').replace('\\\\\\"', '\\"').replace('\\\\"', '\\"')
 
-    def tag(self, text):
-        source_attributes = ['lemma', 'root', 'ending', 'clitic', 'partofspeech', 'form']
-        target_attributes = source_attributes + ['punctuation_type', 
-                                                 'pronoun_type',
-                                                 'letter_case',
-                                                 'fin',
-                                                 'verb_extension_suffix',
-                                                 'subcat']
-        source_attributes.append('text')
+    def tag(self, text, return_layer=False):
+        source_attributes = text['morph_analysis'].attributes + ['text']
 
         new_layer = text['morph_analysis'].rewrite(
-            source_attributes = source_attributes,
-            target_attributes = target_attributes,
-            rules = self.quick_morph_extended_rewriter,
-            name = self.layer_name,
-            ambiguous = True
-            )
+                                    source_attributes=source_attributes,
+                                    target_attributes=self.attributes,
+                                    rules=self.quick_morph_extended_rewriter,
+                                    name=self.layer_name,
+                                    ambiguous = True
+                                    )
+        if return_layer:
+            return new_layer
         text[self.layer_name] = new_layer
