@@ -68,11 +68,11 @@ setup(
     # we have fixed dependency versions to guarantee, what works
     # however, you can probably safely install newer versions of the dependencies
     install_requires = [
-        'nltk==3.0.4',                      # NLTK mainly used for English
+        'nltk>=3.0.4',                      # NLTK mainly used for English
         'regex>=2015.07.19',                # improved Python regular expressions
         'pandas>=0.16.2',                   # Panel Data Analysis library for Python
         'python-crfsuite>=0.8.3',           # Conditional random fields library
-        'cached-property==1.2.0',           # Simple property for caching results
+        'cached-property>=1.2.0',           # Simple property for caching results
         ],
 
     classifiers = ['Intended Audience :: Developers',
