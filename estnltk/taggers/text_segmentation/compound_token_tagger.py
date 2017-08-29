@@ -2,8 +2,10 @@ import regex as re
 
 from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
+from estnltk.taggers import RegexTagger
 from estnltk.layer_operations import resolve_conflicts
 from .patterns import MACROS, ABBREVIATIONS
+from .patterns import unit_patterns, email_patterns, number_patterns, initial_patterns, abbreviation_patterns
 
 
 initial = re.compile(r'[{UPPERCASE}][{LOWERCASE}]?$'.format(**MACROS))
@@ -13,18 +15,47 @@ surname = re.compile(r'[{UPPERCASE}][{LOWERCASE}]{2,}$'.format(**MACROS))
 class CompoundTokenTagger(Tagger):
     description = 'Tags adjacent tokens that should be analyzed as one word.'
     layer_name = 'compound_tokens'
-    attributes = ['type']
+    attributes = ['type', 'normalized']
     depends_on = ['tokens']
     configuration = None
 
     def __init__(self, 
                  compound_types_to_merge={'abbrevation', 'name'},
-                 conflict_resolving_strategy='MAX'):
+                 conflict_resolving_strategy='MAX',
+                 tag_numbers = True,
+                 tag_units = True,
+                 tag_emails = True,
+                 tag_initials = True,
+                 tag_abbreviations = True,
+                 ):
         self.configuration = {'compound_types_to_merge': compound_types_to_merge,
-                            'conflict_resolving_strategy': conflict_resolving_strategy}
+                              'conflict_resolving_strategy': conflict_resolving_strategy,
+                              'tag_numbers': tag_numbers,
+                              'tag_units':tag_units,
+                              'tag_emails':tag_emails,
+                              'tag_initials':tag_initials,
+                              'tag_abbreviations':tag_abbreviations}
         
-        self._compound_types_to_merge = compound_types_to_merge
+        self._compound_types_to_merge     = compound_types_to_merge
         self._conflict_resolving_strategy = conflict_resolving_strategy
+        
+        _vocabulary = []
+        if tag_numbers:
+            _vocabulary.extend(number_patterns)
+        if tag_units:
+            _vocabulary.extend(unit_patterns)
+        if tag_emails:
+            _vocabulary.extend(email_patterns)
+        if tag_initials:
+            _vocabulary.extend(initial_patterns)
+        if tag_abbreviations:
+            _vocabulary.extend(abbreviation_patterns)
+        self._tokenization_hints_tagger = RegexTagger(vocabulary=_vocabulary,
+                                   attributes=('normalized', '_priority_', 'pattern_type'),
+                                   conflict_resolving_strategy=conflict_resolving_strategy,
+                                   overlapped=False,
+                                   layer_name='tokenization_hints',
+                                   )
 
 
     def tag(self, text: 'Text', return_layer=False) -> 'Text':
@@ -32,58 +63,66 @@ class CompoundTokenTagger(Tagger):
                       enveloping = 'tokens',
                       attributes=self.attributes,
                       ambiguous=False)
+
+        # 1) Apply RegexTagger in order to get hints for tokenization
+        conflict_status    = {}
+        tokenization_hints = {}
+        new_layer = self._tokenization_hints_tagger.tag(text, return_layer=True, status=conflict_status)
+        for sp in new_layer.spans:
+            #print(text.text[sp.start:sp.end], sp.pattern_type, sp.normalized)
+            end_node = {'end': sp.end}
+            if hasattr(sp, 'pattern_type'):
+                end_node['pattern_type'] = sp.pattern_type
+            if hasattr(sp, 'normalized'):
+                end_node['normalized'] = sp.normalized
+            # Note: we assume that all conflicts have been resolved by 
+            # RegexTagger, that is -- exactly one (compound) token begins 
+            # from one starting position ...
+            if sp.start in tokenization_hints:
+                raise Exception( '(!) Unexpected overlapping tokenization hints: ', \
+                                 [ text.text[sp2.start:sp2.end] for sp2 in new_layer.spans ] )
+            tokenization_hints[sp.start] = end_node
+
         tokens = text.tokens.text
-        name_status = None
         hyphenation_status = None
         last_end = None
-        for i, span in enumerate(text.tokens):
-            token = span.text
+        # 2) Apply tokenization hints + hyphenation correction
+        for i, token_span in enumerate(text.tokens):
+            token = token_span.text
 
-            # abbreviation
-            if token.lower() in ABBREVIATIONS:
-                spl = SpanList()
-                if i+1<len(tokens) and tokens[i+1]=='.':
-                    spl.spans = text.tokens[i:i+2]
-                else:
-                    spl.spans = text.tokens[i:i+1]
-                spl.type = 'non_ending_abbreviation'
-                layer.add_span(spl)
-
-            # automaton for names
-            if name_status is None:
-                if initial.match(token):
-                    name_status = 'initial'
-                    name_start = i
-            elif name_status == 'initial':
-                if token == '.':
-                    name_status = 'point'
-                else:
-                    name_status = None
-            elif name_status == 'point':
-                if initial.match(token):
-                    name_status = 'initial'
-                elif surname.match(token):
+            # Check for tokenization hints
+            if token_span.start in tokenization_hints:
+                # Find where the new compound token should end 
+                end_token_index = None
+                for j in range( i+1, len(text.tokens) ):
+                    if text.tokens[j].end == tokenization_hints[token_span.start]['end']:
+                        end_token_index = j
+                    elif tokenization_hints[token_span.start]['end'] < text.tokens[j].start:
+                        break
+                if end_token_index:
                     spl = SpanList()
-                    spl.spans = text.tokens[name_start:i+1]
-                    spl.type = 'name'
+                    spl.spans      = text.tokens[i:end_token_index+1]
+                    spl.type       = 'tokenization_hint'
+                    spl.normalized = None
+                    if 'pattern_type' in tokenization_hints[token_span.start]:
+                        spl.type = tokenization_hints[token_span.start]['pattern_type']
+                    if 'normalized' in tokenization_hints[token_span.start]:
+                        spl.normalized = tokenization_hints[token_span.start]['normalized']
                     layer.add_span(spl)
-                    name_status = None
-                else:
-                    name_status = None
 
-            # hyphenation
+            # Perform hyphenation correction
             if hyphenation_status is None:
-                if last_end==span.start and span.text == '-':
+                if last_end==token_span.start and token_span.text == '-':
                         hyphenation_status = '-'
                 else:
                     hyphenation_start = i
             elif hyphenation_status=='-':
-                if last_end==span.start:
+                if last_end==token_span.start:
                     hyphenation_status = 'second'
                 else:
                     hyphenation_status = 'end'
             elif hyphenation_status=='second':
-                if last_end==span.start and span.text == '-':
+                if last_end==token_span.start and token_span.text == '-':
                         hyphenation_status = '-'
                 else:
                     hyphenation_status = 'end'
@@ -94,7 +133,7 @@ class CompoundTokenTagger(Tagger):
                 layer.add_span(spl)
                 hyphenation_status = None
                 hyphenation_start = i
-            last_end = span.end
+            last_end = token_span.end
 
         # TODO:
         #if self._compound_types_to_merge:

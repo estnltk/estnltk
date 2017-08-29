@@ -14,13 +14,30 @@ MACROS = {
             'UPPERCASE': 'A-ZŠŽÕÄÖÜ',
             'NUMERIC': '0-9',
             '1,3': '{1,3}',
-            '2,': '{2,}'
+            '2,': '{2,}',
+            # A) Abbreviations that should come out of tokenization as they are
+            'ABBREVIATIONS1': '('+\
+                               'a|[Dd]r|[Hh]r|[Hh]rl|[Ii]bid|[Jj]r|[Kk]od|[Kk]oost|[Kk]rt|[Ll]p|'+\
+                               'lüh|[Mm]rs?|nn|nt|[Pp]r|so|st|saj|sealh|sh|[Ss]m|'+\
+                               '[Tt]lk|tn|toim|[Vv]rd|va'+\
+                              ')',
+            # B) Abbreviations that may be affected by tokenization (split further into tokens)
+            'ABBREVIATIONS2': '('+\
+                               'e\s?\.\s?m\s?\.\s?a|'+\
+                               'e\s?\.\s?Kr|'+\
+                               'm\s?\.\s?a\s?\.\s?j|'+\
+                               'p\s?\.\s?Kr|'+\
+                               's\s?\.\s?o|'+\
+                               's\s?\.\s?t|'+\
+                               'v\s?\.\s?a'+\
+                              ')',
          }
 MACROS['LETTERS'] = MACROS['LOWERCASE'] + MACROS['UPPERCASE']
 MACROS['ALPHANUM'] = MACROS['LETTERS'] + MACROS['NUMERIC']
 
 email_patterns = [
-     {'_group_': 1,
+     {'pattern_type': 'e-mail',
+      '_group_': 1,
       '_priority_': (0, 0),
       '_regex_pattern_': r'([{ALPHANUM}_.+-]+@[{ALPHANUM}-]+\.[{ALPHANUM}-.]+)'.format(**MACROS),
       'comment': 'e-mail',
@@ -29,7 +46,8 @@ email_patterns = [
             ]
 
 number_patterns = [
-    {'_group_': 0,
+    { 'pattern_type': 'numeric',
+      '_group_': 0,
       '_priority_': (1, 0),
       '_regex_pattern_': r'-?([{NUMERIC}][\s\.]?)+(,\s?([{NUMERIC}][\s\.]?)+)?'.format(**MACROS),
       'comment': 'number',
@@ -38,14 +56,14 @@ number_patterns = [
             ]
 
 unit_patterns = [
-    {
-     '_regex_pattern_': re.compile(r'''        # PATT_14
-                        (^|[^{LETTERS}])       # algus või mittetäht
-                        (([{LETTERS}]{1,3})    # kuni 3 tähte
-                        \s?/\s?                # kaldkriips
-                        ([{LETTERS}]{1,3}))    # kuni kolm tähte
-                        ([^{LETTERS}]|$)       # mittetäht või lõpp
-                        '''.format(**MACROS), re.X),
+    { 'pattern_type': 'unit',
+      '_regex_pattern_': re.compile(r'''        # PATT_14
+                         (^|[^{LETTERS}])       # algus või mittetäht
+                         (([{LETTERS}]{1,3})    # kuni 3 tähte
+                         \s?/\s?                # kaldkriips
+                         ([{LETTERS}]{1,3}))    # kuni kolm tähte
+                         ([^{LETTERS}]|$)       # mittetäht või lõpp
+                         '''.format(**MACROS), re.X),
      '_group_': 2,
      '_priority_': (2, 0),
      'normalized': "lambda m: re.sub('\s' ,'' , m.group(2))",
@@ -55,8 +73,8 @@ unit_patterns = [
                  ]
 
 initial_patterns = [
-    {
-     '_regex_pattern_': re.compile(r'''
+    { 'pattern_type': 'name',
+      '_regex_pattern_': re.compile(r'''
                         ((?!P\.)[{UPPERCASE}][{LOWERCASE}]?)              # initsiaalid, millele võib
                         \s?\.\s?                                          # tühikute vahel järgneda punkt
                         ((?!S\.)[{UPPERCASE}][{LOWERCASE}]?)              # initsiaalid, millele võib
@@ -72,18 +90,61 @@ initial_patterns = [
                     ]
 
 abbreviation_patterns = [
-    {
-     '_regex_pattern_': re.compile(r'''
-                        \s                                                              # tühik
-                        ((sealh|sh|lüh|st|s\.t|s\.o|t|tn|nt|Mrs?|Jr|Koost|toim|Vrd|hrl) # lühend
-                        \s?\.)                                                          # punkt
+    { 'comment': 'A.1) Abbreviations that should come out of tokenization as they are, and '+\
+                 'that end with punctuation;',
+      'pattern_type': 'non_ending_abbreviation',  # TODO: why name "non_ending_abbreviation"?
+      '_regex_pattern_': re.compile(r'''
+                        \s                  # tühik
+                        ({ABBREVIATIONS1}   # lühend
+                        \s?\.)              # punkt
                         '''.format(**MACROS), re.X),
-     '_group_': 1,
-     '_priority_': (4, 0),
-     'normalized': lambda m: None,
-     'comment': 'abbreviaton',
-     'example': 'sealh.',
-     }
+      '_group_': 1,
+      '_priority_': (4, 0),
+      'normalized': lambda m: None,
+      
+      'example': 'sealh.',
+     },
+    { 'comment': 'A.2) Abbreviations that should come out of tokenization as they are, and '+\
+                 'that do not have ending punctuation;',
+      'pattern_type': 'non_ending_abbreviation',
+      '_regex_pattern_': re.compile(r'''
+                        \s                  # tühik
+                        ({ABBREVIATIONS1})  # lühend
+                        \s                  # tühik
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (4, 0),
+      'normalized': lambda m: None,
+      'example': 'Hr',
+     },
+    { 'comment': 'A.3) Abbreviations that may be affected by tokenization (split further into tokens), '+\
+                 'need normalization, and end with punctuation;',
+      'pattern_type': 'non_ending_abbreviation',  
+      '_regex_pattern_': re.compile(r'''
+                        \s                  # tühik
+                        ({ABBREVIATIONS2}   # lühend
+                        \s?\.)              # punkt
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (4, 0),
+      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
+      'example': 's. o.',
+     },
+    { 'comment': 'A.4) Abbreviations that may be affected by tokenization (split further into tokens), '+\
+                 'need normalization, and do not have ending punctuation;',
+      'pattern_type': 'non_ending_abbreviation',
+      '_regex_pattern_': re.compile(r'''
+                        \s                  # tühik
+                        ({ABBREVIATIONS2})  # lühend
+                        \s                  # tühik
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (4, 0),
+      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
+      'comment': 'abbreviaton',
+      'example': 's.o',
+     },
+     
                     ]
 
 ABBREVIATIONS = {'a', 'dr', 'Dr', 'hr', 'Hr', 'hrl', 'ibid', 'Ibid', 'jr', 'Jr',

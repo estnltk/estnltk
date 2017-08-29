@@ -28,7 +28,7 @@ class TokensTagger(Tagger):
         if self._apply_punct_postfixes:
             #  WordPunctTokenizer may leave tokenization of punctuation 
             #  incomplete, for instance:
-            #      'e.m.a,'  -->  'e', '.', 'm', '.', 'a', '.,'
+            #      'e.m.a.,'  -->  'e', '.', 'm', '.', 'a', '.,'
             #      '1989.a.).' --> '1989', '.', 'a', '.).'
             #  We will gather these cases and split separately:
             spans_to_split = []
