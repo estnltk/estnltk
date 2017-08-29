@@ -1,21 +1,22 @@
-from nltk import RegexpTokenizer
+from typing import Union
 
+from nltk import RegexpTokenizer
 from estnltk.text import Layer, Text
 from estnltk.taggers import Tagger
+
 
 class ParagraphTokenizer(Tagger):
     description = 'Tags adjacent sentences that form a paragraph.'
     layer_name = 'paragraphs'
     attributes = []
     depends_on = ['sentences']
-    configuration = {}
+    configuration = None
 
     def __init__(self, regex='\s*\n\n'):
         self.paragraph_tokenizer = RegexpTokenizer(regex, gaps=True, discard_empty=True)
-        self._conf = "regex = '"+regex+"'"
-        self._parameters={'regex':regex}
+        self.configuration = {'regex': regex}
 
-    def tag(self, text: Text, return_layer=False) -> Text:
+    def tag(self, text: Text, return_layer=False) ->  Union['Text', Layer]:
         '''
         Tag paragraphs layer.
         

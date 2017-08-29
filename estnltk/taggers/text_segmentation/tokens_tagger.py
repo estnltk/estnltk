@@ -1,9 +1,10 @@
+from typing import Union
+import re
+
 from estnltk.text import Layer
 from estnltk.taggers import Tagger
-
 from nltk.tokenize.regexp import WordPunctTokenizer
 
-import re
 
 tokenizer = WordPunctTokenizer()
 
@@ -16,12 +17,15 @@ class TokensTagger(Tagger):
     layer_name    = 'tokens'
     attributes    = []
     depends_on    = []
-    configuration = {}
-    apply_punct_postfixes = True
+    configuration = None
 
-    def tag(self, text: 'Text') -> 'Text':
+    def __init__(self, apply_punct_postfixes:bool=True):
+        self._apply_punct_postfixes = apply_punct_postfixes
+        self.configuration = {'apply_punct_postfixes': self._apply_punct_postfixes}
+
+    def tag(self, text:'Text', return_layer:bool=False) -> Union['Text', Layer]:
         spans = list(tokenizer.span_tokenize(text.text))
-        if self.apply_punct_postfixes:
+        if self._apply_punct_postfixes:
             #  WordPunctTokenizer may leave tokenization of punctuation 
             #  incomplete, for instance:
             #      'e.m.a,'  -->  'e', '.', 'm', '.', 'a', '.,'
@@ -39,6 +43,8 @@ class TokensTagger(Tagger):
                                                    'end': end
                                                   } for start, end in spans],
                                                  rewriting=True)
+        if return_layer:
+            return tokens
         text[self.layer_name] = tokens
         return text
 
