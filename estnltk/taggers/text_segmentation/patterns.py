@@ -23,8 +23,10 @@ MACROS = {
                               ')',
             # B) Abbreviations that may be affected by tokenization (split further into tokens)
             'ABBREVIATIONS2': '('+\
+                               'a\s?\.\s?k\s?\.\s?a|'+\
                                'e\s?\.\s?m\s?\.\s?a|'+\
                                'e\s?\.\s?Kr|'+\
+                               'k\s?\.\s?a|'+\
                                'm\s?\.\s?a\s?\.\s?j|'+\
                                'p\s?\.\s?Kr|'+\
                                's\s?\.\s?o|'+\
@@ -90,59 +92,52 @@ initial_patterns = [
                     ]
 
 abbreviation_patterns = [
-    { 'comment': 'A.1) Abbreviations that should come out of tokenization as they are, and '+\
-                 'that end with punctuation;',
+    { 'comment': 'A.1) Abbreviations that end with punctuation;',
+      'example': 'sealh.',
       'pattern_type': 'non_ending_abbreviation',  # TODO: why name "non_ending_abbreviation"?
       '_regex_pattern_': re.compile(r'''
-                        \s                  # tühik
-                        ({ABBREVIATIONS1}   # lühend
-                        \s?\.)              # punkt
+                        \s                                   # tühik
+                        (({ABBREVIATIONS1}|{ABBREVIATIONS2}) # lühend
+                        \s?\.)                               # punkt
                         '''.format(**MACROS), re.X),
       '_group_': 1,
-      '_priority_': (4, 0),
-      'normalized': lambda m: None,
-      
-      'example': 'sealh.',
+      '_priority_': (4, 1),
+      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
      },
-    { 'comment': 'A.2) Abbreviations that should come out of tokenization as they are, and '+\
-                 'that do not have ending punctuation;',
-      'pattern_type': 'non_ending_abbreviation',
-      '_regex_pattern_': re.compile(r'''
-                        \s                  # tühik
-                        ({ABBREVIATIONS1})  # lühend
-                        \s                  # tühik
-                        '''.format(**MACROS), re.X),
-      '_group_': 1,
-      '_priority_': (4, 0),
-      'normalized': lambda m: None,
+    { 'comment': 'A.2) Abbreviations that do not have ending punctuation;',
       'example': 'Hr',
-     },
-    { 'comment': 'A.3) Abbreviations that may be affected by tokenization (split further into tokens), '+\
-                 'need normalization, and end with punctuation;',
-      'pattern_type': 'non_ending_abbreviation',  
-      '_regex_pattern_': re.compile(r'''
-                        \s                  # tühik
-                        ({ABBREVIATIONS2}   # lühend
-                        \s?\.)              # punkt
-                        '''.format(**MACROS), re.X),
-      '_group_': 1,
-      '_priority_': (4, 0),
-      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'example': 's. o.',
-     },
-    { 'comment': 'A.4) Abbreviations that may be affected by tokenization (split further into tokens), '+\
-                 'need normalization, and do not have ending punctuation;',
       'pattern_type': 'non_ending_abbreviation',
       '_regex_pattern_': re.compile(r'''
-                        \s                  # tühik
-                        ({ABBREVIATIONS2})  # lühend
-                        \s                  # tühik
+                        \s                                   # tühik
+                        ({ABBREVIATIONS1}|{ABBREVIATIONS2})  # lühend
+                        \s                                   # tühik
                         '''.format(**MACROS), re.X),
       '_group_': 1,
-      '_priority_': (4, 0),
+      '_priority_': (4, 2),
       'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'comment': 'abbreviaton',
-      'example': 's.o',
+     },
+    { 'comment': 'A.3) Abbreviations that are preceded by punctuation symbols, and end with punctuation;',
+      'example': '(v.a',
+      'pattern_type': 'non_ending_abbreviation',
+      '_regex_pattern_': re.compile(r'''
+                        [(.]                                        # punktuatsioon
+                        (({ABBREVIATIONS1}|{ABBREVIATIONS2})\s?\.)  # lühend + punkt
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (4, 3),
+      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
+     },
+    { 'comment': 'A.4) Abbreviations that are preceded by punctuation symbols, and do not have ending punctuation;',
+      'example': '(v.a',
+      'pattern_type': 'non_ending_abbreviation',
+      '_regex_pattern_': re.compile(r'''
+                        [(.]                                  # punktuatsioon
+                        ({ABBREVIATIONS1}|{ABBREVIATIONS2})   # lühend
+                        \s                                    # tühik
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (4, 4),
+      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
      },
      
                     ]
