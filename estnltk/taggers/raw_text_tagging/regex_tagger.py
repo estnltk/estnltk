@@ -34,7 +34,9 @@ class RegexTagger(Tagger):
             Strategy to choose between overlapping events.
         overlapped: bool (Default: False)
             If True, the match of a regular expression may overlap with a match
-            of the same regular expression.
+            of the same regular expression. 
+            Note that this default setting will be overwritten by a pattern-
+            specific setting if a pattern defines attribute 'overlapped';
         layer_name: str (Default: 'regexes')
             The name of the new layer.
         """
@@ -79,6 +81,10 @@ class RegexTagger(Tagger):
                    '_group_': record.get('_group_', 0),
                    '_priority_': record.get('_priority_', 0)
                    }
+            # Whether the overlapped flag should be switched on or off
+            overlapped = record.get('overlapped', None)
+            if overlapped and type(overlapped) == bool:
+                rec['overlapped'] = overlapped
             for key in self.attributes:
                 if key not in record:
                     raise KeyError('Missing key in expression vocabulary: ' + key)
@@ -116,7 +122,9 @@ class RegexTagger(Tagger):
     def _match(self, text):
         matches = []
         for voc in self._vocabulary:
-            for matchobj in voc['_regex_pattern_'].finditer(text, overlapped=self._overlapped):
+            # Whether the overlapped flag should be switched on or off
+            overlapped_flag = voc.get('overlapped', self._overlapped)
+            for matchobj in voc['_regex_pattern_'].finditer(text, overlapped=overlapped_flag):
                 record = {
                     'start': matchobj.span(voc['_group_'])[0],
                     'end': matchobj.span(voc['_group_'])[1],

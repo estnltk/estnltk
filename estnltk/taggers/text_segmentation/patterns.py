@@ -12,6 +12,8 @@ TokenizationHintsTagger.
 MACROS = {
             'LOWERCASE': 'a-zšžõäöü',
             'UPPERCASE': 'A-ZŠŽÕÄÖÜ',
+            'PUNCT1' : '[.?!"\'()+,-/:;<=>]',
+            'PUNCT2' : '[?!"\'()+,-/:;<=>]',
             'NUMERIC': '0-9',
             '1,3': '{1,3}',
             '2,': '{2,}',
@@ -92,17 +94,31 @@ initial_patterns = [
                     ]
 
 abbreviation_patterns = [
-    { 'comment': 'A.1) Abbreviations that end with punctuation;',
+    { 'comment': 'A.1.1) Abbreviations that end with period;',
       'example': 'sealh.',
       'pattern_type': 'non_ending_abbreviation',  # TODO: why name "non_ending_abbreviation"?
       '_regex_pattern_': re.compile(r'''
                         \s                                   # tühik
                         (({ABBREVIATIONS1}|{ABBREVIATIONS2}) # lühend
-                        \s?\.)                               # punkt
+                        \s?\.)                               # punktuatsioon
                         '''.format(**MACROS), re.X),
       '_group_': 1,
-      '_priority_': (4, 1),
+      '_priority_': (4, 1, 1),
       'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
+      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
+     },
+    { 'comment': 'A.1.2) Abbreviations that end with punctuation (excl period);',
+      'example': 'e.m.a,',
+      'pattern_type': 'non_ending_abbreviation',
+      '_regex_pattern_': re.compile(r'''
+                        \s                                       # tühik
+                        (({ABBREVIATIONS1}|{ABBREVIATIONS2})\s?) # lühend
+                        {PUNCT2}                                 # punktuatsioon
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (4, 1, 2),
+      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
+      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
      },
     { 'comment': 'A.2) Abbreviations that do not have ending punctuation;',
       'example': 'Hr',
@@ -115,29 +131,45 @@ abbreviation_patterns = [
       '_group_': 1,
       '_priority_': (4, 2),
       'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
+      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
      },
-    { 'comment': 'A.3) Abbreviations that are preceded by punctuation symbols, and end with punctuation;',
-      'example': '(v.a',
+    { 'comment': 'A.3.1) Abbreviations that are preceded by punctuation symbols, and end with period;',
+      'example': '(k.a.',
       'pattern_type': 'non_ending_abbreviation',
       '_regex_pattern_': re.compile(r'''
-                        [(.]                                        # punktuatsioon
-                        (({ABBREVIATIONS1}|{ABBREVIATIONS2})\s?\.)  # lühend + punkt
+                        {PUNCT1}                                       # punktuatsioon
+                        (({ABBREVIATIONS1}|{ABBREVIATIONS2})\s?\.)     # lühend + punktuatsioon
                         '''.format(**MACROS), re.X),
       '_group_': 1,
-      '_priority_': (4, 3),
+      '_priority_': (4, 3, 1),
       'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
+      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
+     },
+    { 'comment': 'A.3.2) Abbreviations that are preceded by punctuation symbols, and end with punctuation (excl period);',
+      'example': '1999.a.,',
+      'pattern_type': 'non_ending_abbreviation',
+      '_regex_pattern_': re.compile(r'''
+                        {PUNCT1}                                          # punktuatsioon
+                        (({ABBREVIATIONS1}|{ABBREVIATIONS2})\s?)          # lühend + 
+                        {PUNCT2}                                          # punktuatsioon
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (4, 3, 2),
+      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
+      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
      },
     { 'comment': 'A.4) Abbreviations that are preceded by punctuation symbols, and do not have ending punctuation;',
       'example': '(v.a',
       'pattern_type': 'non_ending_abbreviation',
       '_regex_pattern_': re.compile(r'''
-                        [(.]                                  # punktuatsioon
+                        {PUNCT1}                              # punktuatsioon
                         ({ABBREVIATIONS1}|{ABBREVIATIONS2})   # lühend
                         \s                                    # tühik
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (4, 4),
       'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
+      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
      },
      
                     ]
