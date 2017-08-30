@@ -112,8 +112,8 @@ abbreviation_patterns = [
       'pattern_type': 'non_ending_abbreviation',
       '_regex_pattern_': re.compile(r'''
                         \s                                       # tühik
-                        (({ABBREVIATIONS1}|{ABBREVIATIONS2})\s?) # lühend
-                        {PUNCT2}                                 # punktuatsioon
+                        (({ABBREVIATIONS1}|{ABBREVIATIONS2}))    # lühend
+                        \s?{PUNCT2}                              # punktuatsioon
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (4, 1, 2),
@@ -150,8 +150,8 @@ abbreviation_patterns = [
       'pattern_type': 'non_ending_abbreviation',
       '_regex_pattern_': re.compile(r'''
                         {PUNCT1}                                          # punktuatsioon
-                        (({ABBREVIATIONS1}|{ABBREVIATIONS2})\s?)          # lühend + 
-                        {PUNCT2}                                          # punktuatsioon
+                        (({ABBREVIATIONS1}|{ABBREVIATIONS2}))             # lühend
+                        \s?{PUNCT2}                                       # punktuatsioon
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (4, 3, 2),

@@ -5,12 +5,14 @@ from estnltk.text import Layer
 from estnltk.taggers import Tagger
 from nltk.tokenize.regexp import WordPunctTokenizer
 
-
 tokenizer = WordPunctTokenizer()
 
-#  Patterns describing tokenization cases,
-#  where punctuation needs further retokenization
-punct_split_patterns = re.compile('^(\.,|\.\)\.)$')
+#  Pattern describing tokens that should be 
+#  retokenized and split into individual symbols
+punct_split_patterns    = re.compile('^[!"#$%&\'()*+,-./:;<=>?@^_`{|}~\[\]]{2,}$')
+#  Pattern describing tokens that match punct_split_patterns,
+#  but should not be split into individual symbols
+punct_no_split_patterns = re.compile('^(\.{2,}|[\?!]+)$')
 
 class TokensTagger(Tagger):
     description   = 'Tags tokens in raw text.'
@@ -18,7 +20,7 @@ class TokensTagger(Tagger):
     attributes    = []
     depends_on    = []
     configuration = None
-
+    
     def __init__(self, apply_punct_postfixes:bool=True):
         self._apply_punct_postfixes = apply_punct_postfixes
         self.configuration = {'apply_punct_postfixes': self._apply_punct_postfixes}
@@ -34,7 +36,8 @@ class TokensTagger(Tagger):
             spans_to_split = []
             for (start, end) in spans:
                 token = text.text[start:end]
-                if punct_split_patterns.match( token ):
+                if punct_split_patterns.match( token ) and \
+                   not punct_no_split_patterns.match( token ):
                     spans_to_split.append( (start, end) )
             if spans_to_split:
                 spans = self._split_into_symbols( spans, spans_to_split )

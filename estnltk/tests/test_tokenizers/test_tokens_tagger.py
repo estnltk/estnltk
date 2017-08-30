@@ -21,6 +21,13 @@ class TokensTaggerTest(unittest.TestCase):
         spans  = [(sp.start, sp.end) for sp in result['tokens'].spans]
         tokens = [text.text[start:end] for (start, end) in spans]
         self.assertListEqual(expected_tokens, tokens)
+        
+        text = Text('Tuleks kaasata ka OÜ Ketal Võru (kes soos kaevetöid tegema tahaks hakata – toim.);')
+        expected_tokens = ['Tuleks', 'kaasata', 'ka', 'OÜ', 'Ketal', 'Võru', '(', 'kes', 'soos', 'kaevetöid', 'tegema', 'tahaks', 'hakata', '–', 'toim', '.', ')', ';']
+        result = tokenizer.tag(text)
+        spans  = [(sp.start, sp.end) for sp in result['tokens'].spans]
+        tokens = [text.text[start:end] for (start, end) in spans]
+        self.assertListEqual(expected_tokens, tokens)
 
 
     def test_separate_mistakenly_conjoined_sentences(self):

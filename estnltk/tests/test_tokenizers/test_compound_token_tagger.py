@@ -46,6 +46,12 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Budism', 'jõudis', 'Sri', 'Lankale', 'ja', 'Birmasse', '2.', 'saj', 'e.m.a', ',', 'kust', 'juba', 'levis', 'edasi', 'Kagu-Aasiasse', '.'] }, \
             { 'text' : 'Aga hädas oli juba Vana-Hiina suurim ajaloolane Sima Qian (II—I saj. e. m. a.).', \
               'expected_words': ['Aga', 'hädas', 'oli', 'juba', 'Vana-Hiina', 'suurim', 'ajaloolane', 'Sima', 'Qian', '(', 'II', '—', 'I', 'saj.', 'e. m. a.', ')', '.'] }, \
+            { 'text' : 'Kurla kool liideti hiljem siiski (1936.a.)', \
+              'expected_words': ['Kurla', 'kool', 'liideti', 'hiljem', 'siiski', '(', '1936.', 'a.', ')'] }, \
+            { 'text' : '(tiirlemisperioodid suhtuvad kui väikesed täisarvud, nt 1:2, 1:3, 3:4 jne - toim.).', \
+              'expected_words': ['(', 'tiirlemisperioodid', 'suhtuvad', 'kui', 'väikesed', 'täisarvud', ',', 'nt', '1', ':', '2, 1', ':', '3, 3', ':', '4', 'jne', '-', 'toim.', ')', '.'] }, \
+            { 'text' : '2007 a.- 2010 a. koolitusteemade seas olid: maksud, töösuhted, efektiivsed kommunikatsioonitehnikad.', \
+              'expected_words': ['2007', 'a.', '-', '2010', 'a.', 'koolitusteemade', 'seas', 'olid', ':', 'maksud', ',', 'töösuhted', ',', 'efektiivsed', 'kommunikatsioonitehnikad', '.'] }, \
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )
