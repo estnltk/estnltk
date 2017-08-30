@@ -532,14 +532,13 @@ class Layer:
                 # TODO: _repr_html_ for enveloping ambiguous layers
                 return repr(self)
             else:
-                self.attributes
                 for span in self.spans:
                     # html.escape(span[i].text) TODO?
                     t = ['<b>', self.text_object.text[span[0].start:span[0].end], '</b>']
                     for i in range(1, len(span)):
                         t.extend([self.text_object.text[span[i-1].end: span[i].start], '<b>', self.text_object.text[span[i].start:span[i].end], '</b>'])
                     t = ''.join(t)
-                    res.append({'text': t, **{k:span.__getattribute__(k) for k in self.attributes}})
+                    res.append({'text': t, 'start':span.start, 'end':span.end ,**{k:span.__getattribute__(k) for k in self.attributes}})
         else:
             if self.ambiguous:
                 for record in self.to_records(True):
