@@ -266,6 +266,10 @@ class SpanList(collections.Sequence):
     def text(self):
         return [span.text for span in self.spans]
 
+    @property
+    def enclosing_text(self):
+        return self.layer.text_object.text[self.start:self.end]
+
     def __iter__(self):
         yield from self.spans
 
@@ -278,8 +282,9 @@ class SpanList(collections.Sequence):
         return item in self.spans
 
     def __getattr__(self, item):
-        if item in {'_ipython_canary_method_should_not_exist_',
-                    '__getstate__', '__setstate__'}:
+        if item in {'__getstate__', '__setstate__'}:
+            raise AttributeError
+        if item == '_ipython_canary_method_should_not_exist_' and self.layer and self is self.layer.spans:
             raise AttributeError
         layer = self.__getattribute__('layer') #type: Layer
         if item in layer.attributes:
@@ -335,7 +340,7 @@ class SpanList(collections.Sequence):
         return str(self)
 
     def _repr_html_(self):
-        if self.layer:
+        if self.layer and self is self.layer.spans:
             return self.layer.to_html(header='SpanList', start_end=True)
         return str(self)
 
