@@ -130,6 +130,7 @@ class CompoundTokenTagger(Tagger):
                 spl = SpanList()
                 spl.spans = text.tokens[hyphenation_start:i]
                 spl.type = 'hyphenation'
+                spl.normalized = None
                 layer.add_span(spl)
                 hyphenation_status = None
                 hyphenation_start = i

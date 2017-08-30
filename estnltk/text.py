@@ -278,7 +278,8 @@ class SpanList(collections.Sequence):
         return item in self.spans
 
     def __getattr__(self, item):
-        if item in {'__getstate__', '__setstate__'}:
+        if item in {'_ipython_canary_method_should_not_exist_',
+                    '__getstate__', '__setstate__'}:
             raise AttributeError
         layer = self.__getattribute__('layer') #type: Layer
         if item in layer.attributes:
@@ -331,6 +332,11 @@ class SpanList(collections.Sequence):
         return 'SL[{spans}]'.format(spans=',\n'.join(str(i) for i in self.spans))
 
     def __repr__(self):
+        return str(self)
+
+    def _repr_html_(self):
+        if self.layer:
+            return self.layer.to_html(header='SpanList', start_end=True)
         return str(self)
 
 
@@ -508,18 +514,18 @@ class Layer:
         """
         Return DataFrame with layer metadata.
         """
-        rec = [{'layer': self.name,
+        rec = [{'layer name': self.name,
                 'attributes': ', '.join(self.attributes),
                 'parent': str(self.parent),
                 'enveloping': str(self.enveloping),
                 'ambiguous': str(self.ambiguous),
                 'span count': str(len(self.spans.spans))}]
         return pandas.DataFrame.from_records(rec,
-                                             columns=['layer', 'attributes',
+                                             columns=['layer name', 'attributes',
                                                       'parent', 'enveloping',
                                                       'ambiguous', 'span count'])
 
-    def _repr_html_(self):
+    def to_html(self, header='Layer', start_end=False):
         res = []
         if self.enveloping:
             if self.ambiguous:
@@ -545,11 +551,20 @@ class Layer:
                         first = False
             else:
                 res = self.to_records(True)
-        df = pandas.DataFrame.from_records(res, columns=('text',)+tuple(self.attributes))
+        if start_end:
+            columns = ('text', 'start', 'end')+tuple(self.attributes)
+        else:
+            columns = ('text',)+tuple(self.attributes)
+        df = pandas.DataFrame.from_records(res, columns=columns)
         pandas.set_option('display.max_colwidth', -1)
         table1 = self.metadata().to_html(index = False, escape=False)
         table2 = df.to_html(index = False, escape=False)
+        if header:
+            return '\n'.join(('<h4>'+header+'</h4>', table1, table2))
         return '\n'.join((table1, table2))
+    
+    def _repr_html_(self):
+        return self.to_html()
 
     def __eq__(self, other):
         if not isinstance(other, Layer):
