@@ -52,6 +52,15 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['(', 'tiirlemisperioodid', 'suhtuvad', 'kui', 'väikesed', 'täisarvud', ',', 'nt', '1', ':', '2, 1', ':', '3, 3', ':', '4', 'jne', '-', 'toim.', ')', '.'] }, \
             { 'text' : '2007 a.- 2010 a. koolitusteemade seas olid: maksud, töösuhted, efektiivsed kommunikatsioonitehnikad.', \
               'expected_words': ['2007', 'a.', '-', '2010', 'a.', 'koolitusteemade', 'seas', 'olid', ':', 'maksud', ',', 'töösuhted', ',', 'efektiivsed', 'kommunikatsioonitehnikad', '.'] }, \
+            { 'text' : 'Viie Dynastia * perioodil ( 907-960 A.D )', \
+              'expected_words': ['Viie', 'Dynastia', '*', 'perioodil', '(', '907-960', 'A.D', ')'] }, \
+            { 'text' : 'Arstide Liit esitas oma palganõudmised ( vt. volikogu otsused ), mis EHL volikogu lubas läbi arutada.',\
+              'expected_words': ['Arstide', 'Liit', 'esitas', 'oma', 'palganõudmised', '(', 'vt.', 'volikogu', 'otsused', ')', ',', 'mis', 'EHL', 'volikogu', 'lubas', 'läbi', 'arutada', '.'] }, \
+            { 'text' : 'Ja selles suhtes võiks Lp. E-Kaitse olla nii soliidne E-kaitse keskkond.',\
+              'expected_words': ['Ja', 'selles', 'suhtes', 'võiks', 'Lp.', 'E-Kaitse', 'olla', 'nii', 'soliidne', 'E-kaitse', 'keskkond', '.'] }, \
+            { 'text' : 'Lp. hr. Mart Laar, Miks ma ei saa vadata meie riigi eelarved internetis.',\
+              'expected_words': ['Lp.', 'hr.', 'Mart', 'Laar', ',', 'Miks', 'ma', 'ei', 'saa', 'vadata', 'meie', 'riigi', 'eelarved', 'internetis', '.'] },\
+              
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )

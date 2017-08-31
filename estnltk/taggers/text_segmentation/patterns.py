@@ -20,11 +20,12 @@ MACROS = {
             # A) Abbreviations that should come out of tokenization as they are
             'ABBREVIATIONS1': '('+\
                                'a|[Dd]r|[Hh]r|[Hh]rl|[Ii]bid|[Jj]r|[Kk]od|[Kk]oost|[Kk]rt|[Ll]p|'+\
-                               'lüh|[Mm]rs?|nn|nt|[Pp]r|so|st|saj|sealh|sh|[Ss]m|'+\
-                               '[Tt]lk|tn|toim|[Vv]rd|va'+\
+                               'lüh|[Mm]rs?|nn|[Nn]t|[Pp]r|so|st|saj|sealh|sh|[Ss]m|'+\
+                               '[Tt]lk|tn|[Tt]oim|[Vv]rd|va|[Vv]t'+\
                               ')',
             # B) Abbreviations that may be affected by tokenization (split further into tokens)
             'ABBREVIATIONS2': '('+\
+                               'A\s?\.\s?D|'+\
                                'a\s?\.\s?k\s?\.\s?a|'+\
                                'e\s?\.\s?m\s?\.\s?a|'+\
                                'e\s?\.\s?Kr|'+\
@@ -34,6 +35,11 @@ MACROS = {
                                's\s?\.\s?o|'+\
                                's\s?\.\s?t|'+\
                                'v\s?\.\s?a'+\
+                              ')',
+            # C) Abbreviations that can appear at the beginning of text (e.g titles)
+            'ABBREVIATIONS3': '('+\
+                               '[Dd]r|[Hh]r|[Kk]od|[Ll]g?p|[Mm]rs?|[Pp]r|[Ss]m|[Nn]t|'+\
+                               '[Tt]oim|[Vv]rd|[Vv]t'+\
                               ')',
          }
 MACROS['LETTERS'] = MACROS['LOWERCASE'] + MACROS['UPPERCASE']
@@ -98,25 +104,38 @@ abbreviation_patterns = [
       'example': 'sealh.',
       'pattern_type': 'non_ending_abbreviation',  # TODO: why name "non_ending_abbreviation"?
       '_regex_pattern_': re.compile(r'''
-                        \s                                   # tühik
-                        (({ABBREVIATIONS1}|{ABBREVIATIONS2}) # lühend
-                        \s?\.)                               # punktuatsioon
+                        \s                                   # space
+                        (({ABBREVIATIONS1}|{ABBREVIATIONS2}) # abbreviation
+                        \s?\.)                               # period
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (4, 1, 1),
       'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
       'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
      },
-    { 'comment': 'A.1.2) Abbreviations that end with punctuation (excl period);',
-      'example': 'e.m.a,',
-      'pattern_type': 'non_ending_abbreviation',
+    { 'comment': 'A.1.2) Abbreviations that appear at the beginning of text, and end with period;',
+      'example': 'Lp.',
+      'pattern_type': 'non_ending_abbreviation', 
       '_regex_pattern_': re.compile(r'''
-                        \s                                       # tühik
-                        (({ABBREVIATIONS1}|{ABBREVIATIONS2}))    # lühend
-                        {PUNCT2}                                 # punktuatsioon
+                        ^                     # beginning of text
+                        ({ABBREVIATIONS3}     # abbreviation
+                        \s?\.)                # period
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (4, 1, 2),
+      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
+      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
+     },
+    { 'comment': 'A.1.3) Abbreviations that end with punctuation (excl period);',
+      'example': 'e.m.a,',
+      'pattern_type': 'non_ending_abbreviation',
+      '_regex_pattern_': re.compile(r'''
+                        \s                                       # space
+                        (({ABBREVIATIONS1}|{ABBREVIATIONS2}))    # abbreviation
+                        {PUNCT2}                                 # punctuation
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (4, 1, 3),
       'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
       'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
      },
@@ -124,9 +143,9 @@ abbreviation_patterns = [
       'example': 'Hr',
       'pattern_type': 'non_ending_abbreviation',
       '_regex_pattern_': re.compile(r'''
-                        \s                                   # tühik
-                        ({ABBREVIATIONS1}|{ABBREVIATIONS2})  # lühend
-                        \s                                   # tühik
+                        \s                                   # space
+                        ({ABBREVIATIONS1}|{ABBREVIATIONS2})  # abbreviation
+                        \s                                   # space
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (4, 2),
@@ -137,8 +156,8 @@ abbreviation_patterns = [
       'example': '(k.a.',
       'pattern_type': 'non_ending_abbreviation',
       '_regex_pattern_': re.compile(r'''
-                        {PUNCT1}                                       # punktuatsioon
-                        (({ABBREVIATIONS1}|{ABBREVIATIONS2})\s?\.)     # lühend + punktuatsioon
+                        {PUNCT1}                                       # punctuation
+                        (({ABBREVIATIONS1}|{ABBREVIATIONS2})\s?\.)     # abbreviation + period
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (4, 3, 1),
@@ -149,9 +168,9 @@ abbreviation_patterns = [
       'example': '1999.a.,',
       'pattern_type': 'non_ending_abbreviation',
       '_regex_pattern_': re.compile(r'''
-                        {PUNCT1}                                          # punktuatsioon
-                        (({ABBREVIATIONS1}|{ABBREVIATIONS2}))             # lühend
-                        {PUNCT2}                                          # punktuatsioon
+                        {PUNCT1}                                          # punctuation
+                        (({ABBREVIATIONS1}|{ABBREVIATIONS2}))             # abbreviation
+                        {PUNCT2}                                          # punctuation
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (4, 3, 2),
@@ -162,9 +181,9 @@ abbreviation_patterns = [
       'example': '(v.a',
       'pattern_type': 'non_ending_abbreviation',
       '_regex_pattern_': re.compile(r'''
-                        {PUNCT1}                              # punktuatsioon
-                        ({ABBREVIATIONS1}|{ABBREVIATIONS2})   # lühend
-                        \s                                    # tühik
+                        {PUNCT1}                              # punctuation
+                        ({ABBREVIATIONS1}|{ABBREVIATIONS2})   # abbreviation
+                        \s                                    # space
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (4, 4),
