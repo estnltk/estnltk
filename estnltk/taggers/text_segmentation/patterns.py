@@ -63,7 +63,18 @@ number_patterns = [
       'comment': 'number',
       'example': '-34 567 000 123 , 456',
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
-            ]
+    { 'comment': '*) First 10 Roman numerals ending with period, but not ending the sentence.',
+      'example': 'II. peatükis',
+      'pattern_type': 'roman_numerals',
+      '_group_': 2,
+      '_priority_': (1, 0),
+      '_regex_pattern_': re.compile(r'''                          # 
+                         (^|\s)                                   # beginning or space
+                         ((I|II|III|IV|V|VI|VII|VIII|IX|X)\s*\.)  # roman numeral + period
+                         \s*([{LOWERCASE}]|\d\d\d\d)              # lowercase word or year number (sentence continues)
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(2))"},
+              ]
 
 unit_patterns = [
     { 'pattern_type': 'unit',
@@ -190,7 +201,19 @@ abbreviation_patterns = [
       'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
       'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
      },
-     
+    { 'comment': 'A.5) Month name abbreviations (detect to avoid sentence breaks after month names);',
+      'example': '6 dets.',
+      'pattern_type': 'month_abbreviation',
+      '_regex_pattern_': re.compile(r'''
+                        [0-9]\.?\s*                                     # date 
+                        ((jaan|veebr?|apr|aug|sept|okt|nov|dets)\s?\.)  # month abbreviation + period
+                        \s*([{LOWERCASE}]|\d\d\d\d)                     # lowercase word  or year number (sentence continues)
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (4, 5),
+      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
+      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
+     },
                     ]
 
 ABBREVIATIONS = {'a', 'dr', 'Dr', 'hr', 'Hr', 'hrl', 'ibid', 'Ibid', 'jr', 'Jr',
