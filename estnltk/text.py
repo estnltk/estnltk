@@ -598,15 +598,12 @@ def _get_span_by_start_and_end(spans:SpanList, start:int, end:int) -> Union[Span
 class Text:
 
     def __init__(self, text:str) -> None:
-
         self._text = text #type: str
         self.layers = {} # type: MutableMapping[str, Layer]
         self.layers_to_attributes = collections.defaultdict(list)  # type: MutableMapping[str, List[str]]
         self.base_to_dependant = collections.defaultdict(list) # type: MutableMapping[str, List[str]]
         self.enveloping_to_enveloped = collections.defaultdict(list)  # type: MutableMapping[str, List[str]]
-
         self._setup_structure()
-
 
     def tag_layer(self, layer_names:Sequence[str] = ('morph_analysis', 'sentences'), resolver=None) -> 'Text':
         if resolver is None:
@@ -636,13 +633,26 @@ class Text:
     def list_registered_layers(self):
         return DEFAULT_RESOLVER.list_layers()
 
+    def list_layers(self) -> List[Layer]:
+        """
+        Returns a list of all layers of this text object in order of dependences.
+        The order is not uniquely determined.
+        """
+        graph = nx.DiGraph()
+        graph.add_nodes_from(self.layers)
+        for layer_name, layer in self.layers.items():
+            if layer.enveloping:
+                graph.add_edge(layer.enveloping, layer_name)
+            elif layer.parent:
+                graph.add_edge(layer.parent, layer_name)
+        names = nx.topological_sort(graph)
+        return [self.layers[name] for name in names]
+
     @property
     def text(self):
         return self._text
 
     def _setup_structure(self):
-
-
         pairs = []
         attributes = []
 
@@ -678,8 +688,6 @@ class Text:
                 res[attrib].append(k)
 
         return res
-
-
 
     def __getattr__(self, item):
         if item in {'__getstate__', '__setstate__'}:
@@ -957,7 +965,6 @@ class Text:
                         tos.append(k + '.' + i)
         return tos
 
-
     def __setitem__(self, key, value):
         #always sets layer
         assert key not in self.layers.keys(), 'Re-adding a layer not implemented yet'
@@ -969,8 +976,6 @@ class Text:
     def __getitem__(self, item):
         #always returns layer
         return self.layers[item]
-
-
 
     def __delattr__(self, item):
         assert item in self.layers.keys(), '{item} is not a valid layer in this Text object'.format(item=item)
@@ -995,6 +1000,13 @@ class Text:
             self.layers.pop(item)
 
         self._setup_structure()
+
+    def __eq__(self, other):
+        if not isinstance(other, Text):
+            return False
+        if self.text != other.text:
+            return False
+        return self.layers == other.layers
 
     def __str__(self):
         return 'Text(text="{self.text}")'.format(self=self)
@@ -1041,13 +1053,6 @@ class Text:
             layer_table = layer_table.to_html(index=False, escape=False)
             return '\n'.join((table1, layer_table))
         return table1
-
-    def __eq__(self, other):
-        if not isinstance(other, Text):
-            return False
-        if self.text != other.text:
-            return False
-        return self.layers == other.layers
 
 
 from .resolve_layer_dag import DEFAULT_RESOLVER
