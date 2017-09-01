@@ -89,12 +89,11 @@ class SubcatRewriter():
             if rules is not None:
                 for subcat in rules: # võib vaadelda eraldi juhtu len(rules) == 1
                     rec_copy = rec.copy()
-                    rec_copy['subcat'] = subcat
+                    rec_copy['subcat'] = tuple(subcat)
                     result.append(rec_copy)
             else:
                 rec['subcat'] = None
                 result.append(rec)
-
         return result
 
     def _load_subcat_info(self, subcat_rules_file):

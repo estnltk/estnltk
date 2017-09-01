@@ -66,9 +66,9 @@ class VabamorfCorrectionRewriter:
             if re.match(number_re, number):
                 for analysis in analyses.get(ending, []):
                     if analysis['partofspeech'] == 'O':
-                        a = {'lemma':ordinal_number, 'root':ordinal_number, 'root_tokens':[ordinal_number], 'clitic':''}
+                        a = {'lemma':ordinal_number, 'root':ordinal_number, 'root_tokens':(ordinal_number,), 'clitic':''}
                     else:
-                        a = {'lemma':number, 'root':number, 'root_tokens':[number], 'clitic':''}
+                        a = {'lemma':number, 'root':number, 'root_tokens':(number,), 'clitic':''}
                     a.update(analysis)
                     result.append(a)
                 break

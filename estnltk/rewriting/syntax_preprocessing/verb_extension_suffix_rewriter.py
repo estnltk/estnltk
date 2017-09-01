@@ -62,4 +62,5 @@ class VerbExtensionSuffixRewriter():
                     if re.search(pattern, rec['root']):
                         if value not in rec['verb_extension_suffix']:
                             rec['verb_extension_suffix'].append(value)
+            rec['verb_extension_suffix'] = tuple(rec['verb_extension_suffix'])
         return record
