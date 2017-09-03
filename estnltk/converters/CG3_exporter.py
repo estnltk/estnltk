@@ -4,11 +4,12 @@ def _esc_double_quotes(str1):
     return str1.replace('"', '\\"').replace('\\\\\\"', '\\"').replace('\\\\"', '\\"')
 
 def _insert_pers(pronoun_type):
+    pronoun_type = list(pronoun_type)
     for i, t in enumerate(pronoun_type):
         if t in {'ps1', 'ps2', 'ps3'}:
             pronoun_type.insert(i, 'pers')
             break
-    return pronoun_type
+    return tuple(pronoun_type)
 
 def _is_partic_suffix(suffix):
     return suffix in {'tud', 'nud', 'v', 'tav', 'mata'}
