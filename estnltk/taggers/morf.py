@@ -8,7 +8,7 @@ class VabamorfTagger(Tagger):
     description = 'Tags morphological analysis on words.'
     layer_name = 'morph_analysis'
     attributes = ['lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech']
-    depends_on = ['words']
+    depends_on = None
     configuration = None
 
     def __init__(self, 
@@ -26,7 +26,9 @@ class VabamorfTagger(Tagger):
         self.configuration.update(self.kwargs)
 
         if premorph_layer:
-            self.depends_on.append(premorph_layer)
+            self.depends_on = ['words', premorph_layer]
+        else:
+            self.depends_on = ['words']
 
         # TODO: Think long and hard about the default parameters
         # TODO: See also https://github.com/estnltk/estnltk/issues/66
