@@ -85,12 +85,11 @@ class CompoundTokenTagger(Tagger):
         # 2) Apply tokenization hints + hyphenation correction
         for i, token_span in enumerate(text.tokens):
             token = token_span.text
-
             # Check for tokenization hints
             if token_span.start in tokenization_hints:
                 # Find where the new compound token should end 
                 end_token_index = None
-                for j in range( i+1, len(text.tokens) ):
+                for j in range( i, len(text.tokens) ):
                     if text.tokens[j].end == tokenization_hints[token_span.start]['end']:
                         end_token_index = j
                     elif tokenization_hints[token_span.start]['end'] < text.tokens[j].start:

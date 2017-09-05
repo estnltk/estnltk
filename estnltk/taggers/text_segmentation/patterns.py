@@ -36,11 +36,6 @@ MACROS = {
                                's\s?\.\s?t|'+\
                                'v\s?\.\s?a'+\
                               ')',
-            # C) Abbreviations that can appear at the beginning of text (e.g titles)
-            'ABBREVIATIONS3': '('+\
-                               '[Dd]r|[Hh]r|[Kk]od|[Ll]g?p|[Mm]rs?|[Pp]r|[Ss]m|[Nn]t|'+\
-                               '[Tt]oim|[Vv]rd|[Vv]t'+\
-                              ')',
          }
 MACROS['LETTERS'] = MACROS['LOWERCASE'] + MACROS['UPPERCASE']
 MACROS['ALPHANUM'] = MACROS['LETTERS'] + MACROS['NUMERIC']
@@ -111,97 +106,28 @@ initial_patterns = [
                     ]
 
 abbreviation_patterns = [
-    { 'comment': 'A.1.1) Abbreviations that end with period;',
+    { 'comment': '4.1) Abbreviations that end with period;',
       'example': 'sealh.',
       'pattern_type': 'non_ending_abbreviation',  # TODO: why name "non_ending_abbreviation"?
       '_regex_pattern_': re.compile(r'''
-                        \s                                   # space
                         (({ABBREVIATIONS1}|{ABBREVIATIONS2}) # abbreviation
                         \s?\.)                               # period
                         '''.format(**MACROS), re.X),
       '_group_': 1,
-      '_priority_': (4, 1, 1),
+      '_priority_': (4, 1, 0),
       'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
      },
-    { 'comment': 'A.1.2) Abbreviations that appear at the beginning of text, and end with period;',
-      'example': 'Lp.',
+    { 'comment': '4.2) Abbreviations not ending with period;',
+      'example': 'Lp',
       'pattern_type': 'non_ending_abbreviation', 
       '_regex_pattern_': re.compile(r'''
-                        ^                     # beginning of text
-                        ({ABBREVIATIONS3}     # abbreviation
-                        \s?\.)                # period
-                        '''.format(**MACROS), re.X),
-      '_group_': 1,
-      '_priority_': (4, 1, 2),
-      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
-     },
-    { 'comment': 'A.1.3) Abbreviations that end with punctuation (excl period);',
-      'example': 'e.m.a,',
-      'pattern_type': 'non_ending_abbreviation',
-      '_regex_pattern_': re.compile(r'''
-                        \s                                       # space
-                        (({ABBREVIATIONS1}|{ABBREVIATIONS2}))    # abbreviation
-                        {PUNCT2}                                 # punctuation
-                        '''.format(**MACROS), re.X),
-      '_group_': 1,
-      '_priority_': (4, 1, 3),
-      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
-     },
-    { 'comment': 'A.2) Abbreviations that do not have ending punctuation;',
-      'example': 'Hr',
-      'pattern_type': 'non_ending_abbreviation',
-      '_regex_pattern_': re.compile(r'''
-                        \s                                   # space
                         ({ABBREVIATIONS1}|{ABBREVIATIONS2})  # abbreviation
-                        \s                                   # space
                         '''.format(**MACROS), re.X),
       '_group_': 1,
-      '_priority_': (4, 2),
+      '_priority_': (4, 2, 0),
       'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
      },
-    { 'comment': 'A.3.1) Abbreviations that are preceded by punctuation symbols, and end with period;',
-      'example': '(k.a.',
-      'pattern_type': 'non_ending_abbreviation',
-      '_regex_pattern_': re.compile(r'''
-                        {PUNCT1}                                       # punctuation
-                        (({ABBREVIATIONS1}|{ABBREVIATIONS2})\s?\.)     # abbreviation + period
-                        '''.format(**MACROS), re.X),
-      '_group_': 1,
-      '_priority_': (4, 3, 1),
-      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
-     },
-    { 'comment': 'A.3.2) Abbreviations that are preceded by punctuation symbols, and end with punctuation (excl period);',
-      'example': '1999.a.,',
-      'pattern_type': 'non_ending_abbreviation',
-      '_regex_pattern_': re.compile(r'''
-                        {PUNCT1}                                          # punctuation
-                        (({ABBREVIATIONS1}|{ABBREVIATIONS2}))             # abbreviation
-                        {PUNCT2}                                          # punctuation
-                        '''.format(**MACROS), re.X),
-      '_group_': 1,
-      '_priority_': (4, 3, 2),
-      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
-     },
-    { 'comment': 'A.4) Abbreviations that are preceded by punctuation symbols, and do not have ending punctuation;',
-      'example': '(v.a',
-      'pattern_type': 'non_ending_abbreviation',
-      '_regex_pattern_': re.compile(r'''
-                        {PUNCT1}                              # punctuation
-                        ({ABBREVIATIONS1}|{ABBREVIATIONS2})   # abbreviation
-                        \s                                    # space
-                        '''.format(**MACROS), re.X),
-      '_group_': 1,
-      '_priority_': (4, 4),
-      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
-     },
-    { 'comment': 'A.5) Month name abbreviations (detect to avoid sentence breaks after month names);',
+    { 'comment': 'A.3) Month name abbreviations (detect to avoid sentence breaks after month names);',
       'example': '6 dets.',
       'pattern_type': 'month_abbreviation',
       '_regex_pattern_': re.compile(r'''
@@ -210,8 +136,7 @@ abbreviation_patterns = [
                         \s*([{LOWERCASE}]|\d\d\d\d)                     # lowercase word  or year number (sentence continues)
                         '''.format(**MACROS), re.X),
       '_group_': 1,
-      '_priority_': (4, 5),
+      '_priority_': (4, 3, 0),
       'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
      },
                     ]
