@@ -581,6 +581,8 @@ class Layer:
             return False
         if self.parent != other.parent:
             return False
+        if self._base != other._base:
+            return False
         if self.enveloping != other.enveloping:
             return False
         if self.spans != other.spans:
