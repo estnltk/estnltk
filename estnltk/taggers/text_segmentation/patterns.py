@@ -17,16 +17,13 @@ MACROS = {
             'NUMERIC': '0-9',
             '1,3': '{1,3}',
             '2,': '{2,}',
-            # A) Abbreviations that should come out of tokenization as they are
+            # A) Abbreviations that may be affected by tokenization (split further into tokens)
+            #    Note: these are longer patterns and should be checked first
             'ABBREVIATIONS1': '('+\
-                               'a|[Dd]r|[Hh]r|[Hh]rl|[Ii]bid|[Jj]r|[Kk]od|[Kk]oost|[Ll]p|'+\
-                               'lüh|[Mm]rs?|nn|[Nn]t|[Pp]r|so|st|saj|sealh|sh|[Ss]m|'+\
-                               '[Tt]lk|tn|[Tt]oim|[Vv]rd|va|[Vv]t'+\
-                              ')',
-            # B) Abbreviations that may be affected by tokenization (split further into tokens)
-            'ABBREVIATIONS2': '('+\
                                'A\s?\.\s?D|'+\
                                'a\s?\.\s?k\s?\.\s?a|'+\
+                               "a['` ]la|"+\
+                               "a/a|"+\
                                'e\s?\.\s?m\s?\.\s?a|'+\
                                'e\s?\.\s?Kr|'+\
                                'k\s?\.\s?a|'+\
@@ -35,6 +32,13 @@ MACROS = {
                                's\s?\.\s?o|'+\
                                's\s?\.\s?t|'+\
                                'v\s?\.\s?a'+\
+                              ')',
+            # B) Abbreviations that should come out of tokenization as they are
+            #    Note: these are shorter patterns and should be checked secondly
+            'ABBREVIATIONS2': '('+\
+                               'a|[Dd]r|[Hh]r|[Hh]rl|[Ii]bid|[Jj]r|[Kk]od|[Kk]oost|[Ll]p|'+\
+                               'lüh|[Mm]rs?|nn|[Nn]t|[Pp]r|so|st|saj|sealh|sh|[Ss]m|'+\
+                               '[Tt]lk|tn|[Tt]oim|[Vv]rd|va|[Vv]t'+\
                               ')',
          }
 MACROS['LETTERS'] = MACROS['LOWERCASE'] + MACROS['UPPERCASE']
@@ -108,14 +112,14 @@ initial_patterns = [
 abbreviation_patterns = [
     { 'comment': '4.1) Abbreviations that end with period;',
       'example': 'sealh.',
-      'pattern_type': 'non_ending_abbreviation',  # TODO: why name "non_ending_abbreviation"?
+      'pattern_type': 'non_ending_abbreviation',
       '_regex_pattern_': re.compile(r'''
                         (({ABBREVIATIONS1}|{ABBREVIATIONS2}) # abbreviation
                         \s?\.)                               # period
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (4, 1, 0),
-      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
+      'normalized': "lambda m: re.sub('\.\s','.', re.sub('\s\.','.', m.group(1)))",
      },
     { 'comment': '4.2) Abbreviations not ending with period;',
       'example': 'Lp',
@@ -125,7 +129,8 @@ abbreviation_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (4, 2, 0),
-      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
+      'normalized': "lambda m: re.sub('\.\s','.', re.sub('\s\.','.', m.group(1)))",
+      #'overlapped': True,
      },
     { 'comment': 'A.3) Month name abbreviations (detect to avoid sentence breaks after month names);',
       'example': '6 dets.',
