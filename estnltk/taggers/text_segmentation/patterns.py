@@ -90,28 +90,27 @@ unit_patterns = [
      '_priority_': (2, 1),
      'normalized': "lambda m: re.sub('\s' ,'' , m.group(2))",
     },
-    { 'comment': '2.2) Degree sign + temperature unit;',
-      'example': 'ºC',
-      'pattern_type': 'unit',
-      '_regex_pattern_': re.compile(r'''
-                        ([\*º\u00B0]+\s*[CF])   # degree + temperature sign
-                        '''.format(**MACROS), re.X),
-      '_group_': 1,
-      '_priority_': (2, 2),
-      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-    },
                  ]
 
 initial_patterns = [
-    { 'comment': '3.0) Negative pattern: filters out "P.S." (post scriptum) before it is annotated as a pair of initials;',
-      'pattern_type': 'negative:ps-abbreviation',  # prefix "negative:" instructs to delete this pattern afterwards
-      'discard' : True,
+    { 'comment': '3.0.1) Negative pattern: filters out "P.S." (post scriptum) before it is annotated as a pair of initials;',
+      'pattern_type':   'negative:ps-abbreviation',  # prefix "negative:" instructs to delete this pattern afterwards
       'example': 'P. S.',
       '_regex_pattern_': re.compile(r'''
                         (P\s?.\s?S\s?.)                 # P.S. -- likely post scriptum, not initial
                         '''.format(**MACROS), re.X),
      '_group_': 1,
-     '_priority_': (3, 0),
+     '_priority_': (3, 0, 1),
+     'normalized': lambda m: re.sub('\s','', m.group(1)),
+     },
+    { 'comment': '3.0.2) Negative pattern: filters out "degree + temperature unit" before it is annotated as an initial;',
+      'pattern_type':   'negative:temperature-unit', # prefix "negative:" instructs to delete this pattern afterwards
+      'example': 'ºC',
+      '_regex_pattern_': re.compile(r'''
+                        ([\*º˚\u00B0]+\s*[CF])          # degree + temperature unit -- this shouldn't be an initial
+                        '''.format(**MACROS), re.X),
+     '_group_': 1,
+     '_priority_': (3, 0, 2),
      'normalized': lambda m: re.sub('\s','', m.group(1)),
      },
     { 'comment': '3.1) Names starting with 2 initials;',
