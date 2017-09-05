@@ -4,12 +4,8 @@ from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
 from estnltk.layer_operations import resolve_conflicts
-from .patterns import MACROS, ABBREVIATIONS
 from .patterns import unit_patterns, email_patterns, number_patterns, initial_patterns, abbreviation_patterns
 
-
-initial = re.compile(r'[{UPPERCASE}][{LOWERCASE}]?$'.format(**MACROS))
-surname = re.compile(r'[{UPPERCASE}][{LOWERCASE}]{2,}$'.format(**MACROS))
 
 
 class CompoundTokenTagger(Tagger):

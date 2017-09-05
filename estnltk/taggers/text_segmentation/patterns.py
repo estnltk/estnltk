@@ -19,7 +19,7 @@ MACROS = {
             '2,': '{2,}',
             # A) Abbreviations that should come out of tokenization as they are
             'ABBREVIATIONS1': '('+\
-                               'a|[Dd]r|[Hh]r|[Hh]rl|[Ii]bid|[Jj]r|[Kk]od|[Kk]oost|[Kk]rt|[Ll]p|'+\
+                               'a|[Dd]r|[Hh]r|[Hh]rl|[Ii]bid|[Jj]r|[Kk]od|[Kk]oost|[Ll]p|'+\
                                'lüh|[Mm]rs?|nn|[Nn]t|[Pp]r|so|st|saj|sealh|sh|[Ss]m|'+\
                                '[Tt]lk|tn|[Tt]oim|[Vv]rd|va|[Vv]t'+\
                               ')',
@@ -73,7 +73,7 @@ number_patterns = [
                          ((I|II|III|IV|V|VI|VII|VIII|IX|X)\s*\.)  # roman numeral + period
                          \s*([{LOWERCASE}]|\d\d\d\d)              # lowercase word or year number (sentence continues)
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(2))"},
+      'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(2))"},
               ]
 
 unit_patterns = [
@@ -215,8 +215,3 @@ abbreviation_patterns = [
       'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
      },
                     ]
-
-ABBREVIATIONS = {'a', 'dr', 'Dr', 'hr', 'Hr', 'hrl', 'ibid', 'Ibid', 'jr', 'Jr',
-                 'kod', 'koost', 'krt', 'lp', 'lüh', 'mr', 'mrs', 'nn', 'nt',
-                 'pr', 's.o', 's.t', 'saj', 'sealh', 'sh', 'sm', 'so', 'st',
-                 'tlk', 'tn', 'toim', 'vrd'}
