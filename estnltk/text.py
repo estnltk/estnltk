@@ -64,9 +64,9 @@ class Span:
 
     def mark(self, mark_layer: str) -> 'Span':
         base_layer = self.text_object.layers[mark_layer] #type: Layer
-        parent = base_layer.parent
+        base = base_layer._base
 
-        assert  parent == self.layer.name, "Expected '{self.layer.name}' got '{parent}'".format(self=self, parent=parent)
+        assert base == self.layer._base, "Expected '{self.layer._base}' got '{base}'".format(self=self, base=base)
         res = base_layer.add_span(
             Span(
                 parent = self._base #this is the base span
