@@ -4,12 +4,8 @@ from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
 from estnltk.layer_operations import resolve_conflicts
-from .patterns import MACROS, ABBREVIATIONS
 from .patterns import unit_patterns, email_patterns, number_patterns, initial_patterns, abbreviation_patterns
 
-
-initial = re.compile(r'[{UPPERCASE}][{LOWERCASE}]?$'.format(**MACROS))
-surname = re.compile(r'[{UPPERCASE}][{LOWERCASE}]{2,}$'.format(**MACROS))
 
 
 class CompoundTokenTagger(Tagger):
@@ -70,6 +66,10 @@ class CompoundTokenTagger(Tagger):
         new_layer = self._tokenization_hints_tagger.tag(text, return_layer=True, status=conflict_status)
         for sp in new_layer.spans:
             #print(text.text[sp.start:sp.end], sp.pattern_type, sp.normalized)
+            if hasattr(sp, 'pattern_type') and sp.pattern_type.startswith('negative:'):
+                # This is a negative pattern (used for preventing other patterns from matching),
+                # and thus should be discarded altogether ...
+                continue
             end_node = {'end': sp.end}
             if hasattr(sp, 'pattern_type'):
                 end_node['pattern_type'] = sp.pattern_type
@@ -89,12 +89,11 @@ class CompoundTokenTagger(Tagger):
         # 2) Apply tokenization hints + hyphenation correction
         for i, token_span in enumerate(text.tokens):
             token = token_span.text
-
             # Check for tokenization hints
             if token_span.start in tokenization_hints:
                 # Find where the new compound token should end 
                 end_token_index = None
-                for j in range( i+1, len(text.tokens) ):
+                for j in range( i, len(text.tokens) ):
                     if text.tokens[j].end == tokenization_hints[token_span.start]['end']:
                         end_token_index = j
                     elif tokenization_hints[token_span.start]['end'] < text.tokens[j].start:

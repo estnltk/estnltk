@@ -64,7 +64,10 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Eesti', 'Maanoorte', 'esivõistlustel', 'Viljandis', '15.', 'nov.', '2008', 'tuli', 'ta', 'esimeseks', '.'] },\
             { 'text' : 'Minu kutsu aga saab just 3 veeb. kolme kuuseks.',\
               'expected_words': ['Minu', 'kutsu', 'aga', 'saab', 'just', '3', 'veeb.', 'kolme', 'kuuseks', '.'] },\
-            
+            { 'text' : 'keha ei tööta = tõugates , sest olen liiga püsti asendis ( a la Teichmann )',\
+              'expected_words': ['keha', 'ei', 'tööta', '=', 'tõugates', ',', 'sest', 'olen', 'liiga', 'püsti', 'asendis', '(', 'a la', 'Teichmann', ')'] },\
+            { 'text' : "Täiesti valesti aru saanud Jordani-fenomenist, et a'la üks mees teeb mängu ära.",\
+              'expected_words': ['Täiesti', 'valesti', 'aru', 'saanud', 'Jordani-fenomenist', ',', 'et', "a'la", 'üks', 'mees', 'teeb', 'mängu', 'ära', '.'] },\
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )
@@ -109,6 +112,25 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Karskusliidu', 'saalis', 'oli', 'kõnekoosolek', ',', 'mille', 'liidu', 'esimees', 'H. B. Rahamägi', 'avas', 'vaimuliku', 'lauluga', '.'] },\
             { 'text': 'Vat nii moodi ütles USA President J.F.Kennedy mehe kohta kes läks armeega ja oma rahva kannatuste hinnaga sõtta.', \
               'expected_words': ['Vat', 'nii', 'moodi', 'ütles', 'USA', 'President', 'J.F.Kennedy', 'mehe', 'kohta', 'kes', 'läks', 'armeega', 'ja', 'oma', 'rahva', 'kannatuste', 'hinnaga', 'sõtta', '.'] },\
+            { 'text': 'Rünnakut juhtisid lipnikud O. Lauri ja A. Nurk.', \
+              'expected_words': ['Rünnakut', 'juhtisid', 'lipnikud', 'O. Lauri', 'ja', 'A. Nurk', '.'] },\
+            { 'text': "(arhitektid M. Port, M. Meelak, O. Zhemtshugov, R.-L. Kivi)", \
+              'expected_words': ['(', 'arhitektid', 'M. Port', ',', 'M. Meelak', ',', 'O. Zhemtshugov', ',', 'R.-L. Kivi', ')'] },\
+
+            # Negative examples: no name with initials should be detected from the following:
+            { 'text': "Ei. See pole kassi moodi.", \
+              'expected_words': ['Ei', '.', 'See', 'pole', 'kassi', 'moodi', '.'] },\
+            { 'text': "Rock-ansambli Dr. Hook and the Medicine Show legendaarne kitarrimängija.", \
+              'expected_words': ['Rock-ansambli', 'Dr.', 'Hook', 'and', 'the', 'Medicine', 'Show', 'legendaarne', 'kitarrimängija', '.'] },\
+            { 'text': "Augusti ajalooline kuumarekord on 38º C. Talved on harva külmad, kuid võib olla erandeid.", \
+              'expected_words': ['Augusti', 'ajalooline', 'kuumarekord', 'on', '38º', 'C', '.', 'Talved', 'on', 'harva', 'külmad', ',', 'kuid', 'võib', 'olla', 'erandeid', '.'] },\
+            { 'text': "Päevasel ajal on sobivaks temperatuuriks ruumis +18˚... 23˚C. Kui keegi ruumis ei viibi, piisab 15˚ ... 16˚C kraadist.", \
+              'expected_words': ['Päevasel', 'ajal', 'on', 'sobivaks', 'temperatuuriks', 'ruumis', '+', '18', '˚...', '23', '˚', 'C', '.', 'Kui', 'keegi', 'ruumis', 'ei', 'viibi', ',', 'piisab', '15', '˚', '...', '16', '˚', 'C', 'kraadist', '.'] },\
+            { 'text': "P.S. Õppige viisakalt kirjutama.", \
+              'expected_words': ['P', '.', 'S', '.', 'Õppige', 'viisakalt', 'kirjutama', '.'] },\
+            { 'text': "P.P.S. Teine vana ilmus ka välja.", \
+              'expected_words': ['P', '.', 'P', '.', 'S', '.', 'Teine', 'vana', 'ilmus', 'ka', 'välja', '.'] },\
+              
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )

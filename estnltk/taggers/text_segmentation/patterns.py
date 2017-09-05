@@ -17,16 +17,13 @@ MACROS = {
             'NUMERIC': '0-9',
             '1,3': '{1,3}',
             '2,': '{2,}',
-            # A) Abbreviations that should come out of tokenization as they are
+            # A) Abbreviations that may be affected by tokenization (split further into tokens)
+            #    Note: these are longer patterns and should be checked first
             'ABBREVIATIONS1': '('+\
-                               'a|[Dd]r|[Hh]r|[Hh]rl|[Ii]bid|[Jj]r|[Kk]od|[Kk]oost|[Kk]rt|[Ll]p|'+\
-                               'lüh|[Mm]rs?|nn|[Nn]t|[Pp]r|so|st|saj|sealh|sh|[Ss]m|'+\
-                               '[Tt]lk|tn|[Tt]oim|[Vv]rd|va|[Vv]t'+\
-                              ')',
-            # B) Abbreviations that may be affected by tokenization (split further into tokens)
-            'ABBREVIATIONS2': '('+\
                                'A\s?\.\s?D|'+\
                                'a\s?\.\s?k\s?\.\s?a|'+\
+                               "a['`’ ]la|"+\
+                               "a/a|"+\
                                'e\s?\.\s?m\s?\.\s?a|'+\
                                'e\s?\.\s?Kr|'+\
                                'k\s?\.\s?a|'+\
@@ -36,10 +33,12 @@ MACROS = {
                                's\s?\.\s?t|'+\
                                'v\s?\.\s?a'+\
                               ')',
-            # C) Abbreviations that can appear at the beginning of text (e.g titles)
-            'ABBREVIATIONS3': '('+\
-                               '[Dd]r|[Hh]r|[Kk]od|[Ll]g?p|[Mm]rs?|[Pp]r|[Ss]m|[Nn]t|'+\
-                               '[Tt]oim|[Vv]rd|[Vv]t'+\
+            # B) Abbreviations that should come out of tokenization as they are
+            #    Note: these are shorter patterns and should be checked secondly
+            'ABBREVIATIONS2': '('+\
+                               'a|[Dd]r|[Hh]r|[Hh]rl|[Ii]bid|[Jj]r|[Kk]od|[Kk]oost|[Ll]p|'+\
+                               'lüh|[Mm]rs?|nn|[Nn]t|[Pp]r|so|st|saj|sealh|sh|[Ss]m|'+\
+                               '[Tt]lk|tn|[Tt]oim|[Vv]rd|va|[Vv]t'+\
                               ')',
          }
 MACROS['LETTERS'] = MACROS['LOWERCASE'] + MACROS['UPPERCASE']
@@ -73,11 +72,13 @@ number_patterns = [
                          ((I|II|III|IV|V|VI|VII|VIII|IX|X)\s*\.)  # roman numeral + period
                          \s*([{LOWERCASE}]|\d\d\d\d)              # lowercase word or year number (sentence continues)
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(2))"},
+      'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(2))"},
               ]
 
 unit_patterns = [
-    { 'pattern_type': 'unit',
+    { 'comment': '2.1) A generic pattern for units of measure;',
+      'example': 'km / h',
+      'pattern_type': 'unit',
       '_regex_pattern_': re.compile(r'''        # PATT_14
                          (^|[^{LETTERS}])       # algus või mittetäht
                          (([{LETTERS}]{1,3})    # kuni 3 tähte
@@ -86,122 +87,84 @@ unit_patterns = [
                          ([^{LETTERS}]|$)       # mittetäht või lõpp
                          '''.format(**MACROS), re.X),
      '_group_': 2,
-     '_priority_': (2, 0),
+     '_priority_': (2, 1),
      'normalized': "lambda m: re.sub('\s' ,'' , m.group(2))",
-     'comment': 'unit of measure',
-     'example': 'km / h',
-      },
+    },
                  ]
 
 initial_patterns = [
-    { 'pattern_type': 'name',
+    { 'comment': '3.0.1) Negative pattern: filters out "P.S." (post scriptum) before it is annotated as a pair of initials;',
+      'pattern_type':   'negative:ps-abbreviation',  # prefix "negative:" instructs to delete this pattern afterwards
+      'example': 'P. S.',
       '_regex_pattern_': re.compile(r'''
-                        ((?!P\.)[{UPPERCASE}][{LOWERCASE}]?)              # initsiaalid, millele võib
-                        \s?\.\s?                                          # tühikute vahel järgneda punkt
-                        ((?!S\.)[{UPPERCASE}][{LOWERCASE}]?)              # initsiaalid, millele võib
-                        \s?\.\s?                                          # tühikute vahel järgneda punkt
-                        ((\.[{UPPERCASE}]\.)?[{UPPERCASE}][{LOWERCASE}]+) # perekonnanimi
+                        (P\s?.\s?S\s?.)                 # P.S. -- likely post scriptum, not initial
+                        '''.format(**MACROS), re.X),
+     '_group_': 1,
+     '_priority_': (3, 0, 1),
+     'normalized': lambda m: re.sub('\s','', m.group(1)),
+     },
+    { 'comment': '3.0.2) Negative pattern: filters out "degree + temperature unit" before it is annotated as an initial;',
+      'pattern_type':   'negative:temperature-unit', # prefix "negative:" instructs to delete this pattern afterwards
+      'example': 'ºC',
+      '_regex_pattern_': re.compile(r'''
+                        ([\*º˚\u00B0]+\s*[CF])          # degree + temperature unit -- this shouldn't be an initial
+                        '''.format(**MACROS), re.X),
+     '_group_': 1,
+     '_priority_': (3, 0, 2),
+     'normalized': lambda m: re.sub('\s','', m.group(1)),
+     },
+    { 'comment': '3.1) Names starting with 2 initials;',
+      'pattern_type': 'name',
+      'example': 'A. H. Tammsaare',
+      '_regex_pattern_': re.compile(r'''
+                        ([{UPPERCASE}][{LOWERCASE}]?)                     # first initial
+                        \s?\.\s?-?                                        # period (and hypen potentially)
+                        ([{UPPERCASE}][{LOWERCASE}]?)                     # second initial
+                        \s?\.\s?                                          # period
+                        ((\.[{UPPERCASE}]\.)?[{UPPERCASE}][{LOWERCASE}]+) # last name
                         '''.format(**MACROS), re.X),
      '_group_': 0,
-     '_priority_': (3, 0),
+     '_priority_': (3, 1),
      'normalized': lambda m: re.sub('\1.\2. \3' ,'' , m.group(0)),
-     'comment': 'initials',
-     'example': 'A. H. Tammsaare',
+     },
+    { 'comment': '3.2) Names starting with one initial;',
+      'pattern_type': 'name',
+      'example': 'A. Hein',
+      '_regex_pattern_': re.compile(r'''
+                        ([{UPPERCASE}])                 # first initial
+                        \s?\.\s?                        # period
+                        ([{UPPERCASE}][{LOWERCASE}]+)   # last name
+                        '''.format(**MACROS), re.X),
+     '_group_': 0,
+     '_priority_': (3, 2),
+     'normalized': lambda m: re.sub('\1. \2' ,'' , m.group(0)),
      }
                     ]
 
 abbreviation_patterns = [
-    { 'comment': 'A.1.1) Abbreviations that end with period;',
+    { 'comment': '4.1) Abbreviations that end with period;',
       'example': 'sealh.',
-      'pattern_type': 'non_ending_abbreviation',  # TODO: why name "non_ending_abbreviation"?
+      'pattern_type': 'non_ending_abbreviation',
       '_regex_pattern_': re.compile(r'''
-                        \s                                   # space
                         (({ABBREVIATIONS1}|{ABBREVIATIONS2}) # abbreviation
                         \s?\.)                               # period
                         '''.format(**MACROS), re.X),
       '_group_': 1,
-      '_priority_': (4, 1, 1),
-      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
+      '_priority_': (4, 1, 0),
+      'normalized': "lambda m: re.sub('\.\s','.', re.sub('\s\.','.', m.group(1)))",
      },
-    { 'comment': 'A.1.2) Abbreviations that appear at the beginning of text, and end with period;',
-      'example': 'Lp.',
+    { 'comment': '4.2) Abbreviations not ending with period;',
+      'example': 'Lp',
       'pattern_type': 'non_ending_abbreviation', 
       '_regex_pattern_': re.compile(r'''
-                        ^                     # beginning of text
-                        ({ABBREVIATIONS3}     # abbreviation
-                        \s?\.)                # period
-                        '''.format(**MACROS), re.X),
-      '_group_': 1,
-      '_priority_': (4, 1, 2),
-      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
-     },
-    { 'comment': 'A.1.3) Abbreviations that end with punctuation (excl period);',
-      'example': 'e.m.a,',
-      'pattern_type': 'non_ending_abbreviation',
-      '_regex_pattern_': re.compile(r'''
-                        \s                                       # space
-                        (({ABBREVIATIONS1}|{ABBREVIATIONS2}))    # abbreviation
-                        {PUNCT2}                                 # punctuation
-                        '''.format(**MACROS), re.X),
-      '_group_': 1,
-      '_priority_': (4, 1, 3),
-      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
-     },
-    { 'comment': 'A.2) Abbreviations that do not have ending punctuation;',
-      'example': 'Hr',
-      'pattern_type': 'non_ending_abbreviation',
-      '_regex_pattern_': re.compile(r'''
-                        \s                                   # space
                         ({ABBREVIATIONS1}|{ABBREVIATIONS2})  # abbreviation
-                        \s                                   # space
                         '''.format(**MACROS), re.X),
       '_group_': 1,
-      '_priority_': (4, 2),
-      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
+      '_priority_': (4, 2, 0),
+      'normalized': "lambda m: re.sub('\.\s','.', re.sub('\s\.','.', m.group(1)))",
+      #'overlapped': True,
      },
-    { 'comment': 'A.3.1) Abbreviations that are preceded by punctuation symbols, and end with period;',
-      'example': '(k.a.',
-      'pattern_type': 'non_ending_abbreviation',
-      '_regex_pattern_': re.compile(r'''
-                        {PUNCT1}                                       # punctuation
-                        (({ABBREVIATIONS1}|{ABBREVIATIONS2})\s?\.)     # abbreviation + period
-                        '''.format(**MACROS), re.X),
-      '_group_': 1,
-      '_priority_': (4, 3, 1),
-      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
-     },
-    { 'comment': 'A.3.2) Abbreviations that are preceded by punctuation symbols, and end with punctuation (excl period);',
-      'example': '1999.a.,',
-      'pattern_type': 'non_ending_abbreviation',
-      '_regex_pattern_': re.compile(r'''
-                        {PUNCT1}                                          # punctuation
-                        (({ABBREVIATIONS1}|{ABBREVIATIONS2}))             # abbreviation
-                        {PUNCT2}                                          # punctuation
-                        '''.format(**MACROS), re.X),
-      '_group_': 1,
-      '_priority_': (4, 3, 2),
-      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
-     },
-    { 'comment': 'A.4) Abbreviations that are preceded by punctuation symbols, and do not have ending punctuation;',
-      'example': '(v.a',
-      'pattern_type': 'non_ending_abbreviation',
-      '_regex_pattern_': re.compile(r'''
-                        {PUNCT1}                              # punctuation
-                        ({ABBREVIATIONS1}|{ABBREVIATIONS2})   # abbreviation
-                        \s                                    # space
-                        '''.format(**MACROS), re.X),
-      '_group_': 1,
-      '_priority_': (4, 4),
-      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
-     },
-    { 'comment': 'A.5) Month name abbreviations (detect to avoid sentence breaks after month names);',
+    { 'comment': 'A.3) Month name abbreviations (detect to avoid sentence breaks after month names);',
       'example': '6 dets.',
       'pattern_type': 'month_abbreviation',
       '_regex_pattern_': re.compile(r'''
@@ -210,13 +173,7 @@ abbreviation_patterns = [
                         \s*([{LOWERCASE}]|\d\d\d\d)                     # lowercase word  or year number (sentence continues)
                         '''.format(**MACROS), re.X),
       '_group_': 1,
-      '_priority_': (4, 5),
+      '_priority_': (4, 3, 0),
       'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
-      'overlapped': True,  # switched on to detect consecutive abbreviations like : "II—I saj. e. m. a."
      },
                     ]
-
-ABBREVIATIONS = {'a', 'dr', 'Dr', 'hr', 'Hr', 'hrl', 'ibid', 'Ibid', 'jr', 'Jr',
-                 'kod', 'koost', 'krt', 'lp', 'lüh', 'mr', 'mrs', 'nn', 'nt',
-                 'pr', 's.o', 's.t', 'saj', 'sealh', 'sh', 'sm', 'so', 'st',
-                 'tlk', 'tn', 'toim', 'vrd'}
