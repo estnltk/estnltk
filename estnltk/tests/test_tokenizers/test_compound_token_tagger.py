@@ -112,6 +112,18 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Karskusliidu', 'saalis', 'oli', 'kõnekoosolek', ',', 'mille', 'liidu', 'esimees', 'H. B. Rahamägi', 'avas', 'vaimuliku', 'lauluga', '.'] },\
             { 'text': 'Vat nii moodi ütles USA President J.F.Kennedy mehe kohta kes läks armeega ja oma rahva kannatuste hinnaga sõtta.', \
               'expected_words': ['Vat', 'nii', 'moodi', 'ütles', 'USA', 'President', 'J.F.Kennedy', 'mehe', 'kohta', 'kes', 'läks', 'armeega', 'ja', 'oma', 'rahva', 'kannatuste', 'hinnaga', 'sõtta', '.'] },\
+            { 'text': 'Rünnakut juhtisid lipnikud O. Lauri ja A. Nurk.', \
+              'expected_words': ['Rünnakut', 'juhtisid', 'lipnikud', 'O. Lauri', 'ja', 'A. Nurk', '.'] },\
+            { 'text': "(arhitektid M. Port, M. Meelak, O. Zhemtshugov, R.-L. Kivi)", \
+              'expected_words': ['(', 'arhitektid', 'M. Port', ',', 'M. Meelak', ',', 'O. Zhemtshugov', ',', 'R.-L. Kivi', ')'] },\
+
+            # Negative examples: no name with initials should be detected from the following:
+            { 'text': "Ei. See pole kassi moodi.", \
+              'expected_words': ['Ei', '.', 'See', 'pole', 'kassi', 'moodi', '.'] },\
+            { 'text': "Rock-ansambli Dr. Hook and the Medicine Show legendaarne kitarrimängija.", \
+              'expected_words': ['Rock-ansambli', 'Dr.', 'Hook', 'and', 'the', 'Medicine', 'Show', 'legendaarne', 'kitarrimängija', '.'] },\
+            { 'text': "Augusti ajalooline kuumarekord on 38 º C. Talved on harva külmad, kuid võib olla erandeid.", \
+              'expected_words': ['Augusti', 'ajalooline', 'kuumarekord', 'on', '38', 'º C', '.', 'Talved', 'on', 'harva', 'külmad', ',', 'kuid', 'võib', 'olla', 'erandeid', '.'] },\
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )

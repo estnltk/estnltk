@@ -22,7 +22,7 @@ MACROS = {
             'ABBREVIATIONS1': '('+\
                                'A\s?\.\s?D|'+\
                                'a\s?\.\s?k\s?\.\s?a|'+\
-                               "a['` ]la|"+\
+                               "a['`’ ]la|"+\
                                "a/a|"+\
                                'e\s?\.\s?m\s?\.\s?a|'+\
                                'e\s?\.\s?Kr|'+\
@@ -76,7 +76,9 @@ number_patterns = [
               ]
 
 unit_patterns = [
-    { 'pattern_type': 'unit',
+    { 'comment': '2.1) A generic pattern for units of measure;',
+      'example': 'km / h',
+      'pattern_type': 'unit',
       '_regex_pattern_': re.compile(r'''        # PATT_14
                          (^|[^{LETTERS}])       # algus või mittetäht
                          (([{LETTERS}]{1,3})    # kuni 3 tähte
@@ -85,27 +87,47 @@ unit_patterns = [
                          ([^{LETTERS}]|$)       # mittetäht või lõpp
                          '''.format(**MACROS), re.X),
      '_group_': 2,
-     '_priority_': (2, 0),
+     '_priority_': (2, 1),
      'normalized': "lambda m: re.sub('\s' ,'' , m.group(2))",
-     'comment': 'unit of measure',
-     'example': 'km / h',
-      },
+    },
+    { 'comment': '2.2) Degree sign + temperature unit;',
+      'example': 'ºC',
+      'pattern_type': 'unit',
+      '_regex_pattern_': re.compile(r'''
+                        ([\*º\u00B0]+\s*[CF])   # degree + temperature sign
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (2, 2),
+      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
+    },
                  ]
 
 initial_patterns = [
-    { 'pattern_type': 'name',
+    { 'comment': '3.1) Names starting with 2 initials;',
+      'pattern_type': 'name',
+      'example': 'A. H. Tammsaare',
       '_regex_pattern_': re.compile(r'''
-                        ((?!P\.)[{UPPERCASE}][{LOWERCASE}]?)              # initsiaalid, millele võib
-                        \s?\.\s?                                          # tühikute vahel järgneda punkt
-                        ((?!S\.)[{UPPERCASE}][{LOWERCASE}]?)              # initsiaalid, millele võib
-                        \s?\.\s?                                          # tühikute vahel järgneda punkt
-                        ((\.[{UPPERCASE}]\.)?[{UPPERCASE}][{LOWERCASE}]+) # perekonnanimi
+                        ((?!P\.)[{UPPERCASE}][{LOWERCASE}]?)              # first initial
+                        \s?\.\s?-?                                        # period (and hypen potentially)
+                        ((?!S\.)[{UPPERCASE}][{LOWERCASE}]?)              # second initial
+                        \s?\.\s?                                          # period
+                        ((\.[{UPPERCASE}]\.)?[{UPPERCASE}][{LOWERCASE}]+) # last name
                         '''.format(**MACROS), re.X),
      '_group_': 0,
      '_priority_': (3, 0),
      'normalized': lambda m: re.sub('\1.\2. \3' ,'' , m.group(0)),
-     'comment': 'initials',
-     'example': 'A. H. Tammsaare',
+     },
+    { 'comment': '3.2) Names starting with one initial;',
+      'pattern_type': 'name',
+      'example': 'A. Hein',
+      '_regex_pattern_': re.compile(r'''
+                        ([{UPPERCASE}])                 # first initial
+                        \s?\.\s?                        # period
+                        ([{UPPERCASE}][{LOWERCASE}]+)   # last name
+                        '''.format(**MACROS), re.X),
+     '_group_': 0,
+     '_priority_': (3, 0),
+     'normalized': lambda m: re.sub('\1. \2' ,'' , m.group(0)),
      }
                     ]
 
