@@ -103,18 +103,29 @@ unit_patterns = [
                  ]
 
 initial_patterns = [
+    { 'comment': '3.0) Negative pattern: filters out "P.S." (post scriptum) before it is annotated as a pair of initials;',
+      'pattern_type': 'negative:ps-abbreviation',  # prefix "negative:" instructs to delete this pattern afterwards
+      'discard' : True,
+      'example': 'P. S.',
+      '_regex_pattern_': re.compile(r'''
+                        (P\s?.\s?S\s?.)                 # P.S. -- likely post scriptum, not initial
+                        '''.format(**MACROS), re.X),
+     '_group_': 1,
+     '_priority_': (3, 0),
+     'normalized': lambda m: re.sub('\s','', m.group(1)),
+     },
     { 'comment': '3.1) Names starting with 2 initials;',
       'pattern_type': 'name',
       'example': 'A. H. Tammsaare',
       '_regex_pattern_': re.compile(r'''
-                        ((?!P\.)[{UPPERCASE}][{LOWERCASE}]?)              # first initial
+                        ([{UPPERCASE}][{LOWERCASE}]?)                     # first initial
                         \s?\.\s?-?                                        # period (and hypen potentially)
-                        ((?!S\.)[{UPPERCASE}][{LOWERCASE}]?)              # second initial
+                        ([{UPPERCASE}][{LOWERCASE}]?)                     # second initial
                         \s?\.\s?                                          # period
                         ((\.[{UPPERCASE}]\.)?[{UPPERCASE}][{LOWERCASE}]+) # last name
                         '''.format(**MACROS), re.X),
      '_group_': 0,
-     '_priority_': (3, 0),
+     '_priority_': (3, 1),
      'normalized': lambda m: re.sub('\1.\2. \3' ,'' , m.group(0)),
      },
     { 'comment': '3.2) Names starting with one initial;',
@@ -126,7 +137,7 @@ initial_patterns = [
                         ([{UPPERCASE}][{LOWERCASE}]+)   # last name
                         '''.format(**MACROS), re.X),
      '_group_': 0,
-     '_priority_': (3, 0),
+     '_priority_': (3, 2),
      'normalized': lambda m: re.sub('\1. \2' ,'' , m.group(0)),
      }
                     ]

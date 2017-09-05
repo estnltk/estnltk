@@ -124,6 +124,11 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Rock-ansambli', 'Dr.', 'Hook', 'and', 'the', 'Medicine', 'Show', 'legendaarne', 'kitarrimängija', '.'] },\
             { 'text': "Augusti ajalooline kuumarekord on 38 º C. Talved on harva külmad, kuid võib olla erandeid.", \
               'expected_words': ['Augusti', 'ajalooline', 'kuumarekord', 'on', '38', 'º C', '.', 'Talved', 'on', 'harva', 'külmad', ',', 'kuid', 'võib', 'olla', 'erandeid', '.'] },\
+            { 'text': "P.S. Õppige viisakalt kirjutama.", \
+              'expected_words': ['P', '.', 'S', '.', 'Õppige', 'viisakalt', 'kirjutama', '.'] },\
+            { 'text': "P.P.S. Teine vana ilmus ka välja.", \
+              'expected_words': ['P', '.', 'P', '.', 'S', '.', 'Teine', 'vana', 'ilmus', 'ka', 'välja', '.'] },\
+              
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )

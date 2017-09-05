@@ -66,6 +66,10 @@ class CompoundTokenTagger(Tagger):
         new_layer = self._tokenization_hints_tagger.tag(text, return_layer=True, status=conflict_status)
         for sp in new_layer.spans:
             #print(text.text[sp.start:sp.end], sp.pattern_type, sp.normalized)
+            if hasattr(sp, 'pattern_type') and sp.pattern_type.startswith('negative:'):
+                # This is a negative pattern (used for preventing other patterns from matching),
+                # and thus should be discarded altogether ...
+                continue
             end_node = {'end': sp.end}
             if hasattr(sp, 'pattern_type'):
                 end_node['pattern_type'] = sp.pattern_type
