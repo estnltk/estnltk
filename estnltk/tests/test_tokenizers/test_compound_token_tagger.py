@@ -101,7 +101,9 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             { 'text' : 'Võsu 04/09/11 18:03 \n Ilus ilm, ning loksa mõõdik näitas kõige rohkem',\
               'expected_words': ['Võsu', '04/09/11', '18:03', 'Ilus', 'ilm', ',', 'ning', 'loksa', 'mõõdik', 'näitas', 'kõige', 'rohkem'] },\
             { 'text' : 'itra 2011-04-22 14:57:04 \n Läksin oma teloga sinna lehele, vajutasin download ja midagi ei juhtunud',\
-              'expected_words': ['itra', '2011-04-22', '14:57', ':', '04', 'Läksin', 'oma', 'teloga', 'sinna', 'lehele', ',', 'vajutasin', 'download', 'ja', 'midagi', 'ei', 'juhtunud'] },\
+              'expected_words': ['itra', '2011-04-22', '14:57:04', 'Läksin', 'oma', 'teloga', 'sinna', 'lehele', ',', 'vajutasin', 'download', 'ja', 'midagi', 'ei', 'juhtunud'] },\
+            { 'text' : 'Loe edasi \n 20/09/2005 Eesti Akadeemiline Spordliit kuulutab välja järgmised spordi stipendiumid',\
+              'expected_words': ['Loe', 'edasi', '20/09/2005', 'Eesti', 'Akadeemiline', 'Spordliit', 'kuulutab', 'välja', 'järgmised', 'spordi', 'stipendiumid'] },\
 
         ]
         for test_text in test_texts:

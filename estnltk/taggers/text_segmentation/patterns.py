@@ -90,14 +90,14 @@ number_patterns = [
       '_group_': 0,
       '_priority_': (1, 0, 3),
       '_regex_pattern_': re.compile(r'''
-                         (0[0-9]|[12][0-9]|3[01])                 # day
-                         /                                        # slash
-                         ([012][0-9]|1[012])                      # month
-                         /                                        # slash
-                         ([7-9][0-9]|[0-3][0-9])                  # year
+                         (0[0-9]|[12][0-9]|3[01])                       # day
+                         /                                              # slash
+                         ([012][0-9]|1[012])                            # month
+                         /                                              # slash
+                         (1[7-9]\d\d|2[0-2]\d\d|[7-9][0-9]|[0-3][0-9])  # year
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
-    { 'comment': '*) Time patterns in the commonly used form "HH:mm";',
+    { 'comment': '*) Time patterns in the commonly used form "HH:mm:ss";',
       'example': '21:14',
       'pattern_type': 'numeric-time',
       '_group_': 0,
@@ -106,6 +106,8 @@ number_patterns = [
                          (0[0-9]|[12][0-9]|2[0123])               # hour
                          \s?:\s?                                  # colon
                          ([0-5][0-9])                             # minute
+                         (\s?:\s?                                 # colon
+                         ([0-5][0-9]))?                           # second
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
     # Pattern for generic numerics
