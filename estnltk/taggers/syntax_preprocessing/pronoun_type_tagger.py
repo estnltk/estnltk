@@ -6,7 +6,7 @@ from estnltk.rewriting import PronounTypeRewriter
 class PronounTypeTagger(Tagger):
     description = 'Tags pronouns with pronoun type attribute.'
     layer_name = 'pronoun_type'
-    attributes = VabamorfTagger.attributes + ['pronoun_type']
+    attributes = VabamorfTagger.attributes + ('pronoun_type',)
     depends_on = ['morph_analysis']
     configuration = {}
 
@@ -15,7 +15,7 @@ class PronounTypeTagger(Tagger):
 
     def tag(self, text, return_layer=False):
         new_layer = text['morph_analysis']
-        source_attributes = new_layer.attributes + ['text']
+        source_attributes = new_layer.attributes + ('text',)
         target_attributes = self.attributes
         new_layer = new_layer.rewrite(
             source_attributes = source_attributes,

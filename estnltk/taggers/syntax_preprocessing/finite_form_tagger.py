@@ -8,7 +8,7 @@ from estnltk.rewriting import FiniteFormRewriter
 class FiniteFormTagger(Tagger):
     description = 'Tags finite form tags for verbs.'
     layer_name = 'finite_form'
-    attributes = VabamorfTagger.attributes + ['fin']
+    attributes = VabamorfTagger.attributes + ('fin',)
     depends_on = ['morph_analysis']
     configuration = {}
 

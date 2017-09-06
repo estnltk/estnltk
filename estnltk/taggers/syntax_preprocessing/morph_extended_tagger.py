@@ -24,12 +24,12 @@ class MorphExtendedTagger(Tagger):
     """
     description = "Extends 'morph_analysis' layer with syntax preprocessing attributes."
     layer_name = 'morph_extended'
-    attributes = VabamorfTagger.attributes + ['punctuation_type', 
+    attributes = VabamorfTagger.attributes + ('punctuation_type', 
                                               'pronoun_type',
                                               'letter_case',
                                               'fin',
                                               'verb_extension_suffix',
-                                              'subcat']
+                                              'subcat')
     depends_on = ['morph_analysis']
     configuration = None
 
@@ -97,7 +97,7 @@ class MorphExtendedTagger(Tagger):
         return str1.replace('"', '\\"').replace('\\\\\\"', '\\"').replace('\\\\"', '\\"')
 
     def tag(self, text, return_layer=False):
-        source_attributes = text['morph_analysis'].attributes + ['text']
+        source_attributes = text['morph_analysis'].attributes + ('text',)
 
         new_layer = text['morph_analysis'].rewrite(
                                     source_attributes=source_attributes,

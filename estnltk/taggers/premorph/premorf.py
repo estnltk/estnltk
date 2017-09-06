@@ -43,8 +43,8 @@ class WordNormalizingTagger(Tagger):
     def tag(self, text: Text) -> Text:
         source_layer = text['words']  # type: Layer
 
-        source_attributes = ['text']
-        target_attributes = ['normal']
+        source_attributes = ('text',)
+        target_attributes = ('normal',)
 
         rewriting_template = partial(source_layer.rewrite,
                                      source_attributes=source_attributes,

@@ -7,7 +7,7 @@ from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRew
 class VabamorfTagger(Tagger):
     description = 'Tags morphological analysis on words.'
     layer_name = 'morph_analysis'
-    attributes = ['lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech']
+    attributes = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech')
     depends_on = None
     configuration = None
 
@@ -78,7 +78,7 @@ class VabamorfTagger(Tagger):
 
         attributes = morph_attributes
         if self.postmorph_rewriter:
-            attributes = attributes + ['word_normal']
+            attributes = attributes + ('word_normal',)
             morph = Layer(name='words',
               parent='words',
               ambiguous=True,

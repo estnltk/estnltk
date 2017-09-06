@@ -853,8 +853,8 @@ def test_rewriting_api():
 
     rewriter = ReverseRewriter()
     layer = text['test'].rewrite(
-        source_attributes = ['reverse'],
-        target_attributes = ['esrever'],
+        source_attributes = ('reverse',),
+        target_attributes = ('esrever',),
         rules = rewriter,
         name = 'plain'
     )

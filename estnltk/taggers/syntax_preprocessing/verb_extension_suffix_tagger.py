@@ -6,7 +6,7 @@ from estnltk.rewriting import VerbExtensionSuffixRewriter
 class VerbExtensionSuffixTagger(Tagger):
     description = 'Tags verb extension suffixes.'
     layer_name = 'verb_extension_suffix'
-    attributes = VabamorfTagger.attributes + ['verb_extension_suffix']
+    attributes = VabamorfTagger.attributes + ('verb_extension_suffix',)
     depends_on = ['morph_analysis']
     configuration = {}
 
