@@ -322,10 +322,10 @@ class SpanList(collections.Sequence):
 
     def __eq__(self, other: Any) -> bool:
         return hash(self) == hash(other)
-        try:
-            return (self.start, self.end) == (other.start, other.end)
-        except AttributeError:
-            return False
+        #try:
+        #    return (self.start, self.end) == (other.start, other.end)
+        #except AttributeError:
+        #    return False
 
     def __le__(self, other: Any) -> bool:
         return self < other or self == other
@@ -462,8 +462,7 @@ class Layer:
 
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
         assert 'name' in kwargs.keys(), '"name" must currently be an argument to layer'
-
-        res = [whitelist_record(record, source_attributes + ['start', 'end']) for record in self.to_records(with_text='text' in source_attributes)]
+        res = [whitelist_record(record, source_attributes + ('start', 'end')) for record in self.to_records(with_text='text' in source_attributes)]
         rewritten = [rules.rewrite(j) for j in res]
         resulting_layer = Layer(
             **kwargs,
@@ -570,25 +569,27 @@ class Layer:
     def _repr_html_(self):
         return self.to_html()
 
-    def __eq__(self, other):
+    def diff(self, other):
         if not isinstance(other, Layer):
-            return False
+            return 'Other is not a Layer.'
         if self.name != other.name:
-            return False
-        if self.attributes != other.attributes:
-            return False
+            return "Layer names are different: {self.name}!={other.name}".format(self=self, other=other)
+        if tuple(self.attributes) != tuple(other.attributes):
+            return "{self.name} layer attributes differ: {self.attributes} != {other.attributes}".format(self=self, other=other)
         if self.ambiguous != other.ambiguous:
-            return False
+            return "{self.name} layer ambiguous differs: {self.ambiguous} != {other.ambiguous}".format(self=self, other=other)
         if self.parent != other.parent:
-            return False
+            return "{self.name} layer parent differs: {self.parent} != {other.parent}".format(self=self, other=other)
         if self._base != other._base:
-            return False
+            return "{self.name} layer _base differs: {self._base} != {other._base}".format(self=self, other=other)
         if self.enveloping != other.enveloping:
-            return False
+            return "{self.name} layer enveloping differs: {self.enveloping}!={other.enveloping}".format(self=self, other=other)
         if self.spans != other.spans:
-            return False
-        return True
+            return "{self.name} layer spans differ".format(self=self, other=other)
+        return None
 
+    def __eq__(self, other):
+        return not self.diff(other)
 
 def _get_span_by_start_and_end(spans:SpanList, start:int, end:int) -> Union[Span, None]:
     for span in spans:
@@ -1003,12 +1004,21 @@ class Text:
 
         self._setup_structure()
 
-    def __eq__(self, other):
+    def diff(self, other):
         if not isinstance(other, Text):
-            return False
+            return 'Not a Text object.'
         if self.text != other.text:
-            return False
-        return self.layers == other.layers
+            return 'The raw text is different.'
+        if set(self.layers) != set(other.layers):
+            return 'Different layer names.'
+        for layer_name in self.layers:
+            difference = self.layers[layer_name].diff(other.layers[layer_name])
+            if difference:
+                return difference
+        return None
+
+    def __eq__(self, other):
+        return not self.diff(other)
 
     def __str__(self):
         return 'Text(text="{self.text}")'.format(self=self)
