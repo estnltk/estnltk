@@ -5,6 +5,32 @@ from estnltk import Text
 
 class CompoundTokenTaggerTest(unittest.TestCase):
 
+    def test_detect_email(self):
+        test_texts = [ 
+            { 'text': 'See worm lihtsalt kirjutab alati saatjaks big@boss.com ...', \
+              'expected_words': ['See', 'worm', 'lihtsalt', 'kirjutab', 'alati', 'saatjaks', 'big@boss.com', '...'] }, \
+            { 'text': 'TELLIMISEKS- saada e-kiri aadressil ek.tellimus@eelk.ee - helista toimetusse 733 7795', \
+              'expected_words': ['TELLIMISEKS-', 'saada', 'e-kiri', 'aadressil', 'ek.tellimus@eelk.ee', '-', 'helista', 'toimetusse', '733 7795'] }, \
+            { 'text': 'Head Mosaicimist ja sellega harjumist soovib \n neti . kass @ postimees . ee', \
+              'expected_words': ['Head', 'Mosaicimist', 'ja', 'sellega', 'harjumist', 'soovib', 'neti . kass @ postimees . ee'] }, \
+            { 'text': 'sambamees . siim [ -at- ] siim . pri . ee says ... \n On jõudnud siiagi kuuldused , et rahvas on sassi kamminud', \
+              'expected_words': ['sambamees . siim [ -at- ] siim . pri', '.', 'ee', 'says', '...', 'On', 'jõudnud', 'siiagi', 'kuuldused', ',', 'et', 'rahvas', 'on', 'sassi', 'kamminud'] }, \
+        ]
+        for test_text in test_texts:
+            text = Text( test_text['text'] )
+            # Perform analysis
+            text.tag_layer(['words'])
+            words_spans = text['words'].spans
+            # Fetch results
+            word_segmentation = [] 
+            for wid, word in enumerate( words_spans ):
+                word_text = text.text[word.start:word.end]
+                word_segmentation.append(word_text)
+            #print(word_segmentation)
+            # Assert that the tokenization is correct
+            self.assertListEqual(test_text['expected_words'], word_segmentation)
+
+
     def test_detect_hyphenation(self):
         test_texts = [ 
             { 'text': 'Mis lil-li müüs Tiit 10e krooniga?', \
@@ -25,6 +51,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             #print(word_segmentation)
             # Assert that the tokenization is correct
             self.assertListEqual(test_text['expected_words'], word_segmentation)
+
 
     def test_detect_abbreviations(self):
         test_texts = [ 

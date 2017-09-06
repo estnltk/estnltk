@@ -23,7 +23,6 @@ MACROS = {
                                'A\s?\.\s?D|'+\
                                'a\s?\.\s?k\s?\.\s?a|'+\
                                "a['`’ ]la|"+\
-                               "a/a|"+\
                                'e\s?\.\s?m\s?\.\s?a|'+\
                                'e\s?\.\s?Kr|'+\
                                'k\s?\.\s?a|'+\
@@ -45,13 +44,31 @@ MACROS['LETTERS'] = MACROS['LOWERCASE'] + MACROS['UPPERCASE']
 MACROS['ALPHANUM'] = MACROS['LETTERS'] + MACROS['NUMERIC']
 
 email_patterns = [
-     {'pattern_type': 'e-mail',
-      '_group_': 1,
-      '_priority_': (0, 0),
-      '_regex_pattern_': r'([{ALPHANUM}_.+-]+@[{ALPHANUM}-]+\.[{ALPHANUM}-.]+)'.format(**MACROS),
-      'comment': 'e-mail',
+     {'comment': '*) Pattern for detecting common e-mail formats;',
       'example': 'bla@bla.bl',
-      'normalized': 'lambda m: None'}
+      'pattern_type': 'e-mail',
+      '_group_': 1,
+      '_priority_': (0, 0, 1),
+      '_regex_pattern_': r'([{ALPHANUM}_.+-]+@[{ALPHANUM}-]+\.[{ALPHANUM}-.]+)'.format(**MACROS),
+      'normalized': 'lambda m: None'},
+      
+     {'comment': '*) Pattern for detecting common e-mail formats;',
+      'example': 'sambamees . siim @ pri . ee',
+      'pattern_type': 'e-mail',
+      '_group_': 1,
+      '_priority_': (0, 0, 2),
+      '_regex_pattern_': re.compile(r'''
+                         ([{ALPHANUM}_+-]+                        # first name
+                         \s?\.\s?                                 # period
+                         [{ALPHANUM}_+-]+                         # last name
+                         \s?                                      # space possibly
+                         (\[\s?-at-\s?\]|\(at\)|@)                # @
+                         \s?                                      # space possibly
+                         [{ALPHANUM}-]+                           # domain
+                         \s?\.\s?                                 # period
+                         [{ALPHANUM}_.+-]+)                       # domain
+                         '''.format(**MACROS), re.X),
+      'normalized': lambda m: re.sub('\s','', m.group(1) ) },
             ]
 
 number_patterns = [
