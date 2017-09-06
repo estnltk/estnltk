@@ -86,8 +86,23 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             
     def test_detect_numeric(self):
         test_texts = [ 
+            # Detection of roman numerals
             { 'text': '"Õiguste" all tuleb mõista ainult põhiõigusi, mida II. peatükis nimetatakse lihtsalt õigusteks.', \
               'expected_words': ['"', 'Õiguste', '"', 'all', 'tuleb', 'mõista', 'ainult', 'põhiõigusi', ',', 'mida', 'II.', 'peatükis', 'nimetatakse', 'lihtsalt', 'õigusteks', '.'] },\
+            # Detecting of common date & time patterns
+            { 'text' : 'Tuvastamata Kasutaja\n03.01.2007 09:15 See oleks pikk samm edasi.',\
+              'expected_words': ['Tuvastamata', 'Kasutaja', '03.01.2007', '09:15', 'See', 'oleks', 'pikk', 'samm', 'edasi', '.'] },\
+            { 'text' : '• 8. oktoober 2012 16:06 \n naljakas :D aga tublid poisid punases autos :)',\
+              'expected_words': ['•', '8.', 'oktoober', '2012', '16:06', 'naljakas', ':', 'D', 'aga', 'tublid', 'poisid', 'punases', 'autos', ':', ')'] },\
+            { 'text' : 'Tei, 06.Jul.2010 20:23 \nRohelise Akadeemia nime all toimuvate arutelude sarja algus.',\
+              'expected_words': ['Tei', ',', '06.', 'Jul.', '2010', '20:23', 'Rohelise', 'Akadeemia', 'nime', 'all', 'toimuvate', 'arutelude', 'sarja', 'algus', '.'] },\
+            { 'text' : 'Üll 11.01.2010 18:41 100% ostan ennem selle.',\
+              'expected_words': ['Üll', '11.01.2010', '18:41', '100', '%', 'ostan', 'ennem', 'selle', '.'] },\
+            { 'text' : 'Võsu 04/09/11 18:03 \n Ilus ilm, ning loksa mõõdik näitas kõige rohkem',\
+              'expected_words': ['Võsu', '04/09/11', '18:03', 'Ilus', 'ilm', ',', 'ning', 'loksa', 'mõõdik', 'näitas', 'kõige', 'rohkem'] },\
+            { 'text' : 'itra 2011-04-22 14:57:04 \n Läksin oma teloga sinna lehele, vajutasin download ja midagi ei juhtunud',\
+              'expected_words': ['itra', '2011-04-22', '14:57', ':', '04', 'Läksin', 'oma', 'teloga', 'sinna', 'lehele', ',', 'vajutasin', 'download', 'ja', 'midagi', 'ei', 'juhtunud'] },\
+
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )
