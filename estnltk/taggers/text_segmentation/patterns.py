@@ -55,9 +55,64 @@ email_patterns = [
             ]
 
 number_patterns = [
-    { 'pattern_type': 'numeric',
+    # Heuristic date & time patterns
+    # Date and time tokens should be detected before generic numerics in order to reduce
+    # false positives ...
+    { 'comment': '*) Date patterns in the commonly used form "dd.mm.yyyy";',
+      'example': '02.02.2010',
+      'pattern_type': 'numeric-date',
       '_group_': 0,
-      '_priority_': (1, 0),
+      '_priority_': (1, 0, 1),
+      '_regex_pattern_': re.compile(r'''
+                         (0?[0-9]|[12][0-9]|3[012])               # day
+                         \s?\.\s?                                 # period
+                         ([012][0-9]|1[012])                      # month
+                         \s?\.\s?                                 # period
+                         (1[7-9]\d\d|2[0-2]\d\d)                  # year
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
+    { 'comment': '*) Date patterns in the ISO format "yyyy-mm-dd";',
+      'example': '2011-04-22',
+      'pattern_type': 'numeric-date',
+      '_group_': 0,
+      '_priority_': (1, 0, 2),
+      '_regex_pattern_': re.compile(r'''
+                         (1[7-9]\d\d|2[0-2]\d\d)                  # year
+                         -                                        # hypen
+                         ([012][0-9]|1[012])                      # month
+                         -                                        # hypen
+                         (0?[0-9]|[12][0-9]|3[012])               # day
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
+    { 'comment': '*) Date patterns in the commonly used form "dd/mm/yy";',
+      'example': '19/09/11',
+      'pattern_type': 'numeric-date',
+      '_group_': 0,
+      '_priority_': (1, 0, 3),
+      '_regex_pattern_': re.compile(r'''
+                         (0[0-9]|[12][0-9]|3[012])                # day
+                         /                                        # slash
+                         ([012][0-9]|1[012])                      # month
+                         /                                        # slash
+                         ([7-9][0-9]|[0-3][0-9])                  # year
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
+    { 'comment': '*) Time patterns in the commonly used form "HH:mm";',
+      'example': '21:14',
+      'pattern_type': 'numeric-time',
+      '_group_': 0,
+      '_priority_': (1, 0, 4),
+      '_regex_pattern_': re.compile(r'''
+                         (0[0-9]|[12][0-9]|2[0123])               # hour
+                         \s?:\s?                                  # colon
+                         ([0-5][0-9])                             # minute
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
+    # Pattern for generic numerics
+    { 'comment': '*) A generic pattern for detecting (long) numeric expressions.',
+      'pattern_type': 'numeric',
+      '_group_': 0,
+      '_priority_': (1, 1, 0),
       '_regex_pattern_': r'-?([{NUMERIC}][\s\.]?)+(,\s?([{NUMERIC}][\s\.]?)+)?'.format(**MACROS),
       'comment': 'number',
       'example': '-34 567 000 123 , 456',
@@ -66,7 +121,7 @@ number_patterns = [
       'example': 'II. peatükis',
       'pattern_type': 'roman_numerals',
       '_group_': 2,
-      '_priority_': (1, 0),
+      '_priority_': (1, 2, 0),
       '_regex_pattern_': re.compile(r'''                          # 
                          (^|\s)                                   # beginning or space
                          ((I|II|III|IV|V|VI|VII|VIII|IX|X)\s*\.)  # roman numeral + period
@@ -107,7 +162,7 @@ initial_patterns = [
       'pattern_type':   'negative:temperature-unit', # prefix "negative:" instructs to delete this pattern afterwards
       'example': 'ºC',
       '_regex_pattern_': re.compile(r'''
-                        ([\*º˚\u00B0]+\s*[CF])          # degree + temperature unit -- this shouldn't be an initial
+                        ([º˚\u00B0]+\s*[CF])            # degree + temperature unit -- this shouldn't be an initial
                         '''.format(**MACROS), re.X),
      '_group_': 1,
      '_priority_': (3, 0, 2),
@@ -168,9 +223,9 @@ abbreviation_patterns = [
       'example': '6 dets.',
       'pattern_type': 'month_abbreviation',
       '_regex_pattern_': re.compile(r'''
-                        [0-9]\.?\s*                                     # date 
-                        ((jaan|veebr?|apr|aug|sept|okt|nov|dets)\s?\.)  # month abbreviation + period
-                        \s*([{LOWERCASE}]|\d\d\d\d)                     # lowercase word  or year number (sentence continues)
+                        [0-9]\.?\s*                                                                         # date 
+                        (([Jj]aan|[Vv]eebr?|Mär|[Aa]pr|Jun|Jul|[Aa]ug|[Ss]ept|[Oo]kt|[Nn]ov|[Dd]ets)\s?\.)  # month abbreviation + period
+                        \s*([{LOWERCASE}]|\d\d\d\d)                                                         # lowercase word  or year number (sentence continues)
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (4, 3, 0),
