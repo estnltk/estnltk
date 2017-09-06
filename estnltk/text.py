@@ -1010,7 +1010,7 @@ class Text:
         if self.text != other.text:
             return 'The raw text is different.'
         if set(self.layers) != set(other.layers):
-            return 'Different layer names.'
+            return 'Different layer names: {} != {}'.format(set(self.layers), set(other.layers))
         for layer_name in self.layers:
             difference = self.layers[layer_name].diff(other.layers[layer_name])
             if difference:
