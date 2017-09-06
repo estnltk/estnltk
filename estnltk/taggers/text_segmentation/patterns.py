@@ -64,7 +64,7 @@ number_patterns = [
       '_group_': 0,
       '_priority_': (1, 0, 1),
       '_regex_pattern_': re.compile(r'''
-                         (0?[0-9]|[12][0-9]|3[012])               # day
+                         (0?[0-9]|[12][0-9]|3[01])                # day
                          \s?\.\s?                                 # period
                          ([012][0-9]|1[012])                      # month
                          \s?\.\s?                                 # period
@@ -81,7 +81,7 @@ number_patterns = [
                          -                                        # hypen
                          ([012][0-9]|1[012])                      # month
                          -                                        # hypen
-                         (0?[0-9]|[12][0-9]|3[012])               # day
+                         (0?[0-9]|[12][0-9]|3[01])                # day
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
     { 'comment': '*) Date patterns in the commonly used form "dd/mm/yy";',
@@ -90,7 +90,7 @@ number_patterns = [
       '_group_': 0,
       '_priority_': (1, 0, 3),
       '_regex_pattern_': re.compile(r'''
-                         (0[0-9]|[12][0-9]|3[012])                # day
+                         (0[0-9]|[12][0-9]|3[01])                 # day
                          /                                        # slash
                          ([012][0-9]|1[012])                      # month
                          /                                        # slash
