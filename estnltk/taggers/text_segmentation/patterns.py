@@ -136,7 +136,7 @@ number_patterns = [
       '_priority_': (1, 1, 0),
       '_regex_pattern_': re.compile(r'''                             
                          -?\d+[\s\.]+\d+[\s\.]+\d+[\s\.]+\d+[\s\.]+\d+   # 5 groups of numbers
-                         (\s?,\s?\d+)?                                   # + comma-separated numbers
+                         (\s,\s\d+|,\d+)?                                # + comma-separated numbers
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
     { 'comment': '*) A generic pattern for detecting long numbers (4 groups).',
@@ -146,7 +146,7 @@ number_patterns = [
       '_priority_': (1, 1, 1),
       '_regex_pattern_': re.compile(r'''                             
                          -?\d+[\s\.]+\d+[\s\.]+\d+[\s\.]+\d+     # 4 groups of numbers
-                         (\s?,\s?\d+)?                           # + comma-separated numbers
+                         (\s,\s\d+|,\d+)?                        # + comma-separated numbers
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
     { 'comment': '*) A generic pattern for detecting long numbers (3 groups).',
@@ -156,7 +156,7 @@ number_patterns = [
       '_priority_': (1, 1, 2),
       '_regex_pattern_': re.compile(r'''                             
                          -?\d+[\s\.]+\d+[\s\.]+\d+     # 3 groups of numbers
-                         (\s?,\s?\d+)?                 # + comma-separated numbers
+                         (\s,\s\d+|,\d+)?              # + comma-separated numbers
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
     { 'comment': '*) A generic pattern for detecting long numbers (2 groups).',
@@ -166,7 +166,7 @@ number_patterns = [
       '_priority_': (1, 1, 3),
       '_regex_pattern_': re.compile(r'''                             
                          -?\d+[\s\.]+\d+     # 2 groups of numbers
-                         (\s?,\s?\d+)?       # + comma-separated numbers
+                         (\s,\s\d+|,\d+)?    # + comma-separated numbers
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
     { 'comment': '*) A generic pattern for detecting long numbers (1 group).',
@@ -175,10 +175,19 @@ number_patterns = [
       '_group_': 0,
       '_priority_': (1, 1, 4),
       '_regex_pattern_': re.compile(r'''                             
-                         -?\d+                # 1 group of numbers
-                         (\s?,\s?\d+|\s*\.)   # + comma-separated numbers or period-ending
+                         -?\d+                  # 1 group of numbers
+                         (\s,\s\d+|,\d+|\s*\.)  # + comma-separated numbers or period-ending
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
+
+    # Remark on the decimal numerals (numerals with the decimal separator ','):
+    #   *) form where the separator is between two spaces (' , ') is common to Koondkorpus 
+    #      (which has been tokenized previously);
+    #   *) form where the separator is has no spaces (',') is common to regular / untokenized 
+    #      texts;
+    #   *) other forms (', ' and ' ,') more likely cause false detections rather than correct
+    #      numeric expressions;
+
     #
     # Old pattern:
     #

@@ -1,7 +1,7 @@
 def test_segmentation_taggers():
     T = '''Aadressilt bla@bla.ee tuli 10 000 kirja. Kirjad, st. spamm saabus 10 tunni jooksul.
 
-A. H. Tammsaare 1935. aastal: 1,0 m / s = 3, 67 km/h.'''
+A. H. Tammsaare 1935. aastal: 1,0 m / s = 3,67 km/h.'''
     from estnltk import Text
     text = Text(T)
 
@@ -38,7 +38,7 @@ A. H. Tammsaare 1935. aastal: 1,0 m / s = 3, 67 km/h.'''
                                   'kirja', '.', 'Kirjad', ',', 'st.', 'spamm', 
                                   'saabus', '10', 'tunni', 'jooksul',
                                   '.', 'A. H. Tammsaare', '1935.', 'aastal', ':',
-                                  '1,0', 'm / s', '=', '3, 67', 'km/h', '.']
+                                  '1,0', 'm / s', '=', '3,67', 'km/h', '.']
 
 
     from estnltk.taggers import SentenceTokenizer
@@ -47,7 +47,7 @@ A. H. Tammsaare 1935. aastal: 1,0 m / s = 3, 67 km/h.'''
     sentence_tokenizer.tag(text)
     assert text['sentences'].text == [['Aadressilt', 'bla@bla.ee', 'tuli', '10 000', 'kirja', '.'],
                                       ['Kirjad', ',', 'st.', 'spamm', 'saabus', '10', 'tunni', 'jooksul', '.'],
-                                      ['A. H. Tammsaare', '1935.', 'aastal', ':', '1,0', 'm / s', '=', '3, 67', 'km/h', '.']]
+                                      ['A. H. Tammsaare', '1935.', 'aastal', ':', '1,0', 'm / s', '=', '3,67', 'km/h', '.']]
 
 
     from estnltk.taggers import ParagraphTokenizer
@@ -55,4 +55,4 @@ A. H. Tammsaare 1935. aastal: 1,0 m / s = 3, 67 km/h.'''
     paragraph_tokenizer.tag(text) 
     assert text['paragraphs'].text == [[['Aadressilt', 'bla@bla.ee', 'tuli', '10 000', 'kirja', '.'],
                                         ['Kirjad', ',', 'st.', 'spamm', 'saabus', '10', 'tunni', 'jooksul', '.']],
-                                       [['A. H. Tammsaare', '1935.', 'aastal', ':', '1,0', 'm / s', '=', '3, 67', 'km/h', '.']]]
+                                       [['A. H. Tammsaare', '1935.', 'aastal', ':', '1,0', 'm / s', '=', '3,67', 'km/h', '.']]]
