@@ -124,7 +124,13 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Kaheksal', 'juhul', 'sisaldas', 'brokoli', '1,5', '–', '3,2', 'korda', 'rohkem', 'taimekaitsevahendi', 'jääki', ',', 'kui', 'oli', 'lubatud', '.'] },\
             { 'text' : 'Seda puhastuspappi saab Photopointist endale soetada 2.99€ eest.',\
               'expected_words': ['Seda', 'puhastuspappi', 'saab', 'Photopointist', 'endale', 'soetada', '2.99', '€', 'eest', '.'] },\
-
+            # Koondkorpus-style decimal numerals -- decimal separators are between two spaces:
+            { 'text' : 'Rootsis oli tööstustoodangu juurdekasv septembris augustiga võrreldes 3 , 7% .\n Kullauntsi hind jäi 303 , 00 dollari tasemele .',\
+              'expected_words': ['Rootsis', 'oli', 'tööstustoodangu', 'juurdekasv', 'septembris', 'augustiga', 'võrreldes', '3 , 7', '%', '.', 'Kullauntsi', 'hind', 'jäi', '303 , 00', 'dollari', 'tasemele', '.'] },\
+            { 'text' : 'Rootsis oli tööstustoodangu juurdekasv septembris augustiga võrreldes 3 , 7% .\n Kullauntsi hind jäi 303 , 00 dollari tasemele .',\
+              'expected_words': ['Rootsis', 'oli', 'tööstustoodangu', 'juurdekasv', 'septembris', 'augustiga', 'võrreldes', '3 , 7', '%', '.', 'Kullauntsi', 'hind', 'jäi', '303 , 00', 'dollari', 'tasemele', '.'] },\
+            { 'text' : 'Kolmes tootegrupis - ampullid ( 40 , 9% ) , salvid ( 33 , 4% ) ja tabletid ( 29 , 6% )',\
+              'expected_words': ['Kolmes', 'tootegrupis', '-', 'ampullid', '(', '40 , 9', '%', ')', ',', 'salvid', '(', '33 , 4', '%', ')', 'ja', 'tabletid', '(', '29 , 6', '%', ')'] },\
             # Detection of roman numerals
             { 'text': '"Õiguste" all tuleb mõista ainult põhiõigusi, mida II. peatükis nimetatakse lihtsalt õigusteks.', \
               'expected_words': ['"', 'Õiguste', '"', 'all', 'tuleb', 'mõista', 'ainult', 'põhiõigusi', ',', 'mida', 'II.', 'peatükis', 'nimetatakse', 'lihtsalt', 'õigusteks', '.'] },\
