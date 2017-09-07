@@ -127,15 +127,68 @@ number_patterns = [
                          ([0-5][0-9]))?                           # second
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
-    # Pattern for generic numerics
-    { 'comment': '*) A generic pattern for detecting (long) numeric expressions.',
+      
+    # Patterns for generic numerics
+    { 'comment': '*) A generic pattern for detecting long numbers (5 groups).',
+      'example': '-21 134 567 000 123 , 456',
       'pattern_type': 'numeric',
       '_group_': 0,
       '_priority_': (1, 1, 0),
-      '_regex_pattern_': r'-?([{NUMERIC}][\s\.]?)+(,\s?([{NUMERIC}][\s\.]?)+)?'.format(**MACROS),
-      'comment': 'number',
-      'example': '-34 567 000 123 , 456',
+      '_regex_pattern_': re.compile(r'''                             
+                         -?\d+[\s\.]+\d+[\s\.]+\d+[\s\.]+\d+[\s\.]+\d+   # 5 groups of numbers
+                         (\s?,\s?\d+)?                                   # + comma-separated numbers
+                         '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
+    { 'comment': '*) A generic pattern for detecting long numbers (4 groups).',
+      'example': '-34 567 000 123 , 456',
+      'pattern_type': 'numeric',
+      '_group_': 0,
+      '_priority_': (1, 1, 1),
+      '_regex_pattern_': re.compile(r'''                             
+                         -?\d+[\s\.]+\d+[\s\.]+\d+[\s\.]+\d+     # 4 groups of numbers
+                         (\s?,\s?\d+)?                           # + comma-separated numbers
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
+    { 'comment': '*) A generic pattern for detecting long numbers (3 groups).',
+      'example': '-67 000 123 , 456',
+      'pattern_type': 'numeric',
+      '_group_': 0,
+      '_priority_': (1, 1, 2),
+      '_regex_pattern_': re.compile(r'''                             
+                         -?\d+[\s\.]+\d+[\s\.]+\d+     # 3 groups of numbers
+                         (\s?,\s?\d+)?                 # + comma-separated numbers
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
+    { 'comment': '*) A generic pattern for detecting long numbers (2 groups).',
+      'example': '-67 123 , 456',
+      'pattern_type': 'numeric',
+      '_group_': 0,
+      '_priority_': (1, 1, 3),
+      '_regex_pattern_': re.compile(r'''                             
+                         -?\d+[\s\.]+\d+     # 2 groups of numbers
+                         (\s?,\s?\d+)?       # + comma-separated numbers
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
+    { 'comment': '*) A generic pattern for detecting long numbers (1 group).',
+      'example': '-12,456',
+      'pattern_type': 'numeric',
+      '_group_': 0,
+      '_priority_': (1, 1, 4),
+      '_regex_pattern_': re.compile(r'''                             
+                         -?\d+                # 1 group of numbers
+                         (\s?,\s?\d+|\s*\.)   # + comma-separated numbers or period-ending
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
+    #
+    # Old pattern:
+    #
+    # '_regex_pattern_': r'-?([{NUMERIC}][\s\.]?)+(,\s?([{NUMERIC}][\s\.]?)+)?'.format(**MACROS),
+    #
+    #  The old pattern was problematic, e.g. failed to detect multiple expressions like in
+    #      "Hukkus umbes 90 000 inimest ja põgenes üle 70 000,"
+    #
+
+
     { 'comment': '*) First 10 Roman numerals ending with period, but not ending the sentence.',
       'example': 'II. peatükis',
       'pattern_type': 'roman_numerals',

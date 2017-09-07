@@ -11,7 +11,7 @@ from .patterns import unit_patterns, email_patterns, number_patterns, initial_pa
 class CompoundTokenTagger(Tagger):
     description = 'Tags adjacent tokens that should be analyzed as one word.'
     layer_name = 'compound_tokens'
-    attributes = ['type', 'normalized']
+    attributes = ('type', 'normalized')
     depends_on = ['tokens']
     configuration = None
 

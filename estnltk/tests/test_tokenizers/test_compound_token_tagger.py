@@ -113,6 +113,17 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             
     def test_detect_numeric(self):
         test_texts = [ 
+            # Detection of (long) number expressions
+            { 'text': "Vaatleme järgmisi arve: -21 134 567 000 123 , 456; 34 507 000 000; -57 000 000; 64 025,25; 1 000; 75 ja 0,45;", \
+              'expected_words': ['Vaatleme', 'järgmisi', 'arve', ':', '-21 134 567 000 123 , 456', ';', '34 507 000 000', ';', '-57 000 000', ';', '64 025,25', ';', '1 000', ';', '75', 'ja', '0,45', ';'] },\
+            { 'text': 'Hukkus umbes 90 000 inimest ja põgenes üle 70 000, kelle hulgas oli 7500 rannarootslast.', \
+              'expected_words': ['Hukkus', 'umbes', '90 000', 'inimest', 'ja', 'põgenes', 'üle', '70 000', ',', 'kelle', 'hulgas', 'oli', '7500', 'rannarootslast', '.'] },\
+            { 'text': 'Põgenike koguarvuna nimetatakse sageli 70-80 000.', \
+              'expected_words': ['Põgenike', 'koguarvuna', 'nimetatakse', 'sageli', '70', '-80 000', '.'] },\
+            { 'text' : 'Kaheksal juhul sisaldas brokoli 1,5–3,2 korda rohkem taimekaitsevahendi jääki, kui oli lubatud.',\
+              'expected_words': ['Kaheksal', 'juhul', 'sisaldas', 'brokoli', '1,5', '–', '3,2', 'korda', 'rohkem', 'taimekaitsevahendi', 'jääki', ',', 'kui', 'oli', 'lubatud', '.'] },\
+            { 'text' : 'Seda puhastuspappi saab Photopointist endale soetada 2.99€ eest.',\
+              'expected_words': ['Seda', 'puhastuspappi', 'saab', 'Photopointist', 'endale', 'soetada', '2.99', '€', 'eest', '.'] },\
             # Detection of roman numerals
             { 'text': '"Õiguste" all tuleb mõista ainult põhiõigusi, mida II. peatükis nimetatakse lihtsalt õigusteks.', \
               'expected_words': ['"', 'Õiguste', '"', 'all', 'tuleb', 'mõista', 'ainult', 'põhiõigusi', ',', 'mida', 'II.', 'peatükis', 'nimetatakse', 'lihtsalt', 'õigusteks', '.'] },\
@@ -131,7 +142,6 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['itra', '2011-04-22', '14:57:04', 'Läksin', 'oma', 'teloga', 'sinna', 'lehele', ',', 'vajutasin', 'download', 'ja', 'midagi', 'ei', 'juhtunud'] },\
             { 'text' : 'Loe edasi \n 20/09/2005 Eesti Akadeemiline Spordliit kuulutab välja järgmised spordi stipendiumid',\
               'expected_words': ['Loe', 'edasi', '20/09/2005', 'Eesti', 'Akadeemiline', 'Spordliit', 'kuulutab', 'välja', 'järgmised', 'spordi', 'stipendiumid'] },\
-
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )
