@@ -15,6 +15,9 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Head', 'Mosaicimist', 'ja', 'sellega', 'harjumist', 'soovib', 'neti . kass @ postimees . ee'] }, \
             { 'text': 'sambamees . siim [ -at- ] siim . pri . ee says ... \n On jõudnud siiagi kuuldused , et rahvas on sassi kamminud', \
               'expected_words': ['sambamees . siim [ -at- ] siim . pri', '.', 'ee', 'says', '...', 'On', 'jõudnud', 'siiagi', 'kuuldused', ',', 'et', 'rahvas', 'on', 'sassi', 'kamminud'] }, \
+            { 'text': 'Sellised veebileheküljed: www. esindus.ee/korteriturg, www. kavkazcenter.com, http: // www. cavalierklubben.com, http : //www.offa.org/ stats ning http://www.politsei.ee/dotAsset/225706 .', \
+              'expected_words': ['Sellised', 'veebileheküljed', ':', 'www. esindus.ee/korteriturg', ',', 'www. kavkazcenter.com', ',', 'http: // www. cavalierklubben.com', ',', 'http : //www.offa.org/', 'stats', 'ning', 'http://www.politsei.ee/dotAsset/225706', '.'] }, \
+
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )

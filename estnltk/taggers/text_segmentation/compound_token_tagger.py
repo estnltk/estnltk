@@ -4,7 +4,7 @@ from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
 from estnltk.layer_operations import resolve_conflicts
-from .patterns import unit_patterns, email_patterns, number_patterns, initial_patterns, abbreviation_patterns
+from .patterns import unit_patterns, email_and_www_patterns, number_patterns, initial_patterns, abbreviation_patterns
 
 
 
@@ -20,7 +20,7 @@ class CompoundTokenTagger(Tagger):
                  conflict_resolving_strategy='MAX',
                  tag_numbers:bool = True,
                  tag_units:bool = True,
-                 tag_emails:bool = True,
+                 tag_email_and_www:bool = True,
                  tag_initials:bool = True,
                  tag_abbreviations:bool = True,
                  ):
@@ -28,7 +28,7 @@ class CompoundTokenTagger(Tagger):
                               'conflict_resolving_strategy': conflict_resolving_strategy,
                               'tag_numbers': tag_numbers,
                               'tag_units':tag_units,
-                              'tag_emails':tag_emails,
+                              'tag_email_and_www':tag_email_and_www,
                               'tag_initials':tag_initials,
                               'tag_abbreviations':tag_abbreviations}
         
@@ -40,8 +40,8 @@ class CompoundTokenTagger(Tagger):
             _vocabulary.extend(number_patterns)
         if tag_units:
             _vocabulary.extend(unit_patterns)
-        if tag_emails:
-            _vocabulary.extend(email_patterns)
+        if tag_email_and_www:
+            _vocabulary.extend(email_and_www_patterns)
         if tag_initials:
             _vocabulary.extend(initial_patterns)
         if tag_abbreviations:

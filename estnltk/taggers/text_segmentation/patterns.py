@@ -43,7 +43,8 @@ MACROS = {
 MACROS['LETTERS'] = MACROS['LOWERCASE'] + MACROS['UPPERCASE']
 MACROS['ALPHANUM'] = MACROS['LETTERS'] + MACROS['NUMERIC']
 
-email_patterns = [
+email_and_www_patterns = [
+     # Patterns for detecting e-mails & (possibly incorrectly tokenized) www-addresses
      {'comment': '*) Pattern for detecting common e-mail formats;',
       'example': 'bla@bla.bl',
       'pattern_type': 'e-mail',
@@ -69,6 +70,38 @@ email_patterns = [
                          [{ALPHANUM}_.+-]+)                       # domain
                          '''.format(**MACROS), re.X),
       'normalized': lambda m: re.sub('\s','', m.group(1) ) },
+      
+      
+     {'comment': '*) Pattern for detecting (possibly incorrectly tokenized) web addresses #1;',
+      'example': 'http : //www.offa.org',
+      'pattern_type': 'www-address',
+      '_group_': 1,
+      '_priority_': (0, 0, 3),
+      '_regex_pattern_':  re.compile(r'''
+                         (http                                    # http
+                         \s*:\s*(/+)\s*                           # colon
+                         www                                      # www
+                         \s*\.\s*                                 # period
+                         [{ALPHANUM}_-]+                          # domain name
+                         \s*\.\s*                                 # period
+                         [{ALPHANUM}_.-/]+)                       # domain name
+                         '''.format(**MACROS), re.X),
+      'normalized': lambda m: re.sub('\s','', m.group(1) ) },
+
+     {'comment': '*) Pattern for detecting (possibly incorrectly tokenized) tokenized web addresses #2;',
+      'example': 'www. esindus.ee/korteriturg',
+      'pattern_type': 'www-address',
+      '_group_': 1,
+      '_priority_': (0, 0, 4),
+      '_regex_pattern_':  re.compile(r'''
+                         (www                                     # www
+                         \s*\.\s*                                 # period
+                         [{ALPHANUM}_-]+                          # domain name
+                         \s*\.\s*                                 # period
+                         [{ALPHANUM}_.-/]+)                       # domain name
+                         '''.format(**MACROS), re.X),
+      'normalized': lambda m: re.sub('\s','', m.group(1) ) },
+      
             ]
 
 number_patterns = [
