@@ -366,10 +366,13 @@ abbreviation_patterns = [
 #     2nd level patterns
 # =================================================
 case_endings_patterns = [
-    # sõna ja käändelõpp (kas -i, -il, -it, -iks, -ile, -le, -lt, -l, -ga, -iga, -s, -st, -sse,
-    # -is, -ist, -ni, -d, -id, -ed, -u, -e, -ta, -t, -ks)
-    # nt  SKT -st või LinkedIn -ist
-    # workshop ' e
+
+    # (34)
+    # four:   -isse
+    # three:  -iks, -ile, -ilt, -iga, -ist, -sse, -ide, -ina, -ini, -ita
+    # two:    -il, -it, -le, -lt, -ga, -st, -is, -ni, -na, -id, -ed, -ta, -ks, -se, -ne, -es
+    # one:    -i, -l, -s, -d, -u, -e, -t,
+    
     { 'comment': '5.1) Words and their separated case endings;',
       'example': 'LinkedIn -ist',
       'pattern_type': 'case_ending',
@@ -381,9 +384,10 @@ case_endings_patterns = [
                         \s?                                                              # potential space
                         [\-\'’´]                                                         # separator character
                         \s?                                                              # potential space
-                        ((ist|iga|ide|i[ltk][se]|i[se]|i[ltk]|                           # case ending
-                          l[et]|ga|sse|se|st|ks|ni|ne|                                   # case ending
-                          [ei]d|es|u|t|l|e|s|d|i)))                                      # case ending
+                        (isse|                                                           # case ending
+                         iks|ile|ilt|iga|ist|sse|ide|ina|ini|ita|                        # case ending
+                         il|it|le|lt|ga|st|is|ni|na|id|ed|ta|ks|se|ne|es|                # case ending
+                         i|l|s|d|u|e|t))                                                 # case ending
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (5, 0, 0),

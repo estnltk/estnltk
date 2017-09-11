@@ -38,8 +38,10 @@ class CompoundTokenTagger(Tagger):
         
         self._compound_types_to_merge     = compound_types_to_merge
         self._conflict_resolving_strategy = conflict_resolving_strategy
-        
-        _vocabulary_1 = [] # 1st level vocabulary
+        # =========================
+        #  1st level hints tagger
+        # =========================
+        _vocabulary_1 = [] 
         if tag_numbers:
             _vocabulary_1.extend(number_patterns)
         if tag_units:
@@ -56,7 +58,10 @@ class CompoundTokenTagger(Tagger):
                                    overlapped=False,
                                    layer_name='tokenization_hints',
                                    )
-        _vocabulary_2 = [] # 2nd level vocabulary
+        # =========================
+        #  2nd level hints tagger
+        # =========================
+        _vocabulary_2 = []
         if tag_case_endings:
             _vocabulary_2.extend(case_endings_patterns)
         self._tokenization_hints_tagger_2 = None
