@@ -152,6 +152,12 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['itra', '2011-04-22', '14:57:04', 'Läksin', 'oma', 'teloga', 'sinna', 'lehele', ',', 'vajutasin', 'download', 'ja', 'midagi', 'ei', 'juhtunud'] },\
             { 'text' : 'Loe edasi \n 20/09/2005 Eesti Akadeemiline Spordliit kuulutab välja järgmised spordi stipendiumid',\
               'expected_words': ['Loe', 'edasi', '20/09/2005', 'Eesti', 'Akadeemiline', 'Spordliit', 'kuulutab', 'välja', 'järgmised', 'spordi', 'stipendiumid'] },\
+            # Detecting abbreviations of type <uppercase letter> + <numbers>
+            { 'text' : 'Maitsetugevdaja E 621 lõhub teie silmanärve.',\
+              'expected_words': ['Maitsetugevdaja', 'E 621', 'lõhub', 'teie', 'silmanärve', '.'] },\
+            { 'text' : 'Ühed vanimad säilitusained on naatriumnitrit (E 250) ja naatriumnitraat (E 251).',\
+              'expected_words': ['Ühed', 'vanimad', 'säilitusained', 'on', 'naatriumnitrit', '(', 'E 250', ')', 'ja', 'naatriumnitraat', '(', 'E 251', ')', '.'] },\
+            
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )

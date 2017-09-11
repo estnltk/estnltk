@@ -44,7 +44,7 @@ MACROS['LETTERS'] = MACROS['LOWERCASE'] + MACROS['UPPERCASE']
 MACROS['ALPHANUM'] = MACROS['LETTERS'] + MACROS['NUMERIC']
 
 email_and_www_patterns = [
-     # Patterns for detecting e-mails & (possibly incorrectly tokenized) www-addresses
+     # Patterns for detecting (possibly incorrectly tokenized) e-mails & www-addresses
      {'comment': '*) Pattern for detecting common e-mail formats;',
       'example': 'bla@bla.bl',
       'pattern_type': 'e-mail',
@@ -88,7 +88,7 @@ email_and_www_patterns = [
                          '''.format(**MACROS), re.X),
       'normalized': lambda m: re.sub('\s','', m.group(1) ) },
 
-     {'comment': '*) Pattern for detecting (possibly incorrectly tokenized) tokenized web addresses #2;',
+     {'comment': '*) Pattern for detecting (possibly incorrectly tokenized) web addresses #2;',
       'example': 'www. esindus.ee/korteriturg',
       'pattern_type': 'www-address',
       '_group_': 1,
@@ -230,7 +230,6 @@ number_patterns = [
     #      "Hukkus umbes 90 000 inimest ja põgenes üle 70 000,"
     #
 
-
     { 'comment': '*) First 10 Roman numerals ending with period, but not ending the sentence.',
       'example': 'II. peatükis',
       'pattern_type': 'roman_numerals',
@@ -343,6 +342,18 @@ abbreviation_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (4, 3, 0),
+      'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
+     },
+    { 'comment': 'A.4) Abbreviations of type <uppercase letter> + <numbers>;',
+      'example': 'E 251',
+      'pattern_type': 'numeric-abbreviation',
+      '_regex_pattern_': re.compile(r'''
+                        ([A-ZÕÜÖÄ]            # uppercase letter
+                        (\s|\s?-\s?)          # space or hypen
+                        [0-9]+)               # numbers
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (4, 4, 0),
       'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
      },
                     ]
