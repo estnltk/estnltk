@@ -128,7 +128,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             { 'text' : 'Seda puhastuspappi saab Photopointist endale soetada 2.99€ eest.',\
               'expected_words': ['Seda', 'puhastuspappi', 'saab', 'Photopointist', 'endale', 'soetada', '2.99', '€', 'eest', '.'] },\
             { 'text' : '10 000 kroonilt kuus 20 000-le minna on lihtsam kui 500 000-lt miljonile.',\
-              'expected_words': ['10 000', 'kroonilt', 'kuus', '20 000', '-', 'le', 'minna', 'on', 'lihtsam', 'kui', '500 000', '-', 'lt', 'miljonile', '.'] },\
+              'expected_words': ['10 000', 'kroonilt', 'kuus', '20 000-le', 'minna', 'on', 'lihtsam', 'kui', '500 000-lt', 'miljonile', '.'] },\
             # Koondkorpus-style decimal numerals -- decimal separators are between two spaces:
             { 'text' : 'Rootsis oli tööstustoodangu juurdekasv septembris augustiga võrreldes 3 , 7% .\n Kullauntsi hind jäi 303 , 00 dollari tasemele .',\
               'expected_words': ['Rootsis', 'oli', 'tööstustoodangu', 'juurdekasv', 'septembris', 'augustiga', 'võrreldes', '3 , 7', '%', '.', 'Kullauntsi', 'hind', 'jäi', '303 , 00', 'dollari', 'tasemele', '.'] },\
@@ -201,6 +201,44 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             { 'text': "P.P.S. Teine vana ilmus ka välja.", \
               'expected_words': ['P', '.', 'P', '.', 'S', '.', 'Teine', 'vana', 'ilmus', 'ka', 'välja', '.'] },\
               
+        ]
+        for test_text in test_texts:
+            text = Text( test_text['text'] )
+            # Perform analysis
+            text.tag_layer(['words'])
+            words_spans = text['words'].spans
+            # Fetch results
+            word_segmentation = [] 
+            for wid, word in enumerate( words_spans ):
+                word_text = text.text[word.start:word.end]
+                word_segmentation.append(word_text)
+            #print(word_segmentation)
+            # Assert that the tokenization is correct
+            self.assertListEqual(test_text['expected_words'], word_segmentation)
+
+
+    def test_detect_separated_case_endings(self):
+        test_texts = [ 
+            { 'text': "SKT -st või LinkedIn -ist ma eriti ei hoolinudki, aga workshop ' e külastasin küll.", \
+              'expected_words': ['SKT -st', 'või', 'LinkedIn -ist', 'ma', 'eriti', 'ei', 'hoolinudki', ',', 'aga', "workshop ' e", 'külastasin', 'küll', '.'] },\
+            { 'text': "Lisaks sellele, et B260a oskab 3G’st WiFi’t teha, saab hakkama ta ka lauatelefoni kõnede vahendamisega.",\
+              'expected_words': ['Lisaks', 'sellele', ',', 'et', 'B260a', 'oskab', '3G’st', 'WiFi’t', 'teha', ',', 'saab', 'hakkama', 'ta', 'ka', 'lauatelefoni', 'kõnede', 'vahendamisega', '.'] },\
+            { 'text': "Kes meist ei oleks kuulnud Big Benist, Westminster Abbey’st, London Towerist, Buckingham Palace’ist?",\
+              'expected_words': ['Kes', 'meist', 'ei', 'oleks', 'kuulnud', 'Big', 'Benist', ',', 'Westminster', 'Abbey’st', ',', 'London', 'Towerist', ',', 'Buckingham', 'Palace’ist', '?'] },\
+            { 'text': "Jalamatte saab osta K-Rauta´st:)",\
+              'expected_words': ['Jalamatte', 'saab', 'osta', 'K-Rauta´st', ':', ')'] },\
+            { 'text': "Eestis osaleb erakordne solistide koosseis - New Yorgi Metropolitan Opera'st , Pariisi Opéra'st , Londoni Covent Garden'ist , Moskva Suurest Teatrist .",\
+              'expected_words': ['Eestis', 'osaleb', 'erakordne', 'solistide', 'koosseis', '-', 'New', 'Yorgi', 'Metropolitan', "Opera'st", ',', 'Pariisi', "Opéra'st", ',', 'Londoni', 'Covent', "Garden'ist", ',', 'Moskva', 'Suurest', 'Teatrist', '.'] },\
+            { 'text': "Mingil hetkel tuuritasid Club Kids'id ringi ka U.S.A.'s.",\
+              'expected_words': ['Mingil', 'hetkel', 'tuuritasid', 'Club', "Kids'id", 'ringi', 'ka', 'U', '.', 'S', ".A.'s", '.'] },\
+            { 'text': "Wu-shu'l on pikk ajalugu . Wu-shu'd õpetatakse lasteaedades , koolides ja ülikoolides .",\
+              'expected_words': ["Wu-shu'l", 'on', 'pikk', 'ajalugu', '.', "Wu-shu'd", 'õpetatakse', 'lasteaedades', ',', 'koolides', 'ja', 'ülikoolides', '.'] },\
+            { 'text': "James Jr.-iga parem ärge jamage !",\
+              'expected_words': ['James', 'Jr.-iga', 'parem', 'ärge', 'jamage', '!'] },\
+            { 'text': "Olen näinud küll kuidas see RDS töötab ja seda ka CD-R'ide peal !!",\
+              'expected_words': ['Olen', 'näinud', 'küll', 'kuidas', 'see', 'RDS', 'töötab', 'ja', 'seda', 'ka', "CD-R'ide", 'peal', '!!'] },\
+            { 'text': "OK, aga kas Viasat läbi DVB-S'i on vaadatav ?",\
+              'expected_words': ['OK', ',', 'aga', 'kas', 'Viasat', 'läbi', "DVB-S'i", 'on', 'vaadatav', '?'] },\
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )

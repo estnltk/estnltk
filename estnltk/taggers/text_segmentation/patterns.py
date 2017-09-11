@@ -43,6 +43,10 @@ MACROS = {
 MACROS['LETTERS'] = MACROS['LOWERCASE'] + MACROS['UPPERCASE']
 MACROS['ALPHANUM'] = MACROS['LETTERS'] + MACROS['NUMERIC']
 
+# =================================================
+#     1st level patterns
+# =================================================
+
 email_and_www_patterns = [
      # Patterns for detecting (possibly incorrectly tokenized) e-mails & www-addresses
      {'comment': '*) Pattern for detecting common e-mail formats;',
@@ -348,12 +352,41 @@ abbreviation_patterns = [
       'example': 'E 251',
       'pattern_type': 'numeric-abbreviation',
       '_regex_pattern_': re.compile(r'''
-                        ([A-ZÕÜÖÄ]            # uppercase letter
+                        ([{UPPERCASE}]        # uppercase letter
                         (\s|\s?-\s?)          # space or hypen
                         [0-9]+)               # numbers
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (4, 4, 0),
       'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
+     },
+                    ]
+
+# =================================================
+#     2nd level patterns
+# =================================================
+case_endings_patterns = [
+    # sõna ja käändelõpp (kas -i, -il, -it, -iks, -ile, -le, -lt, -l, -ga, -iga, -s, -st, -sse,
+    # -is, -ist, -ni, -d, -id, -ed, -u, -e, -ta, -t, -ks)
+    # nt  SKT -st või LinkedIn -ist
+    # workshop ' e
+    { 'comment': '5.1) Words and their separated case endings;',
+      'example': 'LinkedIn -ist',
+      'pattern_type': 'case_ending',
+      'left_strict': False,   # left side is loose, e.g can be in the middle of a token
+      'right_strict': True,   # left side is strict: must match exactly with token's ending
+      '_regex_pattern_': re.compile(r'''
+                        ([{ALPHANUM}]                                                    # word or number
+                        [.%"]?                                                           # possible punctuation
+                        \s?                                                              # potential space
+                        [\-\'’´]                                                         # separator character
+                        \s?                                                              # potential space
+                        ((ist|iga|ide|i[ltk][se]|i[se]|i[ltk]|                           # case ending
+                          l[et]|ga|sse|se|st|ks|ni|ne|                                   # case ending
+                          [ei]d|es|u|t|l|e|s|d|i)))                                      # case ending
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (5, 0, 0),
+      'normalized': "lambda m: re.sub('\s','',  m.group(1))",
      },
                     ]
