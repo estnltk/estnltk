@@ -131,9 +131,9 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['10 000', 'kroonilt', 'kuus', '20 000-le', 'minna', 'on', 'lihtsam', 'kui', '500 000-lt', 'miljonile', '.'] },\
             # Koondkorpus-style decimal numerals -- decimal separators are between two spaces:
             { 'text' : 'Rootsis oli tööstustoodangu juurdekasv septembris augustiga võrreldes 3 , 7% .\n Kullauntsi hind jäi 303 , 00 dollari tasemele .',\
-              'expected_words': ['Rootsis', 'oli', 'tööstustoodangu', 'juurdekasv', 'septembris', 'augustiga', 'võrreldes', '3 , 7', '%', '.', 'Kullauntsi', 'hind', 'jäi', '303 , 00', 'dollari', 'tasemele', '.'] },\
+              'expected_words': ['Rootsis', 'oli', 'tööstustoodangu', 'juurdekasv', 'septembris', 'augustiga', 'võrreldes', '3 , 7%', '.', 'Kullauntsi', 'hind', 'jäi', '303 , 00', 'dollari', 'tasemele', '.'] },\
             { 'text' : 'Kolmes tootegrupis - ampullid ( 40 , 9% ) , salvid ( 33 , 4% ) ja tabletid ( 29 , 6% )',\
-              'expected_words': ['Kolmes', 'tootegrupis', '-', 'ampullid', '(', '40 , 9', '%', ')', ',', 'salvid', '(', '33 , 4', '%', ')', 'ja', 'tabletid', '(', '29 , 6', '%', ')'] },\
+              'expected_words': ['Kolmes', 'tootegrupis', '-', 'ampullid', '(', '40 , 9%', ')', ',', 'salvid', '(', '33 , 4%', ')', 'ja', 'tabletid', '(', '29 , 6%', ')'] },\
             # Detection of roman numerals
             { 'text': '"Õiguste" all tuleb mõista ainult põhiõigusi, mida II. peatükis nimetatakse lihtsalt õigusteks.', \
               'expected_words': ['"', 'Õiguste', '"', 'all', 'tuleb', 'mõista', 'ainult', 'põhiõigusi', ',', 'mida', 'II.', 'peatükis', 'nimetatakse', 'lihtsalt', 'õigusteks', '.'] },\
@@ -145,7 +145,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             { 'text' : 'Tei, 06.Jul.2010 20:23 \nRohelise Akadeemia nime all toimuvate arutelude sarja algus.',\
               'expected_words': ['Tei', ',', '06.', 'Jul.', '2010', '20:23', 'Rohelise', 'Akadeemia', 'nime', 'all', 'toimuvate', 'arutelude', 'sarja', 'algus', '.'] },\
             { 'text' : 'Üll 11.01.2010 18:41 100% ostan ennem selle.',\
-              'expected_words': ['Üll', '11.01.2010', '18:41', '100', '%', 'ostan', 'ennem', 'selle', '.'] },\
+              'expected_words': ['Üll', '11.01.2010', '18:41', '100%', 'ostan', 'ennem', 'selle', '.'] },\
             { 'text' : 'Võsu 04/09/11 18:03 \n Ilus ilm, ning loksa mõõdik näitas kõige rohkem',\
               'expected_words': ['Võsu', '04/09/11', '18:03', 'Ilus', 'ilm', ',', 'ning', 'loksa', 'mõõdik', 'näitas', 'kõige', 'rohkem'] },\
             { 'text' : 'itra 2011-04-22 14:57:04 \n Läksin oma teloga sinna lehele, vajutasin download ja midagi ei juhtunud',\
@@ -161,12 +161,13 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             { 'text' : "Euroopas levinud kindlustustasu on 0,1 -0,3% töö või näituse maksumusest .",\
               'expected_words': ['Euroopas', 'levinud', 'kindlustustasu', 'on', '0,1', '-', '0,3', '%', 'töö', 'või', 'näituse', 'maksumusest', '.'] },\
             { 'text' : "Seni Saksa marga ja USA dollari valuutakorvi suhtes +/-7.5% vahemikus püsinud kroon lasti esmaspäeval vabaks .",\
-              'expected_words': ['Seni', 'Saksa', 'marga', 'ja', 'USA', 'dollari', 'valuutakorvi', 'suhtes', '+/-7.5', '%', 'vahemikus', 'püsinud', 'kroon', 'lasti', 'esmaspäeval', 'vabaks', '.'] },\
+              'expected_words': ['Seni', 'Saksa', 'marga', 'ja', 'USA', 'dollari', 'valuutakorvi', 'suhtes', '+/-7.5%', 'vahemikus', 'püsinud', 'kroon', 'lasti', 'esmaspäeval', 'vabaks', '.'] },\
             { 'text' : "Enim langes Ekspress Grupp ( -7,62% ), talle järgnesid Tallink ( -7,35% ) ja Tallinna Kaubamaja ( -6,77% ).",\
-              'expected_words': ['Enim', 'langes', 'Ekspress', 'Grupp', '(', '-7,62', '%', ')', ',', 'talle', 'järgnesid', 'Tallink', '(', '-7,35', '%', ')', 'ja', 'Tallinna', 'Kaubamaja', '(', '-6,77', '%', ')', '.'] },\
+              'expected_words': ['Enim', 'langes', 'Ekspress', 'Grupp', '(', '-7,62%', ')', ',', 'talle', 'järgnesid', 'Tallink', '(', '-7,35%', ')', 'ja', 'Tallinna', 'Kaubamaja', '(', '-6,77%', ')', '.'] },\
             { 'text' : "Hämmastava tõusu tegi ka Baltika aktsia ( +17,46% ).",\
-              'expected_words': ['Hämmastava', 'tõusu', 'tegi', 'ka', 'Baltika', 'aktsia', '(', '+17,46', '%', ')', '.'] },\
-
+              'expected_words': ['Hämmastava', 'tõusu', 'tegi', 'ka', 'Baltika', 'aktsia', '(', '+17,46%', ')', '.'] },\
+            { 'text' : "Edgar Savisaar - 59 häält - 23,6%\n Toomas Hendrik Ilves - 105 häält - 42,6%\n",\
+              'expected_words': ['Edgar', 'Savisaar', '-', '59', 'häält', '-', '23,6%', 'Toomas', 'Hendrik', 'Ilves', '-', '105', 'häält', '-', '42,6%'] },\
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )

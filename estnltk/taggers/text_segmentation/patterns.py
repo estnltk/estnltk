@@ -430,4 +430,18 @@ number_fixes_patterns = [
       '_priority_': (6, 0, 1),
       'normalized': "lambda m: re.sub('\s','',  m.group(2))",
      },
+    { 'comment': '6.2) Add sign % to the number;',
+      'example': '-20,5%',
+      'pattern_type': 'percentage',
+      'left_strict':  False, 
+      'right_strict': True,
+      '_regex_pattern_': re.compile(r'''
+                        ([{NUMERIC}]                     # number
+                        \s*                              # potential space
+                        %)                               # percentage sgn
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (6, 0, 2),
+      'normalized': "lambda m: re.sub('\s','',  m.group(1))",
+     },
                     ]
