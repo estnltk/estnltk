@@ -207,7 +207,6 @@ class CompoundTokenTagger(Tagger):
             covered_tokens = \
                 self._get_covered_tokens( \
                     sp.start,sp.end,sp.left_strict,sp.right_strict,text.tokens.spans )
-
             # remove regular tokens that are within compound tokens
             covered_tokens = \
                 self._remove_overlapped_spans(covered_compound_tokens, covered_tokens)
@@ -258,17 +257,18 @@ class CompoundTokenTagger(Tagger):
         if spans:
             for span in spans:
                 #print('>>>> ',text.text[span.start:span.end],span.start,span.end, start, end)
-                # span's end falls into target's start and end
-                if start <= span.end and span.end <= end:
-                    if not left_strict and right_strict:
+                if not left_strict and right_strict:
+                    if start <= span.end and span.end <= end:
+                        # span's end falls into target's start and end
                         covered.append( span )
-                # span's start falls into target's start and end
-                elif start <= span.start and span.start <= end:
-                    if left_strict and not right_strict:
+                elif left_strict and not right_strict:
+                    if start <= span.start and span.start <= end:
+                        # span's start falls into target's start and end
                         covered.append( span )
-                # span entirely falls into target's start and end
-                elif start <= span.start and span.end <= end:
-                    covered.append( span )
+                elif left_strict and right_strict:
+                    if start <= span.start and span.end <= end:
+                        # span entirely falls into target's start and end
+                        covered.append( span )
         return covered
 
 
