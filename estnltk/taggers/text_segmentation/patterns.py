@@ -423,8 +423,7 @@ number_fixes_patterns = [
       '_regex_pattern_': re.compile(r'''
                         (^|[^{NUMERIC}. ])                         # beginning or (not number, period nor space)
                         \s*                                        # potential space
-                        ((\+/-|[\-+±])                             # + or -
-                        \s*                                        # potential space
+                        ((\+/-|[\-+±–])                            # + or -
                         [{NUMERIC}])                               # number
                         '''.format(**MACROS), re.X),
       '_group_': 2,
