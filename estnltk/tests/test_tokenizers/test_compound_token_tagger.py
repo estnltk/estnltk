@@ -219,6 +219,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
 
     def test_detect_separated_case_endings(self):
         test_texts = [ 
+            # Word/abbreviation + case ending
             { 'text': "SKT -st või LinkedIn -ist ma eriti ei hoolinudki, aga workshop ' e külastasin küll.", \
               'expected_words': ['SKT -st', 'või', 'LinkedIn -ist', 'ma', 'eriti', 'ei', 'hoolinudki', ',', 'aga', "workshop ' e", 'külastasin', 'küll', '.'] },\
             { 'text': "Lisaks sellele, et B260a oskab 3G’st WiFi’t teha, saab hakkama ta ka lauatelefoni kõnede vahendamisega.",\
@@ -239,6 +240,23 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Olen', 'näinud', 'küll', 'kuidas', 'see', 'RDS', 'töötab', 'ja', 'seda', 'ka', "CD-R'ide", 'peal', '!!'] },\
             { 'text': "OK, aga kas Viasat läbi DVB-S'i on vaadatav ?",\
               'expected_words': ['OK', ',', 'aga', 'kas', 'Viasat', 'läbi', "DVB-S'i", 'on', 'vaadatav', '?'] },\
+            # Number + case ending
+            { 'text': "Tööajal kella 8.00-st 16.00- ni võtavad sel telefonil kõnesid vastu kuni üheksa IT töötajat.",\
+              'expected_words': ['Tööajal', 'kella', '8.00-st', '16.00- ni', 'võtavad', 'sel', 'telefonil', 'kõnesid', 'vastu', 'kuni', 'üheksa', 'IT', 'töötajat', '.'] },\
+            { 'text': "Ökonomistid, kes ootasid vastavalt 1%-st langust kuu jooksul ja 2,7%-st tõusu aasta peale.",\
+              'expected_words': ['Ökonomistid', ',', 'kes', 'ootasid', 'vastavalt', '1%-st', 'langust', 'kuu', 'jooksul', 'ja', '2,7%-st', 'tõusu', 'aasta', 'peale', '.'] },\
+            { 'text': "Üks või enam taimekaitsevahendi jääki leiti 2008. aastal 52,8%-s, 2009. aastal 47,9%-s ning 2010. aastal 46,9%-s.",\
+              'expected_words': ['Üks', 'või', 'enam', 'taimekaitsevahendi', 'jääki', 'leiti', '2008.', 'aastal', '52,8%-s', ',', '2009.', 'aastal', '47,9%-s', 'ning', '2010.', 'aastal', '46,9%-s', '.'] },\
+            { 'text': "Barclays ootab pigem kasvu vähest aeglustumist praeguselt 2.5%-lt ligikaudu 2.4%-le.",\
+              'expected_words': ['Barclays', 'ootab', 'pigem', 'kasvu', 'vähest', 'aeglustumist', 'praeguselt', '2.5%-lt', 'ligikaudu', '2.4%-le', '.'] },\
+            { 'text': "Eeldatud 20′st minutist sai miskipärast umbes 40.",\
+              'expected_words': ['Eeldatud', '20′st', 'minutist', 'sai', 'miskipärast', 'umbes', '40.'] },\
+            { 'text': "See aitab kindlamini tõsta nt annetuste tulumaksuvabastust 5%lt 10%le.",\
+              'expected_words': ['See', 'aitab', 'kindlamini', 'tõsta', 'nt', 'annetuste', 'tulumaksuvabastust', '5%lt', '10%le', '.'] },\
+            { 'text': "Üleriigilisel üldstreigil nõuame ka 50%-list palgatõusu!",\
+              'expected_words': ['Üleriigilisel', 'üldstreigil', 'nõuame', 'ka', '50%-list', 'palgatõusu', '!'] },\
+              
+              
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )

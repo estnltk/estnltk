@@ -367,30 +367,49 @@ abbreviation_patterns = [
 # =================================================
 case_endings_patterns = [
 
-    # (34)
-    # four:   -isse
+    # (38)
+    # four:   -isse, -lise, -line
     # three:  -iks, -ile, -ilt, -iga, -ist, -sse, -ide, -ina, -ini, -ita
-    # two:    -il, -it, -le, -lt, -ga, -st, -is, -ni, -na, -id, -ed, -ta, -ks, -se, -ne, -es
+    # two:    -il, -it, -le, -lt, -ga, -st, -is, -ni, -na, -id, -ed, -ta, -te, -ks, -se, -ne, -es
     # one:    -i, -l, -s, -d, -u, -e, -t,
     
     { 'comment': '5.1) Words and their separated case endings;',
       'example': 'LinkedIn -ist',
       'pattern_type': 'case_ending',
       'left_strict': False,   # left side is loose, e.g can be in the middle of a token
-      'right_strict': True,   # left side is strict: must match exactly with token's ending
+      'right_strict': True,   # right side is strict: must match exactly with token's ending
       '_regex_pattern_': re.compile(r'''
                         ([{ALPHANUM}]                                                    # word or number
                         [.%"]?                                                           # possible punctuation
                         \s?                                                              # potential space
-                        [\-\'’´]                                                         # separator character
+                        [\-\'′’´]                                                        # separator character
                         \s?                                                              # potential space
-                        (isse|                                                           # case ending
+                        (isse|li[sn]e|list|                                              # case ending
                          iks|ile|ilt|iga|ist|sse|ide|ina|ini|ita|                        # case ending
-                         il|it|le|lt|ga|st|is|ni|na|id|ed|ta|ks|se|ne|es|                # case ending
+                         il|it|le|lt|ga|st|is|ni|na|id|ed|ta|te|ks|se|ne|es|             # case ending
                          i|l|s|d|u|e|t))                                                 # case ending
                         '''.format(**MACROS), re.X),
       '_group_': 1,
-      '_priority_': (5, 0, 0),
+      '_priority_': (5, 0, 1),
+      'normalized': "lambda m: re.sub('\s','',  m.group(1))",
+     },
+    { 'comment': '5.1) Numeric + "%" or "." + separated case ending;',
+      'example': '20%ni',
+      'pattern_type': 'case_ending',
+      'left_strict': False,   # left side is loose, e.g can be in the middle of a token
+      'right_strict': True,   # right side is strict: must match exactly with token's ending
+      '_regex_pattern_': re.compile(r'''
+                        ([{NUMERIC}]                                                    # word or number
+                        \s?                                                             # potential space
+                        [.%]                                                            # % or .
+                        \s?                                                             # potential space
+                        (isse|li[sn]e|list|                                             # case ending
+                         iks|ile|ilt|iga|ist|sse|ide|ina|ini|ita|                       # case ending
+                         il|it|le|lt|ga|st|is|ni|na|id|ed|ta|te|ks|se|ne|es|            # case ending
+                         i|l|s|d|u|e|t))                                                # case ending
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (5, 0, 2),
       'normalized': "lambda m: re.sub('\s','',  m.group(1))",
      },
                     ]
