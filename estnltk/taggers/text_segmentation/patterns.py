@@ -130,7 +130,7 @@ number_patterns = [
       '_group_': 0,
       '_priority_': (2, 0, 1),
       '_regex_pattern_': re.compile(r'''
-                         (0?[0-9]|[12][0-9]|3[01])                # day
+                         (3[01]|[12][0-9]|0?[0-9])                # day
                          \s?\.\s?                                 # period
                          ([012][0-9]|1[012])                      # month
                          \s?\.\s?                                 # period
@@ -450,7 +450,7 @@ number_fixes_patterns = [
       '_regex_pattern_': re.compile(r'''
                         ([{NUMERIC}]                     # number
                         \s*                              # potential space
-                        %)                               # percentage sgn
+                        (-protsendi[^\s]+|%))            # percentage sgn or word
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (7, 0, 2),
