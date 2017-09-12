@@ -6,10 +6,13 @@ from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
 from estnltk.layer_operations import resolve_conflicts
+from .patterns import MACROS
 from .patterns import email_and_www_patterns, emoticon_patterns
 from .patterns import unit_patterns, number_patterns, initial_patterns, abbreviation_patterns
 from .patterns import case_endings_patterns, number_fixes_patterns
 
+# Pattern for checking whether the string contains any letters
+letter_pattern = re.compile(r'''([{LETTERS}]+)'''.format(**MACROS), re.X)
 
 class CompoundTokenTagger(Tagger):
     description = 'Tags adjacent tokens that should be analyzed as one word.'
@@ -153,13 +156,19 @@ class CompoundTokenTagger(Tagger):
                 else:
                     hyphenation_status = 'end'
             if hyphenation_status == 'end' and hyphenation_start+1 < i:
-                # TODO: numeric ranges like "15-17.04." and "6-11kg" should not 
-                #       be considered as hypenations ...
-                spl = SpanList()
-                spl.spans = text.tokens[hyphenation_start:i]
-                spl.type = 'hyphenation'
-                spl.normalized = None
-                compound_tokens_lists.append(spl)
+                hyp_start = text.tokens[hyphenation_start].start
+                hyp_end   = text.tokens[i-1].end
+                text_snippet = text.text[hyp_start:hyp_end]
+                if letter_pattern.search(text_snippet):
+                    # The text snippet should contain at least one letter to be 
+                    # considered as a potentially hyphenated word; 
+                    # This serves to leave out numeric ranges like 
+                    #    "15-17.04." or "920-980"
+                    spl = SpanList()
+                    spl.spans = text.tokens[hyphenation_start:i]
+                    spl.type = 'hyphenation'
+                    spl.normalized = None
+                    compound_tokens_lists.append(spl)
                 hyphenation_status = None
                 hyphenation_start = i
             last_end = token_span.end

@@ -147,7 +147,7 @@ number_patterns = [
                          -                                        # hypen
                          ([012][0-9]|1[012])                      # month
                          -                                        # hypen
-                         (0?[0-9]|[12][0-9]|3[01])                # day
+                         (3[01]|[12][0-9]|0?[0-9])                # day
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
     { 'comment': '*) Date patterns in the commonly used form "dd/mm/yy";',

@@ -45,7 +45,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             { 'text': ':))) Rumal naine ...lihtsalt rumal:D', \
               'expected_words': [':)))', 'Rumal', 'naine', '...', 'lihtsalt', 'rumal', ':D'] }, \
             { 'text': ':DD Mulle meeldib see osa, et see Jaagu vannitoa remont maksis 17 800.- euri :DD Kas talle tehti ujula või?', \
-              'expected_words': [':DD', 'Mulle', 'meeldib', 'see', 'osa', ',', 'et', 'see', 'Jaagu', 'vannitoa', 'remont', 'maksis', '17 800', '.-', 'euri', ':DD', 'Kas', 'talle', 'tehti', 'ujula', 'või', '?'] }, \
+              'expected_words': [':DD', 'Mulle', 'meeldib', 'see', 'osa', ',', 'et', 'see', 'Jaagu', 'vannitoa', 'remont', 'maksis', '17 800', '.', '-', 'euri', ':DD', 'Kas', 'talle', 'tehti', 'ujula', 'või', '?'] }, \
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )
@@ -68,6 +68,13 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Mis', 'lil-li', 'müüs', 'Tiit', '10e', 'krooniga', '?'] }, \
             { 'text': 'See on vää-ää-ääga huvitav!', \
               'expected_words': ['See', 'on', 'vää-ää-ääga', 'huvitav', '!'] },\
+            # Negative patterns: numeric ranges should not be considered as hypenations!
+            { 'text': "14.04 jäi kaal nulli , 15-17.04. tuli korjet 6 kg kokku.", \
+              'expected_words': ['14.04', 'jäi', 'kaal', 'nulli', ',', '15', '-', '17.04', '.', 'tuli', 'korjet', '6', 'kg', 'kokku', '.'] },\
+            { 'text': 'Laupäeval 15. mail kell 20.00-23.00 on Tartu Laulupeomuuseumis muuseumiöö puhul etendus "Kalevi pojad".', \
+              'expected_words': ['Laupäeval', '15.', 'mail', 'kell', '20.00', '-', '23.00', 'on', 'Tartu', 'Laulupeomuuseumis', 'muuseumiöö', 'puhul', 'etendus', '"', 'Kalevi', 'pojad', '"', '.'] },\
+            { 'text': 'Väät suutis vastu panna 76.96-77.53-77.50-77.94-74.10-77.13.', \
+              'expected_words': ['Väät', 'suutis', 'vastu', 'panna', '76.96', '-', '77.53', '-', '77.50', '-', '77.94', '-', '74.10', '-', '77.13', '.'] },\
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )
@@ -111,7 +118,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             { 'text' : '2007 a.- 2010 a. koolitusteemade seas olid: maksud, töösuhted, efektiivsed kommunikatsioonitehnikad.', \
               'expected_words': ['2007', 'a.', '-', '2010', 'a.', 'koolitusteemade', 'seas', 'olid', ':', 'maksud', ',', 'töösuhted', ',', 'efektiivsed', 'kommunikatsioonitehnikad', '.'] }, \
             { 'text' : 'Viie Dynastia * perioodil ( 907-960 A.D )', \
-              'expected_words': ['Viie', 'Dynastia', '*', 'perioodil', '(', '907-960', 'A.D', ')'] }, \
+              'expected_words': ['Viie', 'Dynastia', '*', 'perioodil', '(', '907', '-', '960', 'A.D', ')'] }, \
             { 'text' : 'Arstide Liit esitas oma palganõudmised ( vt. volikogu otsused ), mis EHL volikogu lubas läbi arutada.',\
               'expected_words': ['Arstide', 'Liit', 'esitas', 'oma', 'palganõudmised', '(', 'vt.', 'volikogu', 'otsused', ')', ',', 'mis', 'EHL', 'volikogu', 'lubas', 'läbi', 'arutada', '.'] }, \
             { 'text' : 'Ja selles suhtes võiks Lp. E-Kaitse olla nii soliidne E-kaitse keskkond.',\
