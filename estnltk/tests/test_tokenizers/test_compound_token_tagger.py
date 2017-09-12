@@ -122,7 +122,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             { 'text': 'Hukkus umbes 90 000 inimest ja põgenes üle 70 000, kelle hulgas oli 7500 rannarootslast.', \
               'expected_words': ['Hukkus', 'umbes', '90 000', 'inimest', 'ja', 'põgenes', 'üle', '70 000', ',', 'kelle', 'hulgas', 'oli', '7500', 'rannarootslast', '.'] },\
             { 'text': 'Põgenike koguarvuna nimetatakse sageli 70-80 000.', \
-              'expected_words': ['Põgenike', 'koguarvuna', 'nimetatakse', 'sageli', '70', '-80 000', '.'] },\
+              'expected_words': ['Põgenike', 'koguarvuna', 'nimetatakse', 'sageli', '70', '-', '80 000', '.'] },\
             { 'text' : 'Kaheksal juhul sisaldas brokoli 1,5–3,2 korda rohkem taimekaitsevahendi jääki, kui oli lubatud.',\
               'expected_words': ['Kaheksal', 'juhul', 'sisaldas', 'brokoli', '1,5', '–', '3,2', 'korda', 'rohkem', 'taimekaitsevahendi', 'jääki', ',', 'kui', 'oli', 'lubatud', '.'] },\
             { 'text' : 'Seda puhastuspappi saab Photopointist endale soetada 2.99€ eest.',\
@@ -157,7 +157,16 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Maitsetugevdaja', 'E 621', 'lõhub', 'teie', 'silmanärve', '.'] },\
             { 'text' : 'Ühed vanimad säilitusained on naatriumnitrit (E 250) ja naatriumnitraat (E 251).',\
               'expected_words': ['Ühed', 'vanimad', 'säilitusained', 'on', 'naatriumnitrit', '(', 'E 250', ')', 'ja', 'naatriumnitraat', '(', 'E 251', ')', '.'] },\
-            
+            # 2nd level fixes to numbers: add sign (but do not mix up with ranges)
+            { 'text' : "Euroopas levinud kindlustustasu on 0,1 -0,3% töö või näituse maksumusest .",\
+              'expected_words': ['Euroopas', 'levinud', 'kindlustustasu', 'on', '0,1', '-', '0,3', '%', 'töö', 'või', 'näituse', 'maksumusest', '.'] },\
+            { 'text' : "Seni Saksa marga ja USA dollari valuutakorvi suhtes +/-7.5% vahemikus püsinud kroon lasti esmaspäeval vabaks .",\
+              'expected_words': ['Seni', 'Saksa', 'marga', 'ja', 'USA', 'dollari', 'valuutakorvi', 'suhtes', '+/-7.5', '%', 'vahemikus', 'püsinud', 'kroon', 'lasti', 'esmaspäeval', 'vabaks', '.'] },\
+            { 'text' : "Enim langes Ekspress Grupp ( -7,62% ), talle järgnesid Tallink ( -7,35% ) ja Tallinna Kaubamaja ( -6,77% ).",\
+              'expected_words': ['Enim', 'langes', 'Ekspress', 'Grupp', '(', '-7,62', '%', ')', ',', 'talle', 'järgnesid', 'Tallink', '(', '-7,35', '%', ')', 'ja', 'Tallinna', 'Kaubamaja', '(', '-6,77', '%', ')', '.'] },\
+            { 'text' : "Hämmastava tõusu tegi ka Baltika aktsia ( +17,46% ).",\
+              'expected_words': ['Hämmastava', 'tõusu', 'tegi', 'ka', 'Baltika', 'aktsia', '(', '+17,46', '%', ')', '.'] },\
+
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )
@@ -195,7 +204,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             { 'text': "Augusti ajalooline kuumarekord on 38º C. Talved on harva külmad, kuid võib olla erandeid.", \
               'expected_words': ['Augusti', 'ajalooline', 'kuumarekord', 'on', '38º', 'C', '.', 'Talved', 'on', 'harva', 'külmad', ',', 'kuid', 'võib', 'olla', 'erandeid', '.'] },\
             { 'text': "Päevasel ajal on sobivaks temperatuuriks ruumis +18˚... 23˚C. Kui keegi ruumis ei viibi, piisab 15˚ ... 16˚C kraadist.", \
-              'expected_words': ['Päevasel', 'ajal', 'on', 'sobivaks', 'temperatuuriks', 'ruumis', '+', '18', '˚...', '23', '˚', 'C', '.', 'Kui', 'keegi', 'ruumis', 'ei', 'viibi', ',', 'piisab', '15', '˚', '...', '16', '˚', 'C', 'kraadist', '.'] },\
+              'expected_words': ['Päevasel', 'ajal', 'on', 'sobivaks', 'temperatuuriks', 'ruumis', '+18', '˚...', '23', '˚', 'C', '.', 'Kui', 'keegi', 'ruumis', 'ei', 'viibi', ',', 'piisab', '15', '˚', '...', '16', '˚', 'C', 'kraadist', '.'] },\
             { 'text': "P.S. Õppige viisakalt kirjutama.", \
               'expected_words': ['P', '.', 'S', '.', 'Õppige', 'viisakalt', 'kirjutama', '.'] },\
             { 'text': "P.P.S. Teine vana ilmus ka välja.", \

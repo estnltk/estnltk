@@ -7,7 +7,7 @@ from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
 from estnltk.layer_operations import resolve_conflicts
 from .patterns import unit_patterns, email_and_www_patterns, number_patterns, initial_patterns, abbreviation_patterns
-from .patterns import case_endings_patterns
+from .patterns import case_endings_patterns, number_fixes_patterns
 
 
 class CompoundTokenTagger(Tagger):
@@ -64,6 +64,8 @@ class CompoundTokenTagger(Tagger):
         _vocabulary_2 = []
         if tag_case_endings:
             _vocabulary_2.extend(case_endings_patterns)
+        if tag_numbers:
+            _vocabulary_2.extend(number_fixes_patterns)
         self._tokenization_hints_tagger_2 = None
         if _vocabulary_2:
             self._tokenization_hints_tagger_2 = RegexTagger(vocabulary=_vocabulary_2,
@@ -146,6 +148,8 @@ class CompoundTokenTagger(Tagger):
                 else:
                     hyphenation_status = 'end'
             if hyphenation_status == 'end' and hyphenation_start+1 < i:
+                # TODO: numeric ranges like "15-17.04." and "6-11kg" should not 
+                #       be considered as hypenations ...
                 spl = SpanList()
                 spl.spans = text.tokens[hyphenation_start:i]
                 spl.type = 'hyphenation'
@@ -325,23 +329,16 @@ class CompoundTokenTagger(Tagger):
         # 2) Get attributes
         all_normalizations = {}
         all_types = []
-        joining_span_type = joining_span.pattern_type if hasattr(joining_span, 'pattern_type') else None
-        joining_span_type_added = False
         for compound_token_spanlist in compound_token_spans:
             span_start = compound_token_spanlist.start
             span_end   = compound_token_spanlist.end
             if compound_token_spanlist.normalized:   # if normalization != None
                 all_normalizations[span_start] = ( compound_token_spanlist.normalized, \
                                                    span_end )
-            if joining_span_type and \
-               not joining_span_type_added and \
-               span_start >= joining_span.end:
-                all_types.append(joining_span_type)
-                joining_span_type_added = True
             all_types.append(compound_token_spanlist.type)
-        # Add joining span type (if it has not been added yet)
-        if joining_span_type and \
-           not joining_span_type_added:
+        # Add type of the joining span (if it exists) to the end
+        joining_span_type = joining_span.pattern_type if hasattr(joining_span, 'pattern_type') else None
+        if joining_span_type:
             all_types.append(joining_span_type)
 
         # 3) Provide normalized string, if normalization is required

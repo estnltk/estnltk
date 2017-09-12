@@ -167,52 +167,52 @@ number_patterns = [
       
     # Patterns for generic numerics
     { 'comment': '*) A generic pattern for detecting long numbers (5 groups).',
-      'example': '-21 134 567 000 123 , 456',
+      'example': '21 134 567 000 123 , 456',
       'pattern_type': 'numeric',
       '_group_': 0,
       '_priority_': (1, 1, 0),
       '_regex_pattern_': re.compile(r'''                             
-                         -?\d+[\s\.]+\d+[\s\.]+\d+[\s\.]+\d+[\s\.]+\d+   # 5 groups of numbers
+                         \d+[\s\.]+\d+[\s\.]+\d+[\s\.]+\d+[\s\.]+\d+     # 5 groups of numbers
                          (\s,\s\d+|,\d+)?                                # + comma-separated numbers
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
     { 'comment': '*) A generic pattern for detecting long numbers (4 groups).',
-      'example': '-34 567 000 123 , 456',
+      'example': '34 567 000 123 , 456',
       'pattern_type': 'numeric',
       '_group_': 0,
       '_priority_': (1, 1, 1),
       '_regex_pattern_': re.compile(r'''                             
-                         -?\d+[\s\.]+\d+[\s\.]+\d+[\s\.]+\d+     # 4 groups of numbers
+                         \d+[\s\.]+\d+[\s\.]+\d+[\s\.]+\d+       # 4 groups of numbers
                          (\s,\s\d+|,\d+)?                        # + comma-separated numbers
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
     { 'comment': '*) A generic pattern for detecting long numbers (3 groups).',
-      'example': '-67 000 123 , 456',
+      'example': '67 000 123 , 456',
       'pattern_type': 'numeric',
       '_group_': 0,
       '_priority_': (1, 1, 2),
       '_regex_pattern_': re.compile(r'''                             
-                         -?\d+[\s\.]+\d+[\s\.]+\d+     # 3 groups of numbers
+                         \d+[\s\.]+\d+[\s\.]+\d+       # 3 groups of numbers
                          (\s,\s\d+|,\d+)?              # + comma-separated numbers
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
     { 'comment': '*) A generic pattern for detecting long numbers (2 groups).',
-      'example': '-67 123 , 456',
+      'example': '67 123 , 456',
       'pattern_type': 'numeric',
       '_group_': 0,
       '_priority_': (1, 1, 3),
       '_regex_pattern_': re.compile(r'''                             
-                         -?\d+[\s\.]+\d+     # 2 groups of numbers
+                         \d+[\s\.]+\d+       # 2 groups of numbers
                          (\s,\s\d+|,\d+)?    # + comma-separated numbers
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
     { 'comment': '*) A generic pattern for detecting long numbers (1 group).',
-      'example': '-12,456',
+      'example': '12,456',
       'pattern_type': 'numeric',
       '_group_': 0,
       '_priority_': (1, 1, 4),
       '_regex_pattern_': re.compile(r'''                             
-                         -?\d+                  # 1 group of numbers
+                         \d+                    # 1 group of numbers
                          (\s,\s\d+|,\d+|\s*\.)  # + comma-separated numbers or period-ending
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
@@ -411,5 +411,24 @@ case_endings_patterns = [
       '_group_': 1,
       '_priority_': (5, 0, 2),
       'normalized': "lambda m: re.sub('\s','',  m.group(1))",
+     },
+                    ]
+
+number_fixes_patterns = [
+    { 'comment': '6.1) Add sign (+ or -) to the number;',
+      'example': '-20,5',
+      'pattern_type': 'sign',
+      'left_strict':  True, 
+      'right_strict': False,
+      '_regex_pattern_': re.compile(r'''
+                        (^|[^{NUMERIC}. ])                         # beginning or (not number, period nor space)
+                        \s*                                        # potential space
+                        ((\+/-|[\-+±])                             # + or -
+                        \s*                                        # potential space
+                        [{NUMERIC}])                               # number
+                        '''.format(**MACROS), re.X),
+      '_group_': 2,
+      '_priority_': (6, 0, 1),
+      'normalized': "lambda m: re.sub('\s','',  m.group(2))",
      },
                     ]
