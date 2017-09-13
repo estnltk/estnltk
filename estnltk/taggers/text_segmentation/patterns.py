@@ -250,21 +250,33 @@ number_patterns = [
                          (\ ,\ \d+|,\d+)?              # + comma-separated numbers
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
-    { 'comment': '*) A generic pattern for detecting long numbers (2 groups).',
-      'example': '67 123 , 456',
+
+    { 'comment': '*) A generic pattern for detecting long numbers (2 groups, point-separated).',
+      'example': '67.123 , 456',
       'pattern_type': 'numeric',
       '_group_': 0,
       '_priority_': (2, 1, 3),
-      '_regex_pattern_': re.compile(r'''                             
-                         \d+[\ \.]+\d+       # 2 groups of numbers
+      '_regex_pattern_': re.compile(r'''
+                         \d+\.+\d+           # 2 groups of numbers
                          (\ ,\ \d+|,\d+)?    # + comma-separated numbers
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
+      'normalized': r"lambda m: re.sub('[\.]' ,'' , m.group(0))"},
+    { 'comment': '*) A generic pattern for detecting long numbers (2 groups, space-separated).',
+      'example': '67 123 , 456',
+      'pattern_type': 'numeric',
+      '_group_': 0,
+      '_priority_': (2, 1, 4),
+      '_regex_pattern_': re.compile(r'''
+                         \d+\ +\d\d\d+       # 2 groups of numbers
+                         (\ ,\ \d+|,\d+)?    # + comma-separated numbers
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
+
     { 'comment': '*) A generic pattern for detecting long numbers (1 group).',
       'example': '12,456',
       'pattern_type': 'numeric',
       '_group_': 0,
-      '_priority_': (2, 1, 4),
+      '_priority_': (2, 1, 5),
       '_regex_pattern_': re.compile(r'''                             
                          \d+                    # 1 group of numbers
                          (\ ,\ \d+|,\d+|\ *\.)  # + comma-separated numbers or period-ending

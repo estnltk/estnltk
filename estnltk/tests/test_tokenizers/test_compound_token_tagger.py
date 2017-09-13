@@ -173,6 +173,13 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['15.', 'Bosnia-Hertsegoviina', '0 900 77 15', '16.', 'Belgia', '0 900 77 16', '17.', 'Prantsusmaa', '0 900 77 17'] },\
             { 'text' : 'Põllumajandus ja jahindus\n4 799\n5 626\n17,2\n6 808\n21,0',\
               'expected_words': ['Põllumajandus', 'ja', 'jahindus', '4 799', '5 626', '17,2', '6 808', '21,0'] },\
+            # Negative examples: do not join space-separated numbers if the last group contains less than 3 numbers
+            { 'text' : 'Omaette küsimus on seotud § 8 2. ja 3. lõikega.',\
+              'expected_words': ['Omaette', 'küsimus', 'on', 'seotud', '§', '8', '2.', 'ja', '3.', 'lõikega', '.'] },\
+            { 'text' : 'Allikas: Eesti Haigekassa nõukogu otsus nr 32 30. novemberist 2001',\
+              'expected_words': ['Allikas', ':', 'Eesti', 'Haigekassa', 'nõukogu', 'otsus', 'nr', '32', '30.', 'novemberist', '2001'] },\
+            { 'text' : 'Määruses ( EMÜ ) nr 2848/89 9 ( viimati muudetud määrusega ( EÜ ) nr 274/95 10 )',\
+              'expected_words': ['Määruses', '(', 'EMÜ', ')', 'nr', '2848', '/', '89', '9', '(', 'viimati', 'muudetud', 'määrusega', '(', 'EÜ', ')', 'nr', '274', '/', '95', '10', ')'] },\
             # Koondkorpus-style decimal numerals -- decimal separators are between two spaces:
             { 'text' : 'Rootsis oli tööstustoodangu juurdekasv septembris augustiga võrreldes 3 , 7% .\n Kullauntsi hind jäi 303 , 00 dollari tasemele .',\
               'expected_words': ['Rootsis', 'oli', 'tööstustoodangu', 'juurdekasv', 'septembris', 'augustiga', 'võrreldes', '3 , 7%', '.', 'Kullauntsi', 'hind', 'jäi', '303 , 00', 'dollari', 'tasemele', '.'] },\
