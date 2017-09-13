@@ -362,11 +362,10 @@ class CompoundTokenTagger(Tagger):
             all_normalizations[start] = (joining_span.normalized, joining_span.end)
         normalized_str = None
         if len(all_normalizations.keys()) > 0:
-            # reconstruct entire string (unnormalized)
+            # get start and end of the entire string (unnormalized)
             start_index = all_covered_tokens[0].start
             end_index   = all_covered_tokens[-1].end
-            full_string = text.text[start_index : end_index]
-            # reconstruct normalization if required
+            # reconstruct string with normalizations
             i = start_index
             normalized = []
             while i < end_index+1:
@@ -387,6 +386,29 @@ class CompoundTokenTagger(Tagger):
         spl.spans = all_covered_tokens
         spl.normalized = normalized_str
         if all_types:
+            # Few "repairs" on the types:
+            # 1) "non_ending_abbreviation" ('st') + "case_ending" ('st')
+            #     ==> "case_ending" ('st')
+            if "non_ending_abbreviation" in all_types and \
+               "case_ending" in all_types:
+                start_index = all_covered_tokens[0].start
+                end_index   = all_covered_tokens[-1].end
+                full_string = text.text[start_index : end_index]
+                if full_string.endswith('st'):
+                    # 'st' is not "non_ending_abbreviation", but
+                    #  case ending instead
+                    all_types.remove("non_ending_abbreviation")
+            # 2) "sign" ('-') + "hyphenation" ('-')
+            #     ==> "hyphenation" ('-')
+            if "sign" in all_types and \
+               "hyphenation" in all_types:
+                start_index = all_covered_tokens[0].start
+                end_index   = all_covered_tokens[-1].end
+                full_string = text.text[start_index : end_index]
+                if letter_pattern.match(full_string[0]):
+                    # if the string begins with a letter instead of 
+                    # the sign, remove the sign type
+                    all_types.remove("sign")
             spl.type = '+'.join(all_types)
         
         #print('>1>',[text.text[t.start:t.end] for t in all_covered_tokens] )

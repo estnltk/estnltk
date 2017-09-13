@@ -478,7 +478,7 @@ case_endings_patterns = [
     # three:  -iks, -ile, -ilt, -iga, -ist, -sse, -ide, -ina, -ini, -ita
     # two:    -il, -it, -le, -lt, -ga, -st, -is, -ni, -na, -id, -ed, -ta, -te, -ks, -se, -ne, -es
     # one:    -i, -l, -s, -d, -u, -e, -t,
-    { 'comment': '*) Words and their separated case endings;',
+    { 'comment': '*) Words and their separated case endings (one separating space at maximum);',
       'example': 'LinkedIn -ist',
       'pattern_type': 'case_ending',
       'left_strict': False,   # left side is loose, e.g can be in the middle of a token
