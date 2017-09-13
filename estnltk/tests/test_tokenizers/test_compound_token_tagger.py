@@ -166,6 +166,13 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Seda', 'puhastuspappi', 'saab', 'Photopointist', 'endale', 'soetada', '2.99', '€', 'eest', '.'] },\
             { 'text' : '10 000 kroonilt kuus 20 000-le minna on lihtsam kui 500 000-lt miljonile.',\
               'expected_words': ['10 000', 'kroonilt', 'kuus', '20 000-le', 'minna', 'on', 'lihtsam', 'kui', '500 000-lt', 'miljonile', '.'] },\
+            # Negative examples: \newline should not be allowed in the middle of long number 
+            { 'text' : 'ENSV II Ülemnõukogu liige 1947-1951.\n31. juuli\n1927 toimus 2. Jõhvi laulu- ja muusikapäev',\
+              'expected_words': ['ENSV', 'II', 'Ülemnõukogu', 'liige', '1947', '-', '1951.', '31.', 'juuli', '1927', 'toimus', '2.', 'Jõhvi', 'laulu-', 'ja', 'muusikapäev'] },\
+            { 'text' : '15. Bosnia-Hertsegoviina 0 900 77 15\n16. Belgia 0 900 77 16\n17. Prantsusmaa 0 900 77 17\n',\
+              'expected_words': ['15.', 'Bosnia-Hertsegoviina', '0 900 77 15', '16.', 'Belgia', '0 900 77 16', '17.', 'Prantsusmaa', '0 900 77 17'] },\
+            { 'text' : 'Põllumajandus ja jahindus\n4 799\n5 626\n17,2\n6 808\n21,0',\
+              'expected_words': ['Põllumajandus', 'ja', 'jahindus', '4 799', '5 626', '17,2', '6 808', '21,0'] },\
             # Koondkorpus-style decimal numerals -- decimal separators are between two spaces:
             { 'text' : 'Rootsis oli tööstustoodangu juurdekasv septembris augustiga võrreldes 3 , 7% .\n Kullauntsi hind jäi 303 , 00 dollari tasemele .',\
               'expected_words': ['Rootsis', 'oli', 'tööstustoodangu', 'juurdekasv', 'septembris', 'augustiga', 'võrreldes', '3 , 7%', '.', 'Kullauntsi', 'hind', 'jäi', '303 , 00', 'dollari', 'tasemele', '.'] },\
@@ -231,7 +238,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['See', 'oleks', 'madalam', 'Eesti', 'Vabariigi', 'seadustes', 'sätestatud', 'tasemest', '(', '15', 'mgN/l', 'ja', '2,0', 'mgP/l', ')', '.'] },\
             { 'text': "KIIRUS/KIIRENDUS\nsuurim kiirus , km/h : 190", \
               'expected_words': ['KIIRUS', '/', 'KIIRENDUS', 'suurim', 'kiirus', ',', 'km/h', ':', '190'] },\
-            # Negative patterns: should not be joined as "units"
+            # Negative examples: should not be joined as "units"
             { 'text': "Reuters/AP/BNS/EPL\nItaalia päästemeeskonnad jätkasid tööd Foggia linnas.", \
               'expected_words': ['Reuters', '/', 'AP', '/', 'BNS', '/', 'EPL', 'Itaalia', 'päästemeeskonnad', 'jätkasid', 'tööd', 'Foggia', 'linnas', '.'] },\
         ]

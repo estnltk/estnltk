@@ -226,8 +226,8 @@ number_patterns = [
       '_group_': 0,
       '_priority_': (2, 1, 0),
       '_regex_pattern_': re.compile(r'''                             
-                         \d+[\s\.]+\d+[\s\.]+\d+[\s\.]+\d+[\s\.]+\d+     # 5 groups of numbers
-                         (\s,\s\d+|,\d+)?                                # + comma-separated numbers
+                         \d+[\ \.]+\d+[\ \.]+\d+[\ \.]+\d+[\ \.]+\d+     # 5 groups of numbers
+                         (\ ,\ \d+|,\d+)?                                # + comma-separated numbers
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
     { 'comment': '*) A generic pattern for detecting long numbers (4 groups).',
@@ -236,8 +236,8 @@ number_patterns = [
       '_group_': 0,
       '_priority_': (2, 1, 1),
       '_regex_pattern_': re.compile(r'''                             
-                         \d+[\s\.]+\d+[\s\.]+\d+[\s\.]+\d+       # 4 groups of numbers
-                         (\s,\s\d+|,\d+)?                        # + comma-separated numbers
+                         \d+[\ \.]+\d+[\ \.]+\d+[\ \.]+\d+       # 4 groups of numbers
+                         (\ ,\ \d+|,\d+)?                        # + comma-separated numbers
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
     { 'comment': '*) A generic pattern for detecting long numbers (3 groups).',
@@ -246,8 +246,8 @@ number_patterns = [
       '_group_': 0,
       '_priority_': (2, 1, 2),
       '_regex_pattern_': re.compile(r'''                             
-                         \d+[\s\.]+\d+[\s\.]+\d+       # 3 groups of numbers
-                         (\s,\s\d+|,\d+)?              # + comma-separated numbers
+                         \d+[\ \.]+\d+[\ \.]+\d+       # 3 groups of numbers
+                         (\ ,\ \d+|,\d+)?              # + comma-separated numbers
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
     { 'comment': '*) A generic pattern for detecting long numbers (2 groups).',
@@ -256,8 +256,8 @@ number_patterns = [
       '_group_': 0,
       '_priority_': (2, 1, 3),
       '_regex_pattern_': re.compile(r'''                             
-                         \d+[\s\.]+\d+       # 2 groups of numbers
-                         (\s,\s\d+|,\d+)?    # + comma-separated numbers
+                         \d+[\ \.]+\d+       # 2 groups of numbers
+                         (\ ,\ \d+|,\d+)?    # + comma-separated numbers
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
     { 'comment': '*) A generic pattern for detecting long numbers (1 group).',
@@ -267,7 +267,7 @@ number_patterns = [
       '_priority_': (2, 1, 4),
       '_regex_pattern_': re.compile(r'''                             
                          \d+                    # 1 group of numbers
-                         (\s,\s\d+|,\d+|\s*\.)  # + comma-separated numbers or period-ending
+                         (\ ,\ \d+|,\d+|\ *\.)  # + comma-separated numbers or period-ending
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
 
