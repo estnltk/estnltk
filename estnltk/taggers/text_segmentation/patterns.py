@@ -1,19 +1,27 @@
 import regex as re
 
 """
-This is a vocabulary file for the TokenizationHintsTagger.
-The entries here are lists of records in RegexTagger vocabulary format.
-Each record must contain '_regex_pattern_' and 'normalized' keyword, other
-kewords are optional. The names of the entries need to be declared in
-TokenizationHintsTagger.
+This is a vocabulary file for two tokenization hint taggers of 
+the CompoundTokenTagger. The entries here are lists of records in 
+RegexTagger vocabulary format.
+
+In 1st level patterns, each record must contain keywords 
+'_regex_pattern_', 'pattern_type' and 'normalized'. 
+
+In 2nd level patterns, each record must contain keywords
+'_regex_pattern_', 'pattern_type', 'normalized', 'left_strict', 
+'right_strict'. 
+
+The names of the entries need to be declared in CompoundTokenTagger.
 """
 
 
 MACROS = {
+            # ===================================================
+            #   Primitives
+            # ===================================================
             'LOWERCASE': 'a-zšžõäöü',
             'UPPERCASE': 'A-ZŠŽÕÄÖÜ',
-            'PUNCT1' : '[.?!"\'()+,-/:;<=>]',
-            'PUNCT2' : '[?!"\'()+,-/:;<=>]',
             'NUMERIC': '0-9',
             '1,3': '{1,3}',
             '2,': '{2,}',
@@ -55,7 +63,9 @@ MACROS = {
                                '[Jj]r|'+\
                                'a'+\
                               ')',
+            # ===================================================
             # Common unit combinations
+            # ===================================================
             'UNITS': '('+\
                         'l\s?/\s?(min|sek)|'+\
                         'm\s?/\s?(min|sek|[st])|'+\
