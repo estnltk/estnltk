@@ -330,6 +330,8 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Olen', 'näinud', 'küll', 'kuidas', 'see', 'RDS', 'töötab', 'ja', 'seda', 'ka', "CD-R'ide", 'peal', '!!'] },\
             { 'text': "OK, aga kas Viasat läbi DVB-S'i on vaadatav ?",\
               'expected_words': ['OK', ',', 'aga', 'kas', 'Viasat', 'läbi', "DVB-S'i", 'on', 'vaadatav', '?'] },\
+            { 'text': "Ma olen nüüd natuke aega saarlane ja suhtlen live ´is ainult saarlastega, höhö.",\
+              'expected_words': ['Ma', 'olen', 'nüüd', 'natuke', 'aega', 'saarlane', 'ja', 'suhtlen', 'live ´is', 'ainult', 'saarlastega', ',', 'höhö', '.'] },\
             # Number + case ending
             { 'text': "Tööajal kella 8.00-st 16.00- ni võtavad sel telefonil kõnesid vastu kuni üheksa IT töötajat.",\
               'expected_words': ['Tööajal', 'kella', '8.00-st', '16.00- ni', 'võtavad', 'sel', 'telefonil', 'kõnesid', 'vastu', 'kuni', 'üheksa', 'IT', 'töötajat', '.'] },\
@@ -345,8 +347,12 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['See', 'aitab', 'kindlamini', 'tõsta', 'nt', 'annetuste', 'tulumaksuvabastust', '5%lt', '10%le', '.'] },\
             { 'text': "Üleriigilisel üldstreigil nõuame ka 50%-list palgatõusu!",\
               'expected_words': ['Üleriigilisel', 'üldstreigil', 'nõuame', 'ka', '50%-list', 'palgatõusu', '!'] },\
-              
-              
+            # Negative examples: hyphen/dash between spaces -- most likely is not a case separator ...
+            { 'text': "Kelle hinges on süütunne, seda peab süüdistama - ta vajab seda.",\
+              'expected_words': ['Kelle', 'hinges', 'on', 'süütunne', ',', 'seda', 'peab', 'süüdistama', '-', 'ta', 'vajab', 'seda', '.'] },\
+            { 'text': "Teine professor kaevas koos tudengitega välja paar lepakändu - iga viimase kui juureni.",\
+              'expected_words': ['Teine', 'professor', 'kaevas', 'koos', 'tudengitega', 'välja', 'paar', 'lepakändu', '-', 'iga', 'viimase', 'kui', 'juureni', '.'] },\
+            
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )

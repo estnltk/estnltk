@@ -478,7 +478,6 @@ case_endings_patterns = [
     # three:  -iks, -ile, -ilt, -iga, -ist, -sse, -ide, -ina, -ini, -ita
     # two:    -il, -it, -le, -lt, -ga, -st, -is, -ni, -na, -id, -ed, -ta, -te, -ks, -se, -ne, -es
     # one:    -i, -l, -s, -d, -u, -e, -t,
-    
     { 'comment': '*) Words and their separated case endings;',
       'example': 'LinkedIn -ist',
       'pattern_type': 'case_ending',
@@ -487,9 +486,9 @@ case_endings_patterns = [
       '_regex_pattern_': re.compile(r'''
                         ([{ALPHANUM}]                                                    # word or number
                         [.%"]?                                                           # possible punctuation
-                        \s?                                                              # potential space
-                        [\-\'′’´]                                                        # separator character
-                        \s?                                                              # potential space
+                        (\s[\-\'′’´]|                                                    # left space + separator character
+                         [\-\'′’´]\s|                                                    # right space + separator character
+                         [\-\'′’´])                                                      # separator character alone
                         (isse|li[sn]e|list|                                              # case ending
                          iks|ile|ilt|iga|ist|sse|ide|ina|ini|ita|                        # case ending
                          il|it|le|lt|ga|st|is|ni|na|id|ed|ta|te|ks|se|ne|es|             # case ending
@@ -497,6 +496,24 @@ case_endings_patterns = [
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (6, 0, 1),
+      'normalized': "lambda m: re.sub('\s','',  m.group(1))",
+     },
+    { 'comment': '*) Words and their separated case endings (the special case of two separating spaces);',
+      'example': "workshop ' e",
+      'pattern_type': 'case_ending',
+      'left_strict': False,   # left side is loose, e.g can be in the middle of a token
+      'right_strict': True,   # right side is strict: must match exactly with token's ending
+      '_regex_pattern_': re.compile(r'''
+                        ([{ALPHANUM}]                                                    # word or number
+                        [.%"]?                                                           # possible punctuation
+                        (\s[\'′’´]\s)                                                    # non-dash between spaces as separator character
+                        (isse|li[sn]e|list|                                              # case ending
+                         iks|ile|ilt|iga|ist|sse|ide|ina|ini|ita|                        # case ending
+                         il|it|le|lt|ga|st|is|ni|na|id|ed|ta|te|ks|se|ne|es|             # case ending
+                         i|l|s|d|u|e|t))                                                 # case ending
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (6, 0, 2),
       'normalized': "lambda m: re.sub('\s','',  m.group(1))",
      },
     { 'comment': '*) Numeric + "%" or "." + separated case ending;',
@@ -515,7 +532,7 @@ case_endings_patterns = [
                          i|l|s|d|u|e|t))                                                # case ending
                         '''.format(**MACROS), re.X),
       '_group_': 1,
-      '_priority_': (6, 0, 2),
+      '_priority_': (6, 0, 3),
       'normalized': "lambda m: re.sub('\s','',  m.group(1))",
      },
                     ]
