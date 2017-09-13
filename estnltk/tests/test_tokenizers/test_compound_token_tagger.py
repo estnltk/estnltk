@@ -17,6 +17,8 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['sambamees . siim [ -at- ] siim . pri', '.', 'ee', 'says', '...', 'On', 'jõudnud', 'siiagi', 'kuuldused', ',', 'et', 'rahvas', 'on', 'sassi', 'kamminud'] }, \
             { 'text': 'Sellised veebileheküljed: www. esindus.ee/korteriturg, www. kavkazcenter.com, http: // www. cavalierklubben.com, http : //www.offa.org/ stats ning http://www.politsei.ee/dotAsset/225706 .', \
               'expected_words': ['Sellised', 'veebileheküljed', ':', 'www. esindus.ee/korteriturg', ',', 'www. kavkazcenter.com', ',', 'http: // www. cavalierklubben.com', ',', 'http : //www.offa.org/', 'stats', 'ning', 'http://www.politsei.ee/dotAsset/225706', '.'] }, \
+            { 'text': 'Kel huvi http://www.youtube.com/watch?v=PFD2yIVn4IE\npets 11.07.2012 20:37 lugesin enne kommentaarid ära.', \
+              'expected_words': ['Kel', 'huvi', 'http://www.youtube.com/watch?v=PFD2yIVn4IE', 'pets', '11.07.2012', '20:37', 'lugesin', 'enne', 'kommentaarid', 'ära', '.'] }, \
 
         ]
         for test_text in test_texts:
@@ -68,7 +70,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Mis', 'lil-li', 'müüs', 'Tiit', '10e', 'krooniga', '?'] }, \
             { 'text': 'See on vää-ää-ääga huvitav!', \
               'expected_words': ['See', 'on', 'vää-ää-ääga', 'huvitav', '!'] },\
-            # Negative patterns: numeric ranges should not be considered as hypenations!
+            # Negative patterns: numeric ranges should not be considered as hyphenations!
             { 'text': "14.04 jäi kaal nulli , 15-17.04. tuli korjet 6 kg kokku.", \
               'expected_words': ['14.04', 'jäi', 'kaal', 'nulli', ',', '15', '-', '17.04', '.', 'tuli', 'korjet', '6', 'kg', 'kokku', '.'] },\
             { 'text': 'Laupäeval 15. mail kell 20.00-23.00 on Tartu Laulupeomuuseumis muuseumiöö puhul etendus "Kalevi pojad".', \

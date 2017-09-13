@@ -103,9 +103,11 @@ email_and_www_patterns = [
                          \s*:\s*(/+)\s*                           # colon
                          www                                      # www
                          \s*\.\s*                                 # period
-                         [{ALPHANUM}_-]+                          # domain name
+                         [{ALPHANUM}_\-]+                         # domain name
                          \s*\.\s*                                 # period
-                         [{ALPHANUM}_.-/]+)                       # domain name
+                         [{ALPHANUM}_.\-/]+                       # domain name
+                         (\?\S+|\#\S+)?                           # query variables (optional)
+                         )
                          '''.format(**MACROS), re.X),
       'normalized': lambda m: re.sub('\s','', m.group(1) ) },
 
@@ -117,9 +119,11 @@ email_and_www_patterns = [
       '_regex_pattern_':  re.compile(r'''
                          (www                                     # www
                          \s*\.\s*                                 # period
-                         [{ALPHANUM}_-]+                          # domain name
+                         [{ALPHANUM}_\-]+                         # domain name
                          \s*\.\s*                                 # period
-                         [{ALPHANUM}_.-/]+)                       # domain name
+                         [{ALPHANUM}_.\-/]+                       # domain name
+                         (\?\S+|\#\S+)?                           # query variables (optional)
+                         )
                          '''.format(**MACROS), re.X),
       'normalized': lambda m: re.sub('\s','', m.group(1) ) },
       
