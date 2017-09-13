@@ -221,6 +221,35 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             self.assertListEqual(test_text['expected_words'], word_segmentation)
 
 
+    def test_detect_units(self):
+        test_texts = [ 
+            { 'text': "18 m/s = 64 , 8 km/h , 20 m/s = 72 km/h , 22 m/s = 79 , 2 km/h .", \
+              'expected_words': ['18', 'm/s', '=', '64 , 8', 'km/h', ',', '20', 'm/s', '=', '72', 'km/h', ',', '22', 'm/s', '=', '79 , 2', 'km/h', '.'] },\
+            { 'text': "Lätis LMT võrgus 104 EEK/ MB , Leedus Omniteli võrgus 138 EEK/ MB ning Venemaal KB Impulsi võrgus 112 EEK/ MB .", \
+              'expected_words': ['Lätis', 'LMT', 'võrgus', '104', 'EEK/ MB', ',', 'Leedus', 'Omniteli', 'võrgus', '138', 'EEK/ MB', 'ning', 'Venemaal', 'KB', 'Impulsi', 'võrgus', '112', 'EEK/ MB', '.'] },\
+            { 'text': "See oleks madalam Eesti Vabariigi seadustes sätestatud tasemest (15 mgN/l ja 2,0 mgP/l).", \
+              'expected_words': ['See', 'oleks', 'madalam', 'Eesti', 'Vabariigi', 'seadustes', 'sätestatud', 'tasemest', '(', '15', 'mgN/l', 'ja', '2,0', 'mgP/l', ')', '.'] },\
+            { 'text': "KIIRUS/KIIRENDUS\nsuurim kiirus , km/h : 190", \
+              'expected_words': ['KIIRUS', '/', 'KIIRENDUS', 'suurim', 'kiirus', ',', 'km/h', ':', '190'] },\
+            # Negative patterns: should not be joined as "units"
+            { 'text': "Reuters/AP/BNS/EPL\nItaalia päästemeeskonnad jätkasid tööd Foggia linnas.", \
+              'expected_words': ['Reuters', '/', 'AP', '/', 'BNS', '/', 'EPL', 'Itaalia', 'päästemeeskonnad', 'jätkasid', 'tööd', 'Foggia', 'linnas', '.'] },\
+        ]
+        for test_text in test_texts:
+            text = Text( test_text['text'] )
+            # Perform analysis
+            text.tag_layer(['words'])
+            words_spans = text['words'].spans
+            # Fetch results
+            word_segmentation = [] 
+            for wid, word in enumerate( words_spans ):
+                word_text = text.text[word.start:word.end]
+                word_segmentation.append(word_text)
+            #print(word_segmentation)
+            # Assert that the tokenization is correct
+            self.assertListEqual(test_text['expected_words'], word_segmentation)
+
+
     def test_detect_names_with_initials(self):
         test_texts = [ 
             { 'text': 'A.H. Tammsaare muuseum Vargamäel tutvustab 19. sajandi taluelu ja A.H. Tammsaare kultuuri- ja kirjanduspärandit.', \

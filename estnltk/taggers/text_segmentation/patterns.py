@@ -55,7 +55,12 @@ MACROS = {
                                '[Jj]r|'+\
                                'a'+\
                               ')',
-
+            # Common unit combinations
+            'UNITS': '('+\
+                        'l\s?/\s?(min|sek)|'+\
+                        'm\s?/\s?(min|sek|[st])|'+\
+                        'km\s?/\s?[hst]'+\
+                       ')',
          }
 MACROS['LETTERS'] = MACROS['LOWERCASE'] + MACROS['UPPERCASE']
 MACROS['ALPHANUM'] = MACROS['LETTERS'] + MACROS['NUMERIC']
@@ -100,7 +105,7 @@ email_and_www_patterns = [
       '_priority_': (0, 0, 3),
       '_regex_pattern_':  re.compile(r'''
                          (http                                    # http
-                         \s*:\s*(/+)\s*                           # colon
+                         \s*:\s*(/+)\s*                           # colon + //
                          www                                      # www
                          \s*\.\s*                                 # period
                          [{ALPHANUM}_\-]+                         # domain name
@@ -110,12 +115,28 @@ email_and_www_patterns = [
                          )
                          '''.format(**MACROS), re.X),
       'normalized': lambda m: re.sub('\s','', m.group(1) ) },
-
+      
      {'comment': '*) Pattern for detecting (possibly incorrectly tokenized) web addresses #2;',
-      'example': 'www. esindus.ee/korteriturg',
+      'example': 'http://f6.pmo.ee',
       'pattern_type': 'www-address',
       '_group_': 1,
       '_priority_': (0, 0, 4),
+      '_regex_pattern_':  re.compile(r'''
+                         (http                                    # http
+                         \s*:\s*(/+)\s*                           # colon + //
+                         [{ALPHANUM}_\-]+                         # domain name
+                         \s*\.\s*                                 # period
+                         [{ALPHANUM}_.\-/]+                       # domain name
+                         (\?\S+|\#\S+)?                           # query variables (optional)
+                         )
+                         '''.format(**MACROS), re.X),
+      'normalized': lambda m: re.sub('\s','', m.group(1) ) },
+
+     {'comment': '*) Pattern for detecting (possibly incorrectly tokenized) web addresses #3;',
+      'example': 'www. esindus.ee/korteriturg',
+      'pattern_type': 'www-address',
+      '_group_': 1,
+      '_priority_': (0, 0, 5),
       '_regex_pattern_':  re.compile(r'''
                          (www                                     # www
                          \s*\.\s*                                 # period
@@ -281,18 +302,30 @@ number_patterns = [
               ]
 
 unit_patterns = [
-    { 'comment': '2.1) A generic pattern for units of measure;',
-      'example': 'km / h',
+    { 'comment': '2.1) A generic pattern for units of measure preceded by quantities;',
+      'example': '30 km / h',
       'pattern_type': 'unit',
-      '_regex_pattern_': re.compile(r'''        # PATT_14
-                         (^|[^{LETTERS}])       # algus või mittetäht
-                         (([{LETTERS}]{1,3})    # kuni 3 tähte
-                         \s?/\s?                # kaldkriips
-                         ([{LETTERS}]{1,3}))    # kuni kolm tähte
-                         ([^{LETTERS}]|$)       # mittetäht või lõpp
+      '_regex_pattern_': re.compile(r'''
+                         ([0-9])                # number
+                         \s*                    # potential space
+                         (([{LETTERS}]{1,3})    # up to 3 letters
+                         \s?/\s?                # slash
+                         ([{LETTERS}]{1,3}))    # up to 3 letters
                          '''.format(**MACROS), re.X),
      '_group_': 2,
      '_priority_': (3, 1),
+     'normalized': "lambda m: re.sub('\s' ,'' , m.group(2))",
+    },
+    { 'comment': '2.2) A pattern for capturing specific units of measure;',
+      'example': 'km / h',
+      'pattern_type': 'unit',
+      '_regex_pattern_': re.compile(r'''
+                         (^|[^{LETTERS}])       # beginning or non-letter
+                         ({UNITS})              # common unit combinations
+                         ([^{LETTERS}]|$)       # end or non-letter
+                         '''.format(**MACROS), re.X),
+     '_group_': 2,
+     '_priority_': (3, 2),
      'normalized': "lambda m: re.sub('\s' ,'' , m.group(2))",
     },
                  ]
