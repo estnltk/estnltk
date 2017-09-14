@@ -296,19 +296,10 @@ number_patterns = [
     # Remark on the decimal numerals (numerals with the decimal separator ','):
     #   *) form where the separator is between two spaces (' , ') is common to Koondkorpus 
     #      (which has been tokenized previously);
-    #   *) form where the separator is has no spaces (',') is common to regular / untokenized 
+    #   *) form where the separator has no spaces (',') is common to regular / untokenized 
     #      texts;
     #   *) other forms (', ' and ' ,') more likely cause false detections rather than correct
     #      numeric expressions;
-
-    #
-    # Old pattern:
-    #
-    # '_regex_pattern_': r'-?([{NUMERIC}][\s\.]?)+(,\s?([{NUMERIC}][\s\.]?)+)?'.format(**MACROS),
-    #
-    #  The old pattern was problematic, e.g. failed to detect multiple expressions like in
-    #      "Hukkus umbes 90 000 inimest ja põgenes üle 70 000,"
-    #
 
     { 'comment': '*) First 10 Roman numerals ending with period, but not ending the sentence.',
       'example': 'II. peatükis',
