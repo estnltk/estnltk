@@ -114,7 +114,7 @@ email_and_www_patterns = [
       '_group_': 1,
       '_priority_': (0, 0, 3),
       '_regex_pattern_':  re.compile(r'''
-                         (http                                    # http
+                         (https?                                  # http
                          \s*:\s*(/+)\s*                           # colon + //
                          www                                      # www
                          \s*\.\s*                                 # period
@@ -132,7 +132,7 @@ email_and_www_patterns = [
       '_group_': 1,
       '_priority_': (0, 0, 4),
       '_regex_pattern_':  re.compile(r'''
-                         (http                                    # http
+                         (https?                                  # http
                          \s*:\s*(/+)\s*                           # colon + //
                          [{ALPHANUM}_\-]+                         # domain name
                          \s*\.\s*                                 # period
