@@ -368,3 +368,21 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             # Assert that the tokenization is correct
             self.assertListEqual(test_text['expected_words'], word_segmentation)
 
+
+    def test_no_duplicate_tokens(self):
+        # Tests that the token compounding does not produce any duplicate token spans
+        test_texts = [ 
+                       { 'text': "Kas ta loeb seal https://www.postimees.ee-d?",\
+                         'expected_compound_tokens': [['https', ':', '/', '/', 'www', '.', 'postimees', '.', 'ee', '-',  'd']] },\
+                     ]
+        for test_text in test_texts:
+            text = Text( test_text['text'] )
+            # Perform analysis
+            text.tag_layer(['compound_tokens'])
+            # Check results
+            for ctid, comp_token in enumerate( text['compound_tokens'] ):
+                tokens = [text.text[sp.start:sp.end] for sp in comp_token.spans]
+                #print('>>',tokens)
+                # Assert that the tokenization is correct
+                self.assertListEqual(test_text['expected_compound_tokens'][ctid], tokens)
+

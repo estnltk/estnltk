@@ -142,7 +142,7 @@ class CompoundTokenTagger(Tagger):
             # Perform hyphenation correction
             if hyphenation_status is None:
                 if last_end==token_span.start and token_span.text == '-':
-                        hyphenation_status = '-'
+                    hyphenation_status = '-'
                 else:
                     hyphenation_start = i
             elif hyphenation_status=='-':
@@ -152,7 +152,7 @@ class CompoundTokenTagger(Tagger):
                     hyphenation_status = 'end'
             elif hyphenation_status=='second':
                 if last_end==token_span.start and token_span.text == '-':
-                        hyphenation_status = '-'
+                    hyphenation_status = '-'
                 else:
                     hyphenation_status = 'end'
             if hyphenation_status == 'end' and hyphenation_start+1 < i:
@@ -259,6 +259,7 @@ class CompoundTokenTagger(Tagger):
                     self._remove_overlapped_spans(covered_compound_tokens, compound_tokens_lists)
                 # Insert new SpanList into compound_tokens
                 self._insert_span(spl, compound_tokens_lists)
+                #print('>2>',[text.text[t.start:t.end] for t in spl.spans] )
 
         return compound_tokens_lists
 
@@ -310,21 +311,31 @@ class CompoundTokenTagger(Tagger):
         return filtered
 
 
-    def _insert_span(self, span:Union['Span', SpanList], spans:list):
+    def _insert_span(self, span:Union['Span', SpanList], spans:list, discard_duplicate=False):
         '''
         Inserts given span into spans so that the list remains sorted
         ascendingly according to text positions.
+        
+        If discard_duplicate==True, then span is only inserted iff 
+        the same span does not exist in the list; By default, duplicates
+        are allowed (discard_duplicate=False);
         '''
         i = 0
         inserted = False
+        is_duplicate = False
         while i < len(spans):
+            if span.start == spans[i].start and \
+               span.end == spans[i].end:
+               is_duplicate = True
             if span.end <= spans[i].start:
-                spans.insert(i, span)
-                inserted = True
-                break
+                if not discard_duplicate or (discard_duplicate and not is_duplicate):
+                    spans.insert(i, span)
+                    inserted = True
+                    break
             i += 1
         if not inserted:
-            spans.append(span)
+            if not discard_duplicate or (discard_duplicate and not is_duplicate):
+                spans.append(span)
 
 
     def _create_new_spanlist(self, text:'Text', compound_token_spans:list, regular_spans:list, joining_span:SpanList):
@@ -334,12 +345,13 @@ class CompoundTokenTagger(Tagger):
         '''
         # 1) Get all tokens covered by compound_token_spans and regular_spans
         #    (basis material for the new spanlist)
+        #    (also, leave out duplicate spans, if such exist)
         all_covered_tokens = []
         for compound_token_spanlist in compound_token_spans:
             for span in compound_token_spanlist:
-                self._insert_span(span, all_covered_tokens)
+                self._insert_span(span, all_covered_tokens, discard_duplicate=True)
         for span in regular_spans:
-            self._insert_span(span, all_covered_tokens)
+            self._insert_span(span, all_covered_tokens, discard_duplicate=True)
 
         # 2) Get attributes
         all_normalizations = {}
@@ -411,7 +423,7 @@ class CompoundTokenTagger(Tagger):
                     all_types.remove("sign")
             spl.type = '+'.join(all_types)
         
-        #print('>1>',[text.text[t.start:t.end] for t in all_covered_tokens] )
+        #print('>1>',[text.text[t.start:t.end] for t in spl.spans] )
         #print('>2>',spl.type )
         #print('>3>',normalized_str )
 
