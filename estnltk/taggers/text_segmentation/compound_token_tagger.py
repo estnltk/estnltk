@@ -380,7 +380,7 @@ class CompoundTokenTagger(Tagger):
             # reconstruct string with normalizations
             i = start_index
             normalized = []
-            while i < end_index+1:
+            while i < end_index:
                 if i in all_normalizations:
                     # add normalized string
                     normalized.append(all_normalizations[i][0])
@@ -425,7 +425,7 @@ class CompoundTokenTagger(Tagger):
         
         #print('>1>',[text.text[t.start:t.end] for t in spl.spans] )
         #print('>2>',spl.type )
-        #print('>3>',normalized_str )
+        #print('>3>',normalized_str, normalized)
 
         return spl
 

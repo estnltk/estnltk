@@ -374,6 +374,9 @@ class CompoundTokenTaggerTest(unittest.TestCase):
         test_texts = [ 
                        { 'text': "Kas ta loeb seal https://www.postimees.ee-d?",\
                          'expected_compound_tokens': [['https', ':', '/', '/', 'www', '.', 'postimees', '.', 'ee', '-',  'd']] },\
+                       { 'text': "Olen +100% kindel.",\
+                         'expected_compound_tokens': [['+', '100', '%']] ,\
+                         'expected_normalizations': ['+100%'] },\
                      ]
         for test_text in test_texts:
             text = Text( test_text['text'] )
@@ -385,4 +388,6 @@ class CompoundTokenTaggerTest(unittest.TestCase):
                 #print('>>',tokens)
                 # Assert that the tokenization is correct
                 self.assertListEqual(test_text['expected_compound_tokens'][ctid], tokens)
+                if 'expected_normalizations' in test_text:
+                    self.assertEqual(test_text['expected_normalizations'][ctid], comp_token.normalized)
 
