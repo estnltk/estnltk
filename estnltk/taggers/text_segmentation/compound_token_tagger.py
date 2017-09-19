@@ -31,6 +31,7 @@ class CompoundTokenTagger(Tagger):
                  tag_initials:bool = True,
                  tag_abbreviations:bool = True,
                  tag_case_endings:bool = True,
+                 tag_hyphenations:bool = True,
                  ):
         self.configuration = {'compound_types_to_merge': compound_types_to_merge,
                               'conflict_resolving_strategy': conflict_resolving_strategy,
@@ -40,7 +41,8 @@ class CompoundTokenTagger(Tagger):
                               'tag_emoticons':tag_emoticons,
                               'tag_initials':tag_initials,
                               'tag_abbreviations':tag_abbreviations,
-                              'tag_case_endings':tag_case_endings}
+                              'tag_case_endings':tag_case_endings,
+                              'tag_hyphenations':tag_hyphenations}
         
         self._compound_types_to_merge     = compound_types_to_merge
         self._conflict_resolving_strategy = conflict_resolving_strategy
@@ -116,6 +118,7 @@ class CompoundTokenTagger(Tagger):
         tokens = text.tokens.text
         hyphenation_status = None
         last_end = None
+        tag_hyphenations = self.configuration['tag_hyphenations']
         # 2) Apply tokenization hints + hyphenation correction
         for i, token_span in enumerate(text.tokens):
             token = token_span.text
@@ -140,37 +143,38 @@ class CompoundTokenTagger(Tagger):
                     compound_tokens_lists.append(spl)
 
             # Perform hyphenation correction
-            if hyphenation_status is None:
-                if last_end==token_span.start and token_span.text == '-':
-                    hyphenation_status = '-'
-                else:
+            if tag_hyphenations:
+                if hyphenation_status is None:
+                    if last_end==token_span.start and token_span.text == '-':
+                        hyphenation_status = '-'
+                    else:
+                        hyphenation_start = i
+                elif hyphenation_status=='-':
+                    if last_end==token_span.start:
+                        hyphenation_status = 'second'
+                    else:
+                        hyphenation_status = 'end'
+                elif hyphenation_status=='second':
+                    if last_end==token_span.start and token_span.text == '-':
+                        hyphenation_status = '-'
+                    else:
+                        hyphenation_status = 'end'
+                if hyphenation_status == 'end' and hyphenation_start+1 < i:
+                    hyp_start = text.tokens[hyphenation_start].start
+                    hyp_end   = text.tokens[i-1].end
+                    text_snippet = text.text[hyp_start:hyp_end]
+                    if letter_pattern.search(text_snippet):
+                        # The text snippet should contain at least one letter to be 
+                        # considered as a potentially hyphenated word; 
+                        # This serves to leave out numeric ranges like 
+                        #    "15-17.04." or "920-980"
+                        spl = SpanList()
+                        spl.spans = text.tokens[hyphenation_start:i]
+                        spl.type = 'hyphenation'
+                        spl.normalized = None
+                        compound_tokens_lists.append(spl)
+                    hyphenation_status = None
                     hyphenation_start = i
-            elif hyphenation_status=='-':
-                if last_end==token_span.start:
-                    hyphenation_status = 'second'
-                else:
-                    hyphenation_status = 'end'
-            elif hyphenation_status=='second':
-                if last_end==token_span.start and token_span.text == '-':
-                    hyphenation_status = '-'
-                else:
-                    hyphenation_status = 'end'
-            if hyphenation_status == 'end' and hyphenation_start+1 < i:
-                hyp_start = text.tokens[hyphenation_start].start
-                hyp_end   = text.tokens[i-1].end
-                text_snippet = text.text[hyp_start:hyp_end]
-                if letter_pattern.search(text_snippet):
-                    # The text snippet should contain at least one letter to be 
-                    # considered as a potentially hyphenated word; 
-                    # This serves to leave out numeric ranges like 
-                    #    "15-17.04." or "920-980"
-                    spl = SpanList()
-                    spl.spans = text.tokens[hyphenation_start:i]
-                    spl.type = 'hyphenation'
-                    spl.normalized = None
-                    compound_tokens_lists.append(spl)
-                hyphenation_status = None
-                hyphenation_start = i
             last_end = token_span.end
 
         # 3) Apply tagging of 2nd level tokenization hints
@@ -311,7 +315,7 @@ class CompoundTokenTagger(Tagger):
         return filtered
 
 
-    def _insert_span(self, span:Union['Span', SpanList], spans:list, discard_duplicate=False):
+    def _insert_span(self, span:Union['Span', SpanList], spans:list, discard_duplicate:bool=False):
         '''
         Inserts given span into spans so that the list remains sorted
         ascendingly according to text positions.
