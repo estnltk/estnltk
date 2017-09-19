@@ -83,7 +83,7 @@ email_and_www_patterns = [
      # Patterns for detecting (possibly incorrectly tokenized) e-mails & www-addresses
      {'comment': '*) Pattern for detecting common e-mail formats;',
       'example': 'bla@bla.bl',
-      'pattern_type': 'e-mail',
+      'pattern_type': 'email',
       '_group_': 1,
       '_priority_': (0, 0, 1),
       '_regex_pattern_': r'([{ALPHANUM}_.+-]+@[{ALPHANUM}-]+\.[{ALPHANUM}-.]+)'.format(**MACROS),
@@ -91,7 +91,7 @@ email_and_www_patterns = [
       
      {'comment': '*) Pattern for detecting common e-mail formats;',
       'example': 'sambamees . siim @ pri . ee',
-      'pattern_type': 'e-mail',
+      'pattern_type': 'email',
       '_group_': 1,
       '_priority_': (0, 0, 2),
       '_regex_pattern_': re.compile(r'''
@@ -110,7 +110,7 @@ email_and_www_patterns = [
       
      {'comment': '*) Pattern for detecting (possibly incorrectly tokenized) web addresses #1;',
       'example': 'http : //www.offa.org',
-      'pattern_type': 'www-address',
+      'pattern_type': 'www_address',
       '_group_': 1,
       '_priority_': (0, 0, 3),
       '_regex_pattern_':  re.compile(r'''
@@ -128,7 +128,7 @@ email_and_www_patterns = [
       
      {'comment': '*) Pattern for detecting (possibly incorrectly tokenized) web addresses #2;',
       'example': 'http://f6.pmo.ee',
-      'pattern_type': 'www-address',
+      'pattern_type': 'www_address',
       '_group_': 1,
       '_priority_': (0, 0, 4),
       '_regex_pattern_':  re.compile(r'''
@@ -144,7 +144,7 @@ email_and_www_patterns = [
 
      {'comment': '*) Pattern for detecting (possibly incorrectly tokenized) web addresses #3;',
       'example': 'www. esindus.ee/korteriturg',
-      'pattern_type': 'www-address',
+      'pattern_type': 'www_address',
       '_group_': 1,
       '_priority_': (0, 0, 5),
       '_regex_pattern_':  re.compile(r'''
@@ -178,7 +178,7 @@ number_patterns = [
     # false positives ...
     { 'comment': '*) Date patterns in the commonly used form "dd.mm.yyyy";',
       'example': '02.02.2010',
-      'pattern_type': 'numeric-date',
+      'pattern_type': 'numeric_date',
       '_group_': 0,
       '_priority_': (2, 0, 1),
       '_regex_pattern_': re.compile(r'''
@@ -191,7 +191,7 @@ number_patterns = [
       'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
     { 'comment': '*) Date patterns in the ISO format "yyyy-mm-dd";',
       'example': '2011-04-22',
-      'pattern_type': 'numeric-date',
+      'pattern_type': 'numeric_date',
       '_group_': 0,
       '_priority_': (2, 0, 2),
       '_regex_pattern_': re.compile(r'''
@@ -204,7 +204,7 @@ number_patterns = [
       'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
     { 'comment': '*) Date patterns in the commonly used form "dd/mm/yy";',
       'example': '19/09/11',
-      'pattern_type': 'numeric-date',
+      'pattern_type': 'numeric_date',
       '_group_': 0,
       '_priority_': (2, 0, 3),
       '_regex_pattern_': re.compile(r'''
@@ -217,7 +217,7 @@ number_patterns = [
       'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
     { 'comment': '*) Time patterns in the commonly used form "HH:mm:ss";',
       'example': '21:14',
-      'pattern_type': 'numeric-time',
+      'pattern_type': 'numeric_time',
       '_group_': 0,
       '_priority_': (2, 0, 4),
       '_regex_pattern_': re.compile(r'''
@@ -345,7 +345,7 @@ unit_patterns = [
 
 initial_patterns = [
     { 'comment': '*) Negative pattern: filters out "P.S." (post scriptum) before it is annotated as a pair of initials;',
-      'pattern_type':   'negative:ps-abbreviation',  # prefix "negative:" instructs to delete this pattern afterwards
+      'pattern_type':   'negative:ps_abbreviation',  # prefix "negative:" instructs to delete this pattern afterwards
       'example': 'P. S.',
       '_regex_pattern_': re.compile(r'''
                         (P\s?.\s?S\s?.)                 # P.S. -- likely post scriptum, not initial
@@ -355,7 +355,7 @@ initial_patterns = [
      'normalized': lambda m: re.sub('\s','', m.group(1)),
      },
     { 'comment': '*) Negative pattern: filters out "degree + temperature unit" before it is annotated as an initial;',
-      'pattern_type':   'negative:temperature-unit', # prefix "negative:" instructs to delete this pattern afterwards
+      'pattern_type':   'negative:temperature_unit', # prefix "negative:" instructs to delete this pattern afterwards
       'example': 'ºC',
       '_regex_pattern_': re.compile(r'''
                         ([º˚\u00B0]+\s*[CF])            # degree + temperature unit -- this shouldn't be an initial
@@ -365,7 +365,7 @@ initial_patterns = [
      'normalized': lambda m: re.sub('\s','', m.group(1)),
      },
     { 'comment': '*) Names starting with 2 initials;',
-      'pattern_type': 'name',
+      'pattern_type': 'name_with_initial',
       'example': 'A. H. Tammsaare',
       '_regex_pattern_': re.compile(r'''
                         ([{UPPERCASE}][{LOWERCASE}]?)                     # first initial
@@ -379,7 +379,7 @@ initial_patterns = [
      'normalized': lambda m: re.sub('\1.\2. \3' ,'' , m.group(0)),
      },
     { 'comment': '*) Names starting with one initial;',
-      'pattern_type': 'name',
+      'pattern_type': 'name_with_initial',
       'example': 'A. Hein',
       '_regex_pattern_': re.compile(r'''
                         ([{UPPERCASE}])                 # first initial
