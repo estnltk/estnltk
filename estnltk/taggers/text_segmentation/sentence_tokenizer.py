@@ -35,7 +35,7 @@ class SentenceTokenizer(Tagger):
         sentence_ends = {end for _, end in self._tokenize(text)}
         if fix:
             for ct in text.compound_tokens:
-                if ct.type == 'non_ending_abbreviation':
+                if 'non_ending_abbreviation' in ct.type:
                     sentence_ends -= {span.end for span in ct}
                 else:
                     sentence_ends -= {span.end for span in ct[0:-1]}

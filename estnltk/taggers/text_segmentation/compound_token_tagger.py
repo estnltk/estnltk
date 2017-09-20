@@ -134,10 +134,10 @@ class CompoundTokenTagger(Tagger):
                 if end_token_index:
                     spl = SpanList()
                     spl.spans      = text.tokens[i:end_token_index+1]
-                    spl.type       = 'tokenization_hint'
+                    spl.type       = ('tokenization_hint',)
                     spl.normalized = None
                     if 'pattern_type' in tokenization_hints[token_span.start]:
-                        spl.type = tokenization_hints[token_span.start]['pattern_type']
+                        spl.type = (tokenization_hints[token_span.start]['pattern_type'],)
                     if 'normalized' in tokenization_hints[token_span.start]:
                         spl.normalized = tokenization_hints[token_span.start]['normalized']
                     compound_tokens_lists.append(spl)
@@ -170,7 +170,7 @@ class CompoundTokenTagger(Tagger):
                         #    "15-17.04." or "920-980"
                         spl = SpanList()
                         spl.spans = text.tokens[hyphenation_start:i]
-                        spl.type = 'hyphenation'
+                        spl.type = ('hyphenation',)
                         spl.normalized = None
                         compound_tokens_lists.append(spl)
                     hyphenation_status = None
@@ -366,7 +366,8 @@ class CompoundTokenTagger(Tagger):
             if compound_token_spanlist.normalized:   # if normalization != None
                 all_normalizations[span_start] = ( compound_token_spanlist.normalized, \
                                                    span_end )
-            all_types.append(compound_token_spanlist.type)
+            for compound_token_type in compound_token_spanlist.type:
+                all_types.append( compound_token_type )
         # Add type of the joining span (if it exists) to the end
         joining_span_type = joining_span.pattern_type if hasattr(joining_span, 'pattern_type') else None
         if joining_span_type:
@@ -398,7 +399,7 @@ class CompoundTokenTagger(Tagger):
         
         # 4) Create new SpanList and assign attributes
         spl = SpanList()
-        spl.type = 'tokenization_hint'
+        spl.type = ('tokenization_hint',)
         spl.spans = all_covered_tokens
         spl.normalized = normalized_str
         if all_types:
@@ -425,7 +426,9 @@ class CompoundTokenTagger(Tagger):
                     # if the string begins with a letter instead of 
                     # the sign, remove the sign type
                     all_types.remove("sign")
-            spl.type = '+'.join(all_types)
+            spl.type = ()
+            for type in all_types:
+                spl.type += (type,)
         
         #print('>1>',[text.text[t.start:t.end] for t in spl.spans] )
         #print('>2>',spl.type )
