@@ -64,6 +64,37 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             self.assertListEqual(test_text['expected_words'], word_segmentation)
 
 
+    def test_detect_xml_tags(self):
+        test_texts = [ 
+            { 'text': '<u>Kirjavahemärgid, hingamiskohad</u>.', \
+              'expected_words': ['<u>', 'Kirjavahemärgid', ',', 'hingamiskohad', '</u>', '.'] }, \
+            { 'text': '<a href=”http://sait.ee/” rel=”nofollow”>mingi asi</a>', \
+              'expected_words': ['<a href=”http://sait.ee/” rel=”nofollow”>', 'mingi', 'asi', '</a>'] }, \
+            { 'text': 'Muidugi ei tööta, seal lõpus on mingi </br> mida ma ära võtta ei saa, võid ta ise ehk ära kustutada :)', \
+              'expected_words': ['Muidugi', 'ei', 'tööta', ',', 'seal', 'lõpus', 'on', 'mingi', '</br>', 'mida', 'ma', 'ära', 'võtta', 'ei', 'saa', ',', 'võid', 'ta', 'ise', 'ehk', 'ära', 'kustutada', ':)'] }, \
+            { 'text': 'Fail algab tavalise XML-päisega, millele järgneb DOCTYPE definitsioon ja seejärel <fontconfig> tääg:\n\n<dir>/tee/minu/fontide/kataloogi</dir>\n', \
+              'expected_words': ['Fail', 'algab', 'tavalise', 'XML-päisega', ',', 'millele', 'järgneb', 'DOCTYPE', 'definitsioon', 'ja', 'seejärel', '<fontconfig>', 'tääg', ':', '<dir>', '/', 'tee', '/', 'minu', '/', 'fontide', '/', 'kataloogi', '</dir>'] }, \
+            { 'text': 'Kui kasutada sellist <!--googleoff: index--> märgendust <!--googleon: index--> nagu siin\n\nindekseerib Google lehest vaid', \
+              'expected_words': ['Kui', 'kasutada', 'sellist', '<!--googleoff: index-->', 'märgendust', '<!--googleon: index-->', 'nagu', 'siin', 'indekseerib', 'Google', 'lehest', 'vaid'] }, \
+            # Note: strictly speaking, the following example does not contain an XML tag, but it seems to be a good idea to capture the content between < and > as a single token
+            { 'text': 'teaser-tüüpi põhiklippi ja üks veebilehel < http://www.visitestonia.com/ > toimuva tarbijamängu promotsiooniklipp.', \
+              'expected_words': ['teaser-tüüpi', 'põhiklippi', 'ja', 'üks', 'veebilehel', '< http://www.visitestonia.com/ >', 'toimuva', 'tarbijamängu', 'promotsiooniklipp', '.'] }, \
+        ]
+        for test_text in test_texts:
+            text = Text( test_text['text'] )
+            # Perform analysis
+            text.tag_layer(['words'])
+            words_spans = text['words'].spans
+            # Fetch results
+            word_segmentation = [] 
+            for wid, word in enumerate( words_spans ):
+                word_text = text.text[word.start:word.end]
+                word_segmentation.append(word_text)
+            #print(word_segmentation)
+            # Assert that the tokenization is correct
+            self.assertListEqual(test_text['expected_words'], word_segmentation)
+
+
     def test_detect_hyphenation(self):
         test_texts = [ 
             { 'text': 'Mis lil-li müüs Tiit 10e krooniga?', \

@@ -80,6 +80,20 @@ MACROS['ALPHANUM'] = MACROS['LETTERS'] + MACROS['NUMERIC']
 #     ("strict tokenization hints")
 # =================================================
 
+xml_patterns = [
+    # Note: XML tags should be detected before www and email addresses,
+    #        because XML tags can contain www and email addresses
+    { 'comment': '*) Detect XML tags from the text;',
+      'example': '<p>',
+      'pattern_type': 'xml_tag',
+      '_group_': 0,
+      '_priority_': (0, 0, 0),
+      '_regex_pattern_': re.compile(r'''
+                         (<[^<>]+?>)                               # an xml tag
+                         '''.format(**MACROS), re.X),
+      'normalized': 'lambda m: None'},
+]
+
 email_and_www_patterns = [
      # Patterns for detecting (possibly incorrectly tokenized) e-mails & www-addresses
      {'comment': '*) Pattern for detecting common e-mail formats;',
@@ -160,7 +174,7 @@ email_and_www_patterns = [
       'normalized': lambda m: re.sub('\s','', m.group(1) ) },
       
             ]
-            
+
 emoticon_patterns = [
     { 'comment': '*) Aims to detect most common emoticons;',
       'example': ':=)',
