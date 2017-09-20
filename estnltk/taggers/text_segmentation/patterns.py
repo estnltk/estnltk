@@ -77,6 +77,7 @@ MACROS['ALPHANUM'] = MACROS['LETTERS'] + MACROS['NUMERIC']
 
 # =================================================
 #     1st level patterns
+#     ("strict tokenization hints")
 # =================================================
 
 email_and_www_patterns = [
@@ -471,6 +472,7 @@ abbreviation_patterns = [
 
 # =================================================
 #     2nd level patterns
+#     ("non-strict tokenization hints")
 # =================================================
 case_endings_patterns = [
 
