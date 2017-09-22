@@ -10,8 +10,8 @@ class EventSequenceTagger(Tagger):
     description = 'Tags event sequences.'
     layer_name = None
     attributes = ('match',)
-    depends_on = []
-    configuration = {}
+    depends_on = None
+    configuration = None
 
     def __init__(self,
                  layer_name,
@@ -44,6 +44,7 @@ class EventSequenceTagger(Tagger):
         self._input_attribute = input_attribute
         
         self.depends_on = [input_layer_name]
+        self.configuration = {}
         self.configuration['input_layer_name'] = input_layer_name
         self.configuration['input_attribute'] = input_attribute
         self.configuration['episodes'] = str(len(episodes)) + ' episodes'
@@ -78,17 +79,20 @@ class EventSequenceTagger(Tagger):
                                     span = input_layer.spans[i:i+len(tail)+1]
                                     span.match = (value,)+tail
                                     layer.add_span(span)
-        #else:
-        #    for i, values in enumerate(value_list):
-        #        if value in heads:
-        #            for tail in heads[value]:
-        #                if i + len(tail) <= len(value_list):
-        #                    for a, b in zip(tail, value_list[i:i+len(tail)+1]):
-        #                        if a != b:
-        #                            continue
-        #                    span = input_layer.spans[i:i+len(tail)+1]
-        #                    span.match = (value,)+tail
-        #                    layer.add_span(span)
+        else:
+            for i, value in enumerate(value_list):
+                if value in heads:
+                    for tail in heads[value]:
+                        if i + len(tail) < len(value_list):
+                            match = True
+                            for a, b in zip(tail, value_list[i+1:i+len(tail)+1]):
+                                if a != b:
+                                    match = False
+                                    break
+                            if match:
+                                span = input_layer.spans[i:i+len(tail)+1]
+                                span.match = (value,)+tail
+                                layer.add_span(span)
 
         resolve_conflicts(layer, conflict_resolving_strategy=self._conflict_resolving_strategy)
 
