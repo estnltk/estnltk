@@ -6,18 +6,20 @@ from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRew
 
 class VabamorfTagger(Tagger):
     description = 'Tags morphological analysis on words.'
-    layer_name = 'morph_analysis'
+    layer_name = None
     attributes = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech')
     depends_on = None
     configuration = None
 
-    def __init__(self, 
+    def __init__(self,
+                 layer_name='morph_analysis',
                  premorph_layer:str='normalized_words',
                  postmorph_rewriter=VabamorfCorrectionRewriter(),
                  **kwargs):
         self.kwargs = kwargs
         self.instance = Vabamorf.instance()
 
+        self.layer_name = layer_name
         self.premorph_layer = premorph_layer
         self.postmorph_rewriter = postmorph_rewriter
 
@@ -70,7 +72,7 @@ class VabamorfTagger(Tagger):
 
             #selles punktis peab midagi otsustama.
 
-    def tag(self, text: Text) -> Text:
+    def tag(self, text: Text, return_layer=False) -> Text:
         wordlist = self._get_wordlist(text)
         analysis_results = self.instance.analyze(words=wordlist, **self.kwargs)
 
@@ -106,9 +108,9 @@ class VabamorfTagger(Tagger):
             morph = morph.rewrite(source_attributes=attributes,
                                   target_attributes=morph_attributes, 
                                   rules=self.postmorph_rewriter,
-                                  name='morph_analysis',
+                                  name=self.layer_name,
                                   ambiguous=True)
-
+        if return_layer:
+            return morph
         text[self.layer_name] = morph
-
         return text
