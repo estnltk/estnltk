@@ -389,11 +389,10 @@ class Layer:
         #used in Text._add_layer to check if additional work needs to be done
         self._is_lazy = False
 
-        self._base = name if (not enveloping) and (not parent) else None #This is a placeholder for the base layer.
-        #_base is None if parent is None
-        #_base is self.name if ((not self.enveloping) and (not self.parent))
-        #_base is parent._base otherwise
-        #We can't assign the value yet, because we have no access to the parent layer
+        self._base = name if enveloping or not parent else None #This is a placeholder for the base layer.
+        #_base is self.name if self.enveloping or not self.parent
+        #_base is parent._base otherwise, but we can't assign the value yet,
+        # because we have no access to the parent layer
         #The goal is to swap the use of the "parent" attribute to the new "_base" attribute for all
         #layer inheritance purposes. As the idea about new-style text objects has evolved, it has been decided that
         #it is more sensible to keep the tree short and pruned. I'm hoping to avoid a rewrite though.
@@ -531,12 +530,15 @@ class Layer:
 
     def to_html(self, header='Layer', start_end=False):
         res = []
-        if self.enveloping:
+        base_layer = self
+        if self._base:
+            base_layer = self.text_object[self._base]
+        if base_layer.enveloping:
             if self.ambiguous:
                 # TODO: _repr_html_ for enveloping ambiguous layers
                 return repr(self)
             else:
-                for span in self.spans:
+                for span in base_layer.spans:
                     # html.escape(span[i].text) TODO?
                     t = ['<b>', self.text_object.text[span[0].start:span[0].end], '</b>']
                     for i in range(1, len(span)):
@@ -729,7 +731,6 @@ class Text:
         ## ASSERTS DONE,
         ## Let's feel free to change the layer we have been handed.
         ##
-
 
         if layer.parent:
             layer._base = self.layers[layer.parent]._base
