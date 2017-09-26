@@ -1,11 +1,17 @@
 import regex as re
-
+import os
 from typing import Union
+
+from pandas import read_csv
+from pandas.io.common import EmptyDataError
+
+from estnltk.core import PACKAGE_PATH
 
 from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
 from estnltk.layer_operations import resolve_conflicts
+from estnltk.rewriting import MorphAnalyzedToken
 from .patterns import MACROS
 from .patterns import email_and_www_patterns, emoticon_patterns, xml_patterns
 from .patterns import unit_patterns, number_patterns, initial_patterns, abbreviation_patterns
@@ -13,6 +19,9 @@ from .patterns import case_endings_patterns, number_fixes_patterns
 
 # Pattern for checking whether the string contains any letters
 letter_pattern = re.compile(r'''([{LETTERS}]+)'''.format(**MACROS), re.X)
+
+# List containing words that should be ignored during the normalization of words with hyphens
+DEFAULT_IGNORE_LIST = os.path.join( PACKAGE_PATH, 'rewriting', 'premorph', 'rules_files', 'ignore.csv')
 
 class CompoundTokenTagger(Tagger):
     description = 'Tags adjacent tokens that should be analyzed as one word.'
@@ -89,6 +98,8 @@ class CompoundTokenTagger(Tagger):
                                                 overlapped=False,
                                                 layer_name='tokenization_hints',
                                               )
+        # Load words that should be ignored during normalization of words with hyphens
+        self.ignored_words = self._load_ignore_words_from_csv( DEFAULT_IGNORE_LIST )
 
 
     def tag(self, text: 'Text', return_layer=False) -> 'Text':
@@ -175,7 +186,8 @@ class CompoundTokenTagger(Tagger):
                         spl = SpanList()
                         spl.spans = text.tokens[hyphenation_start:i]
                         spl.type = ('hyphenation',)
-                        spl.normalized = None
+                        spl.normalized = \
+                            self._normalize_word_with_hyphens( text_snippet )
                         compound_tokens_lists.append(spl)
                     hyphenation_status = None
                     hyphenation_start = i
@@ -204,6 +216,39 @@ class CompoundTokenTagger(Tagger):
             return layer
         text[self.layer_name] = layer
         return text
+
+
+    @staticmethod
+    def _load_ignore_words_from_csv( file:str ):
+        ''' Loads words from csv file, and returns as a set.
+            Returns an empty set if the file contains no data.
+        '''
+        try:
+            df = read_csv(file, na_filter=False, header=None)
+            return set(df[0])
+        except EmptyDataError:
+            return set()
+
+
+    def _normalize_word_with_hyphens( self, word_text:str ):
+        ''' Attempts to normalize given word with hyphens.
+            Returns the normalized word, or 
+                    None, if 1) the word appears in the list of words that should 
+                                be ignored;
+                             2) the word needs no hyphen-normalization, that is, 
+                                it has the same form with and without the hyphen;
+        '''
+        if hasattr(self, 'ignored_words'):
+            # If the word with hyphens is inside the list of ignorable words, discard it
+            if word_text in self.ignored_words:
+                return None
+        token = MorphAnalyzedToken( word_text )
+        if token is token.normal:
+            # If the normalized form of the token is same as the unnormalized form, 
+            # return None
+            return None
+        # Return normalized form of the token
+        return token.normal.text
 
 
     def _apply_2nd_level_compounding(self, text:'Text', compound_tokens_lists:list):

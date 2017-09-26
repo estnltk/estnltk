@@ -95,13 +95,13 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             self.assertListEqual(test_text['expected_words'], word_segmentation)
 
 
-    def test_detect_hyphenation(self):
+    def test_detect_words_with_hyphens(self):
         test_texts = [ 
             { 'text': 'Mis lil-li müüs Tiit 10e krooniga?', \
               'expected_words': ['Mis', 'lil-li', 'müüs', 'Tiit', '10e', 'krooniga', '?'] }, \
             { 'text': 'See on vää-ää-ääga huvitav!', \
               'expected_words': ['See', 'on', 'vää-ää-ääga', 'huvitav', '!'] },\
-            # Negative patterns: numeric ranges should not be considered as hyphenations!
+            # Negative patterns: numeric ranges should not be considered as words with hyphens!
             { 'text': "14.04 jäi kaal nulli , 15-17.04. tuli korjet 6 kg kokku.", \
               'expected_words': ['14.04', 'jäi', 'kaal', 'nulli', ',', '15', '-', '17.04', '.', 'tuli', 'korjet', '6', 'kg', 'kokku', '.'] },\
             { 'text': 'Laupäeval 15. mail kell 20.00-23.00 on Tartu Laulupeomuuseumis muuseumiöö puhul etendus "Kalevi pojad".', \
@@ -422,3 +422,30 @@ class CompoundTokenTaggerTest(unittest.TestCase):
                 if 'expected_normalizations' in test_text:
                     self.assertEqual(test_text['expected_normalizations'][ctid], comp_token.normalized)
 
+
+    def test_compound_token_normalization(self):
+        # Tests that the compound tokens are normalized properly
+        test_texts = [ # Normalization of words from tokenization hints
+                       { 'text': 'SKT -st või LinkedIn -ist ma eriti ei hooligi, aga 10 000\'es koht huvitab küll.',\
+                         'expected_compound_tokens': [['SKT', '-', 'st'], ['LinkedIn', '-', 'ist'],['10', '000', "'", 'es']] ,\
+                         'expected_normalizations': ['SKT-st', 'LinkedIn-ist', "10000'es"] },\
+                       # Normalization of words with hyphens 
+                       { 'text': 'Mis lil-li müüs Tiit 10e krooniga?',\
+                         'expected_compound_tokens': [['lil', '-', 'li']] ,\
+                         'expected_normalizations': ['lilli'] },\
+                       { 'text': 'kõ-kõ-kõik v-v-v-ve-ve-ve-vere-taoline on m-a-a-a-l-u-n-e...',\
+                         'expected_compound_tokens': [['kõ', '-', 'kõ', '-', 'kõik'], ['v', '-', 'v', '-', 'v', '-', 've', '-', 've', '-', 've', '-', 'vere', '-', 'taoline'], ['m', '-', 'a', '-', 'a', '-', 'a', '-', 'l', '-', 'u', '-', 'n', '-', 'e']] ,\
+                         'expected_normalizations': ['kõik', 'vere-taoline', 'maaalune'] },\
+                     ]
+        for test_text in test_texts:
+            text = Text( test_text['text'] )
+            # Perform analysis
+            text.tag_layer(['compound_tokens'])
+            # Check results
+            for ctid, comp_token in enumerate( text['compound_tokens'] ):
+                tokens = [text.text[sp.start:sp.end] for sp in comp_token.spans]
+                #print('>>',tokens)
+                #print('>>',comp_token.normalized)
+                # Assert that the tokenization is correct
+                self.assertListEqual(test_text['expected_compound_tokens'][ctid], tokens)
+                self.assertEqual(test_text['expected_normalizations'][ctid], comp_token.normalized)
