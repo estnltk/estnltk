@@ -31,7 +31,6 @@ class CompoundTokenTagger(Tagger):
     configuration = None
 
     def __init__(self, 
-                 compound_types_to_merge={'abbrevation', 'name'},
                  conflict_resolving_strategy='MAX',
                  tag_numbers:bool = True,
                  tag_units:bool = True,
@@ -43,8 +42,7 @@ class CompoundTokenTagger(Tagger):
                  tag_case_endings:bool = True,
                  tag_hyphenations:bool = True,
                  ):
-        self.configuration = {'compound_types_to_merge': compound_types_to_merge,
-                              'conflict_resolving_strategy': conflict_resolving_strategy,
+        self.configuration = {'conflict_resolving_strategy': conflict_resolving_strategy,
                               'tag_numbers': tag_numbers,
                               'tag_units':tag_units,
                               'tag_email_and_www':tag_email_and_www,
@@ -55,7 +53,6 @@ class CompoundTokenTagger(Tagger):
                               'tag_case_endings':tag_case_endings,
                               'tag_hyphenations':tag_hyphenations}
         
-        self._compound_types_to_merge     = compound_types_to_merge
         self._conflict_resolving_strategy = conflict_resolving_strategy
         # =========================
         #  1st level hints tagger
@@ -208,8 +205,6 @@ class CompoundTokenTagger(Tagger):
         for spl in compound_tokens_lists:
             layer.add_span(spl)
 
-        # TODO:
-        #if self._compound_types_to_merge:
         resolve_conflicts(layer, conflict_resolving_strategy=self._conflict_resolving_strategy)
 
         if return_layer:
