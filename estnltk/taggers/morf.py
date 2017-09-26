@@ -13,24 +13,18 @@ class VabamorfTagger(Tagger):
 
     def __init__(self,
                  layer_name='morph_analysis',
-                 premorph_layer:str='normalized_words',
                  postmorph_rewriter=VabamorfCorrectionRewriter(),
                  **kwargs):
         self.kwargs = kwargs
         self.instance = Vabamorf.instance()
 
         self.layer_name = layer_name
-        self.premorph_layer = premorph_layer
         self.postmorph_rewriter = postmorph_rewriter
 
-        self.configuration = {'premorph_layer':self.premorph_layer,
-                'postmorph_rewriter':self.postmorph_rewriter.__class__.__name__}
+        self.configuration = {'postmorph_rewriter':self.postmorph_rewriter.__class__.__name__}
         self.configuration.update(self.kwargs)
 
-        if premorph_layer:
-            self.depends_on = ['words', premorph_layer]
-        else:
-            self.depends_on = ['words']
+        self.depends_on = ['words']
 
         # TODO: Think long and hard about the default parameters
         # TODO: See also https://github.com/estnltk/estnltk/issues/66
@@ -56,21 +50,16 @@ class VabamorfTagger(Tagger):
         """
 
     def _get_wordlist(self, text:Text):
-        if self.premorph_layer is None:
-            return text.words.text
-        else:
-            augmenting_layer = text.layers[self.premorph_layer]
-            result = []
-            substitutions = {(i.parent.start,i.parent.end):i for i in augmenting_layer.spans}
+        result = []
+        for word in text.words:
+            if hasattr(word, 'normalized_form') and word.normalized_form != None:
+                # If there is a normalized version of the word, add it
+                # instead of word's text
+                result.append(word.normalized_form)
+            else:
+                result.append(word.text)
+        return result
 
-            for word in text.words:
-                if (word.start, word.end) not in substitutions.keys():
-                    result.append(word.text)
-                else:
-                    result.append(substitutions[(word.start, word.end)].normal)
-            return result
-
-            #selles punktis peab midagi otsustama.
 
     def tag(self, text: Text, return_layer=False) -> Text:
         wordlist = self._get_wordlist(text)

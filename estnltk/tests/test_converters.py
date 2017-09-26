@@ -72,8 +72,8 @@ def test_json_export_import():
     text.tag_layer(['compound_tokens'])
     text = import_json(export_json(text))
     text.tag_layer(['words'])
-    text = import_json(export_json(text))
-    text.tag_layer(['normalized_words'])
+    #text = import_json(export_json(text))
+    #text.tag_layer(['normalized_words'])
     text = import_json(export_json(text))
     text.tag_layer(['morph_analysis'])
     text = import_json(export_json(text))
@@ -94,7 +94,7 @@ def test_TCF_export_import():
     
     text = Text(T).tag_layer(['morph_analysis', 'sentences'])
     del text.tokens
-    del text.normalized_words
+    del text.words
     TCF_text = export_TCF(text)
     text_import = import_TCF(TCF_text)
     assert text_import == text  

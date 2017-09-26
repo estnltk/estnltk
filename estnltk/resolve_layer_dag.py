@@ -69,11 +69,10 @@ class Resolver:
 
 
 from .taggers import TokensTagger
-from .taggers import WordTokenizer
+from .taggers import WordTagger
 from .taggers import CompoundTokenTagger
 from .taggers import SentenceTokenizer
 from .taggers import ParagraphTokenizer
-from .taggers.premorph.premorf import WordNormalizingTagger
 from .taggers.morf import VabamorfTagger
 from .taggers import MorphExtendedTagger
 
@@ -92,10 +91,9 @@ def make_resolver(
                                      compound=compound
                                      )
 
-    taggers = Taggers([TokensTagger(), WordTokenizer(), CompoundTokenTagger(),
+    taggers = Taggers([TokensTagger(), WordTagger(), CompoundTokenTagger(),
                        SentenceTokenizer(), ParagraphTokenizer(),
-                       WordNormalizingTagger(), vabamorf_tagger,
-                       MorphExtendedTagger()])
+                       vabamorf_tagger, MorphExtendedTagger()])
     return Resolver(taggers)
 
 

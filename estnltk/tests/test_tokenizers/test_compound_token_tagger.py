@@ -430,9 +430,9 @@ class CompoundTokenTaggerTest(unittest.TestCase):
                          'expected_compound_tokens': [['SKT', '-', 'st'], ['LinkedIn', '-', 'ist'],['10', '000', "'", 'es']] ,\
                          'expected_normalizations': ['SKT-st', 'LinkedIn-ist', "10000'es"] },\
                        # Normalization of words with hyphens 
-                       { 'text': 'Mis lil-li müüs Tiit 10e krooniga?',\
-                         'expected_compound_tokens': [['lil', '-', 'li']] ,\
-                         'expected_normalizations': ['lilli'] },\
+                       { 'text': 'Mis lil-li müüs Tiit 10-e krooniga?',\
+                         'expected_compound_tokens': [['lil', '-', 'li'], ['10', '-', 'e']] ,\
+                         'expected_normalizations': ['lilli', '10-e'] },\
                        { 'text': 'kõ-kõ-kõik v-v-v-ve-ve-ve-vere-taoline on m-a-a-a-l-u-n-e...',\
                          'expected_compound_tokens': [['kõ', '-', 'kõ', '-', 'kõik'], ['v', '-', 'v', '-', 'v', '-', 've', '-', 've', '-', 've', '-', 'vere', '-', 'taoline'], ['m', '-', 'a', '-', 'a', '-', 'a', '-', 'l', '-', 'u', '-', 'n', '-', 'e']] ,\
                          'expected_normalizations': ['kõik', 'vere-taoline', 'maaalune'] },\

@@ -1,14 +1,12 @@
 from estnltk.taggers.tagger import Tagger
-
 from estnltk.taggers.raw_text_tagging.regex_tagger import RegexTagger
 from estnltk.taggers.raw_text_tagging.date_tagger.date_tagger import DateTagger
 
 from estnltk.taggers.event_tagging.event_sequence_tagger import EventSequenceTagger
 
-from estnltk.taggers.premorph.premorf import WordNormalizingTagger
 from estnltk.taggers.morf import VabamorfTagger
 from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger
-from estnltk.taggers.text_segmentation.word_tokenizer import WordTokenizer
+from estnltk.taggers.text_segmentation.word_tagger import WordTagger
 from estnltk.taggers.text_segmentation.sentence_tokenizer import SentenceTokenizer
 from estnltk.taggers.text_segmentation.paragraph_tokenizer import ParagraphTokenizer
 from estnltk.taggers.text_segmentation.compound_token_tagger import CompoundTokenTagger

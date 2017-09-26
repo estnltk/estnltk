@@ -642,10 +642,10 @@ def test_to_records():
             [{'root': '.', 'lemma': '.', 'form': '', 'ending': '', 'root_tokens': ('.',), 'partofspeech': 'Z', 'start': 9, 'end': 10, 'clitic': ''}]]
 
     #base
-    assert (text['words'].to_records() == [{'start': 0, 'end': 5}, {'start': 6, 'end': 9}, {'start': 9, 'end': 10}])
+    assert (text['words'].to_records() == [{'start': 0, 'end': 5, 'normalized_form': None}, {'start': 6, 'end': 9, 'normalized_form': None}, {'start': 9, 'end': 10, 'normalized_form': None}])
 
     #enveloping (note nested lists)
-    assert (text['sentences'].to_records() == [[{'end': 5, 'start': 0}, {'end': 9, 'start': 6}, {'end': 10, 'start': 9}]])
+    assert (text['sentences'].to_records() == [[{'end': 5, 'start': 0, 'normalized_form': None}, {'end': 9, 'start': 6, 'normalized_form': None}, {'end': 10, 'start': 9, 'normalized_form': None}]])
 
 
 
