@@ -25,6 +25,7 @@ MACROS = {
             'NUMERIC': '0-9',
             '1,3': '{1,3}',
             '2,': '{2,}',
+            '1,25': '{1,25}',
             # ===================================================
             #   Non-ending abbreviations 
             #   (even if followed by a period, usually do not 
@@ -83,13 +84,22 @@ MACROS['ALPHANUM'] = MACROS['LETTERS'] + MACROS['NUMERIC']
 xml_patterns = [
     # Note: XML tags should be detected before www and email addresses,
     #        because XML tags can contain www and email addresses
-    { 'comment': '*) Detect XML tags from the text;',
+    { 'comment': '*) Detect XML tags from the text (content limit: max 25 characters);',
       'example': '<p>',
       'pattern_type': 'xml_tag',
       '_group_': 0,
-      '_priority_': (0, 0, 0),
+      '_priority_': (0, 0, 0, 1),
       '_regex_pattern_': re.compile(r'''
-                         (<[^<>]+?>)                               # an xml tag
+                         (<[^<>]{1,25}?>)                         # an xml tag
+                         '''.format(**MACROS), re.X),
+      'normalized': 'lambda m: None'},
+    { 'comment': '*) Detect XML tags from the text (no content limit, but must include =");',
+      'example': '<a href=”http://sait.ee/” rel=”nofollow”>',
+      'pattern_type': 'xml_tag',
+      '_group_': 0,
+      '_priority_': (0, 0, 0, 2),
+      '_regex_pattern_': re.compile(r'''
+                         (<[^<>]+?=["”][^<>]+?>)                  # an xml tag
                          '''.format(**MACROS), re.X),
       'normalized': 'lambda m: None'},
 ]
