@@ -429,15 +429,37 @@ class CompoundTokenTagger(Tagger):
             # reconstruct string with normalizations
             i = start_index
             normalized = []
+            last_was_single_symbol = True
             while i < end_index:
+                # check if we have already added a normalization, and its 
+                # last character overlaps with a beginning of a new/starting 
+                # normalization;
+                #    ==> if so, then merge two normalizations ...
+                if i-1 in all_normalizations and len(normalized)>0 and \
+                   not last_was_single_symbol:
+                    character = text.text[i-1:i]
+                    # check if the characters match
+                    if normalized[-1].endswith(character) and \
+                        all_normalizations[i-1][0].startswith(character):
+                        # if one normalization ends where another starts, 
+                        # then merge two normalizations
+                        merged_norm = all_normalizations[i-1][0]
+                        merged_norm = merged_norm[1:] # skip the overlapping character
+                        normalized.append( merged_norm )
+                        i = all_normalizations[i-1][1]
+                        last_was_single_symbol = False
+                        continue
+                # check if a new normalization starts from the current position
                 if i in all_normalizations:
                     # add normalized string
                     normalized.append(all_normalizations[i][0])
                     # move to the next position
                     i = all_normalizations[i][1]
+                    last_was_single_symbol = False
                 else:
-                    # add single symbol
+                    # finally, add a single symbol, if no normalization was found
                     normalized.append(text.text[i:i+1])
+                    last_was_single_symbol = True
                     i += 1
             normalized_str = ''.join(normalized)
         
