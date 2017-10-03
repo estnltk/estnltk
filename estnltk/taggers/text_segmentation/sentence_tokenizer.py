@@ -8,6 +8,7 @@ from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 
 hypen_pat = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015)'
+lc_letter = '[a-zöäüõžš]'
 
 merge_patterns = [ \
    #   {Numeric_range_start} {period} + {dash} {Numeric_range_end}
@@ -16,6 +17,22 @@ merge_patterns = [ \
    #   {Numeric_range_start} {period} {dash} + {Numeric_range_end}
    [re.compile('(.+\s)?([0-9]+)\s*\.\s*'+hypen_pat+'$'), re.compile('([0-9]+)\s*\.(.+)?$') ], \
 
+   #   {Numeric_year} {period} {|a|} + {lowercase}
+   #   Examples: "Luunja sai vallaõigused 1991.a." + " kevadel."
+   #             "Manifest 2, mis kinnitati 2011.a." + "mais Budapestis."
+   [re.compile('(.+)?([0-9]{3,4})\s*\.\s*a\.?$'), re.compile('^('+lc_letter+'|[0-9])+') ], \
+
+   #   {Numeric_year} {period} + {|aasta|}
+   #   Examples: "BRK-de traditsioon sai alguse 1964 ." + "aastal Saksamaal Heidelbergis."
+   #             "Tartu Teaduspargil valmib 2005/2006." + "aastal uus maja."
+   [re.compile('(.+)?([0-9]{3,4})\s*\.$'), re.compile('^'+lc_letter+'*aasta.*') ], \
+
+   #   {Numeric_date} {period} + {month_name}
+   #   Example:  "Kirijenko on sündinud 26 ." + "juulil 1962 . aastal ."
+   [re.compile('(.+)?([0-9]{1,2})\s*\.$'), re.compile('^(jaan|veeb|märts|apr|mai|juul|juun|augu|septe|okto|nove|detse).*') ], \
+   #   {Numeric_date} {period} + {month_name_short}
+   #   Example:  "( NYT , 5 ." + "okt . )"
+   [re.compile('(.+)?([0-9]{1,2})\s*\.$'), re.compile('^(jaan|veebr?|mär|apr|mai|juul|juun|aug|sept|okt|nov|dets)(\s*\.|\s).*') ], \
 ]
 
 
@@ -103,7 +120,7 @@ class SentenceTokenizer(Tagger):
                 prev_sent = \
                     text.text[last_sentence_spl.start:last_sentence_spl.end].rstrip()
                 # Check if the adjacent sentences should be joined / merged according 
-                # to some patterns ...
+                # to one of the patterns ...
                 for [beginPat, endPat] in merge_patterns:
                     if beginPat.match(prev_sent) and endPat.match(this_sent):
                         mergeSpanLists = True
@@ -117,7 +134,8 @@ class SentenceTokenizer(Tagger):
                         last_sentence_spl.spans+sentence_spl.spans
                     new_sentences_list.append( merged_spanlist )
                 else: 
-                    # One sentence has already been added: extend it!
+                    # At least one sentence has already been added: 
+                    # extend the last sentence
                     merged_spanlist.spans = \
                         new_sentences_list[-1].spans+sentence_spl.spans
                     new_sentences_list[-1] = merged_spanlist
