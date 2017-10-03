@@ -116,7 +116,7 @@ def test_merge_mistakenly_split_sentences_2():
         { 'text': 'Lõpuks otsustasingi kandideerida ning tänane ( reede õhtul - toim. ) võit tuli mulle küll täieliku üllatusena .', \
           'expected_sentence_texts': ['Lõpuks otsustasingi kandideerida ning tänane ( reede õhtul - toim. ) võit tuli mulle küll täieliku üllatusena .'] }, \
 
-        #   Merge case:   {parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}
+        #   Merge case:   {parentheses_start} {content_in_parentheses} + {content_in_parentheses} {parentheses_end}
         { 'text': '( " Easy FM , soft hits ! " ) .', \
           'expected_sentence_texts': ['( " Easy FM , soft hits ! " ) .'] }, \
         { 'text': '( " Mis siis õieti tahetakse ? " , 1912 ) .', \
@@ -127,6 +127,8 @@ def test_merge_mistakenly_split_sentences_2():
           'expected_sentence_texts': ['Bisweed on alles 17aastane (loe: ta läheb sügisel 11. klassi!) ja juba on tema heliloomingut välja andnud mitmed plaadifirmad.'] }, \
         { 'text': 'Riik on hoiatanud oma liitlasi ja partnereid äritegemise eest Teheraniga ( NYT , 5 . okt . ) .\n', \
           'expected_sentence_texts': ['Riik on hoiatanud oma liitlasi ja partnereid äritegemise eest Teheraniga ( NYT , 5 . okt . ) .'] }, \
+        { 'text': 'Varustage aabits oma nimega ning tooge see selle nädala jooksul (23 . – 26. 08) oma rühmaõpetaja kätte!', \
+          'expected_sentence_texts': ['Varustage aabits oma nimega ning tooge see selle nädala jooksul (23 . – 26. 08) oma rühmaõpetaja kätte!'] }, \
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
@@ -143,7 +145,7 @@ def test_merge_mistakenly_split_sentences_2():
 
 def test_merge_mistakenly_split_sentences_3():
     # Tests that mistakenly split sentences have been properly merged
-    # 2: Addresses splits related to double quotes
+    # 3: Addresses splits related to double quotes
     test_texts = [ 
         #   Merge case:   {sentence_ending_punct} {ending_quotes}? + {comma_or_semicolon} {lowercase_letter}
         { 'text': 'ETV-s esietendub homme " Õnne 13 ! " , mis kuu aja eest jõudis lavale Ugalas .', \
@@ -152,6 +154,12 @@ def test_merge_mistakenly_split_sentences_3():
           'expected_sentence_texts': ['Naise küsimusele : " Kes on tema uus sekretär ? " , vastas Jaak suure entusiasmiga .'] }, \
         { 'text': 'Lavale astuvad jõulise naissolistiga Conflict OK ! , kitarripoppi mängivad Claires Birthday ja Seachers .', \
           'expected_sentence_texts': ['Lavale astuvad jõulise naissolistiga Conflict OK ! , kitarripoppi mängivad Claires Birthday ja Seachers .'] }, \
+        { 'text': 'Tolle taha jääb xxxx miljoni krooni eest nn. " varjatud ainet " .', \
+          'expected_sentence_texts': ['Tolle taha jääb xxxx miljoni krooni eest nn. " varjatud ainet " .'] }, \
+        { 'text': 'kui sokratese " segav " kohalolek on " välistatud " ja nn. " ellimineeritud " ...', \
+          'expected_sentence_texts': ['kui sokratese " segav " kohalolek on " välistatud " ja nn. " ellimineeritud " ...'] }, \
+        { 'text': 'Enne " Romeo ja Juliat " koostasid kaks inkvisiitorit " Malleus Maleficarumi " nn. " nöiavasara "', \
+          'expected_sentence_texts': ['Enne " Romeo ja Juliat " koostasid kaks inkvisiitorit " Malleus Maleficarumi " nn. " nöiavasara "'] }, \
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )

@@ -16,9 +16,9 @@ merge_patterns = [ \
    # ***********************************
    #   {Numeric_range_start} {period} + {dash} {Numeric_range_end}
    #    Example: "Tartu Muinsuskaitsepäevad toimusid 1988. a 14." + "- 17. aprillil."
-   [re.compile('(.+\s)?([0-9]+)\s*\.$'), re.compile(hypen_pat+'\s*([0-9]+)\s*\.(.+)?$') ], \
+   [re.compile('(.+)?([0-9]+)\s*\.$'), re.compile(hypen_pat+'\s*([0-9]+)\s*\.(.*)?$') ], \
    #   {Numeric_range_start} {period} {dash} + {Numeric_range_end}
-   [re.compile('(.+\s)?([0-9]+)\s*\.\s*'+hypen_pat+'$'), re.compile('([0-9]+)\s*\.(.+)?$') ], \
+   [re.compile('(.+)?([0-9]+)\s*\.\s*'+hypen_pat+'$'), re.compile('([0-9]+)\s*\.(.+)?$') ], \
 
    #   {Numeric_year} {period} {|a|} + {lowercase}
    #   Examples: "Luunja sai vallaõigused 1991.a." + " kevadel."
@@ -55,7 +55,7 @@ merge_patterns = [ \
    
    #   {parentheses_start} {content_in_parentheses} + {parentheses_end}
    #   Examples:  '( " Easy FM , soft hits ! "' + ') .'
-   [re.compile('.*\([^()]+$'), re.compile('^\).*') ], \
+   [re.compile('.*\([^()]+$'), re.compile('^[^() ]*\).*') ], \
    
    #   {parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}
    #   Example:   "(loe: ta läheb sügisel 11." + " klassi!)"
@@ -68,10 +68,12 @@ merge_patterns = [ \
    # ***********************************
    #   Fixes related to double quotes
    # ***********************************
-   #   {sentence_ending_punct} {ending_quotes}? + {comma_or_semicolon} {lowercase_letter}
-   #   Examples:  'ETV-s esietendub homme " Õnne 13 ! "' + ', mis kuu aja eest jõudis lavale Ugalas .'
-   #              "Jõulise naissolistiga Conflict OK !" + ", kitarripoppi mängivad Claires Birthday ja Seachers."
-   [re.compile('.+[?!]\s*["\u00BB\u02EE\u030B\u201C\u201D\u201E]?$'), re.compile('^[,;]\s*'+lc_letter+'+') ], \
+   #   {sentence_ending_punct} {ending_quotes} + {comma_or_semicolon_or_lowercase_letter}
+   #   Example:   'ETV-s esietendub homme " Õnne 13 ! "' + ', mis kuu aja eest jõudis lavale Ugalas .'
+   [re.compile('.+[?!.]\s*["\u00BB\u02EE\u030B\u201C\u201D\u201E]$'), re.compile('^([,;]|'+lc_letter+')+') ], \
+   #   {sentence_ending_punct} + {comma_or_semicolon} {lowercase_letter}
+   #   Example:   "Jõulise naissolistiga Conflict OK !" + ", kitarripoppi mängivad Claires Birthday ja Seachers."
+   [re.compile('.+[?!]\s*$'), re.compile('^([,;])\s*'+lc_letter+'+') ], \
 ]
 
 
