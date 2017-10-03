@@ -46,9 +46,15 @@ merge_patterns = [ \
    #              "Ja kui ma sain 40 , olin siis Mikuga ( Mikk Mikiveriga - Toim. )" + "abi-elus ."
    #              "Kas kohanime ajaloolises tekstis ( nt . 18. saj . )" + "kirjutada tolleaegse nimetusega?"
    [re.compile('(.+)?\([^()]+[.!]\s*\)$'), re.compile('^('+lc_letter+'|,)+.*')], \
+   #   {brackets_start} {content_in_brackets} + {brackets_end}
+   #   Examples:  '( " Easy FM , soft hits ! "' + ') .'
+   [re.compile('.*\([^()]+$'), re.compile('^\).*') ], \
    #   {brackets_start} {content_in_brackets} + {lowercase_or_comma} {content_in_brackets} {brackets_end}
    #   Examples:  "(loe: ta läheb sügisel 11." + " klassi!)"
    [re.compile('(.+)?\([^()]+$'), re.compile('^('+lc_letter+'|,)[^()]+\).*')], \
+   #   {content_in_brackets} + {single_sentence_ending_symbol}
+   #   Examples:  '( " Easy FM , soft hits ! " )' + '.'
+   [re.compile('.*\([^()]+\)$'), re.compile('^[.?!]$') ], \
 ]
 
 
