@@ -24,7 +24,9 @@ merge_patterns = [ \
    #   Examples: "Luunja sai vallaõigused 1991.a." + " kevadel."
    #             "Manifest 2, mis kinnitati 2011.a." + "mais Budapestis."
    [re.compile('(.+)?([0-9]{3,4})\s*\.\s*a\.?$'), re.compile('^('+lc_letter+'|[0-9])+') ], \
-
+   #   {Numeric_year} {period} + {|a|} {lowercase}
+   [re.compile('(.+)?([0-9]{4})\s*\.$'), re.compile('^\s*a\.?\s*('+lc_letter+'|[0-9])+') ], \
+   
    #   {Numeric_year} {period} + {|aasta|}
    #   Examples: "BRK-de traditsioon sai alguse 1964 ." + "aastal Saksamaal Heidelbergis."
    #             "Tartu Teaduspargil valmib 2005/2006." + "aastal uus maja."
@@ -74,6 +76,8 @@ merge_patterns = [ \
    #   {sentence_ending_punct} + {comma_or_semicolon} {lowercase_letter}
    #   Example:   "Jõulise naissolistiga Conflict OK !" + ", kitarripoppi mängivad Claires Birthday ja Seachers."
    [re.compile('.+[?!]\s*$'), re.compile('^([,;])\s*'+lc_letter+'+') ], \
+   #   {starting_quotes} {content_in_quotes} {sentence_ending_punct} + {ending_quotes}
+   [re.compile('.+?["\u00AB\u02EE\u030B\u201C\u201D\u201E][^"\u00BB\u02EE\u030B\u201C\u201D\u201E]+[?!.]$'), re.compile('^["\u00BB\u02EE\u030B\u201C\u201D\u201E].*') ], \
 ]
 
 
@@ -96,11 +100,25 @@ class SentenceTokenizer(Tagger):
         if sentence_tokenizer is None:
             sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
 
-    def _tokenize(self, text: 'Text') -> Iterator[Tuple[int, int]]:
+    def _tokenize_text(self, text: 'Text') -> Iterator[Tuple[int, int]]:
+        ''' Tokenizes into sentences based on the input text. '''
         return self.sentence_tokenizer.span_tokenize(text.text)
 
+    def _sentences_from_tokens(self, text: 'Text') -> Iterator[Tuple[int, int]]:
+        ''' Tokenizes into sentences based on the word tokens of the input text. '''
+        words = list(text.words)
+        word_texts = [text.text[word.start:word.end] for word in words]
+        i = 0
+        for sentence_words in self.sentence_tokenizer.sentences_from_tokens(word_texts):
+            if len(sentence_words) > 0:
+                first_token = i
+                last_token  = i + len(sentence_words) - 1
+                yield (words[first_token].start, words[last_token].end)
+                i += len(sentence_words)
+
     def tag(self, text: 'Text', return_layer=False, fix=True) -> 'Text':
-        sentence_ends = {end for _, end in self._tokenize(text)}
+        sentence_ends = {end for _, end in self._tokenize_text(text)}
+        #sentence_ends = {end for _, end in self._sentences_from_tokens(text)}
         if fix:
             # A) Remove sentence endings that coincide with 
             #    endings of non_ending_abbreviation's

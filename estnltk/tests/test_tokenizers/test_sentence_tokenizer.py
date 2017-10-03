@@ -3,7 +3,7 @@ from estnltk.text import Text
 
 def test_merge_mistakenly_split_sentences_1():
     # Tests that mistakenly split sentences have been properly merged
-    # 1: Addresses splits related to numeric ranges, dates and times
+    # 1: splits related to numeric ranges, dates and times
     test_texts = [ 
         #   Merge case:   {Numeric_range_start} {period} + {dash} {Numeric_range_end}
         { 'text': 'Tartu Muinsuskaitsepäevad toimusid 1988. a 14. - 17. aprillil. Tegelikult oli soov need teha nädal hiljem.', \
@@ -92,7 +92,7 @@ def test_merge_mistakenly_split_sentences_1():
 
 def test_merge_mistakenly_split_sentences_2():
     # Tests that mistakenly split sentences have been properly merged
-    # 2: Addresses splits related to sentence parts in parentheses
+    # 2: splits related to sentence parts in parentheses
     test_texts = [ 
         #   Merge case:   {period_ending_content_of_parentheses} + {lowercase_or_comma}
         { 'text': 'Lugesime Menippose (III saj. e.m.a.) satiiri...', \
@@ -145,7 +145,7 @@ def test_merge_mistakenly_split_sentences_2():
 
 def test_merge_mistakenly_split_sentences_3():
     # Tests that mistakenly split sentences have been properly merged
-    # 3: Addresses splits related to double quotes
+    # 3: splits related to double quotes
     test_texts = [ 
         #   Merge case:   {sentence_ending_punct} {ending_quotes}? + {comma_or_semicolon} {lowercase_letter}
         { 'text': 'ETV-s esietendub homme " Õnne 13 ! " , mis kuu aja eest jõudis lavale Ugalas .', \
