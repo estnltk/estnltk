@@ -28,7 +28,10 @@ def test_merge_mistakenly_split_sentences_1():
           'expected_sentence_texts': ['Samas teatas investeeringute suurenemisest rohkem ettevõtteid kui aasta tagasi (2005.a. 46%, 2004.a. 35%).'] }, \
         { 'text': 'Uuringu esialgsed tulemused muutuvad kättesaadavaks 2002.a. maikuus.', \
           'expected_sentence_texts': ['Uuringu esialgsed tulemused muutuvad kättesaadavaks 2002.a. maikuus.'] }, \
-
+        #   Merge case:   {Date_with_year} {period} + {time}
+        { 'text': 'Gert 02.03.2009. 14:40 Tahaks kindlalt sinna kooli:P', \
+          'expected_sentence_texts': ['Gert 02.03.2009. 14:40 Tahaks kindlalt sinna kooli:P'] }, \
+          
         #   Merge case:   {Numeric_year} {period} + {|aasta|}
         { 'text': 'BRK-de traditsioon sai alguse 1964 . aastal Saksamaal Heidelbergis.', \
           'expected_sentence_texts': ['BRK-de traditsioon sai alguse 1964 . aastal Saksamaal Heidelbergis.'] }, \
@@ -172,3 +175,24 @@ def test_merge_mistakenly_split_sentences_3():
         # Make assertions
         assert sentence_texts == test_text['expected_sentence_texts']
 
+
+def test_split_mistakenly_merged_sentences_1():
+    # Tests that mistakenly merged sentences are properly split
+    # 1: splits related to missing whitespace between words and sentence-ending punctuation
+    test_texts = [ 
+        { 'text': 'Kas on ikka niipalju vaja ?Ei ole ju .', \
+          'expected_sentence_texts': ['Kas on ikka niipalju vaja ?', 'Ei ole ju .'] }, \
+        { 'text': 'Iga päev teeme valikuid.Valime kõike alates pesupulbrist ja lõpetades autopesulatega.Jah, iga päev teeme valikuid.', \
+          'expected_sentence_texts': ['Iga päev teeme valikuid.', 'Valime kõike alates pesupulbrist ja lõpetades autopesulatega.', 'Jah, iga päev teeme valikuid.'] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words', 'sentences'])
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences'].spans]
+        #print(sentence_texts)
+        # Make assertions
+        assert sentence_texts == test_text['expected_sentence_texts']
+    

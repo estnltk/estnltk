@@ -32,6 +32,10 @@ merge_patterns = [ \
    #             "Tartu Teaduspargil valmib 2005/2006." + "aastal uus maja."
    [re.compile('(.+)?([0-9]{3,4})\s*\.$'), re.compile('^'+lc_letter+'*aasta.*') ], \
 
+   #   {Date_dd.mm.yyyy.} + {time_HH:MM}
+   #   Example: 'Gert 02.03.2009.' + '14:40 Tahaks kindlalt sinna kooli:P'
+   [re.compile('(.+)?([0-9]{2})\.([0-9]{2})\.([0-9]{4})\.\s*$'), re.compile('^\s*([0-9]{2}):([0-9]{2})')], \
+   
    #   {Numeric|Roman_numeral_century} {period} {|sajand|} + {lowercase}
    #   Example: "... Mileetose koolkonnd (VI-V saj." + "e. Kr.) ..."
    [re.compile('(.+)?([0-9]{1,2}|[IVXLCDM]+)\s*\.?\s*saj\.?$'), re.compile('^'+lc_letter+'+') ], \
@@ -110,15 +114,15 @@ class SentenceTokenizer(Tagger):
         word_texts = [text.text[word.start:word.end] for word in words]
         i = 0
         for sentence_words in self.sentence_tokenizer.sentences_from_tokens(word_texts):
-            if len(sentence_words) > 0:
+            if sentence_words:
                 first_token = i
                 last_token  = i + len(sentence_words) - 1
                 yield (words[first_token].start, words[last_token].end)
                 i += len(sentence_words)
 
     def tag(self, text: 'Text', return_layer=False, fix=True) -> 'Text':
-        sentence_ends = {end for _, end in self._tokenize_text(text)}
-        #sentence_ends = {end for _, end in self._sentences_from_tokens(text)}
+        #sentence_ends = {end for _, end in self._tokenize_text(text)}
+        sentence_ends = {end for _, end in self._sentences_from_tokens(text)}
         if fix:
             # A) Remove sentence endings that coincide with 
             #    endings of non_ending_abbreviation's
