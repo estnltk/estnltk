@@ -25,6 +25,8 @@ def test_merge_mistakenly_split_sentences():
           'expected_sentence_texts': ['Samas ujutatakse turg üle võlgnike varaga.', 'Praegune 2009.a. riigieelarve tulude maht on prognoositud 97,8 miljardit EEK.'] }, \
         { 'text': 'Samas teatas investeeringute suurenemisest rohkem ettevõtteid kui aasta tagasi (2005.a. 46%, 2004.a. 35%).', \
           'expected_sentence_texts': ['Samas teatas investeeringute suurenemisest rohkem ettevõtteid kui aasta tagasi (2005.a. 46%, 2004.a. 35%).'] }, \
+        { 'text': 'Uuringu esialgsed tulemused muutuvad kättesaadavaks 2002.a. maikuus.', \
+          'expected_sentence_texts': ['Uuringu esialgsed tulemused muutuvad kättesaadavaks 2002.a. maikuus.'] }, \
 
         #   Merge case:   {Numeric_year} {period} + {|aasta|}
         { 'text': 'BRK-de traditsioon sai alguse 1964 . aastal Saksamaal Heidelbergis.', \
@@ -39,6 +41,19 @@ def test_merge_mistakenly_split_sentences():
           'expected_sentence_texts': ['2000. aastal Sydneyst võideti kuldmedal,2004. aastal Ateenas teenisid nad koos hõbeda.'] }, \
         { 'text': 'Sügisel kaotas naine töö ja ka mehe äri hakkas allamäge veerema. «2009. aasta jaanuaris võtsin ennast töötuna arvele.', \
           'expected_sentence_texts': ['Sügisel kaotas naine töö ja ka mehe äri hakkas allamäge veerema.', '«2009. aasta jaanuaris võtsin ennast töötuna arvele.'] }, \
+          
+        #   Merge case:   {Numeric|Roman_numeral_century} {period} {|sajand|} + {lowercase}
+        { 'text': 'Kui sealt alla sammusin siis leitsin 15. saj. pärit surnuaia .\nVõi oli isegi pikem aeg , 19. saj. lõpust , kusagilt lugesin .', \
+          'expected_sentence_texts': ['Kui sealt alla sammusin siis leitsin 15. saj. pärit surnuaia .', 'Või oli isegi pikem aeg , 19. saj. lõpust , kusagilt lugesin .'] }, \
+        { 'text': 'Ioonia filosoofia Mileetose koolkonnd (VI-V saj. e. Kr.) olid esimene kreeka filosoofiakoolkond.', \
+          'expected_sentence_texts': ['Ioonia filosoofia Mileetose koolkonnd (VI-V saj. e. Kr.) olid esimene kreeka filosoofiakoolkond.'] }, \
+        { 'text': 'Otsimisega oli hädas juba Vana-Hiina suurim ajaloolane Sima Qian (II—I saj. e. m. a.). Ta kaebab allikate vähesuse ja vastuolulisuse üle.', \
+          'expected_sentence_texts': ['Otsimisega oli hädas juba Vana-Hiina suurim ajaloolane Sima Qian (II—I saj. e. m. a.).', 'Ta kaebab allikate vähesuse ja vastuolulisuse üle.'] }, \
+
+        { 'text': 'Aastaks 325 p.Kr. olid erinevad kristlikud sektid omavahel tülli läinud.', \
+          'expected_sentence_texts': ['Aastaks 325 p.Kr. olid erinevad kristlikud sektid omavahel tülli läinud.'] }, \
+        { 'text': 'Suur rahvasterändamine oli avanud IV-nda sajandiga p. Kr. segaduste ja sõdade ajastu.', \
+          'expected_sentence_texts': ['Suur rahvasterändamine oli avanud IV-nda sajandiga p. Kr. segaduste ja sõdade ajastu.'] }, \
 
         #   Merge case:   {Numeric_date} {period} + {month_name_long}
         { 'text': 'Järgarvud selgeks !\nLoomulikult algab uus aastatuhat 1 . jaanuaril 2001 .', \
@@ -51,13 +66,33 @@ def test_merge_mistakenly_split_sentences():
           'expected_sentence_texts': ['1.–10. oktoobrini näeb erinevates Eesti teatrites väga head Vene teatrit.'] }, \
         { 'text': 'Aga selgust ei pruugi enne 15 . augustit tulla .', \
           'expected_sentence_texts': ['Aga selgust ei pruugi enne 15 . augustit tulla .'] }, \
-
+          
         #   Merge case:   {Numeric_date} {period} + {month_name_short}
         { 'text': 'Riik on hoiatanud oma liitlasi ja partnereid äritegemise eest Teheraniga ( NYT , 5 . okt . ) .\n', \
           'expected_sentence_texts': ['Riik on hoiatanud oma liitlasi ja partnereid äritegemise eest Teheraniga ( NYT , 5 . okt . )', '.'] }, \
         { 'text': '" Ma ei tunne Laidoneri , " vastas Ake .\n5 . sept .', \
           'expected_sentence_texts': ['" Ma ei tunne Laidoneri , " vastas Ake .', '5 . sept .'] }, \
 
+        #   Merge case:   {period_ending_content_of_brackets} + {lowercase_or_comma}
+        { 'text': 'Lugesime Menippose (III saj. e.m.a.) satiiri...', \
+          'expected_sentence_texts': ['Lugesime Menippose (III saj. e.m.a.) satiiri...'] }, \
+        { 'text': 'Teine kysimus : kas kohanime ajaloolises tekstis ( nt . 18. saj . ) kirjutada tolleaegse nimetusega v6i tänapäevase ?', \
+          'expected_sentence_texts': ['Teine kysimus : kas kohanime ajaloolises tekstis ( nt . 18. saj . ) kirjutada tolleaegse nimetusega v6i tänapäevase ?'] }, \
+        { 'text': 'Keiser Taianuse ( 93-117 p .\nKr . ) basseinist Colosseumi lähedal kraapis üks tööline sel kevadel välja huvitava leiu.', \
+          'expected_sentence_texts': ['Keiser Taianuse ( 93-117 p .\nKr . ) basseinist Colosseumi lähedal kraapis üks tööline sel kevadel välja huvitava leiu.'] }, \
+        { 'text': 'Ja kui ma sain 40 , olin siis Mikuga ( Mikk Mikiveriga - Toim. ) abi-elus .', \
+          'expected_sentence_texts': ['Ja kui ma sain 40 , olin siis Mikuga ( Mikk Mikiveriga - Toim. ) abi-elus .'] }, \
+        { 'text': 'Originaalis on joogis arrak ( riisiviin - toim. ) , rumm , tee , vesi ja suhkur ,\nseletab Demjanov .', \
+          'expected_sentence_texts': ['Originaalis on joogis arrak ( riisiviin - toim. ) , rumm , tee , vesi ja suhkur ,\nseletab Demjanov .'] }, \
+        { 'text': '“Praktiline töö läbib kontrolli DVSi (Saksamaa Keevitusliit – toim.) laboris ja selle alusel väljastatakse sertifikaat,” rääkis Einla.', \
+          'expected_sentence_texts': ['“Praktiline töö läbib kontrolli DVSi (Saksamaa Keevitusliit – toim.) laboris ja selle alusel väljastatakse sertifikaat,” rääkis Einla.'] }, \
+        { 'text': 'Lõpuks otsustasingi kandideerida ning tänane ( reede õhtul - toim. ) võit tuli mulle küll täieliku üllatusena .', \
+          'expected_sentence_texts': ['Lõpuks otsustasingi kandideerida ning tänane ( reede õhtul - toim. ) võit tuli mulle küll täieliku üllatusena .'] }, \
+
+        #   Merge case:   {brackets_start} {content_in_brackets} + {lowercase_or_comma} {content_in_brackets} {brackets_end}
+        { 'text': 'Bisweed on alles 17aastane (loe: ta läheb sügisel 11. klassi!) ja juba on tema heliloomingut välja andnud mitmed plaadifirmad.', \
+          'expected_sentence_texts': ['Bisweed on alles 17aastane (loe: ta läheb sügisel 11. klassi!) ja juba on tema heliloomingut välja andnud mitmed plaadifirmad.'] }, \
+        
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )

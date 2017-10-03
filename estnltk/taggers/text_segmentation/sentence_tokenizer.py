@@ -27,12 +27,28 @@ merge_patterns = [ \
    #             "Tartu Teaduspargil valmib 2005/2006." + "aastal uus maja."
    [re.compile('(.+)?([0-9]{3,4})\s*\.$'), re.compile('^'+lc_letter+'*aasta.*') ], \
 
+   #   {Numeric|Roman_numeral_century} {period} {|sajand|} + {lowercase}
+   #   Example: "... Mileetose koolkonnd (VI-V saj." + "e. Kr.) ..."
+   [re.compile('(.+)?([0-9]{1,2}|[IVXLCDM]+)\s*\.?\s*saj\.?$'), re.compile('^'+lc_letter+'+') ], \
+   #   {BCE} {period} + {lowercase}
+   #   Example: "Suur rahvasterändamine oli avanud IV-nda sajandiga p. Kr." + "segaduste ja sõdade ajastu."
+   [re.compile('(.+)?[pe]\s*\.\s*Kr\s*\.?$'), re.compile('^'+lc_letter+'+') ], \
+   
    #   {Numeric_date} {period} + {month_name}
    #   Example:  "Kirijenko on sündinud 26 ." + "juulil 1962 . aastal ."
    [re.compile('(.+)?([0-9]{1,2})\s*\.$'), re.compile('^(jaan|veeb|märts|apr|mai|juul|juun|augu|septe|okto|nove|detse).*') ], \
    #   {Numeric_date} {period} + {month_name_short}
    #   Example:  "( NYT , 5 ." + "okt . )"
    [re.compile('(.+)?([0-9]{1,2})\s*\.$'), re.compile('^(jaan|veebr?|mär|apr|mai|juul|juun|aug|sept|okt|nov|dets)(\s*\.|\s).*') ], \
+   
+   #   {period_ending_content_of_brackets} + {lowercase_or_comma}
+   #   Examples:  "Lugesime Menippose (III saj. e.m.a.)" + "satiiri..."
+   #              "Ja kui ma sain 40 , olin siis Mikuga ( Mikk Mikiveriga - Toim. )" + "abi-elus ."
+   #              "Kas kohanime ajaloolises tekstis ( nt . 18. saj . )" + "kirjutada tolleaegse nimetusega?"
+   [re.compile('(.+)?\([^()]+[.!]\s*\)$'), re.compile('^('+lc_letter+'|,)+.*')], \
+   #   {brackets_start} {content_in_brackets} + {lowercase_or_comma} {content_in_brackets} {brackets_end}
+   #   Examples:  "(loe: ta läheb sügisel 11." + " klassi!)"
+   [re.compile('(.+)?\([^()]+$'), re.compile('^('+lc_letter+'|,)[^()]+\).*')], \
 ]
 
 
@@ -116,7 +132,10 @@ class SentenceTokenizer(Tagger):
             mergeSpanLists = False
             if sid-1 > -1:
                 # get text of the previous sentence
-                last_sentence_spl = sentences_list[sid-1]
+                if not new_sentences_list:
+                    last_sentence_spl = sentences_list[sid-1]
+                else:
+                    last_sentence_spl = new_sentences_list[-1]
                 prev_sent = \
                     text.text[last_sentence_spl.start:last_sentence_spl.end].rstrip()
                 # Check if the adjacent sentences should be joined / merged according 
