@@ -178,10 +178,14 @@ def test_merge_mistakenly_split_sentences_3():
 
 def test_split_mistakenly_merged_sentences_1():
     # Tests that mistakenly merged sentences are properly split
-    # 1: splits related to missing whitespace between words and sentence-ending punctuation
+    # 1: merges related to missing whitespace between words and punctuation
     test_texts = [ 
         { 'text': 'Kas on ikka niipalju vaja ?Ei ole ju .', \
           'expected_sentence_texts': ['Kas on ikka niipalju vaja ?', 'Ei ole ju .'] }, \
+        { 'text': 'Totaalne ülemõtlemine!Ei julge ka väita, et oleks kuivaks jäänud:)', \
+          'expected_sentence_texts': ['Totaalne ülemõtlemine!', 'Ei julge ka väita, et oleks kuivaks jäänud:)'] }, \
+        { 'text': 'milles üldse seisneb selle ravimi toime?Mida ta teeb ja kuidas/kuhu toimib?Mis juhtub kui ma võtaksin alkoholi?', \
+          'expected_sentence_texts': ['milles üldse seisneb selle ravimi toime?', 'Mida ta teeb ja kuidas/kuhu toimib?', 'Mis juhtub kui ma võtaksin alkoholi?'] }, \
         { 'text': 'Iga päev teeme valikuid.Valime kõike alates pesupulbrist ja lõpetades autopesulatega.Jah, iga päev teeme valikuid.', \
           'expected_sentence_texts': ['Iga päev teeme valikuid.', 'Valime kõike alates pesupulbrist ja lõpetades autopesulatega.', 'Jah, iga päev teeme valikuid.'] }, \
     ]
