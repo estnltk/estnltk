@@ -11,6 +11,9 @@ hypen_pat = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\
 lc_letter = '[a-zöäüõžš]'
 
 merge_patterns = [ \
+   # ***********************************
+   #   Fixes related to number ranges, dates and times 
+   # ***********************************
    #   {Numeric_range_start} {period} + {dash} {Numeric_range_end}
    #    Example: "Tartu Muinsuskaitsepäevad toimusid 1988. a 14." + "- 17. aprillil."
    [re.compile('(.+\s)?([0-9]+)\s*\.$'), re.compile(hypen_pat+'\s*([0-9]+)\s*\.(.+)?$') ], \
@@ -41,20 +44,34 @@ merge_patterns = [ \
    #   Example:  "( NYT , 5 ." + "okt . )"
    [re.compile('(.+)?([0-9]{1,2})\s*\.$'), re.compile('^(jaan|veebr?|mär|apr|mai|juul|juun|aug|sept|okt|nov|dets)(\s*\.|\s).*') ], \
    
-   #   {period_ending_content_of_brackets} + {lowercase_or_comma}
+   # ***********************************
+   #   Fixes related to parentheses 
+   # ***********************************
+   #   {period_ending_content_of_parentheses} + {lowercase_or_comma}
    #   Examples:  "Lugesime Menippose (III saj. e.m.a.)" + "satiiri..."
    #              "Ja kui ma sain 40 , olin siis Mikuga ( Mikk Mikiveriga - Toim. )" + "abi-elus ."
    #              "Kas kohanime ajaloolises tekstis ( nt . 18. saj . )" + "kirjutada tolleaegse nimetusega?"
    [re.compile('(.+)?\([^()]+[.!]\s*\)$'), re.compile('^('+lc_letter+'|,)+.*')], \
-   #   {brackets_start} {content_in_brackets} + {brackets_end}
+   
+   #   {parentheses_start} {content_in_parentheses} + {parentheses_end}
    #   Examples:  '( " Easy FM , soft hits ! "' + ') .'
    [re.compile('.*\([^()]+$'), re.compile('^\).*') ], \
-   #   {brackets_start} {content_in_brackets} + {lowercase_or_comma} {content_in_brackets} {brackets_end}
-   #   Examples:  "(loe: ta läheb sügisel 11." + " klassi!)"
+   
+   #   {parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}
+   #   Example:   "(loe: ta läheb sügisel 11." + " klassi!)"
    [re.compile('(.+)?\([^()]+$'), re.compile('^('+lc_letter+'|,)[^()]+\).*')], \
-   #   {content_in_brackets} + {single_sentence_ending_symbol}
-   #   Examples:  '( " Easy FM , soft hits ! " )' + '.'
+   
+   #   {content_in_parentheses} + {single_sentence_ending_symbol}
+   #   Example:   '( " Easy FM , soft hits ! " )' + '.'
    [re.compile('.*\([^()]+\)$'), re.compile('^[.?!]$') ], \
+   
+   # ***********************************
+   #   Fixes related to double quotes
+   # ***********************************
+   #   {sentence_ending_punct} {ending_quotes}? + {comma_or_semicolon} {lowercase_letter}
+   #   Examples:  'ETV-s esietendub homme " Õnne 13 ! "' + ', mis kuu aja eest jõudis lavale Ugalas .'
+   #              "Jõulise naissolistiga Conflict OK !" + ", kitarripoppi mängivad Claires Birthday ja Seachers."
+   [re.compile('.+[?!]\s*["\u00BB\u02EE\u030B\u201C\u201D\u201E]?$'), re.compile('^[,;]\s*'+lc_letter+'+') ], \
 ]
 
 

@@ -1,8 +1,9 @@
 from estnltk.text import Text
 
 
-def test_merge_mistakenly_split_sentences():
+def test_merge_mistakenly_split_sentences_1():
     # Tests that mistakenly split sentences have been properly merged
+    # 1: Addresses splits related to numeric ranges, dates and times
     test_texts = [ 
         #   Merge case:   {Numeric_range_start} {period} + {dash} {Numeric_range_end}
         { 'text': 'Tartu Muinsuskaitsepäevad toimusid 1988. a 14. - 17. aprillil. Tegelikult oli soov need teha nädal hiljem.', \
@@ -75,7 +76,25 @@ def test_merge_mistakenly_split_sentences():
         { 'text': '" Ma ei tunne Laidoneri , " vastas Ake .\n5 . sept .', \
           'expected_sentence_texts': ['" Ma ei tunne Laidoneri , " vastas Ake .', '5 . sept .'] }, \
 
-        #   Merge case:   {period_ending_content_of_brackets} + {lowercase_or_comma}
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words', 'sentences'])
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences'].spans]
+        #print(sentence_texts)
+        # Make assertions
+        assert sentence_texts == test_text['expected_sentence_texts']
+
+
+
+def test_merge_mistakenly_split_sentences_2():
+    # Tests that mistakenly split sentences have been properly merged
+    # 2: Addresses splits related to sentence parts in parentheses
+    test_texts = [ 
+        #   Merge case:   {period_ending_content_of_parentheses} + {lowercase_or_comma}
         { 'text': 'Lugesime Menippose (III saj. e.m.a.) satiiri...', \
           'expected_sentence_texts': ['Lugesime Menippose (III saj. e.m.a.) satiiri...'] }, \
         { 'text': 'Eestlastest jõudsid punktikohale Tipp ( 2. ) ja Täpp ( 4. ) ja Käpp ( 7. ) .', \
@@ -97,15 +116,17 @@ def test_merge_mistakenly_split_sentences():
         { 'text': 'Lõpuks otsustasingi kandideerida ning tänane ( reede õhtul - toim. ) võit tuli mulle küll täieliku üllatusena .', \
           'expected_sentence_texts': ['Lõpuks otsustasingi kandideerida ning tänane ( reede õhtul - toim. ) võit tuli mulle küll täieliku üllatusena .'] }, \
 
-        #   Merge case:   {brackets_start} {content_in_brackets} + {lowercase_or_comma} {content_in_brackets} {brackets_end}
+        #   Merge case:   {parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}
+        { 'text': '( " Easy FM , soft hits ! " ) .', \
+          'expected_sentence_texts': ['( " Easy FM , soft hits ! " ) .'] }, \
         { 'text': '( " Mis siis õieti tahetakse ? " , 1912 ) .', \
           'expected_sentence_texts': ['( " Mis siis õieti tahetakse ? " , 1912 ) .'] }, \
         { 'text': 'Kirjandusel ( resp. raamatul ) on läbi aegade olnud erinevaid funktsioone .', \
           'expected_sentence_texts': ['Kirjandusel ( resp. raamatul ) on läbi aegade olnud erinevaid funktsioone .'] }, \
         { 'text': 'Bisweed on alles 17aastane (loe: ta läheb sügisel 11. klassi!) ja juba on tema heliloomingut välja andnud mitmed plaadifirmad.', \
           'expected_sentence_texts': ['Bisweed on alles 17aastane (loe: ta läheb sügisel 11. klassi!) ja juba on tema heliloomingut välja andnud mitmed plaadifirmad.'] }, \
-        { 'text': '( " Easy FM , soft hits ! " ) .', \
-          'expected_sentence_texts': ['( " Easy FM , soft hits ! " ) .'] }, \
+        { 'text': 'Riik on hoiatanud oma liitlasi ja partnereid äritegemise eest Teheraniga ( NYT , 5 . okt . ) .\n', \
+          'expected_sentence_texts': ['Riik on hoiatanud oma liitlasi ja partnereid äritegemise eest Teheraniga ( NYT , 5 . okt . ) .'] }, \
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
@@ -117,3 +138,29 @@ def test_merge_mistakenly_split_sentences():
         #print(sentence_texts)
         # Make assertions
         assert sentence_texts == test_text['expected_sentence_texts']
+
+
+
+def test_merge_mistakenly_split_sentences_3():
+    # Tests that mistakenly split sentences have been properly merged
+    # 2: Addresses splits related to double quotes
+    test_texts = [ 
+        #   Merge case:   {sentence_ending_punct} {ending_quotes}? + {comma_or_semicolon} {lowercase_letter}
+        { 'text': 'ETV-s esietendub homme " Õnne 13 ! " , mis kuu aja eest jõudis lavale Ugalas .', \
+          'expected_sentence_texts': ['ETV-s esietendub homme " Õnne 13 ! " , mis kuu aja eest jõudis lavale Ugalas .'] }, \
+        { 'text': 'Naise küsimusele : " Kes on tema uus sekretär ? " , vastas Jaak suure entusiasmiga .', \
+          'expected_sentence_texts': ['Naise küsimusele : " Kes on tema uus sekretär ? " , vastas Jaak suure entusiasmiga .'] }, \
+        { 'text': 'Lavale astuvad jõulise naissolistiga Conflict OK ! , kitarripoppi mängivad Claires Birthday ja Seachers .', \
+          'expected_sentence_texts': ['Lavale astuvad jõulise naissolistiga Conflict OK ! , kitarripoppi mängivad Claires Birthday ja Seachers .'] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words', 'sentences'])
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences'].spans]
+        #print(sentence_texts)
+        # Make assertions
+        assert sentence_texts == test_text['expected_sentence_texts']
+
