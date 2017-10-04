@@ -53,7 +53,8 @@ class CompoundTokenTagger(Tagger):
                               'tag_initials':tag_initials,
                               'tag_abbreviations':tag_abbreviations,
                               'tag_case_endings':tag_case_endings,
-                              'tag_hyphenations':tag_hyphenations}
+                              'tag_hyphenations':tag_hyphenations,
+                              'use_custom_abbreviations':bool(custom_abbreviations)}
         self._conflict_resolving_strategy = conflict_resolving_strategy
         if custom_abbreviations and not tag_abbreviations:
             raise ValueError("(!) List of custom_abbreviations given, but tag_abbreviations is switched off.")
