@@ -127,7 +127,7 @@ merge_patterns = [ \
    { 'comment'  : '{content_in_parentheses} + {single_sentence_ending_symbol}', \
      'example'  : '\'( " Easy FM , soft hits ! " )\' + \'.\'', \
      'fix_type' : 'parentheses', \
-     'regexes'  : [re.compile('.*\([^()]+\)$', re.DOTALL), re.compile('^[.?!]$') ], \
+     'regexes'  : [re.compile('.*\([^()]+\)$', re.DOTALL), re.compile('^[.?!…]$') ], \
    },
    
    # ***********************************
@@ -137,13 +137,19 @@ merge_patterns = [ \
    { 'comment'  : '{sentence_ending_punct} {ending_quotes} + {comma_or_semicolon_or_lowercase_letter}', \
      'example'  : '\'ETV-s esietendub homme " Õnne 13 ! "\' + \', mis kuu aja eest jõudis lavale Ugalas .\'', \
      'fix_type' : 'double_quotes', \
-     'regexes'  : [re.compile('.+[?!.]\s*['+ending_quotes+']$', re.DOTALL), re.compile('^([,;]|'+lc_letter+')+') ], \
+     'regexes'  : [re.compile('.+[?!.…]\s*['+ending_quotes+']$', re.DOTALL), re.compile('^([,;]|'+lc_letter+')+') ], \
    },
    #   {starting_quotes} {content_in_quotes} {sentence_ending_punct} + {ending_quotes}
    { 'comment'  : '{starting_quotes} {content_in_quotes} {sentence_ending_punct} + {ending_quotes}', \
      'example'  : '', \
      'fix_type' : 'double_quotes', \
-     'regexes'  : [re.compile('.+?['+start_quotes+'][^'+ending_quotes+']+[?!.]$', re.DOTALL), re.compile('^['+ending_quotes+'].*') ], \
+     'regexes'  : [re.compile('.+?['+start_quotes+'][^'+ending_quotes+']+[?!.…]$', re.DOTALL), re.compile('^['+ending_quotes+'].*') ], \
+   },
+   #   {sentence_ending_punct} + {only_ending_quotes}
+   { 'comment'  : '{sentence_ending_punct} + {ending_quotes}', \
+     'example'  : '"« See amet on nii raske !" + "»"', \
+     'fix_type' : 'double_quotes', \
+     'regexes'  : [re.compile('.+?[?!.…]$', re.DOTALL), re.compile('^['+ending_quotes+']$') ], \
    },
 
    # ***********************************
@@ -159,18 +165,18 @@ merge_patterns = [ \
    { 'comment'  : '{sentence_ending_punct} + {only_sentence_ending_punct}', \
      'example'  : '"arvati , et veel sellel aastal j6uab kohale ; yess !" + "!" + "!"', \
      'fix_type' : 'ending_punct', \
-     'regexes'  : [re.compile('.+[?!.]\s*$', re.DOTALL), re.compile('^[?!.]+$') ], \
+     'regexes'  : [re.compile('.+[?!.…]\s*$', re.DOTALL), re.compile('^[?!.…]+$') ], \
    },
    #   {sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}
    { 'comment'  : '{sentence_ending_punct} + {ending_quotes} {only_sentence_ending_punct}', \
-     'example'  : '\'\nNii ilus ! " \' + \' . \nNõmmel elav pensioniealine Maret\'', \
+     'example'  : '\'\nNii ilus ! \' + \'" .\' + \'\nNõmmel elav pensioniealine Maret\'', \
      'fix_type' : 'ending_punct', \
-     'regexes'  : [re.compile('.+[?!.]\s*$', re.DOTALL), re.compile('^['+ending_quotes+']\s*[?!.]+$') ], \
+     'regexes'  : [re.compile('.+[?!.…]\s*$', re.DOTALL), re.compile('^['+ending_quotes+']\s*[?!.…]+$') ], \
    },
    { 'comment'  : '{sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}', \
      'example'  : '\'\nNii ilus ! " \' + \' . \nNõmmel elav pensioniealine Maret\'', \
      'fix_type' : 'ending_punct', \
-     'regexes'  : [re.compile('.+[?!.]\s*['+ending_quotes+']$', re.DOTALL), re.compile('^[?!.]+$') ], \
+     'regexes'  : [re.compile('.+[?!.…]\s*['+ending_quotes+']$', re.DOTALL), re.compile('^[?!.…]+$') ], \
    },
 
 ]
