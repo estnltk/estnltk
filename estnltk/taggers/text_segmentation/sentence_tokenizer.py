@@ -10,100 +10,153 @@ from estnltk.taggers import Tagger
 hyphen_pat = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|-)'
 lc_letter  = '[a-zöäüõžš]'
 
+# Patterns describing how two mistakenly split 
+# adjacent sentences can be merged into one sentence
 merge_patterns = [ \
    # ***********************************
    #   Fixes related to number ranges, dates and times 
    # ***********************************
    #   {Numeric_range_start} {period} + {dash} {Numeric_range_end}
-   #    Example: "Tartu Muinsuskaitsepäevad toimusid 1988. a 14." + "- 17. aprillil."
-   [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile(hyphen_pat+'\s*([0-9]+)\s*\.(.*)?$', re.DOTALL) ], \
+   { 'comment'  : '{Numeric_range_start} {period} + {dash} {Numeric_range_end}', \
+     'example'  : '"Tartu Muinsuskaitsepäevad toimusid 1988. a 14." + "- 17. aprillil."', \
+     'fix_type' : 'numeric_range', \
+     'regexes'  : [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL),re.compile(hyphen_pat+'\s*([0-9]+)\s*\.(.*)?$', re.DOTALL)], \
+   },
    #   {Numeric_range_start} {period} {dash} + {Numeric_range_end}
-   [re.compile('(.+)?([0-9]+)\s*\.\s*'+hyphen_pat+'$', re.DOTALL), re.compile('([0-9]+)\s*\.(.+)?$', re.DOTALL) ], \
+   { 'comment'  : '{Numeric_range_start} {period} {dash} + {Numeric_range_end}', \
+     'example'  : '"Tartu Muinsuskaitsepäevad toimusid 1988. a 14." + "- 17. aprillil."', \
+     'fix_type' : 'numeric_range', \
+     'regexes'  : [re.compile('(.+)?([0-9]+)\s*\.\s*'+hyphen_pat+'$', re.DOTALL), re.compile('([0-9]+)\s*\.(.+)?$', re.DOTALL) ], \
+   },
 
    #   {Numeric_year} {period} {|a|} + {lowercase_or_number}
-   #   Examples: "Luunja sai vallaõigused 1991.a." + " kevadel."
-   #             "Manifest 2, mis kinnitati 2011.a." + "mais Budapestis."
-   [re.compile('(.+)?([0-9]{3,4})\s*\.\s*a\.?$', re.DOTALL), re.compile('^('+lc_letter+'|[0-9])+') ], \
+   { 'comment'  : '{Numeric_year} {period} {|a|} + {lowercase_or_number}', \
+     'example'  : '"Luunja sai vallaõigused 1991.a." + " kevadel."', \
+     'fix_type' : 'numeric_year', \
+     'regexes'  : [re.compile('(.+)?([0-9]{3,4})\s*\.\s*a\.?$', re.DOTALL), re.compile('^('+lc_letter+'|[0-9])+')], \
+   },
    #   {Numeric_year} {period} + {|a|} {lowercase_or_number}
-   [re.compile('(.+)?([0-9]{4})\s*\.$', re.DOTALL), re.compile('^\s*a\.?\s*('+lc_letter+'|[0-9])+') ], \
-   
+   { 'comment'  : '{Numeric_year} {period} + {|a|} {lowercase_or_number}', \
+     'example'  : '"Luunja sai vallaõigused 1991.a." + " kevadel."', \
+     'fix_type' : 'numeric_year', \
+     'regexes'  : [ re.compile('(.+)?([0-9]{4})\s*\.$', re.DOTALL), re.compile('^\s*a\.?\s*('+lc_letter+'|[0-9])+') ], \
+   },
    #   {Numeric_year} {period} + {|aasta|}
-   #   Examples: "BRK-de traditsioon sai alguse 1964 ." + "aastal Saksamaal Heidelbergis."
-   #             "Tartu Teaduspargil valmib 2005/2006." + "aastal uus maja."
-   [re.compile('(.+)?([0-9]{3,4})\s*\.$', re.DOTALL), re.compile('^'+lc_letter+'*aasta.*') ], \
+   { 'comment'  : '{Numeric_year} {period} + {|aasta|}', \
+     'example'  : '"BRK-de traditsioon sai alguse 1964 ." + "aastal Saksamaal Heidelbergis."', \
+     'fix_type' : 'numeric_year', \
+     'regexes'  : [re.compile('(.+)?([0-9]{3,4})\s*\.$', re.DOTALL), re.compile('^'+lc_letter+'*aasta.*') ], \
+   },
 
-   #   {Date_dd.mm.yyyy.} + {time_HH:MM}
-   #   Example: 'Gert 02.03.2009.' + '14:40 Tahaks kindlalt sinna kooli:P'
-   [re.compile('(.+)?([0-9]{2})\.([0-9]{2})\.([0-9]{4})\.\s*$', re.DOTALL), re.compile('^\s*([0-9]{2}):([0-9]{2})')], \
-   
    #   {Numeric|Roman_numeral_century} {period} {|sajand|} + {lowercase}
-   #   Example: "... Mileetose koolkonnd (VI-V saj." + "e. Kr.) ..."
-   [re.compile('(.+)?([0-9]{1,2}|[IVXLCDM]+)\s*\.?\s*saj\.?$', re.DOTALL), re.compile('^'+lc_letter+'+') ], \
+   { 'comment'  : '{Numeric|Roman_numeral_century} {period} {|sajand|} + {lowercase}', \
+     'example'  : '"... Mileetose koolkonnd (VI-V saj." + "e. Kr.) ..."', \
+     'fix_type' : 'numeric_century', \
+     'regexes'  : [re.compile('(.+)?([0-9]{1,2}|[IVXLCDM]+)\s*\.?\s*saj\.?$', re.DOTALL), re.compile('^'+lc_letter+'+') ], \
+   },
    #   {BCE} {period} + {lowercase}
-   #   Example: "Suur rahvasterändamine oli avanud IV-nda sajandiga p. Kr." + "segaduste ja sõdade ajastu."
-   [re.compile('(.+)?[pe]\s*\.\s*Kr\s*\.?$', re.DOTALL), re.compile('^'+lc_letter+'+') ], \
+   { 'comment'  : '{BCE} {period} + {lowercase}', \
+     'example'  : '"Suur rahvasterändamine oli avanud IV-nda sajandiga p. Kr." + "segaduste ja sõdade ajastu."', \
+     'fix_type' : 'century', \
+     'regexes'  : [re.compile('(.+)?[pe]\s*\.\s*Kr\s*\.?$', re.DOTALL), re.compile('^'+lc_letter+'+') ], \
+   },
    
+   #   {Date_dd.mm.yyyy.} + {time_HH:MM}
+   { 'comment'  : '{Date_dd.mm.yyyy.} + {time_HH:MM}', \
+     'example'  : "'Gert 02.03.2009.' + '14:40 Tahaks kindlalt sinna kooli:P'", \
+     'fix_type' : 'numeric_date', \
+     'regexes'  : [re.compile('(.+)?([0-9]{2})\.([0-9]{2})\.([0-9]{4})\.\s*$', re.DOTALL), re.compile('^\s*([0-9]{2}):([0-9]{2})')], \
+   },
    #   {Numeric_date} {period} + {month_name}
-   #   Example:  "Kirijenko on sündinud 26 ." + "juulil 1962 . aastal ."
-   [re.compile('(.+)?([0-9]{1,2})\s*\.$', re.DOTALL), re.compile('^(jaan|veeb|märts|apr|mai|juul|juun|augu|septe|okto|nove|detse).*') ], \
+   { 'comment'  : '{Numeric_date} {period} + {month_name}', \
+     'example'  : '"Kirijenko on sündinud 26 ." + "juulil 1962 . aastal ."', \
+     'fix_type' : 'numeric_date', \
+     'regexes'  : [re.compile('(.+)?([0-9]{1,2})\s*\.$', re.DOTALL), re.compile('^(jaan|veeb|märts|apr|mai|juul|juun|augu|septe|okto|nove|detse).*') ], \
+   },
    #   {Numeric_date} {period} + {month_name_short}
-   #   Example:  "( NYT , 5 ." + "okt . )"
-   [re.compile('(.+)?([0-9]{1,2})\s*\.$', re.DOTALL), re.compile('^(jaan|veebr?|mär|apr|mai|juul|juun|aug|sept|okt|nov|dets)(\s*\.|\s).*') ], \
+   { 'comment'  : '{Numeric_date} {period} + {month_name_short}', \
+     'example'  : '"( NYT , 5 ." + "okt . )"', \
+     'fix_type' : 'numeric_date', \
+     'regexes'  : [re.compile('(.+)?([0-9]{1,2})\s*\.$', re.DOTALL), re.compile('^(jaan|veebr?|mär|apr|mai|juul|juun|aug|sept|okt|nov|dets)(\s*\.|\s).*') ], \
+   },
 
    #   {First_10_Roman_numerals} {period} + {lowercase_or_dash}
-   #   Example:  "III." + "- II." + "sajandil enne meie ajastut toimunud sõjad."
-   [re.compile('(.+)?((I|II|III|IV|V|VI|VII|VIII|IX|X)\s*\.)$', re.DOTALL), re.compile('^('+lc_letter+'|'+hyphen_pat+')') ], \
+   { 'comment'  : '{First_10_Roman_numerals} {period} + {lowercase_or_dash}', \
+     'example'  : '"III." + "- II." + "sajandil enne meie ajastut toimunud sõjad."', \
+     'fix_type' : 'roman_numeral', \
+     'regexes'  : [re.compile('(.+)?((I|II|III|IV|V|VI|VII|VIII|IX|X)\s*\.)$', re.DOTALL), re.compile('^('+lc_letter+'|'+hyphen_pat+')') ], \
+   },
    
    #   {Number} {period} + {lowercase}
-   #   Examples: "sügisringi 4 ." + "vooru kohtumine"
-   #             "2 ." + "koht - Sarah Johnnson"
-   [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile('^'+lc_letter+'+') ], \
-   
+   { 'comment'  : '{Number} {period} + {lowercase}', \
+     'example'  : '"sügisringi 4 ." + "vooru kohtumine"', \
+     'fix_type' : 'ordinal_numeral', \
+     'regexes'  : [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile('^'+lc_letter+'+') ], \
+   },
    #   {Number} {period} + {hyphen}
-   #   Examples:  "hind 2000." + "- EEK"
-   #              "1500." + "- kuni 3000." + "- krooni"
-   [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile('^'+hyphen_pat+'+') ], \
-   
+   { 'comment'  : '{Number} {period} + {hyphen}', \
+     'example'  : '"1500." + "- kuni 3000." + "- krooni"', \
+     'fix_type' : 'monetary', \
+     'regexes'  : [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile('^'+hyphen_pat+'+') ], \
+   },
    
    # ***********************************
    #   Fixes related to parentheses 
    # ***********************************
    #   {period_ending_content_of_parentheses} + {lowercase_or_comma}
-   #   Examples:  "Lugesime Menippose (III saj. e.m.a.)" + "satiiri..."
-   #              "Ja kui ma sain 40 , olin siis Mikuga ( Mikk Mikiveriga - Toim. )" + "abi-elus ."
-   #              "Kas kohanime ajaloolises tekstis ( nt . 18. saj . )" + "kirjutada tolleaegse nimetusega?"
-   [re.compile('(.+)?\([^()]+[.!]\s*\)$', re.DOTALL), re.compile('^('+lc_letter+'|,)+.*')], \
-   
+   { 'comment'  : '{period_ending_content_of_parentheses} + {lowercase_or_comma}', \
+     'example'  : '"Lugesime Menippose (III saj. e.m.a.)" + "satiiri..."', \
+     'fix_type' : 'parentheses', \
+     'regexes'  : [re.compile('(.+)?\([^()]+[.!]\s*\)$', re.DOTALL), re.compile('^('+lc_letter+'|,)+.*')], \
+   },
    #   {parentheses_start} {content_in_parentheses} + {parentheses_end}
-   #   Examples:  '( " Easy FM , soft hits ! "' + ') .'
-   [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[^() ]*\).*') ], \
-   
+   { 'comment'  : '{parentheses_start} {content_in_parentheses} + {parentheses_end}', \
+     'example'  : '( " Easy FM , soft hits ! "\' + \') .', \
+     'fix_type' : 'parentheses', \
+     'regexes'  : [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[^() ]*\).*') ], \
+   },
    #   {parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}
-   #   Example:   "(loe: ta läheb sügisel 11." + " klassi!)"
-   [re.compile('(.+)?\([^()]+$', re.DOTALL), re.compile('^('+lc_letter+'|,)[^()]+\).*')], \
-   
+   { 'comment'  : '{parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}', \
+     'example'  : '"(loe: ta läheb sügisel 11." + " klassi!)"', \
+     'fix_type' : 'parentheses', \
+     'regexes'  : [re.compile('(.+)?\([^()]+$', re.DOTALL), re.compile('^('+lc_letter+'|,)[^()]+\).*')], \
+   },
    #   {content_in_parentheses} + {single_sentence_ending_symbol}
-   #   Example:   '( " Easy FM , soft hits ! " )' + '.'
-   [re.compile('.*\([^()]+\)$', re.DOTALL), re.compile('^[.?!]$') ], \
+   { 'comment'  : '{content_in_parentheses} + {single_sentence_ending_symbol}', \
+     'example'  : '\'( " Easy FM , soft hits ! " )\' + \'.\'', \
+     'fix_type' : 'parentheses', \
+     'regexes'  : [re.compile('.*\([^()]+\)$', re.DOTALL), re.compile('^[.?!]$') ], \
+   },
    
    # ***********************************
    #   Fixes related to double quotes
    # ***********************************
    #   {sentence_ending_punct} {ending_quotes} + {comma_or_semicolon_or_lowercase_letter}
-   #   Example:   'ETV-s esietendub homme " Õnne 13 ! "' + ', mis kuu aja eest jõudis lavale Ugalas .'
-   [re.compile('.+[?!.]\s*["\u00BB\u02EE\u030B\u201C\u201D\u201E]$', re.DOTALL), re.compile('^([,;]|'+lc_letter+')+') ], \
-   #   {sentence_ending_punct} + {comma_or_semicolon} {lowercase_letter}
-   #   Example:   "Jõulise naissolistiga Conflict OK !" + ", kitarripoppi mängivad Claires Birthday ja Seachers."
-   [re.compile('.+[?!]\s*$', re.DOTALL), re.compile('^([,;])\s*'+lc_letter+'+') ], \
+   { 'comment'  : '{sentence_ending_punct} {ending_quotes} + {comma_or_semicolon_or_lowercase_letter}', \
+     'example'  : '\'ETV-s esietendub homme " Õnne 13 ! "\' + \', mis kuu aja eest jõudis lavale Ugalas .\'', \
+     'fix_type' : 'double_quotes', \
+     'regexes'  : [re.compile('.+[?!.]\s*["\u00BB\u02EE\u030B\u201C\u201D\u201E]$', re.DOTALL), re.compile('^([,;]|'+lc_letter+')+') ], \
+   },
    #   {starting_quotes} {content_in_quotes} {sentence_ending_punct} + {ending_quotes}
-   [re.compile('.+?["\u00AB\u02EE\u030B\u201C\u201D\u201E][^"\u00BB\u02EE\u030B\u201C\u201D\u201E]+[?!.]$', re.DOTALL), re.compile('^["\u00BB\u02EE\u030B\u201C\u201D\u201E].*') ], \
+   { 'comment'  : '{starting_quotes} {content_in_quotes} {sentence_ending_punct} + {ending_quotes}', \
+     'example'  : '', \
+     'fix_type' : 'double_quotes', \
+     'regexes'  : [re.compile('.+?["\u00AB\u02EE\u030B\u201C\u201D\u201E][^"\u00BB\u02EE\u030B\u201C\u201D\u201E]+[?!.]$', re.DOTALL), re.compile('^["\u00BB\u02EE\u030B\u201C\u201D\u201E].*') ], \
+   },
+   
+   #   {sentence_ending_punct} + {comma_or_semicolon} {lowercase_letter}
+   { 'comment'  : '{sentence_ending_punct} + {comma_or_semicolon} {lowercase_letter}', \
+     'example'  : '"Jõulise naissolistiga Conflict OK !" + ", kitarripoppi mängivad Claires Birthday ja Seachers."', \
+     'fix_type' : 'ending_punct', \
+     'regexes'  : [re.compile('.+[?!]\s*$', re.DOTALL), re.compile('^([,;])\s*'+lc_letter+'+') ], \
+   },
 ]
 
 
 class SentenceTokenizer(Tagger):
     description = 'Tags adjacent words that form a sentence.'
     layer_name = 'sentences'
-    attributes = []
+    attributes = ()
     depends_on = ['compound_tokens', 'words']
     configuration = {}
 
@@ -135,7 +188,8 @@ class SentenceTokenizer(Tagger):
                 yield (words[first_token].start, words[last_token].end)
                 i += len(sentence_words)
 
-    def tag(self, text: 'Text', return_layer=False, fix=True) -> 'Text':
+    def tag(self, text:'Text', return_layer:bool=False, fix:bool=True,
+                  record_fix_types:bool=False) -> 'Text':
         #sentence_ends = {end for _, end in self._tokenize_text(text)}
         sentence_ends = {end for _, end in self._sentences_from_tokens(text)}
         if fix:
@@ -162,11 +216,15 @@ class SentenceTokenizer(Tagger):
             #
             sentences_list = \
                 self._merge_mistakenly_split_sentences(text,\
-                                                       sentences_list)
+                    sentences_list, record_fix_types = record_fix_types)
         
         # D) Create the layer and attach sentences
+        layer_attributes=self.attributes
+        if record_fix_types and 'fix_types' not in layer_attributes:
+            layer_attributes += ('fix_types',)
         layer = Layer(enveloping='words',
                       name=self.layer_name,
+                      attributes=layer_attributes,
                       ambiguous=False)
         for sentence_span_list in sentences_list:
             layer.add_span( sentence_span_list )
@@ -176,11 +234,17 @@ class SentenceTokenizer(Tagger):
         return text
         
         
-    def _merge_mistakenly_split_sentences(self, text:'Text', sentences_list:list):
+    def _merge_mistakenly_split_sentences(self, text:'Text', sentences_list:list, \
+                                                record_fix_types:bool=True):
         ''' 
             Uses regular expression patterns (defined  in  merge_patterns) to 
             discover adjacent sentences (in sentences_list) that should actually 
             form a single sentence. Merges those adjacent sentences.
+            
+            If record_fix_types==True, then each sentence will also have 
+            an attribute fix_types attached, which will contain a list of
+            types of post-correction merging fixes that have been applied 
+            to the sentence.
             
             Returns a new version of sentences_list where merges have been made.
         '''
@@ -192,6 +256,7 @@ class SentenceTokenizer(Tagger):
             this_sent = \
                 text.text[sentence_spl.start:sentence_spl.end].lstrip()
             mergeSpanLists = False
+            fixTypes = []
             if sid-1 > -1:
                 # get text of the previous sentence
                 if not new_sentences_list:
@@ -202,13 +267,17 @@ class SentenceTokenizer(Tagger):
                     text.text[last_sentence_spl.start:last_sentence_spl.end].rstrip()
                 # Check if the adjacent sentences should be joined / merged according 
                 # to one of the patterns ...
-                for [beginPat, endPat] in merge_patterns:
+                for pattern in merge_patterns:
+                    [beginPat, endPat] = pattern['regexes']
                     if beginPat.match(prev_sent) and endPat.match(this_sent):
                         mergeSpanLists = True
+                        fixTypes.append(pattern['fix_type'])
                         break
             if mergeSpanLists:
                 # Perform the merging
                 merged_spanlist = SpanList()
+                if record_fix_types:
+                    merged_spanlist.fix_types = fixTypes
                 if not new_sentences_list:
                     # No sentence has been added so far: add a new one
                     merged_spanlist.spans = \
@@ -219,12 +288,19 @@ class SentenceTokenizer(Tagger):
                     # extend the last sentence
                     merged_spanlist.spans = \
                         new_sentences_list[-1].spans+sentence_spl.spans
+                    if record_fix_types:
+                        if hasattr(new_sentences_list[-1], 'fix_types'):
+                            merged_spanlist.fix_types = \
+                                merged_spanlist.fix_types + \
+                                new_sentences_list[-1].fix_types
                     new_sentences_list[-1] = merged_spanlist
                 #print('>>1',prev_sent)
                 #print('>>2',this_sent)
             else:
                 # Add sentence without merging
                 new_spanlist = SpanList()
+                if record_fix_types:
+                    new_spanlist.fix_types = []
                 new_spanlist.spans = sentence_spl.spans
                 new_sentences_list.append( new_spanlist )
                 #print('>>0',this_sent)
