@@ -2,8 +2,6 @@ from typing import Iterator, Tuple
 
 import re
 
-import nltk as nltk
-
 from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 
@@ -59,7 +57,7 @@ merge_patterns = [ \
    #   {BCE} {period} + {lowercase}
    { 'comment'  : '{BCE} {period} + {lowercase}', \
      'example'  : '"Suur rahvasterändamine oli avanud IV-nda sajandiga p. Kr." + "segaduste ja sõdade ajastu."', \
-     'fix_type' : 'century', \
+     'fix_type' : 'numeric_century', \
      'regexes'  : [re.compile('(.+)?[pe]\s*\.\s*Kr\s*\.?$', re.DOTALL), re.compile('^'+lc_letter+'+') ], \
    },
    
@@ -85,20 +83,20 @@ merge_patterns = [ \
    #   {First_10_Roman_numerals} {period} + {lowercase_or_dash}
    { 'comment'  : '{First_10_Roman_numerals} {period} + {lowercase_or_dash}', \
      'example'  : '"III." + "- II." + "sajandil enne meie ajastut toimunud sõjad."', \
-     'fix_type' : 'roman_numeral', \
+     'fix_type' : 'numeric_roman_numeral', \
      'regexes'  : [re.compile('(.+)?((I|II|III|IV|V|VI|VII|VIII|IX|X)\s*\.)$', re.DOTALL), re.compile('^('+lc_letter+'|'+hyphen_pat+')') ], \
    },
    
    #   {Number} {period} + {lowercase}
    { 'comment'  : '{Number} {period} + {lowercase}', \
      'example'  : '"sügisringi 4 ." + "vooru kohtumine"', \
-     'fix_type' : 'ordinal_numeral', \
+     'fix_type' : 'numeric_ordinal_numeral', \
      'regexes'  : [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile('^'+lc_letter+'+') ], \
    },
    #   {Number} {period} + {hyphen}
    { 'comment'  : '{Number} {period} + {hyphen}', \
      'example'  : '"1500." + "- kuni 3000." + "- krooni"', \
-     'fix_type' : 'monetary', \
+     'fix_type' : 'numeric_monetary', \
      'regexes'  : [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile('^'+hyphen_pat+'+') ], \
    },
    
@@ -178,28 +176,51 @@ merge_patterns = [ \
      'fix_type' : 'ending_punct', \
      'regexes'  : [re.compile('.+[?!.…]\s*['+ending_quotes+']$', re.DOTALL), re.compile('^[?!.…]+$') ], \
    },
-
 ]
 
 
 class SentenceTokenizer(Tagger):
-    description = 'Tags adjacent words that form a sentence.'
-    layer_name = 'sentences'
-    attributes = ()
-    depends_on = ['compound_tokens', 'words']
+    description   = 'Groups words into sentences, and applies sentence tokenization post-corrections, if required.'
+    layer_name    = 'sentences'
+    attributes    = ()
+    depends_on    = ['compound_tokens', 'words']
     configuration = {}
-
-    # use NLTK-s sentence tokenizer for Estonian, in case it is not downloaded, try to download it first
     sentence_tokenizer = None
+    merge_rules   = []
+    
+    def __init__(self, 
+                 fix_numeric:bool = True,
+                 fix_parentheses:bool = True,
+                 fix_double_quotes:bool = True,
+                 fix_ending_punct:bool = True,
+                 ):
+        # 0) Record configuration
+        self.configuration = {'fix_numeric': fix_numeric,
+                              'fix_parentheses': fix_parentheses,
+                              'fix_double_quotes': fix_double_quotes,
+                              'fix_ending_punct':fix_ending_punct}
+        # 1) Initialize NLTK's tokenizer
+        # use NLTK-s sentence tokenizer for Estonian, in case it is not downloaded, try to download it first
+        import nltk as nltk
+        try:
+            self.sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+        except LookupError:
+            import nltk.downloader
+            nltk.downloader.download('punkt')
+        finally:
+            if self.sentence_tokenizer is None:
+                self.sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+        # 2) Filter rules according to the given configuration
+        for merge_pattern in merge_patterns:
+            if fix_numeric and merge_pattern['fix_type'].startswith('numeric'):
+                self.merge_rules.append( merge_pattern )
+            if fix_parentheses and merge_pattern['fix_type'].startswith('parentheses'):
+                self.merge_rules.append( merge_pattern )
+            if fix_double_quotes and merge_pattern['fix_type'].startswith('double_quotes'):
+                self.merge_rules.append( merge_pattern )
+            if fix_ending_punct and merge_pattern['fix_type'].startswith('ending_punct'):
+                self.merge_rules.append( merge_pattern )
 
-    try:
-        sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
-    except LookupError:
-        import nltk.downloader
-        nltk.downloader.download('punkt')
-    finally:
-        if sentence_tokenizer is None:
-            sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
 
     def _tokenize_text(self, text: 'Text') -> Iterator[Tuple[int, int]]:
         ''' Tokenizes into sentences based on the input text. '''
@@ -266,7 +287,7 @@ class SentenceTokenizer(Tagger):
     def _merge_mistakenly_split_sentences(self, text:'Text', sentences_list:list, \
                                                 record_fix_types:bool=True):
         ''' 
-            Uses regular expression patterns (defined  in  merge_patterns) to 
+            Uses regular expression patterns (defined in self.merge_rules) to 
             discover adjacent sentences (in sentences_list) that should actually 
             form a single sentence. Merges those adjacent sentences.
             
@@ -296,7 +317,7 @@ class SentenceTokenizer(Tagger):
                     text.text[last_sentence_spl.start:last_sentence_spl.end].rstrip()
                 # Check if the adjacent sentences should be joined / merged according 
                 # to one of the patterns ...
-                for pattern in merge_patterns:
+                for pattern in self.merge_rules:
                     [beginPat, endPat] = pattern['regexes']
                     if beginPat.match(prev_sent) and endPat.match(this_sent):
                         mergeSpanLists = True
