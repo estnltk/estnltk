@@ -29,6 +29,7 @@ class CompoundTokenTagger(Tagger):
     attributes = ('type', 'normalized')
     depends_on = ['tokens']
     configuration = None
+    custom_abbreviations = []
 
     def __init__(self, 
                  conflict_resolving_strategy='MAX',
@@ -41,6 +42,7 @@ class CompoundTokenTagger(Tagger):
                  tag_abbreviations:bool = True,
                  tag_case_endings:bool = True,
                  tag_hyphenations:bool = True,
+                 custom_abbreviations:list = [],
                  ):
         self.configuration = {'conflict_resolving_strategy': conflict_resolving_strategy,
                               'tag_numbers': tag_numbers,
@@ -52,8 +54,10 @@ class CompoundTokenTagger(Tagger):
                               'tag_abbreviations':tag_abbreviations,
                               'tag_case_endings':tag_case_endings,
                               'tag_hyphenations':tag_hyphenations}
-        
         self._conflict_resolving_strategy = conflict_resolving_strategy
+        if custom_abbreviations and not tag_abbreviations:
+            raise ValueError("(!) List of custom_abbreviations given, but tag_abbreviations is switched off.")
+        self.custom_abbreviations = custom_abbreviations
         # =========================
         #  1st level hints tagger
         # =========================
@@ -134,7 +138,7 @@ class CompoundTokenTagger(Tagger):
         # 2) Apply tokenization hints + hyphenation correction
         for i, token_span in enumerate(text.tokens):
             token = token_span.text
-            # Check for tokenization hints
+            # 2.1) Check for tokenization hints
             if token_span.start in tokenization_hints:
                 # Find where the new compound token should end 
                 end_token_index = None
@@ -154,7 +158,29 @@ class CompoundTokenTagger(Tagger):
                         spl.normalized = tokenization_hints[token_span.start]['normalized']
                     compound_tokens_lists.append(spl)
 
-            # Perform hyphenation correction
+            # 2.2) Apply detection of custom non-ending abbreviations
+            #      (only if no regular tokenization hint was not discovered)
+            if self.custom_abbreviations and not token_span.start in tokenization_hints:
+                next_token = ''
+                custom_abbreviation_found = False
+                for abbreviation in self.custom_abbreviations:
+                    if abbreviation == token:
+                        custom_abbreviation_found = True
+                        break
+                if i+1 < len(text.tokens)-1:
+                    next_token = text.tokens[i+1].text
+                if custom_abbreviation_found:
+                    spl = SpanList()
+                    spl.type = ('non_ending_abbreviation',)
+                    if next_token == '.':
+                        spl.spans = text.tokens[i:i+2]
+                        spl.normalized = token+next_token
+                    else:
+                        spl.spans = text.tokens[i:i+1]
+                        spl.normalized = None
+                    compound_tokens_lists.append(spl)
+
+            # 2.3) Perform hyphenation correction
             if tag_hyphenations:
                 if hyphenation_status is None:
                     if last_end==token_span.start and token_span.text == '-':
