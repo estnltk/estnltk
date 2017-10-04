@@ -14,7 +14,7 @@ lc_letter  = '[a-zöäüõžš]'
 # adjacent sentences can be merged into one sentence
 merge_patterns = [ \
    # ***********************************
-   #   Fixes related to number ranges, dates and times 
+   #   Fixes related to numbers, number ranges, dates and times 
    # ***********************************
    #   {Numeric_range_start} {period} + {dash} {Numeric_range_end}
    { 'comment'  : '{Numeric_range_start} {period} + {dash} {Numeric_range_end}', \
@@ -143,13 +143,23 @@ merge_patterns = [ \
      'fix_type' : 'double_quotes', \
      'regexes'  : [re.compile('.+?["\u00AB\u02EE\u030B\u201C\u201D\u201E][^"\u00BB\u02EE\u030B\u201C\u201D\u201E]+[?!.]$', re.DOTALL), re.compile('^["\u00BB\u02EE\u030B\u201C\u201D\u201E].*') ], \
    },
-   
+
+   # ***********************************
+   #   Fixes related to sentence ending punctuation
+   # ***********************************
    #   {sentence_ending_punct} + {comma_or_semicolon} {lowercase_letter}
    { 'comment'  : '{sentence_ending_punct} + {comma_or_semicolon} {lowercase_letter}', \
      'example'  : '"Jõulise naissolistiga Conflict OK !" + ", kitarripoppi mängivad Claires Birthday ja Seachers."', \
      'fix_type' : 'ending_punct', \
      'regexes'  : [re.compile('.+[?!]\s*$', re.DOTALL), re.compile('^([,;])\s*'+lc_letter+'+') ], \
    },
+   #   {sentence_ending_punct} + {only_sentence_ending_punct}
+   { 'comment'  : '{sentence_ending_punct} + {only_sentence_ending_punct}', \
+     'example'  : '"arvati , et veel sellel aastal j6uab kohale ; yess !" + "!" + "!"', \
+     'fix_type' : 'ending_punct', \
+     'regexes'  : [re.compile('.+[?!.]\s*$', re.DOTALL), re.compile('^[?!.]+$') ], \
+   },
+
 ]
 
 
@@ -179,7 +189,7 @@ class SentenceTokenizer(Tagger):
     def _sentences_from_tokens(self, text: 'Text') -> Iterator[Tuple[int, int]]:
         ''' Tokenizes into sentences based on the word tokens of the input text. '''
         words = list(text.words)
-        word_texts = [text.text[word.start:word.end] for word in words]
+        word_texts = text.words.text
         i = 0
         for sentence_words in self.sentence_tokenizer.sentences_from_tokens(word_texts):
             if sentence_words:
