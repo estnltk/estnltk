@@ -7,8 +7,8 @@ import nltk as nltk
 from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 
-hypen_pat = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015)'
-lc_letter = '[a-zöäüõžš]'
+hyphen_pat = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|-)'
+lc_letter  = '[a-zöäüõžš]'
 
 merge_patterns = [ \
    # ***********************************
@@ -16,39 +16,54 @@ merge_patterns = [ \
    # ***********************************
    #   {Numeric_range_start} {period} + {dash} {Numeric_range_end}
    #    Example: "Tartu Muinsuskaitsepäevad toimusid 1988. a 14." + "- 17. aprillil."
-   [re.compile('(.+)?([0-9]+)\s*\.$'), re.compile(hypen_pat+'\s*([0-9]+)\s*\.(.*)?$') ], \
+   [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile(hyphen_pat+'\s*([0-9]+)\s*\.(.*)?$', re.DOTALL) ], \
    #   {Numeric_range_start} {period} {dash} + {Numeric_range_end}
-   [re.compile('(.+)?([0-9]+)\s*\.\s*'+hypen_pat+'$'), re.compile('([0-9]+)\s*\.(.+)?$') ], \
+   [re.compile('(.+)?([0-9]+)\s*\.\s*'+hyphen_pat+'$', re.DOTALL), re.compile('([0-9]+)\s*\.(.+)?$', re.DOTALL) ], \
 
-   #   {Numeric_year} {period} {|a|} + {lowercase}
+   #   {Numeric_year} {period} {|a|} + {lowercase_or_number}
    #   Examples: "Luunja sai vallaõigused 1991.a." + " kevadel."
    #             "Manifest 2, mis kinnitati 2011.a." + "mais Budapestis."
-   [re.compile('(.+)?([0-9]{3,4})\s*\.\s*a\.?$'), re.compile('^('+lc_letter+'|[0-9])+') ], \
-   #   {Numeric_year} {period} + {|a|} {lowercase}
-   [re.compile('(.+)?([0-9]{4})\s*\.$'), re.compile('^\s*a\.?\s*('+lc_letter+'|[0-9])+') ], \
+   [re.compile('(.+)?([0-9]{3,4})\s*\.\s*a\.?$', re.DOTALL), re.compile('^('+lc_letter+'|[0-9])+') ], \
+   #   {Numeric_year} {period} + {|a|} {lowercase_or_number}
+   [re.compile('(.+)?([0-9]{4})\s*\.$', re.DOTALL), re.compile('^\s*a\.?\s*('+lc_letter+'|[0-9])+') ], \
    
    #   {Numeric_year} {period} + {|aasta|}
    #   Examples: "BRK-de traditsioon sai alguse 1964 ." + "aastal Saksamaal Heidelbergis."
    #             "Tartu Teaduspargil valmib 2005/2006." + "aastal uus maja."
-   [re.compile('(.+)?([0-9]{3,4})\s*\.$'), re.compile('^'+lc_letter+'*aasta.*') ], \
+   [re.compile('(.+)?([0-9]{3,4})\s*\.$', re.DOTALL), re.compile('^'+lc_letter+'*aasta.*') ], \
 
    #   {Date_dd.mm.yyyy.} + {time_HH:MM}
    #   Example: 'Gert 02.03.2009.' + '14:40 Tahaks kindlalt sinna kooli:P'
-   [re.compile('(.+)?([0-9]{2})\.([0-9]{2})\.([0-9]{4})\.\s*$'), re.compile('^\s*([0-9]{2}):([0-9]{2})')], \
+   [re.compile('(.+)?([0-9]{2})\.([0-9]{2})\.([0-9]{4})\.\s*$', re.DOTALL), re.compile('^\s*([0-9]{2}):([0-9]{2})')], \
    
    #   {Numeric|Roman_numeral_century} {period} {|sajand|} + {lowercase}
    #   Example: "... Mileetose koolkonnd (VI-V saj." + "e. Kr.) ..."
-   [re.compile('(.+)?([0-9]{1,2}|[IVXLCDM]+)\s*\.?\s*saj\.?$'), re.compile('^'+lc_letter+'+') ], \
+   [re.compile('(.+)?([0-9]{1,2}|[IVXLCDM]+)\s*\.?\s*saj\.?$', re.DOTALL), re.compile('^'+lc_letter+'+') ], \
    #   {BCE} {period} + {lowercase}
    #   Example: "Suur rahvasterändamine oli avanud IV-nda sajandiga p. Kr." + "segaduste ja sõdade ajastu."
-   [re.compile('(.+)?[pe]\s*\.\s*Kr\s*\.?$'), re.compile('^'+lc_letter+'+') ], \
+   [re.compile('(.+)?[pe]\s*\.\s*Kr\s*\.?$', re.DOTALL), re.compile('^'+lc_letter+'+') ], \
    
    #   {Numeric_date} {period} + {month_name}
    #   Example:  "Kirijenko on sündinud 26 ." + "juulil 1962 . aastal ."
-   [re.compile('(.+)?([0-9]{1,2})\s*\.$'), re.compile('^(jaan|veeb|märts|apr|mai|juul|juun|augu|septe|okto|nove|detse).*') ], \
+   [re.compile('(.+)?([0-9]{1,2})\s*\.$', re.DOTALL), re.compile('^(jaan|veeb|märts|apr|mai|juul|juun|augu|septe|okto|nove|detse).*') ], \
    #   {Numeric_date} {period} + {month_name_short}
    #   Example:  "( NYT , 5 ." + "okt . )"
-   [re.compile('(.+)?([0-9]{1,2})\s*\.$'), re.compile('^(jaan|veebr?|mär|apr|mai|juul|juun|aug|sept|okt|nov|dets)(\s*\.|\s).*') ], \
+   [re.compile('(.+)?([0-9]{1,2})\s*\.$', re.DOTALL), re.compile('^(jaan|veebr?|mär|apr|mai|juul|juun|aug|sept|okt|nov|dets)(\s*\.|\s).*') ], \
+
+   #   {First_10_Roman_numerals} {period} + {lowercase_or_dash}
+   #   Example:  "III." + "- II." + "sajandil enne meie ajastut toimunud sõjad."
+   [re.compile('(.+)?((I|II|III|IV|V|VI|VII|VIII|IX|X)\s*\.)$', re.DOTALL), re.compile('^('+lc_letter+'|'+hyphen_pat+')') ], \
+   
+   #   {Number} {period} + {lowercase}
+   #   Examples: "sügisringi 4 ." + "vooru kohtumine"
+   #             "2 ." + "koht - Sarah Johnnson"
+   [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile('^'+lc_letter+'+') ], \
+   
+   #   {Number} {period} + {hyphen}
+   #   Examples:  "hind 2000." + "- EEK"
+   #              "1500." + "- kuni 3000." + "- krooni"
+   [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile('^'+hyphen_pat+'+') ], \
+   
    
    # ***********************************
    #   Fixes related to parentheses 
@@ -57,31 +72,31 @@ merge_patterns = [ \
    #   Examples:  "Lugesime Menippose (III saj. e.m.a.)" + "satiiri..."
    #              "Ja kui ma sain 40 , olin siis Mikuga ( Mikk Mikiveriga - Toim. )" + "abi-elus ."
    #              "Kas kohanime ajaloolises tekstis ( nt . 18. saj . )" + "kirjutada tolleaegse nimetusega?"
-   [re.compile('(.+)?\([^()]+[.!]\s*\)$'), re.compile('^('+lc_letter+'|,)+.*')], \
+   [re.compile('(.+)?\([^()]+[.!]\s*\)$', re.DOTALL), re.compile('^('+lc_letter+'|,)+.*')], \
    
    #   {parentheses_start} {content_in_parentheses} + {parentheses_end}
    #   Examples:  '( " Easy FM , soft hits ! "' + ') .'
-   [re.compile('.*\([^()]+$'), re.compile('^[^() ]*\).*') ], \
+   [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[^() ]*\).*') ], \
    
    #   {parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}
    #   Example:   "(loe: ta läheb sügisel 11." + " klassi!)"
-   [re.compile('(.+)?\([^()]+$'), re.compile('^('+lc_letter+'|,)[^()]+\).*')], \
+   [re.compile('(.+)?\([^()]+$', re.DOTALL), re.compile('^('+lc_letter+'|,)[^()]+\).*')], \
    
    #   {content_in_parentheses} + {single_sentence_ending_symbol}
    #   Example:   '( " Easy FM , soft hits ! " )' + '.'
-   [re.compile('.*\([^()]+\)$'), re.compile('^[.?!]$') ], \
+   [re.compile('.*\([^()]+\)$', re.DOTALL), re.compile('^[.?!]$') ], \
    
    # ***********************************
    #   Fixes related to double quotes
    # ***********************************
    #   {sentence_ending_punct} {ending_quotes} + {comma_or_semicolon_or_lowercase_letter}
    #   Example:   'ETV-s esietendub homme " Õnne 13 ! "' + ', mis kuu aja eest jõudis lavale Ugalas .'
-   [re.compile('.+[?!.]\s*["\u00BB\u02EE\u030B\u201C\u201D\u201E]$'), re.compile('^([,;]|'+lc_letter+')+') ], \
+   [re.compile('.+[?!.]\s*["\u00BB\u02EE\u030B\u201C\u201D\u201E]$', re.DOTALL), re.compile('^([,;]|'+lc_letter+')+') ], \
    #   {sentence_ending_punct} + {comma_or_semicolon} {lowercase_letter}
    #   Example:   "Jõulise naissolistiga Conflict OK !" + ", kitarripoppi mängivad Claires Birthday ja Seachers."
-   [re.compile('.+[?!]\s*$'), re.compile('^([,;])\s*'+lc_letter+'+') ], \
+   [re.compile('.+[?!]\s*$', re.DOTALL), re.compile('^([,;])\s*'+lc_letter+'+') ], \
    #   {starting_quotes} {content_in_quotes} {sentence_ending_punct} + {ending_quotes}
-   [re.compile('.+?["\u00AB\u02EE\u030B\u201C\u201D\u201E][^"\u00BB\u02EE\u030B\u201C\u201D\u201E]+[?!.]$'), re.compile('^["\u00BB\u02EE\u030B\u201C\u201D\u201E].*') ], \
+   [re.compile('.+?["\u00AB\u02EE\u030B\u201C\u201D\u201E][^"\u00BB\u02EE\u030B\u201C\u201D\u201E]+[?!.]$', re.DOTALL), re.compile('^["\u00BB\u02EE\u030B\u201C\u201D\u201E].*') ], \
 ]
 
 

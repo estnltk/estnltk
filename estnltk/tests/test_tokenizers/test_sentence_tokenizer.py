@@ -79,6 +79,32 @@ def test_merge_mistakenly_split_sentences_1():
         { 'text': '" Ma ei tunne Laidoneri , " vastas Ake .\n5 . sept .', \
           'expected_sentence_texts': ['" Ma ei tunne Laidoneri , " vastas Ake .', '5 . sept .'] }, \
 
+        #   Merge case:   {First_10_Roman_numerals} {period} + {lowercase_or_dash}
+        { 'text': 'Rooma ja Kartaago vahel III. - II. sajandil enne meie ajastut Vahemeremaade valitsemise pärast toimunud sõjad.', \
+          'expected_sentence_texts': ['Rooma ja Kartaago vahel III. - II. sajandil enne meie ajastut Vahemeremaade valitsemise pärast toimunud sõjad.'] }, \
+        { 'text': 'Konkursitöid võetakse vastu 7. - 18. detsembrini aadressil Malmi 8, III. korrus, ruum 37.', \
+          'expected_sentence_texts': ['Konkursitöid võetakse vastu 7. - 18. detsembrini aadressil Malmi 8, III. korrus, ruum 37.'] }, \
+        
+        #   Merge case:   {Number} {period} + {lowercase}
+        { 'text': '6 . augustil mängitakse ette sügisringi 4 . vooru kohtumine.', \
+          'expected_sentence_texts': ['6 . augustil mängitakse ette sügisringi 4 . vooru kohtumine.'] }, \
+        { 'text': '28 . novembril 1918 ründas Nõukogude Vene 6 . diviis Narvat .', \
+          'expected_sentence_texts': ['28 . novembril 1918 ründas Nõukogude Vene 6 . diviis Narvat .'] }, \
+        { 'text': 'Esimene kobar moodustub üheksanda lehe kohal , teised iga 2. –3 . lehe kohal .', \
+          'expected_sentence_texts': ['Esimene kobar moodustub üheksanda lehe kohal , teised iga 2. –3 . lehe kohal .'] }, \
+        { 'text': '3 . koht - Anna Jarek ( Poola ) , 2 . koht - Sarah Johnnson ( Rootsi ) , 1 . koht - Elva Björk Barkardottir', \
+          'expected_sentence_texts': ['3 . koht - Anna Jarek ( Poola ) , 2 . koht - Sarah Johnnson ( Rootsi ) , 1 . koht - Elva Björk Barkardottir'] }, \
+          
+        #   Merge case:   {Number} {period} + {hyphen}
+        { 'text': '« mootorratta raam , hind 2000. - EEK »', \
+          'expected_sentence_texts': ['« mootorratta raam , hind 2000. - EEK »'] }, \
+        { 'text': 'Siiski tahavad erinevad tegelejad asja eest nii 1500. - kuni 3000. - krooni saada.', \
+          'expected_sentence_texts': ['Siiski tahavad erinevad tegelejad asja eest nii 1500. - kuni 3000. - krooni saada.'] }, \
+        { 'text': 'Meelis\nelusees ei ostaks , kui siis 1000. - eest , ja vaenlasele ka ei soovita', \
+          'expected_sentence_texts': ['Meelis\nelusees ei ostaks , kui siis 1000. - eest , ja vaenlasele ka ei soovita'] }, \
+        { 'text': 'Samas jaga inffi kus saaks SCS 2000. - , ise olen odavaimat näinud ca 2400-2500. - .', \
+          'expected_sentence_texts': ['Samas jaga inffi kus saaks SCS 2000. - , ise olen odavaimat näinud ca 2400-2500. - .'] }, \
+
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
@@ -88,7 +114,7 @@ def test_merge_mistakenly_split_sentences_1():
         sentence_texts = \
             [sentence.enclosing_text for sentence in text['sentences'].spans]
         #print(sentence_texts)
-        # Make assertions
+        # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
 
 
@@ -141,7 +167,7 @@ def test_merge_mistakenly_split_sentences_2():
         sentence_texts = \
             [sentence.enclosing_text for sentence in text['sentences'].spans]
         #print(sentence_texts)
-        # Make assertions
+        # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
 
 
@@ -172,7 +198,7 @@ def test_merge_mistakenly_split_sentences_3():
         sentence_texts = \
             [sentence.enclosing_text for sentence in text['sentences'].spans]
         #print(sentence_texts)
-        # Make assertions
+        # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
 
 
@@ -197,6 +223,6 @@ def test_split_mistakenly_merged_sentences_1():
         sentence_texts = \
             [sentence.enclosing_text for sentence in text['sentences'].spans]
         #print(sentence_texts)
-        # Make assertions
+        # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
     
