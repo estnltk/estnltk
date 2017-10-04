@@ -7,8 +7,10 @@ import nltk as nltk
 from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 
-hyphen_pat = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|-)'
-lc_letter  = '[a-zöäüõžš]'
+hyphen_pat    = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|-)'
+lc_letter     = '[a-zöäüõžš]'
+start_quotes  = '"\u00AB\u02EE\u030B\u201C\u201D\u201E'
+ending_quotes = '"\u00BB\u02EE\u030B\u201C\u201D\u201E'
 
 # Patterns describing how two mistakenly split 
 # adjacent sentences can be merged into one sentence
@@ -135,13 +137,13 @@ merge_patterns = [ \
    { 'comment'  : '{sentence_ending_punct} {ending_quotes} + {comma_or_semicolon_or_lowercase_letter}', \
      'example'  : '\'ETV-s esietendub homme " Õnne 13 ! "\' + \', mis kuu aja eest jõudis lavale Ugalas .\'', \
      'fix_type' : 'double_quotes', \
-     'regexes'  : [re.compile('.+[?!.]\s*["\u00BB\u02EE\u030B\u201C\u201D\u201E]$', re.DOTALL), re.compile('^([,;]|'+lc_letter+')+') ], \
+     'regexes'  : [re.compile('.+[?!.]\s*['+ending_quotes+']$', re.DOTALL), re.compile('^([,;]|'+lc_letter+')+') ], \
    },
    #   {starting_quotes} {content_in_quotes} {sentence_ending_punct} + {ending_quotes}
    { 'comment'  : '{starting_quotes} {content_in_quotes} {sentence_ending_punct} + {ending_quotes}', \
      'example'  : '', \
      'fix_type' : 'double_quotes', \
-     'regexes'  : [re.compile('.+?["\u00AB\u02EE\u030B\u201C\u201D\u201E][^"\u00BB\u02EE\u030B\u201C\u201D\u201E]+[?!.]$', re.DOTALL), re.compile('^["\u00BB\u02EE\u030B\u201C\u201D\u201E].*') ], \
+     'regexes'  : [re.compile('.+?['+start_quotes+'][^'+ending_quotes+']+[?!.]$', re.DOTALL), re.compile('^['+ending_quotes+'].*') ], \
    },
 
    # ***********************************
@@ -163,12 +165,12 @@ merge_patterns = [ \
    { 'comment'  : '{sentence_ending_punct} + {ending_quotes} {only_sentence_ending_punct}', \
      'example'  : '\'\nNii ilus ! " \' + \' . \nNõmmel elav pensioniealine Maret\'', \
      'fix_type' : 'ending_punct', \
-     'regexes'  : [re.compile('.+[?!.]\s*$', re.DOTALL), re.compile('^["\u00BB\u02EE\u030B\u201C\u201D\u201E]\s*[?!.]+$') ], \
+     'regexes'  : [re.compile('.+[?!.]\s*$', re.DOTALL), re.compile('^['+ending_quotes+']\s*[?!.]+$') ], \
    },
    { 'comment'  : '{sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}', \
      'example'  : '\'\nNii ilus ! " \' + \' . \nNõmmel elav pensioniealine Maret\'', \
      'fix_type' : 'ending_punct', \
-     'regexes'  : [re.compile('.+[?!.]\s*["\u00BB\u02EE\u030B\u201C\u201D\u201E]$', re.DOTALL), re.compile('^[?!.]+$') ], \
+     'regexes'  : [re.compile('.+[?!.]\s*['+ending_quotes+']$', re.DOTALL), re.compile('^[?!.]+$') ], \
    },
 
 ]
