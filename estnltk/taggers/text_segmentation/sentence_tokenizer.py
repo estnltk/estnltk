@@ -189,13 +189,15 @@ class SentenceTokenizer(Tagger):
     merge_rules   = []
     
     def __init__(self, 
+                 fix_compound_tokens:bool = True,
                  fix_numeric:bool = True,
                  fix_parentheses:bool = True,
                  fix_double_quotes:bool = True,
                  fix_ending_punct:bool = True,
                  ):
         # 0) Record configuration
-        self.configuration = {'fix_numeric': fix_numeric,
+        self.configuration = {'fix_compound_tokens': fix_compound_tokens,
+                              'fix_numeric': fix_numeric,
                               'fix_parentheses': fix_parentheses,
                               'fix_double_quotes': fix_double_quotes,
                               'fix_ending_punct':fix_ending_punct}
@@ -238,13 +240,14 @@ class SentenceTokenizer(Tagger):
                 yield (words[first_token].start, words[last_token].end)
                 i += len(sentence_words)
 
-    def tag(self, text:'Text', return_layer:bool=False, fix:bool=True,
-                  record_fix_types:bool=False) -> 'Text':
+    def tag(self, text:'Text', return_layer:bool=False,
+                               record_fix_types:bool=False) -> 'Text':
         #sentence_ends = {end for _, end in self._tokenize_text(text)}
         sentence_ends = {end for _, end in self._sentences_from_tokens(text)}
-        if fix:
-            # A) Remove sentence endings that coincide with 
-            #    endings of non_ending_abbreviation's
+        if self.configuration['fix_compound_tokens']:
+            # A) Remove sentence endings that:
+            #   A.1) coincide with endings of non_ending_abbreviation's
+            #   A.2) fall in the middle of compound tokens
             for ct in text.compound_tokens:
                 if 'non_ending_abbreviation' in ct.type:
                     sentence_ends -= {span.end for span in ct}
@@ -260,10 +263,8 @@ class SentenceTokenizer(Tagger):
                 sentences_list.append( text.words[start:i+1] )
                 start = i + 1
         # C) Apply postcorrection fixes to sentence spans
-        if fix:
-            #
-            # C.1) Try to merge mistakenly split sentences
-            #
+        # C.1) Try to merge mistakenly split sentences
+        if self.merge_rules:
             sentences_list = \
                 self._merge_mistakenly_split_sentences(text,\
                     sentences_list, record_fix_types = record_fix_types)
