@@ -159,6 +159,17 @@ merge_patterns = [ \
      'fix_type' : 'ending_punct', \
      'regexes'  : [re.compile('.+[?!.]\s*$', re.DOTALL), re.compile('^[?!.]+$') ], \
    },
+   #   {sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}
+   { 'comment'  : '{sentence_ending_punct} + {ending_quotes} {only_sentence_ending_punct}', \
+     'example'  : '\'\nNii ilus ! " \' + \' . \nNõmmel elav pensioniealine Maret\'', \
+     'fix_type' : 'ending_punct', \
+     'regexes'  : [re.compile('.+[?!.]\s*$', re.DOTALL), re.compile('^["\u00BB\u02EE\u030B\u201C\u201D\u201E]\s*[?!.]+$') ], \
+   },
+   { 'comment'  : '{sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}', \
+     'example'  : '\'\nNii ilus ! " \' + \' . \nNõmmel elav pensioniealine Maret\'', \
+     'fix_type' : 'ending_punct', \
+     'regexes'  : [re.compile('.+[?!.]\s*["\u00BB\u02EE\u030B\u201C\u201D\u201E]$', re.DOTALL), re.compile('^[?!.]+$') ], \
+   },
 
 ]
 
