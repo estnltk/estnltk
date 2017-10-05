@@ -9,6 +9,8 @@ hyphen_pat    = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u20
 lc_letter     = '[a-zöäüõžš]'
 start_quotes  = '"\u00AB\u02EE\u030B\u201C\u201D\u201E'
 ending_quotes = '"\u00BB\u02EE\u030B\u201C\u201D\u201E'
+# regexp for matching a single token consisting only of sentence-ending punctuation
+ending_punct_regexp = re.compile('^[.?!…]+$')
 
 # Patterns describing how two mistakenly split 
 # adjacent sentences can be merged into one sentence
@@ -125,7 +127,7 @@ merge_patterns = [ \
    { 'comment'  : '{content_in_parentheses} + {single_sentence_ending_symbol}', \
      'example'  : '\'( " Easy FM , soft hits ! " )\' + \'.\'', \
      'fix_type' : 'parentheses', \
-     'regexes'  : [re.compile('.*\([^()]+\)$', re.DOTALL), re.compile('^[.?!…]$') ], \
+     'regexes'  : [re.compile('.*\([^()]+\)$', re.DOTALL), ending_punct_regexp ], \
    },
    
    # ***********************************
@@ -163,7 +165,7 @@ merge_patterns = [ \
    { 'comment'  : '{sentence_ending_punct} + {only_sentence_ending_punct}', \
      'example'  : '"arvati , et veel sellel aastal j6uab kohale ; yess !" + "!" + "!"', \
      'fix_type' : 'ending_punct', \
-     'regexes'  : [re.compile('.+[?!.…]\s*$', re.DOTALL), re.compile('^[?!.…]+$') ], \
+     'regexes'  : [re.compile('.+[?!.…]\s*$', re.DOTALL), ending_punct_regexp ], \
    },
    #   {sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}
    { 'comment'  : '{sentence_ending_punct} + {ending_quotes} {only_sentence_ending_punct}', \
@@ -174,7 +176,7 @@ merge_patterns = [ \
    { 'comment'  : '{sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}', \
      'example'  : '\'\nNii ilus ! " \' + \' . \nNõmmel elav pensioniealine Maret\'', \
      'fix_type' : 'ending_punct', \
-     'regexes'  : [re.compile('.+[?!.…]\s*['+ending_quotes+']$', re.DOTALL), re.compile('^[?!.…]+$') ], \
+     'regexes'  : [re.compile('.+[?!.…]\s*['+ending_quotes+']$', re.DOTALL), ending_punct_regexp ], \
    },
 ]
 
@@ -194,6 +196,7 @@ class SentenceTokenizer(Tagger):
                  fix_parentheses:bool = True,
                  fix_double_quotes:bool = True,
                  fix_ending_punct:bool = True,
+                 fix_repeated_ending_punct:bool = True,
                  use_emoticons_as_endings:bool = True,
                  ):
         # 0) Record configuration
@@ -202,6 +205,7 @@ class SentenceTokenizer(Tagger):
                               'fix_parentheses': fix_parentheses,
                               'fix_double_quotes': fix_double_quotes,
                               'fix_ending_punct':fix_ending_punct,
+                              'fix_repeated_ending_punct':fix_repeated_ending_punct,
                               'use_emoticons_as_endings':use_emoticons_as_endings,}
         # 1) Initialize NLTK's tokenizer
         # use NLTK-s sentence tokenizer for Estonian, in case it is not downloaded, try to download it first
@@ -269,10 +273,30 @@ class SentenceTokenizer(Tagger):
                     # Check if the next word is titlecased
                     if word_id > -1 and word_id+1 < len(text.words):
                         if text.words[word_id+1].text.istitle():
-                            # we have a likely sentence boundary;
-                            # add it to the set of sentence endswith
+                            # we have a likely sentence boundary:
+                            # add it to the set of sentence ends
                             sentence_ends.add( ct.end )
-        # C) Align sentence endings with word startings and endings
+        # C) Use repeated/prolonged sentence punctuation as sentence endings
+        if self.configuration['fix_repeated_ending_punct']:
+            repeated_ending_punct = []
+            for wid, word in enumerate(text.words):
+                # Collect prolonged punctuation
+                if ending_punct_regexp.match( word.text ):
+                    repeated_ending_punct.append( word.text )
+                elif repeated_ending_punct:
+                    repeated_ending_punct = []
+                # Check that the punctuation has some length
+                if (len(repeated_ending_punct) > 1) or \
+                   (len(repeated_ending_punct) == 1 and \
+                    (repeated_ending_punct[0] == '…' or \
+                    len(repeated_ending_punct[0]) > 1)):
+                    # Check if the next word is titlecased
+                    if wid+1 < len(text.words):
+                        if text.words[wid+1].text.istitle():
+                            # we have a likely sentence boundary:
+                            # add it to the set of sentence ends
+                            sentence_ends.add( word.end )
+        # D) Align sentence endings with word startings and endings
         #    Collect span lists of potential sentences
         start = 0
         sentence_ends.add(text.words[-1].end)
@@ -281,14 +305,14 @@ class SentenceTokenizer(Tagger):
             if token.end in sentence_ends:
                 sentences_list.append( text.words[start:i+1] )
                 start = i + 1
-        # D) Apply postcorrection fixes to sentence spans
-        # D.1) Try to merge mistakenly split sentences
+        # E) Apply postcorrection fixes to sentence spans
+        # E.1) Try to merge mistakenly split sentences
         if self.merge_rules:
             sentences_list = \
                 self._merge_mistakenly_split_sentences(text,\
                     sentences_list, record_fix_types = record_fix_types)
         
-        # E) Create the layer and attach sentences
+        # F) Create the layer and attach sentences
         layer_attributes=self.attributes
         if record_fix_types and 'fix_types' not in layer_attributes:
             layer_attributes += ('fix_types',)

@@ -243,7 +243,7 @@ def test_merge_mistakenly_separated_sentence_ending_punctuation():
         { 'text': 'Aga äkki ongi nümfomaanid reaalselt olemas ? ? ?', \
           'expected_sentence_texts': ['Aga äkki ongi nümfomaanid reaalselt olemas ? ? ?'] }, \
         { 'text': "loodetavasti läheb KE jaoks üle… Jeez… lahe..…", \
-          'expected_sentence_texts': ['loodetavasti läheb KE jaoks üle… Jeez… lahe..…'] }, \
+          'expected_sentence_texts': ['loodetavasti läheb KE jaoks üle…', 'Jeez… lahe..…'] }, \
         { 'text': 'arvati , et veel sellel aastal j6uab kohale ; yess ! ! !', \
           'expected_sentence_texts': ['arvati , et veel sellel aastal j6uab kohale ; yess ! ! !'] }, \
         { 'text': 'müüks ära sellise riista nagu IZ- Planeta 5 ! ?\nEtte tänades aivar .', \
@@ -353,3 +353,34 @@ def test_use_emoticons_as_sentence_endings():
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
+
+
+def test_fix_repeated_sentence_ending_punctuation():
+    # Tests that sentence endings are detected iff the ending punctuation is prolonged/repeated
+    test_texts = [ 
+        { 'text': 'Hispaanias tuli suur isu vaadata töömeile… Ja nii ma seal puhkasin, kuid samas tegin tööd… See oli lihtsalt nii-nii mõnus feeling :)', \
+          'expected_sentence_texts': ['Hispaanias tuli suur isu vaadata töömeile…', \
+                                      'Ja nii ma seal puhkasin, kuid samas tegin tööd…', \
+                                      'See oli lihtsalt nii-nii mõnus feeling :)' ] }, \
+        { 'text': 'Sõin küll tavalisest rohkem..Koguaeg oli tunne, et olen rase.', \
+          'expected_sentence_texts': ['Sõin küll tavalisest rohkem..', \
+                                      'Koguaeg oli tunne, et olen rase.'] }, \
+        { 'text': 'Kas tõesti ??????!!!! Äi usu!', \
+          'expected_sentence_texts': ['Kas tõesti ??????!!!!', \
+                                      'Äi usu!'] }, \
+        { 'text': 'Ja ikka ei usu !!!!?????? Äi usu!', \
+          'expected_sentence_texts': ['Ja ikka ei usu !!!!??????', \
+                                      'Äi usu!'] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words', 'sentences'])
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences'].spans]
+        #print(sentence_texts)
+        # Check results
+        assert sentence_texts == test_text['expected_sentence_texts']
+
+      
