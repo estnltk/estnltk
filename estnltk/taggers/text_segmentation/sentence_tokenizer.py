@@ -194,13 +194,15 @@ class SentenceTokenizer(Tagger):
                  fix_parentheses:bool = True,
                  fix_double_quotes:bool = True,
                  fix_ending_punct:bool = True,
+                 use_emoticons_as_endings:bool = True,
                  ):
         # 0) Record configuration
         self.configuration = {'fix_compound_tokens': fix_compound_tokens,
                               'fix_numeric': fix_numeric,
                               'fix_parentheses': fix_parentheses,
                               'fix_double_quotes': fix_double_quotes,
-                              'fix_ending_punct':fix_ending_punct}
+                              'fix_ending_punct':fix_ending_punct,
+                              'use_emoticons_as_endings':use_emoticons_as_endings,}
         # 1) Initialize NLTK's tokenizer
         # use NLTK-s sentence tokenizer for Estonian, in case it is not downloaded, try to download it first
         import nltk as nltk
@@ -244,16 +246,33 @@ class SentenceTokenizer(Tagger):
                                record_fix_types:bool=False) -> 'Text':
         #sentence_ends = {end for _, end in self._tokenize_text(text)}
         sentence_ends = {end for _, end in self._sentences_from_tokens(text)}
+        # A) Remove sentence endings that:
+        #   A.1) coincide with endings of non_ending_abbreviation's
+        #   A.2) fall in the middle of compound tokens
         if self.configuration['fix_compound_tokens']:
-            # A) Remove sentence endings that:
-            #   A.1) coincide with endings of non_ending_abbreviation's
-            #   A.2) fall in the middle of compound tokens
             for ct in text.compound_tokens:
                 if 'non_ending_abbreviation' in ct.type:
                     sentence_ends -= {span.end for span in ct}
                 else:
                     sentence_ends -= {span.end for span in ct[0:-1]}
-        # B) Align sentence endings with word startings and endings
+        # B) Use emoticons as sentence endings
+        if self.configuration['use_emoticons_as_endings']:
+            for ct in text.compound_tokens:
+                if 'emoticon' in ct.type:
+                    word_id = -1
+                    # Find word corresponding to the emoticon
+                    for wid, word in enumerate(text.words):
+                        if word.start <= ct.start and \
+                           ct.end <= word.end:
+                            word_id = wid
+                            break
+                    # Check if the next word is titlecased
+                    if word_id > -1 and word_id+1 < len(text.words):
+                        if text.words[word_id+1].text.istitle():
+                            # we have a likely sentence boundary;
+                            # add it to the set of sentence endswith
+                            sentence_ends.add( ct.end )
+        # C) Align sentence endings with word startings and endings
         #    Collect span lists of potential sentences
         start = 0
         sentence_ends.add(text.words[-1].end)
@@ -262,14 +281,14 @@ class SentenceTokenizer(Tagger):
             if token.end in sentence_ends:
                 sentences_list.append( text.words[start:i+1] )
                 start = i + 1
-        # C) Apply postcorrection fixes to sentence spans
-        # C.1) Try to merge mistakenly split sentences
+        # D) Apply postcorrection fixes to sentence spans
+        # D.1) Try to merge mistakenly split sentences
         if self.merge_rules:
             sentences_list = \
                 self._merge_mistakenly_split_sentences(text,\
                     sentences_list, record_fix_types = record_fix_types)
         
-        # D) Create the layer and attach sentences
+        # E) Create the layer and attach sentences
         layer_attributes=self.attributes
         if record_fix_types and 'fix_types' not in layer_attributes:
             layer_attributes += ('fix_types',)

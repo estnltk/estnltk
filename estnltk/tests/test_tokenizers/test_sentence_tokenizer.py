@@ -1,5 +1,5 @@
 from estnltk.text import Text
-
+from estnltk.taggers import SentenceTokenizer
 
 def test_merge_mistakenly_split_sentences_1():
     # Tests that mistakenly split sentences have been properly merged
@@ -316,4 +316,40 @@ def test_split_mistakenly_merged_sentences_1():
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
-    
+
+
+def test_use_emoticons_as_sentence_endings():
+    # Tests that emoticons are used as sentence boundaries
+    test_texts = [ 
+        { 'text': 'Minu esimene blogi.... kõlab hästi:P Aga tegelikult on paberile vist parem kirjutada....', \
+          'expected_sentence_texts': ['Minu esimene blogi.... kõlab hästi:P', \
+                                      'Aga tegelikult on paberile vist parem kirjutada....'] }, \
+        { 'text': 'Nii habras, ilus ja minu oma :) Kõige parem mis kunagi juhtuda saab :):) Magamata öid mul muidugi ei olnud.', \
+          'expected_sentence_texts': ['Nii habras, ilus ja minu oma :)', \
+                                      'Kõige parem mis kunagi juhtuda saab :):)',\
+                                      'Magamata öid mul muidugi ei olnud.'] }, \
+        { 'text': 'Aga lihtsalt puid läheb 10 korda vähem :D Nii lihtne see ongi :D!!', \
+          'expected_sentence_texts': ['Aga lihtsalt puid läheb 10 korda vähem :D', \
+                                      'Nii lihtne see ongi :D!!'] }, \
+        { 'text': 'Mosse M2140 on ka ägedam masin kui see bemm :DD Nõsutun siin eelpoolkommenteerijaga', \
+          'expected_sentence_texts': ['Mosse M2140 on ka ägedam masin kui see bemm :DD', \
+                                      'Nõsutun siin eelpoolkommenteerijaga'] }, \
+        { 'text': 'Dataprojektorit peeti ilmselt silmas, usun :-) See selleks.', \
+          'expected_sentence_texts': ['Dataprojektorit peeti ilmselt silmas, usun :-)', \
+                                      'See selleks.'] }, \
+        { 'text': 'Linalakast eesti talutütar:P Ausõna, nagu meigitud Raja Teele :D', \
+          'expected_sentence_texts': ['Linalakast eesti talutütar:P', \
+                                      'Ausõna, nagu meigitud Raja Teele :D'] }, \
+    ]
+    sentence_tokenizer = SentenceTokenizer(use_emoticons_as_endings=True)
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words'])
+        sentence_tokenizer.tag(text)
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences'].spans]
+        #print(sentence_texts)
+        # Check results
+        assert sentence_texts == test_text['expected_sentence_texts']
