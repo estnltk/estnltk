@@ -383,4 +383,11 @@ def test_fix_repeated_sentence_ending_punctuation():
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
 
-      
+
+def test_apply_sentence_tokenizer_on_empty_text():
+    # Applying sentence tokenizer on empty text should not produce any errors
+    text = Text( '' )
+    text.tag_layer(['words', 'sentences'])
+    assert len(text.words) == 0
+    assert len(text.sentences) == 0
+

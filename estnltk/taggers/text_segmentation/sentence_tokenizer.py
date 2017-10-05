@@ -299,7 +299,8 @@ class SentenceTokenizer(Tagger):
         # D) Align sentence endings with word startings and endings
         #    Collect span lists of potential sentences
         start = 0
-        sentence_ends.add(text.words[-1].end)
+        if len(text.words) > 0:
+            sentence_ends.add( text.words[-1].end )
         sentences_list = []
         for i, token in enumerate(text.words):
             if token.end in sentence_ends:
