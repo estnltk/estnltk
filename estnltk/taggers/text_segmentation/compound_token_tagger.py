@@ -139,7 +139,13 @@ class CompoundTokenTagger(Tagger):
         # 2) Apply tokenization hints + hyphenation correction
         for i, token_span in enumerate(text.tokens):
             token = token_span.text
-            # 2.1) Check for tokenization hints
+            # 2.1) Apply detection of custom non-ending abbreviations
+            #      (and override the previous compound token in case
+            #       of an overlap)
+            if self.custom_abbreviations:
+                self._try_to_add_custom_abbreviation( text, i, compound_tokens_lists )
+            
+            # 2.2) Check for tokenization hints
             if token_span.start in tokenization_hints:
                 # Find where the new compound token should end 
                 end_token_index = None
@@ -150,36 +156,25 @@ class CompoundTokenTagger(Tagger):
                         break
                 if end_token_index:
                     spl = SpanList()
-                    spl.spans      = text.tokens[i:end_token_index+1]
-                    spl.type       = ('tokenization_hint',)
+                    spl.spans = text.tokens[i:end_token_index+1]
+                    spl.type  = ('tokenization_hint',)
                     spl.normalized = None
                     if 'pattern_type' in tokenization_hints[token_span.start]:
                         spl.type = (tokenization_hints[token_span.start]['pattern_type'],)
                     if 'normalized' in tokenization_hints[token_span.start]:
                         spl.normalized = tokenization_hints[token_span.start]['normalized']
-                    compound_tokens_lists.append(spl)
-
-            # 2.2) Apply detection of custom non-ending abbreviations
-            #      (only if no regular tokenization hint was not discovered)
-            if self.custom_abbreviations and not token_span.start in tokenization_hints:
-                next_token = ''
-                custom_abbreviation_found = False
-                for abbreviation in self.custom_abbreviations:
-                    if abbreviation == token:
-                        custom_abbreviation_found = True
-                        break
-                if i+1 < len(text.tokens)-1:
-                    next_token = text.tokens[i+1].text
-                if custom_abbreviation_found:
-                    spl = SpanList()
-                    spl.type = ('non_ending_abbreviation',)
-                    if next_token == '.':
-                        spl.spans = text.tokens[i:i+2]
-                        spl.normalized = token+next_token
-                    else:
-                        spl.spans = text.tokens[i:i+1]
-                        spl.normalized = None
-                    compound_tokens_lists.append(spl)
+                    add_compound_token = True
+                    if self.custom_abbreviations:
+                        # if custom abbreviations are also used, we have to eliminate 
+                        # potential overlaps; so, add compound token only if it does
+                        # not overlap with the previous compound token
+                        if compound_tokens_lists:
+                            last_compound = compound_tokens_lists[-1]
+                            if last_compound.start <= spl.start and \
+                               spl.start < last_compound.end:
+                                add_compound_token = False
+                    if add_compound_token:
+                        compound_tokens_lists.append(spl)
 
             # 2.3) Perform hyphenation correction
             if tag_hyphenations:
@@ -250,6 +245,69 @@ class CompoundTokenTagger(Tagger):
             return set(df[0])
         except EmptyDataError:
             return set()
+
+
+    def _try_to_add_custom_abbreviation( self, text:'Text', token_id:int, compound_tokens_lists:list ):
+        ''' Checks if a custom non-ending abbreviation starts
+            from the position token_id, and if this is True, then 
+            checks if conditions for adding the abbreviation are 
+            correct ( and  resolves  overlaps with previous compound 
+            tokens), and, finally, if conditions are good, appends 
+            the detected custom abbreviation at the end of 
+            compound_tokens_lists;
+        '''
+        token = text.tokens[token_id].text
+        custom_abbreviation_found = False
+        for abbreviation in self.custom_abbreviations:
+            if abbreviation == token:
+                custom_abbreviation_found = True
+                break
+        if custom_abbreviation_found:
+            # construct potential span
+            spl = SpanList()
+            spl.type = ('non_ending_abbreviation',)
+            next_token = ''
+            if token_id+1 < len(text.tokens)-1:
+                next_token = text.tokens[token_id+1].text
+            if next_token == '.':
+                spl.spans = text.tokens[token_id:token_id+2]
+                spl.normalized = token+next_token
+            else:
+                spl.spans = text.tokens[token_id:token_id+1]
+                spl.normalized = None
+            # before adding: check the last compound token:
+            add_custom_abbrev = True
+            if compound_tokens_lists:
+                last_compound = compound_tokens_lists[-1]
+                last_type = last_compound.type
+                if last_compound.start < spl.start and \
+                    spl.end < last_compound.end:
+                    # custom compound token is inside 
+                    # already existing compound token:
+                    # discard it
+                    # (the existing compound token already
+                    #  fixes potential sentence tokenization
+                    #  problems)
+                    add_custom_abbrev = False
+                elif last_compound.end == spl.end and \
+                     'non_ending_abbreviation' not in last_type:
+                    # if the last compound token ends
+                    # exactly where custom token ends, and
+                    # the last compound token is not 
+                    # 'non_ending_abbreviation', then
+                    # remove the last token to give priority
+                    # to the custom 'non_ending_abbreviation'
+                    del compound_tokens_lists[-1]
+                elif last_compound.end == spl.end and \
+                     'non_ending_abbreviation' in last_type:
+                    # if the last is already a 'non_ending_abbreviation',
+                    # then discard the custom compound
+                    # (the existing compound token already
+                    #  fixes potential sentence tokenization
+                    #  problems)
+                    add_custom_abbrev = False
+            if add_custom_abbrev:
+                compound_tokens_lists.append(spl)
 
 
     def _normalize_word_with_hyphens( self, word_text:str ):

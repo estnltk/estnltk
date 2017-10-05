@@ -1,7 +1,7 @@
 import unittest
 
 from estnltk import Text
-
+from estnltk.taggers import CompoundTokenTagger
 
 class CompoundTokenTaggerTest(unittest.TestCase):
 
@@ -451,3 +451,22 @@ class CompoundTokenTaggerTest(unittest.TestCase):
                 # Assert that the tokenization is correct
                 self.assertListEqual(test_text['expected_compound_tokens'][ctid], tokens)
                 self.assertEqual(test_text['expected_normalizations'][ctid], comp_token.normalized)
+
+
+    def test_using_custom_abbreviations(self):
+        # Tests using a list of custom abbreviations
+        text = Text('Batman, Superman jpt . kangelased tõusid areenile, kerkisid esile jne. ja võitsid paljude südamed.')
+        text.tag_layer(['tokens'])
+        my_abbreviations = ['jpt', 'jne']
+        # Perform analysis
+        CompoundTokenTagger(tag_abbreviations = True, custom_abbreviations = my_abbreviations).tag(text)
+        # Check that compound tokens are detected
+        compound_tokens = [ comp_token.enclosing_text for comp_token in text['compound_tokens'] ]
+        self.assertListEqual( ['jpt .', 'jne.'], compound_tokens )
+        norm_compound_tokens = [ comp_token.normalized for comp_token in text['compound_tokens'] ]
+        self.assertListEqual( ['jpt.', 'jne.'], norm_compound_tokens )
+        # Check that token compounding fixes sentence boundaries
+        text.tag_layer(['sentences'])
+        sentences = [ s.enclosing_text for s in text['sentences'] ]
+        self.assertListEqual( ['Batman, Superman jpt . kangelased tõusid areenile, kerkisid esile jne. ja võitsid paljude südamed.'], sentences )
+
