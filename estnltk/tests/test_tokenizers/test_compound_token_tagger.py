@@ -365,7 +365,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['OK', ',', 'aga', 'kas', 'Viasat', 'läbi', "DVB-S'i", 'on', 'vaadatav', '?'] },\
             { 'text': "Ma olen nüüd natuke aega saarlane ja suhtlen live ´is ainult saarlastega, höhö.",\
               'expected_words': ['Ma', 'olen', 'nüüd', 'natuke', 'aega', 'saarlane', 'ja', 'suhtlen', 'live ´is', 'ainult', 'saarlastega', ',', 'höhö', '.'] },\
-            # Number + case ending
+            # Number + case ending (with separator character)
             { 'text': "Tööajal kella 8.00-st 16.00- ni võtavad sel telefonil kõnesid vastu kuni üheksa IT töötajat.",\
               'expected_words': ['Tööajal', 'kella', '8.00-st', '16.00- ni', 'võtavad', 'sel', 'telefonil', 'kõnesid', 'vastu', 'kuni', 'üheksa', 'IT', 'töötajat', '.'] },\
             { 'text': "Ökonomistid, kes ootasid vastavalt 1%-st langust kuu jooksul ja 2,7%-st tõusu aasta peale.",\
@@ -380,12 +380,20 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['See', 'aitab', 'kindlamini', 'tõsta', 'nt', 'annetuste', 'tulumaksuvabastust', '5%lt', '10%le', '.'] },\
             { 'text': "Üleriigilisel üldstreigil nõuame ka 50%-list palgatõusu!",\
               'expected_words': ['Üleriigilisel', 'üldstreigil', 'nõuame', 'ka', '50%-list', 'palgatõusu', '!'] },\
+            # Number + case ending (without separator dash/hyphen)
+            { 'text': "Võistlus avatakse kell 12.40, võistluspäev kestab kella 15.30ni.",\
+              'expected_words': ['Võistlus', 'avatakse', 'kell', '12.40', ',', 'võistluspäev', 'kestab', 'kella', '15.30ni', '.'] },\
+            { 'text': "Rocca al Mare kooli parklas kella 8.30st kuni 9.45ni.",\
+              'expected_words': ['Rocca', 'al', 'Mare', 'kooli', 'parklas', 'kella', '8.30st', 'kuni', '9.45ni', '.'] },\
+            { 'text': "Või rääkigu oma ülemustega, et muudetaks lahtiolekuaeg kella 21.45ks.",\
+              'expected_words': ['Või', 'rääkigu', 'oma', 'ülemustega', ',', 'et', 'muudetaks', 'lahtiolekuaeg', 'kella', '21.45ks', '.'] },\
+            { 'text': "Adriana Fernandez 2 : 24.06 ja portugallanna Manuela Machado 2 : 25.08ga.",\
+              'expected_words': ['Adriana', 'Fernandez', '2', ':', '24.06', 'ja', 'portugallanna', 'Manuela', 'Machado', '2', ':', '25.08ga', '.'] },\
             # Negative examples: hyphen/dash between spaces -- most likely is not a case separator ...
             { 'text': "Kelle hinges on süütunne, seda peab süüdistama - ta vajab seda.",\
               'expected_words': ['Kelle', 'hinges', 'on', 'süütunne', ',', 'seda', 'peab', 'süüdistama', '-', 'ta', 'vajab', 'seda', '.'] },\
             { 'text': "Teine professor kaevas koos tudengitega välja paar lepakändu - iga viimase kui juureni.",\
               'expected_words': ['Teine', 'professor', 'kaevas', 'koos', 'tudengitega', 'välja', 'paar', 'lepakändu', '-', 'iga', 'viimase', 'kui', 'juureni', '.'] },\
-            
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )
@@ -455,6 +463,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
 
     def test_using_custom_abbreviations(self):
         # Tests using a list of custom abbreviations
+        # Text #1
         text = Text('Batman, Superman jpt . kangelased tõusid areenile, kerkisid esile jne. ja võitsid paljude südamed.')
         text.tag_layer(['tokens'])
         my_abbreviations = ['jpt', 'jne']
@@ -469,4 +478,14 @@ class CompoundTokenTaggerTest(unittest.TestCase):
         text.tag_layer(['sentences'])
         sentences = [ s.enclosing_text for s in text['sentences'] ]
         self.assertListEqual( ['Batman, Superman jpt . kangelased tõusid areenile, kerkisid esile jne. ja võitsid paljude südamed.'], sentences )
-
+        
+        # Text #2
+        text = Text('need kaks masinat on omavahel võrku ühendatud ja võrk nö. toimib.')
+        text.tag_layer(['tokens'])
+        my_abbreviations = ['nö']
+        # Perform analysis
+        CompoundTokenTagger(tag_abbreviations = True, custom_abbreviations = my_abbreviations).tag(text)
+        # Check sentences
+        text.tag_layer(['sentences'])
+        sentences = [ s.enclosing_text for s in text['sentences'] ]
+        self.assertListEqual( ['need kaks masinat on omavahel võrku ühendatud ja võrk nö. toimib.'], sentences )

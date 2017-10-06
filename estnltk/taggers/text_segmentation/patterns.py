@@ -562,6 +562,22 @@ case_endings_patterns = [
       '_priority_': (6, 0, 3),
       'normalized': "lambda m: re.sub('\s','',  m.group(1))",
      },
+    { 'comment': '*) Numeric with case ending (case ending not separated);',
+      'example': '18.20ni',
+      'pattern_type': 'case_ending',
+      'left_strict':  True,   # left side is strict: must match exactly with token's ending
+      'right_strict': True,   # right side is strict: must match exactly with token's ending
+      '_regex_pattern_': re.compile(r'''
+                       ([{NUMERIC}]+                                        # number
+                        [.,]                                                # period/comma
+                        [{NUMERIC}]+                                        # number
+                        (ks|le|lt|ga|st|sse|na|ni|ta|l|t|ne|es|             # case ending
+                         i|l|s|d|u|e|t))                                    # case ending
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (6, 0, 4),
+      'normalized': "lambda m: re.sub('\s','',  m.group(1))",
+     },
                     ]
 
 number_fixes_patterns = [
