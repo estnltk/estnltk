@@ -86,7 +86,7 @@ merge_patterns = [ \
    { 'comment'  : '{First_10_Roman_numerals} {period} + {lowercase_or_dash}', \
      'example'  : '"III." + "- II." + "sajandil enne meie ajastut toimunud sõjad."', \
      'fix_type' : 'numeric_roman_numeral', \
-     'regexes'  : [re.compile('(.+)?((I|II|III|IV|V|VI|VII|VIII|IX|X)\s*\.)$', re.DOTALL), re.compile('^('+lc_letter+'|'+hyphen_pat+')') ], \
+     'regexes'  : [re.compile('(.+)?((VIII|III|VII|II|IV|VI|IX|V|I|X)\s*\.)$', re.DOTALL), re.compile('^('+lc_letter+'|'+hyphen_pat+')') ], \
    },
    
    #   {Number} {period} + {lowercase}
@@ -259,24 +259,7 @@ class SentenceTokenizer(Tagger):
                     sentence_ends -= {span.end for span in ct}
                 else:
                     sentence_ends -= {span.end for span in ct[0:-1]}
-        # B) Use emoticons as sentence endings
-        if self.configuration['use_emoticons_as_endings']:
-            for ct in text.compound_tokens:
-                if 'emoticon' in ct.type:
-                    word_id = -1
-                    # Find word corresponding to the emoticon
-                    for wid, word in enumerate(text.words):
-                        if word.start <= ct.start and \
-                           ct.end <= word.end:
-                            word_id = wid
-                            break
-                    # Check if the next word is titlecased
-                    if word_id > -1 and word_id+1 < len(text.words):
-                        if text.words[word_id+1].text.istitle():
-                            # we have a likely sentence boundary:
-                            # add it to the set of sentence ends
-                            sentence_ends.add( ct.end )
-        # C) Use repeated/prolonged sentence punctuation as sentence endings
+        # B) Use repeated/prolonged sentence punctuation as sentence endings
         if self.configuration['fix_repeated_ending_punct']:
             repeated_ending_punct = []
             for wid, word in enumerate(text.words):
@@ -292,10 +275,45 @@ class SentenceTokenizer(Tagger):
                     len(repeated_ending_punct[0]) > 1)):
                     # Check if the next word is titlecased
                     if wid+1 < len(text.words):
-                        if text.words[wid+1].text.istitle():
+                        next_word = text.words[wid+1].text
+                        if len(next_word) > 1 and \
+                           next_word[0].isupper() and \
+                           next_word[1].islower():
                             # we have a likely sentence boundary:
                             # add it to the set of sentence ends
                             sentence_ends.add( word.end )
+        # C) Use emoticons as sentence endings
+        if self.configuration['use_emoticons_as_endings']:
+            # C.1) Collect all emoticons (record start locations)
+            emoticon_locations = {}
+            for ct in text.compound_tokens:
+                if 'emoticon' in ct.type:
+                    emoticon_locations[ct.start] = ct
+            # C.2) Iterate over words and check emoticons
+            repeated_emoticons = []
+            for wid, word in enumerate( text.words ):
+                if word.start in emoticon_locations:
+                    repeated_emoticons.append( emoticon_locations[word.start] )
+                else:
+                    repeated_emoticons = []
+                # Check that there is an emoticon (or even few of them)
+                if len(repeated_emoticons) > 0:
+                    # Check if the next word is not emoticon, and is titlecased
+                    if wid+1 < len(text.words):
+                        next_word = text.words[wid+1].text
+                        if text.words[wid+1].start not in emoticon_locations and \
+                           len(next_word) > 1 and \
+                           next_word[0].isupper() and \
+                           next_word[1].islower():
+                            # we have a likely sentence boundary:
+                            # add it to the set of sentence ends
+                            sentence_ends.add( word.end )
+                            # Check word before emoticons is already a sentence
+                            # ending; if so, remove it (assuming that emoticons
+                            # belong to the previous sentence)
+                            if wid - len(repeated_emoticons) > -1:
+                                prev_word = text.words[wid-len(repeated_emoticons)]
+                                sentence_ends -= { prev_word.end }
         # D) Align sentence endings with word startings and endings
         #    Collect span lists of potential sentences
         start = 0

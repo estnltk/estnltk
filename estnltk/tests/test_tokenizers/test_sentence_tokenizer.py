@@ -321,6 +321,7 @@ def test_split_mistakenly_merged_sentences_1():
 def test_use_emoticons_as_sentence_endings():
     # Tests that emoticons are used as sentence boundaries
     test_texts = [ 
+        # Emoticons as sentence boundaries: a simple case
         { 'text': 'Minu esimene blogi.... kõlab hästi:P Aga tegelikult on paberile vist parem kirjutada....', \
           'expected_sentence_texts': ['Minu esimene blogi.... kõlab hästi:P', \
                                       'Aga tegelikult on paberile vist parem kirjutada....'] }, \
@@ -340,6 +341,25 @@ def test_use_emoticons_as_sentence_endings():
         { 'text': 'Linalakast eesti talutütar:P Ausõna, nagu meigitud Raja Teele :D', \
           'expected_sentence_texts': ['Linalakast eesti talutütar:P', \
                                       'Ausõna, nagu meigitud Raja Teele :D'] }, \
+        # Emoticons as sentence boundaries: a case of repeated emoticons
+        { 'text': 'KUUSKÜMMEND KOLM KÕRVITSAT???? :O :O :O See on ju iga koka õudusunenägu :)', \
+          'expected_sentence_texts': ['KUUSKÜMMEND KOLM KÕRVITSAT???? :O :O :O', \
+                                      'See on ju iga koka õudusunenägu :)'] }, \
+        { 'text': 'ikkagi maailmas 2. koht joogipaneku poolest ju.. :D:D:D', \
+          'expected_sentence_texts': ['ikkagi maailmas 2. koht joogipaneku poolest ju.. :D:D:D'] }, \
+        # Emoticons as sentence boundaries: a case of emoticons following sentence punctuation
+        { 'text': 'Appi milline loll jutt... :D Ma ei joo eini', \
+          'expected_sentence_texts': ['Appi milline loll jutt... :D', 'Ma ei joo eini'] }, \
+        # Emoticons as sentence boundaries: if emoticons are following sentence-ending punctuation,
+        # then assume they need to be attached to the previous sentence ...
+        { 'text': 'Ma sihin rohkem neid sügismaratone! :D Aga muidu ma julgen Riiat soovitada küll!!!', \
+          'expected_sentence_texts': ['Ma sihin rohkem neid sügismaratone! :D', 'Aga muidu ma julgen Riiat soovitada küll!!!'] }, \
+        { 'text': 'Oled sa armunud praegu? :) Kui ei siis oli arvatavasti auravärv siiski.', \
+          'expected_sentence_texts': ['Oled sa armunud praegu? :)', 'Kui ei siis oli arvatavasti auravärv siiski.'] }, \
+        { 'text': 'ka tema ei tea sõnade pool ja pooled tähendust . :( Ehk on see siiski taas D e lfi kirjatsura vaimusünnitis.', \
+          'expected_sentence_texts': ['ka tema ei tea sõnade pool ja pooled tähendust . :(', 'Ehk on see siiski taas D e lfi kirjatsura vaimusünnitis.'] }, \
+        { 'text': 'aga las läks oma teed,nagunii august poleks läbi mahtunud. :))) Vot sääne äge päiva.\nMis asi see pumm pumm veel on?', \
+          'expected_sentence_texts': ['aga las läks oma teed,nagunii august poleks läbi mahtunud. :)))', 'Vot sääne äge päiva.', 'Mis asi see pumm pumm veel on?'] }, \
     ]
     sentence_tokenizer = SentenceTokenizer(use_emoticons_as_endings=True)
     for test_text in test_texts:
