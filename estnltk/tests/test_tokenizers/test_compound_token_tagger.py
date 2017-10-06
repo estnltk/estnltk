@@ -154,6 +154,10 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['2007', 'a.', '-', '2010', 'a.', 'koolitusteemade', 'seas', 'olid', ':', 'maksud', ',', 'töösuhted', ',', 'efektiivsed', 'kommunikatsioonitehnikad', '.'] }, \
             { 'text' : 'Viie Dynastia * perioodil ( 907-960 A.D )', \
               'expected_words': ['Viie', 'Dynastia', '*', 'perioodil', '(', '907', '-', '960', 'A.D', ')'] }, \
+            { 'text' : "Tehakse vahet n.ö. eurowave ja hardcore purjedel.", \
+              'expected_words': ['Tehakse', 'vahet', 'n.ö.', 'eurowave', 'ja', 'hardcore', 'purjedel', '.'] }, \
+            { 'text' : 'Referentne funktsioon on orienteeritud n.ö. referentse grupi väärtustele.', \
+              'expected_words': ['Referentne', 'funktsioon', 'on', 'orienteeritud', 'n.ö.', 'referentse', 'grupi', 'väärtustele', '.'] }, \
             { 'text' : 'Arstide Liit esitas oma palganõudmised ( vt. volikogu otsused ), mis EHL volikogu lubas läbi arutada.',\
               'expected_words': ['Arstide', 'Liit', 'esitas', 'oma', 'palganõudmised', '(', 'vt.', 'volikogu', 'otsused', ')', ',', 'mis', 'EHL', 'volikogu', 'lubas', 'läbi', 'arutada', '.'] }, \
             { 'text' : 'Ja selles suhtes võiks Lp. E-Kaitse olla nii soliidne E-kaitse keskkond.',\
@@ -168,6 +172,10 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['keha', 'ei', 'tööta', '=', 'tõugates', ',', 'sest', 'olen', 'liiga', 'püsti', 'asendis', '(', 'a la', 'Teichmann', ')'] },\
             { 'text' : "Täiesti valesti aru saanud Jordani-fenomenist, et a'la üks mees teeb mängu ära.",\
               'expected_words': ['Täiesti', 'valesti', 'aru', 'saanud', 'Jordani-fenomenist', ',', 'et', "a'la", 'üks', 'mees', 'teeb', 'mängu', 'ära', '.'] },\
+            { 'text' : 'Suitsutatud produktide, s.h. ka peekoni ja hot-dogide söömine on eriti kahjulik.',\
+              'expected_words': ['Suitsutatud', 'produktide', ',', 's.h.', 'ka', 'peekoni', 'ja', 'hot-dogide', 'söömine', 'on', 'eriti', 'kahjulik', '.'] },\
+            { 'text' : 'Budistlikud keskused (s.h. Khordongi Ühing Eestis jt.) on tõlkinud ka otse algkeeltest.',\
+              'expected_words': ['Budistlikud', 'keskused', '(', 's.h.', 'Khordongi', 'Ühing', 'Eestis', 'jt', '.', ')', 'on', 'tõlkinud', 'ka', 'otse', 'algkeeltest', '.'] },\
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )
@@ -230,6 +238,8 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Tei', ',', '06.', 'Jul.', '2010', '20:23', 'Rohelise', 'Akadeemia', 'nime', 'all', 'toimuvate', 'arutelude', 'sarja', 'algus', '.'] },\
             { 'text' : 'Üll 11.01.2010 18:41 100% ostan ennem selle.',\
               'expected_words': ['Üll', '11.01.2010', '18:41', '100%', 'ostan', 'ennem', 'selle', '.'] },\
+            { 'text' : 'Eelmüük toimub kuni 08.08.2012a . Peale eelmüügi lõppu piletihinnad 14.-€',\
+              'expected_words': ['Eelmüük', 'toimub', 'kuni', '08.08.2012a', '.', 'Peale', 'eelmüügi', 'lõppu', 'piletihinnad', '14', '.-€'] },\
             { 'text' : 'Võsu 04/09/11 18:03 \n Ilus ilm, ning loksa mõõdik näitas kõige rohkem',\
               'expected_words': ['Võsu', '04/09/11', '18:03', 'Ilus', 'ilm', ',', 'ning', 'loksa', 'mõõdik', 'näitas', 'kõige', 'rohkem'] },\
             { 'text' : 'itra 2011-04-22 14:57:04 \n Läksin oma teloga sinna lehele, vajutasin download ja midagi ei juhtunud',\

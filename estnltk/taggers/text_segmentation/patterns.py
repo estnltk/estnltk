@@ -37,15 +37,17 @@ MACROS = {
                                'a\s?\.\s?k\s?\.\s?a|'+\
                                "a['`’ ]la|"+\
                                'k\s?\.\s?a|'+\
+                               'n\s?\.\s?ö|'+\
                                's\s?\.\s?o|'+\
                                's\s?\.\s?t|'+\
+                               's\s?\.\s?h|'+\
                                'v\s?\.\s?a'+\
                               ')',
             # B) Abbreviations that should come out of tokenization as they are
             #    Note: these are shorter patterns and should be checked secondly
             'ABBREVIATIONS2': '('+\
                                '[Dd]r|[Hh]r|[Hh]rl|[Ii]bid|[Kk]od|[Kk]oost|[Ll]p|'+\
-                               'lüh|[Mm]rs?|nn|[Nn]t|[Pp]r|so|st|sealh|sh|[Ss]m|'+\
+                               'lüh|[Mm]rs?|nn|[Nn]t|nö|[Pp]r|so|st|sealh|sh|[Ss]m|'+\
                                '[Tt]lk|tn|[Tt]oim|[Vv]rd|va|[Vv]t'+\
                               ')',
             # ===================================================
@@ -212,6 +214,7 @@ number_patterns = [
                          ([012][0-9]|1[012])                      # month
                          \s?\.\s?                                 # period
                          (1[7-9]\d\d|2[0-2]\d\d)                  # year
+                         a?                                       # a (optional)
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
     { 'comment': '*) Date patterns in the ISO format "yyyy-mm-dd";',
