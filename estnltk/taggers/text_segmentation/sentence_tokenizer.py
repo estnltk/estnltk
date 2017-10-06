@@ -69,6 +69,13 @@ merge_patterns = [ \
      'fix_type' : 'numeric_date', \
      'regexes'  : [re.compile('(.+)?([0-9]{2})\.([0-9]{2})\.([0-9]{4})\.\s*$', re.DOTALL), re.compile('^\s*([0-9]{2}):([0-9]{2})')], \
    },
+   #   {|kell|} {time_HH.} + {MM}
+   { 'comment'  : '{|kell|} {time_HH.} + {MM}', \
+     'example'  : "'Kell 22 .' + '00\nTV 3\n“ Thelma”\n'", \
+     'fix_type' : 'numeric_time', \
+     'regexes'  : [re.compile('(.+)?[kK]ell\S?\s([0-9]{1,2})\s*\.\s*$', re.DOTALL), re.compile('^\s*([0-9]{2})\s')], \
+   },
+
    #   {Numeric_date} {period} + {month_name}
    { 'comment'  : '{Numeric_date} {period} + {month_name}', \
      'example'  : '"Kirijenko on sündinud 26 ." + "juulil 1962 . aastal ."', \
@@ -308,9 +315,9 @@ class SentenceTokenizer(Tagger):
                             # we have a likely sentence boundary:
                             # add it to the set of sentence ends
                             sentence_ends.add( word.end )
-                            # Check word before emoticons is already a sentence
-                            # ending; if so, remove it (assuming that emoticons
-                            # belong to the previous sentence)
+                            # Check if word before emoticons is already a sentence
+                            # ending; if so, remove it's ending (assuming that 
+                            # emoticons belong to the previous sentence)
                             if wid - len(repeated_emoticons) > -1:
                                 prev_word = text.words[wid-len(repeated_emoticons)]
                                 sentence_ends -= { prev_word.end }

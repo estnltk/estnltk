@@ -28,10 +28,16 @@ def test_merge_mistakenly_split_sentences_1():
           'expected_sentence_texts': ['Samas teatas investeeringute suurenemisest rohkem ettevõtteid kui aasta tagasi (2005.a. 46%, 2004.a. 35%).'] }, \
         { 'text': 'Uuringu esialgsed tulemused muutuvad kättesaadavaks 2002.a. maikuus.', \
           'expected_sentence_texts': ['Uuringu esialgsed tulemused muutuvad kättesaadavaks 2002.a. maikuus.'] }, \
+
         #   Merge case:   {Date_with_year} {period} + {time}
         { 'text': 'Gert 02.03.2009. 14:40 Tahaks kindlalt sinna kooli:P', \
           'expected_sentence_texts': ['Gert 02.03.2009. 14:40 Tahaks kindlalt sinna kooli:P'] }, \
-          
+        #   Merge case:   {|kell|} {time_HH.} + {MM}
+        { 'text': 'Kell 15 . 50 tuli elekter Tallinna tagasi .', \
+          'expected_sentence_texts': ['Kell 15 . 50 tuli elekter Tallinna tagasi .'] }, \
+        { 'text': 'Kell 22 . 00\nTV 3\n“ Thelma\n” ,\nUSA 1991\nRežii : Ridley Scott\n', \
+          'expected_sentence_texts': ['Kell 22 . 00\nTV 3\n“ Thelma\n” ,\nUSA 1991\nRežii : Ridley Scott'] }, \
+
         #   Merge case:   {Numeric_year} {period} + {|aasta|}
         { 'text': 'BRK-de traditsioon sai alguse 1964 . aastal Saksamaal Heidelbergis.', \
           'expected_sentence_texts': ['BRK-de traditsioon sai alguse 1964 . aastal Saksamaal Heidelbergis.'] }, \
@@ -388,8 +394,8 @@ def test_fix_repeated_sentence_ending_punctuation():
         { 'text': 'Kas tõesti ??????!!!! Äi usu!', \
           'expected_sentence_texts': ['Kas tõesti ??????!!!!', \
                                       'Äi usu!'] }, \
-        { 'text': 'Ja ikka ei usu !!!!?????? Äi usu!', \
-          'expected_sentence_texts': ['Ja ikka ei usu !!!!??????', \
+        { 'text': 'Ja ikka ei usu!!!!?????? Äi usu!', \
+          'expected_sentence_texts': ['Ja ikka ei usu!!!!??????', \
                                       'Äi usu!'] }, \
     ]
     for test_text in test_texts:
