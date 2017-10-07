@@ -330,9 +330,9 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             { 'text': "Päevasel ajal on sobivaks temperatuuriks ruumis +18˚... 23˚C. Kui keegi ruumis ei viibi, piisab 15˚ ... 16˚C kraadist.", \
               'expected_words': ['Päevasel', 'ajal', 'on', 'sobivaks', 'temperatuuriks', 'ruumis', '+18', '˚...', '23', '˚', 'C', '.', 'Kui', 'keegi', 'ruumis', 'ei', 'viibi', ',', 'piisab', '15', '˚', '...', '16', '˚', 'C', 'kraadist', '.'] },\
             { 'text': "P.S. Õppige viisakalt kirjutama.", \
-              'expected_words': ['P', '.', 'S', '.', 'Õppige', 'viisakalt', 'kirjutama', '.'] },\
+              'expected_words': ['P.S.', 'Õppige', 'viisakalt', 'kirjutama', '.'] },\
             { 'text': "P.P.S. Teine vana ilmus ka välja.", \
-              'expected_words': ['P', '.', 'P', '.', 'S', '.', 'Teine', 'vana', 'ilmus', 'ka', 'välja', '.'] },\
+              'expected_words': ['P.P.S.', 'Teine', 'vana', 'ilmus', 'ka', 'välja', '.'] },\
               
         ]
         for test_text in test_texts:

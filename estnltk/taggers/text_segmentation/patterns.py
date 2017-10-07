@@ -371,17 +371,36 @@ unit_patterns = [
     },
                  ]
 
-initial_patterns = [
-    { 'comment': '*) Negative pattern: filters out "P.S." (post scriptum) before it is annotated as a pair of initials;',
-      'pattern_type':   'negative:ps_abbreviation',  # prefix "negative:" instructs to delete this pattern afterwards
-      'example': 'P. S.',
+abbreviations_before_initials_patterns = [
+    # --------------------------------------------------
+    #  Abbreviations that usually do not end sentences,
+    #  and that need to be captured BEFORE capturing
+    #  names with initials (to prevent a mix-up)
+    # --------------------------------------------------
+    { 'comment': '*) P.S. (post scriptum) abbreviation -- needs to be captured before name with initials;',
+      'example': 'P.S.',
+      'pattern_type': 'non_ending_abbreviation',
       '_regex_pattern_': re.compile(r'''
-                        (P\s?.\s?S\s?.)                 # P.S. -- likely post scriptum, not initial
+                        ((P\s?.\s?P\s?.\s?S|P\s?.\s?S)      # non-ending abbreviation
+                         \s?\.)                             # period
                         '''.format(**MACROS), re.X),
-     '_group_': 1,
-     '_priority_': (4, 0, 1),
-     'normalized': lambda m: re.sub('\s','', m.group(1)),
+      '_group_': 1,
+      '_priority_': (4, 0, 0, 1),
+      'normalized': "lambda m: re.sub('\.\s','.', re.sub('\s\.','.', m.group(1)))",
      },
+    { 'comment': '*) P.S (post scriptum) abbreviation -- needs to be captured before name with initials;',
+      'example': 'P.S',
+      'pattern_type': 'non_ending_abbreviation', 
+      '_regex_pattern_': re.compile(r'''
+                        (P\s?.\s?P\s?.\s?S|P\s?.\s?S)       # non-ending abbreviation
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (4, 0, 0, 2),
+      'normalized': "lambda m: re.sub('\.\s','.', re.sub('\s\.','.', m.group(1)))",
+     },
+]
+
+initial_patterns = [
     { 'comment': '*) Negative pattern: filters out "degree + temperature unit" before it is annotated as an initial;',
       'pattern_type':   'negative:temperature_unit', # prefix "negative:" instructs to delete this pattern afterwards
       'example': 'ºC',
@@ -389,7 +408,7 @@ initial_patterns = [
                         ([º˚\u00B0]+\s*[CF])            # degree + temperature unit -- this shouldn't be an initial
                         '''.format(**MACROS), re.X),
      '_group_': 1,
-     '_priority_': (4, 0, 2),
+     '_priority_': (4, 0, 1),
      'normalized': lambda m: re.sub('\s','', m.group(1)),
      },
     { 'comment': '*) Names starting with 2 initials;',

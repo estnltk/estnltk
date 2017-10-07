@@ -14,7 +14,8 @@ from estnltk.layer_operations import resolve_conflicts
 from estnltk.rewriting import MorphAnalyzedToken
 from .patterns import MACROS
 from .patterns import email_and_www_patterns, emoticon_patterns, xml_patterns
-from .patterns import unit_patterns, number_patterns, initial_patterns, abbreviation_patterns
+from .patterns import unit_patterns, number_patterns, abbreviations_before_initials_patterns
+from .patterns import initial_patterns, abbreviation_patterns
 from .patterns import case_endings_patterns, number_fixes_patterns
 
 # Pattern for checking whether the string contains any letters
@@ -73,6 +74,10 @@ class CompoundTokenTagger(Tagger):
             _vocabulary_1.extend(email_and_www_patterns)
         if tag_emoticons:
             _vocabulary_1.extend(emoticon_patterns)
+        if tag_abbreviations:
+           # Some abbreviations need to be captured before initials to
+           # prevent a mixup between abbreviations and initials;
+           _vocabulary_1.extend(abbreviations_before_initials_patterns)
         if tag_initials:
             _vocabulary_1.extend(initial_patterns)
         if tag_abbreviations:

@@ -236,6 +236,31 @@ def test_merge_mistakenly_split_sentences_3():
         assert sentence_texts == test_text['expected_sentence_texts']
 
 
+
+def test_merge_mistakenly_split_sentences_4():
+    # Tests that mistakenly split sentences have been properly merged
+    # 4: splits related to compound tokens
+    #    Actually, these cases are throughly tested in test_compound_token_tagger.py,
+    #    so here, we only introduce few test cases
+    test_texts = [ 
+        # No sentence break inside abbreviation 'P.S.'
+        { 'text': 'P.S. Ootan! Kes julgeb tulla abiks siia mulle.', \
+          'expected_sentence_texts': ['P.S. Ootan!', 'Kes julgeb tulla abiks siia mulle.'] }, \
+        { 'text': 'Ehk lepime kokku, et see on kurb.\nP.S. Olen valmis sinuga Elu24 lugusid näiteks nädal aega lugema.', \
+          'expected_sentence_texts': ['Ehk lepime kokku, et see on kurb.', 'P.S. Olen valmis sinuga Elu24 lugusid näiteks nädal aega lugema.'] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words', 'sentences'])
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences'].spans]
+        #print(sentence_texts)
+        # Check results
+        assert sentence_texts == test_text['expected_sentence_texts']
+
+
 def test_merge_mistakenly_separated_sentence_ending_punctuation():
     # Tests that mistakenly separated sentence ending punctuation will be properly attached to the sentence
     test_texts = [
