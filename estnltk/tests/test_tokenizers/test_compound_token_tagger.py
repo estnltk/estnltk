@@ -176,6 +176,8 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Suitsutatud', 'produktide', ',', 's.h.', 'ka', 'peekoni', 'ja', 'hot-dogide', 'söömine', 'on', 'eriti', 'kahjulik', '.'] },\
             { 'text' : 'Budistlikud keskused (s.h. Khordongi Ühing Eestis jt.) on tõlkinud ka otse algkeeltest.',\
               'expected_words': ['Budistlikud', 'keskused', '(', 's.h.', 'Khordongi', 'Ühing', 'Eestis', 'jt', '.', ')', 'on', 'tõlkinud', 'ka', 'otse', 'algkeeltest', '.'] },\
+            { 'text' : 'Tuulepargi kavandatav koguvõimsus on u. 700 MW.',\
+              'expected_words': ['Tuulepargi', 'kavandatav', 'koguvõimsus', 'on', 'u.', '700', 'MW', '.'] },\
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )

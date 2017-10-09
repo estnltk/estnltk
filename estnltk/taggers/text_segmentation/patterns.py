@@ -48,7 +48,7 @@ MACROS = {
             'ABBREVIATIONS2': '('+\
                                '[Dd]r|[Hh]r|[Hh]rl|[Ii]bid|[Kk]od|[Kk]oost|[Ll]p|'+\
                                'lüh|[Mm]rs?|nn|[Nn]t|nö|[Pp]r|so|st|sealh|sh|[Ss]m|'+\
-                               '[Tt]lk|tn|[Tt]oim|[Vv]rd|va|[Vv]t'+\
+                               '[Tt]lk|tn|[Tt]oim|[Vv]rd|va|[Vv]t|u'+\
                               ')',
             # ===================================================
             #   Other abbreviations 
@@ -443,28 +443,6 @@ abbreviation_patterns = [
     # --------------------------------------------------
     # 1) Abbreviations that usually do not end sentences
     # --------------------------------------------------
-    { 'comment': '*) Abbreviations that end with period, and usually do not end the sentence;',
-      'example': 'sealh.',
-      'pattern_type': 'non_ending_abbreviation',
-      '_regex_pattern_': re.compile(r'''
-                        (({ABBREVIATIONS1}|{ABBREVIATIONS2}) # non-ending abbreviation
-                        \s?\.)                               # period
-                        '''.format(**MACROS), re.X),
-      '_group_': 1,
-      '_priority_': (5, 1, 0),
-      'normalized': "lambda m: re.sub('\.\s','.', re.sub('\s\.','.', m.group(1)))",
-     },
-    { 'comment': '*) Abbreviations not ending with period, and usually do not end the sentence;',
-      'example': 'Lp',
-      'pattern_type': 'non_ending_abbreviation', 
-      '_regex_pattern_': re.compile(r'''
-                        ({ABBREVIATIONS1}|{ABBREVIATIONS2})  # non-ending abbreviation
-                        '''.format(**MACROS), re.X),
-      '_group_': 1,
-      '_priority_': (5, 2, 0),
-      'normalized': "lambda m: re.sub('\.\s','.', re.sub('\s\.','.', m.group(1)))",
-      #'overlapped': True,
-     },
     { 'comment': '*) Month name abbreviations (detect to avoid sentence breaks after month names);',
       'example': '6 dets.',
       'pattern_type': 'non_ending_abbreviation',
@@ -474,8 +452,30 @@ abbreviation_patterns = [
                         \s*([{LOWERCASE}]|\d\d\d\d)                                                         # lowercase word  or year number (sentence continues)
                         '''.format(**MACROS), re.X),
       '_group_': 1,
-      '_priority_': (5, 3, 0),
+      '_priority_': (5, 1, 0),
       'normalized': "lambda m: re.sub('\s' ,'' , m.group(1))",
+     },
+    { 'comment': '*) Abbreviations that end with period, and usually do not end the sentence;',
+      'example': 'sealh.',
+      'pattern_type': 'non_ending_abbreviation',
+      '_regex_pattern_': re.compile(r'''
+                        (({ABBREVIATIONS1}|{ABBREVIATIONS2}) # non-ending abbreviation
+                        \s?\.)                               # period
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (5, 2, 0),
+      'normalized': "lambda m: re.sub('\.\s','.', re.sub('\s\.','.', m.group(1)))",
+     },
+    { 'comment': '*) Abbreviations not ending with period, and usually do not end the sentence;',
+      'example': 'Lp',
+      'pattern_type': 'non_ending_abbreviation', 
+      '_regex_pattern_': re.compile(r'''
+                        ({ABBREVIATIONS1}|{ABBREVIATIONS2})  # non-ending abbreviation
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (5, 3, 0),
+      'normalized': "lambda m: re.sub('\.\s','.', re.sub('\s\.','.', m.group(1)))",
+      #'overlapped': True,
      },
     # --------------------------------------------------
     # 2) Abbreviations that can end sentences

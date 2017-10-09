@@ -49,6 +49,12 @@ merge_patterns = [ \
      'fix_type' : 'numeric_year', \
      'regexes'  : [re.compile('(.+)?([0-9]{3,4})\s*\.$', re.DOTALL), re.compile('^'+lc_letter+'*aasta.*') ], \
    },
+   #   {(} + {s|sünd} {period} + {Numeric_year} + {)}
+   { 'comment'  : '{(} + {s|sünd} {period} + {Numeric_year} + {)}', \
+     'example'  : '"Kaassõitjad Vladimir ( s."+ "1982 ) ja Jelena ( s." + "1981 ) ."', \
+     'fix_type' : 'numeric_birthyear', \
+     'regexes'  : [re.compile('(.+)?\(\s*(s|sünd)\s*\.$', re.DOTALL), re.compile('^([0-9]{4})(\s*\.)?\s*\)') ], \
+   },
 
    #   {Numeric|Roman_numeral_century} {period} {|sajand|} + {lowercase}
    { 'comment'  : '{Numeric|Roman_numeral_century} {period} {|sajand|} + {lowercase}', \

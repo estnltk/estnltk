@@ -51,7 +51,15 @@ def test_merge_mistakenly_split_sentences_1():
           'expected_sentence_texts': ['2000. aastal Sydneyst võideti kuldmedal,2004. aastal Ateenas teenisid nad koos hõbeda.'] }, \
         { 'text': 'Sügisel kaotas naine töö ja ka mehe äri hakkas allamäge veerema. «2009. aasta jaanuaris võtsin ennast töötuna arvele.', \
           'expected_sentence_texts': ['Sügisel kaotas naine töö ja ka mehe äri hakkas allamäge veerema.', '«2009. aasta jaanuaris võtsin ennast töötuna arvele.'] }, \
-          
+
+        #   Merge case:   {(} + {s|sünd} {period} + {Numeric_year} + {)}
+        { 'text': 'Haiglasse toimetati kaassõitjad Vladimir ( s.1982 ) ja Jelena ( s.1981 ) .', \
+          'expected_sentence_texts': ['Haiglasse toimetati kaassõitjad Vladimir ( s.1982 ) ja Jelena ( s.1981 ) .'] }, \
+        { 'text': 'Mootorratast juhtinud Meelis ( s.1985 ) ning mootorratta tagaistmel olnud Kadri ( s . 1984 ) .', \
+          'expected_sentence_texts': ['Mootorratast juhtinud Meelis ( s.1985 ) ning mootorratta tagaistmel olnud Kadri ( s . 1984 ) .'] }, \
+        { 'text': 'Dokumentide järgi tehti kindlaks , et tegu on Uunoga ( s. 1940 ) .\nSündmuse täpsemad asjaolud on selgitamisel .', \
+          'expected_sentence_texts': ['Dokumentide järgi tehti kindlaks , et tegu on Uunoga ( s. 1940 ) .', 'Sündmuse täpsemad asjaolud on selgitamisel .'] }, \
+
         #   Merge case:   {Numeric|Roman_numeral_century} {period} {|sajand|} + {lowercase}
         { 'text': 'Kui sealt alla sammusin siis leitsin 15. saj. pärit surnuaia .\nVõi oli isegi pikem aeg , 19. saj. lõpust , kusagilt lugesin .', \
           'expected_sentence_texts': ['Kui sealt alla sammusin siis leitsin 15. saj. pärit surnuaia .', 'Või oli isegi pikem aeg , 19. saj. lõpust , kusagilt lugesin .'] }, \
@@ -241,13 +249,16 @@ def test_merge_mistakenly_split_sentences_4():
     # Tests that mistakenly split sentences have been properly merged
     # 4: splits related to compound tokens
     #    Actually, these cases are throughly tested in test_compound_token_tagger.py,
-    #    so here, we only introduce few test cases
+    #    so here, there are only few test cases
     test_texts = [ 
         # No sentence break inside abbreviation 'P.S.'
         { 'text': 'P.S. Ootan! Kes julgeb tulla abiks siia mulle.', \
           'expected_sentence_texts': ['P.S. Ootan!', 'Kes julgeb tulla abiks siia mulle.'] }, \
         { 'text': 'Ehk lepime kokku, et see on kurb.\nP.S. Olen valmis sinuga Elu24 lugusid näiteks nädal aega lugema.', \
           'expected_sentence_texts': ['Ehk lepime kokku, et see on kurb.', 'P.S. Olen valmis sinuga Elu24 lugusid näiteks nädal aega lugema.'] }, \
+        # No sentence break inside after month abbreviation
+        { 'text': "Laululahingu esimesest poolfinaalist pääses edasi HaleBopp Singers!\n27.apr.2008\n", \
+          'expected_sentence_texts': ['Laululahingu esimesest poolfinaalist pääses edasi HaleBopp Singers!', '27.apr.2008'] }, \
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
