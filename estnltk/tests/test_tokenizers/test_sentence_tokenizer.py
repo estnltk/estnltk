@@ -274,7 +274,9 @@ def test_merge_mistakenly_split_sentences_4():
           'expected_sentence_texts': ['Hõimurahvaste Aeg Nr. 7 lk. 22.'] }, \
         { 'text': "1991 aasta väljaandes lk. 19-23.\n", \
           'expected_sentence_texts': ['1991 aasta väljaandes lk. 19-23.'] }, \
-        
+        # No sentence break inside short www address :
+        { 'text': "Portaal e-treening.ee on mõeldud kajastama Eesti rahvasporti. Mida teenusesse WordPress.com üleminekust oodata?", \
+          'expected_sentence_texts': ['Portaal e-treening.ee on mõeldud kajastama Eesti rahvasporti.', 'Mida teenusesse WordPress.com üleminekust oodata?'] }, \
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )

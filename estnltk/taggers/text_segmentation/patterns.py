@@ -145,7 +145,7 @@ email_and_www_patterns = [
       '_regex_pattern_':  re.compile(r'''
                          (https?                                  # http
                          \s*:\s*(/+)\s*                           # colon + //
-                         www                                      # www
+                         www[2-6]?                                # www (or www2, www3 etc.)
                          \s*\.\s*                                 # period
                          [{ALPHANUM}_\-]+                         # domain name
                          \s*\.\s*                                 # period
@@ -177,7 +177,7 @@ email_and_www_patterns = [
       '_group_': 1,
       '_priority_': (0, 0, 5),
       '_regex_pattern_':  re.compile(r'''
-                         (www                                     # www
+                         (www[2-6]?                               # www (or www2, www3 etc.)
                          \s*\.\s*                                 # period
                          [{ALPHANUM}_\-]+                         # domain name
                          \s*\.\s*                                 # period
@@ -187,6 +187,22 @@ email_and_www_patterns = [
                          '''.format(**MACROS), re.X),
       'normalized': lambda m: re.sub('\s','', m.group(1) ) },
       
+     {'comment': '*) Pattern for detecting short web addresses (without prefixes "http" and "www");',
+      'example': 'Postimees.ee',
+      'pattern_type': 'www_address_short',
+      '_group_': 2,
+      '_priority_': (0, 0, 6),
+      '_regex_pattern_':  re.compile(r'''
+                         (^|[^A-ZÖÄÜŠŽa-zäõüäšž0-9])              # beginning or non-alphanum
+                         (
+                         [{ALPHANUM}_\-.]+                        # domain name
+                         \s*\.\s*                                 # period
+                         (ee|org|edu|com|uk|ru|fi|lv|lt)          # top-level domain
+                         )
+                         ([^A-ZÖÄÜŠŽa-zäõüäšž0-9]|$)              # non-alphanum or ending
+                         '''.format(**MACROS), re.X),
+      'normalized': lambda m: re.sub('\s','', m.group(2) ) },
+
             ]
 
 emoticon_patterns = [

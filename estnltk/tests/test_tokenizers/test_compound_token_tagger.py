@@ -19,6 +19,11 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Sellised', 'veebileheküljed', ':', 'www. esindus.ee/korteriturg', ',', 'www. kavkazcenter.com', ',', 'http: // www. cavalierklubben.com', ',', 'http : //www.offa.org/', 'stats', 'ning', 'http://www.politsei.ee/dotAsset/225706', '.'] }, \
             { 'text': 'Kel huvi http://www.youtube.com/watch?v=PFD2yIVn4IE\npets 11.07.2012 20:37 lugesin enne kommentaarid ära.', \
               'expected_words': ['Kel', 'huvi', 'http://www.youtube.com/watch?v=PFD2yIVn4IE', 'pets', '11.07.2012', '20:37', 'lugesin', 'enne', 'kommentaarid', 'ära', '.'] }, \
+            # Short www addresses (addresses without prefixes "www" or "http")
+            { 'text': 'Vastavalt hiljutisele uurimusele washingtontimes.com usub 80% ameeriklastest, et jumal mõjutas evolutsiooni mingil määral.', \
+              'expected_words': ['Vastavalt', 'hiljutisele', 'uurimusele', 'washingtontimes.com', 'usub', '80%', 'ameeriklastest', ',', 'et', 'jumal', 'mõjutas', 'evolutsiooni', 'mingil', 'määral', '.'] }, \
+            { 'text': 'Teadus.ee-st leidsin kunagi energiahulgad, aga google.com, Postimees.ee, news.com, Delfi.ee, kuhuminna.ee, ekspressjob.ee, CyberSecurity.ru, südameapteek.ee, static.flickr.com pole nii huvitavaid tulemusi andnud.', \
+              'expected_words': ['Teadus.ee-st', 'leidsin', 'kunagi', 'energiahulgad', ',', 'aga', 'google.com', ',', 'Postimees.ee', ',', 'news.com', ',', 'Delfi.ee', ',', 'kuhuminna.ee', ',', 'ekspressjob.ee', ',', 'CyberSecurity.ru', ',', 'südameapteek.ee', ',', 'static.flickr.com', 'pole', 'nii', 'huvitavaid', 'tulemusi', 'andnud', '.'] }, \
 
         ]
         for test_text in test_texts:
