@@ -176,11 +176,12 @@ def test_merge_mistakenly_split_sentences_2():
           'expected_sentence_texts': ['Dokumentide järgi tehti kindlaks , et tegu on Uunoga ( s. 1940 ) .', 'Sündmuse täpsemad asjaolud on selgitamisel .'] }, \
         { 'text': '( JO L 349 du 24.12.1998 , p. 47 )\n( EFT L 349 af 24.12.1998 , s. 47 )', \
           'expected_sentence_texts': ['( JO L 349 du 24.12.1998 , p. 47 )\n( EFT L 349 af 24.12.1998 , s. 47 )'] }, \
-          
         { 'text': '( “ Usun Eestisse ” , lk. 198 )', \
           'expected_sentence_texts': ['( “ Usun Eestisse ” , lk. 198 )'] }, \
         { 'text': 'On lihtsalt olemas üks teine mõõde : rahvuskultuuriline missioon ( lk. 217 ) .', \
           'expected_sentence_texts': ['On lihtsalt olemas üks teine mõõde : rahvuskultuuriline missioon ( lk. 217 ) .'] }, \
+        { 'text': 'Enam vähenevad kulutused kartuli ostmiseks ( -15 . 20 ) .', \
+          'expected_sentence_texts': ['Enam vähenevad kulutused kartuli ostmiseks ( -15 . 20 ) .'] }, \
           
         #   Merge case:   {content_in_parentheses} + {single_sentence_ending_symbol}          
         { 'text': 'Pani eestvedajaks mõne rahvasportlasest poliitiku ( kui neid ikka on ? ) .', \
@@ -268,6 +269,12 @@ def test_merge_mistakenly_split_sentences_4():
         # No sentence break after month abbreviation
         { 'text': "Laululahingu esimesest poolfinaalist pääses edasi HaleBopp Singers!\n27.apr.2008\n", \
           'expected_sentence_texts': ['Laululahingu esimesest poolfinaalist pääses edasi HaleBopp Singers!', '27.apr.2008'] }, \
+        # No sentence break after: 'nr', 'lk', ...
+        { 'text': "Hõimurahvaste Aeg Nr. 7 lk. 22.\n", \
+          'expected_sentence_texts': ['Hõimurahvaste Aeg Nr. 7 lk. 22.'] }, \
+        { 'text': "1991 aasta väljaandes lk. 19-23.\n", \
+          'expected_sentence_texts': ['1991 aasta väljaandes lk. 19-23.'] }, \
+        
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )

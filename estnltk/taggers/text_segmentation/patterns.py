@@ -35,6 +35,7 @@ MACROS = {
             #    Note: these are longer patterns and should be checked first
             'ABBREVIATIONS1': '('+\
                                'a\s?\.\s?k\s?\.\s?a|'+\
+                               'n\s?\.\s?-\s?ö|'+\
                                "a['`’ ]la|"+\
                                'k\s?\.\s?a|'+\
                                'n\s?\.\s?ö|'+\
@@ -47,8 +48,8 @@ MACROS = {
             #    Note: these are shorter patterns and should be checked secondly
             'ABBREVIATIONS2': '('+\
                                '[Dd]r|[Hh]r|[Hh]rl|[Ii]bid|[Kk]od|[Kk]oost|[Ll]p|'+\
-                               'lüh|[Mm]rs?|nn|[Nn]t|nö|[Pp]r|so|st|sealh|sh|[Ss]m|'+\
-                               '[Tt]lk|tn|[Tt]oim|[Vv]rd|va|[Vv]t|u'+\
+                               'lüh|[Mm]rs?|nn|[Nn]r|[Nn]t|nö|[Pp]r|so|st|sealh|sh|'+\
+                               '[Ss]m|[Tt]lk|tn|[Tt]oim|[Vv]rd|va|[Vv]t|u'+\
                               ')',
             # ===================================================
             #   Other abbreviations 

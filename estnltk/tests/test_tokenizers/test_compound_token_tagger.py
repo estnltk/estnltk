@@ -158,6 +158,10 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Tehakse', 'vahet', 'n.ö.', 'eurowave', 'ja', 'hardcore', 'purjedel', '.'] }, \
             { 'text' : 'Referentne funktsioon on orienteeritud n.ö. referentse grupi väärtustele.', \
               'expected_words': ['Referentne', 'funktsioon', 'on', 'orienteeritud', 'n.ö.', 'referentse', 'grupi', 'väärtustele', '.'] }, \
+            { 'text' : 'Asi on n . -ö . kontrolli all .', \
+              'expected_words': ['Asi', 'on', 'n . -ö .', 'kontrolli', 'all', '.'] }, \
+            { 'text' : 'Tema sõnul ei hõlma ISO 9000 sari turgu ja turuanalüüsi , kuid n . -ö . kliendikesksem osa on plaanitud juurde võtta .', \
+              'expected_words': ['Tema', 'sõnul', 'ei', 'hõlma', 'ISO', '9000', 'sari', 'turgu', 'ja', 'turuanalüüsi', ',', 'kuid', 'n . -ö .', 'kliendikesksem', 'osa', 'on', 'plaanitud', 'juurde', 'võtta', '.'] }, \
             { 'text' : 'Arstide Liit esitas oma palganõudmised ( vt. volikogu otsused ), mis EHL volikogu lubas läbi arutada.',\
               'expected_words': ['Arstide', 'Liit', 'esitas', 'oma', 'palganõudmised', '(', 'vt.', 'volikogu', 'otsused', ')', ',', 'mis', 'EHL', 'volikogu', 'lubas', 'läbi', 'arutada', '.'] }, \
             { 'text' : 'Ja selles suhtes võiks Lp. E-Kaitse olla nii soliidne E-kaitse keskkond.',\

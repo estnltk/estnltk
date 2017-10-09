@@ -108,6 +108,11 @@ merge_patterns = [ \
      'fix_type' : 'numeric_monetary', \
      'regexes'  : [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile('^'+hyphen_pat+'+') ], \
    },
+   { 'comment'  : '{Abbreviation} {period} + {numeric}', \
+     'example'  : '"Hõimurahvaste Aeg Nr." + "7 lk." + "22."', \
+     'fix_type' : 'numeric_abbrev', \
+     'regexes'  : [re.compile('(.+)?([Ll]k|[Nn]r)\s*\.$', re.DOTALL), re.compile('^[0-9]+') ], \
+   },
    
    # ***********************************
    #   Fixes related to parentheses 
