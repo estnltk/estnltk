@@ -35,25 +35,19 @@ merge_patterns = [ \
    { 'comment'  : '{Numeric_year} {period} {|a|} + {lowercase_or_number}', \
      'example'  : '"Luunja sai vallaõigused 1991.a." + " kevadel."', \
      'fix_type' : 'numeric_year', \
-     'regexes'  : [re.compile('(.+)?([0-9]{3,4})\s*\.\s*a\.?$', re.DOTALL), re.compile('^('+lc_letter+'|[0-9])+')], \
+     'regexes'  : [re.compile('(.+)?([0-9]{3,4})\s*\.\s*(õ\s*\.)?a\.?$', re.DOTALL), re.compile('^('+lc_letter+'|[0-9])+')], \
    },
    #   {Numeric_year} {period} + {|a|} {lowercase_or_number}
    { 'comment'  : '{Numeric_year} {period} + {|a|} {lowercase_or_number}', \
      'example'  : '"Luunja sai vallaõigused 1991.a." + " kevadel."', \
      'fix_type' : 'numeric_year', \
-     'regexes'  : [ re.compile('(.+)?([0-9]{4})\s*\.$', re.DOTALL), re.compile('^\s*a\.?\s*('+lc_letter+'|[0-9])+') ], \
+     'regexes'  : [ re.compile('(.+)?([0-9]{4})\s*\.$', re.DOTALL), re.compile('^\s*(õ\s*\.)?a\.?\s*('+lc_letter+'|[0-9])+') ], \
    },
    #   {Numeric_year} {period} + {|aasta|}
    { 'comment'  : '{Numeric_year} {period} + {|aasta|}', \
      'example'  : '"BRK-de traditsioon sai alguse 1964 ." + "aastal Saksamaal Heidelbergis."', \
      'fix_type' : 'numeric_year', \
      'regexes'  : [re.compile('(.+)?([0-9]{3,4})\s*\.$', re.DOTALL), re.compile('^'+lc_letter+'*aasta.*') ], \
-   },
-   #   {(} + {s|sünd} {period} + {Numeric_year} + {)}
-   { 'comment'  : '{(} + {s|sünd} {period} + {Numeric_year} + {)}', \
-     'example'  : '"Kaassõitjad Vladimir ( s."+ "1982 ) ja Jelena ( s." + "1981 ) ."', \
-     'fix_type' : 'numeric_birthyear', \
-     'regexes'  : [re.compile('(.+)?\(\s*(s|sünd)\s*\.$', re.DOTALL), re.compile('^([0-9]{4})(\s*\.)?\s*\)') ], \
    },
 
    #   {Numeric|Roman_numeral_century} {period} {|sajand|} + {lowercase}
@@ -135,6 +129,12 @@ merge_patterns = [ \
      'example'  : '"(loe: ta läheb sügisel 11." + " klassi!)"', \
      'fix_type' : 'parentheses', \
      'regexes'  : [re.compile('(.+)?\([^()]+$', re.DOTALL), re.compile('^('+lc_letter+'|,)[^()]+\).*')], \
+   },
+   #   {parentheses_start} {content_in_parentheses} + {numeric_patterns} {parentheses_end}
+   { 'comment'  : '{parentheses_start} {content_in_parentheses} + {numeric_patterns} {parentheses_end}', \
+     'example'  : '"rahvuskultuuriline missioon ( lk." + "217 )"', \
+     'fix_type' : 'parentheses', \
+     'regexes'  : [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[0-9.\- ]+\).*') ], \
    },
    #   {content_in_parentheses} + {single_sentence_ending_symbol}
    { 'comment'  : '{content_in_parentheses} + {single_sentence_ending_symbol}', \

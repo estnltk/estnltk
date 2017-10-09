@@ -28,6 +28,8 @@ def test_merge_mistakenly_split_sentences_1():
           'expected_sentence_texts': ['Samas teatas investeeringute suurenemisest rohkem ettevõtteid kui aasta tagasi (2005.a. 46%, 2004.a. 35%).'] }, \
         { 'text': 'Uuringu esialgsed tulemused muutuvad kättesaadavaks 2002.a. maikuus.', \
           'expected_sentence_texts': ['Uuringu esialgsed tulemused muutuvad kättesaadavaks 2002.a. maikuus.'] }, \
+        { 'text': '1930.õ.a. õppis koolis 61 õpilast. 1937.õ.a. otsustati lõputunnistus välja anda 8 lõpetajale.', \
+          'expected_sentence_texts': ["1930.õ.a. õppis koolis 61 õpilast.", '1937.õ.a. otsustati lõputunnistus välja anda 8 lõpetajale.'] }, \
 
         #   Merge case:   {Date_with_year} {period} + {time}
         { 'text': 'Gert 02.03.2009. 14:40 Tahaks kindlalt sinna kooli:P', \
@@ -51,14 +53,6 @@ def test_merge_mistakenly_split_sentences_1():
           'expected_sentence_texts': ['2000. aastal Sydneyst võideti kuldmedal,2004. aastal Ateenas teenisid nad koos hõbeda.'] }, \
         { 'text': 'Sügisel kaotas naine töö ja ka mehe äri hakkas allamäge veerema. «2009. aasta jaanuaris võtsin ennast töötuna arvele.', \
           'expected_sentence_texts': ['Sügisel kaotas naine töö ja ka mehe äri hakkas allamäge veerema.', '«2009. aasta jaanuaris võtsin ennast töötuna arvele.'] }, \
-
-        #   Merge case:   {(} + {s|sünd} {period} + {Numeric_year} + {)}
-        { 'text': 'Haiglasse toimetati kaassõitjad Vladimir ( s.1982 ) ja Jelena ( s.1981 ) .', \
-          'expected_sentence_texts': ['Haiglasse toimetati kaassõitjad Vladimir ( s.1982 ) ja Jelena ( s.1981 ) .'] }, \
-        { 'text': 'Mootorratast juhtinud Meelis ( s.1985 ) ning mootorratta tagaistmel olnud Kadri ( s . 1984 ) .', \
-          'expected_sentence_texts': ['Mootorratast juhtinud Meelis ( s.1985 ) ning mootorratta tagaistmel olnud Kadri ( s . 1984 ) .'] }, \
-        { 'text': 'Dokumentide järgi tehti kindlaks , et tegu on Uunoga ( s. 1940 ) .\nSündmuse täpsemad asjaolud on selgitamisel .', \
-          'expected_sentence_texts': ['Dokumentide järgi tehti kindlaks , et tegu on Uunoga ( s. 1940 ) .', 'Sündmuse täpsemad asjaolud on selgitamisel .'] }, \
 
         #   Merge case:   {Numeric|Roman_numeral_century} {period} {|sajand|} + {lowercase}
         { 'text': 'Kui sealt alla sammusin siis leitsin 15. saj. pärit surnuaia .\nVõi oli isegi pikem aeg , 19. saj. lõpust , kusagilt lugesin .', \
@@ -172,6 +166,21 @@ def test_merge_mistakenly_split_sentences_2():
           'expected_sentence_texts': ['Riik on hoiatanud oma liitlasi ja partnereid äritegemise eest Teheraniga ( NYT , 5 . okt . ) .'] }, \
         { 'text': 'Varustage aabits oma nimega ning tooge see selle nädala jooksul (23 . – 26. 08) oma rühmaõpetaja kätte!', \
           'expected_sentence_texts': ['Varustage aabits oma nimega ning tooge see selle nädala jooksul (23 . – 26. 08) oma rühmaõpetaja kätte!'] }, \
+        
+        #   Merge case:   {parentheses_start} {content_in_parentheses} + {numeric_patterns} {parentheses_end}
+        { 'text': 'Haiglasse toimetati kaassõitjad Vladimir ( s.1982 ) ja Jelena ( s.1981 ) .', \
+          'expected_sentence_texts': ['Haiglasse toimetati kaassõitjad Vladimir ( s.1982 ) ja Jelena ( s.1981 ) .'] }, \
+        { 'text': 'Mootorratast juhtinud Meelis ( s.1985 ) ning mootorratta tagaistmel olnud Kadri ( s . 1984 ) .', \
+          'expected_sentence_texts': ['Mootorratast juhtinud Meelis ( s.1985 ) ning mootorratta tagaistmel olnud Kadri ( s . 1984 ) .'] }, \
+        { 'text': 'Dokumentide järgi tehti kindlaks , et tegu on Uunoga ( s. 1940 ) .\nSündmuse täpsemad asjaolud on selgitamisel .', \
+          'expected_sentence_texts': ['Dokumentide järgi tehti kindlaks , et tegu on Uunoga ( s. 1940 ) .', 'Sündmuse täpsemad asjaolud on selgitamisel .'] }, \
+        { 'text': '( JO L 349 du 24.12.1998 , p. 47 )\n( EFT L 349 af 24.12.1998 , s. 47 )', \
+          'expected_sentence_texts': ['( JO L 349 du 24.12.1998 , p. 47 )\n( EFT L 349 af 24.12.1998 , s. 47 )'] }, \
+          
+        { 'text': '( “ Usun Eestisse ” , lk. 198 )', \
+          'expected_sentence_texts': ['( “ Usun Eestisse ” , lk. 198 )'] }, \
+        { 'text': 'On lihtsalt olemas üks teine mõõde : rahvuskultuuriline missioon ( lk. 217 ) .', \
+          'expected_sentence_texts': ['On lihtsalt olemas üks teine mõõde : rahvuskultuuriline missioon ( lk. 217 ) .'] }, \
           
         #   Merge case:   {content_in_parentheses} + {single_sentence_ending_symbol}          
         { 'text': 'Pani eestvedajaks mõne rahvasportlasest poliitiku ( kui neid ikka on ? ) .', \
@@ -186,7 +195,7 @@ def test_merge_mistakenly_split_sentences_2():
           'expected_sentence_texts': ['CD müüdi 400 krooniga ( alghind oli 100 kr. ) .', 'Osteti viis tööd , neist üks õlimaal .'] }, \
         { 'text': 'Neenetsi rahvusringkonnas ( kõlab juba ise sürrealistlikult ! ) .\nVähem kummaline polnud tema tegevus Küsimuste ja Vastuste toimetajana .', \
           'expected_sentence_texts': ['Neenetsi rahvusringkonnas ( kõlab juba ise sürrealistlikult ! ) .', 'Vähem kummaline polnud tema tegevus Küsimuste ja Vastuste toimetajana .'] }, \
-    ]
+     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
         # Perform analysis
@@ -256,7 +265,7 @@ def test_merge_mistakenly_split_sentences_4():
           'expected_sentence_texts': ['P.S. Ootan!', 'Kes julgeb tulla abiks siia mulle.'] }, \
         { 'text': 'Ehk lepime kokku, et see on kurb.\nP.S. Olen valmis sinuga Elu24 lugusid näiteks nädal aega lugema.', \
           'expected_sentence_texts': ['Ehk lepime kokku, et see on kurb.', 'P.S. Olen valmis sinuga Elu24 lugusid näiteks nädal aega lugema.'] }, \
-        # No sentence break inside after month abbreviation
+        # No sentence break after month abbreviation
         { 'text': "Laululahingu esimesest poolfinaalist pääses edasi HaleBopp Singers!\n27.apr.2008\n", \
           'expected_sentence_texts': ['Laululahingu esimesest poolfinaalist pääses edasi HaleBopp Singers!', '27.apr.2008'] }, \
     ]
