@@ -196,6 +196,12 @@ def test_merge_mistakenly_split_sentences_2():
           'expected_sentence_texts': ['CD müüdi 400 krooniga ( alghind oli 100 kr. ) .', 'Osteti viis tööd , neist üks õlimaal .'] }, \
         { 'text': 'Neenetsi rahvusringkonnas ( kõlab juba ise sürrealistlikult ! ) .\nVähem kummaline polnud tema tegevus Küsimuste ja Vastuste toimetajana .', \
           'expected_sentence_texts': ['Neenetsi rahvusringkonnas ( kõlab juba ise sürrealistlikult ! ) .', 'Vähem kummaline polnud tema tegevus Küsimuste ja Vastuste toimetajana .'] }, \
+          
+        #   TODO: Problematic cases: these should be fixed later, during another round of post-correction
+        { 'text': '( Naerab . )\nEriti siis , kui sõidan mootorratta või jalgrattaga .', \
+          'expected_sentence_texts': ['( Naerab .', ')\nEriti siis , kui sõidan mootorratta või jalgrattaga .'] }, \
+        { 'text': '( Muigab laialt . )\nTegelikult muidugi püüan kogu nädalalõpu võistlusele keskenduda ja lasen end lõdvaks alles pühapäeva õhtul , kui koju jõuan .', \
+          'expected_sentence_texts': ['( Muigab laialt .', ')\nTegelikult muidugi püüan kogu nädalalõpu võistlusele keskenduda ja lasen end lõdvaks alles pühapäeva õhtul , kui koju jõuan .'] }, \
      ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
@@ -249,7 +255,8 @@ def test_merge_mistakenly_split_sentences_3():
           'expected_sentence_texts': ['" Aga kui sumo ära toidab , tuleb ametit vahetada , " leiab ta .', '" Müüja-turvam= ehe töö pole unistuste tipp .'] }, \
         { 'text': 'Kuid " Trainspottingus " pole tegemist individualistliku protestiga .\n" Train-spotting " on generatsioonifilm , kollektiivne protest .', \
           'expected_sentence_texts': ['Kuid " Trainspottingus " pole tegemist individualistliku protestiga .', '" Train-spotting " on generatsioonifilm , kollektiivne protest .'] }, \
-        #   TODO: the following case is problematic, needs to be fixed:
+
+        #   TODO: The following case is problematic, needs to be fixed later:
         { 'text': 'Kertu küsib : “ Miks sa naeratad kogu aeg ? ”\nMaailm on nii ilus .', \
           'expected_sentence_texts': ['Kertu küsib : “ Miks sa naeratad kogu aeg ?', '”\nMaailm on nii ilus .'] }, \
     ]
@@ -334,12 +341,6 @@ def test_merge_mistakenly_separated_sentence_ending_punctuation():
         { 'text': "Teha “ viimane suur rööv ” ( milline klišee . . .\n ! ! ) , ajada ligi 5 miljoni dollari väärtuses kalliskividele . . .", \
           'expected_sentence_texts': ['Teha “ viimane suur rööv ” ( milline klišee . . .\n ! ! ) , ajada ligi 5 miljoni dollari väärtuses kalliskividele . . .'] }, \
           
-        #  NB! Problematic stuff:
-        { 'text': 'Ja kui süda pole puhas... ??? ??? ??? aiai.', \
-          'expected_sentence_texts': ['Ja kui süda pole puhas... ??? ??? ??? aiai.'] }, \
-        { 'text': 'Seal on forum kust saab osta , müüa , vahetada , rääkida ja ...... !!\nkÕik sInna !', \
-          'expected_sentence_texts': ['Seal on forum kust saab osta , müüa , vahetada , rääkida ja ...... !!\nkÕik sInna !'] }, \
-
         #   Merge case:   {sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}
         { 'text': '" See pole ju üldse kallis .\nNii ilus ! " . \nNõmmel elav pensioniealine Maret .', \
           'expected_sentence_texts': ['" See pole ju üldse kallis .', 'Nii ilus ! " .', 'Nõmmel elav pensioniealine Maret .'] }, \
@@ -351,6 +352,13 @@ def test_merge_mistakenly_separated_sentence_ending_punctuation():
           'expected_sentence_texts': ['" Kuidas saada miljonäriks ? " .', 'Selge see , et miljonimängus peavad olema kõige raskemad küsimused .'] }, \
         { 'text': '" Ega siin ei maksa tooste oodata , hakkama aga kohe võtma ! " . \nMa ei taha seda ärajäänud kohtumist presidendi kaela ajada .', \
           'expected_sentence_texts': ['" Ega siin ei maksa tooste oodata , hakkama aga kohe võtma ! " .', 'Ma ei taha seda ärajäänud kohtumist presidendi kaela ajada .'] }, \
+          
+        #  NB! Problematic stuff:
+        { 'text': 'Ja kui süda pole puhas... ??? ??? ??? aiai.', \
+          'expected_sentence_texts': ['Ja kui süda pole puhas... ??? ??? ??? aiai.'] }, \
+        { 'text': 'Seal on forum kust saab osta , müüa , vahetada , rääkida ja ...... !!\nkÕik sInna !', \
+          'expected_sentence_texts': ['Seal on forum kust saab osta , müüa , vahetada , rääkida ja ...... !!\nkÕik sInna !'] }, \
+
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )

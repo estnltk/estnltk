@@ -127,7 +127,13 @@ merge_patterns = [ \
    { 'comment'  : '{parentheses_start} {content_in_parentheses} + {parentheses_end}', \
      'example'  : '( " Easy FM , soft hits ! "\' + \') .', \
      'fix_type' : 'parentheses', \
-     'regexes'  : [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[^()A-ZÖÄÜÕŠŽ]*\).*') ], \
+     'regexes'  : [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[^()A-ZÖÄÜÕŠŽ]*\)\s*$') ], \
+   },
+   #   {parentheses_start} {content_in_parentheses} + {parentheses_end}
+   { 'comment'  : '{parentheses_start} {content_in_parentheses} + {parentheses_end}', \
+     'example'  : '( " Easy FM , soft hits ! "\' + \') .', \
+     'fix_type' : 'parentheses', \
+     'regexes'  : [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[^()A-ZÖÄÜÕŠŽ]*\)(\s|\n)*[^A-ZÖÄÜÕŠŽ \n].*') ], \
    },
    #   {parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}
    { 'comment'  : '{parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}', \
