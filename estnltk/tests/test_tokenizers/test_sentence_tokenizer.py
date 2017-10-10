@@ -229,6 +229,8 @@ def test_merge_mistakenly_split_sentences_3():
           'expected_sentence_texts': ['Enne " Romeo ja Juliat " koostasid kaks inkvisiitorit " Malleus Maleficarumi " nn. " nöiavasara "'] }, \
           
         #   Merge case:   {sentence_ending_punct} + {only_ending_quotes}
+        { 'text': 'Aitäh ! "', \
+          'expected_sentence_texts': ['Aitäh ! "'] }, \
         { 'text': 'Mitte meie rühmas , vaid terves polgus ! ”', \
           'expected_sentence_texts': ['Mitte meie rühmas , vaid terves polgus ! ”'] }, \
         { 'text': '“ Tuleb kasutada lund ja jääd , kuni neid veel on . ”', \
@@ -241,6 +243,15 @@ def test_merge_mistakenly_split_sentences_3():
           'expected_sentence_texts': ['« Ma sõin tavaliselt kolm hamburgerit päevas , kujutate ette ? »'] }, \
         { 'text': 'Küsisin mõistlikku summat , arvan .\nNüüd ootan nende pakkumist . »', \
           'expected_sentence_texts': ['Küsisin mõistlikku summat , arvan .', 'Nüüd ootan nende pakkumist . »'] }, \
+        
+        #   Negative cases: do not merge these into one sentence:
+        { 'text': '" Aga kui sumo ära toidab , tuleb ametit vahetada , " leiab ta .\n" Müüja-turvam= ehe töö pole unistuste tipp .', \
+          'expected_sentence_texts': ['" Aga kui sumo ära toidab , tuleb ametit vahetada , " leiab ta .', '" Müüja-turvam= ehe töö pole unistuste tipp .'] }, \
+        { 'text': 'Kuid " Trainspottingus " pole tegemist individualistliku protestiga .\n" Train-spotting " on generatsioonifilm , kollektiivne protest .', \
+          'expected_sentence_texts': ['Kuid " Trainspottingus " pole tegemist individualistliku protestiga .', '" Train-spotting " on generatsioonifilm , kollektiivne protest .'] }, \
+        #   TODO: the following case is problematic, needs to be fixed:
+        { 'text': 'Kertu küsib : “ Miks sa naeratad kogu aeg ? ”\nMaailm on nii ilus .', \
+          'expected_sentence_texts': ['Kertu küsib : “ Miks sa naeratad kogu aeg ?', '”\nMaailm on nii ilus .'] }, \
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )

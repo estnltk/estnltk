@@ -127,7 +127,7 @@ merge_patterns = [ \
    { 'comment'  : '{parentheses_start} {content_in_parentheses} + {parentheses_end}', \
      'example'  : '( " Easy FM , soft hits ! "\' + \') .', \
      'fix_type' : 'parentheses', \
-     'regexes'  : [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[^() ]*\).*') ], \
+     'regexes'  : [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[^()A-ZÖÄÜÕŠŽ]*\).*') ], \
    },
    #   {parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}
    { 'comment'  : '{parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}', \
@@ -151,17 +151,17 @@ merge_patterns = [ \
    # ***********************************
    #   Fixes related to double quotes
    # ***********************************
+   #   {sentence_ending_punct} + {ending_quotes} {comma_or_semicolon_or_lowercase_letter}
+   { 'comment'  : '{sentence_ending_punct} {ending_quotes} + {comma_or_semicolon_or_lowercase_letter}', \
+     'example'  : '\'ETV-s esietendub homme " Õnne 13 ! \' + \'", mis kuu aja eest jõudis lavale Ugalas .\'', \
+     'fix_type' : 'double_quotes', \
+     'regexes'  : [re.compile('.+[?!.…]\s*$', re.DOTALL), re.compile('^['+ending_quotes+']\s*([,;]|'+lc_letter+')+') ], \
+   },
    #   {sentence_ending_punct} {ending_quotes} + {comma_or_semicolon_or_lowercase_letter}
    { 'comment'  : '{sentence_ending_punct} {ending_quotes} + {comma_or_semicolon_or_lowercase_letter}', \
      'example'  : '\'ETV-s esietendub homme " Õnne 13 ! "\' + \', mis kuu aja eest jõudis lavale Ugalas .\'', \
      'fix_type' : 'double_quotes', \
      'regexes'  : [re.compile('.+[?!.…]\s*['+ending_quotes+']$', re.DOTALL), re.compile('^([,;]|'+lc_letter+')+') ], \
-   },
-   #   {starting_quotes} {content_in_quotes} {sentence_ending_punct} + {ending_quotes}
-   { 'comment'  : '{starting_quotes} {content_in_quotes} {sentence_ending_punct} + {ending_quotes}', \
-     'example'  : '', \
-     'fix_type' : 'double_quotes', \
-     'regexes'  : [re.compile('.+?['+start_quotes+'][^'+ending_quotes+']+[?!.…]$', re.DOTALL), re.compile('^['+ending_quotes+'].*') ], \
    },
    #   {sentence_ending_punct} + {only_ending_quotes}
    { 'comment'  : '{sentence_ending_punct} + {ending_quotes}', \
