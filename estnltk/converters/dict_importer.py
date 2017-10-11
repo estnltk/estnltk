@@ -13,11 +13,10 @@ def import_dict(text_dict:dict) -> Text:
         layer._base = record['_base']
         text[layer.name] = layer
         if layer.parent:
-            parent_layer = text[layer._base] # ennem layer.parent
+            parent_layer = text[layer._base]
             if layer.ambiguous:                
                 for rec in record['spans']:
                     for r in rec:
-                        #print('line 18')
                         try:
                             span = parent_layer[r['_index_']].mark(layer.name)
                         except NotImplementedError:
