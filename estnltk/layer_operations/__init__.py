@@ -9,3 +9,7 @@ from .layer_operations import merge_layer
 from .layer_operations import group_by_spans
 from .layer_operations import conflicts
 from .conflict_resolver import resolve_conflicts
+from .splitting import excerpt
+from .splitting import split_by
+from .splitting import split_by_sentences
+from .rebase import rebase
