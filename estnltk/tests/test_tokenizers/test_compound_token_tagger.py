@@ -1,7 +1,7 @@
 import unittest
 
 from estnltk import Text
-
+from estnltk.taggers import CompoundTokenTagger
 
 class CompoundTokenTaggerTest(unittest.TestCase):
 
@@ -19,6 +19,11 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Sellised', 'veebileheküljed', ':', 'www. esindus.ee/korteriturg', ',', 'www. kavkazcenter.com', ',', 'http: // www. cavalierklubben.com', ',', 'http : //www.offa.org/', 'stats', 'ning', 'http://www.politsei.ee/dotAsset/225706', '.'] }, \
             { 'text': 'Kel huvi http://www.youtube.com/watch?v=PFD2yIVn4IE\npets 11.07.2012 20:37 lugesin enne kommentaarid ära.', \
               'expected_words': ['Kel', 'huvi', 'http://www.youtube.com/watch?v=PFD2yIVn4IE', 'pets', '11.07.2012', '20:37', 'lugesin', 'enne', 'kommentaarid', 'ära', '.'] }, \
+            # Short www addresses (addresses without prefixes "www" or "http")
+            { 'text': 'Vastavalt hiljutisele uurimusele washingtontimes.com usub 80% ameeriklastest, et jumal mõjutas evolutsiooni mingil määral.', \
+              'expected_words': ['Vastavalt', 'hiljutisele', 'uurimusele', 'washingtontimes.com', 'usub', '80%', 'ameeriklastest', ',', 'et', 'jumal', 'mõjutas', 'evolutsiooni', 'mingil', 'määral', '.'] }, \
+            { 'text': 'Teadus.ee-st leidsin kunagi energiahulgad, aga google.com, Postimees.ee, news.com, Delfi.ee, kuhuminna.ee, ekspressjob.ee, CyberSecurity.ru, südameapteek.ee, static.flickr.com pole nii huvitavaid tulemusi andnud.', \
+              'expected_words': ['Teadus.ee-st', 'leidsin', 'kunagi', 'energiahulgad', ',', 'aga', 'google.com', ',', 'Postimees.ee', ',', 'news.com', ',', 'Delfi.ee', ',', 'kuhuminna.ee', ',', 'ekspressjob.ee', ',', 'CyberSecurity.ru', ',', 'südameapteek.ee', ',', 'static.flickr.com', 'pole', 'nii', 'huvitavaid', 'tulemusi', 'andnud', '.'] }, \
 
         ]
         for test_text in test_texts:
@@ -154,6 +159,14 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['2007', 'a.', '-', '2010', 'a.', 'koolitusteemade', 'seas', 'olid', ':', 'maksud', ',', 'töösuhted', ',', 'efektiivsed', 'kommunikatsioonitehnikad', '.'] }, \
             { 'text' : 'Viie Dynastia * perioodil ( 907-960 A.D )', \
               'expected_words': ['Viie', 'Dynastia', '*', 'perioodil', '(', '907', '-', '960', 'A.D', ')'] }, \
+            { 'text' : "Tehakse vahet n.ö. eurowave ja hardcore purjedel.", \
+              'expected_words': ['Tehakse', 'vahet', 'n.ö.', 'eurowave', 'ja', 'hardcore', 'purjedel', '.'] }, \
+            { 'text' : 'Referentne funktsioon on orienteeritud n.ö. referentse grupi väärtustele.', \
+              'expected_words': ['Referentne', 'funktsioon', 'on', 'orienteeritud', 'n.ö.', 'referentse', 'grupi', 'väärtustele', '.'] }, \
+            { 'text' : 'Asi on n . -ö . kontrolli all .', \
+              'expected_words': ['Asi', 'on', 'n . -ö .', 'kontrolli', 'all', '.'] }, \
+            { 'text' : 'Tema sõnul ei hõlma ISO 9000 sari turgu ja turuanalüüsi , kuid n . -ö . kliendikesksem osa on plaanitud juurde võtta .', \
+              'expected_words': ['Tema', 'sõnul', 'ei', 'hõlma', 'ISO', '9000', 'sari', 'turgu', 'ja', 'turuanalüüsi', ',', 'kuid', 'n . -ö .', 'kliendikesksem', 'osa', 'on', 'plaanitud', 'juurde', 'võtta', '.'] }, \
             { 'text' : 'Arstide Liit esitas oma palganõudmised ( vt. volikogu otsused ), mis EHL volikogu lubas läbi arutada.',\
               'expected_words': ['Arstide', 'Liit', 'esitas', 'oma', 'palganõudmised', '(', 'vt.', 'volikogu', 'otsused', ')', ',', 'mis', 'EHL', 'volikogu', 'lubas', 'läbi', 'arutada', '.'] }, \
             { 'text' : 'Ja selles suhtes võiks Lp. E-Kaitse olla nii soliidne E-kaitse keskkond.',\
@@ -168,6 +181,12 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['keha', 'ei', 'tööta', '=', 'tõugates', ',', 'sest', 'olen', 'liiga', 'püsti', 'asendis', '(', 'a la', 'Teichmann', ')'] },\
             { 'text' : "Täiesti valesti aru saanud Jordani-fenomenist, et a'la üks mees teeb mängu ära.",\
               'expected_words': ['Täiesti', 'valesti', 'aru', 'saanud', 'Jordani-fenomenist', ',', 'et', "a'la", 'üks', 'mees', 'teeb', 'mängu', 'ära', '.'] },\
+            { 'text' : 'Suitsutatud produktide, s.h. ka peekoni ja hot-dogide söömine on eriti kahjulik.',\
+              'expected_words': ['Suitsutatud', 'produktide', ',', 's.h.', 'ka', 'peekoni', 'ja', 'hot-dogide', 'söömine', 'on', 'eriti', 'kahjulik', '.'] },\
+            { 'text' : 'Budistlikud keskused (s.h. Khordongi Ühing Eestis jt.) on tõlkinud ka otse algkeeltest.',\
+              'expected_words': ['Budistlikud', 'keskused', '(', 's.h.', 'Khordongi', 'Ühing', 'Eestis', 'jt', '.', ')', 'on', 'tõlkinud', 'ka', 'otse', 'algkeeltest', '.'] },\
+            { 'text' : 'Tuulepargi kavandatav koguvõimsus on u. 700 MW.',\
+              'expected_words': ['Tuulepargi', 'kavandatav', 'koguvõimsus', 'on', 'u.', '700', 'MW', '.'] },\
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )
@@ -230,6 +249,8 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Tei', ',', '06.', 'Jul.', '2010', '20:23', 'Rohelise', 'Akadeemia', 'nime', 'all', 'toimuvate', 'arutelude', 'sarja', 'algus', '.'] },\
             { 'text' : 'Üll 11.01.2010 18:41 100% ostan ennem selle.',\
               'expected_words': ['Üll', '11.01.2010', '18:41', '100%', 'ostan', 'ennem', 'selle', '.'] },\
+            { 'text' : 'Eelmüük toimub kuni 08.08.2012a . Peale eelmüügi lõppu piletihinnad 14.-€',\
+              'expected_words': ['Eelmüük', 'toimub', 'kuni', '08.08.2012a', '.', 'Peale', 'eelmüügi', 'lõppu', 'piletihinnad', '14', '.-€'] },\
             { 'text' : 'Võsu 04/09/11 18:03 \n Ilus ilm, ning loksa mõõdik näitas kõige rohkem',\
               'expected_words': ['Võsu', '04/09/11', '18:03', 'Ilus', 'ilm', ',', 'ning', 'loksa', 'mõõdik', 'näitas', 'kõige', 'rohkem'] },\
             { 'text' : 'itra 2011-04-22 14:57:04 \n Läksin oma teloga sinna lehele, vajutasin download ja midagi ei juhtunud',\
@@ -320,9 +341,9 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             { 'text': "Päevasel ajal on sobivaks temperatuuriks ruumis +18˚... 23˚C. Kui keegi ruumis ei viibi, piisab 15˚ ... 16˚C kraadist.", \
               'expected_words': ['Päevasel', 'ajal', 'on', 'sobivaks', 'temperatuuriks', 'ruumis', '+18', '˚...', '23', '˚', 'C', '.', 'Kui', 'keegi', 'ruumis', 'ei', 'viibi', ',', 'piisab', '15', '˚', '...', '16', '˚', 'C', 'kraadist', '.'] },\
             { 'text': "P.S. Õppige viisakalt kirjutama.", \
-              'expected_words': ['P', '.', 'S', '.', 'Õppige', 'viisakalt', 'kirjutama', '.'] },\
+              'expected_words': ['P.S.', 'Õppige', 'viisakalt', 'kirjutama', '.'] },\
             { 'text': "P.P.S. Teine vana ilmus ka välja.", \
-              'expected_words': ['P', '.', 'P', '.', 'S', '.', 'Teine', 'vana', 'ilmus', 'ka', 'välja', '.'] },\
+              'expected_words': ['P.P.S.', 'Teine', 'vana', 'ilmus', 'ka', 'välja', '.'] },\
               
         ]
         for test_text in test_texts:
@@ -365,7 +386,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['OK', ',', 'aga', 'kas', 'Viasat', 'läbi', "DVB-S'i", 'on', 'vaadatav', '?'] },\
             { 'text': "Ma olen nüüd natuke aega saarlane ja suhtlen live ´is ainult saarlastega, höhö.",\
               'expected_words': ['Ma', 'olen', 'nüüd', 'natuke', 'aega', 'saarlane', 'ja', 'suhtlen', 'live ´is', 'ainult', 'saarlastega', ',', 'höhö', '.'] },\
-            # Number + case ending
+            # Number + case ending (with separator character)
             { 'text': "Tööajal kella 8.00-st 16.00- ni võtavad sel telefonil kõnesid vastu kuni üheksa IT töötajat.",\
               'expected_words': ['Tööajal', 'kella', '8.00-st', '16.00- ni', 'võtavad', 'sel', 'telefonil', 'kõnesid', 'vastu', 'kuni', 'üheksa', 'IT', 'töötajat', '.'] },\
             { 'text': "Ökonomistid, kes ootasid vastavalt 1%-st langust kuu jooksul ja 2,7%-st tõusu aasta peale.",\
@@ -380,12 +401,20 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['See', 'aitab', 'kindlamini', 'tõsta', 'nt', 'annetuste', 'tulumaksuvabastust', '5%lt', '10%le', '.'] },\
             { 'text': "Üleriigilisel üldstreigil nõuame ka 50%-list palgatõusu!",\
               'expected_words': ['Üleriigilisel', 'üldstreigil', 'nõuame', 'ka', '50%-list', 'palgatõusu', '!'] },\
+            # Number + case ending (without separator dash/hyphen)
+            { 'text': "Võistlus avatakse kell 12.40, võistluspäev kestab kella 15.30ni.",\
+              'expected_words': ['Võistlus', 'avatakse', 'kell', '12.40', ',', 'võistluspäev', 'kestab', 'kella', '15.30ni', '.'] },\
+            { 'text': "Rocca al Mare kooli parklas kella 8.30st kuni 9.45ni.",\
+              'expected_words': ['Rocca', 'al', 'Mare', 'kooli', 'parklas', 'kella', '8.30st', 'kuni', '9.45ni', '.'] },\
+            { 'text': "Või rääkigu oma ülemustega, et muudetaks lahtiolekuaeg kella 21.45ks.",\
+              'expected_words': ['Või', 'rääkigu', 'oma', 'ülemustega', ',', 'et', 'muudetaks', 'lahtiolekuaeg', 'kella', '21.45ks', '.'] },\
+            { 'text': "Adriana Fernandez 2 : 24.06 ja portugallanna Manuela Machado 2 : 25.08ga.",\
+              'expected_words': ['Adriana', 'Fernandez', '2', ':', '24.06', 'ja', 'portugallanna', 'Manuela', 'Machado', '2', ':', '25.08ga', '.'] },\
             # Negative examples: hyphen/dash between spaces -- most likely is not a case separator ...
             { 'text': "Kelle hinges on süütunne, seda peab süüdistama - ta vajab seda.",\
               'expected_words': ['Kelle', 'hinges', 'on', 'süütunne', ',', 'seda', 'peab', 'süüdistama', '-', 'ta', 'vajab', 'seda', '.'] },\
             { 'text': "Teine professor kaevas koos tudengitega välja paar lepakändu - iga viimase kui juureni.",\
               'expected_words': ['Teine', 'professor', 'kaevas', 'koos', 'tudengitega', 'välja', 'paar', 'lepakändu', '-', 'iga', 'viimase', 'kui', 'juureni', '.'] },\
-            
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )
@@ -451,3 +480,33 @@ class CompoundTokenTaggerTest(unittest.TestCase):
                 # Assert that the tokenization is correct
                 self.assertListEqual(test_text['expected_compound_tokens'][ctid], tokens)
                 self.assertEqual(test_text['expected_normalizations'][ctid], comp_token.normalized)
+
+
+    def test_using_custom_abbreviations(self):
+        # Tests using a list of custom abbreviations
+        # Text #1
+        text = Text('Batman, Superman jpt . kangelased tõusid areenile, kerkisid esile jne. ja võitsid paljude südamed.')
+        text.tag_layer(['tokens'])
+        my_abbreviations = ['jpt', 'jne']
+        # Perform analysis
+        CompoundTokenTagger(tag_abbreviations = True, custom_abbreviations = my_abbreviations).tag(text)
+        # Check that compound tokens are detected
+        compound_tokens = [ comp_token.enclosing_text for comp_token in text['compound_tokens'] ]
+        self.assertListEqual( ['jpt .', 'jne.'], compound_tokens )
+        norm_compound_tokens = [ comp_token.normalized for comp_token in text['compound_tokens'] ]
+        self.assertListEqual( ['jpt.', 'jne.'], norm_compound_tokens )
+        # Check that token compounding fixes sentence boundaries
+        text.tag_layer(['sentences'])
+        sentences = [ s.enclosing_text for s in text['sentences'] ]
+        self.assertListEqual( ['Batman, Superman jpt . kangelased tõusid areenile, kerkisid esile jne. ja võitsid paljude südamed.'], sentences )
+        
+        # Text #2
+        text = Text('need kaks masinat on omavahel võrku ühendatud ja võrk nö. toimib.')
+        text.tag_layer(['tokens'])
+        my_abbreviations = ['nö']
+        # Perform analysis
+        CompoundTokenTagger(tag_abbreviations = True, custom_abbreviations = my_abbreviations).tag(text)
+        # Check sentences
+        text.tag_layer(['sentences'])
+        sentences = [ s.enclosing_text for s in text['sentences'] ]
+        self.assertListEqual( ['need kaks masinat on omavahel võrku ühendatud ja võrk nö. toimib.'], sentences )

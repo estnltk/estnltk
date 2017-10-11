@@ -1,5 +1,5 @@
 from estnltk.text import Text
-
+from estnltk.taggers import SentenceTokenizer
 
 def test_merge_mistakenly_split_sentences_1():
     # Tests that mistakenly split sentences have been properly merged
@@ -28,10 +28,18 @@ def test_merge_mistakenly_split_sentences_1():
           'expected_sentence_texts': ['Samas teatas investeeringute suurenemisest rohkem ettevõtteid kui aasta tagasi (2005.a. 46%, 2004.a. 35%).'] }, \
         { 'text': 'Uuringu esialgsed tulemused muutuvad kättesaadavaks 2002.a. maikuus.', \
           'expected_sentence_texts': ['Uuringu esialgsed tulemused muutuvad kättesaadavaks 2002.a. maikuus.'] }, \
+        { 'text': '1930.õ.a. õppis koolis 61 õpilast. 1937.õ.a. otsustati lõputunnistus välja anda 8 lõpetajale.', \
+          'expected_sentence_texts': ["1930.õ.a. õppis koolis 61 õpilast.", '1937.õ.a. otsustati lõputunnistus välja anda 8 lõpetajale.'] }, \
+
         #   Merge case:   {Date_with_year} {period} + {time}
         { 'text': 'Gert 02.03.2009. 14:40 Tahaks kindlalt sinna kooli:P', \
           'expected_sentence_texts': ['Gert 02.03.2009. 14:40 Tahaks kindlalt sinna kooli:P'] }, \
-          
+        #   Merge case:   {|kell|} {time_HH.} + {MM}
+        { 'text': 'Kell 15 . 50 tuli elekter Tallinna tagasi .', \
+          'expected_sentence_texts': ['Kell 15 . 50 tuli elekter Tallinna tagasi .'] }, \
+        { 'text': 'Kell 22 . 00\nTV 3\n“ Thelma\n” ,\nUSA 1991\nRežii : Ridley Scott\n', \
+          'expected_sentence_texts': ['Kell 22 . 00\nTV 3\n“ Thelma\n” ,\nUSA 1991\nRežii : Ridley Scott'] }, \
+
         #   Merge case:   {Numeric_year} {period} + {|aasta|}
         { 'text': 'BRK-de traditsioon sai alguse 1964 . aastal Saksamaal Heidelbergis.', \
           'expected_sentence_texts': ['BRK-de traditsioon sai alguse 1964 . aastal Saksamaal Heidelbergis.'] }, \
@@ -45,7 +53,7 @@ def test_merge_mistakenly_split_sentences_1():
           'expected_sentence_texts': ['2000. aastal Sydneyst võideti kuldmedal,2004. aastal Ateenas teenisid nad koos hõbeda.'] }, \
         { 'text': 'Sügisel kaotas naine töö ja ka mehe äri hakkas allamäge veerema. «2009. aasta jaanuaris võtsin ennast töötuna arvele.', \
           'expected_sentence_texts': ['Sügisel kaotas naine töö ja ka mehe äri hakkas allamäge veerema.', '«2009. aasta jaanuaris võtsin ennast töötuna arvele.'] }, \
-          
+
         #   Merge case:   {Numeric|Roman_numeral_century} {period} {|sajand|} + {lowercase}
         { 'text': 'Kui sealt alla sammusin siis leitsin 15. saj. pärit surnuaia .\nVõi oli isegi pikem aeg , 19. saj. lõpust , kusagilt lugesin .', \
           'expected_sentence_texts': ['Kui sealt alla sammusin siis leitsin 15. saj. pärit surnuaia .', 'Või oli isegi pikem aeg , 19. saj. lõpust , kusagilt lugesin .'] }, \
@@ -158,7 +166,43 @@ def test_merge_mistakenly_split_sentences_2():
           'expected_sentence_texts': ['Riik on hoiatanud oma liitlasi ja partnereid äritegemise eest Teheraniga ( NYT , 5 . okt . ) .'] }, \
         { 'text': 'Varustage aabits oma nimega ning tooge see selle nädala jooksul (23 . – 26. 08) oma rühmaõpetaja kätte!', \
           'expected_sentence_texts': ['Varustage aabits oma nimega ning tooge see selle nädala jooksul (23 . – 26. 08) oma rühmaõpetaja kätte!'] }, \
-    ]
+        
+        #   Merge case:   {parentheses_start} {content_in_parentheses} + {numeric_patterns} {parentheses_end}
+        { 'text': 'Haiglasse toimetati kaassõitjad Vladimir ( s.1982 ) ja Jelena ( s.1981 ) .', \
+          'expected_sentence_texts': ['Haiglasse toimetati kaassõitjad Vladimir ( s.1982 ) ja Jelena ( s.1981 ) .'] }, \
+        { 'text': 'Mootorratast juhtinud Meelis ( s.1985 ) ning mootorratta tagaistmel olnud Kadri ( s . 1984 ) .', \
+          'expected_sentence_texts': ['Mootorratast juhtinud Meelis ( s.1985 ) ning mootorratta tagaistmel olnud Kadri ( s . 1984 ) .'] }, \
+        { 'text': 'Dokumentide järgi tehti kindlaks , et tegu on Uunoga ( s. 1940 ) .\nSündmuse täpsemad asjaolud on selgitamisel .', \
+          'expected_sentence_texts': ['Dokumentide järgi tehti kindlaks , et tegu on Uunoga ( s. 1940 ) .', 'Sündmuse täpsemad asjaolud on selgitamisel .'] }, \
+        { 'text': '( JO L 349 du 24.12.1998 , p. 47 )\n( EFT L 349 af 24.12.1998 , s. 47 )', \
+          'expected_sentence_texts': ['( JO L 349 du 24.12.1998 , p. 47 )\n( EFT L 349 af 24.12.1998 , s. 47 )'] }, \
+        { 'text': '( “ Usun Eestisse ” , lk. 198 )', \
+          'expected_sentence_texts': ['( “ Usun Eestisse ” , lk. 198 )'] }, \
+        { 'text': 'On lihtsalt olemas üks teine mõõde : rahvuskultuuriline missioon ( lk. 217 ) .', \
+          'expected_sentence_texts': ['On lihtsalt olemas üks teine mõõde : rahvuskultuuriline missioon ( lk. 217 ) .'] }, \
+        { 'text': 'Enam vähenevad kulutused kartuli ostmiseks ( -15 . 20 ) .', \
+          'expected_sentence_texts': ['Enam vähenevad kulutused kartuli ostmiseks ( -15 . 20 ) .'] }, \
+          
+        #   Merge case:   {content_in_parentheses} + {single_sentence_ending_symbol}          
+        { 'text': 'Pani eestvedajaks mõne rahvasportlasest poliitiku ( kui neid ikka on ? ) .', \
+          'expected_sentence_texts': ['Pani eestvedajaks mõne rahvasportlasest poliitiku ( kui neid ikka on ? ) .'] }, \
+        { 'text': 'See oli siis see 60 krooni ( või rubla ? ) .\nMiks on see põletav küsimus ?', \
+          'expected_sentence_texts': ['See oli siis see 60 krooni ( või rubla ? ) .', 'Miks on see põletav küsimus ?'] }, \
+        { 'text': 'Vähk ( 20.07. - 09.08. ) .\nVähkkasvajana vohav horoskoobihullus on nakatanud Sindki .', \
+          'expected_sentence_texts': ['Vähk ( 20.07. - 09.08. ) .', 'Vähkkasvajana vohav horoskoobihullus on nakatanud Sindki .'] }, \
+        { 'text': 'Yerlikaya oli protesti sisse andnud ja see rahuldati ( ? ! ) . \nMöllu oli saalis tublisti .', \
+          'expected_sentence_texts': ['Yerlikaya oli protesti sisse andnud ja see rahuldati ( ? ! ) .', 'Möllu oli saalis tublisti .'] }, \
+        { 'text': 'CD müüdi 400 krooniga ( alghind oli 100 kr. ) .\nOsteti viis tööd , neist üks õlimaal .', \
+          'expected_sentence_texts': ['CD müüdi 400 krooniga ( alghind oli 100 kr. ) .', 'Osteti viis tööd , neist üks õlimaal .'] }, \
+        { 'text': 'Neenetsi rahvusringkonnas ( kõlab juba ise sürrealistlikult ! ) .\nVähem kummaline polnud tema tegevus Küsimuste ja Vastuste toimetajana .', \
+          'expected_sentence_texts': ['Neenetsi rahvusringkonnas ( kõlab juba ise sürrealistlikult ! ) .', 'Vähem kummaline polnud tema tegevus Küsimuste ja Vastuste toimetajana .'] }, \
+          
+        #   TODO: Problematic cases: these should be fixed later, during another round of post-correction
+        { 'text': '( Naerab . )\nEriti siis , kui sõidan mootorratta või jalgrattaga .', \
+          'expected_sentence_texts': ['( Naerab .', ')\nEriti siis , kui sõidan mootorratta või jalgrattaga .'] }, \
+        { 'text': '( Muigab laialt . )\nTegelikult muidugi püüan kogu nädalalõpu võistlusele keskenduda ja lasen end lõdvaks alles pühapäeva õhtul , kui koju jõuan .', \
+          'expected_sentence_texts': ['( Muigab laialt .', ')\nTegelikult muidugi püüan kogu nädalalõpu võistlusele keskenduda ja lasen end lõdvaks alles pühapäeva õhtul , kui koju jõuan .'] }, \
+     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
         # Perform analysis
@@ -189,6 +233,132 @@ def test_merge_mistakenly_split_sentences_3():
           'expected_sentence_texts': ['kui sokratese " segav " kohalolek on " välistatud " ja nn. " ellimineeritud " ...'] }, \
         { 'text': 'Enne " Romeo ja Juliat " koostasid kaks inkvisiitorit " Malleus Maleficarumi " nn. " nöiavasara "', \
           'expected_sentence_texts': ['Enne " Romeo ja Juliat " koostasid kaks inkvisiitorit " Malleus Maleficarumi " nn. " nöiavasara "'] }, \
+          
+        #   Merge case:   {sentence_ending_punct} + {only_ending_quotes}
+        { 'text': 'Aitäh ! "', \
+          'expected_sentence_texts': ['Aitäh ! "'] }, \
+        { 'text': 'Mitte meie rühmas , vaid terves polgus ! ”', \
+          'expected_sentence_texts': ['Mitte meie rühmas , vaid terves polgus ! ”'] }, \
+        { 'text': '“ Tuleb kasutada lund ja jääd , kuni neid veel on . ”', \
+          'expected_sentence_texts': ['“ Tuleb kasutada lund ja jääd , kuni neid veel on . ”'] }, \
+        { 'text': '“ Akendega on nüüd klaar .\nKas värvin ka raamid ära ? ”', \
+          'expected_sentence_texts': ['“ Akendega on nüüd klaar .', 'Kas värvin ka raamid ära ? ”'] }, \
+        { 'text': '« See amet on nii raske ! »', \
+          'expected_sentence_texts': ['« See amet on nii raske ! »'] }, \
+        { 'text': '« Ma sõin tavaliselt kolm hamburgerit päevas , kujutate ette ? »', \
+          'expected_sentence_texts': ['« Ma sõin tavaliselt kolm hamburgerit päevas , kujutate ette ? »'] }, \
+        { 'text': 'Küsisin mõistlikku summat , arvan .\nNüüd ootan nende pakkumist . »', \
+          'expected_sentence_texts': ['Küsisin mõistlikku summat , arvan .', 'Nüüd ootan nende pakkumist . »'] }, \
+        
+        #   Negative cases: do not merge these into one sentence:
+        { 'text': '" Aga kui sumo ära toidab , tuleb ametit vahetada , " leiab ta .\n" Müüja-turvam= ehe töö pole unistuste tipp .', \
+          'expected_sentence_texts': ['" Aga kui sumo ära toidab , tuleb ametit vahetada , " leiab ta .', '" Müüja-turvam= ehe töö pole unistuste tipp .'] }, \
+        { 'text': 'Kuid " Trainspottingus " pole tegemist individualistliku protestiga .\n" Train-spotting " on generatsioonifilm , kollektiivne protest .', \
+          'expected_sentence_texts': ['Kuid " Trainspottingus " pole tegemist individualistliku protestiga .', '" Train-spotting " on generatsioonifilm , kollektiivne protest .'] }, \
+
+        #   TODO: The following case is problematic, needs to be fixed later:
+        { 'text': 'Kertu küsib : “ Miks sa naeratad kogu aeg ? ”\nMaailm on nii ilus .', \
+          'expected_sentence_texts': ['Kertu küsib : “ Miks sa naeratad kogu aeg ?', '”\nMaailm on nii ilus .'] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words', 'sentences'])
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences'].spans]
+        #print(sentence_texts)
+        # Check results
+        assert sentence_texts == test_text['expected_sentence_texts']
+
+
+
+def test_merge_mistakenly_split_sentences_4():
+    # Tests that mistakenly split sentences have been properly merged
+    # 4: splits related to compound tokens
+    #    Actually, these cases are throughly tested in test_compound_token_tagger.py,
+    #    so here, there are only few test cases
+    test_texts = [ 
+        # No sentence break inside abbreviation 'P.S.'
+        { 'text': 'P.S. Ootan! Kes julgeb tulla abiks siia mulle.', \
+          'expected_sentence_texts': ['P.S. Ootan!', 'Kes julgeb tulla abiks siia mulle.'] }, \
+        { 'text': 'Ehk lepime kokku, et see on kurb.\nP.S. Olen valmis sinuga Elu24 lugusid näiteks nädal aega lugema.', \
+          'expected_sentence_texts': ['Ehk lepime kokku, et see on kurb.', 'P.S. Olen valmis sinuga Elu24 lugusid näiteks nädal aega lugema.'] }, \
+        # No sentence break after month abbreviation
+        { 'text': "Laululahingu esimesest poolfinaalist pääses edasi HaleBopp Singers!\n27.apr.2008\n", \
+          'expected_sentence_texts': ['Laululahingu esimesest poolfinaalist pääses edasi HaleBopp Singers!', '27.apr.2008'] }, \
+        # No sentence break after: 'nr', 'lk', ...
+        { 'text': "Hõimurahvaste Aeg Nr. 7 lk. 22.\n", \
+          'expected_sentence_texts': ['Hõimurahvaste Aeg Nr. 7 lk. 22.'] }, \
+        { 'text': "1991 aasta väljaandes lk. 19-23.\n", \
+          'expected_sentence_texts': ['1991 aasta väljaandes lk. 19-23.'] }, \
+        # No sentence break inside short www address :
+        { 'text': "Portaal e-treening.ee on mõeldud kajastama Eesti rahvasporti. Mida teenusesse WordPress.com üleminekust oodata?", \
+          'expected_sentence_texts': ['Portaal e-treening.ee on mõeldud kajastama Eesti rahvasporti.', 'Mida teenusesse WordPress.com üleminekust oodata?'] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words', 'sentences'])
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences'].spans]
+        #print(sentence_texts)
+        # Check results
+        assert sentence_texts == test_text['expected_sentence_texts']
+
+
+def test_merge_mistakenly_separated_sentence_ending_punctuation():
+    # Tests that mistakenly separated sentence ending punctuation will be properly attached to the sentence
+    test_texts = [
+        #   Merge case:   {sentence_ending_punct} + {only_sentence_ending_punct}
+        { 'text': 'SEE EI OLNUD TSIKLI ÕLI ! ! ! ! ! ! !', \
+          'expected_sentence_texts': ['SEE EI OLNUD TSIKLI ÕLI ! ! ! ! ! ! !'] }, \
+        { 'text': 'see on kindel meteroloogiline fakt\n. .\n!', \
+          'expected_sentence_texts': ['see on kindel meteroloogiline fakt\n. .\n!'] }, \
+        { 'text': 'Issand Jumal , Sa näed ja ei mürista ! ! ! ? ? ?', \
+          'expected_sentence_texts': ['Issand Jumal , Sa näed ja ei mürista ! ! ! ? ? ?'] }, \
+        { 'text': 'Aga äkki ongi nümfomaanid reaalselt olemas ? ? ?', \
+          'expected_sentence_texts': ['Aga äkki ongi nümfomaanid reaalselt olemas ? ? ?'] }, \
+        { 'text': "loodetavasti läheb KE jaoks üle… Jeez… lahe..…", \
+          'expected_sentence_texts': ['loodetavasti läheb KE jaoks üle…', 'Jeez… lahe..…'] }, \
+        { 'text': 'arvati , et veel sellel aastal j6uab kohale ; yess ! ! !', \
+          'expected_sentence_texts': ['arvati , et veel sellel aastal j6uab kohale ; yess ! ! !'] }, \
+        { 'text': 'müüks ära sellise riista nagu IZ- Planeta 5 ! ?\nEtte tänades aivar .', \
+          'expected_sentence_texts': ['müüks ära sellise riista nagu IZ- Planeta 5 ! ?', 'Ette tänades aivar .'] }, \
+        { 'text': 'teine võimalus: elektrikud saavad karistatud voolu läbi.!!!!!!!!!!! !\n', \
+          'expected_sentence_texts': ['teine võimalus: elektrikud saavad karistatud voolu läbi.!!!!!!!!!!! !'] }, \
+        { 'text': 'Mis ajast Odüsseus ja Caesar KESKAJAL elasid ? ! ?\nOlex võinud väiksest peast vähe rohkem antiikmütoloogiat lugeda.', \
+          'expected_sentence_texts': ['Mis ajast Odüsseus ja Caesar KESKAJAL elasid ? ! ?', 'Olex võinud väiksest peast vähe rohkem antiikmütoloogiat lugeda.'] }, \
+        { 'text': 'Kiirusta ja osta kohe , kui sul veel pole ! !\nKvaliteettoodang !', \
+          'expected_sentence_texts': ['Kiirusta ja osta kohe , kui sul veel pole ! !', 'Kvaliteettoodang !'] }, \
+        { 'text': 'Seaduse täitmist reguleerib meil esmaselt siiski politsei. . . Ja ma ei loe kuskilt välja teemast et sa oled üritanud temaga vestelda.', \
+          'expected_sentence_texts': ['Seaduse täitmist reguleerib meil esmaselt siiski politsei. . .', 'Ja ma ei loe kuskilt välja teemast et sa oled üritanud temaga vestelda.'] }, \
+        { 'text': 'See oli meenutus tänastest eelmistest aaretest. Mari . . aarde leidsime, logisime ja peitsime tagasi.', \
+          'expected_sentence_texts': ['See oli meenutus tänastest eelmistest aaretest.', 'Mari . .', 'aarde leidsime, logisime ja peitsime tagasi.'] }, \
+        { 'text': 'grafiit määrdega tald muutub kuivaks\n? ? . . kuidas sellest = aru saada kui see nii on ?', \
+          'expected_sentence_texts': ['grafiit määrdega tald muutub kuivaks\n? ? . .', 'kuidas sellest = aru saada kui see nii on ?'] }, \
+        { 'text': "Teha “ viimane suur rööv ” ( milline klišee . . .\n ! ! ) , ajada ligi 5 miljoni dollari väärtuses kalliskividele . . .", \
+          'expected_sentence_texts': ['Teha “ viimane suur rööv ” ( milline klišee . . .\n ! ! ) , ajada ligi 5 miljoni dollari väärtuses kalliskividele . . .'] }, \
+          
+        #   Merge case:   {sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}
+        { 'text': '" See pole ju üldse kallis .\nNii ilus ! " . \nNõmmel elav pensioniealine Maret .', \
+          'expected_sentence_texts': ['" See pole ju üldse kallis .', 'Nii ilus ! " .', 'Nõmmel elav pensioniealine Maret .'] }, \
+        { 'text': 'Marjana küsis iga asja kohta " Kak eta porusski ? " . \nKuidas ma keele selgeks sain', \
+          'expected_sentence_texts': ['Marjana küsis iga asja kohta " Kak eta porusski ? " .', 'Kuidas ma keele selgeks sain'] }, \
+        { 'text': 'Tal polnud aimugi , kust ta järgmise kaustiku saab .\n" . . . jätkan tolle esimese päeva taastamist .', \
+          'expected_sentence_texts': ['Tal polnud aimugi , kust ta järgmise kaustiku saab .\n" . . .', 'jätkan tolle esimese päeva taastamist .'] }, \
+        { 'text': '" Kuidas saada miljonäriks ? " . \nSelge see , et miljonimängus peavad olema kõige raskemad küsimused .', \
+          'expected_sentence_texts': ['" Kuidas saada miljonäriks ? " .', 'Selge see , et miljonimängus peavad olema kõige raskemad küsimused .'] }, \
+        { 'text': '" Ega siin ei maksa tooste oodata , hakkama aga kohe võtma ! " . \nMa ei taha seda ärajäänud kohtumist presidendi kaela ajada .', \
+          'expected_sentence_texts': ['" Ega siin ei maksa tooste oodata , hakkama aga kohe võtma ! " .', 'Ma ei taha seda ärajäänud kohtumist presidendi kaela ajada .'] }, \
+          
+        #  NB! Problematic stuff:
+        { 'text': 'Ja kui süda pole puhas... ??? ??? ??? aiai.', \
+          'expected_sentence_texts': ['Ja kui süda pole puhas... ??? ??? ??? aiai.'] }, \
+        { 'text': 'Seal on forum kust saab osta , müüa , vahetada , rääkida ja ...... !!\nkÕik sInna !', \
+          'expected_sentence_texts': ['Seal on forum kust saab osta , müüa , vahetada , rääkida ja ...... !!\nkÕik sInna !'] }, \
+
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
@@ -225,4 +395,98 @@ def test_split_mistakenly_merged_sentences_1():
         #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
-    
+
+
+def test_use_emoticons_as_sentence_endings():
+    # Tests that emoticons are used as sentence boundaries
+    test_texts = [ 
+        # Emoticons as sentence boundaries: a simple case
+        { 'text': 'Minu esimene blogi.... kõlab hästi:P Aga tegelikult on paberile vist parem kirjutada....', \
+          'expected_sentence_texts': ['Minu esimene blogi.... kõlab hästi:P', \
+                                      'Aga tegelikult on paberile vist parem kirjutada....'] }, \
+        { 'text': 'Nii habras, ilus ja minu oma :) Kõige parem mis kunagi juhtuda saab :):) Magamata öid mul muidugi ei olnud.', \
+          'expected_sentence_texts': ['Nii habras, ilus ja minu oma :)', \
+                                      'Kõige parem mis kunagi juhtuda saab :):)',\
+                                      'Magamata öid mul muidugi ei olnud.'] }, \
+        { 'text': 'Aga lihtsalt puid läheb 10 korda vähem :D Nii lihtne see ongi :D!!', \
+          'expected_sentence_texts': ['Aga lihtsalt puid läheb 10 korda vähem :D', \
+                                      'Nii lihtne see ongi :D!!'] }, \
+        { 'text': 'Mosse M2140 on ka ägedam masin kui see bemm :DD Nõsutun siin eelpoolkommenteerijaga', \
+          'expected_sentence_texts': ['Mosse M2140 on ka ägedam masin kui see bemm :DD', \
+                                      'Nõsutun siin eelpoolkommenteerijaga'] }, \
+        { 'text': 'Dataprojektorit peeti ilmselt silmas, usun :-) See selleks.', \
+          'expected_sentence_texts': ['Dataprojektorit peeti ilmselt silmas, usun :-)', \
+                                      'See selleks.'] }, \
+        { 'text': 'Linalakast eesti talutütar:P Ausõna, nagu meigitud Raja Teele :D', \
+          'expected_sentence_texts': ['Linalakast eesti talutütar:P', \
+                                      'Ausõna, nagu meigitud Raja Teele :D'] }, \
+        # Emoticons as sentence boundaries: a case of repeated emoticons
+        { 'text': 'KUUSKÜMMEND KOLM KÕRVITSAT???? :O :O :O See on ju iga koka õudusunenägu :)', \
+          'expected_sentence_texts': ['KUUSKÜMMEND KOLM KÕRVITSAT???? :O :O :O', \
+                                      'See on ju iga koka õudusunenägu :)'] }, \
+        { 'text': 'ikkagi maailmas 2. koht joogipaneku poolest ju.. :D:D:D', \
+          'expected_sentence_texts': ['ikkagi maailmas 2. koht joogipaneku poolest ju.. :D:D:D'] }, \
+        # Emoticons as sentence boundaries: a case of emoticons following sentence punctuation
+        { 'text': 'Appi milline loll jutt... :D Ma ei joo eini', \
+          'expected_sentence_texts': ['Appi milline loll jutt... :D', 'Ma ei joo eini'] }, \
+        # Emoticons as sentence boundaries: if emoticons are following sentence-ending punctuation,
+        # then assume they need to be attached to the previous sentence ...
+        { 'text': 'Ma sihin rohkem neid sügismaratone! :D Aga muidu ma julgen Riiat soovitada küll!!!', \
+          'expected_sentence_texts': ['Ma sihin rohkem neid sügismaratone! :D', 'Aga muidu ma julgen Riiat soovitada küll!!!'] }, \
+        { 'text': 'Oled sa armunud praegu? :) Kui ei siis oli arvatavasti auravärv siiski.', \
+          'expected_sentence_texts': ['Oled sa armunud praegu? :)', 'Kui ei siis oli arvatavasti auravärv siiski.'] }, \
+        { 'text': 'ka tema ei tea sõnade pool ja pooled tähendust . :( Ehk on see siiski taas D e lfi kirjatsura vaimusünnitis.', \
+          'expected_sentence_texts': ['ka tema ei tea sõnade pool ja pooled tähendust . :(', 'Ehk on see siiski taas D e lfi kirjatsura vaimusünnitis.'] }, \
+        { 'text': 'aga las läks oma teed,nagunii august poleks läbi mahtunud. :))) Vot sääne äge päiva.\nMis asi see pumm pumm veel on?', \
+          'expected_sentence_texts': ['aga las läks oma teed,nagunii august poleks läbi mahtunud. :)))', 'Vot sääne äge päiva.', 'Mis asi see pumm pumm veel on?'] }, \
+    ]
+    sentence_tokenizer = SentenceTokenizer(use_emoticons_as_endings=True)
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words'])
+        sentence_tokenizer.tag(text)
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences'].spans]
+        #print(sentence_texts)
+        # Check results
+        assert sentence_texts == test_text['expected_sentence_texts']
+
+
+def test_fix_repeated_sentence_ending_punctuation():
+    # Tests that sentence endings are detected iff the ending punctuation is prolonged/repeated
+    test_texts = [ 
+        { 'text': 'Hispaanias tuli suur isu vaadata töömeile… Ja nii ma seal puhkasin, kuid samas tegin tööd… See oli lihtsalt nii-nii mõnus feeling :)', \
+          'expected_sentence_texts': ['Hispaanias tuli suur isu vaadata töömeile…', \
+                                      'Ja nii ma seal puhkasin, kuid samas tegin tööd…', \
+                                      'See oli lihtsalt nii-nii mõnus feeling :)' ] }, \
+        { 'text': 'Sõin küll tavalisest rohkem..Koguaeg oli tunne, et olen rase.', \
+          'expected_sentence_texts': ['Sõin küll tavalisest rohkem..', \
+                                      'Koguaeg oli tunne, et olen rase.'] }, \
+        { 'text': 'Kas tõesti ??????!!!! Äi usu!', \
+          'expected_sentence_texts': ['Kas tõesti ??????!!!!', \
+                                      'Äi usu!'] }, \
+        { 'text': 'Ja ikka ei usu!!!!?????? Äi usu!', \
+          'expected_sentence_texts': ['Ja ikka ei usu!!!!??????', \
+                                      'Äi usu!'] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words', 'sentences'])
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences'].spans]
+        #print(sentence_texts)
+        # Check results
+        assert sentence_texts == test_text['expected_sentence_texts']
+
+
+def test_apply_sentence_tokenizer_on_empty_text():
+    # Applying sentence tokenizer on empty text should not produce any errors
+    text = Text( '' )
+    text.tag_layer(['words', 'sentences'])
+    assert len(text.words) == 0
+    assert len(text.sentences) == 0
+

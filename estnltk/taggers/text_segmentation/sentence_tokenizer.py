@@ -2,19 +2,21 @@ from typing import Iterator, Tuple
 
 import re
 
-import nltk as nltk
-
 from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 
-hyphen_pat = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|-)'
-lc_letter  = '[a-zöäüõžš]'
+hyphen_pat    = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|-)'
+lc_letter     = '[a-zöäüõžš]'
+start_quotes  = '"\u00AB\u02EE\u030B\u201C\u201D\u201E'
+ending_quotes = '"\u00BB\u02EE\u030B\u201C\u201D\u201E'
+# regexp for matching a single token consisting only of sentence-ending punctuation
+ending_punct_regexp = re.compile('^[.?!…]+$')
 
 # Patterns describing how two mistakenly split 
 # adjacent sentences can be merged into one sentence
 merge_patterns = [ \
    # ***********************************
-   #   Fixes related to number ranges, dates and times 
+   #   Fixes related to numbers, number ranges, dates and times 
    # ***********************************
    #   {Numeric_range_start} {period} + {dash} {Numeric_range_end}
    { 'comment'  : '{Numeric_range_start} {period} + {dash} {Numeric_range_end}', \
@@ -33,13 +35,13 @@ merge_patterns = [ \
    { 'comment'  : '{Numeric_year} {period} {|a|} + {lowercase_or_number}', \
      'example'  : '"Luunja sai vallaõigused 1991.a." + " kevadel."', \
      'fix_type' : 'numeric_year', \
-     'regexes'  : [re.compile('(.+)?([0-9]{3,4})\s*\.\s*a\.?$', re.DOTALL), re.compile('^('+lc_letter+'|[0-9])+')], \
+     'regexes'  : [re.compile('(.+)?([0-9]{3,4})\s*\.\s*(õ\s*\.)?a\.?$', re.DOTALL), re.compile('^('+lc_letter+'|[0-9])+')], \
    },
    #   {Numeric_year} {period} + {|a|} {lowercase_or_number}
    { 'comment'  : '{Numeric_year} {period} + {|a|} {lowercase_or_number}', \
      'example'  : '"Luunja sai vallaõigused 1991.a." + " kevadel."', \
      'fix_type' : 'numeric_year', \
-     'regexes'  : [ re.compile('(.+)?([0-9]{4})\s*\.$', re.DOTALL), re.compile('^\s*a\.?\s*('+lc_letter+'|[0-9])+') ], \
+     'regexes'  : [ re.compile('(.+)?([0-9]{4})\s*\.$', re.DOTALL), re.compile('^\s*(õ\s*\.)?a\.?\s*('+lc_letter+'|[0-9])+') ], \
    },
    #   {Numeric_year} {period} + {|aasta|}
    { 'comment'  : '{Numeric_year} {period} + {|aasta|}', \
@@ -57,7 +59,7 @@ merge_patterns = [ \
    #   {BCE} {period} + {lowercase}
    { 'comment'  : '{BCE} {period} + {lowercase}', \
      'example'  : '"Suur rahvasterändamine oli avanud IV-nda sajandiga p. Kr." + "segaduste ja sõdade ajastu."', \
-     'fix_type' : 'century', \
+     'fix_type' : 'numeric_century', \
      'regexes'  : [re.compile('(.+)?[pe]\s*\.\s*Kr\s*\.?$', re.DOTALL), re.compile('^'+lc_letter+'+') ], \
    },
    
@@ -67,6 +69,13 @@ merge_patterns = [ \
      'fix_type' : 'numeric_date', \
      'regexes'  : [re.compile('(.+)?([0-9]{2})\.([0-9]{2})\.([0-9]{4})\.\s*$', re.DOTALL), re.compile('^\s*([0-9]{2}):([0-9]{2})')], \
    },
+   #   {|kell|} {time_HH.} + {MM}
+   { 'comment'  : '{|kell|} {time_HH.} + {MM}', \
+     'example'  : "'Kell 22 .' + '00\nTV 3\n“ Thelma”\n'", \
+     'fix_type' : 'numeric_time', \
+     'regexes'  : [re.compile('(.+)?[kK]ell\S?\s([0-9]{1,2})\s*\.\s*$', re.DOTALL), re.compile('^\s*([0-9]{2})\s')], \
+   },
+
    #   {Numeric_date} {period} + {month_name}
    { 'comment'  : '{Numeric_date} {period} + {month_name}', \
      'example'  : '"Kirijenko on sündinud 26 ." + "juulil 1962 . aastal ."', \
@@ -83,21 +92,26 @@ merge_patterns = [ \
    #   {First_10_Roman_numerals} {period} + {lowercase_or_dash}
    { 'comment'  : '{First_10_Roman_numerals} {period} + {lowercase_or_dash}', \
      'example'  : '"III." + "- II." + "sajandil enne meie ajastut toimunud sõjad."', \
-     'fix_type' : 'roman_numeral', \
-     'regexes'  : [re.compile('(.+)?((I|II|III|IV|V|VI|VII|VIII|IX|X)\s*\.)$', re.DOTALL), re.compile('^('+lc_letter+'|'+hyphen_pat+')') ], \
+     'fix_type' : 'numeric_roman_numeral', \
+     'regexes'  : [re.compile('(.+)?((VIII|III|VII|II|IV|VI|IX|V|I|X)\s*\.)$', re.DOTALL), re.compile('^('+lc_letter+'|'+hyphen_pat+')') ], \
    },
    
    #   {Number} {period} + {lowercase}
    { 'comment'  : '{Number} {period} + {lowercase}', \
      'example'  : '"sügisringi 4 ." + "vooru kohtumine"', \
-     'fix_type' : 'ordinal_numeral', \
+     'fix_type' : 'numeric_ordinal_numeral', \
      'regexes'  : [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile('^'+lc_letter+'+') ], \
    },
    #   {Number} {period} + {hyphen}
    { 'comment'  : '{Number} {period} + {hyphen}', \
      'example'  : '"1500." + "- kuni 3000." + "- krooni"', \
-     'fix_type' : 'monetary', \
+     'fix_type' : 'numeric_monetary', \
      'regexes'  : [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile('^'+hyphen_pat+'+') ], \
+   },
+   { 'comment'  : '{Abbreviation} {period} + {numeric}', \
+     'example'  : '"Hõimurahvaste Aeg Nr." + "7 lk." + "22."', \
+     'fix_type' : 'numeric_abbrev', \
+     'regexes'  : [re.compile('(.+)?([Ll]k|[Nn]r)\s*\.$', re.DOTALL), re.compile('^[0-9]+') ], \
    },
    
    # ***********************************
@@ -113,7 +127,13 @@ merge_patterns = [ \
    { 'comment'  : '{parentheses_start} {content_in_parentheses} + {parentheses_end}', \
      'example'  : '( " Easy FM , soft hits ! "\' + \') .', \
      'fix_type' : 'parentheses', \
-     'regexes'  : [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[^() ]*\).*') ], \
+     'regexes'  : [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[^()A-ZÖÄÜÕŠŽ]*\)\s*$') ], \
+   },
+   #   {parentheses_start} {content_in_parentheses} + {parentheses_end}
+   { 'comment'  : '{parentheses_start} {content_in_parentheses} + {parentheses_end}', \
+     'example'  : '( " Easy FM , soft hits ! "\' + \') .', \
+     'fix_type' : 'parentheses', \
+     'regexes'  : [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[^()A-ZÖÄÜÕŠŽ]*\)(\s|\n)*[^A-ZÖÄÜÕŠŽ \n].*') ], \
    },
    #   {parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}
    { 'comment'  : '{parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}', \
@@ -121,56 +141,118 @@ merge_patterns = [ \
      'fix_type' : 'parentheses', \
      'regexes'  : [re.compile('(.+)?\([^()]+$', re.DOTALL), re.compile('^('+lc_letter+'|,)[^()]+\).*')], \
    },
+   #   {parentheses_start} {content_in_parentheses} + {numeric_patterns} {parentheses_end}
+   { 'comment'  : '{parentheses_start} {content_in_parentheses} + {numeric_patterns} {parentheses_end}', \
+     'example'  : '"rahvuskultuuriline missioon ( lk." + "217 )"', \
+     'fix_type' : 'parentheses', \
+     'regexes'  : [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[0-9.\- ]+\).*') ], \
+   },
    #   {content_in_parentheses} + {single_sentence_ending_symbol}
    { 'comment'  : '{content_in_parentheses} + {single_sentence_ending_symbol}', \
      'example'  : '\'( " Easy FM , soft hits ! " )\' + \'.\'', \
      'fix_type' : 'parentheses', \
-     'regexes'  : [re.compile('.*\([^()]+\)$', re.DOTALL), re.compile('^[.?!]$') ], \
+     'regexes'  : [re.compile('.*\([^()]+\)$', re.DOTALL), ending_punct_regexp ], \
    },
    
    # ***********************************
    #   Fixes related to double quotes
    # ***********************************
+   #   {sentence_ending_punct} + {ending_quotes} {comma_or_semicolon_or_lowercase_letter}
+   { 'comment'  : '{sentence_ending_punct} {ending_quotes} + {comma_or_semicolon_or_lowercase_letter}', \
+     'example'  : '\'ETV-s esietendub homme " Õnne 13 ! \' + \'", mis kuu aja eest jõudis lavale Ugalas .\'', \
+     'fix_type' : 'double_quotes', \
+     'regexes'  : [re.compile('.+[?!.…]\s*$', re.DOTALL), re.compile('^['+ending_quotes+']\s*([,;]|'+lc_letter+')+') ], \
+   },
    #   {sentence_ending_punct} {ending_quotes} + {comma_or_semicolon_or_lowercase_letter}
    { 'comment'  : '{sentence_ending_punct} {ending_quotes} + {comma_or_semicolon_or_lowercase_letter}', \
      'example'  : '\'ETV-s esietendub homme " Õnne 13 ! "\' + \', mis kuu aja eest jõudis lavale Ugalas .\'', \
      'fix_type' : 'double_quotes', \
-     'regexes'  : [re.compile('.+[?!.]\s*["\u00BB\u02EE\u030B\u201C\u201D\u201E]$', re.DOTALL), re.compile('^([,;]|'+lc_letter+')+') ], \
+     'regexes'  : [re.compile('.+[?!.…]\s*['+ending_quotes+']$', re.DOTALL), re.compile('^([,;]|'+lc_letter+')+') ], \
    },
-   #   {starting_quotes} {content_in_quotes} {sentence_ending_punct} + {ending_quotes}
-   { 'comment'  : '{starting_quotes} {content_in_quotes} {sentence_ending_punct} + {ending_quotes}', \
-     'example'  : '', \
+   #   {sentence_ending_punct} + {only_ending_quotes}
+   { 'comment'  : '{sentence_ending_punct} + {ending_quotes}', \
+     'example'  : '"« See amet on nii raske !" + "»"', \
      'fix_type' : 'double_quotes', \
-     'regexes'  : [re.compile('.+?["\u00AB\u02EE\u030B\u201C\u201D\u201E][^"\u00BB\u02EE\u030B\u201C\u201D\u201E]+[?!.]$', re.DOTALL), re.compile('^["\u00BB\u02EE\u030B\u201C\u201D\u201E].*') ], \
+     'regexes'  : [re.compile('.+?[?!.…]$', re.DOTALL), re.compile('^['+ending_quotes+']$') ], \
    },
-   
+
+   # ***********************************
+   #   Fixes related to sentence ending punctuation
+   # ***********************************
    #   {sentence_ending_punct} + {comma_or_semicolon} {lowercase_letter}
    { 'comment'  : '{sentence_ending_punct} + {comma_or_semicolon} {lowercase_letter}', \
      'example'  : '"Jõulise naissolistiga Conflict OK !" + ", kitarripoppi mängivad Claires Birthday ja Seachers."', \
      'fix_type' : 'ending_punct', \
      'regexes'  : [re.compile('.+[?!]\s*$', re.DOTALL), re.compile('^([,;])\s*'+lc_letter+'+') ], \
    },
+   #   {sentence_ending_punct} + {only_sentence_ending_punct}
+   { 'comment'  : '{sentence_ending_punct} + {only_sentence_ending_punct}', \
+     'example'  : '"arvati , et veel sellel aastal j6uab kohale ; yess !" + "!" + "!"', \
+     'fix_type' : 'ending_punct', \
+     'regexes'  : [re.compile('.+[?!.…]\s*$', re.DOTALL), ending_punct_regexp ], \
+   },
+   #   {sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}
+   { 'comment'  : '{sentence_ending_punct} + {ending_quotes} {only_sentence_ending_punct}', \
+     'example'  : '\'\nNii ilus ! \' + \'" .\' + \'\nNõmmel elav pensioniealine Maret\'', \
+     'fix_type' : 'ending_punct', \
+     'regexes'  : [re.compile('.+[?!.…]\s*$', re.DOTALL), re.compile('^['+ending_quotes+']\s*[?!.…]+$') ], \
+   },
+   { 'comment'  : '{sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}', \
+     'example'  : '\'\nNii ilus ! " \' + \' . \nNõmmel elav pensioniealine Maret\'', \
+     'fix_type' : 'ending_punct', \
+     'regexes'  : [re.compile('.+[?!.…]\s*['+ending_quotes+']$', re.DOTALL), ending_punct_regexp ], \
+   },
 ]
 
 
 class SentenceTokenizer(Tagger):
-    description = 'Tags adjacent words that form a sentence.'
-    layer_name = 'sentences'
-    attributes = ()
-    depends_on = ['compound_tokens', 'words']
+    description   = 'Groups words into sentences, and applies sentence tokenization post-corrections, if required.'
+    layer_name    = 'sentences'
+    attributes    = ()
+    depends_on    = ['compound_tokens', 'words']
     configuration = {}
-
-    # use NLTK-s sentence tokenizer for Estonian, in case it is not downloaded, try to download it first
     sentence_tokenizer = None
+    merge_rules   = []
+    
+    def __init__(self, 
+                 fix_compound_tokens:bool = True,
+                 fix_numeric:bool = True,
+                 fix_parentheses:bool = True,
+                 fix_double_quotes:bool = True,
+                 fix_ending_punct:bool = True,
+                 fix_repeated_ending_punct:bool = True,
+                 use_emoticons_as_endings:bool = True,
+                 ):
+        # 0) Record configuration
+        self.configuration = {'fix_compound_tokens': fix_compound_tokens,
+                              'fix_numeric': fix_numeric,
+                              'fix_parentheses': fix_parentheses,
+                              'fix_double_quotes': fix_double_quotes,
+                              'fix_ending_punct':fix_ending_punct,
+                              'fix_repeated_ending_punct':fix_repeated_ending_punct,
+                              'use_emoticons_as_endings':use_emoticons_as_endings,}
+        # 1) Initialize NLTK's tokenizer
+        # use NLTK-s sentence tokenizer for Estonian, in case it is not downloaded, try to download it first
+        import nltk as nltk
+        try:
+            self.sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+        except LookupError:
+            import nltk.downloader
+            nltk.downloader.download('punkt')
+        finally:
+            if self.sentence_tokenizer is None:
+                self.sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+        # 2) Filter rules according to the given configuration
+        for merge_pattern in merge_patterns:
+            if fix_numeric and merge_pattern['fix_type'].startswith('numeric'):
+                self.merge_rules.append( merge_pattern )
+            if fix_parentheses and merge_pattern['fix_type'].startswith('parentheses'):
+                self.merge_rules.append( merge_pattern )
+            if fix_double_quotes and merge_pattern['fix_type'].startswith('double_quotes'):
+                self.merge_rules.append( merge_pattern )
+            if fix_ending_punct and merge_pattern['fix_type'].startswith('ending_punct'):
+                self.merge_rules.append( merge_pattern )
 
-    try:
-        sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
-    except LookupError:
-        import nltk.downloader
-        nltk.downloader.download('punkt')
-    finally:
-        if sentence_tokenizer is None:
-            sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
 
     def _tokenize_text(self, text: 'Text') -> Iterator[Tuple[int, int]]:
         ''' Tokenizes into sentences based on the input text. '''
@@ -179,7 +261,7 @@ class SentenceTokenizer(Tagger):
     def _sentences_from_tokens(self, text: 'Text') -> Iterator[Tuple[int, int]]:
         ''' Tokenizes into sentences based on the word tokens of the input text. '''
         words = list(text.words)
-        word_texts = [text.text[word.start:word.end] for word in words]
+        word_texts = text.words.text
         i = 0
         for sentence_words in self.sentence_tokenizer.sentences_from_tokens(word_texts):
             if sentence_words:
@@ -188,37 +270,92 @@ class SentenceTokenizer(Tagger):
                 yield (words[first_token].start, words[last_token].end)
                 i += len(sentence_words)
 
-    def tag(self, text:'Text', return_layer:bool=False, fix:bool=True,
-                  record_fix_types:bool=False) -> 'Text':
+    def tag(self, text:'Text', return_layer:bool=False,
+                               record_fix_types:bool=False) -> 'Text':
         #sentence_ends = {end for _, end in self._tokenize_text(text)}
         sentence_ends = {end for _, end in self._sentences_from_tokens(text)}
-        if fix:
-            # A) Remove sentence endings that coincide with 
-            #    endings of non_ending_abbreviation's
+        # A) Remove sentence endings that:
+        #   A.1) coincide with endings of non_ending_abbreviation's
+        #   A.2) fall in the middle of compound tokens
+        if self.configuration['fix_compound_tokens']:
             for ct in text.compound_tokens:
                 if 'non_ending_abbreviation' in ct.type:
                     sentence_ends -= {span.end for span in ct}
                 else:
                     sentence_ends -= {span.end for span in ct[0:-1]}
-        # B) Align sentence endings with word startings and endings
+        # B) Use repeated/prolonged sentence punctuation as sentence endings
+        if self.configuration['fix_repeated_ending_punct']:
+            repeated_ending_punct = []
+            for wid, word in enumerate(text.words):
+                # Collect prolonged punctuation
+                if ending_punct_regexp.match( word.text ):
+                    repeated_ending_punct.append( word.text )
+                elif repeated_ending_punct:
+                    repeated_ending_punct = []
+                # Check that the punctuation has some length
+                if (len(repeated_ending_punct) > 1) or \
+                   (len(repeated_ending_punct) == 1 and \
+                    (repeated_ending_punct[0] == '…' or \
+                    len(repeated_ending_punct[0]) > 1)):
+                    # Check if the next word is titlecased
+                    if wid+1 < len(text.words):
+                        next_word = text.words[wid+1].text
+                        if len(next_word) > 1 and \
+                           next_word[0].isupper() and \
+                           next_word[1].islower():
+                            # we have a likely sentence boundary:
+                            # add it to the set of sentence ends
+                            sentence_ends.add( word.end )
+        # C) Use emoticons as sentence endings
+        if self.configuration['use_emoticons_as_endings']:
+            # C.1) Collect all emoticons (record start locations)
+            emoticon_locations = {}
+            for ct in text.compound_tokens:
+                if 'emoticon' in ct.type:
+                    emoticon_locations[ct.start] = ct
+            # C.2) Iterate over words and check emoticons
+            repeated_emoticons = []
+            for wid, word in enumerate( text.words ):
+                if word.start in emoticon_locations:
+                    repeated_emoticons.append( emoticon_locations[word.start] )
+                else:
+                    repeated_emoticons = []
+                # Check that there is an emoticon (or even few of them)
+                if len(repeated_emoticons) > 0:
+                    # Check if the next word is not emoticon, and is titlecased
+                    if wid+1 < len(text.words):
+                        next_word = text.words[wid+1].text
+                        if text.words[wid+1].start not in emoticon_locations and \
+                           len(next_word) > 1 and \
+                           next_word[0].isupper() and \
+                           next_word[1].islower():
+                            # we have a likely sentence boundary:
+                            # add it to the set of sentence ends
+                            sentence_ends.add( word.end )
+                            # Check if word before emoticons is already a sentence
+                            # ending; if so, remove it's ending (assuming that 
+                            # emoticons belong to the previous sentence)
+                            if wid - len(repeated_emoticons) > -1:
+                                prev_word = text.words[wid-len(repeated_emoticons)]
+                                sentence_ends -= { prev_word.end }
+        # D) Align sentence endings with word startings and endings
         #    Collect span lists of potential sentences
         start = 0
-        sentence_ends.add(text.words[-1].end)
+        if len(text.words) > 0:
+            sentence_ends.add( text.words[-1].end )
         sentences_list = []
         for i, token in enumerate(text.words):
             if token.end in sentence_ends:
                 sentences_list.append( text.words[start:i+1] )
                 start = i + 1
-        # C) Apply postcorrection fixes to sentence spans
-        if fix:
-            #
-            # C.1) Try to merge mistakenly split sentences
-            #
+        # E) Apply postcorrection fixes to sentence spans
+        # E.1) Try to merge mistakenly split sentences
+        if self.merge_rules:
             sentences_list = \
                 self._merge_mistakenly_split_sentences(text,\
                     sentences_list, record_fix_types = record_fix_types)
         
-        # D) Create the layer and attach sentences
+        # F) Create the layer and attach sentences
         layer_attributes=self.attributes
         if record_fix_types and 'fix_types' not in layer_attributes:
             layer_attributes += ('fix_types',)
@@ -237,7 +374,7 @@ class SentenceTokenizer(Tagger):
     def _merge_mistakenly_split_sentences(self, text:'Text', sentences_list:list, \
                                                 record_fix_types:bool=True):
         ''' 
-            Uses regular expression patterns (defined  in  merge_patterns) to 
+            Uses regular expression patterns (defined in self.merge_rules) to 
             discover adjacent sentences (in sentences_list) that should actually 
             form a single sentence. Merges those adjacent sentences.
             
@@ -267,7 +404,7 @@ class SentenceTokenizer(Tagger):
                     text.text[last_sentence_spl.start:last_sentence_spl.end].rstrip()
                 # Check if the adjacent sentences should be joined / merged according 
                 # to one of the patterns ...
-                for pattern in merge_patterns:
+                for pattern in self.merge_rules:
                     [beginPat, endPat] = pattern['regexes']
                     if beginPat.match(prev_sent) and endPat.match(this_sent):
                         mergeSpanLists = True
