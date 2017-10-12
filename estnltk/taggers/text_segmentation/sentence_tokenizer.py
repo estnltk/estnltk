@@ -35,7 +35,12 @@ merge_patterns = [ \
    { 'comment'  : '{Numeric_year} {period} {|a|} + {lowercase_or_number}', \
      'example'  : '"Luunja sai vallaõigused 1991.a." + " kevadel."', \
      'fix_type' : 'numeric_year', \
-     'regexes'  : [re.compile('(.+)?([0-9]{3,4})\s*\.\s*(õ\s*\.)?a\.?$', re.DOTALL), re.compile('^('+lc_letter+'|[0-9])+')], \
+     'regexes'  : [re.compile('(.+)?([0-9]{3,4})\s*\.\s*a\.?$', re.DOTALL), re.compile('^('+lc_letter+'|[0-9])+')], \
+   },
+   { 'comment'  : '{Numeric_year} {period} {|a|} + {lowercase_or_number}', \
+     'example'  : '"1946/47 õ.a." + "oli koolis 87 õpilast."', \
+     'fix_type' : 'numeric_year', \
+     'regexes'  : [re.compile('(^|.+)([0-9]{4}\s*\.?|/\s*[0-9]{2})\s*õ\s*\.?\s*a\.?$', re.DOTALL), re.compile('^('+lc_letter+'|[0-9])+')], \
    },
    #   {Numeric_year} {period} + {|a|} {lowercase_or_number}
    { 'comment'  : '{Numeric_year} {period} + {|a|} {lowercase_or_number}', \

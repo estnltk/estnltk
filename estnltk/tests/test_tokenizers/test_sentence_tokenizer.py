@@ -30,6 +30,8 @@ def test_merge_mistakenly_split_sentences_1():
           'expected_sentence_texts': ['Uuringu esialgsed tulemused muutuvad kättesaadavaks 2002.a. maikuus.'] }, \
         { 'text': '1930.õ.a. õppis koolis 61 õpilast. 1937.õ.a. otsustati lõputunnistus välja anda 8 lõpetajale.', \
           'expected_sentence_texts': ["1930.õ.a. õppis koolis 61 õpilast.", '1937.õ.a. otsustati lõputunnistus välja anda 8 lõpetajale.'] }, \
+        { 'text': '1946/47 õ.a. oli koolis 87 õpilast, neist 50 tütarlast.', \
+          'expected_sentence_texts': ['1946/47 õ.a. oli koolis 87 õpilast, neist 50 tütarlast.'] }, \
 
         #   Merge case:   {Date_with_year} {period} + {time}
         { 'text': 'Gert 02.03.2009. 14:40 Tahaks kindlalt sinna kooli:P', \
