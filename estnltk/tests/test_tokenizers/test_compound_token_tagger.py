@@ -153,6 +153,8 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Aga', 'hädas', 'oli', 'juba', 'Vana-Hiina', 'suurim', 'ajaloolane', 'Sima', 'Qian', '(', 'II', '—', 'I', 'saj.', 'e. m. a.', ')', '.'] }, \
             { 'text' : 'Kurla kool liideti hiljem siiski (1936.a.)', \
               'expected_words': ['Kurla', 'kool', 'liideti', 'hiljem', 'siiski', '(', '1936.', 'a.', ')'] }, \
+            { 'text' : '1946/47 õ.a. oli koolis 87 õpilast, neist 50 tütarlast.', \
+              'expected_words': ['1946', '/', '47', 'õ.a.', 'oli', 'koolis', '87', 'õpilast', ',', 'neist', '50', 'tütarlast', '.'] }, \
             { 'text' : '(tiirlemisperioodid suhtuvad kui väikesed täisarvud, nt 1:2, 1:3, 3:4 jne - toim.).', \
               'expected_words': ['(', 'tiirlemisperioodid', 'suhtuvad', 'kui', 'väikesed', 'täisarvud', ',', 'nt', '1', ':', '2', ',', '1', ':', '3', ',', '3', ':', '4', 'jne', '-', 'toim.', ')', '.'] }, \
             { 'text' : '2007 a.- 2010 a. koolitusteemade seas olid: maksud, töösuhted, efektiivsed kommunikatsioonitehnikad.', \
@@ -187,6 +189,9 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Budistlikud', 'keskused', '(', 's.h.', 'Khordongi', 'Ühing', 'Eestis', 'jt', '.', ')', 'on', 'tõlkinud', 'ka', 'otse', 'algkeeltest', '.'] },\
             { 'text' : 'Tuulepargi kavandatav koguvõimsus on u. 700 MW.',\
               'expected_words': ['Tuulepargi', 'kavandatav', 'koguvõimsus', 'on', 'u.', '700', 'MW', '.'] },\
+            # Negative patterns: no abbreviation:
+            { 'text' : 'Pööra end seljatoe poole, vaata üle parema õla.',\
+              'expected_words': ['Pööra', 'end', 'seljatoe', 'poole', ',', 'vaata', 'üle', 'parema', 'õla', '.'] },\
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )
