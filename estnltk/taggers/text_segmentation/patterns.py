@@ -63,8 +63,8 @@ MACROS = {
                                'e\s?\.\s?Kr|'+\
                                'p\s?\.\s?Kr|'+\
                                'A\s?\.\s?D|'+\
-                               'saj|'+\
                                'õ\s?\.\s?a|'+\
+                               'saj|'+\
                                '[Jj]r|'+\
                                'a'+\
                               ')',
@@ -399,7 +399,7 @@ abbreviations_before_initials_patterns = [
       'example': 'P.S.',
       'pattern_type': 'non_ending_abbreviation',
       '_regex_pattern_': re.compile(r'''
-                        ((P\s?.\s?P\s?.\s?S|P\s?.\s?S)      # non-ending abbreviation
+                        ((P\s?\.\s?P\s?\.\s?S|P\s?\.\s?S)   # non-ending abbreviation
                          \s?\.)                             # period
                         '''.format(**MACROS), re.X),
       '_group_': 1,
@@ -410,7 +410,7 @@ abbreviations_before_initials_patterns = [
       'example': 'P.S',
       'pattern_type': 'non_ending_abbreviation', 
       '_regex_pattern_': re.compile(r'''
-                        (P\s?.\s?P\s?.\s?S|P\s?.\s?S)       # non-ending abbreviation
+                        (P\s?\.\s?P\s?\.\s?S|P\s?\.\s?S)    # non-ending abbreviation
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (4, 0, 0, 2),
@@ -555,7 +555,7 @@ case_endings_patterns = [
                         [.%"]?                                                           # possible punctuation
                         (\s[\-\'′’´]|                                                    # left space + separator character
                          [\-\'′’´]\s|                                                    # right space + separator character
-                         [\-\'′’´])                                                      # separator character alone
+                         [\-\'′’´`])                                                     # separator character alone
                         (isse|li[sn]e|list|                                              # case ending
                          iks|ile|ilt|iga|ist|sse|ide|ina|ini|ita|                        # case ending
                          il|it|le|lt|ga|st|is|ni|na|id|ed|ta|te|ks|se|ne|es|             # case ending
@@ -573,7 +573,7 @@ case_endings_patterns = [
       '_regex_pattern_': re.compile(r'''
                         ([{ALPHANUM}]                                                    # word or number
                         [.%"]?                                                           # possible punctuation
-                        (\s[\'′’´]\s)                                                    # non-dash between spaces as separator character
+                        (\s[\'′’´`]\s)                                                   # non-dash between spaces as separator character
                         (isse|li[sn]e|list|                                              # case ending
                          iks|ile|ilt|iga|ist|sse|ide|ina|ini|ita|                        # case ending
                          il|it|le|lt|ga|st|is|ni|na|id|ed|ta|te|ks|se|ne|es|             # case ending
