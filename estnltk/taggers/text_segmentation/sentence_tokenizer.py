@@ -35,7 +35,7 @@ merge_patterns = [ \
    { 'comment'  : '{Numeric_year} {period} {|a|} + {lowercase_or_number}', \
      'example'  : '"Luunja sai vallaõigused 1991.a." + " kevadel."', \
      'fix_type' : 'numeric_year', \
-     'regexes'  : [re.compile('(.+)?([0-9]{3,4})\s*\.\s*a\.?$', re.DOTALL), re.compile('^('+lc_letter+'|[0-9])+')], \
+     'regexes'  : [re.compile('(.+)?([0-9]{3,4})\s*\.\s*a\s*\.?$', re.DOTALL), re.compile('^('+lc_letter+'|[0-9])+')], \
    },
    { 'comment'  : '{Numeric_year} {period} {|a|} + {lowercase_or_number}', \
      'example'  : '"1946/47 õ.a." + "oli koolis 87 õpilast."', \
@@ -207,6 +207,12 @@ merge_patterns = [ \
      'fix_type' : 'ending_punct', \
      'regexes'  : [re.compile('.+[?!.…]\s*['+ending_quotes+']$', re.DOTALL), ending_punct_regexp ], \
    },
+   #   {abbreviation} {period} + {comma_or_semicolon}
+   { 'comment'  : '{abbreviation} {period} + {comma_or_semicolon}', \
+     'example'  : "(Ribas jt.' + ', 1995; Gebel jt.' + ', 1997; Kaya jt.' + ', 2004)", \
+     'fix_type' : 'ending_punct', \
+     'regexes'  : [re.compile('.+\s[a-zöäüõ\-.]+[.]\s*$', re.DOTALL), re.compile('^([,;]).*') ], \
+   },
 ]
 
 
@@ -311,6 +317,13 @@ class SentenceTokenizer(Tagger):
                             # we have a likely sentence boundary:
                             # add it to the set of sentence ends
                             sentence_ends.add( word.end )
+                            # Check if the token before punctuation is '[', 
+                            # '(' or '"'; If so, then discard the sentence 
+                            # ending ...
+                            if wid - len(repeated_ending_punct) > -1:
+                                prev_word = text.words[wid-len(repeated_ending_punct)]
+                                if prev_word.text in ['[', '(', '"']:
+                                    sentence_ends -= { word.end }
         # C) Use emoticons as sentence endings
         if self.configuration['use_emoticons_as_endings']:
             # C.1) Collect all emoticons (record start locations)

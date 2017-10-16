@@ -32,6 +32,8 @@ def test_merge_mistakenly_split_sentences_1():
           'expected_sentence_texts': ["1930.õ.a. õppis koolis 61 õpilast.", '1937.õ.a. otsustati lõputunnistus välja anda 8 lõpetajale.'] }, \
         { 'text': '1946/47 õ.a. oli koolis 87 õpilast, neist 50 tütarlast.', \
           'expected_sentence_texts': ['1946/47 õ.a. oli koolis 87 õpilast, neist 50 tütarlast.'] }, \
+        { 'text': 'Kui 1996 . a . tabati 7047 sellealast LE rikkumist , siis eelmisel aastal oli see arv 675 .', \
+          'expected_sentence_texts': ['Kui 1996 . a . tabati 7047 sellealast LE rikkumist , siis eelmisel aastal oli see arv 675 .'] }, \
 
         #   Merge case:   {Date_with_year} {period} + {time}
         { 'text': 'Gert 02.03.2009. 14:40 Tahaks kindlalt sinna kooli:P', \
@@ -354,7 +356,11 @@ def test_merge_mistakenly_separated_sentence_ending_punctuation():
           'expected_sentence_texts': ['" Kuidas saada miljonäriks ? " .', 'Selge see , et miljonimängus peavad olema kõige raskemad küsimused .'] }, \
         { 'text': '" Ega siin ei maksa tooste oodata , hakkama aga kohe võtma ! " . \nMa ei taha seda ärajäänud kohtumist presidendi kaela ajada .', \
           'expected_sentence_texts': ['" Ega siin ei maksa tooste oodata , hakkama aga kohe võtma ! " .', 'Ma ei taha seda ärajäänud kohtumist presidendi kaela ajada .'] }, \
-          
+       
+        #   Merge case:   {abbreviation} {period} + {comma_or_semicolon}
+        { 'text': 'Mitmete uuringutega on leitud, et Trifluralin võib olla genotoksiline (Ribas jt., 1995; Gebel jt., 1997; Kaya jt., 2004) ning mõjutada paljunemis- ja ainevahetushormoone (Rawlings jt., 1998).', \
+          'expected_sentence_texts': ['Mitmete uuringutega on leitud, et Trifluralin võib olla genotoksiline (Ribas jt., 1995; Gebel jt., 1997; Kaya jt., 2004) ning mõjutada paljunemis- ja ainevahetushormoone (Rawlings jt., 1998).'] }, \
+
         #  NB! Problematic stuff:
         { 'text': 'Ja kui süda pole puhas... ??? ??? ??? aiai.', \
           'expected_sentence_texts': ['Ja kui süda pole puhas... ??? ??? ??? aiai.'] }, \
@@ -472,6 +478,13 @@ def test_fix_repeated_sentence_ending_punctuation():
         { 'text': 'Ja ikka ei usu!!!!?????? Äi usu!', \
           'expected_sentence_texts': ['Ja ikka ei usu!!!!??????', \
                                       'Äi usu!'] }, \
+        # Negative examples: repeated punctuation preceded by [, ( or " should not end the sentence
+        { 'text': 'Siirad tänusõnad külastajatele ja [ ... ]', \
+          'expected_sentence_texts': ['Siirad tänusõnad külastajatele ja [ ... ]'] }, \
+        { 'text': 'Mind natuke häirib see , kuidas lugupeetud autor toob sisse fraasi - " ... kas see oleks valijate tahe ? "', \
+          'expected_sentence_texts': ['Mind natuke häirib see , kuidas lugupeetud autor toob sisse fraasi - " ... kas see oleks valijate tahe ? "'] }, \
+        { 'text': 'Tõtt öelda olin valmis kriitikaks nende pidevalt korduvate " ...eel " lõppude suhtes , aga huvitav - keegi pole nurisenud .', \
+          'expected_sentence_texts': ['Tõtt öelda olin valmis kriitikaks nende pidevalt korduvate " ...eel " lõppude suhtes , aga huvitav - keegi pole nurisenud .'] }, \
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
