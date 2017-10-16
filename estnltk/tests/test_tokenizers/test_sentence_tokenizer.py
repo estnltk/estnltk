@@ -202,10 +202,12 @@ def test_merge_mistakenly_split_sentences_2():
           'expected_sentence_texts': ['Neenetsi rahvusringkonnas ( kõlab juba ise sürrealistlikult ! ) .', 'Vähem kummaline polnud tema tegevus Küsimuste ja Vastuste toimetajana .'] }, \
           
         #   Merge-and-split case:   {parentheses_start} {content_in_parentheses} + {parentheses_end}<end> + {uppercase}
-        { 'text': '( Naerab . )\nEriti siis , kui sõidan mootorratta või jalgrattaga .', \
-          'expected_sentence_texts': ['( Naerab . )', 'Eriti siis , kui sõidan mootorratta või jalgrattaga .'] }, \
+        { 'text': '(Hm!)\nJa kui lugesid,siis käidi laulmas täiesti stiihiliselt.', \
+          'expected_sentence_texts': ['(Hm!)', 'Ja kui lugesid,siis käidi laulmas täiesti stiihiliselt.'] }, \
         { 'text': '(Kihnu keeli – massakas.) Ütleme, et järvetuulte poolt pargitud.', \
           'expected_sentence_texts': ['(Kihnu keeli – massakas.)', 'Ütleme, et järvetuulte poolt pargitud.'] }, \
+        { 'text': '( Naerab . )\nEriti siis , kui sõidan mootorratta või jalgrattaga .', \
+          'expected_sentence_texts': ['( Naerab . )', 'Eriti siis , kui sõidan mootorratta või jalgrattaga .'] }, \
         { 'text': '(Arvatagu ära, mida see tähendab!)\nEetrihäälte kõne on reostatud nugisõnadega .', \
           'expected_sentence_texts': ['(Arvatagu ära, mida see tähendab!)', 'Eetrihäälte kõne on reostatud nugisõnadega .'] }, \
         { 'text': '( Muigab laialt . )\nTegelikult muidugi püüan kogu nädalalõpu võistlusele keskenduda ja lasen end lõdvaks alles pühapäeva õhtul , kui koju jõuan .', \
@@ -267,6 +269,18 @@ def test_merge_mistakenly_split_sentences_3():
         { 'text': 'Kuid " Trainspottingus " pole tegemist individualistliku protestiga .\n" Train-spotting " on generatsioonifilm , kollektiivne protest .', \
           'expected_sentence_texts': ['Kuid " Trainspottingus " pole tegemist individualistliku protestiga .', '" Train-spotting " on generatsioonifilm , kollektiivne protest .'] }, \
 
+        #   Merge-and-split: {ending_punctuation} + {ending_quotes}<end> + {starting_quotes}
+        { 'text': '« Ei kedagi . »\n\n« Peate midagi ümber korraldama ka oma elus ? » pärib Merle .', \
+          'expected_sentence_texts': ['« Ei kedagi . »', '« Peate midagi ümber korraldama ka oma elus ? » pärib Merle .'] }, \
+        { 'text': '« Tõsiselt , jah ?\nVäga tore ! »\n\n« Mis siin ikka ! » tähendab vanahärra ükskõikselt .', \
+          'expected_sentence_texts': ['« Tõsiselt , jah ?', 'Väga tore ! »', '« Mis siin ikka ! » tähendab vanahärra ükskõikselt .'] }, \
+        { 'text': '"Imelik! Kas siis selle peale võib solvuda?" "Noh, ta ei armasta, kui keegi tema prilliklaasidele hingab."', \
+          'expected_sentence_texts': ['"Imelik!', 'Kas siis selle peale võib solvuda?"', '"Noh, ta ei armasta, kui keegi tema prilliklaasidele hingab."'] }, \
+        { 'text': '« Meeste lihas on tühjem , aga võtab taastamistegevust vastu paremini kui varem . »\n\n« Meie treeningutel on üks uus peateema ! » elavneb Alaver .', \
+          'expected_sentence_texts': ['« Meeste lihas on tühjem , aga võtab taastamistegevust vastu paremini kui varem . »', '« Meie treeningutel on üks uus peateema ! » elavneb Alaver .'] }, \
+        { 'text': '"Kuulge, et pidite mu pojal opereerima ainult mandlid, aga nüüd olete ka purihambad välja tõmmanud!" "Nojah, me panime ta eksikombel liiga kauaks magama ja ei tahtnud lasta aega kaotsi minna."', \
+          'expected_sentence_texts': ['"Kuulge, et pidite mu pojal opereerima ainult mandlid, aga nüüd olete ka purihambad välja tõmmanud!"', '"Nojah, me panime ta eksikombel liiga kauaks magama ja ei tahtnud lasta aega kaotsi minna."'] }, \
+          
         #   TODO: The following case is problematic, needs to be fixed later:
         { 'text': 'Kertu küsib : “ Miks sa naeratad kogu aeg ? ”\nMaailm on nii ilus .', \
           'expected_sentence_texts': ['Kertu küsib : “ Miks sa naeratad kogu aeg ?', '”\nMaailm on nii ilus .'] }, \

@@ -142,10 +142,10 @@ merge_patterns = [ \
    },
    #   {parentheses_start} {content_in_parentheses} + {parentheses_end}<end> + {uppercase}
    { 'comment'   : '{parentheses_start} {content_in_parentheses} + {parentheses_end}', \
-     'example'   : '( " Easy FM , soft hits ! "\' + \') .', \
+     'example'   : "'( Naerab . ' + ')\nEriti siis , kui sõidan mootorratta või jalgrattaga .'", \
      'fix_type'  : 'parentheses', \
      'regexes'   : [re.compile('.*[.!?]\s*$', re.DOTALL), re.compile('^(?P<end>\))(\s|\n)*[A-ZÖÄÜÕŠŽ].*') ], \
-     'shift_end' : True,   # sentence end needs to be shifted after string captured by the pattern <end>
+     'shift_end' : True,   # sentence end needs to be shifted to the string captured by the pattern <end>
    },
    #   {parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}
    { 'comment'  : '{parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}', \
@@ -186,6 +186,13 @@ merge_patterns = [ \
      'example'  : '"« See amet on nii raske !" + "»"', \
      'fix_type' : 'double_quotes', \
      'regexes'  : [re.compile('.+?[?!.…]$', re.DOTALL), re.compile('^['+ending_quotes+']$') ], \
+   },
+   #   {ending_punctuation} + {ending_quotes}<end> + {starting_quotes}
+   { 'comment'   : '{ending_punctuation} + {ending_quotes}<end> + {starting_quotes}', \
+     'example'   : "'« Väga tore !' + '»\n\n« Mis siin ikka ! »'", \
+     'fix_type'  : 'double_quotes', \
+     'regexes'   : [re.compile('.*[.!?]\s*$', re.DOTALL), re.compile('^(?P<end>['+ending_quotes+'])(\s|\n)*['+start_quotes+'].*') ], \
+     'shift_end' : True,   # sentence end needs to be shifted to the string captured by the pattern <end>
    },
 
    # ***********************************
