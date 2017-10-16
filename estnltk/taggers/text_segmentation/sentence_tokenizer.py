@@ -140,6 +140,13 @@ merge_patterns = [ \
      'fix_type' : 'parentheses', \
      'regexes'  : [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[^()A-ZÖÄÜÕŠŽ]*\)(\s|\n)*[^A-ZÖÄÜÕŠŽ \n].*') ], \
    },
+   #   {parentheses_start} {content_in_parentheses} + {parentheses_end}<end> + {uppercase}
+   { 'comment'   : '{parentheses_start} {content_in_parentheses} + {parentheses_end}', \
+     'example'   : '( " Easy FM , soft hits ! "\' + \') .', \
+     'fix_type'  : 'parentheses', \
+     'regexes'   : [re.compile('.*[.!?]\s*$', re.DOTALL), re.compile('^(?P<end>\))(\s|\n)*[A-ZÖÄÜÕŠŽ].*') ], \
+     'shift_end' : True,   # sentence end needs to be shifted after string captured by the pattern <end>
+   },
    #   {parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}
    { 'comment'  : '{parentheses_start} {content_in_parentheses} + {lowercase_or_comma} {content_in_parentheses} {parentheses_end}', \
      'example'  : '"(loe: ta läheb sügisel 11." + " klassi!)"', \
@@ -410,8 +417,9 @@ class SentenceTokenizer(Tagger):
             # get text of the current sentence
             this_sent = \
                 text.text[sentence_spl.start:sentence_spl.end].lstrip()
-            mergeSpanLists = False
             fixTypes = []
+            shiftEnding = None
+            mergeSpanLists = False
             if sid-1 > -1:
                 # get text of the previous sentence
                 if not new_sentences_list:
@@ -427,30 +435,64 @@ class SentenceTokenizer(Tagger):
                     if endPat.match(this_sent) and beginPat.match(prev_sent):
                         mergeSpanLists = True
                         fixTypes.append(pattern['fix_type'])
+                        # Check if ending also needs to be shifted
+                        if 'shift_end' in pattern:
+                            # Find new sentence ending position and validate it
+                            shiftEnding = self._find_new_sentence_ending(text, \
+                                          pattern, sentence_spl, last_sentence_spl )
                         break
             if mergeSpanLists:
-                # Perform the merging
-                merged_spanlist = SpanList()
-                if record_fix_types:
-                    merged_spanlist.fix_types = fixTypes
-                if not new_sentences_list:
-                    # No sentence has been added so far: add a new one
-                    merged_spanlist.spans = \
-                        last_sentence_spl.spans+sentence_spl.spans
-                    new_sentences_list.append( merged_spanlist )
-                else: 
-                    # At least one sentence has already been added: 
-                    # extend the last sentence
-                    merged_spanlist.spans = \
-                        new_sentences_list[-1].spans+sentence_spl.spans
+                # -------------------------------------------
+                #   1) Split-and-merge: First merge two sentences, then split at some 
+                #      location (inside one of the old sentences)
+                # -------------------------------------------
+                if shiftEnding:
+                    prev_sent_spl = \
+                        new_sentences_list[-1] if new_sentences_list else last_sentence_spl
+                    merge_split_result = self._perform_merge_split( text, \
+                                            shiftEnding, sentence_spl, prev_sent_spl, \
+                                            fixTypes, record_fix_types )
+                    if merge_split_result != None:
+                        if new_sentences_list:
+                            new_sentences_list[-1] = merge_split_result[0]
+                            new_sentences_list.append ( merge_split_result[1] )
+                        else:
+                            new_sentences_list.append ( merge_split_result[0] )
+                            new_sentences_list.append ( merge_split_result[1] )
+                    else:
+                        # if merge-and-split failed, then discard the rule
+                        # (sentences will remain split as they were)
+                        new_spanlist = SpanList()
+                        if record_fix_types:
+                            new_spanlist.fix_types = []
+                        new_spanlist.spans = sentence_spl.spans
+                        new_sentences_list.append( new_spanlist )
+                else:
+                    # -------------------------------------------
+                    #   2) Merge only: join two consecutive sentences into one
+                    # -------------------------------------------
+                    # Perform the merging
+                    merged_spanlist = SpanList()
                     if record_fix_types:
-                        if hasattr(new_sentences_list[-1], 'fix_types'):
-                            merged_spanlist.fix_types = \
-                                merged_spanlist.fix_types + \
-                                new_sentences_list[-1].fix_types
-                    new_sentences_list[-1] = merged_spanlist
-                #print('>>1',prev_sent)
-                #print('>>2',this_sent)
+                        merged_spanlist.fix_types = fixTypes
+                    if not new_sentences_list:
+                        # No sentence has been added so far: add a new one
+                        merged_spanlist.spans = \
+                            last_sentence_spl.spans+sentence_spl.spans
+                        new_sentences_list.append( merged_spanlist )
+                    else: 
+                        # At least one sentence has already been added: 
+                        # extend the last sentence
+                        merged_spanlist.spans = \
+                            new_sentences_list[-1].spans+sentence_spl.spans
+                        if record_fix_types:
+                            if hasattr(new_sentences_list[-1], 'fix_types'):
+                                merged_spanlist.fix_types = \
+                                    merged_spanlist.fix_types + \
+                                    new_sentences_list[-1].fix_types
+                        new_sentences_list[-1] = merged_spanlist
+                    #print('>>1',prev_sent)
+                    #print('>>2',this_sent)
             else:
                 # Add sentence without merging
                 new_spanlist = SpanList()
@@ -461,3 +503,137 @@ class SentenceTokenizer(Tagger):
                 #print('>>0',this_sent)
         sentences_list = new_sentences_list
         return sentences_list
+
+
+
+    def _find_new_sentence_ending(self, text:'Text', merge_split_pattern:dict, \
+                                        this_sent:SpanList, \
+                                        prev_sent:SpanList):
+        ''' Finds the position where sentence ending should be shifted while 
+            attempting to merge and re-split consecutive sentences prev_sent
+            and this_sent. Returns the new ending position if it passes the 
+            validation.
+            
+            More specifically: returns a span of the new sentence ending token, 
+            in which the last element should be the new sentence ending position.
+            
+            Returns None, if:
+             *) the ending group (<end>) was not marked in any of the regular 
+                expressions in merge_split_pattern['regexes'];
+             *) the ending group was not captured from the corresponding sentences
+                (this_sent or prev_sent), or fell out of the corresponding 
+                sentences;
+             *) the new ending of the sentence did not match a word ending in 
+                the corresponding sentence;
+        '''
+        # Check if ending needs to be shifted
+        if 'shift_end' in merge_split_pattern and \
+           merge_split_pattern['shift_end']:
+            [beginPat, endPat] = merge_split_pattern['regexes']
+            if '?P<end>' in endPat.pattern:
+                # extract ending from the current sentence
+                this_sent_str = \
+                    text.text[this_sent.start:this_sent.end].lstrip()
+                m = endPat.match(this_sent_str)
+                if m and m.span('end') != (-1, -1):
+                    end_span = m.span('end')
+                    # span's position in the text
+                    start_in_text = this_sent.start + end_span[0]
+                    end_in_text   = this_sent.start + end_span[1]
+                    # 1) validate that it does not fall out of the sentence
+                    if start_in_text > this_sent.end or \
+                       end_in_text > this_sent.end:
+                        return None
+                    # 2) validate that end_in_text overlaps with a word ending
+                    matches_word_ending = False
+                    for span in this_sent.spans:
+                        if span.end == end_in_text:
+                            matches_word_ending = True
+                        if span.end > end_in_text:
+                            break
+                    # If all validations have been passed, return ending's span
+                    if matches_word_ending:
+                        return ( start_in_text, end_in_text )
+            if '?P<end>' in beginPat.pattern:
+                # extract ending from the previous sentence
+                prev_sent_str = \
+                    text.text[prev_sent.start:prev_sent.end].lstrip()
+                m = beginPat.match(prev_sent_str)
+                if m and m.span('end') != (-1, -1):
+                    end_span = m.span('end')
+                    # span's position in the text
+                    start_in_text = prev_sent.start + end_span[0]
+                    end_in_text   = prev_sent.start + end_span[1]
+                    # 1) validate that it does not fall out of the sentence
+                    if start_in_text > prev_sent.end or \
+                       end_in_text > prev_sent.end:
+                        return None
+                    # 2) validate that end_in_text overlaps with a word ending
+                    matches_word_ending = False
+                    for span in prev_sent.spans:
+                        if span.end == end_in_text:
+                            matches_word_ending = True
+                        if span.end > end_in_text:
+                            break
+                    # If all validations have been passed, return ending's span
+                    if matches_word_ending:
+                        return ( start_in_text, end_in_text )
+        # The new sentence ending was either not found, or did not pass 
+        # the validation
+        return None 
+
+
+    def _perform_merge_split(self, text:'Text', end_span:tuple, \
+                                   this_sent:SpanList, prev_sent:SpanList, \
+                                   fix_types:list, record_fix_types:bool = True ):
+        ''' Performs merge-split operation: 1) consecutive sentences prev_sent
+            and this_sent will be joined into one sentence, 2) the new joined 
+            sentence will be split (into two sentences) at the position end_span;
+            
+            In case of success, returns 2-element tuple containing SpanList-s 
+            corresponding to the sentences that went through to the merge and 
+            split;
+            
+            Returns None, if the sentences would be ill-formed after the merge-
+            and-split. For instance, returns None if one of the new sentences 
+            would be empty, or if the merge-and-split would result in duplication 
+            of tokens;
+        '''
+        if end_span and end_span != (-1, -1):
+            new_sentence1 = []
+            new_sentence2 = []
+            for sid, span in enumerate( prev_sent.spans ):
+                if span.end <= end_span[1]:
+                    new_sentence1.append( span )
+                elif span.start >= end_span[1]:
+                    new_sentence2.append( span )
+            for sid, span in enumerate( this_sent.spans ):
+                if span.end <= end_span[1]:
+                    new_sentence1.append( span )
+                elif span.start >= end_span[1]:
+                    new_sentence2.append( span )
+            # Validity & sanity check
+            # 1) The number of covered words/tokens should remain the same
+            #    after the split/merge operation:
+            if len(prev_sent.spans) + len(this_sent.spans) !=\
+               len(new_sentence1)   + len(new_sentence2):
+                # The numbers of covered tokens do no match: something 
+                # is wrong ...
+                return None
+            # 2) Both new sentences should have at least 1 token
+            if len(new_sentence1) < 1  or  len(new_sentence2) < 1:
+                # One of the sentence has 0 length: something is wrong
+                return None
+            merged_spanlist1 = SpanList()
+            merged_spanlist1.spans = new_sentence1
+            merged_spanlist2 = SpanList()
+            merged_spanlist2.spans = new_sentence2
+            if record_fix_types:
+                new_spanlist1.fix_types = fix_types
+                if hasattr(prev_sent, 'fix_types'):
+                    new_spanlist1.fix_types = \
+                        new_spanlist1.fix_types + \
+                        prev_sent.fix_types
+                new_spanlist2.fix_types = fix_types
+            return merged_spanlist1, merged_spanlist2
+        return None

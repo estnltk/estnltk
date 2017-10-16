@@ -201,11 +201,18 @@ def test_merge_mistakenly_split_sentences_2():
         { 'text': 'Neenetsi rahvusringkonnas ( kõlab juba ise sürrealistlikult ! ) .\nVähem kummaline polnud tema tegevus Küsimuste ja Vastuste toimetajana .', \
           'expected_sentence_texts': ['Neenetsi rahvusringkonnas ( kõlab juba ise sürrealistlikult ! ) .', 'Vähem kummaline polnud tema tegevus Küsimuste ja Vastuste toimetajana .'] }, \
           
-        #   TODO: Problematic cases: these should be fixed later, during another round of post-correction
+        #   Merge-and-split case:   {parentheses_start} {content_in_parentheses} + {parentheses_end}<end> + {uppercase}
         { 'text': '( Naerab . )\nEriti siis , kui sõidan mootorratta või jalgrattaga .', \
-          'expected_sentence_texts': ['( Naerab .', ')\nEriti siis , kui sõidan mootorratta või jalgrattaga .'] }, \
+          'expected_sentence_texts': ['( Naerab . )', 'Eriti siis , kui sõidan mootorratta või jalgrattaga .'] }, \
+        { 'text': '(Kihnu keeli – massakas.) Ütleme, et järvetuulte poolt pargitud.', \
+          'expected_sentence_texts': ['(Kihnu keeli – massakas.)', 'Ütleme, et järvetuulte poolt pargitud.'] }, \
+        { 'text': '(Arvatagu ära, mida see tähendab!)\nEetrihäälte kõne on reostatud nugisõnadega .', \
+          'expected_sentence_texts': ['(Arvatagu ära, mida see tähendab!)', 'Eetrihäälte kõne on reostatud nugisõnadega .'] }, \
         { 'text': '( Muigab laialt . )\nTegelikult muidugi püüan kogu nädalalõpu võistlusele keskenduda ja lasen end lõdvaks alles pühapäeva õhtul , kui koju jõuan .', \
-          'expected_sentence_texts': ['( Muigab laialt .', ')\nTegelikult muidugi püüan kogu nädalalõpu võistlusele keskenduda ja lasen end lõdvaks alles pühapäeva õhtul , kui koju jõuan .'] }, \
+          'expected_sentence_texts': ['( Muigab laialt . )', 'Tegelikult muidugi püüan kogu nädalalõpu võistlusele keskenduda ja lasen end lõdvaks alles pühapäeva õhtul , kui koju jõuan .'] }, \
+        { 'text': '( kellele ei meeldiks ? )\nKui ma tavaliselt ise sõidan ( keegi on kõrvalistujana , mul ju veel titekad ) , siis ma rikun liikluseeskirju liiga tihti ( ületan kiirust , ei näita suunda ... ) .', \
+          'expected_sentence_texts': ['( kellele ei meeldiks ? )', 'Kui ma tavaliselt ise sõidan ( keegi on kõrvalistujana , mul ju veel titekad ) , siis ma rikun liikluseeskirju liiga tihti ( ületan kiirust , ei näita suunda ... ) .'] }, \
+        
      ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
