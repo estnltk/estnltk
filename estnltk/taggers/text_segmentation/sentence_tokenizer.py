@@ -424,7 +424,7 @@ class SentenceTokenizer(Tagger):
                 # to one of the patterns ...
                 for pattern in self.merge_rules:
                     [beginPat, endPat] = pattern['regexes']
-                    if beginPat.match(prev_sent) and endPat.match(this_sent):
+                    if endPat.match(this_sent) and beginPat.match(prev_sent):
                         mergeSpanLists = True
                         fixTypes.append(pattern['fix_type'])
                         break
