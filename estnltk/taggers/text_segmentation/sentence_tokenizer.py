@@ -528,8 +528,7 @@ class SentenceTokenizer(Tagger):
              *) the ending group (<end>) was not marked in any of the regular 
                 expressions in merge_split_pattern['regexes'];
              *) the ending group was not captured from the corresponding sentences
-                (this_sent or prev_sent), or fell out of the corresponding 
-                sentences;
+                (this_sent or prev_sent);
              *) the new ending of the sentence did not match a word ending in 
                 the corresponding sentence;
         '''
@@ -547,11 +546,7 @@ class SentenceTokenizer(Tagger):
                     # span's position in the text
                     start_in_text = this_sent.start + end_span[0]
                     end_in_text   = this_sent.start + end_span[1]
-                    # 1) validate that it does not fall out of the sentence
-                    if start_in_text > this_sent.end or \
-                       end_in_text > this_sent.end:
-                        return None
-                    # 2) validate that end_in_text overlaps with a word ending
+                    # validate that end_in_text overlaps with a word ending
                     matches_word_ending = False
                     for span in this_sent.spans:
                         if span.end == end_in_text:
@@ -571,11 +566,7 @@ class SentenceTokenizer(Tagger):
                     # span's position in the text
                     start_in_text = prev_sent.start + end_span[0]
                     end_in_text   = prev_sent.start + end_span[1]
-                    # 1) validate that it does not fall out of the sentence
-                    if start_in_text > prev_sent.end or \
-                       end_in_text > prev_sent.end:
-                        return None
-                    # 2) validate that end_in_text overlaps with a word ending
+                    # validate that end_in_text overlaps with a word ending
                     matches_word_ending = False
                     for span in prev_sent.spans:
                         if span.end == end_in_text:
@@ -636,11 +627,11 @@ class SentenceTokenizer(Tagger):
             merged_spanlist2 = SpanList()
             merged_spanlist2.spans = new_sentence2
             if record_fix_types:
-                new_spanlist1.fix_types = fix_types
+                merged_spanlist1.fix_types = fix_types
                 if hasattr(prev_sent, 'fix_types'):
-                    new_spanlist1.fix_types = \
-                        new_spanlist1.fix_types + \
+                    merged_spanlist1.fix_types = \
+                        merged_spanlist1.fix_types + \
                         prev_sent.fix_types
-                new_spanlist2.fix_types = fix_types
+                merged_spanlist2.fix_types = fix_types
             return merged_spanlist1, merged_spanlist2
         return None
