@@ -125,7 +125,9 @@ merge_patterns = [ \
    { 'comment'  : '{Common_abbreviation} {period} + {lowercase|hyhen|,|)}', \
      'example'  : '"jooniste, tabelite jm." + "selgeks tehti."', \
      'fix_type' : 'abbrev_common', \
-     'regexes'  : [re.compile('(.+)?\s(j[tm]|e|t)\s?[.]$', re.DOTALL), \
+     'regexes'  : [re.compile('(.+)?\s(ingl|näit|'+
+                                      'jm[st]|jne|jp[mt]|mnt|pst|tbl|vm[st]|'+\
+                                      'j[tm]|mh|e|t)\s?[.]$', re.DOTALL), \
                    re.compile('^('+lc_letter+'|'+hyphen_pat+'|,|;|\))') ], \
    },
    

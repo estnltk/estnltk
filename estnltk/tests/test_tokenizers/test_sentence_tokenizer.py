@@ -325,27 +325,68 @@ def test_merge_mistakenly_split_sentences_4():
         # No sentence break inside short www address :
         { 'text': "Portaal e-treening.ee on mõeldud kajastama Eesti rahvasporti. Mida teenusesse WordPress.com üleminekust oodata?", \
           'expected_sentence_texts': ['Portaal e-treening.ee on mõeldud kajastama Eesti rahvasporti.', 'Mida teenusesse WordPress.com üleminekust oodata?'] }, \
-        # No sentence break after abbreviations: 'e.', 't.', 'n.n.', 'jj.' ...
+        # No sentence break after abbreviations: 'e.', 't.', 'n.n.', 'jne.' ...
+        # e.
         { 'text': "Taimetoitlus e. vegetaarlus e. vegetarism", \
           'expected_sentence_texts': ['Taimetoitlus e. vegetaarlus e. vegetarism'] }, \
         { 'text': "Vt ka tomatillo e. mehhiko füüsal ja maasikfüüsal.", \
           'expected_sentence_texts': ['Vt ka tomatillo e. mehhiko füüsal ja maasikfüüsal.'] }, \
+        # t.
         { 'text': "Ülekäigukoht on kulgenud piki kõrgemaid seljandikke või saari Laia - Vene t. joonel.", \
           'expected_sentence_texts': ['Ülekäigukoht on kulgenud piki kõrgemaid seljandikke või saari Laia - Vene t. joonel.'] }, \
+        # t., a.
         { 'text': "1926. a. valmis raudbetoonsild (Vabaduse sild) üle Emajõe Laia - Vene t. joonel, põlenud puusilla kohal.", \
           'expected_sentence_texts': ['1926. a. valmis raudbetoonsild (Vabaduse sild) üle Emajõe Laia - Vene t. joonel, põlenud puusilla kohal.'] }, \
+        # ca., sh.
         { 'text': 'Üle poole eesti lugudest ja ca. pool kogumikust üldse (sh. jutuvõistluse esikümne tagumine ots) oli omaaegse "Jutulabori" ja "Marduste" kehvema poole tase.', \
           'expected_sentence_texts': ['Üle poole eesti lugudest ja ca. pool kogumikust üldse (sh. jutuvõistluse esikümne tagumine ots) oli omaaegse "Jutulabori" ja "Marduste" kehvema poole tase.'] }, \
+        # n.n.
         { 'text': "Ja pole ka siin näinud n.n. eestlastest soome proffe.", \
           'expected_sentence_texts': ['Ja pole ka siin näinud n.n. eestlastest soome proffe.'] }, \
+        # jm.
         { 'text': "“Tundlikkus”, “paindlikkus” jm. emotsionaalse sisekeskkonna regulaatorid.", \
           'expected_sentence_texts': ['“Tundlikkus”, “paindlikkus” jm. emotsionaalse sisekeskkonna regulaatorid.'] }, \
         { 'text': "Kussjuures ilusti ka ära seletati see ja jooniste, tabelite jm. selgeks tehti.", \
           'expected_sentence_texts': ["Kussjuures ilusti ka ära seletati see ja jooniste, tabelite jm. selgeks tehti."] }, \
+        # mh.
+        { 'text': "Autor käsitleb mh. kõigi aegade müstikute kogemusi.", \
+          'expected_sentence_texts': ["Autor käsitleb mh. kõigi aegade müstikute kogemusi."] }, \
+        # jms.
+        { 'text': "Peab ju uued telekad, tellid, läpparid jms. ostma!", \
+          'expected_sentence_texts': ["Peab ju uued telekad, tellid, läpparid jms. ostma!"] }, \
+        # P.S., jms.
+        { 'text': "P.S. Kultuuri ja hariduse jms. vastu ei ole mul midagi või silmaringi laiendamise vastu.", \
+          'expected_sentence_texts': ["P.S. Kultuuri ja hariduse jms. vastu ei ole mul midagi või silmaringi laiendamise vastu."] }, \
+        # jne.
+        { 'text': "Eesti oludes tähendaks see , et oleks Tallinna , Tartu , Pärnu , Narva jne. ülikool .", \
+          'expected_sentence_texts': ["Eesti oludes tähendaks see , et oleks Tallinna , Tartu , Pärnu , Narva jne. ülikool ."] }, \
+        { 'text': "Seega arvatavasti palju vastuväiteid jne. kogu protsessis.", \
+          'expected_sentence_texts': ["Seega arvatavasti palju vastuväiteid jne. kogu protsessis."] }, \
+        { 'text': "Vaadake Euroopa Liidu võrdluses jne.jne. Kõik on, aga DIALOOGI ei ole!", \
+          'expected_sentence_texts': ["Vaadake Euroopa Liidu võrdluses jne.jne.", "Kõik on, aga DIALOOGI ei ole!"] }, \
+        # jpm., jpt.
+        { 'text': "Etnograafiat, geograafiat, murdeid, soome-ugri keeli, filosoofiat jpt. teadusharusid.", \
+          'expected_sentence_texts': ["Etnograafiat, geograafiat, murdeid, soome-ugri keeli, filosoofiat jpt. teadusharusid."] }, \
+        { 'text': "Maitsestatakse piprasegude , mee , sinepi , sojakastme jpm. hõrgutavate maitseainete ja lisanditega .", \
+          'expected_sentence_texts': ["Maitsestatakse piprasegude , mee , sinepi , sojakastme jpm. hõrgutavate maitseainete ja lisanditega ."] }, \
+        # mnt., pst.
+        { 'text': "Pärnu-Tori mnt. km 6,14-6,54 . No Vabaduse pst. l on juba pikemat aega 2 rea asemel poolteist rida ;(", \
+          'expected_sentence_texts': ["Pärnu-Tori mnt. km 6,14-6,54 .", 'No Vabaduse pst. l on juba pikemat aega 2 rea asemel poolteist rida ;('] }, \
+        # tbl.
+        { 'text': "Esialgu kirjutas 1/2 L-Tyroxini, hiljem 1 tbl. päevas.", \
+          'expected_sentence_texts': ["Esialgu kirjutas 1/2 L-Tyroxini, hiljem 1 tbl. päevas."] }, \
+        # vms., vmt.
+        { 'text': "Aeg-ajalt on vaja mõnda firmat vms. uurida lähemalt... Ja kuidas need klassid vms. on.", \
+          'expected_sentence_texts': ["Aeg-ajalt on vaja mõnda firmat vms. uurida lähemalt...", 'Ja kuidas need klassid vms. on.'] }, \
+        # ingl. 
+        { 'text': "“ Marvellous , marvellous !\n( Imeline - ingl. k. ) , ” kordas hertsog lauluviisi lõppedes ja plaksutas .", \
+          'expected_sentence_texts': ["“ Marvellous , marvellous !", "( Imeline - ingl. k. ) , ” kordas hertsog lauluviisi lõppedes ja plaksutas ."] }, \
+        # näit.
+        { 'text': "Kas see tähendab, et valimised peaks toimuma näit. iga kuu?", \
+          'expected_sentence_texts': ["Kas see tähendab, et valimised peaks toimuma näit. iga kuu?"] }, \
+        { 'text': "Mõlemad võivad aga toimuda ka erinevatel aegadel nagu näit. ost /kauba/ kohale saatmisega / Versendungskauf / .", \
+          'expected_sentence_texts': ["Mõlemad võivad aga toimuda ka erinevatel aegadel nagu näit. ost /kauba/ kohale saatmisega / Versendungskauf / ."] }, \
 
-        # Note: the 'jj.' is specific to legalese
-        #{ 'text': "Ekspluateerijal on vastavalt §-dele 84 jj. hüvitamise kohustus .", \
-        #  'expected_sentence_texts': ['Ekspluateerijal on vastavalt §-dele 84 jj. hüvitamise kohustus .'] }, \          
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )

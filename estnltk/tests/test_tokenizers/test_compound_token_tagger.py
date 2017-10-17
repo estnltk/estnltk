@@ -517,3 +517,14 @@ class CompoundTokenTaggerTest(unittest.TestCase):
         text.tag_layer(['sentences'])
         sentences = [ s.enclosing_text for s in text['sentences'] ]
         self.assertListEqual( ['need kaks masinat on omavahel võrku ühendatud ja võrk nö. toimib.'], sentences )
+        
+        # Text #3:
+        text = Text("Ekspluateerijal on vastavalt §-dele 84 jj. hüvitamise kohustus .")
+        text.tag_layer(['tokens'])
+        my_abbreviations = ['jj']
+        # Perform analysis
+        CompoundTokenTagger(tag_abbreviations = True, custom_abbreviations = my_abbreviations).tag(text)
+        # Check sentences
+        text.tag_layer(['sentences'])
+        sentences = [ s.enclosing_text for s in text['sentences'] ]
+        self.assertListEqual( ["Ekspluateerijal on vastavalt §-dele 84 jj. hüvitamise kohustus ."], sentences )
