@@ -492,31 +492,32 @@ class CompoundTokenTaggerTest(unittest.TestCase):
     def test_using_custom_abbreviations(self):
         # Tests using a list of custom abbreviations
         # Text #1
-        text = Text('Batman, Superman jpt . kangelased tõusid areenile, kerkisid esile jne. ja võitsid paljude südamed.')
+        text = Text('Kui Sa oled ntx . venekeelses piirkonnas med. või sots. töötaja, siis Sa lihtsalt PEAD vene keelt oskama. Või meeldib pankrot rohkem!?!')
+        
         text.tag_layer(['tokens'])
-        my_abbreviations = ['jpt', 'jne']
+        my_abbreviations = ['ntx', 'med', 'sots']
         # Perform analysis
         CompoundTokenTagger(tag_abbreviations = True, custom_abbreviations = my_abbreviations).tag(text)
         # Check that compound tokens are detected
         compound_tokens = [ comp_token.enclosing_text for comp_token in text['compound_tokens'] ]
-        self.assertListEqual( ['jpt .', 'jne.'], compound_tokens )
+        self.assertListEqual( ['ntx .', 'med.', 'sots.'], compound_tokens )
         norm_compound_tokens = [ comp_token.normalized for comp_token in text['compound_tokens'] ]
-        self.assertListEqual( ['jpt.', 'jne.'], norm_compound_tokens )
+        self.assertListEqual( ['ntx.', 'med.', 'sots.'], norm_compound_tokens )
         # Check that token compounding fixes sentence boundaries
         text.tag_layer(['sentences'])
         sentences = [ s.enclosing_text for s in text['sentences'] ]
-        self.assertListEqual( ['Batman, Superman jpt . kangelased tõusid areenile, kerkisid esile jne. ja võitsid paljude südamed.'], sentences )
+        self.assertListEqual( ['Kui Sa oled ntx . venekeelses piirkonnas med. või sots. töötaja, siis Sa lihtsalt PEAD vene keelt oskama.', 'Või meeldib pankrot rohkem!?!'], sentences )
         
         # Text #2
-        text = Text('need kaks masinat on omavahel võrku ühendatud ja võrk nö. toimib.')
+        text = Text('Tõmba end või ribadeks ja seda ka min. tasu eest.')
         text.tag_layer(['tokens'])
-        my_abbreviations = ['nö']
+        my_abbreviations = ['min']
         # Perform analysis
         CompoundTokenTagger(tag_abbreviations = True, custom_abbreviations = my_abbreviations).tag(text)
         # Check sentences
         text.tag_layer(['sentences'])
         sentences = [ s.enclosing_text for s in text['sentences'] ]
-        self.assertListEqual( ['need kaks masinat on omavahel võrku ühendatud ja võrk nö. toimib.'], sentences )
+        self.assertListEqual( ['Tõmba end või ribadeks ja seda ka min. tasu eest.'], sentences )
         
         # Text #3:
         text = Text("Ekspluateerijal on vastavalt §-dele 84 jj. hüvitamise kohustus .")

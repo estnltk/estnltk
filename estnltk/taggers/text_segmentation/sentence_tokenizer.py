@@ -127,7 +127,7 @@ merge_patterns = [ \
      'fix_type' : 'abbrev_common', \
      'regexes'  : [re.compile('(.+)?\s(ingl|näit|'+
                                       'jm[st]|jne|jp[mt]|mnt|pst|tbl|vm[st]|'+\
-                                      'j[tm]|mh|e|t)\s?[.]$', re.DOTALL), \
+                                      'j[tm]|mh|vm|e|t)\s?[.]$', re.DOTALL), \
                    re.compile('^('+lc_letter+'|'+hyphen_pat+'|,|;|\))') ], \
    },
    
