@@ -186,7 +186,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             { 'text' : 'Suitsutatud produktide, s.h. ka peekoni ja hot-dogide söömine on eriti kahjulik.',\
               'expected_words': ['Suitsutatud', 'produktide', ',', 's.h.', 'ka', 'peekoni', 'ja', 'hot-dogide', 'söömine', 'on', 'eriti', 'kahjulik', '.'] },\
             { 'text' : 'Budistlikud keskused (s.h. Khordongi Ühing Eestis jt.) on tõlkinud ka otse algkeeltest.',\
-              'expected_words': ['Budistlikud', 'keskused', '(', 's.h.', 'Khordongi', 'Ühing', 'Eestis', 'jt', '.', ')', 'on', 'tõlkinud', 'ka', 'otse', 'algkeeltest', '.'] },\
+              'expected_words': ['Budistlikud', 'keskused', '(', 's.h.', 'Khordongi', 'Ühing', 'Eestis', 'jt.', ')', 'on', 'tõlkinud', 'ka', 'otse', 'algkeeltest', '.'] },\
             { 'text' : 'Tuulepargi kavandatav koguvõimsus on u. 700 MW.',\
               'expected_words': ['Tuulepargi', 'kavandatav', 'koguvõimsus', 'on', 'u.', '700', 'MW', '.'] },\
             # Negative patterns: no abbreviation:

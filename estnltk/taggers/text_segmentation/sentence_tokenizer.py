@@ -113,10 +113,20 @@ merge_patterns = [ \
      'fix_type' : 'numeric_monetary', \
      'regexes'  : [re.compile('(.+)?([0-9]+)\s*\.$', re.DOTALL), re.compile('^'+hyphen_pat+'+') ], \
    },
+   
+   # ***********************************
+   #   Fixes related to specific abbreviations
+   # ***********************************
    { 'comment'  : '{Abbreviation} {period} + {numeric}', \
      'example'  : '"Hõimurahvaste Aeg Nr." + "7 lk." + "22."', \
-     'fix_type' : 'numeric_abbrev', \
+     'fix_type' : 'abbrev_numeric', \
      'regexes'  : [re.compile('(.+)?([Ll]k|[Nn]r)\s*\.$', re.DOTALL), re.compile('^[0-9]+') ], \
+   },
+   { 'comment'  : '{Common_abbreviation} {period} + {lowercase|hyhen|,|)}', \
+     'example'  : '"jooniste, tabelite jm." + "selgeks tehti."', \
+     'fix_type' : 'abbrev_common', \
+     'regexes'  : [re.compile('(.+)?\s(j[tm]|e|t)\s?[.]$', re.DOTALL), \
+                   re.compile('^('+lc_letter+'|'+hyphen_pat+'|,|;|\))') ], \
    },
    
    # ***********************************
@@ -276,6 +286,8 @@ class SentenceTokenizer(Tagger):
                 self.sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
         # 2) Filter rules according to the given configuration
         for merge_pattern in merge_patterns:
+            if fix_compound_tokens and merge_pattern['fix_type'].startswith('abbrev'):
+                self.merge_rules.append( merge_pattern )
             if fix_numeric and merge_pattern['fix_type'].startswith('numeric'):
                 self.merge_rules.append( merge_pattern )
             if fix_parentheses and merge_pattern['fix_type'].startswith('parentheses'):

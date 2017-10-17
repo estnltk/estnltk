@@ -39,6 +39,7 @@ MACROS = {
                                "a['`’ ]la|"+\
                                'k\s?\.\s?a|'+\
                                'n\s?\.\s?ö|'+\
+                               'n\s?\.\s?n|'+\
                                's\s?\.\s?o|'+\
                                's\s?\.\s?t|'+\
                                's\s?\.\s?h|'+\
@@ -47,9 +48,9 @@ MACROS = {
             # B) Abbreviations that should come out of tokenization as they are
             #    Note: these are shorter patterns and should be checked secondly
             'ABBREVIATIONS2': '('+\
-                               '[Dd]r|[Hh]r|[Hh]rl|[Ii]bid|[Kk]od|[Kk]oost|[Ll]p|'+\
-                               'lüh|[Mm]rs?|nn|[Nn]r|[Nn]t|nö|[Pp]r|so|st|sealh|sh|'+\
-                               '[Ss]m|[Tt]lk|tn|[Tt]oim|[Vv]rd|va|[Vv]t|u'+\
+                               'ca|[Dd]r|[Hh]r|[Hh]rl|[Ii]bid|[Kk]od|[Kk]oost|[Ll]p|'+\
+                               'lüh|[Mm]rs?|nn|[Nn]r|[Nn]t|nö|[Pp]r|sealh|so|st|sh|'+\
+                               '[Ss]m|[Tt]lk|tn|[Tt]oim|[Vv]rd|va|[Vv]t'+\
                               ')',
             # ===================================================
             #   Other abbreviations 
@@ -66,7 +67,9 @@ MACROS = {
                                'õ\s?\.\s?a|'+\
                                'saj|'+\
                                '[Jj]r|'+\
-                               'a'+\
+                               'j[mt]|'+\
+                               'a|'+\
+                               'u'+\
                               ')',
             # ===================================================
             # Common unit combinations
