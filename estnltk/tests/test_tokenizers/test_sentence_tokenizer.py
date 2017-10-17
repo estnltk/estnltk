@@ -325,6 +325,27 @@ def test_merge_mistakenly_split_sentences_4():
         # No sentence break inside short www address :
         { 'text': "Portaal e-treening.ee on mõeldud kajastama Eesti rahvasporti. Mida teenusesse WordPress.com üleminekust oodata?", \
           'expected_sentence_texts': ['Portaal e-treening.ee on mõeldud kajastama Eesti rahvasporti.', 'Mida teenusesse WordPress.com üleminekust oodata?'] }, \
+        # No sentence break after abbreviations: 'e.', 't.', 'n.n.', 'jj.' ...
+        { 'text': "Taimetoitlus e. vegetaarlus e. vegetarism", \
+          'expected_sentence_texts': ['Taimetoitlus e. vegetaarlus e. vegetarism'] }, \
+        { 'text': "Vt ka tomatillo e. mehhiko füüsal ja maasikfüüsal.", \
+          'expected_sentence_texts': ['Vt ka tomatillo e. mehhiko füüsal ja maasikfüüsal.'] }, \
+        { 'text': "Ülekäigukoht on kulgenud piki kõrgemaid seljandikke või saari Laia - Vene t. joonel.", \
+          'expected_sentence_texts': ['Ülekäigukoht on kulgenud piki kõrgemaid seljandikke või saari Laia - Vene t. joonel.'] }, \
+        { 'text': "1926. a. valmis raudbetoonsild (Vabaduse sild) üle Emajõe Laia - Vene t. joonel, põlenud puusilla kohal.", \
+          'expected_sentence_texts': ['1926. a. valmis raudbetoonsild (Vabaduse sild) üle Emajõe Laia - Vene t. joonel, põlenud puusilla kohal.'] }, \
+        { 'text': 'Üle poole eesti lugudest ja ca. pool kogumikust üldse (sh. jutuvõistluse esikümne tagumine ots) oli omaaegse "Jutulabori" ja "Marduste" kehvema poole tase.', \
+          'expected_sentence_texts': ['Üle poole eesti lugudest ja ca. pool kogumikust üldse (sh. jutuvõistluse esikümne tagumine ots) oli omaaegse "Jutulabori" ja "Marduste" kehvema poole tase.'] }, \
+        { 'text': "Ja pole ka siin näinud n.n. eestlastest soome proffe.", \
+          'expected_sentence_texts': ['Ja pole ka siin näinud n.n. eestlastest soome proffe.'] }, \
+        { 'text': "“Tundlikkus”, “paindlikkus” jm. emotsionaalse sisekeskkonna regulaatorid.", \
+          'expected_sentence_texts': ['“Tundlikkus”, “paindlikkus” jm. emotsionaalse sisekeskkonna regulaatorid.'] }, \
+        { 'text': "Kussjuures ilusti ka ära seletati see ja jooniste, tabelite jm. selgeks tehti.", \
+          'expected_sentence_texts': ["Kussjuures ilusti ka ära seletati see ja jooniste, tabelite jm. selgeks tehti."] }, \
+
+        # Note: the 'jj.' is specific to legalese
+        #{ 'text': "Ekspluateerijal on vastavalt §-dele 84 jj. hüvitamise kohustus .", \
+        #  'expected_sentence_texts': ['Ekspluateerijal on vastavalt §-dele 84 jj. hüvitamise kohustus .'] }, \          
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
