@@ -297,7 +297,7 @@ def test_merge_mistakenly_split_sentences_3():
         # Collect results 
         sentence_texts = \
             [sentence.enclosing_text for sentence in text['sentences'].spans]
-        print(sentence_texts)
+        #print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
 
