@@ -201,7 +201,7 @@ def test_merge_mistakenly_split_sentences_2():
         { 'text': 'Neenetsi rahvusringkonnas ( kõlab juba ise sürrealistlikult ! ) .\nVähem kummaline polnud tema tegevus Küsimuste ja Vastuste toimetajana .', \
           'expected_sentence_texts': ['Neenetsi rahvusringkonnas ( kõlab juba ise sürrealistlikult ! ) .', 'Vähem kummaline polnud tema tegevus Küsimuste ja Vastuste toimetajana .'] }, \
           
-        #   Merge-and-split case:   {parentheses_start} {content_in_parentheses} + {parentheses_end}<end> + {uppercase}
+        #   Merge-and-split case:   {sentence_ending_punct} + {parentheses_end}<end> {uppercase}
         { 'text': '(Hm!)\nJa kui lugesid,siis käidi laulmas täiesti stiihiliselt.', \
           'expected_sentence_texts': ['(Hm!)', 'Ja kui lugesid,siis käidi laulmas täiesti stiihiliselt.'] }, \
         { 'text': '(Kihnu keeli – massakas.) Ütleme, et järvetuulte poolt pargitud.', \
@@ -269,7 +269,7 @@ def test_merge_mistakenly_split_sentences_3():
         { 'text': 'Kuid " Trainspottingus " pole tegemist individualistliku protestiga .\n" Train-spotting " on generatsioonifilm , kollektiivne protest .', \
           'expected_sentence_texts': ['Kuid " Trainspottingus " pole tegemist individualistliku protestiga .', '" Train-spotting " on generatsioonifilm , kollektiivne protest .'] }, \
 
-        #   Merge-and-split: {ending_punctuation} + {ending_quotes}<end> + {starting_quotes}
+        #   Merge-and-split: {ending_punctuation} + {ending_quotes}<end> {starting_quotes}
         { 'text': '« Ei kedagi . »\n\n« Peate midagi ümber korraldama ka oma elus ? » pärib Merle .', \
           'expected_sentence_texts': ['« Ei kedagi . »', '« Peate midagi ümber korraldama ka oma elus ? » pärib Merle .'] }, \
         { 'text': '« Tõsiselt , jah ?\nVäga tore ! »\n\n« Mis siin ikka ! » tähendab vanahärra ükskõikselt .', \
@@ -280,7 +280,12 @@ def test_merge_mistakenly_split_sentences_3():
           'expected_sentence_texts': ['« Meeste lihas on tühjem , aga võtab taastamistegevust vastu paremini kui varem . »', '« Meie treeningutel on üks uus peateema ! » elavneb Alaver .'] }, \
         { 'text': '"Kuulge, et pidite mu pojal opereerima ainult mandlid, aga nüüd olete ka purihambad välja tõmmanud!" "Nojah, me panime ta eksikombel liiga kauaks magama ja ei tahtnud lasta aega kaotsi minna."', \
           'expected_sentence_texts': ['"Kuulge, et pidite mu pojal opereerima ainult mandlid, aga nüüd olete ka purihambad välja tõmmanud!"', '"Nojah, me panime ta eksikombel liiga kauaks magama ja ei tahtnud lasta aega kaotsi minna."'] }, \
-          
+        #   Merge-and-split: {ending_punctuation} + {ending_quotes}<end> {starting_brackets}
+        { 'text': '« Kus on minu mesi ? »\n( Inglise keeles tähendab mesi ehk honey ka kallimat . )', \
+          'expected_sentence_texts': ['« Kus on minu mesi ? »', '( Inglise keeles tähendab mesi ehk honey ka kallimat . )'] }, \
+        { 'text': '« Aga sellega tuli harjuda . »\n\n( Irdi ajal mängis Helend Vanemuises Brechti Švejki . )\n\nNäitemängust vabal ajal töötas Helend valla maksunõudjana .',\
+          'expected_sentence_texts': ['« Aga sellega tuli harjuda . »', '( Irdi ajal mängis Helend Vanemuises Brechti Švejki . )', 'Näitemängust vabal ajal töötas Helend valla maksunõudjana .'] }, \
+
         #   TODO: The following case is problematic, needs to be fixed later:
         { 'text': 'Kertu küsib : “ Miks sa naeratad kogu aeg ? ”\nMaailm on nii ilus .', \
           'expected_sentence_texts': ['Kertu küsib : “ Miks sa naeratad kogu aeg ?', '”\nMaailm on nii ilus .'] }, \
@@ -292,7 +297,7 @@ def test_merge_mistakenly_split_sentences_3():
         # Collect results 
         sentence_texts = \
             [sentence.enclosing_text for sentence in text['sentences'].spans]
-        #print(sentence_texts)
+        print(sentence_texts)
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
 

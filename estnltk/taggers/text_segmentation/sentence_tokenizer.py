@@ -140,8 +140,8 @@ merge_patterns = [ \
      'fix_type' : 'parentheses', \
      'regexes'  : [re.compile('.*\([^()]+$', re.DOTALL), re.compile('^[^()A-ZÖÄÜÕŠŽ]*\)(\s|\n)*[^A-ZÖÄÜÕŠŽ \n].*') ], \
    },
-   #   {parentheses_start} {content_in_parentheses} + {parentheses_end}<end> + {uppercase}
-   { 'comment'   : '{parentheses_start} {content_in_parentheses} + {parentheses_end}', \
+   #   {ending_punctuation} + {parentheses_end}<end> {uppercase}
+   { 'comment'   : '{ending_punctuation} + {parentheses_end}<end> {uppercase}', \
      'example'   : "'( Naerab . ' + ')\nEriti siis , kui sõidan mootorratta või jalgrattaga .'", \
      'fix_type'  : 'parentheses', \
      'regexes'   : [re.compile('.*[.!?]\s*$', re.DOTALL), re.compile('^(?P<end>\))(\s|\n)*[A-ZÖÄÜÕŠŽ].*') ], \
@@ -187,11 +187,18 @@ merge_patterns = [ \
      'fix_type' : 'double_quotes', \
      'regexes'  : [re.compile('.+?[?!.…]$', re.DOTALL), re.compile('^['+ending_quotes+']$') ], \
    },
-   #   {ending_punctuation} + {ending_quotes}<end> + {starting_quotes}
-   { 'comment'   : '{ending_punctuation} + {ending_quotes}<end> + {starting_quotes}', \
+   #   {ending_punctuation} + {ending_quotes}<end> {starting_quotes}
+   { 'comment'   : '{ending_punctuation} + {ending_quotes}<end> {starting_quotes}', \
      'example'   : "'« Väga tore !' + '»\n\n« Mis siin ikka ! »'", \
      'fix_type'  : 'double_quotes', \
      'regexes'   : [re.compile('.*[.!?]\s*$', re.DOTALL), re.compile('^(?P<end>['+ending_quotes+'])(\s|\n)*['+start_quotes+'].*') ], \
+     'shift_end' : True,   # sentence end needs to be shifted to the string captured by the pattern <end>
+   },
+   #   {ending_punctuation} + {ending_quotes}<end> {starting_brackets}
+   { 'comment'   : '{ending_punctuation} + {ending_quotes}<end> {starting_brackets}', \
+     'example'   : "'« Kus on minu mesi ?' + '»\n( Inglise keeles kallim . )'", \
+     'fix_type'  : 'double_quotes', \
+     'regexes'   : [re.compile('.*[.!?]\s*$', re.DOTALL), re.compile('^(?P<end>['+ending_quotes+'])(\s|\n)*[(\[].*') ], \
      'shift_end' : True,   # sentence end needs to be shifted to the string captured by the pattern <end>
    },
 
