@@ -256,7 +256,6 @@ class SentenceTokenizer(Tagger):
     depends_on    = ['compound_tokens', 'words']
     configuration = {}
     sentence_tokenizer = None
-    merge_rules   = []
     
     def __init__(self, 
                  fix_compound_tokens:bool = True,
@@ -287,6 +286,7 @@ class SentenceTokenizer(Tagger):
             if self.sentence_tokenizer is None:
                 self.sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
         # 2) Filter rules according to the given configuration
+        self.merge_rules = []
         for merge_pattern in merge_patterns:
             if fix_compound_tokens and merge_pattern['fix_type'].startswith('abbrev'):
                 self.merge_rules.append( merge_pattern )
