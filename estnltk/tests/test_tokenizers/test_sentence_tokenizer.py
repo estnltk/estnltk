@@ -286,6 +286,18 @@ def test_merge_mistakenly_split_sentences_3():
         { 'text': '« Aga sellega tuli harjuda . »\n\n( Irdi ajal mängis Helend Vanemuises Brechti Švejki . )\n\nNäitemängust vabal ajal töötas Helend valla maksunõudjana .',\
           'expected_sentence_texts': ['« Aga sellega tuli harjuda . »', '( Irdi ajal mängis Helend Vanemuises Brechti Švejki . )', 'Näitemängust vabal ajal töötas Helend valla maksunõudjana .'] }, \
 
+        #   Merge case:   {sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}
+        { 'text': '" See pole ju üldse kallis .\nNii ilus ! " . \nNõmmel elav pensioniealine Maret .', \
+          'expected_sentence_texts': ['" See pole ju üldse kallis .', 'Nii ilus ! " .', 'Nõmmel elav pensioniealine Maret .'] }, \
+        { 'text': 'Marjana küsis iga asja kohta " Kak eta porusski ? " . \nKuidas ma keele selgeks sain', \
+          'expected_sentence_texts': ['Marjana küsis iga asja kohta " Kak eta porusski ? " .', 'Kuidas ma keele selgeks sain'] }, \
+        { 'text': 'Tal polnud aimugi , kust ta järgmise kaustiku saab .\n" . . . jätkan tolle esimese päeva taastamist .', \
+          'expected_sentence_texts': ['Tal polnud aimugi , kust ta järgmise kaustiku saab .\n" . . .', 'jätkan tolle esimese päeva taastamist .'] }, \
+        { 'text': '" Kuidas saada miljonäriks ? " . \nSelge see , et miljonimängus peavad olema kõige raskemad küsimused .', \
+          'expected_sentence_texts': ['" Kuidas saada miljonäriks ? " .', 'Selge see , et miljonimängus peavad olema kõige raskemad küsimused .'] }, \
+        { 'text': '" Ega siin ei maksa tooste oodata , hakkama aga kohe võtma ! " . \nMa ei taha seda ärajäänud kohtumist presidendi kaela ajada .', \
+          'expected_sentence_texts': ['" Ega siin ei maksa tooste oodata , hakkama aga kohe võtma ! " .', 'Ma ei taha seda ärajäänud kohtumist presidendi kaela ajada .'] }, \
+          
         #   TODO: The following case is problematic, needs to be fixed later:
         { 'text': 'Kertu küsib : “ Miks sa naeratad kogu aeg ? ”\nMaailm on nii ilus .', \
           'expected_sentence_texts': ['Kertu küsib : “ Miks sa naeratad kogu aeg ?', '”\nMaailm on nii ilus .'] }, \
@@ -369,6 +381,9 @@ def test_merge_mistakenly_split_sentences_4():
           'expected_sentence_texts': ["Etnograafiat, geograafiat, murdeid, soome-ugri keeli, filosoofiat jpt. teadusharusid."] }, \
         { 'text': "Maitsestatakse piprasegude , mee , sinepi , sojakastme jpm. hõrgutavate maitseainete ja lisanditega .", \
           'expected_sentence_texts': ["Maitsestatakse piprasegude , mee , sinepi , sojakastme jpm. hõrgutavate maitseainete ja lisanditega ."] }, \
+        # jt.      ( Merge case:   {abbreviation} {period} + {comma_or_semicolon} )
+        { 'text': 'Mitmete uuringutega on leitud, et Trifluralin võib olla genotoksiline (Ribas jt., 1995; Gebel jt., 1997; Kaya jt., 2004) ning mõjutada paljunemis- ja ainevahetushormoone (Rawlings jt., 1998).', \
+          'expected_sentence_texts': ['Mitmete uuringutega on leitud, et Trifluralin võib olla genotoksiline (Ribas jt., 1995; Gebel jt., 1997; Kaya jt., 2004) ning mõjutada paljunemis- ja ainevahetushormoone (Rawlings jt., 1998).'] }, \
         # mnt., pst.
         { 'text': "Pärnu-Tori mnt. km 6,14-6,54 . No Vabaduse pst. l on juba pikemat aega 2 rea asemel poolteist rida ;(", \
           'expected_sentence_texts': ["Pärnu-Tori mnt. km 6,14-6,54 .", 'No Vabaduse pst. l on juba pikemat aega 2 rea asemel poolteist rida ;('] }, \
@@ -386,74 +401,6 @@ def test_merge_mistakenly_split_sentences_4():
           'expected_sentence_texts': ["Kas see tähendab, et valimised peaks toimuma näit. iga kuu?"] }, \
         { 'text': "Mõlemad võivad aga toimuda ka erinevatel aegadel nagu näit. ost /kauba/ kohale saatmisega / Versendungskauf / .", \
           'expected_sentence_texts': ["Mõlemad võivad aga toimuda ka erinevatel aegadel nagu näit. ost /kauba/ kohale saatmisega / Versendungskauf / ."] }, \
-
-    ]
-    for test_text in test_texts:
-        text = Text( test_text['text'] )
-        # Perform analysis
-        text.tag_layer(['words', 'sentences'])
-        # Collect results 
-        sentence_texts = \
-            [sentence.enclosing_text for sentence in text['sentences'].spans]
-        #print(sentence_texts)
-        # Check results
-        assert sentence_texts == test_text['expected_sentence_texts']
-
-
-def test_merge_mistakenly_separated_sentence_ending_punctuation():
-    # Tests that mistakenly separated sentence ending punctuation will be properly attached to the sentence
-    test_texts = [
-        #   Merge case:   {sentence_ending_punct} + {only_sentence_ending_punct}
-        { 'text': 'SEE EI OLNUD TSIKLI ÕLI ! ! ! ! ! ! !', \
-          'expected_sentence_texts': ['SEE EI OLNUD TSIKLI ÕLI ! ! ! ! ! ! !'] }, \
-        { 'text': 'see on kindel meteroloogiline fakt\n. .\n!', \
-          'expected_sentence_texts': ['see on kindel meteroloogiline fakt\n. .\n!'] }, \
-        { 'text': 'Issand Jumal , Sa näed ja ei mürista ! ! ! ? ? ?', \
-          'expected_sentence_texts': ['Issand Jumal , Sa näed ja ei mürista ! ! ! ? ? ?'] }, \
-        { 'text': 'Aga äkki ongi nümfomaanid reaalselt olemas ? ? ?', \
-          'expected_sentence_texts': ['Aga äkki ongi nümfomaanid reaalselt olemas ? ? ?'] }, \
-        { 'text': "loodetavasti läheb KE jaoks üle… Jeez… lahe..…", \
-          'expected_sentence_texts': ['loodetavasti läheb KE jaoks üle…', 'Jeez… lahe..…'] }, \
-        { 'text': 'arvati , et veel sellel aastal j6uab kohale ; yess ! ! !', \
-          'expected_sentence_texts': ['arvati , et veel sellel aastal j6uab kohale ; yess ! ! !'] }, \
-        { 'text': 'müüks ära sellise riista nagu IZ- Planeta 5 ! ?\nEtte tänades aivar .', \
-          'expected_sentence_texts': ['müüks ära sellise riista nagu IZ- Planeta 5 ! ?', 'Ette tänades aivar .'] }, \
-        { 'text': 'teine võimalus: elektrikud saavad karistatud voolu läbi.!!!!!!!!!!! !\n', \
-          'expected_sentence_texts': ['teine võimalus: elektrikud saavad karistatud voolu läbi.!!!!!!!!!!! !'] }, \
-        { 'text': 'Mis ajast Odüsseus ja Caesar KESKAJAL elasid ? ! ?\nOlex võinud väiksest peast vähe rohkem antiikmütoloogiat lugeda.', \
-          'expected_sentence_texts': ['Mis ajast Odüsseus ja Caesar KESKAJAL elasid ? ! ?', 'Olex võinud väiksest peast vähe rohkem antiikmütoloogiat lugeda.'] }, \
-        { 'text': 'Kiirusta ja osta kohe , kui sul veel pole ! !\nKvaliteettoodang !', \
-          'expected_sentence_texts': ['Kiirusta ja osta kohe , kui sul veel pole ! !', 'Kvaliteettoodang !'] }, \
-        { 'text': 'Seaduse täitmist reguleerib meil esmaselt siiski politsei. . . Ja ma ei loe kuskilt välja teemast et sa oled üritanud temaga vestelda.', \
-          'expected_sentence_texts': ['Seaduse täitmist reguleerib meil esmaselt siiski politsei. . .', 'Ja ma ei loe kuskilt välja teemast et sa oled üritanud temaga vestelda.'] }, \
-        { 'text': 'See oli meenutus tänastest eelmistest aaretest. Mari . . aarde leidsime, logisime ja peitsime tagasi.', \
-          'expected_sentence_texts': ['See oli meenutus tänastest eelmistest aaretest.', 'Mari . .', 'aarde leidsime, logisime ja peitsime tagasi.'] }, \
-        { 'text': 'grafiit määrdega tald muutub kuivaks\n? ? . . kuidas sellest = aru saada kui see nii on ?', \
-          'expected_sentence_texts': ['grafiit määrdega tald muutub kuivaks\n? ? . .', 'kuidas sellest = aru saada kui see nii on ?'] }, \
-        { 'text': "Teha “ viimane suur rööv ” ( milline klišee . . .\n ! ! ) , ajada ligi 5 miljoni dollari väärtuses kalliskividele . . .", \
-          'expected_sentence_texts': ['Teha “ viimane suur rööv ” ( milline klišee . . .\n ! ! ) , ajada ligi 5 miljoni dollari väärtuses kalliskividele . . .'] }, \
-          
-        #   Merge case:   {sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}
-        { 'text': '" See pole ju üldse kallis .\nNii ilus ! " . \nNõmmel elav pensioniealine Maret .', \
-          'expected_sentence_texts': ['" See pole ju üldse kallis .', 'Nii ilus ! " .', 'Nõmmel elav pensioniealine Maret .'] }, \
-        { 'text': 'Marjana küsis iga asja kohta " Kak eta porusski ? " . \nKuidas ma keele selgeks sain', \
-          'expected_sentence_texts': ['Marjana küsis iga asja kohta " Kak eta porusski ? " .', 'Kuidas ma keele selgeks sain'] }, \
-        { 'text': 'Tal polnud aimugi , kust ta järgmise kaustiku saab .\n" . . . jätkan tolle esimese päeva taastamist .', \
-          'expected_sentence_texts': ['Tal polnud aimugi , kust ta järgmise kaustiku saab .\n" . . .', 'jätkan tolle esimese päeva taastamist .'] }, \
-        { 'text': '" Kuidas saada miljonäriks ? " . \nSelge see , et miljonimängus peavad olema kõige raskemad küsimused .', \
-          'expected_sentence_texts': ['" Kuidas saada miljonäriks ? " .', 'Selge see , et miljonimängus peavad olema kõige raskemad küsimused .'] }, \
-        { 'text': '" Ega siin ei maksa tooste oodata , hakkama aga kohe võtma ! " . \nMa ei taha seda ärajäänud kohtumist presidendi kaela ajada .', \
-          'expected_sentence_texts': ['" Ega siin ei maksa tooste oodata , hakkama aga kohe võtma ! " .', 'Ma ei taha seda ärajäänud kohtumist presidendi kaela ajada .'] }, \
-       
-        #   Merge case:   {abbreviation} {period} + {comma_or_semicolon}
-        { 'text': 'Mitmete uuringutega on leitud, et Trifluralin võib olla genotoksiline (Ribas jt., 1995; Gebel jt., 1997; Kaya jt., 2004) ning mõjutada paljunemis- ja ainevahetushormoone (Rawlings jt., 1998).', \
-          'expected_sentence_texts': ['Mitmete uuringutega on leitud, et Trifluralin võib olla genotoksiline (Ribas jt., 1995; Gebel jt., 1997; Kaya jt., 2004) ning mõjutada paljunemis- ja ainevahetushormoone (Rawlings jt., 1998).'] }, \
-
-        #  NB! Problematic stuff:
-        { 'text': 'Ja kui süda pole puhas... ??? ??? ??? aiai.', \
-          'expected_sentence_texts': ['Ja kui süda pole puhas... ??? ??? ??? aiai.'] }, \
-        { 'text': 'Seal on forum kust saab osta , müüa , vahetada , rääkida ja ...... !!\nkÕik sInna !', \
-          'expected_sentence_texts': ['Seal on forum kust saab osta , müüa , vahetada , rääkida ja ...... !!\nkÕik sInna !'] }, \
 
     ]
     for test_text in test_texts:
@@ -550,9 +497,63 @@ def test_use_emoticons_as_sentence_endings():
         assert sentence_texts == test_text['expected_sentence_texts']
 
 
-def test_fix_repeated_sentence_ending_punctuation():
-    # Tests that sentence endings are detected iff the ending punctuation is prolonged/repeated
+def test_fix_repeated_sentence_ending_punctuation_1():
+    # Tests that mistakenly separated sentence ending punctuation will be properly attached to the sentence
+    test_texts = [
+        #   Merge case:   {sentence_ending_punct} + {only_sentence_ending_punct}
+        { 'text': 'SEE EI OLNUD TSIKLI ÕLI ! ! ! ! ! ! !', \
+          'expected_sentence_texts': ['SEE EI OLNUD TSIKLI ÕLI ! ! ! ! ! ! !'] }, \
+        { 'text': 'see on kindel meteroloogiline fakt\n. .\n!', \
+          'expected_sentence_texts': ['see on kindel meteroloogiline fakt\n. .\n!'] }, \
+        { 'text': 'Issand Jumal , Sa näed ja ei mürista ! ! ! ? ? ?', \
+          'expected_sentence_texts': ['Issand Jumal , Sa näed ja ei mürista ! ! ! ? ? ?'] }, \
+        { 'text': 'Aga äkki ongi nümfomaanid reaalselt olemas ? ? ?', \
+          'expected_sentence_texts': ['Aga äkki ongi nümfomaanid reaalselt olemas ? ? ?'] }, \
+        { 'text': "loodetavasti läheb KE jaoks üle… Jeez… lahe..…", \
+          'expected_sentence_texts': ['loodetavasti läheb KE jaoks üle…', 'Jeez… lahe..…'] }, \
+        { 'text': 'arvati , et veel sellel aastal j6uab kohale ; yess ! ! !', \
+          'expected_sentence_texts': ['arvati , et veel sellel aastal j6uab kohale ; yess ! ! !'] }, \
+        { 'text': 'müüks ära sellise riista nagu IZ- Planeta 5 ! ?\nEtte tänades aivar .', \
+          'expected_sentence_texts': ['müüks ära sellise riista nagu IZ- Planeta 5 ! ?', 'Ette tänades aivar .'] }, \
+        { 'text': 'teine võimalus: elektrikud saavad karistatud voolu läbi.!!!!!!!!!!! !\n', \
+          'expected_sentence_texts': ['teine võimalus: elektrikud saavad karistatud voolu läbi.!!!!!!!!!!! !'] }, \
+        { 'text': 'Mis ajast Odüsseus ja Caesar KESKAJAL elasid ? ! ?\nOlex võinud väiksest peast vähe rohkem antiikmütoloogiat lugeda.', \
+          'expected_sentence_texts': ['Mis ajast Odüsseus ja Caesar KESKAJAL elasid ? ! ?', 'Olex võinud väiksest peast vähe rohkem antiikmütoloogiat lugeda.'] }, \
+        { 'text': 'Kiirusta ja osta kohe , kui sul veel pole ! !\nKvaliteettoodang !', \
+          'expected_sentence_texts': ['Kiirusta ja osta kohe , kui sul veel pole ! !', 'Kvaliteettoodang !'] }, \
+        { 'text': 'Seaduse täitmist reguleerib meil esmaselt siiski politsei. . . Ja ma ei loe kuskilt välja teemast et sa oled üritanud temaga vestelda.', \
+          'expected_sentence_texts': ['Seaduse täitmist reguleerib meil esmaselt siiski politsei. . .', 'Ja ma ei loe kuskilt välja teemast et sa oled üritanud temaga vestelda.'] }, \
+        { 'text': 'See oli meenutus tänastest eelmistest aaretest. Mari . . aarde leidsime, logisime ja peitsime tagasi.', \
+          'expected_sentence_texts': ['See oli meenutus tänastest eelmistest aaretest.', 'Mari . .', 'aarde leidsime, logisime ja peitsime tagasi.'] }, \
+        { 'text': 'grafiit määrdega tald muutub kuivaks\n? ? . . kuidas sellest = aru saada kui see nii on ?', \
+          'expected_sentence_texts': ['grafiit määrdega tald muutub kuivaks\n? ? . .', 'kuidas sellest = aru saada kui see nii on ?'] }, \
+        { 'text': "Teha “ viimane suur rööv ” ( milline klišee . . .\n ! ! ) , ajada ligi 5 miljoni dollari väärtuses kalliskividele . . .", \
+          'expected_sentence_texts': ['Teha “ viimane suur rööv ” ( milline klišee . . .\n ! ! ) , ajada ligi 5 miljoni dollari väärtuses kalliskividele . . .'] }, \
+
+        #  NB! Problematic stuff:
+        { 'text': 'Ja kui süda pole puhas... ??? ??? ??? aiai.', \
+          'expected_sentence_texts': ['Ja kui süda pole puhas... ??? ??? ??? aiai.'] }, \
+        { 'text': 'Seal on forum kust saab osta , müüa , vahetada , rääkida ja ...... !!\nkÕik sInna !', \
+          'expected_sentence_texts': ['Seal on forum kust saab osta , müüa , vahetada , rääkida ja ...... !!\nkÕik sInna !'] }, \
+
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words', 'sentences'])
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences'].spans]
+        #print(sentence_texts)
+        # Check results
+        assert sentence_texts == test_text['expected_sentence_texts']
+
+
+
+def test_fix_repeated_sentence_ending_punctuation_2():
+    # Tests that sentence endings are properly detected iff the ending punctuation is prolonged/repeated
     test_texts = [ 
+        #  Split case: add a sentence boundary after repeated / prolonged punctuation
         { 'text': 'Hispaanias tuli suur isu vaadata töömeile… Ja nii ma seal puhkasin, kuid samas tegin tööd… See oli lihtsalt nii-nii mõnus feeling :)', \
           'expected_sentence_texts': ['Hispaanias tuli suur isu vaadata töömeile…', \
                                       'Ja nii ma seal puhkasin, kuid samas tegin tööd…', \
@@ -566,6 +567,7 @@ def test_fix_repeated_sentence_ending_punctuation():
         { 'text': 'Ja ikka ei usu!!!!?????? Äi usu!', \
           'expected_sentence_texts': ['Ja ikka ei usu!!!!??????', \
                                       'Äi usu!'] }, \
+
         # Negative examples: repeated punctuation preceded by [, ( or " should not end the sentence
         { 'text': 'Siirad tänusõnad külastajatele ja [ ... ]', \
           'expected_sentence_texts': ['Siirad tänusõnad külastajatele ja [ ... ]'] }, \

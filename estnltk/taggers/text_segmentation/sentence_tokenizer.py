@@ -122,6 +122,7 @@ merge_patterns = [ \
      'fix_type' : 'abbrev_century', \
      'regexes'  : [re.compile('(.+)?[pe]\s*\.\s*Kr\s*\.?$', re.DOTALL), re.compile('^'+lc_letter+'+') ], \
    },
+
    { 'comment'  : '{Abbreviation} {period} + {numeric}', \
      'example'  : '"Hõimurahvaste Aeg Nr." + "7 lk." + "22."', \
      'fix_type' : 'abbrev_numeric', \
@@ -134,6 +135,12 @@ merge_patterns = [ \
                                       'jm[st]|jne|jp[mt]|mnt|pst|tbl|vm[st]|'+\
                                       'j[tm]|mh|vm|e|t)\s?[.]$', re.DOTALL), \
                    re.compile('^('+lc_letter+'|'+hyphen_pat+'|,|;|\))') ], \
+   },
+   #   {abbreviation} {period} + {comma_or_semicolon}
+   { 'comment'  : '{abbreviation} {period} + {comma_or_semicolon}', \
+     'example'  : "(Ribas jt.' + ', 1995; Gebel jt.' + ', 1997; Kaya jt.' + ', 2004)", \
+     'fix_type' : 'abbrev_common', \
+     'regexes'  : [re.compile('.+\s[a-zöäüõ\-.]+[.]\s*$', re.DOTALL), re.compile('^([,;]).*') ], \
    },
    
    # ***********************************
@@ -218,38 +225,36 @@ merge_patterns = [ \
      'regexes'   : [re.compile('.*[.!?]\s*$', re.DOTALL), re.compile('^(?P<end>['+ending_quotes+'])(\s|\n)*[(\[].*') ], \
      'shift_end' : True,   # sentence end needs to be shifted to the string captured by the pattern <end>
    },
-
-   # ***********************************
-   #   Fixes related to sentence ending punctuation
-   # ***********************************
-   #   {sentence_ending_punct} + {comma_or_semicolon} {lowercase_letter}
-   { 'comment'  : '{sentence_ending_punct} + {comma_or_semicolon} {lowercase_letter}', \
-     'example'  : '"Jõulise naissolistiga Conflict OK !" + ", kitarripoppi mängivad Claires Birthday ja Seachers."', \
-     'fix_type' : 'ending_punct', \
-     'regexes'  : [re.compile('.+[?!]\s*$', re.DOTALL), re.compile('^([,;])\s*'+lc_letter+'+') ], \
-   },
-   #   {sentence_ending_punct} + {only_sentence_ending_punct}
-   { 'comment'  : '{sentence_ending_punct} + {only_sentence_ending_punct}', \
-     'example'  : '"arvati , et veel sellel aastal j6uab kohale ; yess !" + "!" + "!"', \
-     'fix_type' : 'ending_punct', \
-     'regexes'  : [re.compile('.+[?!.…]\s*$', re.DOTALL), ending_punct_regexp ], \
-   },
    #   {sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}
    { 'comment'  : '{sentence_ending_punct} + {ending_quotes} {only_sentence_ending_punct}', \
      'example'  : '\'\nNii ilus ! \' + \'" .\' + \'\nNõmmel elav pensioniealine Maret\'', \
-     'fix_type' : 'ending_punct', \
+     'fix_type' : 'double_quotes', \
      'regexes'  : [re.compile('.+[?!.…]\s*$', re.DOTALL), re.compile('^['+ending_quotes+']\s*[?!.…]+$') ], \
    },
    { 'comment'  : '{sentence_ending_punct} {ending_quotes} + {only_sentence_ending_punct}', \
      'example'  : '\'\nNii ilus ! " \' + \' . \nNõmmel elav pensioniealine Maret\'', \
-     'fix_type' : 'ending_punct', \
+     'fix_type' : 'double_quotes', \
      'regexes'  : [re.compile('.+[?!.…]\s*['+ending_quotes+']$', re.DOTALL), ending_punct_regexp ], \
    },
-   #   {abbreviation} {period} + {comma_or_semicolon}
-   { 'comment'  : '{abbreviation} {period} + {comma_or_semicolon}', \
-     'example'  : "(Ribas jt.' + ', 1995; Gebel jt.' + ', 1997; Kaya jt.' + ', 2004)", \
-     'fix_type' : 'ending_punct', \
-     'regexes'  : [re.compile('.+\s[a-zöäüõ\-.]+[.]\s*$', re.DOTALL), re.compile('^([,;]).*') ], \
+
+   # ***********************************
+   #   Fixes related to prolonged sentence ending punctuation
+   # ***********************************
+   #   {sentence_ending_punct} + {only_sentence_ending_punct}
+   { 'comment'  : '{sentence_ending_punct} + {only_sentence_ending_punct}', \
+     'example'  : '"arvati , et veel sellel aastal j6uab kohale ; yess !" + "!" + "!"', \
+     'fix_type' : 'repeated_ending_punct', \
+     'regexes'  : [re.compile('.+[?!.…]\s*$', re.DOTALL), ending_punct_regexp ], \
+   },
+   
+   # ***********************************
+   #   Fixes related to punctuation in titles inside the sentence
+   # ***********************************
+   #   {sentence_ending_punct} + {comma_or_semicolon} {lowercase_letter}
+   { 'comment'  : '{sentence_ending_punct} + {comma_or_semicolon} {lowercase_letter}', \
+     'example'  : '"Jõulise naissolistiga Conflict OK !" + ", kitarripoppi mängivad Claires Birthday ja Seachers."', \
+     'fix_type' : 'inner_title_punct', \
+     'regexes'  : [re.compile('.+[?!]\s*$', re.DOTALL), re.compile('^([,;])\s*'+lc_letter+'+') ], \
    },
 ]
 
@@ -267,7 +272,7 @@ class SentenceTokenizer(Tagger):
                  fix_numeric:bool = True,
                  fix_parentheses:bool = True,
                  fix_double_quotes:bool = True,
-                 fix_ending_punct:bool = True,
+                 fix_inner_title_punct:bool = True,
                  fix_repeated_ending_punct:bool = True,
                  use_emoticons_as_endings:bool = True,
                  ):
@@ -276,7 +281,7 @@ class SentenceTokenizer(Tagger):
                               'fix_numeric': fix_numeric,
                               'fix_parentheses': fix_parentheses,
                               'fix_double_quotes': fix_double_quotes,
-                              'fix_ending_punct':fix_ending_punct,
+                              'fix_inner_title_punct':fix_inner_title_punct,
                               'fix_repeated_ending_punct':fix_repeated_ending_punct,
                               'use_emoticons_as_endings':use_emoticons_as_endings,}
         # 1) Initialize NLTK's tokenizer
@@ -293,15 +298,19 @@ class SentenceTokenizer(Tagger):
         # 2) Filter rules according to the given configuration
         self.merge_rules = []
         for merge_pattern in merge_patterns:
+            # Fixes that use both built-in logic, and merge rules
             if fix_compound_tokens and merge_pattern['fix_type'].startswith('abbrev'):
                 self.merge_rules.append( merge_pattern )
+            if fix_repeated_ending_punct and merge_pattern['fix_type'].startswith('repeated_ending_punct'):
+                self.merge_rules.append( merge_pattern )
+            # Fixes that only use merge rules
             if fix_numeric and merge_pattern['fix_type'].startswith('numeric'):
                 self.merge_rules.append( merge_pattern )
             if fix_parentheses and merge_pattern['fix_type'].startswith('parentheses'):
                 self.merge_rules.append( merge_pattern )
             if fix_double_quotes and merge_pattern['fix_type'].startswith('double_quotes'):
                 self.merge_rules.append( merge_pattern )
-            if fix_ending_punct and merge_pattern['fix_type'].startswith('ending_punct'):
+            if fix_inner_title_punct and merge_pattern['fix_type'].startswith('inner_title_punct'):
                 self.merge_rules.append( merge_pattern )
 
 
