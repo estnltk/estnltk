@@ -1,7 +1,8 @@
 from estnltk.taggers import Tagger
-from estnltk.text import Layer
+from estnltk.layer import Layer
 from estnltk.layer_operations import resolve_conflicts
 from collections import defaultdict
+
 
 class PhraseListTagger(Tagger):
     """

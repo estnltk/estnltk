@@ -6,10 +6,11 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import toolz
+import matplotlib.pyplot as plt
 
 
 class Node:
-    def __init__(self, span, name, weight = 1):
+    def __init__(self, span, name, weight=1):
         self.span = span
         self.start = span[0]
         self.end = span[1]
@@ -32,15 +33,15 @@ class Node:
     def __gt__(self, other):
         return self.span > other[0]
 
-
     def __str__(self):
-        return 'N({span}, {name}, {weight:.2f})'.format(span = self.span, name = self.name, weight=self.weight)
+        return 'N({span}, {name}, {weight:.2f})'.format(span=self.span, name=self.name, weight=self.weight)
 
     def __len__(self):
         return 2
 
     def __repr__(self):
         return str(self)
+
 
 START = Node((float('-inf'), float('-inf')), 'START')
 END = Node((float('inf'), float('inf')), 'END')
@@ -54,7 +55,7 @@ class Grammar:
 
         terminals = set()
         for i in (set(i.rhs) for i in self.rules):
-             terminals.update(i)
+            terminals.update(i)
         terminals -= self.nonterminals
 
         self.terminals = frozenset(terminals)
@@ -76,10 +77,9 @@ class Grammar:
                         rules_deps[k] -= set(order)
         return order
 
-
     def get_rule(self, lhs, rhs):
         for rule in self.rules:
-            if rule.lhs == lhs.name and len(rhs)==len(rule.rhs) and [(a==b.name) for a,b in zip(rule.rhs, rhs)]:
+            if rule.lhs == lhs.name and len(rhs) == len(rule.rhs) and [(a == b.name) for a, b in zip(rule.rhs, rhs)]:
                 return rule
         return None
 
@@ -105,7 +105,7 @@ Rules:
 
 
 class Rule:
-    def __init__(self, lhs, rhs, weight: int=None):
+    def __init__(self, lhs, rhs, weight: int = None):
         self.lhs = lhs
         self.rhs = tuple(rhs)
         if weight is None:
@@ -138,10 +138,10 @@ def graph_from_document(rows: Dict[str, List[Tuple[int, int]]]) -> nx.DiGraph:
     graph.add_edges_from(edges)
 
     create_entry_and_exit_nodes(graph, items)
-    #remove_shortcuts(graph)
+    # remove_shortcuts(graph)
     graph = nx.transitive_reduction(graph)
     add_blanks(graph)
-    #remove_shortcuts(graph)
+    # remove_shortcuts(graph)
     graph = nx.transitive_reduction(graph)
     return graph
 
@@ -155,7 +155,8 @@ def edges_from_dataframe(df, items):
             edges.append((items[a], items[b]))
         return edges
     except AttributeError:
-        raise  AssertionError('no items in df')
+        raise AssertionError('no items in df')
+
 
 def create_entry_and_exit_nodes(graph: nx.DiGraph, items):
     graph.add_nodes_from([START, END])
@@ -184,6 +185,7 @@ def get_elementary_nodes(rows):
         for (a, b) in indices:
             items.append(Node((a, b), row_name))
     return items
+
 
 def get_dense_matrix(rows):
     mapping, reverse_mapping = get_dense_mapping(rows)
@@ -239,59 +241,15 @@ def add_blanks(graph: nx.DiGraph) -> None:
                     nodes_to_add.append(nnode)
                     edges_to_add.extend([(node, nnode), (nnode, succ)])
                     edges_to_remove.append((node, succ))
-                    #graph.add_node(nnode)
-                    #graph.add_edges_from([(node, nnode), (nnode, succ)])
-                    #graph.remove_edge(node, succ)
+                    # graph.add_node(nnode)
+                    # graph.add_edges_from([(node, nnode), (nnode, succ)])
+                    # graph.remove_edge(node, succ)
     graph.add_nodes_from(nodes_to_add)
     graph.add_edges_from(edges_to_add)
     graph.remove_edges_from(edges_to_remove)
 
 
-
-def remove_shortcuts(graph: nx.DiGraph) -> None:
-    '''
-    The aim is to remove edges from the graph without affecting the reachability matrix.
-    Transitive reduction of a DAG
-    '''
-    # ei ole kasutusel. mõne graafi korral viskab errori
-    nodelist = graph.nodes()
-    adjacency_matrix = nx.to_numpy_matrix(graph, nodelist=nodelist) == 1
-    reachability_matrix = nx.floyd_warshall_numpy(graph, nodelist=nodelist) == 1
-    transitive_reduction = (adjacency_matrix & ~(adjacency_matrix @ reachability_matrix))
-
-    to_remove = (adjacency_matrix ^ transitive_reduction)
-
-    for a,b in zip(*np.where(to_remove)):
-        graph.remove_edge(nodelist[a], nodelist[b])
-
-
-# # see osa arvutas reeglitest kõik võimalikud teed
-# rules2 = defaultdict(list)
-# for k in rules:
-#     rules2[k['lhs']].append(k['rhs'])
-# stack = rules2[start][:]
-# done = []
-# while stack:
-#     line = stack.pop()
-#     new = []
-#     for elem in line:
-#         if elem in nonterminals:
-#             new.append(rules2[elem])
-#         elif elem in terminals:
-#             new.append([[elem]])
-#         else:
-#             raise AssertionError('What kind of symbol is this?')
-#     news = (
-#         list(list(itertools.chain(*i)) for i in (itertools.product(*new)))
-#     )
-#     for i in news:
-#         if set(i) & nonterminals == set():
-#             done.append(i)
-#         else:
-#             stack.append(i)
-
-
-def get_valid_paths(graph: nx.DiGraph, rule:Rule):
+def get_valid_paths(graph: nx.DiGraph, rule: Rule):
     new_graph = graph.copy()
 
     new_graph.remove_nodes_from([START, END])
@@ -344,16 +302,15 @@ def get_nonterminal_nodes(graph: nx.DiGraph, grammar: 'Grammar'):
     return nodes
 
 
-def choose_parse_tree(nodes: Dict[Node, List[Tuple[Rule, Node]]], grammar:Grammar) -> nx.DiGraph:
-    if not len([i for i in nodes.keys() if i.name == grammar.start_symbol])  >= 1:
+def choose_parse_tree(nodes: Dict[Node, List[Tuple[Rule, Node]]], grammar: Grammar) -> nx.DiGraph:
+    if not len([i for i in nodes.keys() if i.name == grammar.start_symbol]) >= 1:
         raise AssertionError('Parse failed, change grammar.')
-
-    #we'll choose the starting symbol with the most cover
-    #this is negotiable
-    #print([i for i in nodes.keys() if i.name == grammar.start_symbol])
+    # we'll choose the starting symbol with the most cover
+    # this is negotiable
+    # print([i for i in nodes.keys() if i.name == grammar.start_symbol])
     stack = [
-        max((i for i in nodes.keys() if i.name == grammar.start_symbol), key=lambda x:x.weight)
-             ]
+        max((i for i in nodes.keys() if i.name == grammar.start_symbol), key=lambda x: x.weight)
+    ]
     graph = nx.DiGraph()
     while stack:
         node = stack.pop(0)
@@ -368,11 +325,33 @@ def choose_parse_tree(nodes: Dict[Node, List[Tuple[Rule, Node]]], grammar:Gramma
 def document_to_graph(document, grammar):
     graph = graph_from_document(document)
     nonterminal_nodes = get_nonterminal_nodes(graph, grammar)
-    return  choose_parse_tree(nonterminal_nodes, grammar)
+    return choose_parse_tree(nonterminal_nodes, grammar)
 
 
-# gg = document_to_graph(document, grammar)
-# for (s,e), name in gg.nodes():
-#     print(s,e,name)
-#
-# nx.drawing.nx_pydot.write_dot(gg, 'hsptl2.dot')
+def layer_to_graph_by_attribute(layer:'Layer', attribute:str) -> nx.DiGraph:
+    """
+    Create a graph from layer attribute values.
+    """
+    document = defaultdict(list)
+    if layer.ambiguous:
+        for spanlist in layer:
+            for span in spanlist:
+                attr = getattr(span, attribute)
+                if attr is None:
+                    attr = 'None'
+                document[attr].append((span.start, span.end))
+    else:
+        for span in layer:
+            attr = getattr(span, attribute)
+            if attr is None:
+                attr = 'None'
+            document[attr].append((span.start, span.end))
+    return graph_from_document(document)
+
+
+def plot_graph(graph):
+    labels = {node:node.name for node in graph.nodes}
+    pos = nx.drawing.nx_pydot.pydot_layout(graph, prog='dot')
+    plt.figure(figsize=(8,8))
+    nx.draw(graph, with_labels=True, labels=labels, node_color=[[1,.8,.8]], node_shape='s', node_size=500, pos=pos)
+    plt.show()
