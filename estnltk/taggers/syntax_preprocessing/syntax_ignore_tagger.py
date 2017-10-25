@@ -19,8 +19,7 @@ uc_letter      = 'A-ZÖÄÜÕŽŠ'
 titlecase_word = '['+uc_letter+']['+lc_letter+']+'
 
 ignore_patterns = [ 
-
-      # Partly based on PATT_BRACS from https://github.com/EstSyntax/preprocessing-module
+      # Partly based on PATT_BRACS from https://github.com/EstSyntax/preprocessing-module (aja)
       { 'comment': 'Captures sequences of 1-3 symbols in parenthesis;',
         'example': 'Tal on kaks tütart - Beatrice ( 9 ) ja Eugenie ( 8 ).',
         'type'   : 'parenthesis_1to3',
@@ -42,8 +41,8 @@ ignore_patterns = [
       #           ... sellest tulenevalt raamatukogu[(de)] võimalikkus ...
       #           ... Romaanilikkust [(re)]presenteerib Itaalia ...
 
-      # Partly based on PATT_55 from https://github.com/EstSyntax/preprocessing-module
-      { 'comment': 'Captures 1-2 titlecase words inside parenthesis;',
+      # Partly based on PATT_55 from https://github.com/EstSyntax/preprocessing-module (aja)
+      { 'comment': 'Captures 1-2 comma-separated titlecase words inside parenthesis;',
         'example': '( Jaapan , Subaru )',
         'type'   : 'parenthesis_title_words',
         '_priority_': (0, 0, 0, 2),
@@ -52,18 +51,35 @@ ignore_patterns = [
             (['''+uc_letter+lc_letter+'''0-9]+\s)                        # preceding word
             (\(\s*                                                       # starts with '('
                 ('''+titlecase_word+''')                                 # titlecase word 
-                (-'''+titlecase_word+''')?                               # hyphen + titlecase word 
+                (-'''+titlecase_word+''')?                               # hyphen + titlecase word (optional)
                 \s?                                                      # space
                 (,'''+titlecase_word+'''\s)?                             # comma + titlecase word 
             \s*\))                                                       # ends with ')'
             ''', re.X),
         '_group_': 2 },\
+        
+      # Partly based on PATT_72 from https://github.com/EstSyntax/preprocessing-module (aja)
+      { 'comment': 'Captures 1-2 (space-separated) titlecase words inside parenthesis;',
+        'example': '( Tallinna Wado )',
+        'type'   : 'parenthesis_title_words',
+        '_priority_': (0, 0, 0, 3),
+        '_regex_pattern_': re.compile(\
+            r'''
+            (\(\s                                      # starts with '('
+                ('''+titlecase_word+''')               # titlecase word 
+                (-'''+titlecase_word+''')?             # hyphen + titlecase word (optional)
+                \s+                                    # space
+                ('''+titlecase_word+''')               # titlecase word
+                (-'''+titlecase_word+''')?             # hyphen + titlecase word (optional)
+            \s*\))                                     # ends with ')'
+            ''', re.X),
+        '_group_': 1 },\
 
-      # Partly based on PATT_62 from https://github.com/EstSyntax/preprocessing-module
-      { 'comment': 'Captures 1-2 titlecase words inside parenthesis;',
+      # Partly based on PATT_62 from https://github.com/EstSyntax/preprocessing-module (aja)
+      { 'comment': 'Captures ordinal number inside parenthesis, maybe accompanied by a word;',
         'example': '( 3. koht ) või ( WTA 210. )',
         'type'   : 'parenthesis_ordinal_numbers',
-        '_priority_': (0, 0, 0, 3),
+        '_priority_': (0, 0, 0, 4),
         '_regex_pattern_': re.compile(\
             r'''
             (['''+uc_letter+lc_letter+'''0-9]+\s)      # preceding word
@@ -76,6 +92,34 @@ ignore_patterns = [
             ''', re.X),
         '_group_': 2 },\
 
+      # Partly based on PATT_45 from https://github.com/EstSyntax/preprocessing-module (tea)
+      { 'comment': 'Captures content inside square brackets #1 (numeric references);',
+        'example': 'Nurksulgudes viited, nt [9: 5] või [9 lk 5]',
+        'type'   : 'brackets',
+        '_priority_': (0, 0, 0, 5),
+        '_regex_pattern_': re.compile(\
+            r'''
+            (\[\s?                          # starts with '['
+                (\d+\s\S{1,2}\s\d+|         # a) numbers + space + few non-spaces + space + numbers, or
+                 \d+:\s?\d+|                # b) numbers + colon + space + numbers, or
+                 \d+,\d+|                   # c) numbers + comma + numbers, or
+                 \d+)                       # d) only numbers
+            \s?\])                          # ends with ']'
+            ''', re.X),
+        '_group_': 1 },\
+      { 'comment': 'Captures content inside square brackets #2 (non-numeric stuff);',
+        'example': 'Nt [Viide2006]',
+        'type'   : 'brackets',
+        '_priority_': (0, 0, 0, 6),
+        '_regex_pattern_': re.compile(\
+            r'''
+            (\[                              # starts with '['
+                (?!at\]|\s?\d)               # look-ahead: not '[at]' (inside e-mail) nor number
+                [^\s\[\]]+                   # sequence of non-whitespace/non-brackets symbols 
+            \])                              # ends with ']'
+            ''', re.X),
+        '_group_': 1 },\
+
 ]
 
 # ===================================================================
@@ -86,7 +130,6 @@ class SyntaxIgnoreTagger(Tagger):
     attributes  = ('type')
     depends_on  = ['words', 'sentences']
     configuration = None
-
 
     def __init__(self, allow_loose_match:bool = True):
         self.configuration = {'allow_loose_match': allow_loose_match,}
