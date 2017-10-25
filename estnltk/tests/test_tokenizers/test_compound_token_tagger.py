@@ -15,6 +15,8 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Head', 'Mosaicimist', 'ja', 'sellega', 'harjumist', 'soovib', 'neti . kass @ postimees . ee'] }, \
             { 'text': 'sambamees . siim [ -at- ] siim . pri . ee says ... \n On jõudnud siiagi kuuldused , et rahvas on sassi kamminud', \
               'expected_words': ['sambamees . siim [ -at- ] siim . pri', '.', 'ee', 'says', '...', 'On', 'jõudnud', 'siiagi', 'kuuldused', ',', 'et', 'rahvas', 'on', 'sassi', 'kamminud'] }, \
+            { 'text': 'saada meil meie klubi esimehele tonisxxx[at]gmail.com', \
+              'expected_words': ['saada', 'meil', 'meie', 'klubi', 'esimehele', 'tonisxxx[at]gmail.com'] }, \
             { 'text': 'Sellised veebileheküljed: www. esindus.ee/korteriturg, www. kavkazcenter.com, http: // www. cavalierklubben.com, http : //www.offa.org/ stats ning http://www.politsei.ee/dotAsset/225706 .', \
               'expected_words': ['Sellised', 'veebileheküljed', ':', 'www. esindus.ee/korteriturg', ',', 'www. kavkazcenter.com', ',', 'http: // www. cavalierklubben.com', ',', 'http : //www.offa.org/', 'stats', 'ning', 'http://www.politsei.ee/dotAsset/225706', '.'] }, \
             { 'text': 'Kel huvi http://www.youtube.com/watch?v=PFD2yIVn4IE\npets 11.07.2012 20:37 lugesin enne kommentaarid ära.', \
