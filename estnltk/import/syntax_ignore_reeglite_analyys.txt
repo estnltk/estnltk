@@ -1,0 +1,206 @@
+--------------------------------------------------------
+ Süntaksi <ignore>-reeglite analüüs
+ Allikad:
+   https://github.com/EstSyntax/preprocessing-module 
+   https://github.com/kristiinavaik/ettenten-eeltootlus
+--------------------------------------------------------
+
+ *) Reeglid, kus regexp on üle toore teksti:
+    >> aja, tea, etTenTen:
+    * sulgudes nimeviide või tabeliviide:
+      # ( Finck , 1979 ; Kuldkepp , 1994) --> <ignore> ( Finck , 1979 ; Kuldkepp , 1994) </ignore>
+      # ( vt tabel 2 )" --> <ignore> ( vt tabel 2 ) </ignore>
+          PATT_12
+    >> aja, tea, etTenTen:
+    * sulgudes (R), (+) või paar-kolm tähte/numbrit; 
+          PATT_BRACS
+    * sulgudes vaid suurtäheline sõna või %
+          PATT_34
+    >> aja, etTenTen:
+    * sulgudes 1-2 suure algustähega sõna, komaga eraldatud
+      # ( Venemaa ) --> <ignore> ( Venemaa ) </ignore>
+      # ( Jaapan , Subaru ) --> <ignore> ( Jaapan , Subaru ) </ignore>
+          PATT_55
+    * sulgudes järgarv või järgarv ja sõna (erinevas järjestuses)
+      # ( WTA 210. ) --> <ignore> ( WTA 210. ) </ignore>
+      # Kreekaga ( 57. ) --> Kreekaga <ignore> ( 57. ) </ignore>
+          PATT_62
+    >> aja:
+    * sulgudes 1-2 suure algustähega sõna
+      # ( Tallinna Wado ) --> <ignore> ( Tallinna Wado ) </ignore>
+          PATT_72
+    >> tea:
+    * sulgudes jada-taoline asi:
+      # ( x<+/>1 , x<+/>2 , K , x<+/>n)
+          _PATT_44_1
+      # Sulgudes väga spetsiifiline numbrijada (üldse välja jätta?)
+          _PATT_44_2
+    * kandilistes sulgudes arv (nt viide), või mittetühikud:
+          PATT_45
+    >> etTenTen:
+      # VIITED või ÜLAINDEKSID, nt [ 4 ]
+          PATT_80
+
+
+ *) Reeglid, mis vajavad lausemärgendust (<s>):
+    >> aja:
+    * lause, mille alguses ')' - ignoreerida kuni suluni; 
+          PATT_61
+    >> aja, tea, etTenTen:
+    * sulgudes olevad sõnad, mille vahel on lausealgus/lauselõpp
+      # <ignore> ( 2 . </s> <s> 8) </ignore> --> <ignore> (2 . 8) </ignore>
+          PATT_43
+    >> etTenTen -- lause koosneb vaid arvust (<p> märgendeid ei vaadata):
+          PATT_98
+
+
+ *) Reeglid, mis vajavad lause- ja lõigumärendust (<s> ja <p>) ning 
+    kommenteerivad välja terveid lauseid ja lõike (loendeid):
+    >> aja:
+      # <p> <s> Boston : Dafoe <ignore> (24) </ignore> , Skudra <ignore> ( 1 , vahetus 26<+/>:<+/>15 ) </ignore> , Dafoe <ignore> ( vahetus 28<+/>:<+/>23 ) </ignore> , Skudra <ignore> ( vahetus 53<+/>:<+/>49 ) </ignore> </s> </p>
+          PATT_63_2
+      # <p> <s> 1. Marcus Grönholm/Timo Rautiainen 3<+/>:<+/>23.44 , 8 , </s> </p>
+          PATT_64
+      # <p> <s> Kert KÜTT - FC Valga ; </s> </p>
+          PATT_66_1
+      # <p> <s> 10. David Coulthard McLaren +1 ring </s> </p>
+      # <p> <s> David Coulthard McLaren +1 ring </s> </p>
+          PATT_66
+      # <p> <s> Rahvamajandus : Abiševa , Maria ; Ahlamtšenkova , Viktoria ; Bakulina , Maria ; </s> </p> 
+          PATT_68
+    >> aja - SPORDIUUDISED:
+      # <p> <s> 1-0 Shayne Corson ( Darcy Tucker , Tie Domi ) 14 : 38 </s> </p>
+          PATT_73
+      # <p> <s> Joe Sakic Col 45<+/>25+37= 62<+/>18 </s> </p>
+      # <p> <s> Peter Forsberg Col 8<+/>4+ 9= 13<+/>4 </s> </p>
+      # <p> <s> NY Islanders 45<+/>12 4<+/>2 27<+/>30 </s> </p>
+          PATT_74
+      # <p> <s> M Safin ( RUS ) - [ 2 ] A Pavel ( ROM ) 4-6 , 6-3 , 6-4 , 7-6 ( 7/5 ) </s> </p>
+      # <p> <s> K Clijsters ( BEL ) ( 15 ) - A Jidkova ( RUS ) 6-3 , 7-6 </s> </p>
+      # <p> <s> W Arthurs ( AUS ) - I Heuberger ( SWI ) 6-3 3-6 6-3 3-6 6-1 </s> </p>
+          PATT_75
+      # <p> <s> 1. Valencia 17<+/>10<+/>5<+/>2 29<+/>:<+/>10<+/>35 </s> </p>
+          PATT_77
+      # <p> <s> CLEVELAND 20<+/>20 . </s> <s> 500<+/>5<+/>1/2 </s> </p>
+      # <p> <s> NEW JERSEY 14<+/>29 . </s> <s> 326<+/>18<+/>1/2 </s> </p>
+          PATT_81
+    >> aja - SAATEKAVA:
+      # <p> <s> 12.05 - 12.35 "Õnne 13" ... </s> </p>
+          PATT_88
+      # <p> <s> <hi rend="rasvane"> 07 . 00 </hi> - <hi rend="rasvane"> 09 . 05 </hi> ... </s> </p>
+          PATT_89
+    >> etTenTen -- terve lõigu väljakommenteerimine:
+      # lause ja lõigu sisu: number, nt <p heading="0"> <s> 8 . </s> </p>
+          PATT_82
+
+
+ *) Reeglid, mis vajavad lause- ja lõigumärendust (<s> ja <p>) ning 
+    kommenteerivad välja terveid lõike või lõikude lõppe:
+    >> aja -- paragrahv võib olla poolik:
+      # <p> <s> TORONTO - NEW JERSEY 3<+/>-<+/>1 <ignore> ( 1<+/>-<+/>0,2<+/>-<+/>1,0<+/>-<+/>0 ) </ignore> </s> </p>
+          PATT_66_2
+    >> aja - SPORDIUUDISED:
+      # <p> <s> 5 km ( v ) : 1. Katerina Neumannova ( pildil , Tshehhimaa ) 12.56 , 1 , 2. </s> </p>
+          PATT_69
+      # <p> <s> Sprint : 1. Ronny Ackermann <ignore> ( Saksamaa ) </ignore> 18.58 , 2 , 2 . </s>
+      # # <s> Naiste 1000<+/>m : 1 . </s>
+      # <p> <s> Mehed : 200<+/>m 1 . </s> <s> 
+      # <p> <s> <hi rend="rasvane"> 10<+/>000<+/>m : </hi>
+          PATT_70
+      # <p> <s> <hi rend="rasvane"> 4x400<+/>m </hi> 2 . 54 , 29 USA 1993 </s> </p>
+      # <p> <s> <hi rend="rasvane"> 400<+/>m : </hi> 1 . </s> <s>
+      # <p> <s> <hi rend="rasvane"> 50<+/>km käim . </hi> 3<+/>:<+/>40 . 53 Hartwig Gauder , SDV 1987 </s>
+      # <p> <s> <hi rend="rasvane"> Mehed . 50<+/>m vabalt </hi> : 1 . </s>
+          PATT_71
+      # <p> <s> <hi rend="rasvane"> Maraton </hi> 2.25.17 Rosa Mota , Portugal 1987 </s> </p>
+      # <p> <s> <hi rend="rasvane"> Oda </hi> 90 . 82 Kimmo Kinnunen , Soome 1991 </s> </p>
+      # <p> <s> <hi rend="rasvane"> 10-võistlus </hi> 8817 Dan OBrien , USA 1993 </s> </p>
+          PATT_71_1
+      # <p> <s> 1. Hiroshi Masuoka <ignore> ( Jaapan , Misubishi ) </ignore> 6<+/>:<+/>14.34 , 2 . </s> <s> Jean-Louis Schlesser <ignore> ( Prantsusmaa , Schlesser ) </ignore> 6<+/>:<+/>18.55 , 3 . </s> <s> Jose Maria Servia <ignore> ( Hispaania , Schlesser ) </ignore> 6<+/>:<+/>23.01 . </s> </p>
+      # <p> <s> Mehed . </s> <s> 1. Dvorak 26<+/>476 , 2 . Šebrle 25<+/>184 , 3 . </s>
+          PATT_76
+      # <p> <s> MK-sari : 1 . </s> <s> Shmigun 958 , 2 . </s> <s> Larissa Lazutina ( Venemaa ) 815 , 3 . 
+      # </s> <s> Olga Danilova ( mõl . Venemaa ) 609 . </s> </p>
+          PATT_82
+      # <s> [A-ZÕÜÖÄa-zõüöä]\+ [A-ZÕÜÖÄa-zõüöä]\+ : [A-ZÕÜÖÄa-zõüöä]\+ [A-ZÕÜÖÄa-zõüöä]\+ - [A-ZÕÜÖÄa-zõüöä]\+ [0-9] :
+          PATT_89 
+      # ... <s> Mehed : 23 ... </s> </p>
+          PATT_92
+      # ... <s> C-alagrupp : 23 ... </s> </p>
+          PATT_93
+      # ... <s> 3 . voor : 23 ... </s> </p>
+          PATT_94
+    >> etTenTen -- paragrahv võib olla poolik:
+      # lause sisuks arv: </s> <s> [0-9]\+ </s> </p>
+          PATT_77
+      # Lause koosneb vaid numbrist: ... <s> -80% </s> </p>
+          PATT_97
+
+
+ *) Reeglid, mis parandavad <ignore>-märgendeid:
+    >> aja, tea, etTenTen:
+    * pesastatud <ignore>-eemaldamine:
+          PATT_REMOVE_NESTED_IGNORES
+    >> aja, etTenTen:
+    * kui <ignore> on vahetult sõna lõpus, lisatakse tühik
+          PATT_51
+    >> etTenTen:
+    * # kokkukleepunud ignore, lausestaja viga
+          PATT_78
+          PATT_78_1
+    >> aja:
+    * pesastatud <ignore>-eemaldamine:
+      # '<p> <s> <ignore> Venemaa <ignore> (13) </ignore> </ignore> </s> </p>'--> '<p> <s> <ignore> Venemaa (13) </ignore> </s> </p>'
+          PATT_67
+    >> tea:
+    * pesastatud <ignore>-eemaldamine:
+          PATT_38
+    * väga spetsiifilise jada eemaldamine sulgudest:
+      # B <ignore> ( 01 ; <ignore> (x) </ignore> ; 0) </ignore> C ( -x ; <ignore> (0) </ignore> ; x)
+          _PATT_44_3
+    >> aja, etTenTen:
+    * kõrvutiolevate <ignore>-sulgude grupeerimine
+      # <ignore> (FRA) </ignore> <ignore> (13) </ignore> --> <ignore> (FRA) (13) </ignore> 
+          PATT_49
+      # <ignore> (17) </ignore> , <ignore> (20) </ignore> isa --> <ignore> (17) , (20) </ignore> isa
+          PATT_50
+    * ja-eraldatud <ignore>-sulgude grupeerimine
+      # <ignore> .* </ignore> ja <ignore> .* </ignore> --> <ignore> .* ja .* </ignore>
+          PATT_52
+    >> aja, etTenTen:
+    * # <ignore> ( SK Reval Sport spordihoone Aia t . </s> <s> <ignore> 20 ) </ignore> </ignore> ;
+          PATT_91
+    * SISEMISTE IGNOREIDE EEMALDUS
+      # <ignore> ( viimasel päeval võitis Goran Ivanisevic <ignore> ( Horvaatia ) </ignore> Thomas Musteri 6<+/>:<+/>7,7<+/>:<+/>5,6<+/>:<+/>7,6<+/>:<+/>2,7<+/>:<+/>5 ) </ignore> 
+          PATT_90
+    >> aja:
+    * terve lause / paragrahvi ignoreerimine (<ignore> laiendamine):
+      * kogu lause sisu: suurtäheline sõna/fraas + <ignore>-arv  ==>  ignoreeri kogu lauset ...
+        # <p> <s> Lõuna-Aafrika Vabariik <ignore> (4) </ignore> </s> </p>
+        # <p> <s> Tuneesia <ignore> (5) </ignore> </s> </p>
+        # p> <s> St.<+/>Louis :
+            PATT_63
+      * <ignore> laiendamine:
+        # <p> <s> Patrick Kluivert <ignore> ( Barcelona ) </ignore> </s> </p>
+        # <p> <s> Raul Gonzalez <ignore> ( Real Madrid ) </ignore> </s> </p>
+        # <p> <s> Catanha <ignore> ( Celta Vigo ) </ignore> </s> </p>
+        # <p> <s> 8 - John Carew <ignore> ( Valencia ) </ignore> </s> </p>
+            PATT_78
+        # <p> <s> 2. Svetlana Tšernoussova Venemaa +1.12 , 8 <ignore> (1) </ignore> </s> </p>
+        # <p> <s> 3. Liv Grete Skjelbreid-Poiree Norra +1.23 , 0 <ignore> (6) </ignore> </s> </p>
+            PATT_79
+        # <p> <s> Miami-Detroit 93<+/>-<+/>85 <ignore> ( M : Mason 23/18 , D : Stackhouse 28 , Wallace 8/14 ) </ignore> </s> </p>
+            PATT_80
+        # <p> <s> Teised kohtumised : Liverpool - Tottenham 4<+/>:<+/>0 ,
+        # <s> Tabeliseis : Iraan 12 <ignore> (8) </ignore> , Saudi Araabia 11 <ignore> (7) </ignore> </s> </p>
+        # </s> <s> Teisi tulemusi : Carlos Moya <ignore> ( Hispaania , 2 ) </ignore> - Fernando
+            PATT_83
+            PATT_84
+        # <p> <s> Zimbru Chisinau <ignore> ( Moldova ) 
+        # </ignore> – Dinamo Tbilisi <ignore> ( Gruusia ) </ignore> 2<+/>:<+/>0 <ignore>
+            PATT_85
+        # <p> <s> 3 . ringi paarid : Chelsea London <ignore> ( Inglismaa )
+        # </ignore> – Skonto Riia <ignore> ( Läti ) </ignore> 
+            PATT_86
+        # <p rend="rasvane"> <s> Tšehhi - Kanada 1<+/>... </s> </p>
+            PATT_87
