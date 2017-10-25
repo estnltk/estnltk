@@ -26,7 +26,15 @@ def test_ignore_content_in_parenthesis():
           'expected_ignore_texts': ['( 26. aprillini )'] }, \
         { 'text': '1930ndate algul avaldati romaani uus väljaanne ( 4. trükk ) KT XVI ande teise trüki kujul .', \
           'expected_ignore_texts': ['( 4. trükk )'] }, \
-
+        # Pattern: brackets
+        { 'text': 'Nurksulgudes tuuakse materjali viitekirje järjekorranumber kirjanduse loetelus ja leheküljed , nt [9: 5] või [9 lk 5], aga internetimaterjalil lihtsalt viitekirje, nt [7]', \
+          'expected_ignore_texts': ['[9: 5]', '[9 lk 5]', '[7]'] }, \
+        { 'text': 'Lepitav , harmooniat taaskinnitav finaal kutsub esile katarsise [Hegel1976:548-551].', \
+          'expected_ignore_texts': ['[Hegel1976:548-551]'] }, \
+        # Negative: do not extract <ignore> content inside email address
+        { 'text': 'saada meil meie klubi esimehele xxxtonisxxx[at]gmail.com', \
+          'expected_ignore_texts': [] }, \
+        
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
