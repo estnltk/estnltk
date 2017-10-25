@@ -1,5 +1,6 @@
 import pytest
 
+import itertools
 from estnltk.text import *
 
 
