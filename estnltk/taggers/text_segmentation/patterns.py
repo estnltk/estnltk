@@ -209,7 +209,8 @@ email_and_www_patterns = [
             ]
 
 emoticon_patterns = [
-    { 'comment': '*) Aims to detect most common emoticons;',
+    # Pattern for detecting common emoticons: initial version created by Tarmo Vaino
+    { 'comment': '*) Aims to detect most common emoticons #1;',
       'example': ':=)',
       'pattern_type': 'emoticon',
       '_group_': 0,
@@ -218,6 +219,70 @@ emoticon_patterns = [
                          ([;:][=-]*[\)|\(ODP]+)                   # potential emoticon
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
+    # Patterns for emoticons in etTenTen: initial versions created by Kristiina Vaik
+    { 'comment': '*) Aims to detect most common emoticons #2;',
+      'example': ':-S',
+      'pattern_type': 'emoticon',
+      '_group_': 2,
+      '_priority_': (1, 0, 2),
+      '_regex_pattern_': re.compile(r'''
+                         (\s)
+                         (:-?[Ss]|:S:S:S)                         # potential emoticon
+                         (\s)
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(2))"},
+    { 'comment': '*) Aims to detect most common emoticons #3;',
+      'example': ':-o',
+      'pattern_type': 'emoticon',
+      '_group_': 2,
+      '_priority_': (1, 0, 3),
+      '_regex_pattern_': re.compile(r'''
+                         (\s)
+                         ([:;][-']+[(\[/*o9]+)                    # potential emoticon
+                         (\s)
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(2))"},
+    { 'comment': '*) Aims to detect most common emoticons #4;',
+      'example': ':o )',
+      'pattern_type': 'emoticon',
+      '_group_': 2,
+      '_priority_': (1, 0, 4),
+      '_regex_pattern_': re.compile(r'''
+                         (\s)((=|:-|[;:]o)\s\)(\s\))*)(\s)        # potential emoticon
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(2))"},
+    { 'comment': '*) Aims to detect most common emoticons #5;',
+      'example': ':// ?',
+      'pattern_type': 'emoticon',
+      '_group_': 2,
+      '_priority_': (1, 0, 5),
+      '_regex_pattern_': re.compile(r'''
+                         ((?<!https?)\s)
+                         ([:;][\[/\]@o]+)                         # potential emoticon
+                         (\s)
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(2))"},
+    { 'comment': '*) Aims to detect most common emoticons #6;',
+      'example': ': D',
+      'pattern_type': 'emoticon',
+      '_group_': 2,
+      '_priority_': (1, 0, 6),
+      '_regex_pattern_': re.compile(r'''
+                         (\s)
+                         ([:;]\sD)                               # potential emoticon
+                         (\s)
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(2))"}, 
+    { 'comment': '*) Aims to detect most common emoticons #7;',
+      'example': ':K',
+      'pattern_type': 'emoticon',
+      '_group_': 1,
+      '_priority_': (1, 0, 7),
+      '_regex_pattern_': re.compile(r'''
+                         (:[KL])                                 # potential emoticon
+                         (\s)
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(1))"}, 
 ]
 
 number_patterns = [
