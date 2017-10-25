@@ -91,14 +91,16 @@ class Grammar:
 
     def __str__(self):
         rules = '\n\t'.join([str(i) for i in self.rules])
+        terminals = ', '.join(repr(t) for t in sorted(self.terminals))
+        nonterminals = ', '.join(repr(t) for t in sorted(self.nonterminals))
         return '''
 Grammar:
-\tstart symbol:{start},
-\tterminals:{terminals}
-\tnonterminals:{nonterminals}
+\tstart: {start!r},
+\tterminals: {terminals}
+\tnonterminals: {nonterminals}
 Rules:
 \t{rules}
-'''.format(start=self.start_symbol, rules=rules, terminals=self.terminals, nonterminals=self.nonterminals)
+'''.format(start=self.start_symbol, rules=rules, terminals=terminals, nonterminals=nonterminals)
 
     def __repr__(self):
         return str(self)
@@ -122,7 +124,7 @@ class Rule:
             raise AssertionError
 
     def __str__(self):
-        return '{lhs} -> {rhs}\t: {weight}'.format(lhs=self.lhs, rhs=' '.join(self.rhs), weight=self.weight)
+        return '{lhs!r} -> {rhs}\t: {weight}'.format(lhs=self.lhs, rhs=', '.join(repr(r) for r in self.rhs), weight=self.weight)
 
     def __repr__(self):
         return str(self)
