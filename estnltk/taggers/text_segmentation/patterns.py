@@ -118,7 +118,11 @@ email_and_www_patterns = [
       'pattern_type': 'email',
       '_group_': 1,
       '_priority_': (0, 0, 1),
-      '_regex_pattern_': r'([{ALPHANUM}_.+-]+@[{ALPHANUM}-]+\.[{ALPHANUM}-.]+)'.format(**MACROS),
+      '_regex_pattern_': re.compile(r'''
+                            ([{ALPHANUM}_.+-]+                 # name
+                             (\(at\)|\[at\]|@)                 # @
+                             [{ALPHANUM}-]+\.[{ALPHANUM}-.]+)  # domain
+                          '''.format(**MACROS), re.X),
       'normalized': 'lambda m: None'},
       
      {'comment': '*) Pattern for detecting common e-mail formats;',
@@ -131,7 +135,7 @@ email_and_www_patterns = [
                          \s?\.\s?                                 # period
                          [{ALPHANUM}_+-]+                         # last name
                          \s?                                      # space possibly
-                         (\[\s?-at-\s?\]|\(at\)|@)                # @
+                         (\[\s?-at-\s?\]|\(at\)|\[at\]|@)         # @
                          \s?                                      # space possibly
                          [{ALPHANUM}-]+                           # domain
                          \s?\.\s?                                 # period

@@ -14,36 +14,69 @@ import regex as re
 #
 # ===================================================================
 
-# TODO: the following pattern needs refactoring and testing
-# ( Finck , 1979 ; Kuldkepp , 1994) --> <ignore> ( Finck , 1979 ; Kuldkepp , 1994) </ignore> OTSI RELEVANTSEM
-# ( vt tabel 2 )" --> <ignore> ( vt tabel 2 ) </ignore>
-# <ignore> ( nr 5/ 13.1.2012 ) </ignore>
-_reference_year = r'''
-    \s?\d+,?\s?[a-zõüöäA-ZÕÜÖÄ%'"\]!]*  # arv (aasta)
-    (/\d+)?[-']?\s                      # valikuline kaldkriipsuga aastaarv
-    (                                   # valikulise grupi 2 algus
-        :\s                             # koolon
-        \d+                             # arvud, nt lk nr
-        ([-–]\d+[\.,]+)\s               # kuni-märk ja arvud, nt lk 5-6
-    )?                                  # grupi 2 lõpp
-    -?\w*\s?\.?\s?                      # lõpus tühik
-'''
+lc_letter      = 'a-zöäüõžš'
+uc_letter      = 'A-ZÖÄÜÕŽŠ'
+titlecase_word = '['+uc_letter+']['+lc_letter+']+'
 
 ignore_patterns = [ 
-      # TODO
-      { 'comment': 'TODO',
-        'example': 'TODO',
-        '_priority_': 1,
-        '_regex_pattern_': re.compile(\
-                            r'''
-                            (\(            # reference starts with '('
-                               [^()]+      # can contain symbols that are not '(' or ')'
-                              {end}        # a number, e.g. a year
-                            \))            # reference ends with ')'
-                            '''.format(end=_reference_year), re.X),
-        '_group_': 1 },\
 
- ]
+      # Partly based on PATT_BRACS from https://github.com/EstSyntax/preprocessing-module
+      { 'comment': 'Captures sequences of 1-3 symbols in parenthesis;',
+        'example': 'Tal on kaks tütart - Beatrice ( 9 ) ja Eugenie ( 8 ).',
+        'type'   : 'parenthesis_1to3',
+        '_priority_': (0, 0, 0, 1),
+        '_regex_pattern_': re.compile(\
+            r'''
+            (\(\s                                                        # starts with '('
+              (                                                          #
+                (['''+uc_letter+lc_letter+'''0-9,-<>\[\]\/]{1,3}|\+)     # 1-3 symbols or +
+              )                                                          #
+              (                                                          #
+                 \s(['''+uc_letter+lc_letter+'''0-9,-<>\[\]\/]{1,3}|\+)  # 1-3 symbols or +
+              )*                                                         #
+            \s\))                                                        # ends with ')'
+            ''', re.X),
+        '_group_': 1 },\
+      # Note: in the previous pattern, a space must be after '(' and before ')' in order to 
+      #        block extraction of:
+      #           ... sellest tulenevalt raamatukogu[(de)] võimalikkus ...
+      #           ... Romaanilikkust [(re)]presenteerib Itaalia ...
+
+      # Partly based on PATT_55 from https://github.com/EstSyntax/preprocessing-module
+      { 'comment': 'Captures 1-2 titlecase words inside parenthesis;',
+        'example': '( Jaapan , Subaru )',
+        'type'   : 'parenthesis_title_words',
+        '_priority_': (0, 0, 0, 2),
+        '_regex_pattern_': re.compile(\
+            r'''
+            (['''+uc_letter+lc_letter+'''0-9]+\s)                        # preceding word
+            (\(\s*                                                       # starts with '('
+                ('''+titlecase_word+''')                                 # titlecase word 
+                (-'''+titlecase_word+''')?                               # hyphen + titlecase word 
+                \s?                                                      # space
+                (,'''+titlecase_word+'''\s)?                             # comma + titlecase word 
+            \s*\))                                                       # ends with ')'
+            ''', re.X),
+        '_group_': 2 },\
+
+      # Partly based on PATT_62 from https://github.com/EstSyntax/preprocessing-module
+      { 'comment': 'Captures 1-2 titlecase words inside parenthesis;',
+        'example': '( 3. koht ) või ( WTA 210. )',
+        'type'   : 'parenthesis_ordinal_numbers',
+        '_priority_': (0, 0, 0, 3),
+        '_regex_pattern_': re.compile(\
+            r'''
+            (['''+uc_letter+lc_letter+'''0-9]+\s)      # preceding word
+            (\(\s*                                     # starts with '('
+                (\d+\s?\.                              # ordinal number 
+                  (\s['''+lc_letter+''']+)?|           #   followed by lc word, or 
+                 '''+uc_letter+'''+                    # uc word
+                  \s\d+\s?\.)                          #   followed by ordinal number 
+            \s*\))                                     # ends with ')'
+            ''', re.X),
+        '_group_': 2 },\
+
+]
 
 # ===================================================================
 
@@ -63,7 +96,7 @@ class SyntaxIgnoreTagger(Tagger):
             patterns.append( ignore_pat )
         # Create a new tagger
         self._syntax_ignore_tagger = RegexTagger(vocabulary=patterns,
-                                   attributes=[ '_priority_' ],
+                                   attributes=[ '_priority_', 'type' ],
                                    conflict_resolving_strategy="MAX",
                                    overlapped=False,
                                    layer_name='syntax_ignore_hints',
@@ -107,6 +140,7 @@ class SyntaxIgnoreTagger(Tagger):
                 # Record ignored words
                 new_spanlist = SpanList()
                 new_spanlist.spans = text.words[words_start:words_end+1]
+                new_spanlist.type = sp.type
                 ignored_words_spans.append( new_spanlist )
                 #print('*',text.text[sp.start:sp.end], sp.start, sp.end)
                 #print(text.words[words_start].start, text.words[words_end].end, new_spanlist.spans)
