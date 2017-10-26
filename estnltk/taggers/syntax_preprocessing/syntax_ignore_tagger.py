@@ -14,9 +14,9 @@ import regex as re
 #
 # ===================================================================
 
-lc_letter      = 'a-zöäüõžš'
-uc_letter      = 'A-ZÖÄÜÕŽŠ'
-titlecase_word = '['+uc_letter+']['+lc_letter+']+'
+_lc_letter      = 'a-zöäüõžš'
+_uc_letter      = 'A-ZÖÄÜÕŽŠ'
+_titlecase_word = '['+_uc_letter+']['+_lc_letter+']+'
 
 ignore_patterns = [ 
       # Partly based on PATT_BRACS from https://github.com/EstSyntax/preprocessing-module (aja)
@@ -26,14 +26,14 @@ ignore_patterns = [
         '_priority_': (0, 0, 1, 1),
         '_regex_pattern_': re.compile(\
             r'''
-            (\(\s                                                        # starts with '('
-              (                                                          #
-                (['''+uc_letter+lc_letter+'''0-9,-<>\[\]\/]{1,3}|\+)     # 1-3 symbols or +
-              )                                                          #
-              (                                                          #
-                 \s(['''+uc_letter+lc_letter+'''0-9,-<>\[\]\/]{1,3}|\+)  # 1-3 symbols or +
-              )*                                                         #
-            \s\))                                                        # ends with ')'
+            (\(\s                                                          # starts with '('
+              (                                                            #
+                (['''+_uc_letter+_lc_letter+'''0-9,-<>\[\]\/]{1,3}|\+)     # 1-3 symbols or +
+              )                                                            #
+              (                                                            #
+                 \s(['''+_uc_letter+_lc_letter+'''0-9,-<>\[\]\/]{1,3}|\+)  # 1-3 symbols or +
+              )*                                                           #
+            \s\))                                                          # ends with ')'
             ''', re.X),
         '_group_': 1 },\
       # Note: in the previous pattern, a space is intentionally added after '(' and before ')' 
@@ -46,14 +46,14 @@ ignore_patterns = [
         '_priority_': (0, 0, 1, 2),
         '_regex_pattern_': re.compile(\
             r'''
-            (\(                                                          # starts with '('
-              (                                                          #
-                (['''+uc_letter+lc_letter+'''0-9,.-<>\[\]\/]{1,3}|\+)    # 1-3 symbols or +
-              )                                                          #
-              (                                                          #
-                 \s(['''+uc_letter+lc_letter+'''0-9,.-<>\[\]\/]{1,3}|\+) # 1-3 symbols or +
-              )+                                                         #
-            \))                                                          # ends with ')'
+            (\(                                                            # starts with '('
+              (                                                            #
+                (['''+_uc_letter+_lc_letter+'''0-9,.-<>\[\]\/]{1,3}|\+)    # 1-3 symbols or +
+              )                                                            #
+              (                                                            #
+                 \s(['''+_uc_letter+_lc_letter+'''0-9,.-<>\[\]\/]{1,3}|\+) # 1-3 symbols or +
+              )+                                                           #
+            \))                                                            # ends with ')'
             ''', re.X),
         '_group_': 1 },\
       { 'comment': 'Captures sequences of 1-4 non-letters in parenthesis;',
@@ -96,13 +96,13 @@ ignore_patterns = [
         '_priority_': (0, 0, 2, 1),
         '_regex_pattern_': re.compile(\
             r'''
-            (['''+uc_letter+lc_letter+'''0-9]+\s)                        # preceding word
-            (\(\s*                                                       # starts with '('
-                ('''+titlecase_word+''')                                 # titlecase word 
-                (-'''+titlecase_word+''')?                               # hyphen + titlecase word (optional)
-                \s?                                                      # space
-                (,'''+titlecase_word+'''\s)?                             # comma + titlecase word 
-            \s*\))                                                       # ends with ')'
+            (['''+_uc_letter+_lc_letter+'''0-9]+\s)          # preceding word
+            (\(\s*                                           # starts with '('
+                ('''+_titlecase_word+''')                    # titlecase word 
+                (-'''+_titlecase_word+''')?                  # hyphen + titlecase word (optional)
+                \s?                                          # space
+                (,'''+_titlecase_word+'''\s)?                # comma + titlecase word 
+            \s*\))                                           # ends with ')'
             ''', re.X),
         '_group_': 2 },\
         
@@ -114,11 +114,11 @@ ignore_patterns = [
         '_regex_pattern_': re.compile(\
             r'''
             (\(\s*                                     # starts with '('
-                ('''+titlecase_word+''')               # titlecase word 
-                (-'''+titlecase_word+''')?             # hyphen + titlecase word (optional)
+                ('''+_titlecase_word+''')              # titlecase word 
+                (-'''+_titlecase_word+''')?            # hyphen + titlecase word (optional)
                 \s+                                    # space
-                ('''+titlecase_word+''')               # titlecase word
-                (-'''+titlecase_word+''')?             # hyphen + titlecase word (optional)
+                ('''+_titlecase_word+''')              # titlecase word
+                (-'''+_titlecase_word+''')?            # hyphen + titlecase word (optional)
             \s*\))                                     # ends with ')'
             ''', re.X),
         '_group_': 1 },\
@@ -130,11 +130,11 @@ ignore_patterns = [
         '_priority_': (0, 0, 2, 3),
         '_regex_pattern_': re.compile(\
             r'''
-            (['''+uc_letter+lc_letter+'''0-9]+\s)      # preceding word
+            (['''+_uc_letter+_lc_letter+'''0-9]+\s)    # preceding word
             (\(\s*                                     # starts with '('
                 (\d+\s?\.                              # ordinal number 
-                  (\s['''+lc_letter+''']+)?|           #   followed by lc word, or 
-                 '''+uc_letter+'''+                    # uc word
+                  (\s['''+_lc_letter+''']+)?|          #   followed by lc word, or 
+                 '''+_uc_letter+'''+                   # uc word
                   \s\d+\s?\.)                          #   followed by ordinal number 
             \s*\))                                     # ends with ')'
             ''', re.X),
@@ -182,8 +182,10 @@ ignore_patterns = [
       #        )                                                        #
       #      \))                                                        # ends with ')'
       #      ''', re.X),
-      #}
+      #},
+      
 ]
+
 
 # ===================================================================
 
