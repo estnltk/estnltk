@@ -70,12 +70,18 @@ def test_ignore_content_in_parenthesis_1():
 
 
 def test_ignore_content_in_parenthesis_2():
-    # Testing a reimplementation of PATT_12 (from https://github.com/EstSyntax/preprocessing-module  )
+    # Testing a reimplementation of PATT_12 ( from https://github.com/EstSyntax/preprocessing-module  )
     syntax_ignore_tagger = SyntaxIgnoreTagger()
     test_texts = [ 
         # Pattern: parenthesis_num_range
         { 'text': 'Mis kellani on teie koolis pikkpäev ? Meie koolis tuleb 12-17(1-7 klass).', \
           'expected_ignore_texts': ['(1-7 klass)'] }, \
+        { 'text': 'Täna 100 aastat tagasi sündis lavastaja Leo Kalmet ( 2.03.1900 -16.09.1975 ) .', \
+          'expected_ignore_texts': ['( 2.03.1900 -16.09.1975 )'] }, \
+        { 'text': 'Tema atmosfäär ja arvatavasti ka sisemus koosneb peamiselt vesinikust (mahu järgi 87-90%) ja heeliumist (10-13%).', \
+          'expected_ignore_texts': ['(mahu järgi 87-90%)', '(10-13%)'] }, 
+        { 'text': 'Tallinna ( 21.-22. mai ) , Haapsalu ( 2.-3. juuli ) ja Liivimaa ( 30.-31. juuli ) rallidel on vähemalt see probleem lahendatud .', \
+          'expected_ignore_texts': ['( 21.-22. mai )', '( 2.-3. juuli )', '( 30.-31. juuli )'] }, \
         { 'text': 'Esmakordselt on üleval legendaarse itaallasest autodisaineri Ettore Bugatti ( 1881-1947 ) ning tema isa , mööbli- ja ehtekunstnik Carlo ( 1856-1940 ) , ja noorema venna skulptor Rembrandti ( 1884-1916 ) 7. märtsini kestev retrospektiiv .', \
           'expected_ignore_texts': ['( 1881-1947 )', '( 1856-1940 )', '( 1884-1916 )'] }, \
 

@@ -173,28 +173,15 @@ ignore_patterns = [
         
       # Partly based on PATT_12 from https://github.com/EstSyntax/preprocessing-module 
       #                          and https://github.com/kristiinavaik/ettenten-eeltootlus 
-      { 'comment': 'Captures parenthesis that end w numeric range, and contain less than 3 words;',
-        'example': '(u AD 450–1050)',
+      { 'comment': 'Captures parenthesis that contain a numeric range, and less than 3 surrounding words;',
+        'example': '(600–800 sõna) või (u AD 450–1050) või ( 2.03.1900 -16.09.1975 )',
         'type'   : 'parenthesis_num_range',
         '_priority_': (0, 0, 4, 1),
         '_regex_pattern_': re.compile(\
             r'''
             (\(                                    # starts with '('
                 (?![^()]*'''+_three_lc_words+''')  # look-ahead: block if there are 3 lowercase words
-                [^()]*                             # some content before range (optional)
-                \d+\s*\.?\s*                       # first number
-                '''+_hyphen_pat+'''+               # hyphen, dash etc.
-                \d+\s*\.?\s*                       # second number
-            \))                                    # ends with ')'
-            ''', re.X),
-        '_group_': 1 },\
-      { 'comment': 'Captures parenthesis that start w numeric range, and contain less than 3 words;',
-        'example': '(600–800 sõna)',
-        'type'   : 'parenthesis_num_range',
-        '_priority_': (0, 0, 4, 2),
-        '_regex_pattern_': re.compile(\
-            r'''
-            (\(                                    # starts with '('
+                [^()]*                             # some content after range (optional)
                 \d+\s*\.?\s*                       # first number
                 '''+_hyphen_pat+'''+               # hyphen, dash etc.
                 \d+\s*\.?\s*                       # second number
