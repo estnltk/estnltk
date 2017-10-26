@@ -4,7 +4,7 @@
 from estnltk.text import Text
 from estnltk.taggers.syntax_preprocessing.syntax_ignore_tagger import SyntaxIgnoreTagger
 
-def test_ignore_content_in_parenthesis():
+def test_ignore_content_in_parenthesis_1():
     syntax_ignore_tagger = SyntaxIgnoreTagger()
     test_texts = [ 
         # Pattern: parenthesis_1to3
@@ -35,7 +35,7 @@ def test_ignore_content_in_parenthesis():
         # etTenTen:
         { 'text': 'Kohtuministeeriumi asjadevalitseja (1918), Pariisi (1919) ja Tartu (1920) rahukonverentsidel Eesti delegatsiooni sekretär.', \
           'expected_ignore_texts': ['(1918)', '(1919)', '(1920)'] }, \
-
+ 
         # Pattern: parenthesis_title_words
         { 'text': 'Neidude 5 km klassikat võitis Lina Andersson ( Rootsi ) Pirjo Mannineni ( Soome ) ja Karin Holmbergi ( Rootsi ) ees .', \
           'expected_ignore_texts': ['( Rootsi )', '( Soome )', '( Rootsi )'] }, \
@@ -69,4 +69,26 @@ def test_ignore_content_in_parenthesis():
         assert ignored_texts == test_text['expected_ignore_texts']
 
 
+def test_ignore_content_in_parenthesis_2():
+    # Testing a reimplementation of PATT_12 (from https://github.com/EstSyntax/preprocessing-module  )
+    syntax_ignore_tagger = SyntaxIgnoreTagger()
+    test_texts = [ 
+        # Pattern: parenthesis_num_range
+        { 'text': 'Mis kellani on teie koolis pikkpäev ? Meie koolis tuleb 12-17(1-7 klass).', \
+          'expected_ignore_texts': ['(1-7 klass)'] }, \
+        { 'text': 'Esmakordselt on üleval legendaarse itaallasest autodisaineri Ettore Bugatti ( 1881-1947 ) ning tema isa , mööbli- ja ehtekunstnik Carlo ( 1856-1940 ) , ja noorema venna skulptor Rembrandti ( 1884-1916 ) 7. märtsini kestev retrospektiiv .', \
+          'expected_ignore_texts': ['( 1881-1947 )', '( 1856-1940 )', '( 1884-1916 )'] }, \
+
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words', 'sentences'])
+        syntax_ignore_tagger.tag( text )
+        # Collect results 
+        ignored_texts = \
+            [span.enclosing_text for span in text['syntax_ignore'].spans]
+        #print(ignored_texts)
+        # Check results
+        assert ignored_texts == test_text['expected_ignore_texts']
     

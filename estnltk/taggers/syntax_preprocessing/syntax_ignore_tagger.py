@@ -17,6 +17,8 @@ import regex as re
 _lc_letter      = 'a-zöäüõžš'
 _uc_letter      = 'A-ZÖÄÜÕŽŠ'
 _titlecase_word = '['+_uc_letter+']['+_lc_letter+']+'
+_hyphen_pat     = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|-)'
+_three_lc_words = '['+_lc_letter+']+\s['+_lc_letter+']+\s['+_lc_letter+']+'
 
 ignore_patterns = [ 
       # Partly based on PATT_BRACS from https://github.com/EstSyntax/preprocessing-module (aja)
@@ -166,6 +168,39 @@ ignore_patterns = [
                 (?!at\]|\s?\d)               # look-ahead: not '[at]' (inside e-mail) nor number
                 [^\s\[\]]+                   # sequence of non-whitespace/non-brackets symbols 
             \])                              # ends with ']'
+            ''', re.X),
+        '_group_': 1 },\
+        
+      # Partly based on PATT_12 from https://github.com/EstSyntax/preprocessing-module 
+      #                          and https://github.com/kristiinavaik/ettenten-eeltootlus 
+      { 'comment': 'Captures parenthesis that end w numeric range, and contain less than 3 words;',
+        'example': '(u AD 450–1050)',
+        'type'   : 'parenthesis_num_range',
+        '_priority_': (0, 0, 4, 1),
+        '_regex_pattern_': re.compile(\
+            r'''
+            (\(                                    # starts with '('
+                (?![^()]*'''+_three_lc_words+''')  # look-ahead: block if there are 3 lowercase words
+                [^()]*                             # some content before range (optional)
+                \d+\s*\.?\s*                       # first number
+                '''+_hyphen_pat+'''+               # hyphen, dash etc.
+                \d+\s*\.?\s*                       # second number
+            \))                                    # ends with ')'
+            ''', re.X),
+        '_group_': 1 },\
+      { 'comment': 'Captures parenthesis that start w numeric range, and contain less than 3 words;',
+        'example': '(600–800 sõna)',
+        'type'   : 'parenthesis_num_range',
+        '_priority_': (0, 0, 4, 2),
+        '_regex_pattern_': re.compile(\
+            r'''
+            (\(                                    # starts with '('
+                \d+\s*\.?\s*                       # first number
+                '''+_hyphen_pat+'''+               # hyphen, dash etc.
+                \d+\s*\.?\s*                       # second number
+                (?![^()]*'''+_three_lc_words+''')  # look-ahead: block if there are 3 lowercase words
+                [^()]*                             # some content after range (optional)
+            \))                                    # ends with ')'
             ''', re.X),
         '_group_': 1 },\
         
