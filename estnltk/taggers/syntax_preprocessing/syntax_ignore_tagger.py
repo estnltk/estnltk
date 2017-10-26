@@ -56,20 +56,36 @@ ignore_patterns = [
             \))                                                          # ends with ')'
             ''', re.X),
         '_group_': 1 },\
-      { 'comment': 'Captures sequences of 1-3 non-letters in parenthesis;',
+      { 'comment': 'Captures sequences of 1-4 non-letters in parenthesis;',
         'example': 'Pariisi (1919) ja Tartu (1920) rahukonverentsid',
-        'type'   : 'parenthesis_1to3',
-        '_priority_': (0, 0, 1, 2),
+        'type'   : 'parenthesis_1to4',
+        '_priority_': (0, 0, 1, 3),
         '_regex_pattern_': re.compile(\
             r'''
             (\(                                               # starts with '('
               (                                               #
-                ([0-9,.-<>\[\]\/]{1,4}|\+)                    # 1-3 non-letters or +
+                ([0-9,.-<>\[\]\/]{1,4}|\+)                    # 1-4 non-letters or +
               )                                               #
               (                                               #
-                 \s([0-9,.-<>\[\]\/]{1,4}|\+)                 # 1-3 non-letters or +
+                 \s([0-9,.-<>\[\]\/]{1,4}|\+)                 # 1-4 non-letters or +
               )*                                              #
             \))                                               # ends with ')'
+            ''', re.X),
+        '_group_': 1 },\
+      { 'comment': 'Captures sequences of 1-4 non-letters in parenthesis;',
+        'example': 'Pariis ( 1919 ) ja Tartu ( 1920 )',
+        'type'   : 'parenthesis_1to4',
+        '_priority_': (0, 0, 1, 4),
+        '_regex_pattern_': re.compile(\
+            r'''
+            (\(\s*                                            # starts with '('
+              (                                               #
+                ([0-9,.-<>\[\]\/]{4}|\+)                      # 4 non-letters or +
+              )                                               #
+              (                                               #
+                 \s([0-9,.-<>\[\]\/]{1,4}|\+)                 # 1-4 non-letters or +
+              )*                                              #
+            \s*\))                                            # ends with ')'
             ''', re.X),
         '_group_': 1 },\
 
@@ -128,7 +144,7 @@ ignore_patterns = [
       #          and on PATT_80 from https://github.com/kristiinavaik/ettenten-eeltootlus 
       { 'comment': 'Captures content inside square brackets #1 (numeric references);',
         'example': 'Nurksulgudes viited, nt [9: 5] või [9 lk 5]',
-        'type'   : 'brackets',
+        'type'   : 'brackets_ref',
         '_priority_': (0, 0, 3, 1),
         '_regex_pattern_': re.compile(\
             r'''
@@ -152,7 +168,21 @@ ignore_patterns = [
             \])                              # ends with ']'
             ''', re.X),
         '_group_': 1 },\
-
+        
+      #{ 'comment': 'Captures TODO',
+      #  'example': '',
+      #  'type'   : 'parenthesis_ref',
+      #  '_priority_': (0, 0, 4, 1),
+      #  '_regex_pattern_': re.compile(\
+      #      r'''
+      #      (\(                                                        # starts with '('
+      #        [^()]+                                                   # non-parenthesis
+      #        (                                                        #
+      #           \s*\d+\.?\s*                                          # a number (potentially year)
+      #        )                                                        #
+      #      \))                                                        # ends with ')'
+      #      ''', re.X),
+      #}
 ]
 
 # ===================================================================

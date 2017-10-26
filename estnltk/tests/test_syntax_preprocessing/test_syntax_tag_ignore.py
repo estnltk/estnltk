@@ -28,6 +28,11 @@ def test_ignore_content_in_parenthesis():
           'expected_ignore_texts': ['(ehk 250 ml)', '(3)'] }, \
         { 'text': 'Kõige vihmasemad kuud on juuli (68 mm) ja juuni (60 mm), kõige kuivemad on jaanuar (22 mm) ja veebruar (23 mm).', \
           'expected_ignore_texts': ['(68 mm)', '(60 mm)', '(22 mm)', '(23 mm)'] }, \
+        # Pattern: parenthesis_1to4
+        # Koondkorpus:
+        { 'text': 'Kaks lavatudengite diplomilavastust : Komissarovi " Kolm õde " XIII lennuga ( 1988 ) ning Pedajase variant XVI lennuga ( 1994 ) .', \
+          'expected_ignore_texts': ['( 1988 )', '( 1994 )'] }, \
+        # etTenTen:
         { 'text': 'Kohtuministeeriumi asjadevalitseja (1918), Pariisi (1919) ja Tartu (1920) rahukonverentsidel Eesti delegatsiooni sekretär.', \
           'expected_ignore_texts': ['(1918)', '(1919)', '(1920)'] }, \
 
@@ -58,7 +63,7 @@ def test_ignore_content_in_parenthesis():
         syntax_ignore_tagger.tag( text )
         # Collect results 
         ignored_texts = \
-            [sentence.enclosing_text for sentence in text['syntax_ignore'].spans]
+            [span.enclosing_text for span in text['syntax_ignore'].spans]
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
