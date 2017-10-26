@@ -23,7 +23,7 @@ ignore_patterns = [
       { 'comment': 'Captures sequences of 1-3 symbols in parenthesis;',
         'example': 'Tal on kaks tütart - Beatrice ( 9 ) ja Eugenie ( 8 ).',
         'type'   : 'parenthesis_1to3',
-        '_priority_': (0, 0, 0, 1),
+        '_priority_': (0, 0, 1, 1),
         '_regex_pattern_': re.compile(\
             r'''
             (\(\s                                                        # starts with '('
@@ -36,16 +36,48 @@ ignore_patterns = [
             \s\))                                                        # ends with ')'
             ''', re.X),
         '_group_': 1 },\
-      # Note: in the previous pattern, a space must be after '(' and before ')' in order to 
-      #        block extraction of:
+      # Note: in the previous pattern, a space is intentionally added after '(' and before ')' 
+      #       in order to prevent extraction of optional word endings/prefixes, such as:
       #           ... sellest tulenevalt raamatukogu[(de)] võimalikkus ...
       #           ... Romaanilikkust [(re)]presenteerib Itaalia ...
+      { 'comment': 'Captures at least 2 char sequences of 1-3 symbols in parenthesis;',
+        'example': '(x 1 , x 2 , ... , K , ... , x n)',
+        'type'   : 'parenthesis_1to3',
+        '_priority_': (0, 0, 1, 2),
+        '_regex_pattern_': re.compile(\
+            r'''
+            (\(                                                          # starts with '('
+              (                                                          #
+                (['''+uc_letter+lc_letter+'''0-9,.-<>\[\]\/]{1,3}|\+)    # 1-3 symbols or +
+              )                                                          #
+              (                                                          #
+                 \s(['''+uc_letter+lc_letter+'''0-9,.-<>\[\]\/]{1,3}|\+) # 1-3 symbols or +
+              )+                                                         #
+            \))                                                          # ends with ')'
+            ''', re.X),
+        '_group_': 1 },\
+      { 'comment': 'Captures sequences of 1-3 non-letters in parenthesis;',
+        'example': 'Pariisi (1919) ja Tartu (1920) rahukonverentsid',
+        'type'   : 'parenthesis_1to3',
+        '_priority_': (0, 0, 1, 2),
+        '_regex_pattern_': re.compile(\
+            r'''
+            (\(                                               # starts with '('
+              (                                               #
+                ([0-9,.-<>\[\]\/]{1,4}|\+)                    # 1-3 non-letters or +
+              )                                               #
+              (                                               #
+                 \s([0-9,.-<>\[\]\/]{1,4}|\+)                 # 1-3 non-letters or +
+              )*                                              #
+            \))                                               # ends with ')'
+            ''', re.X),
+        '_group_': 1 },\
 
       # Partly based on PATT_55 from https://github.com/EstSyntax/preprocessing-module (aja)
       { 'comment': 'Captures 1-2 comma-separated titlecase words inside parenthesis;',
         'example': '( Jaapan , Subaru )',
         'type'   : 'parenthesis_title_words',
-        '_priority_': (0, 0, 0, 2),
+        '_priority_': (0, 0, 2, 1),
         '_regex_pattern_': re.compile(\
             r'''
             (['''+uc_letter+lc_letter+'''0-9]+\s)                        # preceding word
@@ -59,13 +91,13 @@ ignore_patterns = [
         '_group_': 2 },\
         
       # Partly based on PATT_72 from https://github.com/EstSyntax/preprocessing-module (aja)
-      { 'comment': 'Captures 1-2 (space-separated) titlecase words inside parenthesis;',
+      { 'comment': 'Captures 2 (space-separated) titlecase words inside parenthesis;',
         'example': '( Tallinna Wado )',
         'type'   : 'parenthesis_title_words',
-        '_priority_': (0, 0, 0, 3),
+        '_priority_': (0, 0, 2, 2),
         '_regex_pattern_': re.compile(\
             r'''
-            (\(\s                                      # starts with '('
+            (\(\s*                                     # starts with '('
                 ('''+titlecase_word+''')               # titlecase word 
                 (-'''+titlecase_word+''')?             # hyphen + titlecase word (optional)
                 \s+                                    # space
@@ -79,7 +111,7 @@ ignore_patterns = [
       { 'comment': 'Captures ordinal number inside parenthesis, maybe accompanied by a word;',
         'example': '( 3. koht ) või ( WTA 210. )',
         'type'   : 'parenthesis_ordinal_numbers',
-        '_priority_': (0, 0, 0, 4),
+        '_priority_': (0, 0, 2, 3),
         '_regex_pattern_': re.compile(\
             r'''
             (['''+uc_letter+lc_letter+'''0-9]+\s)      # preceding word
@@ -93,14 +125,15 @@ ignore_patterns = [
         '_group_': 2 },\
 
       # Partly based on PATT_45 from https://github.com/EstSyntax/preprocessing-module (tea)
+      #          and on PATT_80 from https://github.com/kristiinavaik/ettenten-eeltootlus 
       { 'comment': 'Captures content inside square brackets #1 (numeric references);',
         'example': 'Nurksulgudes viited, nt [9: 5] või [9 lk 5]',
         'type'   : 'brackets',
-        '_priority_': (0, 0, 0, 5),
+        '_priority_': (0, 0, 3, 1),
         '_regex_pattern_': re.compile(\
             r'''
             (\[\s?                          # starts with '['
-                (\d+\s\S{1,2}\s\d+|         # a) numbers + space + few non-spaces + space + numbers, or
+                (\d+\s[^\ \[\]]{1,2}\s\d+|  # a) numbers + space + few non-spaces + space + numbers, or
                  \d+:\s?\d+|                # b) numbers + colon + space + numbers, or
                  \d+,\d+|                   # c) numbers + comma + numbers, or
                  \d+)                       # d) only numbers
@@ -110,7 +143,7 @@ ignore_patterns = [
       { 'comment': 'Captures content inside square brackets #2 (non-numeric stuff);',
         'example': 'Nt [Viide2006]',
         'type'   : 'brackets',
-        '_priority_': (0, 0, 0, 6),
+        '_priority_': (0, 0, 3, 2),
         '_regex_pattern_': re.compile(\
             r'''
             (\[                              # starts with '['
