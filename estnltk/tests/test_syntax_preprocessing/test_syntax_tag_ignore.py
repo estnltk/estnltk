@@ -111,6 +111,34 @@ def test_ignore_content_in_parenthesis_2():
         { 'text': '... rahvaluuleteaduse vaatenurgast tehtud uurimused Ameerika viipenimede kohta (Carmel 1996; Supalla 1992; Rutherford 1987; Klima, Bellugi 1979), samuti tutvusin ülevaatega Uus-Meremaa (McKee, McKee 2000), Prantsusmaa ( Langue des Signes. Votre Prénom ) ja Palestiina kurtide nimemärkidest (Strauss-Samaneh 2001).', \
           'expected_ignore_texts': ['(Carmel 1996; Supalla 1992; Rutherford 1987; Klima, Bellugi 1979)', '(McKee, McKee 2000)', '(Strauss-Samaneh 2001)'] }, \
 
+        # Pattern: parenthesis_ref_paragraph     
+        { 'text': 'Kasutamise hüvitamise eeskirjad ( § 987 , 988 , 993 ) on leges speciales § 951 juurde .', \
+          'expected_ignore_texts': ['( § 987 , 988 , 993 )'] }, \
+        { 'text': '... alates hõljuvusest peab andma välja asja kasutamisest saadud tulud ( §-d 987 , 990 ) .', \
+          'expected_ignore_texts': ['( §-d 987 , 990 )'] }, \
+        { 'text': '... kõiki alkohoolseid jooke, mille müük EV territooriumil lubatud (§2, 4, 6, 7, 11, 13).', \
+          'expected_ignore_texts': ['(§2, 4, 6, 7, 11, 13)'] }, \
+        { 'text': 'Teooria järgi saab järglusõigust arestida ainult õiguse arestimise teel ( ZPO § 857 I , 829 ) .', \
+          'expected_ignore_texts': ['( ZPO § 857 I , 829 )'] }, \
+          
+        # Pattern: parenthesis_num
+        { 'text': 'Sõidu võitis Itaalia (6.00,18) Tsehhi (6.00,79) ja Prantsusmaa ees (6.01,38).', \
+          'expected_ignore_texts': ['(6.00,18)', '(6.00,79)', '(6.01,38)'] }, \
+        { 'text': 'Kõige paremini läksid korda 100 m ( 11,29 ) , 400 m ( 50,18 ) ja kaugushüpe ( 6.73 ) .', \
+          'expected_ignore_texts': ['( 11,29 )', '( 50,18 )', '( 6.73 )'] }, \
+        { 'text': 'Talle järgnes täna kaks sakslannat, teiseks tuli Lisa Neumüller (+4,45) ja kolmandaks Sina Frei (+5,77).', \
+          'expected_ignore_texts': ['(+4,45)', '(+5,77)'] }, \
+        { 'text': 'Klubi sai kuus korda Inglismaa meistriks (1976, 1977, 1979, 1980, 1982, 1983).', \
+          'expected_ignore_texts': ['(1976, 1977, 1979, 1980, 1982, 1983)'] }, \
+        { 'text': 'Jaapan võitis Hiina 3:2 (26, -23, 23, -23, 16) ja USA Dominikaani 3:0 (14, 21, 22).', \
+          'expected_ignore_texts': ['(26, -23, 23, -23, 16)', '(14, 21, 22)'] }, \
+        { 'text': '2. Sebastien Amiez ( Prantsusmaa ) 1.51 , 75 ( 54,71 /57 , 04 ) , 3. Alberto Tomba ( Itaalia ) 1.52 , 14 ( 56,21 /55 , 93 )', \
+          'expected_ignore_texts': ['( Prantsusmaa )', '( 54,71 /57 , 04 )', '( Itaalia )', '( 56,21 /55 , 93 )'] }, \
+        { 'text': 'Samas voorus testiti veel Peugeot 1007 ( 5/3/2 ) , Renault Clio III ja 3. seeria BMW ( 5/4/1 ) , Suzuki Swifti ning Honda FR-V ( 4/3/3 ) , Fiat Stilo ( 4/4/1 ) , Citroen C1 ( 4/3/2 ) , Smart Forfouri ( 4/2/1 ) ja Dacia Logani ( 3/3/1 ) ohutust .', \
+          'expected_ignore_texts': ['( 5/3/2 )', '( 5/4/1 )', '( 4/3/3 )', '( 4/4/1 )', '( 4/3/2 )', '( 4/2/1 )', '( 3/3/1 )'] }, \
+        { 'text': 'TABLOO\nRASKEKAAL\nK : Timur Taimazov UKR 430,0 ( 195,0 + 235,0\n)\nH : Sergei Sõrtsov RUS 420,0 ( 195,0 + 225,0 )\n', \
+          'expected_ignore_texts': ['( 195,0 + 235,0\n)', '( 195,0 + 225,0 )'] }, \
+
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )

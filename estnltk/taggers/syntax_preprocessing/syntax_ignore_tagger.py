@@ -32,10 +32,10 @@ ignore_patterns = [
             r'''
             (\(\s                                                          # starts with '('
               (                                                            #
-                (['''+_uc_letter+_lc_letter+'''0-9,-<>\[\]\/]{1,3}|\+)     # 1-3 symbols or +
+                (['''+_uc_letter+_lc_letter+'''0-9,\-<>\[\]\/]{1,3}|\+)    # 1-3 symbols or +
               )                                                            #
               (                                                            #
-                 \s(['''+_uc_letter+_lc_letter+'''0-9,-<>\[\]\/]{1,3}|\+)  # 1-3 symbols or +
+                 \s(['''+_uc_letter+_lc_letter+'''0-9,\-<>\[\]\/]{1,3}|\+) # 1-3 symbols or +
               )*                                                           #
             \s\))                                                          # ends with ')'
             ''', re.X),
@@ -50,14 +50,14 @@ ignore_patterns = [
         '_priority_': (0, 0, 1, 2),
         '_regex_pattern_': re.compile(\
             r'''
-            (\(                                                            # starts with '('
-              (                                                            #
-                (['''+_uc_letter+_lc_letter+'''0-9,.-<>\[\]\/]{1,3}|\+)    # 1-3 symbols or +
-              )                                                            #
-              (                                                            #
-                 \s(['''+_uc_letter+_lc_letter+'''0-9,.-<>\[\]\/]{1,3}|\+) # 1-3 symbols or +
-              )+                                                           #
-            \))                                                            # ends with ')'
+            (\(                                                             # starts with '('
+              (                                                             #
+                (['''+_uc_letter+_lc_letter+'''0-9,.\-<>\[\]\/]{1,3}|\+)    # 1-3 symbols or +
+              )                                                             #
+              (                                                             #
+                 \s(['''+_uc_letter+_lc_letter+'''0-9,.\-<>\[\]\/]{1,3}|\+) # 1-3 symbols or +
+              )+                                                            #
+            \))                                                             # ends with ')'
             ''', re.X),
         '_group_': 1 },\
       { 'comment': 'Captures sequences of 1-4 non-letters in parenthesis;',
@@ -68,10 +68,10 @@ ignore_patterns = [
             r'''
             (\(                                               # starts with '('
               (                                               #
-                ([0-9,.-<>\[\]\/]{1,4}|\+)                    # 1-4 non-letters or +
+                ([0-9,.\-<>\[\]\/]{1,4}|\+)                   # 1-4 non-letters or +
               )                                               #
               (                                               #
-                 \s([0-9,.-<>\[\]\/]{1,4}|\+)                 # 1-4 non-letters or +
+                 \s([0-9,.\-<>\[\]\/]{1,4}|\+)                # 1-4 non-letters or +
               )*                                              #
             \))                                               # ends with ')'
             ''', re.X),
@@ -84,10 +84,10 @@ ignore_patterns = [
             r'''
             (\(\s*                                            # starts with '('
               (                                               #
-                ([0-9,.-<>\[\]\/]{4}|\+)                      # 4 non-letters or +
+                ([0-9,.\-<>\[\]\/]{4}|\+)                     # 4 non-letters or +
               )                                               #
               (                                               #
-                 \s([0-9,.-<>\[\]\/]{1,4}|\+)                 # 1-4 non-letters or +
+                 \s([0-9,.\-<>\[\]\/]{1,4}|\+)                # 1-4 non-letters or +
               )*                                              #
             \s*\))                                            # ends with ')'
             ''', re.X),
@@ -220,21 +220,35 @@ ignore_patterns = [
             \s*\))                                 # ends with ')'
             ''', re.X),
         '_group_': 1 },\
+      { 'comment': 'Captures parenthesis that likely contain references to paragraphs;',
+        'example': '( §2, 4, 6, 7 ) või ( §-d 979 , 980 ) või ( § 970 , vt. §-d 683 , 670 )',
+        'type'   : 'parenthesis_ref_paragraph',
+        '_priority_': (0, 0, 4, 4),
+        '_regex_pattern_': re.compile(\
+            r'''
+            (\(\s*                                 # starts with '('
+                (?![^()]*'''+_three_lc_words+''')  # look-ahead: block if there are 3 lowercase words
+                [^()]*                             # random content
+                §(-?[a-z]{1,3})?\s*\d              # look-ahead: require a year-like number
+                (?![^()]*'''+_three_lc_words+''')  # look-ahead: block if there are 3 lowercase words
+                [^()]*                             # random content
+            \s*\))                                 # ends with ')'
+            ''', re.X),
+        '_group_': 1 },\
+      { 'comment': 'Captures parenthesis containing numbers and punctuation (unrestricted length);',
+        'example': '( 54,71 /57 , 04 ) või ( 195,0 + 225,0 )',
+        'type'   : 'parenthesis_num',
+        '_priority_': (0, 0, 4, 5),
+        '_regex_pattern_': re.compile(\
+            r'''
+            (\(\s*                                 # starts with '('
+               (?=[^()]*\d)                        # look-ahead: should contain numbers
+               [0-9;:,.\-<>\[\]\/\\+\s]+           # numbers + punctuation + spaces
+            \s*\))                                 # ends with ')'
+            ''', re.X),
+        '_group_': 1 },\
         
-      #{ 'comment': 'Captures TODO',
-      #  'example': '',
-      #  'type'   : 'parenthesis_ref',
-      #  '_priority_': (0, 0, 4, 1),
-      #  '_regex_pattern_': re.compile(\
-      #      r'''
-      #      (\(                                                        # starts with '('
-      #        [^()]+                                                   # non-parenthesis
-      #        (                                                        #
-      #           \s*\d+\.?\s*                                          # a number (potentially year)
-      #        )                                                        #
-      #      \))                                                        # ends with ')'
-      #      ''', re.X),
-      #},
+
       
 ]
 
