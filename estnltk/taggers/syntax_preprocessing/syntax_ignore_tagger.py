@@ -18,7 +18,9 @@ _lc_letter      = 'a-zöäüõžš'
 _uc_letter      = 'A-ZÖÄÜÕŽŠ'
 _titlecase_word = '['+_uc_letter+']['+_lc_letter+']+'
 _hyphen_pat     = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|-)'
+_start_quotes   = '"\u00AB\u02EE\u030B\u201C\u201D\u201E'
 _three_lc_words = '['+_lc_letter+']+\s['+_lc_letter+']+\s['+_lc_letter+']+'
+_clock_time     = '((0|\D)[0-9]|[12][0-9]|2[0123])\s?:\s?([0-5][0-9])'
 
 ignore_patterns = [ 
       # Partly based on PATT_BRACS from https://github.com/EstSyntax/preprocessing-module (aja)
@@ -188,6 +190,34 @@ ignore_patterns = [
                 (?![^()]*'''+_three_lc_words+''')  # look-ahead: block if there are 3 lowercase words
                 [^()]*                             # some content after range (optional)
             \))                                    # ends with ')'
+            ''', re.X),
+        '_group_': 1 },\
+      { 'comment': 'Captures parenthesis that likely contain date/time;',
+        'example': '(22.08.2010 18:11:32)',
+        'type'   : 'parenthesis_datetime',
+        '_priority_': (0, 0, 4, 2),
+        '_regex_pattern_': re.compile(\
+            r'''
+            (\(\s*                                 # starts with '('
+                (?![^()]*'''+_three_lc_words+''')  # look-ahead: block if there are 3 lowercase words
+                (?=[^()]*[12][05-9]\d\d)           # look-ahead: require a year-like number
+                (?=[^()]*'''+_clock_time+''')      # look-ahead: require a clock-time-like number
+                [^()]*                             # some content (different date formats possibly)
+            \s*\))                                 # ends with ')'
+            ''', re.X),
+        '_group_': 1 },\
+      { 'comment': 'Captures parenthesis that likely contain a reference with year number;',
+        'example': '( PM 3.02.1998 ) või ( “ Kanuu ” , 1982 ) või ( Looming , 1999 , nr.6 )',
+        'type'   : 'parenthesis_ref',
+        '_priority_': (0, 0, 4, 3),
+        '_regex_pattern_': re.compile(\
+            r'''
+            (\(\s*                                 # starts with '('
+                ['''+_uc_letter+_start_quotes+'''] # titlecase word, or starting quotes
+                (?![^()]*'''+_three_lc_words+''')  # look-ahead: block if there are 3 lowercase words
+                (?=[^()]*[12][05-9]\d\d)           # look-ahead: require a year-like number
+                [^()]*                             # content
+            \s*\))                                 # ends with ')'
             ''', re.X),
         '_group_': 1 },\
         

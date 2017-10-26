@@ -85,6 +85,32 @@ def test_ignore_content_in_parenthesis_2():
         { 'text': 'Esmakordselt on üleval legendaarse itaallasest autodisaineri Ettore Bugatti ( 1881-1947 ) ning tema isa , mööbli- ja ehtekunstnik Carlo ( 1856-1940 ) , ja noorema venna skulptor Rembrandti ( 1884-1916 ) 7. märtsini kestev retrospektiiv .', \
           'expected_ignore_texts': ['( 1881-1947 )', '( 1856-1940 )', '( 1884-1916 )'] }, \
 
+        # Pattern: parenthesis_datetime
+        { 'text': '(22.08.2010 18:11:32)\nLisasin püreestatud supile veel punased läätsed ja mõned herned.', \
+          'expected_ignore_texts': ['(22.08.2010 18:11:32)'] }, \
+        { 'text': 'Kommentaarid:\n(1.11.2012 20:49:53)\nVäga maitsev (kuigi veis oli vist väga vana ja jäi kohati sooniline ...)!', \
+          'expected_ignore_texts': ['(1.11.2012 20:49:53)'] }, \
+        { 'text': 'Postitas isakene (Postitatud Teisipäev Nov 13, 2012 0:20) Mythbusteri vennad on vahel ikka parajad lambad.', \
+          'expected_ignore_texts': ['(Postitatud Teisipäev Nov 13, 2012 0:20)'] }, \
+        { 'text': 'Viimati muutis seda surramurra (Laup Aug 20 2011, 12:04). Kokku muudetud 1 kord\n', \
+          'expected_ignore_texts': ['(Laup Aug 20 2011, 12:04)'] }, \
+
+        # Pattern: parenthesis_ref
+        { 'text': 'Lambiviited: see ( PM 3.02.1998 ) või too ( “ Kanuu ” , 1982 ) või too ( Looming , 1999 , nr.6 )', \
+          'expected_ignore_texts': ['( PM 3.02.1998 )', '( “ Kanuu ” , 1982 )', '( Looming , 1999 , nr.6 )'] }, \
+        { 'text': 'Tutvustamisele tulevad Jan Kausi romaan “Koju” (Tuum 2012) ning Ülo Pikkovi romaan “Vana prints” (Varrak 2012).', \
+          'expected_ignore_texts': ['(Tuum 2012)', '(Varrak 2012)'] }, \
+        { 'text': 'Temaatikaga seondub veel teinegi äsja Postimehes ilmunud jutt (Priit Pullerits «Džiibi kaitseks», PM 30.07.2010).', \
+          'expected_ignore_texts': ['(Priit Pullerits «Džiibi kaitseks», PM 30.07.2010)'] }, \
+        { 'text': 'Vähemalt ühes järgmistest allikatest: 1) Paul Ariste "Maailma keeled" (I, 1967; II, 1969; 2. trükk 1972); 2) "Eesti nõukogude entsüklopeedia" (1968-1978);', \
+          'expected_ignore_texts': ['(I, 1967; II, 1969; 2. trükk 1972)', '(1968-1978)'] }, \
+        { 'text': 'See otsus avaldati esimest korda Riigi Teatajas 27. detsembril 2002 (RT I 2002, 107, 637) ja teist korda 5. septembril 2003 (RT I 2003, 60).', \
+          'expected_ignore_texts': ['(RT I 2002, 107, 637)', '(RT I 2003, 60)'] }, \
+        { 'text': 'See otsus avaldati esimest korda Riigi Teatajas 27. detsembril 2002 (RT I 2002, 107, 637) ja teist korda 5. septembril 2003 (RT I 2003, 60).', \
+          'expected_ignore_texts': ['(RT I 2002, 107, 637)', '(RT I 2003, 60)'] }, \
+        { 'text': '... rahvaluuleteaduse vaatenurgast tehtud uurimused Ameerika viipenimede kohta (Carmel 1996; Supalla 1992; Rutherford 1987; Klima, Bellugi 1979), samuti tutvusin ülevaatega Uus-Meremaa (McKee, McKee 2000), Prantsusmaa ( Langue des Signes. Votre Prénom ) ja Palestiina kurtide nimemärkidest (Strauss-Samaneh 2001).', \
+          'expected_ignore_texts': ['(Carmel 1996; Supalla 1992; Rutherford 1987; Klima, Bellugi 1979)', '(McKee, McKee 2000)', '(Strauss-Samaneh 2001)'] }, \
+
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
