@@ -9,10 +9,10 @@ tokenizer = WordPunctTokenizer()
 
 #  Pattern describing tokens that should be 
 #  retokenized and split into individual symbols
-punct_split_patterns    = re.compile('^[!"#$%&\'()*+,-./:;<=>?@^_`{|}~\[\]]{2,}$')
+_punct_split_patterns    = re.compile('^[!"#$%&\'()*+,-./:;<=>?@^_`{|}~\[\]]{2,}$')
 #  Pattern describing tokens that match punct_split_patterns,
 #  but should not be split into individual symbols
-punct_no_split_patterns = re.compile('^(\.{2,}|[\?!]+)$')
+_punct_no_split_patterns = re.compile('^(\.{2,}|[\?!]+)$')
 
 class TokensTagger(Tagger):
     description   = 'Tags tokens in raw text.'
@@ -36,8 +36,8 @@ class TokensTagger(Tagger):
             spans_to_split = []
             for (start, end) in spans:
                 token = text.text[start:end]
-                if punct_split_patterns.match( token ) and \
-                   not punct_no_split_patterns.match( token ):
+                if _punct_split_patterns.match( token ) and \
+                   not _punct_no_split_patterns.match( token ):
                     spans_to_split.append( (start, end) )
             if spans_to_split:
                 spans = self._split_into_symbols( spans, spans_to_split )

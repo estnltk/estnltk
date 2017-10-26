@@ -19,7 +19,7 @@ from .patterns import initial_patterns, abbreviation_patterns
 from .patterns import case_endings_patterns, number_fixes_patterns
 
 # Pattern for checking whether the string contains any letters
-letter_pattern = re.compile(r'''([{LETTERS}]+)'''.format(**MACROS), re.X)
+_letter_pattern = re.compile(r'''([{LETTERS}]+)'''.format(**MACROS), re.X)
 
 # List containing words that should be ignored during the normalization of words with hyphens
 DEFAULT_IGNORE_LIST = os.path.join( PACKAGE_PATH, 'rewriting', 'premorph', 'rules_files', 'ignore.csv')
@@ -202,7 +202,7 @@ class CompoundTokenTagger(Tagger):
                     hyp_start = text.tokens[hyphenation_start].start
                     hyp_end   = text.tokens[i-1].end
                     text_snippet = text.text[hyp_start:hyp_end]
-                    if letter_pattern.search(text_snippet):
+                    if _letter_pattern.search(text_snippet):
                         # The text snippet should contain at least one letter to be 
                         # considered as a potentially hyphenated word; 
                         # This serves to leave out numeric ranges like 
@@ -578,7 +578,7 @@ class CompoundTokenTagger(Tagger):
                 start_index = all_covered_tokens[0].start
                 end_index   = all_covered_tokens[-1].end
                 full_string = text.text[start_index : end_index]
-                if letter_pattern.match(full_string[0]):
+                if _letter_pattern.match(full_string[0]):
                     # if the string begins with a letter instead of 
                     # the sign, remove the sign type
                     all_types.remove("sign")
