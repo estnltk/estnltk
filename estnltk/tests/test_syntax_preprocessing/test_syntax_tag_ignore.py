@@ -110,6 +110,14 @@ def test_ignore_content_in_parenthesis_2():
           'expected_ignore_texts': ['(RT I 2002, 107, 637)', '(RT I 2003, 60)'] }, \
         { 'text': '... rahvaluuleteaduse vaatenurgast tehtud uurimused Ameerika viipenimede kohta (Carmel 1996; Supalla 1992; Rutherford 1987; Klima, Bellugi 1979), samuti tutvusin ülevaatega Uus-Meremaa (McKee, McKee 2000), Prantsusmaa ( Langue des Signes. Votre Prénom ) ja Palestiina kurtide nimemärkidest (Strauss-Samaneh 2001).', \
           'expected_ignore_texts': ['(Carmel 1996; Supalla 1992; Rutherford 1987; Klima, Bellugi 1979)', '(McKee, McKee 2000)', '(Strauss-Samaneh 2001)'] }, \
+        # Pattern: parenthesis_ref_quotes_num
+        { 'text': 'Sulgudes ja jutumärkides viited: A ( “ Postimees ” , 12. märts ), B ("Preester , rabi ja blondiin", 2000), C ( “ Odysseuse tagasitulek kodumaale ” , 1641 ) ja D ( näiteks “ Administreeritud maastik ” , 1994 ).', \
+          'expected_ignore_texts': ['( “ Postimees ” , 12. märts )', '("Preester , rabi ja blondiin", 2000)', '( “ Odysseuse tagasitulek kodumaale ” , 1641 )', '( näiteks “ Administreeritud maastik ” , 1994 )'] }, \
+        { 'text': 'Sulgudes ja jutumärkides viited: A («Eesti naine peaks valima 11 aastat noorema mehe», PM 30.07.2010), B (Marju Lauristin «Ühtehoidmise meenutuspäevaks», EPL 22.08) ja C (ajakiri "Looming" nr 9, 1981).', \
+          'expected_ignore_texts': ['(«Eesti naine peaks valima 11 aastat noorema mehe», PM 30.07.2010)', '(Marju Lauristin «Ühtehoidmise meenutuspäevaks», EPL 22.08)', '(ajakiri "Looming" nr 9, 1981)'] }, \
+        # Pattern: parenthesis_num_comma_word
+        { 'text': 'Sulgudes komaga viited või mingid sporditulemused:  A ( New York , 1994 ) või B ( PM , 25.05. ) või C ( Šveits , +0.52 ) või D ( Mitsubishi , +0.26 )', \
+          'expected_ignore_texts': ['( New York , 1994 )', '( PM , 25.05. )', '( Šveits , +0.52 )', '( Mitsubishi , +0.26 )'] }, \
 
         # Pattern: parenthesis_ref_paragraph     
         { 'text': 'Kasutamise hüvitamise eeskirjad ( § 987 , 988 , 993 ) on leges speciales § 951 juurde .', \
@@ -138,7 +146,9 @@ def test_ignore_content_in_parenthesis_2():
           'expected_ignore_texts': ['( 5/3/2 )', '( 5/4/1 )', '( 4/3/3 )', '( 4/4/1 )', '( 4/3/2 )', '( 4/2/1 )', '( 3/3/1 )'] }, \
         { 'text': 'TABLOO\nRASKEKAAL\nK : Timur Taimazov UKR 430,0 ( 195,0 + 235,0\n)\nH : Sergei Sõrtsov RUS 420,0 ( 195,0 + 225,0 )\n', \
           'expected_ignore_texts': ['( 195,0 + 235,0\n)', '( 195,0 + 225,0 )'] }, \
-
+        { 'text': 'Need seminarid on toimunud Tartus 6 korda (1997–2000, 2002, 2005).', \
+          'expected_ignore_texts': ['(1997–2000, 2002, 2005)'] }, \
+          
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )

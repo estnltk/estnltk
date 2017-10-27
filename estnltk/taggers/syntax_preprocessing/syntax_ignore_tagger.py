@@ -19,6 +19,7 @@ _uc_letter      = 'A-ZÖÄÜÕŽŠ'
 _titlecase_word = '['+_uc_letter+']['+_lc_letter+']+'
 _hyphen_pat     = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|-)'
 _start_quotes   = '"\u00AB\u02EE\u030B\u201C\u201D\u201E'
+_end_quotes     = '"\u00BB\u02EE\u030B\u201C\u201D\u201E'
 _three_lc_words = '['+_lc_letter+']+\s['+_lc_letter+']+\s['+_lc_letter+']+'
 _clock_time     = '((0|\D)[0-9]|[12][0-9]|2[0123])\s?:\s?([0-5][0-9])'
 
@@ -130,7 +131,7 @@ ignore_patterns = [
       # Partly based on PATT_62 from https://github.com/EstSyntax/preprocessing-module (aja)
       { 'comment': 'Captures ordinal number inside parenthesis, maybe accompanied by a word;',
         'example': '( 3. koht ) või ( WTA 210. )',
-        'type'   : 'parenthesis_ordinal_numbers',
+        'type'   : 'parenthesis_num_word',
         '_priority_': (0, 0, 2, 3),
         '_regex_pattern_': re.compile(\
             r'''
@@ -143,6 +144,27 @@ ignore_patterns = [
             \s*\))                                     # ends with ')'
             ''', re.X),
         '_group_': 2 },\
+        
+                #(([0-9,.\-<>\[\]\/+])*                  # non-letters / non-spaces
+                #  \s?,\s?)?                             # separating comma (optional)
+      { 'comment': 'Captures ordinal number inside parenthesis, maybe accompanied by a word;',
+        'example': '( New York , 1994 ) või ( PM , 25.05. ) või ( Šveits , +0.52 )',
+        'type'   : 'parenthesis_num_comma_word',
+        '_priority_': (0, 0, 2, 4),
+        '_regex_pattern_': re.compile(\
+            r'''
+            (\(\s*                                  # starts with '('
+                ['''+_uc_letter+''']+               # titlecased word start
+                ['''+_lc_letter+'''\-]*             # titlecased word content
+                ((\s+|\s*/\s*)                      # separator: space or slash
+                   ['''+_uc_letter+''']+            # next titlecased word start (optional)
+                   ['''+_lc_letter+'''-]*){0,2}     # next titlecased word (optional)
+                (\s?,\s?)                           # separating comma content
+                (?=[^()]\d)                         # look-ahead: should contain a number
+                ([0-9,.\-<>\[\]\/+])*               # non-letters / non-spaces (optional)
+            \s*\))                                  # ends with ')'
+            ''', re.X),
+        '_group_': 1 },\
 
       # Partly based on PATT_45 from https://github.com/EstSyntax/preprocessing-module (tea)
       #          and on PATT_80 from https://github.com/kristiinavaik/ettenten-eeltootlus 
@@ -206,9 +228,9 @@ ignore_patterns = [
             \s*\))                                 # ends with ')'
             ''', re.X),
         '_group_': 1 },\
-      { 'comment': 'Captures parenthesis that likely contain a reference with year number;',
+      { 'comment': 'Captures parenthesis likely containing a reference with year number;',
         'example': '( PM 3.02.1998 ) või ( “ Kanuu ” , 1982 ) või ( Looming , 1999 , nr.6 )',
-        'type'   : 'parenthesis_ref',
+        'type'   : 'parenthesis_ref_year',
         '_priority_': (0, 0, 4, 3),
         '_regex_pattern_': re.compile(\
             r'''
@@ -220,10 +242,26 @@ ignore_patterns = [
             \s*\))                                 # ends with ')'
             ''', re.X),
         '_group_': 1 },\
+      { 'comment': 'Captures parenthesis likely containing a reference with quotes, and a number;',
+        'example': '( “ Postimees ” , 12. märts ) või ("Preester , rabi ja blondiin", 2000)',
+        'type'   : 'parenthesis_ref_quotes_num',
+        '_priority_': (0, 0, 4, 4),
+        '_regex_pattern_': re.compile(\
+            r'''
+            (\(\s*                                       # starts with '('
+                (?=[^()]*\s*,\s*\D{0,3}\s*\d)            # look-ahead: there should comma + number somewhere
+                [^()]*                                   # some content (optional)
+                ['''+_start_quotes+''']                  # starting quotes
+                [^'''+_start_quotes+_end_quotes+'''()]+  # some content
+                ['''+_end_quotes+''']                    # ending quotes
+                [^()]*                                   # some content (optional)
+            \s*\))                                       # ends with ')'
+            ''', re.X),
+        '_group_': 1 },\
       { 'comment': 'Captures parenthesis that likely contain references to paragraphs;',
         'example': '( §2, 4, 6, 7 ) või ( §-d 979 , 980 ) või ( § 970 , vt. §-d 683 , 670 )',
         'type'   : 'parenthesis_ref_paragraph',
-        '_priority_': (0, 0, 4, 4),
+        '_priority_': (0, 0, 4, 5),
         '_regex_pattern_': re.compile(\
             r'''
             (\(\s*                                 # starts with '('
@@ -238,7 +276,7 @@ ignore_patterns = [
       { 'comment': 'Captures parenthesis containing numbers and punctuation (unrestricted length);',
         'example': '( 54,71 /57 , 04 ) või ( 195,0 + 225,0 )',
         'type'   : 'parenthesis_num',
-        '_priority_': (0, 0, 4, 5),
+        '_priority_': (0, 0, 4, 6),
         '_regex_pattern_': re.compile(\
             r'''
             (\(\s*                                 # starts with '('
@@ -248,6 +286,20 @@ ignore_patterns = [
             ''', re.X),
         '_group_': 1 },\
         
+      #{ 'comment': 'TODO',
+      #  'example': 'TODO',
+      #  'type'   : 'parenthesis_num_ref_2',
+      #  '_priority_': (0, 0, 4, 7),
+      #  '_regex_pattern_': re.compile(\
+      #      r'''
+      #      (\(                                                        # starts with '('
+      #        [^()]+                                                   # non-parenthesis
+      #        (                                                        #
+      #           \s*\d+\.?\s*                                          # a number (potentially year)
+      #        )                                                        #
+      #      \))                                                        # ends with ')'
+      #      ''', re.X),
+      #},
 
       
 ]
