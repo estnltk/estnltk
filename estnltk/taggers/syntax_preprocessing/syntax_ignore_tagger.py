@@ -102,7 +102,7 @@ ignore_patterns = [
             (\(\s*                                               # starts with '('
               (s|(sünd|sur[nm])['''+_lc_letter+''']*)\s*\.?\s*   # birth/death
               (                                                  #
-                ([0-9,.\-+]{5})                                  # a year-number like sequence
+                ([0-9,.\-+]{4,5})                                # a year-number like sequence
               )                                                  #
             \s*\))                                               # ends with ')'
             ''', re.X),
