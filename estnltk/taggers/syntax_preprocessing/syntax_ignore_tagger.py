@@ -27,7 +27,7 @@ ignore_patterns = [
       # Partly based on PATT_BRACS from https://github.com/EstSyntax/preprocessing-module (aja)
       { 'comment': 'Captures sequences of 1-3 symbols in parentheses;',
         'example': 'Tal on kaks tütart - Beatrice ( 9 ) ja Eugenie ( 8 ).',
-        'type'   : 'parenthesis_1to3',
+        'type'   : 'parentheses_1to3',
         '_priority_': (0, 0, 1, 1),
         '_regex_pattern_': re.compile(\
             r'''
@@ -47,7 +47,7 @@ ignore_patterns = [
       #           ... Romaanilikkust [(re)]presenteerib Itaalia ...
       { 'comment': 'Captures at least 2 char sequences of 1-3 symbols in parentheses;',
         'example': '(x 1 , x 2 , ... , K , ... , x n)',
-        'type'   : 'parenthesis_1to3',
+        'type'   : 'parentheses_1to3',
         '_priority_': (0, 0, 1, 2),
         '_regex_pattern_': re.compile(\
             r'''
@@ -63,7 +63,7 @@ ignore_patterns = [
         '_group_': 1 },\
       { 'comment': 'Captures sequences of 1-4 non-letters in parentheses;',
         'example': 'Pariisi (1919) ja Tartu (1920) rahukonverentsid',
-        'type'   : 'parenthesis_1to4',
+        'type'   : 'parentheses_1to4',
         '_priority_': (0, 0, 1, 3),
         '_regex_pattern_': re.compile(\
             r'''
@@ -79,7 +79,7 @@ ignore_patterns = [
         '_group_': 1 },\
       { 'comment': 'Captures sequences of 1-4 non-letters in parentheses;',
         'example': 'Pariis ( 1919 ) ja Tartu ( 1920 )',
-        'type'   : 'parenthesis_1to4',
+        'type'   : 'parentheses_1to4',
         '_priority_': (0, 0, 1, 4),
         '_regex_pattern_': re.compile(\
             r'''
@@ -95,7 +95,7 @@ ignore_patterns = [
         '_group_': 1 },\
       { 'comment': 'Captures birth or death years inside parentheses;',
         'example': '( s.1978 ) või ( sünd. 1978 ) või ( surnud 1978 )',
-        'type'   : 'parenthesis_birdeah_year',
+        'type'   : 'parentheses_birdeah_year',
         '_priority_': (0, 0, 1, 5),
         '_regex_pattern_': re.compile(\
             r'''
@@ -111,7 +111,7 @@ ignore_patterns = [
       # Partly based on PATT_55 from https://github.com/EstSyntax/preprocessing-module (aja)
       { 'comment': 'Captures 1-2 comma-separated titlecase words inside parentheses;',
         'example': '( Jaapan , Subaru )',
-        'type'   : 'parenthesis_title_words',
+        'type'   : 'parentheses_title_words',
         '_priority_': (0, 0, 2, 1),
         '_regex_pattern_': re.compile(\
             r'''
@@ -128,7 +128,7 @@ ignore_patterns = [
       # Partly based on PATT_72 from https://github.com/EstSyntax/preprocessing-module (aja)
       { 'comment': 'Captures 2 (space-separated) titlecase words inside parentheses;',
         'example': '( Tallinna Wado )',
-        'type'   : 'parenthesis_title_words',
+        'type'   : 'parentheses_title_words',
         '_priority_': (0, 0, 2, 2),
         '_regex_pattern_': re.compile(\
             r'''
@@ -145,7 +145,7 @@ ignore_patterns = [
       # Partly based on PATT_62 from https://github.com/EstSyntax/preprocessing-module (aja)
       { 'comment': 'Captures ordinal number inside parentheses, maybe accompanied by a word;',
         'example': '( 3. koht ) või ( WTA 210. )',
-        'type'   : 'parenthesis_num_word',
+        'type'   : 'parentheses_num_word',
         '_priority_': (0, 0, 2, 3),
         '_regex_pattern_': re.compile(\
             r'''
@@ -160,7 +160,7 @@ ignore_patterns = [
         '_group_': 2 },\
       { 'comment': 'Captures parentheses containing titlecased word(s) followed by comma and number(s);',
         'example': '( New York , 1994 ) või ( PM , 25.05. ) või ( Šveits , +0.52 )',
-        'type'   : 'parenthesis_num_comma_word',
+        'type'   : 'parentheses_num_comma_word',
         '_priority_': (0, 0, 2, 4),
         '_regex_pattern_': re.compile(\
             r'''
@@ -210,7 +210,7 @@ ignore_patterns = [
       #                          and https://github.com/kristiinavaik/ettenten-eeltootlus 
       { 'comment': 'Captures parentheses that contain a numeric range, and less than 3 surrounding words;',
         'example': '(600–800 sõna) või (u AD 450–1050) või ( 2.03.1900 -16.09.1975 )',
-        'type'   : 'parenthesis_num_range',
+        'type'   : 'parentheses_num_range',
         '_priority_': (0, 0, 4, 1),
         '_regex_pattern_': re.compile(\
             r'''
@@ -227,7 +227,7 @@ ignore_patterns = [
         '_group_': 1 },\
       { 'comment': 'Captures parentheses that likely contain date/time;',
         'example': '(22.08.2010 18:11:32)',
-        'type'   : 'parenthesis_datetime',
+        'type'   : 'parentheses_datetime',
         '_priority_': (0, 0, 4, 2),
         '_regex_pattern_': re.compile(\
             r'''
@@ -241,7 +241,7 @@ ignore_patterns = [
         '_group_': 1 },\
       { 'comment': 'Captures parentheses likely containing a reference with year number;',
         'example': '( PM 3.02.1998 ) või ( “ Kanuu ” , 1982 ) või ( Looming , 1999 , nr.6 )',
-        'type'   : 'parenthesis_ref_year',
+        'type'   : 'parentheses_ref_year',
         '_priority_': (0, 0, 4, 3),
         '_regex_pattern_': re.compile(\
             r'''
@@ -255,7 +255,7 @@ ignore_patterns = [
         '_group_': 1 },\
       { 'comment': 'Captures parentheses likely containing a reference with quotes, and a number;',
         'example': '( “ Postimees ” , 12. märts ) või ("Preester , rabi ja blondiin", 2000)',
-        'type'   : 'parenthesis_ref_quotes_num',
+        'type'   : 'parentheses_ref_quotes_num',
         '_priority_': (0, 0, 4, 4),
         '_regex_pattern_': re.compile(\
             r'''
@@ -271,7 +271,7 @@ ignore_patterns = [
         '_group_': 1 },\
       { 'comment': 'Captures parentheses that likely contain references to paragraphs;',
         'example': '( §2, 4, 6, 7 ) või ( §-d 979 , 980 ) või ( § 970 , vt. §-d 683 , 670 )',
-        'type'   : 'parenthesis_ref_paragraph',
+        'type'   : 'parentheses_ref_paragraph',
         '_priority_': (0, 0, 4, 5),
         '_regex_pattern_': re.compile(\
             r'''
@@ -286,7 +286,7 @@ ignore_patterns = [
         '_group_': 1 },\
       { 'comment': 'Captures parentheses containing numbers and punctuation (unrestricted length);',
         'example': '( 54,71 /57 , 04 ) või ( 195,0 + 225,0 )',
-        'type'   : 'parenthesis_num',
+        'type'   : 'parentheses_num',
         '_priority_': (0, 0, 4, 6),
         '_regex_pattern_': re.compile(\
             r'''
@@ -301,7 +301,7 @@ ignore_patterns = [
       # ( ... if parentheses contain a number and less than 3 consecutive lc words, then ignore their content ... )
       { 'comment': 'Captures content inside parentheses ending with a number (and containing less than 3 lc words)',
         'example': '(Rm 9:4 – 5), (mudelid PI70 ja PI90), (Rookopli 18), (meie puhul 165/80), (1920 x 1080)',
-        'type'   : 'parenthesis_num_end_uncategorized',
+        'type'   : 'parentheses_num_end_uncategorized',
         '_priority_': (0, 0, 5, 1),
         '_regex_pattern_': re.compile(\
             r'''
@@ -315,7 +315,7 @@ ignore_patterns = [
       },
       { 'comment': 'Captures content inside parentheses starting with a number (and containing less than 3 lc words)',
         'example': '(23%), (2 päeva, osavõtutasu 250 eurot), (13 ja 4 aastased), (300 000 000 m/sek), (46,8 p 60-st)',
-        'type'   : 'parenthesis_num_start_uncategorized',
+        'type'   : 'parentheses_num_start_uncategorized',
         '_priority_': (0, 0, 5, 2),
         '_regex_pattern_': re.compile(\
             r'''
@@ -329,7 +329,7 @@ ignore_patterns = [
       },
       { 'comment': 'Captures parentheses containing a number in the middle (and containing less than 3 lc words)',
         'example': '( Sonera osalus 42,8 protsenti ), ( ligi 100 000 krooni ), ( naised 5 km , mehed 7,5 km )',
-        'type'   : 'parenthesis_num_mid_uncategorized',
+        'type'   : 'parentheses_num_mid_uncategorized',
         '_priority_': (0, 0, 5, 3),
         '_regex_pattern_': re.compile(\
             r'''
@@ -355,13 +355,23 @@ class SyntaxIgnoreTagger(Tagger):
     depends_on  = ['words', 'sentences']
     configuration = None
 
-    def __init__(self, allow_loose_match:bool = True):
-        self.configuration = {'allow_loose_match': allow_loose_match,}
+    def __init__(self, allow_loose_match:bool = True,
+                       use_greedy_parentheses_filtering: bool = True):
+        self.configuration = {'allow_loose_match': allow_loose_match,
+                              'use_greedy_parentheses_filtering': use_greedy_parentheses_filtering,
+        }
         # Populate vocabulary
         patterns = []
         for ignore_pat in ignore_patterns:
-            # TODO: add a possibility to switch  parenthesis_*_uncategorized  off
-            patterns.append( ignore_pat )
+            # Allow/disallow greedy filtering of parentheses that contain numbers
+            if ignore_pat['type'].startswith('parentheses_num') and \
+               ignore_pat['type'].endswith('uncategorized'):
+                if use_greedy_parentheses_filtering:
+                    patterns.append( ignore_pat )
+                else:
+                    pass
+            else:
+                patterns.append( ignore_pat )
         # Create a new tagger
         self._syntax_ignore_tagger = RegexTagger(vocabulary=patterns,
                                    attributes=[ '_priority_', 'type' ],

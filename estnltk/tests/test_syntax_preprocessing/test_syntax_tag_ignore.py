@@ -4,10 +4,10 @@
 from estnltk.text import Text
 from estnltk.taggers.syntax_preprocessing.syntax_ignore_tagger import SyntaxIgnoreTagger
 
-def test_ignore_content_in_parenthesis_1():
+def test_ignore_content_in_parentheses_1():
     syntax_ignore_tagger = SyntaxIgnoreTagger()
     test_texts = [ 
-        # Pattern: parenthesis_1to3
+        # Pattern: parentheses_1to3
         # Inputs from Koondkorpus:
         { 'text': 'Eesti judokate võistlus jäi laupäeval lühikeseks , nii Joel Rothberg ( -66 kg ) kui ka Renee Villemson ( -73 kg ) võidurõõmu maitsta ei saanud .', \
           'expected_ignore_texts': ['( -66 kg )', '( -73 kg )'] }, \
@@ -28,7 +28,7 @@ def test_ignore_content_in_parenthesis_1():
           'expected_ignore_texts': ['(ehk 250 ml)', '(3)'] }, \
         { 'text': 'Kõige vihmasemad kuud on juuli (68 mm) ja juuni (60 mm), kõige kuivemad on jaanuar (22 mm) ja veebruar (23 mm).', \
           'expected_ignore_texts': ['(68 mm)', '(60 mm)', '(22 mm)', '(23 mm)'] }, \
-        # Pattern: parenthesis_1to4
+        # Pattern: parentheses_1to4
         # Koondkorpus:
         { 'text': 'Kaks lavatudengite diplomilavastust : Komissarovi " Kolm õde " XIII lennuga ( 1988 ) ning Pedajase variant XVI lennuga ( 1994 ) .', \
           'expected_ignore_texts': ['( 1988 )', '( 1994 )'] }, \
@@ -36,10 +36,10 @@ def test_ignore_content_in_parenthesis_1():
         { 'text': 'Kohtuministeeriumi asjadevalitseja (1918), Pariisi (1919) ja Tartu (1920) rahukonverentsidel Eesti delegatsiooni sekretär.', \
           'expected_ignore_texts': ['(1918)', '(1919)', '(1920)'] }, \
  
-        # Pattern: parenthesis_title_words
+        # Pattern: parentheses_title_words
         { 'text': 'Neidude 5 km klassikat võitis Lina Andersson ( Rootsi ) Pirjo Mannineni ( Soome ) ja Karin Holmbergi ( Rootsi ) ees .', \
           'expected_ignore_texts': ['( Rootsi )', '( Soome )', '( Rootsi )'] }, \
-        # Pattern: parenthesis_ordinal_numbers
+        # Pattern: parentheses_ordinal_numbers
         { 'text': 'Naiste turniirid toimuvad Jakartas ja Budapestis ( 26. aprillini ) .', \
           'expected_ignore_texts': ['( 26. aprillini )'] }, \
         { 'text': '1930ndate algul avaldati romaani uus väljaanne ( 4. trükk ) KT XVI ande teise trüki kujul .', \
@@ -69,11 +69,11 @@ def test_ignore_content_in_parenthesis_1():
         assert ignored_texts == test_text['expected_ignore_texts']
 
 
-def test_ignore_content_in_parenthesis_2():
+def test_ignore_content_in_parentheses_2():
     # Testing a reimplementation of PATT_12 ( from https://github.com/EstSyntax/preprocessing-module  )
     syntax_ignore_tagger = SyntaxIgnoreTagger()
     test_texts = [ 
-        # Pattern: parenthesis_num_range
+        # Pattern: parentheses_num_range
         { 'text': 'Mis kellani on teie koolis pikkpäev ? Meie koolis tuleb 12-17(1-7 klass).', \
           'expected_ignore_texts': ['(1-7 klass)'] }, \
         { 'text': 'Täna 100 aastat tagasi sündis lavastaja Leo Kalmet ( 2.03.1900 -16.09.1975 ) .', \
@@ -84,11 +84,11 @@ def test_ignore_content_in_parenthesis_2():
           'expected_ignore_texts': ['( 21.-22. mai )', '( 2.-3. juuli )', '( 30.-31. juuli )'] }, \
         { 'text': 'Esmakordselt on üleval legendaarse itaallasest autodisaineri Ettore Bugatti ( 1881-1947 ) ning tema isa , mööbli- ja ehtekunstnik Carlo ( 1856-1940 ) , ja noorema venna skulptor Rembrandti ( 1884-1916 ) 7. märtsini kestev retrospektiiv .', \
           'expected_ignore_texts': ['( 1881-1947 )', '( 1856-1940 )', '( 1884-1916 )'] }, \
-        # Pattern: parenthesis_birthdeath_year
+        # Pattern: parentheses_birthdeath_year
         { 'text': 'Sulgudes sünni/surmaaasta: A ( s.1978 ), B ( sünd. 1978 ) või C ( surnud 1978 ).', \
           'expected_ignore_texts': ['( s.1978 )', '( sünd. 1978 )', '( surnud 1978 )'] }, \
 
-        # Pattern: parenthesis_datetime
+        # Pattern: parentheses_datetime
         { 'text': '(22.08.2010 18:11:32)\nLisasin püreestatud supile veel punased läätsed ja mõned herned.', \
           'expected_ignore_texts': ['(22.08.2010 18:11:32)'] }, \
         { 'text': 'Kommentaarid:\n(1.11.2012 20:49:53)\nVäga maitsev (kuigi veis oli vist väga vana ja jäi kohati sooniline ...)!', \
@@ -98,7 +98,7 @@ def test_ignore_content_in_parenthesis_2():
         { 'text': 'Viimati muutis seda surramurra (Laup Aug 20 2011, 12:04). Kokku muudetud 1 kord\n', \
           'expected_ignore_texts': ['(Laup Aug 20 2011, 12:04)'] }, \
 
-        # Pattern: parenthesis_ref
+        # Pattern: parentheses_ref
         { 'text': 'Lambiviited: see ( PM 3.02.1998 ) või too ( “ Kanuu ” , 1982 ) või too ( Looming , 1999 , nr.6 )', \
           'expected_ignore_texts': ['( PM 3.02.1998 )', '( “ Kanuu ” , 1982 )', '( Looming , 1999 , nr.6 )'] }, \
         { 'text': 'Tutvustamisele tulevad Jan Kausi romaan “Koju” (Tuum 2012) ning Ülo Pikkovi romaan “Vana prints” (Varrak 2012).', \
@@ -113,16 +113,16 @@ def test_ignore_content_in_parenthesis_2():
           'expected_ignore_texts': ['(RT I 2002, 107, 637)', '(RT I 2003, 60)'] }, \
         { 'text': '... rahvaluuleteaduse vaatenurgast tehtud uurimused Ameerika viipenimede kohta (Carmel 1996; Supalla 1992; Rutherford 1987; Klima, Bellugi 1979), samuti tutvusin ülevaatega Uus-Meremaa (McKee, McKee 2000), Prantsusmaa ( Langue des Signes. Votre Prénom ) ja Palestiina kurtide nimemärkidest (Strauss-Samaneh 2001).', \
           'expected_ignore_texts': ['(Carmel 1996; Supalla 1992; Rutherford 1987; Klima, Bellugi 1979)', '(McKee, McKee 2000)', '(Strauss-Samaneh 2001)'] }, \
-        # Pattern: parenthesis_ref_quotes_num
+        # Pattern: parentheses_ref_quotes_num
         { 'text': 'Sulgudes ja jutumärkides viited: A ( “ Postimees ” , 12. märts ), B ("Preester , rabi ja blondiin", 2000), C ( “ Odysseuse tagasitulek kodumaale ” , 1641 ) ja D ( näiteks “ Administreeritud maastik ” , 1994 ).', \
           'expected_ignore_texts': ['( “ Postimees ” , 12. märts )', '("Preester , rabi ja blondiin", 2000)', '( “ Odysseuse tagasitulek kodumaale ” , 1641 )', '( näiteks “ Administreeritud maastik ” , 1994 )'] }, \
         { 'text': 'Sulgudes ja jutumärkides viited: A («Eesti naine peaks valima 11 aastat noorema mehe», PM 30.07.2010), B (Marju Lauristin «Ühtehoidmise meenutuspäevaks», EPL 22.08) ja C (ajakiri "Looming" nr 9, 1981).', \
           'expected_ignore_texts': ['(«Eesti naine peaks valima 11 aastat noorema mehe», PM 30.07.2010)', '(Marju Lauristin «Ühtehoidmise meenutuspäevaks», EPL 22.08)', '(ajakiri "Looming" nr 9, 1981)'] }, \
-        # Pattern: parenthesis_num_comma_word
+        # Pattern: parentheses_num_comma_word
         { 'text': 'Sulgudes komaga viited või mingid sporditulemused:  A ( New York , 1994 ), B ( PM , 25.05. ), C ( Šveits , +0.52 ), D ( Mitsubishi , +0.26 ) või E ( NY Islanders , 4+8 ).', \
           'expected_ignore_texts': ['( New York , 1994 )', '( PM , 25.05. )', '( Šveits , +0.52 )', '( Mitsubishi , +0.26 )', '( NY Islanders , 4+8 )'] }, \
 
-        # Pattern: parenthesis_ref_paragraph     
+        # Pattern: parentheses_ref_paragraph     
         { 'text': 'Kasutamise hüvitamise eeskirjad ( § 987 , 988 , 993 ) on leges speciales § 951 juurde .', \
           'expected_ignore_texts': ['( § 987 , 988 , 993 )'] }, \
         { 'text': '... alates hõljuvusest peab andma välja asja kasutamisest saadud tulud ( §-d 987 , 990 ) .', \
@@ -132,7 +132,7 @@ def test_ignore_content_in_parenthesis_2():
         { 'text': 'Teooria järgi saab järglusõigust arestida ainult õiguse arestimise teel ( ZPO § 857 I , 829 ) .', \
           'expected_ignore_texts': ['( ZPO § 857 I , 829 )'] }, \
           
-        # Pattern: parenthesis_num
+        # Pattern: parentheses_num
         { 'text': 'Sõidu võitis Itaalia (6.00,18) Tsehhi (6.00,79) ja Prantsusmaa ees (6.01,38).', \
           'expected_ignore_texts': ['(6.00,18)', '(6.00,79)', '(6.01,38)'] }, \
         { 'text': 'Kõige paremini läksid korda 100 m ( 11,29 ) , 400 m ( 50,18 ) ja kaugushüpe ( 6.73 ) .', \
@@ -152,13 +152,13 @@ def test_ignore_content_in_parenthesis_2():
         { 'text': 'Need seminarid on toimunud Tartus 6 korda (1997–2000, 2002, 2005).', \
           'expected_ignore_texts': ['(1997–2000, 2002, 2005)'] }, \
 
-        # Pattern:  parenthesis_num_end_uncategorized
+        # Pattern:  parentheses_num_end_uncategorized
         { 'text': 'A (Rm 9:4 – 5), B (mudelid PI70 ja PI90), C (Rookopli 18), D (meie puhul 165/80), E (1920 x 1080)', \
           'expected_ignore_texts': ['(Rm 9:4 – 5)', '(mudelid PI70 ja PI90)', '(Rookopli 18)', '(meie puhul 165/80)', '(1920 x 1080)'] }, \
-        # Pattern:  parenthesis_num_start_uncategorized
+        # Pattern:  parentheses_num_start_uncategorized
         { 'text': 'A (23%), B (2 päeva, osavõtutasu 250 eurot), C (13 ja 4 aastased), D (300 000 000 m/sek), E (46,8 p 60-st), F (91% õpetajatest)', \
           'expected_ignore_texts': ['(23%)', '(2 päeva, osavõtutasu 250 eurot)', '(13 ja 4 aastased)', '(300 000 000 m/sek)', '(46,8 p 60-st)', '(91% õpetajatest)'] }, \
-        # Pattern:  parenthesis_num_mid_uncategorized
+        # Pattern:  parentheses_num_mid_uncategorized
         { 'text': 'A ( Group 3G/Quam , Sonera osalus 42,8 protsenti ), B ( trollid nr. 6 , 7 ; bussid nr. 21 , 21B , 22 ja taksod ), C ( IPSE 2000 , Sonera osalus 12,55 protsenti ), D ( ligi 6 eurot kilogramm )', \
           'expected_ignore_texts': ['( Group 3G/Quam , Sonera osalus 42,8 protsenti )', '( trollid nr. 6 , 7 ; bussid nr. 21 , 21B , 22 ja taksod )', '( IPSE 2000 , Sonera osalus 12,55 protsenti )', '( ligi 6 eurot kilogramm )',] }, \
 
