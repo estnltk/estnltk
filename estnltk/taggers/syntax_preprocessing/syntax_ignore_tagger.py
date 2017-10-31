@@ -18,6 +18,7 @@ _three_lc_words = '['+_lc_letter+']+\s+['+_lc_letter+']+\s+['+_lc_letter+']+'
 _clock_time     = '((0|\D)[0-9]|[12][0-9]|2[0123])\s?:\s?([0-5][0-9])'
 
 _three_lc_words_compiled = re.compile(_three_lc_words)
+_enum_name_num_compiled  = re.compile('^(?=\D*\d)(\d+\s*(\.\s|\s))?['+_uc_letter+']['+_uc_letter+_lc_letter+']+')
 
 # ===================================================================
 #  Patterns for capturing text snippets that should be ignored;
@@ -462,6 +463,10 @@ class SyntaxIgnoreTagger(Tagger):
             ignored_words_spans = \
                 self._add_consecutive_parenthesized_ignore_sentences(text,ignored_words_spans)
         
+        # C) Add enumerations TODO
+        #ignored_words_spans = \
+        #    self._add_consecutive_enum_name_ignore_sentences(text,ignored_words_spans)
+        
         # Finally: create a new layer and add spans to the layer
         layer = Layer(name=self.layer_name,
                       parent = 'words',
@@ -565,7 +570,7 @@ class SyntaxIgnoreTagger(Tagger):
                 # Make entire sentence as 'ignored'
                 new_spanlist = SpanList()
                 new_spanlist.spans = sent_words
-                new_spanlist.type = 'consecutive_sentences_w_ignored'
+                new_spanlist.type = 'consecutive_parenthesized_sentences'
                 # Remove overlapped spans
                 if ignored_candidate['ignored_words']:
                     # Rewrite 'ignored_words_spans': leave out words inside 'ignored_words'
@@ -579,3 +584,71 @@ class SyntaxIgnoreTagger(Tagger):
         return ignored_words_spans
 
 
+        
+    def _add_consecutive_enum_name_ignore_sentences( 
+                self, text: 'Text', ignored_words_spans:list ) -> list:
+        ''' TODO
+        '''
+        # 1) Collect candidates for ignored sentences
+        ignored_sentence_candidates = []
+        for sent_id, sentence_span in enumerate( text['sentences'].spans ):
+            ignored_words = []
+            # check if the sentence does not contain 3 consecutive lc words
+            sentence_text = sentence_span.enclosing_text
+            misses_lc_words = not bool( _three_lc_words_compiled.search(sentence_text) )
+            enum_name_num = bool( _enum_name_num_compiled.match(sentence_text) )
+            if misses_lc_words:
+                ignore_item = { 'sent_id':sent_id, 'span': sentence_span, \
+                                'enum_name_num': enum_name_num, \
+                                'consecutive_with_next': False, \
+                                'consecutive_with_prev': False, }
+                ignored_sentence_candidates.append( ignore_item )
+        # 2) Mark consecutive sentences containing enumerations, names, and numbers
+        for ignored_sent_id, ignored_candidate in enumerate( ignored_sentence_candidates ):
+            sent_id   = ignored_candidate['sent_id']
+            sent_text = ignored_candidate['span'].enclosing_text
+            consecutive = False
+            if ignored_sent_id+1 < len( ignored_sentence_candidates ) and \
+               ignored_sentence_candidates[ignored_sent_id+1]['sent_id'] == sent_id+1 and \
+               ignored_candidate['enum_name_num'] and \
+               ignored_sentence_candidates[ignored_sent_id+1]['enum_name_num']:
+                ignored_candidate['consecutive_with_next'] = True
+            elif ignored_sent_id-1 > -1 and \
+                 ignored_sentence_candidates[ignored_sent_id-1]['sent_id'] == sent_id-1 and \
+                 ignored_candidate['enum_name_num'] and \
+                 ignored_sentence_candidates[ignored_sent_id-1]['enum_name_num']:
+                ignored_candidate['consecutive_with_prev'] = True
+        # 3) Collects groups of sentences containing at least 4 consecutive sentences
+        consecutive = []
+        for ignored_candidate in ignored_sentence_candidates:
+            if ignored_candidate['consecutive_with_next']:
+                consecutive.append( ignored_candidate )
+            elif not ignored_candidate['consecutive_with_next'] and \
+                     ignored_candidate['consecutive_with_prev']:
+                consecutive.append( ignored_candidate )
+                if len(consecutive) > 3:
+                    # Add collected consecutive sentences as 'ignored'
+                    for candidate in consecutive:
+                        # Collect words inside the sentence
+                        sent_words = []
+                        for word_span in candidate['span'].spans:
+                            sent_words.append( word_span )
+                        # Make entire sentence as 'ignored'
+                        new_spanlist = SpanList()
+                        new_spanlist.spans = sent_words
+                        new_spanlist.type = 'consecutive_enum_name_sentences'
+                        # Add the sentence only iff it is not already added
+                        add_sentence = True
+                        if ignored_words_spans:
+                            # Check if it exists already
+                            for ignore_span in ignored_words_spans:
+                                if ignore_span.start == new_spanlist.start and \
+                                    ignore_span.end == new_spanlist.end:
+                                    add_sentence = False
+                                    break
+                        if add_sentence:
+                            ignored_words_spans.append( new_spanlist )
+                consecutive = []
+            else:
+                consecutive = []
+        return ignored_words_spans
