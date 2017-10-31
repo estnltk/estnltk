@@ -23,6 +23,8 @@ _end_quotes     = '"\u00BB\u02EE\u030B\u201C\u201D\u201E'
 _three_lc_words = '['+_lc_letter+']+\s+['+_lc_letter+']+\s+['+_lc_letter+']+'
 _clock_time     = '((0|\D)[0-9]|[12][0-9]|2[0123])\s?:\s?([0-5][0-9])'
 
+_three_lc_words_compiled = re.compile(_three_lc_words)
+
 ignore_patterns = [ 
       # Partly based on PATT_BRACS from https://github.com/EstSyntax/preprocessing-module (aja)
       { 'comment': 'Captures sequences of 1-3 symbols in parentheses;',
@@ -409,12 +411,11 @@ class SyntaxIgnoreTagger(Tagger):
 
     def tag(self, text: 'Text', return_layer=False) -> 'Text':
         ''' Tag syntax_ignore layer. '''
-        # *) Apply tagger
+        # A) Apply RegexTagger to find text snippets that should be ignored
         conflict_status = {}
         new_layer = self._syntax_ignore_tagger.tag( \
                     text, return_layer=True, status=conflict_status )
-
-        # *) Create an alignment between words and spans
+        # Create an alignment between words and spans
         wid = 0
         ignored_words_spans = []
         for sp in new_layer.spans:
@@ -451,7 +452,96 @@ class SyntaxIgnoreTagger(Tagger):
                 # Advance in text
                 wid = current_wid + 1
 
-        # *) Finally: create a new layer and add spans to the layer
+        # B) Collect consecutive sentences containing ignored content in parentheses and/or 
+        #                                  less than 3 lc words
+        # B.1) Collect candidates for ignored sentences
+        ignored_sentence_candidates = []
+        for sent_id, sentence_span in enumerate( text['sentences'].spans ):
+            ignored_words = []
+            # collect ignored words inside sentences
+            if ignored_words_spans:
+                for ignore_span in ignored_words_spans:
+                    if not ignore_span.type.startswith('parentheses'):
+                        # consider only ignored content inside parentheses
+                        continue
+                    if sentence_span.start <= ignore_span.start and \
+                       ignore_span.end <= sentence_span.end:
+                        ignored_words.append( ignore_span )
+            # check if the sentence does not contain 3 consecutive lc words
+            sentence_text = sentence_span.enclosing_text
+            misses_lc_words = not bool( _three_lc_words_compiled.search(sentence_text) )
+            if misses_lc_words:
+                ignore_item = { 'sent_id':sent_id, 'span': sentence_span, \
+                                'ignored_words': ignored_words, 'ignore_sentence': False }
+                ignored_sentence_candidates.append( ignore_item )
+        # B.2) Mark consecutive sentences containing ignored word content as 'ignored'
+        for ignored_sent_id, ignored_candidate in enumerate( ignored_sentence_candidates ):
+            sent_id   = ignored_candidate['sent_id']
+            sent_text = ignored_candidate['span'].enclosing_text
+            contains_ignored = bool( ignored_candidate['ignored_words'] )
+            consecutive = False
+            if ignored_sent_id+1 < len( ignored_sentence_candidates ) and \
+               ignored_sentence_candidates[ignored_sent_id+1]['sent_id'] == sent_id+1 and \
+               contains_ignored and ignored_sentence_candidates[ignored_sent_id+1]['ignored_words']:
+                consecutive = True
+            elif ignored_sent_id-1 > -1 and \
+                 ignored_sentence_candidates[ignored_sent_id-1]['sent_id'] == sent_id-1 and \
+                 contains_ignored and ignored_sentence_candidates[ignored_sent_id-1]['ignored_words']:
+                consecutive = True
+            if consecutive:
+                # Mark this sentence 'ignored'
+                ignored_candidate['ignore_sentence'] = True
+        # B.3) Mark consecutive sentences between previously detected ignored sentences as 'ignored'
+        for ignored_sent_id, ignored_candidate in enumerate( ignored_sentence_candidates ):
+            if ignored_candidate['ignore_sentence']:
+                # Check if this sentence is followed by not-yet-ignored sentences, 
+                #       and then again by ignored sentence(s)
+                collected_sent_ids = []
+                prev_sent_id = ignored_candidate['sent_id']
+                j = ignored_sent_id + 1
+                while j < len( ignored_sentence_candidates ):
+                    sent_id = ignored_sentence_candidates[j]['sent_id']
+                    if sent_id == prev_sent_id + 1:
+                        if not ignored_sentence_candidates[j]['ignore_sentence']:
+                            collected_sent_ids.append( j )
+                        else:
+                            # the next sentence is already ignored: stop
+                            break
+                    else:
+                        # sentences are not consecutive: break
+                        collected_sent_ids = []
+                        break
+                    prev_sent_id = sent_id
+                    j += 1
+                # If there were consecutive sentences between already ignored sentences,
+                #    then mark these as 'ignored'
+                if collected_sent_ids:
+                    for collected_sid in collected_sent_ids:
+                        # Mark as 'ignored'
+                        ignored_sentence_candidates[collected_sid]['ignore_sentence'] = True
+        # B.X) Move all sentences that should be ignored to the list of ignored
+        for ignored_candidate in ignored_sentence_candidates:
+            if ignored_candidate['ignore_sentence']:
+                # Collect words inside the sentence
+                sent_words = []
+                for word_span in ignored_candidate['span'].spans:
+                    sent_words.append( word_span )
+                # Make entire sentence as 'ignored'
+                new_spanlist = SpanList()
+                new_spanlist.spans = sent_words
+                new_spanlist.type = 'consecutive_sentences_w_ignored'
+                # Remove overlapped spans
+                if ignored_candidate['ignored_words']:
+                    # Rewrite 'ignored_words_spans': leave out words inside 'ignored_words'
+                    # of the current sentence (basically: remove overlapped ignore content)
+                    new_ignored_words_spans = []
+                    for ignore_span in ignored_words_spans:
+                        if not ignore_span in ignored_candidate['ignored_words']:
+                            new_ignored_words_spans.append( ignore_span )
+                    ignored_words_spans = new_ignored_words_spans
+                ignored_words_spans.append( new_spanlist )
+        
+        # Finally: create a new layer and add spans to the layer
         layer = Layer(name=self.layer_name,
                       parent = 'words',
                       attributes=self.attributes,

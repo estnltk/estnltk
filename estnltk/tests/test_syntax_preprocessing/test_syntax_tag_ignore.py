@@ -59,7 +59,7 @@ def test_ignore_content_in_parentheses_1():
     for test_text in test_texts:
         text = Text( test_text['text'] )
         # Perform analysis
-        text.tag_layer(['words', 'sentences'])
+        text.tag_layer(['words', 'sentences', 'paragraphs'])
         syntax_ignore_tagger.tag( text )
         # Collect results 
         ignored_texts = \
@@ -143,8 +143,6 @@ def test_ignore_content_in_parentheses_2():
           'expected_ignore_texts': ['(1976, 1977, 1979, 1980, 1982, 1983)'] }, \
         { 'text': 'Jaapan võitis Hiina 3:2 (26, -23, 23, -23, 16) ja USA Dominikaani 3:0 (14, 21, 22).', \
           'expected_ignore_texts': ['(26, -23, 23, -23, 16)', '(14, 21, 22)'] }, \
-        { 'text': '2. Sebastien Amiez ( Prantsusmaa ) 1.51 , 75 ( 54,71 /57 , 04 ) , 3. Alberto Tomba ( Itaalia ) 1.52 , 14 ( 56,21 /55 , 93 )', \
-          'expected_ignore_texts': ['( Prantsusmaa )', '( 54,71 /57 , 04 )', '( Itaalia )', '( 56,21 /55 , 93 )'] }, \
         { 'text': 'Samas voorus testiti veel Peugeot 1007 ( 5/3/2 ) , Renault Clio III ja 3. seeria BMW ( 5/4/1 ) , Suzuki Swifti ning Honda FR-V ( 4/3/3 ) , Fiat Stilo ( 4/4/1 ) , Citroen C1 ( 4/3/2 ) , Smart Forfouri ( 4/2/1 ) ja Dacia Logani ( 3/3/1 ) ohutust .', \
           'expected_ignore_texts': ['( 5/3/2 )', '( 5/4/1 )', '( 4/3/3 )', '( 4/4/1 )', '( 4/3/2 )', '( 4/2/1 )', '( 3/3/1 )'] }, \
         { 'text': 'TABLOO\nRASKEKAAL\nK : Timur Taimazov UKR 430,0 ( 195,0 + 235,0\n)\nH : Sergei Sõrtsov RUS 420,0 ( 195,0 + 225,0 )\n', \
@@ -166,7 +164,7 @@ def test_ignore_content_in_parentheses_2():
     for test_text in test_texts:
         text = Text( test_text['text'] )
         # Perform analysis
-        text.tag_layer(['words', 'sentences'])
+        text.tag_layer(['words', 'sentences', 'paragraphs'])
         syntax_ignore_tagger.tag( text )
         # Collect results 
         ignored_texts = \
@@ -174,4 +172,48 @@ def test_ignore_content_in_parentheses_2():
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
-    
+
+
+def test_ignore_consecutive_sentences_w_ignore_parentheses():
+    # Ignore consecutive sentences that do not contain 3 consecutive lowercase words, 
+    #        and that contain ignored content in parenthesis;
+    syntax_ignore_tagger = SyntaxIgnoreTagger()
+    test_texts = [
+        { 'text': 'Meeste slaalom : \n'+\
+                  '1. Tom Stiansen ( Norra ) 1.51 , 70 ( 55,81 /55 , 89 ) ,\n'+\
+                  '2. Sebastien Amiez ( Prantsusmaa ) 1.51 , 75 ( 54,71 /57 , 04 ) ,\n'+\
+                  '3. Alberto Tomba ( Itaalia ) 1.52 , 14 ( 56,21 /55 , 93 ) ,\n',\
+          'expected_ignore_texts': ['Tom Stiansen ( Norra ) 1.51 , 70 ( 55,81 /55 , 89 ) ,\n2.', \
+                                    'Sebastien Amiez ( Prantsusmaa ) 1.51 , 75 ( 54,71 /57 , 04 ) ,\n3.', \
+                                    'Alberto Tomba ( Itaalia ) 1.52 , 14 ( 56,21 /55 , 93 ) ,'] }, \
+        { 'text': 'Eile õhtul sõidetud avakatsel sai Markko Märtin ( Subaru , pildil ) viienda aja .\n'+\
+                  'Tulemused :\n'+\
+                  '1. Tommi Mäkinen ( FIN ) Mitsubishi - 3.46 , 9\n'+\
+                  '2. Marcus Grönholm ( FIN ) Peugeot +1,0\n'+\
+                  '3. Harri Rovanperä ( FIN ) Peugeot +4,1\n'+\
+                  '4. Carlos Sainz ( ESP ) Ford +6,0\n',\
+          'expected_ignore_texts': ['Tommi Mäkinen ( FIN ) Mitsubishi - 3.46 , 9\n2.', \
+                                    'Marcus Grönholm ( FIN ) Peugeot +1,0\n3.', \
+                                    'Harri Rovanperä ( FIN ) Peugeot +4,1\n4.', \
+                                    'Carlos Sainz ( ESP ) Ford +6,0'] }, \
+        { 'text': 'New Yorgis peetavale WTA finaalturniirile pääseb maailma edetabeli 16 paremat naismängijat .\n'+\
+                  'ATP edetabel :\n'+\
+                  '1. Sampras 4375 ,\n'+\
+                  '2. Michael Chang ( USA ) 3837 ,\n'+\
+                  '3. Jevgeni Kafelnikov ( Venemaa ) 3486 ,\n'+\
+                  '4. Goran Ivanishevic ( Horvaatia ) 3222 ,\n',\
+          'expected_ignore_texts': ['Michael Chang ( USA ) 3837 ,\n3.', \
+                                    'Jevgeni Kafelnikov ( Venemaa ) 3486 ,\n4.', \
+                                    'Goran Ivanishevic ( Horvaatia ) 3222 ,'] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words', 'sentences', 'paragraphs'])
+        syntax_ignore_tagger.tag( text )
+        # Collect results 
+        ignored_texts = \
+            [span.enclosing_text for span in text['syntax_ignore'].spans]
+        #print(ignored_texts)
+        # Check results
+        assert ignored_texts == test_text['expected_ignore_texts']
