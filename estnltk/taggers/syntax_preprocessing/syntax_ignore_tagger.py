@@ -6,9 +6,9 @@ from estnltk.text import Span, SpanList, Layer
 import regex as re
 
 # ===================================================================
-#   Patterns for capturing text snippets that should be ignored;
+#  Patterns for capturing text snippets that should be ignored;
 #
-#   Note: these patterns are based on the patterns defined in:
+#  Note: these patterns are partly based on the patterns defined in:
 #      * https://github.com/kristiinavaik/ettenten-eeltootlus
 #      * https://github.com/EstSyntax/preprocessing-module
 #
@@ -356,20 +356,46 @@ class SyntaxIgnoreTagger(Tagger):
     configuration = None
 
     def __init__(self, allow_loose_match:bool = True,
-                       use_greedy_parentheses_filtering: bool = True):
+                       ignore_parenthesized_num:bool = True,
+                       ignore_parenthesized_num_greedy:bool = True,
+                       ignore_parenthesized_ref:bool = True,
+                       ignore_parenthesized_title_words:bool = True,
+                       ignore_parenthesized_short_char_sequences:bool = True,
+                       ignore_brackets:bool = True,):
         self.configuration = {'allow_loose_match': allow_loose_match,
-                              'use_greedy_parentheses_filtering': use_greedy_parentheses_filtering,
+                              'ignore_parenthesized_num':ignore_parenthesized_num,
+                              'ignore_parenthesized_num_greedy': ignore_parenthesized_num_greedy,
+                              'ignore_parenthesized_ref':ignore_parenthesized_ref,
+                              'ignore_parenthesized_title_words':ignore_parenthesized_title_words,
+                              'ignore_parenthesized_short_char_sequences':ignore_parenthesized_short_char_sequences,
+                              'ignore_brackets':ignore_brackets,
         }
-        # Populate vocabulary
+        # Populate vocabulary according to given settings
         patterns = []
         for ignore_pat in ignore_patterns:
-            # Allow/disallow greedy filtering of parentheses that contain numbers
             if ignore_pat['type'].startswith('parentheses_num') and \
                ignore_pat['type'].endswith('uncategorized'):
-                if use_greedy_parentheses_filtering:
+                # Allow/disallow greedy filtering of parentheses that contain numbers
+                if ignore_parenthesized_num_greedy:
                     patterns.append( ignore_pat )
-                else:
-                    pass
+            elif (ignore_pat['type'] in ['parentheses_num_word', \
+                  'parentheses_num_comma_word', 'parentheses_num_range', \
+                  'parentheses_datetime', 'parentheses_num']):
+                if ignore_parenthesized_num:
+                    patterns.append( ignore_pat )
+            elif ignore_pat['type'].startswith('parentheses_ref'):
+                if ignore_parenthesized_ref:
+                    patterns.append( ignore_pat )
+            elif ignore_pat['type'].startswith('brackets'):
+                if ignore_brackets:
+                    patterns.append( ignore_pat )
+            elif (ignore_pat['type'] in ['parentheses_1to3', \
+                  'parentheses_1to4', 'parentheses_birdeah_year']):
+                if ignore_parenthesized_short_char_sequences:
+                    patterns.append( ignore_pat )
+            elif ignore_pat['type'].startswith('parentheses_title_words'):
+                if ignore_parenthesized_title_words:
+                    patterns.append( ignore_pat )
             else:
                 patterns.append( ignore_pat )
         # Create a new tagger
