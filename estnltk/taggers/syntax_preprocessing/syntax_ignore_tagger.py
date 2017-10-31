@@ -1,18 +1,12 @@
+#
+#  Tags text snippets that should be ignored during the syntactic analysis.
+# 
 from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
 
 from estnltk.text import Span, SpanList, Layer
 
 import regex as re
-
-# ===================================================================
-#  Patterns for capturing text snippets that should be ignored;
-#
-#  Note: these patterns are partly based on the patterns defined in:
-#      * https://github.com/kristiinavaik/ettenten-eeltootlus
-#      * https://github.com/EstSyntax/preprocessing-module
-#
-# ===================================================================
 
 _lc_letter      = 'a-zöäüõžš'
 _uc_letter      = 'A-ZÖÄÜÕŽŠ'
@@ -24,6 +18,15 @@ _three_lc_words = '['+_lc_letter+']+\s+['+_lc_letter+']+\s+['+_lc_letter+']+'
 _clock_time     = '((0|\D)[0-9]|[12][0-9]|2[0123])\s?:\s?([0-5][0-9])'
 
 _three_lc_words_compiled = re.compile(_three_lc_words)
+
+# ===================================================================
+#  Patterns for capturing text snippets that should be ignored;
+#
+#  Note: these patterns are partly based on the patterns defined in:
+#      * https://github.com/kristiinavaik/ettenten-eeltootlus
+#      * https://github.com/EstSyntax/preprocessing-module
+#
+# ===================================================================
 
 ignore_patterns = [ 
       # Partly based on PATT_BRACS from https://github.com/EstSyntax/preprocessing-module (aja)
@@ -347,7 +350,6 @@ ignore_patterns = [
 ]
 
 
-
 # ===================================================================
 
 class SyntaxIgnoreTagger(Tagger):
@@ -362,14 +364,16 @@ class SyntaxIgnoreTagger(Tagger):
                        ignore_parenthesized_num_greedy:bool = True,
                        ignore_parenthesized_ref:bool = True,
                        ignore_parenthesized_title_words:bool = True,
-                       ignore_parenthesized_short_char_sequences:bool = True,
+                       ignore_parenthesized_short_char_sequences:bool  = True,
+                       ignore_consecutive_parenthesized_sentences:bool = True,
                        ignore_brackets:bool = True,):
         self.configuration = {'allow_loose_match': allow_loose_match,
                               'ignore_parenthesized_num':ignore_parenthesized_num,
                               'ignore_parenthesized_num_greedy': ignore_parenthesized_num_greedy,
                               'ignore_parenthesized_ref':ignore_parenthesized_ref,
                               'ignore_parenthesized_title_words':ignore_parenthesized_title_words,
-                              'ignore_parenthesized_short_char_sequences':ignore_parenthesized_short_char_sequences,
+                              'ignore_parenthesized_short_char_sequences': ignore_parenthesized_short_char_sequences,
+                              'ignore_consecutive_parenthesized_sentences':ignore_consecutive_parenthesized_sentences,
                               'ignore_brackets':ignore_brackets,
         }
         # Populate vocabulary according to given settings
@@ -452,9 +456,41 @@ class SyntaxIgnoreTagger(Tagger):
                 # Advance in text
                 wid = current_wid + 1
 
-        # B) Collect consecutive sentences containing ignored content in parentheses and/or 
-        #                                  less than 3 lc words
-        # B.1) Collect candidates for ignored sentences
+        # B) Add consecutive sentences containing ignored content 
+        #        in parentheses and/or less than 3 lc words
+        if self.configuration['ignore_consecutive_parenthesized_sentences']:
+            ignored_words_spans = \
+                self._add_consecutive_parenthesized_ignore_sentences(text,ignored_words_spans)
+        
+        # Finally: create a new layer and add spans to the layer
+        layer = Layer(name=self.layer_name,
+                      parent = 'words',
+                      attributes=self.attributes,
+                      ambiguous=False)
+        for span in ignored_words_spans:
+            layer.add_span( span )
+
+        if return_layer:
+            return layer
+        text[self.layer_name] = layer
+        return text
+
+
+    def _add_consecutive_parenthesized_ignore_sentences( 
+                self, text: 'Text', ignored_words_spans:list ) -> list:
+        ''' First, detects consecutive sentences that:
+            *) contain parenthesized ignore content (content from 
+               ignored_words_spans) and,
+            *) contain less than 3 consecutive lowercase words,
+            and marks these sentences as 'ignored';
+             
+            Second, checks for sentences between the ignored sentences 
+                 that contain less than 3 consecutive lowercase words:
+                 and if found, marks such sentences also as 'ignored';
+        '''
+        # Collect consecutive sentences containing ignored content 
+        #         in parentheses and/or less than 3 lc words
+        # 1) Collect candidates for ignored sentences
         ignored_sentence_candidates = []
         for sent_id, sentence_span in enumerate( text['sentences'].spans ):
             ignored_words = []
@@ -474,7 +510,7 @@ class SyntaxIgnoreTagger(Tagger):
                 ignore_item = { 'sent_id':sent_id, 'span': sentence_span, \
                                 'ignored_words': ignored_words, 'ignore_sentence': False }
                 ignored_sentence_candidates.append( ignore_item )
-        # B.2) Mark consecutive sentences containing ignored word content as 'ignored'
+        # 2) Mark consecutive sentences containing ignored (parenthesized) word content as 'ignored'
         for ignored_sent_id, ignored_candidate in enumerate( ignored_sentence_candidates ):
             sent_id   = ignored_candidate['sent_id']
             sent_text = ignored_candidate['span'].enclosing_text
@@ -489,9 +525,9 @@ class SyntaxIgnoreTagger(Tagger):
                  contains_ignored and ignored_sentence_candidates[ignored_sent_id-1]['ignored_words']:
                 consecutive = True
             if consecutive:
-                # Mark this sentence 'ignored'
+                # Mark this sentence as 'ignored'
                 ignored_candidate['ignore_sentence'] = True
-        # B.3) Mark consecutive sentences between previously detected ignored sentences as 'ignored'
+        # 3) Mark consecutive sentences between previously detected ignored sentences as 'ignored'
         for ignored_sent_id, ignored_candidate in enumerate( ignored_sentence_candidates ):
             if ignored_candidate['ignore_sentence']:
                 # Check if this sentence is followed by not-yet-ignored sentences, 
@@ -519,7 +555,7 @@ class SyntaxIgnoreTagger(Tagger):
                     for collected_sid in collected_sent_ids:
                         # Mark as 'ignored'
                         ignored_sentence_candidates[collected_sid]['ignore_sentence'] = True
-        # B.X) Move all sentences that should be ignored to the list of ignored
+        # 4) Move all sentences that should be ignored to the list of ignored
         for ignored_candidate in ignored_sentence_candidates:
             if ignored_candidate['ignore_sentence']:
                 # Collect words inside the sentence
@@ -540,17 +576,6 @@ class SyntaxIgnoreTagger(Tagger):
                             new_ignored_words_spans.append( ignore_span )
                     ignored_words_spans = new_ignored_words_spans
                 ignored_words_spans.append( new_spanlist )
-        
-        # Finally: create a new layer and add spans to the layer
-        layer = Layer(name=self.layer_name,
-                      parent = 'words',
-                      attributes=self.attributes,
-                      ambiguous=False)
-        for span in ignored_words_spans:
-            layer.add_span( span )
+        return ignored_words_spans
 
-        if return_layer:
-            return layer
-        text[self.layer_name] = layer
-        return text
 

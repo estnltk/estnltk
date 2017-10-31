@@ -174,10 +174,10 @@ def test_ignore_content_in_parentheses_2():
         assert ignored_texts == test_text['expected_ignore_texts']
 
 
-def test_ignore_consecutive_sentences_w_ignore_parentheses():
+def test_ignore_consecutive_sentences_with_parentheses():
     # Ignore consecutive sentences that do not contain 3 consecutive lowercase words, 
     #        and that contain ignored content in parenthesis;
-    syntax_ignore_tagger = SyntaxIgnoreTagger()
+    syntax_ignore_tagger = SyntaxIgnoreTagger(ignore_consecutive_parenthesized_sentences = True)
     test_texts = [
         { 'text': 'Meeste slaalom : \n'+\
                   '1. Tom Stiansen ( Norra ) 1.51 , 70 ( 55,81 /55 , 89 ) ,\n'+\
