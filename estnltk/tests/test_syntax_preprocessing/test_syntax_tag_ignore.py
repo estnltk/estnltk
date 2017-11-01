@@ -183,7 +183,8 @@ def test_ignore_consecutive_sentences_with_parentheses():
                   '1. Tom Stiansen ( Norra ) 1.51 , 70 ( 55,81 /55 , 89 ) ,\n'+\
                   '2. Sebastien Amiez ( Prantsusmaa ) 1.51 , 75 ( 54,71 /57 , 04 ) ,\n'+\
                   '3. Alberto Tomba ( Itaalia ) 1.52 , 14 ( 56,21 /55 , 93 ) ,\n',\
-          'expected_ignore_texts': ['Tom Stiansen ( Norra ) 1.51 , 70 ( 55,81 /55 , 89 ) ,\n2.', \
+          'expected_ignore_texts': ['Meeste slaalom : \n1.',\
+                                    'Tom Stiansen ( Norra ) 1.51 , 70 ( 55,81 /55 , 89 ) ,\n2.', \
                                     'Sebastien Amiez ( Prantsusmaa ) 1.51 , 75 ( 54,71 /57 , 04 ) ,\n3.', \
                                     'Alberto Tomba ( Itaalia ) 1.52 , 14 ( 56,21 /55 , 93 ) ,'] }, \
         { 'text': 'Eile õhtul sõidetud avakatsel sai Markko Märtin ( Subaru , pildil ) viienda aja .\n'+\
@@ -192,7 +193,8 @@ def test_ignore_consecutive_sentences_with_parentheses():
                   '2. Marcus Grönholm ( FIN ) Peugeot +1,0\n'+\
                   '3. Harri Rovanperä ( FIN ) Peugeot +4,1\n'+\
                   '4. Carlos Sainz ( ESP ) Ford +6,0\n',\
-          'expected_ignore_texts': ['Tommi Mäkinen ( FIN ) Mitsubishi - 3.46 , 9\n2.', \
+          'expected_ignore_texts': ['Tulemused :\n1.',\
+                                    'Tommi Mäkinen ( FIN ) Mitsubishi - 3.46 , 9\n2.', \
                                     'Marcus Grönholm ( FIN ) Peugeot +1,0\n3.', \
                                     'Harri Rovanperä ( FIN ) Peugeot +4,1\n4.', \
                                     'Carlos Sainz ( ESP ) Ford +6,0'] }, \
@@ -202,7 +204,9 @@ def test_ignore_consecutive_sentences_with_parentheses():
                   '2. Michael Chang ( USA ) 3837 ,\n'+\
                   '3. Jevgeni Kafelnikov ( Venemaa ) 3486 ,\n'+\
                   '4. Goran Ivanishevic ( Horvaatia ) 3222 ,\n',\
-          'expected_ignore_texts': ['Michael Chang ( USA ) 3837 ,\n3.', \
+          'expected_ignore_texts': ['ATP edetabel :\n1.',\
+                                    'Sampras 4375 ,\n2.',\
+                                    'Michael Chang ( USA ) 3837 ,\n3.', \
                                     'Jevgeni Kafelnikov ( Venemaa ) 3486 ,\n4.', \
                                     'Goran Ivanishevic ( Horvaatia ) 3222 ,'] }, \
     ]
@@ -217,9 +221,86 @@ def test_ignore_consecutive_sentences_with_parentheses():
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
-        
-        
-        
+
+
+
+def test_ignore_consecutive_enum_name_num_sentences():
+    # Ignore consecutive sentences that:
+    #    * start with ordinal number and/or titlecase word;
+    #    * do not contain 3 consecutive lc words
+    #    * contain a number or numbers;
+    #    * form a row of at least 4 consecutive sentences with the same properties;
+    syntax_ignore_tagger = SyntaxIgnoreTagger(ignore_consecutive_enum_name_num_sentences=True)
+    test_texts = [
+        { 'text': 'Meeste 50 km/klassikat\n\n'+\
+                  'Holmenkollen , Norra\n\n'+\
+                  '1.\n Andrus Veerpalu EST 2 : 16.57 , 5\n\n'+\
+                  '2.\n Anders Aukland NOR 34,8\n\n'+\
+                  '3.\n Andrei Nutrihhin RUS 1.18 , 4\n\n'+\
+                  '4.\n Mathias Fredriksson SWE 1.19 , 8\n\n'+\
+                  '5.\n Giorgio DiCenta ITA 1.51 , 6\n\n',\
+          'expected_ignore_texts': ['Meeste 50 km/klassikat\n\nHolmenkollen , Norra\n\n1.',\
+                                    'Andrus Veerpalu EST 2 : 16.57 , 5\n\n2.',\
+                                    'Anders Aukland NOR 34,8\n\n3.',\
+                                    'Andrei Nutrihhin RUS 1.18 , 4\n\n4.',\
+                                    'Mathias Fredriksson SWE 1.19 , 8\n\n5.',\
+                                    'Giorgio DiCenta ITA 1.51 , 6'] }, \
+        { 'text': 'Keskmisele lähedal on ka maakonnalinnad ja vallad , mis asuvad keskuste lähedal .\n\n'+\
+                  'Maakonniti summeerides on tulumaksu laekumise viis esimest :\n'+\
+                  '1. Harjumaa 2792 ,\n'+\
+                  '2.\nHiiumaa 2119 ,\n'+\
+                  '3. Tartumaa 2081 ,\n'+\
+                  '4. Läänemaa 1933 ,\n'+\
+                  '5. Pärnumaa 1903.\n',\
+          'expected_ignore_texts': ['Harjumaa 2792 ,\n2.',\
+                                    'Hiiumaa 2119 ,\n3.',\
+                                    'Tartumaa 2081 ,\n4.',\
+                                    'Läänemaa 1933 ,\n5.',\
+                                    'Pärnumaa 1903.'] }, \
+        { 'text': 'Meeste kahekanuu : 1. Aleksandr Kovaljov-Aleksandr Kostoglod ( Venemaa ) 3.56 , 028 , 2.\n'+\
+                  'Gheorghe Andriev-Florin Popescu ( Rumeenia ) 3.56 , 550 , 3.\n'+\
+                  'Gyorgy Zala-Endre Ipacs ( Ungari ) 3.57 , 486.\n'+\
+                  'Meeste neljakanuu : 1. Ungari 3.36 , 876 , 2.\n'+\
+                  'Venemaa 3.40 , 680 , 3.\n'+\
+                  'Tšehhimaa 3.41 , 736.\n'+\
+                  'Meeste neljasüst : 1. Saksamaa 3.06 , 557 , 2.\n'+\
+                  'Ungari 3.07 , 373 , 3.\n'+\
+                  'Venemaa 3.09 , 779.\n',\
+          'expected_ignore_texts': ['Meeste kahekanuu : 1.',\
+                                    'Aleksandr Kovaljov-Aleksandr Kostoglod ( Venemaa ) 3.56 , 028 , 2.',\
+                                    'Gheorghe Andriev-Florin Popescu ( Rumeenia ) 3.56 , 550 , 3.',\
+                                    'Gyorgy Zala-Endre Ipacs ( Ungari ) 3.57 , 486.',\
+                                    'Meeste neljakanuu : 1.', 'Ungari 3.36 , 876 , 2.',\
+                                    'Venemaa 3.40 , 680 , 3.',\
+                                    'Tšehhimaa 3.41 , 736.',\
+                                    'Meeste neljasüst : 1.',\
+                                    'Saksamaa 3.06 , 557 , 2.',\
+                                    'Ungari 3.07 , 373 , 3.',\
+                                    'Venemaa 3.09 , 779.'] }, \
+        { 'text': 'Seega lõppes põhimatš 1 : 1. Võitja saatus ei selgunud ka kiirpartiides , kus mõlemad kohtumised lõppesid viigiga .\n'+\
+                  'Teimur Radšabov - Jaan Ehlvest 2. partii : 1. d4 Rf6 2. c4 e6 3.\n'+\
+                  'Rc3 Ob4 4. e3 O-O 5.\n'+\
+                  'Od3 d5 6.\n'+\
+                  'Rf3 b6 7. c : d5 e : d5\n',\
+          'expected_ignore_texts': ['Teimur Radšabov - Jaan Ehlvest 2. partii : 1. d4 Rf6 2. c4 e6 3.',\
+                                    'Rc3 Ob4 4. e3 O-O 5.',\
+                                    'Od3 d5 6.',\
+                                    'Rf3 b6 7. c : d5 e : d5'] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words', 'sentences', 'paragraphs'])
+        syntax_ignore_tagger.tag( text )
+        # Collect results 
+        ignored_texts = \
+            [span.enclosing_text for span in text['syntax_ignore'].spans]
+        #print(ignored_texts)
+        # Check results
+        assert ignored_texts == test_text['expected_ignore_texts']
+
+
+
 def test_ignore_sentences_starting_with_time_schedule():
     syntax_ignore_tagger = SyntaxIgnoreTagger( ignore_sentences_starting_with_time=True )
     test_texts = [

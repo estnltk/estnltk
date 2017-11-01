@@ -372,6 +372,7 @@ class SyntaxIgnoreTagger(Tagger):
                        ignore_parenthesized_title_words:bool = True,
                        ignore_parenthesized_short_char_sequences:bool  = True,
                        ignore_consecutive_parenthesized_sentences:bool = True,
+                       ignore_consecutive_enum_name_num_sentences:bool = True,
                        ignore_sentences_consisting_of_numbers:bool = True,
                        ignore_sentences_starting_with_time:bool = True,
                        ignore_brackets:bool = True,):
@@ -382,6 +383,7 @@ class SyntaxIgnoreTagger(Tagger):
                               'ignore_parenthesized_title_words':ignore_parenthesized_title_words,
                               'ignore_parenthesized_short_char_sequences': ignore_parenthesized_short_char_sequences,
                               'ignore_consecutive_parenthesized_sentences':ignore_consecutive_parenthesized_sentences,
+                              'ignore_consecutive_enum_name_num_sentences':ignore_consecutive_enum_name_num_sentences,
                               'ignore_sentences_consisting_of_numbers':ignore_sentences_consisting_of_numbers,
                               'ignore_sentences_starting_with_time':ignore_sentences_starting_with_time,
                               'ignore_brackets':ignore_brackets,
@@ -477,9 +479,12 @@ class SyntaxIgnoreTagger(Tagger):
             ignored_words_spans = \
                 self._add_ignore_sentences_starting_with_time(text,ignored_words_spans)
 
-        # D) Add enumerations TODO
-        #ignored_words_spans = \
-        #    self._add_ignore_consecutive_enum_name_sentences(text,ignored_words_spans)
+        # D) Add sentences starting with a titlecase word (or an ordinal number followed by 
+        #        a titlecase word), containing otherwise less than 3 lowercase words, and 
+        #        forming lists of at least 4 consecutive sentences;
+        if self.configuration['ignore_consecutive_enum_name_num_sentences']:
+            ignored_words_spans = \
+                self._add_ignore_consecutive_enum_name_sentences(text,ignored_words_spans)
 
         # E) Add ignore sentences that consist of numbers only
         if self.configuration['ignore_sentences_consisting_of_numbers']:
@@ -694,7 +699,20 @@ class SyntaxIgnoreTagger(Tagger):
 
     def _add_ignore_consecutive_enum_name_sentences( 
                 self, text: 'Text', ignored_words_spans:list ) -> list:
-        ''' TODO
+        ''' Detects sentences that:
+             1) start with a titlecase word, or an ordinal number 
+               followed by a titlecase word;
+             2) contain at least one number;
+             3) does not contain 3 consecutive lowercase words;
+             4) are a part of at least 4 consecutive sentences
+                that have the same properties (1, 2 and 3);
+            Before adding detected sentences to ignored_words_spans,
+            checks that sentences are not already added (by other methods),
+            and removes elements of ignored_words_spans that are inside
+            newly ignored sentences.
+            
+            Returns ignored_words_spans which is extended with new ignore 
+            sentences;
         '''
         # 1) Collect candidates for ignored sentences
         ignored_sentence_candidates = []
@@ -754,6 +772,17 @@ class SyntaxIgnoreTagger(Tagger):
                                     add_sentence = False
                                     break
                         if add_sentence:
+                            # Check for overlaps
+                            if ignored_words_spans:
+                                # Rewrite 'ignored_words_spans': leave out words inside 'ignored_words'
+                                # of the current sentence (basically: remove overlapped ignore content)
+                                new_ignored_words_spans = []
+                                for ignore_span in ignored_words_spans:
+                                    if not (new_spanlist.start <= ignore_span.start and \
+                                            ignore_span.end <= new_spanlist.end):
+                                        new_ignored_words_spans.append( ignore_span )
+                                ignored_words_spans = new_ignored_words_spans
+                            # After overlaps have been removed, add the span
                             ignored_words_spans.append( new_spanlist )
                 consecutive = []
             else:
