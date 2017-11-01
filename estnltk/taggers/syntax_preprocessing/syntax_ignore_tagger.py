@@ -17,8 +17,10 @@ _end_quotes     = '"\u00BB\u02EE\u030B\u201C\u201D\u201E'
 _three_lc_words = '['+_lc_letter+']+\s+['+_lc_letter+']+\s+['+_lc_letter+']+'
 _clock_time     = '((0|\D)[0-9]|[12][0-9]|2[0123])\s?:\s?([0-5][0-9])'
 
-_three_lc_words_compiled = re.compile(_three_lc_words)
-_enum_name_num_compiled  = re.compile('^(?=\D*\d)(\d+\s*(\.\s|\s))?['+_uc_letter+']['+_uc_letter+_lc_letter+']+')
+_contains_number_compiled = re.compile('\d+')
+_contains_letter_compiled = re.compile('['+_uc_letter+_lc_letter+']')
+_three_lc_words_compiled  = re.compile(_three_lc_words)
+_enum_name_num_compiled   = re.compile('^(?=\D*\d)(\d+\s*(\.\s|\s))?['+_uc_letter+']['+_uc_letter+_lc_letter+']+')
 
 # ===================================================================
 #  Patterns for capturing text snippets that should be ignored;
@@ -367,6 +369,7 @@ class SyntaxIgnoreTagger(Tagger):
                        ignore_parenthesized_title_words:bool = True,
                        ignore_parenthesized_short_char_sequences:bool  = True,
                        ignore_consecutive_parenthesized_sentences:bool = True,
+                       ignore_sentences_consisting_of_numbers:bool = True,
                        ignore_brackets:bool = True,):
         self.configuration = {'allow_loose_match': allow_loose_match,
                               'ignore_parenthesized_num':ignore_parenthesized_num,
@@ -375,6 +378,7 @@ class SyntaxIgnoreTagger(Tagger):
                               'ignore_parenthesized_title_words':ignore_parenthesized_title_words,
                               'ignore_parenthesized_short_char_sequences': ignore_parenthesized_short_char_sequences,
                               'ignore_consecutive_parenthesized_sentences':ignore_consecutive_parenthesized_sentences,
+                              'ignore_sentences_consisting_of_numbers':ignore_sentences_consisting_of_numbers,
                               'ignore_brackets':ignore_brackets,
         }
         # Populate vocabulary according to given settings
@@ -461,12 +465,17 @@ class SyntaxIgnoreTagger(Tagger):
         #        in parentheses and/or less than 3 lc words
         if self.configuration['ignore_consecutive_parenthesized_sentences']:
             ignored_words_spans = \
-                self._add_consecutive_parenthesized_ignore_sentences(text,ignored_words_spans)
+                self._add_ignore_consecutive_parenthesized_sentences(text,ignored_words_spans)
         
         # C) Add enumerations TODO
         #ignored_words_spans = \
-        #    self._add_consecutive_enum_name_ignore_sentences(text,ignored_words_spans)
-        
+        #    self._add_ignore_consecutive_enum_name_sentences(text,ignored_words_spans)
+
+        # D) Add ignore sentences that consist of numbers only
+        if self.configuration['ignore_sentences_consisting_of_numbers']:
+            ignored_words_spans = \
+                self._add_ignore_sentences_consisting_of_numbers(text,ignored_words_spans)
+            
         # Finally: create a new layer and add spans to the layer
         layer = Layer(name=self.layer_name,
                       parent = 'words',
@@ -481,7 +490,8 @@ class SyntaxIgnoreTagger(Tagger):
         return text
 
 
-    def _add_consecutive_parenthesized_ignore_sentences( 
+
+    def _add_ignore_consecutive_parenthesized_sentences( 
                 self, text: 'Text', ignored_words_spans:list ) -> list:
         ''' First, detects consecutive sentences that:
             *) contain parenthesized ignore content (content from 
@@ -584,8 +594,47 @@ class SyntaxIgnoreTagger(Tagger):
         return ignored_words_spans
 
 
-        
-    def _add_consecutive_enum_name_ignore_sentences( 
+
+    def _add_ignore_sentences_consisting_of_numbers( 
+                self, text: 'Text', ignored_words_spans:list ) -> list:
+        '''  Detects sentences that contain number or numbers, no letters 
+             and do not end with '?' nor '!', and marks such sentences as 
+             ignore sentences (if they have note been marked already).
+             Returns ignored_words_spans which is extended with new ignore 
+             sentences;
+        '''
+        for sent_id, sentence_span in enumerate( text['sentences'].spans ):
+            sentence_text   = sentence_span.enclosing_text
+            contains_number = bool(_contains_number_compiled.search( sentence_text ))
+            contains_letter = bool(_contains_letter_compiled.search( sentence_text ))
+            if contains_number and not contains_letter and \
+               not sentence_text.endswith('?') and not sentence_text.endswith('!'):
+                # If the sentence contains only number (or numbers), and no
+                # letters, then consider it as sentence to be 'ignored'
+                # Collect words inside the sentence
+                sent_words = []
+                for word_span in sentence_span.spans:
+                    sent_words.append( word_span )
+                # Make entire sentence as 'ignored'
+                new_spanlist = SpanList()
+                new_spanlist.spans = sent_words
+                new_spanlist.type = 'sentence_with_number_no_letters'
+                # Add the sentence only iff it is not already added
+                add_sentence = True
+                if ignored_words_spans:
+                    # Check if it exists already
+                    for ignore_span in ignored_words_spans:
+                        if ignore_span.start == new_spanlist.start and \
+                           ignore_span.end == new_spanlist.end:
+                            add_sentence = False
+                            break
+                if add_sentence:
+                    ignored_words_spans.append( new_spanlist )
+        return ignored_words_spans
+
+
+
+    def _add_ignore_consecutive_enum_name_sentences( 
                 self, text: 'Text', ignored_words_spans:list ) -> list:
         ''' TODO
         '''
