@@ -217,3 +217,41 @@ def test_ignore_consecutive_sentences_with_parentheses():
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
+        
+        
+        
+def test_ignore_sentences_starting_with_time_schedule():
+    syntax_ignore_tagger = SyntaxIgnoreTagger( ignore_sentences_starting_with_time=True )
+    test_texts = [
+        { 'text': '12.05 - 12.35 "Õnne 13" (1. osa)\n\n'+\
+                  '12.35 - 13.05 "Õnne 13" (1. osa, kordus)\n\n'+\
+                  '13.05 - 13.35 "Õnne 13" (1. osa, teine kordus)\n\n',\
+          'expected_ignore_texts': ['12.05 - 12.35 "Õnne 13" (1. osa)\n\n'+\
+                                    '12.35 - 13.05 "Õnne 13" (1. osa, kordus)\n\n'+\
+                                    '13.05 - 13.35 "Õnne 13" (1. osa, teine kordus)'] }, \
+        { 'text': 'Seminari kava .\n'+\
+                  '14.15 – 14.45 Eesti internetikaubanduse laienemine välisturgudele ON24 Sisustuskaubamaja näitel .\n'+\
+                  '14.45 – 15.15 Tark turundus Facebookis .\n'+\
+                  '11.40 – 12.15 E-kaubanduse areng Eestis viimasel kümnendil Kuidas on meie e-riigis arenenud e-kaubandus ?\n'+\
+                  '16.15 – 16.30 Seminari lõpetamine .\n',\
+          'expected_ignore_texts': ['14.15 – 14.45 Eesti internetikaubanduse laienemine välisturgudele ON24 Sisustuskaubamaja näitel .',\
+                                    '14.45 – 15.15 Tark turundus Facebookis .',\
+                                    '11.40 – 12.15 E-kaubanduse areng Eestis viimasel kümnendil Kuidas on meie e-riigis arenenud e-kaubandus ?',\
+                                    '16.15 – 16.30 Seminari lõpetamine .'
+                                    ] }, \
+        # Negative examples: do not ignore here 
+        { 'text': 'Õigepea on käes oktoobri algus ning yfukatel võimalus kohtuda vahvate eesti noortega.\n'+\
+                  '01.10-05.10 toimub meie iga-aastane presentatsioonituur erinevates Eesti koolides, kus meie toredad vabatahtlikud tutvustavad välismaal õppimise võimalusi, räägivad oma kogemustest ning vastavad noorte küsimustele.\n',\
+          'expected_ignore_texts': [] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words', 'sentences', 'paragraphs'])
+        syntax_ignore_tagger.tag( text )
+        # Collect results 
+        ignored_texts = \
+            [span.enclosing_text for span in text['syntax_ignore'].spans]
+        #print(ignored_texts)
+        # Check results
+        assert ignored_texts == test_text['expected_ignore_texts']

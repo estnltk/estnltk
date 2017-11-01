@@ -16,11 +16,14 @@ _start_quotes   = '"\u00AB\u02EE\u030B\u201C\u201D\u201E'
 _end_quotes     = '"\u00BB\u02EE\u030B\u201C\u201D\u201E'
 _three_lc_words = '['+_lc_letter+']+\s+['+_lc_letter+']+\s+['+_lc_letter+']+'
 _clock_time     = '((0|\D)[0-9]|[12][0-9]|2[0123])\s?:\s?([0-5][0-9])'
+_clock_time_2   = '(0?[0-9]|[12][0-9]|2[0123])\s?[.:]\s?([0-5][0-9])'
 
 _contains_number_compiled = re.compile('\d+')
 _contains_letter_compiled = re.compile('['+_uc_letter+_lc_letter+']')
 _three_lc_words_compiled  = re.compile(_three_lc_words)
 _enum_name_num_compiled   = re.compile('^(?=\D*\d)(\d+\s*(\.\s|\s))?['+_uc_letter+']['+_uc_letter+_lc_letter+']+')
+_clock_time_start_compiled = re.compile('^\s*'+_clock_time_2+'\s*'+_hyphen_pat+'+\s*'+_clock_time_2+
+                                        '(?!\s*['+_lc_letter+'])\s*.')
 
 # ===================================================================
 #  Patterns for capturing text snippets that should be ignored;
@@ -370,6 +373,7 @@ class SyntaxIgnoreTagger(Tagger):
                        ignore_parenthesized_short_char_sequences:bool  = True,
                        ignore_consecutive_parenthesized_sentences:bool = True,
                        ignore_sentences_consisting_of_numbers:bool = True,
+                       ignore_sentences_starting_with_time:bool = True,
                        ignore_brackets:bool = True,):
         self.configuration = {'allow_loose_match': allow_loose_match,
                               'ignore_parenthesized_num':ignore_parenthesized_num,
@@ -379,6 +383,7 @@ class SyntaxIgnoreTagger(Tagger):
                               'ignore_parenthesized_short_char_sequences': ignore_parenthesized_short_char_sequences,
                               'ignore_consecutive_parenthesized_sentences':ignore_consecutive_parenthesized_sentences,
                               'ignore_sentences_consisting_of_numbers':ignore_sentences_consisting_of_numbers,
+                              'ignore_sentences_starting_with_time':ignore_sentences_starting_with_time,
                               'ignore_brackets':ignore_brackets,
         }
         # Populate vocabulary according to given settings
@@ -467,11 +472,16 @@ class SyntaxIgnoreTagger(Tagger):
             ignored_words_spans = \
                 self._add_ignore_consecutive_parenthesized_sentences(text,ignored_words_spans)
         
-        # C) Add enumerations TODO
+        # C) Add sentences that start with time (e.g. a time schedule of a TV program)
+        if self.configuration['ignore_sentences_starting_with_time']:
+            ignored_words_spans = \
+                self._add_ignore_sentences_starting_with_time(text,ignored_words_spans)
+
+        # D) Add enumerations TODO
         #ignored_words_spans = \
         #    self._add_ignore_consecutive_enum_name_sentences(text,ignored_words_spans)
 
-        # D) Add ignore sentences that consist of numbers only
+        # E) Add ignore sentences that consist of numbers only
         if self.configuration['ignore_sentences_consisting_of_numbers']:
             ignored_words_spans = \
                 self._add_ignore_sentences_consisting_of_numbers(text,ignored_words_spans)
@@ -629,6 +639,54 @@ class SyntaxIgnoreTagger(Tagger):
                             add_sentence = False
                             break
                 if add_sentence:
+                    ignored_words_spans.append( new_spanlist )
+        return ignored_words_spans
+
+
+
+    def _add_ignore_sentences_starting_with_time( 
+                self, text: 'Text', ignored_words_spans:list ) -> list:
+        '''  Detects sentences that start with a clock time, followed 
+             by a symbol that is not a lowercase letter. 
+             Such sentences likely represent a part of a time schedule,
+             and thus can be marked as ignore sentences.
+             Returns ignored_words_spans which is extended with new ignore 
+             sentences;
+        '''
+        for sent_id, sentence_span in enumerate( text['sentences'].spans ):
+            sentence_text = sentence_span.enclosing_text
+            if _clock_time_start_compiled.match( sentence_text ):
+                # If the sentence begins with a clock time, it is likely 
+                # a time schedule sentence (e.g. a TV schedule) which 
+                # could be ignored 
+                sent_words = []
+                for word_span in sentence_span.spans:
+                    sent_words.append( word_span )
+                # Make entire sentence as 'ignored'
+                new_spanlist = SpanList()
+                new_spanlist.spans = sent_words
+                new_spanlist.type = 'sentence_starts_with_time'
+                # Add the sentence only iff it is not already added
+                add_sentence = True
+                if ignored_words_spans:
+                    # Check if it exists already
+                    for ignore_span in ignored_words_spans:
+                        if ignore_span.start == new_spanlist.start and \
+                           ignore_span.end == new_spanlist.end:
+                            add_sentence = False
+                            break
+                if add_sentence:
+                    # Check for overlaps
+                    if ignored_words_spans:
+                        # Rewrite 'ignored_words_spans': leave out words inside 'ignored_words'
+                        # of the current sentence (basically: remove overlapped ignore content)
+                        new_ignored_words_spans = []
+                        for ignore_span in ignored_words_spans:
+                            if not (new_spanlist.start <= ignore_span.start and \
+                                    ignore_span.end <= new_spanlist.end):
+                                new_ignored_words_spans.append( ignore_span )
+                        ignored_words_spans = new_ignored_words_spans
+                    # After overlaps have been removed, add the span
                     ignored_words_spans.append( new_spanlist )
         return ignored_words_spans
 
