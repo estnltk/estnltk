@@ -726,7 +726,8 @@ class SyntaxIgnoreTagger(Tagger):
                 ignore_item = { 'sent_id':sent_id, 'span': sentence_span, \
                                 'enum_name_num': enum_name_num, \
                                 'consecutive_with_next': False, \
-                                'consecutive_with_prev': False, }
+                                'consecutive_with_prev': False, \
+                                'ignore_sentence': False }
                 ignored_sentence_candidates.append( ignore_item )
         # 2) Mark consecutive sentences containing enumerations, names, and numbers
         for ignored_sent_id, ignored_candidate in enumerate( ignored_sentence_candidates ):
@@ -744,6 +745,7 @@ class SyntaxIgnoreTagger(Tagger):
                  ignored_sentence_candidates[ignored_sent_id-1]['enum_name_num']:
                 ignored_candidate['consecutive_with_prev'] = True
         # 3) Collects groups of sentences containing at least 4 consecutive sentences
+        #    with the required properties; Marks these sentences as 'to be ignored'
         consecutive = []
         for ignored_candidate in ignored_sentence_candidates:
             if ignored_candidate['consecutive_with_next']:
@@ -752,39 +754,44 @@ class SyntaxIgnoreTagger(Tagger):
                      ignored_candidate['consecutive_with_prev']:
                 consecutive.append( ignored_candidate )
                 if len(consecutive) > 3:
-                    # Add collected consecutive sentences as 'ignored'
+                    # Mark collected consecutive sentences as 'ignored'
                     for candidate in consecutive:
-                        # Collect words inside the sentence
-                        sent_words = []
-                        for word_span in candidate['span'].spans:
-                            sent_words.append( word_span )
-                        # Make entire sentence as 'ignored'
-                        new_spanlist = SpanList()
-                        new_spanlist.spans = sent_words
-                        new_spanlist.type = 'consecutive_enum_name_sentences'
-                        # Add the sentence only iff it is not already added
-                        add_sentence = True
-                        if ignored_words_spans:
-                            # Check if it exists already
-                            for ignore_span in ignored_words_spans:
-                                if ignore_span.start == new_spanlist.start and \
-                                    ignore_span.end == new_spanlist.end:
-                                    add_sentence = False
-                                    break
-                        if add_sentence:
-                            # Check for overlaps
-                            if ignored_words_spans:
-                                # Rewrite 'ignored_words_spans': leave out words inside 'ignored_words'
-                                # of the current sentence (basically: remove overlapped ignore content)
-                                new_ignored_words_spans = []
-                                for ignore_span in ignored_words_spans:
-                                    if not (new_spanlist.start <= ignore_span.start and \
-                                            ignore_span.end <= new_spanlist.end):
-                                        new_ignored_words_spans.append( ignore_span )
-                                ignored_words_spans = new_ignored_words_spans
-                            # After overlaps have been removed, add the span
-                            ignored_words_spans.append( new_spanlist )
+                        candidate['ignore_sentence'] = True
                 consecutive = []
             else:
                 consecutive = []
+        # 4) Insert all sentences that should be ignored into the list of ignored;
+        #    Perform check-ups and filterings before insertions
+        for ignored_candidate in ignored_sentence_candidates:
+            if ignored_candidate['ignore_sentence']:
+                # Collect words inside the sentence
+                sent_words = []
+                for word_span in ignored_candidate['span'].spans:
+                    sent_words.append( word_span )
+                # Make entire sentence as 'ignored'
+                new_spanlist = SpanList()
+                new_spanlist.spans = sent_words
+                new_spanlist.type = 'consecutive_enum_name_sentences'
+                # Add the sentence only iff it is not already added
+                add_sentence = True
+                if ignored_words_spans:
+                    # Check if it exists already
+                    for ignore_span in ignored_words_spans:
+                        if ignore_span.start == new_spanlist.start and \
+                           ignore_span.end == new_spanlist.end:
+                            add_sentence = False
+                            break
+                if add_sentence:
+                    # Check for overlaps
+                    if ignored_words_spans:
+                        # Rewrite 'ignored_words_spans': leave out words inside 'ignored_words'
+                        # of the current sentence (basically: remove overlapped ignore content)
+                        new_ignored_words_spans = []
+                        for ignore_span in ignored_words_spans:
+                            if not (new_spanlist.start <= ignore_span.start and \
+                                    ignore_span.end <= new_spanlist.end):
+                                new_ignored_words_spans.append( ignore_span )
+                        ignored_words_spans = new_ignored_words_spans
+                    # After overlaps have been removed, add the span
+                    ignored_words_spans.append( new_spanlist )
         return ignored_words_spans
