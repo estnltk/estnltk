@@ -10,41 +10,34 @@ import matplotlib.pyplot as plt
 
 
 class Node:
-    def __init__(self, span, name, weight=1):
-        self.span = span
-        self.start = span[0]
-        self.end = span[1]
+    def __init__(self, name, start, end, spans=None, weight=1):
         self.name = name
-
+        self.start = start
+        self.end = end
+        self.spans = spans
         self.weight = weight
 
     def __hash__(self):
-        return hash((self.span, self.name))
+        return hash((self.name, self.start, self.end))
 
     def __eq__(self, other):
-        return self[0] == other[0] and self[1] == other[1]
-
-    def __getitem__(self, item):
-        return (self.span, self.name)[item]
+        return self.name == other.name and self.start==other.start and self.end == other.end
 
     def __lt__(self, other):
-        return self.span < other[0]
+        return (self.start, self.end) < (other.start, other.end)
 
     def __gt__(self, other):
-        return self.span > other[0]
+        return (self.start, self.end) > (other.start, other.end)
 
     def __str__(self):
-        return 'N({span}, {name}, {weight:.2f})'.format(span=self.span, name=self.name, weight=self.weight)
-
-    def __len__(self):
-        return 2
+        return 'N({name}, ({span.start}, {span.end}), {weight:.2f})'.format(span=self, name=self.name, weight=self.weight)
 
     def __repr__(self):
         return str(self)
 
 
-START = Node((float('-inf'), float('-inf')), 'START')
-END = Node((float('inf'), float('inf')), 'END')
+START = Node('START', float('-inf'), float('-inf'))
+END = Node('END', float('inf'), float('inf'))
 
 
 class Grammar:
@@ -131,6 +124,9 @@ class Rule:
 
 
 def graph_from_document(rows: Dict[str, List[Tuple[int, int]]]) -> nx.DiGraph:
+    nodes = document_to_nodes(rows)
+    return graph_from_nodes(nodes)
+
     res = get_dense_matrix(rows)
     items = get_elementary_nodes(rows)
     df = matrix_to_dataframe(res, items)
@@ -140,10 +136,8 @@ def graph_from_document(rows: Dict[str, List[Tuple[int, int]]]) -> nx.DiGraph:
     graph.add_edges_from(edges)
 
     create_entry_and_exit_nodes(graph, items)
-    # remove_shortcuts(graph)
     graph = nx.transitive_reduction(graph)
     add_blanks(graph)
-    # remove_shortcuts(graph)
     graph = nx.transitive_reduction(graph)
     return graph
 
@@ -185,7 +179,7 @@ def get_elementary_nodes(rows):
 
     for row_name, indices in rows.items():
         for (a, b) in indices:
-            items.append(Node((a, b), row_name))
+            items.append(Node(row_name, a, b))
     return items
 
 
@@ -234,18 +228,15 @@ def add_blanks(graph: nx.DiGraph) -> None:
     edges_to_add = []
     edges_to_remove = []
     for node in graph.nodes():
-        if node[-1] != '_' and node != START:
-            (s1, e1), name = node
+        if node != START:
+            (s1, e1), name = (node.start, node.end), node.name
             for succ in graph.successors(node):
-                (s2, e2), _ = succ
+                (s2, e2), _ = (succ.start, succ.end), succ.name
                 if s2 - e1 > 1 and succ != END:
-                    nnode = Node((e1, s2), "_")
+                    nnode = Node("_", e1, s2)
                     nodes_to_add.append(nnode)
                     edges_to_add.extend([(node, nnode), (nnode, succ)])
                     edges_to_remove.append((node, succ))
-                    # graph.add_node(nnode)
-                    # graph.add_edges_from([(node, nnode), (nnode, succ)])
-                    # graph.remove_edge(node, succ)
     graph.add_nodes_from(nodes_to_add)
     graph.add_edges_from(edges_to_add)
     graph.remove_edges_from(edges_to_remove)
@@ -324,31 +315,67 @@ def choose_parse_tree(nodes: Dict[Node, List[Tuple[Rule, Node]]], grammar: Gramm
     return graph
 
 
+def document_to_nodes(document):
+    nodes = []
+    for row, spans in document.items():
+        for s,e in spans:
+            nodes.append(Node(row, s, e))
+    return nodes
+
+
 def document_to_graph(document, grammar):
     graph = graph_from_document(document)
     nonterminal_nodes = get_nonterminal_nodes(graph, grammar)
     return choose_parse_tree(nonterminal_nodes, grammar)
 
 
+def graph_from_nodes(nodes):
+    graph = nx.DiGraph()
+    graph.add_nodes_from(nodes)
+    nodes.append(START)
+    nodes.append(END)
+    nodes = sorted(nodes)
+    for i, n_i in enumerate(nodes):
+        stop = float('inf')
+        for j in range(i+1, len(nodes)):
+            n_j = nodes[j]
+            if n_j.start > stop:
+                break
+                pass
+            if n_i.end <= n_j.start:
+                stop = min(n_j.end, stop)
+                graph.add_edge(n_i, n_j)
+    return graph
+
+
 def layer_to_graph_by_attribute(layer:'Layer', attribute:str) -> nx.DiGraph:
     """
     Create a graph from layer attribute values.
     """
-    document = defaultdict(list)
+    nodes = []
     if layer.ambiguous:
         for spanlist in layer:
+            attr_to_spans = defaultdict(list)
             for span in spanlist:
                 attr = getattr(span, attribute)
                 if attr is None:
                     attr = 'None'
-                document[attr].append((span.start, span.end))
+                attr_to_spans[attr].append(span)
+            for attr, spans in attr_to_spans.items():
+                nodes.append(Node(attr, spans[0].start, spans[0].end, spans))
     else:
         for span in layer:
             attr = getattr(span, attribute)
             if attr is None:
                 attr = 'None'
-            document[attr].append((span.start, span.end))
-    return graph_from_document(document)
+            # TODO ...
+
+    graph = graph_from_nodes(nodes)
+    graph = nx.transitive_reduction(graph)
+    add_blanks(graph)
+
+    return graph
+
 
 
 def plot_graph(graph):
