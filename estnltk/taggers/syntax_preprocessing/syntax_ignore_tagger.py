@@ -17,10 +17,13 @@ _end_quotes     = '"\u00BB\u02EE\u030B\u201C\u201D\u201E'
 _three_lc_words = '['+_lc_letter+']+\s+['+_lc_letter+']+\s+['+_lc_letter+']+'
 _clock_time     = '((0|\D)[0-9]|[12][0-9]|2[0123])\s?:\s?([0-5][0-9])'
 _clock_time_2   = '(0?[0-9]|[12][0-9]|2[0123])\s?[.:]\s?([0-5][0-9])'
+_comma_ucase_list_item = ',\s*['+_uc_letter+']'
 
-_contains_number_compiled = re.compile('\d+')
-_contains_letter_compiled = re.compile('['+_uc_letter+_lc_letter+']')
-_three_lc_words_compiled  = re.compile(_three_lc_words)
+
+_contains_number_compiled  = re.compile('\d+')
+_contains_letter_compiled  = re.compile('['+_uc_letter+_lc_letter+']')
+_three_lc_words_compiled   = re.compile(_three_lc_words)
+_colon_start_compiled      = re.compile('^[^: ]+(\s+[^: ]+)?(\s+[^: ]+)?\s*:')
 _enum_ucase_num_compiled   = re.compile('^(?=\D*\d)(\d+\s*(\.\s|\s))?['+_uc_letter+']')
 _clock_time_start_compiled = re.compile('^\s*'+_clock_time_2+'\s*'+_hyphen_pat+'+\s*'+_clock_time_2+
                                         '(?!\s*['+_lc_letter+'])\s*.')
@@ -375,6 +378,7 @@ class SyntaxIgnoreTagger(Tagger):
                        ignore_consecutive_enum_ucase_num_sentences:bool = True,
                        ignore_sentences_consisting_of_numbers:bool = True,
                        ignore_sentences_starting_with_time:bool = True,
+                       ignore_sentences_with_comma_separated_num_name_lists:bool = True,
                        ignore_brackets:bool = True,):
         self.configuration = {'allow_loose_match': allow_loose_match,
                               'ignore_parenthesized_num':ignore_parenthesized_num,
@@ -386,6 +390,7 @@ class SyntaxIgnoreTagger(Tagger):
                               'ignore_consecutive_enum_ucase_num_sentences':ignore_consecutive_enum_ucase_num_sentences,
                               'ignore_sentences_consisting_of_numbers':ignore_sentences_consisting_of_numbers,
                               'ignore_sentences_starting_with_time':ignore_sentences_starting_with_time,
+                              'ignore_sentences_with_comma_separated_num_name_lists':ignore_sentences_with_comma_separated_num_name_lists,
                               'ignore_brackets':ignore_brackets,
         }
         # Populate vocabulary according to given settings
@@ -490,7 +495,13 @@ class SyntaxIgnoreTagger(Tagger):
         if self.configuration['ignore_sentences_consisting_of_numbers']:
             ignored_words_spans = \
                 self._add_ignore_sentences_consisting_of_numbers(text,ignored_words_spans)
-            
+        
+        # F) Add ignore sentences that contain comma separated list of titlecase words /
+        #        numbers (like sport results, player/country listings, game scores etc.)
+        if self.configuration['ignore_sentences_with_comma_separated_num_name_lists']:
+            ignored_words_spans = \
+                self._add_ignore_comma_separated_list_sentences(text,ignored_words_spans)
+        
         # Finally: create a new layer and add spans to the layer
         layer = Layer(name=self.layer_name,
                       parent = 'words',
@@ -773,6 +784,73 @@ class SyntaxIgnoreTagger(Tagger):
                 new_spanlist = SpanList()
                 new_spanlist.spans = sent_words
                 new_spanlist.type = 'consecutive_enum_ucase_sentences'
+                # Add the sentence only iff it is not already added
+                add_sentence = True
+                if ignored_words_spans:
+                    # Check if it exists already
+                    for ignore_span in ignored_words_spans:
+                        if ignore_span.start == new_spanlist.start and \
+                           ignore_span.end == new_spanlist.end:
+                            add_sentence = False
+                            break
+                if add_sentence:
+                    # Check for overlaps
+                    if ignored_words_spans:
+                        # Rewrite 'ignored_words_spans': leave out words inside 'ignored_words'
+                        # of the current sentence (basically: remove overlapped ignore content)
+                        new_ignored_words_spans = []
+                        for ignore_span in ignored_words_spans:
+                            if not (new_spanlist.start <= ignore_span.start and \
+                                    ignore_span.end <= new_spanlist.end):
+                                new_ignored_words_spans.append( ignore_span )
+                        ignored_words_spans = new_ignored_words_spans
+                    # After overlaps have been removed, add the span
+                    ignored_words_spans.append( new_spanlist )
+        return ignored_words_spans
+
+        
+    def _add_ignore_comma_separated_list_sentences( 
+                self, text: 'Text', ignored_words_spans:list ) -> list:
+        ''' Detects sentences that:
+            *) Start with up to three words and colon, or 
+               contain at least 2 colons;
+            *) Contain at least 1 number;
+            *) Contain at least colons followed by uppercase word;
+            *) Contain less than 3 consecutive lowercase words;
+            In many cases, sentences that have these properties contain
+            lists of sport results (e.g. names / countries, game scores
+            etc.);
+            Returns ignored_words_spans which is extended with new ignore 
+            sentences;
+        '''
+        # 1) Collect candidates for ignored sentences
+        ignored_sentence_candidates = []
+        for sent_id, sentence_span in enumerate( text['sentences'].spans ):
+            ignored_words = []
+            # check if the sentence has required properties
+            sentence_text = sentence_span.enclosing_text
+            misses_lc_words   = not bool( _three_lc_words_compiled.search(sentence_text) )
+            comma_ucase_items = len( re.findall(_comma_ucase_list_item, sentence_text) )
+            number_items      = len( re.findall('\d+', sentence_text) )
+            colon_items       = len( re.findall(':', sentence_text) )
+            colon_start       = bool( _colon_start_compiled.match(sentence_text) )
+            if misses_lc_words and comma_ucase_items >= 3 and \
+               number_items > 0 and (colon_items > 1 or colon_start):
+                ignore_item = { 'sent_id':sent_id, 'span': sentence_span, \
+                                'ignore_sentence': True }
+                ignored_sentence_candidates.append( ignore_item )
+        # 2) Insert all sentences that should be ignored into the list of ignored;
+        #    Perform check-ups and filterings before insertions
+        for ignored_candidate in ignored_sentence_candidates:
+            if ignored_candidate['ignore_sentence']:
+                # Collect words inside the sentence
+                sent_words = []
+                for word_span in ignored_candidate['span'].spans:
+                    sent_words.append( word_span )
+                # Make entire sentence as 'ignored'
+                new_spanlist = SpanList()
+                new_spanlist.spans = sent_words
+                new_spanlist.type = 'sentence_with_comma_separated_list'
                 # Add the sentence only iff it is not already added
                 add_sentence = True
                 if ignored_words_spans:

@@ -151,13 +151,13 @@ def test_ignore_content_in_parentheses_2():
           'expected_ignore_texts': ['(1997–2000, 2002, 2005)'] }, \
 
         # Pattern:  parentheses_num_end_uncategorized
-        { 'text': 'A (Rm 9:4 – 5), B (mudelid PI70 ja PI90), C (Rookopli 18), D (meie puhul 165/80), E (1920 x 1080)', \
+        { 'text': 'a (Rm 9:4 – 5), b (mudelid PI70 ja PI90), c (Rookopli 18), d (meie puhul 165/80), e (1920 x 1080)', \
           'expected_ignore_texts': ['(Rm 9:4 – 5)', '(mudelid PI70 ja PI90)', '(Rookopli 18)', '(meie puhul 165/80)', '(1920 x 1080)'] }, \
         # Pattern:  parentheses_num_start_uncategorized
-        { 'text': 'A (23%), B (2 päeva, osavõtutasu 250 eurot), C (13 ja 4 aastased), D (300 000 000 m/sek), E (46,8 p 60-st), F (91% õpetajatest)', \
+        { 'text': 'a (23%), b (2 päeva, osavõtutasu 250 eurot), c (13 ja 4 aastased), d (300 000 000 m/sek), e (46,8 p 60-st), f (91% õpetajatest)', \
           'expected_ignore_texts': ['(23%)', '(2 päeva, osavõtutasu 250 eurot)', '(13 ja 4 aastased)', '(300 000 000 m/sek)', '(46,8 p 60-st)', '(91% õpetajatest)'] }, \
         # Pattern:  parentheses_num_mid_uncategorized
-        { 'text': 'A ( Group 3G/Quam , Sonera osalus 42,8 protsenti ), B ( trollid nr. 6 , 7 ; bussid nr. 21 , 21B , 22 ja taksod ), C ( IPSE 2000 , Sonera osalus 12,55 protsenti ), D ( ligi 6 eurot kilogramm )', \
+        { 'text': 'a ( Group 3G/Quam , Sonera osalus 42,8 protsenti ), b ( trollid nr. 6 , 7 ; bussid nr. 21 , 21B , 22 ja taksod ), c ( IPSE 2000 , Sonera osalus 12,55 protsenti ), d ( ligi 6 eurot kilogramm )', \
           'expected_ignore_texts': ['( Group 3G/Quam , Sonera osalus 42,8 protsenti )', '( trollid nr. 6 , 7 ; bussid nr. 21 , 21B , 22 ja taksod )', '( IPSE 2000 , Sonera osalus 12,55 protsenti )', '( ligi 6 eurot kilogramm )',] }, \
 
     ]
@@ -356,3 +356,35 @@ def test_ignore_sentences_starting_with_time_schedule():
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
+
+        
+        
+def test_ignore_sentences_with_comma_separated_name_num_lists():
+    # Ignore sentences containing colon + comma separated names + numbers (e.g. sports results)
+    syntax_ignore_tagger = SyntaxIgnoreTagger( ignore_sentences_with_comma_separated_num_name_lists=True )
+    test_texts = [
+        { 'text': 'Maailma naiste edetabeli kolmas Jana Novotna pole mängija , kes võidaks suurturniire .\n'+\
+                  'Paarismängu poolfinaalid .\n'+\
+                  'Jevgeni Kafelnikov , Venemaa/Daniel Vacek , Tšehhi- Mahesh Bhupathi/Leander Paes , India 7 : 6 , 7 : 6 .\n'+\
+                  'Naised .\n'+\
+                  'Veerandfinaalid .\n'+\
+                  'Lindsay Davenport ( 6 ) , USA-Jana Novotna ( 3 ) , Tšehhi 6 : 2 , 4 : 6 , 7 : 6 , Martina Hingis ( 1 ) , Šveits-Arantxa Sanchez Vicario ( 10 ) , Hispaania 6 : 3 , 6 : 2 .\n'+\
+                  'Paarismängu veerandfinaalid .\n'+\
+                  'Gigi Fernandez , USA/Nataša Zvereva , Valgevene- Alexandra Fusai/Nathalie Tauziat , Prantsusmaa 4 : 6 , 6 : 2 , 6 : 2 , Nicole Arendt , USA/Manon Bollegraf , Holland-Ruxandra Dragomir , Rumeenia/Iva Majoli , Horvaatia 6 : 3 , 3 : 6 , 6 : 4 .\n',\
+          'expected_ignore_texts': [ \
+                  'Jevgeni Kafelnikov , Venemaa/Daniel Vacek , Tšehhi- Mahesh Bhupathi/Leander Paes , India 7 : 6 , 7 : 6 .',\
+                  'Lindsay Davenport ( 6 ) , USA-Jana Novotna ( 3 ) , Tšehhi 6 : 2 , 4 : 6 , 7 : 6 , Martina Hingis ( 1 ) , Šveits-Arantxa Sanchez Vicario ( 10 ) , Hispaania 6 : 3 , 6 : 2 .',\
+                  'Gigi Fernandez , USA/Nataša Zvereva , Valgevene- Alexandra Fusai/Nathalie Tauziat , Prantsusmaa 4 : 6 , 6 : 2 , 6 : 2 , Nicole Arendt , USA/Manon Bollegraf , Holland-Ruxandra Dragomir , Rumeenia/Iva Majoli , Horvaatia 6 : 3 , 3 : 6 , 6 : 4 .'] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words', 'sentences', 'paragraphs'])
+        syntax_ignore_tagger.tag( text )
+        # Collect results 
+        ignored_texts = \
+            [span.enclosing_text for span in text['syntax_ignore'].spans]
+        #print(ignored_texts)
+        # Check results
+        assert ignored_texts == test_text['expected_ignore_texts']
+
