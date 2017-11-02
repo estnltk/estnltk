@@ -230,7 +230,7 @@ def test_ignore_consecutive_enum_name_num_sentences():
     #    * do not contain 3 consecutive lc words
     #    * contain a number or numbers;
     #    * form a row of at least 4 consecutive sentences with the same properties;
-    syntax_ignore_tagger = SyntaxIgnoreTagger(ignore_consecutive_enum_name_num_sentences=True)
+    syntax_ignore_tagger = SyntaxIgnoreTagger(ignore_consecutive_enum_ucase_num_sentences=True)
     test_texts = [
         { 'text': 'Meeste 50 km/klassikat\n\n'+\
                   'Holmenkollen , Norra\n\n'+\
@@ -281,11 +281,31 @@ def test_ignore_consecutive_enum_name_num_sentences():
                   'Teimur Radšabov - Jaan Ehlvest 2. partii : 1. d4 Rf6 2. c4 e6 3.\n'+\
                   'Rc3 Ob4 4. e3 O-O 5.\n'+\
                   'Od3 d5 6.\n'+\
-                  'Rf3 b6 7. c : d5 e : d5\n',\
+                  'Rf3 b6 7. c : d5 e : d5\n'+\
+                  'O-O Ob7 9. a3 Od6 10. b4 a6 11.'+\
+                  'Lc2 Vfe8 12.'+\
+                  'Ob2 Rd7 13. b5 Le7 14. a4 a : b5 15.'+\
+                  'R : b5 c5 16.'+\
+                  'R : d6 L : d6 17.'+\
+                  'Re5 Rf8 18.'+\
+                  'Vfb1 Oa6 19.'+\
+                  'Of5 Oc8 20.'+\
+                  'Vbd1 O : f5 21.'+\
+                  'L : f5 Le6 22.'+\
+                  'Lc2 c4 viik .',
           'expected_ignore_texts': ['Teimur Radšabov - Jaan Ehlvest 2. partii : 1. d4 Rf6 2. c4 e6 3.',\
                                     'Rc3 Ob4 4. e3 O-O 5.',\
                                     'Od3 d5 6.',\
-                                    'Rf3 b6 7. c : d5 e : d5'] }, \
+                                    'Rf3 b6 7. c : d5 e : d5\nO-O Ob7 9. a3 Od6 10. b4 a6 11.',\
+                                    'Lc2 Vfe8 12.', 'Ob2 Rd7 13. b5 Le7 14. a4 a : b5 15.',\
+                                    'R : b5 c5 16.',\
+                                    'R : d6 L : d6 17.',\
+                                    'Re5 Rf8 18.',\
+                                    'Vfb1 Oa6 19.',\
+                                    'Of5 Oc8 20.',\
+                                    'Vbd1 O : f5 21.',\
+                                    'L : f5 Le6 22.',\
+                                    'Lc2 c4 viik .'] },
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
