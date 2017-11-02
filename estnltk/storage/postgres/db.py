@@ -1,4 +1,6 @@
 import json
+from functools import reduce
+import operator as op
 
 import psycopg2
 from psycopg2.extensions import STATUS_BEGIN
@@ -75,11 +77,17 @@ class PostgresStorage:
 
     def select(self, table, query=None, order_by_key=False, return_as_dict=False):
         """
-        :param table:
-        :param return_as_dict:
-        :param query:
-        :param order_by_key:
-        :return:
+        Query a table.
+
+        Example:
+
+            q = JsonbQuery('morph_analysis', lemma='laulma')
+            for key, txt in storage.select(table, query=q):
+                print(key, txt)
+
+        :param query (JsonbQuery): query to execute
+        :return: iterator of (key, text) pairs
+
         """
         with self.conn.cursor() as c:
             sql_parts = [SQL("SELECT * FROM {}").format(Identifier(table)).as_string(self.conn)]
@@ -92,6 +100,30 @@ class PostgresStorage:
             for (key, text_dict) in c.fetchall():
                 text = text_dict if return_as_dict is True else import_dict(text_dict)
                 yield key, text
+
+    def find_fingerprint(self, table, layer, field, query_list, ambiguous=True, order_by_key=False,
+                         return_as_dict=False):
+        """
+        A wrapper over `select` method, which enables to conveniently build composite AND/OR queries
+        involving a single layer and field.
+
+        Example:
+
+            res = storage.find_fingerprint('my_table', 'morph_analysis', 'lemma', [{'tuul', 'puhuma'}, {'kala'}])
+            for key, text in res:
+                pass
+
+        :param query_list (list of sets): contains terms to build a boolean query.
+                E.g., `[{a, b, c}, {d, e}]` -> `(a AND b AND c) OR (d AND e)`
+        :return: iterator of (key, text) pairs
+        """
+        or_query_list = []
+        for and_terms in query_list:
+            if and_terms:
+                and_query = reduce(op.__and__, (JsonbQuery(layer, ambiguous, **{field: term}) for term in and_terms))
+                or_query_list.append(and_query)
+        query = reduce(op.__or__, or_query_list) if or_query_list else None
+        return self.select(table, query, order_by_key, return_as_dict)
 
 
 class JsonbQuery(Query):
