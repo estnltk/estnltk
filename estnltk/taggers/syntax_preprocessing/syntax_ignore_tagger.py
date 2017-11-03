@@ -500,7 +500,7 @@ class SyntaxIgnoreTagger(Tagger):
         #        numbers (like sport results, player/country listings, game scores etc.)
         if self.configuration['ignore_sentences_with_comma_separated_num_name_lists']:
             ignored_words_spans = \
-                self._add_ignore_comma_separated_list_sentences(text,ignored_words_spans)
+                self._add_ignore_comma_separated_num_name_list_sentences(text,ignored_words_spans)
         
         # Finally: create a new layer and add spans to the layer
         layer = Layer(name=self.layer_name,
@@ -809,16 +809,22 @@ class SyntaxIgnoreTagger(Tagger):
         return ignored_words_spans
 
         
-    def _add_ignore_comma_separated_list_sentences( 
+    def _add_ignore_comma_separated_num_name_list_sentences( 
                 self, text: 'Text', ignored_words_spans:list ) -> list:
         ''' Detects sentences that:
-            *) Start with up to three words and colon, or 
-               contain at least 2 colons;
-            *) Contain at least 1 number;
-            *) Contain at least colons followed by uppercase word;
-            *) Contain less than 3 consecutive lowercase words;
+            Contain less than 3 consecutive lowercase words, and 
+               1.1) Start with up to three words and colon, or 
+                      contain at least 2 colons;
+               1.2) Contain at least 1 number;
+               1.3) Contain at least 3 commas followed by uppercase 
+                      word;
+            or:
+               2.1) Contain at least 2 hyphens followed by uppercase
+                    words;
+               2.2) Contain at least 2 commas, 2 colons and 1 number;
+            
             In many cases, sentences that have these properties contain
-            lists of sport results (e.g. names / countries, game scores
+            lists of sport results (e.g. names / countries, game scores 
             etc.);
             Returns ignored_words_spans which is extended with new ignore 
             sentences;
@@ -829,13 +835,20 @@ class SyntaxIgnoreTagger(Tagger):
             ignored_words = []
             # check if the sentence has required properties
             sentence_text = sentence_span.enclosing_text
-            misses_lc_words   = not bool( _three_lc_words_compiled.search(sentence_text) )
-            comma_ucase_items = len( re.findall(_comma_ucase_list_item, sentence_text) )
-            number_items      = len( re.findall('\d+', sentence_text) )
-            colon_items       = len( re.findall(':', sentence_text) )
-            colon_start       = bool( _colon_start_compiled.match(sentence_text) )
+            misses_lc_words    = not bool( _three_lc_words_compiled.search(sentence_text) )
+            comma_ucase_items  = len( re.findall(_comma_ucase_list_item, sentence_text) )
+            hyphen_ucase_items = len( re.findall(_hyphen_pat+'\s*['+_uc_letter+']', sentence_text) )
+            number_items       = len( re.findall('\d+', sentence_text) )
+            colon_items        = sentence_text.count(':')
+            comma_items        = sentence_text.count(',')
+            colon_start        = bool( _colon_start_compiled.match(sentence_text) )
             if misses_lc_words and comma_ucase_items >= 3 and \
                number_items > 0 and (colon_items > 1 or colon_start):
+                ignore_item = { 'sent_id':sent_id, 'span': sentence_span, \
+                                'ignore_sentence': True }
+                ignored_sentence_candidates.append( ignore_item )
+            elif misses_lc_words and hyphen_ucase_items >= 2 and \
+                 comma_items >= 2 and colon_items >= 2 and number_items >= 1:
                 ignore_item = { 'sent_id':sent_id, 'span': sentence_span, \
                                 'ignore_sentence': True }
                 ignored_sentence_candidates.append( ignore_item )

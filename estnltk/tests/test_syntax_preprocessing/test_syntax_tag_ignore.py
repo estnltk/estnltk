@@ -357,10 +357,10 @@ def test_ignore_sentences_starting_with_time_schedule():
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
 
-        
-        
+
+
 def test_ignore_sentences_with_comma_separated_name_num_lists():
-    # Ignore sentences containing colon + comma separated names + numbers (e.g. sports results)
+    # Ignore sentences containing colon + comma/hyphen separated names + numbers (mainly sports results)
     syntax_ignore_tagger = SyntaxIgnoreTagger( ignore_sentences_with_comma_separated_num_name_lists=True )
     test_texts = [
         { 'text': 'Maailma naiste edetabeli kolmas Jana Novotna pole mängija , kes võidaks suurturniire .\n'+\
@@ -375,6 +375,26 @@ def test_ignore_sentences_with_comma_separated_name_num_lists():
                   'Jevgeni Kafelnikov , Venemaa/Daniel Vacek , Tšehhi- Mahesh Bhupathi/Leander Paes , India 7 : 6 , 7 : 6 .',\
                   'Lindsay Davenport ( 6 ) , USA-Jana Novotna ( 3 ) , Tšehhi 6 : 2 , 4 : 6 , 7 : 6 , Martina Hingis ( 1 ) , Šveits-Arantxa Sanchez Vicario ( 10 ) , Hispaania 6 : 3 , 6 : 2 .',\
                   'Gigi Fernandez , USA/Nataša Zvereva , Valgevene- Alexandra Fusai/Nathalie Tauziat , Prantsusmaa 4 : 6 , 6 : 2 , 6 : 2 , Nicole Arendt , USA/Manon Bollegraf , Holland-Ruxandra Dragomir , Rumeenia/Iva Majoli , Horvaatia 6 : 3 , 3 : 6 , 6 : 4 .'] }, \
+        { 'text': 'Teises poolfinaalis kohtuvad Serena vanem õde Venus ja WTA edetabelijuht Martina Hingis ( Šveits ) .\n\n'+\
+                  'Naiste veerandfinaalid .\n'+\
+                  'Serena Williams ( USA , 7 ) -Monica Seles ( USA , 4 ) 4 : 6 , 6 : 3 , 6 : 2 , Lindsay Davenport ( USA , 2 ) -Mary Pierce ( Prantsusmaa , 5 ) 6 : 2 , 3 : 6 , 7 : 5 .\n\n'+\
+                  'Meeste veerandfinaalid .\n'+\
+                  'Jevgeni Kafelnikov ( Venemaa , 3 ) -Richard Krajicek ( Holland , 12 ) 7 : 6 , 7 : 6 , 3 : 6 , 1 : 6 , 7 : 6 , Andre Agassi ( USA , 2 ) -Nicolas Escude ( Prantsusmaa ) 7 : 6 , 6 : 3 , 6 : 4 .\n',\
+          'expected_ignore_texts': ['( Šveits )', \
+                                    'Serena Williams ( USA , 7 ) -Monica Seles ( USA , 4 ) 4 : 6 , 6 : 3 , 6 : 2 , Lindsay Davenport ( USA , 2 ) -Mary Pierce ( Prantsusmaa , 5 ) 6 : 2 , 3 : 6 , 7 : 5 .', \
+                                    'Jevgeni Kafelnikov ( Venemaa , 3 ) -Richard Krajicek ( Holland , 12 ) 7 : 6 , 7 : 6 , 3 : 6 , 1 : 6 , 7 : 6 , Andre Agassi ( USA , 2 ) -Nicolas Escude ( Prantsusmaa ) 7 : 6 , 6 : 3 , 6 : 4 .'] }, \
+        { 'text': 'Viimane alistas eile poolfinaalis raskusteta rootslase Magnus Normani .\n\n'+\
+                  'Tulemused\n\n'+\
+                  'Naispaarismängu finaal\n\n'+\
+                  'Lisa Raymond ( USA ) -Rennae Stubbs ( Austraalia ) – Martina Hingis ( Šveits ) -Mary Pierce ( Prantsusmaa ) 6 : 4 , 5 : 7 , 6 : 4 .\n\n'+\
+                  'Meeste poolfinaal .\n'+\
+                  'Jevgeni Kafelnikov ( Venemaa , 2 ) – Magnus Norman ( Rootsi , 12 ) 6 : 1 , 6 : 2 , 6 : 4 .\n\n'+\
+                  'Segapaarismängu poolfinaal\n'+\
+                  'Jared Palmer ( USA ) -Rennae Stubbs ( Austraalia ) – Jonas Björkman ( Rootsi ) -Anna Kurnikova ( Venemaa ) 7 : 5 , 3 : 6 , 6 : 3 .\n',\
+          'expected_ignore_texts': ['Tulemused\n\nNaispaarismängu finaal\n\nLisa Raymond ( USA ) -Rennae Stubbs ( Austraalia ) – Martina Hingis ( Šveits ) -Mary Pierce ( Prantsusmaa ) 6 : 4 , 5 : 7 , 6 : 4 .', \
+                                    'Jevgeni Kafelnikov ( Venemaa , 2 ) – Magnus Norman ( Rootsi , 12 ) 6 : 1 , 6 : 2 , 6 : 4 .',\
+                                    'Segapaarismängu poolfinaal\nJared Palmer ( USA ) -Rennae Stubbs ( Austraalia ) – Jonas Björkman ( Rootsi ) -Anna Kurnikova ( Venemaa ) 7 : 5 , 3 : 6 , 6 : 3 .'] }, \
+
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
