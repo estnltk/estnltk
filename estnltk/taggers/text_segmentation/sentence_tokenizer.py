@@ -5,8 +5,10 @@ import re
 from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 
-_hyphen_pat    = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|-)'
-_lc_letter     = '[a-zöäüõžš]'
+_hyphen_pat = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|-)'
+_lc_letter  = '[a-zöäüõžš]'
+_uc_letter  = '[A-ZÖÄÜÕŽŠ]'
+_not_letter = '[^A-ZÖÄÜÕŽŠa-zöäüõžš]'
 _start_quotes  = '"\u00AB\u02EE\u030B\u201C\u201D\u201E'
 _ending_quotes = '"\u00BB\u02EE\u030B\u201C\u201D\u201E'
 # regexp for matching a single token consisting only of sentence-ending punctuation
@@ -143,6 +145,14 @@ merge_patterns = [ \
      'regexes'  : [re.compile('.+\s[a-zöäüõ\-.]+[.]\s*$', re.DOTALL), re.compile('^([,;]).*') ], \
    },
    
+   #   {uppercase_letter} {period} + {not_uppercase_followed_by_lowercase}
+   { 'comment'  : '{uppercase_letter} {period} + {not_uppercase_followed_by_lowercase}', \
+     'example'  : "' K.' + 'C.' + 'seal nime ees tähendab Kadri’s Choise'", \
+     'fix_type' : 'abbrev_name_initial', \
+     'regexes'  : [re.compile('.*'+_not_letter+_uc_letter+'\s*[.]\s*$', re.DOTALL), \
+                   re.compile('^(?!\s*'+_uc_letter+_lc_letter+').*') ], \
+   },
+
    # ***********************************
    #   Fixes related to parentheses 
    # ***********************************

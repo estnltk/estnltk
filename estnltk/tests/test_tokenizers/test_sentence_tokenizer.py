@@ -415,6 +415,39 @@ def test_merge_mistakenly_split_sentences_4():
         assert sentence_texts == test_text['expected_sentence_texts']
 
 
+def test_merge_mistakenly_split_sentences_5():
+    # Tests that mistakenly split sentences have been properly merged
+    # 4: splits related to initials of names
+    test_texts = [ 
+        #   {uppercase_letter} {period} + {not_uppercase_followed_by_lowercase}
+        { 'text': "Seriaalid “ Salmonid ” ja “ V.E.R.I ”", \
+          'expected_sentence_texts': ["Seriaalid “ Salmonid ” ja “ V.E.R.I ”"] }, \
+        { 'text': "« Homme ( täna\nA. K. ) lähen jälle .\nAga lihtsama laulu laulsin ära , »", \
+          'expected_sentence_texts': ["« Homme ( täna\nA. K. ) lähen jälle .", "Aga lihtsama laulu laulsin ära , »"] }, \
+        { 'text': "„Seis on segane ja peaks selgemaks saama homseks-ülehomseks (tänaseks-homseks – A. S.).”", \
+          'expected_sentence_texts': ["„Seis on segane ja peaks selgemaks saama homseks-ülehomseks (tänaseks-homseks – A. S.).”"] }, \
+        { 'text': "“K. C. seal härrasmehe nime ees tähendab Kadri’s Choise,” selgitab selle täku välja valinud Kadri.", \
+          'expected_sentence_texts': ["“K. C. seal härrasmehe nime ees tähendab Kadri’s Choise,” selgitab selle täku välja valinud Kadri."] }, \
+        { 'text': 'Jätkustsenaariumiga (ehk siis liberaalse "õhukese riigi poliitika" jätkumisega - J.K.) seotud oht', \
+          'expected_sentence_texts': ['Jätkustsenaariumiga (ehk siis liberaalse "õhukese riigi poliitika" jätkumisega - J.K.) seotud oht'] }, \
+        { 'text': "Curtis Hansoni “ L.A. räpased saladused ” korruptsioonist 1950. aastatel oli just sobiv näide.", \
+          'expected_sentence_texts': ["Curtis Hansoni “ L.A. räpased saladused ” korruptsioonist 1950. aastatel oli just sobiv näide."] }, \
+        { 'text': 'Möödunud advendiajast saati teenib Eesti Evangeeliumi Luteriusu Kiriku (E.E.L.K.) Toronto Peetri koguduses senine Eesti Kirikute Nõukogu täitevsekretär.', \
+          'expected_sentence_texts': ['Möödunud advendiajast saati teenib Eesti Evangeeliumi Luteriusu Kiriku (E.E.L.K.) Toronto Peetri koguduses senine Eesti Kirikute Nõukogu täitevsekretär.'] }, \
+
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words', 'sentences'])
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences'].spans]
+        #print(sentence_texts)
+        # Check results
+        assert sentence_texts == test_text['expected_sentence_texts']
+
+
 def test_split_mistakenly_merged_sentences_1():
     # Tests that mistakenly merged sentences are properly split
     # 1: merges related to missing whitespace between words and punctuation
