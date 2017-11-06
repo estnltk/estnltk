@@ -23,7 +23,6 @@ _double_quotes_patterns = [ # ""
                             re.compile('(\u00AB[^\u00AB\u00BB]+?\u00BB)'), \
                             # “”
                             re.compile('([“\u201C][^“”\u201C\u201D]+?[”\u201D])'), \
-                            # 
                           ]
 
 
@@ -94,11 +93,15 @@ def find_sentence_breaks_inside_double_quotes_generator( text: 'Text',\
         the last sentence contains ending double quotes, thus, it is 
         possible that a single sentence containing quotes has been broken 
         mistakenly into several sentences. 
-        
+        Note: it is rather common that a quotation actually contains more
+        than one sentence, thus, this heuristic is only effective if 
+        additional checks/filters are applied on the results for confirming
+        that some of the sentences might have been split mistakenly.
+
         As a result, yields a dict containing start/end position of the 
         quotation in text (under keys 'start' and 'end'), and a list 
-        of SpanList-s corresponding potentially broken sentences (under
-        key 'sentences');
+        of SpanList-s corresponding sentences covered by the quotation 
+        (under key 'sentences');
         
         If apply_three_lc_words_filter==True (default: False), then the 
         results are filtered: only if the one of the sentences overlapping 
@@ -106,14 +109,14 @@ def find_sentence_breaks_inside_double_quotes_generator( text: 'Text',\
         words, the context is yielded (as a context containing potentially 
         broken sentences); In such case, spans of sentences that are 
         suspiciously short are stored under the key 'short_sentences' of
-        the returned dictionary;
+        the yielded dictionary;
         
         If apply_character_length_filter==True (default setting), then the 
         results are filtered: only if the one of the sentences is shorter 
         than min_sentence_char_length (default: 5), the context is yielded 
         (as a context containing potentially broken sentences); In such case, 
         spans of sentences that are suspiciously short are stored under the
-        key 'short_sentences' of the returned dictionary;
+        key 'short_sentences' of the yielded dictionary;
         
         In case of regular double quotes ("), sentences overlapping with 
         the quotation are yielded only when there is an even number of 
