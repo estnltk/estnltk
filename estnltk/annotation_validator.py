@@ -234,3 +234,54 @@ def find_sentence_breaking_abbreviations_generator( text: 'Text' ):
                     yield results
 
 
+
+def find_short_sentences_generator( text: 'Text', min_words:int=4 ):
+    ''' Analyses given Text object, and  yields  sentences  which  are 
+        "suspiciously short", that is,  contain  less  than   min_words  
+        words. It is possible that short sentences are parts of a longer
+        sentence that has been mistakenly split.
+        
+        As a result, yields a dict containing start/end position of the 
+        short sentence (under keys 'start' and 'end'), and a list of SpanList-s 
+        containing potentially broken sentences (under key 'sentences').
+        Potentially broken sentences here include the previous sentence, the 
+        short sentence, and the next sentence.
+    '''
+    # Check the layer requirements
+    requirements = ['words', 'sentences']
+    for requirement in requirements:
+        assert requirement in text.layers, \
+               '(!) The input text is missing the layer "'+requirement+'"!'
+    # Iterate over consecutive sentences and detect mistakenly split sentences
+    words_spans    = text['words'].spans
+    sentence_spans = text['sentences'].spans
+    for sid, sentence in enumerate( sentence_spans ):
+        # Find words of the current sentence
+        words = [] 
+        for wid, word in enumerate( words_spans ):
+            if sentence.start <= word.start and word.end <= sentence.end:
+                words.append(word)
+            if sentence.end < word.start:
+                # Look no further
+                break
+        if len(words) < min_words:
+            # The sentence is "suspiciously short"
+            results = { 'sentences':[], \
+                        'start': sentence.start, \
+                        'end':   sentence.end }
+            # add previous sentence
+            prev_sent = None
+            if sid-1 > -1:
+                prev_sent = sentence_spans[sid-1]
+            if prev_sent:
+                results['sentences'].append( prev_sent )
+            # add this sentence
+            results['sentences'].append( sentence )
+            # add next sentence
+            next_sent = None
+            if sid+1 < len(sentence_spans):
+                next_sent = sentence_spans[sid+1]
+            if next_sent:
+                results['sentences'].append( next_sent )
+            yield results
+

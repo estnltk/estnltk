@@ -436,6 +436,8 @@ def test_merge_mistakenly_split_sentences_5():
           'expected_sentence_texts': ['Jätkustsenaariumiga (ehk siis liberaalse "õhukese riigi poliitika" jätkumisega - J.K.) seotud oht'] }, \
         { 'text': "Curtis Hansoni “ L.A. räpased saladused ” korruptsioonist 1950. aastatel oli just sobiv näide.", \
           'expected_sentence_texts': ["Curtis Hansoni “ L.A. räpased saladused ” korruptsioonist 1950. aastatel oli just sobiv näide."] }, \
+        { 'text': "E . V . sai tagasi tema isalt õigusvastaselt võõrandatud elamu , kuid tal on probleeme isale kuulunud krundi tagasisaamisega .", \
+          'expected_sentence_texts': ["E . V . sai tagasi tema isalt õigusvastaselt võõrandatud elamu , kuid tal on probleeme isale kuulunud krundi tagasisaamisega ."] }, \
         { 'text': "Segaduse rahvusvaheliste maksetega põhjustas kinnijooksnud maksekorralduste programmi S.W.I.F.T. sõnumite edastamise programm MERVA .", \
           'expected_sentence_texts': ["Segaduse rahvusvaheliste maksetega põhjustas kinnijooksnud maksekorralduste programmi S.W.I.F.T. sõnumite edastamise programm MERVA ."] }, \
         { 'text': 'Möödunud advendiajast saati teenib Eesti Evangeeliumi Luteriusu Kiriku (E.E.L.K.) Toronto Peetri koguduses senine Eesti Kirikute Nõukogu täitevsekretär.', \
