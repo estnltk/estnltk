@@ -417,11 +417,15 @@ def test_merge_mistakenly_split_sentences_4():
 
 def test_merge_mistakenly_split_sentences_5():
     # Tests that mistakenly split sentences have been properly merged
-    # 4: splits related to initials of names
+    # 5: splits related to initials of names
     test_texts = [ 
         #   {uppercase_letter} {period} + {not_uppercase_followed_by_lowercase}
         { 'text': "Seriaalid “ Salmonid ” ja “ V.E.R.I ”", \
           'expected_sentence_texts': ["Seriaalid “ Salmonid ” ja “ V.E.R.I ”"] }, \
+        { 'text': "Usun , et esitada võiks seda J.M.K.E. ja Villu Tamme .", \
+          'expected_sentence_texts': ["Usun , et esitada võiks seda J.M.K.E. ja Villu Tamme ."] }, \
+        { 'text': "Mängin 36 auguga (tavaliselt kulgeb mäng läbi 18 augu – K. A.).", \
+          'expected_sentence_texts': ["Mängin 36 auguga (tavaliselt kulgeb mäng läbi 18 augu – K. A.)."] }, \
         { 'text': "« Homme ( täna\nA. K. ) lähen jälle .\nAga lihtsama laulu laulsin ära , »", \
           'expected_sentence_texts': ["« Homme ( täna\nA. K. ) lähen jälle .", "Aga lihtsama laulu laulsin ära , »"] }, \
         { 'text': "„Seis on segane ja peaks selgemaks saama homseks-ülehomseks (tänaseks-homseks – A. S.).”", \
@@ -432,8 +436,17 @@ def test_merge_mistakenly_split_sentences_5():
           'expected_sentence_texts': ['Jätkustsenaariumiga (ehk siis liberaalse "õhukese riigi poliitika" jätkumisega - J.K.) seotud oht'] }, \
         { 'text': "Curtis Hansoni “ L.A. räpased saladused ” korruptsioonist 1950. aastatel oli just sobiv näide.", \
           'expected_sentence_texts': ["Curtis Hansoni “ L.A. räpased saladused ” korruptsioonist 1950. aastatel oli just sobiv näide."] }, \
+        { 'text': "Segaduse rahvusvaheliste maksetega põhjustas kinnijooksnud maksekorralduste programmi S.W.I.F.T. sõnumite edastamise programm MERVA .", \
+          'expected_sentence_texts': ["Segaduse rahvusvaheliste maksetega põhjustas kinnijooksnud maksekorralduste programmi S.W.I.F.T. sõnumite edastamise programm MERVA ."] }, \
         { 'text': 'Möödunud advendiajast saati teenib Eesti Evangeeliumi Luteriusu Kiriku (E.E.L.K.) Toronto Peetri koguduses senine Eesti Kirikute Nõukogu täitevsekretär.', \
           'expected_sentence_texts': ['Möödunud advendiajast saati teenib Eesti Evangeeliumi Luteriusu Kiriku (E.E.L.K.) Toronto Peetri koguduses senine Eesti Kirikute Nõukogu täitevsekretär.'] }, \
+        { 'text': "Selline tugev pomm näitas ka Jabulani (peatselt algava MMi ametlik pall — P.L.) võlusid, pall lendas kuidagi väga imelikult ja füüsikaseaduste vastaselt.", \
+          'expected_sentence_texts': ["Selline tugev pomm näitas ka Jabulani (peatselt algava MMi ametlik pall — P.L.) võlusid, pall lendas kuidagi väga imelikult ja füüsikaseaduste vastaselt."] }, \
+
+        { 'text': "siin kommentaariumis ongi läbilõige 00nia ühiskonnast. M.O.T.T. igaüks sikutab vankrit enda poole", \
+          'expected_sentence_texts': ["siin kommentaariumis ongi läbilõige 00nia ühiskonnast.", "M.O.T.T. igaüks sikutab vankrit enda poole"] }, \
+        { 'text': "Lisaks sellele valiti nominentide hulgast välja neli edukat turismiobjekti/ projekti, milleks said Vanaõue Puhkekeskus, Otepää Golf, Kalevipoja Uisumaraton ja MTÜ R.A.A.A.M. teatrietendused Suurel Munamäel", \
+          'expected_sentence_texts': ["Lisaks sellele valiti nominentide hulgast välja neli edukat turismiobjekti/ projekti, milleks said Vanaõue Puhkekeskus, Otepää Golf, Kalevipoja Uisumaraton ja MTÜ R.A.A.A.M. teatrietendused Suurel Munamäel"] }, \
 
     ]
     for test_text in test_texts:

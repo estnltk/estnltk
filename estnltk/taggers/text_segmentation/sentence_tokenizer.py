@@ -147,9 +147,9 @@ merge_patterns = [ \
    
    #   {uppercase_letter} {period} + {not_uppercase_followed_by_lowercase}
    { 'comment'  : '{uppercase_letter} {period} + {not_uppercase_followed_by_lowercase}', \
-     'example'  : "' K.' + 'C.' + 'seal nime ees tähendab Kadri’s Choise'", \
+     'example'  : "'K.' + 'C.' + 'seal nime ees tähendab Kadri’s Choise'", \
      'fix_type' : 'abbrev_name_initial', \
-     'regexes'  : [re.compile('.*'+_not_letter+_uc_letter+'\s*[.]\s*$', re.DOTALL), \
+     'regexes'  : [re.compile('(.*'+_not_letter+'|^)'+_uc_letter+'\s*[.]\s*$', re.DOTALL), \
                    re.compile('^(?!\s*'+_uc_letter+_lc_letter+').*') ], \
    },
 
