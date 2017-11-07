@@ -704,7 +704,7 @@ class SentenceTokenizer(Tagger):
         '''
         double_newline = '\n\n'
         new_sentences_list = []
-        for sid, sentence_spl in enumerate(sentences_list):
+        for sentence_spl in sentences_list:
             # get text of the current sentence
             this_sent_text = \
                 text.text[sentence_spl.start:sentence_spl.end]
@@ -712,10 +712,10 @@ class SentenceTokenizer(Tagger):
             if double_newline in this_sent_text:
                 # iterate over words
                 current_words = []
-                for sid, span in enumerate( sentence_spl.spans ):
+                for wid, span in enumerate( sentence_spl.spans ):
                     current_words.append( span )
-                    if sid+1 < len(sentence_spl.spans):
-                        next_span = sentence_spl.spans[sid+1]
+                    if wid+1 < len(sentence_spl.spans):
+                        next_span = sentence_spl.spans[wid+1]
                         # check what is between two word spans
                         space_between = \
                             text.text[span.end:next_span.start]
