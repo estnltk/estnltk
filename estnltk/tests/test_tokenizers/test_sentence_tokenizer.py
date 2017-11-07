@@ -428,6 +428,8 @@ def test_merge_mistakenly_split_sentences_5():
           'expected_sentence_texts': ["Mängin 36 auguga (tavaliselt kulgeb mäng läbi 18 augu – K. A.)."] }, \
         { 'text': "« Homme ( täna\nA. K. ) lähen jälle .\nAga lihtsama laulu laulsin ära , »", \
           'expected_sentence_texts': ["« Homme ( täna\nA. K. ) lähen jälle .", "Aga lihtsama laulu laulsin ära , »"] }, \
+        { 'text': 'Mõlemad kogenud mängumehed loodavad , et meeskond suudab veel A. le Coqile vastu hakata .', \
+          'expected_sentence_texts': ["Mõlemad kogenud mängumehed loodavad , et meeskond suudab veel A. le Coqile vastu hakata ."] }, \
         { 'text': "„Seis on segane ja peaks selgemaks saama homseks-ülehomseks (tänaseks-homseks – A. S.).”", \
           'expected_sentence_texts': ["„Seis on segane ja peaks selgemaks saama homseks-ülehomseks (tänaseks-homseks – A. S.).”"] }, \
         { 'text': "“K. C. seal härrasmehe nime ees tähendab Kadri’s Choise,” selgitab selle täku välja valinud Kadri.", \
@@ -449,7 +451,7 @@ def test_merge_mistakenly_split_sentences_5():
           'expected_sentence_texts': ["siin kommentaariumis ongi läbilõige 00nia ühiskonnast.", "M.O.T.T. igaüks sikutab vankrit enda poole"] }, \
         { 'text': "Lisaks sellele valiti nominentide hulgast välja neli edukat turismiobjekti/ projekti, milleks said Vanaõue Puhkekeskus, Otepää Golf, Kalevipoja Uisumaraton ja MTÜ R.A.A.A.M. teatrietendused Suurel Munamäel", \
           'expected_sentence_texts': ["Lisaks sellele valiti nominentide hulgast välja neli edukat turismiobjekti/ projekti, milleks said Vanaõue Puhkekeskus, Otepää Golf, Kalevipoja Uisumaraton ja MTÜ R.A.A.A.M. teatrietendused Suurel Munamäel"] }, \
-
+         
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )

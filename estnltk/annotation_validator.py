@@ -235,7 +235,7 @@ def find_sentence_breaking_abbreviations_generator( text: 'Text' ):
 
 
 
-def find_short_sentences_generator( text: 'Text', min_words:int=4 ):
+def find_short_sentences_generator( text: 'Text', min_words:int=2 ):
     ''' Analyses given Text object, and  yields  sentences  which  are 
         "suspiciously short", that is,  contain  less  than   min_words  
         words. It is possible that short sentences are parts of a longer
