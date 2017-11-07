@@ -1,3 +1,6 @@
+#
+#  Tags sentence boundaries, and applies sentence tokenization post-corrections, if required.
+#
 from typing import Iterator, Tuple
 
 import re
@@ -278,6 +281,7 @@ class SentenceTokenizer(Tagger):
     sentence_tokenizer = None
     
     def __init__(self, 
+                 fix_paragraph_endings:bool = True,
                  fix_compound_tokens:bool = True,
                  fix_numeric:bool = True,
                  fix_parentheses:bool = True,
@@ -287,7 +291,8 @@ class SentenceTokenizer(Tagger):
                  use_emoticons_as_endings:bool = True,
                  ):
         # 0) Record configuration
-        self.configuration = {'fix_compound_tokens': fix_compound_tokens,
+        self.configuration = {'fix_paragraph_endings': fix_paragraph_endings,
+                              'fix_compound_tokens': fix_compound_tokens,
                               'fix_numeric': fix_numeric,
                               'fix_parentheses': fix_parentheses,
                               'fix_double_quotes': fix_double_quotes,
@@ -425,14 +430,21 @@ class SentenceTokenizer(Tagger):
             if token.end in sentence_ends:
                 sentences_list.append( text.words[start:i+1] )
                 start = i + 1
-        # E) Apply postcorrection fixes to sentence spans
-        # E.1) Try to merge mistakenly split sentences
+        # E) Use '\n\n' (usually paragraph endings) as sentence endings
+        if self.configuration['fix_paragraph_endings']:
+            sentences_list = \
+                self._split_by_double_newlines( 
+                            text, \
+                            sentences_list, \
+                            record_fix_types = record_fix_types )
+        # F) Apply postcorrection fixes to sentence spans
+        # F.1) Try to merge mistakenly split sentences
         if self.merge_rules:
             sentences_list = \
                 self._merge_mistakenly_split_sentences(text,\
                     sentences_list, record_fix_types = record_fix_types)
         
-        # F) Create the layer and attach sentences
+        # G) Create the layer and attach sentences
         layer_attributes=self.attributes
         if record_fix_types and 'fix_types' not in layer_attributes:
             layer_attributes += ('fix_types',)
@@ -680,3 +692,57 @@ class SentenceTokenizer(Tagger):
                 merged_spanlist2.fix_types = fix_types
             return merged_spanlist1, merged_spanlist2
         return None
+
+
+    def _split_by_double_newlines(self, text:'Text', \
+                                        sentences_list:list, \
+                                        record_fix_types:bool = True ):
+        ''' Splits sentences inside the given list of sentences by double 
+            newlines (usually paragraph endings).
+            Returns a new list of sentences where splitting has been 
+            performed.
+        '''
+        double_newline = '\n\n'
+        new_sentences_list = []
+        for sid, sentence_spl in enumerate(sentences_list):
+            # get text of the current sentence
+            this_sent_text = \
+                text.text[sentence_spl.start:sentence_spl.end]
+            # check for double newline (paragraph ending)
+            if double_newline in this_sent_text:
+                # iterate over words
+                current_words = []
+                for sid, span in enumerate( sentence_spl.spans ):
+                    current_words.append( span )
+                    if sid+1 < len(sentence_spl.spans):
+                        next_span = sentence_spl.spans[sid+1]
+                        # check what is between two word spans
+                        space_between = \
+                            text.text[span.end:next_span.start]
+                        if double_newline in space_between:
+                            # Create a new split 
+                            split_spanlist = SpanList()
+                            split_spanlist.spans = current_words
+                            if record_fix_types:
+                                split_spanlist.fix_types = \
+                                    ['double_newline_split']
+                                if hasattr(sentence_spl, 'fix_types'):
+                                    split_spanlist.fix_types = \
+                                        split_spanlist.fix_types + \
+                                        sentence_spl.fix_types
+                            new_sentences_list.append( split_spanlist )
+                            current_words = []
+                if current_words:
+                    new_spanlist = SpanList()
+                    new_spanlist.spans = current_words
+                    if record_fix_types:
+                        new_spanlist.fix_types = \
+                            ['double_newline_split']
+                        if hasattr(sentence_spl, 'fix_types'):
+                            new_spanlist.fix_types = \
+                                new_spanlist.fix_types + \
+                                sentence_spl.fix_types
+                    new_sentences_list.append( new_spanlist )
+            else:
+                new_sentences_list.append( sentence_spl )
+        return new_sentences_list

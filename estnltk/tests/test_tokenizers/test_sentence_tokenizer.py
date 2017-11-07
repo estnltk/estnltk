@@ -550,6 +550,110 @@ def test_use_emoticons_as_sentence_endings():
         assert sentence_texts == test_text['expected_sentence_texts']
 
 
+
+def test_use_double_newline_as_sentence_endings():
+    # Tests that double newlines (paragraph endings) are used as sentence endings
+    test_texts = [ 
+        { 'text': 'Võrdluseks siiski ka kolmapäevased ajad :\n\n'+\
+                  '1 Panis McLaren 1.24.838\n\n'+\
+                  '2 Trulli Jordan 1.25.411\n\n'+\
+                  '3 Alesi Prost 1.26.673\n\n'+\
+                  '4 Button Williams 1.27.197\n\n'+\
+                  '5 Burti Jaguar 1.27.818\n\n',\
+          'expected_sentence_texts': ['Võrdluseks siiski ka kolmapäevased ajad :', \
+                                      '1 Panis McLaren 1.24.838',\
+                                      '2 Trulli Jordan 1.25.411',
+                                      '3 Alesi Prost 1.26.673',\
+                                      '4 Button Williams 1.27.197',\
+                                      '5 Burti Jaguar 1.27.818'] }, \
+        { 'text': 'Tänased tulemused :\n\n'+\
+                  'New Jersey - Portland 82 : 94\n\n'+\
+                  'Los Angeles Clippers - Dallas 76 : 90\n\n'+\
+                  'Tabel :\n\n'+\
+                  'Idakonverents\n\n'+\
+                  'Atlandi divisjon\n\n'+\
+                  'PHILADELPHIA 7 0 1.000 -\n\n'+\
+                  'NEW YORK 5 2 .\n',\
+          'expected_sentence_texts': ['Tänased tulemused :', \
+                                      'New Jersey - Portland 82 : 94',\
+                                      'Los Angeles Clippers - Dallas 76 : 90',
+                                      'Tabel :',\
+                                      'Idakonverents',\
+                                      'Atlandi divisjon',\
+                                      'PHILADELPHIA 7 0 1.000 -',\
+                                      'NEW YORK 5 2 .'] }, \
+        { 'text': 'Põgenemise kronoloogia\n\n'+\
+                  'REEDE\n\n'+\
+                  '17.40 Viljandist arestimajast väljub politseiauto Ülo Voitkaga\n\n'+\
+                  '17.47 Tallinna lennuväljalt stardib helikopter Aivar Voitkaga\n\n'+\
+                  '18.15 Voitkad jõuavad kodutallu , nad aheldatakse käeraudadega kokku\n\n'+\
+                  '18.20 Sauna eesruumis algab ülekuulamine , rahvaloendaja ootab oma järjekorda\n\n'+\
+                  '18.32 Ülo kaebab kõhuvalu ja palub tualetti\n\n'+\
+                  '18.41 Käeraudadega kokku aheldatud vennad lähevad välikemmergusse .',\
+          'expected_sentence_texts': ['Põgenemise kronoloogia', \
+                                      'REEDE',\
+                                      '17.40 Viljandist arestimajast väljub politseiauto Ülo Voitkaga',
+                                      '17.47 Tallinna lennuväljalt stardib helikopter Aivar Voitkaga',\
+                                      '18.15 Voitkad jõuavad kodutallu , nad aheldatakse käeraudadega kokku',\
+                                      '18.20 Sauna eesruumis algab ülekuulamine , rahvaloendaja ootab oma järjekorda',\
+                                      '18.32 Ülo kaebab kõhuvalu ja palub tualetti',\
+                                      '18.41 Käeraudadega kokku aheldatud vennad lähevad välikemmergusse .'] }, \
+        { 'text': 'Espanyol - Real Valladolid 1 : 0 ( Raul Tamudo 80 ) , 17 000\n\n'+\
+                  'Numancia - Barcelona 1 : 1 ( Ruben Navarro 63 - Patrick Kluivert 32 ) , 10 000\n\n'+\
+                  'Osasuna - Malaga 3 : 3 ( Alex Fernandez 35 , Leonel Gancedo 69 , Ivan Rosado 75 - Francisco Rufete 22 , Dely Valdes 33 , Ariel Zarate 90 ) , 15 000\n\n'+\
+                  'Rayo Vallecano - Real Oviedo 0 : 2 ( Frederic Danjou 5 , Oli 65 ) , 11 000\n\n'+\
+                  'Real Mallorca - Real Madrid 1 : 0 ( Alberto Luque 39 ) , 23 000\n\n'+\
+                  'Real Sociedad - Alaves 1 : 1 ( Oscar de Paula 42 - Cosmin Contra 59 ) , 30 000\n\n'+\
+                  'Real Zaragoza - Athletic Bilbao 2 : 2 ( Jamelli 19 , Juan Eduardo Esnaider 29 - Tiko 23 , Ismael Urzaiz 74 ) , 21 000\n\n'+\
+                  'Villarreal - Racing Santander 4 : 2 ( Diego Cagna 11 , Jorge Lopez 39 , Martin Palermo 54 , Gica Craioveanu 75 - Federico Magallanes 76 , Javier Mazzoni 90 ) , 16 000',\
+          'expected_sentence_texts': ['Espanyol - Real Valladolid 1 : 0 ( Raul Tamudo 80 ) , 17 000', \
+                                      'Numancia - Barcelona 1 : 1 ( Ruben Navarro 63 - Patrick Kluivert 32 ) , 10 000',\
+                                      'Osasuna - Malaga 3 : 3 ( Alex Fernandez 35 , Leonel Gancedo 69 , Ivan Rosado 75 - Francisco Rufete 22 , Dely Valdes 33 , Ariel Zarate 90 ) , 15 000',
+                                      'Rayo Vallecano - Real Oviedo 0 : 2 ( Frederic Danjou 5 , Oli 65 ) , 11 000',\
+                                      'Real Mallorca - Real Madrid 1 : 0 ( Alberto Luque 39 ) , 23 000',\
+                                      'Real Sociedad - Alaves 1 : 1 ( Oscar de Paula 42 - Cosmin Contra 59 ) , 30 000',\
+                                      'Real Zaragoza - Athletic Bilbao 2 : 2 ( Jamelli 19 , Juan Eduardo Esnaider 29 - Tiko 23 , Ismael Urzaiz 74 ) , 21 000',\
+                                      'Villarreal - Racing Santander 4 : 2 ( Diego Cagna 11 , Jorge Lopez 39 , Martin Palermo 54 , Gica Craioveanu 75 - Federico Magallanes 76 , Javier Mazzoni 90 ) , 16 000'] }, \
+        { 'text': '\n\n22.09.2008 17:10\n\n'+\
+                  '#9\n\n'+\
+                  'Miisu Kiisu\n\n'+\
+                  'Registreerus: -\n\n'+\
+                  'Postitusi: -\n\n'+\
+                  'Ma ei tea kas olen loll aga pole kuulnudki sellisest asjast ...\n\n',\
+          'expected_sentence_texts': ['22.09.2008 17:10', \
+                                      '#9',\
+                                      'Miisu Kiisu',
+                                      'Registreerus: -',\
+                                      'Postitusi: -',\
+                                      'Ma ei tea kas olen loll aga pole kuulnudki sellisest asjast ...'] }, \
+        { 'text': 'Telkimisvõimalus\n\n'+\
+                  'ei ole\n\n'+\
+                  'Kattega lõkkekoht\n\n'+\
+                  'ei ole\n\n'+\
+                  'Vaatamisväärsused\n\n'+\
+                  'Rada kulgeb algul piki Valgejõe ja selle harujõgede orgude kõrgeil kaldail Vasaristi joastikuni, siis mööda vanu külateid Pärlijõe oruni, sealt üle jõe ja piki orunõlva läbi noorte männimetsade Viru rabani.',\
+          'expected_sentence_texts': ['Telkimisvõimalus', \
+                                      'ei ole',\
+                                      'Kattega lõkkekoht',
+                                      'ei ole',\
+                                      'Vaatamisväärsused',\
+                                      'Rada kulgeb algul piki Valgejõe ja selle harujõgede orgude kõrgeil kaldail Vasaristi joastikuni, siis mööda vanu külateid Pärlijõe oruni, sealt üle jõe ja piki orunõlva läbi noorte männimetsade Viru rabani.'] }, \
+    ]
+    sentence_tokenizer = SentenceTokenizer(fix_paragraph_endings=True)
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words'])
+        sentence_tokenizer.tag(text)
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences'].spans]
+        #print(sentence_texts)
+        # Check results
+        assert sentence_texts == test_text['expected_sentence_texts']
+
+
+
 def test_fix_repeated_sentence_ending_punctuation_1():
     # Tests that mistakenly separated sentence ending punctuation will be properly attached to the sentence
     test_texts = [

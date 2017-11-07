@@ -239,11 +239,13 @@ def test_ignore_consecutive_enum_name_num_sentences():
                   '3.\n Andrei Nutrihhin RUS 1.18 , 4\n\n'+\
                   '4.\n Mathias Fredriksson SWE 1.19 , 8\n\n'+\
                   '5.\n Giorgio DiCenta ITA 1.51 , 6\n\n',\
-          'expected_ignore_texts': ['Meeste 50 km/klassikat\n\nHolmenkollen , Norra\n\n1.',\
-                                    'Andrus Veerpalu EST 2 : 16.57 , 5\n\n2.',\
-                                    'Anders Aukland NOR 34,8\n\n3.',\
-                                    'Andrei Nutrihhin RUS 1.18 , 4\n\n4.',\
-                                    'Mathias Fredriksson SWE 1.19 , 8\n\n5.',\
+          'expected_ignore_texts': [#'Meeste 50 km/klassikat',\
+                                    #'Holmenkollen , Norra', \
+                                    '1.',\
+                                    'Andrus Veerpalu EST 2 : 16.57 , 5', '2.',\
+                                    'Anders Aukland NOR 34,8', '3.',\
+                                    'Andrei Nutrihhin RUS 1.18 , 4', '4.',\
+                                    'Mathias Fredriksson SWE 1.19 , 8', '5.',\
                                     'Giorgio DiCenta ITA 1.51 , 6'] }, \
         { 'text': 'Keskmisele lähedal on ka maakonnalinnad ja vallad , mis asuvad keskuste lähedal .\n\n'+\
                   'Maakonniti summeerides on tulumaksu laekumise viis esimest :\n'+\
@@ -327,8 +329,8 @@ def test_ignore_sentences_starting_with_time_schedule():
         { 'text': '12.05 - 12.35 "Õnne 13" (1. osa)\n\n'+\
                   '12.35 - 13.05 "Õnne 13" (1. osa, kordus)\n\n'+\
                   '13.05 - 13.35 "Õnne 13" (1. osa, teine kordus)\n\n',\
-          'expected_ignore_texts': ['12.05 - 12.35 "Õnne 13" (1. osa)\n\n'+\
-                                    '12.35 - 13.05 "Õnne 13" (1. osa, kordus)\n\n'+\
+          'expected_ignore_texts': ['12.05 - 12.35 "Õnne 13" (1. osa)',\
+                                    '12.35 - 13.05 "Õnne 13" (1. osa, kordus)',\
                                     '13.05 - 13.35 "Õnne 13" (1. osa, teine kordus)'] }, \
         { 'text': 'Seminari kava .\n'+\
                   '14.15 – 14.45 Eesti internetikaubanduse laienemine välisturgudele ON24 Sisustuskaubamaja näitel .\n'+\
@@ -391,7 +393,8 @@ def test_ignore_sentences_with_comma_separated_name_num_lists():
                   'Jevgeni Kafelnikov ( Venemaa , 2 ) – Magnus Norman ( Rootsi , 12 ) 6 : 1 , 6 : 2 , 6 : 4 .\n\n'+\
                   'Segapaarismängu poolfinaal\n'+\
                   'Jared Palmer ( USA ) -Rennae Stubbs ( Austraalia ) – Jonas Björkman ( Rootsi ) -Anna Kurnikova ( Venemaa ) 7 : 5 , 3 : 6 , 6 : 3 .\n',\
-          'expected_ignore_texts': ['Tulemused\n\nNaispaarismängu finaal\n\nLisa Raymond ( USA ) -Rennae Stubbs ( Austraalia ) – Martina Hingis ( Šveits ) -Mary Pierce ( Prantsusmaa ) 6 : 4 , 5 : 7 , 6 : 4 .', \
+          'expected_ignore_texts': [ #'Tulemused\n\nNaispaarismängu finaal\n\n',\
+                                    'Lisa Raymond ( USA ) -Rennae Stubbs ( Austraalia ) – Martina Hingis ( Šveits ) -Mary Pierce ( Prantsusmaa ) 6 : 4 , 5 : 7 , 6 : 4 .', \
                                     'Jevgeni Kafelnikov ( Venemaa , 2 ) – Magnus Norman ( Rootsi , 12 ) 6 : 1 , 6 : 2 , 6 : 4 .',\
                                     'Segapaarismängu poolfinaal\nJared Palmer ( USA ) -Rennae Stubbs ( Austraalia ) – Jonas Björkman ( Rootsi ) -Anna Kurnikova ( Venemaa ) 7 : 5 , 3 : 6 , 6 : 3 .'] }, \
 

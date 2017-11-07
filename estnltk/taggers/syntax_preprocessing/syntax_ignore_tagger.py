@@ -25,6 +25,7 @@ _contains_letter_compiled  = re.compile('['+_uc_letter+_lc_letter+']')
 _three_lc_words_compiled   = re.compile(_three_lc_words)
 _colon_start_compiled      = re.compile('^[^: ]+(\s+[^: ]+)?(\s+[^: ]+)?\s*:')
 _enum_ucase_num_compiled   = re.compile('^(?=\D*\d)(\d+\s*(\.\s|\s))?['+_uc_letter+']')
+_enum_num_compiled         = re.compile('^\d+\s*\.?\s?$')
 _clock_time_start_compiled = re.compile('^\s*'+_clock_time_2+'\s*'+_hyphen_pat+'+\s*'+_clock_time_2+
                                         '(?!\s*['+_lc_letter+'])\s*.')
 
@@ -712,7 +713,7 @@ class SyntaxIgnoreTagger(Tagger):
                 self, text: 'Text', ignored_words_spans:list ) -> list:
         ''' Detects sentences that:
              1) start with an uppercase letter, or an ordinal number 
-               followed by an uppercase letter;
+               followed by an uppercase letter, or an ordinal number;
              2) contain at least one number;
              3) does not contain 3 consecutive lowercase words;
              4) are a part of at least 4 consecutive sentences
@@ -732,10 +733,12 @@ class SyntaxIgnoreTagger(Tagger):
             # check if the sentence does not contain 3 consecutive lc words
             sentence_text = sentence_span.enclosing_text
             misses_lc_words = not bool( _three_lc_words_compiled.search(sentence_text) )
+            enum_num       = bool( _enum_num_compiled.match(sentence_text) )
             enum_ucase_num = bool( _enum_ucase_num_compiled.match(sentence_text) )
             if misses_lc_words:
                 ignore_item = { 'sent_id':sent_id, 'span': sentence_span, \
                                 'enum_ucase_num': enum_ucase_num, \
+                                'enum_num': enum_num, \
                                 'consecutive_with_next': False, \
                                 'consecutive_with_prev': False, \
                                 'ignore_sentence': False }
@@ -748,13 +751,17 @@ class SyntaxIgnoreTagger(Tagger):
             consecutive = False
             if ignored_sent_id+1 < len( ignored_sentence_candidates ) and \
                ignored_sentence_candidates[ignored_sent_id+1]['sent_id'] == sent_id+1 and \
-               ignored_candidate['enum_ucase_num'] and \
-               ignored_sentence_candidates[ignored_sent_id+1]['enum_ucase_num']:
+               (ignored_candidate['enum_ucase_num'] or \
+                ignored_candidate['enum_num']) and \
+               (ignored_sentence_candidates[ignored_sent_id+1]['enum_ucase_num'] or \
+                ignored_sentence_candidates[ignored_sent_id+1]['enum_num']):
                 ignored_candidate['consecutive_with_next'] = True
             elif ignored_sent_id-1 > -1 and \
                  ignored_sentence_candidates[ignored_sent_id-1]['sent_id'] == sent_id-1 and \
-                 ignored_candidate['enum_ucase_num'] and \
-                 ignored_sentence_candidates[ignored_sent_id-1]['enum_ucase_num']:
+                 (ignored_candidate['enum_ucase_num'] or \
+                  ignored_candidate['enum_num']) and \
+                 (ignored_sentence_candidates[ignored_sent_id-1]['enum_ucase_num'] or \
+                  ignored_sentence_candidates[ignored_sent_id-1]['enum_num']):
                 ignored_candidate['consecutive_with_prev'] = True
         # 3) Collects groups of sentences containing at least 4 consecutive sentences
         #    with the required properties; Marks these sentences as 'to be ignored'
@@ -808,7 +815,7 @@ class SyntaxIgnoreTagger(Tagger):
                     ignored_words_spans.append( new_spanlist )
         return ignored_words_spans
 
-        
+
     def _add_ignore_comma_separated_num_name_list_sentences( 
                 self, text: 'Text', ignored_words_spans:list ) -> list:
         ''' Detects sentences that:
