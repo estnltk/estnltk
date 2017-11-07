@@ -285,3 +285,31 @@ def find_short_sentences_generator( text: 'Text', min_words:int=2 ):
                 results['sentences'].append( next_sent )
             yield results
 
+
+def find_sentences_containing_paragraphs_generator( text: 'Text',
+        max_paragraph_endings:int = 3 ):
+    ''' Analyses given Text object, and  yields  sentences which contain
+        more than max_paragraph_endings paragraph markers ('\n\n'). 
+        It is possible that such sentences consist of (many) smaller 
+        sentences mistakenly joined together.
+        
+        As a result, yields a dict containing start/end position of the 
+        detected sentence (under keys 'start' and 'end').
+    '''
+    # Check the layer requirements
+    requirements = ['words', 'sentences']
+    for requirement in requirements:
+        assert requirement in text.layers, \
+               '(!) The input text is missing the layer "'+requirement+'"!'
+    # Iterate over sentences and detect mistakenly joined ones
+    words_spans    = text['words'].spans
+    sentence_spans = text['sentences'].spans
+    for sid, sentence in enumerate( sentence_spans ):
+        content = sentence.enclosing_text
+        if content.count('\n\n') > max_paragraph_endings:
+            # The sentence is "suspiciously long"
+            # (contains a paragraph change)
+            results = { 'start': sentence.start, \
+                        'end':   sentence.end }
+            yield results
+

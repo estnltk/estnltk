@@ -451,7 +451,10 @@ def test_merge_mistakenly_split_sentences_5():
           'expected_sentence_texts': ["siin kommentaariumis ongi läbilõige 00nia ühiskonnast.", "M.O.T.T. igaüks sikutab vankrit enda poole"] }, \
         { 'text': "Lisaks sellele valiti nominentide hulgast välja neli edukat turismiobjekti/ projekti, milleks said Vanaõue Puhkekeskus, Otepää Golf, Kalevipoja Uisumaraton ja MTÜ R.A.A.A.M. teatrietendused Suurel Munamäel", \
           'expected_sentence_texts': ["Lisaks sellele valiti nominentide hulgast välja neli edukat turismiobjekti/ projekti, milleks said Vanaõue Puhkekeskus, Otepää Golf, Kalevipoja Uisumaraton ja MTÜ R.A.A.A.M. teatrietendused Suurel Munamäel"] }, \
-         
+
+        { 'text': "Selle seltsi mainekamate uurijatena tuleb nimetada G. Adelheimi, O. M. von Stackelbergi ja E. von Notbecki.", \
+          'expected_sentence_texts': ["Selle seltsi mainekamate uurijatena tuleb nimetada G. Adelheimi, O. M. von Stackelbergi ja E. von Notbecki."] }, \
+
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )
