@@ -426,23 +426,23 @@ class SentenceTokenizer(Tagger):
         if len(text.words) > 0:
             sentence_ends.add( text.words[-1].end )
         sentences_list = []
+        sentence_fixes_list = []
         for i, token in enumerate(text.words):
             if token.end in sentence_ends:
                 sentences_list.append( text.words[start:i+1] )
                 start = i + 1
         # E) Use '\n\n' (usually paragraph endings) as sentence endings
         if self.configuration['fix_paragraph_endings']:
-            sentences_list = \
+            sentences_list, sentence_fixes_list = \
                 self._split_by_double_newlines( 
                             text, \
-                            sentences_list, \
-                            record_fix_types = record_fix_types )
+                            sentences_list )
         # F) Apply postcorrection fixes to sentence spans
         # F.1) Try to merge mistakenly split sentences
         if self.merge_rules:
-            sentences_list = \
+            sentences_list, sentence_fixes_list = \
                 self._merge_mistakenly_split_sentences(text,\
-                    sentences_list, record_fix_types = record_fix_types)
+                    sentences_list, sentence_fixes_list)
         
         # G) Create the layer and attach sentences
         layer_attributes=self.attributes
@@ -452,44 +452,57 @@ class SentenceTokenizer(Tagger):
                       name=self.layer_name,
                       attributes=layer_attributes,
                       ambiguous=False)
-        for sentence_span_list in sentences_list:
+        for sid, sentence_span_list in enumerate(sentences_list):
+            if record_fix_types:
+                # Add information about which types of fixes 
+                # were applied to sentences
+                sentence_span_list.fix_types = \
+                    sentence_fixes_list[sid]
             layer.add_span( sentence_span_list )
         if return_layer:
             return layer
         text[self.layer_name] = layer
         return text
-        
-        
+
+
     def _merge_mistakenly_split_sentences(self, text:'Text', sentences_list:list, \
-                                                record_fix_types:bool=True):
+                                                             sentence_fixes_list:list ):
         ''' 
             Uses regular expression patterns (defined in self.merge_rules) to 
             discover adjacent sentences (in sentences_list) that should actually 
             form a single sentence. Merges those adjacent sentences.
             
-            If record_fix_types==True, then each sentence will also have 
-            an attribute fix_types attached, which will contain a list of
-            types of post-correction merging fixes that have been applied 
-            to the sentence.
+            The parameter sentence_fixes_list should contain a list of fixes that 
+            were already previously added to the elements of sentences_list.
+            These lists of fixes are then updated in correspondence with the fixes 
+            newly added by this method.
             
-            Returns a new version of sentences_list where merges have been made.
+            Returns a tuple of two lists:
+            *) new version of sentences_list where merges have been made;
+            *) correspondingly updated sentence_fixes_list;
         '''
+        assert len(sentences_list) == len(sentence_fixes_list)
         new_sentences_list = []
+        new_sentence_fixes_list = []
         # Iterate over all adjacent sentences
         for sid, sentence_spl in enumerate(sentences_list):
-            last_sentence_spl = None
+            last_sentence_spl   = None
+            last_sentence_fixes = None
+            this_sentence_fixes = sentence_fixes_list[sid]
             # get text of the current sentence
             this_sent = \
                 text.text[sentence_spl.start:sentence_spl.end].lstrip()
-            fixTypes = []
+            current_fix_types = []
             shiftEnding = None
             mergeSpanLists = False
             if sid-1 > -1:
                 # get text of the previous sentence
                 if not new_sentences_list:
-                    last_sentence_spl = sentences_list[sid-1]
+                    last_sentence_spl   = sentences_list[sid-1]
+                    last_sentence_fixes = sentence_fixes_list[sid-1]
                 else:
-                    last_sentence_spl = new_sentences_list[-1]
+                    last_sentence_spl   = new_sentences_list[-1]
+                    last_sentence_fixes = new_sentence_fixes_list[-1]
                 prev_sent = \
                     text.text[last_sentence_spl.start:last_sentence_spl.end].rstrip()
                 # Check if the adjacent sentences should be joined / merged according 
@@ -498,7 +511,7 @@ class SentenceTokenizer(Tagger):
                     [beginPat, endPat] = pattern['regexes']
                     if endPat.match(this_sent) and beginPat.match(prev_sent):
                         mergeSpanLists = True
-                        fixTypes.append(pattern['fix_type'])
+                        current_fix_types.append(pattern['fix_type'])
                         # Check if ending also needs to be shifted
                         if 'shift_end' in pattern:
                             # Find new sentence ending position and validate it
@@ -514,15 +527,26 @@ class SentenceTokenizer(Tagger):
                     prev_sent_spl = \
                         new_sentences_list[-1] if new_sentences_list else last_sentence_spl
                     merge_split_result = self._perform_merge_split( text, \
-                                            shiftEnding, sentence_spl, prev_sent_spl, \
-                                            fixTypes, record_fix_types )
+                                              shiftEnding, sentence_spl, prev_sent_spl )
                     if merge_split_result != None:
                         if new_sentences_list:
+                            # Update sentence spans
                             new_sentences_list[-1] = merge_split_result[0]
                             new_sentences_list.append ( merge_split_result[1] )
+                            # Update fix types list
+                            new_sentence_fixes_list[-1] = \
+                                last_sentence_fixes + current_fix_types
+                            new_sentence_fixes_list.append( \
+                                this_sentence_fixes + current_fix_types )
                         else:
+                            # Update sentence spans
                             new_sentences_list.append ( merge_split_result[0] )
                             new_sentences_list.append ( merge_split_result[1] )
+                            # Update fix types list
+                            new_sentence_fixes_list.append( \
+                                last_sentence_fixes + current_fix_types )
+                            new_sentence_fixes_list.append( \
+                                this_sentence_fixes + current_fix_types )
                     else:
                         # if merge-and-split failed, then discard the rule
                         # (sentences will remain split as they were)
@@ -531,42 +555,51 @@ class SentenceTokenizer(Tagger):
                             new_spanlist.fix_types = []
                         new_spanlist.spans = sentence_spl.spans
                         new_sentences_list.append( new_spanlist )
+                        # Update fix types list
+                        new_sentence_fixes_list.append( \
+                            this_sentence_fixes )
                 else:
                     # -------------------------------------------
                     #   2) Merge only: join two consecutive sentences into one
                     # -------------------------------------------
                     # Perform the merging
                     merged_spanlist = SpanList()
-                    if record_fix_types:
-                        merged_spanlist.fix_types = fixTypes
                     if not new_sentences_list:
                         # No sentence has been added so far: add a new one
                         merged_spanlist.spans = \
                             last_sentence_spl.spans+sentence_spl.spans
                         new_sentences_list.append( merged_spanlist )
+                        # Update fix types list
+                        all_fixes = \
+                            last_sentence_fixes + \
+                            this_sentence_fixes + \
+                            current_fix_types
+                        new_sentence_fixes_list.append( all_fixes )
                     else: 
                         # At least one sentence has already been added: 
                         # extend the last sentence
                         merged_spanlist.spans = \
                             new_sentences_list[-1].spans+sentence_spl.spans
-                        if record_fix_types:
-                            if hasattr(new_sentences_list[-1], 'fix_types'):
-                                merged_spanlist.fix_types = \
-                                    merged_spanlist.fix_types + \
-                                    new_sentences_list[-1].fix_types
                         new_sentences_list[-1] = merged_spanlist
+                        # Update fix types list
+                        all_fixes = \
+                            last_sentence_fixes + \
+                            this_sentence_fixes + \
+                            current_fix_types
+                        new_sentence_fixes_list[-1] = all_fixes
                     #print('>>1',prev_sent)
                     #print('>>2',this_sent)
             else:
                 # Add sentence without merging
                 new_spanlist = SpanList()
-                if record_fix_types:
-                    new_spanlist.fix_types = []
                 new_spanlist.spans = sentence_spl.spans
                 new_sentences_list.append( new_spanlist )
+                # Update fix types list
+                new_sentence_fixes_list.append( \
+                    this_sentence_fixes )
                 #print('>>0',this_sent)
-        sentences_list = new_sentences_list
-        return sentences_list
+        assert len(new_sentences_list) == len(new_sentence_fixes_list)
+        return new_sentences_list, new_sentence_fixes_list
 
 
 
@@ -639,8 +672,7 @@ class SentenceTokenizer(Tagger):
 
 
     def _perform_merge_split(self, text:'Text', end_span:tuple, \
-                                   this_sent:SpanList, prev_sent:SpanList, \
-                                   fix_types:list, record_fix_types:bool = True ):
+                                   this_sent:SpanList, prev_sent:SpanList ):
         ''' Performs merge-split operation: 1) consecutive sentences prev_sent
             and this_sent will be joined into one sentence, 2) the new joined 
             sentence will be split (into two sentences) at the position end_span;
@@ -683,27 +715,25 @@ class SentenceTokenizer(Tagger):
             merged_spanlist1.spans = new_sentence1
             merged_spanlist2 = SpanList()
             merged_spanlist2.spans = new_sentence2
-            if record_fix_types:
-                merged_spanlist1.fix_types = fix_types
-                if hasattr(prev_sent, 'fix_types'):
-                    merged_spanlist1.fix_types = \
-                        merged_spanlist1.fix_types + \
-                        prev_sent.fix_types
-                merged_spanlist2.fix_types = fix_types
             return merged_spanlist1, merged_spanlist2
         return None
 
 
     def _split_by_double_newlines(self, text:'Text', \
-                                        sentences_list:list, \
-                                        record_fix_types:bool = True ):
+                                        sentences_list:list ):
         ''' Splits sentences inside the given list of sentences by double 
             newlines (usually paragraph endings).
-            Returns a new list of sentences where splitting has been 
-            performed.
+            
+            Returns a tuple containing two lists:
+            *) a new list of sentences where splitting has been performed;
+            *) a list of sentence fixes. Each element in this list 
+               represents fixes that were applied to a single sentence by 
+               this method. Fixes are given as a list (an empty list, 
+               if no fixes were applied to the sentence);
         '''
         double_newline = '\n\n'
-        new_sentences_list = []
+        new_sentences_list  = []
+        sentence_fixes_list = []
         for sentence_spl in sentences_list:
             # get text of the current sentence
             this_sent_text = \
@@ -723,26 +753,18 @@ class SentenceTokenizer(Tagger):
                             # Create a new split 
                             split_spanlist = SpanList()
                             split_spanlist.spans = current_words
-                            if record_fix_types:
-                                split_spanlist.fix_types = \
-                                    ['double_newline_split']
-                                if hasattr(sentence_spl, 'fix_types'):
-                                    split_spanlist.fix_types = \
-                                        split_spanlist.fix_types + \
-                                        sentence_spl.fix_types
                             new_sentences_list.append( split_spanlist )
+                            sentence_fixes_list.append( \
+                                ['double_newline_split'] )
                             current_words = []
                 if current_words:
                     new_spanlist = SpanList()
                     new_spanlist.spans = current_words
-                    if record_fix_types:
-                        new_spanlist.fix_types = \
-                            ['double_newline_split']
-                        if hasattr(sentence_spl, 'fix_types'):
-                            new_spanlist.fix_types = \
-                                new_spanlist.fix_types + \
-                                sentence_spl.fix_types
                     new_sentences_list.append( new_spanlist )
+                    sentence_fixes_list.append( \
+                        ['double_newline_split'] )
             else:
                 new_sentences_list.append( sentence_spl )
-        return new_sentences_list
+                sentence_fixes_list.append( [] )
+        assert len(new_sentences_list) == len(sentence_fixes_list)
+        return new_sentences_list, sentence_fixes_list

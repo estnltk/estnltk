@@ -745,10 +745,49 @@ def test_fix_repeated_sentence_ending_punctuation_2():
         assert sentence_texts == test_text['expected_sentence_texts']
 
 
+
 def test_apply_sentence_tokenizer_on_empty_text():
     # Applying sentence tokenizer on empty text should not produce any errors
     text = Text( '' )
     text.tag_layer(['words', 'sentences'])
     assert len(text.words) == 0
     assert len(text.sentences) == 0
+
+
+
+def test_record_fixes_of_sentence_tokenizer():
+    # Tests whether an attribute describing the fixes is added to the results of sentence tokenization
+    sentence_tokenizer = SentenceTokenizer()
+    test_texts = [ 
+        { 'text': '17 . okt. 1998 a . laekus firmale täpselt 700.- eeku.', \
+          'expected_sentence_texts': ['17 . okt. 1998 a . laekus firmale täpselt 700.- eeku.'],
+          'expected_sentence_fixes': [['numeric_date', 'numeric_date', 'numeric_year', 'numeric_monetary']] }, \
+        { 'text': 'Seda ma ei teadnud... Ja tegelikult ei saanudki teada ! !! ', \
+          'expected_sentence_texts': ['Seda ma ei teadnud...', 'Ja tegelikult ei saanudki teada ! !!'],
+          'expected_sentence_fixes': [[], ['repeated_ending_punct']] }, \
+        { 'text': 'Herbes de Provence maitseainesegu\n\n'+\
+                  'Teistes keeltes\n\n'+\
+                  'English: herbes de Provence, Provençal herbs\n\n'+\
+                  'French: herbes de Provence',\
+          'expected_sentence_texts': ['Herbes de Provence maitseainesegu', 'Teistes keeltes', \
+                                      'English: herbes de Provence, Provençal herbs' ,\
+                                      'French: herbes de Provence'],
+          'expected_sentence_fixes': [['double_newline_split'], ['double_newline_split'], \
+                                      ['double_newline_split'], ['double_newline_split']] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words'])
+        sentence_tokenizer.tag(text, record_fix_types=True)
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences'].spans]
+        sentence_fixes = \
+            [sentence.fix_types for sentence in text['sentences'].spans]
+        #print(sentence_texts)
+        #print(sentence_fixes)
+        # Check results
+        assert sentence_texts == test_text['expected_sentence_texts']
+        assert sentence_fixes == test_text['expected_sentence_fixes']
 
