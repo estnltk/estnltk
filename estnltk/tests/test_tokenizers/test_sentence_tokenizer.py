@@ -772,8 +772,8 @@ def test_record_fixes_of_sentence_tokenizer():
           'expected_sentence_texts': ['Herbes de Provence maitseainesegu', 'Teistes keeltes', \
                                       'English: herbes de Provence, Provençal herbs' ,\
                                       'French: herbes de Provence'],
-          'expected_sentence_fixes': [['double_newline_split'], ['double_newline_split'], \
-                                      ['double_newline_split'], ['double_newline_split']] }, \
+          'expected_sentence_fixes': [['double_newline_ending'], ['double_newline_ending'], \
+                                      ['double_newline_ending'], []] }, \
     ]
     for test_text in test_texts:
         text = Text( test_text['text'] )

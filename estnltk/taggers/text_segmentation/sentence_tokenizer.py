@@ -755,14 +755,13 @@ class SentenceTokenizer(Tagger):
                             split_spanlist.spans = current_words
                             new_sentences_list.append( split_spanlist )
                             sentence_fixes_list.append( \
-                                ['double_newline_split'] )
+                                ['double_newline_ending'] )
                             current_words = []
                 if current_words:
                     new_spanlist = SpanList()
                     new_spanlist.spans = current_words
                     new_sentences_list.append( new_spanlist )
-                    sentence_fixes_list.append( \
-                        ['double_newline_split'] )
+                    sentence_fixes_list.append( [] )
             else:
                 new_sentences_list.append( sentence_spl )
                 sentence_fixes_list.append( [] )
