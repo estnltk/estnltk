@@ -505,7 +505,7 @@ class SyntaxIgnoreTagger(Tagger):
         
         # Finally: create a new layer and add spans to the layer
         layer = Layer(name=self.layer_name,
-                      parent = 'words',
+                      enveloping='words',
                       attributes=self.attributes,
                       ambiguous=False)
         for span in ignored_words_spans:
