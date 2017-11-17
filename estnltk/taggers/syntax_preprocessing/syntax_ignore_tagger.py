@@ -365,7 +365,7 @@ ignore_patterns = [
 class SyntaxIgnoreTagger(Tagger):
     description = 'Tags text snippets that should be ignored during the syntactic analysis.'
     layer_name  = 'syntax_ignore'
-    attributes  = ('type')
+    attributes  = ('type',)
     depends_on  = ['words', 'sentences']
     configuration = None
 
