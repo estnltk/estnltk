@@ -63,7 +63,15 @@ class VabamorfTagger(Tagger):
 
     def tag(self, text: Text, return_layer=False) -> Text:
         wordlist = self._get_wordlist(text)
-        analysis_results = self.instance.analyze(words=wordlist, **self.kwargs)
+        if len(wordlist) > 149129:
+            # if len(wordlist) > 149129,
+            # then self.instance.analyze(words=wordlist, **self.kwargs) raises
+            # RuntimeError: CFSException: internal error with vabamorf
+            analysis_results = []
+            for i in range(0, len(wordlist), 50000):
+                analysis_results.extend(self.instance.analyze(words=wordlist[i:i+50000], **self.kwargs))
+        else:
+            analysis_results = self.instance.analyze(words=wordlist, **self.kwargs)
 
         morph_attributes = self.attributes
 
