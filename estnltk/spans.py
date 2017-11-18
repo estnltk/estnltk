@@ -3,7 +3,6 @@ import collections
 from typing import MutableMapping, Tuple, Any, Union, List
 import itertools
 
-
 class Span:
     def __init__(self, start: int = None, end: int = None, parent=None, *,
                  layer=None, legal_attributes=None, **attributes) -> None:
@@ -100,7 +99,136 @@ class Span:
     @property
     def text_object(self):
         return self.layer.text_object
+    
+    # --------------------------------------
+    
+    #  Layer operations are ported from:
+    #    https://github.com/estnltk/estnltk/blob/master/estnltk/single_layer_operations/layer_positions.py
+    
+    def touching_right(self, y:Any) -> bool:
+        """ 
+        Tests if Span y is touching this Span (x) from the right.
+        Pictorial example:
+        xxxxxxxx
+                yyyyy
+        """
+        return self.end == y.start
 
+    def touching_left(self, y:Any) -> bool:
+        """ 
+        Tests if Span y is touching this Span (x) from the left.
+        Pictorial example:
+             xxxxxxxx
+        yyyyy
+        """
+        return y.touching_right(self)
+
+    def hovering_right(self, y:Any) -> bool:
+        """
+        Tests if Span y is hovering right from this Span (x).
+        Pictorial example:
+        xxxxxxxx
+                  yyyyy
+        """
+        return self.end < y.start
+
+    def hovering_left(self, y:Any) -> bool:
+        """
+        Tests if Span y is hovering left from this Span (x).
+        Pictorial example:
+                xxxxxxxx
+        yyyyy
+        """
+        return y.hovering_right(self)
+
+    def right(self, y:Any) -> bool:
+        '''
+        Tests if Span y is either touching or hovering right with respect to this Span.
+        '''
+        return self.touching_right(y) or self.hovering_right(y)
+
+    def left(self, y:Any) -> bool:
+        '''
+        Tests if Span y is either touching or hovering left with respect to this Span.
+        '''
+        return y.right(self)
+
+    def nested(self, y:Any) -> bool:
+        """
+        Tests if Span y is nested inside this Span (x).
+        Pictorial example:
+        xxxxxxxx
+          yyyyy
+        """
+        # TODO: check for continuousness of SpanList
+        return self.start <= y.start <= y.end <= self.end
+
+    def equal(self, y:Any) -> bool:
+        """
+        Tests if Span y is positionally equal to this Span (x). 
+        (Both are nested within each other).
+        Pictorial example:
+        xxxxxxxx
+        yyyyyyyy
+        """
+        # TODO: check for continuousness of SpanList
+        return self.nested(y) and y.nested(self)
+
+    def nested_aligned_right(self, y:Any) -> bool:
+        """
+        Tests if Span y is nested inside this Span (x), and 
+        Span y is aligned with the right ending of this Span.
+        Pictorial example:
+        xxxxxxxx
+           yyyyy
+        """
+        # TODO: check for continuousness of SpanList
+        return self.nested(y) and self.end == y.end
+
+    def nested_aligned_left(self, y:Any) -> bool:
+        """
+        Tests if Span y is nested inside this Span (x), and 
+        Span y is aligned with the left ending of this Span.
+        Pictorial example:
+        xxxxxxxx
+        yyyyy
+        """
+        # TODO: check for continuousness of SpanList
+        return self.nested(y) and self.start == y.start
+
+    def overlapping_left(self, y:Any) -> bool:
+        """
+        Tests if left side of this Span (x) overlaps with 
+        the Span y, but y is not nested within this Span.
+        Pictorial example:
+          xxxxxxxx
+        yyyyy
+        """
+        # TODO: check for continuousness of SpanList
+        return y.start < self.start < y.end
+
+    def overlapping_right(self, y:Any) -> bool:
+        """
+        Tests if right side of this Span (x) overlaps with
+        the Span y, but y is not nested within this Span.
+        Pictorial example:
+        xxxxxxxx
+              yyyyy
+        """
+        # TODO: check for continuousness of SpanList
+        return y.start < self.end < y.end
+
+    def conflict(self, y:Any) -> bool:
+        """
+        Tests if there is a conflict between this Span and the 
+        Span y: one of the Spans is either nested within other, 
+        or there is an overlapping from right or left side.
+        """
+        # TODO: check for continuousness of SpanList
+        return self.nested(y) or y.nested(self) or self.overlapping_left(y) or self.overlapping_right(y)
+
+    # --------------------------------------
+    
     def __getattr__(self, item):
         if item == 'text':
             return self.text
@@ -231,6 +359,61 @@ class SpanList(collections.Sequence):
             bisect.insort(self.spans, span)
 
         return span
+
+    # --------------------------------------
+    
+    #  Layer operations are ported from:
+    #    https://github.com/estnltk/estnltk/blob/master/estnltk/single_layer_operations/layer_positions.py
+    
+    def touching_right(self, y:Any) -> bool:
+        """ 
+        Tests if Span y is touching this SpanList from the right.
+        Pictorial example:
+        xxxxxxxx
+                yyyyy
+        """
+        return self.end == y.start
+
+    def touching_left(self, y:Any) -> bool:
+        """ 
+        Tests if Span y is touching this SpanList from the left.
+        Pictorial example:
+             xxxxxxxx
+        yyyyy
+        """
+        return y.touching_right(self)
+
+    def hovering_right(self, y:Any) -> bool:
+        """
+        Tests if Span y is hovering right from this SpanList.
+        Pictorial example:
+        xxxxxxxx
+                  yyyyy
+        """
+        return self.end < y.start
+
+    def hovering_left(self, y:Any) -> bool:
+        """
+        Tests if Span y is hovering left from this SpanList.
+        Pictorial example:
+                xxxxxxxx
+        yyyyy
+        """
+        return y.hovering_right(self)
+
+    def right(self, y:Any) -> bool:
+        '''
+        Tests if Span y is either touching or hovering right with respect to this SpanList.
+        '''
+        return self.touching_right(y) or self.hovering_right(y)
+
+    def left(self, y:Any) -> bool:
+        '''
+        Tests if Span y is either touching or hovering left with respect to this SpanList.
+        '''
+        return y.right(self)
+
+    # --------------------------------------
 
     @property
     def layer(self):
