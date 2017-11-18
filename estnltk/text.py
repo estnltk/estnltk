@@ -1,5 +1,5 @@
-import collections
 import keyword
+from bisect import bisect_left
 from collections import defaultdict
 from typing import MutableMapping, Union, List, Sequence
 import pandas
@@ -9,10 +9,13 @@ from .layer import Layer
 from .spans import Span, SpanList
 
 
-def _get_span_by_start_and_end(spans: SpanList, start: int, end: int) -> Union[Span, None]:
-    for span in spans:
-        if span.start == start and span.end == end:
-            return span
+def _get_span_by_start_and_end(spans: SpanList, start: int=None, end: int=None, span: Span=None) -> Union[Span, None]:
+    if span:
+        i = bisect_left(spans, span)
+    else:
+        i = bisect_left(spans, Span(start=start, end=end))
+    if i != len(spans):
+        return spans[i]
     return None
 
 
@@ -20,9 +23,9 @@ class Text:
     def __init__(self, text: str) -> None:
         self._text = text  # type: str
         self.layers = {}  # type: MutableMapping[str, Layer]
-        self.layers_to_attributes = collections.defaultdict(list)  # type: MutableMapping[str, List[str]]
-        self.base_to_dependant = collections.defaultdict(list)  # type: MutableMapping[str, List[str]]
-        self.enveloping_to_enveloped = collections.defaultdict(list)  # type: MutableMapping[str, List[str]]
+        self.layers_to_attributes = defaultdict(list)  # type: MutableMapping[str, List[str]]
+        self.base_to_dependant = defaultdict(list)  # type: MutableMapping[str, List[str]]
+        self.enveloping_to_enveloped = defaultdict(list)  # type: MutableMapping[str, List[str]]
         self._setup_structure()
 
     def tag_layer(self, layer_names: Sequence[str] = ('morph_analysis', 'sentences'), resolver=None) -> 'Text':
@@ -166,8 +169,7 @@ class Text:
                 for span in layer:
                     span.parent = _get_span_by_start_and_end(
                         self.layers[layer._base].spans,
-                        span.start,
-                        span.end
+                        span=span
                     )
                     span._base = span.parent
 
