@@ -9,7 +9,6 @@ def test_touching_positions():
     #t.tag_layer(['words'])
     
     # Test on Spans
-    
     span1 = Span(start=0, end=3)    # üks
     span2 = Span(start=4, end=8)    # kaks 
     span3 = Span(start=9, end=13)   # kolm
@@ -28,7 +27,6 @@ def test_touching_positions():
     assert not touching_left(span3, span4)
 
     # Test on SpanList-s
-    
     spanlist_1 = SpanList()
     spanlist_1.spans = [span1, span2, span3]
     spanlist_2 = SpanList()
@@ -46,7 +44,6 @@ def test_hovering_positions():
     #t.tag_layer(['words'])
     
     # Test on Spans
-    
     span1 = Span(start=0, end=3)    # üks
     span2 = Span(start=4, end=8)    # kaks 
     span3 = Span(start=9, end=13)   # kolm
@@ -64,7 +61,6 @@ def test_hovering_positions():
     assert not hovering_left(span6, span5)
 
     # Test on SpanList-s
-    
     spanlist_1 = SpanList()
     spanlist_1.spans = [span1, span2, span3]
     spanlist_2 = SpanList()
@@ -84,7 +80,6 @@ def test_left_and_right_positions():
     #t.tag_layer(['words'])
     
     # Test on Spans
-    
     span1 = Span(start=0, end=3)    # üks
     span2 = Span(start=4, end=8)    # kaks 
     span3 = Span(start=9, end=13)   # kolm
@@ -102,7 +97,6 @@ def test_left_and_right_positions():
     assert not left(span6, span7)
 
     # Test on SpanList-s
-    
     spanlist_1 = SpanList()
     spanlist_1.spans = [span1, span2, span3]
     spanlist_2 = SpanList()
@@ -123,7 +117,6 @@ def test_nested_positions():
     #t.tag_layer(['words'])
     
     # Test on Spans
-    
     span1  = Span(start=0, end=3)    # üks
     span2  = Span(start=4, end=8)    # kaks 
     span3  = Span(start=9, end=13)   # kolm
@@ -150,7 +143,6 @@ def test_nested_aligned_positions():
     #t.tag_layer(['words'])
     
     # Test on Spans
-    
     span1  = Span(start=0, end=3)    # üks
     span2  = Span(start=4, end=8)    # kaks 
     span3  = Span(start=9, end=13)   # kolm
@@ -196,6 +188,34 @@ def test_overlapping_positions():
     assert not overlapping_right(span56, span6)
 
 
+def test_conflict_positions():
+    # Example text: 'üks kaks kolmneli viiskuus seitse'
+    
+    #t = Text('üks kaks kolmneli viiskuus seitse')
+    #t.tag_layer(['words'])
+    
+    # Test on Spans
+    span1  = Span(start=0, end=3)    # üks
+    span2  = Span(start=4, end=8)    # kaks 
+    span3  = Span(start=9, end=13)   # kolm
+    span23 = Span(start=4, end=13)   # 'kaks kolm'
+    span4  = Span(start=13, end=17)  # neli
+    span34 = Span(start=9, end=17)   # kolmneli
+    span5  = Span(start=18, end=22)  # viis 
+    span6  = Span(start=22, end=26)  # kuus
+    span56 = Span(start=18, end=26)  # viiskuus
+    span7  = Span(start=27, end=33)  # seitse
+    span67 = Span(start=22, end=33)  # 'kuus seitse'
+    
+    assert conflict(span23, span34)
+    assert conflict(span56, span67)
+    assert conflict(span34, span3)
+    assert conflict(span56, span6)
+    assert not conflict(span34, span2)
+    assert not conflict(span34, span56)
+    assert not conflict(span7, span56)
+
+
 def test_equal_positions():
     # Example text: 'üks kaks kolmneli viiskuus seitse'
     
@@ -203,7 +223,6 @@ def test_equal_positions():
     #t.tag_layer(['words'])
     
     # Test on Spans
-    
     span3  = Span(start=9, end=13)   # kolm
     span4  = Span(start=13, end=17)  # neli
     span34 = Span(start=9, end=17)   # kolmneli
