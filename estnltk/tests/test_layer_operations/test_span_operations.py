@@ -211,6 +211,8 @@ def test_conflict_positions():
     assert conflict(span56, span67)
     assert conflict(span34, span3)
     assert conflict(span56, span6)
+    assert not conflict(span3, span4)
+    assert not conflict(span6, span5)
     assert not conflict(span34, span2)
     assert not conflict(span34, span56)
     assert not conflict(span7, span56)
