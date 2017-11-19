@@ -471,8 +471,9 @@ class SpanList(collections.Sequence):
 
     def overlapping_left(self, y:Any) -> bool:
         """
-        Tests if left side of this Span (x) overlaps with 
-        the Span y, but y is not nested within this Span.
+        Tests if left side of this SpanList (x) overlaps with 
+        Span or SpanList y, but y is not nested within this 
+        SpanList.
         Pictorial example:
           xxxxxxxx
         yyyyy
@@ -487,10 +488,9 @@ class SpanList(collections.Sequence):
             #  TODO: unlike nested(), this also allows mismatching 
             #        gaps inside x
             #
-            x1 = self.spans[0]
             return self.spans and \
-                   (x1.overlapping_left(y) or 
-                   (y.nested(x1) and y.end < x.end))
+                   ((self.spans[0]).overlapping_left(y) or 
+                   (y.nested(self.spans[0]) and y.end < x.end))
         elif isinstance(y, SpanList):
             #  Check that the boundaries are overlapping and that 
             #  there are conflicting spans:
@@ -507,8 +507,9 @@ class SpanList(collections.Sequence):
 
     def overlapping_right(self, y:Any) -> bool:
         """
-        Tests if right side of this Span (x) overlaps with
-        the Span y, but y is not nested within this Span.
+        Tests if right side of this SpanList (x) overlaps with
+        Span or SpanList y, but y is not nested within this 
+        SpanList.
         Pictorial example:
         xxxxxxxx
               yyyyy
