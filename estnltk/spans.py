@@ -160,7 +160,7 @@ class Span:
         xxxxxxxx
           yyyyy
         """
-        assert isinstance(y, Span)
+        assert isinstance(y, (Span, SpanList))
         return self.start <= y.start <= y.end <= self.end
 
     def equal(self, y:Any) -> bool:
@@ -171,7 +171,7 @@ class Span:
         xxxxxxxx
         yyyyyyyy
         """
-        assert isinstance(y, Span)
+        assert isinstance(y, (Span, SpanList))
         return self.nested(y) and y.nested(self)
 
     def nested_aligned_right(self, y:Any) -> bool:
@@ -182,7 +182,7 @@ class Span:
         xxxxxxxx
            yyyyy
         """
-        assert isinstance(y, Span)
+        assert isinstance(y, (Span, SpanList))
         return self.nested(y) and self.end == y.end
 
     def nested_aligned_left(self, y:Any) -> bool:
@@ -193,7 +193,7 @@ class Span:
         xxxxxxxx
         yyyyy
         """
-        assert isinstance(y, Span)
+        assert isinstance(y, (Span, SpanList))
         return self.nested(y) and self.start == y.start
 
     def overlapping_left(self, y:Any) -> bool:
@@ -204,7 +204,7 @@ class Span:
           xxxxxxxx
         yyyyy
         """
-        assert isinstance(y, Span)
+        assert isinstance(y, (Span, SpanList))
         return y.start < self.start < y.end
 
     def overlapping_right(self, y:Any) -> bool:
@@ -215,7 +215,7 @@ class Span:
         xxxxxxxx
               yyyyy
         """
-        assert isinstance(y, Span)
+        assert isinstance(y, (Span, SpanList))
         return y.start < self.end < y.end
 
     def conflict(self, y:Any) -> bool:
@@ -224,8 +224,9 @@ class Span:
         Span y: one of the Spans is either nested within other, 
         or there is an overlapping from right or left side.
         """
-        assert isinstance(y, Span)
-        return self.nested(y) or y.nested(self) or self.overlapping_left(y) or self.overlapping_right(y)
+        assert isinstance(y, (Span, SpanList))
+        return self.nested(y) or y.nested(self) or \
+               self.overlapping_left(y) or self.overlapping_right(y)
 
     # --------------------------------------
     
@@ -414,7 +415,155 @@ class SpanList(collections.Sequence):
         return y.right(self)
 
     # --------------------------------------
+    
+    def nested(self, y:Any) -> bool:
+        """
+        Tests if Span or SpanList y is nested inside this SpanList (x).
+        Pictorial example:
+        xxxxxxxx
+          yyyyy
+        """
+        if isinstance(y, Span):
+            # Check all spans of this SpanList -- find out whether the 
+            # target span is somewhere inside, e.g.:
+            #        xxxx xxxx xxx
+            #              yyy
+            # Note: returns False in case of partial nesting:
+            #        xxxx xxxx xxx
+            #           yyyyy
+            return self.spans and \
+                   any([ xi.nested(y) for xi in self.spans ])
+        elif isinstance(y, SpanList):
+            # Check all spans of the SpanList y -- confirm that all
+            # of its spans are inside this SpanList, e.g.:
+            #        xxxx xxxx xxx
+            #          yy  yy  y
+            # Note: returns False in case of partial nesting:
+            #        xxxx xxxx xxx
+            #           yyy yyyy
+            return y.spans and self.spans and \
+                   all([ self.nested(yi) for yi in y.spans ])
+        else:
+            raise Exception('(!) Unexpected type of input argument y: '+\
+                            'should be Span or SpanList.')
 
+    def nested_aligned_right(self, y:Any) -> bool:
+        """
+        Tests if Span or SpanList y is nested inside this SpanList (x), 
+        and y is aligned with the right ending of this SpanList.
+        Pictorial example:
+        xx xxxxx
+           yyyyy
+        """
+        assert isinstance(y, (Span, SpanList))
+        return self.nested(y) and self.end == y.end
+
+    def nested_aligned_left(self, y:Any) -> bool:
+        """
+        Tests if Span or SpanList y is nested inside this SpanList (x), 
+        and y is aligned with the left ending of this SpanList.
+        Pictorial example:
+        xx xx xx
+        yy y
+        """
+        assert isinstance(y, (Span, SpanList))
+        return self.nested(y) and self.start == y.start
+
+    def overlapping_left(self, y:Any) -> bool:
+        """
+        Tests if left side of this Span (x) overlaps with 
+        the Span y, but y is not nested within this Span.
+        Pictorial example:
+          xxxxxxxx
+        yyyyy
+        """
+        if isinstance(y, Span):
+            #  Check if the first span of x is either overlapped
+            #  by y or nested inside y:
+            #
+            #        x x x xx  
+            #      yyyyy
+            #
+            #  TODO: unlike nested(), this also allows mismatching 
+            #        gaps inside x
+            #
+            x1 = self.spans[0]
+            return self.spans and \
+                   (x1.overlapping_left(y) or 
+                   (y.nested(x1) and y.end < x.end))
+        elif isinstance(y, SpanList):
+            #  Check that the boundaries are overlapping and that 
+            #  there are conflicting spans:
+            #
+            #        x x xxx  
+            #    y yyy y
+            #
+            return self.spans and y.spans and \
+                   y.start < self.start < y.end and \
+                   any([xi.conflict(yi) for xi in self.spans for yi in y.spans])
+        else:
+            raise Exception('(!) Unexpected type of input argument y: '+\
+                            'should be Span or SpanList.')
+
+    def overlapping_right(self, y:Any) -> bool:
+        """
+        Tests if right side of this Span (x) overlaps with
+        the Span y, but y is not nested within this Span.
+        Pictorial example:
+        xxxxxxxx
+              yyyyy
+        """
+        if isinstance(y, Span):
+            #  Check if the last span of x is either overlapped
+            #  by y or nested inside y:
+            #
+            #        x x x xx  
+            #             yyyyy
+            #
+            #  TODO: unlike nested(), this also allows mismatching 
+            #        gaps inside x
+            #
+            return self.spans and \
+                   ((self.spans[-1]).overlapping_right(y) or 
+                   (y.nested(self.spans[-1]) and x.start < y.start))
+        elif isinstance(y, SpanList):
+            #  Check that the boundaries are overlapping and that 
+            #  there are conflicting spans:
+            #
+            #        x xxx x  
+            #            y yyy y
+            #
+            return self.spans and y.spans and \
+                   y.start < self.end < y.end and \
+                   any([xi.conflict(yi) for xi in self.spans for yi in y.spans])
+        else:
+            raise Exception('(!) Unexpected type of input argument y: '+\
+                            'should be Span or SpanList.')
+
+    def conflict(self, y:Any) -> bool:
+        """
+        Tests if there is a conflict between this SpanList and 
+        Span or SpanList y: one of the two is either nested within 
+        the other, or there is an overlapping from right or left 
+        side.
+        """
+        assert isinstance(y, (Span, SpanList))
+        return self.nested(y) or y.nested(self) or \
+               self.overlapping_left(y) or self.overlapping_right(y)
+
+    def equal(self, y:Any) -> bool:
+        """
+        Tests if Span or SpanList y is positionally equal to this 
+        SpanList (x). (Both are nested within each other).
+        Pictorial example:
+        xxxxx xx
+        yyyyy yy
+        """
+        assert isinstance(y, (Span, SpanList))
+        return self.nested(y) and y.nested(self)
+
+    # --------------------------------------
+    
     @property
     def layer(self):
         return self._layer
