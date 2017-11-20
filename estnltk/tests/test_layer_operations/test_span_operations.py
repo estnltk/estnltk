@@ -134,6 +134,24 @@ def test_nested_positions():
     
     assert not span34.nested(span5)
 
+    # Test on SpanList-s
+    spanlist_1 = SpanList()
+    spanlist_1.spans = [span1, span2, span3]
+    spanlist_2 = SpanList()
+    spanlist_2.spans = [span4, span5]
+    spanlist_21 = SpanList()
+    spanlist_21.spans = [span4]
+    spanlist_3 = SpanList()
+    spanlist_3.spans = [span7]
+    
+    assert spanlist_1.nested(span3)
+    assert not spanlist_1.nested(span34)
+    assert spanlist_2.nested(span4)
+    assert not spanlist_3.nested(span6)
+    
+    assert spanlist_2.nested(spanlist_21)
+    assert not spanlist_1.nested(spanlist_2)
+
 
 def test_nested_aligned_positions():
     # Example text: 'üks kaks kolmneli viiskuus seitse'
@@ -159,6 +177,24 @@ def test_nested_aligned_positions():
     
     assert span34.nested_aligned_left(span3)
     assert not span34.nested_aligned_left(span4)
+    
+    # Test on SpanList-s
+    spanlist_1 = SpanList()
+    spanlist_1.spans = [span1, span2, span3]
+    spanlist_2 = SpanList()
+    spanlist_2.spans = [span4, span5]
+    spanlist_21 = SpanList()
+    spanlist_21.spans = [span4]
+    spanlist_3 = SpanList()
+    spanlist_3.spans = [span7]
+    
+    assert spanlist_1.nested_aligned_right(span3)
+    assert not spanlist_1.nested_aligned_right(span34)
+    assert spanlist_2.nested_aligned_left(span4)
+    assert not spanlist_3.nested_aligned_right(span6)
+    
+    assert spanlist_2.nested_aligned_left(spanlist_21)
+    assert not spanlist_1.nested_aligned_right(spanlist_2)
 
 
 def test_overlapping_positions():
@@ -185,6 +221,25 @@ def test_overlapping_positions():
 
     assert span56.overlapping_right(span67)
     assert not span56.overlapping_right(span6)
+
+    # Test on SpanList-s
+    spanlist_1 = SpanList()
+    spanlist_1.spans = [span1, span2, span3]
+    spanlist_2 = SpanList()
+    spanlist_2.spans = [span4, span5]
+    spanlist_21 = SpanList()
+    spanlist_21.spans = [span3, span4]
+    spanlist_3 = SpanList()
+    spanlist_3.spans = [span7]
+    
+    assert spanlist_1.overlapping_right(span34)
+    assert not spanlist_1.overlapping_right(span4)
+    assert spanlist_2.overlapping_left(span34)
+    assert not spanlist_3.overlapping_left(span6)
+    
+    assert spanlist_2.overlapping_left(spanlist_21)
+    assert spanlist_1.overlapping_right(spanlist_21)
+    assert not spanlist_1.overlapping_right(spanlist_2)
 
 
 def test_conflict_positions():
@@ -215,6 +270,25 @@ def test_conflict_positions():
     assert not span34.conflict(span2)
     assert not span34.conflict(span56)
     assert not span7.conflict(span56)
+    
+    # Test on SpanList-s
+    spanlist_1 = SpanList()
+    spanlist_1.spans = [span1, span2, span3]
+    spanlist_2 = SpanList()
+    spanlist_2.spans = [span4, span5]
+    spanlist_21 = SpanList()
+    spanlist_21.spans = [span3, span4]
+    spanlist_3 = SpanList()
+    spanlist_3.spans = [span7]
+    
+    assert spanlist_1.conflict(span34)
+    assert not spanlist_1.conflict(span4)
+    assert spanlist_2.conflict(span34)
+    assert not spanlist_3.conflict(span6)
+    
+    assert spanlist_2.conflict(spanlist_21)
+    assert spanlist_1.conflict(spanlist_21)
+    assert not spanlist_1.conflict(spanlist_2)
 
 
 def test_equal_positions():
@@ -224,13 +298,37 @@ def test_equal_positions():
     #t.tag_layer(['words'])
     
     # Test on Spans
+    span1  = Span(start=0, end=3)    # üks
+    span2  = Span(start=4, end=8)    # kaks 
     span3  = Span(start=9, end=13)   # kolm
+    span23 = Span(start=4, end=13)   # 'kaks kolm'
     span4  = Span(start=13, end=17)  # neli
     span34 = Span(start=9, end=17)   # kolmneli
     span43 = Span(end=17, start=9)   # kolmneli
+    span5  = Span(start=18, end=22)  # viis 
+    span6  = Span(start=22, end=26)  # kuus
     span56 = Span(start=18, end=26)  # viiskuus
+    span7  = Span(start=27, end=33)  # seitse
+    span67 = Span(start=22, end=33)  # 'kuus seitse'
     
     assert span34.equal(span43)
     assert not span34.equal(span56)
     assert not span34.equal(span3)
+
+    # Test on SpanList-s
+    spanlist_1 = SpanList()
+    spanlist_1.spans = [span1]
+    spanlist_20 = SpanList()
+    spanlist_20.spans = [span4, span5]
+    spanlist_21 = SpanList()
+    spanlist_21.spans = [span4, span5]
+    spanlist_3 = SpanList()
+    spanlist_3.spans = [span7]
+    
+    assert spanlist_1.equal(span1)
+    assert spanlist_20.equal(spanlist_21)
+    assert not spanlist_21.equal(span4)
+    assert not spanlist_21.equal(span34)
+    assert spanlist_3.equal(span7)
+    assert not spanlist_3.equal(span56)
 
