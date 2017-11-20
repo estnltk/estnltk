@@ -63,13 +63,14 @@ class VabamorfTagger(Tagger):
 
     def tag(self, text: Text, return_layer=False) -> Text:
         wordlist = self._get_wordlist(text)
-        if len(wordlist) > 149129:
-            # if len(wordlist) > 149129,
+        if len(wordlist) > 15000:
+            # if 149129 < len(wordlist) on Linux,
+            # if  15000 < len(wordlist) < 17500 on Windows,
             # then self.instance.analyze(words=wordlist, **self.kwargs) raises
             # RuntimeError: CFSException: internal error with vabamorf
             analysis_results = []
-            for i in range(0, len(wordlist), 50000):
-                analysis_results.extend(self.instance.analyze(words=wordlist[i:i+50000], **self.kwargs))
+            for i in range(0, len(wordlist), 15000):
+                analysis_results.extend(self.instance.analyze(words=wordlist[i:i+15000], **self.kwargs))
         else:
             analysis_results = self.instance.analyze(words=wordlist, **self.kwargs)
 
