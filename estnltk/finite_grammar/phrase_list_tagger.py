@@ -63,6 +63,7 @@ class PhraseListTagger(Tagger):
         self.depends_on = [input_layer]
         self.configuration = {}
         self.configuration['input_layer'] = input_layer
+        self.configuration['layer_name'] = layer_name
         self.configuration['input_attribute'] = input_attribute
         self.configuration['phrase_list'] = str(len(phrase_list)) + ' phrases'
         self.configuration['attributes'] = attributes
