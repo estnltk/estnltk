@@ -30,7 +30,7 @@ class Node:
         return (self.start, self.end) > (other.start, other.end)
 
     def __str__(self):
-        return 'N({name}, ({span.start}, {span.end}), {weight:.2f})'.format(span=self, name=self.name, weight=self.weight)
+        return 'Node({name}, ({span.start}, {span.end}), {weight:.2f})'.format(span=self, name=self.name, weight=self.weight)
 
     def __repr__(self):
         return str(self)
@@ -125,21 +125,24 @@ class Rule:
 
 def graph_from_document(rows: Dict[str, List[Tuple[int, int]]]) -> nx.DiGraph:
     nodes = document_to_nodes(rows)
-    return graph_from_nodes(nodes)
-
-    res = get_dense_matrix(rows)
-    items = get_elementary_nodes(rows)
-    df = matrix_to_dataframe(res, items)
-    edges = edges_from_dataframe(df, items)
-    graph = nx.DiGraph()
-    graph.add_nodes_from(items)
-    graph.add_edges_from(edges)
-
-    create_entry_and_exit_nodes(graph, items)
-    graph = nx.transitive_reduction(graph)
+    graph = graph_from_nodes(nodes)
     add_blanks(graph)
-    graph = nx.transitive_reduction(graph)
+    #graph = nx.transitive_reduction(graph)
     return graph
+
+    #res = get_dense_matrix(rows)
+    #items = get_elementary_nodes(rows)
+    #df = matrix_to_dataframe(res, items)
+    #edges = edges_from_dataframe(df, items)
+    #graph = nx.DiGraph()
+    #graph.add_nodes_from(items)
+    #graph.add_edges_from(edges)
+
+    #create_entry_and_exit_nodes(graph, items)
+    #graph = nx.transitive_reduction(graph)
+    #add_blanks(graph)
+    #graph = nx.transitive_reduction(graph)
+    #return graph
 
 
 def edges_from_dataframe(df, items):
@@ -274,6 +277,8 @@ def get_valid_paths(graph: nx.DiGraph, rule: Rule):
 
 
 def get_nonterminal_nodes(graph: nx.DiGraph, grammar: 'Grammar'):
+    """"All parse trees.
+    """
     g2 = graph.copy()
     order = grammar.nonterminal_dependency_order
 
@@ -334,14 +339,13 @@ def graph_from_nodes(nodes):
     graph.add_nodes_from(nodes)
     nodes.append(START)
     nodes.append(END)
-    nodes = sorted(nodes)
+    nodes.sort()
     for i, n_i in enumerate(nodes):
         stop = float('inf')
         for j in range(i+1, len(nodes)):
             n_j = nodes[j]
-            if n_j.start > stop:
+            if n_j.start > stop - 1:
                 break
-                pass
             if n_i.end <= n_j.start:
                 stop = min(n_j.end, stop)
                 graph.add_edge(n_i, n_j)
@@ -377,10 +381,60 @@ def layer_to_graph_by_attribute(layer:'Layer', attribute:str) -> nx.DiGraph:
     return graph
 
 
+def all_sequences_from_node(G, nodes, sequence, i):
+    # Generates all sequences of nodes in the graph that match the sequence of names
+    # starting from the name sequence[i].
+    if i == len(sequence):
+        yield nodes
+        return
+    for desc in G.succ[nodes[-1]]:
+        if desc.name == sequence[i]:
+            yield from all_sequences_from_node(G, nodes+[desc], sequence, i+1)
+
+
+def _update_graph(G, worklist, startpoints, depth):
+    """
+    Apply rules to add new nodes and edges to the graph.
+    """
+    if not worklist or not depth:
+        return
+
+    nodes_to_add = []
+    node = worklist.pop()
+    for rule in startpoints[node.name]:
+        for sequence in all_sequences_from_node(G, [node], rule.rhs, 1):
+            nodes_to_add.append((Node(rule.lhs, start=sequence[0], end=sequence[-1], spans=[]),
+                                 sequence,
+                                 list(G.pred[sequence[0]]),
+                                 list(G.succ[sequence[-1]]),
+                                ))
+    for node, span, predecessors, successors in nodes_to_add:
+        for pred in predecessors:
+            G.add_edge(pred, node)
+        for succ in successors:
+            G.add_edge(node, succ)
+        node.spans.append(span)
+        if node.name in startpoints:
+            worklist.append(node)
+        _update_graph(G, worklist, startpoints, depth-1)
+
+
+def update_graph(G, grammar, depth=float('inf')):
+    startpoints = defaultdict(list)
+    for rule in grammar.rules:
+        startpoints[rule.rhs[0]].append(rule)
+    worklist = [n for n in G if n.name in startpoints]
+    _update_graph(G, worklist, startpoints, depth)
+    return G
+
 
 def plot_graph(graph):
     labels = {node:node.name for node in graph.nodes}
-    pos = nx.drawing.nx_pydot.pydot_layout(graph, prog='dot')
+    try:
+        # TODO: ger rid of IndexError
+        pos = nx.drawing.nx_pydot.pydot_layout(graph, prog='dot')
+    except IndexError:
+        pos = None
     plt.figure(figsize=(8,8))
     nx.draw(graph, with_labels=True, labels=labels, node_color=[[1,.8,.8]], node_shape='s', node_size=500, pos=pos)
     plt.show()
