@@ -12,7 +12,7 @@ def iterate_consecutive_spans(spanlist:Union[List[Span], SpanList], max_gap:int=
     '''  Given a SpanList or a List of Spans, yields pairs of Spans that are 
         positionally consecutive. Consecutive means that there can be a gap (in 
         size of max_gap) between the two spans, but none of the other spans may 
-        fall entirely between the consecutive spans.
+        fall entirely between the two consecutive spans.
 
         Argument max_gap can be additionally used for defining the maximal allowed 
         gap between end and start of two yielded spans. By default, the max_gap 
@@ -22,7 +22,7 @@ def iterate_consecutive_spans(spanlist:Union[List[Span], SpanList], max_gap:int=
         before detection of the consecutive spans.
     '''
     if max_gap < 0:
-        raise Exception ('(!) Value of max_gap should be positive or zero!')
+        raise Exception ('(!) Value of max_gap should be positive int or zero!')
     # Check the type of input list, and sort the regular spanlist
     if isinstance(spanlist, list) and spanlist:
         if all( [isinstance(span, Span) for span in spanlist] ):

@@ -337,7 +337,7 @@ def test_equal_positions():
 # --------------------------------------------------------------------------
 
 from estnltk.text import Layer
-from estnltk.layer_operations.intersections import iterate_intersecting_pairs
+from estnltk.layer_operations.intersections import iterate_intersecting_spans
 from estnltk.layer_operations.consecutive import iterate_consecutive_spans
 from estnltk.layer_operations.consecutive import iterate_touching_spans
 
@@ -359,7 +359,7 @@ def test_yield_spanlist_intersections():
     spanlist.add_span(Span(start=27, end=33)) # seitse
     spanlist.add_span(Span(start=22, end=33)) # 'kuus seitse'
     
-    intersections = list( iterate_intersecting_pairs(spanlist) )
+    intersections = list( iterate_intersecting_spans(spanlist) )
     intersect_texts = \
         [(text[a.start:a.end],text[b.start:b.end]) for a, b in intersections ]
     #print( intersect_texts )
@@ -378,7 +378,7 @@ def test_yield_no_spanlist_intersections():
     spanlist.add_span(Span(start=0, end=3))  # üks
     spanlist.add_span(Span(start=4, end=8))  # kaks 
     
-    intersections = list( iterate_intersecting_pairs(spanlist) )
+    intersections = list( iterate_intersecting_spans(spanlist) )
     intersect_texts = \
         [ (text[a.start:a.end],text[b.start:b.end]) for a, b in intersections ]
     assert intersect_texts == []
@@ -404,7 +404,7 @@ def test_yield_layer_intersections():
     layer.add_span(Span(start=22, end=33)) # 'kuus seitse'
     text['test_layer'] = layer
     
-    intersections   = list( iterate_intersecting_pairs( text['test_layer'].spans ) )
+    intersections   = list( iterate_intersecting_spans( text['test_layer'].spans ) )
     intersect_texts = [ (a.text,b.text) for a, b in intersections ]
     #print( intersect_texts )
     assert intersect_texts == \
