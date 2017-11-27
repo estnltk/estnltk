@@ -1,27 +1,81 @@
 #
-#   Methods for yielding intersecting spans.
-#   Ported from:
-#    https://github.com/estnltk/estnltk/blob/master/estnltk/single_layer_operations/layer_positions.py
+#   Functions for yielding intersecting spans.
 #
 
 from estnltk.text import Layer, SpanList, Span
 from typing import MutableMapping, Tuple, Any, Union, List
 
-
-def iterate_intersecting_pairs( spanlist:Union[Layer, SpanList] ):
-    """ Given a Layer or a SpanList, yields pairwise Spans from its 
-        contents that are positionally intersecting.
+def iterate_intersecting_spans( spanlist:Union[List[Span], SpanList], \
+                                yield_nested:bool=True, \
+                                yield_equal:bool=True, \
+                                yield_overlapped:bool=True ):
+    """ Given a Layer or a SpanList, yields pairs of Spans that are 
+        positionally intersecting.
+        
+        If the yield_nested = True (default), then pairs of Spans 
+        where one span is nested inside other are included.
+        If the yield_equal = True (default), then pairs of Spans 
+        where one span is positionally equal to another are 
+        included.
+        If the yield_overlapped = True (default), then pairs of 
+        Spans where one span partially overlaps another are 
+        included.
+        
+        Note that if a List of Spans is given as an input argument, it 
+        is sorted before detection of the consecutive spans.
     """
-    yielded = set()
-    if isinstance(spanlist, SpanList):
-        spl_copy = spanlist.spans[:]       # Shallow copy of the spanlist
-    elif isinstance(spanlist, Layer):
-        spl_copy = spanlist.spans.spans[:] # Shallow copy of the spanlist
-    for i1, elem1 in enumerate(spl_copy):
-        for i2, elem2 in enumerate(spl_copy):
-            indexes = (i1, i2) if i1 < i2 else (i2, i1)
-            if i1 != i2 and elem1.start <= elem2.start < elem1.end:
-                if indexes not in yielded:
-                    yielded.add(indexes)
-                    yield elem1, elem2
+    # Check the type of input list, and sort the regular spanlist
+    if isinstance(spanlist, list) and spanlist:
+        if all( [isinstance(span, Span) for span in spanlist] ):
+            spanlist = sorted(spanlist)
+        else:
+            raise Exception (
+                '(!) The input list contains unexpected types of elements: ', str(spanlist))
+    # Iterate over the list and detect consecutive spans
+    spl_enum = list(enumerate(spanlist))
+    for span_id, span in spl_enum:
+        # Check the following spans
+        for span_id_2 in range(span_id + 1, len(spl_enum)):
+            following_span = spl_enum[span_id_2][1]
+            if span.start <= following_span.start < span.end:
+                # Check for nestings
+                following_nested = span.nested(following_span)
+                this_nested      = following_span.nested(span)
+                # Yield nested, equal, overlapped or all of them (default)
+                if yield_nested and (following_nested or this_nested) and \
+                                not (following_nested and this_nested):
+                    yield span, following_span
+                if yield_equal and following_nested and this_nested:
+                    yield span, following_span
+                if yield_overlapped and not (following_nested or this_nested):
+                    # If there is no nesting, there must be an overlap
+                    yield span, following_span
+            elif span.end < following_span.start:
+                # Under the assumption that the list is sorted,
+                # there is no need to look further
+                break
 
+
+#  -------------  Shortcut functions
+
+def iterate_nested_spans( spanlist:Union[List[Span], SpanList] ):
+    """ Given a Layer or a SpanList, yields pairs of Spans 
+        where one Span is nested inside other. 
+        
+        Note that pairs of Spans are yielded in the order of their 
+        positions, regardless which Span is nesting and which
+        is being nested inside other;
+    """
+    yield from iterate_intersecting_spans( spanlist, yield_nested=True, yield_equal=False, yield_overlapped=False )
+
+def iterate_equal_spans( spanlist:Union[List[Span], SpanList] ):
+    """ Given a Layer or a SpanList, yields pairs of Spans 
+        where one Span equal to other.
+    """
+    yield from iterate_intersecting_spans( spanlist, yield_nested=False, yield_equal=True, yield_overlapped=False )
+
+def iterate_overlapping_spans( spanlist:Union[List[Span], SpanList] ):
+    """ Given a Layer or a SpanList, yields pairs of Spans 
+        where one Span is partially overlapped by other.
+    """
+    yield from iterate_intersecting_spans( spanlist, yield_nested=False, yield_equal=False, yield_overlapped=True )
