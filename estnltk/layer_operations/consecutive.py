@@ -16,7 +16,7 @@ def iterate_consecutive_spans(spanlist:Union[List[Span], SpanList], max_gap:int=
 
         Argument max_gap can be additionally used for defining the maximal allowed 
         gap between end and start of two yielded spans. By default, the max_gap 
-        is equal to largest possible value defined by sys.maxsize;
+        is equal to the value defined by constant sys.maxsize;
         
          Note that if a List of Spans is given as an input argument, it is sorted 
         before detection of the consecutive spans.
@@ -72,3 +72,25 @@ def iterate_touching_spans(spanlist:Union[List[Span], SpanList]):
         positionally touching (i.e. gap between the consecutive spans is 0).
     '''
     yield from iterate_consecutive_spans(spanlist, max_gap=0)
+
+
+def iterate_hovering_spans(spanlist:Union[List[Span], SpanList], \
+                           min_gap:int=1,\
+                           max_gap:int=MAX_INT): 
+    '''  Given a SpanList or a List of Spans, yields pairs of Spans that are 
+        positionally hovering, i.e. gap between the consecutive spans is at 
+        least 1. 
+        
+        Arguments min_gap and max_gap can be additionally used for 
+        constraining the minimal and maximal allowed gap between the yielded 
+        spans. Note that it is required that 0 < min_gap <= max_gap;
+    '''
+    if min_gap < 1:
+        raise Exception ('(!) Value of min_gap should be an integer > 0!')
+    if max_gap < 1:
+        raise Exception ('(!) Value of max_gap should be an integer > 0!')
+    if not (min_gap <= max_gap):
+        raise Exception ('(!) Value of min_gap should be <= max_gap!')
+    for (span, following_span) in iterate_consecutive_spans(spanlist, max_gap=max_gap):
+        if min_gap <= (following_span.start - span.end) <= max_gap:
+            yield (span, following_span)
