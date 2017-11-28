@@ -39,7 +39,7 @@ def layer_to_dict(layer, text):
 
 
 def export_dict(text):
-    text_dict = {'text':text.text, 'layers':[]}
+    text_dict = {'text':text.text, 'meta':text.meta, 'layers':[]}
     for layer in text.list_layers():
         text_dict['layers'].append(layer_to_dict(layer, text))
     return text_dict

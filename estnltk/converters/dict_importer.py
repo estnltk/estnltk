@@ -3,6 +3,7 @@ from estnltk.text import Text, Layer, SpanList
 
 def import_dict(text_dict:dict) -> Text:
     text = Text(text_dict['text'])
+    text.meta = text_dict['meta']
     for record in text_dict['layers']:
         layer = Layer(name=record['name'],
                       attributes=record['attributes'],

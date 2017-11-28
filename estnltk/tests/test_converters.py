@@ -47,6 +47,7 @@ def test_dict_export_import():
     assert dict_text == export_dict(text_import)
     
     text = Text(T).tag_layer(['morph_analysis', 'paragraphs'])
+    text.meta['year'] = 2017
     dict_text = export_dict(text)
     text_import = import_dict(dict_text)
     assert text_import == text
@@ -60,6 +61,7 @@ def test_json_export_import():
     assert json_text == export_json(text_import)
     
     text = Text(T).tag_layer(['morph_analysis', 'paragraphs'])
+    text.meta['year'] = 2017
     json_text = export_json(text)
     text_import = import_json(json_text)
     assert text_import == text  

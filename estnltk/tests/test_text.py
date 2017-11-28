@@ -75,6 +75,10 @@ def test_equal():
     assert t_1 != t_2
     t_2 = Text('Tekst algab. Tekst lõpeb.')
     assert t_1 == t_2
+    t_1.meta['year'] = 2017
+    assert t_1 != t_2
+    t_2.meta['year'] = 2017
+    assert t_1 == t_2
     t_1.tag_layer(['morph_extended', 'paragraphs'])
     assert t_1 != t_2
     t_2.tag_layer(['morph_extended', 'paragraphs'])

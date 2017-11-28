@@ -23,6 +23,7 @@ class Text:
     def __init__(self, text: str) -> None:
         self._text = text  # type: str
         self.layers = {}  # type: MutableMapping[str, Layer]
+        self.meta = {}  # type: MutableMapping
         self.layers_to_attributes = defaultdict(list)  # type: MutableMapping[str, List[str]]
         self.base_to_dependant = defaultdict(list)  # type: MutableMapping[str, List[str]]
         self.enveloping_to_enveloped = defaultdict(list)  # type: MutableMapping[str, List[str]]
@@ -410,6 +411,8 @@ class Text:
             return 'The raw text is different.'
         if set(self.layers) != set(other.layers):
             return 'Different layer names: {} != {}'.format(set(self.layers), set(other.layers))
+        if self.meta != other.meta:
+            return 'Different metadata.'
         for layer_name in self.layers:
             difference = self.layers[layer_name].diff(other.layers[layer_name])
             if difference:
@@ -429,8 +432,12 @@ class Text:
         pandas.set_option('display.max_colwidth', -1)
 
         rec = [{'text': self.text.replace('\n', '<br/>')}]
-        table1 = pandas.DataFrame.from_records(rec)
-        table1 = table1.to_html(index=False, escape=False)
+        table = pandas.DataFrame.from_records(rec)
+        table = table.to_html(index=False, escape=False)
+        if self.meta:
+            table_meta = pandas.DataFrame.from_dict(self.meta, orient='index')
+            table_meta = table_meta.to_html(header=False)
+            table = '\n'.join((table, '<h4>Metadata</h4>', table_meta))
         if self.layers:
             # create a list of layers preserving the order of registered layers
             # can be optimized
@@ -454,8 +461,8 @@ class Text:
             for layer in layers:
                 layer_table = layer_table.append(layer.metadata())
             layer_table = layer_table.to_html(index=False, escape=False)
-            return '\n'.join((table1, layer_table))
-        return table1
+            return '\n'.join((table, layer_table))
+        return table
 
 
 from .resolve_layer_dag import DEFAULT_RESOLVER
