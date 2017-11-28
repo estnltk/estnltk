@@ -16,8 +16,8 @@ ALAT,0,1,,measurement_object,alat
 U/L,0,1,,unit,alat_unit
 PALAT,0,1,,trash,alat_trash
 (([Tt]asa|[Ee]ri|[Oo]sa)kaal[-.: ]*),0,2,,trash,kaal_trash
-[-=.>< ]+,0,1,,space,space
-\.?\s+-?\s*,0,1,,space,space
+[-=.>< ]*,0,1,,space,space
+\.?\s*-?\s*,0,1,,space,space
 [-=.>< ]*(on|oli)\s*,0,1,,space,space
 \s+-?:?\s*\<?,0,1,,space,space
 \s+,0,1,,space,space

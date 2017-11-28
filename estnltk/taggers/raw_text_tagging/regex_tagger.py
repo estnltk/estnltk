@@ -75,10 +75,6 @@ class RegexTagger(Tagger):
             _regex_pattern_ = record['_regex_pattern_']
             if isinstance(_regex_pattern_, str):
                 _regex_pattern_ = re.compile(_regex_pattern_)
-
-            m = _regex_pattern_.search('bla')
-            if m and m.span(0)==(0,0):
-                raise ValueError("The regex pattern matches empty substring: {}".format(record['_regex_pattern_']))
             rec = {'_regex_pattern_': _regex_pattern_,
                    '_group_': record.get('_group_', 0),
                    '_priority_': record.get('_priority_', 0)
@@ -127,9 +123,12 @@ class RegexTagger(Tagger):
             # Whether the overlapped flag should be switched on or off
             overlapped_flag = voc.get('overlapped', self._overlapped)
             for matchobj in voc['_regex_pattern_'].finditer(text, overlapped=overlapped_flag):
+                start, end = matchobj.span(voc['_group_'])
+                if start == end:
+                    continue
                 record = {
-                    'start': matchobj.span(voc['_group_'])[0],
-                    'end': matchobj.span(voc['_group_'])[1],
+                    'start': start,
+                    'end': end
                 }
                 for a in self._internal_attributes:
                     v = voc.get(a, 0)
