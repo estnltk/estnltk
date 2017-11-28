@@ -1,30 +1,39 @@
 from estnltk.taggers.raw_text_tagging.date_tagger.regexes_v import regexes
-from estnltk.taggers import RegexTagger
+from estnltk.taggers import Tagger, RegexTagger
 import datetime
 
 regexes = regexes.reset_index().to_dict('records')
 
-class DateTagger:
 
-    def __init__(self, return_layer=False, layer_name='dates', conflict_resolving_strategy='MAX', overlapped=False):
-        
+class DateTagger(Tagger):
+    description = None
+    layer_name = None
+    attributes = []
+    depends_on = []
+    configuration = {}
+
+    def __init__(self, layer_name='dates', conflict_resolving_strategy='MAX', overlapped=False):
+        self.description = 'Tags date expressions.'
+        self.layer_name = layer_name
+        self.attributes = ['date_text','type', 'probability', 'groups', 'extracted_values']
+
         vocabulary = self._create_vocabulary(regexes)
-        
+
         self._tagger = RegexTagger(vocabulary=vocabulary,
                                    attributes=['date_text','type', 'probability', 'groups', 'extracted_values'],
                                    conflict_resolving_strategy=conflict_resolving_strategy,
                                    overlapped=overlapped,
-                                   return_layer=return_layer,
                                    layer_name=layer_name,
                                    )
-  
-    def tag(self, text):
-        '''
-        Tags dates on text
-        '''
-        self._tagger.tag(text)
 
-        return text.dates
+        self.configuration = self._tagger.configuration
+
+  
+    def tag(self, text, return_layer=False):
+        """
+        Tags dates on text
+        """
+        return self._tagger.tag(text, return_layer=return_layer)
 
 
     def _create_vocabulary(self, regexes):

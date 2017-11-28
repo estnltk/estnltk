@@ -56,7 +56,6 @@ class RegexTagger(Tagger):
         self.configuration['conflict_resolving_strategy'] = conflict_resolving_strategy
         self.configuration['overlapped'] = overlapped
 
-
     def _read_expression_vocabulary(self, expression_vocabulary):
         if isinstance(expression_vocabulary, list):
             vocabulary = expression_vocabulary
@@ -77,6 +76,9 @@ class RegexTagger(Tagger):
             if isinstance(_regex_pattern_, str):
                 _regex_pattern_ = re.compile(_regex_pattern_)
 
+            m = _regex_pattern_.search('bla')
+            if m and m.span(0)==(0,0):
+                raise ValueError("The regex pattern matches empty substring: {}".format(record['_regex_pattern_']))
             rec = {'_regex_pattern_': _regex_pattern_,
                    '_group_': record.get('_group_', 0),
                    '_priority_': record.get('_priority_', 0)

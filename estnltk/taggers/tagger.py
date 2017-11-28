@@ -7,23 +7,28 @@ class Tagger(ABC):
     Abstract base class for taggers.
     """
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def description(self) -> str:
         pass
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def layer_name(self) -> str:
         pass
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def attributes(self) -> List:
         pass
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def depends_on(self) -> List:
         pass
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def configuration(self) -> dict:
         pass
 
