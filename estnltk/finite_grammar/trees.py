@@ -117,7 +117,7 @@ class Rule:
             raise AssertionError
 
     def __str__(self):
-        return '{lhs!r} -> {rhs}\t: {weight}'.format(lhs=self.lhs, rhs=', '.join(repr(r) for r in self.rhs), weight=self.weight)
+        return '{lhs!r} -> {rhs}\t: {weight}'.format(lhs=self.lhs, rhs=' '.join(repr(r) for r in self.rhs), weight=self.weight)
 
     def __repr__(self):
         return str(self)
@@ -381,60 +381,80 @@ def layer_to_graph_by_attribute(layer:'Layer', attribute:str) -> nx.DiGraph:
     return graph
 
 
-def all_sequences_from_node(G, nodes, sequence, i):
-    # Generates all sequences of nodes in the graph that match the sequence of names
-    # starting from the name sequence[i].
-    if i == len(sequence):
+def get_match_up(G, nodes, names, pos):
+    if pos == 0:
         yield nodes
         return
-    for desc in G.succ[nodes[-1]]:
-        if desc.name == sequence[i]:
-            yield from all_sequences_from_node(G, nodes+[desc], sequence, i+1)
+    for node in G.pred[nodes[-1]]:
+        if node.name == names[pos-1]:
+            yield from get_match_up(G, nodes+[node], names, pos-1)
 
 
-def _update_graph(G, worklist, startpoints, depth):
-    """
-    Apply rules to add new nodes and edges to the graph.
-    """
-    if not worklist or not depth:
+def get_match_down(G, nodes, names, pos):
+    if pos + 1 == len(names):
+        yield nodes
         return
+    for node in G.succ[nodes[-1]]:
+        if node.name == names[pos+1]:
+            yield from get_match_down(G, nodes+[node], names, pos+1)
 
+
+def get_match(G, node, names, pos):
+    match_up = get_match_up  (G, [node], names, pos)
+    match_down = list(get_match_down(G, [node], names, pos))
+    assert all(md[0].name==names[pos] for md in match_down)
+    yield from (mu[:0:-1]+md for mu in match_up for md in match_down)
+
+
+def expand_fragment(G, node, rule_map):
     nodes_to_add = []
-    node = worklist.pop()
-    for rule in startpoints[node.name]:
-        for sequence in all_sequences_from_node(G, [node], rule.rhs, 1):
-            nodes_to_add.append((Node(rule.lhs, start=sequence[0], end=sequence[-1], spans=[]),
+    for rule, pos in rule_map[node.name]:
+        for sequence in get_match(G, node, rule.rhs, pos):
+            # assert node.name = sequence
+            assert all((sequence[i], sequence[i + 1]) in G.edges for i in range(len(sequence) - 1))
+            nodes_to_add.append((Node(rule.lhs, start=sequence[0].start, end=sequence[-1].end, spans=[]),
                                  sequence,
                                  list(G.pred[sequence[0]]),
                                  list(G.succ[sequence[-1]]),
-                                ))
+                                 ))
+    return nodes_to_add
+
+
+def add_nodes(G, nodes_to_add):
     for node, span, predecessors, successors in nodes_to_add:
         for pred in predecessors:
             G.add_edge(pred, node)
         for succ in successors:
             G.add_edge(node, succ)
         node.spans.append(span)
-        if node.name in startpoints:
-            worklist.append(node)
-        _update_graph(G, worklist, startpoints, depth-1)
+
+
+def _update_graph(G, rule_map, worklist, depth):
+    while worklist:
+        node = worklist.pop()
+        nodes_to_add = expand_fragment(G, node, rule_map)
+        add_nodes(G, nodes_to_add)
+        for node, _, _, _ in nodes_to_add:
+            if node.name in rule_map:
+                worklist.append(node)
 
 
 def update_graph(G, grammar, depth=float('inf')):
-    startpoints = defaultdict(list)
+    """
+    Use grammar to expand graph bottom up.
+    """
+    rule_map = defaultdict(list)
     for rule in grammar.rules:
-        startpoints[rule.rhs[0]].append(rule)
-    worklist = [n for n in G if n.name in startpoints]
-    _update_graph(G, worklist, startpoints, depth)
+        for pos, v in enumerate(rule.rhs):
+            rule_map[v].append((rule, pos))
+    worklist = [n for n in G if n.name in rule_map]
+    _update_graph(G, rule_map, worklist, depth)
     return G
 
 
 def plot_graph(graph):
     labels = {node:node.name for node in graph.nodes}
-    try:
-        # TODO: ger rid of IndexError
-        pos = nx.drawing.nx_pydot.pydot_layout(graph, prog='dot')
-    except IndexError:
-        pos = None
+    pos = nx.drawing.nx_pydot.pydot_layout(graph, prog='dot')
     plt.figure(figsize=(8,8))
     nx.draw(graph, with_labels=True, labels=labels, node_color=[[1,.8,.8]], node_shape='s', node_size=500, pos=pos)
     plt.show()
