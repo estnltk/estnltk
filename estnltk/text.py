@@ -114,6 +114,11 @@ class Text:
 
         return res
 
+    def __setattr__(self, name, value):
+        if name == 'meta' and not isinstance(value, dict):
+            raise ValueError('meta must be of type dict')
+        super.__setattr__(self, name, value)
+
     def __getattr__(self, item):
         if item in {'__getstate__', '__setstate__'}:
             raise AttributeError
