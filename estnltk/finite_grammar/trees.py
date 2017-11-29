@@ -84,11 +84,11 @@ class Grammar:
 
     def __str__(self):
         rules = '\n\t'.join([str(i) for i in self.rules])
-        terminals = ', '.join(repr(t) for t in sorted(self.terminals))
-        nonterminals = ', '.join(repr(t) for t in sorted(self.nonterminals))
+        terminals = ', '.join(sorted(self.terminals))
+        nonterminals = ', '.join(sorted(self.nonterminals))
         return '''
 Grammar:
-\tstart: {start!r},
+\tstart: {start},
 \tterminals: {terminals}
 \tnonterminals: {nonterminals}
 Rules:
@@ -102,6 +102,8 @@ Rules:
 class Rule:
     def __init__(self, lhs, rhs, weight: int = None):
         self.lhs = lhs
+        if isinstance(rhs, str):
+            rhs = rhs.split()
         self.rhs = tuple(rhs)
         if weight is None:
             self.weight = len(rhs)
@@ -117,7 +119,7 @@ class Rule:
             raise AssertionError
 
     def __str__(self):
-        return '{lhs!r} -> {rhs}\t: {weight}'.format(lhs=self.lhs, rhs=' '.join(repr(r) for r in self.rhs), weight=self.weight)
+        return '{lhs} -> {rhs}\t: {weight}'.format(lhs=self.lhs, rhs=' '.join(self.rhs), weight=self.weight)
 
     def __repr__(self):
         return str(self)
@@ -400,7 +402,14 @@ def get_match_down(G, nodes, names, pos):
 
 
 def get_match(G, node, names, pos):
-    match_up = get_match_up  (G, [node], names, pos)
+    """
+    Yields all sequences s of consecutive nodes in the graph G for which 
+        s[pos] == node and [node.name for node in s]==names.
+    """
+    # generator of all preceding sequences of the node (that also include the node)
+    match_up = get_match_up(G, [node], names, pos)
+    # all succeeding sequences of the node (that also include the node)
+    # this is stored as a list since we may iterate over it several times
     match_down = list(get_match_down(G, [node], names, pos))
     assert all(md[0].name==names[pos] for md in match_down)
     yield from (mu[:0:-1]+md for mu in match_up for md in match_down)
@@ -410,7 +419,6 @@ def expand_fragment(G, node, rule_map):
     nodes_to_add = []
     for rule, pos in rule_map[node.name]:
         for sequence in get_match(G, node, rule.rhs, pos):
-            # assert node.name = sequence
             assert all((sequence[i], sequence[i + 1]) in G.edges for i in range(len(sequence) - 1))
             nodes_to_add.append((Node(rule.lhs, start=sequence[0].start, end=sequence[-1].end, spans=[]),
                                  sequence,
