@@ -10,8 +10,10 @@ def layer_to_dict(layer, text):
     if layer.parent:
         parent_spanlist = text[layer._base].spans
         records = layer.to_records()
+        last_index = 0
         for span, record in zip(layer, records):
-            index = parent_spanlist.index(span)
+            index = parent_spanlist.index(span, last_index)
+            last_index = index
             if layer.ambiguous:
                 for rec in record:
                     rec['_index_'] = index
@@ -22,8 +24,10 @@ def layer_to_dict(layer, text):
         enveloped_spanlist = text[layer.enveloping].spans
         
         records = []
+        last_index = 0
         for spanlist in layer:
-            index = [enveloped_spanlist.index(span) for span in spanlist]
+            index = [enveloped_spanlist.index(span, last_index) for span in spanlist]
+            last_index = index[0]
             if layer.ambiguous:
                 pass
                 # TODO:
@@ -34,7 +38,7 @@ def layer_to_dict(layer, text):
         layer_dict['spans'] = records
     else:
         layer_dict['spans'] = layer.to_records()
-    
+
     return layer_dict
 
 
