@@ -99,7 +99,7 @@ class VabamorfCorrectionRewriter:
             for rec in records:
                 rec['lemma'] = word_normal
                 rec['root'] = word_normal
-                rec['root_tokens'] = word_normal
+                rec['root_tokens'] = (word_normal,)
             return records
 
         # check analysis of numeric tokens 
