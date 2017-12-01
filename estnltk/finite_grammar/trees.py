@@ -41,7 +41,7 @@ END = Node('END', float('inf'), float('inf'))
 
 
 class Grammar:
-    def __init__(self, *, start_symbol, rules):
+    def __init__(self, *, start_symbol:list, rules:list):
         self.rules = tuple(rules)
         self.start_symbol = start_symbol
         self.nonterminals = frozenset(i['lhs'] for i in rules)
@@ -52,7 +52,7 @@ class Grammar:
         terminals -= self.nonterminals
 
         self.terminals = frozenset(terminals)
-        self.nonterminal_dependency_order = tuple(self.get_rule_application_order())
+        #self.nonterminal_dependency_order = tuple(self.get_rule_application_order())
 
     def get_rule_application_order(self) -> List[str]:
         rules_deps = dict(
@@ -88,12 +88,12 @@ class Grammar:
         nonterminals = ', '.join(sorted(self.nonterminals))
         return '''
 Grammar:
-\tstart: {start},
+\tstart: {start}
 \tterminals: {terminals}
 \tnonterminals: {nonterminals}
 Rules:
 \t{rules}
-'''.format(start=self.start_symbol, rules=rules, terminals=terminals, nonterminals=nonterminals)
+'''.format(start=', '.join(self.start_symbol), rules=rules, terminals=terminals, nonterminals=nonterminals)
 
     def __repr__(self):
         return str(self)
@@ -415,19 +415,6 @@ def get_match(G, node, names, pos):
     yield from (mu[:0:-1]+md for mu in match_up for md in match_down)
 
 
-def expand_fragment(G, node, rule_map):
-    nodes_to_add = []
-    for rule, pos in rule_map[node.name]:
-        for sequence in get_match(G, node, rule.rhs, pos):
-            assert all((sequence[i], sequence[i + 1]) in G.edges for i in range(len(sequence) - 1))
-            nodes_to_add.append((Node(rule.lhs, start=sequence[0].start, end=sequence[-1].end, spans=[]),
-                                 sequence,
-                                 list(G.pred[sequence[0]]),
-                                 list(G.succ[sequence[-1]]),
-                                 ))
-    return nodes_to_add
-
-
 def add_nodes(G, nodes_to_add):
     for node, span, predecessors, successors in nodes_to_add:
         for pred in predecessors:
@@ -437,32 +424,39 @@ def add_nodes(G, nodes_to_add):
         node.spans.append(span)
 
 
-def _update_graph(G, rule_map, worklist, depth):
-    while worklist:
-        node = worklist.pop()
-        nodes_to_add = expand_fragment(G, node, rule_map)
-        add_nodes(G, nodes_to_add)
-        for node, _, _, _ in nodes_to_add:
-            if node.name in rule_map:
-                worklist.append(node)
-
-
-def update_graph(G, grammar, depth=float('inf')):
+def parse_graph(G, grammar, depth=float('inf')):
     """
-    Use grammar to expand graph bottom up.
+    Expands graph bottom-up using grammar.
     """
     rule_map = defaultdict(list)
     for rule in grammar.rules:
         for pos, v in enumerate(rule.rhs):
             rule_map[v].append((rule, pos))
-    worklist = [n for n in G if n.name in rule_map]
-    _update_graph(G, rule_map, worklist, depth)
+    worklist = [(n,0) for n in G if n.name in rule_map]
+
+    while worklist:
+        node, d = worklist.pop()
+        # expand fragment
+        nodes_to_add = []
+        for rule, pos in rule_map[node.name]:
+            for sequence in get_match(G, node, rule.rhs, pos):
+                assert all((sequence[i], sequence[i + 1]) in G.edges for i in range(len(sequence) - 1))
+                nodes_to_add.append((Node(rule.lhs, start=sequence[0].start, end=sequence[-1].end, spans=[]),
+                                     sequence,
+                                     list(G.pred[sequence[0]]),
+                                     list(G.succ[sequence[-1]]),
+                                     ))
+        add_nodes(G, nodes_to_add)
+        if d < depth:
+            for node, _, _, _ in nodes_to_add:
+                if node.name in rule_map:
+                    worklist.append((node, d+1))
     return G
 
 
-def plot_graph(graph):
+def plot_graph(graph, size=8):
     labels = {node:node.name for node in graph.nodes}
     pos = nx.drawing.nx_pydot.pydot_layout(graph, prog='dot')
-    plt.figure(figsize=(8,8))
+    plt.figure(figsize=(size,size))
     nx.draw(graph, with_labels=True, labels=labels, node_color=[[1,.8,.8]], node_shape='s', node_size=500, pos=pos)
     plt.show()
