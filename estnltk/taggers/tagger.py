@@ -57,11 +57,14 @@ class Tagger(ABC):
         pandas.set_option('display.max_colwidth', -1)
         table = pandas.DataFrame.from_records([self.parameters()], columns=['name', 'layer', 'attributes', 'depends_on'])
         table = table.to_html(index=False)
+        table = ('<h4>Tagger</h4>', self.description, table)
+
         if self.configuration:
-            table2 = pandas.DataFrame.from_dict(self.configuration, orient='index')
-            table2 = table2.to_html(header=False)
-            return '\n'.join(('<h4>Tagger</h4>', self.description, table,
-                              '<h4>Configuration</h4>', table2))
+            conf = {k:str(v) for k,v in self.configuration.items()}
+            conf_table = pandas.DataFrame.from_dict(conf, orient='index')
+            conf_table = conf_table.to_html(header=False)
+            conf_table = ('<h4>Configuration</h4>', conf_table)
         else:
-            return '\n'.join(('<h4>Tagger</h4>', self.description, table,
-                              'No configuration parameters.'))
+            conf_table = ('No configuration parameters.',)
+
+        return '\n'.join(table + conf_table)
