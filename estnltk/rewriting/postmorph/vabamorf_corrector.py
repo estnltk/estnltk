@@ -1,4 +1,4 @@
-import re
+import regex as re
 from collections import defaultdict
 from pandas import read_csv, DataFrame
 import os
@@ -92,6 +92,14 @@ class VabamorfCorrectionRewriter:
 
         # stop here if the normalized token consists of letters only
         if word_normal.isalpha():
+            return records
+
+        # repair empty analysis of '??', '???', '????', ...
+        if re.match('\?{2,}$', word_normal):
+            for rec in records:
+                rec['lemma'] = word_normal
+                rec['root'] = word_normal
+                rec['root_tokens'] = word_normal
             return records
 
         # check analysis of numeric tokens 
