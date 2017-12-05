@@ -1,24 +1,24 @@
-_regex_pattern_,_group_,_priority_,normalized,regex_type,value
-((K|k)olesteroo?l|KOLESTEROOL|(K|k)olester|Chol|(K|k)olest?|kol|chol|CHol|CHL|KOL|Kol|cHOL|CHOL|ÜK|ük|Ük),0,1,,measurement_object,kolesterool
-((mmoo?l?i?|mm|MMOL|mol)(\s*[-/]\s*(L|l))?|MMOL/L),0,1,,unit,chol_unit
-"([0-9])+(\s?[,.]\s?[0-9]+)?",0,1,,number,whatever
-"(psa|Psa|S-PSA|[Pp]rostataspetsiifiline\s*antigeen(\s*seerumis)?|PSA|(S\s*,\s*P-)?(\s*PSA))",0,1,,measurement_object,psa
-(ng/mL|ng/L|mk(ro)?g/[Ll]|ng/\s*ml|ng7ml|mg/ml|ng\\ml|ng/l|ug/L|ngIml|µg/L|mcg/L|ng/mg),0,1,,unit,psa_unit
-(a[. ]|aasta|kuu|nädal|[Xx]|kord),0,2,,trash,trashy_trash
-(((S|s)iinus)?r.tm(iline|ilised)?|[Ff]rekv?(ents)?|fr\.?|Fr|BPM|bpm|SR|SLS|FR|HR|(P|p)ulss(i)?|Ps)(\s*[xX]\s*)?,0,1,,measurement_object,pulss
-(([12][0-9]{2})|([3-9][0-9])),0,1,,number,some_int
-(((l|x|X|lööki))\s*/?\s*(1\s*)?min(utis)?)|/min|x['´`]|bpm|BPM,0,1,,unit,pulss_unit
-((([Ss]ünni)|([Kk]eha))?(p|P)ikkus|PIKKUS|pikkusega|[^A-Z]SP|sp|pikk|kasv|Kasv),0,1,,measurement_object,pikkus
-(cm|Cm|sm|SM|CM|m),0,1,,unit,pikkus_unit
-((((K|k)eha)|((S|s)ünni))?(K|k)aal(uga)?|kAAL|SK|Sk|[^a-z]sk|KAAL|SM|[Ss]/k|(K|k)aalu(ga|nud|b|s)),0,1,,measurement_object,kaal
-(gramm|kg|mg|kG|gr|g|KG|G),0,1,,unit,kaal_unit
-ALAT,0,1,,measurement_object,alat
-U/L,0,1,,unit,alat_unit
-PALAT,0,1,,trash,alat_trash
-(([Tt]asa|[Ee]ri|[Oo]sa)kaal[-.: ]*),0,2,,trash,kaal_trash
-[-=.>< ]*,0,1,,space,space
-\.?\s*-?\s*,0,1,,space,space
-[-=.>< ]*(on|oli)\s*,0,1,,space,space
-\s+-?:?\s*\<?,0,1,,space,space
-\s+,0,1,,space,space
-(kuu|mmol/l|min|ms|mg|mkg|tsentiil|prts|(pro)?tsentiil|pt|msek|mm),0,2,,trash,pikkus_trash
+"_regex_pattern_","_group_","_priority_","normalized","regex_type","value"
+"((K|k)olesteroo?l|KOLESTEROOL|(K|k)olester|Chol|(K|k)olest?|kol|chol|CHol|CHL|KOL|Kol|cHOL|CHOL|ÜK|ük|Ük)",0,1,,"measurement_object","kolesterool"
+"((mmoo?l?i?|mm|MMOL|mol)(\s*[-/]\s*(L|l))?|MMOL/L)",0,1,,"unit","chol_unit"
+"([0-9])+(\s?[,.]\s?[0-9]+)?",0,1,,"number","whatever"
+"(psa|Psa|S-PSA|[Pp]rostataspetsiifiline\s*antigeen(\s*seerumis)?|PSA|(S\s*,\s*P-)?(\s*PSA))",0,1,,"measurement_object","psa"
+"(ng/mL|ng/L|mk(ro)?g/[Ll]|ng/\s*ml|ng7ml|mg/ml|ng\\ml|ng/l|ug/L|ngIml|µg/L|mcg/L|ng/mg)",0,1,,"unit","psa_unit"
+"(a[. ]|aasta|kuu|nädal|[Xx]|kord)",0,2,,"rubbish","trashy_trash"
+"(((S|s)iinus)?r.tm(iline|ilised)?|[Ff]rekv?(ents)?|fr\.?|Fr|BPM|bpm|SR|SLS|FR|HR|(P|p)ulss(i)?|Ps)(\s*[xX]\s*)?",0,1,,"measurement_object","pulss"
+"(([12][0-9]{2})|([3-9][0-9]))",0,1,,"number","some_int"
+"(((l|x|X|lööki))\s*/?\s*(1\s*)?min(utis)?)|/min|x['´`]|bpm|BPM",0,1,,"unit","pulss_unit"
+"((([Ss]ünni)|([Kk]eha))?(p|P)ikkus|PIKKUS|pikkusega|[^A-Z]SP|sp|pikk|kasv|Kasv)",0,1,,"measurement_object","pikkus"
+"(cm|Cm|sm|SM|CM|m)",0,1,,"unit","pikkus_unit"
+"((((K|k)eha)|((S|s)ünni))?(K|k)aal(uga)?|kAAL|SK|Sk|[^a-z]sk|KAAL|SM|[Ss]/k|(K|k)aalu(ga|nud|b|s))",0,1,,"measurement_object","kaal"
+"(gramm|kg|mg|kG|gr|g|KG|G)",0,1,,"unit","kaal_unit"
+"ALAT",0,1,,"measurement_object","alat"
+"U/L",0,1,,"unit","alat_unit"
+"PALAT",0,1,,"rubbish","alat_trash"
+"(([Tt]asa|[Ee]ri|[Oo]sa)kaal[-.: ]*)",0,2,,"rubbish","kaal_trash"
+"[-=.>< ]*",0,1,,"space","space"
+"\.?\s*-?\s*",0,1,,"space","space"
+"[-=.>< ]*(on|oli)\s*",0,1,,"space","space"
+"\s*-?:?\s*\<?",0,1,,"space","space"
+"\s*",0,1,,"space","space"
+"(kuu|mmol/l|min|ms|mg|mkg|tsentiil|prts|(pro)?tsentiil|pt|msek|mm)",0,2,,"rubbish","pikkus_trash"
