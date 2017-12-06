@@ -7,21 +7,31 @@ import numpy as np
 import pandas as pd
 import toolz
 import matplotlib.pyplot as plt
+from estnltk.spans import Span
 
 
 class Node:
-    def __init__(self, name, start, end, spans=None, weight=1):
+    def __init__(self, name, support, weight=1):
         self.name = name
-        self.start = start
-        self.end = end
-        self.spans = spans
+        self.support = support
         self.weight = weight
+        self.decoration = None
+
+        if isinstance(support, Span):
+            self.raw_text_spans = ((support.start, support.end),)
+        elif isinstance(support, tuple):
+            self.raw_text_spans = tuple(sorted(s for n in support for s in n.raw_text_spans))
+        else:
+            raise TypeError('support must be of type Span or tuple')
+
+        self.start = self.raw_text_spans[0][0]
+        self.end = self.raw_text_spans[-1][1]
 
     def __hash__(self):
-        return hash((self.name, self.start, self.end))
+        return hash((self.name, self.support))
 
     def __eq__(self, other):
-        return self.name == other.name and self.start==other.start and self.end == other.end
+        return self.name == other.name and self.support == other.support
 
     def __lt__(self, other):
         return (self.start, self.end) < (other.start, other.end)
@@ -30,15 +40,39 @@ class Node:
         return (self.start, self.end) > (other.start, other.end)
 
     def __str__(self):
-        return 'Node({name}, ({span.start}, {span.end}), {weight:.2f})'.format(span=self, name=self.name, weight=self.weight)
+        # include hash because networkx.drawing.nx_pydot.pydot_layout overlaps nodes with equal str value
+        return 'Node({name}, ({span.start}, {span.end}), {h})'.format(span=self, h=hash(self), name=self.name)
 
     def __repr__(self):
         return str(self)
 
 
-START = Node('START', float('-inf'), float('-inf'))
-END = Node('END', float('inf'), float('inf'))
+class TerminalSpan(Span):
+    text = None
+    start = None
+    end = None
+    layer = None
 
+    def __init__(self, text):
+        self.text = text
+        if text == 'START':
+            self.start = float('-inf')
+            self.end = float('-inf')
+        elif text == 'END':
+            self.start = float('inf')
+            self.end = float('inf')
+
+    def __hash__(self):
+        return hash((self.text, self.start, self.end))
+
+    def __repr__(self):
+        return 'TerminalSpan({self.text!r})'.format(self=self)
+
+
+START_SPAN = TerminalSpan('START')
+END_SPAN = TerminalSpan('END')
+START = Node('START', START_SPAN)
+END = Node('END', END_SPAN)
 
 class Grammar:
     def __init__(self, *, start_symbol:list, rules:list):
@@ -100,7 +134,7 @@ Rules:
 
 
 class Rule:
-    def __init__(self, lhs, rhs, weight: int = None):
+    def __init__(self, lhs, rhs, decorator=None, consistency_checker=None, weight: int=None):
         self.lhs = lhs
         if isinstance(rhs, str):
             rhs = rhs.split()
@@ -109,6 +143,16 @@ class Rule:
             self.weight = len(rhs)
         else:
             self.weight = weight
+
+        if decorator:
+            self.decorator = decorator
+        else:
+            self.decorator = lambda x: None
+
+        if consistency_checker:
+            self.consistency_checker = consistency_checker
+        else:
+            self.consistency_checker = lambda x: True
 
     def __getitem__(self, key):
         if key == 'lhs':
@@ -119,7 +163,7 @@ class Rule:
             raise AssertionError
 
     def __str__(self):
-        return '{lhs} -> {rhs}\t: {weight}'.format(lhs=self.lhs, rhs=' '.join(self.rhs), weight=self.weight)
+        return '{self.lhs} -> {rhs}\t: {weight}, cc: {self.consistency_checker.__name__}, dec: {self.decorator.__name__}'.format(self=self, rhs=' '.join(self.rhs), weight=self.weight)
 
     def __repr__(self):
         return str(self)
@@ -129,22 +173,7 @@ def graph_from_document(rows: Dict[str, List[Tuple[int, int]]]) -> nx.DiGraph:
     nodes = document_to_nodes(rows)
     graph = graph_from_nodes(nodes)
     add_blanks(graph)
-    #graph = nx.transitive_reduction(graph)
     return graph
-
-    #res = get_dense_matrix(rows)
-    #items = get_elementary_nodes(rows)
-    #df = matrix_to_dataframe(res, items)
-    #edges = edges_from_dataframe(df, items)
-    #graph = nx.DiGraph()
-    #graph.add_nodes_from(items)
-    #graph.add_edges_from(edges)
-
-    #create_entry_and_exit_nodes(graph, items)
-    #graph = nx.transitive_reduction(graph)
-    #add_blanks(graph)
-    #graph = nx.transitive_reduction(graph)
-    #return graph
 
 
 def edges_from_dataframe(df, items):
@@ -421,7 +450,6 @@ def add_nodes(G, nodes_to_add):
             G.add_edge(pred, node)
         for succ in successors:
             G.add_edge(node, succ)
-        node.spans.append(span)
 
 
 def parse_graph(G, grammar, depth=float('inf')):
@@ -440,12 +468,16 @@ def parse_graph(G, grammar, depth=float('inf')):
         nodes_to_add = []
         for rule, pos in rule_map[node.name]:
             for sequence in get_match(G, node, rule.rhs, pos):
-                assert all((sequence[i], sequence[i + 1]) in G.edges for i in range(len(sequence) - 1))
-                nodes_to_add.append((Node(rule.lhs, start=sequence[0].start, end=sequence[-1].end, spans=[]),
-                                     sequence,
-                                     list(G.pred[sequence[0]]),
-                                     list(G.succ[sequence[-1]]),
-                                     ))
+                sequence = tuple(sequence)
+                assert all((sequence[i], sequence[i+1]) in G.edges for i in range(len(sequence)-1))
+                if rule.consistency_checker(sequence):
+                    new_node = Node(rule.lhs, sequence)
+                    new_node.decoration = rule.decorator(sequence)
+                    nodes_to_add.append((new_node,
+                                         sequence,
+                                         list(G.pred[sequence[0]]),
+                                         list(G.succ[sequence[-1]]),
+                                         ))
         add_nodes(G, nodes_to_add)
         if d < depth:
             for node, _, _, _ in nodes_to_add:
@@ -454,9 +486,9 @@ def parse_graph(G, grammar, depth=float('inf')):
     return G
 
 
-def plot_graph(graph, size=8):
+def plot_graph(graph, size=12, prog='dot'):
     labels = {node:node.name for node in graph.nodes}
-    pos = nx.drawing.nx_pydot.pydot_layout(graph, prog='dot')
+    pos = nx.drawing.nx_pydot.pydot_layout(graph, prog=prog)
     plt.figure(figsize=(size,size))
     nx.draw(graph, with_labels=True, labels=labels, node_color=[[1,.8,.8]], node_shape='s', node_size=500, pos=pos)
     plt.show()
