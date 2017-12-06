@@ -15,6 +15,7 @@ from collections import OrderedDict
 
 from estnltk.text import Span, Layer, Text
 from estnltk.taggers import Tagger
+from estnltk.taggers import VabamorfTagger
 
 # =========================================================================================
 #    Convert nominal categories
@@ -425,7 +426,7 @@ def _create_spans( text: Text, morph_dict_list:list, layer:Layer = None ):
 class GTMorphConverterTagger(Tagger):
     description   = "Converts morphological analyses from Vabamorf's format to Giellatekno's (GT) format."
     layer_name    = None
-    attributes    = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech')
+    attributes    = VabamorfTagger.attributes
     depends_on    = None
     configuration = None
     
