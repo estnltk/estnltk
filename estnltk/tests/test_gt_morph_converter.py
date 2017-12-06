@@ -137,3 +137,17 @@ def test_gt_conversion_3_sid_ksid():
         [{'partofspeech': 'Z', 'end': 51, 'root_tokens': ('.',), 'root': '.', 'clitic': '', 'start': 50, 'lemma': '.', 'form': '', 'ending': ''}]
     ]
     assert expected_records == text['gt_morph_analysis'].to_records()
+
+
+def test_gt_conversion_4_empty():
+    gt_converter = GTMorphConverterTagger()
+    
+    text = Text('')
+    text.tag_layer(['morph_analysis'])
+    gt_converter.tag( text )
+    
+    # Assert content of the layer
+    #print(text['gt_morph_analysis'].to_records())
+    expected_records = []
+    assert expected_records == text['gt_morph_analysis'].to_records()
+
