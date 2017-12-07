@@ -15,6 +15,7 @@ from collections import OrderedDict
 
 from estnltk.text import Span, Layer, Text
 from estnltk.taggers import Tagger
+from estnltk.taggers import VabamorfTagger
 
 # =========================================================================================
 #    Convert nominal categories
@@ -425,15 +426,29 @@ def _create_spans( text: Text, morph_dict_list:list, layer:Layer = None ):
 class GTMorphConverterTagger(Tagger):
     description   = "Converts morphological analyses from Vabamorf's format to Giellatekno's (GT) format."
     layer_name    = None
-    attributes    = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech')
+    attributes    = VabamorfTagger.attributes
     depends_on    = None
     configuration = None
     
-    def __init__(self, layer_name='gt_morph_analysis', **kwargs):
+    def __init__(self, \
+                 disambiguate_neg:bool = True, \
+                 disambiguate_sid_ksid:bool = False, \
+                 layer_name:str='gt_morph_analysis', **kwargs):
         ''' Initializes this GTMorphConverterTagger.
             
             Parameters
             -----------
+            disambiguate_neg : bool
+                Whether the conversion is followed by disambiguation of verb 
+                categories related to negation;
+                Default: True;
+
+            disambiguate_sid_ksid : bool
+                Whether the conversion is followed by disambiguation of verb 
+                categories 'Pers Prt Ind Pl3 Aff' and 'Pers Prt Ind Sg2 Aff';
+                This functionality is yet to be implemented;
+                Default: False;
+
             layer_name : str
                 Name of the layer on which converted morphological analyses are 
                 stored.
@@ -442,7 +457,8 @@ class GTMorphConverterTagger(Tagger):
         self.kwargs = kwargs
         self.layer_name = layer_name
         
-        self.configuration = {}
+        self.configuration = {'disambiguate_neg': disambiguate_neg,\
+                              'disambiguate_sid_ksid': disambiguate_sid_ksid }
         self.configuration.update(self.kwargs)
 
         self.depends_on = ['words', 'sentences', 'morph_analysis']
@@ -477,9 +493,11 @@ class GTMorphConverterTagger(Tagger):
         new_morph_dicts = _convert_analysis( text )
         
         # 2) Perform some context-specific disambiguation
-        _disambiguate_neg( new_morph_dicts )
-        _disambiguate_sid_ksid( new_morph_dicts, text, scope='clauses' )
-        _disambiguate_sid_ksid( new_morph_dicts, text, scope='sentences' )
+        if self.configuration['disambiguate_neg']:
+            _disambiguate_neg( new_morph_dicts )
+        if self.configuration['disambiguate_sid_ksid']:
+            _disambiguate_sid_ksid( new_morph_dicts, text, scope='clauses' )
+            _disambiguate_sid_ksid( new_morph_dicts, text, scope='sentences' )
         _make_postfixes_2( new_morph_dicts )
         
         # 3) Convert analysis dicts to Spans, and attach to the layer
