@@ -77,9 +77,9 @@ END = Node('END', END_SPAN)
 
 
 class Grammar:
-    def __init__(self, *, start_symbol:list, rules:list):
+    def __init__(self, *, start_symbols:Sequence, rules:list):
         self.rules = tuple(rules)
-        self.start_symbol = start_symbol
+        self.start_symbols = start_symbols
         self.nonterminals = frozenset(i['lhs'] for i in rules)
 
         terminals = set()
@@ -129,7 +129,7 @@ Grammar:
 \tnonterminals: {nonterminals}
 Rules:
 \t{rules}
-'''.format(start=', '.join(self.start_symbol), rules=rules, terminals=terminals, nonterminals=nonterminals)
+'''.format(start=', '.join(self.start_symbols), rules=rules, terminals=terminals, nonterminals=nonterminals)
 
     def __repr__(self):
         return str(self)

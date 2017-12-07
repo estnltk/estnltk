@@ -27,4 +27,4 @@ def phrase_list_generator(grammar: Grammar, depth: int=float('inf')):
             new_symbols = symbols[:i] + replacement + symbols[i+1:]
             yield from gen(new_symbols, depth-1)
 
-    return gen(grammar.start_symbol, depth)
+    return gen(grammar.start_symbols, depth)
