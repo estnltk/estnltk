@@ -7,22 +7,23 @@ import numpy as np
 import pandas as pd
 import toolz
 import matplotlib.pyplot as plt
-from estnltk.spans import Span
+from estnltk.spans import Span, SpanList
+from typing import Union, List, Sequence
 
 
 class Node:
-    def __init__(self, name, support, weight=1):
+    def __init__(self, name, support: Union[Sequence['Node'], Span], weight=1):
         self.name = name
         self.support = support
         self.weight = weight
         self.decoration = None
 
-        if isinstance(support, Span):
+        if isinstance(support, (Span, SpanList)):
             self.raw_text_spans = ((support.start, support.end),)
         elif isinstance(support, tuple):
             self.raw_text_spans = tuple(sorted(s for n in support for s in n.raw_text_spans))
         else:
-            raise TypeError('support must be of type Span or tuple')
+            raise TypeError('support must be of type Span, SpanList or tuple, not {}'.format(type(support)))
 
         self.start = self.raw_text_spans[0][0]
         self.end = self.raw_text_spans[-1][1]
@@ -73,6 +74,7 @@ START_SPAN = TerminalSpan('START')
 END_SPAN = TerminalSpan('END')
 START = Node('START', START_SPAN)
 END = Node('END', END_SPAN)
+
 
 class Grammar:
     def __init__(self, *, start_symbol:list, rules:list):
@@ -134,15 +136,13 @@ Rules:
 
 
 class Rule:
-    def __init__(self, lhs, rhs, decorator=None, consistency_checker=None, weight: int=None):
+    def __init__(self, lhs, rhs, priority: int=0, decorator=None, consistency_checker=None):
         self.lhs = lhs
         if isinstance(rhs, str):
             rhs = rhs.split()
         self.rhs = tuple(rhs)
-        if weight is None:
-            self.weight = len(rhs)
-        else:
-            self.weight = weight
+
+        self.priority = priority
 
         if decorator:
             self.decorator = decorator
@@ -154,6 +154,9 @@ class Rule:
         else:
             self.consistency_checker = lambda x: True
 
+    def __lt__(self, other):
+        return self.priority < other.priority
+
     def __getitem__(self, key):
         if key == 'lhs':
             return self.lhs
@@ -163,10 +166,42 @@ class Rule:
             raise AssertionError
 
     def __str__(self):
-        return '{self.lhs} -> {rhs}\t: {weight}, cc: {self.consistency_checker.__name__}, dec: {self.decorator.__name__}'.format(self=self, rhs=' '.join(self.rhs), weight=self.weight)
+        return '{self.lhs} -> {rhs}\t: {self.priority}, cc: {self.consistency_checker.__name__}, dec: {self.decorator.__name__}'.format(self=self, rhs=' '.join(self.rhs))
 
     def __repr__(self):
         return str(self)
+
+
+class LayerGraph(nx.DiGraph):
+    def __init__(self, **attr):
+        self.map_spans_to_nodes = defaultdict(list)
+        super().__init__(**attr)
+
+    def update_spans_to_nodes_map(self, node):
+        if node not in self.map_spans_to_nodes[node.raw_text_spans]:
+            self.map_spans_to_nodes[node.raw_text_spans].append(node)
+
+    def add_node(self, node, **attr):
+        super().add_node(node, **attr)
+        self.update_spans_to_nodes_map(node)
+
+    def add_nodes_from(self, nodes, **attr):
+        super().add_nodes_from(nodes, **attr)
+        for node in nodes:
+            self.update_spans_to_nodes_map(node)
+
+    def add_edge(self, u, v, **attr):
+        super().add_edge(u, v, **attr)
+        self.update_spans_to_nodes_map(u)
+        self.update_spans_to_nodes_map(v)
+
+    def add_edges_from(self, ebunch, **attr):
+        if not isinstance(ebunch, (list, set, tuple)):
+            ebunch = list(ebunch)
+        super().add_edges_from(ebunch, **attr)
+        for u, v, *_ in ebunch:
+            self.update_spans_to_nodes_map(u)
+            self.update_spans_to_nodes_map(v)
 
 
 def graph_from_document(rows: Dict[str, List[Tuple[int, int]]]) -> nx.DiGraph:
@@ -267,7 +302,7 @@ def add_blanks(graph: nx.DiGraph) -> None:
             for succ in graph.successors(node):
                 (s2, e2), _ = (succ.start, succ.end), succ.name
                 if s2 - e1 > 1 and succ != END:
-                    nnode = Node("_", e1, s2)
+                    nnode = Node("_", Span(e1, s2, legal_attributes={}))
                     nodes_to_add.append(nnode)
                     edges_to_add.extend([(node, nnode), (nnode, succ)])
                     edges_to_remove.append((node, succ))
@@ -355,7 +390,7 @@ def document_to_nodes(document):
     nodes = []
     for row, spans in document.items():
         for s,e in spans:
-            nodes.append(Node(row, s, e))
+            nodes.append(Node(row, Span(s, e, legal_attributes={})))
     return nodes
 
 
@@ -397,7 +432,7 @@ def layer_to_graph_by_attribute(layer:'Layer', attribute:str) -> nx.DiGraph:
                     attr = 'None'
                 attr_to_spans[attr].append(span)
             for attr, spans in attr_to_spans.items():
-                nodes.append(Node(attr, spans[0].start, spans[0].end, spans))
+                nodes.append(Node(attr, spans))
     else:
         for span in layer:
             attr = getattr(span, attribute)
@@ -430,17 +465,17 @@ def get_match_down(G, nodes, names, pos):
             yield from get_match_down(G, nodes+[node], names, pos+1)
 
 
-def get_match(G, node, names, pos):
+def get_match(graph: LayerGraph, node: Node, names: Sequence[str], pos: int):
     """
     Yields all sequences s of consecutive nodes in the graph G for which 
         s[pos] == node and [node.name for node in s]==names.
     """
     # generator of all preceding sequences of the node (that also include the node)
-    match_up = get_match_up(G, [node], names, pos)
+    match_up = get_match_up(graph, [node], names, pos)
     # all succeeding sequences of the node (that also include the node)
     # this is stored as a list since we may iterate over it several times
-    match_down = list(get_match_down(G, [node], names, pos))
-    assert all(md[0].name==names[pos] for md in match_down)
+    match_down = list(get_match_down(graph, [node], names, pos))
+    assert all(md[0].name == names[pos] for md in match_down)
     yield from (mu[:0:-1]+md for mu in match_up for md in match_down)
 
 
@@ -486,7 +521,7 @@ def parse_graph(G, grammar, depth=float('inf')):
     return G
 
 
-def plot_graph(graph, size=12, prog='dot'):
+def plot_graph(graph:LayerGraph, size=12, prog='dot'):
     labels = {node:node.name for node in graph.nodes}
     pos = nx.drawing.nx_pydot.pydot_layout(graph, prog=prog)
     plt.figure(figsize=(size,size))
