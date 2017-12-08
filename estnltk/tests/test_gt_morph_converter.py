@@ -1,9 +1,9 @@
 from estnltk.text import Text
-from estnltk.taggers.gt_morf import GTMorphConverterTagger
+from estnltk.taggers.gt_morf import GTMorphConverter
 
 
 def test_gt_conversion_1_simple():
-    gt_converter = GTMorphConverterTagger()
+    gt_converter = GTMorphConverter()
     
     # Case 1
     text = Text('Rändur võttis istet.')
@@ -44,7 +44,7 @@ def test_gt_conversion_1_simple():
 
 
 def test_gt_conversion_2_neg():
-    gt_converter = GTMorphConverterTagger()
+    gt_converter = GTMorphConverter()
     
     # Case 1
     text = Text('Ärge peatuge: siin ei tohi kiirust vähendada!')
@@ -83,7 +83,7 @@ def test_gt_conversion_2_neg():
 
 
 def test_gt_conversion_3_ambiguous():
-    gt_converter = GTMorphConverterTagger()
+    gt_converter = GTMorphConverter()
     
     # Case 1
     text = Text('Sellist asja ei olnud.')
@@ -106,7 +106,7 @@ def test_gt_conversion_3_ambiguous():
 
 
 def test_gt_conversion_3_sid_ksid():
-    gt_converter = GTMorphConverterTagger()
+    gt_converter = GTMorphConverter()
     
     # Case 1
     text = Text('Oleksid Sa siin olnud, siis oleksid nad ära läinud.')
@@ -140,7 +140,7 @@ def test_gt_conversion_3_sid_ksid():
 
 
 def test_gt_conversion_4_empty():
-    gt_converter = GTMorphConverterTagger()
+    gt_converter = GTMorphConverter()
     
     text = Text('')
     text.tag_layer(['morph_analysis'])
