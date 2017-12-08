@@ -4,7 +4,7 @@ from estnltk.vabamorf.morf import Vabamorf
 
 from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 
-class VabamorfTagger(Tagger):
+class VabamorfTaggerOld(Tagger):   # The old version of VabamorfTagger, will be removed in the future
     description = 'Tags morphological analysis on words.'
     layer_name = None
     attributes = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech')
@@ -116,7 +116,7 @@ class VabamorfTagger(Tagger):
 
 # ==========================================================
 # ==========================================================
-#      Follows a refactoring of VabamorfTagger 
+#      Follows a redesigning of VabamorfTagger 
 #               ( work in progress )
 # ==========================================================
 # ==========================================================
@@ -129,7 +129,7 @@ DEFAULT_PARAM_PROPERNAME   = True
 DEFAULT_PARAM_PHONETIC     = False
 DEFAULT_PARAM_COMPOUND     = True
 
-class VabamorfTagger2(Tagger):
+class VabamorfTagger(Tagger):
     description   = 'Tags morphological analysis on words.'
     layer_name    = None
     attributes    = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech')
@@ -138,7 +138,8 @@ class VabamorfTagger2(Tagger):
 
     def __init__(self,
                  layer_name='morph_analysis',
-                 postmorph_rewriter=VabamorfCorrectionRewriter(),
+                 #postmorph_rewriter=VabamorfCorrectionRewriter(),
+                 postmorph_rewriter=None,
                  **kwargs):
         self.kwargs = kwargs
         self.layer_name = layer_name
@@ -260,17 +261,29 @@ def _convert_morph_analysis_span_to_vm_dict( span ):
     return word_dict
 
 
-def _convert_vm_dict_to_morph_analysis_spans( vm_dict, word, layer_attributes=None ):
+def _convert_vm_dict_to_morph_analysis_spans( vm_dict, word, \
+                                              layer_attributes = None, \
+                                              sort_analyses = True ):
     ''' Converts morphological analyses from the Vabamorf's 
         dictionary format to the EstNLTK's Span format, and 
         attaches the newly created span as a child of the 
         word.
+        
+        If sort_analyses=True, then analyses will be sorted 
+        by root,ending,clitic,postag,form;
+        
         Returns a list of EstNLTK's Spans.
     '''
     spans = []
     current_attributes = \
         layer_attributes if layer_attributes else VabamorfTagger.attributes
-    for analysis in vm_dict['analysis']:
+    word_analyses = vm_dict['analysis']
+    if sort_analyses:
+        # Sort analyses ( to assure a fixed order, e.g. for testing purpose )
+        word_analyses = sorted( vm_dict['analysis'], key = \
+            lambda x: x['root']+x['ending']+x['clitic']+x['partofspeech']+x['form'], 
+            reverse=False )
+    for analysis in word_analyses:
         span = Span(parent=word)
         for attr in current_attributes:
             if attr in analysis:     

@@ -671,7 +671,7 @@ def test_morph2():
     print(text.morph_analysis[5].lemma)
     assert len(text.morph_analysis[5].lemma) == 2
     assert (text.morph_analysis[5].lemma) == ['olema', 'olema']
-    assert (text.morph_analysis.lemma == [['Lennart'], ['Meri'], ['"'], ['hõbevalge'], ['"'], ['olema', 'olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['rahvusvaheline'], ['lugejaskond'], ['.'], ['seni'], ['vaid'], ['soome'], ['keel'], ['tõlkima', 'tõlgitud', 'tõlgitud', 'tõlgitud'], ['teos'], ['ilmuma'], ['äsja'], ['ka'], ['itaalia'], ['keel'], ['ning'], ['see'], ['esitlema'], ['Rooma'], ['reisikirjandus'], ['festival'], ['.'], ['tundma', 'tuntud', 'tuntud', 'tuntud'], ['reisikrijandus'], ['festival'], ['valima'], ['tänavu'], ['peakülaline'], ['Eesti'], [','], ['Ultima'], ['Thule'], ['ning'], ['Iidse-Põhjala', 'Iidse-Põhjala'], ['ja'], ['Vahemeri'], ['endisaegne'], ['kultuurikontakt'], ['j'], ['uks'], ['seetõttu'], [','], ['et'], ['eelmine'], ['nädal'], ['avaldama'], ['kirjastus'], ['Gangemi'], ['"'], ['hõbevalge'], ['"'], ['itaalia'], ['keel'], [','], ['vahendama'], ['"'], ['aktuaalne'], ['kaamera'], ['"'], ['.']]
+    assert (text.morph_analysis.lemma == [['Lennart'], ['Meri'], ['"'], ['hõbevalge'], ['"'], ['olema', 'olema'], ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['rahvusvaheline'], ['lugejaskond'], ['.'], ['seni'], ['vaid'], ['soome'], ['keel'], ['tõlgitud', 'tõlgitud', 'tõlgitud', 'tõlkima'], ['teos'], ['ilmuma'], ['äsja'], ['ka'], ['itaalia'], ['keel'], ['ning'], ['see'], ['esitlema'], ['Rooma'], ['reisikirjandus'], ['festival'], ['.'], ['tundma', 'tuntud', 'tuntud', 'tuntud'], ['reisikrijandus'], ['festival'], ['valima'], ['tänavu'], ['peakülaline'], ['Eesti'], [','], ['Ultima'], ['Thule'], ['ning'], ['Iidse-Põhjala'], ['ja'], ['Vahemeri'], ['endisaegne'], ['kultuurikontakt'], ['j'], ['uks'], ['seetõttu'], [','], ['et'], ['eelmine'], ['nädal'], ['avaldama'], ['kirjastus'], ['Gangemi'], ['"'], ['hõbevalge'], ['"'], ['itaalia'], ['keel'], [','], ['vahendama'], ['"'], ['aktuaalne'], ['kaamera'], ['"'], ['.']]
 )
 
 
@@ -935,12 +935,12 @@ def test_sentences_morph_analysis_lemma():
     x.words
 
 
-    assert (text.sentences[:1].morph_analysis.lemma == [[['olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['koht', 'koha'], ['.']]])
+    assert (text.sentences[:1].morph_analysis.lemma == [[['olema'], ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['koha', 'koht'], ['.']]])
     assert text.sentences[:1].morph_analysis.lemma == text.sentences[:1].words.lemma
     assert text.sentences[:].morph_analysis.lemma == text.sentences[:].words.lemma
-    assert (text.sentences.morph_analysis.lemma == [[['olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['koht', 'koha'], ['.']], [['kus'], ['mina'], ['olema'], ['?']]])
+    assert (text.sentences.morph_analysis.lemma == [[['olema'], ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['koha', 'koht'], ['.']], [['kus'], ['mina'], ['olema'], ['?']]])
     assert (text.sentences.morph_analysis.lemma == text.sentences.words.lemma)
-    assert (text.sentences[0].words.lemma == [['olema'], ['jõudma', 'jõudnud', 'jõudnud', 'jõudnud'], ['koht', 'koha'], ['.']])
+    assert (text.sentences[0].words.lemma == [['olema'], ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['koha', 'koht'], ['.']])
     assert text.sentences[0].morph_analysis.lemma == text.sentences[0].words.lemma
 
 
