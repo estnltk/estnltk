@@ -2,6 +2,7 @@ from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.resolve_layer_dag import make_resolver
 
+
 def test_default_morph_analysis():
     # Case 1
     text = Text("Aga kõik juhtus iseenesest.").tag_layer()
@@ -144,4 +145,28 @@ def test_default_morph_analysis_without_guessing():
     assert [['tüdruk'], ['mine']]   == text.root
     assert [['tüdruk'], ['minema']] == text.lemma
     assert [['S'], ['V']]           == text.partofspeech
-    
+
+
+def test_default_morph_analysis_on_compound_tokens():
+    # Case 1
+    text = Text("Mis lil-li müüs Tiit Mac'ile 10'e krooniga?").tag_layer()
+    #print( text['morph_analysis'].to_records() )
+    expected_records = [ \
+        [{'end': 3, 'partofspeech': 'P', 'start': 0, 'root_tokens': ('mis',), 'lemma': 'mis', 'ending': '0', 'root': 'mis', 'form': 'pl n', 'clitic': ''}, \
+         {'end': 3, 'partofspeech': 'P', 'start': 0, 'root_tokens': ('mis',), 'lemma': 'mis', 'ending': '0', 'root': 'mis', 'form': 'sg n', 'clitic': ''}], \
+        [{'end': 10, 'partofspeech': 'S', 'start': 4, 'root_tokens': ('lill',), 'lemma': 'lill', 'ending': 'i', 'root': 'lill', 'form': 'pl p', 'clitic': ''}], \
+        [{'end': 15, 'partofspeech': 'V', 'start': 11, 'root_tokens': ('müü',), 'lemma': 'müüma', 'ending': 's', 'root': 'müü', 'form': 's', 'clitic': ''}], \
+        [{'end': 20, 'partofspeech': 'H', 'start': 16, 'root_tokens': ('Tiit',), 'lemma': 'Tiit', 'ending': '0', 'root': 'Tiit', 'form': 'sg n', 'clitic': ''}], \
+        [{'end': 28, 'partofspeech': 'H', 'start': 21, 'root_tokens': ('Mac',), 'lemma': 'Mac', 'ending': 'le', 'root': 'Mac', 'form': 'sg all', 'clitic': ''}], \
+        [{'end': 33, 'partofspeech': 'S', 'start': 29, 'root_tokens': ('10',), 'lemma': '10', 'ending': '0', 'root': '10', 'form': 'sg g', 'clitic': ''}], \
+        [{'end': 42, 'partofspeech': 'S', 'start': 34, 'root_tokens': ('kroon',), 'lemma': 'kroon', 'ending': 'ga', 'root': 'kroon', 'form': 'sg kom', 'clitic': ''}], \
+        [{'end': 43, 'partofspeech': 'Z', 'start': 42, 'root_tokens': ('?',), 'lemma': '?', 'ending': '', 'root': '?', 'form': '', 'clitic': ''}]]
+    # Check results
+    assert expected_records == text['morph_analysis'].to_records()
+
+
+def test_default_morph_analysis_on_empty_input():
+    text = Text("").tag_layer()
+    # Check results
+    assert [] == text['morph_analysis'].to_records()
+

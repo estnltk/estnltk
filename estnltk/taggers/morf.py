@@ -295,16 +295,22 @@ class VabamorfAnalyzer(Tagger):
 
         self.depends_on = ['words', 'sentences', 'morph_analysis']
 
+
+    def _get_word_text(self, word:Span):
+        if hasattr(word, 'normalized_form') and word.normalized_form != None:
+            # If there is a normalized version of the word, return it
+            # instead of word's text
+            return word.normalized_form
+        else:
+            return word.text
+
+
     def _get_wordlist(self, text:Text):
         result = []
         for word in text.words:
-            if hasattr(word, 'normalized_form') and word.normalized_form != None:
-                # If there is a normalized version of the word, add it
-                # instead of word's text
-                result.append(word.normalized_form)
-            else:
-                result.append(word.text)
+            result.append( self._get_word_text( word ) )
         return result
+
 
     def tag(self, text: Text, \
                   return_layer=False, \
@@ -322,18 +328,41 @@ class VabamorfAnalyzer(Tagger):
             "compound"  : compound,\
             "phonetic"  : phonetic,\
         }
-        wordlist = self._get_wordlist(text)
+        # Perform morphological analysis sentence by sentence
+        word_spans = text['words'].spans
+        word_span_id = 0
         analysis_results = []
-        if len(wordlist) > 15000:
-            # if 149129 < len(wordlist) on Linux,
-            # if  15000 < len(wordlist) < 17500 on Windows,
-            # then self.instance.analyze(words=wordlist, **self.kwargs) raises
-            # RuntimeError: CFSException: internal error with vabamorf
-            analysis_results = []
-            for i in range(0, len(wordlist), 15000):
-                analysis_results.extend(self.instance.analyze(words=wordlist[i:i+15000], **kwargs))
-        else:
-            analysis_results = self.instance.analyze(words=wordlist, **kwargs)
+        for sentence in text['sentences'].spans:
+            # A) Collect all words inside the sentence
+            sentence_words = []
+            while word_span_id < len(word_spans):
+                span = word_spans[word_span_id]
+                if sentence.start <= span.start and \
+                    span.end <= sentence.end:
+                    # Word is inside the sentence
+                    sentence_words.append( \
+                        self._get_word_text( span ) 
+                    )
+                    word_span_id += 1
+                elif sentence.end <= span.start:
+                    break
+            # B) Use Vabamorf for analysis 
+            #    (but check length limitations first)
+            if len(sentence_words) > 15000:
+                # if 149129 < len(wordlist) on Linux,
+                # if  15000 < len(wordlist) < 17500 on Windows,
+                # then self.instance.analyze(words=wordlist, **self.kwargs) raises
+                # RuntimeError: CFSException: internal error with vabamorf
+                for i in range(0, len(sentence_words), 15000):
+                    analysis_results.extend( self.instance.analyze(words=sentence_words[i:i+15000], **kwargs) )
+            else:
+                analysis_results.extend( self.instance.analyze(words=sentence_words, **kwargs) )
+
+        # Assert that all words obtained an analysis (including empty analyses)
+        assert len(text.words) == len(analysis_results), \
+            '(!) Unexpectedly the number words ('+str(len(text.words))+') '+\
+            'does not match the number of obtained morphological analyses ('+str(len(analysis_results))+').'
+
         # --------------------------------------------
         #   Store analysis results in a new layer     
         # --------------------------------------------
