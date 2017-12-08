@@ -224,7 +224,23 @@ class VabamorfTagger2(Tagger):
 #    Utils for converting Vabamorf dict <-> EstNLTK Span
 # ========================================================
 
-def convert_morph_analysis_span_to_vm_dict( span ):
+def _convert_morph_analysis_span_to_vm_dict( span ):
+    ''' Converts a SpanList from the layer 'morph_analysis'
+        into a dictionary object that has the structure
+        required by the Vabamorf:
+        { 'text' : ..., 
+          'analysis' : [
+             { 'root': ..., 
+               'partofspeech' : ..., 
+               'clitic': ... ,
+               'ending': ... ,
+               'form': ... ,
+             },
+             ...
+          ]
+        }
+        Returns the dictionary.
+    '''
     attrib_dicts = {}
     # Get lists corresponding to attributes
     for attr in VabamorfTagger.attributes:
@@ -244,8 +260,14 @@ def convert_morph_analysis_span_to_vm_dict( span ):
         word_dict['analysis'].append(analysis)
     return word_dict
 
-    
-def convert_vm_dict_to_morph_analysis_spans( vm_dict, word, layer_attributes=None ):
+
+def _convert_vm_dict_to_morph_analysis_spans( vm_dict, word, layer_attributes=None ):
+    ''' Converts morphological analyses from the Vabamorf's 
+        dictionary format to the EstNLTK's Span format, and 
+        attaches the newly created span as a child of the 
+        word.
+        Returns a list of EstNLTK's Spans.
+    '''
     spans = []
     current_attributes = \
         layer_attributes if layer_attributes else VabamorfTagger.attributes
@@ -264,6 +286,7 @@ def convert_vm_dict_to_morph_analysis_spans( vm_dict, word, layer_attributes=Non
                 setattr(span, attr, None)
         spans.append(span)
     return spans
+
 
 # ========================================================
 #    Utils for carrying over extra attributes from 
@@ -424,7 +447,7 @@ class VabamorfAnalyzer(Tagger):
         for word, analyses_dict in zip(text.words, analysis_results):
             # Convert from Vabamorf dict to a list of Spans 
             spans = \
-                convert_vm_dict_to_morph_analysis_spans( \
+                _convert_vm_dict_to_morph_analysis_spans( \
                         analyses_dict, \
                         word, \
                         layer_attributes=current_attributes )
@@ -508,7 +531,7 @@ class VabamorfDisambiguator(Tagger):
                     # Collect morph
                     sentence_morph_spans.append( span )
                     word_morph_dict = \
-                        convert_morph_analysis_span_to_vm_dict( span )
+                        _convert_morph_analysis_span_to_vm_dict( span )
                     sentence_morph_dicts.append( word_morph_dict )
                     # Collect corresponding word
                     if morph_span_id < len(word_spans):
@@ -534,7 +557,7 @@ class VabamorfDisambiguator(Tagger):
                     zip(sentence_words, sentence_morph_spans, disambiguated_dicts):
                 # D.1) Convert dicts to spans
                 spans = \
-                    convert_vm_dict_to_morph_analysis_spans( \
+                    _convert_vm_dict_to_morph_analysis_spans( \
                         analysis_dict, \
                         word, \
                         layer_attributes=current_attributes )
