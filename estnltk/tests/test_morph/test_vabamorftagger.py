@@ -85,7 +85,7 @@ def test_default_morph_analysis_without_propername():
     text = Text("Ida-Euroopas sai valmis Parlament, suure algustähega.").tag_layer()
     # Remove old morph layer
     delattr(text, 'morph_analysis')
-    # Create a new layer without disambiguation
+    # Create a new layer without without propername guessing
     text.tag_layer(resolver=resolver)['morph_analysis']
     #print( text['morph_analysis'].to_records() )
     expected_records = [ \
@@ -115,7 +115,7 @@ def test_default_morph_analysis_without_guessing():
     text = Text("Sa ajad sássi inimmeste erinevad käsitlusviisid ja lóodusnähhtuste kinndla vahekorra.").tag_layer()
     # Remove old morph layer
     delattr(text, 'morph_analysis')
-    # Create a new layer without disambiguation
+    # Create a new layer without guessing
     text.tag_layer(resolver=resolver)['morph_analysis']
     #print( text['morph_analysis'].to_records() )
     expected_records = [ \
@@ -131,4 +131,17 @@ def test_default_morph_analysis_without_guessing():
     # Note: currently words without analyses will not show up when calling to_records()
     # Check results
     assert expected_records == text['morph_analysis'].to_records()
+    
+    # Case 2
+    # Create text and tag all
+    text = Text("Tüdrukud läksid poodelungile.").tag_layer()  
+    # Remove old morph layer
+    delattr(text, 'morph_analysis')
+    # Create a new layer without guessing
+    text.tag_layer(resolver=resolver)['morph_analysis']
+    # Note: the default behaviour is that words without analyses will not show up
+    #       ( as they are not recorded at the layer )
+    assert [['tüdruk'], ['mine']]   == text.root
+    assert [['tüdruk'], ['minema']] == text.lemma
+    assert [['S'], ['V']]           == text.partofspeech
     
