@@ -148,6 +148,23 @@ def test_default_morph_analysis_without_guessing():
     assert [['tüdruk'], ['mine']]   == text.root
     assert [['tüdruk'], ['minema']] == text.lemma
     assert [['S'], ['V']]           == text.partofspeech
+    
+    # Case 3
+    # Use VabamorfTagger
+    morph_analyser = VabamorfTagger( disambiguate=False, guess=False, propername=False )
+    text = Text("Ma tahax minna järve ääde")
+    text.tag_layer(['words', 'sentences'])
+    morph_analyser.tag(text)
+    #print( text['morph_analysis'].to_records() )
+    expected_records = [ \
+        [{'partofspeech': 'P', 'lemma': 'mina', 'form': 'sg n', 'root_tokens': ('mina',), 'ending': '0', 'end': 2, 'clitic': '', 'start': 0, 'root': 'mina'}], \
+        [{'partofspeech': 'V', 'lemma': 'minema', 'form': 'da', 'root_tokens': ('mine',), 'ending': 'a', 'end': 14, 'clitic': '', 'start': 9, 'root': 'mine'}], \
+        [{'partofspeech': 'S', 'lemma': 'järv', 'form': 'adt', 'root_tokens': ('järv',), 'ending': '0', 'end': 20, 'clitic': '', 'start': 15, 'root': 'järv'}, \
+         {'partofspeech': 'S', 'lemma': 'järv', 'form': 'sg g', 'root_tokens': ('järv',), 'ending': '0', 'end': 20, 'clitic': '', 'start': 15, 'root': 'järv'}, \
+         {'partofspeech': 'S', 'lemma': 'järv', 'form': 'sg p', 'root_tokens': ('järv',), 'ending': '0', 'end': 20, 'clitic': '', 'start': 15, 'root': 'järv'}]
+    ]
+    # Check results
+    assert expected_records == text['morph_analysis'].to_records()
 
 
 def test_default_morph_analysis_on_compound_tokens():

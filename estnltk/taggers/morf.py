@@ -121,6 +121,14 @@ class VabamorfTagger(Tagger):
 # ==========================================================
 # ==========================================================
 
+# Default parameters to be passed to Vabamorf
+# Note: these defaults are from  estnltk.vabamorf.morf
+DEFAULT_PARAM_DISAMBIGUATE = True
+DEFAULT_PARAM_GUESS        = True
+DEFAULT_PARAM_PROPERNAME   = True
+DEFAULT_PARAM_PHONETIC     = False
+DEFAULT_PARAM_COMPOUND     = True
+
 class VabamorfTagger2(Tagger):
     description   = 'Tags morphological analysis on words.'
     layer_name    = None
@@ -134,16 +142,7 @@ class VabamorfTagger2(Tagger):
                  **kwargs):
         self.kwargs = kwargs
         self.layer_name = layer_name
-        
-        # Validate morph's parameters 
-        #  (parameters should be given either by the Resolver, or specified manually by the user)
-        for param in ['disambiguate','guess','propername','phonetic','compound']:
-            param_value = self.kwargs.get(param)
-            assert isinstance(param_value, bool), \
-                '(!) Parameter '+param+' should be bool, but is '+str(param_value)+' instead.\n'+\
-                'Please specify boolean parameters disambiguate, guess, propername, phonetic, '+\
-                'compound on initializing '+self.__class__.__name__+'.'
-        
+       
         self.postmorph_rewriter = postmorph_rewriter
         extra_attributes = None
         if postmorph_rewriter:
@@ -163,12 +162,12 @@ class VabamorfTagger2(Tagger):
 
 
     def tag(self, text: Text, return_layer=False) -> Text:
-        # Fetch parameters
-        disambiguate = self.kwargs.get('disambiguate')
-        guess        = self.kwargs.get('guess')
-        propername   = self.kwargs.get('propername')
-        phonetic     = self.kwargs.get('phonetic')
-        compound     = self.kwargs.get('compound')
+        # Fetch parameters ( if missing, use the defaults )
+        disambiguate = self.kwargs.get('disambiguate', DEFAULT_PARAM_DISAMBIGUATE)
+        guess        = self.kwargs.get('guess',        DEFAULT_PARAM_GUESS)
+        propername   = self.kwargs.get('propername',   DEFAULT_PARAM_PROPERNAME)
+        phonetic     = self.kwargs.get('phonetic',     DEFAULT_PARAM_PHONETIC)
+        compound     = self.kwargs.get('compound',     DEFAULT_PARAM_COMPOUND)
         # --------------------------------------------
         #   Morphological analysis
         # --------------------------------------------
@@ -379,10 +378,10 @@ class VabamorfAnalyzer(Tagger):
 
     def tag(self, text: Text, \
                   return_layer=False, \
-                  guess=True, \
-                  propername=True, \
-                  compound=True, \
-                  phonetic=False ) -> Text:
+                  propername=DEFAULT_PARAM_PROPERNAME, \
+                  guess     =DEFAULT_PARAM_GUESS, \
+                  compound  =DEFAULT_PARAM_COMPOUND, \
+                  phonetic  =DEFAULT_PARAM_PHONETIC ) -> Text:
         # --------------------------------------------
         #   Use Vabamorf for morphological analysis
         # --------------------------------------------
