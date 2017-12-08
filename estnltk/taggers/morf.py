@@ -148,10 +148,10 @@ class VabamorfTagger2(Tagger):
         extra_attributes = None
         if postmorph_rewriter:
             extra_attributes = ['word_normal']
-        self.instance = Vabamorf.instance()
-        self.vabamorf_analyser      = VabamorfAnalyzer( vm_instance=self.instance, \
+        vm_instance = Vabamorf.instance()
+        self.vabamorf_analyser      = VabamorfAnalyzer( vm_instance=vm_instance, \
                                                         extra_attributes=extra_attributes )
-        self.vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=self.instance )
+        self.vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance )
         
 
         self.configuration = {'postmorph_rewriter':self.postmorph_rewriter.__class__.__name__,
@@ -265,6 +265,46 @@ def convert_vm_dict_to_morph_analysis_spans( vm_dict, word, layer_attributes=Non
         spans.append(span)
     return spans
 
+# ========================================================
+#    Utils for carrying over extra attributes from 
+#          old EstNLTK Span to the new EstNLTK Span
+# ========================================================
+
+def _carry_over_extra_attributes( old_spanlist, new_spanlist, extra_attributes ):
+    ''' Carries over extra attributes from the old spanlist to the new spanlist.
+        * old_spanlist -- 'morph_analysis' SpanList before disambiguation;
+        * new_spanlist -- list of 'morph_analysis' Spans after disambiguation;
+        
+        Assumes:
+        * each span from new_spanlist appears also in old_spanlist, and it can
+          be detected by comparing spans by VabamorfTagger.attributes;
+        * new_spanlist contains less or equal number of spans than old_spanlist;
+    '''
+    assert len(old_spanlist.spans) >= len(new_spanlist)
+    for new_span in new_spanlist:
+        # Try to find a matching old_span for the new_span
+        match_found = False
+        old_span_id = 0
+        while old_span_id < len(old_spanlist.spans):
+            old_span = old_spanlist.spans[old_span_id]
+            # Check that all morph attributes match 
+            attr_matches = []
+            for attr in VabamorfTagger.attributes:
+                attr_match = (getattr(old_span,attr)==getattr(new_span,attr))
+                attr_matches.append( attr_match )
+            if all( attr_matches ):
+                # Set extra attributes
+                for extra_attr in extra_attributes:
+                    setattr(new_span, \
+                            extra_attr, \
+                            getattr(old_span,extra_attr))
+                match_found = True
+                break
+            old_span_id += 1
+        if not match_found:
+            raise Exception('(!) Unable to match morphologically disambiguated spans with '+\
+                            'morphologically analysed spans.')
+
 
 # ===============================
 #    VabamorfAnalyzer
@@ -284,13 +324,15 @@ class VabamorfAnalyzer(Tagger):
                  **kwargs):
         self.kwargs = kwargs
         if vm_instance:
-            self.instance = vm_instance
+            self.vm_instance = vm_instance
         else:
-            self.instance = Vabamorf.instance()
+            self.vm_instance  = Vabamorf.instance()
         self.extra_attributes = extra_attributes
         self.layer_name = layer_name
         
-        self.configuration = {}
+        self.configuration = { 'vm_instance':self.vm_instance.__class__.__name__ }
+        if self.extra_attributes:
+            self.configuration['extra_attributes'] = self.extra_attributes
         self.configuration.update(self.kwargs)
 
         self.depends_on = ['words', 'sentences', 'morph_analysis']
@@ -354,11 +396,13 @@ class VabamorfAnalyzer(Tagger):
                 # then self.instance.analyze(words=wordlist, **self.kwargs) raises
                 # RuntimeError: CFSException: internal error with vabamorf
                 for i in range(0, len(sentence_words), 15000):
-                    analysis_results.extend( self.instance.analyze(words=sentence_words[i:i+15000], **kwargs) )
+                    analysis_results.extend( self.vm_instance.analyze(words=sentence_words[i:i+15000], **kwargs) )
             else:
-                analysis_results.extend( self.instance.analyze(words=sentence_words, **kwargs) )
+                analysis_results.extend( self.vm_instance.analyze(words=sentence_words, **kwargs) )
 
-        # Assert that all words obtained an analysis (including empty analyses)
+        # Assert that all words obtained an analysis 
+        # ( Note: there must be empty analyses for unknown 
+        #         words if guessing is not used )
         assert len(text.words) == len(analysis_results), \
             '(!) Unexpectedly the number words ('+str(len(text.words))+') '+\
             'does not match the number of obtained morphological analyses ('+str(len(analysis_results))+').'
@@ -405,10 +449,10 @@ class VabamorfAnalyzer(Tagger):
 # ===============================
 
 class VabamorfDisambiguator(Tagger):
-    description = 'Disambiguates morphologically analysed texts.'
-    layer_name = None
-    attributes = VabamorfTagger.attributes
-    depends_on = None
+    description   = 'Disambiguates morphologically analysed texts.'
+    layer_name    = None
+    attributes    = VabamorfTagger.attributes
+    depends_on    = None
     configuration = None
 
     def __init__(self,
@@ -417,16 +461,16 @@ class VabamorfDisambiguator(Tagger):
                  **kwargs):
         self.kwargs = kwargs
         if vm_instance:
-            self.instance = vm_instance
+            self.vm_instance = vm_instance
         else:
-            self.instance = Vabamorf.instance()
+            self.vm_instance = Vabamorf.instance()
 
         self.layer_name = layer_name
 
-        self.configuration = {}
+        self.configuration = { 'vm_instance':self.vm_instance.__class__.__name__ }
         self.configuration.update(self.kwargs)
 
-        self.depends_on = ['words', 'sentences', 'morph_analysis']
+        self.depends_on = ['words', 'sentences', self.layer_name]
 
 
     def tag(self, text: Text, \
@@ -439,6 +483,12 @@ class VabamorfDisambiguator(Tagger):
                 '(!) Missing layer "'+str(required_layer)+'"!'
         # Take attributes from the input layer
         current_attributes = text[self.layer_name].attributes
+        # Check if there are any extra attributes to carry over
+        # from the old layer
+        extra_attributes = []
+        for cur_attr in current_attributes:
+            if cur_attr not in self.attributes:
+                extra_attributes.append( cur_attr )
         # --------------------------------------------
         #  Disambiguate sentence by sentence
         # --------------------------------------------
@@ -455,26 +505,45 @@ class VabamorfDisambiguator(Tagger):
                 span = morph_spans[morph_span_id]
                 if sentence.start <= span.start and \
                     span.end <= sentence.end:
+                    # Collect morph
                     sentence_morph_spans.append( span )
                     word_morph_dict = \
                         convert_morph_analysis_span_to_vm_dict( span )
                     sentence_morph_dicts.append( word_morph_dict )
-                    sentence_words.append( word_spans[morph_span_id] )
+                    # Collect corresponding word
+                    if morph_span_id < len(word_spans):
+                        word_span = word_spans[morph_span_id]
+                        # Check that the word is the parent of morph 
+                        # analysis
+                        if word_span.start == span.start and \
+                           word_span.end == span.end:
+                            sentence_words.append( word_span )
                     morph_span_id += 1
                 elif sentence.end <= span.start:
                     break
-            # B) Use Vabamorf for disambiguation
-            disambiguated_dicts = self.instance.disambiguate(sentence_morph_dicts)
-            # C) Convert Vabamorf's results to Spans
-            for word, analysis_dict in zip(sentence_words, disambiguated_dicts):
+            # B) Validate that all words have morphological analyses;
+            #    If not (e.g. guessing was switched off while analysing), 
+            #    then we cannot perform the disambiguation;
+            if len(sentence_words) < len(sentence_morph_dicts):
+                raise Exception('(!) Unable to perform morphological disambiguation '+
+                                'because some words have no morphological analyses.')
+            # C) Use Vabamorf for disambiguation
+            disambiguated_dicts = self.vm_instance.disambiguate(sentence_morph_dicts)
+            # D) Convert Vabamorf's results to Spans
+            for word, old_morph_spans, analysis_dict in \
+                    zip(sentence_words, sentence_morph_spans, disambiguated_dicts):
+                # D.1) Convert dicts to spans
                 spans = \
                     convert_vm_dict_to_morph_analysis_spans( \
                         analysis_dict, \
                         word, \
                         layer_attributes=current_attributes )
-                # TODO: what is missing here is carrying over 
-                #       values of the extra attributes
-                #       ... this can be tricky ...
+                # D.2) Carry over attribute values (if needed)
+                if extra_attributes:
+                    _carry_over_extra_attributes( old_morph_spans, \
+                                                  spans, \
+                                                  extra_attributes )
+                # D.3) Record the span
                 disambiguated_spans.extend( spans )
         # --------------------------------------------
         #   Create new layer and attach spans

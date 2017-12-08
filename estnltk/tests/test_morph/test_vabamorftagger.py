@@ -5,7 +5,8 @@ from estnltk.resolve_layer_dag import make_resolver
 
 def test_default_morph_analysis():
     # Case 1
-    text = Text("Aga kõik juhtus iseenesest.").tag_layer()
+    text = Text("Aga kõik juhtus iseenesest.")
+    text.analyse('morphology')
     #print( text['morph_analysis'].to_records() )
     expected_records = [ \
         [{'root': 'aga', 'ending': '0', 'start': 0, 'form': '', 'lemma': 'aga', 'root_tokens': ('aga',), 'partofspeech': 'J', 'clitic': '', 'end': 3}], \
@@ -19,7 +20,8 @@ def test_default_morph_analysis():
     assert [['J'], ['P', 'P'], ['V'], ['D'], ['Z']] == text.partofspeech
     
     # Case 2 (contains ambiguities that should be resolved)
-    text = Text("Kärbes hulbib mees ja naeris puhub sädelevaid mulle.").tag_layer()
+    text = Text("Kärbes hulbib mees ja naeris puhub sädelevaid mulle.")
+    text.analyse('morphology')
     #print( text['morph_analysis'].to_records() )
     expected_records = [ \
         [{'partofspeech': 'S', 'root': 'kärbes', 'start': 0, 'clitic': '', 'end': 6, 'root_tokens': ('kärbes',), 'lemma': 'kärbes', 'ending': '0', 'form': 'sg n'}], \
@@ -83,7 +85,8 @@ def test_default_morph_analysis_without_propername():
                    phonetic=False,
                    compound=True)
     # Create text and tag all
-    text = Text("Ida-Euroopas sai valmis Parlament, suure algustähega.").tag_layer()
+    text = Text("Ida-Euroopas sai valmis Parlament, suure algustähega.")
+    text.analyse('morphology', resolver=resolver)
     # Remove old morph layer
     delattr(text, 'morph_analysis')
     # Create a new layer without without propername guessing
@@ -149,7 +152,8 @@ def test_default_morph_analysis_without_guessing():
 
 def test_default_morph_analysis_on_compound_tokens():
     # Case 1
-    text = Text("Mis lil-li müüs Tiit Mac'ile 10'e krooniga?").tag_layer()
+    text = Text("Mis lil-li müüs Tiit Mac'ile 10'e krooniga?")
+    text.analyse('morphology')
     #print( text['morph_analysis'].to_records() )
     expected_records = [ \
         [{'end': 3, 'partofspeech': 'P', 'start': 0, 'root_tokens': ('mis',), 'lemma': 'mis', 'ending': '0', 'root': 'mis', 'form': 'pl n', 'clitic': ''}, \
@@ -166,7 +170,8 @@ def test_default_morph_analysis_on_compound_tokens():
 
 
 def test_default_morph_analysis_on_empty_input():
-    text = Text("").tag_layer()
+    text = Text("")
+    text.analyse('morphology')
     # Check results
     assert [] == text['morph_analysis'].to_records()
 
