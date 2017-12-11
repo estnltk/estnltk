@@ -73,7 +73,9 @@ def test_default_morph_analysis_without_disambiguation():
          {'root_tokens': ('mull',), 'lemma': 'mull', 'root': 'mull', 'clitic': '', 'ending': 'e', 'end': 51, 'start': 46, 'form': 'pl p', 'partofspeech': 'S'}], \
         [{'root_tokens': ('.',), 'lemma': '.', 'root': '.', 'clitic': '', 'ending': '', 'end': 52, 'start': 51, 'form': '', 'partofspeech': 'Z'}]]
     # Check results ( morph should be ambiguous )
-    assert expected_records == text['morph_analysis'].to_records()
+    results_dict = text['morph_analysis'].to_records()
+    assert len(expected_records) == len(results_dict)
+    assert expected_records == results_dict
 
 
 def test_default_morph_analysis_without_propername():

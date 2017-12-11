@@ -2,124 +2,6 @@ from estnltk.text import Span, Layer, Text
 from estnltk.taggers import Tagger
 from estnltk.vabamorf.morf import Vabamorf
 
-from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
-
-class VabamorfTaggerOld(Tagger):   # The old version of VabamorfTagger, will be removed in the future
-    description = 'Tags morphological analysis on words.'
-    layer_name = None
-    attributes = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech')
-    depends_on = None
-    configuration = None
-
-    def __init__(self,
-                 layer_name='morph_analysis',
-                 postmorph_rewriter=VabamorfCorrectionRewriter(),
-                 **kwargs):
-        self.kwargs = kwargs
-        self.instance = Vabamorf.instance()
-
-        self.layer_name = layer_name
-        self.postmorph_rewriter = postmorph_rewriter
-
-        self.configuration = {'postmorph_rewriter':self.postmorph_rewriter.__class__.__name__}
-        self.configuration.update(self.kwargs)
-
-        self.depends_on = ['words']
-
-        # TODO: Think long and hard about the default parameters
-        # TODO: See also https://github.com/estnltk/estnltk/issues/66
-        """
-        words: list of str or str
-            Either a list of pretokenized words or a string. In case of a string, it will be splitted using
-            default behaviour of string.split() function.
-        disambiguate: boolean (default: True)
-            Disambiguate the output and remove incosistent analysis.
-        guess: boolean (default: True)
-            Use guessing in case of unknown words
-        propername: boolean (default: True)
-            Perform additional analysis of proper names.
-        compound: boolean (default: True)
-            Add compound word markers to root forms.
-        phonetic: boolean (default: False)
-            Add phonetic information to root forms.
-
-        Returns
-        -------
-        list of (list of dict)
-            List of analysis for each word in input.
-        """
-
-    def _get_wordlist(self, text:Text):
-        result = []
-        for word in text.words:
-            if hasattr(word, 'normalized_form') and word.normalized_form != None:
-                # If there is a normalized version of the word, add it
-                # instead of word's text
-                result.append(word.normalized_form)
-            else:
-                result.append(word.text)
-        return result
-
-
-    def tag(self, text: Text, return_layer=False) -> Text:
-        wordlist = self._get_wordlist(text)
-        if len(wordlist) > 15000:
-            # if 149129 < len(wordlist) on Linux,
-            # if  15000 < len(wordlist) < 17500 on Windows,
-            # then self.instance.analyze(words=wordlist, **self.kwargs) raises
-            # RuntimeError: CFSException: internal error with vabamorf
-            analysis_results = []
-            for i in range(0, len(wordlist), 15000):
-                analysis_results.extend(self.instance.analyze(words=wordlist[i:i+15000], **self.kwargs))
-        else:
-            analysis_results = self.instance.analyze(words=wordlist, **self.kwargs)
-
-        morph_attributes = self.attributes
-
-        attributes = morph_attributes
-        if self.postmorph_rewriter:
-            attributes = attributes + ('word_normal',)
-            morph = Layer(name='words',
-              parent='words',
-              ambiguous=True,
-              attributes=attributes
-              )
-        else:
-            morph = Layer(name=self.layer_name,
-                          parent='words',
-                          ambiguous=True,
-                          attributes=morph_attributes
-                          )
-
-        for word, analyses in zip(text.words, analysis_results):
-            for analysis in analyses['analysis']:
-                span = morph.add_span(Span(parent=word))
-                for attr in morph_attributes:
-                    if attr == 'root_tokens':
-                        # make it hashable for Span.__hash__
-                        setattr(span, attr, tuple(analysis[attr]))
-                    else:
-                        setattr(span, attr, analysis[attr])
-                if self.postmorph_rewriter:
-                    setattr(span, 'word_normal', analyses['text'])
-        if self.postmorph_rewriter:
-            morph = morph.rewrite(source_attributes=attributes,
-                                  target_attributes=morph_attributes, 
-                                  rules=self.postmorph_rewriter,
-                                  name=self.layer_name,
-                                  ambiguous=True)
-        if return_layer:
-            return morph
-        text[self.layer_name] = morph
-        return text
-        
-
-# ==========================================================
-# ==========================================================
-#      Follows a redesigning of VabamorfTagger 
-#               ( work in progress )
-# ==========================================================
-# ==========================================================
 
 # Default parameters to be passed to Vabamorf
 # Note: these defaults are from  estnltk.vabamorf.morf
@@ -128,6 +10,7 @@ DEFAULT_PARAM_GUESS        = True
 DEFAULT_PARAM_PROPERNAME   = True
 DEFAULT_PARAM_PHONETIC     = False
 DEFAULT_PARAM_COMPOUND     = True
+
 
 class VabamorfTagger(Tagger):
     description   = 'Tags morphological analysis on words.'
@@ -138,23 +21,38 @@ class VabamorfTagger(Tagger):
 
     def __init__(self,
                  layer_name='morph_analysis',
-                 #postmorph_rewriter=VabamorfCorrectionRewriter(),
-                 postmorph_rewriter=None,
+                 postanalysis_tagger=None,
                  **kwargs):
         self.kwargs = kwargs
         self.layer_name = layer_name
        
-        self.postmorph_rewriter = postmorph_rewriter
         extra_attributes = None
-        if postmorph_rewriter:
-            extra_attributes = ['word_normal']
+        if postanalysis_tagger:
+            # Check for Tagger
+            assert isinstance(postanalysis_tagger, Tagger), \
+                '(!) postanalysis_tagger should be of type estnltk.taggers.Tagger.'
+            # Check for layer match
+            assert hasattr(postanalysis_tagger, 'layer_name'), \
+                '(!) postanalysis_tagger does not define layer_name.'
+            assert postanalysis_tagger.layer_name == self.layer_name, \
+                '(!) postanalysis_tagger should modify layer "'+str(self.layer_name)+'".'+\
+                ' Currently, it modifies layer "'+str(postanalysis_tagger.layer_name)+'".'
+            assert hasattr(postanalysis_tagger, 'attributes'), \
+                '(!) postanalysis_tagger does not define any attributes.'
+            # Fetch extra attributes from postanalysis_tagger
+            for postanalysis_attr in self.postanalysis_tagger.attributes:
+                if postanalysis_attr not in self.attributes:
+                    if not extra_attributes:
+                        extra_attributes = []
+                    extra_attributes.append( postanalysis_attr )
+        self.postanalysis_tagger = postanalysis_tagger
         vm_instance = Vabamorf.instance()
         self.vabamorf_analyser      = VabamorfAnalyzer( vm_instance=vm_instance, \
                                                         extra_attributes=extra_attributes )
         self.vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance )
         
 
-        self.configuration = {'postmorph_rewriter':self.postmorph_rewriter.__class__.__name__,
+        self.configuration = {'postanalysis_tagger':self.postanalysis_tagger.__class__.__name__,
                               'vabamorf_analyser':self.vabamorf_analyser.__class__.__name__,
                               'vabamorf_disambiguator':self.vabamorf_disambiguator.__class__.__name__ }
         self.configuration.update(self.kwargs)
@@ -181,29 +79,17 @@ class VabamorfTagger(Tagger):
         # --------------------------------------------
         #   Post-processing
         # --------------------------------------------
-        if self.postmorph_rewriter:
-            # Fill in 'word_normal'
-            for spanlist in morph_layer.spans:
-                for span in spanlist:
-                    setattr(span, 'word_normal', span.text)
-        if self.postmorph_rewriter:
-            morph_layer = morph_layer.rewrite(source_attributes=morph_layer.attributes,
-                                              target_attributes=morph_layer.attributes,
-                                              rules=self.postmorph_rewriter,
-                                              name=self.layer_name,
-                                              ambiguous=True)
-            # TODO:
-            #
-            #   Now we have to re-attach the layer to the text, but 
-            #        delattr(text, self.layer_name)
-            #        text[self.layer_name] = morph_layer
-            #   gives:
-            #        AssertionError: Cant add a layer "morph_analysis" before adding its parent "morph_analysis"
-            #
-            #   However, the original VabamorfTagger also fails to populate the 
-            #   attribute 'word_normal', or at least the attribute does not show up
-            #   in the Notebook's output
-            #
+        if self.postanalysis_tagger:
+            # Post-analysis tagger is responsible for either:
+            # 1) Filling in extra_attributes in "morph_analysis" layer, or
+            # 2) Making corrections in the "morph_analysis" layer, including:
+            #    2.1) Creating new "morph_analysis" layer based on the existing 
+            #         one, 
+            #    2.1) Populating the new layer with corrected analyses,
+            #    2.1) (if required) filling in extra_attributes in the new layer,
+            #    2.2) Replacing the old "morph_analysis" in Text object with 
+            #         the new one;
+            self.postanalysis_tagger.tag(text)
         # --------------------------------------------
         #   Morphological disambiguation
         # --------------------------------------------
@@ -370,7 +256,7 @@ class VabamorfAnalyzer(Tagger):
             self.configuration['extra_attributes'] = self.extra_attributes
         self.configuration.update(self.kwargs)
 
-        self.depends_on = ['words', 'sentences', 'morph_analysis']
+        self.depends_on = ['words', 'sentences']
 
 
     def _get_word_text(self, word:Span):
@@ -395,6 +281,37 @@ class VabamorfAnalyzer(Tagger):
                   guess     =DEFAULT_PARAM_GUESS, \
                   compound  =DEFAULT_PARAM_COMPOUND, \
                   phonetic  =DEFAULT_PARAM_PHONETIC ) -> Text:
+        """
+        Anayses given Text object morphologically. Note: 
+        disambiguation is not performed, so the results of
+        analysis will (moste likely) be ambiguous.
+        Returns Text object that has layer 'morph_analysis'
+        attached, or the created layer (if return_layer==True);
+        
+        text: estnltk.text.Text
+            Text object that is to be analysed morphologically.
+            The Text object must have layers 'words', 'sentences'.
+        return_layer: boolean (default: False)
+            If True, then the new layer is returned; otherwise 
+            the new layer is attached to the Text object, and the 
+            Text object is returned;
+        propername: boolean (default: True)
+            Propose additional analysis variants for proper names 
+            (a.k.a. proper name guessing).
+        guess: boolean (default: True)
+            Use guessing in case of unknown words.
+        compound: boolean (default: True)
+            Add compound word markers to root forms.
+        phonetic: boolean (default: False)
+            Add phonetic information to root forms.
+
+        Returns
+        -------
+        Text or Layer
+            If return_layer==True, then returns the new layer, 
+            otherwise attaches the new layer to the Text object 
+            and returns the Text object;
+        """
         # --------------------------------------------
         #   Use Vabamorf for morphological analysis
         # --------------------------------------------
@@ -462,7 +379,8 @@ class VabamorfAnalyzer(Tagger):
                 _convert_vm_dict_to_morph_analysis_spans( \
                         analyses_dict, \
                         word, \
-                        layer_attributes=current_attributes )
+                        layer_attributes=current_attributes, \
+                        sort_analyses = True )
             # Attach spans
             for span in spans:
                 if self.extra_attributes:
