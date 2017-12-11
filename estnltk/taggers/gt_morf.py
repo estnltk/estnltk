@@ -423,7 +423,7 @@ def _create_spans( text: Text, morph_dict_list:list, layer:Layer = None ):
 
 # ===================================================================
 
-class GTMorphConverterTagger(Tagger):
+class GTMorphConverter(Tagger):
     description   = "Converts morphological analyses from Vabamorf's format to Giellatekno's (GT) format."
     layer_name    = None
     attributes    = VabamorfTagger.attributes
@@ -434,7 +434,7 @@ class GTMorphConverterTagger(Tagger):
                  disambiguate_neg:bool = True, \
                  disambiguate_sid_ksid:bool = False, \
                  layer_name:str='gt_morph_analysis', **kwargs):
-        ''' Initializes this GTMorphConverterTagger.
+        ''' Initializes this GTMorphConverter.
             
             Parameters
             -----------
