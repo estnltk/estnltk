@@ -7,26 +7,33 @@ import numpy as np
 import pandas as pd
 import toolz
 import matplotlib.pyplot as plt
-from estnltk.spans import Span, SpanList
+from estnltk.spans import Span
 from typing import Union, List, Sequence
 
 
 class Node:
-    def __init__(self, name, support: Union[Sequence['Node'], Span], weight=1):
+    def __init__(self, name=None, support: Union[Sequence['Node'], Span]=None, weight=1):
         self.name = name
         self.support = support
         self.weight = weight
-        self.decoration = None
 
-        if isinstance(support, (Span, SpanList)):
-            self.raw_text_spans = ((support.start, support.end),)
+        if isinstance(support, Span):
+            self.text_spans = ((support.start, support.end),)
+            self.text = support.text
+            if name is None:
+                if support.layer:
+                    self.name = support.grammar_symbol
+                else:
+                    self.name = support.text
+            for attr in support.legal_attribute_names:
+                setattr(self, attr, getattr(support, attr))
         elif isinstance(support, tuple):
-            self.raw_text_spans = tuple(sorted(s for n in support for s in n.raw_text_spans))
+            self.text_spans = tuple(sorted(s for n in support for s in n.text_spans))
         else:
-            raise TypeError('support must be of type Span, SpanList or tuple, not {}'.format(type(support)))
+            raise TypeError('support must be of type Span or tuple, not {}'.format(type(support)))
 
-        self.start = self.raw_text_spans[0][0]
-        self.end = self.raw_text_spans[-1][1]
+        self.start = self.text_spans[0][0]
+        self.end = self.text_spans[-1][1]
 
     def __hash__(self):
         return hash((self.name, self.support))
@@ -56,6 +63,8 @@ class TerminalSpan(Span):
 
     def __init__(self, text):
         self.text = text
+        self._legal_attribute_names = {}
+
         if text == 'START':
             self.start = float('-inf')
             self.end = float('-inf')
@@ -178,8 +187,8 @@ class LayerGraph(nx.DiGraph):
         super().__init__(**attr)
 
     def update_spans_to_nodes_map(self, node):
-        if node not in self.map_spans_to_nodes[node.raw_text_spans]:
-            self.map_spans_to_nodes[node.raw_text_spans].append(node)
+        if node not in self.map_spans_to_nodes[node.text_spans]:
+            self.map_spans_to_nodes[node.text_spans].append(node)
 
     def add_node(self, node, **attr):
         super().add_node(node, **attr)
