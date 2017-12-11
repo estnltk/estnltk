@@ -2,6 +2,10 @@ from estnltk.text import Span, Layer, Text
 from estnltk.taggers import Tagger
 from estnltk.vabamorf.morf import Vabamorf
 
+# Name of the ignore attribute. During the morphological 
+# disambiguation, all spans of "morph_analysis" that have 
+# ignore attribute set to True will be skipped;
+IGNORE_ATTR = '_ignore'
 
 # Default parameters to be passed to Vabamorf
 # Note: these defaults are from  estnltk.vabamorf.morf
@@ -13,7 +17,7 @@ DEFAULT_PARAM_COMPOUND     = True
 
 
 class VabamorfTagger(Tagger):
-    description   = 'Tags morphological analysis on words.'
+    description   = "Tags morphological analysis on words. Uses Vabamorf's morphological analyzer and disambiguator."
     layer_name    = None
     attributes    = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech')
     depends_on    = None
@@ -37,7 +41,7 @@ class VabamorfTagger(Tagger):
             Name of the layer where analysis results are stored.
         postanalysis_tagger: estnltk.taggers.Tagger (default: None)
             Tagger that is used to post-process "morph_analysis" layer after
-            it creation (and before the disambiguation).
+            it is created (and before it is disambiguated).
             This tagger should correct morphological analyses, prepare morpho-
             logical analyses for disambiguation (if required) and/or fill in 
             values of extra attributes in morph_analysis Spans.
@@ -259,6 +263,9 @@ def _carry_over_extra_attributes( old_spanlist, new_spanlist, extra_attributes )
             if all( attr_matches ):
                 # Set extra attributes
                 for extra_attr in extra_attributes:
+                    # Skip IGNORE_ATTR
+                    if extra_attr == IGNORE_ATTR:
+                        continue
                     setattr(new_span, \
                             extra_attr, \
                             getattr(old_span,extra_attr))
@@ -269,6 +276,32 @@ def _carry_over_extra_attributes( old_spanlist, new_spanlist, extra_attributes )
             raise Exception('(!) Unable to match morphologically disambiguated spans with '+\
                             'morphologically analysed spans.')
 
+# ========================================================
+#    Check if the span is to be ignored during 
+#          the morphological disambiguation
+# ========================================================
+
+def _is_ignore_span( span ):
+    ''' Checks if the given span (from the layer 'morph_analysis')
+        has attribute IGNORE_ATTR, and whether all of its values 
+        are True (which means: the span should be ignored). 
+        
+        Note: if some values are True, and others are False or None, 
+        then throws an Exception because partial ignoring is 
+        currently not implemented.
+    '''
+    if hasattr( span, IGNORE_ATTR ):
+        ignore_values = getattr(span, IGNORE_ATTR)
+        if ignore_values and all(ignore_values):
+            return True
+        if ignore_values and any(ignore_values):
+            # Only some of the Spans have ignore=True, but 
+            # partial ignoring is currently not implemented
+            raise Exception('(!) Partial ignoring is currently not '+\
+                            'implemented. Unexpected ignore attribute '+\
+                            "values encountered at the 'morph_analysis' "+\
+                            'span '+str((span.start,span.end))+'.')
+    return False
 
 # ===============================
 #    VabamorfAnalyzer
@@ -535,6 +568,15 @@ class VabamorfDisambiguator(Tagger):
                 '(!) Missing layer "'+str(required_layer)+'"!'
         # Take attributes from the input layer
         current_attributes = text[self.layer_name].attributes
+        # Filter out IGNORE_ATTR (used for internal purposes only,
+        # not to be the output)
+        new_current_attributes = ()
+        for cur_attr in current_attributes:
+            # Skip IGNORE_ATTR
+            if cur_attr == IGNORE_ATTR:
+                continue
+            new_current_attributes += (cur_attr, )
+        current_attributes = new_current_attributes
         # Check if there are any extra attributes to carry over
         # from the old layer
         extra_attributes = []
@@ -563,6 +605,7 @@ class VabamorfDisambiguator(Tagger):
             sentence_morph_spans = []
             sentence_morph_dicts = []
             words_missing_morph  = []
+            ignored_word_ids     = set()
             while word_span_id < len(word_spans):
                 # Get corresponding word span
                 word_span = word_spans[word_span_id]
@@ -577,10 +620,18 @@ class VabamorfDisambiguator(Tagger):
                             # Word & morph found: collect items
                             sentence_word_spans.append( word_span )
                             sentence_morph_spans.append( morph_span )
-                            word_morph_dict = \
-                                _convert_morph_analysis_span_to_vm_dict( \
-                                    morph_span )
-                            sentence_morph_dicts.append( word_morph_dict )
+                            if not _is_ignore_span( morph_span ):
+                                # Add the dict only if it is not marked as 
+                                # to be ignored 
+                                word_morph_dict = \
+                                    _convert_morph_analysis_span_to_vm_dict( \
+                                        morph_span )
+                                sentence_morph_dicts.append( word_morph_dict )
+                            else:
+                                # Remember that this word was ignored during 
+                                # the disambiguation
+                                ignored_word_ids.add( len(sentence_word_spans)-1 )
+                            # Advance positions
                             morph_span_id += 1
                             word_span_id  += 1
                             morphFound = True
@@ -602,8 +653,23 @@ class VabamorfDisambiguator(Tagger):
             # C) Use Vabamorf for disambiguation
             disambiguated_dicts = self.vm_instance.disambiguate(sentence_morph_dicts)
             # D) Convert Vabamorf's results to Spans
-            for word, old_morph_spans, analysis_dict in \
-                    zip(sentence_word_spans, sentence_morph_spans, disambiguated_dicts):
+            wid = 0
+            morph_dict_id = 0
+            while wid < len(sentence_word_spans):
+                # D.0) Find corresponding analysis_dict
+                while wid in ignored_word_ids:
+                    # Skip the ignored word(s): add old spans instead
+                    word = sentence_word_spans[wid]
+                    old_morph_spans = sentence_morph_spans[wid]
+                    disambiguated_spans.extend( old_morph_spans )
+                    wid += 1
+                if not wid < len(sentence_word_spans):
+                    # Break if ignoring has passed sentence boundaries
+                    break
+                word = sentence_word_spans[wid]
+                old_morph_spans = sentence_morph_spans[wid]
+                analysis_dict   = disambiguated_dicts[morph_dict_id]
+                
                 # D.1) Convert dicts to spans
                 spans = \
                     _convert_vm_dict_to_morph_analysis_spans( \
@@ -617,6 +683,11 @@ class VabamorfDisambiguator(Tagger):
                                                   extra_attributes )
                 # D.3) Record the span
                 disambiguated_spans.extend( spans )
+                
+                # Advance indices
+                morph_dict_id += 1
+                wid += 1
+
         # --------------------------------------------
         #   Create new layer and attach spans
         # --------------------------------------------
