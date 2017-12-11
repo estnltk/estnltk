@@ -23,6 +23,25 @@ class VabamorfTagger(Tagger):
                  layer_name='morph_analysis',
                  postanalysis_tagger=None,
                  **kwargs):
+        """Initialize VabamorfTagger class.
+
+        Note: Keyword arguments 'disambiguate', 'guess', 'propername',
+        'phonetic' and 'compound' can be used to override the default 
+        configuration of Vabamorf's morphological analyser. See the 
+        description of VabamorfAnalyzer.tag method for details on
+        configuration arguments.
+        
+        Parameters
+        ----------
+        layer_name: str (default: 'morph_analysis')
+            Name of the layer where analysis results are stored.
+        postanalysis_tagger: estnltk.taggers.Tagger (default: None)
+            Tagger that is used to post-process "morph_analysis" layer after
+            it creation (and before the disambiguation).
+            This tagger should correct morphological analyses, prepare morpho-
+            logical analyses for disambiguation (if required) and/or fill in 
+            values of extra attributes in morph_analysis Spans.
+        """
         self.kwargs = kwargs
         self.layer_name = layer_name
        
@@ -61,6 +80,30 @@ class VabamorfTagger(Tagger):
 
 
     def tag(self, text: Text, return_layer=False) -> Text:
+        """Anayses given Text object morphologically. 
+        
+        Note: exact configuration of the analysis (e.g. 
+        whether guessing of unknown words will be performed, 
+        or whether analyses will be disambiguated) depends on 
+        the initialization parameters of the class.
+        
+        Parameters
+        ----------
+        text: estnltk.text.Text
+            Text object that is to be analysed morphologically.
+            The Text object must have layers 'words', 'sentences'.
+        return_layer: boolean (default: False)
+            If True, then the new layer is returned; otherwise 
+            the new layer is attached to the Text object, and the 
+            Text object is returned;
+
+        Returns
+        -------
+        Text or Layer
+            If return_layer==True, then returns the new layer, 
+            otherwise attaches the new layer to the Text object 
+            and returns the Text object;
+        """
         # Fetch parameters ( if missing, use the defaults )
         disambiguate = self.kwargs.get('disambiguate', DEFAULT_PARAM_DISAMBIGUATE)
         guess        = self.kwargs.get('guess',        DEFAULT_PARAM_GUESS)
@@ -232,7 +275,7 @@ def _carry_over_extra_attributes( old_spanlist, new_spanlist, extra_attributes )
 # ===============================
 
 class VabamorfAnalyzer(Tagger):
-    description   = 'Analyzes texts morphologically. Note: resulting analyses can be ambiguous. '
+    description   = "Analyzes texts morphologically. Uses Vabamorf's analyzer. Note: resulting analyses can be ambiguous. "
     layer_name    = None
     attributes    = VabamorfTagger.attributes
     depends_on    = None
@@ -243,6 +286,20 @@ class VabamorfAnalyzer(Tagger):
                  extra_attributes=None,
                  vm_instance=None,
                  **kwargs):
+        """Initialize VabamorfAnalyzer class.
+
+        Parameters
+        ----------
+        layer_name: str (default: 'morph_analysis')
+            Name of the layer where analysis results are stored.
+        extra_attributes: list of str (default: None)
+            List containing names of extra attributes that will be 
+            attached to Spans. All extra attributes will be 
+            initialized to None.
+        vm_instance: estnltk.vabamorf.morf.Vabamorf
+            An instance of Vabamorf that is to be used for analysing
+            text morphologically.
+        """
         self.kwargs = kwargs
         if vm_instance:
             self.vm_instance = vm_instance
@@ -260,15 +317,20 @@ class VabamorfAnalyzer(Tagger):
 
 
     def _get_word_text(self, word:Span):
+        ''' Returns a word string corresponding to the given (word) Span. 
+            If the normalized word form is available, returns the normalized 
+            form instead of the surface form. '''
         if hasattr(word, 'normalized_form') and word.normalized_form != None:
-            # If there is a normalized version of the word, return it
-            # instead of word's text
+            # return the normalized version of the word
             return word.normalized_form
         else:
             return word.text
 
 
     def _get_wordlist(self, text:Text):
+        ''' Returns a list of words from given text. If normalized word 
+            forms are available, uses normalized forms instead of the 
+            surface forms. '''
         result = []
         for word in text.words:
             result.append( self._get_word_text( word ) )
@@ -281,13 +343,13 @@ class VabamorfAnalyzer(Tagger):
                   guess     =DEFAULT_PARAM_GUESS, \
                   compound  =DEFAULT_PARAM_COMPOUND, \
                   phonetic  =DEFAULT_PARAM_PHONETIC ) -> Text:
-        """
-        Anayses given Text object morphologically. Note: 
-        disambiguation is not performed, so the results of
-        analysis will (moste likely) be ambiguous.
-        Returns Text object that has layer 'morph_analysis'
-        attached, or the created layer (if return_layer==True);
+        """Anayses given Text object morphologically. 
         
+        Note: disambiguation is not performed, so the results of
+        analysis will (most likely) be ambiguous.
+        
+        Parameters
+        ----------
         text: estnltk.text.Text
             Text object that is to be analysed morphologically.
             The Text object must have layers 'words', 'sentences'.
@@ -402,7 +464,7 @@ class VabamorfAnalyzer(Tagger):
 # ===============================
 
 class VabamorfDisambiguator(Tagger):
-    description   = 'Disambiguates morphologically analysed texts.'
+    description   = "Disambiguates morphologically analysed texts. Uses Vabamorf's disambiguator."
     layer_name    = None
     attributes    = VabamorfTagger.attributes
     depends_on    = None
@@ -412,6 +474,19 @@ class VabamorfDisambiguator(Tagger):
                  layer_name='morph_analysis',
                  vm_instance=None,
                  **kwargs):
+        """Initialize VabamorfDisambiguator class.
+
+        Parameters
+        ----------
+        layer_name: str (default: 'morph_analysis')
+            Name of the layer where morphological analyses are stored
+            in the input Text object.
+            Note that this is also name of the layer where results of
+            disambiguation are stored;
+        vm_instance: estnltk.vabamorf.morf.Vabamorf
+            An instance of Vabamorf that is to be used for analysing
+            text morphologically;
+        """
         self.kwargs = kwargs
         if vm_instance:
             self.vm_instance = vm_instance
@@ -428,6 +503,30 @@ class VabamorfDisambiguator(Tagger):
 
     def tag(self, text: Text, \
                   return_layer=False ) -> Text:
+        """Disambiguates morphological analyses on the given Text. 
+        
+        Parameters
+        ----------
+        text: estnltk.text.Text
+            Text object that is to be disambiguated.
+            The Text object must have layers 'words', 'sentences',
+            'morph_analysis'.
+        return_layer: boolean (default: False)
+            If True, then the new layer with the results of 
+            disambiguation is returned; 
+            otherwise, the old layer of ambiguous morph analyses
+            is deleted, the new layer is attached to the Text 
+            object, and the Text object is returned;
+
+        Returns
+        -------
+        Text or Layer
+            If return_layer==True, then the new layer with the 
+            results of disambiguation is returned; 
+            otherwise, the old layer of ambiguous morph analyses
+            is deleted, the new layer is attached to the Text 
+            object, and the Text object is returned;
+        """
         # --------------------------------------------
         #  Check for existence of required layers
         # --------------------------------------------
