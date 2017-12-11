@@ -524,49 +524,69 @@ class VabamorfDisambiguator(Tagger):
         for cur_attr in current_attributes:
             if cur_attr not in self.attributes:
                 extra_attributes.append( cur_attr )
+        # Check that len(word_spans) >= len(morph_spans)
+        morph_spans = text[self.layer_name].spans
+        word_spans  = text['words'].spans
+        assert len(word_spans) >= len(morph_spans), \
+            '(!) Unexpectedly, the number of elements at the layer '+\
+                 '"'+str(self.layer_name)+'" is greater than the '+\
+                 'number of elements at the layer "words". There '+\
+                 'should be one to one correspondence between '+\
+                 'the layers.'
         # --------------------------------------------
         #  Disambiguate sentence by sentence
         # --------------------------------------------
-        morph_spans = text[self.layer_name].spans
-        word_spans  = text['words'].spans
         morph_span_id = 0
+        word_span_id  = 0
         disambiguated_spans = []
         for sentence in text['sentences'].spans:
             # A) Collect all words/morph_analyses inside the sentence
-            sentence_words       = []
+            #    Assume: len(word_spans) >= len(morph_spans)
+            sentence_word_spans  = []
             sentence_morph_spans = []
             sentence_morph_dicts = []
-            while (morph_span_id < len(morph_spans)):
-                span = morph_spans[morph_span_id]
-                if sentence.start <= span.start and \
-                    span.end <= sentence.end:
-                    # Collect morph
-                    sentence_morph_spans.append( span )
-                    word_morph_dict = \
-                        _convert_morph_analysis_span_to_vm_dict( span )
-                    sentence_morph_dicts.append( word_morph_dict )
-                    # Collect corresponding word
-                    if morph_span_id < len(word_spans):
-                        word_span = word_spans[morph_span_id]
-                        # Check that the word is the parent of morph 
-                        # analysis
-                        if word_span.start == span.start and \
-                           word_span.end == span.end:
-                            sentence_words.append( word_span )
-                    morph_span_id += 1
-                elif sentence.end <= span.start:
+            words_missing_morph  = []
+            while word_span_id < len(word_spans):
+                # Get corresponding word span
+                word_span = word_spans[word_span_id]
+                if sentence.start <= word_span.start and \
+                    word_span.end <= sentence.end:
+                    morphFound = False
+                    # Get corresponding morph span
+                    if morph_span_id < len(morph_spans):
+                        morph_span = morph_spans[morph_span_id]
+                        if word_span.start == morph_span.start and \
+                           word_span.end == morph_span.end:
+                            # Word & morph found: collect items
+                            sentence_word_spans.append( word_span )
+                            sentence_morph_spans.append( morph_span )
+                            word_morph_dict = \
+                                _convert_morph_analysis_span_to_vm_dict( \
+                                    morph_span )
+                            sentence_morph_dicts.append( word_morph_dict )
+                            morph_span_id += 1
+                            word_span_id  += 1
+                            morphFound = True
+                    if not morphFound:
+                        # Did not find any morph analysis for the word
+                        words_missing_morph.append( word_span )
+                        word_span_id  += 1
+                elif sentence.end <= word_span.start:
+                    # Word falls out of the sentence: break
                     break
             # B) Validate that all words have morphological analyses;
             #    If not (e.g. guessing was switched off while analysing), 
             #    then we cannot perform the disambiguation;
-            if len(sentence_words) < len(sentence_morph_dicts):
-                raise Exception('(!) Unable to perform morphological disambiguation '+
-                                'because some words have no morphological analyses.')
+            if words_missing_morph:
+                missing_pos = [(w.start, w.end) for w in words_missing_morph]
+                raise Exception('(!) Unable to perform morphological disambiguation '+\
+                                'because words at positions '+str(missing_pos)+' '+\
+                                'have no morphological analyses.')
             # C) Use Vabamorf for disambiguation
             disambiguated_dicts = self.vm_instance.disambiguate(sentence_morph_dicts)
             # D) Convert Vabamorf's results to Spans
             for word, old_morph_spans, analysis_dict in \
-                    zip(sentence_words, sentence_morph_spans, disambiguated_dicts):
+                    zip(sentence_word_spans, sentence_morph_spans, disambiguated_dicts):
                 # D.1) Convert dicts to spans
                 spans = \
                     _convert_vm_dict_to_morph_analysis_spans( \
