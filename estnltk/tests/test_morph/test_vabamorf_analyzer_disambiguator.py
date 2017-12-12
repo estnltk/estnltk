@@ -124,6 +124,46 @@ def test_morph_disambiguator_1():
     # Check results
     assert expected_records == results_dict
 
+# ----------------------------------
+#   Test
+#     that disambiguation preserves
+#     extra attributes
+# ----------------------------------
+
+def test_morph_disambiguation_preserves_extra_attributes():
+    text=Text('Mees kees üle. Naeris naeris.')
+    text.tag_layer(['words','sentences'])
+    analyzer = VabamorfAnalyzer(extra_attributes=['analysis_id', 'sentence_id'])
+    analyzer.tag(text)
+    # Add extra attributes
+    for sp_id, spanlist in enumerate(text.morph_analysis.spans):
+        for s_id, span in enumerate(spanlist):
+            setattr(span, 'analysis_id', str(sp_id)+'_'+str(s_id))
+    for sent_id, sentence in enumerate(text.sentences.spans):
+        for sp_id, spanlist in enumerate(text.morph_analysis.spans):
+            if sentence.start <= spanlist.start and \
+               spanlist.end <= sentence.end:
+                for s_id, span in enumerate(spanlist):
+                    setattr(span, 'sentence_id', str(sent_id))
+    # Disambiguate text
+    disambiguator.tag(text)
+    #print(text['morph_analysis'].to_records())
+    # Check that extra attributes are preserved
+    expected_records = [ \
+        [{'analysis_id': '0_4', 'clitic': '', 'root': 'mees', 'ending': '0', 'partofspeech': 'S', 'sentence_id': '0', 'start': 0, 'root_tokens': ('mees',), 'end': 4, 'form': 'sg n', 'lemma': 'mees'}], 
+        [{'analysis_id': '1_1', 'clitic': '', 'root': 'kee', 'ending': 's', 'partofspeech': 'V', 'sentence_id': '0', 'start': 5, 'root_tokens': ('kee',), 'end': 9, 'form': 's', 'lemma': 'keema'}], 
+        [{'analysis_id': '2_0', 'clitic': '', 'root': 'üle', 'ending': '0', 'partofspeech': 'D', 'sentence_id': '0', 'start': 10, 'root_tokens': ('üle',), 'end': 13, 'form': '', 'lemma': 'üle'}], 
+        [{'analysis_id': '3_0', 'clitic': '', 'root': '.', 'ending': '', 'partofspeech': 'Z', 'sentence_id': '0', 'start': 13, 'root_tokens': ('.',), 'end': 14, 'form': '', 'lemma': '.'}], 
+        [{'analysis_id': '4_4', 'clitic': '', 'root': 'naeris', 'ending': '0', 'partofspeech': 'S', 'sentence_id': '1', 'start': 15, 'root_tokens': ('naeris',), 'end': 21, 'form': 'sg n', 'lemma': 'naeris'}], 
+        [{'analysis_id': '5_1', 'clitic': '', 'root': 'naer', 'ending': 'is', 'partofspeech': 'V', 'sentence_id': '1', 'start': 22, 'root_tokens': ('naer',), 'end': 28, 'form': 's', 'lemma': 'naerma'}], 
+        [{'analysis_id': '6_0', 'clitic': '', 'root': '.', 'ending': '', 'partofspeech': 'Z', 'sentence_id': '1', 'start': 28, 'root_tokens': ('.',), 'end': 29, 'form': '', 'lemma': '.'}] ]
+    # Sort analyses (so that the order within a word is always the same)
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results
+    assert expected_records == results_dict
+
 
 # ----------------------------------
 #   Test 
@@ -210,6 +250,3 @@ def test_morph_disambiguation_with_ignore_xml_tags():
     for spanlist in text.morph_analysis.spans:
         # assert that all words have been disambiguated
         assert len(spanlist) == 1
-
-
-
