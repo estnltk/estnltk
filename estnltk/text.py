@@ -322,7 +322,7 @@ class Text:
                         )
                     return res
 
-        raise NotImplementedError('{} -> {} not implemented'.format(frm, to) +
+        raise AttributeError('{} -> {} not implemented'.format(frm, to) +
                                   (' but path exists' if path_exists else ' - path does not exist')
                                   )
 
