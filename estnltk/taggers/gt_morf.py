@@ -389,6 +389,11 @@ def _make_postfixes_2( morph_dict_list:list ):
 # =========================================================================================
 
 def _create_spans( text: Text, morph_dict_list:list, layer:Layer = None ):
+    '''Converts morphological analyses (from the list morph_dict_list) 
+    from dict format to Spans. If layer is given, then attaches Spans to 
+    the layer and returns the layer; otherwise, collects resulting Spans 
+    into a list and returns the list.
+    '''
     resulting_spans = []
     morph_span_id = 0
     # Iterate over words in Text

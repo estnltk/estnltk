@@ -7,10 +7,11 @@ def export_json(text:'Text', file:str=None, file_encoding:str='utf-8'):
     otherwise dumps json string to file and returns None.
     
     Note: on the Windows platform, writing a text file 
-    without specifying the encoding likely rises 
+    without specifying the encoding likely raises 
     "UnicodeEncodeError: 'charmap' codec can't encode 
-    character ...", so we use parameter file_encoding
-    (with default: 'utf-8') to reinforce the encoding.
+    character ...", so the parameter file_encoding 
+    (default: 'utf-8') must be used to reinforce the 
+    encoding.
     """
     text_dict = export_dict(text)
     if file:

@@ -94,4 +94,22 @@ def test_morph_disambiguation_with_ignore_xml():
     for spanlist in text.morph_analysis.spans:
         # assert that all words have been disambiguated
         assert len(spanlist) == 1
-            
+
+
+def test_morph_disambiguation_with_ignore_all():
+    # Test: if all words in the sentence are ignored,
+    #       disambiguator won't rise any error
+    text=Text('Mees peeti kinni') 
+    text.tag_layer(['words','sentences'])
+    analyzer = VabamorfAnalyzer( extra_attributes=[IGNORE_ATTR] )
+    analyzer.tag(text)
+    #print(text['morph_analysis'].to_records())
+    # Ignore all spans/words
+    for spanlist in text.morph_analysis.spans:
+        for span in spanlist:
+            span._ignore = True
+    disambiguator = VabamorfDisambiguator()
+    disambiguator.tag(text)
+    #print(text['morph_analysis'].to_records())
+    # Assert that attribute IGNORE_ATTR has been removed 
+    assert not hasattr(text.morph_analysis, IGNORE_ATTR)

@@ -308,7 +308,8 @@ def _is_ignore_span( span ):
 # ===============================
 
 class VabamorfAnalyzer(Tagger):
-    description   = "Analyzes texts morphologically. Uses Vabamorf's analyzer. Note: resulting analyses can be ambiguous. "
+    description   = "Analyzes texts morphologically. Uses Vabamorf's analyzer. "+\
+                    "Note: resulting analyses can be ambiguous. "
     layer_name    = None
     attributes    = VabamorfTagger.attributes
     depends_on    = None
@@ -651,7 +652,9 @@ class VabamorfDisambiguator(Tagger):
                                 'because words at positions '+str(missing_pos)+' '+\
                                 'have no morphological analyses.')
             # C) Use Vabamorf for disambiguation
-            disambiguated_dicts = self.vm_instance.disambiguate(sentence_morph_dicts)
+            disambiguated_dicts = []
+            if sentence_morph_dicts:
+                disambiguated_dicts = self.vm_instance.disambiguate(sentence_morph_dicts)
             # D) Convert Vabamorf's results to Spans
             wid = 0
             morph_dict_id = 0
@@ -659,7 +662,6 @@ class VabamorfDisambiguator(Tagger):
                 # D.0) Find corresponding analysis_dict
                 while wid in ignored_word_ids:
                     # Skip the ignored word(s): add old spans instead
-                    word = sentence_word_spans[wid]
                     old_morph_spans = sentence_morph_spans[wid]
                     disambiguated_spans.extend( old_morph_spans )
                     wid += 1

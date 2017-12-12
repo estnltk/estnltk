@@ -16,9 +16,10 @@ def import_json(json_text:str=None, file:str=None, file_encoding:str='utf-8') ->
     converted to a Text object, and returned.
     
     Note: on the Windows platform, loading a text file 
-    without specifying the encoding likely rises 
-    UnicodeEncodeError, so we use parameter file_encoding
-    (with default: 'utf-8') to reinforce the encoding.
+    without specifying the encoding likely raises 
+    UnicodeEncodeError, so the parameter file_encoding
+    (default: 'utf-8') must be used to reinforce the 
+    encoding.
     """
     if file:
         with open(file, 'r', encoding=file_encoding) as in_f:
