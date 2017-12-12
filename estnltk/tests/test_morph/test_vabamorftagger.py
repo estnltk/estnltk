@@ -2,6 +2,16 @@ from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.resolve_layer_dag import make_resolver
 
+def _sort_morph_analysis_records( morph_analysis_records:list ):
+    '''Sorts sublists (lists of analyses of a single word) of 
+       morph_analysis_records. Sorting is required for comparing
+       morph analyses of a word without setting any constraints 
+       on their specific order. '''
+    for wrid, word_records_list in enumerate( morph_analysis_records ):
+        sorted_records = sorted( word_records_list, key = lambda x : \
+            x['root']+x['ending']+x['clitic']+x['partofspeech']+x['form'] )
+        morph_analysis_records[wrid] = sorted_records
+
 
 def test_default_morph_analysis():
     # Case 1
@@ -60,8 +70,8 @@ def test_default_morph_analysis_without_disambiguation():
         {'root_tokens': ('Kärbe',), 'lemma': 'Kärbe', 'root': 'Kärbe', 'clitic': '', 'ending': 's', 'end': 6, 'start': 0, 'form': 'sg in', 'partofspeech': 'H'},\
         {'root_tokens': ('kärbes',), 'lemma': 'kärbes', 'root': 'kärbes', 'clitic': '', 'ending': '0', 'end': 6, 'start': 0, 'form': 'sg n', 'partofspeech': 'S'}], \
         [{'root_tokens': ('hulpi',), 'lemma': 'hulpima', 'root': 'hulpi', 'clitic': '', 'ending': 'b', 'end': 13, 'start': 7, 'form': 'b', 'partofspeech': 'V'}], \
-        [{'root_tokens': ('mees',), 'lemma': 'mees', 'root': 'mees', 'clitic': '', 'ending': '0', 'end': 18, 'start': 14, 'form': 'sg n', 'partofspeech': 'S'}, \
-         {'root_tokens': ('mesi',), 'lemma': 'mesi', 'root': 'mesi', 'clitic': '', 'ending': 's', 'end': 18, 'start': 14, 'form': 'sg in', 'partofspeech': 'S'}], \
+        [{'root_tokens': ('mesi',), 'lemma': 'mesi', 'root': 'mesi', 'clitic': '', 'ending': 's', 'end': 18, 'start': 14, 'form': 'sg in', 'partofspeech': 'S'}, \
+        {'root_tokens': ('mees',), 'lemma': 'mees', 'root': 'mees', 'clitic': '', 'ending': '0', 'end': 18, 'start': 14, 'form': 'sg n', 'partofspeech': 'S'}], \
         [{'root_tokens': ('ja',), 'lemma': 'ja', 'root': 'ja', 'clitic': '', 'ending': '0', 'end': 21, 'start': 19, 'form': '', 'partofspeech': 'J'}], \
         [{'root_tokens': ('naeris',), 'lemma': 'naeris', 'root': 'naeris', 'clitic': '', 'ending': '0', 'end': 28, 'start': 22, 'form': 'sg n', 'partofspeech': 'S'},\
          {'root_tokens': ('naer',), 'lemma': 'naerma', 'root': 'naer', 'clitic': '', 'ending': 'is', 'end': 28, 'start': 22, 'form': 's', 'partofspeech': 'V'},\
@@ -72,8 +82,11 @@ def test_default_morph_analysis_without_disambiguation():
          {'root_tokens': ('mulle',), 'lemma': 'mulle', 'root': 'mulle', 'clitic': '', 'ending': '0', 'end': 51, 'start': 46, 'form': 'sg n', 'partofspeech': 'S'},\
          {'root_tokens': ('mull',), 'lemma': 'mull', 'root': 'mull', 'clitic': '', 'ending': 'e', 'end': 51, 'start': 46, 'form': 'pl p', 'partofspeech': 'S'}], \
         [{'root_tokens': ('.',), 'lemma': '.', 'root': '.', 'clitic': '', 'ending': '', 'end': 52, 'start': 51, 'form': '', 'partofspeech': 'Z'}]]
-    # Check results ( morph should be ambiguous )
+    # Sort analyses (so that the order within a word is always the same)
     results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results ( morph should be ambiguous )
     assert len(expected_records) == len(results_dict)
     assert expected_records == results_dict
 
@@ -135,8 +148,12 @@ def test_default_morph_analysis_without_guessing():
         [{'lemma': 'ja', 'ending': '0', 'clitic': '', 'form': '', 'partofspeech': 'J', 'end': 50, 'root_tokens': ('ja',), 'root': 'ja', 'start': 48}], \
         [{'lemma': 'vahekord', 'ending': '0', 'clitic': '', 'form': 'sg g', 'partofspeech': 'S', 'end': 84, 'root_tokens': ('vahe', 'kord'), 'root': 'vahe_kord', 'start': 75}]]
     # Note: currently words without analyses will not show up when calling to_records()
+    # Sort analyses (so that the order within a word is always the same)
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
     # Check results
-    assert expected_records == text['morph_analysis'].to_records()
+    assert expected_records == results_dict
     
     # Case 2
     # Create text and tag all
@@ -165,8 +182,12 @@ def test_default_morph_analysis_without_guessing():
          {'partofspeech': 'S', 'lemma': 'järv', 'form': 'sg g', 'root_tokens': ('järv',), 'ending': '0', 'end': 20, 'clitic': '', 'start': 15, 'root': 'järv'}, \
          {'partofspeech': 'S', 'lemma': 'järv', 'form': 'sg p', 'root_tokens': ('järv',), 'ending': '0', 'end': 20, 'clitic': '', 'start': 15, 'root': 'järv'}]
     ]
+    # Sort analyses (so that the order within a word is always the same)
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
     # Check results
-    assert expected_records == text['morph_analysis'].to_records()
+    assert expected_records == results_dict
 
 
 def test_default_morph_analysis_on_compound_tokens():
@@ -184,8 +205,12 @@ def test_default_morph_analysis_on_compound_tokens():
         [{'end': 33, 'partofspeech': 'S', 'start': 29, 'root_tokens': ('10',), 'lemma': '10', 'ending': '0', 'root': '10', 'form': 'sg g', 'clitic': ''}], \
         [{'end': 42, 'partofspeech': 'S', 'start': 34, 'root_tokens': ('kroon',), 'lemma': 'kroon', 'ending': 'ga', 'root': 'kroon', 'form': 'sg kom', 'clitic': ''}], \
         [{'end': 43, 'partofspeech': 'Z', 'start': 42, 'root_tokens': ('?',), 'lemma': '?', 'ending': '', 'root': '?', 'form': '', 'clitic': ''}]]
+    # Sort analyses (so that the order within a word is always the same)
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
     # Check results
-    assert expected_records == text['morph_analysis'].to_records()
+    assert expected_records == results_dict
 
 
 def test_default_morph_analysis_on_empty_input():
