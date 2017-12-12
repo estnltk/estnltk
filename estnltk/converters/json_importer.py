@@ -7,9 +7,21 @@ def _convert_list_to_tuple(d):
             d[key] = tuple(value)
     return d
 
-def import_json(json_text:str=None, file:str=None) -> 'Text':
+def import_json(json_text:str=None, file:str=None, file_encoding:str='utf-8') -> 'Text':
+    """Imports Text object from json.
+    If file is None, then loads corresponding dictionary 
+    from json_text, otherwise, loads the dictionary from 
+    the json format file. 
+    In both cases, the loaded dictionary is finally 
+    converted to a Text object, and returned.
+    
+    Note: on the Windows platform, loading a text file 
+    without specifying the encoding likely rises 
+    UnicodeEncodeError, so we use parameter file_encoding
+    (with default: 'utf-8') to reinforce the encoding.
+    """
     if file:
-        with open(file, 'r') as in_f:
+        with open(file, 'r', encoding=file_encoding) as in_f:
             text_dict = json.load(fp=in_f, object_hook=_convert_list_to_tuple)
     elif json_text:
         text_dict = json.loads(json_text, object_hook=_convert_list_to_tuple)
