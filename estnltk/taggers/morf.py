@@ -9,31 +9,25 @@
 from estnltk.text import Span, Layer, Text
 from estnltk.taggers import Tagger
 from estnltk.vabamorf.morf import Vabamorf
+from estnltk.taggers.postanalysis_tagger import PostMorphAnalysisTagger
 
-# Name of the ignore attribute. During the morphological 
-# disambiguation, all spans of "morph_analysis" that have 
-# ignore attribute set to True will be skipped;
-IGNORE_ATTR = '_ignore'
-
-# Default parameters to be passed to Vabamorf
-# Note: these defaults are from  estnltk.vabamorf.morf
-DEFAULT_PARAM_DISAMBIGUATE = True
-DEFAULT_PARAM_GUESS        = True
-DEFAULT_PARAM_PROPERNAME   = True
-DEFAULT_PARAM_PHONETIC     = False
-DEFAULT_PARAM_COMPOUND     = True
-
+from estnltk.taggers.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
+from estnltk.taggers.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
+from estnltk.taggers.morf_common import DEFAULT_PARAM_COMPOUND
+from estnltk.taggers.morf_common import VABAMORF_ATTRIBUTES
+from estnltk.taggers.morf_common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.taggers.morf_common import IGNORE_ATTR
 
 class VabamorfTagger(Tagger):
     description   = "Tags morphological analysis on words. Uses Vabamorf's morphological analyzer and disambiguator."
     layer_name    = None
-    attributes    = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech')
+    attributes    = ESTNLTK_MORPH_ATTRIBUTES
     depends_on    = None
     configuration = None
 
     def __init__(self,
                  layer_name='morph_analysis',
-                 postanalysis_tagger=None,
+                 postanalysis_tagger=PostMorphAnalysisTagger(),
                  **kwargs):
         """Initialize VabamorfTagger class.
 
@@ -47,11 +41,11 @@ class VabamorfTagger(Tagger):
         ----------
         layer_name: str (default: 'morph_analysis')
             Name of the layer where analysis results are stored.
-        postanalysis_tagger: estnltk.taggers.Tagger (default: None)
+        postanalysis_tagger: estnltk.taggers.Tagger (default: PostMorphAnalysisTagger())
             Tagger that is used to post-process "morph_analysis" layer after
             it is created (and before it is disambiguated).
-            This tagger should correct morphological analyses, prepare morpho-
-            logical analyses for disambiguation (if required) and/or fill in 
+            This tagger corrects morphological analyses, prepare morpho-
+            logical analyses for disambiguation (if required) and fills in 
             values of extra attributes in morph_analysis Spans.
         """
         self.kwargs = kwargs
@@ -217,7 +211,7 @@ def _convert_vm_dict_to_morph_analysis_spans( vm_dict, word, \
     '''
     spans = []
     current_attributes = \
-        layer_attributes if layer_attributes else VabamorfTagger.attributes
+        layer_attributes if layer_attributes else ESTNLTK_MORPH_ATTRIBUTES
     word_analyses = vm_dict['analysis']
     if sort_analyses:
         # Sort analyses ( to assure a fixed order, e.g. for testing purpose )
@@ -267,7 +261,7 @@ def _carry_over_extra_attributes( old_spanlist, new_spanlist, extra_attributes )
             # ( Skip 'lemma' & 'root_tokens', as these 
             #   were derived from 'root' )
             attr_matches = []
-            for attr in ('root', 'ending', 'clitic', 'partofspeech', 'form'):
+            for attr in VABAMORF_ATTRIBUTES:
                 attr_match = (getattr(old_span,attr)==getattr(new_span,attr))
                 attr_matches.append( attr_match )
             if all( attr_matches ):

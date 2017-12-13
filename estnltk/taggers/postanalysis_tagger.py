@@ -8,15 +8,16 @@ import regex as re
 
 from estnltk.text import Span, Layer, Text
 from estnltk.taggers import Tagger
-from estnltk.taggers.morf import VabamorfTagger, IGNORE_ATTR
 
-
+from estnltk.taggers.morf_common import IGNORE_ATTR
+from estnltk.taggers.morf_common import VABAMORF_ATTRIBUTES
+from estnltk.taggers.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 
 class PostMorphAnalysisTagger(Tagger):
     description   = "Provides corrections to morphological analysis layer. "+\
                     "This tagger should be applied before morphological disambiguation."
     layer_name    = None
-    attributes    = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech', IGNORE_ATTR)
+    attributes    = ESTNLTK_MORPH_ATTRIBUTES + (IGNORE_ATTR, )
     depends_on    = None
     configuration = None
 
