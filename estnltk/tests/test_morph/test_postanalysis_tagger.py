@@ -133,7 +133,7 @@ def test_postanalysis_fix_www_addresses():
     # Check results
     assert expected_records == results_dict
 
-    
+
 def test_postanalysis_fix_email_addresses():
     # Tests that emails have postag 'H':
     # Initialize tagger
@@ -149,6 +149,34 @@ def test_postanalysis_fix_email_addresses():
         [{'partofspeech': 'H', 'form': '?', 'ending': '0', 'lemma': 'big@boss.com', 'root_tokens': ('big@boss.com',), 'start': 9, 'clitic': '', 'end': 21, 'root': 'big@boss.com'}], \
         [{'partofspeech': 'Z', 'form': '', 'ending': '', 'lemma': ';', 'root_tokens': (';',), 'start': 21, 'clitic': '', 'end': 22, 'root': ';'}], \
         [{'partofspeech': 'H', 'form': '?', 'ending': '0', 'lemma': 'http://www.big.boss.com', 'root_tokens': ('http://www.big.boss.com',), 'start': 23, 'clitic': '', 'end': 46, 'root': 'http://www.big.boss.com'}]]
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results
+    assert expected_records == results_dict
+
+
+def test_postanalysis_fix_abbreviations():
+    # Tests that abbreviations have postag 'Y':
+    # Initialize tagger
+    morf_tagger = VabamorfTagger( postanalysis_tagger=PostMorphAnalysisTagger(fix_abbreviations=True) )
+    # Case 1
+    text=Text('( 9. jaan. 1939. a. või dets. - toim. )')
+    text.tag_layer(['words','sentences'])
+    morf_tagger.tag(text)
+    #print(text['morph_analysis'].to_records())
+    expected_records = [ \
+        [{'partofspeech': 'Z', 'root': '(', 'root_tokens': ('(',), 'ending': '', 'clitic': '', 'lemma': '(', 'form': '', 'end': 1, 'start': 0}], \
+        [{'partofspeech': 'N', 'root': '9', 'root_tokens': ('9',), 'ending': '0', 'clitic': '', 'lemma': '9', 'form': '?', 'end': 4, 'start': 2}], \
+        [{'partofspeech': 'Y', 'root': 'jaan', 'root_tokens': ('jaan',), 'ending': '0', 'clitic': '', 'lemma': 'jaan', 'form': '?', 'end': 10, 'start': 5}], \
+        [{'partofspeech': 'N', 'root': '1939', 'root_tokens': ('1939',), 'ending': '0', 'clitic': '', 'lemma': '1939', 'form': '?', 'end': 16, 'start': 11}], \
+        [{'partofspeech': 'Y', 'root': 'a', 'root_tokens': ('a',), 'ending': '0', 'clitic': '', 'lemma': 'a', 'form': '?', 'end': 19, 'start': 17}], \
+        [{'partofspeech': 'J', 'root': 'või', 'root_tokens': ('või',), 'ending': '0', 'clitic': '', 'lemma': 'või', 'form': '', 'end': 23, 'start': 20}], \
+        [{'partofspeech': 'Y', 'root': 'dets', 'root_tokens': ('dets',), 'ending': '0', 'clitic': '', 'lemma': 'dets', 'form': '?', 'end': 28, 'start': 24}], \
+        [{'partofspeech': 'Z', 'root': '.', 'root_tokens': ('.',), 'ending': '', 'clitic': '', 'lemma': '.', 'form': '', 'end': 29, 'start': 28}], \
+        [{'partofspeech': 'Z', 'root': '-', 'root_tokens': ('-',), 'ending': '', 'clitic': '', 'lemma': '-', 'form': '', 'end': 31, 'start': 30}], \
+        [{'partofspeech': 'Y', 'root': 'toim', 'root_tokens': ('toim',), 'ending': '0', 'clitic': '', 'lemma': 'toim', 'form': 'sg n', 'end': 37, 'start': 32}], \
+        [{'partofspeech': 'Z', 'root': ')', 'root_tokens': (')',), 'ending': '', 'clitic': '', 'lemma': ')', 'form': '', 'end': 39, 'start': 38}]]
     results_dict = text['morph_analysis'].to_records()
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )

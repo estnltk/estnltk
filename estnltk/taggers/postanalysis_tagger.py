@@ -28,6 +28,7 @@ class PostMorphAnalysisTagger(Tagger):
                  fix_emoticons:bool=True, \
                  fix_www_addresses:bool=True, \
                  fix_email_addresses:bool=True, \
+                 fix_abbreviations:bool=True, \
                  **kwargs):
         """Initialize PostMorphAnalysisTagger class.
 
@@ -61,6 +62,10 @@ class PostMorphAnalysisTagger(Tagger):
         fix_email_addresses: bool (default: True)
             If True, then postags of all email addresses will be 
             overwritten with 'H';
+        
+        fix_abbreviations: bool (default: True)
+            If True, then abbreviations with postags 'S' & 'H' 
+            will have their postags overwritten with 'Y';
         """
         self.kwargs = kwargs
         self.layer_name = layer_name
@@ -71,6 +76,7 @@ class PostMorphAnalysisTagger(Tagger):
                               'fix_emoticons':fix_emoticons,\
                               'fix_www_addresses':fix_www_addresses,\
                               'fix_email_addresses':fix_email_addresses,\
+                              'fix_abbreviations':fix_abbreviations,\
         }
         self.configuration.update(self.kwargs)
 
@@ -238,6 +244,14 @@ class PostMorphAnalysisTagger(Tagger):
                             # Set partofspeech to H
                             setattr(span, 'partofspeech', 'H')                            
                     comp_token_id += 1
+                    # 5) Fix abbreviations, such as 'toim.', 'Tlk.'
+                    if self.configuration['fix_abbreviations'] and \
+                       ('abbreviation' in comp_token.type or \
+                        'non_ending_abbreviation' in comp_token.type):
+                        for span in spanlist:
+                            # Set partofspeech to Y, if it is S or H
+                            if getattr(span, 'partofspeech') in ['S', 'H']:
+                                setattr(span, 'partofspeech', 'Y')
             else:
                 # all compound tokens have been exhausted
                 break
