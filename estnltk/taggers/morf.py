@@ -1,3 +1,11 @@
+#
+#  Provides Vabamorf-based morphological analysis and disambiguation.
+#
+#  VabamorfTagger can be used for end-to-end morphological processing.
+#  Alternatively, the process can be broken down into substeps, using 
+#  VabamorfAnalyzer and VabamorfDisambiguator.
+# 
+
 from estnltk.text import Span, Layer, Text
 from estnltk.taggers import Tagger
 from estnltk.vabamorf.morf import Vabamorf
@@ -63,7 +71,7 @@ class VabamorfTagger(Tagger):
             assert hasattr(postanalysis_tagger, 'attributes'), \
                 '(!) postanalysis_tagger does not define any attributes.'
             # Fetch extra attributes from postanalysis_tagger
-            for postanalysis_attr in self.postanalysis_tagger.attributes:
+            for postanalysis_attr in postanalysis_tagger.attributes:
                 if postanalysis_attr not in self.attributes:
                     if not extra_attributes:
                         extra_attributes = []
@@ -562,7 +570,8 @@ class VabamorfDisambiguator(Tagger):
             object, and the Text object is returned;
         """
         # --------------------------------------------
-        #  Check for existence of required layers
+        #  Check for existence of required layers     
+        #  Collect layer's attributes                 
         # --------------------------------------------
         for required_layer in self.depends_on:
             assert required_layer in text.layers, \
