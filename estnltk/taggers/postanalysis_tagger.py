@@ -25,19 +25,22 @@ class PostMorphAnalysisTagger(Tagger):
                  ignore_emoticons:bool=True, \
                  ignore_xml_tags:bool=True, \
                  fix_names_with_initials:bool=True, \
+                 fix_emoticons:bool=True, \
+                 fix_www_addresses:bool=True, \
+                 fix_email_addresses:bool=True, \
                  **kwargs):
         """Initialize PostMorphAnalysisTagger class.
-        
+
         Parameters
         ----------
         ignore_emoticons: bool (default: True)
             If True, then emoticons will be marked as to 
             be ignored by morphological disambiguation.
-            
+
         ignore_xml_tags: bool (default: True)
             If True, then xml tags will be marked as to 
             be ignored by morphological disambiguation.
-        
+
         fix_names_with_initials: bool (default: True)
             If True, then words that are of type 'name_with_initial'
             (a compound token type) will have their:
@@ -46,6 +49,18 @@ class PostMorphAnalysisTagger(Tagger):
                2.1) underscores added between different parts of 
                     the name;
                2.2) name start positions converted to uppercase;
+
+        fix_emoticons: bool (default: True)
+            If True, then postags of all emoticons will be 
+            overwritten with 'Z';
+
+        fix_www_addresses: bool (default: True)
+            If True, then postags of all www-addresses will be 
+            overwritten with 'H';
+
+        fix_email_addresses: bool (default: True)
+            If True, then postags of all email addresses will be 
+            overwritten with 'H';
         """
         self.kwargs = kwargs
         self.layer_name = layer_name
@@ -53,6 +68,9 @@ class PostMorphAnalysisTagger(Tagger):
         self.configuration = {'ignore_emoticons':ignore_emoticons,\
                               'ignore_xml_tags':ignore_xml_tags,\
                               'fix_names_with_initials':fix_names_with_initials,\
+                              'fix_emoticons':fix_emoticons,\
+                              'fix_www_addresses':fix_www_addresses,\
+                              'fix_email_addresses':fix_email_addresses,\
         }
         self.configuration.update(self.kwargs)
 
@@ -179,6 +197,7 @@ class PostMorphAnalysisTagger(Tagger):
                     spanlist.end == comp_token.end):
                     ignore_spans = False
                     # Found matching compound token
+                    # 1) Fix names with initials, such as "T. S. Eliot"
                     if self.configuration['fix_names_with_initials'] and \
                        'name_with_initial' in comp_token.type:
                         for span in spanlist:
@@ -199,6 +218,25 @@ class PostMorphAnalysisTagger(Tagger):
                             # based on it 
                             #
                             setattr(span, 'root', root)
+                    # 2) Fix emoticons, such as ":D"
+                    if self.configuration['fix_emoticons'] and \
+                       'emoticon' in comp_token.type:
+                        for span in spanlist:
+                            # Set partofspeech to Z
+                            setattr(span, 'partofspeech', 'Z')
+                    # 3) Fix www-addresses, such as 'Postimees.ee'
+                    if self.configuration['fix_www_addresses'] and \
+                       ('www_address' in comp_token.type or \
+                        'www_address_short' in comp_token.type):
+                        for span in spanlist:
+                            # Set partofspeech to H
+                            setattr(span, 'partofspeech', 'H')
+                    # 4) Fix email addresses, such as 'big@boss.com'
+                    if self.configuration['fix_email_addresses'] and \
+                       'email' in comp_token.type:
+                        for span in spanlist:
+                            # Set partofspeech to H
+                            setattr(span, 'partofspeech', 'H')                            
                     comp_token_id += 1
             else:
                 # all compound tokens have been exhausted

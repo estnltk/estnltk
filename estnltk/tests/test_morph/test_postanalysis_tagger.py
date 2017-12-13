@@ -20,7 +20,9 @@ def _sort_morph_analysis_records( morph_analysis_records:list ):
 def test_postanalysis_fix_names_with_initials():
     # Tests that names with initials (such as "T. S. Eliot") will have their:
     #    * partofspeech fixed to H;
-    #    * root tokens normalized (contain underscores in proper places, and no lowercase name starts);
+    #    * root tokens normalized:
+    #       1. contain underscores between initials/names;
+    #       2. names do no start with no lowercase letters;
     # Initialize tagger
     morf_tagger = VabamorfTagger( postanalysis_tagger=PostMorphAnalysisTagger(fix_names_with_initials=True) )
     # Case 1
@@ -81,4 +83,75 @@ def test_postanalysis_fix_names_with_initials():
     _sort_morph_analysis_records( expected_records )
     # Check results
     assert expected_records == results_dict
+
+
+def test_postanalysis_fix_emoticons():
+    # Tests that emoticons have postag 'Z':
+    # Initialize tagger
+    morf_tagger = VabamorfTagger( postanalysis_tagger=PostMorphAnalysisTagger(fix_emoticons=True) )
+    # Case 1
+    text=Text('Äge pull :D irw :-P')
+    text.tag_layer(['words','sentences'])
+    morf_tagger.tag(text)
+    #print(text['morph_analysis'].to_records())
+    expected_records = [ \
+        [{'form': 'sg n', 'clitic': '', 'lemma': 'äge', 'start': 0, 'end': 3, 'ending': '0', 'root': 'äge', 'partofspeech': 'A', 'root_tokens': ('äge',)}], \
+        [{'form': 'sg n', 'clitic': '', 'lemma': 'pull', 'start': 4, 'end': 8, 'ending': '0', 'root': 'pull', 'partofspeech': 'S', 'root_tokens': ('pull',)}], \
+        [{'form': '?', 'clitic': '', 'lemma': 'D', 'start': 9, 'end': 11, 'ending': '0', 'root': 'D', 'partofspeech': 'Z', 'root_tokens': ('D',)}, \
+         {'form': '?', 'clitic': '', 'lemma': 'D', 'start': 9, 'end': 11, 'ending': '0', 'root': 'D', 'partofspeech': 'Z', 'root_tokens': ('D',)}], \
+        [{'form': 'sg n', 'clitic': '', 'lemma': 'irw', 'start': 12, 'end': 15, 'ending': '0', 'root': 'irw', 'partofspeech': 'S', 'root_tokens': ('irw',)}], \
+        [{'form': '?', 'clitic': '', 'lemma': 'P', 'start': 16, 'end': 19, 'ending': '0', 'root': 'P', 'partofspeech': 'Z', 'root_tokens': ('P',)}]]
+    # TODO: roots of emoticons also need to be fixed, but this 
+    #       has a prerequisite that methods creating lemmas &
+    #       root_tokens work in-line with the fixes
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results
+    assert expected_records == results_dict
+
+
+def test_postanalysis_fix_www_addresses():
+    # Tests that www addresses have postag 'H':
+    # Initialize tagger
+    morf_tagger = VabamorfTagger( postanalysis_tagger=PostMorphAnalysisTagger(fix_www_addresses=True) )
+    # Case 1
+    text=Text('Lugeja saatis Maaleht.ee-le http://www.tartupostimees.ee foto.')
+    text.tag_layer(['words','sentences'])
+    morf_tagger.tag(text)
+    #print(text['morph_analysis'].to_records())
+    expected_records = [ \
+        [{'clitic': '', 'lemma': 'lugeja', 'start': 0, 'end': 6, 'partofspeech': 'S', 'form': 'sg g', 'root_tokens': ('lugeja',), 'root': 'lugeja', 'ending': '0'}], \
+        [{'clitic': '', 'lemma': 'saatma', 'start': 7, 'end': 13, 'partofspeech': 'V', 'form': 's', 'root_tokens': ('saat',), 'root': 'saat', 'ending': 'is'}], \
+        [{'clitic': '', 'lemma': 'Maaleht.ee', 'start': 14, 'end': 27, 'partofspeech': 'H', 'form': 'sg all', 'root_tokens': ('Maaleht.ee',), 'root': 'Maaleht.ee', 'ending': 'le'}], \
+        [{'clitic': '', 'lemma': 'http://www.tartupostimees.ee', 'start': 28, 'end': 56, 'partofspeech': 'H', 'form': '?', 'root_tokens': ('http://www.tartupostimees.ee',), 'root': 'http://www.tartupostimees.ee', 'ending': '0'}], \
+        [{'clitic': '', 'lemma': 'foto', 'start': 57, 'end': 61, 'partofspeech': 'S', 'form': 'sg n', 'root_tokens': ('foto',), 'root': 'foto', 'ending': '0'}], \
+        [{'clitic': '', 'lemma': '.', 'start': 61, 'end': 62, 'partofspeech': 'Z', 'form': '', 'root_tokens': ('.',), 'root': '.', 'ending': ''}]]
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results
+    assert expected_records == results_dict
+
     
+def test_postanalysis_fix_email_addresses():
+    # Tests that emails have postag 'H':
+    # Initialize tagger
+    morf_tagger = VabamorfTagger( postanalysis_tagger=PostMorphAnalysisTagger(fix_email_addresses=True) )
+    # Case 1
+    text=Text('Kontakt: big@boss.com; http://www.big.boss.com')
+    text.tag_layer(['words','sentences'])
+    morf_tagger.tag(text)
+    #print(text['morph_analysis'].to_records())
+    expected_records = [ \
+        [{'partofspeech': 'S', 'form': 'sg n', 'ending': '0', 'lemma': 'kontakt', 'root_tokens': ('kontakt',), 'start': 0, 'clitic': '', 'end': 7, 'root': 'kontakt'}], \
+        [{'partofspeech': 'Z', 'form': '', 'ending': '', 'lemma': ':', 'root_tokens': (':',), 'start': 7, 'clitic': '', 'end': 8, 'root': ':'}], \
+        [{'partofspeech': 'H', 'form': '?', 'ending': '0', 'lemma': 'big@boss.com', 'root_tokens': ('big@boss.com',), 'start': 9, 'clitic': '', 'end': 21, 'root': 'big@boss.com'}], \
+        [{'partofspeech': 'Z', 'form': '', 'ending': '', 'lemma': ';', 'root_tokens': (';',), 'start': 21, 'clitic': '', 'end': 22, 'root': ';'}], \
+        [{'partofspeech': 'H', 'form': '?', 'ending': '0', 'lemma': 'http://www.big.boss.com', 'root_tokens': ('http://www.big.boss.com',), 'start': 23, 'clitic': '', 'end': 46, 'root': 'http://www.big.boss.com'}]]
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results
+    assert expected_records == results_dict
+
