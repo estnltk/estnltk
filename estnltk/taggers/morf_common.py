@@ -15,7 +15,7 @@ DEFAULT_PARAM_COMPOUND     = True
 VABAMORF_ATTRIBUTES = ('root', 'ending', 'clitic', 'form', 'partofspeech')
 
 # Morphological analysis attributes used by ESTNLTK
-ESTNLTK_MORPH_ATTRIBUTES = VABAMORF_ATTRIBUTES + ('root_tokens', 'lemma',)
+ESTNLTK_MORPH_ATTRIBUTES = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 'form', 'partofspeech')
 
 # Name of the ignore attribute. During the morphological 
 # disambiguation, all spans of "morph_analysis" that have 
