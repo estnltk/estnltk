@@ -264,8 +264,10 @@ def _carry_over_extra_attributes( old_spanlist, new_spanlist, extra_attributes )
         while old_span_id < len(old_spanlist.spans):
             old_span = old_spanlist.spans[old_span_id]
             # Check that all morph attributes match 
+            # ( Skip 'lemma' & 'root_tokens', as these 
+            #   were derived from 'root' )
             attr_matches = []
-            for attr in VabamorfTagger.attributes:
+            for attr in ('root', 'ending', 'clitic', 'partofspeech', 'form'):
                 attr_match = (getattr(old_span,attr)==getattr(new_span,attr))
                 attr_matches.append( attr_match )
             if all( attr_matches ):

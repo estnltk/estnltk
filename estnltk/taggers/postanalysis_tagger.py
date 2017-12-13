@@ -57,6 +57,15 @@ class PostMorphAnalysisTagger(Tagger):
         self.configuration.update(self.kwargs)
 
         self.depends_on = ['compound_tokens', 'words', 'sentences', 'morph_analysis']
+        
+        # Compile regexes
+        self.pat_name_needs_underscore1 = \
+                re.compile('(\.)\s+([A-ZÖÄÜÕŽŠ])')
+        self.pat_name_needs_underscore2 = \
+                re.compile('([A-ZÖÄÜÕŽŠ]\.)([A-ZÖÄÜÕŽŠ])')
+        self.pat_name_needs_uppercase = \
+                re.compile('(\.\s+_)([a-zöäüõšž])')
+        
 
 
     def tag(self, text: Text, return_layer=False) -> Text:
@@ -177,13 +186,13 @@ class PostMorphAnalysisTagger(Tagger):
                             setattr(span, 'partofspeech', 'H')
                             root = getattr(span, 'root')
                             # Fix root: if there is no underscore/space, add it 
-                            root = re.sub('(\.)\s+([A-ZÖÄÜÕŽŠ])', \
-                                          '\\1 _\\2', root)
-                            root = re.sub('([A-ZÖÄÜÕŽŠ]\.)([A-ZÖÄÜÕŽŠ])', \
-                                          '\\1 _\\2', root)
+                            root = \
+                                self.pat_name_needs_underscore1.sub('\\1 _\\2', root)
+                            root = \
+                                self.pat_name_needs_underscore2.sub('\\1 _\\2', root)
                             # Fix root: convert lowercase name start to uppercase
-                            root = re.sub('(\.\s+_)([a-zöäüõšž])', \
-                                          _convert_to_uppercase, root)                            
+                            root = \
+                                self.pat_name_needs_uppercase.sub(_convert_to_uppercase, root)
                             #
                             #  Note: we  fix   only  'root', assuming that 
                             # 'root_tokens' and 'lemma' will be re-generated 
