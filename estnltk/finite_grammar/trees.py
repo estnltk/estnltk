@@ -530,20 +530,33 @@ def parse_graph(G, grammar, depth=float('inf')):
     return G
 
 
-def print_nodes(graph, text, names=None):
-    """ names is the set of node names to be printed
-        of names is None, all nodes are printed
+def print_nodes(graph, text, names=None, attributes=None):
+    """ names is the set of node names to be printed.
+            If None, all nodes are printed.
+        attributes is the list of attributes to be printed
+            If None, 'name' and 'text' is printed for each node.
     """
     results = []
+    if attributes is None:
+        attributes = ['name', 'text']
     for node in graph:
-        try:
-            if not names or node.name in names:
-                results.append((node.name, text.text[node.start:node.end]))
-        except:
-            pass
+        if not names or node.name in names:
+            line = []
+            for attribute in attributes:
+                try:
+                    if attribute == 'text':
+                        value = text.text[node.start:node.end]
+                    else:
+                        value = getattr(node, attribute)
+                except:
+                    value = ''
+                line.append(value)
+            results.append(line)
+
     results.sort()
-    for name, t in results:
-        print('{:20} {}'.format(name, t))
+    results = [attributes, ()]+results
+    for line in results:
+        print(''.join('{:20}'.format(str(value)) for value in line))
 
 
 def plot_graph(graph:LayerGraph, size=12, prog='dot'):
