@@ -30,6 +30,7 @@ class PostMorphAnalysisTagger(Tagger):
                  fix_www_addresses:bool=True, \
                  fix_email_addresses:bool=True, \
                  fix_abbreviations:bool=True, \
+                 fix_numeric:bool=True, \
                  **kwargs):
         """Initialize PostMorphAnalysisTagger class.
 
@@ -67,6 +68,10 @@ class PostMorphAnalysisTagger(Tagger):
         fix_abbreviations: bool (default: True)
             If True, then abbreviations with postags 'S' & 'H' 
             will have their postags overwritten with 'Y';
+        
+        fix_numeric: bool (default: True)
+            If True, then postags of numeric and percentage
+            tokens will be fixed (will be set to 'N');
         """
         self.kwargs = kwargs
         self.layer_name = layer_name
@@ -78,6 +83,7 @@ class PostMorphAnalysisTagger(Tagger):
                               'fix_www_addresses':fix_www_addresses,\
                               'fix_email_addresses':fix_email_addresses,\
                               'fix_abbreviations':fix_abbreviations,\
+                              'fix_numeric':fix_numeric,\
         }
         self.configuration.update(self.kwargs)
 
@@ -90,6 +96,8 @@ class PostMorphAnalysisTagger(Tagger):
                 re.compile('([A-ZÖÄÜÕŽŠ]\.)([A-ZÖÄÜÕŽŠ])')
         self.pat_name_needs_uppercase = \
                 re.compile('(\.\s+_)([a-zöäüõšž])')
+        self.pat_numeric = \
+                re.compile('^(?=\D*\d)[0-9.,\- ]+$')
         
 
 
@@ -196,7 +204,8 @@ class PostMorphAnalysisTagger(Tagger):
         text: estnltk.text.Text
             Text object on which 'morph_analysis' will be corrected.
         '''
-        comp_token_id = 0
+        comp_token_id  = 0
+        has_normalized = 'normalized' in text['compound_tokens'].attributes
         for spanlist in text.morph_analysis.spans:
             if comp_token_id < len(text['compound_tokens'].spans):
                 comp_token = text['compound_tokens'].spans[comp_token_id]
@@ -253,6 +262,26 @@ class PostMorphAnalysisTagger(Tagger):
                             # Set partofspeech to Y, if it is S or H
                             if getattr(span, 'partofspeech') in ['S', 'H']:
                                 setattr(span, 'partofspeech', 'Y')
+                    # 6) Fix partofspeech of numerics and percentages
+                    if self.configuration['fix_numeric']:
+                        if 'numeric' in comp_token.type or \
+                           'percentage' in comp_token.type:
+                            for span in spanlist:
+                                # Change partofspeech from Y to N
+                                if getattr(span, 'partofspeech') in ['Y']:
+                                    setattr(span, 'partofspeech', 'N')
+                        elif 'case_ending' in comp_token.type:
+                            # a number with a case ending may also have 
+                            # wrong partofspeech
+                            for span in spanlist:
+                                if getattr(span, 'partofspeech') in ['Y']:
+                                    # if root looks like a numeric, 
+                                    # then change pos Y -> N
+                                    root = getattr(span, 'root')
+                                    if self.pat_numeric.match(root):
+                                        setattr(span, 'partofspeech', 'N')
+                                    
+
             else:
                 # all compound tokens have been exhausted
                 break

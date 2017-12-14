@@ -183,3 +183,61 @@ def test_postanalysis_fix_abbreviations():
     # Check results
     assert expected_records == results_dict
 
+
+def test_postanalysis_fix_numeric():
+    # Tests that numerics and percentages will have postag 'N':
+    # Initialize tagger
+    morf_tagger = VabamorfTagger( postanalysis_tagger=PostMorphAnalysisTagger(fix_numeric=True) )
+    # Case 1 : percentages
+    text=Text('kahanenud 4,7% -lt 1,8% -ni')
+    text.tag_layer(['words','sentences'])
+    morf_tagger.tag(text)
+    #print(text['morph_analysis'].to_records())
+    expected_records = [ \
+        [{'ending': '0', 'lemma': 'kahanenud', 'root': 'kahane=nud', 'root_tokens': ('kahanenud',), 'start': 0, 'partofspeech': 'A', 'form': '', 'clitic': '', 'end': 9}, \
+         {'ending': '0', 'lemma': 'kahanenud', 'root': 'kahane=nud', 'root_tokens': ('kahanenud',), 'start': 0, 'partofspeech': 'A', 'form': 'sg n', 'clitic': '', 'end': 9}, \
+         {'ending': 'd', 'lemma': 'kahanenud', 'root': 'kahane=nud', 'root_tokens': ('kahanenud',), 'start': 0, 'partofspeech': 'A', 'form': 'pl n', 'clitic': '', 'end': 9}, \
+         {'ending': 'nud', 'lemma': 'kahanema', 'root': 'kahane', 'root_tokens': ('kahane',), 'start': 0, 'partofspeech': 'V', 'form': 'nud', 'clitic': '', 'end': 9}], \
+        [{'ending': 'lt', 'lemma': '4,7%', 'root': '4,7%', 'root_tokens': ('4,7%',), 'start': 10, 'partofspeech': 'N', 'form': 'sg abl', 'clitic': '', 'end': 18}], \
+        [{'ending': 'ni', 'lemma': '1,8%', 'root': '1,8%', 'root_tokens': ('1,8%',), 'start': 19, 'partofspeech': 'N', 'form': 'sg ter', 'clitic': '', 'end': 27}]]
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results
+    assert expected_records == results_dict
+    
+    # Case 2 : numerics
+    text=Text('10-te km kaupa liiva umbes 0-iga')
+    text.tag_layer(['words','sentences'])
+    morf_tagger.tag(text)
+    #print(text['morph_analysis'].to_records())
+    expected_records = [ \
+        [{'partofspeech': 'N', 'start': 0, 'lemma': '10', 'root_tokens': ('10',), 'ending': 'te', 'root': '10', 'end': 5, 'clitic': '', 'form': 'pl g'}],  \
+        [{'partofspeech': 'Y', 'start': 6, 'lemma': 'km', 'root_tokens': ('km',), 'ending': '0', 'root': 'km', 'end': 8, 'clitic': '', 'form': '?'}], \
+        [{'partofspeech': 'K', 'start': 9, 'lemma': 'kaupa', 'root_tokens': ('kaupa',), 'ending': '0', 'root': 'kaupa', 'end': 14, 'clitic': '', 'form': ''}], \
+        [{'partofspeech': 'S', 'start': 15, 'lemma': 'liiv', 'root_tokens': ('liiv',), 'ending': '0', 'root': 'liiv', 'end': 20, 'clitic': '', 'form': 'sg p'}], \
+        [{'partofspeech': 'D', 'start': 21, 'lemma': 'umbes', 'root_tokens': ('umbes',), 'ending': '0', 'root': 'umbes', 'end': 26, 'clitic': '', 'form': ''}], \
+        [{'partofspeech': 'N', 'start': 27, 'lemma': '0', 'root_tokens': ('0',), 'ending': 'iga', 'root': '0', 'end': 32, 'clitic': '', 'form': 'sg kom'}]]
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results
+    assert expected_records == results_dict
+
+    # Case 3 : numerics
+    text=Text('muidugi kallimad on 1000000.- ga')
+    text.tag_layer(['words','sentences'])
+    morf_tagger.tag(text)
+    #print(text['morph_analysis'].to_records())    
+    expected_records = [ \
+        [{'root': 'muidugi', 'end': 7, 'start': 0, 'ending': '0', 'form': '', 'clitic': '', 'root_tokens': ('muidugi',), 'partofspeech': 'D', 'lemma': 'muidugi'}], \
+        [{'root': 'kallim', 'end': 16, 'start': 8, 'ending': 'd', 'form': 'pl n', 'clitic': '', 'root_tokens': ('kallim',), 'partofspeech': 'C', 'lemma': 'kallim'}], \
+        [{'root': 'ole', 'end': 19, 'start': 17, 'ending': '0', 'form': 'b', 'clitic': '', 'root_tokens': ('ole',), 'partofspeech': 'V', 'lemma': 'olema'}, \
+         {'root': 'ole', 'end': 19, 'start': 17, 'ending': '0', 'form': 'vad', 'clitic': '', 'root_tokens': ('ole',), 'partofspeech': 'V', 'lemma': 'olema'}], \
+        [{'root': '1000000- ga', 'end': 32, 'start': 20, 'ending': '0', 'form': '?', 'clitic': '', 'root_tokens': ('1000000', ' ga'), 'partofspeech': 'N', 'lemma': '1000000- ga'}]]
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results
+    assert expected_records == results_dict
+
