@@ -12,6 +12,7 @@ from estnltk.taggers import Tagger
 from estnltk.taggers.morf_common import IGNORE_ATTR
 from estnltk.taggers.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 
+
 class PostMorphAnalysisTagger(Tagger):
     description   = "Provides corrections to morphological analysis layer. "+\
                     "This tagger should be applied before morphological disambiguation."
@@ -128,7 +129,6 @@ class PostMorphAnalysisTagger(Tagger):
         """
         assert self.layer_name in text.layers
         assert 'compound_tokens' in text.layers
-        assert IGNORE_ATTR in text[self.layer_name].attributes
         
         # Take attributes from the input layer
         current_attributes = text[self.layer_name].attributes
@@ -140,15 +140,24 @@ class PostMorphAnalysisTagger(Tagger):
                 extra_attributes.append( cur_attr )
 
         # --------------------------------------------
+        #   Provide fixes that involve rewriting
+        #   attributes of existing spans 
+        #    (no removing or adding spans)
+        # --------------------------------------------
+        self._fix_based_on_compound_tokens( text )
+
+        # --------------------------------------------
+        #   Create a new layer with ignore attribute,
+        #   and provide fixes that involve 
+        #   adding/removing spans
+        # --------------------------------------------
+        self._rewrite_layer_and_fix( text )
+
+        # --------------------------------------------
         #   Mark specific compound tokens as to be 
         #   ignored in future analysis
         # --------------------------------------------
         self._ignore_specific_compound_tokens( text )
-
-        # --------------------------------------------
-        #   Provide fixes based on compound tokens
-        # --------------------------------------------
-        self._fix_based_on_compound_tokens( text )
 
         # --------------------------------------------
         #   Return layer or Text
@@ -194,7 +203,7 @@ class PostMorphAnalysisTagger(Tagger):
             else:
                 # all compound tokens have been exhausted
                 break
-              
+
 
     def _fix_based_on_compound_tokens( self, text: Text ):
         '''Fixes morph analyses based on information about compound tokens.
@@ -285,11 +294,55 @@ class PostMorphAnalysisTagger(Tagger):
                                     root = getattr(span, 'root')
                                     if self.pat_numeric.match(root):
                                         setattr(span, 'partofspeech', 'N')
-                                    
-
             else:
                 # all compound tokens have been exhausted
                 break
+
+
+    def _rewrite_layer_and_fix( self, text: Text ):
+        '''Rewrites text's layer 'morph_analysis' by adding 
+           attribute IGNORE_ATTR to it. Also provides fixes
+           that require removal or addition of spans (TODO).
+           
+        Parameters
+        ----------
+        text: estnltk.text.Text
+            Text object which 'morph_analysis' will be rewritten.
+        '''
+        # Take attributes from the input layer
+        current_attributes = text[self.layer_name].attributes
+        
+        # Rewrite spans of the old layer
+        new_morph_spans = []
+        morph_span_id = 0
+        morph_spans = text[self.layer_name].spans
+        while morph_span_id < len(morph_spans):
+            morph_spanlist = morph_spans[morph_span_id]
+            for morph_span in morph_spanlist.spans:
+                # Create a new span
+                new_morph_span = Span(parent=morph_span.parent)
+                # Carry over attributes
+                for attr in text[self.layer_name].attributes:
+                    setattr(new_morph_span, attr, \
+                            getattr(morph_span,attr))
+                # Add ignore attribute
+                setattr(new_morph_span, IGNORE_ATTR, None)
+                new_morph_spans.append( new_morph_span )
+            morph_span_id += 1
+
+        # Create a new layer
+        morph_layer = Layer(name=self.layer_name,
+                            parent='words',
+                            ambiguous=True,
+                            attributes=current_attributes +\
+                            (IGNORE_ATTR,)
+        )
+        for span in new_morph_spans:
+            morph_layer.add_span(span)
+
+        # Overwrite the old layer
+        delattr(text, self.layer_name)
+        text[self.layer_name] = morph_layer
 
 
 # =================================
