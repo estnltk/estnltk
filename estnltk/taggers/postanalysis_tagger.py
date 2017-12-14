@@ -10,7 +10,6 @@ from estnltk.text import Span, Layer, Text
 from estnltk.taggers import Tagger
 
 from estnltk.taggers.morf_common import IGNORE_ATTR
-from estnltk.taggers.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 
 class PostMorphAnalysisTagger(Tagger):
@@ -133,7 +132,13 @@ class PostMorphAnalysisTagger(Tagger):
         
         # Take attributes from the input layer
         current_attributes = text[self.layer_name].attributes
-        
+        # Check if there are any extra attributes to carry over
+        # from the old layer
+        extra_attributes = []
+        for cur_attr in current_attributes:
+            if cur_attr not in self.attributes:
+                extra_attributes.append( cur_attr )
+
         # --------------------------------------------
         #   Mark specific compound tokens as to be 
         #   ignored in future analysis

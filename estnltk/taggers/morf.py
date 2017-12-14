@@ -14,9 +14,11 @@ from estnltk.taggers.postanalysis_tagger import PostMorphAnalysisTagger
 from estnltk.taggers.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
 from estnltk.taggers.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
 from estnltk.taggers.morf_common import DEFAULT_PARAM_COMPOUND
-from estnltk.taggers.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morf_common import IGNORE_ATTR
+
+from estnltk.taggers.morf_common import carry_over_extra_attributes
+
 
 class VabamorfTagger(Tagger):
     description   = "Tags morphological analysis on words. Uses Vabamorf's morphological analyzer and disambiguator."
@@ -234,51 +236,6 @@ def _convert_vm_dict_to_morph_analysis_spans( vm_dict, word, \
         spans.append(span)
     return spans
 
-
-# ========================================================
-#    Utils for carrying over extra attributes from 
-#          old EstNLTK Span to the new EstNLTK Span
-# ========================================================
-
-def _carry_over_extra_attributes( old_spanlist, new_spanlist, extra_attributes ):
-    ''' Carries over extra attributes from the old spanlist to the new spanlist.
-        * old_spanlist -- 'morph_analysis' SpanList before disambiguation;
-        * new_spanlist -- list of 'morph_analysis' Spans after disambiguation;
-        
-        Assumes:
-        * each span from new_spanlist appears also in old_spanlist, and it can
-          be detected by comparing spans by VabamorfTagger.attributes;
-        * new_spanlist contains less or equal number of spans than old_spanlist;
-    '''
-    assert len(old_spanlist.spans) >= len(new_spanlist)
-    for new_span in new_spanlist:
-        # Try to find a matching old_span for the new_span
-        match_found = False
-        old_span_id = 0
-        while old_span_id < len(old_spanlist.spans):
-            old_span = old_spanlist.spans[old_span_id]
-            # Check that all morph attributes match 
-            # ( Skip 'lemma' & 'root_tokens', as these 
-            #   were derived from 'root' )
-            attr_matches = []
-            for attr in VABAMORF_ATTRIBUTES:
-                attr_match = (getattr(old_span,attr)==getattr(new_span,attr))
-                attr_matches.append( attr_match )
-            if all( attr_matches ):
-                # Set extra attributes
-                for extra_attr in extra_attributes:
-                    # Skip IGNORE_ATTR
-                    if extra_attr == IGNORE_ATTR:
-                        continue
-                    setattr(new_span, \
-                            extra_attr, \
-                            getattr(old_span,extra_attr))
-                match_found = True
-                break
-            old_span_id += 1
-        if not match_found:
-            raise Exception('(!) Unable to match morphologically disambiguated spans with '+\
-                            'morphologically analysed spans.')
 
 # ========================================================
 #    Check if the span is to be ignored during 
@@ -685,9 +642,9 @@ class VabamorfDisambiguator(Tagger):
                         layer_attributes=current_attributes )
                 # D.2) Carry over attribute values (if needed)
                 if extra_attributes:
-                    _carry_over_extra_attributes( old_morph_spans, \
-                                                  spans, \
-                                                  extra_attributes )
+                    carry_over_extra_attributes( old_morph_spans, \
+                                                 spans, \
+                                                 extra_attributes )
                 # D.3) Record the span
                 disambiguated_spans.extend( spans )
                 

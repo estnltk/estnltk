@@ -224,20 +224,3 @@ def test_postanalysis_fix_numeric():
     # Check results
     assert expected_records == results_dict
 
-    # Case 3 : numerics
-    text=Text('muidugi kallimad on 1000000.- ga')
-    text.tag_layer(['words','sentences'])
-    morf_tagger.tag(text)
-    #print(text['morph_analysis'].to_records())    
-    expected_records = [ \
-        [{'root': 'muidugi', 'end': 7, 'start': 0, 'ending': '0', 'form': '', 'clitic': '', 'root_tokens': ('muidugi',), 'partofspeech': 'D', 'lemma': 'muidugi'}], \
-        [{'root': 'kallim', 'end': 16, 'start': 8, 'ending': 'd', 'form': 'pl n', 'clitic': '', 'root_tokens': ('kallim',), 'partofspeech': 'C', 'lemma': 'kallim'}], \
-        [{'root': 'ole', 'end': 19, 'start': 17, 'ending': '0', 'form': 'b', 'clitic': '', 'root_tokens': ('ole',), 'partofspeech': 'V', 'lemma': 'olema'}, \
-         {'root': 'ole', 'end': 19, 'start': 17, 'ending': '0', 'form': 'vad', 'clitic': '', 'root_tokens': ('ole',), 'partofspeech': 'V', 'lemma': 'olema'}], \
-        [{'root': '1000000- ga', 'end': 32, 'start': 20, 'ending': '0', 'form': '?', 'clitic': '', 'root_tokens': ('1000000', ' ga'), 'partofspeech': 'N', 'lemma': '1000000- ga'}]]
-    results_dict = text['morph_analysis'].to_records()
-    _sort_morph_analysis_records( results_dict )
-    _sort_morph_analysis_records( expected_records )
-    # Check results
-    assert expected_records == results_dict
-
