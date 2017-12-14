@@ -530,6 +530,22 @@ def parse_graph(G, grammar, depth=float('inf')):
     return G
 
 
+def print_nodes(graph, text, names=None):
+    """ names is the set of node names to be printed
+        of names is None, all nodes are printed
+    """
+    results = []
+    for node in graph:
+        try:
+            if not names or node.name in names:
+                results.append((node.name, text.text[node.start:node.end]))
+        except:
+            pass
+    results.sort()
+    for name, t in results:
+        print('{:20} {}'.format(name, t))
+
+
 def plot_graph(graph:LayerGraph, size=12, prog='dot'):
     labels = {node:node.name for node in graph.nodes}
     pos = nx.drawing.nx_pydot.pydot_layout(graph, prog=prog)
