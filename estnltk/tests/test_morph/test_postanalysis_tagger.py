@@ -97,8 +97,7 @@ def test_postanalysis_fix_emoticons():
     expected_records = [ \
         [{'form': 'sg n', 'clitic': '', 'lemma': 'äge', 'start': 0, 'end': 3, 'ending': '0', 'root': 'äge', 'partofspeech': 'A', 'root_tokens': ('äge',)}], \
         [{'form': 'sg n', 'clitic': '', 'lemma': 'pull', 'start': 4, 'end': 8, 'ending': '0', 'root': 'pull', 'partofspeech': 'S', 'root_tokens': ('pull',)}], \
-        [{'form': '?', 'clitic': '', 'lemma': 'D', 'start': 9, 'end': 11, 'ending': '0', 'root': 'D', 'partofspeech': 'Z', 'root_tokens': ('D',)}, \
-         {'form': '?', 'clitic': '', 'lemma': 'D', 'start': 9, 'end': 11, 'ending': '0', 'root': 'D', 'partofspeech': 'Z', 'root_tokens': ('D',)}], \
+        [{'form': '?', 'clitic': '', 'lemma': 'D', 'start': 9, 'end': 11, 'ending': '0', 'root': 'D', 'partofspeech': 'Z', 'root_tokens': ('D',)}], \
         [{'form': 'sg n', 'clitic': '', 'lemma': 'irw', 'start': 12, 'end': 15, 'ending': '0', 'root': 'irw', 'partofspeech': 'S', 'root_tokens': ('irw',)}], \
         [{'form': '?', 'clitic': '', 'lemma': 'P', 'start': 16, 'end': 19, 'ending': '0', 'root': 'P', 'partofspeech': 'Z', 'root_tokens': ('P',)}]]
     # TODO: roots of emoticons also need to be fixed, but this 

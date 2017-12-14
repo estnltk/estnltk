@@ -6,11 +6,12 @@
 # 
 import regex as re
 
-from estnltk.text import Span, Layer, Text
+from estnltk.text import Span, SpanList, Layer, Text
 from estnltk.taggers import Tagger
 
 from estnltk.taggers.morf_common import IGNORE_ATTR
 from estnltk.taggers.morf_common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.taggers.morf_common import VABAMORF_ATTRIBUTES
 
 
 class PostMorphAnalysisTagger(Tagger):
@@ -31,6 +32,7 @@ class PostMorphAnalysisTagger(Tagger):
                  fix_email_addresses:bool=True, \
                  fix_abbreviations:bool=True, \
                  fix_numeric:bool=True, \
+                 remove_duplicates:bool=True, \
                  **kwargs):
         """Initialize PostMorphAnalysisTagger class.
 
@@ -72,6 +74,10 @@ class PostMorphAnalysisTagger(Tagger):
         fix_numeric: bool (default: True)
             If True, then postags of numeric and percentage
             tokens will be fixed (will be set to 'N');
+        
+        remove_duplicates: bool (default: True)
+            If True, then duplicate morphological analyses
+            will be removed while rewriting the layer.
         """
         self.kwargs = kwargs
         self.layer_name = layer_name
@@ -84,6 +90,7 @@ class PostMorphAnalysisTagger(Tagger):
                               'fix_email_addresses':fix_email_addresses,\
                               'fix_abbreviations':fix_abbreviations,\
                               'fix_numeric':fix_numeric,\
+                              'remove_duplicates':remove_duplicates,\
         }
         self.configuration.update(self.kwargs)
 
@@ -104,6 +111,9 @@ class PostMorphAnalysisTagger(Tagger):
     def tag(self, text: Text, return_layer=False) -> Text:
         """Provides corrections on morphological analyses of 
         given Text object.
+        Also, rewrites the layer 'morph_analysis' with a new
+        attribute '_ignore', and marks some of the words to 
+        be ignored by future morphological disambiguation.
         
         Parameters
         ----------
@@ -302,7 +312,9 @@ class PostMorphAnalysisTagger(Tagger):
     def _rewrite_layer_and_fix( self, text: Text ):
         '''Rewrites text's layer 'morph_analysis' by adding 
            attribute IGNORE_ATTR to it. Also provides fixes
-           that require removal or addition of spans (TODO).
+           that require removal or addition of spans:
+           1. Removes duplicate analyses;
+           2. ...
            
         Parameters
         ----------
@@ -317,8 +329,13 @@ class PostMorphAnalysisTagger(Tagger):
         morph_span_id = 0
         morph_spans = text[self.layer_name].spans
         while morph_span_id < len(morph_spans):
-            morph_spanlist = morph_spans[morph_span_id]
-            for morph_span in morph_spanlist.spans:
+            morph_spanlist = \
+                [span for span in morph_spans[morph_span_id].spans]
+            # Remove duplicate analyses (if required)
+            if self.configuration['remove_duplicates']:
+                morph_spanlist = \
+                    _remove_duplicate_morph_spans( morph_spanlist )
+            for morph_span in morph_spanlist:
                 # Create a new span
                 new_morph_span = Span(parent=morph_span.parent)
                 # Carry over attributes
@@ -348,8 +365,33 @@ class PostMorphAnalysisTagger(Tagger):
 # =================================
 #    Helper functions
 # =================================
-    
+
 def _convert_to_uppercase( matchobj ):
     '''Converts second group of matchobj to uppercase, and 
        returns a concatenation of first and second group. '''
     return matchobj.group(1)+matchobj.group(2).upper()
+
+
+def _remove_duplicate_morph_spans( spanlist: list ):
+    '''Removes duplicate morphological analyses from given
+       list of Span-s. Returns new list of Span-s.'''
+    new_spanlist = []
+    for s1, span1 in enumerate(spanlist):
+        duplicateFound = False
+        if s1+1 < len(spanlist):
+            for s2 in range(s1+1, len(spanlist)):
+                span2 = spanlist[s2]
+                # Check for complete attribute match
+                attr_matches = []
+                for attr in VABAMORF_ATTRIBUTES:
+                    attr_match = \
+                       (getattr(span1,attr)==getattr(span2,attr))
+                    attr_matches.append( attr_match )
+                if all( attr_matches ):
+                    duplicateFound = True
+                    break
+        if not duplicateFound:
+            # If this span is unique, add it
+            new_spanlist.append(span1)
+    assert len(new_spanlist) <= len(spanlist)
+    return new_spanlist
