@@ -66,22 +66,22 @@ def test_default_morph_analysis_without_disambiguation():
     text.tag_layer(resolver=resolver)['morph_analysis']
     #print( text['morph_analysis'].to_records() )
     expected_records = [ \
-        [{'root_tokens': ('Kärbes',), 'lemma': 'Kärbes', 'root': 'Kärbes', 'clitic': '', 'ending': '0', 'end': 6, 'start': 0, 'form': 'sg n', 'partofspeech': 'H', '_ignore': None},\
-        {'root_tokens': ('Kärbe',), 'lemma': 'Kärbe', 'root': 'Kärbe', 'clitic': '', 'ending': 's', 'end': 6, 'start': 0, 'form': 'sg in', 'partofspeech': 'H', '_ignore': None},\
-        {'root_tokens': ('kärbes',), 'lemma': 'kärbes', 'root': 'kärbes', 'clitic': '', 'ending': '0', 'end': 6, 'start': 0, 'form': 'sg n', 'partofspeech': 'S', '_ignore': None}], \
-        [{'root_tokens': ('hulpi',), 'lemma': 'hulpima', 'root': 'hulpi', 'clitic': '', 'ending': 'b', 'end': 13, 'start': 7, 'form': 'b', 'partofspeech': 'V', '_ignore': None}], \
-        [{'root_tokens': ('mesi',), 'lemma': 'mesi', 'root': 'mesi', 'clitic': '', 'ending': 's', 'end': 18, 'start': 14, 'form': 'sg in', 'partofspeech': 'S', '_ignore': None}, \
-        {'root_tokens': ('mees',), 'lemma': 'mees', 'root': 'mees', 'clitic': '', 'ending': '0', 'end': 18, 'start': 14, 'form': 'sg n', 'partofspeech': 'S', '_ignore': None}], \
-        [{'root_tokens': ('ja',), 'lemma': 'ja', 'root': 'ja', 'clitic': '', 'ending': '0', 'end': 21, 'start': 19, 'form': '', 'partofspeech': 'J', '_ignore': None}], \
-        [{'root_tokens': ('naeris',), 'lemma': 'naeris', 'root': 'naeris', 'clitic': '', 'ending': '0', 'end': 28, 'start': 22, 'form': 'sg n', 'partofspeech': 'S', '_ignore': None},\
-         {'root_tokens': ('naer',), 'lemma': 'naerma', 'root': 'naer', 'clitic': '', 'ending': 'is', 'end': 28, 'start': 22, 'form': 's', 'partofspeech': 'V', '_ignore': None},\
-         {'root_tokens': ('naeris',), 'lemma': 'naeris', 'root': 'naeris', 'clitic': '', 'ending': 's', 'end': 28, 'start': 22, 'form': 'sg in', 'partofspeech': 'S', '_ignore': None}], \
-        [{'root_tokens': ('puhu',), 'lemma': 'puhuma', 'root': 'puhu', 'clitic': '', 'ending': 'b', 'end': 34, 'start': 29, 'form': 'b', 'partofspeech': 'V', '_ignore': None}], \
-        [{'root_tokens': ('sädelev',), 'lemma': 'sädelev', 'root': 'sädelev', 'clitic': '', 'ending': 'id', 'end': 45, 'start': 35, 'form': 'pl p', 'partofspeech': 'A', '_ignore': None}], \
-        [{'root_tokens': ('mina',), 'lemma': 'mina', 'root': 'mina', 'clitic': '', 'ending': 'lle', 'end': 51, 'start': 46, 'form': 'sg all', 'partofspeech': 'P', '_ignore': None}, \
-         {'root_tokens': ('mulle',), 'lemma': 'mulle', 'root': 'mulle', 'clitic': '', 'ending': '0', 'end': 51, 'start': 46, 'form': 'sg n', 'partofspeech': 'S', '_ignore': None},\
-         {'root_tokens': ('mull',), 'lemma': 'mull', 'root': 'mull', 'clitic': '', 'ending': 'e', 'end': 51, 'start': 46, 'form': 'pl p', 'partofspeech': 'S', '_ignore': None}], \
-        [{'root_tokens': ('.',), 'lemma': '.', 'root': '.', 'clitic': '', 'ending': '', 'end': 52, 'start': 51, 'form': '', 'partofspeech': 'Z', '_ignore': None}]]
+        [{'root_tokens': ('Kärbes',), 'lemma': 'Kärbes', 'root': 'Kärbes', 'clitic': '', 'ending': '0', 'end': 6, 'start': 0, 'form': 'sg n', 'partofspeech': 'H', '_ignore': False},\
+        {'root_tokens': ('Kärbe',), 'lemma': 'Kärbe', 'root': 'Kärbe', 'clitic': '', 'ending': 's', 'end': 6, 'start': 0, 'form': 'sg in', 'partofspeech': 'H', '_ignore': False},\
+        {'root_tokens': ('kärbes',), 'lemma': 'kärbes', 'root': 'kärbes', 'clitic': '', 'ending': '0', 'end': 6, 'start': 0, 'form': 'sg n', 'partofspeech': 'S', '_ignore': False}], \
+        [{'root_tokens': ('hulpi',), 'lemma': 'hulpima', 'root': 'hulpi', 'clitic': '', 'ending': 'b', 'end': 13, 'start': 7, 'form': 'b', 'partofspeech': 'V', '_ignore': False}], \
+        [{'root_tokens': ('mesi',), 'lemma': 'mesi', 'root': 'mesi', 'clitic': '', 'ending': 's', 'end': 18, 'start': 14, 'form': 'sg in', 'partofspeech': 'S', '_ignore': False}, \
+        {'root_tokens': ('mees',), 'lemma': 'mees', 'root': 'mees', 'clitic': '', 'ending': '0', 'end': 18, 'start': 14, 'form': 'sg n', 'partofspeech': 'S', '_ignore': False}], \
+        [{'root_tokens': ('ja',), 'lemma': 'ja', 'root': 'ja', 'clitic': '', 'ending': '0', 'end': 21, 'start': 19, 'form': '', 'partofspeech': 'J', '_ignore': False}], \
+        [{'root_tokens': ('naeris',), 'lemma': 'naeris', 'root': 'naeris', 'clitic': '', 'ending': '0', 'end': 28, 'start': 22, 'form': 'sg n', 'partofspeech': 'S', '_ignore': False},\
+         {'root_tokens': ('naer',), 'lemma': 'naerma', 'root': 'naer', 'clitic': '', 'ending': 'is', 'end': 28, 'start': 22, 'form': 's', 'partofspeech': 'V', '_ignore': False},\
+         {'root_tokens': ('naeris',), 'lemma': 'naeris', 'root': 'naeris', 'clitic': '', 'ending': 's', 'end': 28, 'start': 22, 'form': 'sg in', 'partofspeech': 'S', '_ignore': False}], \
+        [{'root_tokens': ('puhu',), 'lemma': 'puhuma', 'root': 'puhu', 'clitic': '', 'ending': 'b', 'end': 34, 'start': 29, 'form': 'b', 'partofspeech': 'V', '_ignore': False}], \
+        [{'root_tokens': ('sädelev',), 'lemma': 'sädelev', 'root': 'sädelev', 'clitic': '', 'ending': 'id', 'end': 45, 'start': 35, 'form': 'pl p', 'partofspeech': 'A', '_ignore': False}], \
+        [{'root_tokens': ('mina',), 'lemma': 'mina', 'root': 'mina', 'clitic': '', 'ending': 'lle', 'end': 51, 'start': 46, 'form': 'sg all', 'partofspeech': 'P', '_ignore': False}, \
+         {'root_tokens': ('mulle',), 'lemma': 'mulle', 'root': 'mulle', 'clitic': '', 'ending': '0', 'end': 51, 'start': 46, 'form': 'sg n', 'partofspeech': 'S', '_ignore': False},\
+         {'root_tokens': ('mull',), 'lemma': 'mull', 'root': 'mull', 'clitic': '', 'ending': 'e', 'end': 51, 'start': 46, 'form': 'pl p', 'partofspeech': 'S', '_ignore': False}], \
+        [{'root_tokens': ('.',), 'lemma': '.', 'root': '.', 'clitic': '', 'ending': '', 'end': 52, 'start': 51, 'form': '', 'partofspeech': 'Z', '_ignore': False}]]
     # Sort analyses (so that the order within a word is always the same)
     results_dict = text['morph_analysis'].to_records()
     _sort_morph_analysis_records( results_dict )
@@ -135,15 +135,15 @@ def test_default_morph_analysis_without_guessing():
     text.tag_layer(resolver=resolver)['morph_analysis']
     #print( text['morph_analysis'].to_records() )
     expected_records = [ \
-        [{'lemma': 'sina', 'ending': '0', 'clitic': '', 'form': 'sg n', 'partofspeech': 'P', 'end': 2, 'root_tokens': ('sina',), 'root': 'sina', 'start': 0, '_ignore': None}], \
-        [{'lemma': 'aeg', 'ending': 'd', 'clitic': '', 'form': 'pl n', 'partofspeech': 'S', 'end': 7, 'root_tokens': ('aeg',), 'root': 'aeg', 'start': 3, '_ignore': None}, \
-         {'lemma': 'ajama', 'ending': 'd', 'clitic': '', 'form': 'd', 'partofspeech': 'V', 'end': 7, 'root_tokens': ('aja',), 'root': 'aja', 'start': 3, '_ignore': None}], \
-        [{'lemma': 'inimmest', 'ending': 'e', 'clitic': '', 'form': 'pl p', 'partofspeech': 'S', 'end': 23, 'root_tokens': ('inim', 'mest'), 'root': 'inim_mest', 'start': 14, '_ignore': None}], \
-        [{'lemma': 'erinema', 'ending': 'vad', 'clitic': '', 'form': 'vad', 'partofspeech': 'V', 'end': 32, 'root_tokens': ('erine',), 'root': 'erine', 'start': 24, '_ignore': None}, \
-         {'lemma': 'erinev', 'ending': 'd', 'clitic': '', 'form': 'pl n', 'partofspeech': 'A', 'end': 32, 'root_tokens': ('erinev',), 'root': 'erinev', 'start': 24, '_ignore': None}], \
-        [{'lemma': 'käsitlusviis', 'ending': 'd', 'clitic': '', 'form': 'pl n', 'partofspeech': 'S', 'end': 47, 'root_tokens': ('käsitlus', 'viis'), 'root': 'käsitlus_viis', 'start': 33, '_ignore': None}], \
-        [{'lemma': 'ja', 'ending': '0', 'clitic': '', 'form': '', 'partofspeech': 'J', 'end': 50, 'root_tokens': ('ja',), 'root': 'ja', 'start': 48, '_ignore': None}], \
-        [{'lemma': 'vahekord', 'ending': '0', 'clitic': '', 'form': 'sg g', 'partofspeech': 'S', 'end': 84, 'root_tokens': ('vahe', 'kord'), 'root': 'vahe_kord', 'start': 75, '_ignore': None}]]
+        [{'lemma': 'sina', 'ending': '0', 'clitic': '', 'form': 'sg n', 'partofspeech': 'P', 'end': 2, 'root_tokens': ('sina',), 'root': 'sina', 'start': 0, '_ignore': False}], \
+        [{'lemma': 'aeg', 'ending': 'd', 'clitic': '', 'form': 'pl n', 'partofspeech': 'S', 'end': 7, 'root_tokens': ('aeg',), 'root': 'aeg', 'start': 3, '_ignore': False}, \
+         {'lemma': 'ajama', 'ending': 'd', 'clitic': '', 'form': 'd', 'partofspeech': 'V', 'end': 7, 'root_tokens': ('aja',), 'root': 'aja', 'start': 3, '_ignore': False}], \
+        [{'lemma': 'inimmest', 'ending': 'e', 'clitic': '', 'form': 'pl p', 'partofspeech': 'S', 'end': 23, 'root_tokens': ('inim', 'mest'), 'root': 'inim_mest', 'start': 14, '_ignore': False}], \
+        [{'lemma': 'erinema', 'ending': 'vad', 'clitic': '', 'form': 'vad', 'partofspeech': 'V', 'end': 32, 'root_tokens': ('erine',), 'root': 'erine', 'start': 24, '_ignore': False}, \
+         {'lemma': 'erinev', 'ending': 'd', 'clitic': '', 'form': 'pl n', 'partofspeech': 'A', 'end': 32, 'root_tokens': ('erinev',), 'root': 'erinev', 'start': 24, '_ignore': False}], \
+        [{'lemma': 'käsitlusviis', 'ending': 'd', 'clitic': '', 'form': 'pl n', 'partofspeech': 'S', 'end': 47, 'root_tokens': ('käsitlus', 'viis'), 'root': 'käsitlus_viis', 'start': 33, '_ignore': False}], \
+        [{'lemma': 'ja', 'ending': '0', 'clitic': '', 'form': '', 'partofspeech': 'J', 'end': 50, 'root_tokens': ('ja',), 'root': 'ja', 'start': 48, '_ignore': False}], \
+        [{'lemma': 'vahekord', 'ending': '0', 'clitic': '', 'form': 'sg g', 'partofspeech': 'S', 'end': 84, 'root_tokens': ('vahe', 'kord'), 'root': 'vahe_kord', 'start': 75, '_ignore': False}]]
     # Note: currently words without analyses will not show up when calling to_records()
     # Sort analyses (so that the order within a word is always the same)
     results_dict = text['morph_analysis'].to_records()
@@ -173,11 +173,11 @@ def test_default_morph_analysis_without_guessing():
     morph_analyser.tag(text)
     #print( text['morph_analysis'].to_records() )
     expected_records = [ \
-        [{'partofspeech': 'P', 'lemma': 'mina', 'form': 'sg n', 'root_tokens': ('mina',), 'ending': '0', 'end': 2, 'clitic': '', 'start': 0, 'root': 'mina', '_ignore': None}], \
-        [{'partofspeech': 'V', 'lemma': 'minema', 'form': 'da', 'root_tokens': ('mine',), 'ending': 'a', 'end': 14, 'clitic': '', 'start': 9, 'root': 'mine', '_ignore': None}], \
-        [{'partofspeech': 'S', 'lemma': 'järv', 'form': 'adt', 'root_tokens': ('järv',), 'ending': '0', 'end': 20, 'clitic': '', 'start': 15, 'root': 'järv', '_ignore': None}, \
-         {'partofspeech': 'S', 'lemma': 'järv', 'form': 'sg g', 'root_tokens': ('järv',), 'ending': '0', 'end': 20, 'clitic': '', 'start': 15, 'root': 'järv', '_ignore': None}, \
-         {'partofspeech': 'S', 'lemma': 'järv', 'form': 'sg p', 'root_tokens': ('järv',), 'ending': '0', 'end': 20, 'clitic': '', 'start': 15, 'root': 'järv', '_ignore': None}]
+        [{'partofspeech': 'P', 'lemma': 'mina', 'form': 'sg n', 'root_tokens': ('mina',), 'ending': '0', 'end': 2, 'clitic': '', 'start': 0, 'root': 'mina', '_ignore': False}], \
+        [{'partofspeech': 'V', 'lemma': 'minema', 'form': 'da', 'root_tokens': ('mine',), 'ending': 'a', 'end': 14, 'clitic': '', 'start': 9, 'root': 'mine', '_ignore': False}], \
+        [{'partofspeech': 'S', 'lemma': 'järv', 'form': 'adt', 'root_tokens': ('järv',), 'ending': '0', 'end': 20, 'clitic': '', 'start': 15, 'root': 'järv', '_ignore': False}, \
+         {'partofspeech': 'S', 'lemma': 'järv', 'form': 'sg g', 'root_tokens': ('järv',), 'ending': '0', 'end': 20, 'clitic': '', 'start': 15, 'root': 'järv', '_ignore': False}, \
+         {'partofspeech': 'S', 'lemma': 'järv', 'form': 'sg p', 'root_tokens': ('järv',), 'ending': '0', 'end': 20, 'clitic': '', 'start': 15, 'root': 'järv', '_ignore': False}]
     ]
     # Sort analyses (so that the order within a word is always the same)
     results_dict = text['morph_analysis'].to_records()

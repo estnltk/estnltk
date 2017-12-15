@@ -386,7 +386,7 @@ class PostMorphAnalysisTagger(Tagger):
                     else:
                         setattr(new_morph_span, attr, rec[attr])
                 # Add ignore attribute
-                setattr(new_morph_span, IGNORE_ATTR, None)
+                setattr(new_morph_span, IGNORE_ATTR, False)
                 # Record the new span
                 new_morph_spans.append( new_morph_span )
             
