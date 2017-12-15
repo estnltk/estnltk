@@ -1,7 +1,8 @@
 #
-#  Provides common variables and constants for modules using 
-#  Vabamorf-based morphological processing.
+#  Provides common functions, variables and constants for modules 
+#  using Vabamorf-based morphological processing.
 # 
+from estnltk.text import Span
 
 # Default parameters to be passed to Vabamorf
 # Note: these defaults are from  estnltk.vabamorf.morf
@@ -21,3 +22,29 @@ ESTNLTK_MORPH_ATTRIBUTES = ('lemma', 'root', 'root_tokens', 'ending', 'clitic', 
 # disambiguation, all spans of "morph_analysis" that have 
 # ignore attribute set to True will be skipped;
 IGNORE_ATTR = '_ignore'
+
+# =================================
+#    Helper functions
+# =================================
+
+def _get_word_text( word:Span ):
+    '''Returns a word string corresponding to the given (word) Span. 
+       If the normalized word form is available, returns the normalized 
+       form instead of the surface form. 
+        
+       Parameters
+       ----------
+       word: Span
+          word which text (or normalized text) needs to be acquired;
+            
+       Returns
+       -------
+       str
+          normalized text of the word, or word.text
+    '''
+    if hasattr(word, 'normalized_form') and word.normalized_form != None:
+        # return the normalized version of the word
+        return word.normalized_form
+    else:
+        return word.text
+

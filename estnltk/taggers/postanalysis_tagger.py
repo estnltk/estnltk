@@ -12,6 +12,7 @@ from estnltk.taggers import Tagger
 from estnltk.taggers.morf_common import IGNORE_ATTR
 from estnltk.taggers.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morf_common import VABAMORF_ATTRIBUTES
+from estnltk.taggers.morf_common import _get_word_text
 
 from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 
@@ -415,16 +416,6 @@ def _convert_to_uppercase( matchobj ):
     '''Converts second group of matchobj to uppercase, and 
        returns a concatenation of first and second group. '''
     return matchobj.group(1)+matchobj.group(2).upper()
-
-def _get_word_text( word:Span ):
-    ''' Returns a word string corresponding to the given (word) Span. 
-        If the normalized word form is available, returns the normalized 
-        form instead of the surface form. '''
-    if hasattr(word, 'normalized_form') and word.normalized_form != None:
-        # return the normalized version of the word
-        return word.normalized_form
-    else:
-        return word.text
 
 def _remove_duplicate_morph_spans( spanlist: list ):
     '''Removes duplicate morphological analyses from given

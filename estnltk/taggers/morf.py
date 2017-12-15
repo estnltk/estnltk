@@ -18,6 +18,8 @@ from estnltk.taggers.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morf_common import IGNORE_ATTR
 
+from estnltk.taggers.morf_common import _get_word_text
+
 
 class VabamorfTagger(Tagger):
     description   = "Tags morphological analysis on words. Uses Vabamorf's morphological analyzer and disambiguator."
@@ -214,7 +216,7 @@ def _convert_vm_dict_to_morph_analysis_spans( vm_dict, word, \
     for analysis in word_analyses:
         span = Span(parent=word)
         for attr in current_attributes:
-            if attr in analysis:     
+            if attr in analysis:
                 # We have a Vabamorf's attribute
                 if attr == 'root_tokens':
                     # make it hashable for Span.__hash__
@@ -366,24 +368,13 @@ class VabamorfAnalyzer(Tagger):
         self.depends_on = ['words', 'sentences']
 
 
-    def _get_word_text(self, word:Span):
-        ''' Returns a word string corresponding to the given (word) Span. 
-            If the normalized word form is available, returns the normalized 
-            form instead of the surface form. '''
-        if hasattr(word, 'normalized_form') and word.normalized_form != None:
-            # return the normalized version of the word
-            return word.normalized_form
-        else:
-            return word.text
-
-
     def _get_wordlist(self, text:Text):
         ''' Returns a list of words from given text. If normalized word 
             forms are available, uses normalized forms instead of the 
             surface forms. '''
         result = []
         for word in text.words:
-            result.append( self._get_word_text( word ) )
+            result.append( _get_word_text( word ) )
         return result
 
 
@@ -447,7 +438,7 @@ class VabamorfAnalyzer(Tagger):
                     span.end <= sentence.end:
                     # Word is inside the sentence
                     sentence_words.append( \
-                        self._get_word_text( span ) 
+                        _get_word_text( span ) 
                     )
                     word_span_id += 1
                 elif sentence.end <= span.start:
