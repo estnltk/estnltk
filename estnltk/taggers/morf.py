@@ -6,7 +6,7 @@
 #  VabamorfAnalyzer and VabamorfDisambiguator.
 # 
 
-from estnltk.text import Span, Layer, Text
+from estnltk.text import Span, SpanList, Layer, Text
 from estnltk.taggers import Tagger
 from estnltk.vabamorf.morf import Vabamorf
 from estnltk.taggers.postanalysis_tagger import PostMorphAnalysisTagger
@@ -14,9 +14,10 @@ from estnltk.taggers.postanalysis_tagger import PostMorphAnalysisTagger
 from estnltk.taggers.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
 from estnltk.taggers.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
 from estnltk.taggers.morf_common import DEFAULT_PARAM_COMPOUND
-from estnltk.taggers.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morf_common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.taggers.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morf_common import IGNORE_ATTR
+
 
 class VabamorfTagger(Tagger):
     description   = "Tags morphological analysis on words. Uses Vabamorf's morphological analyzer and disambiguator."
@@ -51,7 +52,6 @@ class VabamorfTagger(Tagger):
         self.kwargs = kwargs
         self.layer_name = layer_name
        
-        extra_attributes = None
         if postanalysis_tagger:
             # Check for Tagger
             assert isinstance(postanalysis_tagger, Tagger), \
@@ -64,16 +64,9 @@ class VabamorfTagger(Tagger):
                 ' Currently, it modifies layer "'+str(postanalysis_tagger.layer_name)+'".'
             assert hasattr(postanalysis_tagger, 'attributes'), \
                 '(!) postanalysis_tagger does not define any attributes.'
-            # Fetch extra attributes from postanalysis_tagger
-            for postanalysis_attr in postanalysis_tagger.attributes:
-                if postanalysis_attr not in self.attributes:
-                    if not extra_attributes:
-                        extra_attributes = []
-                    extra_attributes.append( postanalysis_attr )
         self.postanalysis_tagger = postanalysis_tagger
         vm_instance = Vabamorf.instance()
-        self.vabamorf_analyser      = VabamorfAnalyzer( vm_instance=vm_instance, \
-                                                        extra_attributes=extra_attributes )
+        self.vabamorf_analyser      = VabamorfAnalyzer( vm_instance=vm_instance )
         self.vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance )
         
 
@@ -234,21 +227,40 @@ def _convert_vm_dict_to_morph_analysis_spans( vm_dict, word, \
         spans.append(span)
     return spans
 
-
 # ========================================================
-#    Utils for carrying over extra attributes from 
+#    Util for carrying over extra attributes from 
 #          old EstNLTK Span to the new EstNLTK Span
 # ========================================================
 
-def _carry_over_extra_attributes( old_spanlist, new_spanlist, extra_attributes ):
-    ''' Carries over extra attributes from the old spanlist to the new spanlist.
-        * old_spanlist -- 'morph_analysis' SpanList before disambiguation;
-        * new_spanlist -- list of 'morph_analysis' Spans after disambiguation;
+def _carry_over_extra_attributes( old_spanlist:SpanList, \
+                                  new_spanlist:list, \
+                                  extra_attributes:list ):
+    '''Carries over extra attributes from the old spanlist to the new 
+       spanlist.
+       Assumes:
+       * each span from new_spanlist appears also in old_spanlist, and it can
+         be detected by comparing spans by VABAMORF_ATTRIBUTES;
+       * new_spanlist contains less or equal number of spans than old_spanlist;
         
-        Assumes:
-        * each span from new_spanlist appears also in old_spanlist, and it can
-          be detected by comparing spans by VabamorfTagger.attributes;
-        * new_spanlist contains less or equal number of spans than old_spanlist;
+       Parameters
+       ----------
+       old_spanlist: estnltk.spans.SpanList
+           SpanList containing morphological analyses of a single word.
+           The source of values of extra attributes.
+
+       new_spanlist: list of estnltk.spans.Span
+           List of newly created Span-s. The target to where extra 
+           attributes and their values need to be written.
+        
+       extra_attributes: list of str
+           List of names of extra attributes that need to be carried 
+           over from old_spanlist to new_spanlist.
+
+       Raises
+       ------
+       Exception
+           If some item from new_spanlist cannot be matched with any of 
+           the items from the old_spanlist;
     '''
     assert len(old_spanlist.spans) >= len(new_spanlist)
     for new_span in new_spanlist:
@@ -267,9 +279,6 @@ def _carry_over_extra_attributes( old_spanlist, new_spanlist, extra_attributes )
             if all( attr_matches ):
                 # Set extra attributes
                 for extra_attr in extra_attributes:
-                    # Skip IGNORE_ATTR
-                    if extra_attr == IGNORE_ATTR:
-                        continue
                     setattr(new_span, \
                             extra_attr, \
                             getattr(old_span,extra_attr))
@@ -277,8 +286,11 @@ def _carry_over_extra_attributes( old_spanlist, new_spanlist, extra_attributes )
                 break
             old_span_id += 1
         if not match_found:
-            raise Exception('(!) Unable to match morphologically disambiguated spans with '+\
-                            'morphologically analysed spans.')
+            new_pos = str((new_span.start, new_span.end))
+            raise Exception('(!) Error on carrying over attributes of morph_analysis: '+\
+                            'Unable to find a matching old span for the new span at '+\
+                            'the location '+new_pos+'.')
+
 
 # ========================================================
 #    Check if the span is to be ignored during 

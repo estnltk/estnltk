@@ -97,8 +97,7 @@ def test_postanalysis_fix_emoticons():
     expected_records = [ \
         [{'form': 'sg n', 'clitic': '', 'lemma': 'äge', 'start': 0, 'end': 3, 'ending': '0', 'root': 'äge', 'partofspeech': 'A', 'root_tokens': ('äge',)}], \
         [{'form': 'sg n', 'clitic': '', 'lemma': 'pull', 'start': 4, 'end': 8, 'ending': '0', 'root': 'pull', 'partofspeech': 'S', 'root_tokens': ('pull',)}], \
-        [{'form': '?', 'clitic': '', 'lemma': 'D', 'start': 9, 'end': 11, 'ending': '0', 'root': 'D', 'partofspeech': 'Z', 'root_tokens': ('D',)}, \
-         {'form': '?', 'clitic': '', 'lemma': 'D', 'start': 9, 'end': 11, 'ending': '0', 'root': 'D', 'partofspeech': 'Z', 'root_tokens': ('D',)}], \
+        [{'form': '?', 'clitic': '', 'lemma': 'D', 'start': 9, 'end': 11, 'ending': '0', 'root': 'D', 'partofspeech': 'Z', 'root_tokens': ('D',)}], \
         [{'form': 'sg n', 'clitic': '', 'lemma': 'irw', 'start': 12, 'end': 15, 'ending': '0', 'root': 'irw', 'partofspeech': 'S', 'root_tokens': ('irw',)}], \
         [{'form': '?', 'clitic': '', 'lemma': 'P', 'start': 16, 'end': 19, 'ending': '0', 'root': 'P', 'partofspeech': 'Z', 'root_tokens': ('P',)}]]
     # TODO: roots of emoticons also need to be fixed, but this 
@@ -218,23 +217,6 @@ def test_postanalysis_fix_numeric():
         [{'partofspeech': 'S', 'start': 15, 'lemma': 'liiv', 'root_tokens': ('liiv',), 'ending': '0', 'root': 'liiv', 'end': 20, 'clitic': '', 'form': 'sg p'}], \
         [{'partofspeech': 'D', 'start': 21, 'lemma': 'umbes', 'root_tokens': ('umbes',), 'ending': '0', 'root': 'umbes', 'end': 26, 'clitic': '', 'form': ''}], \
         [{'partofspeech': 'N', 'start': 27, 'lemma': '0', 'root_tokens': ('0',), 'ending': 'iga', 'root': '0', 'end': 32, 'clitic': '', 'form': 'sg kom'}]]
-    results_dict = text['morph_analysis'].to_records()
-    _sort_morph_analysis_records( results_dict )
-    _sort_morph_analysis_records( expected_records )
-    # Check results
-    assert expected_records == results_dict
-
-    # Case 3 : numerics
-    text=Text('muidugi kallimad on 1000000.- ga')
-    text.tag_layer(['words','sentences'])
-    morf_tagger.tag(text)
-    #print(text['morph_analysis'].to_records())    
-    expected_records = [ \
-        [{'root': 'muidugi', 'end': 7, 'start': 0, 'ending': '0', 'form': '', 'clitic': '', 'root_tokens': ('muidugi',), 'partofspeech': 'D', 'lemma': 'muidugi'}], \
-        [{'root': 'kallim', 'end': 16, 'start': 8, 'ending': 'd', 'form': 'pl n', 'clitic': '', 'root_tokens': ('kallim',), 'partofspeech': 'C', 'lemma': 'kallim'}], \
-        [{'root': 'ole', 'end': 19, 'start': 17, 'ending': '0', 'form': 'b', 'clitic': '', 'root_tokens': ('ole',), 'partofspeech': 'V', 'lemma': 'olema'}, \
-         {'root': 'ole', 'end': 19, 'start': 17, 'ending': '0', 'form': 'vad', 'clitic': '', 'root_tokens': ('ole',), 'partofspeech': 'V', 'lemma': 'olema'}], \
-        [{'root': '1000000- ga', 'end': 32, 'start': 20, 'ending': '0', 'form': '?', 'clitic': '', 'root_tokens': ('1000000', ' ga'), 'partofspeech': 'N', 'lemma': '1000000- ga'}]]
     results_dict = text['morph_analysis'].to_records()
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
