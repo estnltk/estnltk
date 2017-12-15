@@ -71,13 +71,22 @@ class RegexTagger(Tagger):
                 raise KeyError('Illegal keys in expression vocabulary: ' + str(set(record)&self._illegal_keywords))
             #if self._internal_attributes-set(record):
             #    raise KeyError('Missing keys in expression vocabulary: ' + str(self._internal_attributes-set(record)))
-            
             _regex_pattern_ = record['_regex_pattern_']
             if isinstance(_regex_pattern_, str):
                 _regex_pattern_ = re.compile(_regex_pattern_)
+
+            _validator_ = record.get('_validator_')
+            if isinstance(_validator_, str) and _validator_.startswith('lambda m:'):
+                _validator_ = eval(_validator_)
+            elif _validator_ is None:
+                _validator_ = lambda m: True
+            elif not callable(_validator_):
+                raise ValueError("_validator_ must be a callable or a string starting with 'lambda m:'")
+
             rec = {'_regex_pattern_': _regex_pattern_,
                    '_group_': record.get('_group_', 0),
-                   '_priority_': record.get('_priority_', 0)
+                   '_priority_': record.get('_priority_', 0),
+                   '_validator_': _validator_
                    }
             # Whether the overlapped flag should be switched on or off
             overlapped = record.get('overlapped', None)
@@ -125,6 +134,8 @@ class RegexTagger(Tagger):
             for matchobj in voc['_regex_pattern_'].finditer(text, overlapped=overlapped_flag):
                 start, end = matchobj.span(voc['_group_'])
                 if start == end:
+                    continue
+                if not voc['_validator_'](matchobj):
                     continue
                 record = {
                     'start': start,
