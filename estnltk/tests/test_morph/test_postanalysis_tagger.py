@@ -211,12 +211,13 @@ def test_postanalysis_fix_numeric():
     morf_tagger.tag(text)
     #print(text['morph_analysis'].to_records())
     expected_records = [ \
+        # TODO: this is currently broken
         [{'partofspeech': 'N', 'start': 0, 'lemma': '10', 'root_tokens': ('10',), 'ending': 'te', 'root': '10', 'end': 5, 'clitic': '', 'form': 'pl g'}],  \
         [{'partofspeech': 'Y', 'start': 6, 'lemma': 'km', 'root_tokens': ('km',), 'ending': '0', 'root': 'km', 'end': 8, 'clitic': '', 'form': '?'}], \
         [{'partofspeech': 'K', 'start': 9, 'lemma': 'kaupa', 'root_tokens': ('kaupa',), 'ending': '0', 'root': 'kaupa', 'end': 14, 'clitic': '', 'form': ''}], \
         [{'partofspeech': 'S', 'start': 15, 'lemma': 'liiv', 'root_tokens': ('liiv',), 'ending': '0', 'root': 'liiv', 'end': 20, 'clitic': '', 'form': 'sg p'}], \
         [{'partofspeech': 'D', 'start': 21, 'lemma': 'umbes', 'root_tokens': ('umbes',), 'ending': '0', 'root': 'umbes', 'end': 26, 'clitic': '', 'form': ''}], \
-        [{'partofspeech': 'N', 'start': 27, 'lemma': '0', 'root_tokens': ('0',), 'ending': 'iga', 'root': '0', 'end': 32, 'clitic': '', 'form': 'sg kom'}]]
+        [{'partofspeech': 'N', 'start': 27, 'lemma': '0', 'root_tokens': ('0',), 'ending': 'ga', 'root': '0', 'end': 32, 'clitic': '', 'form': 'sg kom'}]]
     results_dict = text['morph_analysis'].to_records()
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )

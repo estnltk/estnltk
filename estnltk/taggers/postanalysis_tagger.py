@@ -13,6 +13,8 @@ from estnltk.taggers.morf_common import IGNORE_ATTR
 from estnltk.taggers.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morf_common import VABAMORF_ATTRIBUTES
 
+from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
+
 
 class PostMorphAnalysisTagger(Tagger):
     description   = "Provides corrections to morphological analysis layer. "+\
@@ -33,6 +35,7 @@ class PostMorphAnalysisTagger(Tagger):
                  fix_abbreviations:bool=True, \
                  fix_numeric:bool=True, \
                  remove_duplicates:bool=True, \
+                 correction_rewriter=VabamorfCorrectionRewriter() ,\
                  **kwargs):
         """Initialize PostMorphAnalysisTagger class.
 
@@ -78,6 +81,10 @@ class PostMorphAnalysisTagger(Tagger):
         remove_duplicates: bool (default: True)
             If True, then duplicate morphological analyses
             will be removed while rewriting the layer.
+        
+        correction_rewriter (default: VabamorfCorrectionRewriter)
+            Rewriter class that will be applied on rewriting the layer.
+            
         """
         self.kwargs = kwargs
         self.layer_name = layer_name
@@ -91,6 +98,7 @@ class PostMorphAnalysisTagger(Tagger):
                               'fix_abbreviations':fix_abbreviations,\
                               'fix_numeric':fix_numeric,\
                               'remove_duplicates':remove_duplicates,\
+                              'correction_rewriter':correction_rewriter,\
         }
         self.configuration.update(self.kwargs)
 
@@ -105,6 +113,8 @@ class PostMorphAnalysisTagger(Tagger):
                 re.compile('(\.\s+_)([a-zöäüõšž])')
         self.pat_numeric = \
                 re.compile('^(?=\D*\d)[0-9.,\- ]+$')
+                
+        
         
 
 
@@ -314,7 +324,9 @@ class PostMorphAnalysisTagger(Tagger):
            attribute IGNORE_ATTR to it. Also provides fixes
            that require removal or addition of spans:
            1. Removes duplicate analyses;
-           2. ...
+           2. Rewrites elements of the layer using 
+              correction_rewriter;
+           3. ...
            
         Parameters
         ----------
@@ -329,22 +341,55 @@ class PostMorphAnalysisTagger(Tagger):
         morph_span_id = 0
         morph_spans = text[self.layer_name].spans
         while morph_span_id < len(morph_spans):
+            # 0) Convert SpanList to list of Span-s
             morph_spanlist = \
                 [span for span in morph_spans[morph_span_id].spans]
-            # Remove duplicate analyses (if required)
+
+            # A) Remove duplicate analyses (if required)
             if self.configuration['remove_duplicates']:
                 morph_spanlist = \
                     _remove_duplicate_morph_spans( morph_spanlist )
-            for morph_span in morph_spanlist:
-                # Create a new span
-                new_morph_span = Span(parent=morph_span.parent)
+
+            # B) Convert spans to records
+            word = morph_spanlist[0].parent
+            records = [ span.to_record() for span in morph_spanlist ]
+            
+            # B.1) Apply correction-rewriter:
+            if self.configuration['correction_rewriter']:
+                # B.1.1) Add 'word_normal'
+                normalized_text = _get_word_text( word )
+                for rec in records:
+                    # Assume all analyses of a single word share common
+                    # normal form
+                    rec['word_normal'] = normalized_text
+                # B.1.2) Rewrite records of a single word
+                rewritten_recs = \
+                    self.configuration['correction_rewriter'].rewrite(records)
+                records = rewritten_recs
+            
+            # C) Convert records back to spans
+            #    Add IGNORE_ATTR
+            morph_spanlist = []
+            for rec in records:
+                if not rec:
+                    # Skip if a record was deleted
+                    continue
+                new_morph_span = Span(parent=word)
                 # Carry over attributes
-                for attr in text[self.layer_name].attributes:
-                    setattr(new_morph_span, attr, \
-                            getattr(morph_span,attr))
+                for attr in rec.keys():
+                    if attr in ['start', 'end', 'text', 'word_normal']:
+                        continue 
+                    if attr == 'root_tokens':
+                        # make it hashable for Span.__hash__
+                        setattr(new_morph_span, attr, tuple(rec[attr]))
+                    else:
+                        setattr(new_morph_span, attr, rec[attr])
                 # Add ignore attribute
                 setattr(new_morph_span, IGNORE_ATTR, None)
+                # Record the new span
                 new_morph_spans.append( new_morph_span )
+            
+            # Advance in the old "morph_analysis" layer
             morph_span_id += 1
 
         # Create a new layer
@@ -371,6 +416,15 @@ def _convert_to_uppercase( matchobj ):
        returns a concatenation of first and second group. '''
     return matchobj.group(1)+matchobj.group(2).upper()
 
+def _get_word_text( word:Span ):
+    ''' Returns a word string corresponding to the given (word) Span. 
+        If the normalized word form is available, returns the normalized 
+        form instead of the surface form. '''
+    if hasattr(word, 'normalized_form') and word.normalized_form != None:
+        # return the normalized version of the word
+        return word.normalized_form
+    else:
+        return word.text
 
 def _remove_duplicate_morph_spans( spanlist: list ):
     '''Removes duplicate morphological analyses from given
