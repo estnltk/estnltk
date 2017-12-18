@@ -43,7 +43,8 @@ def _sort_morph_analysis_records( morph_analysis_records:list ):
        on their specific order. '''
     for wrid, word_records_list in enumerate( morph_analysis_records ):
         sorted_records = sorted( word_records_list, key = lambda x : \
-            x['root']+x['ending']+x['clitic']+x['partofspeech']+x['form'] )
+            str(x['root'])+str(x['ending'])+str(x['clitic'])+\
+            str(x['partofspeech'])+str(x['form']) )
         morph_analysis_records[wrid] = sorted_records
 
 # ----------------------------------
@@ -92,6 +93,33 @@ def test_morph_analyzer_1():
     _sort_morph_analysis_records( expected_records )
     # Check results
     assert expected_records == results_dict
+
+
+# ----------------------------------
+#   Test 
+#      morphological analyser
+#      with guessing switched off
+# ----------------------------------
+
+def test_morph_analyzer_without_guessing():
+    # Tests that positions of unknown words will be filled with [None]
+    text=Text('Mulll on yks rõlgelt hea netikeelelause')
+    text.tag_layer(['words','sentences'])
+    analyzer2.tag(text, guess=False, propername=False)
+    
+    # Check for unknown word placeholders
+    assert ['Mulll', 'on', 'yks', 'rõlgelt', 'hea', 'netikeelelause'] == text.words.text
+    assert [[None], \
+            ['ole', 'ole'], [None], [None], \
+            ['hea', 'hea', 'hea', 'hea'], \
+            ['neti_keele_lause', 'neti_keele_lause']] == text.root
+
+    # Test that zip can be used to discover unknown words
+    unknown_words = []
+    for word, partofspeech in zip(text.words.text, text.partofspeech):
+        if partofspeech[0] is None:
+            unknown_words.append(word)
+    assert ['Mulll', 'yks', 'rõlgelt'] == unknown_words
 
 
 # ----------------------------------
@@ -164,7 +192,7 @@ def test_morph_disambiguation_preserves_extra_attributes():
     # Check results
     assert expected_records == results_dict
 
-
+    
 # ----------------------------------
 #   Test 
 #      disambiguation_with_ignore

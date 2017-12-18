@@ -18,7 +18,8 @@ from estnltk.taggers.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morf_common import IGNORE_ATTR
 
-from estnltk.taggers.morf_common import _get_word_text
+from estnltk.taggers.morf_common import _get_word_text, _create_empty_morph_span
+from estnltk.taggers.morf_common import _is_empty_span
 
 
 class VabamorfTagger(Tagger):
@@ -202,6 +203,9 @@ def _convert_vm_dict_to_morph_analysis_spans( vm_dict, word, \
         If sort_analyses=True, then analyses will be sorted 
         by root,ending,clitic,postag,form;
         
+        Note: if word has no morphological analyses (e.g. it 
+        is an unknown word), then returns an empty list.
+        
         Returns a list of EstNLTK's Spans.
     '''
     spans = []
@@ -228,6 +232,7 @@ def _convert_vm_dict_to_morph_analysis_spans( vm_dict, word, \
                 setattr(span, attr, None)
         spans.append(span)
     return spans
+
 
 # ========================================================
 #    Util for carrying over extra attributes from 
@@ -320,6 +325,7 @@ def _is_ignore_span( span ):
                             "values encountered at the 'morph_analysis' "+\
                             'span '+str((span.start,span.end))+'.')
     return False
+
 
 # ===============================
 #    VabamorfAnalyzer
@@ -484,14 +490,19 @@ class VabamorfAnalyzer(Tagger):
                         word, \
                         layer_attributes=current_attributes, \
                         sort_analyses = True )
-            # Attach spans
+            # Attach spans (if word has morphological analyses)
             for span in spans:
-                if self.extra_attributes:
-                    # Initialize all extra attributes with None
-                    # (it is up to the end-user to fill these in)
-                    for extra_attr in self.extra_attributes:
-                        setattr(span, extra_attr, None)
                 morph_layer.add_span( span )
+            if not spans:
+                # if word has no morphological analyses (e.g.
+                # it is an unknown word), then attach an 
+                # empty Span as a placeholder
+                empty_span = \
+                    _create_empty_morph_span( \
+                        word, \
+                        layer_attributes=current_attributes )
+                morph_layer.add_span( empty_span )
+
         # --------------------------------------------
         #   Return layer or Text
         # --------------------------------------------
@@ -617,7 +628,8 @@ class VabamorfDisambiguator(Tagger):
             ignored_word_ids     = set()
             while word_span_id < len(word_spans):
                 # Get corresponding word span
-                word_span = word_spans[word_span_id]
+                word_span  = word_spans[word_span_id]
+                morph_span = None
                 if sentence.start <= word_span.start and \
                     word_span.end <= sentence.end:
                     morphFound = False
@@ -625,7 +637,8 @@ class VabamorfDisambiguator(Tagger):
                     if morph_span_id < len(morph_spans):
                         morph_span = morph_spans[morph_span_id]
                         if word_span.start == morph_span.start and \
-                           word_span.end == morph_span.end:
+                           word_span.end == morph_span.end and \
+                           not _is_empty_span( morph_span.spans[0] ):
                             # Word & morph found: collect items
                             sentence_word_spans.append( word_span )
                             sentence_morph_spans.append( morph_span )
@@ -648,6 +661,9 @@ class VabamorfDisambiguator(Tagger):
                         # Did not find any morph analysis for the word
                         words_missing_morph.append( word_span )
                         word_span_id  += 1
+                        # Advance morph position, if morph was empty
+                        if morph_span and _is_empty_span(morph_span.spans[0]):
+                            morph_span_id += 1
                 elif sentence.end <= word_span.start:
                     # Word falls out of the sentence: break
                     break

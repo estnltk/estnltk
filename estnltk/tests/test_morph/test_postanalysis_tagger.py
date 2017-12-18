@@ -13,7 +13,8 @@ def _sort_morph_analysis_records( morph_analysis_records:list ):
        on their specific order. '''
     for wrid, word_records_list in enumerate( morph_analysis_records ):
         sorted_records = sorted( word_records_list, key = lambda x : \
-            x['root']+x['ending']+x['clitic']+x['partofspeech']+x['form'] )
+            str(x['root'])+str(x['ending'])+str(x['clitic'])+\
+            str(x['partofspeech'])+str(x['form']) )
         morph_analysis_records[wrid] = sorted_records
 
 
