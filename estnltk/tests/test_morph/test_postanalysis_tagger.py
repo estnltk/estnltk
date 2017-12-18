@@ -231,6 +231,10 @@ def test_postanalysis_fix_numeric():
     #print(text['morph_analysis'].to_records())
     expected_records = [ \
         [{'partofspeech': 'V', 'form': 's', 'lemma': 'saama', 'root_tokens': ('saa',), 'clitic': '', 'root': 'saa', 'end': 3, 'start': 0, 'ending': 'i'}], \
+        # Following is problematic: 
+        #   the correct form should be 'sg p', but then again, the 
+        #   surface form '112-e' is also misleading, can be easily 
+        #   interpreted as 'sg g'
         [{'partofspeech': 'N', 'form': 'sg g', 'lemma': '112', 'root_tokens': ('112',), 'clitic': '', 'root': '112', 'end': 9, 'start': 4, 'ending': '0'}], \
         [{'partofspeech': 'A', 'form': '', 'lemma': 'helistatud', 'root_tokens': ('helistatud',), 'clitic': '', 'root': 'helista=tud', 'end': 20, 'start': 10, 'ending': '0'}, \
          {'partofspeech': 'A', 'form': 'sg n', 'lemma': 'helistatud', 'root_tokens': ('helistatud',), 'clitic': '', 'root': 'helista=tud', 'end': 20, 'start': 10, 'ending': '0'}, \

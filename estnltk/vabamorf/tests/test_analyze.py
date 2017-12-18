@@ -12,10 +12,19 @@ class TrimPhoneticsTest(unittest.TestCase):
     
     def test_tilde(self):
         self.assertEqual(trim_phonetics('~'), '~')
-        
+
+    def test_tilde_repetition(self):
+        self.assertEqual(trim_phonetics('~~~'), '~~~')
+
     def test_questionmark(self):
         self.assertEqual(trim_phonetics('?'), '?')
-    
+
+    def test_questionmark_repetition_1(self):
+        self.assertEqual(trim_phonetics('???'), '???')
+
+    def test_questionmark_repetition_2(self):
+        self.assertEqual(trim_phonetics('??????'), '??????')
+
     def test_rbracket(self):
         self.assertEqual(trim_phonetics(']'), ']')
         
@@ -24,7 +33,7 @@ class TrimPhoneticsTest(unittest.TestCase):
         
     def test_phonetics(self):
         self.assertEqual(trim_phonetics('~~???ab]c<d'), 'abcd')
-
+        
 
 class TokensTest(unittest.TestCase):
 

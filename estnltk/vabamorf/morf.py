@@ -57,7 +57,10 @@ def regex_from_markers(markers):
     """
     return re.compile('|'.join([re.escape(c) for c in markers]))
 
-phonetic_regex = regex_from_markers(phonetic_markers)
+phonetic_regex = \
+    regex_from_markers(phonetic_markers)
+phonetic_marker_repetition_regex = \
+    re.compile( '^('+('|'.join([re.escape(c) for c in phonetic_markers]))+')+$' )
 compound_regex = regex_from_markers(compound_markers)
 
 
@@ -334,15 +337,17 @@ def trim_phonetics(root):
     ----------
     root: str
         The string to remove the phonetic markup.
-
+    
     Returns
     -------
     str
         The string with phonetic markup removed.
     """
-    global phonetic_markers
     global phonetic_regex
-    if root in phonetic_markers:
+    global phonetic_marker_repetition_regex
+    if phonetic_marker_repetition_regex.match(root):
+        # Preserve a single phonetic symbol, e.g. '?',
+        #              and repeated symbols, e.g. '??????'
         return root
     else:
         return phonetic_regex.sub('', root)
