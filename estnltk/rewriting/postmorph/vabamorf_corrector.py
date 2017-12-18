@@ -94,14 +94,6 @@ class VabamorfCorrectionRewriter:
         if word_normal.isalpha():
             return records
 
-        # repair empty analysis of '??', '???', '????', ...
-        if re.match('\?{2,}$', word_normal):
-            for rec in records:
-                rec['lemma'] = word_normal
-                rec['root'] = word_normal
-                rec['root_tokens'] = (word_normal,)
-            return records
-
         # check analysis of numeric tokens 
         analysis = self.analyze_number(word_normal)
 
