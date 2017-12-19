@@ -86,6 +86,18 @@ def test_postanalysis_fix_names_with_initials():
     # Check results
     assert expected_records == results_dict
 
+    # Case 4
+    # Negative case: do not fix partofspeech on verbs (yet)
+    text=Text("Ansambli nimeks oli Swing B. Esinemas käisime tantsuõhtutel")
+    text.tag_layer(['words','sentences'])
+    morf_tagger.tag(text)
+    expected_result = [('Ansambli', ['S']), ('nimeks', ['S']), ('oli', ['V']), ('Swing', ['H']), \
+                       ('B. Esinemas', ['V']), ('käisime', ['V']), ('tantsuõhtutel', ['S'])]
+    # TODO: 'B. Esinemas' is actually a wrong compound token, 
+    #        needs to be fixed in the future
+    result = list(zip(text.words.text,text.partofspeech))
+    assert expected_result == result
+
 
 def test_postanalysis_fix_emoticons():
     # Tests that emoticons have postag 'Z':

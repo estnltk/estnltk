@@ -253,6 +253,11 @@ class PostMorphAnalysisTagger(Tagger):
                     if self.configuration['fix_names_with_initials'] and \
                        'name_with_initial' in comp_token.type:
                         for span in spanlist:
+                            # If it is a verb, then skip the fixes 
+                            # ( verbs are more complicated, may need 
+                            #   changing form, ending etc. )
+                            if getattr(span, 'partofspeech') == 'V':
+                                continue
                             # Set partofspeech to H
                             setattr(span, 'partofspeech', 'H')
                             root = getattr(span, 'root')
