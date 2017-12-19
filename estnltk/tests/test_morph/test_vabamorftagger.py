@@ -2,6 +2,8 @@ from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.resolve_layer_dag import make_resolver
 
+# ----------------------------------
+
 def _sort_morph_analysis_records( morph_analysis_records:list ):
     '''Sorts sublists (lists of analyses of a single word) of 
        morph_analysis_records. Sorting is required for comparing
@@ -13,6 +15,7 @@ def _sort_morph_analysis_records( morph_analysis_records:list ):
             str(x['partofspeech'])+str(x['form']) )
         morph_analysis_records[wrid] = sorted_records
 
+# ----------------------------------
 
 def test_default_morph_analysis():
     # Case 1
@@ -164,8 +167,6 @@ def test_default_morph_analysis_without_guessing():
     delattr(text, 'morph_analysis')
     # Create a new layer without guessing
     text.tag_layer(resolver=resolver)['morph_analysis']
-    # Note: the default behaviour is that words without analyses will not show up
-    #       ( as they are not recorded at the layer )
     assert [['tüdruk'], ['mine'], [None], [None]]   == text.root
     assert [['tüdruk'], ['minema'], [None], [None]] == text.lemma
     assert [['S'], ['V'], [None], [None]]           == text.partofspeech

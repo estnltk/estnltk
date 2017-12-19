@@ -73,9 +73,9 @@ class VabamorfTagger(Tagger):
         self.vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance )
         
 
-        self.configuration = {'postanalysis_tagger':self.postanalysis_tagger.__class__.__name__,
-                              'vabamorf_analyser':self.vabamorf_analyser.__class__.__name__,
-                              'vabamorf_disambiguator':self.vabamorf_disambiguator.__class__.__name__ }
+        self.configuration = {'postanalysis_tagger':self.postanalysis_tagger.__class__.__name__, }
+        #                      'vabamorf_analyser':self.vabamorf_analyser.__class__.__name__,
+        #                      'vabamorf_disambiguator':self.vabamorf_disambiguator.__class__.__name__ }
         self.configuration.update(self.kwargs)
 
         self.depends_on = ['words', 'sentences']

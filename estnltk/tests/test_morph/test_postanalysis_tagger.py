@@ -17,6 +17,7 @@ def _sort_morph_analysis_records( morph_analysis_records:list ):
             str(x['partofspeech'])+str(x['form']) )
         morph_analysis_records[wrid] = sorted_records
 
+# ----------------------------------
 
 def test_postanalysis_fix_names_with_initials():
     # Tests that names with initials (such as "T. S. Eliot") will have their:

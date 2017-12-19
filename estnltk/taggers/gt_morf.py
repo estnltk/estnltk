@@ -17,6 +17,10 @@ from estnltk.text import Span, Layer, Text
 from estnltk.taggers import Tagger
 from estnltk.taggers import VabamorfTagger
 
+from estnltk.taggers.morf_common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.taggers.morf_common import _is_empty_span
+from estnltk.taggers.morf_common import _create_empty_morph_span
+
 # =========================================================================================
 #    Convert nominal categories
 # =========================================================================================
@@ -229,18 +233,29 @@ def _convert_analysis( text: Text ):
             vmstart = vabamorf_span.start
             vmend   = vabamorf_span.end
             if vmstart == wstart and vmend == wend:
-                new_analyses = vabamorf_span.to_record()
-                # Convert noun categories
-                new_analyses = [ _convert_nominal_form( a ) for a in new_analyses ]
-                # Convert ambiguous verb categories
-                new_analyses = [_convert_amb_verbal_form( a ) for a in new_analyses]
-                new_analyses = sum(new_analyses, [])  # Flatten the list
-                # Convert remaining verbal categories
-                new_analyses = [_convert_verbal_form( a ) for a in new_analyses]
-                # Make postfixes
-                new_analyses = [_make_postfixes_1( a ) for a in new_analyses]
-                # Append new analyses
-                analysis_dicts.extend( new_analyses )
+                if not _is_empty_span( vabamorf_span.spans[0] ):
+                    new_analyses = vabamorf_span.to_record()
+                    # Convert noun categories
+                    new_analyses = [ _convert_nominal_form( a ) for a in new_analyses ]
+                    # Convert ambiguous verb categories
+                    new_analyses = [_convert_amb_verbal_form( a ) for a in new_analyses]
+                    new_analyses = sum(new_analyses, [])  # Flatten the list
+                    # Convert remaining verbal categories
+                    new_analyses = [_convert_verbal_form( a ) for a in new_analyses]
+                    # Make postfixes
+                    new_analyses = [_make_postfixes_1( a ) for a in new_analyses]
+                    # Append new analyses
+                    analysis_dicts.extend( new_analyses )
+                else:
+                    # Analysis is empty (an unknown word)
+                    new_analyses = vabamorf_span.to_record()
+                    # Convert None to empty string
+                    for analysis in new_analyses:
+                        for key in analysis.keys():
+                            if analysis[key] is None:
+                                analysis[key] = ''
+                    # Append new analyses
+                    analysis_dicts.extend( new_analyses )
                 morph_span_id += 1
             else:
                 break
@@ -405,16 +420,32 @@ def _create_spans( text: Text, morph_dict_list:list, layer:Layer = None ):
         while(morph_span_id < len(morph_dict_list)):
             morph_dict = morph_dict_list[morph_span_id]
             if morph_dict['start'] == wstart and morph_dict['end'] == wend:
-                # Create corresponding Span-s
-                span = Span( parent=word )
-                for attr in morph_dict.keys():
-                    if attr in ['start', 'end', 'text']:
-                        continue
-                    if attr == 'root_tokens':
-                        # make it hashable for Span.__hash__
-                        setattr(span, attr, tuple(morph_dict[attr]))
-                    else:
-                        setattr(span, attr, morph_dict[attr])
+                span = None
+                # Check for empty Span-s
+                empty_attributes = []
+                for attr in ESTNLTK_MORPH_ATTRIBUTES:
+                    empty_attributes.append( morph_dict[attr] is None or \
+                                             len(morph_dict[attr]) == 0 )
+                if empty_attributes.count(True) > len(empty_attributes)/2:
+                    # If most of the attributes have been set 
+                    # to '', then we have an empty Span (unknown word)
+                    current_attributes = layer.attributes if layer else None
+                    span = \
+                        _create_empty_morph_span(word, \
+                                                 layer_attributes=current_attributes)
+                else:
+                    # The Span corresponds to word with full analyses
+                    # Create corresponding Span-s
+                    span = Span( parent=word )
+                    for attr in morph_dict.keys():
+                        if attr in ['start', 'end', 'text']:
+                            continue
+                        if attr == 'root_tokens':
+                            # make it hashable for Span.__hash__
+                            setattr(span, attr, tuple(morph_dict[attr]))
+                        else:
+                            setattr(span, attr, morph_dict[attr])
+                assert span is not None
                 # If layer has been provided, attach the span to the layer
                 if layer:
                     layer.add_span( span )
