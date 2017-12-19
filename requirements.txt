@@ -7,3 +7,4 @@ python-crfsuite
 cached-property
 beautifulsoup4
 html5lib
+lxml

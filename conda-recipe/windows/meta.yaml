@@ -26,6 +26,7 @@ requirements:
     - beautifulsoup4 >=4.4.0
     - html5lib
     - networkx
+    - lxml
   run:
     - python
     - six >=1.9.0
@@ -37,6 +38,7 @@ requirements:
     - beautifulsoup4 >=4.4.0
     - html5lib
     - networkx
+    - lxml
 
 about:
   home: https://github.com/estnltk/estnltk
