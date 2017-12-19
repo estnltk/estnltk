@@ -4,6 +4,8 @@ from estnltk.text import Span, SpanList, Layer
 from estnltk.layer_operations.consecutive import iterate_consecutive_spans
 from estnltk.layer_operations.consecutive import iterate_touching_spans
 from estnltk.layer_operations.consecutive import iterate_hovering_spans
+from estnltk.layer_operations.consecutive import iterate_starting_spans
+from estnltk.layer_operations.consecutive import iterate_ending_spans
 
 from estnltk.layer_operations.intersections import iterate_intersecting_spans
 from estnltk.layer_operations.intersections import iterate_nested_spans
@@ -210,6 +212,37 @@ def test_iterate_touching_spans_in_spanlist_3():
         [('kaks kolm', 'neli'), ('kolm', 'neli')]
     assert touching_span_texts == expected_touching_span_texts
 
+# --------------------- Iterate over starting and ending spans
+
+
+def test_iterate_terminal_spans():
+    s1 = Span(0,  3)
+    s2 = Span(1, 10)
+    s3 = Span(5,  7)
+    s4 = Span(5,  7)
+    s5 = Span(8,  9)
+
+    span_list = SpanList()
+    assert tuple(iterate_starting_spans(span_list)) == ()
+    assert tuple(iterate_ending_spans(span_list)) == ()
+
+    span_list.add_span(s3)
+    assert tuple(iterate_starting_spans(span_list)) == (s3,)
+    assert tuple(iterate_ending_spans(span_list)) == (s3,)
+
+    span_list.add_span(s4)
+    assert tuple(iterate_starting_spans(span_list)) == (s3, s4)
+    assert tuple(iterate_ending_spans(span_list)) == (s3, s4)
+
+    span_list.add_span(s1)
+    span_list.add_span(s5)
+    assert tuple(iterate_starting_spans(span_list)) == (s1,)
+    assert tuple(iterate_ending_spans(span_list)) == (s5,)
+
+    span_list.add_span(s2)
+    assert tuple(iterate_starting_spans(span_list)) == (s1,s2)
+    assert tuple(iterate_ending_spans(span_list)) == (s2, s5)
+
 
 # --------------------- Iterate over intersecting Spans in SpanList 
 
@@ -370,4 +403,3 @@ def test_equal_positions():
 
 
 # --------------------------------------------------------------------------
-
