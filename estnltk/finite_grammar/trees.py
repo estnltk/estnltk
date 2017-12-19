@@ -516,7 +516,9 @@ def parse_graph(G, grammar, depth=float('inf')):
                 assert all((sequence[i], sequence[i+1]) in G.edges for i in range(len(sequence)-1))
                 if rule.consistency_checker(sequence):
                     new_node = Node(rule.lhs, sequence)
-                    new_node.decoration = rule.decorator(sequence)
+                    decoration = rule.decorator(sequence)
+                    for name, value in decoration.items():
+                        setattr(new_node, name, value)
                     nodes_to_add.append((new_node,
                                          sequence,
                                          list(G.pred[sequence[0]]),

@@ -91,3 +91,32 @@ def iterate_hovering_spans(spanlist:Union[List[Span], SpanList],
     for (span, following_span) in iterate_consecutive_spans(spanlist, max_gap=max_gap):
         if min_gap <= (following_span.start - span.end) <= max_gap:
             yield (span, following_span)
+
+
+def iterate_starting_spans(spanlist):
+    """
+    yield all spans that have no strictly preceding spans
+    """
+    min_end = float('inf')
+    for span in spanlist:
+        min_end = min(span.end, min_end)
+        if span.start < min_end:
+            yield span
+        else:
+            return
+
+
+def iterate_ending_spans(spanlist):
+    """
+    yield all spans that have no strictly succeeding spans
+    """
+    if isinstance(spanlist, list) and spanlist:
+        if all([isinstance(span, Span) for span in spanlist]):
+            spanlist = sorted(spanlist)
+        else:
+            raise Exception(
+                'the input list contains unexpected types of elements: ', str(spanlist))
+    if spanlist:
+        max_start = spanlist[-1].start
+        yield from (span for span in spanlist if span.end > max_start)
+
