@@ -1,33 +1,33 @@
-"_regex_pattern_","_group_","_priority_","normalized","regex_type","value","grammar_symbol"
-"((K|k)olesteroo?l|KOLESTEROOL|(K|k)olester|Chol|(K|k)olest?|kol|chol|CHol|CHL|KOL|Kol|cHOL|CHOL|ÜK|ük|Ük)",0,1,,"measurement_object","kolesterool","MO"
-"(((S|s)iinus)?r.tm(iline|ilised)?|[Ff]rekv?(ents)?|fr\.?|Fr|BPM|bpm|SR|SLS|FR|HR|(P|p)ulss(i)?|Ps)(\s*[xX]\s*)?",0,1,,"measurement_object","pulss","MO"
-"((([Ss]ünni)|([Kk]eha))?(p|P)ikkus|PIKKUS|pikkusega|[^A-Z]SP|sp|pikk|kasv|Kasv)",0,1,,"measurement_object","pikkus","MO"
-"(psa|Psa|S-PSA|[Pp]rostataspetsiifiline\s*antigeen(\s*seerumis)?|PSA|(S\s*,\s*P-)?(\s*PSA))",0,1,,"measurement_object","psa","MO"
-"((((K|k)eha)|((S|s)ünni))?(K|k)aal(uga)?|kAAL|SK|Sk|[^a-z]sk|KAAL|SM|[Ss]/k|(K|k)aalu(ga|nud|b|s))",0,1,,"measurement_object","kaal","MO"
-"ALAT",0,1,,"measurement_object","alat","MO"
-"(ng/mL|ng/L|mk(ro)?g/[Ll]|ng/\s*ml|ng7ml|mg/ml|ng\\ml|ng/l|ug/L|ngIml|µg/L|mcg/L|ng/mg)",0,1,,"unit","psa_unit","UNIT"
-"(a[. ]|aasta|kuu|nädal|[Xx]|kord|min|msek|ms|)",0,0,,"unit","time_unit","UNIT"
-"((mmoo?l?i?|mm|MMOL|mol)(\s*[-/]\s*(L|l))?|MMOL/L)",0,1,,"unit","chol_unit","UNIT"
-"(((l|x|X|lööki))\s*/?\s*(1\s*)?min(utis)?)|/min|x['´`]|bpm|BPM",0,1,,"unit","pulss_unit","UNIT"
-"U/L",0,1,,"unit","alat_unit","UNIT"
-"(cm|Cm|sm|SM|CM|m)",0,1,,"unit","pikkus_unit","UNIT"
-"(gramm|kg|mg|kG|gr|g|KG|G)",0,1,,"unit","kaal_unit","UNIT"
-"([0-9])+(\s?[,.]\s?[0-9]+)?",0,1,,"number1","whatever","NUMBER"
-"(([12][0-9]{2})|([3-9][0-9]))",0,4,,"number2","some_int","NUMBER"
-"PALAT",0,1,,"rubbish","alat_trash","RUBBISH"
-"(([Tt]asa|[Ee]ri|[Oo]sa)kaal[-.: ]*)",0,0,,"rubbish","kaal_trash","RUBBISH"
-"(mmol/l|mg|mkg|tsentiil|prts|(pro)?tsentiil|pt|mm)",0,0,,"rubbish","not_pikkus_unit","UNIT"
-"k(el)?l\s(?P<hour>[0-2][0-9])[.:](?P<minute>[0-5][0-9])(:(?P<second>[0-5][0-9]))?",0,2,,"date1","time","DATE"
-"(?P<DAY>(0?[1-9]|[12][0-9]|3[01]))\.?\s*(?P<MONTH>(0?[1-9]|1[0-2]))\.?\s*(?P<YEAR>((19[0-9]{2})|(20[0-9]{2})|([0-9]{2})))\s*(?P<hour>[0-2][0-9])[.:](?P<minute>[0-5][0-9])(:(?P<second>[0-5][0-9]))?",0,2,,"date2","date_time","DATE"
-"(?P<DAY>(0?[1-9]|[12][0-9]|3[01]))\.?\s*(?P<MONTH>(0?[1-9]|1[0-2]))\.?\s*(?P<YEAR>((19[0-9]{2})|(20[0-9]{2})|([0-9]{2})))[.a ]+\s*k(el)?l\.*\s*(?P<hour>[0-2][0-9])[.:](?P<minute>[0-5][0-9])(:(?P<second>[0-5][0-9]))?",0,2,,"date3","date_time","DATE"
-"(?P<DAY>(0?[1-9]|[12][0-9]|3[01]))\.?\s*(?P<MONTH>(0?[1-9]|1[0-2]))\.?\s*(?P<YEAR>((19[0-9]{2})|(20[0-9]{2})|([0-9]{2})))",0,-1,,"date4","date","DATE"
-"(?P<DAY>(0?[1-9]|[12][0-9]|3[01]))\.\s?(?P<MONTH>(0?[1-9]|1[0-2]))",0,3,,"date5","partial_date","DATE"
-"(?P<MONTH>(0?[1-9]|1[0-2]))\.\s?(?P<LONGYEAR>((19[0-9]{2})|(20[0-9]{2})))",0,3,,"date6","partial_date","DATE"
-"(?P<DAY>(0?[1-9]|[12][0-9]|3[01]))\.\s?(?P<MONTH>(0?[1-9]|1[0-2]))\s*k(el)?l\s(?P<hour>[0-2][0-9])[.:](?P<minute>[0-5][0-9])(:(?P<second>[0-5][0-9]))?",0,3,,"date7","partial_date","DATE"
-"(?P<LONGYEAR>((19[0-9]{2})|(20[0-9]{2})))\s*a",0,0,,"date8","partial_date","DATE"
-"(?P<LONGYEAR>((19[0-9]{2})|(20[0-9]{2})))",0,0,,"date9","partial_date","DATE"
-"[-=.>< ]*",0,1,,"space","space","SPACE"
-"\.?\s*-?\s*",0,1,,"space","space","SPACE"
-"[-=.>< ]*(on|oli)\s*",0,1,,"space","space","SPACE"
-"\s*-?:?\s*\<?",0,1,,"space","space","SPACE"
-"\s*",0,1,,"space","space","SPACE"
+_regex_pattern_,_group_,_priority_,regex_type,value,grammar_symbol
+((K|k)olesteroo?l|KOLESTEROOL|(K|k)olester|Chol|(K|k)olest?|kol|chol|CHol|CHL|KOL|Kol|cHOL|CHOL|ÜK|ük|Ük),0,1,measurement_object,kolesterool,MO
+(((S|s)iinus)?r.tm(iline|ilised)?|[Ff]rekv?(ents)?|fr\.?|Fr|BPM|bpm|SR|SLS|FR|HR|(P|p)ulss(i)?|Ps)(\s*[xX]\s*)?,0,1,measurement_object,pulss,MO
+((([Ss]ünni)|([Kk]eha))?(p|P)ikkus|PIKKUS|pikkusega|[^A-Z]SP|sp|pikk|kasv|Kasv),0,1,measurement_object,pikkus,MO
+"(psa|Psa|S-PSA|[Pp]rostataspetsiifiline\s*antigeen(\s*seerumis)?|PSA|(S\s*,\s*P-)?(\s*PSA))",0,1,measurement_object,psa,MO
+((((K|k)eha)|((S|s)ünni))?(K|k)aal(uga)?|kAAL|SK|Sk|[^a-z]sk|KAAL|SM|[Ss]/k|(K|k)aalu(ga|nud|b|s)),0,1,measurement_object,kaal,MO
+ALAT,0,1,measurement_object,alat,MO
+(ng/mL|ng/L|mk(ro)?g/[Ll]|ng/\s*ml|ng7ml|mg/ml|ng\\ml|ng/l|ug/L|ngIml|µg/L|mcg/L|ng/mg),0,1,unit,psa_unit,UNIT
+(a[. ]|aasta|kuu|nädal|[Xx]|kord|min|msek|ms|),0,0,unit,time_unit,UNIT
+((mmoo?l?i?|mm|MMOL|mol)(\s*[-/]\s*(L|l))?|MMOL/L),0,1,unit,chol_unit,UNIT
+(((l|x|X|lööki))\s*/?\s*(1\s*)?min(utis)?)|/min|x['´`]|bpm|BPM,0,1,unit,pulss_unit,UNIT
+U/L,0,1,unit,alat_unit,UNIT
+(cm|Cm|sm|SM|CM|m),0,1,unit,pikkus_unit,UNIT
+(gramm|kg|mg|kG|gr|g|KG|G),0,1,unit,kaal_unit,UNIT
+"([0-9])+(\s?[,.]\s?[0-9]+)?",0,1,number1,whatever,NUMBER
+(([12][0-9]{2})|([3-9][0-9])),0,4,number2,some_int,NUMBER
+PALAT,0,1,rubbish,alat_trash,RUBBISH
+(([Tt]asa|[Ee]ri|[Oo]sa)kaal[-.: ]*),0,0,rubbish,kaal_trash,RUBBISH
+(mmol/l|mg|mkg|tsentiil|prts|(pro)?tsentiil|pt|mm),0,0,rubbish,not_pikkus_unit,UNIT
+k(el)?l\s(?P<hour>[0-2][0-9])[.:](?P<minute>[0-5][0-9])(:(?P<second>[0-5][0-9]))?,0,2,date1,time,DATE
+(?P<DAY>(0?[1-9]|[12][0-9]|3[01]))\.?\s*(?P<MONTH>(0?[1-9]|1[0-2]))\.?\s*(?P<YEAR>((19[0-9]{2})|(20[0-9]{2})|([0-9]{2})))\s*(?P<hour>[0-2][0-9])[.:](?P<minute>[0-5][0-9])(:(?P<second>[0-5][0-9]))?,0,2,date2,date_time,DATE
+(?P<DAY>(0?[1-9]|[12][0-9]|3[01]))\.?\s*(?P<MONTH>(0?[1-9]|1[0-2]))\.?\s*(?P<YEAR>((19[0-9]{2})|(20[0-9]{2})|([0-9]{2})))[.a ]+\s*k(el)?l\.*\s*(?P<hour>[0-2][0-9])[.:](?P<minute>[0-5][0-9])(:(?P<second>[0-5][0-9]))?,0,2,date3,date_time,DATE
+(?P<DAY>(0?[1-9]|[12][0-9]|3[01]))\.?\s*(?P<MONTH>(0?[1-9]|1[0-2]))\.?\s*(?P<YEAR>((19[0-9]{2})|(20[0-9]{2})|([0-9]{2}))),0,-1,date4,date,DATE
+(?P<DAY>(0?[1-9]|[12][0-9]|3[01]))\.\s?(?P<MONTH>(0?[1-9]|1[0-2])),0,3,date5,partial_date,DATE
+(?P<MONTH>(0?[1-9]|1[0-2]))\.\s?(?P<LONGYEAR>((19[0-9]{2})|(20[0-9]{2}))),0,3,date6,partial_date,DATE
+(?P<DAY>(0?[1-9]|[12][0-9]|3[01]))\.\s?(?P<MONTH>(0?[1-9]|1[0-2]))\s*k(el)?l\s(?P<hour>[0-2][0-9])[.:](?P<minute>[0-5][0-9])(:(?P<second>[0-5][0-9]))?,0,3,date7,partial_date,DATE
+(?P<LONGYEAR>((19[0-9]{2})|(20[0-9]{2})))\s*a,0,0,date8,partial_date,DATE
+(?P<LONGYEAR>((19[0-9]{2})|(20[0-9]{2}))),0,0,date9,partial_date,DATE
+[-=.>< ]*,0,1,space,space,SPACE
+\.?\s*-?\s*,0,1,space,space,SPACE
+[-=.>< ]*(on|oli)\s*,0,1,space,space,SPACE
+\s*-?:?\s*\<?,0,1,space,space,SPACE
+\s*,0,1,space,space,SPACE
