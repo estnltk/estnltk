@@ -12,7 +12,8 @@ from estnltk.taggers import Tagger
 from estnltk.taggers.morf_common import IGNORE_ATTR
 from estnltk.taggers.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morf_common import VABAMORF_ATTRIBUTES
-from estnltk.taggers.morf_common import _get_word_text
+from estnltk.taggers.morf_common import _get_word_text, _create_empty_morph_span
+from estnltk.taggers.morf_common import _is_empty_span
 
 from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 
@@ -252,6 +253,11 @@ class PostMorphAnalysisTagger(Tagger):
                     if self.configuration['fix_names_with_initials'] and \
                        'name_with_initial' in comp_token.type:
                         for span in spanlist:
+                            # If it is a verb, then skip the fixes 
+                            # ( verbs are more complicated, may need 
+                            #   changing form, ending etc. )
+                            if getattr(span, 'partofspeech') == 'V':
+                                continue
                             # Set partofspeech to H
                             setattr(span, 'partofspeech', 'H')
                             root = getattr(span, 'root')
@@ -351,8 +357,22 @@ class PostMorphAnalysisTagger(Tagger):
                 morph_spanlist = \
                     _remove_duplicate_morph_spans( morph_spanlist )
 
-            # B) Convert spans to records
+            # A.2) Check for empty spans
             word = morph_spanlist[0].parent
+            is_empty = _is_empty_span(morph_spanlist[0])
+            if is_empty:
+                new_morph_span = \
+                    _create_empty_morph_span( word, \
+                        layer_attributes = current_attributes )
+                # Add ignore attribute
+                setattr(new_morph_span, IGNORE_ATTR, False)
+                # Record the new span
+                new_morph_spans.append( new_morph_span )
+                # Advance in the old "morph_analysis" layer
+                morph_span_id += 1
+                continue
+
+            # B) Convert spans to records
             records = [ span.to_record() for span in morph_spanlist ]
             
             # B.1) Apply correction-rewriter:
@@ -370,7 +390,6 @@ class PostMorphAnalysisTagger(Tagger):
             
             # C) Convert records back to spans
             #    Add IGNORE_ATTR
-            morph_spanlist = []
             for rec in records:
                 if not rec:
                     # Skip if a record was deleted

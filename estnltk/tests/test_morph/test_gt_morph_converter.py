@@ -1,6 +1,23 @@
 from estnltk.text import Text
+from estnltk.taggers.morf import VabamorfAnalyzer
 from estnltk.taggers.gt_morf import GTMorphConverter
 
+# ----------------------------------
+#   Helper functions
+# ----------------------------------
+
+def _sort_morph_analysis_records( morph_analysis_records:list ):
+    '''Sorts sublists (lists of analyses of a single word) of 
+       morph_analysis_records. Sorting is required for comparing
+       morph analyses of a word without setting any constraints 
+       on their specific order. '''
+    for wrid, word_records_list in enumerate( morph_analysis_records ):
+        sorted_records = sorted( word_records_list, key = lambda x : \
+            str(x['root'])+str(x['ending'])+str(x['clitic'])+\
+            str(x['partofspeech'])+str(x['form']) )
+        morph_analysis_records[wrid] = sorted_records
+
+# ----------------------------------
 
 def test_gt_conversion_1_simple():
     gt_converter = GTMorphConverter()
@@ -150,4 +167,32 @@ def test_gt_conversion_4_empty():
     #print(text['gt_morph_analysis'].to_records())
     expected_records = []
     assert expected_records == text['gt_morph_analysis'].to_records()
+
+
+def test_gt_conversion_5_unknown_words():
+    # Tests that the conversion does not crash on unknown words
+    analyzer = VabamorfAnalyzer()
+    gt_converter = GTMorphConverter()
+    
+    text = Text('Ma tahax minna järve ääde')
+    text.tag_layer(['words','sentences'])
+    analyzer.tag(text, guess=False, propername=False)
+    gt_converter.tag( text )
+    #print(text['gt_morph_analysis'].to_records())
+
+    expected_records = [ \
+        [{'start': 0, 'root': 'mina', 'form': 'Sg Nom', 'ending': '0', 'partofspeech': 'P', 'clitic': '', 'lemma': 'mina', 'root_tokens': ('mina',), 'end': 2}], \
+        [{'start': 3, 'root': None, 'form': None, 'ending': None, 'partofspeech': None, 'clitic': None, 'lemma': None, 'root_tokens': None, 'end': 8}], \
+        [{'start': 9, 'root': 'mine', 'form': 'Inf', 'ending': 'a', 'partofspeech': 'V', 'clitic': '', 'lemma': 'minema', 'root_tokens': ('mine',), 'end': 14}], \
+        [{'start': 15, 'root': 'järv', 'form': 'Sg Ill', 'ending': '0', 'partofspeech': 'S', 'clitic': '', 'lemma': 'järv', 'root_tokens': ('järv',), 'end': 20}, \
+         {'start': 15, 'root': 'järv', 'form': 'Sg Gen', 'ending': '0', 'partofspeech': 'S', 'clitic': '', 'lemma': 'järv', 'root_tokens': ('järv',), 'end': 20}, \
+         {'start': 15, 'root': 'järv', 'form': 'Sg Par', 'ending': '0', 'partofspeech': 'S', 'clitic': '', 'lemma': 'järv', 'root_tokens': ('järv',), 'end': 20}], \
+        [{'start': 21, 'root': None, 'form': None, 'ending': None, 'partofspeech': None, 'clitic': None, 'lemma': None, 'root_tokens': None, 'end': 25}]]
+    
+    # Assert content of the layer
+    results_dict = text['gt_morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results
+    assert expected_records == results_dict
 

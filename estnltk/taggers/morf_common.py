@@ -48,3 +48,30 @@ def _get_word_text( word:Span ):
     else:
         return word.text
 
+
+def _create_empty_morph_span( word, layer_attributes = None ):
+    ''' Creates an empty 'morph_analysis' span that will 
+        have word as its parent span. 
+        All attribute values of the span will be set 
+        to None.
+        
+        Returns the Span.
+    '''
+    current_attributes = \
+        layer_attributes if layer_attributes else ESTNLTK_MORPH_ATTRIBUTES
+    span = Span(parent=word)
+    for attr in current_attributes:
+        setattr(span, attr, None)
+    return span
+
+
+def _is_empty_span( span ):
+    '''Checks if the given span (from the layer 'morph_analysis')
+       is empty, that is: all of its morph attributes are set to 
+       None. 
+       This means that the word was unknown to morphological 
+       analyser. 
+    '''
+    all_none = [getattr(span, attr) is None for attr in ESTNLTK_MORPH_ATTRIBUTES]
+    return all(all_none)
+
