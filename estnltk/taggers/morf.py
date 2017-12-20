@@ -612,12 +612,17 @@ class VabamorfDisambiguator(Tagger):
                  'number of elements at the layer "words". There '+\
                  'should be one to one correspondence between '+\
                  'the layers.'
+        # Create a new layer
+        new_morph_layer = Layer(name=self.layer_name,
+                                parent='words',
+                                ambiguous=True,
+                                attributes=current_attributes
+        )
         # --------------------------------------------
         #  Disambiguate sentence by sentence
         # --------------------------------------------
         morph_span_id = 0
         word_span_id  = 0
-        disambiguated_spans = []
         for sentence in text['sentences'].spans:
             # A) Collect all words/morph_analyses inside the sentence
             #    Assume: len(word_spans) >= len(morph_spans)
@@ -687,7 +692,8 @@ class VabamorfDisambiguator(Tagger):
                 while wid in ignored_word_ids:
                     # Skip the ignored word(s): add old spans instead
                     old_morph_spans = sentence_morph_spans[wid]
-                    disambiguated_spans.extend( old_morph_spans )
+                    for old_span in old_morph_spans:
+                        new_morph_layer.add_span( old_span )
                     wid += 1
                 if not wid < len(sentence_word_spans):
                     # Break if ignoring has passed sentence boundaries
@@ -707,30 +713,21 @@ class VabamorfDisambiguator(Tagger):
                     _carry_over_extra_attributes( old_morph_spans, \
                                                   spans, \
                                                   extra_attributes )
-                # D.3) Record the span
-                disambiguated_spans.extend( spans )
+                # D.3) Record spans
+                for new_span in spans:
+                    new_morph_layer.add_span( new_span )
                 
                 # Advance indices
                 morph_dict_id += 1
                 wid += 1
 
         # --------------------------------------------
-        #   Create new layer and attach spans
-        # --------------------------------------------
-        morph_layer = Layer(name=self.layer_name,
-                            parent='words',
-                            ambiguous=True,
-                            attributes=current_attributes
-        )
-        for span in disambiguated_spans:
-            morph_layer.add_span(span)
-        # --------------------------------------------
         #   Return layer or Text
         # --------------------------------------------
         # Return layer
         if return_layer:
-            return morph_layer
+            return new_morph_layer
         # Overwrite the old layer
         delattr(text, self.layer_name)
-        text[self.layer_name] = morph_layer
+        text[self.layer_name] = new_morph_layer
         return text
