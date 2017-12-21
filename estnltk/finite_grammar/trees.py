@@ -12,83 +12,108 @@ from typing import Union, List, Sequence
 
 
 class Node:
-    def __init__(self, name=None, support: Union[Sequence['Node'], Span]=None, weight=1):
+    def __init__(self, name):
         self.name = name
-        self.support = support
-        self.weight = weight
-
-        if isinstance(support, Span):
-            self.text_spans = ((support.start, support.end),)
-            self.text = support.text
-            if name is None:
-                if support.layer:
-                    self.name = support.grammar_symbol
-                else:
-                    self.name = support.text
-            for attr in support.legal_attribute_names:
-                setattr(self, attr, getattr(support, attr))
-        elif isinstance(support, tuple):
-            self.text_spans = tuple(sorted(s for n in support for s in n.text_spans))
-        else:
-            raise TypeError('support must be of type Span or tuple, not {}'.format(type(support)))
-
-        self.start = self.text_spans[0][0]
-        self.end = self.text_spans[-1][1]
 
     def __hash__(self):
-        return hash((self.name, self.support))
-
-    def __eq__(self, other):
-        return self.name == other.name and self.support == other.support
+        return hash(self.name)
 
     def __lt__(self, other):
-        return (self.start, self.end) < (other.start, other.end)
+        if self.name == 'START':
+            return True
+        if self.name == 'END':
+            return False
 
     def __gt__(self, other):
-        return (self.start, self.end) > (other.start, other.end)
+        if self.name == 'START':
+            return False
+        if self.name == 'END':
+            return True
+
+    def print(self):
+        print(self.__class__.__name__)
+        d = self.__dict__
+        line = '  {:20} {}'.format
+        keys = ['name', 'grammar_symbol', 'text', 'start', 'end', 'support', 'weight']
+        for k in keys:
+            if k in d:
+                print(line(k, d[k]))
+        for k in sorted(set(d)-set(keys)):
+            print(line(k, d[k]))
 
     def __str__(self):
+        result = ['{self.__class__.__name__}({self.name}'.format(self=self)]
+        if hasattr(self, 'start') and hasattr(self, 'end'):
+            result.append('({self.start}, {self.end})'.format(self=self))
         # include hash because networkx.drawing.nx_pydot.pydot_layout overlaps nodes with equal str value
-        return 'Node({name}, ({span.start}, {span.end}), {h})'.format(span=self, h=hash(self), name=self.name)
+        result.append('{h})'.format(h=hash(self)))
+        return ', '.join(result)
 
     def __repr__(self):
         return str(self)
 
 
-class TerminalSpan(Span):
-    text = None
-    start = None
-    end = None
-    layer = None
+START_NODE = Node('START')
+END_NODE = Node('END')
 
-    def __init__(self, text):
-        self.text = text
-        self._legal_attribute_names = {}
+START = START_NODE
+END = END_NODE
 
-        if text == 'START':
-            self.start = float('-inf')
-            self.end = float('-inf')
-        elif text == 'END':
-            self.start = float('inf')
-            self.end = float('inf')
+
+class GrammarNode(Node):
+    def __init__(self, name, support, text_spans, weight=1):
+        self.start = text_spans[0][0]
+        self.end = text_spans[-1][1]
+        self.support = support
+        self.text_spans = text_spans
+        self.weight = weight
+        self.weight = weight
+        super().__init__(name)
+
+    def __eq__(self, other):
+        if isinstance(other, GrammarNode):
+            return self.name == other.name and self.support == other.support
+        return False
+
+    def __lt__(self, other):
+        if isinstance(other, GrammarNode):
+            return (self.start, self.end) < (other.start, other.end)
+        return super().__lt__(other)
+
+    def __gt__(self, other):
+        if isinstance(other, GrammarNode):
+            return (self.start, self.end) > (other.start, other.end)
+        return super().__gt__(other)
 
     def __hash__(self):
-        return hash((self.text, self.start, self.end))
-
-    def __repr__(self):
-        return 'TerminalSpan({self.text!r})'.format(self=self)
+        return hash((self.name, self.support))
 
 
-START_SPAN = TerminalSpan('START')
-END_SPAN = TerminalSpan('END')
-START = Node('START', START_SPAN)
-END = Node('END', END_SPAN)
+class SpanNode(GrammarNode):
+    def __init__(self, span: Span, name_attribute: str, attributes=None):
+        name = getattr(span, name_attribute)
+
+        text_spans = ((span.start, span.end),)
+        self.text = span.text
+        if not attributes:
+            attributes = span.legal_attribute_names
+        for attr in attributes:
+            setattr(self, attr, getattr(span, attr))
+
+        super().__init__(name, span, text_spans)
+
+
+class ParseNode(GrammarNode):
+    def __init__(self, name, support: Sequence[GrammarNode]):
+        text_spans = tuple(sorted(s for n in support for s in n.text_spans))
+        super().__init__(name, support, text_spans)
 
 
 class Grammar:
-    def __init__(self, *, start_symbols:Sequence, rules:list):
+    def __init__(self, *, start_symbols:Sequence, rules:list, max_depth:int=float('inf')):
         self.rules = tuple(rules)
         self.start_symbols = start_symbols
+        self.max_depth = max_depth
         self.nonterminals = frozenset(i['lhs'] for i in rules)
 
         terminals = set()
@@ -136,15 +161,25 @@ Grammar:
 \tstart: {start}
 \tterminals: {terminals}
 \tnonterminals: {nonterminals}
+\tmax_depth: {max_depth}
 Rules:
 \t{rules}
-'''.format(start=', '.join(self.start_symbols), rules=rules, terminals=terminals, nonterminals=nonterminals)
+'''.format(start=', '.join(self.start_symbols), rules=rules, terminals=terminals,
+           nonterminals=nonterminals, max_depth=self.max_depth)
 
     def __repr__(self):
         return str(self)
 
 
 class Rule:
+    @staticmethod
+    def default_validator(x):
+        return True
+
+    @staticmethod
+    def default_decorator(x):
+        return {}
+
     def __init__(self, lhs, rhs, priority: int=0, decorator=None, consistency_checker=None):
         self.lhs = lhs
         if isinstance(rhs, str):
@@ -156,12 +191,12 @@ class Rule:
         if decorator:
             self.decorator = decorator
         else:
-            self.decorator = lambda x: None
+            self.decorator = self.default_decorator
 
         if consistency_checker:
             self.consistency_checker = consistency_checker
         else:
-            self.consistency_checker = lambda x: True
+            self.consistency_checker = self.default_validator
 
     def __lt__(self, other):
         return self.priority < other.priority
@@ -187,7 +222,7 @@ class LayerGraph(nx.DiGraph):
         super().__init__(**attr)
 
     def update_spans_to_nodes_map(self, node):
-        if node not in self.map_spans_to_nodes[node.text_spans]:
+        if isinstance(node, GrammarNode) and node not in self.map_spans_to_nodes[node.text_spans]:
             self.map_spans_to_nodes[node.text_spans].append(node)
 
     def add_node(self, node, **attr):
@@ -211,6 +246,36 @@ class LayerGraph(nx.DiGraph):
         for u, v, *_ in ebunch:
             self.update_spans_to_nodes_map(u)
             self.update_spans_to_nodes_map(v)
+
+
+def get_nodes(graph, name):
+    return sorted(n for n in graph.nodes if n.name==name)
+
+
+def get_paths(graph, node, source=None, target=None):
+    """
+    iterates over all paths in the graph from source to target 
+    that include the node
+    if source or target is None, then source is replaced by node 'START'
+    and target by 'END'
+    """
+    if not source or not target:
+        for node in graph:
+            if node.name == 'START' and not source:
+                source = node
+                if target: break
+            elif node.name == 'END' and not target:
+                target = node
+                if source: break
+    if node == source:
+        into = [[node]]
+    else:
+        into = tuple(nx.all_simple_paths(graph, source, node))
+    if node == target:
+        out = [[node]]
+    else:
+        out = tuple(nx.all_simple_paths(graph, node, target))
+    yield from (i[:-1]+o for i in into for o in out)
 
 
 def graph_from_document(rows: Dict[str, List[Tuple[int, int]]]) -> nx.DiGraph:
@@ -257,7 +322,7 @@ def get_elementary_nodes(rows):
 
     for row_name, indices in rows.items():
         for (a, b) in indices:
-            items.append(Node(row_name, a, b))
+            items.append(ParseNode(row_name, a, b))
     return items
 
 
@@ -311,7 +376,7 @@ def add_blanks(graph: nx.DiGraph) -> None:
             for succ in graph.successors(node):
                 (s2, e2), _ = (succ.start, succ.end), succ.name
                 if s2 - e1 > 1 and succ != END:
-                    nnode = Node("_", Span(e1, s2, legal_attributes={}))
+                    nnode = ParseNode("_", Span(e1, s2, legal_attributes={}))
                     nodes_to_add.append(nnode)
                     edges_to_add.extend([(node, nnode), (nnode, succ)])
                     edges_to_remove.append((node, succ))
@@ -364,7 +429,7 @@ def get_nonterminal_nodes(graph: nx.DiGraph, grammar: 'Grammar'):
             for path in paths:
                 (s1, e1), n1 = path[0]
                 (s2, e2), n2 = path[-1]
-                node = Node((s1, e2), nonterminal)
+                node = ParseNode((s1, e2), nonterminal)
                 node.weight = rule.weight
 
                 nodes[node].append((rule, path))
@@ -375,7 +440,7 @@ def get_nonterminal_nodes(graph: nx.DiGraph, grammar: 'Grammar'):
     return nodes
 
 
-def choose_parse_tree(nodes: Dict[Node, List[Tuple[Rule, Node]]], grammar: Grammar) -> nx.DiGraph:
+def choose_parse_tree(nodes: Dict[ParseNode, List[Tuple[Rule, ParseNode]]], grammar: Grammar) -> nx.DiGraph:
     if not len([i for i in nodes.keys() if i.name == grammar.start_symbol]) >= 1:
         raise AssertionError('Parse failed, change grammar.')
     # we'll choose the starting symbol with the most cover
@@ -399,7 +464,7 @@ def document_to_nodes(document):
     nodes = []
     for row, spans in document.items():
         for s,e in spans:
-            nodes.append(Node(row, Span(s, e, legal_attributes={})))
+            nodes.append(ParseNode(row, Span(s, e, legal_attributes={})))
     return nodes
 
 
@@ -441,7 +506,7 @@ def layer_to_graph_by_attribute(layer:'Layer', attribute:str) -> nx.DiGraph:
                     attr = 'None'
                 attr_to_spans[attr].append(span)
             for attr, spans in attr_to_spans.items():
-                nodes.append(Node(attr, spans))
+                nodes.append(ParseNode(attr, spans))
     else:
         for span in layer:
             attr = getattr(span, attribute)
@@ -474,7 +539,7 @@ def get_match_down(G, nodes, names, pos):
             yield from get_match_down(G, nodes+[node], names, pos+1)
 
 
-def get_match(graph: LayerGraph, node: Node, names: Sequence[str], pos: int):
+def get_match(graph: LayerGraph, node: ParseNode, names: Sequence[str], pos: int):
     """
     Yields all sequences s of consecutive nodes in the graph G for which 
         s[pos] == node and [node.name for node in s]==names.
@@ -496,10 +561,12 @@ def add_nodes(G, nodes_to_add):
             G.add_edge(node, succ)
 
 
-def parse_graph(G, grammar, depth=float('inf')):
+def parse_graph(G, grammar, max_depth=None):
     """
     Expands graph bottom-up using grammar.
     """
+    if not max_depth:
+        max_depth = grammar.max_depth
     rule_map = defaultdict(list)
     for rule in grammar.rules:
         for pos, v in enumerate(rule.rhs):
@@ -515,7 +582,7 @@ def parse_graph(G, grammar, depth=float('inf')):
                 sequence = tuple(sequence)
                 assert all((sequence[i], sequence[i+1]) in G.edges for i in range(len(sequence)-1))
                 if rule.consistency_checker(sequence):
-                    new_node = Node(rule.lhs, sequence)
+                    new_node = ParseNode(rule.lhs, sequence)
                     decoration = rule.decorator(sequence)
                     for name, value in decoration.items():
                         setattr(new_node, name, value)
@@ -525,7 +592,7 @@ def parse_graph(G, grammar, depth=float('inf')):
                                          list(G.succ[sequence[-1]]),
                                          ))
         add_nodes(G, nodes_to_add)
-        if d < depth:
+        if d < max_depth:
             for node, _, _, _ in nodes_to_add:
                 if node.name in rule_map:
                     worklist.append((node, d+1))
