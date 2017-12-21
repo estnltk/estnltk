@@ -25,29 +25,32 @@ class GapsTagger(Tagger):
         self.configuration['trim function'] = trim
         self.configuration['decorator function'] = decorator
 
-    def tag(self, text, return_layer=False):
-        assert len({text[input_layer].parent for input_layer in self.depends_on}) == 1, {text[input_layer].parent for input_layer in self.depends_on}
-        assert len({text[input_layer].enveloping for input_layer in self.depends_on}) == 1
+    def make_layer(self, text, layers):
+        assert len({layers[input_layer].parent for input_layer in self.depends_on}) == 1, {layers[input_layer].parent for input_layer in self.depends_on}
+        assert len({layers[input_layer].enveloping for input_layer in self.depends_on}) == 1
         layer = Layer(
-            name = self.layer_name,
-            attributes = self.attributes,
-            parent = None,
-            enveloping = None,
-            ambiguous = False
+            name=self.layer_name,
+            attributes=self.attributes,
+            parent=None,
+            enveloping=None,
+            ambiguous=False
             )
-        layers = [text[layer_name] for layer_name in self.depends_on]
-        for s, e in find_gaps(layers, len(text.text)):
+        layers = [layers[layer_name] for layer_name in self.depends_on]
+        for s, e in find_gaps(layers, len(text)):
             if self.trim:
-                s, e = self.trim(text.text, s, e)
+                s, e = self.trim(text, s, e)
             if s < e:
                 span = Span(s, e)
                 if self.decorator:
-                    decorations = self.decorator(text.text[s:e])
+                    decorations = self.decorator(text[s:e])
                     for attr in self.attributes:
                         setattr(span, attr, decorations[attr])
                 layer.add_span(span)
-        if return_layer:
-            return layer
+        return layer
+
+    def tag(self, text):
+        layer = self.make_layer(text.text, text.layers)
+        assert isinstance(layer, Layer), 'make_layer must return a Layer instance'
         text[self.layer_name] = layer
 
 
