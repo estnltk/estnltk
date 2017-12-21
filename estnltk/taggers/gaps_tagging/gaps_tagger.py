@@ -25,7 +25,7 @@ class GapsTagger(Tagger):
         self.configuration['trim function'] = trim
         self.configuration['decorator function'] = decorator
 
-    def make_layer(self, text, layers):
+    def make_layer(self, raw_text, layers):
         assert len({layers[input_layer].parent for input_layer in self.depends_on}) == 1, {layers[input_layer].parent for input_layer in self.depends_on}
         assert len({layers[input_layer].enveloping for input_layer in self.depends_on}) == 1
         layer = Layer(
@@ -36,13 +36,16 @@ class GapsTagger(Tagger):
             ambiguous=False
             )
         layers = [layers[layer_name] for layer_name in self.depends_on]
-        for s, e in find_gaps(layers, len(text)):
+        for start, end in find_gaps(layers, len(raw_text)):
+            assert start < end
             if self.trim:
-                s, e = self.trim(text, s, e)
-            if s < e:
-                span = Span(s, e)
+                t = self.trim(raw_text[start:end])
+                start = raw_text.find(t, start)
+                end = start + len(t)
+            if start < end:
+                span = Span(start, end)
                 if self.decorator:
-                    decorations = self.decorator(text[s:e])
+                    decorations = self.decorator(raw_text[start:end])
                     for attr in self.attributes:
                         setattr(span, attr, decorations[attr])
                 layer.add_span(span)
