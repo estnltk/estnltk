@@ -1,3 +1,10 @@
+#
+#   CompoundTokenTagger analyzes tokens and decides, which 
+#  tokens should be joined together (as 'compound_tokens').
+#  In later analysis, layers 'tokens' and 'compound_tokens'
+#  are used for creating 'words' layer.
+# 
+
 import regex as re
 import os
 from typing import Union
@@ -33,7 +40,6 @@ class CompoundTokenTagger(Tagger):
     custom_abbreviations = []
 
     def __init__(self, 
-                 conflict_resolving_strategy='MAX',
                  tag_numbers:bool = True,
                  tag_units:bool = True,
                  tag_email_and_www:bool = True,
@@ -45,8 +51,61 @@ class CompoundTokenTagger(Tagger):
                  tag_hyphenations:bool = True,
                  custom_abbreviations:list = [],
                  ):
-        self.configuration = {'conflict_resolving_strategy': conflict_resolving_strategy,
-                              'tag_numbers': tag_numbers,
+        """Initializes CompoundTokenTagger.
+        
+        Parameters
+        ----------
+        tag_numbers: boolean (default: True)
+            Numeric expressions with decimal separators, numbers with 
+            digit group separators, and common date and time expressions
+            will be joined into compound tokens.
+        
+        tag_units: boolean (default: True)
+            x-per-y style units that follow numeric expressions will 
+            be joined into compound tokens.
+        
+        tag_email_and_www: boolean (default: True)
+            E-mail addresses and web addresses will be joined into 
+            compound tokens.
+        
+        tag_emoticons: boolean (default: True)
+            Most common emoticons will be detected and joined into 
+            compound tokens.
+        
+        tag_xml: boolean (default: True)
+            Symbols making up an XML tag will be joined into compound
+            tokens.
+        
+        tag_initials: boolean (default: True)
+            Names starting with initials will be joined into compound
+            tokens.
+        
+        tag_abbreviations: boolean (default: True)
+            Abbreviations (and accompanying punctuation symbols) will 
+            be joined into compound tokens.
+        
+        tag_case_endings: boolean (default: True)
+            Morphological case endings (separated from words with 
+            hyphens or other punctuation) will be joined into compound 
+            tokens with the preceding tokens.
+        
+        tag_hyphenations: boolean (default: True)
+            Hyphenated/syllabified words (such as 'ka-su-lik'), stretched 
+            out words (such as 'vää-ää-ääga'), and compound nouns with
+            hyphens (such as 'Vana-Hiina', 'Mari-Liis') will be joined 
+            into compound tokens.
+        
+        custom_abbreviations: list (default: [])
+            A list of user-defined abbreviations (strings), which need 
+            to be joined with accompanying punctuation symbols into 
+            compound tokens. This can be used to enhance the built-in 
+            list of abbreviations.
+            Note that user-defined abbreviations must be strings that 
+            TokensTagger does not split into smaller tokens.
+
+        """
+        conflict_resolving_strategy = 'MAX' 
+        self.configuration = {'tag_numbers': tag_numbers,
                               'tag_units':tag_units,
                               'tag_email_and_www':tag_email_and_www,
                               'tag_emoticons':tag_emoticons,
@@ -110,9 +169,26 @@ class CompoundTokenTagger(Tagger):
 
 
     def tag(self, text: 'Text', return_layer=False) -> 'Text':
-        '''
-        Tag compound_tokens layer.
-        '''
+        """Tags compound_tokens layer.
+        
+        Parameters
+        ----------
+        text: estnltk.text.Text
+            Text object that is to be analysed. It needs to have
+            layer 'tokens'.
+
+        return_layer: boolean (default: False)
+            If True, then the new layer is returned; otherwise 
+            the new layer is attached to the Text object, and 
+            the Text object is returned;
+
+        Returns
+        -------
+        Text or Layer
+            If return_layer==True, then returns the new layer, 
+            otherwise attaches the new layer to the Text object 
+            and returns the Text object;
+        """
         compound_tokens_lists = []
         # 1) Apply RegexTagger in order to get hints for the 1st level tokenization
         conflict_status    = {}
@@ -337,8 +413,7 @@ class CompoundTokenTagger(Tagger):
 
 
     def _apply_2nd_level_compounding(self, text:'Text', compound_tokens_lists:list):
-        ''' 
-            Executes _tokenization_hints_tagger_2 to get hints for 2nd level compounding.
+        ''' Executes _tokenization_hints_tagger_2 to get hints for 2nd level compounding.
             
             Performs the 2nd level compounding: joins together regular "tokens" and 
             "compound_tokens" (created by _tokenization_hints_tagger_1) according to the 
