@@ -397,6 +397,7 @@ class PostMorphAnalysisTagger(Tagger):
             
             # C) Convert records back to spans
             #    Add IGNORE_ATTR
+            record_added = False
             for rec in records:
                 if not rec:
                     # Skip if a record was deleted
@@ -415,7 +416,20 @@ class PostMorphAnalysisTagger(Tagger):
                 setattr(new_morph_span, IGNORE_ATTR, False)
                 # Record the new span
                 new_morph_layer.add_span(new_morph_span)
-            
+                record_added = True
+
+            # C.2) If no records were added (all were deleted),
+            #      then add an empty record (unknown word)
+            if not record_added:
+                new_morph_span = \
+                    _create_empty_morph_span( word, \
+                        layer_attributes = current_attributes )
+                # Add ignore attribute
+                setattr(new_morph_span, IGNORE_ATTR, False)
+                # Record the new span
+                new_morph_layer.add_span( new_morph_span )
+                # Advance in the old "morph_analysis" layer
+
             # Advance in the old "morph_analysis" layer
             morph_span_id += 1
 
