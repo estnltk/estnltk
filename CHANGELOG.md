@@ -6,13 +6,13 @@ All notable changes to this project will be documented in this file.
 [1.6.0-beta] - 2017-12-23
 =========================
 EstNLTK has gone through a major redesign of the interface. 
-Changes include  re-designing the interface of basic data structure (the Text object), re-designing interfaces of analysis tools, up to the level of morphological analysis, and improving quality of basic text operations (such as sentence and word segmentation).
+Changes include  re-designing the interface of basic data structure (the Text class), re-designing interfaces of analysis tools, up to the level of morphological analysis, and improving quality of basic text operations (such as sentence and word segmentation).
 
 Changed
 -------
 * EstNLTK no longer supports Python 2.7. 
 Recommended Python's version is 3.5;
-* Text object has been redesigned. 
+* Text class has been redesigned. 
 Text annotations are now decomposed into Span-s, SpanList-s and Layer-s;
 * A common class for text annotators -- Tagger class -- has been introduced;
 * Word segmentation has been redesigned. 
