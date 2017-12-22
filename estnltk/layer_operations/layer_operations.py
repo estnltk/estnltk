@@ -2,8 +2,8 @@
 Low-level layer operations for Estnltk Text object.
 
 """
+from typing import Iterable
 from operator import eq
-from numpy import sort
 from pandas import DataFrame
 
 import regex as re
@@ -14,7 +14,8 @@ from collections import Counter, defaultdict
 # ? Kas kõik järgmised konstandid on mõttekad? 
 # ? UNION on allpool ainult osaliselt kasutusel.
 # ? ehk võiks enamlevinud konstandid importida
-from estnltk.text import Layer
+from estnltk.layer import Layer
+from estnltk.spans import Span
 
 TEXT = 'text'
 AND = 'AND'
@@ -252,8 +253,42 @@ def diff_layer(a, b, comp=eq):
             x = next(a)
 
 
+def union_layer(layers:Iterable, layer_name:str, attributes:Iterable) -> Layer:
+    """
+    Creates a new layer spans of which is the union of spans of input layers.
+    The input layers must be of the same type (parent, enveloping, ambiguous).
+    Missing attribute values are None.
+    """
+    # TODO: ambiguous and enveloping layers
+    parent = layers[0].parent
+    enveloping = layers[0].enveloping
+    ambiguous = layers[0].ambiguous
+    assert all(layer.parent == parent for layer in layers)
+    assert all(layer.enveloping == enveloping for layer in layers)
+    assert all(layer.ambiguous == ambiguous for layer in layers)
 
-#NEW API
+    new_layer = Layer(
+        name=layer_name,
+        attributes=attributes,
+        parent=parent,
+        enveloping=enveloping,
+        ambiguous=ambiguous
+    )
+
+    for layer in layers:
+        layer_attributes = layer.attributes
+        none_attributes = [attr for attr in attributes if attr not in layer_attributes]
+        for span in layer:
+            new_span = Span(span.start, span.end, legal_attributes=attributes)
+            for attr in layer_attributes:
+                setattr(new_span, attr, getattr(span, attr))
+            for attr in none_attributes:
+                setattr(new_span, attr, None)
+            new_layer.add_span(new_span)
+
+    return new_layer
+
+# NEW API
 def merge_layer(a, b, fun):
     """Generator of merged layers.
 

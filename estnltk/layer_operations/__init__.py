@@ -6,6 +6,7 @@ from .layer_operations import count_by_document
 from .layer_operations import dict_to_df
 from .layer_operations import diff_layer
 from .layer_operations import merge_layer
+from .layer_operations import union_layer
 from .layer_operations import group_by_spans
 from .layer_operations import conflicts
 from .conflict_resolver import resolve_conflicts
