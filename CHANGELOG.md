@@ -10,6 +10,8 @@ Changes include  re-designing the interface of basic data structure (the Text ob
 
 Changed
 -------
+* EstNLTK no longer supports Python 2.7. 
+Recommended Python's version is 3.5;
 * Text object has been redesigned. 
 Text annotations are now decomposed into Span-s, SpanList-s and Layer-s;
 * A common class for text annotators -- Tagger class -- has been introduced;
