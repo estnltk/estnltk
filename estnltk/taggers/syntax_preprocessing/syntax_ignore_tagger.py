@@ -381,6 +381,70 @@ class SyntaxIgnoreTagger(Tagger):
                        ignore_sentences_starting_with_time:bool = True,
                        ignore_sentences_with_comma_separated_num_name_lists:bool = True,
                        ignore_brackets:bool = True,):
+        """Initializes SyntaxIgnoreTagger.
+        
+        Parameters
+        ----------
+        allow_loose_match: boolean (default: True)
+            If True, then an ignore text snippet may consume words without 
+            matching exactly with their boundaries (e.g. ignore snippet's start 
+            does not have to match word's start). If False, then an ignore text 
+            snippet must match exactly with word boundaries: it must start where 
+            a word starts, and end where a word ends.
+
+        ignore_parenthesized_num: boolean (default: True)
+            Parenthesized numerics (such as dates, date ranges, number sequences) 
+            will be ignored.
+
+        ignore_parenthesized_num_greedy: boolean (default: True)
+            Applies greedy parenthesized numeric content detection patterns: if 
+            there is at least one number inside parentheses, but there cannot be 
+            found at least 3 consecutive lowercase words, then the whole content 
+            inside parentheses will be marked as to be ignored.
+
+        ignore_parenthesized_ref: boolean (default: True)
+            Parenthesized content which looks like a reference (e.g. contains 
+            titlecased words, and date information) will be ignored.
+
+        ignore_parenthesized_title_words: boolean (default: True)
+            Parenthesized 1-2 titlecase words (which may be comma-separated) will 
+            be ignored.
+
+        ignore_parenthesized_short_char_sequences: boolean (default: True)
+            Parenthesized short sequences of tokens (up to 4 tokens), each of 
+            which also has as short length (up to 4 characters), will be ignored.
+
+        ignore_brackets: boolean (default: True)            
+            Content inside square brackets will be ignored.
+            
+        ignore_consecutive_parenthesized_sentences: boolean (default: True)
+            If consecutive sentences all contain parenthesized content that is 
+            already ignored, and all of these sentences contain less than 3 
+            consecutive lowercase words, then these sentences will also be 
+            ignored.
+        
+        ignore_consecutive_enum_ucase_num_sentences: boolean (default: True)
+            Ignores sentences that match the following conditions: 
+            1) start with an uppercase letter, or an ordinal number followed 
+               by an uppercase letter, or an ordinal number; 
+            2) contain at least one number; 
+            3) do not contain 3 consecutive lowercase words; 
+            4) are a part of at least 4 consecutive sentences that have the 
+               same properties (1, 2 and 3).
+        
+        ignore_sentences_consisting_of_numbers: boolean (default: True)
+            Ignores sentences that only contain number or numbers, no letters, 
+            and do not end with '!' nor '?'.
+        
+        ignore_sentences_starting_with_time: boolean (default: True)
+            Sentences starting with a date range (e.g. a time schedule of a 
+            seminar or a TV program) will be ignored.
+
+        ignore_sentences_with_comma_separated_num_name_lists: boolean (default: True)
+            Sentences containing comma separated list of titlecase words / 
+            numbers ( like sport results, player/country listings, game scores 
+            etc.) will be ignored.
+        """
         self.configuration = {'allow_loose_match': allow_loose_match,
                               'ignore_parenthesized_num':ignore_parenthesized_num,
                               'ignore_parenthesized_num_greedy': ignore_parenthesized_num_greedy,
@@ -432,7 +496,28 @@ class SyntaxIgnoreTagger(Tagger):
 
 
     def tag(self, text: 'Text', return_layer=False) -> 'Text':
-        ''' Tag syntax_ignore layer. '''
+        """Tags 'syntax_ignore' layer.
+        
+        Note: exact configuration of the tagging depends on 
+        the initialization parameters of the class.
+        
+        Parameters
+        ----------
+        text: estnltk.text.Text
+            Text object that is to be tagged. The Text object 
+            must have layers 'words', 'sentences'.
+        return_layer: boolean (default: False)
+            If True, then the new layer is returned; otherwise 
+            the new layer is attached to the Text object, and 
+            the Text object is returned;
+
+        Returns
+        -------
+        Text or Layer
+            If return_layer==True, then returns the new layer, 
+            otherwise attaches the new layer to the Text object 
+            and returns the Text object;
+        """
         # A) Apply RegexTagger to find text snippets that should be ignored
         conflict_status = {}
         new_layer = self._syntax_ignore_tagger.tag( \

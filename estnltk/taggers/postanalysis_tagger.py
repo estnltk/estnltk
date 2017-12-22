@@ -343,10 +343,17 @@ class PostMorphAnalysisTagger(Tagger):
         # Take attributes from the input layer
         current_attributes = text[self.layer_name].attributes
         
+        # Create a new layer
+        new_morph_layer = Layer(name=self.layer_name,
+                            parent='words',
+                            ambiguous=True,
+                            attributes=current_attributes +\
+                            (IGNORE_ATTR,)
+        )
+
         # Rewrite spans of the old layer
-        new_morph_spans = []
         morph_span_id = 0
-        morph_spans = text[self.layer_name].spans
+        morph_spans   = text[self.layer_name].spans
         while morph_span_id < len(morph_spans):
             # 0) Convert SpanList to list of Span-s
             morph_spanlist = \
@@ -367,7 +374,7 @@ class PostMorphAnalysisTagger(Tagger):
                 # Add ignore attribute
                 setattr(new_morph_span, IGNORE_ATTR, False)
                 # Record the new span
-                new_morph_spans.append( new_morph_span )
+                new_morph_layer.add_span( new_morph_span )
                 # Advance in the old "morph_analysis" layer
                 morph_span_id += 1
                 continue
@@ -390,6 +397,7 @@ class PostMorphAnalysisTagger(Tagger):
             
             # C) Convert records back to spans
             #    Add IGNORE_ATTR
+            record_added = False
             for rec in records:
                 if not rec:
                     # Skip if a record was deleted
@@ -407,24 +415,27 @@ class PostMorphAnalysisTagger(Tagger):
                 # Add ignore attribute
                 setattr(new_morph_span, IGNORE_ATTR, False)
                 # Record the new span
-                new_morph_spans.append( new_morph_span )
-            
+                new_morph_layer.add_span(new_morph_span)
+                record_added = True
+
+            # C.2) If no records were added (all were deleted),
+            #      then add an empty record (unknown word)
+            if not record_added:
+                new_morph_span = \
+                    _create_empty_morph_span( word, \
+                        layer_attributes = current_attributes )
+                # Add ignore attribute
+                setattr(new_morph_span, IGNORE_ATTR, False)
+                # Record the new span
+                new_morph_layer.add_span( new_morph_span )
+                # Advance in the old "morph_analysis" layer
+
             # Advance in the old "morph_analysis" layer
             morph_span_id += 1
 
-        # Create a new layer
-        morph_layer = Layer(name=self.layer_name,
-                            parent='words',
-                            ambiguous=True,
-                            attributes=current_attributes +\
-                            (IGNORE_ATTR,)
-        )
-        for span in new_morph_spans:
-            morph_layer.add_span(span)
-
         # Overwrite the old layer
         delattr(text, self.layer_name)
-        text[self.layer_name] = morph_layer
+        text[self.layer_name] = new_morph_layer
 
 
 # =================================
