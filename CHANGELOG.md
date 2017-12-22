@@ -24,7 +24,7 @@ Sentence segmenter is now aware of the compound tokens (fixing compound tokens c
 * Morphological analysis interface has been redesigned.
 Morphological analyses are no longer attached to the layer 'words' (although they can be easily accessed through the words, if needed), but are contained in a separate layer named 'morph_analysis'.
 * Morphological analysis process can now more easily decomposed into analysis and disambiguation (using special taggers VabamorfAnalyzer and VabamorfDisambiguator).
-Also, a tagger responsible for post-corrections of morphological analysis (PostMorphAnalysisTagger) has been introduced, and post-corrections for improving part of speech quality, and quality of analysis of numbers and pronouns have been implemented;
+Also, a tagger responsible for post-corrections of morphological analysis (PostMorphAnalysisTagger) has been introduced, and post-corrections for improving quality of part of speech, and quality of analysis of numbers and pronouns have been implemented;
 * Rules for converting morphological analysis categories from Vabamorf's format to GT (giellatekno) format have been ported from the previous version of EstNLTK.
 Note, however, that the porting is not complete: full functionality requires 'clauses' annotation (which is currently not available);
 * ...
