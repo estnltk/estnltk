@@ -5,23 +5,33 @@ All notable changes to this project will be documented in this file.
 
 [1.6.0-beta] - 2017-12-23
 =========================
-EstNLTK has gone through a major redesign of the interface. Changes include  re-designing the interface of the basic data structure (the Text object), re-designing interfaces of analysis tools, up to the level of morphological analysis, and improving quality of basic text operations (such as sentence and word segmentation).
+EstNLTK has gone through a major redesign of the interface. 
+Changes include  re-designing the interface of basic data structure (the Text object), re-designing interfaces of analysis tools, up to the level of morphological analysis, and improving quality of basic text operations (such as sentence and word segmentation).
 
 Changed
 -------
-* Text object has been redesigned. Text annotations are now decomposed into Span-s, SpanList-s and Layer-s;
+* Text object has been redesigned. 
+Text annotations are now decomposed into Span-s, SpanList-s and Layer-s;
 * A common class for text annotators -- Tagger class -- has been introduced;
-* Word segmentation has been redesigned. It is now a three-step process, which includes basic tokenization (layer 'tokens'), creation of compound tokens (layer 'compound\_tokens'), and creation of words (layer 'words') based on 'tokens' and 'compound\_tokens'. The segmentation order has been changed: word segmentation now comes before the sentence segmentation; 
-* Sentence segmentation has been redesigned. Sentence segmenter is now aware of the compound tokens (fixing compound tokens can improve sentence segmentation results), and special post-correction steps are applied to improve quality of sentence segmentation;
-* Morphological analysis interface has been redesigned. Morphological analyses are no longer attached to the layer 'words' (although they can be easily accessed through the words, if needed), but are contained in a separate layer named 'morph_analysis'.
-* Morphological analysis process can now more easily decomposed into analysis and disambiguation (using special taggers VabamorfAnalyzer and VabamorfDisambiguator). Also, a tagger responsible for post-corrections of morphological analysis (PostMorphAnalysisTagger) has been introduced, and post-corrections for improving part of speech quality, and quality of analysis of numbers and pronouns have been implemented;
-* Rules for converting morphological analysis categories from Vabamorf's format to GT (giellatekno) format have been ported from the previous version of EstNLTK. Note, however, that the porting is not complete: full functionality requires 'clauses' annotation (which is currently not available);
+* Word segmentation has been redesigned. 
+It is now a three-step process, which includes basic tokenization (layer 'tokens'), creation of compound tokens (layer 'compound\_tokens'), and creation of words (layer 'words') based on 'tokens' and 'compound\_tokens'.
+Token compounding rules that are aware of text units containing punctuation (such as abbreviations, emoticons, web addresses) have been implemented;
+* The segmentation order has been changed: word segmentation now comes before the sentence segmentation, and the paragraph segmentation comes after the sentence segmentation; 
+* Sentence segmentation has been redesigned. 
+Sentence segmenter is now aware of the compound tokens (fixing compound tokens can improve sentence segmentation results), and special post-correction steps are applied to improve quality of sentence segmentation;
+* Morphological analysis interface has been redesigned.
+Morphological analyses are no longer attached to the layer 'words' (although they can be easily accessed through the words, if needed), but are contained in a separate layer named 'morph_analysis'.
+* Morphological analysis process can now more easily decomposed into analysis and disambiguation (using special taggers VabamorfAnalyzer and VabamorfDisambiguator).
+Also, a tagger responsible for post-corrections of morphological analysis (PostMorphAnalysisTagger) has been introduced, and post-corrections for improving part of speech quality, and quality of analysis of numbers and pronouns have been implemented;
+* Rules for converting morphological analysis categories from Vabamorf's format to GT (giellatekno) format have been ported from the previous version of EstNLTK.
+Note, however, that the porting is not complete: full functionality requires 'clauses' annotation (which is currently not available);
 * ...
 * Other components of EstNLTK (such as the temporal expression tagger, and the named entity recognizer) are yet to be ported to the new version in the future;
 
 Added
 -----
-* SyntaxIgnoreTagger, which can be used for detecting parts of text that should be ignored by the syntactic analyser. Note: it is yet to be integrated with the pre-processing module of syntactic analysis;
+* SyntaxIgnoreTagger, which can be used for detecting parts of text that should be ignored by the syntactic analyser.
+Note: it is yet to be integrated with the pre-processing module of syntactic analysis;
 
 
 
