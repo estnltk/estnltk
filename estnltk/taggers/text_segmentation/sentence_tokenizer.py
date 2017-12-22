@@ -290,6 +290,51 @@ class SentenceTokenizer(Tagger):
                  fix_repeated_ending_punct:bool = True,
                  use_emoticons_as_endings:bool = True,
                  ):
+        """Initializes this SentenceTokenizer.
+        
+        Parameters
+        ----------
+        fix_paragraph_endings: boolean (default: True)
+            Paragraph endings (double newlines) will be treated as sentence 
+            endings.
+        
+        fix_compound_tokens: boolean (default: True)
+            If True, then following sentence boundary fixes are applied:
+            *) a built-in logic is used to remove all sentence endings 
+               that fall inside compound_tokens;
+            *) sentence endings that are added after compound_tokens of 
+               type non_ending_abbreviation are removed;
+            *) if a regular abbreviation is followed by a sentence break, 
+               and then by a lowercase word or non-ending punctuation 
+               (comma or semicolon), then the sentence break is removed 
+               after such abbreviation;
+        
+        fix_numeric: boolean (default: True)
+            Removes sentence endings that are mistakenly added after periods 
+            that end date, time and (other) numeric expressions;
+        
+        fix_parentheses: boolean (default: True)
+            Removes sentence endings that are mistakenly added inside parentheses, 
+            and fixes endings that are misplaced with respect to parentheses;
+        
+        fix_double_quotes: boolean (default: True)
+            Removes sentence endings that are misplaced with respect to quotations 
+            / double quotes.
+        
+        fix_inner_title_punct: boolean (default: True)
+            Removes sentence endings that are mistakenly placed after titles inside 
+            the sentence. Currently only fixes cases when a question mark or an 
+            exclamation mark is followed by a sentence ending and, a colon or a 
+            semicolon starts the next sentence.
+        
+        fix_repeated_ending_punct: boolean (default: True)
+            Adds sentence endings that are missed in places of prolonged ending 
+            punctuation (including triple dots), and also fixes misplaced sentence 
+            endings in such contexts.
+        
+        use_emoticons_as_endings: boolean (default: True)
+            If switched on, then emoticons are treated as sentence endings. 
+        """
         # 0) Record configuration
         self.configuration = {'fix_paragraph_endings': fix_paragraph_endings,
                               'fix_compound_tokens': fix_compound_tokens,
@@ -347,6 +392,35 @@ class SentenceTokenizer(Tagger):
 
     def tag(self, text:'Text', return_layer:bool=False,
                                record_fix_types:bool=False) -> 'Text':
+        """Tags sentences layer.
+        
+        Parameters
+        ----------
+        text: estnltk.text.Text
+            Text object that is to be segmented into sentences. 
+            Needs to have layers 'compound_tokens' and 'words' 
+            available; 
+
+        return_layer: boolean (default: False)
+            If True, then the new layer is returned; otherwise 
+            the new layer is attached to the Text object, and 
+            the Text object is returned;
+        
+        record_fix_types: boolean (default: False)
+            If True, then attribute 'fix_types' is added to the 
+            layer, which contains names of the applied post-
+            correction (merging) fixes.
+            Note: this attribute is only used for developing and 
+            debugging purposes, it may change in the future and 
+            should not be relied upon;
+        
+        Returns
+        -------
+        Text or Layer
+            If return_layer==True, then returns the new layer, 
+            otherwise attaches the new layer to the Text object 
+            and returns the Text object;
+        """
         #sentence_ends = {end for _, end in self._tokenize_text(text)}
         sentence_ends = {end for _, end in self._sentences_from_tokens(text)}
         # A) Remove sentence endings that:
@@ -467,8 +541,7 @@ class SentenceTokenizer(Tagger):
 
     def _merge_mistakenly_split_sentences(self, text:'Text', sentences_list:list, \
                                                              sentence_fixes_list:list ):
-        ''' 
-            Uses regular expression patterns (defined in self.merge_rules) to 
+        ''' Uses regular expression patterns (defined in self.merge_rules) to 
             discover adjacent sentences (in sentences_list) that should actually 
             form a single sentence. Merges those adjacent sentences.
             
