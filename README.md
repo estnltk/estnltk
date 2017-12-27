@@ -24,7 +24,12 @@ The alternative way for installing if you are unable to use the anaconda distrib
 
 This is slower, more error-prone and requires you to have the appropriate compilers for building the scientific computation packages for your platform. 
 
-Additional educational materials on estnltk are available on the web page of the NLP course taught at the University of Tartu: https://courses.cs.ut.ee/2015/pynlp/fall.
+Additional educational materials on older EstNLTK version 1.4 are available on the web page of the NLP courses taught at the University of Tartu:
+
+*  https://courses.cs.ut.ee/2015/pynlp/fall
+
+* https://github.com/d009/EstNLP
+
 
 ## Citation
 
