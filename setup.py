@@ -76,6 +76,7 @@ setup(
         'python-crfsuite>=0.8.3',  # Conditional random fields library
         'cached-property>=1.2.0',  # Simple property for caching results
         'lxml',
+        'networkx',
     ],
 
     classifiers=['Intended Audience :: Developers',
