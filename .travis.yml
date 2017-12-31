@@ -6,6 +6,7 @@ os:
 
 env:
   global:
+    - MACOSX_DEPLOYMENT_TARGET="10.9" 
     - GIT_DESCRIBE_NUMBER=$TRAVIS_BUILD_NUMBER
     - GIT_BUILD_STR=$TRAVIS_COMMIT
   matrix:
