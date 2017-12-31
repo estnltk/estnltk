@@ -38,4 +38,13 @@ install:
 
 script:
   # Build estnltk
-  - conda build --py $PYTHON_TARGET conda-recipe  --output
+  - conda build --py $PYTHON_TARGET conda-recipe  --output > $HOME/outfile.txt
+
+after-success:
+  - filename=`cat $HOME/outfile.txt`
+  - echo "Starting install from $filename"
+  - conda install -y -c conda-forge -c estnltk --use-local estnltk
+  - echo "Install done"
+  - echo "running tests..."
+  - python -c 'from estnltk import Text; t = Text("Tere inimesed!"); t.tag_layer(); print(t.lemmas)'
+  - echo "Tests ok!"
