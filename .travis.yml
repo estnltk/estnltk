@@ -40,20 +40,6 @@ install:
 script:
   # Build estnltk
   - conda build --py $PYTHON_TARGET conda-recipe --output > $HOME/outfile.txt
-  # Run tests
-  - filename=`cat $HOME/outfile.txt`
-  - echo "Starting install from $filename"
-  - conda create -n venv python=$PYTHON_TARGET pytest
-  - source activate venv
-  - conda info -a
-  - conda install -y --use-local estnltk # > $HOME/install.log
-  - echo "Install done"
-  - mkdir tmp && cd tmp
-  - echo "Estntk version:" `pip freeze | grep estnltk`
-  - echo "Running tests..."
-  - python -c "from estnltk import Text; t = Text('Tere inimesed!'); t.tag_layer(); print(t.lemma);"
-  - echo "Tests ok!"
-  - cd ../
 
 after_success:
   # uploading to anaconda ...
