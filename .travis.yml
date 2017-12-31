@@ -2,7 +2,6 @@ language: python
 
 python:
   - "3.5"
-  - "3.6"
 
 os:
   - linux
@@ -18,6 +17,7 @@ env:
 
 install:
   - sudo apt-get update
+  - rvm get stable --auto-dotfiles #fixes PATH for osx builds
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
   - if [ $TRAVIS_OS_NAME = "linux" ]; then
