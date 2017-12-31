@@ -43,7 +43,9 @@ script:
   # Run tests
   - filename=`cat $HOME/outfile.txt`
   - echo "Starting install from $filename"
-  - conda install -y --use-local estnltk > $HOME/install.log
+  - conda create -n venv python=$PYTHON_TARGET pytest
+  - activate venv
+  - conda install -y -c conda-forge -c estnltk --use-local estnltk > $HOME/install.log
   - cat $HOME/install.log
   - echo "Install done"
   - echo "running tests..."
