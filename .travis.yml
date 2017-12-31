@@ -38,6 +38,8 @@ install:
   
   # Build estnltk
   - conda build --py $PYTHON_TARGET conda-recipe  --output > $HOME/outfile.txt
+  - cat $HOME/outfile.txt
+
 
 script:
   # Your test script goes here
