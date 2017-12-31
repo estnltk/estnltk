@@ -27,6 +27,7 @@ install:
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
+  - conda config --add channels estnltk conda-forge
   # Useful for debugging any issues with conda
   - conda info -a
   
@@ -34,7 +35,7 @@ install:
   - conda install conda-build swig cython
   
   # Build estnltk
-  - conda build -c estnltk -c conda-forge --py $PYTHON_TARGET conda-recipe
+  - conda build --py $PYTHON_TARGET conda-recipe
 
 script:
   # Your test script goes here
