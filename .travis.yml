@@ -41,4 +41,5 @@ script:
   # Build estnltk
   - conda build --py $PYTHON_TARGET conda-recipe --output > $HOME/outfile.txt
   - filename=`cat $HOME/outfile.txt`
+  - ls -lah `$filename`
   - anaconda upload -l dev $filename
