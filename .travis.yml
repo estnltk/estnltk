@@ -35,11 +35,7 @@ install:
   # Install build tools
   - conda install conda-build swig cython
   - conda update conda-build
-  
-  # Build estnltk
-  - conda build --py $PYTHON_TARGET conda-recipe  --output > $HOME/outfile.txt
-  - cat $HOME/outfile.txt
-
 
 script:
-  # Your test script goes here
+  # Build estnltk
+  - conda build --py $PYTHON_TARGET conda-recipe  --output
