@@ -33,14 +33,15 @@ install:
   - conda info -a
   
   # Install build tools
-  - conda install conda-build swig cython
+  - conda install conda-build anaconda-client swig cython
   - conda update conda-build
+  #- anaconda login --hostname "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET" --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
 
 script:
   # Build estnltk
   - conda build --py $PYTHON_TARGET conda-recipe  --output > $HOME/outfile.txt
 
-after-success:
+after_success:
   - filename=`cat $HOME/outfile.txt`
   - echo "Starting install from $filename"
   - conda install -y -c conda-forge -c estnltk --use-local estnltk
