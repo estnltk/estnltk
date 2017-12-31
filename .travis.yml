@@ -16,6 +16,7 @@ env:
 install:
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
+  - git fetch --unshallow
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get update;
       wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
@@ -27,10 +28,10 @@ install:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
   - conda config --add channels estnltk
   - conda config --add channels conda-forge
-  # Useful for debugging any issues with conda
+  - conda config --set anaconda_upload yes
+  - conda update -q conda
   - conda info -a
   
   # Install build tools
@@ -42,7 +43,6 @@ script:
   # Build estnltk
   # - filename=`conda build --py $PYTHON_TARGET conda-recipe --output`
   # - echo "Building" $filename
-  - conda config --set anaconda_upload yes
   - conda build --py $PYTHON_TARGET conda-recipe
   # - ls -lah `$filename`
   # - anaconda upload -l dev $filename
