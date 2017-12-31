@@ -30,19 +30,19 @@ install:
   - conda config --set always_yes yes --set changeps1 no
   - conda config --add channels estnltk
   - conda config --add channels conda-forge
-  - conda config --set anaconda_upload yes
   - conda update -q conda
   - conda info -a
   
   # Install build tools
   - conda install conda-build anaconda-client swig cython
   - conda update conda-build
-  - anaconda login --hostname "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET" --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
+  - yes | anaconda login --hostname "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET" --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
 
 script:
   # Build estnltk
   # - filename=`conda build --py $PYTHON_TARGET conda-recipe --output`
   # - echo "Building" $filename
+  - conda config --set anaconda_upload yes
   - conda build --py $PYTHON_TARGET conda-recipe
   # - ls -lah `$filename`
   # - anaconda upload -l dev $filename
