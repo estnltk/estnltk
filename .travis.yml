@@ -13,8 +13,8 @@ env:
     - GIT_DESCRIBE_NUMBER=$TRAVIS_BUILD_NUMBER
     - GIT_BUILD_STR=$TRAVIS_COMMIT
   matrix:
-    - PYTHON_TARGET=2.7
     - PYTHON_TARGET=3.5
+    - PYTHON_TARGET=3.6
 
 install:
   - sudo apt-get update
