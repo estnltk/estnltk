@@ -40,8 +40,5 @@ install:
 script:
   # Build estnltk
   - conda build --py $PYTHON_TARGET conda-recipe --output > $HOME/outfile.txt
-
-after_success:
-  # uploading to anaconda ...
   - filename=`cat $HOME/outfile.txt`
   - anaconda upload -l dev $filename
