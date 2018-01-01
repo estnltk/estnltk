@@ -42,4 +42,4 @@ script:
   - echo "Building" $filename
   # - conda config --set anaconda_upload yes
   - conda build --py $PYTHON_TARGET conda-recipe
-  - anaconda upload -l dev $filename
+  - anaconda upload -l dev --force $filename
