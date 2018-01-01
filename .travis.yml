@@ -37,7 +37,6 @@ install:
   # Install build tools
   - conda install conda-build anaconda-client swig cython
   - conda update conda-build
-  - yes | anaconda login --hostname "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET" --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
 
 script:
   # Build estnltk
@@ -45,4 +44,5 @@ script:
   - echo "Building" $filename
   # - conda config --set anaconda_upload yes
   - conda build --py $PYTHON_TARGET conda-recipe
+  - yes | anaconda login --hostname "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET" --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
   - anaconda upload -l dev --force $filename
