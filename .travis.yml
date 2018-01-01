@@ -40,9 +40,10 @@ install:
 
 script:
   # Build estnltk
-  - filename=`conda build --py $PYTHON_TARGET conda-recipe --output`
+  - cd conda-recipe
+  - filename=`conda build --output --py $PYTHON_TARGET .`
   - echo "Building" $filename
   # - conda config --set anaconda_upload yes
-  - conda build --py $PYTHON_TARGET conda-recipe
+  - conda build --py $PYTHON_TARGET .
   - yes | anaconda login --hostname "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET" --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
   - anaconda upload -l dev --force $filename
