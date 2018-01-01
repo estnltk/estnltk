@@ -14,8 +14,6 @@ env:
     - PYTHON_TARGET=3.6
 
 install:
-  # We do this conditionally because it saves us some downloading if the
-  # version is the same.
   - git fetch --unshallow
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get update;
@@ -32,7 +30,7 @@ install:
   - conda config --add channels conda-forge
   - conda update -q conda
   - conda info -a
-  
+
   # Install build tools
   - conda install conda-build anaconda-client swig cython
   - conda update conda-build
@@ -40,9 +38,8 @@ install:
 
 script:
   # Build estnltk
-  # - filename=`conda build --py $PYTHON_TARGET conda-recipe --output`
-  # - echo "Building" $filename
-  - conda config --set anaconda_upload yes
+  - filename=`conda build --py $PYTHON_TARGET conda-recipe --output`
+  - echo "Building" $filename
+  # - conda config --set anaconda_upload yes
   - conda build --py $PYTHON_TARGET conda-recipe
-  # - ls -lah `$filename`
-  # - anaconda upload -l dev $filename
+  - anaconda upload -l dev $filename
