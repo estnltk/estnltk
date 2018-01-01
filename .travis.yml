@@ -13,6 +13,9 @@ env:
     - PYTHON_TARGET=3.5
     - PYTHON_TARGET=3.6
 
+before_install:
+  - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
+
 install:
   - git fetch --unshallow
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
