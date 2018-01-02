@@ -29,8 +29,8 @@ install:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
-  - conda config --add channels estnltk
-  - conda config --add channels conda-forge
+  #- conda config --add channels estnltk
+  #- conda config --add channels conda-forge
   - conda update -q conda
   - conda info -a
 
@@ -44,6 +44,6 @@ script:
   - filename=`conda build --output --py $PYTHON_TARGET .`
   - echo "Building" $filename
   # - conda config --set anaconda_upload yes
-  - conda build --py $PYTHON_TARGET .
+  - conda build -c conda-forge --py $PYTHON_TARGET .
   - yes | anaconda login --hostname "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET" --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
   - anaconda upload -l dev --force $filename
