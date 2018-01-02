@@ -60,8 +60,12 @@ class Tagger(ABC):
         table = ('<h4>Tagger</h4>', self.description, table)
 
         if self.configuration:
-            conf = {k:str(v) for k,v in self.configuration.items()}
-            conf_table = pandas.DataFrame.from_dict(conf, orient='index')
+            # Get configuration items in fixed order
+            conf = [(k,str(v)) for k,v in sorted(self.configuration.items(), \
+                                                      key=lambda x : x[0])]
+            row_names = [item[0] for item in conf]
+            conf_vals = [(item[1],) for item in conf]
+            conf_table = pandas.DataFrame.from_records(conf_vals, index=row_names)
             conf_table = conf_table.to_html(header=False)
             conf_table = ('<h4>Configuration</h4>', conf_table)
         else:
