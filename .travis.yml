@@ -37,9 +37,11 @@ install:
   - conda update conda-build
 
 script:
-  # Build estnltk
-  - filename=`conda build --output --py $PYTHON_TARGET conda-recipe`
-  - echo "Building" $filename
+  # build estnltk
   - conda build -c conda-forge --py $PYTHON_TARGET conda-recipe
+
+after_success:
+  # upload build to conda repository with a label "dev"
   - yes | anaconda login --hostname "$TRAVIS_BUILD_NUMBER"_"$PYTHON_TARGET" --username estnltk --password "$ESTNLTK_ANACONDA_PASSWORD"
+  - filename=`conda build --output --py $PYTHON_TARGET conda-recipe`
   - anaconda upload -l dev --force $filename
