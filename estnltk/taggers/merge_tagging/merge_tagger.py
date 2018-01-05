@@ -1,7 +1,6 @@
-from estnltk.spans import Span
 from estnltk.layer import Layer
 from estnltk.taggers import Tagger
-from estnltk.layer_operations import union_layer
+from estnltk.layer_operations import merge_layers
 
 
 class MergeTagger(Tagger):
@@ -21,7 +20,7 @@ class MergeTagger(Tagger):
 
     def _make_layer(self, text, layers):
         layers = [layers[name] for name in self.depends_on]
-        return union_layer(layers, self.layer_name, self.attributes)
+        return merge_layers(layers, self.layer_name, self.attributes)
 
     def tag(self, text):
         layer = self._make_layer(text.text, text.layers)
