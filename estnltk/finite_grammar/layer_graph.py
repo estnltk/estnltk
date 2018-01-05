@@ -10,28 +10,17 @@ from estnltk.layer_operations.consecutive import iterate_ending_spans
 
 
 class Node:
-    def __init__(self, name, start, end):
+    def __init__(self, name):
         self.name = name
-        self.start = start
-        self.end = end
 
     def __hash__(self):
         return hash(self.name)
-
-    def __lt__(self, other):
-        if hasattr(other, 'start') and hasattr(other, 'end'):
-            return (self.start, self.end) < (other.start, other.end)
-        raise TypeError('unorderable types')
-
-    def __gt__(self, other):
-        if hasattr(other, 'start') and hasattr(other, 'end'):
-            return (self.start, self.end) > (other.start, other.end)
 
     def print(self):
         print(self.__class__.__name__)
         d = self.__dict__
         line = '  {:20} {}'.format
-        keys = ['name', 'grammar_symbol', 'text', 'start', 'end', 'support']
+        keys = ['name', 'text', 'start', 'end', '_support_']
         for k in keys:
             if k in d:
                 print(line(k, d[k]))
@@ -51,28 +40,63 @@ class Node:
 
 
 class PhonyNode(Node):
-    pass
+    def __lt__(self, other):
+        if self.name == 'START':
+            return True
+        if self.name == 'END':
+            return False
 
-START_NODE = PhonyNode('START', float('-inf'), float('-inf'))
-END_NODE = PhonyNode('END', float('inf'), float('inf'))
+    def __gt__(self, other):
+        if self.name == 'START':
+            return False
+        if self.name == 'END':
+            return True
+
+    def __hash__(self):
+        return hash((self.name, type(self)))
+
+    def __eq__(self, other):
+        return isinstance(other, PhonyNode) and self.name == other.name
+
+
+START_NODE = PhonyNode('START')
+END_NODE = PhonyNode('END')
 
 
 class GrammarNode(Node):
-    def __init__(self, name, support, text_spans, terminals):
-        start = text_spans[0][0]
-        end = text_spans[-1][1]
-        self.support = support
+    def __init__(self, name, support, text_spans, terminals, group=None, priority=0):
+        self.start = text_spans[0][0]
+        self.end = text_spans[-1][1]
+        self._support_ = support
         self.text_spans = text_spans
-        self.terminals = terminals
-        super().__init__(name, start, end)
+        self._terminals_ = terminals
+        self._group_ = group
+        if group is None:
+            self._group_ = hash((name, self._support_, self.text_spans))
+        self._priority_ = priority
+        super().__init__(name)
+
+    def __lt__(self, other):
+        if hasattr(other, 'start') and hasattr(other, 'end'):
+            return (self.start, self.end) < (other.start, other.end)
+        elif isinstance(other, PhonyNode):
+            return other > self
+        raise TypeError('unorderable types')
+
+    def __gt__(self, other):
+        if hasattr(other, 'start') and hasattr(other, 'end'):
+            return (self.start, self.end) > (other.start, other.end)
+        elif isinstance(other, PhonyNode):
+            return other < self
+        raise TypeError('unorderable types')
 
     def __eq__(self, other):
         if isinstance(other, GrammarNode):
-            return self.name == other.name and self.support == other.support
+            return self.name == other.name and self._support_ == other._support_
         return False
 
     def __hash__(self):
-        return hash((self.name, self.support, self.text_spans))
+        return hash((self.name, self._support_, self.text_spans))
 
 
 class TerminalNode(GrammarNode):
@@ -92,11 +116,10 @@ class TerminalNode(GrammarNode):
 class NonTerminalNode(GrammarNode):
     def __init__(self, rule, support: Sequence[GrammarNode]):
         text_spans = tuple(sorted(s for n in support for s in n.text_spans))
-        terminals = tuple(sorted(t for n in support for t in n.terminals))
-        self.group = rule.group
-        self.priority = rule.priority
-
-        super().__init__(rule.lhs, support, text_spans, terminals)
+        terminals = tuple(sorted(t for n in support for t in n._terminals_))
+        #self._group_ = rule.group
+        #self._priority_ = rule.priority
+        super().__init__(rule.lhs, support, text_spans, terminals, rule.group, rule.priority)
 
 
 class LayerGraph(nx.DiGraph):
@@ -165,7 +188,7 @@ def get_spans(node):
     result = []
 
     def _get_spans(node):
-        support = node.support
+        support = node._support_
         if isinstance(support, Span):
             result.append(support)
         else:
@@ -201,10 +224,10 @@ def graph_to_parse_trees(graph):
     parse_trees = nx.DiGraph()
     for node in graph.nodes():
         if isinstance(node, NonTerminalNode):
-            for supp in node.support:
+            for supp in node._support_:
                 parse_trees.add_edge(node, supp)
         elif isinstance(node, TerminalNode):
-            parse_trees.add_edge(node, Node(node.text, node.start, node.end))
+            parse_trees.add_edge(node, PhonyNode(node.text))
     return parse_trees
 
 

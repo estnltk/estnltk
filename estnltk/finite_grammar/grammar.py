@@ -7,30 +7,40 @@ from .layer_graph import NonTerminalNode, LayerGraph
 
 
 class Grammar:
-    def __init__(self, *, start_symbols: Sequence, rules: list, max_depth: int=float('inf')):
-        assert len(rules) == len({(r.lhs, r.rhs) for r in rules}), 'repetitive rules'
-        self.rules = rules
+
+    _internal_attributes = frozenset({'name', 'text', 'start', 'end', '_terminals_', '_support_', '_priority_', '_group_'})
+
+    def __init__(self, *, start_symbols: Sequence, rules: list=None, max_depth: int=float('inf'), legal_attributes=None):
+
+        if legal_attributes is None:
+            self.legal_attributes = frozenset()
+        else:
+            legal_attributes = frozenset(legal_attributes)
+            assert not legal_attributes & self._internal_attributes, 'legal attributes contain internal attributes'
+            self.legal_attributes = legal_attributes
+        if rules is None:
+            self.rules = []
+        else:
+            self.rules = rules
+        self._check_rules()
         self.start_symbols = start_symbols
         self.max_depth = max_depth
-        self.nonterminals = frozenset(i['lhs'] for i in rules)
+        self._terminals_and_nonterminals()
 
+    def _terminals_and_nonterminals(self):
+        self.nonterminals = frozenset(r['lhs'] for r in self.rules)
         terminals = set()
         for i in (set(i.rhs) for i in self.rules):
             terminals.update(i)
-        terminals -= self.nonterminals
+        self.terminals = frozenset(terminals - self.nonterminals)
 
-        self.terminals = frozenset(terminals)
-        #self.nonterminal_dependency_order = tuple(self.get_rule_application_order())
+    def _check_rules(self):
+        assert len(self.rules) == len({(r.lhs, r.rhs) for r in self.rules}), 'repetitive rules'
 
-    def add(self, x, y=None, z=None):
-        if isinstance(x, Rule):
-            assert y is None
-            assert z is None
-            self.rules.append(x)
-        elif isinstance(z, Rule):
-            self.rules.append(z)
-        else:
-            raise TypeError('first or third argument must be of type Rule')
+    def add(self, rule):
+        self.rules.append(rule)
+        self._check_rules()
+        self._terminals_and_nonterminals()
 
     def get_rule_application_order(self) -> List[str]:
         rules_depths = dict(
@@ -198,6 +208,8 @@ def parse_graph(graph: LayerGraph, grammar: Grammar, max_depth: int=None, confli
                 if rule.validator(sequence):
                     new_node = NonTerminalNode(rule, sequence)
                     decoration = rule.decorator(sequence)
+                    assert not (set(decoration) - grammar.legal_attributes),\
+                        'illegal attributes in decorator output: ' + str(set(decoration) - grammar.legal_attributes)
                     for name, value in decoration.items():
                         setattr(new_node, name, value)
                     nodes_to_add.append((new_node,
@@ -228,16 +240,16 @@ def resolve_conflicts(graph, node_names):
     terminals_to_nodes = defaultdict(set)
     for node in graph:
         if node.name in start_symbols:
-            for terminal in node.terminals:
-                terminals_to_nodes[(terminal, node.group)].add(node)
+            for terminal in node._terminals_:
+                terminals_to_nodes[(terminal, node._group_)].add(node)
 
     conflicting = {}
     for nodes in terminals_to_nodes.values():
         if len(nodes) > 1:
             for node in nodes:
-                conflicting[node] = {n for n in nodes if n.priority > node.priority}
+                conflicting[node] = {n for n in nodes if n._priority_ > node._priority_}
     nodes_to_remove = set()
-    for node in sorted(conflicting, key=lambda n: n.priority):
+    for node in sorted(conflicting, key=lambda n: n._priority_):
         if node not in nodes_to_remove:
             nodes_to_remove.update(conflicting[node])
 
