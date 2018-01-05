@@ -21,6 +21,7 @@ class Node:
     def __lt__(self, other):
         if hasattr(other, 'start') and hasattr(other, 'end'):
             return (self.start, self.end) < (other.start, other.end)
+        raise TypeError('unorderable types')
 
     def __gt__(self, other):
         if hasattr(other, 'start') and hasattr(other, 'end'):
@@ -30,7 +31,7 @@ class Node:
         print(self.__class__.__name__)
         d = self.__dict__
         line = '  {:20} {}'.format
-        keys = ['name', 'grammar_symbol', 'text', 'start', 'end', 'support', 'weight']
+        keys = ['name', 'grammar_symbol', 'text', 'start', 'end', 'support']
         for k in keys:
             if k in d:
                 print(line(k, d[k]))
@@ -49,18 +50,20 @@ class Node:
         return str(self)
 
 
-START_NODE = Node('START', float('-inf'), float('-inf'))
-END_NODE = Node('END', float('inf'), float('inf'))
+class PhonyNode(Node):
+    pass
+
+START_NODE = PhonyNode('START', float('-inf'), float('-inf'))
+END_NODE = PhonyNode('END', float('inf'), float('inf'))
 
 
 class GrammarNode(Node):
-    def __init__(self, name, support, text_spans, weight=1):
+    def __init__(self, name, support, text_spans, terminals):
         start = text_spans[0][0]
         end = text_spans[-1][1]
         self.support = support
         self.text_spans = text_spans
-        self.weight = weight
-        self.weight = weight
+        self.terminals = terminals
         super().__init__(name, start, end)
 
     def __eq__(self, other):
@@ -69,10 +72,10 @@ class GrammarNode(Node):
         return False
 
     def __hash__(self):
-        return hash((self.name, self.support))
+        return hash((self.name, self.support, self.text_spans))
 
 
-class SpanNode(GrammarNode):
+class TerminalNode(GrammarNode):
     def __init__(self, span: Span, name_attribute: str, attributes=None):
         name = getattr(span, name_attribute)
 
@@ -83,13 +86,18 @@ class SpanNode(GrammarNode):
         for attr in attributes:
             setattr(self, attr, getattr(span, attr))
 
-        super().__init__(name, span, text_spans)
+        super().__init__(name, span, text_spans, (self,))
 
 
-class ParseNode(GrammarNode):
-    def __init__(self, name, support: Sequence[GrammarNode]):
+class NonTerminalNode(GrammarNode):
+    def __init__(self, rule, support: Sequence[GrammarNode]):
         text_spans = tuple(sorted(s for n in support for s in n.text_spans))
-        super().__init__(name, support, text_spans)
+        terminals = tuple(sorted(t for n in support for t in n.terminals))
+        self.group = rule.group
+        self.priority = rule.priority
+
+        super().__init__(rule.lhs, support, text_spans, terminals)
+
 
 class LayerGraph(nx.DiGraph):
     def __init__(self, **attr):
@@ -177,16 +185,27 @@ def layer_to_graph(layer, attributes=None):
     spans = layer.spans
 
     for b in iterate_starting_spans(spans):
-        graph.add_edge(START_NODE, SpanNode(b, 'grammar_symbol'))
+        graph.add_edge(START_NODE, TerminalNode(b, 'grammar_symbol'))
     for a in iterate_ending_spans(spans):
-        graph.add_edge(SpanNode(a, 'grammar_symbol'), END_NODE)
+        graph.add_edge(TerminalNode(a, 'grammar_symbol'), END_NODE)
     for a, b in iterate_consecutive_spans(spans):
-        graph.add_edge(SpanNode(a, 'grammar_symbol'), SpanNode(b, 'grammar_symbol'))
+        graph.add_edge(TerminalNode(a, 'grammar_symbol'), TerminalNode(b, 'grammar_symbol'))
 
     if not spans:
         graph.add_edge(START_NODE, END_NODE)
 
     return graph
+
+
+def graph_to_parse_trees(graph):
+    parse_trees = nx.DiGraph()
+    for node in graph.nodes():
+        if isinstance(node, NonTerminalNode):
+            for supp in node.support:
+                parse_trees.add_edge(node, supp)
+        elif isinstance(node, TerminalNode):
+            parse_trees.add_edge(node, Node(node.text, node.start, node.end))
+    return parse_trees
 
 
 def plot_graph(graph:LayerGraph, size=12, prog='dot'):

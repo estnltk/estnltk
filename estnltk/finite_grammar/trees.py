@@ -5,10 +5,9 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 
-from estnltk.spans import Span
-from typing import  List, Sequence
+from typing import List
 
-from .layer_graph import ParseNode, LayerGraph
+from .layer_graph import NonTerminalNode, GrammarNode
 from .layer_graph import START_NODE as START
 from .layer_graph import END_NODE as END
 from .grammar import Grammar, Rule
@@ -58,7 +57,7 @@ def get_elementary_nodes(rows):
 
     for row_name, indices in rows.items():
         for (a, b) in indices:
-            items.append(ParseNode(row_name, a, b))
+            items.append(NonTerminalNode(row_name, a, b))
     return items
 
 
@@ -112,7 +111,7 @@ def add_blanks(graph: nx.DiGraph) -> None:
             for succ in graph.successors(node):
                 (s2, e2), _ = (succ.start, succ.end), succ.name
                 if s2 - e1 > 1 and succ != END:
-                    nnode = ParseNode("_", Span(e1, s2, legal_attributes={}))
+                    nnode = GrammarNode("_", None, ((e1, s2),), ())
                     nodes_to_add.append(nnode)
                     edges_to_add.extend([(node, nnode), (nnode, succ)])
                     edges_to_remove.append((node, succ))
@@ -165,7 +164,7 @@ def get_nonterminal_nodes(graph: nx.DiGraph, grammar: 'Grammar'):
             for path in paths:
                 (s1, e1), n1 = path[0]
                 (s2, e2), n2 = path[-1]
-                node = ParseNode((s1, e2), nonterminal)
+                node = NonTerminalNode((s1, e2), nonterminal)
                 node.weight = rule.weight
 
                 nodes[node].append((rule, path))
@@ -176,7 +175,7 @@ def get_nonterminal_nodes(graph: nx.DiGraph, grammar: 'Grammar'):
     return nodes
 
 
-def choose_parse_tree(nodes: Dict[ParseNode, List[Tuple[Rule, ParseNode]]], grammar: Grammar) -> nx.DiGraph:
+def choose_parse_tree(nodes: Dict[NonTerminalNode, List[Tuple[Rule, NonTerminalNode]]], grammar: Grammar) -> nx.DiGraph:
     if not len([i for i in nodes.keys() if i.name == grammar.start_symbol]) >= 1:
         raise AssertionError('Parse failed, change grammar.')
     # we'll choose the starting symbol with the most cover
@@ -199,8 +198,8 @@ def choose_parse_tree(nodes: Dict[ParseNode, List[Tuple[Rule, ParseNode]]], gram
 def document_to_nodes(document):
     nodes = []
     for row, spans in document.items():
-        for s,e in spans:
-            nodes.append(ParseNode(row, Span(s, e, legal_attributes={})))
+        for s, e in spans:
+            nodes.append(GrammarNode(row, None, ((s, e),), ()))
     return nodes
 
 
@@ -242,7 +241,7 @@ def layer_to_graph_by_attribute(layer:'Layer', attribute:str) -> nx.DiGraph:
                     attr = 'None'
                 attr_to_spans[attr].append(span)
             for attr, spans in attr_to_spans.items():
-                nodes.append(ParseNode(attr, spans))
+                nodes.append(NonTerminalNode(attr, spans))
     else:
         for span in layer:
             attr = getattr(span, attribute)
