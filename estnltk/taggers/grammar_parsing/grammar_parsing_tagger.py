@@ -12,17 +12,23 @@ class GrammarParsingTagger(Tagger):
     depends_on = []
     layer_name = ''
 
-    def __init__(self, grammar, input_layer, layer_name='parse', attributes=(), grammar_symbols={}):
+    def __init__(self, grammar, layer_of_tokens, layer_name='parse', attributes=(), output_nodes=None,
+                 conflict_resolving=True):
         self.grammar = grammar
         self.layer_name = layer_name
-        self.input_layer = input_layer
+        self.input_layer = layer_of_tokens
         self.attributes = attributes
-        self.depends_on = [input_layer]
-        self.grammar_symbols = set(grammar_symbols)
+        self.depends_on = [layer_of_tokens]
+        if output_nodes is None:
+            self.output_nodes = set(grammar.start_symbols)
+        else:
+            self.output_nodes = set(output_nodes)
+        self.conflict_resolving = conflict_resolving
+        self.configuration['conflict_resolving'] = self.conflict_resolving
 
     def _make_layer(self, text, layers):
         graph = layer_to_graph(layers[self.input_layer])
-        graph = parse_graph(graph, self.grammar)
+        graph = parse_graph(graph, self.grammar, conflict_resolving=self.conflict_resolving)
 
         attributes = self.attributes
         layer = Layer(name=self.layer_name,
@@ -30,7 +36,7 @@ class GrammarParsingTagger(Tagger):
                       attributes=attributes
                       )
         for node in graph:
-            if isinstance(node, GrammarNode) and node.name in self.grammar_symbols:
+            if isinstance(node, GrammarNode) and node.name in self.output_nodes:
                 # SpanNode and ParseNode are GrammarNode
                 span = SpanList()
                 span.spans = get_spans(node)

@@ -3,11 +3,12 @@ import collections
 from typing import MutableMapping, Tuple, Any, Union, List
 import itertools
 
+
 class Span:
-    def __init__(self, start: int = None, end: int = None, parent=None, *,
+    def __init__(self, start: int=None, end: int=None, parent=None, *,
                  layer=None, legal_attributes=None, **attributes) -> None:
 
-        # this is set up first, because attribute access depends on knowing attribute names as earley as possible
+        # this is set up first, because attribute access depends on knowing attribute names as early as possible
         self._legal_attribute_names = legal_attributes
         self.is_dependant = parent is None
 

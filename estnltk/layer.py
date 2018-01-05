@@ -3,7 +3,6 @@ from typing import Tuple, Union, List
 import pandas
 
 
-
 def whitelist_record(record, source_attributes):
     # the goal is to only keep the keys explicitly listed in source_attributes
 
@@ -27,7 +26,7 @@ class Layer:
                  enveloping: str = None,
                  ambiguous: bool = False
                  ) -> None:
-        assert not ((parent is not None) and (enveloping is not None)), 'Cant be derived AND enveloping'
+        assert parent is None or enveloping is None, 'Cant be derived AND enveloping'
 
         assert name is not None, 'Layer must have a name'
 
@@ -36,6 +35,7 @@ class Layer:
 
         # list of legal attribute names for the layer
         self.attributes = attributes
+        assert len(attributes) == len(set(attributes)), 'repetitive attribute name'
 
         # the name of the parent layer.
         self.parent = parent
