@@ -77,7 +77,7 @@ class Tagger(ABC):
     def __repr__(self):
         conf_str = ""
         if self.configuration:
-            conf = [str(k)+':'+str(v) for k,v in sorted(self.configuration.items(), \
+            conf = [str(k)+'='+str(v) for k,v in sorted(self.configuration.items(), \
                                                         key=lambda x : x[0])]
-            conf_str = ','.join(conf)
+            conf_str = ', '.join(conf)
         return self.__class__.__name__+"("+conf_str+")"

@@ -122,6 +122,20 @@ ignore_patterns = [
             \s*\))                                               # ends with ')'
             ''', re.X),
         '_group_': 1 },\
+      { 'comment': 'Captures sequences of parenthesized uppercase letters and numbers, which do not include whitespace.',
+        'example': 'ksülitool (E967), sorbitool (E420), mannitool (E421), laktitool (E966) jt.',
+        'type'   : 'parentheses_ucase_number_seq',
+        '_priority_': (0, 0, 1, 6),
+        '_regex_pattern_': re.compile(\
+            r'''
+            [^'''+_uc_letter+''']                             # preceding char is not ucase letter
+            (\(                                               # starts with '('
+               (?=[^()]*['''+_uc_letter+'''])                 # look ahead: ucase letter inside parentheses
+               ['''+_uc_letter+'''0-9.]+                      # sequence of ucase letters, numbers, puncts
+             \))                                              #  ends with ')'
+             [^'''+_uc_letter+''']                            # following char is not ucase letter
+            ''', re.X),
+        '_group_': 1 },\
 
       # Partly based on PATT_55 from https://github.com/EstSyntax/preprocessing-module (aja)
       { 'comment': 'Captures 1-2 comma-separated titlecase words inside parentheses;',
@@ -478,7 +492,8 @@ class SyntaxIgnoreTagger(Tagger):
                 if ignore_brackets:
                     patterns.append( ignore_pat )
             elif (ignore_pat['type'] in ['parentheses_1to3', \
-                  'parentheses_1to4', 'parentheses_birdeah_year']):
+                  'parentheses_1to4', 'parentheses_birdeah_year', \
+                  'parentheses_ucase_number_seq']):
                 if ignore_parenthesized_short_char_sequences:
                     patterns.append( ignore_pat )
             elif ignore_pat['type'].startswith('parentheses_title_words'):
