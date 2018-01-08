@@ -1,6 +1,6 @@
 from estnltk import Text
-from estnltk.taggers.morf import VabamorfAnalyzer, VabamorfDisambiguator
-from estnltk.taggers.morf import IGNORE_ATTR
+from estnltk.taggers.morph.morf import VabamorfAnalyzer, VabamorfDisambiguator
+from estnltk.taggers.morph.morf import IGNORE_ATTR
 
 # ----------------------------------
 #   Helper functions

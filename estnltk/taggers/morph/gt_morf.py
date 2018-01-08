@@ -17,9 +17,9 @@ from estnltk.text import Span, Layer, Text
 from estnltk.taggers import Tagger
 from estnltk.taggers import VabamorfTagger
 
-from estnltk.taggers.morf_common import ESTNLTK_MORPH_ATTRIBUTES
-from estnltk.taggers.morf_common import _is_empty_span
-from estnltk.taggers.morf_common import _create_empty_morph_span
+from estnltk.taggers.morph.morf_common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.taggers.morph.morf_common import _is_empty_span
+from estnltk.taggers.morph.morf_common import _create_empty_morph_span
 
 # =========================================================================================
 #    Convert nominal categories

@@ -1,6 +1,6 @@
 from estnltk.text import Text
-from estnltk.taggers.morf import VabamorfAnalyzer
-from estnltk.taggers.gt_morf import GTMorphConverter
+from estnltk.taggers.morph.morf import VabamorfAnalyzer
+from estnltk.taggers.morph.gt_morf import GTMorphConverter
 
 # ----------------------------------
 #   Helper functions

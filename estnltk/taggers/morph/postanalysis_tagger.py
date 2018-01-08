@@ -9,11 +9,11 @@ import regex as re
 from estnltk.text import Span, SpanList, Layer, Text
 from estnltk.taggers import Tagger
 
-from estnltk.taggers.morf_common import IGNORE_ATTR
-from estnltk.taggers.morf_common import ESTNLTK_MORPH_ATTRIBUTES
-from estnltk.taggers.morf_common import VABAMORF_ATTRIBUTES
-from estnltk.taggers.morf_common import _get_word_text, _create_empty_morph_span
-from estnltk.taggers.morf_common import _is_empty_span
+from estnltk.taggers.morph.morf_common import IGNORE_ATTR
+from estnltk.taggers.morph.morf_common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.taggers.morph.morf_common import VABAMORF_ATTRIBUTES
+from estnltk.taggers.morph.morf_common import _get_word_text, _create_empty_morph_span
+from estnltk.taggers.morph.morf_common import _is_empty_span
 
 from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 
