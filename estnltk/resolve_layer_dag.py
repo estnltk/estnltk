@@ -73,7 +73,7 @@ from .taggers import WordTagger
 from .taggers import CompoundTokenTagger
 from .taggers import SentenceTokenizer
 from .taggers import ParagraphTokenizer
-from .taggers.morf import VabamorfTagger
+from .taggers.morph.morf import VabamorfTagger
 from .taggers import MorphExtendedTagger
 
 
