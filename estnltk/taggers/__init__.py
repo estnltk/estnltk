@@ -4,7 +4,7 @@ from estnltk.taggers.raw_text_tagging.date_tagger.date_tagger import DateTagger
 
 from estnltk.taggers.event_tagging.event_sequence_tagger import EventSequenceTagger
 
-from estnltk.taggers.morf import VabamorfTagger
+from estnltk.taggers.morph.morf import VabamorfTagger
 from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger
 from estnltk.taggers.text_segmentation.word_tagger import WordTagger
 from estnltk.taggers.text_segmentation.sentence_tokenizer import SentenceTokenizer

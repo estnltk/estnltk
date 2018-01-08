@@ -73,16 +73,21 @@ from .taggers import WordTagger
 from .taggers import CompoundTokenTagger
 from .taggers import SentenceTokenizer
 from .taggers import ParagraphTokenizer
-from .taggers.morf import VabamorfTagger
+from .taggers.morph.morf import VabamorfTagger
 from .taggers import MorphExtendedTagger
+
+# Load default configuration for morph analyser
+from .taggers.morph.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
+from .taggers.morph.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
+from .taggers.morph.morf_common import DEFAULT_PARAM_COMPOUND
 
 
 def make_resolver(
-                 disambiguate=True,
-                 guess=True,
-                 propername=True,
-                 phonetic=False,
-                 compound=True):
+                 disambiguate=DEFAULT_PARAM_DISAMBIGUATE,
+                 guess       =DEFAULT_PARAM_GUESS,
+                 propername  =DEFAULT_PARAM_PROPERNAME,
+                 phonetic    =DEFAULT_PARAM_PHONETIC,
+                 compound    =DEFAULT_PARAM_COMPOUND):
     vabamorf_tagger = VabamorfTagger(
                                      disambiguate=disambiguate,
                                      guess=guess,

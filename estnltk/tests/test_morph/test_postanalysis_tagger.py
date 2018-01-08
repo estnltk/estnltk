@@ -1,6 +1,6 @@
 from estnltk import Text
-from estnltk.taggers.morf import VabamorfTagger
-from estnltk.taggers.postanalysis_tagger import PostMorphAnalysisTagger
+from estnltk.taggers.morph.morf import VabamorfTagger
+from estnltk.taggers.morph.postanalysis_tagger import PostMorphAnalysisTagger
 
 # ----------------------------------
 #   Helper functions
