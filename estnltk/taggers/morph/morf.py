@@ -69,8 +69,18 @@ class VabamorfTagger(Tagger):
                 '(!) postanalysis_tagger does not define any attributes.'
         self.postanalysis_tagger = postanalysis_tagger
         vm_instance = Vabamorf.instance()
-        self.vabamorf_analyser      = VabamorfAnalyzer( vm_instance=vm_instance )
-        self.vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance )
+        # Initialize morf analyzer and disambiguator; 
+        # Also propagate layer names to submodules;
+        self.vabamorf_analyser      = VabamorfAnalyzer( vm_instance=vm_instance, \
+                                                        layer_name=layer_name )
+        self.vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance, \
+                                                             layer_name=layer_name )
+        # If a custom layer name is used, rewrite postanalysis_tagger's layer name, if required
+        if postanalysis_tagger and postanalysis_tagger.layer_name != layer_name:
+            # Note: if user has already created a PostMorphAnalysisTagger and passed
+            #       to us, we assume that she also has fixed layer_name in a way that 
+            #       it matches the input layer_name;
+            postanalysis_tagger=PostMorphAnalysisTagger(layer_name=layer_name)
         
 
         self.configuration = {'postanalysis_tagger':self.postanalysis_tagger.__class__.__name__, }
