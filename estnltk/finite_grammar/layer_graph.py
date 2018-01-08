@@ -10,11 +10,20 @@ from estnltk.layer_operations.consecutive import iterate_ending_spans
 
 
 class Node:
-    def __init__(self, name):
+    def __init__(self, name, start, end):
         self.name = name
+        self.start = start
+        self.end = end
 
-    def __hash__(self):
-        return hash(self.name)
+    def __lt__(self, other):
+        if hasattr(other, 'start') and hasattr(other, 'end'):
+            return (self.start, self.end) < (other.start, other.end)
+        raise TypeError('unorderable types')
+
+    def __gt__(self, other):
+        if hasattr(other, 'start') and hasattr(other, 'end'):
+            return (self.start, self.end) > (other.start, other.end)
+        raise TypeError('unorderable types')
 
     def print(self):
         print(self.__class__.__name__)
@@ -40,33 +49,22 @@ class Node:
 
 
 class PhonyNode(Node):
-    def __lt__(self, other):
-        if self.name == 'START':
-            return True
-        if self.name == 'END':
-            return False
-
-    def __gt__(self, other):
-        if self.name == 'START':
-            return False
-        if self.name == 'END':
-            return True
-
     def __hash__(self):
-        return hash((self.name, type(self)))
+        return hash((self.name, self.start, self.end, type(self)))
 
     def __eq__(self, other):
-        return isinstance(other, PhonyNode) and self.name == other.name
+        return isinstance(other, PhonyNode) and self.name == other.name and\
+               self.start == other.start and self.end==other.end
 
 
-START_NODE = PhonyNode('START')
-END_NODE = PhonyNode('END')
+START_NODE = PhonyNode('START', float('-inf'), float('-inf'))
+END_NODE = PhonyNode('END', float('inf'), float('inf'))
 
 
 class GrammarNode(Node):
     def __init__(self, name, support, text_spans, terminals, group=None, priority=0):
-        self.start = text_spans[0][0]
-        self.end = text_spans[-1][1]
+        start = text_spans[0][0]
+        end = text_spans[-1][1]
         self._support_ = support
         self.text_spans = text_spans
         self._terminals_ = terminals
@@ -74,21 +72,9 @@ class GrammarNode(Node):
         if group is None:
             self._group_ = hash((name, self._support_, self.text_spans))
         self._priority_ = priority
-        super().__init__(name)
+        super().__init__(name, start, end)
 
-    def __lt__(self, other):
-        if hasattr(other, 'start') and hasattr(other, 'end'):
-            return (self.start, self.end) < (other.start, other.end)
-        elif isinstance(other, PhonyNode):
-            return other > self
-        raise TypeError('unorderable types')
 
-    def __gt__(self, other):
-        if hasattr(other, 'start') and hasattr(other, 'end'):
-            return (self.start, self.end) > (other.start, other.end)
-        elif isinstance(other, PhonyNode):
-            return other < self
-        raise TypeError('unorderable types')
 
     def __eq__(self, other):
         if isinstance(other, GrammarNode):
@@ -117,8 +103,6 @@ class NonTerminalNode(GrammarNode):
     def __init__(self, rule, support: Sequence[GrammarNode]):
         text_spans = tuple(sorted(s for n in support for s in n.text_spans))
         terminals = tuple(sorted(t for n in support for t in n._terminals_))
-        #self._group_ = rule.group
-        #self._priority_ = rule.priority
         super().__init__(rule.lhs, support, text_spans, terminals, rule.group, rule.priority)
 
 
@@ -227,7 +211,7 @@ def graph_to_parse_trees(graph):
             for supp in node._support_:
                 parse_trees.add_edge(node, supp)
         elif isinstance(node, TerminalNode):
-            parse_trees.add_edge(node, PhonyNode(node.text))
+            parse_trees.add_edge(node, PhonyNode(node.text, node.start, node.end))
     return parse_trees
 
 
