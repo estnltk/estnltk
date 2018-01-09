@@ -204,7 +204,7 @@ class PostMorphAnalysisTagger(Tagger):
             Text object to which ignore-markings will be added.
         '''
         comp_token_id = 0
-        for spanlist in text.morph_analysis.spans:
+        for spanlist in text[self.layer_name].spans:
             if comp_token_id < len(text['compound_tokens'].spans):
                 comp_token = text['compound_tokens'].spans[comp_token_id]
                 if (comp_token.start == spanlist.start and \
@@ -242,7 +242,7 @@ class PostMorphAnalysisTagger(Tagger):
         '''
         comp_token_id  = 0
         has_normalized = 'normalized' in text['compound_tokens'].attributes
-        for spanlist in text.morph_analysis.spans:
+        for spanlist in text[self.layer_name].spans:
             if comp_token_id < len(text['compound_tokens'].spans):
                 comp_token = text['compound_tokens'].spans[comp_token_id]
                 if (comp_token.start == spanlist.start and \
@@ -293,7 +293,7 @@ class PostMorphAnalysisTagger(Tagger):
                        'email' in comp_token.type:
                         for span in spanlist:
                             # Set partofspeech to H
-                            setattr(span, 'partofspeech', 'H')                            
+                            setattr(span, 'partofspeech', 'H')
                     comp_token_id += 1
                     # 5) Fix abbreviations, such as 'toim.', 'Tlk.'
                     if self.configuration['fix_abbreviations'] and \

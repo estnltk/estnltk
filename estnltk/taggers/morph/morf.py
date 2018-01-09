@@ -31,7 +31,7 @@ class VabamorfTagger(Tagger):
 
     def __init__(self,
                  layer_name='morph_analysis',
-                 postanalysis_tagger=PostMorphAnalysisTagger(),
+                 postanalysis_tagger=None,
                  **kwargs):
         """Initialize VabamorfTagger class.
 
@@ -52,6 +52,14 @@ class VabamorfTagger(Tagger):
             logical analyses for disambiguation (if required) and fills in 
             values of extra attributes in morph_analysis Spans.
         """
+        # Check if the user has provided a custom postanalysis_tagger
+        postanalysis_tagger_given = False
+        if postanalysis_tagger:
+            postanalysis_tagger_given = True
+        else:
+            # Initialize default postanalysis_tagger
+            postanalysis_tagger=PostMorphAnalysisTagger(layer_name=layer_name)
+        
         self.kwargs = kwargs
         self.layer_name = layer_name
        
@@ -75,13 +83,6 @@ class VabamorfTagger(Tagger):
                                                         layer_name=layer_name )
         self.vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance, \
                                                              layer_name=layer_name )
-        # If a custom layer name is used, rewrite postanalysis_tagger's layer name, if required
-        if postanalysis_tagger and postanalysis_tagger.layer_name != layer_name:
-            # Note: if user has already created a PostMorphAnalysisTagger and passed
-            #       to us, we assume that she also has fixed layer_name in a way that 
-            #       it matches the input layer_name;
-            postanalysis_tagger=PostMorphAnalysisTagger(layer_name=layer_name)
-        
 
         self.configuration = {'postanalysis_tagger':self.postanalysis_tagger.__class__.__name__, }
         #                      'vabamorf_analyser':self.vabamorf_analyser.__class__.__name__,
@@ -89,6 +90,12 @@ class VabamorfTagger(Tagger):
         self.configuration.update(self.kwargs)
 
         self.depends_on = ['words', 'sentences']
+        # Update dependencies: add dependencies specific to postanalysis_tagger
+        if postanalysis_tagger and postanalysis_tagger.depends_on:
+            for postanalysis_dependency in postanalysis_tagger.depends_on:
+                if postanalysis_dependency not in self.depends_on and \
+                   postanalysis_dependency != self.layer_name:
+                    self.depends_on.append( postanalysis_dependency )
 
 
     def tag(self, text: Text, return_layer=False) -> Text:
