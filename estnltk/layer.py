@@ -230,6 +230,9 @@ class Layer:
     def _repr_html_(self):
         return self.to_html()
 
+    def __repr__(self):
+        return str(self)
+
     def diff(self, other):
         if not isinstance(other, Layer):
             return 'Other is not a Layer.'
