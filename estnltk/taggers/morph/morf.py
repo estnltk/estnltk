@@ -81,7 +81,6 @@ class VabamorfTagger(Tagger):
             #       to us, we assume that she also has fixed layer_name in a way that 
             #       it matches the input layer_name;
             postanalysis_tagger=PostMorphAnalysisTagger(layer_name=layer_name)
-        
 
         self.configuration = {'postanalysis_tagger':self.postanalysis_tagger.__class__.__name__, }
         #                      'vabamorf_analyser':self.vabamorf_analyser.__class__.__name__,
@@ -89,6 +88,12 @@ class VabamorfTagger(Tagger):
         self.configuration.update(self.kwargs)
 
         self.depends_on = ['words', 'sentences']
+        # Update dependencies: add dependencies specific to postanalysis_tagger
+        if postanalysis_tagger and postanalysis_tagger.depends_on:
+            for postanalysis_dependency in postanalysis_tagger.depends_on:
+                if postanalysis_dependency not in self.depends_on and \
+                   postanalysis_dependency != self.layer_name:
+                    self.depends_on.append( postanalysis_dependency )
 
 
     def tag(self, text: Text, return_layer=False) -> Text:

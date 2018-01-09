@@ -17,6 +17,16 @@ def _sort_morph_analysis_records( morph_analysis_records:list ):
 
 # ----------------------------------
 
+def test_analyse_segmentation_and_morphology():
+    # Analysing first for 'segmentation', and then for 'morphology'
+    # should not produce any errors 
+    # (no errors due to missing dependencies)
+    text = Text('Tere, maailm!')
+    text.analyse('segmentation')
+    text.analyse('morphology')
+    assert True
+
+
 def test_default_morph_analysis():
     # Case 1
     text = Text("Aga kõik juhtus iseenesest.")
