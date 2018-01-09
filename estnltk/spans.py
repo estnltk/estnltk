@@ -292,12 +292,20 @@ class Span:
     def __str__(self):
         legal_attribute_names = self.__getattribute__('layer').__getattribute__('attributes')
 
-        mapping = {}
+        # Output key-value pairs in a sorted way
+        # (to assure a consistent output, e.g. for automated testing)
+        mapping_sorted = []
 
-        for k in legal_attribute_names:
-            mapping[k] = self.__getattribute__(k)
+        for k in sorted(legal_attribute_names):
+            key_value_str = "{key_val}".format(key_val = {k:self.__getattribute__(k)})
+            # Hack: Remove surrounding '{' and '}'
+            key_value_str = key_value_str[:-1]
+            key_value_str = key_value_str[1:]
+            mapping_sorted.append(key_value_str)
 
-        return 'Span({text}, {attributes})'.format(text=self.text, attributes=mapping)
+        # Hack: Put back surrounding '{' and '}' (mimic dict's representation)
+        mapping_sorted_str = '{'+ (', '.join(mapping_sorted)) + '}'
+        return 'Span({text}, {attributes})'.format(text=self.text, attributes=mapping_sorted_str)
 
     def __repr__(self):
         return str(self)
