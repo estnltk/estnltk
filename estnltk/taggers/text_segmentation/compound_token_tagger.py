@@ -441,7 +441,7 @@ class CompoundTokenTagger(Tagger):
             # remove regular tokens that are within compound tokens
             covered_tokens = \
                 self._remove_overlapped_spans(covered_compound_tokens, covered_tokens)
-            #print('>>>> ',text.text[sp.start:sp.end],sp.start,sp.end)
+            #print('>>>> ','"'+text.text[sp.start:sp.end]+'"',sp.start,sp.end,sp.pattern_type)
             
             # check the leftmost and the rightmost tokens: 
             #    whether they satisfy the constraints left_strict and right_strict

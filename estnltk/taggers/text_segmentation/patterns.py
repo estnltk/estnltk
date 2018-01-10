@@ -669,6 +669,7 @@ case_endings_patterns = [
                          iks|ile|ilt|iga|ist|sse|ide|ina|ini|ita|                       # case ending
                          il|it|le|lt|ga|st|is|ni|na|id|ed|ta|te|ks|se|ne|es|            # case ending
                          i|l|s|d|u|e|t))                                                # case ending
+                        ([^{ALPHANUM}]|$)                                               # avoid continuation of a word
                         '''.format(**MACROS), re.X),
       '_group_': 1,
       '_priority_': (6, 0, 3),

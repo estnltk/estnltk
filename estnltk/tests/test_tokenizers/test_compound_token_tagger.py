@@ -225,7 +225,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Seda', 'puhastuspappi', 'saab', 'Photopointist', 'endale', 'soetada', '2.99', '€', 'eest', '.'] },\
             { 'text' : '10 000 kroonilt kuus 20 000-le minna on lihtsam kui 500 000-lt miljonile.',\
               'expected_words': ['10 000', 'kroonilt', 'kuus', '20 000-le', 'minna', 'on', 'lihtsam', 'kui', '500 000-lt', 'miljonile', '.'] },\
-            # Negative examples: \newline should not be allowed in the middle of long number 
+            # Negative examples: \newline should not be allowed in the middle of long number
             { 'text' : 'ENSV II Ülemnõukogu liige 1947-1951.\n31. juuli\n1927 toimus 2. Jõhvi laulu- ja muusikapäev',\
               'expected_words': ['ENSV', 'II', 'Ülemnõukogu', 'liige', '1947', '-', '1951.', '31.', 'juuli', '1927', 'toimus', '2.', 'Jõhvi', 'laulu-', 'ja', 'muusikapäev'] },\
             { 'text' : '15. Bosnia-Hertsegoviina 0 900 77 15\n16. Belgia 0 900 77 16\n17. Prantsusmaa 0 900 77 17\n',\
@@ -271,7 +271,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Ühed', 'vanimad', 'säilitusained', 'on', 'naatriumnitrit', '(', 'E 250', ')', 'ja', 'naatriumnitraat', '(', 'E 251', ')', '.'] },\
             # 2nd level fixes to numbers: add sign (but do not mix up with ranges)
             { 'text' : "Euroopas levinud kindlustustasu on 0,1 -0,3% töö või näituse maksumusest .",\
-              'expected_words': ['Euroopas', 'levinud', 'kindlustustasu', 'on', '0,1', '-', '0,3', '%', 'töö', 'või', 'näituse', 'maksumusest', '.'] },\
+              'expected_words': ['Euroopas', 'levinud', 'kindlustustasu', 'on', '0,1', '-', '0,3%', 'töö', 'või', 'näituse', 'maksumusest', '.'] },\
             { 'text' : "Seni Saksa marga ja USA dollari valuutakorvi suhtes +/-7.5% vahemikus püsinud kroon lasti esmaspäeval vabaks .",\
               'expected_words': ['Seni', 'Saksa', 'marga', 'ja', 'USA', 'dollari', 'valuutakorvi', 'suhtes', '+/-7.5%', 'vahemikus', 'püsinud', 'kroon', 'lasti', 'esmaspäeval', 'vabaks', '.'] },\
             { 'text' : "Enim langes Ekspress Grupp ( -7,62% ), talle järgnesid Tallink ( -7,35% ) ja Tallinna Kaubamaja ( -6,77% ).",\
@@ -280,6 +280,22 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['Hämmastava', 'tõusu', 'tegi', 'ka', 'Baltika', 'aktsia', '(', '+17,46%', ')', '.'] },\
             { 'text' : "Edgar Savisaar - 59 häält - 23,6%\n Toomas Hendrik Ilves - 105 häält - 42,6%\n",\
               'expected_words': ['Edgar', 'Savisaar', '-', '59', 'häält', '-', '23,6%', 'Toomas', 'Hendrik', 'Ilves', '-', '105', 'häält', '-', '42,6%'] },\
+            # 2nd level fixes to numbers: add percentages
+            # Usual numbers with percentages & numbers with percentages with case endings: avoid mixing up these two
+            { 'text' : "Selliseid planeete leiab 30% tähtede ümbert.",\
+              'expected_words': ['Selliseid', 'planeete', 'leiab', '30%', 'tähtede', 'ümbert', '.'] },\
+            { 'text' : "2% õpetajatest langetas hindamisnorme (lubatud oli 5% skaala muutus)",\
+              'expected_words': ['2%', 'õpetajatest', 'langetas', 'hindamisnorme', '(', 'lubatud', 'oli', '5%', 'skaala', 'muutus', ')'] },\
+            { 'text' : "PRIA toetas ettevõtmist 90% ulatuses, 10% lisasid omaosalusena Paikuse ja Tahkuranna vald ning Pärnu linn.",\
+              'expected_words': ['PRIA', 'toetas', 'ettevõtmist', '90%', 'ulatuses', ',', '10%', 'lisasid', 'omaosalusena', 'Paikuse', 'ja', 'Tahkuranna', 'vald', 'ning', 'Pärnu', 'linn', '.'] },\
+            { 'text' : "Avapoolajal kahepunktiviskeid 79%-lise ning kaugviskesid 66%-lise täpsusega tabanud Girona jätkas edu kasvatamist.",\
+              'expected_words': ['Avapoolajal', 'kahepunktiviskeid', '79%-lise', 'ning', 'kaugviskesid', '66%-lise', 'täpsusega', 'tabanud', 'Girona', 'jätkas', 'edu', 'kasvatamist', '.'] },\
+            { 'text' : "Üle 80%-l ettevõtjatest on lairibaühendus.",\
+              'expected_words': ['Üle', '80%-l', 'ettevõtjatest', 'on', 'lairibaühendus', '.'] },\
+            { 'text' : "Muidugi pead ei anna ,et asi 100% nii on.",\
+              'expected_words': ['Muidugi', 'pead', 'ei', 'anna', ',', 'et', 'asi', '100%', 'nii', 'on', '.'] },\
+            { 'text' : "Vaja oleks 100%list",\
+              'expected_words': ['Vaja', 'oleks', '100%list'] },\
         ]
         for test_text in test_texts:
             text = Text( test_text['text'] )
