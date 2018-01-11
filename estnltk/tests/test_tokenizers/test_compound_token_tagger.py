@@ -426,6 +426,17 @@ class CompoundTokenTaggerTest(unittest.TestCase):
               'expected_words': ['See', 'aitab', 'kindlamini', 'tõsta', 'nt', 'annetuste', 'tulumaksuvabastust', '5%lt', '10%le', '.'] },\
             { 'text': "Üleriigilisel üldstreigil nõuame ka 50%-list palgatõusu!",\
               'expected_words': ['Üleriigilisel', 'üldstreigil', 'nõuame', 'ka', '50%-list', 'palgatõusu', '!'] },\
+            # Number + case ending : ordinals and years/decades
+            { 'text': "BGB 3.-nda raamatu 3.-nda tiitli all loetletud omandi omandamise liigid.",\
+              'expected_words': ['BGB', '3.-nda', 'raamatu', '3.-nda', 'tiitli', 'all', 'loetletud', 'omandi', 'omandamise', 'liigid', '.'] },\
+            { 'text': "Tiit ja Cinnamon startisid 47.-ndatena.",\
+              'expected_words': ['Tiit', 'ja', 'Cinnamon', 'startisid', '47.-ndatena', '.'] },\
+            { 'text': "1960.-ndate alguses valmis grupp 3-4-korruselisi sektsioonelamuid.",\
+              'expected_words': ['1960.-ndate', 'alguses', 'valmis', 'grupp', '3-4-korruselisi', 'sektsioonelamuid', '.'] },\
+            { 'text': "Mitme ehitisega täienes 1870.-ndail aastail ülikool.",\
+              'expected_words': ['Mitme', 'ehitisega', 'täienes', '1870.-ndail', 'aastail', 'ülikool', '.'] },\
+            { 'text': "1980.-ndatel aastatel laiendati Veeriku elamupiirkonda.",\
+              'expected_words':['1980.-ndatel', 'aastatel', 'laiendati', 'Veeriku', 'elamupiirkonda', '.'] },\
             # Number + case ending (without separator dash/hyphen)
             { 'text': "Võistlus avatakse kell 12.40, võistluspäev kestab kella 15.30ni.",\
               'expected_words': ['Võistlus', 'avatakse', 'kell', '12.40', ',', 'võistluspäev', 'kestab', 'kella', '15.30ni', '.'] },\

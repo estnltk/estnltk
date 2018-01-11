@@ -691,6 +691,27 @@ case_endings_patterns = [
       '_priority_': (6, 0, 4),
       'normalized': "lambda m: re.sub('\s','',  m.group(1))",
      },
+    { 'comment': '*) Numeric (year/decade) + ".-" + separated case ending;',
+      'example': '1990.-ndatel',
+      'pattern_type': 'case_ending',
+      'left_strict': False,   # left side is loose, e.g can be in the middle of a token
+      'right_strict': True,   # right side is strict: must match exactly with token's ending
+      '_regex_pattern_': re.compile(r'''
+                        ([{NUMERIC}]                                                    # word or number
+                        \s?                                                             # potential space
+                        ([.]\s?-|-|[.])                                                 # .- or - or .
+                        \s?                                                             # potential space
+                        nda                                                             # 'nda'
+                        (tesse|teks|teni|test|tena|tele|telt|tega|isse|                 # case ending
+                         iks|ile|ilt|ist|sse|ina|ini|ita|tel|tes|                       # case ending
+                         il|le|lt|ga|st|is|ni|na|id|ta|te|ks|                           # case ending
+                         l|s|d|t)?)                                                     # case ending
+                        ([^{ALPHANUM}]|$)                                               # avoid continuation of a word
+                        '''.format(**MACROS), re.X),
+      '_group_': 1,
+      '_priority_': (6, 0, 5),
+      'normalized': "lambda m: re.sub('\s','',  m.group(1))",
+     },
                     ]
 
 number_fixes_patterns = [
