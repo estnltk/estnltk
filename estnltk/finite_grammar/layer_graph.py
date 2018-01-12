@@ -2,6 +2,7 @@ from collections import defaultdict
 from typing import Sequence
 import networkx as nx
 import matplotlib.pyplot as plt
+import pandas
 
 from estnltk.spans import Span
 from estnltk.layer_operations.consecutive import iterate_consecutive_spans
@@ -47,6 +48,16 @@ class Node:
     def __repr__(self):
         return str(self)
 
+    def _repr_html_(self):
+        table = [
+            {'attribute': 'name', 'value': self.name},
+            {'attribute': 'start', 'value': self.start},
+            {'attribute': 'end', 'value': self.end},
+        ]
+        df = pandas.DataFrame.from_records(table)
+        table = df.to_html(index=False, escape=False)
+        return table
+
 
 class PhonyNode(Node):
     def __hash__(self):
@@ -73,8 +84,6 @@ class GrammarNode(Node):
             self._group_ = hash((name, self._support_, self.text_spans))
         self._priority_ = priority
         super().__init__(name, start, end)
-
-
 
     def __eq__(self, other):
         if isinstance(other, GrammarNode):
@@ -109,25 +118,37 @@ class NonTerminalNode(GrammarNode):
 class LayerGraph(nx.DiGraph):
     def __init__(self, **attr):
         self.map_spans_to_nodes = defaultdict(list)
+        self.parse_trees = nx.DiGraph()
         super().__init__(**attr)
 
     def _update_spans_to_nodes_map(self, node):
         if isinstance(node, GrammarNode) and node not in self.map_spans_to_nodes[node.text_spans]:
             self.map_spans_to_nodes[node.text_spans].append(node)
 
+    def _update_parse_trees(self, node):
+        if isinstance(node, NonTerminalNode):
+            for supp in node._support_:
+                self.parse_trees.add_edge(node, supp)
+        elif isinstance(node, TerminalNode):
+            self.parse_trees.add_edge(node, PhonyNode(node.text, node.start, node.end))
+
     def add_node(self, node, **attr):
         super().add_node(node, **attr)
         self._update_spans_to_nodes_map(node)
+        self._update_parse_trees(node)
 
     def add_nodes_from(self, nodes, **attr):
         super().add_nodes_from(nodes, **attr)
         for node in nodes:
             self._update_spans_to_nodes_map(node)
+            self._update_parse_trees(node)
 
     def add_edge(self, u, v, **attr):
         super().add_edge(u, v, **attr)
         self._update_spans_to_nodes_map(u)
         self._update_spans_to_nodes_map(v)
+        self._update_parse_trees(u)
+        self._update_parse_trees(v)
 
     def add_edges_from(self, ebunch, **attr):
         if not isinstance(ebunch, (list, set, tuple)):
@@ -136,6 +157,15 @@ class LayerGraph(nx.DiGraph):
         for u, v, *_ in ebunch:
             self._update_spans_to_nodes_map(u)
             self._update_spans_to_nodes_map(v)
+            self._update_parse_trees(u)
+            self._update_parse_trees(v)
+
+    def remove_nodes_from(self, nodes):
+        nodes_to_remove = set(nodes)
+        for n in nodes:
+            nodes_to_remove.update(nx.ancestors(self.parse_trees, n))
+        self.parse_trees.remove_nodes_from(nodes_to_remove)
+        super().remove_nodes_from(nodes_to_remove)
 
 
 def get_nodes(graph, name):
@@ -203,8 +233,8 @@ def layer_to_graph(layer, attributes=None):
 
     return graph
 
-
-def graph_to_parse_trees(graph):
+# deprecated
+def _graph_to_parse_trees(graph):
     parse_trees = nx.DiGraph()
     for node in graph.nodes():
         if isinstance(node, NonTerminalNode):

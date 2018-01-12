@@ -13,7 +13,7 @@ class GrammarParsingTagger(Tagger):
     layer_name = ''
 
     def __init__(self, grammar, layer_of_tokens, layer_name='parse', attributes=(), output_nodes=None,
-                 conflict_resolving=True):
+                 resolve_conflicts=True):
         self.grammar = grammar
         self.layer_name = layer_name
         self.input_layer = layer_of_tokens
@@ -23,12 +23,12 @@ class GrammarParsingTagger(Tagger):
             self.output_nodes = set(grammar.start_symbols)
         else:
             self.output_nodes = set(output_nodes)
-        self.conflict_resolving = conflict_resolving
-        self.configuration['conflict_resolving'] = self.conflict_resolving
+        self.resolve_conflicts = resolve_conflicts
+        self.configuration['resolve_conflicts'] = self.resolve_conflicts
 
     def _make_layer(self, text, layers):
         graph = layer_to_graph(layers[self.input_layer])
-        graph = parse_graph(graph, self.grammar, conflict_resolving=self.conflict_resolving)
+        graph = parse_graph(graph, self.grammar, resolve_conflicts=self.resolve_conflicts)
 
         attributes = self.attributes
         layer = Layer(name=self.layer_name,

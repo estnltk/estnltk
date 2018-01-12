@@ -169,15 +169,35 @@ def get_match(graph: LayerGraph, node: NonTerminalNode, names: Sequence[str], po
     yield from (mu[:0:-1]+md for mu in match_up for md in match_down)
 
 
-def add_nodes(G, nodes_to_add):
-    for node, span, predecessors, successors in nodes_to_add:
+def add_nodes(graph, nodes_to_add, resolve_conflicts):
+    added_nodes = set()
+    for node, predecessors, successors in nodes_to_add:
+        if resolve_conflicts:
+            nodes_to_remove = set()
+            add_node = True
+            for fellow in {p for s in node._support_ for p in graph.parse_trees.pred[s]}:
+                if node._group_ == fellow._group_:
+                    if fellow._priority_ < node._priority_:
+                        add_node = False
+                        break
+                    elif node._priority_ < fellow._priority_:
+                        nodes_to_remove.add(fellow)
+            if add_node:
+                added_nodes.add(node)
+                added_nodes -= nodes_to_remove
+                graph.remove_nodes_from(nodes_to_remove)
+            else:
+                continue
+
+        added_nodes.add(node)
         for pred in predecessors:
-            G.add_edge(pred, node)
+            graph.add_edge(pred, node)
         for succ in successors:
-            G.add_edge(node, succ)
+            graph.add_edge(node, succ)
+    return added_nodes
 
 
-def parse_graph(graph: LayerGraph, grammar: Grammar, max_depth: int=None, conflict_resolving=True, debug: bool=False) -> LayerGraph:
+def parse_graph(graph: LayerGraph, grammar: Grammar, max_depth: int=None, resolve_conflicts=True, debug: bool=False) -> LayerGraph:
     """
     Expands graph bottom-up using grammar. Changes the input graph.
     """
@@ -199,23 +219,22 @@ def parse_graph(graph: LayerGraph, grammar: Grammar, max_depth: int=None, confli
             if debug:
                 print('rule:', rule)
             no_match = True
-            for sequence in get_match(graph, node, rule.rhs, pos):
-                sequence = tuple(sequence)
+            for support in get_match(graph, node, rule.rhs, pos):
+                support = tuple(support)
                 if debug:
                     no_match = False
-                    print('match:', sequence)
-                assert all((sequence[i], sequence[i+1]) in graph.edges for i in range(len(sequence) - 1))
-                if rule.validator(sequence):
-                    new_node = NonTerminalNode(rule, sequence)
-                    decoration = rule.decorator(sequence)
+                    print('match:', support)
+                assert all((support[i], support[i+1]) in graph.edges for i in range(len(support) - 1))
+                if rule.validator(support):
+                    new_node = NonTerminalNode(rule, support)
+                    decoration = rule.decorator(support)
                     assert not (set(decoration) - grammar.legal_attributes),\
                         'illegal attributes in decorator output: ' + str(set(decoration) - grammar.legal_attributes)
                     for name, value in decoration.items():
                         setattr(new_node, name, value)
                     nodes_to_add.append((new_node,
-                                         sequence,
-                                         list(graph.pred[sequence[0]]),
-                                         list(graph.succ[sequence[-1]]),
+                                         list(graph.pred[support[0]]),
+                                         list(graph.succ[support[-1]]),
                                          ))
                     if debug:
                         print('new node:')
@@ -224,18 +243,15 @@ def parse_graph(graph: LayerGraph, grammar: Grammar, max_depth: int=None, confli
                     print('validator returned False')
             if debug and no_match:
                 print('no match')
-        add_nodes(graph, nodes_to_add)
+        added_nodes = add_nodes(graph, nodes_to_add, resolve_conflicts)
         if d < max_depth:
-            for node, _, _, _ in nodes_to_add:
+            for node in added_nodes:
                 if node.name in rule_map:
                     worklist.append((node, d+1))
-
-    if conflict_resolving:
-        graph = resolve_conflicts(graph, grammar.start_symbols)
     return graph
 
 
-def resolve_conflicts(graph, node_names):
+def _resolve_conflicts(graph, node_names):
     start_symbols = set(node_names)
     terminals_to_nodes = defaultdict(set)
     for node in graph:
