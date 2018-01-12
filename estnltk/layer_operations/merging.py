@@ -1,5 +1,5 @@
 from typing import List, Dict, Callable, Generator
-from estnltk.spans import Span
+from estnltk.spans import Span, SpanList
 from estnltk.layer import Layer
 
 
@@ -9,7 +9,7 @@ def merge_layers(layers: List[Layer], layer_name: str, attributes: List[str]) ->
     The input layers must be of the same type (parent, enveloping, ambiguous).
     Missing attribute values are None.
     """
-    # TODO: merge ambiguous and enveloping layers
+    # TODO: merge ambiguous layers
     parent = layers[0].parent
     enveloping = layers[0].enveloping
     ambiguous = layers[0].ambiguous
@@ -25,16 +25,32 @@ def merge_layers(layers: List[Layer], layer_name: str, attributes: List[str]) ->
         ambiguous=ambiguous
     )
 
-    for layer in layers:
-        layer_attributes = layer.attributes
-        none_attributes = [attr for attr in attributes if attr not in layer_attributes]
-        for span in layer:
-            new_span = Span(span.start, span.end, legal_attributes=attributes)
-            for attr in layer_attributes:
-                setattr(new_span, attr, getattr(span, attr))
-            for attr in none_attributes:
-                setattr(new_span, attr, None)
-            new_layer.add_span(new_span)
+    if enveloping:
+        for layer in layers:
+            layer_attributes = layer.attributes
+            none_attributes = [attr for attr in attributes if attr not in layer_attributes]
+            for span in layer:
+                new_span = SpanList()
+                new_span.spans = span
+                for attr in layer_attributes:
+                    setattr(new_span, attr, getattr(span, attr))
+                for attr in none_attributes:
+                    setattr(new_span, attr, None)
+                new_layer.add_span(new_span)
+    elif parent:
+        # TODO: merge layers with parent
+        raise NotImplemented('merge of layers with parent is not yet implemented')
+    else:
+        for layer in layers:
+            layer_attributes = layer.attributes
+            none_attributes = [attr for attr in attributes if attr not in layer_attributes]
+            for span in layer:
+                new_span = Span(span.start, span.end, legal_attributes=attributes)
+                for attr in layer_attributes:
+                    setattr(new_span, attr, getattr(span, attr))
+                for attr in none_attributes:
+                    setattr(new_span, attr, None)
+                new_layer.add_span(new_span)
 
     return new_layer
 
