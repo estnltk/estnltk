@@ -4,7 +4,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import pandas
 
-from estnltk.spans import Span
+from estnltk.spans import Span, SpanList
 from estnltk.layer_operations.consecutive import iterate_consecutive_spans
 from estnltk.layer_operations.consecutive import iterate_starting_spans
 from estnltk.layer_operations.consecutive import iterate_ending_spans
@@ -204,6 +204,8 @@ def get_spans(node):
         support = node._support_
         if isinstance(support, Span):
             result.append(support)
+        elif isinstance(support, SpanList):
+            result.extend(support)
         else:
             for supp in support:
                 _get_spans(supp)
