@@ -97,11 +97,10 @@ class GrammarNode(Node):
 class TerminalNode(GrammarNode):
     def __init__(self, span: Span, name_attribute: str, attributes=None):
         name = getattr(span, name_attribute)
-
         text_spans = ((span.start, span.end),)
         self.text = span.text
         if not attributes:
-            attributes = span.legal_attribute_names
+            attributes = span.layer.attributes
         for attr in attributes:
             setattr(self, attr, getattr(span, attr))
 
@@ -130,7 +129,7 @@ class LayerGraph(nx.DiGraph):
             for supp in node._support_:
                 self.parse_trees.add_edge(node, supp)
         elif isinstance(node, TerminalNode):
-            self.parse_trees.add_edge(node, PhonyNode(node.text, node.start, node.end))
+            self.parse_trees.add_edge(node, PhonyNode(str(node.text), node.start, node.end))
 
     def add_node(self, node, **attr):
         super().add_node(node, **attr)
@@ -222,27 +221,16 @@ def layer_to_graph(layer, attributes=None):
     spans = layer.spans
 
     for b in iterate_starting_spans(spans):
-        graph.add_edge(START_NODE, TerminalNode(b, 'grammar_symbol'))
+        graph.add_edge(START_NODE, TerminalNode(b, 'grammar_symbol', attributes))
     for a in iterate_ending_spans(spans):
-        graph.add_edge(TerminalNode(a, 'grammar_symbol'), END_NODE)
+        graph.add_edge(TerminalNode(a, 'grammar_symbol', attributes), END_NODE)
     for a, b in iterate_consecutive_spans(spans):
-        graph.add_edge(TerminalNode(a, 'grammar_symbol'), TerminalNode(b, 'grammar_symbol'))
+        graph.add_edge(TerminalNode(a, 'grammar_symbol', attributes), TerminalNode(b, 'grammar_symbol', attributes))
 
     if not spans:
         graph.add_edge(START_NODE, END_NODE)
 
     return graph
-
-# deprecated
-def _graph_to_parse_trees(graph):
-    parse_trees = nx.DiGraph()
-    for node in graph.nodes():
-        if isinstance(node, NonTerminalNode):
-            for supp in node._support_:
-                parse_trees.add_edge(node, supp)
-        elif isinstance(node, TerminalNode):
-            parse_trees.add_edge(node, PhonyNode(node.text, node.start, node.end))
-    return parse_trees
 
 
 def plot_graph(graph:LayerGraph, size=12, prog='dot'):
