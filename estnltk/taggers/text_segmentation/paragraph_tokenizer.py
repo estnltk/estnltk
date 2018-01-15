@@ -8,7 +8,7 @@ from estnltk.taggers import Tagger
 class ParagraphTokenizer(Tagger):
     description = 'Tags adjacent sentences that form a paragraph.'
     layer_name = 'paragraphs'
-    attributes = []
+    attributes = ()
     depends_on = ['sentences']
     configuration = None
 

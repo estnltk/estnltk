@@ -14,7 +14,7 @@ class WordTagger(Tagger):
                      phase of morphological analysis.
                   """
     layer_name = 'words'
-    attributes = ['normalized_form']
+    attributes = ('normalized_form',)
     depends_on = ['compound_tokens']
     configuration = {}
 

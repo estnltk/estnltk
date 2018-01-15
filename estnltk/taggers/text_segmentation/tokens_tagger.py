@@ -25,7 +25,7 @@ _punct_no_split_patterns = re.compile('^(\.{2,}|[\?!]+)$')
 class TokensTagger(Tagger):
     description   = 'Tags tokens in raw text.'
     layer_name    = 'tokens'
-    attributes    = []
+    attributes    = ()
     depends_on    = []
     configuration = None
     
