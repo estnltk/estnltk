@@ -1,9 +1,9 @@
-from typing import List, Dict, Callable, Generator
+from typing import List, Dict, Callable, Generator, Sequence
 from estnltk.spans import Span, SpanList
 from estnltk.layer import Layer
 
 
-def merge_layers(layers: List[Layer], layer_name: str, attributes: List[str]) -> Layer:
+def merge_layers(layers: List[Layer], layer_name: str, attributes: Sequence[str]) -> Layer:
     """
     Creates a new layer spans of which is the union of spans of input layers.
     The input layers must be of the same type (parent, enveloping, ambiguous).
