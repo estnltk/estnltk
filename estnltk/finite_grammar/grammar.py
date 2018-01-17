@@ -79,11 +79,12 @@ Grammar:
 \tstart: {start}
 \tterminals: {terminals}
 \tnonterminals: {nonterminals}
+\tlegal attributes: {self.legal_attributes}
 \tmax_depth: {max_depth}
 Rules:
 \t{rules}
 '''.format(start=', '.join(self.start_symbols), rules=rules, terminals=terminals,
-           nonterminals=nonterminals, max_depth=self.max_depth)
+           nonterminals=nonterminals, max_depth=self.max_depth, self=self)
 
     def __repr__(self):
         return str(self)
