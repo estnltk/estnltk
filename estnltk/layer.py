@@ -113,7 +113,7 @@ class Layer:
 
         return records
 
-    def add_span(self, span: 'Span') -> 'Span':
+    def add_span(self, span: Union['Span', 'SpanList']) -> 'Span':
         return self.spans.add_span(span)
 
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
