@@ -37,7 +37,6 @@ class GrammarParsingTagger(Tagger):
                       )
         for node in graph:
             if isinstance(node, GrammarNode) and node.name in self.output_nodes:
-                # SpanNode and ParseNode are GrammarNode
                 span = SpanList()
                 span.spans = get_spans(node)
                 for attr in attributes:

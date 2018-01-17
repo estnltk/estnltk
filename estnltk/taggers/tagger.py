@@ -33,7 +33,7 @@ class Tagger(ABC):
         pass
 
     @abstractmethod
-    def tag(self, text:'Text', return_layer:bool=False, status:dict={}):
+    def tag(self, text: 'Text', return_layer:bool=False, status:dict={}):
         """
         return_layer: bool, default False
             If True, tagger returns a layer. 
@@ -72,7 +72,6 @@ class Tagger(ABC):
             conf_table = ('No configuration parameters.',)
 
         return '\n'.join(table + conf_table)
-
 
     def __repr__(self):
         conf_str = ""
