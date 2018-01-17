@@ -103,6 +103,16 @@ class RegexTagger(Tagger):
 
         return records
 
+    def make_layer(self, raw_text, input_layers=None, status=None):
+        layer = Layer(name=self.layer_name,
+                      attributes=self._internal_attributes,
+                      )
+        records = self._match(raw_text)
+        layer = layer.from_records(records)
+        layer = resolve_conflicts(layer, self._conflict_resolving_strategy, status)
+        layer.attributes = self.attributes
+        return layer
+
     def tag(self, text, return_layer=False, status={}):
         """Retrieves list of regex_matches in text.
         Parameters
@@ -114,13 +124,7 @@ class RegexTagger(Tagger):
         Layer, if return_layer is True,
         None, otherwise.
         """
-        layer = Layer(name=self.layer_name,
-                      attributes=self._internal_attributes,
-                      )
-        records = self._match(text.text)
-        layer = layer.from_records(records)
-        layer = resolve_conflicts(layer, self._conflict_resolving_strategy, status)
-        layer.attributes = self.attributes
+        layer = self.make_layer(text.text, None, status)
         if return_layer:
             return layer
         else:
