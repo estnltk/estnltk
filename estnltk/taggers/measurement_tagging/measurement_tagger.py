@@ -38,9 +38,9 @@ class MeasurementTagger(TaggerNew):
                                         input_layers=['dates_numbers', 'units', 'measurement_objects'],
                                         attributes=('grammar_symbol', 'value'))
 
-    def _make_layer(self, raw_text, input_layers, status):
+    def make_layer(self, raw_text, input_layers, status):
         layers = {}
-        layers['dates_numbers'] = self.date_number_tagger.make_layer(raw_text, status=status)
-        layers['measurement_objects'] = self.measurement_object_tagger.make_layer(raw_text, status=status)
-        layers['units'] = self.unit_tagger.make_layer(raw_text, status=status)
+        layers['dates_numbers'] = self.date_number_tagger.make_layer(raw_text, input_layers, status=status)
+        layers['measurement_objects'] = self.measurement_object_tagger.make_layer(raw_text, input_layers, status=status)
+        layers['units'] = self.unit_tagger.make_layer(raw_text, input_layers, status=status)
         return self.merge_tagger.make_layer(raw_text, layers, status)

@@ -15,6 +15,6 @@ class MergeTagger(TaggerNew):
         self.layer_name = layer_name
         self.attributes = tuple(attributes)
 
-    def _make_layer(self, text, input_layers, status):
+    def make_layer(self, text, input_layers, status):
         layers = list(input_layers.values())
         return merge_layers(layers, self.layer_name, self.attributes)

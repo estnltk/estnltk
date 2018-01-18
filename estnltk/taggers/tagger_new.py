@@ -12,7 +12,7 @@ class TaggerNew:
     layer_name
     attributes
     __init__(...)
-    _change_layer(...) or _make_layer(...)
+    change_layer(...) or make_layer(...)
     """
 
     def __init__(self):
@@ -24,29 +24,30 @@ class TaggerNew:
                'attribute must be listed in conf_param: ' + key
         super.__setattr__(self, key, value)
 
-    def _change_layer(self, raw_text: str, input_layers: dict, status: dict) -> None:
-        raise NotImplementedError('_change_layer method not implemented in ' + self.__class__.__name__)
+    def change_layer(self, raw_text: str, input_layers: dict, status: dict) -> None:
+        raise NotImplementedError('change_layer method not implemented in ' + self.__class__.__name__)
 
-    def change_layer(self, raw_text: str, input_layers=None, status: dict = None) -> None:
-        assert set(input_layers) == set(self.depends_on)
+    def _change_layer(self, text: 'Text', status: dict) -> None:
+        input_layers = {name: text.layers[name] for name in self.depends_on}
         # TODO: check that layer is not frozen
-        if input_layers is None:
-            input_layers = {}
+        self.change_layer(text, input_layers, status)
+
+    def change(self, text: 'Text', status: dict = None):
         if status is None:
             status = {}
-        self._change_layer(raw_text, input_layers, status)
+        self._change_layer(text, status)
+        return text
 
-    def _make_layer(self, raw_text: str, input_layers: dict, status: dict) -> Layer:
-        raise NotImplementedError('_make_layer method not implemented in ' + self.__class__.__name__)
+    def make_layer(self, raw_text: str, input_layers: dict, status: dict) -> Layer:
+        raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
-    def make_layer(self, raw_text: str, input_layers=None, status: dict = None) -> Layer:
-        if input_layers is None:
-            input_layers = {}
-        assert set(input_layers) == set(self.depends_on)
+    def _make_layer(self, text: 'Text', status: dict = None) -> Layer:
+        input_layers = {name: text.layers[name] for name in self.depends_on}
+
         if status is None:
             status = {}
-        layer = self._make_layer(raw_text, input_layers, status)
-        assert isinstance(layer, Layer), '_make_layer must return Layer'
+        layer = self.make_layer(text.text, input_layers, status)
+        assert isinstance(layer, Layer), 'make_layer must return Layer'
         assert layer.name == self.layer_name, 'incorrect layer name: {} != {}'.format(layer.name, self.layer_name)
         return layer
 
@@ -56,8 +57,8 @@ class TaggerNew:
         status: dict, default {}
             This can be used to store metadata on layer creation.
         """
-        input_layers = {name: text.layers[name] for name in self.depends_on}
-        text[self.layer_name] = self.make_layer(text.text, input_layers, status)
+        # input_layers = {name: text.layers[name] for name in self.depends_on}
+        text[self.layer_name] = self._make_layer(text, status)
         return text
 
     def __call__(self, text: 'Text', status: dict = None) -> 'Text':

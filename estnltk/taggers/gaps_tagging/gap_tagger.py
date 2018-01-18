@@ -22,10 +22,10 @@ class GapTagger(TaggerNew):
         self.attributes = tuple(attributes)
         self.decorator = decorator
 
-    def _change_layer(self, text, input_layers, status):
+    def change_layer(self, text, input_layers, status):
         raise NotImplementedError
 
-    def _make_layer(self, raw_text, input_layers, status):
+    def make_layer(self, raw_text, input_layers, status):
         layer = Layer(
             name=self.layer_name,
             attributes=self.attributes,

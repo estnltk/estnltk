@@ -46,7 +46,7 @@ class GrammarParsingTagger(Tagger):
 
     def tag(self, text, return_layer=False):
         layer = self._make_layer(text.text, text.layers)
-        assert isinstance(layer, Layer), 'make_layer must return a Layer instance'
+        assert isinstance(layer, Layer), '_make_layer must return a Layer instance'
         if return_layer:
             return layer
         text[self.layer_name] = layer
