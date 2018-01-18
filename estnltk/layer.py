@@ -26,7 +26,7 @@ class Layer:
                  enveloping: str = None,
                  ambiguous: bool = False
                  ) -> None:
-        assert parent is None or enveloping is None, 'Cant be derived AND enveloping'
+        assert parent is None or enveloping is None, "Can't be derived AND enveloping"
 
         assert name is not None, 'Layer must have a name'
 
@@ -42,6 +42,8 @@ class Layer:
 
         # has this layer been added to a text object
         self._bound = False
+
+        self._is_frozen = False
 
         # marker for creating a lazy layer
         # used in Text._add_layer to check if additional work needs to be done
@@ -70,6 +72,22 @@ class Layer:
 
         # placeholder. is set when `_add_layer` is called on text object
         self.text_object = None  # type:Text
+
+    def freeze(self):
+        self._is_frozen = True
+
+    def unfreeze(self):
+        if self.text_object is None:
+            self._is_frozen = False
+            return
+        for layer in self.text_object.layers.values():
+            assert not layer.enveloping == self.name, "can't unfreeze. This layer is enveloped by " + layer.name
+            assert not layer.parent == self.name, "can't unfreeze. This layer is parent of " + layer.name
+        self._is_frozen = False
+
+    @property
+    def is_frozen(self):
+        return self._is_frozen
 
     def from_records(self, records, rewriting=False) -> 'Layer':
         if self.parent is not None and not self._bound:
@@ -114,6 +132,7 @@ class Layer:
         return records
 
     def add_span(self, span: Union['Span', 'SpanList']) -> 'Span':
+        assert not self.is_frozen, "can't add spans to frozen layer"
         return self.spans.add_span(span)
 
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
@@ -133,6 +152,7 @@ class Layer:
         return resulting_layer
 
     def _add_spans_to_enveloping(self, spans):
+        assert not self.is_frozen, "can't add spans to frozen layer"
         spanlist = SpanList(
             layer=self
         )
@@ -141,6 +161,7 @@ class Layer:
         return spanlist
 
     def _add_spans(self, spans: List['Span']) -> List['Span']:
+        assert not self.is_frozen, "can't add spans to frozen layer"
         assert self.ambiguous or self.enveloping
         res = []
         for span in spans:

@@ -158,6 +158,7 @@ class Text:
 
         if layer.parent:
             layer._base = self.layers[layer.parent]._base
+            self.layers[layer.parent].freeze()
 
         self.layers_to_attributes[name] = attributes
 
@@ -168,6 +169,7 @@ class Text:
 
         if layer.enveloping:
             self.enveloping_to_enveloped[name].append(layer.enveloping)
+            self.layers[layer.enveloping].freeze()
 
         if layer._is_lazy:
             # this means the layer might already have spans, and the spans might need to have their parents reset
