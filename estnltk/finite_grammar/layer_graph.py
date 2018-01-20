@@ -76,7 +76,7 @@ class GrammarNode(Node):
     def __init__(self, name, support, text_spans, terminals, group=None, priority=0):
         start = text_spans[0][0]
         end = text_spans[-1][1]
-        self._support_ = support
+        self._support_ = support # tuple(support) ?
         self.text_spans = text_spans
         self._terminals_ = terminals
         self._group_ = group
@@ -114,6 +114,22 @@ class NonTerminalNode(GrammarNode):
         super().__init__(rule.lhs, support, text_spans, terminals, rule.group, rule.priority)
 
 
+class PlusNode(GrammarNode):
+    def __init__(self, rule, support: Sequence[GrammarNode]):
+        text_spans = tuple(sorted(s for n in support for s in n.text_spans))
+        terminals = tuple(sorted(t for n in support for t in n._terminals_))
+        new_support = []
+        # maybe too general, but let it be
+        for node in support:
+            if isinstance(node, PlusNode):
+                new_support.extend(node._support_)
+            else:
+                new_support.append(node)
+        new_support = tuple(new_support)
+        assert all(n.name == rule.lhs[:-1] for n in new_support)
+        super().__init__(rule.lhs, new_support, text_spans, terminals, rule.group, rule.priority)
+
+
 class LayerGraph(nx.DiGraph):
     def __init__(self, **attr):
         self.map_spans_to_nodes = defaultdict(list)
@@ -125,7 +141,7 @@ class LayerGraph(nx.DiGraph):
             self.map_spans_to_nodes[node.text_spans].append(node)
 
     def _update_parse_trees(self, node):
-        if isinstance(node, NonTerminalNode):
+        if isinstance(node, (NonTerminalNode, PlusNode)):
             for supp in node._support_:
                 self.parse_trees.add_edge(node, supp)
         elif isinstance(node, TerminalNode):

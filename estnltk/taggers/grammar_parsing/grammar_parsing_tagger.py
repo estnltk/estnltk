@@ -2,7 +2,7 @@ from estnltk.taggers import Tagger
 from estnltk.layer import Layer
 from estnltk.spans import SpanList
 from estnltk.finite_grammar.layer_graph import GrammarNode, layer_to_graph, get_spans
-from estnltk.finite_grammar.grammar import parse_graph
+from estnltk.finite_grammar import parse_graph
 
 
 class GrammarParsingTagger(Tagger):
