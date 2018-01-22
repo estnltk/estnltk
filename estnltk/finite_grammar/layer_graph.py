@@ -48,15 +48,30 @@ class Node:
     def __repr__(self):
         return str(self)
 
-    def _repr_html_(self):
-        table = [
-            {'attribute': 'name', 'value': self.name},
-            {'attribute': 'start', 'value': self.start},
-            {'attribute': 'end', 'value': self.end},
-        ]
+    def to_html(self):
+        d = self.__dict__
+        keys = ['name', 'text', 'start', 'end']
+        table = []
+        for k in keys:
+            if k in d:
+                table.append({'attribute': k, 'value': d[k]})
+        for k in sorted(set(d)-set(keys)-{'_support_'}):
+            table.append({'attribute': k, 'value': d[k]})
         df = pandas.DataFrame.from_records(table)
         table = df.to_html(index=False, escape=False)
         return table
+
+    def _repr_html_(self):
+        table = self.to_html()
+        result = ['<h4>', self.__class__.__name__, '</h4>\n', table]
+        support = []
+        if isinstance(self, (NonTerminalNode, PlusNode)):
+            result.append('<h5>Support</h5>\n')
+            for n in self._support_:
+                support.append(n.__dict__)
+            support = pandas.DataFrame(data=support).to_html(index=False, escape=False)
+            result.append(support)
+        return ''.join(result)
 
 
 class PhonyNode(Node):
