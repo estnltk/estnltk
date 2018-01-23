@@ -14,6 +14,8 @@ _abbrev_pattern      = re.compile('\s([a-zöäüõšž\-.]+\.[a-zöäüõšž\-]
 _abbrev_caps_pattern = re.compile('\s([A-ZÖÄÜÕŠŽ\-.]+\.[A-ZÖÄÜÕŠŽ\-]+|[A-ZÖÄÜÕŠŽ\-]+[.])$')
 _unlikely_sent_start = re.compile('^([a-zöäüõšž\-,;]).*')
 
+_camel_case_pattern  = re.compile('([a-zöäüõšž][A-ZÖÄÜÕŠŽ])')
+
 _three_lc_words = '[a-zöäüõšž\-]+\s+[a-zöäüõšž\-]+\s+[a-zöäüõšž\-]+'
 _three_lc_words_compiled = re.compile(_three_lc_words)
 
@@ -286,6 +288,7 @@ def find_short_sentences_generator( text: 'Text', min_words:int=2 ):
             yield results
 
 
+
 def find_sentences_containing_paragraphs_generator( text: 'Text',
         max_paragraph_endings:int = 3 ):
     ''' Analyses given Text object, and  yields  sentences which contain
@@ -313,3 +316,84 @@ def find_sentences_containing_paragraphs_generator( text: 'Text',
                         'end':   sentence.end }
             yield results
 
+
+
+def find_camel_case_word_pairs_generator( text: 'Text', \
+                                get_global_text_position:bool=False ):
+    ''' Analyses given Text object, and  yields pairs of strings forming 
+        a camel case word (such as "EessõnaEsimese"). Note that a camel 
+        case string may point to a typographical error (missing whitespace
+        between words), but it also may be legal word, such as in names 
+        "iPhone", "eBay". The current method does not attempt to distinguish 
+        between the latter two cases.
+        
+        If a single word contains more than two subwords (such as 
+        "WorldWideWeb"), then this method yields all consecutive pairs 
+        of subwords. For instance, "WorldWideWeb" is yielded twice:
+           1) pair "World", "Wide" 
+           2) pair "Wide", "Web"
+        
+        The method yields a dict containing information ("word_start", 
+        "word_end", "word_text") about the word inside which the camel case 
+        string pair was detected, and the information about its two concrete 
+        subwords (under key 'subwords').
+        Subwords is a list of two dicts, describing consecutive words by
+        their positions ("start"/"end") and string ("text");
+        
+        If get_global_text_position==True, then subword positions ("start"/
+        "end") are given as absolute positions inside the text. Otherwise
+        (the default setting), subword positions are given as relative 
+        positions inside the word (so, you can get the absolute subword start
+        position by adding 'word_start' + 'start');
+    '''
+    # Check the layer requirements
+    requirements = ['words']
+    for requirement in requirements:
+        assert requirement in text.layers, \
+               '(!) The input text is missing the layer "'+requirement+'"!'
+    # Iterate over words and pairs of strings forming a camel case word
+    words_spans = text['words'].spans
+    for wid, word in enumerate( words_spans ):
+        content  = word.text
+        base_pos = 0 if not get_global_text_position else word.start
+        for match in _camel_case_pattern.finditer(content):
+            cc_breakpoint   = match.span(1)
+            prev_word_end   = cc_breakpoint[0]
+            next_word_start = cc_breakpoint[1]-1
+            # a) Collect string corresponding to the previous word
+            i = prev_word_end
+            while (i > -1):
+                c = content[i]
+                if i == 0 or c.isupper():
+                    break
+                i -= 1
+            prev_word_start = i
+            # b) Collect string corresponding to the next word
+            i = next_word_start
+            while i < len(content):
+                c = content[i]
+                if i == len(content)-1:
+                    break
+                if i > next_word_start and c.isupper():
+                    i -= 1
+                    break
+                i += 1
+            next_word_end = i
+            # c) Re-construct subwords 
+            subwords = []
+            subwords.append( {'start': base_pos+prev_word_start ,\
+                              'end':   base_pos+prev_word_end+1,   \
+                              'text':  \
+                               content[prev_word_start:prev_word_end+1]
+                             } )
+            subwords.append( {'start': base_pos+next_word_start ,\
+                              'end':   base_pos+next_word_end+1,   \
+                              'text':  \
+                               content[next_word_start:next_word_end+1]
+                             } )
+            # d) Create and yield results dict 
+            results = { 'word_start': word.start, \
+                        'word_end':   word.end, \
+                        'word_text':  word.text, \
+                        'subwords':   subwords }
+            yield results
