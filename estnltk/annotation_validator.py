@@ -320,25 +320,24 @@ def find_sentences_containing_paragraphs_generator( text: 'Text',
 
 def find_camel_case_word_pairs_generator( text: 'Text', \
                                 get_global_text_position:bool=False ):
-    ''' Analyses given Text object, and  yields pairs of strings forming 
-        a camel case word (such as "EessõnaEsimese"). Note that a camel 
-        case string may point to a typographical error (missing whitespace
-        between words), but it also may be legal word, such as in names 
-        "iPhone", "eBay". The current method does not attempt to distinguish 
-        between the latter two cases.
+    ''' Analyses given Text object, and  yields  camel case words (such 
+        as "EessõnaEsimese"), along with the subwords they consist of 
+        (e.g. "EessõnaEsimese" --> ["Eessõna","Esimese"]). Note that a 
+        camel case string may point to a typographical error (missing 
+        whitespace between words), but it may also be legal word, such 
+        as in names "iPhone", "eBay". The current method does not attempt 
+        to distinguish between the latter two cases.
         
-        If a single word contains more than two subwords (such as 
-        "WorldWideWeb"), then this method yields all consecutive pairs 
-        of subwords. For instance, "WorldWideWeb" is yielded twice:
-           1) pair "World", "Wide" 
-           2) pair "Wide", "Web"
+        If a single word contains more than  two  subwords  (such  as 
+        "WorldWideWeb"), then this method  yields  all  its  subwords. 
+        For instance, subwords of "WorldWideWeb"  are  ["World", "Wide", 
+        "Web"].
         
         The method yields a dict containing information ("word_start", 
-        "word_end", "word_text") about the word inside which the camel case 
-        string pair was detected, and the information about its two concrete 
-        subwords (under key 'subwords').
-        Subwords is a list of two dicts, describing consecutive words by
-        their positions ("start"/"end") and string ("text");
+        "word_end", "word_text") about a camel case word, and a list
+        of its subwords (under the key 'subwords').
+        Each subword is also a dict, describing word's position ("start"/
+        "end") and string ("text");
         
         If get_global_text_position==True, then subword positions ("start"/
         "end") are given as absolute positions inside the text. Otherwise
@@ -351,18 +350,19 @@ def find_camel_case_word_pairs_generator( text: 'Text', \
     for requirement in requirements:
         assert requirement in text.layers, \
                '(!) The input text is missing the layer "'+requirement+'"!'
-    # Iterate over words and pairs of strings forming a camel case word
+    # Iterate over words and yield strings forming a camel case word
     words_spans = text['words'].spans
     for wid, word in enumerate( words_spans ):
         content  = word.text
-        base_pos = 0 if not get_global_text_position else word.start
+        # Detect subwords
+        subwords = []
         for match in _camel_case_pattern.finditer(content):
             cc_breakpoint   = match.span(1)
             prev_word_end   = cc_breakpoint[0]
             next_word_start = cc_breakpoint[1]-1
             # a) Collect string corresponding to the previous word
             i = prev_word_end
-            while (i > -1):
+            while i > -1:
                 c = content[i]
                 if i == 0 or c.isupper():
                     break
@@ -380,17 +380,31 @@ def find_camel_case_word_pairs_generator( text: 'Text', \
                 i += 1
             next_word_end = i
             # c) Re-construct subwords 
-            subwords = []
-            subwords.append( {'start': base_pos+prev_word_start ,\
-                              'end':   base_pos+prev_word_end+1,   \
-                              'text':  \
-                               content[prev_word_start:prev_word_end+1]
-                             } )
-            subwords.append( {'start': base_pos+next_word_start ,\
-                              'end':   base_pos+next_word_end+1,   \
-                              'text':  \
-                               content[next_word_start:next_word_end+1]
-                             } )
+            base_pos = 0 if not get_global_text_position else word.start
+            subword1 = {'start': base_pos+prev_word_start ,\
+                        'end':   base_pos+prev_word_end+1,   \
+                        'text':  \
+                        content[prev_word_start:prev_word_end+1]
+                       }
+            subword2 = {'start': base_pos+next_word_start ,\
+                        'end':   base_pos+next_word_end+1,   \
+                        'text':  \
+                        content[next_word_start:next_word_end+1]
+                       }
+            # d) Append subwords
+            # Check the last word: if it matches subword1,
+            # then we only need to add subword2
+            if subwords and \
+               subwords[-1]['start']==subword1['start'] and \
+               subwords[-1]['end']==subword1['end']:
+                # Add only the last word (a continuation)
+                subwords.append(subword2)
+            else:
+                subwords.append(subword1)
+                subwords.append(subword2)
+        # If any subwords were found, yield these as subwords 
+        # associated with the current camel case word
+        if subwords:
             # d) Create and yield results dict 
             results = { 'word_start': word.start, \
                         'word_end':   word.end, \
