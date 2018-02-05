@@ -11,22 +11,22 @@ from estnltk.layer_operations.consecutive import iterate_ending_spans
 
 
 class Node:
-    def __init__(self, name: str, start: int, end: int, decoration: dict=None):
+    def __init__(self, name: str, start: int, end: int, attributes: dict=None):
         self.name = name
         self.start = start
         self.end = end
-        self.decoration = decoration
-        if decoration is None:
-            self.decoration = {}
+        self.attributes = attributes
+        if attributes is None:
+            self.attributes = {}
 
     def __getitem__(self, item):
-        return self.decoration[item]
+        return self.attributes[item]
 
     def __setitem__(self, key, value):
-        self.decoration[key] = value
+        self.attributes[key] = value
 
     def __iter__(self):
-        yield from self.decoration
+        yield from self.attributes
 
     def __lt__(self, other):
         if hasattr(other, 'start') and hasattr(other, 'end'):
@@ -61,7 +61,7 @@ class Node:
         return str(self)
 
     def to_html(self):
-        keys = ['name', 'start', 'end', 'decoration']
+        keys = ['name', 'start', 'end', 'attributes']
         data = [{key: getattr(self, key) for key in keys}]
         df = pandas.DataFrame(data=data, columns=keys)
         table = df.to_html(index=False, escape=False)
@@ -76,7 +76,7 @@ class Node:
             for n in self._support_:
                 support.append(n.__dict__)
                 support[-1]['node type'] = n.__class__.__name__
-            support = pandas.DataFrame(data=support, columns=['node type', 'name', 'start', 'end', 'decoration'])
+            support = pandas.DataFrame(data=support, columns=['node type', 'name', 'start', 'end', 'attributes'])
             support = support.to_html(index=False, escape=False)
             result.append(support)
         return ''.join(result)
@@ -206,12 +206,12 @@ class LayerGraph(nx.DiGraph):
 
     def _repr_html_(self):
         records = []
-        attributes = ['name', 'start', 'end', 'decoration']
+        attributes = ['name', 'start', 'end', 'attributes']
         for n in sorted(self.nodes):
             record = {a: str(getattr(n, a)) for a in attributes}
             record['node type'] = n.__class__.__name__
             records.append(record)
-        table = pandas.DataFrame(data=records, columns=['node type', 'name', 'start', 'end', 'decoration'])
+        table = pandas.DataFrame(data=records, columns=['node type', 'name', 'start', 'end', 'attributes'])
         html_table = table.to_html(index=False, escape=False)
 
         return '<h4>LayerGraph</h4>\n' + html_table
