@@ -11,10 +11,22 @@ from estnltk.layer_operations.consecutive import iterate_ending_spans
 
 
 class Node:
-    def __init__(self, name, start, end):
+    def __init__(self, name: str, start: int, end: int, decoration: dict=None):
         self.name = name
         self.start = start
         self.end = end
+        self.decoration = decoration
+        if decoration is None:
+            self.decoration = {}
+
+    def __getitem__(self, item):
+        return self.decoration[item]
+
+    def __setitem__(self, key, value):
+        self.decoration[key] = value
+
+    def __iter__(self):
+        yield from self.decoration
 
     def __lt__(self, other):
         if hasattr(other, 'start') and hasattr(other, 'end'):
@@ -49,27 +61,23 @@ class Node:
         return str(self)
 
     def to_html(self):
-        d = self.__dict__
-        keys = ['name', 'text', 'start', 'end']
-        table = []
-        for k in keys:
-            if k in d:
-                table.append({'attribute': k, 'value': d[k]})
-        for k in sorted(set(d)-set(keys)-{'_support_'}):
-            table.append({'attribute': k, 'value': d[k]})
-        df = pandas.DataFrame.from_records(table)
+        keys = ['name', 'start', 'end', 'decoration']
+        data = [{key: getattr(self, key) for key in keys}]
+        df = pandas.DataFrame(data=data, columns=keys)
         table = df.to_html(index=False, escape=False)
         return table
 
     def _repr_html_(self):
         table = self.to_html()
         result = ['<h4>', self.__class__.__name__, '</h4>\n', table]
-        support = []
         if isinstance(self, (NonTerminalNode, PlusNode)):
+            support = []
             result.append('<h5>Support</h5>\n')
             for n in self._support_:
                 support.append(n.__dict__)
-            support = pandas.DataFrame(data=support).to_html(index=False, escape=False)
+                support[-1]['node type'] = n.__class__.__name__
+            support = pandas.DataFrame(data=support, columns=['node type', 'name', 'start', 'end', 'decoration'])
+            support = support.to_html(index=False, escape=False)
             result.append(support)
         return ''.join(result)
 
@@ -91,7 +99,7 @@ class GrammarNode(Node):
     def __init__(self, name, support, text_spans, terminals, group=None, priority=0):
         start = text_spans[0][0]
         end = text_spans[-1][1]
-        self._support_ = support # tuple(support) ?
+        self._support_ = support  # tuple(support) ?
         self.text_spans = text_spans
         self._terminals_ = terminals
         self._group_ = group
@@ -141,7 +149,6 @@ class PlusNode(GrammarNode):
             else:
                 new_support.append(node)
         new_support = tuple(new_support)
-        assert all(n.name == rule.lhs[:-1] for n in new_support)
         super().__init__(rule.lhs, new_support, text_spans, terminals, rule.group, rule.priority)
 
 
@@ -196,6 +203,18 @@ class LayerGraph(nx.DiGraph):
             nodes_to_remove.update(nx.ancestors(self.parse_trees, n))
         self.parse_trees.remove_nodes_from(nodes_to_remove)
         super().remove_nodes_from(nodes_to_remove)
+
+    def _repr_html_(self):
+        records = []
+        attributes = ['name', 'start', 'end', 'decoration']
+        for n in sorted(self.nodes):
+            record = {a: str(getattr(n, a)) for a in attributes}
+            record['node type'] = n.__class__.__name__
+            records.append(record)
+        table = pandas.DataFrame(data=records, columns=['node type', 'name', 'start', 'end', 'decoration'])
+        html_table = table.to_html(index=False, escape=False)
+
+        return '<h4>LayerGraph</h4>\n' + html_table
 
 
 def get_nodes(graph, name):
