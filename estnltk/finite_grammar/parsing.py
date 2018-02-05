@@ -1,5 +1,6 @@
 from typing import Sequence
 from collections import defaultdict
+import regex as re
 
 from .grammar import Grammar, Rule
 from .layer_graph import LayerGraph, NonTerminalNode, PlusNode
@@ -64,35 +65,29 @@ def add_nodes(graph, nodes_to_add, resolve_conflicts):
             graph.add_edge(node, succ)
     return added_nodes
 
+# seq_reg = re.compile('(SEQ|REP)\((.*)\)$')
+
 
 def parse_graph(graph: LayerGraph,
                 grammar: Grammar,
-                max_depth: int=None,
+                depth_limit: int=None,
+                width_limit: int=None,
                 resolve_conflicts=True,
                 debug: bool=False,
                 ignore_validators: bool=False) -> LayerGraph:
     """
     Expands graph bottom-up using grammar. Changes the input graph.
     """
-    if max_depth is None:
-        max_depth = grammar.max_depth
-    rule_map = defaultdict(list)
-    plus_symbols = set()
-    for rule in grammar.rules:
-        for pos, v in enumerate(rule.rhs):
-            rule_map[v].append((rule, pos))
-            if v.endswith('+'):
-                plus_symbols.add(v)
-
-    plus_rule_map = {}
-    for ps in plus_symbols:
-        plus_rule_map[ps] = [(Rule(ps, (ps, ps)), 0),
-                             (Rule(ps, (ps, ps)), 1)]
-        plus_rule_map[ps[:-1]] = [(Rule(ps, ps[:-1]), 0)]
+    if depth_limit is None:
+        depth_limit = grammar.depth_limit
+    if width_limit is None:
+        width_limit = grammar.width_limit
+    rule_map = grammar.rule_map
+    hidden_rule_map = grammar.hidden_rule_map
 
     worklist = None
-    if max_depth > 0:
-        worklist = [(n, 0) for n in graph if n.name in set(rule_map)|set(plus_rule_map)]
+    if depth_limit > 0:
+        worklist = [(n, 0) for n in graph if n.name in set(rule_map)|set(hidden_rule_map)]
 
     while worklist:
         node, d = worklist.pop()
@@ -110,11 +105,37 @@ def parse_graph(graph: LayerGraph,
                 assert all((support[i], support[i+1]) in graph.edges for i in range(len(support) - 1))
                 if ignore_validators or rule.validator(support):
                     new_node = NonTerminalNode(rule, support)
+                    if len(new_node._terminals_) <= width_limit:
+                        decoration = rule.decorator(support)
+                        assert not (set(decoration) - grammar.legal_attributes),\
+                            'illegal attributes in decorator output: ' + str(set(decoration) - grammar.legal_attributes)
+                        new_node.decoration = decoration
+
+                        nodes_to_add.append((new_node,
+                                             list(graph.pred[support[0]]),
+                                             list(graph.succ[support[-1]]),
+                                             ))
+                        if debug:
+                            print('new node:')
+                            node.print()
+                elif debug:
+                    print('validator returned False')
+            if debug and no_match:
+                print('no match')
+
+        # expand with hidden rules
+        for rule, pos in hidden_rule_map.get(node.name, []):
+            for support in get_match(graph, node, rule.rhs, pos):
+                support = tuple(support)
+
+                assert all((support[i], support[i + 1]) in graph.edges for i in range(len(support) - 1))
+                new_node = PlusNode(rule, support)
+                if len(new_node._terminals_) < width_limit:
                     decoration = rule.decorator(support)
-                    assert not (set(decoration) - grammar.legal_attributes),\
+                    assert not (set(decoration) - grammar.legal_attributes), \
                         'illegal attributes in decorator output: ' + str(set(decoration) - grammar.legal_attributes)
-                    for name, value in decoration.items():
-                        setattr(new_node, name, value)
+                    new_node.decoration = decoration
+
                     nodes_to_add.append((new_node,
                                          list(graph.pred[support[0]]),
                                          list(graph.succ[support[-1]]),
@@ -122,33 +143,9 @@ def parse_graph(graph: LayerGraph,
                     if debug:
                         print('new node:')
                         node.print()
-                elif debug:
-                    print('validator returned False')
-            if debug and no_match:
-                print('no match')
-
-        # expand with + rules
-        for rule, pos in plus_rule_map.get(node.name, []):
-            for support in get_match(graph, node, rule.rhs, pos):
-                support = tuple(support)
-
-                assert all((support[i], support[i + 1]) in graph.edges for i in range(len(support) - 1))
-                new_node = PlusNode(rule, support)
-                decoration = rule.decorator(support)
-                assert not (set(decoration) - grammar.legal_attributes), \
-                    'illegal attributes in decorator output: ' + str(set(decoration) - grammar.legal_attributes)
-                for name, value in decoration.items():
-                    setattr(new_node, name, value)
-                nodes_to_add.append((new_node,
-                                     list(graph.pred[support[0]]),
-                                     list(graph.succ[support[-1]]),
-                                     ))
-                if debug:
-                    print('new node:')
-                    node.print()
 
         added_nodes = add_nodes(graph, nodes_to_add, resolve_conflicts)
-        if d < max_depth:
+        if d < depth_limit:
             for node in added_nodes:
                 if node.name in rule_map:
                     worklist.append((node, d+1))
@@ -179,5 +176,5 @@ def _resolve_conflicts(graph, node_names):
 
 
 def debug_rule(graph, rule, max_depth: int=float('inf')):
-    grammar = Grammar(start_symbols=[rule.lhs], rules=[rule], max_depth=max_depth)
+    grammar = Grammar(start_symbols=[rule.lhs], rules=[rule], depth_limit=max_depth)
     parse_graph(graph, grammar, debug=True)
