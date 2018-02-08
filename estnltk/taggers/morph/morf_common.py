@@ -2,6 +2,7 @@
 #  Provides common functions, variables and constants for modules 
 #  using Vabamorf-based morphological processing.
 # 
+
 from estnltk.text import Span
 
 # Default parameters to be passed to Vabamorf
@@ -65,7 +66,7 @@ def _create_empty_morph_span( word, layer_attributes = None ):
     return span
 
 
-def _is_empty_span( span ):
+def _is_empty_span( span:Span ):
     '''Checks if the given span (from the layer 'morph_analysis')
        is empty, that is: all of its morph attributes are set to 
        None. 
@@ -74,4 +75,88 @@ def _is_empty_span( span ):
     '''
     all_none = [getattr(span, attr) is None for attr in ESTNLTK_MORPH_ATTRIBUTES]
     return all(all_none)
+
+
+
+# ========================================================
+#    Utils for converting Vabamorf dict <-> EstNLTK Span
+# ========================================================
+
+def _convert_morph_analysis_span_to_vm_dict( span:Span ):
+    ''' Converts a SpanList from the layer 'morph_analysis'
+        into a dictionary object that has the structure
+        required by the Vabamorf:
+        { 'text' : ..., 
+          'analysis' : [
+             { 'root': ..., 
+               'partofspeech' : ..., 
+               'clitic': ... ,
+               'ending': ... ,
+               'form': ... ,
+             },
+             ...
+          ]
+        }
+        Returns the dictionary.
+    '''
+    attrib_dicts = {}
+    # Get lists corresponding to attributes
+    for attr in ESTNLTK_MORPH_ATTRIBUTES:
+        attrib_dicts[attr] = getattr(span, attr)
+    # Rewrite attributes in Vabamorf's analysis format
+    # Collect analysis dicts
+    nr_of_analyses = len(attrib_dicts['lemma'])
+    word_dict = { 'text' : span.text[0], \
+                  'analysis' : [] }
+    for i in range( nr_of_analyses ):
+        analysis = {}
+        for attr in attrib_dicts.keys():
+            attr_value = attrib_dicts[attr][i]
+            if attr == 'root_tokens':
+                attr_value = list(attr_value)
+            analysis[attr] = attr_value
+        word_dict['analysis'].append(analysis)
+    return word_dict
+
+
+def _convert_vm_dict_to_morph_analysis_spans( vm_dict, word, \
+                                              layer_attributes = None, \
+                                              sort_analyses = True ):
+    ''' Converts morphological analyses from the Vabamorf's 
+        dictionary format to the EstNLTK's Span format, and 
+        attaches the newly created span as a child of the 
+        word.
+        
+        If sort_analyses=True, then analyses will be sorted 
+        by root,ending,clitic,postag,form;
+        
+        Note: if word has no morphological analyses (e.g. it 
+        is an unknown word), then returns an empty list.
+        
+        Returns a list of EstNLTK's Spans.
+    '''
+    spans = []
+    current_attributes = \
+        layer_attributes if layer_attributes else ESTNLTK_MORPH_ATTRIBUTES
+    word_analyses = vm_dict['analysis']
+    if sort_analyses:
+        # Sort analyses ( to assure a fixed order, e.g. for testing purpose )
+        word_analyses = sorted( vm_dict['analysis'], key = \
+            lambda x: x['root']+x['ending']+x['clitic']+x['partofspeech']+x['form'], 
+            reverse=False )
+    for analysis in word_analyses:
+        span = Span(parent=word)
+        for attr in current_attributes:
+            if attr in analysis:
+                # We have a Vabamorf's attribute
+                if attr == 'root_tokens':
+                    # make it hashable for Span.__hash__
+                    setattr(span, attr, tuple(analysis[attr]))
+                else:
+                    setattr(span, attr, analysis[attr])
+            else:
+                # We have an extra attribute -- initialize with None
+                setattr(span, attr, None)
+        spans.append(span)
+    return spans
 
