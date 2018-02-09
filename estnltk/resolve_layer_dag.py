@@ -75,6 +75,7 @@ from .taggers import SentenceTokenizer
 from .taggers import ParagraphTokenizer
 from .taggers.morph.morf import VabamorfTagger
 from .taggers import MorphExtendedTagger
+from .taggers import ClauseSegmenter    # Requires Java
 
 # Load default configuration for morph analyser
 from .taggers.morph.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
@@ -98,7 +99,7 @@ def make_resolver(
 
     taggers = Taggers([TokensTagger(), WordTagger(), CompoundTokenTagger(),
                        SentenceTokenizer(), ParagraphTokenizer(),
-                       vabamorf_tagger, MorphExtendedTagger()])
+                       vabamorf_tagger, MorphExtendedTagger(), ClauseSegmenter() ])
     return Resolver(taggers)
 
 
