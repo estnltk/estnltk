@@ -43,7 +43,7 @@ class ClauseSegmenter(Tagger):
         args = ['-pyvabamorf']
         if ignore_missing_commas:
             args.append('-ins_comma_mis')
-        self.java_clause_segmenter = \
+        self._java_process = \
             JavaProcess( 'Osalau.jar', jar_path=JAVARES_PATH, args=args )
         # Record configuration
         self.configuration = {'ignore_missing_commas': ignore_missing_commas}
@@ -116,7 +116,7 @@ class ClauseSegmenter(Tagger):
                 # Analyse collected sentence with the Java-based Clause Segmenter
                 sentence_vm_json = json.dumps({'words': sentence_morph_dicts})
                 result_vm_str    = \
-                    self.java_clause_segmenter.process_line(sentence_vm_json)
+                    self._java_process.process_line(sentence_vm_json)
                 result_vm_json   = json.loads( result_vm_str )
                 # Sanity check: the number of words in the output must match 
                 # the number of words in the input;
