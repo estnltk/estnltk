@@ -14,6 +14,7 @@ from estnltk.text import Text, Layer, Span, SpanList
 from estnltk.taggers import Tagger
 from estnltk.taggers.morph.morf_common import _convert_morph_analysis_span_to_vm_dict
 from estnltk.taggers.morph.morf_common import _create_empty_morph_span
+from estnltk.taggers.morph.morf_common import _is_empty_span
 
 from estnltk.java.javaprocess import JavaProcess
 from estnltk.core import JAVARES_PATH
@@ -92,7 +93,9 @@ class ClauseSegmenter(Tagger):
                     if word_span_id < len(morph_spans):
                         morph_span = morph_spans[word_span_id]
                         if word_span.start == morph_span.start and \
-                           word_span.end == morph_span.end:
+                           word_span.end == morph_span.end and \
+                           len(morph_span) > 0 and \
+                           (not _is_empty_span(morph_span[0])):
                             # Convert span to Vabamorf dict
                             word_morph_dict = \
                                     _convert_morph_analysis_span_to_vm_dict( \
@@ -101,12 +104,9 @@ class ClauseSegmenter(Tagger):
                             morphFound = True
                     if not morphFound:
                         # No morph found: add an empty Vabamorf dict
-                        empty_morph_span = \
-                            _create_empty_morph_span( word_span )
-                        word_morph_dict = \
-                                _convert_morph_analysis_span_to_vm_dict( \
-                                    empty_morph_span )
-                        sentence_morph_dicts.append( word_morph_dict )
+                        empty_analysis_dict = { 'text' : word_span.text[0], \
+                                                'analysis' : [] }
+                        sentence_morph_dicts.append( empty_analysis_dict )
                     sentence_words.append( word_span )
                 if sentence.end <= word_span.start:
                     # Break (end of the sentence)

@@ -5,9 +5,6 @@
 #  Most of the logic builds upon EstNLTK 1.4.1's gt_conversion:
 #  https://github.com/estnltk/estnltk/blob/3ba73f8fa397f34cd55b1203026819c79486dffd/estnltk/converters/gt_conversion.py
 #
-#  Note:
-#    -- disambiguation of verb forms between 'Pers Prt Ind Pl3 Aff' and 'Pers Prt Ind Sg2 Aff' 
-#       is currently not implemented ( implementation requires clause annotations )
 # 
 
 import regex as re
@@ -365,7 +362,7 @@ def _disambiguate_neg( morph_dict_list:list ):
     
     # Finally, perform the deletion
     if len(analyses_to_delete.keys()) > 0:
-        to_delete = list(analyses_to_delete.keys())
+        to_delete = list( analyses_to_delete.keys() )
         to_delete.reverse()
         for aid in to_delete:
             del morph_dict_list[aid]
@@ -374,17 +371,139 @@ def _disambiguate_neg( morph_dict_list:list ):
 
 
 def _disambiguate_sid_ksid( morph_dict_list:list, text: Text, scope:str='clauses' ):
-    ''' Disambiguates verb forms based on existence of 2nd person pronoun ('sina') in 
-        given scope. The scope could be either 'clauses' or 'sentences'.
+    ''' Disambiguates verb forms based on existence of 2nd person pronoun ('sina') 
+        in given scope. The scope could be either 'clauses' or 'sentences'.
         
-        TODO: this function cannot be properly implemented until clause tagger has 
-              been implemented; 
+        Note: if 'clauses' or 'sentences' layers are missing, adds these layers 
+              automatically;
     '''
     assert scope in ['clauses', 'sentences'], \
            '(!) The scope should be either "clauses" or "sentences".'
-    #
-    # TODO: implement this function if the clause tagger becomes available
-    #  
+    
+    # 1) Find word id-s corresponding to morph analyses dicts
+    morph_dict_word_ids = []
+    current_word_id = 0
+    for aid, analysis_dict in enumerate( morph_dict_list ):
+        word_start = analysis_dict['start']
+        word_end   = analysis_dict['end']
+        if aid - 1 > -1:
+            last_word_start = morph_dict_list[aid-1]['start']
+            last_word_end   = morph_dict_list[aid-1]['end']
+            if last_word_start != word_start and \
+               last_word_end != word_end:
+                # Advance with word_id
+                current_word_id += 1
+        morph_dict_word_ids.append(current_word_id)
+    assert len(morph_dict_word_ids) == len(morph_dict_list)
+    
+    # 2) Disambiguate 
+    group_indices = get_unique_word_group_indices( text, word_group=scope )
+    # ids of the analyses of the current word:
+    cur_word_analyses_ids = []
+    # ids of the analyses that should be deleted:
+    analyses_to_delete = OrderedDict()
+    # record if group of the current word contains 2nd person pronoun
+    gr_2nd_person_pron = {}
+    for aid, analysis_dict in enumerate( morph_dict_list ):
+        # word index for the current analysis
+        current_word_id = morph_dict_word_ids[aid]
+        # group index for the current word
+        gr_index = group_indices[current_word_id]
+        
+        # Analyse word's group
+        if gr_index not in gr_2nd_person_pron:
+            # 1) Find out whether the current group (clause or sentence) contains "sina"
+            j = aid
+            gr_2nd_person_pron_found = False
+            words_passed = 0
+            last_word_id_2 = current_word_id
+            while j < len( morph_dict_list ):
+                current_word_id_2 = morph_dict_word_ids[j]
+                if last_word_id_2 != current_word_id_2:
+                    words_passed += 1
+                if group_indices[current_word_id_2] == gr_index:
+                    forms  = [ morph_dict_list[j]['form'] ]
+                    lemmas = [ morph_dict_list[j]['root'] ]
+                    if 'sina' in lemmas and 'Sg Nom' in forms:
+                        gr_2nd_person_pron_found = True
+                        break
+                if words_passed >= 10:  # do not venture too far ...
+                    break
+                j += 1
+                last_word_id_2 = current_word_id_2
+            gr_2nd_person_pron[gr_index] = gr_2nd_person_pron_found
+        
+        # Collect analysis of the current word 
+        cur_word_analyses_ids.append( aid )
+        
+        # Determine next word id 
+        next_word_id = \
+            morph_dict_word_ids[aid+1] if aid+1 < len(morph_dict_word_ids) else -1
+        
+        if next_word_id == -1 or current_word_id != next_word_id:
+            # We have last analysis or the next analysis belongs to a new word
+            # 2) Disambiguate verb forms based on existence of 'sina' in the word group
+            forms = [ morph_dict_list[cwaid]['form'] for cwaid in cur_word_analyses_ids ]
+            if ('Pers Prt Ind Pl3 Aff' in forms and 'Pers Prt Ind Sg2 Aff' in forms):
+               if not gr_2nd_person_pron[ gr_index ]:
+                    # -sid , "sina" missing ==> 
+                    # keep 'Pers Prt Ind Pl3 Aff'
+                    # delete 'Pers Prt Ind Sg2 Aff'
+                    for cwaid in cur_word_analyses_ids:
+                        cur_word_analysis = morph_dict_list[cwaid]
+                        if cur_word_analysis['form'] == 'Pers Prt Ind Sg2 Aff':
+                            analyses_to_delete[cwaid] = True
+               else:
+                    # -sid , "sina" exists ==> 
+                    # keep 'Pers Prt Ind Sg2 Aff'
+                    # delete 'Pers Prt Ind Pl3 Aff'
+                    for cwaid in cur_word_analyses_ids:
+                        cur_word_analysis = morph_dict_list[cwaid]
+                        if cur_word_analysis['form'] == 'Pers Prt Ind Pl3 Aff':
+                            analyses_to_delete[cwaid] = True
+            if ('Pers Prs Cond Pl3 Aff' in forms and 'Pers Prs Cond Sg2 Aff' in forms):
+               if not gr_2nd_person_pron[ gr_index ]:
+                    # -ksid , "sina" missing ==> 
+                    # keep 'Pers Prs Cond Pl3 Aff'
+                    # delete 'Pers Prs Cond Sg2 Aff'
+                    for cwaid in cur_word_analyses_ids:
+                        cur_word_analysis = morph_dict_list[cwaid]
+                        if cur_word_analysis['form'] == 'Pers Prs Cond Sg2 Aff':
+                            analyses_to_delete[cwaid] = True
+               else:
+                    # -ksid , "sina" exists ==> 
+                    # keep 'Pers Prs Cond Sg2 Aff'
+                    # delete 'Pers Prs Cond Pl3 Aff'
+                    for cwaid in cur_word_analyses_ids:
+                        cur_word_analysis = morph_dict_list[cwaid]
+                        if cur_word_analysis['form'] == 'Pers Prs Cond Pl3 Aff':
+                            analyses_to_delete[cwaid] = True
+            if ('Pers Prt Cond Pl3 Aff' in forms and 'Pers Prt Cond Sg2 Aff' in forms):
+               if not gr_2nd_person_pron[ gr_index ]:
+                    # -nuksid , "sina" missing ==> 
+                    # keep 'Pers Prt Cond Pl3 Aff'
+                    # delete 'Pers Prt Cond Sg2 Aff'
+                    for cwaid in cur_word_analyses_ids:
+                        cur_word_analysis = morph_dict_list[cwaid]
+                        if cur_word_analysis['form'] == 'Pers Prt Cond Sg2 Aff':
+                            analyses_to_delete[cwaid] = True
+               else:
+                    # -nuksid , "sina" exists ==> 
+                    # keep 'Pers Prt Cond Sg2 Aff'
+                    # delete 'Pers Prt Cond Pl3 Aff'
+                    for cwaid in cur_word_analyses_ids:
+                        cur_word_analysis = morph_dict_list[cwaid]
+                        if cur_word_analysis['form'] == 'Pers Prt Cond Pl3 Aff':
+                            analyses_to_delete[cwaid] = True
+            cur_word_analyses_ids = []
+
+    # 3) Finally, perform the deletion
+    if len(analyses_to_delete.keys()) > 0:
+        to_delete = list(analyses_to_delete.keys())
+        to_delete.reverse()
+        for aid in to_delete:
+            del morph_dict_list[aid]
+
     return morph_dict_list
 
 
@@ -397,6 +516,47 @@ def _make_postfixes_2( morph_dict_list:list ):
     for analysis in morph_dict_list:
         analysis['form'] = re.sub( '(Sg|Pl)([123])', '\\1 \\2', analysis['form'] )
     return morph_dict_list
+
+
+# =====================================
+#  Clause/sentence indices for words
+# =====================================
+
+def get_unique_word_group_indices( text: Text, word_group:str = 'clauses' ):
+    ''' Returns a list of word group indices that contains a group index  
+        for each word in the text.  A  group  index  tells which group a 
+        word belongs to.
+        Types of word groups: 'clauses', 'sentences';
+        Group indices are unique over the whole text. 
+    '''
+    assert word_group in ['sentences', 'clauses'], \
+           '(!) The word_group should be either "clauses" or "sentences".'
+    # Add word group annotations (if missing)
+    if word_group not in text.layers:
+        text.tag_layer([word_group])
+    # Collect (unique) word group indices over the whole text
+    word_group_indices = []
+    word_spans  = text['words'].spans
+    group_spans = text[ word_group ].spans
+    word_span_id  = 0
+    #  Collect all words inside the group
+    while word_span_id < len(word_spans):
+        # Get word span
+        word_span = word_spans[word_span_id]
+        # Find group the word belongs to
+        group_span_id = 0
+        while group_span_id < len(group_spans):
+            group_span = group_spans[group_span_id]
+            if group_span.start <= word_span.start and \
+               word_span.end <= group_span.end:
+               # Record id of the group word belongs to
+                word_group_indices.append( group_span_id )
+                break
+            group_span_id += 1
+        word_span_id += 1
+    assert len(word_group_indices) == len(word_spans), \
+        '(!) Number of word group indices should match the number of words!'
+    return word_group_indices
 
 
 # =========================================================================================
@@ -468,7 +628,7 @@ class GTMorphConverter(Tagger):
     
     def __init__(self, \
                  disambiguate_neg:bool = True, \
-                 disambiguate_sid_ksid:bool = False, \
+                 disambiguate_sid_ksid:bool = True, \
                  layer_name:str='gt_morph_analysis', **kwargs):
         ''' Initializes this GTMorphConverter.
             
@@ -482,8 +642,9 @@ class GTMorphConverter(Tagger):
             disambiguate_sid_ksid : bool
                 Whether the conversion is followed by disambiguation of verb 
                 categories 'Pers Prt Ind Pl3 Aff' and 'Pers Prt Ind Sg2 Aff';
-                This functionality is yet to be implemented;
-                Default: False;
+                Note: if clause annotations are missing and this flag is switched
+                on, then clause annotations will be automatically added;
+                Default: True;
 
             layer_name : str
                 Name of the layer on which converted morphological analyses are 

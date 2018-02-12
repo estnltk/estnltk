@@ -125,16 +125,14 @@ def test_gt_conversion_3_ambiguous():
 def test_gt_conversion_3_sid_ksid():
     gt_converter = GTMorphConverter()
     
-    # Case 1
+    # Case 1 : -ksid
     text = Text('Oleksid Sa siin olnud, siis oleksid nad ära läinud.')
     text.tag_layer(['morph_analysis'])
     gt_converter.tag( text )
     
     # Assert content of the layer
-    #print(text['gt_morph_analysis'].to_records())
     expected_records = [ \
-        [{'partofspeech': 'V', 'end': 7, 'root_tokens': ('ole',), 'root': 'ole', 'clitic': '', 'start': 0, 'lemma': 'olema', 'form': 'Pers Prs Cond Pl 3 Aff', 'ending': 'ksid'}, \
-         {'partofspeech': 'V', 'end': 7, 'root_tokens': ('ole',), 'root': 'ole', 'clitic': '', 'start': 0, 'lemma': 'olema', 'form': 'Pers Prs Cond Sg 2 Aff', 'ending': 'ksid'}], \
+        [{'partofspeech': 'V', 'end': 7, 'root_tokens': ('ole',), 'root': 'ole', 'clitic': '', 'start': 0, 'lemma': 'olema', 'form': 'Pers Prs Cond Sg 2 Aff', 'ending': 'ksid'}], \
         [{'partofspeech': 'P', 'end': 10, 'root_tokens': ('sina',), 'root': 'sina', 'clitic': '', 'start': 8, 'lemma': 'sina', 'form': 'Sg Nom', 'ending': '0'}], \
         [{'partofspeech': 'D', 'end': 15, 'root_tokens': ('siin',), 'root': 'siin', 'clitic': '', 'start': 11, 'lemma': 'siin', 'form': '', 'ending': '0'}], \
         [{'partofspeech': 'A', 'end': 21, 'root_tokens': ('olnud',), 'root': 'ol=nud', 'clitic': '', 'start': 16, 'lemma': 'olnud', 'form': '', 'ending': '0'}, \
@@ -143,8 +141,7 @@ def test_gt_conversion_3_sid_ksid():
          {'partofspeech': 'V', 'end': 21, 'root_tokens': ('ole',), 'root': 'ole', 'clitic': '', 'start': 16, 'lemma': 'olema', 'form': 'Pers Prt Prc', 'ending': 'nud'}], \
         [{'partofspeech': 'Z', 'end': 22, 'root_tokens': (',',), 'root': ',', 'clitic': '', 'start': 21, 'lemma': ',', 'form': '', 'ending': ''}], \
         [{'partofspeech': 'D', 'end': 27, 'root_tokens': ('siis',), 'root': 'siis', 'clitic': '', 'start': 23, 'lemma': 'siis', 'form': '', 'ending': '0'}], \
-        [{'partofspeech': 'V', 'end': 35, 'root_tokens': ('ole',), 'root': 'ole', 'clitic': '', 'start': 28, 'lemma': 'olema', 'form': 'Pers Prs Cond Pl 3 Aff', 'ending': 'ksid'}, \
-         {'partofspeech': 'V', 'end': 35, 'root_tokens': ('ole',), 'root': 'ole', 'clitic': '', 'start': 28, 'lemma': 'olema', 'form': 'Pers Prs Cond Sg 2 Aff', 'ending': 'ksid'}], \
+        [{'partofspeech': 'V', 'end': 35, 'root_tokens': ('ole',), 'root': 'ole', 'clitic': '', 'start': 28, 'lemma': 'olema', 'form': 'Pers Prs Cond Pl 3 Aff', 'ending': 'ksid'}], \
         [{'partofspeech': 'P', 'end': 39, 'root_tokens': ('tema',), 'root': 'tema', 'clitic': '', 'start': 36, 'lemma': 'tema', 'form': 'Pl Nom', 'ending': 'd'}], \
         [{'partofspeech': 'D', 'end': 43, 'root_tokens': ('ära',), 'root': 'ära', 'clitic': '', 'start': 40, 'lemma': 'ära', 'form': '', 'ending': '0'}], \
         [{'partofspeech': 'A', 'end': 50, 'root_tokens': ('läinud',), 'root': 'läinud', 'clitic': '', 'start': 44, 'lemma': 'läinud', 'form': '', 'ending': '0'}, \
@@ -152,6 +149,34 @@ def test_gt_conversion_3_sid_ksid():
          {'partofspeech': 'A', 'end': 50, 'root_tokens': ('läinud',), 'root': 'läinud', 'clitic': '', 'start': 44, 'lemma': 'läinud', 'form': 'Pl Nom', 'ending': 'd'}, \
          {'partofspeech': 'V', 'end': 50, 'root_tokens': ('mine',), 'root': 'mine', 'clitic': '', 'start': 44, 'lemma': 'minema', 'form': 'Pers Prt Prc', 'ending': 'nud'}], \
         [{'partofspeech': 'Z', 'end': 51, 'root_tokens': ('.',), 'root': '.', 'clitic': '', 'start': 50, 'lemma': '.', 'form': '', 'ending': ''}]
+    ]
+    assert expected_records == text['gt_morph_analysis'].to_records()
+    
+    # Case 2 : -sid
+    text = Text('Sa läksid ära. Aga nemad tõttasid edasi, sind nad ei näinud.')
+    text.tag_layer(['morph_analysis'])
+    gt_converter.tag( text )
+    #print(text['gt_morph_analysis'].to_records())
+    
+    # Assert content of the layer
+    expected_records = [ \
+         [{'lemma': 'sina', 'root_tokens': ('sina',), 'clitic': '', 'start': 0, 'root': 'sina', 'partofspeech': 'P', 'end': 2, 'ending': '0', 'form': 'Sg Nom'}], \
+         [{'lemma': 'minema', 'root_tokens': ('mine',), 'clitic': '', 'start': 3, 'root': 'mine', 'partofspeech': 'V', 'end': 9, 'ending': 'sid', 'form': 'Pers Prt Ind Sg 2 Aff'}], \
+         [{'lemma': 'ära', 'root_tokens': ('ära',), 'clitic': '', 'start': 10, 'root': 'ära', 'partofspeech': 'D', 'end': 13, 'ending': '0', 'form': ''}], \
+         [{'lemma': '.', 'root_tokens': ('.',), 'clitic': '', 'start': 13, 'root': '.', 'partofspeech': 'Z', 'end': 14, 'ending': '', 'form': ''}], \
+         [{'lemma': 'aga', 'root_tokens': ('aga',), 'clitic': '', 'start': 15, 'root': 'aga', 'partofspeech': 'J', 'end': 18, 'ending': '0', 'form': ''}], \
+         [{'lemma': 'tema', 'root_tokens': ('tema',), 'clitic': '', 'start': 19, 'root': 'tema', 'partofspeech': 'P', 'end': 24, 'ending': 'd', 'form': 'Pl Nom'}], \
+         [{'lemma': 'tõttama', 'root_tokens': ('tõtta',), 'clitic': '', 'start': 25, 'root': 'tõtta', 'partofspeech': 'V', 'end': 33, 'ending': 'sid', 'form': 'Pers Prt Ind Pl 3 Aff'}], \
+         [{'lemma': 'edasi', 'root_tokens': ('edasi',), 'clitic': '', 'start': 34, 'root': 'edasi', 'partofspeech': 'D', 'end': 39, 'ending': '0', 'form': ''}], \
+         [{'lemma': ',', 'root_tokens': (',',), 'clitic': '', 'start': 39, 'root': ',', 'partofspeech': 'Z', 'end': 40, 'ending': '', 'form': ''}], \
+         [{'lemma': 'sina', 'root_tokens': ('sina',), 'clitic': '', 'start': 41, 'root': 'sina', 'partofspeech': 'P', 'end': 45, 'ending': 'd', 'form': 'Sg Par'}], \
+         [{'lemma': 'tema', 'root_tokens': ('tema',), 'clitic': '', 'start': 46, 'root': 'tema', 'partofspeech': 'P', 'end': 49, 'ending': 'd', 'form': 'Pl Nom'}], \
+         [{'lemma': 'ei', 'root_tokens': ('ei',), 'clitic': '', 'start': 50, 'root': 'ei', 'partofspeech': 'V', 'end': 52, 'ending': '0', 'form': 'Neg'}], \
+         [{'lemma': 'nägema', 'root_tokens': ('näge',), 'clitic': '', 'start': 53, 'root': 'näge', 'partofspeech': 'V', 'end': 59, 'ending': 'nud', 'form': 'Pers Prt Ind Neg'}, \
+          {'lemma': 'näinud', 'root_tokens': ('näinud',), 'clitic': '', 'start': 53, 'root': 'näi=nud', 'partofspeech': 'A', 'end': 59, 'ending': '0', 'form': ''}, \
+          {'lemma': 'näinud', 'root_tokens': ('näinud',), 'clitic': '', 'start': 53, 'root': 'näi=nud', 'partofspeech': 'A', 'end': 59, 'ending': '0', 'form': 'Sg Nom'}, \
+          {'lemma': 'näinud', 'root_tokens': ('näinud',), 'clitic': '', 'start': 53, 'root': 'näi=nud', 'partofspeech': 'A', 'end': 59, 'ending': 'd', 'form': 'Pl Nom'}, {'lemma': 'näima', 'root_tokens': ('näi',), 'clitic': '', 'start': 53, 'root': 'näi', 'partofspeech': 'V', 'end': 59, 'ending': 'nud', 'form': 'Pers Prt Ind Neg'}], \
+         [{'lemma': '.', 'root_tokens': ('.',), 'clitic': '', 'start': 59, 'root': '.', 'partofspeech': 'Z', 'end': 60, 'ending': '', 'form': ''}]
     ]
     assert expected_records == text['gt_morph_analysis'].to_records()
 
