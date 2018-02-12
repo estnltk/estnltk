@@ -104,7 +104,7 @@ class ClauseSegmenter(Tagger):
                             morphFound = True
                     if not morphFound:
                         # No morph found: add an empty Vabamorf dict
-                        empty_analysis_dict = { 'text' : word_span.text[0], \
+                        empty_analysis_dict = { 'text' : word_span.text, \
                                                 'analysis' : [] }
                         sentence_morph_dicts.append( empty_analysis_dict )
                     sentence_words.append( word_span )
