@@ -30,4 +30,4 @@ Example usage:
         print(key, txt)
 
 """
-from .db import PostgresStorage, JsonbQuery
+from .db import PostgresStorage, JsonbQuery, PgStorageException

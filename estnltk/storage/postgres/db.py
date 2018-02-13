@@ -1,6 +1,8 @@
+import os
 import json
-from functools import reduce
+import logging
 import operator as op
+from functools import reduce
 
 import psycopg2
 from psycopg2.extensions import STATUS_BEGIN
@@ -9,15 +11,73 @@ from psycopg2.sql import SQL, Identifier
 from estnltk.converters import import_dict, export_json
 from .query import Query
 
+log = logging.getLogger(__name__)
+
+
+class PgStorageException(Exception):
+    pass
+
+
+class PgCollection:
+    """Convenience wrapper over PostgresStorage"""
+
+    def __init__(self, name, storage):
+        self.table_name = name
+        self.storage = storage
+
+    def create(self):
+        return self.storage.create_table(self.table_name)
+
+    def insert(self, text, key=None):
+        return self.storage.insert(self.table_name, text, key)
+
+    def exists(self):
+        return self.storage.table_exists(self.table_name)
+
+    def update(self, key, text):
+        pass
+
+    def select(self, query=None, remote_layers=None, order_by_key=False, return_as_dict=False):
+        return self.storage.select(self.table_name, query, order_by_key, return_as_dict)
+
+    def select_by_key(self, key, return_as_dict=False):
+        return self.storage.select_by_key(self.table_name, key, return_as_dict)
+
+    def find_fingerprint(self, layer, field, query_list, ambiguous=True, order_by_key=False, return_as_dict=False):
+        return self.storage.find_fingerprint(self.table_name, layer, field, query_list, ambiguous, order_by_key,
+                                             return_as_dict)
+
+    # def add_layer(self, layer_name, callable, query=None, remote_layers=None, inplace=True):
+    #     for in self.select(query, remote_layers):
+
+    def delete(self):
+        self.storage.drop_table(self.table_name)
+
+    def delete_attached_layer(self, layer_name):
+        pass
+
 
 class PostgresStorage:
     """`PostgresStorage` instance wraps a database connection and
     exposes interface to conveniently search/save json data.
     """
 
-    def __init__(self, dbname, user, password, host='localhost', port=5432, **kwargs):
+    def __init__(self, dbname=None, user=None, password=None, host='localhost', port=5432,
+                 pgpass_file="~/.pgpass", **kwargs):
+        """
+        Connects to database either using connection parameters if specified, or ~/.pgpass file.
+        ~/.pgpass file format: hostname:port:database:username:password
+        """
+        if dbname is None:
+            log.debug("Database name not specified. Loading connection settings from '%s'" % pgpass_file)
+            pgpass = os.path.expanduser(pgpass_file)
+            if not os.path.exists(pgpass):
+                raise PgStorageException("Configuration file '%s' not found." % pgpass)
+            else:
+                host, port, dbname, user, passwd = open(pgpass, encoding="utf-8").readline().rstrip().split(":")
         self.conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port, **kwargs)
         self.conn.autocommit = True
+        self.schema = "public"
 
     def close(self):
         """Closes database connection"""
@@ -67,11 +127,20 @@ class PostgresStorage:
             row_key = c.fetchone()[0]
         return row_key
 
+    def table_exists(self, table):
+        with self.conn.cursor() as c:
+            c.execute(SQL("SELECT EXISTS (SELECT 1 FROM pg_tables WHERE  schemaname = %s AND tablename = %s);"),
+                      [self.schema, table])
+            return c.fetchone()[0]
+
     def select_by_key(self, table, key, return_as_dict=False):
         """Loads text object by `key`. If `return_as_dict` is True, returns a text object as dict"""
         with self.conn.cursor() as c:
             c.execute(SQL("SELECT * FROM {} WHERE id = %s").format(Identifier(table)), (key,))
-            key, text_dict = c.fetchone()
+            res = c.fetchone()
+            if res is None:
+                raise PgStorageException("Key %s not not found." % key)
+            key, text_dict = res
             text = text_dict if return_as_dict is True else import_dict(text_dict)
             return text
 
@@ -120,10 +189,14 @@ class PostgresStorage:
         or_query_list = []
         for and_terms in query_list:
             if and_terms:
-                and_query = reduce(op.__and__, (JsonbQuery(layer, ambiguous, **{field: term}) for term in and_terms))
+                and_query = reduce(op.__and__,
+                                   (JsonbQuery(layer, ambiguous, **{field: term}) for term in and_terms))
                 or_query_list.append(and_query)
         query = reduce(op.__or__, or_query_list) if or_query_list else None
         return self.select(table, query, order_by_key, return_as_dict)
+
+    def get_collection(self, table_name):
+        return PgCollection(table_name, self)
 
 
 class JsonbQuery(Query):

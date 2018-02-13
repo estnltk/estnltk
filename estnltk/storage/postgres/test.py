@@ -1,96 +1,128 @@
 """"
 Test postgres storage functionality.
-Usage: python test.py --dbname=<DBNAME> --user=<USER> --password=<PASSWORD>
-                      [--host=<HOST> --port=<PORT>]
+
+Requires .pgpass file with database connection settings in the same directory.
+
 """
-import argparse
+import unittest
+import random
+import os
 
 from estnltk import Text
-from estnltk.storage.postgres import PostgresStorage, JsonbQuery as Q
-from estnltk import storage
+from estnltk.storage.postgres import PostgresStorage, PgStorageException, JsonbQuery as Q
 
 
-def test(storage, table):
-    text1 = Text('Ööbik laulab.')
-    id1 = storage.insert(table, text1)
+def get_random_table_name():
+    return "table_%d" % random.randint(1, 1000000)
 
-    text2 = Text('Mis kell on?')
-    id2 = storage.insert(table, text2)
 
-    # test select_by_id
-    assert storage.select_by_key(table, id1) == text1
-    assert storage.select_by_key(table, id2) == text2
+class TestStorage(unittest.TestCase):
+    def setUp(self):
+        self.storage = PostgresStorage(pgpass_file=os.path.join(os.path.dirname(__file__), '.pgpass'))
 
-    # test select_all
-    res = list(storage.select(table, order_by_key=True))
-    assert len(res) == 2
-    id_, text = res[0]
-    assert id_ == id1
-    assert text == text1
-    id_, text = res[1]
-    assert id_ == id2
-    assert text == text2
+    def tearDown(self):
+        self.storage.close()
 
-    # test select
-    text1 = Text('mis kell on?').analyse('morphology')
-    storage.insert(table, text1)
-    text2 = Text('palju kell on?').analyse('morphology')
-    storage.insert(table, text2)
+    def test_create_collection(self):
+        table_name = get_random_table_name()
+        col = self.storage.get_collection(table_name)
+        self.assertFalse(col.exists())
+        col.create()
+        self.assertTrue(col.exists())
+        col.delete()
+        self.assertFalse(col.exists())
 
-    res = list(storage.select(table, query=Q('morph_analysis', lemma='mis')))
-    assert len(res) == 1
+    def test_sql_injection(self):
+        normal_table = get_random_table_name()
+        self.storage.create_table(normal_table)
+        self.assertTrue(self.storage.table_exists(normal_table))
 
-    res = list(storage.select(table, query=Q('morph_analysis', lemma='kell')))
-    assert len(res) == 2
+        injected_table_name = "%a; drop table %s;" % (get_random_table_name(), normal_table)
+        self.storage.create_table(injected_table_name)
+        self.assertTrue(self.storage.table_exists(injected_table_name))
+        self.assertTrue(self.storage.table_exists(normal_table))
 
-    res = list(storage.select(table, query=Q('morph_analysis', lemma='mis') | Q('morph_analysis', lemma='palju')))
-    assert len(res) == 2
+        self.storage.drop_table(normal_table)
+        self.storage.drop_table(injected_table_name)
 
-    res = list(storage.select(table, query=Q('morph_analysis', lemma='mis') & Q('morph_analysis', lemma='palju')))
-    assert len(res) == 0
+    def test_select_by_key(self):
+        col = self.storage.get_collection(get_random_table_name())
+        col.create()
+        self.assertRaises(PgStorageException, lambda: col.select_by_key(1))
 
-    res = list(storage.select(table, query=(Q('morph_analysis', lemma='mis') | Q('morph_analysis', lemma='palju')) &
-                                           Q('morph_analysis', lemma='kell')))
-    assert len(res) == 2
+        text = Text("Mingi tekst")
+        col.insert(text, 1)
+        res = col.select_by_key(1)
+        self.assertEqual(text, res)
+        col.delete()
 
-    # test find_fingerprint
-    res = list(storage.find_fingerprint(table, 'morph_analysis', 'lemma', [{'miss1', 'miss2'}, {'miss3'}]))
-    assert len(res) == 0
+    def test_select(self):
+        col = self.storage.get_collection(get_random_table_name())
+        col.create()
 
-    res = list(storage.find_fingerprint(table, 'morph_analysis', 'lemma', [{'miss1', 'miss2'}, {'palju'}]))
-    assert len(res) == 1
+        text1 = Text('Ööbik laulab.')
+        id1 = col.insert(text1)
 
-    res = list(storage.find_fingerprint(table, 'morph_analysis', 'lemma', [{'mis', 'miss2'}, {'palju'}]))
-    assert len(res) == 1
+        text2 = Text('Mis kell on?')
+        id2 = col.insert(text2)
 
-    res = list(storage.find_fingerprint(table, 'morph_analysis', 'lemma', [{'mis', 'kell'}, {'miss'}]))
-    assert len(res) == 1
+        # test select_by_id
+        self.assertEqual(col.select_by_key(id1), text1)
+        self.assertEqual(col.select_by_key(id2), text2)
 
-    res = list(storage.find_fingerprint(table, 'morph_analysis', 'lemma', [{'mis', 'kell'}, {'palju'}]))
-    assert len(res) == 2
+        # test select_all
+        res = list(col.select(order_by_key=True))
+        self.assertEqual(len(res), 2)
+        id_, text = res[0]
+        self.assertEqual(id_, id1)
+        self.assertEqual(text, text1)
+        id_, text = res[1]
+        self.assertEqual(id_, id2)
+        self.assertEqual(text, text2)
 
-    res = list(storage.find_fingerprint(table, 'morph_analysis', 'lemma', []))
-    assert len(res) == 4
+        # test select
+        text1 = Text('mis kell on?').analyse('morphology')
+        col.insert(text1)
+        text2 = Text('palju kell on?').analyse('morphology')
+        col.insert(text2)
+
+        res = list(col.select(query=Q('morph_analysis', lemma='mis')))
+        self.assertEqual(len(res), 1)
+
+        res = list(col.select(query=Q('morph_analysis', lemma='kell')))
+        self.assertEqual(len(res), 2)
+
+        res = list(col.select(query=Q('morph_analysis', lemma='mis') | Q('morph_analysis', lemma='palju')))
+        self.assertEqual(len(res), 2)
+
+        res = list(col.select(query=Q('morph_analysis', lemma='mis') & Q('morph_analysis', lemma='palju')))
+        self.assertEqual(len(res), 0)
+
+        res = list(col.select(query=(Q('morph_analysis', lemma='mis') | Q('morph_analysis', lemma='palju')) &
+                                    Q('morph_analysis', lemma='kell')))
+        self.assertEqual(len(res), 2)
+
+        # test find_fingerprint
+        res = list(col.find_fingerprint('morph_analysis', 'lemma', [{'miss1', 'miss2'}, {'miss3'}]))
+        self.assertEqual(len(res), 0)
+
+        res = list(col.find_fingerprint('morph_analysis', 'lemma', [{'miss1', 'miss2'}, {'palju'}]))
+        self.assertEqual(len(res), 1)
+
+        res = list(col.find_fingerprint('morph_analysis', 'lemma', [{'mis', 'miss2'}, {'palju'}]))
+        self.assertEqual(len(res), 1)
+
+        res = list(col.find_fingerprint('morph_analysis', 'lemma', [{'mis', 'kell'}, {'miss'}]))
+        self.assertEqual(len(res), 1)
+
+        res = list(col.find_fingerprint('morph_analysis', 'lemma', [{'mis', 'kell'}, {'palju'}]))
+        self.assertEqual(len(res), 2)
+
+        res = list(col.find_fingerprint('morph_analysis', 'lemma', []))
+        self.assertEqual(len(res), 4)
+
+        col.delete()
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Test postgres storage functionality.')
-    parser.add_argument('--dbname', dest='dbname', required=True, help='database name')
-    parser.add_argument('--user', dest='user', required=True, help='database user')
-    parser.add_argument('--password', dest='password', required=True, help='database user password')
-    parser.add_argument('--host', dest='host', help='database host', default='localhost')
-    parser.add_argument('--port', dest='port', help='database port', type=int, default=5432)
-    args = parser.parse_args()
-
-    storage = PostgresStorage(dbname=args.dbname, user=args.user, password=args.password,
-                              host=args.host, port=args.port)
-
-    table = 'tmp'
-    storage.create_table(table)
-    try:
-        test(storage, table)
-    finally:
-        storage.drop_table(table)
-        storage.close()
-
-    print("Tests done!")
+    unittest.main()
