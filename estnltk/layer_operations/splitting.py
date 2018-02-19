@@ -1,11 +1,12 @@
 from estnltk.text import Span, SpanList, Layer, Text
 import networkx as nx
 
+
 def extract_sections(text,
                     sections:list,
                     layers_to_keep:list=None,
                     trim_overlapping:bool=False):
-    '''
+    """
     layers_to_keep
         List of layer names to be kept. 
         The dependencies must also be included, that is, if a layer in the list
@@ -15,7 +16,7 @@ def extract_sections(text,
     trim_overlapping
         If False (default), overlapping spans are not kept.
         If True, overlapping spans are trimmed to fit the boundaries.
-    '''
+    """
     if layers_to_keep:
         for layer in layers_to_keep:
             parent = text[layer].parent
@@ -77,7 +78,7 @@ def extract_sections(text,
                             if parent:
                                 new_span.spans.append(parent)
                         for attr in attributes:
-                            setattr(new_span, attr, getattr(sp, attr))
+                            setattr(new_span, attr, getattr(span, attr))
                         new_layer.add_span(new_span)
                         map_spans[span] = new_span
             else:
@@ -101,6 +102,7 @@ def extract_sections(text,
                         map_spans[span] = new_span
         result.append(new_text)
     return result
+
 
 def extract_section(text,
                     start:int,
