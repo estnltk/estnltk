@@ -15,12 +15,12 @@ _match_SEQ_pattern = re.compile('(SEQ|REP)\((.*)\)$').match
 class Grammar:
     _internal_attributes = frozenset({'name', 'text', 'start', 'end', '_terminals_', '_support_', '_priority_', '_group_'})
 
-    def __init__(self, *,
-                 start_symbols: Sequence,
+    def __init__(self,
+                 start_symbols: Sequence = (),
                  rules: list=None,
-                 depth_limit: int=float('inf'),
-                 width_limit: int=float('inf'),
-                 legal_attributes=None):
+                 depth_limit: int = float('inf'),
+                 width_limit: int = float('inf'),
+                 legal_attributes = None):
         if legal_attributes is None:
             self.legal_attributes = frozenset()
         else:
@@ -31,7 +31,7 @@ class Grammar:
             self._rules = []
         else:
             self._rules = rules
-        self.start_symbols = start_symbols
+        self.start_symbols = tuple(start_symbols)
         self.depth_limit = depth_limit
         self.width_limit = width_limit
 
@@ -55,19 +55,20 @@ class Grammar:
 
     def has_finite_max_depth(self):
         """
-        grammar is finite if there is a finite number of rules that can be applied before getting all terminals
-        when applied standard rules introduce a tree
-        A -> REP(B)
+        Returns True, if the maximal possible height of the parse tree is finite even on an infinite text.
 
-        Returns False if there is a cycle in the rules,
-        that is the case when there are rules e.g. A -> B, B -> C, C -> A,
-        but the rule A -> A A alone does not form a cycle in this sense.
-        Returns True otherwise.
+        Returns False if the set of rules is cyclic, for example
+        cyclic: A -> B, B -> C, C -> A D
+        cyclic: A -> SEQ(A)
+        not cyclic: A -> B C
+        not cyclic: A -> SEQ(B)
         """
         rule_graph = nx.DiGraph()
         for rule in self._rules:
             for r in rule.rhs:
                 rule_graph.add_edge(rule.lhs, r)
+        for ps, s in self._plus_symbols:
+            rule_graph.add_edge(ps, s)
         return nx.is_directed_acyclic_graph(rule_graph)
 
     def _terminals_and_nonterminals(self):
@@ -79,16 +80,16 @@ class Grammar:
 
     def _rule_maps(self):
         self._rule_map = defaultdict(list)
-        plus_symbols = set()
+        self._plus_symbols = set()
         for rule in self._rules:
             for pos, rhs in enumerate(rule.rhs):
                 self._rule_map[rhs].append((rule, pos))
                 m = _match_SEQ_pattern(rhs)
                 if m is not None:
-                    plus_symbols.add((rhs, m.group(2)))
+                    self._plus_symbols.add((rhs, m.group(2)))
 
         self._hidden_rule_map = {}
-        for ps, s in plus_symbols:
+        for ps, s in self._plus_symbols:
             self._hidden_rule_map[ps] = [(Rule(ps, (ps, ps)), 0),
                                          (Rule(ps, (ps, ps)), 1)]
             self._hidden_rule_map[s] = [(Rule(ps, s), 0)]
@@ -97,11 +98,10 @@ class Grammar:
         if self._setup:
             return
         assert len(self._rules) == len({(r.lhs, r.rhs) for r in self._rules}), 'repetitive rules'
-        assert (self.depth_limit < float('inf') or
-                self.width_limit < float('inf') or
-                self.has_finite_max_depth()), 'infinite grammar without depth or width limit'
-        self._terminals_and_nonterminals()
         self._rule_maps()
+        assert (self.depth_limit < float('inf') or
+                self.has_finite_max_depth()), 'infinite grammar without depth limit'
+        self._terminals_and_nonterminals()
         self._setup = True
 
     def add(self, rule):
@@ -145,7 +145,19 @@ class Rule:
     def default_decorator(x):
         return {}
 
-    def __init__(self, lhs: str, rhs: Union[str, Sequence[str]], priority: int=0, group=None, decorator=None, validator=None):
+    @staticmethod
+    def default_scoring(x):
+        return 0
+
+    def __init__(self,
+                 lhs: str,
+                 rhs: Union[str, Sequence[str]],
+                 priority: int=0,
+                 group=None,
+                 decorator=None,
+                 validator=None,
+                 scoring=None
+                 ):
         assert not contains_parenthesis(lhs) or _match_SEQ_pattern(lhs), 'parenthesis not allowed: ' + lhs
         self.lhs = lhs
         if isinstance(rhs, str):
@@ -153,7 +165,7 @@ class Rule:
         for r in rhs:
             assert isinstance(r, str), 'rhs must be a str or sequence of str'
             if contains_parenthesis(r):
-                assert _match_SEQ_pattern(r) is not None, 'parenthesis only allowed with SEQ or REP: ' + rhs
+                assert _match_SEQ_pattern(r) is not None, 'parenthesis only allowed with SEQ or REP: ' + str(rhs)
         self.rhs = tuple(rhs)
 
         self.priority = priority
@@ -161,15 +173,20 @@ class Rule:
         if group is None:
             self.group = hash((self.lhs, self.rhs))
 
-        if decorator:
-            self.decorator = decorator
-        else:
+        if decorator is None:
             self.decorator = self.default_decorator
-
-        if validator:
-            self.validator = validator
         else:
+            self.decorator = decorator
+
+        if validator is None:
             self.validator = self.default_validator
+        else:
+            self.validator = validator
+
+        if scoring is None:
+            self.scoring = self.default_scoring
+        else:
+            self.scoring = scoring
 
     def __lt__(self, other):
         return self.priority < other.priority
@@ -183,7 +200,9 @@ class Rule:
             raise AssertionError
 
     def __str__(self):
-        return '{self.lhs} -> {rhs}\t: {self.priority}, val: {self.validator.__name__}, dec: {self.decorator.__name__}'.format(self=self, rhs=' '.join(self.rhs))
+        return ('{self.lhs} -> {rhs}\t: {self.priority}, val: {self.validator.__name__},' +
+                ' dec: {self.decorator.__name__}, scoring: {self.scoring.__name__}'
+                ).format(self=self, rhs=' '.join(self.rhs))
 
     def __repr__(self):
         return str(self)
