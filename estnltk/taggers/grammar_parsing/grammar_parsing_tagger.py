@@ -12,8 +12,15 @@ class GrammarParsingTagger(Tagger):
     depends_on = []
     layer_name = ''
 
-    def __init__(self, grammar, layer_of_tokens, layer_name='parse', attributes=(), output_nodes=None,
-                 resolve_conflicts=True):
+    def __init__(self,
+                 grammar,
+                 layer_of_tokens,
+                 layer_name='parse',
+                 attributes=(),
+                 output_nodes=None,
+                 resolve_support_conflicts: bool = True,
+                 resolve_start_end_conflicts: bool = True,
+                 resolve_terminals_conflicts: bool = True):
         self.grammar = grammar
         self.layer_name = layer_name
         self.input_layer = layer_of_tokens
@@ -23,12 +30,17 @@ class GrammarParsingTagger(Tagger):
             self.output_nodes = set(grammar.start_symbols)
         else:
             self.output_nodes = set(output_nodes)
-        self.resolve_conflicts = resolve_conflicts
-        self.configuration['resolve_conflicts'] = self.resolve_conflicts
+        self.resolve_support_conflicts = resolve_support_conflicts
+        self.resolve_start_end_conflicts = resolve_start_end_conflicts
+        self.resolve_terminals_conflicts = resolve_terminals_conflicts
 
     def _make_layer(self, text, layers):
         graph = layer_to_graph(layers[self.input_layer])
-        graph = parse_graph(graph, self.grammar, resolve_conflicts=self.resolve_conflicts)
+        graph = parse_graph(graph,
+                            self.grammar,
+                            resolve_support_conflicts=self.resolve_support_conflicts,
+                            resolve_start_end_conflicts=self.resolve_start_end_conflicts,
+                            resolve_terminals_conflicts=self.resolve_terminals_conflicts)
 
         attributes = self.attributes
         layer = Layer(name=self.layer_name,
@@ -44,7 +56,7 @@ class GrammarParsingTagger(Tagger):
                 layer.add_span(span)
         return layer
 
-    def tag(self, text, return_layer=False):
+    def tag(self, text, return_layer=False, status={}):
         layer = self._make_layer(text.text, text.layers)
         assert isinstance(layer, Layer), '_make_layer must return a Layer instance'
         if return_layer:
