@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Sequence
+from typing import Sequence, Union
 import networkx as nx
 import matplotlib.pyplot as plt
 import pandas
@@ -11,32 +11,26 @@ from estnltk.layer_operations.consecutive import iterate_ending_spans
 
 
 class Node:
-    def __init__(self, name: str, start: int, end: int, attributes: dict=None):
+    def __init__(self, name: str, start: Union[int, float], end: Union[int, float]):
         self.name = name
+        assert start <= end
         self.start = start
         self.end = end
-        self.attributes = attributes
-        if attributes is None:
-            self.attributes = {}
-
-    def __getitem__(self, item):
-        return self.attributes[item]
-
-    def __setitem__(self, key, value):
-        self.attributes[key] = value
-
-    def __iter__(self):
-        yield from self.attributes
 
     def __lt__(self, other):
-        if hasattr(other, 'start') and hasattr(other, 'end'):
-            return (self.start, self.end) < (other.start, other.end)
+        if isinstance(other, Node):
+            return (self.start, self.end, self.name) < (other.start, other.end, other.name)
         raise TypeError('unorderable types')
 
     def __gt__(self, other):
-        if hasattr(other, 'start') and hasattr(other, 'end'):
-            return (self.start, self.end) > (other.start, other.end)
+        if isinstance(other, Node):
+            return (self.start, self.end, self.name) > (other.start, other.end, other.name)
         raise TypeError('unorderable types')
+
+    def __eq__(self, other):
+        if isinstance(other, Node):
+            return (self.start, self.end, self.name) == (other.start, other.end, other.name)
+        return False
 
     def print(self):
         print(self.__class__.__name__)
@@ -61,7 +55,7 @@ class Node:
         return str(self)
 
     def to_html(self):
-        keys = ['name', 'start', 'end', 'attributes']
+        keys = ['name', 'start', 'end']
         data = [{key: getattr(self, key) for key in keys}]
         df = pandas.DataFrame(data=data, columns=keys)
         table = df.to_html(index=False, escape=False)
@@ -73,10 +67,10 @@ class Node:
         if isinstance(self, (NonTerminalNode, PlusNode)):
             support = []
             result.append('<h5>Support</h5>\n')
-            for n in self._support_:
+            for n in self.support:
                 support.append(n.__dict__)
                 support[-1]['node type'] = n.__class__.__name__
-            support = pandas.DataFrame(data=support, columns=['node type', 'name', 'start', 'end', 'attributes'])
+            support = pandas.DataFrame(data=support, columns=['node type', 'name', 'start', 'end'])
             support = support.to_html(index=False, escape=False)
             result.append(support)
         return ''.join(result)
@@ -88,102 +82,135 @@ class PhonyNode(Node):
 
     def __eq__(self, other):
         return isinstance(other, PhonyNode) and self.name == other.name and\
-               self.start == other.start and self.end==other.end
+               self.start == other.start and self.end == other.end
 
 
 START_NODE = PhonyNode('START', float('-inf'), float('-inf'))
 END_NODE = PhonyNode('END', float('inf'), float('inf'))
 
 
+class SpanNode(Node):
+    def __init__(self, span):
+        self.span = span
+        super().__init__(span.text, span.start, span.end)
+
+    def __hash__(self):
+        return hash((self.name, self.start, self.end, self.span))
+
+
 class GrammarNode(Node):
-    def __init__(self, name, support, text_spans, terminals, group=None, priority=0):
-        start = text_spans[0][0]
-        end = text_spans[-1][1]
-        self._support_ = support  # tuple(support) ?
-        self.text_spans = text_spans
-        self._terminals_ = terminals
-        self._group_ = group
+    def __init__(self, name, support, attributes: dict=None, group=None, priority=0, score=0):
+        self.name = name
+        self.support = tuple(support)
+        assert all(isinstance(n, GrammarNode) for n in self.support)
+        if isinstance(self, TerminalNode):
+            self.terminals = (self,)
+        else:
+            self.terminals = tuple(t for n in self.support for t in n.terminals)
+        assert all(isinstance(n, TerminalNode) for n in self.terminals)
+        assert self.terminals == tuple(sorted(self.terminals)), 'support not sorted'
+        start = self.terminals[0].start
+        end = self.terminals[-1].end
         if group is None:
-            self._group_ = hash((name, self._support_, self.text_spans))
-        self._priority_ = priority
+            self.group = hash((name, self.support))
+        else:
+            self.group = group
+        if attributes is None:
+            self.attributes = {}
+        else:
+            self.attributes = attributes
+        self.priority = priority
+        self.score = score
+
         super().__init__(name, start, end)
+
+    def __getitem__(self, item):
+        return self.attributes[item]
+
+    def __setitem__(self, key, value):
+        self.attributes[key] = value
 
     def __eq__(self, other):
         if isinstance(other, GrammarNode):
-            return self.name == other.name and self._support_ == other._support_
+            return self.name == other.name and self.support == other.support
         return False
 
     def __hash__(self):
-        return hash((self.name, self._support_, self.text_spans))
+        return hash((self.name, self.support))
 
 
 class TerminalNode(GrammarNode):
-    def __init__(self, span: Span, name_attribute: str, attributes=None):
-        name = getattr(span, name_attribute)
-        text_spans = ((span.start, span.end),)
+    def __init__(self, name, span: Span, attributes=None):
+        self.span = span
+        self.start = span.start
+        self.end = span.end
         self.text = span.text
-        if not attributes:
+        super().__init__(name, (self,))
+        if attributes is None:
             attributes = span.layer.attributes
         for attr in attributes:
-            setattr(self, attr, getattr(span, attr))
+            self.attributes[attr] = getattr(span, attr)
 
-        super().__init__(name, span, text_spans, (self,))
+    def __hash__(self):
+        return hash((self.name, self.span))
+
+    def __eq__(self, other):
+        if isinstance(other, TerminalNode):
+            return self.name == other.name and self.span == other.span
+        return False
 
 
 class NonTerminalNode(GrammarNode):
     def __init__(self, rule, support: Sequence[GrammarNode]):
-        text_spans = tuple(sorted(s for n in support for s in n.text_spans))
-        terminals = tuple(sorted(t for n in support for t in n._terminals_))
-        super().__init__(rule.lhs, support, text_spans, terminals, rule.group, rule.priority)
+        score = rule.scoring(support)
+        super().__init__(rule.lhs, support, group=rule.group, priority=rule.priority, score=score)
 
 
 class PlusNode(GrammarNode):
     def __init__(self, rule, support: Sequence[GrammarNode]):
-        text_spans = tuple(sorted(s for n in support for s in n.text_spans))
-        terminals = tuple(sorted(t for n in support for t in n._terminals_))
         new_support = []
         # maybe too general, but let it be
         for node in support:
             if isinstance(node, PlusNode):
-                new_support.extend(node._support_)
+                new_support.extend(node.support)
             else:
                 new_support.append(node)
         new_support = tuple(new_support)
-        super().__init__(rule.lhs, new_support, text_spans, terminals, rule.group, rule.priority)
+        super().__init__(rule.lhs, new_support, group=rule.group, priority=rule.priority)
 
 
 class LayerGraph(nx.DiGraph):
     def __init__(self, **attr):
-        self.map_spans_to_nodes = defaultdict(list)
+        self.map_start_end_to_nodes = defaultdict(list)
         self.parse_trees = nx.DiGraph()
         super().__init__(**attr)
 
-    def _update_spans_to_nodes_map(self, node):
-        if isinstance(node, GrammarNode) and node not in self.map_spans_to_nodes[node.text_spans]:
-            self.map_spans_to_nodes[node.text_spans].append(node)
+    def _update_start_end_to_nodes_map(self, node):
+        if isinstance(node, GrammarNode) and node not in self.map_start_end_to_nodes[(node.start, node.end)]:
+            self.map_start_end_to_nodes[(node.start, node.end)].append(node)
 
     def _update_parse_trees(self, node):
         if isinstance(node, (NonTerminalNode, PlusNode)):
-            for supp in node._support_:
+            for supp in node.support:
                 self.parse_trees.add_edge(node, supp)
         elif isinstance(node, TerminalNode):
-            self.parse_trees.add_edge(node, PhonyNode(str(node.text), node.start, node.end))
+            self.parse_trees.add_edge(node, SpanNode(node.span))
 
     def add_node(self, node, **attr):
+        if node in self:
+            return
         super().add_node(node, **attr)
-        self._update_spans_to_nodes_map(node)
+        self._update_start_end_to_nodes_map(node)
         self._update_parse_trees(node)
 
     def add_nodes_from(self, nodes, **attr):
-        super().add_nodes_from(nodes, **attr)
         for node in nodes:
-            self._update_spans_to_nodes_map(node)
-            self._update_parse_trees(node)
+            self.add_node(node, **attr)
 
     def add_edge(self, u, v, **attr):
         super().add_edge(u, v, **attr)
-        self._update_spans_to_nodes_map(u)
-        self._update_spans_to_nodes_map(v)
+        self._update_start_end_to_nodes_map(u)
+        self._update_start_end_to_nodes_map(v)
         self._update_parse_trees(u)
         self._update_parse_trees(v)
 
@@ -192,8 +219,8 @@ class LayerGraph(nx.DiGraph):
             ebunch = list(ebunch)
         super().add_edges_from(ebunch, **attr)
         for u, v, *_ in ebunch:
-            self._update_spans_to_nodes_map(u)
-            self._update_spans_to_nodes_map(v)
+            self._update_start_end_to_nodes_map(u)
+            self._update_start_end_to_nodes_map(v)
             self._update_parse_trees(u)
             self._update_parse_trees(v)
 
@@ -201,17 +228,20 @@ class LayerGraph(nx.DiGraph):
         nodes_to_remove = set(nodes)
         for n in nodes:
             nodes_to_remove.update(nx.ancestors(self.parse_trees, n))
+        for n in nodes_to_remove:
+            assert isinstance(n, NonTerminalNode), 'attempt to remove a non NonTerminalNode: ' + str(n)
+            self.map_start_end_to_nodes[(n.start, n.end)].remove(n)
         self.parse_trees.remove_nodes_from(nodes_to_remove)
         super().remove_nodes_from(nodes_to_remove)
 
     def _repr_html_(self):
         records = []
-        attributes = ['name', 'start', 'end', 'attributes']
+        attributes = ['name', 'start', 'end']
         for n in sorted(self.nodes):
             record = {a: str(getattr(n, a)) for a in attributes}
             record['node type'] = n.__class__.__name__
             records.append(record)
-        table = pandas.DataFrame(data=records, columns=['node type', 'name', 'start', 'end', 'attributes'])
+        table = pandas.DataFrame(data=records, columns=['node type', 'name', 'start', 'end'])
         html_table = table.to_html(index=False, escape=False)
 
         return '<h4>LayerGraph</h4>\n' + html_table
@@ -248,23 +278,10 @@ def get_paths(graph, node, source=None, target=None):
 
 
 def get_spans(node):
-    result = []
-
-    def _get_spans(node):
-        support = node._support_
-        if isinstance(support, Span):
-            result.append(support)
-        elif isinstance(support, SpanList):
-            result.extend(support)
-        else:
-            for supp in support:
-                _get_spans(supp)
-
-    _get_spans(node)
-    return result
+    return [t.span for t in node.terminals]
 
 
-def layer_to_graph(layer, attributes=None):
+def layer_to_graph(layer, name_attribute='grammar_symbol', attributes=None):
     if attributes is None:
         attributes = layer.attributes
     assert not attributes or set(attributes) <= set(layer.attributes)
@@ -273,11 +290,15 @@ def layer_to_graph(layer, attributes=None):
     spans = layer.spans
 
     for b in iterate_starting_spans(spans):
-        graph.add_edge(START_NODE, TerminalNode(b, 'grammar_symbol', attributes))
+        name = getattr(b, name_attribute)
+        graph.add_edge(START_NODE, TerminalNode(name, b, attributes))
     for a in iterate_ending_spans(spans):
-        graph.add_edge(TerminalNode(a, 'grammar_symbol', attributes), END_NODE)
+        name = getattr(a, name_attribute)
+        graph.add_edge(TerminalNode(name, a, attributes), END_NODE)
     for a, b in iterate_consecutive_spans(spans):
-        graph.add_edge(TerminalNode(a, 'grammar_symbol', attributes), TerminalNode(b, 'grammar_symbol', attributes))
+        name_a = getattr(a, name_attribute)
+        name_b = getattr(b, name_attribute)
+        graph.add_edge(TerminalNode(name_a, a, attributes), TerminalNode(name_b, b, attributes))
 
     if not spans:
         graph.add_edge(START_NODE, END_NODE)
@@ -286,7 +307,7 @@ def layer_to_graph(layer, attributes=None):
 
 
 def plot_graph(graph:LayerGraph, size=12, prog='dot'):
-    labels = {node:node.name for node in graph.nodes}
+    labels = {node: node.name for node in graph.nodes}
     pos = nx.drawing.nx_pydot.pydot_layout(graph, prog=prog)
     plt.figure(figsize=(size,size))
     nx.draw(graph, with_labels=True, labels=labels, node_color=[[1,.8,.8]], node_shape='s', node_size=500, pos=pos)
