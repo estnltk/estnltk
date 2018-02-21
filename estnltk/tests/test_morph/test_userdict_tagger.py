@@ -140,7 +140,7 @@ def test_userdict_tagger_complete_overwriting():
         [{'form': 'sg in', 'root': 'femoris', 'ending':'s', 'partofspeech': 'S', 'clitic':''}] )
     # Tag corrections
     userdict.tag(text)
-    print(text['morph_analysis'].to_records())
+    #print(text['morph_analysis'].to_records())
     expected_records = [ \
         [{'ending': '0', 'form': '', 'partofspeech': 'J', 'root_tokens': ('või',), 'end': 3, 'lemma': 'või', 'start': 0, 'clitic': '', 'root': 'või'}], \
         [{'end': 19, 'root_tokens': ('jämesoole', 'ling'), 'form': 'pl n', 'lemma': 'jämesooleling', 'root': 'jämesoole_ling', 'partofspeech': 'S', 'clitic': '', 'start': 4, 'ending': 'd'}], \
