@@ -1,11 +1,8 @@
 #
 #   Makes user-specified post-corrections to morphological analyses.
-#  Basically, rewrites automatic morphological analyses with user-
-#  specified ones.
+#  Basically, rewrites automatically produced morphological analyses 
+#  with user-specified ones.
 # 
-#  ( work in progress )
-
-import regex as re
 import copy
 import csv
 
@@ -36,7 +33,33 @@ class UserDictTagger(Tagger):
                  ignore_case:bool=False, \
                  validate_vm_categories:bool=True, \
                  autocorrect_root:bool=True ):
-        """
+        """ Initialize UserDictTagger class.
+
+        Parameters
+        ----------
+        layer_name: str (default: 'morph_analysis')
+            Name of the input / output layer.
+        
+        ignore_case: bool (default: False)
+            If True, then case will be ignored when matching words in the text
+            with words in the dictionary. Basically, all words added to the 
+            dictionary will be converted to lowercase, and words in text will also 
+            be converted to lowercase before the dictionary lookup;
+        
+        validate_vm_categories: bool (default: True)
+            If True, then each analysis is checked for validity of partofspeech
+            and form categories. Note that validation only checks if the respective 
+            category values are valid category values for Vabamorf. But it does not
+            check that the category values are also correctly combined (e.g. 
+            partofspeech and form have been correctly combined);
+        
+        autocorrect_root: bool (default: True)
+            If True, then dictionary entries for 'root_tokens' and 'lemma' will 
+            be automatically generated and replaced, iff entries for 'root' and 
+            'partofspeech' are given by the user. Note: this requires that when-
+            ever 'root' has been specified by the user, 'partofspeech' must also 
+            be specified (otherwise 'lemma' cannot be generated);
+
         """
         self.layer_name    = layer_name
         self.configuration = {'ignore_case':ignore_case,\
@@ -48,9 +71,59 @@ class UserDictTagger(Tagger):
 
 
     def add_word(self, word, analysis_struct):
-        """
-            Note: if the user dictionary already contains morphological analysis 
-                  for the current word, then it will be overwritten;
+        """ Adds a word and its new morphological analysis to the user 
+            dictionary.
+            
+            Note: if the user dictionary already contains entry for the word,
+                  then the old entry will be overwritten with the new one;
+                  
+            Partial overwriting
+            --------------------
+            If  analysis_struct  is a dict, then its content will be used for 
+            partial overwriting of the analysis in text: fields present in the 
+            dict will be overwritten, and fields not present in the dict will 
+            remain as they are.
+            For instance, you can specify that only 'partofspeech' will be 
+            changed, and other fields will remain as they are.
+            The minimum requirement for the partial overwriting dict: it must 
+            specify only one of the fields: 'root', 'ending', 'clitic', 'form', 
+            'partofspeech';
+            
+            Complete overwriting
+            --------------------
+            If  analysis_struct  is a list, then its content will be used for 
+            complete overwriting: word's analyses in the text will be completely
+            replaced with the content of the list.
+            Therefore, the list must contain at least one analysis dict (in case 
+            of unambiguous word), or several dicts (in case of ambiguous word).
+            Each dict must contain fields  'root', 'ending', 'clitic', 'form', 
+            'partofspeech';
+            
+            Note: you should not specify manually 'root_tokens' and 'lemma', but 
+            instead specify correct values for 'root', 'ending', and 'partofspeech', 
+            and let the automagic to do the work (the flag 'autocorrect_root' must 
+            be set for the automatic to happen!).
+            
+            Note: if validate_vm_categories is set, then partofspeech and form
+            category names will be validated before accepting the entry (an 
+            AssertionError will be thrown is validation fails).
+            
+        Parameters
+        ----------
+        word: str
+            Word which entry is to be added to the user dictionary.
+            If ignore_case is set, it will be converted to lowercase.
+        
+        analysis_struct: dict or list
+            If analysis_struct is a dict, then it must contain at least one 
+            of the keys 'root', 'ending', 'clitic', 'form', 'partofspeech',
+            and the word's analyses in the text will be partially overwritten
+            with the keys-values in the dict.
+            If analysis_struct is a list (of dicts), then each of its dicts must 
+            contain keys 'root', 'ending', 'clitic', 'form', 'partofspeech',
+            and the word's analyses in the text will be completely overwritten
+            with the dicts in the list.
+
         """
         assert isinstance(word, str)
         assert isinstance(analysis_struct, (dict, list))
@@ -128,8 +201,56 @@ class UserDictTagger(Tagger):
 
     def add_words_from_csv_file(self, filename, encoding='utf-8', \
                                 dialect='excel-tab', **fmtparams):
-        '''
-            Note: any words that are already in the user dictionary will be overwritten;
+        ''' Loads words with their morphological analyses from the given 
+            csv file, and saves to the user dictionary.
+            
+            Note: any words already having entries in the user dictionary 
+                  will have their old entries overwritten with the new 
+                  ones;
+            
+            By default, assumes that csv file is in tab-separated-values 
+            format (dialect='excel-tab') and in the encoding 'utf-8'.
+            You can change the encoding via parameter encoding. And you
+            can also provide other custom parameters ( from the parameters 
+            listed in: 
+            https://docs.python.org/3/library/csv.html#csv-fmt-params )
+            if your input csv file has some other format.
+            
+            It is required that the first line of the file is the header,
+            and uses the heading names 'root', 'ending', 'clitic', 'form', 
+            'partofspeech', 'text'. This is required to determine in which 
+            order the data needs to be loaded from the file.
+            Each line following the heading specifies a single analysis for
+            a word. The word itself must be under the column 'text'.
+            Note that there can also be multiple lines for a single word:
+            these are considered as different analysis variants of an 
+            ambiguous word.
+            
+            Note: after analyses have been collected from the file, they
+            will be inserted to the dictionary via the method add_word().
+            
+        Parameters
+        ----------
+        filename: str
+            Path to the csv file which contains entries. The first line of 
+            the file must specify order of fields 'root', 'ending', 'clitic', 
+            'form', 'partofspeech', 'text'. Each line following the heading 
+            must specify a single analysis for a word. The word itself must 
+            be under the column 'text'.
+        
+        encoding: str (Default: 'utf-8')
+            Encoding of the csv file.
+        
+        dialect: str (Default: 'excel-tab')
+            Parameter dialect to be passed to the function csv.reader().
+            See https://docs.python.org/3/library/csv.html#csv.reader
+            for details.
+
+        fmtparams: 
+            Optional keyword arguments to be passed to the function 
+            csv.reader().
+            See https://docs.python.org/3/library/csv.html#csv.reader
+            for details.
         '''
         collected_analyses = {}
         with open(filename, 'r', newline='', encoding=encoding) as csvfile:
@@ -170,7 +291,36 @@ class UserDictTagger(Tagger):
 
 
     def tag(self, text: Text, return_layer=False) -> Text:
-        """
+        """Provides dictionary-based corrections on morphological 
+        analyses of given Text object.
+        More technically: rewrites the layer 'morph_analysis' 
+        by replacing existing analyses with analyses from the 
+        user dictionary. Dictionary lookup is made via word texts:
+        word which text matches a word in dictionary will have 
+        its analyses overwritten. If ignore_case is switched on,
+        then the lookup is also case-insensitive.
+        
+        Parameters
+        ----------
+        text: estnltk.text.Text
+            Text object on which morphological analyses are to be
+            corrected.
+            The Text object must have layers 'morph_analysis' and 
+            'words'.
+        return_layer: boolean (default: False)
+            If True, then the corrected 'morph_analysis' will be 
+            returned. Note: the returned layer will still belong 
+            to the input text.
+            Otherwise, the Text object with the corrected layer 
+            is returned;
+
+        Returns
+        -------
+        Text or Layer
+            If return_layer==True, then returns the corrected 
+            'morph_analysis' layer (which still belongs to the
+            Text object); otherwise returns the Text containing
+            the corrected layer;
         """
         # Take attributes from the input layer
         current_attributes = text[self.layer_name].attributes
@@ -265,7 +415,22 @@ class UserDictTagger(Tagger):
 
 
     def validate_morph_record_for_vm_categories(self, morph_dict):
-        """
+        """Validates given dictionary containing single morphological 
+        analysis for correctness of Vabamorf's categories. 
+        Note that validation only checks if the respective category 
+        values are valid category values for Vabamorf, e.g. checks that 
+        partofspeech does not have illegal value 'W'. 
+        But the validation does not check that the category values are 
+        also correctly combined (e.g. partofspeech and form have been 
+        correctly combined).
+        Validation is made via assertions, so an AssertionError will 
+        be thrown if one of the validations fails.
+        
+        Parameters
+        ----------
+        morph_dict: dict
+            Dict object with morphological analyses of a word. Should 
+            contain keys 'partofspeech' and 'form'.
         """
         assert isinstance(morph_dict, dict)
         for key, val in morph_dict.items():
@@ -279,5 +444,6 @@ class UserDictTagger(Tagger):
                     for v in vals:
                         assert v in VABAMORF_NOUN_FORMS or v in VABAMORF_VERB_FORMS, \
                         "(!) Unexpected 'form':'"+str(val)+"'. "+\
-                        "Proper values should be from the following: "+str(VABAMORF_NOUN_FORMS+VABAMORF_VERB_FORMS)
+                        "Proper values should be from the following: "+\
+                             str( VABAMORF_NOUN_FORMS + VABAMORF_VERB_FORMS )
 
