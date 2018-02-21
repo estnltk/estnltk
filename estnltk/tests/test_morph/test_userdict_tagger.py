@@ -147,7 +147,8 @@ def test_userdict_tagger_complete_overwriting():
     expected_records = [ \
         [{'ending': '0', 'form': '', 'partofspeech': 'J', 'root_tokens': ('või',), 'end': 3, 'lemma': 'või', 'start': 0, 'clitic': '', 'root': 'või'}], \
         [{'end': 19, 'root_tokens': ('jämesoole', 'ling'), 'form': 'pl n', 'lemma': 'jämesooleling', 'root': 'jämesoole_ling', 'partofspeech': 'S', 'clitic': '', 'start': 4, 'ending': 'd'}], \
-        [{'ending': 's', 'form': 'sg in', 'partofspeech': 'S', 'root_tokens': ('femoris',), 'end': 29, 'lemma': 'femoris', 'start': 20, 'clitic': '', 'root': 'femoris'}], [{'ending': '', 'form': '', 'partofspeech': 'Z', 'root_tokens': ('?',), 'end': 30, 'lemma': '?', 'start': 29, 'clitic': '', 'root': '?'}] \
+        [{'ending': 's', 'form': 'sg in', 'partofspeech': 'S', 'root_tokens': ('femoris',), 'end': 29, 'lemma': 'femoris', 'start': 20, 'clitic': '', 'root': 'femoris'}], \
+        [{'ending': '', 'form': '', 'partofspeech': 'Z', 'root_tokens': ('?',), 'end': 30, 'lemma': '?', 'start': 29, 'clitic': '', 'root': '?'}] \
     ]
     #print(text['morph_analysis'].to_records())
     # Sort analyses (so that the order within a word is always the same)
