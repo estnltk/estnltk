@@ -7,6 +7,7 @@
 
 import regex as re
 import copy
+import csv
 
 from estnltk.text import Span, Layer, Text
 from estnltk.taggers import Tagger
@@ -48,9 +49,14 @@ class UserDictTagger(Tagger):
 
     def add(self, word, analysis_struct):
         """
+            Note: if the user dictionary already contains morphological analysis 
+                  for the current word, then it will be overwritten;
         """
         assert isinstance(word, str)
         assert isinstance(analysis_struct, (dict, list))
+        # Ignore case (if required)
+        if self.configuration['ignore_case']:
+            word = word.lower()
         if isinstance(analysis_struct, dict):
             # validate attributes & attribute names
             assert len(analysis_struct.keys()) > 0
@@ -117,6 +123,49 @@ class UserDictTagger(Tagger):
             # Overwrite analyses: delete all existing analyses,
             # and add new analyses from the dict
             self._dict[word]['merge'] = False
+
+
+
+    def add_words_from_csv_file(self, filename, encoding='utf-8', \
+                                dialect='excel-tab', **fmtparams):
+        '''
+            Note: any words that are already in the user dictionary will be overwritten;
+        '''
+        collected_analyses = {}
+        with open(filename, 'r', newline='', encoding=encoding) as csvfile:
+            fle_reader = csv.reader(csvfile, dialect=dialect, **fmtparams)
+            header = next(fle_reader)
+            # Validate that header specifies all the required attribute names
+            missing = []
+            for attr in VABAMORF_ATTRIBUTES + ('text',):
+                if attr not in header:
+                    missing.append(attr)
+            assert not missing, \
+                '(!) CSV file header misses the following key(s): '+str(missing)
+            # Parse csv file
+            # Collect and aggregate analyses
+            for row in fle_reader:
+                assert len(row) == len(header)
+                analysis_dict = {}
+                word_text = None
+                for kid, key in enumerate(header):
+                    if key != 'text':
+                        analysis_dict[key] = row[kid]
+                    else:
+                        word_text = row[kid]
+                assert word_text, \
+                    "'(!) Key 'text' not specified in line: "+str(row)
+                # Ignore case (if required)
+                if self.configuration['ignore_case']:
+                    word_text = word_text.lower()
+                # Add new analysis to the dict
+                if word_text not in collected_analyses:
+                    collected_analyses[word_text] = []
+                collected_analyses[word_text].append(analysis_dict)
+                #print(', '.join(row))
+        # Rewrite all analyses into the user dict
+        for word in collected_analyses.keys():
+            self.add( word, collected_analyses[word] )
 
 
 

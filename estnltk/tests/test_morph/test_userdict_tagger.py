@@ -1,5 +1,8 @@
 from estnltk.taggers.morph.userdict_tagger import UserDictTagger
 from estnltk import Text
+from estnltk.core import PACKAGE_PATH
+
+import os.path
 
 # ----------------------------------
 #   Helper functions
@@ -145,6 +148,38 @@ def test_userdict_tagger_complete_overwriting():
         [{'ending': '0', 'form': '', 'partofspeech': 'J', 'root_tokens': ('või',), 'end': 3, 'lemma': 'või', 'start': 0, 'clitic': '', 'root': 'või'}], \
         [{'end': 19, 'root_tokens': ('jämesoole', 'ling'), 'form': 'pl n', 'lemma': 'jämesooleling', 'root': 'jämesoole_ling', 'partofspeech': 'S', 'clitic': '', 'start': 4, 'ending': 'd'}], \
         [{'ending': 's', 'form': 'sg in', 'partofspeech': 'S', 'root_tokens': ('femoris',), 'end': 29, 'lemma': 'femoris', 'start': 20, 'clitic': '', 'root': 'femoris'}], [{'ending': '', 'form': '', 'partofspeech': 'Z', 'root_tokens': ('?',), 'end': 30, 'lemma': '?', 'start': 29, 'clitic': '', 'root': '?'}] \
+    ]
+    #print(text['morph_analysis'].to_records())
+    # Sort analyses (so that the order within a word is always the same)
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results
+    assert expected_records == results_dict
+
+
+def test_userdict_tagger_dict_from_csv_file():
+    # Tests complete overwriting of all analyses of a word
+    # Construct path to testing csv file
+    csv_dict_path = \
+        os.path.join(PACKAGE_PATH, 'tests', 'test_morph', 'test_userdict.csv')
+    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
+    # Load completely new analyses (from csv file )
+    userdict.add_words_from_csv_file( csv_dict_path , delimiter=',')
+    
+    # Case 1
+    text = Text("Ah, jälle jämesoolelingud femorises ...")
+    # Tag required layers
+    text.tag_layer(['words', 'sentences', 'morph_analysis'])
+    # Tag corrections
+    userdict.tag(text)
+    expected_records = [ \
+        [{'lemma': 'ah', 'root': 'ah', 'end': 2, 'clitic': '', 'ending': '0', 'start': 0, 'form': '', 'partofspeech': 'I', 'root_tokens': ('ah',)}], \
+        [{'lemma': ',', 'root': ',', 'end': 3, 'clitic': '', 'ending': '', 'start': 2, 'form': '', 'partofspeech': 'Z', 'root_tokens': (',',)}], \
+        [{'lemma': 'jälle', 'root': 'jälle', 'end': 9, 'clitic': '', 'ending': '0', 'start': 4, 'form': '', 'partofspeech': 'D', 'root_tokens': ('jälle',)}], \
+        [{'lemma': 'jämesooleling', 'root': 'jämesoole_ling', 'end': 25, 'clitic': '', 'ending': 'd', 'start': 10, 'form': 'pl n', 'partofspeech': 'S', 'root_tokens': ('jämesoole', 'ling')}], \
+        [{'lemma': 'femoris', 'root': 'femoris', 'end': 35, 'clitic': '', 'ending': 's', 'start': 26, 'form': 'sg in', 'partofspeech': 'S', 'root_tokens': ('femoris',)}], \
+        [{'lemma': '...', 'root': '...', 'end': 39, 'clitic': '', 'ending': '', 'start': 36, 'form': '', 'partofspeech': 'Z', 'root_tokens': ('...',)}] \
     ]
     #print(text['morph_analysis'].to_records())
     # Sort analyses (so that the order within a word is always the same)
