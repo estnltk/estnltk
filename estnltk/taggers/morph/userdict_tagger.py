@@ -47,7 +47,7 @@ class UserDictTagger(Tagger):
 
 
 
-    def add(self, word, analysis_struct):
+    def add_word(self, word, analysis_struct):
         """
             Note: if the user dictionary already contains morphological analysis 
                   for the current word, then it will be overwritten;
@@ -165,7 +165,7 @@ class UserDictTagger(Tagger):
                 #print(', '.join(row))
         # Rewrite all analyses into the user dict
         for word in collected_analyses.keys():
-            self.add( word, collected_analyses[word] )
+            self.add_word( word, collected_analyses[word] )
 
 
 

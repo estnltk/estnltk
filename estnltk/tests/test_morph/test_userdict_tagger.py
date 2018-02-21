@@ -31,7 +31,7 @@ def test_userdict_tagger_partial_corrections():
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
     userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
     # Add analysis of a single word
-    userdict.add('kopsujoonis', {'form': 'sg n', 'root': 'kopsu_joonis', 'ending':'0', 'partofspeech': 'S'} )
+    userdict.add_word('kopsujoonis', {'form': 'sg n', 'root': 'kopsu_joonis', 'ending':'0', 'partofspeech': 'S'} )
     # Tag corrections
     userdict.tag(text)
     expected_records = [ \
@@ -55,7 +55,7 @@ def test_userdict_tagger_partial_corrections():
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
     userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
     # Add analysis of a single word
-    userdict.add('femorises', {'form': 'sg in', 'root': 'femoris', 'ending':'s', 'partofspeech': 'S'} )
+    userdict.add_word('femorises', {'form': 'sg in', 'root': 'femoris', 'ending':'s', 'partofspeech': 'S'} )
     # Tag corrections
     userdict.tag(text)
     expected_records = [ \
@@ -77,11 +77,11 @@ def test_userdict_tagger_partial_corrections():
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
     userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
     # Add partial corrections for words
-    userdict.add('pneumofibroosi', \
+    userdict.add_word('pneumofibroosi', \
         {'form': 'sg g', 'root': 'pneumofibroos', 'ending':'0', 'partofspeech': 'S'} )
-    userdict.add('unkovertebraalartroosist', \
+    userdict.add_word('unkovertebraalartroosist', \
         {'form': 'sg el', 'root': 'unkovertebraalartroos', 'ending':'st', 'partofspeech': 'S'} )
-    userdict.add('duodenumisse', \
+    userdict.add_word('duodenumisse', \
         {'form': 'sg ill', 'root': 'duodenum', 'ending':'sse', 'partofspeech': 'S'} )
     # Tag corrections
     userdict.tag(text)
@@ -110,7 +110,7 @@ def test_userdict_tagger_complete_overwriting():
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
     userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
     # Add completely new analyses for a single word
-    userdict.add('kopsujoonis', \
+    userdict.add_word('kopsujoonis', \
         [{'form': 'sg n', 'root': 'kopsu_joonis', 'ending':'0', 'partofspeech': 'S', 'clitic':''},\
          {'form': 'pl in', 'root': 'kopsu_joon',  'ending':'is', 'partofspeech': 'S', 'clitic':''}] )
     # Tag corrections
@@ -137,9 +137,9 @@ def test_userdict_tagger_complete_overwriting():
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
     userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
     # Add completely new analyses that should overwrite old analyses
-    userdict.add('jämesoolelingud', \
+    userdict.add_word('jämesoolelingud', \
         [{'form': 'pl n', 'root': 'jämesoole_ling', 'ending':'d', 'partofspeech': 'S', 'clitic':''}] )
-    userdict.add('femorises', \
+    userdict.add_word('femorises', \
         [{'form': 'sg in', 'root': 'femoris', 'ending':'s', 'partofspeech': 'S', 'clitic':''}] )
     # Tag corrections
     userdict.tag(text)
