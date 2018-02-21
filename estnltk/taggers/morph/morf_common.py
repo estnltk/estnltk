@@ -3,7 +3,14 @@
 #  using Vabamorf-based morphological processing.
 # 
 
+import operator
+from functools import reduce
+
 from estnltk.text import Span
+
+from estnltk.vabamorf.morf import get_group_tokens
+from estnltk.vabamorf.morf import get_lemma
+from estnltk.vabamorf.morf import get_root
 
 # Default parameters to be passed to Vabamorf
 # Note: these defaults are from  estnltk.vabamorf.morf
@@ -160,3 +167,41 @@ def _convert_vm_dict_to_morph_analysis_spans( vm_dict, word, \
         spans.append(span)
     return spans
 
+
+def _postprocess_root( root:str, partofspeech:str, \
+                       trim_phonetic:bool=DEFAULT_PARAM_PHONETIC, \
+                       trim_compound:bool=DEFAULT_PARAM_COMPOUND ):
+    ''' Converts root string from Vabamorf's format to EstNLTK's format:
+         1) trims phonetic and compound info from the root (if required);
+         2) generates list of root tokens;
+         3) generates root lemma;
+        Basically performs all the processing steps that are performed in
+        the postprocess_analysis() method:
+          https://github.com/estnltk/estnltk/blob/1.4.1.1/estnltk/vabamorf/morf.py#L311
+          
+        Returns tuple: (root, root_tokens, lemma).
+    '''
+    # extract tokens, construct lemma and 
+    # reconstruct root
+    grouptoks   = get_group_tokens(root)
+    root_tokens = reduce(operator.add, grouptoks)
+    lemma = get_lemma(grouptoks, partofspeech)
+    root  = get_root(root, trim_phonetic, trim_compound)
+    return root, root_tokens, lemma
+
+
+# Pos tags used by Vabamorf
+VABAMORF_POSTAGS = \
+    ['A', 'C', 'D', 'G', 'H', 'I', 'J', 'K', 'N', 'O', 'P', 'S', 'U', 'V', 'X', 'Y', 'Z']
+
+# Noun form categories used by Vabamorf
+VABAMORF_NOUN_FORMS = \
+    ['ab', 'abl', 'ad', 'adt', 'all', 'el', 'es', 'g', 'ill', 'in', 'kom', 'n', 'p', 'pl', 'sg', 'ter', 'tr']
+
+# Verb form categories used by Vabamorf
+VABAMORF_VERB_FORMS = \
+    ['b', 'd', 'da', 'des', 'ge', 'gem', 'gu', 'ks', 'ksid', 'ksime', 'ksin', 'ksite', 'ma', 'maks', 'mas', \
+     'mast', 'mata', 'me', 'n', 'neg', 'neg ge', 'neg gem', 'neg gu', 'neg ks', 'neg me', 'neg nud', 'neg nuks', \
+     'neg o', 'neg vat', 'neg tud', 'nud', 'nuks', 'nuksid', 'nuksime', 'nuksin', 'nuksite', 'nuvat', 'o', \
+     's', 'sid', 'sime', 'sin', 'site', 'ta', 'tagu', 'taks', 'takse', 'tama', 'tav', 'tavat', 'te', 'ti', \
+     'tud', 'tuks', 'tuvat', 'v', 'vad', 'vat' ]
