@@ -202,7 +202,7 @@ class UserDictTagger(Tagger):
     def add_words_from_csv_file(self, filename, encoding='utf-8', \
                                 dialect='excel-tab', **fmtparams):
         ''' Loads words with their morphological analyses from the given 
-            csv file, and saves to the user dictionary.
+            csv file, and inserts to the user dictionary.
             
             Note: any words already having entries in the user dictionary 
                   will have their old entries overwritten with the new 
@@ -377,16 +377,15 @@ class UserDictTagger(Tagger):
                 for rec in records:
                     new_morph_span = Span(parent=word_span)
                     # Carry over attributes
-                    for attr in rec.keys():
+                    for attr in current_attributes:
                         if attr in ['start', 'end', 'text', 'word_normal']:
                             continue
-                        if attr not in current_attributes:
-                            continue
+                        attr_value = rec[attr] if attr in rec else None
                         if attr == 'root_tokens':
                             # make it hashable for Span.__hash__
-                            setattr(new_morph_span, attr, tuple(rec[attr]))
+                            setattr(new_morph_span, attr, tuple(attr_value))
                         else:
-                            setattr(new_morph_span, attr, rec[attr])
+                            setattr(new_morph_span, attr, attr_value)
                     # Record the new span
                     new_morph_layer.add_span( new_morph_span )
                     new_morph_spans_added = True
