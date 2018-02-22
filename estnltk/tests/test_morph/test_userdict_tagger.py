@@ -1,6 +1,9 @@
-from estnltk.taggers.morph.userdict_tagger import UserDictTagger
 from estnltk import Text
 from estnltk.core import PACKAGE_PATH
+
+from estnltk.taggers import VabamorfTagger
+from estnltk.taggers.morph.userdict_tagger import UserDictTagger
+
 
 import os.path
 
@@ -189,3 +192,42 @@ def test_userdict_tagger_dict_from_csv_file():
     _sort_morph_analysis_records( expected_records )
     # Check results
     assert expected_records == results_dict
+
+
+
+def test_userdict_tagger_post_analysis():
+    # Tests that userdict_tagger can be applied after morph analysis and before disambiguation
+    morph_analyser = VabamorfTagger( disambiguate=False, guess=False, propername=False )
+    
+    # Case 1
+    text = Text("Ma tahax minna järve ääde")
+    # Tag required layers
+    text.tag_layer(['words', 'sentences'])
+    # Analyse morphology (without guessing, propernames and disambiguation)
+    morph_analyser.tag(text)
+    # Create user dict tagger
+    userdict = UserDictTagger(ignore_case=True, autocorrect_root=True)
+    csv_dict_path = \
+        os.path.join(PACKAGE_PATH, 'tests', 'test_morph', 'test_userdict.csv')
+    # Load completely new analyses (from csv file)
+    userdict.add_words_from_csv_file(csv_dict_path , delimiter=',')
+    # Tag corrections
+    userdict.tag(text)
+    #print( text['morph_analysis'].to_records() )
+    expected_records = [ \
+        [{'root_tokens': ('mina',), 'start': 0, 'ending': '0', '_ignore': False, 'end': 2, 'clitic': '', 'partofspeech': 'P', 'root': 'mina', 'form': 'sg n', 'lemma': 'mina'}], \
+        [{'root_tokens': ('taht',), 'start': 3, 'ending': 'ks', '_ignore': None, 'end': 8, 'clitic': '', 'partofspeech': 'V', 'root': 'taht', 'form': 'ks', 'lemma': 'tahtma'}], \
+        [{'root_tokens': ('mine',), 'start': 9, 'ending': 'a', '_ignore': False, 'end': 14, 'clitic': '', 'partofspeech': 'V', 'root': 'mine', 'form': 'da', 'lemma': 'minema'}], \
+        [{'root_tokens': ('järv',), 'start': 15, 'ending': '0', '_ignore': False, 'end': 20, 'clitic': '', 'partofspeech': 'S', 'root': 'järv', 'form': 'adt', 'lemma': 'järv'}, \
+         {'root_tokens': ('järv',), 'start': 15, 'ending': '0', '_ignore': False, 'end': 20, 'clitic': '', 'partofspeech': 'S', 'root': 'järv', 'form': 'sg g', 'lemma': 'järv'}, \
+         {'root_tokens': ('järv',), 'start': 15, 'ending': '0', '_ignore': False, 'end': 20, 'clitic': '', 'partofspeech': 'S', 'root': 'järv', 'form': 'sg p', 'lemma': 'järv'}], \
+        [{'root_tokens': ('äärde',), 'start': 21, 'ending': '0', '_ignore': None, 'end': 25, 'clitic': '', 'partofspeech': 'K', 'root': 'äärde', 'form': '', 'lemma': 'äärde'}, \
+         {'root_tokens': ('äär',), 'start': 21, 'ending': 'de', '_ignore': None, 'end': 25, 'clitic': '', 'partofspeech': 'S', 'root': 'äär', 'form': 'adt', 'lemma': 'äär'}] \
+    ]
+    # Sort analyses (so that the order within a word is always the same)
+    results_dict = text['morph_analysis'].to_records()
+    _sort_morph_analysis_records( results_dict )
+    _sort_morph_analysis_records( expected_records )
+    # Check results
+    assert expected_records == results_dict
+
