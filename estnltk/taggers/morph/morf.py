@@ -167,6 +167,7 @@ class VabamorfTagger(Tagger):
         # Return layer
         if return_layer:
             delattr(text, self.layer_name) # Remove layer from the text
+            morph_layer._bound = False
             return morph_layer
         # Layer is already attached to the text, return it
         return text
