@@ -15,6 +15,7 @@ class GrammarParsingTagger(Tagger):
     def __init__(self,
                  grammar,
                  layer_of_tokens,
+                 name_attribute='grammar_symbol',
                  layer_name='parse',
                  attributes=(),
                  output_nodes=None,
@@ -23,6 +24,7 @@ class GrammarParsingTagger(Tagger):
                  resolve_terminals_conflicts: bool = True):
         self.grammar = grammar
         self.layer_name = layer_name
+        self.name_attribute = name_attribute
         self.input_layer = layer_of_tokens
         self.attributes = attributes
         self.depends_on = [layer_of_tokens]
@@ -35,7 +37,8 @@ class GrammarParsingTagger(Tagger):
         self.resolve_terminals_conflicts = resolve_terminals_conflicts
 
     def _make_layer(self, text, layers):
-        graph = layer_to_graph(layers[self.input_layer])
+        graph = layer_to_graph(layers[self.input_layer],
+                               name_attribute=self.name_attribute)
         graph = parse_graph(graph,
                             self.grammar,
                             resolve_support_conflicts=self.resolve_support_conflicts,
@@ -52,7 +55,14 @@ class GrammarParsingTagger(Tagger):
                 span = SpanList()
                 span.spans = get_spans(node)
                 for attr in attributes:
-                    setattr(span, attr, getattr(node, attr, None))
+                    if attr == '_group_':
+                        span._group_ = node.group
+                    elif attr == 'name':
+                        span.name = node.name
+                    elif attr == '_priority_':
+                        span._priority_ = node.priority
+                    else:
+                        setattr(span, attr, node[attr])
                 layer.add_span(span)
         return layer
 

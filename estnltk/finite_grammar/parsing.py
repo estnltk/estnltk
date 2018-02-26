@@ -137,10 +137,10 @@ def parse_graph(graph: LayerGraph,
                 if ignore_validators or rule.validator(support):
                     new_node = NonTerminalNode(rule, support)
                     if len(new_node.terminals) <= width_limit:
-                        decoration = rule.decorator(support)
-                        assert not (set(decoration) - grammar.legal_attributes),\
-                            'illegal attributes in decorator output: ' + str(set(decoration) - grammar.legal_attributes)
-                        new_node.decoration = decoration
+                        node_attributes = rule.decorator(support)
+                        assert not (set(node_attributes) - grammar.legal_attributes),\
+                            'illegal attributes in decorator output: ' + str(set(node_attributes) - grammar.legal_attributes)
+                        new_node.attributes = node_attributes
 
                         nodes_to_add.append((new_node,
                                              list(graph.pred[support[0]]),
@@ -167,10 +167,10 @@ def parse_graph(graph: LayerGraph,
                 assert all((support[i], support[i + 1]) in graph.edges for i in range(len(support) - 1))
                 new_node = PlusNode(rule, support)
                 if len(new_node.terminals) < width_limit:
-                    decoration = rule.decorator(support)
-                    assert not (set(decoration) - grammar.legal_attributes), \
-                        'illegal attributes in decorator output: ' + str(set(decoration) - grammar.legal_attributes)
-                    new_node.decoration = decoration
+                    node_attributes = rule.decorator(support)
+                    assert not (set(node_attributes) - grammar.legal_attributes), \
+                        'illegal attributes in decorator output: ' + str(set(node_attributes) - grammar.legal_attributes)
+                    new_node.decoration = node_attributes
 
                     nodes_to_add.append((new_node,
                                          list(graph.pred[support[0]]),
