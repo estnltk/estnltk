@@ -1,5 +1,6 @@
 import os
 import json
+import pickle
 import logging
 import operator as op
 from functools import reduce
@@ -8,6 +9,8 @@ import psycopg2
 from psycopg2.extensions import STATUS_BEGIN
 from psycopg2.sql import SQL, Identifier
 
+from estnltk.converters.dict_importer import dict_to_layer
+from estnltk.converters.dict_exporter import layer_to_dict
 from estnltk.converters import import_dict, export_json
 from .query import Query
 
@@ -37,24 +40,75 @@ class PgCollection:
     def update(self, key, text):
         pass
 
-    def select(self, query=None, remote_layers=None, order_by_key=False, return_as_dict=False):
-        return self.storage.select(self.table_name, query, order_by_key, return_as_dict)
+    def select(self, query=None, order_by_key=False, layers=None):
+        return self.storage.select(self.table_name, query, order_by_key, layers)
 
     def select_by_key(self, key, return_as_dict=False):
         return self.storage.select_by_key(self.table_name, key, return_as_dict)
 
-    def find_fingerprint(self, layer, field, query_list, ambiguous=True, order_by_key=False, return_as_dict=False):
-        return self.storage.find_fingerprint(self.table_name, layer, field, query_list, ambiguous, order_by_key,
-                                             return_as_dict)
+    def find_fingerprint(self, layer, field, query_list, ambiguous=True, order_by_key=False):
+        return self.storage.find_fingerprint(self.table_name, layer, field, query_list, ambiguous, order_by_key)
 
-    # def add_layer(self, layer_name, callable, query=None, remote_layers=None, inplace=True):
-    #     for in self.select(query, remote_layers):
+    def layer_name_to_table_name(self, layer_name):
+        return self.storage.layer_name_to_table_name(self.table_name, layer_name)
+
+    def create_layer(self, layer_name, callable, layers=None):
+        layer_table = self.layer_name_to_table_name(layer_name)
+        if self.storage.table_exists(layer_table):
+            raise PgStorageException("Table '{}' for layer '{}' already exists.".format(layer_table, layer_name))
+        conn = self.storage.conn
+        with conn.cursor() as c:
+            try:
+                conn.autocommit = False
+                # create layer table and index
+                c.execute(SQL("CREATE TABLE {} (id serial PRIMARY KEY, data jsonb)").format(Identifier(layer_table)))
+                c.execute(SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops)").format(
+                    index=Identifier('idx_%s_data' % layer_table),
+                    table=Identifier(layer_table)))
+                # insert data
+                for key, text in self.select(layers=layers):
+                    layer = callable(text)
+                    layer_dict = layer_to_dict(layer, text)
+                    self.storage.insert_layer_row(layer_table, layer_dict, key)
+            except:
+                conn.rollback()
+                raise
+            finally:
+                if conn.status == STATUS_BEGIN:
+                    # no exception, transaction in progress
+                    conn.commit()
+                conn.autocommit = True
+
+    def delete_layer(self, layer_name):
+        layer_table = self.layer_name_to_table_name(layer_name)
+        if not self.storage.table_exists(layer_table):
+            raise PgStorageException()
+        self.storage.drop_table(layer_table)
 
     def delete(self):
-        self.storage.drop_table(self.table_name)
+        conn = self.storage.conn
+        conn.autocommit = False
+        try:
+            for layer_table in self.get_layer_tables():
+                self.storage.drop_table(layer_table)
+            self.storage.drop_table(self.table_name)
+        except:
+            conn.rollback()
+            raise
+        finally:
+            if conn.status == STATUS_BEGIN:
+                # no exception, transaction in progress
+                conn.commit()
+            conn.autocommit = True
 
-    def delete_attached_layer(self, layer_name):
-        pass
+    def has_layer(self, layer_name):
+        return layer_name in self.get_layer_names()
+
+    def get_layer_names(self):
+        return [tbl[len(self.table_name) + 2:] for tbl in self.get_layer_tables()]
+
+    def get_layer_tables(self):
+        return [tbl for tbl in self.storage.get_all_table_names() if tbl.startswith("%s__" % self.table_name)]
 
 
 class PostgresStorage:
@@ -74,7 +128,8 @@ class PostgresStorage:
             if not os.path.exists(pgpass):
                 raise PgStorageException("Configuration file '%s' not found." % pgpass)
             else:
-                host, port, dbname, user, passwd = open(pgpass, encoding="utf-8").readline().rstrip().split(":")
+                with open(pgpass, encoding="utf-8") as f:
+                    host, port, dbname, user, passwd = f.readline().rstrip().split(":")
         self.conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port, **kwargs)
         self.conn.autocommit = True
         self.schema = "public"
@@ -111,27 +166,47 @@ class PostgresStorage:
                     self.conn.commit()
                 self.conn.autocommit = True
 
+    def layer_name_to_table_name(self, collection_table, layer_name):
+        return "%s__%s" % (collection_table, layer_name)
+
     def drop_table(self, table):
         with self.conn.cursor() as c:
             c.execute(SQL("DROP TABLE {}").format(Identifier(table)))
 
+    def drop_table_if_exists(self, table):
+        with self.conn.cursor() as c:
+            c.execute(SQL("DROP TABLE IF EXISTS {}").format(Identifier(table)))
+
+    def insert_layer_row(self, layer_table, layer_dict, key):
+        layer_json = json.dumps(layer_dict, ensure_ascii=False)
+        with self.conn.cursor() as c:
+            c.execute(SQL("INSERT INTO {} VALUES (%s, %s) RETURNING id;").format(Identifier(layer_table)),
+                      (key, layer_json))
+            row_key = c.fetchone()[0]
+            return row_key
+
     def insert(self, table, text, key=None):
         """Saves a given `text` object into a given `table`. Returns a key of the inserted row."""
+        text = export_json(text)
         with self.conn.cursor() as c:
             if key is not None:
-                c.execute(SQL("INSERT INTO {} VALUES (%s, %s) RETURNING id;").format(Identifier(table)),
-                          (key, export_json(text)))
+                c.execute(SQL("INSERT INTO {} VALUES (%s, %s) RETURNING id;").format(Identifier(table)), (key, text))
             else:
-                c.execute(SQL("INSERT INTO {} (data) VALUES (%s) RETURNING id;").format(Identifier(table)),
-                          (export_json(text),))
+                c.execute(SQL("INSERT INTO {} (data) VALUES (%s) RETURNING id;").format(Identifier(table)), (text,))
             row_key = c.fetchone()[0]
-        return row_key
+            return row_key
 
     def table_exists(self, table):
         with self.conn.cursor() as c:
             c.execute(SQL("SELECT EXISTS (SELECT 1 FROM pg_tables WHERE  schemaname = %s AND tablename = %s);"),
                       [self.schema, table])
             return c.fetchone()[0]
+
+    def count_rows(self, table):
+        with self.conn.cursor() as c:
+            c.execute(SQL("SELECT count(*) FROM {}").format(Identifier(table)))
+            nrows = c.fetchone()[0]
+            return nrows
 
     def select_by_key(self, table, key, return_as_dict=False):
         """Loads text object by `key`. If `return_as_dict` is True, returns a text object as dict"""
@@ -144,7 +219,14 @@ class PostgresStorage:
             text = text_dict if return_as_dict is True else import_dict(text_dict)
             return text
 
-    def select(self, table, query=None, order_by_key=False, return_as_dict=False):
+    def get_all_table_names(self):
+        with self.conn.cursor() as c:
+            c.execute(SQL(
+                "SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'"))
+            table_names = [row[0] for row in c.fetchall()]
+            return table_names
+
+    def select(self, table, query=None, order_by_key=False, layers=None):
         """
         Query a table.
 
@@ -159,19 +241,34 @@ class PostgresStorage:
 
         """
         with self.conn.cursor() as c:
-            sql_parts = [SQL("SELECT * FROM {}").format(Identifier(table)).as_string(self.conn)]
+            if layers is None:
+                sql_parts = [SQL("SELECT * FROM {}").format(Identifier(table)).as_string(self.conn)]
+            else:
+                table_escaped = Identifier(table).as_string(self.conn)
+                layers_escaped = [Identifier(self.layer_name_to_table_name(table, layer)).as_string(self.conn)
+                                  for layer in layers]
+                sql_parts = [
+                    "SELECT {table}.id, {table}.data, {select} FROM {table}, {layer_tables} where {where}".format(
+                        select=", ".join("%s.data" % layer for layer in layers_escaped),
+                        table=table_escaped,
+                        layer_tables=", ".join(layer for layer in layers_escaped),
+                        where=" and ".join("%s.id = %s.id" % (table_escaped, layer) for layer in layers_escaped))]
             if query is not None:
-                sql_parts.append("where %s" % query.eval())
+                sql_parts.append("%s %s" % ("and" if "where" in sql_parts[0] else "where", query.eval()))
             if order_by_key is True:
                 sql_parts.append("order by id")
             sql = ' '.join(sql_parts)  # bad, bad string concatenation, but we can't avoid it here, right?
             c.execute(sql)
-            for (key, text_dict) in c.fetchall():
-                text = text_dict if return_as_dict is True else import_dict(text_dict)
+            for row in c.fetchall():
+                key = row[0]
+                text_dict = row[1]
+                text = import_dict(text_dict)
+                if len(row) > 2:
+                    for layer_name, layer_dict in zip(layers, row[2:]):
+                        text[layer_name] = dict_to_layer(layer_dict, text)
                 yield key, text
 
-    def find_fingerprint(self, table, layer, field, query_list, ambiguous=True, order_by_key=False,
-                         return_as_dict=False):
+    def find_fingerprint(self, table, layer, field, query_list, ambiguous=True, order_by_key=False):
         """
         A wrapper over `select` method, which enables to conveniently build composite AND/OR queries
         involving a single layer and field.
@@ -193,7 +290,7 @@ class PostgresStorage:
                                    (JsonbQuery(layer, ambiguous, **{field: term}) for term in and_terms))
                 or_query_list.append(and_query)
         query = reduce(op.__or__, or_query_list) if or_query_list else None
-        return self.select(table, query, order_by_key, return_as_dict)
+        return self.select(table, query, order_by_key)
 
     def get_collection(self, table_name):
         return PgCollection(table_name, self)
