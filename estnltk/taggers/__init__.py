@@ -4,6 +4,8 @@ from estnltk.taggers.tagger_new import TaggerNew
 from estnltk.taggers.gaps_tagging.gap_tagger import GapTagger
 from estnltk.taggers.gaps_tagging.enveloping_gap_tagger import EnvelopingGapTagger
 
+from estnltk.taggers.grammar_parsing.grammar_parsing_tagger import GrammarParsingTagger
+
 from estnltk.taggers.merge_tagging.merge_tagger import MergeTagger
 
 from estnltk.taggers.raw_text_tagging.regex_tagger import RegexTagger
