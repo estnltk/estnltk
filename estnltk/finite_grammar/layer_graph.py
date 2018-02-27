@@ -92,7 +92,7 @@ END_NODE = PhonyNode('END', float('inf'), float('inf'))
 class SpanNode(Node):
     def __init__(self, span):
         self.span = span
-        super().__init__(span.text, span.start, span.end)
+        super().__init__(str(span.text), span.start, span.end)
 
     def __hash__(self):
         return hash((self.name, self.start, self.end, self.span))
