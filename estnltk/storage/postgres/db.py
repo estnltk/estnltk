@@ -82,9 +82,12 @@ class PgCollection:
             try:
                 conn.autocommit = False
                 # create layer table and index
-                c.execute(SQL("CREATE TABLE {} (id serial PRIMARY KEY, data jsonb)").format(Identifier(layer_table)))
+                c.execute(SQL("CREATE TABLE {}.{} (id serial PRIMARY KEY, data jsonb)").format(
+                    Identifier(self.storage.schema), Identifier(layer_table)))
                 if create_index is True:
-                    c.execute(SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops)").format(
+                    c.execute(SQL(
+                        "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'layers') jsonb_path_ops)").format(
+                        schema=Identifier(self.storage.schema),
                         index=Identifier('idx_%s_data' % layer_table),
                         table=Identifier(layer_table)))
                 # insert data
@@ -140,7 +143,7 @@ class PostgresStorage:
     """
 
     def __init__(self, dbname=None, user=None, password=None, host='localhost', port=5432,
-                 pgpass_file="~/.pgpass", **kwargs):
+                 pgpass_file="~/.pgpass", schema="public", **kwargs):
         """
         Connects to database either using connection parameters if specified, or ~/.pgpass file.
 
@@ -157,11 +160,19 @@ class PostgresStorage:
                     host, port, dbname, user, password = f.readline().rstrip().split(":")
         self.conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port, **kwargs)
         self.conn.autocommit = True
-        self.schema = "public"
+        self.schema = schema
 
     def close(self):
         """Closes database connection"""
         self.conn.close()
+
+    def create_schema(self):
+        with self.conn.cursor() as c:
+            c.execute(SQL("CREATE SCHEMA {};").format(Identifier(self.schema)))
+
+    def delete_schema(self):
+        with self.conn.cursor() as c:
+            c.execute(SQL("DROP SCHEMA {} CASCADE;").format(Identifier(self.schema)))
 
     def create_table(self, table):
         """Creates a new table to store jsonb data:
@@ -178,10 +189,13 @@ class PostgresStorage:
         self.conn.autocommit = False
         with self.conn.cursor() as c:
             try:
-                c.execute(SQL("CREATE TABLE {} (id serial PRIMARY KEY, data jsonb)").format(Identifier(table)))
-                c.execute(SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops)").format(
-                    index=Identifier('idx_%s_data' % table),
-                    table=Identifier(table)))
+                c.execute(SQL("CREATE TABLE {}.{} (id serial PRIMARY KEY, data jsonb)").format(
+                    Identifier(self.schema), Identifier(table)))
+                c.execute(
+                    SQL("CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'layers') jsonb_path_ops)").format(
+                        index=Identifier('idx_%s_data' % table),
+                        schema=Identifier(self.schema),
+                        table=Identifier(table)))
             except:
                 self.conn.rollback()
                 raise
@@ -208,16 +222,17 @@ class PostgresStorage:
 
     def drop_table(self, table):
         with self.conn.cursor() as c:
-            c.execute(SQL("DROP TABLE {}").format(Identifier(table)))
+            c.execute(SQL("DROP TABLE {}.{}").format(Identifier(self.schema), Identifier(table)))
 
     def drop_table_if_exists(self, table):
         with self.conn.cursor() as c:
-            c.execute(SQL("DROP TABLE IF EXISTS {}").format(Identifier(table)))
+            c.execute(SQL("DROP TABLE IF EXISTS {}.{}").format(Identifier(self.schema), Identifier(table)))
 
     def insert_layer_row(self, layer_table, layer_dict, key):
         layer_json = json.dumps(layer_dict, ensure_ascii=False)
         with self.conn.cursor() as c:
-            c.execute(SQL("INSERT INTO {} VALUES (%s, %s) RETURNING id;").format(Identifier(layer_table)),
+            c.execute(SQL("INSERT INTO {}.{} VALUES (%s, %s) RETURNING id;").format(Identifier(self.schema),
+                                                                                    Identifier(layer_table)),
                       (key, layer_json))
             row_key = c.fetchone()[0]
             return row_key
@@ -236,9 +251,11 @@ class PostgresStorage:
         text = export_json(text)
         with self.conn.cursor() as c:
             if key is not None:
-                c.execute(SQL("INSERT INTO {} VALUES (%s, %s) RETURNING id;").format(Identifier(table)), (key, text))
+                c.execute(SQL("INSERT INTO {}.{} VALUES (%s, %s) RETURNING id;").format(
+                    Identifier(self.schema), Identifier(table)), (key, text))
             else:
-                c.execute(SQL("INSERT INTO {} (data) VALUES (%s) RETURNING id;").format(Identifier(table)), (text,))
+                c.execute(SQL("INSERT INTO {}.{} (data) VALUES (%s) RETURNING id;").format(
+                    Identifier(self.schema), Identifier(table)), (text,))
             row_key = c.fetchone()[0]
             return row_key
 
@@ -250,14 +267,15 @@ class PostgresStorage:
 
     def count_rows(self, table):
         with self.conn.cursor() as c:
-            c.execute(SQL("SELECT count(*) FROM {}").format(Identifier(table)))
+            c.execute(SQL("SELECT count(*) FROM {}.{}").format(Identifier(self.schema), Identifier(table)))
             nrows = c.fetchone()[0]
             return nrows
 
     def select_by_key(self, table, key, return_as_dict=False):
         """Loads text object by `key`. If `return_as_dict` is True, returns a text object as dict"""
         with self.conn.cursor() as c:
-            c.execute(SQL("SELECT * FROM {} WHERE id = %s").format(Identifier(table)), (key,))
+            c.execute(SQL("SELECT * FROM {}.{} WHERE id = %s").format(Identifier(self.schema), Identifier(table)),
+                      (key,))
             res = c.fetchone()
             if res is None:
                 raise PgStorageException("Key %s not not found." % key)
@@ -307,23 +325,30 @@ class PostgresStorage:
             sql_parts = []
             if layers is None and layer_query is None:
                 # select only text table
-                q = SQL("SELECT * FROM {}").format(Identifier(table)).as_string(self.conn)
+                q = SQL("SELECT * FROM {}.{}").format(Identifier(self.schema), Identifier(table)).as_string(self.conn)
                 sql_parts.append(q)
             else:
                 # need to join text and all layer tables
                 if layers is not None:
-                    layers_select = [Identifier(self.layer_name_to_table_name(table, layer)).as_string(self.conn)
+                    layers_select = [SQL("{}.{}").format(Identifier(self.schema),
+                                                         Identifier(
+                                                             self.layer_name_to_table_name(table, layer))).as_string(
+                        self.conn)
                                      for layer in layers]
                 else:
                     layers_select = []
                 if layer_query is not None:
-                    layers_query = [Identifier(self.layer_name_to_table_name(table, layer)).as_string(self.conn)
+                    layers_query = [SQL("{}.{}").format(Identifier(self.schema),
+                                                        Identifier(
+                                                            self.layer_name_to_table_name(table, layer))).as_string(
+                        self.conn)
                                     for layer in layer_query.keys()]
                 else:
                     layers_query = []
                 layers_join = set(layers_select + layers_query)
-                table_escaped = Identifier(table).as_string(self.conn)
+                table_escaped = SQL("{}.{}").format(Identifier(self.schema), Identifier(table)).as_string(self.conn)
                 q = "SELECT {table}.id, {table}.data {select} FROM {table}, {layer_tables} where {where}".format(
+                    schema=Identifier(self.schema),
                     table=table_escaped,
                     select=", %s" % ", ".join("%s.data" % layer for layer in layers_select) if layers_select else "",
                     layer_tables=", ".join(layer for layer in layers_join),
@@ -342,7 +367,7 @@ class PostgresStorage:
             if order_by_key is True:
                 sql_parts.append("order by id")
             sql = " ".join(sql_parts)  # bad, bad string concatenation, but we can't avoid it here, right?
-
+            print(sql)
             # 2. Execute query
             c.execute(sql)
             for row in c.fetchall():

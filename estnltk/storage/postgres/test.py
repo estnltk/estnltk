@@ -17,11 +17,18 @@ def get_random_table_name():
     return "table_%d" % random.randint(1, 1000000)
 
 
+def get_random_table_name_with_schema(schema="public"):
+    return "%s.table_%d" % (schema, random.randint(1, 1000000))
+
+
 class TestStorage(unittest.TestCase):
     def setUp(self):
-        self.storage = PostgresStorage(pgpass_file=os.path.join(os.path.dirname(__file__), '.pgpass'))
+        schema = "test_storage_schema"
+        self.storage = PostgresStorage(pgpass_file=os.path.join(os.path.dirname(__file__), '.pgpass'), schema=schema)
+        self.storage.create_schema()
 
     def tearDown(self):
+        self.storage.delete_schema()
         self.storage.close()
 
     def test_create_collection(self):
@@ -147,9 +154,13 @@ class TestStorage(unittest.TestCase):
 
 class TestLayer(unittest.TestCase):
     def setUp(self):
-        self.storage = PostgresStorage(pgpass_file=os.path.join(os.path.dirname(__file__), '.pgpass'))
+        schema = "test_layer"
+        self.storage = PostgresStorage(pgpass_file=os.path.join(os.path.dirname(__file__), '.pgpass'),
+                                       schema=schema)
+        self.storage.create_schema()
 
     def tearDown(self):
+        self.storage.delete_schema()
         self.storage.close()
 
     def test_create_layer(self):
@@ -221,7 +232,6 @@ class TestLayer(unittest.TestCase):
 
     def test_layer_query(self):
         table_name = get_random_table_name()
-        print(table_name)
         col = self.storage.get_collection(table_name)
         col.create()
 
