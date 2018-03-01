@@ -8,15 +8,9 @@ import unittest
 import random
 import os
 
-from estnltk.layer import Layer
-
-from estnltk.spans import Span
-
 from estnltk import Text
-from estnltk.converters.dict_importer import dict_to_layer
 from estnltk.taggers import VabamorfTagger
-from estnltk.storage.postgres import PostgresStorage, PgStorageException, JsonbQuery as Q
-from estnltk.finite_grammar import layer_to_graph
+from estnltk.storage.postgres import PostgresStorage, PgStorageException, JsonbTextQuery as Q, JsonbLayerQuery
 
 
 def get_random_table_name():
@@ -110,22 +104,42 @@ class TestStorage(unittest.TestCase):
         self.assertEqual(len(res), 2)
 
         # test find_fingerprint
-        res = list(col.find_fingerprint('morph_analysis', 'lemma', [{'miss1', 'miss2'}, {'miss3'}]))
-        self.assertEqual(len(res), 0)
+        q = {"layer": "morph_analysis", "field": "lemma", "ambiguous": True}
 
-        res = list(col.find_fingerprint('morph_analysis', 'lemma', [{'miss1', 'miss2'}, {'palju'}]))
-        self.assertEqual(len(res), 1)
-
-        res = list(col.find_fingerprint('morph_analysis', 'lemma', [{'mis', 'miss2'}, {'palju'}]))
-        self.assertEqual(len(res), 1)
-
-        res = list(col.find_fingerprint('morph_analysis', 'lemma', [{'mis', 'kell'}, {'miss'}]))
-        self.assertEqual(len(res), 1)
-
-        res = list(col.find_fingerprint('morph_analysis', 'lemma', [{'mis', 'kell'}, {'palju'}]))
+        q["query"] = ["mis", "palju"]  # mis OR palju
+        res = list(col.find_fingerprint(q))
         self.assertEqual(len(res), 2)
 
-        res = list(col.find_fingerprint('morph_analysis', 'lemma', []))
+        q["query"] = [["mis"], ["palju"]]  # mis OR palju
+        res = list(col.find_fingerprint(q))
+        self.assertEqual(len(res), 2)
+
+        q["query"] = [["mis", "palju"]]  # mis AND palju
+        res = list(col.find_fingerprint(q))
+        self.assertEqual(len(res), 0)
+
+        q["query"] = [{'miss1', 'miss2'}, {'miss3'}]
+        res = list(col.find_fingerprint(q))
+        self.assertEqual(len(res), 0)
+
+        q["query"] = [{'miss1', 'miss2'}, {'palju'}]
+        res = list(col.find_fingerprint(q))
+        self.assertEqual(len(res), 1)
+
+        q["query"] = [{'mis', 'miss2'}, {'palju'}]
+        res = list(col.find_fingerprint(q))
+        self.assertEqual(len(res), 1)
+
+        q["query"] = [{'mis', 'kell'}, {'miss'}]
+        res = list(col.find_fingerprint(q))
+        self.assertEqual(len(res), 1)
+
+        q["query"] = [{'mis', 'kell'}, {'palju'}]
+        res = list(col.find_fingerprint(q))
+        self.assertEqual(len(res), 2)
+
+        q["query"] = []
+        res = list(col.find_fingerprint(q))
         self.assertEqual(len(res), 4)
 
         col.delete()
@@ -204,6 +218,128 @@ class TestLayer(unittest.TestCase):
         col.delete()
         self.assertFalse(self.storage.table_exists(self.storage.layer_name_to_table_name(col.table_name, layer1)))
         self.assertFalse(self.storage.table_exists(self.storage.layer_name_to_table_name(col.table_name, layer2)))
+
+    def test_layer_query(self):
+        table_name = get_random_table_name()
+        print(table_name)
+        col = self.storage.get_collection(table_name)
+        col.create()
+
+        text1 = Text('Ööbik laulab.').tag_layer(["sentences"])
+        id1 = col.insert(text1)
+
+        text2 = Text('Mis kell on?').tag_layer(["sentences"])
+        id2 = col.insert(text2)
+
+        # test ambiguous layer
+        layer1 = "layer1"
+        layer1_table = self.storage.layer_name_to_table_name(table_name, layer1)
+        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
+        col.create_layer(layer1, callable=lambda t: tagger1.tag(t, return_layer=True))
+
+        q = JsonbLayerQuery(layer_table=layer1_table, lemma='ööbik', form='sg n')
+        self.assertEqual(len(list(col.select(layer_query={layer1: q}))), 1)
+
+        q = JsonbLayerQuery(layer_table=layer1_table, lemma='ööbik') | JsonbLayerQuery(layer_table=layer1_table,
+                                                                                       lemma='mis')
+        self.assertEqual(len(list(col.select(layer_query={layer1: q}))), 2)
+
+        q = JsonbLayerQuery(layer_table=layer1_table, lemma='ööbik') & JsonbLayerQuery(layer_table=layer1_table,
+                                                                                       lemma='mis')
+        self.assertEqual(len(list(col.select(layer_query={layer1: q}))), 0)
+
+        q = JsonbLayerQuery(layer_table=layer1_table, lemma='ööbik')
+        text = [text for key, text in col.select(layer_query={layer1: q})][0]
+        self.assertTrue(layer1 not in text.layers)
+
+        text = list(col.select(layer_query={layer1: q}, layers=[layer1]))[0][1]
+        self.assertTrue(layer1 in text.layers)
+
+        # test with 2 layers
+        layer2 = "layer2"
+        layer2_table = self.storage.layer_name_to_table_name(table_name, layer2)
+        tagger2 = VabamorfTagger(disambiguate=True, layer_name=layer2)
+        col.create_layer(layer2, callable=lambda t: tagger2.tag(t, return_layer=True))
+
+        q = JsonbLayerQuery(layer_table=layer2_table, lemma='ööbik', form='sg n')
+        self.assertEqual(len(list(col.select(layer_query={layer2: q}))), 1)
+
+        text = list(col.select(layer_query={layer2: q}, layers=[layer1, layer2]))[0][1]
+        self.assertTrue(layer1 in text.layers)
+        self.assertTrue(layer2 in text.layers)
+
+    def test_layer_fingerprint_query(self):
+        table_name = get_random_table_name()
+        col = self.storage.get_collection(table_name)
+        col.create()
+
+        text1 = Text('Ööbik laulab.').tag_layer(["sentences"])
+        id1 = col.insert(text1)
+
+        text2 = Text('Mis kell on?').tag_layer(["sentences"])
+        id2 = col.insert(text2)
+
+        layer1 = "layer1"
+        layer2 = "layer2"
+        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
+        tagger2 = VabamorfTagger(disambiguate=False, layer_name=layer2)
+        col.create_layer(layer1, callable=lambda t: tagger1.tag(t, return_layer=True), create_index=True)
+        col.create_layer(layer2, callable=lambda t: tagger2.tag(t, return_layer=True))
+
+        # test one layer
+        res = col.find_fingerprint(layer_query={
+            layer1: {
+                "field": "lemma",
+                "query": ["ööbik"],
+                "ambiguous": True
+            }})
+        self.assertEqual(len(list(res)), 1)
+
+        res = col.find_fingerprint(layer_query={
+            layer1: {
+                "field": "lemma",
+                "query": ["ööbik"],
+                "ambiguous": False
+            }})
+        self.assertEqual(len(list(res)), 0)
+
+        res = col.find_fingerprint(layer_query={
+            layer1: {
+                "field": "lemma",
+                "query": ["ööbik", "mis"],  # ööbik OR mis
+                "ambiguous": True
+            }})
+        self.assertEqual(len(list(res)), 2)
+
+        res = col.find_fingerprint(layer_query={
+            layer1: {
+                "field": "lemma",
+                "query": [["ööbik", "mis"]],  # ööbik AND mis
+                "ambiguous": True
+            }})
+        self.assertEqual(len(list(res)), 0)
+
+        res = col.find_fingerprint(layer_query={
+            layer1: {
+                "field": "lemma",
+                "query": [["ööbik", "laulma"]],  # ööbik AND laulma
+                "ambiguous": True
+            }})
+        self.assertEqual(len(list(res)), 1)
+
+        # test multiple layers
+        res = col.find_fingerprint(layer_query={
+            layer1: {
+                "field": "lemma",
+                "query": ["ööbik"],
+                "ambiguous": True
+            },
+            layer2: {
+                "field": "lemma",
+                "query": ["ööbik"],
+                "ambiguous": True
+            }})
+        self.assertEqual(len(list(res)), 1)
 
 
 if __name__ == '__main__':
