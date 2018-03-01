@@ -154,7 +154,7 @@ class PostgresStorage:
                 raise PgStorageException("Configuration file '%s' not found." % pgpass)
             else:
                 with open(pgpass, encoding="utf-8") as f:
-                    host, port, dbname, user, passwd = f.readline().rstrip().split(":")
+                    host, port, dbname, user, password = f.readline().rstrip().split(":")
         self.conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port, **kwargs)
         self.conn.autocommit = True
         self.schema = "public"
