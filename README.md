@@ -8,9 +8,9 @@ The project is funded by EKT (Eesti Keeletehnoloogia Riiklik Programm, https://w
 
 Currently, there are two branches of EstNLTK:
 
-* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.0-beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk). It contains analysis tools up to the level of morphological analysis, but it does not contain all the functionalities available in **1.4.1**. Supported Python versions: 3.5+;
+* version **1.6** -- the new branch, which is in a beta status and under development. The version 1.6.0-beta is available from [Anaconda package repository](https://anaconda.org/estnltk/estnltk) and PyPI. It contains analysis tools up to the level of morphological analysis, but it does not contain all the functionalities available in **1.4.1**. Supported Python versions: 3.5+;
   
-* version **1.4.1** -- the old branch, which contains full functionality of different analysis tools. Also available via [Anaconda package repository](https://anaconda.org/estnltk/estnltk). Available for Python 3.4+ and Python 2.7, although recommended version is Python 3.5.*. Python 3.6 is not supported;
+* version **1.4.1** -- the old branch, which contains full functionality of different analysis tools. Available via [Anaconda package repository](https://anaconda.org/estnltk/estnltk/files) for Python 3.5. PyPI packages are also available for Python 3.4+ and 2.7. Python 3.6 is not supported;
 
 ## Version 1.6
 
@@ -58,7 +58,7 @@ To run our tutorials, [download them as a zip file](https://github.com/estnltk/t
 
 The alternative way for installing if you are unable to use the anaconda distribution is:
 
-`python -m pip install estnltk`
+`python -m pip install estnltk==1.4.1.1`
 
 This is slower, more error-prone and requires you to have the appropriate compilers for building the scientific computation packages for your platform. 
 
