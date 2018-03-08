@@ -289,6 +289,7 @@ class SentenceTokenizer(Tagger):
                  fix_inner_title_punct:bool = True,
                  fix_repeated_ending_punct:bool = True,
                  use_emoticons_as_endings:bool = True,
+                 base_sentence_tokenizer = None,
                  ):
         """Initializes this SentenceTokenizer.
         
@@ -333,9 +334,54 @@ class SentenceTokenizer(Tagger):
             endings in such contexts.
         
         use_emoticons_as_endings: boolean (default: True)
-            If switched on, then emoticons are treated as sentence endings. 
+            If switched on, then emoticons are treated as sentence endings.
+        
+        base_sentence_tokenizer: nltk.tokenize.api.TokenizerI (default: None)
+            Base string tokenizer to be used for initial sentence tokenization.
+            If not set, then NLTK's PunktSentenceTokenizer with the Estonian-
+            specific model ('tokenizers/punkt/estonian.pickle') is chosen as 
+            the base sentence tokenizer.
+            Use this argument, if you want to set a custom base tokenizer, e.g.
+            LineTokenizer() from NLTK.
+            Note:
+            * If base_sentence_tokenizer is an instance of PunktSentenceTokenizer,
+              then  its  method   sentences_from_tokens()   is  used  for initial 
+              sentence tokenization;
+            * otherwise (base_sentence_tokenizer is an instance of TokenizerI, 
+              but not PunktSentenceTokenizer), then its method span_tokenize() is 
+              used for initial sentence tokenization;
+
         """
-        # 0) Record configuration
+        # 0.1) Set or initialize base sentence tokenizer
+        import nltk as nltk
+        from nltk.tokenize.punkt import PunktSentenceTokenizer
+        from nltk.tokenize.api import TokenizerI
+        if not base_sentence_tokenizer:
+            # If base tokenizer was not given by the user:
+            #    Initialize NLTK's tokenizer
+            #    use NLTK-s sentence tokenizer for Estonian, in case it is not 
+            #    downloaded yet, try to download it first
+            try:
+                self.sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+            except LookupError:
+                import nltk.downloader
+                nltk.downloader.download('punkt')
+            finally:
+                if self.sentence_tokenizer is None:
+                    self.sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+        else:
+            # If base tokenizer was given by the user:
+            #    check that it implements the correct interface
+            assert isinstance(base_sentence_tokenizer, TokenizerI), \
+                   ' (!) base_sentence_tokenizer should be an instance of nltk.tokenize.api.TokenizerI.'
+            self.sentence_tokenizer = base_sentence_tokenizer
+        # 0.2) Fix the tokenization method: 
+        #  * use sentences_from_tokens() for PunktSentenceTokenizer()
+        #  * use span_tokenize() for other / custom tokenizers;
+        self.apply_sentences_from_tokens = True
+        if not isinstance(self.sentence_tokenizer, PunktSentenceTokenizer):
+            self.apply_sentences_from_tokens = False
+        # 1) Record configuration
         self.configuration = {'fix_paragraph_endings': fix_paragraph_endings,
                               'fix_compound_tokens': fix_compound_tokens,
                               'fix_numeric': fix_numeric,
@@ -343,18 +389,8 @@ class SentenceTokenizer(Tagger):
                               'fix_double_quotes': fix_double_quotes,
                               'fix_inner_title_punct':fix_inner_title_punct,
                               'fix_repeated_ending_punct':fix_repeated_ending_punct,
-                              'use_emoticons_as_endings':use_emoticons_as_endings,}
-        # 1) Initialize NLTK's tokenizer
-        # use NLTK-s sentence tokenizer for Estonian, in case it is not downloaded, try to download it first
-        import nltk as nltk
-        try:
-            self.sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
-        except LookupError:
-            import nltk.downloader
-            nltk.downloader.download('punkt')
-        finally:
-            if self.sentence_tokenizer is None:
-                self.sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+                              'use_emoticons_as_endings':use_emoticons_as_endings,
+                              'base_sentence_tokenizer':self.sentence_tokenizer}
         # 2) Filter rules according to the given configuration
         self.merge_rules = []
         for merge_pattern in merge_patterns:
@@ -421,8 +457,15 @@ class SentenceTokenizer(Tagger):
             otherwise attaches the new layer to the Text object 
             and returns the Text object;
         """
-        #sentence_ends = {end for _, end in self._tokenize_text(text)}
-        sentence_ends = {end for _, end in self._sentences_from_tokens(text)}
+        # Apply the base sentence tokenizer
+        # Depending on the available interface, use either
+        # sentences_from_tokens() or span_tokenize()
+        if self.apply_sentences_from_tokens:
+            # Note: this should be the default choice for EstNLTK
+            sentence_ends = {end for _, end in self._sentences_from_tokens(text)}
+        else:
+            # Note: this is a customization, not default
+            sentence_ends = {end for _, end in self._tokenize_text(text)}
         # A) Remove sentence endings that:
         #   A.1) coincide with endings of non_ending_abbreviation's
         #   A.2) fall in the middle of compound tokens
