@@ -390,7 +390,8 @@ class SentenceTokenizer(Tagger):
                               'fix_inner_title_punct':fix_inner_title_punct,
                               'fix_repeated_ending_punct':fix_repeated_ending_punct,
                               'use_emoticons_as_endings':use_emoticons_as_endings,
-                              'base_sentence_tokenizer':self.sentence_tokenizer}
+                              'base_sentence_tokenizer': \
+                                   self.sentence_tokenizer.__class__.__name__ }
         # 2) Filter rules according to the given configuration
         self.merge_rules = []
         for merge_pattern in merge_patterns:
