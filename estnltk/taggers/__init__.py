@@ -1,6 +1,11 @@
 from estnltk.taggers.tagger import Tagger
 from estnltk.taggers.tagger_new import TaggerNew
 
+from estnltk.taggers.vocabulary import read_vocabulary
+
+from estnltk.taggers.event_tagging.phrase_list_tagger import PhraseListTagger
+from estnltk.taggers.event_tagging.token_list_tagger import TokenListTagger
+
 from estnltk.taggers.gaps_tagging.gap_tagger import GapTagger
 from estnltk.taggers.gaps_tagging.enveloping_gap_tagger import EnvelopingGapTagger
 
