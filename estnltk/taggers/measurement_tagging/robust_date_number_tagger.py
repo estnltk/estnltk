@@ -20,11 +20,12 @@ class RobustDateNumberTagger(TaggerNew):
                  ):
         self.attributes = attributes
         self.layer_name = layer_name
-        self.tagger = RegexTagger(voc,
-                                  attributes,
-                                  conflict_resolving_strategy,
-                                  overlapped,
-                                  layer_name)
+        self.tagger = RegexTagger(vocabulary=voc,
+                                  attributes=attributes,
+                                  conflict_resolving_strategy=conflict_resolving_strategy,
+                                  priority_attribute='_priority_',
+                                  overlapped=overlapped,
+                                  layer_name=layer_name)
 
     def make_layer(self, text, input_layers, status):
         return self.tagger.make_layer(text, status=status)

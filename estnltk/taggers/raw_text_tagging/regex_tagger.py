@@ -19,10 +19,11 @@ class RegexTagger(Tagger):
 
     def __init__(self,
                  vocabulary,
-                 attributes=[],
+                 attributes=None,
                  conflict_resolving_strategy='MAX',
                  overlapped=False,
                  layer_name='regexes',
+                 priority_attribute=None,
                  ):
         """Initialize a new RegexTagger instance.
 
@@ -43,7 +44,10 @@ class RegexTagger(Tagger):
         self._illegal_keywords = {'start', 'end'}
 
         # attributes in output layer
-        self.attributes = attributes
+        if attributes is None:
+            self.attributes = []
+        else:
+            self.attributes = attributes
         # attributes needed by tagger 
         self._internal_attributes = set(self.attributes)|{'_group_', '_priority_'}
         
@@ -52,6 +56,7 @@ class RegexTagger(Tagger):
         if conflict_resolving_strategy not in ['ALL', 'MIN', 'MAX']:
             raise ValueError("Unknown conflict_resolving_strategy '%s'." % conflict_resolving_strategy)
         self._conflict_resolving_strategy = conflict_resolving_strategy
+        self.priority_attribute = priority_attribute
         self.layer_name = layer_name
         self.configuration['conflict_resolving_strategy'] = conflict_resolving_strategy
         self.configuration['overlapped'] = overlapped
@@ -109,7 +114,10 @@ class RegexTagger(Tagger):
                       )
         records = self._match(raw_text)
         layer = layer.from_records(records)
-        layer = resolve_conflicts(layer, self._conflict_resolving_strategy, status)
+        layer = resolve_conflicts(layer,
+                                  conflict_resolving_strategy=self._conflict_resolving_strategy,
+                                  priority_attribute=self.priority_attribute,
+                                  status=status)
         layer.attributes = self.attributes
         return layer
 

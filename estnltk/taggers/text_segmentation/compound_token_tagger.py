@@ -144,6 +144,7 @@ class CompoundTokenTagger(Tagger):
         self._tokenization_hints_tagger_1 = RegexTagger(vocabulary=_vocabulary_1,
                                    attributes=('normalized', '_priority_', 'pattern_type'),
                                    conflict_resolving_strategy=conflict_resolving_strategy,
+                                   priority_attribute='_priority_',
                                    overlapped=False,
                                    layer_name='tokenization_hints',
                                    )
@@ -158,9 +159,10 @@ class CompoundTokenTagger(Tagger):
         self._tokenization_hints_tagger_2 = None
         if _vocabulary_2:
             self._tokenization_hints_tagger_2 = RegexTagger(vocabulary=_vocabulary_2,
-                                                attributes=('normalized', '_priority_', 'pattern_type', \
+                                                attributes=('normalized', '_priority_', 'pattern_type',
                                                             'left_strict', 'right_strict'),
                                                 conflict_resolving_strategy=conflict_resolving_strategy,
+                                                priority_attribute='_priority_',
                                                 overlapped=False,
                                                 layer_name='tokenization_hints',
                                               )
@@ -308,7 +310,8 @@ class CompoundTokenTagger(Tagger):
         for spl in compound_tokens_lists:
             layer.add_span(spl)
 
-        resolve_conflicts(layer, conflict_resolving_strategy=self._conflict_resolving_strategy)
+        resolve_conflicts(layer, conflict_resolving_strategy=self._conflict_resolving_strategy,
+                          priority_attribute=None)
 
         if return_layer:
             return layer
@@ -432,11 +435,11 @@ class CompoundTokenTagger(Tagger):
         # create new compound tokens based on them
         for sp in new_layer.spans:
             # get tokens covered by the span
-            covered_compound_tokens = \
-                self._get_covered_tokens( \
+            covered_compound_tokens =\
+                self._get_covered_tokens(
                     sp.start,sp.end,sp.left_strict,sp.right_strict,compound_tokens_lists )
             covered_tokens = \
-                self._get_covered_tokens( \
+                self._get_covered_tokens(
                     sp.start,sp.end,sp.left_strict,sp.right_strict,text.tokens.spans )
             # remove regular tokens that are within compound tokens
             covered_tokens = \
