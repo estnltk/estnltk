@@ -1,4 +1,4 @@
-from estnltk.layer import Layer
+from estnltk.text import Layer, Text
 
 
 class TaggerNew:
@@ -12,7 +12,7 @@ class TaggerNew:
     layer_name
     attributes
     __init__(...)
-    change_layer(...) or make_layer(...)
+    make_layer(...)
     """
 
     def __init__(self):
@@ -24,24 +24,10 @@ class TaggerNew:
                'attribute must be listed in conf_param: ' + key
         super.__setattr__(self, key, value)
 
-    def change_layer(self, raw_text: str, input_layers: dict, status: dict) -> None:
-        raise NotImplementedError('change_layer method not implemented in ' + self.__class__.__name__)
-
-    def _change_layer(self, text: 'Text', status: dict) -> None:
-        input_layers = {name: text.layers[name] for name in self.depends_on}
-        # TODO: check that layer is not frozen
-        self.change_layer(text, input_layers, status)
-
-    def change(self, text: 'Text', status: dict = None):
-        if status is None:
-            status = {}
-        self._change_layer(text, status)
-        return text
-
     def make_layer(self, raw_text: str, input_layers: dict, status: dict) -> Layer:
         raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
-    def _make_layer(self, text: 'Text', status: dict = None) -> Layer:
+    def _make_layer(self, text: Text, status: dict = None) -> Layer:
         input_layers = {name: text.layers[name] for name in self.depends_on}
 
         if status is None:
@@ -51,7 +37,7 @@ class TaggerNew:
         assert layer.name == self.layer_name, 'incorrect layer name: {} != {}'.format(layer.name, self.layer_name)
         return layer
 
-    def tag(self, text: 'Text', status: dict = None) -> 'Text':
+    def tag(self, text: Text, status: dict = None) -> Text:
         """
         text: Text object to be tagged
         status: dict, default {}
@@ -61,7 +47,7 @@ class TaggerNew:
         text[self.layer_name] = self._make_layer(text, status)
         return text
 
-    def __call__(self, text: 'Text', status: dict = None) -> 'Text':
+    def __call__(self, text: Text, status: dict = None) -> Text:
         return self.tag(text, status)
 
     def _repr_html_(self):
@@ -85,8 +71,9 @@ class TaggerNew:
             return value_str
 
         if self.conf_param:
-            conf_vals = [to_str(getattr(self, attr)) for attr in self.conf_param]
-            conf_table = pandas.DataFrame(conf_vals, index=self.conf_param)
+            public_param = [p for p in self.conf_param if not p.startswith('_')]
+            conf_vals = [to_str(getattr(self, attr)) for attr in public_param]
+            conf_table = pandas.DataFrame(conf_vals, index=public_param)
             conf_table = conf_table.to_html(header=False)
             conf_table = ('<h4>Configuration</h4>', conf_table)
         else:
