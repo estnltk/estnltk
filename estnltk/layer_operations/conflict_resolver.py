@@ -51,6 +51,8 @@ def resolve_conflicts(layer,
     -------
     Input layer with removed conflicts.
     """
+    if conflict_resolving_strategy == 'ALL' and priority_attribute is None and status is None:
+        return layer
     priorities = set()
     number_of_conflicts = 0
     enumerated_spans = list(enumerate(layer.spans.spans))  # enumeration is to distinguish equal spans
