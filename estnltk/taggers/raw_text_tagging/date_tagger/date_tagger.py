@@ -38,7 +38,7 @@ class DateTagger(Tagger):
 
     def _create_vocabulary(self, regexes):
         '''
-        Creates vocabulary for regex_tagger
+        Creates _vocabulary for regex_tagger
         '''
         vocabulary = []
         for record in regexes:

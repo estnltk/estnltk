@@ -2,7 +2,7 @@ from estnltk.taggers import TaggerNew, read_vocabulary
 from estnltk.layer import Layer
 from estnltk.layer_operations import resolve_conflicts
 from collections import defaultdict
-from typing import Sequence
+from typing import Sequence, Union
 
 
 class PhraseListTagger(TaggerNew):
@@ -15,7 +15,7 @@ class PhraseListTagger(TaggerNew):
                  layer_name: str,
                  input_layer: str,
                  input_attribute: str,
-                 vocabulary: dict=None,
+                 vocabulary: Union[str, dict]=None,
                  attributes: Sequence=None,
                  validator: callable=None,
                  conflict_resolving_strategy: str='MAX',
@@ -38,7 +38,7 @@ class PhraseListTagger(TaggerNew):
         """
         self.conf_param = ('input_attribute', 'validator',
                            'conflict_resolving_strategy', 'priority_attribute',
-                           'vocabulary', '_heads', 'all_attributes')
+                           '_vocabulary', '_heads', 'all_attributes')
         if conflict_resolving_strategy not in {'ALL', 'MIN', 'MAX'}:
             raise ValueError('Unknown conflict_resolving_strategy: ' + str(conflict_resolving_strategy))
         self.conflict_resolving_strategy = conflict_resolving_strategy
@@ -66,20 +66,20 @@ class PhraseListTagger(TaggerNew):
         self.all_attributes = tuple(self.all_attributes)
 
         if isinstance(vocabulary, str):
-            if priority_attribute is not None:
-                eval_attributes = ('_phrase_', priority_attribute)
+            if priority_attribute is None:
+                callable_attributes = ('_phrase_',)
             else:
-                eval_attributes = ('_phrase_',)
+                callable_attributes = ('_phrase_', priority_attribute)
 
-            self.vocabulary = read_vocabulary(vocabulary_file=vocabulary,
-                                              index='_phrase_',
-                                              str_attributes=self.attributes,
-                                              eval_attributes=eval_attributes)
+            self._vocabulary = read_vocabulary(vocabulary_file=vocabulary,
+                                               key='_phrase_',
+                                               string_attributes=self.attributes,
+                                               callable_attributes=callable_attributes)
         else:
-            self.vocabulary = vocabulary
+            self._vocabulary = vocabulary
 
         self._heads = defaultdict(list)
-        for phrase in self.vocabulary:
+        for phrase in self._vocabulary:
             self._heads[phrase[0]].append(phrase[1:])
 
     def make_layer(self, raw_text: str, input_layers: dict, status: dict):
@@ -104,7 +104,7 @@ class PhraseListTagger(TaggerNew):
                                         break
                                 if match:
                                     phrase = (value,) + tail
-                                    for rec in self.vocabulary[phrase]:
+                                    for rec in self._vocabulary[phrase]:
                                         span = input_layer.spans[i:i + len(tail) + 1]
                                         if self.validator(raw_text, span, phrase):
                                             for attr in self.all_attributes:
@@ -122,7 +122,7 @@ class PhraseListTagger(TaggerNew):
                                     break
                             if match:
                                 phrase = (value,) + tail
-                                for rec in self.vocabulary[phrase]:
+                                for rec in self._vocabulary[phrase]:
                                     span = input_layer.spans[i:i + len(tail) + 1]
                                     if self.validator(raw_text, span, phrase):
                                         for attr in self.attributes:

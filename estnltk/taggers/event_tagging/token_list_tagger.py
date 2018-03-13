@@ -18,7 +18,7 @@ class TokenListTagger(TaggerNew):
                  vocabulary: Union[dict, str],
                  attributes: Sequence[str]=None,
                  system_attributes: Sequence[str]=None,
-                 index: str= '_token_',
+                 key: str= '_token_',
                  validator_attribute: str= '_validator_',
                  conflict_resolving_strategy: str='MAX',
                  priority_attribute: str=None,
@@ -43,7 +43,7 @@ class TokenListTagger(TaggerNew):
         system_attributes: Sequence[str]
             System attributes are read from the vocabulary and are even tagged to the spans, but are not declared as the
             layer attributes. These attributes can be used by validator and conflict resolver.
-        index: str
+        key: str
             The name of the index column if the vocabulary is read from a csv file.
         validator_attribute: str
             The name of the attribute that points to the validator function in the vocabulary.
@@ -52,7 +52,7 @@ class TokenListTagger(TaggerNew):
         ambiguous: bool
             Whether the output layer should be ambiguous or not.
         """
-        self.conf_param = ('input_attribute',  'vocabulary', 'validator_attribute', 'all_attributes',
+        self.conf_param = ('input_attribute', '_vocabulary', 'validator_attribute', 'all_attributes',
                            'conflict_resolving_strategy', 'priority_attribute', 'ambiguous')
         if conflict_resolving_strategy not in {'ALL', 'MIN', 'MAX'}:
             raise ValueError('Unknown conflict_resolving_strategy: ' + str(conflict_resolving_strategy))
@@ -81,13 +81,13 @@ class TokenListTagger(TaggerNew):
         self.ambiguous = ambiguous
 
         if isinstance(vocabulary, str):
-            self.vocabulary = read_vocabulary(vocabulary_file=vocabulary,
-                                              index=index,
-                                              str_attributes=[index] + self.all_attributes,
-                                              eval_attributes=[self.validator_attribute],
-                                              default_rec={self.validator_attribute: default_validator})
+            self._vocabulary = read_vocabulary(vocabulary_file=vocabulary,
+                                               key=key,
+                                               string_attributes=[key] + self.all_attributes,
+                                               callable_attributes=[self.validator_attribute],
+                                               default_rec={self.validator_attribute: default_validator})
         elif isinstance(vocabulary, dict):
-            self.vocabulary = vocabulary
+            self._vocabulary = vocabulary
         else:
             assert False, 'vocabulary type not supported: ' + str(type(vocabulary))
 
@@ -98,7 +98,7 @@ class TokenListTagger(TaggerNew):
             attributes=self.attributes,
             parent=input_layer.name,
             ambiguous=self.ambiguous)
-        vocabulary = self.vocabulary
+        vocabulary = self._vocabulary
         input_attribute = self.input_attribute
         validator_key = self.validator_attribute
 

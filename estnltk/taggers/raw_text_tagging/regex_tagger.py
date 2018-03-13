@@ -69,13 +69,11 @@ class RegexTagger(Tagger):
         elif isinstance(expression_vocabulary, str):
             vocabulary = read_csv(expression_vocabulary, na_filter=False, index_col=False).to_dict('records')
         else:
-            raise TypeError(str(type(expression_vocabulary)) + " not supported as expression vocabulary")
+            raise TypeError(str(type(expression_vocabulary)) + " not supported as vocabulary")
         records = []
         for record in vocabulary:
             if set(record) & self._illegal_keywords:
-                raise KeyError('Illegal keys in expression vocabulary: ' + str(set(record)&self._illegal_keywords))
-            #if self._internal_attributes-set(record):
-            #    raise KeyError('Missing keys in expression vocabulary: ' + str(self._internal_attributes-set(record)))
+                raise KeyError('Illegal keys in vocabulary: ' + str(set(record)&self._illegal_keywords))
             _regex_pattern_ = record['_regex_pattern_']
             if isinstance(_regex_pattern_, str):
                 _regex_pattern_ = re.compile(_regex_pattern_)
@@ -99,7 +97,7 @@ class RegexTagger(Tagger):
                 rec['overlapped'] = overlapped
             for key in self.attributes:
                 if key not in record:
-                    raise KeyError('Missing key in expression vocabulary: ' + key)
+                    raise KeyError('Missing key in vocabulary: ' + key)
                 value = record[key]
                 if isinstance(value, str) and value.startswith('lambda m:'):
                     value = eval(value)
@@ -110,7 +108,7 @@ class RegexTagger(Tagger):
 
     def make_layer(self, raw_text, input_layers=None, status=None):
         layer = Layer(name=self.layer_name,
-                      attributes=self._internal_attributes,
+                      attributes=tuple(self._internal_attributes),
                       )
         records = self._match(raw_text)
         layer = layer.from_records(records)
