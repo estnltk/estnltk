@@ -1,4 +1,6 @@
 from estnltk.taggers.tagger import Tagger
+from estnltk.taggers.retagger import Retagger
+
 from estnltk.taggers.tagger_new import TaggerNew
 
 from estnltk.taggers.vocabulary import read_vocabulary
