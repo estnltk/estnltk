@@ -5,9 +5,9 @@ from estnltk.text import Span, Layer
 from estnltk.layer_operations import resolve_conflicts
 
 
-class TokenListTagger(TaggerNew):
+class SpanTagger(TaggerNew):
     """
-    Tags tokens on a given layer. Creates a layer for which the input layer is the parent layer.
+    Tags spans on a given layer. Creates a layer for which the input layer is the parent layer.
     """
     description = 'Tags tokes on a given layer. Creates a layer with parent.'
 
