@@ -16,6 +16,7 @@ class PhraseTagger(TaggerNew):
                  input_layer: str,
                  input_attribute: str,
                  vocabulary: Union[str, dict]=None,
+                 key: str='_phrase_',
                  attributes: Sequence=None,
                  validator: callable=None,
                  conflict_resolving_strategy: str='MAX',
@@ -31,14 +32,16 @@ class PhraseTagger(TaggerNew):
             The name of the input layer.
         input_attribute: str
             The name of the input layer attribute.
-        phrase_list: list of tuples
-            input layer attribute value tuples to annotate
+        vocabulary: dict, str
+            A vocablary dict or file name.
+        key: str
+            The name of the index column if the vocabulary is read from a csv file.
         conflict_resolving_strategy: 'ALL', 'MAX', 'MIN' (default: 'MAX')
             Strategy to choose between overlapping events.
         """
         self.conf_param = ('input_attribute', 'validator',
                            'conflict_resolving_strategy', 'priority_attribute',
-                           '_vocabulary', '_heads', 'all_attributes')
+                           '_vocabulary', '_heads')
         if conflict_resolving_strategy not in {'ALL', 'MIN', 'MAX'}:
             raise ValueError('Unknown conflict_resolving_strategy: ' + str(conflict_resolving_strategy))
         self.conflict_resolving_strategy = conflict_resolving_strategy
@@ -50,9 +53,6 @@ class PhraseTagger(TaggerNew):
         else:
             self.attributes = list(attributes)
 
-        def default_validator(text, span, phrase):
-            return True
-
         if validator is None:
             self.validator = default_validator
         else:
@@ -60,20 +60,17 @@ class PhraseTagger(TaggerNew):
 
         self.depends_on = [input_layer]
 
-        self.all_attributes = set(self.attributes)
-        if priority_attribute is not None:
-            self.all_attributes.add(priority_attribute)
-        self.all_attributes = tuple(self.all_attributes)
-
         if isinstance(vocabulary, str):
             if priority_attribute is None:
-                callable_attributes = ('_phrase_',)
+                callable_attributes = (key,)
             else:
-                callable_attributes = ('_phrase_', priority_attribute)
+                callable_attributes = (key, priority_attribute)
+
+            str_attributes = [attr for attr in self.attributes if attr not in callable_attributes]
 
             self._vocabulary = read_vocabulary(vocabulary_file=vocabulary,
-                                               key='_phrase_',
-                                               string_attributes=self.attributes,
+                                               key=key,
+                                               string_attributes=str_attributes,
                                                callable_attributes=callable_attributes)
         else:
             self._vocabulary = vocabulary
@@ -106,8 +103,8 @@ class PhraseTagger(TaggerNew):
                                     phrase = (value,) + tail
                                     for rec in self._vocabulary[phrase]:
                                         span = input_layer.spans[i:i + len(tail) + 1]
-                                        if self.validator(raw_text, span, phrase):
-                                            for attr in self.all_attributes:
+                                        if self.validator(raw_text, span):
+                                            for attr in self.attributes:
                                                 setattr(span, attr, rec[attr])
                                             layer.add_span(span)
         else:
@@ -124,7 +121,7 @@ class PhraseTagger(TaggerNew):
                                 phrase = (value,) + tail
                                 for rec in self._vocabulary[phrase]:
                                     span = input_layer.spans[i:i + len(tail) + 1]
-                                    if self.validator(raw_text, span, phrase):
+                                    if self.validator(raw_text, span):
                                         for attr in self.attributes:
                                             setattr(span, attr, rec[attr])
                                         layer.add_span(span)
@@ -133,3 +130,7 @@ class PhraseTagger(TaggerNew):
                           conflict_resolving_strategy=self.conflict_resolving_strategy,
                           priority_attribute=self.priority_attribute)
         return layer
+
+
+def default_validator(text, span):
+    return True

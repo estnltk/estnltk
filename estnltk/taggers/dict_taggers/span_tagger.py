@@ -17,10 +17,8 @@ class SpanTagger(TaggerNew):
                  input_attribute: str,
                  vocabulary: Union[dict, str],
                  attributes: Sequence[str]=None,
-                 system_attributes: Sequence[str]=None,
                  key: str= '_token_',
                  validator_attribute: str= '_validator_',
-                 conflict_resolving_strategy: str='MAX',
                  priority_attribute: str=None,
                  ambiguous: bool=False
                  ):
@@ -28,35 +26,31 @@ class SpanTagger(TaggerNew):
 
         Parameters
         ----------
-        layer_name: str
+        :param layer_name: str
             The name of the new layer.
-        input_layer: str
+        :param input_layer: str
             The name of the input layer.
-        input_attribute: str
+        :param input_attribute: str
             The name of the input layer attribute.
-        vocabulary: dict, str
+        :param vocabulary: dict, str
             A dict that maps attribute values of the input layer to a list of records of the output layer attribute
             values.
             If str, the vocabulary is read from the file 'vocabulary'
-        attributes: Sequence[str]
+        :param attributes: Sequence[str]
             Output layer attributes.
-        system_attributes: Sequence[str]
-            System attributes are read from the vocabulary and are even tagged to the spans, but are not declared as the
-            layer attributes. These attributes can be used by validator and conflict resolver.
-        key: str
+        :param key: str
             The name of the index column if the vocabulary is read from a csv file.
-        validator_attribute: str
+        :param validator_attribute: str
             The name of the attribute that points to the validator function in the vocabulary.
-        conflict_resolving_strategy: 'ALL', 'MAX', 'MIN' (default: 'MAX')
-            Strategy to choose between overlapping events.
-        ambiguous: bool
+        :param priority_attribute
+            The name
+        :param ambiguous: bool
             Whether the output layer should be ambiguous or not.
+
+        :returns TaggerNew
         """
-        self.conf_param = ('input_attribute', '_vocabulary', 'validator_attribute', 'all_attributes',
-                           'conflict_resolving_strategy', 'priority_attribute', 'ambiguous')
-        if conflict_resolving_strategy not in {'ALL', 'MIN', 'MAX'}:
-            raise ValueError('Unknown conflict_resolving_strategy: ' + str(conflict_resolving_strategy))
-        self.conflict_resolving_strategy = conflict_resolving_strategy
+        self.conf_param = ('input_attribute', '_vocabulary', 'validator_attribute',
+                           'priority_attribute', 'ambiguous')
         self.priority_attribute = priority_attribute
         self.layer_name = layer_name
         self.input_attribute = input_attribute
@@ -64,17 +58,8 @@ class SpanTagger(TaggerNew):
             self.attributes = []
         else:
             self.attributes = list(attributes)
-        if system_attributes is None:
-            self.all_attributes = self.attributes
-        else:
-            assert set(attributes) & set(system_attributes) == set(),\
-                'list of attributes and list of system_attributes intersect'
-            self.all_attributes = self.attributes + list(system_attributes)
 
         self.validator_attribute = validator_attribute
-
-        def default_validator(raw_text, span):
-            return True
 
         self.depends_on = [input_layer]
 
@@ -83,7 +68,7 @@ class SpanTagger(TaggerNew):
         if isinstance(vocabulary, str):
             self._vocabulary = read_vocabulary(vocabulary_file=vocabulary,
                                                key=key,
-                                               string_attributes=[key] + self.all_attributes,
+                                               string_attributes=[key] + self.attributes,
                                                callable_attributes=[self.validator_attribute],
                                                default_rec={self.validator_attribute: default_validator})
         elif isinstance(vocabulary, dict):
@@ -109,7 +94,7 @@ class SpanTagger(TaggerNew):
                     if value in vocabulary:
                         for rec in vocabulary[value]:
                             span = Span(parent=parent_span)
-                            for attr in self.all_attributes:
+                            for attr in self.attributes:
                                 setattr(span, attr, rec[attr])
                             if rec[validator_key](raw_text, span):
                                 layer.add_span(span)
@@ -119,12 +104,16 @@ class SpanTagger(TaggerNew):
                 if value in vocabulary:
                     for rec in vocabulary[value]:
                         span = Span(parent=parent_span)
-                        for attr in self.all_attributes:
+                        for attr in self.attributes:
                             setattr(span, attr, rec[attr])
                         if rec[validator_key](raw_text, span):
                             layer.add_span(span)
 
         resolve_conflicts(layer,
-                          conflict_resolving_strategy=self.conflict_resolving_strategy,
+                          conflict_resolving_strategy='ALL',
                           priority_attribute=self.priority_attribute)
         return layer
+
+
+def default_validator(raw_text, span):
+    return True
