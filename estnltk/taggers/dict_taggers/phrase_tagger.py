@@ -5,7 +5,7 @@ from collections import defaultdict
 from typing import Sequence, Union
 
 
-class PhraseListTagger(TaggerNew):
+class PhraseTagger(TaggerNew):
     """
     Tags phrases on a given layer. Creates an enveloping layer.
     """
