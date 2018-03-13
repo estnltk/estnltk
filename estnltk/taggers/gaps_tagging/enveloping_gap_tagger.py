@@ -1,3 +1,5 @@
+from typing import Sequence
+
 from estnltk.spans import SpanList
 from estnltk.layer import Layer
 from estnltk.taggers import TaggerNew
@@ -8,25 +10,30 @@ class EnvelopingGapTagger(TaggerNew):
         The resulting spans can be annotated with a decorator function.
     """
     description = 'Tags gaps of input layers.'
-    conf_param = ['decorator', 'input_layers', 'enveloped_layer']
+    conf_param = ['decorator', 'layers_with_gaps', 'enveloped_layer']
 
-    def __init__(self, layer_name, input_layers, enveloped_layer, attributes=(), decorator=None):
-        self.input_layers = input_layers
+    def __init__(self,
+                 output_layer: str,
+                 layers_with_gaps: Sequence[str],
+                 enveloped_layer: str,
+                 output_attributes: Sequence=(),
+                 decorator: callable=None):
+        self.layers_with_gaps = layers_with_gaps
         self.enveloped_layer = enveloped_layer
-        self.depends_on = input_layers + [enveloped_layer]
-        self.layer_name = layer_name
-        assert bool(attributes) == bool(decorator),\
+        self.input_layers = list(layers_with_gaps) + [enveloped_layer]
+        self.output_layer = output_layer
+        assert bool(output_attributes) == bool(decorator),\
             'decorator without attributes or attributes without decorator'
-        self.attributes = tuple(attributes)
+        self.output_attributes = tuple(output_attributes)
         self.decorator = decorator
 
     def make_layer(self, raw_text, input_layers, status):
-        layers = [input_layers[name] for name in self.input_layers]
+        layers = [input_layers[name] for name in self.layers_with_gaps]
         assert all(layer.enveloping == self.enveloped_layer for layer in layers)
         enveloped = input_layers[self.enveloped_layer]
         layer = Layer(
-            name=self.layer_name,
-            attributes=self.attributes,
+            name=self.output_layer,
+            attributes=self.output_attributes,
             parent=None,
             enveloping=self.enveloped_layer,
             ambiguous=False
@@ -36,7 +43,7 @@ class EnvelopingGapTagger(TaggerNew):
             spl.spans = gap
             if self.decorator:
                 decorations = self.decorator(gap)
-                for attr in self.attributes:
+                for attr in self.output_attributes:
                     setattr(spl, attr, decorations[attr])
             layer.add_span(spl)
         return layer

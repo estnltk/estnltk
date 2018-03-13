@@ -12,12 +12,12 @@ class PhraseTagger(TaggerNew):
     description = 'Tags phrases on a given layer. Creates an enveloping layer.'
 
     def __init__(self,
-                 layer_name: str,
+                 output_layer: str,
                  input_layer: str,
                  input_attribute: str,
                  vocabulary: Union[str, dict]=None,
                  key: str='_phrase_',
-                 attributes: Sequence=None,
+                 output_attributes: Sequence=None,
                  validator: callable=None,
                  conflict_resolving_strategy: str='MAX',
                  priority_attribute: str=None
@@ -26,7 +26,7 @@ class PhraseTagger(TaggerNew):
 
         Parameters
         ----------
-        layer_name: str
+        output_layer: str
             The name of the new layer.
         input_layer: str
             The name of the input layer.
@@ -46,19 +46,19 @@ class PhraseTagger(TaggerNew):
             raise ValueError('Unknown conflict_resolving_strategy: ' + str(conflict_resolving_strategy))
         self.conflict_resolving_strategy = conflict_resolving_strategy
         self.priority_attribute = priority_attribute
-        self.layer_name = layer_name
+        self.output_layer = output_layer
         self.input_attribute = input_attribute
-        if attributes is None:
-            self.attributes = []
+        if output_attributes is None:
+            self.output_attributes = []
         else:
-            self.attributes = list(attributes)
+            self.output_attributes = list(output_attributes)
 
         if validator is None:
             self.validator = default_validator
         else:
             self.validator = validator
 
-        self.depends_on = [input_layer]
+        self.input_layers = [input_layer]
 
         if isinstance(vocabulary, str):
             if priority_attribute is None:
@@ -66,7 +66,7 @@ class PhraseTagger(TaggerNew):
             else:
                 callable_attributes = (key, priority_attribute)
 
-            str_attributes = [attr for attr in self.attributes if attr not in callable_attributes]
+            str_attributes = [attr for attr in self.output_attributes if attr not in callable_attributes]
 
             self._vocabulary = read_vocabulary(vocabulary_file=vocabulary,
                                                key=key,
@@ -80,10 +80,10 @@ class PhraseTagger(TaggerNew):
             self._heads[phrase[0]].append(phrase[1:])
 
     def make_layer(self, raw_text: str, input_layers: dict, status: dict):
-        input_layer = input_layers[self.depends_on[0]]
+        input_layer = input_layers[self.input_layers[0]]
         layer = Layer(
-            name=self.layer_name,
-            attributes=self.attributes,
+            name=self.output_layer,
+            attributes=self.output_attributes,
             enveloping=input_layer.name,
             ambiguous=False)
         heads = self._heads
@@ -104,7 +104,7 @@ class PhraseTagger(TaggerNew):
                                     for rec in self._vocabulary[phrase]:
                                         span = input_layer.spans[i:i + len(tail) + 1]
                                         if self.validator(raw_text, span):
-                                            for attr in self.attributes:
+                                            for attr in self.output_attributes:
                                                 setattr(span, attr, rec[attr])
                                             layer.add_span(span)
         else:
@@ -122,7 +122,7 @@ class PhraseTagger(TaggerNew):
                                 for rec in self._vocabulary[phrase]:
                                     span = input_layer.spans[i:i + len(tail) + 1]
                                     if self.validator(raw_text, span):
-                                        for attr in self.attributes:
+                                        for attr in self.output_attributes:
                                             setattr(span, attr, rec[attr])
                                         layer.add_span(span)
 

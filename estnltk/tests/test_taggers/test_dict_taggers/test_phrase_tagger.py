@@ -6,12 +6,12 @@ from estnltk.tests.helpers.text_objects import new_text
 
 def test_basic():
     vocabulary = join(dirname(__file__), 'phrase_vocabulary.csv')
-    tagger = PhraseTagger(layer_name='phrases',
+    tagger = PhraseTagger(output_layer='phrases',
                           input_layer='layer_0',
                           input_attribute='attr',
                           vocabulary=vocabulary,
                           key='_phrase_',
-                          attributes=['number', 'letter', '_priority_'],
+                          output_attributes=['number', 'letter', '_priority_'],
                           conflict_resolving_strategy='ALL',
                           priority_attribute='_priority_'
                           )

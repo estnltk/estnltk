@@ -8,9 +8,9 @@ class TaggerNew:
     The following needs to be implemented in a derived class:
     conf_param
     description
-    depends_on
-    layer_name
-    attributes
+    input_layers
+    output_layer
+    output_attributes
     __init__(...)
     make_layer(...)
     """
@@ -19,7 +19,7 @@ class TaggerNew:
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
 
     def __setattr__(self, key, value):
-        assert key in {'conf_param', 'description', 'layer_name', 'attributes', 'depends_on'} or\
+        assert key in {'conf_param', 'description', 'output_layer', 'output_attributes', 'input_layers'} or\
                key in self.conf_param,\
                'attribute must be listed in conf_param: ' + key
         super.__setattr__(self, key, value)
@@ -28,13 +28,13 @@ class TaggerNew:
         raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
     def _make_layer(self, text: Text, status: dict = None) -> Layer:
-        input_layers = {name: text.layers[name] for name in self.depends_on}
+        input_layers = {name: text.layers[name] for name in self.input_layers}
 
         if status is None:
             status = {}
         layer = self.make_layer(text.text, input_layers, status)
         assert isinstance(layer, Layer), 'make_layer must return Layer'
-        assert layer.name == self.layer_name, 'incorrect layer name: {} != {}'.format(layer.name, self.layer_name)
+        assert layer.name == self.output_layer, 'incorrect layer name: {} != {}'.format(layer.name, self.output_layer)
         return layer
 
     def tag(self, text: Text, status: dict = None) -> Text:
@@ -43,8 +43,8 @@ class TaggerNew:
         status: dict, default {}
             This can be used to store metadata on layer creation.
         """
-        # input_layers = {name: text.layers[name] for name in self.depends_on}
-        text[self.layer_name] = self._make_layer(text, status)
+        # input_layers = {name: text.layers[name] for name in self.input_layers}
+        text[self.output_layer] = self._make_layer(text, status)
         return text
 
     def __call__(self, text: Text, status: dict = None) -> Text:
@@ -54,10 +54,10 @@ class TaggerNew:
         import pandas
         pandas.set_option('display.max_colwidth', -1)
         parameters = {'name': self.__class__.__name__,
-                      'layer': self.layer_name,
-                      'attributes': str(self.attributes),
-                      'depends_on': str(self.depends_on)}
-        table = pandas.DataFrame(parameters, columns=['name', 'layer', 'attributes', 'depends_on'], index=[0])
+                      'output layer': self.output_layer,
+                      'output attributes': str(self.output_attributes),
+                      'input layers': str(self.input_layers)}
+        table = pandas.DataFrame(parameters, columns=['name', 'output layer', 'output attributes', 'input layers'], index=[0])
         table = table.to_html(index=False)
         table = ['<h4>Tagger</h4>', self.description, table]
 

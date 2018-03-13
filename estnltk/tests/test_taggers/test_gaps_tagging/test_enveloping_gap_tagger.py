@@ -30,11 +30,11 @@ def test_enveloping_gaps_tagger():
     def decorator(spans):
         return {'gap_word_count': len(spans)}
 
-    gaps_tagger = EnvelopingGapTagger(layer_name='gaps',
-                                       input_layers=['test_3', 'test_4'],
-                                       enveloped_layer='words',
-                                       decorator=decorator,
-                                       attributes=['gap_word_count'])
+    gaps_tagger = EnvelopingGapTagger(output_layer='gaps',
+                                      layers_with_gaps=['test_3', 'test_4'],
+                                      enveloped_layer='words',
+                                      decorator=decorator,
+                                      output_attributes=['gap_word_count'])
 
     gaps_tagger.tag(text)
     assert text.gaps.text == [['kolm'], ['kuus', 'seitse', '.']]

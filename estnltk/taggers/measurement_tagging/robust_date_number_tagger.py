@@ -1,3 +1,5 @@
+from typing import Sequence
+
 from estnltk.taggers import RegexTagger
 from estnltk.taggers.tagger_new import TaggerNew
 
@@ -13,19 +15,20 @@ class RobustDateNumberTagger(TaggerNew):
     conf_param = ['tagger']
 
     def __init__(self,
-                 attributes=('grammar_symbol', 'regex_type', 'value'),
-                 conflict_resolving_strategy='MAX',
-                 overlapped=True,
-                 layer_name='dates_numbers',
+                 output_attributes: Sequence=('grammar_symbol', 'regex_type', 'value'),
+                 conflict_resolving_strategy: str='MAX',
+                 overlapped: bool=True,
+                 output_layer: str='dates_numbers',
                  ):
-        self.attributes = attributes
-        self.layer_name = layer_name
+        self.output_attributes = output_attributes
+        self.output_layer = output_layer
+        self.input_layers = []
         self.tagger = RegexTagger(vocabulary=voc,
-                                  attributes=attributes,
+                                  attributes=output_attributes,
                                   conflict_resolving_strategy=conflict_resolving_strategy,
                                   priority_attribute='_priority_',
                                   overlapped=overlapped,
-                                  layer_name=layer_name)
+                                  layer_name=output_layer)
 
     def make_layer(self, text, input_layers, status):
         return self.tagger.make_layer(text, status=status)

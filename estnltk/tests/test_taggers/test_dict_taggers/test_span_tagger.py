@@ -6,11 +6,11 @@ from estnltk.tests.helpers.text_objects import new_text
 
 def test_basic():
     vocabulary = join(dirname(__file__), 'span_vocabulary.csv')
-    tagger = SpanTagger(layer_name='tagged_tokens',
+    tagger = SpanTagger(output_layer='tagged_tokens',
                         input_layer='layer_0',
                         input_attribute='attr',
                         vocabulary=vocabulary,
-                        attributes=['number', 'letter', '_priority_'],
+                        output_attributes=['number', 'letter', '_priority_'],
                         key='_token_',
                         validator_attribute='_validator_',
                         priority_attribute=None,
