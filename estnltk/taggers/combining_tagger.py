@@ -4,7 +4,8 @@ from estnltk.layer_operations import merge_layers
 
 
 class CombiningTagger(TaggerNew):
-    description = 'Combines taggers.'
+    """Runs input taggers in parallel and resolves conflicts."""
+    description = 'Runs input taggers in parallel and resolves conflicts.'
     conf_param = ('_taggers', 'priority_attribute')
 
     def __init__(self,
