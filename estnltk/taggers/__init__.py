@@ -3,10 +3,9 @@ from estnltk.taggers.retagger import Retagger
 
 from estnltk.taggers.tagger_new import TaggerNew
 
-from estnltk.taggers.vocabulary import read_vocabulary
-
 from estnltk.taggers.combined_tagger import CombinedTagger
 
+from estnltk.taggers.dict_taggers.vocabulary import read_vocabulary
 from estnltk.taggers.dict_taggers.phrase_tagger import PhraseTagger
 from estnltk.taggers.dict_taggers.span_tagger import SpanTagger
 
