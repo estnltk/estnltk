@@ -12,7 +12,7 @@ def read_vocabulary(vocabulary_file: str,
                     default_rec: dict=None
                     ):
     """
-    Reads a csv file and returns a dict that is used by several taggers as an input _vocabulary.
+    Reads a csv file and returns a dict that is used by several taggers as an input vocabulary.
 
     :param vocabulary_file:
         Name of the input csv file.
@@ -34,20 +34,21 @@ def read_vocabulary(vocabulary_file: str,
     :return: dict
         Map key value to a list of dicts.
     """
-    vocabulary = read_csv(vocabulary_file, na_filter=False, index_col=False).to_dict('records')
+    assert vocabulary_file, 'empty vocabulary_file'
 
-    assert vocabulary, 'empty vocabulary_file'
+    records = read_csv(vocabulary_file, na_filter=False, index_col=False).to_dict('records')
+
     len_attr = len(string_attributes) + len(regex_attributes) + len(callable_attributes)
     assert len_attr, 'no attribute names given'
     union_attr = set(string_attributes) | set(regex_attributes) | set(callable_attributes)
     assert key in union_attr, 'k not among attributes'
     assert len_attr == len(union_attr), 'same attribute in different categories'
 
-    result = defaultdict(list)
+    vocabulary = defaultdict(list)
     if default_rec is None:
         default_rec = {}
 
-    for record in vocabulary:
+    for record in records:
         rec = default_rec.copy()
         for k in string_attributes:
             if k in record:
@@ -81,5 +82,22 @@ def read_vocabulary(vocabulary_file: str,
             rec[k] = value
         key_value = rec[key]
         del rec[key]
-        result[key_value].append(rec)
-    return dict(result)
+        vocabulary[key_value].append(rec)
+    return dict(vocabulary)
+
+
+def records_to_vocabulary(records, key):
+    pass
+
+
+def vocabulary_to_records(vocabulary: dict, key: str):
+    records = []
+    try:
+        key_value_list = sorted(vocabulary)
+    except TypeError:
+        key_value_list = list(vocabulary)
+    for key_value in key_value_list:#, decorations in vocabulary.items():
+        for record in vocabulary[key_value]:
+            record[key] = key_value
+            records.append(record)
+    return records
