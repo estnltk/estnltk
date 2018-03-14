@@ -10,10 +10,14 @@ class GapTagger(TaggerNew):
         These regions can be trimmed by trim function and annotated by decorator function.
     """
     description = 'Tags gaps of input layers.'
-    output_attributes = ()
     conf_param = ['decorator', 'trim']
 
-    def __init__(self, output_layer, input_layers, trim=None, output_attributes=(), decorator=None):
+    def __init__(self,
+                 output_layer,
+                 input_layers,
+                 trim=None,
+                 output_attributes=(),
+                 decorator=None):
         self.input_layers = input_layers
         self.output_layer = output_layer
         self.trim = trim
@@ -22,10 +26,7 @@ class GapTagger(TaggerNew):
         self.output_attributes = tuple(output_attributes)
         self.decorator = decorator
 
-    def change_layer(self, text, input_layers, status):
-        raise NotImplementedError
-
-    def make_layer(self, raw_text, input_layers, status):
+    def make_layer(self, raw_text, layers, status):
         layer = Layer(
             name=self.output_layer,
             attributes=self.output_attributes,
@@ -33,7 +34,7 @@ class GapTagger(TaggerNew):
             enveloping=None,
             ambiguous=False
             )
-        layers = list(input_layers.values())
+        layers = [layers[layer] for layer in self.input_layers]
         for start, end in find_gaps(layers, len(raw_text)):
             assert start < end
             if self.trim:

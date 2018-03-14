@@ -27,10 +27,10 @@ class EnvelopingGapTagger(TaggerNew):
         self.output_attributes = tuple(output_attributes)
         self.decorator = decorator
 
-    def make_layer(self, raw_text, input_layers, status):
-        layers = [input_layers[name] for name in self.layers_with_gaps]
-        assert all(layer.enveloping == self.enveloped_layer for layer in layers)
-        enveloped = input_layers[self.enveloped_layer]
+    def make_layer(self, raw_text, layers, status):
+        layers_with_gaps = [layers[name] for name in self.layers_with_gaps]
+        assert all(layer.enveloping == self.enveloped_layer for layer in layers_with_gaps)
+        enveloped = layers[self.enveloped_layer]
         layer = Layer(
             name=self.output_layer,
             attributes=self.output_attributes,
@@ -38,7 +38,7 @@ class EnvelopingGapTagger(TaggerNew):
             enveloping=self.enveloped_layer,
             ambiguous=False
             )
-        for gap in enveloping_gaps(layers, enveloped):
+        for gap in enveloping_gaps(layers_with_gaps, enveloped):
             spl = SpanList()
             spl.spans = gap
             if self.decorator:

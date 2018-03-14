@@ -24,15 +24,13 @@ class TaggerNew:
                'attribute must be listed in conf_param: ' + key
         super.__setattr__(self, key, value)
 
-    def make_layer(self, raw_text: str, input_layers: dict, status: dict) -> Layer:
+    def make_layer(self, raw_text: str, layers: dict, status: dict) -> Layer:
         raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
     def _make_layer(self, text: Text, status: dict = None) -> Layer:
-        input_layers = {name: text.layers[name] for name in self.input_layers}
-
         if status is None:
             status = {}
-        layer = self.make_layer(text.text, input_layers, status)
+        layer = self.make_layer(text.text, text.layers, status)
         assert isinstance(layer, Layer), 'make_layer must return Layer'
         assert layer.name == self.output_layer, 'incorrect layer name: {} != {}'.format(layer.name, self.output_layer)
         return layer

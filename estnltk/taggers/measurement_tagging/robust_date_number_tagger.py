@@ -11,7 +11,6 @@ class RobustDateNumberTagger(TaggerNew):
     Tags dates and numbers.
     """
     description = 'Tags dates and numbers.'
-    depends_on = []
     conf_param = ['tagger']
 
     def __init__(self,
@@ -30,5 +29,5 @@ class RobustDateNumberTagger(TaggerNew):
                                   overlapped=overlapped,
                                   layer_name=output_layer)
 
-    def make_layer(self, text, input_layers, status):
-        return self.tagger.make_layer(text, status=status)
+    def make_layer(self, raw_text, layers, status):
+        return self.tagger.make_layer(raw_text, layers, status)

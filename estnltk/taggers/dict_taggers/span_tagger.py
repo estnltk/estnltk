@@ -76,8 +76,8 @@ class SpanTagger(TaggerNew):
         else:
             assert False, 'vocabulary type not supported: ' + str(type(vocabulary))
 
-    def make_layer(self, raw_text: str, input_layers: dict, status: dict):
-        input_layer = input_layers[self.input_layers[0]]
+    def make_layer(self, raw_text: str, layers: dict, status: dict):
+        input_layer = layers[self.input_layers[0]]
         layer = Layer(
             name=self.output_layer,
             attributes=self.output_attributes,

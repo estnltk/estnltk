@@ -3,7 +3,9 @@ from estnltk.spans import Span, SpanList
 from estnltk.layer import Layer
 
 
-def merge_layers(layers: Sequence[Layer], layer_name: str, attributes: Sequence[str]) -> Layer:
+def merge_layers(layers: Sequence[Layer],
+                 output_layer: str,
+                 output_attributes: Sequence[str]) -> Layer:
     """
     Creates a new layer spans of which is the union of spans of input layers.
     The input layers must be of the same type (parent, enveloping, ambiguous).
@@ -18,8 +20,8 @@ def merge_layers(layers: Sequence[Layer], layer_name: str, attributes: Sequence[
     assert all(layer.ambiguous == ambiguous for layer in layers)
 
     new_layer = Layer(
-        name=layer_name,
-        attributes=tuple(attributes),
+        name=output_layer,
+        attributes=tuple(output_attributes),
         parent=parent,
         enveloping=enveloping,
         ambiguous=ambiguous
@@ -28,7 +30,7 @@ def merge_layers(layers: Sequence[Layer], layer_name: str, attributes: Sequence[
     if enveloping:
         for layer in layers:
             layer_attributes = layer.attributes
-            none_attributes = [attr for attr in attributes if attr not in layer_attributes]
+            none_attributes = [attr for attr in output_attributes if attr not in layer_attributes]
             for span in layer:
                 new_span = SpanList()
                 new_span.spans = span
@@ -43,9 +45,9 @@ def merge_layers(layers: Sequence[Layer], layer_name: str, attributes: Sequence[
     else:
         for layer in layers:
             layer_attributes = layer.attributes
-            none_attributes = [attr for attr in attributes if attr not in layer_attributes]
+            none_attributes = [attr for attr in output_attributes if attr not in layer_attributes]
             for span in layer:
-                new_span = Span(span.start, span.end, legal_attributes=attributes)
+                new_span = Span(span.start, span.end, legal_attributes=output_attributes)
                 for attr in layer_attributes:
                     setattr(new_span, attr, getattr(span, attr))
                 for attr in none_attributes:
