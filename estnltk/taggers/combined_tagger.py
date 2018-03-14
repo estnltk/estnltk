@@ -3,7 +3,7 @@ from estnltk.taggers import TaggerNew
 from estnltk.layer_operations import merge_layers
 
 
-class CombiningTagger(TaggerNew):
+class CombinedTagger(TaggerNew):
     """Runs input taggers in parallel and resolves conflicts."""
     description = 'Runs input taggers in parallel and resolves conflicts.'
     conf_param = ('_taggers', 'priority_attribute')
