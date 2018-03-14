@@ -7,7 +7,7 @@ from .layer_operations import dict_to_df
 from .layer_operations import diff_layer
 from .layer_operations import group_by_spans
 from .layer_operations import conflicts
-from .merging import merge_layers
+from .merge import merge_layers
 from .combine import combine_layers
 from .conflict_resolver import resolve_conflicts
 from .splitting import extract_section
