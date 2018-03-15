@@ -9,8 +9,6 @@ class PhraseTagger(TaggerNew):
     """
     Tags phrases on a given layer. Creates an enveloping layer.
     """
-    description = 'Tags phrases on a given layer. Creates an enveloping layer.'
-
     def __init__(self,
                  output_layer: str,
                  input_layer: str,
@@ -18,30 +16,33 @@ class PhraseTagger(TaggerNew):
                  vocabulary: Union[str, dict]=None,
                  key: str='_phrase_',
                  output_attributes: Sequence=None,
-                 validator: callable=None,
+                 global_validator: callable=None,
+                 validator_attribute: str='_validator_',
                  conflict_resolving_strategy: str='MAX',
-                 priority_attribute: str=None
+                 priority_attribute: str=None,
+                 ambiguous: bool=False
                  ):
         """Initialize a new EventSequenceTagger instance.
 
-        Parameters
-        ----------
-        output_layer: str
+        :param output_layer: str
             The name of the new layer.
-        input_layer: str
+        :param input_layer: str
             The name of the input layer.
-        input_attribute: str
+        :param input_attribute: str
             The name of the input layer attribute.
-        vocabulary: dict, str
-            A vocablary dict or file name.
-        key: str
+        :param vocabulary: dict, str
+            A vocabulary dict or file name.
+        :param global_validator: callable
+            Global global_validator function.
+        :param validator_attribute: str
+            The name of the attribute that points to the global_validator function in the vocabulary.
+        :param key: str
             The name of the index column if the vocabulary is read from a csv file.
-        conflict_resolving_strategy: 'ALL', 'MAX', 'MIN' (default: 'MAX')
+        :param  conflict_resolving_strategy: 'ALL', 'MAX', 'MIN' (default: 'MAX')
             Strategy to choose between overlapping events.
         """
-        self.conf_param = ('input_attribute', 'validator',
-                           'conflict_resolving_strategy', 'priority_attribute',
-                           '_vocabulary', '_heads')
+        self.conf_param = ('input_attribute', 'global_validator', 'validator_attribute', 'conflict_resolving_strategy',
+                           'priority_attribute', 'ambiguous', '_vocabulary', '_heads')
         if conflict_resolving_strategy not in {'ALL', 'MIN', 'MAX'}:
             raise ValueError('Unknown conflict_resolving_strategy: ' + str(conflict_resolving_strategy))
         self.conflict_resolving_strategy = conflict_resolving_strategy
@@ -53,12 +54,15 @@ class PhraseTagger(TaggerNew):
         else:
             self.output_attributes = list(output_attributes)
 
-        if validator is None:
-            self.validator = default_validator
+        self.validator_attribute = validator_attribute
+        if global_validator is None:
+            self.global_validator = default_validator
         else:
-            self.validator = validator
+            self.global_validator = global_validator
 
         self.input_layers = [input_layer]
+
+        self.ambiguous = ambiguous
 
         if isinstance(vocabulary, str):
             if priority_attribute is None:
@@ -71,7 +75,8 @@ class PhraseTagger(TaggerNew):
             self._vocabulary = read_vocabulary(vocabulary_file=vocabulary,
                                                key=key,
                                                string_attributes=str_attributes,
-                                               callable_attributes=callable_attributes)
+                                               callable_attributes=callable_attributes,
+                                               default_rec={self.validator_attribute: default_validator})
         else:
             self._vocabulary = vocabulary
 
@@ -85,7 +90,7 @@ class PhraseTagger(TaggerNew):
             name=self.output_layer,
             attributes=self.output_attributes,
             enveloping=input_layer.name,
-            ambiguous=False)
+            ambiguous=self.ambiguous)
         heads = self._heads
         value_list = getattr(input_layer, self.input_attribute)
         if input_layer.ambiguous:
@@ -103,7 +108,7 @@ class PhraseTagger(TaggerNew):
                                     phrase = (value,) + tail
                                     for rec in self._vocabulary[phrase]:
                                         span = input_layer.spans[i:i + len(tail) + 1]
-                                        if self.validator(raw_text, span):
+                                        if self.global_validator(raw_text, span) and rec[self.validator_attribute](raw_text, span):
                                             for attr in self.output_attributes:
                                                 setattr(span, attr, rec[attr])
                                             layer.add_span(span)
@@ -121,7 +126,7 @@ class PhraseTagger(TaggerNew):
                                 phrase = (value,) + tail
                                 for rec in self._vocabulary[phrase]:
                                     span = input_layer.spans[i:i + len(tail) + 1]
-                                    if self.validator(raw_text, span):
+                                    if self.global_validator(raw_text, span) and rec[self.validator_attribute](raw_text, span):
                                         for attr in self.output_attributes:
                                             setattr(span, attr, rec[attr])
                                         layer.add_span(span)
