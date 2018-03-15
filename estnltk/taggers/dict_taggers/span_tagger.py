@@ -9,23 +9,21 @@ class SpanTagger(TaggerNew):
     """
     Tags spans on a given layer. Creates a layer for which the input layer is the parent layer.
     """
-    description = 'Tags tokes on a given layer. Creates a layer with parent.'
 
     def __init__(self,
                  output_layer: str,
                  input_layer: str,
                  input_attribute: str,
                  vocabulary: Union[dict, str],
-                 output_attributes: Sequence[str]=None,
                  key: str= '_token_',
+                 output_attributes: Sequence[str]=None,
+                 global_validator: callable=None,
                  validator_attribute: str= '_validator_',
                  priority_attribute: str=None,
                  ambiguous: bool=False
                  ):
         """Initialize a new TokenListTagger instance.
 
-        Parameters
-        ----------
         :param output_layer: str
             The name of the new layer.
         :param input_layer: str
@@ -40,16 +38,16 @@ class SpanTagger(TaggerNew):
             Output layer attributes.
         :param key: str
             The name of the index column if the vocabulary is read from a csv file.
+        :param global_validator: callable
+            Global global_validator function.
         :param validator_attribute: str
-            The name of the attribute that points to the validator function in the vocabulary.
+            The name of the attribute that points to the global_validator function in the vocabulary.
         :param priority_attribute
             The name
         :param ambiguous: bool
             Whether the output layer should be ambiguous or not.
-
-        :returns TaggerNew
         """
-        self.conf_param = ('input_attribute', '_vocabulary', 'validator_attribute',
+        self.conf_param = ('input_attribute', '_vocabulary', 'global_validator', 'validator_attribute',
                            'priority_attribute', 'ambiguous')
         self.priority_attribute = priority_attribute
         self.output_layer = output_layer
@@ -60,6 +58,10 @@ class SpanTagger(TaggerNew):
             self.output_attributes = list(output_attributes)
 
         self.validator_attribute = validator_attribute
+
+        if global_validator is None:
+            global_validator = default_validator
+        self.global_validator = global_validator
 
         self.input_layers = [input_layer]
 
@@ -96,7 +98,7 @@ class SpanTagger(TaggerNew):
                             span = Span(parent=parent_span)
                             for attr in self.output_attributes:
                                 setattr(span, attr, rec[attr])
-                            if rec[validator_key](raw_text, span):
+                            if self.global_validator(raw_text, span) and rec[validator_key](raw_text, span):
                                 layer.add_span(span)
         else:
             for parent_span in input_layer:
@@ -106,7 +108,7 @@ class SpanTagger(TaggerNew):
                         span = Span(parent=parent_span)
                         for attr in self.output_attributes:
                             setattr(span, attr, rec[attr])
-                        if rec[validator_key](raw_text, span):
+                        if self.global_validator(raw_text, span) and rec[validator_key](raw_text, span):
                             layer.add_span(span)
 
         resolve_conflicts(layer,
