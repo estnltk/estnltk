@@ -90,6 +90,14 @@ def records_to_vocabulary(records, key):
     pass
 
 
+def csv_to_records(vocabulary_file):
+    return read_csv(vocabulary_file, na_filter=False, index_col=False).to_dict('records')
+
+
+def records_to_df(records):
+    pass
+
+
 def vocabulary_to_records(vocabulary: dict, key: str):
     records = []
     try:
