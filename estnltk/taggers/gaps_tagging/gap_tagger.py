@@ -9,7 +9,6 @@ class GapTagger(TaggerNew):
     """ Tags all text regions that are not covered by any span of any input layer.
         These regions can be trimmed by trim function and annotated by decorator function.
     """
-    description = 'Tags gaps of input layers.'
     conf_param = ['decorator', 'trim']
 
     def __init__(self,

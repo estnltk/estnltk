@@ -10,7 +10,6 @@ class RobustDateNumberTagger(TaggerNew):
     """
     Tags dates and numbers.
     """
-    description = 'Tags dates and numbers.'
     conf_param = ['tagger']
 
     def __init__(self,

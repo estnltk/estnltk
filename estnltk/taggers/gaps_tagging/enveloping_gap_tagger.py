@@ -9,7 +9,6 @@ class EnvelopingGapTagger(TaggerNew):
     """ Tags all spans that are not covered by any span of any input layer.
         The resulting spans can be annotated with a decorator function.
     """
-    description = 'Tags gaps of input layers.'
     conf_param = ['decorator', 'layers_with_gaps', 'enveloped_layer']
 
     def __init__(self,

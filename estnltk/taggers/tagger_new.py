@@ -7,7 +7,6 @@ class TaggerNew:
 
     The following needs to be implemented in a derived class:
     conf_param
-    description
     input_layers
     output_layer
     output_attributes
@@ -19,7 +18,7 @@ class TaggerNew:
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
 
     def __setattr__(self, key, value):
-        assert key in {'conf_param', 'description', 'output_layer', 'output_attributes', 'input_layers'} or\
+        assert key in {'conf_param', 'output_layer', 'output_attributes', 'input_layers'} or\
                key in self.conf_param,\
                'attribute must be listed in conf_param: ' + key
         super.__setattr__(self, key, value)
@@ -57,7 +56,9 @@ class TaggerNew:
                       'input layers': str(self.input_layers)}
         table = pandas.DataFrame(parameters, columns=['name', 'output layer', 'output attributes', 'input layers'], index=[0])
         table = table.to_html(index=False)
-        table = ['<h4>Tagger</h4>', self.description, table]
+        assert self.__class__.__doc__ is not None, 'No docstring.'
+        description = self.__class__.__doc__.strip().split('\n')[0]
+        table = ['<h4>Tagger</h4>', description, table]
 
         def to_str(value):
             value_str = str(value)

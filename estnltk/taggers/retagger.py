@@ -1,4 +1,4 @@
-from estnltk.text import Text, Layer
+from estnltk.text import Text
 
 
 class Retagger:
@@ -7,7 +7,6 @@ class Retagger:
 
     The following needs to be implemented in a derived class:
     conf_param
-    description
     depends_on
     layer_name
     attributes
@@ -59,7 +58,9 @@ class Retagger:
                       'input layers': str(self.input_layers)}
         table = pandas.DataFrame(parameters, columns=['name', 'output layer', 'output attributes', 'input layers'], index=[0])
         table = table.to_html(index=False)
-        table = ['<h4>Retagger</h4>', self.description, table]
+        assert self.__class__.__doc__ is not None, 'No docstring.'
+        description = self.__class__.__doc__.strip().split('\n')[0]
+        table = ['<h4>Retagger</h4>', description, table]
 
         def to_str(value):
             value_str = str(value)

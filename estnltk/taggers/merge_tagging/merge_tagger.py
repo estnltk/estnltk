@@ -7,7 +7,6 @@ from estnltk.layer_operations import merge_layers
 class MergeTagger(TaggerNew):
     """ Merges input layers.
     """
-    description = 'Merges input layers.'
     conf_param = ()
 
     def __init__(self,
