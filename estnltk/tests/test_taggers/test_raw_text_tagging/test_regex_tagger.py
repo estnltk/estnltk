@@ -1,5 +1,5 @@
 from estnltk import Text
-from estnltk.taggers import RegexTagger
+from estnltk.taggers import RegexTaggerOld
 
 
 def test_validator():
@@ -15,7 +15,7 @@ def test_validator():
          'comment': 'starts with zero'}
     ]
 
-    regex_tagger = RegexTagger(layer_name='numbers', vocabulary=vocabulary, attributes=['comment'])
+    regex_tagger = RegexTaggerOld(layer_name='numbers', vocabulary=vocabulary, attributes=['comment'])
     text = Text('3209 n  0930 093 2304209 093402')
     regex_tagger.tag(text)
     assert text.numbers.text == ['3209', '0930', '093', '2304209', '093402']

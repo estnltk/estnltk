@@ -7,7 +7,7 @@
 import regex as re
 
 from estnltk.text import Span, SpanList, Layer, Text
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 
 from estnltk.taggers.morph.morf_common import IGNORE_ATTR
 from estnltk.taggers.morph.morf_common import ESTNLTK_MORPH_ATTRIBUTES
@@ -18,7 +18,7 @@ from estnltk.taggers.morph.morf_common import _is_empty_span
 from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 
 
-class PostMorphAnalysisTagger(Tagger):
+class PostMorphAnalysisTaggerOld(TaggerOld):
     description   = "Provides corrections to morphological analysis layer. "+\
                     "This tagger should be applied before morphological disambiguation."
     layer_name    = None
@@ -39,7 +39,7 @@ class PostMorphAnalysisTagger(Tagger):
                  remove_duplicates:bool=True, \
                  correction_rewriter=VabamorfCorrectionRewriter() ,\
                  **kwargs):
-        """Initialize PostMorphAnalysisTagger class.
+        """Initialize PostMorphAnalysisTaggerOld class.
 
         Parameters
         ----------

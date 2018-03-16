@@ -5,8 +5,8 @@ A. H. Tammsaare 1935. aastal: 1,0 m / s = 3,67 km/h.'''
     from estnltk import Text
     text = Text(T)
 
-    from estnltk.taggers import TokensTagger
-    tokens_tagger = TokensTagger()
+    from estnltk.taggers import TokensTaggerOld
+    tokens_tagger = TokensTaggerOld()
     tokens_tagger.tag(text)
     assert text['tokens'].text == ['Aadressilt', 'bla', '@', 'bla', '.', 'ee',
                                    'tuli', '10', '000', 'kirja', '.', 'Kirjad',
@@ -16,8 +16,8 @@ A. H. Tammsaare 1935. aastal: 1,0 m / s = 3,67 km/h.'''
                                    ',', '0', 'm', '/', 's', '=', '3', ',', '67',
                                    'km', '/', 'h', '.']
 
-    from estnltk.taggers import CompoundTokenTagger
-    compound_token_tagger = CompoundTokenTagger()
+    from estnltk.taggers import CompoundTokenTaggerOld
+    compound_token_tagger = CompoundTokenTaggerOld()
     text.tag_layer(['tokens'])
     compound_token_tagger.tag(text)
     assert text['compound_tokens'].text == [['bla', '@', 'bla', '.', 'ee'],
@@ -30,8 +30,8 @@ A. H. Tammsaare 1935. aastal: 1,0 m / s = 3,67 km/h.'''
                                             ['3', ',', '67'],
                                             ['km', '/', 'h']]
 
-    from estnltk.taggers import WordTagger
-    word_tagger = WordTagger()
+    from estnltk.taggers import WordTaggerOld
+    word_tagger = WordTaggerOld()
     text.tag_layer(['compound_tokens'])
     word_tagger.tag(text)
     assert text['words'].text == ['Aadressilt', 'bla@bla.ee', 'tuli', '10 000', 

@@ -11,8 +11,8 @@ import regex as re
 from collections import OrderedDict
 
 from estnltk.text import Span, Layer, Text
-from estnltk.taggers import Tagger
-from estnltk.taggers import VabamorfTagger
+from estnltk.taggers import TaggerOld
+from estnltk.taggers import VabamorfTaggerOld
 
 from estnltk.taggers.morph.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph.morf_common import _is_empty_span
@@ -619,10 +619,10 @@ def _create_spans( text: Text, morph_dict_list:list, layer:Layer = None ):
 
 # ===================================================================
 
-class GTMorphConverter(Tagger):
+class GTMorphConverter(TaggerOld):
     description   = "Converts morphological analyses from Vabamorf's format to Giellatekno's (GT) format."
     layer_name    = None
-    attributes    = VabamorfTagger.attributes
+    attributes    = VabamorfTaggerOld.attributes
     depends_on    = None
     configuration = None
     

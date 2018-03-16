@@ -24,7 +24,7 @@ from datetime import timedelta
 
 from estnltk import Text
 from estnltk.taggers import SentenceTokenizer
-from estnltk.taggers.syntax_preprocessing.syntax_ignore_tagger import SyntaxIgnoreTagger
+from estnltk.taggers.syntax_preprocessing.syntax_ignore_tagger import SyntaxIgnoreTaggerOld
 from estnltk.taggers.morph.gt_morf import GTMorphConverter
 
 from estnltk.converters import export_json
@@ -187,7 +187,7 @@ if out_dir and in_dir:
     print(' Found',len(all_files),' files.')
     # =======  Initialize
     sentence_tokenizer   = SentenceTokenizer()
-    syntax_ignore_tagger = SyntaxIgnoreTagger()
+    syntax_ignore_tagger = SyntaxIgnoreTaggerOld()
     gt_converter         = GTMorphConverter()
     startTime = datetime.now() 
     elapsed = 0

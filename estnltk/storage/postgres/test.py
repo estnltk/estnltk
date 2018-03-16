@@ -9,7 +9,7 @@ import random
 import os
 
 from estnltk import Text
-from estnltk.taggers import VabamorfTagger
+from estnltk.taggers import VabamorfTaggerOld
 from estnltk.storage.postgres import PostgresStorage, PgStorageException, JsonbTextQuery as Q, JsonbLayerQuery
 
 
@@ -203,13 +203,13 @@ class TestLayer(unittest.TestCase):
         col.insert(text2)
 
         layer1 = "layer1"
-        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
+        tagger1 = VabamorfTaggerOld(disambiguate=False, layer_name=layer1)
         col.create_layer(layer1, callable=lambda t: tagger1.tag(t, return_layer=True))
         tagger1.tag(text1)
         tagger1.tag(text2)
 
         layer2 = "layer2"
-        tagger2 = VabamorfTagger(disambiguate=False, layer_name=layer2)
+        tagger2 = VabamorfTaggerOld(disambiguate=False, layer_name=layer2)
         col.create_layer(layer2, callable=lambda t: tagger2.tag(t, return_layer=True))
         tagger2.tag(text1)
         tagger2.tag(text2)
@@ -244,7 +244,7 @@ class TestLayer(unittest.TestCase):
         # test ambiguous layer
         layer1 = "layer1"
         layer1_table = self.storage.layer_name_to_table_name(table_name, layer1)
-        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
+        tagger1 = VabamorfTaggerOld(disambiguate=False, layer_name=layer1)
         col.create_layer(layer1, callable=lambda t: tagger1.tag(t, return_layer=True))
 
         q = JsonbLayerQuery(layer_table=layer1_table, lemma='ööbik', form='sg n')
@@ -268,7 +268,7 @@ class TestLayer(unittest.TestCase):
         # test with 2 layers
         layer2 = "layer2"
         layer2_table = self.storage.layer_name_to_table_name(table_name, layer2)
-        tagger2 = VabamorfTagger(disambiguate=True, layer_name=layer2)
+        tagger2 = VabamorfTaggerOld(disambiguate=True, layer_name=layer2)
         col.create_layer(layer2, callable=lambda t: tagger2.tag(t, return_layer=True))
 
         q = JsonbLayerQuery(layer_table=layer2_table, lemma='ööbik', form='sg n')
@@ -291,8 +291,8 @@ class TestLayer(unittest.TestCase):
 
         layer1 = "layer1"
         layer2 = "layer2"
-        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
-        tagger2 = VabamorfTagger(disambiguate=False, layer_name=layer2)
+        tagger1 = VabamorfTaggerOld(disambiguate=False, layer_name=layer1)
+        tagger2 = VabamorfTaggerOld(disambiguate=False, layer_name=layer2)
         col.create_layer(layer1, callable=lambda t: tagger1.tag(t, return_layer=True), create_index=True)
         col.create_layer(layer2, callable=lambda t: tagger2.tag(t, return_layer=True))
 

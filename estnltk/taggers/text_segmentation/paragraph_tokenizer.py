@@ -2,10 +2,10 @@ from typing import Union
 
 from nltk import RegexpTokenizer
 from estnltk.text import Layer, Text
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 
 
-class ParagraphTokenizer(Tagger):
+class ParagraphTokenizer(TaggerOld):
     description = 'Tags adjacent sentences that form a paragraph.'
     layer_name = 'paragraphs'
     attributes = ()

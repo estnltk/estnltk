@@ -1,11 +1,11 @@
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 from estnltk.layer import Layer
 from estnltk.spans import SpanList
 from estnltk.finite_grammar.layer_graph import GrammarNode, layer_to_graph, get_spans
 from estnltk.finite_grammar import parse_graph
 
 
-class GrammarParsingTagger(Tagger):
+class GrammarParsingTaggerOld(TaggerOld):
     description = 'Parses input layer using grammar. Output layer envelopes input.'
     attributes = None
     configuration = {}

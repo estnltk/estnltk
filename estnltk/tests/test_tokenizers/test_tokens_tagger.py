@@ -1,8 +1,8 @@
 import unittest
 
-from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger
+from estnltk.taggers.text_segmentation.tokens_tagger import TokensTaggerOld
 from estnltk import Text
-tokenizer = TokensTagger()
+tokenizer = TokensTaggerOld()
 
 
 class TokensTaggerTest(unittest.TestCase):

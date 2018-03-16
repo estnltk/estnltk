@@ -58,7 +58,7 @@ class TaggerNew:
         table = table.to_html(index=False)
         assert self.__class__.__doc__ is not None, 'No docstring.'
         description = self.__class__.__doc__.strip().split('\n')[0]
-        table = ['<h4>Tagger</h4>', description, table]
+        table = ['<h4>TaggerOld</h4>', description, table]
 
         def to_str(value):
             value_str = str(value)

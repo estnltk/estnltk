@@ -2,10 +2,10 @@
 """
 
 from estnltk.text import Text
-from estnltk.taggers.syntax_preprocessing.syntax_ignore_tagger import SyntaxIgnoreTagger
+from estnltk.taggers.syntax_preprocessing.syntax_ignore_tagger import SyntaxIgnoreTaggerOld
 
 def test_ignore_content_in_parentheses_1():
-    syntax_ignore_tagger = SyntaxIgnoreTagger()
+    syntax_ignore_tagger = SyntaxIgnoreTaggerOld()
     test_texts = [ 
         # Pattern: parentheses_1to3
         # Inputs from Koondkorpus:
@@ -70,7 +70,7 @@ def test_ignore_content_in_parentheses_1():
 
 
 def test_ignore_content_in_parentheses_1_1():
-    syntax_ignore_tagger = SyntaxIgnoreTagger()
+    syntax_ignore_tagger = SyntaxIgnoreTaggerOld()
     test_texts = [ 
         # Pattern: parentheses_ucase_number_seq
         # Note: the following examples are specific to etTenTen
@@ -99,7 +99,7 @@ def test_ignore_content_in_parentheses_1_1():
 
 def test_ignore_content_in_parentheses_2():
     # Testing a reimplementation of PATT_12 ( from https://github.com/EstSyntax/preprocessing-module  )
-    syntax_ignore_tagger = SyntaxIgnoreTagger()
+    syntax_ignore_tagger = SyntaxIgnoreTaggerOld()
     test_texts = [ 
         # Pattern: parentheses_num_range
         { 'text': 'Mis kellani on teie koolis pikkpäev ? Meie koolis tuleb 12-17(1-7 klass).', \
@@ -205,7 +205,7 @@ def test_ignore_content_in_parentheses_2():
 def test_ignore_consecutive_sentences_with_parentheses():
     # Ignore consecutive sentences that do not contain 3 consecutive lowercase words, 
     #        and that contain ignored content in parenthesis;
-    syntax_ignore_tagger = SyntaxIgnoreTagger(ignore_consecutive_parenthesized_sentences = True)
+    syntax_ignore_tagger = SyntaxIgnoreTaggerOld(ignore_consecutive_parenthesized_sentences = True)
     test_texts = [
         { 'text': 'Meeste slaalom : \n'+\
                   '1. Tom Stiansen ( Norra ) 1.51 , 70 ( 55,81 /55 , 89 ) ,\n'+\
@@ -258,7 +258,7 @@ def test_ignore_consecutive_enum_name_num_sentences():
     #    * do not contain 3 consecutive lc words
     #    * contain a number or numbers;
     #    * form a row of at least 4 consecutive sentences with the same properties;
-    syntax_ignore_tagger = SyntaxIgnoreTagger(ignore_consecutive_enum_ucase_num_sentences=True)
+    syntax_ignore_tagger = SyntaxIgnoreTaggerOld(ignore_consecutive_enum_ucase_num_sentences=True)
     test_texts = [
         { 'text': 'Meeste 50 km/klassikat\n\n'+\
                   'Holmenkollen , Norra\n\n'+\
@@ -352,7 +352,7 @@ def test_ignore_consecutive_enum_name_num_sentences():
 
 
 def test_ignore_sentences_starting_with_time_schedule():
-    syntax_ignore_tagger = SyntaxIgnoreTagger( ignore_sentences_starting_with_time=True )
+    syntax_ignore_tagger = SyntaxIgnoreTaggerOld(ignore_sentences_starting_with_time=True)
     test_texts = [
         { 'text': '12.05 - 12.35 "Õnne 13" (1. osa)\n\n'+\
                   '12.35 - 13.05 "Õnne 13" (1. osa, kordus)\n\n'+\
@@ -391,7 +391,7 @@ def test_ignore_sentences_starting_with_time_schedule():
 
 def test_ignore_sentences_with_comma_separated_name_num_lists():
     # Ignore sentences containing colon + comma/hyphen separated names + numbers (mainly sports results)
-    syntax_ignore_tagger = SyntaxIgnoreTagger( ignore_sentences_with_comma_separated_num_name_lists=True )
+    syntax_ignore_tagger = SyntaxIgnoreTaggerOld(ignore_sentences_with_comma_separated_num_name_lists=True)
     test_texts = [
         { 'text': 'Maailma naiste edetabeli kolmas Jana Novotna pole mängija , kes võidaks suurturniire .\n'+\
                   'Paarismängu poolfinaalid .\n'+\

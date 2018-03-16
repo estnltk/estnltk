@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod, abstractproperty
 from typing import List
 
 
-class Tagger(ABC):
+class TaggerOld(ABC):
     """
     Abstract base class for taggers.
     """
@@ -57,7 +57,7 @@ class Tagger(ABC):
         pandas.set_option('display.max_colwidth', -1)
         table = pandas.DataFrame.from_records([self.parameters()], columns=['name', 'layer', 'attributes', 'depends_on'])
         table = table.to_html(index=False)
-        table = ('<h4>Tagger</h4>', self.description, table)
+        table = ('<h4>TaggerOld</h4>', self.description, table)
 
         if self.configuration:
             # Get configuration items in fixed order

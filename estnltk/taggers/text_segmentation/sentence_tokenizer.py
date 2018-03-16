@@ -6,7 +6,7 @@ from typing import Iterator, Tuple
 import re
 
 from estnltk.text import Layer, SpanList
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 
 _hyphen_pat = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|-)'
 _lc_letter  = '[a-zöäüõžš]'
@@ -272,7 +272,7 @@ merge_patterns = [ \
 ]
 
 
-class SentenceTokenizer(Tagger):
+class SentenceTokenizer(TaggerOld):
     description   = 'Groups words into sentences, and applies sentence tokenization post-corrections, if required.'
     layer_name    = 'sentences'
     attributes    = ()

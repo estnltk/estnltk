@@ -1,5 +1,5 @@
 from estnltk import Text
-from estnltk.taggers import VabamorfTagger
+from estnltk.taggers import VabamorfTaggerOld
 from estnltk.resolve_layer_dag import make_resolver
 
 # ----------------------------------
@@ -182,8 +182,8 @@ def test_default_morph_analysis_without_guessing():
     assert [['S'], ['V'], [None], [None]]           == text.partofspeech
     
     # Case 3
-    # Use VabamorfTagger
-    morph_analyser = VabamorfTagger( disambiguate=False, guess=False, propername=False )
+    # Use VabamorfTaggerOld
+    morph_analyser = VabamorfTaggerOld(disambiguate=False, guess=False, propername=False)
     text = Text("Ma tahax minna järve ääde")
     text.tag_layer(['words', 'sentences'])
     morph_analyser.tag(text)
@@ -238,7 +238,7 @@ def test_default_morph_analysis_on_empty_input():
 def test_default_morph_analysis_with_different_layer_name():
     # Should be able to use a different layer name 
     # without running into errors
-    morph_analyser = VabamorfTagger( layer_name='my_morph' )
+    morph_analyser = VabamorfTaggerOld(layer_name='my_morph')
     text = Text('Tere, maailm!')
     text.tag_layer(['words', 'sentences'])
     morph_analyser.tag(text)
