@@ -28,5 +28,5 @@ class RobustDateNumberTagger(Tagger):
                                   overlapped=overlapped,
                                   layer_name=output_layer)
 
-    def make_layer(self, raw_text, layers, status):
+    def _make_layer(self, raw_text, layers, status):
         return self.tagger.make_layer(raw_text, layers, status)

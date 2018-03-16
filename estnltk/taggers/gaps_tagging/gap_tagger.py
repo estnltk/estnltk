@@ -25,7 +25,7 @@ class GapTagger(Tagger):
         self.output_attributes = tuple(output_attributes)
         self.decorator = decorator
 
-    def make_layer(self, raw_text, layers, status):
+    def _make_layer(self, raw_text, layers, status):
         layer = Layer(
             name=self.output_layer,
             attributes=self.output_attributes,

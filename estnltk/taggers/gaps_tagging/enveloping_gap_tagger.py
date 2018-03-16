@@ -26,7 +26,7 @@ class EnvelopingGapTagger(Tagger):
         self.output_attributes = tuple(output_attributes)
         self.decorator = decorator
 
-    def make_layer(self, raw_text, layers, status):
+    def _make_layer(self, raw_text, layers, status):
         layers_with_gaps = [layers[name] for name in self.layers_with_gaps]
         assert all(layer.enveloping == self.enveloped_layer for layer in layers_with_gaps)
         enveloped = layers[self.enveloped_layer]

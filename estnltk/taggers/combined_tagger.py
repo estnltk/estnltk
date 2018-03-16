@@ -21,7 +21,7 @@ class CombinedTagger(Tagger):
         self.conflict_resolving_strategy = conflict_resolving_strategy
         self.priority_attribute = priority_attribute
 
-    def make_layer(self, raw_text, input_layers, status):
+    def _make_layer(self, raw_text, input_layers, status):
         layers = [tagger.make_layer(raw_text, input_layers, status) for tagger in self._taggers]
         layer = merge_layers(layers=layers,
                              output_layer=self.output_layer,

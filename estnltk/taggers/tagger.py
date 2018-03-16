@@ -11,7 +11,7 @@ class Tagger:
     output_layer
     output_attributes
     __init__(...)
-    make_layer(...)
+    _make_layer(...)
     """
 
     def __init__(self):
@@ -23,13 +23,13 @@ class Tagger:
                'attribute must be listed in conf_param: ' + key
         super.__setattr__(self, key, value)
 
-    def make_layer(self, raw_text: str, layers: dict, status: dict) -> Layer:
+    def _make_layer(self, raw_text: str, layers: dict, status: dict) -> Layer:
         raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
-    def _make_layer(self, text: Text, status: dict = None) -> Layer:
+    def make_layer(self, text: Text, status: dict = None) -> Layer:
         if status is None:
             status = {}
-        layer = self.make_layer(text.text, text.layers, status)
+        layer = self._make_layer(text.text, text.layers, status)
         assert isinstance(layer, Layer), 'make_layer must return Layer'
         assert layer.name == self.output_layer, 'incorrect layer name: {} != {}'.format(layer.name, self.output_layer)
         return layer
@@ -40,8 +40,7 @@ class Tagger:
         status: dict, default {}
             This can be used to store metadata on layer creation.
         """
-        # input_layers = {name: text.layers[name] for name in self.input_layers}
-        text[self.output_layer] = self._make_layer(text, status)
+        text[self.output_layer] = self.make_layer(text, status)
         return text
 
     def __call__(self, text: Text, status: dict = None) -> Text:
