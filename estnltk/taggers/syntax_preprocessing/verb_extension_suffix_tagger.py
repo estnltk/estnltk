@@ -1,12 +1,12 @@
 from estnltk.taggers import TaggerOld
-from estnltk.taggers import VabamorfTaggerOld
+from estnltk.taggers import VabamorfTagger
 from estnltk.rewriting import VerbExtensionSuffixRewriter
 
 
-class VerbExtensionSuffixTaggerOld(TaggerOld):
+class VerbExtensionSuffixTagger(TaggerOld):
     description = 'Tags verb extension suffixes.'
     layer_name = 'verb_extension_suffix'
-    attributes = VabamorfTaggerOld.attributes + ('verb_extension_suffix',)
+    attributes = VabamorfTagger.attributes + ('verb_extension_suffix',)
     depends_on = ['morph_analysis']
     configuration = {}
 

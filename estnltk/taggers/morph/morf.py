@@ -1,15 +1,15 @@
 #
 #  Provides Vabamorf-based morphological analysis and disambiguation.
 #
-#  VabamorfTaggerOld can be used for end-to-end morphological processing.
+#  VabamorfTagger can be used for end-to-end morphological processing.
 #  Alternatively, the process can be broken down into substeps, using 
-#  VabamorfAnalyzer, PostMorphAnalysisTaggerOld and VabamorfDisambiguator.
+#  VabamorfAnalyzer, PostMorphAnalysisTagger and VabamorfDisambiguator.
 # 
 
 from estnltk.text import Span, SpanList, Layer, Text
 from estnltk.taggers import TaggerOld
 from estnltk.vabamorf.morf import Vabamorf
-from estnltk.taggers.morph.postanalysis_tagger import PostMorphAnalysisTaggerOld
+from estnltk.taggers.morph.postanalysis_tagger import PostMorphAnalysisTagger
 
 from estnltk.taggers.morph.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
 from estnltk.taggers.morph.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
@@ -26,7 +26,7 @@ from estnltk.taggers.morph.morf_common import _convert_vm_dict_to_morph_analysis
 
 
 
-class VabamorfTaggerOld(TaggerOld):
+class VabamorfTagger(TaggerOld):
     description   = "Tags morphological analysis on words. Uses Vabamorf's morphological analyzer and disambiguator."
     layer_name    = None
     attributes    = ESTNLTK_MORPH_ATTRIBUTES
@@ -37,7 +37,7 @@ class VabamorfTaggerOld(TaggerOld):
                  layer_name='morph_analysis',
                  postanalysis_tagger=None,
                  **kwargs):
-        """Initialize VabamorfTaggerOld class.
+        """Initialize VabamorfTagger class.
 
         Note: Keyword arguments 'disambiguate', 'guess', 'propername',
         'phonetic' and 'compound' can be used to override the default 
@@ -49,7 +49,7 @@ class VabamorfTaggerOld(TaggerOld):
         ----------
         layer_name: str (default: 'morph_analysis')
             Name of the layer where analysis results are stored.
-        postanalysis_tagger: estnltk.taggers.TaggerOld (default: PostMorphAnalysisTaggerOld())
+        postanalysis_tagger: estnltk.taggers.TaggerOld (default: PostMorphAnalysisTagger())
             TaggerOld that is used to post-process "morph_analysis" layer after
             it is created (and before it is disambiguated).
             This tagger corrects morphological analyses, prepares morpho-
@@ -62,7 +62,7 @@ class VabamorfTaggerOld(TaggerOld):
             postanalysis_tagger_given = True
         else:
             # Initialize default postanalysis_tagger
-            postanalysis_tagger=PostMorphAnalysisTaggerOld(layer_name=layer_name)
+            postanalysis_tagger=PostMorphAnalysisTagger(layer_name=layer_name)
         
         self.kwargs = kwargs
         self.layer_name = layer_name
@@ -275,7 +275,7 @@ class VabamorfAnalyzer(TaggerOld):
     description   = "Analyzes texts morphologically. Uses Vabamorf's analyzer. "+\
                     "Note: resulting analyses can be ambiguous. "
     layer_name    = None
-    attributes    = VabamorfTaggerOld.attributes
+    attributes    = VabamorfTagger.attributes
     depends_on    = None
     configuration = None
     
@@ -458,7 +458,7 @@ class VabamorfAnalyzer(TaggerOld):
 class VabamorfDisambiguator(TaggerOld):
     description   = "Disambiguates morphologically analysed texts. Uses Vabamorf's disambiguator."
     layer_name    = None
-    attributes    = VabamorfTaggerOld.attributes
+    attributes    = VabamorfTagger.attributes
     depends_on    = None
     configuration = None
 

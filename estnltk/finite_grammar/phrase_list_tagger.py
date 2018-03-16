@@ -4,7 +4,7 @@ from estnltk.layer_operations import resolve_conflicts
 from collections import defaultdict
 
 
-class PhraseListTaggerOld(TaggerOld):
+class PhraseListTagger(TaggerOld):
     """
     Tags phrases on a given layer. Creates an enveloping layer.
     """
@@ -24,7 +24,7 @@ class PhraseListTaggerOld(TaggerOld):
                  consistency_checker=None,
                  conflict_resolving_strategy='MAX',
                  ):
-        """Initialize a new EventSequenceTaggerOld instance.
+        """Initialize a new EventSequenceTagger instance.
 
         Parameters
         ----------

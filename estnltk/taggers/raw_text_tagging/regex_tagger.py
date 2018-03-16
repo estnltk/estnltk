@@ -6,7 +6,7 @@ from estnltk.text import Layer
 from estnltk.layer_operations import resolve_conflicts
 
 
-class RegexTaggerOld(TaggerOld):
+class RegexTagger(TaggerOld):
     """
     Searches matches for regular expressions in the text, solves the possible
     conflicts and creates a new layer of the matches.
@@ -25,7 +25,7 @@ class RegexTaggerOld(TaggerOld):
                  layer_name='regexes',
                  priority_attribute=None,
                  ):
-        """Initialize a new RegexTaggerOld instance.
+        """Initialize a new RegexTagger instance.
 
         Parameters
         ----------

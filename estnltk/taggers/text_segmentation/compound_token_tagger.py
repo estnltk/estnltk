@@ -1,5 +1,5 @@
 #
-#   CompoundTokenTaggerOld analyzes tokens and decides, which 
+#   CompoundTokenTagger analyzes tokens and decides, which
 #  tokens should be joined together (as 'compound_tokens').
 #  In later analysis, layers 'tokens' and 'compound_tokens'
 #  are used for creating 'words' layer.
@@ -16,7 +16,7 @@ from estnltk.core import PACKAGE_PATH
 
 from estnltk.text import Layer, SpanList
 from estnltk.taggers import TaggerOld
-from estnltk.taggers import RegexTaggerOld
+from estnltk.taggers import RegexTagger
 from estnltk.layer_operations import resolve_conflicts
 from estnltk.rewriting import MorphAnalyzedToken
 from .patterns import MACROS
@@ -31,7 +31,7 @@ _letter_pattern = re.compile(r'''([{LETTERS}]+)'''.format(**MACROS), re.X)
 # List containing words that should be ignored during the normalization of words with hyphens
 DEFAULT_IGNORE_LIST = os.path.join( PACKAGE_PATH, 'rewriting', 'premorph', 'rules_files', 'ignore.csv')
 
-class CompoundTokenTaggerOld(TaggerOld):
+class CompoundTokenTagger(TaggerOld):
     description = 'Tags adjacent tokens that should be analyzed as one word.'
     layer_name = 'compound_tokens'
     attributes = ('type', 'normalized')
@@ -51,7 +51,7 @@ class CompoundTokenTaggerOld(TaggerOld):
                  tag_hyphenations:bool = True,
                  custom_abbreviations:list = [],
                  ):
-        """Initializes CompoundTokenTaggerOld.
+        """Initializes CompoundTokenTagger.
         
         Parameters
         ----------
@@ -101,7 +101,7 @@ class CompoundTokenTaggerOld(TaggerOld):
             compound tokens. This can be used to enhance the built-in 
             list of abbreviations.
             Note that user-defined abbreviations must be strings that 
-            TokensTaggerOld does not split into smaller tokens.
+            TokensTagger does not split into smaller tokens.
 
         """
         conflict_resolving_strategy = 'MAX' 
@@ -141,13 +141,13 @@ class CompoundTokenTaggerOld(TaggerOld):
             _vocabulary_1.extend(initial_patterns)
         if tag_abbreviations:
             _vocabulary_1.extend(abbreviation_patterns)
-        self._tokenization_hints_tagger_1 = RegexTaggerOld(vocabulary=_vocabulary_1,
-                                                           attributes=('normalized', '_priority_', 'pattern_type'),
-                                                           conflict_resolving_strategy=conflict_resolving_strategy,
-                                                           priority_attribute='_priority_',
-                                                           overlapped=False,
-                                                           layer_name='tokenization_hints',
-                                                           )
+        self._tokenization_hints_tagger_1 = RegexTagger(vocabulary=_vocabulary_1,
+                                                        attributes=('normalized', '_priority_', 'pattern_type'),
+                                                        conflict_resolving_strategy=conflict_resolving_strategy,
+                                                        priority_attribute='_priority_',
+                                                        overlapped=False,
+                                                        layer_name='tokenization_hints',
+                                                        )
         # =========================
         #  2nd level hints tagger
         # =========================
@@ -158,14 +158,14 @@ class CompoundTokenTaggerOld(TaggerOld):
             _vocabulary_2.extend(number_fixes_patterns)
         self._tokenization_hints_tagger_2 = None
         if _vocabulary_2:
-            self._tokenization_hints_tagger_2 = RegexTaggerOld(vocabulary=_vocabulary_2,
-                                                               attributes=('normalized', '_priority_', 'pattern_type',
+            self._tokenization_hints_tagger_2 = RegexTagger(vocabulary=_vocabulary_2,
+                                                            attributes=('normalized', '_priority_', 'pattern_type',
                                                             'left_strict', 'right_strict'),
-                                                               conflict_resolving_strategy=conflict_resolving_strategy,
-                                                               priority_attribute='_priority_',
-                                                               overlapped=False,
-                                                               layer_name='tokenization_hints',
-                                                               )
+                                                            conflict_resolving_strategy=conflict_resolving_strategy,
+                                                            priority_attribute='_priority_',
+                                                            overlapped=False,
+                                                            layer_name='tokenization_hints',
+                                                            )
         # Load words that should be ignored during normalization of words with hyphens
         self.ignored_words = self._load_ignore_words_from_csv( DEFAULT_IGNORE_LIST )
 
@@ -192,7 +192,7 @@ class CompoundTokenTaggerOld(TaggerOld):
             and returns the Text object;
         """
         compound_tokens_lists = []
-        # 1) Apply RegexTaggerOld in order to get hints for the 1st level tokenization
+        # 1) Apply RegexTagger in order to get hints for the 1st level tokenization
         conflict_status    = {}
         tokenization_hints = {}
         new_layer = self._tokenization_hints_tagger_1.tag(text, return_layer=True, status=conflict_status)
@@ -208,7 +208,7 @@ class CompoundTokenTaggerOld(TaggerOld):
             if hasattr(sp, 'normalized'):
                 end_node['normalized'] = sp.normalized
             # Note: we assume that all conflicts have been resolved by 
-            # RegexTaggerOld, that is -- exactly one (compound) token begins 
+            # RegexTagger, that is -- exactly one (compound) token begins
             # from one starting position ...
             if sp.start in tokenization_hints:
                 raise Exception( '(!) Unexpected overlapping tokenization hints: ', \

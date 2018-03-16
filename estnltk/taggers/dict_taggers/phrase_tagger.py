@@ -22,7 +22,7 @@ class PhraseTagger(Tagger):
                  priority_attribute: str=None,
                  ambiguous: bool=False
                  ):
-        """Initialize a new EventSequenceTaggerOld instance.
+        """Initialize a new EventSequenceTagger instance.
 
         :param output_layer: str
             The name of the new layer.

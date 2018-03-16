@@ -70,7 +70,7 @@ class PgCollection:
 
         Example:
             layer_name = "my_layer"
-            tagger = VabamorfTaggerOld(layer_name=layer_name)
+            tagger = VabamorfTagger(layer_name=layer_name)
             collection.create_layer(layer_name, callable=lambda t: tagger.tag(t, return_layer=True))
 
         """

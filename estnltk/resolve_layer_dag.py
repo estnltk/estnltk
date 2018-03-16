@@ -68,13 +68,13 @@ class Resolver:
         return text
 
 
-from .taggers import TokensTaggerOld
-from .taggers import WordTaggerOld
-from .taggers import CompoundTokenTaggerOld
+from .taggers import TokensTagger
+from .taggers import WordTagger
+from .taggers import CompoundTokenTagger
 from .taggers import SentenceTokenizer
 from .taggers import ParagraphTokenizer
-from .taggers.morph.morf import VabamorfTaggerOld
-from .taggers import MorphExtendedTaggerOld
+from .taggers.morph.morf import VabamorfTagger
+from .taggers import MorphExtendedTagger
 from .taggers import ClauseSegmenter    # Requires Java
 
 # Load default configuration for morph analyser
@@ -89,7 +89,7 @@ def make_resolver(
                  propername  =DEFAULT_PARAM_PROPERNAME,
                  phonetic    =DEFAULT_PARAM_PHONETIC,
                  compound    =DEFAULT_PARAM_COMPOUND):
-    vabamorf_tagger = VabamorfTaggerOld(
+    vabamorf_tagger = VabamorfTagger(
                                      disambiguate=disambiguate,
                                      guess=guess,
                                      propername=propername,
@@ -97,9 +97,9 @@ def make_resolver(
                                      compound=compound
                                      )
 
-    taggers = Taggers([TokensTaggerOld(), WordTaggerOld(), CompoundTokenTaggerOld(),
+    taggers = Taggers([TokensTagger(), WordTagger(), CompoundTokenTagger(),
                        SentenceTokenizer(), ParagraphTokenizer(),
-                       vabamorf_tagger, MorphExtendedTaggerOld(), ClauseSegmenter()])
+                       vabamorf_tagger, MorphExtendedTagger(), ClauseSegmenter()])
     return Resolver(taggers)
 
 

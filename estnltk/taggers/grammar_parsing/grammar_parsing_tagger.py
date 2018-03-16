@@ -5,7 +5,7 @@ from estnltk.finite_grammar.layer_graph import GrammarNode, layer_to_graph, get_
 from estnltk.finite_grammar import parse_graph
 
 
-class GrammarParsingTaggerOld(TaggerOld):
+class GrammarParsingTagger(TaggerOld):
     description = 'Parses input layer using grammar. Output layer envelopes input.'
     attributes = None
     configuration = {}

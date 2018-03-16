@@ -18,7 +18,7 @@ from estnltk.taggers.morph.morf_common import _is_empty_span
 from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 
 
-class PostMorphAnalysisTaggerOld(TaggerOld):
+class PostMorphAnalysisTagger(TaggerOld):
     description   = "Provides corrections to morphological analysis layer. "+\
                     "This tagger should be applied before morphological disambiguation."
     layer_name    = None
@@ -39,7 +39,7 @@ class PostMorphAnalysisTaggerOld(TaggerOld):
                  remove_duplicates:bool=True, \
                  correction_rewriter=VabamorfCorrectionRewriter() ,\
                  **kwargs):
-        """Initialize PostMorphAnalysisTaggerOld class.
+        """Initialize PostMorphAnalysisTagger class.
 
         Parameters
         ----------

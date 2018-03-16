@@ -1,7 +1,7 @@
 import unittest
 
 from estnltk import Text
-from estnltk.taggers import CompoundTokenTaggerOld
+from estnltk.taggers import CompoundTokenTagger
 
 class CompoundTokenTaggerTest(unittest.TestCase):
 
@@ -526,7 +526,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
         text.tag_layer(['tokens'])
         my_abbreviations = ['ntx', 'med', 'sots']
         # Perform analysis
-        CompoundTokenTaggerOld(tag_abbreviations = True, custom_abbreviations = my_abbreviations).tag(text)
+        CompoundTokenTagger(tag_abbreviations = True, custom_abbreviations = my_abbreviations).tag(text)
         # Check that compound tokens are detected
         compound_tokens = [ comp_token.enclosing_text for comp_token in text['compound_tokens'] ]
         self.assertListEqual( ['ntx .', 'med.', 'sots.'], compound_tokens )
@@ -542,7 +542,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
         text.tag_layer(['tokens'])
         my_abbreviations = ['min']
         # Perform analysis
-        CompoundTokenTaggerOld(tag_abbreviations = True, custom_abbreviations = my_abbreviations).tag(text)
+        CompoundTokenTagger(tag_abbreviations = True, custom_abbreviations = my_abbreviations).tag(text)
         # Check sentences
         text.tag_layer(['sentences'])
         sentences = [ s.enclosing_text for s in text['sentences'] ]
@@ -553,7 +553,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
         text.tag_layer(['tokens'])
         my_abbreviations = ['jj']
         # Perform analysis
-        CompoundTokenTaggerOld(tag_abbreviations = True, custom_abbreviations = my_abbreviations).tag(text)
+        CompoundTokenTagger(tag_abbreviations = True, custom_abbreviations = my_abbreviations).tag(text)
         # Check sentences
         text.tag_layer(['sentences'])
         sentences = [ s.enclosing_text for s in text['sentences'] ]

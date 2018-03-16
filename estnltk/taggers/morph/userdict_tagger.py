@@ -20,7 +20,7 @@ from estnltk.taggers.morph.morf_common import VABAMORF_VERB_FORMS
 
 
 
-class UserDictTaggerOld(TaggerOld):
+class UserDictTagger(TaggerOld):
     description   = "Makes user-specified post-corrections to morphological analyses. "+\
                     "This tagger can be applied after text has been morphologically analysed."
     layer_name    = None
@@ -33,7 +33,7 @@ class UserDictTaggerOld(TaggerOld):
                  ignore_case:bool=False, \
                  validate_vm_categories:bool=True, \
                  autocorrect_root:bool=True ):
-        """ Initialize UserDictTaggerOld class.
+        """ Initialize UserDictTagger class.
 
         Parameters
         ----------

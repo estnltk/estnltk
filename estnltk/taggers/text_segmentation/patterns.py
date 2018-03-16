@@ -2,8 +2,8 @@ import regex as re
 
 """
 This is a vocabulary file for two tokenization hint taggers of 
-the CompoundTokenTaggerOld. The entries here are lists of records in 
-RegexTaggerOld vocabulary format.
+the CompoundTokenTagger. The entries here are lists of records in 
+RegexTagger vocabulary format.
 
 In 1st level patterns, each record must contain keywords 
 '_regex_pattern_', 'pattern_type' and 'normalized'. 
@@ -12,7 +12,7 @@ In 2nd level patterns, each record must contain keywords
 '_regex_pattern_', 'pattern_type', 'normalized', 'left_strict', 
 'right_strict'. 
 
-The names of the entries need to be declared in CompoundTokenTaggerOld.
+The names of the entries need to be declared in CompoundTokenTagger.
 """
 
 
