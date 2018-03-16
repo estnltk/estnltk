@@ -3,6 +3,8 @@ from estnltk.taggers.retagger import Retagger
 
 from estnltk.taggers.tagger_new import TaggerNew
 
+from estnltk.taggers.tagger_test_maker import make_tagger_test
+
 from estnltk.taggers.combined_tagger import CombinedTagger
 
 from estnltk.taggers.dict_taggers.vocabulary import read_vocabulary
