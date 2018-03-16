@@ -1,10 +1,10 @@
 from typing import Sequence
 
-from estnltk.taggers import TaggerNew
+from estnltk.taggers import Tagger
 from estnltk.layer_operations import merge_layers
 
 
-class MergeTagger(TaggerNew):
+class MergeTagger(Tagger):
     """ Merges input layers.
     """
     conf_param = ()

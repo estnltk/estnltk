@@ -1,7 +1,7 @@
 from estnltk.text import Layer, Text
 
 
-class TaggerNew:
+class Tagger:
     """
     Base class for taggers. Proposed new version.
 

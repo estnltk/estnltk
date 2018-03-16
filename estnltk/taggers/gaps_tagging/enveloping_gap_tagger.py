@@ -2,10 +2,10 @@ from typing import Sequence
 
 from estnltk.spans import SpanList
 from estnltk.layer import Layer
-from estnltk.taggers import TaggerNew
+from estnltk.taggers import Tagger
 
 
-class EnvelopingGapTagger(TaggerNew):
+class EnvelopingGapTagger(Tagger):
     """ Tags all spans that are not covered by any span of any input layer.
         The resulting spans can be annotated with a decorator function.
     """

@@ -1,11 +1,11 @@
-from estnltk.taggers import TaggerNew, read_vocabulary
+from estnltk.taggers import Tagger, read_vocabulary
 from estnltk.layer import Layer
 from estnltk.layer_operations import resolve_conflicts
 from collections import defaultdict
 from typing import Sequence, Union
 
 
-class PhraseTagger(TaggerNew):
+class PhraseTagger(Tagger):
     """
     Tags phrases on a given layer. Creates an enveloping layer.
     """
