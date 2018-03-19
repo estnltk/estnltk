@@ -197,7 +197,7 @@ def test_userdict_tagger_dict_from_csv_file():
 
 def test_userdict_tagger_post_analysis():
     # Tests that userdict_tagger can be applied after morph analysis and before disambiguation
-    morph_analyser = VabamorfTagger( disambiguate=False, guess=False, propername=False )
+    morph_analyser = VabamorfTagger(disambiguate=False, guess=False, propername=False)
     
     # Case 1
     text = Text("Ma tahax minna järve ääde")

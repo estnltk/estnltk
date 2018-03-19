@@ -1,7 +1,7 @@
 #
 #  Tags text snippets that should be ignored during the syntactic analysis.
 # 
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 from estnltk.taggers import RegexTagger
 
 from estnltk.text import Span, SpanList, Layer
@@ -376,7 +376,7 @@ ignore_patterns = [
 
 # ===================================================================
 
-class SyntaxIgnoreTagger(Tagger):
+class SyntaxIgnoreTagger(TaggerOld):
     description = 'Tags text snippets that should be ignored during the syntactic analysis.'
     layer_name  = 'syntax_ignore'
     attributes  = ('type',)
@@ -503,11 +503,11 @@ class SyntaxIgnoreTagger(Tagger):
                 patterns.append( ignore_pat )
         # Create a new tagger
         self._syntax_ignore_tagger = RegexTagger(vocabulary=patterns,
-                                   attributes=[ '_priority_', 'type' ],
-                                   conflict_resolving_strategy="MAX",
-                                   overlapped=False,
-                                   layer_name='syntax_ignore_hints',
-                                   )
+                                                 attributes=[ '_priority_', 'type' ],
+                                                 conflict_resolving_strategy="MAX",
+                                                 overlapped=False,
+                                                 layer_name='syntax_ignore_hints',
+                                                 )
 
 
     def tag(self, text: 'Text', return_layer=False) -> 'Text':

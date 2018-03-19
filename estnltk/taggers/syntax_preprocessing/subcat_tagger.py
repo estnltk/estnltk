@@ -1,10 +1,10 @@
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 from estnltk.taggers import VabamorfTagger
 from estnltk.rewriting import MorphToSyntaxMorphRewriter
 from estnltk.rewriting import SubcatRewriter
 
 
-class SubcatTagger(Tagger):
+class SubcatTagger(TaggerOld):
     description = 'Tags subcategory information.'
     layer_name = 'subcat'
     attributes = VabamorfTagger.attributes + ('subcat',)

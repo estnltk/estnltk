@@ -1,11 +1,11 @@
 from typing import Sequence, Union
 
-from estnltk.taggers import TaggerNew, read_vocabulary
+from estnltk.taggers import Tagger, read_vocabulary
 from estnltk.text import Span, Layer
 from estnltk.layer_operations import resolve_conflicts
 
 
-class SpanTagger(TaggerNew):
+class SpanTagger(Tagger):
     """
     Tags spans on a given layer. Creates a layer for which the input layer is the parent layer.
     """
@@ -78,7 +78,7 @@ class SpanTagger(TaggerNew):
         else:
             assert False, 'vocabulary type not supported: ' + str(type(vocabulary))
 
-    def make_layer(self, raw_text: str, layers: dict, status: dict):
+    def _make_layer(self, raw_text: str, layers: dict, status: dict):
         input_layer = layers[self.input_layers[0]]
         layer = Layer(
             name=self.output_layer,

@@ -1,12 +1,12 @@
 import regex as re
 from pandas import DataFrame, read_csv
 
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 from estnltk.text import Layer
 from estnltk.layer_operations import resolve_conflicts
 
 
-class RegexTagger(Tagger):
+class RegexTagger(TaggerOld):
     """
     Searches matches for regular expressions in the text, solves the possible
     conflicts and creates a new layer of the matches.

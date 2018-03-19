@@ -1,11 +1,11 @@
 from estnltk.taggers.raw_text_tagging.date_tagger.regexes_v import regexes
-from estnltk.taggers import Tagger, RegexTagger
+from estnltk.taggers import TaggerOld, RegexTagger
 import datetime
 
 regexes = regexes.reset_index().to_dict('records')
 
 
-class DateTagger(Tagger):
+class DateTagger(TaggerOld):
     description = None
     layer_name = None
     attributes = []

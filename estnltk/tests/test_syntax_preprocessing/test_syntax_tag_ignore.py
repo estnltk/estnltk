@@ -352,7 +352,7 @@ def test_ignore_consecutive_enum_name_num_sentences():
 
 
 def test_ignore_sentences_starting_with_time_schedule():
-    syntax_ignore_tagger = SyntaxIgnoreTagger( ignore_sentences_starting_with_time=True )
+    syntax_ignore_tagger = SyntaxIgnoreTagger(ignore_sentences_starting_with_time=True)
     test_texts = [
         { 'text': '12.05 - 12.35 "Õnne 13" (1. osa)\n\n'+\
                   '12.35 - 13.05 "Õnne 13" (1. osa, kordus)\n\n'+\
@@ -391,7 +391,7 @@ def test_ignore_sentences_starting_with_time_schedule():
 
 def test_ignore_sentences_with_comma_separated_name_num_lists():
     # Ignore sentences containing colon + comma/hyphen separated names + numbers (mainly sports results)
-    syntax_ignore_tagger = SyntaxIgnoreTagger( ignore_sentences_with_comma_separated_num_name_lists=True )
+    syntax_ignore_tagger = SyntaxIgnoreTagger(ignore_sentences_with_comma_separated_num_name_lists=True)
     test_texts = [
         { 'text': 'Maailma naiste edetabeli kolmas Jana Novotna pole mängija , kes võidaks suurturniire .\n'+\
                   'Paarismängu poolfinaalid .\n'+\

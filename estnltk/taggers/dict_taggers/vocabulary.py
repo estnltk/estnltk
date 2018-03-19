@@ -1,7 +1,24 @@
 import regex as re
 from collections import defaultdict
-from pandas import read_csv
-from typing import Sequence
+from pandas import read_csv, DataFrame
+from typing import Sequence, Hashable
+
+
+def csv_to_records(vocabulary_file: str) -> list:
+    return read_csv(vocabulary_file, na_filter=False, index_col=False).to_dict('records')
+
+
+def process_records():
+    pass
+
+
+def records_to_vocabulary(records: Sequence[dict], key: Hashable) -> dict:
+    vocabulary = defaultdict(list)
+    for record in records:
+        record_copy = record.copy()
+        del record_copy[key]
+        vocabulary[record[key]].append(record_copy)
+    return dict(vocabulary)
 
 
 def read_vocabulary(vocabulary_file: str,
@@ -90,12 +107,8 @@ def records_to_vocabulary(records, key):
     pass
 
 
-def csv_to_records(vocabulary_file):
-    return read_csv(vocabulary_file, na_filter=False, index_col=False).to_dict('records')
-
-
 def records_to_df(records):
-    pass
+    return DataFrame(data=records)
 
 
 def vocabulary_to_records(vocabulary: dict, key: str):

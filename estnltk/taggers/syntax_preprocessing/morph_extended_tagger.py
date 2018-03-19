@@ -1,4 +1,4 @@
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 from estnltk.rewriting import PunctuationTypeRewriter
 from estnltk.rewriting import MorphToSyntaxMorphRewriter
 from estnltk.rewriting import PronounTypeRewriter
@@ -14,7 +14,7 @@ from estnltk import PACKAGE_PATH
 import os
 
 
-class MorphExtendedTagger(Tagger):
+class MorphExtendedTagger(TaggerOld):
     """
     Tags text object with morph_extended layer. In order to do so executes
     consecutively several syntax preprocessing rewriters.
@@ -24,7 +24,7 @@ class MorphExtendedTagger(Tagger):
     """
     description = "Extends 'morph_analysis' layer with syntax preprocessing attributes."
     layer_name = 'morph_extended'
-    attributes = VabamorfTagger.attributes + ('punctuation_type', 
+    attributes = VabamorfTagger.attributes + ('punctuation_type',
                                               'pronoun_type',
                                               'letter_case',
                                               'fin',

@@ -1,7 +1,9 @@
 from estnltk.taggers.tagger import Tagger
 from estnltk.taggers.retagger import Retagger
 
-from estnltk.taggers.tagger_new import TaggerNew
+from estnltk.taggers.tagger_old import TaggerOld
+
+from estnltk.taggers.tagger_test_maker import make_tagger_test
 
 from estnltk.taggers.combined_tagger import CombinedTagger
 
@@ -20,6 +22,8 @@ from estnltk.taggers.raw_text_tagging.regex_tagger import RegexTagger
 from estnltk.taggers.raw_text_tagging.date_tagger.date_tagger import DateTagger
 
 from estnltk.taggers.event_tagging.event_sequence_tagger import EventSequenceTagger
+
+from estnltk.taggers.measurement_tagging.robust_date_number_tagger import RobustDateNumberTagger
 
 from estnltk.taggers.morph.morf import VabamorfTagger
 from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger

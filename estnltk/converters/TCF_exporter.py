@@ -1,6 +1,6 @@
 from lxml import etree
 from lxml.builder import ElementMaker
-from estnltk import Text
+from estnltk.text import Text
 
 
 def export_TCF(t: Text, file:str=None, version='0.4'):

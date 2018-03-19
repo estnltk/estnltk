@@ -61,9 +61,9 @@ class Text(dict):
         word_tokenizer: nltk.tokenize.api.StringTokenizer
             Tokenizer for words.
         ner_tagger: estnltk.ner.NerTagger
-            Tagger for annotating named entities.
+            TaggerOld for annotating named entities.
         timex_tagger: estnltk.timex.TimexTagger
-            Tagger for temporal expressions.
+            TaggerOld for temporal expressions.
         creation_date: datetime.datetime
             The date the document was created. Relevant for temporal expressions tagging.
         clause_segmenter: estnltk.clausesegmenter.ClauseSegmenter
@@ -71,7 +71,7 @@ class Text(dict):
         verbchain_detector: estnltk.mw_verbs.verbchain_detector.VerbChainDetector
             Verb chain tagger.
         wordnet_tagger: estnltk.wordnet_tagger.WordnetTagger
-            Tagger for synsets and relations.
+            TaggerOld for synsets and relations.
         text_cleaner: estnltk.textcleaner.TextCleaner
             TextCleaner class.
         syntax_tagger: estnltk.syntax.tagger.SyntaxTagger

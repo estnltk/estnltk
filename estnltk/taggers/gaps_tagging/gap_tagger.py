@@ -2,10 +2,10 @@ from collections import defaultdict
 
 from estnltk.spans import Span
 from estnltk.layer import Layer
-from estnltk.taggers import TaggerNew
+from estnltk.taggers import Tagger
 
 
-class GapTagger(TaggerNew):
+class GapTagger(Tagger):
     """ Tags all text regions that are not covered by any span of any input layer.
         These regions can be trimmed by trim function and annotated by decorator function.
     """
@@ -25,7 +25,7 @@ class GapTagger(TaggerNew):
         self.output_attributes = tuple(output_attributes)
         self.decorator = decorator
 
-    def make_layer(self, raw_text, layers, status):
+    def _make_layer(self, raw_text, layers, status):
         layer = Layer(
             name=self.output_layer,
             attributes=self.output_attributes,

@@ -11,7 +11,7 @@ import json
 
 from estnltk.text import Text, Layer, Span, SpanList
 
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 from estnltk.taggers.morph.morf_common import _convert_morph_analysis_span_to_vm_dict
 from estnltk.taggers.morph.morf_common import _create_empty_morph_span
 from estnltk.taggers.morph.morf_common import _is_empty_span
@@ -21,7 +21,7 @@ from estnltk.core import JAVARES_PATH
 
 
 
-class ClauseSegmenter(Tagger):
+class ClauseSegmenter(TaggerOld):
     description   = 'Tags clause boundaries inside sentences. Uses Java-based clause '+\
                     'segmenter (Osalausestaja) to perform the tagging.'
     layer_name    = 'clauses'

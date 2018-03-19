@@ -1,9 +1,9 @@
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 from estnltk.text import Layer
 from estnltk.layer_operations import resolve_conflicts
 from collections import defaultdict
 
-class EventSequenceTagger(Tagger):
+class EventSequenceTagger(TaggerOld):
     """
     Tags event sequences on a given layer. Creates an enveloping layer.
     """

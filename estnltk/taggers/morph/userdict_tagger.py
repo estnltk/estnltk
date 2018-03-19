@@ -7,7 +7,7 @@ import copy
 import csv
 
 from estnltk.text import Span, Layer, Text
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 
 from estnltk.taggers.morph.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph.morf_common import VABAMORF_ATTRIBUTES
@@ -20,7 +20,7 @@ from estnltk.taggers.morph.morf_common import VABAMORF_VERB_FORMS
 
 
 
-class UserDictTagger(Tagger):
+class UserDictTagger(TaggerOld):
     description   = "Makes user-specified post-corrections to morphological analyses. "+\
                     "This tagger can be applied after text has been morphologically analysed."
     layer_name    = None

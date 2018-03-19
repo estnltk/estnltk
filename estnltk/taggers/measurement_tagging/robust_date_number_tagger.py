@@ -1,12 +1,12 @@
 from typing import Sequence
 
+from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
-from estnltk.taggers.tagger_new import TaggerNew
 
 from .robust_date_number_vocabulary import vocabulary as voc
 
 
-class RobustDateNumberTagger(TaggerNew):
+class RobustDateNumberTagger(Tagger):
     """
     Tags dates and numbers.
     """
@@ -28,5 +28,5 @@ class RobustDateNumberTagger(TaggerNew):
                                   overlapped=overlapped,
                                   layer_name=output_layer)
 
-    def make_layer(self, raw_text, layers, status):
+    def _make_layer(self, raw_text, layers, status):
         return self.tagger.make_layer(raw_text, layers, status)

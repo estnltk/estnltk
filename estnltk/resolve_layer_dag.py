@@ -99,7 +99,7 @@ def make_resolver(
 
     taggers = Taggers([TokensTagger(), WordTagger(), CompoundTokenTagger(),
                        SentenceTokenizer(), ParagraphTokenizer(),
-                       vabamorf_tagger, MorphExtendedTagger(), ClauseSegmenter() ])
+                       vabamorf_tagger, MorphExtendedTagger(), ClauseSegmenter()])
     return Resolver(taggers)
 
 

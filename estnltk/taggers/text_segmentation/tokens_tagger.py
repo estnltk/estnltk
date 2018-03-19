@@ -1,5 +1,5 @@
 #
-#  TokensTagger splits text into tokens, based on whitespace 
+#  TokensTagger splits text into tokens, based on whitespace
 #  and/or punctuation. 
 #  This is the most automic segmentation: in later analysis, 
 #  tokens won't be broken into any smaller parts, but only 
@@ -10,7 +10,7 @@ from typing import Union
 import re
 
 from estnltk.text import Layer
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 from nltk.tokenize.regexp import WordPunctTokenizer
 
 tokenizer = WordPunctTokenizer()
@@ -22,7 +22,7 @@ _punct_split_patterns    = re.compile('^[!"#$%&\'()*+,-./:;<=>?@^_`{|}~\[\]]{2,}
 #  but should not be split into individual symbols
 _punct_no_split_patterns = re.compile('^(\.{2,}|[\?!]+)$')
 
-class TokensTagger(Tagger):
+class TokensTagger(TaggerOld):
     description   = 'Tags tokens in raw text.'
     layer_name    = 'tokens'
     attributes    = ()

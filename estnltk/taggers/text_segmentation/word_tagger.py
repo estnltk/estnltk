@@ -6,9 +6,9 @@
 # 
 
 from estnltk.text import Layer, Span
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 
-class WordTagger(Tagger):
+class WordTagger(TaggerOld):
     description = """Creates layer 'words' based on the layers 'tokens' and 'compound_tokens'.
                      Provides normalized forms of the words, which are used in the succeeding 
                      phase of morphological analysis.

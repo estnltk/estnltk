@@ -1,16 +1,16 @@
 from typing import Sequence
-from estnltk.taggers import TaggerNew
+from estnltk.taggers import Tagger
 from estnltk.layer_operations import merge_layers, resolve_conflicts
 
 
-class CombinedTagger(TaggerNew):
+class CombinedTagger(Tagger):
     """Runs input taggers in parallel and resolves conflicts."""
     conf_param = ('_taggers', 'priority_attribute', 'conflict_resolving_strategy')
 
     def __init__(self,
                  output_layer: str,
                  output_attributes: Sequence[str],
-                 taggers: Sequence[TaggerNew],
+                 taggers: Sequence[Tagger],
                  conflict_resolving_strategy: str='ALL',
                  priority_attribute: str = None
                  ):
@@ -21,7 +21,7 @@ class CombinedTagger(TaggerNew):
         self.conflict_resolving_strategy = conflict_resolving_strategy
         self.priority_attribute = priority_attribute
 
-    def make_layer(self, raw_text, input_layers, status):
+    def _make_layer(self, raw_text, input_layers, status):
         layers = [tagger.make_layer(raw_text, input_layers, status) for tagger in self._taggers]
         layer = merge_layers(layers=layers,
                              output_layer=self.output_layer,

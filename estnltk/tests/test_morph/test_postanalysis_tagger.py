@@ -26,7 +26,7 @@ def test_postanalysis_fix_names_with_initials():
     #       1. contain underscores between initials/names;
     #       2. names do no start with no lowercase letters;
     # Initialize tagger
-    morf_tagger = VabamorfTagger( postanalysis_tagger=PostMorphAnalysisTagger(fix_names_with_initials=True) )
+    morf_tagger = VabamorfTagger(postanalysis_tagger=PostMorphAnalysisTagger(fix_names_with_initials=True))
     # Case 1
     text=Text('Romaan kinnitab üht T. S. Eliot´i ennustust.')
     text.tag_layer(['words','sentences'])
@@ -102,7 +102,7 @@ def test_postanalysis_fix_names_with_initials():
 def test_postanalysis_fix_emoticons():
     # Tests that emoticons have postag 'Z':
     # Initialize tagger
-    morf_tagger = VabamorfTagger( postanalysis_tagger=PostMorphAnalysisTagger(fix_emoticons=True) )
+    morf_tagger = VabamorfTagger(postanalysis_tagger=PostMorphAnalysisTagger(fix_emoticons=True))
     # Case 1
     text=Text('Äge pull :D irw :-P')
     text.tag_layer(['words','sentences'])
@@ -127,7 +127,7 @@ def test_postanalysis_fix_emoticons():
 def test_postanalysis_fix_www_addresses():
     # Tests that www addresses have postag 'H':
     # Initialize tagger
-    morf_tagger = VabamorfTagger( postanalysis_tagger=PostMorphAnalysisTagger(fix_www_addresses=True) )
+    morf_tagger = VabamorfTagger(postanalysis_tagger=PostMorphAnalysisTagger(fix_www_addresses=True))
     # Case 1
     text=Text('Lugeja saatis Maaleht.ee-le http://www.tartupostimees.ee foto.')
     text.tag_layer(['words','sentences'])
@@ -150,7 +150,7 @@ def test_postanalysis_fix_www_addresses():
 def test_postanalysis_fix_email_addresses():
     # Tests that emails have postag 'H':
     # Initialize tagger
-    morf_tagger = VabamorfTagger( postanalysis_tagger=PostMorphAnalysisTagger(fix_email_addresses=True) )
+    morf_tagger = VabamorfTagger(postanalysis_tagger=PostMorphAnalysisTagger(fix_email_addresses=True))
     # Case 1
     text=Text('Kontakt: big@boss.com; http://www.big.boss.com')
     text.tag_layer(['words','sentences'])
@@ -172,7 +172,7 @@ def test_postanalysis_fix_email_addresses():
 def test_postanalysis_fix_abbreviations():
     # Tests that abbreviations have postag 'Y':
     # Initialize tagger
-    morf_tagger = VabamorfTagger( postanalysis_tagger=PostMorphAnalysisTagger(fix_abbreviations=True) )
+    morf_tagger = VabamorfTagger(postanalysis_tagger=PostMorphAnalysisTagger(fix_abbreviations=True))
     # Case 1
     text=Text('( 9. jaan. 1939. a. või dets. - toim. )')
     text.tag_layer(['words','sentences'])
@@ -200,7 +200,7 @@ def test_postanalysis_fix_abbreviations():
 def test_postanalysis_fix_numeric():
     # Tests that numerics and percentages will have postag 'N':
     # Initialize tagger
-    morf_tagger = VabamorfTagger( postanalysis_tagger=PostMorphAnalysisTagger(fix_numeric=True) )
+    morf_tagger = VabamorfTagger(postanalysis_tagger=PostMorphAnalysisTagger(fix_numeric=True))
     # Case 1 : percentages
     text=Text('kahanenud 4,7% -lt 1,8% -ni')
     text.tag_layer(['words','sentences'])
@@ -282,7 +282,7 @@ def test_postanalysis_with_correction_rewriter_for_numbers():
     postanalysis_tagger = \
         PostMorphAnalysisTagger(correction_rewriter = VabamorfCorrectionRewriter())
     morf_tagger = \
-        VabamorfTagger( postanalysis_tagger=postanalysis_tagger )
+        VabamorfTagger(postanalysis_tagger=postanalysis_tagger)
     # Case 1
     text=Text('Tiit müüs 10e krooniga')
     text.tag_layer(['words','sentences'])
