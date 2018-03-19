@@ -351,6 +351,104 @@ class TestLayer(unittest.TestCase):
             }})
         self.assertEqual(len(list(res)), 1)
 
+    def test_build_ngrams(self):
+        col = self.storage.get_collection('test')
+        self.assertEqual(sorted(col.build_ngrams(['a', 'b', 'c'], 2)), ['a-b', 'b-c'])
+        self.assertEqual(sorted(col.build_ngrams(['a', 'b', 'c', 'd'], 3)), ['a-b-c', 'b-c-d'])
+        self.assertEqual(col.build_ngrams(['a', 'b'], 3), [])
+
+        self.assertEqual(sorted(col.build_ngrams([('a', 'b'), ('c',)], 2)),
+                         ['a-c', 'b-c'])
+        self.assertEqual(sorted(col.build_ngrams([('a', 'b'), ('c',), ('d', 'e')], 3)),
+                         ['a-c-d', 'a-c-e', 'b-c-d', 'b-c-e'])
+
+    def test_layer_ngramm_index(self):
+        table_name = get_random_table_name()
+        col = self.storage.get_collection(table_name)
+        col.create()
+
+        text1 = Text("Ööbik laulab puu otsas.").tag_layer(["sentences"])
+        id1 = col.insert(text1)
+
+        text2 = Text("Mis kell on?").tag_layer(["sentences"])
+        id2 = col.insert(text2)
+
+        layer1 = "layer1"
+        layer2 = "layer2"
+        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
+        tagger2 = VabamorfTagger(disambiguate=False, layer_name=layer2)
+        col.create_layer(layer1, callable=lambda t: tagger1.tag(t, return_layer=True),
+                         ngram_index={"lemma": 2})
+        col.create_layer(layer2, callable=lambda t: tagger2.tag(t, return_layer=True),
+                         ngram_index={"partofspeech": 3})
+
+        self.assertEqual(self.storage.count_rows(self.storage.layer_name_to_table_name(table_name, layer1)), 2)
+        self.assertEqual(self.storage.count_rows(self.storage.layer_name_to_table_name(table_name, layer2)), 2)
+
+        res = list(col.find_fingerprint(layer_ngram_query={
+            layer1: {"lemma": [("otsas", ".")]}}))
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0][0], id1)
+
+        res = list(col.find_fingerprint(layer_ngram_query={
+            layer1: {"lemma": [("mis", "kell")]}}))
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0][0], id2)
+
+        res = list(col.find_fingerprint(layer_ngram_query={
+            layer1: {"lemma": [("mis",)]}}))
+        self.assertEqual(len(res), 0)
+
+        res = list(col.find_fingerprint(layer_ngram_query={
+            layer1: {
+                "lemma": [[("mis", "kell")],  # "mis-kell" OR "otsas-."
+                          [("otsas", ".")]]
+            }}))
+        self.assertEqual(len(res), 2)
+
+        res = list(col.find_fingerprint(layer_ngram_query={
+            layer1: {
+                "lemma": [[("mis", "kell"),  # "mis-kell" AND "otsas-."
+                           ("otsas", ".")]]
+            }}))
+        self.assertEqual(len(res), 0)
+
+        # "Ööbik laulab puu otsas." ->[['H', 'S'], ['V'], ['S', 'S'], ['D', 'K', 'V', 'S'], ['Z']]
+        # "Mis kell on?" -> [['P', 'P'], ['S'], ['V', 'V'], ['Z']]
+        res = list(col.find_fingerprint(layer_ngram_query={
+            layer2: {"partofspeech": [("S", "V", "S")]}}))  # Ööbik laulab puu
+        self.assertEqual(len(res), 1)
+
+        res = list(col.find_fingerprint(layer_ngram_query={
+            layer2: {"partofspeech": [("S", "V")]}}))  # 2-grams not indexed
+        self.assertEqual(len(res), 0)
+
+        res = list(col.find_fingerprint(layer_ngram_query={
+            layer2: {"partofspeech": [[("S", "V", "S")],  # "Ööbik laulab puu" OR "Mis kell on"
+                                      [("P", "S", "V")]]}}))
+        self.assertEqual(len(res), 2)
+
+        res = list(col.find_fingerprint(layer_ngram_query={
+            layer2: {"partofspeech": [[("S", "V", "S"), ("S", "D", "Z")]]}}))  # "Ööbik laulab puu" AND "puu otsas ."
+        self.assertEqual(len(res), 1)
+
+        res = list(col.find_fingerprint(layer_ngram_query={
+            layer1: {"lemma": [("puu", "otsas")]},
+            layer2: {"partofspeech": [("S", "V", "S")]},  # "laulma-puu-otsas"
+        }))
+        self.assertEqual(len(res), 1)
+
+        res = list(col.find_fingerprint(
+            layer_ngram_query={
+                layer1: {"lemma": [("mis", "kell")]}},
+            layers=[layer1, layer2]
+        ))
+        t1 = res[0][1]
+        self.assertTrue(layer1 in t1.layers)
+        self.assertTrue(layer2 in t1.layers)
+
+        col.delete()
+
 
 if __name__ == '__main__':
     unittest.main()
