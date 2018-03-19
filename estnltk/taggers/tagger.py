@@ -26,10 +26,10 @@ class Tagger:
     def _make_layer(self, raw_text: str, layers: dict, status: dict) -> Layer:
         raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
-    def make_layer(self, text: Text, status: dict = None) -> Layer:
+    def make_layer(self, raw_text: str, layers: dict, status: dict = None) -> Layer:
         if status is None:
             status = {}
-        layer = self._make_layer(text.text, text.layers, status)
+        layer = self._make_layer(raw_text, layers, status)
         assert isinstance(layer, Layer), 'make_layer must return Layer'
         assert layer.name == self.output_layer, 'incorrect layer name: {} != {}'.format(layer.name, self.output_layer)
         return layer
@@ -38,9 +38,9 @@ class Tagger:
         """
         text: Text object to be tagged
         status: dict, default {}
-            This can be used to store metadata on layer creation.
+            This can be used to store layer creation metadata.
         """
-        text[self.output_layer] = self.make_layer(text, status)
+        text[self.output_layer] = self.make_layer(text.text, text.layers, status)
         return text
 
     def __call__(self, text: Text, status: dict = None) -> Text:
