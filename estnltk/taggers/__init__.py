@@ -26,6 +26,9 @@ from estnltk.taggers.event_tagging.event_sequence_tagger import EventSequenceTag
 from estnltk.taggers.measurement_tagging.robust_date_number_tagger import RobustDateNumberTagger
 
 from estnltk.taggers.morph.morf import VabamorfTagger
+
+from estnltk.taggers.atomizer import Atomizer
+
 from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger
 from estnltk.taggers.text_segmentation.word_tagger import WordTagger
 from estnltk.taggers.text_segmentation.sentence_tokenizer import SentenceTokenizer
