@@ -23,9 +23,9 @@ def records_to_vocabulary(records: Sequence[dict], key: Hashable) -> dict:
 
 def read_vocabulary(vocabulary_file: str,
                     key: str,
-                    string_attributes: Sequence=(),
-                    regex_attributes: Sequence=(),
-                    callable_attributes: Sequence=(),
+                    string_attributes: Sequence[str] = (),
+                    regex_attributes: Sequence[str] = (),
+                    callable_attributes: Sequence[str] = (),
                     default_rec: dict=None
                     ):
     """

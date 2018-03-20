@@ -1,5 +1,5 @@
 import bisect
-from typing import Tuple, Union, List
+from typing import Union, List, Sequence
 import pandas
 
 
@@ -21,7 +21,7 @@ def whitelist_record(record, source_attributes):
 class Layer:
     def __init__(self,
                  name: str = None,
-                 attributes: Union[Tuple, List] = tuple(),
+                 attributes: Sequence[str] = tuple(),
                  parent: str = None,
                  enveloping: str = None,
                  ambiguous: bool = False
@@ -71,7 +71,7 @@ class Layer:
         self.ambiguous = ambiguous  # type: bool
 
         # placeholder. is set when `_add_layer` is called on text object
-        self.text_object = None  # type:Text
+        self.text_object = None  # type: Text
 
     def freeze(self):
         self._is_frozen = True
