@@ -15,6 +15,7 @@ class RegexTagger(TaggerOld):
     layer_name = None
     attributes = []
     depends_on = []
+    input_layers = ()
     configuration = {}
 
     def __init__(self,

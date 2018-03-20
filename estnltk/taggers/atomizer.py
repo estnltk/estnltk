@@ -4,7 +4,7 @@ from estnltk.text import Span, SpanList, Layer
 
 
 class Atomizer(Tagger):
-    """Forgets the parent of the input layer.
+    """Forgets the parents of the input layer.
 
     Outputs an enveloping or simple (enveloping=None, parent=None) layer."""
     conf_param = ('enveloping',)
@@ -35,26 +35,25 @@ class Atomizer(Tagger):
         if layer.ambiguous:
             for span_list in layer:
                 for sp in span_list:
-                    span = rebase_span(span=sp, attributes=output_attributes)
+                    span = _rebase_span(span=sp, legal_attributes=output_attributes)
+                    for attr in output_attributes:
+                        setattr(span, attr, getattr(sp, attr))
                     result.add_span(span)
         else:
             for sp in layer:
-                span = rebase_span(span=sp, attributes=output_attributes)
+                span = _rebase_span(span=sp, legal_attributes=output_attributes)
+                for attr in output_attributes:
+                    setattr(span, attr, getattr(sp, attr))
                 result.add_span(span)
         return result
 
 
-def rebase_span(span, attributes):
+def _rebase_span(span, legal_attributes):
     if isinstance(span, SpanList):
         new_span = SpanList()
         new_span.spans = span.spans
-        for attr in attributes:
-            setattr(new_span, attr, getattr(span, attr))
         return new_span
     if span.parent is None:
-        new_span = Span(start=span.start, end=span.end, legal_attributes=attributes)
-        for attr in attributes:
-            setattr(new_span, attr, getattr(span, attr))
-        return new_span
+        return Span(start=span.start, end=span.end, legal_attributes=legal_attributes)
     else:
-        return rebase_span(span.parent, attributes)
+        return _rebase_span(span.parent, legal_attributes)
