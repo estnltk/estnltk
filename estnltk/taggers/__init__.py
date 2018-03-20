@@ -5,6 +5,8 @@ from estnltk.taggers.tagger_old import TaggerOld
 
 from estnltk.taggers.tagger_test_maker import make_tagger_test
 
+from estnltk.taggers.atomizer import Atomizer
+
 from estnltk.taggers.combined_tagger import CombinedTagger
 
 from estnltk.taggers.dict_taggers.vocabulary import read_vocabulary
@@ -27,7 +29,7 @@ from estnltk.taggers.measurement_tagging.robust_date_number_tagger import Robust
 
 from estnltk.taggers.morph.morf import VabamorfTagger
 
-from estnltk.taggers.atomizer import Atomizer
+from estnltk.taggers.sequential_tagger import SequentialTagger
 
 from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger
 from estnltk.taggers.text_segmentation.word_tagger import WordTagger
