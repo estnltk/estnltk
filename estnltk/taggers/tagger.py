@@ -1,3 +1,4 @@
+from typing import MutableMapping, Sequence
 from estnltk.text import Layer, Text
 
 
@@ -13,6 +14,10 @@ class Tagger:
     __init__(...)
     _make_layer(...)
     """
+    conf_param = None  # type: Sequence[str]
+    output_layer = None  # type: str
+    output_attributes = None  # type: Sequence[str]
+    input_layers = None  # type: Sequence[str]
 
     def __init__(self):
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
@@ -21,12 +26,12 @@ class Tagger:
         assert key in {'conf_param', 'output_layer', 'output_attributes', 'input_layers'} or\
                key in self.conf_param,\
                'attribute must be listed in conf_param: ' + key
-        super.__setattr__(self, key, value)
+        super().__setattr__(key, value)
 
-    def _make_layer(self, raw_text: str, layers: dict, status: dict) -> Layer:
+    def _make_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
-    def make_layer(self, raw_text: str, layers: dict, status: dict = None) -> Layer:
+    def make_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> Layer:
         if status is None:
             status = {}
         layer = self._make_layer(raw_text, layers, status)
@@ -53,10 +58,11 @@ class Tagger:
                       'output layer': self.output_layer,
                       'output attributes': str(self.output_attributes),
                       'input layers': str(self.input_layers)}
-        table = pandas.DataFrame(parameters, columns=['name', 'output layer', 'output attributes', 'input layers'], index=[0])
+        table = pandas.DataFrame(data=parameters,
+                                 columns=['name', 'output layer', 'output attributes', 'input layers'], index=[0])
         table = table.to_html(index=False)
         assert self.__class__.__doc__ is not None, 'No docstring.'
-        description = self.__class__.__doc__.strip().split('\n')[0]
+        description = self.__class__.__doc__.strip().split(b'\n')[0]
         table = ['<h4>Tagger</h4>', description, table]
 
         def to_str(value):
@@ -70,8 +76,8 @@ class Tagger:
 
         if self.conf_param:
             public_param = [p for p in self.conf_param if not p.startswith('_')]
-            conf_vals = [to_str(getattr(self, attr)) for attr in public_param]
-            conf_table = pandas.DataFrame(conf_vals, index=public_param)
+            conf_values = [to_str(getattr(self, attr)) for attr in public_param]
+            conf_table = pandas.DataFrame(conf_values, index=public_param)
             conf_table = conf_table.to_html(header=False)
             conf_table = ('<h4>Configuration</h4>', conf_table)
         else:
@@ -83,6 +89,10 @@ class Tagger:
     def __repr__(self):
         conf_str = ''
         if self.conf_param:
-            conf = [attr+'='+str(getattr(self, attr)) for attr in self.conf_param]
+            params = ['input_layers', 'output_layer', 'output_attributes'] + list(self.conf_param)
+            conf = [attr+'='+str(getattr(self, attr)) for attr in params if not attr.startswith('_')]
             conf_str = ', '.join(conf)
-        return self.__class__.__name__+'('+conf_str+')'
+        return self.__class__.__name__ + '(' + conf_str + ')'
+
+    def __str__(self):
+        return self.__class__.__name__ + '(' + str(self.input_layers) + '->' + self.output_layer + ')'
