@@ -1,22 +1,26 @@
 import regex as re
 from pandas import DataFrame, read_csv
 
-from estnltk.taggers import TaggerOld
-from estnltk.text import Layer
+from estnltk.taggers import Tagger
+from estnltk.layer import Layer
 from estnltk.layer_operations import resolve_conflicts
 
 
-class RegexTagger(TaggerOld):
+class RegexTagger(Tagger):
     """
+    Tags regular expression matches on the text.
     Searches matches for regular expressions in the text, solves the possible
     conflicts and creates a new layer of the matches.
     """
-    description = 'Tags regular expression matches on the text.'
-    layer_name = None
-    attributes = []
-    depends_on = []
     input_layers = ()
-    configuration = {}
+    conf_param = ('_conflict_resolving_strategy',
+                  'priority_attribute',
+                  '_illegal_keywords',
+                  'attributes',
+                  '_internal_attributes',
+                  '_vocabulary',
+                  '_overlapped',
+                  'layer_name')
 
     def __init__(self,
                  vocabulary,
@@ -36,12 +40,19 @@ class RegexTagger(TaggerOld):
             Strategy to choose between overlapping events.
         overlapped: bool (Default: False)
             If True, the match of a regular expression may overlap with a match
-            of the same regular expression. 
+            of the same regular expression.
             Note that this default setting will be overwritten by a pattern-
             specific setting if a pattern defines attribute 'overlapped';
         layer_name: str (Default: 'regexes')
             The name of the new layer.
         """
+        self.output_layer = layer_name
+        if attributes is None:
+            self.output_attributes = []
+        else:
+            self.output_attributes = attributes
+        self.input_layers = ()
+
         self._illegal_keywords = {'start', 'end'}
 
         # attributes in output layer
@@ -49,9 +60,9 @@ class RegexTagger(TaggerOld):
             self.attributes = []
         else:
             self.attributes = attributes
-        # attributes needed by tagger 
+        # attributes needed by tagger
         self._internal_attributes = set(self.attributes)|{'_group_', '_priority_'}
-        
+
         self._vocabulary = self._read_expression_vocabulary(vocabulary)
         self._overlapped = overlapped
         if conflict_resolving_strategy not in ['ALL', 'MIN', 'MAX']:
@@ -59,8 +70,6 @@ class RegexTagger(TaggerOld):
         self._conflict_resolving_strategy = conflict_resolving_strategy
         self.priority_attribute = priority_attribute
         self.layer_name = layer_name
-        self.configuration['conflict_resolving_strategy'] = conflict_resolving_strategy
-        self.configuration['overlapped'] = overlapped
 
     def _read_expression_vocabulary(self, expression_vocabulary):
         if isinstance(expression_vocabulary, list):
@@ -107,7 +116,7 @@ class RegexTagger(TaggerOld):
 
         return records
 
-    def make_layer(self, raw_text, input_layers=None, status=None):
+    def _make_layer(self, raw_text, input_layers=None, status=None):
         layer = Layer(name=self.layer_name,
                       attributes=tuple(self._internal_attributes),
                       )
@@ -119,23 +128,6 @@ class RegexTagger(TaggerOld):
                                   status=status)
         layer.attributes = self.attributes
         return layer
-
-    def tag(self, text, return_layer=False, status={}):
-        """Retrieves list of regex_matches in text.
-        Parameters
-        ----------
-        text: Text
-            The estnltk text object to search for matches.
-        Returns
-        -------
-        Layer, if return_layer is True,
-        None, otherwise.
-        """
-        layer = self.make_layer(text.text, None, status)
-        if return_layer:
-            return layer
-        else:
-            text[self.layer_name] = layer
 
     def _match(self, text):
         matches = []

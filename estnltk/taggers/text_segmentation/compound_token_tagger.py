@@ -31,6 +31,7 @@ _letter_pattern = re.compile(r'''([{LETTERS}]+)'''.format(**MACROS), re.X)
 # List containing words that should be ignored during the normalization of words with hyphens
 DEFAULT_IGNORE_LIST = os.path.join( PACKAGE_PATH, 'rewriting', 'premorph', 'rules_files', 'ignore.csv')
 
+
 class CompoundTokenTagger(TaggerOld):
     description = 'Tags adjacent tokens that should be analyzed as one word.'
     layer_name = 'compound_tokens'
@@ -195,7 +196,7 @@ class CompoundTokenTagger(TaggerOld):
         # 1) Apply RegexTagger in order to get hints for the 1st level tokenization
         conflict_status    = {}
         tokenization_hints = {}
-        new_layer = self._tokenization_hints_tagger_1.tag(text, return_layer=True, status=conflict_status)
+        new_layer = self._tokenization_hints_tagger_1.make_layer(text.text, text.layers, status=conflict_status)
         for sp in new_layer.spans:
             #print('*',text.text[sp.start:sp.end], sp.pattern_type, sp.normalized)
             if hasattr(sp, 'pattern_type') and sp.pattern_type.startswith('negative:'):
@@ -253,8 +254,7 @@ class CompoundTokenTagger(TaggerOld):
                         # not overlap with the previous compound token
                         if compound_tokens_lists:
                             last_compound = compound_tokens_lists[-1]
-                            if last_compound.start <= spl.start and \
-                               spl.start < last_compound.end:
+                            if last_compound.start <= spl.start < last_compound.end:
                                 add_compound_token = False
                     if add_compound_token:
                         compound_tokens_lists.append(spl)
@@ -414,23 +414,22 @@ class CompoundTokenTagger(TaggerOld):
         # Return normalized form of the token
         return token.normal.text
 
-
     def _apply_2nd_level_compounding(self, text:'Text', compound_tokens_lists:list):
-        ''' Executes _tokenization_hints_tagger_2 to get hints for 2nd level compounding.
-            
+        """ Executes _tokenization_hints_tagger_2 to get hints for 2nd level compounding.
+
             Performs the 2nd level compounding: joins together regular "tokens" and 
             "compound_tokens" (created by _tokenization_hints_tagger_1) according to the 
             hints.
-            
+
             And finally, unifies results of the 1st level compounding and the 2nd level 
             compounding into a new compound_tokens_lists.
             Returns updated compound_tokens_lists.
-        '''
+        """
         # Apply regexps to gain 2nd level of tokenization hints
-        conflict_status    = {}
-        tokenization_hints = {}
-        new_layer = \
-            self._tokenization_hints_tagger_2.tag(text, return_layer=True, status=conflict_status)
+        conflict_status = {}
+        new_layer = self._tokenization_hints_tagger_2.make_layer(text.text,
+                                                                 text.layers,
+                                                                 status=conflict_status)
         # Find tokens that should be joined according to 2nd level hints and 
         # create new compound tokens based on them
         for sp in new_layer.spans:
@@ -479,16 +478,15 @@ class CompoundTokenTagger(TaggerOld):
 
         return compound_tokens_lists
 
-
-    def _get_covered_tokens(self, start:int, end:int, left_strict:bool, right_strict:bool, spans:list):
-        '''
+    def _get_covered_tokens(self, start: int, end: int, left_strict: bool, right_strict: bool, spans: list):
+        """
         Filters the list spans and returns a sublist containing spans within 
         the range (start, end).
         
         Parameters left_strict and right_strict can be used to loosen the range
         constraints; e.g. if left_strict==False, then returned spans can start 
         before the given start position.
-        '''
+        """
         covered = []
         if spans:
             for span in spans:
