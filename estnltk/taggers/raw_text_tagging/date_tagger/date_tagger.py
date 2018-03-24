@@ -20,10 +20,10 @@ class DateTagger(TaggerOld):
         vocabulary = self._create_vocabulary(regexes)
 
         self._tagger = RegexTagger(vocabulary=vocabulary,
-                                   attributes=['date_text','type', 'probability', 'groups', 'extracted_values'],
+                                   output_attributes=['date_text', 'type', 'probability', 'groups', 'extracted_values'],
                                    conflict_resolving_strategy=conflict_resolving_strategy,
                                    overlapped=overlapped,
-                                   layer_name=layer_name,
+                                   output_layer=layer_name,
                                    )
 
         self.configuration = self._tagger.configuration

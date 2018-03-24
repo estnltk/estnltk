@@ -15,7 +15,7 @@ def test_validator():
          'comment': 'starts with zero'}
     ]
 
-    regex_tagger = RegexTagger(layer_name='numbers', vocabulary=vocabulary, attributes=['comment'])
+    regex_tagger = RegexTagger(output_layer='numbers', vocabulary=vocabulary, output_attributes=['comment'])
     text = Text('3209 n  0930 093 2304209 093402')
     regex_tagger.tag(text)
     assert text.numbers.text == ['3209', '0930', '093', '2304209', '093402']

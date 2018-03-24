@@ -143,11 +143,11 @@ class CompoundTokenTagger(TaggerOld):
         if tag_abbreviations:
             _vocabulary_1.extend(abbreviation_patterns)
         self._tokenization_hints_tagger_1 = RegexTagger(vocabulary=_vocabulary_1,
-                                                        attributes=('normalized', '_priority_', 'pattern_type'),
+                                                        output_attributes=('normalized', '_priority_', 'pattern_type'),
                                                         conflict_resolving_strategy=conflict_resolving_strategy,
                                                         priority_attribute='_priority_',
                                                         overlapped=False,
-                                                        layer_name='tokenization_hints',
+                                                        output_layer='tokenization_hints',
                                                         )
         # =========================
         #  2nd level hints tagger
@@ -160,12 +160,12 @@ class CompoundTokenTagger(TaggerOld):
         self._tokenization_hints_tagger_2 = None
         if _vocabulary_2:
             self._tokenization_hints_tagger_2 = RegexTagger(vocabulary=_vocabulary_2,
-                                                            attributes=('normalized', '_priority_', 'pattern_type',
+                                                            output_attributes=('normalized', '_priority_', 'pattern_type',
                                                             'left_strict', 'right_strict'),
                                                             conflict_resolving_strategy=conflict_resolving_strategy,
                                                             priority_attribute='_priority_',
                                                             overlapped=False,
-                                                            layer_name='tokenization_hints',
+                                                            output_layer='tokenization_hints',
                                                             )
         # Load words that should be ignored during normalization of words with hyphens
         self.ignored_words = self._load_ignore_words_from_csv( DEFAULT_IGNORE_LIST )

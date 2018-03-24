@@ -503,10 +503,10 @@ class SyntaxIgnoreTagger(TaggerOld):
                 patterns.append( ignore_pat )
         # Create a new tagger
         self._syntax_ignore_tagger = RegexTagger(vocabulary=patterns,
-                                                 attributes=[ '_priority_', 'type' ],
+                                                 output_attributes=['_priority_', 'type'],
                                                  conflict_resolving_strategy="MAX",
                                                  overlapped=False,
-                                                 layer_name='syntax_ignore_hints',
+                                                 output_layer='syntax_ignore_hints',
                                                  )
 
 

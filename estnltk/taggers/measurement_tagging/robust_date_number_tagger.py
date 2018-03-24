@@ -22,11 +22,11 @@ class RobustDateNumberTagger(Tagger):
         self.output_layer = output_layer
         self.input_layers = []
         self.tagger = RegexTagger(vocabulary=voc,
-                                  attributes=output_attributes,
+                                  output_attributes=output_attributes,
                                   conflict_resolving_strategy=conflict_resolving_strategy,
                                   priority_attribute='_priority_',
                                   overlapped=overlapped,
-                                  layer_name=output_layer)
+                                  output_layer=output_layer)
 
     def _make_layer(self, raw_text, layers, status):
         return self.tagger.make_layer(raw_text, layers, status)
