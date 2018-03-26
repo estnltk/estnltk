@@ -7,18 +7,18 @@
 import regex as re
 
 from estnltk.text import Span, SpanList, Layer, Text
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 
-from estnltk.taggers.morf_common import IGNORE_ATTR
-from estnltk.taggers.morf_common import ESTNLTK_MORPH_ATTRIBUTES
-from estnltk.taggers.morf_common import VABAMORF_ATTRIBUTES
-from estnltk.taggers.morf_common import _get_word_text, _create_empty_morph_span
-from estnltk.taggers.morf_common import _is_empty_span
+from estnltk.taggers.morph.morf_common import IGNORE_ATTR
+from estnltk.taggers.morph.morf_common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.taggers.morph.morf_common import VABAMORF_ATTRIBUTES
+from estnltk.taggers.morph.morf_common import _get_word_text, _create_empty_morph_span
+from estnltk.taggers.morph.morf_common import _is_empty_span
 
 from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 
 
-class PostMorphAnalysisTagger(Tagger):
+class PostMorphAnalysisTagger(TaggerOld):
     description   = "Provides corrections to morphological analysis layer. "+\
                     "This tagger should be applied before morphological disambiguation."
     layer_name    = None
@@ -204,7 +204,7 @@ class PostMorphAnalysisTagger(Tagger):
             Text object to which ignore-markings will be added.
         '''
         comp_token_id = 0
-        for spanlist in text.morph_analysis.spans:
+        for spanlist in text[self.layer_name].spans:
             if comp_token_id < len(text['compound_tokens'].spans):
                 comp_token = text['compound_tokens'].spans[comp_token_id]
                 if (comp_token.start == spanlist.start and \
@@ -242,13 +242,20 @@ class PostMorphAnalysisTagger(Tagger):
         '''
         comp_token_id  = 0
         has_normalized = 'normalized' in text['compound_tokens'].attributes
-        for spanlist in text.morph_analysis.spans:
+        for spanlist in text[self.layer_name].spans:
             if comp_token_id < len(text['compound_tokens'].spans):
                 comp_token = text['compound_tokens'].spans[comp_token_id]
                 if (comp_token.start == spanlist.start and \
                     spanlist.end == comp_token.end):
-                    ignore_spans = False
-                    # Found matching compound token
+                    #  In order to avoid errors in downstream processing, let's 
+                    # fix only non-empty spans, and skip the empty spans
+                    is_empty = not spanlist or _is_empty_span( spanlist[0] )
+                    if is_empty:
+                        # Next compound token
+                        comp_token_id += 1
+                        continue
+                    
+                    # Found compound token that matches a non-empty span
                     # 1) Fix names with initials, such as "T. S. Eliot"
                     if self.configuration['fix_names_with_initials'] and \
                        'name_with_initial' in comp_token.type:
@@ -293,8 +300,7 @@ class PostMorphAnalysisTagger(Tagger):
                        'email' in comp_token.type:
                         for span in spanlist:
                             # Set partofspeech to H
-                            setattr(span, 'partofspeech', 'H')                            
-                    comp_token_id += 1
+                            setattr(span, 'partofspeech', 'H')
                     # 5) Fix abbreviations, such as 'toim.', 'Tlk.'
                     if self.configuration['fix_abbreviations'] and \
                        ('abbreviation' in comp_token.type or \
@@ -321,6 +327,8 @@ class PostMorphAnalysisTagger(Tagger):
                                     root = getattr(span, 'root')
                                     if self.pat_numeric.match(root):
                                         setattr(span, 'partofspeech', 'N')
+                    # Next compound token
+                    comp_token_id += 1
             else:
                 # all compound tokens have been exhausted
                 break

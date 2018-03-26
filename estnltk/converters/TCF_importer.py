@@ -1,6 +1,5 @@
 from lxml import etree
-from estnltk import Text
-from estnltk.text import Span, SpanList, Layer
+from estnltk.text import Span, SpanList, Layer, Text
 
 def import_TCF(string:str=None, file:str=None):
     if file:

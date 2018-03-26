@@ -6,7 +6,7 @@ from typing import Iterator, Tuple
 import re
 
 from estnltk.text import Layer, SpanList
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 
 _hyphen_pat = '(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|-)'
 _lc_letter  = '[a-zöäüõžš]'
@@ -272,7 +272,7 @@ merge_patterns = [ \
 ]
 
 
-class SentenceTokenizer(Tagger):
+class SentenceTokenizer(TaggerOld):
     description   = 'Groups words into sentences, and applies sentence tokenization post-corrections, if required.'
     layer_name    = 'sentences'
     attributes    = ()
@@ -289,8 +289,99 @@ class SentenceTokenizer(Tagger):
                  fix_inner_title_punct:bool = True,
                  fix_repeated_ending_punct:bool = True,
                  use_emoticons_as_endings:bool = True,
+                 base_sentence_tokenizer = None,
                  ):
-        # 0) Record configuration
+        """Initializes this SentenceTokenizer.
+        
+        Parameters
+        ----------
+        fix_paragraph_endings: boolean (default: True)
+            Paragraph endings (double newlines) will be treated as sentence 
+            endings.
+        
+        fix_compound_tokens: boolean (default: True)
+            If True, then following sentence boundary fixes are applied:
+            *) a built-in logic is used to remove all sentence endings 
+               that fall inside compound_tokens;
+            *) sentence endings that are added after compound_tokens of 
+               type non_ending_abbreviation are removed;
+            *) if a regular abbreviation is followed by a sentence break, 
+               and then by a lowercase word or non-ending punctuation 
+               (comma or semicolon), then the sentence break is removed 
+               after such abbreviation;
+        
+        fix_numeric: boolean (default: True)
+            Removes sentence endings that are mistakenly added after periods 
+            that end date, time and (other) numeric expressions;
+        
+        fix_parentheses: boolean (default: True)
+            Removes sentence endings that are mistakenly added inside parentheses, 
+            and fixes endings that are misplaced with respect to parentheses;
+        
+        fix_double_quotes: boolean (default: True)
+            Removes sentence endings that are misplaced with respect to quotations 
+            / double quotes.
+        
+        fix_inner_title_punct: boolean (default: True)
+            Removes sentence endings that are mistakenly placed after titles inside 
+            the sentence. Currently only fixes cases when a question mark or an 
+            exclamation mark is followed by a sentence ending and, a colon or a 
+            semicolon starts the next sentence.
+        
+        fix_repeated_ending_punct: boolean (default: True)
+            Adds sentence endings that are missed in places of prolonged ending 
+            punctuation (including triple dots), and also fixes misplaced sentence 
+            endings in such contexts.
+        
+        use_emoticons_as_endings: boolean (default: True)
+            If switched on, then emoticons are treated as sentence endings.
+        
+        base_sentence_tokenizer: nltk.tokenize.api.TokenizerI (default: None)
+            Base string tokenizer to be used for initial sentence tokenization.
+            If not set, then NLTK's PunktSentenceTokenizer with the Estonian-
+            specific model ('tokenizers/punkt/estonian.pickle') is chosen as 
+            the base sentence tokenizer.
+            Use this argument, if you want to set a custom base tokenizer, e.g.
+            LineTokenizer() from NLTK.
+            Note:
+            * If base_sentence_tokenizer is an instance of PunktSentenceTokenizer,
+              then  its  method   sentences_from_tokens()   is  used  for initial 
+              sentence tokenization;
+            * otherwise (base_sentence_tokenizer is an instance of TokenizerI, 
+              but not PunktSentenceTokenizer), then its method span_tokenize() is 
+              used for initial sentence tokenization;
+
+        """
+        # 0.1) Set or initialize base sentence tokenizer
+        import nltk as nltk
+        from nltk.tokenize.punkt import PunktSentenceTokenizer
+        from nltk.tokenize.api import TokenizerI
+        if not base_sentence_tokenizer:
+            # If base tokenizer was not given by the user:
+            #    Initialize NLTK's tokenizer
+            #    use NLTK-s sentence tokenizer for Estonian, in case it is not 
+            #    downloaded yet, try to download it first
+            try:
+                self.sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+            except LookupError:
+                import nltk.downloader
+                nltk.downloader.download('punkt')
+            finally:
+                if self.sentence_tokenizer is None:
+                    self.sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+        else:
+            # If base tokenizer was given by the user:
+            #    check that it implements the correct interface
+            assert isinstance(base_sentence_tokenizer, TokenizerI), \
+                   ' (!) base_sentence_tokenizer should be an instance of nltk.tokenize.api.TokenizerI.'
+            self.sentence_tokenizer = base_sentence_tokenizer
+        # 0.2) Fix the tokenization method: 
+        #  * use sentences_from_tokens() for PunktSentenceTokenizer()
+        #  * use span_tokenize() for other / custom tokenizers;
+        self.apply_sentences_from_tokens = True
+        if not isinstance(self.sentence_tokenizer, PunktSentenceTokenizer):
+            self.apply_sentences_from_tokens = False
+        # 1) Record configuration
         self.configuration = {'fix_paragraph_endings': fix_paragraph_endings,
                               'fix_compound_tokens': fix_compound_tokens,
                               'fix_numeric': fix_numeric,
@@ -298,18 +389,9 @@ class SentenceTokenizer(Tagger):
                               'fix_double_quotes': fix_double_quotes,
                               'fix_inner_title_punct':fix_inner_title_punct,
                               'fix_repeated_ending_punct':fix_repeated_ending_punct,
-                              'use_emoticons_as_endings':use_emoticons_as_endings,}
-        # 1) Initialize NLTK's tokenizer
-        # use NLTK-s sentence tokenizer for Estonian, in case it is not downloaded, try to download it first
-        import nltk as nltk
-        try:
-            self.sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
-        except LookupError:
-            import nltk.downloader
-            nltk.downloader.download('punkt')
-        finally:
-            if self.sentence_tokenizer is None:
-                self.sentence_tokenizer = nltk.data.load('tokenizers/punkt/estonian.pickle')
+                              'use_emoticons_as_endings':use_emoticons_as_endings,
+                              'base_sentence_tokenizer': \
+                                   self.sentence_tokenizer.__class__.__name__ }
         # 2) Filter rules according to the given configuration
         self.merge_rules = []
         for merge_pattern in merge_patterns:
@@ -347,8 +429,44 @@ class SentenceTokenizer(Tagger):
 
     def tag(self, text:'Text', return_layer:bool=False,
                                record_fix_types:bool=False) -> 'Text':
-        #sentence_ends = {end for _, end in self._tokenize_text(text)}
-        sentence_ends = {end for _, end in self._sentences_from_tokens(text)}
+        """Tags sentences layer.
+        
+        Parameters
+        ----------
+        text: estnltk.text.Text
+            Text object that is to be segmented into sentences. 
+            Needs to have layers 'compound_tokens' and 'words' 
+            available; 
+
+        return_layer: boolean (default: False)
+            If True, then the new layer is returned; otherwise 
+            the new layer is attached to the Text object, and 
+            the Text object is returned;
+        
+        record_fix_types: boolean (default: False)
+            If True, then attribute 'fix_types' is added to the 
+            layer, which contains names of the applied post-
+            correction (merging) fixes.
+            Note: this attribute is only used for developing and 
+            debugging purposes, it may change in the future and 
+            should not be relied upon;
+        
+        Returns
+        -------
+        Text or Layer
+            If return_layer==True, then returns the new layer, 
+            otherwise attaches the new layer to the Text object 
+            and returns the Text object;
+        """
+        # Apply the base sentence tokenizer
+        # Depending on the available interface, use either
+        # sentences_from_tokens() or span_tokenize()
+        if self.apply_sentences_from_tokens:
+            # Note: this should be the default choice for EstNLTK
+            sentence_ends = {end for _, end in self._sentences_from_tokens(text)}
+        else:
+            # Note: this is a customization, not default
+            sentence_ends = {end for _, end in self._tokenize_text(text)}
         # A) Remove sentence endings that:
         #   A.1) coincide with endings of non_ending_abbreviation's
         #   A.2) fall in the middle of compound tokens
@@ -467,8 +585,7 @@ class SentenceTokenizer(Tagger):
 
     def _merge_mistakenly_split_sentences(self, text:'Text', sentences_list:list, \
                                                              sentence_fixes_list:list ):
-        ''' 
-            Uses regular expression patterns (defined in self.merge_rules) to 
+        ''' Uses regular expression patterns (defined in self.merge_rules) to 
             discover adjacent sentences (in sentences_list) that should actually 
             form a single sentence. Merges those adjacent sentences.
             

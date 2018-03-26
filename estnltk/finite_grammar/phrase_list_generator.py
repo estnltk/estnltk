@@ -1,18 +1,19 @@
+from typing import Union
 from collections import defaultdict
 
 from .trees import Grammar
 
 
-def phrase_list_generator(grammar: Grammar, max_depth: int=None):
+def phrase_list_generator(grammar: Grammar, depth_limit: Union[int, float]=None):
     """
-    Generates all phrases in the finite grammar tree up to the given depth.
+    Generates all phrases in the finite grammar tree up to the depth_limit.
     """
     ruledict = defaultdict(list)
     for rule in grammar.rules:
-        ruledict[rule['lhs']].append(list(rule['rhs']))
+        ruledict[rule.lhs].append(list(rule.rhs))
     nonterminals = grammar.nonterminals
-    if not max_depth:
-        max_depth = grammar.max_depth
+    if depth_limit is None:
+        depth_limit = grammar.depth_limit
 
     def gen(symbols, depth):
         nonterminal = None
@@ -29,4 +30,4 @@ def phrase_list_generator(grammar: Grammar, max_depth: int=None):
             new_symbols = symbols[:i] + replacement + symbols[i+1:]
             yield from gen(new_symbols, depth-1)
 
-    return gen(grammar.start_symbols, max_depth)
+    return gen(list(grammar.start_symbols), depth_limit)

@@ -1,11 +1,11 @@
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 from estnltk.taggers import VabamorfTagger
 from estnltk.rewriting import MorphToSyntaxMorphRewriter
 from estnltk.rewriting import FiniteFormRewriter
 
 
 
-class FiniteFormTagger(Tagger):
+class FiniteFormTagger(TaggerOld):
     description = 'Tags finite form tags for verbs.'
     layer_name = 'finite_form'
     attributes = VabamorfTagger.attributes + ('fin',)

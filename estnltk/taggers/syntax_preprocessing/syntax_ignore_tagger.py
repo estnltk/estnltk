@@ -1,7 +1,7 @@
 #
 #  Tags text snippets that should be ignored during the syntactic analysis.
 # 
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 from estnltk.taggers import RegexTagger
 
 from estnltk.text import Span, SpanList, Layer
@@ -120,6 +120,20 @@ ignore_patterns = [
                 ([0-9,.\-+]{4,5})                                # a year-number like sequence
               )                                                  #
             \s*\))                                               # ends with ')'
+            ''', re.X),
+        '_group_': 1 },\
+      { 'comment': 'Captures sequences of parenthesized uppercase letters and numbers, which do not include whitespace.',
+        'example': 'ksülitool (E967), sorbitool (E420), mannitool (E421), laktitool (E966) jt.',
+        'type'   : 'parentheses_ucase_number_seq',
+        '_priority_': (0, 0, 1, 6),
+        '_regex_pattern_': re.compile(\
+            r'''
+            [^'''+_uc_letter+''']                             # preceding char is not ucase letter
+            (\(                                               # starts with '('
+               (?=[^()]*['''+_uc_letter+'''])                 # look ahead: ucase letter inside parentheses
+               ['''+_uc_letter+'''0-9.]+                      # sequence of ucase letters, numbers, puncts
+             \))                                              #  ends with ')'
+             [^'''+_uc_letter+''']                            # following char is not ucase letter
             ''', re.X),
         '_group_': 1 },\
 
@@ -362,7 +376,7 @@ ignore_patterns = [
 
 # ===================================================================
 
-class SyntaxIgnoreTagger(Tagger):
+class SyntaxIgnoreTagger(TaggerOld):
     description = 'Tags text snippets that should be ignored during the syntactic analysis.'
     layer_name  = 'syntax_ignore'
     attributes  = ('type',)
@@ -478,7 +492,8 @@ class SyntaxIgnoreTagger(Tagger):
                 if ignore_brackets:
                     patterns.append( ignore_pat )
             elif (ignore_pat['type'] in ['parentheses_1to3', \
-                  'parentheses_1to4', 'parentheses_birdeah_year']):
+                  'parentheses_1to4', 'parentheses_birdeah_year', \
+                  'parentheses_ucase_number_seq']):
                 if ignore_parenthesized_short_char_sequences:
                     patterns.append( ignore_pat )
             elif ignore_pat['type'].startswith('parentheses_title_words'):
@@ -488,11 +503,11 @@ class SyntaxIgnoreTagger(Tagger):
                 patterns.append( ignore_pat )
         # Create a new tagger
         self._syntax_ignore_tagger = RegexTagger(vocabulary=patterns,
-                                   attributes=[ '_priority_', 'type' ],
-                                   conflict_resolving_strategy="MAX",
-                                   overlapped=False,
-                                   layer_name='syntax_ignore_hints',
-                                   )
+                                                 output_attributes=['_priority_', 'type'],
+                                                 conflict_resolving_strategy="MAX",
+                                                 overlapped=False,
+                                                 output_layer='syntax_ignore_hints',
+                                                 )
 
 
     def tag(self, text: 'Text', return_layer=False) -> 'Text':
@@ -520,8 +535,9 @@ class SyntaxIgnoreTagger(Tagger):
         """
         # A) Apply RegexTagger to find text snippets that should be ignored
         conflict_status = {}
-        new_layer = self._syntax_ignore_tagger.tag( \
-                    text, return_layer=True, status=conflict_status )
+        new_layer = self._syntax_ignore_tagger.make_layer(text.text,
+                                                          text.layers,
+                                                          status=conflict_status)
         # Create an alignment between words and spans
         wid = 0
         ignored_words_spans = []

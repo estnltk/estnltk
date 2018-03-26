@@ -3,26 +3,30 @@
 #
 #  VabamorfTagger can be used for end-to-end morphological processing.
 #  Alternatively, the process can be broken down into substeps, using 
-#  VabamorfAnalyzer and VabamorfDisambiguator.
+#  VabamorfAnalyzer, PostMorphAnalysisTagger and VabamorfDisambiguator.
 # 
 
 from estnltk.text import Span, SpanList, Layer, Text
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 from estnltk.vabamorf.morf import Vabamorf
-from estnltk.taggers.postanalysis_tagger import PostMorphAnalysisTagger
+from estnltk.taggers.morph.postanalysis_tagger import PostMorphAnalysisTagger
 
-from estnltk.taggers.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
-from estnltk.taggers.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
-from estnltk.taggers.morf_common import DEFAULT_PARAM_COMPOUND
-from estnltk.taggers.morf_common import ESTNLTK_MORPH_ATTRIBUTES
-from estnltk.taggers.morf_common import VABAMORF_ATTRIBUTES
-from estnltk.taggers.morf_common import IGNORE_ATTR
+from estnltk.taggers.morph.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
+from estnltk.taggers.morph.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
+from estnltk.taggers.morph.morf_common import DEFAULT_PARAM_COMPOUND
+from estnltk.taggers.morph.morf_common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.taggers.morph.morf_common import VABAMORF_ATTRIBUTES
+from estnltk.taggers.morph.morf_common import IGNORE_ATTR
 
-from estnltk.taggers.morf_common import _get_word_text, _create_empty_morph_span
-from estnltk.taggers.morf_common import _is_empty_span
+from estnltk.taggers.morph.morf_common import _get_word_text, _create_empty_morph_span
+from estnltk.taggers.morph.morf_common import _is_empty_span
+
+from estnltk.taggers.morph.morf_common import _convert_morph_analysis_span_to_vm_dict
+from estnltk.taggers.morph.morf_common import _convert_vm_dict_to_morph_analysis_spans
 
 
-class VabamorfTagger(Tagger):
+
+class VabamorfTagger(TaggerOld):
     description   = "Tags morphological analysis on words. Uses Vabamorf's morphological analyzer and disambiguator."
     layer_name    = None
     attributes    = ESTNLTK_MORPH_ATTRIBUTES
@@ -31,7 +35,7 @@ class VabamorfTagger(Tagger):
 
     def __init__(self,
                  layer_name='morph_analysis',
-                 postanalysis_tagger=PostMorphAnalysisTagger(),
+                 postanalysis_tagger=None,
                  **kwargs):
         """Initialize VabamorfTagger class.
 
@@ -45,20 +49,28 @@ class VabamorfTagger(Tagger):
         ----------
         layer_name: str (default: 'morph_analysis')
             Name of the layer where analysis results are stored.
-        postanalysis_tagger: estnltk.taggers.Tagger (default: PostMorphAnalysisTagger())
-            Tagger that is used to post-process "morph_analysis" layer after
+        postanalysis_tagger: estnltk.taggers.TaggerOld (default: PostMorphAnalysisTagger())
+            TaggerOld that is used to post-process "morph_analysis" layer after
             it is created (and before it is disambiguated).
-            This tagger corrects morphological analyses, prepare morpho-
+            This tagger corrects morphological analyses, prepares morpho-
             logical analyses for disambiguation (if required) and fills in 
             values of extra attributes in morph_analysis Spans.
         """
+        # Check if the user has provided a custom postanalysis_tagger
+        postanalysis_tagger_given = False
+        if postanalysis_tagger:
+            postanalysis_tagger_given = True
+        else:
+            # Initialize default postanalysis_tagger
+            postanalysis_tagger=PostMorphAnalysisTagger(layer_name=layer_name)
+        
         self.kwargs = kwargs
         self.layer_name = layer_name
        
         if postanalysis_tagger:
-            # Check for Tagger
-            assert isinstance(postanalysis_tagger, Tagger), \
-                '(!) postanalysis_tagger should be of type estnltk.taggers.Tagger.'
+            # Check for TaggerOld
+            assert isinstance(postanalysis_tagger, TaggerOld), \
+                '(!) postanalysis_tagger should be of type estnltk.taggers.TaggerOld.'
             # Check for layer match
             assert hasattr(postanalysis_tagger, 'layer_name'), \
                 '(!) postanalysis_tagger does not define layer_name.'
@@ -69,9 +81,12 @@ class VabamorfTagger(Tagger):
                 '(!) postanalysis_tagger does not define any attributes.'
         self.postanalysis_tagger = postanalysis_tagger
         vm_instance = Vabamorf.instance()
-        self.vabamorf_analyser      = VabamorfAnalyzer( vm_instance=vm_instance )
-        self.vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance )
-        
+        # Initialize morf analyzer and disambiguator; 
+        # Also propagate layer names to submodules;
+        self.vabamorf_analyser      = VabamorfAnalyzer( vm_instance=vm_instance, \
+                                                        layer_name=layer_name )
+        self.vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance, \
+                                                             layer_name=layer_name )
 
         self.configuration = {'postanalysis_tagger':self.postanalysis_tagger.__class__.__name__, }
         #                      'vabamorf_analyser':self.vabamorf_analyser.__class__.__name__,
@@ -79,6 +94,12 @@ class VabamorfTagger(Tagger):
         self.configuration.update(self.kwargs)
 
         self.depends_on = ['words', 'sentences']
+        # Update dependencies: add dependencies specific to postanalysis_tagger
+        if postanalysis_tagger and postanalysis_tagger.depends_on:
+            for postanalysis_dependency in postanalysis_tagger.depends_on:
+                if postanalysis_dependency not in self.depends_on and \
+                   postanalysis_dependency != self.layer_name:
+                    self.depends_on.append( postanalysis_dependency )
 
 
     def tag(self, text: Text, return_layer=False) -> Text:
@@ -146,92 +167,11 @@ class VabamorfTagger(Tagger):
         # Return layer
         if return_layer:
             delattr(text, self.layer_name) # Remove layer from the text
+            morph_layer._bound = False
             return morph_layer
         # Layer is already attached to the text, return it
         return text
 
-
-# ========================================================
-#    Utils for converting Vabamorf dict <-> EstNLTK Span
-# ========================================================
-
-def _convert_morph_analysis_span_to_vm_dict( span ):
-    ''' Converts a SpanList from the layer 'morph_analysis'
-        into a dictionary object that has the structure
-        required by the Vabamorf:
-        { 'text' : ..., 
-          'analysis' : [
-             { 'root': ..., 
-               'partofspeech' : ..., 
-               'clitic': ... ,
-               'ending': ... ,
-               'form': ... ,
-             },
-             ...
-          ]
-        }
-        Returns the dictionary.
-    '''
-    attrib_dicts = {}
-    # Get lists corresponding to attributes
-    for attr in VabamorfTagger.attributes:
-        attrib_dicts[attr] = getattr(span, attr)
-    # Rewrite attributes in Vabamorf's analysis format
-    # Collect analysis dicts
-    nr_of_analyses = len(attrib_dicts['lemma'])
-    word_dict = { 'text' : span.text[0], \
-                  'analysis' : [] }
-    for i in range( nr_of_analyses ):
-        analysis = {}
-        for attr in attrib_dicts.keys():
-            attr_value = attrib_dicts[attr][i]
-            if attr == 'root_tokens':
-                attr_value = list(attr_value)
-            analysis[attr] = attr_value
-        word_dict['analysis'].append(analysis)
-    return word_dict
-
-
-def _convert_vm_dict_to_morph_analysis_spans( vm_dict, word, \
-                                              layer_attributes = None, \
-                                              sort_analyses = True ):
-    ''' Converts morphological analyses from the Vabamorf's 
-        dictionary format to the EstNLTK's Span format, and 
-        attaches the newly created span as a child of the 
-        word.
-        
-        If sort_analyses=True, then analyses will be sorted 
-        by root,ending,clitic,postag,form;
-        
-        Note: if word has no morphological analyses (e.g. it 
-        is an unknown word), then returns an empty list.
-        
-        Returns a list of EstNLTK's Spans.
-    '''
-    spans = []
-    current_attributes = \
-        layer_attributes if layer_attributes else ESTNLTK_MORPH_ATTRIBUTES
-    word_analyses = vm_dict['analysis']
-    if sort_analyses:
-        # Sort analyses ( to assure a fixed order, e.g. for testing purpose )
-        word_analyses = sorted( vm_dict['analysis'], key = \
-            lambda x: x['root']+x['ending']+x['clitic']+x['partofspeech']+x['form'], 
-            reverse=False )
-    for analysis in word_analyses:
-        span = Span(parent=word)
-        for attr in current_attributes:
-            if attr in analysis:
-                # We have a Vabamorf's attribute
-                if attr == 'root_tokens':
-                    # make it hashable for Span.__hash__
-                    setattr(span, attr, tuple(analysis[attr]))
-                else:
-                    setattr(span, attr, analysis[attr])
-            else:
-                # We have an extra attribute -- initialize with None
-                setattr(span, attr, None)
-        spans.append(span)
-    return spans
 
 
 # ========================================================
@@ -331,7 +271,7 @@ def _is_ignore_span( span ):
 #    VabamorfAnalyzer
 # ===============================
 
-class VabamorfAnalyzer(Tagger):
+class VabamorfAnalyzer(TaggerOld):
     description   = "Analyzes texts morphologically. Uses Vabamorf's analyzer. "+\
                     "Note: resulting analyses can be ambiguous. "
     layer_name    = None
@@ -515,7 +455,7 @@ class VabamorfAnalyzer(Tagger):
 #    VabamorfDisambiguator
 # ===============================
 
-class VabamorfDisambiguator(Tagger):
+class VabamorfDisambiguator(TaggerOld):
     description   = "Disambiguates morphologically analysed texts. Uses Vabamorf's disambiguator."
     layer_name    = None
     attributes    = VabamorfTagger.attributes

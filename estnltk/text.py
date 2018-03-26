@@ -158,6 +158,7 @@ class Text:
 
         if layer.parent:
             layer._base = self.layers[layer.parent]._base
+            self.layers[layer.parent].freeze()
 
         self.layers_to_attributes[name] = attributes
 
@@ -168,6 +169,7 @@ class Text:
 
         if layer.enveloping:
             self.enveloping_to_enveloped[name].append(layer.enveloping)
+            self.layers[layer.enveloping].freeze()
 
         if layer._is_lazy:
             # this means the layer might already have spans, and the spans might need to have their parents reset
@@ -447,20 +449,22 @@ class Text:
             # create a list of layers preserving the order of registered layers
             # can be optimized
             layers = []
-            for layer_name in [
-                                'paragraphs',
-                                'sentences',
-                                'tokens',
-                                'compound_tokens',
-                                'normalized_words',
-                                'words',
-                                'morph_analysis',
-                                'morph_extended']:
-                if layer_name in self.layers:
-                    layers.append(self.layers[layer_name])
-            for _, layer in self.layers.items():
-                if layer not in layers:
+            presort = (
+                'paragraphs',
+                'sentences',
+                'tokens',
+                'compound_tokens',
+                'normalized_words',
+                'words',
+                'morph_analysis',
+                'morph_extended')
+            for layer_name in presort:
+                layer = self.layers.get(layer_name)
+                if layer:
                     layers.append(layer)
+            for layer_name in sorted(self.layers):
+                if layer_name not in presort:
+                    layers.append(self.layers[layer_name])
 
             layer_table = pandas.DataFrame()
             for layer in layers:

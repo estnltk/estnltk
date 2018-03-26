@@ -1,10 +1,10 @@
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 from estnltk.layer import Layer
 from estnltk.layer_operations import resolve_conflicts
 from collections import defaultdict
 
 
-class PhraseListTagger(Tagger):
+class PhraseListTagger(TaggerOld):
     """
     Tags phrases on a given layer. Creates an enveloping layer.
     """
@@ -68,7 +68,7 @@ class PhraseListTagger(Tagger):
         self.configuration['phrase_list'] = str(len(phrase_list)) + ' phrases'
         self.configuration['attributes'] = attributes
         self.configuration['decorator'] = str(decorator)
-        self.configuration['consistency_checker'] = str(consistency_checker)
+        self.configuration['validator'] = str(consistency_checker)
         self.configuration['conflict_resolving_strategy'] = conflict_resolving_strategy
         
         self.heads = defaultdict(list)

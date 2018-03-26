@@ -1,11 +1,11 @@
 from estnltk.taggers.raw_text_tagging.date_tagger.regexes_v import regexes
-from estnltk.taggers import Tagger, RegexTagger
+from estnltk.taggers import TaggerOld, RegexTagger
 import datetime
 
 regexes = regexes.reset_index().to_dict('records')
 
 
-class DateTagger(Tagger):
+class DateTagger(TaggerOld):
     description = None
     layer_name = None
     attributes = []
@@ -20,10 +20,10 @@ class DateTagger(Tagger):
         vocabulary = self._create_vocabulary(regexes)
 
         self._tagger = RegexTagger(vocabulary=vocabulary,
-                                   attributes=['date_text','type', 'probability', 'groups', 'extracted_values'],
+                                   output_attributes=['date_text', 'type', 'probability', 'groups', 'extracted_values'],
                                    conflict_resolving_strategy=conflict_resolving_strategy,
                                    overlapped=overlapped,
-                                   layer_name=layer_name,
+                                   output_layer=layer_name,
                                    )
 
         self.configuration = self._tagger.configuration
@@ -38,7 +38,7 @@ class DateTagger(Tagger):
 
     def _create_vocabulary(self, regexes):
         '''
-        Creates vocabulary for regex_tagger
+        Creates _vocabulary for regex_tagger
         '''
         vocabulary = []
         for record in regexes:

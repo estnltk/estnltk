@@ -1,3 +1,10 @@
+#
+#   CompoundTokenTagger analyzes tokens and decides, which
+#  tokens should be joined together (as 'compound_tokens').
+#  In later analysis, layers 'tokens' and 'compound_tokens'
+#  are used for creating 'words' layer.
+# 
+
 import regex as re
 import os
 from typing import Union
@@ -8,7 +15,7 @@ from pandas.io.common import EmptyDataError
 from estnltk.core import PACKAGE_PATH
 
 from estnltk.text import Layer, SpanList
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 from estnltk.taggers import RegexTagger
 from estnltk.layer_operations import resolve_conflicts
 from estnltk.rewriting import MorphAnalyzedToken
@@ -24,7 +31,8 @@ _letter_pattern = re.compile(r'''([{LETTERS}]+)'''.format(**MACROS), re.X)
 # List containing words that should be ignored during the normalization of words with hyphens
 DEFAULT_IGNORE_LIST = os.path.join( PACKAGE_PATH, 'rewriting', 'premorph', 'rules_files', 'ignore.csv')
 
-class CompoundTokenTagger(Tagger):
+
+class CompoundTokenTagger(TaggerOld):
     description = 'Tags adjacent tokens that should be analyzed as one word.'
     layer_name = 'compound_tokens'
     attributes = ('type', 'normalized')
@@ -33,7 +41,6 @@ class CompoundTokenTagger(Tagger):
     custom_abbreviations = []
 
     def __init__(self, 
-                 conflict_resolving_strategy='MAX',
                  tag_numbers:bool = True,
                  tag_units:bool = True,
                  tag_email_and_www:bool = True,
@@ -45,8 +52,61 @@ class CompoundTokenTagger(Tagger):
                  tag_hyphenations:bool = True,
                  custom_abbreviations:list = [],
                  ):
-        self.configuration = {'conflict_resolving_strategy': conflict_resolving_strategy,
-                              'tag_numbers': tag_numbers,
+        """Initializes CompoundTokenTagger.
+        
+        Parameters
+        ----------
+        tag_numbers: boolean (default: True)
+            Numeric expressions with decimal separators, numbers with 
+            digit group separators, and common date and time expressions
+            will be joined into compound tokens.
+        
+        tag_units: boolean (default: True)
+            x-per-y style units that follow numeric expressions will 
+            be joined into compound tokens.
+        
+        tag_email_and_www: boolean (default: True)
+            E-mail addresses and web addresses will be joined into 
+            compound tokens.
+        
+        tag_emoticons: boolean (default: True)
+            Most common emoticons will be detected and joined into 
+            compound tokens.
+        
+        tag_xml: boolean (default: True)
+            Symbols making up an XML tag will be joined into compound
+            tokens.
+        
+        tag_initials: boolean (default: True)
+            Names starting with initials will be joined into compound
+            tokens.
+        
+        tag_abbreviations: boolean (default: True)
+            Abbreviations (and accompanying punctuation symbols) will 
+            be joined into compound tokens.
+        
+        tag_case_endings: boolean (default: True)
+            Morphological case endings (separated from words with 
+            hyphens or other punctuation) will be joined into compound 
+            tokens with the preceding tokens.
+        
+        tag_hyphenations: boolean (default: True)
+            Hyphenated/syllabified words (such as 'ka-su-lik'), stretched 
+            out words (such as 'vää-ää-ääga'), and compound nouns with
+            hyphens (such as 'Vana-Hiina', 'Mari-Liis') will be joined 
+            into compound tokens.
+        
+        custom_abbreviations: list (default: [])
+            A list of user-defined abbreviations (strings), which need 
+            to be joined with accompanying punctuation symbols into 
+            compound tokens. This can be used to enhance the built-in 
+            list of abbreviations.
+            Note that user-defined abbreviations must be strings that 
+            TokensTagger does not split into smaller tokens.
+
+        """
+        conflict_resolving_strategy = 'MAX' 
+        self.configuration = {'tag_numbers': tag_numbers,
                               'tag_units':tag_units,
                               'tag_email_and_www':tag_email_and_www,
                               'tag_emoticons':tag_emoticons,
@@ -83,11 +143,12 @@ class CompoundTokenTagger(Tagger):
         if tag_abbreviations:
             _vocabulary_1.extend(abbreviation_patterns)
         self._tokenization_hints_tagger_1 = RegexTagger(vocabulary=_vocabulary_1,
-                                   attributes=('normalized', '_priority_', 'pattern_type'),
-                                   conflict_resolving_strategy=conflict_resolving_strategy,
-                                   overlapped=False,
-                                   layer_name='tokenization_hints',
-                                   )
+                                                        output_attributes=('normalized', '_priority_', 'pattern_type'),
+                                                        conflict_resolving_strategy=conflict_resolving_strategy,
+                                                        priority_attribute='_priority_',
+                                                        overlapped=False,
+                                                        output_layer='tokenization_hints',
+                                                        )
         # =========================
         #  2nd level hints tagger
         # =========================
@@ -99,25 +160,43 @@ class CompoundTokenTagger(Tagger):
         self._tokenization_hints_tagger_2 = None
         if _vocabulary_2:
             self._tokenization_hints_tagger_2 = RegexTagger(vocabulary=_vocabulary_2,
-                                                attributes=('normalized', '_priority_', 'pattern_type', \
+                                                            output_attributes=('normalized', '_priority_', 'pattern_type',
                                                             'left_strict', 'right_strict'),
-                                                conflict_resolving_strategy=conflict_resolving_strategy,
-                                                overlapped=False,
-                                                layer_name='tokenization_hints',
-                                              )
+                                                            conflict_resolving_strategy=conflict_resolving_strategy,
+                                                            priority_attribute='_priority_',
+                                                            overlapped=False,
+                                                            output_layer='tokenization_hints',
+                                                            )
         # Load words that should be ignored during normalization of words with hyphens
         self.ignored_words = self._load_ignore_words_from_csv( DEFAULT_IGNORE_LIST )
 
 
     def tag(self, text: 'Text', return_layer=False) -> 'Text':
-        '''
-        Tag compound_tokens layer.
-        '''
+        """Tags compound_tokens layer.
+        
+        Parameters
+        ----------
+        text: estnltk.text.Text
+            Text object that is to be analysed. It needs to have
+            layer 'tokens'.
+
+        return_layer: boolean (default: False)
+            If True, then the new layer is returned; otherwise 
+            the new layer is attached to the Text object, and 
+            the Text object is returned;
+
+        Returns
+        -------
+        Text or Layer
+            If return_layer==True, then returns the new layer, 
+            otherwise attaches the new layer to the Text object 
+            and returns the Text object;
+        """
         compound_tokens_lists = []
         # 1) Apply RegexTagger in order to get hints for the 1st level tokenization
         conflict_status    = {}
         tokenization_hints = {}
-        new_layer = self._tokenization_hints_tagger_1.tag(text, return_layer=True, status=conflict_status)
+        new_layer = self._tokenization_hints_tagger_1.make_layer(text.text, text.layers, status=conflict_status)
         for sp in new_layer.spans:
             #print('*',text.text[sp.start:sp.end], sp.pattern_type, sp.normalized)
             if hasattr(sp, 'pattern_type') and sp.pattern_type.startswith('negative:'):
@@ -130,7 +209,7 @@ class CompoundTokenTagger(Tagger):
             if hasattr(sp, 'normalized'):
                 end_node['normalized'] = sp.normalized
             # Note: we assume that all conflicts have been resolved by 
-            # RegexTagger, that is -- exactly one (compound) token begins 
+            # RegexTagger, that is -- exactly one (compound) token begins
             # from one starting position ...
             if sp.start in tokenization_hints:
                 raise Exception( '(!) Unexpected overlapping tokenization hints: ', \
@@ -175,8 +254,7 @@ class CompoundTokenTagger(Tagger):
                         # not overlap with the previous compound token
                         if compound_tokens_lists:
                             last_compound = compound_tokens_lists[-1]
-                            if last_compound.start <= spl.start and \
-                               spl.start < last_compound.end:
+                            if last_compound.start <= spl.start < last_compound.end:
                                 add_compound_token = False
                     if add_compound_token:
                         compound_tokens_lists.append(spl)
@@ -232,7 +310,8 @@ class CompoundTokenTagger(Tagger):
         for spl in compound_tokens_lists:
             layer.add_span(spl)
 
-        resolve_conflicts(layer, conflict_resolving_strategy=self._conflict_resolving_strategy)
+        resolve_conflicts(layer, conflict_resolving_strategy=self._conflict_resolving_strategy,
+                          priority_attribute=None)
 
         if return_layer:
             return layer
@@ -335,38 +414,36 @@ class CompoundTokenTagger(Tagger):
         # Return normalized form of the token
         return token.normal.text
 
-
     def _apply_2nd_level_compounding(self, text:'Text', compound_tokens_lists:list):
-        ''' 
-            Executes _tokenization_hints_tagger_2 to get hints for 2nd level compounding.
-            
+        """ Executes _tokenization_hints_tagger_2 to get hints for 2nd level compounding.
+
             Performs the 2nd level compounding: joins together regular "tokens" and 
             "compound_tokens" (created by _tokenization_hints_tagger_1) according to the 
             hints.
-            
+
             And finally, unifies results of the 1st level compounding and the 2nd level 
             compounding into a new compound_tokens_lists.
             Returns updated compound_tokens_lists.
-        '''
+        """
         # Apply regexps to gain 2nd level of tokenization hints
-        conflict_status    = {}
-        tokenization_hints = {}
-        new_layer = \
-            self._tokenization_hints_tagger_2.tag(text, return_layer=True, status=conflict_status)
+        conflict_status = {}
+        new_layer = self._tokenization_hints_tagger_2.make_layer(text.text,
+                                                                 text.layers,
+                                                                 status=conflict_status)
         # Find tokens that should be joined according to 2nd level hints and 
         # create new compound tokens based on them
         for sp in new_layer.spans:
             # get tokens covered by the span
-            covered_compound_tokens = \
-                self._get_covered_tokens( \
+            covered_compound_tokens =\
+                self._get_covered_tokens(
                     sp.start,sp.end,sp.left_strict,sp.right_strict,compound_tokens_lists )
             covered_tokens = \
-                self._get_covered_tokens( \
+                self._get_covered_tokens(
                     sp.start,sp.end,sp.left_strict,sp.right_strict,text.tokens.spans )
             # remove regular tokens that are within compound tokens
             covered_tokens = \
                 self._remove_overlapped_spans(covered_compound_tokens, covered_tokens)
-            #print('>>>> ',text.text[sp.start:sp.end],sp.start,sp.end)
+            #print('>>>> ','"'+text.text[sp.start:sp.end]+'"',sp.start,sp.end,sp.pattern_type)
             
             # check the leftmost and the rightmost tokens: 
             #    whether they satisfy the constraints left_strict and right_strict
@@ -401,16 +478,15 @@ class CompoundTokenTagger(Tagger):
 
         return compound_tokens_lists
 
-
-    def _get_covered_tokens(self, start:int, end:int, left_strict:bool, right_strict:bool, spans:list):
-        '''
+    def _get_covered_tokens(self, start: int, end: int, left_strict: bool, right_strict: bool, spans: list):
+        """
         Filters the list spans and returns a sublist containing spans within 
         the range (start, end).
         
         Parameters left_strict and right_strict can be used to loosen the range
         constraints; e.g. if left_strict==False, then returned spans can start 
         before the given start position.
-        '''
+        """
         covered = []
         if spans:
             for span in spans:

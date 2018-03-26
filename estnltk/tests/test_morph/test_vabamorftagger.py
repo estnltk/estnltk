@@ -17,6 +17,16 @@ def _sort_morph_analysis_records( morph_analysis_records:list ):
 
 # ----------------------------------
 
+def test_analyse_segmentation_and_morphology():
+    # Analysing first for 'segmentation', and then for 'morphology'
+    # should not produce any errors 
+    # (no errors due to missing dependencies)
+    text = Text('Tere, maailm!')
+    text.analyse('segmentation')
+    text.analyse('morphology')
+    assert 'morph_analysis' in text.layers
+
+
 def test_default_morph_analysis():
     # Case 1
     text = Text("Aga kõik juhtus iseenesest.")
@@ -173,7 +183,7 @@ def test_default_morph_analysis_without_guessing():
     
     # Case 3
     # Use VabamorfTagger
-    morph_analyser = VabamorfTagger( disambiguate=False, guess=False, propername=False )
+    morph_analyser = VabamorfTagger(disambiguate=False, guess=False, propername=False)
     text = Text("Ma tahax minna järve ääde")
     text.tag_layer(['words', 'sentences'])
     morph_analyser.tag(text)
@@ -223,4 +233,15 @@ def test_default_morph_analysis_on_empty_input():
     text.analyse('morphology')
     # Check results
     assert [] == text['morph_analysis'].to_records()
+
+
+def test_default_morph_analysis_with_different_layer_name():
+    # Should be able to use a different layer name 
+    # without running into errors
+    morph_analyser = VabamorfTagger(layer_name='my_morph')
+    text = Text('Tere, maailm!')
+    text.tag_layer(['words', 'sentences'])
+    morph_analyser.tag(text)
+    # Check results
+    assert 'my_morph' in text.layers
 

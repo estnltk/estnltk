@@ -791,3 +791,27 @@ def test_record_fixes_of_sentence_tokenizer():
         assert sentence_texts == test_text['expected_sentence_texts']
         assert sentence_fixes == test_text['expected_sentence_fixes']
 
+
+
+def test_sentence_tokenizer_with_custom_base_tokenizer():
+    # Test that the base tokenizer of the sentence tokenizer can be customized
+    from nltk.tokenize.simple import LineTokenizer
+    sentence_tokenizer = SentenceTokenizer( base_sentence_tokenizer=LineTokenizer() )
+    test_texts = [ 
+        { 'text': 'See on tekst\nKus iga lause\nOn eraldi real.\nJa nii on.', \
+          'expected_sentence_texts': ['See on tekst', \
+                                      'Kus iga lause', \
+                                      'On eraldi real.',\
+                                      'Ja nii on.' ] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words'])
+        sentence_tokenizer.tag(text)
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences'].spans]
+        # Check results
+        assert sentence_texts == test_text['expected_sentence_texts']
+

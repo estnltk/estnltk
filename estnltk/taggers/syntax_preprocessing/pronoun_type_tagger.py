@@ -1,9 +1,9 @@
-from estnltk.taggers import Tagger
+from estnltk.taggers import TaggerOld
 from estnltk.taggers import VabamorfTagger
 from estnltk.rewriting import PronounTypeRewriter
 
 
-class PronounTypeTagger(Tagger):
+class PronounTypeTagger(TaggerOld):
     description = 'Tags pronouns with pronoun type attribute.'
     layer_name = 'pronoun_type'
     attributes = VabamorfTagger.attributes + ('pronoun_type',)

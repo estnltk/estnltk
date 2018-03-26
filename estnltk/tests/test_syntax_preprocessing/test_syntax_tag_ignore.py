@@ -69,6 +69,34 @@ def test_ignore_content_in_parentheses_1():
         assert ignored_texts == test_text['expected_ignore_texts']
 
 
+def test_ignore_content_in_parentheses_1_1():
+    syntax_ignore_tagger = SyntaxIgnoreTagger()
+    test_texts = [ 
+        # Pattern: parentheses_ucase_number_seq
+        # Note: the following examples are specific to etTenTen
+        #       in Koondkorpus, acronyms are usually separated from parentheses by spaces;
+        { 'text': 'Küll aga kuuluvad lisaainete hulka suhkrualkoholid - ksülitool (E967), sorbitool (E420), mannitool (E421), laktitool (E966) jt.', \
+          'expected_ignore_texts': ['(E967)', '(E420)', '(E421)', '(E966)'] }, \
+        { 'text': 'Ettevõtluse Arendamise Sihtasutuses (EAS) avatud Tehnoloogia arenduskeskuste (TAK) programmile laekus 14 projektitaotlust.', \
+          'expected_ignore_texts': ['(EAS)', '(TAK)'] }, \
+        { 'text': 'Euroopa Vabakaubanduse Assotsiatsioon (EFTA),\nLääne-Euroopa Liit (WEU),\nNaftat Eksportivate Riikide Organisatsioon (OPEC),\nParlamentidevaheline Liit (IPU),\nPõhja-Atlandi Lepingu Organisatsioon (NATO) ja\nRahvusvaheline Aatomienergia Agentuur (IAEA).', \
+          'expected_ignore_texts': ['(EFTA)', '(WEU)', '(OPEC)', '(IPU)', '(NATO)', '(IAEA)'] }, \
+        { 'text': 'Turniiri võitjateks tulid vanuseklasside järjekorras Põlva FC Lootos (P7), Tabasalu PK (P8), Tartu JK Tammeka (P9), Martin Reimi JK (P11) ja Tartu JK Tammeka (P12).', \
+          'expected_ignore_texts': ['(P7)', '(P8)', '(P9)', '(P11)', '(P12)'] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words', 'sentences', 'paragraphs'])
+        syntax_ignore_tagger.tag( text )
+        # Collect results 
+        ignored_texts = \
+            [span.enclosing_text for span in text['syntax_ignore'].spans]
+        #print(ignored_texts)
+        # Check results
+        assert ignored_texts == test_text['expected_ignore_texts']
+
+
 def test_ignore_content_in_parentheses_2():
     # Testing a reimplementation of PATT_12 ( from https://github.com/EstSyntax/preprocessing-module  )
     syntax_ignore_tagger = SyntaxIgnoreTagger()
@@ -324,7 +352,7 @@ def test_ignore_consecutive_enum_name_num_sentences():
 
 
 def test_ignore_sentences_starting_with_time_schedule():
-    syntax_ignore_tagger = SyntaxIgnoreTagger( ignore_sentences_starting_with_time=True )
+    syntax_ignore_tagger = SyntaxIgnoreTagger(ignore_sentences_starting_with_time=True)
     test_texts = [
         { 'text': '12.05 - 12.35 "Õnne 13" (1. osa)\n\n'+\
                   '12.35 - 13.05 "Õnne 13" (1. osa, kordus)\n\n'+\
@@ -363,7 +391,7 @@ def test_ignore_sentences_starting_with_time_schedule():
 
 def test_ignore_sentences_with_comma_separated_name_num_lists():
     # Ignore sentences containing colon + comma/hyphen separated names + numbers (mainly sports results)
-    syntax_ignore_tagger = SyntaxIgnoreTagger( ignore_sentences_with_comma_separated_num_name_lists=True )
+    syntax_ignore_tagger = SyntaxIgnoreTagger(ignore_sentences_with_comma_separated_num_name_lists=True)
     test_texts = [
         { 'text': 'Maailma naiste edetabeli kolmas Jana Novotna pole mängija , kes võidaks suurturniire .\n'+\
                   'Paarismängu poolfinaalid .\n'+\
