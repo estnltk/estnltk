@@ -40,7 +40,7 @@ swig_opts.append('-c++')
 
 setup(
     name="estnltk",
-    version="1.6.0beta",
+    version="1.6.1beta",
 
     packages=find_packages(),
     include_package_data=True,
