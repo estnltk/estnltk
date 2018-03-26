@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 [1.6.1-beta] - 2018-03-27
 =========================
+Changed
+-------
+* Redesigned Tagger base class. The deprecated TaggerOld is also in use so far.
+
+Added
+-----
+* Finite grammar module and GrammarParsingTagger.
+* New taggers GapTagger, EnvelopingGapTagger, PhraseTagger, SpanTagger and vocabulary reading methods for PhraseTagger and SpanTagger.
 
 
 [1.6.0-beta] - 2017-12-23
