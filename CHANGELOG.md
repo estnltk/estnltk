@@ -9,11 +9,28 @@ All notable changes to this project will be documented in this file.
 Changed
 -------
 * Redesigned Tagger base class. The deprecated TaggerOld is also in use so far.
+* Moved morphology-related modules from `estnltk/taggers/` to `estnltk/taggers/morph/`;
+* Moved functions that convert between Vabamorf dicts and EstNLTK's Spans to `estnltk/taggers/morph/morf_common.py`;
+* Updated _make\_resolver_: default parameters for morphological analysis are now taken from `morf_common.py`;
+* Updated SentenceTokenizer: _base\_sentence\_tokenizer_ is now customizable (e.g. [LineTokenizer](http://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.simple.LineTokenizer) can be used to split into sentences by newlines);
+
 
 Added
 -----
 * Finite grammar module and GrammarParsingTagger.
 * New taggers GapTagger, EnvelopingGapTagger, PhraseTagger, SpanTagger and vocabulary reading methods for PhraseTagger and SpanTagger.
+* Added command line scripts that can be used for processing etTenTen and Koondkorpus;
+* Added JavaProcess (ported from version 1.4.1.1);
+* Added ClauseSegmenter (ported from version 1.4.1.1). Layer 'clauses' can now be added to the Text object. _Note_: this adds Java dependency to the EstNLTK: Java SE Runtime Environment (version >= 1.8) must be installed into the system and available from the PATH environment variable;
+* Added UserDictTagger, which can be used to provide dictionary-based post-corrections to morphological analyses;
+
+Fixed
+-----
+* Bugfix in PostMorphAnalysisTagger: postcorrections are no longer applied to empty spans;
+* Bugfix in VabamorfTagger: _layer\_name_ can now be changed without running into errors;
+* Fix in GTMorphConverter: added the missing disambiguation step. Clause annotations are now used to resolve the ambiguities related to conversion of _sid_, _ksid_, _nuksid_ forms;
+* SyntaxIgnoreTagger: improved detection of parenthesized acronyms;
+* CompoundTokenTagger: improved detection of numbers with percentages;
 
 
 [1.6.0-beta] - 2017-12-23
