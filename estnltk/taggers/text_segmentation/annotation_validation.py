@@ -1,12 +1,13 @@
 #
-#   Functions for validating annotations / checking for potential errors
-#   Note that these validations are heuristic: there is no guarantee that 
-#   all cases found during the validation are actually problematic
+#   Functions for validating annotations / checking for potential errors 
+#  in text segmentation. Note that these validations are heuristic: there 
+#  is no guarantee that all cases found during the validation are actually 
+#  problematic.
 #
 
 import re
 
-from estnltk import Text
+from estnltk.text import Text
 
 _parentheses_content = re.compile('(\([^()]+?\))')
 
