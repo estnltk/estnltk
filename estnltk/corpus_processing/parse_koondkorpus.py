@@ -22,7 +22,7 @@ from estnltk.taggers import SentenceTokenizer
 from bs4 import BeautifulSoup
 from copy import deepcopy
 
-import os
+import os, os.path
 
 # Tokenizer that splits into sentences by newlines (created only if needed)
 koond_newline_sentence_tokenizer = None
@@ -52,7 +52,7 @@ def get_div_target(fnm):
         return 'seadus'
     if 'EestiArst' in fnm:
         return 'ajakirjanumber'
-    if 'foorum' in fnm:
+    if 'foorumid' in fnm:
         return 'teema'
     if 'kommentaarid' in fnm:
         return 'kommentaarid'
@@ -66,7 +66,8 @@ def get_div_target(fnm):
 
 
 def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel'], \
-                      encoding='utf-8', preserve_tokenization=False):
+                      encoding='utf-8', preserve_tokenization=False, \
+                      record_xml_filename=False):
     """Parse documents from TEI style XML files.
     
     Gives each document FILE attribute that denotes the original filename.
@@ -90,7 +91,10 @@ def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel'], \
         (In the XML, sentences are between <s> and </s> and paragraphs are between <p> and </p>);
         Otherwise, the documents are created without adding layers 'words', 'sentences', 'paragraphs';
         (default: False)
-
+    record_xml_filename: boolean
+        If True, then the created documents will have the name of the original XML file recorded in 
+        their metadata, under the key '_xml_file'. 
+        (default: False)
     Returns
     -------
     list of estnltk.text.Text
@@ -101,14 +105,16 @@ def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel'], \
     for fnm in get_filenames(root, prefix, suffix):
         path = os.path.join(root, fnm)
         docs = parse_tei_corpus(path, target, encoding, \
-                                preserve_tokenization=preserve_tokenization)
+                                preserve_tokenization=preserve_tokenization, \
+                                record_xml_filename=record_xml_filename)
         for doc in docs:
             doc['file'] = fnm
         documents.extend(docs)
     return documents
 
 
-def parse_tei_corpus(path, target=['artikkel'], encoding='utf-8', preserve_tokenization=False):
+def parse_tei_corpus(path, target=['artikkel'], encoding='utf-8', preserve_tokenization=False,\
+                     record_xml_filename=False):
     """Parse documents from a TEI style XML file. Return a list of Text objects.
     
     Parameters
@@ -126,9 +132,13 @@ def parse_tei_corpus(path, target=['artikkel'], encoding='utf-8', preserve_token
         (In the XML, sentences are between <s> and </s> and paragraphs are between <p> and </p>);
         Otherwise, the documents are created without adding layers 'words', 'sentences', 'paragraphs';
         (default: False)
+    record_xml_filename: boolean
+        If True, then the created documents will have the name of the original XML file recorded in 
+        their metadata, under the key '_xml_file'. 
+        (default: False)
     Returns
     -------
-    list of esnltk.text.Text
+        list of esnltk.text.Text
     """
     with open(path, 'rb') as f:
         html_doc = f.read()
@@ -147,6 +157,11 @@ def parse_tei_corpus(path, target=['artikkel'], encoding='utf-8', preserve_token
         # If required, preserve the original tokenization
         add_tokenization      = True
         preserve_tokenization_x = True
+    if record_xml_filename:
+        # Record name of the original XML file
+        path_head, path_tail = os.path.split(path)
+        for doc in documents:
+            doc['_xml_file'] = path_tail
     return create_estnltk_texts(documents, \
                                 add_tokenization=add_tokenization, \
                                 preserve_orig_tokenization=preserve_tokenization_x )
