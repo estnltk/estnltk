@@ -107,8 +107,6 @@ def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel'], \
         docs = parse_tei_corpus(path, target, encoding, \
                                 preserve_tokenization=preserve_tokenization, \
                                 record_xml_filename=record_xml_filename)
-        for doc in docs:
-            doc['file'] = fnm
         documents.extend(docs)
     return documents
 
