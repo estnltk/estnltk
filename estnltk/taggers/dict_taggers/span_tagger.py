@@ -1,6 +1,6 @@
 from typing import Sequence, Union
 
-from estnltk.taggers import Tagger, read_vocabulary
+from estnltk.taggers import Tagger, Vocabulary
 from estnltk.text import Span, Layer
 from estnltk.layer_operations import resolve_conflicts
 
@@ -67,16 +67,13 @@ class SpanTagger(Tagger):
 
         self.ambiguous = ambiguous
 
-        if isinstance(vocabulary, str):
-            self._vocabulary = read_vocabulary(vocabulary_file=vocabulary,
-                                               key=key,
-                                               string_attributes=[key] + self.output_attributes,
-                                               callable_attributes=[self.validator_attribute],
-                                               default_rec={self.validator_attribute: default_validator})
-        elif isinstance(vocabulary, dict):
+        if isinstance(vocabulary, Vocabulary):
             self._vocabulary = vocabulary
         else:
-            assert False, 'vocabulary type not supported: ' + str(type(vocabulary))
+            self._vocabulary = Vocabulary(vocabulary=vocabulary,
+                                          key=key,
+                                          default_rec={self.validator_attribute: default_validator}
+                                          )
 
     def _make_layer(self, raw_text: str, layers: dict, status: dict):
         input_layer = layers[self.input_layers[0]]

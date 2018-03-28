@@ -59,7 +59,8 @@ class Tagger:
                       'output attributes': str(self.output_attributes),
                       'input layers': str(self.input_layers)}
         table = pandas.DataFrame(data=parameters,
-                                 columns=['name', 'output layer', 'output attributes', 'input layers'], index=[0])
+                                 columns=['name', 'output layer', 'output attributes', 'input layers'],
+                                 index=[0])
         table = table.to_html(index=False)
         assert self.__class__.__doc__ is not None, 'No docstring.'
         description = self.__class__.__doc__.strip().split('\n')[0]

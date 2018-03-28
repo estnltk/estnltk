@@ -9,7 +9,7 @@ from estnltk.taggers.atomizer import Atomizer
 
 from estnltk.taggers.combined_tagger import CombinedTagger
 
-from estnltk.taggers.dict_taggers.vocabulary import read_vocabulary
+from estnltk.taggers.dict_taggers.vocabulary import Vocabulary
 from estnltk.taggers.dict_taggers.phrase_tagger import PhraseTagger
 from estnltk.taggers.dict_taggers.span_tagger import SpanTagger
 

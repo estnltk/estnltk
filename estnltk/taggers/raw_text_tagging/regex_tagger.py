@@ -1,9 +1,11 @@
 import regex as re
-from pandas import DataFrame, read_csv
+from pandas import DataFrame
+from typing import Sequence, Union
 
 from estnltk.taggers import Tagger
 from estnltk.layer import Layer
 from estnltk.layer_operations import resolve_conflicts
+from estnltk.taggers import Vocabulary
 
 
 class RegexTagger(Tagger):
@@ -18,16 +20,16 @@ class RegexTagger(Tagger):
                   'priority_attribute',
                   '_illegal_keywords',
                   '_internal_attributes',
-                  '_vocabulary',
+                  'vocabulary',
                   )
 
     def __init__(self,
-                 vocabulary,
-                 output_layer='regexes',
-                 output_attributes=None,
-                 conflict_resolving_strategy='MAX',
-                 overlapped=False,
-                 priority_attribute=None,
+                 vocabulary: Union[str, dict, list, DataFrame, Vocabulary],
+                 output_layer: str = 'regexes',
+                 output_attributes: Sequence = None,
+                 conflict_resolving_strategy: str = 'MAX',
+                 overlapped: bool = False,
+                 priority_attribute: str = None,
                  ):
         """Initialize a new RegexTagger instance.
 
@@ -35,6 +37,8 @@ class RegexTagger(Tagger):
         ----------
         vocabulary: list of dicts or pandas.DataFrame or csv file name
             regexes and output_attributes to annotate
+        output_layer: str (Default: 'regexes')
+            The name of the new layer.
         conflict_resolving_strategy: 'ALL', 'MAX', 'MIN' (default: 'MAX')
             Strategy to choose between overlapping events.
         overlapped: bool (Default: False)
@@ -42,8 +46,6 @@ class RegexTagger(Tagger):
             of the same regular expression.
             Note that this default setting will be overwritten by a pattern-
             specific setting if a pattern defines attribute 'overlapped';
-        output_layer: str (Default: 'regexes')
-            The name of the new layer.
         """
         self.output_layer = output_layer
         if output_attributes is None:
@@ -56,90 +58,53 @@ class RegexTagger(Tagger):
         # output_attributes needed by tagger
         self._internal_attributes = set(self.output_attributes)|{'_group_', '_priority_'}
 
-        self._vocabulary = self._read_expression_vocabulary(vocabulary)
+        if isinstance(vocabulary, Vocabulary):
+            self.vocabulary = vocabulary
+        else:
+            self.vocabulary = Vocabulary(vocabulary=vocabulary,
+                                         key='_regex_pattern_',
+                                         regex_attributes=['_regex_pattern_'],
+                                         default_rec={'_group_': 0, '_validator_': lambda s: True}
+                                         )
         self.overlapped = overlapped
         if conflict_resolving_strategy not in ['ALL', 'MIN', 'MAX']:
             raise ValueError("Unknown conflict_resolving_strategy '%s'." % conflict_resolving_strategy)
         self.conflict_resolving_strategy = conflict_resolving_strategy
         self.priority_attribute = priority_attribute
 
-    def _make_layer(self, raw_text, input_layers=None, status=None):
+    def _make_layer(self, raw_text, layers=None, status=None):
         layer = Layer(name=self.output_layer,
                       attributes=tuple(self._internal_attributes),
                       )
         records = self._match(raw_text)
         layer = layer.from_records(records)
-        layer = resolve_conflicts(layer,
+        layer = resolve_conflicts(layer=layer,
                                   conflict_resolving_strategy=self.conflict_resolving_strategy,
                                   priority_attribute=self.priority_attribute,
                                   status=status)
         layer.attributes = self.output_attributes
         return layer
 
-    def _read_expression_vocabulary(self, expression_vocabulary):
-        if isinstance(expression_vocabulary, list):
-            vocabulary = expression_vocabulary
-        elif isinstance(expression_vocabulary, DataFrame):
-            vocabulary = expression_vocabulary.to_dict('records')
-        elif isinstance(expression_vocabulary, str):
-            vocabulary = read_csv(expression_vocabulary, na_filter=False, index_col=False).to_dict('records')
-        else:
-            raise TypeError(str(type(expression_vocabulary)) + " not supported as vocabulary")
-        records = []
-        for record in vocabulary:
-            if set(record) & self._illegal_keywords:
-                raise KeyError('Illegal keys in vocabulary: ' + str(set(record)&self._illegal_keywords))
-            _regex_pattern_ = record['_regex_pattern_']
-            if isinstance(_regex_pattern_, str):
-                _regex_pattern_ = re.compile(_regex_pattern_)
-
-            _validator_ = record.get('_validator_')
-            if isinstance(_validator_, str) and _validator_.startswith('lambda m:'):
-                _validator_ = eval(_validator_)
-            elif _validator_ is None:
-                _validator_ = lambda m: True
-            elif not callable(_validator_):
-                raise ValueError("_validator_ must be a callable or a string starting with 'lambda m:'")
-
-            rec = {'_regex_pattern_': _regex_pattern_,
-                   '_group_': record.get('_group_', 0),
-                   '_priority_': record.get('_priority_', 0),
-                   '_validator_': _validator_
-                   }
-            # Whether the overlapped flag should be switched on or off
-            overlapped = record.get('overlapped', None)
-            if overlapped and type(overlapped) == bool:
-                rec['overlapped'] = overlapped
-            for key in self.output_attributes:
-                if key not in record:
-                    raise KeyError('Missing key in vocabulary: ' + key)
-                value = record[key]
-                if isinstance(value, str) and value.startswith('lambda m:'):
-                    value = eval(value)
-                rec[key] = value
-            records.append(rec)
-
-        return records
-
     def _match(self, text):
         matches = []
-        for voc in self._vocabulary:
+        for reg, records in self.vocabulary.items():
             # Whether the overlapped flag should be switched on or off
-            overlapped_flag = voc.get('overlapped', self.overlapped)
-            for matchobj in voc['_regex_pattern_'].finditer(text, overlapped=overlapped_flag):
-                start, end = matchobj.span(voc['_group_'])
-                if start == end:
-                    continue
-                if not voc['_validator_'](matchobj):
-                    continue
-                record = {
-                    'start': start,
-                    'end': end
-                }
-                for a in self._internal_attributes:
-                    v = voc.get(a, 0)
-                    if callable(v):
-                        v = v(matchobj)
-                    record[a] = v
-                matches.append(record)
+            #overlapped_flag = records.get('overlapped', self.overlapped)
+            for matchobj in reg.finditer(text, overlapped=self.overlapped):
+                for rec in records:
+                    start, end = matchobj.span(rec['_group_'])
+                    if start == end:
+                        continue
+                    if not rec['_validator_'](matchobj):
+                        continue
+                    record = {
+                        'start': start,
+                        'end': end
+                    }
+                    for a in self._internal_attributes:
+                        v = rec.get(a, 0)
+                        if callable(v):
+                            v = v(matchobj)
+                        record[a] = v
+                    matches.append(record)
         return matches

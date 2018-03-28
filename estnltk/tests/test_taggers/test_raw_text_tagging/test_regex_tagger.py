@@ -11,11 +11,11 @@ def test_validator():
          '_validator_': validator,
          'comment': 'starts with non-zero'},
         {'_regex_pattern_': '\d+',
-         '_validator_': "lambda m: m.group(0).startswith('0')",
+         '_validator_': lambda m: m.group(0).startswith('0'),
          'comment': 'starts with zero'}
     ]
 
-    regex_tagger = RegexTagger(output_layer='numbers', vocabulary=vocabulary, output_attributes=['comment'])
+    regex_tagger = RegexTagger(vocabulary=vocabulary, output_layer='numbers', output_attributes=['comment'])
     text = Text('3209 n  0930 093 2304209 093402')
     regex_tagger.tag(text)
     assert text.numbers.text == ['3209', '0930', '093', '2304209', '093402']

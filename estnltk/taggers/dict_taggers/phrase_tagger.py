@@ -1,4 +1,4 @@
-from estnltk.taggers import Tagger, read_vocabulary
+from estnltk.taggers import Tagger, Vocabulary
 from estnltk.layer import Layer
 from estnltk.layer_operations import resolve_conflicts
 from collections import defaultdict
@@ -72,11 +72,9 @@ class PhraseTagger(Tagger):
 
             str_attributes = [attr for attr in self.output_attributes if attr not in callable_attributes]
 
-            self._vocabulary = read_vocabulary(vocabulary_file=vocabulary,
-                                               key=key,
-                                               string_attributes=str_attributes,
-                                               callable_attributes=callable_attributes,
-                                               default_rec={self.validator_attribute: default_validator})
+            self._vocabulary = Vocabulary(vocabulary=vocabulary,
+                                          key=key,
+                                          default_rec={self.validator_attribute: default_validator})
         else:
             self._vocabulary = vocabulary
 
