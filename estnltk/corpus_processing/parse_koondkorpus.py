@@ -1,17 +1,18 @@
+#
 # Module for converting Koondkorpus XML TEI files to EstNLTK Text objects.
 # Ported from the version 1.4.1.1:
 #    https://github.com/estnltk/estnltk/blob/1.4.1.1/estnltk/teicorpus.py
-#    ( with slight modifications )
+#    ( with modifications )
 # 
 # The corpus (see http://www.cl.ut.ee/korpused/segakorpus/index.php?lang=et) contains 
 # a variety of documents from different domains and can be used freely for non-commercial 
-# purposes. EstNLTK is capable of reading XML formatted files of the corpus and parse the 
-# documents, paragraphs, sentences and words with some additional metadata found in XML 
-# files.
+# purposes. EstNLTK is capable of reading XML formatted files of the corpus, and parsing 
+# the documents, paragraphs, sentences and words with some additional metadata found in 
+# XML files.
 #
-# The implementation is currently quite simplistic, though. But it should be sufficient for 
-# simpler use cases. The resulting documents have paragraphs separated by two newlines and 
-# sentences by single newline. The original plain text is not known for XML TEI files.
+# The implementation is currently quite simplistic, though. But it should be sufficient 
+# for simpler use cases. The resulting documents have paragraphs separated by two newlines 
+# and sentences by single newline. The original plain text is not known for XML TEI files.
 # Note that all punctuation has been separated from words in the TEI files. 
 # 
 
@@ -22,6 +23,9 @@ from bs4 import BeautifulSoup
 from copy import deepcopy
 
 import os
+
+# Tokenizer that splits into sentences by newlines (created only if needed)
+koond_newline_sentence_tokenizer = None
 
 
 def get_div_target(fnm):
@@ -62,7 +66,7 @@ def get_div_target(fnm):
 
 
 def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel'], \
-                      encoding=None, preserve_tokenization=False):
+                      encoding='utf-8', preserve_tokenization=False):
     """Parse documents from TEI style XML files.
     
     Gives each document FILE attribute that denotes the original filename.
@@ -78,8 +82,8 @@ def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel'], \
     target: list of str
         List of <div> types, that are considered documents in the XML files (default: ["artikkel"]).
     encoding: str
-        Encoding to be used for decoding the content of the XML file. If not specified (default), 
-        then no separate decoding step is applied.
+        Encoding to be used for decoding the content of the XML file. Defaults to 'utf-8'.
+        If overwritten by None, then no separate decoding step is applied. 
     preserve_tokenization: boolean
         If True, then the created documents will have layers 'words', 'sentences', 'paragraphs', 
         which follow the original segmentation in the XML file. 
@@ -104,7 +108,7 @@ def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel'], \
     return documents
 
 
-def parse_tei_corpus(path, target=['artikkel'], encoding=None, preserve_tokenization=False):
+def parse_tei_corpus(path, target=['artikkel'], encoding='utf-8', preserve_tokenization=False):
     """Parse documents from a TEI style XML file. Return a list of Text objects.
     
     Parameters
@@ -114,8 +118,8 @@ def parse_tei_corpus(path, target=['artikkel'], encoding=None, preserve_tokeniza
     target: list of str
         List of <div> types, that are considered documents in the XML files (default: ["artikkel"]).
     encoding: str
-        Encoding to be used for decoding the content of the XML file. If not specified (default), 
-        then no separate decoding step is applied.
+        Encoding to be used for decoding the content of the XML file. Defaults to 'utf-8'.
+        If overwritten by None, then no separate decoding step is applied. 
     preserve_tokenization: boolean
         If True, then the created documents will have layers 'words', 'sentences', 'paragraphs', 
         which follow the original segmentation in the XML file. 
@@ -145,7 +149,7 @@ def parse_tei_corpus(path, target=['artikkel'], encoding=None, preserve_tokeniza
         preserve_tokenization_x = True
     return create_estnltk_texts(documents, \
                                 add_tokenization=add_tokenization, \
-                                preserve_tokenization=preserve_tokenization_x )
+                                preserve_orig_tokenization=preserve_tokenization_x )
 
 
 def parse_div(soup, metadata, target):
@@ -230,7 +234,7 @@ def parse_paragraphs(soup):
 
 def create_estnltk_texts( docs, 
                           add_tokenization=False,
-                          preserve_tokenization=False):
+                          preserve_orig_tokenization=False):
     """Convert the imported documents to Text instances.
 
     Parameters
@@ -244,7 +248,7 @@ def create_estnltk_texts( docs,
         will be added to all newly created Text instances;
         (Default: False)
         
-    preserve_tokenization: boolean
+    preserve_orig_tokenization: boolean
         If True, then the original segmentation from the XML file (sentences 
         between <s> and </s>, and paragraphs between <p> and </p>) is also 
         preserved in the newly created Text instances;
@@ -256,6 +260,15 @@ def create_estnltk_texts( docs,
     list of (list of str)
         List of paragraphs given as list of sentences.
     """
+    global koond_newline_sentence_tokenizer
+    if add_tokenization and \
+       preserve_orig_tokenization and \
+       not koond_newline_sentence_tokenizer:
+        # Create a sentence tokenizer that only splits sentences in 
+        # places of new lines
+        from nltk.tokenize.simple import LineTokenizer
+        koond_newline_sentence_tokenizer = \
+           SentenceTokenizer( base_sentence_tokenizer=LineTokenizer() )
     texts = []
     for doc in docs:
         text_str = '\n\n'.join(['\n'.join(para['sentences']) for para in doc['paragraphs']])
@@ -266,13 +279,9 @@ def create_estnltk_texts( docs,
                 text.meta[key] = doc[key]
         # 2) Add tokenization (if required)
         if add_tokenization:
-           if preserve_tokenization:
+           if koond_newline_sentence_tokenizer:
                 text.tag_layer(['words'])
-                # Create a sentence tokenizer that only splits sentences in places of new lines
-                from nltk.tokenize.simple import LineTokenizer
-                newline_sentence_tokenizer = \
-                   SentenceTokenizer( base_sentence_tokenizer=LineTokenizer() )
-                newline_sentence_tokenizer.tag(text)
+                koond_newline_sentence_tokenizer.tag(text)
                 text.tag_layer(['paragraphs'])
            else:
                 text.tag_layer(['words', 'sentences', 'paragraphs'])
