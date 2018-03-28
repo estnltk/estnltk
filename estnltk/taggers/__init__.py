@@ -11,6 +11,7 @@ from estnltk.taggers.combined_tagger import CombinedTagger
 
 from estnltk.taggers.dict_taggers.vocabulary import Vocabulary
 from estnltk.taggers.dict_taggers.phrase_tagger import PhraseTagger
+from estnltk.taggers.dict_taggers.regex_tagger import RegexTagger
 from estnltk.taggers.dict_taggers.span_tagger import SpanTagger
 
 from estnltk.taggers.gaps_tagging.gap_tagger import GapTagger
@@ -20,7 +21,6 @@ from estnltk.taggers.grammar_parsing.grammar_parsing_tagger import GrammarParsin
 
 from estnltk.taggers.merge_tagging.merge_tagger import MergeTagger
 
-from estnltk.taggers.raw_text_tagging.regex_tagger import RegexTagger
 from estnltk.taggers.raw_text_tagging.date_tagger.date_tagger import DateTagger
 
 from estnltk.taggers.event_tagging.event_sequence_tagger import EventSequenceTagger
