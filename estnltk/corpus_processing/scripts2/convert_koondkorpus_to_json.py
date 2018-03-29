@@ -82,13 +82,13 @@ def process(start_dir, out_dir, encoding='utf-8', \
             for doc_id, doc in enumerate(docs):
                 out_fnm = '{0}_{1}.{2}'.format(out_prefix, doc_id, output_ext)
                 logger.info('Writing document {0}'.format(out_fnm))
-                json_count += 1
                 if not create_empty_docs and len(doc.text) == 0:
                    # Skip creating an empty document
                    continue
                 if len(doc.text) == 0:
                    empty_docs.append(out_fnm)
                 export_json(doc, file = out_fnm)
+                json_count += 1
             if empty_docs:
                 logger.warn('Warning: empty documents created for {0}: {1}'.format(fnm, empty_docs))
             elif not docs:
