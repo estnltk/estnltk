@@ -12,13 +12,11 @@ import json
 from estnltk.text import Text, Layer, Span, SpanList
 
 from estnltk.taggers import TaggerOld
-from estnltk.taggers.morph.morf_common import _convert_morph_analysis_span_to_vm_dict
-from estnltk.taggers.morph.morf_common import _create_empty_morph_span
-from estnltk.taggers.morph.morf_common import _is_empty_span
+from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
+from estnltk.taggers.morph_analysis.morf_common import _is_empty_span
 
 from estnltk.java.javaprocess import JavaProcess
 from estnltk.core import JAVARES_PATH
-
 
 
 class ClauseSegmenter(TaggerOld):

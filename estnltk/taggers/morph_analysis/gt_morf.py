@@ -14,44 +14,44 @@ from estnltk.text import Span, Layer, Text
 from estnltk.taggers import TaggerOld
 from estnltk.taggers import VabamorfTagger
 
-from estnltk.taggers.morph.morf_common import ESTNLTK_MORPH_ATTRIBUTES
-from estnltk.taggers.morph.morf_common import _is_empty_span
-from estnltk.taggers.morph.morf_common import _create_empty_morph_span
+from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.taggers.morph_analysis.morf_common import _is_empty_span
+from estnltk.taggers.morph_analysis.morf_common import _create_empty_morph_span
 
 # =========================================================================================
 #    Convert nominal categories
 # =========================================================================================
 
-_noun_conversion_rules = [ \
-    ["pl n", "Pl Nom"],\
-    ["sg n", "Sg Nom"],\
-    ["pl g", "Pl Gen"],\
-    ["sg g", "Sg Gen"],\
-    ["pl p", "Pl Par"],\
-    ["sg p", "Sg Par"],\
-    ["pl ill", "Pl Ill"],\
-    ["sg ill", "Sg Ill"],\
-    ["adt",    "Sg Ill"],\
-    ["pl in", "Pl Ine"],\
-    ["sg in", "Sg Ine"],\
-    ["pl el", "Pl Ela"],\
-    ["sg el", "Sg Ela"],\
-    ["pl all", "Pl All"],\
-    ["sg all", "Sg All"],\
-    ["pl ad", "Pl Ade"],\
-    ["sg ad", "Sg Ade"],\
-    ["pl abl", "Pl Abl"],\
-    ["sg abl", "Sg Abl"],\
-    ["pl tr", "Pl Tra"],\
-    ["sg tr", "Sg Tra"],\
-    ["pl ter", "Pl Trm"],\
-    ["sg ter", "Sg Trm"],\
-    ["pl es", "Pl Ess"],\
-    ["sg es", "Sg Ess"],\
-    ["pl ab", "Pl Abe"],\
-    ["sg ab", "Sg Abe"],\
-    ["pl kom", "Pl Com"],\
-    ["sg kom", "Sg Com"],\
+_noun_conversion_rules = [
+    ["pl n", "Pl Nom"],
+    ["sg n", "Sg Nom"],
+    ["pl g", "Pl Gen"],
+    ["sg g", "Sg Gen"],
+    ["pl p", "Pl Par"],
+    ["sg p", "Sg Par"],
+    ["pl ill", "Pl Ill"],
+    ["sg ill", "Sg Ill"],
+    ["adt",    "Sg Ill"],
+    ["pl in", "Pl Ine"],
+    ["sg in", "Sg Ine"],
+    ["pl el", "Pl Ela"],
+    ["sg el", "Sg Ela"],
+    ["pl all", "Pl All"],
+    ["sg all", "Sg All"],
+    ["pl ad", "Pl Ade"],
+    ["sg ad", "Sg Ade"],
+    ["pl abl", "Pl Abl"],
+    ["sg abl", "Sg Abl"],
+    ["pl tr", "Pl Tra"],
+    ["sg tr", "Sg Tra"],
+    ["pl ter", "Pl Trm"],
+    ["sg ter", "Sg Trm"],
+    ["pl es", "Pl Ess"],
+    ["sg es", "Sg Ess"],
+    ["pl ab", "Pl Abe"],
+    ["sg ab", "Sg Abe"],
+    ["pl kom", "Pl Com"],
+    ["sg kom", "Sg Com"],
 ]
 
 def _convert_nominal_form( analysis ):

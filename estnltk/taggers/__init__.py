@@ -5,7 +5,7 @@ from estnltk.taggers.tagger_old import TaggerOld
 
 from estnltk.taggers.tagger_test_maker import make_tagger_test
 
-from estnltk.taggers.atomizer import Atomizer
+from estnltk.taggers.standard_taggers.atomizer import Atomizer
 
 from estnltk.taggers.combined_tagger import CombinedTagger
 
@@ -14,22 +14,22 @@ from estnltk.taggers.dict_taggers.phrase_tagger import PhraseTagger
 from estnltk.taggers.dict_taggers.regex_tagger import RegexTagger
 from estnltk.taggers.dict_taggers.span_tagger import SpanTagger
 
-from estnltk.taggers.gaps_tagging.gap_tagger import GapTagger
-from estnltk.taggers.gaps_tagging.enveloping_gap_tagger import EnvelopingGapTagger
-
-from estnltk.taggers.grammar_parsing.grammar_parsing_tagger import GrammarParsingTagger
-
-from estnltk.taggers.merge_tagging.merge_tagger import MergeTagger
+from estnltk.taggers.grammar_taggers.grammar_parsing_tagger import GrammarParsingTagger
 
 from estnltk.taggers.raw_text_tagging.date_tagger.date_tagger import DateTagger
 
-from estnltk.taggers.event_tagging.event_sequence_tagger import EventSequenceTagger
-
-from estnltk.taggers.measurement_tagging.robust_date_number_tagger import RobustDateNumberTagger
-
-from estnltk.taggers.morph.morf import VabamorfTagger
+from estnltk.taggers.morph_analysis.postanalysis_tagger import PostMorphAnalysisTagger
+from estnltk.taggers.morph_analysis.morf import VabamorfTagger
+from estnltk.taggers.morph_analysis.gt_morf import GTMorphConverter
+from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
+from estnltk.taggers.morph_analysis.userdict_tagger import UserDictTagger
 
 from estnltk.taggers.sequential_tagger import SequentialTagger
+
+from estnltk.taggers.standard_taggers.enveloping_gap_tagger import EnvelopingGapTagger
+from estnltk.taggers.standard_taggers.gap_tagger import GapTagger
+from estnltk.taggers.standard_taggers.layer_merge_tagger import MergeTagger
+from estnltk.taggers.standard_taggers.robust_date_number_tagger import RobustDateNumberTagger
 
 from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger
 from estnltk.taggers.text_segmentation.word_tagger import WordTagger

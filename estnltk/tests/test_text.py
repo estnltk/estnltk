@@ -505,24 +505,8 @@ def test_enveloping_layer():
     print(t.wordpairs.text)
     with pytest.raises(Exception):
         (wordpairs.test)
-#
-def test_oldtext_to_new():
-    from estnltk.legacy.text import Text as OldText
-
-    text = 'Tuleb üks neiuke, järelikult tuleb ühelt poolt! Kui tuleks kaks neiukest, siis tuleksid kahelt poolt! Aga seekord tuleb üks, tuleb ühelt poolt!'
-    new = Text(text).tag_layer()
-    old = OldText(text)
 
 
-    for sentence, old_sentence in zip(new.sentences, old.split_by_sentences()):
-        assert (sentence.text == [word['text'] for word in old_sentence.words])
-
-    assert (new.sentences.text == [['Tuleb', 'üks', 'neiuke', ',', 'järelikult', 'tuleb', 'ühelt', 'poolt', '!'],
-                                   ['Kui', 'tuleks', 'kaks', 'neiukest', ',', 'siis', 'tuleksid', 'kahelt', 'poolt', '!'],
-                                   ['Aga', 'seekord', 'tuleb', 'üks', ',', 'tuleb', 'ühelt', 'poolt', '!']])
-    assert (new.text == text)
-#
-#
 def test_various():
     text = Text('Minu nimi on Joosep, mis sinu nimi on? Miks me seda arutame?').tag_layer()
 

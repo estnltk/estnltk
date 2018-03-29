@@ -6,24 +6,23 @@
 #  VabamorfAnalyzer, PostMorphAnalysisTagger and VabamorfDisambiguator.
 # 
 
-from estnltk.text import Span, SpanList, Layer, Text
+from estnltk.text import SpanList, Layer, Text
 from estnltk.taggers import TaggerOld
 from estnltk.vabamorf.morf import Vabamorf
-from estnltk.taggers.morph.postanalysis_tagger import PostMorphAnalysisTagger
+from estnltk.taggers import PostMorphAnalysisTagger
 
-from estnltk.taggers.morph.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
-from estnltk.taggers.morph.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
-from estnltk.taggers.morph.morf_common import DEFAULT_PARAM_COMPOUND
-from estnltk.taggers.morph.morf_common import ESTNLTK_MORPH_ATTRIBUTES
-from estnltk.taggers.morph.morf_common import VABAMORF_ATTRIBUTES
-from estnltk.taggers.morph.morf_common import IGNORE_ATTR
+from estnltk.taggers.morph_analysis.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
+from estnltk.taggers.morph_analysis.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
+from estnltk.taggers.morph_analysis.morf_common import DEFAULT_PARAM_COMPOUND
+from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
+from estnltk.taggers.morph_analysis.morf_common import IGNORE_ATTR
 
-from estnltk.taggers.morph.morf_common import _get_word_text, _create_empty_morph_span
-from estnltk.taggers.morph.morf_common import _is_empty_span
+from estnltk.taggers.morph_analysis.morf_common import _get_word_text, _create_empty_morph_span
+from estnltk.taggers.morph_analysis.morf_common import _is_empty_span
 
-from estnltk.taggers.morph.morf_common import _convert_morph_analysis_span_to_vm_dict
-from estnltk.taggers.morph.morf_common import _convert_vm_dict_to_morph_analysis_spans
-
+from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
+from estnltk.taggers.morph_analysis.morf_common import _convert_vm_dict_to_morph_analysis_spans
 
 
 class VabamorfTagger(TaggerOld):

@@ -2,7 +2,7 @@ from estnltk import Text
 from estnltk.core import PACKAGE_PATH
 
 from estnltk.taggers import VabamorfTagger
-from estnltk.taggers.morph.userdict_tagger import UserDictTagger
+from estnltk.taggers import UserDictTagger
 
 
 import os.path

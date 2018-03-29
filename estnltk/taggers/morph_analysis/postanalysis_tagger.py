@@ -9,11 +9,11 @@ import regex as re
 from estnltk.text import Span, SpanList, Layer, Text
 from estnltk.taggers import TaggerOld
 
-from estnltk.taggers.morph.morf_common import IGNORE_ATTR
-from estnltk.taggers.morph.morf_common import ESTNLTK_MORPH_ATTRIBUTES
-from estnltk.taggers.morph.morf_common import VABAMORF_ATTRIBUTES
-from estnltk.taggers.morph.morf_common import _get_word_text, _create_empty_morph_span
-from estnltk.taggers.morph.morf_common import _is_empty_span
+from estnltk.taggers.morph_analysis.morf_common import IGNORE_ATTR
+from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
+from estnltk.taggers.morph_analysis.morf_common import _get_word_text, _create_empty_morph_span
+from estnltk.taggers.morph_analysis.morf_common import _is_empty_span
 
 from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 
@@ -27,17 +27,17 @@ class PostMorphAnalysisTagger(TaggerOld):
     configuration = None
 
     def __init__(self,
-                 layer_name='morph_analysis', \
-                 ignore_emoticons:bool=True, \
-                 ignore_xml_tags:bool=True, \
-                 fix_names_with_initials:bool=True, \
-                 fix_emoticons:bool=True, \
-                 fix_www_addresses:bool=True, \
-                 fix_email_addresses:bool=True, \
-                 fix_abbreviations:bool=True, \
-                 fix_numeric:bool=True, \
-                 remove_duplicates:bool=True, \
-                 correction_rewriter=VabamorfCorrectionRewriter() ,\
+                 layer_name='morph_analysis',
+                 ignore_emoticons:bool=True,
+                 ignore_xml_tags:bool=True,
+                 fix_names_with_initials:bool=True,
+                 fix_emoticons:bool=True,
+                 fix_www_addresses:bool=True,
+                 fix_email_addresses:bool=True,
+                 fix_abbreviations:bool=True,
+                 fix_numeric:bool=True,
+                 remove_duplicates:bool=True,
+                 correction_rewriter=VabamorfCorrectionRewriter(),
                  **kwargs):
         """Initialize PostMorphAnalysisTagger class.
 

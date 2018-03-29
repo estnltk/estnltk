@@ -9,14 +9,14 @@ import csv
 from estnltk.text import Span, Layer, Text
 from estnltk.taggers import TaggerOld
 
-from estnltk.taggers.morph.morf_common import ESTNLTK_MORPH_ATTRIBUTES
-from estnltk.taggers.morph.morf_common import VABAMORF_ATTRIBUTES
-from estnltk.taggers.morph.morf_common import _get_word_text
-from estnltk.taggers.morph.morf_common import _postprocess_root
+from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
+from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
+from estnltk.taggers.morph_analysis.morf_common import _get_word_text
+from estnltk.taggers.morph_analysis.morf_common import _postprocess_root
 
-from estnltk.taggers.morph.morf_common import VABAMORF_POSTAGS
-from estnltk.taggers.morph.morf_common import VABAMORF_NOUN_FORMS
-from estnltk.taggers.morph.morf_common import VABAMORF_VERB_FORMS
+from estnltk.taggers.morph_analysis.morf_common import VABAMORF_POSTAGS
+from estnltk.taggers.morph_analysis.morf_common import VABAMORF_NOUN_FORMS
+from estnltk.taggers.morph_analysis.morf_common import VABAMORF_VERB_FORMS
 
 
 
