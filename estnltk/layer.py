@@ -123,6 +123,13 @@ class Layer:
                     ))
         return self
 
+    def get_attributes(self, items):
+        return self.__getattribute__('spans').get_attributes(items)
+
+    # TODO: remove this
+    def to_record(self, with_text=False):
+        return self.spans.to_record(with_text)
+
     def to_records(self, with_text=False):
         records = []
 
@@ -179,14 +186,19 @@ class Layer:
             raise AttributeError
         if item in self.__getattribute__('__dict__').keys():
             return self.__getattribute__('__dict__')[item]
-        elif item in self.__getattribute__('attributes'):
-            return self.spans.__getattr__(item)
-        else:
-            return self.__getattribute__('_resolve')(item)
+        if item in self.__getattribute__('attributes'):
+            return self.__getattribute__('spans').__getattr__(item)
+
+        return self.__getattribute__('text_object')._resolve(self.name, item, sofar=self.__getattribute__('spans'))
+
+        return self.__getattribute__('_resolve')(item)
 
     def __getitem__(self, idx):
         res = self.spans.__getitem__(idx)
         return res
+
+    def __len__(self):
+        return len(self.spans)
 
     def __str__(self):
         return 'Layer(name={self.name}, spans={self.spans})'.format(self=self)

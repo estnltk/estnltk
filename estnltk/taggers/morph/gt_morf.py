@@ -589,7 +589,7 @@ def _create_spans( text: Text, morph_dict_list:list, layer:Layer = None ):
                 if empty_attributes.count(True) > len(empty_attributes)/2:
                     # If most of the attributes have been set 
                     # to '', then we have an empty Span (unknown word)
-                    current_attributes = layer.attributes if layer else None
+                    current_attributes = layer.attributes if layer is not None else None
                     span = \
                         _create_empty_morph_span(word, \
                                                  layer_attributes=current_attributes)
@@ -607,7 +607,7 @@ def _create_spans( text: Text, morph_dict_list:list, layer:Layer = None ):
                             setattr(span, attr, morph_dict[attr])
                 assert span is not None
                 # If layer has been provided, attach the span to the layer
-                if layer:
+                if layer is not None:
                     layer.add_span( span )
                 else:
                     resulting_spans.append( span )
@@ -615,7 +615,7 @@ def _create_spans( text: Text, morph_dict_list:list, layer:Layer = None ):
             else:
                 break
     # Return either list of created spans or a layer augmented with spans
-    return resulting_spans if not layer else layer
+    return resulting_spans if layer is None else layer
 
 # ===================================================================
 

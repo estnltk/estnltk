@@ -415,23 +415,21 @@ class SpanList(collections.Sequence):
     def __getattr__(self, item):
         if item in {'__getstate__', '__setstate__'}:
             raise AttributeError
-        if item == '_ipython_canary_method_should_not_exist_' and self.layer and self is self.layer.spans:
+        if item == '_ipython_canary_method_should_not_exist_' and self.layer is not None and self is self.layer.spans:
             raise AttributeError
+
         layer = self.__getattribute__('layer')  # type: Layer
         if item in layer.attributes:
             return [getattr(span, item) for span in self.spans]
-        elif item in self.__dict__.keys():
+        if item in self.__dict__.keys():
+            return self.__dict__[item]
+        if item == getattr(self.layer, 'parent', None):
+            return self.parent
+        if item in self.__dict__:
             return self.__dict__[item]
 
-        elif item == getattr(self.layer, 'parent', None):
-            return self.parent
-
-        else:
-            if item in self.__dict__:
-                return self.__dict__[item]
-
-            target = layer.text_object._resolve(layer.name, item, sofar=self)
-            return target
+        target = layer.text_object._resolve(layer.name, item, sofar=self)
+        return target
 
     def __getitem__(self, idx: int) -> Union[Span, 'SpanList']:
 

@@ -123,13 +123,13 @@ class Text:
         if item in {'__getstate__', '__setstate__'}:
             raise AttributeError
         if item in self.layers.keys():
-            return self.layers[item].spans
-        else:
-            attributes = self.__getattribute__('attributes')
-            if len(attributes[item]) == 1:
-                return getattr(self.layers[attributes[item][0]], item)
+            return self.layers[item]  # .spans
 
-            return self.__getattribute__(item)
+        attributes = self.__getattribute__('attributes')
+        if len(attributes[item]) == 1:
+            return getattr(self.layers[attributes[item][0]], item)
+
+        return self.__getattribute__(item)
 
     def _add_layer(self, layer: Layer):
         name = layer.name

@@ -7,14 +7,14 @@ from estnltk.text import *
 def test_general():
     t = Text('Minu nimi on Uku. Mis Sinu nimi on? Miks me seda arutame?').tag_layer()
 
-    assert isinstance(t.sentences, SpanList)
-    assert isinstance(t.words, SpanList)
+    assert isinstance(t.sentences, Layer)
+    assert isinstance(t.words, Layer)
 
 
     assert len(t.sentences) == 3
     assert len(t.words) == 15
     assert len(t.sentences.words) == 3
-    assert t.sentences.words == t.sentences
+    assert t.sentences.words == t.sentences.spans
     with pytest.raises(Exception):
         t.words.sentences
 
@@ -39,8 +39,8 @@ def test_general():
 
 
     assert len(t.sentences[:].morph_analysis) == len(t.sentences[:].text)
-    assert (t.sentences[:]) == (t.sentences)
-    assert (t.words[:]) == (t.words)
+    assert t.sentences[:] == t.sentences.spans
+    assert t.words[:] == t.words.spans
     assert (t.words[:].lemma) == (t.words.lemma)
     assert (t.words[:].text) == (t.words.text)
 
@@ -267,7 +267,7 @@ def test_layer():
         t._add_layer(Layer(name='is'))
 
     assert t.layers['test'] is l
-    assert t.test is l.spans
+    assert t.test.spans is l.spans
 
     with pytest.raises(AttributeError):
         t.notexisting
