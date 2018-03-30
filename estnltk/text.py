@@ -60,18 +60,21 @@ class Text:
 
     def list_layers(self) -> List[Layer]:
         """
-        Returns a list of all layers of this text object in order of dependences.
-        The order is not uniquely determined.
+        Returns a list of all layers of this text object in order of dependences and layer names.
+        The order is uniquely determined.
         """
-        graph = nx.DiGraph()
-        graph.add_nodes_from(self.layers)
-        for layer_name, layer in self.layers.items():
-            if layer.enveloping:
-                graph.add_edge(layer.enveloping, layer_name)
-            elif layer.parent:
-                graph.add_edge(layer.parent, layer_name)
-        names = nx.topological_sort(graph)
-        return [self.layers[name] for name in names]
+        layer_list = sorted(self.layers.values(), key=lambda l: l.name)
+        sorted_layers = []
+        sorted_layer_names = set()
+        while layer_list:
+            for layer in layer_list:
+                if (layer.parent is None or layer.parent in sorted_layer_names) and \
+                   (layer.enveloping is None or layer.enveloping in sorted_layer_names):
+                    sorted_layers.append(layer)
+                    sorted_layer_names.add(layer.name)
+                    layer_list.remove(layer)
+                    break
+        return sorted_layers
 
     @property
     def text(self):
