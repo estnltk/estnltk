@@ -66,15 +66,6 @@ class Tagger:
         description = self.__class__.__doc__.strip().split('\n')[0]
         table = ['<h4>Tagger</h4>', description, table]
 
-        def to_str(value):
-            value_str = str(value)
-            if len(value_str) < 100:
-                return value_str
-            value_str = value_str[:80] + ' ..., type: ' + str(type(value))
-            if hasattr(value, '__len__'):
-                value_str += ', length: ' + str(len(value))
-            return value_str
-
         if self.conf_param:
             public_param = [p for p in self.conf_param if not p.startswith('_')]
             conf_values = [to_str(getattr(self, attr)) for attr in public_param]
@@ -91,9 +82,24 @@ class Tagger:
         conf_str = ''
         if self.conf_param:
             params = ['input_layers', 'output_layer', 'output_attributes'] + list(self.conf_param)
-            conf = [attr+'='+str(getattr(self, attr)) for attr in params if not attr.startswith('_')]
+            conf = [attr+'='+to_str(getattr(self, attr)) for attr in params if not attr.startswith('_')]
             conf_str = ', '.join(conf)
         return self.__class__.__name__ + '(' + conf_str + ')'
 
     def __str__(self):
         return self.__class__.__name__ + '(' + str(self.input_layers) + '->' + self.output_layer + ')'
+
+
+def to_str(value):
+    if callable(value) and hasattr(value, '__name__') and hasattr(value, '__module__'):
+        value_str = '<function {}.{}>'.format(value.__module__, value.__name__)
+    elif hasattr(value, 'pattern'):
+        value_str = '<Regex {}>'.format(value.pattern)
+    else:
+        value_str = str(value)
+    if len(value_str) < 100:
+        return value_str
+    value_str = value_str[:80] + ' ..., type: ' + str(type(value))
+    if hasattr(value, '__len__'):
+        value_str += ', length: ' + str(len(value))
+    return value_str
