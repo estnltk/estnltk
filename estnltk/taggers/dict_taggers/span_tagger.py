@@ -14,7 +14,7 @@ class SpanTagger(Tagger):
                  output_layer: str,
                  input_layer: str,
                  input_attribute: str,
-                 vocabulary: Union[dict, str],
+                 vocabulary: Union[dict, str, Vocabulary],
                  key: str = '_token_',
                  output_attributes: Sequence[str] = None,
                  global_validator: callable = None,

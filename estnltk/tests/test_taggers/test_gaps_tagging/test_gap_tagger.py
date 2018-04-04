@@ -1,6 +1,6 @@
 from estnltk import Text
 from estnltk.layer import Layer
-from estnltk.spans import Span
+from estnltk.span import Span
 from estnltk.taggers import GapTagger
 
 text = Text('Üks kaks kolm neli viis kuus seitse.')

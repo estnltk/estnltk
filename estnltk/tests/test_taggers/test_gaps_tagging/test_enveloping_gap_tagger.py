@@ -1,26 +1,29 @@
 from estnltk.taggers import EnvelopingGapTagger
 from estnltk import Text
-from estnltk.spans import SpanList
+from estnltk import SpanList
 from estnltk.layer import Layer
+from estnltk import EnvelopingSpan
+
 
 text = Text('Üks kaks kolm neli viis kuus seitse.')
 text.tag_layer(['words'])
 
 layer = Layer('test_3', enveloping='words')
-spl = SpanList()
+spl = EnvelopingSpan()
 spl.spans = text.words[0:2]
 layer.add_span(spl)
-spl = SpanList()
+
+spl = EnvelopingSpan()
 spl.spans = text.words[3:4]
 layer.add_span(spl)
 text['test_3'] = layer
 
 
 layer = Layer('test_4', enveloping='words', ambiguous=True)
-spl = SpanList()
+spl = EnvelopingSpan()
 spl.spans = text.words[3:5]
 layer.add_span(spl)
-spl = SpanList()
+spl = EnvelopingSpan()
 spl.spans = text.words[3:5]
 layer.add_span(spl)
 text['test_4'] = layer

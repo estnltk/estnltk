@@ -1,3 +1,4 @@
+from estnltk import EnvelopingSpan
 from estnltk.taggers import Tagger, Vocabulary
 from estnltk.layer import Layer
 from estnltk.layer_operations import resolve_conflicts
@@ -105,6 +106,7 @@ class PhraseTagger(Tagger):
                                 if match:
                                     phrase = (value,) + tail
                                     for rec in self._vocabulary[phrase]:
+                                        # TODO: test and fix (probably not working)
                                         span = input_layer.spans[i:i + len(tail) + 1]
                                         if self.global_validator(raw_text, span) and rec[self.validator_attribute](raw_text, span):
                                             for attr in self.output_attributes:
@@ -123,7 +125,9 @@ class PhraseTagger(Tagger):
                             if match:
                                 phrase = (value,) + tail
                                 for rec in self._vocabulary[phrase]:
-                                    span = input_layer.spans[i:i + len(tail) + 1]
+                                    spans = input_layer.spans[i:i + len(tail) + 1]
+                                    span = EnvelopingSpan(layer=layer)
+                                    span.spans = spans
                                     if self.global_validator(raw_text, span) and rec[self.validator_attribute](raw_text, span):
                                         for attr in self.output_attributes:
                                             setattr(span, attr, rec[attr])

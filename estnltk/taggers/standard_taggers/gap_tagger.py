@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from estnltk.spans import Span
+from estnltk.span import Span
 from estnltk.layer import Layer
 from estnltk.taggers import Tagger
 

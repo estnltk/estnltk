@@ -14,6 +14,7 @@ from pandas.io.common import EmptyDataError
 
 from estnltk.core import PACKAGE_PATH
 
+from estnltk import EnvelopingSpan
 from estnltk.text import Layer, SpanList
 from estnltk.taggers import TaggerOld
 from estnltk.taggers import RegexTagger
@@ -170,7 +171,6 @@ class CompoundTokenTagger(TaggerOld):
         # Load words that should be ignored during normalization of words with hyphens
         self.ignored_words = self._load_ignore_words_from_csv( DEFAULT_IGNORE_LIST )
 
-
     def tag(self, text: 'Text', return_layer=False) -> 'Text':
         """Tags compound_tokens layer.
         
@@ -239,7 +239,7 @@ class CompoundTokenTagger(TaggerOld):
                     elif tokenization_hints[token_span.start]['end'] < text.tokens[j].start:
                         break
                 if end_token_index:
-                    spl = SpanList()
+                    spl = EnvelopingSpan()
                     spl.spans = text.tokens[i:end_token_index+1]
                     spl.type  = ('tokenization_hint',)
                     spl.normalized = None
@@ -285,7 +285,7 @@ class CompoundTokenTagger(TaggerOld):
                         # considered as a potentially hyphenated word; 
                         # This serves to leave out numeric ranges like 
                         #    "15-17.04." or "920-980"
-                        spl = SpanList()
+                        spl = EnvelopingSpan()
                         spl.spans = text.tokens[hyphenation_start:i]
                         spl.type = ('hyphenation',)
                         spl.normalized = \
@@ -348,7 +348,7 @@ class CompoundTokenTagger(TaggerOld):
                 break
         if custom_abbreviation_found:
             # construct potential span
-            spl = SpanList()
+            spl = EnvelopingSpan()
             spl.type = ('non_ending_abbreviation',)
             next_token = ''
             if token_id+1 < len(text.tokens)-1:
@@ -630,7 +630,7 @@ class CompoundTokenTagger(TaggerOld):
             normalized_str = ''.join(normalized)
         
         # 4) Create new SpanList and assign attributes
-        spl = SpanList()
+        spl = EnvelopingSpan()
         spl.type = ('tokenization_hint',)
         spl.spans = all_covered_tokens
         spl.normalized = normalized_str

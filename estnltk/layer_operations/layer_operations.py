@@ -15,7 +15,7 @@ from collections import Counter, defaultdict
 # ? UNION on allpool ainult osaliselt kasutusel.
 # ? ehk võiks enamlevinud konstandid importida
 from estnltk.layer import Layer
-from estnltk.spans import Span
+from estnltk.span import Span
 
 TEXT = 'text'
 AND = 'AND'

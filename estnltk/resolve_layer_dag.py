@@ -68,14 +68,14 @@ class Resolver:
         return text
 
 
-from .taggers import TokensTagger
-from .taggers import WordTagger
-from .taggers import CompoundTokenTagger
-from .taggers import SentenceTokenizer
-from .taggers import ParagraphTokenizer
-from .taggers import VabamorfTagger
-from .taggers import MorphExtendedTagger
-from .taggers import ClauseSegmenter    # Requires Java
+from .taggers.text_segmentation.tokens_tagger import TokensTagger
+from .taggers.text_segmentation.word_tagger import WordTagger
+from .taggers.text_segmentation.compound_token_tagger import CompoundTokenTagger
+from .taggers.text_segmentation.sentence_tokenizer import SentenceTokenizer
+from .taggers.text_segmentation.paragraph_tokenizer import ParagraphTokenizer
+from .taggers.morph_analysis.morf import VabamorfTagger
+from .taggers.syntax_preprocessing.morph_extended_tagger import MorphExtendedTagger
+from .taggers.text_segmentation.clause_segmenter import ClauseSegmenter    # Requires Java
 
 # Load default configuration for morph analyser
 from .taggers.morph_analysis.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS

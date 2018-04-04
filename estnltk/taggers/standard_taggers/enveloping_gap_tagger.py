@@ -1,6 +1,6 @@
 from typing import Sequence
 
-from estnltk.spans import SpanList
+from estnltk import EnvelopingSpan
 from estnltk.layer import Layer
 from estnltk.taggers import Tagger
 
@@ -38,7 +38,7 @@ class EnvelopingGapTagger(Tagger):
             ambiguous=False
             )
         for gap in enveloping_gaps(layers_with_gaps, enveloped):
-            spl = SpanList()
+            spl = EnvelopingSpan()
             spl.spans = gap
             if self.decorator:
                 decorations = self.decorator(gap)

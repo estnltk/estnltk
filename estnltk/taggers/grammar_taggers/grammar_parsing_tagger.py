@@ -1,6 +1,6 @@
 from estnltk.taggers import TaggerOld
 from estnltk.layer import Layer
-from estnltk.spans import SpanList
+from estnltk import SpanList
 from estnltk.finite_grammar.layer_graph import GrammarNode, layer_to_graph, get_spans
 from estnltk.finite_grammar import parse_graph
 

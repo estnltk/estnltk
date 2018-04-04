@@ -1,5 +1,5 @@
 from typing import Sequence
-from estnltk.spans import Span, SpanList
+from estnltk import Span, SpanList
 from estnltk.layer import Layer
 
 
