@@ -12,7 +12,6 @@
 
 import os, os.path
 import argparse
-import pickle
 
 from datetime import datetime 
 from datetime import timedelta
@@ -34,7 +33,7 @@ arg_parser = argparse.ArgumentParser(description=\
     of subsets. Use this script to enable parallel processing of
     Koondkorpus and etTenTen files: split files into N subsets with this
     script, and then evoke N instances of the script 
-    "add_morph_and_save_results.py" to process the files.
+    "process_and_save_results.py" to process the files.
 ''')
 arg_parser.add_argument('in_dir', default = None, \
                                   help='the directory containing input files. '+\
