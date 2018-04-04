@@ -17,18 +17,19 @@
 # 
 
 from estnltk.text import Text
+from estnltk.converters import import_json
 from estnltk.taggers import SentenceTokenizer
 
 from bs4 import BeautifulSoup
 from copy import deepcopy
 
-import os, os.path
+import os, os.path, re
 
 # Tokenizer that splits into sentences by newlines (created only if needed)
 koond_newline_sentence_tokenizer = None
 
 
-def get_div_target(fnm):
+def get_div_target( fnm ):
     """Based on the full name of the XML file (the name with full path), determines
        <div> type which is considered as a document in that XML file. 
        The <div> type usually needs to be manually looked up from the corpus 
@@ -63,6 +64,72 @@ def get_div_target(fnm):
     if 'stenogrammid' in fnm:
         return 'stenogramm'
     return 'artikkel'
+
+
+def get_text_subcorpus_name( corpus_dir, corpus_file ):
+    """Based on the name of the text's file, and its directory, determines
+       to which subcorpus of the Reference Corpus the text belongs to. 
+       Returns a shortened name of the subcorpus, or None, if the subcorpus 
+       could not be determined.
+       
+       Logic for determining the subcorpus is mostly based on checking the 
+       name of the file. If the name is not helpful, then metadata inside 
+       the Text object is also checked for additional cues.
+
+    Parameters
+    -----------
+    corpus_dir: str
+        The directory of the corpus_file;
+
+    corpus_file: str
+        Name of the file which corpus needs to be determined;
+        
+    Returns
+    -------
+    str
+       a shortened name of the subcorpus, or None, if the subcorpus could 
+       not be determined;
+    """
+    f_prefix  = re.sub('^([A-Za-z_\-]+)(\.|[0-9]+).*', '\\1', corpus_file)
+    text_type = None
+    if f_prefix.startswith('ilu_'):
+        f_prefix  = 'ilu_'
+        text_type = f_prefix
+    if f_prefix.startswith('tea_'):
+        f_prefix = 'tea_'
+        text_type = f_prefix
+    if f_prefix.startswith('agraar_'):
+        f_prefix = 'tea_'
+        text_type = f_prefix
+    if f_prefix.startswith('horisont_'):
+        f_prefix = 'tea_'
+        text_type = f_prefix
+    if f_prefix.startswith('sea_'):
+        f_prefix = 'sea_'
+        text_type = f_prefix
+    if f_prefix.startswith('rkogu_'):
+        f_prefix = 'rkogu_'
+        text_type = f_prefix
+    if f_prefix.startswith('aja_'):
+        text_type = f_prefix
+    if text_type and text_type.endswith('_'):
+        text_type = text_type[:-1]
+    # If text type cannot be determined from the name of the file, 
+    # try to get it from metadata of the Text object
+    if not text_type:
+        fnm = os.path.join( corpus_dir, corpus_file )
+        text_obj = import_json( file=fnm )
+        if text_obj:
+            if 'alamfoorum' in text_obj.meta.keys():
+                text_type = 'netifoorum'
+            elif 'type' in text_obj.meta.keys():
+                if text_obj.meta['type'] == 'jututoavestlus':
+                    text_type = t['type']
+                elif text_obj.meta['type'] == 'uudisgrupi_salvestus':
+                    text_type = t['type']
+                elif text_obj.meta['type'] == 'kommentaarid':
+                    text_type = 'neti'+t['type']
+    return text_type
 
 
 def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel'], \
