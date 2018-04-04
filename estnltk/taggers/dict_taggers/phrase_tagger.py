@@ -1,6 +1,6 @@
 from estnltk import EnvelopingSpan
 from estnltk.taggers import Tagger, Vocabulary
-from estnltk.layer import Layer
+from estnltk.layer.layer import Layer
 from estnltk.layer_operations import resolve_conflicts
 from collections import defaultdict
 from typing import Sequence, Union

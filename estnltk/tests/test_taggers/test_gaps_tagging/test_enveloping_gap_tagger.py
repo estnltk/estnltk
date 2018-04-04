@@ -1,7 +1,7 @@
 from estnltk.taggers import EnvelopingGapTagger
 from estnltk import Text
 from estnltk import SpanList
-from estnltk.layer import Layer
+from estnltk.layer.layer import Layer
 from estnltk import EnvelopingSpan
 
 

@@ -1,7 +1,7 @@
 from typing import Sequence
 
 from estnltk import EnvelopingSpan
-from estnltk.layer import Layer
+from estnltk.layer.layer import Layer
 from estnltk.taggers import Tagger
 
 

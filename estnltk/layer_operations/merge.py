@@ -1,6 +1,6 @@
 from typing import Sequence
 from estnltk import Span, SpanList
-from estnltk.layer import Layer
+from estnltk.layer.layer import Layer
 
 
 def merge_layers(layers: Sequence[Layer],

@@ -1,5 +1,5 @@
 from estnltk.taggers import TaggerOld
-from estnltk.layer import Layer
+from estnltk.layer.layer import Layer
 from estnltk.layer_operations import resolve_conflicts
 from collections import defaultdict
 
