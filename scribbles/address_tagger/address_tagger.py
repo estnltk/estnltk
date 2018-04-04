@@ -26,7 +26,7 @@ class AddressTagger(TaggerOld):
     
 
     def __init__(self,
-				layer_name = 'addresses',
+                layer_name = 'addresses',
                  #output_attributes: ('grammar_symbol',),
                  conflict_resolving_strategy: str = 'MAX',
                  overlapped: bool = True,
@@ -72,12 +72,42 @@ class AddressTagger(TaggerOld):
             vocabulary = spec_word_vocabulary)              
         
         
+        atomizer = Atomizer(output_layer='some_layer',
+                    input_layer='regexes',
+                    output_attributes=['grammar_symbol', 'regex_type', 'value'], # default: None
+                    enveloping=None # default: None
+                   )
+        
+        atomizer2 = Atomizer(output_layer='some_layer2',
+                    input_layer='phrases',
+                    output_attributes=['grammar_symbol', 'type'], # default: None
+                    enveloping=None # default: None
+                   )
+                   
+        atomizer3 = Atomizer(output_layer='some_layer3',
+                    input_layer='spec_word',
+                    output_attributes=['grammar_symbol', 'type'], # default: None
+                    enveloping=None # default: None
+                   )
+       
+        merge_tagger = MergeTagger(output_layer='grammar_tags',
+                           input_layers=['some_layer',
+                                         'some_layer2', 
+                                         'some_layer3'],
+                           output_attributes=('grammar_symbol',))
+                               
+        
+        
+        
         def tag_sent(sent):
             t = Text(sent).analyse('segmentation')
             house_nr_tagger.tag(t)
             place_name_tagger.tag(t)
             spec_voc_tagger.tag(t)
-            #merge_tagger.tag(t)
+            atomizer(t)
+            atomizer2(t)
+            atomizer3(t)
+            merge_tagger.tag(t)
             return t    
             
         rules = []
