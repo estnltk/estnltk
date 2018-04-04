@@ -18,7 +18,7 @@ from datetime import datetime
 from datetime import timedelta
 
 from estnltk.text import Text
-from estnltk.converters import export_json, import_json
+from estnltk.converters import export_json
 
 import logging
 
@@ -220,9 +220,9 @@ if in_file and out_dir:
     for text in yield_docs( in_file, encoding='utf-8', \
                             store_paragraph_attributes=store_paragraph_attributes ):
         if 'web_domain' not in text.meta:
-            for k,v in text.items():
+            for k,v in text.meta.items():
                 print (k,':', v)
-            raise Exception(' (!) Web domain name not available in text! ' )
+            raise Exception(' (!) Web domain name not available in the metadata of text! ' )
         # Construct name of the file (based on web domain name)
         domain_name = text.meta['web_domain']
         domain_name = domain_name.replace('.', '_')
