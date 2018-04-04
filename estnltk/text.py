@@ -5,8 +5,10 @@ from typing import MutableMapping, Union, List, Sequence
 import pandas
 import networkx as nx
 
-from .layer import Layer
-from .spans import Span, SpanList
+from estnltk import Span
+from estnltk import EnvelopingSpan
+from estnltk import SpanList
+from estnltk import Layer
 
 
 def _get_span_by_start_and_end(spans: SpanList, start: int=None, end: int=None, span: Span=None) -> Union[Span, None]:
@@ -223,7 +225,8 @@ class Text:
                     spans = []
 
                     # path taken by text.sentences.lemma
-                    if isinstance(sofar[0], SpanList):
+                    # TODO: is SpanList needed here?
+                    if isinstance(sofar[0], (SpanList, EnvelopingSpan)):
                         for envelop in sofar:
                             enveloped_spans = []
                             for span in self.layers[to]:

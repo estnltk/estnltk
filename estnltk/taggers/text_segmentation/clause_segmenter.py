@@ -9,7 +9,7 @@ from typing import Union
 
 import json
 
-from estnltk.text import Text, Layer, Span, SpanList
+from estnltk.text import Text, Layer, EnvelopingSpan
 
 from estnltk.taggers import TaggerOld
 from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
@@ -138,7 +138,7 @@ class ClauseSegmenter(TaggerOld):
                         word['clause_type']
                 # Rewrite clause index to list of clause SpanList-s
                 for clause_id in clause_index.keys():
-                    clause_spans = SpanList()
+                    clause_spans = EnvelopingSpan()
                     clause_spans.clause_type = \
                         clause_type_index[clause_id]
                     clause_spans.spans = clause_index[clause_id]

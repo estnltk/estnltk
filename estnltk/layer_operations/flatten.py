@@ -1,5 +1,5 @@
 from typing import List
-from estnltk.spans import Span
+from estnltk.span import Span
 from estnltk.layer import Layer
 
 

@@ -2,7 +2,7 @@ from copy import deepcopy
 
 from estnltk import Text
 from estnltk.layer import Layer
-from estnltk.spans import Span
+from estnltk.span import Span
 
 # empty text
 text_0 = Text('')

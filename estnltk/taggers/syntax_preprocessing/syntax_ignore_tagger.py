@@ -4,7 +4,7 @@
 from estnltk.taggers import TaggerOld
 from estnltk.taggers import RegexTagger
 
-from estnltk.text import Span, SpanList, Layer
+from estnltk import EnvelopingSpan, Layer
 
 import regex as re
 
@@ -509,13 +509,12 @@ class SyntaxIgnoreTagger(TaggerOld):
                                                  output_layer='syntax_ignore_hints',
                                                  )
 
-
     def tag(self, text: 'Text', return_layer=False) -> 'Text':
         """Tags 'syntax_ignore' layer.
-        
+
         Note: exact configuration of the tagging depends on 
         the initialization parameters of the class.
-        
+
         Parameters
         ----------
         text: estnltk.text.Text
@@ -566,7 +565,7 @@ class SyntaxIgnoreTagger(TaggerOld):
                 current_wid += 1
             if words_start != -1 and words_end != -1:
                 # Record ignored words
-                new_spanlist = SpanList()
+                new_spanlist = EnvelopingSpan()
                 new_spanlist.spans = text.words[words_start:words_end+1]
                 new_spanlist.type = sp.type
                 ignored_words_spans.append( new_spanlist )
@@ -610,7 +609,7 @@ class SyntaxIgnoreTagger(TaggerOld):
                       attributes=self.attributes,
                       ambiguous=False)
         for span in ignored_words_spans:
-            layer.add_span( span )
+            layer.add_span(span)
 
         if return_layer:
             return layer
@@ -621,7 +620,7 @@ class SyntaxIgnoreTagger(TaggerOld):
 
     def _add_ignore_consecutive_parenthesized_sentences( 
                 self, text: 'Text', ignored_words_spans:list ) -> list:
-        ''' First, detects consecutive sentences that:
+        """ First, detects consecutive sentences that:
             *) contain parenthesized ignore content (content from 
                ignored_words_spans) and,
             *) contain less than 3 consecutive lowercase words,
@@ -630,7 +629,7 @@ class SyntaxIgnoreTagger(TaggerOld):
             Second, checks for sentences between the ignored sentences 
                  that contain less than 3 consecutive lowercase words:
                  and if found, marks such sentences also as 'ignored';
-        '''
+        """
         # Collect consecutive sentences containing ignored content 
         #         in parentheses and/or less than 3 lc words
         # 1) Collect candidates for ignored sentences
@@ -706,7 +705,7 @@ class SyntaxIgnoreTagger(TaggerOld):
                 for word_span in ignored_candidate['span'].spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = SpanList()
+                new_spanlist = EnvelopingSpan()
                 new_spanlist.spans = sent_words
                 new_spanlist.type = 'consecutive_parenthesized_sentences'
                 # Remove overlapped spans
@@ -718,19 +717,19 @@ class SyntaxIgnoreTagger(TaggerOld):
                         if not ignore_span in ignored_candidate['ignored_words']:
                             new_ignored_words_spans.append( ignore_span )
                     ignored_words_spans = new_ignored_words_spans
-                ignored_words_spans.append( new_spanlist )
+                ignored_words_spans.append(new_spanlist)
         return ignored_words_spans
 
 
 
     def _add_ignore_sentences_consisting_of_numbers( 
                 self, text: 'Text', ignored_words_spans:list ) -> list:
-        '''  Detects sentences that contain number or numbers, no letters 
+        """  Detects sentences that contain number or numbers, no letters
              and do not end with '?' nor '!', and marks such sentences as 
              ignore sentences (if they have note been marked already).
              Returns ignored_words_spans which is extended with new ignore 
              sentences;
-        '''
+        """
         for sent_id, sentence_span in enumerate( text['sentences'].spans ):
             sentence_text   = sentence_span.enclosing_text
             contains_number = bool(_contains_number_compiled.search( sentence_text ))
@@ -744,7 +743,7 @@ class SyntaxIgnoreTagger(TaggerOld):
                 for word_span in sentence_span.spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = SpanList()
+                new_spanlist = EnvelopingSpan()
                 new_spanlist.spans = sent_words
                 new_spanlist.type = 'sentence_with_number_no_letters'
                 # Add the sentence only iff it is not already added
@@ -764,13 +763,13 @@ class SyntaxIgnoreTagger(TaggerOld):
 
     def _add_ignore_sentences_starting_with_time( 
                 self, text: 'Text', ignored_words_spans:list ) -> list:
-        '''  Detects sentences that start with a clock time, followed 
+        """  Detects sentences that start with a clock time, followed
              by a symbol that is not a lowercase letter. 
              Such sentences likely represent a part of a time schedule,
              and thus can be marked as ignore sentences.
              Returns ignored_words_spans which is extended with new ignore 
              sentences;
-        '''
+        """
         for sent_id, sentence_span in enumerate( text['sentences'].spans ):
             sentence_text = sentence_span.enclosing_text
             if _clock_time_start_compiled.match( sentence_text ):
@@ -781,7 +780,7 @@ class SyntaxIgnoreTagger(TaggerOld):
                 for word_span in sentence_span.spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = SpanList()
+                new_spanlist = EnvelopingSpan()
                 new_spanlist.spans = sent_words
                 new_spanlist.type = 'sentence_starts_with_time'
                 # Add the sentence only iff it is not already added
@@ -800,7 +799,7 @@ class SyntaxIgnoreTagger(TaggerOld):
                         # of the current sentence (basically: remove overlapped ignore content)
                         new_ignored_words_spans = []
                         for ignore_span in ignored_words_spans:
-                            if not (new_spanlist.start <= ignore_span.start and \
+                            if not (new_spanlist.start <= ignore_span.start and
                                     ignore_span.end <= new_spanlist.end):
                                 new_ignored_words_spans.append( ignore_span )
                         ignored_words_spans = new_ignored_words_spans
@@ -812,7 +811,7 @@ class SyntaxIgnoreTagger(TaggerOld):
 
     def _add_ignore_consecutive_enum_ucase_sentences( 
                 self, text: 'Text', ignored_words_spans:list ) -> list:
-        ''' Detects sentences that:
+        """ Detects sentences that:
              1) start with an uppercase letter, or an ordinal number 
                followed by an uppercase letter, or an ordinal number;
              2) contain at least one number;
@@ -826,7 +825,7 @@ class SyntaxIgnoreTagger(TaggerOld):
             
             Returns ignored_words_spans which is extended with new ignore 
             sentences;
-        '''
+        """
         # 1) Collect candidates for ignored sentences
         ignored_sentence_candidates = []
         for sent_id, sentence_span in enumerate( text['sentences'].spans ):
@@ -837,12 +836,12 @@ class SyntaxIgnoreTagger(TaggerOld):
             enum_num       = bool( _enum_num_compiled.match(sentence_text) )
             enum_ucase_num = bool( _enum_ucase_num_compiled.match(sentence_text) )
             if misses_lc_words:
-                ignore_item = { 'sent_id':sent_id, 'span': sentence_span, \
-                                'enum_ucase_num': enum_ucase_num, \
-                                'enum_num': enum_num, \
-                                'consecutive_with_next': False, \
-                                'consecutive_with_prev': False, \
-                                'ignore_sentence': False }
+                ignore_item = { 'sent_id':sent_id, 'span': sentence_span,
+                                'enum_ucase_num': enum_ucase_num,
+                                'enum_num': enum_num,
+                                'consecutive_with_next': False,
+                                'consecutive_with_prev': False,
+                                'ignore_sentence': False}
                 ignored_sentence_candidates.append( ignore_item )
         # 2) Mark consecutive sentences starting with enumerations / uppercase letters, and 
         #   contain numbers
@@ -852,16 +851,16 @@ class SyntaxIgnoreTagger(TaggerOld):
             consecutive = False
             if ignored_sent_id+1 < len( ignored_sentence_candidates ) and \
                ignored_sentence_candidates[ignored_sent_id+1]['sent_id'] == sent_id+1 and \
-               (ignored_candidate['enum_ucase_num'] or \
+               (ignored_candidate['enum_ucase_num'] or
                 ignored_candidate['enum_num']) and \
-               (ignored_sentence_candidates[ignored_sent_id+1]['enum_ucase_num'] or \
+               (ignored_sentence_candidates[ignored_sent_id+1]['enum_ucase_num'] or
                 ignored_sentence_candidates[ignored_sent_id+1]['enum_num']):
                 ignored_candidate['consecutive_with_next'] = True
             elif ignored_sent_id-1 > -1 and \
                  ignored_sentence_candidates[ignored_sent_id-1]['sent_id'] == sent_id-1 and \
-                 (ignored_candidate['enum_ucase_num'] or \
+                 (ignored_candidate['enum_ucase_num'] or
                   ignored_candidate['enum_num']) and \
-                 (ignored_sentence_candidates[ignored_sent_id-1]['enum_ucase_num'] or \
+                 (ignored_sentence_candidates[ignored_sent_id-1]['enum_ucase_num'] or
                   ignored_sentence_candidates[ignored_sent_id-1]['enum_num']):
                 ignored_candidate['consecutive_with_prev'] = True
         # 3) Collects groups of sentences containing at least 4 consecutive sentences
@@ -889,7 +888,7 @@ class SyntaxIgnoreTagger(TaggerOld):
                 for word_span in ignored_candidate['span'].spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = SpanList()
+                new_spanlist = EnvelopingSpan()
                 new_spanlist.spans = sent_words
                 new_spanlist.type = 'consecutive_enum_ucase_sentences'
                 # Add the sentence only iff it is not already added
@@ -908,7 +907,7 @@ class SyntaxIgnoreTagger(TaggerOld):
                         # of the current sentence (basically: remove overlapped ignore content)
                         new_ignored_words_spans = []
                         for ignore_span in ignored_words_spans:
-                            if not (new_spanlist.start <= ignore_span.start and \
+                            if not (new_spanlist.start <= ignore_span.start and
                                     ignore_span.end <= new_spanlist.end):
                                 new_ignored_words_spans.append( ignore_span )
                         ignored_words_spans = new_ignored_words_spans
@@ -919,7 +918,7 @@ class SyntaxIgnoreTagger(TaggerOld):
 
     def _add_ignore_comma_separated_num_name_list_sentences( 
                 self, text: 'Text', ignored_words_spans:list ) -> list:
-        ''' Detects sentences that:
+        """ Detects sentences that:
             Contain less than 3 consecutive lowercase words, and 
                1.1) Start with up to three words and colon, or 
                       contain at least 2 colons;
@@ -936,7 +935,7 @@ class SyntaxIgnoreTagger(TaggerOld):
             etc.);
             Returns ignored_words_spans which is extended with new ignore 
             sentences;
-        '''
+        """
         # 1) Collect candidates for ignored sentences
         ignored_sentence_candidates = []
         for sent_id, sentence_span in enumerate( text['sentences'].spans ):
@@ -969,7 +968,7 @@ class SyntaxIgnoreTagger(TaggerOld):
                 for word_span in ignored_candidate['span'].spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = SpanList()
+                new_spanlist = EnvelopingSpan()
                 new_spanlist.spans = sent_words
                 new_spanlist.type = 'sentence_with_comma_separated_list'
                 # Add the sentence only iff it is not already added

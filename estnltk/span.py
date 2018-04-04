@@ -22,7 +22,8 @@ class Span:
 
         # parent is a Span of dependant Layer
         elif parent is not None:
-            assert isinstance(parent, (Span, SpanList))
+            # TODO:
+            #assert isinstance(parent, (Span, SpanList))
             assert start is None
             assert end is None
             self.is_dependant = True
@@ -308,5 +309,5 @@ class Span:
         return str(self)
 
 
-from .span_list import SpanList
-from .layer import Layer
+# from .span_list import SpanList
+# from .layer import Layer

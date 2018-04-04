@@ -190,11 +190,11 @@ def _carry_over_extra_attributes( old_spanlist:SpanList, \
         
        Parameters
        ----------
-       old_spanlist: estnltk.spans.SpanList
+       old_spanlist: estnltk.span.SpanList
            SpanList containing morphological analyses of a single word.
            The source of values of extra attributes.
 
-       new_spanlist: list of estnltk.spans.Span
+       new_spanlist: list of estnltk.span.Span
            List of newly created Span-s. The target to where extra 
            attributes and their values need to be written.
         
