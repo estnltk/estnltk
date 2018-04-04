@@ -2,7 +2,6 @@
 Low-level layer operations for Estnltk Text object.
 
 """
-from typing import Iterable
 from operator import eq
 from pandas import DataFrame
 
@@ -14,8 +13,7 @@ from collections import Counter, defaultdict
 # ? Kas kõik järgmised konstandid on mõttekad? 
 # ? UNION on allpool ainult osaliselt kasutusel.
 # ? ehk võiks enamlevinud konstandid importida
-from estnltk.layer import Layer
-from estnltk.span import Span
+from estnltk.layer.layer import Layer
 
 TEXT = 'text'
 AND = 'AND'

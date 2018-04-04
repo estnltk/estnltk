@@ -33,14 +33,14 @@ class AmbiguousAttrTupleList(AttrList):
         super().__init__(amb_attr_tuple_list)
 
 
-#al = AttrList([1,2,3,4])
-#print(al)
+al = AttrList([1,2,3,4])
+print(al)
 
-#aal = AmbiguousAttrList([[1,2], [3,4], [5]])
-#print(aal)
+aal = AmbiguousAttrList([[1,2], [3,4], [5]])
+print(aal)
 
-#atl = AttrTupleList([[1,2,3], [4,5,6], [7,8,9]])
-#print(atl)
+atl = AttrTupleList([[1,2,3], [4,5,6], [7,8,9]])
+print(atl)
 
-#aatl = AmbiguousAttrTupleList([[[1,2], [3,4]], [[5,6], [7,8], [9,10]], [[11,12]]])
-#print(aatl, aatl[0][0][0])
+aatl = AmbiguousAttrTupleList([[[1,2], [3,4]], [[5,6], [7,8], [9,10]], [[11,12]]])
+print(aatl, aatl[0][0][0])
