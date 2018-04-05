@@ -1,3 +1,4 @@
-#### Scripts for processing Koondkorpus & etTenTen : version 2
+#### Scripts for processing koondkorpus & etTenTen : version 2
 
-This folder contains "work-in-progress" scripts for processing large corpora. 
+* See `processing_estonian_reference_corpus.ipynb` for details about processing koondkorpus;
+* See `processing_ettenten.ipynb` for details about processing etTenTen;
