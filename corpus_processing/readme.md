@@ -48,11 +48,12 @@ For processing the whole Estonian Reference Corpus with EstNLTK, proceed in the 
         python  convert_koondkorpus_to_json.py  -h
 
      
-**4.** (_Optional_) Use the script **`split_large_corpus_files_into_subsets.py`** for splitting the large set of files from the previous step into N smaller subsets. This will enable parallel processing of the subsets.
+**4.** (_Optional_) Use the script  **`split_large_corpus_files_into_subsets.py`** for splitting the large set of files from the previous step into N smaller subsets. This will enable parallel processing of the subsets.
 
 **5.** Use the script **`process_and_save_results.py`** to analyze the JSON format files with EstNLTK 1.6.x. The script will add linguistic annotations up to the level of morphology. Before using the script, you'll also need to create a new folder where the script can store the results of analysis. 
 
-   Optionally, you may want to evoke N instances of ** `process_and_save_results.py`** for faster processing. You can get more information about the processing options with:
+   Optionally, you may want to evoke N instances of 
+**`process_and_save_results.py`** for faster processing. You can get more information about the processing options with:
    
         python  process_and_save_results.py  -h
 
