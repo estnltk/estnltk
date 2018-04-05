@@ -33,7 +33,7 @@ class TaggerOld(ABC):
         pass
 
     @abstractmethod
-    def tag(self, text: 'Text', return_layer:bool=False, status:dict={}):
+    def tag(self, text: 'Text', return_layer: bool=False, status: dict={}):
         """
         return_layer: bool, default False
             If True, tagger returns a layer. 
@@ -45,11 +45,11 @@ class TaggerOld(ABC):
         pass
 
     def parameters(self):
-        record = {'name':self.__class__.__name__,
-                  'layer':self.layer_name,
-                  'attributes':self.attributes,
-                  'depends_on':self.depends_on,
-                  'configuration':self.configuration}
+        record = {'name': self.__class__.__name__,
+                  'layer': self.layer_name,
+                  'attributes': self.attributes,
+                  'depends_on': self.depends_on,
+                  'configuration': self.configuration}
         return record
 
     def _repr_html_(self):
