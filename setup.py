@@ -77,6 +77,7 @@ setup(
         'python-crfsuite>=0.8.3',  # Conditional random fields library
         'cached-property>=1.2.0',  # Simple property for caching results
         'bs4', # BeautifulSoup: for processing XML files of the Estonian Reference Corpus
+        'html5lib', # for processing XML files of the Estonian Reference Corpus
         'lxml',
         'networkx',
     ],
