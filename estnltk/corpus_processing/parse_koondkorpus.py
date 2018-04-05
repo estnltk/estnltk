@@ -124,11 +124,11 @@ def get_text_subcorpus_name( corpus_dir, corpus_file ):
                 text_type = 'netifoorum'
             elif 'type' in text_obj.meta.keys():
                 if text_obj.meta['type'] == 'jututoavestlus':
-                    text_type = t['type']
+                    text_type = text_obj.meta['type']
                 elif text_obj.meta['type'] == 'uudisgrupi_salvestus':
-                    text_type = t['type']
+                    text_type = text_obj.meta['type']
                 elif text_obj.meta['type'] == 'kommentaarid':
-                    text_type = 'neti'+t['type']
+                    text_type = 'neti'+text_obj.meta['type']
     return text_type
 
 
