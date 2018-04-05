@@ -262,9 +262,14 @@ def parse_div(soup, metadata, target):
         div_authors = soup.find_all('author')
         document = {
             'type': div_type,
-            'title': div_title,
-            'paragraphs': parse_paragraphs(soup)
+            'title': div_title
         }
+        # add the textual content (paragraphs)
+        if div_type.lower() == 'jututoavestlus':
+            paragraphs_content = parse_chat_paragraphs( soup )
+        else:
+            paragraphs_content = parse_paragraphs( soup )
+        document['paragraphs'] = paragraphs_content
         # add author, if it exists
         if len(div_authors) > 0:
             div_author = div_authors[0].text.strip()
@@ -307,6 +312,40 @@ def parse_paragraphs(soup):
             sentence = sent.text.strip()
             if len(sentence) > 0:
                 sentences.append(sentence)
+        if len(sentences) > 0:
+            paragraphs.append({'sentences': sentences})
+    return paragraphs
+
+
+def parse_chat_paragraphs(soup):
+    """Parse paragraphs from the chat subcorpus (jututubade korpus).
+       The structure of XML is a little bit different in the chat 
+       subcorpus than in the rest of the Estonian Reference Corpus, 
+       so, a special approach is required for the parsing.
+    
+    Parameters
+    ----------
+    soup: bs4.BeautifulSoup
+        The parsed XML data.
+        
+    Returns
+    -------
+    list of (list of str)
+        List of paragraphs given as list of sentences.
+    """
+    paragraphs = []
+    for para in soup.find_all('sp'):
+        sentences = []
+        p_tags       = para.find_all('p')
+        speaker_tags = para.find_all('speaker')
+        assert len(list(p_tags))==len(list(speaker_tags))
+        for sid, p_tag in enumerate(p_tags):
+            speaker  = speaker_tags[sid].text.strip()
+            sentence = p_tag.text.strip()
+            if len(sentence) > 0:
+                # Normalize speaker name
+                speaker = speaker.replace(':', '__colon__')
+                sentences.append(speaker+': '+sentence)
         if len(sentences) > 0:
             paragraphs.append({'sentences': sentences})
     return paragraphs
