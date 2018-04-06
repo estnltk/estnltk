@@ -236,8 +236,8 @@ class Span:
     # --------------------------------------
     
     def __getattr__(self, item):
-        if item == 'text':
-            return self.text
+        if item in {'start', 'end', 'layer', 'text'}:
+            return self.__getattribute__(item)
 
         if item in {'__getstate__', '__setstate__'}:
             raise AttributeError
@@ -288,6 +288,8 @@ class Span:
         return self < other or self == other
 
     def __str__(self):
+        if self.layer is None:
+            return 'Span(start={self.start}, end={self.end}, layer={self.layer}, parent={self.parent})'.format(self=self)
         legal_attribute_names = self.__getattribute__('layer').__getattribute__('attributes')
 
         # Output key-value pairs in a sorted way
@@ -308,6 +310,3 @@ class Span:
     def __repr__(self):
         return str(self)
 
-
-# from .span_list import SpanList
-# from .layer import Layer
