@@ -34,11 +34,13 @@ For processing the whole Estonian Reference Corpus with EstNLTK, proceed in the 
 
   (19 files at total)
 
+   _Note_: In Bash shell, you can use the script `download_koondkorpus_zip_files.sh` for downloading the files. 
+
 **2.** Unpack the files. In UNIX, you can use commands:
 
         cd koond/
         unzip "*.zip"
-        unzip "*.gz"
+        tar xvzf SLOleht.tar.gz
 
 **3.** Next, XML files need to be converted into the _json_ format. First, create a new folder where the results of the conversion fill be stored. Then, use the script **`convert_koondkorpus_to_json.py`** to do the conversion. The script needs a starting directory and an output directory as arguments. For the starting directory, you can pass the name of the directory into which you unpacked the zip files in the previous step. The script will recursively traverse the directory structure, and find all the XML files suitable for converting.
 
