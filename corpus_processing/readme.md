@@ -1,7 +1,8 @@
 # Command lines scripts for processing large corpora
 
-This folder contains command line scripts for processing large corpora -- the Estonian Reference Corpus and the etTenTen corpus -- with EstNLTK. 
-You can take these scripts as examples on how the processing can be done, and modify according to your specific goals.  
+This folder contains command line scripts for processing large corpora -- the Estonian Reference Corpus and the etTenTen corpus -- with EstNLTK.
+You can use these scripts if you need a basic pipeline for processing large corpora and adding linguistic analyses. 
+If you need a pipeline tailored for your purposes, you can also follow the example of these scripts while implementing your own pipeline.
 
 ## Processing the Estonian Reference Corpus (_Eesti keele koondkorpus_)
 
@@ -50,7 +51,7 @@ For processing the whole Estonian Reference Corpus with EstNLTK, proceed in the 
      
 **4.** (_Optional_) Use the script  **`split_large_corpus_files_into_subsets.py`** for splitting the large set of files from the previous step into N smaller subsets. This will enable parallel processing of the subsets.
 
-**5.** Use the script **`process_and_save_results.py`** to analyze the JSON format files with EstNLTK 1.6.x. The script will add linguistic annotations up to the level of morphology. Before using the script, you'll also need to create a new folder where the script can store the results of analysis. 
+**5.** Use the script **`process_and_save_results.py`** to analyze the JSON format files with EstNLTK 1.6.x. The script will add linguistic annotations up to the level of _morphology_. Before using the script, you'll also need to create a new folder where the script can store the results of analysis. 
 
    Optionally, you may want to evoke N instances of 
 **`process_and_save_results.py`** for faster processing. You can get more information about the processing options with:
@@ -70,8 +71,17 @@ You should get a large file with the extension _vert_ or _prevert_ (e.g. `ettent
 
 **3.** (_Optional_) Use **`split_large_corpus_files_into_subsets.py`** for splitting the large set of files from the previous step into N smaller subsets. This will enable parallel processing of the subsets.
 
-**4.** Use the script **`process_and_save_results.py`** to analyze the JSON format files with EstNLTK 1.6.x. The script will add linguistic annotations up to the level of morphology. Before using the script, you'll also need to create a new folder where the script can store the results of analysis. 
+**4.** Use the script **`process_and_save_results.py`** to analyze the JSON format files with EstNLTK 1.6.x. The script will add linguistic annotations up to the level of _morphology_. Before using the script, you'll also need to create a new folder where the script can store the results of analysis. 
 
    Optionally, you may want to evoke N instances of **`process_and_save_results.py`** for faster processing. You can get more information about the processing options with:
 
         python  process_and_save_results.py  -h
+
+
+## Helpful utilities
+
+There are also some additional scripts that may be helpful for managing large corpora like etTenTen and koondkorpus.
+
+ * **`select_randomly_from_large_corpus.py`** -- selects randomly a subset of files from the source directory (a directory which contains a large amount of files), and copies into the target directory. You can use this script to get a random sample of koondkorpus or etTenTen, e.g. for tool development, or for experiments;
+
+ *  **`remove_large_amount_of_files.py`** -- deletes all the files from the target directory (a directory which contains a large amount of files). You can use this script to perform a cleanup after corpus processing;
