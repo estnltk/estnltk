@@ -199,17 +199,32 @@ class AddressGrammarTagger(Tagger):
     conf_param = ['tagger']
 
     def address_decorator(nodes):
-        composition = {}
+        #composition = {}
+        asula = ''
+        maakond = ''
+        t2nav = ''
+        indeks = ''
+        maja = ''
         for node in nodes:   
-            if node.name != 'SPEC':
-                composition[node.name] = node.text
-        return {'grammar_symbol': 'ADDRESS', 'composition': composition}
+            if node.name == 'ASULA':
+                asula = node.text
+            elif node.name == 'TÄNAV':
+                t2nav = node.text
+            elif node.name == 'MAAKOND':
+                maakond = node.text
+            elif node.name == 'MAJA':
+                maja = node.text    
+            elif node.name == 'INDEKS':
+                indeks = node.text      
+            #if node.name != 'SPEC':
+            #    composition[node.name] = node.text
+        return {'grammar_symbol': 'ADDRESS', 'ASULA': asula, 'TÄNAV': t2nav, 'INDEKS': indeks, 'MAAKOND': maakond, 'MAJA': maja}
     
 
 
     grammar = Grammar(start_symbols=[ 'ADDRESS'],
                        depth_limit = 4,
-                      legal_attributes=['type', 'grammar_symbol', 'composition'])  # , 'text1'
+                      legal_attributes=['type', 'grammar_symbol', 'composition', 'ASULA', 'TÄNAV', 'INDEKS', 'MAAKOND', 'MAJA'])  # , 'text1'
 
     
     grammar.add(Rule('ADDRESS',
@@ -271,11 +286,11 @@ class AddressGrammarTagger(Tagger):
                      group='g0',
                      priority=10))
     
-    grammar.add(Rule('ADDRESS',
-                     'ASULA ASULA MAAKOND',
-                     decorator=address_decorator,
-                     group='g0',
-                     priority=9))  
+    #grammar.add(Rule('ADDRESS',
+    #                 'ASULA ASULA MAAKOND',
+    #                 decorator=address_decorator,
+    #                 group='g0',
+    #                 priority=9))  
     
     grammar.add(Rule('ADDRESS',
                      'INDEKS ASULA MAAKOND',
@@ -296,7 +311,7 @@ class AddressGrammarTagger(Tagger):
             # output_attributes=self.output_attributes,#, 'unknown'],
             layer_name=output_layer,
             layer_of_tokens=input_layer,
-            attributes=['grammar_symbol', 'composition'],
+            attributes=['grammar_symbol', 'TÄNAV', 'MAJA', 'ASULA', 'MAAKOND', 'INDEKS'],
             grammar=self.grammar,
             output_nodes=['ADDRESS'])
         self.input_layers = [input_layer]
