@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+from estnltk import AmbiguousSpan
+
 
 def _delete_conflicting_spans(span_list, priority_key, map_conflicts, keep_equal):
     """
@@ -27,10 +29,23 @@ def _delete_conflicting_spans(span_list, priority_key, map_conflicts, keep_equal
     return span_list, conflicts_exist
 
 
+def _resolve_ambiguous_span(ambiguous_span: AmbiguousSpan, priority_attribute: str, keep_equal: bool) -> None:
+    result = []
+    for s in ambiguous_span.spans:
+        if not result or getattr(result[-1], priority_attribute) > getattr(s, priority_attribute):
+            result = [s]
+        elif getattr(result[-1], priority_attribute) == getattr(s, priority_attribute):
+            result.append(s)
+    if not keep_equal:
+        result = result[:1]
+    ambiguous_span.spans = result
+
+
 def resolve_conflicts(layer,
                       conflict_resolving_strategy: str='ALL',
                       priority_attribute: str=None,
                       status: dict=None,
+                      keep_equal: bool=False
                       ):
     """
     Removes conflicting spans from the input layer.
@@ -46,6 +61,8 @@ def resolve_conflicts(layer,
         If None, priorities are not used to resolve conflicts.
     status: dict
         Used to store status information (number of conflicts).
+    keep_equal: bool
+        If True, keeps spans with equal priorities/lengths.
 
     Returns
     -------
@@ -53,13 +70,19 @@ def resolve_conflicts(layer,
     """
     if conflict_resolving_strategy == 'ALL' and priority_attribute is None and status is None:
         return layer
+    if layer.ambiguous and priority_attribute is not None:
+        for span in layer:
+            _resolve_ambiguous_span(span, priority_attribute, keep_equal)
     priorities = set()
     number_of_conflicts = 0
     enumerated_spans = list(enumerate(layer.spans.spans))  # enumeration is to distinguish equal spans
     map_conflicts = defaultdict(list)
     for obj in enumerated_spans:
         if priority_attribute is not None:
-            priorities.add(getattr(obj[1], priority_attribute))
+            if layer.ambiguous:
+                priorities.add(getattr(obj[1][0], priority_attribute))
+            else:
+                priorities.add(getattr(obj[1], priority_attribute))
         for j in range(obj[0]+1, len(enumerated_spans)):
             if obj[1].end <= enumerated_spans[j][1].start:
                 break
@@ -73,8 +96,13 @@ def resolve_conflicts(layer,
 
     conflicts_exist = True
     if len(priorities) > 1:
-        def priority_key(num_span):
-            return getattr(num_span[1], priority_attribute)
+        if layer.ambiguous:
+            def priority_key(num_span):
+                return getattr(num_span[1][0], priority_attribute)
+        else:
+            def priority_key(num_span):
+                return getattr(num_span[1], priority_attribute)
+
         enumerated_spans, conflicts_exist = _delete_conflicting_spans(enumerated_spans,
                                                                       priority_key,
                                                                       map_conflicts,
@@ -93,7 +121,7 @@ def resolve_conflicts(layer,
     else:
         assert False, 'unknown conflict resolving strategy: ' + str(conflict_resolving_strategy)
 
-    enumerated_spans, _ = _delete_conflicting_spans(enumerated_spans, priority_key, map_conflicts, keep_equal=False)
+    enumerated_spans, _ = _delete_conflicting_spans(enumerated_spans, priority_key, map_conflicts, keep_equal=keep_equal)
     layer.spans.spans = [span[1] for span in sorted(enumerated_spans, key=lambda s: s[0])]
     
     return layer
