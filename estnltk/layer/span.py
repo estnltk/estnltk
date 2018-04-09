@@ -289,7 +289,11 @@ class Span:
 
     def __str__(self):
         if self.layer is None:
-            return 'Span(start={self.start}, end={self.end}, layer={self.layer}, parent={self.parent})'.format(self=self)
+            return 'Span(start={self.start}, end={self.end}, layer={self.layer}, parent={self.parent})'.\
+                format(self=self)
+        if self.layer.text_object is None:
+            return 'Span(start={self.start}, end={self.end}, layer_name={self.layer.name}, parent={self.parent})'.\
+                format(self=self)
         legal_attribute_names = self.__getattribute__('layer').__getattribute__('attributes')
 
         # Output key-value pairs in a sorted way
