@@ -38,8 +38,7 @@ class EnvelopingGapTagger(Tagger):
             ambiguous=False
             )
         for gap in enveloping_gaps(layers_with_gaps, enveloped):
-            spl = EnvelopingSpan()
-            spl.spans = gap
+            spl = EnvelopingSpan(gap)
             if self.decorator:
                 decorations = self.decorator(gap)
                 for attr in self.output_attributes:

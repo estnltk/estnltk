@@ -138,10 +138,10 @@ class ClauseSegmenter(TaggerOld):
                         word['clause_type']
                 # Rewrite clause index to list of clause SpanList-s
                 for clause_id in clause_index.keys():
-                    clause_spans = EnvelopingSpan()
+                    clause_spans = EnvelopingSpan(spans=clause_index[clause_id])
                     clause_spans.clause_type = \
                         clause_type_index[clause_id]
-                    clause_spans.spans = clause_index[clause_id]
+                    #clause_spans.spans = clause_index[clause_id]
                     clause_spanlists.append( clause_spans )
         # Create and populate layer
         layer = Layer(name=self.layer_name, 
