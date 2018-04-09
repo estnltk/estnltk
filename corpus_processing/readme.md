@@ -1,4 +1,4 @@
-# Command lines scripts for processing large corpora
+# Command line scripts for processing large corpora
 
 This folder contains command line scripts for processing large corpora -- the Estonian Reference Corpus and the etTenTen corpus -- with EstNLTK.
 You can use these scripts if you need a basic pipeline for processing large corpora and adding linguistic analyses. 
@@ -8,7 +8,9 @@ If you need a pipeline tailored for your purposes, you can also follow the examp
 
 For processing the whole Estonian Reference Corpus with EstNLTK, proceed in the following steps:
 
-**1.** First, download all the (zipped) XML files from the page [http://www.cl.ut.ee/korpused/segakorpus/](http://www.cl.ut.ee/korpused/segakorpus/). (The web page contains links to different subcorpora, follow the links and download zipped XML files.) Put them into a separate folder, e.g. folder named `koond`. 
+**1.** First, download all the (zipped) XML files from the page [http://www.cl.ut.ee/korpused/segakorpus/](http://www.cl.ut.ee/korpused/segakorpus/). (The web page contains links to different subcorpora, follow the links and download zipped XML files.) Put them into a separate folder, e.g. folder named `koond`.
+ 
+   _Note_: In Bash shell, you can use the script `download_koondkorpus_zip_files.sh` for downloading the files.
 
    After downloading, you should have the following files ( checked with UNIX command: `ls -1 koond` ):
      
@@ -33,8 +35,6 @@ For processing the whole Estonian Reference Corpus with EstNLTK, proceed in the 
         Valgamaalane.zip
 
   (19 files at total)
-
-   _Note_: In Bash shell, you can use the script `download_koondkorpus_zip_files.sh` for downloading the files. 
 
 **2.** Unpack the files. In UNIX, you can use commands:
 
