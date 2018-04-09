@@ -511,8 +511,8 @@ def test_various():
     text = Text('Minu nimi on Joosep, mis sinu nimi on? Miks me seda arutame?').tag_layer()
 
     upper = Layer(parent='words',
-                           name='uppercase',
-                           attributes=['upper'])
+                  name='uppercase',
+                  attributes=['upper'])
     text._add_layer(upper)
 
     for word in text.words:
@@ -531,8 +531,6 @@ def test_various():
         #we have to get explicit access
         #TODO: double marking
         word.mark('uppercase').upper = 'asd'
-
-
 
 
 def test_words_sentences():
