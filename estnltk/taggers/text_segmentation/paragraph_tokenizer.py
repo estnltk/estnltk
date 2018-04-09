@@ -1,37 +1,36 @@
-from typing import Union
-
 from nltk import RegexpTokenizer
-from estnltk.text import Layer, Text
-from estnltk.taggers import TaggerOld
+from estnltk import Layer, EnvelopingSpan
+from estnltk.taggers import Tagger
 
 
-class ParagraphTokenizer(TaggerOld):
-    description = 'Tags adjacent sentences that form a paragraph.'
-    layer_name = 'paragraphs'
-    attributes = ()
-    depends_on = ['sentences']
-    configuration = None
+class ParagraphTokenizer(Tagger):
+    """Tags adjacent sentences that form a paragraph."""
+    output_layer = 'paragraphs'
+    layer_name = output_layer
+    output_attributes = ()
+    attributes = output_attributes
+    input_layers = ['sentences']
+    depends_on = input_layers
+    conf_param = ['regex', 'paragraph_tokenizer']
 
     def __init__(self, regex='\s*\n\n'):
         self.paragraph_tokenizer = RegexpTokenizer(regex, gaps=True, discard_empty=True)
-        self.configuration = {'regex': regex}
+        self.regex = regex
 
-    def tag(self, text: Text, return_layer=False) ->  Union['Text', Layer]:
-        '''
+    def _make_layer(self, raw_text: str, layers, status: dict):
+        """
         Tag paragraphs layer.
         
         Paragraph can only end at the end of a sentence.
-        '''
-        layer = Layer(name=self.layer_name, enveloping ='sentences', ambiguous=False)
-        paragraph_ends = {end for _, end in self.paragraph_tokenizer.span_tokenize(text.text)}
+        """
+        layer = Layer(name=self.output_layer, enveloping='sentences', ambiguous=False)
+        paragraph_ends = {end for _, end in self.paragraph_tokenizer.span_tokenize(raw_text)}
         start = 0
-        if text.sentences:
-            paragraph_ends.add(text.sentences[-1].end)
-        for i, sentence in enumerate(text.sentences):
+        if layers['sentences']:
+            paragraph_ends.add(layers['sentences'][-1].end)
+        for i, sentence in enumerate(layers['sentences']):
             if sentence.end in paragraph_ends:
-                layer.add_span(text.sentences[start:i+1])
+                span = EnvelopingSpan(spans=layers['sentences'][start:i+1])
+                layer.add_span(span)
                 start = i + 1
-        if return_layer:
-            return layer
-        text[self.layer_name] = layer
-        return text
+        return layer
