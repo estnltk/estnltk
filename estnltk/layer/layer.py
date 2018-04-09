@@ -16,8 +16,7 @@ class SpanList(collections.Sequence):
                  ambiguous: bool=False) -> None:
         # TODO:
         # assert layer is not None
-        if ambiguous:
-            self.classes = {}  # type: MutableMapping[Tuple[int, int], AmbiguousSpan]
+        self.classes = {}  # type: MutableMapping[Tuple[int, int], AmbiguousSpan]
 
         self.spans = []  # type: List
 
@@ -59,8 +58,8 @@ class SpanList(collections.Sequence):
         # the assumption is that this method is called by Layer.add_span
         #assert isinstance(span, (EnvelopingSpan, Span, SubSpanList))
         span.layer = self.layer
+        target = self.get_equivalence(span)
         if self.ambiguous:
-            target = self.get_equivalence(span)
             if target is not None:
                 assert isinstance(target, AmbiguousSpan)
                 target.add_span(span)
@@ -71,8 +70,11 @@ class SpanList(collections.Sequence):
                 bisect.insort(self.spans, new)
                 new.parent = span.parent
         else:
-            bisect.insort(self.spans, span)
-
+            if True or target is None:
+                bisect.insort(self.spans, span)
+                self.classes[(span.start, span.end)] = span
+            else:
+                raise ValueError('span is already in spanlist')
         return span
 
     @property
