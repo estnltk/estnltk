@@ -1,7 +1,5 @@
-# immutable lists for attribute value representation
-
-
 class AttributeList:
+    """Immutable lists for representing single attribute value of unambiguous layer."""
     def __init__(self, attr_list: list):
         self._list = attr_list
 
