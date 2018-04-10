@@ -20,7 +20,8 @@ class RegexTagger(Tagger):
                   '_illegal_keywords',
                   '_internal_attributes',
                   'vocabulary',
-                  '_disamb_tagger'
+                  '_disamb_tagger',
+                  'ambiguous'
                   )
 
     def __init__(self,
@@ -30,6 +31,7 @@ class RegexTagger(Tagger):
                  conflict_resolving_strategy: str = 'MAX',
                  overlapped: bool = False,
                  priority_attribute: str = None,
+                 ambiguous: bool = False
                  ):
         """Initialize a new RegexTagger instance.
 
@@ -46,6 +48,9 @@ class RegexTagger(Tagger):
             of the same regular expression.
             Note that this default setting will be overwritten by a pattern-
             specific setting if a pattern defines attribute 'overlapped';
+        ambiguous
+            If True, then the output layer is ambiguous
+            If False, then the output layer is not ambiguous
         """
         self.output_layer = output_layer
         if output_attributes is None:
@@ -79,6 +84,7 @@ class RegexTagger(Tagger):
             raise ValueError("Unknown conflict_resolving_strategy '%s'." % conflict_resolving_strategy)
         self.conflict_resolving_strategy = conflict_resolving_strategy
         self.priority_attribute = priority_attribute
+        self.ambiguous = ambiguous
 
     def _make_layer(self, raw_text, layers=None, status=None):
         layer = Layer(name=self.output_layer,
@@ -95,7 +101,8 @@ class RegexTagger(Tagger):
                                   priority_attribute=self.priority_attribute,
                                   status=status)
 
-        layer = self._disamb_tagger.make_layer(raw_text, {self.output_layer: layer}, status)
+        if not self.ambiguous:
+            layer = self._disamb_tagger.make_layer(raw_text, {self.output_layer: layer}, status)
         return layer
 
     def _match(self, text):
