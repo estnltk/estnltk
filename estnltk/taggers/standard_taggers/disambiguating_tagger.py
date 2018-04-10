@@ -21,7 +21,7 @@ class DisambiguatingTagger(Tagger):
         self.output_attributes = output_attributes
         self.decorator = decorator
 
-    def _make_layer(self, raw_text: str, layers: dict, status: dict) -> Layer:
+    def _make_layer(self, raw_text, layers, status):
         input_layer = layers[self.input_layers[0]]
         parent = input_layer.parent
         enveloping = input_layer.enveloping
