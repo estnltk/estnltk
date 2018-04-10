@@ -17,11 +17,12 @@ def test_resolve_conflicts_MAX():
     assert [(1, 4)] == [(span.start, span.end) for span in layer]
 
     # equal spans
-    layer = Layer(name='test_layer', attributes=['_priority_'])
-    layer = layer.from_records([{'start': 1, 'end':  4, '_priority_': 0},
-                                {'start': 1, 'end':  4, '_priority_': 0},
-                               ])
+    layer = Layer(name='test_layer', attributes=['_priority_'], ambiguous=True)
+    layer = layer.from_records([[{'start': 1, 'end':  4, '_priority_': 0},
+                                 {'start': 1, 'end':  4, '_priority_': 0},
+                               ]])
     layer = resolve_conflicts(layer, conflict_resolving_strategy='MAX', priority_attribute='_priority_')
+    assert len(layer[0]) == 1
     assert [(1, 4)] == [(span.start, span.end) for span in layer]
 
     # common start
@@ -74,11 +75,12 @@ def test_resolve_conflicts_MIN():
     assert [(1, 4)] == [(span.start, span.end) for span in layer]
 
     # equal spans
-    layer = Layer(name='test_layer', attributes=['_priority_'])
-    layer = layer.from_records([{'start': 1, 'end':  4, '_priority_': 0},
-                                {'start': 1, 'end':  4, '_priority_': 0},
-                               ])
+    layer = Layer(name='test_layer', attributes=['_priority_'], ambiguous=True)
+    layer = layer.from_records([[{'start': 1, 'end':  4, '_priority_': 0},
+                                 {'start': 1, 'end':  4, '_priority_': 0},
+                               ]])
     layer = resolve_conflicts(layer, conflict_resolving_strategy='MIN', priority_attribute='_priority_')
+    assert len(layer[0]) == 1
     assert [(1, 4)] == [(span.start, span.end) for span in layer]
 
     # common start

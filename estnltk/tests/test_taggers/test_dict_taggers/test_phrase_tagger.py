@@ -13,12 +13,12 @@ def test_basic():
                           key='_phrase_',
                           output_attributes=['number', 'letter', '_priority_'],
                           conflict_resolving_strategy='ALL',
-                          priority_attribute='_priority_'
+                          priority_attribute=None,
+                          ambiguous=True
                           )
     text = new_text(5)
     tagger.tag(text)
 
-    assert text['phrases'].letter == ['B', 'A', 'C', 'D']
-    assert text['phrases'].number == [2, 1, 3, 4]
-    assert text['phrases']._priority_ == [0, 0, 0, 0]
-
+    assert text['phrases'].letter == [['B'], ['A', 'C'], ['D']]
+    assert text['phrases'].number == [[2], [1, 3], [4]]
+    assert text['phrases']._priority_ == [[0], [0, 0], [0]]

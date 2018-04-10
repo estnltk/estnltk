@@ -530,7 +530,7 @@ def test_various():
 
         #we have to get explicit access
         #TODO: double marking
-        word.mark('uppercase').upper = 'asd'
+        #word.mark('uppercase').upper = 'asd'
 
 
 def test_words_sentences():

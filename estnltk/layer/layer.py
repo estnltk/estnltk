@@ -56,25 +56,25 @@ class SpanList(collections.Sequence):
 
     def add_span(self, span: Union[Span, EnvelopingSpan]) -> Span:
         # the assumption is that this method is called by Layer.add_span
-        #assert isinstance(span, (EnvelopingSpan, Span, SubSpanList))
+        assert isinstance(span, (EnvelopingSpan, Span))
         span.layer = self.layer
         target = self.get_equivalence(span)
         if self.ambiguous:
-            if target is not None:
-                assert isinstance(target, AmbiguousSpan)
-                target.add_span(span)
-            else:
+            if target is None:
                 new = AmbiguousSpan(layer=self.layer)
                 new.add_span(span)
                 self.classes[(span.start, span.end)] = new
                 bisect.insort(self.spans, new)
                 new.parent = span.parent
+            else:
+                assert isinstance(target, AmbiguousSpan)
+                target.add_span(span)
         else:
-            if True or target is None:
+            if target is None:
                 bisect.insort(self.spans, span)
                 self.classes[(span.start, span.end)] = span
             else:
-                raise ValueError('span is already in spanlist')
+                raise ValueError('span is already in spanlist: ' + str(span))
         return span
 
     @property

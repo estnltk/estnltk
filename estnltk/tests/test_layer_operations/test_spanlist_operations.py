@@ -9,7 +9,6 @@ from estnltk.layer_operations.consecutive import iterate_ending_spans
 
 from estnltk.layer_operations.intersections import iterate_intersecting_spans
 from estnltk.layer_operations.intersections import iterate_nested_spans
-from estnltk.layer_operations.intersections import iterate_equal_spans
 from estnltk.layer_operations.intersections import iterate_overlapping_spans
 
 # --------------------- Iterate over hovering Spans in SpanList 
@@ -220,7 +219,7 @@ def test_iterate_terminal_spans():
     s1 = Span(0,  3)
     s2 = Span(1, 10)
     s3 = Span(5,  7)
-    s4 = Span(5,  7)
+    #s4 = Span(5,  7)
     s5 = Span(8,  9)
 
     span_list = SpanList()
@@ -231,9 +230,9 @@ def test_iterate_terminal_spans():
     assert tuple(iterate_starting_spans(span_list)) == (s3,)
     assert tuple(iterate_ending_spans(span_list)) == (s3,)
 
-    span_list.add_span(s4)
-    assert tuple(iterate_starting_spans(span_list)) == (s3, s4)
-    assert tuple(iterate_ending_spans(span_list)) == (s3, s4)
+    #span_list.add_span(s4)
+    #assert tuple(iterate_starting_spans(span_list)) == (s3, s4)
+    #assert tuple(iterate_ending_spans(span_list)) == (s3, s4)
 
     span_list.add_span(s1)
     span_list.add_span(s5)
@@ -371,36 +370,3 @@ def test_yield_spanlist_overlapping_positions():
     #print( overlapping_texts )
     assert overlapping_texts == \
         [('B C', 'CD'), ('EF', 'F G')]
-
-
-# --------------------- Iterate over equal Spans in SpanList
-
-def test_equal_positions():
-    # Example text: 
-    text = 'A B CD EF G'
-    
-    # Create SpanList
-    spanlist = SpanList()
-    spanlist.add_span(Span(start=0, end=1))    # A
-    spanlist.add_span(Span(start=2, end=3))    # B
-    spanlist.add_span(Span(start=4, end=5))    # C
-    spanlist.add_span(Span(start=2, end=5))    # 'B C'
-    spanlist.add_span(Span(start=5, end=6))    # D
-    spanlist.add_span(Span(start=4, end=6))    # CD
-    spanlist.add_span(Span(start=7, end=8))    # E
-    spanlist.add_span(Span(end=6, start=4))    # CD
-    spanlist.add_span(Span(start=8, end=9))    # F
-    spanlist.add_span(Span(start=7, end=9))    # EF
-    spanlist.add_span(Span(start=10, end=11))  # G
-    spanlist.add_span(Span(start=8, end=11))   # 'F G'
-    spanlist.add_span(Span(end=11, start=10))  # G
-    
-    equal_pos = list( iterate_equal_spans( spanlist ) )
-    equal_texts = \
-        [ (text[a.start:a.end],text[b.start:b.end]) for a, b in equal_pos ]
-    #print( equal_texts )
-    assert equal_texts == \
-        [('CD', 'CD'), ('G', 'G')]
-
-
-# --------------------------------------------------------------------------
