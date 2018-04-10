@@ -1,9 +1,8 @@
-import regex as re
 from pandas import DataFrame
 from typing import Sequence, Union
 
 from estnltk.taggers import Tagger
-from estnltk.layer.layer import Layer
+from estnltk import Layer, Span
 from estnltk.layer_operations import resolve_conflicts
 from estnltk.taggers import Vocabulary
 
@@ -21,6 +20,7 @@ class RegexTagger(Tagger):
                   '_illegal_keywords',
                   '_internal_attributes',
                   'vocabulary',
+                  '_disamb_tagger'
                   )
 
     def __init__(self,
@@ -58,6 +58,14 @@ class RegexTagger(Tagger):
         # output_attributes needed by tagger
         self._internal_attributes = set(self.output_attributes)|{'_group_', '_priority_'}
 
+        from estnltk.taggers import DisambiguatingTagger
+
+        def decorator(span, raw_text):
+            return {name: getattr(span[0], name) for name in self.output_attributes}
+        self._disamb_tagger = DisambiguatingTagger(output_layer=self.output_layer,
+                                                   input_layer=self.output_layer,
+                                                   output_attributes=self.output_attributes,
+                                                   decorator=decorator)
         if isinstance(vocabulary, Vocabulary):
             self.vocabulary = vocabulary
         else:
@@ -74,22 +82,24 @@ class RegexTagger(Tagger):
 
     def _make_layer(self, raw_text, layers=None, status=None):
         layer = Layer(name=self.output_layer,
-                      attributes=tuple(self._internal_attributes),
+                      attributes=self.output_attributes,
+                      ambiguous=True
                       )
-        records = self._match(raw_text)
-        layer = layer.from_records(records)
+        for record in self._match(raw_text):
+            span = Span(record['start'], record['end'], legal_attributes=self.output_attributes)
+            for attr in self.output_attributes:
+                setattr(span, attr, record[attr])
+            layer.add_span(span)
         layer = resolve_conflicts(layer=layer,
                                   conflict_resolving_strategy=self.conflict_resolving_strategy,
                                   priority_attribute=self.priority_attribute,
                                   status=status)
-        layer.attributes = self.output_attributes
+
+        layer = self._disamb_tagger.make_layer(raw_text, {self.output_layer: layer}, status)
         return layer
 
     def _match(self, text):
-        matches = []
         for reg, records in self.vocabulary.items():
-            # Whether the overlapped flag should be switched on or off
-            #overlapped_flag = records.get('overlapped', self.overlapped)
             for matchobj in reg.finditer(text, overlapped=self.overlapped):
                 for rec in records:
                     start, end = matchobj.span(rec['_group_'])
@@ -106,5 +116,4 @@ class RegexTagger(Tagger):
                         if callable(v):
                             v = v(matchobj)
                         record[a] = v
-                    matches.append(record)
-        return matches
+                    yield record

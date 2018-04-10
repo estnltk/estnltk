@@ -18,6 +18,7 @@ from estnltk import EnvelopingSpan
 from estnltk.text import Layer, SpanList
 from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
+from estnltk.taggers import DisambiguatingTagger
 from estnltk.layer_operations import resolve_conflicts
 from estnltk.rewriting import MorphAnalyzedToken
 from .patterns import MACROS
@@ -310,7 +311,7 @@ class CompoundTokenTagger(Tagger):
         layer = Layer(name=self.output_layer,
                       enveloping='tokens',
                       attributes=self.output_attributes,
-                      ambiguous=False)
+                      ambiguous=True)
         for spl in compound_tokens_lists:
             layer.add_span(spl)
 
@@ -318,6 +319,16 @@ class CompoundTokenTagger(Tagger):
                           conflict_resolving_strategy=self._conflict_resolving_strategy,
                           priority_attribute=None,
                           keep_equal=False)
+
+        def decorator(span, raw_text):
+            return {name: getattr(span[0], name) for name in self.output_attributes}
+        disamb_tagger = DisambiguatingTagger(output_layer=self.output_layer,
+                                             input_layer=self.output_layer,
+                                             output_attributes=self.output_attributes,
+                                             decorator=decorator)
+        temp_layers = layers.copy()
+        temp_layers[self.output_layer] = layer
+        layer = disamb_tagger.make_layer(raw_text, temp_layers, status)
 
         return layer
 
