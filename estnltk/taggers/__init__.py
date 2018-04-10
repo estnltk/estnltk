@@ -27,6 +27,7 @@ from estnltk.taggers.morph_analysis.userdict_tagger import UserDictTagger
 
 from estnltk.taggers.sequential_tagger import SequentialTagger
 
+from estnltk.taggers.standard_taggers.disambiguating_tagger import DisambiguatingTagger
 from estnltk.taggers.standard_taggers.enveloping_gap_tagger import EnvelopingGapTagger
 from estnltk.taggers.standard_taggers.gap_tagger import GapTagger
 from estnltk.taggers.standard_taggers.layer_merge_tagger import MergeTagger
