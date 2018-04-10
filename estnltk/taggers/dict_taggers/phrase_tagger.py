@@ -65,19 +65,13 @@ class PhraseTagger(Tagger):
 
         self.ambiguous = ambiguous
 
-        if isinstance(vocabulary, str):
-            if priority_attribute is None:
-                callable_attributes = (key,)
-            else:
-                callable_attributes = (key, priority_attribute)
+        self._vocabulary = Vocabulary(vocabulary=vocabulary,
+                                      key=key,
+                                      default_rec={self.validator_attribute: default_validator})
 
-            str_attributes = [attr for attr in self.output_attributes if attr not in callable_attributes]
-
-            self._vocabulary = Vocabulary(vocabulary=vocabulary,
-                                          key=key,
-                                          default_rec={self.validator_attribute: default_validator})
-        else:
-            self._vocabulary = vocabulary
+        if not self.ambiguous:
+            assert all(len(values) == 1 for values in self._vocabulary.values()),\
+                'ambiguous==False but vocabulary is ambiguous'
 
         self._heads = defaultdict(list)
         for phrase in self._vocabulary:
