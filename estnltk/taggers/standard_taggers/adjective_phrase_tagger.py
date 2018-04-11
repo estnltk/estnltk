@@ -36,7 +36,7 @@ class AdjectivePhrasePartTagger(Tagger):
                     vocabulary=vocabulary,
                     output_attributes=['grammar_symbol'], # default: None
                     key='_token_', # default: '_token_'
-                    ambiguous=False # default: False
+                    ambiguous=True # default: False
                     )
                     
         adj_voc = [
@@ -157,13 +157,13 @@ class AdjectivePhraseGrammarTagger(Tagger):
         
         participle = False  
         
-        from estnltk.resolve_layer_dag import make_resolver
+        '''from estnltk.resolve_layer_dag import make_resolver
         resolver = make_resolver(
                  disambiguate=False,
                  guess=False,
                  propername=False,
                  phonetic=False,
-                 compound=True)
+                 compound=True)'''
                
         possible_verb = Text(nodes[-1].text).analyse('morphology')#, resolver = resolver)
         if 'V' in possible_verb.partofspeech[0]:
@@ -210,13 +210,13 @@ class AdjectivePhraseGrammarTagger(Tagger):
             return True
     
     def part_phrase_validator(nodes):
-        from estnltk.resolve_layer_dag import make_resolver
+        '''from estnltk.resolve_layer_dag import make_resolver
         resolver = make_resolver(
                  disambiguate=False,
                  guess=False,
                  propername=False,
                  phonetic=False,
-                 compound=True)
+                 compound=True)'''
         
         if nodes[0].text in NOT_ADJ_MODIFIERS:
             return False
