@@ -63,6 +63,7 @@ class AddressPartTagger(Tagger):
                                          input_layer='words',
                                          input_attribute='text',
                                          vocabulary=vocabulary_file1,
+                                         ambiguous=True,
                                          output_attributes=['type', 'grammar_symbol'],
                                          conflict_resolving_strategy='MAX')
         
@@ -72,6 +73,7 @@ class AddressPartTagger(Tagger):
                                          input_layer='words',
                                          input_attribute='text',
                                          vocabulary=vocabulary_file2,
+                                         ambiguous=True,
                                          output_attributes=['type', 'grammar_symbol'],
                                          conflict_resolving_strategy='MAX') 
                                          
@@ -81,6 +83,7 @@ class AddressPartTagger(Tagger):
                                          input_layer='words',
                                          input_attribute='text',
                                          vocabulary=vocabulary_file3,
+                                         ambiguous=True,
                                          output_attributes=['type', 'grammar_symbol'],
                                          conflict_resolving_strategy='MAX')                                                                    
 
