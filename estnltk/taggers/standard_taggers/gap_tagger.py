@@ -9,14 +9,15 @@ class GapTagger(Tagger):
     """ Tags all text regions that are not covered by any span of any input layer.
         These regions can be trimmed by trim function and annotated by decorator function.
     """
-    conf_param = ['decorator', 'trim']
+    conf_param = ['decorator','trim', 'ambiguous']
 
     def __init__(self,
                  output_layer,
                  input_layers,
                  trim=None,
                  output_attributes=(),
-                 decorator=None):
+                 decorator=None,
+                 ambiguous=False):
         self.input_layers = input_layers
         self.output_layer = output_layer
         self.trim = trim
@@ -24,6 +25,7 @@ class GapTagger(Tagger):
             'decorator without attributes or attributes without decorator'
         self.output_attributes = tuple(output_attributes)
         self.decorator = decorator
+        self.ambiguous = ambiguous
 
     def _make_layer(self, raw_text, layers, status):
         layer = Layer(
@@ -31,7 +33,7 @@ class GapTagger(Tagger):
             attributes=self.output_attributes,
             parent=None,
             enveloping=None,
-            ambiguous=False
+            ambiguous=self.ambiguous
             )
         layers = [layers[layer] for layer in self.input_layers]
         for start, end in find_gaps(layers, len(raw_text)):
@@ -56,6 +58,9 @@ def find_gaps(layers, text_length):
         for span in layer.spans:
             cover_change[span.start] += 1
             cover_change[span.end] -= 1
+    if not cover_change:
+        yield (0, text_length)
+        return
     indexes = sorted(cover_change)
     if indexes[0] > 0:
         yield (0, indexes[0])

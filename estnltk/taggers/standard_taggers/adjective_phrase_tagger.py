@@ -1,6 +1,5 @@
 from estnltk.taggers import SpanTagger
 from estnltk.text import Text
-import re
 from estnltk.finite_grammar import Rule, Grammar
 from estnltk.taggers import Tagger
 from estnltk.taggers import Atomizer
@@ -10,17 +9,18 @@ from estnltk.taggers import GapTagger
 from os import path
 from .adverbs import NOT_ADJ_MODIFIERS, CLASSES, WEIGHTS
 
+
 class AdjectivePhrasePartTagger(Tagger):
     """
     Tags adjective phrases.
     """
 
-    conf_param = ['adj_tagger','adv_tagger2', 'conj_tagger', 'adv_tagger', 'merge_tagger', 'atomizer1', 'atomizer2',
-    'atomizer3', 'atomizer4', 'gaps_tagger', 'merge_tagger2']
+    conf_param = ['adj_tagger','adv_tagger2', 'conj_tagger', 'adv_tagger', 'atomizer1', 'atomizer2',
+                  'atomizer3', 'atomizer4', 'gaps_tagger', 'merge_tagger']
     input_layers = []
 
     def __init__(self,
-                 output_attributes=['grammar_symbol'],
+                 output_attributes = ('grammar_symbol',),
                  output_layer: str = 'grammar_tags',
                  ):
 
@@ -28,56 +28,55 @@ class AdjectivePhrasePartTagger(Tagger):
         self.output_layer = output_layer
 
         vocabulary = path.join(path.dirname(__file__), 'adj_modifiers.csv')
-        
 
         self.adv_tagger = SpanTagger(output_layer='adv',
-                    input_layer='morph_analysis',
-                    input_attribute='lemma',
-                    vocabulary=vocabulary,
-                    output_attributes=['grammar_symbol'], # default: None
-                    key='_token_', # default: '_token_'
-                    ambiguous=True # default: False
-                    )
-                    
+                                     input_layer='morph_analysis',
+                                     input_attribute='lemma',
+                                     vocabulary=vocabulary,
+                                     output_attributes=['grammar_symbol'],
+                                     key='_token_',
+                                     ambiguous=True
+                                     )
+
         adj_voc = [
-        {'grammar_symbol': 'ADJ',
-         '_token_': 'A'}, {'grammar_symbol': 'COMP', '_token_': 'C'}]
-        
+                    {'grammar_symbol': 'ADJ', '_token_': 'A'},
+                    {'grammar_symbol': 'COMP', '_token_': 'C'}]
+
         self.adj_tagger = SpanTagger(output_layer='adj',
                     input_layer='morph_analysis',
                     input_attribute='partofspeech',
                     vocabulary=adj_voc,
                     output_attributes=['grammar_symbol'], # default: None
                     key='_token_', # default: '_token_'
-                    ambiguous=False # default: False
+                    ambiguous=True # default: False
                     )
-                    
+
         adv_voc = [
         {'grammar_symbol': 'ADV2',
          '_token_': 'D'}]
-        
+
         self.adv_tagger2 = SpanTagger(output_layer='adv2',
-                    input_layer='morph_analysis',
-                    input_attribute='partofspeech',
-                    vocabulary=adv_voc,
-                    output_attributes=['grammar_symbol'], # default: None
-                    key='_token_', # default: '_token_'
-                    ambiguous=False # default: False
-                    )
-        
+                                      input_layer='morph_analysis',
+                                      input_attribute='partofspeech',
+                                      vocabulary=adv_voc,
+                                      output_attributes=['grammar_symbol'], # default: None
+                                      key='_token_', # default: '_token_'
+                                      ambiguous=True
+                                      )
+
         conj_voc = [
         {'grammar_symbol': 'CONJ',
          '_token_': 'J'}]
-         
+
         self.conj_tagger = SpanTagger(output_layer='conj',
                     input_layer='morph_analysis',
                     input_attribute='partofspeech',
                     vocabulary=conj_voc,
                     output_attributes=['grammar_symbol'], # default: None
                     key='_token_', # default: '_token_'
-                    ambiguous=False # default: False
+                    ambiguous=True
                     )
-        
+
         self.atomizer1 = Atomizer(output_layer='adv_',
                              input_layer='adv',
                              output_attributes=['grammar_symbol'],  # default: None
@@ -98,28 +97,25 @@ class AdjectivePhrasePartTagger(Tagger):
                              output_attributes=['grammar_symbol'],  # default: None
                              enveloping=None  # default: None
                              )
-        
+
         def gaps_decorator(text:str):
             return {'grammar_symbol': 'RANDOM_TEXT'}
-        
-        def trim(t:str) -> str:
+
+        def trim(t: str) -> str:
             t = t.strip()
             return t
-        
+
         self.gaps_tagger = GapTagger(output_layer='gaps',
-                                 input_layers=['adv_', 'adv2_', 'adj_', 'conj_',],
-                                 decorator=gaps_decorator,
-                                 trim = trim,
-                                 output_attributes=['grammar_symbol'])  
-        
+                                     input_layers=['adv_', 'adv2_', 'adj_', 'conj_',],
+                                     decorator=gaps_decorator,
+                                     trim = trim,
+                                     output_attributes=['grammar_symbol'],
+                                     ambiguous=True)
+
         self.merge_tagger = MergeTagger(output_layer='grammar_tags',
-                           input_layers=['adv_', 'adv2_', 'adj_', 'conj_', 'gaps'],
-                           output_attributes=['grammar_symbol'])
-        
-        self.merge_tagger2 = MergeTagger(output_layer='grammar_tags',
-                           input_layers=['adv_', 'adv2_', 'adj_', 'conj_'],
-                           output_attributes=['grammar_symbol'])
-        
+                                        input_layers=['adv_', 'adv2_', 'adj_', 'conj_', 'gaps'],
+                                        output_attributes=['grammar_symbol'])
+
     def _make_layer(self, raw_text, layers, status):
         tmp_layers = layers.copy()
         tmp_layers['adv'] = self.adv_tagger.make_layer(raw_text, tmp_layers, status)
@@ -130,22 +126,9 @@ class AdjectivePhrasePartTagger(Tagger):
         tmp_layers['adv2_'] = self.atomizer2.make_layer(raw_text, tmp_layers, status)
         tmp_layers['adj_'] = self.atomizer3.make_layer(raw_text, tmp_layers, status)
         tmp_layers['conj_'] = self.atomizer4.make_layer(raw_text, tmp_layers, status) 
-        
-        s = 0 
-        input_layers=['conj_', 'adv_', 'adv2_', 'adj_']
-        
-        for i in tmp_layers:
-            if len(tmp_layers[i]) > 0 and i in input_layers:
-                s = 1   
-        if s == 1:      
-            tmp_layers['gaps'] = self.gaps_tagger.make_layer(raw_text, tmp_layers, status)
-        else:
-            pass   
-        if s == 1:     
-            return self.merge_tagger.make_layer(raw_text, tmp_layers, status)
-        else:
-            return self.merge_tagger2.make_layer(raw_text, tmp_layers, status) 
+        tmp_layers['gaps'] = self.gaps_tagger.make_layer(raw_text, tmp_layers, status)
 
+        return self.merge_tagger.make_layer(raw_text, tmp_layers, status)
 
 
 class AdjectivePhraseGrammarTagger(Tagger):
@@ -154,9 +137,9 @@ class AdjectivePhraseGrammarTagger(Tagger):
     conf_param = ['temp_tagger', 'tagger']
 
     def adj_phrase_decorator(nodes):
-        
+
         participle = False  
-        
+
         '''from estnltk.resolve_layer_dag import make_resolver
         resolver = make_resolver(
                  disambiguate=False,
@@ -164,24 +147,23 @@ class AdjectivePhraseGrammarTagger(Tagger):
                  propername=False,
                  phonetic=False,
                  compound=True)'''
-               
-        possible_verb = Text(nodes[-1].text).analyse('morphology')#, resolver = resolver)
+
+        possible_verb = Text(nodes[-1].text[0]).analyse('morphology')#, resolver = resolver)
         if 'V' in possible_verb.partofspeech[0]:
             if possible_verb.text[-1] == 'v' or (possible_verb.text[-1] == 'd' and possible_verb.text[-2] == 'u'):
                 participle = True
-        
-        adverb = nodes[0].text.lower()
+
+        adverb = nodes[0].text[0].lower()
         if adverb in CLASSES:
             adverb_class = CLASSES[adverb]
             adverb_weight = WEIGHTS[adverb_class]
         else:
             adverb_class = None
             adverb_weight = None
-            
-        if participle == False:    
-            return {'type': 'adjective phrase', 'adverb_class': adverb_class, 'adverb_weight': adverb_weight}
-        else:
+
+        if participle:
             return {'type': 'participle phrase', 'adverb_class': adverb_class, 'adverb_weight': adverb_weight}
+        return {'type': 'adjective phrase', 'adverb_class': adverb_class, 'adverb_weight': adverb_weight}
 
     def comp_phrase_decorator(nodes):
         adverb = nodes[0].text.lower()
@@ -194,7 +176,7 @@ class AdjectivePhraseGrammarTagger(Tagger):
         return {'type': 'comparative phrase', 'adverb_class': adverb_class, 'adverb_weight': adverb_weight}
 
     def part_phrase_decorator(nodes):
-        adverb = nodes[0].text.lower()
+        adverb = nodes[0].text[0].lower()
         if adverb in CLASSES:
             adverb_class = CLASSES[adverb]
             adverb_weight = WEIGHTS[adverb_class]
@@ -217,49 +199,40 @@ class AdjectivePhraseGrammarTagger(Tagger):
                  propername=False,
                  phonetic=False,
                  compound=True)'''
-        
-        if nodes[0].text in NOT_ADJ_MODIFIERS:
+        if nodes[0].text[0] in NOT_ADJ_MODIFIERS:
             return False
-            
-        else:
-            possible_verb = Text(nodes[-1].text).analyse('morphology')#, resolver = resolver)
-            if 'V' in possible_verb.partofspeech[0]:
-                if possible_verb.text[-1] == 'v' or (possible_verb.text[-1] == 'd' and possible_verb.text[-2] == 'u'):
-                    return True
-                else:
-                    return False
-            else:
-                return False
-                
-    rules = []
 
-    rules.append(Rule('ADJ_PHRASE', 'ADJ_M ADJ CONJ ADJ',
-                    decorator = adj_phrase_decorator, validator = long_phrase_validator, group = 'g0', priority = -1))
-    rules.append(Rule('ADJ_PHRASE', 'ADJ_M ADJ',
-                    decorator = adj_phrase_decorator, group = 'g0', priority = 0))
-    rules.append(Rule('ADJ_PHRASE', 'ADJ',
-                    decorator = adj_phrase_decorator, group = 'g0', priority = 3))
-    
-    rules.append(Rule('COMP_PHRASE', 'COMP_M COMP CONJ COMP',
-                    decorator = comp_phrase_decorator, validator = long_phrase_validator, group = 'g0', priority = -1))
-    rules.append(Rule('COMP_PHRASE', 'COMP_M COMP',
-                    decorator = comp_phrase_decorator, group = 'g0', priority = 0))
-    rules.append(Rule('COMP_PHRASE', 'COMP',
-                    decorator = comp_phrase_decorator, group = 'g0', priority = 2))
-    
-    rules.append(Rule('PART_PHRASE', 'ADV ADJ',
-                    decorator = part_phrase_decorator, group = 'g0', priority = 1))  
-    rules.append(Rule('PART_PHRASE', 'COMP_M ADJ',
-                    decorator = part_phrase_decorator, group = 'g0', priority = 1))  
-    rules.append(Rule('PART_PHRASE', 'ADV2 ADJ',
-                decorator = part_phrase_decorator, validator = part_phrase_validator, group = 'g0', priority = 2))  
+        possible_verb = Text(nodes[-1].text[0]).analyse('morphology')#, resolver = resolver)
+        if 'V' in possible_verb.partofspeech[0]:
+            return possible_verb.text[-1] == 'v' or (possible_verb.text[-1] == 'd' and possible_verb.text[-2] == 'u')
 
-    grammar = Grammar(start_symbols=['ADJ_PHRASE', 'COMP_PHRASE', 'PART_PHRASE'
+        return False
 
-                                ], rules=rules,
-                 legal_attributes=['type', 'adverb_class', 'adverb_weight'])
-    
-    
+    grammar = Grammar(start_symbols=['ADJ_PHRASE', 'COMP_PHRASE', 'PART_PHRASE'],
+                      legal_attributes=['type', 'adverb_class', 'adverb_weight'])
+
+    grammar.add(Rule('ADJ_PHRASE', 'ADJ_M ADJ CONJ ADJ',
+                     decorator = adj_phrase_decorator, validator = long_phrase_validator, group = 'g0', priority = -1))
+    grammar.add(Rule('ADJ_PHRASE', 'ADJ_M ADJ',
+                     decorator = adj_phrase_decorator, group = 'g0', priority = 0))
+    grammar.add(Rule('ADJ_PHRASE', 'ADJ',
+                     decorator = adj_phrase_decorator, group = 'g0', priority = 3))
+
+    grammar.add(Rule('COMP_PHRASE', 'COMP_M COMP CONJ COMP',
+                     decorator = comp_phrase_decorator, validator = long_phrase_validator, group = 'g0', priority = -1))
+    grammar.add(Rule('COMP_PHRASE', 'COMP_M COMP',
+                     decorator = comp_phrase_decorator, group = 'g0', priority = 0))
+    grammar.add(Rule('COMP_PHRASE', 'COMP',
+                     decorator = comp_phrase_decorator, group = 'g0', priority = 2))
+
+    grammar.add(Rule('PART_PHRASE', 'ADV ADJ',
+                     decorator = part_phrase_decorator, group = 'g0', priority = 1))
+    grammar.add(Rule('PART_PHRASE', 'COMP_M ADJ',
+                     decorator = part_phrase_decorator, group = 'g0', priority = 1))
+    grammar.add(Rule('PART_PHRASE', 'ADV2 ADJ',
+                     decorator = part_phrase_decorator, validator = part_phrase_validator, group = 'g0', priority = 2))
+
+
     def __init__(self,
                  output_layer='adjective_phrases',
                  input_layer='grammar_tags'):
@@ -294,5 +267,3 @@ class AdjectivePhraseTagger(Tagger):
         tagger2 = AdjectivePhraseGrammarTagger()
         tagger2.tag(text)
         return text
-    
-    

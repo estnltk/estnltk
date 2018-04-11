@@ -24,11 +24,13 @@ def test_enveloping_gaps_tagger():
     layer.add_span(spl)
     text['test_4'] = layer
 
+    text['test_5'] = Layer('test_5', enveloping='words')
+
     def decorator(spans):
         return {'gap_word_count': len(spans)}
 
     gaps_tagger = EnvelopingGapTagger(output_layer='gaps',
-                                      layers_with_gaps=['test_3', 'test_4'],
+                                      layers_with_gaps=['test_3', 'test_4', 'test_5'],
                                       enveloped_layer='words',
                                       decorator=decorator,
                                       output_attributes=['gap_word_count'])
@@ -36,3 +38,13 @@ def test_enveloping_gaps_tagger():
     gaps_tagger.tag(text)
     assert text.gaps.text == [['kolm'], ['kuus', 'seitse', '.']]
     assert text.gaps.gap_word_count == [1, 3]
+
+    # gaps in empty layer
+    gaps_tagger_2 = EnvelopingGapTagger(output_layer='gaps_2',
+                                        layers_with_gaps=['test_5'],
+                                        enveloped_layer='words',
+                                        decorator=decorator,
+                                        output_attributes=['gap_word_count'])
+    gaps_tagger_2.tag(text)
+    assert text.gaps_2.text == [['Üks', 'kaks', 'kolm', 'neli', 'viis', 'kuus', 'seitse', '.']]
+    assert text.gaps_2.gap_word_count == [8]
