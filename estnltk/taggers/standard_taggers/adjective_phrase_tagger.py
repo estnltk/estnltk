@@ -140,15 +140,15 @@ class AdjectivePhraseGrammarTagger(Tagger):
 
         participle = False  
 
-        '''from estnltk.resolve_layer_dag import make_resolver
+        from estnltk.resolve_layer_dag import make_resolver
         resolver = make_resolver(
                  disambiguate=False,
                  guess=False,
                  propername=False,
                  phonetic=False,
-                 compound=True)'''
+                 compound=True)
 
-        possible_verb = Text(nodes[-1].text[0]).analyse('morphology')#, resolver = resolver)
+        possible_verb = Text(nodes[-1].text[0]).analyse('morphology', resolver = resolver)
         if 'V' in possible_verb.partofspeech[0]:
             if possible_verb.text[-1] == 'v' or (possible_verb.text[-1] == 'd' and possible_verb.text[-2] == 'u'):
                 participle = True
@@ -166,7 +166,7 @@ class AdjectivePhraseGrammarTagger(Tagger):
         return {'type': 'adjective phrase', 'adverb_class': adverb_class, 'adverb_weight': adverb_weight}
 
     def comp_phrase_decorator(nodes):
-        adverb = nodes[0].text.lower()
+        adverb = nodes[0].text[0].lower()
         if adverb in CLASSES:
             adverb_class = CLASSES[adverb]
             adverb_weight = WEIGHTS[adverb_class]
@@ -192,17 +192,17 @@ class AdjectivePhraseGrammarTagger(Tagger):
             return True
     
     def part_phrase_validator(nodes):
-        '''from estnltk.resolve_layer_dag import make_resolver
+        from estnltk.resolve_layer_dag import make_resolver
         resolver = make_resolver(
                  disambiguate=False,
                  guess=False,
                  propername=False,
                  phonetic=False,
-                 compound=True)'''
+                 compound=True)
         if nodes[0].text[0] in NOT_ADJ_MODIFIERS:
             return False
 
-        possible_verb = Text(nodes[-1].text[0]).analyse('morphology')#, resolver = resolver)
+        possible_verb = Text(nodes[-1].text[0]).analyse('morphology', resolver = resolver)
         if 'V' in possible_verb.partofspeech[0]:
             return possible_verb.text[-1] == 'v' or (possible_verb.text[-1] == 'd' and possible_verb.text[-2] == 'u')
 
