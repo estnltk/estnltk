@@ -76,7 +76,8 @@ class SpanTagger(Tagger):
                                           )
         if not self.ambiguous:
             assert all(len(values) == 1 for values in self._vocabulary.values()),\
-                'ambiguous==False but vocabulary is ambiguous'
+                'ambiguous==False but vocabulary contains ambiguous keywords: '\
+                + str([k for k, v in self._vocabulary.items() if len(v) > 1])
 
     def _make_layer(self, raw_text: str, layers: dict, status: dict):
         input_layer = layers[self.input_layers[0]]
