@@ -34,6 +34,7 @@ from estnltk.taggers.standard_taggers.layer_merge_tagger import MergeTagger
 from estnltk.taggers.standard_taggers.robust_date_number_tagger import RobustDateNumberTagger
 from estnltk.taggers.standard_taggers.address_tagger import AddressPartTagger
 from estnltk.taggers.standard_taggers.address_tagger import AddressGrammarTagger
+from estnltk.taggers.standard_taggers.adjective_phrase_tagger import AdjectivePhraseTagger
 
 from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger
 from estnltk.taggers.text_segmentation.word_tagger import WordTagger
