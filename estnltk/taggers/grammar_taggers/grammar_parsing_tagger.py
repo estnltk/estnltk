@@ -1,6 +1,6 @@
 from estnltk.taggers import Tagger
 from estnltk.layer.layer import Layer
-from estnltk import SpanList
+from estnltk import SpanList, EnvelopingSpan
 from estnltk.finite_grammar.layer_graph import GrammarNode, layer_to_graph, get_spans
 from estnltk.finite_grammar import parse_graph
 
@@ -51,8 +51,7 @@ class GrammarParsingTagger(Tagger):
                       )
         for node in graph:
             if isinstance(node, GrammarNode) and node.name in self.output_nodes:
-                span = SpanList()
-                span.spans = get_spans(node)
+                span = EnvelopingSpan(spans=get_spans(node))
                 for attr in attributes:
                     if attr == '_group_':
                         span._group_ = node.group
