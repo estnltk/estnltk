@@ -8,9 +8,11 @@ from estnltk import Span
 
 class EnvelopingSpan(collections.Sequence):
     def __init__(self,
+                 spans,
                  layer=None,
-                 ambiguous: bool = False) -> None:
-        self.spans = []
+                 ambiguous: bool = False,
+                 ) -> None:
+        self.spans = spans
         self.classes = {}  # type: MutableMapping[Tuple[int, int], Span]
 
         self._layer = layer
@@ -129,10 +131,10 @@ class EnvelopingSpan(collections.Sequence):
         wrapped = self.spans.__getitem__(idx)
         if isinstance(idx, int):
             return wrapped
-        res = EnvelopingSpan()
+        res = EnvelopingSpan(spans=wrapped)
         res.layer = self.layer
 
-        res.spans = wrapped
+        # res.spans = wrapped
         res.ambiguous = self.ambiguous
         res.parent = self.parent
 

@@ -29,7 +29,7 @@ def export_TCF(t: Text, file:str=None, version='0.4'):
     
     etree.SubElement(text_tree, 'MetaData', xmlns="http://www.dspin.de/data/metadata")
     
-    etree.SubElement(text_tree, 'TextCorpus', xmlns="http://www.dspin.de/data/textcorpus", lang="ee")
+    etree.SubElement(text_tree, 'TextCorpus', xmlns="http://www.dspin.de/data/textcorpus", lang="et")
     
     etree.SubElement(text_tree[1], 'text').text = t.text
     

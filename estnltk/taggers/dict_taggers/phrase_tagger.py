@@ -65,19 +65,13 @@ class PhraseTagger(Tagger):
 
         self.ambiguous = ambiguous
 
-        if isinstance(vocabulary, str):
-            if priority_attribute is None:
-                callable_attributes = (key,)
-            else:
-                callable_attributes = (key, priority_attribute)
+        self._vocabulary = Vocabulary(vocabulary=vocabulary,
+                                      key=key,
+                                      default_rec={self.validator_attribute: default_validator})
 
-            str_attributes = [attr for attr in self.output_attributes if attr not in callable_attributes]
-
-            self._vocabulary = Vocabulary(vocabulary=vocabulary,
-                                          key=key,
-                                          default_rec={self.validator_attribute: default_validator})
-        else:
-            self._vocabulary = vocabulary
+        if not self.ambiguous:
+            assert all(len(values) == 1 for values in self._vocabulary.values()),\
+                'ambiguous==False but vocabulary is ambiguous'
 
         self._heads = defaultdict(list)
         for phrase in self._vocabulary:
@@ -126,8 +120,7 @@ class PhraseTagger(Tagger):
                                 phrase = (value,) + tail
                                 for rec in self._vocabulary[phrase]:
                                     spans = input_layer.spans[i:i + len(tail) + 1]
-                                    span = EnvelopingSpan(layer=layer)
-                                    span.spans = spans
+                                    span = EnvelopingSpan(spans=spans, layer=layer)
                                     if self.global_validator(raw_text, span) and rec[self.validator_attribute](raw_text, span):
                                         for attr in self.output_attributes:
                                             setattr(span, attr, rec[attr])

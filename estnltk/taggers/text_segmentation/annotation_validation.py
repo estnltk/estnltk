@@ -14,6 +14,9 @@ _parentheses_content = re.compile('(\([^()]+?\))')
 _abbrev_pattern      = re.compile('\s([a-zöäüõšž\-.]+\.[a-zöäüõšž\-]+|[a-zöäüõšž\-]+[.])$')
 _abbrev_caps_pattern = re.compile('\s([A-ZÖÄÜÕŠŽ\-.]+\.[A-ZÖÄÜÕŠŽ\-]+|[A-ZÖÄÜÕŠŽ\-]+[.])$')
 _unlikely_sent_start = re.compile('^([a-zöäüõšž\-,;]).*')
+_hyphenation_end     = re.compile('(-|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|'+
+                                  '\u2010|\u2011|\u2012|\u2013|\u2014|\u2015)$')
+
 
 _camel_case_pattern  = re.compile('([a-zöäüõšž][A-ZÖÄÜÕŠŽ])')
 
@@ -232,6 +235,44 @@ def find_sentence_breaking_abbreviations_generator( text: 'Text' ):
                     results = { 'sentences':[], \
                                 'start': sentence.start+target_span[0], \
                                 'end':   sentence.start+target_span[1] }
+                    results['sentences'].append( sentence )
+                    results['sentences'].append( next_sent )
+                    yield results
+
+
+
+def find_sentence_breaking_hyphenations_generator( text: 'Text' ):
+    ''' Analyses given Text object, and detects pairs of sentences 
+        in which the first sentence ends with a hyphenation, and the 
+        second sentence has a prefix  which  is  unlikely  a sentence 
+        start. Thus, it is possible that the pair represents a single 
+        sentence mistakenly split into two sentences (in the place
+        of a word hyphenation).
+        
+        As a result, yields a dict under which the  key  'sentences' 
+        contains a list of SpanList-s potentially broken sentences;
+    '''
+    # Check the layer requirements
+    requirements = ['words', 'sentences']
+    for requirement in requirements:
+        assert requirement in text.layers, \
+               '(!) The input text is missing the layer "'+requirement+'"!'
+    # Iterate over consecutive sentences and detect mistakenly split sentences
+    for sid, sentence in enumerate( text['sentences'].spans ):
+        sent_text = sentence.enclosing_text
+        if sid + 1 < len(text['sentences'].spans):
+            next_sent = text['sentences'].spans[sid + 1]
+            next_sent_text = next_sent.enclosing_text
+            if _unlikely_sent_start.search( next_sent_text ):
+                target_span = (-1, -1)
+                target_str  = None
+                # Check for hyphenation ending the first sentence
+                m1 = _hyphenation_end.search(sent_text)
+                if m1:
+                    target_span = m1.span(1)
+                    target_str = m1.group(1)
+                if target_span != (-1, -1) and target_str:
+                    results = { 'sentences':[] }
                     results['sentences'].append( sentence )
                     results['sentences'].append( next_sent )
                     yield results

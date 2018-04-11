@@ -1,35 +1,29 @@
 from estnltk.taggers import EnvelopingGapTagger
 from estnltk import Text
-from estnltk import SpanList
 from estnltk.layer.layer import Layer
 from estnltk import EnvelopingSpan
 
 
-text = Text('Üks kaks kolm neli viis kuus seitse.')
-text.tag_layer(['words'])
-
-layer = Layer('test_3', enveloping='words')
-spl = EnvelopingSpan()
-spl.spans = text.words[0:2]
-layer.add_span(spl)
-
-spl = EnvelopingSpan()
-spl.spans = text.words[3:4]
-layer.add_span(spl)
-text['test_3'] = layer
-
-
-layer = Layer('test_4', enveloping='words', ambiguous=True)
-spl = EnvelopingSpan()
-spl.spans = text.words[3:5]
-layer.add_span(spl)
-spl = EnvelopingSpan()
-spl.spans = text.words[3:5]
-layer.add_span(spl)
-text['test_4'] = layer
-
-
 def test_enveloping_gaps_tagger():
+    text = Text('Üks kaks kolm neli viis kuus seitse.')
+    text.tag_layer(['words'])
+
+    layer = Layer('test_3', enveloping='words')
+    spl = EnvelopingSpan(spans=text.words[0:2])
+    layer.add_span(spl)
+
+    spl = EnvelopingSpan(spans=text.words[3:4])
+    layer.add_span(spl)
+    text['test_3'] = layer
+
+    layer = Layer('test_4', enveloping='words', ambiguous=True)
+    spl = EnvelopingSpan(spans=text.words[3:5])
+    layer.add_span(spl)
+
+    spl = EnvelopingSpan(spans=text.words[3:5])
+    layer.add_span(spl)
+    text['test_4'] = layer
+
     def decorator(spans):
         return {'gap_word_count': len(spans)}
 

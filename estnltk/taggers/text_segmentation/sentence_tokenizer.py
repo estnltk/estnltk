@@ -679,11 +679,10 @@ class SentenceTokenizer(TaggerOld):
                     #   2) Merge only: join two consecutive sentences into one
                     # -------------------------------------------
                     # Perform the merging
-                    merged_spanlist = EnvelopingSpan()
                     if not new_sentences_list:
                         # No sentence has been added so far: add a new one
-                        merged_spanlist.spans = \
-                            last_sentence_spl.spans+sentence_spl.spans
+                        spans = last_sentence_spl.spans+sentence_spl.spans
+                        merged_spanlist = EnvelopingSpan(spans=spans)
                         new_sentences_list.append( merged_spanlist )
                         # Update fix types list
                         all_fixes = \
@@ -694,8 +693,8 @@ class SentenceTokenizer(TaggerOld):
                     else: 
                         # At least one sentence has already been added: 
                         # extend the last sentence
-                        merged_spanlist.spans = \
-                            new_sentences_list[-1].spans+sentence_spl.spans
+                        spans = new_sentences_list[-1].spans+sentence_spl.spans
+                        merged_spanlist = EnvelopingSpan(spans=spans)
                         new_sentences_list[-1] = merged_spanlist
                         # Update fix types list
                         all_fixes = \
@@ -707,8 +706,8 @@ class SentenceTokenizer(TaggerOld):
                     #print('>>2',this_sent)
             else:
                 # Add sentence without merging
-                new_spanlist = EnvelopingSpan()
-                new_spanlist.spans = sentence_spl.spans
+                new_spanlist = EnvelopingSpan(spans=sentence_spl.spans)
+                # new_spanlist.spans = sentence_spl.spans
                 new_sentences_list.append( new_spanlist )
                 # Update fix types list
                 new_sentence_fixes_list.append( \
@@ -827,10 +826,8 @@ class SentenceTokenizer(TaggerOld):
             if len(new_sentence1) < 1  or  len(new_sentence2) < 1:
                 # One of the sentence has 0 length: something is wrong
                 return None
-            merged_spanlist1 = EnvelopingSpan()
-            merged_spanlist1.spans = new_sentence1
-            merged_spanlist2 = EnvelopingSpan()
-            merged_spanlist2.spans = new_sentence2
+            merged_spanlist1 = EnvelopingSpan(spans=new_sentence1)
+            merged_spanlist2 = EnvelopingSpan(spans=new_sentence2)
             return merged_spanlist1, merged_spanlist2
         return None
 
@@ -866,14 +863,12 @@ class SentenceTokenizer(TaggerOld):
                             text.text[span.end:next_span.start]
                         if double_newline in space_between:
                             # Create a new split 
-                            split_spanlist = EnvelopingSpan()
-                            split_spanlist.spans = current_words
+                            split_spanlist = EnvelopingSpan(spans=current_words)
                             new_sentences_list.append( split_spanlist )
                             sentence_fixes_list.append(['double_newline_ending'])
                             current_words = []
                 if current_words:
-                    new_spanlist = EnvelopingSpan()
-                    new_spanlist.spans = current_words
+                    new_spanlist = EnvelopingSpan(spans=current_words)
                     new_sentences_list.append(new_spanlist)
                     sentence_fixes_list.append([])
             else:

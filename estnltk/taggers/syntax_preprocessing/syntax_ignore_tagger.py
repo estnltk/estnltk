@@ -565,8 +565,8 @@ class SyntaxIgnoreTagger(TaggerOld):
                 current_wid += 1
             if words_start != -1 and words_end != -1:
                 # Record ignored words
-                new_spanlist = EnvelopingSpan()
-                new_spanlist.spans = text.words[words_start:words_end+1]
+                spans = text.words[words_start:words_end+1]
+                new_spanlist = EnvelopingSpan(spans=spans)
                 new_spanlist.type = sp.type
                 ignored_words_spans.append( new_spanlist )
                 #print('*',text.text[sp.start:sp.end], sp.start, sp.end)
@@ -705,8 +705,7 @@ class SyntaxIgnoreTagger(TaggerOld):
                 for word_span in ignored_candidate['span'].spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = EnvelopingSpan()
-                new_spanlist.spans = sent_words
+                new_spanlist = EnvelopingSpan(spans=sent_words)
                 new_spanlist.type = 'consecutive_parenthesized_sentences'
                 # Remove overlapped spans
                 if ignored_candidate['ignored_words']:
@@ -743,8 +742,7 @@ class SyntaxIgnoreTagger(TaggerOld):
                 for word_span in sentence_span.spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = EnvelopingSpan()
-                new_spanlist.spans = sent_words
+                new_spanlist = EnvelopingSpan(spans=sent_words)
                 new_spanlist.type = 'sentence_with_number_no_letters'
                 # Add the sentence only iff it is not already added
                 add_sentence = True
@@ -780,8 +778,7 @@ class SyntaxIgnoreTagger(TaggerOld):
                 for word_span in sentence_span.spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = EnvelopingSpan()
-                new_spanlist.spans = sent_words
+                new_spanlist = EnvelopingSpan(spans=sent_words)
                 new_spanlist.type = 'sentence_starts_with_time'
                 # Add the sentence only iff it is not already added
                 add_sentence = True
@@ -888,8 +885,7 @@ class SyntaxIgnoreTagger(TaggerOld):
                 for word_span in ignored_candidate['span'].spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = EnvelopingSpan()
-                new_spanlist.spans = sent_words
+                new_spanlist = EnvelopingSpan(spans=sent_words)
                 new_spanlist.type = 'consecutive_enum_ucase_sentences'
                 # Add the sentence only iff it is not already added
                 add_sentence = True
@@ -968,8 +964,7 @@ class SyntaxIgnoreTagger(TaggerOld):
                 for word_span in ignored_candidate['span'].spans:
                     sent_words.append( word_span )
                 # Make entire sentence as 'ignored'
-                new_spanlist = EnvelopingSpan()
-                new_spanlist.spans = sent_words
+                new_spanlist = EnvelopingSpan(spans=sent_words)
                 new_spanlist.type = 'sentence_with_comma_separated_list'
                 # Add the sentence only iff it is not already added
                 add_sentence = True

@@ -68,11 +68,6 @@ def iterate_nested_spans( spanlist:Union[List[Span], SpanList] ):
     """
     yield from iterate_intersecting_spans( spanlist, yield_nested=True, yield_equal=False, yield_overlapped=False )
 
-def iterate_equal_spans( spanlist:Union[List[Span], SpanList] ):
-    """ Given a Layer or a SpanList, yields pairs of Spans 
-        where one Span equal to other.
-    """
-    yield from iterate_intersecting_spans( spanlist, yield_nested=False, yield_equal=True, yield_overlapped=False )
 
 def iterate_overlapping_spans( spanlist:Union[List[Span], SpanList] ):
     """ Given a Layer or a SpanList, yields pairs of Spans 
