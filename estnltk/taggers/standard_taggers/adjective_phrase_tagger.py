@@ -134,21 +134,34 @@ class AdjectivePhrasePartTagger(Tagger):
 class AdjectivePhraseGrammarTagger(Tagger):
     """Parses adjective phrases using grammar."""
     input_layers = ['grammar_tags']
-    conf_param = ['temp_tagger', 'tagger']
+    conf_param = ['tagger', 'resolver']
 
-    def adj_phrase_decorator(nodes):
-
-        participle = False  
+    def __init__(self,
+                 output_layer='adjective_phrases',
+                 input_layer='grammar_tags'):
+        self.tagger = GrammarParsingTagger(
+            layer_name=output_layer,
+            layer_of_tokens=input_layer,
+            attributes=['type', 'adverb_class', 'adverb_weight'],
+            grammar=self.grammar(),
+            output_nodes=['ADJ_PHRASE', 'COMP_PHRASE', 'PART_PHRASE'])
+        self.input_layers = [input_layer]
+        self.output_layer = output_layer
 
         from estnltk.resolve_layer_dag import make_resolver
-        resolver = make_resolver(
-                 disambiguate=False,
-                 guess=False,
-                 propername=False,
-                 phonetic=False,
-                 compound=True)
+        self.resolver = make_resolver(disambiguate=False,
+                                      guess=False,
+                                      propername=False,
+                                      phonetic=False,
+                                      compound=True)
 
-        possible_verb = Text(nodes[-1].text[0]).analyse('morphology', resolver = resolver)
+    def _make_layer(self, raw_text, layers, status):
+        return self.tagger.make_layer(raw_text, layers, status)
+
+    def adj_phrase_decorator(self, nodes):
+        participle = False
+
+        possible_verb = Text(nodes[-1].text[0]).analyse('morphology', resolver=self.resolver)
         if 'V' in possible_verb.partofspeech[0]:
             if possible_verb.text[-1] == 'v' or (possible_verb.text[-1] == 'd' and possible_verb.text[-2] == 'u'):
                 participle = True
@@ -165,6 +178,7 @@ class AdjectivePhraseGrammarTagger(Tagger):
             return {'type': 'participle phrase', 'adverb_class': adverb_class, 'adverb_weight': adverb_weight}
         return {'type': 'adjective phrase', 'adverb_class': adverb_class, 'adverb_weight': adverb_weight}
 
+    @staticmethod
     def comp_phrase_decorator(nodes):
         adverb = nodes[0].text[0].lower()
         if adverb in CLASSES:
@@ -175,6 +189,7 @@ class AdjectivePhraseGrammarTagger(Tagger):
             adverb_weight = None
         return {'type': 'comparative phrase', 'adverb_class': adverb_class, 'adverb_weight': adverb_weight}
 
+    @staticmethod
     def part_phrase_decorator(nodes):
         adverb = nodes[0].text[0].lower()
         if adverb in CLASSES:
@@ -184,86 +199,59 @@ class AdjectivePhraseGrammarTagger(Tagger):
             adverb_class = None
             adverb_weight = None
         return {'type': 'participle phrase', 'adverb_class': adverb_class, 'adverb_weight': adverb_weight}
-    
+
+    @staticmethod
     def long_phrase_validator(nodes):
-        if nodes[-2].text == 'kui':
-            return False
-        else:
-            return True
-    
-    def part_phrase_validator(nodes):
-        from estnltk.resolve_layer_dag import make_resolver
-        resolver = make_resolver(
-                 disambiguate=False,
-                 guess=False,
-                 propername=False,
-                 phonetic=False,
-                 compound=True)
+        return nodes[-2].text != 'kui'
+
+    def part_phrase_validator(self, nodes):
         if nodes[0].text[0] in NOT_ADJ_MODIFIERS:
             return False
-
-        possible_verb = Text(nodes[-1].text[0]).analyse('morphology', resolver = resolver)
+        possible_verb = Text(nodes[-1].text[0]).analyse('morphology', resolver=self.resolver)
         if 'V' in possible_verb.partofspeech[0]:
             return possible_verb.text[-1] == 'v' or (possible_verb.text[-1] == 'd' and possible_verb.text[-2] == 'u')
 
         return False
 
-    grammar = Grammar(start_symbols=['ADJ_PHRASE', 'COMP_PHRASE', 'PART_PHRASE'],
-                      legal_attributes=['type', 'adverb_class', 'adverb_weight'])
+    def grammar(self):
+        grammar = Grammar(start_symbols=['ADJ_PHRASE', 'COMP_PHRASE', 'PART_PHRASE'],
+                          legal_attributes=['type', 'adverb_class', 'adverb_weight'])
 
-    grammar.add(Rule('ADJ_PHRASE', 'ADJ_M ADJ CONJ ADJ',
-                     decorator = adj_phrase_decorator, validator = long_phrase_validator, group = 'g0', priority = -1))
-    grammar.add(Rule('ADJ_PHRASE', 'ADJ_M ADJ',
-                     decorator = adj_phrase_decorator, group = 'g0', priority = 0))
-    grammar.add(Rule('ADJ_PHRASE', 'ADJ',
-                     decorator = adj_phrase_decorator, group = 'g0', priority = 3))
+        grammar.add(Rule('ADJ_PHRASE', 'ADJ_M ADJ CONJ ADJ',
+                         decorator=self.adj_phrase_decorator, validator=self.long_phrase_validator, group = 'g0', priority = -1))
+        grammar.add(Rule('ADJ_PHRASE', 'ADJ_M ADJ',
+                         decorator=self.adj_phrase_decorator, group='g0', priority=0))
+        grammar.add(Rule('ADJ_PHRASE', 'ADJ',
+                         decorator=self.adj_phrase_decorator, group='g0', priority=3))
 
-    grammar.add(Rule('COMP_PHRASE', 'COMP_M COMP CONJ COMP',
-                     decorator = comp_phrase_decorator, validator = long_phrase_validator, group = 'g0', priority = -1))
-    grammar.add(Rule('COMP_PHRASE', 'COMP_M COMP',
-                     decorator = comp_phrase_decorator, group = 'g0', priority = 0))
-    grammar.add(Rule('COMP_PHRASE', 'COMP',
-                     decorator = comp_phrase_decorator, group = 'g0', priority = 2))
+        grammar.add(Rule('COMP_PHRASE', 'COMP_M COMP CONJ COMP',
+                         decorator=self.comp_phrase_decorator, validator=self.long_phrase_validator, group = 'g0', priority = -1))
+        grammar.add(Rule('COMP_PHRASE', 'COMP_M COMP',
+                         decorator=self.comp_phrase_decorator, group='g0', priority = 0))
+        grammar.add(Rule('COMP_PHRASE', 'COMP',
+                         decorator=self.comp_phrase_decorator, group='g0', priority = 2))
 
-    grammar.add(Rule('PART_PHRASE', 'ADV ADJ',
-                     decorator = part_phrase_decorator, group = 'g0', priority = 1))
-    grammar.add(Rule('PART_PHRASE', 'COMP_M ADJ',
-                     decorator = part_phrase_decorator, group = 'g0', priority = 1))
-    grammar.add(Rule('PART_PHRASE', 'ADV2 ADJ',
-                     decorator = part_phrase_decorator, validator = part_phrase_validator, group = 'g0', priority = 2))
-
-
-    def __init__(self,
-                 output_layer='adjective_phrases',
-                 input_layer='grammar_tags'):
-        self.tagger = GrammarParsingTagger( 
-            layer_name=output_layer,
-            layer_of_tokens=input_layer,
-            attributes=['type', 'adverb_class', 'adverb_weight'],
-            grammar=self.grammar,
-            output_nodes=['ADJ_PHRASE', 'COMP_PHRASE', 'PART_PHRASE'])
-        self.input_layers = [input_layer]
-        self.output_layer = output_layer
-
-    def _make_layer(self, raw_text, layers, status):
-        return self.tagger.make_layer(raw_text, layers, status)
+        grammar.add(Rule('PART_PHRASE', 'ADV ADJ',
+                         decorator=self.part_phrase_decorator, group='g0', priority = 1))
+        grammar.add(Rule('PART_PHRASE', 'COMP_M ADJ',
+                         decorator=self.part_phrase_decorator, group='g0', priority = 1))
+        grammar.add(Rule('PART_PHRASE', 'ADV2 ADJ',
+                         decorator=self.part_phrase_decorator, validator=self.part_phrase_validator, group = 'g0', priority = 2))
+        return grammar
 
 
 class AdjectivePhraseTagger(Tagger):
     """
     Tags adjective phrases.
     """
-    conf_param = []
+    conf_param = ['tagger1', 'tagger2']
     input_layers = []
-    
+
     def __init__(self):
-        """
-        Tags adjective phrases
-        """
+        self.tagger1 = AdjectivePhrasePartTagger()
+        self.tagger2 = AdjectivePhraseGrammarTagger()
 
     def tag(self, text):
-        tagger1 = AdjectivePhrasePartTagger()
-        tagger1.tag(text)
-        tagger2 = AdjectivePhraseGrammarTagger()
-        tagger2.tag(text)
+        self.tagger1.tag(text)
+        self.tagger2.tag(text)
         return text
