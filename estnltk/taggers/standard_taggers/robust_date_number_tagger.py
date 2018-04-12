@@ -13,7 +13,7 @@ class RobustDateNumberTagger(Tagger):
     conf_param = ['tagger']
 
     def __init__(self,
-                 output_attributes: Sequence=('grammar_symbol', 'regex_type', 'value'),
+                 output_attributes: Sequence=('grammar_symbol', 'regex_type', 'value', '_priority_'),
                  conflict_resolving_strategy: str='MAX',
                  overlapped: bool=True,
                  output_layer: str='dates_numbers',
@@ -26,6 +26,7 @@ class RobustDateNumberTagger(Tagger):
                                   conflict_resolving_strategy=conflict_resolving_strategy,
                                   priority_attribute='_priority_',
                                   overlapped=overlapped,
+                                  ambiguous = True,
                                   output_layer=output_layer)
 
     def _make_layer(self, raw_text, layers, status):
