@@ -42,6 +42,7 @@ class AddressPartTagger(Tagger):
 
         self.house_nr_tagger = RegexTagger(output_layer='house_nr',
                                            vocabulary=house_nr_voc,
+                                           ambiguous=True,
                                            output_attributes=('grammar_symbol', 'regex_type', 'value'))
         
         zip_code_voc = [
@@ -55,6 +56,7 @@ class AddressPartTagger(Tagger):
         
         self.zip_code_tagger = RegexTagger(output_layer='zip_code',
                                            vocabulary=zip_code_voc,
+                                           ambiguous=True,
                                            output_attributes=('grammar_symbol', 'regex_type', 'value'))
         
         vocabulary_file1 = path.join(path.dirname(__file__), 'asula_vocabulary.csv')
@@ -92,6 +94,7 @@ class AddressPartTagger(Tagger):
         self.spec_voc_tagger = SpanTagger(output_layer='spec_word',
                                      input_layer='words',
                                      input_attribute='text',
+                                     ambiguous=True,
                                      output_attributes=('type', 'grammar_symbol'),
                                      vocabulary=spec_word_vocabulary)
 
@@ -138,6 +141,7 @@ class AddressPartTagger(Tagger):
                                  #enveloped_layer='morph_analysis',
                                  decorator=gaps_decorator,
                                  trim = trim,
+                                 ambiguous=True,
                                  output_attributes=['grammar_symbol']) 
         
         self.merge_tagger = MergeTagger(output_layer=self.output_layer,
@@ -210,15 +214,15 @@ class AddressGrammarTagger(Tagger):
         maja = ''
         for node in nodes:   
             if node.name == 'ASULA':
-                asula = node.text
+                asula = node.text[0]
             elif node.name == 'TÄNAV':
-                t2nav = node.text
+                t2nav = node.text[0]
             elif node.name == 'MAAKOND':
-                maakond = node.text
+                maakond = node.text[0]
             elif node.name == 'MAJA':
-                maja = node.text    
+                maja = node.text[0]    
             elif node.name == 'INDEKS':
-                indeks = node.text      
+                indeks = node.text[0]      
             #if node.name != 'SPEC':
             #    composition[node.name] = node.text
         return {'grammar_symbol': 'ADDRESS', 'ASULA': asula, 'TÄNAV': t2nav, 'INDEKS': indeks, 'MAAKOND': maakond, 'MAJA': maja}
