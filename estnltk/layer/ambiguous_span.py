@@ -136,7 +136,7 @@ class AmbiguousSpan(collections.Sequence):
         return hash((tuple(self.spans), self.ambiguous, self.parent))
 
     def __str__(self):
-        return 'AS[{spans}]'.format(spans=',\n'.join(str(i) for i in self.spans))
+        return 'AS[{spans}]'.format(spans=', '.join(str(i) for i in self.spans))
 
     def __repr__(self):
         return str(self)
