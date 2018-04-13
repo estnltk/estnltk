@@ -2,7 +2,7 @@ from os.path import dirname, join
 
 from estnltk.taggers import PhraseTagger
 from estnltk.tests.helpers.text_objects import new_text
-
+from estnltk.layer import AmbiguousAttributeList
 
 def test_basic():
     vocabulary = join(dirname(__file__), 'phrase_vocabulary.csv')
@@ -19,6 +19,6 @@ def test_basic():
     text = new_text(5)
     tagger.tag(text)
 
-    assert text['phrases'].letter == [['B'], ['A', 'C'], ['D']]
-    assert text['phrases'].number == [[2], [1, 3], [4]]
-    assert text['phrases']._priority_ == [[0], [0, 0], [0]]
+    assert text['phrases'].letter == AmbiguousAttributeList([['B'], ['A', 'C'], ['D']], 'letter')
+    assert text['phrases'].number == AmbiguousAttributeList([[2], [1, 3], [4]], 'number')
+    assert text['phrases']._priority_ == AmbiguousAttributeList([[0], [0, 0], [0]], '_priority_')

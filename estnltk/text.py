@@ -9,6 +9,7 @@ from estnltk import Span
 from estnltk import EnvelopingSpan
 from estnltk import SpanList
 from estnltk import Layer
+from estnltk.layer import AttributeList, AmbiguousAttributeList
 
 
 def _get_span_by_start_and_end(spans: SpanList, start: int=None, end: int=None, span: Span=None) -> Union[Span, None]:
@@ -289,12 +290,17 @@ class Text:
 
             # attributes of a (direct) dependant
             if to_layer.parent == frm:
+                # assert False, 1
                 res = []
                 if sofar:
                     for i in to_layer.spans:
                         if i.parent in sofar.spans:
                             res.append(getattr(i, to))
-                    return res
+                    if to_layer.ambiguous:
+                        return AmbiguousAttributeList(res, to)
+                    else:
+                        return AttributeList(res, to)
+                    #return res
 
             # attributes of an (directly) enveloped object
             to_layer_name = path[-2]

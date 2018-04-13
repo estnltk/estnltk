@@ -1,6 +1,7 @@
 from estnltk import Text
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer, VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.morf import IGNORE_ATTR
+from estnltk.layer import AmbiguousAttributeList
 
 # ----------------------------------
 #   Helper functions
@@ -65,26 +66,26 @@ def test_morph_analyzer_1():
     text=Text('Mitmenda koha sai kohale jõudnud mees ?')
     text.tag_layer(['words','sentences'])
     analyzer2.tag(text)
-    expected_records = [ \
-        [{'partofspeech': 'P', 'start': 0, 'ending': '0', 'form': 'sg g', 'root': 'mitmes', 'end': 8, 'clitic': '', 'root_tokens': ('mitmes',), 'lemma': 'mitmes'}], \
-        [{'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg g', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'koha'}, \
-         {'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg n', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'koha'}, \
-         {'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg p', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'koha'}, \
-         {'partofspeech': 'V', 'start': 9, 'ending': '0', 'form': 'o', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'kohama'}, \
-         {'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg g', 'root': 'koht', 'end': 13, 'clitic': '', 'root_tokens': ('koht',), 'lemma': 'koht'}], \
-        [{'partofspeech': 'S', 'start': 14, 'ending': '0', 'form': 'sg n', 'root': 'sai', 'end': 17, 'clitic': '', 'root_tokens': ('sai',), 'lemma': 'sai'}, \
-         {'partofspeech': 'V', 'start': 14, 'ending': 'i', 'form': 's', 'root': 'saa', 'end': 17, 'clitic': '', 'root_tokens': ('saa',), 'lemma': 'saama'}], \
-        [{'partofspeech': 'D', 'start': 18, 'ending': '0', 'form': '', 'root': 'kohale', 'end': 24, 'clitic': '', 'root_tokens': ('kohale',), 'lemma': 'kohale'}, \
-         {'partofspeech': 'K', 'start': 18, 'ending': '0', 'form': '', 'root': 'kohale', 'end': 24, 'clitic': '', 'root_tokens': ('kohale',), 'lemma': 'kohale'}, \
-         {'partofspeech': 'S', 'start': 18, 'ending': 'le', 'form': 'sg all', 'root': 'koha', 'end': 24, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'koha'}, \
-         {'partofspeech': 'S', 'start': 18, 'ending': 'le', 'form': 'sg all', 'root': 'koht', 'end': 24, 'clitic': '', 'root_tokens': ('koht',), 'lemma': 'koht'}], \
-        [{'partofspeech': 'A', 'start': 25, 'ending': '0', 'form': '', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ('jõudnud',), 'lemma': 'jõudnud'}, \
-         {'partofspeech': 'A', 'start': 25, 'ending': '0', 'form': 'sg n', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ('jõudnud',), 'lemma': 'jõudnud'}, \
-         {'partofspeech': 'S', 'start': 25, 'ending': 'd', 'form': 'pl n', 'root': 'jõud=nu', 'end': 32, 'clitic': '', 'root_tokens': ('jõudnu',), 'lemma': 'jõudnu'}, \
-         {'partofspeech': 'A', 'start': 25, 'ending': 'd', 'form': 'pl n', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ('jõudnud',), 'lemma': 'jõudnud'}, \
-         {'partofspeech': 'V', 'start': 25, 'ending': 'nud', 'form': 'nud', 'root': 'jõud', 'end': 32, 'clitic': '', 'root_tokens': ('jõud',), 'lemma': 'jõudma'}], \
-        [{'partofspeech': 'S', 'start': 33, 'ending': '0', 'form': 'sg n', 'root': 'mees', 'end': 37, 'clitic': '', 'root_tokens': ('mees',), 'lemma': 'mees'}, \
-         {'partofspeech': 'S', 'start': 33, 'ending': 's', 'form': 'sg in', 'root': 'mesi', 'end': 37, 'clitic': '', 'root_tokens': ('mesi',), 'lemma': 'mesi'}], \
+    expected_records = [
+        [{'partofspeech': 'P', 'start': 0, 'ending': '0', 'form': 'sg g', 'root': 'mitmes', 'end': 8, 'clitic': '', 'root_tokens': ('mitmes',), 'lemma': 'mitmes'}],
+        [{'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg g', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'koha'},
+         {'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg n', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'koha'},
+         {'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg p', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'koha'},
+         {'partofspeech': 'V', 'start': 9, 'ending': '0', 'form': 'o', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'kohama'},
+         {'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg g', 'root': 'koht', 'end': 13, 'clitic': '', 'root_tokens': ('koht',), 'lemma': 'koht'}],
+        [{'partofspeech': 'S', 'start': 14, 'ending': '0', 'form': 'sg n', 'root': 'sai', 'end': 17, 'clitic': '', 'root_tokens': ('sai',), 'lemma': 'sai'},
+         {'partofspeech': 'V', 'start': 14, 'ending': 'i', 'form': 's', 'root': 'saa', 'end': 17, 'clitic': '', 'root_tokens': ('saa',), 'lemma': 'saama'}],
+        [{'partofspeech': 'D', 'start': 18, 'ending': '0', 'form': '', 'root': 'kohale', 'end': 24, 'clitic': '', 'root_tokens': ('kohale',), 'lemma': 'kohale'},
+         {'partofspeech': 'K', 'start': 18, 'ending': '0', 'form': '', 'root': 'kohale', 'end': 24, 'clitic': '', 'root_tokens': ('kohale',), 'lemma': 'kohale'},
+         {'partofspeech': 'S', 'start': 18, 'ending': 'le', 'form': 'sg all', 'root': 'koha', 'end': 24, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'koha'},
+         {'partofspeech': 'S', 'start': 18, 'ending': 'le', 'form': 'sg all', 'root': 'koht', 'end': 24, 'clitic': '', 'root_tokens': ('koht',), 'lemma': 'koht'}],
+        [{'partofspeech': 'A', 'start': 25, 'ending': '0', 'form': '', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ('jõudnud',), 'lemma': 'jõudnud'},
+         {'partofspeech': 'A', 'start': 25, 'ending': '0', 'form': 'sg n', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ('jõudnud',), 'lemma': 'jõudnud'},
+         {'partofspeech': 'S', 'start': 25, 'ending': 'd', 'form': 'pl n', 'root': 'jõud=nu', 'end': 32, 'clitic': '', 'root_tokens': ('jõudnu',), 'lemma': 'jõudnu'},
+         {'partofspeech': 'A', 'start': 25, 'ending': 'd', 'form': 'pl n', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ('jõudnud',), 'lemma': 'jõudnud'},
+         {'partofspeech': 'V', 'start': 25, 'ending': 'nud', 'form': 'nud', 'root': 'jõud', 'end': 32, 'clitic': '', 'root_tokens': ('jõud',), 'lemma': 'jõudma'}],
+        [{'partofspeech': 'S', 'start': 33, 'ending': '0', 'form': 'sg n', 'root': 'mees', 'end': 37, 'clitic': '', 'root_tokens': ('mees',), 'lemma': 'mees'},
+         {'partofspeech': 'S', 'start': 33, 'ending': 's', 'form': 'sg in', 'root': 'mesi', 'end': 37, 'clitic': '', 'root_tokens': ('mesi',), 'lemma': 'mesi'}],
         [{'partofspeech': 'Z', 'start': 38, 'ending': '', 'form': '', 'root': '?', 'end': 39, 'clitic': '', 'root_tokens': ('?',), 'lemma': '?'}]]
     #print(text['morph_analysis'].to_records())
     # Sort analyses (so that the order within a word is always the same)
@@ -109,10 +110,10 @@ def test_morph_analyzer_without_guessing():
     
     # Check for unknown word placeholders
     assert ['Mulll', 'on', 'yks', 'rõlgelt', 'hea', 'netikeelelause'] == text.words.text
-    assert [[None], \
-            ['ole', 'ole'], [None], [None], \
-            ['hea', 'hea', 'hea', 'hea'], \
-            ['neti_keele_lause', 'neti_keele_lause']] == text.root
+    assert AmbiguousAttributeList([[None],
+                                   ['ole', 'ole'], [None], [None],
+                                   ['hea', 'hea', 'hea', 'hea'],
+                                   ['neti_keele_lause', 'neti_keele_lause']], 'root') == text.root
 
     # Test that zip can be used to discover unknown words
     unknown_words = []

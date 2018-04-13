@@ -37,7 +37,7 @@ def test_enveloping_gaps_tagger():
 
     gaps_tagger.tag(text)
     assert text.gaps.text == [['kolm'], ['kuus', 'seitse', '.']]
-    assert text.gaps.gap_word_count == [1, 3]
+    assert list(text.gaps.gap_word_count) == [1, 3]
 
     # gaps in empty layer
     gaps_tagger_2 = EnvelopingGapTagger(output_layer='gaps_2',
@@ -47,4 +47,4 @@ def test_enveloping_gaps_tagger():
                                         output_attributes=['gap_word_count'])
     gaps_tagger_2.tag(text)
     assert text.gaps_2.text == [['Üks', 'kaks', 'kolm', 'neli', 'viis', 'kuus', 'seitse', '.']]
-    assert text.gaps_2.gap_word_count == [8]
+    assert list(text.gaps_2.gap_word_count) == [8]

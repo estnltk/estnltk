@@ -1,13 +1,11 @@
 import bisect
 from typing import Union, List, Sequence, MutableMapping, Tuple, Any
 import pandas
-
-from estnltk import Span, EnvelopingSpan
-
 import collections
 import itertools
 
-from estnltk import AmbiguousSpan
+from estnltk import Span, EnvelopingSpan, AmbiguousSpan
+from estnltk.layer import AmbiguousAttributeTupleList, AttributeTupleList, AttributeList, AmbiguousAttributeList
 
 
 class SpanList(collections.Sequence):
@@ -97,6 +95,7 @@ class SpanList(collections.Sequence):
     @property
     def text(self):
         return [span.text for span in self.spans]
+        # return AttributeList([span.text for span in self.spans], 'text')
 
     @property
     def enclosing_text(self):
@@ -121,7 +120,7 @@ class SpanList(collections.Sequence):
 
         layer = self.__getattribute__('layer')  # type: Layer
         if item in layer.attributes:
-            return [getattr(span, item) for span in self.spans]
+            return self.attribute_list(item)#[getattr(span, item) for span in self.spans]
         if item in self.__dict__.keys():
             return self.__dict__[item]
         if item == getattr(self.layer, 'parent', None):
@@ -133,8 +132,8 @@ class SpanList(collections.Sequence):
         return target
 
     def __getitem__(self, idx: int) -> Union[Span, 'SpanList', list]:
-        if isinstance(idx, str) or isinstance(idx, tuple) and all(isinstance(s, str) for s in idx):
-            return self.get_attributes(idx)
+        if isinstance(idx, str) or isinstance(idx, (list, tuple)) and all(isinstance(s, str) for s in idx):
+            return self.attribute_list(idx)
 
         wrapped = self.spans.__getitem__(idx)
         if isinstance(idx, int):
@@ -168,6 +167,23 @@ class SpanList(collections.Sequence):
     def __repr__(self):
         return str(self)
 
+    def attribute_list(self, attributes):
+        assert isinstance(attributes, (str, list, tuple)), str(type(attributes))
+        assert attributes, 'no attributes: ' + str(attributes)
+
+        if self.ambiguous:
+            if isinstance(attributes, (list, tuple)):
+                return AmbiguousAttributeTupleList((((getattr(sp, name) for name in attributes) for sp in asp)
+                                                    for asp in self.spans), attributes)
+            else:
+                return AmbiguousAttributeList(((getattr(sp, attributes) for sp in asp)
+                                               for asp in self.spans), attributes)
+        else:
+            if isinstance(attributes, (list, tuple)):
+                return AttributeTupleList([[getattr(sp, attr)for attr in attributes] for sp in self.spans], attributes)
+            else:
+                return AttributeList([getattr(sp, attributes) for sp in self.spans], attributes)
+
     def _repr_html_(self):
         if self.layer and self is self.layer.spans:
             return self.layer.to_html(header='SpanList', start_end=True)
@@ -196,7 +212,8 @@ class Layer:
                  attributes: Sequence[str] = (),
                  parent: str = None,
                  enveloping: str = None,
-                 ambiguous: bool = False
+                 ambiguous: bool = False,
+                 default_values=None
                  ) -> None:
         assert parent is None or enveloping is None, "Can't be derived AND enveloping"
 
@@ -241,6 +258,14 @@ class Layer:
         # boolean for if this is an ambiguous layer
         # if True, add_span will behave differently and add a SpanList instead.
         self.ambiguous = ambiguous  # type: bool
+
+        if default_values is None:
+            self.default_values = {}
+        else:
+            self.default_values = default_values
+        for attr in self.attributes:
+            if attr not in self.default_values:
+                self.default_values[attr] = None
 
         # placeholder. is set when `_add_layer` is called on text object
         self.text_object = None  # type: Text
@@ -312,6 +337,11 @@ class Layer:
 
     def add_span(self, span: Union[Span, EnvelopingSpan]) -> Span:
         assert not self.is_frozen, "can't add spans to frozen layer"
+        for attr in self.attributes:
+            try:
+                span.__getattribute__(attr)
+            except AttributeError:
+                setattr(span, attr, self.default_values[attr])
         return self.spans.add_span(span)
 
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
@@ -359,7 +389,8 @@ class Layer:
         if item in self.__getattribute__('__dict__').keys():
             return self.__getattribute__('__dict__')[item]
         if item in self.__getattribute__('attributes'):
-            return self.__getattribute__('spans').__getattr__(item)
+            return self.__getitem__(item)
+            #return self.__getattribute__('spans').__getattr__(item)
 
         return self.__getattribute__('text_object')._resolve(self.name, item, sofar=self.__getattribute__('spans'))
 
@@ -388,15 +419,23 @@ class Layer:
                                                       'parent', 'enveloping',
                                                       'ambiguous', 'span count'])
 
+    def attribute_list(self, attributes=None):
+        if attributes is None:
+            attributes = self.attributes
+        return self.spans.attribute_list(attributes)
+
     def to_html(self, header='Layer', start_end=False):
         res = []
+        table2 = None
         base_layer = self
         if self._base:
             base_layer = self.text_object[self._base]
         if base_layer.enveloping:
             if self.ambiguous:
-                # TODO: _repr_html_ for enveloping ambiguous layers
-                return repr(self)
+                attributes = ['text', 'start', 'end'] + self.attributes
+                aatl = AmbiguousAttributeTupleList((((getattr(es, name) for name in attributes) for es in eas)
+                                                    for eas in self), attributes)
+                table2 = aatl.to_html(index='text')
             else:
                 for span in base_layer.spans:
                     # html.escape(span[i].text) TODO?
@@ -425,13 +464,18 @@ class Layer:
         df = pandas.DataFrame.from_records(res, columns=columns)
         pandas.set_option('display.max_colwidth', -1)
         table1 = self.metadata().to_html(index=False, escape=False)
-        table2 = df.to_html(index=False, escape=False)
+        if table2 is None:
+            table2 = df.to_html(index=False, escape=False)
         if header:
             return '\n'.join(('<h4>' + header + '</h4>', table1, table2))
         return '\n'.join((table1, table2))
 
     def _repr_html_(self):
-        return self.to_html()
+        attributes = ['text', 'start', 'end']
+        attributes.extend(self.attributes)
+        table_1 = self.metadata().to_html(index=False, escape=False)
+        table_2 = self.spans.attribute_list(attributes).to_html(index='text')
+        return '\n'.join(('<h4>Layer</h4>', table_1, table_2))
 
     def __repr__(self):
         return str(self)

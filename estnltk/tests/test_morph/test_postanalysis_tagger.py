@@ -1,6 +1,7 @@
 from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.taggers import PostMorphAnalysisTagger
+from estnltk.layer import AmbiguousAttributeTupleList
 
 # ----------------------------------
 #   Helper functions
@@ -92,11 +93,12 @@ def test_postanalysis_fix_names_with_initials():
     text=Text("Ansambli nimeks oli Swing B. Esinemas käisime tantsuõhtutel")
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
-    expected_result = [('Ansambli', ['S']), ('nimeks', ['S']), ('oli', ['V']), ('Swing', ['H']), \
-                       ('B. Esinemas', ['V']), ('käisime', ['V']), ('tantsuõhtutel', ['S'])]
+    expected_result = AmbiguousAttributeTupleList([[['Ansambli', 'S']], [['nimeks', 'S']], [['oli', 'V']],
+                                                   [['Swing', 'H']], [['B. Esinemas', 'V']], [['käisime', 'V']],
+                                                   [['tantsuõhtutel', 'S']]], ('text', 'partofspeech'))
     # TODO: 'B. Esinemas' is actually a wrong compound token, 
     #        needs to be fixed in the future
-    result = list(zip(text.words.text,text.partofspeech))
+    result = text.morph_analysis['text', 'partofspeech']
     assert expected_result == result
 
 

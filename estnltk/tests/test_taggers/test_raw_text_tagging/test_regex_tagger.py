@@ -19,5 +19,5 @@ def test_validator():
     text = Text('3209 n  0930 093 2304209 093402')
     regex_tagger.tag(text)
     assert text.numbers.text == ['3209', '0930', '093', '2304209', '093402']
-    assert text.numbers.comment == ['starts with non-zero', 'starts with zero', 'starts with zero',
-                                    'starts with non-zero', 'starts with zero']
+    assert list(text.numbers.comment) == ['starts with non-zero', 'starts with zero', 'starts with zero',
+                                          'starts with non-zero', 'starts with zero']
