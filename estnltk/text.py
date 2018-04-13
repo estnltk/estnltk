@@ -182,7 +182,7 @@ class Text:
             if layer.parent is not None:
                 for span in layer:
                     span.parent = _get_span_by_start_and_end(
-                        self.layers[layer._base].spans,
+                        self.layers[layer._base].span_list,
                         span=span
                     )
                     span._base = span.parent
@@ -205,7 +205,7 @@ class Text:
             if sofar:
                 return sofar.__getattribute__(to)
             else:
-                return self.layers[frm].spans.__getattribute__(to)
+                return self.layers[frm].span_list.__getattribute__(to)
 
         path_exists = self._path_exists(frm, to)
         if path_exists and to in self.layers.keys():
@@ -221,7 +221,7 @@ class Text:
                 # from an enveloping layer to dependant layer (one step only, skipping base layer)
                 elif self.layers[frm].enveloping == self.layers[to].parent:
                     if sofar is None:
-                        sofar = self.layers[frm].spans
+                        sofar = self.layers[frm].span_list
 
                     spans = []
 
@@ -261,7 +261,7 @@ class Text:
                 elif frm == self.layers[to]._base:
 
                     # if sofar is None:
-                    sofar = self.layers[to].spans
+                    sofar = self.layers[to].span_list
 
                     spans = []
                     for i in sofar:
@@ -293,7 +293,7 @@ class Text:
                 # assert False, 1
                 res = []
                 if sofar:
-                    for i in to_layer.spans:
+                    for i in to_layer.span_list:
                         if i.parent in sofar.spans:
                             res.append(getattr(i, to))
                     if to_layer.ambiguous:

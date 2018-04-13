@@ -55,7 +55,7 @@ class GapTagger(Tagger):
 def find_gaps(layers, text_length):
     cover_change = defaultdict(int)
     for layer in layers:
-        for span in layer.spans:
+        for span in layer.span_list:
             cover_change[span.start] += 1
             cover_change[span.end] -= 1
     if not cover_change:

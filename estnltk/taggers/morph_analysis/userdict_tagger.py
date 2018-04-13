@@ -335,8 +335,8 @@ class UserDictTagger(TaggerOld):
         #   Rewrite spans according to the dict
         # --------------------------------------------
         morph_span_id = 0
-        morph_spans   = text[self.layer_name].spans
-        word_spans    = text['words'].spans
+        morph_spans   = text[self.layer_name].span_list
+        word_spans    = text['words'].span_list
         assert len(morph_spans) == len(word_spans)
         while morph_span_id < len(morph_spans):
             # 0) Convert SpanList to list of Span-s

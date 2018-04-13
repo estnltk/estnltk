@@ -323,11 +323,11 @@ class VabamorfAnalyzer(TaggerOld):
         return result
 
 
-    def tag(self, text: Text, \
-                  return_layer=False, \
-                  propername=DEFAULT_PARAM_PROPERNAME, \
-                  guess     =DEFAULT_PARAM_GUESS, \
-                  compound  =DEFAULT_PARAM_COMPOUND, \
+    def tag(self, text: Text,
+                  return_layer=False,
+                  propername=DEFAULT_PARAM_PROPERNAME,
+                  guess     =DEFAULT_PARAM_GUESS,
+                  compound  =DEFAULT_PARAM_COMPOUND,
                   phonetic  =DEFAULT_PARAM_PHONETIC ) -> Text:
         """Anayses given Text object morphologically. 
         
@@ -365,16 +365,16 @@ class VabamorfAnalyzer(TaggerOld):
         # --------------------------------------------
         kwargs = {
             "disambiguate": False,  # perform analysis without disambiguation
-            "guess"     : guess,\
-            "propername": propername,\
-            "compound"  : compound,\
-            "phonetic"  : phonetic,\
+            "guess"     : guess,
+            "propername": propername,
+            "compound"  : compound,
+            "phonetic"  : phonetic,
         }
         # Perform morphological analysis sentence by sentence
-        word_spans = text['words'].spans
+        word_spans = text['words'].span_list
         word_span_id = 0
         analysis_results = []
-        for sentence in text['sentences'].spans:
+        for sentence in text['sentences'].span_list:
             # A) Collect all words inside the sentence
             sentence_words = []
             while word_span_id < len(word_spans):
@@ -543,8 +543,8 @@ class VabamorfDisambiguator(TaggerOld):
             if cur_attr not in self.attributes:
                 extra_attributes.append( cur_attr )
         # Check that len(word_spans) >= len(morph_spans)
-        morph_spans = text[self.layer_name].spans
-        word_spans  = text['words'].spans
+        morph_spans = text[self.layer_name].span_list
+        word_spans  = text['words'].span_list
         assert len(word_spans) >= len(morph_spans), \
             '(!) Unexpectedly, the number of elements at the layer '+\
                  '"'+str(self.layer_name)+'" is greater than the '+\
@@ -562,7 +562,7 @@ class VabamorfDisambiguator(TaggerOld):
         # --------------------------------------------
         morph_span_id = 0
         word_span_id  = 0
-        for sentence in text['sentences'].spans:
+        for sentence in text['sentences'].span_list:
             # A) Collect all words/morph_analyses inside the sentence
             #    Assume: len(word_spans) >= len(morph_spans)
             sentence_word_spans  = []

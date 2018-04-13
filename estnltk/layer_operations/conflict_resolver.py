@@ -7,7 +7,7 @@ def _delete_conflicting_spans(span_list, priority_key, map_conflicts, keep_equal
     """
     If keep_equal is True, two spans are in conflict and one of them has
     a strictly lower priority determined by the priority_key, then that span
-    is removed from the span list layer.spans.spans
+    is removed from the span list layer.span_list.spans
     If keep_equal is False, then one of the conflicting spans is removed
     even if the priorities are equal.
     Returns
@@ -75,7 +75,7 @@ def resolve_conflicts(layer,
             _resolve_ambiguous_span(span, priority_attribute, keep_equal)
     priorities = set()
     number_of_conflicts = 0
-    enumerated_spans = list(enumerate(layer.spans.spans))  # enumeration is to distinguish equal spans
+    enumerated_spans = list(enumerate(layer.span_list.spans))  # enumeration is to distinguish equal spans
     map_conflicts = defaultdict(list)
     for obj in enumerated_spans:
         if priority_attribute is not None:
@@ -109,7 +109,7 @@ def resolve_conflicts(layer,
                                                                       keep_equal=True)
 
     if not conflicts_exist or conflict_resolving_strategy == 'ALL':
-        layer.spans.spans = [span[1] for span in sorted(enumerated_spans, key=lambda s: s[0])]
+        layer.span_list.spans = [span[1] for span in sorted(enumerated_spans, key=lambda s: s[0])]
         return layer
 
     if conflict_resolving_strategy == 'MAX':
@@ -122,6 +122,6 @@ def resolve_conflicts(layer,
         assert False, 'unknown conflict resolving strategy: ' + str(conflict_resolving_strategy)
 
     enumerated_spans, _ = _delete_conflicting_spans(enumerated_spans, priority_key, map_conflicts, keep_equal=keep_equal)
-    layer.spans.spans = [span[1] for span in sorted(enumerated_spans, key=lambda s: s[0])]
+    layer.span_list.spans = [span[1] for span in sorted(enumerated_spans, key=lambda s: s[0])]
     
     return layer

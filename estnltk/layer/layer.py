@@ -115,7 +115,7 @@ class SpanList(collections.Sequence):
     def __getattr__(self, item):
         if item in {'__getstate__', '__setstate__'}:
             raise AttributeError
-        if item == '_ipython_canary_method_should_not_exist_' and self.layer is not None and self is self.layer.spans:
+        if item == '_ipython_canary_method_should_not_exist_' and self.layer is not None and self is self.layer.span_list:
             raise AttributeError
 
         layer = self.__getattribute__('layer')  # type: Layer
@@ -185,7 +185,7 @@ class SpanList(collections.Sequence):
                 return AttributeList([getattr(sp, attributes) for sp in self.spans], attributes)
 
     def _repr_html_(self):
-        if self.layer and self is self.layer.spans:
+        if self.layer and self is self.layer.span_list:
             return self.layer.to_html(header='SpanList', start_end=True)
         return str(self)
 
@@ -253,7 +253,7 @@ class Layer:
         self.enveloping = enveloping
 
         # Container for spans
-        self.spans = SpanList(layer=self, ambiguous=ambiguous)
+        self.span_list = SpanList(layer=self, ambiguous=ambiguous)
 
         # boolean for if this is an ambiguous layer
         # if True, add_span will behave differently and add a SpanList instead.
@@ -292,7 +292,7 @@ class Layer:
 
         if self.ambiguous:
             if rewriting:
-                self.spans = SpanList(ambiguous=True, layer=self)
+                self.span_list = SpanList(ambiguous=True, layer=self)
                 tmpspans = []
                 for record_line in records:
                     if record_line is not None:
@@ -300,8 +300,8 @@ class Layer:
                         spns.spans = [Span(**{**record, **{'layer': self}}, legal_attributes=self.attributes)
                                       for record in record_line]
                         tmpspans.append(spns)
-                        self.spans.classes[(spns.spans[0].start, spns.spans[0].end)] = spns
-                self.spans.spans = tmpspans
+                        self.span_list.classes[(spns.spans[0].start, spns.spans[0].end)] = spns
+                self.span_list.spans = tmpspans
             else:
                 for record_line in records:
                     self._add_spans([Span(**record, legal_attributes=self.attributes) for record in record_line])
@@ -311,7 +311,7 @@ class Layer:
                 spns.spans = [Span(**{**record, **{'layer': self}}, legal_attributes=self.attributes) for record in
                               records if record is not None]
 
-                self.spans = spns
+                self.span_list = spns
             else:
                 for record in records:
                     self.add_span(Span(
@@ -321,16 +321,16 @@ class Layer:
         return self
 
     def get_attributes(self, items):
-        return self.__getattribute__('spans').get_attributes(items)
+        return self.__getattribute__('span_list').get_attributes(items)
 
     # TODO: remove this
     def to_record(self, with_text=False):
-        return self.spans.to_record(with_text)
+        return self.span_list.to_record(with_text)
 
     def to_records(self, with_text=False):
         records = []
 
-        for item in self.spans:
+        for item in self.span_list:
             records.append(item.to_record(with_text))
 
         return records
@@ -342,7 +342,7 @@ class Layer:
                 span.__getattribute__(attr)
             except AttributeError:
                 setattr(span, attr, self.default_values[attr])
-        return self.spans.add_span(span)
+        return self.span_list.add_span(span)
 
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
         assert 'name' in kwargs.keys(), '"name" must currently be an argument to layer'
@@ -366,7 +366,7 @@ class Layer:
             layer=self
         )
         spanlist.spans = spans
-        bisect.insort(self.spans.spans, spanlist)
+        bisect.insort(self.span_list.spans, spanlist)
         return spanlist
 
     def _add_spans(self, spans: List['Span']) -> List['Span']:
@@ -392,17 +392,17 @@ class Layer:
             return self.__getitem__(item)
             #return self.__getattribute__('spans').__getattr__(item)
 
-        return self.__getattribute__('text_object')._resolve(self.name, item, sofar=self.__getattribute__('spans'))
+        return self.__getattribute__('text_object')._resolve(self.name, item, sofar=self.__getattribute__('span_list'))
 
     def __getitem__(self, idx):
-        res = self.spans.__getitem__(idx)
+        res = self.span_list.__getitem__(idx)
         return res
 
     def __len__(self):
-        return len(self.spans)
+        return len(self.span_list)
 
     def __str__(self):
-        return 'Layer(name={self.name}, spans={self.spans})'.format(self=self)
+        return 'Layer(name={self.name}, spans={self.span_list})'.format(self=self)
 
     def metadata(self):
         """
@@ -413,7 +413,7 @@ class Layer:
                 'parent': str(self.parent),
                 'enveloping': str(self.enveloping),
                 'ambiguous': str(self.ambiguous),
-                'span count': str(len(self.spans.spans))}]
+                'span count': str(len(self.span_list.spans))}]
         return pandas.DataFrame.from_records(rec,
                                              columns=['layer name', 'attributes',
                                                       'parent', 'enveloping',
@@ -422,7 +422,7 @@ class Layer:
     def attribute_list(self, attributes=None):
         if attributes is None:
             attributes = self.attributes
-        return self.spans.attribute_list(attributes)
+        return self.span_list.attribute_list(attributes)
 
     def to_html(self, header='Layer', start_end=False):
         res = []
@@ -437,7 +437,7 @@ class Layer:
                                                     for eas in self), attributes)
                 table2 = aatl.to_html(index='text')
             else:
-                for span in base_layer.spans:
+                for span in base_layer.span_list:
                     # html.escape(span[i].text) TODO?
                     t = ['<b>', self.text_object.text[span[0].start:span[0].end], '</b>']
                     for i in range(1, len(span)):
@@ -474,7 +474,7 @@ class Layer:
         attributes = ['text', 'start', 'end']
         attributes.extend(self.attributes)
         table_1 = self.metadata().to_html(index=False, escape=False)
-        table_2 = self.spans.attribute_list(attributes).to_html(index='text')
+        table_2 = self.span_list.attribute_list(attributes).to_html(index='text')
         return '\n'.join(('<h4>Layer</h4>', table_1, table_2))
 
     def __repr__(self):
@@ -498,7 +498,7 @@ class Layer:
         if self.enveloping != other.enveloping:
             return "{self.name} layer enveloping differs: {self.enveloping}!={other.enveloping}".format(self=self,
                                                                                                         other=other)
-        if self.spans != other.spans:
+        if self.span_list != other.span_list:
             return "{self.name} layer spans differ".format(self=self, other=other)
         return None
 

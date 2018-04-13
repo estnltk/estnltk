@@ -287,7 +287,7 @@ def layer_to_graph(layer, name_attribute='grammar_symbol', attributes=None):
     assert not attributes or set(attributes) <= set(layer.attributes)
 
     graph = LayerGraph()
-    spans = layer.spans
+    spans = layer.span_list
 
     if layer.ambiguous:
         for sp in iterate_starting_spans(spans):

@@ -204,9 +204,9 @@ class PostMorphAnalysisTagger(TaggerOld):
             Text object to which ignore-markings will be added.
         '''
         comp_token_id = 0
-        for spanlist in text[self.layer_name].spans:
-            if comp_token_id < len(text['compound_tokens'].spans):
-                comp_token = text['compound_tokens'].spans[comp_token_id]
+        for spanlist in text[self.layer_name].span_list:
+            if comp_token_id < len(text['compound_tokens'].span_list):
+                comp_token = text['compound_tokens'].span_list[comp_token_id]
                 if (comp_token.start == spanlist.start and \
                     spanlist.end == comp_token.end):
                     ignore_spans = False
@@ -242,10 +242,10 @@ class PostMorphAnalysisTagger(TaggerOld):
         '''
         comp_token_id  = 0
         has_normalized = 'normalized' in text['compound_tokens'].attributes
-        for spanlist in text[self.layer_name].spans:
-            if comp_token_id < len(text['compound_tokens'].spans):
-                comp_token = text['compound_tokens'].spans[comp_token_id]
-                if (comp_token.start == spanlist.start and \
+        for spanlist in text[self.layer_name].span_list:
+            if comp_token_id < len(text['compound_tokens'].span_list):
+                comp_token = text['compound_tokens'].span_list[comp_token_id]
+                if (comp_token.start == spanlist.start and
                     spanlist.end == comp_token.end):
                     #  In order to avoid errors in downstream processing, let's 
                     # fix only non-empty spans, and skip the empty spans
@@ -361,7 +361,7 @@ class PostMorphAnalysisTagger(TaggerOld):
 
         # Rewrite spans of the old layer
         morph_span_id = 0
-        morph_spans   = text[self.layer_name].spans
+        morph_spans   = text[self.layer_name].span_list
         while morph_span_id < len(morph_spans):
             # 0) Convert SpanList to list of Span-s
             morph_spanlist = \

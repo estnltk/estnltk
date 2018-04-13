@@ -226,7 +226,7 @@ def _convert_analysis( text: Text ):
         # Find all Vabamorf's analyses corresponding to 
         # the current word
         while(morph_span_id < len(text.morph_analysis)):
-            vabamorf_span = text.morph_analysis.spans[morph_span_id]
+            vabamorf_span = text.morph_analysis.span_list[morph_span_id]
             vmstart = vabamorf_span.start
             vmend   = vabamorf_span.end
             if vmstart == wstart and vmend == wend:
@@ -536,8 +536,8 @@ def get_unique_word_group_indices( text: Text, word_group:str = 'clauses' ):
         text.tag_layer([word_group])
     # Collect (unique) word group indices over the whole text
     word_group_indices = []
-    word_spans  = text['words'].spans
-    group_spans = text[ word_group ].spans
+    word_spans  = text['words'].span_list
+    group_spans = text[word_group].span_list
     word_span_id  = 0
     #  Collect all words inside the group
     while word_span_id < len(word_spans):

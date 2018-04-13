@@ -34,7 +34,7 @@ def test_gt_conversion_1_simple():
     
     # Assert content of the layer
     #print(text['gt_morph_analysis'].to_records())
-    expected_records = [ \
+    expected_records = [
         [{'form': 'Sg Nom', 'clitic': '', 'root_tokens': ('rändur',), 'end': 6, 'root': 'rändur', 'lemma': 'rändur', 'start': 0, 'partofspeech': 'S', 'ending': '0'}], \
         [{'form': 'Pers Prt Ind Sg 3 Aff', 'clitic': '', 'root_tokens': ('võt',), 'end': 13, 'root': 'võt', 'lemma': 'võtma', 'start': 7, 'partofspeech': 'V', 'ending': 'is'}], \
         [{'form': 'Sg Par', 'clitic': '', 'root_tokens': ('iste',), 'end': 19, 'root': 'iste', 'lemma': 'iste', 'start': 14, 'partofspeech': 'S', 'ending': 't'}], \

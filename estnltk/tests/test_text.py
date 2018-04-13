@@ -13,7 +13,7 @@ def test_general():
     assert len(t.sentences) == 3
     assert len(t.words) == 15
     assert len(t.sentences.words) == 3
-    assert t.sentences.words == t.sentences.spans
+    assert t.sentences.words == t.sentences.span_list
     with pytest.raises(Exception):
         t.words.sentences
 
@@ -41,8 +41,8 @@ def test_general():
 
 
     assert len(t.sentences[:].morph_analysis) == len(t.sentences[:].text)
-    assert t.sentences[:] == t.sentences.spans
-    assert t.words[:] == t.words.spans
+    assert t.sentences[:] == t.sentences.span_list
+    assert t.words[:] == t.words.span_list
     assert (t.words[:].lemma) == (t.words.lemma)
     assert (t.words[:].text) == (t.words.text)
 
@@ -269,7 +269,7 @@ def test_layer():
         t._add_layer(Layer(name='is'))
 
     assert t.layers['test'] is l
-    assert t.test.spans is l.spans
+    assert t.test.span_list is l.span_list
 
     with pytest.raises(AttributeError):
         t.notexisting
@@ -471,15 +471,15 @@ def test_enveloping_layer():
     wordpairs = Layer(name='wordpairs', enveloping='words')
     t._add_layer(wordpairs)
 
-    wordpairs._add_spans_to_enveloping(t.words.spans[0:2])
-    wordpairs._add_spans_to_enveloping(t.words.spans[2:4])
-    wordpairs._add_spans_to_enveloping(t.words.spans[4:6])
+    wordpairs._add_spans_to_enveloping(t.words.span_list[0:2])
+    wordpairs._add_spans_to_enveloping(t.words.span_list[2:4])
+    wordpairs._add_spans_to_enveloping(t.words.span_list[4:6])
 
     print(t.wordpairs.text)
     assert (wordpairs.text == [['Kui', 'mitu'], ['kuud', 'on'], ['aastas', '?']])
 
-    wordpairs._add_spans_to_enveloping(t.words.spans[1:3])
-    wordpairs._add_spans_to_enveloping(t.words.spans[3:5])
+    wordpairs._add_spans_to_enveloping(t.words.span_list[1:3])
+    wordpairs._add_spans_to_enveloping(t.words.span_list[3:5])
     print(t.wordpairs.text)
     assert (wordpairs.text == [['Kui', 'mitu'], ['mitu', 'kuud'], ['kuud', 'on'], ['on', 'aastas'], ['aastas', '?']])
 
@@ -875,26 +875,26 @@ def test_delete_ambig_span():
         word.mark('test').test1 = c
         c += 1
 
-    assert len(text['test'].spans.spans[0]) == 2
+    assert len(text['test'].span_list.spans[0]) == 2
 
-    (text['test'].spans.spans[0].spans
+    (text['test'].span_list.spans[0].spans
             .remove(
-        text['test'].spans.spans[0] #this is the span we want to remove
+        text['test'].span_list.spans[0] #this is the span we want to remove
     )
           )
-    assert len(text['test'].spans.spans[0]) == 1
+    assert len(text['test'].span_list.spans[0]) == 1
 
 
 
     #removing the second
-    assert len(text['test'].spans.spans[1]) == 2
+    assert len(text['test'].span_list.spans[1]) == 2
 
-    (text['test'].spans.spans[1].spans
+    (text['test'].span_list.spans[1].spans
             .remove(
-        text['test'].spans.spans[1] #this is the span we want to remove
+        text['test'].span_list.spans[1] #this is the span we want to remove
     )
           )
-    assert len(text['test'].spans.spans[1]) == 1
+    assert len(text['test'].span_list.spans[1]) == 1
     
     
 def test_span_morph_access():
@@ -968,10 +968,10 @@ def test_phrase_layer():
 
     assert (t.uppercasephrase.lemma) == [[['karu'], ['olema', 'olema'], ['punane']], [['sina'], ['karu']]]
 
-    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase.spans))]) ==  ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
+    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase.span_list))]) ==  ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
 
-    mapping = {i: [j for j in t.uppercasephrase.spans if i in j][0] for i in
-               list(itertools.chain(*t.uppercasephrase.spans))}
-    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase.spans))]) == ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
+    mapping = {i: [j for j in t.uppercasephrase.span_list if i in j][0] for i in
+               list(itertools.chain(*t.uppercasephrase.span_list))}
+    assert ([i.text for i in t.words if i not in list(itertools.chain(*t.uppercasephrase.span_list))]) == ['Minu', '.', 'MIS', 'värvi', 'on', '?', 'Kuidas', 'PALUN', '?']
 
     assert ([i.text if i not in mapping.keys() else mapping[i].tag for i in t.words]) == ['Minu', 0, 0, 0, '.', 'MIS', 'värvi', 1, 1, 'on', '?', 'Kuidas', 'PALUN', '?']

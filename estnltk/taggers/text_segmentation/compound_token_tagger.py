@@ -203,7 +203,7 @@ class CompoundTokenTagger(Tagger):
         conflict_status = {}
         tokenization_hints = {}
         new_layer = self._tokenization_hints_tagger_1.make_layer(raw_text, layers, status=conflict_status)
-        for sp in new_layer.spans:
+        for sp in new_layer.span_list:
             #print('*',text.text[sp.start:sp.end], sp.pattern_type, sp.normalized)
             if hasattr(sp, 'pattern_type') and sp.pattern_type.startswith('negative:'):
                 # This is a negative pattern (used for preventing other patterns from matching),
@@ -219,7 +219,7 @@ class CompoundTokenTagger(Tagger):
             # from one starting position ...
             if sp.start in tokenization_hints:
                 raise Exception('(!) Unexpected overlapping tokenization hints: ',
-                                [raw_text[sp2.start:sp2.end] for sp2 in new_layer.spans])
+                                [raw_text[sp2.start:sp2.end] for sp2 in new_layer.span_list])
             tokenization_hints[sp.start] = end_node
 
         # tokens = text.tokens.text
@@ -445,14 +445,14 @@ class CompoundTokenTagger(Tagger):
                                                                  status=conflict_status)
         # Find tokens that should be joined according to 2nd level hints and 
         # create new compound tokens based on them
-        for sp in new_layer.spans:
+        for sp in new_layer.span_list:
             # get tokens covered by the span
             covered_compound_tokens =\
                 self._get_covered_tokens(
                     sp.start,sp.end,sp.left_strict,sp.right_strict,compound_tokens_lists )
             covered_tokens = \
                 self._get_covered_tokens(
-                    sp.start,sp.end,sp.left_strict,sp.right_strict, layers['tokens'].spans )
+                    sp.start, sp.end, sp.left_strict, sp.right_strict, layers['tokens'].span_list)
             # remove regular tokens that are within compound tokens
             covered_tokens = \
                 self._remove_overlapped_spans(covered_compound_tokens, covered_tokens)

@@ -540,7 +540,7 @@ class SyntaxIgnoreTagger(TaggerOld):
         # Create an alignment between words and spans
         wid = 0
         ignored_words_spans = []
-        for sp in new_layer.spans:
+        for sp in new_layer.span_list:
             # Find words that fall within the span
             words_start = -1
             words_end   = -1
@@ -634,7 +634,7 @@ class SyntaxIgnoreTagger(TaggerOld):
         #         in parentheses and/or less than 3 lc words
         # 1) Collect candidates for ignored sentences
         ignored_sentence_candidates = []
-        for sent_id, sentence_span in enumerate( text['sentences'].spans ):
+        for sent_id, sentence_span in enumerate( text['sentences'].span_list ):
             ignored_words = []
             # collect ignored words inside sentences
             if ignored_words_spans:
@@ -729,7 +729,7 @@ class SyntaxIgnoreTagger(TaggerOld):
              Returns ignored_words_spans which is extended with new ignore 
              sentences;
         """
-        for sent_id, sentence_span in enumerate( text['sentences'].spans ):
+        for sent_id, sentence_span in enumerate( text['sentences'].span_list):
             sentence_text   = sentence_span.enclosing_text
             contains_number = bool(_contains_number_compiled.search( sentence_text ))
             contains_letter = bool(_contains_letter_compiled.search( sentence_text ))
@@ -768,7 +768,7 @@ class SyntaxIgnoreTagger(TaggerOld):
              Returns ignored_words_spans which is extended with new ignore 
              sentences;
         """
-        for sent_id, sentence_span in enumerate( text['sentences'].spans ):
+        for sent_id, sentence_span in enumerate( text['sentences'].span_list):
             sentence_text = sentence_span.enclosing_text
             if _clock_time_start_compiled.match( sentence_text ):
                 # If the sentence begins with a clock time, it is likely 
@@ -825,7 +825,7 @@ class SyntaxIgnoreTagger(TaggerOld):
         """
         # 1) Collect candidates for ignored sentences
         ignored_sentence_candidates = []
-        for sent_id, sentence_span in enumerate( text['sentences'].spans ):
+        for sent_id, sentence_span in enumerate( text['sentences'].span_list):
             ignored_words = []
             # check if the sentence does not contain 3 consecutive lc words
             sentence_text = sentence_span.enclosing_text
@@ -934,7 +934,7 @@ class SyntaxIgnoreTagger(TaggerOld):
         """
         # 1) Collect candidates for ignored sentences
         ignored_sentence_candidates = []
-        for sent_id, sentence_span in enumerate( text['sentences'].spans ):
+        for sent_id, sentence_span in enumerate( text['sentences'].span_list):
             ignored_words = []
             # check if the sentence has required properties
             sentence_text = sentence_span.enclosing_text
@@ -947,13 +947,13 @@ class SyntaxIgnoreTagger(TaggerOld):
             colon_start        = bool( _colon_start_compiled.match(sentence_text) )
             if misses_lc_words and comma_ucase_items >= 3 and \
                number_items > 0 and (colon_items > 1 or colon_start):
-                ignore_item = { 'sent_id':sent_id, 'span': sentence_span, \
+                ignore_item = { 'sent_id':sent_id, 'span': sentence_span,
                                 'ignore_sentence': True }
                 ignored_sentence_candidates.append( ignore_item )
             elif misses_lc_words and hyphen_ucase_items >= 2 and \
                  comma_items >= 2 and colon_items >= 2 and number_items >= 1:
-                ignore_item = { 'sent_id':sent_id, 'span': sentence_span, \
-                                'ignore_sentence': True }
+                ignore_item = {'sent_id':sent_id, 'span': sentence_span,
+                               'ignore_sentence': True }
                 ignored_sentence_candidates.append( ignore_item )
         # 2) Insert all sentences that should be ignored into the list of ignored;
         #    Perform check-ups and filterings before insertions
@@ -982,7 +982,7 @@ class SyntaxIgnoreTagger(TaggerOld):
                         # of the current sentence (basically: remove overlapped ignore content)
                         new_ignored_words_spans = []
                         for ignore_span in ignored_words_spans:
-                            if not (new_spanlist.start <= ignore_span.start and \
+                            if not (new_spanlist.start <= ignore_span.start and
                                     ignore_span.end <= new_spanlist.end):
                                 new_ignored_words_spans.append( ignore_span )
                         ignored_words_spans = new_ignored_words_spans

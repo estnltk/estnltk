@@ -309,7 +309,7 @@ def test_yield_layer_intersections():
     layer.add_span(Span(start=22, end=33)) # 'kuus seitse'
     text['test_layer'] = layer
     
-    intersections   = list( iterate_intersecting_spans( text['test_layer'].spans ) )
+    intersections   = list( iterate_intersecting_spans( text['test_layer'].span_list ) )
     intersect_texts = [ (a.text,b.text) for a, b in intersections ]
     #print( intersect_texts )
     assert intersect_texts == \

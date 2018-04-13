@@ -54,8 +54,8 @@ class WordTagger(TaggerOld):
         for span in text.tokens:
             if span in compounds:
                 words.add_span(compounds[span])
-            elif words.spans: 
-                if span.start >= words.spans[-1].end: 
+            elif words.span_list:
+                if span.start >= words.span_list[-1].end:
                     token_span = Span(start=span.start,
                                       end=span.end)
                     token_span.normalized_form = None

@@ -71,11 +71,11 @@ class ClauseSegmenter(TaggerOld):
         """
         clause_spanlists = []
         # Iterate over sentences and words, tag clause boundaries
-        morph_spans  = text['morph_analysis'].spans
-        word_spans   = text['words'].spans
+        morph_spans  = text['morph_analysis'].span_list
+        word_spans   = text['words'].span_list
         assert len(morph_spans) == len(word_spans)
         word_span_id = 0
-        for sentence in text['sentences'].spans:
+        for sentence in text['sentences'].span_list:
             #  Collect all words/morph_analyses inside the sentence
             #  Assume: len(word_spans) == len(morph_spans)
             sentence_morph_dicts = []
