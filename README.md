@@ -30,10 +30,20 @@ Additional educational materials on older EstNLTK version 1.4 are available on t
 
 * https://github.com/d009/EstNLP
 
+## Usage with Jupyter Notebook
+
+To use Estnltk with jupyter notebook, create a virtual environment and install a new kernel:
+
+    conda create -n projectname python=3.5 -c estnltk -c conda-forge estnltk ipython ipykernel jupyter -y 
+    source activate projectname
+    ipython kernel install --user --name=projectname
+
+Now you can start jupyter and select the kernel that lives inside your virtual environment.
+
 
 ## Citation
 
-Once you use Estnltk in your work, plase cite us as follows:
+In case you use Estnltk in your work, please cite us as follows:
 
     @InProceedings{ORASMAA16.332,
     author = {Siim Orasmaa and Timo Petmanson and Alexander Tkachenko and Sven Laur and Heiki-Jaan Kaalep},
