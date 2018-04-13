@@ -4,6 +4,14 @@ class ImmutableList:
     def __init__(self, attr_list):
         self._list = list(attr_list)
 
+    def __eq__(self, other):
+        if isinstance(other, ImmutableList):
+            return self._list == other._list
+        return False
+
+    def __len__(self):
+        return len(self._list)
+
     def __getitem__(self, item):
         return self._list[item]
 
