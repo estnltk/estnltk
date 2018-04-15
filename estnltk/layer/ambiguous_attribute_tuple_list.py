@@ -40,7 +40,7 @@ class AmbiguousAttributeTupleList:
         for i, value_tuples in enumerate(self.amb_attr_tuple_list):
             first = True
             for value_tuple in value_tuples:
-                record = {k: v for k, v in zip(self.attribute_names, value_tuple)}
+                record = {k: str(v) for k, v in zip(self.attribute_names, value_tuple)}
                 if index is True:
                     record[''] = i if first else ''
                 elif isinstance(index, str) and not first:
