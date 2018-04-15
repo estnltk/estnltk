@@ -120,7 +120,7 @@ class SpanList(collections.Sequence):
 
         layer = self.__getattribute__('layer')  # type: Layer
         if item in layer.attributes:
-            return self.attribute_list(item)#[getattr(span, item) for span in self.spans]
+            return layer.attribute_list(item)#[getattr(span, item) for span in self.spans]
         if item in self.__dict__.keys():
             return self.__dict__[item]
         if item == getattr(self.layer, 'parent', None):
@@ -166,23 +166,6 @@ class SpanList(collections.Sequence):
 
     def __repr__(self):
         return str(self)
-
-    def attribute_list(self, attributes):
-        assert isinstance(attributes, (str, list, tuple)), str(type(attributes))
-        assert attributes, 'no attributes: ' + str(attributes)
-
-        if self.ambiguous:
-            if isinstance(attributes, (list, tuple)):
-                return AmbiguousAttributeTupleList((((getattr(sp, name) for name in attributes) for sp in asp)
-                                                    for asp in self.spans), attributes)
-            else:
-                return AmbiguousAttributeList(((getattr(sp, attributes) for sp in asp)
-                                               for asp in self.spans), attributes)
-        else:
-            if isinstance(attributes, (list, tuple)):
-                return AttributeTupleList([[getattr(sp, attr)for attr in attributes] for sp in self.spans], attributes)
-            else:
-                return AttributeList([getattr(sp, attributes) for sp in self.spans], attributes)
 
     def _repr_html_(self):
         if self.layer and self is self.layer.span_list:
@@ -270,6 +253,30 @@ class Layer:
         # placeholder. is set when `_add_layer` is called on text object
         self.text_object = None  # type: Text
 
+    @property
+    def layer(self):
+        return self
+
+    @property
+    def start(self):
+        return self.span_list.spans[0].start
+
+    @property
+    def end(self):
+        return self.span_list.spans[-1].end
+
+    @property
+    def spans(self):
+        return self.span_list.spans
+
+    @property
+    def text(self):
+        return [span.text for span in self.span_list.spans]
+
+    @property
+    def enclosing_text(self):
+        return self.text_object.text[self.start:self.end]
+
     def freeze(self):
         self._is_frozen = True
 
@@ -319,6 +326,28 @@ class Layer:
                         legal_attributes=self.attributes
                     ))
         return self
+
+    def attribute_list(self, attributes):
+        assert isinstance(attributes, (str, list, tuple)), str(type(attributes))
+        assert attributes, 'no attributes: ' + str(attributes)
+
+        if self.ambiguous:
+            if isinstance(attributes, (list, tuple)):
+                return AmbiguousAttributeTupleList((((getattr(sp, name) for name in attributes) for sp in asp)
+                                                    for asp in self.span_list.spans), attributes)
+            else:
+                return AmbiguousAttributeList(((getattr(sp, attributes) for sp in asp)
+                                               for asp in self.span_list.spans), attributes)
+        else:
+            if isinstance(attributes, (list, tuple)):
+                return AttributeTupleList([[getattr(sp, attr)for attr in attributes] for sp in self.span_list.spans], attributes)
+            else:
+                return AttributeList([getattr(sp, attributes) for sp in self.span_list.spans], attributes)
+
+    def _repr_html_(self):
+        if self.layer and self is self.layer.span_list:
+            return self.layer.to_html(header='SpanList', start_end=True)
+        return str(self)
 
     def get_attributes(self, items):
         return self.__getattribute__('span_list').get_attributes(items)
@@ -390,13 +419,56 @@ class Layer:
             return self.__getattribute__('__dict__')[item]
         if item in self.__getattribute__('attributes'):
             return self.__getitem__(item)
-            #return self.__getattribute__('spans').__getattr__(item)
+            #return self.__getattribute__('span_list').__getattr__(item)
 
-        return self.__getattribute__('text_object')._resolve(self.name, item, sofar=self.__getattribute__('span_list'))
+        target = self.text_object._resolve(self.name, item, sofar=self.span_list)
+        return target
 
-    def __getitem__(self, idx):
-        res = self.span_list.__getitem__(idx)
-        return res
+    def __getitem__(self, item) -> Union[Span, 'Layer', AmbiguousAttributeTupleList]:
+        if isinstance(item, str) or isinstance(item, (list, tuple)) and all(isinstance(s, str) for s in item):
+            return self.attribute_list(item)
+
+        if isinstance(item, int):
+            wrapped = self.span_list.spans.__getitem__(item)
+            return wrapped
+
+        if isinstance(item, tuple) and len(item) == 2 \
+           and (callable(item[0])
+                or isinstance(item[0], (int, slice))
+                or (isinstance(item[0], (tuple, list)) and all(isinstance(i, int) for i in item[0])))\
+           and (isinstance(item[1], str)
+                or isinstance(item[1], (list, tuple)) and all(isinstance(i, str) for i in item[1])):
+            return self[item[0]][item[1]]
+
+        layer = Layer(name=self.name,
+                      attributes=self.attributes,
+                      parent=self.parent,
+                      enveloping=self.enveloping,
+                      ambiguous=self.ambiguous,
+                      default_values=self.default_values)
+        layer._base = self._base
+        span_list = SpanList(layer=layer, ambiguous=self.ambiguous)
+        span_list.parent = self.span_list.parent
+        layer.span_list = span_list
+
+        if isinstance(item, slice):
+            wrapped = self.span_list.spans.__getitem__(item)
+            layer.span_list.spans = wrapped
+            return layer
+        if isinstance(item, (list, tuple)) and all(isinstance(i, bool) for i in item):
+            wrapped = [s for s, i in zip(self.span_list.spans, item) if i]
+            layer.span_list.spans = wrapped
+            return layer
+        if isinstance(item, (list, tuple)) and all(isinstance(i, int) for i in item):
+            wrapped = [self.span_list.spans.__getitem__(i) for i in item]
+            layer.span_list.spans = wrapped
+            return layer
+        if callable(item):
+            wrapped = [span for span in self.span_list.spans if item(span)]
+            layer.span_list.spans = wrapped
+            return layer
+
+        raise TypeError('index not supported: ' + str(item))
 
     def __len__(self):
         return len(self.span_list)
@@ -418,11 +490,6 @@ class Layer:
                                              columns=['layer name', 'attributes',
                                                       'parent', 'enveloping',
                                                       'ambiguous', 'span count'])
-
-    def attribute_list(self, attributes=None):
-        if attributes is None:
-            attributes = self.attributes
-        return self.span_list.attribute_list(attributes)
 
     def to_html(self, header='Layer', start_end=False):
         res = []
@@ -470,11 +537,16 @@ class Layer:
             return '\n'.join(('<h4>' + header + '</h4>', table1, table2))
         return '\n'.join((table1, table2))
 
+    print_start_end = False
+
     def _repr_html_(self):
-        attributes = ['text', 'start', 'end']
+        if self.print_start_end:
+            attributes = ['text', 'start', 'end']
+        else:
+            attributes = ['text']
         attributes.extend(self.attributes)
         table_1 = self.metadata().to_html(index=False, escape=False)
-        table_2 = self.span_list.attribute_list(attributes).to_html(index='text')
+        table_2 = self.attribute_list(attributes).to_html(index='text')
         return '\n'.join(('<h4>Layer</h4>', table_1, table_2))
 
     def __repr__(self):
