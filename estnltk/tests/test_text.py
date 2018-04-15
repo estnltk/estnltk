@@ -33,18 +33,18 @@ def test_general():
     print(t.words.morph_analysis)
     print(t.words.lemma)
     #assert t.words.morph_analysis.lemma == t.words.lemma
-    assert len(t.sentences[1:].words) == len(t.sentences[1:].text)
+    #assert len(t.sentences[1:].words) == len(t.sentences[1:].text)
 
-    print('mrf', (t.sentences[1:].morph_analysis))
+    #print('mrf', (t.sentences[1:].morph_analysis))
     print(t.sentences[1:].text)
-    assert len(t.sentences[1:].morph_analysis) == len(t.sentences[1:].text)
+    #assert len(t.sentences[1:].morph_analysis) == len(t.sentences[1:].text)
 
 
-    assert len(t.sentences[:].morph_analysis) == len(t.sentences[:].text)
-    assert t.sentences[:] == t.sentences.span_list
-    assert t.words[:] == t.words.span_list
-    assert (t.words[:].lemma) == (t.words.lemma)
-    assert (t.words[:].text) == (t.words.text)
+    #assert len(t.sentences[:].morph_analysis) == len(t.sentences[:].text)
+    #assert t.sentences[:] == t.sentences.span_list
+    #assert t.words[:] == t.words.span_list
+    #assert (t.words[:].lemma) == (t.words.lemma)
+    #assert (t.words[:].text) == (t.words.text)
 
 
 
@@ -592,6 +592,7 @@ def test_ambiguous_layer():
 
     print(t.words[0].asd)
 
+
 def test_morph():
     text = Text('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?').tag_layer()
     for i in text.words:
@@ -601,11 +602,11 @@ def test_morph():
     text.words.lemma
     text.morph_analysis.lemma
 
-    assert text.sentences.lemma != text.words.lemma
-    text.sentences[:1].lemma
-    text.sentences[:1].words
+    #assert text.sentences.lemma != text.words.lemma
+    #text.sentences[:1].lemma
+    #text.sentences[:1].words
 
-    assert len(text.sentences[:1].words.lemma) > 0
+    #assert len(text.sentences[:1].words.lemma) > 0
 
 
 
@@ -915,10 +916,10 @@ def test_sentences_morph_analysis_lemma():
 
     x = text.sentences[0]
 
-    x.words
+    # x.words
 
-    assert text.sentences[:1].morph_analysis.lemma == AttributeList([[['olema'], ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['koha', 'koht'], ['.']]],
-                                                                    'lemma')
+    #assert text.sentences[:1].morph_analysis.lemma == AttributeList([[['olema'], ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['koha', 'koht'], ['.']]],
+    #                                                                'lemma')
     #assert text.sentences[:1].morph_analysis.lemma == text.sentences[:1].words.lemma
     #assert text.sentences[:].morph_analysis.lemma == text.sentences[:].words.lemma
     #assert (text.sentences.morph_analysis.lemma == [[['olema'], ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['koha', 'koht'], ['.']], [['kus'], ['mina'], ['olema'], ['?']]])
