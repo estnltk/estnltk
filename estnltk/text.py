@@ -389,8 +389,8 @@ class Text:
 
     def __setitem__(self, key, value):
         # always sets layer
-        assert key not in self.layers.keys(), 'Re-adding a layer not implemented yet'
-        assert value.name == key, 'Name mismatch between layer name and value'
+        assert key not in self.layers.keys(), 'Re-adding a layer not implemented yet: ' + key
+        assert value.name == key, 'Name mismatch between layer name and value: {}!={}'.format(value.name, key)
         return self._add_layer(
             value
         )
