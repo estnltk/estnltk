@@ -454,8 +454,9 @@ class Text:
         table = pandas.DataFrame.from_records(rec)
         table = table.to_html(index=False, escape=False)
         if self.meta:
-            table_meta = pandas.DataFrame.from_dict(self.meta, orient='index')
-            table_meta = table_meta.to_html(header=False)
+            data = {'key': sorted(self.meta), 'value': [self.meta[k] for k in sorted(self.meta)]}
+            table_meta = pandas.DataFrame(data, columns=['key', 'value'])
+            table_meta = table_meta.to_html(header=False, index=False)
             table = '\n'.join((table, '<h4>Metadata</h4>', table_meta))
         if self.layers:
             # create a list of layers preserving the order of registered layers
