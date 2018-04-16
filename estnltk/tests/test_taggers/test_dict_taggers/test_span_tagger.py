@@ -14,14 +14,14 @@ def test_basic():
                         key='_token_',
                         validator_attribute='_validator_',
                         priority_attribute=None,
-                        ambiguous=False
+                        ambiguous=True
                         )
     text = new_text(5)
     tagger.tag(text)
 
     expected = [
-        {'number': 1, 'letter': 'A', 'start': 9, 'end': 14, '_priority_': 0},
-        {'number': 2, 'letter': 'B', 'start': 22, 'end': 27, '_priority_': 1},
-        {'number': 3, 'letter': 'C', 'start': 22, 'end': 27, '_priority_': 1}
-    ]
+     [{'letter': 'A', 'end': 14, 'number': 1, 'start': 9, '_priority_': 0}],
+     [{'letter': 'B', 'end': 27, 'number': 2, 'start': 22, '_priority_': 1},
+      {'letter': 'C', 'end': 27, 'number': 3, 'start': 22, '_priority_': 1}]]
+
     assert expected==text['tagged_tokens'].to_records()

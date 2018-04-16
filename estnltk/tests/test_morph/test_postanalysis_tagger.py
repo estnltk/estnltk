@@ -1,10 +1,12 @@
 from estnltk import Text
-from estnltk.taggers.morph.morf import VabamorfTagger
-from estnltk.taggers.morph.postanalysis_tagger import PostMorphAnalysisTagger
+from estnltk.taggers import VabamorfTagger
+from estnltk.taggers import PostMorphAnalysisTagger
+from estnltk.layer import AmbiguousAttributeTupleList
 
 # ----------------------------------
 #   Helper functions
 # ----------------------------------
+
 
 def _sort_morph_analysis_records( morph_analysis_records:list ):
     '''Sorts sublists (lists of analyses of a single word) of 
@@ -32,7 +34,7 @@ def test_postanalysis_fix_names_with_initials():
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
     #print(text['morph_analysis'].to_records())
-    expected_records = [ \
+    expected_records = [
         [{'clitic': '', 'lemma': 'romaan', 'ending': '0', 'partofspeech': 'S', 'form': 'sg n', 'root_tokens': ('romaan',), 'end': 6, 'root': 'romaan', 'start': 0}], \
         [{'clitic': '', 'lemma': 'kinnitama', 'ending': 'b', 'partofspeech': 'V', 'form': 'b', 'root_tokens': ('kinnita',), 'end': 15, 'root': 'kinnita', 'start': 7}], \
         [{'clitic': '', 'lemma': 'üks', 'ending': '0', 'partofspeech': 'N', 'form': 'sg p', 'root_tokens': ('üks',), 'end': 19, 'root': 'üks', 'start': 16}, \
@@ -91,11 +93,12 @@ def test_postanalysis_fix_names_with_initials():
     text=Text("Ansambli nimeks oli Swing B. Esinemas käisime tantsuõhtutel")
     text.tag_layer(['words','sentences'])
     morf_tagger.tag(text)
-    expected_result = [('Ansambli', ['S']), ('nimeks', ['S']), ('oli', ['V']), ('Swing', ['H']), \
-                       ('B. Esinemas', ['V']), ('käisime', ['V']), ('tantsuõhtutel', ['S'])]
+    expected_result = AmbiguousAttributeTupleList([[['Ansambli', 'S']], [['nimeks', 'S']], [['oli', 'V']],
+                                                   [['Swing', 'H']], [['B. Esinemas', 'V']], [['käisime', 'V']],
+                                                   [['tantsuõhtutel', 'S']]], ('text', 'partofspeech'))
     # TODO: 'B. Esinemas' is actually a wrong compound token, 
     #        needs to be fixed in the future
-    result = list(zip(text.words.text,text.partofspeech))
+    result = text.morph_analysis['text', 'partofspeech']
     assert expected_result == result
 
 

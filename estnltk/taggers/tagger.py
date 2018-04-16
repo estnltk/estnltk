@@ -59,20 +59,12 @@ class Tagger:
                       'output attributes': str(self.output_attributes),
                       'input layers': str(self.input_layers)}
         table = pandas.DataFrame(data=parameters,
-                                 columns=['name', 'output layer', 'output attributes', 'input layers'], index=[0])
+                                 columns=['name', 'output layer', 'output attributes', 'input layers'],
+                                 index=[0])
         table = table.to_html(index=False)
         assert self.__class__.__doc__ is not None, 'No docstring.'
         description = self.__class__.__doc__.strip().split('\n')[0]
         table = ['<h4>Tagger</h4>', description, table]
-
-        def to_str(value):
-            value_str = str(value)
-            if len(value_str) < 100:
-                return value_str
-            value_str = value_str[:80] + ' ..., type: ' + str(type(value))
-            if hasattr(value, '__len__'):
-                value_str += ', length: ' + str(len(value))
-            return value_str
 
         if self.conf_param:
             public_param = [p for p in self.conf_param if not p.startswith('_')]
@@ -90,9 +82,34 @@ class Tagger:
         conf_str = ''
         if self.conf_param:
             params = ['input_layers', 'output_layer', 'output_attributes'] + list(self.conf_param)
-            conf = [attr+'='+str(getattr(self, attr)) for attr in params if not attr.startswith('_')]
+            conf = [attr+'='+to_str(getattr(self, attr)) for attr in params if not attr.startswith('_')]
             conf_str = ', '.join(conf)
         return self.__class__.__name__ + '(' + conf_str + ')'
 
     def __str__(self):
         return self.__class__.__name__ + '(' + str(self.input_layers) + '->' + self.output_layer + ')'
+
+    # for compatibility with Taggers in resolve_layer_tag
+    def parameters(self):
+        record = {'name': self.__class__.__name__,
+                  'layer': self.output_layer,
+                  'attributes': self.output_attributes,
+                  'depends_on': self.input_layers,
+                  'configuration': [p+'='+str(getattr(self, p)) for p in self.conf_param if not p.startswith('_')]
+                  }
+        return record
+
+
+def to_str(value):
+    if callable(value) and hasattr(value, '__name__') and hasattr(value, '__module__'):
+        value_str = '<function {}.{}>'.format(value.__module__, value.__name__)
+    elif hasattr(value, 'pattern'):
+        value_str = '<Regex {}>'.format(value.pattern)
+    else:
+        value_str = str(value)
+    if len(value_str) < 100:
+        return value_str
+    value_str = value_str[:80] + ' ..., type: ' + str(type(value))
+    if hasattr(value, '__len__'):
+        value_str += ', length: ' + str(len(value))
+    return value_str

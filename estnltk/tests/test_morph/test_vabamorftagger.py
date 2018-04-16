@@ -1,6 +1,7 @@
 from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.resolve_layer_dag import make_resolver
+from estnltk.layer import AmbiguousAttributeList
 
 # ----------------------------------
 
@@ -41,7 +42,7 @@ def test_default_morph_analysis():
         [{'root': '.', 'ending': '', 'start': 26, 'form': '', 'lemma': '.', 'root_tokens': ('.',), 'partofspeech': 'Z', 'clitic': '', 'end': 27}] ]
     # Check results
     assert expected_records == text['morph_analysis'].to_records()
-    assert [['J'], ['P', 'P'], ['V'], ['D'], ['Z']] == text.partofspeech
+    assert AmbiguousAttributeList([['J'], ['P', 'P'], ['V'], ['D'], ['Z']], 'partofspeech') == text.partofspeech
     
     # Case 2 (contains ambiguities that should be resolved)
     text = Text("Kärbes hulbib mees ja naeris puhub sädelevaid mulle.")
@@ -177,9 +178,9 @@ def test_default_morph_analysis_without_guessing():
     delattr(text, 'morph_analysis')
     # Create a new layer without guessing
     text.tag_layer(resolver=resolver)['morph_analysis']
-    assert [['tüdruk'], ['mine'], [None], [None]]   == text.root
-    assert [['tüdruk'], ['minema'], [None], [None]] == text.lemma
-    assert [['S'], ['V'], [None], [None]]           == text.partofspeech
+    assert AmbiguousAttributeList([['tüdruk'], ['mine'], [None], [None]], 'root') == text.root
+    assert AmbiguousAttributeList([['tüdruk'], ['minema'], [None], [None]], 'lemma') == text.lemma
+    assert AmbiguousAttributeList([['S'], ['V'], [None], [None]], 'partofspeech') == text.partofspeech
     
     # Case 3
     # Use VabamorfTagger

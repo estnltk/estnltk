@@ -26,14 +26,14 @@ class DateTagger(TaggerOld):
                                    output_layer=layer_name,
                                    )
 
-        self.configuration = self._tagger.configuration
+        #self.configuration = self._tagger.configuration
 
   
     def tag(self, text, return_layer=False):
         """
         Tags dates on text
         """
-        return self._tagger.tag(text, return_layer=return_layer)
+        return self._tagger.tag(text)#, return_layer=return_layer)
 
 
     def _create_vocabulary(self, regexes):

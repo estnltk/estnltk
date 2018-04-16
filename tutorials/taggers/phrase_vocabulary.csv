@@ -1,4 +1,5 @@
 _phrase_,value,_priority_
+callable,string,callable
 "'tundma', 'inimene'",TI_1,0
 "'päike',",P,0
 "'tundma', 'inimene'",TI_2,0

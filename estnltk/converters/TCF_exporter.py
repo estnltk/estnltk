@@ -4,7 +4,7 @@ from estnltk.text import Text
 
 
 def export_TCF(t: Text, file:str=None, version='0.4'):
-    '''
+    """
     Export Text to TCF XML format for
     https://weblicht.sfs.uni-tuebingen.de/weblicht/
     
@@ -20,8 +20,8 @@ def export_TCF(t: Text, file:str=None, version='0.4'):
 
     Returns: str
         TCF xml string.
-    '''
-    
+    """
+
     assert version in {'0.4', '0.5'}, 'Unknown version: ' + str(version)
     
     text_tree = etree.Element('D-Spin', xmlns="http://www.dspin.de/data", version=version)
@@ -29,26 +29,26 @@ def export_TCF(t: Text, file:str=None, version='0.4'):
     
     etree.SubElement(text_tree, 'MetaData', xmlns="http://www.dspin.de/data/metadata")
     
-    etree.SubElement(text_tree, 'TextCorpus', xmlns="http://www.dspin.de/data/textcorpus", lang="ee")
+    etree.SubElement(text_tree, 'TextCorpus', xmlns="http://www.dspin.de/data/textcorpus", lang="et")
     
     etree.SubElement(text_tree[1], 'text').text = t.text
-    
-    
+
     E = ElementMaker(namespace='http://www.dspin.de/data/textcorpus',
                      nsmap={'tc':'http://www.dspin.de/data/textcorpus'})
 
+    token_ids = {}
     if 'words' in t.layers and version in {'0.4', '0.5'}:
-        token_ids = {word:'t'+str(i) for i, word in enumerate(t.words)}
+        token_ids = {word: 't'+str(i) for i, word in enumerate(t.words)}
         tokens = E('tokens')
         for word in t.words:
-            tokens.append(E('token', word.text,  {'ID':token_ids[word], 'start':str(word.start), 'end':str(word.end)}))
+            tokens.append(E('token', word.text, {'ID': token_ids[word], 'start': str(word.start), 'end': str(word.end)}))
         text_tree[1].append(tokens)
-    
+
     if 'sentences' in t.layers and version in {'0.4', '0.5'}:
         sentences = E('sentences')
         for i, sentence in enumerate(t.sentences):
             token_IDs = ' '.join((token_ids[word] for word in sentence))
-            sentences.append(E('sentence',  {'ID':'s'+str(i), 'tokenIDs':token_IDs}))
+            sentences.append(E('sentence', {'ID': 's'+str(i), 'tokenIDs': token_IDs}))
         text_tree[1].append(sentences)
 
     if 'morph_analysis' in t.layers and version in {'0.4', '0.5'}:
@@ -107,7 +107,6 @@ def export_TCF(t: Text, file:str=None, version='0.4'):
             count += 1
     if chunk:
         text_tree[1].append(element_maker)
-
 
     if file is not None:
         doc.write(file, xml_declaration=True, encoding='UTF-8', pretty_print=True)

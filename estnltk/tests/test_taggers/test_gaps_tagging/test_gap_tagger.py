@@ -1,6 +1,6 @@
 from estnltk import Text
-from estnltk.layer import Layer
-from estnltk.spans import Span
+from estnltk.layer.layer import Layer
+from estnltk.layer.span import Span
 from estnltk.taggers import GapTagger
 
 text = Text('Üks kaks kolm neli viis kuus seitse.')
@@ -16,9 +16,11 @@ layer_2.add_span(Span(9, 18))
 layer_2.add_span(Span(35, 36))
 text['test_2'] = layer_2
 
+text['test_3'] = Layer('test_3')
+
 
 def test_gaps():
-    gaps_tagger = GapTagger('simple_gaps', ['test_1', 'test_2'])
+    gaps_tagger = GapTagger('simple_gaps', ['test_1', 'test_2', 'test_3'])
     gaps_tagger.tag(text)
 
     records = [{'end': 4, 'start': 0},
@@ -26,6 +28,12 @@ def test_gaps():
                {'end': 24, 'start': 18},
                {'end': 35, 'start': 28}]
     assert text['simple_gaps'].to_records() == records
+
+    # gaps in empty layer
+    gaps_tagger_2 = GapTagger('simple_gaps_2', ['test_3'])
+    gaps_tagger_2.tag(text)
+
+    assert text['simple_gaps_2'].to_records() == [{'end': 36, 'start': 0},]
 
 
 def test_gaps_trim():

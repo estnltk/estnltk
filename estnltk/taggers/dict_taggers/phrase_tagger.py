@@ -1,5 +1,6 @@
-from estnltk.taggers import Tagger, read_vocabulary
-from estnltk.layer import Layer
+from estnltk import EnvelopingSpan
+from estnltk.taggers import Tagger, Vocabulary
+from estnltk.layer.layer import Layer
 from estnltk.layer_operations import resolve_conflicts
 from collections import defaultdict
 from typing import Sequence, Union
@@ -64,21 +65,13 @@ class PhraseTagger(Tagger):
 
         self.ambiguous = ambiguous
 
-        if isinstance(vocabulary, str):
-            if priority_attribute is None:
-                callable_attributes = (key,)
-            else:
-                callable_attributes = (key, priority_attribute)
+        self._vocabulary = Vocabulary(vocabulary=vocabulary,
+                                      key=key,
+                                      default_rec={self.validator_attribute: default_validator})
 
-            str_attributes = [attr for attr in self.output_attributes if attr not in callable_attributes]
-
-            self._vocabulary = read_vocabulary(vocabulary_file=vocabulary,
-                                               key=key,
-                                               string_attributes=str_attributes,
-                                               callable_attributes=callable_attributes,
-                                               default_rec={self.validator_attribute: default_validator})
-        else:
-            self._vocabulary = vocabulary
+        if not self.ambiguous:
+            assert all(len(values) == 1 for values in self._vocabulary.values()),\
+                'ambiguous==False but vocabulary is ambiguous'
 
         self._heads = defaultdict(list)
         for phrase in self._vocabulary:
@@ -107,7 +100,7 @@ class PhraseTagger(Tagger):
                                 if match:
                                     phrase = (value,) + tail
                                     for rec in self._vocabulary[phrase]:
-                                        span = input_layer.spans[i:i + len(tail) + 1]
+                                        span = EnvelopingSpan(spans=input_layer[i:i + len(tail) + 1].spans)
                                         if self.global_validator(raw_text, span) and rec[self.validator_attribute](raw_text, span):
                                             for attr in self.output_attributes:
                                                 setattr(span, attr, rec[attr])
@@ -125,7 +118,8 @@ class PhraseTagger(Tagger):
                             if match:
                                 phrase = (value,) + tail
                                 for rec in self._vocabulary[phrase]:
-                                    span = input_layer.spans[i:i + len(tail) + 1]
+                                    spans = input_layer.span_list[i:i + len(tail) + 1]
+                                    span = EnvelopingSpan(spans=spans, layer=layer)
                                     if self.global_validator(raw_text, span) and rec[self.validator_attribute](raw_text, span):
                                         for attr in self.output_attributes:
                                             setattr(span, attr, rec[attr])

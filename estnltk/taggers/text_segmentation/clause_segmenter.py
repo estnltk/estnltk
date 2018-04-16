@@ -9,16 +9,14 @@ from typing import Union
 
 import json
 
-from estnltk.text import Text, Layer, Span, SpanList
+from estnltk.text import Text, Layer, EnvelopingSpan
 
 from estnltk.taggers import TaggerOld
-from estnltk.taggers.morph.morf_common import _convert_morph_analysis_span_to_vm_dict
-from estnltk.taggers.morph.morf_common import _create_empty_morph_span
-from estnltk.taggers.morph.morf_common import _is_empty_span
+from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
+from estnltk.taggers.morph_analysis.morf_common import _is_empty_span
 
 from estnltk.java.javaprocess import JavaProcess
 from estnltk.core import JAVARES_PATH
-
 
 
 class ClauseSegmenter(TaggerOld):
@@ -73,11 +71,11 @@ class ClauseSegmenter(TaggerOld):
         """
         clause_spanlists = []
         # Iterate over sentences and words, tag clause boundaries
-        morph_spans  = text['morph_analysis'].spans
-        word_spans   = text['words'].spans
+        morph_spans  = text['morph_analysis'].span_list
+        word_spans   = text['words'].span_list
         assert len(morph_spans) == len(word_spans)
         word_span_id = 0
-        for sentence in text['sentences'].spans:
+        for sentence in text['sentences'].span_list:
             #  Collect all words/morph_analyses inside the sentence
             #  Assume: len(word_spans) == len(morph_spans)
             sentence_morph_dicts = []
@@ -140,10 +138,10 @@ class ClauseSegmenter(TaggerOld):
                         word['clause_type']
                 # Rewrite clause index to list of clause SpanList-s
                 for clause_id in clause_index.keys():
-                    clause_spans = SpanList()
+                    clause_spans = EnvelopingSpan(spans=clause_index[clause_id])
                     clause_spans.clause_type = \
                         clause_type_index[clause_id]
-                    clause_spans.spans = clause_index[clause_id]
+                    #clause_spans.spans = clause_index[clause_id]
                     clause_spanlists.append( clause_spans )
         # Create and populate layer
         layer = Layer(name=self.layer_name, 

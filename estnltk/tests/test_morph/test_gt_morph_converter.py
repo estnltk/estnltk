@@ -1,16 +1,17 @@
 from estnltk.text import Text
-from estnltk.taggers.morph.morf import VabamorfAnalyzer
-from estnltk.taggers.morph.gt_morf import GTMorphConverter
+from estnltk.taggers import VabamorfAnalyzer
+from estnltk.taggers import GTMorphConverter
 
 # ----------------------------------
 #   Helper functions
 # ----------------------------------
 
+
 def _sort_morph_analysis_records( morph_analysis_records:list ):
-    '''Sorts sublists (lists of analyses of a single word) of 
+    """Sorts sublists (lists of analyses of a single word) of
        morph_analysis_records. Sorting is required for comparing
        morph analyses of a word without setting any constraints 
-       on their specific order. '''
+       on their specific order."""
     for wrid, word_records_list in enumerate( morph_analysis_records ):
         sorted_records = sorted( word_records_list, key = lambda x : \
             str(x['root'])+str(x['ending'])+str(x['clitic'])+\
@@ -18,6 +19,7 @@ def _sort_morph_analysis_records( morph_analysis_records:list ):
         morph_analysis_records[wrid] = sorted_records
 
 # ----------------------------------
+
 
 def test_gt_conversion_1_simple():
     gt_converter = GTMorphConverter()
@@ -32,7 +34,7 @@ def test_gt_conversion_1_simple():
     
     # Assert content of the layer
     #print(text['gt_morph_analysis'].to_records())
-    expected_records = [ \
+    expected_records = [
         [{'form': 'Sg Nom', 'clitic': '', 'root_tokens': ('rändur',), 'end': 6, 'root': 'rändur', 'lemma': 'rändur', 'start': 0, 'partofspeech': 'S', 'ending': '0'}], \
         [{'form': 'Pers Prt Ind Sg 3 Aff', 'clitic': '', 'root_tokens': ('võt',), 'end': 13, 'root': 'võt', 'lemma': 'võtma', 'start': 7, 'partofspeech': 'V', 'ending': 'is'}], \
         [{'form': 'Sg Par', 'clitic': '', 'root_tokens': ('iste',), 'end': 19, 'root': 'iste', 'lemma': 'iste', 'start': 14, 'partofspeech': 'S', 'ending': 't'}], \

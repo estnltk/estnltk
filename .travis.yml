@@ -1,5 +1,10 @@
 language: c
 
+# build only specified branches
+branches:
+  only:
+  - version_1.6_travis
+
 os:
   - linux
   - osx

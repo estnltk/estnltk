@@ -1,4 +1,6 @@
 from estnltk.text import Span, SpanList, Layer, Text
+from estnltk import EnvelopingSpan
+
 import networkx as nx
 
 
@@ -72,15 +74,16 @@ def extract_sections(text,
                                 continue
                         elif span_start < start or end < span_end:
                             continue
-                        new_span = SpanList(layer=new_layer)
+                        spans = []
                         for s in span:
                             parent = map_spans.get(s)
                             if parent:
-                                new_span.spans.append(parent)
+                                spans.append(parent)
+                        sp = EnvelopingSpan(spans=spans)
                         for attr in attributes:
-                            setattr(new_span, attr, getattr(span, attr))
-                        new_layer.add_span(new_span)
-                        map_spans[span] = new_span
+                            setattr(sp, attr, getattr(span, attr))
+                        new_layer.add_span(sp)
+                        map_spans[span] = sp
             else:
                 if ambiguous:
                     raise NotImplementedError('ambiguous layer: '+ layer_name)
