@@ -89,6 +89,16 @@ class Tagger:
     def __str__(self):
         return self.__class__.__name__ + '(' + str(self.input_layers) + '->' + self.output_layer + ')'
 
+    # for compatibility with Taggers in resolve_layer_tag
+    def parameters(self):
+        record = {'name': self.__class__.__name__,
+                  'layer': self.output_layer,
+                  'attributes': self.output_attributes,
+                  'depends_on': self.input_layers,
+                  'configuration': [p+'='+str(getattr(self, p)) for p in self.conf_param if not p.startswith('_')]
+                  }
+        return record
+
 
 def to_str(value):
     if callable(value) and hasattr(value, '__name__') and hasattr(value, '__module__'):

@@ -49,7 +49,8 @@ class TaggerOld(ABC):
                   'layer': self.layer_name,
                   'attributes': self.attributes,
                   'depends_on': self.depends_on,
-                  'configuration': self.configuration}
+                  'configuration': [p + '=' + str(self.configuration[p]) for p in sorted(self.configuration)]
+                  }
         return record
 
     def _repr_html_(self):
