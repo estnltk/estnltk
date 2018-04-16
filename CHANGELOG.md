@@ -12,6 +12,7 @@ Changed
  * The command line scripts for processing etTenTen and koondkorpus were remade in a way that they both use the JSON format of the version 1.6 for storing intermediate results;
  * Restructured tutorials: `basic_nlp_toolchain.ipynb` was split into 7 separate tutorials and moved to `tutorials/nlp_pipeline`. Morphology and syntax-related tutorials were also move to `tutorials/nlp_pipeline`;
 
+
 Added
 -----
 * Functionality to store and query text objects in the Postgres database.
@@ -20,10 +21,6 @@ Added
 * Module `parse_koondkorpus.py`, which can be used for loading texts from XML TEI files of the Estonian Reference Corpus as EstNLTK Text objects. The module was ported from the version 1.4.1.1 and improved upon. Improvements: default encoding is now 'utf-8', and there is a working option to preserve the original sentence and paragraph tokenization from the XML files;
 * Tutorial about loading XML TEI files with EstNLTK;
 * Added more helpful scripts for processing large corpura (a script for random selection and clean-up of files);
-
-Fixed
------
-
 
 
 [1.6.1-beta] - 2018-03-27
