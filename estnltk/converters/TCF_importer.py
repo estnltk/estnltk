@@ -1,5 +1,7 @@
 from lxml import etree
 from estnltk.text import Span, SpanList, Layer, Text
+from estnltk import EnvelopingSpan
+
 
 def import_TCF(string:str=None, file:str=None):
     if file:
@@ -20,9 +22,9 @@ def import_TCF(string:str=None, file:str=None):
     element = text_corpus.find('{http://www.dspin.de/data/textcorpus}tokens')
     if element is not None:
         id_to_token = {}
-        layer = Layer(name='words')
+        layer = Layer(name='words', attributes=['normalized_form'])
         for token in element:
-            token_span = Span(start=int(token.get('start')), end=int(token.get('end')), legal_attributes=())
+            token_span = Span(start=int(token.get('start')), end=int(token.get('end')), legal_attributes=('normalized_form',))
             layer.add_span(token_span)
             id_to_token[token.get('ID')] = token_span
         text['words'] = layer
@@ -33,10 +35,10 @@ def import_TCF(string:str=None, file:str=None):
         layer = Layer(enveloping='words',
                       name='sentences')
         for sentence in element:
-            span_list = SpanList(layer=layer)
+            spans = []
             for token_id in sentence.get('tokenIDs').split():
-                span_list.add_span(Span(parent=id_to_token[token_id]))
-            layer.add_span(span_list)
+                spans.append(id_to_token[token_id])
+            layer.add_span(EnvelopingSpan(spans=spans))
         text['sentences'] = layer
 
     # clauses layer
@@ -45,10 +47,10 @@ def import_TCF(string:str=None, file:str=None):
         layer = Layer(enveloping='words',
                       name='clauses')
         for clause in element:
-            span_list = SpanList(layer=layer)
+            spans = []
             for token_id in clause.get('tokenIDs').split():
-                span_list.add_span(Span(parent=id_to_token[token_id]))
-            layer.add_span(span_list)
+                spans.append(id_to_token[token_id])
+            layer.add_span(EnvelopingSpan(spans=spans))
         text['clauses'] = layer
 
     # chunk layers: verb_chains, time_phrases
@@ -60,19 +62,18 @@ def import_TCF(string:str=None, file:str=None):
                           name='time_phrases')
         for line in element:
             chunk_type = line.get('type')
-            if chunk_type=='VP':
-                span_list = SpanList(layer=layer_vp)
+            if chunk_type == 'VP':
+                spans = []
                 for token_id in line.get('tokenIDs').split():
-                    span_list.add_span(Span(parent=id_to_token[token_id]))
-                layer_vp.add_span(span_list)
-            elif chunk_type=='TMP':
-                span_list = SpanList(layer=layer_tmp)
+                    spans.append(id_to_token[token_id])
+                layer_vp.add_span(EnvelopingSpan(spans=spans))
+            elif chunk_type == 'TMP':
+                spans = []
                 for token_id in line.get('tokenIDs').split():
-                    span_list.add_span(Span(parent=id_to_token[token_id]))
-                layer_tmp.add_span(span_list)
+                    spans.append(id_to_token[token_id])
+                layer_tmp.add_span(EnvelopingSpan(spans=spans))
         text['verb_chains'] = layer_vp
         text['time_phrases'] = layer_tmp
-
 
     # morph_analysis layer
     morph_analysis_list = []
