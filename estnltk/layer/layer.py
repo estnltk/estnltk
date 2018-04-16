@@ -54,7 +54,7 @@ class SpanList(collections.Sequence):
 
     def add_span(self, span: Union[Span, EnvelopingSpan]) -> Span:
         # the assumption is that this method is called by Layer.add_span
-        assert isinstance(span, (EnvelopingSpan, Span))
+        assert isinstance(span, (EnvelopingSpan, Span)), str(type(span))
         span.layer = self.layer
         target = self.get_equivalence(span)
         if self.ambiguous:
@@ -334,20 +334,15 @@ class Layer:
         if self.ambiguous:
             if isinstance(attributes, (list, tuple)):
                 return AmbiguousAttributeTupleList((((getattr(sp, name) for name in attributes) for sp in asp)
-                                                    for asp in self.span_list.spans), attributes)
+                                                    for asp in self.spans), attributes)
             else:
                 return AmbiguousAttributeList(((getattr(sp, attributes) for sp in asp)
-                                               for asp in self.span_list.spans), attributes)
+                                               for asp in self.spans), attributes)
         else:
             if isinstance(attributes, (list, tuple)):
-                return AttributeTupleList([[getattr(sp, attr)for attr in attributes] for sp in self.span_list.spans], attributes)
+                return AttributeTupleList([[getattr(sp, attr)for attr in attributes] for sp in self.spans], attributes)
             else:
-                return AttributeList([getattr(sp, attributes) for sp in self.span_list.spans], attributes)
-
-    def _repr_html_(self):
-        if self.layer and self is self.layer.span_list:
-            return self.layer.to_html(header='SpanList', start_end=True)
-        return str(self)
+                return AttributeList([getattr(sp, attributes) for sp in self.spans], attributes)
 
     def get_attributes(self, items):
         return self.__getattribute__('span_list').get_attributes(items)
@@ -366,6 +361,9 @@ class Layer:
 
     def add_span(self, span: Union[Span, EnvelopingSpan]) -> Span:
         assert not self.is_frozen, "can't add spans to frozen layer"
+        assert isinstance(span, (EnvelopingSpan, Span, Layer)), str(type(span))
+        if isinstance(span, Layer):
+            span = EnvelopingSpan(spans=span.spans)
         for attr in self.attributes:
             try:
                 span.__getattribute__(attr)
