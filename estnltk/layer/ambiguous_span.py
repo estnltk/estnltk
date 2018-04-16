@@ -75,6 +75,10 @@ class AmbiguousSpan(collections.Sequence):
     def enclosing_text(self):
         return self.layer.text_object.text[self.start:self.end]
 
+    @property
+    def html_text(self):
+        return self.spans[0].html_text
+
     def __iter__(self):
         yield from self.spans
 

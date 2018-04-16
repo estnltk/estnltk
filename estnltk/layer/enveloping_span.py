@@ -56,21 +56,6 @@ class EnvelopingSpan(collections.Sequence):
         self.attribute_records.extend(span.attribute_records)
         return self
 
-        if self.ambiguous:
-            target = self.get_equivalence(span)
-            if target is not None:
-                target.spans.append(span)
-            else:
-                new = SpanList(layer=self.layer)
-                new.add_span(span)
-                self.classes[(span.start, span.end)] = new
-                bisect.insort(self.spans.spans, new)
-                new.parent = span.parent
-        else:
-            bisect.insort(self.spans, span)
-
-        return span
-
     @property
     def layer(self):
         return self._layer
@@ -95,6 +80,19 @@ class EnvelopingSpan(collections.Sequence):
     @property
     def enclosing_text(self):
         return self.layer.text_object.text[self.start:self.end]
+
+    @property
+    def raw_text(self):
+        return self.text_object.text
+
+    @property
+    def html_text(self):
+        rt = self.raw_text
+        result = []
+        for a, b in zip(self.spans, self.spans[1:]):
+            result.extend(('<b>', rt[a.start:a.end], '</b>', rt[a.end:b.start]))
+        result.extend(('<b>', rt[self.spans[-1].start:self.spans[-1].end], '</b>'))
+        return ''.join(result)
 
     def __iter__(self):
         yield from self.spans
@@ -123,8 +121,7 @@ class EnvelopingSpan(collections.Sequence):
         if item in self.__dict__:
             return self.__dict__[item]
 
-        target = layer.text_object._resolve(layer.name, item, sofar=self)
-        return target
+        return layer.text_object._resolve(layer.name, item, sofar=self)
 
     def __getitem__(self, idx: int) -> Union[Span, 'EnvelopingSpan']:
         #assert False, '???'

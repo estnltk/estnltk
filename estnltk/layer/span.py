@@ -98,7 +98,15 @@ class Span:
     @property
     def text_object(self):
         return self.layer.text_object
-    
+
+    @property
+    def raw_text(self):
+        return self.text_object.text
+
+    @property
+    def html_text(self):
+        return '<b>' + self.raw_text[self.start:self.end] + '</b>'
+
     # --------------------------------------
     
     #  Layer operations are ported from:
