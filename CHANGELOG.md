@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 Changed
 -------
  * Moved command line scripts for processing etTenTen and koondkorpus from `estnltk/corpus_processing` to `corpus_processing`;
- * The command line scripts for processing etTenTen and koondkorpus were remade in a way that they use a common file format for storing intermediate results. Now scripts for both corpora use the JSON format of Estnltk 1.6;
+ * The command line scripts for processing etTenTen and koondkorpus were remade in a way that they both use the JSON format of the version 1.6 for storing intermediate results;
  * Restructured tutorials: `basic_nlp_toolchain.ipynb` was split into 7 separate tutorials and moved to `tutorials/nlp_pipeline`. Morphology and syntax-related tutorials were also move to `tutorials/nlp_pipeline`;
 
 Added
