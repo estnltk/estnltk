@@ -21,6 +21,7 @@ Added
 * Module `parse_koondkorpus.py`, which can be used for loading texts from XML TEI files of the Estonian Reference Corpus as EstNLTK Text objects. The module was ported from the version 1.4.1.1 and improved upon. Improvements: default encoding is now 'utf-8', and there is a working option to preserve the original sentence and paragraph tokenization from the XML files;
 * Tutorial about loading XML TEI files with EstNLTK;
 * Added more helpful scripts for processing large corpura (a script for random selection and clean-up of files);
+* Added AdjectivePhraseTagger (ported from version 1.4.1.1);
 
 
 [1.6.1-beta] - 2018-03-27
@@ -42,7 +43,6 @@ Added
 * Added JavaProcess (ported from version 1.4.1.1);
 * Added ClauseSegmenter (ported from version 1.4.1.1). Layer 'clauses' can now be added to the Text object. _Note_: this adds Java dependency to the EstNLTK: Java SE Runtime Environment (version >= 1.8) must be installed into the system and available from the PATH environment variable;
 * Added UserDictTagger, which can be used to provide dictionary-based post-corrections to morphological analyses;
-* Added AdjectivePhraseTagger (ported from version 1.4.1.1);
 
 Fixed
 -----
