@@ -11,6 +11,7 @@ Changed
 
 Added
 -----
+* Functionality to store and query text objects in the Postgres database.
 
 Fixed
 -----
