@@ -89,15 +89,17 @@ def test_layer_indexing():
     assert layer['a'] != layer[['a']]
     assert len(layer[['a']]) == 8
 
-    assert layer['a', 'b'] == AttributeTupleList([[1, 11],
-                                                  [2, 12],
-                                                  [3, 'default b'],
-                                                  ['default a', 'default b'],
-                                                  [5, 15],
-                                                  [6, 16],
-                                                  [7, None],
-                                                  [None, None]],
-                                                 ('a', 'b'))
+    atl = t.base['a', 'b']
+    del t.base
+    assert atl == AttributeTupleList([[1, 11],
+                                      [2, 12],
+                                      [3, 'default b'],
+                                      ['default a', 'default b'],
+                                      [5, 15],
+                                      [6, 16],
+                                      [7, None],
+                                      [None, None]],
+                                     ('a', 'b'))
 
 
 def test_ambiguous_layer_indexing():
@@ -175,3 +177,8 @@ def test_advanced_indexing():
     assert layer[[True, False, True, False, True], ['text', 'lemma']] == layer[True, False, True, False, True]['text', 'lemma']
     assert layer[lambda span: len(span) > 1, ['text', 'lemma']] == layer[lambda span: len(span) > 1]['text', 'lemma']
     assert layer[[1, 3, 4], ['text', 'lemma']] == layer[[1, 3, 4]]['text', 'lemma']
+    assert list(layer[0, 'lemma']) == ['mis', 'mis']
+    assert list(layer[0, ['lemma', 'form']][0]) == ['mis', 'pl n']
+    assert list(layer[0, ['lemma', 'form']][1]) == ['mis', 'sg n']
+    with pytest.raises(IndexError):
+        layer[[]]

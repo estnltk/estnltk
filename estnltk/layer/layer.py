@@ -3,6 +3,7 @@ from typing import Union, List, Sequence, MutableMapping, Tuple, Any
 import pandas
 import collections
 import itertools
+import warnings
 
 from estnltk import Span, EnvelopingSpan, AmbiguousSpan
 from estnltk.layer import AmbiguousAttributeTupleList, AttributeTupleList, AttributeList, AmbiguousAttributeList
@@ -329,7 +330,8 @@ class Layer:
 
     def attribute_list(self, attributes):
         assert isinstance(attributes, (str, list, tuple)), str(type(attributes))
-        assert attributes, 'no attributes: ' + str(attributes)
+        if not attributes:
+            raise IndexError('no attributes: ' + str(attributes))
 
         if self.ambiguous:
             if isinstance(attributes, (list, tuple)):
@@ -423,6 +425,9 @@ class Layer:
         return target
 
     def __getitem__(self, item) -> Union[Span, 'Layer', AmbiguousAttributeTupleList]:
+        if item == [] or item == ():
+            raise IndexError('no attributes: ' + str(item))
+
         if isinstance(item, str) or isinstance(item, (list, tuple)) and all(isinstance(s, str) for s in item):
             return self.attribute_list(item)
 
@@ -436,6 +441,8 @@ class Layer:
                 or (isinstance(item[0], (tuple, list)) and all(isinstance(i, int) for i in item[0])))\
            and (isinstance(item[1], str)
                 or isinstance(item[1], (list, tuple)) and all(isinstance(i, str) for i in item[1])):
+            if isinstance(item[0], int):
+                return self[item[1]][item[0]]
             return self[item[0]][item[1]]
 
         layer = Layer(name=self.name,
@@ -454,6 +461,8 @@ class Layer:
             layer.span_list.spans = wrapped
             return layer
         if isinstance(item, (list, tuple)) and all(isinstance(i, bool) for i in item):
+            if len(item) != len(self):
+                warnings.warn('Index boolean list not equal to length of layer: {}!={}'.format(len(item), len(self)))
             wrapped = [s for s, i in zip(self.span_list.spans, item) if i]
             layer.span_list.spans = wrapped
             return layer
