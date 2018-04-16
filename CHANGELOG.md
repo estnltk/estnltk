@@ -11,7 +11,8 @@ Changed
  * Moved command line scripts for processing etTenTen and koondkorpus from `estnltk/corpus_processing` to `corpus_processing`;
  * The command line scripts for processing etTenTen and koondkorpus were remade in a way that they both use the JSON format of the version 1.6 for storing intermediate results;
  * Restructured tutorials: `basic_nlp_toolchain.ipynb` was split into 7 separate tutorials and moved to `tutorials/nlp_pipeline`. Morphology and syntax-related tutorials were also move to `tutorials/nlp_pipeline`;
-
+ * Indexing of `Text` and `Layer` objects.
+ * Banned equal spans in not ambiguous layers.
 
 Added
 -----
@@ -22,6 +23,9 @@ Added
 * Tutorial about loading XML TEI files with EstNLTK;
 * Added more helpful scripts for processing large corpora (a script for random selection and clean-up of files);
 * Added AdjectivePhraseTagger (ported from version 1.4.1.1);
+* DisambiguatingTagger to disambiguate ambiguous layers.
+* EnvelopingSpan to replace SpanList in enveloping layers.
+* Attribute lists to hold and represent attribute values extracted from layers.
 
 
 [1.6.1-beta] - 2018-03-27
