@@ -4,6 +4,19 @@ Change Log
 All notable changes to this project will be documented in this file.
 
 
+[1.6.2-beta] - 2018-04-16
+=========================
+Changed
+-------
+
+Added
+-----
+
+Fixed
+-----
+
+
+
 [1.6.1-beta] - 2018-03-27
 =========================
 Changed
