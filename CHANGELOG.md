@@ -20,7 +20,7 @@ Added
 * Tutorial demonstrating how to extract addresses from text using `AddressGrammarTagger` and store results in the Postgres database (tutorials/postgres/storing_text_objects_in_postgres.ipynb).
 * Module `parse_koondkorpus.py`, which can be used for loading texts from XML TEI files of the Estonian Reference Corpus as EstNLTK Text objects. The module was ported from the version 1.4.1.1 and improved upon. Improvements: default encoding is now 'utf-8', and there is a working option to preserve the original sentence and paragraph tokenization from the XML files;
 * Tutorial about loading XML TEI files with EstNLTK;
-* Added more helpful scripts for processing large corpura (a script for random selection and clean-up of files);
+* Added more helpful scripts for processing large corpora (a script for random selection and clean-up of files);
 * Added AdjectivePhraseTagger (ported from version 1.4.1.1);
 
 
