@@ -1,6 +1,6 @@
 from typing import Sequence, Union
 
-from estnltk.taggers import Tagger, read_vocabulary
+from estnltk.taggers import Tagger, Vocabulary
 from estnltk.text import Span, Layer
 from estnltk.layer_operations import resolve_conflicts
 
@@ -14,7 +14,7 @@ class SpanTagger(Tagger):
                  output_layer: str,
                  input_layer: str,
                  input_attribute: str,
-                 vocabulary: Union[dict, str],
+                 vocabulary: Union[dict, str, Vocabulary],
                  key: str = '_token_',
                  output_attributes: Sequence[str] = None,
                  global_validator: callable = None,
@@ -67,16 +67,17 @@ class SpanTagger(Tagger):
 
         self.ambiguous = ambiguous
 
-        if isinstance(vocabulary, str):
-            self._vocabulary = read_vocabulary(vocabulary_file=vocabulary,
-                                               key=key,
-                                               string_attributes=[key] + self.output_attributes,
-                                               callable_attributes=[self.validator_attribute],
-                                               default_rec={self.validator_attribute: default_validator})
-        elif isinstance(vocabulary, dict):
+        if isinstance(vocabulary, Vocabulary):
             self._vocabulary = vocabulary
         else:
-            assert False, 'vocabulary type not supported: ' + str(type(vocabulary))
+            self._vocabulary = Vocabulary(vocabulary=vocabulary,
+                                          key=key,
+                                          default_rec={self.validator_attribute: default_validator}
+                                          )
+        if not self.ambiguous:
+            assert all(len(values) == 1 for values in self._vocabulary.values()),\
+                'ambiguous==False but vocabulary contains ambiguous keywords: '\
+                + str([k for k, v in self._vocabulary.items() if len(v) > 1])
 
     def _make_layer(self, raw_text: str, layers: dict, status: dict):
         input_layer = layers[self.input_layers[0]]

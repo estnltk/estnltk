@@ -16,7 +16,7 @@ class VerbExtensionSuffixTagger(TaggerOld):
     def tag(self, text, return_layer=False):
         new_layer = text['morph_analysis']
         source_attributes = new_layer.attributes
-        target_attributes = source_attributes + ['verb_extension_suffix']
+        target_attributes = source_attributes + ('verb_extension_suffix',)
         new_layer = new_layer.rewrite(
             source_attributes = source_attributes,
             target_attributes = target_attributes,

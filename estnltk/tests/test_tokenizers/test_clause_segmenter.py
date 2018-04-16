@@ -34,7 +34,7 @@ def test_clause_segmenter_1():
         segmenter.tag(text)
         # Collect results 
         clause_word_texts = \
-            [ [word.text for word in clause.words ] for clause in text['clauses'].spans ]
+            [[word.text for word in clause.words] for clause in text['clauses'].span_list]
         #print( clause_word_texts )
         # Check results
         assert clause_word_texts == test_text['expected_clause_word_texts']
@@ -66,7 +66,7 @@ def test_clause_segmenter_2_missing_commas():
         segmenter.tag(text)
         # Collect results 
         clause_word_texts = \
-            [ [word.text for word in clause.words ] for clause in text['clauses'].spans ]
+            [[word.text for word in clause.words] for clause in text['clauses'].span_list]
         #print( clause_word_texts )
         # Check results
         assert clause_word_texts == test_text['expected_clause_word_texts']

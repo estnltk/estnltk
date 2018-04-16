@@ -1,8 +1,8 @@
 from copy import deepcopy
 
 from estnltk import Text
-from estnltk.layer import Layer
-from estnltk.spans import Span
+from estnltk.layer.layer import Layer
+from estnltk.layer.span import Span
 
 # empty text
 text_0 = Text('')

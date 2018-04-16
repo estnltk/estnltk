@@ -1,4 +1,4 @@
-from estnltk.text import Text, Layer, Span, SpanList
+from estnltk.text import Text, Layer, Span, EnvelopingSpan
 
 
 def dict_to_layer(layer_dict: dict, text: Text) -> Layer:
@@ -28,10 +28,8 @@ def dict_to_layer(layer_dict: dict, text: Text) -> Layer:
             pass  # TODO
         else:
             for rec in layer_dict['spans']:
-                span = SpanList(layer=layer)
-                for i in rec['_index_']:
-                    parent = enveloped_layer[i]
-                    span.spans.append(parent)
+                spans = [enveloped_layer[i] for i in rec['_index_']]
+                span = EnvelopingSpan(spans=spans, layer=layer)
                 for attr in layer.attributes:
                     setattr(span, attr, rec[attr])
                 layer.add_span(span)

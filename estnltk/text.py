@@ -5,8 +5,11 @@ from typing import MutableMapping, Union, List, Sequence
 import pandas
 import networkx as nx
 
-from .layer import Layer
-from .spans import Span, SpanList
+from estnltk import Span
+from estnltk import EnvelopingSpan
+from estnltk import SpanList
+from estnltk import Layer
+from estnltk.layer import AttributeList, AmbiguousAttributeList
 
 
 def _get_span_by_start_and_end(spans: SpanList, start: int=None, end: int=None, span: Span=None) -> Union[Span, None]:
@@ -60,18 +63,21 @@ class Text:
 
     def list_layers(self) -> List[Layer]:
         """
-        Returns a list of all layers of this text object in order of dependences.
-        The order is not uniquely determined.
+        Returns a list of all layers of this text object in order of dependences and layer names.
+        The order is uniquely determined.
         """
-        graph = nx.DiGraph()
-        graph.add_nodes_from(self.layers)
-        for layer_name, layer in self.layers.items():
-            if layer.enveloping:
-                graph.add_edge(layer.enveloping, layer_name)
-            elif layer.parent:
-                graph.add_edge(layer.parent, layer_name)
-        names = nx.topological_sort(graph)
-        return [self.layers[name] for name in names]
+        layer_list = sorted(self.layers.values(), key=lambda l: l.name)
+        sorted_layers = []
+        sorted_layer_names = set()
+        while layer_list:
+            for layer in layer_list:
+                if (layer.parent is None or layer.parent in sorted_layer_names) and \
+                   (layer.enveloping is None or layer.enveloping in sorted_layer_names):
+                    sorted_layers.append(layer)
+                    sorted_layer_names.add(layer.name)
+                    layer_list.remove(layer)
+                    break
+        return sorted_layers
 
     @property
     def text(self):
@@ -123,13 +129,13 @@ class Text:
         if item in {'__getstate__', '__setstate__'}:
             raise AttributeError
         if item in self.layers.keys():
-            return self.layers[item].spans
-        else:
-            attributes = self.__getattribute__('attributes')
-            if len(attributes[item]) == 1:
-                return getattr(self.layers[attributes[item][0]], item)
+            return self.layers[item]  # .spans
 
-            return self.__getattribute__(item)
+        attributes = self.__getattribute__('attributes')
+        if len(attributes[item]) == 1:
+            return getattr(self.layers[attributes[item][0]], item)
+
+        return self.__getattribute__(item)
 
     def _add_layer(self, layer: Layer):
         name = layer.name
@@ -176,7 +182,7 @@ class Text:
             if layer.parent is not None:
                 for span in layer:
                     span.parent = _get_span_by_start_and_end(
-                        self.layers[layer._base].spans,
+                        self.layers[layer._base].span_list,
                         span=span
                     )
                     span._base = span.parent
@@ -199,7 +205,7 @@ class Text:
             if sofar:
                 return sofar.__getattribute__(to)
             else:
-                return self.layers[frm].spans.__getattribute__(to)
+                return self.layers[frm].span_list.__getattribute__(to)
 
         path_exists = self._path_exists(frm, to)
         if path_exists and to in self.layers.keys():
@@ -215,12 +221,13 @@ class Text:
                 # from an enveloping layer to dependant layer (one step only, skipping base layer)
                 elif self.layers[frm].enveloping == self.layers[to].parent:
                     if sofar is None:
-                        sofar = self.layers[frm].spans
+                        sofar = self.layers[frm].span_list
 
                     spans = []
 
                     # path taken by text.sentences.lemma
-                    if isinstance(sofar[0], SpanList):
+                    # TODO: is SpanList needed here?
+                    if isinstance(sofar[0], (SpanList, EnvelopingSpan)):
                         for envelop in sofar:
                             enveloped_spans = []
                             for span in self.layers[to]:
@@ -254,7 +261,7 @@ class Text:
                 elif frm == self.layers[to]._base:
 
                     # if sofar is None:
-                    sofar = self.layers[to].spans
+                    sofar = self.layers[to].span_list
 
                     spans = []
                     for i in sofar:
@@ -283,12 +290,17 @@ class Text:
 
             # attributes of a (direct) dependant
             if to_layer.parent == frm:
+                # assert False, 1
                 res = []
                 if sofar:
-                    for i in to_layer.spans:
+                    for i in to_layer.span_list:
                         if i.parent in sofar.spans:
                             res.append(getattr(i, to))
-                    return res
+                    if to_layer.ambiguous:
+                        return AmbiguousAttributeList(res, to)
+                    else:
+                        return AttributeList(res, to)
+                    #return res
 
             # attributes of an (directly) enveloped object
             to_layer_name = path[-2]
@@ -377,8 +389,8 @@ class Text:
 
     def __setitem__(self, key, value):
         # always sets layer
-        assert key not in self.layers.keys(), 'Re-adding a layer not implemented yet'
-        assert value.name == key, 'Name mismatch between layer name and value'
+        assert key not in self.layers.keys(), 'Re-adding a layer not implemented yet: ' + key
+        assert value.name == key, 'Name mismatch between layer name and value: {}!={}'.format(value.name, key)
         return self._add_layer(
             value
         )
@@ -442,8 +454,9 @@ class Text:
         table = pandas.DataFrame.from_records(rec)
         table = table.to_html(index=False, escape=False)
         if self.meta:
-            table_meta = pandas.DataFrame.from_dict(self.meta, orient='index')
-            table_meta = table_meta.to_html(header=False)
+            data = {'key': sorted(self.meta), 'value': [self.meta[k] for k in sorted(self.meta)]}
+            table_meta = pandas.DataFrame(data, columns=['key', 'value'])
+            table_meta = table_meta.to_html(header=False, index=False)
             table = '\n'.join((table, '<h4>Metadata</h4>', table_meta))
         if self.layers:
             # create a list of layers preserving the order of registered layers

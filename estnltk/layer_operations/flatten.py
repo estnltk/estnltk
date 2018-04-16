@@ -1,6 +1,6 @@
 from typing import List
-from estnltk.spans import Span
-from estnltk.layer import Layer
+from estnltk.layer.span import Span
+from estnltk.layer.layer import Layer
 
 
 def flatten(layer: Layer, layer_name: str, attributes: List[str]=None) -> Layer:

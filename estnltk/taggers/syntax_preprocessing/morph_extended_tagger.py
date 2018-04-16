@@ -37,7 +37,7 @@ class MorphExtendedTagger(TaggerOld):
                  fs_to_synt_rules_file=None,
                  allow_to_remove_all=False,
                  subcat_rules_file=None):
-        ''' Initializes MorphExtendedTagger
+        """ Initializes MorphExtendedTagger
 
             Parameters
             -----------
@@ -57,14 +57,14 @@ class MorphExtendedTagger(TaggerOld):
                 The original implementation allowed this, but we are now restricting it
                 in order to avoid words without any analyses;
                 Default: False
-        '''
+        """
 
         if fs_to_synt_rules_file is None:
-            fs_to_synt_rules_file = os.path.join(PACKAGE_PATH,
-                'rewriting/syntax_preprocessing/rules_files/tmorftrtabel.txt')
+            fs_to_synt_rules_file = os.path.relpath(os.path.join(PACKAGE_PATH,
+                'rewriting/syntax_preprocessing/rules_files/tmorftrtabel.txt'))
         if subcat_rules_file is None:
-            subcat_rules_file = os.path.join(PACKAGE_PATH,
-                'rewriting/syntax_preprocessing/rules_files/abileksikon06utf.lx')
+            subcat_rules_file = os.path.relpath(os.path.join(PACKAGE_PATH,
+                'rewriting/syntax_preprocessing/rules_files/abileksikon06utf.lx'))
         self.configuration = {'fs_to_synt_rules_file': fs_to_synt_rules_file,
                               'allow_to_remove_all': allow_to_remove_all,
                               'subcat_rules_file': subcat_rules_file}

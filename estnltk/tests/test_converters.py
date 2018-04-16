@@ -4,6 +4,7 @@ from estnltk.converters import export_dict, import_dict
 from estnltk.converters import export_json, import_json
 from estnltk.converters import export_TCF, import_TCF
 
+
 def test_export_CG3():
     t = Text('Tere, maailm! Kuidas Sul läheb?')
     t.analyse('syntax_preprocessing')
@@ -33,7 +34,6 @@ def test_export_CG3():
     result = export_CG3(t)
     assert result == expected
 
-test_export_CG3()
 
 T = '''Mis aias sa-das 2te sorti s-saia? Teine lause.
 

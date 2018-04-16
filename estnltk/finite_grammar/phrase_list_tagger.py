@@ -1,5 +1,5 @@
 from estnltk.taggers import TaggerOld
-from estnltk.layer import Layer
+from estnltk import Layer, EnvelopingSpan
 from estnltk.layer_operations import resolve_conflicts
 from collections import defaultdict
 
@@ -75,7 +75,6 @@ class PhraseListTagger(TaggerOld):
         for phrase in phrase_list:
             self.heads[phrase[0]].append(phrase[1:])
 
-
     def tag(self, text, return_layer=False):
         input_layer = text[self._input_layer]
         layer = Layer(
@@ -97,7 +96,7 @@ class PhraseListTagger(TaggerOld):
                                         match = False
                                         break
                                 if match:
-                                    span = input_layer.spans[i:i+len(tail)+1]
+                                    span = EnvelopingSpan(spans=input_layer[i:i+len(tail)+1].spans)
                                     phrase = (value,)+tail
                                     if self._consistency_checker(text, span, phrase):
                                         rec = self._decorator(text, span, phrase)

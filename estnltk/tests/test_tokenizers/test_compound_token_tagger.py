@@ -32,7 +32,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].spans
+            words_spans = text['words'].span_list
             # Fetch results
             word_segmentation = [] 
             for wid, word in enumerate( words_spans ):
@@ -60,7 +60,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].spans
+            words_spans = text['words'].span_list
             # Fetch results
             word_segmentation = [] 
             for wid, word in enumerate( words_spans ):
@@ -93,7 +93,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].spans
+            words_spans = text['words'].span_list
             # Fetch results
             word_segmentation = [] 
             for wid, word in enumerate( words_spans ):
@@ -122,7 +122,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].spans
+            words_spans = text['words'].span_list
             # Fetch results
             word_segmentation = [] 
             for wid, word in enumerate( words_spans ):
@@ -199,7 +199,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].spans
+            words_spans = text['words'].span_list
             # Fetch results
             word_segmentation = [] 
             for wid, word in enumerate( words_spans ):
@@ -301,7 +301,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].spans
+            words_spans = text['words'].span_list
             # Fetch results
             word_segmentation = [] 
             for wid, word in enumerate( words_spans ):
@@ -330,7 +330,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].spans
+            words_spans = text['words'].span_list
             # Fetch results
             word_segmentation = [] 
             for wid, word in enumerate( words_spans ):
@@ -373,7 +373,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].spans
+            words_spans = text['words'].span_list
             # Fetch results
             word_segmentation = [] 
             for wid, word in enumerate( words_spans ):
@@ -456,8 +456,8 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             text = Text( test_text['text'] )
             # Perform analysis
             text.tag_layer(['words'])
-            words_spans = text['words'].spans
-            # Fetch results
+            words_spans = text['words'].span_list
+            # Fetch result
             word_segmentation = [] 
             for wid, word in enumerate( words_spans ):
                 word_text = text.text[word.start:word.end]
@@ -481,7 +481,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             # Perform analysis
             text.tag_layer(['compound_tokens'])
             # Check results
-            for ctid, comp_token in enumerate( text['compound_tokens'] ):
+            for ctid, comp_token in enumerate(text['compound_tokens']):
                 tokens = [text.text[sp.start:sp.end] for sp in comp_token.spans]
                 #print('>>',tokens)
                 # Assert that the tokenization is correct

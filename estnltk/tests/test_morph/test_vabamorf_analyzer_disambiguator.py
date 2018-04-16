@@ -1,6 +1,7 @@
 from estnltk import Text
-from estnltk.taggers.morph.morf import VabamorfAnalyzer, VabamorfDisambiguator
-from estnltk.taggers.morph.morf import IGNORE_ATTR
+from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer, VabamorfDisambiguator
+from estnltk.taggers.morph_analysis.morf import IGNORE_ATTR
+from estnltk.layer import AmbiguousAttributeList
 
 # ----------------------------------
 #   Helper functions
@@ -17,7 +18,7 @@ def _ignore_morph_analyses_overlapping_with_compound_tokens( \
     assert 'morph_analysis' in text.layers, \
         '(!) Text needs to be morphologically analysed!'
     mark_ignore = {}
-    for spanlist in text.morph_analysis.spans:
+    for spanlist in text.morph_analysis.span_list:
         pos_key = (spanlist.start, spanlist.end)
         for ctid, comp_token in enumerate( text['compound_tokens'] ):
             ct_type_matches = \
@@ -65,26 +66,26 @@ def test_morph_analyzer_1():
     text=Text('Mitmenda koha sai kohale jõudnud mees ?')
     text.tag_layer(['words','sentences'])
     analyzer2.tag(text)
-    expected_records = [ \
-        [{'partofspeech': 'P', 'start': 0, 'ending': '0', 'form': 'sg g', 'root': 'mitmes', 'end': 8, 'clitic': '', 'root_tokens': ('mitmes',), 'lemma': 'mitmes'}], \
-        [{'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg g', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'koha'}, \
-         {'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg n', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'koha'}, \
-         {'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg p', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'koha'}, \
-         {'partofspeech': 'V', 'start': 9, 'ending': '0', 'form': 'o', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'kohama'}, \
-         {'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg g', 'root': 'koht', 'end': 13, 'clitic': '', 'root_tokens': ('koht',), 'lemma': 'koht'}], \
-        [{'partofspeech': 'S', 'start': 14, 'ending': '0', 'form': 'sg n', 'root': 'sai', 'end': 17, 'clitic': '', 'root_tokens': ('sai',), 'lemma': 'sai'}, \
-         {'partofspeech': 'V', 'start': 14, 'ending': 'i', 'form': 's', 'root': 'saa', 'end': 17, 'clitic': '', 'root_tokens': ('saa',), 'lemma': 'saama'}], \
-        [{'partofspeech': 'D', 'start': 18, 'ending': '0', 'form': '', 'root': 'kohale', 'end': 24, 'clitic': '', 'root_tokens': ('kohale',), 'lemma': 'kohale'}, \
-         {'partofspeech': 'K', 'start': 18, 'ending': '0', 'form': '', 'root': 'kohale', 'end': 24, 'clitic': '', 'root_tokens': ('kohale',), 'lemma': 'kohale'}, \
-         {'partofspeech': 'S', 'start': 18, 'ending': 'le', 'form': 'sg all', 'root': 'koha', 'end': 24, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'koha'}, \
-         {'partofspeech': 'S', 'start': 18, 'ending': 'le', 'form': 'sg all', 'root': 'koht', 'end': 24, 'clitic': '', 'root_tokens': ('koht',), 'lemma': 'koht'}], \
-        [{'partofspeech': 'A', 'start': 25, 'ending': '0', 'form': '', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ('jõudnud',), 'lemma': 'jõudnud'}, \
-         {'partofspeech': 'A', 'start': 25, 'ending': '0', 'form': 'sg n', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ('jõudnud',), 'lemma': 'jõudnud'}, \
-         {'partofspeech': 'S', 'start': 25, 'ending': 'd', 'form': 'pl n', 'root': 'jõud=nu', 'end': 32, 'clitic': '', 'root_tokens': ('jõudnu',), 'lemma': 'jõudnu'}, \
-         {'partofspeech': 'A', 'start': 25, 'ending': 'd', 'form': 'pl n', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ('jõudnud',), 'lemma': 'jõudnud'}, \
-         {'partofspeech': 'V', 'start': 25, 'ending': 'nud', 'form': 'nud', 'root': 'jõud', 'end': 32, 'clitic': '', 'root_tokens': ('jõud',), 'lemma': 'jõudma'}], \
-        [{'partofspeech': 'S', 'start': 33, 'ending': '0', 'form': 'sg n', 'root': 'mees', 'end': 37, 'clitic': '', 'root_tokens': ('mees',), 'lemma': 'mees'}, \
-         {'partofspeech': 'S', 'start': 33, 'ending': 's', 'form': 'sg in', 'root': 'mesi', 'end': 37, 'clitic': '', 'root_tokens': ('mesi',), 'lemma': 'mesi'}], \
+    expected_records = [
+        [{'partofspeech': 'P', 'start': 0, 'ending': '0', 'form': 'sg g', 'root': 'mitmes', 'end': 8, 'clitic': '', 'root_tokens': ('mitmes',), 'lemma': 'mitmes'}],
+        [{'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg g', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'koha'},
+         {'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg n', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'koha'},
+         {'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg p', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'koha'},
+         {'partofspeech': 'V', 'start': 9, 'ending': '0', 'form': 'o', 'root': 'koha', 'end': 13, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'kohama'},
+         {'partofspeech': 'S', 'start': 9, 'ending': '0', 'form': 'sg g', 'root': 'koht', 'end': 13, 'clitic': '', 'root_tokens': ('koht',), 'lemma': 'koht'}],
+        [{'partofspeech': 'S', 'start': 14, 'ending': '0', 'form': 'sg n', 'root': 'sai', 'end': 17, 'clitic': '', 'root_tokens': ('sai',), 'lemma': 'sai'},
+         {'partofspeech': 'V', 'start': 14, 'ending': 'i', 'form': 's', 'root': 'saa', 'end': 17, 'clitic': '', 'root_tokens': ('saa',), 'lemma': 'saama'}],
+        [{'partofspeech': 'D', 'start': 18, 'ending': '0', 'form': '', 'root': 'kohale', 'end': 24, 'clitic': '', 'root_tokens': ('kohale',), 'lemma': 'kohale'},
+         {'partofspeech': 'K', 'start': 18, 'ending': '0', 'form': '', 'root': 'kohale', 'end': 24, 'clitic': '', 'root_tokens': ('kohale',), 'lemma': 'kohale'},
+         {'partofspeech': 'S', 'start': 18, 'ending': 'le', 'form': 'sg all', 'root': 'koha', 'end': 24, 'clitic': '', 'root_tokens': ('koha',), 'lemma': 'koha'},
+         {'partofspeech': 'S', 'start': 18, 'ending': 'le', 'form': 'sg all', 'root': 'koht', 'end': 24, 'clitic': '', 'root_tokens': ('koht',), 'lemma': 'koht'}],
+        [{'partofspeech': 'A', 'start': 25, 'ending': '0', 'form': '', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ('jõudnud',), 'lemma': 'jõudnud'},
+         {'partofspeech': 'A', 'start': 25, 'ending': '0', 'form': 'sg n', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ('jõudnud',), 'lemma': 'jõudnud'},
+         {'partofspeech': 'S', 'start': 25, 'ending': 'd', 'form': 'pl n', 'root': 'jõud=nu', 'end': 32, 'clitic': '', 'root_tokens': ('jõudnu',), 'lemma': 'jõudnu'},
+         {'partofspeech': 'A', 'start': 25, 'ending': 'd', 'form': 'pl n', 'root': 'jõud=nud', 'end': 32, 'clitic': '', 'root_tokens': ('jõudnud',), 'lemma': 'jõudnud'},
+         {'partofspeech': 'V', 'start': 25, 'ending': 'nud', 'form': 'nud', 'root': 'jõud', 'end': 32, 'clitic': '', 'root_tokens': ('jõud',), 'lemma': 'jõudma'}],
+        [{'partofspeech': 'S', 'start': 33, 'ending': '0', 'form': 'sg n', 'root': 'mees', 'end': 37, 'clitic': '', 'root_tokens': ('mees',), 'lemma': 'mees'},
+         {'partofspeech': 'S', 'start': 33, 'ending': 's', 'form': 'sg in', 'root': 'mesi', 'end': 37, 'clitic': '', 'root_tokens': ('mesi',), 'lemma': 'mesi'}],
         [{'partofspeech': 'Z', 'start': 38, 'ending': '', 'form': '', 'root': '?', 'end': 39, 'clitic': '', 'root_tokens': ('?',), 'lemma': '?'}]]
     #print(text['morph_analysis'].to_records())
     # Sort analyses (so that the order within a word is always the same)
@@ -109,10 +110,10 @@ def test_morph_analyzer_without_guessing():
     
     # Check for unknown word placeholders
     assert ['Mulll', 'on', 'yks', 'rõlgelt', 'hea', 'netikeelelause'] == text.words.text
-    assert [[None], \
-            ['ole', 'ole'], [None], [None], \
-            ['hea', 'hea', 'hea', 'hea'], \
-            ['neti_keele_lause', 'neti_keele_lause']] == text.root
+    assert AmbiguousAttributeList([[None],
+                                   ['ole', 'ole'], [None], [None],
+                                   ['hea', 'hea', 'hea', 'hea'],
+                                   ['neti_keele_lause', 'neti_keele_lause']], 'root') == text.root
 
     # Test that zip can be used to discover unknown words
     unknown_words = []
@@ -164,11 +165,11 @@ def test_morph_disambiguation_preserves_extra_attributes():
     analyzer = VabamorfAnalyzer(extra_attributes=['analysis_id', 'sentence_id'])
     analyzer.tag(text)
     # Add extra attributes
-    for sp_id, spanlist in enumerate(text.morph_analysis.spans):
+    for sp_id, spanlist in enumerate(text.morph_analysis.span_list):
         for s_id, span in enumerate(spanlist):
             setattr(span, 'analysis_id', str(sp_id)+'_'+str(s_id))
-    for sent_id, sentence in enumerate(text.sentences.spans):
-        for sp_id, spanlist in enumerate(text.morph_analysis.spans):
+    for sent_id, sentence in enumerate(text.sentences.span_list):
+        for sp_id, spanlist in enumerate(text.morph_analysis.span_list):
             if sentence.start <= spanlist.start and \
                spanlist.end <= sentence.end:
                 for s_id, span in enumerate(spanlist):
@@ -207,7 +208,7 @@ def test_morph_disambiguation_with_ignore():
     mark_ignore = { (14,17) : [],  # sai
                     (33,37) : [],  # mees
                   }
-    for spanlist in text.morph_analysis.spans:
+    for spanlist in text.morph_analysis.span_list:
         pos_key = (spanlist.start, spanlist.end)
         if pos_key in mark_ignore:
             # Record the pervious spanlist
@@ -221,7 +222,7 @@ def test_morph_disambiguation_with_ignore():
     # Assert that attribute IGNORE_ATTR has been removed 
     assert not hasattr(text.morph_analysis, IGNORE_ATTR)
     # Check that marked spans remain the same in the new layer
-    for spanlist in text.morph_analysis.spans:
+    for spanlist in text.morph_analysis.span_list:
         pos_key = (spanlist.start, spanlist.end)
         if pos_key in mark_ignore:
             assert mark_ignore[pos_key] == spanlist
@@ -235,7 +236,7 @@ def test_morph_disambiguation_with_ignore_all():
     analyzer1.tag(text)  # analyze and add empty IGNORE_ATTR-s
     #print(text['morph_analysis'].to_records())
     # Ignore all spans/words
-    for spanlist in text.morph_analysis.spans:
+    for spanlist in text.morph_analysis.span_list:
         for span in spanlist:
             setattr(span, IGNORE_ATTR, True)
     disambiguator.tag(text)
@@ -256,7 +257,7 @@ def test_morph_disambiguation_with_ignore_emoticons():
     # Assert that attribute IGNORE_ATTR has been removed 
     assert not hasattr(text.morph_analysis, IGNORE_ATTR)
     # Check that marked spans remain the same in the new layer
-    for spanlist in text.morph_analysis.spans:
+    for spanlist in text.morph_analysis.span_list:
         pos_key = (spanlist.start, spanlist.end)
         if pos_key in mark_ignore:
             assert mark_ignore[pos_key] == spanlist
@@ -275,6 +276,6 @@ def test_morph_disambiguation_with_ignore_xml_tags():
     #print(text['morph_analysis'].to_records())
     # Assert that attribute IGNORE_ATTR has been removed 
     assert not hasattr(text.morph_analysis, IGNORE_ATTR)
-    for spanlist in text.morph_analysis.spans:
+    for spanlist in text.morph_analysis.span_list:
         # assert that all words have been disambiguated
         assert len(spanlist) == 1
