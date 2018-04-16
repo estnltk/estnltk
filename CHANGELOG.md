@@ -23,6 +23,7 @@ Added
 * Added JavaProcess (ported from version 1.4.1.1);
 * Added ClauseSegmenter (ported from version 1.4.1.1). Layer 'clauses' can now be added to the Text object. _Note_: this adds Java dependency to the EstNLTK: Java SE Runtime Environment (version >= 1.8) must be installed into the system and available from the PATH environment variable;
 * Added UserDictTagger, which can be used to provide dictionary-based post-corrections to morphological analyses;
+* Added AdjectivePhraseTagger (ported from version 1.4.1.1);
 
 Fixed
 -----
