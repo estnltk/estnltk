@@ -16,7 +16,7 @@ Tagger is a class that creates a layer and attaches it to the text object.
 * [AdjectivePhraseTagger](adjective_phrase_tagger.ipynb) tags simple adjective phrases on the text.
 
 * [Atomizer](atomizer.ipynb) forgets the parent of the input layer.
-* [CombinedTagger](combining_tagger.ipynb) runs input taggers in parallel and resolves conflicts.
+* [CombinedTagger](combined_tagger.ipynb) runs input taggers in parallel and resolves conflicts.
 * [MergeTagger](merge_tagger.ipynb) merges input layers.
 * [DisambiguatingTagger](disambiguator.ipynb) disambiguates ambiguous layer.
 * [GapTagger and EnvelopingGapTagger](gaps_tagging.ipynb) tag gaps in input layers.
