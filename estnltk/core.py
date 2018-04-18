@@ -9,3 +9,7 @@ JAVARES_PATH = os.path.join(PACKAGE_PATH, 'java', 'res')
 def abs_path(repo_path):
     """absolute path to repo_path"""
     return os.path.join(PACKAGE_PATH, repo_path)
+
+
+def rel_path(repo_path: str) -> str:
+    return os.path.relpath(os.path.join(PACKAGE_PATH, repo_path))
