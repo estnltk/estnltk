@@ -1,16 +1,16 @@
 import regex as re
 from collections import defaultdict
 from pandas import read_csv, DataFrame, set_option
-from typing import Hashable, Iterable, Union
+from typing import Iterable, Union
 
 from estnltk.taggers.tagger import to_str
 
 
 class Vocabulary:
     def __init__(self,
-                 vocabulary: Union[str, DataFrame, list, dict],
-                 key: Hashable,
-                 default_rec: dict = None,
+                 vocabulary: Union[str, list, dict, 'Vocabulary'],
+                 key: str=None,
+                 default_rec: dict=None,
                  string_attributes=(),
                  regex_attributes=(),
                  callable_attributes=()
@@ -26,7 +26,7 @@ class Vocabulary:
         :param default_rec:
             Default vocabulary record to fill in missing columns in the input vocabulary.
             example:
-                default_rec = {'_validator_': lambda t, s: True,
+                default_rec = {'_validator_': lambda s, t: True,
                                '_group_': 'default_group',
                                '_priority_': 0}
             The default values are overwritten if present in the input.
@@ -53,24 +53,18 @@ class Vocabulary:
             regex, callable, string
             \d+, lambda s, t: True, number
         """
-        assert not isinstance(vocabulary, DataFrame) or not vocabulary.empty, 'empty vocabulary DataFrame'
-        assert isinstance(vocabulary, DataFrame) or vocabulary, 'empty vocabulary: ' + str(vocabulary)
+        assert isinstance(vocabulary, (str, list, dict)), 'unknown vocabulary type: ' + str(type(vocabulary))
         self.key = key
-        self.attributes = None
         if default_rec is None:
             default_rec = {}
+
+        self.string_attributes = string_attributes
+        self.regex_attributes = regex_attributes
+        self.callable_attributes = callable_attributes
 
         if isinstance(vocabulary, str):
             self.vocabulary = self._csv_to_vocabulary(vocabulary_file=vocabulary,
                                                       default_rec=default_rec)
-        elif isinstance(vocabulary, DataFrame):
-            self.vocabulary = self._df_to_vocabulary(df=vocabulary,
-                                                     default_rec=default_rec,
-                                                     string_attributes=string_attributes,
-                                                     regex_attributes=regex_attributes,
-                                                     callable_attributes=callable_attributes
-                                                     )
-            self.attributes = [attr for attr in vocabulary.columns if attr != key]
 
         elif isinstance(vocabulary, list):
             self.vocabulary = self._records_to_vocabulary(records=vocabulary,
@@ -78,20 +72,40 @@ class Vocabulary:
                                                           string_attributes=string_attributes,
                                                           regex_attributes=regex_attributes,
                                                           callable_attributes=callable_attributes)
+            rec = tuple(self.vocabulary.values())[0][0]
+            self.attributes = (self.key, *sorted(attr for attr in rec if attr != self.key))
+
         elif isinstance(vocabulary, dict):
             self.vocabulary = vocabulary
+            if default_rec:
+                self.vocabulary = {}
+                for k, records in vocabulary.items():
+                    self.vocabulary[k] = []
+                    for record in records:
+                        rec = default_rec.copy()
+                        rec.update(record)
+                        self.vocabulary[k].append(rec)
+            self.attributes = (self.key, *sorted(attr for attr in rec if attr != self.key))
+
+        elif isinstance(vocabulary, Vocabulary):
+            self.vocabulary = vocabulary.vocabulary
+            self.attributes = vocabulary.attributes
+            if default_rec:
+                self.vocabulary = {}
+                for k, records in vocabulary.items():
+                    self.vocabulary[k] = []
+                    for record in records:
+                        rec = default_rec.copy()
+                        rec.update(record)
+                        self.vocabulary[k].append(rec)
+
         else:
             raise TypeError('unkonown vocabulary type: ' + str(type(vocabulary)))
 
-        self.string_attributes = string_attributes
-        self.regex_attributes = regex_attributes
-        self.callable_attributes = callable_attributes
-
-        if self.attributes is None:
-            self.attributes = sorted(attr for attr in tuple(self.vocabulary.values())[0][0] if attr != key)
-        for attr in sorted(default_rec):
-            if attr not in self.attributes:
-                self.attributes.append(attr)
+        self.attributes = sorted(tuple(self.vocabulary.values())[0][0])
+        #for attr in sorted(default_rec):
+        #    if attr not in self.attributes:
+        #        self.attributes.append(attr)
 
     def items(self):
         return self.vocabulary.items()
@@ -115,7 +129,7 @@ class Vocabulary:
                       dtype=str
                       )
         lines = df.to_dict('records')
-        self.attributes = [attr for attr in df.columns if attr != self.key]
+        self.attributes = tuple(df.columns)
 
         lines = iter(lines)
         attribute_types = next(lines)
@@ -168,7 +182,6 @@ class Vocabulary:
                 if isinstance(v, str) and v.startswith('lambda m'):
                     rec[k] = eval(v)
             value = rec[self.key]
-            del rec[self.key]
             vocabulary[value].append(rec)
         return dict(vocabulary)
 
@@ -189,18 +202,6 @@ class Vocabulary:
                                            default_rec=default_rec,
                                            )
 
-    def _df_to_vocabulary(self, df: DataFrame,
-                          default_rec: dict,
-                          string_attributes,
-                          regex_attributes,
-                          callable_attributes):
-        records = df.to_dict('records')
-        return self._records_to_vocabulary(records=records,
-                                           default_rec=default_rec,
-                                           string_attributes=string_attributes,
-                                           regex_attributes=regex_attributes,
-                                           callable_attributes=callable_attributes)
-
     def to_dict(self):
         return self.vocabulary
 
@@ -217,7 +218,7 @@ class Vocabulary:
         return records
 
     def _records_to_df(self, records):
-        return DataFrame(data=records, columns=(self.key,)+tuple(self.attributes))
+        return DataFrame(data=records, columns=self.attributes)
 
     def to_df(self):
         return self._records_to_df(self.to_records())
@@ -238,9 +239,9 @@ class Vocabulary:
                 else:
                     line[self.key] = ''
                 res.append(line)
-        columns = (self.key,) + tuple(self.attributes)
+        columns = tuple(self.attributes)
         df = DataFrame.from_records(res, columns=columns)
         set_option('display.max_colwidth', -1)
         table = df.to_html(index=False)
 
-        return '\n'.join(('<h4>' + 'Vocabulary' + '</h4>', table))
+        return '\n'.join(('<h4>' + 'Vocabulary' + '</h4>', 'key: '+repr(self.key), table))
