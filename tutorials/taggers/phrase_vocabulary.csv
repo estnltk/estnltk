@@ -1,6 +1,6 @@
-_phrase_,value,_priority_
-callable,string,callable
-"'tundma', 'inimene'",TI_1,0
-"'päike',",P,0
-"'tundma', 'inimene'",TI_2,0
-"'tundma', 'inimene', 'palju'",TIP,0
+_phrase_,value
+callable,string
+"'tundma', 'inimene'",TI_1
+"'päike',",P
+"'tundma', 'inimene'",TI_2
+"'tundma', 'inimene', 'palju'",TIP
