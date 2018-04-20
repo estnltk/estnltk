@@ -119,7 +119,7 @@ def resolve_conflicts(layer,
         def priority_key(num_span):
             return num_span[1].end-num_span[1].start, num_span[1].start
     else:
-        assert False, 'unknown conflict resolving strategy: ' + str(conflict_resolving_strategy)
+        raise ValueError('Unknown conflict_resolving_strategy: ' + str(conflict_resolving_strategy))
 
     enumerated_spans, _ = _delete_conflicting_spans(enumerated_spans, priority_key, map_conflicts, keep_equal=keep_equal)
     layer.span_list.spans = [span[1] for span in sorted(enumerated_spans, key=lambda s: s[0])]
