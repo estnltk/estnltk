@@ -26,10 +26,12 @@ def test_timex_tagging_1():
                 ]
 
     for test_item in test_data:
+        # Prepare text
         text = Text(test_item['text'])
         if 'dct' in test_item:
             text.meta['dct'] = test_item['dct']
         text.tag_layer(['words', 'sentences', 'morph_analysis'])
+        # Tag timexes
         tagger.tag(text)
         # Compare attributes and values of all timexes
         for timex_id, expected_timex in enumerate(test_item['expected_timexes']):
@@ -44,4 +46,6 @@ def test_timex_tagging_1():
             #print(expected_vals, result_vals)
             # Make assertions
             assert expected_vals == result_vals
-    
+
+    # Clean-up: Terminate Java process
+    tagger._java_process._process.terminate()
