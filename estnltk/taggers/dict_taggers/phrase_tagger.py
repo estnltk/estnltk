@@ -18,10 +18,10 @@ class PhraseTagger(Tagger):
                  output_attributes: Sequence=None,
                  global_validator: callable=None,
                  validator_attribute: str='_validator_',
-                 default_values=None,
+                 decorator=None,
                  conflict_resolving_strategy: str='MAX',
                  priority_attribute: str=None,
-                 ambiguous: bool=False
+                 output_ambiguous: bool=False
                  ):
         """Initialize a new EventSequenceTagger instance.
 
@@ -50,8 +50,8 @@ class PhraseTagger(Tagger):
         :param ambiguous: bool
             Whether the output layer is ambiguous.
         """
-        self.conf_param = ('input_attribute', 'vocabulary', 'global_validator', 'validator_attribute', 'default_values',
-                           'conflict_resolving_strategy', 'priority_attribute', 'ambiguous', '_heads')
+        self.conf_param = ('input_attribute', 'vocabulary', 'global_validator', 'validator_attribute', 'decorator',
+                           'conflict_resolving_strategy', 'priority_attribute', 'output_ambiguous', '_heads')
 
         self.output_layer = output_layer
         self.input_layers = [input_layer]
@@ -67,31 +67,30 @@ class PhraseTagger(Tagger):
 
         self.validator_attribute = validator_attribute
 
-        if default_values is None:
-            default_values = {}
-        self.default_values = default_values
+        if decorator is None:
+            decorator = default_decorator
+        self.decorator = decorator
 
         self.conflict_resolving_strategy = conflict_resolving_strategy
         self.priority_attribute = priority_attribute
 
-        self.ambiguous = ambiguous
+        self.output_ambiguous = output_ambiguous
 
         self.vocabulary = Vocabulary(vocabulary=vocabulary,
                                      key=key,
-                                     default_rec={self.validator_attribute: default_validator,
-                                                  **default_values})
+                                     default_rec={self.validator_attribute: default_validator})
 
         assert key is None or key == self.vocabulary.key,\
             'mismatching key and vocabulary.key: {}!={}'.format(key, self.vocabulary.key)
-        assert self.validator_attribute in self.vocabulary.attributes,\
-            'validator attribute is not among the vocabulary attributes: ' + str(self.validator_attribute)
-        assert set(self.output_attributes) <= set(self.vocabulary.attributes),\
-            'some output_attributes missing in vocabulary attributes: {}'.format(
-                set(self.output_attributes)-set(self.vocabulary.attributes))
-        assert self.priority_attribute is None or self.priority_attribute in self.vocabulary.attributes,\
-            'priority attribute is not among the vocabulary attributes: ' + str(self.priority_attribute)
-        assert self.ambiguous or all(len(values) == 1 for values in self.vocabulary.values()),\
-            'ambiguous==False but vocabulary is ambiguous'
+        #assert self.validator_attribute in self.vocabulary.attributes,\
+        #    'validator attribute is not among the vocabulary attributes: ' + str(self.validator_attribute)
+        #assert set(self.output_attributes) <= set(self.vocabulary.attributes),\
+        #    'some output_attributes missing in vocabulary attributes: {}'.format(
+        #        set(self.output_attributes)-set(self.vocabulary.attributes))
+        #assert self.priority_attribute is None or self.priority_attribute in self.vocabulary.attributes,\
+        #    'priority attribute is not among the vocabulary attributes: ' + str(self.priority_attribute)
+        assert self.output_ambiguous or all(len(values) == 1 for values in self.vocabulary.values()),\
+            'output_ambiguous is False but vocabulary is ambiguous'
 
         self._heads = defaultdict(list)
         for phrase in self.vocabulary:
@@ -103,7 +102,7 @@ class PhraseTagger(Tagger):
             name=self.output_layer,
             attributes=self.output_attributes,
             enveloping=input_layer.name,
-            ambiguous=self.ambiguous)
+            ambiguous=self.output_ambiguous)
         heads = self._heads
         value_list = getattr(input_layer, self.input_attribute)
         if input_layer.ambiguous:
@@ -119,9 +118,10 @@ class PhraseTagger(Tagger):
                                         break
                                 if match:
                                     phrase = (value,) + tail
-                                    for rec in self.vocabulary[phrase]:
+                                    for record in self.vocabulary[phrase]:
                                         span = EnvelopingSpan(spans=input_layer[i:i + len(tail) + 1].spans)
-                                        if self.global_validator(span, raw_text) and rec[self.validator_attribute](span, raw_text):
+                                        if self.global_validator(span, raw_text) and record[self.validator_attribute](span, raw_text):
+                                            rec = {**record, **self.decorator(span, raw_text)}
                                             for attr in self.output_attributes:
                                                 attr_value = rec[attr]
                                                 if callable(attr_value):
@@ -141,10 +141,11 @@ class PhraseTagger(Tagger):
                                     break
                             if match:
                                 phrase = (value,) + tail
-                                for rec in self.vocabulary[phrase]:
+                                for record in self.vocabulary[phrase]:
                                     spans = input_layer.span_list[i:i + len(tail) + 1]
                                     span = EnvelopingSpan(spans=spans)
-                                    if self.global_validator(span, raw_text) and rec[self.validator_attribute](self, raw_text):
+                                    if self.global_validator(span, raw_text) and record[self.validator_attribute](self, raw_text):
+                                        rec = {**record, **self.decorator(span, raw_text)}
                                         for attr in self.output_attributes:
                                             attr_value = rec[attr]
                                             if callable(attr_value):
@@ -158,6 +159,10 @@ class PhraseTagger(Tagger):
                           priority_attribute=self.priority_attribute,
                           keep_equal=True)
         return layer
+
+
+def default_decorator(span: EnvelopingSpan, raw_text: str) -> dict:
+    return {}
 
 
 def default_validator(span: EnvelopingSpan, raw_text: str) -> bool:
