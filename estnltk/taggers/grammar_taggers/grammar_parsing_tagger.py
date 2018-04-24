@@ -1,6 +1,6 @@
 from estnltk.taggers import Tagger
 from estnltk.layer.layer import Layer
-from estnltk import SpanList, EnvelopingSpan
+from estnltk import EnvelopingSpan
 from estnltk.finite_grammar.layer_graph import GrammarNode, layer_to_graph, get_spans
 from estnltk.finite_grammar import parse_graph
 
@@ -9,7 +9,7 @@ class GrammarParsingTagger(Tagger):
     """Parses input layer using grammar. Output layer envelopes input."""
 
     conf_param = ['grammar', 'name_attribute', 'input_layer', 'output_nodes', 'resolve_support_conflicts',
-                  'resolve_start_end_conflicts', 'resolve_terminals_conflicts']
+                  'resolve_start_end_conflicts', 'resolve_terminals_conflicts', 'ambiguous']
 
     def __init__(self,
                  grammar,
@@ -18,9 +18,10 @@ class GrammarParsingTagger(Tagger):
                  layer_name='parse',
                  attributes=(),
                  output_nodes=None,
-                 resolve_support_conflicts: bool = True,
-                 resolve_start_end_conflicts: bool = True,
-                 resolve_terminals_conflicts: bool = True):
+                 resolve_support_conflicts: bool=True,
+                 resolve_start_end_conflicts: bool=True,
+                 resolve_terminals_conflicts: bool=True,
+                 output_ambiguous: bool=False):
         self.grammar = grammar
         self.output_layer = layer_name
         self.name_attribute = name_attribute
@@ -34,6 +35,7 @@ class GrammarParsingTagger(Tagger):
         self.resolve_support_conflicts = resolve_support_conflicts
         self.resolve_start_end_conflicts = resolve_start_end_conflicts
         self.resolve_terminals_conflicts = resolve_terminals_conflicts
+        self.ambiguous = output_ambiguous
 
     def _make_layer(self, text, layers, status):
         graph = layer_to_graph(layers[self.input_layer],
@@ -47,7 +49,8 @@ class GrammarParsingTagger(Tagger):
         attributes = self.output_attributes
         layer = Layer(name=self.output_layer,
                       enveloping=self.input_layer,
-                      attributes=attributes
+                      attributes=attributes,
+                      ambiguous=self.ambiguous
                       )
         for node in graph:
             if isinstance(node, GrammarNode) and node.name in self.output_nodes:
