@@ -19,8 +19,6 @@ import datetime
 
 from collections import OrderedDict
 
-from pprint import pprint  # TODO: remove
-
 from estnltk.text import Text, Layer, EnvelopingSpan
 
 from estnltk.taggers import TaggerOld
@@ -322,7 +320,6 @@ class TimexTagger(TaggerOld):
         #
         # C.2) Create a new layer and populated with collected timexes
         #
-        # TODO! Handle overlapping TIMEX-es !!!
         layer = Layer(name=self.layer_name, 
                       enveloping ='words', 
                       attributes=self.attributes, 
