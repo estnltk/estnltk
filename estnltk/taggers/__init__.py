@@ -36,6 +36,8 @@ from estnltk.taggers.standard_taggers.address_tagger import AddressPartTagger
 from estnltk.taggers.standard_taggers.address_tagger import AddressGrammarTagger
 from estnltk.taggers.standard_taggers.adjective_phrase_tagger import AdjectivePhraseTagger
 
+from estnltk.taggers.standard_taggers.timex_tagger import TimexTagger
+
 from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger
 from estnltk.taggers.text_segmentation.word_tagger import WordTagger
 from estnltk.taggers.text_segmentation.sentence_tokenizer import SentenceTokenizer
