@@ -1,6 +1,6 @@
 from pprint import pformat
 from typing import List
-from os.path import exists, split
+from os import path
 
 from estnltk.text import Text
 from estnltk.converters import export_dict, import_dict
@@ -41,13 +41,14 @@ def make_tagger_test(tagger_creation: str,
                      test_file: str,
                      annotation: str,
                      overwrite: bool=False):
+    if not overwrite and path.exists(test_file):
+        print("File '" + path.split(test_file)[-1] + "' already exists. Use 'overwrite=True' to overwrite.")
+        return
+
     scope = {}
     exec(tagger_creation, scope)
     tagger = scope['tagger']
 
-    if not overwrite and exists(test_file):
-        print("File '" + split(test_file)[-1] + "' already exists. Use 'overwrite=True' to overwrite.")
-        return
     text_dict_str = pformat(export_dict(text))
     assert text == import_dict(eval(text_dict_str)), "can't export input text"
     expected_text = tagger.tag(text)
@@ -63,4 +64,4 @@ def make_tagger_test(tagger_creation: str,
                                     annotation=annotation)
     with open(test_file, 'w') as out_f:
         out_f.write(file_contents)
-        print("Created '" + split(test_file)[-1] + "'.")
+        print("Created '" + path.split(test_file)[-1] + "'.")
