@@ -42,7 +42,8 @@ class TimexTagger(TaggerOld):
 
 
     def __init__(self, rules_file:str=None, \
-                       pick_first_in_overlap:bool=True ):
+                       pick_first_in_overlap:bool=True, \
+                       mark_part_of_interval:bool=True ):
         """Initializes Java-based temporal expression tagger.
         
         Parameters
@@ -57,7 +58,15 @@ class TimexTagger(TaggerOld):
              If set, then in case of partially overlapping timexes the first timex
              will be preserved, and the following timex will be discarded. If not
              set, then all overlapping timexes will be preserved (Note: this likely
-             creates conflicts with EstNLTK's data structures).
+             creates conflicts with EstNLTK's data structures);
+        
+        mark_part_of_interval: boolean (default: True)
+             If set, then all timexes will have an additional attribute 
+             'part_of_interval', and DATE and TIME expressions that make up an interval 
+             (DURATION) will have their part_of_interval filled in with a dictionary 
+             that contains attributes of the timex tag of the corresponding interval.
+             Otherwise, the information about the implicit intervals will be 
+             discarded;
         """
         args = ['-pyvabamorf']
         use_rules_file = \
@@ -70,7 +79,8 @@ class TimexTagger(TaggerOld):
         args.append(use_rules_file)
         # Record configuration
         self.configuration = {'rules_file': use_rules_file, \
-                              'pick_first_in_overlap': pick_first_in_overlap }
+                              'pick_first_in_overlap': pick_first_in_overlap, \
+                              'mark_part_of_interval': mark_part_of_interval }
         # Start process
         self._java_process = \
             JavaProcess( 'Ajavt.jar', jar_path=JAVARES_PATH, args=args )
@@ -178,6 +188,24 @@ class TimexTagger(TaggerOld):
                timex_span.end_point = timex[attrib]
                if timex[attrib] in empty_timexes_dict:
                   timex_span.end_point = empty_timexes_dict[timex[attrib]]
+        if self.configuration['mark_part_of_interval']:
+           # Determine whether this TIMEX is part of an interval, and
+           # if so, then mark also TIMEX of the interval as an attribute
+           timex_tid  = timex['tid'] if 'tid' in timex else None
+           timex_type = timex['type'] if 'type' in timex else None
+           if empty_timexes_dict and timex_type in ['DATE', 'TIME']:
+              for empty_timex_id in empty_timexes_dict.keys():
+                  empty_timex = empty_timexes_dict[empty_timex_id]
+                  if 'beginPoint' in empty_timex.keys() and \
+                     timex_tid in empty_timex['beginPoint']:
+                     timex_span.part_of_interval = \
+                                empty_timexes_dict[empty_timex_id]
+                     break
+                  elif 'endPoint' in empty_timex.keys() and \
+                        timex_tid in empty_timex['endPoint']:
+                     timex_span.part_of_interval = \
+                                empty_timexes_dict[empty_timex_id]
+                     break
         # If there is DATE and temporal_function==True and anchor_time_id
         # is not set, set it to 't0' (document creation time)
         if timex_span.type in ['DATE'] and timex_span.temporal_function:
@@ -320,9 +348,12 @@ class TimexTagger(TaggerOld):
         #
         # C.2) Create a new layer and populated with collected timexes
         #
+        layer_attributes = self.attributes
+        if self.configuration['mark_part_of_interval']:
+           layer_attributes += ('part_of_interval', )
         layer = Layer(name=self.layer_name, 
                       enveloping ='words', 
-                      attributes=self.attributes, 
+                      attributes=layer_attributes, 
                       ambiguous=False)
         marked_timex_word_ids = set()
         for tid in timexes_dict.keys():
