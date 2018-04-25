@@ -197,12 +197,12 @@ class TimexTagger(TaggerOld):
               for empty_timex_id in empty_timexes_dict.keys():
                   empty_timex = empty_timexes_dict[empty_timex_id]
                   if 'beginPoint' in empty_timex.keys() and \
-                     timex_tid in empty_timex['beginPoint']:
+                     timex_tid == empty_timex['beginPoint']:
                      timex_span.part_of_interval = \
                                 empty_timexes_dict[empty_timex_id]
                      break
                   elif 'endPoint' in empty_timex.keys() and \
-                        timex_tid in empty_timex['endPoint']:
+                        timex_tid == empty_timex['endPoint']:
                      timex_span.part_of_interval = \
                                 empty_timexes_dict[empty_timex_id]
                      break
