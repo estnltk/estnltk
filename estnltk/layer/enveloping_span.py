@@ -1,4 +1,3 @@
-import bisect
 import collections
 from typing import MutableMapping, Tuple, Any, Union
 import itertools
@@ -75,7 +74,13 @@ class EnvelopingSpan(collections.Sequence):
 
     @property
     def text(self):
-        return [span.text for span in self.spans]
+        result = []
+        for span in self.spans:
+            if isinstance(span, EnvelopingSpan):
+                result.extend(span.text)
+            else:
+                result.append(span.text)
+        return result
 
     @property
     def enclosing_text(self):

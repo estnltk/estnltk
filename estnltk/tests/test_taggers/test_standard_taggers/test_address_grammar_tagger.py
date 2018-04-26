@@ -75,11 +75,11 @@ expected_text_dict = \
              'enveloping': 'address_parts',
              'name': 'addresses',
              'parent': None,
-             'spans': [{'ASULA': 'Tallinn',
+             'spans': [{'ASULA': 'T',
                         'INDEKS': '',
                         'MAAKOND': '',
                         'MAJA': '5',
-                        'TÄNAV': 'Rävala',
+                        'TÄNAV': 'R',
                         '_index_': [0, 1, 2],
                         'grammar_symbol': 'ADDRESS'}]},
             {'_base': 'words',
@@ -96,7 +96,7 @@ expected_text_dict = \
  'text': 'Rävala 5, Tallinn'}
 
 
-expected_layer_text = [[['Rävala', 'Rävala'], ['5'], ['Tallinn']]]
+expected_layer_text = ['Rävala', '5', 'Tallinn']
 
 expected_text = import_dict(expected_text_dict)
 

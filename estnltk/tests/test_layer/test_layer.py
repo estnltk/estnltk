@@ -167,10 +167,10 @@ def test_advanced_indexing():
     layer = text.morph_analysis
 
     assert layer[:] == layer
-    assert layer[2:10:2].text == [['Sinu'], ['?']]
-    assert layer[[True, False, True, False, True]].text == [['Mis', 'Mis'], ['Sinu'], ['?']]
-    assert layer[lambda span: len(span) > 1].text == [['Mis', 'Mis'], ['on', 'on']]
-    assert layer[[1, 3, 4]].text == [['on', 'on'], ['nimi'], ['?']]
+    assert layer[2:10:2].text == ['Sinu', '?']
+    assert layer[[True, False, True, False, True]].text == ['Mis', 'Sinu', '?']
+    assert layer[lambda span: len(span) > 1].text == ['Mis', 'on']
+    assert layer[[1, 3, 4]].text == ['on', 'nimi', '?']
 
     assert layer[:]['text', 'lemma'] == layer[['text', 'lemma']]
     assert layer[2:10:2, ['text', 'lemma']] == layer[2:10:2]['text', 'lemma']

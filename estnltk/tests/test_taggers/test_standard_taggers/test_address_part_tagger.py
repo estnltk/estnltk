@@ -56,7 +56,7 @@ expected_text_dict = \
  'text': 'Rävala 5, Tallinn'}
 
 
-expected_layer_text = [['Rävala', 'Rävala'], ['5'], ['Tallinn']]
+expected_layer_text = ['Rävala', '5', 'Tallinn']
 
 expected_text = import_dict(expected_text_dict)
 

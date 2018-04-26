@@ -272,7 +272,13 @@ class Layer:
 
     @property
     def text(self):
-        return [span.text for span in self.span_list.spans]
+        result = []
+        for span in self.span_list.spans:
+            if isinstance(span, EnvelopingSpan):
+                result.extend(span.text)
+            else:
+                result.append(span.text)
+        return result
 
     @property
     def enclosing_text(self):
@@ -304,7 +310,7 @@ class Layer:
                 tmpspans = []
                 for record_line in records:
                     if record_line is not None:
-                        spns = SpanList(layer=self, ambiguous=False)
+                        spns = AmbiguousSpan(layer=self)
                         spns.spans = [Span(**{**record, **{'layer': self}}, legal_attributes=self.attributes)
                                       for record in record_line]
                         tmpspans.append(spns)

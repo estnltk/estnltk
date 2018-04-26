@@ -6,6 +6,7 @@ from estnltk import Span
 
 
 class AmbiguousSpan(collections.Sequence):
+    # TODO: think about ambiguous parameter
     def __init__(self,
                  layer=None,
                  ambiguous: bool = False) -> None:
@@ -67,9 +68,12 @@ class AmbiguousSpan(collections.Sequence):
     def end(self):
         return self.spans[-1].end
 
+    #@property
+    #def text(self):
+    #    return [span.text for span in self.spans]
     @property
     def text(self):
-        return [span.text for span in self.spans]
+        return self.spans[0].text
 
     @property
     def enclosing_text(self):
