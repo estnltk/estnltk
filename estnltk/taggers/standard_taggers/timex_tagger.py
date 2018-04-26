@@ -50,8 +50,8 @@ class TimexTagger(TaggerOld):
         ----------
         rules_file: str (default: 'reeglid.xml')
              Initializes the temporal expression tagger with a custom rules file.
-             Which format the rules file should follow is described in more 
-             detail here:
+             The expected format of the rules file is described in  more  detail 
+             here:
                  https://github.com/soras/Ajavt/blob/master/doc/writingRules.txt
         
         pick_first_in_overlap: boolean (default: True)
@@ -61,12 +61,14 @@ class TimexTagger(TaggerOld):
              creates conflicts with EstNLTK's data structures);
         
         mark_part_of_interval: boolean (default: True)
-             If set, then all timexes will have an additional attribute 
-             'part_of_interval', and DATE and TIME expressions that make up an interval 
-             (DURATION) will have their part_of_interval filled in with a dictionary 
-             that contains attributes of the timex tag of the corresponding interval.
-             Otherwise, the information about the implicit intervals will be 
-             discarded;
+             If set, then the information about implicit intervals will also be 
+             marked in the annotations. More specifically, all timexes will have an 
+             additional attribute 'part_of_interval', and DATE and TIME expressions 
+             that make up an interval (DURATION) will have their part_of_interval 
+             filled in with a dictionary that contains attributes of the timex 
+             tag of the corresponding interval.
+             Otherwise (if mark_part_of_interval==False), the information about the 
+             implicit intervals will be discarded;
         """
         args = ['-pyvabamorf']
         use_rules_file = \
