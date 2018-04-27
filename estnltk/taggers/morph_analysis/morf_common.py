@@ -84,13 +84,12 @@ def _is_empty_span( span:Span ):
     return all(all_none)
 
 
-
 # ========================================================
 #    Utils for converting Vabamorf dict <-> EstNLTK Span
 # ========================================================
 
-def _convert_morph_analysis_span_to_vm_dict( span:Span ):
-    ''' Converts a SpanList from the layer 'morph_analysis'
+def _convert_morph_analysis_span_to_vm_dict(span: Span):
+    """ Converts a SpanList from the layer 'morph_analysis'
         into a dictionary object that has the structure
         required by the Vabamorf:
         { 'text' : ..., 
@@ -105,7 +104,7 @@ def _convert_morph_analysis_span_to_vm_dict( span:Span ):
           ]
         }
         Returns the dictionary.
-    '''
+    """
     attrib_dicts = {}
     # Get lists corresponding to attributes
     for attr in ESTNLTK_MORPH_ATTRIBUTES:
@@ -113,9 +112,9 @@ def _convert_morph_analysis_span_to_vm_dict( span:Span ):
     # Rewrite attributes in Vabamorf's analysis format
     # Collect analysis dicts
     nr_of_analyses = len(attrib_dicts['lemma'])
-    word_dict = { 'text' : span.text[0], \
-                  'analysis' : [] }
-    for i in range( nr_of_analyses ):
+    word_dict = {'text': span.text,
+                 'analysis': []}
+    for i in range(nr_of_analyses):
         analysis = {}
         for attr in attrib_dicts.keys():
             attr_value = attrib_dicts[attr][i]
