@@ -22,8 +22,6 @@ class Span:
 
         # parent is a Span of dependant Layer
         elif parent is not None:
-            # TODO:
-            #assert isinstance(parent, (Span, SpanList))
             assert start is None
             assert end is None
             self.is_dependant = True
