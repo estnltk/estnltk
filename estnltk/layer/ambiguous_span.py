@@ -7,13 +7,11 @@ from estnltk import Span
 
 class AmbiguousSpan(collections.Sequence):
     def __init__(self,
-                 layer=None,
-                 ambiguous: bool = False) -> None:
+                 layer=None) -> None:
         self.spans = []
         self.classes = {}  # type: MutableMapping[Tuple[int, int], SpanList]
 
         self._layer = layer
-        self.ambiguous = ambiguous
 
         # placeholder for ambiguous layer
         self.parent = None  # type:Union[Span, None]
@@ -118,7 +116,6 @@ class AmbiguousSpan(collections.Sequence):
         res.layer = self.layer
 
         res.spans = wrapped
-        res.ambiguous = self.ambiguous
         res.parent = self.parent
 
         return res
@@ -127,17 +124,13 @@ class AmbiguousSpan(collections.Sequence):
         return (self.start, self.end) < (other.start, other.end)
 
     def __eq__(self, other: Any) -> bool:
-        return hash(self) == hash(other)
-        # try:
-        #    return (self.start, self.end) == (other.start, other.end)
-        # except AttributeError:
-        #    return False
+        return isinstance(other, AmbiguousSpan) and hash(self) == hash(other)
 
     def __le__(self, other: Any) -> bool:
         return self < other or self == other
 
     def __hash__(self):
-        return hash((tuple(self.spans), self.ambiguous, self.parent))
+        return hash((tuple(self.spans), self.parent))
 
     def __str__(self):
         return 'AS[{spans}]'.format(spans=', '.join(str(i) for i in self.spans))
