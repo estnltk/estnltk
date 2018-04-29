@@ -8,16 +8,13 @@ from estnltk import Span
 class EnvelopingSpan(collections.Sequence):
     def __init__(self,
                  spans,
-                 layer=None,
-                 ambiguous: bool = False,
+                 layer=None
                  ) -> None:
         self.spans = spans
         self.classes = {}  # type: MutableMapping[Tuple[int, int], Span]
 
         self._layer = layer
-        self.ambiguous = ambiguous
 
-        # placeholder for ambiguous layer
         self.parent = None  # type:Union[Span, None]
 
         # placeholder for dependant layer
@@ -47,13 +44,6 @@ class EnvelopingSpan(collections.Sequence):
 
     def to_record(self, with_text=False):
         return [i.to_record(with_text) for i in self.spans]
-
-    def add_span(self, span: 'EnvelopingSpan') -> 'EnvelopingSpan':
-        # the assumption is that this method is called by Layer.add_span
-        # span.layer = self.layer
-        assert self.ambiguous
-        self.attribute_records.extend(span.attribute_records)
-        return self
 
     @property
     def layer(self):
@@ -129,15 +119,12 @@ class EnvelopingSpan(collections.Sequence):
         return layer.text_object._resolve(layer.name, item, sofar=self)
 
     def __getitem__(self, idx: int) -> Union[Span, 'EnvelopingSpan']:
-        #assert False, '???'
         wrapped = self.spans.__getitem__(idx)
         if isinstance(idx, int):
             return wrapped
         res = EnvelopingSpan(spans=wrapped)
         res.layer = self.layer
 
-        # res.spans = wrapped
-        res.ambiguous = self.ambiguous
         res.parent = self.parent
 
         return res
@@ -146,17 +133,13 @@ class EnvelopingSpan(collections.Sequence):
         return (self.start, self.end) < (other.start, other.end)
 
     def __eq__(self, other: Any) -> bool:
-        return hash(self) == hash(other)
-        # try:
-        #    return (self.start, self.end) == (other.start, other.end)
-        # except AttributeError:
-        #    return False
+        return isinstance(other, EnvelopingSpan) and hash(self) == hash(other)
 
     def __le__(self, other: Any) -> bool:
         return self < other or self == other
 
     def __hash__(self):
-        return hash((tuple(self.spans), self.ambiguous, self.parent))
+        return hash((tuple(self.spans), self.parent))
 
     def __str__(self):
         return 'ES[{spans}]'.format(spans=',\n'.join(str(i) for i in self.spans))
