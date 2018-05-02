@@ -1,7 +1,8 @@
 import json
 from . import export_dict
 
-def export_json(text:'Text', file:str=None, file_encoding:str='utf-8'):
+
+def export_json(text: 'Text', file: str=None, file_encoding: str='utf-8'):
     """Exports text object to json.
     If file is None, returns json string,
     otherwise dumps json string to file and returns None.
@@ -14,8 +15,8 @@ def export_json(text:'Text', file:str=None, file_encoding:str='utf-8'):
     encoding.
     """
     text_dict = export_dict(text)
-    if file:
-        with open(file, 'w', encoding=file_encoding) as out_f:
-            json.dump(text_dict, fp=out_f, ensure_ascii=False)
-    else:
+    if file is None:
         return json.dumps(text_dict, ensure_ascii=False)
+
+    with open(file, 'w', encoding=file_encoding) as out_f:
+        json.dump(text_dict, fp=out_f, ensure_ascii=False)
