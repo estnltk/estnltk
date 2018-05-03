@@ -129,8 +129,8 @@ Mis sinu nimi on?
 
     #Should not raise NotImplementedError
     t.paragraphs.sentences
-    # TODO: assertion is always true, perhaps remove parentheses?
-    assert (t.paragraphs.sentences.text == [['Minu', 'nimi', 'on', 'Uku', '.'], ['Miks', '?']], ['Mis', 'sinu', 'nimi', 'on', '?'])
+    assert t.paragraphs.sentences.text == [['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?'],
+                                           ['Mis', 'sinu', 'nimi', 'on', '?']]
 
     #Should not raise NotImplementedError
     t.paragraphs.sentences.words
