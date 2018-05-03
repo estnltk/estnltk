@@ -31,7 +31,7 @@ def test_timex_tagging_1():
                               ]
                   },\
                   {'text': 'Kohapärimuse valdkonnas on järgmise kahe aasta jooksul vaja teha ulatuslikku teavitustööd ja korraldada koolitusi.',\
-                   'dct':'2013-XX-XX',\
+                   'dct':'2013-12-01',\
                    'expected_timexes': [ \
                                  {'text':['järgmise', 'kahe', 'aasta', 'jooksul'], 'enclosing_text': 'järgmise kahe aasta jooksul', 'tid':'t1', 'type':'DURATION', 'value':'P2Y', 'temporal_function':True , 'anchor_time_id':None, 'begin_point': 't0', 'end_point':{'temporalFunction': 'true', 'tid': 't2', 'type': 'DATE', 'value': '2015'} }, \
                               ]
