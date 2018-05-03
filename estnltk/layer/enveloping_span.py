@@ -2,7 +2,7 @@ import collections
 from typing import Any, Union
 import itertools
 
-from estnltk import Span
+from estnltk import Span, AmbiguousSpan
 
 
 class EnvelopingSpan(collections.Sequence):
@@ -10,6 +10,8 @@ class EnvelopingSpan(collections.Sequence):
                  spans,
                  layer=None
                  ) -> None:
+        spans = tuple(spans)
+        assert all(isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan)) for span in spans)
         self.spans = spans
 
         self._layer = layer
@@ -126,7 +128,8 @@ class EnvelopingSpan(collections.Sequence):
         return res
 
     def __lt__(self, other: Any) -> bool:
-        return (self.start, self.end) < (other.start, other.end)
+        return isinstance(other, EnvelopingSpan) and \
+            (self.start, self.end, self.spans) < (other.start, other.end, other.spans)
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, EnvelopingSpan) and self.spans == other.spans
