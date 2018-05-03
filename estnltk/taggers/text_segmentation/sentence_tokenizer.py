@@ -652,17 +652,17 @@ class SentenceTokenizer(TaggerOld):
                             # Update fix types list
                             new_sentence_fixes_list[-1] = \
                                 last_sentence_fixes + current_fix_types
-                            new_sentence_fixes_list.append( \
-                                this_sentence_fixes + current_fix_types )
+                            new_sentence_fixes_list.append(
+                                this_sentence_fixes + current_fix_types)
                         else:
                             # Update sentence spans
                             new_sentences_list.append ( merge_split_result[0] )
                             new_sentences_list.append ( merge_split_result[1] )
                             # Update fix types list
-                            new_sentence_fixes_list.append( \
-                                last_sentence_fixes + current_fix_types )
-                            new_sentence_fixes_list.append( \
-                                this_sentence_fixes + current_fix_types )
+                            new_sentence_fixes_list.append(
+                                last_sentence_fixes + current_fix_types)
+                            new_sentence_fixes_list.append(
+                                this_sentence_fixes + current_fix_types)
                     else:
                         # if merge-and-split failed, then discard the rule
                         # (sentences will remain split as they were)
@@ -672,8 +672,7 @@ class SentenceTokenizer(TaggerOld):
                         new_spanlist.spans = sentence_spl.spans
                         new_sentences_list.append( new_spanlist )
                         # Update fix types list
-                        new_sentence_fixes_list.append( \
-                            this_sentence_fixes )
+                        new_sentence_fixes_list.append(this_sentence_fixes)
                 else:
                     # -------------------------------------------
                     #   2) Merge only: join two consecutive sentences into one
@@ -690,10 +689,10 @@ class SentenceTokenizer(TaggerOld):
                             this_sentence_fixes + \
                             current_fix_types
                         new_sentence_fixes_list.append( all_fixes )
-                    else: 
-                        # At least one sentence has already been added: 
+                    else:
+                        # At least one sentence has already been added:
                         # extend the last sentence
-                        spans = new_sentences_list[-1].spans+sentence_spl.spans
+                        spans = new_sentences_list[-1].spans + tuple(sentence_spl.spans)
                         merged_spanlist = EnvelopingSpan(spans=spans)
                         new_sentences_list[-1] = merged_spanlist
                         # Update fix types list
@@ -710,17 +709,16 @@ class SentenceTokenizer(TaggerOld):
                 # new_spanlist.spans = sentence_spl.spans
                 new_sentences_list.append( new_spanlist )
                 # Update fix types list
-                new_sentence_fixes_list.append( \
-                    this_sentence_fixes )
+                new_sentence_fixes_list.append(this_sentence_fixes)
                 #print('>>0',this_sent)
         assert len(new_sentences_list) == len(new_sentence_fixes_list)
         return new_sentences_list, new_sentence_fixes_list
 
-
-
-    def _find_new_sentence_ending(self, text:'Text', merge_split_pattern:dict, \
-                                        this_sent:SpanList, \
-                                        prev_sent:SpanList):
+    def _find_new_sentence_ending(self,
+                                  text: 'Text',
+                                  merge_split_pattern: dict,
+                                  this_sent: SpanList,
+                                  prev_sent: SpanList):
         ''' Finds the position where sentence ending should be shifted while 
             attempting to merge and re-split consecutive sentences prev_sent
             and this_sent. Returns the new ending position if it passes the 
