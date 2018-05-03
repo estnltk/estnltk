@@ -29,7 +29,7 @@ class SpanList(collections.Sequence):
         self._base = None  # type:Union[Span, None]
 
     def get_equivalence(self, span):
-        return self.classes.get((span.start, span.end), None)
+        return self.classes.get(hash(span), None)
 
     def get_attributes(self, items):
         r = []
@@ -62,7 +62,7 @@ class SpanList(collections.Sequence):
             if target is None:
                 new = AmbiguousSpan(layer=self.layer)
                 new.add_span(span)
-                self.classes[(span.start, span.end)] = new
+                self.classes[hash(span)] = new
                 bisect.insort(self.spans, new)
                 new.parent = span.parent
             else:
@@ -71,7 +71,7 @@ class SpanList(collections.Sequence):
         else:
             if target is None:
                 bisect.insort(self.spans, span)
-                self.classes[(span.start, span.end)] = span
+                self.classes[hash(span)] = span
             else:
                 raise ValueError('span is already in spanlist: ' + str(span))
         return span
@@ -150,11 +150,8 @@ class SpanList(collections.Sequence):
         return (self.start, self.end) < (other.start, other.end)
 
     def __eq__(self, other: Any) -> bool:
+        return isinstance(other, SpanList) and self.spans == other.spans
         return hash(self) == hash(other)
-        # try:
-        #    return (self.start, self.end) == (other.start, other.end)
-        # except AttributeError:
-        #    return False
 
     def __le__(self, other: Any) -> bool:
         return self < other or self == other
@@ -588,4 +585,4 @@ class Layer:
         return None
 
     def __eq__(self, other):
-        return not self.diff(other)
+        return self.diff(other) is None

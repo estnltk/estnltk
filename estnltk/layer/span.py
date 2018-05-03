@@ -282,13 +282,21 @@ class Span:
         return (self.start, self.end) < (other.start, other.end)
 
     def __eq__(self, other: Any) -> bool:
-        try:
-            return (self.start, self.end) == (other.start, other.end)
-        except AttributeError:
+        if not isinstance(other, Span):
             return False
+        if self.start != other.start or self.end != other.end:
+            return False
+        if self.legal_attribute_names != other.legal_attribute_names:
+            return False
+        return all(self.__getattribute__(i) == other.__getattribute__(i) for i in self.legal_attribute_names)
+        #try:
+        #    return (self.start, self.end) == (other.start, other.end)
+        #except AttributeError:
+        #    return False
 
     def __hash__(self):
-        return hash((self.start, self.end, tuple(self.__getattribute__(i) for i in self.legal_attribute_names)))
+        #return hash((self.start, self.end, tuple(self.__getattribute__(i) for i in self.legal_attribute_names)))
+        return hash((self.start, self.end))
 
     def __le__(self, other: Any) -> bool:
         return self < other or self == other

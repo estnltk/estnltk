@@ -1,5 +1,5 @@
 import collections
-from typing import MutableMapping, Tuple, Any, Union
+from typing import Any, Union
 import itertools
 
 from estnltk import Span
@@ -11,7 +11,6 @@ class EnvelopingSpan(collections.Sequence):
                  layer=None
                  ) -> None:
         self.spans = spans
-        self.classes = {}  # type: MutableMapping[Tuple[int, int], Span]
 
         self._layer = layer
 
@@ -19,9 +18,6 @@ class EnvelopingSpan(collections.Sequence):
 
         # placeholder for dependant layer
         self._base = None  # type:Union[Span, None]
-
-    def get_equivalence(self, span):
-        return self.classes.get((span.start, span.end), None)
 
     def get_attributes(self, items):
         r = []
@@ -133,7 +129,7 @@ class EnvelopingSpan(collections.Sequence):
         return (self.start, self.end) < (other.start, other.end)
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, EnvelopingSpan) and hash(self) == hash(other)
+        return isinstance(other, EnvelopingSpan) and self.spans == other.spans
 
     def __le__(self, other: Any) -> bool:
         return self < other or self == other

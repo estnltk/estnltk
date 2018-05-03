@@ -1,6 +1,6 @@
 import collections
 import itertools
-from typing import Union, MutableMapping, Tuple, Any
+from typing import Union, Any
 
 from estnltk import Span
 
@@ -9,7 +9,6 @@ class AmbiguousSpan(collections.Sequence):
     def __init__(self,
                  layer=None) -> None:
         self.spans = []
-        self.classes = {}  # type: MutableMapping[Tuple[int, int], SpanList]
 
         self._layer = layer
 
@@ -18,9 +17,6 @@ class AmbiguousSpan(collections.Sequence):
 
         # placeholder for dependant layer
         self._base = None  # type:Union[Span, None]
-
-    def get_equivalence(self, span):
-        return self.classes.get((span.start, span.end), None)
 
     def get_attributes(self, items):
         r = []
@@ -124,7 +120,7 @@ class AmbiguousSpan(collections.Sequence):
         return (self.start, self.end) < (other.start, other.end)
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, AmbiguousSpan) and hash(self) == hash(other)
+        return isinstance(other, AmbiguousSpan) and self.spans == other.spans
 
     def __le__(self, other: Any) -> bool:
         return self < other or self == other
