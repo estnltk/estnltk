@@ -1,7 +1,7 @@
 from typing import Union
 from collections import defaultdict
 
-from .trees import Grammar
+from .grammar import Grammar
 
 
 def phrase_list_generator(grammar: Grammar, depth_limit: Union[int, float]=None):
