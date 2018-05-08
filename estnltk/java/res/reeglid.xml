@@ -1204,6 +1204,18 @@
       <SonaKlass nimi="DEKAAD">
           <Element tyyp="algv" vaartus="dekaad|kümnend" />
       </SonaKlass>
+      
+      <!-- ********************************************************* -->
+      <!-- **********   Varia (EstNLTK 1.6 sõnestus)   ************* -->
+      <!-- ********************************************************* -->
+
+      <SonaKlass nimi="KRIIPS_V_KUNI">
+          <Element tyyp="reg" vaartus="[.]?(-{1,}|\u2212|\uFF0D|\u02D7|\uFE63|\u002D|\u2010|\u2011|\u2012|\u2013|\u2014|\u2015|kuni)" />
+      </SonaKlass>
+      
+      <SonaKlass nimi="KAIGAS">
+          <Element tyyp="tekst" vaartus="/" />
+      </SonaKlass>      
 
   </SonaKlassid>
 
@@ -3412,7 +3424,21 @@
      <SemReegel priority="7" seotudMustriosa="KUUPAEV_V_PUNKT_A"   op="SET" />
      <SemReegel priority="8" seotudMustriosa="0"                   op="SET_HALVING_POINT"    semValue="0,true" />
   </Reegel>
-
+  
+  <Reegel>
+     <!--  Nt: 20. - 24. septembrini 2002 (EstNLTK 1.6 sõnestus) ... -->
+     <Muster> KUUPAEV_V_PUNKT_A  KRIIPS_V_KUNI  KUUPAEV_V_PUNKT_A  KUU  /([1][0-9][0-9][0-9]|[2][01][0-9][0-9])(\.a\.|\.a|a\.|\.)?/ </Muster>
+     <MustriTahis seotudMustriosa="0" tahised="KUUPAEV_ABS_AP" />
+     <SemReegel priority="1" seotudMustriosa="4"  op="SET" semField="YEAR" semValue="PARSE_FROM_SELF:1"      />
+     <SemReegel priority="2" seotudMustriosa="0"  op="SET_attrib" attrib="temporalFunction" semValue="false" />
+     <SemReegel priority="3" seotudMustriosa="KUU"                 op="SET" />
+     <SemReegel priority="4" seotudMustriosa="0"                   op="CREATE_beginPoint" explicitPoint="true" />
+     <SemReegel priority="5" seotudMustriosa="KUUPAEV_V_PUNKT_A_0" op="SET" />
+     <SemReegel priority="6" seotudMustriosa="0"                   op="CREATE_endPoint" explicitPoint="true" />
+     <SemReegel priority="7" seotudMustriosa="KUUPAEV_V_PUNKT_A_2" op="SET" />
+     <SemReegel priority="8" seotudMustriosa="0"                   op="SET_HALVING_POINT"    semValue="1,false" />
+  </Reegel>
+  
   <Reegel>
      <!--  Nt: 3. okt 1890 ... -->
      <Muster> KUUPAEV_A KUU_LYHEND /([1][0-9][0-9][0-9]|[2][01][0-9][0-9])[.]?/ AASTA_V_A? </Muster>
@@ -3478,6 +3504,7 @@
      <SemReegel priority="6" seotudMustriosa="0" op="SET_attrib" attrib="temporalFunction" semValue="false" />
      <!-- NB! Kui teha järeleandmisi ning lubada kõrvalekaldeid formaadis (0-de ärajätmist eest),
           saame koondkorpuses kergesti valetuvastusi, nt  "27 EAA < 1187-2-27 > , l. 13."  -->
+     <!-- TODO: lisada EstNLTK 1.6 sõnestus:  "2009-02-31T11" + ":" + "00"  -->
   </Reegel>
 
   <Reegel>
@@ -3493,6 +3520,20 @@
      <SemReegel priority="7" seotudMustriosa="KUUPAEV_PUNKTIGA_A"  op="SET" />
      <SemReegel priority="8" seotudMustriosa="0"                   op="SET_HALVING_POINT"    semValue="0,true" />
   </Reegel>
+  
+  <Reegel>
+     <!--  Nt: 20. - 24.09.2002.a. (EstNLTK 1.6 sõnestus) ... -->
+     <Muster> KUUPAEV_V_PUNKT_A  KRIIPS_V_KUNI  KUUPAEV_PUNKTIGA_A  KUU_A  /([1][0-9][0-9][0-9]|[2][01][0-9][0-9])(\.a\.|\.a|a\.|\.)?/ </Muster>
+     <MustriTahis seotudMustriosa="0" tahised="KUUPAEV_ABS_AP, LIITUB_KELLAAJAGA" />
+     <SemReegel priority="1" seotudMustriosa="4"  op="SET" semField="YEAR" semValue="PARSE_FROM_SELF:1" />
+     <SemReegel priority="2" seotudMustriosa="0"  op="SET_attrib" attrib="temporalFunction" semValue="false" />
+     <SemReegel priority="3" seotudMustriosa="KUU_A"                op="SET" />
+     <SemReegel priority="4" seotudMustriosa="0"                    op="CREATE_beginPoint" explicitPoint="true" />
+     <SemReegel priority="5" seotudMustriosa="KUUPAEV_V_PUNKT_A"    op="SET" />
+     <SemReegel priority="6" seotudMustriosa="0"                    op="CREATE_endPoint" explicitPoint="true" />
+     <SemReegel priority="7" seotudMustriosa="KUUPAEV_PUNKTIGA_A"   op="SET" />
+     <SemReegel priority="8" seotudMustriosa="0"                    op="SET_HALVING_POINT"    semValue="1,false" />
+  </Reegel>
 
   <Reegel>
      <!--  Nt: 31.05.-03.06.2000. ... -->
@@ -3507,6 +3548,21 @@
      <SemReegel priority="7" seotudMustriosa="KUU_A"                op="SET" />
      <SemReegel priority="8" seotudMustriosa="KUUPAEV_PUNKTIGA_A_2" op="SET" />
      <SemReegel priority="9" seotudMustriosa="0"                    op="SET_HALVING_POINT"    semValue="1,true" />
+  </Reegel>
+  
+  <Reegel>
+     <!--  Nt: 31. 05 . - 03.06.2000. (EstNLTK 1.6 sõnestus) ... -->
+     <Muster> /(0?[1-9]|1[0-9]|2[0-9]|3[01])[.]/ /(0?[1-9]|1[012])/  /[.]/  KRIIPS_V_KUNI  KUUPAEV_PUNKTIGA_A  KUU_A  /([1][0-9][0-9][0-9]|[2][01][0-9][0-9])(\.a|\.a|a\.|\.)?/ </Muster>
+     <MustriTahis seotudMustriosa="0" tahised="KUUPAEV_ABS_AP, LIITUB_KELLAAJAGA" />
+     <SemReegel priority="1" seotudMustriosa="6"  op="SET" semField="YEAR" semValue="PARSE_FROM_SELF:1" />
+     <SemReegel priority="2" seotudMustriosa="0"  op="SET_attrib" attrib="temporalFunction" semValue="false" />
+     <SemReegel priority="3" seotudMustriosa="0"                    op="CREATE_beginPoint" explicitPoint="true" />
+     <SemReegel priority="4" seotudMustriosa="1"                    op="SET" semField="MONTH"        semValue="PARSE_FROM_SELF:1" />
+     <SemReegel priority="5" seotudMustriosa="0"                    op="SET" semField="DAY_OF_MONTH" semValue="PARSE_FROM_SELF:1" />
+     <SemReegel priority="6" seotudMustriosa="0"                    op="CREATE_endPoint" explicitPoint="true" />
+     <SemReegel priority="7" seotudMustriosa="KUU_A"                op="SET" />
+     <SemReegel priority="8" seotudMustriosa="KUUPAEV_PUNKTIGA_A"   op="SET" />
+     <SemReegel priority="9" seotudMustriosa="0"                    op="SET_HALVING_POINT"    semValue="3,false" />
   </Reegel>
 
   <Reegel>
@@ -3767,6 +3823,19 @@
      <!-- Neg-Nt: (sea_euro) ... KOMISJONI MÄÄRUS ( EÜ ) nr < 2183/1999 > ... -->
      <NegMuster startPos="-1">  /(?i)(nr)/  </NegMuster>
   </Reegel>
+  
+  <Reegel>
+     <!-- Nt: õppeaastal 2004 / 2005; 1999 / 2000 majandusaasta; (EstNLTK 1.6 sõnestus) ... -->
+     <Muster> YLETALVE_AASTA_LOPP_A  KAIGAS  YLETALVE_AASTA_LOPP_A </Muster>
+     <SemReegel priority="1" seotudMustriosa="0"                      op="SET_attrib" attrib="temporalFunction"  semValue="false" />
+     <SemReegel priority="2" seotudMustriosa="0"                      op="CREATE_beginPoint" explicitPoint="true" />
+     <SemReegel priority="3" seotudMustriosa="YLETALVE_AASTA_LOPP_A_0"  op="SET" />
+     <SemReegel priority="4" seotudMustriosa="0"                        op="CREATE_endPoint" explicitPoint="true" />
+     <SemReegel priority="5" seotudMustriosa="YLETALVE_AASTA_LOPP_A_2"  op="SET" />
+     <SemReegel priority="6" seotudMustriosa="0"                        op="SET_HALVING_POINT"    semValue="1,false" />
+     <!-- Neg-Nt: (sea_euro) ... KOMISJONI MÄÄRUS ( EÜ ) nr < 2183/1999 > ... -->
+     <NegMuster startPos="-1">  /(?i)(nr)/  </NegMuster>
+  </Reegel>
 
   <Reegel>
      <!--  Nt: 1993 aastal; tuhande üheksasaja kaheksakümne neljandal aastal; 2003 a ... -->
@@ -4009,6 +4078,21 @@
      <SemReegel priority="5" seotudMustriosa="AASTA_LYHI_A"      op="SEEK" semField="YEAR_OF_CENTURY" direction="1" />
      <SemReegel priority="6" seotudMustriosa="0"                 op="SET_HALVING_POINT"    semValue="1,true" />
      <SemReegel priority="7" seotudMustriosa="^0 AASTA_ALATES_A" op="SET_HALVING_POINT"    semValue="0,true" />
+     <!-- Neg-Nt: ... Maapank anda < < < 1500-40 >>> 000 krooni ulatuses ... -->
+     <NegMuster startPos="0">  /\d\d00-/  /\d[05]/ /\d+00/ </NegMuster>
+  </Reegel>
+  
+  <Reegel>
+     <!--  Nt: aastatel 1993 - 95; 2002 - 04 aastate (EstNLTK 1.6 sõnestus) ... -->
+     <Muster> AASTA_V_A?  AASTA_A  KRIIPS_V_KUNI  AASTA_LYHI_A  AASTA_V_A? </Muster>
+     <!-- <MustriTahis seotudMustriosa="1" tahised="AASTA_TAIS_V,VOTAB_AP_EESLIITE" /> -->
+     <SemReegel priority="1" seotudMustriosa="0"              op="SET_attrib" attrib="temporalFunction"  semValue="false" />
+     <SemReegel priority="2" seotudMustriosa="AASTA_A"        op="SET" />
+     <SemReegel priority="3" seotudMustriosa="1"              op="CREATE_beginPoint" explicitPoint="true" />
+     <SemReegel priority="4" seotudMustriosa="1"              op="CREATE_endPoint"   explicitPoint="true" />
+     <SemReegel priority="5" seotudMustriosa="AASTA_LYHI_A"   op="SEEK" semField="YEAR_OF_CENTURY" direction="1" />
+     <SemReegel priority="6" seotudMustriosa="0"              op="SET_HALVING_POINT"    semValue="2,false" />
+     <SemReegel priority="7" seotudMustriosa="^0 AASTA_A"     op="SET_HALVING_POINT"    semValue="1,false" />
      <!-- Neg-Nt: ... Maapank anda < < < 1500-40 >>> 000 krooni ulatuses ... -->
      <NegMuster startPos="0">  /\d\d00-/  /\d[05]/ /\d+00/ </NegMuster>
   </Reegel>
