@@ -43,7 +43,8 @@ class TimexTagger(TaggerOld):
 
     def __init__(self, rules_file:str=None, \
                        pick_first_in_overlap:bool=True, \
-                       mark_part_of_interval:bool=True ):
+                       mark_part_of_interval:bool=True, \
+                       output_ordered_dicts:bool=True ):
         """Initializes Java-based temporal expression tagger.
         
         Parameters
@@ -69,6 +70,12 @@ class TimexTagger(TaggerOld):
              tag of the corresponding interval.
              Otherwise (if mark_part_of_interval==False), the information about the 
              implicit intervals will be discarded;
+        
+        output_ordered_dicts: boolean (default: True)
+             If set, then dictionaries in the timex attributes begin_point, end_point, 
+             and part_of_interval will be converted into OrderedDict-s. Use this to 
+             ensure fixed order of elements in the dictionaries (might be useful for
+             nbval testing).
         """
         args = ['-pyvabamorf']
         use_rules_file = \
@@ -82,7 +89,8 @@ class TimexTagger(TaggerOld):
         # Record configuration
         self.configuration = {'rules_file': use_rules_file, \
                               'pick_first_in_overlap': pick_first_in_overlap, \
-                              'mark_part_of_interval': mark_part_of_interval }
+                              'mark_part_of_interval': mark_part_of_interval, \
+                              'output_ordered_dicts':output_ordered_dicts }
         # Start process
         self._java_process = \
             JavaProcess( 'Ajavt.jar', jar_path=JAVARES_PATH, args=args )
@@ -186,10 +194,18 @@ class TimexTagger(TaggerOld):
                timex_span.begin_point = timex[attrib]
                if timex[attrib] in empty_timexes_dict:
                   timex_span.begin_point = empty_timexes_dict[timex[attrib]]
+                  if isinstance(timex_span.begin_point, dict) and \
+                     self.configuration['output_ordered_dicts']:
+                      timex_span.begin_point = \
+                           self._convert_timex_dict_to_ordered_dict( timex_span.begin_point )
             if attrib == 'endPoint':
                timex_span.end_point = timex[attrib]
                if timex[attrib] in empty_timexes_dict:
                   timex_span.end_point = empty_timexes_dict[timex[attrib]]
+                  if isinstance(timex_span.end_point, dict) and \
+                     self.configuration['output_ordered_dicts']:
+                      timex_span.end_point = \
+                           self._convert_timex_dict_to_ordered_dict( timex_span.end_point )
         if self.configuration['mark_part_of_interval']:
            # Determine whether this TIMEX is part of an interval, and
            # if so, then mark also TIMEX of the interval as an attribute
@@ -202,11 +218,19 @@ class TimexTagger(TaggerOld):
                      timex_tid == empty_timex['beginPoint']:
                      timex_span.part_of_interval = \
                                 empty_timexes_dict[empty_timex_id]
+                     if isinstance(timex_span.part_of_interval, dict) and \
+                        self.configuration['output_ordered_dicts']:
+                        timex_span.part_of_interval = \
+                           self._convert_timex_dict_to_ordered_dict( timex_span.part_of_interval )
                      break
                   elif 'endPoint' in empty_timex.keys() and \
                         timex_tid == empty_timex['endPoint']:
                      timex_span.part_of_interval = \
                                 empty_timexes_dict[empty_timex_id]
+                     if isinstance(timex_span.part_of_interval, dict) and \
+                        self.configuration['output_ordered_dicts']:
+                        timex_span.part_of_interval = \
+                           self._convert_timex_dict_to_ordered_dict( timex_span.part_of_interval )
                      break
         # If there is DATE and temporal_function==True and anchor_time_id
         # is not set, set it to 't0' (document creation time)
@@ -216,7 +240,73 @@ class TimexTagger(TaggerOld):
 
 
 
-    def tag(self, text: Text, return_layer=False) ->  Union['Text', Layer]:
+    def _convert_timex_dict_to_ordered_dict( self, timex:dict ):
+        ''' Converts timex dictionary into an OrderedDict, in which the keys 
+            are ordered the same way as the TimexTagger.attributes are.
+            In addition, rewrites TIMEX attribute names and values from the 
+            camelCase format (e.g. 'temporalFunction', 'anchorTimeID') to
+            Python's format, and normalizes boolean values ('true' -> True);
+
+            Parameters
+            ----------
+            timex : dict
+                dictionary containing TIMEX attributes in the XML format;
+
+            Returns
+            -------
+            OrderedDict
+                OrderedDict corresponding to the timex, in which the keys 
+                are ordered the same way as in TimexTagger.attributes.
+        '''
+        ordered_timex_dict = OrderedDict()
+        for attrib in self.attributes:
+            # tid
+            if attrib == 'tid' and attrib in timex.keys():
+               ordered_timex_dict[attrib] = timex[attrib]
+            # type
+            if attrib == 'type' and attrib in timex.keys():
+               ordered_timex_dict[attrib] = timex[attrib]
+            # value
+            if attrib == 'value' and attrib in timex.keys():
+               ordered_timex_dict[attrib] = timex[attrib]
+            # temporal_function
+            if attrib == 'temporal_function' and attrib in timex.keys():
+               ordered_timex_dict[attrib] = timex[attrib]
+            elif attrib == 'temporal_function' and 'temporalFunction' in timex.keys():
+               ordered_timex_dict[attrib] = timex['temporalFunction']
+               if ordered_timex_dict[attrib] == 'true':
+                  ordered_timex_dict[attrib] = True
+               else:
+                  ordered_timex_dict[attrib] = False
+            # mod
+            if attrib == 'mod' and attrib in timex.keys():
+               ordered_timex_dict[attrib] = timex[attrib]
+            # anchor_time_id
+            if attrib == 'anchor_time_id' and attrib in timex.keys():
+               ordered_timex_dict[attrib] = timex[attrib]
+            elif attrib == 'anchor_time_id' and 'anchorTimeID' in timex.keys():
+               ordered_timex_dict[attrib] = timex['anchorTimeID']
+            # quant
+            if attrib == 'quant' and attrib in timex.keys():
+               ordered_timex_dict[attrib] = timex[attrib]
+            # freq
+            if attrib == 'freq' and attrib in timex.keys():
+               ordered_timex_dict[attrib] = timex[attrib]
+            # begin_point
+            if attrib == 'begin_point' and attrib in timex.keys():
+               ordered_timex_dict[attrib] = timex[attrib]
+            elif attrib == 'begin_point' and 'beginPoint' in timex.keys():
+               ordered_timex_dict[attrib] = timex['beginPoint']
+            # end_point
+            if attrib == 'end_point' and attrib in timex.keys():
+               ordered_timex_dict[attrib] = timex[attrib]
+            elif attrib == 'end_point' and 'endPoint' in timex.keys():
+               ordered_timex_dict[attrib] = timex['endPoint']
+        return ordered_timex_dict
+
+
+
+    def tag(self, text: Text, return_layer=False) -> Union['Text', Layer]:
         """Tags timexes layer.
         
         Parameters

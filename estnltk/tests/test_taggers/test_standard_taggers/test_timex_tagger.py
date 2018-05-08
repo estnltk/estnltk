@@ -6,7 +6,7 @@ def test_timex_tagging_1():
     # Test the basic functionality of the TimexTagger
     all_timex_attributes = ['text']+list(TimexTagger.attributes)
     #all_timex_attributes = list(TimexTagger.attributes)
-    tagger = TimexTagger()
+    tagger = TimexTagger(output_ordered_dicts=False)
     test_data = [ {'text': 'Potsataja ütles eile, et vaatavad nüüd Genaga viie aasta plaanid uuesti üle.',\
                    'dct':'2014-10-05',\
                    'expected_timexes': [ \
@@ -68,7 +68,7 @@ def test_timex_tagging_1():
 def test_timex_tagging_2_implicit_durations():
     # Test TimexTagger on detecting timexes with implicit durations/intervals ('part_of_interval' attrib):
     all_timex_attributes = ['text']+list(TimexTagger.attributes)+['part_of_interval']
-    tagger = TimexTagger( mark_part_of_interval=True )
+    tagger = TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False )
     test_data = [ {'text': 'Rahvusvaheline Festival Jazzkaar toimub 20.- 28. aprillini.',\
                    'dct':'2012-04-15',\
                    'expected_timexes': [ \
@@ -125,7 +125,7 @@ def test_timex_tagging_2_implicit_durations():
 def test_timex_tagging_3_gaps_in_dct():
     # Test TimexTagger on texts that have gaps in their document creation dates
     all_timex_attributes = ['text']+list(TimexTagger.attributes)+['part_of_interval']
-    tagger = TimexTagger( mark_part_of_interval=True )
+    tagger = TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False )
     test_data = [ {'text': 'Rahvusvaheline Festival Jazzkaar toimub 20.- 28. aprillini.',\
                    'dct':'2012-04-XX',\
                    'expected_timexes': [ \
