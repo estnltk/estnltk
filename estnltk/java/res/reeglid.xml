@@ -564,7 +564,7 @@
       </SonaKlass>
       
       <SonaKlass nimi="KUU_ROOMA_NR">
-	      <Element tyyp="eriArv" arvuLiik="_R_"  arvuPiirang="1-12"  semField="MONTH"  semValue="REF:1" /> <!-- rooma numbrid --> 
+          <Element tyyp="eriArv" arvuLiik="_R_"  arvuPiirang="1-12"  semField="MONTH"  semValue="REF:1" /> <!-- rooma numbrid --> 
       </SonaKlass>
 
       <SonaKlass nimi="KUINE">
@@ -816,10 +816,6 @@
           <Element tyyp="reg" vaartus="e\.?Kr\.?" />
           <Element tyyp="reg" vaartus="e\.m\.?a\.?" />
           <Element tyyp="reg" vaartus="e\.?m\.a\.?" />
-          <!-- (EstNLTK v1.6 sõnestus) -->
-          <Element tyyp="reg" vaartus="e\s*\.?\s*Kr\s*\.?" />
-          <Element tyyp="reg" vaartus="e\s*\.\s*m\s*\.?\s*a\s*\.?" />
-          <Element tyyp="reg" vaartus="e\s*\.?\s*m\s*\.\s*a\s*\.?" />
       </SonaKlass>
 
       <!-- ********************************************************* -->
@@ -3484,7 +3480,7 @@
      <SemReegel priority="4" seotudMustriosa="0" op="SET_attrib" attrib="temporalFunction" semValue="false" />
      <!--  NB! See reegel läheb katki, kui katkestada mustri sobitamine lausepiirilt. (tml-korpus) -->
   </Reegel>
-  
+
   <Reegel>
      <!--  Nt:  30/12/1995  -->
      <Muster>  KUUPAEV_KALDKRIIPS_A   KUU_KALDKRIIPS_A   /([1-9][0-9][0-9][0-9])/ </Muster>
