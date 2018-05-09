@@ -93,6 +93,22 @@ def test_timex_tagging_2_implicit_durations():
                                  {'text':['2019.', 'aastasse'], 'tid':'t6', 'type':'DATE', 'value':'2019', 'temporal_function':False, 'anchor_time_id':None, 'part_of_interval': {'beginPoint': 't5', 'endPoint': 't6', 'tid': 't7', 'value': 'PXXY', 'type': 'DURATION', 'temporalFunction': 'true'} }, \
                               ]
                   },\
+                  {'text': '18.-20.06.1869 -- Tartus toimus I üldlaulupidu',\
+                   'dct':'2013-04-25',\
+                   'expected_timexes': [ \
+                                 # TODO: timexes are missing 'part_of_interval' for some reason
+                                 {'text':['18.'], 'enclosing_text': '18.', 'tid':'t1', 'type':'DATE', 'value':'1869-06-18', 'temporal_function':False , 'anchor_time_id':None, 'part_of_interval': None }, \
+                                 {'text':['20.06.1869'], 'enclosing_text': '20.06.1869', 'tid':'t2', 'type':'DATE', 'value':'1869-06-20', 'temporal_function':False , 'anchor_time_id':None, 'part_of_interval': None }, \
+                              ]
+                  },\
+                  {'text': 'Taoluste vastuvõtt toimus 1.04.- 14.04.2011.',\
+                   'dct':'2011-04-22',\
+                   'expected_timexes': [ \
+                                 # TODO: timexes are missing 'part_of_interval' for some reason
+                                 {'text':['1.04', '.'], 'tid':'t1', 'type':'DATE', 'value':'2011-04-01', 'temporal_function':False , 'anchor_time_id':None, 'part_of_interval': None }, \
+                                 {'text':['14.04.2011'], 'tid':'t2', 'type':'DATE', 'value':'2011-04-14', 'temporal_function':False , 'anchor_time_id':None, 'part_of_interval': None }, \
+                              ]
+                  },\
                 ]
 
     for test_item in test_data:
