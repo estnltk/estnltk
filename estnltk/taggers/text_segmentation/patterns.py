@@ -409,7 +409,7 @@ number_patterns = [
                          \d+                    # 1 group of numbers
                          (\ ,\ \d+|,\d+|\ *\.)  # + comma-separated numbers or period-ending
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
+      'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
 
     # Remark on the decimal numerals (numerals with the decimal separator ','):
     #   *) form where the separator is between two spaces (' , ') is common to Koondkorpus 
