@@ -23,7 +23,7 @@ from estnltk.text import Text, Layer, EnvelopingSpan
 
 from estnltk.taggers import TaggerOld
 from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
-from estnltk.taggers.morph_analysis.morf_common import _is_empty_span
+from estnltk.taggers.morph_analysis.morf_common import _is_empty_span, _get_word_text
 
 from estnltk.java.javaprocess import JavaProcess
 from estnltk.core import JAVARES_PATH
@@ -360,12 +360,18 @@ class TimexTagger(TaggerOld):
                             word_morph_dict = \
                                     _convert_morph_analysis_span_to_vm_dict( \
                                         morph_span )
+                            # Use normalized_form of the word (if available)
+                            word_morph_dict['text'] = \
+                                   _get_word_text( word_span )
                             sentence_morph_dicts.append( word_morph_dict )
                             morphFound = True
                     if not morphFound:
                         # No morph found: add an empty Vabamorf dict
                         empty_analysis_dict = { 'text' : word_span.text, \
                                                 'analysis' : [] }
+                        # Use normalized_form of the word (if available)
+                        empty_analysis_dict['text'] = \
+                                              _get_word_text( word_span )
                         sentence_morph_dicts.append( empty_analysis_dict )
                     sentence_words.append( word_span )
                 if sentence.end <= word_span.start:
@@ -407,7 +413,7 @@ class TimexTagger(TaggerOld):
             vm_sent = result_vm_json['sentences'][vm_sent_id]
             vm_word = vm_sent['words'][vm_word_id]
             word_span = word_spans[word_span_id]
-            assert vm_word['text'] == word_span.text
+            assert vm_word['text'] == _get_word_text( word_span )
             if 'timexes' in vm_word:
                for timex in vm_word['timexes']:
                    if 'tid' in timex:
