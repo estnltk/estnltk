@@ -290,6 +290,21 @@ emoticon_patterns = [
       'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(1))"}, 
 ]
 
+_month_period_year_pattern = re.compile('^([012][0-9]|1[012])\.(1[7-9]\d\d|2[0-2]\d\d)$')
+_day_period_month_pattern  = re.compile('^(3[01]|[12][0-9]|0?[0-9])\.([012][0-9]|1[012])$')
+
+def _numeric_with_period_normalizer(m):
+    ''' Normalizes numerics with periods, but makes additional checkups beforehand: 
+        if the numeric string looks suspiciously like month + year (e.g. '03.2003') 
+        or like day+month (e.g. '31.01'), then periods will not be deleted from 
+        the string. Otherwise, all periods will be deleted from the string. '''
+    if _month_period_year_pattern.match(m.group(0)) or \
+       _day_period_month_pattern.match(m.group(0)):
+        # The number looks suspiciously like a part of date: do not delete the period
+        return m.group(0)
+    return re.sub('[\.]' ,'' , m.group(0))
+
+
 number_patterns = [
     # Heuristic date & time patterns
     # Date and time tokens should be detected before generic numerics in order to reduce
@@ -403,7 +418,8 @@ number_patterns = [
                          \d+\.+\d+           # 2 groups of numbers
                          (\ ,\ \d+|,\d+)?    # + comma-separated numbers
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub('[\.]' ,'' , m.group(0))"},
+      'normalized': _numeric_with_period_normalizer },
+
     { 'comment': '*) A generic pattern for detecting long numbers (2 groups, space-separated).',
       'example': '67 123 , 456',
       'pattern_type': 'numeric',
