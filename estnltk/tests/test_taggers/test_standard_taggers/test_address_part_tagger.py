@@ -2,7 +2,7 @@ from estnltk.core import rel_path
 from estnltk.taggers import TaggerTester
 from estnltk.taggers import AddressPartTagger
 
-# test data created by estnltk/dev_documentation/testing/create_tests_for_address_taggers.ipynb
+# test data created by estnltk/dev_documentation/testing/test_data_for_address_taggers.ipynb
 
 
 def test_tagger():
