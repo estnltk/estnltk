@@ -16,7 +16,7 @@ from datetime import timedelta
 from estnltk.corpus_processing.parse_koondkorpus import get_div_target
 from estnltk.corpus_processing.parse_koondkorpus import parse_tei_corpus
 
-from estnltk.converters import export_json
+from estnltk.converters import text_to_json
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('koondkonverter')
@@ -87,7 +87,7 @@ def process(start_dir, out_dir, encoding='utf-8', \
                    continue
                 if len(doc.text) == 0:
                    empty_docs.append(out_fnm)
-                export_json(doc, file = out_fnm)
+                text_to_json(doc, file = out_fnm)
                 json_count += 1
             if empty_docs:
                 logger.warn('Warning: empty documents created for {0}: {1}'.format(fnm, empty_docs))

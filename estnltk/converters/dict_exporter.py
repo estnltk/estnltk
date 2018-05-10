@@ -1,4 +1,7 @@
-def layer_to_dict(layer, text):
+from typing import List, Union, Sequence
+
+
+def _layer_to_dict(layer: 'Layer', text: 'Text') -> dict:
     assert '_index_' not in layer.attributes
     layer_dict = {'name':layer.name,
                   'attributes': layer.attributes,
@@ -43,10 +46,23 @@ def layer_to_dict(layer, text):
     return layer_dict
 
 
-def export_dict(text):
+def _text_to_dict(text: 'Text') -> dict:
     text_dict = {'text': text.text,
                  'meta': text.meta,
                  'layers': []}
     for layer in text.list_layers():
-        text_dict['layers'].append(layer_to_dict(layer, text))
+        text_dict['layers'].append(_layer_to_dict(layer, text))
     return text_dict
+
+
+def layer_to_dict(layer: Union[Sequence['Layer'], 'Layer'], text: Union[Sequence['Text'], 'Text']):
+    if isinstance(layer, Sequence) and isinstance(text, Sequence):
+        assert len(layer) == len(text)
+        return [_layer_to_dict(l, t) for l, t in zip(layer, text)]
+    return _layer_to_dict(text, layer)
+
+
+def text_to_dict(text: Union['Text', Sequence['Text']]) -> Union[dict, List[dict]]:
+    if isinstance(text, Sequence):
+        return [_text_to_dict(t) for t in text]
+    return _text_to_dict(text)

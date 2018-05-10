@@ -22,7 +22,7 @@ from estnltk.taggers import SentenceTokenizer
 from estnltk.taggers.morph_analysis.gt_morf import GTMorphConverter
 from estnltk.taggers.syntax_preprocessing.syntax_ignore_tagger import SyntaxIgnoreTagger
 
-from estnltk.converters import export_json, import_json
+from estnltk.converters import text_to_json, json_to_text
 
 from estnltk.corpus_processing.parse_koondkorpus import get_text_subcorpus_name
 
@@ -81,7 +81,7 @@ if __name__ == '__main__':
     arg_parser.add_argument('in_dir', default = None, \
                                       help='the directory containing input files; '+\
                                            'Input files should be JSON files in UTF-8 encoding. '+\
-                                           "It is expected that EstNLTK's function export_json "+\
+                                           "It is expected that EstNLTK's function text_to_json "+\
                                            'was used for creating the files.'
     )
     arg_parser.add_argument('--in_files', default = None, \
@@ -166,7 +166,7 @@ if __name__ == '__main__':
                     skipped += 1
                     continue
             # Load input text from JSON
-            text = import_json( file=fnm )
+            text = json_to_text(file=fnm)
             # Perform the analysis
             try:
                 # 0) Add metadata
@@ -209,7 +209,7 @@ if __name__ == '__main__':
                        with open( ofnm_pckl, 'wb' ) as fout:
                             pickle.dump(text, fout)
                     else:
-                       export_json(text, file=ofnm_json)
+                       text_to_json(text, file=ofnm_json)
                     new_files += 1
 
             # X) Log errors
