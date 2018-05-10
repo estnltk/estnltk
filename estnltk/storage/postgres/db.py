@@ -11,7 +11,7 @@ from psycopg2.sql import SQL, Identifier
 
 from estnltk.converters.dict_importer import dict_to_layer
 from estnltk.converters.dict_exporter import layer_to_dict
-from estnltk.converters import import_dict, export_json
+from estnltk.converters import dict_to_text, text_to_json
 from .query import Query
 
 log = logging.getLogger(__name__)
@@ -289,7 +289,7 @@ class PostgresStorage:
         Returns:
             int: row key (id)
         """
-        text = export_json(text)
+        text = text_to_json(text)
         with self.conn.cursor() as c:
             if key is not None:
                 c.execute(SQL("INSERT INTO {}.{} VALUES (%s, %s) RETURNING id;").format(
@@ -321,7 +321,7 @@ class PostgresStorage:
             if res is None:
                 raise PgStorageException("Key %s not not found." % key)
             key, text_dict = res
-            text = text_dict if return_as_dict is True else import_dict(text_dict)
+            text = text_dict if return_as_dict is True else dict_to_text(text_dict)
             return text
 
     def get_all_table_names(self):
@@ -422,7 +422,7 @@ class PostgresStorage:
             for row in c.fetchall():
                 key = row[0]
                 text_dict = row[1]
-                text = import_dict(text_dict)
+                text = dict_to_text(text_dict)
                 if len(row) > 2:
                     for layer_name, layer_dict in zip(layers, row[2:]):
                         text[layer_name] = dict_to_layer(layer_dict, text)
