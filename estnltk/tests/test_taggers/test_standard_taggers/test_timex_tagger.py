@@ -7,6 +7,16 @@ def test_timex_tagging_1():
     all_timex_attributes = ['text']+list(TimexTagger.attributes)
     #all_timex_attributes = list(TimexTagger.attributes)
     tagger = TimexTagger(output_ordered_dicts=False)
+    
+    # 1) Test Timex tagger on empty text
+    text = Text('')
+    text.tag_layer(['words', 'sentences', 'morph_analysis'])
+    tagger.tag(text)
+    # Execution should not produce any errors
+    assert len(text.words) == 0
+    assert len(text.timexes) == 0
+    
+    # 2) Test Timex tagger on example texts
     test_data = [ {'text': 'Potsataja ütles eile, et vaatavad nüüd Genaga viie aasta plaanid uuesti üle.',\
                    'dct':'2014-10-05',\
                    'expected_timexes': [ \
@@ -69,11 +79,11 @@ def test_timex_tagging_2_implicit_durations():
     # Test TimexTagger on detecting timexes with implicit durations/intervals ('part_of_interval' attrib):
     all_timex_attributes = ['text']+list(TimexTagger.attributes)+['part_of_interval']
     tagger = TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False )
-    test_data = [ {'text': 'Rahvusvaheline Festival Jazzkaar toimub 20.- 28. aprillini.',\
+    test_data = [ {'text': 'Rahvusvaheline Festival Jazzkaar toimub 20.- 28. aprillini 2012.',\
                    'dct':'2012-04-15',\
                    'expected_timexes': [ \
-                                 {'text':['20.'], 'enclosing_text': '20.', 'tid':'t1', 'type':'DATE', 'value':'2012-04-20', 'temporal_function':True , 'anchor_time_id':'t0', 'part_of_interval': {'beginPoint': 't1', 'endPoint': 't2', 'tid': 't3', 'value': 'PXXD', 'type': 'DURATION', 'temporalFunction': 'true'} }, \
-                                 {'text':['28.', 'aprillini'], 'enclosing_text': '28. aprillini', 'tid':'t2', 'type':'DATE', 'value':'2012-04-28', 'temporal_function':True , 'anchor_time_id':'t0', 'part_of_interval': {'beginPoint': 't1', 'endPoint': 't2', 'tid': 't3', 'value': 'PXXD', 'type': 'DURATION', 'temporalFunction': 'true'} }, \
+                                 {'text':['20.'], 'enclosing_text': '20.', 'tid':'t1', 'type':'DATE', 'value':'2012-04-20', 'temporal_function':False , 'anchor_time_id':None, 'part_of_interval': {'beginPoint': 't1', 'endPoint': 't2', 'tid': 't3', 'value': 'PXXD', 'type': 'DURATION', 'temporalFunction': 'true'} }, \
+                                 {'text':['28.', 'aprillini', '2012.'], 'enclosing_text': '28. aprillini 2012.', 'tid':'t2', 'type':'DATE', 'value':'2012-04-28', 'temporal_function':False , 'anchor_time_id':None, 'part_of_interval': {'beginPoint': 't1', 'endPoint': 't2', 'tid': 't3', 'value': 'PXXD', 'type': 'DURATION', 'temporalFunction': 'true'} }, \
                               ]
                   },\
                   {'text': 'Filmi lühendatud versiooni saab näha ringvaatena 18.- 23. maini kinos Ateena .',\
@@ -166,6 +176,73 @@ def test_timex_tagging_3_gaps_in_dct():
                   },\
                 ]
 
+    for test_item in test_data:
+        # Prepare text
+        text = Text(test_item['text'])
+        if 'dct' in test_item:
+            text.meta['dct'] = test_item['dct']
+        text.tag_layer(['words', 'sentences', 'morph_analysis'])
+        # Tag timexes
+        tagger.tag(text)
+        # Compare attributes and values of all timexes
+        for timex_id, expected_timex in enumerate(test_item['expected_timexes']):
+            # Expected attributes & values
+            expected_attribs = [attr for attr in all_timex_attributes if attr in expected_timex]
+            expected_vals    = [expected_timex[attr] for attr in all_timex_attributes if attr in expected_timex]
+            # Obtained attributes & values
+            result_vals      = list(text.timexes[timex_id, expected_attribs])
+            if 'enclosing_text' in expected_timex:
+               result_vals   = [ text.timexes[timex_id].enclosing_text ] + result_vals
+               expected_vals = [expected_timex['enclosing_text']] + list(expected_vals)
+            #print(expected_vals, result_vals)
+            # Make assertions
+            assert expected_vals == result_vals
+
+    # Clean-up: Terminate Java process
+    tagger._java_process._process.terminate()
+
+
+def test_timex_tagging_4_additional_rules():
+    # Test TimexTagger with some additional rules
+    all_timex_attributes = ['text']+list(TimexTagger.attributes)+['part_of_interval']
+    tagger = TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False )
+    test_data = [ # eile-täna
+                  {'text': 'Ma just käisin eile-täna seal jalgrattaga.',\
+                   'dct':'2011-08-24',\
+                   'expected_timexes': [ \
+                       {'text':['eile-täna'], 'enclosing_text': 'eile-täna', 'tid':'t1', 'type':'DURATION', 'value':'P2D', 'temporal_function':True , 'anchor_time_id':'t0', \
+                           'begin_point': {'tid': 't2', 'value': '2011-08-23', 'type': 'DATE', 'temporalFunction': 'true'},\
+                           'end_point':   {'tid': 't3', 'value': '2011-08-24', 'type': 'DATE', 'temporalFunction': 'true'} }, \
+                   ]
+                  },\
+                  # täna-homme
+                  {'text': 'Tundub, et täna-homme on paljudel plaanis ka ise sülti valmistada.',\
+                   'dct':'2012-12-21',\
+                   'expected_timexes': [ \
+                       {'text':['täna-homme'], 'enclosing_text': 'täna-homme', 'tid':'t1', 'type':'DURATION', 'value':'P2D', 'temporal_function':True , 'anchor_time_id':'t0', \
+                           'begin_point': {'tid': 't2', 'value': '2012-12-21', 'type': 'DATE', 'temporalFunction': 'true'},\
+                           'end_point':   {'tid': 't3', 'value': '2012-12-22', 'type': 'DATE', 'temporalFunction': 'true'} }, \
+                   ]
+                  },\
+                  # homme-ülehomme
+                  {'text': 'Hea, et lugema juhtusin, just oli plaan ise homme-ülehomme minna Soome ... :)',\
+                   'dct':'2011-08-15',\
+                   'expected_timexes': [ \
+                       {'text':['homme-ülehomme'], 'tid':'t1', 'type':'DURATION', 'value':'P2D', 'temporal_function':True , 'anchor_time_id':'t0', \
+                           'begin_point': {'tid': 't2', 'value': '2011-08-16', 'type': 'DATE', 'temporalFunction': 'true'},\
+                           'end_point':   {'tid': 't3', 'value': '2011-08-17', 'type': 'DATE', 'temporalFunction': 'true'} }, \
+                   ]
+                  },\
+                  # eile-üleeile
+                  {'text': 'Eile-üleeile viibisin taas pikalt Den Helderis.',\
+                   'dct':'2009-07-31',\
+                   'expected_timexes': [ \
+                       {'text':['Eile-üleeile'], 'tid':'t1', 'type':'DURATION', 'value':'P2D', 'temporal_function':True , 'anchor_time_id':'t0', \
+                           'begin_point': {'tid': 't2', 'value': '2009-07-29', 'type': 'DATE', 'temporalFunction': 'true'},\
+                           'end_point':   {'tid': 't3', 'value': '2009-07-30', 'type': 'DATE', 'temporalFunction': 'true'} }, \
+                   ]
+                  },\
+                ]
     for test_item in test_data:
         # Prepare text
         text = Text(test_item['text'])
