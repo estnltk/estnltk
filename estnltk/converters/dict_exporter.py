@@ -3,7 +3,7 @@ from typing import List, Union, Sequence
 
 def _layer_to_dict(layer: 'Layer', text: 'Text') -> dict:
     assert '_index_' not in layer.attributes
-    layer_dict = {'name':layer.name,
+    layer_dict = {'name': layer.name,
                   'attributes': layer.attributes,
                   'parent': layer.parent,
                   '_base': layer._base,
@@ -59,7 +59,7 @@ def layer_to_dict(layer: Union[Sequence['Layer'], 'Layer'], text: Union[Sequence
     if isinstance(layer, Sequence) and isinstance(text, Sequence):
         assert len(layer) == len(text)
         return [_layer_to_dict(l, t) for l, t in zip(layer, text)]
-    return _layer_to_dict(text, layer)
+    return _layer_to_dict(layer, text)
 
 
 def text_to_dict(text: Union['Text', Sequence['Text']]) -> Union[dict, List[dict]]:

@@ -35,9 +35,11 @@ def test_export_CG3():
     assert result == expected
 
 
-T = '''Mis aias sa-das 2te sorti s-saia? Teine lause.
+T_1 = "Tere, maailm!"
+T_2 = '''Mis aias sa-das 2te sorti s-saia? Teine lause.
 
 Teine lõik.'''
+
 
 def test_dict_export_import():
     text = Text('')
@@ -46,12 +48,16 @@ def test_dict_export_import():
     assert text_import == text
     assert dict_text == text_to_dict(text_import)
     
-    text = Text(T).tag_layer(['morph_analysis', 'paragraphs'])
+    text = Text(T_2).tag_layer(['morph_analysis', 'paragraphs'])
     text.meta['year'] = 2017
     dict_text = text_to_dict(text)
     text_import = dict_to_text(dict_text)
     assert text_import == text
-    #assert text_to_dict(text) == text_to_dict(dict_to_text(text_to_dict(text)))
+    assert text_to_dict(text) == text_to_dict(dict_to_text(text_to_dict(text)))
+
+    text_list = [Text(''), Text(T_1), Text(T_2)]
+    assert text_list == dict_to_text(text_to_dict(text_list))
+
 
 def test_json_export_import():
     text = Text('')
@@ -60,32 +66,42 @@ def test_json_export_import():
     assert text_import == text
     assert json_text == text_to_json(text_import)
     
-    text = Text(T).tag_layer(['morph_analysis', 'paragraphs'])
+    text = Text(T_2).tag_layer(['morph_analysis', 'paragraphs'])
     text.meta['year'] = 2017
     json_text = text_to_json(text)
     text_import = json_to_text(json_text)
     assert text_import == text  
-    #assert json_text == text_to_json(text_import)
+    assert json_text == text_to_json(text_import)
 
-    text = Text(T)
+    text = Text(T_2)
+
     text = json_to_text(text_to_json(text))
     text.tag_layer(['tokens'])
+
     text = json_to_text(text_to_json(text))
     text.tag_layer(['compound_tokens'])
+
     text = json_to_text(text_to_json(text))
     text.tag_layer(['words'])
-    #text = json_to_text(text_to_json(text))
-    #text.tag_layer(['normalized_words'])
+
     text = json_to_text(text_to_json(text))
     text.tag_layer(['morph_analysis'])
+
     text = json_to_text(text_to_json(text))
     text.tag_layer(['sentences'])
+
     text = json_to_text(text_to_json(text))
     text.tag_layer(['paragraphs'])
+
     text = json_to_text(text_to_json(text))
     text.tag_layer(['morph_extended'])
+
     text = json_to_text(text_to_json(text))
-    assert text == Text(T).tag_layer(['morph_extended', 'paragraphs'])
+    assert text == Text(T_2).tag_layer(['morph_extended', 'paragraphs'])
+
+    text_list = [text, Text(''), Text(T_1), Text(T_2)]
+    assert text_list == json_to_text(text_to_json(text_list))
+
 
 def test_TCF_export_import():
     text = Text('')
@@ -94,7 +110,7 @@ def test_TCF_export_import():
     assert text_import == text
     assert TCF_text == export_TCF(text_import)
     
-    text = Text(T).tag_layer(['morph_analysis', 'sentences'])
+    text = Text(T_2).tag_layer(['morph_analysis', 'sentences'])
     del text.tokens
     del text.words
     TCF_text = export_TCF(text)
