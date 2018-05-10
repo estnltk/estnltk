@@ -151,7 +151,6 @@ class SpanList(collections.Sequence):
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, SpanList) and self.spans == other.spans
-        return hash(self) == hash(other)
 
     def __le__(self, other: Any) -> bool:
         return self < other or self == other
