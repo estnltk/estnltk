@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- ******************************************************************** -->
+<!-- **********   This is a version of AjaVT's basic rules   ************ -->
+<!-- *****************   adapted to EstNLTK v1.6   ********************** -->
+<!-- ******************************************************************** -->
 <!DOCTYPE Reeglid [
   <!ELEMENT Reeglid (SonaKlassid, Reegel+, LiitumisReegel*)>
     <!ELEMENT SonaKlassid (SonaKlass+)>
@@ -6345,6 +6349,58 @@
      <!--  Nt: eile; täna; ülehomme ... -->
      <Muster> EILE_TANA_HOMME </Muster>
      <MustriTahis seotudMustriosa="EILE_TANA_HOMME" tahised="DEIKT_PAEV_TAIS_AP,AJA_JARGI_LIITUV, LIITUB_PAEVAOSAGA, LIITUB_KELLAAJAGA" />
+  </Reegel>
+
+  <Reegel>
+     <!--  Nt: eile-täna; Täna-Eile ... -->
+     <Muster> /[Ee]ile-[Tt]äna|[Tt]äna-[Ee]ile/ </Muster>
+     <SemReegel priority="0" seotudMustriosa="0" op="SET_attrib" attrib="type"             semValue="DURATION"/>
+     <SemReegel priority="1" seotudMustriosa="0" op="SET_attrib" attrib="temporalFunction" semValue="true"/>
+     <SemReegel priority="2" seotudMustriosa="0" op="ADD"        semField="DAY_OF_MONTH"   semValue="2" />
+     <SemReegel priority="3" seotudMustriosa="0" op="SET_attrib" attrib="anchorTimeID"     semValue="CREATION_TIME" />
+     <SemReegel priority="4" seotudMustriosa="0" op="CREATE_beginPoint" />
+     <SemReegel priority="5" seotudMustriosa="0" op="ADD" semField="DAY_OF_MONTH"  semValue="-1" />
+     <SemReegel priority="6" seotudMustriosa="0" op="CREATE_endPoint"   />
+     <SemReegel priority="7" seotudMustriosa="0" op="ADD" semField="DAY_OF_MONTH"  semValue="+0" />
+  </Reegel>
+
+  <Reegel>
+     <!--  Nt: üleeile-eile; Eile-Üleeile ... -->
+     <Muster> /[Üü]leeile-[Ee]ile|[Ee]ile-[Üü]leeile/ </Muster>
+     <SemReegel priority="0" seotudMustriosa="0" op="SET_attrib" attrib="type"             semValue="DURATION"/>
+     <SemReegel priority="1" seotudMustriosa="0" op="SET_attrib" attrib="temporalFunction" semValue="true"/>
+     <SemReegel priority="2" seotudMustriosa="0" op="ADD"        semField="DAY_OF_MONTH"   semValue="2" />
+     <SemReegel priority="3" seotudMustriosa="0" op="SET_attrib" attrib="anchorTimeID"     semValue="CREATION_TIME" />
+     <SemReegel priority="4" seotudMustriosa="0" op="CREATE_beginPoint" />
+     <SemReegel priority="5" seotudMustriosa="0" op="ADD" semField="DAY_OF_MONTH"  semValue="-2" />
+     <SemReegel priority="6" seotudMustriosa="0" op="CREATE_endPoint"   />
+     <SemReegel priority="7" seotudMustriosa="0" op="ADD" semField="DAY_OF_MONTH"  semValue="-1" />
+  </Reegel>
+
+  <Reegel>
+     <!--  Nt: täna-homme; Homme-Täna ... -->
+     <Muster> /[Tt]äna-[Hh]omme|[Hh]omme-[Tt]äna/ </Muster>
+     <SemReegel priority="0" seotudMustriosa="0" op="SET_attrib" attrib="type"             semValue="DURATION"/>
+     <SemReegel priority="1" seotudMustriosa="0" op="SET_attrib" attrib="temporalFunction" semValue="true"/>
+     <SemReegel priority="2" seotudMustriosa="0" op="ADD"        semField="DAY_OF_MONTH"   semValue="2" />
+     <SemReegel priority="3" seotudMustriosa="0" op="SET_attrib" attrib="anchorTimeID"     semValue="CREATION_TIME" />
+     <SemReegel priority="4" seotudMustriosa="0" op="CREATE_beginPoint" />
+     <SemReegel priority="5" seotudMustriosa="0" op="ADD" semField="DAY_OF_MONTH"  semValue="+0" />
+     <SemReegel priority="6" seotudMustriosa="0" op="CREATE_endPoint"   />
+     <SemReegel priority="7" seotudMustriosa="0" op="ADD" semField="DAY_OF_MONTH"  semValue="+1" />
+  </Reegel>
+
+  <Reegel>
+     <!--  Nt: ülehomme-homme; Homme-Ülehomme ... -->
+     <Muster> /[Üü]lehomme-[Hh]omme|[Hh]omme-[Üü]lehomme/ </Muster>
+     <SemReegel priority="0" seotudMustriosa="0" op="SET_attrib" attrib="type"             semValue="DURATION"/>
+     <SemReegel priority="1" seotudMustriosa="0" op="SET_attrib" attrib="temporalFunction" semValue="true"/>
+     <SemReegel priority="2" seotudMustriosa="0" op="ADD"        semField="DAY_OF_MONTH"   semValue="2" />
+     <SemReegel priority="3" seotudMustriosa="0" op="SET_attrib" attrib="anchorTimeID"     semValue="CREATION_TIME" />
+     <SemReegel priority="4" seotudMustriosa="0" op="CREATE_beginPoint" />
+     <SemReegel priority="5" seotudMustriosa="0" op="ADD" semField="DAY_OF_MONTH"  semValue="+1" />
+     <SemReegel priority="6" seotudMustriosa="0" op="CREATE_endPoint"   />
+     <SemReegel priority="7" seotudMustriosa="0" op="ADD" semField="DAY_OF_MONTH"  semValue="+2" />
   </Reegel>
 
   <Reegel>
