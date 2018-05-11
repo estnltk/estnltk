@@ -15,7 +15,7 @@ class SpanList(collections.Sequence):
                  ambiguous: bool=False) -> None:
         # TODO:
         # assert layer is not None
-        self.classes = {}  # type: MutableMapping[Tuple[int, int], AmbiguousSpan]
+        self.classes = {}  # type: MutableMapping[int, AmbiguousSpan]
 
         self.spans = []  # type: List
 
@@ -203,8 +203,9 @@ class Layer:
         self.name = name
 
         # list of legal attribute names for the layer
+        attributes = tuple(attributes)
         self.attributes = attributes
-        assert len(attributes) == len(set(attributes)), 'repetitive attribute name'
+        assert len(attributes) == len(set(attributes)), 'repetitive attribute name: ' + str(attributes)
 
         # the name of the parent layer.
         self.parent = parent
@@ -560,6 +561,9 @@ class Layer:
 
     def __repr__(self):
         return str(self)
+
+    def diff_spans(self, other: 'Layer'):
+        return sorted(set(self.span_list).symmetric_difference(other.span_list))
 
     def diff(self, other):
         if not isinstance(other, Layer):

@@ -7,6 +7,9 @@ class Span:
 
         # this is set up first, because attribute access depends on knowing attribute names as early as possible
         self._legal_attribute_names = legal_attributes
+        if isinstance(self._legal_attribute_names, list):
+            # TODO: remove this if
+            self._legal_attribute_names = tuple(self._legal_attribute_names)
         self.is_dependant = parent is None
 
         # Placeholder, set when span added to spanlist
