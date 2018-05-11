@@ -1,4 +1,4 @@
-from estnltk.text import Text
+from estnltk import Text, Layer
 from estnltk.converters import export_CG3
 from estnltk.converters import text_to_dict, dict_to_text
 from estnltk.converters import text_to_json, json_to_text
@@ -109,7 +109,7 @@ def test_TCF_export_import():
     text_import = import_TCF(TCF_text)
     assert text_import == text
     assert TCF_text == export_TCF(text_import)
-    
+
     text = Text(T_2).tag_layer(['morph_analysis', 'sentences'])
     del text.tokens
     del text.words
@@ -117,3 +117,43 @@ def test_TCF_export_import():
     text_import = import_TCF(TCF_text)
     assert text_import == text  
     assert TCF_text == export_TCF(text_import)
+
+    text = Text('Karin, kes lendab New Yorki, tahab seal veeta puhkuse. Ta tuleb teisel augustil tagasi.')
+    text.analyse('segmentation')
+    text.analyse('morphology')
+    # clauses layer
+    layer = Layer(name='clauses', enveloping='words')
+    layer.add_span(text.words[2:6])
+    spl = text.words[0:1]
+    spl.spans.extend(text.words.spans[7:11])
+    layer.add_span(spl)
+    layer.add_span(text.words[12:17])
+    text['clauses'] = layer
+
+    # verb_chains layer
+    layer = Layer(name='verb_chains', enveloping='words')
+    layer.add_span(text.words[3:4])
+    layer.add_span(text.words[7:10:2])
+    layer.add_span(text.words[13:17:3])
+    text['verb_chains'] = layer
+
+    # time_phrases layer
+    layer = Layer(name='time_phrases', enveloping='words')
+    layer.add_span(text.words[14:16])
+    text['time_phrases'] = layer
+
+    # version 0.4
+    assert export_TCF(import_TCF(export_TCF(text))) == export_TCF(text)
+
+    # version 0.5
+    assert export_TCF(import_TCF(export_TCF(text, version='0.5')), version='0.5') == export_TCF(text, version='0.5')
+
+    # version 0.5
+    del text.paragraphs
+    assert text == import_TCF(export_TCF(text, version='0.5'))
+
+    # version 0.4
+    del text.clauses
+    del text.verb_chains
+    del text.time_phrases
+    assert text == import_TCF(export_TCF(text))
