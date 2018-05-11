@@ -13,6 +13,7 @@ class Test:
         self.text = text
         self.tagger = tagger
         self.expected_layer = expected_layer
+        self.expected_layer.text_object = text
         self.resulting_layer = self.tagger.make_layer(self.text.text, self.text.layers)
 
     def run(self):
@@ -20,6 +21,17 @@ class Test:
 
     def diagnose(self):
         return self.expected_layer.diff(self.resulting_layer)
+
+    def _repr_html_(self):
+        table_1 = self.expected_layer.metadata().to_html(index=False, escape=False)
+        table_2 = self.expected_layer.attribute_list(('text', 'start', 'end') + self.expected_layer.attributes).to_html(index='text')
+        return '\n'.join(('<h3>Test</h3>',
+                          self.annotation,
+                          '<h4>Input text</h4>',
+                          self.text.text,
+                          '<h4>Expected layer</h4>',
+                          table_1,
+                          table_2))
 
     def __repr__(self):
         return 'Test({}, {})'.format(self.annotation, self.text)
