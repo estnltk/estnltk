@@ -8,13 +8,19 @@ from estnltk import Span, AmbiguousSpan
 class EnvelopingSpan(collections.Sequence):
     def __init__(self,
                  spans,
-                 layer=None
+                 layer=None,
+                 attributes=None
                  ) -> None:
         spans = tuple(spans)
         assert all(isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan)) for span in spans)
         self.spans = spans
 
         self._layer = layer
+
+        if attributes is None:
+            attributes = {}
+        assert isinstance(attributes, dict), attributes
+        self._attributes = attributes
 
         self.parent = None  # type:Union[Span, None]
 
@@ -98,22 +104,26 @@ class EnvelopingSpan(collections.Sequence):
     def __contains__(self, item: Any) -> bool:
         return item in self.spans
 
+    def __setattr__(self, key, value):
+        if key in {'spans', '_attributes', 'parent', '_base', '_layer'}:
+            super().__setattr__(key, value)
+        elif key == 'layer':
+            super().__setattr__('_layer', value)
+        else:
+            self._attributes[key] = value
+
     def __getattr__(self, item):
         if item in {'__getstate__', '__setstate__'}:
             raise AttributeError
         if item == '_ipython_canary_method_should_not_exist_' and self.layer is not None and self is self.layer.spans:
             raise AttributeError
 
-        layer = self.__getattribute__('layer')  # type: Layer
-        if item in layer.attributes:
-            return [getattr(span, item) for span in self.spans]
-        if item in self.__dict__.keys():
-            return self.__dict__[item]
+        if item in self._attributes:
+            return self._attributes[item]
+
         if item == getattr(self.layer, 'parent', None):
             return self.parent
-        if item in self.__dict__:
-            return self.__dict__[item]
-
+        layer = self.__getattribute__('layer')  # type: Layer
         return layer.text_object._resolve(layer.name, item, sofar=self)
 
     def __getitem__(self, idx: int) -> Union[Span, 'EnvelopingSpan']:
@@ -132,7 +142,9 @@ class EnvelopingSpan(collections.Sequence):
             (self.start, self.end, self.spans) < (other.start, other.end, other.spans)
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, EnvelopingSpan) and self.spans == other.spans
+        return isinstance(other, EnvelopingSpan) \
+               and self._attributes == other._attributes \
+               and self.spans == other.spans
 
     def __le__(self, other: Any) -> bool:
         return self < other or self == other

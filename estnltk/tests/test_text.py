@@ -3,6 +3,8 @@ import pytest
 import itertools
 from estnltk.text import *
 from estnltk.layer import AmbiguousAttributeList
+from estnltk.tests import new_text
+
 
 def test_general():
     t = Text('Minu nimi on Uku. Mis Sinu nimi on? Miks me seda arutame?').tag_layer()
@@ -89,6 +91,12 @@ def test_equal():
     t_2.tag_layer(['morph_extended', 'paragraphs'])
     assert t_1 == t_2
     t_1['morph_analysis'][0][0].form = 'x'
+    assert t_1 != t_2
+
+    t_1 = new_text(5)
+    t_2 = new_text(5)
+    assert t_1 == t_2
+    t_1.layer_5[1][1]._attributes['attr_5'] = 'bla'
     assert t_1 != t_2
 
 

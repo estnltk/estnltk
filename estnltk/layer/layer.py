@@ -371,7 +371,11 @@ class Layer:
             span = EnvelopingSpan(spans=span.spans)
         for attr in self.attributes:
             try:
-                span.__getattribute__(attr)
+                if isinstance(span, EnvelopingSpan):
+                    if attr not in span._attributes:
+                        raise AttributeError
+                else:
+                    span.__getattribute__(attr)
             except AttributeError:
                 setattr(span, attr, self.default_values[attr])
         return self.span_list.add_span(span)
