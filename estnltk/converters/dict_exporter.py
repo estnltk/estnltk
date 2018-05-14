@@ -26,17 +26,23 @@ def _layer_to_dict(layer: 'Layer', text: 'Text') -> dict:
             layer_dict['spans'].append(record)
     elif layer.enveloping:
         enveloped_spanlist = text[layer.enveloping].span_list
-        
+
         records = []
         last_index = 0
         for spanlist in layer:
-            index = [enveloped_spanlist.index(span, last_index) for span in spanlist]
-            last_index = index[0]
             if layer.ambiguous:
-                pass
-                # TODO:
+                ambiguous_record = []
+                index = [enveloped_spanlist.index(span, last_index) for span in spanlist[0]]
+                for enveloping_span in spanlist:
+                    last_index = index[0]
+                    record = {attr: getattr(enveloping_span, attr) for attr in layer.attributes}
+                    record['_index_'] = index
+                    ambiguous_record.append(record)
+                records.append(ambiguous_record)
             else:
-                record = {attr:getattr(spanlist, attr) for attr in layer.attributes}
+                index = [enveloped_spanlist.index(span, last_index) for span in spanlist]
+                last_index = index[0]
+                record = {attr: getattr(spanlist, attr) for attr in layer.attributes}
                 record['_index_'] = index
                 records.append(record)
         layer_dict['spans'] = records

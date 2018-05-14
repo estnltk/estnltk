@@ -27,10 +27,16 @@ def _dict_to_layer(layer_dict: dict, text: Text) -> Layer:
     elif layer.enveloping:
         enveloped_layer = text[layer.enveloping]
         if layer.ambiguous:
-            pass  # TODO
+            for records in layer_dict['spans']:
+                for rec in records:
+                    spans = [enveloped_layer[i] for i in rec['_index_']]
+                    attributes = {attr: rec[attr] for attr in layer.attributes}
+                    span = EnvelopingSpan(spans=spans, layer=layer, attributes=attributes)
+                    layer.add_span(span)
         else:
             for rec in layer_dict['spans']:
                 spans = [enveloped_layer[i] for i in rec['_index_']]
+                #attributes = {attr: rec['attr'] for attr in layer.attributes}
                 span = EnvelopingSpan(spans=spans, layer=layer)
                 for attr in layer.attributes:
                     setattr(span, attr, rec[attr])

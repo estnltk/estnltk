@@ -3,6 +3,7 @@ from estnltk.converters import export_CG3
 from estnltk.converters import text_to_dict, dict_to_text
 from estnltk.converters import text_to_json, json_to_text
 from estnltk.converters import export_TCF, import_TCF
+from estnltk.tests import new_text
 
 
 def test_export_CG3():
@@ -54,6 +55,9 @@ def test_dict_export_import():
     text_import = dict_to_text(dict_text)
     assert text_import == text
     assert text_to_dict(text) == text_to_dict(dict_to_text(text_to_dict(text)))
+
+    text = new_text(5)
+    assert text == dict_to_text(text_to_dict(text))
 
     text_list = [Text(''), Text(T_1), Text(T_2)]
     assert text_list == dict_to_text(text_to_dict(text_list))
