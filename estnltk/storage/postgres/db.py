@@ -119,7 +119,8 @@ class PgCollection:
                     ngram_index_col_values = None
                     if ngram_index is not None:
                         ngram_index_col_values = [self.build_ngrams(getattr(layer, attribute),
-                                                                    ngram_index[attribute])
+                                                                    ngram_index[attribute],
+                                                                    layer.ambiguous)
                                                   for attribute in ngram_index_cols]
                     self.storage.insert_layer_row(layer_table, layer_dict, key, ngram_index_col_values)
             except:
@@ -131,9 +132,9 @@ class PgCollection:
                     conn.commit()
                 conn.autocommit = True
 
-    def build_ngrams(self, unigrams, n):
+    @staticmethod
+    def build_ngrams(unigrams, n, is_ambiguous):
         ngrams = set()
-        is_ambiguous = len(unigrams) > 0 and isinstance(unigrams[0], (list, tuple))
         for i in range(n, len(unigrams) + 1):
             slice = unigrams[i - n: i]
             if is_ambiguous:
