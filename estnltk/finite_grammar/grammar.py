@@ -10,7 +10,10 @@ def contains_parenthesis(s):
     return _search_parenthesis(s) is not None
 
 
-match_SEQ_pattern = re.compile('(SEQ|REP)\((.*)\)$').match
+def match_SEQ_pattern(s: str) -> Union[str, None]:
+    m = re.compile('(SEQ|REP)\((.*)\)$').match(s)
+    if m is not None:
+        return m.group(2)
 
 
 class Grammar:
@@ -89,7 +92,7 @@ class Grammar:
             m = match_SEQ_pattern(r)
             if m is not None:
                 nonterminals.add(r)
-                terminals.add(m.group(2))
+                terminals.add(m)
             else:
                 terminals.add(r)
         self._nonterminals = frozenset(nonterminals)
@@ -103,7 +106,7 @@ class Grammar:
                 self._rule_map[rhs].append((rule, pos))
                 m = match_SEQ_pattern(rhs)
                 if m is not None:
-                    self._plus_symbols.add((rhs, m.group(2)))
+                    self._plus_symbols.add((rhs, m))
 
         self._hidden_rule_map = {}
         for ps, s in self._plus_symbols:

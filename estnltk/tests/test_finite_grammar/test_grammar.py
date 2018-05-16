@@ -1,5 +1,12 @@
 import pytest
 from estnltk.finite_grammar import Rule, Grammar
+from estnltk.finite_grammar.grammar import match_SEQ_pattern
+
+
+def test_match_SEQ_pattern():
+    assert 'bla' == match_SEQ_pattern('SEQ(bla)')
+    assert 'bla' == match_SEQ_pattern('REP(bla)')
+    assert None is match_SEQ_pattern('REPSEQ(')
 
 
 def test_Rule():

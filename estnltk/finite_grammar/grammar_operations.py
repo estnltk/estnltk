@@ -30,7 +30,7 @@ def phrase_list_generator(grammar: Grammar,
         for r in rule.rhs:
             if r not in ruledict and match_SEQ_pattern(r):
                 assert isinstance(expand_seq, int) and expand_seq > 0, expand_seq
-                m = match_SEQ_pattern(r).group(2)
+                m = match_SEQ_pattern(r)
                 ruledict[r] = [(m,)*i for i in range(1, expand_seq+1)]
     yielded_phrases = set()
 
