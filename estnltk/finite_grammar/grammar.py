@@ -1,4 +1,4 @@
-from typing import Sequence, Union
+from typing import Sequence, Union, Iterable
 from collections import defaultdict
 import regex as re
 import networkx as nx
@@ -9,7 +9,8 @@ _search_parenthesis = re.compile('\(|\)').search
 def contains_parenthesis(s):
     return _search_parenthesis(s) is not None
 
-_match_SEQ_pattern = re.compile('(SEQ|REP)\((.*)\)$').match
+
+match_SEQ_pattern = re.compile('(SEQ|REP)\((.*)\)$').match
 
 
 class Grammar:
@@ -18,9 +19,9 @@ class Grammar:
     def __init__(self,
                  start_symbols: Sequence = (),
                  rules: list=None,
-                 depth_limit: int = float('inf'),
-                 width_limit: int = float('inf'),
-                 legal_attributes = None):
+                 depth_limit: Union[int, float] = float('inf'),
+                 width_limit: Union[int, float] = float('inf'),
+                 legal_attributes: Iterable[str] = None):
         if legal_attributes is None:
             self.legal_attributes = frozenset()
         else:
@@ -42,6 +43,16 @@ class Grammar:
     def rules(self):
         self._setup_grammar()
         return self._rules
+
+    @property
+    def terminals(self):
+        self._setup_grammar()
+        return self._terminals
+
+    @property
+    def nonterminals(self):
+        self._setup_grammar()
+        return self._nonterminals
 
     @property
     def rule_map(self):
@@ -72,11 +83,17 @@ class Grammar:
         return nx.is_directed_acyclic_graph(rule_graph)
 
     def _terminals_and_nonterminals(self):
-        self.nonterminals = frozenset(r['lhs'] for r in self._rules)
+        nonterminals = {r['lhs'] for r in self._rules}
         terminals = set()
-        for i in (set(i.rhs) for i in self._rules):
-            terminals.update(i)
-        self.terminals = frozenset(terminals - self.nonterminals)
+        for r in {r for rule in self._rules for r in rule.rhs}:
+            m = match_SEQ_pattern(r)
+            if m is not None:
+                nonterminals.add(r)
+                terminals.add(m.group(2))
+            else:
+                terminals.add(r)
+        self._nonterminals = frozenset(nonterminals)
+        self._terminals = frozenset(terminals - nonterminals)
 
     def _rule_maps(self):
         self._rule_map = defaultdict(list)
@@ -84,7 +101,7 @@ class Grammar:
         for rule in self._rules:
             for pos, rhs in enumerate(rule.rhs):
                 self._rule_map[rhs].append((rule, pos))
-                m = _match_SEQ_pattern(rhs)
+                m = match_SEQ_pattern(rhs)
                 if m is not None:
                     self._plus_symbols.add((rhs, m.group(2)))
 
@@ -158,14 +175,14 @@ class Rule:
                  validator=None,
                  scoring=None
                  ):
-        assert not contains_parenthesis(lhs) or _match_SEQ_pattern(lhs), 'parenthesis not allowed: ' + lhs
+        assert not contains_parenthesis(lhs) or match_SEQ_pattern(lhs), 'parenthesis not allowed: ' + lhs
         self.lhs = lhs
         if isinstance(rhs, str):
             rhs = rhs.split()
         for r in rhs:
             assert isinstance(r, str), 'rhs must be a str or sequence of str'
             if contains_parenthesis(r):
-                assert _match_SEQ_pattern(r) is not None, 'parenthesis only allowed with SEQ or REP: ' + str(rhs)
+                assert match_SEQ_pattern(r) is not None, 'parenthesis only allowed with SEQ or REP: ' + str(rhs)
         self.rhs = tuple(rhs)
 
         self.priority = priority

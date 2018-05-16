@@ -1,8 +1,8 @@
 from typing import Sequence
 from collections import defaultdict
 
-from .grammar import Grammar
-from .layer_graph import LayerGraph, GrammarNode, NonTerminalNode, PlusNode
+from estnltk.finite_grammar import Grammar
+from estnltk.finite_grammar.layer_graph import LayerGraph, GrammarNode, NonTerminalNode, PlusNode
 
 
 def get_match_up(graph, nodes, names, pos):

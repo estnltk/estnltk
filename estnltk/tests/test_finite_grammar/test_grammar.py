@@ -9,7 +9,7 @@ def test_Rule():
     assert rule.priority == 10
     assert rule.group == 'group'
     assert rule.decorator(None) == {'decorator': True}
-    assert rule.validator(None) == False
+    assert rule.validator(None) is False
     assert rule.scoring(None) == 0.5
 
     with pytest.raises(AssertionError):
@@ -25,7 +25,7 @@ def test_Rule_defaults():
     assert rule.priority == 0
     assert rule.group
     assert rule.decorator(None) == {}
-    assert rule.validator(None) == True
+    assert rule.validator(None) is True
     assert rule.scoring(None) == 0
 
 
@@ -37,9 +37,11 @@ def test_Grammar():
     grammar.add(Rule('B', 'G'))
 
     assert grammar.start_symbols == ('S',)
-    assert len(grammar.rules) == 4
-    assert grammar.depth_limit == 5
-    assert grammar.width_limit == 20
+    assert 4 == len(grammar.rules)
+    assert {'F', 'G'} == grammar.terminals
+    assert {'A', 'B', 'S'} == grammar.nonterminals
+    assert 5 == grammar.depth_limit
+    assert 20 == grammar.width_limit
     assert grammar.legal_attributes == frozenset({'attr_1', 'attr_2'})
     assert grammar.hidden_rule_map == {}
     assert grammar.has_finite_max_depth()
@@ -65,6 +67,8 @@ def test_Grammar():
     grammar = Grammar()
     grammar.add(Rule('A', 'SEQ(B)'))
     assert len(grammar.rules) == 1
+    assert {'B'} == grammar.terminals
+    assert {'A', 'SEQ(B)'} == grammar.nonterminals
 
 
 def test_Grammar_defaults():
