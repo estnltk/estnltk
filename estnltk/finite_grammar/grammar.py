@@ -6,7 +6,7 @@ import networkx as nx
 _search_parenthesis = re.compile('\(|\)').search
 
 
-def contains_parenthesis(s):
+def contains_parenthesis(s: str) -> bool:
     return _search_parenthesis(s) is not None
 
 
