@@ -56,7 +56,7 @@ def phrase_list_generator(grammar: Grammar,
     return gen(grammar.start_symbols, depth_limit)
 
 
-def grammar_phrase_ngrams(n: int, grammar: Grammar, depth_limit=None, width_limit=None, expand_seq=None):
+def ngram_fingerprint(n: int, grammar: Grammar, depth_limit=None, width_limit=None, expand_seq=None):
     ngrams_set = set()
     for phrase in phrase_list_generator(grammar=grammar,
                                         depth_limit=depth_limit,
@@ -77,8 +77,5 @@ def grammar_phrase_ngrams(n: int, grammar: Grammar, depth_limit=None, width_limi
         if add:
             ngrams_set.add(frozenset(ngrams))
         ngrams_set.difference_update(to_remove)
-        #if not any(ng <= ngrams for ng in ngrams_set):
-        #    ngrams_set.add(ngrams)
-    # ngrams_set.sort(key=lambda x: len(x))
-    # tuple(x) in the following is only needed for determined output
-    return sorted(map(set, ngrams_set), key=lambda x: (len(x), tuple(x)))
+    # tuple(sorted(x)) in the following is only needed for determined output
+    return sorted(map(set, ngrams_set), key=lambda x: (len(x), tuple(sorted(x))))
