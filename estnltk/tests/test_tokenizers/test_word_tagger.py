@@ -1,12 +1,14 @@
 import unittest
 
 from estnltk import Text
+from estnltk.taggers.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
+from estnltk.taggers.text_segmentation.zero_compound_tokens_tagger import ZeroCompoundTokensTagger
 
+normalized_attr_nm = 'normalized_form'
 
 class WordTaggerTest(unittest.TestCase):
 
     def test_compound_token_word_normalization(self):
-        normalized_attr_nm = 'normalized_form'
         test_texts = [ 
             { 'text': 'Kel huvi http://www.youtube.com/watch?v=PFD2yIVn4IE\npets 11.07.2012 20:37 lugesin enne kommentaarid ära.', \
               'normalized_words': [ (2,'http://www.youtube.com/watch?v=PFD2yIVn4IE'), (4,'11.07.2012'), (5,'20:37') ] }, \
@@ -41,3 +43,39 @@ class WordTaggerTest(unittest.TestCase):
             # Check normalized words
             self.assertListEqual(test_text['normalized_words'], normalized)
 
+
+    def test_restore_original_word_tokenization(self):
+        # Tests that the original word tokenization of a pretokenized text
+        # can be restored using WhiteSpaceTokensTagger, ZeroCompoundTokenTagger
+        # and WordTagger in combination
+        tokens_tagger = WhiteSpaceTokensTagger()
+        compound_tokens_tagger = ZeroCompoundTokensTagger()
+        test_texts = [ 
+            { 'text': 'Eurorebimises võidab kavalam\n'+
+                      'Tallinna päevalehtede ühinemisuudise varju jäi möödunud nädalal massiteabes teenimatul hoopis kaalukam sündmus .\n'+
+                      'Nimelt otsustas valitsus neljapäevasel kabinetiistungil , et Eesti esitab veel sel aastal ametliku avalduse Euroopa Liitu astumiseks .', \
+              'expected_words': ['Eurorebimises', 'võidab', 'kavalam', 'Tallinna', 'päevalehtede', \
+                                  'ühinemisuudise', 'varju', 'jäi', 'möödunud', 'nädalal', 'massiteabes',\
+                                  'teenimatul', 'hoopis', 'kaalukam', 'sündmus', '.', 'Nimelt', 'otsustas',\
+                                  'valitsus', 'neljapäevasel', 'kabinetiistungil', ',', 'et', 'Eesti', \
+                                  'esitab', 'veel', 'sel', 'aastal', 'ametliku', 'avalduse', 'Euroopa', \
+                                  'Liitu', 'astumiseks', '.'] }, \
+        ]
+        for test_text in test_texts:
+            text = Text( test_text['text'] )
+            # Perform analysis
+            tokens_tagger.tag(text)
+            compound_tokens_tagger.tag(text)
+            text.tag_layer(['words'])
+            # Collect results 
+            words = []
+            for wid, word in enumerate( text.words ):
+                if hasattr(word, normalized_attr_nm) and \
+                   getattr(word, normalized_attr_nm) != None:
+                    # Take normalized word, if available
+                    normalized.append( (wid, getattr(word, normalized_attr_nm) ) )
+                else:
+                    # Take surface form of the word
+                    words.append( word.text )
+            # Check results
+            self.assertListEqual(test_text['expected_words'], words)
