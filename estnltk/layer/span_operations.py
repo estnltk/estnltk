@@ -1,148 +1,160 @@
-from typing import Any
-
 from estnltk import Span
+
 
 #  Layer operations are ported from:
 #    https://github.com/estnltk/estnltk/blob/master/estnltk/single_layer_operations/layer_positions.py
 
 
-def touching_right(self, y: Any) -> bool:
+def touching_right(x: Span, y: Span) -> bool:
     """
     Tests if Span y is touching this Span (x) from the right.
     Pictorial example:
     xxxxxxxx
             yyyyy
     """
-    assert isinstance(y, Span)
-    return self.end == y.start
+    assert isinstance(x, Span), x
+    assert isinstance(y, Span), y
+    return x.end == y.start
 
 
-def touching_left(self, y: Any) -> bool:
+def touching_left(x: Span, y: Span) -> bool:
     """
     Tests if Span y is touching this Span (x) from the left.
     Pictorial example:
          xxxxxxxx
     yyyyy
     """
-    assert isinstance(y, Span)
-    return touching_right(y, self)
+    assert isinstance(x, Span), x
+    assert isinstance(y, Span), y
+    return touching_right(y, x)
 
 
-def hovering_right(self, y: Any) -> bool:
+def hovering_right(x: Span, y: Span) -> bool:
     """
-    Tests if Span y is hovering right from this Span (x).
+    Tests if Span y is hovering right from x.
     Pictorial example:
     xxxxxxxx
               yyyyy
     """
-    assert isinstance(y, Span)
-    return self.end < y.start
+    assert isinstance(x, Span), x
+    assert isinstance(y, Span), y
+    return x.end < y.start
 
 
-def hovering_left(self, y: Any) -> bool:
+def hovering_left(x: Span, y: Span) -> bool:
     """
-    Tests if Span y is hovering left from this Span (x).
+    Tests if Span y is hovering left from x.
     Pictorial example:
             xxxxxxxx
     yyyyy
     """
-    assert isinstance(y, Span)
-    return hovering_right(y, self)
+    assert isinstance(x, Span), x
+    assert isinstance(y, Span), y
+    return hovering_right(y, x)
 
 
-def right(self, y: Any) -> bool:
+def right(x: Span, y: Span) -> bool:
     """
     Tests if Span y is either touching or hovering right with respect to this Span.
     """
-    assert isinstance(y, Span)
-    return touching_right(self, y) or hovering_right(self, y)
+    assert isinstance(x, Span), x
+    assert isinstance(y, Span), y
+    return touching_right(x, y) or hovering_right(x, y)
 
 
-def left(self, y: Any) -> bool:
+def left(x: Span, y: Span) -> bool:
     """
     Tests if Span y is either touching or hovering left with respect to this Span.
     """
-    assert isinstance(y, Span)
-    return right(y, self)
+    assert isinstance(x, Span), x
+    assert isinstance(y, Span), y
+    return right(y, x)
 
 
-def nested(self, y: Any) -> bool:
+def nested(x: Span, y: Span) -> bool:
     """
-    Tests if Span y is nested inside this Span (x).
+    Tests if Span y is nested inside x.
     Pictorial example:
     xxxxxxxx
       yyyyy
     """
-    assert isinstance(y, Span)
-    return self.start <= y.start <= y.end <= self.end
+    assert isinstance(x, Span), x
+    assert isinstance(y, Span), y
+    return x.start <= y.start <= y.end <= x.end
 
 
-def equal(self, y: Any) -> bool:
+def equal(x: Span, y: Span) -> bool:
     """
-    Tests if Span y is positionally equal to this Span (x).
+    Tests if Span y is positionally equal to x.
     (Both are nested within each other).
     Pictorial example:
     xxxxxxxx
     yyyyyyyy
     """
-    assert isinstance(y, Span)
-    return nested(self, y) and nested(y, self)
+    assert isinstance(x, Span), x
+    assert isinstance(y, Span), y
+    return nested(x, y) and nested(y, x)
 
 
-def nested_aligned_right(self, y: Any) -> bool:
+def nested_aligned_right(x: Span, y: Span) -> bool:
     """
-    Tests if Span y is nested inside this Span (x), and
+    Tests if Span y is nested inside x, and
     Span y is aligned with the right ending of this Span.
     Pictorial example:
     xxxxxxxx
        yyyyy
     """
-    assert isinstance(y, Span)
-    return nested(self, y) and self.end == y.end
+    assert isinstance(x, Span), x
+    assert isinstance(y, Span), y
+    return nested(x, y) and x.end == y.end
 
 
-def nested_aligned_left(self, y: Any) -> bool:
+def nested_aligned_left(x: Span, y: Span) -> bool:
     """
-    Tests if Span y is nested inside this Span (x), and
+    Tests if Span y is nested inside x, and
     Span y is aligned with the left ending of this Span.
     Pictorial example:
     xxxxxxxx
     yyyyy
     """
-    assert isinstance(y, Span)
-    return nested(self, y) and self.start == y.start
+    assert isinstance(x, Span), x
+    assert isinstance(y, Span), y
+    return nested(x, y) and x.start == y.start
 
 
-def overlapping_left(self, y: Any) -> bool:
+def overlapping_left(x: Span, y: Span) -> bool:
     """
-    Tests if left side of this Span (x) overlaps with
+    Tests if left side of x overlaps with
     the Span y, but y is not nested within this Span.
     Pictorial example:
       xxxxxxxx
     yyyyy
     """
-    assert isinstance(y, Span)
-    return y.start < self.start < y.end
+    assert isinstance(x, Span), x
+    assert isinstance(y, Span), y
+    return y.start < x.start < y.end
 
 
-def overlapping_right(self, y: Any) -> bool:
+def overlapping_right(x: Span, y: Span) -> bool:
     """
-    Tests if right side of this Span (x) overlaps with
+    Tests if right side of x overlaps with
     the Span y, but y is not nested within this Span.
     Pictorial example:
     xxxxxxxx
           yyyyy
     """
-    assert isinstance(y, Span)
-    return y.start < self.end < y.end
+    assert isinstance(x, Span), x
+    assert isinstance(y, Span), y
+    return y.start < x.end < y.end
 
 
-def conflict(self, y: Any) -> bool:
+def conflict(x: Span, y: Span) -> bool:
     """
-    Tests if there is a conflict between this Span and the
+    Tests if there is a conflict between the Span x and the
     Span y: one of the Spans is either nested within other,
     or there is an overlapping from right or left side.
     """
-    assert isinstance(y, Span)
-    return nested(self, y) or nested(y, self) or \
-           overlapping_left(self, y) or overlapping_right(self, y)
+    assert isinstance(x, Span), x
+    assert isinstance(y, Span), y
+    return nested(x, y) or nested(y, x) or \
+           overlapping_left(x, y) or overlapping_right(x, y)
