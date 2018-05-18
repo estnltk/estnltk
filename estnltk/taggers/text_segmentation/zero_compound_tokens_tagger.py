@@ -24,9 +24,9 @@ class ZeroCompoundTokensTagger(Tagger):
     """
     output_attributes = ('type', 'normalized')
     input_layers = ['tokens']
-    depends_on = input_layers
+    depends_on   = input_layers
     output_layer = 'compound_tokens'
-    layer_name = output_layer
+    layer_name   = output_layer
 
 
     def __init__(self):
@@ -40,6 +40,6 @@ class ZeroCompoundTokensTagger(Tagger):
         layer = Layer(name=self.output_layer,
                       enveloping='tokens',
                       attributes=self.output_attributes,
-                      ambiguous=True)
+                      ambiguous=False)
         return layer
 
