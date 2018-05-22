@@ -1,118 +1,17 @@
 """
-Low-level layer operations for Estnltk Text object.
+Operations for Estnltk Layer object.
 
 """
 from operator import eq
 from pandas import DataFrame
 
-import regex as re
 from collections import Counter, defaultdict
 
-
-# ? Sven palus üles kirjutada küsimused, mis koodi silmitsedes tekivad.
-# ? Kas kõik järgmised konstandid on mõttekad? 
-# ? UNION on allpool ainult osaliselt kasutusel.
-# ? ehk võiks enamlevinud konstandid importida
-from estnltk.layer.layer import Layer
-
-TEXT = 'text'
-AND = 'AND'
-OR = 'OR'
-
-UNION = 'union'
-INTERSECTION = 'intersection'
-EXACT = 'exact'
-
-START = 'start'
-END = 'end'
+from estnltk import Layer
+from estnltk.layer.span_operations import equal_support
 
 
-
-#NEW API
-def new_layer_with_regex(text, name='', patterns=[], flags=0):
-    """Creates new layer to the Text instance with the name the user inputs."""
-    spans = []
-    for elem in patterns:
-        for match in re.finditer(elem, text.text, flags=flags):
-            spans.append(match.span())
-    layer = Layer.from_span_tuples(name=name, spans=spans)
-    text._add_layer(layer)
-    return text
-
-
-# def delete_layer(text, layers):
-    # """Deletes layers in input list but except the 'text' layer. Modifies the *text*."""
-    # delete = set(text.keys())
-    # delete.intersection_update(set(layers))
-    # delete.difference_update({TEXT})
-    # for layer in delete:
-        # del text[layer]
-    # return text
-
-
-# def keep_layer(text, layers):
-    # """Keeps layers in input list and the 'text' layer. Modifies the *text*."""
-    # delete = set(text.keys())
-    # delete.difference_update(layers)
-    # delete.difference_update({TEXT})
-    # for layer in delete:
-        # del text[layer]
-    # return text
-
-
-# def sort_layer(text, layer, update=False):
-    # layer_to_sort = text[layer]
-    # print('Layer to sort: ', layer_to_sort)
-    # if update:
-        # layer_sorted = sort(layer_to_sort, key=lambda e: (e[START], e[END]))
-# # ? miks layer_sorted kasutusel pole. ehk võiks selle return-ida? või on siin tahetud kasutada ühel juhul meetodit 'sorted'?
-    # else:
-        # return sort(layer_to_sort, key=lambda e: (e[START], e[END]))
-
-
-
-###############################################################
-
-# def get_text(text, start=None, end=None, layer_element=None, span=None, marginal=0):
-    # """Get text by start and end or by layer_element or by span.
-
-    # Parameters
-    # ----------
-    # start: int, default: 0
-    
-    # end: int, default: len(text.text)
-    
-    # layer_element: dict, default: None
-        # dict that contains 'start' and 'end'.
-    
-    # span: (int, int), default: None
-
-    # marginal: int, default: 0
-        # The number of extra characters at the beginning and at end of the 
-        # returned text.
-    
-    # Returns
-    # -------
-    # str
-        # Strings that corresponds to given *(start, end)* span. 
-        # Default values return the whole text.
-    # """
-    # if layer_element != None:
-        # start = layer_element[START]
-        # end = layer_element[END]
-    # elif span != None:
-        # start, end = span
-    # if start == None:
-        # start = 0
-    # if end == None:
-        # end = len(text.text)
-    # start = max(0, start - marginal)
-    # end = min(len(text.text), end + marginal)
-    # return text.text[start:end]
-
-
-#NEW API
-def unique_texts(layer, order=None):
+def unique_texts(layer: Layer, order=None):
     """Retrive unique texts of layer optionally ordered.
 
     Parameters
@@ -140,8 +39,7 @@ def unique_texts(layer, order=None):
     raise ValueError('Incorrect order type.')
 
 
-#NEW API
-def count_by(layer, attributes, counter=None):
+def count_by(layer: Layer, attributes, counter=None):
     """Create table of counts for every *layer* *attributes* value combination.
     
     Parameters
@@ -178,24 +76,21 @@ def count_by(layer, attributes, counter=None):
     return counter
 
 
-
-#NEW API
-def diff_layer(a, b, comp=eq):
+def diff_layer(a: Layer, b: Layer, comp=eq):
     """Generator of layer differences.
 
     Parameters
     ----------
-    a and b:
-        Layer.
-        No (start, end) duplicates may exist.
+    a: Layer
+    b: Layer
     comp: compare function, default: operator.eq
         Function that returns True if layer elements are equal and False otherwise.
         Only layer elements with equal spans are compared.
 
     Yields
     ------
-    tuple(dict)
-        Pairs of different layer elements. In place of missing layer element,
+    tuple(Span)
+        Pairs of different spans. In place of missing layer element,
         None is returned.
     """
     a = iter(a)
@@ -212,14 +107,14 @@ def diff_layer(a, b, comp=eq):
         b_end = True
 
     while not a_end and not b_end:
-        if x.start < y.start or x.start == y.start and x.end < y.end:
+        if x < y:  # x.start < y.start or x.start == y.start and x.end < y.end:
             yield (x, None)
             try:
                 x = next(a)
             except StopIteration:
                 a_end = True
             continue
-        if x.start == y.start and x.end == y.end:
+        if equal_support(x, y):  # x.start == y.start and x.end == y.end:
             if not comp(x, y):
                 yield (x, y)
             try:
@@ -241,19 +136,99 @@ def diff_layer(a, b, comp=eq):
         return
 
     if a_end:
-        while True:
-            yield (None, y)
-            y = next(b)
+        yield (None, y)
+        yield from ((None, y) for y in b)
 
     if b_end:
-        while True:
-            yield (x, None)
-            x = next(a)
+        yield (x, None)
+        yield from ((x, None) for x in a)
+
+
+# def delete_layer(text, layers):
+    # """Deletes layers in input list but except the 'text' layer. Modifies the *text*."""
+    # delete = set(text.keys())
+    # delete.intersection_update(set(layers))
+    # delete.difference_update({TEXT})
+    # for layer in delete:
+        # del text[layer]
+    # return text
+
+
+# def keep_layer(text, layers):
+    # """Keeps layers in input list and the 'text' layer. Modifies the *text*."""
+    # delete = set(text.keys())
+    # delete.difference_update(layers)
+    # delete.difference_update({TEXT})
+    # for layer in delete:
+        # del text[layer]
+    # return text
+
+
+# def sort_layer(text, layer, update=False):
+    # layer_to_sort = text[layer]
+    # print('Layer to sort: ', layer_to_sort)
+    # if update:
+        # layer_sorted = sort(layer_to_sort, key=lambda e: (e[START], e[END]))
+# # ? miks layer_sorted kasutusel pole. ehk võiks selle return-ida? või on siin tahetud kasutada ühel juhul meetodit 'sorted'?
+    # else:
+        # return sort(layer_to_sort, key=lambda e: (e[START], e[END]))
+
+
+###############################################################
+
+# def get_text(text, start=None, end=None, layer_element=None, span=None, marginal=0):
+    # """Get text by start and end or by layer_element or by span.
+
+    # Parameters
+    # ----------
+    # start: int, default: 0
+
+    # end: int, default: len(text.text)
+
+    # layer_element: dict, default: None
+        # dict that contains 'start' and 'end'.
+
+    # span: (int, int), default: None
+
+    # marginal: int, default: 0
+        # The number of extra characters at the beginning and at end of the
+        # returned text.
+
+    # Returns
+    # -------
+    # str
+        # Strings that corresponds to given *(start, end)* span.
+        # Default values return the whole text.
+    # """
+    # if layer_element != None:
+        # start = layer_element[START]
+        # end = layer_element[END]
+    # elif span != None:
+        # start, end = span
+    # if start == None:
+        # start = 0
+    # if end == None:
+        # end = len(text.text)
+    # start = max(0, start - marginal)
+    # end = min(len(text.text), end + marginal)
+    # return text.text[start:end]
 
 
 ############################################################
 ####### OLD API BELOW ######################################
 ############################################################
+
+
+TEXT = 'text'
+AND = 'AND'
+OR = 'OR'
+
+UNION = 'union'
+INTERSECTION = 'intersection'
+EXACT = 'exact'
+
+START = 'start'
+END = 'end'
 
 
 def compute_layer_intersection(text, layer1, layer2, method='union'):
