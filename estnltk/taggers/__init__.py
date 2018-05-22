@@ -35,6 +35,7 @@ from estnltk.taggers.standard_taggers.robust_date_number_tagger import RobustDat
 from estnltk.taggers.standard_taggers.address_tagger import AddressPartTagger
 from estnltk.taggers.standard_taggers.address_tagger import AddressGrammarTagger
 from estnltk.taggers.standard_taggers.adjective_phrase_tagger import AdjectivePhraseTagger
+from estnltk.taggers.standard_taggers.diff_tagger import DiffTagger
 
 from estnltk.taggers.standard_taggers.timex_tagger import TimexTagger
 
