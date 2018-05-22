@@ -11,6 +11,7 @@ import os
 from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.storage.postgres import PostgresStorage, PgStorageException, JsonbTextQuery as Q, JsonbLayerQuery
+from storage.postgres.db import build_ngrams, build_all_ngrams
 
 
 def get_random_table_name():
@@ -352,15 +353,23 @@ class TestLayer(unittest.TestCase):
         self.assertEqual(len(list(res)), 1)
 
     def test_build_ngrams(self):
-        col = self.storage.get_collection('test')
-        self.assertEqual(sorted(col.build_ngrams(['a', 'b', 'c'], 2)), ['a-b', 'b-c'])
-        self.assertEqual(sorted(col.build_ngrams(['a', 'b', 'c', 'd'], 3)), ['a-b-c', 'b-c-d'])
-        self.assertEqual(col.build_ngrams(['a', 'b'], 3), [])
+        self.assertEqual(sorted(build_ngrams(['a', 'b', 'c'], 2)), ['a-b', 'b-c'])
+        self.assertEqual(sorted(build_ngrams(['a', 'b', 'c', 'd'], 3)), ['a-b-c', 'b-c-d'])
+        self.assertEqual(build_ngrams(['a', 'b'], 3), [])
 
-        self.assertEqual(sorted(col.build_ngrams([('a', 'b'), ('c',)], 2)),
+        self.assertEqual(sorted(build_ngrams([('a', 'b'), ('c',)], 2)),
                          ['a-c', 'b-c'])
-        self.assertEqual(sorted(col.build_ngrams([('a', 'b'), ('c',), ('d', 'e')], 3)),
+        self.assertEqual(sorted(build_ngrams([('a', 'b'), ('c',), ('d', 'e')], 3)),
                          ['a-c-d', 'a-c-e', 'b-c-d', 'b-c-e'])
+
+    def test_build_all_ngrams(self):
+        self.assertEqual(sorted(build_all_ngrams(['a'], 1)), ['a'])
+        self.assertEqual(sorted(build_all_ngrams(['a'], 2)), ['a'])
+        self.assertEqual(sorted(build_all_ngrams(['a', 'b'], 2)), ['a', 'a-b', 'b'])
+        self.assertEqual(sorted(build_all_ngrams(['a', 'b'], 3)), ['a', 'a-b', 'b'])
+        self.assertEqual(sorted(build_all_ngrams([('a', 'b')], 2)), ['a', 'b'])
+        self.assertEqual(sorted(build_all_ngrams([('a', 'b'), ('c',)], 2)),
+                         ['a', 'a-c', 'b', 'b-c', 'c'])
 
     def test_layer_ngramm_index(self):
         table_name = get_random_table_name()
@@ -397,7 +406,7 @@ class TestLayer(unittest.TestCase):
 
         res = list(col.find_fingerprint(layer_ngram_query={
             layer1: {"lemma": [("mis",)]}}))
-        self.assertEqual(len(res), 0)
+        self.assertEqual(len(res), 1)
 
         res = list(col.find_fingerprint(layer_ngram_query={
             layer1: {
@@ -420,8 +429,8 @@ class TestLayer(unittest.TestCase):
         self.assertEqual(len(res), 1)
 
         res = list(col.find_fingerprint(layer_ngram_query={
-            layer2: {"partofspeech": [("S", "V")]}}))  # 2-grams not indexed
-        self.assertEqual(len(res), 0)
+            layer2: {"partofspeech": [("S", "V")]}}))  # 2-grams are also indexed
+        self.assertEqual(len(res), 2)
 
         res = list(col.find_fingerprint(layer_ngram_query={
             layer2: {"partofspeech": [[("S", "V", "S")],  # "Ööbik laulab puu" OR "Mis kell on"

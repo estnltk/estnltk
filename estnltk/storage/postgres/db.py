@@ -50,7 +50,8 @@ class PgCollection:
 
     def find_fingerprint(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, order_by_key=False):
         """See PostgresStorage.find_fingerprint()"""
-        return self.storage.find_fingerprint(self.table_name, query, layer_query, layer_ngram_query, layers, order_by_key)
+        return self.storage.find_fingerprint(self.table_name, query, layer_query, layer_ngram_query, layers,
+                                             order_by_key)
 
     def layer_name_to_table_name(self, layer_name):
         return self.storage.layer_name_to_table_name(self.table_name, layer_name)
@@ -118,8 +119,8 @@ class PgCollection:
                     layer_dict = layer_to_dict(layer, text)
                     ngram_index_col_values = None
                     if ngram_index is not None:
-                        ngram_index_col_values = [self.build_ngrams(getattr(layer, attribute),
-                                                                    ngram_index[attribute])
+                        ngram_index_col_values = [build_all_ngrams(getattr(layer, attribute),
+                                                               ngram_index[attribute])
                                                   for attribute in ngram_index_cols]
                     self.storage.insert_layer_row(layer_table, layer_dict, key, ngram_index_col_values)
             except:
@@ -130,19 +131,6 @@ class PgCollection:
                     # no exception, transaction in progress
                     conn.commit()
                 conn.autocommit = True
-
-    def build_ngrams(self, unigrams, n):
-        ngrams = set()
-        is_ambiguous = len(unigrams) > 0 and isinstance(unigrams[0], (list, tuple))
-        for i in range(n, len(unigrams) + 1):
-            slice = unigrams[i - n: i]
-            if is_ambiguous:
-                items = ["-".join(seq) for seq in product(*slice)]
-                ngrams.update(items)
-            else:
-                item = "-".join(slice)
-                ngrams.add(item)
-        return list(ngrams)
 
     def delete_layer(self, layer_name):
         layer_table = self.layer_name_to_table_name(layer_name)
@@ -458,7 +446,8 @@ class PostgresStorage:
         q = " AND ".join(sql_parts)
         return q
 
-    def find_fingerprint(self, table, query=None, layer_query=None, layer_ngram_query=None, layers=None, order_by_key=False):
+    def find_fingerprint(self, table, query=None, layer_query=None, layer_ngram_query=None, layers=None,
+                         order_by_key=False):
         """
         A wrapper over `select` method, which enables to conveniently build composite AND/OR queries.
 
@@ -547,7 +536,8 @@ class PostgresStorage:
         jsonb_layer_query = {layer: build_layer_query(layer, q) for layer, q in
                              layer_query.items()} if layer_query is not None else None
 
-        return self.select(table, jsonb_text_query, jsonb_layer_query, layer_ngram_query, layers, order_by_key=order_by_key)
+        return self.select(table, jsonb_text_query, jsonb_layer_query, layer_ngram_query, layers,
+                           order_by_key=order_by_key)
 
     def get_collection(self, table_name):
         """Returns a new instance of `PgCollection` without physically creating it."""
@@ -592,3 +582,21 @@ class JsonbLayerQuery(Query):
         else:
             pat = """%s.data @> '{"spans": [%s]}'"""
         return pat % (self.layer_table, json.dumps(self.kwargs))
+
+
+def build_ngrams(unigrams, n, sep='-'):
+    ngrams = set()
+    is_ambiguous = len(unigrams) > 0 and not isinstance(unigrams[0], str)
+    for i in range(n, len(unigrams) + 1):
+        slice = unigrams[i - n: i]
+        if is_ambiguous:
+            items = [sep.join(seq) for seq in product(*slice)]
+            ngrams.update(items)
+        else:
+            item = sep.join(slice)
+            ngrams.add(item)
+    return list(ngrams)
+
+
+def build_all_ngrams(unigrams, n, sep='-'):
+    return list(chain(*[build_ngrams(unigrams, i, sep) for i in range(1, n + 1)]))
