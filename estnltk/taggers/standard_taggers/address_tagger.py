@@ -307,7 +307,8 @@ class AddressGrammarTagger(Tagger):
             layer_of_tokens=input_layer,
             attributes=['grammar_symbol', 'TÄNAV', 'MAJA', 'ASULA', 'MAAKOND', 'INDEKS'],
             grammar=self.grammar,
-            output_nodes=['ADDRESS'])
+            output_nodes=['ADDRESS'],
+            output_ambiguous=True)
         self.input_layers = [input_layer]
         self.output_layer = output_layer
 
