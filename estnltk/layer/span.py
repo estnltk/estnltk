@@ -1,4 +1,4 @@
-from typing import MutableMapping, Any, List
+from typing import MutableMapping, Any, Sequence
 
 
 class Span:
@@ -45,11 +45,12 @@ class Span:
                 self.__setattr__(k, v)
 
     @property
-    def legal_attribute_names(self) -> List[str]:
+    def legal_attribute_names(self) -> Sequence[str]:
         if self.__getattribute__('_legal_attribute_names') is not None:
             return self.__getattribute__('_legal_attribute_names')
-        else:
+        if self.__getattribute__('layer') is not None:
             return self.__getattribute__('layer').__getattribute__('attributes')
+        return ()
 
     def to_record(self, with_text=False) -> MutableMapping[str, Any]:
         return {
@@ -156,9 +157,6 @@ class Span:
         if self.legal_attribute_names != other.legal_attribute_names:
             return False
         return all(self.__getattribute__(i) == other.__getattribute__(i) for i in self.legal_attribute_names)
-
-    def __le__(self, other: Any) -> bool:
-        return self < other or self == other
 
     def __hash__(self):
         return hash((self.start, self.end))
