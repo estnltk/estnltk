@@ -7,6 +7,9 @@ class Span:
 
         # this is set up first, because attribute access depends on knowing attribute names as early as possible
         self._legal_attribute_names = legal_attributes
+        if isinstance(self._legal_attribute_names, list):
+            # TODO: remove this if
+            self._legal_attribute_names = tuple(self._legal_attribute_names)
         self.is_dependant = parent is None
 
         # Placeholder, set when span added to spanlist
@@ -22,8 +25,6 @@ class Span:
 
         # parent is a Span of dependant Layer
         elif parent is not None:
-            # TODO:
-            #assert isinstance(parent, (Span, SpanList))
             assert start is None
             assert end is None
             self.is_dependant = True
@@ -107,142 +108,6 @@ class Span:
     def html_text(self):
         return '<b>' + self.raw_text[self.start:self.end] + '</b>'
 
-    # --------------------------------------
-    
-    #  Layer operations are ported from:
-    #    https://github.com/estnltk/estnltk/blob/master/estnltk/single_layer_operations/layer_positions.py
-    
-    def touching_right(self, y:Any) -> bool:
-        """ 
-        Tests if Span y is touching this Span (x) from the right.
-        Pictorial example:
-        xxxxxxxx
-                yyyyy
-        """
-        assert isinstance(y, Span)
-        return self.end == y.start
-
-    def touching_left(self, y:Any) -> bool:
-        """ 
-        Tests if Span y is touching this Span (x) from the left.
-        Pictorial example:
-             xxxxxxxx
-        yyyyy
-        """
-        assert isinstance(y, Span)
-        return y.touching_right(self)
-
-    def hovering_right(self, y:Any) -> bool:
-        """
-        Tests if Span y is hovering right from this Span (x).
-        Pictorial example:
-        xxxxxxxx
-                  yyyyy
-        """
-        assert isinstance(y, Span)
-        return self.end < y.start
-
-    def hovering_left(self, y:Any) -> bool:
-        """
-        Tests if Span y is hovering left from this Span (x).
-        Pictorial example:
-                xxxxxxxx
-        yyyyy
-        """
-        assert isinstance(y, Span)
-        return y.hovering_right(self)
-
-    def right(self, y:Any) -> bool:
-        '''
-        Tests if Span y is either touching or hovering right with respect to this Span.
-        '''
-        assert isinstance(y, Span)
-        return self.touching_right(y) or self.hovering_right(y)
-
-    def left(self, y:Any) -> bool:
-        '''
-        Tests if Span y is either touching or hovering left with respect to this Span.
-        '''
-        assert isinstance(y, Span)
-        return y.right(self)
-
-    def nested(self, y:Any) -> bool:
-        """
-        Tests if Span y is nested inside this Span (x).
-        Pictorial example:
-        xxxxxxxx
-          yyyyy
-        """
-        assert isinstance(y, Span)
-        return self.start <= y.start <= y.end <= self.end
-
-    def equal(self, y:Any) -> bool:
-        """
-        Tests if Span y is positionally equal to this Span (x). 
-        (Both are nested within each other).
-        Pictorial example:
-        xxxxxxxx
-        yyyyyyyy
-        """
-        assert isinstance(y, Span)
-        return self.nested(y) and y.nested(self)
-
-    def nested_aligned_right(self, y:Any) -> bool:
-        """
-        Tests if Span y is nested inside this Span (x), and 
-        Span y is aligned with the right ending of this Span.
-        Pictorial example:
-        xxxxxxxx
-           yyyyy
-        """
-        assert isinstance(y, Span)
-        return self.nested(y) and self.end == y.end
-
-    def nested_aligned_left(self, y:Any) -> bool:
-        """
-        Tests if Span y is nested inside this Span (x), and 
-        Span y is aligned with the left ending of this Span.
-        Pictorial example:
-        xxxxxxxx
-        yyyyy
-        """
-        assert isinstance(y, Span)
-        return self.nested(y) and self.start == y.start
-
-    def overlapping_left(self, y:Any) -> bool:
-        """
-        Tests if left side of this Span (x) overlaps with 
-        the Span y, but y is not nested within this Span.
-        Pictorial example:
-          xxxxxxxx
-        yyyyy
-        """
-        assert isinstance(y, Span)
-        return y.start < self.start < y.end
-
-    def overlapping_right(self, y:Any) -> bool:
-        """
-        Tests if right side of this Span (x) overlaps with
-        the Span y, but y is not nested within this Span.
-        Pictorial example:
-        xxxxxxxx
-              yyyyy
-        """
-        assert isinstance(y, Span)
-        return y.start < self.end < y.end
-
-    def conflict(self, y:Any) -> bool:
-        """
-        Tests if there is a conflict between this Span and the 
-        Span y: one of the Spans is either nested within other, 
-        or there is an overlapping from right or left side.
-        """
-        assert isinstance(y, Span)
-        return self.nested(y) or y.nested(self) or \
-               self.overlapping_left(y) or self.overlapping_right(y)
-
-    # --------------------------------------
-    
     def __getattr__(self, item):
         if item in {'start', 'end', 'layer', 'text'}:
             return self.__getattribute__(item)
@@ -284,16 +149,19 @@ class Span:
         return (self.start, self.end) < (other.start, other.end)
 
     def __eq__(self, other: Any) -> bool:
-        try:
-            return (self.start, self.end) == (other.start, other.end)
-        except AttributeError:
+        if not isinstance(other, Span):
             return False
-
-    def __hash__(self):
-        return hash((self.start, self.end, tuple(self.__getattribute__(i) for i in self.legal_attribute_names)))
+        if self.start != other.start or self.end != other.end:
+            return False
+        if self.legal_attribute_names != other.legal_attribute_names:
+            return False
+        return all(self.__getattribute__(i) == other.__getattribute__(i) for i in self.legal_attribute_names)
 
     def __le__(self, other: Any) -> bool:
         return self < other or self == other
+
+    def __hash__(self):
+        return hash((self.start, self.end))
 
     def __str__(self):
         if self.layer is None:

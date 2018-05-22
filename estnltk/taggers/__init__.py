@@ -3,7 +3,7 @@ from estnltk.taggers.retagger import Retagger
 
 from estnltk.taggers.tagger_old import TaggerOld
 
-from estnltk.taggers.tagger_test_maker import make_tagger_test
+from estnltk.taggers.tagger_tester import TaggerTester
 
 from estnltk.taggers.standard_taggers.atomizer import Atomizer
 
@@ -35,6 +35,8 @@ from estnltk.taggers.standard_taggers.robust_date_number_tagger import RobustDat
 from estnltk.taggers.standard_taggers.address_tagger import AddressPartTagger
 from estnltk.taggers.standard_taggers.address_tagger import AddressGrammarTagger
 from estnltk.taggers.standard_taggers.adjective_phrase_tagger import AdjectivePhraseTagger
+
+from estnltk.taggers.standard_taggers.timex_tagger import TimexTagger
 
 from estnltk.taggers.text_segmentation.tokens_tagger import TokensTagger
 from estnltk.taggers.text_segmentation.word_tagger import WordTagger

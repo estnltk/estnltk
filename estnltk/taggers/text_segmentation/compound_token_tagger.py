@@ -291,7 +291,7 @@ class CompoundTokenTagger(Tagger):
                         # considered as a potentially hyphenated word; 
                         # This serves to leave out numeric ranges like 
                         #    "15-17.04." or "920-980"
-                        spans = layers['tokens'][hyphenation_start:i]
+                        spans = layers['tokens'][hyphenation_start:i].spans
                         spl = EnvelopingSpan(spans=spans)
                         spl.type = ('hyphenation',)
                         spl.normalized = \

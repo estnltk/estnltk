@@ -20,15 +20,15 @@ A. H. Tammsaare 1935. aastal: 1,0 m / s = 3,67 km/h.'''
     compound_token_tagger = CompoundTokenTagger()
     text.tag_layer(['tokens'])
     compound_token_tagger.tag(text)
-    assert text['compound_tokens'].text == [['bla', '@', 'bla', '.', 'ee'],
-                                            ['10', '000'],
-                                            ['st', '.'],
-                                            ['A', '.', 'H', '.', 'Tammsaare'],
-                                            ['1935', '.'],
-                                            ['1', ',', '0'],
-                                            ['m', '/', 's'],
-                                            ['3', ',', '67'],
-                                            ['km', '/', 'h']]
+    assert text['compound_tokens'].text == ['bla', '@', 'bla', '.', 'ee',
+                                            '10', '000',
+                                            'st', '.',
+                                            'A', '.', 'H', '.', 'Tammsaare',
+                                            '1935', '.',
+                                            '1', ',', '0',
+                                            'm', '/', 's',
+                                            '3', ',', '67',
+                                            'km', '/', 'h']
 
     from estnltk.taggers import WordTagger
     word_tagger = WordTagger()
@@ -45,14 +45,14 @@ A. H. Tammsaare 1935. aastal: 1,0 m / s = 3,67 km/h.'''
     sentence_tokenizer = SentenceTokenizer()
     text.tag_layer(['words'])
     sentence_tokenizer.tag(text)
-    assert text['sentences'].text == [['Aadressilt', 'bla@bla.ee', 'tuli', '10 000', 'kirja', '.'],
-                                      ['Kirjad', ',', 'st.', 'spamm', 'saabus', '10', 'tunni', 'jooksul', '.'],
-                                      ['A. H. Tammsaare', '1935.', 'aastal', ':', '1,0', 'm / s', '=', '3,67', 'km/h', '.']]
+    assert text['sentences'].text == ['Aadressilt', 'bla@bla.ee', 'tuli', '10 000', 'kirja', '.',
+                                      'Kirjad', ',', 'st.', 'spamm', 'saabus', '10', 'tunni', 'jooksul', '.',
+                                      'A. H. Tammsaare', '1935.', 'aastal', ':', '1,0', 'm / s', '=', '3,67', 'km/h', '.']
 
 
     from estnltk.taggers import ParagraphTokenizer
     paragraph_tokenizer = ParagraphTokenizer()
     paragraph_tokenizer.tag(text) 
-    assert text['paragraphs'].text == [[['Aadressilt', 'bla@bla.ee', 'tuli', '10 000', 'kirja', '.'],
-                                        ['Kirjad', ',', 'st.', 'spamm', 'saabus', '10', 'tunni', 'jooksul', '.']],
-                                       [['A. H. Tammsaare', '1935.', 'aastal', ':', '1,0', 'm / s', '=', '3,67', 'km/h', '.']]]
+    assert text['paragraphs'].text == ['Aadressilt', 'bla@bla.ee', 'tuli', '10 000', 'kirja', '.',
+                                       'Kirjad', ',', 'st.', 'spamm', 'saabus', '10', 'tunni', 'jooksul', '.',
+                                       'A. H. Tammsaare', '1935.', 'aastal', ':', '1,0', 'm / s', '=', '3,67', 'km/h', '.']

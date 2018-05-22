@@ -7,4 +7,5 @@ from .layer_graph import plot_graph
 from .parsing import parse_graph
 
 from .phrase_list_tagger import PhraseListTagger
-from .phrase_list_generator import phrase_list_generator
+from .grammar_operations import phrase_list_generator
+from estnltk.finite_grammar.grammar_operations import ngram_fingerprint

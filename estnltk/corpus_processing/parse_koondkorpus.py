@@ -17,7 +17,7 @@
 # 
 
 from estnltk.text import Text
-from estnltk.converters import import_json
+from estnltk.converters import json_to_text
 from estnltk.taggers import SentenceTokenizer
 
 from bs4 import BeautifulSoup
@@ -118,7 +118,7 @@ def get_text_subcorpus_name( corpus_dir, corpus_file ):
     # try to get it from metadata of the Text object
     if not text_type:
         fnm = os.path.join( corpus_dir, corpus_file )
-        text_obj = import_json( file=fnm )
+        text_obj = json_to_text(file=fnm)
         if text_obj:
             if 'alamfoorum' in text_obj.meta.keys():
                 text_type = 'netifoorum'

@@ -18,7 +18,7 @@ from datetime import datetime
 from datetime import timedelta
 
 from estnltk.text import Text
-from estnltk.converters import export_json
+from estnltk.converters import text_to_json
 
 import logging
 
@@ -231,7 +231,7 @@ if __name__ == "__main__":
             out_file_path = os.path.join(out_dir, fnm)
             logger.info(' Writing document {0}'.format(out_file_path))
             # Export in json format
-            export_json( text, file=out_file_path )
+            text_to_json(text, file=out_file_path)
             document_id += 1
             if convert_only_n_docs and convert_only_n_docs <= document_id:
                 break

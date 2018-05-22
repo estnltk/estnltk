@@ -30,7 +30,7 @@ class ParagraphTokenizer(Tagger):
             paragraph_ends.add(layers['sentences'][-1].end)
         for i, sentence in enumerate(layers['sentences']):
             if sentence.end in paragraph_ends:
-                span = EnvelopingSpan(spans=layers['sentences'][start:i+1])
+                span = EnvelopingSpan(spans=layers['sentences'][start:i+1].spans)
                 layer.add_span(span)
                 start = i + 1
         return layer

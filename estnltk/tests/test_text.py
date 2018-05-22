@@ -3,6 +3,8 @@ import pytest
 import itertools
 from estnltk.text import *
 from estnltk.layer import AmbiguousAttributeList
+from estnltk.tests import new_text
+
 
 def test_general():
     t = Text('Minu nimi on Uku. Mis Sinu nimi on? Miks me seda arutame?').tag_layer()
@@ -18,8 +20,8 @@ def test_general():
         t.words.sentences
 
     assert len(t.words) == len(t.words.text)
-    assert len(t.sentences) == len(t.sentences.text)
-    assert len(t.sentences.words.text) == len(t.sentences.text)
+    #assert len(t.sentences) == len(t.sentences.text)
+    #assert len(t.sentences.words.text) == len(t.sentences.text)
     print(t.morph_analysis.lemma)
     assert t.morph_analysis.lemma == AmbiguousAttributeList([['mina'], ['nimi'], ['olema', 'olema'], ['Uku'],
                                                              ['.'], ['mis', 'mis'], ['sina'], ['nimi'],
@@ -63,13 +65,16 @@ def test_equivalences():
 
     assert t.sentences.lemma == [sentence.lemma for sentence in t.sentences] == [[word.lemma for word in sentence] for sentence in t.sentences]
 
-    assert t.words.text == list(itertools.chain(*t.sentences.text))
+    #assert t.words.text == list(itertools.chain(*t.sentences.text))
+    assert t.words.text == t.sentences.text
 
-    assert [list(set(i))[0] for i in t.morph_analysis.text] == t.words.text
+    #assert [list(set(i))[0] for i in t.morph_analysis.text] == t.words.text
+    assert t.morph_analysis.text == t.words.text
 
     # assert t.morph_analysis.get_attributes(['text', 'lemma']) == t.words.get_attributes(['text', 'lemma'])
 
     assert [[i[0]] for i in t.morph_analysis.get_attributes(['text'])] == t.words.get_attributes(['text'])
+
 
 def test_equal():
     t_1 = Text('Tekst algab. Tekst lõpeb.')
@@ -88,6 +93,13 @@ def test_equal():
     t_1['morph_analysis'][0][0].form = 'x'
     assert t_1 != t_2
 
+    t_1 = new_text(5)
+    t_2 = new_text(5)
+    assert t_1 == t_2
+    t_1.layer_5[1][1]._attributes['attr_5'] = 'bla'
+    assert t_1 != t_2
+
+
 def test_pickle():
     # Text object can be pickled
     import pickle
@@ -95,6 +107,7 @@ def test_pickle():
     b = pickle.dumps(t_1)
     t_2 = pickle.loads(b)
     assert t_1 == t_2
+
 
 def test_to_record():
     t = Text('Minu nimi on Uku.').tag_layer()
@@ -120,30 +133,30 @@ Mis sinu nimi on?
 
     #Should not raise NotImplementedError
     t.paragraphs
-    assert (t.paragraphs.text == [[['Minu', 'nimi', 'on', 'Uku', '.'], ['Miks', '?']], [['Mis', 'sinu', 'nimi', 'on', '?']]])
+    assert t.paragraphs.text == ['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?', 'Mis', 'sinu', 'nimi', 'on', '?']
 
     #Should not raise NotImplementedError
     t.paragraphs.sentences
-    assert (t.paragraphs.sentences.text == [[['Minu', 'nimi', 'on', 'Uku', '.'], ['Miks', '?']], [['Mis', 'sinu', 'nimi', 'on', '?']]])
+    assert t.paragraphs.sentences.text == [['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?'],
+                                           ['Mis', 'sinu', 'nimi', 'on', '?']]
 
     #Should not raise NotImplementedError
     t.paragraphs.sentences.words
-    assert (t.paragraphs.sentences.words.text == [[['Minu', 'nimi', 'on', 'Uku', '.'], ['Miks', '?']], [['Mis', 'sinu', 'nimi', 'on', '?']]])
+    assert t.paragraphs.sentences.words.text == [['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?'], ['Mis', 'sinu', 'nimi', 'on', '?']]
 
     #Should not raise NotImplementedError
     t.paragraphs.words
-    assert (t.paragraphs.words.text == [[['Minu', 'nimi', 'on', 'Uku', '.'], ['Miks', '?']], [['Mis', 'sinu', 'nimi', 'on', '?']]])
+    assert (t.paragraphs.words.text == [['Minu', 'nimi', 'on', 'Uku', '.', 'Miks', '?'], ['Mis', 'sinu', 'nimi', 'on', '?']])
 
 
 
-    assert t.paragraphs.text == t.paragraphs.sentences.text
+    #assert t.paragraphs.text == t.paragraphs.sentences.text
     assert t.paragraphs.sentences.text == t.paragraphs.sentences.words.text
     assert t.paragraphs.sentences.words.text == t.paragraphs.words.text
-    assert t.paragraphs.words.text == t.paragraphs.text
+    #assert t.paragraphs.words.text == t.paragraphs.text
 
     #these are not implemented yet
     # t.paragraphs.sentences.words.morph_analysis.lemma
-
 
 
 def test_delete_layer():
@@ -212,8 +225,8 @@ def test_text():
     assert t.text == 'test'
     with pytest.raises(AttributeError):
         t.text = 'asd'
-#
-#
+
+
 def test_spanList():
     text = Text('')
 
@@ -242,8 +255,6 @@ def test_spanList():
     assert sl[3] == d
 
 
-#
-#
 def test_layer():
     text = 'Öösel on kõik kassid hallid.'
     t = Text(text)
@@ -287,7 +298,6 @@ def test_layer():
     )
 
 
-
 def test_annotated_layer():
     text = 'Öösel on kõik kassid hallid.'
     t = Text(text)
@@ -302,6 +312,7 @@ def test_annotated_layer():
     # with pytest.raises(AttributeError):
     #     for i in t.test:
     #         i.test2 = 'mock'
+
 
 def test_count_by():
     def count_by(layer, attributes, counter=None):
@@ -333,7 +344,7 @@ def test_count_by():
         break
 
     assert (count_by(l, ['text', 'asd'])) == {('ösel', 123): 1, ('sel ', None): 1}
-#
+
 
 def test_from_dict():
     t = Text('Kui mitu kuud on aastas?')
@@ -350,6 +361,7 @@ def test_from_dict():
     for span, lemma in zip(t.words, ['kui', 'mitu', 'kuu', 'olema', 'aasta', '?']):
         print(span.lemma, lemma)
         assert span.lemma == lemma
+
 
 def test_ambiguous_from_dict():
     t = Text('Kui mitu kuud on aastas?')
@@ -368,6 +380,7 @@ def test_ambiguous_from_dict():
                     )
 
     assert t.words[0].lemma == ['kui', 'KUU']
+
 
 def test_ambiguous_from_dict_unbound():
     words = Layer(name='words', attributes=['lemma'], ambiguous = True)
@@ -405,6 +418,7 @@ def test_ambiguous_from_dict_unbound():
     assert t.words2[0].lemma2 == ['kui', 'KUU']
 
     assert t.words2[0].parent is t.words[0]
+
 
 def test_dependant_span():
     t = Text('Kui mitu kuud on aastas?')
@@ -537,11 +551,11 @@ def test_various():
 def test_words_sentences():
     t = Text('Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?').tag_layer()
 
-    assert t.sentences.text == [['Minu', 'nimi', 'on', 'Uku', ',', 'mis', 'sinu', 'nimi', 'on', '?'], ['Miks', 'me', 'seda', 'arutame', '?']]
+    assert t.sentences.text == ['Minu', 'nimi', 'on', 'Uku', ',', 'mis', 'sinu', 'nimi', 'on', '?', 'Miks', 'me', 'seda', 'arutame', '?']
     assert t.words.text == ['Minu', 'nimi', 'on', 'Uku', ',', 'mis', 'sinu', 'nimi', 'on', '?', 'Miks', 'me', 'seda', 'arutame', '?']
     assert t.text == 'Minu nimi on Uku, mis sinu nimi on? Miks me seda arutame?'
 
-    assert [sentence.text for sentence in t.sentences] == t.sentences.text
+    #assert [sentence.text for sentence in t.sentences] == t.sentences.text
 
     with pytest.raises(AttributeError):
         t.nonsense
@@ -609,7 +623,6 @@ def test_morph():
     #assert len(text.sentences[:1].words.lemma) > 0
 
 
-
 def test_change_lemma():
     text = Text('Olnud aeg.').tag_layer()
     setattr(text.morph_analysis[0][0], 'lemma', 'blabla')
@@ -636,8 +649,6 @@ def test_to_records():
 
     #enveloping (note nested lists)
     assert (text['sentences'].to_records() == [[{'end': 5, 'start': 0, 'normalized_form': None}, {'end': 9, 'start': 6, 'normalized_form': None}, {'end': 10, 'start': 9, 'normalized_form': None}]])
-
-
 
 
 def test_morph2():
@@ -858,7 +869,7 @@ def test_rewriting_api():
     assert list(text.plain.esrever) == text.words.text
 
 
-def test_delete_ambig_span():
+def test_delete_ambiguous_span():
     text = Text('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''').tag_layer()
     l = Layer(name='test',
               parent='words',
@@ -880,31 +891,29 @@ def test_delete_ambig_span():
 
     (text['test'].span_list.spans[0].spans
             .remove(
-        text['test'].span_list.spans[0] #this is the span we want to remove
+        text['test'].span_list.spans[0][0] #this is the span we want to remove
     )
           )
     assert len(text['test'].span_list.spans[0]) == 1
 
-
-
-    #removing the second
+    # removing the second
     assert len(text['test'].span_list.spans[1]) == 2
 
     (text['test'].span_list.spans[1].spans
             .remove(
-        text['test'].span_list.spans[1] #this is the span we want to remove
+        text['test'].span_list.spans[1][0] #this is the span we want to remove
     )
           )
     assert len(text['test'].span_list.spans[1]) == 1
-    
-    
+
+
 def test_span_morph_access():
     text = Text('Oleme jõudnud kohale. Kus me oleme?').tag_layer()
     assert text.sentences[0].words[0].morph_analysis.lemma == ['olema']
 
 
 def test_lemma_access_from_text_object():
-    '''See on oluline, sest Dage tungivalt soovib säärast varianti.'''
+    """See on oluline, sest Dage tungivalt soovib säärast varianti."""
     text = Text('Oleme jõudnud kohale. Kus me oleme?').tag_layer()
     assert (text.lemma) == text.words.lemma
 

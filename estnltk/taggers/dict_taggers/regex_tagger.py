@@ -25,7 +25,7 @@ class RegexTagger(Tagger):
                   )
 
     def __init__(self,
-                 vocabulary: Union[str, dict, list, DataFrame, Vocabulary],
+                 vocabulary: Union[str, dict, list, Vocabulary],
                  output_layer: str = 'regexes',
                  output_attributes: Sequence = None,
                  conflict_resolving_strategy: str = 'MAX',

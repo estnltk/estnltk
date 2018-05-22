@@ -17,7 +17,7 @@ from random import randint
 from datetime import datetime 
 from datetime import timedelta
 
-from estnltk.converters import import_json
+from estnltk.converters import json_to_text
 
 max_texts             = 5000
 discard_empty_files   = True
@@ -85,7 +85,7 @@ if __name__ == '__main__':
               if discard_empty_files:
                   # Check that the file has any textual content
                   fnm = os.path.join( in_dir, text_file )
-                  text = import_json(file=fnm)
+                  text = json_to_text(file=fnm)
                   if len(text.text) == 0 or \
                      pattern_empty_string.match(text.text):
                          pick_file = False

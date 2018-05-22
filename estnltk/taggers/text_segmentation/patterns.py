@@ -24,6 +24,7 @@ MACROS = {
             'UPPERCASE': 'A-ZŠŽÕÄÖÜ',
             'NUMERIC': '0-9',
             '1,3': '{1,3}',
+            '1,2': '{1,2}',
             '2,': '{2,}',
             '1,25': '{1,25}',
             # ===================================================
@@ -289,6 +290,21 @@ emoticon_patterns = [
       'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(1))"}, 
 ]
 
+_month_period_year_pattern = re.compile('^([012][0-9]|1[012])\.(1[7-9]\d\d|2[0-2]\d\d)$')
+_day_period_month_pattern  = re.compile('^(3[01]|[12][0-9]|0?[0-9])\.([012][0-9]|1[012])$')
+
+def _numeric_with_period_normalizer(m):
+    ''' Normalizes numerics with periods, but makes additional checkups beforehand: 
+        if the numeric string looks suspiciously like month + year (e.g. '03.2003') 
+        or like day+month (e.g. '31.01'), then periods will not be deleted from 
+        the string. Otherwise, all periods will be deleted from the string. '''
+    if _month_period_year_pattern.match(m.group(0)) or \
+       _day_period_month_pattern.match(m.group(0)):
+        # The number looks suspiciously like a part of date: do not delete the period
+        return m.group(0)
+    return re.sub('[\.]' ,'' , m.group(0))
+
+
 number_patterns = [
     # Heuristic date & time patterns
     # Date and time tokens should be detected before generic numerics in order to reduce
@@ -324,7 +340,7 @@ number_patterns = [
       'example': '19/09/11',
       'pattern_type': 'numeric_date',
       '_group_': 0,
-      '_priority_': (2, 0, 3),
+      '_priority_': (2, 0, 3, 1),
       '_regex_pattern_': re.compile(r'''
                          (0[0-9]|[12][0-9]|3[01])                       # day
                          /                                              # slash
@@ -333,6 +349,20 @@ number_patterns = [
                          (1[7-9]\d\d|2[0-2]\d\d|[7-9][0-9]|[0-3][0-9])  # year
                          '''.format(**MACROS), re.X),
       'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
+    { 'comment': '*) Date patterns that contain month as a Roman numeral: "dd. roman_mm yyyy";',
+      'example': '26. XII 1933',
+      'pattern_type': 'numeric_date',
+      '_group_': 0,
+      '_priority_': (2, 0, 3, 2),
+      '_regex_pattern_': re.compile(r'''
+                         (0[0-9]|[12][0-9]|3[01])                       # day
+                         \.                                             # period
+                         \s+                                            # space(s)
+                         (I{1,3}|IV|V|VI{1,3}|I{1,2}X|X|XI{1,2})        # roman month
+                         \s+                                            # space(s)
+                         (1[7-9]\d\d|2[0-2]\d\d)                        # year
+                         '''.format(**MACROS), re.X),
+      'normalized': r"lambda m: re.sub('\s{2,}',' ', m.group(0))"},
     { 'comment': '*) Time patterns in the commonly used form "HH:mm:ss";',
       'example': '21:14',
       'pattern_type': 'numeric_time',
@@ -388,7 +418,8 @@ number_patterns = [
                          \d+\.+\d+           # 2 groups of numbers
                          (\ ,\ \d+|,\d+)?    # + comma-separated numbers
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub('[\.]' ,'' , m.group(0))"},
+      'normalized': _numeric_with_period_normalizer },
+
     { 'comment': '*) A generic pattern for detecting long numbers (2 groups, space-separated).',
       'example': '67 123 , 456',
       'pattern_type': 'numeric',
@@ -409,7 +440,7 @@ number_patterns = [
                          \d+                    # 1 group of numbers
                          (\ ,\ \d+|,\d+|\ *\.)  # + comma-separated numbers or period-ending
                          '''.format(**MACROS), re.X),
-      'normalized': r"lambda m: re.sub('[\s\.]' ,'' , m.group(0))"},
+      'normalized': r"lambda m: re.sub('[\s]' ,'' , m.group(0))"},
 
     # Remark on the decimal numerals (numerals with the decimal separator ','):
     #   *) form where the separator is between two spaces (' , ') is common to Koondkorpus 

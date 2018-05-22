@@ -1,8 +1,8 @@
 from typing import Sequence
 from collections import defaultdict
 
-from .grammar import Grammar
-from .layer_graph import LayerGraph, GrammarNode, NonTerminalNode, PlusNode
+from estnltk.finite_grammar import Grammar
+from estnltk.finite_grammar.layer_graph import LayerGraph, GrammarNode, NonTerminalNode, PlusNode
 
 
 def get_match_up(graph, nodes, names, pos):
@@ -86,6 +86,7 @@ def add_nodes(graph: LayerGraph,
             added_nodes -= nodes_to_remove
             graph.remove_nodes_from(nodes_to_remove)
 
+            graph.add_node(node)
             for pred in predecessors:
                 graph.add_edge(pred, node)
             for succ in successors:

@@ -183,9 +183,9 @@ def test_postanalysis_fix_abbreviations():
     #print(text['morph_analysis'].to_records())
     expected_records = [ \
         [{'partofspeech': 'Z', 'root': '(', 'root_tokens': ('(',), 'ending': '', 'clitic': '', 'lemma': '(', 'form': '', 'end': 1, 'start': 0}], \
-        [{'partofspeech': 'N', 'root': '9', 'root_tokens': ('9',), 'ending': '0', 'clitic': '', 'lemma': '9', 'form': '?', 'end': 4, 'start': 2}], \
+        [{'partofspeech': 'O', 'root': '9.', 'root_tokens': ('9.',), 'ending': '0', 'clitic': '', 'lemma': '9.', 'form': '?', 'end': 4, 'start': 2}], \
         [{'partofspeech': 'Y', 'root': 'jaan', 'root_tokens': ('jaan',), 'ending': '0', 'clitic': '', 'lemma': 'jaan', 'form': '?', 'end': 10, 'start': 5}], \
-        [{'partofspeech': 'N', 'root': '1939', 'root_tokens': ('1939',), 'ending': '0', 'clitic': '', 'lemma': '1939', 'form': '?', 'end': 16, 'start': 11}], \
+        [{'partofspeech': 'O', 'root': '1939.', 'root_tokens': ('1939.',), 'ending': '0', 'clitic': '', 'lemma': '1939.', 'form': '?', 'end': 16, 'start': 11}], \
         [{'partofspeech': 'Y', 'root': 'a', 'root_tokens': ('a',), 'ending': '0', 'clitic': '', 'lemma': 'a', 'form': '?', 'end': 19, 'start': 17}], \
         [{'partofspeech': 'J', 'root': 'või', 'root_tokens': ('või',), 'ending': '0', 'clitic': '', 'lemma': 'või', 'form': '', 'end': 23, 'start': 20}], \
         [{'partofspeech': 'Y', 'root': 'dets', 'root_tokens': ('dets',), 'ending': '0', 'clitic': '', 'lemma': 'dets', 'form': '?', 'end': 28, 'start': 24}], \

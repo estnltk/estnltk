@@ -8,6 +8,7 @@ from estnltk.taggers import GrammarParsingTagger
 from estnltk.taggers import GapTagger
 from os import path
 
+
 class AddressPartTagger(Tagger):
     """
     Tags address parts.
@@ -62,12 +63,13 @@ class AddressPartTagger(Tagger):
         vocabulary_file1 = path.join(path.dirname(__file__), 'asula_vocabulary.csv')
 
         self.place_name_tagger = PhraseTagger(output_layer='place_name',
-                                         input_layer='words',
-                                         input_attribute='text',
-                                         vocabulary=vocabulary_file1,
-                                         ambiguous=True,
-                                         output_attributes=['type', 'grammar_symbol'],
-                                         conflict_resolving_strategy='MAX')
+                                              input_layer='words',
+                                              input_attribute='text',
+                                              vocabulary=vocabulary_file1,
+                                              key='_phrase_',
+                                              output_ambiguous=True,
+                                              output_attributes=['type', 'grammar_symbol'],
+                                              conflict_resolving_strategy='MAX')
         
         vocabulary_file2 = path.join(path.dirname(__file__), 'street_vocabulary.csv')
 
@@ -75,7 +77,8 @@ class AddressPartTagger(Tagger):
                                          input_layer='words',
                                          input_attribute='text',
                                          vocabulary=vocabulary_file2,
-                                         ambiguous=True,
+                                         key='_phrase_',
+                                         output_ambiguous=True,
                                          output_attributes=['type', 'grammar_symbol'],
                                          conflict_resolving_strategy='MAX') 
                                          
@@ -85,18 +88,19 @@ class AddressPartTagger(Tagger):
                                          input_layer='words',
                                          input_attribute='text',
                                          vocabulary=vocabulary_file3,
-                                         ambiguous=True,
+                                         key='_phrase_',
+                                         output_ambiguous=True,
                                          output_attributes=['type', 'grammar_symbol'],
                                          conflict_resolving_strategy='MAX')                                                                    
 
         spec_word_vocabulary = path.join(path.dirname(__file__), 'spec_word_voc.csv')
 
         self.spec_voc_tagger = SpanTagger(output_layer='spec_word',
-                                     input_layer='words',
-                                     input_attribute='text',
-                                     ambiguous=True,
-                                     output_attributes=('type', 'grammar_symbol'),
-                                     vocabulary=spec_word_vocabulary)
+                                          input_layer='words',
+                                          input_attribute='text',
+                                          ambiguous=True,
+                                          output_attributes=('type', 'grammar_symbol'),
+                                          vocabulary=spec_word_vocabulary)
 
         self.atomizer2 = Atomizer(output_layer='some_layer2',
                              input_layer='place_name',

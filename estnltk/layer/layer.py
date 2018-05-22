@@ -15,7 +15,7 @@ class SpanList(collections.Sequence):
                  ambiguous: bool=False) -> None:
         # TODO:
         # assert layer is not None
-        self.classes = {}  # type: MutableMapping[Tuple[int, int], AmbiguousSpan]
+        self.classes = {}  # type: MutableMapping[int, AmbiguousSpan]
 
         self.spans = []  # type: List
 
@@ -29,7 +29,7 @@ class SpanList(collections.Sequence):
         self._base = None  # type:Union[Span, None]
 
     def get_equivalence(self, span):
-        return self.classes.get((span.start, span.end), None)
+        return self.classes.get(hash(span), None)
 
     def get_attributes(self, items):
         r = []
@@ -62,7 +62,7 @@ class SpanList(collections.Sequence):
             if target is None:
                 new = AmbiguousSpan(layer=self.layer)
                 new.add_span(span)
-                self.classes[(span.start, span.end)] = new
+                self.classes[hash(span)] = new
                 bisect.insort(self.spans, new)
                 new.parent = span.parent
             else:
@@ -71,7 +71,7 @@ class SpanList(collections.Sequence):
         else:
             if target is None:
                 bisect.insort(self.spans, span)
-                self.classes[(span.start, span.end)] = span
+                self.classes[hash(span)] = span
             else:
                 raise ValueError('span is already in spanlist: ' + str(span))
         return span
@@ -150,11 +150,7 @@ class SpanList(collections.Sequence):
         return (self.start, self.end) < (other.start, other.end)
 
     def __eq__(self, other: Any) -> bool:
-        return hash(self) == hash(other)
-        # try:
-        #    return (self.start, self.end) == (other.start, other.end)
-        # except AttributeError:
-        #    return False
+        return isinstance(other, SpanList) and self.spans == other.spans
 
     def __le__(self, other: Any) -> bool:
         return self < other or self == other
@@ -207,8 +203,9 @@ class Layer:
         self.name = name
 
         # list of legal attribute names for the layer
+        attributes = tuple(attributes)
         self.attributes = attributes
-        assert len(attributes) == len(set(attributes)), 'repetitive attribute name'
+        assert len(attributes) == len(set(attributes)), 'repetitive attribute name: ' + str(attributes)
 
         # the name of the parent layer.
         self.parent = parent
@@ -272,7 +269,13 @@ class Layer:
 
     @property
     def text(self):
-        return [span.text for span in self.span_list.spans]
+        result = []
+        for span in self.span_list.spans:
+            if isinstance(span, EnvelopingSpan):
+                result.extend(span.text)
+            else:
+                result.append(span.text)
+        return result
 
     @property
     def enclosing_text(self):
@@ -304,7 +307,7 @@ class Layer:
                 tmpspans = []
                 for record_line in records:
                     if record_line is not None:
-                        spns = SpanList(layer=self, ambiguous=False)
+                        spns = AmbiguousSpan(layer=self)
                         spns.spans = [Span(**{**record, **{'layer': self}}, legal_attributes=self.attributes)
                                       for record in record_line]
                         tmpspans.append(spns)
@@ -368,7 +371,11 @@ class Layer:
             span = EnvelopingSpan(spans=span.spans)
         for attr in self.attributes:
             try:
-                span.__getattribute__(attr)
+                if isinstance(span, EnvelopingSpan):
+                    if attr not in span._attributes:
+                        raise AttributeError
+                else:
+                    span.__getattribute__(attr)
             except AttributeError:
                 setattr(span, attr, self.default_values[attr])
         return self.span_list.add_span(span)
@@ -559,6 +566,9 @@ class Layer:
     def __repr__(self):
         return str(self)
 
+    def diff_spans(self, other: 'Layer'):
+        return sorted(set(self.span_list).symmetric_difference(other.span_list))
+
     def diff(self, other):
         if not isinstance(other, Layer):
             return 'Other is not a Layer.'
@@ -582,4 +592,4 @@ class Layer:
         return None
 
     def __eq__(self, other):
-        return not self.diff(other)
+        return self.diff(other) is None

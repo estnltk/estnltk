@@ -1,28 +1,22 @@
 import collections
 import itertools
-from typing import Union, MutableMapping, Tuple, Any
+from typing import Union, Any
 
 from estnltk import Span
 
 
 class AmbiguousSpan(collections.Sequence):
     def __init__(self,
-                 layer=None,
-                 ambiguous: bool = False) -> None:
+                 layer=None) -> None:
         self.spans = []
-        self.classes = {}  # type: MutableMapping[Tuple[int, int], SpanList]
 
         self._layer = layer
-        self.ambiguous = ambiguous
 
         # placeholder for ambiguous layer
         self.parent = None  # type:Union[Span, None]
 
         # placeholder for dependant layer
         self._base = None  # type:Union[Span, None]
-
-    def get_equivalence(self, span):
-        return self.classes.get((span.start, span.end), None)
 
     def get_attributes(self, items):
         r = []
@@ -69,7 +63,7 @@ class AmbiguousSpan(collections.Sequence):
 
     @property
     def text(self):
-        return [span.text for span in self.spans]
+        return self.spans[0].text
 
     @property
     def enclosing_text(self):
@@ -118,7 +112,6 @@ class AmbiguousSpan(collections.Sequence):
         res.layer = self.layer
 
         res.spans = wrapped
-        res.ambiguous = self.ambiguous
         res.parent = self.parent
 
         return res
@@ -127,17 +120,13 @@ class AmbiguousSpan(collections.Sequence):
         return (self.start, self.end) < (other.start, other.end)
 
     def __eq__(self, other: Any) -> bool:
-        return hash(self) == hash(other)
-        # try:
-        #    return (self.start, self.end) == (other.start, other.end)
-        # except AttributeError:
-        #    return False
+        return isinstance(other, AmbiguousSpan) and self.spans == other.spans
 
     def __le__(self, other: Any) -> bool:
         return self < other or self == other
 
     def __hash__(self):
-        return hash((tuple(self.spans), self.ambiguous, self.parent))
+        return hash((tuple(self.spans), self.parent))
 
     def __str__(self):
         return 'AS[{spans}]'.format(spans=', '.join(str(i) for i in self.spans))

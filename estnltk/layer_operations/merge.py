@@ -1,6 +1,5 @@
 from typing import Sequence
-from estnltk import Span, SpanList
-from estnltk.layer.layer import Layer
+from estnltk import Span, EnvelopingSpan, Layer
 
 
 def merge_layers(layers: Sequence[Layer],
@@ -13,13 +12,15 @@ def merge_layers(layers: Sequence[Layer],
     """
     parent = layers[0].parent
     enveloping = layers[0].enveloping
-    ambiguous = layers[0].ambiguous
+    #ambiguous = layers[0].ambiguous
+    ambiguous = any(layer.ambiguous for layer in layers)
+
     assert all(layer.parent == parent for layer in layers), \
         "some layers have parent, some don't: " + str({layer.name: layer.parent for layer in layers})
     assert all(layer.enveloping == enveloping for layer in layers), \
         'some layers are enveloping, some are not: ' + str({layer.name: layer.enveloping for layer in layers})
-    assert all(layer.ambiguous == ambiguous for layer in layers),\
-        'some layers are ambiguous, some are not: ' + str({layer.name: layer.ambiguous for layer in layers})
+    #assert all(layer.ambiguous == ambiguous for layer in layers),\
+    #    'some layers are ambiguous, some are not: ' + str({layer.name: layer.ambiguous for layer in layers})
 
     new_layer = Layer(
         name=output_layer,
@@ -31,15 +32,23 @@ def merge_layers(layers: Sequence[Layer],
 
     if enveloping:
         if ambiguous:
-            # TODO: merge ambiguous enveloping layers
-            raise NotImplemented('merge of ambiguous enveloping layers is not yet implemented')
+            for layer in layers:
+                layer_attributes = layer.attributes
+                none_attributes = [attr for attr in output_attributes if attr not in layer_attributes]
+                for span in iterate_spans(layer):
+                    new_span = EnvelopingSpan(spans=span, layer=new_layer)
+                    for attr in layer_attributes:
+                        setattr(new_span, attr, getattr(span, attr))
+                    for attr in none_attributes:
+                        setattr(new_span, attr, None)
+                    new_layer.add_span(new_span)
+        # TODO: remove else part, delete if ambiguous
         else:
             for layer in layers:
                 layer_attributes = layer.attributes
                 none_attributes = [attr for attr in output_attributes if attr not in layer_attributes]
                 for span in layer:
-                    new_span = SpanList()
-                    new_span.spans = span
+                    new_span = EnvelopingSpan(spans=span, layer=new_layer)
                     for attr in layer_attributes:
                         setattr(new_span, attr, getattr(span, attr))
                     for attr in none_attributes:
@@ -54,6 +63,9 @@ def merge_layers(layers: Sequence[Layer],
                 layer_attributes = layer.attributes
                 none_attributes = [attr for attr in output_attributes if attr not in layer_attributes]
                 for amb_span in layer:
+                    # TODO: think about this quick fix
+                    if isinstance(amb_span, Span):
+                        amb_span = [amb_span]
                     for span in amb_span:
                         new_span = Span(span.start, span.end, legal_attributes=output_attributes)
                         for attr in layer_attributes:
@@ -74,3 +86,11 @@ def merge_layers(layers: Sequence[Layer],
                     new_layer.add_span(new_span)
 
     return new_layer
+
+
+def iterate_spans(layer):
+    if layer.ambiguous:
+        for ambiguous_span in layer:
+            yield from ambiguous_span
+    else:
+        yield from layer

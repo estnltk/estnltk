@@ -6,8 +6,6 @@ import pandas
 
 from estnltk import Span
 from estnltk.layer_operations.consecutive import iterate_consecutive_spans
-from estnltk.layer_operations.consecutive import iterate_starting_spans
-from estnltk.layer_operations.consecutive import iterate_ending_spans
 
 
 class Node:
@@ -83,10 +81,6 @@ class PhonyNode(Node):
     def __eq__(self, other):
         return isinstance(other, PhonyNode) and self.name == other.name and\
                self.start == other.start and self.end == other.end
-
-
-START_NODE = PhonyNode('START', float('-inf'), float('-inf'))
-END_NODE = PhonyNode('END', float('inf'), float('inf'))
 
 
 class SpanNode(Node):
@@ -281,7 +275,7 @@ def get_spans(node):
     return [t.span for t in node.terminals]
 
 
-def layer_to_graph(layer, name_attribute='grammar_symbol', attributes=None):
+def layer_to_graph(layer, raw_text, name_attribute='grammar_symbol', attributes=None, gap_validator=None):
     if attributes is None:
         attributes = layer.attributes
     assert not attributes or set(attributes) <= set(layer.attributes)
@@ -290,34 +284,17 @@ def layer_to_graph(layer, name_attribute='grammar_symbol', attributes=None):
     spans = layer.span_list
 
     if layer.ambiguous:
-        for sp in iterate_starting_spans(spans):
-            names = {getattr(b, name_attribute) for b in sp}
-            for name in names:
-                graph.add_edge(START_NODE, TerminalNode(name, sp, attributes))
-        for sp in iterate_ending_spans(spans):
-            names = {getattr(b, name_attribute) for b in sp}
-            for name in names:
-                graph.add_edge(TerminalNode(name, sp, attributes), END_NODE)
-        for sp_1, sp_2 in iterate_consecutive_spans(spans):
+        for sp_1, sp_2 in iterate_consecutive_spans(spans, raw_text, gap_validator=gap_validator):
             names_1 = {getattr(b, name_attribute) for b in sp_1}
             names_2 = {getattr(b, name_attribute) for b in sp_2}
             for name_1 in names_1:
                 for name_2 in names_2:
                     graph.add_edge(TerminalNode(name_1, sp_1, attributes), TerminalNode(name_2, sp_2, attributes))
     else:
-        for b in iterate_starting_spans(spans):
-            name = getattr(b, name_attribute)
-            graph.add_edge(START_NODE, TerminalNode(name, b, attributes))
-        for a in iterate_ending_spans(spans):
-            name = getattr(a, name_attribute)
-            graph.add_edge(TerminalNode(name, a, attributes), END_NODE)
-        for a, b in iterate_consecutive_spans(spans):
+        for a, b in iterate_consecutive_spans(spans, raw_text, gap_validator=gap_validator):
             name_a = getattr(a, name_attribute)
             name_b = getattr(b, name_attribute)
             graph.add_edge(TerminalNode(name_a, a, attributes), TerminalNode(name_b, b, attributes))
-
-    if not spans:
-        graph.add_edge(START_NODE, END_NODE)
 
     return graph
 
