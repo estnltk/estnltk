@@ -160,7 +160,7 @@ class NonTerminalNode(GrammarNode):
         super().__init__(rule.lhs, support, group=rule.group, priority=rule.priority, score=score)
 
 
-class PlusNode(GrammarNode):
+class PlusNode(NonTerminalNode):
     def __init__(self, rule, support: Sequence[GrammarNode]):
         new_support = []
         # maybe too general, but let it be
@@ -170,7 +170,12 @@ class PlusNode(GrammarNode):
             else:
                 new_support.append(node)
         new_support = tuple(new_support)
-        super().__init__(rule.lhs, new_support, group=rule.group, priority=rule.priority)
+        # super().__init__(rule.lhs, new_support, group=rule.group, priority=rule.priority)
+        super().__init__(rule, new_support)
+
+
+class MSeqNode(PlusNode):
+    pass
 
 
 class LayerGraph(nx.DiGraph):
