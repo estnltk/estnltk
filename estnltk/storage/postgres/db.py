@@ -12,6 +12,7 @@ from psycopg2.sql import SQL, Identifier
 from estnltk.converters.dict_importer import dict_to_layer
 from estnltk.converters.dict_exporter import layer_to_dict
 from estnltk.converters import dict_to_text, text_to_json
+from estnltk.layer_operations import ngram_fingerprint_index
 from .query import Query
 
 log = logging.getLogger(__name__)
@@ -119,8 +120,8 @@ class PgCollection:
                     layer_dict = layer_to_dict(layer, text)
                     ngram_index_col_values = None
                     if ngram_index is not None:
-                        ngram_index_col_values = [build_all_ngrams(getattr(layer, attribute),
-                                                                   ngram_index[attribute])
+                        ngram_index_col_values = [ngram_fingerprint_index(layer, attribute,
+                                                                          ngram_index[attribute])
                                                   for attribute in ngram_index_cols]
                     self.storage.insert_layer_row(layer_table, layer_dict, key, ngram_index_col_values)
             except:
@@ -582,21 +583,3 @@ class JsonbLayerQuery(Query):
         else:
             pat = """%s.data @> '{"spans": [%s]}'"""
         return pat % (self.layer_table, json.dumps(self.kwargs))
-
-
-def build_ngrams(unigrams, n, sep='-'):
-    ngrams = set()
-    is_ambiguous = len(unigrams) > 0 and not isinstance(unigrams[0], str)
-    for i in range(n, len(unigrams) + 1):
-        slice = unigrams[i - n: i]
-        if is_ambiguous:
-            items = [sep.join(seq) for seq in product(*slice)]
-            ngrams.update(items)
-        else:
-            item = sep.join(slice)
-            ngrams.add(item)
-    return list(ngrams)
-
-
-def build_all_ngrams(unigrams, n, sep='-'):
-    return list(chain(*[build_ngrams(unigrams, i, sep) for i in range(1, n + 1)]))
