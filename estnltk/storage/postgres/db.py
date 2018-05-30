@@ -3,16 +3,16 @@ import json
 import logging
 import operator as op
 from functools import reduce
-from itertools import chain, product
+from itertools import chain
 
 import psycopg2
 from psycopg2.extensions import STATUS_BEGIN
-from psycopg2.sql import SQL, Identifier
+from psycopg2.sql import SQL, Identifier, Literal
 
 from estnltk.converters.dict_importer import dict_to_layer
 from estnltk.converters.dict_exporter import layer_to_dict
 from estnltk.converters import dict_to_text, text_to_json
-from estnltk.layer_operations import ngram_fingerprint_index
+from estnltk.layer_operations import create_ngram_fingerprint_index
 from .query import Query
 
 log = logging.getLogger(__name__)
@@ -29,9 +29,9 @@ class PgCollection:
         self.table_name = name
         self.storage = storage
 
-    def create(self):
+    def create(self, description=None):
         """Creates a database table for the collection"""
-        return self.storage.create_table(self.table_name)
+        return self.storage.create_table(self.table_name, description)
 
     def insert(self, text, key=None):
         """Inserts text object as a table row with a given key"""
@@ -95,6 +95,9 @@ class PgCollection:
                 q = SQL("CREATE TABLE {}.{} (id serial PRIMARY KEY, data jsonb %s)" % ngram_cols_sql).format(
                     Identifier(self.storage.schema), Identifier(layer_table))
                 c.execute(q)
+                q = SQL("COMMENT ON TABLE {}.{} IS {}").format(
+                    Identifier(self.storage.schema), Identifier(layer_table), Literal(self.table_name + ' ' + layer_name + ' layer'))
+                c.execute(q)
 
                 # create jsonb index
                 if create_index is True:
@@ -120,8 +123,8 @@ class PgCollection:
                     layer_dict = layer_to_dict(layer, text)
                     ngram_index_col_values = None
                     if ngram_index is not None:
-                        ngram_index_col_values = [ngram_fingerprint_index(layer, attribute,
-                                                                          ngram_index[attribute])
+                        ngram_index_col_values = [create_ngram_fingerprint_index(layer, attribute,
+                                                                                 ngram_index[attribute])
                                                   for attribute in ngram_index_cols]
                     self.storage.insert_layer_row(layer_table, layer_dict, key, ngram_index_col_values)
             except:
@@ -203,7 +206,7 @@ class PostgresStorage:
         with self.conn.cursor() as c:
             c.execute(SQL("DROP SCHEMA {} CASCADE;").format(Identifier(self.schema)))
 
-    def create_table(self, table):
+    def create_table(self, table, description=None):
         """Creates a new table to store jsonb data:
 
             CREATE TABLE table(
@@ -225,6 +228,9 @@ class PostgresStorage:
                         index=Identifier('idx_%s_data' % table),
                         schema=Identifier(self.schema),
                         table=Identifier(table)))
+                if isinstance(description, str):
+                    c.execute(SQL("COMMENT ON TABLE {}.{} IS {}").format(
+                        Identifier(self.schema), Identifier(table), Literal(description)))
             except:
                 self.conn.rollback()
                 raise
