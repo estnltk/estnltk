@@ -48,15 +48,16 @@ def test_grammar_phrase_ngrams():
     grammar.add(Rule('A', 'B F'))
     grammar.add(Rule('B', 'G'))
     grammar.add(Rule('S', 'K L M N'))
-    assert [{'C'},
-            {'C-C'},
-            {'C-F'},
-            {'C-G'},
-            {'G'},
-            {'G-C'},
-            {'G-F'},
-            {'G-G'},
-            {'K-L', 'L-M', 'M-N'}] == ngram_fingerprint(2, grammar, depth_limit=None, width_limit=None, expand_seq=2)
+
+    assert [[('C',)],
+            [('C', 'C')],
+            [('C', 'F')],
+            [('C', 'G')],
+            [('G',)],
+            [('G', 'C')],
+            [('G', 'F')],
+            [('G', 'G')],
+            [('K', 'L'), ('L', 'M'), ('M', 'N')]] == ngram_fingerprint(2, grammar, depth_limit=None, width_limit=None, expand_seq=2)
 
     grammar = Grammar(start_symbols=['S'],
                       rules=None,
@@ -76,4 +77,8 @@ def test_grammar_phrase_ngrams():
                                width_limit=4,
                                expand_seq=None
                                )
-    assert [{'I-G'}, {'K'}, {'B-C', 'C-B'}, {'B-F', 'F-B'}, {'F-G', 'G-H'}] == result
+    assert result == [[('I', 'G')],
+                      [('K',)],
+                      [('B', 'C'), ('C', 'B')],
+                      [('B', 'F'), ('F', 'B')],
+                      [('F', 'G'), ('G', 'H')]]
