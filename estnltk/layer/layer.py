@@ -28,9 +28,6 @@ class SpanList(collections.Sequence):
         # placeholder for dependant layer
         self._base = None  # type:Union[Span, None]
 
-    def get_equivalence(self, span):
-        return self.classes.get(hash(span), None)
-
     def get_attributes(self, items):
         r = []
         for x in zip(*[[i
@@ -52,29 +49,6 @@ class SpanList(collections.Sequence):
 
     def to_record(self, with_text=False):
         return [i.to_record(with_text) for i in self.spans]
-
-    def add_span(self, span: Union[Span, EnvelopingSpan]) -> Span:
-        # the assumption is that this method is called by Layer.add_span
-        assert isinstance(span, (EnvelopingSpan, Span)), str(type(span))
-        span.layer = self.layer
-        target = self.get_equivalence(span)
-        if self.ambiguous:
-            if target is None:
-                new = AmbiguousSpan(layer=self.layer)
-                new.add_span(span)
-                self.classes[hash(span)] = new
-                bisect.insort(self.spans, new)
-                new.parent = span.parent
-            else:
-                assert isinstance(target, AmbiguousSpan)
-                target.add_span(span)
-        else:
-            if target is None:
-                bisect.insort(self.spans, span)
-                self.classes[hash(span)] = span
-            else:
-                raise ValueError('span is already in spanlist: ' + str(span))
-        return span
 
     @property
     def layer(self):
@@ -364,7 +338,7 @@ class Layer:
 
         return records
 
-    def add_span(self, span: Union[Span, EnvelopingSpan]) -> Span:
+    def add_span(self, span: Union[Span, EnvelopingSpan], attributes=None) -> Span:
         assert not self.is_frozen, "can't add spans to frozen layer"
         assert isinstance(span, (EnvelopingSpan, Span, Layer)), str(type(span))
         if isinstance(span, Layer):
@@ -378,7 +352,26 @@ class Layer:
                     span.__getattribute__(attr)
             except AttributeError:
                 setattr(span, attr, self.default_values[attr])
-        return self.span_list.add_span(span)
+
+        span.layer = self
+        target = self.span_list.classes.get(hash(span), None)
+        if self.ambiguous:
+            if target is None:
+                new = AmbiguousSpan(layer=self.layer)
+                new.add_span(span, attributes)
+                self.span_list.classes[hash(span)] = new
+                bisect.insort(self.span_list.spans, new)
+                new.parent = span.parent
+            else:
+                assert isinstance(target, AmbiguousSpan)
+                target.add_span(span)
+        else:
+            if target is None:
+                bisect.insort(self.span_list.spans, span)
+                self.span_list.classes[hash(span)] = span
+            else:
+                raise ValueError('span is already in spanlist: ' + str(span))
+        return span
 
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
         assert 'name' in kwargs.keys(), '"name" must currently be an argument to layer'

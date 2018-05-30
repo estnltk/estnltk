@@ -15,3 +15,4 @@ from .splitting import split_by
 from .splitting import split_by_sentences
 from .rebase import rebase
 from .flatten import flatten
+from .layer_indexing import create_ngram_fingerprint_index

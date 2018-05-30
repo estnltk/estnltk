@@ -65,7 +65,7 @@ def ngram_fingerprint(n: int, grammar: Grammar, depth_limit=None, width_limit=No
         ngrams = set()
         m = min(n, len(phrase))
         for i in range(len(phrase) - m + 1):
-            ngrams.add('-'.join(phrase[i: i + m]))
+            ngrams.add(phrase[i: i + m])
         to_remove = []
         add = True
         for ng in ngrams_set:
@@ -77,5 +77,5 @@ def ngram_fingerprint(n: int, grammar: Grammar, depth_limit=None, width_limit=No
         if add:
             ngrams_set.add(frozenset(ngrams))
         ngrams_set.difference_update(to_remove)
-    # tuple(sorted(x)) in the following is only needed for determined output
-    return sorted(map(set, ngrams_set), key=lambda x: (len(x), tuple(sorted(x))))
+    # `sorted` in the following is only needed for determined output
+    return sorted(map(sorted, ngrams_set), key=lambda x: (len(x), tuple(sorted(x))))
