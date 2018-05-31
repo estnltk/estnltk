@@ -458,6 +458,35 @@ class TestLayer(unittest.TestCase):
 
         col.delete()
 
+    def test_layer_write_meta(self):
+        table_name = get_random_table_name()
+        col = self.storage.get_collection(table_name)
+        col.create()
+
+        text1 = Text('see on esimene lause').tag_layer(["sentences"])
+        col.insert(text1)
+        text2 = Text('see on teine lause').tag_layer(["sentences"])
+        col.insert(text2)
+
+        layer = "layer"
+
+        def row_mapper(text):
+            layer = tagger.tag(text, return_layer=True)
+            meta = "meta"
+            return layer, meta
+
+        tagger = VabamorfTagger(disambiguate=False, layer_name=layer)
+        col.create_layer(layer, create_meta_column=True, callable=row_mapper)
+        tagger.tag(text1)
+        tagger.tag(text2)
+
+        rows = list(col.select(layers=[layer]))
+        text1_db = rows[0][1]
+        self.assertTrue(layer in text1_db.layers)
+        self.assertEqual(text1_db[layer].lemma, text1[layer].lemma)
+
+        col.delete()
+
 
 if __name__ == '__main__':
     unittest.main()

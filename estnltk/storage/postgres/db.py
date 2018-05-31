@@ -56,7 +56,8 @@ class PgCollection:
     def layer_name_to_table_name(self, layer_name):
         return self.storage.layer_name_to_table_name(self.table_name, layer_name)
 
-    def create_layer(self, layer_name, callable, layers=None, create_index=False, ngram_index=None):
+    def create_layer(self, layer_name, callable, layers=None, create_meta_column=False, create_index=False,
+                     ngram_index=None):
         """
         Creates a new layer in a separate table and links it with the current collection.
 
@@ -64,8 +65,16 @@ class PgCollection:
             layer_name:
             callable: callable
                 A function to be applied to each `text` entry in a collection.
+                if `create_meta_column` is False,
+                    the function should return one `layer` object.
+                if `create_meta_column` is True,
+                    the function should return a tuple of two elements:
+                    a `layer` object and related metadata. Metadata will be stored
+                    in a column `meta` in json format.
             layers: list of str
                 The specified layers will be fetched and merged with the text object before passing it to `callable`.
+            create_meta_column: bool
+                Whether to create an additional column of a type json.
             create_index: bool
                 Whether to create a gin index for a jsonb column.
             ngramm_index: dict: layer-attribute -> ngramm-length
@@ -90,9 +99,13 @@ class PgCollection:
                                                         for column in ngram_index])
                 else:
                     ngram_cols_sql = ""
+                if create_meta_column is True:
+                    meta_col_sql = ", meta json"
+                else:
+                    meta_col_sql = ""
                 # create layer table and index
-                q = SQL("CREATE TABLE {}.{} (id serial PRIMARY KEY, data jsonb %s)" % ngram_cols_sql).format(
-                    Identifier(self.storage.schema), Identifier(layer_table))
+                q = "CREATE TABLE {}.{} (id serial PRIMARY KEY, data jsonb %s %s)" % (meta_col_sql, ngram_cols_sql)
+                q = SQL(q).format(Identifier(self.storage.schema), Identifier(layer_table))
                 c.execute(q)
 
                 # create jsonb index
@@ -115,14 +128,20 @@ class PgCollection:
 
                 # insert data
                 for key, text in self.select(layers=layers):
-                    layer = callable(text)
+                    if create_meta_column is True:
+                        layer, meta = callable(text)
+                    else:
+                        layer = callable(text)
+                        meta = None
                     layer_dict = layer_to_dict(layer, text)
                     ngram_index_col_values = None
                     if ngram_index is not None:
                         ngram_index_col_values = [build_all_ngrams(getattr(layer, attribute),
                                                                    ngram_index[attribute])
                                                   for attribute in ngram_index_cols]
-                    self.storage.insert_layer_row(layer_table, layer_dict, key, ngram_index_col_values)
+                    self.storage.insert_layer_row(layer_table, layer_dict, key,
+                                                  meta=meta,
+                                                  ngram_values=ngram_index_col_values)
             except:
                 conn.rollback()
                 raise
@@ -256,13 +275,19 @@ class PostgresStorage:
         with self.conn.cursor() as c:
             c.execute(SQL("DROP TABLE IF EXISTS {}.{}").format(Identifier(self.schema), Identifier(table)))
 
-    def insert_layer_row(self, layer_table, layer_dict, key, ngram_values=None):
+    def insert_layer_row(self, layer_table, layer_dict, key, meta=None, ngram_values=None):
         layer_json = json.dumps(layer_dict, ensure_ascii=False)
         ngram_values = ngram_values or []
         with self.conn.cursor() as c:
-            sql = "INSERT INTO {}.{} VALUES (%s) RETURNING id;" % ", ".join(['%s'] * (2 + len(ngram_values)))
-            c.execute(SQL(sql).format(Identifier(self.schema), Identifier(layer_table)),
-                      (key, layer_json, *ngram_values))
+            if meta is None:
+                sql = "INSERT INTO {}.{} VALUES (%s) RETURNING id;" % ", ".join(['%s'] * (2 + len(ngram_values)))
+                c.execute(SQL(sql).format(Identifier(self.schema), Identifier(layer_table)),
+                          (key, layer_json, *ngram_values))
+            else:
+                meta_json = json.dumps(meta, ensure_ascii=False)
+                sql = "INSERT INTO {}.{} VALUES (%s) RETURNING id;" % ", ".join(['%s'] * (3 + len(ngram_values)))
+                c.execute(SQL(sql).format(Identifier(self.schema), Identifier(layer_table)),
+                          (key, layer_json, meta_json, *ngram_values))
             row_key = c.fetchone()[0]
             return row_key
 
