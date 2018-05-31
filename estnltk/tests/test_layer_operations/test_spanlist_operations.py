@@ -19,7 +19,7 @@ def test_iterate_hovering_spans_in_spanlist_1():
     text = 'A B C D'
     
     # Create a SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=1))   # A
     spanlist.add_span(Span(start=2, end=3))   # B
     spanlist.add_span(Span(start=4, end=5))   # C
@@ -38,7 +38,7 @@ def test_iterate_hovering_spans_in_spanlist_2():
     text = 'üks kaks kolmneli viiskuus seitse'
 
     # Create a SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=3))    # üks
     spanlist.add_span(Span(start=4, end=8))    # kaks
     spanlist.add_span(Span(start=9, end=13))   # kolm
@@ -60,7 +60,7 @@ def test_iterate_hovering_spans_in_spanlist_with_min_gap():
     text = 'A  B C  D E'
     
     # Create a SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=1))     # A
     spanlist.add_span(Span(start=3, end=4))     # B
     spanlist.add_span(Span(start=5, end=6))     # C
@@ -82,7 +82,7 @@ def test_iterate_consecutive_spans_in_spanlist():
     text = 'üks kaks kolmneli viis'
 
     # Test on SpanList
-    spanlist = SpanList(ambiguous=True)
+    spanlist = Layer('layer_1', ambiguous=True)
     spanlist.add_span(Span(start=0, end=3))    # üks
     spanlist.add_span(Span(start=4, end=8))    # kaks
     spanlist.add_span(Span(start=9, end=13))   # kolm
@@ -123,7 +123,7 @@ def test_iterate_consecutive_spans_in_spanlist_with_max_gap():
     text = 'A  B    CD  E    F'
 
     # Test on SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=1))    # A
     spanlist.add_span(Span(start=3, end=4))    # B
     spanlist.add_span(Span(start=8, end=9))    # C
@@ -149,7 +149,7 @@ def test_iterate_consecutive_spans_in_spanlist_with_gap_validator():
     text = 'A  B    CD  E    F'
 
     # Test on SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=1))    # A
     spanlist.add_span(Span(start=3, end=4))    # B
     spanlist.add_span(Span(start=8, end=9))    # C
@@ -190,7 +190,7 @@ def test_iterate_touching_spans_in_spanlist_1():
     text = 'AB'
     
     # Create a SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span( Span(start=0, end=1) )  # A
     spanlist.add_span( Span(start=1, end=2) )  # B
     spanlist.add_span( Span(start=0, end=2) )  # AB
@@ -212,7 +212,7 @@ def test_iterate_touching_spans_in_spanlist_2():
     #t.tag_layer(['words'])
     
     # Create a SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=3))   # üks
     spanlist.add_span(Span(start=4, end=8))   # kaks 
     spanlist.add_span(Span(start=9, end=13))  # kolm
@@ -235,7 +235,7 @@ def test_iterate_touching_spans_in_spanlist_3():
     text = 'üks kaks kolmneli viis'
     
     # Create a SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=3))   # üks
     spanlist.add_span(Span(start=4, end=8))   # kaks 
     spanlist.add_span(Span(start=9, end=13))  # kolm
@@ -260,7 +260,7 @@ def test_iterate_terminal_spans():
     s3 = Span(5,  7)
     s5 = Span(8,  9)
 
-    span_list = SpanList()
+    span_list = Layer('layer_1')
     assert tuple(iterate_starting_spans(span_list)) == ()
     assert tuple(iterate_ending_spans(span_list)) == ()
 
@@ -285,7 +285,7 @@ def test_yield_spanlist_intersections():
     text = 'üks kaks kolmneli viiskuus seitse'
     
     # Test on SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=3))   # üks
     spanlist.add_span(Span(start=4, end=8))   # kaks 
     spanlist.add_span(Span(start=9, end=13))  # kolm
@@ -313,7 +313,7 @@ def test_yield_no_spanlist_intersections():
     text = 'üks kaks'
     
     # Test items
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=3))  # üks
     spanlist.add_span(Span(start=4, end=8))  # kaks 
     
@@ -359,7 +359,7 @@ def test_yield_spanlist_nested_positions():
     text = 'A B CD EF G'
     
     # Create SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=1))    # A
     spanlist.add_span(Span(start=2, end=3))    # B
     spanlist.add_span(Span(start=4, end=5))    # C
@@ -385,7 +385,7 @@ def test_yield_spanlist_overlapping_positions():
     text = 'A B CD EF G'
     
     # Create SpanList
-    spanlist = SpanList()
+    spanlist = Layer('layer_1')
     spanlist.add_span(Span(start=0, end=1))    # A
     spanlist.add_span(Span(start=2, end=3))    # B
     spanlist.add_span(Span(start=4, end=5))    # C

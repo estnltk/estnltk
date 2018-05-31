@@ -1,8 +1,8 @@
+import itertools
 from typing import Sequence
-from collections import defaultdict
 
 from estnltk.finite_grammar import Grammar
-from estnltk.finite_grammar.layer_graph import LayerGraph, GrammarNode, NonTerminalNode, PlusNode
+from estnltk.finite_grammar.layer_graph import LayerGraph, NonTerminalNode, PlusNode, MSeqNode
 
 
 def get_match_up(graph, nodes, names, pos):
@@ -29,7 +29,7 @@ def get_match(graph: LayerGraph, node: NonTerminalNode, names: Sequence[str], po
         s[pos] == node and [node.name for node in s]==names.
     """
     # generator of all preceding sequences of the node (that also include the node)
-    match_up = get_match_up(graph, [node], names, pos)
+    match_up = list(get_match_up(graph, [node], names, pos))
     # all succeeding sequences of the node (that also include the node)
     # this is stored as a list since we may iterate over it several times
     match_down = list(get_match_down(graph, [node], names, pos))
@@ -37,12 +37,12 @@ def get_match(graph: LayerGraph, node: NonTerminalNode, names: Sequence[str], po
     yield from (mu[:0:-1]+md for mu in match_up for md in match_down)
 
 
-def add_nodes(graph: LayerGraph,
-              nodes_to_add,
-              resolve_support_conflicts: bool,
-              resolve_start_end_conflicts: bool,
-              resolve_terminals_conflicts: bool):
-    """Add nodes to the graph and resolve the conflicts.
+def add_node(graph: LayerGraph,
+             node,
+             resolve_support_conflicts: bool,
+             resolve_start_end_conflicts: bool,
+             resolve_terminals_conflicts: bool):
+    """Try and add the node to the graph and resolve the conflicts.
 
     resolve_support_conflicts
         Two nodes are in 'support' conflict if they have intersecting supports and the same group but different
@@ -55,43 +55,48 @@ def add_nodes(graph: LayerGraph,
         The node with the higher score value is kept.
         If resolve_terminals_conflicts is True, then the value of resolve_start_end_conflicts has no effect.
     For equal scores/priorities both nodes are kept.
+    Returns: bool
+        True, if the node is added to the graph
+        False, if the node is already in the graph or it can not be added due to the conflicts
     """
-    added_nodes = set()
-    for node, predecessors, successors in nodes_to_add:
-        if node in graph:
-            continue
-        add_node = True
-        nodes_to_remove = set()
+    if node in graph:
+        return False
+    nodes_to_remove = set()
 
+    if isinstance(node, NonTerminalNode) and not isinstance(node, PlusNode):
         if resolve_support_conflicts:
             for fellow in {p for s in node.support for p in graph.parse_trees.pred[s]}:
                 if node.group == fellow.group:
                     if fellow.priority < node.priority:
-                        add_node = False
-                        break
+                        return False
                     elif node.priority < fellow.priority:
                         nodes_to_remove.add(fellow)
 
-        if add_node and (resolve_start_end_conflicts or resolve_terminals_conflicts):
+        if resolve_start_end_conflicts or resolve_terminals_conflicts:
             for n in graph.map_start_end_to_nodes[(node.start, node.end)]:
-                if isinstance(n, GrammarNode) and n.name == node.name:
+                if n.name == node.name:
                     if resolve_start_end_conflicts or n.terminals == node.terminals:
                         if n.score > node.score:
-                            add_node = False
-                            break
+                            return False
                         elif n.score < node.score:
                             nodes_to_remove.add(n)
-        if add_node:
-            added_nodes.add(node)
-            added_nodes -= nodes_to_remove
-            graph.remove_nodes_from(nodes_to_remove)
+    if isinstance(node, MSeqNode):
+        supp = set(node.support)
+        for fellow in {p for s in node.support for p in graph.parse_trees.pred[s]}:
+            if isinstance(fellow, MSeqNode):
+                if set(fellow.support) < supp:
+                    nodes_to_remove.add(fellow)
+                elif set(fellow.support) >= supp:
+                    return False
 
-            graph.add_node(node)
-            for pred in predecessors:
-                graph.add_edge(pred, node)
-            for succ in successors:
-                graph.add_edge(node, succ)
-    return added_nodes
+    graph.remove_nodes_from(nodes_to_remove)
+
+    graph.add_node(node)
+    for pred in graph.pred[node.support[0]]:
+        graph.add_edge(pred, node)
+    for succ in graph.succ[node.support[-1]]:
+        graph.add_edge(node, succ)
+    return True
 
 
 def parse_graph(graph: LayerGraph,
@@ -112,110 +117,64 @@ def parse_graph(graph: LayerGraph,
         width_limit = grammar.width_limit
     rule_map = grammar.rule_map
     hidden_rule_map = grammar.hidden_rule_map
+    mseq_rule_map = grammar.mseq_rule_map
 
     worklist = None
     if depth_limit > 0:
-        worklist = [(n, 0) for n in sorted(graph, reverse=True) if n.name in set(rule_map)|set(hidden_rule_map)]
+        names_to_parse = set(rule_map) | set(hidden_rule_map) | set(mseq_rule_map)
+        worklist = [(n, 0) for n in sorted(graph, reverse=True) if n.name in names_to_parse]
 
     while worklist:
         if debug:
-            print()
+            print(100*'-')
             print('worklist:', [(n.name, d) for n, d in worklist])
         node, d = worklist.pop()
         assert node in graph, 'Node in worklist, but not in graph. This should not happen.'
-        # expand fragment
-        nodes_to_add = []
-        for rule, pos in rule_map[node.name]:
+
+        nodes_1 = _expand_fragment(node, graph, grammar, rule_map, width_limit, NonTerminalNode, ignore_validators, debug)
+        nodes_2 = _expand_fragment(node, graph, grammar, hidden_rule_map, width_limit, PlusNode, True, debug)
+        nodes_3 = _expand_fragment(node, graph, grammar, mseq_rule_map, width_limit, MSeqNode, True, debug)
+
+        for node in itertools.chain(nodes_1, nodes_2, nodes_3):
+            node_added = add_node(graph,
+                                  node,
+                                  resolve_support_conflicts,
+                                  resolve_start_end_conflicts,
+                                  resolve_terminals_conflicts)
+            if node_added and d < depth_limit and node.name in set(rule_map)|set(hidden_rule_map):
+                worklist.append((node, d+1))
+    return graph
+
+
+def _expand_fragment(node, graph, grammar, rule_map, width_limit, node_class, ignore_validators, debug):
+    for rule, pos in rule_map.get(node.name, []):
+        if debug:
+            print()
+            print('rule:', rule)
+            no_match = True
+        for support in get_match(graph, node, rule.rhs, pos):
+            support = tuple(support)
             if debug:
-                print('rule:', rule)
-                no_match = True
-            for support in get_match(graph, node, rule.rhs, pos):
-                support = tuple(support)
-                if debug:
-                    no_match = False
-                    print('match:', support)
-                assert all((support[i], support[i+1]) in graph.edges for i in range(len(support) - 1))
-                if ignore_validators or rule.validator(support):
-                    new_node = NonTerminalNode(rule, support)
-                    if len(new_node.terminals) <= width_limit:
-                        node_attributes = rule.decorator(support)
-                        assert not (set(node_attributes) - grammar.legal_attributes),\
-                            'illegal attributes in decorator output: ' + str(set(node_attributes) - grammar.legal_attributes)
-                        new_node.attributes = node_attributes
-
-                        nodes_to_add.append((new_node,
-                                             list(graph.pred[support[0]]),
-                                             list(graph.succ[support[-1]]),
-                                             ))
-                        if debug:
-                            print('new node:')
-                            new_node.print()
-                elif debug:
-                    print('validator returned False')
-            if debug and no_match:
-                print('no match')
-
-        # expand with hidden rules
-        for rule, pos in hidden_rule_map.get(node.name, []):
-            if debug:
-                print('rule:', rule)
-                no_match = True
-            for support in get_match(graph, node, rule.rhs, pos):
-                support = tuple(support)
-                if debug:
-                    no_match = False
-
-                assert all((support[i], support[i + 1]) in graph.edges for i in range(len(support) - 1))
-                new_node = PlusNode(rule, support)
-                if len(new_node.terminals) < width_limit:
+                no_match = False
+                print('match:', support)
+            assert all((support[i], support[i + 1]) in graph.edges for i in range(len(support) - 1))
+            if ignore_validators or rule.validator(support):
+                new_node = node_class(rule, support)
+                if len(new_node.terminals) <= width_limit:
                     node_attributes = rule.decorator(support)
                     assert not (set(node_attributes) - grammar.legal_attributes), \
-                        'illegal attributes in decorator output: ' + str(set(node_attributes) - grammar.legal_attributes)
-                    new_node.decoration = node_attributes
-
-                    nodes_to_add.append((new_node,
-                                         list(graph.pred[support[0]]),
-                                         list(graph.succ[support[-1]]),
-                                         ))
+                        'illegal attributes in decorator output: ' + str(
+                            set(node_attributes) - grammar.legal_attributes)
+                    new_node.attributes = node_attributes
                     if debug:
                         print('new node:')
                         new_node.print()
-            if debug and no_match:
-                print('no match')
 
-        added_nodes = add_nodes(graph,
-                                nodes_to_add,
-                                resolve_support_conflicts,
-                                resolve_start_end_conflicts,
-                                resolve_terminals_conflicts)
-        if d < depth_limit:
-            for node in added_nodes:
-                if node.name in set(rule_map)|set(hidden_rule_map):
-                    worklist.append((node, d+1))
-    return graph
-
-
-def _resolve_conflicts(graph, node_names):
-    start_symbols = set(node_names)
-    terminals_to_nodes = defaultdict(set)
-    for node in graph:
-        if node.name in start_symbols:
-            for terminal in node.terminals:
-                terminals_to_nodes[(terminal, node.group)].add(node)
-
-    conflicting = {}
-    for nodes in terminals_to_nodes.values():
-        if len(nodes) > 1:
-            for node in nodes:
-                conflicting[node] = {n for n in nodes if n.priority > node.priority}
-    nodes_to_remove = set()
-    for node in sorted(conflicting, key=lambda n: n.priority):
-        if node not in nodes_to_remove:
-            nodes_to_remove.update(conflicting[node])
-
-    graph.remove_nodes_from(nodes_to_remove)
-
-    return graph
+                    yield new_node
+            elif debug:
+                print('validator returned False')
+        if debug and no_match:
+            print('no match')
 
 
 def debug_rule(graph, rule, max_depth: int=float('inf')):

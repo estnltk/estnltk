@@ -11,9 +11,15 @@ def contains_parenthesis(s: str) -> bool:
 
 
 def match_SEQ_pattern(s: str) -> Union[str, None]:
-    m = re.compile('(SEQ|REP)\((.*)\)$').match(s)
+    m = re.compile('SEQ\((.*)\)$').match(s)
     if m is not None:
-        return m.group(2)
+        return m.group(1)
+
+
+def match_mseq_pattern(s: str) -> Union[str, None]:
+    m = re.compile('MSEQ\((.*)\)$').match(s)
+    if m is not None:
+        return m.group(1)
 
 
 class Grammar:
@@ -67,6 +73,11 @@ class Grammar:
         self._setup_grammar()
         return self._hidden_rule_map
 
+    @property
+    def mseq_rule_map(self):
+        self._setup_grammar()
+        return self._mseq_rule_map
+
     def has_finite_max_depth(self):
         """
         Returns True, if the maximal possible height of the parse tree is finite even on an infinite text.
@@ -101,18 +112,28 @@ class Grammar:
     def _rule_maps(self):
         self._rule_map = defaultdict(list)
         self._plus_symbols = set()
+        self._mseq_symbols = set()
         for rule in self._rules:
             for pos, rhs in enumerate(rule.rhs):
                 self._rule_map[rhs].append((rule, pos))
-                m = match_SEQ_pattern(rhs)
-                if m is not None:
-                    self._plus_symbols.add((rhs, m))
+                seq = match_SEQ_pattern(rhs)
+                mseq = match_mseq_pattern(rhs)
+                if seq is not None:
+                    self._plus_symbols.add((rhs, seq))
+                elif mseq is not None:
+                    self._mseq_symbols.add((rhs, mseq))
 
         self._hidden_rule_map = {}
         for ps, s in self._plus_symbols:
             self._hidden_rule_map[ps] = [(Rule(ps, (ps, ps)), 0),
                                          (Rule(ps, (ps, ps)), 1)]
             self._hidden_rule_map[s] = [(Rule(ps, s), 0)]
+
+        self._mseq_rule_map = {}
+        for ps, s in self._mseq_symbols:
+            self._mseq_rule_map[ps] = [(Rule(ps, (ps, ps)), 0),
+                                       (Rule(ps, (ps, ps)), 1)]
+            self._mseq_rule_map[s] = [(Rule(ps, s), 0)]
 
     def _setup_grammar(self):
         if self._setup:
@@ -126,6 +147,10 @@ class Grammar:
 
     def add(self, rule):
         self._rules.append(rule)
+        self._setup = False
+
+    def add_rule(self, *args, **kwargs):
+        self._rules.append(Rule(*args, **kwargs))
         self._setup = False
 
     def __getitem__(self, key):
@@ -178,14 +203,16 @@ class Rule:
                  validator=None,
                  scoring=None
                  ):
-        assert not contains_parenthesis(lhs) or match_SEQ_pattern(lhs), 'parenthesis not allowed: ' + lhs
+        assert not contains_parenthesis(lhs) or match_SEQ_pattern(lhs) or match_mseq_pattern(lhs),\
+            'parenthesis not allowed: ' + lhs
         self.lhs = lhs
         if isinstance(rhs, str):
             rhs = rhs.split()
         for r in rhs:
             assert isinstance(r, str), 'rhs must be a str or sequence of str'
             if contains_parenthesis(r):
-                assert match_SEQ_pattern(r) is not None, 'parenthesis only allowed with SEQ or REP: ' + str(rhs)
+                assert match_SEQ_pattern(r) is not None or match_mseq_pattern(r) is not None,\
+                    'parenthesis only allowed with SEQ or REP: ' + str(rhs)
         self.rhs = tuple(rhs)
 
         self.priority = priority

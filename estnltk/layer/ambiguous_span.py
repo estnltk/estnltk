@@ -9,6 +9,7 @@ class AmbiguousSpan(collections.Sequence):
     def __init__(self,
                  layer=None) -> None:
         self.spans = []
+        self._attribute_list = []
 
         self._layer = layer
 
@@ -40,8 +41,18 @@ class AmbiguousSpan(collections.Sequence):
     def to_record(self, with_text=False):
         return [i.to_record(with_text) for i in self.spans]
 
-    def add_span(self, span: Span) -> Span:  # -> add_annotation
+    def add_span(self, span: Span, attributes: dict=None) -> Span:  # -> add_annotation
         self.spans.append(span)
+        if attributes is None:
+            if isinstance(span, Span):
+                attributes = {attr: getattr(span, attr) for attr in span.legal_attribute_names}
+            else:
+                # TODO: remove this import
+                from estnltk import EnvelopingSpan
+                if isinstance(span, EnvelopingSpan):
+                    attributes = span._attributes
+        if attributes not in self._attribute_list:
+            self._attribute_list.append(attributes)
         return span
 
     @property
@@ -92,6 +103,7 @@ class AmbiguousSpan(collections.Sequence):
 
         layer = self.__getattribute__('layer')  # type: Layer
         if item in layer.attributes:
+            #return [attributes[item] for attributes in self._attribute_list]
             return [getattr(span, item) for span in self.spans]
         if item in self.__dict__.keys():
             return self.__dict__[item]

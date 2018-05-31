@@ -1,4 +1,5 @@
-from estnltk import Span
+from typing import Union
+from estnltk import Span, EnvelopingSpan, AmbiguousSpan
 
 
 #  Layer operations are ported from:
@@ -94,6 +95,23 @@ def equal(x: Span, y: Span) -> bool:
     assert isinstance(x, Span), x
     assert isinstance(y, Span), y
     return nested(x, y) and nested(y, x)
+
+
+span = Union[Span, EnvelopingSpan, AmbiguousSpan]
+
+
+def equal_support(x: span, y: span) -> bool:
+    if isinstance(x, AmbiguousSpan):
+        x = x[0]
+        return equal_support(x, y)
+    if isinstance(y, AmbiguousSpan):
+        y = y[0]
+        return equal_support(x, y)
+    if isinstance(x, EnvelopingSpan):
+        return isinstance(y, EnvelopingSpan) and x.spans == y.spans
+    if isinstance(x, Span):
+        return isinstance(y, Span) and x.start == y.start and x.end == y.end
+    raise TypeError('unexpected type of x: ' + str(type(x)))
 
 
 def nested_aligned_right(x: Span, y: Span) -> bool:

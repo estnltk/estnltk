@@ -146,9 +146,6 @@ class EnvelopingSpan(collections.Sequence):
                and self._attributes == other._attributes \
                and self.spans == other.spans
 
-    def __le__(self, other: Any) -> bool:
-        return self < other or self == other
-
     def __hash__(self):
         return hash((tuple(self.spans), self.parent))
 

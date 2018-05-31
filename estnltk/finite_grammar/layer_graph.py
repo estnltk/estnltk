@@ -160,7 +160,7 @@ class NonTerminalNode(GrammarNode):
         super().__init__(rule.lhs, support, group=rule.group, priority=rule.priority, score=score)
 
 
-class PlusNode(GrammarNode):
+class PlusNode(NonTerminalNode):
     def __init__(self, rule, support: Sequence[GrammarNode]):
         new_support = []
         # maybe too general, but let it be
@@ -170,7 +170,12 @@ class PlusNode(GrammarNode):
             else:
                 new_support.append(node)
         new_support = tuple(new_support)
-        super().__init__(rule.lhs, new_support, group=rule.group, priority=rule.priority)
+        # super().__init__(rule.lhs, new_support, group=rule.group, priority=rule.priority)
+        super().__init__(rule, new_support)
+
+
+class MSeqNode(PlusNode):
+    pass
 
 
 class LayerGraph(nx.DiGraph):
@@ -284,6 +289,10 @@ def layer_to_graph(layer, raw_text, name_attribute='grammar_symbol', attributes=
     spans = layer.span_list
 
     if layer.ambiguous:
+        for sp in layer:
+            names_1 = {getattr(b, name_attribute) for b in sp}
+            for name_1 in names_1:
+                graph.add_node(TerminalNode(name_1, sp, attributes))
         for sp_1, sp_2 in iterate_consecutive_spans(spans, raw_text, gap_validator=gap_validator):
             names_1 = {getattr(b, name_attribute) for b in sp_1}
             names_2 = {getattr(b, name_attribute) for b in sp_2}
@@ -291,6 +300,8 @@ def layer_to_graph(layer, raw_text, name_attribute='grammar_symbol', attributes=
                 for name_2 in names_2:
                     graph.add_edge(TerminalNode(name_1, sp_1, attributes), TerminalNode(name_2, sp_2, attributes))
     else:
+        for sp in layer:
+            graph.add_node(TerminalNode(getattr(sp, name_attribute), sp, attributes))
         for a, b in iterate_consecutive_spans(spans, raw_text, gap_validator=gap_validator):
             name_a = getattr(a, name_attribute)
             name_b = getattr(b, name_attribute)

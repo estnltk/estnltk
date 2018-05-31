@@ -227,32 +227,31 @@ def test_text():
         t.text = 'asd'
 
 
-def test_spanList():
+def test_layer_1():
     text = Text('')
 
     layer = Layer(name='test')
     text._add_layer(layer)
-    sl = SpanList(layer=layer)
     span = Span(0, 1)
-    sl.add_span(span)
+    layer.add_span(span)
 
-    assert len(sl) == 1
-    assert list(sl)[0] is span
+    assert len(layer) == 1
+    assert list(layer)[0] is span
 
     #with pytest.raises(TypeError):
     #    sl['asd']
 
-    # insertion keeps items in sorted order
-    sl = SpanList(layer=layer)
+    # insertion keeps spans in sorted order
+    layer = Layer(name='test')
     a, b, c, d = [Span(i, i + 1, layer) for i in range(4)]
-    sl.add_span(b)
-    sl.add_span(c)
-    sl.add_span(a)
-    sl.add_span(d)
-    assert sl[0] == a
-    assert sl[1] == b
-    assert sl[2] == c
-    assert sl[3] == d
+    layer.add_span(b)
+    layer.add_span(c)
+    layer.add_span(a)
+    layer.add_span(d)
+    assert layer[0] == a
+    assert layer[1] == b
+    assert layer[2] == c
+    assert layer[3] == d
 
 
 def test_layer():

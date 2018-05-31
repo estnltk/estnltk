@@ -9,7 +9,7 @@ class GrammarParsingTagger(Tagger):
     """Parses input layer using grammar. Output layer envelopes input."""
 
     conf_param = ['grammar', 'name_attribute', 'output_nodes', 'resolve_support_conflicts',
-                  'resolve_start_end_conflicts', 'resolve_terminals_conflicts', 'ambiguous', 'gap_validator']
+                  'resolve_start_end_conflicts', 'resolve_terminals_conflicts', 'ambiguous', 'gap_validator', 'debug']
 
     def __init__(self,
                  grammar,
@@ -22,6 +22,7 @@ class GrammarParsingTagger(Tagger):
                  resolve_support_conflicts: bool=True,
                  resolve_start_end_conflicts: bool=True,
                  resolve_terminals_conflicts: bool=True,
+                 debug=False,
                  output_ambiguous: bool=False):
         self.grammar = grammar
         self.input_layers = [layer_of_tokens]
@@ -37,6 +38,7 @@ class GrammarParsingTagger(Tagger):
         self.resolve_support_conflicts = resolve_support_conflicts
         self.resolve_start_end_conflicts = resolve_start_end_conflicts
         self.resolve_terminals_conflicts = resolve_terminals_conflicts
+        self.debug = debug
         self.ambiguous = output_ambiguous
 
     def _make_layer(self, raw_text, layers, status):
@@ -48,7 +50,8 @@ class GrammarParsingTagger(Tagger):
                             grammar=self.grammar,
                             resolve_support_conflicts=self.resolve_support_conflicts,
                             resolve_start_end_conflicts=self.resolve_start_end_conflicts,
-                            resolve_terminals_conflicts=self.resolve_terminals_conflicts)
+                            resolve_terminals_conflicts=self.resolve_terminals_conflicts,
+                            debug=self.debug)
 
         attributes = self.output_attributes
         layer = Layer(name=self.output_layer,

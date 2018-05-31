@@ -82,7 +82,7 @@ class AddressPartTagger(Tagger):
                                          output_attributes=['type', 'grammar_symbol'],
                                          conflict_resolving_strategy='MAX') 
                                          
-        vocabulary_file3 = path.join(path.dirname(__file__), 'farm_vocabulary.csv')
+        '''vocabulary_file3 = path.join(path.dirname(__file__), 'farm_vocabulary.csv')
 
         self.farm_name_tagger = PhraseTagger(output_layer='farm_name',
                                          input_layer='words',
@@ -91,7 +91,7 @@ class AddressPartTagger(Tagger):
                                          key='_phrase_',
                                          output_ambiguous=True,
                                          output_attributes=['type', 'grammar_symbol'],
-                                         conflict_resolving_strategy='MAX')                                                                    
+                                         conflict_resolving_strategy='MAX')  '''                                                                  
 
         spec_word_vocabulary = path.join(path.dirname(__file__), 'spec_word_voc.csv')
 
@@ -113,11 +113,11 @@ class AddressPartTagger(Tagger):
                              enveloping=None  # default: None
                              )
                              
-        self.atomizer2b = Atomizer(output_layer='some_layer2b',
+        '''self.atomizer2b = Atomizer(output_layer='some_layer2b',
                              input_layer='farm_name',
                              output_attributes=['grammar_symbol', 'type'],  # default: None
                              enveloping=None  # default: None
-                             )                                            
+                             )   '''                                         
 
         self.atomizer3 = Atomizer(output_layer='some_layer3',
                              input_layer='spec_word',
@@ -129,7 +129,6 @@ class AddressPartTagger(Tagger):
             return {'gap_length':len(text), 'grammar_symbol': 'RANDOM_TEXT'}
         
         def trim(t:str) -> str:
-            #t = re.sub('[- .,;!?:]', '', t)
             t = re.sub('[-\.,;!:? ]', '', t)
             return t
         
@@ -139,7 +138,7 @@ class AddressPartTagger(Tagger):
                                             'zip_code',
                                             'some_layer2',
                                             'some_layer2a',
-                                            'some_layer2b',
+                                            #'some_layer2b',
                                             'some_layer3'
                                               ],
                                  #enveloped_layer='morph_analysis',
@@ -154,7 +153,7 @@ class AddressPartTagger(Tagger):
                                             'zip_code',
                                             'some_layer2',
                                             'some_layer2a',
-                                            'some_layer2b',
+                                            #'some_layer2b',
                                             'some_layer3',
                                             'gaps'],
                                         output_attributes=('grammar_symbol', 'type'))
@@ -164,7 +163,7 @@ class AddressPartTagger(Tagger):
                                             'zip_code',
                                             'some_layer2',
                                             'some_layer2a',
-                                            'some_layer2b',
+                                            #'some_layer2b',
                                             'some_layer3'],
                                             #'gaps'],
                                         output_attributes=('grammar_symbol', 'type'))                                
@@ -176,32 +175,16 @@ class AddressPartTagger(Tagger):
         tmp_layers['zip_code'] = self.zip_code_tagger.make_layer(raw_text, tmp_layers, status)
         tmp_layers['place_name'] = self.place_name_tagger.make_layer(raw_text, tmp_layers, status)
         tmp_layers['street_name'] = self.street_name_tagger.make_layer(raw_text, tmp_layers, status)
-        tmp_layers['farm_name'] = self.farm_name_tagger.make_layer(raw_text, tmp_layers, status)
+        #tmp_layers['farm_name'] = self.farm_name_tagger.make_layer(raw_text, tmp_layers, status)
         tmp_layers['spec_word'] = self.spec_voc_tagger.make_layer(raw_text, tmp_layers, status)
         tmp_layers['some_layer2'] = self.atomizer2.make_layer(raw_text, tmp_layers, status)
         tmp_layers['some_layer2a'] = self.atomizer2a.make_layer(raw_text, tmp_layers, status)
-        tmp_layers['some_layer2b'] = self.atomizer2b.make_layer(raw_text, tmp_layers, status)
-        tmp_layers['some_layer3'] = self.atomizer3.make_layer(raw_text, tmp_layers, status) 
-        s = 0 
-        input_layers=[
-                                            'house_nr',
-                                            'zip_code',
-                                            'some_layer2',
-                                            'some_layer2a',
-                                            'some_layer2b',
-                                            'some_layer3',
-                                            'gaps']
-        for i in tmp_layers:
-            if len(tmp_layers[i]) > 0 and i in input_layers:
-                s = 1   
-        if s == 1:      
-            tmp_layers['gaps'] = self.gaps_tagger.make_layer(raw_text, tmp_layers, status)
-        else:
-            pass   
-        if s == 1:     
-            return self.merge_tagger.make_layer(raw_text, tmp_layers, status)
-        else:
-            return self.merge_tagger2.make_layer(raw_text, tmp_layers, status)  
+        #tmp_layers['some_layer2b'] = self.atomizer2b.make_layer(raw_text, tmp_layers, status)
+        tmp_layers['some_layer3'] = self.atomizer3.make_layer(raw_text, tmp_layers, status)     
+        tmp_layers['gaps'] = self.gaps_tagger.make_layer(raw_text, tmp_layers, status)
+  
+        return self.merge_tagger.make_layer(raw_text, tmp_layers, status)
+
 
 
 class AddressGrammarTagger(Tagger):
@@ -218,15 +201,15 @@ class AddressGrammarTagger(Tagger):
         maja = ''
         for node in nodes:   
             if node.name == 'ASULA':
-                asula = node.text[0]
+                asula = node.text
             elif node.name == 'TÄNAV':
-                t2nav = node.text[0]
+                t2nav = node.text
             elif node.name == 'MAAKOND':
-                maakond = node.text[0]
+                maakond = node.text
             elif node.name == 'MAJA':
-                maja = node.text[0]    
+                maja = node.text  
             elif node.name == 'INDEKS':
-                indeks = node.text[0]      
+                indeks = node.text    
             #if node.name != 'SPEC':
             #    composition[node.name] = node.text
         return {'grammar_symbol': 'ADDRESS', 'ASULA': asula, 'TÄNAV': t2nav, 'INDEKS': indeks, 'MAAKOND': maakond, 'MAJA': maja}
@@ -324,7 +307,8 @@ class AddressGrammarTagger(Tagger):
             layer_of_tokens=input_layer,
             attributes=['grammar_symbol', 'TÄNAV', 'MAJA', 'ASULA', 'MAAKOND', 'INDEKS'],
             grammar=self.grammar,
-            output_nodes=['ADDRESS'])
+            output_nodes=['ADDRESS'],
+            output_ambiguous=True)
         self.input_layers = [input_layer]
         self.output_layer = output_layer
 

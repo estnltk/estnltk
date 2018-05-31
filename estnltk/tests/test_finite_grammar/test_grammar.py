@@ -5,8 +5,7 @@ from estnltk.finite_grammar.grammar import match_SEQ_pattern
 
 def test_match_SEQ_pattern():
     assert 'bla' == match_SEQ_pattern('SEQ(bla)')
-    assert 'bla' == match_SEQ_pattern('REP(bla)')
-    assert None is match_SEQ_pattern('REPSEQ(')
+    assert None is match_SEQ_pattern('MSEQ()')
 
 
 def test_Rule():
@@ -26,9 +25,9 @@ def test_Rule():
 
 
 def test_Rule_defaults():
-    rule = Rule('A', 'B REP(C)')
+    rule = Rule('A', 'B SEQ(C)')
     assert rule.lhs == 'A'
-    assert rule.rhs == ('B', 'REP(C)')
+    assert rule.rhs == ('B', 'SEQ(C)')
     assert rule.priority == 0
     assert rule.group
     assert rule.decorator(None) == {}

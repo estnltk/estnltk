@@ -3,15 +3,16 @@ import json
 import logging
 import operator as op
 from functools import reduce
-from itertools import chain, product
+from itertools import chain
 
 import psycopg2
 from psycopg2.extensions import STATUS_BEGIN
-from psycopg2.sql import SQL, Identifier
+from psycopg2.sql import SQL, Identifier, Literal
 
 from estnltk.converters.dict_importer import dict_to_layer
 from estnltk.converters.dict_exporter import layer_to_dict
 from estnltk.converters import dict_to_text, text_to_json
+from estnltk.layer_operations import create_ngram_fingerprint_index
 from .query import Query
 
 log = logging.getLogger(__name__)
@@ -28,9 +29,9 @@ class PgCollection:
         self.table_name = name
         self.storage = storage
 
-    def create(self):
+    def create(self, description=None):
         """Creates a database table for the collection"""
-        return self.storage.create_table(self.table_name)
+        return self.storage.create_table(self.table_name, description)
 
     def insert(self, text, key=None):
         """Inserts text object as a table row with a given key"""
@@ -107,6 +108,9 @@ class PgCollection:
                 q = "CREATE TABLE {}.{} (id serial PRIMARY KEY, data jsonb %s %s)" % (meta_col_sql, ngram_cols_sql)
                 q = SQL(q).format(Identifier(self.storage.schema), Identifier(layer_table))
                 c.execute(q)
+                q = SQL("COMMENT ON TABLE {}.{} IS {}").format(
+                    Identifier(self.storage.schema), Identifier(layer_table), Literal(self.table_name + ' ' + layer_name + ' layer'))
+                c.execute(q)
 
                 # create jsonb index
                 if create_index is True:
@@ -136,8 +140,8 @@ class PgCollection:
                     layer_dict = layer_to_dict(layer, text)
                     ngram_index_col_values = None
                     if ngram_index is not None:
-                        ngram_index_col_values = [build_all_ngrams(getattr(layer, attribute),
-                                                                   ngram_index[attribute])
+                        ngram_index_col_values = [create_ngram_fingerprint_index(layer, attribute,
+                                                                                 ngram_index[attribute])
                                                   for attribute in ngram_index_cols]
                     self.storage.insert_layer_row(layer_table, layer_dict, key,
                                                   meta=meta,
@@ -221,7 +225,7 @@ class PostgresStorage:
         with self.conn.cursor() as c:
             c.execute(SQL("DROP SCHEMA {} CASCADE;").format(Identifier(self.schema)))
 
-    def create_table(self, table):
+    def create_table(self, table, description=None):
         """Creates a new table to store jsonb data:
 
             CREATE TABLE table(
@@ -243,6 +247,9 @@ class PostgresStorage:
                         index=Identifier('idx_%s_data' % table),
                         schema=Identifier(self.schema),
                         table=Identifier(table)))
+                if isinstance(description, str):
+                    c.execute(SQL("COMMENT ON TABLE {}.{} IS {}").format(
+                        Identifier(self.schema), Identifier(table), Literal(description)))
             except:
                 self.conn.rollback()
                 raise
@@ -607,21 +614,3 @@ class JsonbLayerQuery(Query):
         else:
             pat = """%s.data @> '{"spans": [%s]}'"""
         return pat % (self.layer_table, json.dumps(self.kwargs))
-
-
-def build_ngrams(unigrams, n, sep='-'):
-    ngrams = set()
-    is_ambiguous = len(unigrams) > 0 and not isinstance(unigrams[0], str)
-    for i in range(n, len(unigrams) + 1):
-        slice = unigrams[i - n: i]
-        if is_ambiguous:
-            items = [sep.join(seq) for seq in product(*slice)]
-            ngrams.update(items)
-        else:
-            item = sep.join(slice)
-            ngrams.add(item)
-    return list(ngrams)
-
-
-def build_all_ngrams(unigrams, n, sep='-'):
-    return list(chain(*[build_ngrams(unigrams, i, sep) for i in range(1, n + 1)]))
