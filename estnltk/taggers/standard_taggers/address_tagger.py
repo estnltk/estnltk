@@ -15,7 +15,7 @@ class AddressPartTagger(Tagger):
     """
 
     conf_param = ['house_nr_tagger','zip_code_tagger', 'spec_voc_tagger', 'street_name_tagger', 'place_name_tagger',
-                  'farm_name_tagger', 'atomizer2', 'atomizer2a', 'atomizer2b', 'atomizer3', 'gaps_tagger', 'merge_tagger',
+                  'atomizer2', 'atomizer2a', 'atomizer3', 'gaps_tagger', 'merge_tagger',
                   'merge_tagger2']
     input_layers = []
 
