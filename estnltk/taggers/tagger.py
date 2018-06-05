@@ -82,7 +82,11 @@ class Tagger:
         conf_str = ''
         if self.conf_param:
             params = ['input_layers', 'output_layer', 'output_attributes'] + list(self.conf_param)
-            conf = [attr+'='+to_str(getattr(self, attr)) for attr in params if not attr.startswith('_')]
+            try:
+                conf = [attr+'='+to_str(getattr(self, attr)) for attr in params if not attr.startswith('_')]
+            except AttributeError as e:
+                e.args = e.args[0] + ", but it is listed in 'conf_param'",
+                raise
             conf_str = ', '.join(conf)
         return self.__class__.__name__ + '(' + conf_str + ')'
 
