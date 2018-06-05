@@ -129,10 +129,11 @@ def import_TCF(string:str=None, file:str=None):
                       )
         for word, analyses in zip(text.words, morph_analysis_records):
             for analysis in analyses:
-                span = morph.add_span(Span(parent=word))
+                span = Span(parent=word)
                 for attr in morph_attributes:
                     setattr(span, attr, analysis[attr])
-    
+                morph.add_span(span)
+
         text['morph_analysis'] = morph
 
     return text

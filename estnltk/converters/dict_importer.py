@@ -16,9 +16,10 @@ def _dict_to_layer(layer_dict: dict, text: Text) -> Layer:
         if layer.ambiguous:
             for rec in layer_dict['spans']:
                 for r in rec:
-                    span = layer.add_span(Span(parent=parent_layer[r['_index_']]))
+                    span = Span(parent=parent_layer[r['_index_']])
                     for attr in layer.attributes:
                         setattr(span, attr, r[attr])
+                    layer.add_span(span)
         else:
             for rec in layer_dict['spans']:
                 span = parent_layer[rec['_index_']].mark(layer.name)
