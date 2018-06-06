@@ -1,5 +1,5 @@
 import collections
-from typing import Any, Union
+from typing import Any, Union, Sequence
 import itertools
 
 from estnltk import Span, AmbiguousSpan
@@ -45,6 +45,12 @@ class EnvelopingSpan(collections.Sequence):
 
             r.append(tmp)
         return r
+
+    @property
+    def legal_attribute_names(self) -> Sequence[str]:
+        if self.__getattribute__('layer') is not None:
+            return self.__getattribute__('layer').__getattribute__('attributes')
+        return sorted(self.__getattribute__('_attributes'))
 
     def to_record(self, with_text=False):
         return [i.to_record(with_text) for i in self.spans]

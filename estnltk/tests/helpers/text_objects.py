@@ -4,7 +4,6 @@ from estnltk import Span
 from estnltk import EnvelopingSpan
 from estnltk import Layer
 from estnltk import Text
-from estnltk.layer.annotation import Annotation
 
 
 # empty text
@@ -81,41 +80,41 @@ layer_0.add_span(Span(start=82, end=87, legal_attributes=['attr', 'attr_0'], att
 text_5['layer_0'] = layer_0
 
 layer_1 = Layer('layer_1', attributes=['attr', 'attr_1'], ambiguous=True)
-layer_1.add_span(Annotation(start= 0, end= 4, legal_attributes=['attr', 'attr_1'], attr='L1-0',  attr_1='SADA'))
-layer_1.add_span(Annotation(start= 5, end= 9, legal_attributes=['attr', 'attr_1'], attr='L1-1',  attr_1='KAKS'))
+layer_1.add_span(Span(start= 0, end= 4, legal_attributes=['attr', 'attr_1'], attr='L1-0',  attr_1='SADA'))
+layer_1.add_span(Span(start= 5, end= 9, legal_attributes=['attr', 'attr_1'], attr='L1-1',  attr_1='KAKS'))
 
-layer_1.add_span(Annotation(start= 5, end=16, legal_attributes=['attr', 'attr_1'], attr='L1-2',  attr_1='KAKS'))
-layer_1.add_span(Annotation(start= 5, end=16, legal_attributes=['attr', 'attr_1'], attr='L1-2',  attr_1='KÜMME'))
-layer_1.add_span(Annotation(start= 5, end=16, legal_attributes=['attr', 'attr_1'], attr='L1-2',  attr_1='KAKSKÜMMEND'))
+layer_1.add_span(Span(start= 5, end=16, legal_attributes=['attr', 'attr_1'], attr='L1-2',  attr_1='KAKS'))
+layer_1.add_span(Span(start= 5, end=16, legal_attributes=['attr', 'attr_1'], attr='L1-2',  attr_1='KÜMME'))
+layer_1.add_span(Span(start= 5, end=16, legal_attributes=['attr', 'attr_1'], attr='L1-2',  attr_1='KAKSKÜMMEND'))
 
-layer_1.add_span(Annotation(start= 9, end=14, legal_attributes=['attr', 'attr_1'], attr='L1-3',  attr_1='KÜMME'))
-layer_1.add_span(Annotation(start=17, end=21, legal_attributes=['attr', 'attr_1'], attr='L1-4',  attr_1='KOLM'))
-layer_1.add_span(Annotation(start=22, end=27, legal_attributes=['attr', 'attr_1'], attr='L1-5',  attr_1='NELI'))
-layer_1.add_span(Annotation(start=28, end=33, legal_attributes=['attr', 'attr_1'], attr='L1-6',  attr_1='TUHAT'))
-layer_1.add_span(Annotation(start=34, end=38, legal_attributes=['attr', 'attr_1'], attr='L1-7',  attr_1='VIIS'))
+layer_1.add_span(Span(start= 9, end=14, legal_attributes=['attr', 'attr_1'], attr='L1-3',  attr_1='KÜMME'))
+layer_1.add_span(Span(start=17, end=21, legal_attributes=['attr', 'attr_1'], attr='L1-4',  attr_1='KOLM'))
+layer_1.add_span(Span(start=22, end=27, legal_attributes=['attr', 'attr_1'], attr='L1-5',  attr_1='NELI'))
+layer_1.add_span(Span(start=28, end=33, legal_attributes=['attr', 'attr_1'], attr='L1-6',  attr_1='TUHAT'))
+layer_1.add_span(Span(start=34, end=38, legal_attributes=['attr', 'attr_1'], attr='L1-7',  attr_1='VIIS'))
 
-layer_1.add_span(Annotation(start=34, end=42, legal_attributes=['attr', 'attr_1'], attr='L1-8',  attr_1='SADA'))
-layer_1.add_span(Annotation(start=34, end=42, legal_attributes=['attr', 'attr_1'], attr='L1-8',  attr_1='VIIS'))
-layer_1.add_span(Annotation(start=34, end=42, legal_attributes=['attr', 'attr_1'], attr='L1-8',  attr_1='VIISSADA'))
+layer_1.add_span(Span(start=34, end=42, legal_attributes=['attr', 'attr_1'], attr='L1-8',  attr_1='SADA'))
+layer_1.add_span(Span(start=34, end=42, legal_attributes=['attr', 'attr_1'], attr='L1-8',  attr_1='VIIS'))
+layer_1.add_span(Span(start=34, end=42, legal_attributes=['attr', 'attr_1'], attr='L1-8',  attr_1='VIISSADA'))
 
-layer_1.add_span(Annotation(start=38, end=42, legal_attributes=['attr', 'attr_1'], attr='L1-9',  attr_1='SADA'))
-layer_1.add_span(Annotation(start=43, end=47, legal_attributes=['attr', 'attr_1'], attr='L1-10', attr_1='KUUS'))
+layer_1.add_span(Span(start=38, end=42, legal_attributes=['attr', 'attr_1'], attr='L1-9',  attr_1='SADA'))
+layer_1.add_span(Span(start=43, end=47, legal_attributes=['attr', 'attr_1'], attr='L1-10', attr_1='KUUS'))
 
-layer_1.add_span(Annotation(start=43, end=54, legal_attributes=['attr', 'attr_1'], attr='L1-11', attr_1='KUUS'))
-layer_1.add_span(Annotation(start=43, end=54, legal_attributes=['attr', 'attr_1'], attr='L1-11', attr_1='KÜMME'))
-layer_1.add_span(Annotation(start=43, end=54, legal_attributes=['attr', 'attr_1'], attr='L1-11', attr_1='KUUSKÜMMEND'))
+layer_1.add_span(Span(start=43, end=54, legal_attributes=['attr', 'attr_1'], attr='L1-11', attr_1='KUUS'))
+layer_1.add_span(Span(start=43, end=54, legal_attributes=['attr', 'attr_1'], attr='L1-11', attr_1='KÜMME'))
+layer_1.add_span(Span(start=43, end=54, legal_attributes=['attr', 'attr_1'], attr='L1-11', attr_1='KUUSKÜMMEND'))
 
-layer_1.add_span(Annotation(start=47, end=52, legal_attributes=['attr', 'attr_1'], attr='L1-12', attr_1='KÜMME'))
-layer_1.add_span(Annotation(start=55, end=61, legal_attributes=['attr', 'attr_1'], attr='L1-13', attr_1='SEITSE'))
-layer_1.add_span(Annotation(start=62, end=66, legal_attributes=['attr', 'attr_1'], attr='L1-14', attr_1='KOMA'))
-layer_1.add_span(Annotation(start=67, end=74, legal_attributes=['attr', 'attr_1'], attr='L1-15', attr_1='KAHEKSA'))
-layer_1.add_span(Annotation(start=76, end=82, legal_attributes=['attr', 'attr_1'], attr='L1-16', attr_1='ÜHEKSA'))
+layer_1.add_span(Span(start=47, end=52, legal_attributes=['attr', 'attr_1'], attr='L1-12', attr_1='KÜMME'))
+layer_1.add_span(Span(start=55, end=61, legal_attributes=['attr', 'attr_1'], attr='L1-13', attr_1='SEITSE'))
+layer_1.add_span(Span(start=62, end=66, legal_attributes=['attr', 'attr_1'], attr='L1-14', attr_1='KOMA'))
+layer_1.add_span(Span(start=67, end=74, legal_attributes=['attr', 'attr_1'], attr='L1-15', attr_1='KAHEKSA'))
+layer_1.add_span(Span(start=76, end=82, legal_attributes=['attr', 'attr_1'], attr='L1-16', attr_1='ÜHEKSA'))
 
-layer_1.add_span(Annotation(start=76, end=89, legal_attributes=['attr', 'attr_1'], attr='L1-17', attr_1='ÜHEKSA'))
-layer_1.add_span(Annotation(start=76, end=89, legal_attributes=['attr', 'attr_1'], attr='L1-17', attr_1='KÜMME'))
-layer_1.add_span(Annotation(start=76, end=89, legal_attributes=['attr', 'attr_1'], attr='L1-17', attr_1='ÜHEKSAKÜMMEND'))
+layer_1.add_span(Span(start=76, end=89, legal_attributes=['attr', 'attr_1'], attr='L1-17', attr_1='ÜHEKSA'))
+layer_1.add_span(Span(start=76, end=89, legal_attributes=['attr', 'attr_1'], attr='L1-17', attr_1='KÜMME'))
+layer_1.add_span(Span(start=76, end=89, legal_attributes=['attr', 'attr_1'], attr='L1-17', attr_1='ÜHEKSAKÜMMEND'))
 
-layer_1.add_span(Annotation(start=82, end=87, legal_attributes=['attr', 'attr_1'], attr='L1-18', attr_1='KÜMME'))
+layer_1.add_span(Span(start=82, end=87, legal_attributes=['attr', 'attr_1'], attr='L1-18', attr_1='KÜMME'))
 text_5['layer_1'] = layer_1
 
 

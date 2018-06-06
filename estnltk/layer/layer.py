@@ -339,8 +339,7 @@ class Layer:
 
         return records
 
-    def add_span(self, span: Union[Span, EnvelopingSpan, Annotation]) -> Span:
-        #assert not (self.ambiguous and isinstance(span, Span))
+    def add_span(self, span: Union[Span, EnvelopingSpan]) -> Span:
         assert not self.is_frozen, "can't add spans to frozen layer"
         assert isinstance(span, (EnvelopingSpan, Span, Layer, Annotation)), str(type(span))
         if isinstance(span, Layer):

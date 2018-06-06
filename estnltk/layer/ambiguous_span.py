@@ -3,12 +3,16 @@ import itertools
 from typing import Union, Any
 
 from estnltk import Span
+# from .annotation import Annotation
 
 
 class AmbiguousSpan(collections.Sequence):
     def __init__(self,
                  layer=None) -> None:
         self._spans = []
+
+        self._span = None
+        self._annotations = []
 
         self._layer = layer
 
@@ -41,8 +45,17 @@ class AmbiguousSpan(collections.Sequence):
         return [i.to_record(with_text) for i in self.spans]
 
     def add_span(self, span: Span) -> Span:
+        self._span = span
         if span not in self._spans:
             self._spans.append(span)
+            #annotation = Annotation(start=span.start,
+            #                        end=span.end,
+            #                        parent=span.parent,
+            #                        layer=span.layer,
+            #                        legal_attributes=span.legal_attribute_names)
+            #for attr in span.legal_attribute_names:
+            #    setattr(annotation, attr, getattr(span, attr))
+            #self._annotations.append(annotation)
             return span
 
     @property
@@ -52,6 +65,7 @@ class AmbiguousSpan(collections.Sequence):
     @spans.setter
     def spans(self, spans):
         self._spans = []
+        self._annotations = []
         for span in spans:
             self.add_span(span)
 
@@ -61,31 +75,23 @@ class AmbiguousSpan(collections.Sequence):
 
     @layer.setter
     def layer(self, value):
-        # assert isinstance(value, Layer) or value is None
         self._layer = value
 
     @property
     def start(self):
-        return self.spans[0].start
+        return self._span.start
 
     @property
     def end(self):
-        return self.spans[-1].end
+        return self._span.end
 
     @property
     def text(self):
-        return self.spans[0].text
+        return self._span.text
 
     @property
     def enclosing_text(self):
         return self.layer.text_object.text[self.start:self.end]
-
-    @property
-    def html_text(self):
-        return self.spans[0].html_text
-
-    def __iter__(self):
-        yield from self.spans
 
     def __len__(self) -> int:
         return len(self.__getattribute__(
@@ -144,4 +150,3 @@ class AmbiguousSpan(collections.Sequence):
         if self.layer and self is self.layer.spans:
             return self.layer.to_html(header='AmbiguousSpan', start_end=True)
         return str(self)
-
