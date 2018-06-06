@@ -159,6 +159,7 @@ def test_morph_disambiguator_1():
 #     extra attributes
 # ----------------------------------
 
+
 def test_morph_disambiguation_preserves_extra_attributes():
     text=Text('Mees kees üle. Naeris naeris.')
     text.tag_layer(['words','sentences'])
@@ -178,8 +179,8 @@ def test_morph_disambiguation_preserves_extra_attributes():
     disambiguator.tag(text)
     #print(text['morph_analysis'].to_records())
     # Check that extra attributes are preserved
-    expected_records = [ \
-        [{'analysis_id': '0_4', 'clitic': '', 'root': 'mees', 'ending': '0', 'partofspeech': 'S', 'sentence_id': '0', 'start': 0, 'root_tokens': ('mees',), 'end': 4, 'form': 'sg n', 'lemma': 'mees'}], 
+    expected_records = [
+        [{'analysis_id': '0_3', 'clitic': '', 'root': 'mees', 'ending': '0', 'partofspeech': 'S', 'sentence_id': '0', 'start': 0, 'root_tokens': ('mees',), 'end': 4, 'form': 'sg n', 'lemma': 'mees'}],
         [{'analysis_id': '1_1', 'clitic': '', 'root': 'kee', 'ending': 's', 'partofspeech': 'V', 'sentence_id': '0', 'start': 5, 'root_tokens': ('kee',), 'end': 9, 'form': 's', 'lemma': 'keema'}], 
         [{'analysis_id': '2_0', 'clitic': '', 'root': 'üle', 'ending': '0', 'partofspeech': 'D', 'sentence_id': '0', 'start': 10, 'root_tokens': ('üle',), 'end': 13, 'form': '', 'lemma': 'üle'}], 
         [{'analysis_id': '3_0', 'clitic': '', 'root': '.', 'ending': '', 'partofspeech': 'Z', 'sentence_id': '0', 'start': 13, 'root_tokens': ('.',), 'end': 14, 'form': '', 'lemma': '.'}], 

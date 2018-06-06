@@ -22,9 +22,12 @@ def test_add_span():
     layer.add_span(Span(start=1, end=2, legal_attributes=layer.attributes, a='s4', b=False, c=5))
 
     assert len(layer.span_list) == 3
-    assert len(layer[0]) == 2 and isinstance(layer[0], AmbiguousSpan)
-    assert len(layer[1]) == 1 and isinstance(layer[0], AmbiguousSpan)
-    assert len(layer[2]) == 2 and isinstance(layer[0], AmbiguousSpan)
+    assert isinstance(layer[0], AmbiguousSpan)
+    assert isinstance(layer[1], AmbiguousSpan)
+    assert isinstance(layer[2], AmbiguousSpan)
+    assert len(layer[0]) == 1
+    assert len(layer[1]) == 1
+    assert len(layer[2]) == 2
 
     layer = Layer(name='ambiguous', attributes=['a', 'b', 'c'], ambiguous=False)
     layer.add_span(Span(start=0, end=1, legal_attributes=layer.attributes, a='s1', b=True, c=None))

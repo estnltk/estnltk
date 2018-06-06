@@ -7,6 +7,7 @@ import warnings
 
 from estnltk import Span, EnvelopingSpan, AmbiguousSpan
 from estnltk.layer import AmbiguousAttributeTupleList, AttributeTupleList, AttributeList, AmbiguousAttributeList
+from .annotation import Annotation
 
 
 class SpanList(collections.Sequence):
@@ -338,9 +339,10 @@ class Layer:
 
         return records
 
-    def add_span(self, span: Union[Span, EnvelopingSpan], attributes=None) -> Span:
+    def add_span(self, span: Union[Span, EnvelopingSpan, Annotation]) -> Span:
+        #assert not (self.ambiguous and isinstance(span, Span))
         assert not self.is_frozen, "can't add spans to frozen layer"
-        assert isinstance(span, (EnvelopingSpan, Span, Layer)), str(type(span))
+        assert isinstance(span, (EnvelopingSpan, Span, Layer, Annotation)), str(type(span))
         if isinstance(span, Layer):
             span = EnvelopingSpan(spans=span.spans)
         for attr in self.attributes:
@@ -358,7 +360,7 @@ class Layer:
         if self.ambiguous:
             if target is None:
                 new = AmbiguousSpan(layer=self.layer)
-                new.add_span(span, attributes)
+                new.add_span(span)
                 self.span_list.classes[hash(span)] = new
                 bisect.insort(self.span_list.spans, new)
                 new.parent = span.parent

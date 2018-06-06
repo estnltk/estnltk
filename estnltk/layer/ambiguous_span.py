@@ -8,8 +8,7 @@ from estnltk import Span
 class AmbiguousSpan(collections.Sequence):
     def __init__(self,
                  layer=None) -> None:
-        self.spans = []
-        self._attribute_list = []
+        self._spans = []
 
         self._layer = layer
 
@@ -41,19 +40,20 @@ class AmbiguousSpan(collections.Sequence):
     def to_record(self, with_text=False):
         return [i.to_record(with_text) for i in self.spans]
 
-    def add_span(self, span: Span, attributes: dict=None) -> Span:  # -> add_annotation
-        self.spans.append(span)
-        if attributes is None:
-            if isinstance(span, Span):
-                attributes = {attr: getattr(span, attr) for attr in span.legal_attribute_names}
-            else:
-                # TODO: remove this import
-                from estnltk import EnvelopingSpan
-                if isinstance(span, EnvelopingSpan):
-                    attributes = span._attributes
-        if attributes not in self._attribute_list:
-            self._attribute_list.append(attributes)
-        return span
+    def add_span(self, span: Span) -> Span:
+        if span not in self._spans:
+            self._spans.append(span)
+            return span
+
+    @property
+    def spans(self):
+        return self._spans
+
+    @spans.setter
+    def spans(self, spans):
+        self._spans = []
+        for span in spans:
+            self.add_span(span)
 
     @property
     def layer(self):
@@ -103,7 +103,6 @@ class AmbiguousSpan(collections.Sequence):
 
         layer = self.__getattribute__('layer')  # type: Layer
         if item in layer.attributes:
-            #return [attributes[item] for attributes in self._attribute_list]
             return [getattr(span, item) for span in self.spans]
         if item in self.__dict__.keys():
             return self.__dict__[item]
@@ -116,23 +115,18 @@ class AmbiguousSpan(collections.Sequence):
         return target
 
     def __getitem__(self, idx: int) -> Union[Span, 'SpanList']:
-
         wrapped = self.spans.__getitem__(idx)
         if isinstance(idx, int):
             return wrapped
-        res = AmbiguousSpan()
-        res.layer = self.layer
-
-        res.spans = wrapped
-        res.parent = self.parent
-
-        return res
+        raise NotImplementedError('slicing of ambiguous span not yet implemented')
 
     def __lt__(self, other: Any) -> bool:
         return (self.start, self.end) < (other.start, other.end)
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, AmbiguousSpan) and self.spans == other.spans
+        return isinstance(other, AmbiguousSpan) \
+               and len(self.spans) == len(other.spans) \
+               and all(s in other.spans for s in self.spans)
 
     def __le__(self, other: Any) -> bool:
         return self < other or self == other
