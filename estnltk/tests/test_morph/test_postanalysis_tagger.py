@@ -124,7 +124,7 @@ def test_postanalysis_fix_emoticons():
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
-    assert expected_records == results_dict
+    assert expected_records == results_dict, results_dict
 
 
 def test_postanalysis_fix_www_addresses():

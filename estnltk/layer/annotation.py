@@ -6,14 +6,10 @@ class Annotation:
     def __init__(self, start: int=None, end: int=None, parent=None, *,
                  layer=None, legal_attributes=None, **attributes) -> None:
 
-        # this is set up first, because attribute access depends on knowing attribute names as early as possible
-        self._legal_attribute_names = legal_attributes
-        if isinstance(self._legal_attribute_names, list):
-            # TODO: remove this if
-            self._legal_attribute_names = tuple(self._legal_attribute_names)
         self.is_dependant = parent is None
 
         # Placeholder, set when span added to spanlist
+        assert layer is not None
         self.layer = layer  # type: Layer
         self.parent = parent  # type: Span
 
@@ -44,14 +40,12 @@ class Annotation:
         for k, v in attributes.items():
             if k in legal_attributes:
                 self.__setattr__(k, v)
+        self._attributes = {}
+        self.spans = []
 
     @property
     def legal_attribute_names(self) -> Sequence[str]:
-        if self.__getattribute__('_legal_attribute_names') is not None:
-            return self.__getattribute__('_legal_attribute_names')
-        if self.__getattribute__('layer') is not None:
-            return self.__getattribute__('layer').__getattribute__('attributes')
-        return ()
+        return self.__getattribute__('layer').__getattribute__('attributes')
 
     def to_record(self, with_text=False) -> MutableMapping[str, Any]:
         return {
@@ -111,7 +105,7 @@ class Annotation:
         return '<b>' + self.raw_text[self.start:self.end] + '</b>'
 
     def __getattr__(self, item):
-        if item in {'start', 'end', 'layer', 'text'}:
+        if item in {'start', 'end', 'layer', 'text', '_attributes', 'spans'}:
             return self.__getattribute__(item)
 
         if item in {'__getstate__', '__setstate__'}:
@@ -157,6 +151,8 @@ class Annotation:
             return False
         if self.legal_attribute_names != other.legal_attribute_names:
             return False
+        if self._attributes != other._attributes:
+            return False
         return all(self.__getattribute__(i) == other.__getattribute__(i) for i in self.legal_attribute_names)
 
     def __hash__(self):
@@ -184,7 +180,7 @@ class Annotation:
 
         # Hack: Put back surrounding '{' and '}' (mimic dict's representation)
         mapping_sorted_str = '{'+ (', '.join(mapping_sorted)) + '}'
-        return 'Span({text}, {attributes})'.format(text=self.text, attributes=mapping_sorted_str)
+        return 'Annotation({text}, {attributes})'.format(text=self.text, attributes=mapping_sorted_str)
 
     def __repr__(self):
         return str(self)

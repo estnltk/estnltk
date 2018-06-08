@@ -16,7 +16,6 @@ class SpanList(collections.Sequence):
                  ambiguous: bool=False) -> None:
         # TODO:
         # assert layer is not None
-        self.classes = {}  # type: MutableMapping[int, AmbiguousSpan]
 
         self.spans = []  # type: List
 
@@ -226,6 +225,8 @@ class Layer:
         # placeholder. is set when `_add_layer` is called on text object
         self.text_object = None  # type: Text
 
+        self.classes = {}  # type: MutableMapping[int, AmbiguousSpan]
+
     @property
     def layer(self):
         return self
@@ -286,7 +287,7 @@ class Layer:
                         spns.spans = [Span(**{**record, **{'layer': self}}, legal_attributes=self.attributes)
                                       for record in record_line]
                         tmpspans.append(spns)
-                        self.span_list.classes[(spns.spans[0].start, spns.spans[0].end)] = spns
+                        self.classes[(spns.spans[0].start, spns.spans[0].end)] = spns
                 self.span_list.spans = tmpspans
             else:
                 for record_line in records:
@@ -332,12 +333,7 @@ class Layer:
         return self.span_list.to_record(with_text)
 
     def to_records(self, with_text=False):
-        records = []
-
-        for item in self.span_list:
-            records.append(item.to_record(with_text))
-
-        return records
+        return self.span_list.to_record(with_text)
 
     def add_span(self, span: Union[Span, EnvelopingSpan]) -> Span:
         assert not self.is_frozen, "can't add spans to frozen layer"
@@ -355,12 +351,12 @@ class Layer:
                 setattr(span, attr, self.default_values[attr])
 
         span.layer = self
-        target = self.span_list.classes.get(hash(span), None)
+        target = self.classes.get(hash(span), None)
         if self.ambiguous:
             if target is None:
                 new = AmbiguousSpan(layer=self.layer)
                 new.add_span(span)
-                self.span_list.classes[hash(span)] = new
+                self.classes[hash(span)] = new
                 bisect.insort(self.span_list.spans, new)
                 new.parent = span.parent
             else:
@@ -369,7 +365,7 @@ class Layer:
         else:
             if target is None:
                 bisect.insort(self.span_list.spans, span)
-                self.span_list.classes[hash(span)] = span
+                self.classes[hash(span)] = span
             else:
                 raise ValueError('span is already in spanlist: ' + str(span))
         return span

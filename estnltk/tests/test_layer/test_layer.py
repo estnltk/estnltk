@@ -4,6 +4,7 @@ from estnltk import Text
 from estnltk import Layer
 from estnltk import Span
 from estnltk import AmbiguousSpan
+from estnltk.layer.annotation import Annotation
 from estnltk.layer import AmbiguousAttributeTupleList
 from estnltk.layer import AmbiguousAttributeList
 from estnltk.layer import AttributeTupleList
@@ -132,7 +133,7 @@ def test_ambiguous_layer_indexing():
     span_3 = layer[3]
     assert isinstance(span_3, AmbiguousSpan)
     assert len(span_3) == 2
-    assert isinstance(span_3[0], Span)
+    assert isinstance(span_3[0], Annotation)
     assert span_3[0].text == '3'
     assert span_3[0].a == 'default a'
     assert span_3[0].b == 'default b'

@@ -3,12 +3,12 @@ import itertools
 from typing import Union, Any
 
 from estnltk import Span
-# from .annotation import Annotation
+from .annotation import Annotation
 
 
 class AmbiguousSpan(collections.Sequence):
     def __init__(self,
-                 layer=None) -> None:
+                 layer) -> None:
         self._spans = []
 
         self._span = None
@@ -21,6 +21,10 @@ class AmbiguousSpan(collections.Sequence):
 
         # placeholder for dependant layer
         self._base = None  # type:Union[Span, None]
+
+    @property
+    def annotations(self):
+        return self._annotations
 
     def get_attributes(self, items):
         r = []
@@ -42,25 +46,30 @@ class AmbiguousSpan(collections.Sequence):
         return r
 
     def to_record(self, with_text=False):
-        return [i.to_record(with_text) for i in self.spans]
+        return [i.to_record(with_text) for i in self._annotations]
 
     def add_span(self, span: Span) -> Span:
         self._span = span
         if span not in self._spans:
             self._spans.append(span)
-            #annotation = Annotation(start=span.start,
-            #                        end=span.end,
-            #                        parent=span.parent,
-            #                        layer=span.layer,
-            #                        legal_attributes=span.legal_attribute_names)
-            #for attr in span.legal_attribute_names:
-            #    setattr(annotation, attr, getattr(span, attr))
-            #self._annotations.append(annotation)
+            annotation = Annotation(start=span.start,
+                                    end=span.end,
+                                    parent=span.parent,
+                                    layer=self._layer,
+                                    legal_attributes=self._layer.attributes
+                                    )
+            for attr in span.legal_attribute_names:
+                setattr(annotation, attr, getattr(span, attr))
+            if not isinstance(span, Span):
+                # EnvelopingSpan
+                annotation._attributes = span._attributes
+                annotation.spans = span.spans
+            self._annotations.append(annotation)
             return span
 
     @property
     def spans(self):
-        return self._spans
+        return self._annotations
 
     @spans.setter
     def spans(self, spans):
@@ -76,6 +85,10 @@ class AmbiguousSpan(collections.Sequence):
     @layer.setter
     def layer(self, value):
         self._layer = value
+
+    @property
+    def span(self):
+        return self._span
 
     @property
     def start(self):
@@ -109,7 +122,7 @@ class AmbiguousSpan(collections.Sequence):
 
         layer = self.__getattribute__('layer')  # type: Layer
         if item in layer.attributes:
-            return [getattr(span, item) for span in self.spans]
+            return [getattr(span, item) for span in self._annotations]
         if item in self.__dict__.keys():
             return self.__dict__[item]
         if item == getattr(self.layer, 'parent', None):
@@ -121,7 +134,7 @@ class AmbiguousSpan(collections.Sequence):
         return target
 
     def __getitem__(self, idx: int) -> Union[Span, 'SpanList']:
-        wrapped = self.spans.__getitem__(idx)
+        wrapped = self._annotations.__getitem__(idx)
         if isinstance(idx, int):
             return wrapped
         raise NotImplementedError('slicing of ambiguous span not yet implemented')
@@ -131,8 +144,8 @@ class AmbiguousSpan(collections.Sequence):
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, AmbiguousSpan) \
-               and len(self.spans) == len(other.spans) \
-               and all(s in other.spans for s in self.spans)
+               and len(self._annotations) == len(other._annotations) \
+               and all(s in other._annotations for s in self._annotations)
 
     def __le__(self, other: Any) -> bool:
         return self < other or self == other
