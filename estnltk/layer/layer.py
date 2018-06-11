@@ -167,7 +167,7 @@ class Layer:
                  parent: str = None,
                  enveloping: str = None,
                  ambiguous: bool = False,
-                 default_values=None
+                 default_values: dict = None
                  ) -> None:
         assert parent is None or enveloping is None, "Can't be derived AND enveloping"
 
@@ -215,9 +215,9 @@ class Layer:
         self.ambiguous = ambiguous  # type: bool
 
         if default_values is None:
-            self.default_values = {}
-        else:
-            self.default_values = default_values
+            default_values = {}
+        self.default_values = default_values
+
         for attr in self.attributes:
             if attr not in self.default_values:
                 self.default_values[attr] = None
@@ -369,6 +369,22 @@ class Layer:
             else:
                 raise ValueError('span is already in spanlist: ' + str(span))
         return span
+
+    def add_annotation(self, span, **attributes):
+        if self.parent is not None and self.ambiguous:
+            ambiguous_span = self.classes.get(hash(span), None)
+            if ambiguous_span is None:
+                ambiguous_span = AmbiguousSpan(self, span)
+                bisect.insort(self.span_list.spans, ambiguous_span)
+                self.classes[hash(span)] = ambiguous_span
+            assert isinstance(ambiguous_span, AmbiguousSpan), ambiguous_span
+            default_attributes = self.default_values.copy()
+            default_attributes.update(attributes)
+            return ambiguous_span.add_annotation(**attributes)
+
+        # TODO: implement add_annotation
+        raise NotImplementedError('add_annotation not yet implemented for this type of layer')
+
 
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
         assert 'name' in kwargs.keys(), '"name" must currently be an argument to layer'

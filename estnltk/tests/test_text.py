@@ -666,8 +666,18 @@ def test_morph2():
     print(text.morph_analysis[5].lemma)
     assert len(text.morph_analysis[5].lemma) == 2
     assert text.morph_analysis[5].lemma == ['olema', 'olema']
-    assert text.morph_analysis.lemma == AmbiguousAttributeList([['Lennart'], ['Meri'], ['"'], ['hõbevalge'], ['"'], ['olema', 'olema'], ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['rahvusvaheline'], ['lugejaskond'], ['.'], ['seni'], ['vaid'], ['soome'], ['keel'], ['tõlgitud', 'tõlgitud', 'tõlgitud', 'tõlkima'], ['teos'], ['ilmuma'], ['äsja'], ['ka'], ['itaalia'], ['keel'], ['ning'], ['see'], ['esitlema'], ['Rooma'], ['reisikirjandus'], ['festival'], ['.'], ['tundma', 'tuntud', 'tuntud', 'tuntud'], ['reisikrijandus'], ['festival'], ['valima'], ['tänavu'], ['peakülaline'], ['Eesti'], [','], ['Ultima'], ['Thule'], ['ning'], ['Iidse-Põhjala'], ['ja'], ['Vahemeri'], ['endisaegne'], ['kultuurikontakt'], ['j'], ['uks'], ['seetõttu'], [','], ['et'], ['eelmine'], ['nädal'], ['avaldama'], ['kirjastus'], ['Gangemi'], ['"'], ['hõbevalge'], ['"'], ['itaalia'], ['keel'], [','], ['vahendama'], ['"'], ['aktuaalne'], ['kaamera'], ['"'], ['.']],
-                                                               'lemma')
+    assert text.morph_analysis.lemma == AmbiguousAttributeList(
+        [['Lennart'], ['Meri'], ['"'], ['hõbevalge'], ['"'], ['olema', 'olema'],
+         ['jõudnud', 'jõudnud', 'jõudnud', 'jõudma'], ['rahvusvaheline'], ['lugejaskond'], ['.'], ['seni'], ['vaid'],
+         ['soome'], ['keel'], ['tõlgitud', 'tõlgitud', 'tõlgitud', 'tõlkima'], ['teos'], ['ilmuma'], ['äsja'], ['ka'],
+         ['itaalia'], ['keel'], ['ning'], ['see'], ['esitlema'], ['Rooma'], ['reisikirjandus'], ['festival'], ['.'],
+         ['tundma', 'tuntud', 'tuntud', 'tuntud'], ['reisikrijandus'], ['festival'], ['valima'], ['tänavu'],
+         ['peakülaline'], ['Eesti'], [','], ['Ultima'], ['Thule'], ['ning'], ['Iidse-Põhjala'], ['ja'], ['Vahemeri'],
+         ['endisaegne'], ['kultuurikontakt'], ['j'], ['uks'], ['seetõttu'], [','], ['et'], ['eelmine'], ['nädal'],
+         ['avaldama'], ['kirjastus'], ['Gangemi'], ['"'], ['hõbevalge'], ['"'], ['itaalia'], ['keel'], [','],
+         ['vahendama'], ['"'], ['aktuaalne'], ['kaamera'], ['"'], ['.']
+         ],
+        'lemma')
 
 
 def test_text_setitem():
@@ -868,7 +878,7 @@ def test_rewriting_api():
     assert list(text.plain.esrever) == text.words.text
 
 
-def test_delete_ambiguous_span():
+def test_delete_annotation_in_ambiguous_span():
     text = Text('''Lennart Meri "Hõbevalge" on jõudnud rahvusvahelise lugejaskonnani.''').tag_layer()
     l = Layer(name='test',
               parent='words',
@@ -879,31 +889,31 @@ def test_delete_ambiguous_span():
 
     c = 0
     for word in text.words:
-        word.mark('test').test1 = c
+        l.add_annotation(word, test1=c)
         c += 1
 
     for word in text.words:
-        word.mark('test').test1 = c
+        l.add_annotation(word, test1=c)
         c += 1
 
-    assert len(text['test'].span_list.spans[0]) == 2
+    assert len(text['test'][0]) == 2
 
-    (text['test'].span_list.spans[0].spans
+    (text['test'][0].spans
             .remove(
-        text['test'].span_list.spans[0][0] #this is the span we want to remove
+        text['test'][0][0] #this is the annotation we want to remove
     )
           )
     assert len(text['test'].span_list.spans[0]) == 1
 
     # removing the second
-    assert len(text['test'].span_list.spans[1]) == 2
+    assert len(text['test'][1]) == 2
 
-    (text['test'].span_list.spans[1].spans
+    (text['test'][1].spans
             .remove(
-        text['test'].span_list.spans[1][0] #this is the span we want to remove
+        text['test'][1][0] #this is the annotation we want to remove
     )
           )
-    assert len(text['test'].span_list.spans[1]) == 1
+    assert len(text['test'][1]) == 1
 
 
 def test_span_morph_access():

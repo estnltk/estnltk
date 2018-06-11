@@ -8,10 +8,10 @@ from .annotation import Annotation
 
 class AmbiguousSpan(collections.Sequence):
     def __init__(self,
-                 layer) -> None:
-        self._spans = []
+                 layer,
+                 span=None) -> None:
 
-        self._span = None
+        self._span = span
         self._annotations = []
 
         self._layer = layer
@@ -50,22 +50,41 @@ class AmbiguousSpan(collections.Sequence):
 
     def add_span(self, span: Span) -> Span:
         self._span = span
-        if span not in self._spans:
-            self._spans.append(span)
-            annotation = Annotation(start=span.start,
-                                    end=span.end,
-                                    parent=span.parent,
-                                    layer=self._layer,
-                                    legal_attributes=self._layer.attributes
-                                    )
-            for attr in span.legal_attribute_names:
-                setattr(annotation, attr, getattr(span, attr))
-            if not isinstance(span, Span):
-                # EnvelopingSpan
-                annotation._attributes = span._attributes
-                annotation.spans = span.spans
+        annotation = Annotation(start=span.start,
+                                end=span.end,
+                                parent=span.parent,
+                                layer=self._layer,
+                                legal_attributes=self._layer.attributes,
+                                ambiguous_span=self
+                                )
+        for attr in span.legal_attribute_names:
+            setattr(annotation, attr, getattr(span, attr))
+        if not isinstance(span, Span):
+            # EnvelopingSpan
+            annotation._attributes = span._attributes
+            annotation.spans = span.spans
+        if annotation not in self._annotations:
             self._annotations.append(annotation)
             return span
+
+    def add_annotation(self, **attributes) -> Span:
+        span = self._span
+        annotation = Annotation(start=span.start,
+                                end=span.end,
+                                parent=span.parent,
+                                layer=self._layer,
+                                legal_attributes=self._layer.attributes,
+                                ambiguous_span=self
+                                )
+        for attr in attributes:
+            setattr(annotation, attr, attributes[attr])
+        if not isinstance(span, Span):
+            # EnvelopingSpan
+            annotation._attributes = attributes
+            annotation.spans = span.spans
+        if annotation not in self._annotations:
+            self._annotations.append(annotation)
+            return annotation
 
     @property
     def spans(self):
@@ -73,7 +92,6 @@ class AmbiguousSpan(collections.Sequence):
 
     @spans.setter
     def spans(self, spans):
-        self._spans = []
         self._annotations = []
         for span in spans:
             self.add_span(span)

@@ -4,7 +4,7 @@ from estnltk import Span
 
 class Annotation:
     def __init__(self, start: int=None, end: int=None, parent=None, *,
-                 layer=None, legal_attributes=None, **attributes) -> None:
+                 layer=None, legal_attributes=None, ambiguous_span, **attributes) -> None:
 
         self.is_dependant = parent is None
 
@@ -12,6 +12,7 @@ class Annotation:
         assert layer is not None
         self.layer = layer  # type: Layer
         self.parent = parent  # type: Span
+        self._ambiguous_span = ambiguous_span
 
         if isinstance(start, int) and isinstance(end, int):
             assert start < end
@@ -66,6 +67,7 @@ class Annotation:
 
     @property
     def start(self) -> int:
+        # return self._ambiguous_span.start
         if not self.is_dependant:
             return self._start
         else:
@@ -160,10 +162,10 @@ class Annotation:
 
     def __str__(self):
         if self.layer is None:
-            return 'Span(start={self.start}, end={self.end}, layer={self.layer}, parent={self.parent})'.\
+            return 'Annotation(start={self.start}, end={self.end}, layer={self.layer}, parent={self.parent})'.\
                 format(self=self)
         if self.layer.text_object is None:
-            return 'Span(start={self.start}, end={self.end}, layer_name={self.layer.name}, parent={self.parent})'.\
+            return 'Annotation(start={self.start}, end={self.end}, layer_name={self.layer.name}, parent={self.parent})'.\
                 format(self=self)
         legal_attribute_names = self.__getattribute__('layer').__getattribute__('attributes')
 
