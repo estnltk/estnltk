@@ -395,7 +395,7 @@ class UserDictTagger(TaggerOld):
             #    then add the old morph analysis
             if not new_morph_spans_added:
                 for old_morph_span in morph_spanlist:
-                    new_morph_layer.add_span( old_morph_span )
+                    new_morph_layer.add_annotation(morph_spans[morph_span_id].span, **old_morph_span.attributes())
 
             # Advance in the old "morph_analysis" layer
             morph_span_id += 1

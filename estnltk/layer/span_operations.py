@@ -102,10 +102,10 @@ span = Union[Span, EnvelopingSpan, AmbiguousSpan]
 
 def equal_support(x: span, y: span) -> bool:
     if isinstance(x, AmbiguousSpan):
-        x = x[0]
+        x = x.span
         return equal_support(x, y)
     if isinstance(y, AmbiguousSpan):
-        y = y[0]
+        y = y.span
         return equal_support(x, y)
     if isinstance(x, EnvelopingSpan):
         return isinstance(y, EnvelopingSpan) and x.spans == y.spans

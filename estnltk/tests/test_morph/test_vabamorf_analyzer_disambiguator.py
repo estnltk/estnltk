@@ -203,18 +203,18 @@ def test_morph_disambiguation_preserves_extra_attributes():
 def test_morph_disambiguation_with_ignore():
     # Tests that morphological disambiguator can be set to ignore some words
     # Case 1 : test ignoring random words ( do not try this at home! )
-    text=Text('Mitmenda koha sai kohale jõudnud mees ?')
+    text = Text('Mitmenda koha sai kohale jõudnud mees ?')
     text.tag_layer(['words','sentences'])
     analyzer1.tag(text)  # analyze and add empty IGNORE_ATTR-s
-    mark_ignore = { (14,17) : [],  # sai
-                    (33,37) : [],  # mees
-                  }
-    for spanlist in text.morph_analysis.span_list:
-        pos_key = (spanlist.start, spanlist.end)
+    mark_ignore = {(14,17): [],  # sai
+                   (33,37): [],  # mees
+                   }
+    for amb_span in text.morph_analysis:
+        pos_key = (amb_span.start, amb_span.end)
         if pos_key in mark_ignore:
             # Record the pervious spanlist
-            mark_ignore[pos_key] = spanlist
-        for span in spanlist:
+            mark_ignore[pos_key] = amb_span
+        for span in amb_span:
             if pos_key in mark_ignore:
                 setattr(span, IGNORE_ATTR, True)
             else:
@@ -223,10 +223,10 @@ def test_morph_disambiguation_with_ignore():
     # Assert that attribute IGNORE_ATTR has been removed 
     assert not hasattr(text.morph_analysis, IGNORE_ATTR)
     # Check that marked spans remain the same in the new layer
-    for spanlist in text.morph_analysis.span_list:
-        pos_key = (spanlist.start, spanlist.end)
+    for amb_span in text.morph_analysis:
+        pos_key = (amb_span.start, amb_span.end)
         if pos_key in mark_ignore:
-            assert mark_ignore[pos_key] == spanlist
+            assert len(mark_ignore[pos_key]) == len(amb_span)
 
 
 def test_morph_disambiguation_with_ignore_all():
@@ -248,7 +248,7 @@ def test_morph_disambiguation_with_ignore_all():
 
 def test_morph_disambiguation_with_ignore_emoticons():
     # Case 2 : test ignoring emoticons
-    text=Text('Mõte on hea :-) Tuleme siis kolmeks :)')
+    text = Text('Mõte on hea :-) Tuleme siis kolmeks :)')
     text.tag_layer(['words','sentences'])
     analyzer1.tag(text)
     # ignore emoticons
@@ -258,10 +258,10 @@ def test_morph_disambiguation_with_ignore_emoticons():
     # Assert that attribute IGNORE_ATTR has been removed 
     assert not hasattr(text.morph_analysis, IGNORE_ATTR)
     # Check that marked spans remain the same in the new layer
-    for spanlist in text.morph_analysis.span_list:
-        pos_key = (spanlist.start, spanlist.end)
+    for amb_span in text.morph_analysis:
+        pos_key = (amb_span.start, amb_span.end)
         if pos_key in mark_ignore:
-            assert mark_ignore[pos_key] == spanlist
+            assert len(mark_ignore[pos_key]) == len(amb_span)
 
 
 def test_morph_disambiguation_with_ignore_xml_tags():

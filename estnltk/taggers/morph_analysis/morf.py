@@ -632,7 +632,7 @@ class VabamorfDisambiguator(TaggerOld):
                     # Skip the ignored word(s): add old spans instead
                     old_morph_spans = sentence_morph_spans[wid]
                     for old_span in old_morph_spans:
-                        new_morph_layer.add_span( old_span )
+                        new_morph_layer.add_annotation(old_morph_spans.span, **old_span.attributes())
                     wid += 1
                 if not wid < len(sentence_word_spans):
                     # Break if ignoring has passed sentence boundaries

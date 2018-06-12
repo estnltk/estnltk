@@ -282,12 +282,12 @@ class Layer:
                 self.span_list = SpanList(ambiguous=True, layer=self)
                 tmpspans = []
                 for record_line in records:
-                    if record_line is not None:
-                        spns = AmbiguousSpan(layer=self)
-                        spns.spans = [Span(**{**record, **{'layer': self}}, legal_attributes=self.attributes)
-                                      for record in record_line]
-                        tmpspans.append(spns)
-                        self.classes[(spns.spans[0].start, spns.spans[0].end)] = spns
+                    span = Span(**{**record_line[0], **{'layer': self}}, legal_attributes=self.attributes)
+                    spns = AmbiguousSpan(layer=self, span=span)
+                    for record in record_line:
+                        spns.add_annotation(**record)
+                    tmpspans.append(spns)
+                    self.classes[hash(spns.span)] = spns
                 self.span_list.spans = tmpspans
             else:
                 for record_line in records:
@@ -354,7 +354,7 @@ class Layer:
         target = self.classes.get(hash(span), None)
         if self.ambiguous:
             if target is None:
-                new = AmbiguousSpan(layer=self.layer)
+                new = AmbiguousSpan(layer=self.layer, span=span)
                 new.add_span(span)
                 self.classes[hash(span)] = new
                 bisect.insort(self.span_list.spans, new)

@@ -31,14 +31,14 @@ def _delete_conflicting_spans(span_list, priority_key, map_conflicts, keep_equal
 
 def _resolve_ambiguous_span(ambiguous_span: AmbiguousSpan, priority_attribute: str, keep_equal: bool) -> None:
     result = []
-    for s in ambiguous_span.spans:
+    for s in ambiguous_span:
         if not result or getattr(result[-1], priority_attribute) > getattr(s, priority_attribute):
             result = [s]
         elif getattr(result[-1], priority_attribute) == getattr(s, priority_attribute):
             result.append(s)
     if not keep_equal:
         result = result[:1]
-    ambiguous_span.spans = result
+    ambiguous_span.annotations = result
 
 
 def resolve_conflicts(layer,

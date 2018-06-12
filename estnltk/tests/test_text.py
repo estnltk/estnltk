@@ -49,7 +49,6 @@ def test_general():
     #assert (t.words[:].text) == (t.words.text)
 
 
-
 def test_equivalences():
     t = Text('Minu nimi on Uku, mis sinu nimi on? Miks see üldse oluline on?')
 
@@ -96,7 +95,7 @@ def test_equal():
     t_1 = new_text(5)
     t_2 = new_text(5)
     assert t_1 == t_2
-    t_1.layer_5[1][1]._attributes['attr_5'] = 'bla'
+    t_1.layer_5[1][1].attr_5 = 'bla'
     assert t_1 != t_2
 
 

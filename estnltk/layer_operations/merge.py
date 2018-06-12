@@ -36,7 +36,7 @@ def merge_layers(layers: Sequence[Layer],
                 layer_attributes = layer.attributes
                 none_attributes = [attr for attr in output_attributes if attr not in layer_attributes]
                 for span in iterate_spans(layer):
-                    new_span = EnvelopingSpan(spans=span, layer=new_layer)
+                    new_span = EnvelopingSpan(spans=span.spans, layer=new_layer)
                     for attr in layer_attributes:
                         setattr(new_span, attr, getattr(span, attr))
                     for attr in none_attributes:

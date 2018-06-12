@@ -78,6 +78,7 @@ class Span:
 
     @start.setter
     def start(self, value: int):
+        assert 0
         assert not self.is_bound, 'setting start is allowed on special occasions only'
         self._start = value
 
@@ -90,6 +91,7 @@ class Span:
 
     @end.setter
     def end(self, value: int):
+        assert 0
         assert not self.is_bound, 'setting end is allowed on special occasions only'
         self._end = value
 

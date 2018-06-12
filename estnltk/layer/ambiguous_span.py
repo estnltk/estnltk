@@ -1,5 +1,4 @@
 import collections
-import itertools
 from typing import Union, Any
 
 from estnltk import Span
@@ -7,16 +6,14 @@ from .annotation import Annotation
 
 
 class AmbiguousSpan(collections.Sequence):
-    def __init__(self,
-                 layer,
-                 span=None) -> None:
+    def __init__(self, layer: 'Layer', span: Span) -> None:
 
+        assert not isinstance(span, Annotation), span
         self._span = span
         self._annotations = []
 
         self._layer = layer
 
-        # placeholder for ambiguous layer
         self.parent = None  # type:Union[Span, None]
 
         # placeholder for dependant layer
@@ -26,61 +23,33 @@ class AmbiguousSpan(collections.Sequence):
     def annotations(self):
         return self._annotations
 
-    def get_attributes(self, items):
-        r = []
-        for x in zip(*[[i
-                        if isinstance(i, (list, tuple))
-                        else itertools.cycle([i]) for i in getattr(self, item)] for item in items]
-
-                     ):
-
-            quickbreak = all(isinstance(i, itertools.cycle) for i in x)
-
-            tmp = []
-            for pair in zip(*x):
-                tmp.append(pair)
-                if quickbreak:
-                    break
-
-            r.append(tmp)
-        return r
+    @annotations.setter
+    def annotations(self, value):
+        self._annotations = value
 
     def to_record(self, with_text=False):
         return [i.to_record(with_text) for i in self._annotations]
 
     def add_span(self, span: Span) -> Span:
-        self._span = span
-        annotation = Annotation(start=span.start,
-                                end=span.end,
-                                parent=span.parent,
-                                layer=self._layer,
-                                legal_attributes=self._layer.attributes,
-                                ambiguous_span=self
-                                )
+        assert hash(span) == hash(self._span)
+        assert not isinstance(span, Annotation)
+        annotation = Annotation(self)
         for attr in span.legal_attribute_names:
             setattr(annotation, attr, getattr(span, attr))
         if not isinstance(span, Span):
             # EnvelopingSpan
-            annotation._attributes = span._attributes
             annotation.spans = span.spans
         if annotation not in self._annotations:
             self._annotations.append(annotation)
             return span
 
-    def add_annotation(self, **attributes) -> Span:
-        span = self._span
-        annotation = Annotation(start=span.start,
-                                end=span.end,
-                                parent=span.parent,
-                                layer=self._layer,
-                                legal_attributes=self._layer.attributes,
-                                ambiguous_span=self
-                                )
-        for attr in attributes:
+    def add_annotation(self, **attributes) -> Annotation:
+        annotation = Annotation(self)
+        for attr in self.layer.attributes:
             setattr(annotation, attr, attributes[attr])
+        span = self._span
         if not isinstance(span, Span):
             # EnvelopingSpan
-            annotation._attributes = attributes
             annotation.spans = span.spans
         if annotation not in self._annotations:
             self._annotations.append(annotation)
@@ -90,19 +59,9 @@ class AmbiguousSpan(collections.Sequence):
     def spans(self):
         return self._annotations
 
-    @spans.setter
-    def spans(self, spans):
-        self._annotations = []
-        for span in spans:
-            self.add_span(span)
-
     @property
     def layer(self):
         return self._layer
-
-    @layer.setter
-    def layer(self, value):
-        self._layer = value
 
     @property
     def span(self):
@@ -120,17 +79,8 @@ class AmbiguousSpan(collections.Sequence):
     def text(self):
         return self._span.text
 
-    @property
-    def enclosing_text(self):
-        return self.layer.text_object.text[self.start:self.end]
-
     def __len__(self) -> int:
-        return len(self.__getattribute__(
-            'spans'
-        ))
-
-    def __contains__(self, item: Any) -> bool:
-        return item in self.spans
+        return len(self.annotations)
 
     def __getattr__(self, item):
         if item in {'__getstate__', '__setstate__'}:
@@ -162,14 +112,12 @@ class AmbiguousSpan(collections.Sequence):
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, AmbiguousSpan) \
+               and hash(self.span) == hash(other.span) \
                and len(self._annotations) == len(other._annotations) \
                and all(s in other._annotations for s in self._annotations)
 
-    def __le__(self, other: Any) -> bool:
-        return self < other or self == other
-
     def __hash__(self):
-        return hash((tuple(self.spans), self.parent))
+        return hash(self.span)
 
     def __str__(self):
         return 'AS[{spans}]'.format(spans=', '.join(str(i) for i in self.spans))
