@@ -1,7 +1,8 @@
-from estnltk import Span, EnvelopingSpan
+from estnltk import EnvelopingSpan
 from estnltk import Layer
 from estnltk.layer_operations import diff_layer
 from estnltk.taggers import Tagger
+from estnltk.layer.span_operations import symm_diff_ambiguous_spans
 
 
 class DiffTagger(Tagger):
@@ -39,10 +40,24 @@ class DiffTagger(Tagger):
             enveloping=layer_a.enveloping,
             ambiguous=True
             )
-        copy_attributes = [attr for attr in self.output_attributes if attr!=self.input_layer_name_attribute]
+        missing_spans = 0
+        extra_spans = 0
+        missing_annotations = 0
+        extra_annotations = 0
+        copy_attributes = [attr for attr in self.output_attributes if attr != self.input_layer_name_attribute]
         if layer_a.ambiguous:
             if layer_a.enveloping:
                 for a_spans, b_spans in diff_layer(layer_a, layer_b):
+                    if a_spans is None:
+                        extra_spans += 1
+                        extra_annotations += len(b_spans)
+                    if b_spans is None:
+                        missing_spans += 1
+                        missing_annotations += len(a_spans)
+                    if a_spans is not None and b_spans is not None:
+                        a_spans, b_spans = symm_diff_ambiguous_spans(a_spans, b_spans)
+                        missing_annotations += len(a_spans)
+                        extra_annotations += len(b_spans)
                     if a_spans is not None:
                         for a in a_spans:
                             attributes = {attr: getattr(a, attr) for attr in copy_attributes}
@@ -80,5 +95,12 @@ class DiffTagger(Tagger):
             else:
                 # TODO:
                 raise NotImplementedError()
+
+        if status is not None:
+            status['different spans'] = len(layer)
+            status['missing_annotations'] = missing_annotations
+            status['missing_spans'] = missing_spans
+            status['extra_annotations'] = extra_annotations
+            status['extra_spans'] = extra_spans
 
         return layer

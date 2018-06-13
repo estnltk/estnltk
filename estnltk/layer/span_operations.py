@@ -114,6 +114,14 @@ def equal_support(x: span, y: span) -> bool:
     raise TypeError('unexpected type of x: ' + str(type(x)))
 
 
+def symm_diff_ambiguous_spans(x: AmbiguousSpan, y: AmbiguousSpan):
+    assert isinstance(x, AmbiguousSpan)
+    assert isinstance(y, AmbiguousSpan)
+    annot_x = [a for a in x if a not in y]
+    annot_y = [a for a in y if a not in x]
+    return annot_x, annot_y
+
+
 def nested_aligned_right(x: Span, y: Span) -> bool:
     """
     Tests if Span y is nested inside x, and

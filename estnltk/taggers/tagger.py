@@ -32,8 +32,7 @@ class Tagger:
         raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
     def make_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> Layer:
-        if status is None:
-            status = {}
+        assert status is None or isinstance(status, dict), 'status should be None or dict, not ' + str(type(status))
         layer = self._make_layer(raw_text, layers, status)
         assert isinstance(layer, Layer), 'make_layer must return Layer'
         assert layer.name == self.output_layer, 'incorrect layer name: {} != {}'.format(layer.name, self.output_layer)

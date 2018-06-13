@@ -107,14 +107,14 @@ def diff_layer(a: Layer, b: Layer, comp=eq):
         b_end = True
 
     while not a_end and not b_end:
-        if x < y:  # x.start < y.start or x.start == y.start and x.end < y.end:
+        if x < y:
             yield (x, None)
             try:
                 x = next(a)
             except StopIteration:
                 a_end = True
             continue
-        if equal_support(x, y):  # x.start == y.start and x.end == y.end:
+        if equal_support(x, y):
             if not comp(x, y):
                 yield (x, y)
             try:

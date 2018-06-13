@@ -116,6 +116,9 @@ class AmbiguousSpan(collections.Sequence):
                and len(self._annotations) == len(other._annotations) \
                and all(s in other._annotations for s in self._annotations)
 
+    def __contains__(self, item: Any):
+        return item in self._annotations
+
     def __hash__(self):
         return hash(self.span)
 
