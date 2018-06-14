@@ -11,7 +11,6 @@ import os
 from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.storage.postgres import PostgresStorage, PgStorageException, JsonbTextQuery as Q, JsonbLayerQuery
-from storage.postgres.db import build_ngrams, build_all_ngrams
 
 
 def get_random_table_name():
@@ -351,25 +350,6 @@ class TestLayer(unittest.TestCase):
                 "ambiguous": True
             }})
         self.assertEqual(len(list(res)), 1)
-
-    def test_build_ngrams(self):
-        self.assertEqual(sorted(build_ngrams(['a', 'b', 'c'], 2)), ['a-b', 'b-c'])
-        self.assertEqual(sorted(build_ngrams(['a', 'b', 'c', 'd'], 3)), ['a-b-c', 'b-c-d'])
-        self.assertEqual(build_ngrams(['a', 'b'], 3), [])
-
-        self.assertEqual(sorted(build_ngrams([('a', 'b'), ('c',)], 2)),
-                         ['a-c', 'b-c'])
-        self.assertEqual(sorted(build_ngrams([('a', 'b'), ('c',), ('d', 'e')], 3)),
-                         ['a-c-d', 'a-c-e', 'b-c-d', 'b-c-e'])
-
-    def test_build_all_ngrams(self):
-        self.assertEqual(sorted(build_all_ngrams(['a'], 1)), ['a'])
-        self.assertEqual(sorted(build_all_ngrams(['a'], 2)), ['a'])
-        self.assertEqual(sorted(build_all_ngrams(['a', 'b'], 2)), ['a', 'a-b', 'b'])
-        self.assertEqual(sorted(build_all_ngrams(['a', 'b'], 3)), ['a', 'a-b', 'b'])
-        self.assertEqual(sorted(build_all_ngrams([('a', 'b')], 2)), ['a', 'b'])
-        self.assertEqual(sorted(build_all_ngrams([('a', 'b'), ('c',)], 2)),
-                         ['a', 'a-c', 'b', 'b-c', 'c'])
 
     def test_layer_ngramm_index(self):
         table_name = get_random_table_name()
