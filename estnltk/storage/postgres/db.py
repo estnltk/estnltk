@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import logging
 import operator as op
@@ -57,6 +58,67 @@ class PgCollection:
     def layer_name_to_table_name(self, layer_name):
         return self.storage.layer_name_to_table_name(self.table_name, layer_name)
 
+    def layer_fragment_name_to_table_name(self, layer_fragment_name):
+        return self.storage.layer_fragment_name_to_table_name(self.table_name, layer_fragment_name)
+
+    def select_layer_fragment(self, layer_fragment_name):
+        """
+        Returns a tuple of 4 elements: text_id, text, layer_fragment_id, fragment
+        """
+        conn = self.storage.conn
+        q = """SELECT {table}.id, {table}.data, {fragment}.id, {fragment}.data
+               FROM {table}, {fragment} WHERE {table}.id = {fragment}.text_id"""
+        fragment_table_name = self.layer_fragment_name_to_table_name(layer_fragment_name)
+        q = q.format(
+            table=SQL("{}.{}").format(Identifier(self.storage.schema), Identifier(self.table_name)).as_string(conn),
+            fragment=SQL("{}.{}").format(Identifier(self.storage.schema), Identifier(fragment_table_name)).as_string(
+                conn)
+        )
+        with conn.cursor() as c:
+            c.execute(q)
+            for row in c.fetchall():
+                text_id, text_dict, fragment_id, fragment_dict = row
+                text = dict_to_text(text_dict)
+                fragment = dict_to_layer(fragment_dict, text)
+                yield text_id, text, fragment_id, fragment
+
+    def create_layer_fragment(self, layer_name, callable, layers=None, create_index=False, ngram_index=None):
+        conn = self.storage.conn
+        with conn.cursor() as c:
+            try:
+                conn.autocommit = False
+                layer_table = self.layer_fragment_name_to_table_name(layer_name)
+                # create table and indices
+                self._create_layer_table(c, layer_name,
+                                         is_fragment=True,
+                                         create_meta_column=False,
+                                         create_index=create_index,
+                                         ngram_index=ngram_index)
+                # insert data
+                id_ = 0
+                for text_id, text in self.select(layers=layers):
+                    for fragment_layer in callable(text):
+                        fragment_dict = layer_to_dict(fragment_layer, text)
+                        if ngram_index is not None:
+                            ngram_values = [create_ngram_fingerprint_index(fragment_layer, attr, size)
+                                            for attr, size in ngram_index.items()]
+                        else:
+                            ngram_values = None
+                        layer_json = json.dumps(fragment_dict, ensure_ascii=False)
+                        ngram_values = ngram_values or []
+                        q = "INSERT INTO {}.{} VALUES (%s);" % ", ".join(['%s'] * (3 + len(ngram_values)))
+                        q = SQL(q).format(Identifier(self.storage.schema), Identifier(layer_table))
+                        c.execute(q, (id_, text_id, layer_json, *ngram_values))
+                        id_ += 1
+            except:
+                conn.rollback()
+                raise
+            finally:
+                if conn.status == STATUS_BEGIN:
+                    # no exception, transaction in progress
+                    conn.commit()
+                conn.autocommit = True
+
     def create_layer(self, layer_name, callable, layers=None, create_meta_column=False, create_index=False,
                      ngram_index=None):
         """
@@ -78,7 +140,7 @@ class PgCollection:
                 Whether to create an additional column of a type json.
             create_index: bool
                 Whether to create a gin index for a jsonb column.
-            ngramm_index: dict: layer-attribute -> ngramm-length
+            ngram_index: dict: layer-attribute -> ngramm-length
                 Creates ngram index for specified layer attributes.
 
         Example:
@@ -87,48 +149,19 @@ class PgCollection:
             collection.create_layer(layer_name, callable=lambda t: tagger.tag(t, return_layer=True))
 
         """
-        layer_table = self.layer_name_to_table_name(layer_name)
-        if self.storage.table_exists(layer_table):
-            raise PgStorageException("Table '{}' for layer '{}' already exists.".format(layer_table, layer_name))
         conn = self.storage.conn
         with conn.cursor() as c:
             try:
                 conn.autocommit = False
-                if ngram_index is not None:
-                    ngram_index_cols = ngram_index.keys()
-                    ngram_cols_sql = ", %s" % ",".join(["%s text[]" % Identifier(column).as_string(self.storage.conn)
-                                                        for column in ngram_index])
-                else:
-                    ngram_cols_sql = ""
-                if create_meta_column is True:
-                    meta_col_sql = ", meta json"
-                else:
-                    meta_col_sql = ""
-                # create layer table and index
-                q = "CREATE TABLE {}.{} (id serial PRIMARY KEY, data jsonb %s %s)" % (meta_col_sql, ngram_cols_sql)
-                q = SQL(q).format(Identifier(self.storage.schema), Identifier(layer_table))
-                c.execute(q)
-                q = SQL("COMMENT ON TABLE {}.{} IS {}").format(
-                    Identifier(self.storage.schema), Identifier(layer_table), Literal(self.table_name + ' ' + layer_name + ' layer'))
-                c.execute(q)
 
-                # create jsonb index
-                if create_index is True:
-                    c.execute(SQL(
-                        "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'layers') jsonb_path_ops)").format(
-                        schema=Identifier(self.storage.schema),
-                        index=Identifier('idx_%s_data' % layer_table),
-                        table=Identifier(layer_table)))
+                layer_table = self.layer_name_to_table_name(layer_name)
 
-                # create ngram array index
-                if ngram_index is not None:
-                    for column in ngram_index_cols:
-                        c.execute(SQL(
-                            "CREATE INDEX {index} ON {schema}.{table} USING gin ({column})").format(
-                            schema=Identifier(self.storage.schema),
-                            index=Identifier('idx_%s_%s' % (layer_table, column)),
-                            table=Identifier(layer_table),
-                            column=Identifier(column)))
+                # create table and indices
+                self._create_layer_table(c, layer_name,
+                                         is_fragment=False,
+                                         create_meta_column=create_meta_column,
+                                         create_index=create_index,
+                                         ngram_index=ngram_index)
 
                 # insert data
                 for key, text in self.select(layers=layers):
@@ -138,14 +171,11 @@ class PgCollection:
                         layer = callable(text)
                         meta = None
                     layer_dict = layer_to_dict(layer, text)
-                    ngram_index_col_values = None
+                    ngram_values = None
                     if ngram_index is not None:
-                        ngram_index_col_values = [create_ngram_fingerprint_index(layer, attribute,
-                                                                                 ngram_index[attribute])
-                                                  for attribute in ngram_index_cols]
-                    self.storage.insert_layer_row(layer_table, layer_dict, key,
-                                                  meta=meta,
-                                                  ngram_values=ngram_index_col_values)
+                        ngram_values = [create_ngram_fingerprint_index(layer, attr, val)
+                                        for attr, val in ngram_index.items()]
+                    self.storage.insert_layer_row(layer_table, layer_dict, key, meta=meta, ngram_values=ngram_values)
             except:
                 conn.rollback()
                 raise
@@ -155,11 +185,78 @@ class PgCollection:
                     conn.commit()
                 conn.autocommit = True
 
+    def _create_layer_table(self, cursor, layer_name, is_fragment=False, create_meta_column=False, create_index=True,
+                            ngram_index=None):
+        if is_fragment is True:
+            layer_table = self.layer_fragment_name_to_table_name(layer_name)
+        else:
+            layer_table = self.layer_name_to_table_name(layer_name)
+
+        if self.storage.table_exists(layer_table):
+            raise PgStorageException("Table '{}' for layer '{}' already exists.".format(layer_table, layer_name))
+        if ngram_index is not None:
+            ngram_index_cols = ngram_index.keys()
+            ngram_cols_sql = ", %s" % ",".join(["%s text[]" % Identifier(column).as_string(self.storage.conn)
+                                                for column in ngram_index])
+        else:
+            ngram_cols_sql = ""
+        if create_meta_column is True:
+            meta_col_sql = ", meta json"
+        else:
+            meta_col_sql = ""
+        # create layer table and index
+        if is_fragment is False:
+            q = "CREATE TABLE {}.{} (id serial PRIMARY KEY, data jsonb %s %s)"
+        else:
+            q = "CREATE TABLE {}.{} (id serial PRIMARY KEY, text_id int NOT NULL, data jsonb %s %s)"
+        q %= (meta_col_sql, ngram_cols_sql)
+        q = SQL(q).format(Identifier(self.storage.schema), Identifier(layer_table))
+        cursor.execute(q)
+        q = SQL("COMMENT ON TABLE {}.{} IS {}").format(
+            Identifier(self.storage.schema), Identifier(layer_table),
+            Literal("%s %s layer" % (self.table_name, layer_name)))
+        cursor.execute(q)
+
+        # create jsonb index
+        if create_index is True:
+            cursor.execute(SQL(
+                "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'layers') jsonb_path_ops)").format(
+                schema=Identifier(self.storage.schema),
+                index=Identifier('idx_%s_data' % layer_table),
+                table=Identifier(layer_table)))
+
+        # create ngram array index
+        if ngram_index is not None:
+            for column in ngram_index_cols:
+                cursor.execute(SQL(
+                    "CREATE INDEX {index} ON {schema}.{table} USING gin ({column})").format(
+                    schema=Identifier(self.storage.schema),
+                    index=Identifier('idx_%s_%s' % (layer_table, column)),
+                    table=Identifier(layer_table),
+                    column=Identifier(column)))
+
+        if is_fragment is True:
+            cursor.execute(SQL(
+                "CREATE INDEX {index} ON {schema}.{table} (text_id)").format(
+                index=Identifier('idx_%s__text_id' % layer_table),
+                schema=Identifier(self.storage.schema),
+                table=Identifier(layer_table)))
+
     def delete_layer(self, layer_name):
         layer_table = self.layer_name_to_table_name(layer_name)
+        if layer_name not in self.get_layer_names():
+            raise PgStorageException("Collection does not have a layer '%s'." % layer_name)
         if not self.storage.table_exists(layer_table):
-            raise PgStorageException()
+            raise PgStorageException("Layer table '%s' does not exist." % layer_table)
         self.storage.drop_table(layer_table)
+
+    def delete_layer_fragment(self, layer_fragment_name):
+        lf_table = self.layer_fragment_name_to_table_name(layer_fragment_name)
+        if layer_fragment_name not in self.get_layer_fragment_names():
+            raise PgStorageException("Collection does not have a layer fragment '%s'." % layer_fragment_name)
+        if not self.storage.table_exists(lf_table):
+            raise PgStorageException("Layer fragment table '%s' does not exist." % lf_table)
+        self.storage.drop_table(lf_table)
 
     def delete(self):
         """Removes collection and all related layers."""
@@ -168,6 +265,8 @@ class PgCollection:
         try:
             for layer_table in self.get_layer_tables():
                 self.storage.drop_table(layer_table)
+            for lf_table in self.get_layer_fragment_tables():
+                self.storage.drop_table(lf_table)
             self.storage.drop_table(self.table_name)
         except:
             conn.rollback()
@@ -181,11 +280,38 @@ class PgCollection:
     def has_layer(self, layer_name):
         return layer_name in self.get_layer_names()
 
+    def has_layer_fragment(self, layer_fragment_name):
+        return layer_fragment_name in self.get_layer_fragment_names()
+
+    def get_layer_fragment_names(self):
+        lf_names = []
+        for tbl in self.get_layer_fragment_tables():
+            layer = re.sub("^%s__" % self.table_name, "", tbl)
+            layer = re.sub("__layer_fragment$", "", layer)
+            lf_names.append(layer)
+        return lf_names
+
     def get_layer_names(self):
-        return [tbl[len(self.table_name) + 2:] for tbl in self.get_layer_tables()]
+        layer_names = []
+        for tbl in self.get_layer_tables():
+            layer = re.sub("^%s__" % self.table_name, "", tbl)
+            layer = re.sub("__layer$", "", layer)
+            layer_names.append(layer)
+        return layer_names
+
+    def get_layer_fragment_tables(self):
+        lf_tables = []
+        for tbl in self.storage.get_all_table_names():
+            if tbl.startswith("%s__" % self.table_name) and tbl.endswith("__layer_fragment"):
+                lf_tables.append(tbl)
+        return lf_tables
 
     def get_layer_tables(self):
-        return [tbl for tbl in self.storage.get_all_table_names() if tbl.startswith("%s__" % self.table_name)]
+        layer_tables = []
+        for tbl in self.storage.get_all_table_names():
+            if tbl.startswith("%s__" % self.table_name) and tbl.endswith("__layer"):
+                layer_tables.append(tbl)
+        return layer_tables
 
 
 class PostgresStorage:
@@ -259,7 +385,24 @@ class PostgresStorage:
                     self.conn.commit()
                 self.conn.autocommit = True
 
-    def layer_name_to_table_name(self, collection_table, layer_name):
+    @staticmethod
+    def layer_fragment_name_to_table_name(collection_table, layer_fragment_name):
+        """
+        Constructs table name for the layer fragment .
+
+        Args:
+            collection_table: str
+                parent collection table
+            layer_fragment_name: str
+                layer fragment name
+        Returns:
+            str: layer fragment table name
+
+        """
+        return "%s__%s__layer_fragment" % (collection_table, layer_fragment_name)
+
+    @staticmethod
+    def layer_name_to_table_name(collection_table, layer_name):
         """
         Constructs layer table name.
 
@@ -272,7 +415,7 @@ class PostgresStorage:
             str: layer table name
 
         """
-        return "%s__%s" % (collection_table, layer_name)
+        return "%s__%s__layer" % (collection_table, layer_name)
 
     def drop_table(self, table):
         with self.conn.cursor() as c:

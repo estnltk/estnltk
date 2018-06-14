@@ -8,6 +8,7 @@ import unittest
 import random
 import os
 
+from estnltk import Layer
 from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.storage.postgres import PostgresStorage, PgStorageException, JsonbTextQuery as Q, JsonbLayerQuery
@@ -152,6 +153,92 @@ class TestStorage(unittest.TestCase):
         col.delete()
 
 
+class TestLayerFragment(unittest.TestCase):
+    def setUp(self):
+        schema = "test_layer_fragment"
+        self.storage = PostgresStorage(pgpass_file=os.path.join(os.path.dirname(__file__), '.pgpass'),
+                                       schema=schema)
+        self.storage.create_schema()
+
+    def tearDown(self):
+        self.storage.delete_schema()
+        self.storage.close()
+
+    def test_create(self):
+        table_name = get_random_table_name()
+        col = self.storage.get_collection(table_name)
+        col.create()
+
+        lfrag1 = "layer_fragment_1"
+        lfrag2 = "layer_fragment_2"
+
+        col.create_layer_fragment(lfrag1, callable=None)
+        self.assertTrue(self.storage.table_exists(col.layer_fragment_name_to_table_name(lfrag1)))
+        self.assertTrue(col.has_layer_fragment(lfrag1))
+
+        col.create_layer_fragment(lfrag2, callable=None)
+        self.assertEqual(len(col.get_layer_fragment_names()), 2)
+        self.assertTrue(lfrag1 in col.get_layer_fragment_names())
+        self.assertTrue(lfrag2 in col.get_layer_fragment_names())
+
+        col.delete_layer_fragment(lfrag1)
+        self.assertFalse(self.storage.table_exists("%s__%s" % (table_name, lfrag1)))
+        self.assertFalse(col.has_layer_fragment(lfrag1))
+        self.assertFalse(lfrag1 in col.get_layer_fragment_names())
+        self.assertTrue(col.has_layer_fragment(lfrag2))
+
+        col.delete()
+
+        self.assertFalse(col.has_layer_fragment(lfrag2))
+        self.assertEqual(len(col.get_layer_fragment_names()), 0)
+        self.assertFalse(self.storage.table_exists(table_name))
+
+    def test_read_write(self):
+        table_name = get_random_table_name()
+        col = self.storage.get_collection(table_name)
+        col.create()
+
+        text1 = Text('see on esimene lause').tag_layer(["sentences"])
+        col.insert(text1)
+        text2 = Text('see on teine lause').tag_layer(["sentences"])
+        col.insert(text2)
+
+        lf_name = "layer_fragment_1"
+        tagger1 = VabamorfTagger(disambiguate=False, layer_name=lf_name)
+
+        def fragment_tagger(text):
+            fragments = [tagger1.tag(text, return_layer=True),
+                         tagger1.tag(text, return_layer=True)]
+            return fragments
+
+        col.create_layer_fragment(lf_name, callable=fragment_tagger)
+        tagger1.tag(text1)
+        tagger1.tag(text2)
+
+        self.assertTrue(col.has_layer_fragment(lf_name))
+
+        rows = [row for row in col.select_layer_fragment(lf_name)]
+        self.assertEqual(len(rows), 4)
+
+        text_ids = [row[0] for row in rows]
+        self.assertEqual(text_ids[0], text_ids[1])
+        self.assertEqual(text_ids[2], text_ids[3])
+        self.assertNotEqual(text_ids[1], text_ids[2])
+
+        fragment_ids = [row[2] for row in rows]
+        self.assertEqual(len(set(fragment_ids)), 4)
+
+        texts = [row[1] for row in rows]
+        self.assertTrue(isinstance(texts[0], Text))
+
+        fragments = [row[3] for row in rows]
+        self.assertTrue(isinstance(fragments[0], Layer))
+
+        col.delete()
+        self.assertFalse(
+            self.storage.table_exists(self.storage.layer_fragment_name_to_table_name(col.table_name, lf_name)))
+
+
 class TestLayer(unittest.TestCase):
     def setUp(self):
         schema = "test_layer"
@@ -172,7 +259,8 @@ class TestLayer(unittest.TestCase):
         layer2 = "layer2"
 
         col.create_layer(layer1, callable=None)
-        self.assertTrue(self.storage.table_exists("%s__%s" % (table_name, layer1)))
+
+        self.assertTrue(self.storage.table_exists(col.layer_name_to_table_name(layer1)))
         self.assertTrue(col.has_layer(layer1))
 
         col.create_layer(layer2, callable=None)
