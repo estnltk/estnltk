@@ -64,6 +64,9 @@ def test_default_morph_analysis():
     # Check results
     assert expected_records == text['morph_analysis'].to_records()
 
+    text = Text('<ANONYM id="14" type="per" morph="_H_ sg n"/>').tag_layer(['morph_analysis'])
+    assert text.morph_analysis[0].parent is not None
+
 
 def test_default_morph_analysis_without_disambiguation():
     # Case 1

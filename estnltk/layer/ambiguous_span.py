@@ -14,7 +14,7 @@ class AmbiguousSpan(collections.Sequence):
 
         self._layer = layer
 
-        self.parent = None  # type:Union[Span, None]
+        self.parent = span.parent  # type:Union[Span, None]
 
         # placeholder for dependant layer
         self._base = None  # type:Union[Span, None]
