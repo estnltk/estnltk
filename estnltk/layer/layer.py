@@ -552,7 +552,7 @@ class Layer:
         pandas.set_option('display.max_colwidth', -1)
         table1 = self.metadata().to_html(index=False, escape=False)
         if table2 is None:
-            table2 = df.to_html(index=False, escape=False)
+            table2 = df.to_html(index=False, escape=True)
         if header:
             return '\n'.join(('<h4>' + header + '</h4>', table1, table2))
         return '\n'.join((table1, table2))

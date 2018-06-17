@@ -452,7 +452,7 @@ class Text:
 
         rec = [{'text': self.text.replace('\n', '<br/>')}]
         table = pandas.DataFrame.from_records(rec)
-        table = table.to_html(index=False, escape=False)
+        table = table.to_html(index=False, escape=True)
         if self.meta:
             data = {'key': sorted(self.meta), 'value': [self.meta[k] for k in sorted(self.meta)]}
             table_meta = pandas.DataFrame(data, columns=['key', 'value'])

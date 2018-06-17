@@ -49,7 +49,7 @@ class AmbiguousAttributeTupleList:
                 first = False
         pandas.set_option('display.max_colwidth', -1)
         df = pandas.DataFrame.from_records(records, columns=columns)
-        return df.to_html(index=False, escape=False)
+        return df.to_html(index=False, escape=True)
 
     def _repr_html_(self):
         return '\n'.join(('<h4>' + self.__class__.__name__ + '</h4>',
