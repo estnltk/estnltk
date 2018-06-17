@@ -40,24 +40,26 @@ class DiffTagger(Tagger):
             enveloping=layer_a.enveloping,
             ambiguous=True
             )
-        missing_spans = 0
-        extra_spans = 0
-        missing_annotations = 0
-        extra_annotations = 0
+        status['missing_spans'] = 0
+        status['extra_spans'] = 0
+        status['missing_annotations'] = 0
+        status['extra_annotations'] = 0
+        status['matching_spans'] = 0  # TODO
+        status['matching_annotations'] = 0  # TODO
         copy_attributes = [attr for attr in self.output_attributes if attr != self.input_layer_name_attribute]
         if layer_a.ambiguous:
             if layer_a.enveloping:
                 for a_spans, b_spans in diff_layer(layer_a, layer_b):
                     if a_spans is None:
-                        extra_spans += 1
-                        extra_annotations += len(b_spans)
+                        status['extra_spans'] += 1
+                        status['extra_annotations'] += len(b_spans)
                     if b_spans is None:
-                        missing_spans += 1
-                        missing_annotations += len(a_spans)
+                        status['missing_spans'] += 1
+                        status['missing_annotations'] += len(a_spans)
                     if a_spans is not None and b_spans is not None:
                         a_spans, b_spans = symm_diff_ambiguous_spans(a_spans, b_spans)
-                        missing_annotations += len(a_spans)
-                        extra_annotations += len(b_spans)
+                        status['missing_annotations'] += len(a_spans)
+                        status['extra_annotations'] += len(b_spans)
                     if a_spans is not None:
                         for a in a_spans:
                             attributes = {attr: getattr(a, attr) for attr in copy_attributes}
@@ -96,11 +98,6 @@ class DiffTagger(Tagger):
                 # TODO:
                 raise NotImplementedError()
 
-        if status is not None:
-            status['different spans'] = len(layer)
-            status['missing_annotations'] = missing_annotations
-            status['missing_spans'] = missing_spans
-            status['extra_annotations'] = extra_annotations
-            status['extra_spans'] = extra_spans
+        status['different spans'] = len(layer)
 
         return layer
