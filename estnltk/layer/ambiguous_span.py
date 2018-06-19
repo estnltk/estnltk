@@ -1,5 +1,7 @@
-import collections
 from typing import Union, Any
+import collections
+import pandas as pd
+from IPython.core.display import display_html
 
 from estnltk import Span
 from .annotation import Annotation
@@ -128,7 +130,25 @@ class AmbiguousSpan(collections.Sequence):
     def __repr__(self):
         return str(self)
 
+    def _to_html(self, margin=0) -> str:
+        pd.set_option("display.max_colwidth", -1)
+
+        records = [{attr: getattr(annotation, attr) for attr in self.layer.attributes}
+                   for annotation in self.annotations]
+        first = True
+        for rec in records:
+            if first:
+                rec['text'] = self.span.html_text(margin)
+                rec['start'] = self.span.start
+                rec['end'] = self.span.end
+                first = False
+            else:
+                rec['text'] = ''
+        df = pd.DataFrame.from_records(records, columns=('text','start', 'end')+self.layer.attributes)
+        return df.to_html(escape=False, justify='left', index=False)
+
+    def display(self, margin: int=0):
+        display_html(self._to_html(margin), raw=True)
+
     def _repr_html_(self):
-        if self.layer and self is self.layer.spans:
-            return self.layer.to_html(header='AmbiguousSpan', start_end=True)
-        return str(self)
+        return self._to_html()
