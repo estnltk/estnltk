@@ -172,25 +172,25 @@ class TestLayerFragment(unittest.TestCase):
         lfrag1 = "layer_fragment_1"
         lfrag2 = "layer_fragment_2"
 
-        col.create_layer_fragment(lfrag1, callable=None)
-        self.assertTrue(self.storage.table_exists(col.layer_fragment_name_to_table_name(lfrag1)))
-        self.assertTrue(col.has_layer_fragment(lfrag1))
+        col.create_layer(lfrag1, data_iterator=col.select(), row_mapper=None)
+        self.assertTrue(self.storage.table_exists(col.layer_name_to_table_name(lfrag1)))
+        self.assertTrue(col.has_layer(lfrag1))
 
-        col.create_layer_fragment(lfrag2, callable=None)
-        self.assertEqual(len(col.get_layer_fragment_names()), 2)
-        self.assertTrue(lfrag1 in col.get_layer_fragment_names())
-        self.assertTrue(lfrag2 in col.get_layer_fragment_names())
+        col.create_layer(lfrag2, data_iterator=col.select(), row_mapper=None)
+        self.assertEqual(len(col.get_layer_names()), 2)
+        self.assertTrue(lfrag1 in col.get_layer_names())
+        self.assertTrue(lfrag2 in col.get_layer_names())
 
-        col.delete_layer_fragment(lfrag1)
-        self.assertFalse(self.storage.table_exists("%s__%s" % (table_name, lfrag1)))
-        self.assertFalse(col.has_layer_fragment(lfrag1))
-        self.assertFalse(lfrag1 in col.get_layer_fragment_names())
-        self.assertTrue(col.has_layer_fragment(lfrag2))
+        col.delete_layer(lfrag1)
+        self.assertFalse(self.storage.table_exists(col.layer_name_to_table_name(lfrag1)))
+        self.assertFalse(col.has_layer(lfrag1))
+        self.assertFalse(lfrag1 in col.get_layer_names())
+        self.assertTrue(col.has_layer(lfrag2))
 
         col.delete()
 
-        self.assertFalse(col.has_layer_fragment(lfrag2))
-        self.assertEqual(len(col.get_layer_fragment_names()), 0)
+        self.assertFalse(col.has_layer(lfrag2))
+        self.assertEqual(len(col.get_layer_names()), 0)
         self.assertFalse(self.storage.table_exists(table_name))
 
     def test_read_write(self):
@@ -203,21 +203,22 @@ class TestLayerFragment(unittest.TestCase):
         text2 = Text('see on teine lause').tag_layer(["sentences"])
         col.insert(text2)
 
-        lf_name = "layer_fragment_1"
-        tagger1 = VabamorfTagger(disambiguate=False, layer_name=lf_name)
+        layer_fragment_name = "layer_fragment_1"
+        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer_fragment_name)
 
-        def fragment_tagger(text):
+        def fragment_tagger(row):
+            text_id, text = row[0], row[1]
             fragments = [tagger1.tag(text, return_layer=True),
                          tagger1.tag(text, return_layer=True)]
             return fragments
 
-        col.create_layer_fragment(lf_name, callable=fragment_tagger)
+        col.create_layer(layer_fragment_name, data_iterator=col.select(), row_mapper=fragment_tagger)
         tagger1.tag(text1)
         tagger1.tag(text2)
 
-        self.assertTrue(col.has_layer_fragment(lf_name))
+        self.assertTrue(col.has_layer(layer_fragment_name))
 
-        rows = [row for row in col.select_layer_fragment(lf_name)]
+        rows = [row for row in col.select_raw(layers=[layer_fragment_name])]
         self.assertEqual(len(rows), 4)
 
         text_ids = [row[0] for row in rows]
@@ -225,18 +226,110 @@ class TestLayerFragment(unittest.TestCase):
         self.assertEqual(text_ids[2], text_ids[3])
         self.assertNotEqual(text_ids[1], text_ids[2])
 
-        fragment_ids = [row[2] for row in rows]
-        self.assertEqual(len(set(fragment_ids)), 4)
+        layer_ids = [row[2] for row in rows]
+        self.assertEqual(len(set(layer_ids)), 4)
 
         texts = [row[1] for row in rows]
         self.assertTrue(isinstance(texts[0], Text))
 
-        fragments = [row[3] for row in rows]
-        self.assertTrue(isinstance(fragments[0], Layer))
+        layers = [row[3] for row in rows]
+        self.assertTrue(isinstance(layers[0], Layer))
 
         col.delete()
+
         self.assertFalse(
-            self.storage.table_exists(self.storage.layer_fragment_name_to_table_name(col.table_name, lf_name)))
+            self.storage.table_exists(col.layer_name_to_table_name(layer_fragment_name)))
+
+
+class TestFragment(unittest.TestCase):
+    def setUp(self):
+        schema = "test_fragment"
+        self.storage = PostgresStorage(pgpass_file=os.path.join(os.path.dirname(__file__), '.pgpass'),
+                                       schema=schema)
+        self.storage.create_schema()
+
+    def tearDown(self):
+        self.storage.delete_schema()
+        self.storage.close()
+
+    def test_create(self):
+        table_name = get_random_table_name()
+        col = self.storage.get_collection(table_name)
+        col.create()
+
+        layer_fragment_name = "layer_fragment_1"
+        col.create_layer(layer_fragment_name,
+                         data_iterator=col.select(),
+                         row_mapper=None)
+
+        fragment_name = "fragment_1"
+
+        def row_mapper(row):
+            text_id, text = row[0], row[1]
+            fragments = [text[layer_fragment_name],
+                         text[layer_fragment_name]]
+            return fragments
+
+        col.create_fragment(fragment_name,
+                            data_iterator=col.select_raw(layers=[layer_fragment_name]),
+                            row_mapper=row_mapper,
+                            create_index=False,
+                            ngram_index=None)
+
+        self.assertTrue(self.storage.table_exists(col.fragment_name_to_table_name(fragment_name)))
+        self.assertTrue(col.has_fragment(fragment_name))
+        self.assertTrue(fragment_name in col.get_fragment_names())
+
+        col.delete_fragment(fragment_name)
+
+        self.assertFalse(self.storage.table_exists(col.fragment_name_to_table_name(fragment_name)))
+        self.assertFalse(col.has_fragment(fragment_name))
+        self.assertFalse(fragment_name in col.get_fragment_names())
+
+        col.delete()
+
+    def test_read_write(self):
+        table_name = get_random_table_name()
+        col = self.storage.get_collection(table_name)
+        col.create()
+
+        text1 = Text('see on esimene lause').tag_layer(["sentences"])
+        col.insert(text1)
+        text2 = Text('see on teine lause').tag_layer(["sentences"])
+        col.insert(text2)
+
+        layer_fragment_name = "layer_fragment_1"
+        tagger = VabamorfTagger(disambiguate=False, layer_name=layer_fragment_name)
+        col.create_layer(layer_fragment_name,
+                         data_iterator=col.select(),
+                         row_mapper=lambda row: [tagger.tag(row[1], return_layer=True)])
+
+        self.assertTrue(col.has_layer(layer_fragment_name))
+
+        fragment_name = "fragment_1"
+
+        def row_mapper(row):
+            text_id, text, parent_id, parent_layer = row[0], row[1], row[2], row[3]
+            fragments = [parent_layer, parent_layer]
+            return fragments
+
+        col.create_fragment(fragment_name,
+                            data_iterator=col.select_raw(layers=[layer_fragment_name]),
+                            row_mapper=row_mapper,
+                            create_index=False,
+                            ngram_index=None)
+
+        rows = list(col.select_fragment_raw(fragment_name, layer_fragment_name))
+        self.assertEqual(len(rows), 4)
+
+        row = rows[0]
+        self.assertEqual(len(row), 6)
+        self.assertIsInstance(row[0], int)
+        self.assertIsInstance(row[1], Text)
+        self.assertIsInstance(row[2], int)
+        self.assertIsInstance(row[3], Layer)
+        self.assertIsInstance(row[4], int)
+        self.assertIsInstance(row[5], Layer)
 
 
 class TestLayer(unittest.TestCase):
@@ -258,18 +351,18 @@ class TestLayer(unittest.TestCase):
         layer1 = "layer1"
         layer2 = "layer2"
 
-        col.create_layer(layer1, callable=None)
+        col.create_layer(layer1, data_iterator=col.select(), row_mapper=None)
 
         self.assertTrue(self.storage.table_exists(col.layer_name_to_table_name(layer1)))
         self.assertTrue(col.has_layer(layer1))
 
-        col.create_layer(layer2, callable=None)
+        col.create_layer(layer2, data_iterator=col.select(), row_mapper=None)
         self.assertEqual(len(col.get_layer_names()), 2)
         self.assertTrue(layer1 in col.get_layer_names())
         self.assertTrue(layer2 in col.get_layer_names())
 
         col.delete_layer(layer1)
-        self.assertFalse(self.storage.table_exists("%s__%s" % (table_name, layer1)))
+        self.assertFalse(self.storage.table_exists(col.layer_name_to_table_name(layer1)))
         self.assertFalse(col.has_layer(layer1))
         self.assertFalse(layer1 in col.get_layer_names())
         self.assertTrue(col.has_layer(layer2))
@@ -292,13 +385,25 @@ class TestLayer(unittest.TestCase):
 
         layer1 = "layer1"
         tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
-        col.create_layer(layer1, callable=lambda t: tagger1.tag(t, return_layer=True))
+
+        def row_mapper1(row):
+            text_id, text = row[0], row[1]
+            layer = tagger1.tag(text, return_layer=True)
+            return [layer]
+
+        col.create_layer(layer1, data_iterator=col.select(), row_mapper=row_mapper1)
         tagger1.tag(text1)
         tagger1.tag(text2)
 
         layer2 = "layer2"
         tagger2 = VabamorfTagger(disambiguate=False, layer_name=layer2)
-        col.create_layer(layer2, callable=lambda t: tagger2.tag(t, return_layer=True))
+
+        def row_mapper2(row):
+            text_id, text = row[0], row[1]
+            layer = tagger2.tag(text, return_layer=True)
+            return [layer]
+
+        col.create_layer(layer2, data_iterator=col.select(), row_mapper=row_mapper2)
         tagger2.tag(text1)
         tagger2.tag(text2)
 
@@ -333,7 +438,15 @@ class TestLayer(unittest.TestCase):
         layer1 = "layer1"
         layer1_table = self.storage.layer_name_to_table_name(table_name, layer1)
         tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
-        col.create_layer(layer1, callable=lambda t: tagger1.tag(t, return_layer=True))
+
+        def row_mapper1(row):
+            text_id, text = row[0], row[1]
+            layer = tagger1.tag(text, return_layer=True)
+            return [layer]
+
+        col.create_layer(layer1,
+                         data_iterator=col.select(),
+                         row_mapper=row_mapper1)
 
         q = JsonbLayerQuery(layer_table=layer1_table, lemma='ööbik', form='sg n')
         self.assertEqual(len(list(col.select(layer_query={layer1: q}))), 1)
@@ -357,7 +470,13 @@ class TestLayer(unittest.TestCase):
         layer2 = "layer2"
         layer2_table = self.storage.layer_name_to_table_name(table_name, layer2)
         tagger2 = VabamorfTagger(disambiguate=True, layer_name=layer2)
-        col.create_layer(layer2, callable=lambda t: tagger2.tag(t, return_layer=True))
+
+        def row_mapper2(row):
+            text_id, text = row[0], row[1]
+            layer = tagger2.tag(text, return_layer=True)
+            return [layer]
+
+        col.create_layer(layer2, data_iterator=col.select(), row_mapper=row_mapper2)
 
         q = JsonbLayerQuery(layer_table=layer2_table, lemma='ööbik', form='sg n')
         self.assertEqual(len(list(col.select(layer_query={layer2: q}))), 1)
@@ -381,8 +500,19 @@ class TestLayer(unittest.TestCase):
         layer2 = "layer2"
         tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
         tagger2 = VabamorfTagger(disambiguate=False, layer_name=layer2)
-        col.create_layer(layer1, callable=lambda t: tagger1.tag(t, return_layer=True), create_index=True)
-        col.create_layer(layer2, callable=lambda t: tagger2.tag(t, return_layer=True))
+
+        def row_mapper1(row):
+            text_id, text = row[0], row[1]
+            layer = tagger1.tag(text, return_layer=True)
+            return [layer]
+
+        def row_mapper2(row):
+            text_id, text = row[0], row[1]
+            layer = tagger2.tag(text, return_layer=True)
+            return [layer]
+
+        col.create_layer(layer1, data_iterator=col.select(), row_mapper=row_mapper1, create_index=True)
+        col.create_layer(layer2, data_iterator=col.select(), row_mapper=row_mapper2)
 
         # test one layer
         res = col.find_fingerprint(layer_query={
@@ -454,9 +584,20 @@ class TestLayer(unittest.TestCase):
         layer2 = "layer2"
         tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
         tagger2 = VabamorfTagger(disambiguate=False, layer_name=layer2)
-        col.create_layer(layer1, callable=lambda t: tagger1.tag(t, return_layer=True),
+
+        def row_mapper1(row):
+            text_id, text = row[0], row[1]
+            layer = tagger1.tag(text, return_layer=True)
+            return [layer]
+
+        def row_mapper2(row):
+            text_id, text = row[0], row[1]
+            layer = tagger2.tag(text, return_layer=True)
+            return [layer]
+
+        col.create_layer(layer1, data_iterator=col.select(), row_mapper=row_mapper1,
                          ngram_index={"lemma": 2})
-        col.create_layer(layer2, callable=lambda t: tagger2.tag(t, return_layer=True),
+        col.create_layer(layer2, data_iterator=col.select(), row_mapper=row_mapper2,
                          ngram_index={"partofspeech": 3})
 
         self.assertEqual(self.storage.count_rows(self.storage.layer_name_to_table_name(table_name, layer1)), 2)
@@ -523,35 +664,6 @@ class TestLayer(unittest.TestCase):
         t1 = res[0][1]
         self.assertTrue(layer1 in t1.layers)
         self.assertTrue(layer2 in t1.layers)
-
-        col.delete()
-
-    def test_layer_write_meta(self):
-        table_name = get_random_table_name()
-        col = self.storage.get_collection(table_name)
-        col.create()
-
-        text1 = Text('see on esimene lause').tag_layer(["sentences"])
-        col.insert(text1)
-        text2 = Text('see on teine lause').tag_layer(["sentences"])
-        col.insert(text2)
-
-        layer = "layer"
-
-        def row_mapper(text):
-            layer = tagger.tag(text, return_layer=True)
-            meta = "meta"
-            return layer, meta
-
-        tagger = VabamorfTagger(disambiguate=False, layer_name=layer)
-        col.create_layer(layer, create_meta_column=True, callable=row_mapper)
-        tagger.tag(text1)
-        tagger.tag(text2)
-
-        rows = list(col.select(layers=[layer]))
-        text1_db = rows[0][1]
-        self.assertTrue(layer in text1_db.layers)
-        self.assertEqual(text1_db[layer].lemma, text1[layer].lemma)
 
         col.delete()
 
