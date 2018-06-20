@@ -1,4 +1,5 @@
 from typing import MutableMapping, Any, Sequence
+from html import escape
 
 
 class Span:
@@ -107,9 +108,17 @@ class Span:
     def raw_text(self):
         return self.text_object.text
 
-    @property
-    def html_text(self):
-        return '<b>' + self.raw_text[self.start:self.end] + '</b>'
+    def html_text(self, margin: int = 0):
+        t = self.raw_text
+        s = self.start
+        e = self.end
+        left = escape(t[max(0, s - margin):s])
+        middle = escape(t[s:e])
+        right = escape(t[e:e + margin])
+        return ''.join(('<span style="font-family:monospace; white-space: pre-wrap; ">',
+                        left,
+                        '<span style="text-decoration: underline;">', middle, '</span>',
+                        right, '</span>'))
 
     def __getattr__(self, item):
         if item in {'start', 'end', 'layer', 'text'}:
