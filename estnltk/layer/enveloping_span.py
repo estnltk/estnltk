@@ -90,8 +90,12 @@ class EnvelopingSpan(collections.Sequence):
     def raw_text(self):
         return self.text_object.text
 
+    # TODO
+    def html_text(self, margin: int = 0):
+        return self.text
+
     @property
-    def html_text(self):
+    def _html_text(self):
         rt = self.raw_text
         result = []
         for a, b in zip(self.spans, self.spans[1:]):
