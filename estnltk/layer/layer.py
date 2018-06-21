@@ -382,6 +382,17 @@ class Layer:
             default_attributes.update(attributes)
             return ambiguous_span.add_annotation(**attributes)
 
+        if self.parent is None and self.enveloping is None and self.ambiguous:
+            ambiguous_span = self.classes.get(hash(span), None)
+            if ambiguous_span is None:
+                ambiguous_span = AmbiguousSpan(self, span)
+                bisect.insort(self.span_list.spans, ambiguous_span)
+                self.classes[hash(span)] = ambiguous_span
+            assert isinstance(ambiguous_span, AmbiguousSpan), ambiguous_span
+            default_attributes = self.default_values.copy()
+            default_attributes.update(attributes)
+            return ambiguous_span.add_annotation(**attributes)
+
         # TODO: implement add_annotation
         raise NotImplementedError('add_annotation not yet implemented for this type of layer')
 
