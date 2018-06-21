@@ -8,6 +8,7 @@ from .layer_operations import group_by_spans
 from .layer_operations import conflicts
 from .merge import merge_layers
 from .combine import combine_layers
+from .conflict_resolver import iterate_conflicting_spans
 from .conflict_resolver import resolve_conflicts
 from .splitting import extract_section
 from .splitting import extract_sections
