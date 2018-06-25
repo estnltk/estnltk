@@ -1,13 +1,13 @@
-from estnltk.text import Span, SpanList, Layer, Text
+from estnltk.text import Span, Layer, Text
 from estnltk import EnvelopingSpan
 
 import networkx as nx
 
 
 def extract_sections(text,
-                    sections:list,
-                    layers_to_keep:list=None,
-                    trim_overlapping:bool=False):
+                     sections: list,
+                     layers_to_keep: list = None,
+                     trim_overlapping: bool = False):
     """
     layers_to_keep
         List of layer names to be kept. 
@@ -36,12 +36,12 @@ def extract_sections(text,
             if layers_to_keep is not None:
                 if layer_name not in layers_to_keep:
                     continue
-            attributes = layer.attributes
+            attribute_names = layer.attributes
             parent = layer.parent
             enveloping = layer.enveloping
             ambiguous = layer.ambiguous
             new_layer = Layer(name=layer.name,
-                              attributes=attributes,
+                              attributes=attribute_names,
                               parent=parent,
                               enveloping=enveloping,
                               ambiguous=ambiguous)
@@ -50,16 +50,16 @@ def extract_sections(text,
     
             if parent:
                 if ambiguous:
-                    for span in layer.spans:
+                    for span in layer:
                         span_parent = map_spans.get(span.parent)
                         if span_parent:
+                            new_span = Span(parent=span_parent, layer=new_layer)
                             for sp in span:
-                                new_span = span_parent.mark(layer_name)
-                                for attr in attributes:
-                                    setattr(new_span, attr, getattr(sp, attr))
                                 map_spans[sp] = new_span
+                                attributes = {attr: getattr(sp, attr) for attr in attribute_names}
+                                new_layer.add_annotation(new_span, **attributes)
                 else:
-                    raise NotImplementedError('not ambiguous layer with parent: '+ layer_name)
+                    raise NotImplementedError('not ambiguous layer with parent: ' + layer_name)
             elif enveloping:
                 if ambiguous:
                     raise NotImplementedError('ambiguous enveloping layer: '+ layer_name)
@@ -80,7 +80,7 @@ def extract_sections(text,
                             if parent:
                                 spans.append(parent)
                         sp = EnvelopingSpan(spans=spans)
-                        for attr in attributes:
+                        for attr in attribute_names:
                             setattr(sp, attr, getattr(span, attr))
                         new_layer.add_span(sp)
                         map_spans[span] = sp
@@ -99,7 +99,7 @@ def extract_sections(text,
                         elif span_start < start or end < span_end:
                             continue
                         new_span = Span(span_start-start, span_end-start)
-                        for attr in attributes:
+                        for attr in attribute_names:
                             setattr(new_span, attr, getattr(span, attr))
                         new_layer.add_span(new_span)
                         map_spans[span] = new_span
@@ -108,10 +108,10 @@ def extract_sections(text,
 
 
 def extract_section(text,
-                    start:int,
-                    end:int,
-                    layers_to_keep:list=None,
-                    trim_overlapping:bool=False):
+                    start: int,
+                    end: int,
+                    layers_to_keep: list=None,
+                    trim_overlapping: bool=False):
     return extract_sections(text, [(start, end)], layers_to_keep, trim_overlapping)[0]
 
 
@@ -129,7 +129,7 @@ def layers_to_keep_default(text, layer):
 def split_by(text, layer, layers_to_keep=None, trim_overlapping=False):
     if layers_to_keep is None:
         layers_to_keep = layers_to_keep_default(text, layer)
-    sections = [(element.start, element.end) for element in text[layer]]
+    sections = [(span.start, span.end) for span in text[layer]]
     return extract_sections(text, sections, layers_to_keep, trim_overlapping)
 
 
