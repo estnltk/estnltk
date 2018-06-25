@@ -85,21 +85,26 @@ class DiffTagger(Tagger):
                 for a_spans, b_spans in diff_layer(layer_a, layer_b):
                     if a_spans is None:
                         a_spans_missing = []
+                        span_status = 'extra'
                     else:
                         a_spans_missing = list(a_spans)
                     if b_spans is None:
                         b_spans_extra = []
+                        span_status = 'missing'
                     else:
                         b_spans_extra = list(b_spans)
                     if a_spans is not None and b_spans is not None:
+                        span_status = 'modified'
                         a_spans_missing, b_spans_extra = symm_diff_ambiguous_spans(a_spans, b_spans)
                     for a in a_spans_missing:
                         attributes = {attr: getattr(a, attr) for attr in copy_attributes}
-                        attributes[self.span_status_attribute] = name_a
+                        attributes[self.span_status_attribute] = span_status
+                        attributes[self.input_layer_attribute] = name_a
                         layer.add_annotation(a_spans.span, **attributes)
                     for b in b_spans_extra:
                         attributes = {attr: getattr(b, attr) for attr in copy_attributes}
-                        attributes[self.span_status_attribute] = name_b
+                        attributes[self.span_status_attribute] = span_status
+                        attributes[self.input_layer_attribute] = name_b
                         layer.add_annotation(b_spans.span, **attributes)
         else:
             if layer_a.enveloping:
