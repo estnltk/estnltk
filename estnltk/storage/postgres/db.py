@@ -243,7 +243,7 @@ class PgCollection:
     def delete_fragment(self, fragment_name):
         fragment_table = self.fragment_name_to_table_name(fragment_name)
         if fragment_name not in self.get_fragment_names():
-            raise PgStorageException("Collection does not have a layer fragment '%s'." % layer_fragment_name)
+            raise PgStorageException("Collection does not have a layer fragment '%s'." % fragment_name)
         if not self.storage.table_exists(fragment_table):
             raise PgStorageException("Layer fragment table '%s' does not exist." % fragment_table)
         self.storage.drop_table(fragment_table)
