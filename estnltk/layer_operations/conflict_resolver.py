@@ -3,6 +3,24 @@ from collections import defaultdict
 from estnltk import AmbiguousSpan
 
 
+# TODO: use this generator in the resolve_conflicts function below
+def iterate_conflicting_spans(layer):
+    """
+    :param layer: Layer
+        input layer
+    :return: tuple
+        Returns all pairs of spans in the layer such that
+        a.start <= b.start and a.end > b.start
+    """
+    for i, a in enumerate(layer):
+        a_end = a.end
+        for j in range(i + 1, len(layer)):
+            b = layer[j]
+            if a_end <= b.start:
+                break
+            yield a, b
+
+
 def _delete_conflicting_spans(span_list, priority_key, map_conflicts, keep_equal):
     """
     If keep_equal is True, two spans are in conflict and one of them has

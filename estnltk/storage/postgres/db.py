@@ -127,7 +127,7 @@ class PgCollection:
                 conn.autocommit = True
 
     def create_layer(self, layer_name, data_iterator, row_mapper,
-                     create_index=False, ngram_index=None):
+                     create_index=False, ngram_index=None, overwrite=False):
         """
         Creates layer
 
@@ -139,6 +139,9 @@ class PgCollection:
             row_mapper: function
             create_index:
             ngram_index:
+            overwrite: bool
+                If True and layer table exists, table is overwritten.
+                If False and layer table exists, error is raised.
         """
         conn = self.storage.conn
         with conn.cursor() as c:
@@ -147,7 +150,8 @@ class PgCollection:
                 # create table and indices
                 self.create_layer_table(c, layer_name,
                                         create_index=create_index,
-                                        ngram_index=ngram_index)
+                                        ngram_index=ngram_index,
+                                        overwrite=overwrite)
                 # insert data
                 layer_table = self.layer_name_to_table_name(layer_name)
                 id_ = 0
@@ -175,10 +179,11 @@ class PgCollection:
                     conn.commit()
                 conn.autocommit = True
 
-    def create_layer_table(self, cursor, layer_name, create_index=True, ngram_index=None):
+    def create_layer_table(self, cursor, layer_name, create_index=True, ngram_index=None, overwrite=False):
         is_fragment = False
         table_name = self.layer_name_to_table_name(layer_name)
-        return self._create_layer_table(cursor, table_name, layer_name, is_fragment, create_index, ngram_index)
+        return self._create_layer_table(cursor, table_name, layer_name, is_fragment, create_index, ngram_index,
+                                        overwrite=overwrite)
 
     def create_fragment_table(self, cursor, fragment_name, create_index=True, ngram_index=None):
         is_fragment = True
@@ -186,8 +191,10 @@ class PgCollection:
         return self._create_layer_table(cursor, table_name, fragment_name, is_fragment, create_index, ngram_index)
 
     def _create_layer_table(self, cursor, layer_table, layer_name, is_fragment=False, create_index=True,
-                            ngram_index=None):
-        if self.storage.table_exists(layer_table):
+                            ngram_index=None, overwrite=False):
+        if overwrite:
+            self.storage.drop_table_if_exists(layer_table)
+        elif self.storage.table_exists(layer_table):
             raise PgStorageException("Table '{}' for layer '{}' already exists.".format(layer_table, layer_name))
         if ngram_index is not None:
             ngram_index_cols = ngram_index.keys()
@@ -243,7 +250,7 @@ class PgCollection:
     def delete_fragment(self, fragment_name):
         fragment_table = self.fragment_name_to_table_name(fragment_name)
         if fragment_name not in self.get_fragment_names():
-            raise PgStorageException("Collection does not have a layer fragment '%s'." % layer_fragment_name)
+            raise PgStorageException("Collection does not have a layer fragment '%s'." % fragment_name)
         if not self.storage.table_exists(fragment_table):
             raise PgStorageException("Layer fragment table '%s' does not exist." % fragment_table)
         self.storage.drop_table(fragment_table)

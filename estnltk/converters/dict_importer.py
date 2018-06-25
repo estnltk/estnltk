@@ -10,6 +10,7 @@ def _dict_to_layer(layer_dict: dict, text: Text) -> Layer:
                   enveloping=layer_dict['enveloping'],
                   ambiguous=layer_dict['ambiguous']
                   )
+    layer.text_object = text
     layer._base = layer_dict['_base']
     if layer.parent:
         parent_layer = text[layer._base]

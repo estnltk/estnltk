@@ -137,10 +137,10 @@ class AmbiguousSpan(collections.Sequence):
                    for annotation in self.annotations]
         first = True
         for rec in records:
+            rec['start'] = self.span.start
+            rec['end'] = self.span.end
             if first:
                 rec['text'] = self.span.html_text(margin)
-                rec['start'] = self.span.start
-                rec['end'] = self.span.end
                 first = False
             else:
                 rec['text'] = ''
