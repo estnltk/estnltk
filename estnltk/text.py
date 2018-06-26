@@ -1,4 +1,5 @@
 import keyword
+import html
 from bisect import bisect_left
 from collections import defaultdict
 from typing import MutableMapping, Union, List, Sequence
@@ -450,9 +451,10 @@ class Text:
     def _repr_html_(self):
         pandas.set_option('display.max_colwidth', -1)
 
-        rec = [{'text': self.text.replace('\n', '<br/>')}]
-        table = pandas.DataFrame.from_records(rec)
-        table = table.to_html(index=False, escape=True)
+        text_html = '<div align = "left">' + html.escape(self.text).replace('\n', '</br>') + '</div>'
+        df = pandas.DataFrame(columns=['text'], data=[text_html])
+        table = df.to_html(index=False, escape=False)
+
         if self.meta:
             data = {'key': sorted(self.meta), 'value': [self.meta[k] for k in sorted(self.meta)]}
             table_meta = pandas.DataFrame(data, columns=['key', 'value'])
