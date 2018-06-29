@@ -50,9 +50,10 @@ class PgCollection:
             query=query,
             ngram_query=ngram_query)
 
-    def select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, order_by_key=False):
+    def select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None, order_by_key=False):
         """See PostgresStorage.select()"""
-        return self.storage.select(self.table_name, query, layer_query, layer_ngram_query, layers, order_by_key)
+        return self.storage.select(self.table_name, query, layer_query, layer_ngram_query, layers, keys=keys,
+                                   order_by_key=order_by_key)
 
     def select_raw(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, order_by_key=False):
         """See PostgresStorage.select_raw()"""
@@ -551,7 +552,14 @@ class PostgresStorage:
                 fragment_layer = dict_to_layer(fragment_dict, text)
                 yield text_id, text, parent_id, parent_layer, fragment_id, fragment_layer
 
-    def select_raw(self, table, query=None, layer_query=None, layer_ngram_query=None, layers=None, order_by_key=False):
+    def select_raw(self,
+                   table,
+                   query=None,
+                   layer_query=None,
+                   layer_ngram_query=None,
+                   layers=None,
+                   keys=None,
+                   order_by_key=False):
         """
         Select from collection table with possible search constraints.
 
@@ -583,6 +591,7 @@ class PostgresStorage:
 
             where = False
             sql_parts = []
+            table_escaped = SQL("{}.{}").format(Identifier(self.schema), Identifier(table)).as_string(self.conn)
             if layers is None and layer_query is None and layer_ngram_query is None:
                 # select only text table
                 q = SQL("SELECT * FROM {}.{}").format(Identifier(self.schema), Identifier(table)).as_string(self.conn)
@@ -605,7 +614,6 @@ class PostgresStorage:
                     layer = SQL("{}.{}").format(Identifier(self.schema), Identifier(layer)).as_string(self.conn)
                     layers_join.add(layer)
 
-                table_escaped = SQL("{}.{}").format(Identifier(self.schema), Identifier(table)).as_string(self.conn)
                 q = "SELECT {table}.id, {table}.data {select} FROM {table}, {layers_join} where {where}".format(
                     schema=Identifier(self.schema),
                     table=table_escaped,
@@ -623,6 +631,11 @@ class PostgresStorage:
                 # build constraint on related layer tables
                 q = " AND ".join(query.eval() for layer, query in layer_query.items())
                 sql_parts.append("%s %s" % ("and" if where else "where", q))
+                where = True
+            if keys:
+                # build constraint on id-s
+                q = "{table}.id IN ({keys})".format(table=table_escaped, keys=','.join(map(str, keys)))
+                sql_parts.append("%s %s" % ("AND" if where else "WHERE", q))
                 where = True
             if layer_ngram_query:
                 # build constraint on related layer's ngram index
@@ -653,8 +666,10 @@ class PostgresStorage:
                 result = text_id, text, *layers
                 yield result
 
-    def select(self, table, query=None, layer_query=None, layer_ngram_query=None, layers=None, order_by_key=False):
-        for row in self.select_raw(table, query, layer_query, layer_ngram_query, layers, order_by_key):
+    def select(self, table, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None,
+               order_by_key=False):
+        for row in self.select_raw(table, query, layer_query, layer_ngram_query, layers, keys=keys,
+                                   order_by_key=order_by_key):
             text_id = row[0]
             text = row[1]
             if len(row) > 2:
