@@ -33,6 +33,8 @@ class Tagger:
 
     def make_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> Layer:
         assert status is None or isinstance(status, dict), 'status should be None or dict, not ' + str(type(status))
+        if status is None:
+            status = {}
         layer = self._make_layer(raw_text, layers, status)
         assert isinstance(layer, Layer), 'make_layer must return Layer'
         assert layer.name == self.output_layer, 'incorrect layer name: {} != {}'.format(layer.name, self.output_layer)
