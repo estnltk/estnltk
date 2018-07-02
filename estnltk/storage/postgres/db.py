@@ -55,9 +55,11 @@ class PgCollection:
         return self.storage.select(self.table_name, query, layer_query, layer_ngram_query, layers, keys=keys,
                                    order_by_key=order_by_key)
 
-    def select_raw(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, order_by_key=False):
+    def select_raw(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None,
+                   order_by_key=False):
         """See PostgresStorage.select_raw()"""
-        return self.storage.select_raw(self.table_name, query, layer_query, layer_ngram_query, layers, order_by_key)
+        return self.storage.select_raw(self.table_name, query, layer_query, layer_ngram_query, layers, keys,
+                                       order_by_key)
 
     def select_by_key(self, key, return_as_dict=False):
         """See PostgresStorage.select_by_key()"""
@@ -553,13 +555,13 @@ class PostgresStorage:
                 yield text_id, text, parent_id, parent_layer, fragment_id, fragment_layer
 
     def select_raw(self,
-                   table,
-                   query=None,
-                   layer_query=None,
-                   layer_ngram_query=None,
-                   layers=None,
-                   keys=None,
-                   order_by_key=False):
+                   table: str,
+                   query: str = None,
+                   layer_query: 'JsonbLayerQuery' = None,
+                   layer_ngram_query: dict = None,
+                   layers: list = None,
+                   keys: list = None,
+                   order_by_key: bool = False):
         """
         Select from collection table with possible search constraints.
 
@@ -570,6 +572,8 @@ class PostgresStorage:
                 collection table query
             layer_query: JsonbLayerQuery
                 layer query
+            keys: list
+                List of id-s.
             order_by_key: bool
             layers: list
                 Layers to fetch. Specified layers will be merged into returned text object and
@@ -632,10 +636,12 @@ class PostgresStorage:
                 q = " AND ".join(query.eval() for layer, query in layer_query.items())
                 sql_parts.append("%s %s" % ("and" if where else "where", q))
                 where = True
-            if keys:
+            if keys is None:
+                keys = []
+            else:
+                keys = list(keys)
                 # build constraint on id-s
-                q = "{table}.id IN ({keys})".format(table=table_escaped, keys=','.join(map(str, keys)))
-                sql_parts.append("%s %s" % ("AND" if where else "WHERE", q))
+                sql_parts.extend(("AND" if where else "WHERE", "id = ANY(%(keys)s)"))
                 where = True
             if layer_ngram_query:
                 # build constraint on related layer's ngram index
@@ -650,7 +656,7 @@ class PostgresStorage:
             sql = " ".join(sql_parts)  # bad, bad string concatenation, but we can't avoid it here, right?
 
             # 2. Execute query
-            c.execute(sql)
+            c.execute(sql, {'keys': keys})
             for row in c.fetchall():
                 text_id = row[0]
                 text_dict = row[1]

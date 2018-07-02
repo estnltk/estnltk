@@ -150,6 +150,12 @@ class TestStorage(unittest.TestCase):
         res = list(col.find_fingerprint(q))
         self.assertEqual(len(res), 4)
 
+        res = list(col.select(keys=[]))
+        self.assertEqual(len(res), 0)
+
+        res = list(col.select(keys=[1,3]))
+        self.assertEqual(len(res), 2)
+
         col.delete()
 
 
