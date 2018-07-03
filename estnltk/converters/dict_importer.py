@@ -3,7 +3,7 @@ from typing import Union, Sequence, List
 from estnltk.text import Text, Layer, Span, EnvelopingSpan
 
 
-def _dict_to_layer(layer_dict: dict, text: Text) -> Layer:
+def _dict_to_layer(layer_dict: dict, text: Text, detached_layers) -> Layer:
     layer = Layer(name=layer_dict['name'],
                   attributes=layer_dict['attributes'],
                   parent=layer_dict['parent'],
@@ -12,8 +12,13 @@ def _dict_to_layer(layer_dict: dict, text: Text) -> Layer:
                   )
     layer.text_object = text
     layer._base = layer_dict['_base']
+
+    layers = text.layers.copy()
+    if detached_layers:
+        layers.update(detached_layers)
+
     if layer.parent:
-        parent_layer = text[layer._base]
+        parent_layer = layers[layer._base]
         if layer.ambiguous:
             for rec in layer_dict['spans']:
                 for r in rec:
@@ -27,7 +32,7 @@ def _dict_to_layer(layer_dict: dict, text: Text) -> Layer:
                 for attr in layer.attributes:
                     setattr(span, attr, rec[attr])
     elif layer.enveloping:
-        enveloped_layer = text[layer.enveloping]
+        enveloped_layer = layers[layer.enveloping]
         if layer.ambiguous:
             for records in layer_dict['spans']:
                 for rec in records:
@@ -38,7 +43,6 @@ def _dict_to_layer(layer_dict: dict, text: Text) -> Layer:
         else:
             for rec in layer_dict['spans']:
                 spans = [enveloped_layer[i] for i in rec['_index_']]
-                #attributes = {attr: rec['attr'] for attr in layer.attributes}
                 span = EnvelopingSpan(spans=spans, layer=layer)
                 for attr in layer.attributes:
                     setattr(span, attr, rec[attr])
@@ -48,11 +52,13 @@ def _dict_to_layer(layer_dict: dict, text: Text) -> Layer:
     return layer
 
 
-def dict_to_layer(layer_dict: dict, text: Text) -> Union[Layer, List[Layer]]:
+def dict_to_layer(layer_dict: dict, text: Text, detached_layers=None) -> Union[Layer, List[Layer]]:
     if isinstance(layer_dict, (list, tuple)) and isinstance(text, (list, tuple)):
-        assert len(layer_dict) == len(text)
-        return [_dict_to_layer(ld, t) for ld, t in zip(layer_dict, text)]
-    return _dict_to_layer(layer_dict, text)
+        if detached_layers is None:
+            detached_layers = [None] * len(layer_dict)
+        assert len(layer_dict) == len(text) == len(detached_layers)
+        return [_dict_to_layer(ld, t, dl) for ld, t, dl in zip(layer_dict, text, detached_layers)]
+    return _dict_to_layer(layer_dict, text, detached_layers)
 
 
 def _dict_to_text(text_dict: dict) -> Text:
@@ -61,7 +67,6 @@ def _dict_to_text(text_dict: dict) -> Text:
     for layer_dict in text_dict['layers']:
         layer = dict_to_layer(layer_dict, text)
         text[layer.name] = layer
-
     return text
 
 
