@@ -200,7 +200,7 @@ def diff_summary(difference_layer: Layer, span_status_attribute, input_layer_att
     return result
 
 
-def create_diff_layer(collection, layer_a, layer_b, output_layer, output_attributes, if_exists='fail'):
+def create_diff_layer(collection, layer_a, layer_b, input_layers, output_layer, output_attributes, if_exists='fail'):
     diff_tagger = DiffTagger(layer_a, layer_b, output_layer, output_attributes)
     diff_summary = []
 
@@ -214,7 +214,7 @@ def create_diff_layer(collection, layer_a, layer_b, output_layer, output_attribu
 
     table = diff_tagger.output_layer
     collection.create_layer(table,
-                            data_iterator=collection.select(layers=diff_tagger.input_layers),
+                            data_iterator=collection.select(layers=input_layers),
                             row_mapper=row_mapper,
                             overwrite=True
                             )
@@ -289,7 +289,8 @@ def get_summary(collection, layer):
 def sample_indexes(distribution, ids, k):
     result = defaultdict(list)
     cumdist = list(itertools.accumulate(distribution))
-    for i in sorted(random.sample(range(cumdist[-1]), k)):
+    all_diff = cumdist[-1]
+    for i in sorted(random.sample(range(all_diff), min(all_diff, k))):
         doc_nr = bisect.bisect(cumdist, i)
         doc_id = ids[doc_nr]
         span_nr = i - cumdist[doc_nr] + distribution[doc_nr]
@@ -297,8 +298,8 @@ def sample_indexes(distribution, ids, k):
     return result
 
 
-def sample_spans(k, collection, layer, domain):
-    diff_summary = get_summary(collection, layer)
+def sample_spans(k, collection, diff_layer, domain, input_layers):
+    diff_summary = get_summary(collection, diff_layer)
 
     iterator = {'modified_spans': iterate_modified,
                 'missing_spans': iterate_missing,
@@ -313,9 +314,9 @@ def sample_spans(k, collection, layer, domain):
     ids = diff_summary['id']
     indexes = sample_indexes(dist, ids, k)
 
-    for text_id, text in collection.select(layers=[layer], keys=tuple(indexes)):
+    for text_id, text in collection.select(layers=input_layers, keys=tuple(indexes)):
         span_nrs = set(indexes[text_id])
-        for i, span in enumerate(iterator(text.layers[layer], span_status_attribute='span_status')):
+        for i, span in enumerate(iterator(text[diff_layer], span_status_attribute='span_status')):
             if i in span_nrs:
                 yield span
                 span_nrs.remove(i)
