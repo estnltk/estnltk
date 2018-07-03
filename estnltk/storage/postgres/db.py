@@ -639,9 +639,10 @@ class PostgresStorage:
             if keys is None:
                 keys = []
             else:
-                keys = list(keys)
+                keys = list(map(int, keys))
                 # build constraint on id-s
-                sql_parts.extend(("AND" if where else "WHERE", "id = ANY(%(keys)s)"))
+                sql_parts.append("AND" if where else "WHERE")
+                sql_parts.append("{table}.id = ANY(%(keys)s)".format(table=table_escaped))
                 where = True
             if layer_ngram_query:
                 # build constraint on related layer's ngram index
@@ -663,10 +664,12 @@ class PostgresStorage:
                 text = dict_to_text(text_dict)
                 layers = []
                 if len(row) > 2:
+                    detached_layers = {}
                     for i in range(2, len(row), 2):
                         layer_id = row[i]
                         layer_dict = row[i + 1]
-                        layer = dict_to_layer(layer_dict, text)
+                        layer = dict_to_layer(layer_dict, text, detached_layers)
+                        detached_layers[layer.name] = layer
                         layers.append(layer_id)
                         layers.append(layer)
                 result = text_id, text, *layers
