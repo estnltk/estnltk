@@ -11,7 +11,8 @@ import os
 from estnltk import Layer
 from estnltk import Text
 from estnltk.taggers import VabamorfTagger
-from estnltk.storage.postgres import PostgresStorage, PgStorageException, JsonbTextQuery as Q, JsonbLayerQuery
+from estnltk.storage.postgres import PostgresStorage, PgStorageException, JsonbTextQuery as Q, JsonbLayerQuery, \
+    RowMapperRecord
 
 
 def get_random_table_name():
@@ -153,7 +154,7 @@ class TestStorage(unittest.TestCase):
         res = list(col.select(keys=[]))
         self.assertEqual(len(res), 0)
 
-        res = list(col.select(keys=[1,3]))
+        res = list(col.select(keys=[1, 3]))
         self.assertEqual(len(res), 2)
 
         col.delete()
@@ -214,11 +215,13 @@ class TestLayerFragment(unittest.TestCase):
 
         def fragment_tagger(row):
             text_id, text = row[0], row[1]
-            fragments = [tagger1.tag(text, return_layer=True),
-                         tagger1.tag(text, return_layer=True)]
+            fragments = [RowMapperRecord(layer=tagger1.tag(text, return_layer=True), meta=None),
+                         RowMapperRecord(layer=tagger1.tag(text, return_layer=True), meta=None)]
             return fragments
 
-        col.create_layer(layer_fragment_name, data_iterator=col.select(), row_mapper=fragment_tagger)
+        col.create_layer(layer_fragment_name,
+                         data_iterator=col.select(),
+                         row_mapper=fragment_tagger)
         tagger1.tag(text1)
         tagger1.tag(text2)
 
@@ -308,7 +311,8 @@ class TestFragment(unittest.TestCase):
         tagger = VabamorfTagger(disambiguate=False, layer_name=layer_fragment_name)
         col.create_layer(layer_fragment_name,
                          data_iterator=col.select(),
-                         row_mapper=lambda row: [tagger.tag(row[1], return_layer=True)])
+                         row_mapper=lambda row: [RowMapperRecord(layer=tagger.tag(row[1], return_layer=True),
+                                                                 meta=None)])
 
         self.assertTrue(col.has_layer(layer_fragment_name))
 
@@ -316,7 +320,8 @@ class TestFragment(unittest.TestCase):
 
         def row_mapper(row):
             text_id, text, parent_id, parent_layer = row[0], row[1], row[2], row[3]
-            fragments = [parent_layer, parent_layer]
+            fragments = [RowMapperRecord(layer=parent_layer, meta=None),
+                         RowMapperRecord(layer=parent_layer, meta=None)]
             return fragments
 
         col.create_fragment(fragment_name,
@@ -340,9 +345,9 @@ class TestFragment(unittest.TestCase):
 
 class TestLayer(unittest.TestCase):
     def setUp(self):
-        schema = "test_layer"
+        self.schema = "test_layer"
         self.storage = PostgresStorage(pgpass_file=os.path.join(os.path.dirname(__file__), '.pgpass'),
-                                       schema=schema)
+                                       schema=self.schema)
         self.storage.create_schema()
 
     def tearDown(self):
@@ -395,7 +400,7 @@ class TestLayer(unittest.TestCase):
         def row_mapper1(row):
             text_id, text = row[0], row[1]
             layer = tagger1.tag(text, return_layer=True)
-            return [layer]
+            return [RowMapperRecord(layer=layer, meta=None)]
 
         col.create_layer(layer1, data_iterator=col.select(), row_mapper=row_mapper1)
         tagger1.tag(text1)
@@ -407,7 +412,7 @@ class TestLayer(unittest.TestCase):
         def row_mapper2(row):
             text_id, text = row[0], row[1]
             layer = tagger2.tag(text, return_layer=True)
-            return [layer]
+            return [RowMapperRecord(layer=layer, meta=None)]
 
         col.create_layer(layer2, data_iterator=col.select(), row_mapper=row_mapper2)
         tagger2.tag(text1)
@@ -429,6 +434,42 @@ class TestLayer(unittest.TestCase):
         self.assertFalse(self.storage.table_exists(self.storage.layer_name_to_table_name(col.table_name, layer1)))
         self.assertFalse(self.storage.table_exists(self.storage.layer_name_to_table_name(col.table_name, layer2)))
 
+    def test_layer_meta(self):
+        table_name = get_random_table_name()
+        col = self.storage.get_collection(table_name)
+        col.create()
+
+        text1 = Text('see on esimene lause').tag_layer(["sentences"])
+        col.insert(text1)
+        text2 = Text('see on teine lause').tag_layer(["sentences"])
+        col.insert(text2)
+
+        layer1 = "layer1"
+        tagger1 = VabamorfTagger(disambiguate=False, layer_name=layer1)
+
+        def row_mapper1(row):
+            text_id, text = row[0], row[1]
+            layer = tagger1.tag(text, return_layer=True)
+            return [RowMapperRecord(layer=layer, meta={"meta_text_id": text_id, "sum": 45.5})]
+
+        col.create_layer(layer1,
+                         data_iterator=col.select(),
+                         row_mapper=row_mapper1,
+                         meta={"meta_text_id": "int",
+                               "sum": "float"})
+        layer_table = self.storage.layer_name_to_table_name(col.table_name, layer1)
+        self.assertTrue(self.storage.table_exists(layer_table))
+
+        q = "SELECT text_id, meta_text_id, sum from %s.%s" % (
+            self.schema, layer_table)  # col.layer_name_to_table_name(layer1)
+        with self.storage.conn.cursor() as c:
+            c.execute(q)
+            for row in c.fetchall():
+                self.assertEqual(row[0], row[1])
+                self.assertAlmostEqual(row[2], 45.5)
+
+        col.delete()
+
     def test_layer_query(self):
         table_name = get_random_table_name()
         col = self.storage.get_collection(table_name)
@@ -448,7 +489,7 @@ class TestLayer(unittest.TestCase):
         def row_mapper1(row):
             text_id, text = row[0], row[1]
             layer = tagger1.tag(text, return_layer=True)
-            return [layer]
+            return [RowMapperRecord(layer=layer, meta=None)]
 
         col.create_layer(layer1,
                          data_iterator=col.select(),
@@ -480,7 +521,7 @@ class TestLayer(unittest.TestCase):
         def row_mapper2(row):
             text_id, text = row[0], row[1]
             layer = tagger2.tag(text, return_layer=True)
-            return [layer]
+            return [RowMapperRecord(layer=layer, meta=None)]
 
         col.create_layer(layer2, data_iterator=col.select(), row_mapper=row_mapper2)
 
@@ -510,12 +551,12 @@ class TestLayer(unittest.TestCase):
         def row_mapper1(row):
             text_id, text = row[0], row[1]
             layer = tagger1.tag(text, return_layer=True)
-            return [layer]
+            return [RowMapperRecord(layer=layer, meta=None)]
 
         def row_mapper2(row):
             text_id, text = row[0], row[1]
             layer = tagger2.tag(text, return_layer=True)
-            return [layer]
+            return [RowMapperRecord(layer=layer, meta=None)]
 
         col.create_layer(layer1, data_iterator=col.select(), row_mapper=row_mapper1, create_index=True)
         col.create_layer(layer2, data_iterator=col.select(), row_mapper=row_mapper2)
@@ -594,12 +635,12 @@ class TestLayer(unittest.TestCase):
         def row_mapper1(row):
             text_id, text = row[0], row[1]
             layer = tagger1.tag(text, return_layer=True)
-            return [layer]
+            return [RowMapperRecord(layer=layer, meta=None)]
 
         def row_mapper2(row):
             text_id, text = row[0], row[1]
             layer = tagger2.tag(text, return_layer=True)
-            return [layer]
+            return [RowMapperRecord(layer=layer, meta=None)]
 
         col.create_layer(layer1, data_iterator=col.select(), row_mapper=row_mapper1,
                          ngram_index={"lemma": 2})

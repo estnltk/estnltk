@@ -3,6 +3,7 @@ import re
 import json
 import logging
 import operator as op
+from collections import namedtuple
 from functools import reduce
 from itertools import chain
 
@@ -21,6 +22,16 @@ log = logging.getLogger(__name__)
 
 class PgStorageException(Exception):
     pass
+
+
+RowMapperRecord = namedtuple("RowMapperRecord", ["layer", "meta"])
+
+pytype2dbtype = {
+    "int": "integer",
+    "bigint": "bigint",
+    "float": "double precision",
+    "str": "text"
+}
 
 
 class PgCollection:
@@ -107,10 +118,10 @@ class PgCollection:
                 id_ = 0
                 for row in data_iterator:
                     text_id, text, parent_layer_id = row[0], row[1], row[2]
-                    for fragment_layer in row_mapper(row):
-                        fragment_dict = layer_to_dict(fragment_layer, text)
+                    for record in row_mapper(row):
+                        fragment_dict = layer_to_dict(record.layer, text)
                         if ngram_index is not None:
-                            ngram_values = [create_ngram_fingerprint_index(fragment_layer, attr, size)
+                            ngram_values = [create_ngram_fingerprint_index(record.layer, attr, size)
                                             for attr, size in ngram_index.items()]
                         else:
                             ngram_values = None
@@ -130,7 +141,7 @@ class PgCollection:
                 conn.autocommit = True
 
     def create_layer(self, layer_name, data_iterator, row_mapper,
-                     create_index=False, ngram_index=None, overwrite=False):
+                     create_index=False, ngram_index=None, overwrite=False, meta=None):
         """
         Creates layer
 
@@ -140,11 +151,19 @@ class PgCollection:
                 Iterator over Text collection which generates tuples (`text_id`, `text`).
                 See method `PgCollection.select`.
             row_mapper: function
-            create_index:
-            ngram_index:
+                For each record produced by `data_iterator` return a list
+                of `RowMapperRecord` objects.
+            create_index: bool
+                Whether to create an index on json column
+            ngram_index: list
+                A list of attributes for which to create an ngram index
             overwrite: bool
                 If True and layer table exists, table is overwritten.
                 If False and layer table exists, error is raised.
+            meta: dict of str -> str
+                Specifies table column names and data types to create for storing additional
+                meta information. E.g. meta={"sum": "int", "average": "float"}.
+                See `pytype2dbtype` for supported types.
         """
         conn = self.storage.conn
         with conn.cursor() as c:
@@ -154,24 +173,44 @@ class PgCollection:
                 self.create_layer_table(c, layer_name,
                                         create_index=create_index,
                                         ngram_index=ngram_index,
-                                        overwrite=overwrite)
+                                        overwrite=overwrite,
+                                        meta=meta)
                 # insert data
                 layer_table = self.layer_name_to_table_name(layer_name)
                 id_ = 0
                 for row in data_iterator:
                     text_id, text = row[0], row[1]
-                    for layer in row_mapper(row):
+                    for record in row_mapper(row):
+                        layer = record.layer
                         layer_dict = layer_to_dict(layer, text)
+                        layer_json = json.dumps(layer_dict, ensure_ascii=False)
+
+                        columns = ["id", "text_id", "data"]
+                        values = ["%s"] * 3
+
+                        if record.meta is not None:
+                            columns.extend(record.meta.keys())
+                            values.extend(["%s"] * len(record.meta.keys()))
+                            meta_values = list(record.meta.values())
+                        else:
+                            meta_values = []
+
                         if ngram_index is not None:
+                            columns.extend(ngram_index.keys())
+                            values.extend(["%s"] * len(ngram_index.keys()))
                             ngram_values = [create_ngram_fingerprint_index(layer, attr, size)
                                             for attr, size in ngram_index.items()]
                         else:
-                            ngram_values = None
-                        layer_json = json.dumps(layer_dict, ensure_ascii=False)
-                        ngram_values = ngram_values or []
-                        q = "INSERT INTO {}.{} VALUES (%s);" % ", ".join(['%s'] * (3 + len(ngram_values)))
+                            ngram_values = []
+
+                        columns = ", ".join([SQL("{}").format(Identifier(c)).as_string(conn)
+                                             for c in columns])
+                        values = ", ".join(values)
+                        q = "INSERT INTO {}.{} (%s) VALUES (%s)" % (columns, values)
                         q = SQL(q).format(Identifier(self.storage.schema), Identifier(layer_table))
-                        c.execute(q, (id_, text_id, layer_json, *ngram_values))
+                        data = (id_, text_id, layer_json, *meta_values, *ngram_values)
+                        c.execute(q, data)
+
                         id_ += 1
             except:
                 conn.rollback()
@@ -182,11 +221,11 @@ class PgCollection:
                     conn.commit()
                 conn.autocommit = True
 
-    def create_layer_table(self, cursor, layer_name, create_index=True, ngram_index=None, overwrite=False):
+    def create_layer_table(self, cursor, layer_name, create_index=True, ngram_index=None, overwrite=False, meta=None):
         is_fragment = False
         table_name = self.layer_name_to_table_name(layer_name)
         return self._create_layer_table(cursor, table_name, layer_name, is_fragment, create_index, ngram_index,
-                                        overwrite=overwrite)
+                                        overwrite=overwrite, meta=meta)
 
     def create_fragment_table(self, cursor, fragment_name, create_index=True, ngram_index=None):
         is_fragment = True
@@ -194,22 +233,42 @@ class PgCollection:
         return self._create_layer_table(cursor, table_name, fragment_name, is_fragment, create_index, ngram_index)
 
     def _create_layer_table(self, cursor, layer_table, layer_name, is_fragment=False, create_index=True,
-                            ngram_index=None, overwrite=False):
+                            ngram_index=None, overwrite=False, meta=None):
         if overwrite:
             self.storage.drop_table_if_exists(layer_table)
         elif self.storage.table_exists(layer_table):
             raise PgStorageException("Table '{}' for layer '{}' already exists.".format(layer_table, layer_name))
-        if ngram_index is not None:
-            ngram_index_cols = ngram_index.keys()
-            ngram_cols_sql = ", %s" % ",".join(["%s text[]" % Identifier(column).as_string(self.storage.conn)
-                                                for column in ngram_index])
+
         else:
             ngram_cols_sql = ""
         # create layer table and index
-        if is_fragment is False:
-            q = "CREATE TABLE {}.{} (id serial PRIMARY KEY, text_id int NOT NULL, data jsonb %s)" % ngram_cols_sql
+        q = """CREATE TABLE {}.{} (
+                   id serial PRIMARY KEY,
+                   %(parent_col)s
+                   text_id int NOT NULL,
+                   data jsonb
+                   %(meta_cols)s
+                   %(ngram_cols)s)"""
+
+        if is_fragment is True:
+            parent_col = "parent_id int NOT NULL,"
         else:
-            q = "CREATE TABLE {}.{} (id serial PRIMARY KEY, parent_id int NOT NULL, text_id int NOT NULL, data jsonb %s)" % ngram_cols_sql
+            parent_col = ""
+
+        if ngram_index is not None:
+            ngram_cols = ", %s" % ",".join(["%s text[]" % Identifier(column).as_string(self.storage.conn)
+                                            for column in ngram_index])
+        else:
+            ngram_cols = ""
+
+        if meta is not None:
+            cols = [Identifier(col).as_string(self.storage.conn) for col in meta.keys()]
+            types = [pytype2dbtype[py_type] for py_type in meta.values()]
+            meta_cols = ", %s" % ",".join(["%s %s" % (c, d) for c, d in zip(cols, types)])
+        else:
+            meta_cols = ""
+
+        q %= {"parent_col": parent_col, "ngram_cols": ngram_cols, "meta_cols": meta_cols}
         q = SQL(q).format(Identifier(self.storage.schema), Identifier(layer_table))
         cursor.execute(q)
 
@@ -228,7 +287,7 @@ class PgCollection:
 
         # create ngram array index
         if ngram_index is not None:
-            for column in ngram_index_cols:
+            for column in ngram_index:
                 cursor.execute(SQL(
                     "CREATE INDEX {index} ON {schema}.{table} USING gin ({column})").format(
                     schema=Identifier(self.storage.schema),
@@ -698,7 +757,6 @@ class PostgresStorage:
         return q
 
     def _build_column_ngram_query(self, query, column, table_name):
-        print(table_name, column)
         if not isinstance(query, list):
             query = list(query)
         if isinstance(query[0], list):
