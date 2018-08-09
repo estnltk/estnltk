@@ -385,7 +385,7 @@ class PostgresStorage:
     """
 
     def __init__(self, dbname=None, user=None, password=None, host='localhost', port=5432,
-                 pgpass_file="~/.pgpass", schema="public", **kwargs):
+                 pgpass_file="~/.pgpass", schema="public", role=None, **kwargs):
         """
         Connects to database either using connection parameters if specified, or ~/.pgpass file.
 
@@ -403,6 +403,10 @@ class PostgresStorage:
         self.conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port, **kwargs)
         self.conn.autocommit = True
         self.schema = schema
+
+        if isinstance(role, str):
+            with self.conn.cursor() as c:
+                c.execute(SQL("SET ROLE {}").format(Identifier(role)))
 
     def close(self):
         """Closes database connection"""
