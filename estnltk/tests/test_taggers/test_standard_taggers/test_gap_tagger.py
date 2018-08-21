@@ -59,8 +59,8 @@ def test_bad_trim():
 
 def test_tagger():
     tagger = GapTagger(input_layers=['test_1', 'test_2', 'test_3'], output_layer='gaps')
-    input_file = rel_path('tests/test_taggers/test_gaps_tagging/gap_tagger_input.json')
-    target_file = rel_path('tests/test_taggers/test_gaps_tagging/gap_tagger_target.json')
+    input_file = rel_path('tests/test_taggers/test_standard_taggers/gap_tagger_input.json')
+    target_file = rel_path('tests/test_taggers/test_standard_taggers/gap_tagger_target.json')
 
     tester = TaggerTester(tagger, input_file, target_file)
     tester.load()
