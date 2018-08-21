@@ -1,3 +1,5 @@
+import pytest
+
 from estnltk import Text
 from estnltk import Layer
 from estnltk import Span
@@ -39,6 +41,17 @@ def test_gaps_trim():
                {'end': 23, 'gap_length': 4, 'start': 19},
                {'end': 35, 'gap_length': 6, 'start': 29}]
     assert text['gaps'].to_records() == records
+
+
+def test_bad_trim():
+    def trim(t):
+        return 'bla'
+
+    gap_tagger = GapTagger(output_layer='bad_trim',
+                           input_layers=['test_1'],
+                           trim=trim)
+    with pytest.raises(ValueError):
+        gap_tagger.tag(text)
 
 
 # test data created by estnltk/dev_documentation/testing/gap_tagger_testing.ipynb

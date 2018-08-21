@@ -40,7 +40,10 @@ class GapTagger(Tagger):
             assert start < end, (start, end)
             if self.trim:
                 t = self.trim(raw_text[start:end])
-                start = raw_text.find(t, start)
+                start_new = raw_text.find(t, start)
+                if start_new < start:
+                    raise ValueError('misbehaving trim function: "{}"->"{}"'.format(raw_text[start:end], t))
+                start = start_new
                 end = start + len(t)
             if start < end:
                 span = Span(start, end)
