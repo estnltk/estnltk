@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, Hashable
 from typing import Sequence, Union
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -9,9 +9,10 @@ from estnltk.layer_operations.consecutive import iterate_consecutive_spans
 
 
 class Node:
-    def __init__(self, name: str, start: Union[int, float], end: Union[int, float]):
+    def __init__(self, name: str, start: int, end: int):
         self.name = name
-        assert start <= end
+        assert 0 <= start, start
+        assert start <= end, (start, end)
         self.start = start
         self.end = end
 
@@ -42,12 +43,13 @@ class Node:
             print(line(k, d[k]))
 
     def __str__(self):
-        result = ['{self.__class__.__name__}({self.name}'.format(self=self)]
-        if hasattr(self, 'start') and hasattr(self, 'end'):
-            result.append('({self.start}, {self.end})'.format(self=self))
+        result = ['{self.__class__.__name__}({self.name!r}, {self.start}, {self.end}'.format(self=self)]
+        #result.append('{self.start}, {self.end}'.format(self=self))
         # include hash because networkx.drawing.nx_pydot.pydot_layout overlaps nodes with equal str value
-        result.append('{h})'.format(h=hash(self)))
-        return ', '.join(result)
+        if isinstance(self, Hashable):
+            result.append(', {}'.format(hash(self)))
+        result.append(')')
+        return ''.join(result)
 
     def __repr__(self):
         return str(self)
@@ -290,6 +292,7 @@ def layer_to_graph(layer, raw_text, name_attribute='grammar_symbol', attributes=
 
     if layer.ambiguous:
         for sp in layer:
+            assert sp.start >= 0, sp
             names_1 = {getattr(b, name_attribute) for b in sp}
             for name_1 in names_1:
                 graph.add_node(TerminalNode(name_1, sp, attributes))

@@ -22,22 +22,15 @@ def test_parse_graph():
                         resolve_start_end_conflicts=False,
                         resolve_terminals_conflicts=False,
                         debug=False)
-    assert [(a.name, b.name) for a, b in sorted(graph.edges)] == [#('START', 'A'),
-                                                                 #('START', 'F'),
-                                                                 #('START', 'E'),
-                                                                 #('START', 'J'),
+    assert [(a.name, b.name) for a, b in sorted(graph.edges)] == [
                                                                  ('A', 'B'),
                                                                  ('A', 'G'),
                                                                  ('F', 'C'),
                                                                  ('F', 'H'),
-                                                                 #('E', 'END'),
-                                                                 #('J', 'END'),
                                                                  ('B', 'C'),
                                                                  ('B', 'H'),
                                                                  ('G', 'D'),
                                                                  ('C', 'D'),
-                                                                 #('H', 'END'),
-                                                                 #('D', 'END')
                                                                  ]
 
 
@@ -57,9 +50,7 @@ def test_parse_graph_SEQ():
                         resolve_start_end_conflicts=False,
                         resolve_terminals_conflicts=False,
                         debug=False)
-    assert [(a.name, b.name) for a, b in sorted(graph.edges)] == [#('START', 'A'),
-                                                                 #('START', 'E'),
-                                                                 #('START', 'H'),
+    assert [(a.name, b.name) for a, b in sorted(graph.edges)] == [
                                                                  ('A', 'B'),
                                                                  ('A', 'F'),
                                                                  ('A', 'SEQ(F)'),
@@ -68,7 +59,6 @@ def test_parse_graph_SEQ():
                                                                  ('E', 'F'),
                                                                  ('E', 'SEQ(F)'),
                                                                  ('E', 'SEQ(F)'),
-                                                                 #('H', 'END'),
                                                                  ('B', 'C'),
                                                                  ('B', 'F'),
                                                                  ('B', 'SEQ(F)'),
@@ -86,8 +76,6 @@ def test_parse_graph_SEQ():
                                                                  ('F', 'G'),
                                                                  ('SEQ(F)', 'D'),
                                                                  ('SEQ(F)', 'G'),
-                                                                 #('D', 'END'),
-                                                                 #('G', 'END')
                                                                  ]
 
 
@@ -109,8 +97,7 @@ def test_parse_graph_support_conflicts():
                         resolve_start_end_conflicts=False,
                         resolve_terminals_conflicts=False,
                         debug=False)
-    assert [(a.name, b.name) for a, b in sorted(graph.edges)] == [#('START', 'A'),
-                                                                 #('START', 'K'),
+    assert [(a.name, b.name) for a, b in sorted(graph.edges)] == [
                                                                  ('A', 'B'),
                                                                  ('K', 'C'),
                                                                  ('K', 'G'),
@@ -119,10 +106,31 @@ def test_parse_graph_support_conflicts():
                                                                  ('B', 'G'),
                                                                  ('B', 'M'),
                                                                  ('C', 'D'),
-                                                                 #('G', 'END'),
-                                                                 #('M', 'END'),
-                                                                 #('D', 'END')
                                                                  ]
+
+    graph = layer_to_graph(text_3['layer_0'], text_3.text, name_attribute='attr_0')
+
+    grammar = Grammar()
+    grammar.add_rule('M', ['C'], priority=0, group=0)
+    grammar.add_rule('C', ['A', 'B'], priority=1, group=0)
+    grammar.add_rule('C', ['A'], priority=0, group=0)
+
+    parse_graph(graph,
+                grammar,
+                resolve_support_conflicts=True,
+                resolve_start_end_conflicts=False,
+                resolve_terminals_conflicts=False,
+                )
+    assert [(a.name, b.name) for a, b in sorted(graph.edges)] == [
+                                                                  ('A', 'B'),
+                                                                  ('C', 'B'),
+                                                                  ('M', 'B'),
+                                                                  ('B', 'C'),
+                                                                  ('B', 'M'),
+                                                                  ('C', 'D'),
+                                                                  ('M', 'D')
+                                                                  ]
+
 
 
 def test_parse_graph_start_end_conflicts():
@@ -143,8 +151,7 @@ def test_parse_graph_start_end_conflicts():
                         resolve_start_end_conflicts=False,
                         resolve_terminals_conflicts=False,
                         debug=False)
-    assert [(a.name, b.name) for a, b in sorted(graph.edges)] == [#('START', 'A'),
-                                                                 #('START', 'K'),
+    assert [(a.name, b.name) for a, b in sorted(graph.edges)] == [
                                                                  ('A', 'B'),
                                                                  ('K', 'C'),
                                                                  ('K', 'G'),
@@ -153,7 +160,4 @@ def test_parse_graph_start_end_conflicts():
                                                                  ('B', 'G'),
                                                                  ('B', 'M'),
                                                                  ('C', 'D'),
-                                                                 #('G', 'END'),
-                                                                 #('M', 'END'),
-                                                                 #('D', 'END')
                                                                  ]

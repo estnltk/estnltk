@@ -129,7 +129,9 @@ def parse_graph(graph: LayerGraph,
             print(100*'-')
             print('worklist:', [(n.name, d) for n, d in worklist])
         node, d = worklist.pop()
-        assert node in graph, 'Node in worklist, but not in graph. This should not happen.'
+        # the node might have been removed due to conflict resolving
+        if node not in graph:
+            continue
 
         nodes_1 = _expand_fragment(node, graph, grammar, rule_map, width_limit, NonTerminalNode, ignore_validators, debug)
         nodes_2 = _expand_fragment(node, graph, grammar, hidden_rule_map, width_limit, PlusNode, True, debug)
