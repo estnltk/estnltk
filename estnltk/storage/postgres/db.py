@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import pandas
 import logging
 import operator as op
 from collections import namedtuple
@@ -178,6 +179,11 @@ class PgCollection:
                 # insert data
                 layer_table = self.layer_name_to_table_name(layer_name)
                 id_ = 0
+
+                meta_columns = ()
+                if meta is not None:
+                    meta_columns = tuple(meta)
+
                 for row in data_iterator:
                     text_id, text = row[0], row[1]
                     for record in row_mapper(row):
@@ -188,12 +194,11 @@ class PgCollection:
                         columns = ["id", "text_id", "data"]
                         values = ["%s"] * 3
 
-                        if record.meta is not None:
-                            columns.extend(record.meta.keys())
-                            values.extend(["%s"] * len(record.meta.keys()))
-                            meta_values = list(record.meta.values())
-                        else:
-                            meta_values = []
+                        meta_values = []
+                        if meta_columns:
+                            columns.extend(meta_columns)
+                            values.extend(["%s"] * len(meta_columns))
+                            meta_values = [record.meta[k] for k in meta_columns]
 
                         if ngram_index is not None:
                             columns.extend(ngram_index.keys())
@@ -377,6 +382,61 @@ class PgCollection:
             if tbl.startswith("%s__" % self.table_name) and tbl.endswith("__layer"):
                 layer_tables.append(tbl)
         return layer_tables
+
+    def get_layer_meta(self, layer_name):
+        layer_table = self.layer_name_to_table_name(layer_name)
+        if layer_name not in self.get_layer_names():
+            raise PgStorageException("Collection does not have a layer '{}'.".format(layer_name))
+        if not self.storage.table_exists(layer_table):
+            raise PgStorageException("Layer table '{}' does not exist.".format(layer_table))
+
+        with self.storage.conn.cursor() as c:
+            c.execute(SQL("SELECT column_name FROM information_schema.columns "
+                          "WHERE table_schema=%s AND table_name=%s"),
+                      (self.storage.schema, layer_table))
+            res = c.fetchall()
+            columns = [r[0] for r in res if r[0] != 'data']
+
+            c.execute(SQL('SELECT {} FROM {}.{}').format(
+                SQL(', ').join(map(Identifier, columns)),
+                Identifier(self.storage.schema),
+                Identifier(layer_table)))
+            data = c.fetchall()
+            return pandas.DataFrame(data=data, columns=columns)
+
+    def export_layer(self, layer, attributes, input_layers):
+        export_table = '{}__{}__export'.format(self.table_name, layer)
+        texts = self.select(layers=input_layers)
+
+        columns = [
+            ('id', 'serial PRIMARY KEY'),
+            ('text_id', 'int NOT NULL'),
+            ('span_nr', 'int NOT NULL')]
+        columns.extend((attr, 'text') for attr in attributes)
+
+        columns_sql = SQL(",\n").join(SQL("{} {}").format(Identifier(n), SQL(t)) for n, t in columns)
+
+        i = 0
+        with self.storage.conn.cursor() as c:
+            c.execute(SQL("DROP TABLE IF EXISTS {}.{}").format(Identifier(self.storage.schema),
+                                                               Identifier(export_table)))
+            c.execute(SQL("CREATE TABLE {}.{}\n"
+                          "({})").format(Identifier(self.storage.schema),
+                                         Identifier(export_table),
+                                         columns_sql))
+
+            for text_id, text in texts:
+                for span_nr, span in enumerate(text[layer]):
+                    for annotation in span:
+                        i += 1
+                        values = [i, text_id, span_nr]
+                        values.extend(getattr(annotation, attr) for attr in  attributes)
+                        c.execute(SQL("INSERT INTO {}.{}\n"
+                                      "VALUES ({})").format(Identifier(self.storage.schema),
+                                                            Identifier(export_table),
+                                                            SQL(', ').join(map(Literal, values))
+                                                            ))
+        print('{} annotations exported to {}.{}'.format(i, self.storage.schema, export_table))
 
 
 class PostgresStorage:
