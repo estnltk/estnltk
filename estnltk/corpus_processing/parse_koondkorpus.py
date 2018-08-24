@@ -25,6 +25,9 @@ from copy import deepcopy
 
 import os, os.path, re
 
+from zipfile import ZipFile
+import tarfile
+
 # Tokenizer that splits into sentences by newlines (created only if needed)
 koond_newline_sentence_tokenizer = None
 
@@ -466,6 +469,67 @@ def get_filenames(root, prefix='', suffix=''):
         List of filenames matching the prefix and suffix criteria.
     """
     return [fnm for fnm in os.listdir(root) if fnm.startswith(prefix) and fnm.endswith(suffix)]
+
+
+def unpack_zipped_xml_files_iterator( path, encoding='utf-8', test_only=True ):
+    """Unpacks given Koondkorpus .zip or .tar.gz archive, and yields XML TEI 
+       files of the corpus. 
+       Files that do not contain textual content (e.g. header XML files) will
+       not be yielded.
+    
+    Parameters
+    ----------
+    path: str
+        The path of the .zip or .tar.gz file;
+    encoding: str
+        Encoding to be used for decoding the content of the XML file. 
+        Defaults to 'utf-8'.
+    test_only: boolean
+        If True, then only file names (strings) from the archive are returned.
+        Otherwise, pairs (file path, decoded file content) will be returned.
+        (default: False)
+    Yields
+    -------
+        if test_only == True:
+           path to XML TEI file : str
+        else:
+           a tuple : (path to XML TEI file : str, content of XML TEI file : str)
+           
+    """
+    if path.endswith('.zip'):
+        with ZipFile( path, mode='r' ) as opened_zip:
+            for fnm_path in opened_zip.namelist():
+                if 'bin' in fnm_path:
+                    # Skip files inside the 'bin' folder
+                    continue
+                if fnm_path.endswith('.xml'):
+                    if test_only:
+                       yield fnm_path
+                    else:
+                       with opened_zip.open(fnm_path) as f:
+                            content = f.read()
+                       content = content.decode(encoding)
+                       yield (fnm_path, content)
+    elif path.endswith('.tar.gz'):
+        opened_tar = tarfile.open(path, "r:gz")
+        for tarinfo in opened_tar:
+            if not tarinfo.isreg():
+               # Skip directories
+               continue
+            if 'bin' in tarinfo.name:
+               # Skip files inside the 'bin' folder
+               continue
+            if tarinfo.name.endswith('.xml'):
+               if test_only:
+                  yield tarinfo.name
+               else:
+                  with opened_tar.extractfile(tarinfo) as f:
+                       content = f.read()
+                  content = content.decode(encoding)
+                  yield (tarinfo.name, content)
+        opened_tar.close()
+    else:
+        raise Exception('(!) Unexpected input file format: ',path)
 
 
 def get_subdiv(div):
