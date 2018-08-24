@@ -180,7 +180,8 @@ def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel'], \
 
 def parse_tei_corpus(path, target=['artikkel'], encoding='utf-8', preserve_tokenization=False,\
                      record_xml_filename=False):
-    """Parse documents from a TEI style XML file. Return a list of Text objects.
+    """Load content of an XML TEI file, and parse documents from the content.
+       Return a list of Text objects.
     
     Parameters
     ----------
@@ -206,10 +207,46 @@ def parse_tei_corpus(path, target=['artikkel'], encoding='utf-8', preserve_token
         list of esnltk.text.Text
     """
     with open(path, 'rb') as f:
-        html_doc = f.read()
+        xml_doc_content = f.read()
     if encoding:
-        html_doc = html_doc.decode( encoding )
-    soup = BeautifulSoup(html_doc, 'html5lib')
+        xml_doc_content = xml_doc_content.decode( encoding )
+    return parse_tei_corpus_file_content( xml_doc_content, path, target=target, \
+                                          preserve_tokenization = preserve_tokenization,\
+                                          record_xml_filename = record_xml_filename )
+
+
+def parse_tei_corpus_file_content(content, file_path, target=['artikkel'], \
+                                  preserve_tokenization=False, \
+                                  record_xml_filename=False):
+    """Parse documents from the (string) content of an XML TEI file. 
+       Return a list of Text objects.
+    
+    Parameters
+    ----------
+    content: str
+        Content of a single XML TEI file from Koondkorpus. Assumes that the content string 
+        has already been decoded;
+    file_path: str
+        The path of the XML file. This is required for recording name of the original XML 
+        file in metadata of a created Text object (see the argument record_xml_filename 
+        for details); 
+    target: list of str
+        List of <div> types, that are considered documents in the XML files (default: ["artikkel"]).
+    preserve_tokenization: boolean
+        If True, then the created documents will have layers 'words', 'sentences', 'paragraphs', 
+        which follow the original segmentation in the XML file. 
+        (In the XML, sentences are between <s> and </s> and paragraphs are between <p> and </p>);
+        Otherwise, the documents are created without adding layers 'words', 'sentences', 'paragraphs';
+        (default: False)
+    record_xml_filename: boolean
+        If True, then the created documents will have the name of the original XML file recorded in 
+        their metadata, under the key '_xml_file'. 
+        (default: False)
+    Returns
+    -------
+        list of esnltk.text.Text
+    """
+    soup = BeautifulSoup(content, 'html5lib')
     title = soup.find_all('title')[0].string
     
     documents = []
@@ -220,16 +257,16 @@ def parse_tei_corpus(path, target=['artikkel'], encoding='utf-8', preserve_token
     preserve_tokenization_x = False
     if preserve_tokenization:
         # If required, preserve the original tokenization
-        add_tokenization      = True
+        add_tokenization        = True
         preserve_tokenization_x = True
     if record_xml_filename:
         # Record name of the original XML file
-        path_head, path_tail = os.path.split(path)
+        path_head, path_tail = os.path.split(file_path)
         for doc in documents:
             doc['_xml_file'] = path_tail
-    return create_estnltk_texts(documents, \
-                                add_tokenization=add_tokenization, \
-                                preserve_orig_tokenization=preserve_tokenization_x )
+    return create_estnltk_texts( documents, \
+                                 add_tokenization=add_tokenization, \
+                                 preserve_orig_tokenization=preserve_tokenization_x )
 
 
 def parse_div(soup, metadata, target):
