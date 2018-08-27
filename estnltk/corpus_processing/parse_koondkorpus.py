@@ -25,6 +25,9 @@ from copy import deepcopy
 
 import os, os.path, re
 
+from zipfile import ZipFile
+import tarfile
+
 # Tokenizer that splits into sentences by newlines (created only if needed)
 koond_newline_sentence_tokenizer = None
 
@@ -180,7 +183,8 @@ def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel'], \
 
 def parse_tei_corpus(path, target=['artikkel'], encoding='utf-8', preserve_tokenization=False,\
                      record_xml_filename=False):
-    """Parse documents from a TEI style XML file. Return a list of Text objects.
+    """Load content of an XML TEI file, and parse documents from the content.
+       Return a list of Text objects.
     
     Parameters
     ----------
@@ -206,10 +210,46 @@ def parse_tei_corpus(path, target=['artikkel'], encoding='utf-8', preserve_token
         list of esnltk.text.Text
     """
     with open(path, 'rb') as f:
-        html_doc = f.read()
+        xml_doc_content = f.read()
     if encoding:
-        html_doc = html_doc.decode( encoding )
-    soup = BeautifulSoup(html_doc, 'html5lib')
+        xml_doc_content = xml_doc_content.decode( encoding )
+    return parse_tei_corpus_file_content( xml_doc_content, path, target=target, \
+                                          preserve_tokenization = preserve_tokenization,\
+                                          record_xml_filename = record_xml_filename )
+
+
+def parse_tei_corpus_file_content(content, file_path, target=['artikkel'], \
+                                  preserve_tokenization=False, \
+                                  record_xml_filename=False):
+    """Parse documents from the (string) content of an XML TEI file. 
+       Return a list of Text objects.
+    
+    Parameters
+    ----------
+    content: str
+        Content of a single XML TEI file from Koondkorpus. Assumes that the content string 
+        has already been decoded;
+    file_path: str
+        The path of the XML file. This is required for recording name of the original XML 
+        file in metadata of a created Text object (see the argument record_xml_filename 
+        for details); 
+    target: list of str
+        List of <div> types, that are considered documents in the XML files (default: ["artikkel"]).
+    preserve_tokenization: boolean
+        If True, then the created documents will have layers 'words', 'sentences', 'paragraphs', 
+        which follow the original segmentation in the XML file. 
+        (In the XML, sentences are between <s> and </s> and paragraphs are between <p> and </p>);
+        Otherwise, the documents are created without adding layers 'words', 'sentences', 'paragraphs';
+        (default: False)
+    record_xml_filename: boolean
+        If True, then the created documents will have the name of the original XML file recorded in 
+        their metadata, under the key '_xml_file'. 
+        (default: False)
+    Returns
+    -------
+        list of esnltk.text.Text
+    """
+    soup = BeautifulSoup(content, 'html5lib')
     title = soup.find_all('title')[0].string
     
     documents = []
@@ -220,16 +260,16 @@ def parse_tei_corpus(path, target=['artikkel'], encoding='utf-8', preserve_token
     preserve_tokenization_x = False
     if preserve_tokenization:
         # If required, preserve the original tokenization
-        add_tokenization      = True
+        add_tokenization        = True
         preserve_tokenization_x = True
     if record_xml_filename:
         # Record name of the original XML file
-        path_head, path_tail = os.path.split(path)
+        path_head, path_tail = os.path.split(file_path)
         for doc in documents:
             doc['_xml_file'] = path_tail
-    return create_estnltk_texts(documents, \
-                                add_tokenization=add_tokenization, \
-                                preserve_orig_tokenization=preserve_tokenization_x )
+    return create_estnltk_texts( documents, \
+                                 add_tokenization=add_tokenization, \
+                                 preserve_orig_tokenization=preserve_tokenization_x )
 
 
 def parse_div(soup, metadata, target):
@@ -429,6 +469,67 @@ def get_filenames(root, prefix='', suffix=''):
         List of filenames matching the prefix and suffix criteria.
     """
     return [fnm for fnm in os.listdir(root) if fnm.startswith(prefix) and fnm.endswith(suffix)]
+
+
+def unpack_zipped_xml_files_iterator( path, encoding='utf-8', test_only=True ):
+    """Unpacks given Koondkorpus .zip or .tar.gz archive, and yields XML TEI 
+       files of the corpus. 
+       Files that do not contain textual content (e.g. header XML files) will
+       not be yielded.
+    
+    Parameters
+    ----------
+    path: str
+        The path of the .zip or .tar.gz file;
+    encoding: str
+        Encoding to be used for decoding the content of the XML file. 
+        Defaults to 'utf-8'.
+    test_only: boolean
+        If True, then only file names (strings) from the archive are returned.
+        Otherwise, pairs (file path, decoded file content) will be returned.
+        (default: False)
+    Yields
+    -------
+        if test_only == True:
+           path to XML TEI file : str
+        else:
+           a tuple : (path to XML TEI file : str, content of XML TEI file : str)
+           
+    """
+    if path.endswith('.zip'):
+        with ZipFile( path, mode='r' ) as opened_zip:
+            for fnm_path in opened_zip.namelist():
+                if 'bin' in fnm_path:
+                    # Skip files inside the 'bin' folder
+                    continue
+                if fnm_path.endswith('.xml'):
+                    if test_only:
+                       yield fnm_path
+                    else:
+                       with opened_zip.open(fnm_path) as f:
+                            content = f.read()
+                       content = content.decode(encoding)
+                       yield (fnm_path, content)
+    elif path.endswith('.tar.gz'):
+        opened_tar = tarfile.open(path, "r:gz")
+        for tarinfo in opened_tar:
+            if not tarinfo.isreg():
+               # Skip directories
+               continue
+            if 'bin' in tarinfo.name:
+               # Skip files inside the 'bin' folder
+               continue
+            if tarinfo.name.endswith('.xml'):
+               if test_only:
+                  yield tarinfo.name
+               else:
+                  with opened_tar.extractfile(tarinfo) as f:
+                       content = f.read()
+                  content = content.decode(encoding)
+                  yield (tarinfo.name, content)
+        opened_tar.close()
+    else:
+        raise Exception('(!) Unexpected input file format: ',path)
 
 
 def get_subdiv(div):
