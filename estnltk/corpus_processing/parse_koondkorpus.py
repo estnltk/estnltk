@@ -499,14 +499,15 @@ def unpack_zipped_xml_files_iterator( path, encoding='utf-8', test_only=True ):
     if path.endswith('.zip'):
         with ZipFile( path, mode='r' ) as opened_zip:
             for fnm_path in opened_zip.namelist():
-                if 'bin' in fnm_path:
+                fnm_head, fnm_tail = os.path.split(fnm_path)
+                if 'bin' in fnm_head:
                     # Skip files inside the 'bin' folder
                     continue
                 if fnm_path.endswith('.xml'):
                     if test_only:
                        yield fnm_path
                     else:
-                       with opened_zip.open(fnm_path) as f:
+                       with opened_zip.open(fnm_path, mode='r') as f:
                             content = f.read()
                        content = content.decode(encoding)
                        yield (fnm_path, content)
@@ -516,7 +517,8 @@ def unpack_zipped_xml_files_iterator( path, encoding='utf-8', test_only=True ):
             if not tarinfo.isreg():
                # Skip directories
                continue
-            if 'bin' in tarinfo.name:
+            fnm_head, fnm_tail = os.path.split(tarinfo.name)
+            if 'bin' in fnm_head:
                # Skip files inside the 'bin' folder
                continue
             if tarinfo.name.endswith('.xml'):
