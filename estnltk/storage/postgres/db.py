@@ -7,6 +7,7 @@ import operator as op
 from collections import namedtuple
 from functools import reduce
 from itertools import chain
+from tqdm import tqdm
 
 import psycopg2
 from psycopg2.extensions import STATUS_BEGIN
@@ -142,7 +143,7 @@ class PgCollection:
                 conn.autocommit = True
 
     def create_layer(self, layer_name, data_iterator, row_mapper,
-                     create_index=False, ngram_index=None, overwrite=False, meta=None):
+                     create_index=False, ngram_index=None, overwrite=False, meta=None, disable_pb=True):
         """
         Creates layer
 
@@ -165,6 +166,8 @@ class PgCollection:
                 Specifies table column names and data types to create for storing additional
                 meta information. E.g. meta={"sum": "int", "average": "float"}.
                 See `pytype2dbtype` for supported types.
+            disable_pb: bool
+                Disable progressbar wrapper
         """
         conn = self.storage.conn
         with conn.cursor() as c:
@@ -184,7 +187,13 @@ class PgCollection:
                 if meta is not None:
                     meta_columns = tuple(meta)
 
-                for row in data_iterator:
+                total = self.storage.count_rows(self.table_name)
+                iterator = tqdm(data_iterator,
+                                total=total,
+                                unit='doc',
+                                disable=disable_pb)
+
+                for row in iterator:
                     text_id, text = row[0], row[1]
                     for record in row_mapper(row):
                         layer = record.layer
@@ -495,7 +504,7 @@ class PostgresStorage:
         self.conn.autocommit = False
         with self.conn.cursor() as c:
             try:
-                c.execute(SQL("CREATE TABLE {}.{} (id serial PRIMARY KEY, data jsonb)").format(
+                c.execute(SQL("CREATE TABLE {}.{} (id BIGSERIAL PRIMARY KEY, data jsonb)").format(
                     Identifier(self.schema), Identifier(table)))
                 c.execute(
                     SQL("CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'layers') jsonb_path_ops)").format(
@@ -586,10 +595,12 @@ class PostgresStorage:
             row_key = c.fetchone()[0]
             return row_key
 
-    def table_exists(self, table):
+    def table_exists(self, table, schema=None):
+        if schema is None:
+            schema = self.schema
         with self.conn.cursor() as c:
             c.execute(SQL("SELECT EXISTS (SELECT 1 FROM pg_tables WHERE  schemaname = %s AND tablename = %s);"),
-                      [self.schema, table])
+                      [schema, table])
             return c.fetchone()[0]
 
     def count_rows(self, table):
