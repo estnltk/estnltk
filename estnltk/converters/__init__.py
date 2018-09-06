@@ -9,3 +9,4 @@ from .json_importer import json_to_text
 from .json_importer import json_to_layer
 from .TCF_exporter import export_TCF
 from .TCF_importer import import_TCF
+from .texta_exporter import TextaExporter
