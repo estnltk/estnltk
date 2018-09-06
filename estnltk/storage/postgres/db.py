@@ -188,13 +188,14 @@ class PgCollection:
                     meta_columns = tuple(meta)
 
                 total = self.storage.count_rows(self.table_name)
-                iterator = tqdm(data_iterator,
-                                total=total,
-                                unit='doc',
-                                disable=disable_pb)
+                iter_data = tqdm(data_iterator,
+                                 total=total,
+                                 unit='doc',
+                                 disable=disable_pb)
 
-                for row in iterator:
-                    text_id, text = row[0], row[1]
+                for row in iter_data:
+                    collection_id, text = row[0], row[1]
+                    iter_data.set_description('collection_id: {}'.format(collection_id))
                     for record in row_mapper(row):
                         layer = record.layer
                         layer_dict = layer_to_dict(layer, text)
@@ -222,7 +223,7 @@ class PgCollection:
                         values = ", ".join(values)
                         q = "INSERT INTO {}.{} (%s) VALUES (%s)" % (columns, values)
                         q = SQL(q).format(Identifier(self.storage.schema), Identifier(layer_table))
-                        data = (id_, text_id, layer_json, *meta_values, *ngram_values)
+                        data = (id_, collection_id, layer_json, *meta_values, *ngram_values)
                         c.execute(q, data)
 
                         id_ += 1
