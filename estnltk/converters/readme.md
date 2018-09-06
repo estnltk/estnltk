@@ -21,6 +21,7 @@ tagger = RobustDateNumberTagger()
 texts = [Text('2018. aastal algab sügis 23. septembril kell 4:54.'),
          Text('Sügisjooksul osalejate arv võib küündida 25 000 inimeseni.')]
 for text in texts:
+    text.tag_layer(['morph_analysis'])
     tagger.tag(text)
 
     
@@ -43,3 +44,4 @@ Output:
 {"message": "Item(s) successfully saved."}
 
 ```
+Open TEXTA toolkit and import the dataset.
