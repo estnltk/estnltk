@@ -55,14 +55,20 @@ class TextaExporter:
         facts = []
         fact_attr = self.fact_attr
         value_attr = self.value_attr
+        fact = None
+        value = None
         for span in text[self.facts_layer]:
             start = span.start
             end = span.end
             for annotation in span:
+                if fact_attr is not None:
+                    fact = getattr(annotation, fact_attr)
+                if value_attr is not None:
+                    value = getattr(annotation, value_attr)
                 facts.append({'doc_path': 'text',
-                              'fact': getattr(annotation, fact_attr),
+                              'fact': fact,
                               'spans': "[[{}, {}]]".format(start, end),
-                              'str_val': str(getattr(annotation, value_attr)),
+                              'str_val': value,
                               'num_val': None
                              })
         return facts
