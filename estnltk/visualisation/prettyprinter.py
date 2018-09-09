@@ -86,3 +86,34 @@ def add_spans(text,layer):
         last_end = e
     fragments.append(t[last_end:])
     return ''.join(fragments)
+
+
+from IPython.display import display_html
+from estnltk import Layer
+
+class EstnltkDisplay:
+    """Fancy display for estnltk objects."""
+
+    _text_id = 0
+
+    def layer_to_html(self, text, layer, text_id):
+        result = add_spans(text, layer.name)
+        result = result.format(text_id).replace("\n","<br>")
+        return t.format(text_id,result)
+
+    def display_layer(self, text, layer):
+        self.__class__._text_id += 1
+        html = self.layer_to_html(text, layer, self.__class__._text_id)
+        display_html(html, raw=True)
+
+    def __call__(self, obj):
+        if isinstance(obj, Layer):
+            self.display_layer(obj.text_object, obj)
+        else:
+            raise NotImplementedError('bla bla')
+
+display = EstnltkDisplay()
+
+from estnltk.tests import new_text
+
+display(new_text(5).layer_1)
