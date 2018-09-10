@@ -11,3 +11,5 @@ lxml
 matplotlib
 requests
 IPython
+tensorflow
+numpy
