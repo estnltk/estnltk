@@ -78,6 +78,10 @@ class AmbiguousSpan(collections.Sequence):
         return self._span.end
 
     @property
+    def base_spans(self):
+        return self._span.base_spans
+
+    @property
     def text(self):
         return self._span.text
 
@@ -87,21 +91,15 @@ class AmbiguousSpan(collections.Sequence):
     def __getattr__(self, item):
         if item in {'__getstate__', '__setstate__'}:
             raise AttributeError
-        if item == '_ipython_canary_method_should_not_exist_' and self.layer is not None and self is self.layer.spans:
-            raise AttributeError
-
         layer = self.__getattribute__('layer')  # type: Layer
         if item in layer.attributes:
             return [getattr(span, item) for span in self._annotations]
-        if item in self.__dict__.keys():
-            return self.__dict__[item]
         if item == getattr(self.layer, 'parent', None):
             return self.parent
         if item in self.__dict__:
             return self.__dict__[item]
 
-        target = layer.text_object._resolve(layer.name, item, sofar=self)
-        return target
+        raise AttributeError(item)
 
     def __getitem__(self, idx: int) -> Union[Span, 'SpanList']:
         wrapped = self._annotations.__getitem__(idx)
@@ -144,7 +142,7 @@ class AmbiguousSpan(collections.Sequence):
                 first = False
             else:
                 rec['text'] = ''
-        df = pd.DataFrame.from_records(records, columns=('text','start', 'end')+self.layer.attributes)
+        df = pd.DataFrame.from_records(records, columns=('text', 'start', 'end')+self.layer.attributes)
         return df.to_html(escape=False, justify='left', index=False)
 
     def display(self, margin: int=0):

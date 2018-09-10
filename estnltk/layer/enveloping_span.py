@@ -73,6 +73,10 @@ class EnvelopingSpan(collections.Sequence):
         return self.spans[-1].end
 
     @property
+    def base_spans(self):
+        return tuple(s for span in self.spans for s in span.base_spans)
+
+    @property
     def text(self):
         result = []
         for span in self.spans:

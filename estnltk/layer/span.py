@@ -97,6 +97,10 @@ class Span:
         self._end = value
 
     @property
+    def base_spans(self):
+        return (self.start, self.end),
+
+    @property
     def text(self):
         return self.text_object.text[self.start:self.end]
 
@@ -115,7 +119,7 @@ class Span:
         left = escape(t[max(0, s - margin):s])
         middle = escape(t[s:e])
         right = escape(t[e:e + margin])
-        return ''.join(('<span style="font-family:monospace; white-space: pre-wrap; ">',
+        return ''.join(('<span style="font-family: monospace; white-space: pre-wrap;">',
                         left,
                         '<span style="text-decoration: underline;">', middle, '</span>',
                         right, '</span>'))
