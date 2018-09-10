@@ -522,6 +522,10 @@ class Layer:
                                                       'parent', 'enveloping',
                                                       'ambiguous', 'span count'])
 
+    def display(self):
+        from estnltk.visualisation import estnltk_display
+        estnltk_display(self)
+
     def to_html(self, header='Layer', start_end=False):
         res = []
         table2 = None

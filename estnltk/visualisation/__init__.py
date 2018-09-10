@@ -1,0 +1,1 @@
+from estnltk.visualisation.prettyprinter import estnltk_display
