@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 import psycopg2
 from psycopg2.extensions import STATUS_BEGIN
-from psycopg2.sql import SQL, Identifier, Literal
+from psycopg2.sql import SQL, Identifier, Literal, DEFAULT
 
 from estnltk.converters.dict_importer import dict_to_layer
 from estnltk.converters.dict_exporter import layer_to_dict
@@ -39,17 +39,50 @@ pytype2dbtype = {
 class PgCollection:
     """Convenience wrapper over PostgresStorage"""
 
-    def __init__(self, name, storage):
+    def __init__(self, name, storage, meta=None):
         self.table_name = name
         self.storage = storage
+        self.meta = meta or {}
 
     def create(self, description=None):
         """Creates a database table for the collection"""
-        return self.storage.create_table(self.table_name, description)
+        return self.storage.create_table(self.table_name, description, self.meta)
 
-    def insert(self, text, key=None):
-        """Inserts text object as a table row with a given key"""
-        return self.storage.insert(self.table_name, text, key)
+    def insert(self, text, key=None, meta=None):
+        """Saves a given `Text` object into the collection.
+
+        Args:
+            text: Text
+            key: int
+            meta: dict
+
+        Returns:
+            int: row key (id)
+        """
+        text = text_to_json(text)
+        if key is None:
+            key = DEFAULT
+        else:
+            key = Literal(key)
+
+        column_names = [Identifier('id'), Identifier('data')]
+        expressions = [key, Literal(text)]
+        if meta:
+            for k in self.meta:
+                column_names.append(Identifier(k))
+                if k in meta:
+                    expressions.append(Literal(meta[k]))
+                else:
+                    expressions.append(DEFAULT)
+
+        with self.storage.conn.cursor() as c:
+            c.execute(SQL("INSERT INTO {}.{} ({}) VALUES ({}) RETURNING id").format(
+                Identifier(self.storage.schema),
+                Identifier(self.table_name),
+                SQL(', ').join(column_names),
+                SQL(', ').join(expressions)))
+            row_key = c.fetchone()[0]
+            return row_key
 
     def exists(self):
         """Returns true if table exists"""
@@ -490,7 +523,7 @@ class PostgresStorage:
         with self.conn.cursor() as c:
             c.execute(SQL("DROP SCHEMA {} CASCADE;").format(Identifier(self.schema)))
 
-    def create_table(self, table, description=None):
+    def create_table(self, table, description=None, meta=None):
         """Creates a new table to store jsonb data:
 
             CREATE TABLE table(
@@ -502,11 +535,17 @@ class PostgresStorage:
 
             CREATE INDEX idx_table_data ON table USING gin ((data -> 'layers') jsonb_path_ops);
         """
+        columns = [SQL('id BIGSERIAL PRIMARY KEY'),
+                   SQL('data jsonb')]
+        if meta is not None:
+            for col_name, col_type in meta.items():
+                columns.append(SQL('{} {}').format(Identifier(col_name), SQL(pytype2dbtype[col_type])))
+
         self.conn.autocommit = False
         with self.conn.cursor() as c:
             try:
-                c.execute(SQL("CREATE TABLE {}.{} (id BIGSERIAL PRIMARY KEY, data jsonb)").format(
-                    Identifier(self.schema), Identifier(table)))
+                c.execute(SQL("CREATE TABLE {}.{} ({})").format(
+                    Identifier(self.schema), Identifier(table), SQL(', ').join(columns)))
                 c.execute(
                     SQL("CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'layers') jsonb_path_ops)").format(
                         index=Identifier('idx_%s_data' % table),
@@ -574,7 +613,7 @@ class PostgresStorage:
             row_key = c.fetchone()[0]
             return row_key
 
-    def insert(self, table, text, key=None):
+    def insert(self, table, text, key=None, meta=None):
         """
         Saves a given `text` object into a given `table`..
         Args:
@@ -586,13 +625,13 @@ class PostgresStorage:
             int: row key (id)
         """
         text = text_to_json(text)
+        if key is None:
+            key = DEFAULT
+        else:
+            key = Literal(key)
         with self.conn.cursor() as c:
-            if key is not None:
-                c.execute(SQL("INSERT INTO {}.{} VALUES (%s, %s) RETURNING id;").format(
-                    Identifier(self.schema), Identifier(table)), (key, text))
-            else:
-                c.execute(SQL("INSERT INTO {}.{} (data) VALUES (%s) RETURNING id;").format(
-                    Identifier(self.schema), Identifier(table)), (text,))
+            c.execute(SQL("INSERT INTO {}.{} VALUES ({}, %s) RETURNING id").format(
+                Identifier(self.schema), Identifier(table), key), (text,))
             row_key = c.fetchone()[0]
             return row_key
 
@@ -951,9 +990,9 @@ class PostgresStorage:
         return self.select(table, jsonb_text_query, jsonb_layer_query, layer_ngram_query, layers,
                            order_by_key=order_by_key)
 
-    def get_collection(self, table_name):
+    def get_collection(self, table_name, meta=None):
         """Returns a new instance of `PgCollection` without physically creating it."""
-        return PgCollection(table_name, self)
+        return PgCollection(table_name, self, meta)
 
 
 class JsonbTextQuery(Query):
