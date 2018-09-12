@@ -48,13 +48,13 @@ class PgCollection:
         """Creates a database table for the collection"""
         return self.storage.create_table(self.table_name, description, self.meta)
 
-    def insert(self, text, key=None, meta=None):
+    def insert(self, text, key=None, meta_data=None):
         """Saves a given `Text` object into the collection.
 
         Args:
             text: Text
             key: int
-            meta: dict
+            meta_data: dict
 
         Returns:
             int: row key (id)
@@ -67,11 +67,11 @@ class PgCollection:
 
         column_names = [Identifier('id'), Identifier('data')]
         expressions = [key, Literal(text)]
-        if meta:
+        if meta_data:
             for k in self.meta:
                 column_names.append(Identifier(k))
-                if k in meta:
-                    expressions.append(Literal(meta[k]))
+                if k in meta_data:
+                    expressions.append(Literal(meta_data[k]))
                 else:
                     expressions.append(DEFAULT)
 
@@ -990,9 +990,9 @@ class PostgresStorage:
         return self.select(table, jsonb_text_query, jsonb_layer_query, layer_ngram_query, layers,
                            order_by_key=order_by_key)
 
-    def get_collection(self, table_name, meta=None):
+    def get_collection(self, table_name, meta_fields=None):
         """Returns a new instance of `PgCollection` without physically creating it."""
-        return PgCollection(table_name, self, meta)
+        return PgCollection(table_name, self, meta_fields)
 
 
 class JsonbTextQuery(Query):
