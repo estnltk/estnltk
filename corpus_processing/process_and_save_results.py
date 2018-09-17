@@ -171,7 +171,7 @@ if __name__ == '__main__':
             try:
                 # 0) Add metadata
                 if corpus_type.lower() == 'koond':
-                    text_subcorpus = get_text_subcorpus_name( in_dir, in_file_name )
+                    text_subcorpus = get_text_subcorpus_name( in_dir, in_file_name, None )
                     text.meta['subcorpus'] = str(text_subcorpus)
 
                 # 1) Add basic/tokenization annotations

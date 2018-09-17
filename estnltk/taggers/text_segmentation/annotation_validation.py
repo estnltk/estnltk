@@ -477,7 +477,7 @@ def find_newlines_inside_tokens_generator( text: 'Text', focus_layer='words' ):
     for requirement in requirements:
         assert requirement in text.layers, \
                '(!) The input text is missing the layer "'+requirement+'"!'
-    # Iterate over words and yield strings forming a camel case word
+    # Iterate over tokens and find tokens that contain newlines
     token_spans = text[focus_layer].spans
     for tid, token in enumerate( token_spans ):
         content = token.text

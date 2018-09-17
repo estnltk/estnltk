@@ -69,69 +69,108 @@ def get_div_target( fnm ):
     return 'artikkel'
 
 
-def get_text_subcorpus_name( corpus_dir, corpus_file ):
-    """Based on the name of the text's file, and its directory, determines
-       to which subcorpus of the Reference Corpus the text belongs to. 
-       Returns a shortened name of the subcorpus, or None, if the subcorpus 
-       could not be determined.
+def get_text_subcorpus_name( corpus_dir, corpus_file, text_obj, \
+                             expand_names = True ):
+    """Based on the name of the text's file, and its directory or Text object, 
+       determines to which subcorpus of the Reference Corpus the text belongs 
+       to. Returns the name of the subcorpus, or None, if the subcorpus could 
+       not be determined.
        
        Logic for determining the subcorpus is mostly based on checking the 
        name of the file. If the name is not helpful, then metadata inside 
-       the Text object is also checked for additional cues.
+       the Text object is also checked for additional cues. 
+       The following logic is used for loading the file. If corpus_dir
+       is provided, then the Text object is loaded from the json file
+       located at corpus_dir + corpus_file. Otherwise, the Text object 
+       should be given as the input argument text_obj.
 
     Parameters
     -----------
     corpus_dir: str
-        The directory of the corpus_file;
+        The directory of the corpus_file; If metadata of the Text object
+        needs to be checked, then the location corpus_dir + corpus_file
+        should contain the Text object in json format;
 
     corpus_file: str
-        Name of the file which corpus needs to be determined;
-        
+        Name of the file which corpus needs to be determined; In most 
+        cases, the name of the subcorpus can be determined based on this 
+        name. However, if not, then either corpus_dir or text_obj must 
+        be provided;
+
+    text_obj: Text
+        Text object which is alternatively used for determining the 
+        subcorpus name. For that purpose, metadata fields of the object will
+        be checked;
+
+    expand_names: boolean
+        Whether subcorpus names should be expanded from short names to full 
+        names, e.g. 'aja' -> 'ajakirjandus', 'sea' -> 'seadus' etc.
+        (default: True)
+    
     Returns
     -------
     str
-       a shortened name of the subcorpus, or None, if the subcorpus could 
-       not be determined;
+       name of the subcorpus, or None, if the subcorpus could not be determined;
     """
+    assert text_obj is not None or corpus_dir is not None, \
+           '(!) At least one of the arguments corpus_dir and text_obj must be not None.'
     f_prefix  = re.sub('^([A-Za-z_\-]+)(\.|[0-9]+).*', '\\1', corpus_file)
     text_type = None
     if f_prefix.startswith('ilu_'):
         f_prefix  = 'ilu_'
         text_type = f_prefix
+        if expand_names:
+            text_type = text_type.replace('ilu', 'ilukirjandus')
     if f_prefix.startswith('tea_'):
         f_prefix = 'tea_'
         text_type = f_prefix
+        if expand_names:
+            text_type = text_type.replace('tea', 'teadus')
     if f_prefix.startswith('agraar_'):
         f_prefix = 'tea_'
         text_type = f_prefix
+        if expand_names:
+            text_type = text_type.replace('tea', 'teadus')
     if f_prefix.startswith('horisont_'):
         f_prefix = 'tea_'
         text_type = f_prefix
+        if expand_names:
+            text_type = text_type.replace('tea', 'teadus')
     if f_prefix.startswith('sea_'):
         f_prefix = 'sea_'
-        text_type = f_prefix
+        text_type = f_prefix.replace('sea', 'seadus')
+        if expand_names:
+            text_type = text_type.replace('sea', 'seadus')
     if f_prefix.startswith('rkogu_'):
         f_prefix = 'rkogu_'
         text_type = f_prefix
+        if expand_names:
+            text_type = text_type.replace('rkogu', 'riigikogu_stenogramm')
     if f_prefix.startswith('aja_'):
         text_type = f_prefix
+        if expand_names:
+            text_type = text_type.replace('aja', 'ajakirjandus')
     if text_type and text_type.endswith('_'):
         text_type = text_type[:-1]
     # If text type cannot be determined from the name of the file, 
     # try to get it from metadata of the Text object
     if not text_type:
-        fnm = os.path.join( corpus_dir, corpus_file )
-        text_obj = json_to_text(file=fnm)
-        if text_obj:
-            if 'alamfoorum' in text_obj.meta.keys():
-                text_type = 'netifoorum'
-            elif 'type' in text_obj.meta.keys():
-                if text_obj.meta['type'] == 'jututoavestlus':
-                    text_type = text_obj.meta['type']
-                elif text_obj.meta['type'] == 'uudisgrupi_salvestus':
-                    text_type = text_obj.meta['type']
-                elif text_obj.meta['type'] == 'kommentaarid':
-                    text_type = 'neti'+text_obj.meta['type']
+        if corpus_dir is not None:
+            # A) Load Text object from the file
+            fnm = os.path.join( corpus_dir, corpus_file )
+            loaded_text_obj = json_to_text( file = fnm )
+        elif text_obj is not None:
+            # B) Take Text object that was provided as an argument
+            loaded_text_obj = text_obj
+        if 'alamfoorum' in loaded_text_obj.meta.keys():
+            text_type = 'netifoorum'
+        elif 'type' in loaded_text_obj.meta.keys():
+            if loaded_text_obj.meta['type'] == 'jututoavestlus':
+                text_type = loaded_text_obj.meta['type']
+            elif loaded_text_obj.meta['type'] == 'uudisgrupi_salvestus':
+                text_type = loaded_text_obj.meta['type']
+            elif loaded_text_obj.meta['type'] == 'kommentaarid':
+                text_type = 'neti'+loaded_text_obj.meta['type']
     return text_type
 
 
