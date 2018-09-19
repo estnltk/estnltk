@@ -17,6 +17,7 @@
 # 
 
 from estnltk.text import Text
+from estnltk.text import Layer
 from estnltk.converters import json_to_text
 from estnltk.taggers import SentenceTokenizer
 
@@ -79,7 +80,7 @@ def get_text_subcorpus_name( corpus_dir, corpus_file, text_obj, \
        Logic for determining the subcorpus is mostly based on checking the 
        name of the file. If the name is not helpful, then metadata inside 
        the Text object is also checked for additional cues. 
-       The following logic is used for loading the file. If corpus_dir
+       The following logic is used for getting the Text object. If corpus_dir
        is provided, then the Text object is loaded from the json file
        located at corpus_dir + corpus_file. Otherwise, the Text object 
        should be given as the input argument text_obj.
@@ -430,6 +431,90 @@ def parse_chat_paragraphs(soup):
     return paragraphs
 
 
+
+def reconstruct_text( doc, \
+                      sent_separator = '\n', \
+                      para_separator = '\n\n' ):
+    """Based on the dictionary representation of a text, 
+       reconstructs an EstNLTK Text object, creates layers
+       preserving the original tokenization ( layers 
+       'original_paragraphs'  and  'original_sentences'),
+       and returns the Text object and a list of created
+       layers (a tuple).
+       Note that created layers will not be attached to 
+       the created Text object, but they are suitable for
+       attaching in a later phase.
+
+       Parameters
+       ----------
+       doc:  dict
+           The dictionary representation of an imported XML 
+           document. This dictionary is used as a basis for 
+           reconstructing the text.
+           The dictionary should be in the following format:
+            { 'paragraphs' : [
+               { 'sentences': [ ..., ... ] },
+               { 'sentences': [ ..., ... ] },
+               ...
+             }
+
+       sent_separator: str
+           String that will be used for separating sentences in 
+           the reconstructed text;
+           Default: '\n'
+
+       para_separator: str
+           String that will be used for separating paragraphs in 
+           the reconstructed text;
+           Default: '\n\n'
+
+       Returns
+       -------
+       (Text, list of Layers)
+           Reconstructed Text object,  and  a  list  of  layers, 
+           preserving the original tokenization.
+    """
+    # 1) Reconstruct text string
+    #    Collect sentence and paragraph locations from the text
+    sent_locations = []
+    para_locations = []
+    cur_pos = 0
+    paragraphs = []
+    for pid, para in enumerate(doc['paragraphs']):
+        sentences = []
+        for sid, sentence in enumerate(para['sentences']):
+            sent_location = {'start': cur_pos, \
+                             'end':   cur_pos+len(sentence) }
+            sentences.append(sentence)
+            sent_locations.append(sent_location)
+            cur_pos += len(sentence)
+            if sid < len(para['sentences'])-1:
+               sentences.append(sent_separator)
+               cur_pos += len(sent_separator)
+        paragraph_content = ''.join(sentences)
+        para_location = {'start': cur_pos-len(paragraph_content), \
+                         'end':   cur_pos }
+        paragraphs.append( paragraph_content )
+        para_locations.append( para_location )
+        if pid < len(doc['paragraphs'])-1:
+            paragraphs.append(para_separator)
+            cur_pos += len(para_separator)
+    text_str = ''.join(paragraphs)
+    # 2) Reconstruct text and layers
+    text = Text( text_str )
+    # 3) Add metadata
+    for key in doc.keys():
+       if key not in ['paragraphs', 'sentences']:
+            text.meta[key] = doc[key]
+    # 4) Create tokenization layers
+    orig_sentences  = \
+       Layer(name='original_sentences').from_records(sent_locations)
+    orig_paragraphs = \
+       Layer(name='original_paragraphs').from_records(para_locations)
+    return text, [orig_sentences, orig_paragraphs]
+
+
+
 def create_estnltk_texts( docs, 
                           add_tokenization=False,
                           preserve_orig_tokenization=False):
@@ -455,8 +540,8 @@ def create_estnltk_texts( docs,
         
     Returns
     -------
-    list of (list of str)
-        List of paragraphs given as list of sentences.
+    list of Texts
+        List of EstNLTK's Text objects.
     """
     global koond_newline_sentence_tokenizer
     if add_tokenization and \
