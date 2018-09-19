@@ -770,9 +770,9 @@ class PostgresStorage:
             where = False
             sql_parts = []
             table_escaped = SQL("{}.{}").format(Identifier(self.schema), Identifier(table)).as_string(self.conn)
-            if layers is None and layer_query is None and layer_ngram_query is None:
+            if not layers and layer_query is None and layer_ngram_query is None:
                 # select only text table
-                q = SQL("SELECT * FROM {}.{}").format(Identifier(self.schema), Identifier(table)).as_string(self.conn)
+                q = SQL("SELECT id, data FROM {}.{}").format(Identifier(self.schema), Identifier(table)).as_string(self.conn)
                 sql_parts.append(q)
             else:
                 # need to join text and all layer tables
