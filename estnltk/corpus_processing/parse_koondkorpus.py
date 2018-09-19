@@ -21,6 +21,8 @@ from estnltk.text import Layer
 from estnltk.converters import json_to_text
 from estnltk.taggers import SentenceTokenizer
 
+from estnltk.taggers import TaggerOld
+
 from bs4 import BeautifulSoup
 from copy import deepcopy
 
@@ -434,7 +436,8 @@ def parse_chat_paragraphs(soup):
 
 def reconstruct_text( doc, \
                       sent_separator = '\n', \
-                      para_separator = '\n\n' ):
+                      para_separator = '\n\n',\
+                      tokens_tagger  = None ):
     """Based on the dictionary representation of a text, 
        reconstructs an EstNLTK Text object, creates layers
        preserving the original tokenization ( layers 
@@ -444,6 +447,11 @@ def reconstruct_text( doc, \
        Note that created layers will not be attached to 
        the created Text object, but they are suitable for
        attaching in a later phase.
+       
+       If tokens_tagger is provided, then the tokens_tagger 
+       is used for segmenting sentences into tokens and
+       based on the segmentation, a layer 'original_tokens' 
+       is also created and returned.
 
        Parameters
        ----------
@@ -467,22 +475,40 @@ def reconstruct_text( doc, \
            String that will be used for separating paragraphs in 
            the reconstructed text;
            Default: '\n\n'
+       
+       tokens_tagger: TaggerOld
+           EstNLTK's TaggerOld that can be used for splitting 
+           sentences into tokens. If specified, then tagger's method 
+           tag() will be used for splitting each sentence into tokens, 
+           and results will be stored in a layer named 'original_tokens';
+           If tokens_tagger is None, then the returned list of layers
+           will not contain layer 'original_tokens';
+           Default: None
 
        Returns
        -------
        (Text, list of Layers)
-           Reconstructed Text object,  and  a  list  of  layers, 
-           preserving the original tokenization.
+           Reconstructed Text object,  and  a  list  of  layers 
+           that preserve the original tokenization;
     """
+    assert not tokens_tagger or isinstance(tokens_tagger, TaggerOld)
     # 1) Reconstruct text string
     #    Collect sentence and paragraph locations from the text
-    sent_locations = []
-    para_locations = []
+    #    Optionally, token locations can also be collected
+    sent_locations  = []
+    para_locations  = []
+    token_locations = []
     cur_pos = 0
     paragraphs = []
     for pid, para in enumerate(doc['paragraphs']):
         sentences = []
         for sid, sentence in enumerate(para['sentences']):
+            if tokens_tagger:
+                layer = tokens_tagger.tag(Text(sentence), return_layer=True)
+                records = layer.to_records(with_text=False)
+                records = [ {'start': r['start']+cur_pos,\
+                             'end':   r['end']+cur_pos } for r in records ]
+                token_locations.extend( records )
             sent_location = {'start': cur_pos, \
                              'end':   cur_pos+len(sentence) }
             sentences.append(sentence)
@@ -500,7 +526,7 @@ def reconstruct_text( doc, \
             paragraphs.append(para_separator)
             cur_pos += len(para_separator)
     text_str = ''.join(paragraphs)
-    # 2) Reconstruct text and layers
+    # 2) Reconstruct text 
     text = Text( text_str )
     # 3) Add metadata
     for key in doc.keys():
@@ -511,7 +537,12 @@ def reconstruct_text( doc, \
        Layer(name='original_sentences').from_records(sent_locations)
     orig_paragraphs = \
        Layer(name='original_paragraphs').from_records(para_locations)
-    return text, [orig_sentences, orig_paragraphs]
+    created_layers = [orig_sentences, orig_paragraphs]
+    if tokens_tagger:
+       orig_tokens = \
+          Layer(name='original_tokens').from_records(token_locations)
+       created_layers.insert(0, orig_tokens)
+    return text, created_layers
 
 
 
