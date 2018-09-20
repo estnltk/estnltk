@@ -128,8 +128,9 @@ class AddressPartTagger(Tagger):
         def gaps_decorator(text:str):
             return {'gap_length':len(text), 'grammar_symbol': 'RANDOM_TEXT'}
         
-        def trim(t:str) -> str:
-            t = re.sub('[-\.,;!:? ]', '', t)
+        def trim(t: str) -> str:
+            # t = re.sub('[-\.,;!:? ]', '', t)
+            t = t.strip('[]-\.,;!:?\n\t ')
             return t
         
         self.gaps_tagger = GapTagger(output_layer='gaps',
