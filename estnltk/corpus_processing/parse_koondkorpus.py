@@ -442,16 +442,16 @@ def reconstruct_text( doc, \
        reconstructs an EstNLTK Text object, creates layers
        preserving the original tokenization ( layers 
        'original_paragraphs'  and  'original_sentences'),
-       and returns the Text object and a list of created
-       layers (a tuple).
+       and returns a tuple containing the Text object and 
+       a list of created layers.
        Note that created layers will not be attached to 
        the created Text object, but they are suitable for
-       attaching in a later phase.
+       attachment if required.
        
        If tokens_tagger is provided, then the tokens_tagger 
        is used for segmenting sentences into tokens and
        based on the segmentation, a layer 'original_tokens' 
-       is also created and returned.
+       is also added to the returned list of layers.
 
        Parameters
        ----------
@@ -478,11 +478,12 @@ def reconstruct_text( doc, \
        
        tokens_tagger: TaggerOld
            EstNLTK's TaggerOld that can be used for splitting 
-           sentences into tokens. If specified, then tagger's method 
-           tag() will be used for splitting each sentence into tokens, 
-           and results will be stored in a layer named 'original_tokens';
-           If tokens_tagger is None, then the returned list of layers
-           will not contain layer 'original_tokens';
+           sentences into tokens. If specified, then tagger's 
+           method tag() will be used for splitting each sentence 
+           into tokens, and results will be stored in a layer named 
+           'original_tokens'; If tokens_tagger is None, then the 
+           returned list of layers will not contain layer 
+           'original_tokens';
            Default: None
 
        Returns
