@@ -378,9 +378,9 @@ class Layer:
                 bisect.insort(self.span_list.spans, ambiguous_span)
                 self.classes[hash(span)] = ambiguous_span
             assert isinstance(ambiguous_span, AmbiguousSpan), ambiguous_span
-            default_attributes = self.default_values.copy()
-            default_attributes.update(attributes)
-            return ambiguous_span.add_annotation(**attributes)
+            attributes_pluss_default_values = self.default_values.copy()
+            attributes_pluss_default_values.update(attributes)
+            return ambiguous_span.add_annotation(**attributes_pluss_default_values)
 
         if self.parent is None and self.enveloping is None and self.ambiguous:
             ambiguous_span = self.classes.get(hash(span), None)
@@ -389,9 +389,9 @@ class Layer:
                 bisect.insort(self.span_list.spans, ambiguous_span)
                 self.classes[hash(span)] = ambiguous_span
             assert isinstance(ambiguous_span, AmbiguousSpan), ambiguous_span
-            default_attributes = self.default_values.copy()
-            default_attributes.update(attributes)
-            return ambiguous_span.add_annotation(**attributes)
+            attributes_pluss_default_values = self.default_values.copy()
+            attributes_pluss_default_values.update(attributes)
+            return ambiguous_span.add_annotation(**attributes_pluss_default_values)
 
         # TODO: implement add_annotation
         raise NotImplementedError('add_annotation not yet implemented for this type of layer')
