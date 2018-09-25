@@ -7,7 +7,8 @@ from regex import sub
 
 class TextaExporter:
 
-    def __init__(self, index, doc_type, fact_mapping=None, textapass='~/.textapass'):
+    def __init__(self, index, doc_type, fact_mapping=None, textaurl='http://localhost:8000',
+                 textapass='~/.textapass', sessionpass=None):
         # index is like a schema
 
         # doc_type is like a table name
@@ -20,14 +21,24 @@ class TextaExporter:
         # for example:
         # localhost:9200:mari:secret
 
+        self.session = requests.Session()
+        if sessionpass is not None:
+            with open(os.path.expanduser(sessionpass)) as in_f:
+                session_username = in_f.readline().rstrip()
+                session_password = in_f.readline().rstrip()
+                self.session.auth = (session_username, session_password)
+
+        self.textaurl = textaurl.rstrip('/')
+
         with open(os.path.expanduser(textapass)) as in_f:
-            self.host, self.port, username, password = in_f.readline().rstrip().split(':')
+            texta_username = in_f.readline().rstrip()
+            texta_password = in_f.readline().rstrip()
 
         login = {
-            'username': username,
-            'password': password
+            'username': texta_username,
+            'password': texta_password
         }
-        r = requests.post('http://{}:{}/account/get_auth_token'.format(self.host, self.port), data=json.dumps(login))
+        r = self.session.post('{}/account/get_auth_token'.format(self.textaurl), data=json.dumps(login))
         self._auth_token = r.json()['auth_token']
 
         self.index = index
@@ -82,7 +93,7 @@ class TextaExporter:
 
     def export(self, text, meta=None):
         d = self.to_dict(text, meta)
-        return requests.post('http://{}:{}/import_api/document_insertion'.format(self.host, self.port), json.dumps(d))
+        return self.session.post('{}/import_api/document_insertion'.format(self.textaurl), json.dumps(d))
 
     def extract_facts(self, text):
         for fm in self.fact_mapping:
