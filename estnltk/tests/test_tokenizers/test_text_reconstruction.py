@@ -21,7 +21,9 @@ def test_reconstruct_text():
                                      ] }
     # Reconstruct the text
     wstokenizer = WhiteSpaceTokensTagger()
-    text, tokenization_layers = reconstruct_text(test_text_dict, tokens_tagger=wstokenizer)
+    text, tokenization_layers = reconstruct_text(test_text_dict, \
+                                                 tokens_tagger=wstokenizer, \
+                                                 use_enveloping_layers=False )
     
     # Make assertions #1
     expected_text = 'Millist hinda oleme nõus maksma enese täiustamise eest?\n\n'+\
@@ -31,18 +33,18 @@ def test_reconstruct_text():
                     'Oo, jaa.\n'+'Mulle meeldis see väga.\n\n'+\
                     'Tõesti?'
     assert text.text == expected_text
-    assert any([layer.name=='original_tokens' for layer in tokenization_layers])
-    assert any([layer.name=='original_sentences' for layer in tokenization_layers])
-    assert any([layer.name=='original_paragraphs' for layer in tokenization_layers])
+    assert any([layer.name=='words' for layer in tokenization_layers])
+    assert any([layer.name=='sentences' for layer in tokenization_layers])
+    assert any([layer.name=='paragraphs' for layer in tokenization_layers])
     
     # Attach layers
     for layer in tokenization_layers:
         text[layer.name] = layer
-    tokens     = [layer for layer in tokenization_layers if layer.name=='original_tokens'][0]
-    sentences  = [layer for layer in tokenization_layers if layer.name=='original_sentences'][0]
-    paragraphs = [layer for layer in tokenization_layers if layer.name=='original_paragraphs'][0]
+    words      = [layer for layer in tokenization_layers if layer.name=='words'][0]
+    sentences  = [layer for layer in tokenization_layers if layer.name=='sentences'][0]
+    paragraphs = [layer for layer in tokenization_layers if layer.name=='paragraphs'][0]
     # Make assertions #2
-    expected_tokens = ['Millist', 'hinda', 'oleme', 'nõus', 'maksma', 'enese', 'täiustamise', 'eest?', \
+    expected_words = ['Millist', 'hinda', 'oleme', 'nõus', 'maksma', 'enese', 'täiustamise', 'eest?', \
                        'Inimestel', 'on', 'palju', 'eetilisi', 'muresid,', 'mis', 'seostuvad', 'vaimset', \
                        'võimekust', 'parandavate', 'ravimite', 'või', 'seadmetega,', 'kuid', 'tõenäoliselt', \
                        'haihtuvad', 'need', 'hetkel,', 'mil', 'turule', 'ilmub', 'esimene', 'selline', \
@@ -51,7 +53,7 @@ def test_reconstruct_text():
                        'filmi', '«Kõrvalnähud»', '(«Limitless»),', 'kus', 'peategelane', 'hakkab', 'kasutama',\
                        'ravimit,', 'mis', 'tema', 'vaimseid', 'võimeid', 'tohutult', 'parandab,', 'kuid', 'jääb',\
                        'sellest', 'sõltuvusse...', 'Oo,', 'jaa.', 'Mulle', 'meeldis', 'see', 'väga.', 'Tõesti?']
-    assert tokens.text == expected_tokens
+    assert words.text == expected_words
     expected_sentences = ['Millist hinda oleme nõus maksma enese täiustamise eest?', \
                           'Inimestel on palju eetilisi muresid, mis seostuvad vaimset võimekust parandavate '+\
                           'ravimite või seadmetega, kuid tõenäoliselt haihtuvad need hetkel, mil turule ilmub '+\
@@ -69,4 +71,6 @@ def test_reconstruct_text():
                           'kus peategelane hakkab kasutama ravimit, mis tema vaimseid võimeid tohutult parandab, '+\
                           'kuid jääb sellest sõltuvusse...', 'Oo, jaa.\nMulle meeldis see väga.', 'Tõesti?']
     assert paragraphs.text == expected_paragraphs
+
+
 

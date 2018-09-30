@@ -18,12 +18,13 @@ from estnltk.corpus_processing.parse_koondkorpus import parse_tei_corpus
 
 from estnltk.converters import text_to_json
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('koondkonverter')
 
 output_ext = 'json'    # extension of output files
 
 def process(start_dir, out_dir, encoding='utf-8', \
+            add_tokenization=False,\
             preserve_tokenization=False, \
             create_empty_docs=True):
     """Traverses recursively start_dir to find XML TEI documents,
@@ -40,14 +41,19 @@ def process(start_dir, out_dir, encoding='utf-8', \
         are to be saved;
     encoding: str
         Encoding of the XML files. (default: 'utf-8')
+    add_tokenization: boolean
+        If True, then tokenization layers 'words', 'sentences', 'paragraphs'
+        will be added to all newly created Text instances;
+        If preserve_tokenization is set, then original tokenization in 
+        the document will be preserved; otherwise, the tokenization will be
+        created with EstNLTK's default tokenization tools;
+        (Default: False)
     preserve_tokenization: boolean
         If True, then the created documents will have layers 'words', 
         'sentences', 'paragraphs', which follow the original 
         segmentation in the XML file. 
-        (In the XML, sentences are between <s> and </s> and paragraphs 
-        are between <p> and </p>);
-        Otherwise, the documents are created without adding layers 
-        'words', 'sentences', 'paragraphs';
+        (In the XML, sentences are between <s> and </s>, paragraphs are 
+        between <p> and </p>, and words separated by spaces);
         (default: False)
     create_empty_docs: boolean
         If True, then documents are also created if there is no textual 
@@ -70,18 +76,20 @@ def process(start_dir, out_dir, encoding='utf-8', \
             out_prefix = os.path.join(out_dir, fnm)
             target = get_div_target(full_fnm)
             if os.path.exists(out_prefix + '_0.'+output_ext):
-                logger.info('Skipping file {0}, because it seems to be already processed'.format(full_fnm))
+                logger.debug('Skipping file {0}, because it seems to be already processed'.format(full_fnm))
                 continue
-            logger.info('Processing file {0} with target {1}'.format(full_fnm, target))
+            logger.debug('Processing file {0} with target {1}'.format(full_fnm, target))
             docs = []
             docs = parse_tei_corpus(full_fnm, target=[target], encoding=encoding, \
+                                    add_tokenization=add_tokenization, \
                                     preserve_tokenization=preserve_tokenization, \
-                                    record_xml_filename=True)
+                                    record_xml_filename=True, \
+                                    sentence_separator='\n' )
             xml_count += 1
             empty_docs = []
             for doc_id, doc in enumerate(docs):
                 out_fnm = '{0}_{1}.{2}'.format(out_prefix, doc_id, output_ext)
-                logger.info('Writing document {0}'.format(out_fnm))
+                logger.debug('Writing document {0}'.format(out_fnm))
                 if not create_empty_docs and len(doc.text) == 0:
                    # Skip creating an empty document
                    continue
@@ -110,7 +118,9 @@ if __name__ == '__main__':
     parser.add_argument('outdir', type=str, help='The directory to store output results')
     parser.add_argument('-e', '--encoding', type=str, default='utf-8', \
                         help='Encoding of the TEI XML files (Default: "utf-8").')
-    parser.add_argument('-p', '--preserve_tokenization', dest='preserve_tokenization', default=False, action='store_true', help="If set, then the created documents will have layers 'words', 'sentences', 'paragraphs', which follow the original segmentation in the XML file (sentences between <s> and </s> tags, paragraphs between <p> and </p> tags). Otherwise, the documents are created without adding layers 'words', 'sentences', and 'paragraphs'.")
+    parser.add_argument('-t', '--add_tokenization', dest='add_tokenization', default=False, action='store_true', help="If set, then the created documents will have tokenization layers 'words', 'sentences', 'paragraphs'. Otherwise, the created documents just contain plain text and no tokenization layers.")
+    parser.add_argument('-p', '--preserve_tokenization', dest='preserve_tokenization', default=False, action='store_true', help="If set, then the tokenization layers ('words', 'sentences', 'paragraphs') will follow the original segmentation in the XML file (sentences between <s> and </s> tags, paragraphs between <p> and </p> tags, and words separated by spaces). Otherwise, EstNLTK's default tokenization tools are used for tokenization. Note: this only has effect when the flag --add_tokenization is switched on.")
     args = parser.parse_args()
 
-    process(args.startdir, args.outdir, args.encoding, args.preserve_tokenization)
+    process(args.startdir, args.outdir, args.encoding, add_tokenization=args.add_tokenization, \
+                                                       preserve_tokenization=args.preserve_tokenization )
