@@ -43,10 +43,40 @@ class PgCollection:
         self.table_name = name
         self.storage = storage
         self.meta = meta or {}
+        self._structure = None
+        if self.exists():
+            self._structure = self.get_structure()
 
     def create(self, description=None):
         """Creates a database table for the collection"""
+        with self.storage.conn.cursor() as c:
+            c.execute(SQL("""CREATE TABLE {}.{}  (
+                               layer_name text primary key,
+                               detached bool not null,
+                               ambiguous bool not null,
+                               parent text,
+                               enveloping text)""").format(
+                Identifier(self.storage.schema),
+                Identifier(self.table_name+'_structure')))
+
         return self.storage.create_table(self.table_name, description, self.meta)
+
+    def get_structure(self):
+        structure = {}
+        with self.storage.conn.cursor() as c:
+            c.execute(SQL("SELECT layer_name, detached, ambiguous, parent, enveloping FROM {}.{}").format(
+                Identifier(self.storage.schema),
+                Identifier(self.table_name+'_structure')))
+
+            for row in c.fetchall():
+                structure[row[0]] = {'detached': row[1],
+                                     'ambiguous': row[2],
+                                     'parent': row[3],
+                                     'enveloping': row[4]}
+        return structure
+
+    def _write_structure(self, layer):
+        pass
 
     def insert(self, text, key=None, meta_data=None):
         """Saves a given `Text` object into the collection.
@@ -59,6 +89,23 @@ class PgCollection:
         Returns:
             int: row key (id)
         """
+        structure = self._structure
+        if structure is None:
+            structure = {}
+            for layer in text.layers:
+                self._write_structure(layer)
+                structure[layer.name] = {'detached': False,
+                                         'ambiguous': layer.ambiguous,
+                                         'parent': layer.parent,
+                                         'enveloping': layer.enveloping}
+
+        else:
+            for layer in text.layers:
+                layer_struct = structure[layer.name]
+                assert layer_struct['detached'] is False
+                assert layer_struct['ambiguous'] == layer.ambiguous
+                assert layer_struct['parent'] == layer.parent
+                assert layer_struct['enveloping'] == layer.enveloping
         text = text_to_json(text)
         if key is None:
             key = DEFAULT
@@ -380,6 +427,7 @@ class PgCollection:
         try:
             for layer_table in self.get_layer_tables():
                 self.storage.drop_table(layer_table)
+            self.storage.drop_table(self.table_name+'_structure')
             self.storage.drop_table(self.table_name)
         except:
             conn.rollback()
