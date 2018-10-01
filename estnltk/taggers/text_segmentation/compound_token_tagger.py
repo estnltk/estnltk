@@ -44,7 +44,7 @@ class CompoundTokenTagger(Tagger):
                   '_conflict_resolving_strategy', 'custom_abbreviations', 'ignored_words',
                   'tag_numbers', 'tag_units', 'tag_email_and_www', 'tag_emoticons', 'tag_xml',
                   'tag_initials', 'tag_abbreviations', 'tag_case_endings', 'tag_hyphenations',
-                  'use_custom_abbreviations']
+                  'use_custom_abbreviations', 'do_not_join_on_strings']
     output_layer = 'compound_tokens'
     layer_name = output_layer
 
@@ -59,6 +59,7 @@ class CompoundTokenTagger(Tagger):
                  tag_case_endings: bool = True,
                  tag_hyphenations: bool = True,
                  custom_abbreviations: list = (),
+                 do_not_join_on_strings: list = ('\n\n',),
                  ):
         """Initializes CompoundTokenTagger.
 
@@ -111,6 +112,18 @@ class CompoundTokenTagger(Tagger):
             list of abbreviations.
             Note that user-defined abbreviations must be strings that 
             TokensTagger does not split into smaller tokens.
+        
+        do_not_join_on_strings: list (default: ['\n\n'])
+            A list of separator strings that will cancel the creation 
+            of a compound token if any of them happens to be inside 
+            the compound token.
+            If you have separated sentences and paragraphs in text with 
+            special strings (e.g. sentences by '\n', and paragraphs by 
+            '\n\n'), then you can use this list to discard compound tokens 
+            annotations at the locations of sentence and paragraph 
+            boundaries.
+            By default, the list only contains '\n\n', intending to keep 
+            compound tokens off from the paragraph boundaries.
         """
         conflict_resolving_strategy = 'MAX'
         self.tag_numbers = tag_numbers
@@ -126,7 +139,10 @@ class CompoundTokenTagger(Tagger):
         self._conflict_resolving_strategy = conflict_resolving_strategy
         if custom_abbreviations and not tag_abbreviations:
             raise ValueError("(!) List of custom_abbreviations given, but tag_abbreviations is switched off.")
+        assert isinstance(custom_abbreviations, (list, tuple))
         self.custom_abbreviations = custom_abbreviations
+        assert isinstance(do_not_join_on_strings, (list, tuple))
+        self.do_not_join_on_strings = do_not_join_on_strings
         # =========================
         #  1st level hints tagger
         # =========================
@@ -220,6 +236,14 @@ class CompoundTokenTagger(Tagger):
             if sp.start in tokenization_hints:
                 raise Exception('(!) Unexpected overlapping tokenization hints: ',
                                 [raw_text[sp2.start:sp2.end] for sp2 in new_layer.span_list])
+            # Discard the hint if the compound token would contain any of the disallowed strings
+            if self.do_not_join_on_strings:
+                discard = False
+                for separator in self.do_not_join_on_strings:
+                    if separator in raw_text[sp.start:sp.end]:
+                       discard = True
+                if discard:
+                    continue
             tokenization_hints[sp.start] = end_node
 
         # tokens = text.tokens.text
@@ -373,6 +397,16 @@ class CompoundTokenTagger(Tagger):
             spl = EnvelopingSpan(spans=spans)
             spl.type = ('non_ending_abbreviation',)
             spl.normalized = normalized
+            # before adding: check that none of the disallowed separator 
+            # strings are in the middle of the string 
+            if self.do_not_join_on_strings:
+                discard = False
+                for separator in self.do_not_join_on_strings:
+                    if separator in raw_text[spl.start:spl.end]:
+                       discard = True
+                if discard:
+                    # Return empty-handed
+                    return
             # before adding: check the last compound token:
             add_custom_abbrev = True
             if compound_tokens_lists:
@@ -478,10 +512,19 @@ class CompoundTokenTagger(Tagger):
                 # hint's right boundary was supposed to match exactly a token end, but did not
                 constraints_satisfied = False
 
-            # If constraints were satisfied, add new compound token
+            # If constraints were satisfied, try to add a new compound token
             if (covered_compound_tokens or covered_tokens) and constraints_satisfied:
                 # Create new SpanList
                 spl = self._create_new_spanlist(raw_text, layers, covered_compound_tokens, covered_tokens, sp)
+                # Check that the new compound token will not contain any of the disallowed strings
+                if self.do_not_join_on_strings:
+                    discard = False
+                    for separator in self.do_not_join_on_strings:
+                        if separator in raw_text[spl.start:spl.end]:
+                           discard = True
+                    if discard:
+                        # Cancel creation of the spanlist
+                        continue
                 # Remove old compound_tokens that are covered with the SpanList
                 compound_tokens_lists = \
                     self._remove_overlapped_spans(covered_compound_tokens, compound_tokens_lists)

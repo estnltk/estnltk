@@ -490,6 +490,35 @@ class CompoundTokenTaggerTest(unittest.TestCase):
                     self.assertEqual(test_text['expected_normalizations'][ctid], comp_token.normalized)
 
 
+    def test_do_not_compound_on_paragraphs(self):
+        # Tests that compound tokens will not be created if compoundable tokens are separated by 
+        # paragraph separator strings ('\n\n')
+        test_texts = [ 
+                       # Note: these examples are rather artificial: it seems rather difficult 
+                       # to find contexts where the current compounding patterns can actually be 
+                       # broken by paragraph separators
+                       { 'text': "Robot Mihkel sai skooriks 26.\n\nI 2000 ületas teda ja sai 28.",\
+                         'expected_compound_tokens': [['28', '.']] },\
+                       { 'text': "I\n\n.\nouo\nII\n\n.\noeo",\
+                         'expected_compound_tokens': [[]] },\
+                     ]
+        cp_tagger = CompoundTokenTagger()
+        #cp_tagger = CompoundTokenTagger(do_not_join_on_strings=[])
+        for test_text in test_texts:
+            text = Text( test_text['text'] )
+            # Perform analysis
+            text.tag_layer(['tokens'])
+            cp_tagger.tag(text)
+            # Check results
+            for ctid, comp_token in enumerate(text['compound_tokens']):
+                tokens = [text.text[sp.start:sp.end] for sp in comp_token.spans]
+                #print('>>',tokens)
+                # Assert that the tokenization is correct
+                self.assertListEqual(test_text['expected_compound_tokens'][ctid], tokens)
+                if 'expected_normalizations' in test_text:
+                    self.assertEqual(test_text['expected_normalizations'][ctid], comp_token.normalized)
+
+
     def test_compound_token_normalization(self):
         # Tests that the compound tokens are normalized properly
         test_texts = [ # Normalization of words from tokenization hints
