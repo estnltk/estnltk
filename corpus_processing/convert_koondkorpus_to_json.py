@@ -8,6 +8,8 @@
 import os
 import os.path
 import argparse
+from argparse import RawTextHelpFormatter
+
 import logging
 
 from datetime import datetime
@@ -26,7 +28,8 @@ output_ext = 'json'    # extension of output files
 def process(start_dir, out_dir, encoding='utf-8', \
             add_tokenization=False,\
             preserve_tokenization=False, \
-            create_empty_docs=True):
+            create_empty_docs=True, \
+            sentence_separator='\n' ):
     """Traverses recursively start_dir to find XML TEI documents,
        converts found documents to EstNLTK Text objects, and saves 
        as JSON files (into the out_dir).
@@ -67,6 +70,11 @@ def process(start_dir, out_dir, encoding='utf-8', \
         the goals of the analysis, the caption may still be useful, 
         so, by default, empty documents are preserved;
         (default: True)
+    sentence_separator: str
+        String to be used as a sentence separator during the reconstruction
+        of the text. The parameter value should be provided, None is not 
+        allowed.
+        (Default: '\n')
     """
     xml_count  = 0
     json_count = 0
@@ -88,7 +96,7 @@ def process(start_dir, out_dir, encoding='utf-8', \
                                     add_tokenization=add_tokenization, \
                                     preserve_tokenization=preserve_tokenization, \
                                     record_xml_filename=True, \
-                                    sentence_separator='\n' )
+                                    sentence_separator=sentence_separator )
             xml_count += 1
             empty_docs = []
             for doc_id, doc in enumerate(docs):
@@ -116,15 +124,64 @@ def process(start_dir, out_dir, encoding='utf-8', \
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=
-       "Converts Koondkorpus XML TEI files to EstNLTK JSON files."
+       "Converts Koondkorpus XML TEI files to EstNLTK's Text objects, and writes into JSON files.", \
+       formatter_class=RawTextHelpFormatter
     )
-    parser.add_argument('startdir', type=str, help='The path of the downloaded and extracted koondkorpus files')
-    parser.add_argument('outdir', type=str, help='The directory to store output results')
+    parser.add_argument('startdir', type=str, 
+                        help='The path of the downloaded and extracted koondkorpus files')
+    parser.add_argument('outdir', type=str, 
+                        help='The directory to store output results')
     parser.add_argument('-e', '--encoding', type=str, default='utf-8', \
                         help='Encoding of the TEI XML files (Default: "utf-8").')
-    parser.add_argument('-t', '--add_tokenization', dest='add_tokenization', default=False, action='store_true', help="If set, then the created documents will have tokenization layers 'tokens', 'compound_tokens', 'words', 'sentences', and 'paragraphs'. Otherwise, the created documents just contain plain text and no tokenization layers.")
-    parser.add_argument('-p', '--preserve_tokenization', dest='preserve_tokenization', default=False, action='store_true', help="If set, then the tokenization layers ('tokens', 'compound_tokens', 'words', 'sentences', 'paragraphs') will follow the original segmentation in the XML file (sentences between <s> and </s> tags, paragraphs between <p> and </p> tags, and words separated by spaces). Otherwise, EstNLTK's default tokenization tools are used for tokenization. Note: this only has effect when the flag --add_tokenization is switched on. Note that the layer 'compound_tokens' will always remain empty because koondkorpus files do no contain information about token compounding.")
-    args = parser.parse_args()
+    parser.add_argument('-t', '--tokenization', dest='tokenization', \
+                        help='specifies if and how texts will be reconstructed and tokenized: \n\n'+ \
+                             '* none -- the text string will be reconstructed by joining words \n'+\
+                             '  and sentences from the original XML mark-up by spaces, and paragraphs\n'+\
+                             '  by double newlines. Tokenization layers will not be created.\n\n'+\
+                             
+                             '* preserve -- the text string will be reconstructed by joining \n'+\
+                             '  words from the original XML mark-up by spaces, sentences by \n'+\
+                             '  newlines, and paragraphs by double newlines. Tokenization layers \n'+\
+                             '  will be created, and they\'ll preserve the original tokenization \n'+\
+                             '  of XML files.\n'+\
+                             "    Note #1: tokenization layers 'tokens', 'compound_tokens', \n"+\
+                             "    'words', 'sentences', 'paragraphs' will be created;\n"+\
+                             "    Note #2: the layer 'compound_tokens' will always remain empty \n"+\
+                             '    because koondkorpus files do no contain information about token \n'+\
+                             '    compounding;\n'+\
+                             "    Note #3: the layer 'tokens' will be equal to the layer 'words';"+\
+                             '  \n\n'+\
 
-    process(args.startdir, args.outdir, args.encoding, add_tokenization=args.add_tokenization, \
-                                                       preserve_tokenization=args.preserve_tokenization )
+                             '* estnltk -- the text string will be reconstructed by joining words \n'+\
+                             '  and sentences from the original XML mark-up by spaces, and \n'+\
+                             "  paragraphs by double newlines. Tokenization layers will be created \n"+\
+                             "  with EstNLTK's default tokenizers, overwriting the original \n"+\
+                             '  tokenization mark-up from XML files.\n'
+                             "    Note #1: tokenization layers 'tokens', 'compound_tokens', \n"+\
+                             "    'words', 'sentences', 'paragraphs' will be created;\n"+\
+                             "(Default: none)",\
+                        choices=['none', 'preserve', 'estnltk'], \
+                        default='none' )
+    parser.add_argument('-f', '--force_sentence_end_newlines', dest='force_sentence_end_newlines', \
+                        default=False, \
+                        action='store_true', \
+                        help="If set, then during the reconstruction of a text string, sentence \n"+
+                             "endings from the original XML mark-up will always be marked with\n"+
+                             "newlines in the text string, regardless the tokenization option\n"+\
+                             "used.\n"
+                             "You can use this option if you want to replace spaces between the \n"+\
+                             "original sentences with newlines when using the tokenization options\n"+\
+                             " -t none, or -t estnltk.\n"+\
+                             "(Default: False)",\
+                        )
+    
+    args = parser.parse_args()
+    add_tokenization      = args.tokenization in ['preserve', 'estnltk']
+    preserve_tokenization = args.tokenization == 'preserve'
+    sentence_separator    = ' '
+    if preserve_tokenization or args.force_sentence_end_newlines:
+       sentence_separator = '\n'
+    process(args.startdir, args.outdir, args.encoding, \
+                           add_tokenization=add_tokenization, \
+                           preserve_tokenization=preserve_tokenization,\
+                           sentence_separator=sentence_separator )
