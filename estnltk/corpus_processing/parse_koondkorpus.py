@@ -181,7 +181,7 @@ def get_text_subcorpus_name( corpus_dir, corpus_file, text_obj, \
 def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel'], \
                       encoding='utf-8', add_tokenization=False, \
                       preserve_tokenization=False, record_xml_filename=False, \
-                      sentence_separator='\n' ):
+                      sentence_separator='\n', paragraph_separator='\n\n' ):
     """Parse documents from TEI style XML files.
     
     Gives each document FILE attribute that denotes the original filename.
@@ -215,13 +215,19 @@ def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel'], \
         Note: this only has effect if add_tokenization has been switched on;
         (Default: False)
     record_xml_filename: boolean
-        If True, then the created documents will have the name of the original XML file recorded in 
-        their metadata, under the key '_xml_file'. 
+        If True, then the created documents will have the name of the original 
+        XML file recorded in their metadata, under the key '_xml_file'. 
         (default: False)
     sentence_separator: str
-        If preserve_tokenization is set, then this string is used as a sentence separator during the 
-        reconstruction of the text. The parameter value should be provided, None is not allowed.
+        String to be used as a sentence separator during the reconstruction
+        of the text. The parameter value should be provided, None is not 
+        allowed.
         (Default: '\n')
+    paragraph_separator: str
+        String to be used as a paragraph separator during the reconstruction
+        of the text. The parameter value should be provided, None is not 
+        allowed.
+        (Default: '\n\n')
     Returns
     -------
     list of estnltk.text.Text
@@ -235,13 +241,16 @@ def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel'], \
                                 add_tokenization=add_tokenization, \
                                 preserve_tokenization=preserve_tokenization, \
                                 record_xml_filename=record_xml_filename, \
-                                sentence_separator=sentence_separator)
+                                sentence_separator=sentence_separator, \
+                                paragraph_separator=paragraph_separator )
         documents.extend(docs)
     return documents
 
 
+
 def parse_tei_corpus(path, target=['artikkel'], encoding='utf-8', add_tokenization=False, \
-                     preserve_tokenization=False, record_xml_filename=False, sentence_separator='\n' ):
+                     preserve_tokenization=False, record_xml_filename=False, \
+                     sentence_separator='\n', paragraph_separator='\n\n' ):
     """Load content of an XML TEI file, and parse documents from the content.
        Return a list of Text objects.
     
@@ -274,9 +283,15 @@ def parse_tei_corpus(path, target=['artikkel'], encoding='utf-8', add_tokenizati
         their metadata, under the key '_xml_file'. 
         (default: False)
     sentence_separator: str
-        If preserve_tokenization is set, then this string is used as a sentence separator during the 
-        reconstruction of the text. The parameter value should be provided, None is not allowed.
+        String to be used as a sentence separator during the reconstruction
+        of the text. The parameter value should be provided, None is not 
+        allowed.
         (Default: '\n')
+    paragraph_separator: str
+        String to be used as a paragraph separator during the reconstruction
+        of the text. The parameter value should be provided, None is not 
+        allowed.
+        (Default: '\n\n')
     Returns
     -------
         list of esnltk.text.Text
@@ -289,14 +304,17 @@ def parse_tei_corpus(path, target=['artikkel'], encoding='utf-8', add_tokenizati
                                           add_tokenization=add_tokenization, \
                                           preserve_tokenization = preserve_tokenization,\
                                           record_xml_filename = record_xml_filename,\
-                                          sentence_separator=sentence_separator )
+                                          sentence_separator=sentence_separator, \
+                                          paragraph_separator=paragraph_separator )
+
 
 
 def parse_tei_corpus_file_content(content, file_path, target=['artikkel'], \
                                   add_tokenization=False, \
                                   preserve_tokenization=False, \
                                   record_xml_filename=False, \
-                                  sentence_separator='\n'):
+                                  sentence_separator='\n', \
+                                  paragraph_separator='\n\n' ):
     """Parse documents from the (string) content of an XML TEI file. 
        Return a list of Text objects.
     
@@ -331,9 +349,15 @@ def parse_tei_corpus_file_content(content, file_path, target=['artikkel'], \
         their metadata, under the key '_xml_file'. 
         (default: False)
     sentence_separator: str
-        If preserve_tokenization is set, then this string is used as a sentence separator during the 
-        reconstruction of the text. The parameter value should be provided, None is not allowed.
+        String to be used as a sentence separator during the reconstruction
+        of the text. The parameter value should be provided, None is not 
+        allowed.
         (Default: '\n')
+    paragraph_separator: str
+        String to be used as a paragraph separator during the reconstruction
+        of the text. The parameter value should be provided, None is not 
+        allowed.
+        (Default: '\n\n')
     Returns
     -------
         list of esnltk.text.Text
@@ -352,6 +376,7 @@ def parse_tei_corpus_file_content(content, file_path, target=['artikkel'], \
     return create_estnltk_texts( documents, \
                                  add_tokenization=add_tokenization, \
                                  sentence_separator=sentence_separator, \
+                                 paragraph_separator=paragraph_separator, \
                                  preserve_orig_tokenization=preserve_tokenization )
 
 
@@ -740,9 +765,10 @@ def reconstruct_text( doc, \
 
 
 def create_estnltk_texts( docs, 
-                          sentence_separator='\n',
                           add_tokenization=False,
-                          preserve_orig_tokenization=False ):
+                          preserve_orig_tokenization=False, \
+                          sentence_separator='\n', \
+                          paragraph_separator='\n\n' ):
     """Convert the imported documents to Text instances.
 
     Parameters
@@ -750,12 +776,6 @@ def create_estnltk_texts( docs,
     docs: list of (dict of dict)
         Documents parsed from an XML file that need to be converted
         to EstNLTK's Text objects;
-    
-    sentence_separator: str
-        String to be used as a sentence separator during the reconstruction
-        of the text. The parameter value should be provided, None is not 
-        allowed.
-        (Default: '\n')
 
     add_tokenization: boolean
         If True, then tokenization layers 'tokens', 'compound_tokens', 
@@ -773,7 +793,19 @@ def create_estnltk_texts( docs,
         instances;
         Note: this only has effect if add_tokenization has been switched on;
         (Default: False)
-        
+    
+    sentence_separator: str
+        String to be used as a sentence separator during the reconstruction
+        of the text. The parameter value should be provided, None is not 
+        allowed.
+        (Default: '\n')
+    
+    paragraph_separator: str
+        String to be used as a paragraph separator during the reconstruction
+        of the text. The parameter value should be provided, None is not 
+        allowed.
+        (Default: '\n\n')
+    
     Returns
     -------
     list of Texts
@@ -781,6 +813,7 @@ def create_estnltk_texts( docs,
     """
     global koond_whitespace_tokenizer
     assert isinstance(sentence_separator, str)
+    assert isinstance(paragraph_separator, str)
     if add_tokenization and \
        preserve_orig_tokenization and \
        not koond_whitespace_tokenizer:
@@ -793,8 +826,8 @@ def create_estnltk_texts( docs,
     for doc in docs:
         # 0) Reconstruct the text (and original layers)
         text, created_layers  = \
-                  reconstruct_text( doc, sent_separator = sentence_separator, \
-                                         para_separator = '\n\n',\
+                  reconstruct_text( doc, sent_separator = sentence_separator, 
+                                         para_separator = paragraph_separator, 
                                          tokens_tagger  = koond_whitespace_tokenizer, 
                                          use_enveloping_layers = preserve_orig_tokenization )
         # 1) Add metadata
