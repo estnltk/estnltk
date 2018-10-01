@@ -476,6 +476,130 @@ def parse_chat_paragraphs(soup):
 
 
 
+def _reconstruct_enveloping_tokenization_layers( token_locations, \
+                                                 sent_locations, \
+                                                 para_locations, \
+                                                 create_token_layers = False ):
+    """Based on dictionary representations of tokens, 
+       sentences, and paragraphs, reconstructs layers
+       'tokens', 'compound_tokens', 'words', 'sentences',
+       and 'paragraphs' along with the EstNLTK's 
+       enveloping relations between the layers. Returns 
+       a list of created layers.
+       
+       Following enveloping relations are used: 
+        'compound_tokens' envelops 'tokens', 
+        'sentences' envelops 'words', and 
+        'paragraphs' envelops 'sentences'.
+      
+       Note that layers 'tokens', 'compound_tokens', 'words'
+       are only created if create_token_layers == True.
+       Otherwise, only layers 'sentences' and 'paragraphs'
+       are created and returned.
+
+       Parameters
+       ----------
+       create_token_layers: boolen
+           If set, then layers 'tokens', 'compound_tokens', 
+           'words', 'sentences', and 'paragraphs' are created;
+           otherwise, only layers 'sentences', and 'paragraphs' 
+           are created;
+           Default: False
+       token_locations: list of dict
+           List of token/word locations. Each location in the list 
+           should be a dict, where key 'start' gives the start
+           position and 'end' (exclusive) end position.
+       sent_locations: list of dict
+           List of sentence locations. Each location in the list 
+           should be a dict, where key 'start' gives the start
+           position and 'end' (exclusive) end position.
+       para_locations: list of dict
+           List of paragraph locations. Each location in the list 
+           should be a dict, where key 'start' gives the start
+           position and 'end' (exclusive) end position.
+       
+       Returns
+       -------
+       list of Layers
+           a list of created layers along with the enveloping 
+           relations;
+    """
+    created_layers       = []
+    orig_tokens          = None
+    orig_compound_tokens = None
+    orig_words           = None
+    orig_sentences       = None
+    orig_paragraphs      = None
+    if create_token_layers:
+       # Create tokens layer from the token records
+       orig_tokens = \
+           Layer(name=TokensTagger.layer_name, \
+                 attributes=TokensTagger.attributes, \
+                 ambiguous=False).from_records(token_locations)
+       # Create compound tokens layer
+       # Note: this layer will remain empty, as there is no information
+       #       about compound tokens in the original text
+       orig_compound_tokens = \
+           Layer(name=CompoundTokenTagger.output_layer, \
+                 enveloping=orig_tokens.name, \
+                 attributes=CompoundTokenTagger.output_attributes, \
+                 ambiguous=True)
+       # Create words layer from the token records
+       orig_words = \
+           Layer(name=WordTagger.layer_name, \
+                 attributes=WordTagger.attributes, \
+                 ambiguous=False).from_records(token_locations)
+       # Envelop sentences around words
+       orig_sentences = Layer(enveloping=orig_words.name, \
+                              name=SentenceTokenizer.layer_name, \
+                              attributes=SentenceTokenizer.attributes, \
+                              ambiguous=False)
+       sid = 0; s_start = -1; s_end = -1
+       for wid, word in enumerate(orig_words):
+           if sid > len(sent_locations):
+              break
+           sentence = sent_locations[sid]
+           if word.start == sentence['start']:
+              s_start = wid
+           if word.end == sentence['end']:
+              s_end = wid
+           if s_start != -1 and s_end != -1:
+              span = EnvelopingSpan(spans=orig_words[s_start:s_end+1].spans)
+              orig_sentences.add_span(span)
+              sid += 1; s_start = -1; s_end = -1
+    else:
+       # If the words layer was not provided, create a detached 
+       # sentences layer
+       orig_sentences = \
+           Layer(name=SentenceTokenizer.layer_name).from_records(sent_locations)
+    # Envelop paragraphs around sentences
+    orig_paragraphs = Layer(name=ParagraphTokenizer.output_layer, \
+                            enveloping=orig_sentences.name, \
+                            ambiguous=False)
+    pid = 0; p_start = -1; p_end = -1
+    for sid, sentence in enumerate(orig_sentences):
+       if pid > len(para_locations):
+          break
+       paragraph = para_locations[pid]
+       if sentence.start == paragraph['start']:
+          p_start = sid
+       if sentence.end == paragraph['end']:
+          p_end = sid
+       if p_start != -1 and p_end != -1:
+          span = EnvelopingSpan(spans=orig_sentences[p_start:p_end+1].spans)
+          orig_paragraphs.add_span(span)
+          pid += 1; p_start = -1; p_end = -1
+    # Assemble created layers and return as a list
+    if orig_words:
+       created_layers.append( orig_tokens )
+       created_layers.append( orig_compound_tokens )
+       created_layers.append( orig_words )
+    created_layers.append( orig_sentences )
+    created_layers.append( orig_paragraphs )
+    return created_layers
+
+
+
 def reconstruct_text( doc, \
                       sent_separator = '\n', \
                       para_separator = '\n\n',\
@@ -589,7 +713,7 @@ def reconstruct_text( doc, \
             text.meta[key] = doc[key]
     # 4) Create tokenization layers
     if not use_enveloping_layers:
-        # 4.1) Detached layers
+        # 4.1) Make detached layers
         orig_sentences  = \
            Layer(name='sentences').from_records(sent_locations)
         orig_paragraphs = \
@@ -605,86 +729,12 @@ def reconstruct_text( doc, \
               Layer(name='tokens').from_records(token_locations)
            created_layers.insert(0, orig_tokens)
     else:
-        # 4.2) Connected layers
-        created_layers       = []
-        orig_tokens          = None
-        orig_compound_tokens = None
-        orig_words           = None
-        orig_sentences       = None
-        orig_paragraphs      = None
-        if tokens_tagger:
-           # Create tokens layer from the token records
-           orig_tokens = \
-              Layer(name=TokensTagger.layer_name, \
-                    attributes=TokensTagger.attributes,
-                    ambiguous=False).from_records(token_locations)
-           # Create compound tokens layer
-           # Note: this layer will remain empty, as there is no information
-           #       about compound tokens in the original text
-           orig_compound_tokens = \
-              Layer(name=CompoundTokenTagger.output_layer,
-                    enveloping=orig_tokens.name,
-                    attributes=CompoundTokenTagger.output_attributes,
-                    ambiguous=True)
-           # Create words layer from the token records
-           orig_words = \
-              Layer(name=WordTagger.layer_name, \
-                    attributes=WordTagger.attributes,
-                    ambiguous=False).from_records(token_locations)
-           # envelop sentences around words
-           orig_sentences = Layer(enveloping=orig_words.name,
-                                  name=SentenceTokenizer.layer_name,
-                                  attributes=SentenceTokenizer.attributes,
-                                  ambiguous=False)
-           sid     = 0
-           s_start = -1
-           s_end   = -1
-           for wid, word in enumerate(orig_words):
-              if sid > len(sent_locations):
-                  break
-              sentence = sent_locations[sid]
-              if word.start == sentence['start']:
-                  s_start = wid
-              if word.end == sentence['end']:
-                  s_end = wid
-              if s_start != -1 and s_end != -1:
-                  span = EnvelopingSpan(spans=orig_words[s_start:s_end+1].spans)
-                  orig_sentences.add_span(span)
-                  sid += 1
-                  s_start = -1
-                  s_end   = -1
-        else:
-           # If the words layer was not provided, create a detached 
-           # sentences layer
-           orig_sentences = \
-               Layer(name=SentenceTokenizer.layer_name).from_records(sent_locations)
-        # envelop paragraphs around sentences
-        orig_paragraphs = Layer(name=ParagraphTokenizer.output_layer, 
-                                     enveloping=orig_sentences.name, 
-                                     ambiguous=False)
-        pid     = 0
-        p_start = -1
-        p_end   = -1
-        for sid, sentence in enumerate(orig_sentences):
-           if pid > len(para_locations):
-              break
-           paragraph = para_locations[pid]
-           if sentence.start == paragraph['start']:
-              p_start = sid
-           if sentence.end == paragraph['end']:
-              p_end = sid
-           if p_start != -1 and p_end != -1:
-              span = EnvelopingSpan(spans=orig_sentences[p_start:p_end+1].spans)
-              orig_paragraphs.add_span(span)
-              pid += 1
-              p_start = -1
-              p_end   = -1
-        if orig_words:
-           created_layers.append( orig_tokens )
-           created_layers.append( orig_compound_tokens )
-           created_layers.append( orig_words )
-        created_layers.append( orig_sentences )
-        created_layers.append( orig_paragraphs )
+        # 4.2) Make connected layers
+        created_layers = _reconstruct_enveloping_tokenization_layers( 
+                              token_locations, \
+                              sent_locations, \
+                              para_locations, \
+                              create_token_layers = tokens_tagger is not None )
     return text, created_layers
 
 
@@ -773,6 +823,7 @@ def create_estnltk_texts( docs,
            else:
                 # Add tokenization with EstNLTK
                 # ( overwrites the original tokenization )
+                text.tag_layer(['tokens', 'compound_tokens'])
                 text.tag_layer(['words', 'sentences', 'paragraphs'])
         texts.append( text )
     return texts
