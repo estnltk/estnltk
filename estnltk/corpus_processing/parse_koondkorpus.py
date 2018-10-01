@@ -19,7 +19,8 @@
 from estnltk.text import Text
 from estnltk.text import Layer, EnvelopingSpan
 from estnltk.converters import json_to_text
-from estnltk.taggers import SentenceTokenizer, WordTagger, ParagraphTokenizer
+from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
+from estnltk.taggers import SentenceTokenizer, ParagraphTokenizer
 
 from estnltk.taggers import TaggerOld
 
@@ -199,18 +200,20 @@ def parse_tei_corpora(root, prefix='', suffix='.xml', target=['artikkel'], \
         Encoding to be used for decoding the content of the XML file. Defaults to 'utf-8'.
         If overwritten by None, then no separate decoding step is applied. 
     add_tokenization: boolean
-        If True, then tokenization layers 'words', 'sentences', 'paragraphs' will be added to 
-        all newly created Text instances;
-        If preserve_tokenization is set, then original tokenization in the document will 
-        be preserved; otherwise, the tokenization will be created with EstNLTK's default 
-        tokenization tools;
+        If True, then tokenization layers 'tokens', 'compound_tokens', 
+        'words', 'sentences', 'paragraphs' will be added to all newly created 
+        Text instances;
+        If preserve_orig_tokenization is set, then original tokenization in 
+        the document will be preserved; otherwise, the tokenization will be
+        created with EstNLTK's default tokenization tools;
         (Default: False)
     preserve_tokenization: boolean
-        If True, then the created documents will have layers 'words', 'sentences', 'paragraphs', 
-        which follow the original segmentation in the XML file. 
-        (In the XML, sentences are between <s> and </s>, paragraphs are between <p> and </p>, and
-         words separated by spaces)
-        (default: False)
+        If True, then the original segmentation from the XML file (sentences 
+        between <s> and </s>, paragraphs between <p> and </p>, and words &
+        tokens separated by spaces) is also preserved in the newly created Text 
+        instances;
+        Note: this only has effect if add_tokenization has been switched on;
+        (Default: False)
     record_xml_filename: boolean
         If True, then the created documents will have the name of the original XML file recorded in 
         their metadata, under the key '_xml_file'. 
@@ -252,18 +255,20 @@ def parse_tei_corpus(path, target=['artikkel'], encoding='utf-8', add_tokenizati
         Encoding to be used for decoding the content of the XML file. Defaults to 'utf-8'.
         If overwritten by None, then no separate decoding step is applied. 
     add_tokenization: boolean
-        If True, then tokenization layers 'words', 'sentences', 'paragraphs' will be added to all 
-        newly created Text instances;
-        If preserve_tokenization is set, then original tokenization in the document will be 
-        preserved; otherwise, the tokenization will be created with EstNLTK's default tokenization 
-        tools;
+        If True, then tokenization layers 'tokens', 'compound_tokens', 
+        'words', 'sentences', 'paragraphs' will be added to all newly created 
+        Text instances;
+        If preserve_orig_tokenization is set, then original tokenization in 
+        the document will be preserved; otherwise, the tokenization will be
+        created with EstNLTK's default tokenization tools;
         (Default: False)
     preserve_tokenization: boolean
-        If True, then the created documents will have layers 'words', 'sentences', 'paragraphs', 
-        which follow the original segmentation in the XML file. 
-        (In the XML, sentences are between <s> and </s>, paragraphs are between <p> and </p>, and
-         words separated by spaces)
-        (default: False)
+        If True, then the original segmentation from the XML file (sentences 
+        between <s> and </s>, paragraphs between <p> and </p>, and words &
+        tokens separated by spaces) is also preserved in the newly created Text 
+        instances;
+        Note: this only has effect if add_tokenization has been switched on;
+        (Default: False)
     record_xml_filename: boolean
         If True, then the created documents will have the name of the original XML file recorded in 
         their metadata, under the key '_xml_file'. 
@@ -307,17 +312,20 @@ def parse_tei_corpus_file_content(content, file_path, target=['artikkel'], \
     target: list of str
         List of <div> types, that are considered documents in the XML files (default: ["artikkel"]).
     add_tokenization: boolean
-        If True, then tokenization layers 'words', 'sentences', 'paragraphs'
-        will be added to all newly created Text instances;
-        If preserve_tokenization is set, then original tokenization in the document will be preserved; 
-        otherwise, the tokenization will be created with EstNLTK's default tokenization tools;
+        If True, then tokenization layers 'tokens', 'compound_tokens', 
+        'words', 'sentences', 'paragraphs' will be added to all newly created 
+        Text instances;
+        If preserve_orig_tokenization is set, then original tokenization in 
+        the document will be preserved; otherwise, the tokenization will be
+        created with EstNLTK's default tokenization tools;
         (Default: False)
     preserve_tokenization: boolean
-        If True, then the created documents will have layers 'words', 'sentences', 'paragraphs', 
-        which follow the original segmentation in the XML file. 
-        (In the XML, sentences are between <s> and </s>, paragraphs are between <p> and </p>, and
-         words separated by spaces);
-        (default: False)
+        If True, then the original segmentation from the XML file (sentences 
+        between <s> and </s>, paragraphs between <p> and </p>, and words &
+        tokens separated by spaces) is also preserved in the newly created Text 
+        instances;
+        Note: this only has effect if add_tokenization has been switched on;
+        (Default: False)
     record_xml_filename: boolean
         If True, then the created documents will have the name of the original XML file recorded in 
         their metadata, under the key '_xml_file'. 
@@ -486,8 +494,10 @@ def reconstruct_text( doc, \
        
        If tokens_tagger is provided, then the tokens_tagger 
        is used for segmenting sentences into word tokens and
-       based on the segmentation, a layer 'words' is also 
-       added to the returned list of layers.
+       based on the segmentation, layers 'tokens', 'words',
+       and 'compound_tokens' are also added to the returned 
+       list of layers. Note that the layer 'compound_tokens'
+       will always remain empty.
 
        Parameters
        ----------
@@ -516,10 +526,11 @@ def reconstruct_text( doc, \
            EstNLTK's TaggerOld that can be used for splitting 
            sentences into tokens. If specified, then tagger's 
            method tag() will be used for splitting each sentence 
-           into word tokens, and results will be stored in a 
-           layer named 'words'; If tokens_tagger is None, then 
-           the returned list of layers will not contain layer 
-           'words';
+           into words & tokens, and results will be stored in  
+           layers named 'tokens', 'compound_tokens', and 'words'; 
+           If tokens_tagger is None, then the returned list of 
+           layers will not contain layers 'words', 'tokens',
+           nor 'compound_tokens';
            Default: None
 
        use_enveloping_layers: boolean
@@ -588,14 +599,34 @@ def reconstruct_text( doc, \
            orig_words = \
               Layer(name='words').from_records(token_locations)
            created_layers.insert(0, orig_words)
+           orig_compound_tokens = Layer(name='compound_tokens')
+           created_layers.insert(0, orig_compound_tokens)
+           orig_tokens = \
+              Layer(name='tokens').from_records(token_locations)
+           created_layers.insert(0, orig_tokens)
     else:
         # 4.2) Connected layers
-        created_layers  = []
-        orig_words      = None
-        orig_sentences  = None
-        orig_paragraphs = None
+        created_layers       = []
+        orig_tokens          = None
+        orig_compound_tokens = None
+        orig_words           = None
+        orig_sentences       = None
+        orig_paragraphs      = None
         if tokens_tagger:
-           # Create words layer from the records
+           # Create tokens layer from the token records
+           orig_tokens = \
+              Layer(name=TokensTagger.layer_name, \
+                    attributes=TokensTagger.attributes,
+                    ambiguous=False).from_records(token_locations)
+           # Create compound tokens layer
+           # Note: this layer will remain empty, as there is no information
+           #       about compound tokens in the original text
+           orig_compound_tokens = \
+              Layer(name=CompoundTokenTagger.output_layer,
+                    enveloping=orig_tokens.name,
+                    attributes=CompoundTokenTagger.output_attributes,
+                    ambiguous=True)
+           # Create words layer from the token records
            orig_words = \
               Layer(name=WordTagger.layer_name, \
                     attributes=WordTagger.attributes,
@@ -649,6 +680,8 @@ def reconstruct_text( doc, \
               p_start = -1
               p_end   = -1
         if orig_words:
+           created_layers.append( orig_tokens )
+           created_layers.append( orig_compound_tokens )
            created_layers.append( orig_words )
         created_layers.append( orig_sentences )
         created_layers.append( orig_paragraphs )
@@ -675,8 +708,9 @@ def create_estnltk_texts( docs,
         (Default: '\n')
 
     add_tokenization: boolean
-        If True, then tokenization layers 'words', 'sentences', 'paragraphs'
-        will be added to all newly created Text instances;
+        If True, then tokenization layers 'tokens', 'compound_tokens', 
+        'words', 'sentences', 'paragraphs' will be added to all newly created 
+        Text instances;
         If preserve_orig_tokenization is set, then original tokenization in 
         the document will be preserved; otherwise, the tokenization will be
         created with EstNLTK's default tokenization tools;
@@ -684,8 +718,8 @@ def create_estnltk_texts( docs,
         
     preserve_orig_tokenization: boolean
         If True, then the original segmentation from the XML file (sentences 
-        between <s> and </s>, paragraphs between <p> and </p>,  and  words
-        separated by spaces) is also preserved in the newly created Text 
+        between <s> and </s>, paragraphs between <p> and </p>, and words &
+        tokens separated by spaces) is also preserved in the newly created Text 
         instances;
         Note: this only has effect if add_tokenization has been switched on;
         (Default: False)
@@ -721,15 +755,21 @@ def create_estnltk_texts( docs,
         if add_tokenization:
            if preserve_orig_tokenization:
                 # Reconstruct tokenization layers based on the original ones
+                tokens = \
+                    [layer for layer in created_layers if layer.name=='tokens'][0]
+                compound_tokens = \
+                    [layer for layer in created_layers if layer.name=='compound_tokens'][0]
                 words = \
                     [layer for layer in created_layers if layer.name=='words'][0]
                 sentences = \
                     [layer for layer in created_layers if layer.name=='sentences'][0]
                 paragraphs = \
                     [layer for layer in created_layers if layer.name=='paragraphs'][0]
-                text[words.name]      = words
-                text[sentences.name]  = sentences
-                text[paragraphs.name] = paragraphs
+                text[tokens.name]          = tokens
+                text[compound_tokens.name] = compound_tokens
+                text[words.name]           = words
+                text[sentences.name]       = sentences
+                text[paragraphs.name]      = paragraphs
            else:
                 # Add tokenization with EstNLTK
                 # ( overwrites the original tokenization )
