@@ -11,9 +11,9 @@
 # XML files.
 #
 # The implementation is currently quite simplistic, though. But it should be sufficient 
-# for simpler use cases. The resulting documents have paragraphs separated by two newlines 
-# and sentences by single newline. The original plain text is not known for XML TEI files.
-# Note that all punctuation has been separated from words in the TEI files. 
+# for simpler use cases. By default, the resulting documents have paragraphs separated by 
+# two newlines and sentences by single newline. The original plain text is not known for 
+# XML TEI files. Note that all punctuation has been separated from words in the TEI files. 
 # 
 
 from estnltk.text import Text
