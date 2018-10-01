@@ -28,7 +28,7 @@ def test_reconstruct_text_detached_layers():
                                                  tokens_tagger=wstokenizer, \
                                                  use_enveloping_layers=False )
     
-    # Make assertions #1
+    # Make assertions #1.1
     expected_text = 'Millist hinda oleme nõus maksma enese täiustamise eest?\n\n'+\
                     'Inimestel on palju eetilisi muresid, mis seostuvad vaimset võimekust parandavate ravimite või seadmetega, kuid tõenäoliselt haihtuvad need hetkel, mil turule ilmub esimene selline läbimurdeline vahend, tõdeb Oxfordi Ülikooli filosoof Anders Sandberg intervjuus Arko Oleskile.\n\n'+\
                     'REKLAAM\n\n'+\
@@ -36,6 +36,8 @@ def test_reconstruct_text_detached_layers():
                     'Oo, jaa.\n'+'Mulle meeldis see väga.\n\n'+\
                     'Tõesti?'
     assert text.text == expected_text
+    assert any([layer.name=='tokens' for layer in tokenization_layers])
+    assert any([layer.name=='compound_tokens' for layer in tokenization_layers])
     assert any([layer.name=='words' for layer in tokenization_layers])
     assert any([layer.name=='sentences' for layer in tokenization_layers])
     assert any([layer.name=='paragraphs' for layer in tokenization_layers])
@@ -43,9 +45,14 @@ def test_reconstruct_text_detached_layers():
     # Attach layers
     for layer in tokenization_layers:
         text[layer.name] = layer
+    tokens     = [layer for layer in tokenization_layers if layer.name=='tokens'][0]
     words      = [layer for layer in tokenization_layers if layer.name=='words'][0]
     sentences  = [layer for layer in tokenization_layers if layer.name=='sentences'][0]
     paragraphs = [layer for layer in tokenization_layers if layer.name=='paragraphs'][0]
+    
+    # Make assertions #1.2
+    assert words.text == tokens.text
+    
     # Make assertions #2
     expected_words = ['Millist', 'hinda', 'oleme', 'nõus', 'maksma', 'enese', 'täiustamise', 'eest?', \
                        'Inimestel', 'on', 'palju', 'eetilisi', 'muresid,', 'mis', 'seostuvad', 'vaimset', \
@@ -101,6 +108,8 @@ def test_reconstruct_text_enveloping_layers():
     text, tokenization_layers = reconstruct_text(test_text_dict, \
                                                  tokens_tagger=wstokenizer, \
                                                  use_enveloping_layers=True )
+    assert any([layer.name=='tokens' for layer in tokenization_layers])
+    assert any([layer.name=='compound_tokens' for layer in tokenization_layers])
     assert any([layer.name=='words' for layer in tokenization_layers])
     assert any([layer.name=='sentences' for layer in tokenization_layers])
     assert any([layer.name=='paragraphs' for layer in tokenization_layers])
@@ -108,9 +117,13 @@ def test_reconstruct_text_enveloping_layers():
     # Attach layers
     for layer in tokenization_layers:
         text[layer.name] = layer
+    tokens     = [layer for layer in tokenization_layers if layer.name=='tokens'][0]
     words      = [layer for layer in tokenization_layers if layer.name=='words'][0]
     sentences  = [layer for layer in tokenization_layers if layer.name=='sentences'][0]
     paragraphs = [layer for layer in tokenization_layers if layer.name=='paragraphs'][0]
+    
+    # Test that words == tokens (because information about compound tokens was not available)
+    assert words.text == tokens.text
     
     # Test relations: paragraphs
     assert text.paragraphs[0].sentences.text == ['Millist', 'hinda', 'oleme', 'nõus', 'maksma', 'enese', 'täiustamise', 'eest?']
@@ -124,4 +137,6 @@ def test_reconstruct_text_enveloping_layers():
     assert text.sentences[3].words[4:6].text == ['«Kõrvalnähud»', '(«Limitless»),']
     assert text.sentences[5].words[0:3].text == ['Mulle', 'meeldis', 'see']
     assert text.words[29:33].text == ['esimene', 'selline', 'läbimurdeline', 'vahend,']
+    
+
 

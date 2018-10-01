@@ -42,18 +42,22 @@ def process(start_dir, out_dir, encoding='utf-8', \
     encoding: str
         Encoding of the XML files. (default: 'utf-8')
     add_tokenization: boolean
-        If True, then tokenization layers 'words', 'sentences', 'paragraphs'
-        will be added to all newly created Text instances;
+        If True, then tokenization layers 'tokens', 'compound_tokens',
+        'words', 'sentences', 'paragraphs' will be added to all newly 
+        created Text instances;
         If preserve_tokenization is set, then original tokenization in 
         the document will be preserved; otherwise, the tokenization will be
         created with EstNLTK's default tokenization tools;
         (Default: False)
     preserve_tokenization: boolean
-        If True, then the created documents will have layers 'words', 
-        'sentences', 'paragraphs', which follow the original 
-        segmentation in the XML file. 
+        If True, then the created documents will have layers 'tokens', 
+        'compound_tokens', 'words', 'sentences', 'paragraphs', which 
+        follow the original segmentation in the XML file. 
         (In the XML, sentences are between <s> and </s>, paragraphs are 
         between <p> and </p>, and words separated by spaces);
+        Note that the layer 'compound_tokens' will always remain empty 
+        because koondkorpus files do no contain information about token 
+        compounding.
         (default: False)
     create_empty_docs: boolean
         If True, then documents are also created if there is no textual 
@@ -118,8 +122,8 @@ if __name__ == '__main__':
     parser.add_argument('outdir', type=str, help='The directory to store output results')
     parser.add_argument('-e', '--encoding', type=str, default='utf-8', \
                         help='Encoding of the TEI XML files (Default: "utf-8").')
-    parser.add_argument('-t', '--add_tokenization', dest='add_tokenization', default=False, action='store_true', help="If set, then the created documents will have tokenization layers 'words', 'sentences', 'paragraphs'. Otherwise, the created documents just contain plain text and no tokenization layers.")
-    parser.add_argument('-p', '--preserve_tokenization', dest='preserve_tokenization', default=False, action='store_true', help="If set, then the tokenization layers ('words', 'sentences', 'paragraphs') will follow the original segmentation in the XML file (sentences between <s> and </s> tags, paragraphs between <p> and </p> tags, and words separated by spaces). Otherwise, EstNLTK's default tokenization tools are used for tokenization. Note: this only has effect when the flag --add_tokenization is switched on.")
+    parser.add_argument('-t', '--add_tokenization', dest='add_tokenization', default=False, action='store_true', help="If set, then the created documents will have tokenization layers 'tokens', 'compound_tokens', 'words', 'sentences', and 'paragraphs'. Otherwise, the created documents just contain plain text and no tokenization layers.")
+    parser.add_argument('-p', '--preserve_tokenization', dest='preserve_tokenization', default=False, action='store_true', help="If set, then the tokenization layers ('tokens', 'compound_tokens', 'words', 'sentences', 'paragraphs') will follow the original segmentation in the XML file (sentences between <s> and </s> tags, paragraphs between <p> and </p> tags, and words separated by spaces). Otherwise, EstNLTK's default tokenization tools are used for tokenization. Note: this only has effect when the flag --add_tokenization is switched on. Note that the layer 'compound_tokens' will always remain empty because koondkorpus files do no contain information about token compounding.")
     args = parser.parse_args()
 
     process(args.startdir, args.outdir, args.encoding, add_tokenization=args.add_tokenization, \
