@@ -20,8 +20,7 @@ from estnltk.corpus_processing.parse_koondkorpus import parse_tei_corpus
 
 from estnltk.converters import text_to_json
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('koondkonverter')
+logger = None  # <-- To be initialized later
 
 output_ext = 'json'    # extension of output files
 
@@ -76,6 +75,7 @@ def process(start_dir, out_dir, encoding='utf-8', \
         allowed.
         (Default: '\n')
     """
+    global logger
     xml_count  = 0
     json_count = 0
     startTime = datetime.now()
@@ -174,6 +174,9 @@ if __name__ == '__main__':
                              " -t none, or -t estnltk.\n"+\
                              "(Default: False)",\
                         )
+    parser.add_argument('--logging', dest='logging', action='store', default='info',\
+                        choices=['debug', 'info', 'warning', 'error', 'critical'],\
+                        help='Logging level (default: info)')
     
     args = parser.parse_args()
     add_tokenization      = args.tokenization in ['preserve', 'estnltk']
@@ -181,6 +184,8 @@ if __name__ == '__main__':
     sentence_separator    = ' '
     if preserve_tokenization or args.force_sentence_end_newlines:
        sentence_separator = '\n'
+    logging.basicConfig( level=(args.logging).upper() )
+    logger = logging.getLogger('koondkonverter')
     process(args.startdir, args.outdir, args.encoding, \
                            add_tokenization=add_tokenization, \
                            preserve_tokenization=preserve_tokenization,\
