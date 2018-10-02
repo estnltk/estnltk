@@ -286,6 +286,14 @@ def get_summary(collection, layer):
     return pandas.read_sql_table(table, engine, schema=collection.storage.schema)
 
 
+def get_summary_new(collection, layer):
+    pass
+    "select column_name from information_schema.columns where table_schema='grammarextractor' and table_name='collection__measurements_diff_1_1__layer'"
+    engine = sqlalchemy.create_engine('postgresql://', creator=lambda: collection.storage.conn)
+    table = layer + '_summary'
+    return pandas.read_sql_table(table, engine, schema=collection.storage.schema)
+
+
 def sample_indexes(distribution, ids, k):
     result = defaultdict(list)
     cumdist = list(itertools.accumulate(distribution))
@@ -299,7 +307,7 @@ def sample_indexes(distribution, ids, k):
 
 
 def sample_spans(k, collection, diff_layer, domain, input_layers):
-    diff_summary = get_summary(collection, diff_layer)
+    summary = collection.get_layer_meta(diff_layer)
 
     iterator = {'modified_spans': iterate_modified,
                 'missing_spans': iterate_missing,
@@ -309,13 +317,17 @@ def sample_spans(k, collection, diff_layer, domain, input_layers):
                 'prolonged': iterate_prolonged,
                 'shortened': iterate_shortened
                 }[domain]
-    dist = diff_summary[domain]
+    dist = summary[domain]
 
-    ids = diff_summary['id']
+    ids = summary['id']
     indexes = sample_indexes(dist, ids, k)
 
+    print('keys:', tuple(indexes))
+
     for text_id, text in collection.select(layers=input_layers, keys=tuple(indexes)):
+        print('text_id:', text_id)
         span_nrs = set(indexes[text_id])
+        print('span_nrs', span_nrs)
         for i, span in enumerate(iterator(text[diff_layer], span_status_attribute='span_status')):
             if i in span_nrs:
                 yield span
