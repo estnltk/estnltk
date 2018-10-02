@@ -568,7 +568,7 @@ def _reconstruct_enveloping_tokenization_layers( token_locations, \
            Layer(name=CompoundTokenTagger.output_layer, \
                  enveloping=orig_tokens.name, \
                  attributes=CompoundTokenTagger.output_attributes, \
-                 ambiguous=True)
+                 ambiguous=False)
        # Create words layer from the token records
        orig_words = \
            Layer(name=WordTagger.layer_name, \

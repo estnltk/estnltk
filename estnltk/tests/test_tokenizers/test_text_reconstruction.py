@@ -1,8 +1,7 @@
 from estnltk import Text
 from estnltk.corpus_processing.parse_koondkorpus import reconstruct_text
 from estnltk.taggers.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
-
-
+from estnltk.layer_operations import split_by
 
 def test_reconstruct_text_detached_layers():
     # Tests that the text and its layers can be reconstructed based on a dictionary representation
@@ -140,9 +139,8 @@ def test_reconstruct_text_enveloping_layers():
 
 
 def test_reconstruct_text_enveloping_layers_on_empty_text():
-    # Tests that the text and its layers can be reconstructed based on a dictionary representation
-    # Test the situation when the input text is empty: has no textual content. Text reconstruction
-    #      should not fail on an empty text.
+    # Tests text reconstruction on an empty input text: the text reconstruction 
+    # should not fail even if the input text is empty.
     tokenizer = WhiteSpaceTokensTagger()
     # dict representation of the text
     test_text_dict = {'rubriik': 'KUUM', '_xml_file': 'aja_ee_2001_41.tasak.xml', 'paragraphs': [], \
@@ -166,3 +164,31 @@ def test_reconstruct_text_enveloping_layers_on_empty_text():
     assert len(words) == 0
     assert len(sentences) == 0
     assert len(paragraphs) == 0
+
+
+
+def test_split_reconstructed_text():
+    # Tests that the reconstructed text can be split by paragraphs and sentences
+    tokenizer = WhiteSpaceTokensTagger()
+    # dict representation of the text
+    test_text_dict = { 'paragraphs': [ {'sentences':['Millist hinda oleme nõus maksma enese täiustamise eest?']}, \
+                                       {'sentences':['REKLAAM', 'Tõesti?']},\
+                                     ] }
+    # Reconstruct the text
+    wstokenizer = WhiteSpaceTokensTagger()
+    text, tokenization_layers = reconstruct_text(test_text_dict, \
+                                                 tokens_tagger=wstokenizer, \
+                                                 use_enveloping_layers=True )
+    # Attach layers
+    for layer in tokenization_layers:
+        text[layer.name] = layer
+   # Split by paragraphs
+    paragraph_count = 0
+    for paragraph in split_by(text, layer='paragraphs', layers_to_keep=['tokens', 'compound_tokens', 'words', 'sentences']):
+        paragraph_count += 1
+    assert paragraph_count == 2
+   # Split by sentences
+    sent_count = 0
+    for paragraph in split_by(text, layer='sentences', layers_to_keep=['tokens', 'compound_tokens', 'words']):
+        sent_count += 1
+    assert sent_count == 3
