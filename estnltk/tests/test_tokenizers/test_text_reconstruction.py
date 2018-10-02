@@ -84,7 +84,6 @@ def test_reconstruct_text_detached_layers():
 
 
 
-
 def test_reconstruct_text_enveloping_layers():
     # Tests that the text and its layers can be reconstructed based on a dictionary representation
     # Test the situation when reconstructed layers are connected via enveloping
@@ -137,6 +136,33 @@ def test_reconstruct_text_enveloping_layers():
     assert text.sentences[3].words[4:6].text == ['«Kõrvalnähud»', '(«Limitless»),']
     assert text.sentences[5].words[0:3].text == ['Mulle', 'meeldis', 'see']
     assert text.words[29:33].text == ['esimene', 'selline', 'läbimurdeline', 'vahend,']
-    
 
 
+
+def test_reconstruct_text_enveloping_layers_on_empty_text():
+    # Tests that the text and its layers can be reconstructed based on a dictionary representation
+    # Test the situation when the input text is empty: has no textual content. Text reconstruction
+    #      should not fail on an empty text.
+    tokenizer = WhiteSpaceTokensTagger()
+    # dict representation of the text
+    test_text_dict = {'rubriik': 'KUUM', '_xml_file': 'aja_ee_2001_41.tasak.xml', 'paragraphs': [], \
+                      'type': 'artikkel', 'alaosa': 'A-OSA', 'alamrubriik': '', 'title': 'Ühendriikide paisumine', \
+                      'ajalehenumber': 'Eesti Ekspress'}
+    # Reconstruct the text
+    wstokenizer = WhiteSpaceTokensTagger()
+    text, tokenization_layers = reconstruct_text(test_text_dict, \
+                                                 tokens_tagger=wstokenizer, \
+                                                 use_enveloping_layers=True )
+    assert any([layer.name=='tokens' for layer in tokenization_layers])
+    assert any([layer.name=='compound_tokens' for layer in tokenization_layers])
+    assert any([layer.name=='words' for layer in tokenization_layers])
+    assert any([layer.name=='sentences' for layer in tokenization_layers])
+    assert any([layer.name=='paragraphs' for layer in tokenization_layers])
+    tokens     = [layer for layer in tokenization_layers if layer.name=='tokens'][0]
+    words      = [layer for layer in tokenization_layers if layer.name=='words'][0]
+    sentences  = [layer for layer in tokenization_layers if layer.name=='sentences'][0]
+    paragraphs = [layer for layer in tokenization_layers if layer.name=='paragraphs'][0]
+    assert len(tokens) == 0
+    assert len(words) == 0
+    assert len(sentences) == 0
+    assert len(paragraphs) == 0

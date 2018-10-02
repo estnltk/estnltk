@@ -615,7 +615,7 @@ def _reconstruct_enveloping_tokenization_layers( token_locations, \
           orig_paragraphs.add_span(span)
           pid += 1; p_start = -1; p_end = -1
     # Assemble created layers and return as a list
-    if orig_words:
+    if orig_words is not None:
        created_layers.append( orig_tokens )
        created_layers.append( orig_compound_tokens )
        created_layers.append( orig_words )
