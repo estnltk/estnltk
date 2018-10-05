@@ -53,9 +53,10 @@ class PgCollection:
             c.execute(SQL("""CREATE TABLE {}.{}  (
                                layer_name text primary key,
                                detached bool not null,
+                               attributes text[] not null,
                                ambiguous bool not null,
                                parent text,
-                               enveloping text)""").format(
+                               enveloping text);""").format(
                 Identifier(self.storage.schema),
                 Identifier(self.table_name+'_structure')))
 
@@ -64,19 +65,44 @@ class PgCollection:
     def get_structure(self):
         structure = {}
         with self.storage.conn.cursor() as c:
-            c.execute(SQL("SELECT layer_name, detached, ambiguous, parent, enveloping FROM {}.{}").format(
+            c.execute(SQL("SELECT layer_name, detached, attributes, ambiguous, parent, enveloping FROM {}.{};").format(
                 Identifier(self.storage.schema),
                 Identifier(self.table_name+'_structure')))
 
             for row in c.fetchall():
                 structure[row[0]] = {'detached': row[1],
-                                     'ambiguous': row[2],
-                                     'parent': row[3],
-                                     'enveloping': row[4]}
+                                     'attributes': tuple(row[2]),
+                                     'ambiguous': row[3],
+                                     'parent': row[4],
+                                     'enveloping': row[5]}
         return structure
 
-    def _write_structure(self, layer):
-        pass
+    def _insert_into_structure(self, layer, detached: bool):
+        with self.storage.conn.cursor() as c:
+            c.execute(SQL("INSERT INTO {}.{} (layer_name, detached, attributes, ambiguous, parent, enveloping) "
+                          "VALUES ({}, {}, {}, {}, {}, {});").format(
+                Identifier(self.storage.schema),
+                Identifier(self.table_name+'_structure'),
+                Literal(layer.name),
+                Literal(detached),
+                Literal(list(layer.attributes)),
+                Literal(layer.ambiguous),
+                Literal(layer.parent),
+                Literal(layer.enveloping)
+            )
+            )
+        self._structure = self.get_structure()
+
+    def _delete_from_structure(self, layer_name):
+        with self.storage.conn.cursor() as c:
+            c.execute(SQL("DELETE FROM {}.{} WHERE layer_name = {};").format(
+                Identifier(self.storage.schema),
+                Identifier(self.table_name+'_structure'),
+                Literal(layer_name)
+            )
+            )
+            log.debug(c.query.decode())
+        self._structure = self.get_structure()
 
     def insert(self, text, key=None, meta_data=None):
         """Saves a given `Text` object into the collection.
@@ -89,20 +115,16 @@ class PgCollection:
         Returns:
             int: row key (id)
         """
-        structure = self._structure
-        if structure is None:
-            structure = {}
+        if self._structure is None:
             for layer in text.layers:
-                self._write_structure(layer)
-                structure[layer.name] = {'detached': False,
-                                         'ambiguous': layer.ambiguous,
-                                         'parent': layer.parent,
-                                         'enveloping': layer.enveloping}
+                self._insert_into_structure(text[layer], detached=False)
 
         else:
-            for layer in text.layers:
-                layer_struct = structure[layer.name]
+            for layer_name, layer in text.layers.items():
+                layer_struct = self._structure[layer_name]
                 assert layer_struct['detached'] is False
+                assert layer_struct['attributes'] == layer.attributes, '{} != {}'.format(layer_struct['attributes'],
+                                                                                         layer.attributes)
                 assert layer_struct['ambiguous'] == layer.ambiguous
                 assert layer_struct['parent'] == layer.parent
                 assert layer_struct['enveloping'] == layer.enveloping
@@ -123,7 +145,7 @@ class PgCollection:
                     expressions.append(DEFAULT)
 
         with self.storage.conn.cursor() as c:
-            c.execute(SQL("INSERT INTO {}.{} ({}) VALUES ({}) RETURNING id").format(
+            c.execute(SQL("INSERT INTO {}.{} ({}) VALUES ({}) RETURNING id;").format(
                 Identifier(self.storage.schema),
                 Identifier(self.table_name),
                 SQL(', ').join(column_names),
@@ -145,7 +167,20 @@ class PgCollection:
 
     def select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None, order_by_key=False):
         """See PostgresStorage.select()"""
-        return self.storage.select(self.table_name, query, layer_query, layer_ngram_query, layers, keys=keys,
+        layers_extended = []
+
+        def include_dep(layer):
+            if layer is None or not self._structure[layer]['detached']:
+                return
+            for dep in (self._structure[layer]['parent'], self._structure[layer]['enveloping']):
+                include_dep(dep)
+            if layer not in layers_extended:
+                layers_extended.append(layer)
+
+        for layer in layers or []:
+            include_dep(layer)
+
+        return self.storage.select(self.table_name, query, layer_query, layer_ngram_query, layers_extended, keys=keys,
                                    order_by_key=order_by_key)
 
     def select_raw(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None,
@@ -301,12 +336,13 @@ class PgCollection:
                         columns = ", ".join([SQL("{}").format(Identifier(c)).as_string(conn)
                                              for c in columns])
                         values = ", ".join(values)
-                        q = "INSERT INTO {}.{} (%s) VALUES (%s)" % (columns, values)
+                        q = "INSERT INTO {}.{} (%s) VALUES (%s);" % (columns, values)
                         q = SQL(q).format(Identifier(self.storage.schema), Identifier(layer_table))
                         data = (id_, collection_id, layer_json, *meta_values, *ngram_values)
                         c.execute(q, data)
 
                         id_ += 1
+                self._insert_into_structure(layer, detached=True)
             except:
                 conn.rollback()
                 raise
@@ -403,6 +439,7 @@ class PgCollection:
         if not self.storage.table_exists(layer_table):
             raise PgStorageException("Layer table '%s' does not exist." % layer_table)
         self.storage.drop_table(layer_table)
+        self._delete_from_structure(layer_name)
 
     def delete_fragment(self, fragment_name):
         fragment_table = self.fragment_name_to_table_name(fragment_name)
@@ -483,12 +520,12 @@ class PgCollection:
 
         with self.storage.conn.cursor() as c:
             c.execute(SQL("SELECT column_name FROM information_schema.columns "
-                          "WHERE table_schema=%s AND table_name=%s"),
+                          "WHERE table_schema=%s AND table_name=%s;"),
                       (self.storage.schema, layer_table))
             res = c.fetchall()
             columns = [r[0] for r in res if r[0] != 'data']
 
-            c.execute(SQL('SELECT {} FROM {}.{}').format(
+            c.execute(SQL('SELECT {} FROM {}.{};').format(
                 SQL(', ').join(map(Identifier, columns)),
                 Identifier(self.storage.schema),
                 Identifier(layer_table)))
@@ -509,12 +546,11 @@ class PgCollection:
 
         i = 0
         with self.storage.conn.cursor() as c:
-            c.execute(SQL("DROP TABLE IF EXISTS {}.{}").format(Identifier(self.storage.schema),
-                                                               Identifier(export_table)))
-            c.execute(SQL("CREATE TABLE {}.{}\n"
-                          "({})").format(Identifier(self.storage.schema),
-                                         Identifier(export_table),
-                                         columns_sql))
+            c.execute(SQL("DROP TABLE IF EXISTS {}.{};").format(Identifier(self.storage.schema),
+                                                                Identifier(export_table)))
+            c.execute(SQL("CREATE TABLE {}.{} ({});").format(Identifier(self.storage.schema),
+                                                             Identifier(export_table),
+                                                             columns_sql))
 
             for text_id, text in texts:
                 for span_nr, span in enumerate(text[layer]):
@@ -523,7 +559,7 @@ class PgCollection:
                         values = [i, text_id, span_nr]
                         values.extend(getattr(annotation, attr) for attr in  attributes)
                         c.execute(SQL("INSERT INTO {}.{}\n"
-                                      "VALUES ({})").format(Identifier(self.storage.schema),
+                                      "VALUES ({});").format(Identifier(self.storage.schema),
                                                             Identifier(export_table),
                                                             SQL(', ').join(map(Literal, values))
                                                             ))
@@ -535,29 +571,84 @@ class PostgresStorage:
     exposes interface to conveniently search/save json data.
     """
 
-    def __init__(self, dbname=None, user=None, password=None, host='localhost', port=5432,
-                 pgpass_file="~/.pgpass", schema="public", role=None, **kwargs):
+    def __init__(self, dbname=None, user=None, password=None, host=None, port=None,
+                 pgpass_file=None, schema="public", role=None, **kwargs):
         """
         Connects to database either using connection parameters if specified, or ~/.pgpass file.
 
             ~/.pgpass file format: hostname:port:database:username:password
 
         """
-        if dbname is None:
-            log.debug("Database name not specified. Loading connection settings from '%s'" % pgpass_file)
-            pgpass = os.path.expanduser(pgpass_file)
-            if not os.path.exists(pgpass):
-                raise PgStorageException("Configuration file '%s' not found." % pgpass)
-            else:
-                with open(pgpass, encoding="utf-8") as f:
-                    host, port, dbname, user, password = f.readline().rstrip().split(":")
-        self.conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port, **kwargs)
-        self.conn.autocommit = True
         self.schema = schema
 
-        if isinstance(role, str):
-            with self.conn.cursor() as c:
-                c.execute(SQL("SET ROLE {}").format(Identifier(role)))
+        _host, _port, _dbname, _user, _password = host, port, dbname, user, password
+        if _host is None or _port is None or _dbname is None or _user is None or _password is None:
+            if pgpass_file is None:
+                raise PgStorageException("If 'host', 'port', 'dbname', 'user' or 'password' is None, "
+                                         "then 'pgpass_file' must not be None.")
+            pgpass = os.path.expanduser(pgpass_file)
+            if not os.path.isfile(pgpass):
+                raise PgStorageException('pgpass file {!r} not found.'.format(pgpass))
+            with open(pgpass, encoding="utf-8") as f:
+                for line in f:
+                    line_split = line.rstrip().split(':')
+                    if line.startswith('#') or len(line_split) != 5:
+                        continue
+                    f_host, f_port, f_dbname, f_user, f_password = line_split
+
+                    _host = f_host
+                    if host is None:
+                        if f_host == '*':
+                            continue
+                    elif f_host in {'*', host}:
+                        _host = host
+                    else:
+                        continue
+
+                    _port = f_port
+                    if port is None:
+                        if f_port == '*':
+                            continue
+                    elif f_port in {'*', port}:
+                        _port = port
+                    else:
+                        continue
+
+                    _dbname = f_dbname
+                    if dbname is None:
+                        if f_dbname == '*':
+                            continue
+                    elif f_dbname in {'*', dbname}:
+                        _dbname = dbname
+                    else:
+                        continue
+
+                    _user = f_user
+                    if user is None:
+                        if f_user == '*':
+                            continue
+                    elif f_user in {'*', user}:
+                        _user = user
+                    else:
+                        continue
+
+                    _password = password or f_password
+                    break
+
+            if _password is None:
+                raise PgStorageException(('No password found for '
+                                          'host: {}, port: {}, dbname: {}, user: {}').format(
+                                          host, port, dbname, user))
+        if role is None:
+            role = _user
+        log.info('Connecting to host: {!r}, port: {!r}, dbname: {!r}, user: {!r}.'.format(_host, _port, _dbname, _user))
+        log.info('user: {!r}, role: {!r}'.format(user, role))
+
+        self.conn = psycopg2.connect(dbname=_dbname, user=_user, password=_password, host=_host, port=_port, **kwargs)
+        self.conn.autocommit = True
+
+        with self.conn.cursor() as c:
+            c.execute(SQL("SET ROLE {};").format(Identifier(role)))
 
     def close(self):
         """Closes database connection"""
@@ -645,11 +736,11 @@ class PostgresStorage:
 
     def drop_table(self, table):
         with self.conn.cursor() as c:
-            c.execute(SQL("DROP TABLE {}.{}").format(Identifier(self.schema), Identifier(table)))
+            c.execute(SQL("DROP TABLE {}.{};").format(Identifier(self.schema), Identifier(table)))
 
     def drop_table_if_exists(self, table):
         with self.conn.cursor() as c:
-            c.execute(SQL("DROP TABLE IF EXISTS {}.{}").format(Identifier(self.schema), Identifier(table)))
+            c.execute(SQL("DROP TABLE IF EXISTS {}.{};").format(Identifier(self.schema), Identifier(table)))
 
     def insert_layer_row(self, layer_table, layer_dict, row_id, text_id, ngram_values=None):
         layer_json = json.dumps(layer_dict, ensure_ascii=False)
