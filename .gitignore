@@ -3,7 +3,7 @@
 build/
 estnltk.egg-info/
 *.ipynb_checkpoints
-/estnltk/vabamorf/_vabamorf.cpython-35m-x86_64-linux-gnu.so
+/estnltk/vabamorf/_vabamorf.cpython*
 /estnltk/vabamorf/vabamorf.py
 
 .cache
