@@ -56,7 +56,8 @@ class PgCollection:
                                attributes text[] not null,
                                ambiguous bool not null,
                                parent text,
-                               enveloping text);""").format(
+                               enveloping text,
+                               _base text);""").format(
                 Identifier(self.storage.schema),
                 Identifier(self.table_name+'_structure')))
 
@@ -65,22 +66,23 @@ class PgCollection:
     def get_structure(self):
         structure = {}
         with self.storage.conn.cursor() as c:
-            c.execute(SQL("SELECT layer_name, detached, attributes, ambiguous, parent, enveloping FROM {}.{};").format(
-                Identifier(self.storage.schema),
-                Identifier(self.table_name+'_structure')))
+            c.execute(SQL("SELECT layer_name, detached, attributes, ambiguous, parent, enveloping, _base FROM {}.{};"
+                          ).format(Identifier(self.storage.schema),
+                                   Identifier(self.table_name+'_structure')))
 
             for row in c.fetchall():
                 structure[row[0]] = {'detached': row[1],
                                      'attributes': tuple(row[2]),
                                      'ambiguous': row[3],
                                      'parent': row[4],
-                                     'enveloping': row[5]}
+                                     'enveloping': row[5],
+                                     '_base': row[6]}
         return structure
 
     def _insert_into_structure(self, layer, detached: bool):
         with self.storage.conn.cursor() as c:
-            c.execute(SQL("INSERT INTO {}.{} (layer_name, detached, attributes, ambiguous, parent, enveloping) "
-                          "VALUES ({}, {}, {}, {}, {}, {});").format(
+            c.execute(SQL("INSERT INTO {}.{} (layer_name, detached, attributes, ambiguous, parent, enveloping, _base) "
+                          "VALUES ({}, {}, {}, {}, {}, {}, {});").format(
                 Identifier(self.storage.schema),
                 Identifier(self.table_name+'_structure'),
                 Literal(layer.name),
@@ -88,7 +90,8 @@ class PgCollection:
                 Literal(list(layer.attributes)),
                 Literal(layer.ambiguous),
                 Literal(layer.parent),
-                Literal(layer.enveloping)
+                Literal(layer.enveloping),
+                Literal(layer._base)
             )
             )
         self._structure = self.get_structure()
@@ -128,6 +131,7 @@ class PgCollection:
                 assert layer_struct['ambiguous'] == layer.ambiguous
                 assert layer_struct['parent'] == layer.parent
                 assert layer_struct['enveloping'] == layer.enveloping
+                assert layer_struct['_base'] == layer._base
         text = text_to_json(text)
         if key is None:
             key = DEFAULT
