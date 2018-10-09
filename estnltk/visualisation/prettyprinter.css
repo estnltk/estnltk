@@ -20,18 +20,18 @@
     border: 1px solid black;
 }}
 
-#maintext{0} {{
+.maintext{0} {{
     position: relative;
 }}
 
-.rendered_html tbody tr:nth-child(even) {{
+.tables tbody tr:nth-child(even) {{
     background-color: lightgray;
 }}
 
-.rendered_html tbody tr:nth-child(odd) {{
+.tables tbody tr:nth-child(odd) {{
     background-color: beige;
 }}
 
-.rendered_html tbody tr:hover {{
+.tables tbody tr:hover {{
     background-color: ivory;
 }}

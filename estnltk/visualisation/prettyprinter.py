@@ -111,7 +111,7 @@ t = '''
 </style>
 <body>
 
-<p id="maintext{0}">{1}<br><br><br></p>
+<p class="maintext{0}">{1}<br><br><br></p>
 
 <script>
 {3}
