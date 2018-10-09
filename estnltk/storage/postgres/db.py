@@ -26,6 +26,10 @@ class PgStorageException(Exception):
     pass
 
 
+class PgCollectionException(Exception):
+    pass
+
+
 RowMapperRecord = namedtuple("RowMapperRecord", ["layer", "meta"])
 
 pytype2dbtype = {
@@ -118,11 +122,15 @@ class PgCollection:
         Returns:
             int: row key (id)
         """
+
         if self._structure is None:
             for layer in text.layers:
                 self._insert_into_structure(text[layer], detached=False)
-
+        elif any(struct['detached'] for struct in self._structure.values()):
+            # TODO: solve this case in a better way
+            raise PgCollectionException("This collection has detached layers. Can't add new text objects.")
         else:
+            assert set(text.layers) == set(self._structure), '{} != {}'.format(set(text.layers), set(self._structure))
             for layer_name, layer in text.layers.items():
                 layer_struct = self._structure[layer_name]
                 assert layer_struct['detached'] is False
@@ -288,6 +296,9 @@ class PgCollection:
             disable_pb: bool
                 Disable progressbar wrapper
         """
+
+        if self._structure is None:
+            raise PgCollectionException("Collection is empty. Can't add detached layer {!r}.".format(layer_name))
         conn = self.storage.conn
         with conn.cursor() as c:
             try:
@@ -648,7 +659,13 @@ class PostgresStorage:
         log.info('Connecting to host: {!r}, port: {!r}, dbname: {!r}, user: {!r}.'.format(_host, _port, _dbname, _user))
         log.info('user: {!r}, role: {!r}'.format(user, role))
 
-        self.conn = psycopg2.connect(dbname=_dbname, user=_user, password=_password, host=_host, port=_port, **kwargs)
+        try:
+            self.conn = psycopg2.connect(dbname=_dbname, user=_user, password=_password, host=_host, port=_port,
+                                         **kwargs)
+        except Exception:
+            log.error('Failed to connect '
+                      'host: {}, port: {}, database: {}, user: {}.'.format(_host, _port, _dbname, _user))
+            raise
         self.conn.autocommit = True
 
         with self.conn.cursor() as c:
