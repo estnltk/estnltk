@@ -2,7 +2,6 @@ import os
 import re
 import json
 import pandas
-import logging
 import operator as op
 from collections import namedtuple
 from functools import reduce
@@ -13,13 +12,12 @@ import psycopg2
 from psycopg2.extensions import STATUS_BEGIN
 from psycopg2.sql import SQL, Identifier, Literal, DEFAULT
 
+from estnltk import get_logger
 from estnltk.converters.dict_importer import dict_to_layer
 from estnltk.converters.dict_exporter import layer_to_dict
 from estnltk.converters import dict_to_text, text_to_json
 from estnltk.layer_operations import create_ngram_fingerprint_index
 from .query import Query
-
-log = logging.getLogger(__name__)
 
 
 class PgStorageException(Exception):
@@ -43,10 +41,11 @@ pytype2dbtype = {
 class PgCollection:
     """Convenience wrapper over PostgresStorage"""
 
-    def __init__(self, name, storage, meta=None):
+    def __init__(self, name, storage, meta=None, logger=None):
         self.table_name = name
         self.storage = storage
         self.meta = meta or {}
+        self.logger = logger or get_logger()
         self._structure = None
         if self.exists():
             self._structure = self.get_structure()
@@ -108,7 +107,7 @@ class PgCollection:
                 Literal(layer_name)
             )
             )
-            log.debug(c.query.decode())
+            self.logger.debug(c.query.decode())
         self._structure = self.get_structure()
 
     def insert(self, text, key=None, meta_data=None):
@@ -587,13 +586,14 @@ class PostgresStorage:
     """
 
     def __init__(self, dbname=None, user=None, password=None, host=None, port=None,
-                 pgpass_file=None, schema="public", role=None, **kwargs):
+                 pgpass_file=None, schema="public", role=None, logger=None, **kwargs):
         """
         Connects to database either using connection parameters if specified, or ~/.pgpass file.
 
             ~/.pgpass file format: hostname:port:database:username:password
 
         """
+        self.logger = logger or get_logger()
         self.schema = schema
 
         _host, _port, _dbname, _user, _password = host, port, dbname, user, password
@@ -653,22 +653,22 @@ class PostgresStorage:
             if _password is None:
                 raise PgStorageException(('No password found for '
                                           'host: {}, port: {}, dbname: {}, user: {}').format(
-                                          host, port, dbname, user))
+                    host, port, dbname, user))
         if role is None:
             role = _user
-        log.info('Connecting to host: {!r}, port: {!r}, dbname: {!r}, user: {!r}.'.format(_host, _port, _dbname, _user))
-        log.info('user: {!r}, role: {!r}'.format(user, role))
+        self.logger.info('Connecting to host: {!r}, port: {!r}, dbname: {!r}, user: {!r}.'.format(_host, _port, _dbname, _user))
 
         try:
             self.conn = psycopg2.connect(dbname=_dbname, user=_user, password=_password, host=_host, port=_port,
                                          **kwargs)
         except Exception:
-            log.error('Failed to connect '
-                      'host: {}, port: {}, database: {}, user: {}.'.format(_host, _port, _dbname, _user))
+            logger.error('Failed to connect '
+                         'host: {}, port: {}, database: {}, user: {}.'.format(_host, _port, _dbname, _user))
             raise
         self.conn.autocommit = True
 
         with self.conn.cursor() as c:
+            self.logger.info('set role: {!r}'.format(role))
             c.execute(SQL("SET ROLE {};").format(Identifier(role)))
 
     def close(self):
