@@ -13,3 +13,4 @@ requests
 IPython
 tensorflow
 numpy
+tqdm
