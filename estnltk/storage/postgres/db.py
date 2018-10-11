@@ -41,14 +41,14 @@ pytype2dbtype = {
 class PgCollection:
     """Convenience wrapper over PostgresStorage"""
 
-    def __init__(self, name, storage, meta=None, logger=None):
+    def __init__(self, name, storage, meta=None):
         self.table_name = name
         self.storage = storage
         self.meta = meta or {}
-        self.logger = logger or get_logger()
         self._structure = None
         if self.exists():
             self._structure = self.get_structure()
+        self.logger = get_logger()
 
     def create(self, description=None):
         """Creates a database table for the collection"""
@@ -63,6 +63,7 @@ class PgCollection:
                                _base text);""").format(
                 Identifier(self.storage.schema),
                 Identifier(self.table_name+'_structure')))
+            self.logger.info('create table {}.{}'.format(self.storage.schema, self.table_name+'_structure'))
 
         return self.storage.create_table(self.table_name, description, self.meta)
 
@@ -586,16 +587,16 @@ class PostgresStorage:
     """
 
     def __init__(self, dbname=None, user=None, password=None, host=None, port=None,
-                 pgpass_file=None, schema="public", role=None, logger=None, **kwargs):
+                 pgpass_file=None, schema="public", role=None, **kwargs):
         """
         Connects to database either using connection parameters if specified, or ~/.pgpass file.
 
             ~/.pgpass file format: hostname:port:database:username:password
 
         """
-        self.logger = logger or get_logger()
-        self.schema = schema
+        self.logger = get_logger()
 
+        self.schema = schema
         _host, _port, _dbname, _user, _password = host, port, dbname, user, password
         if _host is None or _port is None or _dbname is None or _user is None or _password is None:
             if pgpass_file is None:
@@ -662,7 +663,7 @@ class PostgresStorage:
             self.conn = psycopg2.connect(dbname=_dbname, user=_user, password=_password, host=_host, port=_port,
                                          **kwargs)
         except Exception:
-            logger.error('Failed to connect '
+            self.logger.error('Failed to connect '
                          'host: {}, port: {}, database: {}, user: {}.'.format(_host, _port, _dbname, _user))
             raise
         self.conn.autocommit = True
@@ -1152,7 +1153,7 @@ class PostgresStorage:
 
     def get_collection(self, table_name, meta_fields=None):
         """Returns a new instance of `PgCollection` without physically creating it."""
-        return PgCollection(table_name, self, meta_fields)
+        return PgCollection(name=table_name, storage=self, meta=meta_fields)
 
 
 class JsonbTextQuery(Query):
