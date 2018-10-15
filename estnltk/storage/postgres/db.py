@@ -6,13 +6,13 @@ import operator as op
 from collections import namedtuple
 from functools import reduce
 from itertools import chain
-from tqdm import tqdm
+from tqdm import tqdm, tqdm_notebook
 
 import psycopg2
 from psycopg2.extensions import STATUS_BEGIN
 from psycopg2.sql import SQL, Identifier, Literal, DEFAULT
 
-from estnltk import get_logger
+from estnltk import logger
 from estnltk.converters.dict_importer import dict_to_layer
 from estnltk.converters.dict_exporter import layer_to_dict
 from estnltk.converters import dict_to_text, text_to_json
@@ -48,7 +48,6 @@ class PgCollection:
         self._structure = None
         if self.exists():
             self._structure = self.get_structure()
-        self.logger = get_logger()
 
     def create(self, description=None):
         """Creates a database table for the collection"""
@@ -63,7 +62,7 @@ class PgCollection:
                                _base text);""").format(
                 Identifier(self.storage.schema),
                 Identifier(self.table_name+'_structure')))
-            self.logger.info('create table {}.{}'.format(self.storage.schema, self.table_name+'_structure'))
+            logger.info('create table {}.{}'.format(self.storage.schema, self.table_name+'_structure'))
 
         return self.storage.create_table(self.table_name, description, self.meta)
 
@@ -102,13 +101,13 @@ class PgCollection:
 
     def _delete_from_structure(self, layer_name):
         with self.storage.conn.cursor() as c:
-            c.execute(SQL("DELETE FROM {}.{} WHERE layer_name = {};").format(
+            c.execute(SQL("DELETE FROM {}.{} WHERE layer_name={};").format(
                 Identifier(self.storage.schema),
                 Identifier(self.table_name+'_structure'),
                 Literal(layer_name)
             )
             )
-            self.logger.debug(c.query.decode())
+            logger.debug(c.query.decode())
         self._structure = self.get_structure()
 
     def insert(self, text, key=None, meta_data=None):
@@ -270,7 +269,7 @@ class PgCollection:
                 conn.autocommit = True
 
     def create_layer(self, layer_name, data_iterator, row_mapper,
-                     create_index=False, ngram_index=None, overwrite=False, meta=None, disable_pb=True):
+                     create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None):
         """
         Creates layer
 
@@ -293,18 +292,30 @@ class PgCollection:
                 Specifies table column names and data types to create for storing additional
                 meta information. E.g. meta={"sum": "int", "average": "float"}.
                 See `pytype2dbtype` for supported types.
-            disable_pb: bool
-                Disable progressbar wrapper
+            progressbar: str
+                if 'notebook', display progressbar as a jupyter notebook widget
+                if 'unicode', display progressbar as a unicode string
+                else disable progressbar (default)
         """
-
+        logger.info('creating a new layer: {!r}'.format(layer_name))
         if self._structure is None:
-            raise PgCollectionException("Collection is empty. Can't add detached layer {!r}.".format(layer_name))
+            raise PgCollectionException("can't add detached layer {!r}, the collection is empty".format(layer_name))
+        if self.has_layer(layer_name):
+            if overwrite:
+                logger.info("overwriting output layer: {!r}".format(layer_name))
+                self.delete_layer(layer_name=layer_name)
+            else:
+                exception = PgCollectionException("can't create layer {!r}, layer already exists".format(layer_name))
+                logger.error(exception)
+                raise exception
+        logger.info('creating layer: {!r}'.format(layer_name))
         conn = self.storage.conn
         with conn.cursor() as c:
             try:
                 conn.autocommit = False
                 # create table and indices
-                self.create_layer_table(c, layer_name,
+                self.create_layer_table(cursor=c,
+                                        layer_name=layer_name,
                                         create_index=create_index,
                                         ngram_index=ngram_index,
                                         overwrite=overwrite,
@@ -318,14 +329,19 @@ class PgCollection:
                     meta_columns = tuple(meta)
 
                 total = self.storage.count_rows(self.table_name)
-                iter_data = tqdm(data_iterator,
-                                 total=total,
-                                 unit='doc',
-                                 disable=disable_pb)
+                if progressbar == 'notebook':
+                    iter_data = tqdm_notebook(data_iterator,
+                                              total=total,
+                                              unit='doc')
+                else:
+                    iter_data = tqdm(data_iterator,
+                                     total=total,
+                                     unit='doc',
+                                     disable=(progressbar != 'unicode'))
 
                 for row in iter_data:
                     collection_id, text = row[0], row[1]
-                    iter_data.set_description('collection_id: {}'.format(collection_id))
+                    iter_data.set_description('collection_id: {}'.format(collection_id), refresh=False)
                     for record in row_mapper(row):
                         layer = record.layer
                         layer_dict = layer_to_dict(layer, text)
@@ -367,6 +383,8 @@ class PgCollection:
                     conn.commit()
                 conn.autocommit = True
 
+        logger.info('layer created: {!r}'.format(layer_name))
+
     def create_layer_table(self, cursor, layer_name, create_index=True, ngram_index=None, overwrite=False, meta=None):
         is_fragment = False
         table_name = self.layer_name_to_table_name(layer_name)
@@ -383,18 +401,18 @@ class PgCollection:
         if overwrite:
             self.storage.drop_table_if_exists(layer_table)
         elif self.storage.table_exists(layer_table):
-            raise PgStorageException("Table '{}' for layer '{}' already exists.".format(layer_table, layer_name))
+            raise PgStorageException("Table {!r} for layer {!r} already exists.".format(layer_table, layer_name))
 
         else:
             ngram_cols_sql = ""
         # create layer table and index
-        q = """CREATE TABLE {}.{} (
-                   id serial PRIMARY KEY,
-                   %(parent_col)s
-                   text_id int NOT NULL,
-                   data jsonb
-                   %(meta_cols)s
-                   %(ngram_cols)s)"""
+        q = ('CREATE TABLE {}.{} ('
+             'id SERIAL PRIMARY KEY, '
+             '%(parent_col)s'
+             'text_id int NOT NULL, '
+             'data jsonb'
+             '%(meta_cols)s'
+             '%(ngram_cols)s);')
 
         if is_fragment is True:
             parent_col = "parent_id int NOT NULL,"
@@ -417,44 +435,56 @@ class PgCollection:
         q %= {"parent_col": parent_col, "ngram_cols": ngram_cols, "meta_cols": meta_cols}
         q = SQL(q).format(Identifier(self.storage.schema), Identifier(layer_table))
         cursor.execute(q)
+        logger.debug(cursor.query.decode())
 
-        q = SQL("COMMENT ON TABLE {}.{} IS {}").format(
+        q = SQL("COMMENT ON TABLE {}.{} IS {};").format(
             Identifier(self.storage.schema), Identifier(layer_table),
             Literal("%s %s layer" % (self.table_name, layer_name)))
         cursor.execute(q)
+        logger.debug(cursor.query.decode())
 
         # create jsonb index
         if create_index is True:
             cursor.execute(SQL(
-                "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'layers') jsonb_path_ops)").format(
+                "CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'layers') jsonb_path_ops);").format(
                 schema=Identifier(self.storage.schema),
                 index=Identifier('idx_%s_data' % layer_table),
                 table=Identifier(layer_table)))
+            logger.debug(cursor.query.decode())
 
         # create ngram array index
         if ngram_index is not None:
             for column in ngram_index:
                 cursor.execute(SQL(
-                    "CREATE INDEX {index} ON {schema}.{table} USING gin ({column})").format(
+                    "CREATE INDEX {index} ON {schema}.{table} USING gin ({column});").format(
                     schema=Identifier(self.storage.schema),
                     index=Identifier('idx_%s_%s' % (layer_table, column)),
                     table=Identifier(layer_table),
                     column=Identifier(column)))
+                logger.debug(cursor.query.decode())
 
         cursor.execute(SQL(
-            "CREATE INDEX {index} ON {schema}.{table} (text_id)").format(
+            "CREATE INDEX {index} ON {schema}.{table} (text_id);").format(
             index=Identifier('idx_%s__text_id' % layer_table),
             schema=Identifier(self.storage.schema),
             table=Identifier(layer_table)))
+        logger.debug(cursor.query.decode())
 
     def delete_layer(self, layer_name):
         layer_table = self.layer_name_to_table_name(layer_name)
         if layer_name not in self.get_layer_names():
-            raise PgStorageException("Collection does not have a layer '%s'." % layer_name)
+            raise PgCollectionException("Collection does not have a layer '%s'." % layer_name)
         if not self.storage.table_exists(layer_table):
             raise PgStorageException("Layer table '%s' does not exist." % layer_table)
+        for ln, struct in self._structure.items():
+            if ln == layer_name:
+                continue
+            if layer_name == struct['enveloping'] or layer_name == struct['parent'] or layer_name == struct['_base']:
+                raise PgCollectionException("Can't delete layer {!r}. "
+                                            "There is a dependant layer {!r}.".format(layer_name, ln))
         self.storage.drop_table(layer_table)
         self._delete_from_structure(layer_name)
+        logger.info('layer deleted: {!r}'.format(layer_name))
 
     def delete_fragment(self, fragment_name):
         fragment_table = self.fragment_name_to_table_name(fragment_name)
@@ -491,7 +521,7 @@ class PgCollection:
             conn.autocommit = True
 
     def has_layer(self, layer_name):
-        return layer_name in self.get_layer_names()
+        return layer_name in self._structure
 
     def has_fragment(self, fragment_name):
         return fragment_name in self.get_fragment_names()
@@ -594,8 +624,6 @@ class PostgresStorage:
             ~/.pgpass file format: hostname:port:database:username:password
 
         """
-        self.logger = get_logger()
-
         self.schema = schema
         _host, _port, _dbname, _user, _password = host, port, dbname, user, password
         if _host is None or _port is None or _dbname is None or _user is None or _password is None:
@@ -652,24 +680,24 @@ class PostgresStorage:
                     break
 
             if _password is None:
-                raise PgStorageException(('No password found for '
-                                          'host: {}, port: {}, dbname: {}, user: {}').format(
-                    host, port, dbname, user))
+                raise PgStorageException(('no password found for '
+                                          'host: {}, port: {}, dbname: {}, user: {}'
+                                          ).format(host, port, dbname, user))
         if role is None:
             role = _user
-        self.logger.info('Connecting to host: {!r}, port: {!r}, dbname: {!r}, user: {!r}.'.format(_host, _port, _dbname, _user))
+        logger.info('connecting to host: {!r}, port: {!r}, dbname: {!r}, user: {!r}'.format(_host, _port, _dbname, _user))
 
         try:
             self.conn = psycopg2.connect(dbname=_dbname, user=_user, password=_password, host=_host, port=_port,
                                          **kwargs)
         except Exception:
-            self.logger.error('Failed to connect '
+            logger.error('Failed to connect '
                          'host: {}, port: {}, database: {}, user: {}.'.format(_host, _port, _dbname, _user))
             raise
         self.conn.autocommit = True
 
         with self.conn.cursor() as c:
-            self.logger.info('set role: {!r}'.format(role))
+            logger.info('role: {!r}'.format(role))
             c.execute(SQL("SET ROLE {};").format(Identifier(role)))
 
     def close(self):
@@ -759,6 +787,7 @@ class PostgresStorage:
     def drop_table(self, table):
         with self.conn.cursor() as c:
             c.execute(SQL("DROP TABLE {}.{};").format(Identifier(self.schema), Identifier(table)))
+            logger.debug(c.query.decode())
 
     def drop_table_if_exists(self, table):
         with self.conn.cursor() as c:
