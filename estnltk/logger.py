@@ -11,26 +11,11 @@ class TqdmLoggingHandler(logging.Handler):
         try:
             msg = self.format(record)
             tqdm.tqdm.write(msg)
-            self.flush()
+            # self.flush()
         except Exception:
             self.handleError(record)
 
 
-def _get_logger(level='INFO'):
-    log = logging.getLogger()
-    log.addHandler(TqdmLoggingHandler())
-    log.setLevel(level)
-
-    return log
-
-
-class EstNltkLogger:
-    logger = None
-
-    def __init__(self, level):
-        if self.__class__.logger is None:
-            self.__class__.logger = _get_logger(level)
-
-
-def get_logger(level='INFO'):
-    return EstNltkLogger(level).logger
+logger = logging.getLogger()
+logger.addHandler(TqdmLoggingHandler())
+logger.setLevel('INFO')
