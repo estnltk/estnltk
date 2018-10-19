@@ -47,7 +47,6 @@ class PgCollection:
         self.storage = storage
         self.meta = meta or {}
         self._structure = self.get_structure()
-        self._buffer = []
         self.column_names = ['id', 'data'] + list(self.meta)
 
     def create(self, description=None):
@@ -117,16 +116,21 @@ class PgCollection:
         self._structure = self.get_structure()
 
     def insert(self, text, key=None, meta_data=None):
-        return self._buffered_insert(text=text, key=key, meta_data=meta_data, buffer_size=0)
+        return self._buffered_insert(text=text, buffer=[], buffer_size=0, key=key, meta_data=meta_data)
 
     @contextmanager
-    def buffered_insert(self):
-        try:
-            yield self._buffered_insert
-        finally:
-            self.flush_insert_buffer()
+    def buffered_insert(self, buffer_size=1000):
+        buffer = []
 
-    def _buffered_insert(self, text, key=None, meta_data=None, buffer_size=1000):
+        def wrap_buffered_insert(text, key=None, meta_data=None):
+            return self._buffered_insert(text, buffer=buffer, buffer_size=buffer_size, key=key, meta_data=meta_data)
+
+        try:
+            yield wrap_buffered_insert
+        finally:
+            self._flush_insert_buffer(buffer)
+
+    def _buffered_insert(self, text, buffer, buffer_size, key=None, meta_data=None):
         """Saves a given `Text` object into the collection.
 
         Args:
@@ -172,18 +176,18 @@ class PgCollection:
                 m = DEFAULT
             row.append(m)
 
-        self._buffer.append(SQL('({})').format(SQL(', ').join(row)))
+        buffer.append(SQL('({})').format(SQL(', ').join(row)))
 
-        if len(self._buffer) >= buffer_size:
-            ids = self.flush_insert_buffer()
+        if len(buffer) >= buffer_size:
+            ids = self._flush_insert_buffer(buffer)
             if buffer_size == 0 and len(ids) == 1:
                 return ids[0]
             return ids
 
         return
 
-    def flush_insert_buffer(self):
-        if len(self._buffer) == 0:
+    def _flush_insert_buffer(self, buffer):
+        if len(buffer) == 0:
             return []
         sql_column_names = SQL(', ').join(map(Identifier, self.column_names))
         with self.storage.conn.cursor() as c:
@@ -191,9 +195,9 @@ class PgCollection:
                 Identifier(self.storage.schema),
                 Identifier(self.table_name),
                 sql_column_names,
-                SQL(', ').join(self._buffer)))
+                SQL(', ').join(buffer)))
             row_key = c.fetchone()
-        self._buffer.clear()
+        buffer.clear()
         return row_key
 
     def exists(self):
