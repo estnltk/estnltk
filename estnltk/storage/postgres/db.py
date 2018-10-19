@@ -3,6 +3,7 @@ import re
 import json
 import pandas
 import operator as op
+from contextlib import contextmanager
 from collections import namedtuple
 from functools import reduce
 from itertools import chain
@@ -115,7 +116,17 @@ class PgCollection:
             logger.debug(c.query.decode())
         self._structure = self.get_structure()
 
-    def insert(self, text, key=None, meta_data=None, buffer_size=0):
+    def insert(self, text, key=None, meta_data=None):
+        return self._buffered_insert(text=text, key=key, meta_data=meta_data, buffer_size=0)
+
+    @contextmanager
+    def buffered_insert(self):
+        try:
+            yield self._buffered_insert
+        finally:
+            self.flush_insert_buffer()
+
+    def _buffered_insert(self, text, key=None, meta_data=None, buffer_size=1000):
         """Saves a given `Text` object into the collection.
 
         Args:
@@ -164,14 +175,14 @@ class PgCollection:
         self._buffer.append(SQL('({})').format(SQL(', ').join(row)))
 
         if len(self._buffer) >= buffer_size:
-            ids = self.flush_buffer()
+            ids = self.flush_insert_buffer()
             if buffer_size == 0 and len(ids) == 1:
                 return ids[0]
             return ids
 
         return
 
-    def flush_buffer(self):
+    def flush_insert_buffer(self):
         if len(self._buffer) == 0:
             return []
         sql_column_names = SQL(', ').join(map(Identifier, self.column_names))
