@@ -45,9 +45,9 @@ class PgCollection:
         self.table_name = name
         self.storage = storage
         self.meta = meta or {}
-        self._structure = None
-        if self.exists():
-            self._structure = self.get_structure()
+        self._structure = self.get_structure()
+        self._buffer = []
+        self.column_names = ['id', 'data'] + list(self.meta)
 
     def create(self, description=None):
         """Creates a database table for the collection"""
@@ -64,14 +64,19 @@ class PgCollection:
                 Identifier(self.table_name+'_structure')))
             logger.info('create table {}.{}'.format(self.storage.schema, self.table_name+'_structure'))
 
+        # self._structure = self.get_structure()
+
         return self.storage.create_table(self.table_name, description, self.meta)
 
     def get_structure(self):
+        structure_table = self.table_name + '_structure'
+        if not self.storage.table_exists(structure_table):
+            return None
         structure = {}
         with self.storage.conn.cursor() as c:
             c.execute(SQL("SELECT layer_name, detached, attributes, ambiguous, parent, enveloping, _base FROM {}.{};"
                           ).format(Identifier(self.storage.schema),
-                                   Identifier(self.table_name+'_structure')))
+                                   Identifier(structure_table)))
 
             for row in c.fetchall():
                 structure[row[0]] = {'detached': row[1],
@@ -110,13 +115,16 @@ class PgCollection:
             logger.debug(c.query.decode())
         self._structure = self.get_structure()
 
-    def insert(self, text, key=None, meta_data=None):
+    def insert(self, text, key=None, meta_data=None, buffer_size=0):
         """Saves a given `Text` object into the collection.
 
         Args:
             text: Text
             key: int
             meta_data: dict
+            buffer_size: int
+                number of text objects to buffer before inserting into collection table
+                run PgCollection.flush_buffer after last insert
 
         Returns:
             int: row key (id)
@@ -145,15 +153,23 @@ class PgCollection:
         else:
             key = Literal(key)
 
-        column_names = [Identifier('id'), Identifier('data')]
-        expressions = [key, Literal(text)]
-        if meta_data:
-            for k in self.meta:
-                column_names.append(Identifier(k))
-                if k in meta_data:
-                    expressions.append(Literal(meta_data[k]))
-                else:
-                    expressions.append(DEFAULT)
+        row = [key, Literal(text)]
+        for k in self.column_names[2:]:
+            if k in meta_data:
+                m = Literal(meta_data[k])
+            else:
+                m = DEFAULT
+            row.append(m)
+
+        self._buffer.append(SQL('({})').format(SQL(', ').join(row)))
+
+        if len(self._buffer) >= buffer_size:
+            ids = self.flush_buffer()
+            if buffer_size == 0 and len(ids) == 1:
+                return ids[0]
+            return ids
+
+        return
 
         with self.storage.conn.cursor() as c:
             c.execute(SQL("INSERT INTO {}.{} ({}) VALUES ({}) RETURNING id;").format(
@@ -164,8 +180,23 @@ class PgCollection:
             row_key = c.fetchone()[0]
             return row_key
 
+    def flush_buffer(self):
+        if len(self._buffer) == 0:
+            return []
+        sql_column_names = SQL(', ').join(map(Identifier, self.column_names))
+        with self.storage.conn.cursor() as c:
+            c.execute(SQL('INSERT INTO {}.{} ({}) VALUES {} RETURNING id;').format(
+                Identifier(self.storage.schema),
+                Identifier(self.table_name),
+                sql_column_names,
+                SQL(', ').join(self._buffer)))
+            row_key = c.fetchone()
+        self._buffer.clear()
+        return row_key
+
     def exists(self):
         """Returns true if table exists"""
+        # assert (self._structure is not None) is self.storage.table_exists(self.table_name), '{} {}'.format(self._structure, self.storage.table_exists(self.table_name))
         return self.storage.table_exists(self.table_name)
 
     def select_fragment_raw(self, fragment_name, parent_layer_name, query=None, ngram_query=None):
@@ -178,6 +209,8 @@ class PgCollection:
 
     def select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None, order_by_key=False):
         """See PostgresStorage.select()"""
+        if not self.exists():
+            return
         layers_extended = []
 
         def include_dep(layer):
@@ -189,6 +222,8 @@ class PgCollection:
                 layers_extended.append(layer)
 
         for layer in layers or []:
+            if layer not in self._structure:
+                raise PgCollectionException('layer {!r} not in collection {!r}'.format(layer, self.table_name))
             include_dep(layer)
 
         return self.storage.select(self.table_name, query, layer_query, layer_ngram_query, layers_extended, keys=keys,
@@ -297,6 +332,10 @@ class PgCollection:
                 if 'unicode', display progressbar as a unicode string
                 else disable progressbar (default)
         """
+        if not self.exists():
+            raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
+                                        self.table_name, layer_name))
+        logger.info('collection: {!r}'.format(self.table_name))
         logger.info('creating a new layer: {!r}'.format(layer_name))
         if self._structure is None:
             raise PgCollectionException("can't add detached layer {!r}, the collection is empty".format(layer_name))
