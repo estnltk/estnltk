@@ -171,15 +171,6 @@ class PgCollection:
 
         return
 
-        with self.storage.conn.cursor() as c:
-            c.execute(SQL("INSERT INTO {}.{} ({}) VALUES ({}) RETURNING id;").format(
-                Identifier(self.storage.schema),
-                Identifier(self.table_name),
-                SQL(', ').join(column_names),
-                SQL(', ').join(expressions)))
-            row_key = c.fetchone()[0]
-            return row_key
-
     def flush_buffer(self):
         if len(self._buffer) == 0:
             return []
