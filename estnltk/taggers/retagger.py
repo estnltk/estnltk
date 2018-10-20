@@ -1,9 +1,11 @@
 from estnltk.text import Text
+from estnltk.taggers import Tagger
 
-
-class Retagger:
+class Retagger(Tagger):
     """
     Base class for retaggers. Retagger modifies existing layer.
+    For the sake of simplicity, we currently just use Tagger as 
+    the super class.
 
     The following needs to be implemented in a derived class:
     conf_param
@@ -11,31 +13,11 @@ class Retagger:
     layer_name
     attributes
     __init__(...)
-    change_layer(...)
+    _make_layer(...)
     """
 
     def __init__(self):
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
-
-    def __setattr__(self, key, value):
-        assert key in {'conf_param', 'description', 'output_layer', 'output_attributes', 'input_layers'} or\
-               key in self.conf_param,\
-               'attribute must be listed in conf_param: ' + key
-        super.__setattr__(self, key, value)
-
-    def change_layer(self, raw_text: str, input_layers: dict, status: dict) -> None:
-        raise NotImplementedError('change_layer method not implemented in ' + self.__class__.__name__)
-
-    def _change_layer(self, text: Text, status: dict) -> None:
-        layers = {name: text.layers[name] for name in self.input_layers}
-        # TODO: check that layer is not frozen
-        self.change_layer(text.text, layers, status)
-
-    def change(self, text: Text, status: dict = None) -> Text:
-        if status is None:
-            status = {}
-        self._change_layer(text, status)
-        return text
 
     def retag(self, text: Text, status: dict = None) -> Text:
         """
@@ -43,7 +25,16 @@ class Retagger:
         status: dict, default {}
             This can be used to store metadata on layer creation.
         """
-        self._change_layer(text, status)
+        layers = {name: text.layers[name] for name in self.input_layers}
+        # TODO: check that layer is not frozen
+
+        # In order to change the layer, the layer must already exist
+        assert self.output_layer in layers
+        # If _change_layer was not overridden, then _make_layer should
+        # be overridden and we use this (for the sake of simplicity)
+        self._make_layer(text.text, layers, status)
+        # Validate that the output layer still exists
+        assert self.output_layer in layers
         return text
 
     def __call__(self, text: Text, status: dict = None) -> Text:
@@ -88,3 +79,6 @@ class Retagger:
             conf = [attr+'='+str(getattr(self, attr)) for attr in self.conf_param]
             conf_str = ', '.join(conf)
         return self.__class__.__name__+'('+conf_str+')'
+
+    def __str__(self):
+        return self.__class__.__name__ + '(' + str(self.input_layers) + '->' + self.output_layer + ')'
