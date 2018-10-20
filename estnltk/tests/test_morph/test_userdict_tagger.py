@@ -36,7 +36,7 @@ def test_userdict_tagger_partial_corrections():
     # Add analysis of a single word
     userdict.add_word('kopsujoonis', {'form': 'sg n', 'root': 'kopsu_joonis', 'ending':'0', 'partofspeech': 'S'} )
     # Tag corrections
-    userdict.tag(text)
+    userdict.retag(text)
     expected_records = [ \
         [{'root_tokens': ('patsient',), 'lemma': 'patsient', 'end': 9, 'start': 0, 'form': 'sg g', 'root': 'patsient', 'ending': '0', 'clitic': '', 'partofspeech': 'S'}], \
         [{'ending': '0', 'clitic': '', 'start': 10, 'lemma': 'kopsujoonis', 'form': 'sg n', 'root_tokens': ('kopsu', 'joonis'), 'partofspeech': 'S', 'end': 21, 'root': 'kopsu_joonis'}],\
@@ -60,7 +60,7 @@ def test_userdict_tagger_partial_corrections():
     # Add analysis of a single word
     userdict.add_word('femorises', {'form': 'sg in', 'root': 'femoris', 'ending':'s', 'partofspeech': 'S'} )
     # Tag corrections
-    userdict.tag(text)
+    userdict.retag(text)
     expected_records = [ \
         [{'form': '', 'lemma': 'jah', 'clitic': '', 'start': 0, 'end': 3, 'root_tokens': ('jah',), 'root': 'jah', 'ending': '0', 'partofspeech': 'D'}],\
         [{'form': '', 'lemma': ',', 'clitic': '', 'start': 3, 'end': 4, 'root_tokens': (',',), 'root': ',', 'ending': '', 'partofspeech': 'Z'}], \
@@ -87,7 +87,7 @@ def test_userdict_tagger_partial_corrections():
     userdict.add_word('duodenumisse', \
         {'form': 'sg ill', 'root': 'duodenum', 'ending':'sse', 'partofspeech': 'S'} )
     # Tag corrections
-    userdict.tag(text)
+    userdict.retag(text)
     #print(text['morph_analysis'].to_records())
     expected_records = [ \
         [{'root_tokens': ('pneumofibroos',), 'root': 'pneumofibroos', 'form': 'sg g', 'ending': '0', 'lemma': 'pneumofibroos', 'end': 14, 'start': 0, 'clitic': '', 'partofspeech': 'S'}], \
@@ -117,7 +117,7 @@ def test_userdict_tagger_complete_overwriting():
         [{'form': 'sg n', 'root': 'kopsu_joonis', 'ending':'0', 'partofspeech': 'S', 'clitic':''},\
          {'form': 'pl in', 'root': 'kopsu_joon',  'ending':'is', 'partofspeech': 'S', 'clitic':''}] )
     # Tag corrections
-    userdict.tag(text)
+    userdict.retag(text)
     expected_records = [ \
         [{'root_tokens': ('patsient',), 'lemma': 'patsient', 'end': 9, 'start': 0, 'form': 'sg g', 'root': 'patsient', 'ending': '0', 'clitic': '', 'partofspeech': 'S'}], \
         [{'ending': '0', 'partofspeech': 'S', 'form': 'sg n', 'start': 10, 'root': 'kopsu_joonis', 'end': 21, 'clitic': '', 'lemma': 'kopsujoonis', 'root_tokens': ('kopsu', 'joonis')}, \
@@ -145,7 +145,7 @@ def test_userdict_tagger_complete_overwriting():
     userdict.add_word('femorises', \
         [{'form': 'sg in', 'root': 'femoris', 'ending':'s', 'partofspeech': 'S', 'clitic':''}] )
     # Tag corrections
-    userdict.tag(text)
+    userdict.retag(text)
     #print(text['morph_analysis'].to_records())
     expected_records = [ \
         [{'ending': '0', 'form': '', 'partofspeech': 'J', 'root_tokens': ('või',), 'end': 3, 'lemma': 'või', 'start': 0, 'clitic': '', 'root': 'või'}], \
@@ -176,7 +176,7 @@ def test_userdict_tagger_dict_from_csv_file():
     # Tag required layers
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
     # Tag corrections
-    userdict.tag(text)
+    userdict.retag(text)
     expected_records = [ \
         [{'lemma': 'ah', 'root': 'ah', 'end': 2, 'clitic': '', 'ending': '0', 'start': 0, 'form': '', 'partofspeech': 'I', 'root_tokens': ('ah',)}], \
         [{'lemma': ',', 'root': ',', 'end': 3, 'clitic': '', 'ending': '', 'start': 2, 'form': '', 'partofspeech': 'Z', 'root_tokens': (',',)}], \
@@ -212,7 +212,7 @@ def test_userdict_tagger_post_analysis():
     # Load completely new analyses (from csv file)
     userdict.add_words_from_csv_file(csv_dict_path , delimiter=',')
     # Tag corrections
-    userdict.tag(text)
+    userdict.retag(text)
     #print( text['morph_analysis'].to_records() )
     expected_records = [ \
         [{'root_tokens': ('mina',), 'start': 0, 'ending': '0', '_ignore': False, 'end': 2, 'clitic': '', 'partofspeech': 'P', 'root': 'mina', 'form': 'sg n', 'lemma': 'mina'}], \
