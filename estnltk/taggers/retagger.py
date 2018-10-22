@@ -68,8 +68,8 @@ class Retagger(Tagger):
             return value_str
 
         if self.conf_param:
-            conf_vals = [to_str(getattr(self, attr)) for attr in self.conf_param]
-            conf_table = pandas.DataFrame(conf_vals, index=self.conf_param)
+            conf_vals = [to_str(getattr(self, attr)) for attr in self.conf_param if not attr.startswith('_')]
+            conf_table = pandas.DataFrame(conf_vals, index=[attr for attr in self.conf_param if not attr.startswith('_')])
             conf_table = conf_table.to_html(header=False)
             conf_table = ('<h4>Configuration</h4>', conf_table)
         else:
@@ -81,7 +81,7 @@ class Retagger(Tagger):
     def __repr__(self):
         conf_str = ''
         if self.conf_param:
-            conf = [attr+'='+str(getattr(self, attr)) for attr in self.conf_param]
+            conf = [attr+'='+str(getattr(self, attr)) for attr in self.conf_param if not attr.startswith('_')]
             conf_str = ', '.join(conf)
         return self.__class__.__name__+'('+conf_str+')'
 
