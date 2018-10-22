@@ -2,6 +2,7 @@
 Operations for Estnltk Layer object.
 
 """
+from itertools import groupby
 from operator import eq
 from pandas import DataFrame
 
@@ -217,7 +218,7 @@ def diff_layer(a: Layer, b: Layer, comp=eq):
 ############################################################
 ####### OLD API BELOW ######################################
 ############################################################
-
+# TODO: cleanup
 
 TEXT = 'text'
 AND = 'AND'
@@ -328,6 +329,7 @@ def apply_simple_filter(text, layer='', restriction='', option=OR):
                         print('No results.')
                     return dicts
 
+
 def count_by_document(text, layer, attributes, counter=None):
     """Create table of counts for every *layer* *attributes* value combination.
     The result is 1 if the combination appears in the document and 0 otherwise.
@@ -401,31 +403,6 @@ def dict_to_df(counter, table_type='keyvalue', attributes=[0, 1]):
         return DataFrame.from_dict(table, orient='index').fillna(value=0)
 
 
-def duplicates_of(head, layer):
-    """ Generator of all duplicates (by (start, end) values) of head[0] in layer.
-    
-    Parameters
-    ----------
-    head: list
-        head[0] is a layer element
-    layer: list of dict
-        Must be ordered by *(start, end)* values.
-    
-    Yields
-    ------
-    dict
-        head[0] and all duplicates of head[0] in layer.
-    """
-
-    old_head = head[0]
-    yield old_head
-    head[0] = next(layer)
-    while head[0][START] == old_head[START] and head[0][END] == old_head[END]:
-        old_head = head[0]
-        yield old_head
-        head[0] = next(layer)
-
-
 def group_by_spans(layer, fun):
     """ Merge elements with equal spans. Generate a new layer with no duplicate spans.
     
@@ -451,13 +428,9 @@ def group_by_spans(layer, fun):
         Layer elements with no span duplicates. 
         Duplicates of input are merged by *merge_fun*.
     """
-    layer = iter(layer)
-    head = [next(layer)]
-    while True:
-        start, end = head[0][START], head[0][END]
-        yield fun(duplicates_of(head, layer))
-        while (start, end) == (head[0][START], head[0][END]):
-            head = [next(layer)]
+    for g in groupby(layer, lambda s: (s[START], s[END])):
+        yield fun(g[1])
+    return
 
 
 def conflicts(text, layer, multilayer=True):
