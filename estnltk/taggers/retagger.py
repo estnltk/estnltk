@@ -22,7 +22,7 @@ class Retagger(Tagger):
     def __init__(self):
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
 
-    def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict) -> Layer:
+    def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict) -> None:
         raise NotImplementedError('_change_layer method not implemented in ' + self.__class__.__name__)
 
     def retag(self, text: Text, status: dict = None) -> Text:

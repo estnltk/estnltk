@@ -33,7 +33,7 @@ class UserDictTagger(Retagger):
     attributes    = ESTNLTK_MORPH_ATTRIBUTES
     conf_param    = ['ignore_case', 'validate_vm_categories', 'autocorrect_root', '_dict']
 
-    def __init__(self,
+    def __init__(self, \
                  ignore_case:bool=False, \
                  validate_vm_categories:bool=True, \
                  autocorrect_root:bool=True ):
@@ -289,7 +289,7 @@ class UserDictTagger(Retagger):
 
 
 
-    def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> Layer:
+    def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> None:
         """Retags the morphological analyses layer, providing dictionary-
            based corrections to it.
            More technically: replaces existing analyses of the layer 
@@ -311,15 +311,10 @@ class UserDictTagger(Retagger):
               'morph_analysis' will be retagged;
            status: dict
               This can be used to store metadata on layer creation.
-
-           Returns
-           -------
-           Layer
-              Returns the corrected 'morph_analysis' layer;
         """
-        # Take attributes from the input layer
         assert self.output_layer in layers
         assert 'words' in layers
+        # Take attributes from the input layer
         current_attributes = layers[self.output_layer].attributes
         # --------------------------------------------
         #   Rewrite spans according to the dict
