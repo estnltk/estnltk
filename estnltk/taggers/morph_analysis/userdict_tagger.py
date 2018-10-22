@@ -6,12 +6,12 @@
 import copy
 import csv
 
-from typing import MutableMapping, Sequence
+from typing import MutableMapping
 
-from estnltk.text import Span, Layer, Text
+from estnltk.text import Layer, Text
 from estnltk.layer.ambiguous_span import AmbiguousSpan
 
-from estnltk.taggers import Retagger, TaggerOld
+from estnltk.taggers import Retagger
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
@@ -34,7 +34,6 @@ class UserDictTagger(Retagger):
     conf_param    = ['ignore_case', 'validate_vm_categories', 'autocorrect_root', '_dict']
 
     def __init__(self,
-                 output_layer:str='morph_analysis', \
                  ignore_case:bool=False, \
                  validate_vm_categories:bool=True, \
                  autocorrect_root:bool=True ):
@@ -42,9 +41,6 @@ class UserDictTagger(Retagger):
 
         Parameters
         ----------
-        output_layer: str (default: 'morph_analysis')
-            Name of the output layer.
-        
         ignore_case: bool (default: False)
             If True, then case will be ignored when matching words in the text
             with words in the dictionary. Basically, all words added to the 
@@ -66,7 +62,6 @@ class UserDictTagger(Retagger):
             be specified (otherwise 'lemma' cannot be generated);
 
         """
-        self.output_layer = output_layer
         self.ignore_case  = ignore_case
         self.validate_vm_categories = validate_vm_categories
         self.autocorrect_root       = autocorrect_root
@@ -294,15 +289,15 @@ class UserDictTagger(Retagger):
 
 
 
-    def _make_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> Layer:
-        """Provides dictionary-based corrections on morphological
-           analyses layer.
-           More technically: rewrites the layer 'morph_analysis'
-           by replacing existing analyses with analyses from the
-           user dictionary. Dictionary lookup is made via word texts:
-           word which text matches a word in dictionary will have
-           its analyses overwritten. If ignore_case is switched on,
-           then the lookup is also case-insensitive.
+    def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> Layer:
+        """Retags the morphological analyses layer, providing dictionary-
+           based corrections to it.
+           More technically: replaces existing analyses of the layer 
+           'morph_analysis' with analyses from the user dictionary. 
+           Dictionary lookup is made via word texts: word which text 
+           matches a word in dictionary will have its analyses 
+           overwritten. If ignore_case is switched on, then the lookup 
+           is also case-insensitive.
 
            Parameters
            ----------
@@ -310,9 +305,10 @@ class UserDictTagger(Retagger):
               Text string corresponding to the text which annotation
               layers will be corrected;
            layers: MutableMapping[str, Layer]
-              Mappings from name to Layer. The mapping must have
-              layers 'morph_analysis' and 'words'. The layer
-              'morph_analysis' will be rewritten;
+              Layers of the raw_text. Contains mappings from the name 
+              of the layer to the Layer object. The mapping must 
+              contain layers 'morph_analysis' and 'words'. The layer
+              'morph_analysis' will be retagged;
            status: dict
               This can be used to store metadata on layer creation.
 
@@ -322,14 +318,14 @@ class UserDictTagger(Retagger):
               Returns the corrected 'morph_analysis' layer;
         """
         # Take attributes from the input layer
-        assert 'morph_analysis' in layers
+        assert self.output_layer in layers
         assert 'words' in layers
-        current_attributes = layers['morph_analysis'].attributes
+        current_attributes = layers[self.output_layer].attributes
         # --------------------------------------------
         #   Rewrite spans according to the dict
         # --------------------------------------------
         morph_span_id = 0
-        morph_spans = layers['morph_analysis'].spans
+        morph_spans = layers[self.output_layer].spans
         word_spans  = layers['words'].spans
         assert len(morph_spans) == len(word_spans)
         while morph_span_id < len(morph_spans):
@@ -398,6 +394,7 @@ class UserDictTagger(Retagger):
 
             # Advance in the old "morph_analysis" layer
             morph_span_id += 1
+
 
 
     def validate_morph_record_for_vm_categories(self, morph_dict):

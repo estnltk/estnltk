@@ -1,5 +1,8 @@
-from estnltk.text import Text
+from estnltk.text import Layer, Text
 from estnltk.taggers import Tagger
+
+from typing import MutableMapping
+
 
 class Retagger(Tagger):
     """
@@ -13,11 +16,14 @@ class Retagger(Tagger):
     layer_name
     attributes
     __init__(...)
-    _make_layer(...)
+    _change_layer(...)
     """
 
     def __init__(self):
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
+
+    def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict) -> Layer:
+        raise NotImplementedError('_change_layer method not implemented in ' + self.__class__.__name__)
 
     def retag(self, text: Text, status: dict = None) -> Text:
         """
@@ -30,9 +36,8 @@ class Retagger(Tagger):
 
         # In order to change the layer, the layer must already exist
         assert self.output_layer in layers
-        # If _change_layer was not overridden, then _make_layer should
-        # be overridden and we use this (for the sake of simplicity)
-        self._make_layer(text.text, layers, status)
+        # Used _change_layer to get the retagged variant of the layer
+        self._change_layer(text.text, layers, status)
         # Validate that the output layer still exists
         assert self.output_layer in layers
         return text
