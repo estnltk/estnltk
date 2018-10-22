@@ -25,8 +25,8 @@ from estnltk.taggers.morph_analysis.morf_common import VABAMORF_VERB_FORMS
 
 
 class UserDictTagger(Retagger):
-    description   = "Makes user-specified post-corrections to morphological analyses. "+\
-                    "This tagger can be applied after text has been morphologically analysed."
+    """Makes user-specified post-corrections to morphological analyses.
+       This tagger can be applied after text has been morphologically analysed."""
     output_layer  = 'morph_analysis'
     input_layers  = ['morph_analysis', 'words']
     depends_on    = input_layers
