@@ -57,6 +57,25 @@ def _get_word_text( word:Span ):
         return word.text
 
 
+def _create_empty_morph_record( word = None, layer_attributes = None ):
+    ''' Creates an empty 'morph_analysis' record that will 
+        have all of its attribute values set to None.
+        If word is provided, then 'start' and 'end' attributes
+        of the record will be copied from the word.
+        
+        Returns the record.
+    '''
+    current_attributes = \
+        layer_attributes if layer_attributes else ESTNLTK_MORPH_ATTRIBUTES
+    record = {}
+    if word is not None:
+        record['start'] = word.start
+        record['end']   = word.end
+    for attr in current_attributes:
+        record[attr] = None
+    return record
+
+
 def _create_empty_morph_span( word, layer_attributes = None ):
     ''' Creates an empty 'morph_analysis' span that will 
         have word as its parent span. 

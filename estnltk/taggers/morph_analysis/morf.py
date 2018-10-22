@@ -9,7 +9,7 @@
 from estnltk.text import SpanList, Layer, Text
 from estnltk.taggers import TaggerOld
 from estnltk.vabamorf.morf import Vabamorf
-from estnltk.taggers import PostMorphAnalysisTagger
+from estnltk.taggers import PostMorphAnalysisTagger, Retagger
 
 from estnltk.taggers.morph_analysis.morf_common import DEFAULT_PARAM_DISAMBIGUATE, DEFAULT_PARAM_GUESS
 from estnltk.taggers.morph_analysis.morf_common import DEFAULT_PARAM_PROPERNAME, DEFAULT_PARAM_PHONETIC
@@ -61,21 +61,21 @@ class VabamorfTagger(TaggerOld):
             postanalysis_tagger_given = True
         else:
             # Initialize default postanalysis_tagger
-            postanalysis_tagger=PostMorphAnalysisTagger(layer_name=layer_name)
+            postanalysis_tagger=PostMorphAnalysisTagger()
         
         self.kwargs = kwargs
         self.layer_name = layer_name
        
         if postanalysis_tagger:
             # Check for TaggerOld
-            assert isinstance(postanalysis_tagger, TaggerOld), \
-                '(!) postanalysis_tagger should be of type estnltk.taggers.TaggerOld.'
+            assert isinstance(postanalysis_tagger, Retagger), \
+                '(!) postanalysis_tagger should be of type estnltk.taggers.Retagger.'
             # Check for layer match
-            assert hasattr(postanalysis_tagger, 'layer_name'), \
-                '(!) postanalysis_tagger does not define layer_name.'
-            assert postanalysis_tagger.layer_name == self.layer_name, \
+            assert hasattr(postanalysis_tagger, 'output_layer'), \
+                '(!) postanalysis_tagger does not define output_layer.'
+            assert postanalysis_tagger.output_layer == self.layer_name, \
                 '(!) postanalysis_tagger should modify layer "'+str(self.layer_name)+'".'+\
-                ' Currently, it modifies layer "'+str(postanalysis_tagger.layer_name)+'".'
+                ' Currently, it modifies layer "'+str(postanalysis_tagger.output_layer)+'".'
             assert hasattr(postanalysis_tagger, 'attributes'), \
                 '(!) postanalysis_tagger does not define any attributes.'
         self.postanalysis_tagger = postanalysis_tagger
@@ -145,16 +145,10 @@ class VabamorfTagger(TaggerOld):
         #   Post-processing
         # --------------------------------------------
         if self.postanalysis_tagger:
-            # Post-analysis tagger is responsible for either:
-            # 1) Filling in extra_attributes in "morph_analysis" layer, or
-            # 2) Making corrections in the "morph_analysis" layer, including:
-            #    2.1) Creating new "morph_analysis" layer based on the existing 
-            #         one, 
-            #    2.1) Populating the new layer with corrected analyses,
-            #    2.1) (if required) filling in extra_attributes in the new layer,
-            #    2.2) Replacing the old "morph_analysis" in Text object with 
-            #         the new one;
-            self.postanalysis_tagger.tag(text)
+            # Post-analysis tagger is responsible:
+            # 1) Retagging "morph_analysis" layer with post-corrections;
+            # 2) Adding and filling in extra_attributes in "morph_analysis" layer;
+            self.postanalysis_tagger.retag(text)
         # --------------------------------------------
         #   Morphological disambiguation
         # --------------------------------------------

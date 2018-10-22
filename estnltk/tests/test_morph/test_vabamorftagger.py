@@ -3,6 +3,8 @@ from estnltk.taggers import VabamorfTagger
 from estnltk.resolve_layer_dag import make_resolver
 from estnltk.layer import AmbiguousAttributeList
 
+import pytest
+
 # ----------------------------------
 
 def _sort_morph_analysis_records( morph_analysis_records:list ):
@@ -239,6 +241,9 @@ def test_default_morph_analysis_on_empty_input():
     assert [] == text['morph_analysis'].to_records()
 
 
+@pytest.mark.skip(reason="Changing names of default layers is no longer recommended."+\
+                         "In future, layer_name probably won't be specified in "+\
+                         "VabamorfTagger's constructor.")
 def test_default_morph_analysis_with_different_layer_name():
     # Should be able to use a different layer name 
     # without running into errors

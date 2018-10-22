@@ -310,7 +310,7 @@ class UserDictTagger(Retagger):
               contain layers 'morph_analysis' and 'words'. The layer
               'morph_analysis' will be retagged;
            status: dict
-              This can be used to store metadata on layer creation.
+              This can be used to store metadata on layer retagging.
         """
         assert self.output_layer in layers
         assert 'words' in layers

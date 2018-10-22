@@ -6,28 +6,40 @@
 # 
 import regex as re
 
-from estnltk.text import Span, SpanList, Layer, Text
-from estnltk.taggers import TaggerOld
+from typing import MutableMapping, Any
+
+from estnltk.text import Layer, Text, Span
+from estnltk.layer.ambiguous_span import AmbiguousSpan
+
+from estnltk.taggers import Retagger
 
 from estnltk.taggers.morph_analysis.morf_common import IGNORE_ATTR
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
-from estnltk.taggers.morph_analysis.morf_common import _get_word_text, _create_empty_morph_span
+from estnltk.taggers.morph_analysis.morf_common import _get_word_text, _create_empty_morph_record
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_span
 
 from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
 
 
-class PostMorphAnalysisTagger(TaggerOld):
-    description   = "Provides corrections to morphological analysis layer. "+\
-                    "This tagger should be applied before morphological disambiguation."
-    layer_name    = None
+class PostMorphAnalysisTagger(Retagger):
+    """Applies post-corrections to ambiguous morphological analysis 
+       layer before the disambiguation process.
+       This tagger should be applied before VabamorfDisambiguator."""
+    output_layer  = 'morph_analysis'
+    input_layers  = ['compound_tokens', 'words', 'sentences', 'morph_analysis']
+    depends_on    = input_layers
     attributes    = ESTNLTK_MORPH_ATTRIBUTES + (IGNORE_ATTR, )
-    depends_on    = None
-    configuration = None
+    conf_param    = ['ignore_emoticons', 'ignore_xml_tags', 'fix_names_with_initials', \
+                     'fix_emoticons', 'fix_www_addresses', 'fix_email_addresses', \
+                     'fix_abbreviations', 'fix_numeric', 'remove_duplicates', \
+                     'correction_rewriter', \
+                     '_pat_name_needs_underscore1', \
+                     '_pat_name_needs_underscore2', \
+                     '_pat_name_needs_uppercase', \
+                     '_pat_numeric' ]
 
     def __init__(self,
-                 layer_name='morph_analysis',
                  ignore_emoticons:bool=True,
                  ignore_xml_tags:bool=True,
                  fix_names_with_initials:bool=True,
@@ -37,8 +49,7 @@ class PostMorphAnalysisTagger(TaggerOld):
                  fix_abbreviations:bool=True,
                  fix_numeric:bool=True,
                  remove_duplicates:bool=True,
-                 correction_rewriter=VabamorfCorrectionRewriter(),
-                 **kwargs):
+                 correction_rewriter=VabamorfCorrectionRewriter()):
         """Initialize PostMorphAnalysisTagger class.
 
         Parameters
@@ -88,138 +99,115 @@ class PostMorphAnalysisTagger(TaggerOld):
             Rewriter class that will be applied on rewriting the layer.
             
         """
-        self.kwargs = kwargs
-        self.layer_name = layer_name
-       
-        self.configuration = {'ignore_emoticons':ignore_emoticons,\
-                              'ignore_xml_tags':ignore_xml_tags,\
-                              'fix_names_with_initials':fix_names_with_initials,\
-                              'fix_emoticons':fix_emoticons,\
-                              'fix_www_addresses':fix_www_addresses,\
-                              'fix_email_addresses':fix_email_addresses,\
-                              'fix_abbreviations':fix_abbreviations,\
-                              'fix_numeric':fix_numeric,\
-                              'remove_duplicates':remove_duplicates,\
-                              'correction_rewriter':correction_rewriter,\
-        }
-        self.configuration.update(self.kwargs)
-
-        self.depends_on = ['compound_tokens', 'words', 'sentences', 'morph_analysis']
+        # Set attributes & configuration
+        self.ignore_emoticons = ignore_emoticons
+        self.ignore_xml_tags = ignore_xml_tags
+        self.fix_names_with_initials = fix_names_with_initials
+        self.fix_emoticons = fix_emoticons
+        self.fix_www_addresses = fix_www_addresses
+        self.fix_email_addresses = fix_email_addresses
+        self.fix_abbreviations = fix_abbreviations
+        self.fix_numeric = fix_numeric
+        self.remove_duplicates = remove_duplicates
+        self.correction_rewriter = correction_rewriter
         
         # Compile regexes
-        self.pat_name_needs_underscore1 = \
+        self._pat_name_needs_underscore1 = \
                 re.compile('(\.)\s+([A-ZÖÄÜÕŽŠ])')
-        self.pat_name_needs_underscore2 = \
+        self._pat_name_needs_underscore2 = \
                 re.compile('([A-ZÖÄÜÕŽŠ]\.)([A-ZÖÄÜÕŽŠ])')
-        self.pat_name_needs_uppercase = \
+        self._pat_name_needs_uppercase = \
                 re.compile('(\.\s+_)([a-zöäüõšž])')
-        self.pat_numeric = \
+        self._pat_numeric = \
                 re.compile('^(?=\D*\d)[0-9.,\- ]+$')
-                
-        
-        
 
 
-    def tag(self, text: Text, return_layer=False) -> Text:
-        """Provides corrections on morphological analyses of 
-        given Text object.
-        Also, rewrites the layer 'morph_analysis' with a new
-        attribute '_ignore', and marks some of the words to 
-        be ignored by future morphological disambiguation.
-        
-        Parameters
-        ----------
-        text: estnltk.text.Text
-            Text object on which morphological analyses are to be
-            corrected.
-            The Text object must have layers 'words', 'sentences',
-            'morph_analysis', 'compound_tokens'.
-        return_layer: boolean (default: False)
-            If True, then the corrected 'morph_analysis' will be 
-            returned. Note: the returned layer still belongs to
-            the input text.
-            Otherwise, the Text object with the corrected layer 
-            is returned;
+    def _change_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> None:
+        """Provides corrections on the ambiguous morphological analysis 
+           layer before the disambiguation process.
+           
+           Also, adds the layer 'morph_analysis' a new attribute '_ignore', 
+           and marks some of the words to be ignored by future morphological 
+           disambiguation.
 
-        Returns
-        -------
-        Text or Layer
-            If return_layer==True, then returns the corrected 
-            'morph_analysis' layer (which still belongs to the
-            Text object); otherwise returns the Text containing
-            the corrected layer;
+           Parameters
+           ----------
+           raw_text: str
+              Text string corresponding to the text which annotation
+              layers will be corrected;
+           layers: MutableMapping[str, Layer]
+              Layers of the raw_text. Contains mappings from the name 
+              of the layer to the Layer object.  The  mapping  must 
+              contain layers 'compound_tokens', 'words', 'sentences', 
+              and 'morph_analysis'. The layer 'morph_analysis' will
+              be retagged.
+           status: dict
+              This can be used to store metadata on layer retagging.
         """
-        assert self.layer_name in text.layers
-        assert 'compound_tokens' in text.layers
-        
-        # Take attributes from the input layer
-        current_attributes = text[self.layer_name].attributes
-        # Check if there are any extra attributes to carry over
-        # from the old layer
-        extra_attributes = []
-        for cur_attr in current_attributes:
-            if cur_attr not in self.attributes:
-                extra_attributes.append( cur_attr )
-
+        assert self.output_layer in layers
+        assert 'compound_tokens' in layers
+        assert 'sentences' in layers
+        assert 'words' in layers
         # --------------------------------------------
         #   Provide fixes that involve rewriting
         #   attributes of existing spans 
         #    (no removing or adding spans)
         # --------------------------------------------
-        self._fix_based_on_compound_tokens( text )
-
+        self._fix_based_on_compound_tokens( raw_text, layers, status )
         # --------------------------------------------
         #   Create a new layer with ignore attribute,
         #   and provide fixes that involve 
         #   adding/removing spans
         # --------------------------------------------
-        self._rewrite_layer_and_fix( text )
-
+        self._rewrite_layer_and_fix( raw_text, layers, status )
         # --------------------------------------------
         #   Mark specific compound tokens as to be 
         #   ignored in future analysis
         # --------------------------------------------
-        self._ignore_specific_compound_tokens( text )
-
-        # --------------------------------------------
-        #   Return layer or Text
-        # --------------------------------------------
-        # Return layer
-        if return_layer:
-            return text[self.layer_name]
-        # Layer is already attached to the text, return it
-        return text
+        self._ignore_specific_compound_tokens( raw_text, layers, status )
 
 
-    def _ignore_specific_compound_tokens( self, text: Text ):
+
+    def _ignore_specific_compound_tokens( self, raw_text: str, \
+                                          layers: MutableMapping[str, Layer], \
+                                          status: dict = None ):
         '''Mark morph analyses overlapping with specific compound tokens 
            (such as XML tags, emoticons) as analyses to be ignored during 
            morphological disambiguation.
            Which types of compound tokens will be marked depends on the 
            configuration of the tagger.
            
-        Parameters
-        ----------
-        text: estnltk.text.Text
-            Text object to which ignore-markings will be added.
+           Parameters
+           ----------
+           raw_text: str
+              Text string corresponding to the text which annotation
+              layers will be corrected;
+           layers: MutableMapping[str, Layer]
+              Layers of the raw_text. Contains mappings from the name 
+              of the layer to the Layer object.  The  mapping  must 
+              contain layers 'compound_tokens', 'words', 'sentences', 
+              and 'morph_analysis'. The layer 'morph_analysis' will
+              be retagged.
+           status: dict
+              This can be used to store metadata on layer retagging.
         '''
         comp_token_id = 0
-        for spanlist in text[self.layer_name].span_list:
-            if comp_token_id < len(text['compound_tokens'].span_list):
-                comp_token = text['compound_tokens'].span_list[comp_token_id]
-                if (comp_token.start == spanlist.start and \
-                    spanlist.end == comp_token.end):
+        for morph_spanlist in layers[self.output_layer].spans:
+            if comp_token_id < len(layers['compound_tokens'].span_list):
+                comp_token = layers['compound_tokens'].span_list[comp_token_id]
+                if (comp_token.start == morph_spanlist.start and \
+                    morph_spanlist.end == comp_token.end):
                     ignore_spans = False
                     # Found matching compound token
-                    if self.configuration['ignore_emoticons'] and \
+                    if self.ignore_emoticons and \
                        'emoticon' in comp_token.type:
                         ignore_spans = True
-                    if self.configuration['ignore_xml_tags'] and \
+                    if self.ignore_xml_tags and \
                        'xml_tag' in comp_token.type:
                         ignore_spans = True
                     if ignore_spans:
                         # Mark all spans as to be ignored
-                        for span in spanlist:
+                        for span in morph_spanlist:
                             setattr(span, IGNORE_ATTR, True)
                     comp_token_id += 1
             else:
@@ -227,7 +215,10 @@ class PostMorphAnalysisTagger(TaggerOld):
                 break
 
 
-    def _fix_based_on_compound_tokens( self, text: Text ):
+
+    def _fix_based_on_compound_tokens( self, raw_text: str, \
+                                       layers: MutableMapping[str, Layer], \
+                                       status: dict = None ):
         '''Fixes morph analyses based on information about compound tokens.
            For instance, if a word overlaps with a compound token of type 
            'name_with_initial', then its partofspeech will be set to H
@@ -235,21 +226,30 @@ class PostMorphAnalysisTagger(TaggerOld):
            Which fixes will be made depends on the configuration of the 
            tagger.
            
-        Parameters
-        ----------
-        text: estnltk.text.Text
-            Text object on which 'morph_analysis' will be corrected.
+           Parameters
+           ----------
+           raw_text: str
+              Text string corresponding to the text which annotation
+              layers will be corrected;
+           layers: MutableMapping[str, Layer]
+              Layers of the raw_text. Contains mappings from the name 
+              of the layer to the Layer object.  The  mapping  must 
+              contain layers 'compound_tokens', 'words', 'sentences', 
+              and 'morph_analysis'. The layer 'morph_analysis' will
+              be retagged.
+           status: dict
+              This can be used to store metadata on layer retagging.
         '''
         comp_token_id  = 0
-        has_normalized = 'normalized' in text['compound_tokens'].attributes
-        for spanlist in text[self.layer_name].span_list:
-            if comp_token_id < len(text['compound_tokens'].span_list):
-                comp_token = text['compound_tokens'].span_list[comp_token_id]
-                if (comp_token.start == spanlist.start and
-                    spanlist.end == comp_token.end):
+        has_normalized = 'normalized' in layers['compound_tokens'].attributes
+        for morph_spanlist in layers[self.output_layer].spans:
+            if comp_token_id < len(layers['compound_tokens'].span_list):
+                comp_token = layers['compound_tokens'].span_list[comp_token_id]
+                if (comp_token.start == morph_spanlist.start and
+                    morph_spanlist.end == comp_token.end):
                     #  In order to avoid errors in downstream processing, let's 
                     # fix only non-empty spans, and skip the empty spans
-                    is_empty = not spanlist or _is_empty_span( spanlist[0] )
+                    is_empty = not morph_spanlist or _is_empty_span( morph_spanlist[0] )
                     if is_empty:
                         # Next compound token
                         comp_token_id += 1
@@ -257,9 +257,9 @@ class PostMorphAnalysisTagger(TaggerOld):
                     
                     # Found compound token that matches a non-empty span
                     # 1) Fix names with initials, such as "T. S. Eliot"
-                    if self.configuration['fix_names_with_initials'] and \
+                    if self.fix_names_with_initials and \
                        'name_with_initial' in comp_token.type:
-                        for span in spanlist:
+                        for span in morph_spanlist:
                             # If it is a verb, then skip the fixes 
                             # ( verbs are more complicated, may need 
                             #   changing form, ending etc. )
@@ -270,12 +270,12 @@ class PostMorphAnalysisTagger(TaggerOld):
                             root = getattr(span, 'root')
                             # Fix root: if there is no underscore/space, add it 
                             root = \
-                                self.pat_name_needs_underscore1.sub('\\1 _\\2', root)
+                                self._pat_name_needs_underscore1.sub('\\1 _\\2', root)
                             root = \
-                                self.pat_name_needs_underscore2.sub('\\1 _\\2', root)
+                                self._pat_name_needs_underscore2.sub('\\1 _\\2', root)
                             # Fix root: convert lowercase name start to uppercase
                             root = \
-                                self.pat_name_needs_uppercase.sub(_convert_to_uppercase, root)
+                                self._pat_name_needs_uppercase.sub(_convert_to_uppercase, root)
                             #
                             #  Note: we  fix   only  'root', assuming that 
                             # 'root_tokens' and 'lemma' will be re-generated 
@@ -283,49 +283,49 @@ class PostMorphAnalysisTagger(TaggerOld):
                             #
                             setattr(span, 'root', root)
                     # 2) Fix emoticons, such as ":D"
-                    if self.configuration['fix_emoticons'] and \
+                    if self.fix_emoticons and \
                        'emoticon' in comp_token.type:
-                        for span in spanlist:
+                        for span in morph_spanlist:
                             # Set partofspeech to Z
                             setattr(span, 'partofspeech', 'Z')
                     # 3) Fix www-addresses, such as 'Postimees.ee'
-                    if self.configuration['fix_www_addresses'] and \
+                    if self.fix_www_addresses and \
                        ('www_address' in comp_token.type or \
                         'www_address_short' in comp_token.type):
-                        for span in spanlist:
+                        for span in morph_spanlist:
                             # Set partofspeech to H
                             setattr(span, 'partofspeech', 'H')
                     # 4) Fix email addresses, such as 'big@boss.com'
-                    if self.configuration['fix_email_addresses'] and \
+                    if self.fix_email_addresses and \
                        'email' in comp_token.type:
-                        for span in spanlist:
+                        for span in morph_spanlist:
                             # Set partofspeech to H
                             setattr(span, 'partofspeech', 'H')
                     # 5) Fix abbreviations, such as 'toim.', 'Tlk.'
-                    if self.configuration['fix_abbreviations'] and \
+                    if self.fix_abbreviations and \
                        ('abbreviation' in comp_token.type or \
                         'non_ending_abbreviation' in comp_token.type):
-                        for span in spanlist:
+                        for span in morph_spanlist:
                             # Set partofspeech to Y, if it is S or H
                             if getattr(span, 'partofspeech') in ['S', 'H']:
                                 setattr(span, 'partofspeech', 'Y')
                     # 6) Fix partofspeech of numerics and percentages
-                    if self.configuration['fix_numeric']:
+                    if self.fix_numeric:
                         if 'numeric' in comp_token.type or \
                            'percentage' in comp_token.type:
-                            for span in spanlist:
+                            for span in morph_spanlist:
                                 # Change partofspeech from Y to N
                                 if getattr(span, 'partofspeech') in ['Y']:
                                     setattr(span, 'partofspeech', 'N')
                         elif 'case_ending' in comp_token.type:
                             # a number with a case ending may also have 
                             # wrong partofspeech
-                            for span in spanlist:
+                            for span in morph_spanlist:
                                 if getattr(span, 'partofspeech') in ['Y']:
                                     # if root looks like a numeric, 
                                     # then change pos Y -> N
                                     root = getattr(span, 'root')
-                                    if self.pat_numeric.match(root):
+                                    if self._pat_numeric.match(root):
                                         setattr(span, 'partofspeech', 'N')
                     # Next compound token
                     comp_token_id += 1
@@ -334,41 +334,47 @@ class PostMorphAnalysisTagger(TaggerOld):
                 break
 
 
-    def _rewrite_layer_and_fix( self, text: Text ):
-        '''Rewrites text's layer 'morph_analysis' by adding 
-           attribute IGNORE_ATTR to it. Also provides fixes
-           that require removal or addition of spans:
-           1. Removes duplicate analyses;
-           2. Rewrites elements of the layer using 
-              correction_rewriter;
-           3. ...
+    def _rewrite_layer_and_fix( self, raw_text: str, \
+                                layers: MutableMapping[str, Layer], \
+                                status: dict = None ):
+        '''Rewrites layer 'morph_analysis' by adding attribute 
+           IGNORE_ATTR to it. Also provides fixes that require 
+           removal or addition of spans:
+             1. Removes duplicate analyses;
+             2. Rewrites elements of the layer using 
+                correction_rewriter;
+             3. ...
            
-        Parameters
-        ----------
-        text: estnltk.text.Text
-            Text object which 'morph_analysis' will be rewritten.
-        '''
-        # Take attributes from the input layer
-        current_attributes = text[self.layer_name].attributes
-        
-        # Create a new layer
-        new_morph_layer = Layer(name=self.layer_name,
-                            parent='words',
-                            ambiguous=True,
-                            attributes=current_attributes +\
-                            (IGNORE_ATTR,)
-        )
+           Parameters
+           ----------
+           raw_text: str
+              Text string corresponding to the text which annotation
+              layers will be corrected;
+           layers: MutableMapping[str, Layer]
+              Layers of the raw_text. Contains mappings from the name 
+              of the layer to the Layer object.  The  mapping  must 
+              contain layers 'compound_tokens', 'words', 'sentences', 
+              and 'morph_analysis'. The layer 'morph_analysis' will
+              be retagged.
+           status: dict
+              This can be used to store metadata on layer retagging.
 
+        '''
+        # Add IGNORE_ATTR to the input layer
+        if IGNORE_ATTR not in layers[self.output_layer].attributes:
+            layers[self.output_layer].attributes += (IGNORE_ATTR,)
+        # Take attributes from the input layer
+        current_attributes = layers[self.output_layer].attributes
         # Rewrite spans of the old layer
         morph_span_id = 0
-        morph_spans   = text[self.layer_name].span_list
+        morph_spans   = layers[self.output_layer].spans
         while morph_span_id < len(morph_spans):
             # 0) Convert SpanList to list of Span-s
             morph_spanlist = \
                 [span for span in morph_spans[morph_span_id].spans]
 
             # A) Remove duplicate analyses (if required)
-            if self.configuration['remove_duplicates']:
+            if self.remove_duplicates:
                 morph_spanlist = \
                     _remove_duplicate_morph_spans( morph_spanlist )
 
@@ -376,22 +382,27 @@ class PostMorphAnalysisTagger(TaggerOld):
             word = morph_spanlist[0].parent
             is_empty = _is_empty_span(morph_spanlist[0])
             if is_empty:
-                new_morph_span = \
-                    _create_empty_morph_span( word, \
+                empty_morph_record = \
+                    _create_empty_morph_record( word=word, \
                         layer_attributes = current_attributes )
                 # Add ignore attribute
-                setattr(new_morph_span, IGNORE_ATTR, False)
+                empty_morph_record[IGNORE_ATTR] = False
                 # Record the new span
-                new_morph_layer.add_span( new_morph_span )
+                ambiguous_span = \
+                    AmbiguousSpan(layer=morph_spans[morph_span_id].layer, \
+                                  span=morph_spans[morph_span_id].span)
+                # Add the new annotation
+                ambiguous_span.add_annotation( **empty_morph_record )
+                morph_spans[morph_span_id] = ambiguous_span
                 # Advance in the old "morph_analysis" layer
                 morph_span_id += 1
                 continue
 
             # B) Convert spans to records
-            records = [ span.to_record() for span in morph_spanlist ]
+            records = [ _span_to_records_excl(span, [IGNORE_ATTR]) for span in morph_spanlist ]
             
             # B.1) Apply correction-rewriter:
-            if self.configuration['correction_rewriter']:
+            if self.correction_rewriter:
                 # B.1.1) Add 'word_normal'
                 normalized_text = _get_word_text( word )
                 for rec in records:
@@ -400,50 +411,51 @@ class PostMorphAnalysisTagger(TaggerOld):
                     rec['word_normal'] = normalized_text
                 # B.1.2) Rewrite records of a single word
                 rewritten_recs = \
-                    self.configuration['correction_rewriter'].rewrite(records)
+                    self.correction_rewriter.rewrite(records)
                 records = rewritten_recs
             
             # C) Convert records back to spans
             #    Add IGNORE_ATTR
+            ambiguous_span = \
+                 AmbiguousSpan(layer=morph_spans[morph_span_id].layer, \
+                               span=morph_spans[morph_span_id].span)
             record_added = False
             for rec in records:
                 if not rec:
                     # Skip if a record was deleted
                     continue
-                new_morph_span = Span(parent=word)
                 # Carry over attributes
-                for attr in rec.keys():
+                for attr in current_attributes:
                     if attr in ['start', 'end', 'text', 'word_normal']:
-                        continue 
+                        continue
+                    attr_value = rec[attr] if attr in rec else None
                     if attr == 'root_tokens':
                         # make it hashable for Span.__hash__
-                        setattr(new_morph_span, attr, tuple(rec[attr]))
+                        rec[attr] = tuple(attr_value)
+                    elif attr == IGNORE_ATTR:
+                        rec[attr] = False
                     else:
-                        setattr(new_morph_span, attr, rec[attr])
-                # Add ignore attribute
-                setattr(new_morph_span, IGNORE_ATTR, False)
-                # Record the new span
-                new_morph_layer.add_span(new_morph_span)
+                        rec[attr] = attr_value
+                # Add record as an annotation
+                ambiguous_span.add_annotation( **rec )
                 record_added = True
 
             # C.2) If no records were added (all were deleted),
             #      then add an empty record (unknown word)
             if not record_added:
-                new_morph_span = \
-                    _create_empty_morph_span( word, \
+                empty_morph_record = \
+                    _create_empty_morph_record( word=word, \
                         layer_attributes = current_attributes )
                 # Add ignore attribute
-                setattr(new_morph_span, IGNORE_ATTR, False)
-                # Record the new span
-                new_morph_layer.add_span( new_morph_span )
-                # Advance in the old "morph_analysis" layer
+                empty_morph_record[IGNORE_ATTR] = False
+                # Add the new annotation
+                ambiguous_span.add_annotation( **empty_morph_record )
 
+            # D) Rewrite the old span with new one
+            morph_spans[morph_span_id] = ambiguous_span
             # Advance in the old "morph_analysis" layer
             morph_span_id += 1
 
-        # Overwrite the old layer
-        delattr(text, self.layer_name)
-        text[self.layer_name] = new_morph_layer
 
 
 # =================================
@@ -454,6 +466,17 @@ def _convert_to_uppercase( matchobj ):
     '''Converts second group of matchobj to uppercase, and 
        returns a concatenation of first and second group. '''
     return matchobj.group(1)+matchobj.group(2).upper()
+
+def _span_to_records_excl( span: Span, exclude_attribs ) -> MutableMapping[str, Any]:
+    '''Converts given Span to a dictionary of attributes and 
+       values (records), but excludes attributes from the 
+       list exclude_attribs.
+       Use this method iff Span.to_record() cannot be used 
+       because "legal attributes" of the layer have already 
+       been changed.'''
+    return { **{k: span.__getattribute__(k) for k in list(span.legal_attribute_names) if k not in exclude_attribs },
+             **{'start': span.start, 'end': span.end } }
+
 
 def _remove_duplicate_morph_spans( spanlist: list ):
     '''Removes duplicate morphological analyses from given
