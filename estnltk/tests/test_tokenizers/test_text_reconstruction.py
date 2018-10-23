@@ -1,6 +1,6 @@
 from estnltk import Text
 
-from estnltk.layer import AmbiguousAttributeList
+from estnltk.layer import AmbiguousAttributeList, AttributeList
 
 from estnltk.corpus_processing.parse_koondkorpus import reconstruct_text
 from estnltk.corpus_processing.parse_ettenten import reconstruct_ettenten_text
@@ -286,4 +286,8 @@ def test_parse_ettenten_corpus_file_content_iterator_w_tokenization():
     for expected_layer in expected_layers:
         assert expected_layer in doc1.layers
         assert expected_layer in doc2.layers
-    #print( doc1.layers )
+    # Check that heading attributes have been loaded:
+    assert str( doc1.paragraphs.heading ) == "['1', '0', '0']"
+    assert str( doc2.paragraphs.heading ) == "['1', '0', '0']"
+    
+    

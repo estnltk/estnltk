@@ -5,7 +5,7 @@
 #  Documents are in the XML format and they have metadata (e.g 
 #  document URL and crawling date). Document content has been 
 #  split into paragraphs, and cleaned from HTML annotation (although 
-#  some tags have remained).
+#  some tags remain).
 #
 #
 
@@ -169,8 +169,7 @@ def reconstruct_ettenten_text( document, \
                        paragraph[attrib] if attrib in paragraph else None
                span = EnvelopingSpan(spans=text['sentences'][p_start:p_end+1].spans,\
                                      attributes=current_paragraph_attribs)
-               # TODO: attach attributes to EnvelopingSpan?
-               orig_paragraphs.add_span(span)
+               orig_paragraphs.add_span( span )
                pid += 1; p_start = -1; p_end = -1
         if pid < len(para_locations):
            raise Exception('(!) Unable to align all paragraphs with sentences.\n'+\
