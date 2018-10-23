@@ -27,9 +27,12 @@ class Retagger(Tagger):
 
     def retag(self, text: Text, status: dict = None) -> Text:
         """
-        text: Text object to be retagged
+        Parameters
+        ----------
+        text: 
+            Text object to be retagged
         status: dict, default {}
-            This can be used to store metadata on layer creation.
+            This can be used to store metadata on layer modification.
         """
         layers = {name: text.layers[name] for name in self.input_layers}
         # TODO: check that layer is not frozen
