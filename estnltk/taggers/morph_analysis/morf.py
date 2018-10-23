@@ -145,7 +145,7 @@ class VabamorfTagger(TaggerOld):
         #   Post-processing
         # --------------------------------------------
         if self.postanalysis_tagger:
-            # Post-analysis tagger is responsible:
+            # Post-analysis tagger is responsible for:
             # 1) Retagging "morph_analysis" layer with post-corrections;
             # 2) Adding and filling in extra_attributes in "morph_analysis" layer;
             self.postanalysis_tagger.retag(text)

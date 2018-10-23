@@ -271,8 +271,27 @@ def test_postanalysis_fix_numeric():
     _sort_morph_analysis_records( results_dict )
     _sort_morph_analysis_records( expected_records )
     # Check results
+
     assert expected_records == results_dict
 
+# ----------------------------------
+
+def test_applying_postanalysis_twice():
+    postanalysis_tagger = PostMorphAnalysisTagger()
+    morf_tagger = VabamorfTagger(disambiguate=False, postanalysis_tagger=None)
+    text=Text('Raamatu toim. J. K. Köstrimäe')
+    text.tag_layer(['words','sentences'])
+    morf_tagger.tag(text)
+    # retag post analysis first time
+    postanalysis_tagger.retag(text)
+    # retag post analysis second time
+    postanalysis_tagger.retag(text)
+    # check results:
+    expected_result = AmbiguousAttributeTupleList([[['Raamat', '0', 'H', 'sg g'], ['raamat', '0', 'S', 'sg g']], 
+                                                   [['toim', '0', 'Y', 'sg n']], 
+                                                   [['J. _K. _Köstri_mägi', '0', 'H', 'sg g']]], 
+                                                   ('root','ending','partofspeech','form') )
+    assert expected_result == text.morph_analysis['root','ending','partofspeech','form']
 
 # ----------------------------------
 
