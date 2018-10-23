@@ -62,7 +62,8 @@ class PgCollection:
                                _base text);""").format(
                 Identifier(self.storage.schema),
                 Identifier(self.table_name+'_structure')))
-            logger.info('create table {}.{}'.format(self.storage.schema, self.table_name+'_structure'))
+            logger.info('create table "{}"."{}"'.format(self.storage.schema, self.table_name+'_structure'))
+            logger.debug(c.query)
 
         # self._structure = self.get_structure()
 
@@ -213,7 +214,8 @@ class PgCollection:
             query=query,
             ngram_query=ngram_query)
 
-    def select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None, order_by_key=False):
+    def select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None, order_by_key=False,
+               progressbar=None):
         """See PostgresStorage.select()"""
         if not self.exists():
             return
@@ -232,8 +234,20 @@ class PgCollection:
                 raise PgCollectionException('layer {!r} not in collection {!r}'.format(layer, self.table_name))
             include_dep(layer)
 
-        return self.storage.select(self.table_name, query, layer_query, layer_ngram_query, layers_extended, keys=keys,
-                                   order_by_key=order_by_key)
+        data_iterator = self.storage.select(self.table_name, query, layer_query, layer_ngram_query,
+                                            layers_extended, keys=keys,
+                                            order_by_key=order_by_key)
+        total = self.storage.count_rows(self.table_name)
+        if progressbar == 'notebook':
+            iter_data = tqdm_notebook(data_iterator,
+                                      total=total,
+                                      unit='doc')
+        else:
+            iter_data = tqdm(data_iterator,
+                             total=total,
+                             unit='doc',
+                             disable=(progressbar != 'unicode'))
+        return iter_data
 
     def select_raw(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None,
                    order_by_key=False):
@@ -342,7 +356,7 @@ class PgCollection:
             raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
                                         self.table_name, layer_name))
         logger.info('collection: {!r}'.format(self.table_name))
-        logger.info('creating a new layer: {!r}'.format(layer_name))
+        logger.info('preparing to create a new layer: {!r}'.format(layer_name))
         if self._structure is None:
             raise PgCollectionException("can't add detached layer {!r}, the collection is empty".format(layer_name))
         if self.has_layer(layer_name):
@@ -353,7 +367,6 @@ class PgCollection:
                 exception = PgCollectionException("can't create layer {!r}, layer already exists".format(layer_name))
                 logger.error(exception)
                 raise exception
-        logger.info('creating layer: {!r}'.format(layer_name))
         conn = self.storage.conn
         with conn.cursor() as c:
             try:
@@ -373,20 +386,9 @@ class PgCollection:
                 if meta is not None:
                     meta_columns = tuple(meta)
 
-                total = self.storage.count_rows(self.table_name)
-                if progressbar == 'notebook':
-                    iter_data = tqdm_notebook(data_iterator,
-                                              total=total,
-                                              unit='doc')
-                else:
-                    iter_data = tqdm(data_iterator,
-                                     total=total,
-                                     unit='doc',
-                                     disable=(progressbar != 'unicode'))
-
-                for row in iter_data:
+                for row in data_iterator:
                     collection_id, text = row[0], row[1]
-                    iter_data.set_description('collection_id: {}'.format(collection_id), refresh=False)
+                    data_iterator.set_description('collection_id: {}'.format(collection_id), refresh=False)
                     for record in row_mapper(row):
                         layer = record.layer
                         layer_dict = layer_to_dict(layer, text)
@@ -622,9 +624,10 @@ class PgCollection:
             data = c.fetchall()
             return pandas.DataFrame(data=data, columns=columns)
 
-    def export_layer(self, layer, attributes, input_layers):
+    def export_layer(self, layer, attributes, progressbar=None):
         export_table = '{}__{}__export'.format(self.table_name, layer)
-        texts = self.select(layers=input_layers)
+        texts = self.select(layers=[layer], progressbar=progressbar)
+        logger.info('preparing to export layer {!r} with attributes {!r}'.format(layer, attributes))
 
         columns = [
             ('id', 'serial PRIMARY KEY'),
@@ -638,9 +641,11 @@ class PgCollection:
         with self.storage.conn.cursor() as c:
             c.execute(SQL("DROP TABLE IF EXISTS {}.{};").format(Identifier(self.storage.schema),
                                                                 Identifier(export_table)))
+            logger.debug(c.query)
             c.execute(SQL("CREATE TABLE {}.{} ({});").format(Identifier(self.storage.schema),
                                                              Identifier(export_table),
                                                              columns_sql))
+            logger.debug(c.query)
 
             for text_id, text in texts:
                 for span_nr, span in enumerate(text[layer]):
@@ -653,7 +658,7 @@ class PgCollection:
                                                             Identifier(export_table),
                                                             SQL(', ').join(map(Literal, values))
                                                             ))
-        print('{} annotations exported to {}.{}'.format(i, self.storage.schema, export_table))
+        logger.info('{} annotations exported to "{}"."{}"'.format(i, self.storage.schema, export_table))
 
 
 class PostgresStorage:
@@ -737,7 +742,7 @@ class PostgresStorage:
                                          **kwargs)
         except Exception:
             logger.error('Failed to connect '
-                         'host: {}, port: {}, database: {}, user: {}.'.format(_host, _port, _dbname, _user))
+                         'host: {!r}, port: {!r}, dbname: {!r}, user: {!r}.'.format(_host, _port, _dbname, _user))
             raise
         self.conn.autocommit = True
 
