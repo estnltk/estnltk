@@ -16,10 +16,9 @@ class TextaExporter:
         # fact_mapping: str (default: None)
         #   name of a csv file that contains fact mapping instructions
 
-        # format of the first line of .textapass file:
-        # <hostname>:<port>:<username>:<password>
-        # for example:
-        # localhost:9200:mari:secret
+        # format of the .textapass file:
+        # <username>
+        # <password>
 
         self.session = requests.Session()
         if sessionpass is not None:
