@@ -325,9 +325,44 @@ def parse_ettenten_corpus_file_iterator( in_file,
        and optionally may have 'tokens', 'compound_tokens',
        'words', and 'sentences' layers created with EstNLTK's 
        default tokenization tools (if add_tokenization==True).
-       If EstNLTK's tokenization is not used, the paragraphs 
-       layer will have name 'original_paragraphs', otherwise
+       If EstNLTK's tokenization is not used, the name of 
+       paragraphs layer is 'original_paragraphs', otherwise
        it's name is 'paragraphs'.
+       
+       Parameters
+       ----------
+       in_file: str
+           Full name of etTenTen corpus file (name with path);
+           
+       encoding: str
+           Encoding of in_file. Defaults to 'utf-8';
+       
+       add_tokenization: boolean
+           Specifies if tokenization will be added to reconstructed 
+           texts;
+           If add_tokenization==False, then the layer 'original_paragraphs' 
+           will be collected from XML annotations and added as a stand-
+           alone annotation layer of a Text object.
+           If add_tokenization==True, then the layer 'paragraphs' 
+           will be collected from XML annotations and enveloped around
+           EstNLTK's 'sentences' layer, and other EstNLTK's tokenization
+           layers will also be added;
+           (default: False)
+       
+       discard_empty_paragraphs: boolean
+           If set, then empty paragraphs will be discarded.
+           (default: True)
+
+       store_paragraph_attributes: boolean
+           If set, then attributes in the paragraph's XML tag will be 
+           collected and added as attributes of the corresponding layer
+           in a Text object.
+           (default: True)
+
+       paragraph_separator: str
+           String that will be used for separating paragraphs in 
+           the reconstructed text;
+           Default: '\n\n'
     '''
     xmlParser = EtTenTenXMLParser(
                    add_tokenization=add_tokenization, \
@@ -358,9 +393,42 @@ def parse_ettenten_corpus_file_content_iterator( content, \
        and optionally may have 'tokens', 'compound_tokens',
        'words', and 'sentences' layers created with EstNLTK's 
        default tokenization tools (if add_tokenization==True).
-       If EstNLTK's tokenization is not used, the paragraphs 
-       layer will have name 'original_paragraphs', otherwise
+       If EstNLTK's tokenization is not used, the name of 
+       paragraphs layer is 'original_paragraphs', otherwise
        it's name is 'paragraphs'.
+       
+       Parameters
+       ----------
+       content: str
+           etTenTen corpus file's content (or a subset of the content) 
+           as a string.
+       
+       add_tokenization: boolean
+           Specifies if tokenization will be added to reconstructed 
+           texts;
+           If add_tokenization==False, then the layer 'original_paragraphs' 
+           will be collected from XML annotations and added as a stand-
+           alone annotation layer of a Text object.
+           If add_tokenization==True, then the layer 'paragraphs' 
+           will be collected from XML annotations and enveloped around
+           EstNLTK's 'sentences' layer, and other EstNLTK's tokenization
+           layers will also be added;
+           (default: False)
+       
+       discard_empty_paragraphs: boolean
+           If set, then empty paragraphs will be discarded.
+           (default: True)
+
+       store_paragraph_attributes: boolean
+           If set, then attributes in the paragraph's XML tag will be 
+           collected and added as attributes of the corresponding layer
+           in a Text object.
+           (default: True)
+
+       paragraph_separator: str
+           String that will be used for separating paragraphs in 
+           the reconstructed text;
+           Default: '\n\n'
     '''
     assert isinstance(content, str)
     xmlParser = EtTenTenXMLParser(
