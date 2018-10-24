@@ -61,7 +61,7 @@ class VabamorfTagger(TaggerOld):
             postanalysis_tagger_given = True
         else:
             # Initialize default postanalysis_tagger
-            postanalysis_tagger=PostMorphAnalysisTagger()
+            postanalysis_tagger = PostMorphAnalysisTagger(output_layer=layer_name)
         
         self.kwargs = kwargs
         self.layer_name = layer_name
@@ -82,9 +82,9 @@ class VabamorfTagger(TaggerOld):
         vm_instance = Vabamorf.instance()
         # Initialize morf analyzer and disambiguator; 
         # Also propagate layer names to submodules;
-        self.vabamorf_analyser      = VabamorfAnalyzer( vm_instance=vm_instance, \
+        self.vabamorf_analyser      = VabamorfAnalyzer( vm_instance=vm_instance,
                                                         layer_name=layer_name )
-        self.vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance, \
+        self.vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance,
                                                              layer_name=layer_name )
 
         self.configuration = {'postanalysis_tagger':self.postanalysis_tagger.__class__.__name__, }
@@ -98,8 +98,7 @@ class VabamorfTagger(TaggerOld):
             for postanalysis_dependency in postanalysis_tagger.depends_on:
                 if postanalysis_dependency not in self.depends_on and \
                    postanalysis_dependency != self.layer_name:
-                    self.depends_on.append( postanalysis_dependency )
-
+                    self.depends_on.append(postanalysis_dependency)
 
     def tag(self, text: Text, return_layer=False) -> Text:
         """Anayses given Text object morphologically. 

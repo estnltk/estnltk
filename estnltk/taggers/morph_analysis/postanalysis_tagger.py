@@ -8,7 +8,7 @@ import regex as re
 
 from typing import MutableMapping, Any
 
-from estnltk.text import Layer, Text, Span
+from estnltk.text import Layer, Span
 from estnltk.layer.ambiguous_span import AmbiguousSpan
 
 from estnltk.taggers import Retagger
@@ -26,20 +26,18 @@ class PostMorphAnalysisTagger(Retagger):
     """Applies post-corrections to ambiguous morphological analysis 
        layer before the disambiguation process.
        This tagger should be applied before VabamorfDisambiguator."""
-    output_layer  = 'morph_analysis'
-    input_layers  = ['compound_tokens', 'words', 'sentences', 'morph_analysis']
-    depends_on    = input_layers
-    attributes    = ESTNLTK_MORPH_ATTRIBUTES + (IGNORE_ATTR, )
-    conf_param    = ['ignore_emoticons', 'ignore_xml_tags', 'fix_names_with_initials', \
-                     'fix_emoticons', 'fix_www_addresses', 'fix_email_addresses', \
-                     'fix_abbreviations', 'fix_numeric', 'remove_duplicates', \
-                     'correction_rewriter', \
-                     '_pat_name_needs_underscore1', \
-                     '_pat_name_needs_underscore2', \
-                     '_pat_name_needs_uppercase', \
-                     '_pat_numeric' ]
+    attributes = ESTNLTK_MORPH_ATTRIBUTES + (IGNORE_ATTR, )
+    conf_param = ['depends_on', 'ignore_emoticons', 'ignore_xml_tags', 'fix_names_with_initials',
+                  'fix_emoticons', 'fix_www_addresses', 'fix_email_addresses',
+                  'fix_abbreviations', 'fix_numeric', 'remove_duplicates',
+                  'correction_rewriter',
+                  '_pat_name_needs_underscore1',
+                  '_pat_name_needs_underscore2',
+                  '_pat_name_needs_uppercase',
+                  '_pat_numeric']
 
     def __init__(self,
+                 output_layer='morph_analysis',
                  ignore_emoticons:bool=True,
                  ignore_xml_tags:bool=True,
                  fix_names_with_initials:bool=True,
@@ -100,6 +98,10 @@ class PostMorphAnalysisTagger(Retagger):
             
         """
         # Set attributes & configuration
+        self.output_layer = output_layer
+        self.input_layers = ['compound_tokens', 'words', 'sentences', output_layer]
+        self.depends_on = self.input_layers
+
         self.ignore_emoticons = ignore_emoticons
         self.ignore_xml_tags = ignore_xml_tags
         self.fix_names_with_initials = fix_names_with_initials
