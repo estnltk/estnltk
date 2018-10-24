@@ -621,19 +621,29 @@ class SentenceTokenizer(TaggerOld):
                     last_sentence_fixes = new_sentence_fixes_list[-1]
                 prev_sent = \
                     text.text[last_sentence_spl.start:last_sentence_spl.end].rstrip()
-                # Check if the adjacent sentences should be joined / merged according 
-                # to one of the patterns ...
-                for pattern in self.merge_rules:
-                    [beginPat, endPat] = pattern['regexes']
-                    if endPat.match(this_sent) and beginPat.match(prev_sent):
-                        mergeSpanLists = True
-                        current_fix_types.append(pattern['fix_type'])
-                        # Check if ending also needs to be shifted
-                        if 'shift_end' in pattern:
-                            # Find new sentence ending position and validate it
-                            shiftEnding = self._find_new_sentence_ending(text, \
-                                          pattern, sentence_spl, last_sentence_spl )
-                        break
+                discard_merge = False
+                if self.configuration['fix_paragraph_endings']:
+                    # If fixing paragraph endings has been switched on, then 
+                    # do not merge over paragraph endings!
+                    # ( otherwise, it may ruin paragraph ending fixes )
+                    this_start = sentence_spl.start
+                    last_end   = last_sentence_spl.end
+                    if '\n\n' in text.text[last_end:this_start]:
+                        discard_merge = True
+                if not discard_merge:
+                    # Check if the adjacent sentences should be joined / merged according 
+                    # to one of the patterns ...
+                    for pattern in self.merge_rules:
+                        [beginPat, endPat] = pattern['regexes']
+                        if endPat.match(this_sent) and beginPat.match(prev_sent):
+                            mergeSpanLists = True
+                            current_fix_types.append(pattern['fix_type'])
+                            # Check if ending also needs to be shifted
+                            if 'shift_end' in pattern:
+                                # Find new sentence ending position and validate it
+                                shiftEnding = self._find_new_sentence_ending(text, \
+                                              pattern, sentence_spl, last_sentence_spl )
+                            break
             if mergeSpanLists:
                 # -------------------------------------------
                 #   1) Split-and-merge: First merge two sentences, then split at some 

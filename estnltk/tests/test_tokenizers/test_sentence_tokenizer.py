@@ -815,3 +815,31 @@ def test_sentence_tokenizer_with_custom_base_tokenizer():
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
 
+
+
+def test_merge_rules_do_not_conflict_paragraph_fixes():
+    # Test that the merge rules do not conflict with paragraph fixes
+    # ( paragraph fixes will have the highest priority: no merge rule 
+    #   will be applied in places where two sentences have been separated 
+    #   by paragraph markers )
+    test_texts = [ 
+        { 'text': 'ats\n\n'+\
+                  'Seda te küll ei taha (aga kui siiski tahate, siis: jõudu!)\n\n'+\
+                  'pets\n\n'+\
+                  'Jah, jõudu tarvis!', \
+          'expected_sentence_texts': ['ats', \
+                                      'Seda te küll ei taha (aga kui siiski tahate, siis: jõudu!)', \
+                                      'pets',\
+                                      'Jah, jõudu tarvis!' ] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        text.tag_layer(['words', 'sentences'])
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['sentences'].span_list]
+        # Check results
+        assert sentence_texts == test_text['expected_sentence_texts']
+
+
