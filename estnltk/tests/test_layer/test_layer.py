@@ -217,6 +217,26 @@ def test_check_layer_consistency():
         # of AmbiguousSpan
         morph_layer.check_span_consistency()
     
-    #print(morph_layer.spans[0])
-    #print(morph_layer.spans[0].layer)
-    #print(morph_layer.spans[1].layer)
+    # 3) Check for missing Span attributes
+    layer = Layer(name='test_layer',
+                  attributes=['a', 'b', 'c'],
+                  ambiguous=False)
+    span1 = Span(start=0, end=1, legal_attributes=['a', 'b'], a=1, b=11)
+    span2 = Span(start=1, end=2, legal_attributes=['b', 'c'], b=11, c=21)
+    layer.spans.append( span1 )
+    layer.spans.append( span2 )
+    with pytest.raises(AssertionError) as e3:
+        # Assertion error because Span misses some legal attributes
+        layer.check_span_consistency()
+    del layer.spans[-1]
+    del layer.spans[-1]
+    #print(e3)
+
+    # 4) Check for redundant Span attributes
+    span3 = Span(start=0, end=1, legal_attributes=['a', 'b', 'c', 'd'], a=1, b=11, c=0, d=12)
+    layer.spans.append( span3 )
+    with pytest.raises(AssertionError) as e4:
+        # Assertion error because Span has a redundant attribute
+        layer.check_span_consistency()
+    #print(e4)
+

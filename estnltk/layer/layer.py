@@ -396,6 +396,7 @@ class Layer:
         # TODO: implement add_annotation
         raise NotImplementedError('add_annotation not yet implemented for this type of layer')
 
+
     def check_span_consistency(self) -> None:
         # Checks for layer's span consistency
         starts_ends = set()
@@ -408,15 +409,24 @@ class Layer:
             if self.ambiguous:
                 assert isinstance(span, AmbiguousSpan), \
                        '(!) {} should be AmbiguousSpan'.format(span)
-                assert self == span.layer
-            # Check for existence of attributes
+                assert self == span.layer, \
+                       '(!) missing or wrong layer: {}'.format(span.layer)
+            # Check for existence of layer's attributes
             if isinstance(span, (AmbiguousSpan, EnvelopingSpan, Span)):
                 for attr in self.attributes:
-                    assert hasattr(span, attr)
+                    assert hasattr(span, attr), \
+                       '(!) missing attribute {} '.format(attr)
             if isinstance(span, AmbiguousSpan):
                 for annotation in span.annotations:
                     for attr in self.attributes:
-                        assert hasattr(annotation, attr)
+                        assert hasattr(annotation, attr), \
+                       '(!) missing attribute {} '.format(attr)
+            # Check for redundant attributes
+            if isinstance(span, (EnvelopingSpan, Span)):
+                for span_attr in span.legal_attribute_names:
+                    assert span_attr in self.attributes, \
+                       '(!) redundant attribute {} in {}'.format(span_attr, span)
+            # TODO: Check for redundant attributes in AmbiguousSpan
 
 
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):

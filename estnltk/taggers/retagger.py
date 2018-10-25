@@ -38,7 +38,7 @@ class Retagger(Tagger):
             This can be used to store metadata on layer modification.
         check_output_consistency: boolean (default: True)
             If set, then applies layer's method check_span_consistency()
-            after the modification of layer.
+            after modification of the layer.
         """
         # In order to change the layer, the layer must already exist
         assert self.output_layer in text.layers, \
@@ -56,7 +56,7 @@ class Retagger(Tagger):
                                                  self.output_layer, 
                                                  list(layers.keys()))
         if check_output_consistency:
-            # Validate changed layer: check span types and attributes
+            # Validate changed layer: check span consistency
             layers[self.output_layer].check_span_consistency()
         return text
 
