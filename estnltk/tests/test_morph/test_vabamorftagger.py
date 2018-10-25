@@ -238,3 +238,13 @@ def test_default_morph_analysis_on_empty_input():
     # Check results
     assert [] == text['morph_analysis'].to_records()
 
+
+def test_default_morph_analysis_with_different_layer_name():
+    # Should be able to use a different layer name 
+    # without running into errors
+    morph_analyser = VabamorfTagger(layer_name='my_morph')
+    text = Text('Tere, maailm!')
+    text.tag_layer(['words', 'sentences'])
+    morph_analyser.tag(text)
+    # Check results
+    assert 'my_morph' in text.layers
