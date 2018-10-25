@@ -27,13 +27,11 @@ from estnltk.taggers.morph_analysis.morf_common import VABAMORF_VERB_FORMS
 class UserDictTagger(Retagger):
     """Makes user-specified post-corrections to morphological analyses.
        This tagger can be applied after text has been morphologically analysed."""
-    output_layer  = 'morph_analysis'
-    input_layers  = ['morph_analysis', 'words']
-    depends_on    = input_layers
     attributes    = ESTNLTK_MORPH_ATTRIBUTES
-    conf_param    = ['ignore_case', 'validate_vm_categories', 'autocorrect_root', '_dict']
+    conf_param    = ['depends_on', 'ignore_case', 'validate_vm_categories', 'autocorrect_root', '_dict']
 
     def __init__(self, \
+                 output_layer:str='morph_analysis', \
                  ignore_case:bool=False, \
                  validate_vm_categories:bool=True, \
                  autocorrect_root:bool=True ):
@@ -41,6 +39,9 @@ class UserDictTagger(Retagger):
 
         Parameters
         ----------
+        output_layer: str (default: 'morph_analysis')
+            Name of the morphological analysis layer that is to be changed;
+            
         ignore_case: bool (default: False)
             If True, then case will be ignored when matching words in the text
             with words in the dictionary. Basically, all words added to the 
@@ -62,6 +63,10 @@ class UserDictTagger(Retagger):
             be specified (otherwise 'lemma' cannot be generated);
 
         """
+        self.output_layer = output_layer
+        self.input_layers = ['words', output_layer]
+        self.depends_on   = self.input_layers
+        
         self.ignore_case  = ignore_case
         self.validate_vm_categories = validate_vm_categories
         self.autocorrect_root       = autocorrect_root

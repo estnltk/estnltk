@@ -53,7 +53,8 @@ class PostMorphAnalysisTagger(Retagger):
         Parameters
         ----------
         output_layer: str (default: 'morph_analysis')
-            Name of the morphological analysis layer.
+            Name of the morphological analysis layer that 
+            will be corrected;
             
         ignore_emoticons: bool (default: True)
             If True, then emoticons will be marked as to 

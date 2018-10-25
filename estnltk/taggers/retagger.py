@@ -34,15 +34,21 @@ class Retagger(Tagger):
         status: dict, default {}
             This can be used to store metadata on layer modification.
         """
+        # In order to change the layer, the layer must already exist
+        assert self.output_layer in text.layers, \
+          "output_layer '{}' missing from Text's layers {}".format(
+                                                 self.output_layer, 
+                                                 list(text.layers.keys()))
         layers = {name: text.layers[name] for name in self.input_layers}
         # TODO: check that layer is not frozen
 
-        # In order to change the layer, the layer must already exist
-        assert self.output_layer in layers
         # Used _change_layer to get the retagged variant of the layer
         self._change_layer(text.text, layers, status)
         # Validate that the output layer still exists
-        assert self.output_layer in layers
+        assert self.output_layer in text.layers, \
+               "output_layer '{}' missing from Text's layers {}".format(
+                                                 self.output_layer, 
+                                                 list(text.layers.keys()))
         return text
 
     def __call__(self, text: Text, status: dict = None) -> Text:
