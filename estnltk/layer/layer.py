@@ -409,24 +409,37 @@ class Layer:
             if self.ambiguous:
                 assert isinstance(span, AmbiguousSpan), \
                        '(!) {} should be AmbiguousSpan'.format(span)
+            # Check that the span is connected with the layer
+            if isinstance(span, (EnvelopingSpan, AmbiguousSpan)):
                 assert self == span.layer, \
                        '(!) missing or wrong layer: {}'.format(span.layer)
-            # Check for existence of layer's attributes
-            if isinstance(span, (AmbiguousSpan, EnvelopingSpan, Span)):
-                for attr in self.attributes:
-                    assert hasattr(span, attr), \
-                       '(!) missing attribute {} '.format(attr)
+            # Check attributes of AmbiguousSpan
             if isinstance(span, AmbiguousSpan):
                 for annotation in span.annotations:
+                    # Check for missing attributes in Annotations
                     for attr in self.attributes:
-                        assert hasattr(annotation, attr), \
-                       '(!) missing attribute {} '.format(attr)
-            # Check for redundant attributes
-            if isinstance(span, (EnvelopingSpan, Span)):
+                        attrib_exists = True
+                        try:
+                            annotation.__getattribute__(attr)
+                        except AttributeError:
+                            attrib_exists = False
+                        assert attrib_exists, \
+                               '(!) Annotation missing attribute {}'.format(attr)
+                    # Check for redundant attributes in Annotations
+                    for anno_attr in annotation.legal_attribute_names:
+                        assert anno_attr in self.attributes, \
+                       '(!) Annotation has redundant attribute {}'.format(anno_attr)
+            # Check attributes of EnvelopingSpan and Span
+            elif isinstance(span, (EnvelopingSpan, Span)):
+                # Check for existence of layer's attributes
+                for attr in self.attributes:
+                    assert hasattr(span, attr), \
+                       '(!) missing attribute {} in {}'.format(attr, span)
+                # Check for redundant attributes
                 for span_attr in span.legal_attribute_names:
                     assert span_attr in self.attributes, \
                        '(!) redundant attribute {} in {}'.format(span_attr, span)
-            # TODO: Check for redundant attributes in AmbiguousSpan
+
 
 
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):

@@ -193,31 +193,70 @@ def test_check_layer_consistency():
            Text('Kas?').analyse('morphology').layers['morph_analysis']
     text = Text('Kes ja kus?').analyse('morphology')
     morph_layer = text.layers['morph_analysis']
+    
     # 1) Change first span, assign it to different layer
     old_first_span       = morph_layer.spans[0]
     morph_layer.spans[0] = AmbiguousSpan(layer=other_morph_layer,span=old_first_span.span)
-    with pytest.raises(AssertionError):
+    with pytest.raises(AssertionError) as e1:
         # Assertion error because the AmbiguousSpan is connected 
         # to different layer
         morph_layer.check_span_consistency()
     morph_layer.spans[0] = old_first_span
     morph_layer.check_span_consistency()
+    
     # 2) Add element with duplicate location to the list
     morph_layer.spans.append( old_first_span )
-    with pytest.raises(AssertionError):
+    with pytest.raises(AssertionError) as e2:
         # Assertion error because span with duplicate location
         # exists
         morph_layer.check_span_consistency()
     morph_layer.spans.pop()
     morph_layer.check_span_consistency()
+    
     # 3) Add Span instead of AmbiguousSpan
     morph_layer.spans[0] = old_first_span.span
-    with pytest.raises(AssertionError):
+    with pytest.raises(AssertionError) as e3:
         # Assertion error because Span was used instead 
         # of AmbiguousSpan
         morph_layer.check_span_consistency()
+    morph_layer.spans[0] = old_first_span
+    morph_layer.check_span_consistency()
     
-    # 3) Check for missing Span attributes
+    # 4) Layer with missing attributes
+    layer1 = Layer(name='test_layer1',
+                   attributes=['a','b','c'],
+                   ambiguous=True)
+    amb_span1 = AmbiguousSpan(layer=layer1, span=Span(start=0, end=1))
+    layer1.spans.append( amb_span1 )
+    broken_annotation = Annotation( amb_span1 )
+    for attr in ['a', 'c']:
+        setattr(broken_annotation, attr, '')
+    layer1.spans[0].annotations.append( broken_annotation )
+    with pytest.raises(AssertionError) as e4:
+        # Assertion error because layer's Annotation had missing attributes
+        layer1.check_span_consistency()
+    #print(e4)
+    
+    # 5) Layer with redundant attributes
+    layer1 = Layer(name='test_layer1',
+                   attributes=['a'],
+                   ambiguous=True)
+    layer2 = Layer(name='test_layer2',
+                   attributes=['a', 'b'],
+                   ambiguous=True)
+    amb_span1 = AmbiguousSpan(layer=layer1, span=Span(start=0, end=1))
+    amb_span2 = AmbiguousSpan(layer=layer2, span=Span(start=0, end=1))
+    broken_annotation = Annotation( amb_span2 )
+    for attr in ['a', 'b', 'c']:
+        setattr(broken_annotation, attr, '')
+    amb_span1.annotations.append( broken_annotation )
+    layer1.spans.append( amb_span1 )
+    with pytest.raises(AssertionError) as e5:
+        # Assertion error because layer's Annotation had redundant attr
+        layer1.check_span_consistency()
+    #print( e5 )
+    
+    # B1) Check for missing Span attributes
     layer = Layer(name='test_layer',
                   attributes=['a', 'b', 'c'],
                   ambiguous=False)
@@ -225,18 +264,18 @@ def test_check_layer_consistency():
     span2 = Span(start=1, end=2, legal_attributes=['b', 'c'], b=11, c=21)
     layer.spans.append( span1 )
     layer.spans.append( span2 )
-    with pytest.raises(AssertionError) as e3:
+    with pytest.raises(AssertionError) as ex1:
         # Assertion error because Span misses some legal attributes
         layer.check_span_consistency()
     del layer.spans[-1]
     del layer.spans[-1]
-    #print(e3)
+    #print(ex1)
 
-    # 4) Check for redundant Span attributes
+    # B2) Check for redundant Span attributes
     span3 = Span(start=0, end=1, legal_attributes=['a', 'b', 'c', 'd'], a=1, b=11, c=0, d=12)
     layer.spans.append( span3 )
-    with pytest.raises(AssertionError) as e4:
+    with pytest.raises(AssertionError) as ex2:
         # Assertion error because Span has a redundant attribute
         layer.check_span_consistency()
-    #print(e4)
+    #print(ex2)
 
