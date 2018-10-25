@@ -396,6 +396,28 @@ class Layer:
         # TODO: implement add_annotation
         raise NotImplementedError('add_annotation not yet implemented for this type of layer')
 
+    def check_span_consistency(self) -> None:
+        # Checks for layer's span consistency
+        starts_ends = set()
+        for span in self.span_list.spans:
+            # Check for duplicate locations
+            assert (span.start, span.end) not in starts_ends, \
+                   '(!) {} is a span with duplicate location!'.format(span)
+            starts_ends.add( (span.start, span.end) )
+            # Check for ambiguous spans
+            if self.ambiguous:
+                assert isinstance(span, AmbiguousSpan), \
+                       '(!) {} should be AmbiguousSpan'.format(span)
+                assert self == span.layer
+            # Check for existence of attributes
+            if isinstance(span, (AmbiguousSpan, EnvelopingSpan, Span)):
+                for attr in self.attributes:
+                    assert hasattr(span, attr)
+            if isinstance(span, AmbiguousSpan):
+                for annotation in span.annotations:
+                    for attr in self.attributes:
+                        assert hasattr(annotation, attr)
+
 
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
         assert 'name' in kwargs.keys(), '"name" must currently be an argument to layer'

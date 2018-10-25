@@ -186,3 +186,37 @@ def test_advanced_indexing():
     assert list(layer[0, ['lemma', 'form']][1]) == ['mis', 'sg n']
     with pytest.raises(IndexError):
         layer[[]]
+
+
+def test_check_layer_consistency():
+    other_morph_layer = \
+           Text('Kas?').analyse('morphology').layers['morph_analysis']
+    text = Text('Kes ja kus?').analyse('morphology')
+    morph_layer = text.layers['morph_analysis']
+    # 1) Change first span, assign it to different layer
+    old_first_span       = morph_layer.spans[0]
+    morph_layer.spans[0] = AmbiguousSpan(layer=other_morph_layer,span=old_first_span.span)
+    with pytest.raises(AssertionError):
+        # Assertion error because the AmbiguousSpan is connected 
+        # to different layer
+        morph_layer.check_span_consistency()
+    morph_layer.spans[0] = old_first_span
+    morph_layer.check_span_consistency()
+    # 2) Add element with duplicate location to the list
+    morph_layer.spans.append( old_first_span )
+    with pytest.raises(AssertionError):
+        # Assertion error because span with duplicate location
+        # exists
+        morph_layer.check_span_consistency()
+    morph_layer.spans.pop()
+    morph_layer.check_span_consistency()
+    # 3) Add Span instead of AmbiguousSpan
+    morph_layer.spans[0] = old_first_span.span
+    with pytest.raises(AssertionError):
+        # Assertion error because Span was used instead 
+        # of AmbiguousSpan
+        morph_layer.check_span_consistency()
+    
+    #print(morph_layer.spans[0])
+    #print(morph_layer.spans[0].layer)
+    #print(morph_layer.spans[1].layer)
