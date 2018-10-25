@@ -237,6 +237,9 @@ class PgCollection:
         data_iterator = self.storage.select(self.table_name, query, layer_query, layer_ngram_query,
                                             layers_extended, keys=keys,
                                             order_by_key=order_by_key)
+        if progressbar not in {'ascii', 'unicode', 'notebook'}:
+            yield from data_iterator
+
         total = self.storage.count_rows(self.table_name)
         if progressbar == 'notebook':
             iter_data = tqdm_notebook(data_iterator,
@@ -246,8 +249,10 @@ class PgCollection:
             iter_data = tqdm(data_iterator,
                              total=total,
                              unit='doc',
-                             disable=(progressbar != 'unicode'))
-        return iter_data
+                             ascii=(progressbar == 'ascii'))
+        for data in iter_data:
+            iter_data.set_description('collection_id: {}'.format(data[0]), refresh=False)
+            yield data
 
     def select_raw(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None,
                    order_by_key=False):
@@ -323,7 +328,7 @@ class PgCollection:
                     conn.commit()
                 conn.autocommit = True
 
-    def create_layer(self, layer_name, data_iterator, row_mapper,
+    def create_layer(self, layer_name=None, data_iterator=None, row_mapper=None, tagger=None,
                      create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None):
         """
         Creates layer
@@ -336,6 +341,8 @@ class PgCollection:
             row_mapper: function
                 For each record produced by `data_iterator` return a list
                 of `RowMapperRecord` objects.
+            tagger: Tagger
+                either tagger must be None or layer_name, data_iterator and row_mapper must be None
             create_index: bool
                 Whether to create an index on json column
             ngram_index: list
@@ -349,14 +356,26 @@ class PgCollection:
                 See `pytype2dbtype` for supported types.
             progressbar: str
                 if 'notebook', display progressbar as a jupyter notebook widget
-                if 'unicode', display progressbar as a unicode string
+                if 'unicode', use unicode (smooth blocks) to fill the progressbar
+                if 'ascii', use ASCII characters (1-9 #) to fill the progressbar
                 else disable progressbar (default)
         """
+        assert (layer_name is None and data_iterator is None and row_mapper is None) is not (tagger is None),\
+               'either tagger must be None or layer_name, data_iterator and row_mapper must be None'
+
+        def default_row_mapper(row):
+            text_id, text = row[0], row[1]
+            layer = tagger.make_layer(text.text, text.layers)
+            return [RowMapperRecord(layer=layer, meta=None)]
+
+        layer_name = layer_name or tagger.output_layer
+        row_mapper = row_mapper or default_row_mapper
+        data_iterator = data_iterator or self.select(layers=tagger.input_layers, progressbar=progressbar)
+
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
-                                        self.table_name, layer_name))
+                self.table_name, layer_name))
         logger.info('collection: {!r}'.format(self.table_name))
-        logger.info('preparing to create a new layer: {!r}'.format(layer_name))
         if self._structure is None:
             raise PgCollectionException("can't add detached layer {!r}, the collection is empty".format(layer_name))
         if self.has_layer(layer_name):
@@ -367,6 +386,7 @@ class PgCollection:
                 exception = PgCollectionException("can't create layer {!r}, layer already exists".format(layer_name))
                 logger.error(exception)
                 raise exception
+        logger.info('preparing to create a new layer: {!r}'.format(layer_name))
         conn = self.storage.conn
         with conn.cursor() as c:
             try:
@@ -388,7 +408,6 @@ class PgCollection:
 
                 for row in data_iterator:
                     collection_id, text = row[0], row[1]
-                    data_iterator.set_description('collection_id: {}'.format(collection_id), refresh=False)
                     for record in row_mapper(row):
                         layer = record.layer
                         layer_dict = layer_to_dict(layer, text)
