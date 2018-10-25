@@ -52,6 +52,9 @@ class PostMorphAnalysisTagger(Retagger):
 
         Parameters
         ----------
+        output_layer: str (default: 'morph_analysis')
+            Name of the morphological analysis layer.
+            
         ignore_emoticons: bool (default: True)
             If True, then emoticons will be marked as to 
             be ignored by morphological disambiguation.

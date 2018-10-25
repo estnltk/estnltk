@@ -48,18 +48,15 @@ class VabamorfTagger(TaggerOld):
         ----------
         layer_name: str (default: 'morph_analysis')
             Name of the layer where analysis results are stored.
-        postanalysis_tagger: estnltk.taggers.TaggerOld (default: PostMorphAnalysisTagger())
-            TaggerOld that is used to post-process "morph_analysis" layer after
+        postanalysis_tagger: estnltk.taggers.Retagger (default: PostMorphAnalysisTagger())
+            Retagger that is used to post-process "morph_analysis" layer after
             it is created (and before it is disambiguated).
             This tagger corrects morphological analyses, prepares morpho-
             logical analyses for disambiguation (if required) and fills in 
             values of extra attributes in morph_analysis Spans.
         """
         # Check if the user has provided a custom postanalysis_tagger
-        postanalysis_tagger_given = False
-        if postanalysis_tagger:
-            postanalysis_tagger_given = True
-        else:
+        if not postanalysis_tagger:
             # Initialize default postanalysis_tagger
             postanalysis_tagger = PostMorphAnalysisTagger(output_layer=layer_name)
         
@@ -67,7 +64,7 @@ class VabamorfTagger(TaggerOld):
         self.layer_name = layer_name
        
         if postanalysis_tagger:
-            # Check for TaggerOld
+            # Check for Retagger
             assert isinstance(postanalysis_tagger, Retagger), \
                 '(!) postanalysis_tagger should be of type estnltk.taggers.Retagger.'
             # Check for layer match
@@ -99,6 +96,7 @@ class VabamorfTagger(TaggerOld):
                 if postanalysis_dependency not in self.depends_on and \
                    postanalysis_dependency != self.layer_name:
                     self.depends_on.append(postanalysis_dependency)
+
 
     def tag(self, text: Text, return_layer=False) -> Text:
         """Anayses given Text object morphologically. 
