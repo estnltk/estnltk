@@ -3,16 +3,14 @@ from estnltk import Text
 from estnltk.layer import AmbiguousAttributeList, AttributeList
 
 from estnltk.corpus_processing.parse_koondkorpus import reconstruct_text
-from estnltk.corpus_processing.parse_ettenten import reconstruct_ettenten_text
-from estnltk.corpus_processing.parse_ettenten import parse_ettenten_corpus_file_content_iterator
 
 from estnltk.taggers.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
 from estnltk.layer_operations import split_by
 
 # ===========================================================
-#    Koondkorpus processing 
+#    Koondkorpus processing:
+#         reconstruction of Texts
 # ===========================================================
-
 
 def test_reconstruct_text_detached_layers():
     # Tests that the text and its layers can be reconstructed based on a dictionary representation
@@ -204,90 +202,5 @@ def test_split_reconstructed_text():
         sent_count += 1
     assert sent_count == 3
 
-
-# ===========================================================
-#    etTenTen processing 
-# ===========================================================
-
-def _get_test_ettenten_content():
-    return '''
-<corpus>
-<doc id="686275" length="10k-100k" crawl_date="2013-01-24" url="http://rahvahaal.delfi.ee/news/uudised/?id=64951806&com=1&s=7&no=340" web_domain="rahvahaal.delfi.ee" langdiff="0.18">
-<gap/>
-<p heading="1">
-AP
-</p>
-<p heading="0">
-Täienduseks ehk, et ka kuningatel juhtub vahel apsakaid ja kuningas teab, mis siis teha. Meie kuningad pole vist jootrahast kuulnudki midagi.
-</p>
-<p heading="0">
-Ja-jaa
-</p>
-</doc>
-<doc id="686281" length="0-1k" crawl_date="2013-01-24" url="http://www.epl.ee/news/majandus/?id=51174495" web_domain="www.epl.ee" langdiff="0.44">
-<gap/>
-<p heading="1">
-Tuvastamata Kasutaja
-</p>
-<p heading="0">
-30.07.2009 21:14
-</p>
-<p heading="0">
-....alles see oli, kui põlevkivi ja elektrifirmad tegid seakisa ja isegi peaminister rääkis võimalikust katastroofist Ida-Virus....
-</p>
-</doc>
-</corpus>
-'''
-
-
-def test_parse_ettenten_corpus_file_content_iterator_wo_tokenization():
-    # Parse Texts from the XML content
-    texts = []
-    for text_obj in parse_ettenten_corpus_file_content_iterator( _get_test_ettenten_content() ):
-        texts.append( text_obj )
-    # Make assertions
-    assert len(texts) == 2
-    # Document 1
-    doc1 = texts[0]
-    assert 'id' in doc1.meta and \
-           doc1.meta['id'] == '686275'
-    assert 'crawl_date' in doc1.meta and \
-           doc1.meta['crawl_date'] == '2013-01-24'
-    assert 'url' in doc1.meta and \
-           doc1.meta['url'] == "http://rahvahaal.delfi.ee/news/uudised/?id=64951806&com=1&s=7&no=340"
-    assert 'original_paragraphs' in doc1.layers 
-    assert len( doc1.original_paragraphs ) == 3
-    assert doc1.original_paragraphs[1].text == 'Täienduseks ehk, et ka kuningatel juhtub vahel apsakaid '+\
-                                               'ja kuningas teab, mis siis teha. Meie kuningad pole vist '+\
-                                               'jootrahast kuulnudki midagi.'
-    # Document 2
-    doc2 = texts[1]
-    assert 'url' in doc2.meta and \
-           doc2.meta['url'] == "http://www.epl.ee/news/majandus/?id=51174495"
-    assert len(doc2.layers) == 1
-    assert 'original_paragraphs' in doc2.layers 
-    assert len( doc2.original_paragraphs ) == 3
-    assert str( doc2.original_paragraphs.heading ) == "[['1'], ['0'], ['0']]"
-
-
-
-def test_parse_ettenten_corpus_file_content_iterator_w_tokenization():
-    # Parse Texts from the XML content
-    texts = []
-    for text_obj in parse_ettenten_corpus_file_content_iterator( _get_test_ettenten_content(), \
-                                                                 add_tokenization=True ):
-        texts.append( text_obj )
-    # Make assertions
-    assert len(texts) == 2
-    doc1 = texts[0]
-    doc2 = texts[1]
-    # Check for the existence of layers
-    expected_layers = ['tokens', 'compound_tokens', 'words', 'sentences', 'paragraphs']
-    for expected_layer in expected_layers:
-        assert expected_layer in doc1.layers
-        assert expected_layer in doc2.layers
-    # Check that heading attributes have been loaded:
-    assert str( doc1.paragraphs.heading ) == "['1', '0', '0']"
-    assert str( doc2.paragraphs.heading ) == "['1', '0', '0']"
     
     
