@@ -46,7 +46,8 @@ setup(
     include_package_data=True,
     package_data={
         'estnltk': ['corpora/arvutustehnika_ja_andmetootlus/*.xml', 'corpora/*.json', 'java/res/*.*'],
-        'estnltk.tests': ['test_morph/*.csv', 'test_taggers/test_dict_taggers/*.csv'],
+        'estnltk.taggers': ['standard_taggers/*.csv'],
+        'estnltk.tests': ['test_morph/*.csv', 'test_taggers/test_dict_taggers/*.csv', 'test_taggers/test_standard_taggers/*.json'],
         'estnltk.vabamorf': ['dct/*.dct'],
         'estnltk.estner': ['gazetteer/*', 'models/py2_default/*', 'models/py3_default/*'],
         'estnltk.wordnet': ['*.cnf', 'data/*.txt', 'data/*.soi', 'data/*.cnf', 'data/scripts/*.py'],
