@@ -42,58 +42,61 @@ pytype2dbtype = {
 class PgCollection:
     """Convenience wrapper over PostgresStorage"""
 
-    def __init__(self, name, storage, meta=None):
+    def __init__(self, name, storage, meta=None, temporary=False):
+        if '__' in name:
+            raise PgCollectionException('collection name must not contain double underscore: {!r}'.format(name))
         self.table_name = name
         self.storage = storage
         self.meta = meta or {}
-        self._structure = self.get_structure()
+        self._temporary = temporary
+        self._structure = self._get_structure()
         self.column_names = ['id', 'data'] + list(self.meta)
 
     def create(self, description=None):
-        """Creates a database table for the collection"""
+        """Creates the database tables for the collection"""
+        temporary = SQL('TEMPORARY') if self._temporary else SQL('')
         with self.storage.conn.cursor() as c:
-            c.execute(SQL("""CREATE TABLE {}.{}  (
-                               layer_name text primary key,
-                               detached bool not null,
-                               attributes text[] not null,
-                               ambiguous bool not null,
-                               parent text,
-                               enveloping text,
-                               _base text);""").format(
-                Identifier(self.storage.schema),
-                Identifier(self.table_name+'_structure')))
-            logger.info('create table "{}"."{}"'.format(self.storage.schema, self.table_name+'_structure'))
-            logger.debug(c.query)
+            c.execute(SQL('CREATE {temporary} TABLE {structure} ('
+                          'layer_name text primary key, '
+                          'detached bool not null, '
+                          'attributes text[] not null, '
+                          'ambiguous bool not null, '
+                          'parent text, '
+                          'enveloping text, '
+                          '_base text);').format(temporary=temporary,
+                                                 structure=self._structure_identifier()))
+            logger.debug(c.query.decode())
 
-        # self._structure = self.get_structure()
+        return self.storage.create_table(table=self.table_name,
+                                         description=description,
+                                         meta=self.meta,
+                                         temporary=self._temporary,
+                                         table_identifier=self._collection_identifier())
 
-        return self.storage.create_table(self.table_name, description, self.meta)
-
-    def get_structure(self):
-        structure_table = self.table_name + '_structure'
-        if not self.storage.table_exists(structure_table):
-            return None
+    def _get_structure(self):
         structure = {}
         with self.storage.conn.cursor() as c:
-            c.execute(SQL("SELECT layer_name, detached, attributes, ambiguous, parent, enveloping, _base FROM {}.{};"
-                          ).format(Identifier(self.storage.schema),
-                                   Identifier(structure_table)))
+            try:
+                c.execute(SQL("SELECT layer_name, detached, attributes, ambiguous, parent, enveloping, _base FROM {};"
+                              ).format(self._structure_identifier()))
 
-            for row in c.fetchall():
-                structure[row[0]] = {'detached': row[1],
-                                     'attributes': tuple(row[2]),
-                                     'ambiguous': row[3],
-                                     'parent': row[4],
-                                     'enveloping': row[5],
-                                     '_base': row[6]}
+                for row in c.fetchall():
+                    structure[row[0]] = {'detached': row[1],
+                                         'attributes': tuple(row[2]),
+                                         'ambiguous': row[3],
+                                         'parent': row[4],
+                                         'enveloping': row[5],
+                                         '_base': row[6]}
+            except psycopg2.ProgrammingError:
+                # structure table does not exist
+                structure = None
         return structure
 
     def _insert_into_structure(self, layer, detached: bool):
         with self.storage.conn.cursor() as c:
-            c.execute(SQL("INSERT INTO {}.{} (layer_name, detached, attributes, ambiguous, parent, enveloping, _base) "
+            c.execute(SQL("INSERT INTO {} (layer_name, detached, attributes, ambiguous, parent, enveloping, _base) "
                           "VALUES ({}, {}, {}, {}, {}, {}, {});").format(
-                Identifier(self.storage.schema),
-                Identifier(self.table_name+'_structure'),
+                self._structure_identifier(),
                 Literal(layer.name),
                 Literal(detached),
                 Literal(list(layer.attributes)),
@@ -103,18 +106,17 @@ class PgCollection:
                 Literal(layer._base)
             )
             )
-        self._structure = self.get_structure()
+        self._structure = self._get_structure()
 
     def _delete_from_structure(self, layer_name):
         with self.storage.conn.cursor() as c:
-            c.execute(SQL("DELETE FROM {}.{} WHERE layer_name={};").format(
-                Identifier(self.storage.schema),
-                Identifier(self.table_name+'_structure'),
+            c.execute(SQL("DELETE FROM {} WHERE layer_name={};").format(
+                self._structure_identifier(),
                 Literal(layer_name)
             )
             )
             logger.debug(c.query.decode())
-        self._structure = self.get_structure()
+        self._structure = self._get_structure()
 
     def insert(self, text, key=None, meta_data=None):
         return self._buffered_insert(text=text, buffer=[], buffer_size=0, key=key, meta_data=meta_data)
@@ -151,7 +153,7 @@ class PgCollection:
                 self._insert_into_structure(text[layer], detached=False)
         elif any(struct['detached'] for struct in self._structure.values()):
             # TODO: solve this case in a better way
-            raise PgCollectionException("This collection has detached layers. Can't add new text objects.")
+            raise PgCollectionException("this collection has detached layers, can't add new text objects")
         else:
             assert set(text.layers) == set(self._structure), '{} != {}'.format(set(text.layers), set(self._structure))
             for layer_name, layer in text.layers.items():
@@ -192,12 +194,12 @@ class PgCollection:
             return []
         sql_column_names = SQL(', ').join(map(Identifier, self.column_names))
         with self.storage.conn.cursor() as c:
-            c.execute(SQL('INSERT INTO {}.{} ({}) VALUES {} RETURNING id;').format(
-                Identifier(self.storage.schema),
-                Identifier(self.table_name),
+            c.execute(SQL('INSERT INTO {} ({}) VALUES {} RETURNING id;').format(
+                self._collection_identifier(),
                 sql_column_names,
                 SQL(', ').join(buffer)))
             row_key = c.fetchone()
+            logger.debug('flush buffer: {} rows, {} bytes'.format(len(buffer), len(c.query)))
         buffer.clear()
         return row_key
 
@@ -213,6 +215,139 @@ class PgCollection:
             parent_layer_table=self.layer_name_to_table_name(parent_layer_name),
             query=query,
             ngram_query=ngram_query)
+
+    def select_raw(self,
+                   query=None,
+                   layer_query: 'JsonbLayerQuery' = None,
+                   layer_ngram_query: dict = None,
+                   layers: list = None,
+                   keys: list = None,
+                   order_by_key: bool = False):
+        """
+        Select from collection table with possible search constraints.
+
+        Args:
+            table: str
+                collection table
+            query: JsonbTextQuery
+                collection table query
+            layer_query: JsonbLayerQuery
+                layer query
+            layer_ngram_query: dict
+            keys: list
+                List of id-s.
+            order_by_key: bool
+            layers: list
+                Layers to fetch. Specified layers will be merged into returned text object and
+                become accessible via `text["layer_name"]`.
+
+        Returns:
+            iterator of (key, text) pairs
+
+        Example:
+
+            q = JsonbTextQuery('morph_analysis', lemma='laulma')
+            for key, txt in storage.select(table, query=q):
+                print(key, txt)
+        """
+        table = self.table_name
+        with self.storage.conn.cursor() as c:
+            # 1. Build query
+
+            where = False
+            sql_parts = []
+            table_escaped = SQL("{}").format(self._collection_identifier()).as_string(self.storage.conn)
+            if not layers and layer_query is None and layer_ngram_query is None:
+                # select only text table
+                q = SQL("SELECT id, data FROM {}.{}").format(Identifier(self.storage.schema), Identifier(table)).as_string(self.storage.conn)
+                sql_parts.append(q)
+            else:
+                # need to join text and all layer tables
+                layers = layers or []
+                layer_query = layer_query or {}
+                layer_ngram_query = layer_ngram_query or {}
+
+                layers_select = []
+                for layer in chain(layers):
+                    layer = SQL("{}").format(self._layer_identifier(layer)).as_string(self.storage.conn)
+                    layers_select.append(layer)
+
+                layers_join = set()
+                for layer in chain(layers, layer_query.keys(), layer_ngram_query.keys()):
+                    layer = SQL("{}").format(self._layer_identifier(layer)).as_string(self.storage.conn)
+                    layers_join.add(layer)
+
+                q = ("SELECT {table}.id, {table}.data {select} FROM {table}, {layers_join} where {where}").format(
+                    table=table_escaped,
+                    select=", %s" % ", ".join(
+                        "{0}.id, {0}.data".format(layer) for layer in layers_select) if layers_select else "",
+                    layers_join=", ".join(layer for layer in layers_join),
+                    where=" AND ".join("%s.id = %s.text_id" % (table_escaped, layer) for layer in layers_join))
+                sql_parts.append(q)
+                where = True
+            if query is not None:
+                # build constraint on the main text table
+                sql_parts.append("%s %s" % ("and" if where else "where", query.eval()))
+                where = True
+            if layer_query:
+                # build constraint on related layer tables
+                q = " AND ".join(query.eval() for layer, query in layer_query.items())
+                sql_parts.append("%s %s" % ("and" if where else "where", q))
+                where = True
+            if keys is None:
+                keys = []
+            else:
+                keys = list(map(int, keys))
+                # build constraint on id-s
+                sql_parts.append("AND" if where else "WHERE")
+                sql_parts.append("{table}.id = ANY(%(keys)s)".format(table=table_escaped))
+                where = True
+            if layer_ngram_query:
+                # build constraint on related layer's ngram index
+                q = self.storage.build_layer_ngram_query(layer_ngram_query, table)
+                if where is True:
+                    q = "AND %s" % q
+                sql_parts.append(q)
+                where = True
+            if order_by_key is True:
+                sql_parts.append("order by id")
+
+            sql = " ".join(sql_parts)  # bad, bad string concatenation, but we can't avoid it here, right?
+
+            # 2. Execute query
+            c.execute(sql, {'keys': keys})
+            for row in c.fetchall():
+                text_id = row[0]
+                text_dict = row[1]
+                text = dict_to_text(text_dict)
+                layers = []
+                if len(row) > 2:
+                    detached_layers = {}
+                    for i in range(2, len(row), 2):
+                        layer_id = row[i]
+                        layer_dict = row[i + 1]
+                        layer = dict_to_layer(layer_dict, text, detached_layers)
+                        detached_layers[layer.name] = layer
+                        layers.append(layer_id)
+                        layers.append(layer)
+                result = text_id, text, *layers
+                yield result
+
+    def _select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None,
+                order_by_key=False):
+        for row in self.select_raw(query=query,
+                                   layer_query=layer_query,
+                                   layer_ngram_query=layer_ngram_query,
+                                   layers=layers,
+                                   keys=keys,
+                                   order_by_key=order_by_key):
+            text_id = row[0]
+            text = row[1]
+            if len(row) > 2:
+                for i, layer_name in zip(range(3, len(row), 2), layers):
+                    layer = row[i]
+                    text[layer_name] = layer
+            yield text_id, text
 
     def select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None, order_by_key=False,
                progressbar=None):
@@ -234,11 +369,11 @@ class PgCollection:
                 raise PgCollectionException('layer {!r} not in collection {!r}'.format(layer, self.table_name))
             include_dep(layer)
 
-        data_iterator = self.storage.select(self.table_name, query, layer_query, layer_ngram_query,
-                                            layers_extended, keys=keys,
-                                            order_by_key=order_by_key)
+        data_iterator = self._select(query, layer_query, layer_ngram_query,
+                                     layers_extended, keys=keys, order_by_key=order_by_key)
         if progressbar not in {'ascii', 'unicode', 'notebook'}:
             yield from data_iterator
+            return
 
         total = self.storage.count_rows(self.table_name)
         if progressbar == 'notebook':
@@ -254,12 +389,6 @@ class PgCollection:
             iter_data.set_description('collection_id: {}'.format(data[0]), refresh=False)
             yield data
 
-    def select_raw(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None,
-                   order_by_key=False):
-        """See PostgresStorage.select_raw()"""
-        return self.storage.select_raw(self.table_name, query, layer_query, layer_ngram_query, layers, keys,
-                                       order_by_key)
-
     def select_by_key(self, key, return_as_dict=False):
         """See PostgresStorage.select_by_key()"""
         return self.storage.select_by_key(self.table_name, key, return_as_dict)
@@ -271,6 +400,28 @@ class PgCollection:
 
     def layer_name_to_table_name(self, layer_name):
         return self.storage.layer_name_to_table_name(self.table_name, layer_name)
+
+    def _collection_identifier(self):
+        if self._temporary:
+            return Identifier(self.table_name)
+        return SQL('{}.{}').format(Identifier(self.storage.schema), Identifier(self.table_name))
+
+    def _structure_identifier(self):
+        if self._temporary:
+            return Identifier(self.table_name + '__structure')
+        return SQL('{}.{}').format(Identifier(self.storage.schema), Identifier(self.table_name + '__structure'))
+
+    def _layer_identifier(self, layer_name):
+        table_identifier = Identifier('{}__{}__layer'.format(self.table_name, layer_name))
+        if self._temporary:
+            return table_identifier
+        return SQL('{}.{}').format(Identifier(self.storage.schema), table_identifier)
+
+    def _fragment_identifier(self, fragment_name):
+        if self._temporary:
+            return Identifier('{}__{}__fragment'.format(self.table_name, fragment_name))
+        return SQL('{}.{}').format(Identifier(self.storage.schema),
+                                   Identifier('{}__{}__fragment'.format(self.table_name, fragment_name)))
 
     def fragment_name_to_table_name(self, fragment_name):
         return self.storage.fragment_name_to_table_name(self.table_name, fragment_name)
@@ -309,8 +460,8 @@ class PgCollection:
                     for record in row_mapper(row):
                         fragment_dict = layer_to_dict(record.layer, text)
                         if ngram_index is not None:
-                            ngram_values = [create_ngram_fingerprint_index(record.layer, attr, size)
-                                            for attr, size in ngram_index.items()]
+                            ngram_values = [create_ngram_fingerprint_index(record.layer, attr, n)
+                                            for attr, n in ngram_index.items()]
                         else:
                             ngram_values = None
                         layer_json = json.dumps(fragment_dict, ensure_ascii=False)
@@ -399,7 +550,6 @@ class PgCollection:
                                         overwrite=overwrite,
                                         meta=meta)
                 # insert data
-                layer_table = self.layer_name_to_table_name(layer_name)
                 id_ = 0
 
                 meta_columns = ()
@@ -414,29 +564,27 @@ class PgCollection:
                         layer_json = json.dumps(layer_dict, ensure_ascii=False)
 
                         columns = ["id", "text_id", "data"]
-                        values = ["%s"] * 3
+                        values = [id_, collection_id, layer_json]
 
-                        meta_values = []
                         if meta_columns:
                             columns.extend(meta_columns)
-                            values.extend(["%s"] * len(meta_columns))
-                            meta_values = [record.meta[k] for k in meta_columns]
+                            values.extend(record.meta[k] for k in meta_columns)
 
                         if ngram_index is not None:
-                            columns.extend(ngram_index.keys())
-                            values.extend(["%s"] * len(ngram_index.keys()))
-                            ngram_values = [create_ngram_fingerprint_index(layer, attr, size)
-                                            for attr, size in ngram_index.items()]
-                        else:
-                            ngram_values = []
+                            ngram_index_keys = tuple(ngram_index.keys())
+                            columns.extend(ngram_index_keys)
+                            values.extend(create_ngram_fingerprint_index(layer=layer,
+                                                                         attribute=attr,
+                                                                         n=ngram_index[attr])
+                                          for attr in ngram_index_keys)
 
-                        columns = ", ".join([SQL("{}").format(Identifier(c)).as_string(conn)
-                                             for c in columns])
-                        values = ", ".join(values)
-                        q = "INSERT INTO {}.{} (%s) VALUES (%s);" % (columns, values)
-                        q = SQL(q).format(Identifier(self.storage.schema), Identifier(layer_table))
-                        data = (id_, collection_id, layer_json, *meta_values, *ngram_values)
-                        c.execute(q, data)
+                        columns = SQL(', ').join(map(Identifier, columns))
+                        q = SQL('INSERT INTO {} ({}) VALUES ({});'
+                                ).format(self._layer_identifier(layer_name),
+                                         columns,
+                                         SQL(', ').join(map(Literal, values)))
+                        c.execute(q)
+                        logger.debug('insert into layer {!r}, query size: {} bytes'.format(layer_name, len(c.query)))
 
                         id_ += 1
                 self._insert_into_structure(layer, detached=True)
@@ -469,10 +617,13 @@ class PgCollection:
         elif self.storage.table_exists(layer_table):
             raise PgStorageException("Table {!r} for layer {!r} already exists.".format(layer_table, layer_name))
 
+        if self._temporary:
+            temporary = SQL('TEMPORARY')
         else:
-            ngram_cols_sql = ""
+            temporary = SQL('')
+
         # create layer table and index
-        q = ('CREATE TABLE {}.{} ('
+        q = ('CREATE {temporary} TABLE {layer_identifier} ('
              'id SERIAL PRIMARY KEY, '
              '%(parent_col)s'
              'text_id int NOT NULL, '
@@ -499,12 +650,16 @@ class PgCollection:
             meta_cols = ""
 
         q %= {"parent_col": parent_col, "ngram_cols": ngram_cols, "meta_cols": meta_cols}
-        q = SQL(q).format(Identifier(self.storage.schema), Identifier(layer_table))
+        if is_fragment:
+            layer_identifier = self._fragment_identifier(layer_name)
+        else:
+            layer_identifier = self._layer_identifier(layer_name)
+        q = SQL(q).format(temporary=temporary, layer_identifier=layer_identifier)
         cursor.execute(q)
         logger.debug(cursor.query.decode())
 
-        q = SQL("COMMENT ON TABLE {}.{} IS {};").format(
-            Identifier(self.storage.schema), Identifier(layer_table),
+        q = SQL("COMMENT ON TABLE {} IS {};").format(
+            layer_identifier,
             Literal("%s %s layer" % (self.table_name, layer_name)))
         cursor.execute(q)
         logger.debug(cursor.query.decode())
@@ -530,25 +685,24 @@ class PgCollection:
                 logger.debug(cursor.query.decode())
 
         cursor.execute(SQL(
-            "CREATE INDEX {index} ON {schema}.{table} (text_id);").format(
+            "CREATE INDEX {index} ON {layer_table} (text_id);").format(
             index=Identifier('idx_%s__text_id' % layer_table),
-            schema=Identifier(self.storage.schema),
-            table=Identifier(layer_table)))
+            layer_table=layer_identifier))
         logger.debug(cursor.query.decode())
 
     def delete_layer(self, layer_name):
-        layer_table = self.layer_name_to_table_name(layer_name)
-        if layer_name not in self.get_layer_names():
-            raise PgCollectionException("Collection does not have a layer '%s'." % layer_name)
-        if not self.storage.table_exists(layer_table):
-            raise PgStorageException("Layer table '%s' does not exist." % layer_table)
+        if layer_name not in self._structure:
+            raise PgCollectionException("collection does not have a layer {!}".format(layer_name))
+        if not self._structure[layer_name]['detached']:
+            raise PgCollectionException("can't delete attached layer {!}".format(layer_name))
+
         for ln, struct in self._structure.items():
             if ln == layer_name:
                 continue
             if layer_name == struct['enveloping'] or layer_name == struct['parent'] or layer_name == struct['_base']:
                 raise PgCollectionException("Can't delete layer {!r}. "
                                             "There is a dependant layer {!r}.".format(layer_name, ln))
-        self.storage.drop_table(layer_table)
+        self._drop_table(self._layer_identifier(layer_name))
         self._delete_from_structure(layer_name)
         logger.info('layer deleted: {!r}'.format(layer_name))
 
@@ -573,11 +727,11 @@ class PgCollection:
         conn = self.storage.conn
         conn.autocommit = False
         try:
-            for layer_table in self.get_layer_tables():
-                self.storage.drop_table(layer_table)
-            self.storage.drop_table(self.table_name+'_structure')
-            self.storage.drop_table(self.table_name)
-        except:
+            for identifier in self._get_layer_table_identifiers():
+                self._drop_table(identifier)
+            self._drop_table(self._structure_identifier())
+            self._drop_table(self._collection_identifier())
+        except Exception:
             conn.rollback()
             raise
         finally:
@@ -585,6 +739,11 @@ class PgCollection:
                 # no exception, transaction in progress
                 conn.commit()
             conn.autocommit = True
+
+    def _drop_table(self, identifier):
+        with self.storage.conn.cursor() as c:
+            c.execute(SQL('DROP TABLE {};').format(identifier))
+            logger.debug(c.query.decode())
 
     def has_layer(self, layer_name):
         return layer_name in self._structure
@@ -601,12 +760,7 @@ class PgCollection:
         return lf_names
 
     def get_layer_names(self):
-        layer_names = []
-        for tbl in self.get_layer_tables():
-            layer = re.sub("^%s__" % self.table_name, "", tbl)
-            layer = re.sub("__layer$", "", layer)
-            layer_names.append(layer)
-        return layer_names
+        return list(self._structure)
 
     def get_fragment_tables(self):
         fragment_tables = []
@@ -615,12 +769,14 @@ class PgCollection:
                 fragment_tables.append(tbl)
         return fragment_tables
 
-    def get_layer_tables(self):
-        layer_tables = []
-        for tbl in self.storage.get_all_table_names():
-            if tbl.startswith("%s__" % self.table_name) and tbl.endswith("__layer"):
-                layer_tables.append(tbl)
-        return layer_tables
+    def _get_layer_table_identifiers(self):
+        identifiers = []
+        if not self._structure:
+            return identifiers
+        for name, struct in self._structure.items():
+            if struct['detached']:
+                identifiers.append(self._layer_identifier(name))
+        return identifiers
 
     def get_layer_meta(self, layer_name):
         layer_table = self.layer_name_to_table_name(layer_name)
@@ -781,7 +937,7 @@ class PostgresStorage:
         with self.conn.cursor() as c:
             c.execute(SQL("DROP SCHEMA {} CASCADE;").format(Identifier(self.schema)))
 
-    def create_table(self, table, description=None, meta=None):
+    def create_table(self, table, description=None, meta=None, temporary=False, table_identifier=None):
         """Creates a new table to store jsonb data:
 
             CREATE TABLE table(
@@ -799,19 +955,24 @@ class PostgresStorage:
             for col_name, col_type in meta.items():
                 columns.append(SQL('{} {}').format(Identifier(col_name), SQL(pytype2dbtype[col_type])))
 
+        temp = SQL('TEMPORARY') if temporary else SQL('')
+        table_identifier = table_identifier or SQL('{}.{}').format(Identifier(self.schema), Identifier(table))
+
         self.conn.autocommit = False
         with self.conn.cursor() as c:
             try:
-                c.execute(SQL("CREATE TABLE {}.{} ({})").format(
-                    Identifier(self.schema), Identifier(table), SQL(', ').join(columns)))
+                c.execute(SQL("CREATE {} TABLE {} ({})").format(
+                    temp, table_identifier, SQL(', ').join(columns)))
+                logger.debug(c.query.decode())
                 c.execute(
-                    SQL("CREATE INDEX {index} ON {schema}.{table} USING gin ((data->'layers') jsonb_path_ops)").format(
+                    SQL("CREATE INDEX {index} ON {table} USING gin ((data->'layers') jsonb_path_ops)").format(
                         index=Identifier('idx_%s_data' % table),
-                        schema=Identifier(self.schema),
-                        table=Identifier(table)))
+                        table=table_identifier))
+                logger.debug(c.query.decode())
                 if isinstance(description, str):
-                    c.execute(SQL("COMMENT ON TABLE {}.{} IS {}").format(
-                        Identifier(self.schema), Identifier(table), Literal(description)))
+                    c.execute(SQL("COMMENT ON TABLE {} IS {}").format(
+                        table_identifier, Literal(description)))
+                    logger.debug(c.query.decode())
             except:
                 self.conn.rollback()
                 raise
@@ -898,7 +1059,7 @@ class PostgresStorage:
         if schema is None:
             schema = self.schema
         with self.conn.cursor() as c:
-            c.execute(SQL("SELECT EXISTS (SELECT 1 FROM pg_tables WHERE  schemaname = %s AND tablename = %s);"),
+            c.execute(SQL("SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = %s AND tablename = %s);"),
                       [schema, table])
             return c.fetchone()[0]
 
@@ -1249,9 +1410,9 @@ class PostgresStorage:
         return self.select(table, jsonb_text_query, jsonb_layer_query, layer_ngram_query, layers,
                            order_by_key=order_by_key)
 
-    def get_collection(self, table_name, meta_fields=None):
+    def get_collection(self, table_name, meta_fields=None, temporary=False):
         """Returns a new instance of `PgCollection` without physically creating it."""
-        return PgCollection(name=table_name, storage=self, meta=meta_fields)
+        return PgCollection(name=table_name, storage=self, meta=meta_fields, temporary=temporary)
 
 
 class JsonbTextQuery(Query):
