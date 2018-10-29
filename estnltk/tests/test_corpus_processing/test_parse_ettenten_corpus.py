@@ -91,5 +91,39 @@ def test_parse_ettenten_corpus_file_content_iterator_w_tokenization():
     # Check that heading attributes have been loaded:
     assert str( doc1.paragraphs.heading ) == "['1', '0', '0']"
     assert str( doc2.paragraphs.heading ) == "['1', '0', '0']"
+
+
+
+def test_parse_ettenten_corpus_file_content_iterator_and_split_by():
+    # 1) Add tokenization and split by paragraphs
+    texts = []
+    for text_obj in parse_ettenten_corpus_file_content_iterator( _get_test_ettenten_content(), \
+                                                                 add_tokenization=True ):
+        # Split by paragraphs
+        for paragraph_obj in split_by(text_obj, layer='paragraphs', \
+                                      layers_to_keep=['tokens', 'compound_tokens', 'words', 'sentences']):
+            texts.append( paragraph_obj )
+    # Make assertions
+    assert len(texts) == 6
     
+    # 2) Do not add tokenization, but split by original_paragraphs
+    texts = []
+    for text_obj in parse_ettenten_corpus_file_content_iterator( _get_test_ettenten_content(), \
+                                                                 add_tokenization=False ):
+        # Split by original_paragraphs
+        for paragraph_obj in split_by(text_obj, layer='original_paragraphs', layers_to_keep=[] ):
+            texts.append( paragraph_obj )
+    # Make assertions
+    assert len(texts) == 6
     
+    # 3) Add tokenization and split by sentences
+    texts = []
+    for text_obj in parse_ettenten_corpus_file_content_iterator( _get_test_ettenten_content(), \
+                                                                 add_tokenization=True ):
+        # Split by sentences
+        for paragraph_obj in split_by(text_obj, layer='sentences', \
+                                      layers_to_keep=['tokens', 'compound_tokens', 'words']):
+            texts.append( paragraph_obj )
+    # Make assertions
+    assert len(texts) == 7
+

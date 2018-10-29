@@ -96,7 +96,12 @@ def test_parse_koondkorpus_xml_file_content():
           'author': 'TIINA KUULER', 'ajalehenumber': 'Postimees Extra 1998.01.03e', 'title': 'Olla või näida ?', \
           'alamrubriik': ''}
     assert doc1.meta == doc1_expected_metadata
+    assert len(doc1.text) == 958
     doc2 = texts[1]
+    doc2_expected_metadata = \
+         {'title': 'Mida toob 1998 ?', 'ajalehenumber': 'Postimees Extra 1998.01.03e', 'alamrubriik': '', \
+          'type': 'artikkel', 'alaosa': 'Põhileht', 'rubriik': 'Herilane', '_xml_file': 'aja_pm_1998_01_03e.xml'}
+    assert doc2.meta == doc2_expected_metadata
     assert len(doc2.text) == 1569
 
 
