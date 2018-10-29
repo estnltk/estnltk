@@ -1,18 +1,21 @@
 """"
 Test postgres storage functionality.
 
-Requires .pgpass file with database connection settings in the same directory.
-
+Requires ~/.pgpass file with database connection settings to `test_db` database.
+Schema/table creation and read/write rights are required.
 """
 import unittest
 import random
-import os
 
+from estnltk import logger
 from estnltk import Layer
 from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.storage.postgres import PostgresStorage, PgStorageException, JsonbTextQuery as Q, JsonbLayerQuery, \
     RowMapperRecord
+
+
+logger.setLevel('DEBUG')
 
 
 def get_random_table_name():
@@ -26,7 +29,7 @@ def get_random_table_name_with_schema(schema="public"):
 class TestStorage(unittest.TestCase):
     def setUp(self):
         schema = "test_storage_schema"
-        self.storage = PostgresStorage(pgpass_file=os.path.join(os.path.dirname(__file__), '.pgpass'), schema=schema)
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
         self.storage.create_schema()
 
     def tearDown(self):
@@ -163,15 +166,14 @@ class TestStorage(unittest.TestCase):
 class TestLayerFragment(unittest.TestCase):
     def setUp(self):
         schema = "test_layer_fragment"
-        self.storage = PostgresStorage(pgpass_file=os.path.join(os.path.dirname(__file__), '.pgpass'),
-                                       schema=schema)
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
         self.storage.create_schema()
 
     def tearDown(self):
         self.storage.delete_schema()
         self.storage.close()
 
-    def test_create(self):
+    def _test_create(self):
         table_name = get_random_table_name()
         col = self.storage.get_collection(table_name)
         col.create()
@@ -253,15 +255,14 @@ class TestLayerFragment(unittest.TestCase):
 class TestFragment(unittest.TestCase):
     def setUp(self):
         schema = "test_fragment"
-        self.storage = PostgresStorage(pgpass_file=os.path.join(os.path.dirname(__file__), '.pgpass'),
-                                       schema=schema)
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=schema, dbname='test_db')
         self.storage.create_schema()
 
     def tearDown(self):
         self.storage.delete_schema()
         self.storage.close()
 
-    def test_create(self):
+    def _test_create(self):
         table_name = get_random_table_name()
         col = self.storage.get_collection(table_name)
         col.create()
@@ -346,15 +347,14 @@ class TestFragment(unittest.TestCase):
 class TestLayer(unittest.TestCase):
     def setUp(self):
         self.schema = "test_layer"
-        self.storage = PostgresStorage(pgpass_file=os.path.join(os.path.dirname(__file__), '.pgpass'),
-                                       schema=self.schema)
+        self.storage = PostgresStorage(pgpass_file='~/.pgpass', schema=self.schema, dbname='test_db')
         self.storage.create_schema()
 
     def tearDown(self):
         self.storage.delete_schema()
         self.storage.close()
 
-    def test_create_layer(self):
+    def _test_create_layer(self):
         table_name = get_random_table_name()
         col = self.storage.get_collection(table_name)
         col.create()
