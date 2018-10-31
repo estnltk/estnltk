@@ -65,6 +65,7 @@ class PgCollection:
                           'enveloping text, '
                           '_base text);').format(temporary=temporary,
                                                  structure=self._structure_identifier()))
+            logger.info('new empty collection {!r} created'.format(self.table_name))
             logger.debug(c.query.decode())
 
         return self.storage.create_table(table=self.table_name,
@@ -222,7 +223,8 @@ class PgCollection:
                    layer_ngram_query: dict = None,
                    layers: list = None,
                    keys: list = None,
-                   order_by_key: bool = False):
+                   order_by_key: bool = False,
+                   collection_meta: list = None):
         """
         Select from collection table with possible search constraints.
 
@@ -240,6 +242,8 @@ class PgCollection:
             layers: list
                 Layers to fetch. Specified layers will be merged into returned text object and
                 become accessible via `text["layer_name"]`.
+            collection_meta: list
+                list of collection metadata column names
 
         Returns:
             iterator of (key, text) pairs
@@ -256,10 +260,14 @@ class PgCollection:
 
             where = False
             sql_parts = []
-            table_escaped = SQL("{}").format(self._collection_identifier()).as_string(self.storage.conn)
+            collection_identifier = self._collection_identifier()
+            table_escaped = SQL("{}").format(collection_identifier).as_string(self.storage.conn)
+            collection_meta = collection_meta or []
+            collection_columns = SQL(', ').join(SQL('{}.{}').format(collection_identifier, column_id) for
+                                                column_id in map(Identifier, ['id', 'data', *collection_meta]))
             if not layers and layer_query is None and layer_ngram_query is None:
                 # select only text table
-                q = SQL("SELECT id, data FROM {}.{}").format(Identifier(self.storage.schema), Identifier(table)).as_string(self.storage.conn)
+                q = SQL("SELECT {} FROM {}").format(collection_columns, collection_identifier).as_string(self.storage.conn)
                 sql_parts.append(q)
             else:
                 # need to join text and all layer tables
@@ -277,7 +285,8 @@ class PgCollection:
                     layer = SQL("{}").format(self._layer_identifier(layer)).as_string(self.storage.conn)
                     layers_join.add(layer)
 
-                q = ("SELECT {table}.id, {table}.data {select} FROM {table}, {layers_join} where {where}").format(
+                q = 'SELECT {collection_columns} {select} FROM {table}, {layers_join} WHERE {where}'.format(
+                    collection_columns=collection_columns.as_string(self.storage.conn),
                     table=table_escaped,
                     select=", %s" % ", ".join(
                         "{0}.id, {0}.data".format(layer) for layer in layers_select) if layers_select else "",
@@ -287,12 +296,12 @@ class PgCollection:
                 where = True
             if query is not None:
                 # build constraint on the main text table
-                sql_parts.append("%s %s" % ("and" if where else "where", query.eval()))
+                sql_parts.append("%s %s" % ("AND" if where else "WHERE", query.eval()))
                 where = True
             if layer_query:
                 # build constraint on related layer tables
                 q = " AND ".join(query.eval() for layer, query in layer_query.items())
-                sql_parts.append("%s %s" % ("and" if where else "where", q))
+                sql_parts.append("%s %s" % ("AND" if where else "WHERE", q))
                 where = True
             if keys is None:
                 keys = []
@@ -316,41 +325,43 @@ class PgCollection:
 
             # 2. Execute query
             c.execute(sql, {'keys': keys})
+            logger.debug(c.query.decode())
             for row in c.fetchall():
                 text_id = row[0]
                 text_dict = row[1]
                 text = dict_to_text(text_dict)
-                layers = []
-                if len(row) > 2:
-                    detached_layers = {}
-                    for i in range(2, len(row), 2):
-                        layer_id = row[i]
+                meta = row[2:2+len(collection_meta)]
+                detached_layers = {}
+                if len(row) > 2 + len(collection_meta):
+                    for i in range(2 + len(collection_meta), len(row), 2):
                         layer_dict = row[i + 1]
                         layer = dict_to_layer(layer_dict, text, detached_layers)
                         detached_layers[layer.name] = layer
-                        layers.append(layer_id)
-                        layers.append(layer)
-                result = text_id, text, *layers
+                result = text_id, text, meta, detached_layers
                 yield result
 
     def _select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None,
-                order_by_key=False):
+                order_by_key=False, collection_meta=None):
         for row in self.select_raw(query=query,
                                    layer_query=layer_query,
                                    layer_ngram_query=layer_ngram_query,
                                    layers=layers,
                                    keys=keys,
-                                   order_by_key=order_by_key):
-            text_id = row[0]
-            text = row[1]
-            if len(row) > 2:
-                for i, layer_name in zip(range(3, len(row), 2), layers):
-                    layer = row[i]
-                    text[layer_name] = layer
-            yield text_id, text
+                                   order_by_key=order_by_key,
+                                   collection_meta=collection_meta):
+            text_id, text, meta_list, detached_layers = row
+            for layer_name in layers:
+                text[layer_name] = detached_layers[layer_name]
+            if collection_meta:
+                meta = {}
+                for meta_name, meta_value in zip(collection_meta, meta_list):
+                    meta[meta_name] = meta_value
+                yield text_id, text, meta
+            else:
+                yield text_id, text
 
     def select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None, order_by_key=False,
-               progressbar=None):
+               collection_meta=None, progressbar=None):
         """See PostgresStorage.select()"""
         if not self.exists():
             return
@@ -369,8 +380,9 @@ class PgCollection:
                 raise PgCollectionException('layer {!r} not in collection {!r}'.format(layer, self.table_name))
             include_dep(layer)
 
-        data_iterator = self._select(query, layer_query, layer_ngram_query,
-                                     layers_extended, keys=keys, order_by_key=order_by_key)
+        data_iterator = self._select(query=query, layer_query=layer_query, layer_ngram_query=layer_ngram_query,
+                                     layers=layers_extended, keys=keys, order_by_key=order_by_key,
+                                     collection_meta=collection_meta)
         if progressbar not in {'ascii', 'unicode', 'notebook'}:
             yield from data_iterator
             return
