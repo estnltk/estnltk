@@ -3,10 +3,10 @@ import requests
 import json
 import os
 from regex import sub
+from contextlib import contextmanager
 
 
 class TextaExporter:
-
     def __init__(self, index, doc_type, fact_mapping=None, textaurl='http://localhost:8000',
                  textapass='~/.textapass', sessionpass=None):
         # index is like a schema
@@ -16,7 +16,7 @@ class TextaExporter:
         # fact_mapping: str (default: None)
         #   name of a csv file that contains fact mapping instructions
 
-        # format of the .textapass file:
+        # format of the .textapass file and sessionpass file:
         # <username>
         # <password>
 
@@ -64,7 +64,8 @@ class TextaExporter:
             return list({fm.facts_layer for fm in self.fact_mapping})
         return []
 
-    def to_dict(self, text, meta):
+    def to_data(self, text, meta):
+        meta = meta or {}
         data = {**meta,
                 'text': text.text}
         if 'morph_analysis' in text.layers:
@@ -82,17 +83,45 @@ class TextaExporter:
                                       'partofspeech': partofspeech}
         if self.fact_mapping is not None:
             data['texta_facts'] = self.extract_facts(text)
+        return data
 
-        d = {'auth_token': self._auth_token,
-             'index': self.index,
-             'doc_type': self.doc_type,
-             'data': data
-             }
-        return d
+    def to_dict(self, text, meta):
+        return {'auth_token': self._auth_token,
+                'index': self.index,
+                'doc_type': self.doc_type,
+                'data': self.to_data(text, meta)
+                }
 
     def export(self, text, meta=None):
         d = self.to_dict(text, meta)
         return self.session.post('{}/import_api/document_insertion'.format(self.textaurl), json.dumps(d))
+
+    def _buffered_export(self, text, meta, buffer, buffer_size):
+        buffer.append(self.to_data(text, meta))
+        if len(buffer) >= buffer_size:
+            return self._flush_export_buffer(buffer)
+
+    def _flush_export_buffer(self, buffer):
+        d = {'auth_token': self._auth_token,
+             'index': self.index,
+             'doc_type': self.doc_type,
+             'data': buffer
+             }
+        response = self.session.post('{}/import_api/document_insertion'.format(self.textaurl), json.dumps(d))
+        buffer.clear()
+        return response
+
+    @contextmanager
+    def buffered_export(self, buffer_size=1000):
+        buffer = []
+
+        def wrap_buffered_export(text, meta=None):
+            return self._buffered_export(text, meta, buffer=buffer, buffer_size=buffer_size)
+
+        try:
+            yield wrap_buffered_export
+        finally:
+            self._flush_export_buffer(buffer)
 
     def extract_facts(self, text):
         for fm in self.fact_mapping:
