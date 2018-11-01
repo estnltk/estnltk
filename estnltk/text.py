@@ -84,6 +84,9 @@ class Text:
     def text(self):
         return self._text
 
+    def setup_structure(self):
+        return self._setup_structure()
+
     def _setup_structure(self):
         pairs = []
         attributes = []
@@ -98,6 +101,10 @@ class Text:
             for to in tos:
                 pairs.append((frm, to))
                 pairs.append((to, frm))
+
+        self.layers_to_attributes = defaultdict(list)
+        for name, layer in self.layers.items():
+            self.layers_to_attributes[name] = layer.attributes
 
         # we can go from layer to attribute
         for frm, tos in self.layers_to_attributes.items():
@@ -166,8 +173,6 @@ class Text:
         if layer.parent:
             layer._base = self.layers[layer.parent]._base
             self.layers[layer.parent].freeze()
-
-        self.layers_to_attributes[name] = attributes
 
         if layer.parent:
             # This is a change to accommodate pruning of the layer tree.
