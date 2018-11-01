@@ -1,3 +1,5 @@
+import pytest
+
 from estnltk import Text
 from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer, VabamorfDisambiguator
 from estnltk.taggers.morph_analysis.morf import IGNORE_ATTR
@@ -152,6 +154,32 @@ def test_morph_disambiguator_1():
     _sort_morph_analysis_records( expected_records )
     # Check results
     assert expected_records == results_dict
+
+# ----------------------------------
+#   Test
+#     that  disambiguator  throws 
+#     an exception iff some words 
+#     do not have analyses 
+# ----------------------------------
+
+def test_morph_disambiguation_exception_on_unknown_words():
+    text=Text('Mulll on yks rõlgelt hea netikeelelause')
+    text.tag_layer(['words','sentences'])
+    analyzer2.tag(text, guess=False, propername=False)
+    
+    # Check for unknown word placeholders
+    assert ['Mulll', 'on', 'yks', 'rõlgelt', 'hea', 'netikeelelause'] == text.words.text
+    assert AmbiguousAttributeList([[None],
+                                   ['ole', 'ole'], [None], [None],
+                                   ['hea', 'hea', 'hea', 'hea'],
+                                   ['neti_keele_lause', 'neti_keele_lause']], 'root') == text.root
+
+    with pytest.raises(Exception) as e1:
+        # Disambiguate text
+        disambiguator.tag(text)
+    #print(e1)
+    # >>> (!) Unable to perform morphological disambiguation because words at positions [(0, 5), (9, 12), (13, 20)] have no morphological analyses.
+
 
 # ----------------------------------
 #   Test

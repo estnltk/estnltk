@@ -106,7 +106,7 @@ def test_parse_ettenten_corpus_file_content_iterator_and_split_by():
     # Make assertions
     assert len(texts) == 6
     
-    # 2) Do not add tokenization, but split by original_paragraphs
+    # 2) Do not add tokenization, but split by original_paragraphs (from XML mark-up)
     texts = []
     for text_obj in parse_ettenten_corpus_file_content_iterator( _get_test_ettenten_content(), \
                                                                  add_tokenization=False ):
