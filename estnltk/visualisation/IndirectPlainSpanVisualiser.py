@@ -1,4 +1,7 @@
-class IndirectPlainSpanVisualiser():
+from estnltk.visualisation.span_decorator import SpanDecorator
+
+
+class IndirectPlainSpanVisualiser(SpanDecorator):
     
     def __init__(self, id_mapping=None, class_mapping=None, fill_empty_spans=False):
         self.id_mapping = id_mapping
@@ -8,11 +11,11 @@ class IndirectPlainSpanVisualiser():
     
     def __call__(self, segment):
         
-        output=''
+        output = ''
     
         # Simple text no span to fill
         if not self.fill_empty_spans and self.is_pure_text(segment):
-            output+=segment[0]
+            output += segment[0]
         else:
             # There is a span to decorate
             output += '<span'
@@ -27,6 +30,4 @@ class IndirectPlainSpanVisualiser():
         return output
     
     def is_pure_text(self,segment):
-        if len(segment[1])>0:
-            return False
-        return True
+        return len(segment[1]) == 0
