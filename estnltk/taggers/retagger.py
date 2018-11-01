@@ -58,6 +58,7 @@ class Retagger(Tagger):
         if check_output_consistency:
             # Validate changed layer: check span consistency
             layers[self.output_layer].check_span_consistency()
+        text.setup_structure()
         return text
 
     def __call__(self, text: Text, status: dict = None) -> Text:
