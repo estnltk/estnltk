@@ -134,7 +134,7 @@ def test_morph_disambiguator_1():
     text=Text('Mitmenda koha sai kohale jõudnud mees ?')
     text.tag_layer(['words','sentences'])
     analyzer2.tag(text)
-    disambiguator.tag(text)
+    disambiguator.retag(text)
     expected_records = [ \
         [{'ending': '0', 'root': 'mitmes', 'root_tokens': ('mitmes',), 'start': 0, 'end': 8, 'clitic': '', 'partofspeech': 'P', 'lemma': 'mitmes', 'form': 'sg g'}], \
         [{'ending': '0', 'root': 'koha', 'root_tokens': ('koha',), 'start': 9, 'end': 13, 'clitic': '', 'partofspeech': 'S', 'lemma': 'koha', 'form': 'sg g'}, \
@@ -176,7 +176,7 @@ def test_morph_disambiguation_exception_on_unknown_words():
 
     with pytest.raises(Exception) as e1:
         # Disambiguate text
-        disambiguator.tag(text)
+        disambiguator.retag(text)
     #print(e1)
     # >>> (!) Unable to perform morphological disambiguation because words at positions [(0, 5), (9, 12), (13, 20)] have no morphological analyses.
 
@@ -204,7 +204,7 @@ def test_morph_disambiguation_preserves_extra_attributes():
                 for s_id, span in enumerate(spanlist):
                     setattr(span, 'sentence_id', str(sent_id))
     # Disambiguate text
-    disambiguator.tag(text)
+    disambiguator.retag(text)
     #print(text['morph_analysis'].to_records())
     # Check that extra attributes are preserved
     expected_records = [
@@ -240,14 +240,15 @@ def test_morph_disambiguation_with_ignore():
     for amb_span in text.morph_analysis:
         pos_key = (amb_span.start, amb_span.end)
         if pos_key in mark_ignore:
-            # Record the pervious spanlist
+            # Record the previous spanlist
+            # (so that we can compare after disambiguation)
             mark_ignore[pos_key] = amb_span
         for span in amb_span:
             if pos_key in mark_ignore:
                 setattr(span, IGNORE_ATTR, True)
             else:
                 setattr(span, IGNORE_ATTR, False)
-    disambiguator.tag(text)
+    disambiguator.retag(text)
     # Assert that attribute IGNORE_ATTR has been removed 
     assert not hasattr(text.morph_analysis, IGNORE_ATTR)
     # Check that marked spans remain the same in the new layer
@@ -268,7 +269,7 @@ def test_morph_disambiguation_with_ignore_all():
     for spanlist in text.morph_analysis.span_list:
         for span in spanlist:
             setattr(span, IGNORE_ATTR, True)
-    disambiguator.tag(text)
+    disambiguator.retag(text)
     #print(text['morph_analysis'].to_records())
     # Assert that attribute IGNORE_ATTR has been removed 
     assert not hasattr(text.morph_analysis, IGNORE_ATTR)
@@ -282,7 +283,7 @@ def test_morph_disambiguation_with_ignore_emoticons():
     # ignore emoticons
     mark_ignore = \
       _ignore_morph_analyses_overlapping_with_compound_tokens(text, ['emoticon'])
-    disambiguator.tag(text)
+    disambiguator.retag(text)
     # Assert that attribute IGNORE_ATTR has been removed 
     assert not hasattr(text.morph_analysis, IGNORE_ATTR)
     # Check that marked spans remain the same in the new layer
@@ -301,10 +302,11 @@ def test_morph_disambiguation_with_ignore_xml_tags():
     mark_ignore = \
       _ignore_morph_analyses_overlapping_with_compound_tokens(text, ['xml_tag'])
     #print(text['morph_analysis'].to_records())
-    disambiguator.tag(text)
+    disambiguator.retag(text)
     #print(text['morph_analysis'].to_records())
     # Assert that attribute IGNORE_ATTR has been removed 
     assert not hasattr(text.morph_analysis, IGNORE_ATTR)
     for spanlist in text.morph_analysis.span_list:
         # assert that all words have been disambiguated
         assert len(spanlist) == 1
+        assert not hasattr(spanlist, IGNORE_ATTR)

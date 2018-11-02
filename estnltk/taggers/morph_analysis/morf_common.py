@@ -6,6 +6,8 @@
 import operator
 from functools import reduce
 
+from typing import MutableMapping, Any
+
 from estnltk.text import Span
 
 from estnltk.vabamorf.morf import get_group_tokens
@@ -101,6 +103,20 @@ def _is_empty_span( span:Span ):
     '''
     all_none = [getattr(span, attr) is None for attr in ESTNLTK_MORPH_ATTRIBUTES]
     return all(all_none)
+
+# ========================================================
+#   Convert Span to records, but ignore some attributes   
+# ========================================================
+
+def _span_to_records_excl( span: Span, exclude_attribs ) -> MutableMapping[str, Any]:
+    '''Converts given Span to a dictionary of attributes and 
+       values (records), but excludes attributes from the 
+       list exclude_attribs.
+       Use this method iff Span.to_record() cannot be used 
+       because "legal attributes" of the layer have already 
+       been changed.'''
+    return { **{k: span.__getattribute__(k) for k in list(span.legal_attribute_names) if k not in exclude_attribs },
+             **{'start': span.start, 'end': span.end } }
 
 
 # ========================================================
