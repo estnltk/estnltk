@@ -350,7 +350,14 @@ class PostMorphAnalysisTagger(Retagger):
              1. Removes duplicate analyses;
              2. Rewrites elements of the layer using 
                 correction_rewriter;
-             3. ...
+           
+           Note that this method also tries to preserve any extra
+           attributes of the 'morph_analysis' layer. Every rewritten
+           (or newly created) 'morph_analysis' span will obtain its
+           extra attribute values from the original 'morph_analysis'
+           of the word. If the original 'morph_analysis' of the word 
+           consisted of multiple spans / analyses, extra attribute 
+           values will be carried over from the first span / analysis.
            
            Parameters
            ----------
@@ -372,6 +379,12 @@ class PostMorphAnalysisTagger(Retagger):
             layers[self.output_layer].attributes += (IGNORE_ATTR,)
         # Take attributes from the input layer
         current_attributes = layers[self.output_layer].attributes
+        # Find extra attributes (if there are any)
+        extra_attributes = []
+        for cur_attr in current_attributes:
+            if cur_attr not in self.attributes and \
+               cur_attr != IGNORE_ATTR:
+                extra_attributes.append( cur_attr )
         # Rewrite spans of the old layer
         morph_span_id = 0
         morph_spans   = layers[self.output_layer].spans
@@ -394,6 +407,14 @@ class PostMorphAnalysisTagger(Retagger):
                         layer_attributes = current_attributes )
                 # Add ignore attribute
                 empty_morph_record[IGNORE_ATTR] = False
+                # Carry over extra attributes
+                if extra_attributes and len(morph_spans[morph_span_id].spans) > 0:
+                    # Assume that extra attributes are same for each sub-span (of the word):
+                    # therefore, carry over attribute values from the first span
+                    first_span = morph_spans[morph_span_id].spans[0]
+                    first_span_rec = _span_to_records_excl(first_span, [IGNORE_ATTR])
+                    for extra_attr in extra_attributes:
+                        empty_morph_record[extra_attr] = first_span_rec[extra_attr]
                 # Record the new span
                 ambiguous_span = \
                     AmbiguousSpan(layer=morph_spans[morph_span_id].layer, \
@@ -419,7 +440,18 @@ class PostMorphAnalysisTagger(Retagger):
                 # B.1.2) Rewrite records of a single word
                 rewritten_recs = \
                     self.correction_rewriter.rewrite(records)
-                records = rewritten_recs
+                # B.1.3) Carry over extra attributes
+                if extra_attributes and len(records) > 0:
+                    # Assume that extra attributes are same for each record (of the word):
+                    # therefore, carry over attribute values from the first record
+                    first_old_rec = records[0]
+                    for rec in rewritten_recs:
+                        for extra_attr in extra_attributes:
+                            # Note: carry over the extra attribute value only when 
+                            # the record was changed by the rewriter (so, the attribute 
+                            # is missing from the record)
+                            if extra_attr not in rec:
+                                rec[extra_attr] = first_old_rec[extra_attr]
             
             # C) Convert records back to spans
             #    Add IGNORE_ATTR
@@ -427,7 +459,7 @@ class PostMorphAnalysisTagger(Retagger):
                  AmbiguousSpan(layer=morph_spans[morph_span_id].layer, \
                                span=morph_spans[morph_span_id].span)
             record_added = False
-            for rec in records:
+            for rec in rewritten_recs:
                 if not rec:
                     # Skip if a record was deleted
                     continue
@@ -455,6 +487,14 @@ class PostMorphAnalysisTagger(Retagger):
                         layer_attributes = current_attributes )
                 # Add ignore attribute
                 empty_morph_record[IGNORE_ATTR] = False
+                # Carry over extra attributes
+                if extra_attributes and len(morph_spans[morph_span_id].spans) > 0:
+                    # Assume that extra attributes are same for each sub-span (of the word):
+                    # therefore, carry over attribute values from the first span
+                    first_span = morph_spans[morph_span_id].spans[0]
+                    first_span_rec = _span_to_records_excl(first_span, [IGNORE_ATTR])
+                    for extra_attr in extra_attributes:
+                        empty_morph_record[extra_attr] = first_span_rec[extra_attr]
                 # Add the new annotation
                 ambiguous_span.add_annotation( **empty_morph_record )
 

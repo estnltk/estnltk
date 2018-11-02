@@ -1,6 +1,8 @@
 from estnltk import Text
 from estnltk.taggers import VabamorfTagger
 from estnltk.taggers import PostMorphAnalysisTagger
+from estnltk.taggers.morph_analysis.morf import VabamorfAnalyzer
+
 from estnltk.layer import AmbiguousAttributeTupleList
 
 # ----------------------------------
@@ -292,6 +294,45 @@ def test_applying_postanalysis_twice():
                                                    [['J. _K. _Köstri_mägi', '0', 'H', 'sg g']]], 
                                                    ('root','ending','partofspeech','form') )
     assert expected_result == text.morph_analysis['root','ending','partofspeech','form']
+
+# ----------------------------------
+
+def test_postanalysis_preserves_extra_attributes():
+    # Tests that extra attributes added to the 'morph_analysis'
+    # layer will be preserved through the PostMorphAnalysis
+    text=Text('Pulli tahad vähemalt 10e eest? Siis helista big@boss.com')
+    text.tag_layer(['words','sentences'])
+    analyzer = VabamorfAnalyzer(extra_attributes=['analysis_id', 'sentence_id'])
+    analyzer.tag(text)
+    # Add extra attributes
+    for sp_id, spanlist in enumerate(text.morph_analysis.span_list):
+        for s_id, span in enumerate(spanlist):
+            setattr(span, 'analysis_id', str(sp_id)+'_'+str(s_id))
+    for sent_id, sentence in enumerate(text.sentences.span_list):
+        for sp_id, spanlist in enumerate(text.morph_analysis.span_list):
+            if sentence.start <= spanlist.start and \
+               spanlist.end <= sentence.end:
+                for s_id, span in enumerate(spanlist):
+                    setattr(span, 'sentence_id', str(sent_id))
+    postanalysis_tagger = PostMorphAnalysisTagger()
+    # make post analysis corrections
+    postanalysis_tagger.retag(text)
+    #print(text.morph_analysis['root','partofspeech','analysis_id','sentence_id',])
+    # Check that extra attributes are preserved
+    expected_result = AmbiguousAttributeTupleList([[['Pull', 'H', '0_0', '0'], ['Pull', 'H', '0_1', '0'], \
+                                                    ['Pull', 'H', '0_2', '0'], ['Pulli', 'H', '0_3', '0'], \
+                                                    ['Pulli', 'H', '0_4', '0'], ['pull', 'A', '0_5', '0'], \
+                                                    ['pull', 'A', '0_6', '0'], ['pull', 'A', '0_7', '0'], \
+                                                    ['pull', 'S', '0_8', '0'], ['pull', 'S', '0_9', '0'], \
+                                                    ['pull', 'S', '0_10', '0'], ['pulli', 'V', '0_11', '0']], \
+                                                    [['taht', 'V', '1_0', '0']], [['vähemalt', 'D', '2_0', '0'], \
+                                                    ['vähem', 'C', '2_1', '0']], [['10', 'N', '3_0', '0']], \
+                                                    [['eest', 'D', '4_0', '0'], ['eest', 'K', '4_1', '0'], \
+                                                    ['esi', 'S', '4_2', '0']], [['?', 'Z', '5_0', '0']], \
+                                                    [['siis', 'D', '6_0', '1'], ['siis', 'J', '6_1', '1']], \
+                                                    [['helista', 'V', '7_0', '1']], [['big@boss.com', 'H', '8_0', '1']]],
+                                                    ('root','partofspeech','analysis_id','sentence_id') )
+    assert expected_result == text.morph_analysis['root','partofspeech','analysis_id','sentence_id']
 
 # ----------------------------------
 
