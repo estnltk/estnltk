@@ -167,76 +167,17 @@ class VabamorfTagger(TaggerOld):
         return text
 
 
-
 # ========================================================
-#    Util for carrying over extra attributes from 
-#          old EstNLTK Span to the new EstNLTK Span
+#    Util: find a matching morphological analysis 
+#          record from a list of records;
 # ========================================================
-
-def _carry_over_extra_attributes( old_spanlist:SpanList, \
-                                  new_spanlist:list, \
-                                  extra_attributes:list ):
-    '''Carries over extra attributes from the old spanlist to the new 
-       spanlist.
-       Assumes:
-       * each span from new_spanlist appears also in old_spanlist, and it can
-         be detected by comparing spans by VABAMORF_ATTRIBUTES;
-       * new_spanlist contains less or equal number of spans than old_spanlist;
-        
-       Parameters
-       ----------
-       old_spanlist: estnltk.span.SpanList
-           SpanList containing morphological analyses of a single word.
-           The source of values of extra attributes.
-
-       new_spanlist: list of estnltk.span.Span
-           List of newly created Span-s. The target to where extra 
-           attributes and their values need to be written.
-        
-       extra_attributes: list of str
-           List of names of extra attributes that need to be carried 
-           over from old_spanlist to new_spanlist.
-
-       Raises
-       ------
-       Exception
-           If some item from new_spanlist cannot be matched with any of 
-           the items from the old_spanlist;
-    '''
-    assert len(old_spanlist.spans) >= len(new_spanlist)
-    for new_span in new_spanlist:
-        # Try to find a matching old_span for the new_span
-        match_found = False
-        old_span_id = 0
-        while old_span_id < len(old_spanlist.spans):
-            old_span = old_spanlist.spans[old_span_id]
-            # Check that all morph attributes match 
-            # ( Skip 'lemma' & 'root_tokens', as these 
-            #   were derived from 'root' )
-            attr_matches = []
-            for attr in VABAMORF_ATTRIBUTES:
-                attr_match = (getattr(old_span,attr)==getattr(new_span,attr))
-                attr_matches.append( attr_match )
-            if all( attr_matches ):
-                # Set extra attributes
-                for extra_attr in extra_attributes:
-                    setattr(new_span, \
-                            extra_attr, \
-                            getattr(old_span,extra_attr))
-                match_found = True
-                break
-            old_span_id += 1
-        if not match_found:
-            new_pos = str((new_span.start, new_span.end))
-            raise Exception('(!) Error on carrying over attributes of morph_analysis: '+\
-                            'Unable to find a matching old span for the new span at '+\
-                            'the location '+new_pos+'.')
-
 
 def _find_matching_old_record( new_record, old_records ):
     '''Finds a record from old_records that matches the morphological 
        analyses attributes of the new record. Returns the matching
-       record, or None, if none was found.
+       record, or None, if matching record was not found.
+       Two records are considered as matching if all of their 
+       VABAMORF_ATTRIBUTES's values are equal;
         
        Parameters
        ----------

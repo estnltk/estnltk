@@ -17,6 +17,7 @@ from estnltk.taggers.morph_analysis.morf_common import IGNORE_ATTR
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import _get_word_text, _create_empty_morph_record
+from estnltk.taggers.morph_analysis.morf_common import _span_to_records_excl
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_span
 
 from estnltk.rewriting.postmorph.vabamorf_corrector import VabamorfCorrectionRewriter
@@ -472,16 +473,6 @@ def _convert_to_uppercase( matchobj ):
     '''Converts second group of matchobj to uppercase, and 
        returns a concatenation of first and second group. '''
     return matchobj.group(1)+matchobj.group(2).upper()
-
-def _span_to_records_excl( span: Span, exclude_attribs ) -> MutableMapping[str, Any]:
-    '''Converts given Span to a dictionary of attributes and 
-       values (records), but excludes attributes from the 
-       list exclude_attribs.
-       Use this method iff Span.to_record() cannot be used 
-       because "legal attributes" of the layer have already 
-       been changed.'''
-    return { **{k: span.__getattribute__(k) for k in list(span.legal_attribute_names) if k not in exclude_attribs },
-             **{'start': span.start, 'end': span.end } }
 
 
 def _remove_duplicate_morph_spans( spanlist: list ):
