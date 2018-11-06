@@ -63,8 +63,9 @@ class PgCollection:
                           'ambiguous bool not null, '
                           'parent text, '
                           'enveloping text, '
-                          '_base text);').format(temporary=temporary,
-                                                 structure=self._structure_identifier()))
+                          '_base text, '
+                          'meta text[]);').format(temporary=temporary,
+                                                  structure=self._structure_identifier()))
             logger.info('new empty collection {!r} created'.format(self.table_name))
             logger.debug(c.query.decode())
 
@@ -74,12 +75,25 @@ class PgCollection:
                                          temporary=self._temporary,
                                          table_identifier=self._collection_identifier())
 
+    def extend(self, other: 'PgCollection'):
+        if self.column_names != other.column_names:
+            raise PgCollectionException("can't extend: different collection meta")
+        if self._structure != other._structure:
+            raise PgCollectionException("can't extend: structures are different")
+        with self.storage.conn.cursor() as cursor:
+            cursor.execute(SQL('INSERT INTO {} SELECT * FROM {}').format(self._collection_identifier(),
+                                                                         other._collection_identifier()))
+            for layer_name, struct in self._structure.items():
+                if struct['detached']:
+                    cursor.execute(SQL('INSERT INTO {} SELECT * FROM {}').format(self._layer_identifier(layer_name),
+                                                                                 other._layer_identifier(layer_name)))
+
     def _get_structure(self):
         structure = {}
         with self.storage.conn.cursor() as c:
             try:
-                c.execute(SQL("SELECT layer_name, detached, attributes, ambiguous, parent, enveloping, _base FROM {};"
-                              ).format(self._structure_identifier()))
+                c.execute(SQL("SELECT layer_name, detached, attributes, ambiguous, parent, enveloping, _base, meta "
+                              "FROM {};").format(self._structure_identifier()))
 
                 for row in c.fetchall():
                     structure[row[0]] = {'detached': row[1],
@@ -87,16 +101,18 @@ class PgCollection:
                                          'ambiguous': row[3],
                                          'parent': row[4],
                                          'enveloping': row[5],
-                                         '_base': row[6]}
+                                         '_base': row[6],
+                                         'meta': row[7]}
             except psycopg2.ProgrammingError:
                 # structure table does not exist
                 structure = None
         return structure
 
-    def _insert_into_structure(self, layer, detached: bool):
+    def _insert_into_structure(self, layer, detached: bool, meta: dict=None):
+        meta = list(meta or [])
         with self.storage.conn.cursor() as c:
-            c.execute(SQL("INSERT INTO {} (layer_name, detached, attributes, ambiguous, parent, enveloping, _base) "
-                          "VALUES ({}, {}, {}, {}, {}, {}, {});").format(
+            c.execute(SQL("INSERT INTO {} (layer_name, detached, attributes, ambiguous, parent, enveloping, _base, meta) "
+                          "VALUES ({}, {}, {}, {}, {}, {}, {}, {});").format(
                 self._structure_identifier(),
                 Literal(layer.name),
                 Literal(detached),
@@ -104,7 +120,8 @@ class PgCollection:
                 Literal(layer.ambiguous),
                 Literal(layer.parent),
                 Literal(layer.enveloping),
-                Literal(layer._base)
+                Literal(layer._base),
+                Literal(meta)
             )
             )
         self._structure = self._get_structure()
@@ -599,7 +616,7 @@ class PgCollection:
                         logger.debug('insert into layer {!r}, query size: {} bytes'.format(layer_name, len(c.query)))
 
                         id_ += 1
-                self._insert_into_structure(layer, detached=True)
+                self._insert_into_structure(layer, detached=True, meta=meta)
             except:
                 conn.rollback()
                 raise
@@ -839,8 +856,8 @@ class PgCollection:
                     for annotation in span:
                         i += 1
                         values = [i, text_id, span_nr]
-                        values.extend(getattr(annotation, attr) for attr in  attributes)
-                        c.execute(SQL("INSERT INTO {}.{}\n"
+                        values.extend(str(getattr(annotation, attr)) for attr in attributes)
+                        c.execute(SQL("INSERT INTO {}.{} "
                                       "VALUES ({});").format(Identifier(self.storage.schema),
                                                             Identifier(export_table),
                                                             SQL(', ').join(map(Literal, values))
