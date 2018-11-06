@@ -561,7 +561,7 @@ class PgCollection:
         if self.has_layer(layer_name):
             if overwrite:
                 logger.info("overwriting output layer: {!r}".format(layer_name))
-                self.delete_layer(layer_name=layer_name)
+                self.delete_layer(layer_name=layer_name, cascade=True)
             else:
                 exception = PgCollectionException("can't create layer {!r}, layer already exists".format(layer_name))
                 logger.error(exception)
@@ -719,7 +719,7 @@ class PgCollection:
             layer_table=layer_identifier))
         logger.debug(cursor.query.decode())
 
-    def delete_layer(self, layer_name):
+    def delete_layer(self, layer_name, cascade=False):
         if layer_name not in self._structure:
             raise PgCollectionException("collection does not have a layer {!}".format(layer_name))
         if not self._structure[layer_name]['detached']:
@@ -729,8 +729,11 @@ class PgCollection:
             if ln == layer_name:
                 continue
             if layer_name == struct['enveloping'] or layer_name == struct['parent'] or layer_name == struct['_base']:
-                raise PgCollectionException("Can't delete layer {!r}. "
-                                            "There is a dependant layer {!r}.".format(layer_name, ln))
+                if cascade:
+                    self.delete_layer(ln, cascade=True)
+                else:
+                    raise PgCollectionException("can't delete layer {!r}; "
+                                                "there is a dependant layer {!r}".format(layer_name, ln))
         self._drop_table(self._layer_identifier(layer_name))
         self._delete_from_structure(layer_name)
         logger.info('layer deleted: {!r}'.format(layer_name))
