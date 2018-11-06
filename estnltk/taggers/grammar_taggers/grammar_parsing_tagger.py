@@ -15,7 +15,7 @@ class GrammarParsingTagger(Tagger):
                  grammar,
                  layer_of_tokens,
                  name_attribute='grammar_symbol',
-                 layer_name='parse',
+                 output_layer='parse',
                  attributes=(),
                  output_nodes=None,
                  gap_validator=None,
@@ -27,7 +27,7 @@ class GrammarParsingTagger(Tagger):
         self.grammar = grammar
         self.input_layers = [layer_of_tokens]
         self.name_attribute = name_attribute
-        self.output_layer = layer_name
+        self.output_layer = output_layer
         self.output_attributes = attributes
         if output_nodes is None:
             self.output_nodes = set(grammar.start_symbols)

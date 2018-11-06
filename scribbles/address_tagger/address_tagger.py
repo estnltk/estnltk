@@ -293,7 +293,7 @@ class AddressGrammarTagger(Tagger):
                  input_layer='address_parts'):
         self.tagger = GrammarParsingTagger(  # output_layer=self.output_layer,
             # output_attributes=self.output_attributes,#, 'unknown'],
-            layer_name=output_layer,
+            output_layer=output_layer,
             layer_of_tokens=input_layer,
             attributes=['grammar_symbol', 'composition'],
             grammar=self.grammar,

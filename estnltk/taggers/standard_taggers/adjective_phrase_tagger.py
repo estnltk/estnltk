@@ -140,7 +140,7 @@ class AdjectivePhraseGrammarTagger(Tagger):
                  output_layer='adjective_phrases',
                  input_layer='grammar_tags'):
         self.tagger = GrammarParsingTagger(
-            layer_name=output_layer,
+            output_layer=output_layer,
             layer_of_tokens=input_layer,
             attributes=['type', 'adverb_class', 'adverb_weight'],
             grammar=self.grammar(),
