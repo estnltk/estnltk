@@ -66,8 +66,10 @@ class TextaExporter:
 
     def to_data(self, text, meta):
         meta = meta or {}
-        data = {**meta,
-                'text': text.text}
+
+        # some values (e.g. datetime.date(2016, 2, 15)) are not JSON serializable
+        data = {k: str(v) for k, v in meta.items()}
+        data['text'] = text.text
         if 'morph_analysis' in text.layers:
             # words may contain whitespace (eg '25 000') but there should be equal number of words, lemmas and POS
             words = ' '.join(
