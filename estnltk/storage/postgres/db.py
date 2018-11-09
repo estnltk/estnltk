@@ -774,7 +774,7 @@ class PgCollection:
                 # insert data
                 id_ = 0
                 with self.buffered_layer_insert(table_identifier=self._layer_identifier(layer_name),
-                                                columns=columns, buffer_size=20) as buffered_insert:
+                                                columns=columns) as buffered_insert:
                     for row in data_iterator:
                         collection_id, text = row[0], row[1]
                         for record in row_mapper(row):
