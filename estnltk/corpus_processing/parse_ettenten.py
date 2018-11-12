@@ -14,7 +14,9 @@ import re
 from estnltk.text import Text, Layer, EnvelopingSpan
 from estnltk.taggers import ParagraphTokenizer
 
-# =======  Helpful utils
+# =================================================
+#   Helpful utils
+# =================================================
 
 # Pattern for capturing names & values of attributes
 ettenten_tag_attrib_pat = re.compile('([^= ]+)="([^"]+?)"')
@@ -45,6 +47,40 @@ def parse_tag_attributes( tag_str ):
     return attribs
 
 
+def extract_doc_ids_from_corpus_file( in_file, encoding='utf-8' ):
+    '''Opens an etTenTen corpus file, reads its content, and 
+       extracts all document id-s. 
+       Returns a list of document id-s (list of strings).
+       
+       Parameters
+       ----------
+       in_file: str
+           Full name of etTenTen corpus file (name with path);
+           
+       encoding: str
+           Encoding of in_file. Defaults to 'utf-8';
+       
+       Returns
+       -------
+       list of str
+           a list of extracted document id-s;
+    '''
+    ettenten_doc_tag_start = re.compile("<doc[^<>]+>")
+    doc_ids = []
+    with open( in_file, mode='r', encoding=encoding ) as f:
+        for line in f:
+            stripped_line = line.strip()
+            m_doc_start = ettenten_doc_tag_start.search(stripped_line)
+            if m_doc_start: 
+                attribs = parse_tag_attributes( stripped_line )
+                assert 'id' in attribs.keys()
+                doc_ids.append( attribs['id'] )
+    return doc_ids
+
+
+# =================================================
+#   Parsing and reconstruction of a document
+# =================================================
 
 def reconstruct_ettenten_text( document, \
                                add_tokenization=False, \
@@ -197,7 +233,8 @@ class EtTenTenXMLParser:
         is actually the most straightforward approach.
     """
 
-    def __init__(self, add_tokenization=False, \
+    def __init__(self, focus_doc_ids=None,\
+                       add_tokenization=False, \
                        discard_empty_paragraphs=True, \
                        store_paragraph_attributes=True, \
                        paragraph_separator='\n\n' ):
@@ -205,6 +242,14 @@ class EtTenTenXMLParser:
         
            Parameters
            ----------
+           focus_doc_ids: set of str
+               Set of document id-s corresponding to the documents which 
+               need to be extracted from the XML content.
+               If provided, then only documents with given id-s will be 
+               parsed, and all other documents will be skipped.
+               If None or empty, then all documents in the content will 
+               be parsed.
+            
            add_tokenization: boolean
                Specifies if tokenization will be added to the reconstructed 
                text;
@@ -233,19 +278,25 @@ class EtTenTenXMLParser:
                Default: '\n\n'
         '''
         # Initialize the state of parsing
-        self.lines      = 0
-        self.inside_p   = False
+        self.lines            = 0
+        self.inside_p         = False
+        self.inside_focus_doc = False
         self.paragraphs = []
         self.document   = {}
+        if focus_doc_ids is not None:
+            assert isinstance(focus_doc_ids, set)
+            if len(focus_doc_ids) == 0:
+                focus_doc_ids = None
+        self.focus_doc_ids              = focus_doc_ids
         self.add_tokenization           = add_tokenization
-        self.store_paragraph_attributes = discard_empty_paragraphs
-        self.discard_empty_paragraphs   = store_paragraph_attributes
+        self.store_paragraph_attributes = store_paragraph_attributes
+        self.discard_empty_paragraphs   = discard_empty_paragraphs
         self.paragraph_separator        = paragraph_separator
         # Patterns for detecting tags
         self.ettenten_corpus_tag_start = re.compile("<corpus[^<>]*>")
         self.ettenten_doc_tag_start    = re.compile("<doc[^<>]+>")
         self.ettenten_doc_tag_end      = re.compile("</doc>")
-        self.ettenten_p_tag_start      = re.compile("<p([^<>]+)>")
+        self.ettenten_p_tag_start      = re.compile("<p( [^<>]+)>")
         self.ettenten_p_tag_end        = re.compile("</p>")
 
 
@@ -255,6 +306,9 @@ class EtTenTenXMLParser:
            If an end of document is reached, reconstructs and returns 
            Text object based on the seen document. Otherwise, returns 
            None. 
+           
+           If focus_doc_ids was provided, then only documents which
+           id-s are in the set focus_doc_ids will be extracted.
         '''
         stripped_line = line.strip()
         m_doc_start  = self.ettenten_doc_tag_start.search(stripped_line)
@@ -272,13 +326,21 @@ class EtTenTenXMLParser:
                    raise Exception("(!) Improper key name "+key+" in tag <doc>.")
                 self.document[key] = value
             self.inside_p = False
+            if self.focus_doc_ids is not None:
+                self.inside_focus_doc = self.document['id'] in self.focus_doc_ids
+            else:
+                self.inside_focus_doc = True
         # *** End of a document
-        if m_doc_end:
+        if m_doc_end and self.inside_focus_doc:
            self.document['_paragraphs'] = self.paragraphs
            return reconstruct_ettenten_text( 
                               self.document, \
                               add_tokenization = self.add_tokenization,\
                               paragraph_separator = self.paragraph_separator )
+        # Skip document if it is not one of the focus documents
+        if not self.inside_focus_doc:
+           self.lines += 1
+           return None
         # *** New paragraph
         if m_par_start and not self.inside_p:
             self.inside_p = True
@@ -309,9 +371,13 @@ class EtTenTenXMLParser:
         return None
 
 
+# =================================================
+#   Corpus iterators
+# =================================================
 
 def parse_ettenten_corpus_file_iterator( in_file, 
                                 encoding='utf-8', \
+                                focus_doc_ids=None, \
                                 add_tokenization=False, \
                                 discard_empty_paragraphs=True, \
                                 store_paragraph_attributes=False, \
@@ -336,6 +402,14 @@ def parse_ettenten_corpus_file_iterator( in_file,
            
        encoding: str
            Encoding of in_file. Defaults to 'utf-8';
+       
+       focus_doc_ids: set of str
+            Set of document id-s corresponding to the documents which 
+            need to be extracted from the in_file.
+            If provided, then only documents with given id-s will be 
+            processed, and all other documents will be skipped.
+            If None or empty, then all documents in the file will be 
+            processed.
        
        add_tokenization: boolean
            Specifies if tokenization will be added to reconstructed 
@@ -365,6 +439,7 @@ def parse_ettenten_corpus_file_iterator( in_file,
            Default: '\n\n'
     '''
     xmlParser = EtTenTenXMLParser(
+                   focus_doc_ids=focus_doc_ids, \
                    add_tokenization=add_tokenization, \
                    discard_empty_paragraphs=discard_empty_paragraphs, \
                    store_paragraph_attributes=store_paragraph_attributes, \
@@ -380,6 +455,7 @@ def parse_ettenten_corpus_file_iterator( in_file,
 
 
 def parse_ettenten_corpus_file_content_iterator( content, \
+                                                 focus_doc_ids=None, \
                                                  add_tokenization=False, \
                                                  discard_empty_paragraphs=True, \
                                                  store_paragraph_attributes=True, \
@@ -402,6 +478,14 @@ def parse_ettenten_corpus_file_content_iterator( content, \
        content: str
            etTenTen corpus file's content (or a subset of the content) 
            as a string.
+       
+       focus_doc_ids: set of str
+            Set of document id-s corresponding to the documents which 
+            need to be extracted from the content.
+            If provided, then only documents with given id-s will be 
+            processed, and all other documents will be skipped.
+            If None or empty, then all documents in the content will 
+            be processed.
        
        add_tokenization: boolean
            Specifies if tokenization will be added to reconstructed 
@@ -432,6 +516,7 @@ def parse_ettenten_corpus_file_content_iterator( content, \
     '''
     assert isinstance(content, str)
     xmlParser = EtTenTenXMLParser(
+                   focus_doc_ids=focus_doc_ids, \
                    add_tokenization=add_tokenization, \
                    discard_empty_paragraphs=discard_empty_paragraphs, \
                    store_paragraph_attributes=store_paragraph_attributes, \
