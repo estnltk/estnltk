@@ -238,8 +238,8 @@ class EtTenTenXMLParser:
         self.paragraphs = []
         self.document   = {}
         self.add_tokenization           = add_tokenization
-        self.store_paragraph_attributes = discard_empty_paragraphs
-        self.discard_empty_paragraphs   = store_paragraph_attributes
+        self.store_paragraph_attributes = store_paragraph_attributes
+        self.discard_empty_paragraphs   = discard_empty_paragraphs
         self.paragraph_separator        = paragraph_separator
         # Patterns for detecting tags
         self.ettenten_corpus_tag_start = re.compile("<corpus[^<>]*>")
