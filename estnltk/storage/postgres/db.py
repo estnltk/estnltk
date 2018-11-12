@@ -7,11 +7,13 @@ from contextlib import contextmanager
 from collections import namedtuple
 from functools import reduce
 from itertools import chain
+
+from sqlalchemy.sql import quoted_name
 from tqdm import tqdm, tqdm_notebook
 
 import psycopg2
 from psycopg2.extensions import STATUS_BEGIN
-from psycopg2.sql import SQL, Identifier, Literal, DEFAULT
+from psycopg2.sql import SQL, Identifier, Literal, DEFAULT, Composed
 
 from estnltk import logger
 from estnltk.converters.dict_importer import dict_to_layer
@@ -37,6 +39,21 @@ pytype2dbtype = {
     "float": "double precision",
     "str": "text"
 }
+
+
+def get_query_length(q):
+    """:returns
+    approximate number of characters in the psycopg2 SQL query
+    """
+    result = 0
+    if isinstance(q, Composed):
+        for r in q:
+            result += get_query_length(r)
+    elif isinstance(q, (SQL, Identifier)):
+        result += len(q.string)
+    else:
+        result += len(str(q.wrapped))
+    return result
 
 
 class PgCollection:
@@ -153,22 +170,25 @@ class PgCollection:
         self._structure = self._get_structure()
 
     def insert(self, text, key=None, meta_data=None):
-        return self._buffered_insert(text=text, buffer=[], buffer_size=0, key=key, meta_data=meta_data)
+        return self._buffered_insert(text=text, buffer=[], buffer_size=0, query_length_limit=0, key=key,
+                                     meta_data=meta_data)
 
     # TODO: merge this with buffered_layer_insert
     @contextmanager
-    def buffered_insert(self, buffer_size=1000):
+    def buffered_insert(self, buffer_size=1000, query_length_limit=5000000):
         buffer = []
+        self._buffered_insert_query_length = 0
 
         def wrap_buffered_insert(text, key=None, meta_data=None):
-            return self._buffered_insert(text, buffer=buffer, buffer_size=buffer_size, key=key, meta_data=meta_data)
+            return self._buffered_insert(text, buffer=buffer, buffer_size=buffer_size,
+                                         query_length_limit=query_length_limit, key=key, meta_data=meta_data)
 
         try:
             yield wrap_buffered_insert
         finally:
             self._flush_insert_buffer(buffer)
 
-    def _buffered_insert(self, text, buffer, buffer_size, key=None, meta_data=None):
+    def _buffered_insert(self, text, buffer, buffer_size, query_length_limit, key=None, meta_data=None):
         """Saves a given `Text` object into the collection.
 
         Args:
@@ -214,10 +234,13 @@ class PgCollection:
                 m = DEFAULT
             row.append(m)
 
-        buffer.append(SQL('({})').format(SQL(', ').join(row)))
+        q = SQL('({})').format(SQL(', ').join(row))
+        self._buffered_insert_query_length += get_query_length(q)
+        buffer.append(q)
 
-        if len(buffer) >= buffer_size:
+        if len(buffer) >= buffer_size or self._buffered_insert_query_length >= query_length_limit:
             ids = self._flush_insert_buffer(buffer)
+            self._buffered_insert_query_length = 0
             if buffer_size == 0 and len(ids) == 1:
                 return ids[0]
             return ids
@@ -232,7 +255,9 @@ class PgCollection:
                 sql_column_names,
                 SQL(', ').join(buffer)))
             row_key = c.fetchone()
-            logger.debug('flush buffer: {} rows, {} bytes'.format(len(buffer), len(c.query)))
+            logger.debug('flush buffer: {} rows, {} bytes, {} estimated characters'.format(len(buffer),
+                                                                                           len(c.query),
+                                                                                           self._buffered_insert_query_length))
         buffer.clear()
         return row_key
 
