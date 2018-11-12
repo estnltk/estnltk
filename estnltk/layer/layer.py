@@ -1,5 +1,5 @@
 import bisect
-from typing import Union, List, Sequence, MutableMapping, Tuple, Any
+from typing import Union, List, Sequence, MutableMapping, Any
 import pandas
 import collections
 import itertools
@@ -10,6 +10,7 @@ from estnltk.layer import AmbiguousAttributeTupleList, AttributeTupleList, Attri
 from .annotation import Annotation
 
 
+# TODO: remove SpanList
 class SpanList(collections.Sequence):
     def __init__(self,
                  layer=None,  # type: Layer
@@ -46,6 +47,9 @@ class SpanList(collections.Sequence):
 
             r.append(tmp)
         return r
+
+    def add_layer(self, layer):
+        self._layer = layer
 
     def to_record(self, with_text=False):
         return [i.to_record(with_text) for i in self.spans]
@@ -164,6 +168,7 @@ class Layer:
     def __init__(self,
                  name: str = None,
                  attributes: Sequence[str] = (),
+                 text_object=None,
                  parent: str = None,
                  enveloping: str = None,
                  ambiguous: bool = False,
@@ -214,16 +219,14 @@ class Layer:
         # if True, add_span will behave differently and add a SpanList instead.
         self.ambiguous = ambiguous  # type: bool
 
-        if default_values is None:
-            default_values = {}
-        self.default_values = default_values
+        self.default_values = default_values or {}
 
         for attr in self.attributes:
             if attr not in self.default_values:
                 self.default_values[attr] = None
 
         # placeholder. is set when `_add_layer` is called on text object
-        self.text_object = None  # type: Text
+        self.text_object = text_object  # type: Text
 
         self.classes = {}  # type: MutableMapping[int, AmbiguousSpan]
 
@@ -371,6 +374,8 @@ class Layer:
         return span
 
     def add_annotation(self, span, **attributes):
+        if self._bound:
+            span.add_layer(self)
         if self.parent is not None and self.ambiguous:
             ambiguous_span = self.classes.get(hash(span), None)
             if ambiguous_span is None:
@@ -395,7 +400,6 @@ class Layer:
 
         # TODO: implement add_annotation
         raise NotImplementedError('add_annotation not yet implemented for this type of layer')
-
 
     def check_span_consistency(self) -> None:
         # Checks for layer's span consistency
@@ -439,8 +443,6 @@ class Layer:
                 for span_attr in span.legal_attribute_names:
                     assert span_attr in self.attributes, \
                        '(!) redundant attribute {} in {}'.format(span_attr, span)
-
-
 
     def rewrite(self, source_attributes: List[str], target_attributes: List[str], rules, **kwargs):
         assert 'name' in kwargs.keys(), '"name" must currently be an argument to layer'

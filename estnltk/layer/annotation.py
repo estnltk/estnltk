@@ -7,7 +7,6 @@ class Annotation:
         self._ambiguous_span = ambiguous_span
 
         self.layer = ambiguous_span.layer
-        self.spans = []
 
     @property
     def legal_attribute_names(self) -> Sequence[str]:
@@ -35,8 +34,9 @@ class Annotation:
 
     @property
     def text(self):
-        return self.text_object.text[self.start:self.end]
+        return self.layer.text_object.text[self.start:self.end]
 
+    # TODO: remove
     @property
     def text_object(self):
         return self.layer.text_object

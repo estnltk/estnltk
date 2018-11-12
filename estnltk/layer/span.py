@@ -4,7 +4,7 @@ from html import escape
 
 class Span:
     def __init__(self, start: int=None, end: int=None, parent=None, *,
-                 layer=None, legal_attributes=None, **attributes) -> None:
+                 layer=None, text_object=None, legal_attributes=None, **attributes) -> None:
 
         # this is set up first, because attribute access depends on knowing attribute names as early as possible
         self._legal_attribute_names = legal_attributes
@@ -15,6 +15,7 @@ class Span:
 
         # Placeholder, set when span added to spanlist
         self.layer = layer  # type: Layer
+        self.layers = {}
         self.parent = parent  # type: Span
 
         if isinstance(start, int) and isinstance(end, int):
@@ -37,6 +38,8 @@ class Span:
 
         else:
             assert 0, 'What?'
+
+        self._text_object = text_object
 
         if not self.is_dependant:
             self._base = self  # type:Span
@@ -106,7 +109,20 @@ class Span:
 
     @property
     def text_object(self):
-        return self.layer.text_object
+        # TODO: remove next two lines
+        if self._text_object is None:
+            self._text_object = self.layer.text_object
+        return self._text_object
+
+    def add_layer(self, layer):
+        if self._text_object is None:
+            self._text_object = layer.text_object
+        assert self.text_object is layer.text_object
+
+        if layer.name in self.layers:
+            assert self.layers[layer.name] is layer
+        else:
+            self.layers[layer.name] = layer
 
     @property
     def raw_text(self):

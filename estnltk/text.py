@@ -24,7 +24,7 @@ def _get_span_by_start_and_end(spans: SpanList, start: int=None, end: int=None, 
 
 
 class Text:
-    def __init__(self, text: str) -> None:
+    def __init__(self, text: str = None) -> None:
         self._text = text  # type: str
         self.layers = {}  # type: MutableMapping[str, Layer]
         self.meta = {}  # type: MutableMapping
@@ -32,6 +32,10 @@ class Text:
         self.base_to_dependant = defaultdict(list)  # type: MutableMapping[str, List[str]]
         self.enveloping_to_enveloped = defaultdict(list)  # type: MutableMapping[str, List[str]]
         self._setup_structure()
+
+    def set_text(self, text: str):
+        assert self._text is None, "raw text has already been set"
+        self._text = text
 
     def tag_layer(self, layer_names: Sequence[str] = ('morph_analysis', 'sentences'), resolver=None) -> 'Text':
         if resolver is None:
@@ -147,7 +151,6 @@ class Text:
 
     def _add_layer(self, layer: Layer):
         name = layer.name
-        attributes = layer.attributes
 
         #
         # ASSERTS
@@ -156,7 +159,7 @@ class Text:
         assert not layer._bound
         assert name not in ['text'], 'Restricted for layer name'
         assert name.isidentifier() and not keyword.iskeyword(name), 'Layer name must be a valid python identifier'
-        assert name not in self.layers.keys(), 'Layer with name {name} already exists'.format(name=name)
+        assert name not in self.layers, 'Layer with name {name} already exists'.format(name=name)
 
         if layer.parent:
             assert layer.parent in self.layers.keys(), 'Cant add a layer "{layer}" before adding its parent "{parent}"'.format(
@@ -193,8 +196,13 @@ class Text:
                     )
                     span._base = span.parent
 
+        for span in layer.spans:
+            span.add_layer(layer)
         self.layers[name] = layer
-        layer.text_object = self
+        if layer.text_object is None:
+            layer.text_object = self
+        else:
+            assert layer.text_object is self
         layer._bound = True
 
         self._setup_structure()
@@ -448,7 +456,9 @@ class Text:
         return not self.diff(other)
 
     def __str__(self):
-        return 'Text(text="{self.text}")'.format(self=self)
+        if self._text is None:
+            return 'Text()'
+        return 'Text(text={self.text!r})'.format(self=self)
 
     def __repr__(self):
         return str(self)
@@ -456,9 +466,12 @@ class Text:
     def _repr_html_(self):
         pandas.set_option('display.max_colwidth', -1)
 
-        text_html = '<div align = "left">' + html.escape(self.text).replace('\n', '</br>') + '</div>'
-        df = pandas.DataFrame(columns=['text'], data=[text_html])
-        table = df.to_html(index=False, escape=False)
+        if self._text is None:
+            table = '<h4>Empty Text object</h4>'
+        else:
+            text_html = '<div align = "left">' + html.escape(self.text).replace('\n', '</br>') + '</div>'
+            df = pandas.DataFrame(columns=['text'], data=[text_html])
+            table = df.to_html(index=False, escape=False)
 
         if self.meta:
             data = {'key': sorted(self.meta), 'value': [self.meta[k] for k in sorted(self.meta)]}

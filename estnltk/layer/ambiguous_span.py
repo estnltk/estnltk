@@ -57,6 +57,9 @@ class AmbiguousSpan(collections.Sequence):
             self._annotations.append(annotation)
             return annotation
 
+    def add_layer(self, layer):
+        self._span.add_layer(layer)
+
     @property
     def spans(self):
         return self._annotations
