@@ -127,3 +127,26 @@ def test_parse_ettenten_corpus_file_content_iterator_and_split_by():
     # Make assertions
     assert len(texts) == 7
 
+
+
+def test_parse_ettenten_corpus_file_content_iterator_and_extract_specific_file():
+    # Tests that files with specific id-s can be extracted
+    # Parse Texts from the XML content
+    texts = []
+    for text_obj in parse_ettenten_corpus_file_content_iterator( _get_test_ettenten_content(), \
+                                                                 focus_doc_ids=set(['686281']), \
+                                                                 add_tokenization=True ):
+        texts.append( text_obj )
+    # Make assertions
+    assert len(texts) == 1
+    doc1 = texts[0]
+    # Check metadata
+    assert 'id' in doc1.meta and doc1.meta['id'] == '686281'
+    assert 'url' in doc1.meta and \
+           doc1.meta['url'] == "http://www.epl.ee/news/majandus/?id=51174495"
+    # Check for the existence of layers
+    expected_layers = ['tokens', 'compound_tokens', 'words', 'sentences', 'paragraphs']
+    for expected_layer in expected_layers:
+        assert expected_layer in doc1.layers
+
+
