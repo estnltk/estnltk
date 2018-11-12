@@ -1,9 +1,9 @@
-from typing import List
+from typing import Sequence
 from estnltk.layer.span import Span
 from estnltk.layer.layer import Layer
 
 
-def flatten(layer: Layer, layer_name: str, attributes: List[str]=None) -> Layer:
+def flatten(layer: Layer, layer_name: str, attributes: Sequence[str]=None) -> Layer:
     """
     Reduces enveloping layer or layer with parent to layer of simple text spans.
     """
