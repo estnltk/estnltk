@@ -14,7 +14,9 @@ import re
 from estnltk.text import Text, Layer, EnvelopingSpan
 from estnltk.taggers import ParagraphTokenizer
 
-# =======  Helpful utils
+# =================================================
+#   Helpful utils
+# =================================================
 
 # Pattern for capturing names & values of attributes
 ettenten_tag_attrib_pat = re.compile('([^= ]+)="([^"]+?)"')
@@ -45,6 +47,40 @@ def parse_tag_attributes( tag_str ):
     return attribs
 
 
+def extract_doc_ids_from_corpus_file( in_file, encoding='utf-8' ):
+    '''Opens an etTenTen corpus file, reads its content, and 
+       extracts all document id-s. 
+       Returns a list of document id-s (list of strings).
+       
+       Parameters
+       ----------
+       in_file: str
+           Full name of etTenTen corpus file (name with path);
+           
+       encoding: str
+           Encoding of in_file. Defaults to 'utf-8';
+       
+       Returns
+       -------
+       list of str
+           a list of extracted document id-s;
+    '''
+    ettenten_doc_tag_start = re.compile("<doc[^<>]+>")
+    doc_ids = []
+    with open( in_file, mode='r', encoding=encoding ) as f:
+        for line in f:
+            stripped_line = line.strip()
+            m_doc_start = ettenten_doc_tag_start.search(stripped_line)
+            if m_doc_start: 
+                attribs = parse_tag_attributes( stripped_line )
+                assert 'id' in attribs.keys()
+                doc_ids.append( attribs['id'] )
+    return doc_ids
+
+
+# =================================================
+#   Parsing and reconstruction of a document
+# =================================================
 
 def reconstruct_ettenten_text( document, \
                                add_tokenization=False, \
@@ -247,8 +283,10 @@ class EtTenTenXMLParser:
         self.inside_focus_doc = False
         self.paragraphs = []
         self.document   = {}
-        if focus_doc_ids is not None and len(focus_doc_ids) == 0:
-            focus_doc_ids = None
+        if focus_doc_ids is not None:
+            assert isinstance(focus_doc_ids, set)
+            if len(focus_doc_ids) == 0:
+                focus_doc_ids = None
         self.focus_doc_ids              = focus_doc_ids
         self.add_tokenization           = add_tokenization
         self.store_paragraph_attributes = store_paragraph_attributes
@@ -333,6 +371,9 @@ class EtTenTenXMLParser:
         return None
 
 
+# =================================================
+#   Corpus iterators
+# =================================================
 
 def parse_ettenten_corpus_file_iterator( in_file, 
                                 encoding='utf-8', \
@@ -438,7 +479,7 @@ def parse_ettenten_corpus_file_content_iterator( content, \
            etTenTen corpus file's content (or a subset of the content) 
            as a string.
        
-        focus_doc_ids: set of str
+       focus_doc_ids: set of str
             Set of document id-s corresponding to the documents which 
             need to be extracted from the content.
             If provided, then only documents with given id-s will be 

@@ -1,11 +1,14 @@
+import os
+import tempfile
+
 from estnltk import Text
 
 from estnltk.layer import AmbiguousAttributeList, AttributeList
 
 from estnltk.corpus_processing.parse_ettenten import parse_ettenten_corpus_file_content_iterator
+from estnltk.corpus_processing.parse_ettenten import extract_doc_ids_from_corpus_file
 
 from estnltk.layer_operations import split_by
-
 
 # ===========================================================
 #    Loading etTenTen corpus files
@@ -149,4 +152,21 @@ def test_parse_ettenten_corpus_file_content_iterator_and_extract_specific_file()
     for expected_layer in expected_layers:
         assert expected_layer in doc1.layers
 
+
+
+def test_parse_ettenten_extract_doc_ids_from_corpus_file():
+    # Tests that document ids can be extracted from the ettenten corpus file
+    # 1) Create a temporary file storing the test corpus
+    fp = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', suffix='.vert', delete=False)
+    fp.write( _get_test_ettenten_content() )
+    fp.write( '\n' )
+    fp.close()
+    
+    # 2) Extract ids from the corpus file;
+    doc_ids = extract_doc_ids_from_corpus_file( fp.name )
+    # Clean-up: remove temporary file
+    os.remove(fp.name)
+    
+    # 3) Make assertion
+    assert doc_ids == ["686275", "686281"]
 
