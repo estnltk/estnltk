@@ -245,7 +245,7 @@ class EtTenTenXMLParser:
         self.ettenten_corpus_tag_start = re.compile("<corpus[^<>]*>")
         self.ettenten_doc_tag_start    = re.compile("<doc[^<>]+>")
         self.ettenten_doc_tag_end      = re.compile("</doc>")
-        self.ettenten_p_tag_start      = re.compile("<p([^<>]+)>")
+        self.ettenten_p_tag_start      = re.compile("<p( [^<>]+)>")
         self.ettenten_p_tag_end        = re.compile("</p>")
 
 
