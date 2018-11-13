@@ -166,17 +166,15 @@ def whitelist_record(record, source_attributes):
 
 class Layer:
     def __init__(self,
-                 name: str = None,
+                 name: str,
                  attributes: Sequence[str] = (),
-                 text_object=None,
+                 text_object=None,  # TODO: make text_object required parameter
                  parent: str = None,
                  enveloping: str = None,
-                 ambiguous: bool = False,
+                 ambiguous: bool = False,  # TODO: change default to True and finally remove this parameter
                  default_values: dict = None
                  ) -> None:
         assert parent is None or enveloping is None, "Can't be derived AND enveloping"
-
-        assert name is not None, 'Layer must have a name'
 
         # name of the layer
         self.name = name
