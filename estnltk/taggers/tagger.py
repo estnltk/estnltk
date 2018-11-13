@@ -28,14 +28,30 @@ class Tagger:
                'attribute must be listed in conf_param: ' + key
         super().__setattr__(key, value)
 
+    # TODO: remove raw_text: str, replace with text: Text, rename layers -> detached_layers
     def _make_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
-    def make_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict = None) -> Layer:
-        assert status is None or isinstance(status, dict), 'status should be None or dict, not ' + str(type(status))
+    # TODO: remove raw_text: str, rename layers -> detached_layers
+    def make_layer(self, raw_text: str = None, layers: MutableMapping[str, Layer] = None, status: dict = None, text: Text = None) -> Layer:
+        assert status is None or isinstance(status, dict), 'status should be None or dict, not {!r}'.format(type(status))
+        if raw_text is None:
+            raw_text = text.text
         if status is None:
             status = {}
+        layers = layers or {}
+        for layer in self.input_layers:
+            if layer in layers:
+                continue
+            if layer in text.layers:
+                layers[layer] = text.layers[layer]
+            else:
+                raise ValueError('missing input layer: {!r}'.format(layer))
         layer = self._make_layer(raw_text, layers, status)
+        if layer.text_object is None:
+            layer.text_object = text
+        else:
+            assert layer.text_object is text, (layer.text_object, text)
         # TODO the following asssertion breaks the tests
         #assert layer.attributes == self.output_attributes, '{} != {}'.format(layer.attributes, self.output_attributes)
         assert isinstance(layer, Layer), 'make_layer must return Layer'
@@ -48,7 +64,7 @@ class Tagger:
         status: dict, default {}
             This can be used to store layer creation metadata.
         """
-        text[self.output_layer] = self.make_layer(text.text, text.layers, status)
+        text[self.output_layer] = self.make_layer(text.text, text.layers, status, text=text)
         return text
 
     def __call__(self, text: Text, status: dict = None) -> Text:
