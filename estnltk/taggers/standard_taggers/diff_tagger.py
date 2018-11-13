@@ -1,4 +1,4 @@
-from typing import Sequence, Tuple
+from typing import Sequence, Tuple, Callable
 
 from collections import defaultdict
 import sqlalchemy
@@ -6,6 +6,7 @@ import itertools
 import pandas
 import bisect
 import random
+from operator import eq
 
 from estnltk import EnvelopingSpan
 from estnltk import Layer
@@ -18,18 +19,20 @@ from estnltk.layer_operations import iterate_conflicting_spans
 class DiffTagger(Tagger):
     """ Finds differences of input layers.
     """
-    conf_param = ['input_layer_attribute', 'span_status_attribute']
+    conf_param = ['input_layer_attribute', 'span_status_attribute', 'compare_function']
 
     def __init__(self,
                  layer_a: str,
                  layer_b: str,
                  output_layer: str,
                  output_attributes: Sequence[str],
+                 compare_function: Callable = eq,
                  input_layer_attribute: str = 'input_layer_name',
                  span_status_attribute: str = 'span_status'
                  ):
         self.input_layers = (layer_a, layer_b)
         self.output_layer = output_layer
+        self.compare_function = compare_function
 
         self.output_attributes = tuple(output_attributes)  # type: Tuple[str]
         if input_layer_attribute not in output_attributes:
@@ -46,7 +49,8 @@ class DiffTagger(Tagger):
         name_b = self.input_layers[1]
         layer_a = layers[name_a]
         layer_b = layers[name_b]
-        assert layer_a.attributes == layer_b.attributes
+        # assert layer_a.attributes == layer_b.attributes
+        assert layer_a.text_object is layer_b.text_object
         assert layer_a.parent == layer_b.parent
         assert layer_a.enveloping == layer_b.enveloping
         assert layer_a.ambiguous == layer_b.ambiguous
@@ -54,16 +58,18 @@ class DiffTagger(Tagger):
         layer = Layer(
             name=self.output_layer,
             attributes=self.output_attributes,
+            text_object=layer_a.text_object,
             parent=layer_a.parent,
             enveloping=layer_a.enveloping,
             ambiguous=True
             )
         copy_attributes = [attr for attr in self.output_attributes if attr != self.span_status_attribute
                                                                   and attr != self.input_layer_attribute]
+
         span_status = None
         if layer_a.ambiguous:
             if layer_a.enveloping:
-                for a_spans, b_spans in diff_layer(layer_a, layer_b):
+                for a_spans, b_spans in diff_layer(layer_a, layer_b, comp=self.compare_function):
                     if a_spans is None:
                         span_status = 'extra'
                     if b_spans is None:
@@ -73,14 +79,14 @@ class DiffTagger(Tagger):
                         a_spans, b_spans = symm_diff_ambiguous_spans(a_spans, b_spans)
                     if a_spans is not None:
                         for a in a_spans:
-                            attributes = {attr: getattr(a, attr) for attr in copy_attributes}
+                            attributes = {attr: getattr(a, attr, None) for attr in copy_attributes}
                             attributes[self.span_status_attribute] = span_status
                             attributes[self.input_layer_attribute] = name_a
                             es = EnvelopingSpan(spans=a.spans, layer=layer, attributes=attributes)
                             layer.add_span(es)
                     if b_spans is not None:
                         for b in b_spans:
-                            attributes = {attr: getattr(b, attr) for attr in copy_attributes}
+                            attributes = {attr: getattr(b, attr, None) for attr in copy_attributes}
                             attributes[self.span_status_attribute] = span_status
                             attributes[self.input_layer_attribute] = name_b
                             es = EnvelopingSpan(spans=b.spans, layer=layer, attributes=attributes)
@@ -104,12 +110,12 @@ class DiffTagger(Tagger):
                         span_status = 'modified'
                         a_spans_missing, b_spans_extra = symm_diff_ambiguous_spans(a_spans, b_spans)
                     for a in a_spans_missing:
-                        attributes = {attr: getattr(a, attr) for attr in copy_attributes}
+                        attributes = {attr: getattr(a, attr, None) for attr in copy_attributes}
                         attributes[self.span_status_attribute] = span_status
                         attributes[self.input_layer_attribute] = name_a
                         layer.add_annotation(a_spans.span, **attributes)
                     for b in b_spans_extra:
-                        attributes = {attr: getattr(b, attr) for attr in copy_attributes}
+                        attributes = {attr: getattr(b, attr, None) for attr in copy_attributes}
                         attributes[self.span_status_attribute] = span_status
                         attributes[self.input_layer_attribute] = name_b
                         layer.add_annotation(b_spans.span, **attributes)
@@ -117,12 +123,12 @@ class DiffTagger(Tagger):
             if layer_a.enveloping:
                 for a, b in diff_layer(layer_a, layer_b):
                     if a is not None:
-                        attributes = {attr: getattr(a, attr) for attr in copy_attributes}
+                        attributes = {attr: getattr(a, attr, None) for attr in copy_attributes}
                         attributes[self.span_status_attribute] = name_a
                         es = EnvelopingSpan(spans=a.spans, layer=layer, attributes=attributes)
                         layer.add_span(es)
                     if b is not None:
-                        attributes = {attr: getattr(b, attr) for attr in copy_attributes}
+                        attributes = {attr: getattr(b, attr, None) for attr in copy_attributes}
                         attributes[self.span_status_attribute] = name_b
                         es = EnvelopingSpan(spans=b.spans, layer=layer, attributes=attributes)
                         layer.add_span(es)
@@ -306,7 +312,7 @@ def sample_indexes(distribution, ids, k):
     return result
 
 
-def sample_spans(k, collection, diff_layer, domain, input_layers):
+def sample_spans(k, collection, diff_layer, domain):
     summary = collection.get_layer_meta(diff_layer)
 
     iterator = {'modified_spans': iterate_modified,
@@ -324,7 +330,7 @@ def sample_spans(k, collection, diff_layer, domain, input_layers):
 
     print('keys:', tuple(indexes))
 
-    for text_id, text in collection.select(layers=input_layers, keys=tuple(indexes)):
+    for text_id, text in collection.select(layers=[diff_layer], keys=tuple(indexes)):
         print('text_id:', text_id)
         span_nrs = set(indexes[text_id])
         print('span_nrs', span_nrs)
