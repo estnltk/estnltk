@@ -8,7 +8,6 @@ from collections import namedtuple
 from functools import reduce
 from itertools import chain
 
-from sqlalchemy.sql import quoted_name
 from tqdm import tqdm, tqdm_notebook
 
 import psycopg2
@@ -69,6 +68,8 @@ class PgCollection:
         self._temporary = temporary
         self._structure = self._get_structure()
         self.column_names = ['id', 'data'] + list(self.meta)
+
+        self._buffered_insert_query_length = 0
 
     def create(self, description=None):
         """Creates the database tables for the collection"""
@@ -262,16 +263,20 @@ class PgCollection:
         return row_key
 
     @contextmanager
-    def buffered_layer_insert(self, table_identifier, columns, buffer_size=1000):
+    def buffered_layer_insert(self, table_identifier, columns, buffer_size=10000, query_length_limit=5000000):
         """General context manager for buffered insert"""
         buffer = []
         column_identifiers = SQL(', ').join(map(Identifier, columns))
 
+        self._buffered_insert_query_length = get_query_length(column_identifiers)
+
         with self.storage.conn.cursor() as cursor:
             def buffered_insert(values):
-                buffer.append(SQL('({})').format(SQL(', ').join(values)))
+                q = SQL('({})').format(SQL(', ').join(values))
+                buffer.append(q)
+                self._buffered_insert_query_length += get_query_length(q)
 
-                if len(buffer) >= buffer_size:
+                if len(buffer) >= buffer_size or self._buffered_insert_query_length >= query_length_limit:
                     return self._flush_layer_insert_buffer(cursor=cursor,
                                                            table_identifier=table_identifier,
                                                            column_identifiers=column_identifiers,
@@ -284,8 +289,7 @@ class PgCollection:
                                                 column_identifiers=column_identifiers,
                                                 buffer=buffer)
 
-    @staticmethod
-    def _flush_layer_insert_buffer(cursor, table_identifier, column_identifiers, buffer):
+    def _flush_layer_insert_buffer(self, cursor, table_identifier, column_identifiers, buffer):
         if len(buffer) == 0:
             return []
 
@@ -294,8 +298,10 @@ class PgCollection:
                         column_identifiers,
                         SQL(', ').join(buffer)))
         row_key = cursor.fetchall()
-        logger.debug('flush buffer: {} rows, {} bytes'.format(len(buffer), len(cursor.query)))
+        logger.debug('flush buffer: {} rows, {} bytes, {} estimated characters'.format(
+                     len(buffer), len(cursor.query), self._buffered_insert_query_length))
         buffer.clear()
+        self._buffered_insert_query_length = get_query_length(column_identifiers)
         return row_key
 
     def exists(self):
@@ -473,7 +479,8 @@ class PgCollection:
 
         for layer in layers or []:
             if layer not in self._structure:
-                raise PgCollectionException('layer {!r} not in collection {!r}'.format(layer, self.table_name))
+                raise PgCollectionException('there is no {!r} layer in the collection {!r}'.format(
+                                            layer, self.table_name))
             include_dep(layer)
 
         data_iterator = self._select(query=query, layer_query=layer_query, layer_ngram_query=layer_ngram_query,
@@ -629,7 +636,7 @@ class PgCollection:
 
         def default_row_mapper(row):
             text_id, text = row[0], row[1]
-            layer = tagger.make_layer(text.text, text.layers)
+            layer = tagger.make_layer(text=text)
             return [RowMapperRecord(layer=layer, meta=None)]
 
         layer_name = layer_name or tagger.output_layer
@@ -750,8 +757,9 @@ class PgCollection:
 
         def default_row_mapper(row):
             text_id, text = row[0], row[1]
-            layer = tagger.make_layer(text.text, text.layers)
-            return [RowMapperRecord(layer=layer, meta=None)]
+            status = {}
+            layer = tagger.make_layer(text=text, status=status)
+            return [RowMapperRecord(layer=layer, meta=status)]
 
         layer_name = layer_name or tagger.output_layer
         row_mapper = row_mapper or default_row_mapper
