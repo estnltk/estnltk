@@ -453,6 +453,8 @@ class Text:
         return None
 
     def __eq__(self, other):
+        if self is other:
+            return True
         return not self.diff(other)
 
     def __str__(self):
