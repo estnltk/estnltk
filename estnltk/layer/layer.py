@@ -481,6 +481,11 @@ class Layer:
         else:
             return self.text_object._resolve(self.name, target)
 
+    def count_values(self, attribute: str):
+        """count attribute values, return frequency table"""
+        return collections.Counter(getattr(annotation, attribute)
+                                   for span in self.spans for annotation in span.annotations)
+
     def __getattr__(self, item):
         if item in {'_ipython_canary_method_should_not_exist_', '__getstate__'}:
             raise AttributeError
