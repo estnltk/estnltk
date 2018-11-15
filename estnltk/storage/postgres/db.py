@@ -4,7 +4,7 @@ import json
 import pandas
 import operator as op
 from contextlib import contextmanager
-from collections import namedtuple
+import collections
 from functools import reduce
 from itertools import chain
 
@@ -30,7 +30,7 @@ class PgCollectionException(Exception):
     pass
 
 
-RowMapperRecord = namedtuple("RowMapperRecord", ["layer", "meta"])
+RowMapperRecord = collections.namedtuple("RowMapperRecord", ["layer", "meta"])
 
 pytype2dbtype = {
     "int": "integer",
@@ -509,6 +509,13 @@ class PgCollection:
     def select_by_key(self, key, return_as_dict=False):
         """See PostgresStorage.select_by_key()"""
         return self.storage.select_by_key(self.table_name, key, return_as_dict)
+
+    def count_values(self, layer, attr, **kwargs):
+        """Count attribute values in the collection."""
+        counter = collections.Counter()
+        for i, t in self.select(layers=[layer], **kwargs):
+            counter.update(t[layer].count_values(attr))
+        return counter
 
     def find_fingerprint(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, order_by_key=False):
         """See PostgresStorage.find_fingerprint()"""
