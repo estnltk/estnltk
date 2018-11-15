@@ -26,7 +26,6 @@ def decompose_to_elementary_spans (layer,text):
     for i, html_span in enumerate(html_spans):
         span_list=[]
         span_start = html_span[0]
-        span_end = html_span[1]
         for s in layer.spans:
             if span_start in range (s.start,s.end):
                 span_list.append(s)
