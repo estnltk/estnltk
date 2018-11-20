@@ -495,7 +495,7 @@ class Text:
                 'morph_extended')
             for layer_name in presort:
                 layer = self.layers.get(layer_name)
-                if layer:
+                if layer is not None:
                     layers.append(layer)
             for layer_name in sorted(self.layers):
                 if layer_name not in presort:

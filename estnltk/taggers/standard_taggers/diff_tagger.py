@@ -1,9 +1,7 @@
 from typing import Sequence, Tuple, Callable
 
 from collections import defaultdict
-import sqlalchemy
 import itertools
-import pandas
 import bisect
 import random
 from operator import eq
@@ -206,60 +204,8 @@ def diff_summary(difference_layer: Layer, span_status_attribute, input_layer_att
     return result
 
 
-def create_diff_layer(collection, layer_a, layer_b, input_layers, output_layer, output_attributes, if_exists='fail'):
-    diff_tagger = DiffTagger(layer_a, layer_b, output_layer, output_attributes)
-    diff_summary = []
-
-    def row_mapper(r):
-        status = {}
-        index, text = r[0], r[1]
-        layer = diff_tagger.make_layer(text.text, text.layers, status)
-        status['id'] = index
-        diff_summary.append(status)
-        return [layer]
-
-    table = diff_tagger.output_layer
-    collection.create_layer(table,
-                            data_iterator=collection.select(layers=input_layers),
-                            row_mapper=row_mapper,
-                            overwrite=True
-                            )
-    columns = [
-     'id',
-     'unchanged_annotations',
-     'missing_annotations',
-     'extra_annotations',
-     'unchanged_spans',
-     'modified_spans',
-     'missing_spans',
-     'extra_spans',
-     'conflicts',
-     'overlapped',
-     'prolonged',
-     'shortened',
-    ]
-    diff_summary = pandas.DataFrame.from_records(diff_summary, columns=columns)
-
-    engine = sqlalchemy.create_engine('postgresql://', creator=lambda: collection.storage.conn)
-
-    diff_summary.to_sql(table + '_summary',
-                        engine, schema=collection.storage.schema, if_exists=if_exists, index=False)
-
-
-def iterate_modified(difference_layer: Layer, span_status_attribute='span_status'):
-    yield from (s for s in difference_layer if getattr(s[0], span_status_attribute) == 'modified')
-
-
-def iterate_missing(difference_layer: Layer, span_status_attribute='span_status'):
-    yield from (s for s in difference_layer if getattr(s[0], span_status_attribute) == 'missing')
-
-
-def iterate_extra(difference_layer: Layer, span_status_attribute='span_status'):
-    yield from (s for s in difference_layer if getattr(s[0], span_status_attribute) == 'extra')
-
-
-def iterate_diff_conflicts(difference_layer, span_status_attribute):
-    for a, b in iterate_conflicting_spans(difference_layer):
+def iterate_diff_conflicts(diff_layer, span_status_attribute):
+    for a, b in iterate_conflicting_spans(diff_layer):
         a_status = getattr(a[0], span_status_attribute)
         b_status = getattr(b[0], span_status_attribute)
         if a_status == 'missing' and b_status == 'extra':
@@ -286,57 +232,54 @@ def iterate_overlapped(difference_layer, span_status_attribute):
             yield a, b
 
 
-def get_summary(collection, layer):
-    engine = sqlalchemy.create_engine('postgresql://', creator=lambda: collection.storage.conn)
-    table = layer + '_summary'
-    return pandas.read_sql_table(table, engine, schema=collection.storage.schema)
+def iterate_modified(difference_layer: Layer, span_status_attribute='span_status'):
+    yield from (s for s in difference_layer if getattr(s[0], span_status_attribute) == 'modified')
 
 
-def get_summary_new(collection, layer):
-    pass
-    "select column_name from information_schema.columns where table_schema='grammarextractor' and table_name='collection__measurements_diff_1_1__layer'"
-    engine = sqlalchemy.create_engine('postgresql://', creator=lambda: collection.storage.conn)
-    table = layer + '_summary'
-    return pandas.read_sql_table(table, engine, schema=collection.storage.schema)
+def iterate_missing(difference_layer: Layer, span_status_attribute='span_status'):
+    yield from (s for s in difference_layer if getattr(s[0], span_status_attribute) == 'missing')
 
 
-def sample_indexes(distribution, ids, k):
-    result = defaultdict(list)
-    cumdist = list(itertools.accumulate(distribution))
-    all_diff = cumdist[-1]
-    for i in sorted(random.sample(range(all_diff), min(all_diff, k))):
-        doc_nr = bisect.bisect(cumdist, i)
-        doc_id = ids[doc_nr]
-        span_nr = i - cumdist[doc_nr] + distribution[doc_nr]
-        result[doc_id].append(span_nr)
-    return result
+def iterate_extra(difference_layer: Layer, span_status_attribute='span_status'):
+    yield from (s for s in difference_layer if getattr(s[0], span_status_attribute) == 'extra')
 
 
-def sample_spans(k, collection, diff_layer, domain):
-    summary = collection.get_layer_meta(diff_layer)
+class DiffSampler:
+    def __init__(self, collection, layer):
+        self.collection = collection
+        self.layer = layer
+        self.layer_meta = self.collection.get_layer_meta(self.layer)
 
-    iterator = {'modified_spans': iterate_modified,
-                'missing_spans': iterate_missing,
-                'extra_spans': iterate_extra,
-                'conflicts': iterate_diff_conflicts,
-                'overlapped': iterate_overlapped,
-                'prolonged': iterate_prolonged,
-                'shortened': iterate_shortened
-                }[domain]
-    dist = summary[domain]
+    def sample_indexes(self, distribution, ids, k):
+        result = defaultdict(list)
+        cumdist = list(itertools.accumulate(distribution))
+        all_diff = cumdist[-1]
+        for i in sorted(random.sample(range(all_diff), min(all_diff, k))):
+            doc_nr = bisect.bisect(cumdist, i)
+            doc_id = ids[doc_nr]
+            span_nr = i - cumdist[doc_nr] + distribution[doc_nr]
+            result[doc_id].append(span_nr)
+        return result
 
-    ids = summary['id']
-    indexes = sample_indexes(dist, ids, k)
+    def sample_spans(self, k, domain):
+        iterator = {'modified_spans': iterate_modified,
+                    'missing_spans': iterate_missing,
+                    'extra_spans': iterate_extra,
+                    'conflicts': iterate_diff_conflicts,
+                    'overlapped': iterate_overlapped,
+                    'prolonged': iterate_prolonged,
+                    'shortened': iterate_shortened
+                    }[domain]
+        dist = self.layer_meta[domain]
 
-    print('keys:', tuple(indexes))
+        ids = self.layer_meta['text_id']
+        indexes = self.sample_indexes(dist, ids, k)
 
-    for text_id, text in collection.select(layers=[diff_layer], keys=tuple(indexes)):
-        print('text_id:', text_id)
-        span_nrs = set(indexes[text_id])
-        print('span_nrs', span_nrs)
-        for i, span in enumerate(iterator(text[diff_layer], span_status_attribute='span_status')):
-            if i in span_nrs:
-                yield span
-                span_nrs.remove(i)
-                if not span_nrs:
-                    break
+        for text_id, text in self.collection.select(layers=[self.layer], keys=tuple(indexes)):
+            span_indexes = set(indexes[text_id])
+            for span_index, span in enumerate(iterator(text[self.layer], span_status_attribute='span_status')):
+                if span_index in span_indexes:
+                    yield text_id, span_index, span
+                    span_indexes.remove(span_index)
+                    if not span_indexes:
+                        break

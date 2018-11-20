@@ -57,19 +57,16 @@ class PhraseTagger(Tagger):
         self.input_layers = [input_layer]
         self.input_attribute = input_attribute
 
-        if output_attributes is None:
-            output_attributes = ()
+        output_attributes = output_attributes or []
+        if priority_attribute is not None and priority_attribute not in output_attributes:
+            output_attributes.append(priority_attribute)
         self.output_attributes = tuple(output_attributes)
 
-        if global_validator is None:
-            global_validator = default_validator
-        self.global_validator = global_validator
+        self.global_validator = global_validator or default_validator
 
         self.validator_attribute = validator_attribute
 
-        if decorator is None:
-            decorator = default_decorator
-        self.decorator = decorator
+        self.decorator = decorator or default_decorator
 
         self.conflict_resolving_strategy = conflict_resolving_strategy
         self.priority_attribute = priority_attribute

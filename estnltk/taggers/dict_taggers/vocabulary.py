@@ -103,9 +103,9 @@ class Vocabulary:
             raise TypeError('unkonown vocabulary type: ' + str(type(vocabulary)))
 
         self.attributes = sorted(tuple(self.vocabulary.values())[0][0])
-        #for attr in sorted(default_rec):
-        #    if attr not in self.attributes:
-        #        self.attributes.append(attr)
+
+        if not all(self.vocabulary):
+            raise ValueError('vocabulary contains an empty key')
 
     def items(self):
         return self.vocabulary.items()

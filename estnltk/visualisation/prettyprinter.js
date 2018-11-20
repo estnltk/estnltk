@@ -1,5 +1,4 @@
 function intermediate_table{0} (indexes, position, data, position_top, html_span, index, texts) {{
-  console.log('siin')
   let spantable = document.createElement('div')
   spantable.setAttribute('id', 'table' + {0} + index)
   spantable.classList.add('tables')
@@ -7,7 +6,6 @@ function intermediate_table{0} (indexes, position, data, position_top, html_span
   let textNode{0} = document.getElementsByClassName('maintext{0}')[0]
   textNode{0}.appendChild(spantable)
   let element = document.getElementById('table' + {0} + index)
-  console.log(element)
   element.style.left = position + 'px'
   let textheight = position_top + 20
   element.style.top = textheight + 'px'
@@ -84,7 +82,6 @@ function table{0} (data, position, position_top, html_span, index) {{
   let textNode{0} = document.getElementsByClassName('maintext{0}')[0]
   textNode{0}.appendChild(tableplace)
   let new_table = document.getElementById('newtable' + {0} + index)
-  console.log(new_table)
   new_table.style.left = position + 'px'
   let textheight = position_top + 20
   new_table.style.top = textheight + 'px'
@@ -103,8 +100,6 @@ function visualise{0} (data, index, indexes, span, texts) {{
   let textposition_top = mainText.getBoundingClientRect().top
   let position = span_position.left - textposition
   let position_top = span_position.top - textposition_top
-  console.log(position)
-  console.log(position_top)
   if (!span_already_exists) {{
     if (classList.contains('overlapping-span')) {{
       intermediate_table{0}(indexes, position, data, position_top, span, index, texts)

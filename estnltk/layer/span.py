@@ -110,7 +110,7 @@ class Span:
     @property
     def text_object(self):
         # TODO: remove next two lines
-        if self._text_object is None:
+        if self._text_object is None and self.layer is not None:
             self._text_object = self.layer.text_object
         return self._text_object
 
@@ -193,12 +193,15 @@ class Span:
         return hash((self.start, self.end))
 
     def __str__(self):
+        if self._text_object is not None:
+            return 'Span(start={self.start}, end={self.end}, text={self.text!r})'.format(self=self)
         if self.layer is None:
             return 'Span(start={self.start}, end={self.end}, layer={self.layer}, parent={self.parent})'.\
                 format(self=self)
         if self.layer.text_object is None:
             return 'Span(start={self.start}, end={self.end}, layer_name={self.layer.name}, parent={self.parent})'.\
                 format(self=self)
+
         legal_attribute_names = self.__getattribute__('layer').__getattribute__('attributes')
 
         # Output key-value pairs in a sorted way

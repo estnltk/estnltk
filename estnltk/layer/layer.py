@@ -374,6 +374,10 @@ class Layer:
     def add_annotation(self, span, **attributes):
         if self._bound:
             span.add_layer(self)
+        if span.text_object is None:
+            span._text_object = self.text_object
+        else:
+            assert span._text_object is self.text_object
         if self.parent is not None and self.ambiguous:
             ambiguous_span = self.classes.get(hash(span), None)
             if ambiguous_span is None:
@@ -483,8 +487,10 @@ class Layer:
 
     def count_values(self, attribute: str):
         """count attribute values, return frequency table"""
-        return collections.Counter(getattr(annotation, attribute)
-                                   for span in self.spans for annotation in span.annotations)
+        if self.ambiguous:
+            return collections.Counter(getattr(annotation, attribute)
+                                       for span in self.spans for annotation in span.annotations)
+        return collections.Counter(getattr(span, attribute) for span in self.spans)
 
     def __getattr__(self, item):
         if item in {'_ipython_canary_method_should_not_exist_', '__getstate__'}:

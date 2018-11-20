@@ -1,10 +1,10 @@
-.span {{
+.span {
     background-color: yellow;
-}}
+}
 
-.overlapping-span {{
+.overlapping-span {
     background-color: red;
-}}
+}
 
 .spanline {{
     background-color: blue;
