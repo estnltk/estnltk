@@ -518,7 +518,6 @@ def parse_chat_paragraphs(soup):
     return paragraphs
 
 
-
 def _reconstruct_enveloping_tokenization_layers( token_locations, \
                                                  sent_locations, \
                                                  para_locations, \
@@ -582,7 +581,7 @@ def _reconstruct_enveloping_tokenization_layers( token_locations, \
     if create_token_layers:
        # Create tokens layer from the token records
        orig_tokens = \
-           Layer(name=layer_name_prefix+TokensTagger.layer_name, \
+           Layer(name=layer_name_prefix+TokensTagger.output_layer, \
                  attributes=TokensTagger.attributes, \
                  ambiguous=False).from_records(token_locations)
        # Create compound tokens layer
