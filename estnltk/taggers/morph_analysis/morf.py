@@ -249,6 +249,8 @@ class VabamorfAnalyzer(TaggerOld):
     
     def __init__(self,
                  layer_name='morph_analysis',
+                 input_words_layer='words',
+                 input_sentences_layer='sentences',
                  extra_attributes=None,
                  vm_instance=None,
                  **kwargs):
@@ -257,7 +259,12 @@ class VabamorfAnalyzer(TaggerOld):
         Parameters
         ----------
         layer_name: str (default: 'morph_analysis')
-            Name of the layer where analysis results are stored.
+            Name of the layer where morph analysis results 
+            will be stored.
+        input_words_layer: str (default: 'words')
+            Name of the input words layer;
+        input_sentences_layer: str (default: 'sentences')
+            Name of the input sentences layer;
         extra_attributes: list of str (default: None)
             List containing names of extra attributes that will be 
             attached to Spans. All extra attributes will be 
@@ -273,23 +280,15 @@ class VabamorfAnalyzer(TaggerOld):
             self.vm_instance  = Vabamorf.instance()
         self.extra_attributes = extra_attributes
         self.layer_name = layer_name
+        self._input_words_layer = input_words_layer
+        self._input_sentences_layer = input_sentences_layer
         
         self.configuration = { 'vm_instance':self.vm_instance.__class__.__name__ }
         if self.extra_attributes:
             self.configuration['extra_attributes'] = self.extra_attributes
         self.configuration.update(self.kwargs)
 
-        self.depends_on = ['words', 'sentences']
-
-
-    def _get_wordlist(self, text:Text):
-        ''' Returns a list of words from given text. If normalized word 
-            forms are available, uses normalized forms instead of the 
-            surface forms. '''
-        result = []
-        for word in text.words:
-            result.append( _get_word_text( word ) )
-        return result
+        self.depends_on = [self._input_words_layer, self._input_sentences_layer]
 
 
     def tag(self, text: Text,
@@ -340,10 +339,10 @@ class VabamorfAnalyzer(TaggerOld):
             "phonetic"  : phonetic,
         }
         # Perform morphological analysis sentence by sentence
-        word_spans = text['words'].span_list
+        word_spans = text[ self._input_words_layer ].span_list
         word_span_id = 0
         analysis_results = []
-        for sentence in text['sentences'].span_list:
+        for sentence in text[ self._input_sentences_layer ].span_list:
             # A) Collect all words inside the sentence
             sentence_words = []
             while word_span_id < len(word_spans):
@@ -380,13 +379,13 @@ class VabamorfAnalyzer(TaggerOld):
         #   Store analysis results in a new layer     
         # --------------------------------------------
         # A) Create layer
-        morph_attributes = self.attributes
+        morph_attributes   = self.attributes
         current_attributes = morph_attributes
         if self.extra_attributes:
             for extra_attr in self.extra_attributes:
                 current_attributes = current_attributes + (extra_attr,)
-        morph_layer = Layer(name=self.layer_name,
-                            parent='words',
+        morph_layer = Layer(name  =self.layer_name,
+                            parent=self._input_words_layer,
                             ambiguous=True,
                             attributes=current_attributes )
         # B) Populate layer        
