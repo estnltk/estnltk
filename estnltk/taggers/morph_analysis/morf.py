@@ -428,10 +428,14 @@ class VabamorfDisambiguator(Retagger):
        Uses Vabamorf for disambiguating.
     """
     attributes    = VabamorfTagger.attributes
-    conf_param = ['depends_on', '_vm_instance']
+    conf_param = ['depends_on', '_vm_instance',
+                  '_input_words_layer',
+                  '_input_sentences_layer' ]
 
     def __init__(self,
                  output_layer='morph_analysis',
+                 input_words_layer='words',
+                 input_sentences_layer='sentences',
                  vm_instance=None):
         """Initialize VabamorfDisambiguator class.
 
@@ -441,13 +445,21 @@ class VabamorfDisambiguator(Retagger):
             Name of the morphological analysis layer. 
             This is the layer where the disambiguation will
             be performed;
+        input_words_layer: str (default: 'words')
+            Name of the input words layer;
+        input_sentences_layer: str (default: 'sentences')
+            Name of the input sentences layer;
         vm_instance: estnltk.vabamorf.morf.Vabamorf
             An instance of Vabamorf that is to be used for 
             disambiguating text morphologically;
         """
         # Set attributes & configuration
         self.output_layer = output_layer
-        self.input_layers = ['words', 'sentences', output_layer]
+        self.input_layers = [input_words_layer, \
+                             input_sentences_layer, \
+                             output_layer ]
+        self._input_words_layer     = self.input_layers[0]
+        self._input_sentences_layer = self.input_layers[1]
         self.depends_on = self.input_layers
         if vm_instance:
             self._vm_instance = vm_instance
@@ -461,7 +473,7 @@ class VabamorfDisambiguator(Retagger):
            morphological analyses with their disambiguated variants.
            
            Also, removes the temporary attribute '_ignore' from the 
-           the 'morph_analysis' layer.
+           the morph_analysis layer.
 
            Parameters
            ----------
@@ -472,8 +484,8 @@ class VabamorfDisambiguator(Retagger):
            layers: MutableMapping[str, Layer]
               Layers of the raw_text. Contains mappings from the name 
               of the layer to the Layer object.  The  mapping  must 
-              contain layers 'words', 'sentences', and 'morph_analysis'. 
-              The layer 'morph_analysis' will be retagged.
+              contain words, sentences, and morph_analysis layers. 
+              The morph_analysis layer will be retagged.
               
            status: dict
               This can be used to store metadata on layer retagging.
@@ -483,8 +495,8 @@ class VabamorfDisambiguator(Retagger):
         #  Collect layer's attributes                 
         # --------------------------------------------
         assert self.output_layer in layers
-        assert 'sentences' in layers
-        assert 'words' in layers
+        assert self._input_sentences_layer in layers
+        assert self._input_words_layer in layers
         # Take attributes from the input layer
         current_attributes = layers[self.output_layer].attributes
         # Check if there are any extra attributes to carry over
@@ -496,7 +508,7 @@ class VabamorfDisambiguator(Retagger):
                 extra_attributes.append( cur_attr )
         # Check that len(word_spans) >= len(morph_spans)
         morph_spans = layers[self.output_layer].spans
-        word_spans  = layers['words'].span_list
+        word_spans  = layers[self._input_words_layer].span_list
         assert len(word_spans) >= len(morph_spans), \
             '(!) Unexpectedly, the number of elements at the layer '+\
                  '"'+str(self.output_layer)+'" is greater than the '+\
@@ -509,7 +521,7 @@ class VabamorfDisambiguator(Retagger):
         sentence_start_morph_span_id = 0
         morph_span_id = 0
         word_span_id  = 0
-        for sentence in layers['sentences'].span_list:
+        for sentence in layers[self._input_sentences_layer].span_list:
             # A) Collect all words/morph_analyses inside the sentence
             #    Assume: len(word_spans) >= len(morph_spans)
             sentence_word_spans  = []

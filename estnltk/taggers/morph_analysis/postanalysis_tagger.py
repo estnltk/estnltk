@@ -33,8 +33,8 @@ class PostMorphAnalysisTagger(Retagger):
                   'fix_abbreviations', 'fix_numeric', 'remove_duplicates',
                   'correction_rewriter',
                   # Names of input layers
-                  '_input_cp_tokens_layer', 
-                  '_input_words_layer', 
+                  '_input_cp_tokens_layer',
+                  '_input_words_layer',
                   '_input_sentences_layer',
                   '_input_morph_analysis_layer',
                   # Regep patterns
@@ -72,7 +72,7 @@ class PostMorphAnalysisTagger(Retagger):
         input_words_layer: str (default: 'words')
             Name of the input words layer;
         
-        input_words_layer: str (default: 'sentences')
+        input_sentences_layer: str (default: 'sentences')
             Name of the input sentences layer;
         
         ignore_emoticons: bool (default: True)
