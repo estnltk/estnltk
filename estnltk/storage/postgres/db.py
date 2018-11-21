@@ -728,7 +728,8 @@ class PgCollection:
 
     # TODO: rename to create_layer
     def create_layer_buffered(self, layer_name=None, data_iterator=None, row_mapper=None, tagger=None,
-                              create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None):
+                              create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None,
+                              query_length_limit=5000000):
         """
         Creates layer
 
@@ -814,7 +815,8 @@ class PgCollection:
                 # insert data
                 id_ = 0
                 with self.buffered_layer_insert(table_identifier=self._layer_identifier(layer_name),
-                                                columns=columns) as buffered_insert:
+                                                columns=columns,
+                                                query_length_limit=query_length_limit) as buffered_insert:
                     for row in data_iterator:
                         collection_id, text = row[0], row[1]
                         for record in row_mapper(row):
