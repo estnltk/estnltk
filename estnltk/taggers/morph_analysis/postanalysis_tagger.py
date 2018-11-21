@@ -32,6 +32,12 @@ class PostMorphAnalysisTagger(Retagger):
                   'fix_emoticons', 'fix_www_addresses', 'fix_email_addresses',
                   'fix_abbreviations', 'fix_numeric', 'remove_duplicates',
                   'correction_rewriter',
+                  # Names of input layers
+                  '_input_cp_tokens_layer', 
+                  '_input_words_layer', 
+                  '_input_sentences_layer',
+                  '_input_morph_analysis_layer',
+                  # Regep patterns
                   '_pat_name_needs_underscore1',
                   '_pat_name_needs_underscore2',
                   '_pat_name_needs_uppercase',
@@ -39,6 +45,9 @@ class PostMorphAnalysisTagger(Retagger):
 
     def __init__(self,
                  output_layer='morph_analysis',
+                 input_compound_tokens_layer='compound_tokens',
+                 input_words_layer='words',
+                 input_sentences_layer='sentences',
                  ignore_emoticons:bool=True,
                  ignore_xml_tags:bool=True,
                  fix_names_with_initials:bool=True,
@@ -56,7 +65,16 @@ class PostMorphAnalysisTagger(Retagger):
         output_layer: str (default: 'morph_analysis')
             Name of the morphological analysis layer that 
             will be corrected;
-            
+        
+        input_compound_tokens_layer: str (default: 'compound_tokens')
+            Name of the input words layer;
+        
+        input_words_layer: str (default: 'words')
+            Name of the input words layer;
+        
+        input_words_layer: str (default: 'sentences')
+            Name of the input sentences layer;
+        
         ignore_emoticons: bool (default: True)
             If True, then emoticons will be marked as to 
             be ignored by morphological disambiguation.
@@ -103,10 +121,19 @@ class PostMorphAnalysisTagger(Retagger):
             
         """
         # Set attributes & configuration
+        # The output layer
         self.output_layer = output_layer
-        self.input_layers = ['compound_tokens', 'words', 'sentences', output_layer]
-        self.depends_on = self.input_layers
-
+        # Names of the input layers
+        self.input_layers = [input_compound_tokens_layer, \
+                             input_words_layer, \
+                             input_sentences_layer, \
+                             output_layer]
+        self._input_cp_tokens_layer      = self.input_layers[0]
+        self._input_words_layer          = self.input_layers[1]
+        self._input_sentences_layer      = self.input_layers[2]
+        self._input_morph_analysis_layer = self.input_layers[3]
+        self.depends_on   = self.input_layers
+        
         self.ignore_emoticons = ignore_emoticons
         self.ignore_xml_tags = ignore_xml_tags
         self.fix_names_with_initials = fix_names_with_initials
@@ -145,16 +172,15 @@ class PostMorphAnalysisTagger(Retagger):
            layers: MutableMapping[str, Layer]
               Layers of the raw_text. Contains mappings from the name 
               of the layer to the Layer object.  The  mapping  must 
-              contain layers 'compound_tokens', 'words', 'sentences', 
-              and 'morph_analysis'. The layer 'morph_analysis' will
-              be retagged.
+              contain compound_tokens, words, sentences, and morph_analysis 
+              layers. The morph_analysis layer will be retagged.
            status: dict
               This can be used to store metadata on layer retagging.
         """
         assert self.output_layer in layers
-        assert 'compound_tokens' in layers
-        assert 'sentences' in layers
-        assert 'words' in layers
+        assert self._input_cp_tokens_layer in layers
+        assert self._input_sentences_layer in layers
+        assert self._input_words_layer in layers
         # --------------------------------------------
         #   Provide fixes that involve rewriting
         #   attributes of existing spans 
@@ -192,16 +218,15 @@ class PostMorphAnalysisTagger(Retagger):
            layers: MutableMapping[str, Layer]
               Layers of the raw_text. Contains mappings from the name 
               of the layer to the Layer object.  The  mapping  must 
-              contain layers 'compound_tokens', 'words', 'sentences', 
-              and 'morph_analysis'. The layer 'morph_analysis' will
-              be retagged.
+              contain compound_tokens, words, sentences, and morph_analysis 
+              layers. The morph_analysis layer will be retagged.
            status: dict
               This can be used to store metadata on layer retagging.
         '''
         comp_token_id = 0
         for morph_spanlist in layers[self.output_layer].spans:
-            if comp_token_id < len(layers['compound_tokens'].span_list):
-                comp_token = layers['compound_tokens'].span_list[comp_token_id]
+            if comp_token_id < len(layers[ self._input_cp_tokens_layer ].span_list):
+                comp_token = layers[ self._input_cp_tokens_layer ].span_list[comp_token_id]
                 if (comp_token.start == morph_spanlist.start and \
                     morph_spanlist.end == comp_token.end):
                     ignore_spans = False
@@ -241,17 +266,16 @@ class PostMorphAnalysisTagger(Retagger):
            layers: MutableMapping[str, Layer]
               Layers of the raw_text. Contains mappings from the name 
               of the layer to the Layer object.  The  mapping  must 
-              contain layers 'compound_tokens', 'words', 'sentences', 
-              and 'morph_analysis'. The layer 'morph_analysis' will
-              be retagged.
+              contain compound_tokens, words, sentences, and morph_analysis 
+              layers. The morph_analysis layer will be retagged.
            status: dict
               This can be used to store metadata on layer retagging.
         '''
         comp_token_id  = 0
-        has_normalized = 'normalized' in layers['compound_tokens'].attributes
+        has_normalized = 'normalized' in layers[ self._input_cp_tokens_layer ].attributes
         for morph_spanlist in layers[self.output_layer].spans:
-            if comp_token_id < len(layers['compound_tokens'].span_list):
-                comp_token = layers['compound_tokens'].span_list[comp_token_id]
+            if comp_token_id < len(layers[ self._input_cp_tokens_layer ].span_list):
+                comp_token = layers[ self._input_cp_tokens_layer ].span_list[comp_token_id]
                 if (comp_token.start == morph_spanlist.start and
                     morph_spanlist.end == comp_token.end):
                     #  In order to avoid errors in downstream processing, let's 
@@ -344,7 +368,7 @@ class PostMorphAnalysisTagger(Retagger):
     def _rewrite_layer_and_fix( self, raw_text: str, \
                                 layers: MutableMapping[str, Layer], \
                                 status: dict = None ):
-        '''Rewrites layer 'morph_analysis' by adding attribute 
+        '''Rewrites the morph_analysis layer by adding attribute 
            IGNORE_ATTR to it. Also provides fixes that require 
            removal or addition of spans:
              1. Removes duplicate analyses;
@@ -352,10 +376,10 @@ class PostMorphAnalysisTagger(Retagger):
                 correction_rewriter;
            
            Note that this method also tries to preserve any extra
-           attributes of the 'morph_analysis' layer. Every rewritten
-           (or newly created) 'morph_analysis' span will obtain its
-           extra attribute values from the original 'morph_analysis'
-           of the word. If the original 'morph_analysis' of the word 
+           attributes of the morph_analysis layer. Every rewritten
+           (or newly created) morph_analysis span will obtain its
+           extra attribute values from the original morph_analysis
+           of the word. If the original morph_analysis of the word 
            consisted of multiple spans / analyses, extra attribute 
            values will be carried over from the first span / analysis.
            
@@ -367,9 +391,8 @@ class PostMorphAnalysisTagger(Retagger):
            layers: MutableMapping[str, Layer]
               Layers of the raw_text. Contains mappings from the name 
               of the layer to the Layer object.  The  mapping  must 
-              contain layers 'compound_tokens', 'words', 'sentences', 
-              and 'morph_analysis'. The layer 'morph_analysis' will
-              be retagged.
+              contain compound_tokens, words, sentences, and morph_analysis 
+              layers. The morph_analysis layer will be retagged.
            status: dict
               This can be used to store metadata on layer retagging.
 
@@ -422,7 +445,7 @@ class PostMorphAnalysisTagger(Retagger):
                 # Add the new annotation
                 ambiguous_span.add_annotation( **empty_morph_record )
                 morph_spans[morph_span_id] = ambiguous_span
-                # Advance in the old "morph_analysis" layer
+                # Advance in the old morph_analysis layer
                 morph_span_id += 1
                 continue
 
