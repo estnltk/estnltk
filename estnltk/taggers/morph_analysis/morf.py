@@ -38,6 +38,9 @@ class VabamorfTagger(TaggerOld):
 
     def __init__(self,
                  layer_name='morph_analysis',
+                 input_words_layer='words',
+                 input_sentences_layer='sentences',
+                 input_compound_tokens_layer='compound_tokens',
                  postanalysis_tagger=None,
                  **kwargs):
         """Initialize VabamorfTagger class.
@@ -52,6 +55,13 @@ class VabamorfTagger(TaggerOld):
         ----------
         layer_name: str (default: 'morph_analysis')
             Name of the layer where analysis results are stored.
+        input_compound_tokens_layer: str (default: 'compound_tokens')
+            Name of the input compound_tokens layer. 
+            This layer is required by the default postanalysis_tagger.
+        input_words_layer: str (default: 'words')
+            Name of the input words layer;
+        input_sentences_layer: str (default: 'sentences')
+            Name of the input sentences layer;
         postanalysis_tagger: estnltk.taggers.Retagger (default: PostMorphAnalysisTagger())
             Retagger that is used to post-process "morph_analysis" layer after
             it is created (and before it is disambiguated).
@@ -62,10 +72,16 @@ class VabamorfTagger(TaggerOld):
         # Check if the user has provided a custom postanalysis_tagger
         if not postanalysis_tagger:
             # Initialize default postanalysis_tagger
-            postanalysis_tagger = PostMorphAnalysisTagger(output_layer=layer_name)
+            postanalysis_tagger = PostMorphAnalysisTagger(output_layer=layer_name,\
+                                                          input_compound_tokens_layer=input_compound_tokens_layer, \
+                                                          input_words_layer=input_words_layer, \
+                                                          input_sentences_layer=input_sentences_layer )
         
         self.kwargs = kwargs
         self.layer_name = layer_name
+        self._input_compound_tokens_layer = input_compound_tokens_layer
+        self._input_words_layer = input_words_layer
+        self._input_sentences_layer = input_sentences_layer
        
         if postanalysis_tagger:
             # Check for Retagger
@@ -84,16 +100,20 @@ class VabamorfTagger(TaggerOld):
         # Initialize morf analyzer and disambiguator; 
         # Also propagate layer names to submodules;
         self.vabamorf_analyser      = VabamorfAnalyzer( vm_instance=vm_instance,
-                                                        layer_name=layer_name )
+                                                        layer_name=layer_name,
+                                                        input_words_layer=self._input_words_layer,
+                                                        input_sentences_layer=self._input_sentences_layer)
         self.vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance,
-                                                             output_layer=layer_name )
+                                                             output_layer=layer_name,
+                                                             input_words_layer=self._input_words_layer,
+                                                             input_sentences_layer=self._input_sentences_layer )
 
         self.configuration = {'postanalysis_tagger':self.postanalysis_tagger.__class__.__name__, }
         #                      'vabamorf_analyser':self.vabamorf_analyser.__class__.__name__,
         #                      'vabamorf_disambiguator':self.vabamorf_disambiguator.__class__.__name__ }
         self.configuration.update(self.kwargs)
 
-        self.depends_on = ['words', 'sentences']
+        self.depends_on = [self._input_words_layer, self._input_sentences_layer]
         # Update dependencies: add dependencies specific to postanalysis_tagger
         if postanalysis_tagger and postanalysis_tagger.depends_on:
             for postanalysis_dependency in postanalysis_tagger.depends_on:
