@@ -1,8 +1,8 @@
 #
 #   CompoundTokenTagger analyzes tokens and decides, which
-#  tokens should be joined together (as 'compound_tokens').
-#  In later analysis, layers 'tokens' and 'compound_tokens'
-#  are used for creating 'words' layer.
+#  tokens should be joined together (as compound_tokens).
+#  In later analysis, tokens and compound_tokens layers 
+#  are used for creating the words layer.
 # 
 
 import regex as re
@@ -37,18 +37,25 @@ DEFAULT_IGNORE_LIST = os.path.join( PACKAGE_PATH, 'rewriting', 'premorph', 'rule
 class CompoundTokenTagger(Tagger):
     """Tags adjacent tokens that should be analyzed as one word."""
     output_attributes = ('type', 'normalized')
-    input_layers = ['tokens']
-    depends_on = input_layers
-    custom_abbreviations = []
-    conf_param = ['_tokenization_hints_tagger_1', '_tokenization_hints_tagger_2',
-                  '_conflict_resolving_strategy', 'custom_abbreviations', 'ignored_words',
-                  'tag_numbers', 'tag_units', 'tag_email_and_www', 'tag_emoticons', 'tag_xml',
-                  'tag_initials', 'tag_abbreviations', 'tag_case_endings', 'tag_hyphenations',
-                  'use_custom_abbreviations', 'do_not_join_on_strings']
     output_layer = 'compound_tokens'
-    layer_name = output_layer
-
-    def __init__(self, 
+    input_layers = ['tokens']
+    custom_abbreviations = []
+    conf_param = [ 'custom_abbreviations', 'ignored_words', 'tag_numbers', 'tag_units',
+                   'tag_email_and_www', 'tag_emoticons', 'tag_xml', 'tag_initials',
+                   'tag_abbreviations', 'tag_case_endings', 'tag_hyphenations',
+                   'use_custom_abbreviations', 'do_not_join_on_strings',
+                   # Inner parameters
+                   '_tokenization_hints_tagger_1', '_tokenization_hints_tagger_2',
+                   '_conflict_resolving_strategy', '_input_tokens_layer',
+                   # For backward compatibility:
+                   'depends_on', 'layer_name'
+                  ]
+    layer_name = output_layer   # <- For backward compatibility ...
+    depends_on = input_layers   # <- For backward compatibility ...
+    
+    def __init__(self,
+                 output_layer:str='compound_tokens',
+                 input_tokens_layer:str='tokens',
                  tag_numbers: bool = True,
                  tag_units: bool = True,
                  tag_email_and_www: bool = True,
@@ -65,6 +72,12 @@ class CompoundTokenTagger(Tagger):
 
         Parameters
         ----------
+        output_layer: str (default: 'compound_tokens')
+            Name for the compound tokens layer;
+        
+        input_tokens_layer: str (default: 'tokens')
+            Name of the input tokens layer;
+        
         tag_numbers: boolean (default: True)
             Numeric expressions with decimal separators, numbers with 
             digit group separators, and common date and time expressions
@@ -125,6 +138,13 @@ class CompoundTokenTagger(Tagger):
             By default, the list only contains '\n\n', intending to keep 
             compound tokens off from the paragraph boundaries.
         """
+        # Set input/output parameters
+        self.output_layer = output_layer
+        self._input_tokens_layer = input_tokens_layer
+        self.input_layers = [input_tokens_layer]
+        self.layer_name = self.output_layer  # <- For backward compatibility ...
+        self.depends_on = self.input_layers  # <- For backward compatibility ...
+        # Set tagging configuration
         conflict_resolving_strategy = 'MAX'
         self.tag_numbers = tag_numbers
         self.tag_units = tag_units
@@ -193,26 +213,24 @@ class CompoundTokenTagger(Tagger):
         # Load words that should be ignored during normalization of words with hyphens
         self.ignored_words = self._load_ignore_words_from_csv( DEFAULT_IGNORE_LIST )
 
+
+
     def _make_layer(self, raw_text: str, layers, status: dict):
-        """Tags compound_tokens layer.
+        """Creates compound_tokens layer.
         
         Parameters
         ----------
-        text: estnltk.text.Text
-            Text object that is to be analysed. It needs to have
-            layer 'tokens'.
-
-        return_layer: boolean (default: False)
-            If True, then the new layer is returned; otherwise 
-            the new layer is attached to the Text object, and 
-            the Text object is returned;
-
-        Returns
-        -------
-        Text or Layer
-            If return_layer==True, then returns the new layer, 
-            otherwise attaches the new layer to the Text object 
-            and returns the Text object;
+        raw_text: str
+           Text string corresponding to the text in which 
+           compound token analysis will be performed;
+          
+        layers: MutableMapping[str, Layer]
+           Layers of the raw_text. Contains mappings from the 
+           name of the layer to the Layer object. Must contain
+           the tokens layer.
+          
+        status: dict
+           This can be used to store metadata on layer tagging.
         """
         compound_tokens_lists = []
         # 1) Apply RegexTagger in order to get hints for the 1st level tokenization
@@ -246,12 +264,11 @@ class CompoundTokenTagger(Tagger):
                     continue
             tokenization_hints[sp.start] = end_node
 
-        # tokens = text.tokens.text
         hyphenation_status = None
         last_end = None
         tag_hyphenations = self.tag_hyphenations
         # 2) Apply tokenization hints + hyphenation correction
-        for i, token_span in enumerate(layers['tokens']):
+        for i, token_span in enumerate(layers[ self._input_tokens_layer ]):
             #token = token_span.text
             # 2.1) Apply detection of custom non-ending abbreviations
             #      (and override the previous compound token in case
@@ -263,13 +280,13 @@ class CompoundTokenTagger(Tagger):
             if token_span.start in tokenization_hints:
                 # Find where the new compound token should end 
                 end_token_index = None
-                for j in range(i, len(layers['tokens']) ):
-                    if layers['tokens'][j].end == tokenization_hints[token_span.start]['end']:
+                for j in range(i, len(layers[ self._input_tokens_layer ]) ):
+                    if layers[ self._input_tokens_layer ][j].end == tokenization_hints[token_span.start]['end']:
                         end_token_index = j
-                    elif tokenization_hints[token_span.start]['end'] < layers['tokens'][j].start:
+                    elif tokenization_hints[token_span.start]['end'] < layers[ self._input_tokens_layer ][j].start:
                         break
                 if end_token_index:
-                    spans = layers['tokens'][i:end_token_index+1]
+                    spans = layers[ self._input_tokens_layer ][i:end_token_index+1]
                     spl = EnvelopingSpan(spans=spans)
                     spl.type = ('tokenization_hint',)
                     spl.normalized = None
@@ -307,15 +324,15 @@ class CompoundTokenTagger(Tagger):
                     else:
                         hyphenation_status = 'end'
                 if hyphenation_status == 'end' and hyphenation_start+1 < i:
-                    hyp_start = layers['tokens'][hyphenation_start].start
-                    hyp_end   = layers['tokens'][i-1].end
+                    hyp_start = layers[ self._input_tokens_layer ][hyphenation_start].start
+                    hyp_end   = layers[ self._input_tokens_layer ][i-1].end
                     text_snippet = raw_text[hyp_start:hyp_end]
                     if _letter_pattern.search(text_snippet):
                         # The text snippet should contain at least one letter to be 
                         # considered as a potentially hyphenated word; 
                         # This serves to leave out numeric ranges like 
                         #    "15-17.04." or "920-980"
-                        spans = layers['tokens'][hyphenation_start:i].spans
+                        spans = layers[ self._input_tokens_layer ][hyphenation_start:i].spans
                         spl = EnvelopingSpan(spans=spans)
                         spl.type = ('hyphenation',)
                         spl.normalized = \
@@ -333,7 +350,7 @@ class CompoundTokenTagger(Tagger):
 
         # *) Finally: create a new layer and add spans to the layer
         layer = Layer(name=self.output_layer,
-                      enveloping='tokens',
+                      enveloping=self._input_tokens_layer,
                       attributes=self.output_attributes,
                       ambiguous=True)
         for spl in compound_tokens_lists:
@@ -377,7 +394,7 @@ class CompoundTokenTagger(Tagger):
             the detected custom abbreviation at the end of 
             compound_tokens_lists;
         """
-        token = layers['tokens'][token_id].text
+        token = layers[ self._input_tokens_layer ][token_id].text
         custom_abbreviation_found = False
         for abbreviation in self.custom_abbreviations:
             if abbreviation == token:
@@ -386,13 +403,13 @@ class CompoundTokenTagger(Tagger):
         if custom_abbreviation_found:
             # construct potential span
             next_token = ''
-            if token_id+1 < len(layers['tokens'])-1:
-                next_token = layers['tokens'][token_id+1].text
+            if token_id+1 < len(layers[ self._input_tokens_layer ])-1:
+                next_token = layers[ self._input_tokens_layer ][token_id+1].text
             if next_token == '.':
-                spans = layers['tokens'][token_id:token_id+2]
+                spans = layers[ self._input_tokens_layer ][token_id:token_id+2]
                 normalized = token+next_token
             else:
-                spans = layers['tokens'][token_id:token_id+1]
+                spans = layers[ self._input_tokens_layer ][token_id:token_id+1]
                 normalized = None
             spl = EnvelopingSpan(spans=spans)
             spl.type = ('non_ending_abbreviation',)
@@ -486,7 +503,7 @@ class CompoundTokenTagger(Tagger):
                     sp.start,sp.end,sp.left_strict,sp.right_strict,compound_tokens_lists )
             covered_tokens = \
                 self._get_covered_tokens(
-                    sp.start, sp.end, sp.left_strict, sp.right_strict, layers['tokens'].span_list)
+                    sp.start, sp.end, sp.left_strict, sp.right_strict, layers[ self._input_tokens_layer ].span_list)
             # remove regular tokens that are within compound tokens
             covered_tokens = \
                 self._remove_overlapped_spans(covered_compound_tokens, covered_tokens)
@@ -604,6 +621,7 @@ class CompoundTokenTagger(Tagger):
         if not inserted:
             if not discard_duplicate or (discard_duplicate and not is_duplicate):
                 spans.append(span)
+
 
     def _create_new_spanlist(self, raw_text, layers, compound_token_spans:list, regular_spans:list, joining_span:SpanList):
         """
