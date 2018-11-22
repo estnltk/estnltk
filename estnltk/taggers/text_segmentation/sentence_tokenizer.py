@@ -282,6 +282,9 @@ class SentenceTokenizer(TaggerOld):
     sentence_tokenizer = None
     
     def __init__(self, 
+                 output_layer:str='sentences',
+                 input_words_layer:str='words',
+                 input_compound_tokens_layer:str='compound_tokens',
                  fix_paragraph_endings:bool = True,
                  fix_compound_tokens:bool = True,
                  fix_numeric:bool = True,
@@ -296,6 +299,15 @@ class SentenceTokenizer(TaggerOld):
         
         Parameters
         ----------
+        output_layer: str (default: 'sentences')
+            Name for the sentences layer;
+        
+        input_words_layer: str (default: 'words')
+            Name of the input words layer;
+
+        input_compound_tokens_layer: str (default: 'compound_tokens')
+            Name of the input compound_tokens layer;
+        
         fix_paragraph_endings: boolean (default: True)
             Paragraph endings (double newlines) will be treated as sentence 
             endings.
@@ -353,6 +365,14 @@ class SentenceTokenizer(TaggerOld):
               used for initial sentence tokenization;
 
         """
+        # Set input/output layer names
+        self.output_layer = output_layer
+        self._input_words_layer = input_words_layer
+        self._input_compound_tokens_layer = input_compound_tokens_layer
+        self.input_layers = [input_words_layer, input_compound_tokens_layer]
+        self.layer_name = self.output_layer
+        self.depends_on = self.input_layers
+        
         # 0.1) Set or initialize base sentence tokenizer
         import nltk as nltk
         from nltk.tokenize.punkt import PunktSentenceTokenizer
@@ -418,8 +438,8 @@ class SentenceTokenizer(TaggerOld):
 
     def _sentences_from_tokens(self, text: 'Text') -> Iterator[Tuple[int, int]]:
         ''' Tokenizes into sentences based on the word tokens of the input text. '''
-        words = list(text.words)
-        word_texts = text.words.text
+        words = list(text[self._input_words_layer])
+        word_texts = text[self._input_words_layer].text
         i = 0
         for sentence_words in self.sentence_tokenizer.sentences_from_tokens(word_texts):
             if sentence_words:
@@ -468,11 +488,13 @@ class SentenceTokenizer(TaggerOld):
         else:
             # Note: this is a customization, not default
             sentence_ends = {end for _, end in self._tokenize_text(text)}
+        words = text[self._input_words_layer]
+        compound_tokens = text[self._input_compound_tokens_layer]
         # A) Remove sentence endings that:
         #   A.1) coincide with endings of non_ending_abbreviation's
         #   A.2) fall in the middle of compound tokens
         if self.configuration['fix_compound_tokens']:
-            for ct in text.compound_tokens:
+            for ct in compound_tokens:
                 if 'non_ending_abbreviation' in ct.type:
                     sentence_ends -= {span.end for span in ct}
                 else:
@@ -480,7 +502,7 @@ class SentenceTokenizer(TaggerOld):
         # B) Use repeated/prolonged sentence punctuation as sentence endings
         if self.configuration['fix_repeated_ending_punct']:
             repeated_ending_punct = []
-            for wid, word in enumerate(text.words):
+            for wid, word in enumerate( words ):
                 # Collect prolonged punctuation
                 if _ending_punct_regexp.match( word.text ):
                     repeated_ending_punct.append( word.text )
@@ -492,8 +514,8 @@ class SentenceTokenizer(TaggerOld):
                     (repeated_ending_punct[0] == '…' or \
                     len(repeated_ending_punct[0]) > 1)):
                     # Check if the next word is titlecased
-                    if wid+1 < len(text.words):
-                        next_word = text.words[wid+1].text
+                    if wid+1 < len(words):
+                        next_word = words[wid+1].text
                         if len(next_word) > 1 and \
                            next_word[0].isupper() and \
                            next_word[1].islower():
@@ -504,19 +526,19 @@ class SentenceTokenizer(TaggerOld):
                             # '(' or '"'; If so, then discard the sentence 
                             # ending ...
                             if wid - len(repeated_ending_punct) > -1:
-                                prev_word = text.words[wid-len(repeated_ending_punct)]
+                                prev_word = words[wid-len(repeated_ending_punct)]
                                 if prev_word.text in ['[', '(', '"']:
                                     sentence_ends -= { word.end }
         # C) Use emoticons as sentence endings
         if self.configuration['use_emoticons_as_endings']:
             # C.1) Collect all emoticons (record start locations)
             emoticon_locations = {}
-            for ct in text.compound_tokens:
+            for ct in compound_tokens:
                 if 'emoticon' in ct.type:
                     emoticon_locations[ct.start] = ct
             # C.2) Iterate over words and check emoticons
             repeated_emoticons = []
-            for wid, word in enumerate( text.words ):
+            for wid, word in enumerate( words ):
                 if word.start in emoticon_locations:
                     repeated_emoticons.append( emoticon_locations[word.start] )
                 else:
@@ -524,9 +546,9 @@ class SentenceTokenizer(TaggerOld):
                 # Check that there is an emoticon (or even few of them)
                 if len(repeated_emoticons) > 0:
                     # Check if the next word is not emoticon, and is titlecased
-                    if wid+1 < len(text.words):
-                        next_word = text.words[wid+1].text
-                        if text.words[wid+1].start not in emoticon_locations and \
+                    if wid+1 < len( words ):
+                        next_word = words[wid+1].text
+                        if words[wid+1].start not in emoticon_locations and \
                            len(next_word) > 1 and \
                            next_word[0].isupper() and \
                            next_word[1].islower():
@@ -537,18 +559,18 @@ class SentenceTokenizer(TaggerOld):
                             # ending; if so, remove it's ending (assuming that 
                             # emoticons belong to the previous sentence)
                             if wid - len(repeated_emoticons) > -1:
-                                prev_word = text.words[wid-len(repeated_emoticons)]
+                                prev_word = words[wid-len(repeated_emoticons)]
                                 sentence_ends -= { prev_word.end }
         # D) Align sentence endings with word startings and endings
         #    Collect span lists of potential sentences
         start = 0
-        if len(text.words) > 0:
-            sentence_ends.add( text.words[-1].end )
+        if len( words ) > 0:
+            sentence_ends.add( words[-1].end )
         sentences_list = []
         sentence_fixes_list = []
-        for i, token in enumerate(text.words):
+        for i, token in enumerate( words ):
             if token.end in sentence_ends:
-                sentences_list.append(text.words[start:i+1])
+                sentences_list.append(words[start:i+1])
                 start = i + 1
         # E) Use '\n\n' (usually paragraph endings) as sentence endings
         if self.configuration['fix_paragraph_endings']:
@@ -567,7 +589,7 @@ class SentenceTokenizer(TaggerOld):
         layer_attributes = self.attributes
         if record_fix_types and 'fix_types' not in layer_attributes:
             layer_attributes += ('fix_types',)
-        layer = Layer(enveloping='words',
+        layer = Layer(enveloping=self._input_words_layer,
                       name=self.layer_name,
                       attributes=layer_attributes,
                       ambiguous=False)

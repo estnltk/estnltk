@@ -44,7 +44,7 @@ class WordTagger(Tagger):
         input_compound_tokens_layer: str (default: 'compound_tokens')
             Name of the input compound_tokens layer;
         """
-        # Set input/output parameters
+        # Set input/output layer names
         self.output_layer = output_layer
         self._input_tokens_layer = input_tokens_layer
         self._input_compound_tokens_layer = input_compound_tokens_layer
