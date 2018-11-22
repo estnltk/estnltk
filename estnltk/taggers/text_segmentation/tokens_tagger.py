@@ -70,7 +70,7 @@ class TokensTagger(Tagger):
               of the layer to the Layer object.
               
            status: dict
-              This can be used to store metadata on layer retagging.
+              This can be used to store metadata on layer tagging.
         """
         spans = list(tokenizer.span_tokenize(raw_text))
         if self.apply_punct_postfixes:

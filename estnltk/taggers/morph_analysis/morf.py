@@ -115,8 +115,8 @@ class VabamorfTagger(TaggerOld):
 
         self.depends_on = [self._input_words_layer, self._input_sentences_layer]
         # Update dependencies: add dependencies specific to postanalysis_tagger
-        if postanalysis_tagger and postanalysis_tagger.depends_on:
-            for postanalysis_dependency in postanalysis_tagger.depends_on:
+        if postanalysis_tagger and postanalysis_tagger.input_layers:
+            for postanalysis_dependency in postanalysis_tagger.input_layers:
                 if postanalysis_dependency not in self.depends_on and \
                    postanalysis_dependency != self.layer_name:
                     self.depends_on.append(postanalysis_dependency)
