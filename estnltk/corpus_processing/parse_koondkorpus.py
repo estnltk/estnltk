@@ -22,7 +22,7 @@ from estnltk.converters import json_to_text
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers import SentenceTokenizer, ParagraphTokenizer
 
-from estnltk.taggers import TaggerOld
+from estnltk.taggers import Tagger
 
 from bs4 import BeautifulSoup
 from copy import deepcopy
@@ -695,8 +695,8 @@ def reconstruct_text( doc, \
            the reconstructed text;
            Default: '\n\n'
        
-       tokens_tagger: TaggerOld
-           EstNLTK's TaggerOld that can be used for splitting 
+       tokens_tagger: Tagger
+           EstNLTK's Tagger that can be used for splitting 
            sentences into tokens. If specified, then tagger's 
            method tag() will be used for splitting each sentence 
            into words & tokens, and results will be stored in  
@@ -724,7 +724,7 @@ def reconstruct_text( doc, \
            Reconstructed Text object,  and  a  list  of  layers 
            that preserve the original tokenization;
     """
-    assert not tokens_tagger or isinstance(tokens_tagger, TaggerOld)
+    assert not tokens_tagger or isinstance(tokens_tagger, Tagger)
     assert isinstance(layer_name_prefix, str)
     # 1) Reconstruct text string
     #    Collect sentence and paragraph locations from the text
@@ -738,7 +738,8 @@ def reconstruct_text( doc, \
         sentences = []
         for sid, sentence in enumerate(para['sentences']):
             if tokens_tagger:
-                layer = tokens_tagger.tag(Text(sentence), return_layer=True)
+                t_text = tokens_tagger.tag( Text(sentence) )
+                layer  = t_text[tokens_tagger.output_layer]
                 records = layer.to_records(with_text=False)
                 records = [ {'start': r['start']+cur_pos,\
                              'end':   r['end']+cur_pos } for r in records ]
