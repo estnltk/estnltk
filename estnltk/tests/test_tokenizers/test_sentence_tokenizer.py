@@ -758,7 +758,7 @@ def test_apply_sentence_tokenizer_on_empty_text():
 
 def test_record_fixes_of_sentence_tokenizer():
     # Tests whether an attribute describing the fixes is added to the results of sentence tokenization
-    sentence_tokenizer = SentenceTokenizer()
+    sentence_tokenizer = SentenceTokenizer(record_fix_types=True)
     test_texts = [ 
         { 'text': '17 . okt. 1998 a . laekus firmale täpselt 700.- eeku.', \
           'expected_sentence_texts': ['17 . okt. 1998 a . laekus firmale täpselt 700.- eeku.'],
@@ -780,7 +780,7 @@ def test_record_fixes_of_sentence_tokenizer():
         text = Text( test_text['text'] )
         # Perform analysis
         text.tag_layer(['words'])
-        sentence_tokenizer.tag(text, record_fix_types=True)
+        sentence_tokenizer.tag(text)
         # Collect results 
         sentence_texts = \
             [sentence.enclosing_text for sentence in text['sentences'].span_list]

@@ -598,9 +598,9 @@ def _reconstruct_enveloping_tokenization_layers( token_locations, \
                  attributes=WordTagger.output_attributes, \
                  ambiguous=False).from_records(token_locations)
        # Envelop sentences around words
-       orig_sentences = Layer(name=layer_name_prefix+SentenceTokenizer.layer_name, \
+       orig_sentences = Layer(name=layer_name_prefix+SentenceTokenizer.output_layer, \
                               enveloping=orig_words.name, \
-                              attributes=SentenceTokenizer.attributes, \
+                              attributes=SentenceTokenizer.output_attributes, \
                               ambiguous=False)
        sid = 0; s_start = -1; s_end = -1
        for wid, word in enumerate(orig_words):
@@ -619,7 +619,7 @@ def _reconstruct_enveloping_tokenization_layers( token_locations, \
        # If the words layer was not provided, create a detached 
        # sentences layer
        orig_sentences = \
-           Layer(name=layer_name_prefix+SentenceTokenizer.layer_name).from_records(sent_locations)
+           Layer(name=layer_name_prefix+SentenceTokenizer.output_layer).from_records(sent_locations)
     # Envelop paragraphs around sentences
     orig_paragraphs = Layer(name=layer_name_prefix+ParagraphTokenizer.output_layer, \
                             enveloping=orig_sentences.name, \
