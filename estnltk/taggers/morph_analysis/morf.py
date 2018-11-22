@@ -391,8 +391,8 @@ class VabamorfAnalyzer(TaggerOld):
         # Assert that all words obtained an analysis 
         # ( Note: there must be empty analyses for unknown 
         #         words if guessing is not used )
-        assert len(text.words) == len(analysis_results), \
-            '(!) Unexpectedly the number words ('+str(len(text.words))+') '+\
+        assert len(text[ self._input_words_layer ]) == len(analysis_results), \
+            '(!) Unexpectedly the number words ('+str(len(text[ self._input_words_layer ]))+') '+\
             'does not match the number of obtained morphological analyses ('+str(len(analysis_results))+').'
 
         # --------------------------------------------
@@ -409,7 +409,7 @@ class VabamorfAnalyzer(TaggerOld):
                             ambiguous=True,
                             attributes=current_attributes )
         # B) Populate layer        
-        for word, analyses_dict in zip(text.words, analysis_results):
+        for word, analyses_dict in zip(text[ self._input_words_layer ], analysis_results):
             # Convert from Vabamorf dict to a list of Spans 
             spans = \
                 _convert_vm_dict_to_morph_analysis_spans( \
