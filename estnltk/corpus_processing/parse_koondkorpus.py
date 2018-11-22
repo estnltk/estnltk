@@ -594,8 +594,8 @@ def _reconstruct_enveloping_tokenization_layers( token_locations, \
                  ambiguous=False)
        # Create words layer from the token records
        orig_words = \
-           Layer(name=layer_name_prefix+WordTagger.layer_name, \
-                 attributes=WordTagger.attributes, \
+           Layer(name=layer_name_prefix+WordTagger.output_layer, \
+                 attributes=WordTagger.output_attributes, \
                  ambiguous=False).from_records(token_locations)
        # Envelop sentences around words
        orig_sentences = Layer(name=layer_name_prefix+SentenceTokenizer.layer_name, \

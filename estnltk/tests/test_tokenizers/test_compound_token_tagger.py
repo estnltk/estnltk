@@ -1,7 +1,7 @@
 import unittest
 
 from estnltk import Text
-from estnltk.taggers import TokensTagger, CompoundTokenTagger
+from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 
 class CompoundTokenTaggerTest(unittest.TestCase):
 
@@ -595,6 +595,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
         # be changed (and it still works!)
         tokens_tagger = TokensTagger(output_layer='my_tokens')
         cp_tagger = CompoundTokenTagger(output_layer='my_compounds', input_tokens_layer='my_tokens')
+        word_tagger = WordTagger(input_tokens_layer='my_tokens', input_compound_tokens_layer='my_compounds')
         test_texts = [ 
             { 'text': 'Mis lil-li müüs Tiit 10e krooniga?', \
               'expected_words': ['Mis', 'lil-li', 'müüs', 'Tiit', '10e', 'krooniga', '?'] }, \
@@ -623,7 +624,7 @@ class CompoundTokenTaggerTest(unittest.TestCase):
             self.assertTrue( 'my_compounds' in text.layers.keys() )
             self.assertFalse( 'tokens' in text.layers.keys() )
             self.assertFalse( 'compound_tokens' in text.layers.keys() )
-            text.tag_layer(['words'])
+            word_tagger.tag(text)
             words_spans = text['words'].span_list
             # Fetch result
             word_segmentation = [] 
