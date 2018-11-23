@@ -54,6 +54,7 @@ class TokensTagger(Tagger):
         #  Pattern describing tokens that match punct_split_patterns,
         #  but should not be split into individual symbols
         self._punct_no_split_patterns = re.compile('^(\.{2,}|[\?!]+)$')
+        self.output_attributes = ()
 
     def _make_layer(self, text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         """Segments given Text into tokens. 

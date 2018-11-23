@@ -22,13 +22,11 @@ class WhiteSpaceTokensTagger(Tagger):
        Use this tagger only if you have a text that has been already 
        correctly tokenized by whitespaces, and you do not need to apply 
        any extra tokenization rules. """
-    output_layer = 'tokens'
     attributes   = ()
     conf_param   = ['depends_on', 'layer_name',  # <- For backward compatibility ...
                    ]
 
-
-    def __init__(self, output_layer:str='tokens'):
+    def __init__(self, output_layer: str = 'tokens'):
         """
         Initializes WhiteSpaceTokensTagger.
         
@@ -42,6 +40,7 @@ class WhiteSpaceTokensTagger(Tagger):
         self.input_layers = []
         self.layer_name   = self.output_layer  # <- For backward compatibility
         self.depends_on   = []                 # <- For backward compatibility
+        self.output_attributes = ()
 
     def _make_layer(self, text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         """Segments given Text into tokens. 

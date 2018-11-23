@@ -54,9 +54,9 @@ class RegexTagger(Tagger):
         """
         self.output_layer = output_layer
         if output_attributes is None:
-            self.output_attributes = []
+            self.output_attributes = ()
         else:
-            self.output_attributes = output_attributes
+            self.output_attributes = tuple(output_attributes)
 
         self._illegal_keywords = {'start', 'end'}
 

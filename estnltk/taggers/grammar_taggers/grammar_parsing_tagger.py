@@ -28,7 +28,7 @@ class GrammarParsingTagger(Tagger):
         self.input_layers = [layer_of_tokens]
         self.name_attribute = name_attribute
         self.output_layer = output_layer
-        self.output_attributes = attributes
+        self.output_attributes = tuple(attributes)
         if output_nodes is None:
             self.output_nodes = set(grammar.start_symbols)
         else:

@@ -20,14 +20,14 @@ class AddressPartTagger(Tagger):
     input_layers = []
 
     def __init__(self,
-                 output_attributes=['grammar_symbol'],
+                 output_attributes=('grammar_symbol', 'type'),
                  # conflict_resolving_strategy: str = 'MAX',
                  # overlapped: bool = True,
                  output_layer: str = 'address_parts',
                  # output_nodes={'ADDRESS'}
                  ):
 
-        self.output_attributes = output_attributes
+        self.output_attributes = tuple(output_attributes)
         self.output_layer = output_layer
         # priority_attribute = '_priority_'
 
@@ -157,7 +157,7 @@ class AddressPartTagger(Tagger):
                                             #'some_layer2b',
                                             'some_layer3',
                                             'gaps'],
-                                        output_attributes=('grammar_symbol', 'type'))
+                                        output_attributes=self.output_attributes)
         self.merge_tagger2 = MergeTagger(output_layer=self.output_layer,
                                         input_layers=[
                                             'house_nr',
@@ -167,7 +167,7 @@ class AddressPartTagger(Tagger):
                                             #'some_layer2b',
                                             'some_layer3'],
                                             #'gaps'],
-                                        output_attributes=('grammar_symbol', 'type'))
+                                        output_attributes=self.output_attributes)
 
     def _make_layer(self, text, layers, status):
         raw_text = text.text
@@ -301,11 +301,12 @@ class AddressGrammarTagger(Tagger):
     def __init__(self,
                  output_layer='addresses',
                  input_layer='address_parts'):
+        self.output_attributes = ('grammar_symbol', 'TÄNAV', 'MAJA', 'ASULA', 'MAAKOND', 'INDEKS')
         self.tagger = GrammarParsingTagger(  # output_layer=self.output_layer,
             # output_attributes=self.output_attributes,#, 'unknown'],
             output_layer=output_layer,
             layer_of_tokens=input_layer,
-            attributes=['grammar_symbol', 'TÄNAV', 'MAJA', 'ASULA', 'MAAKOND', 'INDEKS'],
+            attributes=self.output_attributes,
             grammar=self.grammar,
             output_nodes=['ADDRESS'],
             output_ambiguous=True)

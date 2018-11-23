@@ -16,7 +16,7 @@ class SpanTagger(Tagger):
                  input_attribute: str,
                  vocabulary: Union[dict, str, Vocabulary],
                  key: str = '_token_',
-                 output_attributes: Sequence[str] = None,
+                 output_attributes: Sequence[str] = (),
                  global_validator: callable = None,
                  validator_attribute: str = '_validator_',
                  priority_attribute: str = None,
@@ -52,10 +52,8 @@ class SpanTagger(Tagger):
         self.priority_attribute = priority_attribute
         self.output_layer = output_layer
         self.input_attribute = input_attribute
-        if output_attributes is None:
-            self.output_attributes = []
-        else:
-            self.output_attributes = list(output_attributes)
+
+        self.output_attributes = tuple(output_attributes)
 
         self.validator_attribute = validator_attribute
 

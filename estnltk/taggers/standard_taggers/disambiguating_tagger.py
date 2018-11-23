@@ -18,7 +18,7 @@ class DisambiguatingTagger(Tagger):
                  decorator=default_decorator):
         self.input_layers = [input_layer]
         self.output_layer = output_layer
-        self.output_attributes = output_attributes
+        self.output_attributes = tuple(output_attributes)
         self.decorator = decorator
 
     def _make_layer(self, text, layers, status):
