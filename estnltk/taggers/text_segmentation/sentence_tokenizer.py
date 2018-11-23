@@ -408,6 +408,10 @@ class SentenceTokenizer( Tagger ):
         self.fix_repeated_ending_punct = fix_repeated_ending_punct
         self.use_emoticons_as_endings = use_emoticons_as_endings
         self.record_fix_types = record_fix_types
+
+        self.output_attributes = ()
+        if record_fix_types:
+            self.output_attributes = ('fix_types', )
         
         # 1) Set or initialize base sentence tokenizer
         import nltk as nltk
@@ -599,12 +603,9 @@ class SentenceTokenizer( Tagger ):
                                                        sentences_list,
                                                        sentence_fixes_list)
         # G) Create the layer and attach sentences
-        layer_attributes = self.output_attributes
-        if self.record_fix_types and 'fix_types' not in layer_attributes:
-            layer_attributes += ('fix_types',)
         layer = Layer(enveloping=self._input_words_layer,
                       name=self.layer_name,
-                      attributes=layer_attributes,
+                      attributes=self.output_attributes,
                       text_object=text,
                       ambiguous=False)
         for sid, sentence_span_list in enumerate(sentences_list):
@@ -711,7 +712,7 @@ class SentenceTokenizer( Tagger ):
                         # if merge-and-split failed, then discard the rule
                         # (sentences will remain split as they were)
                         new_spanlist = EnvelopingSpan()
-                        if record_fix_types:
+                        if self.record_fix_types:
                             new_spanlist.fix_types = []
                         new_spanlist.spans = sentence_spl.spans
                         new_sentences_list.append( new_spanlist )
