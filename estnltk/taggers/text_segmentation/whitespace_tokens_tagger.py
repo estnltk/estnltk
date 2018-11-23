@@ -8,14 +8,14 @@
 #         of some pretokenized corpus )
 #
 
-from typing import MutableMapping, Sequence
-import re
+from typing import MutableMapping
 
 from estnltk.text import Layer
 from estnltk.taggers import Tagger
 from nltk.tokenize.regexp import WhitespaceTokenizer
 
 tokenizer = WhitespaceTokenizer()
+
 
 class WhiteSpaceTokensTagger(Tagger):
     """Splits text into tokens by whitespaces. 
@@ -43,8 +43,7 @@ class WhiteSpaceTokensTagger(Tagger):
         self.layer_name   = self.output_layer  # <- For backward compatibility
         self.depends_on   = []                 # <- For backward compatibility
 
-
-    def _make_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict) -> Layer:
+    def _make_layer(self, text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         """Segments given Text into tokens. 
            Returns tokens layer.
         
@@ -61,10 +60,11 @@ class WhiteSpaceTokensTagger(Tagger):
            status: dict
               This can be used to store metadata on layer tagging.
         """
+        raw_text = text.text
         spans = list(tokenizer.span_tokenize(raw_text))
-        return Layer(name=self.output_layer).from_records([{
+        return Layer(name=self.output_layer, text_object=text).from_records(
+                                                [{
                                                    'start': start,
                                                    'end': end
                                                   } for start, end in spans],
                                                  rewriting=True)
-

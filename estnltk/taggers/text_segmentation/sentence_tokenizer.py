@@ -473,7 +473,7 @@ class SentenceTokenizer( Tagger ):
                 yield (words[first_token].start, words[last_token].end)
                 i += len(sentence_words)
 
-    def _make_layer(self, raw_text: str, layers, status: dict):
+    def _make_layer(self, text, layers, status: dict):
         """Creates the sentences layer.
         
         Parameters
@@ -490,6 +490,7 @@ class SentenceTokenizer( Tagger ):
         status: dict
            This can be used to store metadata on layer tagging.
         """
+        raw_text = text.text
         # Apply the base sentence tokenizer
         # Depending on the available interface, use either
         # sentences_from_tokens() or span_tokenize()
@@ -604,6 +605,7 @@ class SentenceTokenizer( Tagger ):
         layer = Layer(enveloping=self._input_words_layer,
                       name=self.layer_name,
                       attributes=layer_attributes,
+                      text_object=text,
                       ambiguous=False)
         for sid, sentence_span_list in enumerate(sentences_list):
             if self.record_fix_types:

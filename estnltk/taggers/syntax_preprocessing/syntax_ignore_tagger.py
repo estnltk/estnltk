@@ -534,8 +534,8 @@ class SyntaxIgnoreTagger(TaggerOld):
         """
         # A) Apply RegexTagger to find text snippets that should be ignored
         conflict_status = {}
-        new_layer = self._syntax_ignore_tagger.make_layer(text.text,
-                                                          text.layers,
+        new_layer = self._syntax_ignore_tagger.make_layer(text=text,
+                                                          layers=text.layers,
                                                           status=conflict_status)
         # Create an alignment between words and spans
         wid = 0

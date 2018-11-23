@@ -10,6 +10,7 @@ from typing import MutableMapping, Sequence
 from estnltk.text import Layer, Span
 from estnltk.taggers import Tagger
 
+
 class WordTagger(Tagger):
     """Creates words layer based on the tokens and compound_tokens layers.
        Provides normalized forms of the words, which are used in the succeeding 
@@ -52,8 +53,7 @@ class WordTagger(Tagger):
         self.layer_name = self.output_layer  # <- For backward compatibility ...
         self.depends_on = self.input_layers  # <- For backward compatibility ...
 
-
-    def _make_layer(self, raw_text: str, layers, status: dict):
+    def _make_layer(self, text, layers, status: dict):
         """Creates words layer.
         
         Parameters
@@ -81,6 +81,7 @@ class WordTagger(Tagger):
             compounds[spl[0]].normalized_form = spl.normalized
         words = Layer(name=self.output_layer, 
                       attributes=self.output_attributes,
+                      text_object=text,
                       ambiguous=False)
         for span in layers[ self._input_tokens_layer ]:
             if span in compounds:
@@ -102,4 +103,3 @@ class WordTagger(Tagger):
 
         # 3) Return results
         return words
-

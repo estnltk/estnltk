@@ -17,12 +17,9 @@
 #     exactly in the same order as the appear in the text.
 # 
 
-import regex as re
-import os
-from typing import Union
 
 from estnltk import EnvelopingSpan
-from estnltk.text import Layer, SpanList
+from estnltk.text import Layer
 from estnltk.taggers import Tagger
 
 
@@ -69,14 +66,14 @@ class PretokenizedTextCompoundTokensTagger(Tagger):
         # Attach units
         self._multiword_units = multiword_units
 
-
-    def _make_layer(self, raw_text: str, layers, status: dict):
+    def _make_layer(self, text, layers, status: dict):
         """ Creates an empty 'compound_tokens' layer, or a 
             'compound_tokens' layer filled with multiword units 
             from the list _multiword_units.
         """
         # Create an empty layer 
         layer = Layer(name=self.output_layer,
+                      text_object=text,
                       enveloping='tokens',
                       attributes=self.output_attributes,
                       ambiguous=False)
@@ -119,4 +116,3 @@ class PretokenizedTextCompoundTokensTagger(Tagger):
                        mw_id = 0
                  token_span_id += 1
         return layer
-

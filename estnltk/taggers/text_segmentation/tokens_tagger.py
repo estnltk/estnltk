@@ -15,6 +15,7 @@ from nltk.tokenize.regexp import WordPunctTokenizer
 
 tokenizer = WordPunctTokenizer()
 
+
 class TokensTagger(Tagger):
     """Tags tokens in raw text."""
     output_layer = 'tokens'
@@ -54,8 +55,7 @@ class TokensTagger(Tagger):
         #  but should not be split into individual symbols
         self._punct_no_split_patterns = re.compile('^(\.{2,}|[\?!]+)$')
 
-
-    def _make_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict) -> Layer:
+    def _make_layer(self, text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         """Segments given Text into tokens. 
            Returns tokens layer.
         
@@ -72,7 +72,7 @@ class TokensTagger(Tagger):
            status: dict
               This can be used to store metadata on layer tagging.
         """
-        spans = list(tokenizer.span_tokenize(raw_text))
+        spans = list(tokenizer.span_tokenize(text.text))
         if self.apply_punct_postfixes:
             #  WordPunctTokenizer may leave tokenization of punctuation 
             #  incomplete, for instance:
@@ -81,18 +81,18 @@ class TokensTagger(Tagger):
             #  We will gather these cases and split separately:
             spans_to_split = []
             for (start, end) in spans:
-                token = raw_text[start:end]
+                token = text.text[start:end]
                 if self._punct_split_patterns.match( token ) and \
                    not self._punct_no_split_patterns.match( token ):
                     spans_to_split.append( (start, end) )
             if spans_to_split:
                 spans = self._split_into_symbols( spans, spans_to_split )
-        return Layer(name=self.output_layer).from_records([{
-                                                   'start': start,
-                                                   'end': end
-                                                  } for start, end in spans],
-                                                 rewriting=True)
-
+        layer = Layer(name=self.output_layer, text_object=text).from_records([{
+                                                                   'start': start,
+                                                                   'end': end
+                                                                  } for start, end in spans],
+                                                                 rewriting=True)
+        return layer
 
     def _split_into_symbols( self, spans, spans_to_split ):
         '''Splits a subset of spans from the list spans into 

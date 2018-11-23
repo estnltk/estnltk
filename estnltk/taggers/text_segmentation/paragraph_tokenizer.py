@@ -29,17 +29,17 @@ class ParagraphTokenizer(Tagger):
         self.paragraph_tokenizer = RegexpTokenizer(regex, gaps=True, discard_empty=True)
         self.regex = regex
 
-
-    def _make_layer(self, raw_text: str, layers, status: dict):
+    def _make_layer(self, text, layers, status: dict):
         """
         Tag paragraphs layer.
         
         Paragraph can only end at the end of a sentence.
         """
-        layer = Layer(name=self.output_layer, 
+        layer = Layer(name=self.output_layer,
+                      text_object=text,
                       enveloping=self._input_sentences_layer, 
                       ambiguous=False)
-        paragraph_ends = {end for _, end in self.paragraph_tokenizer.span_tokenize(raw_text)}
+        paragraph_ends = {end for _, end in self.paragraph_tokenizer.span_tokenize(text.text)}
         start = 0
         if layers[ self._input_sentences_layer ]:
             paragraph_ends.add(layers[ self._input_sentences_layer ][-1].end)

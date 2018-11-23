@@ -213,9 +213,7 @@ class CompoundTokenTagger(Tagger):
         # Load words that should be ignored during normalization of words with hyphens
         self.ignored_words = self._load_ignore_words_from_csv( DEFAULT_IGNORE_LIST )
 
-
-
-    def _make_layer(self, raw_text: str, layers, status: dict):
+    def _make_layer(self, text, layers, status: dict):
         """Creates compound_tokens layer.
         
         Parameters
@@ -232,11 +230,12 @@ class CompoundTokenTagger(Tagger):
         status: dict
            This can be used to store metadata on layer tagging.
         """
+        raw_text = text.text
         compound_tokens_lists = []
         # 1) Apply RegexTagger in order to get hints for the 1st level tokenization
         conflict_status = {}
         tokenization_hints = {}
-        new_layer = self._tokenization_hints_tagger_1.make_layer(raw_text, layers, status=conflict_status)
+        new_layer = self._tokenization_hints_tagger_1.make_layer(text=text, layers=layers, status=conflict_status)
         for sp in new_layer.span_list:
             #print('*',text.text[sp.start:sp.end], sp.pattern_type, sp.normalized)
             if hasattr(sp, 'pattern_type') and sp.pattern_type.startswith('negative:'):
@@ -346,7 +345,7 @@ class CompoundTokenTagger(Tagger):
         #    (join 1st level compound tokens + regular tokens, if needed)
         if self._tokenization_hints_tagger_2:
             compound_tokens_lists = \
-                self._apply_2nd_level_compounding(raw_text, layers, compound_tokens_lists)
+                self._apply_2nd_level_compounding(text, layers, compound_tokens_lists)
 
         # *) Finally: create a new layer and add spans to the layer
         layer = Layer(name=self.output_layer,
@@ -369,7 +368,7 @@ class CompoundTokenTagger(Tagger):
                                              decorator=decorator)
         temp_layers = layers.copy()
         temp_layers[self.output_layer] = layer
-        layer = disamb_tagger.make_layer(raw_text, temp_layers, status)
+        layer = disamb_tagger.make_layer(text=text, layers=temp_layers, status=status)
 
         return layer
 
@@ -478,7 +477,7 @@ class CompoundTokenTagger(Tagger):
         # Return normalized form of the token
         return token.normal.text
 
-    def _apply_2nd_level_compounding(self, raw_text, layers, compound_tokens_lists:list):
+    def _apply_2nd_level_compounding(self, text, layers, compound_tokens_lists:list):
         """ Executes _tokenization_hints_tagger_2 to get hints for 2nd level compounding.
 
             Performs the 2nd level compounding: joins together regular "tokens" and 
@@ -491,8 +490,8 @@ class CompoundTokenTagger(Tagger):
         """
         # Apply regexps to gain 2nd level of tokenization hints
         conflict_status = {}
-        new_layer = self._tokenization_hints_tagger_2.make_layer(raw_text,
-                                                                 layers,
+        new_layer = self._tokenization_hints_tagger_2.make_layer(text=text,
+                                                                 layers=layers,
                                                                  status=conflict_status)
         # Find tokens that should be joined according to 2nd level hints and 
         # create new compound tokens based on them
@@ -513,9 +512,9 @@ class CompoundTokenTagger(Tagger):
             #    whether they satisfy the constraints left_strict and right_strict
             constraints_satisfied = True
             leftmost1 = \
-                covered_tokens[0].start if covered_tokens else len(raw_text)
+                covered_tokens[0].start if covered_tokens else len(text.text)
             leftmost2 = \
-                covered_compound_tokens[0].start if covered_compound_tokens else len(raw_text)
+                covered_compound_tokens[0].start if covered_compound_tokens else len(text.text)
             leftmost = min(leftmost1, leftmost2)
             if sp.left_strict and sp.start != leftmost:
                 # hint's left boundary was supposed to match exactly a token start, but did not
@@ -532,12 +531,12 @@ class CompoundTokenTagger(Tagger):
             # If constraints were satisfied, try to add a new compound token
             if (covered_compound_tokens or covered_tokens) and constraints_satisfied:
                 # Create new SpanList
-                spl = self._create_new_spanlist(raw_text, layers, covered_compound_tokens, covered_tokens, sp)
+                spl = self._create_new_spanlist(text.text, layers, covered_compound_tokens, covered_tokens, sp)
                 # Check that the new compound token will not contain any of the disallowed strings
                 if self.do_not_join_on_strings:
                     discard = False
                     for separator in self.do_not_join_on_strings:
-                        if separator in raw_text[spl.start:spl.end]:
+                        if separator in text.text[spl.start:spl.end]:
                            discard = True
                     if discard:
                         # Cancel creation of the spanlist

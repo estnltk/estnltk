@@ -167,25 +167,24 @@ class AddressPartTagger(Tagger):
                                             #'some_layer2b',
                                             'some_layer3'],
                                             #'gaps'],
-                                        output_attributes=('grammar_symbol', 'type'))                                
-                                        
+                                        output_attributes=('grammar_symbol', 'type'))
 
-    def _make_layer(self, raw_text, layers, status):
+    def _make_layer(self, text, layers, status):
+        raw_text = text.text
         tmp_layers = layers.copy()
-        tmp_layers['house_nr'] = self.house_nr_tagger.make_layer(raw_text, tmp_layers, status)
-        tmp_layers['zip_code'] = self.zip_code_tagger.make_layer(raw_text, tmp_layers, status)
-        tmp_layers['place_name'] = self.place_name_tagger.make_layer(raw_text, tmp_layers, status)
-        tmp_layers['street_name'] = self.street_name_tagger.make_layer(raw_text, tmp_layers, status)
+        tmp_layers['house_nr'] = self.house_nr_tagger.make_layer(text=text, layers=tmp_layers, status=status)
+        tmp_layers['zip_code'] = self.zip_code_tagger.make_layer(text=text, layers=tmp_layers, status=status)
+        tmp_layers['place_name'] = self.place_name_tagger.make_layer(text=text, layers=tmp_layers, status=status)
+        tmp_layers['street_name'] = self.street_name_tagger.make_layer(text=text, layers=tmp_layers, status=status)
         #tmp_layers['farm_name'] = self.farm_name_tagger.make_layer(raw_text, tmp_layers, status)
-        tmp_layers['spec_word'] = self.spec_voc_tagger.make_layer(raw_text, tmp_layers, status)
-        tmp_layers['some_layer2'] = self.atomizer2.make_layer(raw_text, tmp_layers, status)
-        tmp_layers['some_layer2a'] = self.atomizer2a.make_layer(raw_text, tmp_layers, status)
+        tmp_layers['spec_word'] = self.spec_voc_tagger.make_layer(text=text, layers=tmp_layers, status=status)
+        tmp_layers['some_layer2'] = self.atomizer2.make_layer(text=text, layers=tmp_layers, status=status)
+        tmp_layers['some_layer2a'] = self.atomizer2a.make_layer(text=text, layers=tmp_layers, status=status)
         #tmp_layers['some_layer2b'] = self.atomizer2b.make_layer(raw_text, tmp_layers, status)
-        tmp_layers['some_layer3'] = self.atomizer3.make_layer(raw_text, tmp_layers, status)     
-        tmp_layers['gaps'] = self.gaps_tagger.make_layer(raw_text, tmp_layers, status)
+        tmp_layers['some_layer3'] = self.atomizer3.make_layer(text=text, layers=tmp_layers, status=status)
+        tmp_layers['gaps'] = self.gaps_tagger.make_layer(text=text, layers=tmp_layers, status=status)
   
-        return self.merge_tagger.make_layer(raw_text, tmp_layers, status)
-
+        return self.merge_tagger.make_layer(text=text, layers=tmp_layers, status=status)
 
 
 class AddressGrammarTagger(Tagger):
@@ -313,5 +312,5 @@ class AddressGrammarTagger(Tagger):
         self.input_layers = [input_layer]
         self.output_layer = output_layer
 
-    def _make_layer(self, raw_text, layers, status):
-        return self.tagger.make_layer(raw_text, layers, status)
+    def _make_layer(self, text, layers, status):
+        return self.tagger.make_layer(text=text, layers=layers, status=status)

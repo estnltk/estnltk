@@ -5,11 +5,9 @@
 #  clauses.
 # 
 
-from typing import Union
-
 import json
 
-from estnltk.text import Text, Layer, EnvelopingSpan
+from estnltk.text import Layer, EnvelopingSpan
 
 from estnltk.taggers import Tagger
 from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
@@ -19,7 +17,7 @@ from estnltk.java.javaprocess import JavaProcess
 from estnltk.core import JAVARES_PATH
 
 
-class ClauseSegmenter( Tagger ):
+class ClauseSegmenter(Tagger):
     """Tags clause boundaries inside sentences. Uses Java-based clause
        segmenter (Osalausestaja) to perform the tagging."""
     output_layer      = 'clauses'
@@ -87,9 +85,7 @@ class ClauseSegmenter( Tagger ):
         self._java_process = \
             JavaProcess( 'Osalau.jar', jar_path=JAVARES_PATH, args=args )
 
-
-
-    def _make_layer(self, raw_text: str, layers, status: dict):
+    def _make_layer(self, text, layers, status: dict):
         """Tags clauses layer.
         
         Parameters
@@ -182,7 +178,8 @@ class ClauseSegmenter( Tagger ):
                     clause_spanlists.append( clause_spans )
         # Create and populate layer
         layer = Layer(name=self.output_layer, 
-                      enveloping=self._input_words_layer, 
+                      enveloping=self._input_words_layer,
+                      text_object=text,
                       attributes=self.output_attributes, 
                       ambiguous=False)
         for clause_spl in clause_spanlists:

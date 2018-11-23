@@ -27,14 +27,16 @@ class GapTagger(Tagger):
         self.decorator = decorator
         self.ambiguous = ambiguous
 
-    def _make_layer(self, raw_text, layers, status):
+    def _make_layer(self, text, layers, status):
         layer = Layer(
             name=self.output_layer,
             attributes=self.output_attributes,
+            text_object=text,
             parent=None,
             enveloping=None,
             ambiguous=self.ambiguous
             )
+        raw_text = text.text
         layers = [layers[layer] for layer in self.input_layers]
         for start, end in find_gaps(layers, len(raw_text)):
             assert start < end, (start, end)

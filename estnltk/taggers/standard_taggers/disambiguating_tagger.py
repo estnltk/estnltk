@@ -21,12 +21,13 @@ class DisambiguatingTagger(Tagger):
         self.output_attributes = output_attributes
         self.decorator = decorator
 
-    def _make_layer(self, raw_text, layers, status):
+    def _make_layer(self, text, layers, status):
         input_layer = layers[self.input_layers[0]]
         parent = input_layer.parent
         enveloping = input_layer.enveloping
         layer = Layer(name=self.output_layer,
                       attributes=self.output_attributes,
+                      text_object=text,
                       parent=parent,
                       enveloping=enveloping,
                       ambiguous=False)
@@ -41,7 +42,7 @@ class DisambiguatingTagger(Tagger):
                 span = Span(start=input_span[0].start,
                             end=input_span[0].end,
                             legal_attributes=self.output_attributes)
-            for k, v in self.decorator(input_span, raw_text).items():
+            for k, v in self.decorator(input_span, text.text).items():
                 setattr(span, k, v)
             layer.add_span(span)
         return layer

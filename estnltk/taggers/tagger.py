@@ -29,11 +29,12 @@ class Tagger:
         super().__setattr__(key, value)
 
     # TODO: remove raw_text: str, replace with text: Text, rename layers -> detached_layers
-    def _make_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict) -> Layer:
+    def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
     # TODO: remove raw_text: str, rename layers -> detached_layers
-    def make_layer(self, raw_text: str = None, layers: MutableMapping[str, Layer] = None, status: dict = None, text: Text = None) -> Layer:
+    def make_layer(self, raw_text: str = None, layers: MutableMapping[str, Layer] = None, status: dict = None,
+                   text: Text = None) -> Layer:
         assert status is None or isinstance(status, dict), 'status should be None or dict, not {!r}'.format(type(status))
         if raw_text is None:
             raw_text = text.text
@@ -47,11 +48,13 @@ class Tagger:
                 layers[layer] = text.layers[layer]
             else:
                 raise ValueError('missing input layer: {!r}'.format(layer))
-        layer = self._make_layer(raw_text, layers, status)
-        if layer.text_object is None:
-            layer.text_object = text
-        else:
-            assert layer.text_object is text, (layer.text_object, text)
+
+        try:
+            layer = self._make_layer(text=text, layers=layers, status=status)
+        except:
+            print('Tagger: ' + self.__class__.__name__)
+            raise
+        assert layer.text_object is text, 'Tagger: ' + self.__class__.__name__
         # TODO the following asssertion breaks the tests
         #assert layer.attributes == self.output_attributes, '{} != {}'.format(layer.attributes, self.output_attributes)
         assert isinstance(layer, Layer), 'make_layer must return Layer'
