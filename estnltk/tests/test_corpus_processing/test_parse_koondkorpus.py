@@ -131,3 +131,38 @@ def test_parse_koondkorpus_xml_file_content_and_preserve_original_tokenization()
     assert len(doc2.tokens) == 297
     assert len(doc2.words) == len(doc2.tokens)
 
+
+
+def test_parse_koondkorpus_xml_file_content_and_preserve_original_tokenization_with_name_prefixes():
+    # Parse Texts from the TEI XML content
+    test_xml_content   = _get_koondkorpus_content()
+    test_xml_file_path = os.path.join('Postimees', 'PM', 'postimees_1998', 'aja_pm_1998_01_03e.xml')
+    target = get_div_target( test_xml_file_path )
+    
+    # Extract documents
+    # Add prefix 'original_tokenization_' to names of layers of original tokenization
+    texts = parse_tei_corpus_file_content( test_xml_content, \
+                                           test_xml_file_path, \
+                                           target = [target], \
+                                           record_xml_filename=True, \
+                                           add_tokenization=True, \
+                                           preserve_tokenization=True, \
+                                           orig_tokenization_layer_name_prefix='original_tokenization_' )
+    # Assert loaded content
+    assert len(texts) == 2
+    # Assert layer names
+    for text in texts:
+        for layer_name in text.layers.keys():
+            assert layer_name.startswith('original_tokenization_')
+    # Assert layer access
+    doc1 = texts[0]
+    assert len(doc1.original_tokenization_paragraphs) == 5
+    assert len(doc1.original_tokenization_sentences)  == 11
+    assert len(doc1.original_tokenization_words) == 142
+    assert len(doc1.original_tokenization_words) == len(doc1.original_tokenization_tokens)
+    doc2 = texts[1]
+    assert len(doc2.original_tokenization_paragraphs) == 5
+    assert len(doc2.original_tokenization_sentences)  == 19
+    assert len(doc2.original_tokenization_tokens) == 297
+    assert len(doc2.original_tokenization_words) == len(doc2.original_tokenization_tokens)
+

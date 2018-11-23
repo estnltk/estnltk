@@ -68,8 +68,9 @@ class NeuralMorphTagger(Tagger):
             tagger.restore_session(config.dir_model)
             self.base_tagger = tagger
 
-    def _make_layer(self, raw_text, layers, status=None):
+    def _make_layer(self, text, layers, status=None):
         layer = Layer(name=self.output_layer,
+                      text_object=text,
                       parent='morph_analysis',
                       ambiguous=False,
                       attributes=MORPH_ATTRIBUTES)

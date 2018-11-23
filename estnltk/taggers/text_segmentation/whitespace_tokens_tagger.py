@@ -8,57 +8,62 @@
 #         of some pretokenized corpus )
 #
 
-from typing import Union
-import re
+from typing import MutableMapping
 
 from estnltk.text import Layer
-from estnltk.taggers import TaggerOld
+from estnltk.taggers import Tagger
 from nltk.tokenize.regexp import WhitespaceTokenizer
 
 tokenizer = WhitespaceTokenizer()
 
-class WhiteSpaceTokensTagger(TaggerOld):
-    description   = 'Splits text into tokens by whitespaces (and whitespaces only).'+\
-                    'Use this tagger only if you have a text that has been already '+\
-                    'correctly tokenized by whitespaces, and you do not need to apply '+\
-                    'any extra tokenization rules. '
-    layer_name    = 'tokens'
-    attributes    = ()
-    depends_on    = []
-    configuration = None
-    
-    def __init__(self):
-        """Initializes WhiteSpaceTokensTagger.
-        """
-        self.configuration = {}
 
-    def tag(self, text:'Text', return_layer:bool=False) -> Union['Text', Layer]:
-        """Segments given Text into tokens by whitespaces. 
+class WhiteSpaceTokensTagger(Tagger):
+    """Splits text into tokens by whitespaces. 
+       Use this tagger only if you have a text that has been already 
+       correctly tokenized by whitespaces, and you do not need to apply 
+       any extra tokenization rules. """
+    attributes   = ()
+    conf_param   = ['depends_on', 'layer_name',  # <- For backward compatibility ...
+                   ]
+
+    def __init__(self, output_layer: str = 'tokens'):
+        """
+        Initializes WhiteSpaceTokensTagger.
         
         Parameters
         ----------
-        text: estnltk.text.Text
-            Text object that is to be tokenized;
-
-        return_layer: boolean (default: False)
-            If True, then the new layer is returned; otherwise 
-            the new layer is attached to the Text object, and 
-            the Text object is returned;
-
-        Returns
-        -------
-        Text or Layer
-            If return_layer==True, then returns the new layer, 
-            otherwise attaches the new layer to the Text object 
-            and returns the Text object;
+        output_layer: str (default: 'tokens')
+            Name of the layer where tokenization results will
+            be stored;
         """
-        spans = list(tokenizer.span_tokenize(text.text))
-        tokens = Layer(name=self.layer_name).from_records([{
+        self.output_layer = output_layer
+        self.input_layers = []
+        self.layer_name   = self.output_layer  # <- For backward compatibility
+        self.depends_on   = []                 # <- For backward compatibility
+        self.output_attributes = ()
+
+    def _make_layer(self, text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
+        """Segments given Text into tokens. 
+           Returns tokens layer.
+        
+           Parameters
+           ----------
+           raw_text: str
+              Text string corresponding to the text which will be 
+              tokenized;
+              
+           layers: MutableMapping[str, Layer]
+              Layers of the raw_text. Contains mappings from the name 
+              of the layer to the Layer object.
+              
+           status: dict
+              This can be used to store metadata on layer tagging.
+        """
+        raw_text = text.text
+        spans = list(tokenizer.span_tokenize(raw_text))
+        return Layer(name=self.output_layer, text_object=text).from_records(
+                                                [{
                                                    'start': start,
                                                    'end': end
                                                   } for start, end in spans],
                                                  rewriting=True)
-        if return_layer:
-            return tokens
-        text[self.layer_name] = tokens
-        return text

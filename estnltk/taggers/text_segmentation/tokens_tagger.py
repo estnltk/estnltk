@@ -6,34 +6,35 @@
 #  joined if necessary.
 # 
 
-from typing import Union
+from typing import MutableMapping, Sequence
 import re
 
 from estnltk.text import Layer
-from estnltk.taggers import TaggerOld
+from estnltk.taggers import Tagger
 from nltk.tokenize.regexp import WordPunctTokenizer
 
 tokenizer = WordPunctTokenizer()
 
-#  Pattern describing tokens that should be 
-#  retokenized and split into individual symbols
-_punct_split_patterns    = re.compile('^[!"#$%&\'()*+,-./:;<=>?@^_`{|}~\[\]]{2,}$')
-#  Pattern describing tokens that match punct_split_patterns,
-#  but should not be split into individual symbols
-_punct_no_split_patterns = re.compile('^(\.{2,}|[\?!]+)$')
 
-class TokensTagger(TaggerOld):
-    description   = 'Tags tokens in raw text.'
-    layer_name    = 'tokens'
-    attributes    = ()
-    depends_on    = []
-    configuration = None
+class TokensTagger(Tagger):
+    """Tags tokens in raw text."""
+    output_layer = 'tokens'
+    attributes   = ()
+    conf_param   = ['depends_on', 'layer_name',  # <- For backward compatibility ...
+                    'apply_punct_postfixes',
+                    '_punct_split_patterns',
+                    '_punct_no_split_patterns' ]
     
-    def __init__(self, apply_punct_postfixes:bool=True):
+    def __init__(self, 
+                 output_layer:str='tokens',
+                 apply_punct_postfixes:bool=True):
         """Initializes TokensTagger.
         
         Parameters
         ----------
+        output_layer: str (default: 'tokens')
+            Name of the layer where tokenization results will
+            be stored;
         apply_punct_postfixes: boolean (default: True)
             If True, post-fixes will be applied to WordPunctTokenizer's
             tokenization results: if a sequence of punctuation symbols 
@@ -41,31 +42,39 @@ class TokensTagger(TaggerOld):
             smaller tokens, so that there is one token for each 
             punctuation symbol.
         """
-        self._apply_punct_postfixes = apply_punct_postfixes
-        self.configuration = {'apply_punct_postfixes': self._apply_punct_postfixes}
+        self.output_layer = output_layer
+        self.input_layers = []
+        self.layer_name   = self.output_layer  # <- For backward compatibility
+        self.depends_on   = []                 # <- For backward compatibility
 
-    def tag(self, text:'Text', return_layer:bool=False) -> Union['Text', Layer]:
+        self.apply_punct_postfixes = apply_punct_postfixes
+        #  Pattern describing tokens that should be 
+        #  retokenized and split into individual symbols
+        self._punct_split_patterns    = re.compile('^[!"#$%&\'()*+,-./:;<=>?@^_`{|}~\[\]]{2,}$')
+        #  Pattern describing tokens that match punct_split_patterns,
+        #  but should not be split into individual symbols
+        self._punct_no_split_patterns = re.compile('^(\.{2,}|[\?!]+)$')
+        self.output_attributes = ()
+
+    def _make_layer(self, text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         """Segments given Text into tokens. 
+           Returns tokens layer.
         
-        Parameters
-        ----------
-        text: estnltk.text.Text
-            Text object that is to be tokenized;
-
-        return_layer: boolean (default: False)
-            If True, then the new layer is returned; otherwise 
-            the new layer is attached to the Text object, and 
-            the Text object is returned;
-
-        Returns
-        -------
-        Text or Layer
-            If return_layer==True, then returns the new layer, 
-            otherwise attaches the new layer to the Text object 
-            and returns the Text object;
+           Parameters
+           ----------
+           raw_text: str
+              Text string corresponding to the text which will be 
+              tokenized;
+              
+           layers: MutableMapping[str, Layer]
+              Layers of the raw_text. Contains mappings from the name 
+              of the layer to the Layer object.
+              
+           status: dict
+              This can be used to store metadata on layer tagging.
         """
         spans = list(tokenizer.span_tokenize(text.text))
-        if self._apply_punct_postfixes:
+        if self.apply_punct_postfixes:
             #  WordPunctTokenizer may leave tokenization of punctuation 
             #  incomplete, for instance:
             #      'e.m.a.,'  -->  'e', '.', 'm', '.', 'a', '.,'
@@ -74,20 +83,17 @@ class TokensTagger(TaggerOld):
             spans_to_split = []
             for (start, end) in spans:
                 token = text.text[start:end]
-                if _punct_split_patterns.match( token ) and \
-                   not _punct_no_split_patterns.match( token ):
+                if self._punct_split_patterns.match( token ) and \
+                   not self._punct_no_split_patterns.match( token ):
                     spans_to_split.append( (start, end) )
             if spans_to_split:
                 spans = self._split_into_symbols( spans, spans_to_split )
-        tokens = Layer(name=self.layer_name).from_records([{
-                                                   'start': start,
-                                                   'end': end
-                                                  } for start, end in spans],
-                                                 rewriting=True)
-        if return_layer:
-            return tokens
-        text[self.layer_name] = tokens
-        return text
+        layer = Layer(name=self.output_layer, text_object=text).from_records([{
+                                                                   'start': start,
+                                                                   'end': end
+                                                                  } for start, end in spans],
+                                                                 rewriting=True)
+        return layer
 
     def _split_into_symbols( self, spans, spans_to_split ):
         '''Splits a subset of spans from the list spans into 

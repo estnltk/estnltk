@@ -1,4 +1,5 @@
 from estnltk.text import Text
+from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers import SentenceTokenizer
 
 def test_merge_mistakenly_split_sentences_1():
@@ -757,7 +758,7 @@ def test_apply_sentence_tokenizer_on_empty_text():
 
 def test_record_fixes_of_sentence_tokenizer():
     # Tests whether an attribute describing the fixes is added to the results of sentence tokenization
-    sentence_tokenizer = SentenceTokenizer()
+    sentence_tokenizer = SentenceTokenizer(record_fix_types=True)
     test_texts = [ 
         { 'text': '17 . okt. 1998 a . laekus firmale täpselt 700.- eeku.', \
           'expected_sentence_texts': ['17 . okt. 1998 a . laekus firmale täpselt 700.- eeku.'],
@@ -779,7 +780,7 @@ def test_record_fixes_of_sentence_tokenizer():
         text = Text( test_text['text'] )
         # Perform analysis
         text.tag_layer(['words'])
-        sentence_tokenizer.tag(text, record_fix_types=True)
+        sentence_tokenizer.tag(text)
         # Collect results 
         sentence_texts = \
             [sentence.enclosing_text for sentence in text['sentences'].span_list]
@@ -842,4 +843,45 @@ def test_merge_rules_do_not_conflict_paragraph_fixes():
         # Check results
         assert sentence_texts == test_text['expected_sentence_texts']
 
+
+
+def test_layer_names_can_be_changed():
+    # Tests that names of input and output layers of SentenceTokenizer can be changed
+    tokens_tagger = TokensTagger(output_layer='my_tokens')
+    cp_tagger   = CompoundTokenTagger(output_layer='my_compounds', 
+                                      input_tokens_layer='my_tokens')
+    word_tagger = WordTagger(output_layer='my_words', 
+                             input_tokens_layer='my_tokens', 
+                             input_compound_tokens_layer='my_compounds')
+    sentence_tokenizer = SentenceTokenizer(output_layer='my_sentences', 
+                                           input_words_layer='my_words', 
+                                           input_compound_tokens_layer='my_compounds')
+    test_texts = [ 
+        { 'text': 'Nii habras, ilus ja minu oma :) Kõige parem mis kunagi juhtuda saab :):) '+\
+                  'Magamata öid mul muidugi ei olnud.', \
+          'expected_sentence_texts': ['Nii habras, ilus ja minu oma :)', \
+                                      'Kõige parem mis kunagi juhtuda saab :):)',\
+                                      'Magamata öid mul muidugi ei olnud.'] }, \
+        { 'text': 'CD müüdi 400 krooniga ( alghind oli 100 kr. ) .\nOsteti viis tööd , neist üks õlimaal .', \
+          'expected_sentence_texts': ['CD müüdi 400 krooniga ( alghind oli 100 kr. ) .', \
+                                      'Osteti viis tööd , neist üks õlimaal .'] }, \
+        { 'text': 'Totaalne ülemõtlemine!Ei julge ka väita, et oleks kuivaks jäänud:) Mis?!', \
+          'expected_sentence_texts': ['Totaalne ülemõtlemine!', 'Ei julge ka väita, et oleks kuivaks jäänud:)', \
+                                      'Mis?!'] }, \
+    ]
+    for test_text in test_texts:
+        text = Text( test_text['text'] )
+        # Perform analysis
+        tokens_tagger.tag(text)
+        cp_tagger.tag(text)
+        word_tagger.tag(text)
+        sentence_tokenizer.tag(text)
+        assert 'my_sentences' in text.layers.keys()
+        assert 'sentences' not in text.layers.keys()
+        # Collect results 
+        sentence_texts = \
+            [sentence.enclosing_text for sentence in text['my_sentences'].span_list]
+        #print(sentence_texts)
+        # Check results
+        assert sentence_texts == test_text['expected_sentence_texts']
 

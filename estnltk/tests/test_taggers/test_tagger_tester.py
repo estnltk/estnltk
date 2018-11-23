@@ -33,9 +33,9 @@ def test_tagger_tester():
             self.input_layers = input_layers
             self.regex = re.compile('-?\d+')
 
-        def _make_layer(self, raw_text, layers, status=None):
-            layer = Layer(self.output_layer)
-            for m in self.regex.finditer(raw_text):
+        def _make_layer(self, text, layers, status=None):
+            layer = Layer(self.output_layer, text_object=text)
+            for m in self.regex.finditer(text.text):
                 span = Span(m.start(), m.end())
                 layer.add_span(span)
             if isinstance(status, dict):
@@ -89,9 +89,9 @@ def test_tagger_tester():
             self.input_layers = input_layers
             self.regex = re.compile('-?\d')  # this regex is changed
 
-        def _make_layer(self, raw_text, layers, status=None):
-            layer = Layer(self.output_layer)
-            for m in self.regex.finditer(raw_text):
+        def _make_layer(self, text, layers, status=None):
+            layer = Layer(self.output_layer, text_object=text)
+            for m in self.regex.finditer(text.text):
                 span = Span(m.start(), m.end())
                 layer.add_span(span)
             if isinstance(status, dict):

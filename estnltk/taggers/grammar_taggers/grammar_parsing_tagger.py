@@ -28,7 +28,7 @@ class GrammarParsingTagger(Tagger):
         self.input_layers = [layer_of_tokens]
         self.name_attribute = name_attribute
         self.output_layer = output_layer
-        self.output_attributes = attributes
+        self.output_attributes = tuple(attributes)
         if output_nodes is None:
             self.output_nodes = set(grammar.start_symbols)
         else:
@@ -41,9 +41,9 @@ class GrammarParsingTagger(Tagger):
         self.debug = debug
         self.ambiguous = output_ambiguous
 
-    def _make_layer(self, raw_text, layers, status):
+    def _make_layer(self, text, layers, status):
         graph = layer_to_graph(layer=layers[self.input_layers[0]],
-                               raw_text=raw_text,
+                               raw_text=text.text,
                                name_attribute=self.name_attribute,
                                gap_validator=self.gap_validator)
         graph = parse_graph(graph=graph,
@@ -55,21 +55,30 @@ class GrammarParsingTagger(Tagger):
 
         attributes = self.output_attributes
         layer = Layer(name=self.output_layer,
+                      text_object=text,
                       enveloping=self.input_layers[0],
                       attributes=attributes,
                       ambiguous=self.ambiguous
                       )
-        for node in graph:
-            if isinstance(node, GrammarNode) and node.name in self.output_nodes:
-                span = EnvelopingSpan(spans=get_spans(node))
-                for attr in attributes:
-                    if attr == '_group_':
-                        span._group_ = node.group
-                    elif attr == 'name':
-                        span.name = node.name
-                    elif attr == '_priority_':
-                        span._priority_ = node.priority
-                    else:
-                        setattr(span, attr, node[attr])
-                layer.add_span(span)
+        try:
+            for node in graph:
+                if isinstance(node, GrammarNode) and node.name in self.output_nodes:
+                    span = EnvelopingSpan(spans=get_spans(node))
+                    for attr in attributes:
+                        if attr == '_group_':
+                            span._group_ = node.group
+                        elif attr == 'name':
+                            span.name = node.name
+                        elif attr == '_priority_':
+                            span._priority_ = node.priority
+                        else:
+                            setattr(span, attr, node[attr])
+                    layer.add_span(span)
+        except ValueError as e:
+            if e.args[0] == 'this layer is not ambiguous and the span is already in the spanlist':
+                raise ValueError('there exists an ambiguous span among output nodes of the grammar, '
+                                 'make the output layer ambiguous by setting output_ambiguous=True '
+                                 'or adjust grammar by changing scoring and priority parameters',
+                                 e.args[1])
+            raise
         return layer

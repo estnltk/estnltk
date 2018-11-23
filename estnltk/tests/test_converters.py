@@ -154,7 +154,9 @@ def test_TCF_export_import():
 
     # version 0.5
     del text.paragraphs
-    assert text == import_TCF(export_TCF(text, version='0.5'))
+
+    result = import_TCF(export_TCF(text, version='0.5'))
+    assert text == result, text.diff(result)
 
     # version 0.4
     del text.clauses

@@ -1,57 +1,89 @@
 #
-#   WordTagger uses layers 'tokens' and 'compound_tokens'
-#  as input, and creates the layer 'words'. It also provides 
+#   WordTagger uses tokens and compound_tokens layers 
+#  as input, and creates the words layer. It also provides 
 #  normalized forms of the words, which are used in the 
 #  succeeding phase of morphological analysis.
 # 
 
+from typing import MutableMapping, Sequence
+
 from estnltk.text import Layer, Span
-from estnltk.taggers import TaggerOld
+from estnltk.taggers import Tagger
 
-class WordTagger(TaggerOld):
-    description = """Creates layer 'words' based on the layers 'tokens' and 'compound_tokens'.
-                     Provides normalized forms of the words, which are used in the succeeding 
-                     phase of morphological analysis.
-                  """
-    layer_name = 'words'
-    attributes = ('normalized_form',)
-    depends_on = ['compound_tokens']
-    configuration = {}
 
-    def tag(self, text: 'Text', return_layer=False) -> 'Text':
-        """Tags words layer.
+class WordTagger(Tagger):
+    """Creates words layer based on the tokens and compound_tokens layers.
+       Provides normalized forms of the words, which are used in the succeeding 
+       phase of morphological analysis.
+    """
+    output_layer = 'words'
+    output_attributes = ('normalized_form',)
+    input_layers = ['tokens', 'compound_tokens']
+    conf_param = [ # Names of the specific input layers
+                   '_input_tokens_layer', '_input_compound_tokens_layer',
+                   # For backward compatibility:
+                   'depends_on', 'layer_name'
+                  ]
+    layer_name = output_layer   # <- For backward compatibility ...
+    depends_on = input_layers   # <- For backward compatibility ...
+
+    def __init__(self,
+                 output_layer:str='words',
+                 input_tokens_layer:str='tokens',
+                 input_compound_tokens_layer:str='compound_tokens',
+                 ):
+        """Initializes WordTagger.
+
+        Parameters
+        ----------
+        output_layer: str (default: 'words')
+            Name for the words layer;
+        
+        input_tokens_layer: str (default: 'tokens')
+            Name of the input tokens layer;
+
+        input_compound_tokens_layer: str (default: 'compound_tokens')
+            Name of the input compound_tokens layer;
+        """
+        # Set input/output layer names
+        self.output_layer = output_layer
+        self._input_tokens_layer = input_tokens_layer
+        self._input_compound_tokens_layer = input_compound_tokens_layer
+        self.input_layers = [input_tokens_layer, input_compound_tokens_layer]
+        self.layer_name = self.output_layer  # <- For backward compatibility ...
+        self.depends_on = self.input_layers  # <- For backward compatibility ...
+
+    def _make_layer(self, text, layers, status: dict):
+        """Creates words layer.
         
         Parameters
         ----------
-        text: estnltk.text.Text
-            Text object that is to be analysed. It needs to have
-            layers 'tokens' and 'compound_tokens'.
-
-        return_layer: boolean (default: False)
-            If True, then the new layer is returned; otherwise 
-            the new layer is attached to the Text object, and 
-            the Text object is returned;
-
-        Returns
-        -------
-        Text or Layer
-            If return_layer==True, then returns the new layer, 
-            otherwise attaches the new layer to the Text object 
-            and returns the Text object;
+        raw_text: str
+           Text string corresponding to the text in which 
+           words layer will be created;
+          
+        layers: MutableMapping[str, Layer]
+           Layers of the raw_text. Contains mappings from the 
+           name of the layer to the Layer object. Must contain
+           the tokens and compound_tokens layers.
+          
+        status: dict
+           This can be used to store metadata on layer tagging.
         """
         # 1) Create layer 'words' based on the layers 
         #    'tokens' and 'compound_tokens';
         #    ( include 'normalized' word forms from 
         #      previous layers if available )
         compounds = dict()
-        for spl in text.compound_tokens:
+        for spl in layers[ self._input_compound_tokens_layer ]:
             compounds[spl[0]] = Span(start=spl.start,
                                      end=spl.end)
             compounds[spl[0]].normalized_form = spl.normalized
-        words = Layer(name=self.layer_name, 
-                      attributes=self.attributes,
+        words = Layer(name=self.output_layer, 
+                      attributes=self.output_attributes,
+                      text_object=text,
                       ambiguous=False)
-        for span in text.tokens:
+        for span in layers[ self._input_tokens_layer ]:
             if span in compounds:
                 words.add_span(compounds[span])
             elif words.span_list:
@@ -68,9 +100,6 @@ class WordTagger(TaggerOld):
 
         # 2) Apply custom word normalization 
         #    ( to be implemented if required )
-        
-        # 3) Return or attach the layer
-        if return_layer:
-            return words
-        text[self.layer_name] = words
-        return text
+
+        # 3) Return results
+        return words

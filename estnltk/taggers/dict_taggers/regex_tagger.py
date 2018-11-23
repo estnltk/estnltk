@@ -54,9 +54,9 @@ class RegexTagger(Tagger):
         """
         self.output_layer = output_layer
         if output_attributes is None:
-            self.output_attributes = []
+            self.output_attributes = ()
         else:
-            self.output_attributes = output_attributes
+            self.output_attributes = tuple(output_attributes)
 
         self._illegal_keywords = {'start', 'end'}
 
@@ -86,12 +86,13 @@ class RegexTagger(Tagger):
         self.priority_attribute = priority_attribute
         self.ambiguous = ambiguous
 
-    def _make_layer(self, raw_text, layers=None, status=None):
+    def _make_layer(self, text, layers=None, status=None):
         layer = Layer(name=self.output_layer,
                       attributes=self.output_attributes,
+                      text_object=text,
                       ambiguous=True
                       )
-        for record in self._match(raw_text):
+        for record in self._match(text.text):
             span = Span(record['start'], record['end'], legal_attributes=self.output_attributes)
             for attr in self.output_attributes:
                 setattr(span, attr, record[attr])
@@ -102,7 +103,7 @@ class RegexTagger(Tagger):
                                   status=status)
 
         if not self.ambiguous:
-            layer = self._disamb_tagger.make_layer(raw_text, {self.output_layer: layer}, status)
+            layer = self._disamb_tagger.make_layer(text=text, layers={self.output_layer: layer}, status=status)
         return layer
 
     def _match(self, text):

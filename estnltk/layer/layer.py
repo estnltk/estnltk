@@ -368,7 +368,7 @@ class Layer:
                 bisect.insort(self.span_list.spans, span)
                 self.classes[hash(span)] = span
             else:
-                raise ValueError('span is already in spanlist: ' + str(span))
+                raise ValueError('this layer is not ambiguous and the span is already in the spanlist', span)
         return span
 
     def add_annotation(self, span, **attributes):

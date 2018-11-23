@@ -6,6 +6,10 @@ from typing import Iterable, Union
 from estnltk.taggers.tagger import to_str
 
 
+class VocabularyException(Exception):
+    pass
+
+
 class Vocabulary:
     def __init__(self,
                  vocabulary: Union[str, list, dict, 'Vocabulary'],
@@ -112,6 +116,24 @@ class Vocabulary:
 
     def values(self):
         return self.vocabulary.values()
+
+    def to_lower(self):
+        """Changes vocabulary key value to lowercase. If an exception occurs the vocabulary stays unchanged."""
+        lower_case_vocabulary = defaultdict(list)
+        for k, v in self.vocabulary.items():
+            if isinstance(k, str):
+                k_low = k.lower()
+            elif isinstance(k, tuple):
+                k_low = tuple(t.lower() for t in k)
+            else:
+                raise VocabularyException("can't convert vocabulary key to lowercase: {!r}".format(k))
+            if k_low in lower_case_vocabulary:
+                raise VocabularyException("this vocabulary contains keys that are lowercase equal: {!r}".format(k))
+            for d in v:
+                d = dict(d)
+                d[self.key] = k_low
+                lower_case_vocabulary[k_low].append(d)
+        self.vocabulary = lower_case_vocabulary
 
     def __getitem__(self, item):
         return self.vocabulary[item]

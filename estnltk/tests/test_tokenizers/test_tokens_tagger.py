@@ -44,3 +44,17 @@ class TokensTaggerTest(unittest.TestCase):
         spans  = [(sp.start, sp.end) for sp in result['tokens'].span_list]
         tokens = [text2.text[start:end] for (start, end) in spans]
         self.assertListEqual(expected_tokens, tokens)
+
+
+    def test_change_tokens_layer_name(self):
+        # Tests that tokens layer name can be changed
+        my_tokenizer = TokensTagger(output_layer='my_tokens')
+        text = Text('(nõue hakkas kehtima 1989.a.).')
+        expected_tokens = ['(', 'nõue', 'hakkas', 'kehtima', '1989', '.', 'a', '.', ')', '.']
+        result = my_tokenizer.tag(text)
+        self.assertTrue( 'my_tokens' in result.layers.keys() )
+        self.assertFalse( 'tokens' in result.layers.keys() )
+        spans  = [(sp.start, sp.end) for sp in result['my_tokens'].span_list]
+        tokens = [text.text[start:end] for (start, end) in spans]
+        self.assertListEqual(expected_tokens, tokens)
+        

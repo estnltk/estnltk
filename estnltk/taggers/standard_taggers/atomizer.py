@@ -17,11 +17,11 @@ class Atomizer(Tagger):
                  ):
         self.output_layer = output_layer
         self.input_layers = [input_layer]
-        self.output_attributes = output_attributes
+        self.output_attributes = tuple(output_attributes)
         self.enveloping = enveloping
 
-    def _make_layer(self, raw_text, input_layers, status):
-        layer = input_layers[self.input_layers[0]]
+    def _make_layer(self, text, layers, status):
+        layer = layers[self.input_layers[0]]
         if self.output_attributes is None:
             output_attributes = layer.attributes
         else:
@@ -29,6 +29,7 @@ class Atomizer(Tagger):
 
         result = Layer(name=self.output_layer,
                        attributes=output_attributes,
+                       text_object=text,
                        parent=None,
                        enveloping=self.enveloping,
                        ambiguous=layer.ambiguous)

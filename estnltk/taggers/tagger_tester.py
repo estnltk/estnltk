@@ -14,7 +14,7 @@ class Test:
         self.tagger = tagger
         self.expected_layer = expected_layer
         self.expected_layer.text_object = text
-        self.resulting_layer = self.tagger.make_layer(self.text.text, self.text.layers)
+        self.resulting_layer = self.tagger.make_layer(text=self.text, layers=self.text.layers)
 
     def run(self):
         assert self.resulting_layer == self.expected_layer, self.annotation
@@ -73,7 +73,7 @@ class TaggerTester:
             print("Created target layers file '" + self.target_file + "'.")
 
     def add_test(self, annotation, text, expected_text: List[str]):
-        expected_layer = self.tagger.make_layer(text.text, text.layers)
+        expected_layer = self.tagger.make_layer(text=text, layers=text.layers)
         expected_layer.text_object = text
         assert expected_text == expected_layer.text, 'expected_text: {} != {}'.format(expected_layer.text, expected_text)
         text.meta['test_description'] = annotation

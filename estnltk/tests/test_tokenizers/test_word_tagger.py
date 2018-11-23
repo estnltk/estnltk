@@ -1,6 +1,7 @@
 import unittest
 
 from estnltk import Text
+from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers.text_segmentation.whitespace_tokens_tagger import WhiteSpaceTokensTagger
 from estnltk.taggers.text_segmentation.pretokenized_text_compound_tokens_tagger import PretokenizedTextCompoundTokensTagger
      
@@ -94,3 +95,40 @@ class WordTaggerTest(unittest.TestCase):
             # Check results
             #print( words )
             self.assertListEqual(test_text['expected_words'], words)
+
+
+    def test_change_input_and_output_layers_of_wordtagger(self):
+        # Tests that input and output layer names of wordtagger can be changed
+        tokens_tagger = TokensTagger(output_layer='my_tokens')
+        cp_tagger = CompoundTokenTagger(output_layer='my_compounds', input_tokens_layer='my_tokens')
+        word_tagger = WordTagger(output_layer='my_words', input_tokens_layer='my_tokens', 
+                                 input_compound_tokens_layer='my_compounds')
+        test_texts = [ 
+            { 'text': 'Mis lil-li müüs Tiit 10e krooniga?', \
+              'expected_words': ['Mis', 'lil-li', 'müüs', 'Tiit', '10e', 'krooniga', '?'] }, \
+           
+            { 'text': "SKT -st või LinkedIn -ist ma eriti ei hoolinudki, aga workshop ' e külastasin küll.", \
+              'expected_words': ['SKT -st', 'või', 'LinkedIn -ist', 'ma', 'eriti', 'ei', 'hoolinudki', ',', 'aga', "workshop ' e", 'külastasin', 'küll', '.'] },\
+        ]
+        for test_text in test_texts:
+            text = Text( test_text['text'] )
+            # Perform analysis
+            tokens_tagger.tag(text)
+            cp_tagger.tag(text)
+            word_tagger.tag(text)
+            self.assertTrue( 'my_tokens' in text.layers.keys() )
+            self.assertTrue( 'my_compounds' in text.layers.keys() )
+            self.assertTrue( 'my_words' in text.layers.keys() )
+            self.assertFalse( 'tokens' in text.layers.keys() )
+            self.assertFalse( 'compound_tokens' in text.layers.keys() )
+            self.assertFalse( 'words' in text.layers.keys() )
+            words_spans = text['my_words'].span_list
+            # Fetch result
+            word_segmentation = [] 
+            for wid, word in enumerate( words_spans ):
+                word_text = text.text[word.start:word.end]
+                word_segmentation.append(word_text)
+            #print(word_segmentation)
+            # Assert that the tokenization is correct
+            self.assertListEqual(test_text['expected_words'], word_segmentation)
+

@@ -38,6 +38,9 @@ class VabamorfTagger(TaggerOld):
 
     def __init__(self,
                  layer_name='morph_analysis',
+                 input_words_layer='words',
+                 input_sentences_layer='sentences',
+                 input_compound_tokens_layer='compound_tokens',
                  postanalysis_tagger=None,
                  **kwargs):
         """Initialize VabamorfTagger class.
@@ -52,6 +55,13 @@ class VabamorfTagger(TaggerOld):
         ----------
         layer_name: str (default: 'morph_analysis')
             Name of the layer where analysis results are stored.
+        input_compound_tokens_layer: str (default: 'compound_tokens')
+            Name of the input compound_tokens layer. 
+            This layer is required by the default postanalysis_tagger.
+        input_words_layer: str (default: 'words')
+            Name of the input words layer;
+        input_sentences_layer: str (default: 'sentences')
+            Name of the input sentences layer;
         postanalysis_tagger: estnltk.taggers.Retagger (default: PostMorphAnalysisTagger())
             Retagger that is used to post-process "morph_analysis" layer after
             it is created (and before it is disambiguated).
@@ -62,10 +72,16 @@ class VabamorfTagger(TaggerOld):
         # Check if the user has provided a custom postanalysis_tagger
         if not postanalysis_tagger:
             # Initialize default postanalysis_tagger
-            postanalysis_tagger = PostMorphAnalysisTagger(output_layer=layer_name)
+            postanalysis_tagger = PostMorphAnalysisTagger(output_layer=layer_name,\
+                                                          input_compound_tokens_layer=input_compound_tokens_layer, \
+                                                          input_words_layer=input_words_layer, \
+                                                          input_sentences_layer=input_sentences_layer )
         
         self.kwargs = kwargs
         self.layer_name = layer_name
+        self._input_compound_tokens_layer = input_compound_tokens_layer
+        self._input_words_layer = input_words_layer
+        self._input_sentences_layer = input_sentences_layer
        
         if postanalysis_tagger:
             # Check for Retagger
@@ -84,19 +100,23 @@ class VabamorfTagger(TaggerOld):
         # Initialize morf analyzer and disambiguator; 
         # Also propagate layer names to submodules;
         self.vabamorf_analyser      = VabamorfAnalyzer( vm_instance=vm_instance,
-                                                        layer_name=layer_name )
+                                                        layer_name=layer_name,
+                                                        input_words_layer=self._input_words_layer,
+                                                        input_sentences_layer=self._input_sentences_layer)
         self.vabamorf_disambiguator = VabamorfDisambiguator( vm_instance=vm_instance,
-                                                             output_layer=layer_name )
+                                                             output_layer=layer_name,
+                                                             input_words_layer=self._input_words_layer,
+                                                             input_sentences_layer=self._input_sentences_layer )
 
         self.configuration = {'postanalysis_tagger':self.postanalysis_tagger.__class__.__name__, }
         #                      'vabamorf_analyser':self.vabamorf_analyser.__class__.__name__,
         #                      'vabamorf_disambiguator':self.vabamorf_disambiguator.__class__.__name__ }
         self.configuration.update(self.kwargs)
 
-        self.depends_on = ['words', 'sentences']
+        self.depends_on = [self._input_words_layer, self._input_sentences_layer]
         # Update dependencies: add dependencies specific to postanalysis_tagger
-        if postanalysis_tagger and postanalysis_tagger.depends_on:
-            for postanalysis_dependency in postanalysis_tagger.depends_on:
+        if postanalysis_tagger and postanalysis_tagger.input_layers:
+            for postanalysis_dependency in postanalysis_tagger.input_layers:
                 if postanalysis_dependency not in self.depends_on and \
                    postanalysis_dependency != self.layer_name:
                     self.depends_on.append(postanalysis_dependency)
@@ -249,6 +269,8 @@ class VabamorfAnalyzer(TaggerOld):
     
     def __init__(self,
                  layer_name='morph_analysis',
+                 input_words_layer='words',
+                 input_sentences_layer='sentences',
                  extra_attributes=None,
                  vm_instance=None,
                  **kwargs):
@@ -257,7 +279,12 @@ class VabamorfAnalyzer(TaggerOld):
         Parameters
         ----------
         layer_name: str (default: 'morph_analysis')
-            Name of the layer where analysis results are stored.
+            Name of the layer where morph analysis results 
+            will be stored.
+        input_words_layer: str (default: 'words')
+            Name of the input words layer;
+        input_sentences_layer: str (default: 'sentences')
+            Name of the input sentences layer;
         extra_attributes: list of str (default: None)
             List containing names of extra attributes that will be 
             attached to Spans. All extra attributes will be 
@@ -273,23 +300,15 @@ class VabamorfAnalyzer(TaggerOld):
             self.vm_instance  = Vabamorf.instance()
         self.extra_attributes = extra_attributes
         self.layer_name = layer_name
+        self._input_words_layer = input_words_layer
+        self._input_sentences_layer = input_sentences_layer
         
         self.configuration = { 'vm_instance':self.vm_instance.__class__.__name__ }
         if self.extra_attributes:
             self.configuration['extra_attributes'] = self.extra_attributes
         self.configuration.update(self.kwargs)
 
-        self.depends_on = ['words', 'sentences']
-
-
-    def _get_wordlist(self, text:Text):
-        ''' Returns a list of words from given text. If normalized word 
-            forms are available, uses normalized forms instead of the 
-            surface forms. '''
-        result = []
-        for word in text.words:
-            result.append( _get_word_text( word ) )
-        return result
+        self.depends_on = [self._input_words_layer, self._input_sentences_layer]
 
 
     def tag(self, text: Text,
@@ -340,10 +359,10 @@ class VabamorfAnalyzer(TaggerOld):
             "phonetic"  : phonetic,
         }
         # Perform morphological analysis sentence by sentence
-        word_spans = text['words'].span_list
+        word_spans = text[ self._input_words_layer ].span_list
         word_span_id = 0
         analysis_results = []
-        for sentence in text['sentences'].span_list:
+        for sentence in text[ self._input_sentences_layer ].span_list:
             # A) Collect all words inside the sentence
             sentence_words = []
             while word_span_id < len(word_spans):
@@ -372,25 +391,25 @@ class VabamorfAnalyzer(TaggerOld):
         # Assert that all words obtained an analysis 
         # ( Note: there must be empty analyses for unknown 
         #         words if guessing is not used )
-        assert len(text.words) == len(analysis_results), \
-            '(!) Unexpectedly the number words ('+str(len(text.words))+') '+\
+        assert len(text[ self._input_words_layer ]) == len(analysis_results), \
+            '(!) Unexpectedly the number words ('+str(len(text[ self._input_words_layer ]))+') '+\
             'does not match the number of obtained morphological analyses ('+str(len(analysis_results))+').'
 
         # --------------------------------------------
         #   Store analysis results in a new layer     
         # --------------------------------------------
         # A) Create layer
-        morph_attributes = self.attributes
+        morph_attributes   = self.attributes
         current_attributes = morph_attributes
         if self.extra_attributes:
             for extra_attr in self.extra_attributes:
                 current_attributes = current_attributes + (extra_attr,)
-        morph_layer = Layer(name=self.layer_name,
-                            parent='words',
+        morph_layer = Layer(name  =self.layer_name,
+                            parent=self._input_words_layer,
                             ambiguous=True,
                             attributes=current_attributes )
         # B) Populate layer        
-        for word, analyses_dict in zip(text.words, analysis_results):
+        for word, analyses_dict in zip(text[ self._input_words_layer ], analysis_results):
             # Convert from Vabamorf dict to a list of Spans 
             spans = \
                 _convert_vm_dict_to_morph_analysis_spans( \
@@ -428,10 +447,14 @@ class VabamorfDisambiguator(Retagger):
        Uses Vabamorf for disambiguating.
     """
     attributes    = VabamorfTagger.attributes
-    conf_param = ['depends_on', '_vm_instance']
+    conf_param = ['depends_on', '_vm_instance',
+                  '_input_words_layer',
+                  '_input_sentences_layer' ]
 
     def __init__(self,
                  output_layer='morph_analysis',
+                 input_words_layer='words',
+                 input_sentences_layer='sentences',
                  vm_instance=None):
         """Initialize VabamorfDisambiguator class.
 
@@ -441,13 +464,21 @@ class VabamorfDisambiguator(Retagger):
             Name of the morphological analysis layer. 
             This is the layer where the disambiguation will
             be performed;
+        input_words_layer: str (default: 'words')
+            Name of the input words layer;
+        input_sentences_layer: str (default: 'sentences')
+            Name of the input sentences layer;
         vm_instance: estnltk.vabamorf.morf.Vabamorf
             An instance of Vabamorf that is to be used for 
             disambiguating text morphologically;
         """
         # Set attributes & configuration
         self.output_layer = output_layer
-        self.input_layers = ['words', 'sentences', output_layer]
+        self.input_layers = [input_words_layer, \
+                             input_sentences_layer, \
+                             output_layer ]
+        self._input_words_layer     = self.input_layers[0]
+        self._input_sentences_layer = self.input_layers[1]
         self.depends_on = self.input_layers
         if vm_instance:
             self._vm_instance = vm_instance
@@ -461,7 +492,7 @@ class VabamorfDisambiguator(Retagger):
            morphological analyses with their disambiguated variants.
            
            Also, removes the temporary attribute '_ignore' from the 
-           the 'morph_analysis' layer.
+           the morph_analysis layer.
 
            Parameters
            ----------
@@ -472,8 +503,8 @@ class VabamorfDisambiguator(Retagger):
            layers: MutableMapping[str, Layer]
               Layers of the raw_text. Contains mappings from the name 
               of the layer to the Layer object.  The  mapping  must 
-              contain layers 'words', 'sentences', and 'morph_analysis'. 
-              The layer 'morph_analysis' will be retagged.
+              contain words, sentences, and morph_analysis layers. 
+              The morph_analysis layer will be retagged.
               
            status: dict
               This can be used to store metadata on layer retagging.
@@ -483,8 +514,8 @@ class VabamorfDisambiguator(Retagger):
         #  Collect layer's attributes                 
         # --------------------------------------------
         assert self.output_layer in layers
-        assert 'sentences' in layers
-        assert 'words' in layers
+        assert self._input_sentences_layer in layers
+        assert self._input_words_layer in layers
         # Take attributes from the input layer
         current_attributes = layers[self.output_layer].attributes
         # Check if there are any extra attributes to carry over
@@ -496,7 +527,7 @@ class VabamorfDisambiguator(Retagger):
                 extra_attributes.append( cur_attr )
         # Check that len(word_spans) >= len(morph_spans)
         morph_spans = layers[self.output_layer].spans
-        word_spans  = layers['words'].span_list
+        word_spans  = layers[self._input_words_layer].span_list
         assert len(word_spans) >= len(morph_spans), \
             '(!) Unexpectedly, the number of elements at the layer '+\
                  '"'+str(self.output_layer)+'" is greater than the '+\
@@ -509,7 +540,7 @@ class VabamorfDisambiguator(Retagger):
         sentence_start_morph_span_id = 0
         morph_span_id = 0
         word_span_id  = 0
-        for sentence in layers['sentences'].span_list:
+        for sentence in layers[self._input_sentences_layer].span_list:
             # A) Collect all words/morph_analyses inside the sentence
             #    Assume: len(word_spans) >= len(morph_spans)
             sentence_word_spans  = []

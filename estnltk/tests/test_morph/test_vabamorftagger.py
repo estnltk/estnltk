@@ -1,5 +1,8 @@
 from estnltk import Text
 from estnltk.taggers import VabamorfTagger
+from estnltk.taggers import CompoundTokenTagger
+from estnltk.taggers import WordTagger
+from estnltk.taggers import SentenceTokenizer
 from estnltk.resolve_layer_dag import make_resolver
 from estnltk.layer import AmbiguousAttributeList
 
@@ -239,8 +242,8 @@ def test_default_morph_analysis_on_empty_input():
     assert [] == text['morph_analysis'].to_records()
 
 
-def test_default_morph_analysis_with_different_layer_name():
-    # Should be able to use a different layer name 
+def test_default_morph_analysis_with_different_output_layer_name():
+    # Should be able to use a different output layer name 
     # without running into errors
     morph_analyser = VabamorfTagger(layer_name='my_morph')
     text = Text('Tere, maailm!')
@@ -248,3 +251,32 @@ def test_default_morph_analysis_with_different_layer_name():
     morph_analyser.tag(text)
     # Check results
     assert 'my_morph' in text.layers
+
+
+def test_default_morph_analysis_with_different_input_layer_names():
+    # Should be able to use a different input layer names
+    # without running into errors
+    # 1) Initialize taggers with custom names 
+    cp_tagger = CompoundTokenTagger(output_layer='my_compounds')
+    word_tagger = WordTagger( input_compound_tokens_layer='my_compounds',
+                              output_layer='my_words' )
+    sentence_tokenizer = SentenceTokenizer( 
+                              input_compound_tokens_layer='my_compounds',
+                              input_words_layer='my_words',
+                              output_layer='my_sentences' )
+    morph_analyser = VabamorfTagger(
+                              layer_name='my_morph',
+                              input_words_layer='my_words',
+                              input_sentences_layer='my_sentences',
+                              input_compound_tokens_layer='my_compounds' )
+    # 2) Analyse
+    text = Text('Tere, maailm! Kuidas siis läheb?')
+    text.tag_layer(['tokens'])
+    cp_tagger.tag(text)
+    word_tagger.tag(text)
+    sentence_tokenizer.tag(text)
+    morph_analyser.tag(text)
+    # Check results
+    for layer in ['my_compounds', 'my_words', 'my_sentences', 'my_morph']:
+        assert layer in text.layers.keys()
+

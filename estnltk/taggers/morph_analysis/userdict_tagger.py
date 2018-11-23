@@ -28,10 +28,12 @@ class UserDictTagger(Retagger):
     """Makes user-specified post-corrections to morphological analyses.
        This tagger can be applied after text has been morphologically analysed."""
     attributes    = ESTNLTK_MORPH_ATTRIBUTES
-    conf_param    = ['depends_on', 'ignore_case', 'validate_vm_categories', 'autocorrect_root', '_dict']
+    conf_param    = ['depends_on', 'ignore_case', 'validate_vm_categories', \
+                     'autocorrect_root', '_dict', '_input_words_layer']
 
     def __init__(self, \
                  output_layer:str='morph_analysis', \
+                 input_words_layer:str='words', \
                  ignore_case:bool=False, \
                  validate_vm_categories:bool=True, \
                  autocorrect_root:bool=True ):
@@ -41,7 +43,10 @@ class UserDictTagger(Retagger):
         ----------
         output_layer: str (default: 'morph_analysis')
             Name of the morphological analysis layer that is to be changed;
-            
+        
+        input_words_layer: str (default: 'words')
+            Name of the input words layer;
+        
         ignore_case: bool (default: False)
             If True, then case will be ignored when matching words in the text
             with words in the dictionary. Basically, all words added to the 
@@ -64,7 +69,8 @@ class UserDictTagger(Retagger):
 
         """
         self.output_layer = output_layer
-        self.input_layers = ['words', output_layer]
+        self.input_layers = [input_words_layer, output_layer]
+        self._input_words_layer = self.input_layers[0]
         self.depends_on   = self.input_layers
         
         self.ignore_case  = ignore_case
@@ -312,13 +318,13 @@ class UserDictTagger(Retagger):
            layers: MutableMapping[str, Layer]
               Layers of the raw_text. Contains mappings from the name 
               of the layer to the Layer object. The mapping must 
-              contain layers 'morph_analysis' and 'words'. The layer
-              'morph_analysis' will be retagged;
+              contain morph_analysis and words layers. 
+              The morph_analysis layer will be retagged;
            status: dict
               This can be used to store metadata on layer retagging.
         """
         assert self.output_layer in layers
-        assert 'words' in layers
+        assert self._input_words_layer in layers
         # Take attributes from the input layer
         current_attributes = layers[self.output_layer].attributes
         # --------------------------------------------
@@ -326,7 +332,7 @@ class UserDictTagger(Retagger):
         # --------------------------------------------
         morph_span_id = 0
         morph_spans = layers[self.output_layer].spans
-        word_spans  = layers['words'].spans
+        word_spans  = layers[self._input_words_layer].spans
         assert len(morph_spans) == len(word_spans)
         while morph_span_id < len(morph_spans):
             # 0) Convert SpanList to list of Span-s

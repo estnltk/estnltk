@@ -21,7 +21,8 @@ class PhraseTagger(Tagger):
                  decorator=None,
                  conflict_resolving_strategy: str='MAX',
                  priority_attribute: str=None,
-                 output_ambiguous: bool=False
+                 output_ambiguous: bool=False,
+                 case_sensitive=True
                  ):
         """Initialize a new EventSequenceTagger instance.
 
@@ -51,7 +52,8 @@ class PhraseTagger(Tagger):
             Whether the output layer is ambiguous.
         """
         self.conf_param = ('input_attribute', 'vocabulary', 'global_validator', 'validator_attribute', 'decorator',
-                           'conflict_resolving_strategy', 'priority_attribute', 'output_ambiguous', '_heads')
+                           'conflict_resolving_strategy', 'priority_attribute', 'output_ambiguous', '_heads',
+                           'case_sensitive')
 
         self.output_layer = output_layer
         self.input_layers = [input_layer]
@@ -76,6 +78,8 @@ class PhraseTagger(Tagger):
         self.vocabulary = Vocabulary(vocabulary=vocabulary,
                                      key=key,
                                      default_rec={self.validator_attribute: default_validator})
+        if not case_sensitive:
+            self.vocabulary.to_lower()
 
         assert key is None or key == self.vocabulary.key,\
             'mismatching key and vocabulary.key: {}!={}'.format(key, self.vocabulary.key)
@@ -93,16 +97,22 @@ class PhraseTagger(Tagger):
         for phrase in self.vocabulary:
             self._heads[phrase[0]].append(phrase[1:])
 
-    def _make_layer(self, raw_text: str, layers: dict, status: dict):
+        self.case_sensitive = case_sensitive
+
+    def _make_layer(self, text, layers: dict, status: dict):
+        raw_text = text.text
         input_layer = layers[self.input_layers[0]]
         layer = Layer(
             name=self.output_layer,
             attributes=self.output_attributes,
+            text_object=text,
             enveloping=input_layer.name,
             ambiguous=self.output_ambiguous)
         heads = self._heads
         value_list = getattr(input_layer, self.input_attribute)
         if input_layer.ambiguous:
+            if not self.case_sensitive:
+                value_list = [{k.lower() for k in v} for v in value_list]
             for i, values in enumerate(value_list):
                 for value in set(values):
                     if value in heads:
@@ -127,6 +137,8 @@ class PhraseTagger(Tagger):
                                                     setattr(span, attr, attr_value)
                                             layer.add_span(span)
         else:
+            if not self.case_sensitive:
+                value_list = [v.lower() for v in value_list]
             for i, value in enumerate(value_list):
                 if value in heads:
                     for tail in heads[value]:

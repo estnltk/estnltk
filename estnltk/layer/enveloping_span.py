@@ -12,7 +12,7 @@ class EnvelopingSpan(collections.Sequence):
                  attributes=None
                  ) -> None:
         spans = tuple(spans)
-        assert all(isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan)) for span in spans)
+        assert all(isinstance(span, (Span, AmbiguousSpan, EnvelopingSpan)) for span in spans), [type(span) for span in spans]
         self.spans = spans
 
         self._layer = layer

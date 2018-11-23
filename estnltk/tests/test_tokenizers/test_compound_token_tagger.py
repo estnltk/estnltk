@@ -1,7 +1,7 @@
 import unittest
 
 from estnltk import Text
-from estnltk.taggers import CompoundTokenTagger
+from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 
 class CompoundTokenTaggerTest(unittest.TestCase):
 
@@ -587,3 +587,51 @@ class CompoundTokenTaggerTest(unittest.TestCase):
         text.tag_layer(['sentences'])
         sentences = [ s.enclosing_text for s in text['sentences'] ]
         self.assertListEqual( ["Ekspluateerijal on vastavalt §-dele 84 jj. hüvitamise kohustus ."], sentences )
+
+
+
+    def test_change_compound_tokens_layer_name(self):
+        # Tests that tokens and compound tokens layer names can
+        # be changed (and it still works!)
+        tokens_tagger = TokensTagger(output_layer='my_tokens')
+        cp_tagger = CompoundTokenTagger(output_layer='my_compounds', input_tokens_layer='my_tokens')
+        word_tagger = WordTagger(input_tokens_layer='my_tokens', input_compound_tokens_layer='my_compounds')
+        test_texts = [ 
+            { 'text': 'Mis lil-li müüs Tiit 10e krooniga?', \
+              'expected_words': ['Mis', 'lil-li', 'müüs', 'Tiit', '10e', 'krooniga', '?'] }, \
+            
+            { 'text': 'Maja on fantastiline, mõte on hea :-)', \
+              'expected_words': ['Maja', 'on', 'fantastiline', ',', 'mõte', 'on', 'hea', ':-)'] }, \
+            
+            { 'text': "SKT -st või LinkedIn -ist ma eriti ei hoolinudki, aga workshop ' e külastasin küll.", \
+              'expected_words': ['SKT -st', 'või', 'LinkedIn -ist', 'ma', 'eriti', 'ei', 'hoolinudki', ',', 'aga', "workshop ' e", 'külastasin', 'küll', '.'] },\
+            { 'text': "Lisaks sellele, et B260a oskab 3G’st WiFi’t teha, saab hakkama ta ka lauatelefoni kõnede vahendamisega.",\
+              'expected_words': ['Lisaks', 'sellele', ',', 'et', 'B260a', 'oskab', '3G’st', 'WiFi’t', 'teha', ',', 'saab', 'hakkama', 'ta', 'ka', 'lauatelefoni', 'kõnede', 'vahendamisega', '.'] },\
+            { 'text': "Kes meist ei oleks kuulnud Big Benist, Westminster Abbey’st, London Towerist, Buckingham Palace’ist?",\
+              'expected_words': ['Kes', 'meist', 'ei', 'oleks', 'kuulnud', 'Big', 'Benist', ',', 'Westminster', 'Abbey’st', ',', 'London', 'Towerist', ',', 'Buckingham', 'Palace’ist', '?'] },\
+            { 'text': "Tööajal kella 8.00-st 16.00- ni võtavad sel telefonil kõnesid vastu kuni üheksa IT töötajat.",\
+              'expected_words': ['Tööajal', 'kella', '8.00-st', '16.00- ni', 'võtavad', 'sel', 'telefonil', 'kõnesid', 'vastu', 'kuni', 'üheksa', 'IT', 'töötajat', '.'] },\
+            
+            { 'text': "P.S. Õppige viisakalt kirjutama.", \
+              'expected_words': ['P.S.', 'Õppige', 'viisakalt', 'kirjutama', '.'] },\
+        ]
+        for test_text in test_texts:
+            text = Text( test_text['text'] )
+            # Perform analysis
+            tokens_tagger.tag(text)
+            cp_tagger.tag(text)
+            self.assertTrue( 'my_tokens' in text.layers.keys() )
+            self.assertTrue( 'my_compounds' in text.layers.keys() )
+            self.assertFalse( 'tokens' in text.layers.keys() )
+            self.assertFalse( 'compound_tokens' in text.layers.keys() )
+            word_tagger.tag(text)
+            words_spans = text['words'].span_list
+            # Fetch result
+            word_segmentation = [] 
+            for wid, word in enumerate( words_spans ):
+                word_text = text.text[word.start:word.end]
+                word_segmentation.append(word_text)
+            #print(word_segmentation)
+            # Assert that the tokenization is correct
+            self.assertListEqual(test_text['expected_words'], word_segmentation)
+

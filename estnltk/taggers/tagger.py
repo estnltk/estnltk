@@ -28,15 +28,13 @@ class Tagger:
                'attribute must be listed in conf_param: ' + key
         super().__setattr__(key, value)
 
-    # TODO: remove raw_text: str, replace with text: Text, rename layers -> detached_layers
-    def _make_layer(self, raw_text: str, layers: MutableMapping[str, Layer], status: dict) -> Layer:
+    # TODO: rename layers -> detached_layers ?
+    def _make_layer(self, text: Text, layers: MutableMapping[str, Layer], status: dict) -> Layer:
         raise NotImplementedError('make_layer method not implemented in ' + self.__class__.__name__)
 
-    # TODO: remove raw_text: str, rename layers -> detached_layers
-    def make_layer(self, raw_text: str = None, layers: MutableMapping[str, Layer] = None, status: dict = None, text: Text = None) -> Layer:
+    # TODO: rename layers -> detached_layers ?
+    def make_layer(self, text: Text, layers: MutableMapping[str, Layer] = None, status: dict = None) -> Layer:
         assert status is None or isinstance(status, dict), 'status should be None or dict, not {!r}'.format(type(status))
-        if raw_text is None:
-            raw_text = text.text
         if status is None:
             status = {}
         layers = layers or {}
@@ -47,15 +45,21 @@ class Tagger:
                 layers[layer] = text.layers[layer]
             else:
                 raise ValueError('missing input layer: {!r}'.format(layer))
-        layer = self._make_layer(raw_text, layers, status)
-        if layer.text_object is None:
-            layer.text_object = text
-        else:
-            assert layer.text_object is text, (layer.text_object, text)
-        # TODO the following asssertion breaks the tests
-        #assert layer.attributes == self.output_attributes, '{} != {}'.format(layer.attributes, self.output_attributes)
-        assert isinstance(layer, Layer), 'make_layer must return Layer'
-        assert layer.name == self.output_layer, 'incorrect layer name: {} != {}'.format(layer.name, self.output_layer)
+
+        try:
+            layer = self._make_layer(text=text, layers=layers, status=status)
+        except Exception as e:
+            e.args += ('Tagger: {!r}'.format(self.__class__.__name__),)
+            raise
+        assert layer.text_object is text, '{}._make_layer returned a layer with incorrect Text object'.format(
+                                           self.__class__.__name__)
+        assert layer.attributes == self.output_attributes,\
+            '{}._make_layer returned layer with unexpected attributes: {} != {}'.format(
+                    self.__class__.__name__, layer.attributes, self.output_attributes)
+        assert isinstance(layer, Layer), self.__class__.__name__ + '._make_layer must return Layer'
+        assert layer.name == self.output_layer,\
+            '{}._make_layer returned a layer with incorrect name: {} != {}'.format(
+                    self.__class__.__name__, layer.name, self.output_layer)
         return layer
 
     def tag(self, text: Text, status: dict = None) -> Text:
@@ -64,7 +68,7 @@ class Tagger:
         status: dict, default {}
             This can be used to store layer creation metadata.
         """
-        text[self.output_layer] = self.make_layer(text.text, text.layers, status, text=text)
+        text[self.output_layer] = self.make_layer(text=text, layers=text.layers, status=status)
         return text
 
     def __call__(self, text: Text, status: dict = None) -> Text:
