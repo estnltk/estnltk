@@ -42,7 +42,7 @@ class DiffTagger(Tagger):
         self.input_layer_attribute = input_layer_attribute
         self.span_status_attribute = span_status_attribute
 
-    def _make_layer(self, raw_text, layers, status):
+    def _make_layer(self, text, layers, status):
         name_a = self.input_layers[0]
         name_b = self.input_layers[1]
         layer_a = layers[name_a]
