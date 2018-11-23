@@ -22,7 +22,7 @@ class FlattenTagger(Tagger):
         self.attribute_mapping = attribute_mapping
         self.default_values = default_values
 
-    def _make_layer(self, raw_text, layers, status):
+    def _make_layer(self, text, layers, status):
         layer = flatten(input_layer=layers[self.input_layers[0]],
                         output_layer=self.output_layer,
                         output_attributes=self.output_attributes,
