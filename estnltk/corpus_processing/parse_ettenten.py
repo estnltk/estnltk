@@ -188,6 +188,7 @@ def reconstruct_ettenten_text( document, \
         orig_paragraphs = Layer(name=ParagraphTokenizer.output_layer, \
                                 attributes = tuple(list(paragraph_attrib_names)), \
                                 enveloping='sentences', \
+                                text_object=text, \
                                 ambiguous=False)
         pid = 0; p_start = -1; p_end = -1
         for sid, sentence in enumerate(text['sentences']):
@@ -216,6 +217,7 @@ def reconstruct_ettenten_text( document, \
         #      layer 'original_paragraphs'
         orig_paragraphs = \
            Layer(name = 'original_paragraphs', \
+                 text_object=text, \
                  attributes = tuple(list(paragraph_attrib_names)),
                  ambiguous=True ).from_records(para_locations)
         text[orig_paragraphs.name] = orig_paragraphs
