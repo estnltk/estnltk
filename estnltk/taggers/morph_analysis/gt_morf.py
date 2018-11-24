@@ -10,13 +10,14 @@
 import regex as re
 from collections import OrderedDict
 
-from estnltk.text import Span, Layer, Text
-from estnltk.taggers import TaggerOld
+from estnltk.text import Layer, Span, Text
+
+from estnltk.taggers import Tagger
 from estnltk.taggers import VabamorfTagger
 
 from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_span
-from estnltk.taggers.morph_analysis.morf_common import _create_empty_morph_span
+from estnltk.taggers.morph_analysis.morf_common import _create_empty_morph_record
 
 # =========================================================================================
 #    Convert nominal categories
@@ -199,314 +200,6 @@ def _make_postfixes_1( analysis ):
     return analysis
 
 
-# =========================================================================================
-#    Convert from Vabamorf's format to GT format
-# =========================================================================================
-
-def _convert_analysis( text: Text ):
-    ''' Converts morphological analyses (in the layer 'morph_analysis') from FS's 
-        Vabamorf's format to giellatekno's (GT) format. Returns a new list of 
-        dictionaries, each corresponding to a single morphological analysis record;
-        
-        Note: due to one-to-many conversion rules, the number of analyses returned 
-        by this method can be greater than the number of analyses in the input 
-        layer 'morph_analysis'.  Converted  analyses  need  to  go  through  a 
-        disambiguation process.
-    '''
-    # Check for required layers
-    for req_layer in ['words', 'morph_analysis']:
-        assert req_layer in text.layers, \
-            '(!) The input text should contain "'+str(req_layer)+'" layer.'
-    analysis_dicts = []
-    morph_span_id = 0
-    # Iterate over words in Text
-    for word in text.words:
-        wstart = word.start
-        wend   = word.end
-        # Find all Vabamorf's analyses corresponding to 
-        # the current word
-        while(morph_span_id < len(text.morph_analysis)):
-            vabamorf_span = text.morph_analysis.span_list[morph_span_id]
-            vmstart = vabamorf_span.start
-            vmend   = vabamorf_span.end
-            if vmstart == wstart and vmend == wend:
-                if not _is_empty_span( vabamorf_span.spans[0] ):
-                    new_analyses = vabamorf_span.to_record()
-                    # Convert noun categories
-                    new_analyses = [ _convert_nominal_form( a ) for a in new_analyses ]
-                    # Convert ambiguous verb categories
-                    new_analyses = [_convert_amb_verbal_form( a ) for a in new_analyses]
-                    new_analyses = sum(new_analyses, [])  # Flatten the list
-                    # Convert remaining verbal categories
-                    new_analyses = [_convert_verbal_form( a ) for a in new_analyses]
-                    # Make postfixes
-                    new_analyses = [_make_postfixes_1( a ) for a in new_analyses]
-                    # Append new analyses
-                    analysis_dicts.extend( new_analyses )
-                else:
-                    # Analysis is empty (an unknown word)
-                    new_analyses = vabamorf_span.to_record()
-                    # Convert None to empty string
-                    for analysis in new_analyses:
-                        for key in analysis.keys():
-                            if analysis[key] is None:
-                                analysis[key] = ''
-                    # Append new analyses
-                    analysis_dicts.extend( new_analyses )
-                morph_span_id += 1
-            else:
-                break
-    return analysis_dicts
-
-
-# =====================================
-#  Initial disambiguation in GT format
-# =====================================
-
-def _disambiguate_neg( morph_dict_list:list ):
-    ''' Disambiguates forms ambiguous between multiword negation and some 
-        other form;
-    '''
-    # ids of the analyses of the current word:
-    cur_word_analyses_ids = [] 
-    # lemma of the previous word:
-    prev_word_lemma       = ''
-    # ids of the analyses that should be deleted:
-    analyses_to_delete = OrderedDict()
-    #
-    # Iterate over all analyses, group analyses by words, and decide, 
-    # which analyses need to be deleted 
-    #
-    for aid, analysis_dict in enumerate(morph_dict_list):
-        word_start = analysis_dict['start']
-        word_end   = analysis_dict['end']
-        if not cur_word_analyses_ids:
-            # Collect the analysis
-            cur_word_analyses_ids.append( aid )
-        else:
-            # Check if this analysis and the previous analysis
-            # belong to the same word
-            last_analysis = morph_dict_list[cur_word_analyses_ids[-1]]
-            if word_start == last_analysis['start'] and \
-               word_end == last_analysis['end']:
-                # Collect the analysis id
-                cur_word_analyses_ids.append( aid )
-            else:
-                # Analyses belong to different words
-                
-                # A. Analyse the collected analyses and decide which 
-                #    ones should be removed; record id-s of analyses
-                #    that are to be removed
-                forms = [ morph_dict_list[cwaid]['form'] for cwaid in cur_word_analyses_ids ]
-                if ('Pers Prs Imprt Sg2' in forms and 'Pers Prs Ind Neg' in forms):
-                    if (prev_word_lemma == "ei" or prev_word_lemma == "ega"):
-                        # ei saa, ei tee ==>
-                        # keep 'Pers Prs Ind Neg'
-                        # delete 'Pers Prs Imprt Sg2'
-                        for cwaid in cur_word_analyses_ids:
-                            cur_word_analysis = morph_dict_list[cwaid]
-                            if cur_word_analysis['form'] == 'Pers Prs Imprt Sg2':
-                                analyses_to_delete[cwaid] = True
-                    else:
-                        # saa! tee! ==>
-                        # keep 'Pers Prs Imprt Sg2'
-                        # delete 'Pers Prs Ind Neg'
-                        for cwaid in cur_word_analyses_ids:
-                            cur_word_analysis = morph_dict_list[cwaid]
-                            if cur_word_analysis['form'] == 'Pers Prs Ind Neg':
-                                analyses_to_delete[cwaid] = True
-                if ('Pers Prt Imprt' in forms and 'Pers Prt Ind Neg' in forms and \
-                    'Pers Prt Prc' in forms):
-                    if (prev_word_lemma == "ei" or prev_word_lemma == "ega"):
-                        # ei saanud, ei teinud ==>
-                        # keep 'Pers Prt Ind Neg'
-                        # delete 'Pers Prt Imprt','Pers Prt Prc'
-                        for cwaid in cur_word_analyses_ids:
-                            cur_word_analysis = morph_dict_list[cwaid]
-                            if cur_word_analysis['form'] in ['Pers Prt Imprt','Pers Prt Prc']:
-                                analyses_to_delete[cwaid] = True
-                    else:
-                        # on, oli saanud teinud; kukkunud õun; ... ==>
-                        # keep 'Pers Prt Prc'
-                        # delete 'Pers Prt Imprt','Pers Prt Ind Neg'
-                        for cwaid in cur_word_analyses_ids:
-                            cur_word_analysis = morph_dict_list[cwaid]
-                            if cur_word_analysis['form'] in ['Pers Prt Imprt','Pers Prt Ind Neg']:
-                                analyses_to_delete[cwaid] = True
-                if ('Impers Prt Ind Neg' in forms and 'Impers Prt Prc' in forms):
-                    if (prev_word_lemma == "ei" or prev_word_lemma == "ega"):
-                        # ei saadud, ei tehtud ==> 
-                        # keep 'Impers Prt Ind Neg'
-                        # delete 'Impers Prt Prc'
-                        for cwaid in cur_word_analyses_ids:
-                            cur_word_analysis = morph_dict_list[cwaid]
-                            if cur_word_analysis['form'] == 'Impers Prt Prc':
-                                analyses_to_delete[cwaid] = True
-                    else:
-                        # on, oli saadud tehtud; saadud õun; ... ==>
-                        # keep 'Impers Prt Prc'
-                        # delete 'Impers Prt Ind Neg'
-                        for cwaid in cur_word_analyses_ids:
-                            cur_word_analysis = morph_dict_list[cwaid]
-                            if cur_word_analysis['form'] == 'Impers Prt Ind Neg':
-                                analyses_to_delete[cwaid] = True
-
-                # B. Record lemma of the previous word
-                cur_word_analysis = morph_dict_list[cur_word_analyses_ids[0]]
-                prev_word_lemma = cur_word_analysis['root']
-                
-                # C. Finally: reset the list of analyses id-s
-                cur_word_analyses_ids = [] 
-                # And collect the new analysis id
-                cur_word_analyses_ids.append( aid )
-    
-    # Finally, perform the deletion
-    if len(analyses_to_delete.keys()) > 0:
-        to_delete = list( analyses_to_delete.keys() )
-        to_delete.reverse()
-        for aid in to_delete:
-            del morph_dict_list[aid]
-
-    return morph_dict_list
-
-
-def _disambiguate_sid_ksid( morph_dict_list:list, text: Text, scope:str='clauses' ):
-    ''' Disambiguates verb forms based on existence of 2nd person pronoun ('sina') 
-        in given scope. The scope could be either 'clauses' or 'sentences'.
-        
-        Note: if 'clauses' or 'sentences' layers are missing, adds these layers 
-              automatically;
-    '''
-    assert scope in ['clauses', 'sentences'], \
-           '(!) The scope should be either "clauses" or "sentences".'
-    
-    # 1) Find word id-s corresponding to morph analyses dicts
-    morph_dict_word_ids = []
-    current_word_id = 0
-    for aid, analysis_dict in enumerate( morph_dict_list ):
-        word_start = analysis_dict['start']
-        word_end   = analysis_dict['end']
-        if aid - 1 > -1:
-            last_word_start = morph_dict_list[aid-1]['start']
-            last_word_end   = morph_dict_list[aid-1]['end']
-            if last_word_start != word_start and \
-               last_word_end != word_end:
-                # Advance with word_id
-                current_word_id += 1
-        morph_dict_word_ids.append(current_word_id)
-    assert len(morph_dict_word_ids) == len(morph_dict_list)
-    
-    # 2) Disambiguate 
-    group_indices = get_unique_word_group_indices( text, word_group=scope )
-    # ids of the analyses of the current word:
-    cur_word_analyses_ids = []
-    # ids of the analyses that should be deleted:
-    analyses_to_delete = OrderedDict()
-    # record if group of the current word contains 2nd person pronoun
-    gr_2nd_person_pron = {}
-    for aid, analysis_dict in enumerate( morph_dict_list ):
-        # word index for the current analysis
-        current_word_id = morph_dict_word_ids[aid]
-        # group index for the current word
-        gr_index = group_indices[current_word_id]
-        
-        # Analyse word's group
-        if gr_index not in gr_2nd_person_pron:
-            # 1) Find out whether the current group (clause or sentence) contains "sina"
-            j = aid
-            gr_2nd_person_pron_found = False
-            words_passed = 0
-            last_word_id_2 = current_word_id
-            while j < len( morph_dict_list ):
-                current_word_id_2 = morph_dict_word_ids[j]
-                if last_word_id_2 != current_word_id_2:
-                    words_passed += 1
-                if group_indices[current_word_id_2] == gr_index:
-                    forms  = [ morph_dict_list[j]['form'] ]
-                    lemmas = [ morph_dict_list[j]['root'] ]
-                    if 'sina' in lemmas and 'Sg Nom' in forms:
-                        gr_2nd_person_pron_found = True
-                        break
-                if words_passed >= 10:  # do not venture too far ...
-                    break
-                j += 1
-                last_word_id_2 = current_word_id_2
-            gr_2nd_person_pron[gr_index] = gr_2nd_person_pron_found
-        
-        # Collect analysis of the current word 
-        cur_word_analyses_ids.append( aid )
-        
-        # Determine next word id 
-        next_word_id = \
-            morph_dict_word_ids[aid+1] if aid+1 < len(morph_dict_word_ids) else -1
-        
-        if next_word_id == -1 or current_word_id != next_word_id:
-            # We have last analysis or the next analysis belongs to a new word
-            # 2) Disambiguate verb forms based on existence of 'sina' in the word group
-            forms = [ morph_dict_list[cwaid]['form'] for cwaid in cur_word_analyses_ids ]
-            if ('Pers Prt Ind Pl3 Aff' in forms and 'Pers Prt Ind Sg2 Aff' in forms):
-               if not gr_2nd_person_pron[ gr_index ]:
-                    # -sid , "sina" missing ==> 
-                    # keep 'Pers Prt Ind Pl3 Aff'
-                    # delete 'Pers Prt Ind Sg2 Aff'
-                    for cwaid in cur_word_analyses_ids:
-                        cur_word_analysis = morph_dict_list[cwaid]
-                        if cur_word_analysis['form'] == 'Pers Prt Ind Sg2 Aff':
-                            analyses_to_delete[cwaid] = True
-               else:
-                    # -sid , "sina" exists ==> 
-                    # keep 'Pers Prt Ind Sg2 Aff'
-                    # delete 'Pers Prt Ind Pl3 Aff'
-                    for cwaid in cur_word_analyses_ids:
-                        cur_word_analysis = morph_dict_list[cwaid]
-                        if cur_word_analysis['form'] == 'Pers Prt Ind Pl3 Aff':
-                            analyses_to_delete[cwaid] = True
-            if ('Pers Prs Cond Pl3 Aff' in forms and 'Pers Prs Cond Sg2 Aff' in forms):
-               if not gr_2nd_person_pron[ gr_index ]:
-                    # -ksid , "sina" missing ==> 
-                    # keep 'Pers Prs Cond Pl3 Aff'
-                    # delete 'Pers Prs Cond Sg2 Aff'
-                    for cwaid in cur_word_analyses_ids:
-                        cur_word_analysis = morph_dict_list[cwaid]
-                        if cur_word_analysis['form'] == 'Pers Prs Cond Sg2 Aff':
-                            analyses_to_delete[cwaid] = True
-               else:
-                    # -ksid , "sina" exists ==> 
-                    # keep 'Pers Prs Cond Sg2 Aff'
-                    # delete 'Pers Prs Cond Pl3 Aff'
-                    for cwaid in cur_word_analyses_ids:
-                        cur_word_analysis = morph_dict_list[cwaid]
-                        if cur_word_analysis['form'] == 'Pers Prs Cond Pl3 Aff':
-                            analyses_to_delete[cwaid] = True
-            if ('Pers Prt Cond Pl3 Aff' in forms and 'Pers Prt Cond Sg2 Aff' in forms):
-               if not gr_2nd_person_pron[ gr_index ]:
-                    # -nuksid , "sina" missing ==> 
-                    # keep 'Pers Prt Cond Pl3 Aff'
-                    # delete 'Pers Prt Cond Sg2 Aff'
-                    for cwaid in cur_word_analyses_ids:
-                        cur_word_analysis = morph_dict_list[cwaid]
-                        if cur_word_analysis['form'] == 'Pers Prt Cond Sg2 Aff':
-                            analyses_to_delete[cwaid] = True
-               else:
-                    # -nuksid , "sina" exists ==> 
-                    # keep 'Pers Prt Cond Sg2 Aff'
-                    # delete 'Pers Prt Cond Pl3 Aff'
-                    for cwaid in cur_word_analyses_ids:
-                        cur_word_analysis = morph_dict_list[cwaid]
-                        if cur_word_analysis['form'] == 'Pers Prt Cond Pl3 Aff':
-                            analyses_to_delete[cwaid] = True
-            cur_word_analyses_ids = []
-
-    # 3) Finally, perform the deletion
-    if len(analyses_to_delete.keys()) > 0:
-        to_delete = list(analyses_to_delete.keys())
-        to_delete.reverse()
-        for aid in to_delete:
-            del morph_dict_list[aid]
-
-    return morph_dict_list
-
-
 # =====================================
 #  Perform post-processing / fixing #2
 # =====================================
@@ -518,122 +211,58 @@ def _make_postfixes_2( morph_dict_list:list ):
     return morph_dict_list
 
 
-# =====================================
-#  Clause/sentence indices for words
-# =====================================
-
-def get_unique_word_group_indices( text: Text, word_group:str = 'clauses' ):
-    ''' Returns a list of word group indices that contains a group index  
-        for each word in the text.  A  group  index  tells which group a 
-        word belongs to.
-        Types of word groups: 'clauses', 'sentences';
-        Group indices are unique over the whole text. 
-    '''
-    assert word_group in ['sentences', 'clauses'], \
-           '(!) The word_group should be either "clauses" or "sentences".'
-    # Add word group annotations (if missing)
-    if word_group not in text.layers:
-        text.tag_layer([word_group])
-    # Collect (unique) word group indices over the whole text
-    word_group_indices = []
-    word_spans  = text['words'].span_list
-    group_spans = text[word_group].span_list
-    word_span_id  = 0
-    #  Collect all words inside the group
-    while word_span_id < len(word_spans):
-        # Get word span
-        word_span = word_spans[word_span_id]
-        # Find group the word belongs to
-        group_span_id = 0
-        while group_span_id < len(group_spans):
-            group_span = group_spans[group_span_id]
-            if group_span.start <= word_span.start and \
-               word_span.end <= group_span.end:
-               # Record id of the group word belongs to
-                word_group_indices.append( group_span_id )
-                break
-            group_span_id += 1
-        word_span_id += 1
-    assert len(word_group_indices) == len(word_spans), \
-        '(!) Number of word group indices should match the number of words!'
-    return word_group_indices
-
-
-# =========================================================================================
-#    Finalize: convert analyses from dicts to Spans
-# =========================================================================================
-
-def _create_spans( text: Text, morph_dict_list:list, layer:Layer = None ):
-    '''Converts morphological analyses (from the list morph_dict_list) 
-    from dict format to Spans. If layer is given, then attaches Spans to 
-    the layer and returns the layer; otherwise, collects resulting Spans 
-    into a list and returns the list.
-    '''
-    resulting_spans = []
-    morph_span_id = 0
-    # Iterate over words in Text
-    for word in text.words:
-        wstart = word.start
-        wend   = word.end
-        # Find all morphological analyses corresponding to the 
-        # current word
-        while(morph_span_id < len(morph_dict_list)):
-            morph_dict = morph_dict_list[morph_span_id]
-            if morph_dict['start'] == wstart and morph_dict['end'] == wend:
-                span = None
-                # Check for empty Span-s
-                empty_attributes = []
-                for attr in ESTNLTK_MORPH_ATTRIBUTES:
-                    empty_attributes.append( morph_dict[attr] is None or \
-                                             len(morph_dict[attr]) == 0 )
-                if empty_attributes.count(True) > len(empty_attributes)/2:
-                    # If most of the attributes have been set 
-                    # to '', then we have an empty Span (unknown word)
-                    current_attributes = layer.attributes if layer is not None else None
-                    span = \
-                        _create_empty_morph_span(word, \
-                                                 layer_attributes=current_attributes)
-                else:
-                    # The Span corresponds to word with full analyses
-                    # Create corresponding Span-s
-                    span = Span( parent=word )
-                    for attr in morph_dict.keys():
-                        if attr in ['start', 'end', 'text']:
-                            continue
-                        if attr == 'root_tokens':
-                            # make it hashable for Span.__hash__
-                            setattr(span, attr, tuple(morph_dict[attr]))
-                        else:
-                            setattr(span, attr, morph_dict[attr])
-                assert span is not None
-                # If layer has been provided, attach the span to the layer
-                if layer is not None:
-                    layer.add_span( span )
-                else:
-                    resulting_spans.append( span )
-                morph_span_id += 1
-            else:
-                break
-    # Return either list of created spans or a layer augmented with spans
-    return resulting_spans if layer is None else layer
 
 # ===================================================================
+#   T h e   m a i n   c l a s s
+# ===================================================================
 
-class GTMorphConverter(TaggerOld):
-    description   = "Converts morphological analyses from Vabamorf's format to Giellatekno's (GT) format."
-    layer_name    = None
-    attributes    = VabamorfTagger.attributes
-    depends_on    = None
-    configuration = None
-    
+class GTMorphConverter( Tagger ):
+    """Converts morphological analyses from Vabamorf's format to Giellatekno's (GT) format. 
+       Stores results of the conversion on a new layer."""
+    output_layer      = 'gt_morph_analysis'
+    output_attributes = VabamorfTagger.attributes
+    input_layers      = ['words', 'sentences', 'morph_analysis']
+    conf_param = [ # Configuration flags
+                   'disambiguate_neg', 'disambiguate_sid_ksid', \
+                   # Names of the specific input layers
+                   '_input_words_layer', \
+                   '_input_sentences_layer', \
+                   '_input_morph_analysis_layer', \
+                   '_input_clauses_layer', \
+                   # For backward compatibility:
+                   'depends_on', 'layer_name', 'attributes'
+                 ]
+    layer_name = output_layer       # <- For backward compatibility ...
+    depends_on = input_layers       # <- For backward compatibility ...
+    attributes = output_attributes  # <- For backward compatibility ...
+
     def __init__(self, \
+                 output_layer:str='gt_morph_analysis', \
+                 input_words_layer:str='words', \
+                 input_sentences_layer:str='sentences', \
+                 input_morph_analysis_layer:str='morph_analysis', \
+                 input_clauses_layer:str='clauses', \
                  disambiguate_neg:bool = True, \
-                 disambiguate_sid_ksid:bool = True, \
-                 layer_name:str='gt_morph_analysis', **kwargs):
+                 disambiguate_sid_ksid:bool = True ):
         ''' Initializes this GTMorphConverter.
             
             Parameters
             -----------
+            output_layer: str (default: 'gt_morph_analysis')
+                Name for the gt_morph_analysis layer;
+            
+            input_words_layer: str (default: 'words')
+                Name of the input words layer;
+
+            input_sentences_layer: str (default: 'sentences')
+                Name of the input sentences layer;
+            
+            input_morph_analysis_layer: str (default: 'morph_analysis')
+                Name of the input morph_analysis layer;
+            
+            input_clauses_layer: str (default: 'clauses')
+                Name of the input clauses layer;
+            
             disambiguate_neg : bool
                 Whether the conversion is followed by disambiguation of verb 
                 categories related to negation;
@@ -645,63 +274,490 @@ class GTMorphConverter(TaggerOld):
                 Note: if clause annotations are missing and this flag is switched
                 on, then clause annotations will be automatically added;
                 Default: True;
-
-            layer_name : str
-                Name of the layer on which converted morphological analyses are 
-                stored.
-                Default: 'gt_morph_analysis';
         '''
-        self.kwargs = kwargs
-        self.layer_name = layer_name
+        # Set input/output layer names
+        self.output_layer = output_layer
+        self._input_words_layer          = input_words_layer
+        self._input_sentences_layer      = input_sentences_layer
+        self._input_morph_analysis_layer = input_morph_analysis_layer
+        self._input_clauses_layer        = input_clauses_layer
+        self.input_layers = [input_words_layer, input_sentences_layer, input_morph_analysis_layer]
+        # Set configuration flags
+        self.disambiguate_neg = disambiguate_neg
+        self.disambiguate_sid_ksid = disambiguate_sid_ksid
+        # Adjust input requirements
+        if self.disambiguate_sid_ksid:
+            self.input_layers.append( input_clauses_layer )
+        self.layer_name = self.output_layer  # <- For backward compatibility ...
+        self.depends_on = self.input_layers  # <- For backward compatibility ...
+
+
+    def _make_layer(self, text, layers, status: dict):
+        """Creates gt_morph_analysis layer.
         
-        self.configuration = {'disambiguate_neg': disambiguate_neg,\
-                              'disambiguate_sid_ksid': disambiguate_sid_ksid }
-        self.configuration.update(self.kwargs)
-
-        self.depends_on = ['words', 'sentences', 'morph_analysis']
-
-
-    def tag(self, text:Text, return_layer:bool=False) -> Text:
-        ''' Converts morphological analyses (in the layer 'morph_analysis') from 
-            FS Vabamorf's format to giellatekno's (GT) format. Creates a new layer
-            containing the results of the conversion. If return_layer==True, then
-            returns the new layer, otherwise attaches the new layer to the Text 
-            object and returns the Text object.
-            
-            Parameters
-            -----------
-            text : estnltk.text.Text
-                Text object in which morphological annotations are converted from 
-                FS format to GT format. Text object must have layers 'words' and 
-                'morph_analysis';
-            
-            return_layer : bool
-                If True, then the new layer is returned; otherwise the new layer 
-                is attached to the Text object, and the Text object is returned;
-                Default: False;
-        '''
-        gt_morph = Layer(name=self.layer_name,
-                         parent='morph_analysis',
+        Parameters
+        ----------
+        text: Text
+           Text object that will be tagged;
+          
+        layers: MutableMapping[str, Layer]
+           Layers of the text. Contains mappings from the 
+           name of the layer to the Layer object. Must contain
+           words, sentences, and morph_analysis. If
+           disambiguate_sid_ksid is turned on, clauses layer
+           is also required;
+          
+        status: dict
+           This can be used to store metadata on layer tagging.
+        """
+        gt_morph = Layer(name=self.output_layer,
+                         parent=self._input_morph_analysis_layer,
+                         text_object=text,
                          ambiguous=True,
-                         attributes=self.attributes
+                         attributes=self.output_attributes
                    )
 
         # 1) Perform the conversion
-        new_morph_dicts = _convert_analysis( text )
+        new_morph_dicts = self._convert_analysis( text, layers, status )
         
         # 2) Perform some context-specific disambiguation
-        if self.configuration['disambiguate_neg']:
-            _disambiguate_neg( new_morph_dicts )
-        if self.configuration['disambiguate_sid_ksid']:
-            _disambiguate_sid_ksid( new_morph_dicts, text, scope='clauses' )
-            _disambiguate_sid_ksid( new_morph_dicts, text, scope='sentences' )
+        if self.disambiguate_neg:
+            self._disambiguate_neg( new_morph_dicts )
+        if self.disambiguate_sid_ksid:
+            self._disambiguate_sid_ksid( new_morph_dicts, text, layers, status, 
+                                         scope = self._input_clauses_layer )
+            self._disambiguate_sid_ksid( new_morph_dicts, text, layers, status, 
+                                         scope = self._input_sentences_layer )
+        
         _make_postfixes_2( new_morph_dicts )
         
         # 3) Convert analysis dicts to Spans, and attach to the layer
-        _create_spans( text, new_morph_dicts, layer = gt_morph )
+        self._attach_annotations( text, layers, status, new_morph_dicts, new_layer=gt_morph)
+        
 
-        if return_layer:
-            return gt_morph
-        text[self.layer_name] = gt_morph
-        return text
+        # 4) Return the layer
+        return gt_morph
+
+
+
+    # =========================================================================================
+    #    Convert from Vabamorf's format to GT format
+    # =========================================================================================
+
+    def _convert_analysis( self, text:Text, layers, status: dict ):
+        ''' Converts morphological analyses (in the morph_analysis layer) from FS's 
+            Vabamorf's format to giellatekno's (GT) format. Returns a new list of 
+            dictionaries, each corresponding to a single morphological analysis record;
+            
+            Note: due to one-to-many conversion rules, the number of analyses returned 
+            by this method can be greater than the number of analyses in the input 
+            morph_analysis layer .   Converted  analyses  need  to  go  through  a 
+            disambiguation process.
+        '''
+        # Check for required layers
+        for req_layer in [ self._input_words_layer, self._input_morph_analysis_layer ]:
+            assert req_layer in layers.keys(), \
+                '(!) The input text should contain "'+str(req_layer)+'" layer.'
+        analysis_dicts = []
+        morph_span_id  = 0
+        # Iterate over the words layer
+        words = layers[ self._input_words_layer ]
+        morph_analysis = layers[ self._input_morph_analysis_layer ]
+        for word in words:
+            wstart = word.start
+            wend   = word.end
+            # Find all Vabamorf's analyses corresponding to 
+            # the current word
+            while(morph_span_id < len(morph_analysis)):
+                vabamorf_span = morph_analysis.span_list[morph_span_id]
+                vmstart = vabamorf_span.start
+                vmend   = vabamorf_span.end
+                if vmstart == wstart and vmend == wend:
+                    if not _is_empty_span( vabamorf_span.spans[0] ):
+                        new_analyses = vabamorf_span.to_record()
+                        # Convert noun categories
+                        new_analyses = [_convert_nominal_form( a ) for a in new_analyses ]
+                        # Convert ambiguous verb categories
+                        new_analyses = [_convert_amb_verbal_form( a ) for a in new_analyses]
+                        new_analyses = sum(new_analyses, [])  # Flatten the list
+                        # Convert remaining verbal categories
+                        new_analyses = [_convert_verbal_form( a ) for a in new_analyses]
+                        # Make postfixes
+                        new_analyses = [_make_postfixes_1( a ) for a in new_analyses]
+                        # Append new analyses
+                        analysis_dicts.extend( new_analyses )
+                    else:
+                        # Analysis is empty (an unknown word)
+                        new_analyses = vabamorf_span.to_record()
+                        # Convert None to empty string
+                        for analysis in new_analyses:
+                            for key in analysis.keys():
+                                if analysis[key] is None:
+                                    analysis[key] = ''
+                        # Append new analyses
+                        analysis_dicts.extend( new_analyses )
+                    morph_span_id += 1
+                else:
+                    break
+        return analysis_dicts
+
+
+    # =====================================
+    #  Initial disambiguation in GT format
+    # =====================================
+
+    def _disambiguate_neg( self, morph_dict_list:list ):
+        ''' Disambiguates forms ambiguous between multiword negation and some 
+            other form;
+        '''
+        # ids of the analyses of the current word:
+        cur_word_analyses_ids = [] 
+        # lemma of the previous word:
+        prev_word_lemma       = ''
+        # ids of the analyses that should be deleted:
+        analyses_to_delete = OrderedDict()
+        #
+        # Iterate over all analyses, group analyses by words, and decide, 
+        # which analyses need to be deleted 
+        #
+        for aid, analysis_dict in enumerate(morph_dict_list):
+            word_start = analysis_dict['start']
+            word_end   = analysis_dict['end']
+            if not cur_word_analyses_ids:
+                # Collect the analysis
+                cur_word_analyses_ids.append( aid )
+            else:
+                # Check if this analysis and the previous analysis
+                # belong to the same word
+                last_analysis = morph_dict_list[cur_word_analyses_ids[-1]]
+                if word_start == last_analysis['start'] and \
+                   word_end == last_analysis['end']:
+                    # Collect the analysis id
+                    cur_word_analyses_ids.append( aid )
+                else:
+                    # Analyses belong to different words
+                    
+                    # A. Analyse the collected analyses and decide which 
+                    #    ones should be removed; record id-s of analyses
+                    #    that are to be removed
+                    forms = [ morph_dict_list[cwaid]['form'] for cwaid in cur_word_analyses_ids ]
+                    if ('Pers Prs Imprt Sg2' in forms and 'Pers Prs Ind Neg' in forms):
+                        if (prev_word_lemma == "ei" or prev_word_lemma == "ega"):
+                            # ei saa, ei tee ==>
+                            # keep 'Pers Prs Ind Neg'
+                            # delete 'Pers Prs Imprt Sg2'
+                            for cwaid in cur_word_analyses_ids:
+                                cur_word_analysis = morph_dict_list[cwaid]
+                                if cur_word_analysis['form'] == 'Pers Prs Imprt Sg2':
+                                    analyses_to_delete[cwaid] = True
+                        else:
+                            # saa! tee! ==>
+                            # keep 'Pers Prs Imprt Sg2'
+                            # delete 'Pers Prs Ind Neg'
+                            for cwaid in cur_word_analyses_ids:
+                                cur_word_analysis = morph_dict_list[cwaid]
+                                if cur_word_analysis['form'] == 'Pers Prs Ind Neg':
+                                    analyses_to_delete[cwaid] = True
+                    if ('Pers Prt Imprt' in forms and 'Pers Prt Ind Neg' in forms and \
+                        'Pers Prt Prc' in forms):
+                        if (prev_word_lemma == "ei" or prev_word_lemma == "ega"):
+                            # ei saanud, ei teinud ==>
+                            # keep 'Pers Prt Ind Neg'
+                            # delete 'Pers Prt Imprt','Pers Prt Prc'
+                            for cwaid in cur_word_analyses_ids:
+                                cur_word_analysis = morph_dict_list[cwaid]
+                                if cur_word_analysis['form'] in ['Pers Prt Imprt','Pers Prt Prc']:
+                                    analyses_to_delete[cwaid] = True
+                        else:
+                            # on, oli saanud teinud; kukkunud õun; ... ==>
+                            # keep 'Pers Prt Prc'
+                            # delete 'Pers Prt Imprt','Pers Prt Ind Neg'
+                            for cwaid in cur_word_analyses_ids:
+                                cur_word_analysis = morph_dict_list[cwaid]
+                                if cur_word_analysis['form'] in ['Pers Prt Imprt','Pers Prt Ind Neg']:
+                                    analyses_to_delete[cwaid] = True
+                    if ('Impers Prt Ind Neg' in forms and 'Impers Prt Prc' in forms):
+                        if (prev_word_lemma == "ei" or prev_word_lemma == "ega"):
+                            # ei saadud, ei tehtud ==> 
+                            # keep 'Impers Prt Ind Neg'
+                            # delete 'Impers Prt Prc'
+                            for cwaid in cur_word_analyses_ids:
+                                cur_word_analysis = morph_dict_list[cwaid]
+                                if cur_word_analysis['form'] == 'Impers Prt Prc':
+                                    analyses_to_delete[cwaid] = True
+                        else:
+                            # on, oli saadud tehtud; saadud õun; ... ==>
+                            # keep 'Impers Prt Prc'
+                            # delete 'Impers Prt Ind Neg'
+                            for cwaid in cur_word_analyses_ids:
+                                cur_word_analysis = morph_dict_list[cwaid]
+                                if cur_word_analysis['form'] == 'Impers Prt Ind Neg':
+                                    analyses_to_delete[cwaid] = True
+
+                    # B. Record lemma of the previous word
+                    cur_word_analysis = morph_dict_list[cur_word_analyses_ids[0]]
+                    prev_word_lemma = cur_word_analysis['root']
+                    
+                    # C. Finally: reset the list of analyses id-s
+                    cur_word_analyses_ids = [] 
+                    # And collect the new analysis id
+                    cur_word_analyses_ids.append( aid )
+        
+        # Finally, perform the deletion
+        if len(analyses_to_delete.keys()) > 0:
+            to_delete = list( analyses_to_delete.keys() )
+            to_delete.reverse()
+            for aid in to_delete:
+                del morph_dict_list[aid]
+
+        return morph_dict_list
+
+
+
+    def _disambiguate_sid_ksid(self, morph_dict_list:list, text:Text, layers, status: dict, \
+                                     scope:str='clauses' ):
+        ''' Disambiguates verb forms based on existence of 2nd person pronoun ('sina') 
+            in given scope. The scope could be either 'clauses' or 'sentences'.
+            
+            Note: if clauses or sentences layers are missing, adds these layers 
+                  automatically;
+        '''
+        assert scope in ['clauses', 'sentences'], \
+               '(!) The scope should be either "clauses" or "sentences".'
+        
+        # 1) Find word id-s corresponding to morph analyses dicts
+        morph_dict_word_ids = []
+        current_word_id = 0
+        for aid, analysis_dict in enumerate( morph_dict_list ):
+            word_start = analysis_dict['start']
+            word_end   = analysis_dict['end']
+            if aid - 1 > -1:
+                last_word_start = morph_dict_list[aid-1]['start']
+                last_word_end   = morph_dict_list[aid-1]['end']
+                if last_word_start != word_start and \
+                   last_word_end != word_end:
+                    # Advance with word_id
+                    current_word_id += 1
+            morph_dict_word_ids.append(current_word_id)
+        assert len(morph_dict_word_ids) == len(morph_dict_list)
+        
+        # 2) Disambiguate 
+        group_indices = self._get_unique_word_group_indices( text, layers, status, 
+                                                             word_group=scope )
+        # ids of the analyses of the current word:
+        cur_word_analyses_ids = []
+        # ids of the analyses that should be deleted:
+        analyses_to_delete = OrderedDict()
+        # record if group of the current word contains 2nd person pronoun
+        gr_2nd_person_pron = {}
+        for aid, analysis_dict in enumerate( morph_dict_list ):
+            # word index for the current analysis
+            current_word_id = morph_dict_word_ids[aid]
+            # group index for the current word
+            gr_index = group_indices[current_word_id]
+            
+            # Analyse word's group
+            if gr_index not in gr_2nd_person_pron:
+                # 1) Find out whether the current group (clause or sentence) contains "sina"
+                j = aid
+                gr_2nd_person_pron_found = False
+                words_passed = 0
+                last_word_id_2 = current_word_id
+                while j < len( morph_dict_list ):
+                    current_word_id_2 = morph_dict_word_ids[j]
+                    if last_word_id_2 != current_word_id_2:
+                        words_passed += 1
+                    if group_indices[current_word_id_2] == gr_index:
+                        forms  = [ morph_dict_list[j]['form'] ]
+                        lemmas = [ morph_dict_list[j]['root'] ]
+                        if 'sina' in lemmas and 'Sg Nom' in forms:
+                            gr_2nd_person_pron_found = True
+                            break
+                    if words_passed >= 10:  # do not venture too far ...
+                        break
+                    j += 1
+                    last_word_id_2 = current_word_id_2
+                gr_2nd_person_pron[gr_index] = gr_2nd_person_pron_found
+            
+            # Collect analysis of the current word 
+            cur_word_analyses_ids.append( aid )
+            
+            # Determine next word id 
+            next_word_id = \
+                morph_dict_word_ids[aid+1] if aid+1 < len(morph_dict_word_ids) else -1
+            
+            if next_word_id == -1 or current_word_id != next_word_id:
+                # We have last analysis or the next analysis belongs to a new word
+                # 2) Disambiguate verb forms based on existence of 'sina' in the word group
+                forms = [ morph_dict_list[cwaid]['form'] for cwaid in cur_word_analyses_ids ]
+                if ('Pers Prt Ind Pl3 Aff' in forms and 'Pers Prt Ind Sg2 Aff' in forms):
+                   if not gr_2nd_person_pron[ gr_index ]:
+                        # -sid , "sina" missing ==> 
+                        # keep 'Pers Prt Ind Pl3 Aff'
+                        # delete 'Pers Prt Ind Sg2 Aff'
+                        for cwaid in cur_word_analyses_ids:
+                            cur_word_analysis = morph_dict_list[cwaid]
+                            if cur_word_analysis['form'] == 'Pers Prt Ind Sg2 Aff':
+                                analyses_to_delete[cwaid] = True
+                   else:
+                        # -sid , "sina" exists ==> 
+                        # keep 'Pers Prt Ind Sg2 Aff'
+                        # delete 'Pers Prt Ind Pl3 Aff'
+                        for cwaid in cur_word_analyses_ids:
+                            cur_word_analysis = morph_dict_list[cwaid]
+                            if cur_word_analysis['form'] == 'Pers Prt Ind Pl3 Aff':
+                                analyses_to_delete[cwaid] = True
+                if ('Pers Prs Cond Pl3 Aff' in forms and 'Pers Prs Cond Sg2 Aff' in forms):
+                   if not gr_2nd_person_pron[ gr_index ]:
+                        # -ksid , "sina" missing ==> 
+                        # keep 'Pers Prs Cond Pl3 Aff'
+                        # delete 'Pers Prs Cond Sg2 Aff'
+                        for cwaid in cur_word_analyses_ids:
+                            cur_word_analysis = morph_dict_list[cwaid]
+                            if cur_word_analysis['form'] == 'Pers Prs Cond Sg2 Aff':
+                                analyses_to_delete[cwaid] = True
+                   else:
+                        # -ksid , "sina" exists ==> 
+                        # keep 'Pers Prs Cond Sg2 Aff'
+                        # delete 'Pers Prs Cond Pl3 Aff'
+                        for cwaid in cur_word_analyses_ids:
+                            cur_word_analysis = morph_dict_list[cwaid]
+                            if cur_word_analysis['form'] == 'Pers Prs Cond Pl3 Aff':
+                                analyses_to_delete[cwaid] = True
+                if ('Pers Prt Cond Pl3 Aff' in forms and 'Pers Prt Cond Sg2 Aff' in forms):
+                   if not gr_2nd_person_pron[ gr_index ]:
+                        # -nuksid , "sina" missing ==> 
+                        # keep 'Pers Prt Cond Pl3 Aff'
+                        # delete 'Pers Prt Cond Sg2 Aff'
+                        for cwaid in cur_word_analyses_ids:
+                            cur_word_analysis = morph_dict_list[cwaid]
+                            if cur_word_analysis['form'] == 'Pers Prt Cond Sg2 Aff':
+                                analyses_to_delete[cwaid] = True
+                   else:
+                        # -nuksid , "sina" exists ==> 
+                        # keep 'Pers Prt Cond Sg2 Aff'
+                        # delete 'Pers Prt Cond Pl3 Aff'
+                        for cwaid in cur_word_analyses_ids:
+                            cur_word_analysis = morph_dict_list[cwaid]
+                            if cur_word_analysis['form'] == 'Pers Prt Cond Pl3 Aff':
+                                analyses_to_delete[cwaid] = True
+                cur_word_analyses_ids = []
+
+        # 3) Finally, perform the deletion
+        if len(analyses_to_delete.keys()) > 0:
+            to_delete = list(analyses_to_delete.keys())
+            to_delete.reverse()
+            for aid in to_delete:
+                del morph_dict_list[aid]
+
+        return morph_dict_list
+
+    # =====================================
+    #  Clause/sentence indices for words
+    # =====================================
+
+    def _get_unique_word_group_indices( self, text:Text, layers, status: dict, \
+                                              word_group:str = 'clauses' ):
+        ''' Returns a list of word group indices that contains a group index  
+            for each word in the text.  A  group  index  tells which group a 
+            word belongs to.
+            Types of word groups: clauses, sentences;
+            Group indices are unique over the whole text. 
+        '''
+        assert word_group in [self._input_sentences_layer, self._input_clauses_layer], \
+               '(!) The word_group should be either {} or {}.'.format( \
+                        self._input_sentences_layer, self._input_clauses_layer )
+        # Add word group annotations (if missing)
+        if word_group not in layers:
+            # TODO: remove this and rely on resloving dependencies
+            text.tag_layer([word_group])
+        # Collect (unique) word group indices over the whole text
+        word_group_indices = []
+        word_spans  = layers[ self._input_words_layer ].span_list
+        group_spans = layers[ word_group ].span_list
+        word_span_id  = 0
+        #  Collect all words inside the group
+        while word_span_id < len(word_spans):
+            # Get word span
+            word_span = word_spans[word_span_id]
+            # Find group the word belongs to
+            group_span_id = 0
+            while group_span_id < len(group_spans):
+                group_span = group_spans[group_span_id]
+                if group_span.start <= word_span.start and \
+                   word_span.end <= group_span.end:
+                   # Record id of the group word belongs to
+                    word_group_indices.append( group_span_id )
+                    break
+                group_span_id += 1
+            word_span_id += 1
+        assert len(word_group_indices) == len(word_spans), \
+            '(!) Number of word group indices should match the number of words!'
+        return word_group_indices
+
+
+    # =========================================================================================
+    #    Finalize: convert analyses from dicts to Spans
+    # =========================================================================================
+
+    def _attach_annotations( self, text: Text, layers, status:dict, morph_dict_list:list, new_layer:Layer = None ):
+        '''Converts morphological analyses (in the list morph_dict_list) 
+           from dict format to (Ambiguous)Spans, and attaches spans to the 
+           new_layer.
+        '''
+        assert new_layer is not None
+        current_attributes = new_layer.attributes
+        morph_span_id = 0
+        # Iterate over (morph_analysis) words in Text
+        record_groupings = 0
+        for morph_word in layers[ self._input_morph_analysis_layer ]:
+            wstart = morph_word.start
+            wend   = morph_word.end
+            # Find all morphological analyses corresponding to the 
+            # current word
+            current_records = []
+            while( morph_span_id < len( morph_dict_list ) ):
+                morph_dict = morph_dict_list[morph_span_id]
+                if morph_dict['start'] == wstart and morph_dict['end'] == wend:
+                    current_records.append( morph_dict )
+                else:
+                    break
+                morph_span_id += 1
+            assert len(current_records) > 0, \
+                   '(!) Did not find any records corresponding to the morph_analysis_word at location {},{}'.format( wstart, wend )
+            for record in current_records:
+                # Check for emptiness of the record
+                empty_attributes = []
+                for attr in ESTNLTK_MORPH_ATTRIBUTES:
+                    empty_attributes.append( record[attr] is None or \
+                                             len(record[attr]) == 0 )
+                if empty_attributes.count(True) > len(empty_attributes)/2:
+                     # If most of the attributes have been set to '', 
+                     # then we have an empty record (unknown word)
+                     record = \
+                         _create_empty_morph_record( morph_word, \
+                                                     layer_attributes = current_attributes )
+                else:
+                     # The record corresponds to word with full analyses
+                     # Rewrite it: 
+                     #     leave out unnecessary attributes, and 
+                     #     fix its format
+                     rewritten_record = {}
+                     for attr in current_attributes:
+                         if attr in ['start', 'end', 'text', 'word_normal']:
+                             continue
+                         attr_value = record[attr] if attr in record else None
+                         if attr == 'root_tokens':
+                             # make it hashable for Span.__hash__
+                             rewritten_record[attr] = tuple(attr_value)
+                         else:
+                             rewritten_record[attr] = attr_value
+                     record = rewritten_record
+                # Finally, add annotation to the layer
+                new_layer.add_annotation( morph_word.span, **record )
+            record_groupings += 1
+        # Sanity check: all morph_analysis words should have been converted
+        assert record_groupings == len( layers[ self._input_morph_analysis_layer ].spans )
+        # Return the layer augmented with spans
+        return new_layer
 

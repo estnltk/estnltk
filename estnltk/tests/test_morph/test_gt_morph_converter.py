@@ -26,7 +26,7 @@ def test_gt_conversion_1_simple():
     
     # Case 1
     text = Text('Rändur võttis istet.')
-    text.tag_layer(['morph_analysis'])
+    text.tag_layer(['morph_analysis', 'clauses'])
     gt_converter.tag( text )
 
     # Assert that the new layer is created
@@ -44,7 +44,7 @@ def test_gt_conversion_1_simple():
 
     # Case 2
     text = Text('Rändur võttis seljakotist vilepilli ja tõstis huultele.')
-    text.tag_layer(['morph_analysis'])
+    text.tag_layer(['morph_analysis', 'clauses'])
     gt_converter.tag( text )
     
     # Assert content of the layer    
@@ -67,7 +67,7 @@ def test_gt_conversion_2_neg():
     
     # Case 1
     text = Text('Ärge peatuge: siin ei tohi kiirust vähendada!')
-    text.tag_layer(['morph_analysis'])
+    text.tag_layer(['morph_analysis', 'clauses'])
     gt_converter.tag( text )
 
     # Assert content of the layer
@@ -87,7 +87,7 @@ def test_gt_conversion_2_neg():
 
     # Case 2
     text = Text('Mine sa tea!')
-    text.tag_layer(['morph_analysis'])
+    text.tag_layer(['morph_analysis', 'clauses'])
     gt_converter.tag( text )
     
     # Assert content of the layer
@@ -106,7 +106,7 @@ def test_gt_conversion_3_ambiguous():
     
     # Case 1
     text = Text('Sellist asja ei olnud.')
-    text.tag_layer(['morph_analysis'])
+    text.tag_layer(['morph_analysis', 'clauses'])
     gt_converter.tag( text )
     
     # Assert content of the layer
@@ -129,7 +129,7 @@ def test_gt_conversion_3_sid_ksid():
     
     # Case 1 : -ksid
     text = Text('Oleksid Sa siin olnud, siis oleksid nad ära läinud.')
-    text.tag_layer(['morph_analysis'])
+    text.tag_layer(['morph_analysis', 'clauses'])
     gt_converter.tag( text )
     
     # Assert content of the layer
@@ -156,7 +156,7 @@ def test_gt_conversion_3_sid_ksid():
     
     # Case 2 : -sid
     text = Text('Sa läksid ära. Aga nemad tõttasid edasi, sind nad ei näinud.')
-    text.tag_layer(['morph_analysis'])
+    text.tag_layer(['morph_analysis', 'clauses'])
     gt_converter.tag( text )
     #print(text['gt_morph_analysis'].to_records())
     
@@ -187,7 +187,7 @@ def test_gt_conversion_4_empty():
     gt_converter = GTMorphConverter()
     
     text = Text('')
-    text.tag_layer(['morph_analysis'])
+    text.tag_layer(['morph_analysis', 'clauses'])
     gt_converter.tag( text )
     
     # Assert content of the layer
@@ -204,6 +204,7 @@ def test_gt_conversion_5_unknown_words():
     text = Text('Ma tahax minna järve ääde')
     text.tag_layer(['words','sentences'])
     analyzer.tag(text, guess=False, propername=False)
+    text.tag_layer(['clauses'])
     gt_converter.tag( text )
     #print(text['gt_morph_analysis'].to_records())
 
