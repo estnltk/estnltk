@@ -453,6 +453,7 @@ class PostMorphAnalysisTagger(Retagger):
             records = [ _span_to_records_excl(span, [IGNORE_ATTR]) for span in morph_spanlist ]
             
             # B.1) Apply correction-rewriter:
+            rewritten_recs = records
             if self.correction_rewriter:
                 # B.1.1) Add 'word_normal'
                 normalized_text = _get_word_text( word )
