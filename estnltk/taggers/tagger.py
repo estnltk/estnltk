@@ -49,7 +49,7 @@ class Tagger:
         try:
             layer = self._make_layer(text=text, layers=layers, status=status)
         except Exception as e:
-            e.args += ('Tagger: {!r}'.format(self.__class__.__name__),)
+            e.args += ('in the {!r}'.format(self.__class__.__name__),)
             raise
         assert layer.text_object is text, '{}._make_layer returned a layer with incorrect Text object'.format(
                                            self.__class__.__name__)

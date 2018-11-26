@@ -78,7 +78,7 @@ class GrammarParsingTagger(Tagger):
             if e.args[0] == 'this layer is not ambiguous and the span is already in the spanlist':
                 raise ValueError('there exists an ambiguous span among output nodes of the grammar, '
                                  'make the output layer ambiguous by setting output_ambiguous=True '
-                                 'or adjust grammar by changing scoring and priority parameters',
+                                 'or adjust grammar by changing priority, scoring and lhs parameters of rules',
                                  e.args[1])
             raise
         return layer
