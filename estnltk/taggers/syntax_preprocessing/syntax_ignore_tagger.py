@@ -1,7 +1,7 @@
 #
 #  Tags text snippets that should be ignored during the syntactic analysis.
 # 
-from estnltk.taggers import TaggerOld
+from estnltk.taggers import Tagger
 from estnltk.taggers import RegexTagger
 
 from estnltk import EnvelopingSpan, Layer
@@ -375,15 +375,42 @@ ignore_patterns = [
 
 
 # ===================================================================
+#   T h e   m a i n   c l a s s
+# ===================================================================
 
-class SyntaxIgnoreTagger(TaggerOld):
-    description = 'Tags text snippets that should be ignored during the syntactic analysis.'
-    layer_name  = 'syntax_ignore'
-    attributes  = ('type',)
-    depends_on  = ['words', 'sentences']
-    configuration = None
+class SyntaxIgnoreTagger( Tagger ):
+    """Tags text snippets that should be ignored during the syntactic analysis."""
+    output_layer      = 'syntax_ignore'
+    output_attributes = ('type',)
+    input_layers      = ['words', 'sentences']
+    conf_param = [ # Configuration flags:
+                   'allow_loose_match',
+                   'ignore_parenthesized_num',
+                   'ignore_parenthesized_num_greedy',
+                   'ignore_parenthesized_ref',
+                   'ignore_parenthesized_title_words',
+                   'ignore_parenthesized_short_char_sequences',
+                   'ignore_consecutive_parenthesized_sentences',
+                   'ignore_consecutive_enum_ucase_num_sentences',
+                   'ignore_sentences_consisting_of_numbers',
+                   'ignore_sentences_starting_with_time',
+                   'ignore_sentences_with_comma_separated_num_name_lists',
+                   'ignore_brackets',
+                   # Names of the specific input layers
+                   '_input_words_layer', '_input_sentences_layer',
+                   # Inner parameter(s)
+                   '_syntax_ignore_hints_tagger',
+                   # For backward compatibility:
+                   'depends_on', 'layer_name', 'attributes'
+                 ]
+    layer_name  = 'syntax_ignore'          # <- For backward compatibility ...
+    attributes  = ('type',)                # <- For backward compatibility ...
+    depends_on  = ['words', 'sentences']   # <- For backward compatibility ...
 
-    def __init__(self, allow_loose_match:bool = True,
+    def __init__(self, output_layer:str='syntax_ignore',
+                       input_words_layer:str='words',
+                       input_sentences_layer:str='sentences',
+                       allow_loose_match:bool = True,
                        ignore_parenthesized_num:bool = True,
                        ignore_parenthesized_num_greedy:bool = True,
                        ignore_parenthesized_ref:bool = True,
@@ -399,6 +426,15 @@ class SyntaxIgnoreTagger(TaggerOld):
         
         Parameters
         ----------
+        output_layer: str (default: 'syntax_ignore')
+            Name for the syntax_ignore layer;
+        
+        input_words_layer: str (default: 'words')
+            Name of the input words layer;
+
+        input_sentences_layer: str (default: 'sentences')
+            Name of the input sentences layer;
+        
         allow_loose_match: boolean (default: True)
             If True, then an ignore text snippet may consume words without 
             matching exactly with their boundaries (e.g. ignore snippet's start 
@@ -459,94 +495,98 @@ class SyntaxIgnoreTagger(TaggerOld):
             numbers ( like sport results, player/country listings, game scores 
             etc.) will be ignored.
         """
-        self.configuration = {'allow_loose_match': allow_loose_match,
-                              'ignore_parenthesized_num':ignore_parenthesized_num,
-                              'ignore_parenthesized_num_greedy': ignore_parenthesized_num_greedy,
-                              'ignore_parenthesized_ref':ignore_parenthesized_ref,
-                              'ignore_parenthesized_title_words':ignore_parenthesized_title_words,
-                              'ignore_parenthesized_short_char_sequences': ignore_parenthesized_short_char_sequences,
-                              'ignore_consecutive_parenthesized_sentences':ignore_consecutive_parenthesized_sentences,
-                              'ignore_consecutive_enum_ucase_num_sentences':ignore_consecutive_enum_ucase_num_sentences,
-                              'ignore_sentences_consisting_of_numbers':ignore_sentences_consisting_of_numbers,
-                              'ignore_sentences_starting_with_time':ignore_sentences_starting_with_time,
-                              'ignore_sentences_with_comma_separated_num_name_lists':ignore_sentences_with_comma_separated_num_name_lists,
-                              'ignore_brackets':ignore_brackets,
-        }
+        # Set input/output layer names
+        self.output_layer           = output_layer
+        self.output_attributes      = ('type',)
+        self._input_words_layer     = input_words_layer
+        self._input_sentences_layer = input_sentences_layer
+        self.input_layers           = [input_words_layer, input_sentences_layer]
+        self.layer_name = self.output_layer  # <- For backward compatibility ...
+        self.depends_on = self.input_layers  # <- For backward compatibility ...
+        # Set configuration flags
+        self.allow_loose_match = allow_loose_match
+        self.ignore_parenthesized_num=ignore_parenthesized_num
+        self.ignore_parenthesized_num_greedy=ignore_parenthesized_num_greedy
+        self.ignore_parenthesized_ref=ignore_parenthesized_ref
+        self.ignore_parenthesized_title_words=ignore_parenthesized_title_words
+        self.ignore_parenthesized_short_char_sequences=ignore_parenthesized_short_char_sequences
+        self.ignore_consecutive_parenthesized_sentences=ignore_consecutive_parenthesized_sentences
+        self.ignore_consecutive_enum_ucase_num_sentences=ignore_consecutive_enum_ucase_num_sentences
+        self.ignore_sentences_consisting_of_numbers=ignore_sentences_consisting_of_numbers
+        self.ignore_sentences_starting_with_time=ignore_sentences_starting_with_time
+        self.ignore_sentences_with_comma_separated_num_name_lists=ignore_sentences_with_comma_separated_num_name_lists
+        self.ignore_brackets=ignore_brackets
         # Populate vocabulary according to given settings
         patterns = []
         for ignore_pat in ignore_patterns:
             if ignore_pat['type'].startswith('parentheses_num') and \
                ignore_pat['type'].endswith('uncategorized'):
                 # Allow/disallow greedy filtering of parentheses that contain numbers
-                if ignore_parenthesized_num_greedy:
+                if self.ignore_parenthesized_num_greedy:
                     patterns.append( ignore_pat )
             elif (ignore_pat['type'] in ['parentheses_num_word', \
                   'parentheses_num_comma_word', 'parentheses_num_range', \
                   'parentheses_datetime', 'parentheses_num']):
-                if ignore_parenthesized_num:
+                if self.ignore_parenthesized_num:
                     patterns.append( ignore_pat )
             elif ignore_pat['type'].startswith('parentheses_ref'):
-                if ignore_parenthesized_ref:
+                if self.ignore_parenthesized_ref:
                     patterns.append( ignore_pat )
             elif ignore_pat['type'].startswith('brackets'):
-                if ignore_brackets:
+                if self.ignore_brackets:
                     patterns.append( ignore_pat )
             elif (ignore_pat['type'] in ['parentheses_1to3', \
                   'parentheses_1to4', 'parentheses_birdeah_year', \
                   'parentheses_ucase_number_seq']):
-                if ignore_parenthesized_short_char_sequences:
+                if self.ignore_parenthesized_short_char_sequences:
                     patterns.append( ignore_pat )
             elif ignore_pat['type'].startswith('parentheses_title_words'):
-                if ignore_parenthesized_title_words:
+                if self.ignore_parenthesized_title_words:
                     patterns.append( ignore_pat )
             else:
                 patterns.append( ignore_pat )
         # Create a new tagger
-        self._syntax_ignore_tagger = RegexTagger(vocabulary=patterns,
+        self._syntax_ignore_hints_tagger = RegexTagger(vocabulary=patterns,
                                                  output_attributes=['_priority_', 'type'],
                                                  conflict_resolving_strategy="MAX",
                                                  overlapped=False,
                                                  output_layer='syntax_ignore_hints',
                                                  )
 
-    def tag(self, text: 'Text', return_layer=False) -> 'Text':
-        """Tags 'syntax_ignore' layer.
 
-        Note: exact configuration of the tagging depends on 
-        the initialization parameters of the class.
-
+    def _make_layer(self, text: 'Text', layers, status: dict):
+        """Creates words layer.
+        
         Parameters
         ----------
-        text: estnltk.text.Text
-            Text object that is to be tagged. The Text object 
-            must have layers 'words', 'sentences'.
-        return_layer: boolean (default: False)
-            If True, then the new layer is returned; otherwise 
-            the new layer is attached to the Text object, and 
-            the Text object is returned;
-
-        Returns
-        -------
-        Text or Layer
-            If return_layer==True, then returns the new layer, 
-            otherwise attaches the new layer to the Text object 
-            and returns the Text object;
+        text: Text
+           Text object corresponding to the original text 
+           which will be tagged;
+          
+        layers: MutableMapping[str, Layer]
+           Layers of the raw_text. Contains mappings from the 
+           name of the layer to the Layer object. Must contain
+           the words and sentences layers.
+          
+        status: dict
+           This can be used to store metadata on layer tagging.
         """
         # A) Apply RegexTagger to find text snippets that should be ignored
         conflict_status = {}
-        new_layer = self._syntax_ignore_tagger.make_layer(text=text,
-                                                          layers=text.layers,
-                                                          status=conflict_status)
+        hints_layer = self._syntax_ignore_hints_tagger.make_layer(text=text,
+                                                                  layers=layers,
+                                                                  status=conflict_status)
+        words = layers[ self._input_words_layer ]
         # Create an alignment between words and spans
         wid = 0
         ignored_words_spans = []
-        for sp in new_layer.span_list:
+        for sp in hints_layer:
             # Find words that fall within the span
             words_start = -1
             words_end   = -1
             current_wid = wid
-            while current_wid < len(text.words):
-                word = text.words[current_wid]
+            while current_wid < len(words):
+                word = words[current_wid]
                 # Exact match
                 if word.start == sp.start:
                     words_start = current_wid
@@ -555,7 +595,7 @@ class SyntaxIgnoreTagger(TaggerOld):
                 if words_start != -1 and words_end != -1:
                     break
                 # Loose match (if allowed)
-                if self.configuration['allow_loose_match']:
+                if self.allow_loose_match:
                     if word.start <= sp.start and sp.start <= word.end:
                         words_start = current_wid
                     if word.start <= sp.end and sp.end <= word.end:
@@ -565,61 +605,57 @@ class SyntaxIgnoreTagger(TaggerOld):
                 current_wid += 1
             if words_start != -1 and words_end != -1:
                 # Record ignored words
-                spans = text.words[words_start:words_end+1]
+                spans = words[words_start:words_end+1]
                 new_spanlist = EnvelopingSpan(spans=spans)
                 new_spanlist.type = sp.type
                 ignored_words_spans.append( new_spanlist )
                 #print('*',text.text[sp.start:sp.end], sp.start, sp.end)
-                #print(text.words[words_start].start, text.words[words_end].end, new_spanlist.spans)
+                #print(words[words_start].start, words[words_end].end, new_spanlist.spans)
                 # Advance in text
                 wid = current_wid + 1
 
         # B) Add consecutive sentences containing ignored content 
         #        in parentheses and/or less than 3 lc words
-        if self.configuration['ignore_consecutive_parenthesized_sentences']:
+        if self.ignore_consecutive_parenthesized_sentences:
             ignored_words_spans = \
-                self._add_ignore_consecutive_parenthesized_sentences(text,ignored_words_spans)
+                self._add_ignore_consecutive_parenthesized_sentences(text,layers,ignored_words_spans)
         
         # C) Add sentences that start with time (e.g. a time schedule of a TV program)
-        if self.configuration['ignore_sentences_starting_with_time']:
+        if self.ignore_sentences_starting_with_time:
             ignored_words_spans = \
-                self._add_ignore_sentences_starting_with_time(text,ignored_words_spans)
+                self._add_ignore_sentences_starting_with_time(text,layers,ignored_words_spans)
 
         # D) Add sentences starting with an uppercase letter (or an ordinal number followed by 
         #        an uppercase letter), containing otherwise less than 3 lowercase words, and 
         #        forming lists of at least 4 consecutive sentences;
-        if self.configuration['ignore_consecutive_enum_ucase_num_sentences']:
+        if self.ignore_consecutive_enum_ucase_num_sentences:
             ignored_words_spans = \
-                self._add_ignore_consecutive_enum_ucase_sentences(text,ignored_words_spans)
+                self._add_ignore_consecutive_enum_ucase_sentences(text,layers,ignored_words_spans)
 
         # E) Add ignore sentences that consist of numbers only
-        if self.configuration['ignore_sentences_consisting_of_numbers']:
+        if self.ignore_sentences_consisting_of_numbers:
             ignored_words_spans = \
-                self._add_ignore_sentences_consisting_of_numbers(text,ignored_words_spans)
+                self._add_ignore_sentences_consisting_of_numbers(text,layers,ignored_words_spans)
         
         # F) Add ignore sentences that contain comma separated list of titlecase words /
         #        numbers (like sport results, player/country listings, game scores etc.)
-        if self.configuration['ignore_sentences_with_comma_separated_num_name_lists']:
+        if self.ignore_sentences_with_comma_separated_num_name_lists:
             ignored_words_spans = \
-                self._add_ignore_comma_separated_num_name_list_sentences(text,ignored_words_spans)
+                self._add_ignore_comma_separated_num_name_list_sentences(text,layers,ignored_words_spans)
         
         # Finally: create a new layer and add spans to the layer
-        layer = Layer(name=self.layer_name,
-                      enveloping='words',
-                      attributes=self.attributes,
+        layer = Layer(name=self.output_layer,
+                      enveloping=self._input_words_layer,
+                      attributes=self.output_attributes,
+                      text_object=text,
                       ambiguous=False)
         for span in ignored_words_spans:
             layer.add_span(span)
-
-        if return_layer:
-            return layer
-        text[self.layer_name] = layer
-        return text
-
+        return layer
 
 
     def _add_ignore_consecutive_parenthesized_sentences( 
-                self, text: 'Text', ignored_words_spans:list ) -> list:
+                self, text: 'Text', layers, ignored_words_spans:list ) -> list:
         """ First, detects consecutive sentences that:
             *) contain parenthesized ignore content (content from 
                ignored_words_spans) and,
@@ -634,7 +670,7 @@ class SyntaxIgnoreTagger(TaggerOld):
         #         in parentheses and/or less than 3 lc words
         # 1) Collect candidates for ignored sentences
         ignored_sentence_candidates = []
-        for sent_id, sentence_span in enumerate( text['sentences'].span_list ):
+        for sent_id, sentence_span in enumerate( layers[ self._input_sentences_layer ] ):
             ignored_words = []
             # collect ignored words inside sentences
             if ignored_words_spans:
@@ -722,14 +758,14 @@ class SyntaxIgnoreTagger(TaggerOld):
 
 
     def _add_ignore_sentences_consisting_of_numbers( 
-                self, text: 'Text', ignored_words_spans:list ) -> list:
+                self, text: 'Text', layers, ignored_words_spans:list ) -> list:
         """  Detects sentences that contain number or numbers, no letters
              and do not end with '?' nor '!', and marks such sentences as 
              ignore sentences (if they have note been marked already).
              Returns ignored_words_spans which is extended with new ignore 
              sentences;
         """
-        for sent_id, sentence_span in enumerate( text['sentences'].span_list):
+        for sent_id, sentence_span in enumerate( layers[ self._input_sentences_layer ] ):
             sentence_text   = sentence_span.enclosing_text
             contains_number = bool(_contains_number_compiled.search( sentence_text ))
             contains_letter = bool(_contains_letter_compiled.search( sentence_text ))
@@ -760,7 +796,7 @@ class SyntaxIgnoreTagger(TaggerOld):
 
 
     def _add_ignore_sentences_starting_with_time( 
-                self, text: 'Text', ignored_words_spans:list ) -> list:
+                self, text: 'Text', layers, ignored_words_spans:list ) -> list:
         """  Detects sentences that start with a clock time, followed
              by a symbol that is not a lowercase letter. 
              Such sentences likely represent a part of a time schedule,
@@ -768,7 +804,7 @@ class SyntaxIgnoreTagger(TaggerOld):
              Returns ignored_words_spans which is extended with new ignore 
              sentences;
         """
-        for sent_id, sentence_span in enumerate( text['sentences'].span_list):
+        for sent_id, sentence_span in enumerate( layers[ self._input_sentences_layer ] ):
             sentence_text = sentence_span.enclosing_text
             if _clock_time_start_compiled.match( sentence_text ):
                 # If the sentence begins with a clock time, it is likely 
@@ -807,7 +843,7 @@ class SyntaxIgnoreTagger(TaggerOld):
 
 
     def _add_ignore_consecutive_enum_ucase_sentences( 
-                self, text: 'Text', ignored_words_spans:list ) -> list:
+                self, text: 'Text', layers, ignored_words_spans:list ) -> list:
         """ Detects sentences that:
              1) start with an uppercase letter, or an ordinal number 
                followed by an uppercase letter, or an ordinal number;
@@ -825,7 +861,7 @@ class SyntaxIgnoreTagger(TaggerOld):
         """
         # 1) Collect candidates for ignored sentences
         ignored_sentence_candidates = []
-        for sent_id, sentence_span in enumerate( text['sentences'].span_list):
+        for sent_id, sentence_span in enumerate( layers[ self._input_sentences_layer ] ):
             ignored_words = []
             # check if the sentence does not contain 3 consecutive lc words
             sentence_text = sentence_span.enclosing_text
@@ -913,7 +949,7 @@ class SyntaxIgnoreTagger(TaggerOld):
 
 
     def _add_ignore_comma_separated_num_name_list_sentences( 
-                self, text: 'Text', ignored_words_spans:list ) -> list:
+                self, text: 'Text', layers, ignored_words_spans:list ) -> list:
         """ Detects sentences that:
             Contain less than 3 consecutive lowercase words, and 
                1.1) Start with up to three words and colon, or 
@@ -934,7 +970,7 @@ class SyntaxIgnoreTagger(TaggerOld):
         """
         # 1) Collect candidates for ignored sentences
         ignored_sentence_candidates = []
-        for sent_id, sentence_span in enumerate( text['sentences'].span_list):
+        for sent_id, sentence_span in enumerate( layers[ self._input_sentences_layer ] ):
             ignored_words = []
             # check if the sentence has required properties
             sentence_text = sentence_span.enclosing_text

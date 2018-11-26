@@ -63,7 +63,7 @@ def test_ignore_content_in_parentheses_1():
         syntax_ignore_tagger.tag( text )
         # Collect results 
         ignored_texts = \
-            [span.enclosing_text for span in text['syntax_ignore'].span_list]
+            [span.enclosing_text for span in text['syntax_ignore']]
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
@@ -91,7 +91,7 @@ def test_ignore_content_in_parentheses_1_1():
         syntax_ignore_tagger.tag( text )
         # Collect results 
         ignored_texts = \
-            [span.enclosing_text for span in text['syntax_ignore'].span_list]
+            [span.enclosing_text for span in text['syntax_ignore']]
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
@@ -196,7 +196,7 @@ def test_ignore_content_in_parentheses_2():
         syntax_ignore_tagger.tag( text )
         # Collect results 
         ignored_texts = \
-            [span.enclosing_text for span in text['syntax_ignore'].span_list]
+            [span.enclosing_text for span in text['syntax_ignore']]
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
@@ -245,7 +245,7 @@ def test_ignore_consecutive_sentences_with_parentheses():
         syntax_ignore_tagger.tag( text )
         # Collect results 
         ignored_texts = \
-            [span.enclosing_text for span in text['syntax_ignore'].span_list]
+            [span.enclosing_text for span in text['syntax_ignore']]
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
@@ -344,7 +344,7 @@ def test_ignore_consecutive_enum_name_num_sentences():
         syntax_ignore_tagger.tag( text )
         # Collect results 
         ignored_texts = \
-            [span.enclosing_text for span in text['syntax_ignore'].span_list]
+            [span.enclosing_text for span in text['syntax_ignore']]
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
@@ -382,7 +382,7 @@ def test_ignore_sentences_starting_with_time_schedule():
         syntax_ignore_tagger.tag( text )
         # Collect results 
         ignored_texts = \
-            [span.enclosing_text for span in text['syntax_ignore'].span_list]
+            [span.enclosing_text for span in text['syntax_ignore']]
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
@@ -434,7 +434,7 @@ def test_ignore_sentences_with_comma_separated_name_num_lists():
         syntax_ignore_tagger.tag( text )
         # Collect results 
         ignored_texts = \
-            [span.enclosing_text for span in text['syntax_ignore'].span_list]
+            [span.enclosing_text for span in text['syntax_ignore']]
         #print(ignored_texts)
         # Check results
         assert ignored_texts == test_text['expected_ignore_texts']
