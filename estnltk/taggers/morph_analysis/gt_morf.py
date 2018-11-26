@@ -271,8 +271,6 @@ class GTMorphConverter( Tagger ):
             disambiguate_sid_ksid : bool
                 Whether the conversion is followed by disambiguation of verb 
                 categories 'Pers Prt Ind Pl3 Aff' and 'Pers Prt Ind Sg2 Aff';
-                Note: if clause annotations are missing and this flag is switched
-                on, then clause annotations will be automatically added;
                 Default: True;
         '''
         # Set input/output layer names
@@ -518,9 +516,6 @@ class GTMorphConverter( Tagger ):
                                      scope:str='clauses' ):
         ''' Disambiguates verb forms based on existence of 2nd person pronoun ('sina') 
             in given scope. The scope could be either 'clauses' or 'sentences'.
-            
-            Note: if clauses or sentences layers are missing, adds these layers 
-                  automatically;
         '''
         assert scope in ['clauses', 'sentences'], \
                '(!) The scope should be either "clauses" or "sentences".'
@@ -667,10 +662,7 @@ class GTMorphConverter( Tagger ):
         assert word_group in [self._input_sentences_layer, self._input_clauses_layer], \
                '(!) The word_group should be either {} or {}.'.format( \
                         self._input_sentences_layer, self._input_clauses_layer )
-        # Add word group annotations (if missing)
-        if word_group not in layers:
-            # TODO: remove this and rely on resloving dependencies
-            text.tag_layer([word_group])
+        assert word_group in layers
         # Collect (unique) word group indices over the whole text
         word_group_indices = []
         word_spans  = layers[ self._input_words_layer ].span_list
@@ -741,7 +733,7 @@ class GTMorphConverter( Tagger ):
                      # The record corresponds to word with full analyses
                      # Rewrite it: 
                      #     leave out unnecessary attributes, and 
-                     #     fix its format
+                     #     fix format of root_tokens
                      rewritten_record = {}
                      for attr in current_attributes:
                          if attr in ['start', 'end', 'text', 'word_normal']:
