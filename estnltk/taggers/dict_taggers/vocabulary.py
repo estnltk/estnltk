@@ -215,8 +215,12 @@ class Vocabulary:
             rec = {}
             for k in string_attributes:
                 rec[k] = str(record[k])
-            for k in callable_attributes:
-                rec[k] = eval(record[k])
+            try:
+                for k in callable_attributes:
+                    rec[k] = eval(record[k])
+            except SyntaxError as e:
+                e.msg += ": can't eval value {!r} from the callable vocabulary column {!r}".format(record[k], k)
+                raise
             for k in regex_attributes:
                 rec[k] = re.compile(record[k])
             records.append(rec)
