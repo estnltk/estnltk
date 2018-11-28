@@ -1,4 +1,3 @@
-from pandas import DataFrame
 from typing import Sequence, Union
 
 from estnltk.taggers import Tagger
@@ -26,6 +25,7 @@ class RegexTagger(Tagger):
 
     def __init__(self,
                  vocabulary: Union[str, dict, list, Vocabulary],
+                 vocabulary_key='_regex_pattern_',
                  output_layer: str = 'regexes',
                  output_attributes: Sequence = None,
                  conflict_resolving_strategy: str = 'MAX',
@@ -71,14 +71,16 @@ class RegexTagger(Tagger):
                                                    input_layer=self.output_layer,
                                                    output_attributes=self.output_attributes,
                                                    decorator=decorator)
-        if isinstance(vocabulary, Vocabulary):
-            self.vocabulary = vocabulary
-        else:
-            self.vocabulary = Vocabulary(vocabulary=vocabulary,
-                                         key='_regex_pattern_',
-                                         regex_attributes=['_regex_pattern_'],
-                                         default_rec={'_group_': 0, '_validator_': lambda s: True}
-                                         )
+
+        def default_validator(s):
+            return True
+
+        vocabulary = Vocabulary.parse(vocabulary=vocabulary,
+                                      key=vocabulary_key,
+                                      attributes=('_regex_pattern_', '_group_', '_validator_', *self.output_attributes),
+                                      default_rec={'_group_': 0, '_validator_': default_validator})
+        self.vocabulary = vocabulary.to_regex()
+
         self.overlapped = overlapped
         if conflict_resolving_strategy not in ['ALL', 'MIN', 'MAX']:
             raise ValueError("Unknown conflict_resolving_strategy '%s'." % conflict_resolving_strategy)

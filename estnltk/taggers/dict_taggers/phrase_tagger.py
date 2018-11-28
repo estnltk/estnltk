@@ -17,7 +17,7 @@ class PhraseTagger(Tagger):
                  key: str=None,
                  output_attributes: Sequence=None,
                  global_validator: callable=None,
-                 validator_attribute: str='_validator_',
+                 validator_attribute: str = None,
                  decorator=None,
                  conflict_resolving_strategy: str='MAX',
                  priority_attribute: str=None,
@@ -75,11 +75,11 @@ class PhraseTagger(Tagger):
 
         self.output_ambiguous = output_ambiguous
 
-        self.vocabulary = Vocabulary(vocabulary=vocabulary,
-                                     key=key,
-                                     default_rec={self.validator_attribute: default_validator})
+        self.vocabulary = Vocabulary.parse(vocabulary=vocabulary,
+                                           key=key,
+                                           default_rec={self.validator_attribute: default_validator})
         if not case_sensitive:
-            self.vocabulary.to_lower()
+            self.vocabulary = self.vocabulary.to_lower()
 
         assert key is None or key == self.vocabulary.key,\
             'mismatching key and vocabulary.key: {}!={}'.format(key, self.vocabulary.key)
@@ -110,6 +110,7 @@ class PhraseTagger(Tagger):
             ambiguous=self.output_ambiguous)
         heads = self._heads
         value_list = getattr(input_layer, self.input_attribute)
+        validator_attribute = self.validator_attribute
         if input_layer.ambiguous:
             if not self.case_sensitive:
                 value_list = [{k.lower() for k in v} for v in value_list]
@@ -124,10 +125,12 @@ class PhraseTagger(Tagger):
                                         match = False
                                         break
                                 if match:
-                                    phrase = (value,) + tail
+                                    phrase = (value, *tail)
                                     for record in self.vocabulary[phrase]:
                                         span = EnvelopingSpan(spans=input_layer[i:i + len(tail) + 1].spans)
-                                        if self.global_validator(span, raw_text) and record[self.validator_attribute](span, raw_text):
+                                        if not self.global_validator(span, raw_text):
+                                            continue
+                                        if validator_attribute is None or record[validator_attribute](span, raw_text):
                                             rec = {**record, **self.decorator(span, raw_text)}
                                             for attr in self.output_attributes:
                                                 attr_value = rec[attr]
@@ -153,7 +156,9 @@ class PhraseTagger(Tagger):
                                 for record in self.vocabulary[phrase]:
                                     spans = input_layer.span_list[i:i + len(tail) + 1]
                                     span = EnvelopingSpan(spans=spans)
-                                    if self.global_validator(span, raw_text) and record[self.validator_attribute](self, raw_text):
+                                    if not self.global_validator(span, raw_text):
+                                        continue
+                                    if validator_attribute is None or record[validator_attribute](self, raw_text):
                                         rec = {**record, **self.decorator(span, raw_text)}
                                         for attr in self.output_attributes:
                                             attr_value = rec[attr]

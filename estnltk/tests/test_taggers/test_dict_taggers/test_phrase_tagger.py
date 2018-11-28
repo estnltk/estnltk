@@ -21,7 +21,7 @@ def test_basic():
                           key='_phrase_',
                           output_attributes=['number', 'letter', '_priority_', 'attr_1', 'attr_2'],
                           global_validator=None,
-                          validator_attribute='_validator_',
+                          validator_attribute=None,
                           decorator=decorator,
                           conflict_resolving_strategy='ALL',
                           priority_attribute='_priority_',

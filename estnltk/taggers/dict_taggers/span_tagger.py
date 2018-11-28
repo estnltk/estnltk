@@ -18,7 +18,7 @@ class SpanTagger(Tagger):
                  key: str = '_token_',
                  output_attributes: Sequence[str] = (),
                  global_validator: callable = None,
-                 validator_attribute: str = '_validator_',
+                 validator_attribute: str = None,
                  priority_attribute: str = None,
                  ambiguous: bool = False
                  ):
@@ -68,10 +68,11 @@ class SpanTagger(Tagger):
         if isinstance(vocabulary, Vocabulary):
             self._vocabulary = vocabulary
         else:
-            self._vocabulary = Vocabulary(vocabulary=vocabulary,
-                                          key=key,
-                                          default_rec={self.validator_attribute: default_validator}
-                                          )
+            self._vocabulary = Vocabulary.parse(vocabulary=vocabulary,
+                                                key=key,
+                                                attributes=self.output_attributes,
+                                                default_rec={self.validator_attribute: default_validator}
+                                                )
         if not self.ambiguous:
             assert all(len(values) == 1 for values in self._vocabulary.values()),\
                 'ambiguous==False but vocabulary contains ambiguous keywords: '\
@@ -99,8 +100,9 @@ class SpanTagger(Tagger):
                             span = Span(parent=parent_span, legal_attributes=self.output_attributes)
                             for attr in self.output_attributes:
                                 setattr(span, attr, rec[attr])
-                            if self.global_validator(raw_text, span) and rec[validator_key](raw_text, span):
-                                layer.add_span(span)
+                            if self.global_validator(raw_text, span):
+                                if validator_key is None or rec[validator_key](raw_text, span):
+                                    layer.add_span(span)
         else:
             for parent_span in input_layer:
                 value = getattr(parent_span, input_attribute)
@@ -109,8 +111,9 @@ class SpanTagger(Tagger):
                         span = Span(parent=parent_span, legal_attributes=self.output_attributes)
                         for attr in self.output_attributes:
                             setattr(span, attr, rec[attr])
-                        if self.global_validator(raw_text, span) and rec[validator_key](raw_text, span):
-                            layer.add_span(span)
+                        if self.global_validator(raw_text, span):
+                            if validator_key is None or rec[validator_key](raw_text, span):
+                                layer.add_span(span)
 
         resolve_conflicts(layer,
                           conflict_resolving_strategy='ALL',
