@@ -146,6 +146,14 @@ class Vocabulary:
     def from_records(records: Sequence[dict], key: str, attributes: Sequence[str],
                      default_rec: dict=None) -> 'Vocabulary':
 
+        if attributes is None:
+            for record in records:
+                if attributes is None:
+                    attributes = set(record)
+                attributes &= set(record)
+            assert key in attributes, (key, attributes)
+            attributes = (key, *sorted(attributes - {key}))
+
         attribute_set = set(attributes)
 
         default_rec = default_rec or {}

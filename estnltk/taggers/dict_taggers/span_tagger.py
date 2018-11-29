@@ -20,7 +20,8 @@ class SpanTagger(Tagger):
                  global_validator: callable = None,
                  validator_attribute: str = None,
                  priority_attribute: str = None,
-                 ambiguous: bool = False
+                 ambiguous: bool = False,
+                 case_sensitive=True
                  ):
         """Initialize a new TokenListTagger instance.
 
@@ -48,7 +49,7 @@ class SpanTagger(Tagger):
             Whether the output layer should be ambiguous or not.
         """
         self.conf_param = ('input_attribute', '_vocabulary', 'global_validator', 'validator_attribute',
-                           'priority_attribute', 'ambiguous')
+                           'priority_attribute', 'ambiguous', 'case_sensitive')
         self.priority_attribute = priority_attribute
         self.output_layer = output_layer
         self.input_attribute = input_attribute
@@ -73,6 +74,10 @@ class SpanTagger(Tagger):
                                                 attributes=self.output_attributes,
                                                 default_rec={self.validator_attribute: default_validator}
                                                 )
+        self.case_sensitive = case_sensitive
+        if not self.case_sensitive:
+            self._vocabulary = self._vocabulary.to_lower()
+
         if not self.ambiguous:
             assert all(len(values) == 1 for values in self._vocabulary.values()),\
                 'ambiguous==False but vocabulary contains ambiguous keywords: '\
@@ -91,9 +96,13 @@ class SpanTagger(Tagger):
         input_attribute = self.input_attribute
         validator_key = self.validator_attribute
 
+        case_sensitive = self.case_sensitive
         if input_layer.ambiguous:
             for parent_span in input_layer:
-                values = set(getattr(parent_span, input_attribute))
+                if case_sensitive:
+                    values = set(getattr(parent_span, input_attribute))
+                else:
+                    values = {v.lower() for v in getattr(parent_span, input_attribute)}
                 for value in values:
                     if value in vocabulary:
                         for rec in vocabulary[value]:
@@ -106,6 +115,8 @@ class SpanTagger(Tagger):
         else:
             for parent_span in input_layer:
                 value = getattr(parent_span, input_attribute)
+                if not case_sensitive:
+                    value = value.lower()
                 if value in vocabulary:
                     for rec in vocabulary[value]:
                         span = Span(parent=parent_span, legal_attributes=self.output_attributes)

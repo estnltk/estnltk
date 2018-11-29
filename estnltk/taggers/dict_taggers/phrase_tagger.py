@@ -77,7 +77,10 @@ class PhraseTagger(Tagger):
 
         self.vocabulary = Vocabulary.parse(vocabulary=vocabulary,
                                            key=key,
-                                           default_rec={self.validator_attribute: default_validator})
+                                           default_rec={self.validator_attribute: default_validator}
+                                           )
+
+        self.case_sensitive = case_sensitive
         if not case_sensitive:
             self.vocabulary = self.vocabulary.to_lower()
 
@@ -96,8 +99,6 @@ class PhraseTagger(Tagger):
         self._heads = defaultdict(list)
         for phrase in self.vocabulary:
             self._heads[phrase[0]].append(phrase[1:])
-
-        self.case_sensitive = case_sensitive
 
     def _make_layer(self, text, layers: dict, status: dict):
         raw_text = text.text
