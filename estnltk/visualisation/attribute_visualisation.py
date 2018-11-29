@@ -12,11 +12,13 @@ class DisplayAttributes:
         display_html(self.html_output(layer), raw=True)
 
     def html_output(self, layer):
-        segments = decompose_to_elementary_spans(layer)
+        segments = decompose_to_elementary_spans(layer, layer.text_object.text)
 
         outputs = []
         for segment in segments:
             outputs.append(self.span_decorator(segment))
 
         print(outputs)
+        self.span_decorator.css_added=False
+        self.span_decorator.js_added=False
         return "".join(outputs)

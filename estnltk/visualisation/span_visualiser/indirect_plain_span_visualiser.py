@@ -5,17 +5,24 @@ from estnltk.core import rel_path
 
 class IndirectPlainSpanVisualiser(SpanDecorator):
 
+    js_added = False
+
     def __init__(self, id_mapping=None, class_mapping=None, css_file=rel_path("visualisation/prettyprinter.css"),
-                 fill_empty_spans=False, css_added=False):
+                 fill_empty_spans=False, css_added=False, js_file=rel_path("visualisation/new_prettyprinter.js")):
         self.id_mapping = id_mapping
         self.class_mapping = class_mapping
         self.css_file = css_file
         self.fill_empty_spans = fill_empty_spans
         self.css_added = css_added
+        self.js_file = js_file
     
     def __call__(self, segment):
 
         output = ''
+
+        if not self.js_added:
+            output += self.js()
+            self.js_added = True
 
         if not self.css_added:
             output += self.css()
@@ -27,6 +34,10 @@ class IndirectPlainSpanVisualiser(SpanDecorator):
         else:
             # There is a span to decorate
             output += '<span'
+            rows = []
+            for row in segment[1]:
+                rows.append(row.text)
+            output += ' span_info='+','.join(rows)#text of spans for javascript
             if self.id_mapping is not None:
                 output += ' id=' + self.id_mapping(segment)+" "
             if self.class_mapping is not None:
@@ -50,4 +61,10 @@ class IndirectPlainSpanVisualiser(SpanDecorator):
         with open(self.css_file) as css_file:
             contents = css_file.read()
             output = ''.join(["<style>\n", contents, "</style>"])
+        return output
+
+    def js(self):
+        with open(self.js_file) as js_file:
+            contents = js_file.read()
+            output = ''.join(["<script>\n", contents, "</script>"])
         return output

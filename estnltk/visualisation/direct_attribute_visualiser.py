@@ -52,8 +52,10 @@ class DirectAttributeVisualiser(SpanDecorator):
                 output += 'font-size:'+ self.size_mapping(segment)+";"
             if self.tracking_mapping is not None:
                 output += 'letter-spacing:'+ self.tracking_mapping(segment)+";"
-            output += "onclick=visualise()"
-            output += '>'
+            output += "onclick=visualise(this,"
+            print(segment[1])
+            output += segment[1][0]
+            output += ")>"
             output += segment[0]
             output += '</span>'
 

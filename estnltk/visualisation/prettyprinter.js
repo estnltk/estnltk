@@ -91,15 +91,15 @@ function table{0} (data, position, position_top, html_span, index) {{
   }}
 }}
 
-function visualise{0} (data, index, indexes, span, texts) {{
-  var span_already_exists = span.getAttribute('span_exists')
-  var span_position = span.getBoundingClientRect()
-  var classList = span.classList
-  let mainText = document.getElementsByClassName('maintext{0}')[0]
-  let textposition = mainText.getBoundingClientRect().left
-  let textposition_top = mainText.getBoundingClientRect().top
-  let position = span_position.left - textposition
-  let position_top = span_position.top - textposition_top
+function visualise (data, index, indexes, span, texts) {{
+  var span_already_exists = false;
+  var span_position = span.getBoundingClientRect();
+  var classList = span.classList;
+  //let mainText = document.getElementsByClassName('maintext{0}')[0];
+  //let textposition = mainText.getBoundingClientRect().left;
+  //let textposition_top = mainText.getBoundingClientRect().top;
+  //let position = span_position.left - textposition;
+  //let position_top = span_position.top - textposition_top;
   if (!span_already_exists) {{
     if (classList.contains('overlapping-span')) {{
       intermediate_table{0}(indexes, position, data, position_top, span, index, texts)

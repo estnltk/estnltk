@@ -1,4 +1,5 @@
 class SpanDecorator:
+    default_conf_colour = "red"
     def default_bg_mapping(self, segment):
         if len(segment[1]) > 1:
             return self.default_conf_colour
