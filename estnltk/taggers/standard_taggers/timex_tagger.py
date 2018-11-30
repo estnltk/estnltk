@@ -386,11 +386,18 @@ class TimexTagger(TaggerOld):
         result_vm_str  = \
             self._java_process.process_line(text_vm_json)
         result_vm_json = json.loads( result_vm_str )
-        # Sanity check: the number of words in the output must match 
-        # the number of words in the input;
+        # Sanity check: 'sentences' and 'words' must be available in the 
+        # output; 
+        # the number of words in the output must match the number of words 
+        # in the input;
+        assert 'sentences' in result_vm_json, \
+               "(!) Unexpected mismatch between TimexTagger's input and output. "+\
+               "Probably there are problems with the Java subprocess."
         output_words = \
             [w for s in result_vm_json['sentences'] for w in s['words'] ]
-        assert word_span_id == len(output_words)
+        assert word_span_id == len(output_words), \
+               "(!) Unexpected mismatch between TimexTagger's input and output. "+\
+               "Probably there are problems with the Java subprocess. "
         #pprint(result_vm_json)
         #
         # C) Convert results from VM format (used by EstNLTK 1.4) to

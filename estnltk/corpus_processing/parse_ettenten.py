@@ -1,7 +1,7 @@
 #
-#  Module for converting etTenTen documents to EstNLTK Text objects.
+#  Module for converting etTenTen 2013 documents to EstNLTK Text objects.
 #
-#  The etTenTen corpus contains documents crawled from the web. 
+#  The etTenTen 2013 corpus contains documents crawled from the web. 
 #  Documents are in the XML format and they have metadata (e.g 
 #  document URL and crawling date). Document content has been 
 #  split into paragraphs, and cleaned from HTML annotation (although 
