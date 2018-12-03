@@ -71,9 +71,9 @@ class Vocabulary:
         """Changes vocabulary key value to lowercase. If an exception occurs the vocabulary stays unchanged."""
         return Vocabulary.from_vocabulary(self, to_lower=True)
 
-    def to_regex(self):
+    def to_regex(self, ignore_case=False):
         """compiles vocabulary key values to regex expressions if the key is str"""
-        return Vocabulary.from_vocabulary(self, to_regex=True)
+        return Vocabulary.from_vocabulary(self, to_regex=True, ignore_case=ignore_case)
 
     def items(self):
         return self.mapping.items()
@@ -92,7 +92,7 @@ class Vocabulary:
 
     @staticmethod
     def from_vocabulary(vocabulary: 'Vocabulary', attributes: Sequence[str] = None, default_rec: Mapping=None,
-                        to_lower=False, to_regex=False):
+                        to_lower=False, to_regex=False, ignore_case=False):
         mapping = vocabulary.mapping
         key = vocabulary.key
         if attributes is None:
@@ -102,7 +102,7 @@ class Vocabulary:
             default_rec = {k: v for k, v in default_rec.items() if k in attribute_set-set(vocabulary.attributes)}
             assert attribute_set <= set(vocabulary.attributes) | set(default_rec)
             new_mapping = defaultdict(list)
-            for k, records in mapping:
+            for k, records in mapping.items():
                 for record in records:
                     rec = default_rec.copy()
                     rec.update({k: v for k, v in record.items() if k in attribute_set})
@@ -128,9 +128,12 @@ class Vocabulary:
                 mapping = lower_case_mapping
         if to_regex:
             new_mapping = defaultdict(list)
+            flag = re.IGNORECASE if ignore_case else 0
             for k, records in mapping.items():
+                if ignore_case and isinstance(k, re.Pattern):
+                    k = k.pattern
                 try:
-                    k_new = re.compile(k)
+                    k_new = re.compile(k, flag)
                 except Exception as e:
                     e.args += ("can't compile vocabulary key as regex pattern",)
                     raise
@@ -153,6 +156,9 @@ class Vocabulary:
                 attributes &= set(record)
             assert key in attributes, (key, attributes)
             attributes = (key, *sorted(attributes - {key}))
+        else:
+            if key not in attributes:
+                attributes = (key, *attributes)
 
         attribute_set = set(attributes)
 

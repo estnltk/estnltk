@@ -31,7 +31,8 @@ class RegexTagger(Tagger):
                  conflict_resolving_strategy: str = 'MAX',
                  overlapped: bool = False,
                  priority_attribute: str = None,
-                 ambiguous: bool = False
+                 ambiguous: bool = False,
+                 ignore_case=False
                  ):
         """Initialize a new RegexTagger instance.
 
@@ -79,7 +80,7 @@ class RegexTagger(Tagger):
                                       key=vocabulary_key,
                                       attributes=('_regex_pattern_', '_group_', '_validator_', *self.output_attributes),
                                       default_rec={'_group_': 0, '_validator_': default_validator})
-        self.vocabulary = vocabulary.to_regex()
+        self.vocabulary = vocabulary.to_regex(ignore_case=ignore_case)
 
         self.overlapped = overlapped
         if conflict_resolving_strategy not in ['ALL', 'MIN', 'MAX']:
