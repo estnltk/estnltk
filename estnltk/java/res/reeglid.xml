@@ -3526,6 +3526,20 @@
   </Reegel>
 
   <Reegel>
+     <!--  Nt: 2009-02-28; 2017.04.25; 20181125 ... (EstNLTK 1.6 sõnestus) -->
+     <!--  (ISO formaat) -->
+     <Muster> /([1-9][0-9][0-9][0-9])(0[1-9]|[1][0-2])(0[1-9]|1[0-9]|2[0-9]|3[01])/ </Muster>
+     <MustriTahis seotudMustriosa="0" tahised="KUUPAEV_ABS_AP" />
+     <SemReegel priority="1" seotudMustriosa="0" op="SET" semField="YEAR"          semValue="PARSE_FROM_SELF:1"/>
+     <SemReegel priority="2" seotudMustriosa="0" op="SET" semField="MONTH"         semValue="PARSE_FROM_SELF:2"/>
+     <SemReegel priority="3" seotudMustriosa="0" op="SET" semField="DAY_OF_MONTH"  semValue="PARSE_FROM_SELF:3"/>
+     <SemReegel priority="4" seotudMustriosa="0" op="SET_attrib" attrib="temporalFunction" semValue="false" />
+     <!-- NB! CompoundTokenTagger normalseerib sõned "2009-02-28" ja "2009.02.28" kujule "20090228",
+              kuna arvab, et tegu on numbritega.  Ei  hakka  CompoundTokenTagger'it selles osas parandama, 
+              kuna tema peaülesanne ei ole ajaväljendid, vaid kirjutamegi reegli sellise lühida kuju jaoks. -->
+  </Reegel>
+  
+  <Reegel>
      <!--  Nt: 20.-24.09.2002.a. ... -->
      <Muster> KUUPAEV_KRIIPSUGA_A KUUPAEV_PUNKTIGA_A KUU_A /([1][0-9][0-9][0-9]|[2][01][0-9][0-9])(\.a\.|\.a|a\.|\.)?/ </Muster>
      <MustriTahis seotudMustriosa="0" tahised="KUUPAEV_ABS_AP, LIITUB_KELLAAJAGA" />
