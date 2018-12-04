@@ -6,9 +6,9 @@
 # 
 import regex as re
 
-from typing import MutableMapping, Any
+from typing import MutableMapping
 
-from estnltk.text import Layer, Span
+from estnltk.text import Layer
 from estnltk.layer.ambiguous_span import AmbiguousSpan
 
 from estnltk.taggers import Retagger
@@ -27,7 +27,7 @@ class PostMorphAnalysisTagger(Retagger):
     """Applies post-corrections to ambiguous morphological analysis 
        layer before the disambiguation process.
        This tagger should be applied before VabamorfDisambiguator."""
-    attributes = ESTNLTK_MORPH_ATTRIBUTES + (IGNORE_ATTR, )
+    output_attributes = ESTNLTK_MORPH_ATTRIBUTES + (IGNORE_ATTR, )
     conf_param = ['depends_on', 'ignore_emoticons', 'ignore_xml_tags', 'fix_names_with_initials',
                   'fix_emoticons', 'fix_www_addresses', 'fix_email_addresses',
                   'fix_abbreviations', 'fix_numeric', 'remove_duplicates',
@@ -124,9 +124,9 @@ class PostMorphAnalysisTagger(Retagger):
         # The output layer
         self.output_layer = output_layer
         # Names of the input layers
-        self.input_layers = [input_compound_tokens_layer, \
-                             input_words_layer, \
-                             input_sentences_layer, \
+        self.input_layers = [input_compound_tokens_layer,
+                             input_words_layer,
+                             input_sentences_layer,
                              output_layer]
         self._input_cp_tokens_layer      = self.input_layers[0]
         self._input_words_layer          = self.input_layers[1]
@@ -405,7 +405,7 @@ class PostMorphAnalysisTagger(Retagger):
         # Find extra attributes (if there are any)
         extra_attributes = []
         for cur_attr in current_attributes:
-            if cur_attr not in self.attributes and \
+            if cur_attr not in self.output_attributes and \
                cur_attr != IGNORE_ATTR:
                 extra_attributes.append( cur_attr )
         # Rewrite spans of the old layer

@@ -1,10 +1,33 @@
 import html
 import regex as re
-from typing import MutableMapping, Sequence
+from typing import MutableMapping, Sequence, Tuple
 from estnltk.text import Layer, Text
 
 
-class Tagger:
+class TaggerChecker(type):
+    def __call__(cls, *args, **kwargs):
+        tagger = type.__call__(cls, *args, **kwargs)
+
+        assert isinstance(tagger.conf_param, Sequence)
+        assert all(isinstance(k, str) for k in tagger.conf_param), tagger.conf_param
+
+        assert isinstance(tagger.input_layers, Sequence)
+        assert all(isinstance(k, str) for k in tagger.input_layers), tagger.input_layers
+
+        assert isinstance(tagger.output_layer, str), tagger.output_layer
+
+        assert isinstance(tagger.output_attributes, tuple), tagger.output_attributes
+        assert all(isinstance(attr, str) for attr in tagger.output_attributes), tagger.output_attributes
+
+        tagger._initialized = True
+
+        if tagger.__doc__ is None:
+            raise ValueError('{!r} object must have docstring'.format(cls.__name__))
+
+        return tagger
+
+
+class Tagger(metaclass=TaggerChecker):
     """
     Base class for taggers. Proposed new version.
 
@@ -16,16 +39,20 @@ class Tagger:
     __init__(...)
     _make_layer(...)
     """
+    _initialized = False
     conf_param = None  # type: Sequence[str]
     output_layer = None  # type: str
-    output_attributes = None  # type: Sequence[str]
+    output_attributes = None  # type: Tuple[str]
     input_layers = None  # type: Sequence[str]
 
     def __init__(self):
         raise NotImplementedError('__init__ method not implemented in ' + self.__class__.__name__)
 
     def __setattr__(self, key, value):
-        assert key in {'conf_param', 'output_layer', 'output_attributes', 'input_layers'} or\
+        if self._initialized:
+            raise AttributeError('changing of the tagger attributes is not allowed: {!r}, {!r}'.format(
+                    self.__class__.__name__, key))
+        assert key in {'conf_param', 'output_layer', 'output_attributes', 'input_layers', '_initialized'} or\
                key in self.conf_param,\
                'attribute must be listed in conf_param: ' + key
         super().__setattr__(key, value)

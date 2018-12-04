@@ -8,7 +8,7 @@ import csv
 
 from typing import MutableMapping
 
-from estnltk.text import Layer, Text
+from estnltk.text import Layer
 from estnltk.layer.ambiguous_span import AmbiguousSpan
 
 from estnltk.taggers import Retagger
@@ -23,20 +23,19 @@ from estnltk.taggers.morph_analysis.morf_common import VABAMORF_NOUN_FORMS
 from estnltk.taggers.morph_analysis.morf_common import VABAMORF_VERB_FORMS
 
 
-
 class UserDictTagger(Retagger):
     """Makes user-specified post-corrections to morphological analyses.
        This tagger can be applied after text has been morphologically analysed."""
-    attributes    = ESTNLTK_MORPH_ATTRIBUTES
-    conf_param    = ['depends_on', 'ignore_case', 'validate_vm_categories', \
-                     'autocorrect_root', '_dict', '_input_words_layer']
+    output_attributes = ESTNLTK_MORPH_ATTRIBUTES
+    conf_param = ['depends_on', 'ignore_case', 'validate_vm_categories',
+                  'autocorrect_root', '_dict', '_input_words_layer']
 
-    def __init__(self, \
-                 output_layer:str='morph_analysis', \
-                 input_words_layer:str='words', \
-                 ignore_case:bool=False, \
-                 validate_vm_categories:bool=True, \
-                 autocorrect_root:bool=True ):
+    def __init__(self,
+                 output_layer: str = 'morph_analysis',
+                 input_words_layer: str = 'words',
+                 ignore_case: bool = False,
+                 validate_vm_categories: bool = True,
+                 autocorrect_root: bool = True):
         """ Initialize UserDictTagger class.
 
         Parameters

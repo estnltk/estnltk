@@ -93,8 +93,8 @@ class VabamorfTagger(TaggerOld):
             assert postanalysis_tagger.output_layer == self.layer_name, \
                 '(!) postanalysis_tagger should modify layer "'+str(self.layer_name)+'".'+\
                 ' Currently, it modifies layer "'+str(postanalysis_tagger.output_layer)+'".'
-            assert hasattr(postanalysis_tagger, 'attributes'), \
-                '(!) postanalysis_tagger does not define any attributes.'
+            #assert hasattr(postanalysis_tagger, 'attributes'), \
+            #    '(!) postanalysis_tagger does not define any attributes.'
         self.postanalysis_tagger = postanalysis_tagger
         vm_instance = Vabamorf.instance()
         # Initialize morf analyzer and disambiguator; 
@@ -474,6 +474,7 @@ class VabamorfDisambiguator(Retagger):
         """
         # Set attributes & configuration
         self.output_layer = output_layer
+        self.output_attributes = self.attributes
         self.input_layers = [input_words_layer, \
                              input_sentences_layer, \
                              output_layer ]
