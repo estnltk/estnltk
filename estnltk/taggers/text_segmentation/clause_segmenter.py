@@ -121,8 +121,8 @@ class ClauseSegmenter(Tagger):
            This can be used to store metadata on layer tagging.
         """
         assert self._java_process._process.poll() is None, \
-           '(!) Java process has already been terminated, and '+\
-           'this '+str(__class__.__name__)+' cannot be used anymore.'
+           '(!) This '+str(self.__class__.__name__)+' cannot be used anymore, '+\
+           'because its Java process has been terminated.'
         clause_spanlists = []
         # Iterate over sentences and words, tag clause boundaries
         morph_spans  = layers[ self._input_morph_analysis_layer ].span_list
