@@ -82,8 +82,26 @@ class ClauseSegmenter(Tagger):
         args = ['-pyvabamorf']
         if self.ignore_missing_commas:
             args.append('-ins_comma_mis')
+        # Initiate Java process
         self._java_process = \
             JavaProcess( 'Osalau.jar', jar_path=JAVARES_PATH, args=args )
+
+
+    def __enter__(self):
+        return self
+
+
+    def __exit__(self, *args):
+        """ Terminates Java process. """
+        # The proper way to terminate the process:
+        # 1) Send out the terminate signal
+        self._java_process._process.terminate()
+        # 2) Interact with the process. Read data from stdout and stderr, 
+        #    until end-of-file is reached. Wait for process to terminate.
+        self._java_process._process.communicate()
+        # 3) Assert that the process terminated
+        assert self._java_process._process.poll() is not None
+
 
     def _make_layer(self, text, layers, status: dict):
         """Tags clauses layer.
@@ -102,6 +120,9 @@ class ClauseSegmenter(Tagger):
         status: dict
            This can be used to store metadata on layer tagging.
         """
+        assert self._java_process._process.poll() is None, \
+           '(!) Java process has already been terminated, and '+\
+           'this '+str(__class__.__name__)+' cannot be used anymore.'
         clause_spanlists = []
         # Iterate over sentences and words, tag clause boundaries
         morph_spans  = layers[ self._input_morph_analysis_layer ].span_list
