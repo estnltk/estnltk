@@ -9,8 +9,6 @@
 #    ( with modifications )
 # 
 
-from typing import Union
-
 import re
 import os
 import json
@@ -21,7 +19,7 @@ from collections import OrderedDict
 
 from estnltk.text import Text, Layer, EnvelopingSpan
 
-from estnltk.taggers import TaggerOld
+from estnltk.taggers import Tagger
 from estnltk.taggers.morph_analysis.morf_common import _convert_morph_analysis_span_to_vm_dict
 from estnltk.taggers.morph_analysis.morf_common import _is_empty_span, _get_word_text
 
@@ -29,19 +27,37 @@ from estnltk.java.javaprocess import JavaProcess
 from estnltk.core import JAVARES_PATH
 
 
-class TimexTagger(TaggerOld):
-    description   = 'Detects temporal expressions (timexes) and normalizes '+\
-                    'these expressions, providing corresponding calendrical '+\
-                    'dates, times and durations. Uses a Java-based temporal '+\
-                    'tagger (Ajavt) to perform the tagging.'
-    layer_name    = 'timexes'
-    attributes    = ('tid', 'type', 'value', 'temporal_function', 'anchor_time_id', \
-                     'mod', 'quant', 'freq', 'begin_point', 'end_point' )
-    depends_on    = ['words', 'sentences', 'morph_analysis']
-    configuration = None
+class TimexTagger( Tagger ):
+    """Detects and normalizes temporal expressions (timexes).
+       Normalization involves providing calendrical dates, times 
+       and durations corresponding to the expressions.
+       Uses a Java-based temporal tagger (Ajavt) to perform the 
+       tagging.
+    """
+    output_layer = 'timexes'
+    output_attributes = ('tid', 'type', 'value', 'temporal_function', 'anchor_time_id', \
+                         'mod', 'quant', 'freq', 'begin_point', 'end_point' )
+    input_layers = ['words', 'sentences', 'morph_analysis']
+    conf_param = [ 'pick_first_in_overlap', 'mark_part_of_interval',
+                   'output_ordered_dicts', 'rules_file', 
+                   # Names of the specific input layers
+                   '_input_words_layer', '_input_sentences_layer',
+                   '_input_morph_analysis_layer',
+                   # Internal process
+                   '_java_process',
+                   # For backward compatibility:
+                   'depends_on', 'layer_name', 'attributes'
+                  ]
+    layer_name = output_layer       # <- For backward compatibility ...
+    attributes = output_attributes  # <- For backward compatibility ...
+    depends_on = input_layers       # <- For backward compatibility ...
 
-
-    def __init__(self, rules_file:str=None, \
+    def __init__(self, 
+                       output_layer:str='timexes',
+                       input_words_layer:str='words',
+                       input_sentences_layer:str='sentences',
+                       input_morph_analysis_layer:str='morph_analysis',
+                       rules_file:str=None, \
                        pick_first_in_overlap:bool=True, \
                        mark_part_of_interval:bool=True, \
                        output_ordered_dicts:bool=True ):
@@ -49,6 +65,18 @@ class TimexTagger(TaggerOld):
         
         Parameters
         ----------
+        output_layer: str (default: 'timexes')
+            Name for the timexes layer;
+        
+        input_words_layer: str (default: 'words')
+            Name of the input words layer;
+        
+        input_sentences_layer: str (default: 'sentences')
+            Name of the input sentences layer;
+        
+        input_morph_analysis_layer: str (default: 'morph_analysis')
+            Name of the input morph_analysis layer;
+        
         rules_file: str (default: 'reeglid.xml')
              Initializes the temporal expression tagger with a custom rules file.
              The expected format of the rules file is described in  more  detail 
@@ -77,23 +105,35 @@ class TimexTagger(TaggerOld):
              ensure fixed order of elements in the dictionaries (might be useful for
              nbval testing).
         """
-        args = ['-pyvabamorf']
+        # Set input/output layer names
+        self.output_layer = output_layer
+        self._input_words_layer = input_words_layer
+        self._input_sentences_layer = input_sentences_layer
+        self._input_morph_analysis_layer = input_morph_analysis_layer
+        self.input_layers = [input_words_layer, input_sentences_layer, input_morph_analysis_layer]
+        self.layer_name = self.output_layer  # <- For backward compatibility ...
+        self.depends_on = self.input_layers  # <- For backward compatibility ...
+        # Set configuration
+        self.pick_first_in_overlap = pick_first_in_overlap
+        self.mark_part_of_interval = mark_part_of_interval
+        self.output_ordered_dicts  = output_ordered_dicts
+        if self.mark_part_of_interval:
+           self.output_attributes += ('part_of_interval', )
+        # Fetch & check rules file 
         use_rules_file = \
             os.path.join(JAVARES_PATH, 'reeglid.xml') if not rules_file else rules_file
         if not os.path.exists( use_rules_file ):
             raise Exception( \
                   '(!) Unable to find timex tagger rules file from the location:', \
                   use_rules_file )
+        self.rules_file = use_rules_file
+        # Start process
+        args = ['-pyvabamorf']
         args.append('-r')
         args.append(use_rules_file)
-        # Record configuration
-        self.configuration = {'rules_file': use_rules_file, \
-                              'pick_first_in_overlap': pick_first_in_overlap, \
-                              'mark_part_of_interval': mark_part_of_interval, \
-                              'output_ordered_dicts':output_ordered_dicts }
-        # Start process
         self._java_process = \
             JavaProcess( 'Ajavt.jar', jar_path=JAVARES_PATH, args=args )
+
 
 
     def _find_creation_date(self, text: Text):
@@ -195,7 +235,7 @@ class TimexTagger(TaggerOld):
                if timex[attrib] in empty_timexes_dict:
                   timex_span.begin_point = empty_timexes_dict[timex[attrib]]
                   if isinstance(timex_span.begin_point, dict) and \
-                     self.configuration['output_ordered_dicts']:
+                     self.output_ordered_dicts:
                       timex_span.begin_point = \
                            self._convert_timex_dict_to_ordered_dict( timex_span.begin_point )
             if attrib == 'endPoint':
@@ -203,10 +243,10 @@ class TimexTagger(TaggerOld):
                if timex[attrib] in empty_timexes_dict:
                   timex_span.end_point = empty_timexes_dict[timex[attrib]]
                   if isinstance(timex_span.end_point, dict) and \
-                     self.configuration['output_ordered_dicts']:
+                     self.output_ordered_dicts:
                       timex_span.end_point = \
                            self._convert_timex_dict_to_ordered_dict( timex_span.end_point )
-        if self.configuration['mark_part_of_interval']:
+        if self.mark_part_of_interval:
            # Determine whether this TIMEX is part of an interval, and
            # if so, then mark also TIMEX of the interval as an attribute
            timex_tid  = timex['tid'] if 'tid' in timex else None
@@ -219,7 +259,7 @@ class TimexTagger(TaggerOld):
                      timex_span.part_of_interval = \
                                 empty_timexes_dict[empty_timex_id]
                      if isinstance(timex_span.part_of_interval, dict) and \
-                        self.configuration['output_ordered_dicts']:
+                        self.output_ordered_dicts:
                         timex_span.part_of_interval = \
                            self._convert_timex_dict_to_ordered_dict( timex_span.part_of_interval )
                      break
@@ -228,7 +268,7 @@ class TimexTagger(TaggerOld):
                      timex_span.part_of_interval = \
                                 empty_timexes_dict[empty_timex_id]
                      if isinstance(timex_span.part_of_interval, dict) and \
-                        self.configuration['output_ordered_dicts']:
+                        self.output_ordered_dicts:
                         timex_span.part_of_interval = \
                            self._convert_timex_dict_to_ordered_dict( timex_span.part_of_interval )
                      break
@@ -306,26 +346,21 @@ class TimexTagger(TaggerOld):
 
 
 
-    def tag(self, text: Text, return_layer=False) -> Union['Text', Layer]:
-        """Tags timexes layer.
+    def _make_layer(self, text, layers, status: dict):
+        """Creates timexes layer.
         
         Parameters
         ----------
-        text: estnltk.text.Text
-            Text object that is to be analysed. It needs to have
-            layers 'words', 'sentences', 'morph_analysis'.
-
-        return_layer: boolean (default: False)
-            If True, then the new layer is returned; otherwise 
-            the new layer is attached to the Text object, and 
-            the Text object is returned;
-
-        Returns
-        -------
-        Text or Layer
-            If return_layer==True, then returns the new layer, 
-            otherwise attaches the new layer to the Text object 
-            and returns the Text object;
+        text: Text
+           Text in which timexes will be annotated;
+        
+        layers: MutableMapping[str, Layer]
+           Layers of the text.  Contains mappings  from the 
+           name of the layer to the Layer object. Must contain
+           the words, sentences and morph_analysis layers.
+          
+        status: dict
+           This can be used to store metadata on layer tagging.
         """
         # A) Find document creation time from the metadata, and
         #    convert morphologically analysed text into VM format:
@@ -333,11 +368,11 @@ class TimexTagger(TaggerOld):
             'dct': self._find_creation_date(text),
             'sentences': []
         }
-        morph_spans  = text['morph_analysis'].span_list
-        word_spans   = text['words'].span_list
+        morph_spans  = layers[ self._input_morph_analysis_layer ]
+        word_spans   = layers[ self._input_words_layer ]
         assert len(morph_spans) == len(word_spans)
         word_span_id = 0
-        for sentence in text['sentences'].span_list:
+        for sentence in layers[ self._input_sentences_layer ]:
             #  Collect all words/morph_analyses inside the sentence
             #  Assume: len(word_spans) == len(morph_spans)
             sentence_morph_dicts = []
@@ -453,18 +488,15 @@ class TimexTagger(TaggerOld):
         #
         # C.2) Create a new layer and populated with collected timexes
         #
-        layer_attributes = self.attributes
-        if self.configuration['mark_part_of_interval']:
-           layer_attributes += ('part_of_interval', )
-        layer = Layer(name=self.layer_name, 
-                      enveloping ='words', 
-                      attributes=layer_attributes, 
+        layer = Layer(name=self.layer_name, text_object=text,
+                      enveloping=self._input_words_layer, 
+                      attributes=self.output_attributes, 
                       ambiguous=False)
         marked_timex_word_ids = set()
         for tid in timexes_dict.keys():
             timex = timexes_dict[tid]
             # Skip overlapping timexes
-            if self.configuration['pick_first_in_overlap']:
+            if self.pick_first_in_overlap:
                  skipTimex = False
                  for word_id in timex['_word_span_ids']:
                       if word_id in marked_timex_word_ids:
@@ -486,7 +518,6 @@ class TimexTagger(TaggerOld):
             for word_id in timex['_word_span_ids']:
                  marked_timex_word_ids.add( word_id )
         # Return results:
-        if return_layer:
-            return layer
-        text[self.layer_name] = layer
-        return text
+        return layer
+
+
