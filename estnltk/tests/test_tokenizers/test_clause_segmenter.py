@@ -132,9 +132,9 @@ def test_change_input_output_layer_names_of_clause_segmenter():
 def test_clause_segmenter_context_dear_down():
     # Tests after exiting ClauseSegmenter's context manager, the process has been 
     # deared down and no longer availabe
-    text = Text( 'Test tekst.' )
+    text = Text( 'Testimise tekst.' )
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
-    # Apply segmenter
+    # 1) Apply segmenter as a context manager
     with ClauseSegmenter() as segmenter:
         segmenter.tag(text)
     # Check: polling the process should not return None
@@ -142,4 +142,13 @@ def test_clause_segmenter_context_dear_down():
     # Check: After context has been deared down, we should get an assertion error
     with pytest.raises(AssertionError) as e1:
         segmenter.tag(text)
-
+    
+    # 2) Apply segmenter outside with, and use the __exit__() method
+    segmenter2 = ClauseSegmenter()
+    # Check that the process is running
+    assert segmenter2._java_process._process.poll() is None
+    # Terminate the process "manually"
+    segmenter2.__exit__()
+    # Check that the process is terminated
+    assert segmenter2._java_process._process.poll() is not None
+    
