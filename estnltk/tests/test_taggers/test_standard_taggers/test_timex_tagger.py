@@ -1,10 +1,12 @@
+import pytest
+
 from estnltk import Text
 from estnltk.taggers import TimexTagger
 
 
 def test_timex_tagging_1():
     # Test the basic functionality of the TimexTagger
-    all_timex_attributes = ['text']+list(TimexTagger.attributes)
+    all_timex_attributes = ['text']+list(TimexTagger.output_attributes)
     #all_timex_attributes = list(TimexTagger.attributes)
     tagger = TimexTagger(output_ordered_dicts=False)
     
@@ -70,14 +72,16 @@ def test_timex_tagging_1():
             # Make assertions
             assert expected_vals == result_vals
 
-    # Clean-up: Terminate Java process
-    tagger._java_process._process.terminate()
+    # Terminate the process "manually"
+    tagger.__exit__()
+    # Check that the process is terminated
+    assert tagger._java_process._process.poll() is not None
 
 
 
 def test_timex_tagging_2_implicit_durations():
     # Test TimexTagger on detecting timexes with implicit durations/intervals ('part_of_interval' attrib):
-    all_timex_attributes = ['text']+list(TimexTagger.attributes)+['part_of_interval']
+    all_timex_attributes = ['text']+list(TimexTagger.output_attributes)+['part_of_interval']
     tagger = TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False )
     test_data = [ {'text': 'Rahvusvaheline Festival Jazzkaar toimub 20.- 28. aprillini 2012.',\
                    'dct':'2012-04-15',\
@@ -143,14 +147,16 @@ def test_timex_tagging_2_implicit_durations():
             # Make assertions
             assert expected_vals == result_vals
 
-    # Clean-up: Terminate Java process
-    tagger._java_process._process.terminate()
+    # Terminate the process "manually"
+    tagger.__exit__()
+    # Check that the process is terminated
+    assert tagger._java_process._process.poll() is not None
 
 
 
 def test_timex_tagging_3_gaps_in_dct():
     # Test TimexTagger on texts that have gaps in their document creation dates
-    all_timex_attributes = ['text']+list(TimexTagger.attributes)+['part_of_interval']
+    all_timex_attributes = ['text']+list(TimexTagger.output_attributes)+['part_of_interval']
     tagger = TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False )
     test_data = [ {'text': 'Rahvusvaheline Festival Jazzkaar toimub 20.- 28. aprillini.',\
                    'dct':'2012-04-XX',\
@@ -198,13 +204,15 @@ def test_timex_tagging_3_gaps_in_dct():
             # Make assertions
             assert expected_vals == result_vals
 
-    # Clean-up: Terminate Java process
-    tagger._java_process._process.terminate()
+    # Terminate the process "manually"
+    tagger.__exit__()
+    # Check that the process is terminated
+    assert tagger._java_process._process.poll() is not None
 
 
 def test_timex_tagging_4_additional_rules():
     # Test TimexTagger with some additional rules
-    all_timex_attributes = ['text']+list(TimexTagger.attributes)+['part_of_interval']
+    all_timex_attributes = ['text']+list(TimexTagger.output_attributes)+['part_of_interval']
     tagger = TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False )
     test_data = [ # eile-täna
                   {'text': 'Ma just käisin eile-täna seal jalgrattaga.',\
@@ -281,5 +289,34 @@ def test_timex_tagging_4_additional_rules():
             # Make assertions
             assert expected_vals == result_vals
 
-    # Clean-up: Terminate Java process
-    tagger._java_process._process.terminate()
+    # Terminate the process "manually"
+    tagger.__exit__()
+    # Check that the process is terminated
+    assert tagger._java_process._process.poll() is not None
+
+
+
+
+def test_timex_tagger_context_dear_down():
+    # Tests after exiting TimexTagger's context manager, the process has been 
+    # deared down and no longer availabe
+    text = Text( 'Testimise tekst.' )
+    text.tag_layer(['words', 'sentences', 'morph_analysis'])
+    # 1) Apply tagger as a context manager
+    with TimexTagger() as tagger:
+        tagger.tag(text)
+    # Check: polling the process should not return None
+    assert tagger._java_process._process.poll() is not None
+    # Check: After context has been deared down, we should get an assertion error
+    with pytest.raises(AssertionError) as e1:
+        tagger.tag(text)
+    
+    # 2) Apply tagger outside with, and use the __exit__() method
+    tagger2 = TimexTagger()
+    # Check that the process is running
+    assert tagger2._java_process._process.poll() is None
+    # Terminate the process "manually"
+    tagger2.__exit__()
+    # Check that the process is terminated
+    assert tagger2._java_process._process.poll() is not None
+

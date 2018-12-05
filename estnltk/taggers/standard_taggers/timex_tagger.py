@@ -136,6 +136,23 @@ class TimexTagger( Tagger ):
 
 
 
+    def __enter__(self):
+        return self
+
+
+    def __exit__(self, *args):
+        """ Terminates Java process. """
+        # The proper way to terminate the process:
+        # 1) Send out the terminate signal
+        self._java_process._process.terminate()
+        # 2) Interact with the process. Read data from stdout and stderr, 
+        #    until end-of-file is reached. Wait for process to terminate.
+        self._java_process._process.communicate()
+        # 3) Assert that the process terminated
+        assert self._java_process._process.poll() is not None
+
+
+
     def _find_creation_date(self, text: Text):
         ''' Looks for the document creation time in the metadata of the given 
             text object. If it is found (under key 'dct', 'document_creation_time', 
@@ -362,6 +379,9 @@ class TimexTagger( Tagger ):
         status: dict
            This can be used to store metadata on layer tagging.
         """
+        assert self._java_process._process.poll() is None, \
+           '(!) This '+str(self.__class__.__name__)+' cannot be used anymore, '+\
+           'because its Java process has been terminated.'
         # A) Find document creation time from the metadata, and
         #    convert morphologically analysed text into VM format:
         input_data = {
