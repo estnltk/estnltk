@@ -242,10 +242,26 @@ def test_timex_tagging_4_additional_rules():
                            'end_point':   {'tid': 't3', 'value': '2009-07-30', 'type': 'DATE', 'temporalFunction': 'true'} }, \
                    ]
                   },\
+                  # ISO format date #1
+                  {'text': '2007.05.03\n\nViinata volber möödus rahulikult',\
+                   'dct':'2018-12-05',\
+                   'expected_timexes': [ \
+                       {'text':['2007.05.03'], 'tid':'t1', 'type':'DATE', 'value':'2007-05-03', 'temporal_function':False , 'anchor_time_id':None,  }, \
+                   ]
+                  },\
+                  # ISO format date #2
+                  {'text': 'Mõtteid ja ideid saab esitada kultuuripealinna kodulehel ning sündmus peab juhtuma ajavahemikus 2010.01.01 – 2010.12.31.',\
+                   'dct':'2018-12-05',\
+                   'expected_timexes': [ \
+                       {'text':['2010.01.01'], 'tid':'t1', 'type':'DATE', 'value':'2010-01-01', 'temporal_function':False , 'anchor_time_id':None,  }, \
+                       {'text':['2010.12.31'], 'tid':'t2', 'type':'DATE', 'value':'2010-12-31', 'temporal_function':False , 'anchor_time_id':None,  }, \
+                   ]
+                  },\
+                  
                 ]
     for test_item in test_data:
         # Prepare text
-        text = Text(test_item['text'])
+        text = Text( test_item['text'] )
         if 'dct' in test_item:
             text.meta['dct'] = test_item['dct']
         text.tag_layer(['words', 'sentences', 'morph_analysis'])
