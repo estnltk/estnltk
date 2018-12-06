@@ -371,6 +371,9 @@ class Layer:
                 raise ValueError('this layer is not ambiguous and the span is already in the spanlist', span)
         return span
 
+    def remove_span(self, span):
+        self.span_list.spans.remove(span)
+
     def add_annotation(self, span, **attributes):
         if self._bound:
             span.add_layer(self)
@@ -631,6 +634,7 @@ class Layer:
     print_start_end = False
 
     def _repr_html_(self):
+        assert self.text_object is not None, 'this layer is missing a Text object'
         if self.print_start_end:
             attributes = ['text', 'start', 'end']
         else:

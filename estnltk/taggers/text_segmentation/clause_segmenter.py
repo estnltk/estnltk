@@ -18,8 +18,8 @@ from estnltk.core import JAVARES_PATH
 
 
 class ClauseSegmenter(Tagger):
-    """Tags clause boundaries inside sentences. Uses Java-based clause
-       segmenter (Osalausestaja) to perform the tagging."""
+    """Tags clause boundaries inside sentences. 
+       Uses Java-based clause segmenter (Osalausestaja) to perform the tagging."""
     output_layer      = 'clauses'
     output_attributes = ('clause_type',)
     input_layers      = ['words', 'sentences', 'morph_analysis']
@@ -82,8 +82,26 @@ class ClauseSegmenter(Tagger):
         args = ['-pyvabamorf']
         if self.ignore_missing_commas:
             args.append('-ins_comma_mis')
+        # Initiate Java process
         self._java_process = \
             JavaProcess( 'Osalau.jar', jar_path=JAVARES_PATH, args=args )
+
+
+    def __enter__(self):
+        return self
+
+
+    def __exit__(self, *args):
+        """ Terminates Java process. """
+        # The proper way to terminate the process:
+        # 1) Send out the terminate signal
+        self._java_process._process.terminate()
+        # 2) Interact with the process. Read data from stdout and stderr, 
+        #    until end-of-file is reached. Wait for process to terminate.
+        self._java_process._process.communicate()
+        # 3) Assert that the process terminated
+        assert self._java_process._process.poll() is not None
+
 
     def _make_layer(self, text, layers, status: dict):
         """Tags clauses layer.
@@ -102,6 +120,9 @@ class ClauseSegmenter(Tagger):
         status: dict
            This can be used to store metadata on layer tagging.
         """
+        assert self._java_process._process.poll() is None, \
+           '(!) This '+str(self.__class__.__name__)+' cannot be used anymore, '+\
+           'because its Java process has been terminated.'
         clause_spanlists = []
         # Iterate over sentences and words, tag clause boundaries
         morph_spans  = layers[ self._input_morph_analysis_layer ].span_list
@@ -148,10 +169,16 @@ class ClauseSegmenter(Tagger):
                 sentence_vm_json = json.dumps({'words': sentence_morph_dicts})
                 result_vm_str    = \
                     self._java_process.process_line(sentence_vm_json)
-                result_vm_json   = json.loads( result_vm_str )
-                # Sanity check: the number of words in the output must match 
-                # the number of words in the input;
-                assert len(result_vm_json['words']) == len(sentence_words)
+                result_vm_json = json.loads( result_vm_str )
+                # Sanity check: 'words' must be present and the number of words in 
+                # the output must match the number of words in the input;
+                # If not, then we likely have problems with the Java subprocess;
+                assert 'words' in result_vm_json, \
+                       "(!) Unexpected mismatch between ClauseSegmenter's input and output. "+\
+                       "Probably there are problems with the Java subprocess. "
+                assert len(result_vm_json['words']) == len(sentence_words), \
+                       "(!) Unexpected mismatch between ClauseSegmenter's input and output. "+\
+                       "Probably there are problems with the Java subprocess. "
                 # Rewrite clause annotations to clause indices
                 result_vm_json = \
                     self.annotate_clause_indices( result_vm_json['words'] )

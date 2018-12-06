@@ -1,5 +1,10 @@
 from estnltk import Text, Layer, Span
 
+from estnltk.layer import AmbiguousAttributeTupleList
+from estnltk.tests import new_text
+
+from estnltk.layer_operations import drop_annotations
+from estnltk.layer_operations import keep_annotations
 from estnltk.layer_operations import unique_texts
 from estnltk.layer_operations import count_by
 from estnltk.layer_operations import diff_layer
@@ -8,6 +13,28 @@ from estnltk.layer_operations import conflicts
 from estnltk.layer_operations import count_by_document
 from estnltk.layer_operations import dict_to_df
 from estnltk.layer_operations import group_by_spans
+
+
+def test_drop_annotations():
+    text = new_text(3)
+    drop_annotations(layer=text.layer_1,
+                     attribute='attr_1',
+                     values={'B', 'D'},
+                     function=None  # default: None
+                     )
+    assert text.layer_1['attr', 'attr_1'] == AmbiguousAttributeTupleList([[['L1-0', 'A']], [['L1-2', 'C']]],
+                                                                         ('attr', 'attr_1'))
+
+
+def test_keep_annotations():
+    text = new_text(3)
+    keep_annotations(layer=text.layer_1,
+                     attribute='attr_1',
+                     values={'A', 'C'},
+                     function=None  # default: None
+                     )
+    assert text.layer_1['attr', 'attr_1'] == AmbiguousAttributeTupleList([[['L1-0', 'A']], [['L1-2', 'C']]],
+                                                                         ('attr', 'attr_1'))
 
 
 def first_text():

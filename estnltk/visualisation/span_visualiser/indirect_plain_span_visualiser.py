@@ -4,6 +4,13 @@ from estnltk.core import rel_path
 
 
 class IndirectPlainSpanVisualiser(SpanDecorator):
+    """Class that visualises spans, arguments can give ids and classes to spans.
+    Class can be called by specifying styling="indirect" when calling DisplaySpans.
+    Other arguments can be specified when calling DisplaySpans or changing them later
+    by changing DisplaySpans_object.span_decorator.argument (see notebook for examples).
+    Arguments that can be changed are id_mapping and class_mapping. These should
+    be functions that take the span as the argument and return a string that will be
+    the value of the corresponding attribute in the css."""
 
     js_added = False
 
@@ -63,8 +70,3 @@ class IndirectPlainSpanVisualiser(SpanDecorator):
             output = ''.join(["<style>\n", contents, "</style>"])
         return output
 
-    def js(self):
-        with open(self.js_file) as js_file:
-            contents = js_file.read()
-            output = ''.join(["<script>\n", contents, "</script>"])
-        return output

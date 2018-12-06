@@ -6,7 +6,7 @@ from estnltk.visualisation.prettyprinter import decompose_to_elementary_spans
 
 class DisplaySpans:
     """Displays spans defined by the layer. By default spans are coloured green, overlapping spans are red.
-    To change the behaviour, redefine ..._mapping"""
+    To change the behaviour, redefine ..._mapping."""
     def __init__(self, styling="direct", **kwargs):
         """"""
         self.styling = styling

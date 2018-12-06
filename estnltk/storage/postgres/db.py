@@ -288,6 +288,7 @@ class PgCollection:
                                                 table_identifier=table_identifier,
                                                 column_identifiers=column_identifiers,
                                                 buffer=buffer)
+                self.storage.conn.autocommit = False
 
     def _flush_layer_insert_buffer(self, cursor, table_identifier, column_identifiers, buffer):
         if len(buffer) == 0:
@@ -326,7 +327,8 @@ class PgCollection:
                    layers: list = None,
                    keys: list = None,
                    order_by_key: bool = False,
-                   collection_meta: list = None):
+                   collection_meta: list = None,
+                   missing_layer: str = None):
         """
         Select from collection table with possible search constraints.
 
@@ -346,6 +348,9 @@ class PgCollection:
                 become accessible via `text["layer_name"]`.
             collection_meta: list
                 list of collection metadata column names
+            missing_layer: str
+                name of the layer
+                select collection objects for which there is no entry in the table `missing_layer`
 
         Returns:
             iterator of (key, text) pairs
@@ -396,6 +401,7 @@ class PgCollection:
                     where=" AND ".join("%s.id = %s.text_id" % (table_escaped, layer) for layer in layers_join))
                 sql_parts.append(q)
                 where = True
+
             if query is not None:
                 # build constraint on the main text table
                 sql_parts.append("%s %s" % ("AND" if where else "WHERE", query.eval()))
@@ -420,6 +426,13 @@ class PgCollection:
                     q = "AND %s" % q
                 sql_parts.append(q)
                 where = True
+            if missing_layer:
+                # select collection objects for which there is no entry in the layer table
+                sql_parts.append("AND" if where else "WHERE")
+                q = SQL('id NOT IN (SELECT text_id FROM {})').format(self._layer_identifier(missing_layer)).as_string(self.storage.conn)
+                sql_parts.append(q)
+                where = True
+
             if order_by_key is True:
                 sql_parts.append("order by id")
 
@@ -443,14 +456,15 @@ class PgCollection:
                 yield result
 
     def _select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None,
-                order_by_key=False, collection_meta=None):
+                order_by_key=False, collection_meta=None, missing_layer: str = None):
         for row in self.select_raw(query=query,
                                    layer_query=layer_query,
                                    layer_ngram_query=layer_ngram_query,
                                    layers=layers,
                                    keys=keys,
                                    order_by_key=order_by_key,
-                                   collection_meta=collection_meta):
+                                   collection_meta=collection_meta,
+                                   missing_layer=missing_layer):
             text_id, text, meta_list, detached_layers = row
             for layer_name in layers:
                 text[layer_name] = detached_layers[layer_name]
@@ -463,8 +477,8 @@ class PgCollection:
                 yield text_id, text
 
     def select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None, order_by_key=False,
-               collection_meta=None, progressbar=None):
-        """See PostgresStorage.select()"""
+               collection_meta=None, progressbar=None, missing_layer: str = None):
+        """See select_raw()"""
         if not self.exists():
             return
         layers_extended = []
@@ -480,25 +494,30 @@ class PgCollection:
         for layer in layers or []:
             if layer not in self._structure:
                 raise PgCollectionException('there is no {!r} layer in the collection {!r}'.format(
-                                            layer, self.table_name))
+                        layer, self.table_name))
             include_dep(layer)
 
         data_iterator = self._select(query=query, layer_query=layer_query, layer_ngram_query=layer_ngram_query,
                                      layers=layers_extended, keys=keys, order_by_key=order_by_key,
-                                     collection_meta=collection_meta)
+                                     collection_meta=collection_meta, missing_layer=missing_layer)
         if progressbar not in {'ascii', 'unicode', 'notebook'}:
             yield from data_iterator
             return
 
         total = self.storage.count_rows(self.table_name)
+        initial = 0
+        if missing_layer is not None:
+            initial = self.storage.count_rows(table_identifier=self._layer_identifier(missing_layer))
         if progressbar == 'notebook':
             iter_data = tqdm_notebook(data_iterator,
                                       total=total,
+                                      initial=initial,
                                       unit='doc',
                                       smoothing=0)
         else:
             iter_data = tqdm(data_iterator,
                              total=total,
+                             initial=initial,
                              unit='doc',
                              ascii=(progressbar == 'ascii'),
                              smoothing=0)
@@ -726,10 +745,14 @@ class PgCollection:
 
         logger.info('layer created: {!r}'.format(layer_name))
 
+    def continue_creating_layer(self, tagger, progressbar=None, query_length_limit=5000000):
+        self.create_layer_buffered(tagger=tagger, progressbar=progressbar, query_length_limit=query_length_limit,
+                                   mode='append')
+
     # TODO: rename to create_layer
     def create_layer_buffered(self, layer_name=None, data_iterator=None, row_mapper=None, tagger=None,
                               create_index=False, ngram_index=None, overwrite=False, meta=None, progressbar=None,
-                              query_length_limit=5000000):
+                              query_length_limit=5000000, mode=None):
         """
         Creates layer
 
@@ -748,6 +771,7 @@ class PgCollection:
             ngram_index: list
                 A list of attributes for which to create an ngram index
             overwrite: bool
+                deprecated, use mode='overwrite' instead
                 If True and layer table exists, table is overwritten.
                 If False and layer table exists, error is raised.
             meta: dict of str -> str
@@ -759,9 +783,18 @@ class PgCollection:
                 if 'unicode', use unicode (smooth blocks) to fill the progressbar
                 if 'ascii', use ASCII characters (1-9 #) to fill the progressbar
                 else disable progressbar (default)
+            query_length_limit: int
+                soft approximate query length limit in unicode characters, can be exceeded by the length of last buffer
+                insert
         """
         assert (layer_name is None and data_iterator is None and row_mapper is None) is not (tagger is None),\
-               'either tagger must be None or layer_name, data_iterator and row_mapper must be None'
+               'either tagger ({}) must be None or layer_name ({}), data_iterator ({}) and row_mapper ({}) must be None'.format(tagger, layer_name, data_iterator, row_mapper)
+
+        # TODO: remove overwrite parameter
+        assert overwrite is False or mode is None, (overwrite, mode)
+        if overwrite:
+            mode = 'overwrite'
+        mode = mode or 'new'
 
         def default_row_mapper(row):
             text_id, text = row[0], row[1]
@@ -771,7 +804,10 @@ class PgCollection:
 
         layer_name = layer_name or tagger.output_layer
         row_mapper = row_mapper or default_row_mapper
-        data_iterator = data_iterator or self.select(layers=tagger.input_layers, progressbar=progressbar)
+
+        missing_layer = layer_name if mode == 'append' else None
+        data_iterator = data_iterator or self.select(layers=tagger.input_layers, progressbar=progressbar,
+                                                     missing_layer=missing_layer)
 
         if not self.exists():
             raise PgCollectionException("collection {!r} does not exist, can't create layer {!r}".format(
@@ -780,14 +816,25 @@ class PgCollection:
         if self._structure is None:
             raise PgCollectionException("can't add detached layer {!r}, the collection is empty".format(layer_name))
         if self.has_layer(layer_name):
-            if overwrite:
+            if mode == 'overwrite':
                 logger.info("overwriting output layer: {!r}".format(layer_name))
                 self.delete_layer(layer_name=layer_name, cascade=True)
+            elif mode == 'append':
+                logger.info("appending existing layer: {!r}".format(layer_name))
             else:
                 exception = PgCollectionException("can't create layer {!r}, layer already exists".format(layer_name))
                 logger.error(exception)
                 raise exception
-        logger.info('preparing to create a new layer: {!r}'.format(layer_name))
+        else:
+            if mode == 'append':
+                exception = PgCollectionException("can't append layer {!r}, layer does not exist".format(layer_name))
+                logger.error(exception)
+                raise exception
+            elif mode == 'new':
+                logger.info('preparing to create a new layer: {!r}'.format(layer_name))
+            elif mode == 'overwrite':
+                logger.info('nothing to overwrite, preparing to create a new layer: {!r}'.format(layer_name))
+
         conn = self.storage.conn
 
         meta_columns = ()
@@ -804,16 +851,17 @@ class PgCollection:
 
         with conn.cursor() as c:
             try:
-                conn.autocommit = False
+                conn.autocommit = True
                 # create table and indices
-                self.create_layer_table(cursor=c,
-                                        layer_name=layer_name,
-                                        create_index=create_index,
-                                        ngram_index=ngram_index,
-                                        overwrite=overwrite,
-                                        meta=meta)
+                if mode in {'new', 'overwrite'}:
+                    self.create_layer_table(cursor=c,
+                                            layer_name=layer_name,
+                                            create_index=create_index,
+                                            ngram_index=ngram_index,
+                                            overwrite=(mode == 'overwrite'),
+                                            meta=meta)
                 # insert data
-                id_ = 0
+                structure_written = (mode == 'append')
                 with self.buffered_layer_insert(table_identifier=self._layer_identifier(layer_name),
                                                 columns=columns,
                                                 query_length_limit=query_length_limit) as buffered_insert:
@@ -824,7 +872,7 @@ class PgCollection:
                             layer_dict = layer_to_dict(layer, text)
                             layer_json = json.dumps(layer_dict, ensure_ascii=False)
 
-                            values = [id_, collection_id, layer_json]
+                            values = [None, collection_id, layer_json]
 
                             if meta_columns:
                                 values.extend(record.meta[k] for k in meta_columns)
@@ -834,11 +882,13 @@ class PgCollection:
                                                                              attribute=attr,
                                                                              n=ngram_index[attr])
                                               for attr in ngram_index_keys)
-                            buffered_insert(values=list(map(Literal, values)))
-
-                            id_ += 1
-                    self._insert_into_structure(layer, detached=True, meta=meta)
-            except:
+                            values = list(map(Literal, values))
+                            values[0] = DEFAULT
+                            buffered_insert(values=values)
+                            if not structure_written:
+                                self._insert_into_structure(layer, detached=True, meta=meta)
+                                structure_written = True
+            except Exception:
                 conn.rollback()
                 raise
             finally:
@@ -1316,7 +1366,11 @@ class PostgresStorage:
                       [schema, table])
             return c.fetchone()[0]
 
-    def count_rows(self, table):
+    def count_rows(self, table=None, table_identifier=None):
+        if table_identifier is not None:
+            with self.conn.cursor() as c:
+                c.execute(SQL("SELECT count(*) FROM {}").format(table_identifier))
+                return c.fetchone()[0]
         with self.conn.cursor() as c:
             c.execute(SQL("SELECT count(*) FROM {}.{}").format(Identifier(self.schema), Identifier(table)))
             nrows = c.fetchone()[0]

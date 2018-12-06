@@ -2,6 +2,7 @@
 Operations for Estnltk Layer object.
 
 """
+from typing import Container
 from itertools import groupby
 from operator import eq
 from pandas import DataFrame
@@ -10,6 +11,26 @@ from collections import Counter, defaultdict
 
 from estnltk import Layer
 from estnltk.layer.span_operations import equal_support
+
+
+def keep_annotations(layer: Layer, attribute: str, values: Container, function=None):
+    to_remove = []
+    for i, span in enumerate(layer):
+        for j, annotation in enumerate(span):
+            if getattr(annotation, attribute) not in values:
+                to_remove.append((i, j))
+    for i, j in reversed(to_remove):
+        del layer[i][j]
+
+
+def drop_annotations(layer: Layer, attribute: str, values: Container, function=None):
+    to_remove = []
+    for i, span in enumerate(layer):
+        for j, annotation in enumerate(span):
+            if getattr(annotation, attribute) in values:
+                to_remove.append((i, j))
+    for i, j in reversed(to_remove):
+        del layer[i][j]
 
 
 def unique_texts(layer: Layer, order=None):
@@ -287,6 +308,7 @@ def compute_layer_intersection(text, layer1, layer2, method='union'):
 
 
 
+# TODO: merge into remove_annotations
 def apply_simple_filter(text, layer='', restriction='', option=OR):
     """Creates a layer with the options from user input. """
     dicts = []

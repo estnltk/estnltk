@@ -1,10 +1,12 @@
+import pytest
+
 from estnltk import Text
 from estnltk.taggers import TimexTagger
 
 
 def test_timex_tagging_1():
     # Test the basic functionality of the TimexTagger
-    all_timex_attributes = ['text']+list(TimexTagger.attributes)
+    all_timex_attributes = ['text']+list(TimexTagger.output_attributes)
     #all_timex_attributes = list(TimexTagger.attributes)
     tagger = TimexTagger(output_ordered_dicts=False)
     
@@ -70,14 +72,16 @@ def test_timex_tagging_1():
             # Make assertions
             assert expected_vals == result_vals
 
-    # Clean-up: Terminate Java process
-    tagger._java_process._process.terminate()
+    # Terminate the process "manually"
+    tagger.__exit__()
+    # Check that the process is terminated
+    assert tagger._java_process._process.poll() is not None
 
 
 
 def test_timex_tagging_2_implicit_durations():
     # Test TimexTagger on detecting timexes with implicit durations/intervals ('part_of_interval' attrib):
-    all_timex_attributes = ['text']+list(TimexTagger.attributes)+['part_of_interval']
+    all_timex_attributes = ['text']+list(TimexTagger.output_attributes)+['part_of_interval']
     tagger = TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False )
     test_data = [ {'text': 'Rahvusvaheline Festival Jazzkaar toimub 20.- 28. aprillini 2012.',\
                    'dct':'2012-04-15',\
@@ -143,14 +147,16 @@ def test_timex_tagging_2_implicit_durations():
             # Make assertions
             assert expected_vals == result_vals
 
-    # Clean-up: Terminate Java process
-    tagger._java_process._process.terminate()
+    # Terminate the process "manually"
+    tagger.__exit__()
+    # Check that the process is terminated
+    assert tagger._java_process._process.poll() is not None
 
 
 
 def test_timex_tagging_3_gaps_in_dct():
     # Test TimexTagger on texts that have gaps in their document creation dates
-    all_timex_attributes = ['text']+list(TimexTagger.attributes)+['part_of_interval']
+    all_timex_attributes = ['text']+list(TimexTagger.output_attributes)+['part_of_interval']
     tagger = TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False )
     test_data = [ {'text': 'Rahvusvaheline Festival Jazzkaar toimub 20.- 28. aprillini.',\
                    'dct':'2012-04-XX',\
@@ -198,13 +204,15 @@ def test_timex_tagging_3_gaps_in_dct():
             # Make assertions
             assert expected_vals == result_vals
 
-    # Clean-up: Terminate Java process
-    tagger._java_process._process.terminate()
+    # Terminate the process "manually"
+    tagger.__exit__()
+    # Check that the process is terminated
+    assert tagger._java_process._process.poll() is not None
 
 
 def test_timex_tagging_4_additional_rules():
     # Test TimexTagger with some additional rules
-    all_timex_attributes = ['text']+list(TimexTagger.attributes)+['part_of_interval']
+    all_timex_attributes = ['text']+list(TimexTagger.output_attributes)+['part_of_interval']
     tagger = TimexTagger( mark_part_of_interval=True, output_ordered_dicts=False )
     test_data = [ # eile-täna
                   {'text': 'Ma just käisin eile-täna seal jalgrattaga.',\
@@ -242,10 +250,26 @@ def test_timex_tagging_4_additional_rules():
                            'end_point':   {'tid': 't3', 'value': '2009-07-30', 'type': 'DATE', 'temporalFunction': 'true'} }, \
                    ]
                   },\
+                  # ISO format date #1
+                  {'text': '2007.05.03\n\nViinata volber möödus rahulikult',\
+                   'dct':'2018-12-05',\
+                   'expected_timexes': [ \
+                       {'text':['2007.05.03'], 'tid':'t1', 'type':'DATE', 'value':'2007-05-03', 'temporal_function':False , 'anchor_time_id':None,  }, \
+                   ]
+                  },\
+                  # ISO format date #2
+                  {'text': 'Mõtteid ja ideid saab esitada kultuuripealinna kodulehel ning sündmus peab juhtuma ajavahemikus 2010.01.01 – 2010.12.31.',\
+                   'dct':'2018-12-05',\
+                   'expected_timexes': [ \
+                       {'text':['2010.01.01'], 'tid':'t1', 'type':'DATE', 'value':'2010-01-01', 'temporal_function':False , 'anchor_time_id':None,  }, \
+                       {'text':['2010.12.31'], 'tid':'t2', 'type':'DATE', 'value':'2010-12-31', 'temporal_function':False , 'anchor_time_id':None,  }, \
+                   ]
+                  },\
+                  
                 ]
     for test_item in test_data:
         # Prepare text
-        text = Text(test_item['text'])
+        text = Text( test_item['text'] )
         if 'dct' in test_item:
             text.meta['dct'] = test_item['dct']
         text.tag_layer(['words', 'sentences', 'morph_analysis'])
@@ -265,5 +289,34 @@ def test_timex_tagging_4_additional_rules():
             # Make assertions
             assert expected_vals == result_vals
 
-    # Clean-up: Terminate Java process
-    tagger._java_process._process.terminate()
+    # Terminate the process "manually"
+    tagger.__exit__()
+    # Check that the process is terminated
+    assert tagger._java_process._process.poll() is not None
+
+
+
+
+def test_timex_tagger_context_tear_down():
+    # Tests after exiting TimexTagger's context manager, the process has been 
+    # torn down and no longer available
+    text = Text( 'Testimise tekst.' )
+    text.tag_layer(['words', 'sentences', 'morph_analysis'])
+    # 1) Apply tagger as a context manager
+    with TimexTagger() as tagger:
+        tagger.tag(text)
+    # Check: polling the process should not return None
+    assert tagger._java_process._process.poll() is not None
+    # Check: After context has been torn down, we should get an assertion error
+    with pytest.raises(AssertionError) as e1:
+        tagger.tag(text)
+    
+    # 2) Apply tagger outside with, and use the __exit__() method
+    tagger2 = TimexTagger()
+    # Check that the process is running
+    assert tagger2._java_process._process.poll() is None
+    # Terminate the process "manually"
+    tagger2.__exit__()
+    # Check that the process is terminated
+    assert tagger2._java_process._process.poll() is not None
+

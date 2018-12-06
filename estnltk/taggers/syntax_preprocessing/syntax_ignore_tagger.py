@@ -555,7 +555,7 @@ class SyntaxIgnoreTagger( Tagger ):
 
 
     def _make_layer(self, text: 'Text', layers, status: dict):
-        """Creates words layer.
+        """Creates syntax_ignore layer.
         
         Parameters
         ----------

@@ -57,6 +57,11 @@ class AmbiguousSpan(collections.Sequence):
             self._annotations.append(annotation)
             return annotation
 
+    def __delitem__(self, key):
+        del self._annotations[key]
+        if not self._annotations:
+            self.layer.remove_span(self)
+
     def add_layer(self, layer):
         self._span.add_layer(layer)
 
