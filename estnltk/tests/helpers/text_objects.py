@@ -31,19 +31,24 @@ text_1['layer_5'] = layer_5
 text_2 = Text('Tere, maailm!')
 # short text with all kinds of layers
 text_3 = Text('Tere, maailm!')
-layer_0 = Layer('layer_0', attributes=['attr', 'attr_0'])
+layer_0 = Layer('layer_0', attributes=['attr', 'attr_0'], text_object=text_3)
 layer_0.add_span(Span(start=0,  end=4,  legal_attributes=['attr', 'attr_0'], attr='L0-0',  attr_0='A'))
 layer_0.add_span(Span(start=4,  end=5,  legal_attributes=['attr', 'attr_0'], attr='L0-1',  attr_0='B'))
 layer_0.add_span(Span(start=6,  end=12, legal_attributes=['attr', 'attr_0'], attr='L0-2',  attr_0='C'))
 layer_0.add_span(Span(start=12, end=13, legal_attributes=['attr', 'attr_0'], attr='L0-3',  attr_0='D'))
 text_3['layer_0'] = layer_0
 
-layer_1 = Layer('layer_1', attributes=['attr', 'attr_1'], ambiguous=True)
-layer_2 = Layer('layer_2', attributes=['attr', 'attr_2'], ambiguous=False, parent='layer_0')
-layer_3 = Layer('layer_3', attributes=['attr', 'attr_3'], ambiguous=True, parent='layer_1')
-layer_4 = Layer('layer_4', attributes=['attr', 'attr_4'], ambiguous=False, enveloping='layer_1')
-layer_5 = Layer('layer_5', attributes=['attr', 'attr_5'], ambiguous=True, enveloping='layer_0')
+layer_1 = Layer('layer_1', attributes=['attr', 'attr_1'], text_object=text_3, ambiguous=True)
+layer_1.add_annotation(Span(start=0,  end= 4), attr='L1-0',  attr_1='A')
+layer_1.add_annotation(Span(start=4,  end= 5), attr='L1-1',  attr_1='B')
+layer_1.add_annotation(Span(start=6,  end=12), attr='L1-2',  attr_1='C')
+layer_1.add_annotation(Span(start=12, end=13), attr='L1-3',  attr_1='D')
 text_3['layer_1'] = layer_1
+
+layer_2 = Layer('layer_2', attributes=['attr', 'attr_2'], text_object=text_3, ambiguous=False, parent='layer_0')
+layer_3 = Layer('layer_3', attributes=['attr', 'attr_3'], text_object=text_3, ambiguous=True, parent='layer_1')
+layer_4 = Layer('layer_4', attributes=['attr', 'attr_4'], text_object=text_3, ambiguous=False, enveloping='layer_1')
+layer_5 = Layer('layer_5', attributes=['attr', 'attr_5'], text_object=text_3, ambiguous=True, enveloping='layer_0')
 text_3['layer_2'] = layer_2
 text_3['layer_3'] = layer_3
 text_3['layer_4'] = layer_4
