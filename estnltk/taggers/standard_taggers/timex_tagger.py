@@ -155,8 +155,8 @@ class TimexTagger( Tagger ):
 
     def _find_creation_date(self, text: Text):
         ''' Looks for the document creation time in the metadata of the given 
-            text object. If it is found (under key 'dct', 'document_creation_time', 
-            or 'creation_time'), and it has a correct format (Python's 
+            text object. If it is found ( under key 'dct', 'creation_time' or
+            'document_creation_time' ),  and it has a correct format (Python's 
             datetime.datetime obj, or string in the format 'YYYY-mm-ddTHH:MM'), 
             then returns the creation time string. Otherwise (there is no creation 
             time in the metadata) returns the current time (as string) and saves
@@ -176,8 +176,7 @@ class TimexTagger( Tagger ):
                 'YYYY-mm-ddTHH:MM');
         '''
         creation_date_from_meta = None
-        for dct_arg_name in ['dct', 'creation_date', 'document_creation_date', \
-                                    'creation_time', 'document_creation_time']:
+        for dct_arg_name in [ 'dct', 'creation_time', 'document_creation_time' ]:
             for meta_key in text.meta.keys():
                 if meta_key.lower() == dct_arg_name:
                    dct_candidate = text.meta[dct_arg_name]
