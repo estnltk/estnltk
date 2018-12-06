@@ -297,9 +297,9 @@ def test_timex_tagging_4_additional_rules():
 
 
 
-def test_timex_tagger_context_dear_down():
+def test_timex_tagger_context_tear_down():
     # Tests after exiting TimexTagger's context manager, the process has been 
-    # deared down and no longer availabe
+    # torn down and no longer available
     text = Text( 'Testimise tekst.' )
     text.tag_layer(['words', 'sentences', 'morph_analysis'])
     # 1) Apply tagger as a context manager
@@ -307,7 +307,7 @@ def test_timex_tagger_context_dear_down():
         tagger.tag(text)
     # Check: polling the process should not return None
     assert tagger._java_process._process.poll() is not None
-    # Check: After context has been deared down, we should get an assertion error
+    # Check: After context has been torn down, we should get an assertion error
     with pytest.raises(AssertionError) as e1:
         tagger.tag(text)
     
