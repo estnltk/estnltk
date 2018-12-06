@@ -1,3 +1,5 @@
+from .layer_operations import drop_annotations
+from .layer_operations import keep_annotations
 from .layer_operations import apply_simple_filter
 from .layer_operations import unique_texts
 from .layer_operations import count_by

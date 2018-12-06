@@ -1,12 +1,13 @@
+from typing import Iterable, Sequence
 from estnltk.text import Span, Layer, Text
 from estnltk import EnvelopingSpan
 
 import networkx as nx
 
 
-def extract_sections(text,
-                     sections: list,
-                     layers_to_keep: list = None,
+def extract_sections(text: Text,
+                     sections: Iterable,
+                     layers_to_keep: Sequence = None,
                      trim_overlapping: bool = False):
     """
     layers_to_keep
