@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Sequence
 from estnltk import Span, EnvelopingSpan, AmbiguousSpan
 
 
@@ -114,11 +114,18 @@ def equal_support(x: span, y: span) -> bool:
     raise TypeError('unexpected type of x: ' + str(type(x)))
 
 
-def symm_diff_ambiguous_spans(x: AmbiguousSpan, y: AmbiguousSpan):
+def symm_diff_ambiguous_spans(x: AmbiguousSpan, y: AmbiguousSpan, attributes: Sequence[str] = None):
     assert isinstance(x, AmbiguousSpan)
     assert isinstance(y, AmbiguousSpan)
-    annot_x = [a for a in x if a not in y]
-    annot_y = [a for a in y if a not in x]
+    if attributes is None:
+        annot_x = [a for a in x if a not in y]
+        annot_y = [a for a in y if a not in x]
+    else:
+        values_x = [[getattr(annot, attr) for attr in attributes] for annot in x.annotations]
+        values_y = [[getattr(annot, attr) for attr in attributes] for annot in y.annotations]
+        annot_x = [a for a, values in zip(x, values_x) if values not in values_y]
+        annot_y = [a for a, values in zip(y, values_y) if values not in values_x]
+
     return annot_x, annot_y
 
 

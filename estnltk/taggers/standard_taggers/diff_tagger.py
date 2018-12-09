@@ -106,7 +106,8 @@ class DiffTagger(Tagger):
                         b_spans_extra = list(b_spans)
                     if a_spans is not None and b_spans is not None:
                         span_status = 'modified'
-                        a_spans_missing, b_spans_extra = symm_diff_ambiguous_spans(a_spans, b_spans)
+                        a_spans_missing, b_spans_extra = symm_diff_ambiguous_spans(a_spans, b_spans,
+                                                                                   attributes=copy_attributes)
                     for a in a_spans_missing:
                         attributes = {attr: getattr(a, attr, None) for attr in copy_attributes}
                         attributes[self.span_status_attribute] = span_status

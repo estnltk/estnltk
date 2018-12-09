@@ -5,7 +5,7 @@ from estnltk import Span, EnvelopingSpan, Layer
 def merge_layers(layers: Sequence[Layer],
                  output_layer: str,
                  output_attributes: Sequence[str],
-                 text) -> Layer:
+                 text=None) -> Layer:
     """
     Creates a new layer spans of which is the union of spans of input layers.
     The input layers must be of the same type (parent, enveloping, ambiguous).
@@ -23,10 +23,18 @@ def merge_layers(layers: Sequence[Layer],
     #assert all(layer.ambiguous == ambiguous for layer in layers),\
     #    'some layers are ambiguous, some are not: ' + str({layer.name: layer.ambiguous for layer in layers})
 
+    text_object = None
+    for layer in layers:
+        if layer.text_object is not None:
+            text_object = layer.text_object
+            break
+    assert text is None or text is text_object
+    text_object = text_object or text
+
     new_layer = Layer(
         name=output_layer,
         attributes=tuple(output_attributes),
-        text_object=text,
+        text_object=text_object,
         parent=parent,
         enveloping=enveloping,
         ambiguous=ambiguous
