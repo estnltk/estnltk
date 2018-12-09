@@ -176,7 +176,7 @@ class PgCollection:
 
     # TODO: merge this with buffered_layer_insert
     @contextmanager
-    def buffered_insert(self, buffer_size=1000, query_length_limit=5000000):
+    def buffered_insert(self, buffer_size=10000, query_length_limit=5000000):
         buffer = []
         self._buffered_insert_query_length = 0
 
