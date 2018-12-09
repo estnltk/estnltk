@@ -19,22 +19,42 @@ def test_drop_annotations():
     text = new_text(3)
     drop_annotations(layer=text.layer_1,
                      attribute='attr_1',
-                     values={'B', 'D'},
-                     function=None  # default: None
+                     values={'A', 'D'}
                      )
-    assert text.layer_1['attr', 'attr_1'] == AmbiguousAttributeTupleList([[['L1-0', 'A']], [['L1-2', 'C']]],
-                                                                         ('attr', 'attr_1'))
+    expected = AmbiguousAttributeTupleList([[['L1-0', 'B']], [['L1-1', 'C']], [['L1-2', 'E']], [['L1-3', 'F']]],
+                                           ('attr', 'attr_1'))
+    assert text.layer_1['attr', 'attr_1'] == expected
 
 
 def test_keep_annotations():
+    # test attribute and values
     text = new_text(3)
     keep_annotations(layer=text.layer_1,
                      attribute='attr_1',
-                     values={'A', 'C'},
-                     function=None  # default: None
+                     values={'B', 'C', 'E', 'F'}
                      )
-    assert text.layer_1['attr', 'attr_1'] == AmbiguousAttributeTupleList([[['L1-0', 'A']], [['L1-2', 'C']]],
-                                                                         ('attr', 'attr_1'))
+    expected = AmbiguousAttributeTupleList([[['L1-0', 'B']], [['L1-1', 'C']], [['L1-2', 'E']], [['L1-3', 'F']]],
+                                           ('attr', 'attr_1'))
+    assert text.layer_1['attr', 'attr_1'] == expected
+
+    # test function
+    def function(annotation):
+        return len(annotation.span) == 1
+
+    text = new_text(3)
+    keep_annotations(layer=text.layer_1,
+                     function=function
+                     )
+    assert text.layer_1['attr', 'attr_1'] == expected
+
+    # test keep_last_annotation=True
+    text = new_text(3)
+    keep_annotations(layer=text.layer_1,
+                     attribute='attr_1',
+                     values={},
+                     keep_last_annotation=True
+                     )
+    assert text.layer_1['attr', 'attr_1'] == expected
 
 
 def first_text():
