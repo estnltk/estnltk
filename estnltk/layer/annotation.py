@@ -33,6 +33,10 @@ class Annotation:
         return self._ambiguous_span.end
 
     @property
+    def span(self):
+        return self._ambiguous_span
+
+    @property
     def text(self):
         return self.layer.text_object.text[self.start:self.end]
 
