@@ -1,12 +1,17 @@
 
 
-def find_examples(collection, layer, attributes, return_text, return_count=False, **kwargs):
+def find_examples(collection, layer, attributes, output_layers=None, return_text=False, return_count=False, **kwargs):
     """Find examples for attribute value tuples in the collection."""
+    if output_layers is None:
+        output_layers = [layer]
+    if layer not in output_layers:
+        output_layers.append(layer)
+
     if return_count:
         raise NotImplementedError('return_count=True not yet implemented')
     else:
         examples = set()
-        for key, text in collection.select(layers=[layer], **kwargs):
+        for key, text in collection.select(layers=output_layers, **kwargs):
             for span_pos, span in enumerate(text[layer]):
                 for annotation in span.annotations:
                     example = tuple(getattr(annotation, attr) for attr in attributes)
