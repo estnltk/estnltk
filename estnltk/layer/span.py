@@ -1,6 +1,8 @@
 from typing import MutableMapping, Any, Sequence
 from html import escape
 
+from estnltk.layer.annotation import Annotation
+
 
 class Span:
     def __init__(self, start: int=None, end: int=None, parent=None, *,
@@ -47,6 +49,20 @@ class Span:
         for k, v in attributes.items():
             if k in legal_attributes:
                 self.__setattr__(k, v)
+
+    def __len__(self):
+        return 1
+
+    def __getitem__(self, item):
+        return self.annotations[item]
+
+    @property
+    def annotations(self):
+        annotation = Annotation(self)
+        legal_attribute_names = self.__getattribute__('layer').__getattribute__('attributes')
+        for attr in legal_attribute_names:
+            setattr(annotation, attr, getattr(self, attr))
+        return [annotation]
 
     @property
     def legal_attribute_names(self) -> Sequence[str]:
