@@ -14,8 +14,10 @@ class IndirectPlainSpanVisualiser(SpanDecorator):
 
     js_added = False
 
+    # use None as default for css_file and js_file and define default file names in the __init__ body
     def __init__(self, id_mapping=None, class_mapping=None, css_file=rel_path("visualisation/prettyprinter.css"),
                  fill_empty_spans=False, css_added=False, js_file=rel_path("visualisation/new_prettyprinter.js")):
+
         self.id_mapping = id_mapping
         self.class_mapping = class_mapping
         self.css_file = css_file

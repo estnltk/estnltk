@@ -1,33 +1,39 @@
 from IPython.display import display_html
 from estnltk import Layer
 
-def decompose_to_elementary_spans (layer,text):
+
+def decompose_to_elementary_spans(layer, text):
     spanindexes = []
-    
+
+    # Make it a set already here
     for s in layer.spans:
+        # remove spurious lines
         spanstart = s.start
         spanend = s.end
+        # -----
         spanindexes.append(spanstart)
         spanindexes.append(spanend)
     
-    html_spans=[]
-    
+    html_spans = []
+
     spanindexes = sorted(set(spanindexes))
     
-    if spanindexes[0]!=0:
-        spanindexes.insert(0,0)
-    if spanindexes[-1]!=len(text):
+    if spanindexes[0] != 0:
+        spanindexes.insert(0, 0)
+    if spanindexes[-1] != len(text):
         spanindexes.append(len(text))
     
     for i in range(len(spanindexes)-1):
         span_text = text[spanindexes[i]:spanindexes[i+1]]
-        html_spans.append([spanindexes[i],spanindexes[i+1],span_text])
-    
+        html_spans.append([spanindexes[i], spanindexes[i+1], span_text])
+
+    # Re-iterate all spans once again and map them to html-spans
+    # O(n^2) vs O(n)
     for i, html_span in enumerate(html_spans):
-        span_list=[]
+        span_list = []
         span_start = html_span[0]
         for s in layer.spans:
-            if span_start in range (s.start,s.end):
+            if span_start in range(s.start, s.end):
                 span_list.append(s)
         html_span.append(span_list)
         del html_span[0:2]
@@ -35,6 +41,7 @@ def decompose_to_elementary_spans (layer,text):
     return html_spans
 
 
+# Remove this class. It is obsolete
 class EstnltkDisplay:
     """Fancy display for estnltk objects."""
 
