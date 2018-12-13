@@ -6,6 +6,7 @@ from estnltk.core import PACKAGE_PATH
 
 from estnltk.layer import AmbiguousAttributeList, AttributeList
 
+from estnltk.corpus_processing.parse_enc2017 import PrevertXMLFileParser
 from estnltk.corpus_processing.parse_enc2017 import ENC2017TextReconstructor
 
 from estnltk.corpus_processing.parse_enc2017 import parse_enc2017_file_content_iterator
@@ -118,8 +119,7 @@ def test_parse_enc2017_file_iterator_with_empty_docs():
     inputfile_path = \
         os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_3)
     for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
-                                                 tokenization='preserve',
-                                                 discard_empty_fragments=True):
+                                                 tokenization='preserve'):
         texts.append( text_obj )
     # One document should be missing
     assert len(texts) == 3
@@ -129,9 +129,13 @@ def test_parse_enc2017_file_iterator_with_empty_docs():
     texts = []
     inputfile_path = \
         os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_3)
+    # Create PrevertXMLFileParser that does not discard empty fragments
+    reconstructor = ENC2017TextReconstructor(layer_name_prefix='original_')
+    prevertParser = PrevertXMLFileParser(discard_empty_fragments=False,\
+                                         textreconstructor=reconstructor)
     for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
                                                  tokenization='preserve',
-                                                 discard_empty_fragments=False):
+                                                 prevertParser=prevertParser):
         # Assert that:
         if text_obj.text is None or len(text_obj.text) == 0:
             # 1) an empty document has no layers
@@ -162,14 +166,14 @@ def test_parse_enc2017_with_original_tokens_and_add_morph_analysis():
     # 1) Create TextReconstructor that preserves original tokenization,
     #     but does not add prefix 'original_' to layer names
     #   (so, layer names will be identical to estnltk's layer names)
-    textreconstructor = ENC2017TextReconstructor(tokenization='preserve',\
+    textReconstructor = ENC2017TextReconstructor(tokenization='preserve',\
                                                  layer_name_prefix='')
     texts = []
     for inputfile in [ inputfile_1, inputfile_2, inputfile_3 ]:
         inputfile_path = \
             os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile)
         for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
-                                                     textreconstructor=textreconstructor ):
+                                                     textReconstructor=textReconstructor ):
             # Assert that required layers exist (and have correct names)
             assert 'sentences' in text_obj.layers
             assert 'words' in text_obj.layers

@@ -887,9 +887,8 @@ def parse_enc2017_file_iterator( in_file,
                                  focus_srcs=None, \
                                  focus_lang=None, \
                                  tokenization='preserve', \
-                                 discard_empty_fragments=True, \
-                                 store_fragment_attributes=True, \
-                                 textreconstructor=None ):
+                                 prevertParser=None, \
+                                 textReconstructor=None ):
     '''Opens an ENC 2017 corpus file (a prevert type file), reads 
        its content document by document, reconstructs Text objects 
        from the documents, and yields created Text objects one by 
@@ -955,30 +954,28 @@ def parse_enc2017_file_iterator( in_file,
             * 'estnltk'  -- text's original tokenization will be 
                             overwritten by estnltk's tokenization;
            (default: 'preserve')
+      
+       prevertParser: PrevertXMLFileParser
+           If set, then overrides the default PrevertXMLFileParser with the 
+           given prevertParser.
        
-       discard_empty_fragments: boolean
-           If set, then empty text fragments -- paragraphs and sentences --
-           will be discarded.
-           (default: True)
-       
-       store_fragment_attributes: boolean
-           If set, then attributes in the XML tag of a paragraph or sentence 
-           will be collected and added as attributes of the corresponding 
-           layer in Text object.
-           (default: True)
+       textReconstructor: ENC2017TextReconstructor
+           If set, then overrides the default ENC2017TextReconstructor with the 
+           given textReconstructor.
     '''
-    assert not textreconstructor or isinstance(textreconstructor, ENC2017TextReconstructor)
-    if textreconstructor:
-        reconstructor = textreconstructor
+    assert not textReconstructor or isinstance(textReconstructor, ENC2017TextReconstructor)
+    if textReconstructor:
+        reconstructor = textReconstructor
     else:
         reconstructor = ENC2017TextReconstructor(tokenization=tokenization,\
                                                  layer_name_prefix='original_')
-    xmlParser = PrevertXMLFileParser(
+    if prevertParser:
+        xmlParser = prevertParser
+    else:
+        xmlParser = PrevertXMLFileParser(
                    focus_ids=focus_doc_ids, \
                    focus_srcs=focus_srcs, \
                    focus_lang=focus_lang, \
-                   discard_empty_fragments=discard_empty_fragments, \
-                   store_fragment_attributes=store_fragment_attributes, \
                    textreconstructor=reconstructor )
     with open( in_file, mode='r', encoding=encoding ) as f:
         for line in f:
@@ -994,9 +991,8 @@ def parse_enc2017_file_content_iterator( content,
                                          focus_srcs=None, \
                                          focus_lang=None, \
                                          tokenization='preserve', \
-                                         discard_empty_fragments=True, \
-                                         store_fragment_attributes=True,\
-                                         textreconstructor=None ):
+                                         prevertParser=None, \
+                                         textReconstructor=None ):
     '''Reads ENC 2017 corpus file's content, extracts documents 
        based on the XML annotations, reconstructs Text objects from 
        the documents, and yields created Text objects one by one.
@@ -1060,35 +1056,29 @@ def parse_enc2017_file_content_iterator( content,
                             overwritten by estnltk's tokenization;
            (default: 'preserve')
        
-       discard_empty_fragments: boolean
-           If set, then empty text fragments -- paragraphs and sentences --
-           will be discarded.
-           (default: True)
+       prevertParser: PrevertXMLFileParser
+           If set, then overrides the default PrevertXMLFileParser with the 
+           given prevertParser.
        
-       store_fragment_attributes: boolean
-           If set, then attributes in the XML tag of a paragraph or sentence 
-           will be collected and added as attributes of the corresponding 
-           layer in Text object.
-           (default: True)
-       
-       textreconstructor: ENC2017TextReconstructor
+       textReconstructor: ENC2017TextReconstructor
            If set, then overrides the default ENC2017TextReconstructor with the 
-           given textreconstructor.
+           given textReconstructor.
     '''
     assert isinstance(content, str)
-    assert not textreconstructor or isinstance(textreconstructor, ENC2017TextReconstructor)
-    if textreconstructor:
-        reconstructor = textreconstructor
+    assert not textReconstructor or isinstance(textReconstructor, ENC2017TextReconstructor)
+    if textReconstructor:
+        reconstructor = textReconstructor
     else:
         reconstructor = ENC2017TextReconstructor(tokenization=tokenization,\
                                                  layer_name_prefix='original_')
-    xmlParser = PrevertXMLFileParser(
-                   focus_ids=focus_doc_ids, \
-                   focus_srcs=focus_srcs, \
-                   focus_lang=focus_lang, \
-                   discard_empty_fragments=discard_empty_fragments, \
-                   store_fragment_attributes=store_fragment_attributes, \
-                   textreconstructor=reconstructor )
+    if prevertParser:
+        xmlParser = prevertParser
+    else:
+        xmlParser = PrevertXMLFileParser(
+                       focus_ids=focus_doc_ids, \
+                       focus_srcs=focus_srcs, \
+                       focus_lang=focus_lang, \
+                       textreconstructor=reconstructor )
     # Process the content line by line
     for line in content.splitlines( keepends=True ):
         result = xmlParser.parse_next_line( line )
