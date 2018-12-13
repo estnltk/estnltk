@@ -23,7 +23,7 @@ inputfile_3 = 'test_enc2017_excerpt_3.vert'
 # ===========================================================
 
 def test_parse_enc2017_file_iterator_w_original_tokenization_1():
-    # Parse Texts from the ENC 2017 document (web17 subcorpus)
+    # Parse Texts from the ENC 2017 file (web17 subcorpus)
     texts = []
     inputfile_path = \
         os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_1)
@@ -67,7 +67,7 @@ def test_parse_enc2017_file_iterator_w_original_tokenization_1():
 
 
 def test_parse_enc2017_file_iterator_w_original_tokenization_2():
-    # Parse Texts from the ENC 2017 document (NC subcorpus)
+    # Parse Texts from the ENC 2017 file (NC subcorpus)
     texts = []
     inputfile_path = \
         os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_2)
@@ -111,8 +111,55 @@ def test_parse_enc2017_file_iterator_w_original_tokenization_2():
 
 
 
+def test_parse_enc2017_file_iterator_extract_specific_docs():
+    # Parse only specific Texts from the ENC 2017 file
+    # 1) Extract documents with specific id-s
+    focus_doc_ids=set()
+    focus_doc_ids.add('1071215')
+    focus_doc_ids.add('12446')
+    texts = []
+    for inputfile in [ inputfile_1, inputfile_2, inputfile_3 ]:
+        inputfile_path = \
+            os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile)
+        for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+                                                     focus_doc_ids=focus_doc_ids ):
+            texts.append( text_obj )
+    # Make assertions
+    assert len(focus_doc_ids) == len(texts)
+    doc1 = texts[0]
+    assert doc1.meta['id'] == '1071215'
+    assert len(doc1.original_words) == 46
+    assert len(doc1.original_sentences) == 5
+    doc2 = texts[1]
+    assert doc2.meta['id'] == '12446'
+    assert len(doc2.original_words) == 17
+    assert len(doc2.original_sentences) == 2
+
+    
+    # 2) Extract documents with specific src-s
+    focus_srcs=set()
+    focus_srcs.add('web17')
+    texts = []
+    for inputfile in [ inputfile_1, inputfile_2, inputfile_3 ]:
+        inputfile_path = \
+            os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile)
+        for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+                                                     focus_srcs=focus_srcs ):
+            texts.append( text_obj )
+    # Make assertions
+    assert len(texts) == 3
+    doc1 = texts[0]
+    assert doc1.meta['id'] == '1071214'
+    assert len(doc1.original_words) == 24 
+    assert len(doc1.original_sentences) == 2
+    doc2 = texts[2]
+    assert doc2.meta['id'] == '2990189'
+    assert len(doc2.original_words) == 31
+    assert len(doc2.original_sentences) == 3
+
+
 def test_parse_enc2017_file_iterator_with_empty_docs():
-    # Parse Texts from the ENC 2017 document, and do not fail on empty documents
+    # Parse Texts from the ENC 2017 file, and do not fail on empty documents
 
     # 1) Discard empty fragments, including empty documents (default option)
     texts = []
@@ -160,7 +207,7 @@ def test_parse_enc2017_file_iterator_with_empty_docs():
 
 
 def test_parse_enc2017_with_original_tokens_and_add_morph_analysis():
-    # Parse Texts from the ENC 2017 document with original_paragraphs
+    # Parse Texts from the ENC 2017 file, preserve original
     # segmentation, and add estnltk's morph analysis
     
     # 1) Create TextReconstructor that preserves original tokenization,
