@@ -6,7 +6,7 @@ from estnltk.core import PACKAGE_PATH
 
 from estnltk.layer import AmbiguousAttributeList, AttributeList
 
-from estnltk.corpus_processing.parse_enc2017 import PrevertXMLFileParser
+from estnltk.corpus_processing.parse_enc2017 import VertXMLFileParser
 from estnltk.corpus_processing.parse_enc2017 import ENC2017TextReconstructor
 
 from estnltk.corpus_processing.parse_enc2017 import parse_enc2017_file_content_iterator
@@ -14,9 +14,9 @@ from estnltk.corpus_processing.parse_enc2017 import parse_enc2017_file_iterator
 
 from estnltk.layer_operations import split_by
 
-inputfile_1 = 'test_enc2017_excerpt_1.prevert'
-inputfile_2 = 'test_enc2017_excerpt_2.prevert'
-inputfile_3 = 'test_enc2017_excerpt_3.prevert'
+inputfile_1 = 'test_enc2017_excerpt_1.vert'
+inputfile_2 = 'test_enc2017_excerpt_2.vert'
+inputfile_3 = 'test_enc2017_excerpt_3.vert'
 
 # ===========================================================
 #    Loading ENC 2017 corpus files
@@ -129,13 +129,13 @@ def test_parse_enc2017_file_iterator_with_empty_docs():
     texts = []
     inputfile_path = \
         os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_3)
-    # Create PrevertXMLFileParser that does not discard empty fragments
+    # Create VertXMLFileParser that does not discard empty fragments
     reconstructor = ENC2017TextReconstructor(layer_name_prefix='original_')
-    prevertParser = PrevertXMLFileParser(discard_empty_fragments=False,\
-                                         textreconstructor=reconstructor)
+    vertParser = VertXMLFileParser(discard_empty_fragments=False,\
+                                   textReconstructor=reconstructor)
     for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
                                                  tokenization='preserve',
-                                                 prevertParser=prevertParser):
+                                                 vertParser=vertParser):
         # Assert that:
         if text_obj.text is None or len(text_obj.text) == 0:
             # 1) an empty document has no layers
