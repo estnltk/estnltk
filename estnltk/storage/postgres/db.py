@@ -454,6 +454,7 @@ class PgCollection:
                         detached_layers[layer.name] = layer
                 result = text_id, text, meta, detached_layers
                 yield result
+        c.close()
 
     def _select(self, query=None, layer_query=None, layer_ngram_query=None, layers=None, keys=None,
                 order_by_key=False, collection_meta=None, missing_layer: str = None):
@@ -1042,6 +1043,7 @@ class PgCollection:
                 # no exception, transaction in progress
                 conn.commit()
             conn.autocommit = True
+            logger.info('collection {!r} deleted'.format(self.table_name))
 
     def _drop_table(self, identifier):
         with self.storage.conn.cursor() as c:
@@ -1137,6 +1139,10 @@ class PgCollection:
                                                             SQL(', ').join(map(Literal, values))
                                                             ))
         logger.info('{} annotations exported to "{}"."{}"'.format(i, self.storage.schema, export_table))
+
+    def _repr_html_(self):
+        return ('<h3>Collection</h3><br/>name: {}'
+                '<h4>Layers</h4>structure table').format(self.table_name)
 
 
 class PostgresStorage:
