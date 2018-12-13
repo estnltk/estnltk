@@ -16,6 +16,9 @@
 #  have remained.
 #
 
+from logging import Logger
+from logging import getLevelName
+
 import re
 
 from estnltk.text import Text, Layer, EnvelopingSpan
@@ -101,7 +104,8 @@ class ENC2017TextReconstructor:
                        paragraph_separator='\n\n', \
                        sentence_separator =' ', \
                        word_separator=' ', \
-                       layer_name_prefix='' ):
+                       layer_name_prefix='',\
+                       logger=None ):
         '''Initializes the parser.
         
            Parameters
@@ -134,11 +138,14 @@ class ENC2017TextReconstructor:
                in the reconstructed text if original tokenization is
                preserved (tokenization == 'preserve');
                Default: ''
+           logger: logging.Logger
+               Logger to be used for warning and debug messages.
         '''
         assert isinstance(paragraph_separator, str)
         assert isinstance(sentence_separator, str)
         assert isinstance(word_separator, str)
         assert isinstance(layer_name_prefix, str)
+        assert not logger or isinstance(logger, Logger)
         assert tokenization in [None, 'none', 'preserve', 'estnltk'], \
             '(!) Unknown tokenization option: {!r}'.format(tokenization)
         if not tokenization:
@@ -148,6 +155,7 @@ class ENC2017TextReconstructor:
         self.sentence_separator  = sentence_separator
         self.word_separator      = word_separator
         self.layer_name_prefix   = layer_name_prefix
+        self.logger              = logger
 
 
 
@@ -471,6 +479,15 @@ class ENC2017TextReconstructor:
 
 
 
+    def _log( self, level, msg ):
+        '''Writes a logging message if logging facility is available.'''
+        if self.logger is not None:
+            assert isinstance(level, str)
+            level = getLevelName( level.upper() )
+            self.logger.log(level, msg)
+
+
+
 # =================================================
 #   Parsing ENC 2017 corpus files
 # =================================================
@@ -497,7 +514,8 @@ class PrevertXMLFileParser:
                        discard_empty_fragments=True, \
                        store_fragment_attributes=True, \
                        add_unknown_tags_to_words=True, \
-                       textreconstructor=None ):
+                       textreconstructor=None,\
+                       logger=None ):
         '''Initializes the parser.
         
            Parameters
@@ -546,7 +564,10 @@ class PrevertXMLFileParser:
                ENC2017TextReconstructor instance that can be used for reconstructing
                the Text object based on extracted document content;
                Default: None
+           logger: logging.Logger
+               Logger to be used for warning and debug messages.
         '''
+        assert not logger or isinstance(logger, Logger)
         # Initialize the state of parsing
         self.lines            = 0
         self.inside_focus_doc = False
@@ -572,6 +593,7 @@ class PrevertXMLFileParser:
         self.discard_empty_fragments   = discard_empty_fragments
         self.add_unknown_tags_to_words = add_unknown_tags_to_words
         self.textreconstructor         = textreconstructor
+        self.logger                    = logger
         # Patterns for detecting tags
         self.enc_doc_tag_start  = re.compile("^<doc[^<>]+>\s*$")
         self.enc_doc_tag_end    = re.compile("^</doc>\s*$")
@@ -616,6 +638,10 @@ class PrevertXMLFileParser:
                 if key in ['_paragraphs','_sentences','_words','_original_words']:
                    raise Exception("(!) Improper key name "+key+" in tag <doc>.")
                 self.document[key] = value
+            if 'id' not in self.document:
+                self._log( 'CRITICAL', '(!) doc-tag misses id attribute: {!r}'.format(stripped_line))
+            if 'src' not in self.document and 'id' in self.document:
+                self._log( 'WARNING', 'Document with id={} misses src attribute'.format(self.document['id']))
             # Check if the document passes filters: id, src, lang
             doc_filters_passed = []
             if self.focus_doc_ids is not None:
@@ -643,6 +669,7 @@ class PrevertXMLFileParser:
                     if '_sentences' not in self.content and \
                        '_paragraphs' not in self.content:
                         # if the document had no content, discard it ...
+                        self._log( 'WARNING', 'Discarding empty document with id={}'.format(self.document['id']) )
                         self.lines += 1
                         return None
                 # Carry over metadata attributes
@@ -707,7 +734,7 @@ class PrevertXMLFileParser:
                 # and if the next line is <info ...>, then
                 # this document will be discarded altogether
                 # --------------------------------------------
-                # TODO log problematic case
+                self._log( 'WARNING', 'Malformed tag in doc with id={}: tag </info> without <info>'.format(self.document['id']) )
                 self.lines += 1
                 return None
             if self.discard_empty_fragments:
@@ -715,6 +742,7 @@ class PrevertXMLFileParser:
                 if '_sentences' not in parent and \
                    '_paragraphs' not in parent:
                     # if the document had no content, discard it ...
+                    self._log( 'WARNING', 'Discarding empty subdocument: doc id={} subdoc id={}'.format(self.document['id'], document['subdoc_id']) )
                     self.lines += 1
                     return None
             self.lines += 1
@@ -877,6 +905,14 @@ class PrevertXMLFileParser:
         self.last_was_glue = False
 
 
+    def _log( self, level, msg ):
+        '''Writes a logging message if logging facility is available.'''
+        if self.logger is not None:
+            assert isinstance(level, str)
+            level = getLevelName( level.upper() )
+            self.logger.log(level, msg)
+
+
 # =================================================
 #   Corpus iterators
 # =================================================
@@ -888,7 +924,8 @@ def parse_enc2017_file_iterator( in_file,
                                  focus_lang=None, \
                                  tokenization='preserve', \
                                  prevertParser=None, \
-                                 textReconstructor=None ):
+                                 textReconstructor=None, \
+                                 logger=None  ):
     '''Opens an ENC 2017 corpus file (a prevert type file), reads 
        its content document by document, reconstructs Text objects 
        from the documents, and yields created Text objects one by 
@@ -962,13 +999,18 @@ def parse_enc2017_file_iterator( in_file,
        textReconstructor: ENC2017TextReconstructor
            If set, then overrides the default ENC2017TextReconstructor with the 
            given textReconstructor.
+       
+       logger: logging.Logger
+           Logger to be used for warning and debug messages.
     '''
+    assert not prevertParser or isinstance(prevertParser, PrevertXMLFileParser)
     assert not textReconstructor or isinstance(textReconstructor, ENC2017TextReconstructor)
     if textReconstructor:
         reconstructor = textReconstructor
     else:
         reconstructor = ENC2017TextReconstructor(tokenization=tokenization,\
-                                                 layer_name_prefix='original_')
+                                                 layer_name_prefix='original_',\
+                                                 logger=logger)
     if prevertParser:
         xmlParser = prevertParser
     else:
@@ -976,7 +1018,8 @@ def parse_enc2017_file_iterator( in_file,
                    focus_ids=focus_doc_ids, \
                    focus_srcs=focus_srcs, \
                    focus_lang=focus_lang, \
-                   textreconstructor=reconstructor )
+                   textreconstructor=reconstructor,\
+                   logger=logger )
     with open( in_file, mode='r', encoding=encoding ) as f:
         for line in f:
             result = xmlParser.parse_next_line( line )
@@ -992,7 +1035,8 @@ def parse_enc2017_file_content_iterator( content,
                                          focus_lang=None, \
                                          tokenization='preserve', \
                                          prevertParser=None, \
-                                         textReconstructor=None ):
+                                         textReconstructor=None, \
+                                         logger=None ):
     '''Reads ENC 2017 corpus file's content, extracts documents 
        based on the XML annotations, reconstructs Text objects from 
        the documents, and yields created Text objects one by one.
@@ -1063,14 +1107,19 @@ def parse_enc2017_file_content_iterator( content,
        textReconstructor: ENC2017TextReconstructor
            If set, then overrides the default ENC2017TextReconstructor with the 
            given textReconstructor.
+       
+       logger: logging.Logger
+           Logger to be used for warning and debug messages.
     '''
     assert isinstance(content, str)
+    assert not prevertParser or isinstance(prevertParser, PrevertXMLFileParser)
     assert not textReconstructor or isinstance(textReconstructor, ENC2017TextReconstructor)
     if textReconstructor:
         reconstructor = textReconstructor
     else:
         reconstructor = ENC2017TextReconstructor(tokenization=tokenization,\
-                                                 layer_name_prefix='original_')
+                                                 layer_name_prefix='original_',\
+                                                 logger=logger)
     if prevertParser:
         xmlParser = prevertParser
     else:
@@ -1078,7 +1127,8 @@ def parse_enc2017_file_content_iterator( content,
                        focus_ids=focus_doc_ids, \
                        focus_srcs=focus_srcs, \
                        focus_lang=focus_lang, \
-                       textreconstructor=reconstructor )
+                       textreconstructor=reconstructor,\
+                       logger=logger)
     # Process the content line by line
     for line in content.splitlines( keepends=True ):
         result = xmlParser.parse_next_line( line )
