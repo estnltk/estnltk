@@ -60,8 +60,8 @@ def parse_tag_attributes( tag_str ):
 
 
 def extract_doc_ids_from_corpus_file( in_file, encoding='utf-8' ):
-    '''Opens a prevert corpus file, reads its content, and extracts 
-       all document id-s. 
+    '''Opens a vert / prevert corpus file, reads its content, and 
+       extracts all document id-s. 
        Returns a list of document id-s (list of strings).
        
        Parameters
@@ -96,7 +96,7 @@ def extract_doc_ids_from_corpus_file( in_file, encoding='utf-8' ):
 
 class ENC2017TextReconstructor:
     """ ENC2017TextReconstructor builds Estnltk Text objects 
-        based on document contents extracted by PrevertXMLFileParser.
+        based on document contents extracted by VertXMLFileParser.
     """
     NOT_METADATA_KEYS = ['_paragraphs','_sentences','_words','_original_words']
     
@@ -492,24 +492,25 @@ class ENC2017TextReconstructor:
 #   Parsing ENC 2017 corpus files
 # =================================================
 
-class PrevertXMLFileParser:
-    """ A very simple XMLParser that allows line by line parsing of prevert type 
-        XML files. The parser maintains the state and reconstructs a Text object 
+class VertXMLFileParser:
+    """ A very simple XMLParser that allows line by line parsing of vert type 
+        (or prevert type) XML files. 
+        The parser maintains the state and reconstructs a Text object 
         whenever a single document from XML has been completely parsed.
         
         This parser takes advantage of the simple structure of the input XML 
         files: all XML tags are on separate lines, so the line by line parsing 
         is actually the most straightforward approach.
         
-        * PrevertXMLFileParser is made for parsing prevert files of ENC 2017; 
-          the implementation is based on earlier EtTenTenXMLParser;
-        * prevert is an output file type used by the SpiderLing web crawler, 
-          see http://corpus.tools/wiki/SpiderLing for details; 
+        * VertXMLFileParser is made for parsing vert files of ENC 2017; 
+          the implementation is loosely based on earlier EtTenTenXMLParser;
+        * vert / prevert is an output file type used by the SpiderLing web 
+          crawler, see http://corpus.tools/wiki/SpiderLing for details; 
     """
     CORPUS_ANNOTATION_TAGS = ['g', 's', 'p', 'info', 'doc']
     HTML_ANNOTATION_TAGS   = ['div', 'span', 'i', 'b', 'br', 'ul', 'ol', 'li',
                               'table', 'caption', 'pre', 'tr', 'td', 'th', 'thead',
-                              'tfoot', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']
+                              'tfoot', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a']
 
     def __init__(self, focus_ids=None,\
                        focus_srcs=None,\
@@ -517,7 +518,7 @@ class PrevertXMLFileParser:
                        discard_empty_fragments=True, \
                        store_fragment_attributes=True, \
                        add_unexpected_tags_to_words=False, \
-                       textreconstructor=None,\
+                       textReconstructor=None,\
                        logger=None ):
         '''Initializes the parser.
         
@@ -595,7 +596,7 @@ class PrevertXMLFileParser:
         self.store_fragment_attributes = store_fragment_attributes
         self.discard_empty_fragments   = discard_empty_fragments
         self.add_unexpected_tags_to_words = add_unexpected_tags_to_words
-        self.textreconstructor            = textreconstructor
+        self.textreconstructor            = textReconstructor
         self.logger                       = logger
         # Patterns for detecting tags
         self.enc_doc_tag_start  = re.compile("^<doc[^<>]+>\s*$")
@@ -937,13 +938,13 @@ def parse_enc2017_file_iterator( in_file,
                                  focus_srcs=None, \
                                  focus_lang=None, \
                                  tokenization='preserve', \
-                                 prevertParser=None, \
+                                 vertParser=None, \
                                  textReconstructor=None, \
                                  logger=None  ):
-    '''Opens an ENC 2017 corpus file (a prevert type file), reads 
-       its content document by document, reconstructs Text objects 
-       from the documents, and yields created Text objects one by 
-       one.
+    '''Opens an ENC 2017 corpus file (a vert or prevert type file), 
+       reads its content document by document, reconstructs Text 
+       objects from the documents, and yields created Text objects 
+       one by one.
        
        If tokenization=='preserve' (default), then created Text 
        objects will have layers preserving original segmentation:
@@ -1006,9 +1007,9 @@ def parse_enc2017_file_iterator( in_file,
                             overwritten by estnltk's tokenization;
            (default: 'preserve')
       
-       prevertParser: PrevertXMLFileParser
-           If set, then overrides the default PrevertXMLFileParser with the 
-           given prevertParser.
+       vertParser: VertXMLFileParser
+           If set, then overrides the default VertXMLFileParser with the 
+           given vertParser.
        
        textReconstructor: ENC2017TextReconstructor
            If set, then overrides the default ENC2017TextReconstructor with the 
@@ -1017,7 +1018,7 @@ def parse_enc2017_file_iterator( in_file,
        logger: logging.Logger
            Logger to be used for warning and debug messages.
     '''
-    assert not prevertParser or isinstance(prevertParser, PrevertXMLFileParser)
+    assert not vertParser or isinstance(vertParser, VertXMLFileParser)
     assert not textReconstructor or isinstance(textReconstructor, ENC2017TextReconstructor)
     if textReconstructor:
         reconstructor = textReconstructor
@@ -1025,14 +1026,14 @@ def parse_enc2017_file_iterator( in_file,
         reconstructor = ENC2017TextReconstructor(tokenization=tokenization,\
                                                  layer_name_prefix='original_',\
                                                  logger=logger)
-    if prevertParser:
-        xmlParser = prevertParser
+    if vertParser:
+        xmlParser = vertParser
     else:
-        xmlParser = PrevertXMLFileParser(
+        xmlParser = VertXMLFileParser(
                    focus_ids=focus_doc_ids, \
                    focus_srcs=focus_srcs, \
                    focus_lang=focus_lang, \
-                   textreconstructor=reconstructor,\
+                   textReconstructor=reconstructor,\
                    logger=logger )
     with open( in_file, mode='r', encoding=encoding ) as f:
         for line in f:
@@ -1048,7 +1049,7 @@ def parse_enc2017_file_content_iterator( content,
                                          focus_srcs=None, \
                                          focus_lang=None, \
                                          tokenization='preserve', \
-                                         prevertParser=None, \
+                                         vertParser=None, \
                                          textReconstructor=None, \
                                          logger=None ):
     '''Reads ENC 2017 corpus file's content, extracts documents 
@@ -1114,9 +1115,9 @@ def parse_enc2017_file_content_iterator( content,
                             overwritten by estnltk's tokenization;
            (default: 'preserve')
        
-       prevertParser: PrevertXMLFileParser
-           If set, then overrides the default PrevertXMLFileParser with the 
-           given prevertParser.
+       vertParser: VertXMLFileParser
+           If set, then overrides the default VertXMLFileParser with the 
+           given vertParser.
        
        textReconstructor: ENC2017TextReconstructor
            If set, then overrides the default ENC2017TextReconstructor with the 
@@ -1126,7 +1127,7 @@ def parse_enc2017_file_content_iterator( content,
            Logger to be used for warning and debug messages.
     '''
     assert isinstance(content, str)
-    assert not prevertParser or isinstance(prevertParser, PrevertXMLFileParser)
+    assert not vertParser or isinstance(vertParser, VertXMLFileParser)
     assert not textReconstructor or isinstance(textReconstructor, ENC2017TextReconstructor)
     if textReconstructor:
         reconstructor = textReconstructor
@@ -1134,14 +1135,14 @@ def parse_enc2017_file_content_iterator( content,
         reconstructor = ENC2017TextReconstructor(tokenization=tokenization,\
                                                  layer_name_prefix='original_',\
                                                  logger=logger)
-    if prevertParser:
-        xmlParser = prevertParser
+    if vertParser:
+        xmlParser = vertParser
     else:
-        xmlParser = PrevertXMLFileParser(
+        xmlParser = VertXMLFileParser(
                        focus_ids=focus_doc_ids, \
                        focus_srcs=focus_srcs, \
                        focus_lang=focus_lang, \
-                       textreconstructor=reconstructor,\
+                       textReconstructor=reconstructor,\
                        logger=logger)
     # Process the content line by line
     for line in content.splitlines( keepends=True ):
