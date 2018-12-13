@@ -6,6 +6,8 @@ from estnltk.core import PACKAGE_PATH
 
 from estnltk.layer import AmbiguousAttributeList, AttributeList
 
+from estnltk.corpus_processing.parse_enc2017 import ENC2017TextReconstructor
+
 from estnltk.corpus_processing.parse_enc2017 import parse_enc2017_file_content_iterator
 from estnltk.corpus_processing.parse_enc2017 import parse_enc2017_file_iterator
 
@@ -13,9 +15,10 @@ from estnltk.layer_operations import split_by
 
 inputfile_1 = 'test_enc2017_excerpt_1.prevert'
 inputfile_2 = 'test_enc2017_excerpt_2.prevert'
+inputfile_3 = 'test_enc2017_excerpt_3.prevert'
 
 # ===========================================================
-#    Loading etTenTen corpus files
+#    Loading ENC 2017 corpus files
 # ===========================================================
 
 def test_parse_enc2017_file_iterator_w_original_tokenization_1():
@@ -104,4 +107,72 @@ def test_parse_enc2017_file_iterator_w_original_tokenization_2():
     assert len( doc2.original_word_chunks ) == 41
     assert 'original_words' in doc2.layers 
     assert len( doc2.original_words ) == 48
+
+
+
+def test_parse_enc2017_file_iterator_with_empty_docs():
+    # Parse Texts from the ENC 2017 document, and do not fail on empty documents
+
+    # 1) Discard empty fragments, including empty documents (default option)
+    texts = []
+    inputfile_path = \
+        os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_3)
+    for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+                                                 tokenization='preserve',
+                                                 discard_empty_fragments=True):
+        texts.append( text_obj )
+    # There should only be one document (because other one was empty)
+    assert len(texts) == 1
+    # 2) Allow empty documents, and create empty Text objects
+    original_layers = ['original_words', 'original_tokens', 'original_compound_tokens',\
+                       'original_sentences', 'original_paragraphs']
+    texts = []
+    inputfile_path = \
+        os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_3)
+    for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+                                                 tokenization='preserve',
+                                                 discard_empty_fragments=False):
+        # Assert that:
+        if text_obj.text is None or len(text_obj.text) == 0:
+            # 1) empty document has no layers
+            for layer in original_layers:
+                assert layer not in text_obj.layers
+        else:
+            # 2) not empty document has all layers
+            for layer in original_layers:
+                assert layer in text_obj.layers
+        texts.append( text_obj )
+    # There should be two documents (and first one is empty)
+    assert len(texts) == 2
+    
+
+
+
+def test_parse_enc2017_with_original_tokens_and_add_morph_analysis():
+    # Parse Texts from the ENC 2017 document with original_paragraphs
+    # segmentation, and add estnltk's morph analysis
+    
+    # 1) Create TextReconstructor that preserves original tokenization,
+    #     but does not add prefix 'original_' to layer names
+    #   (so, layer names will be identical to estnltk's layer names)
+    textreconstructor = ENC2017TextReconstructor(tokenization='preserve',\
+                                                 layer_name_prefix='')
+    texts = []
+    for inputfile in [ inputfile_1, inputfile_2, inputfile_3 ]:
+        inputfile_path = \
+            os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile)
+        for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+                                                     textreconstructor=textreconstructor ):
+            # Assert that required layers exist (and have correct names)
+            assert 'sentences' in text_obj.layers
+            assert 'words' in text_obj.layers
+            assert 'compound_tokens' in text_obj.layers
+            texts.append( text_obj )
+    # 2) Tag morph analyses
+    for text_obj in texts:
+        text_obj.tag_layer(['morph_analysis'])
+        # Make assertions
+        assert 'morph_analysis' in text_obj.layers
+        assert len(text_obj['morph_analysis']) == len(text_obj['words'])
+    
     

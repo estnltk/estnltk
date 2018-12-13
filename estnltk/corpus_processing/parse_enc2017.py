@@ -353,6 +353,9 @@ class ENC2017TextReconstructor:
            If attach_layers=True, attaches created layer to the 
            text_obj (default), otherwise, returns the list of 
            created layers.
+           
+           Note: if the input document is empty (has no words,
+           sentences nor paragraphs), no layers will be created.
         '''
         assert isinstance(text_obj, Text)
         orig_word_chunks     = None
@@ -362,14 +365,14 @@ class ENC2017TextReconstructor:
         orig_sentences       = None
         orig_paragraphs      = None
         # Create word chunks layer
-        if word_chunk_locations is not None:
+        if word_chunk_locations is not None and len(word_chunk_locations) > 0:
             orig_word_chunks = \
                 Layer(name=self.layer_name_prefix+'word_chunks', \
                       attributes=(), \
                       text_object=text_obj,\
                       ambiguous=False).from_records( word_chunk_locations )
         # Create words layer from the token records
-        if word_locations is not None:
+        if word_locations is not None and len(word_locations) > 0:
             # Create tokens layer
             orig_tokens = \
                 Layer(name=self.layer_name_prefix+TokensTagger.output_layer, \
@@ -426,7 +429,7 @@ class ENC2017TextReconstructor:
             assert sid == len(sent_locations)
         # Create paragraphs layer enveloping around sentences
         if para_locations is not None and len(para_locations) > 0 and \
-           orig_sentences is not None: 
+           orig_sentences is not None:
             p_attributes = ParagraphTokenizer.output_attributes
             if para_extra_attribs:
                 for attrib in para_extra_attribs:
@@ -526,8 +529,8 @@ class PrevertXMLFileParser:
                If None or empty, then all documents in the content will 
                be parsed.
            discard_empty_fragments: boolean
-               If set, then empty text fragments -- paragraphs and sentences --
-               will be discarded.
+               If set, then empty text fragments -- documents, paragraphs and 
+               sentences -- will be discarded.
                (default: True)
            store_fragment_attributes: boolean
                If set, then attributes in the XML tag of a paragraph or sentence 
@@ -635,9 +638,13 @@ class PrevertXMLFileParser:
                 self.lines += 1
                 return None
             else:
-                # If there were no subdocuments, then there must have been some 
-                # extracted content
-                assert '_sentences' in self.content or '_paragraphs' in self.content
+                if self.discard_empty_fragments:
+                    # Check that the document is not empty
+                    if '_sentences' not in self.content and \
+                       '_paragraphs' not in self.content:
+                        # if the document had no content, discard it ...
+                        self.lines += 1
+                        return None
                 # Carry over metadata attributes
                 for key, value in self.document.items():
                     assert key not in self.content, \
@@ -689,7 +696,13 @@ class PrevertXMLFileParser:
         if m_info_end:
             assert 'subdoc' in self.content
             parent = self.content['subdoc']
-            assert '_sentences' in parent or '_paragraphs' in parent
+            if self.discard_empty_fragments:
+                # Check that the document is not empty
+                if '_sentences' not in parent and \
+                   '_paragraphs' not in parent:
+                    # if the document had no content, discard it ...
+                    self.lines += 1
+                    return None
             self.lines += 1
             if self.textreconstructor:
                 # create Text object
