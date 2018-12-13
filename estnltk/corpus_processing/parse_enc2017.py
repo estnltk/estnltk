@@ -467,7 +467,7 @@ class ENC2017TextReconstructor:
                 if layer is not None:
                     text_obj[layer.name] = layer
         else:
-            return layers
+            return created_layers
 
 
 
@@ -694,8 +694,22 @@ class PrevertXMLFileParser:
                 self.content['subdoc'][key] = value
         # *** End of a subdocument (info)
         if m_info_end:
-            assert 'subdoc' in self.content
-            parent = self.content['subdoc']
+            if 'subdoc' in self.content:
+                parent = self.content['subdoc']
+            else:
+                # --------------------------------------------
+                # Note: If the first <info> tag is broken and 
+                # 'subdoc' is missing, like in document with 
+                # id==12446, then we will discard reconstruction
+                # of the document at this point.
+                # If the next line is </doc>, the document 
+                # would still be successfully reconstructed, 
+                # and if the next line is <info ...>, then
+                # this document will be discarded altogether
+                # --------------------------------------------
+                # TODO log problematic case
+                self.lines += 1
+                return None
             if self.discard_empty_fragments:
                 # Check that the document is not empty
                 if '_sentences' not in parent and \

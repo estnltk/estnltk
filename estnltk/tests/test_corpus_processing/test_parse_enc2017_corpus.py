@@ -121,11 +121,11 @@ def test_parse_enc2017_file_iterator_with_empty_docs():
                                                  tokenization='preserve',
                                                  discard_empty_fragments=True):
         texts.append( text_obj )
-    # There should only be one document (because other one was empty)
-    assert len(texts) == 1
+    # One document should be missing
+    assert len(texts) == 3
     # 2) Allow empty documents, and create empty Text objects
-    original_layers = ['original_words', 'original_tokens', 'original_compound_tokens',\
-                       'original_sentences', 'original_paragraphs']
+    original_word_layers  = ['original_words', 'original_tokens', 'original_compound_tokens']
+    original_upper_layers = ['original_sentences', 'original_paragraphs']
     texts = []
     inputfile_path = \
         os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_3)
@@ -134,16 +134,23 @@ def test_parse_enc2017_file_iterator_with_empty_docs():
                                                  discard_empty_fragments=False):
         # Assert that:
         if text_obj.text is None or len(text_obj.text) == 0:
-            # 1) empty document has no layers
-            for layer in original_layers:
+            # 1) an empty document has no layers
+            for layer in original_word_layers:
+                assert layer not in text_obj.layers
+            for layer in original_upper_layers:
                 assert layer not in text_obj.layers
         else:
-            # 2) not empty document has all layers
-            for layer in original_layers:
+            # 2) a document with content has:
+            #    2.1) all word layers
+            for layer in original_word_layers:
                 assert layer in text_obj.layers
+            #    2.2) either layers paragraphs/sentences or 
+            #         only sentences (depending on available)
+            #         annotations
+            assert any([l in text_obj.layers for l in original_upper_layers])
         texts.append( text_obj )
-    # There should be two documents (and first one is empty)
-    assert len(texts) == 2
+    # There should be one additional document (the empty one)
+    assert len(texts) == 4
     
 
 
