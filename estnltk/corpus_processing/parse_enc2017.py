@@ -506,14 +506,17 @@ class PrevertXMLFileParser:
         * prevert is an output file type used by the SpiderLing web crawler, 
           see http://corpus.tools/wiki/SpiderLing for details; 
     """
-
+    CORPUS_ANNOTATION_TAGS = ['g', 's', 'p', 'info', 'doc']
+    HTML_ANNOTATION_TAGS   = ['div', 'span', 'i', 'b', 'br', 'ul', 'ol', 'li',
+                              'table', 'caption', 'pre', 'tr', 'td', 'th', 'thead',
+                              'tfoot', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']
 
     def __init__(self, focus_ids=None,\
                        focus_srcs=None,\
                        focus_lang=None,\
                        discard_empty_fragments=True, \
                        store_fragment_attributes=True, \
-                       add_unknown_tags_to_words=True, \
+                       add_unexpected_tags_to_words=False, \
                        textreconstructor=None,\
                        logger=None ):
         '''Initializes the parser.
@@ -555,11 +558,11 @@ class PrevertXMLFileParser:
                will be collected and added as attributes of the corresponding 
                layer in Text object.
                (default: True)
-           add_unknown_tags_to_words: boolean
-               If set, then unknown tags will be added to the reconstructed text 
-               as words. Otherwise, an exception will be thrown if an unknown tag 
-               will be encountered.
-               (default: True)
+           add_unexpected_tags_to_words: boolean
+               If set, then tags at unexpected locations will be added to the 
+               reconstructed text as words. 
+               Otherwise, all unexpected tags will be discarded.
+               (default: False)
            textreconstructor: ENC2017TextReconstructor
                ENC2017TextReconstructor instance that can be used for reconstructing
                the Text object based on extracted document content;
@@ -591,9 +594,9 @@ class PrevertXMLFileParser:
         self.focus_lang                = focus_lang
         self.store_fragment_attributes = store_fragment_attributes
         self.discard_empty_fragments   = discard_empty_fragments
-        self.add_unknown_tags_to_words = add_unknown_tags_to_words
-        self.textreconstructor         = textreconstructor
-        self.logger                    = logger
+        self.add_unexpected_tags_to_words = add_unexpected_tags_to_words
+        self.textreconstructor            = textreconstructor
+        self.logger                       = logger
         # Patterns for detecting tags
         self.enc_doc_tag_start  = re.compile("^<doc[^<>]+>\s*$")
         self.enc_doc_tag_end    = re.compile("^</doc>\s*$")
@@ -850,16 +853,8 @@ class PrevertXMLFileParser:
             token = items[0]
             self._add_new_word_token( token )
         elif m_unk_tag:
-            # *** Check for unknown tags
-            tagname = m_unk_tag.group(1)
-            tagname = tagname.lstrip('/')
-            tagname = tagname.split()[0]
-            if tagname not in ['g', 's', 'p', 'info', 'doc']:
-                if not self.add_unknown_tags_to_words:
-                    raise Exception('(!) Unexpected tag encountered: '+str(stripped_line))
-                else:
-                    # Add tag as word
-                    self._add_new_word_token( stripped_line )
+            # Handle an unexpected tag
+            self._handle_unexpected_tag( stripped_line, m_unk_tag.group(1) )
         self.lines += 1
         return None
 
@@ -903,6 +898,25 @@ class PrevertXMLFileParser:
             # Add a new word to the list 
             prev_original_words.append( word_str )
         self.last_was_glue = False
+
+
+
+    def _handle_unexpected_tag( self, line_with_tag: str, tag_content: str ):
+        '''Logic for handling an unexpected tag.'''
+        tagname = tag_content.lstrip('/')
+        tagname = tagname.split()[0]
+        if tagname not in self.CORPUS_ANNOTATION_TAGS:
+            msg_end = 'Discarding.'
+            if self.add_unexpected_tags_to_words:
+                # Add tag as word
+                self._add_new_word_token( line_with_tag )
+                msg_end = 'Including as a word.'
+            doc_id = self.document['id']
+            if tagname.lower() in self.HTML_ANNOTATION_TAGS:
+                self._log('DEBUG', 'Unexpected HTML tag {!r} at line {} in doc id={}. {}'.format(line_with_tag,self.lines,doc_id,msg_end) )
+            else:
+                self._log('DEBUG', 'Unexpected tag {!r} at line {} in doc id={}. {}'.format(line_with_tag,self.lines,doc_id,msg_end) )
+
 
 
     def _log( self, level, msg ):
