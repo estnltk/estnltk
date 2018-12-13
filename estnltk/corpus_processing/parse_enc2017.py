@@ -507,7 +507,7 @@ class VertXMLFileParser:
         * vert / prevert is an output file type used by the SpiderLing web 
           crawler, see http://corpus.tools/wiki/SpiderLing for details; 
     """
-    CORPUS_ANNOTATION_TAGS = ['g', 's', 'p', 'info', 'doc']
+    CORPUS_ANNOTATION_TAGS = ['g', 's', 'p', 'info', 'doc', 'gap']
     HTML_ANNOTATION_TAGS   = ['div', 'span', 'i', 'b', 'br', 'ul', 'ol', 'li',
                               'table', 'caption', 'pre', 'tr', 'td', 'th', 'thead',
                               'tfoot', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a']
@@ -582,6 +582,11 @@ class VertXMLFileParser:
             assert isinstance(focus_ids, set)
             if len(focus_ids) == 0:
                 focus_ids = None
+            else:
+                # Validate that all id-s are strings
+                for fid in focus_ids:
+                    if not isinstance(fid, str):
+                        raise ValueError('(!) focus_doc_id should be str: unexpected id value {!r}'.format(fid))
         self.focus_doc_ids = focus_ids
         if focus_srcs is not None:
             assert isinstance(focus_srcs, set)
