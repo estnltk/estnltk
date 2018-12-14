@@ -98,13 +98,15 @@ class ENC2017TextReconstructor:
     """ ENC2017TextReconstructor builds Estnltk Text objects 
         based on document contents extracted by VertXMLFileParser.
     """
-    NOT_METADATA_KEYS = ['_paragraphs','_sentences','_words','_original_words']
-    
+    NOT_METADATA_KEYS = ['_paragraphs','_sentences','_words',\
+                         '_original_words','_morph']
+
     def __init__(self, tokenization='preserve',
                        paragraph_separator='\n\n', \
                        sentence_separator =' ', \
                        word_separator=' ', \
                        layer_name_prefix='',\
+                       restore_original_morph_analysis=False,\
                        logger=None ):
         '''Initializes the parser.
         
@@ -138,6 +140,15 @@ class ENC2017TextReconstructor:
                in the reconstructed text if original tokenization is
                preserved (tokenization == 'preserve');
                Default: ''
+           restore_original_morph_analysis: boolean
+               If set, then morphological analysis layer is also created 
+               based on the morphological annotations in the input dict
+               representation of the document.
+               Note that this only succeeds if VertXMLFileParser was also 
+               configured to preserve morphological analyses.
+               If not set, then morphological analyses will be discarded 
+               and only tokenization layers will be created.
+               (default: False)
            logger: logging.Logger
                Logger to be used for warning and debug messages.
         '''
@@ -150,12 +161,22 @@ class ENC2017TextReconstructor:
             '(!) Unknown tokenization option: {!r}'.format(tokenization)
         if not tokenization:
             tokenization = 'none'
-        self.tokenization        = tokenization
-        self.paragraph_separator = paragraph_separator
-        self.sentence_separator  = sentence_separator
-        self.word_separator      = word_separator
-        self.layer_name_prefix   = layer_name_prefix
-        self.logger              = logger
+        self.tokenization           = tokenization
+        self.paragraph_separator    = paragraph_separator
+        self.sentence_separator     = sentence_separator
+        self.word_separator         = word_separator
+        self.layer_name_prefix      = layer_name_prefix
+        self.logger                 = logger
+        # Sanity checks
+        if restore_original_morph_analysis:
+            if tokenization == 'none':
+                raise Exception('(!) Conflicting configuration: cannot restore morphological '+\
+                                'analysis without restoring tokenization.' )
+            elif tokenization == 'estnltk':
+                raise Exception('(!) Conflicting configuration: cannot restore original '+\
+                                "morphological analysis with estnltk's tokenization. Please "+\
+                                "use original tokenization instead.")
+        self.restore_original_morph = restore_original_morph_analysis
 
 
 
@@ -518,6 +539,7 @@ class VertXMLFileParser:
                        discard_empty_fragments=True, \
                        store_fragment_attributes=True, \
                        add_unexpected_tags_to_words=False, \
+                       record_original_morph_analysis=False,\
                        textReconstructor=None,\
                        logger=None ):
         '''Initializes the parser.
@@ -564,7 +586,14 @@ class VertXMLFileParser:
                reconstructed text as words. 
                Otherwise, all unexpected tags will be discarded.
                (default: False)
-           textreconstructor: ENC2017TextReconstructor
+           record_original_morph_analysis: boolean
+               If set, then morphological analyses will also be extracted from 
+               the input content, and recorded in dict representation of the 
+               document.
+               Otherwise, morphological analyses will be discarded and only 
+               segmentation annotations will be recorded.
+               (default: False)
+           textReconstructor: ENC2017TextReconstructor
                ENC2017TextReconstructor instance that can be used for reconstructing
                the Text object based on extracted document content;
                Default: None
@@ -572,6 +601,7 @@ class VertXMLFileParser:
                Logger to be used for warning and debug messages.
         '''
         assert not logger or isinstance(logger, Logger)
+        assert not textReconstructor or isinstance(textReconstructor, ENC2017TextReconstructor)
         # Initialize the state of parsing
         self.lines            = 0
         self.inside_focus_doc = False
@@ -601,8 +631,17 @@ class VertXMLFileParser:
         self.store_fragment_attributes = store_fragment_attributes
         self.discard_empty_fragments   = discard_empty_fragments
         self.add_unexpected_tags_to_words = add_unexpected_tags_to_words
-        self.textreconstructor            = textReconstructor
+        self.record_original_morph        = record_original_morph_analysis
         self.logger                       = logger
+        self.textreconstructor            = textReconstructor
+        if self.textreconstructor:
+            # Validate that configurations regarding restoring morph analysis are matching
+            if self.textreconstructor.restore_original_morph != self.record_original_morph:
+                conf1 = '{}.record_original_morph={}'.format( \
+                      self.__class__.__name__,self.record_original_morph)
+                conf2 = '{}.restore_original_morph={}'.format( \
+                      self.textreconstructor.__class__.__name__,self.textreconstructor.restore_original_morph)
+                raise Exception('(!) Conflicting configurations: {} and {}'.format(conf1, conf2) )
         # Patterns for detecting tags
         self.enc_doc_tag_start  = re.compile("^<doc[^<>]+>\s*$")
         self.enc_doc_tag_end    = re.compile("^</doc>\s*$")
@@ -857,7 +896,7 @@ class VertXMLFileParser:
             # Add word
             items = stripped_line.split('\t')
             token = items[0]
-            self._add_new_word_token( token )
+            self._add_new_word_token( token, stripped_line )
         elif m_unk_tag:
             # Handle an unexpected tag
             self._handle_unexpected_tag( stripped_line, m_unk_tag.group(1) )
@@ -866,12 +905,15 @@ class VertXMLFileParser:
 
 
 
-    def _add_new_word_token( self, word_str: str ):
+    def _add_new_word_token( self, word_str: str, whole_line: str ):
         '''Inserts given word_str into the document under reconstruction.
         
            Finds appropriate substructure (e.g. last paragraph or last 
            sentence) which is incomplete and adds word to the structure.
-           Taking account of any glue markings added between the words.
+           Takes account of any glue markings added between the words.
+           
+           If record_original_morph_analysis is set, then records
+           whole_line as the morphological analysis of the input word.
         '''
         # Get the parent
         parent = None
@@ -893,6 +935,10 @@ class VertXMLFileParser:
             #           these words can be tokens inside 
             #           _original_words
             parent['_words'] = []
+            if self.record_original_morph:
+                # _morph == raw lines of morphological
+                #           analysis
+                parent['_morph'] = []
         prev_words = parent['_words']
         prev_original_words = parent['_original_words']
         # Add given word
@@ -903,19 +949,24 @@ class VertXMLFileParser:
         else:
             # Add a new word to the list 
             prev_original_words.append( word_str )
+        # Record original morphological analysis
+        if self.record_original_morph:
+            assert whole_line is not None and len(whole_line)>0
+            parent['_morph'].append( whole_line )
         self.last_was_glue = False
+        
 
 
 
     def _handle_unexpected_tag( self, line_with_tag: str, tag_content: str ):
         '''Logic for handling an unexpected tag.'''
-        tagname = tag_content.lstrip('/')
+        tagname = tag_content.strip('/')
         tagname = tagname.split()[0]
         if tagname not in self.CORPUS_ANNOTATION_TAGS:
             msg_end = 'Discarding.'
             if self.add_unexpected_tags_to_words:
                 # Add tag as word
-                self._add_new_word_token( line_with_tag )
+                self._add_new_word_token( line_with_tag, line_with_tag )
                 msg_end = 'Including as a word.'
             doc_id = self.document['id']
             if tagname.lower() in self.HTML_ANNOTATION_TAGS:
