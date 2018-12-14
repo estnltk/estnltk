@@ -21,7 +21,9 @@ from logging import getLevelName
 
 import re
 
-from estnltk.text import Text, Layer, EnvelopingSpan
+from estnltk.text import Text, Layer, Span, EnvelopingSpan
+
+from estnltk.taggers.morph_analysis.morf_common import ESTNLTK_MORPH_ATTRIBUTES
 
 from estnltk.taggers import TokensTagger, CompoundTokenTagger, WordTagger
 from estnltk.taggers import SentenceTokenizer, ParagraphTokenizer
@@ -193,6 +195,7 @@ class ENC2017TextReconstructor:
         para_locations       = []
         word_locations       = []
         word_chunk_locations = [] # word chunks are bigger than words
+        morph_analyses       = []
         cur_pos = 0
         all_text_tokens = []
         if '_paragraphs' in doc_dict:
@@ -203,12 +206,14 @@ class ENC2017TextReconstructor:
                 if '_sentences' in paragraph:
                     # Collect sentences and words
                     cur_pos, sent_locations, word_locations, \
-                    word_chunk_locations, all_text_tokens = \
+                    word_chunk_locations, morph_analyses, \
+                    all_text_tokens = \
                         self._collect_sentences_and_words( paragraph,
                                                            cur_pos,
                                                            sent_locations,
                                                            word_locations,
                                                            word_chunk_locations,
+                                                           morph_analyses, 
                                                            all_text_tokens,
                                                            s_attribs )
                 p_end = cur_pos
@@ -228,12 +233,14 @@ class ENC2017TextReconstructor:
         elif '_sentences' in doc_dict:
             # --------------------------------------------------------
             cur_pos, sent_locations, word_locations, \
-            word_chunk_locations, all_text_tokens = \
+            word_chunk_locations, morph_analyses, \
+            all_text_tokens = \
                 self._collect_sentences_and_words( doc_dict,
                                                    cur_pos,
                                                    sent_locations,
                                                    word_locations,
                                                    word_chunk_locations,
+                                                   morph_analyses,
                                                    all_text_tokens,
                                                    s_attribs )
         # --------------------
@@ -255,7 +262,7 @@ class ENC2017TextReconstructor:
             # Attach layers to the Text obj
             self._create_original_layers( text, para_locations, sent_locations, \
                                           word_locations, word_chunk_locations, \
-                                          s_attribs, par_attribs )
+                                          morph_analyses, s_attribs, par_attribs )
         elif self.tokenization == 'estnltk':
             # Create tokenization with estnltk's default tools
             # ( overwrites the original tokenization )
@@ -298,10 +305,13 @@ class ENC2017TextReconstructor:
                                             sent_locations,
                                             word_locations,
                                             word_chunk_locations,
+                                            morph_analyses,
                                             all_text_tokens,
                                             sent_attribs ):
         '''Collects content of '_sentences', '_original_words' and 
-           '_words' from given content_dict.
+           '_words' from given content_dict. If restore_original_morph
+           is set, also collects content of morph analysis from 
+           '_morph' of given content_dict.
            
            Records token locations into sent_locations, word_locations
            and word_chunk_locations, and updates the pointer cur_pos.
@@ -349,6 +359,14 @@ class ENC2017TextReconstructor:
                     if wid+1 < len(words) and not inside_chunk:
                         cur_pos += len(self.word_separator)
                 cur_pos = last_cur_pos
+            # Collect original morph analyses
+            if self.restore_original_morph:
+                assert '_morph' in sentence, \
+                    "(!) Key '_morph' missing from dict: {!r}".format(sentence)
+                assert len(sentence['_morph']) == len(sentence['_words']), \
+                    ("(!) Mismatching number of elements in "+\
+                    "{!r} and {!r}").format(sentence['_morph'],sentence['_words'])
+                morph_analyses.extend( sentence['_morph'] )
             s_end = cur_pos
             # Create sentence record
             record = {'start':s_start, 'end':s_end}
@@ -363,7 +381,8 @@ class ENC2017TextReconstructor:
                 all_text_tokens.append(self.sentence_separator)
                 cur_pos += len(self.sentence_separator)
         return cur_pos, sent_locations, word_locations, \
-               word_chunk_locations, all_text_tokens
+               word_chunk_locations, morph_analyses, \
+               all_text_tokens
 
 
 
@@ -372,6 +391,7 @@ class ENC2017TextReconstructor:
                                  sent_locations,
                                  word_locations,
                                  word_chunk_locations,
+                                 morph_analyses,
                                  sent_extra_attribs, 
                                  para_extra_attribs,
                                  attach_layers=True ):
@@ -393,6 +413,7 @@ class ENC2017TextReconstructor:
         orig_words           = None
         orig_sentences       = None
         orig_paragraphs      = None
+        orig_morph_analysis  = None
         # Create word chunks layer
         if word_chunk_locations is not None and len(word_chunk_locations) > 0:
             orig_word_chunks = \
@@ -489,14 +510,118 @@ class ENC2017TextReconstructor:
                   pid += 1; p_start = -1; p_end = -1
             orig_paragraphs.check_span_consistency()
             assert pid == len(para_locations)
+        # Create morph_analyses enveloping around words
+        if self.restore_original_morph and morph_analyses is not None and \
+           len(morph_analyses) > 0 and orig_words is not None:
+            orig_morph_analysis = \
+              self._create_original_morph_analysis_layer( text_obj, word_locations,
+                                                          orig_words, morph_analyses )
+        # Collect results
         created_layers = [orig_word_chunks, orig_tokens, orig_compound_tokens, 
-                          orig_words, orig_sentences, orig_paragraphs]
+                          orig_words, orig_sentences, orig_paragraphs, 
+                          orig_morph_analysis]
         if attach_layers:
             for layer in created_layers:
                 if layer is not None:
                     text_obj[layer.name] = layer
         else:
             return created_layers
+
+
+
+    def _create_original_morph_analysis_layer( self, text_obj,
+                                               word_locations,
+                                               orig_words_layer,
+                                               raw_morph_analyses):
+        '''Creates a morph_analysis layer based on raw_morph_analyses
+           extracted from the vert / prevert content.
+        '''
+        layer_attributes = ESTNLTK_MORPH_ATTRIBUTES
+        morph_layer = Layer(name=self.layer_name_prefix+'morph_analysis',
+                            parent=orig_words_layer.name,
+                            ambiguous=True,
+                            text_object=text_obj, \
+                            attributes=layer_attributes)
+        word_spans = orig_words_layer.spans
+        assert len(raw_morph_analyses) == len(word_spans)
+        assert len(raw_morph_analyses) == len(word_locations)
+        word_id = 0
+        while word_id < len(raw_morph_analyses):
+            raw_analysis = raw_morph_analyses[word_id]
+            word = word_spans[word_id]
+            span = Span(parent=word)
+            # A) Parse morph analysis from the raw analysis
+            analysis_dict = self._create_morph_analysis_dict(raw_analysis)
+            # B) Normalize and set attributes
+            for attr in layer_attributes:
+                if attr in analysis_dict:
+                    # We have a Vabamorf's/Estnltk's morf attribute
+                    if attr == 'root_tokens':
+                        # make it hashable for Span.__hash__
+                        setattr(span, attr, tuple(analysis_dict[attr]))
+                    else:
+                        setattr(span, attr, analysis_dict[attr])
+                else:
+                    # We have an extra attribute -- initialize with None
+                    setattr(span, attr, None)
+            # C) Record span to the layer
+            morph_layer.add_span( span )
+            word_id += 1
+        return morph_layer
+
+
+
+    def _create_morph_analysis_dict(self,raw_morph_analysis):
+        '''Creates a morph analysis dict from the raw_morph_analysis line 
+           extracted from the vert / prevert input file.'''
+        analysis_dict = {}
+        if '\t' in raw_morph_analysis:
+            items = raw_morph_analysis.split("\t")
+            if len(items) == 8:
+                #
+                # Full scale morph analysis, for instance:
+                #   ministrite	S.pl.g	minister-s	pl_g	minister	minister	te	
+                #   nõukogule	S.sg.all	nõukogu-s	sg_all	nõu kogu	nõu_kogu	le	
+                #   selles	P.sg.in	see-p	sg_in	see	see	s	
+                #   küsimuses	S.sg.in	küsimus-s	sg_in	küsimus	küsimus	s	
+                #   esitatud	V.tud	esitama-v	tud	esita	esita	tud	
+                #   EKAK	Y.?	EKAK-y	?	EKAK	EKAK	0	
+                #   sissejuhatavat	A.sg.p	sissejuhatav-a	sg_p	sisse juhatav	sisse_juhatav	t	
+                #
+                analysis_dict['root'] = items[5]
+                analysis_dict['form'] = items[3].replace('_', ' ')
+                analysis_dict['ending'] = items[6].replace('_', ' ')
+                analysis_dict['partofspeech'] = items[1][0]
+                assert analysis_dict['partofspeech'].isupper(), \
+                   "(!) Unexpected lowercase 'partofspeech' in {!r} at line {!r}".format(items[1], raw_morph_analysis)
+                pos_ending = '-'+analysis_dict['partofspeech'].lower()
+                assert items[2].endswith(pos_ending), \
+                   "(!) Unexpected pos-ending in {!r} at line {!r}".format(items[2], raw_morph_analysis)
+                analysis_dict['lemma'] = items[2].replace(pos_ending, '')
+                analysis_dict['root_tokens'] = items[4].split()
+                analysis_dict['clitic'] = items[7]
+            else:
+                # Unexpected format for morph analysis
+                self._log('critical', \
+                   '(!) Unexpected raw_morph_analysis ({}): {!r}'.format(len(items), raw_morph_analysis))
+                
+        else:
+            # This should be a tag: format it as a 'Z'
+            if raw_morph_analysis.startswith('<') and \
+               raw_morph_analysis.endswith('>'):
+               analysis_dict['partofspeech'] = 'Z'
+               for attr in ESTNLTK_MORPH_ATTRIBUTES:
+                   if attr in ['lemma', 'root']:
+                       analysis_dict[attr] = raw_morph_analysis
+                   elif attr == 'root_tokens':
+                       analysis_dict[attr] = [raw_morph_analysis]
+                   else:
+                       analysis_dict[attr] = ''
+            else:
+               # If it is not tag, then something unexpected happened
+               self._log('critical', \
+                   '(!) Unexpected raw_morph_analysis: {!r}'.format(raw_morph_analysis))
+        return analysis_dict
 
 
 
@@ -896,7 +1021,7 @@ class VertXMLFileParser:
             # Add word
             items = stripped_line.split('\t')
             token = items[0]
-            self._add_new_word_token( token, stripped_line )
+            self._add_new_word_token( token, line.rstrip('\n') )
         elif m_unk_tag:
             # Handle an unexpected tag
             self._handle_unexpected_tag( stripped_line, m_unk_tag.group(1) )
