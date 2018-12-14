@@ -117,11 +117,27 @@ class ENC2017TextReconstructor:
            tokenization: ['none', 'preserve', 'estnltk']
                 Specifies if tokenization will be added to created Texts, 
                 and if so, then how it will be added. 
-                Three options:
+                Four options:
                 * 'none'     -- text   will   be   created  without  any 
                                 tokenization layers;
                 * 'preserve' -- original tokenization from XML files will 
                                 be preserved in layers of the text; 
+                                This option creates layers 'tokens',
+                                'compound_tokens', 'words', 'word_chunks',
+                                'sentences', and 'paragraphs' (only if 
+                                paragraphs were recorded in the original
+                                text);
+                * 'preserve_partially' -- original tokenization from XML 
+                                          files will be preserved in layers 
+                                          of the text, but only partially;
+                                          This option creates layers 'words',
+                                          'sentences', and 'paragraphs' (only 
+                                          if paragraphs were recorded in the 
+                                          original text);
+                                          Note: using this option can help 
+                                          to speed up the process, because 
+                                          creating layers 'tokens' and 
+                                          'word_chunks' takes some time.
                 * 'estnltk'  -- text's original tokenization will be 
                                 overwritten by estnltk's tokenization;
                (default: 'preserve')
@@ -159,7 +175,7 @@ class ENC2017TextReconstructor:
         assert isinstance(word_separator, str)
         assert isinstance(layer_name_prefix, str)
         assert not logger or isinstance(logger, Logger)
-        assert tokenization in [None, 'none', 'preserve', 'estnltk'], \
+        assert tokenization in [None, 'none', 'preserve', 'preserve_partially', 'estnltk'], \
             '(!) Unknown tokenization option: {!r}'.format(tokenization)
         if not tokenization:
             tokenization = 'none'
@@ -257,7 +273,7 @@ class ENC2017TextReconstructor:
             if key not in self.NOT_METADATA_KEYS:
                 text.meta[key] = doc_dict[key]
         # 4) Create tokenization layers (if required)
-        if self.tokenization == 'preserve':
+        if self.tokenization in ['preserve', 'preserve_partially']:
             # Preserve original tokenization layers
             # Attach layers to the Text obj
             self._create_original_layers( text, para_locations, sent_locations, \
@@ -386,7 +402,6 @@ class ENC2017TextReconstructor:
 
 
 
-
     def _create_original_layers( self, text_obj,
                                  para_locations,
                                  sent_locations,
@@ -417,28 +432,30 @@ class ENC2017TextReconstructor:
         orig_morph_analysis  = None
         # Create word chunks layer
         if word_chunk_locations is not None and len(word_chunk_locations) > 0:
-            orig_word_chunks = \
-                Layer(name=self.layer_name_prefix+'word_chunks', \
-                      attributes=(), \
-                      text_object=text_obj,\
-                      ambiguous=False).from_records( word_chunk_locations )
+            if self.tokenization == 'preserve':
+                orig_word_chunks = \
+                    Layer(name=self.layer_name_prefix+'word_chunks', \
+                          attributes=(), \
+                          text_object=text_obj,\
+                          ambiguous=False).from_records( word_chunk_locations )
         # Create words layer from the token records
         if word_locations is not None and len(word_locations) > 0:
-            # Create tokens layer
-            orig_tokens = \
-                Layer(name=self.layer_name_prefix+TokensTagger.output_layer, \
-                      attributes=(), \
-                      text_object=text_obj,\
-                      ambiguous=False).from_records( word_locations )
-            # Create compound tokens layer
-            # Note: this layer will remain empty, as there is no information
-            #       about compound tokens in the original text
-            orig_compound_tokens = \
-                Layer(name=self.layer_name_prefix+CompoundTokenTagger.output_layer, \
-                      enveloping=orig_tokens.name, \
-                      attributes=CompoundTokenTagger.output_attributes, \
-                      text_object=text_obj,\
-                      ambiguous=False)
+            if self.tokenization == 'preserve':
+                # Create tokens layer
+                orig_tokens = \
+                    Layer(name=self.layer_name_prefix+TokensTagger.output_layer, \
+                          attributes=(), \
+                          text_object=text_obj,\
+                          ambiguous=False).from_records( word_locations )
+                # Create compound tokens layer
+                # Note: this layer will remain empty, as there is no information
+                #       about compound tokens in the original text
+                orig_compound_tokens = \
+                    Layer(name=self.layer_name_prefix+CompoundTokenTagger.output_layer, \
+                          enveloping=orig_tokens.name, \
+                          attributes=CompoundTokenTagger.output_attributes, \
+                          text_object=text_obj,\
+                          ambiguous=False)
             # Create words layer
             orig_words = \
                 Layer(name=self.layer_name_prefix+WordTagger.output_layer, \
@@ -1182,11 +1199,27 @@ def parse_enc2017_file_iterator( in_file,
        tokenization: ['none', 'preserve', 'estnltk']
             Specifies if tokenization will be added to created Texts, 
             and if so, then how it will be added. 
-            Three options:
+            Four options:
             * 'none'     -- text   will   be   created  without  any 
                             tokenization layers;
             * 'preserve' -- original tokenization from XML files will 
                             be preserved in layers of the text; 
+                            This option creates layers 'tokens',
+                            'compound_tokens', 'words', 'word_chunks',
+                            'sentences', and 'paragraphs' (only if 
+                            paragraphs were recorded in the original
+                            text);
+            * 'preserve_partially' -- original tokenization from XML 
+                                      files will be preserved in layers 
+                                      of the text, but only partially;
+                                      This option creates layers 'words',
+                                      'sentences', and 'paragraphs' (only 
+                                      if paragraphs were recorded in the 
+                                      original text);
+                                      Note: using this option can help 
+                                      to speed up the process, because 
+                                      creating layers 'tokens' and 
+                                      'word_chunks' takes some time.
             * 'estnltk'  -- text's original tokenization will be 
                             overwritten by estnltk's tokenization;
            (default: 'preserve')
@@ -1290,11 +1323,27 @@ def parse_enc2017_file_content_iterator( content,
        tokenization: ['none', 'preserve', 'estnltk']
             Specifies if tokenization will be added to created Texts, 
             and if so, then how it will be added. 
-            Three options:
+            Four options:
             * 'none'     -- text   will   be   created  without  any 
                             tokenization layers;
             * 'preserve' -- original tokenization from XML files will 
                             be preserved in layers of the text; 
+                            This option creates layers 'tokens',
+                            'compound_tokens', 'words', 'word_chunks',
+                            'sentences', and 'paragraphs' (only if 
+                            paragraphs were recorded in the original
+                            text);
+            * 'preserve_partially' -- original tokenization from XML 
+                                      files will be preserved in layers 
+                                      of the text, but only partially;
+                                      This option creates layers 'words',
+                                      'sentences', and 'paragraphs' (only 
+                                      if paragraphs were recorded in the 
+                                      original text);
+                                      Note: using this option can help 
+                                      to speed up the process, because 
+                                      creating layers 'tokens' and 
+                                      'word_chunks' takes some time.
             * 'estnltk'  -- text's original tokenization will be 
                             overwritten by estnltk's tokenization;
            (default: 'preserve')
