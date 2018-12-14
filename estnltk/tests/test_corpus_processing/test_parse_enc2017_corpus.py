@@ -202,7 +202,53 @@ def test_parse_enc2017_file_iterator_with_empty_docs():
         texts.append( text_obj )
     # There should be one additional document (the empty one)
     assert len(texts) == 4
-    
+
+
+
+def test_parse_enc2017_with_original_tokens_and_restore_morph_analysis():
+    # Parse Texts from the ENC 2017 file, preserve original segmentation, 
+    # and restore original morph analysis (from the XML file)
+    # Create TextReconstructor that preserves original tokenization,
+    # and restores original morph analysis; 
+    # Create also VertXMLFileParser with matching configuration;
+    reconstructor = ENC2017TextReconstructor(restore_original_morph_analysis=True,\
+                                             tokenization='preserve',\
+                                             layer_name_prefix='original_')
+    parser = VertXMLFileParser(textReconstructor=reconstructor, \
+                               record_original_morph_analysis=True)
+    # Collect morph analysed texts from all input files
+    texts = []
+    for inputfile in [ inputfile_1, inputfile_2, inputfile_3 ]:
+        inputfile_path = \
+            os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile)
+        for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+                                                     textReconstructor=reconstructor,\
+                                                     vertParser=parser):
+            # Assert that required layers exist
+            assert 'original_sentences' in text_obj.layers
+            assert 'original_words' in text_obj.layers
+            assert 'original_morph_analysis' in text_obj.layers
+            # and there is a morph analysis for each word
+            assert len(text_obj["original_morph_analysis"]) == len(text_obj['original_words'])
+            texts.append( text_obj )
+    # Assert / Check some details
+    doc1 = texts[1]
+    assert doc1.original_morph_analysis.to_records(with_text=True)[0:6] == \
+           [[{'text': 'Uudised', 'end': 7, 'form': 'pl n', 'start': 0, 'ending': 'd', 'partofspeech': 'S', 'root': 'uudis', 'root_tokens': ('uudis',), 'lemma': 'uudis', 'clitic': ''}], \
+            [{'text': 'Sel', 'end': 12, 'form': 'sg ad', 'start': 9, 'ending': 'l', 'partofspeech': 'P', 'root': 'see', 'root_tokens': ('see',), 'lemma': 'see', 'clitic': ''}], 
+            [{'text': 'pühapäeval', 'end': 23, 'form': 'sg ad', 'start': 13, 'ending': 'l', 'partofspeech': 'S', 'root': 'püha_päev', 'root_tokens': ('püha', 'päev'), 'lemma': 'pühapäev', 'clitic': ''}], \
+            [{'text': ',', 'end': 24, 'form': '', 'start': 23, 'ending': '', 'partofspeech': 'Z', 'root': ',', 'root_tokens': (',',), 'lemma': ',', 'clitic': ''}], \
+            [{'text': '1.', 'end': 27, 'form': '?', 'start': 25, 'ending': '0', 'partofspeech': 'O', 'root': '1.', 'root_tokens': ('1.',), 'lemma': '1.', 'clitic': ''}], \
+            [{'text': 'mail', 'ending': 'il', 'root_tokens': ('maa',), 'form': 'pl ad', 'partofspeech': 'S', 'root': 'maa', 'start': 28, 'end': 32, 'clitic': '', 'lemma': 'maa'}] ]
+    doc2 = texts[3]
+    assert doc2.original_morph_analysis.to_records(with_text=True)[0:7] == \
+           [[{'text': 'TALLINN', 'root_tokens': ('Tallinn',), 'start': 0, 'ending': '0', 'partofspeech': 'H', 'form': 'sg n', 'root': 'Tallinn', 'lemma': 'Tallinn', 'clitic': '', 'end': 7}], \
+            [{'text': ',', 'root_tokens': (',',), 'start': 7, 'ending': '', 'partofspeech': 'Z', 'form': '', 'root': ',', 'lemma': ',', 'clitic': '', 'end': 8}], \
+            [{'text': '9.', 'root_tokens': ('9.',), 'start': 9, 'ending': '0', 'partofspeech': 'O', 'form': '?', 'root': '9.', 'lemma': '9.', 'clitic': '', 'end': 11}], \
+            [{'text': 'detsember', 'root_tokens': ('detsember',), 'start': 12, 'ending': '0', 'partofspeech': 'S', 'form': 'sg n', 'root': 'detsember', 'lemma': 'detsember', 'clitic': '', 'end': 21}], \
+            [{'text': '(', 'root_tokens': ('(',), 'start': 22, 'ending': '', 'partofspeech': 'Z', 'form': '', 'root': '(', 'lemma': '(', 'clitic': '', 'end': 23}], \
+            [{'text': 'EPLO', 'root_tokens': ('EPLO',), 'start': 23, 'ending': '0', 'partofspeech': 'Y', 'form': '?', 'root': 'EPLO', 'lemma': 'EPLO', 'clitic': '', 'end': 27}], \
+            [{'text': ')', 'root_tokens': (')',), 'start': 27, 'ending': '', 'partofspeech': 'Z', 'form': '', 'root': ')', 'lemma': ')', 'clitic': '', 'end': 28}]]
 
 
 
