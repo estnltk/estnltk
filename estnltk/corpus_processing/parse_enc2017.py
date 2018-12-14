@@ -351,7 +351,7 @@ class ENC2017TextReconstructor:
                         {'start':w_start, 'end':w_end} )
                     # Check if given word is inside a bigger word chunk
                     inside_chunk = False
-                    for chunk in word_chunk_locations:
+                    for chunk in local_word_chunk_locations:
                         if chunk['start'] <= w_start and \
                            chunk['end'] > w_end:
                             inside_chunk = True
@@ -383,6 +383,7 @@ class ENC2017TextReconstructor:
         return cur_pos, sent_locations, word_locations, \
                word_chunk_locations, morph_analyses, \
                all_text_tokens
+
 
 
 
