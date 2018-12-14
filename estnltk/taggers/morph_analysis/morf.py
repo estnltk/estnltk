@@ -406,6 +406,7 @@ class VabamorfAnalyzer(TaggerOld):
                 current_attributes = current_attributes + (extra_attr,)
         morph_layer = Layer(name  =self.layer_name,
                             parent=self._input_words_layer,
+                            text_object=text,
                             ambiguous=True,
                             attributes=current_attributes )
         # B) Populate layer        
