@@ -655,9 +655,10 @@ class VertXMLFileParser:
           crawler, see http://corpus.tools/wiki/SpiderLing for details; 
     """
     CORPUS_ANNOTATION_TAGS = ['g', 's', 'p', 'info', 'doc', 'gap']
-    HTML_ANNOTATION_TAGS   = ['div', 'span', 'i', 'b', 'br', 'ul', 'ol', 'li',
+    HTML_ANNOTATION_TAGS   = ['div', 'span', 'i', 'b', 'br', 'ul', 'ol', 'li', 'img',
                               'table', 'caption', 'pre', 'tr', 'td', 'th', 'thead',
-                              'tfoot', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a']
+                              'tfoot', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'em',
+                              'iframe', 'body', 'head', 'header']
 
     def __init__(self, focus_ids=None,\
                        focus_srcs=None,\
@@ -1096,7 +1097,8 @@ class VertXMLFileParser:
                 msg_end = 'Including as a word.'
             doc_id = self.document['id']
             if tagname.lower() in self.HTML_ANNOTATION_TAGS:
-                self._log('DEBUG', 'Unexpected HTML tag {!r} at line {} in doc id={}. {}'.format(line_with_tag,self.lines,doc_id,msg_end) )
+                #self._log('DEBUG', 'Unexpected HTML tag {!r} at line {} in doc id={}. {}'.format(line_with_tag,self.lines,doc_id,msg_end) )
+                pass  # to not report HTML tags
             else:
                 self._log('DEBUG', 'Unexpected tag {!r} at line {} in doc id={}. {}'.format(line_with_tag,self.lines,doc_id,msg_end) )
 
