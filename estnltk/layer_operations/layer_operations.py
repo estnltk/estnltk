@@ -14,7 +14,7 @@ from estnltk.layer.span_operations import equal_support
 
 
 def drop_annotations(layer: Layer, attribute: str = None, values: Container = None, function=None,
-                     keep_last_annotation=False):
+                     keep_last_annotation=False, drop_immediately=False):
     if function is None:
         assert isinstance(attribute, str), attribute
         assert isinstance(values, Container), 'values should be Container (set, tuple, list, ...)'
@@ -28,26 +28,36 @@ def drop_annotations(layer: Layer, attribute: str = None, values: Container = No
 
         _function = function
 
-    i = 0
-    while i < len(layer):
-        j = 0
-        while j < len(layer[i]):
-            if keep_last_annotation and len(layer[i]) == 1:
-                break
-            if _function(layer[i][j]):
-                if len(layer[i]) == 1:
-                    del layer[i][j]
-                    i -= 1
+    if drop_immediately:
+        i = 0
+        while i < len(layer):
+            j = 0
+            while j < len(layer[i]):
+                if keep_last_annotation and len(layer[i]) == 1:
                     break
+                if _function(layer[i][j]):
+                    if len(layer[i]) == 1:
+                        del layer[i][j]
+                        i -= 1
+                        break
+                    else:
+                        del layer[i][j]
                 else:
-                    del layer[i][j]
-            else:
-                j += 1
-        i += 1
+                    j += 1
+            i += 1
+    else:
+        to_remove = []
+        for i, span in enumerate(layer):
+            for j, annotation in enumerate(span):
+                if _function(annotation):
+                    to_remove.append((i, j))
+        for i, j in reversed(to_remove):
+            if not keep_last_annotation or len(layer[i]) > 1:
+                del layer[i][j]
 
 
 def keep_annotations(layer: Layer, attribute: str = None, values: Container = None, function=None,
-                     keep_last_annotation=False):
+                     keep_last_annotation=False, drop_immediately=False):
     if function is None:
         assert isinstance(attribute, str), attribute
         assert isinstance(values, Container), 'values should be Container (set, tuple, list, ...)'
@@ -62,7 +72,7 @@ def keep_annotations(layer: Layer, attribute: str = None, values: Container = No
         def _function(annotation):
             return not function(annotation)
 
-    drop_annotations(layer, None, None, _function, keep_last_annotation)
+    drop_annotations(layer, None, None, _function, keep_last_annotation, drop_immediately)
 
 
 def unique_texts(layer: Layer, order=None):
