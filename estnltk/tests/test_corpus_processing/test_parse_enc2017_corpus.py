@@ -158,6 +158,7 @@ def test_parse_enc2017_file_iterator_extract_specific_docs():
     assert len(doc2.original_sentences) == 3
 
 
+
 def test_parse_enc2017_file_iterator_with_empty_docs():
     # Parse Texts from the ENC 2017 file, and do not fail on empty documents
 
@@ -208,9 +209,10 @@ def test_parse_enc2017_file_iterator_with_empty_docs():
 def test_parse_enc2017_with_original_tokens_and_restore_morph_analysis():
     # Parse Texts from the ENC 2017 file, preserve original segmentation, 
     # and restore original morph analysis (from the XML file)
-    # Create TextReconstructor that preserves original tokenization,
-    # and restores original morph analysis; 
-    # Create also VertXMLFileParser with matching configuration;
+    # 1) Configure restoring morph analysis "manually":
+    #    Create TextReconstructor that preserves original tokenization,
+    #    and restores original morph analysis; 
+    #    Create also VertXMLFileParser with matching configuration;
     reconstructor = ENC2017TextReconstructor(restore_original_morph_analysis=True,\
                                              tokenization='preserve',\
                                              layer_name_prefix='original_')
@@ -249,6 +251,24 @@ def test_parse_enc2017_with_original_tokens_and_restore_morph_analysis():
             [{'text': '(', 'root_tokens': ('(',), 'start': 22, 'ending': '', 'partofspeech': 'Z', 'form': '', 'root': '(', 'lemma': '(', 'clitic': '', 'end': 23}], \
             [{'text': 'EPLO', 'root_tokens': ('EPLO',), 'start': 23, 'ending': '0', 'partofspeech': 'Y', 'form': '?', 'root': 'EPLO', 'lemma': 'EPLO', 'clitic': '', 'end': 27}], \
             [{'text': ')', 'root_tokens': (')',), 'start': 27, 'ending': '', 'partofspeech': 'Z', 'form': '', 'root': ')', 'lemma': ')', 'clitic': '', 'end': 28}]]
+
+    # 2) Configure restoring morph analysis via parse_enc2017_file_iterator's
+    #    argument
+    texts = []
+    inputfile_path = \
+            os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_3)
+    for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+                                                 tokenization='preserve',\
+                                                 restore_morph_analysis=True ):
+        assert len(text_obj["original_morph_analysis"]) == len(text_obj['original_words'])
+        texts.append( text_obj )
+    # Assert / Check some details
+    doc1 = texts[0]
+    assert doc1.original_morph_analysis.to_records(with_text=True)[0:4] == \
+           [[{'text': 'Kuidas', 'root_tokens': ('kuidas',), 'lemma': 'kuidas', 'start': 0, 'form': '', 'end': 6, 'ending': '0', 'root': 'kuidas', 'clitic': '', 'partofspeech': 'D'}], \
+            [{'text': 'õunu', 'root_tokens': ('õun',), 'lemma': 'õun', 'start': 7, 'form': 'pl p', 'end': 11, 'ending': 'u', 'root': 'õun', 'clitic': '', 'partofspeech': 'S'}], \
+            [{'text': 'paremini', 'root_tokens': ('paremini',), 'lemma': 'paremini', 'start': 12, 'form': '', 'end': 20, 'ending': '0', 'root': 'paremini', 'clitic': '', 'partofspeech': 'D'}], \
+            [{'text': 'säilitada', 'root_tokens': ('säilita',), 'lemma': 'säilitama', 'start': 21, 'form': 'da', 'end': 30, 'ending': 'da', 'root': 'säilita', 'clitic': '', 'partofspeech': 'V'}]]
 
 
 

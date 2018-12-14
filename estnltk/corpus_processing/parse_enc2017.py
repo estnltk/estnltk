@@ -1139,6 +1139,7 @@ def parse_enc2017_file_iterator( in_file,
                                  focus_srcs=None, \
                                  focus_lang=None, \
                                  tokenization='preserve', \
+                                 restore_morph_analysis=False, \
                                  vertParser=None, \
                                  textReconstructor=None, \
                                  logger=None  ):
@@ -1224,6 +1225,14 @@ def parse_enc2017_file_iterator( in_file,
                             overwritten by estnltk's tokenization;
            (default: 'preserve')
       
+       restore_morph_analysis: boolean
+           If set, then morphological analysis layer is also created 
+           based on the morphological annotations available in the 
+           vert file content.
+           If not set, then morphological annotations will be discarded 
+           and only tokenization layers will be created.
+           (default: False)
+       
        vertParser: VertXMLFileParser
            If set, then overrides the default VertXMLFileParser with the 
            given vertParser.
@@ -1242,6 +1251,7 @@ def parse_enc2017_file_iterator( in_file,
     else:
         reconstructor = ENC2017TextReconstructor(tokenization=tokenization,\
                                                  layer_name_prefix='original_',\
+                                                 restore_original_morph_analysis=restore_morph_analysis,\
                                                  logger=logger)
     if vertParser:
         xmlParser = vertParser
@@ -1251,6 +1261,7 @@ def parse_enc2017_file_iterator( in_file,
                    focus_srcs=focus_srcs, \
                    focus_lang=focus_lang, \
                    textReconstructor=reconstructor,\
+                   record_original_morph_analysis=restore_morph_analysis,\
                    logger=logger )
     with open( in_file, mode='r', encoding=encoding ) as f:
         for line in f:
@@ -1266,6 +1277,7 @@ def parse_enc2017_file_content_iterator( content,
                                          focus_srcs=None, \
                                          focus_lang=None, \
                                          tokenization='preserve', \
+                                         restore_morph_analysis=False, \
                                          vertParser=None, \
                                          textReconstructor=None, \
                                          logger=None ):
@@ -1348,6 +1360,14 @@ def parse_enc2017_file_content_iterator( content,
                             overwritten by estnltk's tokenization;
            (default: 'preserve')
        
+       restore_morph_analysis: boolean
+           If set, then morphological analysis layer is also created 
+           based on the morphological annotations available in the 
+           vert file content.
+           If not set, then morphological annotations will be discarded 
+           and only tokenization layers will be created.
+           (default: False)
+       
        vertParser: VertXMLFileParser
            If set, then overrides the default VertXMLFileParser with the 
            given vertParser.
@@ -1367,6 +1387,7 @@ def parse_enc2017_file_content_iterator( content,
     else:
         reconstructor = ENC2017TextReconstructor(tokenization=tokenization,\
                                                  layer_name_prefix='original_',\
+                                                 restore_original_morph_analysis=restore_morph_analysis,\
                                                  logger=logger)
     if vertParser:
         xmlParser = vertParser
@@ -1376,6 +1397,7 @@ def parse_enc2017_file_content_iterator( content,
                        focus_srcs=focus_srcs, \
                        focus_lang=focus_lang, \
                        textReconstructor=reconstructor,\
+                       record_original_morph_analysis=restore_morph_analysis,\
                        logger=logger)
     # Process the content line by line
     for line in content.splitlines( keepends=True ):
