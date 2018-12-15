@@ -43,7 +43,8 @@ def test_keep_annotations():
 
     text = new_text(3)
     keep_annotations(layer=text.layer_1,
-                     function=function
+                     function=function,
+                     drop_immediately=True
                      )
     assert text.layer_1['attr', 'attr_1'] == expected
 
@@ -52,7 +53,8 @@ def test_keep_annotations():
     keep_annotations(layer=text.layer_1,
                      attribute='attr_1',
                      values={},
-                     keep_last_annotation=True
+                     keep_last_annotation=True,
+                     drop_immediately=True
                      )
     assert text.layer_1['attr', 'attr_1'] == expected
 
