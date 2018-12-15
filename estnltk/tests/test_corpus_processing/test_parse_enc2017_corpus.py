@@ -213,11 +213,11 @@ def test_parse_enc2017_with_original_tokens_and_restore_morph_analysis():
     #    Create TextReconstructor that preserves original tokenization,
     #    and restores original morph analysis; 
     #    Create also VertXMLFileParser with matching configuration;
-    reconstructor = ENC2017TextReconstructor(restore_original_morph_analysis=True,\
+    reconstructor = ENC2017TextReconstructor(restore_morph_analysis=True,\
                                              tokenization='preserve',\
                                              layer_name_prefix='original_')
     parser = VertXMLFileParser(textReconstructor=reconstructor, \
-                               record_original_morph_analysis=True)
+                               record_morph_analysis=True)
     # Collect morph analysed texts from all input files
     texts = []
     for inputfile in [ inputfile_1, inputfile_2, inputfile_3 ]:

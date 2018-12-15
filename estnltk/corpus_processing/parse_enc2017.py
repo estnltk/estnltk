@@ -108,7 +108,7 @@ class ENC2017TextReconstructor:
                        sentence_separator =' ', \
                        word_separator=' ', \
                        layer_name_prefix='',\
-                       restore_original_morph_analysis=False,\
+                       restore_morph_analysis=False,\
                        logger=None ):
         '''Initializes the parser.
         
@@ -158,7 +158,7 @@ class ENC2017TextReconstructor:
                in the reconstructed text if original tokenization is
                preserved (tokenization == 'preserve');
                Default: ''
-           restore_original_morph_analysis: boolean
+           restore_morph_analysis: boolean
                If set, then morphological analysis layer is also created 
                based on the morphological annotations in the input dict
                representation of the document.
@@ -186,7 +186,7 @@ class ENC2017TextReconstructor:
         self.layer_name_prefix      = layer_name_prefix
         self.logger                 = logger
         # Sanity checks
-        if restore_original_morph_analysis:
+        if restore_morph_analysis:
             if tokenization == 'none':
                 raise Exception('(!) Conflicting configuration: cannot restore morphological '+\
                                 'analysis without restoring tokenization.' )
@@ -194,7 +194,7 @@ class ENC2017TextReconstructor:
                 raise Exception('(!) Conflicting configuration: cannot restore original '+\
                                 "morphological analysis with estnltk's tokenization. Please "+\
                                 "use original tokenization instead.")
-        self.restore_original_morph = restore_original_morph_analysis
+        self.restore_original_morph = restore_morph_analysis
 
 
 
@@ -683,7 +683,7 @@ class VertXMLFileParser:
                        discard_empty_fragments=True, \
                        store_fragment_attributes=True, \
                        add_unexpected_tags_to_words=False, \
-                       record_original_morph_analysis=False,\
+                       record_morph_analysis=False,\
                        textReconstructor=None,\
                        logger=None ):
         '''Initializes the parser.
@@ -730,7 +730,7 @@ class VertXMLFileParser:
                reconstructed text as words. 
                Otherwise, all unexpected tags will be discarded.
                (default: False)
-           record_original_morph_analysis: boolean
+           record_morph_analysis: boolean
                If set, then morphological analyses will also be extracted from 
                the input content, and recorded in dict representation of the 
                document.
@@ -775,7 +775,7 @@ class VertXMLFileParser:
         self.store_fragment_attributes = store_fragment_attributes
         self.discard_empty_fragments   = discard_empty_fragments
         self.add_unexpected_tags_to_words = add_unexpected_tags_to_words
-        self.record_original_morph        = record_original_morph_analysis
+        self.record_original_morph        = record_morph_analysis
         self.logger                       = logger
         self.textreconstructor            = textReconstructor
         if self.textreconstructor:
@@ -1251,7 +1251,7 @@ def parse_enc2017_file_iterator( in_file,
     else:
         reconstructor = ENC2017TextReconstructor(tokenization=tokenization,\
                                                  layer_name_prefix='original_',\
-                                                 restore_original_morph_analysis=restore_morph_analysis,\
+                                                 restore_morph_analysis=restore_morph_analysis,\
                                                  logger=logger)
     if vertParser:
         xmlParser = vertParser
@@ -1261,7 +1261,7 @@ def parse_enc2017_file_iterator( in_file,
                    focus_srcs=focus_srcs, \
                    focus_lang=focus_lang, \
                    textReconstructor=reconstructor,\
-                   record_original_morph_analysis=restore_morph_analysis,\
+                   record_morph_analysis=restore_morph_analysis,\
                    logger=logger )
     with open( in_file, mode='r', encoding=encoding ) as f:
         for line in f:
@@ -1387,7 +1387,7 @@ def parse_enc2017_file_content_iterator( content,
     else:
         reconstructor = ENC2017TextReconstructor(tokenization=tokenization,\
                                                  layer_name_prefix='original_',\
-                                                 restore_original_morph_analysis=restore_morph_analysis,\
+                                                 restore_morph_analysis=restore_morph_analysis,\
                                                  logger=logger)
     if vertParser:
         xmlParser = vertParser
@@ -1397,7 +1397,7 @@ def parse_enc2017_file_content_iterator( content,
                        focus_srcs=focus_srcs, \
                        focus_lang=focus_lang, \
                        textReconstructor=reconstructor,\
-                       record_original_morph_analysis=restore_morph_analysis,\
+                       record_morph_analysis=restore_morph_analysis,\
                        logger=logger)
     # Process the content line by line
     for line in content.splitlines( keepends=True ):
