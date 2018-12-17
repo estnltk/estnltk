@@ -246,6 +246,17 @@ class ENC2017TextReconstructor:
                 if pid+1 < len(paragraphs):
                     all_text_tokens.append(self.paragraph_separator)
                     cur_pos += len(self.paragraph_separator)
+            # --------------------
+            if '_sentences' in doc_dict:
+                # Note: if input document's annotations are malformed, like 
+                #       in case of the document with id=1175371, then there 
+                #       will be both '_paragraphs' and '_sentences' in the 
+                #       doc_dict.  Currently,  only  '_paragraphs'  will be 
+                #       extracted in such situations ...
+                self._log('WARNING', ('Malformed annotations in doc with id={}: '+\
+                          'sentence tags <s> and </s> outside the paragraph tags '+\
+                          '<p> and </p>. Only content inside paragraphs will be '+\
+                          'extracted.').format( doc_dict['id'] ))
         elif '_sentences' in doc_dict:
             # --------------------------------------------------------
             cur_pos, sent_locations, word_locations, \
@@ -259,13 +270,6 @@ class ENC2017TextReconstructor:
                                                    morph_analyses,
                                                    all_text_tokens,
                                                    s_attribs )
-        # --------------------
-        # Note: if input document's annotations are malformed, like 
-        #       in case of the document with id=1175371, then there 
-        #       will be both '_paragraphs' and '_sentences' in the 
-        #       doc_dict.  Currently,  only  '_paragraphs'  will be 
-        #       extracted in such situations ...
-        # --------------------
         # 2) Reconstruct text 
         text = Text( ''.join(all_text_tokens) )
         # 3) Add metadata
@@ -813,8 +817,10 @@ class VertXMLFileParser:
            And if the line is not definitive, but just continues 
            the document content, returns None.
            
-           If focus_doc_ids was provided, then only documents which
-           id-s are in the set focus_doc_ids will be extracted.
+           If any of the filters (focus_doc_ids, focus_srcs, focus_lang)
+           are provided, then only documents passing all the filters will
+           be returned. If a document does not pass the filters, then None 
+           is returned instead of the document.
         '''
         stripped_line = line.strip()
         m_doc_start   = self.enc_doc_tag_start.match(stripped_line)

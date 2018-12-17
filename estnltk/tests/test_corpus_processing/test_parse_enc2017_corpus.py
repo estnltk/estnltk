@@ -206,6 +206,52 @@ def test_parse_enc2017_file_iterator_with_empty_docs():
 
 
 
+def test_parse_enc2017_with_original_tokens_use_split_by():
+    # Parse Texts from the ENC 2017 file, preserve original segmentation, 
+    # and apply split_by on extracted Text objects
+    # 1) Collect texts
+    texts = []
+    inputfile_path = \
+            os.path.join(PACKAGE_PATH, 'tests', 'test_corpus_processing', inputfile_1)
+    for text_obj in parse_enc2017_file_iterator( inputfile_path, encoding='utf-8',\
+                                                 tokenization='preserve',\
+                                                 restore_morph_analysis=True ):
+        texts.append( text_obj )
+    assert len(texts) == 2
+    # 2) Test splitting texts and make assertions
+    for doc in texts:
+        # Split by paragraphs
+        paragraph_count = 0
+        for paragraph in split_by(doc, layer='original_paragraphs', 
+                                        layers_to_keep=['original_sentences', 
+                                                        'original_tokens', 
+                                                        'original_compound_tokens', 
+                                                        'original_words', 
+                                                        'original_morph_analysis', 
+                                                        'original_word_chunks']):
+            paragraph_count += 1
+        assert paragraph_count == len(doc.original_paragraphs)
+        # Split by sentences
+        sent_count = 0
+        for sentence in split_by(doc, layer='original_sentences', 
+                                        layers_to_keep=['original_tokens', 'original_compound_tokens', 
+                                                        'original_morph_analysis', 'original_words', 
+                                                        'original_word_chunks']):
+            sent_count += 1
+        assert sent_count == len(doc.original_sentences)
+        # Split by word chunks
+        wchk_count = 0
+        for word_chunk in split_by(doc, layer='original_word_chunks', 
+                                        layers_to_keep=['original_tokens', 'original_compound_tokens', 
+                                                        'original_morph_analysis', 'original_words']):
+            assert len(word_chunk['original_tokens']) > 0
+            assert len(word_chunk['original_words']) > 0
+            assert len(word_chunk['original_morph_analysis']) > 0
+            wchk_count += 1
+        assert wchk_count == len(doc.original_word_chunks)
+
+
+
 def test_parse_enc2017_with_original_tokens_and_restore_morph_analysis():
     # Parse Texts from the ENC 2017 file, preserve original segmentation, 
     # and restore original morph analysis (from the XML file)
