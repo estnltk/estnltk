@@ -67,11 +67,12 @@ class PgCollection:
         self.meta = meta or {}
         self._temporary = temporary
         self._structure = self._get_structure()
+        column_names = self._collection_table_meta()
         self.column_names = ['id', 'data'] + list(self.meta)
 
         self._buffered_insert_query_length = 0
 
-    def create(self, description=None):
+    def create(self, description=None, meta=None):
         """Creates the database tables for the collection"""
         temporary = SQL('TEMPORARY') if self._temporary else SQL('')
         with self.storage.conn.cursor() as c:
@@ -88,9 +89,11 @@ class PgCollection:
             logger.info('new empty collection {!r} created'.format(self.table_name))
             logger.debug(c.query.decode())
 
+        meta = meta or self.meta or {}
+
         return self.storage.create_table(table=self.table_name,
                                          description=description,
-                                         meta=self.meta,
+                                         meta=meta,
                                          temporary=self._temporary,
                                          table_identifier=self._collection_identifier())
 
@@ -141,6 +144,16 @@ class PgCollection:
                                      '_base': row[6],
                                      'meta': row[7]}
         return structure
+
+    def _collection_table_meta(self):
+        if not self.exists():
+            return None
+        with self.storage.conn.cursor() as c:
+            c.execute(SQL('SELECT column_name, data_type from information_schema.columns '
+                          'WHERE table_schema={} and table_name={} '
+                          'ORDER BY ordinal_position'
+                          ).format(Literal(self.storage.schema), Literal(self.table_name)))
+            return collections.OrderedDict(c.fetchall())
 
     def _insert_into_structure(self, layer, detached: bool, meta: dict=None):
         meta = list(meta or [])
@@ -1140,9 +1153,37 @@ class PgCollection:
                                                             ))
         logger.info('{} annotations exported to "{}"."{}"'.format(i, self.storage.schema, export_table))
 
+    def __len__(self):
+        return self.storage.count_rows(self.table_name)
+
     def _repr_html_(self):
-        return ('<h3>Collection</h3><br/>name: {}'
-                '<h4>Layers</h4>structure table').format(self.table_name)
+        if self._structure is None:
+            structure_html = '<br/>unknown'
+        else:
+            structure_html = pandas.DataFrame.from_dict(self._structure,
+                                                        orient='index',
+                                                        columns=['detached', 'attributes', 'ambiguous', 'parent',
+                                                                 'enveloping', '_base', 'meta']
+                                                        ).to_html()
+        column_meta = self._collection_table_meta()
+        meta_html = ''
+        if column_meta is not None:
+            column_meta.pop('id')
+            column_meta.pop('data')
+            if column_meta:
+                meta_html = pandas.DataFrame.from_dict(column_meta,
+                                                       orient='index',
+                                                       columns=['data type']
+                                                       ).to_html()
+            else:
+                meta_html = 'This collection has no metadata.<br/>'
+        return ('<b>{self.__class__.__name__}</b><br/>'
+                '<b>name:</b> {self.table_name}<br/>'
+                '<b>storage:</b> {self.storage}<br/>'
+                '<b>count objects:</b> {count}<br/>'
+                '<b>Metadata</b><br/>{meta_html}'
+                '<b>Layers</b>{struct_html}'
+                ).format(self=self, count=len(self), meta_html=meta_html, struct_html=structure_html)
 
 
 class PostgresStorage:
@@ -1237,6 +1278,9 @@ class PostgresStorage:
     def close(self):
         """Closes database connection"""
         self.conn.close()
+
+    def closed(self):
+        return self.conn.closed
 
     def create_schema(self):
         with self.conn.cursor() as c:
@@ -1395,12 +1439,28 @@ class PostgresStorage:
             return text
 
     def get_all_table_names(self):
+        if self.closed():
+            return None
         with self.conn.cursor() as c:
             c.execute(SQL(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema=%s AND table_type='BASE TABLE'"),
                 [self.schema])
             table_names = [row[0] for row in c.fetchall()]
             return table_names
+
+    def get_all_tables(self):
+        if self.closed():
+            return None
+        with self.conn.cursor() as c:
+            c.execute(SQL(
+                "SELECT table_name, "
+                       "pg_size_pretty(pg_total_relation_size({schema}||'.'||table_name)), "
+                       "obj_description(({schema}||'.'||table_name)::regclass) "
+                "FROM information_schema.tables "
+                "WHERE table_schema={schema} AND table_type='BASE TABLE';").format(schema=Literal(self.schema))
+                )
+            tables = {row[0]: {'total_size': row[1], 'comment':row[2]} for row in c}
+            return tables
 
     def select_fragment_raw(self, fragment_table, text_table, parent_layer_table, query=None, ngram_query=None):
         """
@@ -1726,6 +1786,32 @@ class PostgresStorage:
     def get_collection(self, table_name, meta_fields=None, temporary=False):
         """Returns a new instance of `PgCollection` without physically creating it."""
         return PgCollection(name=table_name, storage=self, meta=meta_fields, temporary=temporary)
+
+    def __str__(self):
+        return '{self.__class__.__name__}({self.conn.dsn} schema={self.schema})'.format(self=self)
+
+    def _repr_html_(self):
+        tables = self.get_all_tables()
+
+        structure = {}
+
+        collection_tables = ''
+        if tables is not None:
+            for t, v in tables.items():
+                t_split = t.split('__')
+                if len(t_split) == 1 and t_split[0] + '__structure' in tables:
+                    structure[(t_split[0], '')] = v
+                elif len(t_split) == 3 and t_split[2] == 'layer' and t_split[0] in tables:
+                    structure[(t_split[0], t_split[1])] = v
+
+            if structure:
+                df = pandas.DataFrame.from_dict(structure, orient='index', columns=['total_size', 'comment'])
+                df.index.names = ('collection', 'layers')
+                collection_tables = df.to_html()
+            else:
+                collection_tables = '<br/>This storage has no collections.'
+        return '<b>{self.__class__.__name__}</b><br/>\n{self.conn.dsn} schema={self.schema}\n{collections}'.format(
+                self=self, collections=collection_tables)
 
 
 class JsonbTextQuery(Query):
