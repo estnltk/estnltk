@@ -61,7 +61,7 @@ def parse_tag_attributes( tag_str ):
     return attribs
 
 
-def extract_doc_ids_from_corpus_file( in_file, encoding='utf-8' ):
+def extract_doc_ids_from_corpus_file( in_file:str, encoding:str='utf-8' ):
     '''Opens a vert / prevert corpus file, reads its content, and 
        extracts all document id-s. 
        Returns a list of document id-s (list of strings).
@@ -103,13 +103,13 @@ class ENC2017TextReconstructor:
     NOT_METADATA_KEYS = ['_paragraphs','_sentences','_words',\
                          '_original_words','_morph']
 
-    def __init__(self, tokenization='preserve',
-                       paragraph_separator='\n\n', \
-                       sentence_separator =' ', \
-                       word_separator=' ', \
-                       layer_name_prefix='',\
-                       restore_morph_analysis=False,\
-                       logger=None ):
+    def __init__(self, tokenization:str='preserve',
+                       paragraph_separator:str='\n\n', \
+                       sentence_separator:str=' ', \
+                       word_separator:str=' ', \
+                       layer_name_prefix:str='',\
+                       restore_morph_analysis:bool=False,\
+                       logger:Logger=None ):
         '''Initializes the parser.
         
            Parameters
@@ -198,7 +198,7 @@ class ENC2017TextReconstructor:
 
 
 
-    def reconstruct_text( self, doc_dict ):
+    def reconstruct_text( self, doc_dict:dict ):
         '''Reconstructs Text object based on dictionary representation
            of the document (doc_dict).
         '''
@@ -292,7 +292,7 @@ class ENC2017TextReconstructor:
 
 
 
-    def _collect_attribute_names( self, doc_dict, segmentation ):
+    def _collect_attribute_names( self, doc_dict:dict, segmentation:str ):
         '''Collects  all  legal  attribute  names  used  in  doc_dict
            for given segmentation (either '_paragraphs' or '_sentences').
         '''
@@ -320,14 +320,14 @@ class ENC2017TextReconstructor:
 
 
 
-    def _collect_sentences_and_words( self, content_dict,
-                                            cur_pos,
-                                            sent_locations,
-                                            word_locations,
-                                            word_chunk_locations,
-                                            morph_analyses,
-                                            all_text_tokens,
-                                            sent_attribs ):
+    def _collect_sentences_and_words( self, content_dict:dict,
+                                            cur_pos:int,
+                                            sent_locations:list,
+                                            word_locations:list,
+                                            word_chunk_locations:list,
+                                            morph_analyses:list,
+                                            all_text_tokens:list,
+                                            sent_attribs:set ):
         '''Collects content of '_sentences', '_original_words' and 
            '_words' from given content_dict. If restore_original_morph
            is set, also collects content of morph analysis from 
@@ -406,15 +406,15 @@ class ENC2017TextReconstructor:
 
 
 
-    def _create_original_layers( self, text_obj,
-                                 para_locations,
-                                 sent_locations,
-                                 word_locations,
-                                 word_chunk_locations,
-                                 morph_analyses,
-                                 sent_extra_attribs, 
-                                 para_extra_attribs,
-                                 attach_layers=True ):
+    def _create_original_layers( self, text_obj:Text,
+                                 para_locations:list,
+                                 sent_locations:list,
+                                 word_locations:list,
+                                 word_chunk_locations:list,
+                                 morph_analyses:list,
+                                 sent_extra_attribs:set, 
+                                 para_extra_attribs:set,
+                                 attach_layers:bool=True ):
         '''Creates Text object layers based on given locations 
            of original paragraphs, sentences, words, and 
            word chunks.
@@ -551,10 +551,10 @@ class ENC2017TextReconstructor:
 
 
 
-    def _create_original_morph_analysis_layer( self, text_obj,
-                                               word_locations,
-                                               orig_words_layer,
-                                               raw_morph_analyses):
+    def _create_original_morph_analysis_layer( self, text_obj:Text,
+                                               word_locations:list,
+                                               orig_words_layer:Layer,
+                                               raw_morph_analyses:list):
         '''Creates a morph_analysis layer based on raw_morph_analyses
            extracted from the vert / prevert content.
         '''
@@ -593,7 +593,7 @@ class ENC2017TextReconstructor:
 
 
 
-    def _create_morph_analysis_dict(self,raw_morph_analysis):
+    def _create_morph_analysis_dict(self, raw_morph_analysis:str):
         '''Creates a morph analysis dict from the raw_morph_analysis line 
            extracted from the vert / prevert input file.'''
         analysis_dict = {}
@@ -647,7 +647,7 @@ class ENC2017TextReconstructor:
 
 
 
-    def _log( self, level, msg ):
+    def _log( self, level:str, msg:str ):
         '''Writes a logging message if logging facility is available.'''
         if self.logger is not None:
             assert isinstance(level, str)
@@ -681,15 +681,15 @@ class VertXMLFileParser:
                               'tfoot', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'em',
                               'iframe', 'body', 'head', 'header']
 
-    def __init__(self, focus_ids=None,\
-                       focus_srcs=None,\
-                       focus_lang=None,\
-                       discard_empty_fragments=True, \
-                       store_fragment_attributes=True, \
-                       add_unexpected_tags_to_words=False, \
-                       record_morph_analysis=False,\
-                       textReconstructor=None,\
-                       logger=None ):
+    def __init__(self, focus_ids:set=None,\
+                       focus_srcs:set=None,\
+                       focus_lang:set=None,\
+                       discard_empty_fragments:bool=True, \
+                       store_fragment_attributes:bool=True, \
+                       add_unexpected_tags_to_words:bool=False, \
+                       record_morph_analysis:bool=False,\
+                       textReconstructor:ENC2017TextReconstructor=None,\
+                       logger:Logger=None ):
         '''Initializes the parser.
         
            Parameters
@@ -1127,7 +1127,7 @@ class VertXMLFileParser:
 
 
 
-    def _log( self, level, msg ):
+    def _log( self, level:str, msg:str ):
         '''Writes a logging message if logging facility is available.'''
         if self.logger is not None:
             assert isinstance(level, str)
@@ -1139,16 +1139,17 @@ class VertXMLFileParser:
 #   Corpus iterators
 # =================================================
 
-def parse_enc2017_file_iterator( in_file, 
-                                 encoding='utf-8', \
-                                 focus_doc_ids=None, \
-                                 focus_srcs=None, \
-                                 focus_lang=None, \
-                                 tokenization='preserve', \
-                                 restore_morph_analysis=False, \
-                                 vertParser=None, \
-                                 textReconstructor=None, \
-                                 logger=None  ):
+def parse_enc2017_file_iterator( in_file:str, 
+                                 encoding:str='utf-8', \
+                                 focus_doc_ids:set=None, \
+                                 focus_srcs:set=None, \
+                                 focus_lang:set=None, \
+                                 tokenization:str='preserve', \
+                                 original_layer_prefix:str='original_',\
+                                 restore_morph_analysis:bool=False, \
+                                 vertParser:VertXMLFileParser=None, \
+                                 textReconstructor:ENC2017TextReconstructor=None, \
+                                 logger:Logger=None  ):
     '''Opens an ENC 2017 corpus file (a vert or prevert type file), 
        reads its content document by document, reconstructs Text 
        objects from the documents, and yields created Text objects 
@@ -1231,6 +1232,13 @@ def parse_enc2017_file_iterator( in_file,
                             overwritten by estnltk's tokenization;
            (default: 'preserve')
       
+       original_layer_prefix: str
+           Prefix to be added to names of layers of original annotations
+           when  tokenization=='preserve' 
+                 or 
+                 tokenization=='preserve_partially';
+           (default: 'original_')
+       
        restore_morph_analysis: boolean
            If set, then morphological analysis layer is also created 
            based on the morphological annotations available in the 
@@ -1250,13 +1258,14 @@ def parse_enc2017_file_iterator( in_file,
        logger: logging.Logger
            Logger to be used for warning and debug messages.
     '''
+    assert isinstance(original_layer_prefix, str)
     assert not vertParser or isinstance(vertParser, VertXMLFileParser)
     assert not textReconstructor or isinstance(textReconstructor, ENC2017TextReconstructor)
     if textReconstructor:
         reconstructor = textReconstructor
     else:
         reconstructor = ENC2017TextReconstructor(tokenization=tokenization,\
-                                                 layer_name_prefix='original_',\
+                                                 layer_name_prefix=original_layer_prefix,\
                                                  restore_morph_analysis=restore_morph_analysis,\
                                                  logger=logger)
     if vertParser:
@@ -1279,14 +1288,15 @@ def parse_enc2017_file_iterator( in_file,
 
 
 def parse_enc2017_file_content_iterator( content, 
-                                         focus_doc_ids=None, \
-                                         focus_srcs=None, \
-                                         focus_lang=None, \
-                                         tokenization='preserve', \
-                                         restore_morph_analysis=False, \
-                                         vertParser=None, \
-                                         textReconstructor=None, \
-                                         logger=None ):
+                                         focus_doc_ids:set=None, \
+                                         focus_srcs:set=None, \
+                                         focus_lang:set=None, \
+                                         tokenization:str='preserve', \
+                                         original_layer_prefix:str='original_',\
+                                         restore_morph_analysis:bool=False, \
+                                         vertParser:VertXMLFileParser=None, \
+                                         textReconstructor:ENC2017TextReconstructor=None, \
+                                         logger:Logger=None  ):
     '''Reads ENC 2017 corpus file's content, extracts documents 
        based on the XML annotations, reconstructs Text objects from 
        the documents, and yields created Text objects one by one.
@@ -1366,6 +1376,13 @@ def parse_enc2017_file_content_iterator( content,
                             overwritten by estnltk's tokenization;
            (default: 'preserve')
        
+       original_layer_prefix: str
+           Prefix to be added to names of layers of original annotations
+           when  tokenization=='preserve' 
+                 or 
+                 tokenization=='preserve_partially';
+           (default: 'original_')
+       
        restore_morph_analysis: boolean
            If set, then morphological analysis layer is also created 
            based on the morphological annotations available in the 
@@ -1386,13 +1403,14 @@ def parse_enc2017_file_content_iterator( content,
            Logger to be used for warning and debug messages.
     '''
     assert isinstance(content, str)
+    assert isinstance(original_layer_prefix, str)
     assert not vertParser or isinstance(vertParser, VertXMLFileParser)
     assert not textReconstructor or isinstance(textReconstructor, ENC2017TextReconstructor)
     if textReconstructor:
         reconstructor = textReconstructor
     else:
         reconstructor = ENC2017TextReconstructor(tokenization=tokenization,\
-                                                 layer_name_prefix='original_',\
+                                                 layer_name_prefix=original_layer_prefix,\
                                                  restore_morph_analysis=restore_morph_analysis,\
                                                  logger=logger)
     if vertParser:
