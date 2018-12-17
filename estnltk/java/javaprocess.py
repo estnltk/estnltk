@@ -94,7 +94,7 @@ class JavaProcess( object ):
     It deals with input/output and errors.
     """
 
-    def __init__(self, runnable_jar, jar_path=None, args=[]):
+    def __init__(self, runnable_jar, jar_path=None, check_java=True, args=[]):
         """Initialize a Java VM.
         
         Parameters
@@ -105,16 +105,39 @@ class JavaProcess( object ):
             Path to the JAR file. If provided, then the path will 
             be concatenated to the JAR file name before launching 
             the command.
+        check_java: boolean
+            If set, then launches command 'java -version' to check
+            that java is accessible from the shell. If java is not
+            accessible, throws an exception informing the user that
+            the java may not be properly installed.
+            Note: this check adds some extra time to initializing
+            the JavaProcess.
+            (default: True)
         args: list of str
             The list of arguments given to the Java program.
         """
         if jar_path:
             runnable_jar = os.path.join(jar_path, runnable_jar)
+        if check_java:
+            self.check_for_java_accessibility()
         self._process = subprocess.Popen(['java', '-jar', runnable_jar] + args,
                                          stdin=subprocess.PIPE,
                                          stdout=subprocess.PIPE,
                                          stderr=subprocess.PIPE)
-                                         
+
+
+    def check_for_java_accessibility(self):
+        """Checks if java is accessible from the shell by launching the command 
+           'java -version'. If launching the command fails, throws an exception 
+            informing the user that the java is not properly installed."""
+        with open(os.devnull, "w") as trash: 
+            returncode = subprocess.call('java -version', shell=True, stdout=trash, stderr=trash)
+            if returncode != 0:
+                raise Exception('(!) Unable to launch a java process. '+\
+                                'Please make sure that java is installed into the system and '+\
+                                'available via environment variable PATH.')
+
+
     def process_line(self, line):
         """Process a line of data.
         
