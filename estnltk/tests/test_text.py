@@ -17,6 +17,9 @@ def test_general():
     assert len(t.words) == 15
     assert len(t.sentences.words) == 3
     assert t.sentences.words == t.sentences.span_list
+
+    assert {'tokens', 'compound_tokens', 'sentences', 'words', 'morph_analysis'} <= set(t.__dict__)
+
     with pytest.raises(Exception):
         t.words.sentences
 

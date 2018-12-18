@@ -205,6 +205,8 @@ class Text:
             assert layer.text_object is self
         layer._bound = True
 
+        setattr(self, layer.name, layer)
+
         self._setup_structure()
 
     def _resolve(self, frm, to, sofar: 'SpanList'=None) -> Union['SpanList', List[None]]:
@@ -434,6 +436,7 @@ class Text:
 
         for item in to_delete:
             self.layers.pop(item)
+            super().__delattr__(item)
 
         self._setup_structure()
 
